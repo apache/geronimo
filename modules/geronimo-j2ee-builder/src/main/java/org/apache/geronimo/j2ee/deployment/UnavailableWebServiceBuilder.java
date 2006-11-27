@@ -16,7 +16,6 @@
  */
 package org.apache.geronimo.j2ee.deployment;
 
-import java.util.Collections;
 import java.util.Map;
 import java.util.jar.JarFile;
 
@@ -33,15 +32,14 @@ import org.apache.geronimo.kernel.repository.Environment;
  */
 public class UnavailableWebServiceBuilder implements WebServiceBuilder {
 
-    public Map findWebServices(JarFile moduleFile, boolean isEJB, Map correctedPortLocations, Environment environment) throws DeploymentException {
-        return  Collections.EMPTY_MAP;
+    public void findWebServices(JarFile moduleFile, boolean isEJB, Map correctedPortLocations, Environment environment, Map sharedContext) throws DeploymentException {
     }
 
-    public void configurePOJO(GBeanData targetGBean, Module module, Object portInfo, String seiClassName, DeploymentContext context) throws DeploymentException {
+    public boolean configurePOJO(GBeanData targetGBean, String servletName, Module module, String seiClassName, DeploymentContext context) throws DeploymentException {
         throw new DeploymentException("Web services are not available in this configuration");
     }
 
-    public void configureEJB(GBeanData targetGBean, JarFile moduleFile, Object portInfoObject, ClassLoader classLoader) throws DeploymentException {
+    public boolean configureEJB(GBeanData targetGBean, String ejbName, JarFile moduleFile, Map portInfoObject, ClassLoader classLoader) throws DeploymentException {
         throw new DeploymentException("Web services are not available in this configuration");
     }
 

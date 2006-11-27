@@ -17,29 +17,27 @@
 package org.apache.geronimo.tomcat.deployment;
 
 import java.util.Map;
-import java.util.Collections;
 import java.util.jar.JarFile;
 
-import org.apache.geronimo.j2ee.deployment.WebServiceBuilder;
-import org.apache.geronimo.j2ee.deployment.Module;
-import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
-import org.apache.geronimo.kernel.repository.Environment;
-import org.apache.geronimo.kernel.GBeanAlreadyExistsException;
 import org.apache.geronimo.common.DeploymentException;
-import org.apache.geronimo.gbean.GBeanData;
-import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.deployment.DeploymentContext;
+import org.apache.geronimo.gbean.AbstractName;
+import org.apache.geronimo.gbean.GBeanData;
+import org.apache.geronimo.j2ee.deployment.Module;
+import org.apache.geronimo.j2ee.deployment.WebServiceBuilder;
+import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
+import org.apache.geronimo.kernel.GBeanAlreadyExistsException;
+import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.webservices.SerializableWebServiceContainerFactoryGBean;
 
 /**
  * @version $Rev$ $Date$
  */
 public class MockWebServiceBuilder implements WebServiceBuilder {
-    public Map findWebServices(JarFile moduleFile, boolean isEJB, Map correctedPortLocations, Environment environment) throws DeploymentException {
-        return Collections.EMPTY_MAP;
+    public void findWebServices(JarFile moduleFile, boolean isEJB, Map correctedPortLocations, Environment environment, Map sharedContext) throws DeploymentException {
     }
 
-    public void configurePOJO(GBeanData targetGBean, Module module, Object portInfo, String seiClassName, DeploymentContext context) throws DeploymentException {
+    public boolean configurePOJO(GBeanData targetGBean, String servletName, Module module, String seiClassName, DeploymentContext context) throws DeploymentException {
         AbstractName webServiceContainerFactoryName = context.getNaming().createChildName(targetGBean.getAbstractName(), "webServiceContainer", NameFactory.GERONIMO_SERVICE);
         GBeanData webServiceContainerFactoryGBean = new GBeanData(webServiceContainerFactoryName, SerializableWebServiceContainerFactoryGBean.GBEAN_INFO);
         try {
@@ -48,8 +46,10 @@ public class MockWebServiceBuilder implements WebServiceBuilder {
             throw new DeploymentException("Could not add webServiceContainerFactoryGBean", e);
         }
         targetGBean.setReferencePattern("WebServiceContainerFactory", webServiceContainerFactoryName);
+        return true;
     }
 
-    public void configureEJB(GBeanData targetGBean, JarFile moduleFile, Object portInfo, ClassLoader classLoader) throws DeploymentException {
+    public boolean configureEJB(GBeanData targetGBean, String ejbName, JarFile moduleFile, Map sharedContext, ClassLoader classLoader) throws DeploymentException {
+        return true;
     }
 }

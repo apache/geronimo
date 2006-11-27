@@ -96,7 +96,7 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder {
     private final Environment defaultEnvironment;
     private final AbstractNameQuery tomcatContainerName;
 
-    private final SingleElementCollection webServiceBuilder;
+    private final Collection webServiceBuilder;
 
     private static final String TOMCAT_NAMESPACE = TomcatWebAppDocument.type.getDocumentElementName().getNamespaceURI();
 
@@ -112,11 +112,7 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder {
         this.defaultEnvironment = defaultEnvironment;
 
         this.tomcatContainerName = tomcatContainerName;
-        this.webServiceBuilder = new SingleElementCollection(webServiceBuilder);
-    }
-
-    private WebServiceBuilder getWebServiceBuilder() {
-        return (WebServiceBuilder) webServiceBuilder.getElement();
+        this.webServiceBuilder = webServiceBuilder;
     }
 
     protected Module createModule(Object plan, JarFile moduleFile, String targetPath, URL specDDUrl, boolean standAlone, String contextRoot, AbstractName earName, Naming naming, ModuleIDBuilder idBuilder) throws DeploymentException {
@@ -193,7 +189,11 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder {
 
         Map servletNameToPathMap = buildServletNameToPathMap(webApp, contextRoot);
 
-        Map portMap = getWebServiceBuilder().findWebServices(moduleFile, false, servletNameToPathMap, environment);
+        Map sharedContext = new HashMap();
+        for (Iterator iterator = webServiceBuilder.iterator(); iterator.hasNext();) {
+            WebServiceBuilder serviceBuilder = (WebServiceBuilder) iterator.next();
+            serviceBuilder.findWebServices(moduleFile, false, servletNameToPathMap, environment, sharedContext);
+        }
         AbstractName moduleName;
         if (earName == null) {
             earName = naming.createRootName(environment.getConfigId(), NameFactory.NULL, NameFactory.J2EE_APPLICATION);
@@ -202,7 +202,7 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder {
             moduleName = naming.createChildName(earName, targetPath, NameFactory.WEB_MODULE);
         }
 
-        return new WebModule(standAlone, moduleName, environment, moduleFile, targetPath, webApp, tomcatWebApp, specDD, contextRoot, portMap, TOMCAT_NAMESPACE);
+        return new WebModule(standAlone, moduleName, environment, moduleFile, targetPath, webApp, tomcatWebApp, specDD, contextRoot, sharedContext, TOMCAT_NAMESPACE);
     }
 
 
@@ -357,7 +357,7 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder {
                 AbstractName managerName = earContext.getNaming().createChildName(moduleName, manager, ManagerGBean.J2EE_TYPE);
                 webModuleData.setReferencePattern("Manager", managerName);
             }
-            Map portMap = webModule.getPortMap();
+            Map portMap = webModule.getSharedContext();
 
             //Handle the role permissions and webservices on the servlets.
             ServletType[] servletTypes = webApp.getServletArray();
@@ -390,8 +390,17 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder {
                         servletData.setAbstractName(servletAbstractName);
                         //let the web service builder deal with configuring the gbean with the web service stack
                         //Here we just extract the factory reference
-                        Object portInfo = portMap.get(servletName);
-                        getWebServiceBuilder().configurePOJO(servletData, module, portInfo, servletClassName, moduleContext);
+                        boolean configured = false;
+                        for (Iterator iterator = webServiceBuilder.iterator(); iterator.hasNext();) {
+                            WebServiceBuilder serviceBuilder = (WebServiceBuilder) iterator.next();
+                            if (serviceBuilder.configurePOJO(servletData, servletName, module, servletClassName, moduleContext)) {
+                                configured = true;
+                                break;
+                            }
+                        }
+                        if (!configured) {
+                            throw new DeploymentException("POJO web service: " + servletName + " not configured by any web service builder");
+                        }
                         ReferencePatterns patterns = servletData.getReferencePatterns("WebServiceContainerFactory");
                         AbstractName wsContainerFactoryName = patterns.getAbstractName();
                         webServices.put(servletName, wsContainerFactoryName);
