@@ -19,17 +19,22 @@ package org.apache.geronimo.common.propertyeditor;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.util.Iterator;
 import java.util.Properties;
 import java.util.Map;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 /**
- * A property editor for {@link java.util.Properties}.
+ * A property editor for {@link java.util.Map}.
  *
  * @version $Rev$ $Date$
  */
 public class MapEditor
    extends TextPropertyEditorSupport
 {
+    private static final Log log = LogFactory.getLog(MapEditor.class);
     /**
      *
      * @throws PropertyEditorException  An IOException occured.
@@ -50,11 +55,30 @@ public class MapEditor
         Map map = (Map) getValue();
         if (!(map instanceof Properties)) {
             Properties p = new Properties();
-            if (map != null) {
-                p.putAll(map);
+            if(map != null) {
+                if(!map.containsKey(null) && !map.containsValue(null)) {
+                    p.putAll(map);
+                } else {
+                    // Map contains null keys or values.  Replace null with empty string.
+                    log.warn("Map contains null keys or values.  Replacing null values with empty string.");
+                    for(Iterator itr = map.entrySet().iterator(); itr.hasNext(); ) {
+                        Map.Entry entry = (Map.Entry) itr.next();
+                        Object key = entry.getKey();
+                        Object value = entry.getValue();
+                        if(key == null) {
+                            key = "";
+                        }
+                        if(value == null) {
+                            value = "";
+                        }
+                        p.put(key, value);
+                    }
+                }
+                map = p;
             }
-            map = p;
         }
-        return map.toString();
+        PropertiesEditor pe = new PropertiesEditor();
+        pe.setValue(map);
+        return pe.getAsText();
     }
 }
