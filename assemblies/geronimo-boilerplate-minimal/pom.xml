@@ -166,6 +166,11 @@
                                     <groupId>xerces</groupId>
                                     <artifactId>xmlParserAPIs</artifactId>
                                 </artifactItem>
+
+                                <artifactItem>
+                                    <groupId>xalan</groupId>
+                                    <artifactId>xalan</artifactId>
+                                </artifactItem>
                             </artifactItems>
                             <outputDirectory>${project.build.directory}/classes/lib/endorsed</outputDirectory>
                         </configuration>
