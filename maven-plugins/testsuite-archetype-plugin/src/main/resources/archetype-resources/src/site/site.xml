@@ -22,9 +22,8 @@
 
 <project name="${project.name}">
     
-
     <body>
-
+    
         ${parentProject}
 
         <links>
@@ -42,7 +41,6 @@
         
         ${reports}
         
-
     </body>
 
 </project>

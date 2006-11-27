@@ -40,21 +40,20 @@
     </description>
     
     <dependencies>
-
-        <!--  The following dependencies are needed to start selenium server used for testing with a browser. -->
-        <!-- Uncomment the dependencies if you need browser testing. -->
         <!--
-          <dependency>
-              <groupId>org.openqa.selenium.client-drivers</groupId>
-              <artifactId>selenium-java-client-driver</artifactId>
-          </dependency>
-  
-          <dependency>
-              <groupId>org.openqa.selenium.server</groupId>
-              <artifactId>selenium-server</artifactId>
-          </dependency>
-          -->
-
+        NOTE: The following dependencies are needed to start selenium server used for testing with a browser.
+              Uncomment the dependencies if you need browser testing.
+        
+        <dependency>
+            <groupId>org.openqa.selenium.client-drivers</groupId>
+            <artifactId>selenium-java-client-driver</artifactId>
+        </dependency>
+        
+        <dependency>
+            <groupId>org.openqa.selenium.server</groupId>
+            <artifactId>selenium-server</artifactId>
+        </dependency>
+        -->
     </dependencies>
 
     <build>
@@ -85,15 +84,14 @@
 
             <build>
                 <plugins>
-
-                    <!--  The following plugin starts selenium server used for testing with a browser. -->
-                    <!-- Uncomment the plugin if you need it. -->
                     <!--
-                      <plugin>
-                          <groupId>org.apache.geronimo.plugins</groupId>
-                          <artifactId>selenium-maven-plugin</artifactId>
-                      </plugin>
-                      -->
+                    NOTE: The following plugin starts selenium server used for testing with a browser.
+                          Uncomment the plugin if you need it
+                    <plugin>
+                        <groupId>org.apache.geronimo.plugins</groupId>
+                        <artifactId>selenium-maven-plugin</artifactId>
+                    </plugin>
+                    -->
 
                     <!-- The following plugin starts and stop Geronimo server in the pre-integration-test and post-integration-test phase respectively -->
                     <plugin>
@@ -101,8 +99,11 @@
                         <artifactId>geronimo-maven-plugin</artifactId>
                     </plugin>
 
-                    <!-- The following plugin invokes */pom.xml in the integration-test phase. -->
-                    <!-- Tests in junit or testng are executed in this phase by the projects defined by */pom.xml -->
+                    <!--
+                    NOTE: The following plugin invokes */pom.xml in the integration-test phase.
+                          Tests in junit or testng are executed in this phase by the projects defined
+                          by */pom.xml
+                    -->
                     <plugin>
                         <groupId>org.apache.geronimo.genesis.plugins</groupId>
                         <artifactId>maven-maven-plugin</artifactId>
@@ -116,7 +117,6 @@
             <!-- */pom.xml execute in a child profile to prevent them from inheriting parent's executions. -->
             <id>child</id>
         </profile>
-
     </profiles>
 
 </project>
