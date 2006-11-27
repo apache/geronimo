@@ -16,7 +16,10 @@
     KIND, either express or implied.  See the License for the
     specific language governing permissions and limitations
     under the License.
---><!-- $Rev$ $Date$ -->
+-->
+
+<!-- $Rev$ $Date$ -->
+
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     
     <modelVersion>4.0.0</modelVersion>
@@ -41,7 +44,6 @@
         They just need to be bound in the suites where needed and appropriate.
         The test poms under the suites should have this pom as their parent and set their relativePath appropriately
         The test poms under the suites inherit an empty 'child' profile from here. But any other build executions within the test poms should all be inside a 'child' profile.
-
     </description>
     
     <dependencyManagement>
@@ -52,6 +54,7 @@
                 <scope>test</scope>
                 <version>${version}</version>
             </dependency>
+            
             <dependency>
                 <groupId>org.testng</groupId>
                 <artifactId>testng</artifactId>
@@ -59,11 +62,13 @@
                 <version>5.1</version>
                 <scope>test</scope>
             </dependency>
+            
             <dependency>
                 <groupId>org.openqa.selenium.client-drivers</groupId>
                 <artifactId>selenium-java-client-driver</artifactId>
                 <version>0.8.1</version>
             </dependency>
+            
             <dependency>
                 <groupId>org.openqa.selenium.server</groupId>
                 <artifactId>selenium-server</artifactId>
@@ -71,6 +76,7 @@
             </dependency>
         </dependencies>
     </dependencyManagement>
+    
     <dependencies>
         <dependency>
             <groupId>org.apache.geronimo.testsupport</groupId>
@@ -95,20 +101,20 @@
                     <artifactId>selenium-maven-plugin</artifactId>
                     <version>${version}</version>
                 </plugin>
+                
                 <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-invoker-plugin</artifactId>
-                    <version>1.0-SNAPSHOT</version>
+                    <groupId>org.apache.geronimo.plugins</groupId>
+                    <artifactId>testsuite-maven-plugin</artifactId>
+                    <version>${version}</version>
                 </plugin>
                 
                 <!--
-                NOTE: Using custom maven-surefire-plugin that supports TestNG:
-                      http://testng.org/doc/maven.html
+                NOTE: Using 2.3-SNAPSHOT for TestNG w/JDK 1.5 support.
                 -->
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-surefire-plugin</artifactId>
-                    <version>2.8-SNAPSHOT</version>
+                    <version>2.3-SNAPSHOT</version>
                     <configuration>
                         <skip>true</skip>
                     </configuration>
@@ -123,6 +129,7 @@
                                 <skip>true</skip>
                             </configuration>
                         </execution>
+                        
                         <execution>
                             <id>integration</id>
                             <phase>integration-test</phase>
@@ -136,6 +143,7 @@
                         </execution>
                     </executions>
                 </plugin>
+                
                 <plugin>
                     <groupId>org.apache.geronimo.genesis.plugins</groupId>
                     <artifactId>maven-maven-plugin</artifactId>
@@ -157,6 +165,7 @@
                                 <goal>invoke</goal>
                             </goals>
                         </execution>
+                        
                         <execution>
                             <id>site-deploy</id>
                             <phase>site-deploy</phase>
@@ -172,6 +181,7 @@
                                 </parameters>
                             </configuration>
                         </execution>
+                        
                         <execution>
                             <id>clean</id>
                             <phase>clean</phase>
@@ -186,6 +196,7 @@
                         </execution>
                     </executions>
                 </plugin>
+                
                 <plugin>
                     <groupId>org.apache.geronimo.plugins</groupId>
                     <artifactId>geronimo-maven-plugin</artifactId>
@@ -212,13 +223,19 @@
         </plugins>
     </build>
 
+    <!--
+    WHAT?
+    
+    Put this into a profile if needed...
+    
     <distributionManagement>
         <site>
             <id>website</id>
             <url>file://${deployDirectory}/website</url>
         </site>
     </distributionManagement>
-
+    -->
+    
     <profiles>
         <profile>
             <id>default</id>
@@ -232,7 +249,6 @@
                         <plugin>
                             <groupId>org.apache.geronimo.plugins</groupId>
                             <artifactId>selenium-maven-plugin</artifactId>
-                        
                             <executions>
                                 <execution>
                                     <id>start-server</id>
@@ -247,7 +263,7 @@
                                 </execution>
                             </executions>
                         </plugin>
-                    
+                        
                         <plugin>
                             <groupId>org.apache.geronimo.plugins</groupId>
                             <artifactId>geronimo-maven-plugin</artifactId>
@@ -272,10 +288,10 @@
                                 </execution>
                             </executions>
                         </plugin>
+                        
                         <plugin>
                             <groupId>org.apache.geronimo.plugins</groupId>
                             <artifactId>testsuite-maven-plugin</artifactId>
-                            <version>${version}</version>
                             <executions>
                                 <execution>
                                     <id>generate-surefire-report</id>
@@ -311,6 +327,9 @@
         </profile>
     </profiles>
     
+    <!--
+    NOTE: This is needed to pull Selenium artifacts.
+    -->
     <repositories>
         <repository>
             <id>openqa</id>
@@ -328,13 +347,4 @@
         </repository>
     </repositories>
     
-    <!--
-    NOTE: This is the repository where maven-surefire-plugin:2.8-SNAPSHOT comes from.
-    -->
-    <pluginRepositories>
-        <pluginRepository>
-            <id>tapestry.javaforge</id>
-            <url>http://howardlewisship.com/repository</url>
-        </pluginRepository>
-    </pluginRepositories>
 </project>

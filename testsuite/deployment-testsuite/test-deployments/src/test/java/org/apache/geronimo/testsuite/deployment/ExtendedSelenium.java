@@ -43,6 +43,7 @@ public class ExtendedSelenium
      * This requires some custom hooks in <tt>user-extensions.js</tt>.  
      * When using the <tt>selenium-maven-plugin</tt> the defaults should be merged
      * into the <tt>user-extensions.js</tt> which is loaded by the server.
+     * </p>
      */
     public void removeCookie(final String name, final String path) {
         this.getEval("selenium.removeCookie('" + name + "', '" + path + "')");

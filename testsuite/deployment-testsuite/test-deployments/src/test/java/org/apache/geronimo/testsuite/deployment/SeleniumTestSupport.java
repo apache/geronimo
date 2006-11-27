@@ -53,9 +53,6 @@ public class SeleniumTestSupport
         return selenium;
     }
     
-    /**
-     * @testng.before-suite
-     */
     @BeforeSuite
     protected void startSeleniumClient() throws Exception {
         log.info("Starting Selenium client");
@@ -64,9 +61,6 @@ public class SeleniumTestSupport
         selenium.start();
     }
     
-    /**
-     * @testng.after-suite
-     */
     @AfterSuite
     protected void stopSeleniumClient() throws Exception {
         log.info("Stopping Selenium client");

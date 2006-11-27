@@ -26,12 +26,10 @@ import org.testng.annotations.Test;
  *
  * @version $Rev$ $Date$
  */
+@Test
 public class LinkCheckTest
     extends ConsoleTestSupport
 {
-    /**
-     * @testng.test
-     */
     @Test
     public void testServerInfoLink() throws Exception {
         login();

@@ -17,15 +17,20 @@
     specific language governing permissions and limitations
     under the License.
 -->
+
 <!-- $Rev$ $Date$ -->
+
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
     <modelVersion>4.0.0</modelVersion>
+    
     <parent>
         <groupId>org.apache.geronimo.testsuite</groupId>
         <artifactId>testsuite</artifactId>
         <version>2.0-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
+    
     <artifactId>ejbcontainer-testsuite</artifactId>
     <name>Geronimo TestSuite, OpenEJB container</name>
     <packaging>pom</packaging>
@@ -80,6 +85,7 @@
                 </plugins>
             </build>
         </profile>
+        
         <profile>
             <id>child</id>
         </profile>

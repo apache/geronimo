@@ -26,12 +26,10 @@ import org.testng.annotations.Test;
  *
  * @version $Rev$ $Date$
  */
+@Test
 public class SimpleLoginTest
     extends ConsoleTestSupport
 {
-    /**
-     * @testng.test
-     */
     @Test
     public void testLogin() throws Exception {
         login();
@@ -39,18 +37,12 @@ public class SimpleLoginTest
         selenium.removeCookie("JSESSIONID", "/");
     }
     
-    /**
-     * @testng.test
-     */
     @Test
     public void testLoginAndLogout() throws Exception {
         login();
         logout();
     }
     
-    /**
-     * @testng.test
-     */
     @Test
     public void testClickSomeLinks() throws Exception {
         login();

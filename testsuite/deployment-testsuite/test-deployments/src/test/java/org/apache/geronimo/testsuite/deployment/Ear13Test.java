@@ -25,12 +25,10 @@ import org.testng.annotations.Test;
  *
  * @version $Rev$ $Date$
  */
+@Test
 public class Ear13Test
     extends SeleniumTestSupport
 {
-    /**
-     * @testng.test
-     */
     @Test
     public void testIndexContent() throws Exception {
         selenium.open("/test-1_3/");

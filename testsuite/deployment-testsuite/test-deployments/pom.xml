@@ -17,7 +17,9 @@
     specific language governing permissions and limitations
     under the License.
 -->
+
 <!-- $Rev$ $Date$ -->
+
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     
     <modelVersion>4.0.0</modelVersion>
@@ -62,7 +64,7 @@
                             </suiteXmlFiles>
                         </configuration>
                     </plugin>
-            
+                    
                     <plugin>
                         <groupId>org.apache.geronimo.plugins</groupId>
                         <artifactId>geronimo-maven-plugin</artifactId>
@@ -81,7 +83,7 @@
                                             <version>${version}</version>
                                             <type>ear</type>
                                         </module>
-                                
+                                        
                                         <module>
                                             <groupId>org.apache.geronimo.testsupport</groupId>
                                             <artifactId>test-ear-j2ee_1.4</artifactId>
@@ -91,7 +93,7 @@
                                     </modules>
                                 </configuration>
                             </execution>
-                    
+                            
                             <execution>
                                 <id>undeploy-ear-as-module</id>
                                 <phase>post-integration-test</phase>
@@ -109,6 +111,7 @@
                                     </modules>
                                 </configuration>
                             </execution>
+                            
                             <execution>
                                 <id>undeploy-ear-as-moduleId</id>
                                 <phase>post-integration-test</phase>
