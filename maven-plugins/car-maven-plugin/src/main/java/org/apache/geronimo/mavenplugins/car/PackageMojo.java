@@ -36,6 +36,7 @@ import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.ReferencePatterns;
 import org.apache.geronimo.genesis.util.ArtifactItem;
+import org.apache.geronimo.genesis.dependency.DependencyTree;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.KernelFactory;
 import org.apache.geronimo.kernel.KernelRegistry;
@@ -248,11 +249,23 @@ public class PackageMojo
         //       local repository to perform deployment.  If the deployer modules (or their dependencies)
         //       are missing from the source respository, then strange packaging failures will occur.
         //
+        Set additionalArtifacts = new HashSet();
         for (int i=0; i<deploymentConfigs.length; i++) {
             Artifact artifact = geronimoToMavenArtifact(org.apache.geronimo.kernel.repository.Artifact.create(deploymentConfigs[i]));
             log.debug("Resolving deployer module: " + artifact);
-            resolveArtifact(artifact, true);
+            Artifact resolved = resolveArtifact(artifact, true);
+            additionalArtifacts.add(resolved);
         }
+        //Ensure that these dependencies are available to geronimo
+        if (project.getDependencyArtifacts() == null) {
+            Set oldArtifacts = project.createArtifacts(dependencyHelper.getArtifactFactory(), null, null);
+            additionalArtifacts.addAll(oldArtifacts);
+        } else {
+            Set oldArtifacts = project.getDependencyArtifacts();
+            additionalArtifacts.addAll(oldArtifacts);
+        }
+        project.setDependencyArtifacts(additionalArtifacts);
+
 
         // If module is set, then resolve the artifact and set moduleFile
         if (module != null) {
@@ -260,14 +273,15 @@ public class PackageMojo
             moduleFile = artifact.getFile();
             log.debug("Using module file: " + moduleFile);
         }
+        dependencies.setRootNode(dependencyHelper.getDependencies(project).getRootNode());
 
-        generateExplicitVersionProperties(explicitResolutionProperties);
+        generateExplicitVersionProperties(explicitResolutionProperties, dependencies);
 
         //
         // NOTE: Install a local lookup, so that the cached kernel can resolve based on the current project
         //       and not the project where the kernel was first initialized.
         //
-        lookupHolder.set(new ArtifactLookupImpl());
+        lookupHolder.set(new ArtifactLookupImpl(new HashMap()));
 
         if (bootstrap) {
             executeBootShell();
@@ -404,6 +418,8 @@ public class PackageMojo
 
     private boolean targetSet;
 
+    private static DependencyTree dependencies = new DependencyTree();
+
     public void buildPackage() throws Exception {
         log.info("Packaging module configuration: " + planFile);
 
@@ -442,6 +458,7 @@ public class PackageMojo
 
         AbstractName deployer = locateDeployer(kernel);
         invokeDeployer(kernel, deployer, targetConfigStoreAName.toString());
+//        kernel.shutdown();
     }
 
     /**
@@ -513,6 +530,7 @@ public class PackageMojo
             }
         };
         repoGBean.setAttribute("lookup", lookup);
+        repoGBean.setAttribute("dependencies", dependencies);
         repoNames.add(repoGBean.getAbstractName());
 
         // Target repo
@@ -628,81 +646,6 @@ public class PackageMojo
     /**
      * Map of G artifact to M artifact which have already been resolved.
      */
-    private static Map presolvedArtifacts = new HashMap();
+//    private static Map presolvedArtifacts = new HashMap();
 
-    private class ArtifactLookupImpl
-        implements Maven2RepositoryAdapter.ArtifactLookup
-    {
-        public File getBasedir() {
-            String path = getArtifactRepository().getBasedir();
-            return new File(path);
-        }
-
-        private boolean isProjectArtifact(final org.apache.geronimo.kernel.repository.Artifact artifact) {
-            MavenProject project = getProject();
-
-            return artifact.getGroupId().equals(project.getGroupId()) &&
-                   artifact.getArtifactId().equals(project.getArtifactId());
-        }
-
-        public File getLocation(final org.apache.geronimo.kernel.repository.Artifact artifact) {
-            assert artifact != null;
-
-            boolean debug = log.isDebugEnabled();
-
-            Artifact mavenArtifact = (Artifact)presolvedArtifacts.get(artifact);
-
-            // If not cached, then make a new artifact
-            if (mavenArtifact == null) {
-                mavenArtifact = getArtifactFactory().createArtifact(
-                        artifact.getGroupId(),
-                        artifact.getArtifactId(),
-                        artifact.getVersion().toString(),
-                        null,
-                        artifact.getType()
-                );
-            }
-
-            // Do not attempt to resolve an artifact that is the same as the project
-            if (isProjectArtifact(artifact)) {
-                if (debug) {
-                    log.debug("Skipping resolution of project artifact: " + artifact);
-                }
-
-                //
-                // HACK: Still have to return something, otherwise some CAR packaging will fail...
-                //       no idea what is using this file, or if the files does exist if that will be
-                //       used instead of any details we are currently building
-                //
-                return new File(getBasedir(), getArtifactRepository().pathOf(mavenArtifact));
-            }
-
-            File file;
-            try {
-                if (!mavenArtifact.isResolved()) {
-                    if (debug) {
-                        log.debug("Resolving artifact: " + mavenArtifact);
-                    }
-                    mavenArtifact = resolveArtifact(mavenArtifact);
-
-                    // Cache the resolved artifact
-                    presolvedArtifacts.put(artifact, mavenArtifact);
-                }
-
-                //
-                // HACK: Construct the real local filename from the path and resolved artifact file.
-                //       Probably a better way to do this with the Maven API directly, but this is the
-                //       best I can do for now.
-                //
-                String path = getArtifactRepository().pathOf(mavenArtifact);
-                file = new File(getBasedir(), path);
-                file = new File(mavenArtifact.getFile().getParentFile(), file.getName());
-            }
-            catch (MojoExecutionException e) {
-                throw new RuntimeException("Failed to resolve: " + mavenArtifact, e);
-            }
-
-            return file;
-        }
-    }
 }

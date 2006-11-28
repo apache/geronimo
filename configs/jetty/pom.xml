@@ -63,7 +63,6 @@
             <type>car</type>
         </dependency>
 
-        <!-- This dependency should be retrieved by transitivity -->
         <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
             <artifactId>geronimo-jetty</artifactId>
@@ -80,6 +79,7 @@
             </resource>
         </resources>
         
+<!--
         <plugins>
             <plugin>
                 <groupId>org.apache.geronimo.plugins</groupId>
@@ -91,6 +91,7 @@
                 </configuration>
             </plugin>
         </plugins>
+-->
     </build>
 
 </project>
