@@ -25,6 +25,8 @@ import java.io.OutputStream;
 import java.net.URL;
 import java.net.URLConnection;
 import java.net.UnknownServiceException;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Hashtable;
@@ -37,7 +39,11 @@ import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.security.jaas.LoginModuleSettings;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
+import org.apache.geronimo.util.encoders.HexTranslator;
 
+/**
+ * @version $Rev$ $Date$
+ */
 public class PropertiesLoginModuleManager {
 
     private ServerInfo serverInfo;
@@ -51,6 +57,8 @@ public class PropertiesLoginModuleManager {
     private static final String usersKey = "usersURI";
 
     private static final String groupsKey = "groupsURI";
+
+    private static final String digestKey = "digest";
 
     public PropertiesLoginModuleManager(ServerInfo serverInfo, LoginModuleSettings loginModule) {
         this.serverInfo = serverInfo;
@@ -143,8 +151,13 @@ public class PropertiesLoginModuleManager {
         }
         try {
             refreshUsers();
-            users.setProperty((String) properties.get("UserName"),
-                    (String) properties.get("Password"));
+            String digest = getDigest();
+            String user = (String) properties.get("UserName");
+            String password = (String) properties.get("Password");
+            if(digest != null && !digest.equals("")) {
+                password = digestPassword(password, digest);
+            }
+            users.setProperty(user, password);
             store(users, serverInfo.resolve(getUsersURI()).toURL());
         } catch (Exception e) {
             throw new GeronimoSecurityException("Cannot add user principal: "
@@ -166,11 +179,16 @@ public class PropertiesLoginModuleManager {
 
     public void updateUserPrincipal(Hashtable properties)
             throws GeronimoSecurityException {
-        //same as add pricipal overriding the property
+        //same as add principal overriding the property
         try {
             refreshUsers();
-            users.setProperty((String) properties.get("UserName"),
-                    (String) properties.get("Password"));
+            String digest = getDigest();
+            String user = (String) properties.get("UserName");
+            String password = (String) properties.get("Password");
+            if(digest != null && !digest.equals("")) {
+                password = digestPassword(password, digest);
+            }
+            users.setProperty(user, password);
             store(users, serverInfo.resolve(getUsersURI()).toURL());
         } catch (Exception e) {
             throw new GeronimoSecurityException("Cannot add user principal: "
@@ -262,6 +280,10 @@ public class PropertiesLoginModuleManager {
         return loginModule.getOptions().getProperty(groupsKey);
     }
 
+    private String getDigest() {
+        return loginModule.getOptions().getProperty(digestKey);
+    }
+
     private void store(Properties props, URL url) throws Exception {
         OutputStream out = null;
         try {
@@ -286,6 +308,23 @@ public class PropertiesLoginModuleManager {
                 }
             }
         }
+    }
+
+    /**
+     * This method returns the message digest of a specified string.
+     * @param password  The string that is to be digested
+     * @param algorithm Name of the Message Digest algorithm
+     * @return Hex encoding of the digest bytes
+     * @throws NoSuchAlgorithmException if the Message Digest algorithm is not available
+     */
+    private String digestPassword(String password, String algorithm) throws NoSuchAlgorithmException {
+        MessageDigest md = MessageDigest.getInstance(algorithm);
+        byte[] data = md.digest(password.getBytes());
+        // Convert bytes to hex digits
+        byte[] hexData = new byte[data.length * 2];
+        HexTranslator ht = new HexTranslator();
+        ht.encode(data, 0, data.length, hexData, 0);
+        return new String(hexData);
     }
 
     public static final GBeanInfo GBEAN_INFO;

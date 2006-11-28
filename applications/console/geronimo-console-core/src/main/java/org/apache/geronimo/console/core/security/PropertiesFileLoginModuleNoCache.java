@@ -20,6 +20,8 @@ package org.apache.geronimo.console.core.security;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -46,7 +48,11 @@ import org.apache.geronimo.security.jaas.JaasLoginModuleUse;
 import org.apache.geronimo.security.realm.providers.GeronimoGroupPrincipal;
 import org.apache.geronimo.security.realm.providers.GeronimoUserPrincipal;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
+import org.apache.geronimo.util.encoders.HexTranslator;
 
+/**
+ * @version $Rev$ $Date$
+ */
 public class PropertiesFileLoginModuleNoCache implements LoginModule {
 
     Kernel kernel;
@@ -61,12 +67,16 @@ public class PropertiesFileLoginModuleNoCache implements LoginModule {
 
     public final static String GROUPS_URI = "groupsURI";
 
+    public final static String DIGEST = "digest";
+
     private static Log log = LogFactory
             .getLog(PropertiesFileLoginModuleNoCache.class);
 
     final Properties users = new Properties();
 
     final Map groups = new HashMap();
+
+    private String digest;
 
     Subject subject;
 
@@ -87,6 +97,16 @@ public class PropertiesFileLoginModuleNoCache implements LoginModule {
                     .get(JaasLoginModuleUse.SERVERINFO_LM_OPTION);
             usersURI = new URI((String) options.get(USERS_URI));
             groupsURI = new URI((String) options.get(GROUPS_URI));
+            digest = (String) options.get(DIGEST);
+            if(digest != null && !digest.equals("")) {
+                // Check if the digest algorithm is available
+                try {
+                    MessageDigest.getInstance(digest);
+                } catch(NoSuchAlgorithmException e) {
+                    log.error("Initialization failed. Digest algorithm "+digest+" is not available.", e);
+                    throw new IllegalArgumentException("Unable to configure properties file login module: "+e.getMessage());
+                }
+            }
         } catch (Exception e) {
             log.error(e);
             throw new IllegalArgumentException(
@@ -156,8 +176,7 @@ public class PropertiesFileLoginModuleNoCache implements LoginModule {
         }
         password = users.getProperty(username);
 
-        return new String(((PasswordCallback) callbacks[1]).getPassword())
-                .equals(password);
+        return checkPassword(password, new String((((PasswordCallback) callbacks[1]).getPassword())));
     }
 
     public boolean commit() throws LoginException {
@@ -220,5 +239,33 @@ public class PropertiesFileLoginModuleNoCache implements LoginModule {
                     + className);
         }
         return (String[]) s.toArray(new String[s.size()]);
+    }
+
+    /**
+     * This method checks if the provided password is correct.  The original password may have been digested.
+     * @param real      Original password in digested form if applicable
+     * @param provided  User provided password in clear text
+     * @return true     If the password is correct
+     */
+    private boolean checkPassword(String real, String provided){
+        if(digest == null || digest.equals("")) {
+            // No digest algorithm is used
+            return real.equals(provided);
+        }
+        try {
+            // Digest the user provided password
+            MessageDigest md = MessageDigest.getInstance(digest);
+            byte[] data = md.digest(provided.getBytes());
+            // Convert bytes to hex digits
+            byte[] hexData = new byte[data.length * 2];
+            HexTranslator ht = new HexTranslator();
+            ht.encode(data, 0, data.length, hexData, 0);
+            // Compare the digested provided password with the actual one
+            return real.equalsIgnoreCase(new String(hexData));
+        } catch (NoSuchAlgorithmException e) {
+            // Should not occur.  Availability of algorithm has been checked at initialization
+            log.error("Should not occur.  Availability of algorithm has been checked at initialization.", e);
+        }
+        return false;
     }
 }
