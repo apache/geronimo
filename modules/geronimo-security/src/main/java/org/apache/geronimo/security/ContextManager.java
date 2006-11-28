@@ -253,7 +253,7 @@ public class ContextManager {
         Context context = new Context();
         context.subject = subject;
         context.context = acc;
-        Set principals = subject.getPrincipals(GeronimoCallerPrincipal.class);
+        Set principals = subject.getPrincipals((Class)GeronimoCallerPrincipal.class);
         if (!principals.isEmpty()) {
             context.principal = (Principal) principals.iterator().next();
         } else if (!(principals = subject.getPrincipals(PrimaryRealmPrincipal.class)).isEmpty()) {
