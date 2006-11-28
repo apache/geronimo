@@ -103,14 +103,14 @@ public abstract class InstallerMojoSupport
      * @parameter expression="${geronimoHome}"
      */
     protected File geronimoHome;
-
-    protected static final int INSTALL_FROM_ARTIFACT = 0;
-
-    protected static final int INSTALL_FROM_FILE = 1;
-
-    protected static final int INSTALL_ALREADY_EXISTS = 2;
-
-    protected int installType;
+    
+    protected static enum InstallType {
+        FROM_ARTIFACT,
+        FROM_FILE,
+        ALREADY_EXISTS
+    }
+    
+    protected InstallType installType;
 
     private File discoverGeronimoHome(final File archive) throws MojoExecutionException {
         log.debug("Attempting to discover geronimoHome...");
@@ -155,13 +155,13 @@ public abstract class InstallerMojoSupport
             }
             log.info("Using pre-installed assembly: " + geronimoHome);
 
-            installType = INSTALL_ALREADY_EXISTS;
+            installType = InstallType.ALREADY_EXISTS;
         }
         else {
             if (assemblyArchive != null) {
                 log.info("Using non-artifact based assembly archive: " + assemblyArchive);
 
-                installType = INSTALL_FROM_FILE;
+                installType = InstallType.FROM_FILE;
             }
             else {
                 Artifact artifact = getAssemblyArtifact();
@@ -174,7 +174,7 @@ public abstract class InstallerMojoSupport
 
                 assemblyArchive = artifact.getFile();
 
-                installType = INSTALL_FROM_ARTIFACT;
+                installType = InstallType.FROM_ARTIFACT;
             }
 
             geronimoHome = discoverGeronimoHome(assemblyArchive);
@@ -247,7 +247,7 @@ public abstract class InstallerMojoSupport
      * @throws Exception
      */
     protected void installAssembly() throws Exception {
-        if (installType == INSTALL_ALREADY_EXISTS) {
+        if (installType == InstallType.ALREADY_EXISTS) {
             log.info("Installation type is pre-existing; skipping installation");
             return;
         }
