@@ -1176,6 +1176,7 @@
                 <artifactId>maven-idea-plugin</artifactId>
                 <configuration>
                     <jdkName>1.5</jdkName>
+                    <jdkLevel>1.5</jdkLevel>
                     <linkModules>true</linkModules>
                 </configuration>
             </plugin>
