@@ -1145,13 +1145,6 @@
                         </configuration>
                     </execution>
 
-                    <!--
-                    NOTE: This will copy LICENSE.txt and NOTICE.txt to classes/META-INF.
-
-                          Its a itty-bitty HACK to avoid adding resource definitions to
-                          the build, which causes the Eclipse plugin to generate invalid
-                          .classpath files. :-(
-                    -->
                     <execution>
                         <id>install-legal-files</id>
                         <phase>generate-resources</phase>
