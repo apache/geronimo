@@ -106,10 +106,12 @@ public class SurefireReportMojo
     public void executeReport( Locale locale )
         throws MavenReportException
     {
+        /*
         if ( !"pom".equalsIgnoreCase(project.getPackaging()) ) {
             System.out.println("Not a pom packaging.");
             return;
         }
+        */
 
         SurefireReportGenerator report =
             new SurefireReportGenerator( reportsDirectory, locale, showSuccess, determineXrefLocation() );
@@ -199,8 +201,7 @@ public class SurefireReportMojo
      */
     public boolean canGenerateReport()
     {
-        // Only execute reports for java projects
-        ArtifactHandler artifactHandler = this.project.getArtifact().getArtifactHandler();
-        return "java".equals( artifactHandler.getLanguage() );
+        // Only execute reports for "pom" projects
+        return "pom".equalsIgnoreCase(project.getPackaging());
     }
 }

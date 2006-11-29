@@ -27,16 +27,9 @@
         ${parentProject}
 
         <links>
-            <item name="Apache" href="http://www.apache.org/" />
-            <item name="Geronimo" href="http://geronimo.apache.org/"/>
             <item name="JIRA" href="http://issues.apache.org/jira/secure/BrowseProject.jspa?id=10220"/>
         </links>
         
-
-        <menu name="Test Links">
-            <item name="Surefire Test Report" href="surefire-report.html"/>
-        </menu>
-
         ${modules}
         
         ${reports}

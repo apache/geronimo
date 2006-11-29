@@ -23,14 +23,14 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     
     <modelVersion>4.0.0</modelVersion>
-    
+
     <parent>
         <groupId>org.apache.geronimo</groupId>
         <artifactId>geronimo</artifactId>
         <version>2.0-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
-    
+
     <groupId>org.apache.geronimo.testsuite</groupId>
     <artifactId>testsuite</artifactId>
     <name>Geronimo TestSuite</name>
@@ -46,7 +46,8 @@
         The test poms under the suites inherit an empty 'child' profile from here. But any other build executions within the test poms should all be inside a 'child' profile.
     </description>
     
-    <dependencyManagement>
+
+   <dependencyManagement>
         <dependencies>
             <dependency>
                 <groupId>org.apache.geronimo.testsupport</groupId>
@@ -92,7 +93,7 @@
         <module>ejbcontainer-testsuite</module>
         -->
     </modules>
-    
+
     <build>
         <pluginManagement>
             <plugins>
@@ -129,7 +130,7 @@
                                 <skip>true</skip>
                             </configuration>
                         </execution>
-                        
+
                         <execution>
                             <id>integration</id>
                             <phase>integration-test</phase>
@@ -143,7 +144,7 @@
                         </execution>
                     </executions>
                 </plugin>
-                
+
                 <plugin>
                     <groupId>org.apache.geronimo.genesis.plugins</groupId>
                     <artifactId>maven-maven-plugin</artifactId>
@@ -176,12 +177,9 @@
                                 <goals>
                                     <goal>site-deploy</goal>
                                 </goals>
-                                <parameters>
-                                    <deployDirectory>${deployDirectory}</deployDirectory>
-                                </parameters>
                             </configuration>
                         </execution>
-                        
+
                         <execution>
                             <id>clean</id>
                             <phase>clean</phase>
@@ -223,19 +221,22 @@
         </plugins>
     </build>
 
-    <!--
-    WHAT?
-    
-    Put this into a profile if needed...
-    
     <distributionManagement>
         <site>
             <id>website</id>
-            <url>file://${deployDirectory}/website</url>
+            <url>scp://people.apache.org/www/geronimo.apache.org/maven/server/testsuite</url>
         </site>
     </distributionManagement>
-    -->
-    
+
+    <reporting>
+      <plugins>
+        <plugin>
+        <groupId>org.apache.geronimo.plugins</groupId>
+        <artifactId>testsuite-maven-plugin</artifactId>
+        </plugin>
+      </plugins>
+    </reporting>
+
     <profiles>
         <profile>
             <id>default</id>
@@ -263,7 +264,7 @@
                                 </execution>
                             </executions>
                         </plugin>
-                        
+
                         <plugin>
                             <groupId>org.apache.geronimo.plugins</groupId>
                             <artifactId>geronimo-maven-plugin</artifactId>
@@ -288,37 +289,9 @@
                                 </execution>
                             </executions>
                         </plugin>
-                        
-                        <plugin>
-                            <groupId>org.apache.geronimo.plugins</groupId>
-                            <artifactId>testsuite-maven-plugin</artifactId>
-                            <executions>
-                                <execution>
-                                    <id>generate-surefire-report</id>
-                                    <phase>site</phase>
-                                    <goals>
-                                        <goal>generate-surefire-report</goal>
-                                    </goals>
-                                </execution>
-                                <execution>
-                                    <id>fix-menu</id>
-                                    <phase>post-site</phase>
-                                    <goals>
-                                        <goal>fix-menu</goal>
-                                    </goals>
-                                </execution>
-                            </executions>
-                        </plugin>
                     </plugins>
                 </pluginManagement>
 
-                <plugins>
-                    <plugin>
-                        <groupId>org.apache.geronimo.plugins</groupId>
-                        <artifactId>testsuite-maven-plugin</artifactId>
-                        <inherited>false</inherited>
-                    </plugin>
-                </plugins>
             </build>
         </profile>
 
@@ -346,5 +319,5 @@
             </releases>
         </repository>
     </repositories>
-    
+
 </project>
