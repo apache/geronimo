@@ -41,7 +41,7 @@
             <version>${version}</version>
             <type>car</type>
         </dependency>
-        
+
         <!-- ThreadPool -->
         <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
