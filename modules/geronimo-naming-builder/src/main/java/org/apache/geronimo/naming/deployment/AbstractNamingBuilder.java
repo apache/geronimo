@@ -85,17 +85,19 @@ public abstract class AbstractNamingBuilder implements NamingBuilder {
                     matches = true;
                     break;
                 }
-                if (!matches) {
-        return false;
-    }
+            }
+            if (!matches) {
+                return false;
             }
         }
         return true;
     }
 
     private boolean matches(Dependency defaultDependency, Dependency actualDependency) {
-        if (defaultDependency.getArtifact().matches(actualDependency.getArtifact()) || actualDependency.getArtifact().matches(defaultDependency.getArtifact())) {
-            return defaultDependency.getImportType() == actualDependency.getImportType() || actualDependency.getImportType() == ImportType.ALL;
+        if (defaultDependency.getArtifact().matches(actualDependency.getArtifact())
+                || actualDependency.getArtifact().matches(defaultDependency.getArtifact())) {
+            return defaultDependency.getImportType() == actualDependency.getImportType()
+                    || actualDependency.getImportType() == ImportType.ALL;
         }
         return false;
     }
