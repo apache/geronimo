@@ -36,20 +36,19 @@
     <dependencies>
         
         <dependency>
-            <groupId>org.apache.geronimo.configs</groupId>
-            <artifactId>jetty-deployer</artifactId>
-            <version>${version}</version>
-            <type>car</type>
-            <scope>provided</scope>
-        </dependency>
-        
-        <dependency>
             <groupId>org.apache.geronimo.applications</groupId>
             <artifactId>geronimo-dojo</artifactId>
             <version>${version}</version>
             <type>war</type>
         </dependency>
         
+        <dependency>
+            <groupId>org.apache.geronimo.configs</groupId>
+            <artifactId>jetty-deployer</artifactId>
+            <version>${version}</version>
+            <type>car</type>
+            <scope>provided</scope>
+        </dependency>
     </dependencies>
     
     <build>
@@ -66,12 +65,8 @@
                 <artifactId>car-maven-plugin</artifactId>
                 <configuration>
                     <deploymentConfigs>
-                        <deploymentConfig>${gbeanDeployer}</deploymentConfig>
                         <deploymentConfig>${j2eeDeployer}</deploymentConfig>
                         <deploymentConfig>${jettyDeployer}</deploymentConfig>
-                        <deploymentConfig>${clientDeployer}</deploymentConfig>
-                        <deploymentConfig>${openejbDeployer}</deploymentConfig>
-                        <deploymentConfig>${axisDeployer}</deploymentConfig>
                     </deploymentConfigs>
                     <module>
                         <groupId>org.apache.geronimo.applications</groupId>

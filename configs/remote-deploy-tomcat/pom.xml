@@ -34,6 +34,13 @@
     
     <dependencies>
     
+        <!--<dependency>-->
+            <!--<groupId>org.apache.geronimo.configs</groupId>-->
+            <!--<artifactId>tomcat-deployer</artifactId>-->
+            <!--<version>${version}</version>-->
+            <!--<type>car</type>-->
+            <!--<scope>test</scope>-->
+        <!--</dependency>-->
         <dependency>
             <groupId>org.apache.geronimo.applications</groupId>
             <artifactId>geronimo-remote-deploy</artifactId>
@@ -46,6 +53,13 @@
             <artifactId>xbean</artifactId>
         </dependency>
         
+        <dependency>
+            <groupId>org.apache.geronimo.configs</groupId>
+            <artifactId>tomcat-deployer</artifactId>
+            <version>${version}</version>
+            <type>car</type>
+            <scope>provided</scope>
+        </dependency>
     </dependencies>
     
     <build>
@@ -56,12 +70,9 @@
                 <extensions>true</extensions>
                 <configuration>
                     <deploymentConfigs>
+                        <deploymentConfig>${gbeanDeployer}</deploymentConfig>
                         <deploymentConfig>${j2eeDeployer}</deploymentConfig>
                         <deploymentConfig>${tomcatDeployer}</deploymentConfig>
-                        <deploymentConfig>${gbeanDeployer}</deploymentConfig>
-                        <deploymentConfig>${clientDeployer}</deploymentConfig>
-                        <deploymentConfig>${openejbDeployer}</deploymentConfig>
-                        <deploymentConfig>${axisDeployer}</deploymentConfig>
                     </deploymentConfigs>
                     <module>
                         <groupId>org.apache.geronimo.applications</groupId>

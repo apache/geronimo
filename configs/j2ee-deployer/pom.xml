@@ -47,7 +47,7 @@
             <artifactId>j2ee-server</artifactId>
             <version>${geronimoVersion}</version>
             <type>car</type>
-            <scope>compile</scope>
+            <scope>runtime</scope>
         </dependency>
 
         <dependency>
@@ -55,7 +55,7 @@
             <artifactId>j2ee-security</artifactId>
             <version>${geronimoVersion}</version>
             <type>car</type>
-            <scope>compile</scope>
+            <scope>runtime</scope>
         </dependency>
 
         <dependency>

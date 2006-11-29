@@ -47,14 +47,14 @@
             <artifactId>client</artifactId>
             <version>${version}</version>
             <type>car</type>
-            <scope>compile</scope>
+            <scope>runtime</scope>
         </dependency>
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
             <artifactId>client-transaction</artifactId>
             <version>${version}</version>
             <type>car</type>
-            <scope>compile</scope>
+            <scope>runtime</scope>
         </dependency>
 
         <!--<dependency>-->

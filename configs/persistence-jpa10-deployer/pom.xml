@@ -53,7 +53,7 @@
             <artifactId>transaction</artifactId>
             <type>car</type>
             <version>${pom.version}</version>
-            <scope>compile</scope>
+            <scope>runtime</scope>
         </dependency>
 
         <!--todo get the schema classes in a config -->

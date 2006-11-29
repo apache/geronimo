@@ -41,7 +41,7 @@
             <version>${version}</version>
             <type>car</type>
         </dependency>
-        
+
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
             <artifactId>system-database</artifactId>
@@ -91,7 +91,7 @@
             <artifactId>geronimo-console</artifactId>
             <version>${version}</version>
             <type>ear</type>
-            <scope>provided</scope>
+            <scope>test</scope>
         </dependency>
 
         <dependency>
@@ -134,7 +134,7 @@
             <groupId>jdom</groupId>
             <artifactId>jdom</artifactId>
         </dependency>
-        
+
         <dependency>
             <groupId>org.apache.pluto</groupId>
             <artifactId>pluto</artifactId>
@@ -144,7 +144,7 @@
             <groupId>portlet-api</groupId>
             <artifactId>portlet-api</artifactId>
         </dependency>
-        
+
         <!-- Added to eliminate packaging of libraries in WEB-INF/lib in console-standard and console-framework applications -->
         <dependency>
             <groupId>org.apache.pluto</groupId>
@@ -196,8 +196,15 @@
             <artifactId>dwr</artifactId>
         </dependency>
 
+        <dependency>
+            <groupId>org.apache.geronimo.configs</groupId>
+            <artifactId>jetty-deployer</artifactId>
+            <version>${version}</version>
+            <type>car</type>
+            <scope>provided</scope>
+        </dependency>
     </dependencies>
-    
+
     <build>
         <resources>
             <resource>
@@ -205,7 +212,7 @@
                 <filtering>true</filtering>
             </resource>
         </resources>
-        
+
         <plugins>
             <plugin>
                 <groupId>org.apache.geronimo.plugins</groupId>
@@ -215,7 +222,7 @@
                         <deploymentConfig>${gbeanDeployer}</deploymentConfig>
                         <deploymentConfig>${j2eeDeployer}</deploymentConfig>
                         <deploymentConfig>${jettyDeployer}</deploymentConfig>
-                        <deploymentConfig>${axisDeployer}</deploymentConfig>
+                        <deploymentConfig>${openejbcorbaDeployer}</deploymentConfig>
                     </deploymentConfigs>
                     <module>
                         <groupId>org.apache.geronimo.applications.console</groupId>

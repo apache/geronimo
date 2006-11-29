@@ -42,7 +42,13 @@
             <type>car</type>
             <scope>test</scope>
         </dependency>
-        
+        <dependency>
+            <groupId>org.apache.geronimo.configs</groupId>
+            <artifactId>transaction</artifactId>
+            <version>${version}</version>
+            <type>car</type>
+        </dependency>
+
         <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
             <artifactId>geronimo-derby</artifactId>
@@ -71,6 +77,13 @@
             <type>rar</type>
         </dependency>
         
+        <dependency>
+            <groupId>org.apache.geronimo.configs</groupId>
+            <artifactId>connector-deployer</artifactId>
+            <version>${version}</version>
+            <type>car</type>
+            <scope>provided</scope>
+        </dependency>
     </dependencies>
     
     <build>

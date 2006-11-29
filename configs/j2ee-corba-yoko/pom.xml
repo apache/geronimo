@@ -55,7 +55,7 @@
             <artifactId>openejb-corba-deployer</artifactId>
             <version>${version}</version>
             <type>car</type>
-            <scope>provided</scope>
+            <scope>test</scope>
         </dependency>
 
         <dependency>
@@ -88,6 +88,13 @@
             <artifactId>bcel</artifactId>
         </dependency>
 
+        <dependency>
+            <groupId>org.apache.geronimo.configs</groupId>
+            <artifactId>openejb-corba-deployer</artifactId>
+            <version>${version}</version>
+            <type>car</type>
+            <scope>provided</scope>
+        </dependency>
     </dependencies>
 
     <build>

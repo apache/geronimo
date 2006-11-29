@@ -56,7 +56,7 @@
             <artifactId>tomcat</artifactId>
             <version>${version}</version>
             <type>car</type>
-            <scope>compile</scope>
+            <scope>runtime</scope>
         </dependency>
 
         <dependency>
@@ -75,6 +75,7 @@
             </resource>
         </resources>
         
+<!--
         <plugins>
             <plugin>
                 <groupId>org.apache.geronimo.plugins</groupId>
@@ -86,6 +87,7 @@
                 </configuration>
             </plugin>
         </plugins>
+-->
     </build>
     
 </project>

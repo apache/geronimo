@@ -34,22 +34,22 @@
     <packaging>car</packaging>
     
     <dependencies>
+
+        <dependency>
+            <groupId>org.apache.geronimo.applications</groupId>
+            <artifactId>geronimo-ca-helper</artifactId>
+            <version>${version}</version>
+            <type>war</type>
+            <scope>test</scope>
+        </dependency>
         
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
             <artifactId>jetty-deployer</artifactId>
-            <version>${pom.version}</version>
+            <version>${version}</version>
             <type>car</type>
             <scope>provided</scope>
         </dependency>
-        
-        <dependency>
-            <groupId>org.apache.geronimo.applications</groupId>
-            <artifactId>geronimo-ca-helper</artifactId>
-            <version>${pom.version}</version>
-            <type>war</type>
-        </dependency>
-        
     </dependencies>
     
     <build>
@@ -69,14 +69,11 @@
                         <deploymentConfig>${gbeanDeployer}</deploymentConfig>
                         <deploymentConfig>${j2eeDeployer}</deploymentConfig>
                         <deploymentConfig>${jettyDeployer}</deploymentConfig>
-                        <deploymentConfig>${clientDeployer}</deploymentConfig>
-                        <deploymentConfig>${openejbDeployer}</deploymentConfig>
-                        <deploymentConfig>${axisDeployer}</deploymentConfig>
                     </deploymentConfigs>
                     <module>
                         <groupId>org.apache.geronimo.applications</groupId>
                         <artifactId>geronimo-ca-helper</artifactId>
-                        <version>${pom.version}</version>
+                        <version>${version}</version>
                         <type>war</type>
                     </module>
                 </configuration>

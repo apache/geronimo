@@ -55,15 +55,6 @@
             <!--<artifactId>geronimo-ejb_2.1_spec</artifactId>-->
         <!--</dependency>-->
 
-        <!-- to enforce build order -->
-        <dependency>
-            <groupId>org.apache.geronimo.configs</groupId>
-            <artifactId>openejb-corba-deployer</artifactId>
-            <version>${version}</version>
-            <type>car</type>
-            <scope>provided</scope>
-        </dependency>
-
         <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
             <artifactId>geronimo-webservices-builder</artifactId>
@@ -105,6 +96,13 @@
             <artifactId>bcel</artifactId>
         </dependency>
 
+        <dependency>
+            <groupId>org.apache.geronimo.configs</groupId>
+            <artifactId>openejb-corba-deployer</artifactId>
+            <version>${version}</version>
+            <type>car</type>
+            <scope>provided</scope>
+        </dependency>
     </dependencies>
 
     <build>
@@ -118,7 +116,6 @@
                         <deploymentConfig>${j2eeDeployer}</deploymentConfig>
                         <deploymentConfig>${openejbDeployer}</deploymentConfig>
                         <deploymentConfig>${openejbcorbaDeployer}</deploymentConfig>
-                        <deploymentConfig>${axisDeployer}</deploymentConfig>
                     </deploymentConfigs>
                 </configuration>
             </plugin>

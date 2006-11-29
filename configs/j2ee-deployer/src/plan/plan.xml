@@ -129,6 +129,9 @@
                 <name>OpenEjbCorbaRefBuilder</name>
             </pattern>
             <pattern>
+                <name>OpenEjbTSSLinkBuilder</name>
+            </pattern>
+            <pattern>
                 <name>CorbaRefBuilder</name>
             </pattern>
             <pattern>

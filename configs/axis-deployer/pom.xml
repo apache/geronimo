@@ -47,7 +47,7 @@
             <artifactId>axis</artifactId>
             <version>${version}</version>
             <type>car</type>
-            <scope>compile</scope>
+            <scope>runtime</scope>
         </dependency>
 
         <dependency>

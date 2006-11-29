@@ -72,6 +72,7 @@
             </resource>
         </resources>
         
+<!--
         <plugins>
             <plugin>
                 <groupId>org.apache.geronimo.plugins</groupId>
@@ -83,6 +84,7 @@
                 </configuration>
             </plugin>
         </plugins>
+-->
     </build>
 
 </project>
