@@ -14,6 +14,9 @@
    See the License for the specific language governing permissions and
    limitations under the License.
 --%>
+
+<%-- $Rev$ $Date$ --%>
+
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/portlet" prefix="portlet"%>
 <portlet:defineObjects/>
@@ -135,8 +138,9 @@ function <portlet:namespace/>parse(localFile) {
 </table>
 
 <b>Current Repository Entries</b>
+<p>Click on an entry to view usage.</p>
 <ul>
 <c:forEach items="${reslist}" var="res">
-<li><c:out value="${res}"/></li>
+<li><a href="<portlet:actionURL portletMode="view"><portlet:param name="action" value="usage"/><portlet:param name="res" value="${res}"/></portlet:actionURL>"><c:out value="${res}"/></a></li>
 </c:forEach>
 </ul>
