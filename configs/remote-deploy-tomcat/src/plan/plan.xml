@@ -21,7 +21,7 @@
 <web-app xmlns="http://geronimo.apache.org/xml/ns/j2ee/web/tomcat-${geronimoSchemaVersion}" xmlns:sec="http://geronimo.apache.org/xml/ns/security-${geronimoSchemaVersion}" xmlns:cfg="http://geronimo.apache.org/xml/ns/deployment-${geronimoSchemaVersion}">
 
     <context-root>/remote-deploy</context-root>
-    <security-realm-name>geronimo-properties-realm</security-realm-name>
+    <security-realm-name>geronimo-admin</security-realm-name>
     <sec:security>
         <sec:default-principal>
             <sec:principal class="org.apache.geronimo.security.realm.providers.GeronimoUserPrincipal"
