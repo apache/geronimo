@@ -50,6 +50,9 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.SortedSet;
 
+/**
+ * @version $Rev$ $Date$
+ */
 public class RepositoryViewPortlet extends BasePortlet {
 
     private final static Log log = LogFactory.getLog(RepositoryViewPortlet.class);
@@ -62,6 +65,8 @@ public class RepositoryViewPortlet extends BasePortlet {
 
     private PortletRequestDispatcher helpView;
 
+    private PortletRequestDispatcher usageView;
+
     public void init(PortletConfig portletConfig) throws PortletException {
         super.init(portletConfig);
         kernel = KernelRegistry.getSingleKernel();
@@ -70,10 +75,21 @@ public class RepositoryViewPortlet extends BasePortlet {
                 .getRequestDispatcher("/WEB-INF/view/repository/normal.jsp");
         helpView = ctx
                 .getRequestDispatcher("/WEB-INF/view/repository/help.jsp");
+        usageView = ctx
+                .getRequestDispatcher("/WEB-INF/view/repository/usage.jsp");
     }
 
     public void processAction(ActionRequest actionRequest,
                               ActionResponse actionResponse) throws PortletException, IOException {
+        String action = actionRequest.getParameter("action");
+        if(action != null && action.equals("usage")) {
+            // User clicked on a repository entry to view usage
+            String res = actionRequest.getParameter("res");
+            actionResponse.setRenderParameter("mode", "usage");
+            actionResponse.setRenderParameter("res", res);
+            return;
+        }
+
         try {
 
 
@@ -174,6 +190,19 @@ public class RepositoryViewPortlet extends BasePortlet {
             throws PortletException, IOException {
         // i think generic portlet already does this
         if (WindowState.MINIMIZED.equals(request.getWindowState())) {
+            return;
+        }
+
+        String mode = request.getParameter("mode");
+        if(mode != null && mode.equals("usage")) {
+            String res = request.getParameter("res");
+            String[] parts = res.split("/");
+            request.setAttribute("res", res);
+            request.setAttribute("groupId", parts[0]);
+            request.setAttribute("artifactId", parts[1]);
+            request.setAttribute("version", parts[2]);
+            request.setAttribute("type", parts[3]);
+            usageView.include(request, response);
             return;
         }
 
