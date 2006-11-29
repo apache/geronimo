@@ -50,7 +50,7 @@
             </environment>
 
             <context-root>/console</context-root>
-            <security-realm-name>geronimo-properties-realm</security-realm-name>
+            <security-realm-name>geronimo-admin</security-realm-name>
             <gbean name="CARExportForward" class="org.apache.geronimo.console.gbean.ContextForwardGBean" xmlns="http://geronimo.apache.org/xml/ns/deployment-${geronimoSchemaVersion}">
                 <attribute name="portalPathPrefix">/car-export</attribute>
                 <attribute name="portletContextPath">/console-standard</attribute>
@@ -114,7 +114,7 @@
             </environment>
 
             <context-root>/console-standard</context-root>
-            <security-realm-name>geronimo-properties-realm</security-realm-name>
+            <security-realm-name>geronimo-admin</security-realm-name>
             <gbean name="PropertiesLoginManager" class="org.apache.geronimo.console.core.security.PropertiesLoginModuleManager">
                 <reference name="ServerInfo">
                     <name>ServerInfo</name>

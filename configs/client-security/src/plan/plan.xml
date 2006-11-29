@@ -60,9 +60,9 @@
         <attribute name="options">
             host=localhost
             port=4242
-            realm=geronimo-properties-realm
+            realm=geronimo-admin
         </attribute>
-        <attribute name="loginDomainName">geronimo-properties-realm</attribute>
+        <attribute name="loginDomainName">geronimo-admin</attribute>
     </gbean>
 
     <!-- useful for corba: logs into a local realm, and server must reauthenticate each call -->

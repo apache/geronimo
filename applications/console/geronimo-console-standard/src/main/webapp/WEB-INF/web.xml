@@ -17,6 +17,9 @@ implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 -->
+
+<!-- $Rev$ $Date$ -->
+
 <web-app xmlns="http://java.sun.com/xml/ns/j2ee"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd"
@@ -1009,7 +1012,7 @@ limitations under the License.
     </security-constraint>
     <login-config>
         <auth-method>BASIC</auth-method>
-        <realm-name>geronimo-properties-realm</realm-name>
+        <realm-name>geronimo-admin</realm-name>
     </login-config>
     <security-role>
         <role-name>admin</role-name>

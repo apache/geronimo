@@ -71,12 +71,12 @@
             usersURI=var/security/users.properties
             groupsURI=var/security/groups.properties
         </attribute>
-        <attribute name="loginDomainName">geronimo-properties-realm</attribute>
+        <attribute name="loginDomainName">geronimo-admin</attribute>
     </gbean>
 
-    <gbean name="geronimo-properties-realm"
+    <gbean name="geronimo-admin"
         class="org.apache.geronimo.security.realm.GenericSecurityRealm">
-        <attribute name="realmName">geronimo-properties-realm</attribute>
+        <attribute name="realmName">geronimo-admin</attribute>
         <reference name="LoginModuleConfiguration">
             <name>properties-login</name>
         </reference>
@@ -93,7 +93,7 @@
 
     <gbean name="JMX" class="org.apache.geronimo.security.jaas.ServerRealmConfigurationEntry">
         <attribute name="applicationConfigName">JMX</attribute>
-        <attribute name="realmName">geronimo-properties-realm</attribute>
+        <attribute name="realmName">geronimo-admin</attribute>
         <reference name="LoginService"><name>JaasLoginService</name></reference>
     </gbean>
 

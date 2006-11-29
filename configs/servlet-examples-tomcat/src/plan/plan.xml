@@ -21,7 +21,7 @@
 <web-app xmlns="http://geronimo.apache.org/xml/ns/j2ee/web/tomcat-${geronimoSchemaVersion}">
 
     <context-root>/servlets-examples</context-root>
-    <security-realm-name>geronimo-properties-realm</security-realm-name>
+    <security-realm-name>geronimo-admin</security-realm-name>
     <security>
         <default-principal>
             <principal name="anonymous" class="org.apache.geronimo.security.realm.providers.GeronimoUserPrincipal" />
