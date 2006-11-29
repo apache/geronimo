@@ -21,7 +21,7 @@
 <!-- $Rev$ $Date$ -->
 
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-    
+
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
@@ -35,7 +35,7 @@
     <artifactId>testsuite</artifactId>
     <name>Geronimo TestSuite</name>
     <packaging>pom</packaging>
-    
+
     <description>
         Geronimo integration testsuite. This contains 2 profiles, default and child.
         The default profile is used by the top level suites directly under this. The child profile is used by the test poms under the suites.
@@ -45,9 +45,9 @@
         The test poms under the suites should have this pom as their parent and set their relativePath appropriately
         The test poms under the suites inherit an empty 'child' profile from here. But any other build executions within the test poms should all be inside a 'child' profile.
     </description>
-    
 
-   <dependencyManagement>
+
+    <dependencyManagement>
         <dependencies>
             <dependency>
                 <groupId>org.apache.geronimo.testsupport</groupId>
@@ -55,7 +55,7 @@
                 <scope>test</scope>
                 <version>${version}</version>
             </dependency>
-            
+
             <dependency>
                 <groupId>org.testng</groupId>
                 <artifactId>testng</artifactId>
@@ -63,13 +63,13 @@
                 <version>5.1</version>
                 <scope>test</scope>
             </dependency>
-            
+
             <dependency>
                 <groupId>org.openqa.selenium.client-drivers</groupId>
                 <artifactId>selenium-java-client-driver</artifactId>
                 <version>0.8.1</version>
             </dependency>
-            
+
             <dependency>
                 <groupId>org.openqa.selenium.server</groupId>
                 <artifactId>selenium-server</artifactId>
@@ -77,7 +77,7 @@
             </dependency>
         </dependencies>
     </dependencyManagement>
-    
+
     <dependencies>
         <dependency>
             <groupId>org.apache.geronimo.testsupport</groupId>
@@ -102,7 +102,7 @@
                     <artifactId>selenium-maven-plugin</artifactId>
                     <version>${version}</version>
                 </plugin>
-                
+
                 <plugin>
                     <groupId>org.apache.geronimo.plugins</groupId>
                     <artifactId>testsuite-maven-plugin</artifactId>
@@ -166,7 +166,7 @@
                                 <goal>invoke</goal>
                             </goals>
                         </execution>
-                        
+
                         <execution>
                             <id>site-deploy</id>
                             <phase>site-deploy</phase>
@@ -194,7 +194,7 @@
                         </execution>
                     </executions>
                 </plugin>
-                
+
                 <plugin>
                     <groupId>org.apache.geronimo.plugins</groupId>
                     <artifactId>geronimo-maven-plugin</artifactId>
@@ -229,12 +229,12 @@
     </distributionManagement>
 
     <reporting>
-      <plugins>
-        <plugin>
-        <groupId>org.apache.geronimo.plugins</groupId>
-        <artifactId>testsuite-maven-plugin</artifactId>
-        </plugin>
-      </plugins>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.geronimo.plugins</groupId>
+                <artifactId>testsuite-maven-plugin</artifactId>
+            </plugin>
+        </plugins>
     </reporting>
 
     <profiles>
