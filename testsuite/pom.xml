@@ -177,6 +177,9 @@
                                 <goals>
                                     <goal>site-deploy</goal>
                                 </goals>
+                                <parameters>
+                                    <buildNumber>${buildNumber}</buildNumber>
+                                </parameters>
                             </configuration>
                         </execution>
 
@@ -224,7 +227,7 @@
     <distributionManagement>
         <site>
             <id>website</id>
-            <url>scp://people.apache.org/www/geronimo.apache.org/maven/server/testsuite</url>
+            <url>scp://people.apache.org/www/geronimo.apache.org/maven/server/testsuite/${buildNumber}</url>
         </site>
     </distributionManagement>
 
@@ -291,6 +294,23 @@
                         </plugin>
                     </plugins>
                 </pluginManagement>
+
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.geronimo.plugins</groupId>
+                        <artifactId>testsuite-maven-plugin</artifactId>
+                        <inherited>false</inherited>
+                        <executions>
+                            <execution>
+                                <id>summarize</id>
+                                <phase>post-site</phase>
+                                <goals>
+                                    <goal>summarize</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
 
             </build>
         </profile>
