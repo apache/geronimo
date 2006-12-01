@@ -40,7 +40,7 @@
     </description>
     
     <properties>
-        <openejbVersion>2.2-incubating-SNAPSHOT</openejbVersion>
+        <openejbVersion>2.3-incubating-SNAPSHOT</openejbVersion>
     </properties>
 
     <build>
