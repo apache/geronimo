@@ -44,7 +44,7 @@
         </dependency>
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
-            <artifactId>j2ee-1.4-specs</artifactId>
+            <artifactId>jee-specs</artifactId>
             <version>${version}</version>
             <type>car</type>
         </dependency>

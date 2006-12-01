@@ -131,7 +131,7 @@
         <module>directory</module>
         <module>geronimo-gbean-deployer</module>
         <module>hot-deployer</module>
-        <module>j2ee-1.4-specs</module>
+        <module>jee-specs</module>
         <module>j2ee-corba-yoko</module>
         <module>j2ee-deployer</module>
         <module>j2ee-security</module>
