@@ -151,10 +151,17 @@ public class DeployModuleMojo
         DeploymentStatus status = waitFor(progress);
 
         if (status.isFailed()) {
-            throw new MojoExecutionException("Distribution failed: " + status.getMessage());
+            //
+            // FIXME: There must be a better way to handle this.
+            //
+            if (status.getMessage().indexOf("already exists") < 0 ) {
+                throw new MojoExecutionException("Distribution failed: " + status.getMessage());
+            }
+            log.info("Module already exists");
         }
+        
 
-        return progress.getResultTargetModuleIDs();
+        return (progress != null) ? progress.getResultTargetModuleIDs() : null;
     }
 
     protected String getFullClassName() {
