@@ -66,7 +66,7 @@
         
         <dependency>
             <groupId>org.apache.geronimo.specs</groupId>
-            <artifactId>geronimo-j2ee-jacc_1.0_spec</artifactId>
+            <artifactId>geronimo-jacc_1.1_spec</artifactId>
         </dependency>
         
         <dependency>

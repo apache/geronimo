@@ -42,12 +42,7 @@
             <version>${version}</version>
             <type>car</type>
         </dependency>
-        
-        <dependency>
-            <groupId>org.apache.geronimo.specs</groupId>
-            <artifactId>geronimo-j2ee-jacc_1.0_spec</artifactId>
-        </dependency>
-            
+
         <!-- not needed in m1 -->
         <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
@@ -55,20 +50,6 @@
             <version>${version}</version>
         </dependency>
         
-        <!--
-        <dependency>
-            <groupId>org.apache.geronimo.modules</groupId>
-            <artifactId>geronimo-jmx-remoting</artifactId>
-            <version>${version}</version>
-        </dependency>
-        
-        <dependency>
-            <groupId>org.apache.geronimo.modules</groupId>
-            <artifactId>geronimo-util</artifactId>
-            <version>${version}</version>
-        </dependency>
-        -->
-
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
             <artifactId>j2ee-deployer</artifactId>

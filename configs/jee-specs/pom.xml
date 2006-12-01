@@ -22,7 +22,7 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
     <modelVersion>4.0.0</modelVersion>
-    
+
     <parent>
         <groupId>org.apache.geronimo.configs</groupId>
         <artifactId>configs</artifactId>
@@ -33,17 +33,9 @@
     <artifactId>jee-specs</artifactId>
     <name>Geronimo Configs :: JavaEE Specs</name>
     <packaging>car</packaging>
-    
+
     <dependencies>
-        
-        <dependency>
-            <groupId>org.apache.geronimo.configs</groupId>
-            <artifactId>geronimo-gbean-deployer</artifactId>
-            <version>${version}</version>
-            <type>car</type>
-            <scope>test</scope>
-        </dependency>
-        
+
         <dependency>
             <groupId>org.apache.geronimo.specs</groupId>
             <artifactId>geronimo-activation_1.0.2_spec</artifactId>
@@ -61,7 +53,7 @@
         
         <dependency>
             <groupId>org.apache.geronimo.specs</groupId>
-            <artifactId>geronimo-j2ee-jacc_1.0_spec</artifactId>
+            <artifactId>geronimo-jacc_1.1_spec</artifactId>
         </dependency>
         
         <dependency>
@@ -113,6 +105,15 @@
         <dependency>
             <groupId>org.apache.geronimo.specs</groupId>
             <artifactId>geronimo-servlet_2.4_spec</artifactId>
+        </dependency>
+
+        <!-- build order hint -->
+        <dependency>
+            <groupId>org.apache.geronimo.configs</groupId>
+            <artifactId>geronimo-gbean-deployer</artifactId>
+            <version>${version}</version>
+            <type>car</type>
+            <scope>provided</scope>
         </dependency>
 
     </dependencies>
