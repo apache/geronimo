@@ -31,10 +31,18 @@
     </parent>
 
     <artifactId>jee-specs</artifactId>
-    <name>Geronimo Configs :: J2EE 1.4 specs</name>
+    <name>Geronimo Configs :: JavaEE Specs</name>
     <packaging>car</packaging>
     
     <dependencies>
+        
+        <dependency>
+            <groupId>org.apache.geronimo.configs</groupId>
+            <artifactId>geronimo-gbean-deployer</artifactId>
+            <version>${version}</version>
+            <type>car</type>
+            <scope>test</scope>
+        </dependency>
         
         <dependency>
             <groupId>org.apache.geronimo.specs</groupId>
