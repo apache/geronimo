@@ -39,10 +39,6 @@
         OpenEJB container testsuite.
     </description>
     
-    <properties>
-        <openejbVersion>2.3-incubating-SNAPSHOT</openejbVersion>
-    </properties>
-
     <build>
         <plugins>
             <plugin>
