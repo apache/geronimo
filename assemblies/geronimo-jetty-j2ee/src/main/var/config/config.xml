@@ -73,13 +73,6 @@
         </gbean>
     </module>
 
-    <module name="org.apache.geronimo.configs/j2ee-corba-sun/${version}/car" load="false">
-        <gbean name="NameServer">
-            <attribute name="port">${PlanCOSSunNamingPort}</attribute>
-            <attribute name="host">${PlanCOSNamingHost}</attribute>
-        </gbean>
-    </module>
-
     <module name="org.apache.geronimo.configs/system-database/${version}/car">
         <gbean name="DerbyNetwork">
             <attribute name="host">${PlanServerHostname}</attribute>
@@ -123,7 +116,7 @@
             <attribute name="defaultNamespace">http://geronimo.apache.org/xml/ns/j2ee/web/jetty-1.2</attribute>
         </gbean>
     </module>
-    
+
     <module name="org.apache.geronimo.configs/connector-deployer/${version}/car">
         <gbean name="ResourceRefBuilder">
             <attribute name="eeNamespaces">http://java.sun.com/xml/ns/j2ee,http://java.sun.com/xml/ns/javaee</attribute>
@@ -162,7 +155,9 @@
         </gbean>
 
     </module>
-    
+
+    <module name="org.apache.geronimo.configs/openejb-corba-deployer/${version}/car" load="false"/>
+
     <module name="org.apache.geronimo.configs/client-deployer/${version}/car">
     </module>
 
