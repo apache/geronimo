@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!--
+    Copyright 2006 The Apache Software Foundation
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+-->
+
+<!-- $Rev$ $Date$ -->
+
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>org.apache.geronimo.modules</groupId>
+        <artifactId>modules</artifactId>
+        <version>2.0-SNAPSHOT</version>
+        <relativePath>../pom.xml</relativePath>
+    </parent>
+
+    <artifactId>geronimo-transaction-jta11</artifactId>
+    <name>Geronimo :: Transaction JTA 11</name>
+
+    <!--
+    
+    HACK: Need to explicitly configure SCM for this module since its artifactId
+          does not match the directory it lives in.
+    
+    FIXME: Rename module directory or artifactId.
+    
+    -->
+    <scm>
+        <connection>scm:svn:http://svn.apache.org/repos/asf/geronimo/trunk/modules/transaction</connection>
+        <developerConnection>
+            scm:svn:https://${maven.username}@svn.apache.org/repos/asf/geronimo/trunk/modules/transaction</developerConnection>
+        <url>http://svn.apache.org/viewvc/geronimo/trunk/modules/transaction</url>
+    </scm>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.geronimo.genesis.plugins</groupId>
+                <artifactId>tools-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>validate-java-version</id>
+                        <phase>validate</phase>
+                        <goals>
+                            <goal>require-java-version</goal>
+                        </goals>
+                        <configuration>
+                            <version>1.5*</version>
+                        </configuration>
+                    </execution>
+
+                    <!--
+                    NOTE: This will copy LICENSE.txt and NOTICE.txt to classes/META-INF.
+
+                          Its a itty-bitty HACK to avoid adding resource definitions to
+                          the build, which causes the Eclipse plugin to generate invalid
+                          .classpath files. :-(
+                    -->
+                    <execution>
+                        <id>install-legal-files</id>
+                        <phase>generate-resources</phase>
+                        <goals>
+                            <goal>copy-legal-files</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <source>1.5</source>
+                    <target>1.5</target>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
+    <dependencies>
+
+        <!-- temp, for ServerInfo. Remove when it is moved to Kernel-->
+        <dependency>
+            <groupId>org.apache.geronimo.modules</groupId>
+            <artifactId>geronimo-system</artifactId>
+            <version>${pom.version}</version>
+        </dependency>
+
+        <!-- thread pool, for timer -->
+        <dependency>
+            <groupId>org.apache.geronimo.modules</groupId>
+            <artifactId>geronimo-core</artifactId>
+            <version>${pom.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.geronimo.modules</groupId>
+            <artifactId>geronimo-j2ee</artifactId>
+            <version>${pom.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.geronimo.modules</groupId>
+            <artifactId>geronimo-transaction</artifactId>
+            <version>${pom.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.geronimo.specs</groupId>
+            <artifactId>geronimo-jta_1.1_spec</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.geronimo.specs</groupId>
+            <artifactId>geronimo-ejb_2.1_spec</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.geronimo.specs</groupId>
+            <artifactId>geronimo-j2ee-connector_1.5_spec</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>backport-util-concurrent</groupId>
+            <artifactId>backport-util-concurrent</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.objectweb.howl</groupId>
+            <artifactId>howl</artifactId>
+        </dependency>
+
+    </dependencies>
+
+</project>
+

@@ -45,8 +45,10 @@
         <openejbDeployer>org.apache.geronimo.configs/openejb-deployer/${version}/car</openejbDeployer>
         <openejbcorbaDeployer>org.apache.geronimo.configs/openejb-corba-deployer/${version}/car</openejbcorbaDeployer>
         <axisDeployer>org.apache.geronimo.configs/axis-deployer/${version}/car</axisDeployer>
+        <cxfDeployer>org.apache.geronimo.configs/cxf-deployer/${version}/car</cxfDeployer>
         <tomcatDeployer>org.apache.geronimo.configs/tomcat-deployer/${version}/car</tomcatDeployer>
         <jettyDeployer>org.apache.geronimo.configs/jetty-deployer/${version}/car</jettyDeployer>
+        <jetty6Deployer>org.apache.geronimo.configs/jetty6-deployer/${version}/car</jetty6Deployer>
 
         <!-- Common plan properties -->
         <PlanServerHostname>0.0.0.0</PlanServerHostname>
@@ -126,8 +128,6 @@
         <module>client-transaction</module>
         <module>connector-deployer</module>
         <module>clustering</module>
-        <module>webconsole-jetty</module>
-        <module>webconsole-tomcat</module>
         <module>directory</module>
         <module>geronimo-gbean-deployer</module>
         <module>hot-deployer</module>
@@ -170,6 +170,8 @@
         <module>upgrade</module>
         <module>upgrade-cli</module>
         <module>wadi-clustering</module>
+        <module>webconsole-jetty</module>
+        <module>webconsole-tomcat</module>
         <module>welcome-jetty</module>
         <module>welcome-tomcat</module>
         <module>dojo-jetty</module>
@@ -180,6 +182,16 @@
         <module>transformer-agent</module>
         <module>persistence-jpa10-deployer</module>
         <module>openjpa</module>
+        <module>cxf</module>
+        <module>cxf-deployer</module>
+        <module>dojo-jetty6</module>
+        <module>jetty6</module>
+        <module>jetty6-clustering-builder-wadi</module>
+        <module>jetty6-clustering-wadi</module>
+        <module>jetty6-deployer</module>
+        <module>transaction-jta11</module>
+        <module>uddi-jetty6</module>
+        <module>webconsole-jetty6</module>
 
     </modules>
 

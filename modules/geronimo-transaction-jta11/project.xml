@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!--
+
+    Copyright 2004 The Apache Software Foundation
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+-->
+
+<!-- $Rev$ $Date$ -->
+
+<project>
+    <pomVersion>3</pomVersion>
+    <extend>../../etc/project.xml</extend>
+
+    <!-- ===================== -->
+    <!-- Module Identification -->
+    <!-- ===================== -->
+
+    <name>Geronimo :: Transaction</name>
+    <id>geronimo-transaction</id>
+    <shortDescription>Geronimo Transaction</shortDescription>
+    <description>Geronimo Transaction</description>
+    <url>http://incubator.apache.org/projects/geronimo/transaction/</url>
+    <siteDirectory>/www/incubator.apache.org/projects/geronimo/transaction</siteDirectory>
+    <distributionDirectory>/www/incubator.apache.org/projects/geronimo/builds/transaction</distributionDirectory>
+
+    <package>org.apache.geronimo.transaction</package>
+
+    <!-- ============ -->
+    <!-- Dependencies -->
+    <!-- ============ -->
+
+    <dependencies>
+        <!-- Module Dependencies -->
+
+        <dependency>
+             <groupId>geronimo</groupId>
+             <artifactId>geronimo-j2ee</artifactId>
+             <version>${pom.currentVersion}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.geronimo.specs</groupId>
+            <artifactId>geronimo-jta_1.0.1B_spec</artifactId>
+            <version>${geronimo_spec_jta_version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.geronimo.specs</groupId>
+            <artifactId>geronimo-ejb_2.1_spec</artifactId>
+            <version>${geronimo_spec_ejb_version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.geronimo.specs</groupId>
+            <artifactId>geronimo-j2ee-connector_1.5_spec</artifactId>
+            <version>${geronimo_spec_j2ee_connector_version}</version>
+        </dependency>
+
+        <!-- Thirdparty -->
+
+        <dependency>
+            <groupId>backport-util-concurrent</groupId>
+            <artifactId>backport-util-concurrent</artifactId>
+            <version>${backport_util_concurrent_version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>commons-logging</groupId>
+            <artifactId>commons-logging</artifactId>
+            <version>${commons_logging_version}</version>
+            <url>http://jakarta.apache.org/commons/logging/</url>
+        </dependency>
+
+        <!-- Optional -->
+
+        <!-- Only for *GBean classes -->
+        <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>geronimo-system</artifactId>
+            <version>${pom.currentVersion}</version>
+            <!--<optional>true</optional>-->
+        </dependency>
+
+        <!-- Only for *GBean classes -->
+        <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>geronimo-kernel</artifactId>
+            <version>${pom.currentVersion}</version>
+            <!--<optional>true</optional>-->
+        </dependency>
+
+        <dependency>
+            <groupId>org.objectweb.howl</groupId>
+            <artifactId>howl</artifactId>
+            <version>${howl_version}</version>
+            <url>http://forge.objectweb.org/projects/howl</url>
+            <!--<optional>true</optional>-->
+        </dependency>
+
+        <!-- Test -->
+
+        <dependency>
+            <groupId>mx4j</groupId>
+            <artifactId>mx4j</artifactId>
+            <version>${mx4j_version}</version>
+            <type>test</type>
+        </dependency>
+    </dependencies>
+</project>

@@ -101,7 +101,14 @@
         <module>geronimo-transformer</module>
         <module>geronimo-persistence-jpa10</module>
         <module>geronimo-persistence-jpa10-builder</module>
-
+        <module>geronimo-cxf</module>
+        <module>geronimo-cxf-builder</module>
+        <module>geronimo-jetty6</module>
+        <module>geronimo-jetty6-builder</module>
+        <module>geronimo-jetty6-clustering-builder-wadi</module>
+        <module>geronimo-jetty6-clustering-wadi</module>
+        <module>geronimo-transaction-jta11</module>
+        <module>geronimo-web-2.5-builder</module>
 
     </modules>
     
