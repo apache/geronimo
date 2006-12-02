@@ -31,6 +31,7 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
 import java.util.Set;
+import java.util.HashSet;
 
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
@@ -269,7 +270,8 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
             //
             // Get all service parents in depth first order
             //
-            addDepthFirstServiceParents(this, allServiceParents);
+
+            addDepthFirstServiceParents(this, allServiceParents, new HashSet());
 
             //
             // Deserialize the GBeans in the configurationData
@@ -382,11 +384,14 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
         }
     }
 
-    private void addDepthFirstServiceParents(Configuration configuration, List ancestors) {
-        ancestors.add(configuration);
-        for (Iterator parents = configuration.getServiceParents().iterator(); parents.hasNext();) {
-            Configuration parent = (Configuration) parents.next();
-            addDepthFirstServiceParents(parent, ancestors);
+    private void addDepthFirstServiceParents(Configuration configuration, List ancestors, Set ids) {
+        if (!ids.contains(configuration.getId())) {
+            ancestors.add(configuration);
+            ids.add(configuration.getId());
+            for (Iterator parents = configuration.getServiceParents().iterator(); parents.hasNext();) {
+                Configuration parent = (Configuration) parents.next();
+                addDepthFirstServiceParents(parent, ancestors, ids);
+            }
         }
     }
 
@@ -708,6 +713,13 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
         return datas;
     }
 
+    /**
+     * Find the gbeanDatas matching the patterns in this configuration only, ignoring parents.
+     *
+     * @param configuration
+     * @param patterns
+     * @return set of gbeandatas matching one of the patterns from this configuration only, not including parents.
+     */
     private LinkedHashSet findGBeanDatas(Configuration configuration, Set patterns) {
         LinkedHashSet result = new LinkedHashSet();
 
