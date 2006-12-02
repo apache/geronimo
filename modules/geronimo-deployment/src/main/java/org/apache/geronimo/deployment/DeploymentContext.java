@@ -454,41 +454,43 @@ public class DeploymentContext {
         // A collection valued reference doesn't need to be verified
         if (referenceInfo.getProxyType().equals(Collection.class.getName())) return null;
 
-        if (!isVerifyReference(referencePatterns)) {
+        String message = isVerifyReference(referencePatterns);
+        if (message != null) {
             return "Unable to resolve reference \"" + referenceName + "\" in gbean " +
-                    gbean.getAbstractName() + " to a gbean matching the pattern " + referencePatterns.getPatterns();
+                    gbean.getAbstractName() + " to a gbean matching the pattern " + referencePatterns.getPatterns() + "due to: " + message;
         }
         return null;
     }
 
     private String verifyDependency(AbstractName name, ReferencePatterns referencePatterns) {
-        if (!isVerifyReference(referencePatterns)) {
+        String message = isVerifyReference(referencePatterns);
+        if (message != null) {
             return "Unable to resolve dependency in gbean " + name +
-                    " to a gbean matching the pattern " + referencePatterns.getPatterns();
+                    " to a gbean matching the pattern " + referencePatterns.getPatterns() + "due to: " + message;
         }
 
         return null;
     }
 
-    private boolean isVerifyReference(ReferencePatterns referencePatterns) {
+    private String isVerifyReference(ReferencePatterns referencePatterns) {
         // we can't verify a resolved reference since it will have a specific artifact already set...
         // hopefully the deployer won't generate bad resolved references
-        if (referencePatterns.isResolved()) return true;
+        if (referencePatterns.isResolved()) return null;
 
         // Do not verify the reference if it has an explicit depenency on another artifact, because it it likely
         // that the other artifact is not in the "environment" (if it were you wouldn't use the long form)
         Set patterns = referencePatterns.getPatterns();
         for (Iterator iterator = patterns.iterator(); iterator.hasNext();) {
             AbstractNameQuery query = (AbstractNameQuery) iterator.next();
-            if (query.getArtifact() != null) return true;
+            if (query.getArtifact() != null) return null;
         }
 
         // attempt to find the bean
         try {
             findGBean(patterns);
-            return true;
+            return null;
         } catch (GBeanNotFoundException e) {
-            return false;
+            return e.getMessage();
         }
     }
 }
