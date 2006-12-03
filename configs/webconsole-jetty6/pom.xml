@@ -34,15 +34,6 @@
 
     <dependencies>
 
-        <!-- hack, remove when integrated in trunk-->
-        <dependency>
-            <groupId>org.apache.geronimo.configs</groupId>
-            <artifactId>jetty</artifactId>
-            <version>${version}</version>
-            <type>car</type>
-            <scope>test</scope>
-        </dependency>
-
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
             <artifactId>j2ee-server</artifactId>

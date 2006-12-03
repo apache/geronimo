@@ -70,8 +70,7 @@
                 <dependencies>
                     <dependency>
                         <groupId>${pom.groupId}</groupId>
-                        <!-- server artifact aliases turns this into jetty6 -->
-                        <artifactId>jetty</artifactId>
+                        <artifactId>jetty6</artifactId>
                         <type>car</type>
                     </dependency>
                 </dependencies>

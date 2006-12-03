@@ -161,7 +161,7 @@
         <module>system-database</module>
         <module>tomcat</module>
         <module>tomcat-deployer</module>
-        <module>transaction</module>
+        <!--<module>transaction</module>-->
         <module>uddi-jetty</module>
         <module>uddi-tomcat</module>
         <module>unavailable-client-deployer</module>

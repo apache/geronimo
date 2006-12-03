@@ -50,7 +50,7 @@
         </dependency>
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
-            <artifactId>transaction</artifactId>
+            <artifactId>transaction-jta11</artifactId>
             <type>car</type>
             <version>${pom.version}</version>
             <scope>runtime</scope>
