@@ -17,6 +17,9 @@ implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 -->
+
+<!-- $Rev$ $Date$ -->
+
 <portlet-app
     xmlns="http://java.sun.com/xml/ns/portlet/portlet-app_1_0.xsd"
     version="1.0"
@@ -1014,30 +1017,6 @@ limitations under the License.
             <title>Installed Security Realms</title>
             <short-title>Security Realms</short-title>
             <keywords>Security Realms</keywords>
-        </portlet-info>
-    </portlet>
-
-    <portlet>
-        <description>Portlet for configuring the server keystore</description>
-        <portlet-name>Keystore</portlet-name>
-        <display-name>Keystore Portlet</display-name>
-
-        <portlet-class>org.apache.geronimo.console.certmanager.CertManagerPortlet</portlet-class>
-
-        <expiration-cache>-1</expiration-cache>
-
-        <supports>
-            <mime-type>text/html</mime-type>
-            <portlet-mode>VIEW</portlet-mode>
-<!--            <portlet-mode>HELP</portlet-mode>-->
-        </supports>
-
-        <supported-locale>en</supported-locale>
-
-        <portlet-info>
-            <title>Keystore Configuration</title>
-            <short-title>Keystore</short-title>
-            <keywords>Keystore SSL</keywords>
         </portlet-info>
     </portlet>
 

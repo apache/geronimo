@@ -17,6 +17,9 @@ implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 -->
+
+<!-- $Rev$ $Date$ -->
+
 <portlet-entity-registry>
     <application id="5">
         <definition-id>console-standard</definition-id>
@@ -122,10 +125,6 @@ limitations under the License.
         <portlet id="61">
             <definition-id>console-standard.SecurityRealms</definition-id>
         </portlet>
-        <portlet id="62">
-            <definition-id>console-standard.Keystore</definition-id>
-        </portlet>
-
         <portlet id="63">
             <definition-id>console-standard.JMSServerManager</definition-id>
         </portlet>
