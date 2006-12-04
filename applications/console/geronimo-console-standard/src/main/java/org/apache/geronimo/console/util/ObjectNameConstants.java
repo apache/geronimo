@@ -27,18 +27,19 @@ import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.KernelRegistry;
 
+/**
+ * @version $Rev$ $Date$
+ */
 public final class ObjectNameConstants {
 
     // Security object names
     public static final AbstractName SE_REALM_MBEAN_NAME;
     public static final AbstractName DEPLOYER_OBJECT_NAME;
-    public static final AbstractName KEYSTORE_OBJ_NAME;
 
     static {
         Kernel kernel = KernelRegistry.getSingleKernel();
         SE_REALM_MBEAN_NAME = getUniquename("PropertiesLoginManager", "GBean", kernel);
         DEPLOYER_OBJECT_NAME = getUniquename("Deployer", "Deployer", kernel);
-        KEYSTORE_OBJ_NAME = getUniquename("KeyStore", "GBean", kernel);
     }
 
     private static AbstractName getUniquename(String name, String type, Kernel kernel) {
