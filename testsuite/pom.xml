@@ -89,9 +89,7 @@
     <modules>
         <module>console-testsuite</module>
         <module>deployment-testsuite</module>
-        <!-- uncomment this after OpenEJB2 has been built against Geronimo 2.0 and deployed
         <module>ejbcontainer-testsuite</module>
-        -->
     </modules>
 
     <build>
