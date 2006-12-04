@@ -843,7 +843,7 @@
             <dependency>
                 <groupId>jetty</groupId>
                 <artifactId>org.mortbay.jetty</artifactId>
-                <version>5.1.11</version>
+                <version>5.1.12</version>
             </dependency>
 
             <dependency>
