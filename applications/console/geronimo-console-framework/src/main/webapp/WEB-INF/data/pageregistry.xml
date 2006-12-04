@@ -17,6 +17,9 @@ implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 -->
+
+<!-- $Rev$ $Date$ -->
+
 <portal>
 
     <fragment name="navigation" class="org.apache.pluto.portalImpl.aggregation.navigation.TabNavigation">
@@ -545,20 +548,6 @@ limitations under the License.
                 <fragment name="col1" type="column">
                     <fragment name="p1" type="portlet">
                         <property name="portlet" value="5.81"/>
-                    </fragment>
-                </fragment>
-            </fragment>
-        </fragment>
-        <fragment name="keystore" type="page">
-            <navigation>
-                <title>Old Keystore</title>
-                <description>ico_doc_16x16.gif Manage the keystore for this server</description>
-            </navigation>
-
-            <fragment name="row1" type="row">
-                <fragment name="col1" type="column">
-                    <fragment name="p1" type="portlet">
-                        <property name="portlet" value="5.62"/>
                     </fragment>
                 </fragment>
             </fragment>

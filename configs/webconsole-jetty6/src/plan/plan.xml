@@ -133,14 +133,4 @@
         <!--</reference>-->
     <!--</gbean>-->
 
-    <!-- Keystore configuration -->
-    <gbean name="KeyStore" class="org.apache.geronimo.console.core.keystore.KeyStoreGBean">
-        <attribute name="keyStoreLocation">var/security/ssl-keystore-1</attribute>
-        <attribute name="keyStoreType">PKCS12</attribute>
-        <attribute name="keyStorePassword">password</attribute>
-        <reference name="serverInfo">
-            <name>ServerInfo</name>
-        </reference>
-    </gbean>
-
 </application>
