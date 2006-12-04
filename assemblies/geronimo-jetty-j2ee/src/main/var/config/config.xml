@@ -42,7 +42,7 @@
 
     <module name="org.apache.geronimo.configs/j2ee-server/${version}/car"/>
 
-    <module name="org.apache.geronimo.configs/transaction/${version}/car"/>
+    <module name="org.apache.geronimo.configs/transaction-jta11/${version}/car"/>
 
     <module name="org.apache.geronimo.configs/j2ee-security/${version}/car">
         <gbean name="JaasLoginServiceRemotingServer">
