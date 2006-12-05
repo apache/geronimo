@@ -53,6 +53,8 @@ import org.apache.maven.model.DistributionManagement;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
+import org.apache.maven.settings.Settings;
+import org.apache.maven.settings.Server;
 
 import org.codehaus.plexus.util.FileUtils;
 
@@ -94,9 +96,18 @@ extends MojoSupport
     protected MavenProject project = null;
 
     /**
+    * The build settings.
+    *
+    * @parameter expression="${settings}" default-value="${settings}
+    * @required
+    * @readonly
+    */
+    protected Settings settings;
+
+    /**
      * The username
      * 
-     * @parameter expression="${username}" default-value="${user.name}"
+     * @parameter expression="${username}"
      */
     private String username;
 
@@ -107,12 +118,20 @@ extends MojoSupport
      */
     private String password;
 
+
     /**
      * The passphrase
      * 
-     * @parameter expression="${passphrase}" default-value=" "
+     * @parameter expression="${passphrase}"
      */
     private String passphrase;
+
+    /**
+     * The keyfile
+     * 
+     * @parameter expression="${keyfile}"
+     */
+    private String keyFile;
 
     /**
      * The passphrase
@@ -135,6 +154,8 @@ extends MojoSupport
 
     private final String resultsFileName = "ResultsSummary.html";
 
+    private Server server;
+
     private Scp scp;
 
     protected MavenProject getProject()
@@ -148,19 +169,67 @@ extends MojoSupport
         ant.setProject(getProject());
 
         scp = (Scp)ant.createTask("scp");
-        scp.setKeyfile("/home/" + username + "/.ssh/id_dsa");
 
-        if ( password != null )
-        {
-            scp.setPassword(password);
-        }
-        else if ( passphrase != null )
-        {
-            scp.setPassphrase(passphrase);
-        }
+
+        String siteId = project.getDistributionManagement().getSite().getId();
+        server = settings.getServer(siteId);
+
+        scp.setKeyfile(getKeyFile());
+
+        scp.setPassword(getPassword());
+        scp.setPassphrase(getPassphrase());
         scp.setTrust(true);
     }
 
+    private String getKeyFile() {
+       if (keyFile != null) {
+           return keyFile;
+       }
+       else if (server.getPrivateKey() != null) {
+           return server.getPrivateKey();
+       }
+
+       return "/home/" + getUsername() + "/.ssh/id_dsa";
+    }
+
+    private String getUsername() {
+       if (username != null) {
+           return username;
+       }
+       else if (server.getUsername() != null) {
+           return server.getUsername();
+       }
+
+       return System.getProperty("user.name");
+    }
+
+    private String getPassword() {
+        if (password != null) {
+            return password;
+        }
+        else if (server.getPassword() != null) {
+            return server.getPassword();
+        }
+
+        return " ";
+    }
+
+    private String getPassphrase() {
+        if (passphrase != null) {
+            return passphrase;
+        }
+        else if (server.getPassphrase() != null) {
+            return server.getPassphrase();
+        }
+
+        return " ";
+    }
+
+
+
+    /**
+     * called by execute from super
+     */
     protected void doExecute() throws Exception {
 
         File currentSiteDirectory = new File(targetDirectory, "/site");
@@ -281,7 +350,7 @@ extends MojoSupport
 
 
         // construct the uri using username
-        remoteUri = username + "@" + remoteUri;
+        remoteUri = getUsername() + ":" + getPassword() + "@" + remoteUri;
         log.info("Remote uri is " + remoteUri);
 
         return remoteUri;
