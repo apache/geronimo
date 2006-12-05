@@ -32,7 +32,7 @@ public class ReuseOpenEJBTest extends TestCase {
     public static Test suite() {
         System.setProperty("openejb.assembler", org.apache.openejb.assembler.Assembler.class.getName());
         System.setProperty("openejb.test.server", org.apache.openejb.test.RemoteTestServer.class.getName());
-        System.setProperty("openejb.test.database", org.apache.openejb.test.InstantDbTestDatabase.class.getName());
+        System.setProperty("openejb.test.database", org.apache.openejb.test.DerbyTestDatabase.class.getName());
         return ClientTestSuite.suite();
     }
 }
