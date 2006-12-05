@@ -21,7 +21,11 @@
 ##
 org.apache.geronimo.configs/geronimo-gbean-deployer/${pom.version}/car
 org.apache.geronimo.configs/j2ee-deployer/${pom.version}/car
+org.apache.geronimo.configs/connector-deployer/${pom.version}/car
 org.apache.geronimo.configs/openejb-deployer/${pom.version}/car
+org.apache.geronimo.configs/openejb-corba-deployer/${pom.version}/car
+org.apache.geronimo.configs/persistence-jpa10-deployer/${pom.version}/car
 org.apache.geronimo.configs/client-deployer/${pom.version}/car
 org.apache.geronimo.configs/axis-deployer/${pom.version}/car
+#org.apache.geronimo.configs/cxf-deployer/${pom.version}/car
 org.apache.geronimo.configs/tomcat-deployer/${pom.version}/car

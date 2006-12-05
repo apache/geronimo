@@ -21,6 +21,8 @@
 ##
 org.apache.geronimo.configs/geronimo-gbean-deployer/${pom.version}/car
 org.apache.geronimo.configs/j2ee-deployer/${pom.version}/car
+org.apache.geronimo.configs/connector-deployer/${pom.version}/car
+org.apache.geronimo.configs/persistence-jpa10-deployer/${pom.version}/car
 org.apache.geronimo.configs/unavailable-ejb-deployer/${pom.version}/car
 org.apache.geronimo.configs/unavailable-webservices-deployer/${pom.version}/car
 org.apache.geronimo.configs/unavailable-client-deployer/${pom.version}/car
