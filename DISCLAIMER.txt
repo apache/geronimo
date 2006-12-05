@@ -1,0 +1,65 @@
+Apache Geronimo includes several Apache projects which are undergoing
+incubation with the Apache Software Foundation. See
+http://incubator.apache.org/ for information about the Apache
+Incubator. 
+
+A project undergoing incubation is required to provide a
+disclaimer in any release. The disclaimers for the incubating projects
+used by Apache Geronimo are aggregated below.
+
+=========================================================================
+==  Apache ActiveMQ Disclaimer                                         ==
+=========================================================================
+
+ActiveMQ is an effort undergoing incubation at the Apache Software
+Foundation (ASF), sponsored by the Geronimo PMC. Incubation is
+required of all newly accepted projects until a further review
+indicates that the infrastructure, communications, and decision making
+process have stabilized in a manner consistent with other successful
+ASF projects. While incubation status is not necessarily a reflection
+of the completeness or stability of the code, it does indicate that
+the project has yet to be fully endorsed by the ASF.
+
+
+=========================================================================
+==  Apache OpenEJB Disclaimer                                          ==
+=========================================================================
+
+Apache OpenEJB is an effort undergoing incubation at The Apache
+Software Foundation (ASF), sponsored by the Geronimo PMC. Incubation
+is required of all newly accepted projects until a further review
+indicates that the infrastructure, communications, and decision making
+process have stabilized in a manner consistent with other successful
+ASF projects.  While incubation status is not necessarily a reflection
+of the completeness or stability of the code, it does indicate that
+the project has yet to be fully endorsed by the ASF.
+
+
+=========================================================================
+==  Apache OpenJPA Disclaimer                                          ==
+=========================================================================
+
+OpenJPA is an effort undergoing incubation at the Apache Software
+Foundation (ASF), sponsored by the Geronimo PMC. Incubation is
+required of all newly accepted projects until a further review
+indicates that the infrastructure, communications, and decision making
+process have stabilized in a manner consistent with other successful
+ASF projects. While incubation status is not necessarily a reflection
+of the completeness or stability of the code, it does indicate that
+the project has yet to be fully endorsed by the ASF.
+
+
+=========================================================================
+==  Apache Yoko Disclaimer                                             ==
+=========================================================================
+
+Yoko is an effort undergoing incubation at the Apache Software
+Foundation (ASF). Incubation is required of all newly accepted projects
+until a further review indicates that the infrastructure,
+communications, and decision making process have stabilized in a
+manner consistent with other successful ASF projects. While incubation
+status is not necessarily a reflection of the completeness or
+stability of the code, it does indicate that the project has yet to be
+fully endorsed by the ASF.
+
+
