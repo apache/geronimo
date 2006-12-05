@@ -17,14 +17,10 @@
     specific language governing permissions and limitations
     under the License.
 -->
-
 <!-- $Rev$ $Date$ -->
-
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     
-
     <modelVersion>4.0.0</modelVersion>
-
     <parent>
         <groupId>org.apache.geronimo.plugins</groupId>
         <artifactId>maven-plugins</artifactId>
@@ -32,19 +28,20 @@
         <relativePath>../pom.xml</relativePath>
     </parent>
     
-
     <artifactId>testsuite-maven-plugin</artifactId>
     <name>Geronimo Maven2 Plugins :: Testsuite Plugin</name>
     <packaging>maven-plugin</packaging>
     
-
     <description> Plugin to help Geronimo testsuite</description>
-
     <dependencies>
-
         <dependency>
             <groupId>org.apache.geronimo.genesis.plugins</groupId>
             <artifactId>plugin-support</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.maven</groupId>
+            <artifactId>maven-settings</artifactId>
+            <version>2.0.4</version>
         </dependency>
         <dependency>
             <groupId>org.apache.maven.reporting</groupId>
@@ -67,7 +64,6 @@
             <version>1.6.5</version>
         </dependency>
     </dependencies>
-
     <build>
         <plugins>
             <plugin>
@@ -78,7 +74,6 @@
             </plugin>
         </plugins>
     </build>
-
     <repositories>
         <repository>
             <id>jtidy.sourceforge</id>
@@ -91,6 +86,4 @@
         </repository>
     </repositories>
     
-
 </project>
-
