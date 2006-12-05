@@ -225,7 +225,7 @@ function <portlet:namespace/>validateForm(){
         <td><div align="right">Keystore Type: </div></td>
         <td>
           <select name="keystoreType">
-            <option<c:if test="${keystoreType eq 'JKS' || logLevel eq ''}"> selected</c:if>>JKS</option>
+            <option<c:if test="${keystoreType eq 'JKS' || keystoreType eq '' || empty(keystoreType)}"> selected</c:if>>JKS</option>
             <option<c:if test="${keystoreType eq 'PKCS12'}"> selected</c:if>>PKCS12</option>
           </select>
         </td>
@@ -276,7 +276,7 @@ function <portlet:namespace/>validateForm(){
     <td><div align="right">Truststore Type: </div></td>
     <td>
       <select name="truststoreType">
-        <option<c:if test="${truststoreType eq 'JKS' || logLevel eq ''}"> selected</c:if>>JKS</option>
+        <option<c:if test="${truststoreType eq 'JKS' || truststoreType eq '' || empty(truststoreType)}"> selected</c:if>>JKS</option>
         <option<c:if test="${truststoreType eq 'PKCS12'}"> selected</c:if>>PKCS12</option>
       </select>
     </td>
