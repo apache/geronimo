@@ -14,6 +14,9 @@
    See the License for the specific language governing permissions and
    limitations under the License.
 --%>
+
+<%-- $Rev$ $Date$ --%>
+
 <html>
 <head>
 <title>Geronimo Console Login</title>
@@ -74,14 +77,14 @@
                 <td align="right" class="MediumBackground"><strong>Username</strong></td>
                 <td class="MediumBackground"><strong>:</strong></td>
                 <td width="1" class="MediumBackground">&nbsp;</td>
-                <td class="MediumBackground"><input name="j_username" type="text" class="InputField" value="" size="20px" maxlength="25"/></td>
+                <td class="MediumBackground"><input name="j_username" type="text" class="InputField" value="" size="20px"/></td>
                 <td width="17" class="MediumBackground">&nbsp;</td>
               </tr>
               <tr>
                 <td align="right" class="MediumBackground"><strong>Password</strong></td>
                 <td class="MediumBackground"><strong>:</strong></td>
                 <td width="1" class="MediumBackground">&nbsp;</td>
-                <td class="MediumBackground"><input name="j_password" type="password" class="InputField" value="" size="20px" maxlength="25"/></td>
+                <td class="MediumBackground"><input name="j_password" type="password" class="InputField" value="" size="20px"/></td>
                 <td class="MediumBackground">&nbsp;</td>
               </tr>
               <tr>
