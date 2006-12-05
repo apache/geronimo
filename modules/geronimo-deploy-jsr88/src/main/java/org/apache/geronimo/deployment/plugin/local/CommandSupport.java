@@ -273,7 +273,7 @@ public abstract class CommandSupport implements ProgressObject, Runnable {
         return set.size() > 0;
     }
 
-    protected void addWebURLs(Kernel kernel) {
+    protected void addWebURLs(Kernel kernel) throws Exception{
         addWebURLs(kernel, moduleIDs);
     }
 
@@ -281,7 +281,7 @@ public abstract class CommandSupport implements ProgressObject, Runnable {
      * Given a list of TargetModuleIDs, figure out which ones represent web
      * modules and add a WebURL to each if possible.
      */
-    public static void addWebURLs(Kernel kernel, List moduleIDs) {
+    public static void addWebURLs(Kernel kernel, List moduleIDs) throws Exception{
         Set webApps = null;
         for (int i = 0; i < moduleIDs.size(); i++) {
             TargetModuleIDImpl id = (TargetModuleIDImpl) moduleIDs.get(i);
@@ -292,11 +292,7 @@ public abstract class CommandSupport implements ProgressObject, Runnable {
                 for (Iterator it = webApps.iterator(); it.hasNext();) {
                     AbstractName name = (AbstractName) it.next();
                     if(name.getName().get("name").equals(id.getModuleID())) {
-                        try {
-                            id.setWebURL(kernel.getAttribute(name, "URLFor").toString());
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                        }
+                        id.setWebURL(kernel.getAttribute(name, "URLFor").toString());
                     }
                 }
             }
