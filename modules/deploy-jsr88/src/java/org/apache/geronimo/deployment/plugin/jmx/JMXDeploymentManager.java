@@ -161,7 +161,7 @@ public abstract class JMXDeploymentManager implements DeploymentManager {
             }
             CommandSupport.addWebURLs(kernel, result);
             return result.size() == 0 ? null : (TargetModuleID[]) result.toArray(new TargetModuleID[result.size()]);
-        } catch (NoSuchStoreException e) {
+        } catch (Exception e) {
             throw (TargetException) new TargetException(e.getMessage()).initCause(e);
         }
     }
