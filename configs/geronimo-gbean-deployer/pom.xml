@@ -48,17 +48,7 @@
             <version>${version}</version>
         </dependency>
         
-        <!-- bootstrap -->
-        <dependency>
-            <groupId>org.apache.geronimo.modules</groupId>
-            <artifactId>geronimo-deploy-tool</artifactId>
-            <version>${version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.geronimo.modules</groupId>
-            <artifactId>geronimo-deploy-config</artifactId>
-            <version>${version}</version>
-        </dependency>
+        <!-- required for environment dconfigbean support -->
         <dependency>
             <groupId>org.apache.geronimo.specs</groupId>
             <artifactId>geronimo-j2ee-deployment_1.1_spec</artifactId>
