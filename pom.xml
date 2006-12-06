@@ -756,12 +756,6 @@
             </dependency>
 
             <dependency>
-                <groupId>tomcat</groupId>
-                <artifactId>jasper-runtime</artifactId>
-                <version>${tomcatVersion}</version>
-            </dependency>
-
-            <dependency>
                 <groupId>directory</groupId>
                 <artifactId>apacheds-core</artifactId>
                 <version>0.9.2</version>
@@ -898,24 +892,6 @@
             <dependency>
                 <groupId>tomcat</groupId>
                 <artifactId>tomcat-http</artifactId>
-                <version>${tomcatVersion}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>tomcat</groupId>
-                <artifactId>jasper-compiler</artifactId>
-                <version>${tomcatVersion}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>tomcat</groupId>
-                <artifactId>jasper-compiler-jdt</artifactId>
-                <version>${tomcatVersion}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>tomcat</groupId>
-                <artifactId>jasper-runtime</artifactId>
                 <version>${tomcatVersion}</version>
             </dependency>
 
