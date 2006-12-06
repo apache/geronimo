@@ -63,16 +63,6 @@
         </dependency>
 
         <dependency>
-            <groupId>xerces</groupId>
-            <artifactId>xercesImpl</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>xerces</groupId>
-            <artifactId>xmlParserAPIs</artifactId>
-        </dependency>
-
-        <dependency>
             <groupId>xstream</groupId>
             <artifactId>xstream</artifactId>
         </dependency>

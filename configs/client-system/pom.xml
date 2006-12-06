@@ -47,16 +47,6 @@
             <artifactId>geronimo-j2ee-management_1.0_spec</artifactId>
         </dependency>
 
-        <dependency>
-            <groupId>xerces</groupId>
-            <artifactId>xercesImpl</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>xerces</groupId>
-            <artifactId>xmlParserAPIs</artifactId>
-        </dependency>
-
     </dependencies>
 
     <build>
@@ -142,16 +132,6 @@
                         <element>
                             <groupId>xstream</groupId>
                             <artifactId>xstream</artifactId>
-                        </element>
-                        <element>
-                            <groupId>xerces</groupId>
-                            <artifactId>xercesImpl</artifactId>
-                            <classpathPrefix>../lib/endorsed</classpathPrefix>
-                        </element>
-                        <element>
-                            <groupId>xerces</groupId>
-                            <artifactId>xmlParserAPIs</artifactId>
-                            <classpathPrefix>../lib/endorsed</classpathPrefix>
                         </element>
                     </classpath>
                     <classpathPrefix>../lib</classpathPrefix>

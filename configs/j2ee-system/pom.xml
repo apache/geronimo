@@ -143,16 +143,6 @@
                             <groupId>backport-util-concurrent</groupId>
                             <artifactId>backport-util-concurrent</artifactId>
                         </element>
-                        <element>
-                            <groupId>xerces</groupId>
-                            <artifactId>xercesImpl</artifactId>
-                            <classpathPrefix>../lib/endorsed</classpathPrefix>
-                        </element>
-                        <element>
-                            <groupId>xerces</groupId>
-                            <artifactId>xmlParserAPIs</artifactId>
-                            <classpathPrefix>../lib/endorsed</classpathPrefix>
-                        </element>
                     </classpath>
                     <classpathPrefix>../lib</classpathPrefix>
                 </configuration>

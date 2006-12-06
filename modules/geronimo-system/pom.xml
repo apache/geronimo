@@ -66,23 +66,7 @@
             <groupId>ognl</groupId>
             <artifactId>ognl</artifactId>
         </dependency>
-        
-        <!--
-        NOTE: Need to include Xerces for tests in case Crimson (or another parser)
-              gets picked up that does not support attributes
-        -->
-        <dependency>
-            <groupId>xerces</groupId>
-            <artifactId>xercesImpl</artifactId>
-            <scope>test</scope>
-        </dependency>
-        
-        <dependency>
-            <groupId>xerces</groupId>
-            <artifactId>xmlParserAPIs</artifactId>
-            <scope>test</scope>
-        </dependency>
-        
+                
     </dependencies>
     
     <build>

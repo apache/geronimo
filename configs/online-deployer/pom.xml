@@ -124,16 +124,6 @@
                             <artifactId>xstream</artifactId>
                         </element>
                         <element>
-                            <groupId>xerces</groupId>
-                            <artifactId>xercesImpl</artifactId>
-                            <classpathPrefix>../lib/endorsed</classpathPrefix>
-                        </element>
-                        <element>
-                            <groupId>xerces</groupId>
-                            <artifactId>xmlParserAPIs</artifactId>
-                            <classpathPrefix>../lib/endorsed</classpathPrefix>
-                        </element>
-                        <element>
                             <!-- IMPORTANT: server.jar is required for offline deployer to work -->
                             <entry>server.jar</entry>
                         </element>
