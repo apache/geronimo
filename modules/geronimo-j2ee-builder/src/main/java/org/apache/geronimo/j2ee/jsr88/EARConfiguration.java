@@ -15,24 +15,19 @@
  *  limitations under the License.
  */
 
-package org.apache.geronimo.deployment.plugin.application;
+package org.apache.geronimo.j2ee.jsr88;
 
-import javax.enterprise.deploy.model.DDBean;
+import javax.enterprise.deploy.model.DeployableObject;
 
-import org.apache.geronimo.deployment.plugin.DConfigBeanSupport;
-import org.apache.xmlbeans.SchemaTypeLoader;
+import org.apache.geronimo.deployment.plugin.DeploymentConfigurationSupport;
 
 /**
  *
  *
  * @version $Rev$ $Date$
  */
-public class EARConfigBean extends DConfigBeanSupport {
-    public EARConfigBean(DDBean ddBean) {
-        super(ddBean, null);
-    }
-
-    protected SchemaTypeLoader getSchemaTypeLoader() {
-        return null;
+public class EARConfiguration extends DeploymentConfigurationSupport{
+    public EARConfiguration(DeployableObject deployable) {
+        super(deployable, null);
     }
 }

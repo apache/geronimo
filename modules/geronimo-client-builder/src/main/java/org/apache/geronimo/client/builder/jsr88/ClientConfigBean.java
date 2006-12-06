@@ -15,19 +15,33 @@
  *  limitations under the License.
  */
 
-package org.apache.geronimo.deployment.plugin.application;
+package org.apache.geronimo.client.builder.jsr88;
 
-import javax.enterprise.deploy.model.DeployableObject;
+import javax.enterprise.deploy.model.DDBean;
 
-import org.apache.geronimo.deployment.plugin.DeploymentConfigurationSupport;
+import org.apache.geronimo.deployment.plugin.DConfigBeanSupport;
+import org.apache.xmlbeans.SchemaTypeLoader;
 
 /**
  *
  *
  * @version $Rev$ $Date$
  */
-public class EARConfiguration extends DeploymentConfigurationSupport{
-    public EARConfiguration(DeployableObject deployable) {
-        super(deployable, null);
+public class ClientConfigBean extends DConfigBeanSupport {
+    private static final String[] XPATHS = {
+        "ejb-ref/jndi-name",
+        "resource-ref/jmx-name"
+    };
+
+    public ClientConfigBean(DDBean ddBean) {
+        super(ddBean, null);
+    }
+
+    public String[] getXpaths() {
+        return XPATHS;
+    }
+
+    protected SchemaTypeLoader getSchemaTypeLoader() {
+        return null;
     }
 }

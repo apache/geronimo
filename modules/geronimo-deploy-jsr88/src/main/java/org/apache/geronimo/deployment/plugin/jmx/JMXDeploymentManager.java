@@ -21,6 +21,7 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+
 import javax.enterprise.deploy.model.DeployableObject;
 import javax.enterprise.deploy.shared.DConfigBeanVersionType;
 import javax.enterprise.deploy.shared.ModuleType;
@@ -32,7 +33,10 @@ import javax.enterprise.deploy.spi.exceptions.DConfigBeanVersionUnsupportedExcep
 import javax.enterprise.deploy.spi.exceptions.InvalidModuleException;
 import javax.enterprise.deploy.spi.exceptions.TargetException;
 import javax.enterprise.deploy.spi.status.ProgressObject;
-import org.apache.geronimo.connector.deployment.RARConfigurer;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+//import org.apache.geronimo.connector.deployment.RARConfigurer;
 import org.apache.geronimo.deployment.plugin.TargetImpl;
 import org.apache.geronimo.deployment.plugin.TargetModuleIDImpl;
 import org.apache.geronimo.deployment.plugin.local.CommandSupport;
@@ -47,11 +51,8 @@ import org.apache.geronimo.kernel.config.ConfigurationInfo;
 import org.apache.geronimo.kernel.config.ConfigurationManager;
 import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 import org.apache.geronimo.kernel.config.ConfigurationUtil;
-import org.apache.geronimo.kernel.config.NoSuchStoreException;
 import org.apache.geronimo.kernel.management.State;
-import org.apache.geronimo.web.deployment.WARConfigurer;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+//import org.apache.geronimo.web.deployment.WARConfigurer;
 
 
 /**
@@ -291,9 +292,9 @@ public abstract class JMXDeploymentManager implements DeploymentManager {
                 log.error("Unable to invoke EJB deployer", e);
             }
         } else if(dObj.getType().equals(ModuleType.RAR)) {
-            return new RARConfigurer().createConfiguration(dObj);
+//            return new RARConfigurer().createConfiguration(dObj);
         } else if(dObj.getType().equals(ModuleType.WAR)) {
-            return new WARConfigurer().createConfiguration(dObj);
+//            return new WARConfigurer().createConfiguration(dObj);
         }
         throw new InvalidModuleException("Not supported");
     }

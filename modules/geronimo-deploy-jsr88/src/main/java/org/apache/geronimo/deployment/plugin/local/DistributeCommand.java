@@ -17,13 +17,13 @@
 
 package org.apache.geronimo.deployment.plugin.local;
 
-import org.apache.geronimo.deployment.util.DeploymentUtil;
-import org.apache.geronimo.kernel.Kernel;
+import java.io.File;
+import java.io.InputStream;
 
 import javax.enterprise.deploy.shared.CommandType;
 import javax.enterprise.deploy.spi.Target;
-import java.io.File;
-import java.io.InputStream;
+
+import org.apache.geronimo.kernel.Kernel;
 
 /**
  * @version $Rev$ $Date$
@@ -45,11 +45,11 @@ public class DistributeCommand extends AbstractDeployCommand {
         try {
             if (spool) {
                 if (moduleStream != null) {
-                    moduleArchive = DeploymentUtil.createTempFile();
+                    moduleArchive = createTempFile();
                     copyTo(moduleArchive, moduleStream);
                 }
                 if (deploymentStream != null) {
-                    deploymentPlan = DeploymentUtil.createTempFile();
+                    deploymentPlan = createTempFile();
                     copyTo(deploymentPlan, deploymentStream);
                 }
             }

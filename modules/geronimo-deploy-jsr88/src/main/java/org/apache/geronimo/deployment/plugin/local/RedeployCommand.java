@@ -19,13 +19,14 @@ package org.apache.geronimo.deployment.plugin.local;
 import java.io.File;
 import java.io.InputStream;
 import java.util.Iterator;
+
 import javax.enterprise.deploy.shared.CommandType;
 import javax.enterprise.deploy.spi.Target;
 import javax.enterprise.deploy.spi.TargetModuleID;
+
 import org.apache.geronimo.deployment.plugin.ConfigIDExtractor;
 import org.apache.geronimo.deployment.plugin.TargetImpl;
 import org.apache.geronimo.deployment.plugin.TargetModuleIDImpl;
-import org.apache.geronimo.deployment.util.DeploymentUtil;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.kernel.InternalKernelException;
 import org.apache.geronimo.kernel.Kernel;
@@ -62,11 +63,11 @@ public class RedeployCommand extends AbstractDeployCommand {
         try {
             if (spool) {
                 if (moduleStream != null) {
-                    moduleArchive = DeploymentUtil.createTempFile();
+                    moduleArchive = createTempFile();
                     copyTo(moduleArchive, moduleStream);
                 }
                 if (deploymentStream != null) {
-                    deploymentPlan = DeploymentUtil.createTempFile();
+                    deploymentPlan = createTempFile();
                     copyTo(deploymentPlan, deploymentStream);
                 }
             }

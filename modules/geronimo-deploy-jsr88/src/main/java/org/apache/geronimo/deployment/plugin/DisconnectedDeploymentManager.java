@@ -17,22 +17,22 @@
 
 package org.apache.geronimo.deployment.plugin;
 
-import javax.enterprise.deploy.spi.DeploymentManager;
-import javax.enterprise.deploy.spi.DeploymentConfiguration;
-import javax.enterprise.deploy.spi.Target;
-import javax.enterprise.deploy.spi.TargetModuleID;
-import javax.enterprise.deploy.spi.status.ProgressObject;
-import javax.enterprise.deploy.spi.exceptions.InvalidModuleException;
-import javax.enterprise.deploy.spi.exceptions.DConfigBeanVersionUnsupportedException;
-import javax.enterprise.deploy.spi.exceptions.TargetException;
+import java.io.File;
+import java.io.InputStream;
+import java.util.Locale;
+
 import javax.enterprise.deploy.model.DeployableObject;
 import javax.enterprise.deploy.shared.DConfigBeanVersionType;
 import javax.enterprise.deploy.shared.ModuleType;
-import java.util.Locale;
-import java.io.File;
-import java.io.InputStream;
-import org.apache.geronimo.connector.deployment.RARConfigurer;
-import org.apache.geronimo.web.deployment.WARConfigurer;
+import javax.enterprise.deploy.spi.DeploymentConfiguration;
+import javax.enterprise.deploy.spi.DeploymentManager;
+import javax.enterprise.deploy.spi.Target;
+import javax.enterprise.deploy.spi.TargetModuleID;
+import javax.enterprise.deploy.spi.exceptions.DConfigBeanVersionUnsupportedException;
+import javax.enterprise.deploy.spi.exceptions.InvalidModuleException;
+import javax.enterprise.deploy.spi.exceptions.TargetException;
+import javax.enterprise.deploy.spi.status.ProgressObject;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -58,9 +58,9 @@ public class DisconnectedDeploymentManager implements DeploymentManager {
                 log.error("Unable to invoke EJB deployer", e);
             }
         } else if(dObj.getType().equals(ModuleType.RAR)) {
-            return new RARConfigurer().createConfiguration(dObj);
+//            return new RARConfigurer().createConfiguration(dObj);
         } else if(dObj.getType().equals(ModuleType.WAR)) {
-            return new WARConfigurer().createConfiguration(dObj); // this is jetty
+//            return new WARConfigurer().createConfiguration(dObj); // this is jetty
             // todo: Tomcat WARConfigurer
         }
         throw new InvalidModuleException("Not supported");
