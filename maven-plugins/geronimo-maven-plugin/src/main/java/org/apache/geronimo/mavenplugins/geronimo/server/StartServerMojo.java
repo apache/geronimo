@@ -341,7 +341,7 @@ public class StartServerMojo
         List selected = new ArrayList();
         while (stok.hasMoreTokens()) {
             String id = stok.nextToken();
-            OptionSet set = (OptionSet)map.get(options);
+            OptionSet set = (OptionSet)map.get(id);
             
             if (set == null) {
                 if ("default".equals(options)) {
