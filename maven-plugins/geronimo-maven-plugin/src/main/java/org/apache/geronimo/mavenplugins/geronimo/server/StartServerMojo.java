@@ -344,7 +344,7 @@ public class StartServerMojo
             OptionSet set = (OptionSet)map.get(id);
             
             if (set == null) {
-                if ("default".equals(options)) {
+                if ("default".equals(id)) {
                     log.debug("Default optionSet selected, but no optionSet defined with that id; ignoring");
                 }
                 else {
