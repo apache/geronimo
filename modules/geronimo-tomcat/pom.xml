@@ -33,28 +33,17 @@
     <name>Geronimo :: Tomcat</name>
     
     <dependencies>
-    
+
         <dependency>
             <groupId>org.apache.geronimo.specs</groupId>
-            <artifactId>geronimo-jsp_2.0_spec</artifactId>
+            <artifactId>geronimo-annotation_1.0_spec</artifactId>
             <scope>provided</scope>
         </dependency>
 
         <dependency>
             <groupId>org.apache.geronimo.specs</groupId>
-            <artifactId>geronimo-j2ee-connector_1.5_spec</artifactId>
-            <scope>provided</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.geronimo.specs</groupId>
-            <artifactId>geronimo-jta_1.0.1B_spec</artifactId>
-            <scope>provided</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.geronimo.specs</groupId>
-            <artifactId>geronimo-j2ee-management_1.1_spec</artifactId>
+            <artifactId>geronimo-jsp_2.1_spec</artifactId>
+            <version>1.0-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
 
@@ -101,120 +90,57 @@
         </dependency>
 
         <dependency>
-            <groupId>tomcat</groupId>
+            <groupId>org.apache.tomcat</groupId>
             <artifactId>catalina</artifactId>
+            <version>6.0.2-beta</version>
+        </dependency>
+        
+        <dependency>
+            <groupId>org.apache.tomcat</groupId>
+            <artifactId>jasper</artifactId>
+            <version>6.0.2-beta</version>
+        </dependency>
+        
+        <dependency>
+            <groupId>org.apache.tomcat</groupId>
+            <artifactId>jasper-el</artifactId>
+            <version>6.0.2-beta</version>
         </dependency>
 
         <dependency>
-            <groupId>tomcat</groupId>
-            <artifactId>tomcat-ajp</artifactId>
+            <groupId>org.apache.tomcat</groupId>
+            <artifactId>jasper-jdt</artifactId>
+            <version>6.0.2-beta</version>
         </dependency>
 
         <dependency>
-            <groupId>tomcat</groupId>
-            <artifactId>catalina-cluster</artifactId>
+            <groupId>org.apache.tomcat</groupId>
+            <artifactId>coyote</artifactId>
+            <version>6.0.2-beta</version>
         </dependency>
-
-        <!--
-          - Required until any realm is provided to Tomcat
-          - See StandardEngine::getRealm() 
-        -->
+        
         <dependency>
-            <groupId>tomcat</groupId>
-            <artifactId>catalina-optional</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>tomcat</groupId>
-            <artifactId>tomcat-coyote</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>tomcat</groupId>
-            <artifactId>tomcat-http</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>tomcat</groupId>
-            <artifactId>jasper-compiler</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>tomcat</groupId>
-            <artifactId>jasper-compiler-jdt</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>tomcat</groupId>
-            <artifactId>jasper-runtime</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>tomcat</groupId>
-            <artifactId>tomcat-util</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>tomcat</groupId>
-            <artifactId>naming-resources</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>tomcat</groupId>
-            <artifactId>servlets-default</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>tomcat</groupId>
-            <artifactId>servlets-invoker</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>xerces</groupId>
-            <artifactId>xercesImpl</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>xml-apis</groupId>
-            <artifactId>xml-apis</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>commons-beanutils</groupId>
-            <artifactId>commons-beanutils</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>commons-collections</groupId>
-            <artifactId>commons-collections</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>commons-digester</groupId>
-            <artifactId>commons-digester</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>commons-el</groupId>
-            <artifactId>commons-el</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>commons-logging</groupId>
-            <artifactId>commons-logging</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>commons-modeler</groupId>
-            <artifactId>commons-modeler</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>regexp</groupId>
-            <artifactId>regexp</artifactId>
+            <groupId>org.apache.tomcat</groupId>
+            <artifactId>juli</artifactId>
+            <version>6.0.2-beta</version>
         </dependency>
 
     </dependencies>
+
+    <repositories>
+        <repository>
+            <id>tomcat6-repo</id>
+            <url>http://people.apache.org/~pmcmahan/maven2</url>
+            <layout>default</layout>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+            <releases>
+                <enabled>true</enabled>
+                <checksumPolicy>ignore</checksumPolicy>
+            </releases>
+        </repository>
+    </repositories>
     
     <build>
         <plugins>
@@ -222,44 +148,9 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <configuration>
-                    <systemProperties>
-                        <property>
-                            <name>java.endorsed.dirs</name>
-                            <value>${project.build.directory}/endorsed</value>
-                        </property>
-                    </systemProperties>
-                    
                     <forkMode>pertest</forkMode>
                 </configuration>
             </plugin>
-            
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>dependency-maven-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>copy-endorsed-jars</id>
-                        <phase>process-test-resources</phase>
-                        <goals>
-                            <goal>copy</goal>
-                        </goals>
-                        <configuration>
-                            <artifactItems>
-                                <artifactItem>
-                                    <groupId>xerces</groupId>
-                                    <artifactId>xercesImpl</artifactId>
-                                </artifactItem>
-                                <artifactItem>
-                                    <groupId>xml-apis</groupId>
-                                    <artifactId>xml-apis</artifactId>
-                                </artifactItem>
-                            </artifactItems>
-                            <outputDirectory>${project.build.directory}/endorsed</outputDirectory>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-            
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-antrun-plugin</artifactId>

@@ -3,7 +3,6 @@ package org.apache.geronimo.tomcat;
 import java.util.Map;
 import javax.net.ssl.KeyManagerFactory;
 
-import org.apache.geronimo.management.geronimo.SecureConnector;
 import org.apache.geronimo.management.geronimo.WebManager;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
 import org.apache.geronimo.gbean.GBeanInfo;

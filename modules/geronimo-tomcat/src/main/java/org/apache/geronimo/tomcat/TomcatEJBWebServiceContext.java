@@ -35,8 +35,6 @@ import org.apache.catalina.deploy.SecurityConstraint;
 import org.apache.catalina.valves.ValveBase;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.geronimo.tomcat.realm.TomcatJAASRealm;
-import org.apache.geronimo.tomcat.realm.TomcatGeronimoRealm;
 import org.apache.geronimo.tomcat.realm.TomcatEJBWSGeronimoRealm;
 import org.apache.geronimo.webservices.WebServiceContainer;
 

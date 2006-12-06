@@ -46,12 +46,6 @@
             <artifactId>geronimo-jsp_2.0_spec</artifactId>
         </dependency>
 
-        <!-- Required for JSPC compilation -->
-        <dependency>
-            <groupId>tomcat</groupId>
-            <artifactId>jasper-runtime</artifactId>
-        </dependency>
-
     </dependencies>
 
     <build>

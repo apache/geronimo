@@ -63,6 +63,21 @@
         </dependency>
         
     </dependencies>
+    
+    <repositories>
+        <repository>
+            <id>tomcat6-repo</id>
+            <url>http://people.apache.org/~pmcmahan/maven2</url>
+            <layout>default</layout>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+            <releases>
+                <enabled>true</enabled>
+                <checksumPolicy>ignore</checksumPolicy>
+            </releases>
+        </repository>
+    </repositories>
 
     <build>
         <resources>

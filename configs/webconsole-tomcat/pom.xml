@@ -162,11 +162,6 @@
         </dependency>
 
         <dependency>
-            <groupId>tomcat</groupId>
-            <artifactId>jasper-runtime</artifactId>
-        </dependency>
-
-        <dependency>
             <groupId>commons-digester</groupId>
             <artifactId>commons-digester</artifactId>
         </dependency>
@@ -194,6 +189,11 @@
         <dependency>
             <groupId>dwr</groupId>
             <artifactId>dwr</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>xerces</groupId>
+            <artifactId>xercesImpl</artifactId>
         </dependency>
 
         <dependency>

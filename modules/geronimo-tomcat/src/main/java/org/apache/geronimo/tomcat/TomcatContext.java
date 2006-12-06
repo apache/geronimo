@@ -25,7 +25,6 @@ import javax.transaction.UserTransaction;
 import org.apache.catalina.Context;
 import org.apache.catalina.Manager;
 import org.apache.catalina.Realm;
-import org.apache.catalina.cluster.CatalinaCluster;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.tomcat.util.SecurityHolder;
 import org.apache.geronimo.connector.outbound.connectiontracking.TrackedConnectionAssociator;
@@ -65,7 +64,7 @@ public interface TomcatContext {
 
     public List getValveChain();
 
-    public CatalinaCluster getCluster();
+//    public CatalinaCluster getCluster();
 
     public Manager getManager();
 

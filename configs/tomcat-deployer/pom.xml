@@ -64,6 +64,17 @@
             <artifactId>geronimo-tomcat-builder</artifactId>
             <version>${version}</version>
         </dependency>
+
+        <dependency>
+            <groupId>org.apache.geronimo.modules</groupId>
+            <artifactId>geronimo-web-2.5-builder</artifactId>
+            <version>${version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.geronimo.schema</groupId>
+            <artifactId>geronimo-schema-jee_5</artifactId>
+        </dependency>
         
     </dependencies>
     

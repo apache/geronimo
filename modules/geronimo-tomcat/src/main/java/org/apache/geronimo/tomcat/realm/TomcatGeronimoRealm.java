@@ -18,7 +18,6 @@ package org.apache.geronimo.tomcat.realm;
 
 import org.apache.catalina.Context;
 import org.apache.catalina.LifecycleException;
-import org.apache.catalina.Wrapper;
 import org.apache.catalina.connector.Request;
 import org.apache.catalina.connector.Response;
 import org.apache.catalina.deploy.LoginConfig;
@@ -44,7 +43,6 @@ import javax.security.jacc.PolicyContextException;
 import javax.security.jacc.WebResourcePermission;
 import javax.security.jacc.WebRoleRefPermission;
 import javax.security.jacc.WebUserDataPermission;
-import javax.servlet.ServletRequest;
 
 import java.io.IOException;
 import java.security.AccessControlContext;

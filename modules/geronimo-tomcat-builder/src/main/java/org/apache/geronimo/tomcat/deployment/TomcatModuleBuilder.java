@@ -48,7 +48,6 @@ import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
-import org.apache.geronimo.gbean.SingleElementCollection;
 import org.apache.geronimo.gbean.ReferencePatterns;
 import org.apache.geronimo.j2ee.deployment.EARContext;
 import org.apache.geronimo.j2ee.deployment.Module;
@@ -72,16 +71,15 @@ import org.apache.geronimo.tomcat.ManagerGBean;
 import org.apache.geronimo.tomcat.RealmGBean;
 import org.apache.geronimo.tomcat.TomcatWebAppContext;
 import org.apache.geronimo.tomcat.ValveGBean;
-import org.apache.geronimo.tomcat.cluster.CatalinaClusterGBean;
 import org.apache.geronimo.tomcat.util.SecurityHolder;
-import org.apache.geronimo.web.deployment.AbstractWebModuleBuilder;
+import org.apache.geronimo.web25.deployment.AbstractWebModuleBuilder;
 import org.apache.geronimo.web.deployment.GenericToSpecificPlanConverter;
 import org.apache.geronimo.xbeans.geronimo.web.tomcat.TomcatWebAppDocument;
 import org.apache.geronimo.xbeans.geronimo.web.tomcat.TomcatWebAppType;
 import org.apache.geronimo.xbeans.geronimo.web.tomcat.config.GerTomcatDocument;
-import org.apache.geronimo.xbeans.j2ee.ServletType;
-import org.apache.geronimo.xbeans.j2ee.WebAppDocument;
-import org.apache.geronimo.xbeans.j2ee.WebAppType;
+import org.apache.geronimo.xbeans.javaee.ServletType;
+import org.apache.geronimo.xbeans.javaee.WebAppDocument;
+import org.apache.geronimo.xbeans.javaee.WebAppType;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
 
@@ -346,11 +344,11 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder {
                 webModuleData.setReferencePattern("TomcatValveChain", valveName);
             }
 
-            if (tomcatWebApp.isSetCluster()) {
-                String cluster = tomcatWebApp.getCluster().trim();
-                AbstractName clusterName = earContext.getNaming().createChildName(moduleName, cluster, CatalinaClusterGBean.J2EE_TYPE);
-                webModuleData.setReferencePattern("Cluster", clusterName);
-            }
+//            if (tomcatWebApp.isSetCluster()) {
+//                String cluster = tomcatWebApp.getCluster().trim();
+//                AbstractName clusterName = earContext.getNaming().createChildName(moduleName, cluster, CatalinaClusterGBean.J2EE_TYPE);
+//                webModuleData.setReferencePattern("Cluster", clusterName);
+//            }
 
             if (tomcatWebApp.isSetManager()) {
                 String manager = tomcatWebApp.getManager().trim();

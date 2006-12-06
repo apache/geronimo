@@ -39,13 +39,6 @@
     </description>
     
     <dependencies>
-        
-        <!-- Required for JSPC compilation -->
-        <dependency>
-            <groupId>tomcat</groupId>
-            <artifactId>jasper-runtime</artifactId>
-        </dependency>
-        
     </dependencies>
     
     <build>

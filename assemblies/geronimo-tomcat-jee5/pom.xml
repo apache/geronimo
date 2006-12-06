@@ -29,12 +29,12 @@
         <relativePath>../pom.xml</relativePath>
     </parent>
 
-    <artifactId>geronimo-tomcat-j2ee</artifactId>
-    <name>Geronimo Assemblies :: J2EE + Tomcat</name>
+    <artifactId>geronimo-tomcat-jee5</artifactId>
+    <name>Geronimo Assemblies :: JEE5 + Tomcat</name>
     <packaging>application-assembly</packaging>
 
     <description>
-        An assembly of Geronimo into a J2EE Server using Tomcat as the web container.
+        An assembly of Geronimo into a JEE5 Server using Tomcat as the web container.
     </description>
 
     <dependencies>
@@ -83,7 +83,20 @@
 
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
+            <artifactId>transaction-jta11</artifactId>
+            <version>${version}</version>
+            <type>car</type>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.geronimo.configs</groupId>
             <artifactId>axis</artifactId>
+            <version>${version}</version>
+            <type>car</type>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.geronimo.configs</groupId>
+            <artifactId>cxf</artifactId>
             <version>${version}</version>
             <type>car</type>
         </dependency>
@@ -213,10 +226,9 @@
             <version>${version}</version>
             <type>car</type>
         </dependency>
-
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
-            <artifactId>hot-deployer</artifactId>
+            <artifactId>cxf-deployer</artifactId>
             <version>${version}</version>
             <type>car</type>
         </dependency>
@@ -224,6 +236,13 @@
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
             <artifactId>client-deployer</artifactId>
+            <version>${version}</version>
+            <type>car</type>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.geronimo.configs</groupId>
+            <artifactId>hot-deployer</artifactId>
             <version>${version}</version>
             <type>car</type>
         </dependency>
@@ -284,16 +303,16 @@
             <type>car</type>
         </dependency>
 
-       <dependency>
+        <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
-            <artifactId>openjpa</artifactId>
+            <artifactId>online-deployer</artifactId>
             <version>${version}</version>
             <type>car</type>
         </dependency>
 
-        <dependency>
+       <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
-            <artifactId>online-deployer</artifactId>
+            <artifactId>openjpa</artifactId>
             <version>${version}</version>
             <type>car</type>
         </dependency>
@@ -327,7 +346,7 @@
                             <artifactItems>
                                 <artifactItem>
                                     <groupId>org.apache.geronimo.assemblies</groupId>
-                                    <artifactId>geronimo-boilerplate-j2ee</artifactId>
+                                    <artifactId>geronimo-boilerplate-jee5</artifactId>
                                     <version>${version}</version>
                                 </artifactItem>
                             </artifactItems>

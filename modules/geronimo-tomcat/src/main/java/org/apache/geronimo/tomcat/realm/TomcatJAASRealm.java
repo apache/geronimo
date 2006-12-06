@@ -162,7 +162,7 @@ public class TomcatJAASRealm extends JAASRealm implements Cloneable {
 
     protected Principal createPrincipal(String username, Subject subject) {
         // Prepare to scan the Principals for this Subject
-        String password = null; // Will not be carried forward
+        //String password = null; // Will not be carried forward
 
         List roles = new ArrayList();
         Principal userPrincipal = null;

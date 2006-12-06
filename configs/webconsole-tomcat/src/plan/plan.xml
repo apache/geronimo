@@ -40,11 +40,6 @@
                     <artifactId>pluto-portal</artifactId>
                     <type>jar</type>
                 </dependency>
-                <dependency>
-                    <groupId>tomcat</groupId>
-                    <artifactId>jasper-runtime</artifactId>
-                    <type>jar</type>
-                </dependency>
               </dependencies>
               <inverse-classloading/>
             </environment>
@@ -103,11 +98,6 @@
                 <dependency>
                     <groupId>taglibs</groupId>
                     <artifactId>standard</artifactId>
-                    <type>jar</type>
-                </dependency>
-                <dependency>
-                    <groupId>tomcat</groupId>
-                    <artifactId>jasper-runtime</artifactId>
                     <type>jar</type>
                 </dependency>
               </dependencies>

@@ -34,7 +34,6 @@ import org.apache.catalina.Loader;
 import org.apache.catalina.Manager;
 import org.apache.catalina.Valve;
 import org.apache.catalina.Wrapper;
-import org.apache.catalina.cluster.CatalinaCluster;
 import org.apache.catalina.connector.Request;
 import org.apache.catalina.connector.Response;
 import org.apache.catalina.core.StandardContext;
@@ -150,9 +149,9 @@ public class GeronimoStandardContext extends StandardContext {
             }
         }
 
-        CatalinaCluster cluster = ctx.getCluster();
-        if (cluster != null)
-            this.setCluster(cluster);
+//        CatalinaCluster cluster = ctx.getCluster();
+//        if (cluster != null)
+//            this.setCluster(cluster);
 
         Manager manager = ctx.getManager();
         if (manager != null)
