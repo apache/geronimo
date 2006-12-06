@@ -51,6 +51,7 @@
             <version>${version}</version>
         </dependency>
 
+        <!-- required for environment dconfigbean support -->
         <dependency>
             <groupId>${pom.groupId}</groupId>
             <artifactId>geronimo-deploy-config</artifactId>
