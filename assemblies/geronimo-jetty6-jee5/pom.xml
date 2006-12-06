@@ -327,14 +327,14 @@
 
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
-            <artifactId>jetty-clustering-builder-wadi</artifactId>
+            <artifactId>jetty6-clustering-builder-wadi</artifactId>
             <version>${version}</version>
             <type>car</type>
         </dependency> 
 
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
-            <artifactId>jetty-clustering-wadi</artifactId> 
+            <artifactId>jetty6-clustering-wadi</artifactId> 
             <version>${version}</version>
             <type>car</type>
         </dependency>
@@ -392,7 +392,7 @@
                             <artifactItems>
                                 <artifactItem>
                                     <groupId>org.apache.geronimo.modules</groupId>
-                                    <artifactId>geronimo-jetty-builder</artifactId>
+                                    <artifactId>geronimo-jetty6-builder</artifactId>
                                     <version>${version}</version>
                                 </artifactItem>
                             </artifactItems>
