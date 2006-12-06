@@ -154,7 +154,7 @@ extends MojoSupport
 
     private final String resultsFileName = "ResultsSummary.html";
 
-    private Server server;
+    private Server server = null;
 
     private Scp scp;
 
@@ -185,7 +185,7 @@ extends MojoSupport
        if (keyFile != null) {
            return keyFile;
        }
-       else if (server.getPrivateKey() != null) {
+       else if (server != null && server.getPrivateKey() != null) {
            return server.getPrivateKey();
        }
 
@@ -196,7 +196,7 @@ extends MojoSupport
        if (username != null) {
            return username;
        }
-       else if (server.getUsername() != null) {
+       else if (server != null && server.getUsername() != null) {
            return server.getUsername();
        }
 
@@ -207,7 +207,7 @@ extends MojoSupport
         if (password != null) {
             return password;
         }
-        else if (server.getPassword() != null) {
+        else if (server != null && server.getPassword() != null) {
             return server.getPassword();
         }
 
@@ -218,7 +218,7 @@ extends MojoSupport
         if (passphrase != null) {
             return passphrase;
         }
-        else if (server.getPassphrase() != null) {
+        else if (server != null && server.getPassphrase() != null) {
             return server.getPassphrase();
         }
 
