@@ -15,7 +15,7 @@
  *  limitations under the License.
  */
 
-package org.apache.geronimo.deployment.plugin.client;
+package org.apache.geronimo.j2ee.jsr88;
 
 import javax.enterprise.deploy.model.DDBean;
 
@@ -27,18 +27,9 @@ import org.apache.xmlbeans.SchemaTypeLoader;
  *
  * @version $Rev$ $Date$
  */
-public class ClientConfigBean extends DConfigBeanSupport {
-    private static final String[] XPATHS = {
-        "ejb-ref/jndi-name",
-        "resource-ref/jmx-name"
-    };
-
-    public ClientConfigBean(DDBean ddBean) {
+public class EARConfigBean extends DConfigBeanSupport {
+    public EARConfigBean(DDBean ddBean) {
         super(ddBean, null);
-    }
-
-    public String[] getXpaths() {
-        return XPATHS;
     }
 
     protected SchemaTypeLoader getSchemaTypeLoader() {

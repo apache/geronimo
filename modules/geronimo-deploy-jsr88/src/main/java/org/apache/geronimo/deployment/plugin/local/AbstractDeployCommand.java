@@ -30,7 +30,6 @@ import javax.enterprise.deploy.shared.ModuleType;
 import javax.enterprise.deploy.spi.Target;
 
 import org.apache.geronimo.common.DeploymentException;
-import org.apache.geronimo.deployment.Deployer;
 import org.apache.geronimo.deployment.plugin.TargetModuleIDImpl;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.AbstractNameQuery;
@@ -84,6 +83,15 @@ public abstract class AbstractDeployCommand extends CommandSupport {
         }
         return deployer;
 
+    }
+
+    // be careful to clean up the temp file... we tell the vm to delete this on exit
+    // but VMs can't be trusted to acutally delete the file
+    // Copied from DeploymentUtil
+    protected static File createTempFile() throws IOException {
+        File tempFile = File.createTempFile("geronimo-deploymentUtil", ".tmpdir");
+        tempFile.deleteOnExit();
+        return tempFile;
     }
 
     protected void copyTo(File outfile, InputStream is) throws IOException {
