@@ -1,0 +1,10 @@
+geronimo-test-ddbean
+
+ A jsr-88 client that lets you edit spec deployment descriptors and vendor plans has to
+ supply DDBeans to allow programatic access to the spec deployment descriptors.  Geronimo doesn't include
+ any such editors but we do include some DConfigBeans for our plans.  Some of these need to traverse the
+ spec deployment descriptors and we also have some tests that require DDBeans.  geronimo-test-ddbeans contains
+ a simple implementation of DDBeans to support these scenarios.
+
+ The DDBeans in this module allow access to the spec deployment descriptors.
+ Do not confuse these with the DConfigBeans that allow access to geronimo plans.
