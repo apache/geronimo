@@ -5,10 +5,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.List;
 import java.util.jar.JarFile;
-
-import javax.xml.namespace.QName;
 
 import org.apache.geronimo.deployment.util.UnpackedJarFile;
 import org.apache.geronimo.deployment.service.GBeanBuilder;
@@ -26,7 +23,6 @@ import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.schema.SchemaConversionUtils;
 import org.apache.geronimo.security.deployment.GeronimoSecurityBuilderImpl;
-import org.apache.geronimo.testsupport.TestSupport;
 import org.apache.geronimo.testsupport.XmlBeansTestSupport;
 import org.apache.geronimo.web.deployment.GenericToSpecificPlanConverter;
 import org.apache.geronimo.xbeans.geronimo.naming.GerResourceRefType;
@@ -58,7 +54,7 @@ public class PlanParsingTest extends XmlBeansTestSupport {
                 new Integer(1800),
                 null,
                 jettyContainerObjectName,
-                new HashSet(),
+                null, new HashSet(),
                 new HashSet(),
                 new HashSet(),
                 pojoWebServiceTemplate,

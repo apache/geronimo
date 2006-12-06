@@ -269,7 +269,7 @@ public class JettyModuleBuilderTest extends TestSupport {
                 new Integer(1800),
                 Collections.EMPTY_LIST,
                 new AbstractNameQuery(containerName),
-                defaultServlets,
+                null, defaultServlets,
                 defaultFilters,
                 defaultFilterMappings,
                 pojoWebServiceTemplate,

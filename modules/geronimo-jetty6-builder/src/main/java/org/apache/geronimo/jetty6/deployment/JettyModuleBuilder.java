@@ -137,12 +137,13 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
     private final Integer defaultSessionTimeoutSeconds;
 
     private static final String JETTY_NAMESPACE = JettyWebAppDocument.type.getDocumentElementName().getNamespaceURI();
+    private String jspServletClassName;
 
     public JettyModuleBuilder(Environment defaultEnvironment,
             Integer defaultSessionTimeoutSeconds,
             List defaultWelcomeFiles,
             AbstractNameQuery jettyContainerName,
-            Collection defaultServlets,
+            String jspServletClassName, Collection defaultServlets,
             Collection defaultFilters,
             Collection defaultFilterMappings,
             Object pojoWebServiceTemplate,
@@ -157,6 +158,7 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
         this.defaultEnvironment = defaultEnvironment;
         this.defaultSessionTimeoutSeconds = (defaultSessionTimeoutSeconds == null) ? new Integer(30 * 60) : defaultSessionTimeoutSeconds;
         this.jettyContainerObjectName = jettyContainerName;
+        this.jspServletClassName = jspServletClassName;
         this.defaultServlets = defaultServlets;
         this.defaultFilters = defaultFilters;
         this.defaultFilterMappings = defaultFilterMappings;
@@ -979,7 +981,7 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
             servletData = new GBeanData(servletAbstractName, JettyServletHolder.GBEAN_INFO);
             servletData.setAttribute("jspFile", servletType.getJspFile().getStringValue().trim());
             //TODO MAKE THIS CONFIGURABLE!!! Jetty uses the servlet mapping set up from the default-web.xml
-            servletData.setAttribute("servletClass", "org.apache.jasper.servlet.JspServlet");
+            servletData.setAttribute("servletClass", jspServletClassName);
             initParams.put("development", "false");
         } else {
             throw new DeploymentException("Neither servlet class nor jsp file is set for " + servletName); // TODO identify web app in message
@@ -1032,6 +1034,7 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
         infoBuilder.addAttribute("defaultSessionTimeoutSeconds", Integer.class, true, true);
         infoBuilder.addAttribute("defaultWelcomeFiles", List.class, true, true);
         infoBuilder.addAttribute("jettyContainerObjectName", AbstractNameQuery.class, true, true);
+        infoBuilder.addAttribute("jspServletClassName", String.class, true, true);
         infoBuilder.addReference("DefaultServlets", JettyDefaultServletHolder.class, NameFactory.SERVLET_TEMPLATE);
         infoBuilder.addReference("DefaultFilters", Object.class);
         infoBuilder.addReference("DefaultFilterMappings", Object.class);
@@ -1050,6 +1053,7 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
                 "defaultSessionTimeoutSeconds",
                 "defaultWelcomeFiles",
                 "jettyContainerObjectName",
+                "jspServletClassName",
                 "DefaultServlets",
                 "DefaultFilters",
                 "DefaultFilterMappings",

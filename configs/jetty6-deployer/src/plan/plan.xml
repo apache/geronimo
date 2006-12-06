@@ -24,6 +24,7 @@
         <attribute name="defaultSessionTimeoutSeconds">1800</attribute>
         <attribute name="defaultWelcomeFiles">index.html,index.htm,index.jsp</attribute>
         <attribute name="jettyContainerObjectName">?name=JettyWebContainer</attribute>
+        <attribute name="jspServletClassName">org.apache.jasper.servlet.JspServlet</attribute>
         <references name="DefaultServlets">
             <pattern>
                 <name>StaticContent</name>
