@@ -16,54 +16,18 @@ Upcoming Releases:
     
 RELEASE SHOWSTOPPERS:
 
-Certification - Historically certification has been the most time consuming 
-portion of a release, and there is no reason to expect it to be any different 
-for this release.  To make matters worse, the certification test suite was not 
-run for several months while major changes were made to the build, EJB, 
-Transaction, Connector and Servlet Session.    
-
-In the last two weeks we have gotten the TCK running and using Maven 2, and
-have made good progress on the test suite.  Additionally, the GBuild servers
-are back online and processing some tests.  There are stability issues with
-GBuild but we are hopeful it will be fully running soon.
+Certification - Historically certification has been the most time 
+consuming portion of a release, and his release is proving to be no
+different than the previous ones.  The biggest problem area is code 
+related to the new CORBA ORB implementation Yoko.
  
-Currently, the biggest concerns for the TCK are ActiveMQ 4 and Yoko.  Both
-of these are new libraries and may take a considerable amount of effort to 
-certify.  Also, there are few people that understand these new libraries,
-the geronimo integrations, and the TCK.  In the case of ActiveMQ, the one 
-person that understands that can certify the code, is unavailable for the 
-next two weeks.
+Snapshots - Before a final release can be cut we need to resolve any 
+SNAPSHOT dependencies must be replaced with final released versions.
 
-Fit and Finish - This is another item that has historically taken a 
-significant amount of time to complete.  A process has been started to 
-tie up the loose ends in the software so it can be released.
-
-
-Dead 1.2 - There are still 26 unmerged commits the dead 1.2 branch.  These 
-commits must be merged before the 1.2 release.  The current status of the 
-dead-1.2 changes can be found at 
-http://svn.apache.org/repos/asf/geronimo/server/trunk/all_changes.log
-
-
-
-PENDING PATCHES:
-
-GERONIMO-2485 PersistenceUnitGBean needs a NamespaceDrivenDeployer
-
-GERONIMO-1277 Change group-id to org.apache.geronimo
-  Status: New proposal by Jason Dillon to change base the groupId to 
-org.apache.geronimo.server
-
-GERONIMO-2015 Let's replace JKS to PKCS12 key store type - Opened
-  Status: No active discussion
-
-GERONIMO-2409 Provide config/module aliasing ability
-  Status: 3 +1 votes
-
-GERONIMO-2413 Add a Certification Authority (CA) portlet to Geronimo console
-  Status: Not reviewed
-
-
+Legal Review - There are many items in this category, but at the very
+lease all source files must have the current Apache license header and all 
+archives must contain LICENSE, NOTICE and DISCLAIMER files as required by 
+the ASF.  
 
 RELEASE HISTORY:
   2006-09-18  Geronimo 1.1.1
