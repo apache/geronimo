@@ -19,14 +19,19 @@ package org.apache.geronimo.security.realm.providers;
 import java.io.IOException;
 import java.security.cert.X509Certificate;
 import java.security.cert.Certificate;
+
 import javax.security.auth.callback.Callback;
 import javax.security.auth.callback.UnsupportedCallbackException;
 import javax.security.auth.callback.CallbackHandler;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 /**
  * @version $Rev$ $Date$
  */
 public class CertificateChainCallbackHandler implements CallbackHandler {
+    private static final Log log = LogFactory.getLog(CertificateChainCallbackHandler.class);
     Certificate[] certificateChain;
 
     public CertificateChainCallbackHandler(Certificate[] certificateChain) {
@@ -39,14 +44,27 @@ public class CertificateChainCallbackHandler implements CallbackHandler {
             if (callback instanceof CertificateChainCallback) {
                 CertificateChainCallback cc = (CertificateChainCallback) callback;
                 cc.setCertificateChain(certificateChain);
-            } else if (callback instanceof CertificateCallback
-                    && certificateChain != null
-                    && certificateChain.length > 0
-                    && certificateChain[0] instanceof X509Certificate) {
-                CertificateCallback cc = (CertificateCallback) callback;
-                cc.setCertificate((X509Certificate) certificateChain[0]);
+            } else if (callback instanceof CertificateCallback) {
+                if (certificateChain != null
+                        && certificateChain.length > 0
+                        && certificateChain[0] instanceof X509Certificate) {
+                    CertificateCallback cc = (CertificateCallback) callback;
+                    cc.setCertificate((X509Certificate) certificateChain[0]);
+                } else {
+                    StringBuffer buf = new StringBuffer("Invalid certificate chain: \n");
+                    if (certificateChain == null) {
+                        buf.append("certificate chain is null");
+                    } else {
+                        buf.append("certificate chain length: ").append(certificateChain.length).append("\n");
+                        if (certificateChain.length > 0) {
+                            buf.append("first certificate is a: ").append(certificateChain[0].getClass()).append("\n");
+                            buf.append("certificate is an X509Certificate: ").append(certificateChain[0] instanceof X509Certificate).append("\n");
+                        }
+                    }
+                    throw new UnsupportedCallbackException(callback, buf.toString());
+                }
             } else {
-                throw new UnsupportedCallbackException(callback);
+                throw new UnsupportedCallbackException(callback, "Wrong callback type: " + callback.getClass());
             }
         }
     }
