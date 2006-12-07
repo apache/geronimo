@@ -1258,7 +1258,7 @@
                             <assembly>
                                 <id>jetty</id>
                                 <groupId>org.apache.geronimo.assemblies</groupId>
-                                <artifactId>geronimo-jetty-jee5</artifactId>
+                                <artifactId>geronimo-jetty6-jee5</artifactId>
                                 <version>${version}</version>
                                 <classifier>bin</classifier>
                                 <type>zip</type>
