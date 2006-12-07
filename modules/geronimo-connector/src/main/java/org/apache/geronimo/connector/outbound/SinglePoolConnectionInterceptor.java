@@ -132,10 +132,12 @@ public class SinglePoolConnectionInterceptor extends AbstractSinglePoolConnectio
     protected boolean internalReturn(ConnectionInfo connectionInfo, ConnectionReturnAction connectionReturnAction) {
         ManagedConnectionInfo mci = connectionInfo.getManagedConnectionInfo();
         ManagedConnection mc = mci.getManagedConnection();
-        try {
-            mc.cleanup();
-        } catch (ResourceException e) {
-            connectionReturnAction = ConnectionReturnAction.DESTROY;
+        if (connectionReturnAction == ConnectionReturnAction.RETURN_HANDLE) {
+            try {
+                mc.cleanup();
+            } catch (ResourceException e) {
+                connectionReturnAction = ConnectionReturnAction.DESTROY;
+            }
         }
         boolean wasInPool = false;
         synchronized (pool) {

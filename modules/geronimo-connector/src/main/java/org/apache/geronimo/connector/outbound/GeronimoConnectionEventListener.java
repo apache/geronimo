@@ -43,6 +43,7 @@ public class GeronimoConnectionEventListener implements ConnectionEventListener 
     private final ManagedConnectionInfo managedConnectionInfo;
     private final ConnectionInterceptor stack;
     private final List connectionInfos = new ArrayList();
+    private boolean errorOccurred = false;
 
     public GeronimoConnectionEventListener(
             final ConnectionInterceptor stack,
@@ -85,9 +86,13 @@ public class GeronimoConnectionEventListener implements ConnectionEventListener 
                     + connectionEvent.getSource());
         }
         log.warn("connectionErrorOccurred called with " + connectionEvent.getConnectionHandle(), connectionEvent.getException());
-        ConnectionInfo ci = new ConnectionInfo(managedConnectionInfo);
-        ci.setConnectionHandle(connectionEvent.getConnectionHandle());
-        stack.returnConnection(ci, ConnectionReturnAction.DESTROY);
+        boolean errorOccurred = this.errorOccurred;
+        this.errorOccurred = true;
+        if (!errorOccurred) {
+            ConnectionInfo ci = new ConnectionInfo(managedConnectionInfo);
+            ci.setConnectionHandle(connectionEvent.getConnectionHandle());
+            stack.returnConnection(ci, ConnectionReturnAction.DESTROY);
+        }
     }
 
     public void localTransactionStarted(ConnectionEvent event) {
