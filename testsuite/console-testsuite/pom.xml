@@ -50,6 +50,11 @@
             <artifactId>selenium-server</artifactId>
         </dependency>
     </dependencies>
+
+    <!-- FIXME : a better idea would be to get the container name from the installed assembly or running server -->
+    <properties>
+      <container>jetty6</container>
+    </properties>
     
     <build>
         <plugins>
@@ -99,7 +104,7 @@
                                     <goal>start-module</goal>
                                 </goals>
                                 <configuration>
-                                    <moduleId>org.apache.geronimo.configs/webconsole-jetty/${version}/car</moduleId>
+                                    <moduleId>org.apache.geronimo.configs/webconsole-${container}/${version}/car</moduleId>
                                 </configuration>
                             </execution>
                             
@@ -110,7 +115,7 @@
                                     <goal>stop-module</goal>
                                 </goals>
                                 <configuration>
-                                    <moduleId>org.apache.geronimo.configs/webconsole-jetty/${version}/car</moduleId>
+                                    <moduleId>org.apache.geronimo.configs/webconsole-${container}/${version}/car</moduleId>
                                 </configuration>
                             </execution>
                         </executions>
