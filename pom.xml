@@ -534,13 +534,13 @@
             <dependency>
                 <groupId>org.apache.activemq</groupId>
                 <artifactId>activemq-core</artifactId>
-                <version>4.1-incubator-SNAPSHOT</version>
+                <version>4.1.0-incubator</version>
             </dependency>
 
             <dependency>
                 <groupId>org.apache.activemq</groupId>
                 <artifactId>activemq-ra</artifactId>
-                <version>4.1-incubator-SNAPSHOT</version>
+                <version>4.1.0-incubator</version>
             </dependency>
 
             <dependency>
@@ -1406,6 +1406,21 @@
             </snapshots>
             <releases>
                 <enabled>false</enabled>
+            </releases>
+        </repository>
+
+        <repository>
+            <id>apache.incubator</id>
+            <name>Apache Incubator Repository</name>
+            <url>http://people.apache.org/repo/m2-incubating-repository/</url>
+            <layout>default</layout>
+            <snapshots>
+                <enabled>false</enabled>
+                <updatePolicy>daily</updatePolicy>
+                <checksumPolicy>ignore</checksumPolicy>
+            </snapshots>
+            <releases>
+                <enabled>true</enabled>
             </releases>
         </repository>
     </repositories>
