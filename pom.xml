@@ -1258,7 +1258,7 @@
                             <assembly>
                                 <id>jetty</id>
                                 <groupId>org.apache.geronimo.assemblies</groupId>
-                                <artifactId>geronimo-jetty-j2ee</artifactId>
+                                <artifactId>geronimo-jetty-jee5</artifactId>
                                 <version>${version}</version>
                                 <classifier>bin</classifier>
                                 <type>zip</type>
@@ -1276,7 +1276,7 @@
                             <assembly>
                                 <id>tomcat</id>
                                 <groupId>org.apache.geronimo.assemblies</groupId>
-                                <artifactId>geronimo-tomcat-j2ee</artifactId>
+                                <artifactId>geronimo-tomcat-jee5</artifactId>
                                 <version>${version}</version>
                                 <classifier>bin</classifier>
                                 <type>zip</type>
