@@ -128,19 +128,11 @@
                     <artifactId>geronimo-jms_1.1_spec</artifactId>
                 </exclusion>
                 
-                <!--
-                FIXME: Do we need to exclude these?
-                -->
-                
                 <exclusion>
                     <groupId>org.apache.activemq</groupId>
                     <artifactId>activeio-core</artifactId>
                 </exclusion>
                 
-                <exclusion>
-                    <groupId>activesoap</groupId>
-                    <artifactId>jaxp-api</artifactId>
-                </exclusion>
             </exclusions>
         </dependency>
         
@@ -152,10 +144,6 @@
                     <groupId>org.apache.geronimo.specs</groupId>
                     <artifactId>geronimo-j2ee-connector_1.5_spec</artifactId>
                 </exclusion>
-                
-                <!--
-                FIXME: Do we need to exclude these?
-                -->
                 
                 <exclusion>
                     <groupId>org.springframework</groupId>
