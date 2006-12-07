@@ -79,6 +79,11 @@ public class CommandListConfigurations extends AbstractCommand {
                 } catch (FailedLoginException e) {
                     throw new DeploymentException("Invalid login for Maven repository '"+repo+"'");
                 }
+                if (data == null) {
+                    out.println();
+                    out.println("No plugins were returned from this site.");
+                    return;
+                }
                 Map categories = new HashMap();
                 List available = new ArrayList();
                 for (int i = 0; i < data.getPlugins().length; i++) {
