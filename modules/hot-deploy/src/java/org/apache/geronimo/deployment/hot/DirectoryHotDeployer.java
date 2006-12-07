@@ -352,6 +352,28 @@ public class DirectoryHotDeployer implements HotDeployer, DeploymentWatcher, GBe
         return true;
     }
 
+    public String getModuleId(String config) {
+        DeploymentManager mgr = null;
+        TargetModuleID[] modules = null;
+        try {
+            mgr = getDeploymentManager();
+            Target[] targets = mgr.getTargets();
+            TargetModuleID[] ids = mgr.getAvailableModules(null, targets);
+            for(int j=0;j<ids.length;j++) {
+                String moduleId=ids[j].getModuleID();
+                String[] parts = moduleId.split("/", -1);
+                if (parts.length != 4) {
+                    continue;
+                }
+                if(parts[1] != null && parts[1].equals(config))
+                    return ids[j].getModuleID();                
+            }
+        } catch(Exception ex){
+            log.error("Unable to getModuleId",ex);
+        }
+        return config;
+    }
+
     public void fileUpdated(File file, String configId) {
         log.info("Redeploying " + file.getName());
         DeploymentManager mgr = null;
