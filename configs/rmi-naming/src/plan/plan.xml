@@ -38,24 +38,6 @@
         <attribute name="nameInNamespace">java:</attribute>
     </gbean>
 
-    <gbean name="SystemProperties" class="org.apache.geronimo.system.properties.SystemProperties">
-        <attribute name="systemProperties" />
-        <attribute name="systemPathProperties" />
-        <!-- Can we get by without this?
-        <attribute name="systemProperties">
-            javax.net.ssl.keyStorePassword=secret
-            javax.net.ssl.trustStorePassword=secret
-        </attribute>
-        <attribute name="systemPathProperties">
-            javax.net.ssl.keyStore=var/security/keystores/geronimo-default
-            javax.net.ssl.trustStore=var/security/keystores/geronimo-default
-        </attribute>
-        -->
-        <reference name="ServerInfo">
-            <name>ServerInfo</name>
-        </reference>
-    </gbean>
-
     <gbean name="MBeanServerReference" class="org.apache.geronimo.system.jmx.RealMBeanServerReference"/>
 
     <!-- MBean server service -->
