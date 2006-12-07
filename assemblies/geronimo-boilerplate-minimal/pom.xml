@@ -152,6 +152,12 @@
                         </goals>
                         <configuration>
                             <artifactItems>
+
+                                <artifactItem>
+                                    <groupId>xalan</groupId>
+                                    <artifactId>xalan</artifactId>
+                                </artifactItem>
+
                                 <artifactItem>
                                     <groupId>xerces</groupId>
                                     <artifactId>xercesImpl</artifactId>
