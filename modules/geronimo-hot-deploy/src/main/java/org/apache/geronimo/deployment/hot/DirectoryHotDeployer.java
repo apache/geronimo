@@ -375,9 +375,10 @@ public class DirectoryHotDeployer implements HotDeployer, DeploymentWatcher, GBe
         return config;
     }
 
-    public void fileUpdated(File file, String configId) {
+    public String fileUpdated(File file, String configId) {
         log.info("Redeploying " + file.getName());
         DeploymentManager mgr = null;
+        TargetModuleID[] modules = null;
         try {
             mgr = getDeploymentManager();
             Target[] targets = mgr.getTargets();
@@ -391,7 +392,7 @@ public class DirectoryHotDeployer implements HotDeployer, DeploymentWatcher, GBe
             }
             waitForProgress(po);
             if (po.getDeploymentStatus().isCompleted()) {
-                TargetModuleID[] modules = po.getResultTargetModuleIDs();
+                modules = po.getResultTargetModuleIDs();
                 for (int i = 0; i < modules.length; i++) {
                     TargetModuleID result = modules[i];
                     log.info(DeployUtils.reformat("Redeployed " + result.getModuleID() + (targets.length > 1 ? " to " + result.getTarget().getName() : "") + (result.getWebURL() == null ? "" : " @ " + result.getWebURL()), 4, 72));
@@ -411,6 +412,15 @@ public class DirectoryHotDeployer implements HotDeployer, DeploymentWatcher, GBe
             log.error("Unable to undeploy", e);
         } finally {
             if (mgr != null) mgr.release();
+        }
+        if (modules != null) {
+            if (modules.length == 1) {
+                return modules[0].getModuleID();
+            } else {
+                return "";
+            }
+        } else {
+            return null;
         }
     }
 
