@@ -103,7 +103,7 @@ public class DirectoryMonitor implements Runnable {
          */
         boolean fileRemoved(File file, String configId);
 
-        void fileUpdated(File file, String configId);
+        String fileUpdated(File file, String configId);
 
         /**
          * This method returns the module id of an application deployed in the default group.
@@ -338,7 +338,15 @@ log.info("At startup, found "+now.getPath()+" with deploy time "+now.getModified
                             }
                         } else if (action.action == FileAction.UPDATED_FILE) {
                             workingOnConfigId = action.info.getConfigId();
-                            listener.fileUpdated(action.child, action.info.getConfigId());
+                            String result = listener.fileUpdated(action.child, action.info.getConfigId());
+                            FileInfo update = action.info;
+                            if (result != null) {
+                                if (!result.equals("")) {
+                                    update.setConfigId(result);
+                                } else {
+                                    update.setConfigId(calculateModuleId(action.child));
+                                }
+                            }
                             workingOnConfigId = null;
                         }
                     } catch (Exception e) {
