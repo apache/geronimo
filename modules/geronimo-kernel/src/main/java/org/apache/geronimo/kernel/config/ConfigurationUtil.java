@@ -364,6 +364,9 @@ public final class ConfigurationUtil {
                     loaded.add(gbeanData.getAbstractName());
                 } catch (GBeanAlreadyExistsException e) {
                     throw new InvalidConfigException(e);
+                } catch (Throwable e) {
+                    log.warn("Could not load gbean " + gbeanData.getAbstractName(), e);
+                    throw e;
                 }
             }
 
