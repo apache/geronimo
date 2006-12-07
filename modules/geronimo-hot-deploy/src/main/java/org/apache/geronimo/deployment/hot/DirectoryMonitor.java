@@ -104,6 +104,13 @@ public class DirectoryMonitor implements Runnable {
         boolean fileRemoved(File file, String configId);
 
         void fileUpdated(File file, String configId);
+
+        /**
+         * This method returns the module id of an application deployed in the default group.
+         * @return String respresenting the ModuleId if the application is already deployed
+         */
+        String getModuleId(String config);
+
     }
 
     private int pollIntervalMillis;
@@ -352,7 +359,7 @@ log.info("At startup, found "+now.getPath()+" with deploy time "+now.getModified
         }
     }
 
-    private static String calculateModuleId(File module) {
+    private String calculateModuleId(File module) {
         String moduleId = null;
         try {
             moduleId = DeployUtils.extractModuleIdFromArchive(module);
@@ -366,6 +373,7 @@ log.info("At startup, found "+now.getPath()+" with deploy time "+now.getModified
         if (moduleId == null) {
             int pos = module.getName().lastIndexOf('.');
             moduleId = pos > -1 ? module.getName().substring(0, pos) : module.getName();
+            moduleId = listener.getModuleId(moduleId);
         }
         return moduleId;
     }
