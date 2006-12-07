@@ -161,11 +161,6 @@
         </dependency>
 
         <dependency>
-            <groupId>tomcat</groupId>
-            <artifactId>jasper-runtime</artifactId>
-        </dependency>
-
-        <dependency>
             <groupId>commons-digester</groupId>
             <artifactId>commons-digester</artifactId>
         </dependency>

@@ -9,19 +9,19 @@
         <dep:artifactId>jetty-util</dep:artifactId>
     </dep:dependency>
     <dep:dependency>
-        <dep:groupId>tomcat</dep:groupId>
-        <dep:artifactId>jasper-compiler</dep:artifactId>
+        <dep:groupId>org.apache.tomcat</dep:groupId>
+        <dep:artifactId>jasper</dep:artifactId>
     </dep:dependency>
     <dep:dependency>
-        <dep:groupId>tomcat</dep:groupId>
-        <dep:artifactId>jasper-compiler-jdt</dep:artifactId>
+        <dep:groupId>org.apache.tomcat</dep:groupId>
+        <dep:artifactId>jasper-jdt</dep:artifactId>
     </dep:dependency>
     <dep:dependency>
-        <dep:groupId>tomcat</dep:groupId>
-        <dep:artifactId>jasper-runtime</dep:artifactId>
+        <dep:groupId>org.apache.tomcat</dep:groupId>
+        <dep:artifactId>jasper-el</dep:artifactId>
     </dep:dependency>
     <dep:dependency>
-        <dep:groupId>commons-el</dep:groupId>
-        <dep:artifactId>commons-el</dep:artifactId>
+        <dep:groupId>org.apache.tomcat</dep:groupId>
+        <dep:artifactId>juli</dep:artifactId>
     </dep:dependency>
 </dep:service>

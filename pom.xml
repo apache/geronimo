@@ -71,7 +71,8 @@
         <!--
         HACK: Used by jsp and servlet example configs to point to the tomcat deployer
         -->
-        <tomcatVersion>5.5.15</tomcatVersion>
+        <tomcatVersion>6.0.2-beta</tomcatVersion>
+        <tomcat5Version>5.5.15</tomcat5Version>
 
         <!--
         HACK: Used by uddi-jetty and uddi-tomcat config plans
@@ -845,83 +846,55 @@
 
             <dependency>
                 <groupId>tomcat</groupId>
-                <artifactId>jasper-compiler</artifactId>
-                <version>${tomcatVersion}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>tomcat</groupId>
                 <artifactId>jasper-compiler-jdt</artifactId>
-                <version>${tomcatVersion}</version>
+                <version>${tomcat5Version}</version>
             </dependency>
 
             <dependency>
                 <groupId>tomcat</groupId>
                 <artifactId>jasper-runtime</artifactId>
-                <version>${tomcatVersion}</version>
+                <version>${tomcat5Version}</version>
             </dependency>
 
             <dependency>
                 <groupId>tomcat</groupId>
+                <artifactId>jasper-compiler</artifactId>
+                <version>${tomcat5Version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.tomcat</groupId>
+                <artifactId>jasper</artifactId>
+                <version>${tomcatVersion}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.tomcat</groupId>
+                <artifactId>jasper-el</artifactId>
+                <version>${tomcatVersion}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.tomcat</groupId>
+                <artifactId>jasper-jdt</artifactId>
+                <version>${tomcatVersion}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.tomcat</groupId>
+                <artifactId>juli</artifactId>
+                <version>${tomcatVersion}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.tomcat</groupId>
                 <artifactId>catalina</artifactId>
                 <version>${tomcatVersion}</version>
             </dependency>
 
             <dependency>
-                <groupId>tomcat</groupId>
-                <artifactId>tomcat-ajp</artifactId>
-                <version>5.5.15</version>
-            </dependency>
-
-            <dependency>
-                <groupId>tomcat</groupId>
-                <artifactId>catalina-cluster</artifactId>
-                <version>${tomcatVersion}</version>
-            </dependency>
-
-            <!--
-              - Required until any realm is provided to Tomcat
-              - See StandardEngine::getRealm()
-            -->
-            <dependency>
-                <groupId>tomcat</groupId>
-                <artifactId>catalina-optional</artifactId>
-                <version>${tomcatVersion}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>tomcat</groupId>
-                <artifactId>tomcat-coyote</artifactId>
-                <version>${tomcatVersion}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>tomcat</groupId>
-                <artifactId>tomcat-http</artifactId>
-                <version>${tomcatVersion}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>tomcat</groupId>
-                <artifactId>tomcat-util</artifactId>
-                <version>${tomcatVersion}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>tomcat</groupId>
-                <artifactId>naming-resources</artifactId>
-                <version>${tomcatVersion}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>tomcat</groupId>
-                <artifactId>servlets-default</artifactId>
-                <version>${tomcatVersion}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>tomcat</groupId>
-                <artifactId>servlets-invoker</artifactId>
+                <groupId>org.apache.tomcat</groupId>
+                <artifactId>coyote</artifactId>
                 <version>${tomcatVersion}</version>
             </dependency>
 
