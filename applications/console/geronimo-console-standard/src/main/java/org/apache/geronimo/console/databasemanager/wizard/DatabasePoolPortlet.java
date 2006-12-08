@@ -31,8 +31,8 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.net.URLEncoder;
 import java.net.URLDecoder;
+import java.net.URLEncoder;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.Driver;
@@ -49,10 +49,13 @@ import java.util.Properties;
 import java.util.SortedSet;
 import javax.enterprise.deploy.model.DDBean;
 import javax.enterprise.deploy.model.DDBeanRoot;
+import javax.enterprise.deploy.shared.StateType;
 import javax.enterprise.deploy.spi.DeploymentConfiguration;
 import javax.enterprise.deploy.spi.DeploymentManager;
 import javax.enterprise.deploy.spi.Target;
 import javax.enterprise.deploy.spi.TargetModuleID;
+import javax.enterprise.deploy.spi.status.ProgressEvent;
+import javax.enterprise.deploy.spi.status.ProgressListener;
 import javax.enterprise.deploy.spi.status.ProgressObject;
 import javax.portlet.ActionRequest;
 import javax.portlet.ActionResponse;
@@ -989,6 +992,10 @@ public class DatabasePoolPortlet extends BasePortlet {
                             
                             log.info("Deployment completed successfully!");
                         }
+                    } else if(po.getDeploymentStatus().isFailed()) {
+                        data.deployError = "Unable to deploy: " + data.name;
+                        response.setRenderParameter(MODE_KEY, EDIT_MODE);
+                        log.info("Deployment Failed!");
                     }
                 }
             } catch (Exception e) {
@@ -1199,6 +1206,7 @@ public class DatabasePoolPortlet extends BasePortlet {
         private String rarPath;
         private String importSource;
         private Map abstractNameMap; // generated as needed, don't need to read/write it
+        private String deployError;
 
         public void load(PortletRequest request) {
             name = request.getParameter("name");
@@ -1255,6 +1263,8 @@ public class DatabasePoolPortlet extends BasePortlet {
                     propertyNames.put(key, getPropertyName(key));
                 }
             }
+            deployError = request.getParameter("deployError");
+            if(deployError != null && deployError.equals("")) deployError = null;
         }
 
         public void loadPropertyNames() {
@@ -1325,6 +1335,7 @@ public class DatabasePoolPortlet extends BasePortlet {
                     response.setRenderParameter((String)entry.getKey(), (String)entry.getValue());
                 }
             }
+            if(deployError != null) response.setRenderParameter("deployError", deployError);
         }
 
         public String getName() {
@@ -1423,6 +1434,10 @@ public class DatabasePoolPortlet extends BasePortlet {
             abstractNameMap.put("type", name.getArtifact().getType());
             abstractNameMap.put("version", name.getArtifact().getVersion().toString());
             return abstractNameMap;
+        }
+        
+        public String getDeployError() {
+            return deployError;
         }
     }
 
