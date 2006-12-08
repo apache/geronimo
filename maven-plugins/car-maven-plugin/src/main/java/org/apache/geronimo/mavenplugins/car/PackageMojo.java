@@ -26,7 +26,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import org.apache.geronimo.deployment.PluginBootstrap2;
@@ -55,7 +54,7 @@ import org.apache.maven.archiver.MavenArchiveConfiguration;
 import org.apache.maven.archiver.MavenArchiver;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.plugin.MojoExecutionException;
-import org.apache.maven.project.MavenProject;
+
 import org.codehaus.plexus.archiver.jar.JarArchiver;
 import org.codehaus.plexus.util.FileUtils;
 
@@ -96,6 +95,15 @@ public class PackageMojo
      * @readonly
      */
     private JarArchiver jarArchiver = null;
+
+    /**
+     * The module base directory.
+     *
+     * @parameter expression="${project.basedir}"
+     * @required
+     * @readonly
+     */
+    private File baseDirectory = null;
 
     /**
      * Directory containing the generated archive.
@@ -344,6 +352,24 @@ public class PackageMojo
             if (classesDirectory.isDirectory()) {
                 archiver.getArchiver().addDirectory(classesDirectory);
             }
+
+            //
+            // HACK: Include legal files here for sanity
+            //
+
+            //
+            // NOTE: Would be nice to share this with the copy-legal-files mojo
+            //
+            String[] includes = {
+                "LICENSE.txt",
+                "LICENSE",
+                "NOTICE.txt",
+                "NOTICE",
+                "DISCLAIMER.txt",
+                "DISCLAIMER"
+            };
+
+            archiver.getArchiver().addDirectory(baseDirectory, "META-INF/", includes, new String[0]);
 
             if (classpath != null) {
                 archive.addManifestEntry("Class-Path", getClassPath());
