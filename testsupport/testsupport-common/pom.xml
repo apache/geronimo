@@ -17,11 +17,8 @@
     specific language governing permissions and limitations
     under the License.
 -->
-
 <!-- $Rev$ $Date$ -->
-
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-
     <modelVersion>4.0.0</modelVersion>
     
     <parent>
@@ -67,6 +64,23 @@
             <artifactId>stax-api</artifactId>
         </dependency>
 
+        <!-- selenium -->
+        <dependency>
+            <groupId>org.openqa.selenium.client-drivers</groupId>
+            <artifactId>selenium-java-client-driver</artifactId>
+            <version>0.8.1</version>
+        </dependency>
+        <dependency>
+            <groupId>org.openqa.selenium.server</groupId>
+            <artifactId>selenium-server</artifactId>
+            <version>0.8.1</version>
+        </dependency>
+        <dependency>
+            <groupId>org.testng</groupId>
+            <artifactId>testng</artifactId>
+            <classifier>jdk15</classifier>
+            <version>5.1</version>
+        </dependency>
     </dependencies>
     
 </project>

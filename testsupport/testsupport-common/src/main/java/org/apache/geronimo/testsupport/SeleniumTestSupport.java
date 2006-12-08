@@ -17,9 +17,7 @@
  *  under the License.
  */
 
-package org.apache.geronimo.testsuite.console;
-
-import org.apache.geronimo.testsupport.TestSupport;
+package org.apache.geronimo.testsupport;
 
 import com.thoughtworks.selenium.Selenium;
 
@@ -67,5 +65,26 @@ public class SeleniumTestSupport
         
         selenium.stop();
     }
+
+    /**
+     * junit's per class setup.
+     * 
+    protected void setUp() throws Exception {
+        log.info("Starting Selenium client");
+        
+        selenium = createSeleniumClient("http://localhost:8080/");
+        selenium.start();
+    }
+     */
+    
+    /**
+     * junit's per class teardown.
+     * 
+    protected void tearDown() throws Exception {
+        log.info("Stopping Selenium client");
+        
+        selenium.stop();
+    }
+     */
 }
 

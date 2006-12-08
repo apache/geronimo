@@ -18,6 +18,8 @@
  */
 
 package org.apache.geronimo.testsuite.deployment;
+
+import org.apache.geronimo.testsupport.SeleniumTestSupport;
 import org.testng.annotations.Test;
 
 /**

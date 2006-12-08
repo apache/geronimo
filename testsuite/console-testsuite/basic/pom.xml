@@ -43,15 +43,6 @@
         executes the 'child' profile.i
     </description>
 
-    <dependencies>
-        <dependency>
-            <groupId>org.testng</groupId>
-            <artifactId>testng</artifactId>
-            <classifier>jdk15</classifier>
-            <scope>test</scope>
-        </dependency>
-    </dependencies>
-    
     <profiles>
         <profile>
             <id>child</id>

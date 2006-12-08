@@ -19,6 +19,8 @@
 
 package org.apache.geronimo.testsuite.console;
 
+import org.apache.geronimo.testsupport.SeleniumTestSupport;
+
 /**
  * ???
  *

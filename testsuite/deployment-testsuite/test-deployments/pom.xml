@@ -42,14 +42,6 @@
         Since build executions are done here, a 'child' profile is explicitly defined here to prevent inheriting other configurations and executions from parent.
     </description>
 
-    <dependencies>
-        <dependency>
-            <groupId>org.testng</groupId>
-            <artifactId>testng</artifactId>
-            <classifier>jdk15</classifier>
-        </dependency>
-    </dependencies>
-    
     <profiles>
         <profile>
             <id>child</id>

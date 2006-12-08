@@ -17,7 +17,7 @@
  *  under the License.
  */
 
-package org.apache.geronimo.testsuite.deployment;
+package org.apache.geronimo.testsupport;
 
 import com.thoughtworks.selenium.Selenium;
 import com.thoughtworks.selenium.DefaultSelenium;
