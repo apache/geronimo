@@ -66,7 +66,7 @@
     </repositories>
 
     <properties>
-        <dojoVersion>0.4.0</dojoVersion>
+        <dojoVersion>0.4.1</dojoVersion>
     </properties>
 
     <!-- this build process extracts certain files from dojo.zip
