@@ -105,6 +105,12 @@ function <portlet:namespace/>validate() {
     <input type="hidden" name="rarPath" value="${pool.rarPath}" />
 
     <table border="0">
+    <c:if test="${!(empty pool.deployError)}">
+      <tr>
+      	<th><div align="right"><font color="red">Error Deploying:</font></div></th>
+      	<td><font color="red">${pool.deployError} - see the log for details</font></td>
+      </tr>
+    </c:if>
     <!-- ENTRY FIELD: NAME -->
       <tr>
         <th style="min-width: 140px"><div align="right">Pool Name:</div></th>
@@ -173,7 +179,7 @@ function <portlet:namespace/>validate() {
       <tr>
         <th><div align="right">Driver JAR:</div></th>
         <td>
-          <select multiple name="jars" size="10">
+          <select multiple="true" name="jars" size="10">
               <c:forEach var="availableJar" items="${availableJars}">
                   <option value="${availableJar}" <c:forEach var="jar" items="${pool.jars}"><c:if test="${availableJar == jar}">selected</c:if></c:forEach>>
                       ${availableJar}
@@ -250,7 +256,7 @@ function <portlet:namespace/>validate() {
       <tr>
         <th><div align="right">Driver JAR:</div></th>
         <td>
-          <select multiple name="jars" size="10">
+          <select multiple="true" name="jars" size="10">
               <c:forEach var="availableJar" items="${availableJars}">
                   <option value="${availableJar}" <c:forEach var="jar" items="${pool.jars}"><c:if test="${availableJar == jar}">selected</c:if></c:forEach>>
                       ${availableJar}
