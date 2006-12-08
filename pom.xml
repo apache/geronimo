@@ -674,6 +674,12 @@
             </dependency>
 
             <dependency>
+                <groupId>jstl</groupId>
+                <artifactId>jstl</artifactId>
+                <version>1.2</version>
+            </dependency>
+
+            <dependency>
                 <groupId>dwr</groupId>
                 <artifactId>dwr</artifactId>
                 <version>1.1.1</version>
@@ -1191,7 +1197,7 @@
                 <plugin>
                     <groupId>org.codehaus.mojo</groupId>
                     <artifactId>jspc-maven-plugin</artifactId>
-                    <version>1.4.6</version>
+                    <version>1.4.7-SNAPSHOT</version>
                     <executions>
                         <execution>
                             <id>jspc</id>
@@ -1373,6 +1379,11 @@
               specify where Genesis lives to pick it up + any additional repositories.
         -->
 
+        <repository>
+            <id>java.net</id>
+            <url>https://maven-repository.dev.java.net/nonav/repository</url>
+            <layout>legacy</layout>
+        </repository>
         <repository>
             <id>apache-snapshots</id>
             <name>Apache Snapshots Repository</name>

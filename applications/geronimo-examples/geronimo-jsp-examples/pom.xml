@@ -53,7 +53,7 @@
         </dependency>
 
         <dependency>
-            <groupId>javax.servlet</groupId>
+            <groupId>jstl</groupId>
             <artifactId>jstl</artifactId>
         </dependency>
         

@@ -75,7 +75,7 @@
                     <type>jar</type>
                 </dependency>
                 <dependency>
-                    <groupId>javax.servlet</groupId>
+                    <groupId>jstl</groupId>
                     <artifactId>jstl</artifactId>
                     <type>jar</type>
                 </dependency>
