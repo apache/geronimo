@@ -51,7 +51,7 @@ public class JettyServletHandler extends ServletHandler {
     }
 
     protected void doHandle(String target, HttpServletRequest request, HttpServletResponse response, int type)
-        throws IOException {
+        throws IOException, ServletException {
         super.handle(target, request, response, type);
     }
     
