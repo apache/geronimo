@@ -299,24 +299,4 @@
         </profile>
     </profiles>
     
-    <!--
-    NOTE: This is needed to pull Selenium artifacts.
-    -->
-    <repositories>
-        <repository>
-            <id>openqa</id>
-            <name>OpenQA Repository</name>
-            <url>http://maven.openqa.org</url>
-            <layout>default</layout>
-            <snapshots>
-                <enabled>true</enabled>
-                <updatePolicy>daily</updatePolicy>
-                <checksumPolicy>ignore</checksumPolicy>
-            </snapshots>
-            <releases>
-                <enabled>true</enabled>
-            </releases>
-        </repository>
-    </repositories>
-
 </project>
