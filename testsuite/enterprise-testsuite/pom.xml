@@ -31,12 +31,20 @@
         <relativePath>../pom.xml</relativePath>
     </parent>
     
-    <artifactId>ejbcontainer-testsuite</artifactId>
-    <name>Geronimo TestSuite, OpenEJB container</name>
+    <artifactId>enterprise-testsuite</artifactId>
+    <name>Geronimo TestSuite, Enterprise Tier</name>
     <packaging>pom</packaging>
     
     <description>
-        OpenEJB container testsuite.
+        Enterprise tier testsuite. Should contain tests for:
+        - EJB
+        - JMS
+        - JCA
+        - JACC
+        - JAF
+        - JTA
+        - JPA
+        - JavaMail
     </description>
     
     <build>
@@ -70,6 +78,11 @@
             -->
             <build>
                 <plugins>
+                  <plugin>
+                      <groupId>org.apache.geronimo.plugins</groupId>
+                      <artifactId>selenium-maven-plugin</artifactId>
+                  </plugin>
+
                     <plugin>
                         <groupId>org.apache.geronimo.plugins</groupId>
                         <artifactId>geronimo-maven-plugin</artifactId>
