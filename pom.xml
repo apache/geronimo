@@ -1378,12 +1378,6 @@
         NOTE: The default repositories are picked up by Genesis, but need to
               specify where Genesis lives to pick it up + any additional repositories.
         -->
-
-        <repository>
-            <id>java.net</id>
-            <url>https://maven-repository.dev.java.net/nonav/repository</url>
-            <layout>legacy</layout>
-        </repository>
         <repository>
             <id>apache-snapshots</id>
             <name>Apache Snapshots Repository</name>
