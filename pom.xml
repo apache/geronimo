@@ -61,7 +61,7 @@
         <!--
         Having a single well named property makes automatic updating for the weekly build much easier.
         -->
-        <openejbVersion>2.3-incubating-SNAPSHOT</openejbVersion>
+        <openejbVersion>2.2-incubating-SNAPSHOT</openejbVersion>
 
         <!--
         HACK: Used by uddi-db to execute the sql plugin with the Derby driver.
