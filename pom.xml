@@ -427,12 +427,6 @@
                 <artifactId>wsdl4j</artifactId>
                 <version>1.5.2</version>
             </dependency>
-            
-            <dependency>
-                <groupId>xalan</groupId> 
-                <artifactId>xalan</artifactId>
-                <version>2.7.0</version>
-            </dependency>
 
             <!-- org.apache.xml.serialize.XMLSerializer is used by castor, hence this is still needed -->
             <dependency>
