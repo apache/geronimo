@@ -88,8 +88,8 @@
         <module>geronimo-system</module>
         <module>geronimo-test-ddbean</module>
         <module>geronimo-timer</module>
-        <module>geronimo-tomcat</module>
-        <module>geronimo-tomcat-builder</module>
+        <module>geronimo-tomcat6</module>
+        <module>geronimo-tomcat6-builder</module>
         <module>geronimo-transaction</module>
         <module>geronimo-upgrade</module>
         <module>geronimo-util</module>

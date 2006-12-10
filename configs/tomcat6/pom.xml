@@ -21,7 +21,7 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
     <modelVersion>4.0.0</modelVersion>
-
+    
     <parent>
         <groupId>org.apache.geronimo.configs</groupId>
         <artifactId>configs</artifactId>
@@ -29,28 +29,56 @@
         <relativePath>../pom.xml</relativePath>
     </parent>
 
-    <artifactId>welcome-tomcat</artifactId>
-    <name>Geronimo Configs :: Welcome app Tomcat</name>
+    <artifactId>tomcat6</artifactId>
+    <name>Geronimo Configs :: Tomcat</name>
     <packaging>car</packaging>
     
     <dependencies>
         
         <dependency>
-            <groupId>org.apache.geronimo.applications</groupId>
-            <artifactId>geronimo-welcome</artifactId>
-            <version>${version}</version>
-            <type>war</type>
-        </dependency>
-        
-        <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
-            <artifactId>tomcat6-deployer</artifactId>
+            <artifactId>j2ee-server</artifactId>
             <version>${version}</version>
             <type>car</type>
-            <scope>provided</scope>
         </dependency>
+
+        <dependency>
+            <groupId>org.apache.geronimo.configs</groupId>
+            <artifactId>j2ee-security</artifactId>
+            <version>${version}</version>
+            <type>car</type>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.geronimo.configs</groupId>
+            <artifactId>transaction-jta11</artifactId>
+            <version>${version}</version>
+            <type>car</type>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.geronimo.modules</groupId>
+            <artifactId>geronimo-tomcat6</artifactId>
+            <version>${version}</version>
+        </dependency>
+        
     </dependencies>
     
+    <repositories>
+        <repository>
+            <id>tomcat6-repo</id>
+            <url>http://people.apache.org/~pmcmahan/maven2</url>
+            <layout>default</layout>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+            <releases>
+                <enabled>true</enabled>
+                <checksumPolicy>ignore</checksumPolicy>
+            </releases>
+        </repository>
+    </repositories>
+
     <build>
         <resources>
             <resource>
@@ -59,6 +87,7 @@
             </resource>
         </resources>
         
+<!--
         <plugins>
             <plugin>
                 <groupId>org.apache.geronimo.plugins</groupId>
@@ -66,18 +95,11 @@
                 <configuration>
                     <deploymentConfigs>
                         <deploymentConfig>${gbeanDeployer}</deploymentConfig>
-                        <deploymentConfig>${j2eeDeployer}</deploymentConfig>
-                        <deploymentConfig>${tomcatDeployer}</deploymentConfig>
                     </deploymentConfigs>
-                    <module>
-                        <groupId>org.apache.geronimo.applications</groupId>
-                        <artifactId>geronimo-welcome</artifactId>
-                        <version>${version}</version>
-                        <type>war</type>
-                    </module>
                 </configuration>
             </plugin>
         </plugins>
+-->
     </build>
-    
+
 </project>

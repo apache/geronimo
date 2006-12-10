@@ -29,12 +29,12 @@
         <relativePath>../pom.xml</relativePath>
     </parent>
 
-    <artifactId>geronimo-framework</artifactId>
-    <name>Geronimo Assemblies :: Minimal Framework</name>
+    <artifactId>geronimo-tomcat6-minimal</artifactId>
+    <name>Geronimo Assemblies :: Minimal + Tomcat</name>
     <packaging>application-assembly</packaging>
     
     <description>
-        A minimal Geronimo server (Little-G) framework assembly.
+        A minimal Geronimo server (Little-G) assembly using the Tomcat web-container.
     </description>
     
     <dependencies>
@@ -55,11 +55,25 @@
         
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
+            <artifactId>j2ee-server</artifactId>
+            <version>${version}</version>
+            <type>car</type>
+        </dependency>
+        
+        <dependency>
+            <groupId>org.apache.geronimo.configs</groupId>
             <artifactId>j2ee-security</artifactId>
             <version>${version}</version>
             <type>car</type>
         </dependency>
-
+        
+        <dependency>
+            <groupId>org.apache.geronimo.configs</groupId>
+            <artifactId>tomcat6</artifactId>
+            <version>${version}</version>
+            <type>car</type>
+        </dependency>
+        
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
             <artifactId>geronimo-gbean-deployer</artifactId>
@@ -76,11 +90,32 @@
         
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
+            <artifactId>tomcat6-deployer</artifactId>
+            <version>${version}</version>
+            <type>car</type>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.geronimo.configs</groupId>
+            <artifactId>remote-deploy-tomcat</artifactId>
+            <version>${version}</version>
+            <type>car</type>
+        </dependency>
+        
+        <dependency>
+            <groupId>org.apache.geronimo.configs</groupId>
             <artifactId>shutdown</artifactId>
             <version>${version}</version>
             <type>car</type>
         </dependency>
         
+        <dependency>
+            <groupId>org.apache.geronimo.configs</groupId>
+            <artifactId>sharedlib</artifactId>
+            <version>${version}</version>
+            <type>car</type>
+        </dependency>
+
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
             <artifactId>online-deployer</artifactId>
@@ -105,6 +140,13 @@
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
             <artifactId>unavailable-ejb-deployer</artifactId>
+            <version>${version}</version>
+            <type>car</type>
+        </dependency>
+        
+        <dependency>
+            <groupId>org.apache.geronimo.configs</groupId>
+            <artifactId>hot-deployer</artifactId>
             <version>${version}</version>
             <type>car</type>
         </dependency>
@@ -157,11 +199,6 @@
                                 <artifactItem>
                                     <groupId>org.apache.geronimo.modules</groupId>
                                     <artifactId>geronimo-tomcat6-builder</artifactId>
-                                    <version>${version}</version>
-                                </artifactItem>
-                                <artifactItem>
-                                    <groupId>org.apache.geronimo.modules</groupId>
-                                    <artifactId>geronimo-jetty-builder</artifactId>
                                     <version>${version}</version>
                                 </artifactItem>
                             </artifactItems>

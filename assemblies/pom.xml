@@ -75,8 +75,8 @@
         <module>geronimo-jetty-j2ee</module>
         <module>geronimo-jetty-minimal</module>
         <module>geronimo-jetty6-jee5</module>
-        <module>geronimo-tomcat-jee5</module>
-        <module>geronimo-tomcat-minimal</module>
+        <module>geronimo-tomcat6-jee5</module>
+        <module>geronimo-tomcat6-minimal</module>
     </modules>
 
 </project>

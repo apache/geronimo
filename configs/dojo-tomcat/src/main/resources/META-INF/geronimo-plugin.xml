@@ -32,7 +32,7 @@
     <license osi-approved="true">BSD and Academic Free License v2.1</license>
     <geronimo-version>${version}</geronimo-version>
     <prerequisite>
-        <id>org.apache.geronimo.configs/tomcat//car</id>
+        <id>org.apache.geronimo.configs/tomcat6//car</id>
         <resource-type>Web Container</resource-type>
         <description>
             This version of the Welcome application works with the Geronimo/Tomcat distribution.

@@ -46,7 +46,7 @@
         <openejbcorbaDeployer>org.apache.geronimo.configs/openejb-corba-deployer/${version}/car</openejbcorbaDeployer>
         <axisDeployer>org.apache.geronimo.configs/axis-deployer/${version}/car</axisDeployer>
         <cxfDeployer>org.apache.geronimo.configs/cxf-deployer/${version}/car</cxfDeployer>
-        <tomcatDeployer>org.apache.geronimo.configs/tomcat-deployer/${version}/car</tomcatDeployer>
+        <tomcatDeployer>org.apache.geronimo.configs/tomcat6-deployer/${version}/car</tomcatDeployer>
         <jettyDeployer>org.apache.geronimo.configs/jetty-deployer/${version}/car</jettyDeployer>
         <jetty6Deployer>org.apache.geronimo.configs/jetty6-deployer/${version}/car</jetty6Deployer>
 
@@ -159,8 +159,8 @@
         <module>sharedlib</module>
         <module>shutdown</module>
         <module>system-database</module>
-        <module>tomcat</module>
-        <module>tomcat-deployer</module>
+        <module>tomcat6</module>
+        <module>tomcat6-deployer</module>
         <!--<module>transaction</module>-->
         <module>uddi-jetty</module>
         <module>uddi-tomcat</module>
