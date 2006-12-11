@@ -267,7 +267,7 @@
             <version>${version}</version>
             <type>car</type>
         </dependency>
-<!--
+ 
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
             <artifactId>welcome-jetty</artifactId>
@@ -275,7 +275,6 @@
             <type>car</type>
         </dependency>
 
--->
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
             <artifactId>webconsole-jetty6</artifactId>
