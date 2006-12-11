@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ejb-jar version="2.1"
+         xmlns="http://java.sun.com/xml/ns/j2ee"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee http://java.sun.com/xml/ns/j2ee/ejb-jar_2_1.xsd">
+    <display-name>Manifest Classpath itest ejb</display-name>
+    <enterprise-beans>
+        <session>
+            <description>Manifest Classpath Itest ejb</description>
+            <display-name>TestSession</display-name>
+            <ejb-name>TestSession</ejb-name>
+            <home>org.apache.geronimo.itest.TestSessionHome</home>
+            <remote>org.apache.geronimo.itest.TestSession</remote>
+            <ejb-class>org.apache.geronimo.itest.TestSessionBean</ejb-class>
+            <session-type>Stateless</session-type>
+            <transaction-type>Container</transaction-type>
+        </session>
+    </enterprise-beans>
+</ejb-jar>

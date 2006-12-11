@@ -1,0 +1,29 @@
+<?xml version="1.0"?>
+<project>
+  <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>org.apache.geronimo.testsuite.manifestcp</groupId>
+        <artifactId>manifestcp</artifactId>
+        <version>2.0-SNAPSHOT</version>
+        <relativePath>../pom.xml</relativePath>
+    </parent>
+
+    <artifactId>manifestcp-war-jar</artifactId>
+    <name>Manifest classpath war-jar</name>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.apache.geronimo.specs</groupId>
+            <artifactId>geronimo-servlet_2.5_spec</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.geronimo.testsuite.manifestcp</groupId>
+            <artifactId>manifestcp-jar2</artifactId>
+            <version>${version}</version>
+            <optional>true</optional>
+        </dependency>
+    </dependencies>
+
+</project>
