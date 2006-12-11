@@ -44,6 +44,7 @@
         <module>testsupport-common</module>
         <module>test-deployment-j2ee_1.3</module>
         <module>test-deployment-j2ee_1.4</module>
+        <module>test-deployment-jms</module>
     </modules>
 
 </project>
