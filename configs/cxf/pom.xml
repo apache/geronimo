@@ -39,13 +39,13 @@
             <groupId>org.apache.geronimo.configs</groupId>
             <artifactId>j2ee-server</artifactId>
             <type>car</type>
-            <version>${pom.version}</version>
+            <version>${version}</version>
         </dependency>
 
        <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
             <artifactId>geronimo-cxf</artifactId>
-            <version>${pom.version}</version>
+            <version>${version}</version>
         </dependency>
 
         <dependency>
