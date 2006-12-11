@@ -143,7 +143,7 @@ extends MojoSupport
     /**
      * show results for only these many tests.
      * 
-     * @parameter expression="${numberShown}" default-value="7"
+     * @parameter expression="${numberShown}" default-value="8"
      */
     private int numberShown;
 
