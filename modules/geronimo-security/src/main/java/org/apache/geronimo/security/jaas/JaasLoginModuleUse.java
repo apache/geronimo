@@ -136,7 +136,7 @@ public class JaasLoginModuleUse implements JaasLoginModuleChain {
         infoBuilder.addReference("LoginModule", LoginModuleSettings.class, NameFactory.LOGIN_MODULE);
         infoBuilder.addReference("Next", JaasLoginModuleUse.class);
 
-        infoBuilder.addOperation("configure", new Class[]{Set.class, List.class, Kernel.class, ServerInfo.class, ClassLoader.class});
+        infoBuilder.addOperation("configure", new Class[]{Set.class, List.class, Kernel.class, ServerInfo.class, ClassLoader.class}, "void");
         infoBuilder.addInterface(JaasLoginModuleChain.class);
         infoBuilder.setConstructor(new String[]{"LoginModule", "Next", "controlFlag", "kernel"});
         GBEAN_INFO = infoBuilder.getBeanInfo();

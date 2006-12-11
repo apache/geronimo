@@ -58,7 +58,7 @@ public class RealmGBean extends BaseGBean implements GBeanLifecycle, ObjectRetri
         infoFactory.addAttribute("className", String.class, true);
         infoFactory.addAttribute("initParams", Map.class, true);
 
-        infoFactory.addOperation("getInternalObject");
+        infoFactory.addOperation("getInternalObject", "java.lang.Object");
         infoFactory.setConstructor(new String[] { "className", "initParams" });
         GBEAN_INFO = infoFactory.getBeanInfo();
     }

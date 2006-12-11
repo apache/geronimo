@@ -374,8 +374,8 @@ public class MailGBean implements GBeanLifecycle, JavaMailResource {
         infoFactory.addAttribute("host", String.class, true);
         infoFactory.addAttribute("user", String.class, true);
         infoFactory.addAttribute("debug", Boolean.class, true);
-        infoFactory.addOperation("$getResource");
-        infoFactory.addOperation("getProtocols");
+        infoFactory.addOperation("$getResource", "java.lang.Object");
+        infoFactory.addOperation("getProtocols", "java.util.Collection");
         infoFactory.addInterface(JavaMailResource.class);
 
         infoFactory.setConstructor(new String[]{"objectName",

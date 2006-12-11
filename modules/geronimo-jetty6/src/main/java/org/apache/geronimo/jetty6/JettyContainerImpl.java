@@ -262,16 +262,16 @@ public class JettyContainerImpl implements JettyContainer, SoapHandler, GBeanLif
         GBeanInfoBuilder infoBuilder = GBeanInfoBuilder.createStatic("Jetty Web Container", JettyContainerImpl.class);
         infoBuilder.addAttribute("collectStatistics", Boolean.TYPE, true);
         infoBuilder.addAttribute("collectStatisticsStarted", Long.TYPE, false);
-        infoBuilder.addOperation("resetStatistics");
+        infoBuilder.addOperation("resetStatistics", "void");
 
         infoBuilder.addAttribute("requestLog", RequestLog.class, false, false);
 
-        infoBuilder.addOperation("addListener", new Class[]{Connector.class});
-        infoBuilder.addOperation("removeListener", new Class[]{Connector.class});
-        infoBuilder.addOperation("addContext", new Class[]{ContextHandler.class});
-        infoBuilder.addOperation("removeContext", new Class[]{ContextHandler.class});
-        infoBuilder.addOperation("addRealm", new Class[]{String.class});
-        infoBuilder.addOperation("removeRealm", new Class[]{String.class});
+        infoBuilder.addOperation("addListener", new Class[]{Connector.class}, "void");
+        infoBuilder.addOperation("removeListener", new Class[]{Connector.class}, "void");
+        infoBuilder.addOperation("addContext", new Class[]{ContextHandler.class}, "void");
+        infoBuilder.addOperation("removeContext", new Class[]{ContextHandler.class}, "void");
+        infoBuilder.addOperation("addRealm", new Class[]{String.class}, "void");
+        infoBuilder.addOperation("removeRealm", new Class[]{String.class}, "void");
 
         infoBuilder.addAttribute("objectName", String.class, false);
         infoBuilder.addReference("WebManager", WebManager.class);

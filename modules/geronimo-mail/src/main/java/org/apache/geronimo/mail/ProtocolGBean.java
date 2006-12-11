@@ -205,7 +205,7 @@ public class ProtocolGBean implements GBeanLifecycle {
         infoFactory.addAttribute(GBEAN_PROPERTIES, Properties.class, true);
         infoFactory.addAttribute(GBEAN_HOST, String.class, true);
         infoFactory.addAttribute(GBEAN_USER, String.class, true);
-        infoFactory.addOperation(GBEAN_ADD_OVERRIDES, new Class[]{Properties.class});
+        infoFactory.addOperation(GBEAN_ADD_OVERRIDES, new Class[]{Properties.class}, "void");
 
         infoFactory.setConstructor(new String[]{GBEAN_OBJECTNAME, GBEAN_PROTOCOL, GBEAN_PROPERTIES, GBEAN_HOST, GBEAN_USER});
 

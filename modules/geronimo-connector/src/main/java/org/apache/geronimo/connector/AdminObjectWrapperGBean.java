@@ -41,7 +41,7 @@ public class AdminObjectWrapperGBean {
         infoBuilder.addAttribute("objectName", String.class, false);
         infoBuilder.addAttribute("classLoader", ClassLoader.class, false);
 
-        infoBuilder.addOperation("$getResource");
+        infoBuilder.addOperation("$getResource", "java.lang.Object");
         infoBuilder.addInterface(JCAAdminObject.class);
 
         infoBuilder.setConstructor(new String[]{

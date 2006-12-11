@@ -75,7 +75,7 @@ public class JAXRGBean {
         infoFactory.addAttribute("connectionFactoryClass", String.class, true, true);
         infoFactory.addAttribute("classLoader", ClassLoader.class, false);
 
-        infoFactory.addOperation("$getResource");
+        infoFactory.addOperation("$getResource", "java.lang.Object");
 
         infoFactory.setConstructor(new String[] {"connectionFactoryClass", "classLoader"});
 

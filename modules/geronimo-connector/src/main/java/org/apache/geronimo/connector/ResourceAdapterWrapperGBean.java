@@ -91,7 +91,7 @@ public class ResourceAdapterWrapperGBean extends ResourceAdapterWrapper implemen
         infoBuilder.addReference("WorkManager", WorkManager.class, NameFactory.JCA_WORK_MANAGER);
         infoBuilder.addReference("XATerminator", XATerminator.class, NameFactory.JCA_WORK_MANAGER);
 
-        infoBuilder.addOperation("registerResourceAdapterAssociation", new Class[]{ResourceAdapterAssociation.class});
+        infoBuilder.addOperation("registerResourceAdapterAssociation", new Class[]{ResourceAdapterAssociation.class}, "void");
 
         infoBuilder.addInterface(ResourceAdapter.class);
         infoBuilder.addInterface(JCAResourceAdapter.class);

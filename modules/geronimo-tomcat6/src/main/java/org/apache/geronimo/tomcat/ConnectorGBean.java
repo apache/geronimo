@@ -571,7 +571,7 @@ public class ConnectorGBean extends BaseGBean implements GBeanLifecycle, ObjectR
         infoFactory.addAttribute("name", String.class, true);
         infoFactory.addAttribute("protocol", String.class, true);
         infoFactory.addReference(CONNECTOR_CONTAINER_REFERENCE, TomcatContainer.class, NameFactory.GERONIMO_SERVICE);
-        infoFactory.addOperation("getInternalObject");
+        infoFactory.addOperation("getInternalObject", "java.lang.Object");
         infoFactory.addInterface(TomcatWebConnector.class,
                 new String[]{
                         "host",

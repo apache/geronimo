@@ -95,8 +95,8 @@ public class MockGBean implements MockEndpoint {
         infoFactory.addAttribute("intValue", int.class, true);
         infoFactory.addAttribute("fooBarBean", FooBarBean.class, true);
 
-        infoFactory.addOperation("checkEndpoint");
-        infoFactory.addOperation("doSomething", new Class[]{String.class});
+        infoFactory.addOperation("checkEndpoint", "java.lang.String");
+        infoFactory.addOperation("doSomething", new Class[]{String.class}, "java.lang.String");
 
         infoFactory.addReference("MockEndpoint", MockEndpoint.class, null);
 

@@ -475,8 +475,8 @@ public class Deployer {
         infoFactory.addAttribute("kernel", Kernel.class, false);
         infoFactory.addAttribute("remoteDeployUploadURL", String.class, false);
         infoFactory.addOperation("deploy", new Class[]{boolean.class, File.class, File.class});
-        infoFactory.addOperation("deploy", new Class[]{boolean.class, File.class, File.class, String.class});
-        infoFactory.addOperation("deploy", new Class[]{boolean.class, File.class, File.class, File.class, boolean.class, String.class, String.class, String.class, String.class, String.class, String.class, String.class, String.class});
+        infoFactory.addOperation("deploy", new Class[]{boolean.class, File.class, File.class, String.class}, "java.util.List");
+        infoFactory.addOperation("deploy", new Class[]{boolean.class, File.class, File.class, File.class, boolean.class, String.class, String.class, String.class, String.class, String.class, String.class, String.class, String.class}, "java.util.List");
 
         infoFactory.addReference("Builders", ConfigurationBuilder.class, "ConfigBuilder");
         infoFactory.addReference("Store", ConfigurationStore.class, "ConfigurationStore");
