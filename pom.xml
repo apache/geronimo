@@ -1256,7 +1256,7 @@
                     <configuration>
                         <assemblies>
                             <assembly>
-                                <id>jetty6</id>
+                                <id>jetty</id>
                                 <groupId>org.apache.geronimo.assemblies</groupId>
                                 <artifactId>geronimo-jetty6-jee5</artifactId>
                                 <version>${version}</version>
@@ -1265,7 +1265,7 @@
                             </assembly>
 
                             <assembly>
-                                <id>jetty6-minimal</id>
+                                <id>jetty-minimal</id>
                                 <groupId>org.apache.geronimo.assemblies</groupId>
                                 <artifactId>geronimo-jetty-minimal</artifactId>
                                 <version>${version}</version>
@@ -1274,7 +1274,7 @@
                             </assembly>
 
                             <assembly>
-                                <id>tomcat6</id>
+                                <id>tomcat</id>
                                 <groupId>org.apache.geronimo.assemblies</groupId>
                                 <artifactId>geronimo-tomcat6-jee5</artifactId>
                                 <version>${version}</version>
@@ -1283,7 +1283,7 @@
                             </assembly>
 
                             <assembly>
-                                <id>tomcat6-minimal</id>
+                                <id>tomcat-minimal</id>
                                 <groupId>org.apache.geronimo.assemblies</groupId>
                                 <artifactId>geronimo-tomcat6-minimal</artifactId>
                                 <version>${version}</version>
@@ -1292,7 +1292,7 @@
                             </assembly>
                         </assemblies>
 
-                        <defaultAssemblyId>jetty6</defaultAssemblyId>
+                        <defaultAssemblyId>jetty</defaultAssemblyId>
 
                         <optionSets>
                             <optionSet>
