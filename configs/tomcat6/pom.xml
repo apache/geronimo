@@ -62,6 +62,11 @@
             <version>${version}</version>
         </dependency>
         
+        <dependency>
+            <groupId>jstl</groupId>
+            <artifactId>jstl</artifactId>
+        </dependency>
+
     </dependencies>
     
     <repositories>
@@ -76,6 +81,16 @@
                 <enabled>true</enabled>
                 <checksumPolicy>ignore</checksumPolicy>
             </releases>
+        </repository>
+        <!--
+        HACK: jstl:jstl:jar:1.2 is not available on a m2 repo, so include them here
+              to avoid needing to setup an m1 repo which causes problems resolving
+              dependencies.
+        -->
+        <repository>
+            <id>java.net</id>
+            <url>https://maven-repository.dev.java.net/nonav/repository</url>
+            <layout>legacy</layout>
         </repository>
     </repositories>
 
@@ -101,5 +116,6 @@
         </plugins>
 -->
     </build>
+
 
 </project>

@@ -55,6 +55,7 @@
         <dependency>
             <groupId>jstl</groupId>
             <artifactId>jstl</artifactId>
+            <scope>provided</scope>
         </dependency>
         
     </dependencies>
