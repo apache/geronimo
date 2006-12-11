@@ -712,10 +712,10 @@ public class Log4jService implements GBeanLifecycle, SystemLog {
 
         infoFactory.addReference("ServerInfo", ServerInfo.class, "GBean");
 
-        infoFactory.addOperation("reconfigure");
-        infoFactory.addOperation("setLoggerLevel", new Class[]{String.class, String.class});
-        infoFactory.addOperation("getLoggerLevel", new Class[]{String.class});
-        infoFactory.addOperation("getLoggerEffectiveLevel", new Class[]{String.class});
+        infoFactory.addOperation("reconfigure", "void");
+        infoFactory.addOperation("setLoggerLevel", new Class[]{String.class, String.class}, "void");
+        infoFactory.addOperation("getLoggerLevel", new Class[]{String.class}, "java.lang.String");
+        infoFactory.addOperation("getLoggerEffectiveLevel", new Class[]{String.class}, "java.lang.String");
         infoFactory.addInterface(SystemLog.class);
 
         infoFactory.setConstructor(new String[]{"configFileName", "refreshPeriodSeconds", "ServerInfo"});

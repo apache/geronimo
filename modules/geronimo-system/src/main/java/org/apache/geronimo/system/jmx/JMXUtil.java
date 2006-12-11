@@ -74,7 +74,7 @@ public final class JMXUtil {
                 parameters[p] = new MBeanParameterInfo("parameter" + p, type, "no description available");
                 p++;
             }
-            operations[o] = new MBeanOperationInfo(gOperationInfo.getName(), "no description available", parameters, "java.lang.Object", MBeanOperationInfo.UNKNOWN);
+            operations[o] = new MBeanOperationInfo(gOperationInfo.getName(), "no description available", parameters, gOperationInfo.getReturnType() , MBeanOperationInfo.UNKNOWN);
             o++;
         }
 

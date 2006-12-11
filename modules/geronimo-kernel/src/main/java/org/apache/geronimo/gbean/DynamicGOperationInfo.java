@@ -24,14 +24,14 @@ import java.util.List;
  */
 public class DynamicGOperationInfo extends GOperationInfo {
     public DynamicGOperationInfo(String name) {
-        super(name);
+        super(name, "java.lang.Object");
     }
 
     public DynamicGOperationInfo(String name, String[] paramTypes) {
-        super(name, paramTypes);
+        super(name, paramTypes, "java.lang.Object");
     }
 
     public DynamicGOperationInfo(String name, List parameters) {
-        super(name, parameters);
+        super(name, parameters, "java.lang.Object");
     }
 }

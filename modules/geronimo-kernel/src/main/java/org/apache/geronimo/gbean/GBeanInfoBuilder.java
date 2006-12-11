@@ -187,8 +187,7 @@ public class GBeanInfoBuilder {
 
             for (Iterator i = source.getOperations().iterator(); i.hasNext();) {
                 GOperationInfo operationInfo = (GOperationInfo) i.next();
-                operations.put(new GOperationSignature(operationInfo.getName(),
-                        operationInfo.getParameterList()), operationInfo);
+                operations.put(new GOperationSignature(operationInfo.getName(), operationInfo.getParameterList()), operationInfo);
             }
 
             for (Iterator iterator = source.getReferences().iterator(); iterator.hasNext();) {
@@ -346,7 +345,7 @@ public class GBeanInfoBuilder {
                                     method.getName()));
                 }
             } else {
-                addOperation(new GOperationInfo(method.getName(), method.getParameterTypes()));
+                addOperation(new GOperationInfo(method.getName(), method.getParameterTypes(), method.getReturnType().getName()));
             }
         }
         addInterface(interfaces, intf);
@@ -401,13 +400,27 @@ public class GBeanInfoBuilder {
     public void addOperation(GOperationInfo operationInfo) {
         operations.put(new GOperationSignature(operationInfo.getName(), operationInfo.getParameterList()), operationInfo);
     }
-
+    
+    /**
+     * @deprecated
+     */ 
     public void addOperation(String name) {
-        addOperation(new GOperationInfo(name, NO_ARGS));
+        addOperation(new GOperationInfo(name, NO_ARGS, ""));
     }
 
+    /**
+     * @deprecated
+     */
     public void addOperation(String name, Class[] paramTypes) {
-        addOperation(new GOperationInfo(name, paramTypes));
+        addOperation(new GOperationInfo(name, paramTypes, ""));
+    }
+    
+    public void addOperation(String name, String returnType) {
+        addOperation(new GOperationInfo(name, NO_ARGS, returnType));
+    }
+
+    public void addOperation(String name, Class[] paramTypes, String returnType) {
+        addOperation(new GOperationInfo(name, paramTypes, returnType));
     }
 
     public void addReference(GReferenceInfo info) {

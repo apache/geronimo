@@ -40,6 +40,7 @@ public final class GBeanOperation {
     private final boolean framework;
     private final GOperationInfo operationInfo;
 
+    // TODO - deprecate this and add returnType
     static GBeanOperation createFrameworkOperation(GBeanInstance gbeanInstance, String name, List parameterTypes, MethodInvoker methodInvoker) {
         return new GBeanOperation(gbeanInstance, name, parameterTypes, methodInvoker);
     }
@@ -50,7 +51,7 @@ public final class GBeanOperation {
         this.name = name;
         this.parameterTypes = Collections.unmodifiableList(new ArrayList(parameterTypes));
         this.methodInvoker = methodInvoker;
-        this.operationInfo = new GOperationInfo(this.name, this.parameterTypes);
+        this.operationInfo = new GOperationInfo(this.name, this.parameterTypes, "java.lang.Object");
     }
 
     public GBeanOperation(GBeanInstance gbeanInstance, GOperationInfo operationInfo) throws InvalidConfigurationException {
@@ -97,6 +98,7 @@ public final class GBeanOperation {
                 throw new InvalidConfigurationException("Target does not have specified method (declared in a GBeanInfo operation):" +
                         " name=" + operationInfo.getName() +
                         " methodName=" + operationInfo.getMethodName() +
+                        " returnType=" + operationInfo.getReturnType() +
                         " targetClass=" + gbeanInstance.getType().getName());
             }
         }

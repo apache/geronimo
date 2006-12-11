@@ -74,11 +74,11 @@ public class MockGBean implements MockEndpoint, MockParentInterface1, MockParent
         infoFactory.addAttribute("endpointMutableInt", Integer.TYPE, false);
         infoFactory.addAttribute("someObject", Object.class, true);
 
-        infoFactory.addOperation("echo", new Class[]{String.class});
-        infoFactory.addOperation("checkEndpoint");
-        infoFactory.addOperation("checkEndpointCollection");
-        infoFactory.addOperation("doSomething", new Class[]{String.class});
-        infoFactory.addOperation("fetchValue");
+        infoFactory.addOperation("echo", new Class[]{String.class}, "java.lang.Object");
+        infoFactory.addOperation("checkEndpoint", "java.lang.Object");
+        infoFactory.addOperation("checkEndpointCollection", "java.lang.Object");
+        infoFactory.addOperation("doSomething", new Class[]{String.class}, "java.lang.Object");
+        infoFactory.addOperation("fetchValue", "java.lang.Object");
 
         infoFactory.addInterface(MockEndpoint.class, new String[]{"mutableInt"});
         infoFactory.addInterface(MockParentInterface1.class, new String[]{"value"});
