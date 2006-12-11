@@ -1256,7 +1256,7 @@
                     <configuration>
                         <assemblies>
                             <assembly>
-                                <id>jetty</id>
+                                <id>jetty6</id>
                                 <groupId>org.apache.geronimo.assemblies</groupId>
                                 <artifactId>geronimo-jetty6-jee5</artifactId>
                                 <version>${version}</version>
@@ -1265,7 +1265,7 @@
                             </assembly>
 
                             <assembly>
-                                <id>jetty-minimal</id>
+                                <id>jetty6-minimal</id>
                                 <groupId>org.apache.geronimo.assemblies</groupId>
                                 <artifactId>geronimo-jetty-minimal</artifactId>
                                 <version>${version}</version>
@@ -1292,7 +1292,7 @@
                             </assembly>
                         </assemblies>
 
-                        <defaultAssemblyId>jetty</defaultAssemblyId>
+                        <defaultAssemblyId>jetty6</defaultAssemblyId>
 
                         <optionSets>
                             <optionSet>
