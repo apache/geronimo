@@ -74,7 +74,7 @@ public class ManagerGBean extends BaseGBean implements GBeanLifecycle, ObjectRet
         GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic("TomcatManager", ManagerGBean.class, J2EE_TYPE);
         infoFactory.addAttribute("className", String.class, true);
         infoFactory.addAttribute("initParams", Map.class, true);
-        infoFactory.addOperation("getInternalObject", "java.lang.Object");
+        infoFactory.addOperation("getInternalObject");
         infoFactory.setConstructor(new String[] { 
                 "className", 
                 "initParams"});

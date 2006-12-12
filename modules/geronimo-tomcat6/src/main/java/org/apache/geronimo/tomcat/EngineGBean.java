@@ -190,7 +190,7 @@ public class EngineGBean extends BaseGBean implements GBeanLifecycle, ObjectRetr
         infoFactory.addReference("TomcatValveChain", ValveGBean.class, ValveGBean.J2EE_TYPE);
 //        infoFactory.addReference("CatalinaCluster", CatalinaClusterGBean.class, CatalinaClusterGBean.J2EE_TYPE);
         infoFactory.addReference("Manager", ManagerGBean.class, ManagerGBean.J2EE_TYPE);
-        infoFactory.addOperation("getInternalObject", "java.lang.Object");
+        infoFactory.addOperation("getInternalObject");
         infoFactory.setConstructor(new String[] { 
                 "className", 
                 "initParams", 

@@ -837,7 +837,7 @@ public class SMTPSTransportGBean extends ProtocolGBean {
         infoFactory.addAttribute(GBEAN_PROPERTIES, Properties.class, true);
         infoFactory.addAttribute(GBEAN_HOST, String.class, true);
         infoFactory.addAttribute(GBEAN_USER, String.class, true);
-        infoFactory.addOperation(GBEAN_ADD_OVERRIDES, new Class[]{Properties.class}, "void");
+        infoFactory.addOperation(GBEAN_ADD_OVERRIDES, new Class[]{Properties.class});
 
         infoFactory.setConstructor(new String[]{GBEAN_OBJECTNAME, GBEAN_PROPERTIES, GBEAN_HOST, GBEAN_USER,
                                                 GBEAN_PORT,

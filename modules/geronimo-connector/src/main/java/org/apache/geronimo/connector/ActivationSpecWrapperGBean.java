@@ -92,8 +92,8 @@ public class ActivationSpecWrapperGBean extends ActivationSpecWrapper implements
 
         infoBuilder.addReference("ResourceAdapterWrapper", ResourceAdapterWrapper.class, NameFactory.RESOURCE_ADAPTER);
 
-        infoBuilder.addOperation("activate", new Class[]{MessageEndpointFactory.class}, "void");
-        infoBuilder.addOperation("deactivate", new Class[]{MessageEndpointFactory.class}, "void");
+        infoBuilder.addOperation("activate", new Class[]{MessageEndpointFactory.class});
+        infoBuilder.addOperation("deactivate", new Class[]{MessageEndpointFactory.class});
 
         infoBuilder.addInterface(ResourceManager.class);
 

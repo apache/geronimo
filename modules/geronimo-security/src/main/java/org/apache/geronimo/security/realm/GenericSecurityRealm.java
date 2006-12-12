@@ -194,7 +194,7 @@ public class GenericSecurityRealm implements SecurityRealm, ConfigurationEntryFa
         infoFactory.addReference("ServerInfo", ServerInfo.class, NameFactory.GERONIMO_SERVICE);
         infoFactory.addReference("LoginService", JaasLoginServiceMBean.class, "JaasLoginService");
 
-        infoFactory.addOperation("getAppConfigurationEntries", new Class[0], "[LJaasLoginModuleConfiguration");
+        infoFactory.addOperation("getAppConfigurationEntries", new Class[0]);
 
         infoFactory.setConstructor(new String[]{"realmName",
                                                 "LoginModuleConfiguration",

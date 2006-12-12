@@ -92,7 +92,7 @@ public class ParserFactoryImpl implements ParserFactory {
     static {
         GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic("Factory for constructing suitable configured xml parsers", ParserFactoryImpl.class);
 
-        infoFactory.addOperation("getParser", "javax.xml.parsers.DocumentBuilder");
+        infoFactory.addOperation("getParser");
 
         infoFactory.addReference("EntityResolver", EntityResolver.class, "GBean");
 

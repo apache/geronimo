@@ -402,11 +402,11 @@ public class TomcatContainer implements SoapHandler, GBeanLifecycle, TomcatWebCo
         infoFactory.addReference("ServerInfo", ServerInfo.class, "GBean");
         infoFactory.addReference("WebManager", WebManager.class);
 
-        infoFactory.addOperation("addContext", new Class[]{TomcatContext.class}, "void");
-        infoFactory.addOperation("removeContext", new Class[]{TomcatContext.class}, "void");
+        infoFactory.addOperation("addContext", new Class[]{TomcatContext.class});
+        infoFactory.addOperation("removeContext", new Class[]{TomcatContext.class});
 
-        infoFactory.addOperation("addConnector", new Class[]{Connector.class}, "void");
-        infoFactory.addOperation("removeConnector", new Class[]{Connector.class}, "void");
+        infoFactory.addOperation("addConnector", new Class[]{Connector.class});
+        infoFactory.addOperation("removeConnector", new Class[]{Connector.class});
 
         infoFactory.addInterface(SoapHandler.class);
         infoFactory.addInterface(TomcatWebContainer.class);

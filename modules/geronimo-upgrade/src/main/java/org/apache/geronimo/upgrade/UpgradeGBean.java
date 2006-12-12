@@ -71,8 +71,8 @@ public class UpgradeGBean {
 
     static {
         GBeanInfoBuilder infoBuilder = GBeanInfoBuilder.createStatic(UpgradeGBean.class);
-        infoBuilder.addOperation("execute", new Class[] {String[].class}, "void");
-        infoBuilder.addOperation("execute", new Class[] {String.class, String.class}, "void");
+        infoBuilder.addOperation("execute", new Class[] {String[].class});
+        infoBuilder.addOperation("execute", new Class[] {String.class, String.class});
         GBEAN_INFO = infoBuilder.getBeanInfo();
     }
 

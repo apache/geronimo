@@ -445,16 +445,16 @@ public class JaasLoginService implements GBeanLifecycle, JaasLoginServiceMBean {
         infoFactory.addAttribute("expiredLoginScanIntervalMillis", int.class, true);
         infoFactory.addAttribute("objectName", String.class, false);
 
-        infoFactory.addOperation("connectToRealm", new Class[]{String.class}, "JaasSessionId");
-        infoFactory.addOperation("getLoginConfiguration", new Class[]{JaasSessionId.class}, "[LJaasLoginModuleConfiguration");
-        infoFactory.addOperation("getServerLoginCallbacks", new Class[]{JaasSessionId.class, int.class}, "[LCallbacks");
-        infoFactory.addOperation("performLogin", new Class[]{JaasSessionId.class, int.class, Callback[].class}, "boolean");
-        infoFactory.addOperation("performCommit", new Class[]{JaasSessionId.class, int.class}, "boolean");
-        infoFactory.addOperation("loginSucceeded", new Class[]{JaasSessionId.class}, "Principal");
-        infoFactory.addOperation("loginFailed", new Class[]{JaasSessionId.class}, "void");
-        infoFactory.addOperation("logout", new Class[]{JaasSessionId.class}, "void");
-        infoFactory.addOperation("syncShareState", new Class[]{JaasSessionId.class, Map.class}, "Map");
-        infoFactory.addOperation("syncPrincipals", new Class[]{JaasSessionId.class, Set.class}, "Set");
+        infoFactory.addOperation("connectToRealm", new Class[]{String.class});
+        infoFactory.addOperation("getLoginConfiguration", new Class[]{JaasSessionId.class});
+        infoFactory.addOperation("getServerLoginCallbacks", new Class[]{JaasSessionId.class, int.class});
+        infoFactory.addOperation("performLogin", new Class[]{JaasSessionId.class, int.class, Callback[].class});
+        infoFactory.addOperation("performCommit", new Class[]{JaasSessionId.class, int.class});
+        infoFactory.addOperation("loginSucceeded", new Class[]{JaasSessionId.class});
+        infoFactory.addOperation("loginFailed", new Class[]{JaasSessionId.class});
+        infoFactory.addOperation("logout", new Class[]{JaasSessionId.class});
+        infoFactory.addOperation("syncShareState", new Class[]{JaasSessionId.class, Map.class});
+        infoFactory.addOperation("syncPrincipals", new Class[]{JaasSessionId.class, Set.class});
 
         infoFactory.addReference("Realms", SecurityRealm.class, NameFactory.SECURITY_REALM);
         infoFactory.addInterface(JaasLoginServiceMBean.class);

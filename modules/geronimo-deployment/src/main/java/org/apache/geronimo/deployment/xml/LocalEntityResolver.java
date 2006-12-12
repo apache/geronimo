@@ -402,9 +402,9 @@ public class LocalEntityResolver implements EntityResolver {
         infoFactory.addAttribute("localRepositoryURI", URI.class, true);
         infoFactory.addAttribute("failOnUnresolvable", boolean.class, true);
 
-        infoFactory.addOperation("resolveEntity", new Class[]{String.class, String.class}, "org.xml.sax.InputSource");
-        infoFactory.addOperation("addPublicMapping", new Class[]{String.class, String.class}, "void");
-        infoFactory.addOperation("addSystemMapping", new Class[]{String.class, String.class}, "void");
+        infoFactory.addOperation("resolveEntity", new Class[]{String.class, String.class});
+        infoFactory.addOperation("addPublicMapping", new Class[]{String.class, String.class});
+        infoFactory.addOperation("addSystemMapping", new Class[]{String.class, String.class});
 
         infoFactory.setConstructor(new String[]{"catalogFileURI", "localRepositoryURI", "failOnUnresolvable"});
 

@@ -99,7 +99,7 @@ public class ValveGBean extends BaseGBean implements GBeanLifecycle, ObjectRetri
         infoFactory.addAttribute("initParams", Map.class, true);
         infoFactory.addReference("NextValve", ValveGBean.class, J2EE_TYPE);
         infoFactory.addOperation("getInternalObject");
-        infoFactory.addOperation("getNextValve", "java.lang.Object");
+        infoFactory.addOperation("getNextValve");
         infoFactory.setConstructor(new String[] { "className", "initParams", "NextValve" });
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
