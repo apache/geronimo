@@ -97,9 +97,7 @@
         </gbean>
     </module>
 
-<!-- 
     <module name="org.apache.geronimo.configs/remote-deploy-jetty/${version}/car"/>
--->
     
     <module name="org.apache.geronimo.configs/hot-deployer/${version}/car"/>
     

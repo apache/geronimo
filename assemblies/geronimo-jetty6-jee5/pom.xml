@@ -281,14 +281,14 @@
             <version>${version}</version>
             <type>car</type>
         </dependency>
-<!--
+
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
             <artifactId>remote-deploy-jetty</artifactId>
             <version>${version}</version>
             <type>car</type>
         </dependency>
--->
+
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
             <artifactId>uddi-jetty6</artifactId>

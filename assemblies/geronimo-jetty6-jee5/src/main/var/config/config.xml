@@ -211,11 +211,13 @@
     <module name="org.apache.geronimo.configs/dojo-jetty6/${version}/car"/>
 
     <module name="org.apache.geronimo.configs/webconsole-jetty6/${version}/car"/>
-<!--    
-    <module name="org.apache.geronimo.configs/uddi-jetty/${version}/car"/>
+
+    <module name="org.apache.geronimo.configs/uddi-jetty/${version}/car" load="false"/>
     
     <module name="org.apache.geronimo.configs/remote-deploy-jetty/${version}/car"/>
--->    
+
     <module name="org.apache.geronimo.configs/hot-deployer/${version}/car"/>
+
+    <module name="org.apache.geronimo.configs/ca-helper-jetty/${version}/car" load="false"/>
     
 </attributes>
