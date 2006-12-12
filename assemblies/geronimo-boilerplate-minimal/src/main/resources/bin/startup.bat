@@ -52,14 +52,17 @@ goto end
 :okOsCheck
 setlocal
 
-@REM Guess GERONIMO_HOME if not defined
+if not "%GERONIMO_HOME%" == "" goto resolveHome
+@REM %~dp0 is expanded pathname of the current script
+set GERONIMO_HOME=%~dp0..
+
+@REM resolve .. and remove any trailing slashes
+:resolveHome
 set CURRENT_DIR=%cd%
-if not "%GERONIMO_HOME%" == "" goto gotHome
-set GERONIMO_HOME=%CURRENT_DIR%
-if exist "%GERONIMO_HOME%\bin\geronimo.bat" goto okHome
-cd ..
+cd /d %GERONIMO_HOME%
 set GERONIMO_HOME=%cd%
-cd %CURRENT_DIR%
+cd /d %CURRENT_DIR%
+
 :gotHome
 if exist "%GERONIMO_HOME%\bin\geronimo.bat" goto okHome
 echo The GERONIMO_HOME environment variable is not defined correctly

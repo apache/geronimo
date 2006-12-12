@@ -152,9 +152,9 @@ set GERONIMO_HOME=%~dp0..
 @REM resolve .. and remove any trailing slashes
 :resolveHome
 set CURRENT_DIR=%cd%
-cd %GERONIMO_HOME%
+cd /d %GERONIMO_HOME%
 set GERONIMO_HOME=%cd%
-cd %CURRENT_DIR%
+cd /d %CURRENT_DIR%
 
 :gotHome
 if exist "%GERONIMO_HOME%\bin\geronimo.bat" goto okHome
