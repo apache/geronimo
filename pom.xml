@@ -1267,7 +1267,7 @@
                             <assembly>
                                 <id>jetty-minimal</id>
                                 <groupId>org.apache.geronimo.assemblies</groupId>
-                                <artifactId>geronimo-jetty-minimal</artifactId>
+                                <artifactId>geronimo-jetty6-minimal</artifactId>
                                 <version>${version}</version>
                                 <classifier>bin</classifier>
                                 <type>zip</type>

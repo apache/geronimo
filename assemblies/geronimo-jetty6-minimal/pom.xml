@@ -29,8 +29,8 @@
         <relativePath>../pom.xml</relativePath>
     </parent>
 
-    <artifactId>geronimo-jetty-minimal</artifactId>
-    <name>Geronimo Assemblies :: Minimal + Jetty</name>
+    <artifactId>geronimo-jetty6-minimal</artifactId>
+    <name>Geronimo Assemblies :: Minimal + Jetty6</name>
     <packaging>application-assembly</packaging>
     
     <description>
@@ -69,7 +69,7 @@
         
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
-            <artifactId>jetty</artifactId>
+            <artifactId>jetty6</artifactId>
             <version>${version}</version>
             <type>car</type>
         </dependency>
@@ -90,17 +90,19 @@
 
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
-            <artifactId>jetty-deployer</artifactId>
+            <artifactId>jetty6-deployer</artifactId>
             <version>${version}</version>
             <type>car</type>
         </dependency>
         
+<!--
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
             <artifactId>remote-deploy-jetty</artifactId>
             <version>${version}</version>
             <type>car</type>
         </dependency>
+-->
         
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
@@ -198,7 +200,7 @@
                             <artifactItems>
                                 <artifactItem>
                                     <groupId>org.apache.geronimo.modules</groupId>
-                                    <artifactId>geronimo-jetty-builder</artifactId>
+                                    <artifactId>geronimo-jetty6-builder</artifactId>
                                     <version>${version}</version>
                                 </artifactItem>
                             </artifactItems>

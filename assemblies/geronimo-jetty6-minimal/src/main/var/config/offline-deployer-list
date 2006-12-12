@@ -26,4 +26,4 @@ org.apache.geronimo.configs/persistence-jpa10-deployer/${pom.version}/car
 org.apache.geronimo.configs/unavailable-ejb-deployer/${pom.version}/car
 org.apache.geronimo.configs/unavailable-webservices-deployer/${pom.version}/car
 org.apache.geronimo.configs/unavailable-client-deployer/${pom.version}/car
-org.apache.geronimo.configs/jetty-deployer/${pom.version}/car
+org.apache.geronimo.configs/jetty6-deployer/${pom.version}/car

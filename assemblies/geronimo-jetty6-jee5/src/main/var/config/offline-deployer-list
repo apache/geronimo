@@ -23,4 +23,4 @@ org.apache.geronimo.configs/j2ee-deployer/${pom.version}/car
 org.apache.geronimo.configs/openejb-deployer/${pom.version}/car
 org.apache.geronimo.configs/client-deployer/${pom.version}/car
 org.apache.geronimo.configs/axis-deployer/${pom.version}/car
-org.apache.geronimo.configs/jetty-deployer/${pom.version}/car
+org.apache.geronimo.configs/jetty6-deployer/${pom.version}/car
