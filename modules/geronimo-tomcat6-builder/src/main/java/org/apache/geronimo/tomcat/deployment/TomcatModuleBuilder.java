@@ -250,7 +250,11 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder {
 
     private TomcatWebAppType createDefaultPlan(String path) {
         TomcatWebAppType tomcatWebApp = TomcatWebAppType.Factory.newInstance();
-        tomcatWebApp.setContextRoot("/" + path);
+        if (path!=null && !path.startsWith("/")) {
+            tomcatWebApp.setContextRoot("/" + path);
+        } else {
+            tomcatWebApp.setContextRoot(path);
+        }
         return tomcatWebApp;
     }
 
