@@ -59,6 +59,14 @@
         <profile>
             <id>child</id>
             <build>
+
+              <testResources>
+                <testResource>
+                  <directory>src/test/resources</directory>
+                  <filtering>true</filtering>
+                </testResource>
+              </testResources>
+
                 <plugins>
                     <plugin>
                         <groupId>org.apache.geronimo.plugins</groupId>
@@ -83,6 +91,7 @@
                                               <artifactId>openejb-itests-core</artifactId>
                                               <version>${openejbVersion}</version>
                                               <type>jar</type>
+                                              <plan>${project.build.directory}/test-classes/META-INF/openejb-jar.xml</plan>
                                           </module>
                                     </modules>
                                 </configuration>
