@@ -128,9 +128,8 @@ public abstract class AbstractNamingBuilder implements NamingBuilder {
         //bizarre ArrayStoreException if xmlObjects is loaded by the wrong classloader
         XmlObject[] converted = new XmlObject[xmlObjects.length];
         for (int i = 0; i < xmlObjects.length; i++) {
-            XmlObject xmlObject = xmlObjects[i];
+            XmlObject xmlObject = xmlObjects[i].copy();
             if (xmlObject.schemaType() != type) {
-                xmlObject = xmlObject.copy();
                 converter.convertElement(xmlObject);
                 converted[i] = xmlObject.changeType(type);
             } else {
