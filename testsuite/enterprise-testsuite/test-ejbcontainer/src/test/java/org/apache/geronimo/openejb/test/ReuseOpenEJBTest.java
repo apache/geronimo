@@ -20,6 +20,8 @@ package org.apache.geronimo.openejb.test;
 import junit.framework.TestCase;
 import junit.framework.Test;
 
+import org.apache.openejb.test.ClientTestSuite;
+
 /**
  *
  * NOTE: reuse the junit tests in openejb2/itests
