@@ -130,18 +130,14 @@
         <servlet-name>
             CompressionFilterTestServlet
         </servlet-name>
-        <url-pattern>
-            /CompressionTest
-        </url-pattern>
+        <url-pattern>/CompressionTest</url-pattern>
     </servlet-mapping>
 
     <servlet-mapping>
         <servlet-name>
             servletToJsp
         </servlet-name>
-        <url-pattern>
-            /servletToJsp
-        </url-pattern>
+        <url-pattern>/servletToJsp</url-pattern>
     </servlet-mapping>
 
     <jsp-config>
