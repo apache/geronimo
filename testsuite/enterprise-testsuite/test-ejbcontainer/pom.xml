@@ -53,8 +53,25 @@
             <version>${openejbVersion}</version>
             <scope>test</scope>
         </dependency>
+
+        <!--
+        If surefire sees testng anywhere in the dependency graph, it ignores junit.
+        Testng is needed by selenium class in testsupport-common.
+        So using excluding it here from transitive dependency.
+        -->
+       <dependency>
+            <groupId>org.apache.geronimo.testsupport</groupId>
+            <artifactId>testsupport-common</artifactId>
+            <scope>test</scope>
+                <exclusions>
+                  <exclusion>
+                        <groupId>org.testng</groupId>
+                        <artifactId>testng</artifactId>
+                  </exclusion>
+                </exclusions>
+        </dependency>
     </dependencies>
-    
+
     <profiles>
         <profile>
             <id>child</id>
@@ -68,6 +85,7 @@
               </testResources>
 
                 <plugins>
+
                     <plugin>
                         <groupId>org.apache.geronimo.plugins</groupId>
                         <artifactId>geronimo-maven-plugin</artifactId>
