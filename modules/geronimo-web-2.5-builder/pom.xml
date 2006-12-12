@@ -21,7 +21,7 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
     <modelVersion>4.0.0</modelVersion>
-    
+
     <parent>
         <groupId>org.apache.geronimo.modules</groupId>
         <artifactId>modules</artifactId>
@@ -31,9 +31,9 @@
 
     <artifactId>geronimo-web-2.5-builder</artifactId>
     <name>Geronimo :: Web 2.5 :: Builder</name>
-    
+
     <dependencies>
-        
+
         <dependency>
             <groupId>${pom.groupId}</groupId>
             <artifactId>geronimo-web-builder</artifactId>
@@ -65,8 +65,18 @@
             <artifactId>jstl</artifactId>
         </dependency>
 
+        <dependency>
+            <groupId>org.apache.myfaces.core</groupId>
+            <artifactId>myfaces-api</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.myfaces.core</groupId>
+            <artifactId>myfaces-impl</artifactId>
+        </dependency>
+
     </dependencies>
-    
+
     <build>
         <plugins>
         </plugins>
@@ -77,11 +87,25 @@
           to avoid needing to setup an m1 repo which causes problems resolving
           dependencies.
     -->
+    <!--
+    HACK: Include local repo to pick up the MyFaces jars which have not yet been released
+    -->
     <repositories>
         <repository>
             <id>java.net</id>
             <url>https://maven-repository.dev.java.net/nonav/repository</url>
             <layout>legacy</layout>
+        </repository>
+        <repository>
+            <id>module-local</id>
+            <url>file://${pom.basedir}/repository</url>
+            <layout>default</layout>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+            <releases>
+                <enabled>false</enabled>
+            </releases>
         </repository>
     </repositories>
 
