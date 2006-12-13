@@ -700,7 +700,7 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
             }
             UrlPatternType[] urlPatterns = servletMappingType.getUrlPatternArray();
             for (int j = 0; j < urlPatterns.length; j++) {
-                String urlPattern = urlPatterns[j].getStringValue();
+                String urlPattern = urlPatterns[j].getStringValue().trim();
                 if (!knownServletMappings.contains(urlPattern)) {
                     knownServletMappings.add(urlPattern);
                     checkString(urlPattern);
