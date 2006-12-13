@@ -90,4 +90,12 @@ public interface PersistentConfigurationList {
      *                       they are migrated.
      */
     void migrateConfiguration(Artifact oldName, Artifact newName, Configuration configuration);
+
+    /**
+     * This method checks if there are any custom gbean attributes in the configuration.
+     *
+     * @param configName Name of the configuration
+     * @return true if the configuration contains any custom gbean attributes
+     */
+    boolean hasGBeanAttributes(Artifact configName);
 }
