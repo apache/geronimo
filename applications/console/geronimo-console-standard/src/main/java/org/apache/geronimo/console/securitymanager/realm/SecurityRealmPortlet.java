@@ -30,6 +30,7 @@ import org.apache.geronimo.deployment.xbeans.GbeanType;
 import org.apache.geronimo.deployment.xbeans.ReferenceType;
 import org.apache.geronimo.deployment.xbeans.XmlAttributeType;
 import org.apache.geronimo.deployment.xbeans.AbstractServiceType;
+import org.apache.geronimo.deployment.xbeans.ServiceDocument;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.KernelRegistry;
@@ -78,6 +79,7 @@ import javax.security.auth.Subject;
 import javax.security.auth.spi.LoginModule;
 import javax.management.ObjectName;
 import javax.management.MalformedObjectNameException;
+import javax.xml.namespace.QName;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -146,6 +148,7 @@ public class SecurityRealmPortlet extends BasePortlet {
     private PortletRequestDispatcher testResultsView;
     private PortletRequestDispatcher planView;
     private PortletRequestDispatcher usageView;
+    private static final QName GBEAN_QNAME = new QName(ServiceDocument.type.getDocumentElementName().getNamespaceURI(), "gbean");
 
     public void init(PortletConfig portletConfig) throws PortletException {
         super.init(portletConfig);
@@ -449,6 +452,19 @@ public class SecurityRealmPortlet extends BasePortlet {
         destination.dispose();
         config.setName("LoginModuleConfiguration");
         root.setServiceArray(new AbstractServiceType[]{realm});
+
+
+        //Above code inserts gbean using xsi:type=dep:GBeanType.  We also need to account for the substitution group
+        //by changing the qname:
+        XmlCursor gbeanCursor = root.newCursor();
+        try {
+            if (!gbeanCursor.toChild(ServiceDocument.type.getDocumentElementName())) {
+                throw new RuntimeException("Could not find service element");
+            }
+            gbeanCursor.setName(GBEAN_QNAME);
+        } finally {
+            gbeanCursor.dispose();
+        }
 
         return doc;
     }
