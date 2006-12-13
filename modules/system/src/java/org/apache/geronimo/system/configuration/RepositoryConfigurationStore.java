@@ -46,6 +46,7 @@ import org.apache.geronimo.kernel.config.ConfigurationUtil;
 import org.apache.geronimo.kernel.config.InvalidConfigException;
 import org.apache.geronimo.kernel.config.NoSuchConfigException;
 import org.apache.geronimo.kernel.config.IOUtil;
+import org.apache.geronimo.kernel.config.PersistentConfigurationList;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.FileWriteMonitor;
 import org.apache.geronimo.kernel.repository.WritableListableRepository;
@@ -338,7 +339,37 @@ public class RepositoryConfigurationStore implements ConfigurationStore {
         }
         File location = repository.getLocation(configId);
         IOUtil.recursiveDelete(location);
-        //todo: for Maven 2 repo, delete the version directory if there's nothing left in it (probably the case)
+        // Number of directory levels up, to check and delete empty parent directories in the repo
+        int dirDepth = 0;
+
+        // FIXME: Determine the repository type
+        // For now assume the repo is a Maven2Repository.  This should not cause any harm even if it is an
+        // Maven1Repository, for it would be deleting the 'repository' directory if it happens to be empty.
+        boolean m2repo = true;
+
+        if(m2repo) {
+            // Check version, artifact and group directories, i.e. 3 levels up
+            dirDepth = 3;
+        }
+
+        File temp = location;
+        for(int i = 0; i < dirDepth; ++i) {
+            if((temp = temp.getParentFile()).listFiles().length == 0) {
+                // Directory is empty.  Remove it.
+                temp.delete();
+            } else {
+                // Directory is not empty.  No need to check any more parent directories
+                break;
+            }
+        }
+
+        try {
+            // Is this the right way to get hold of PersistentConfigurationList?
+            PersistentConfigurationList configList = (PersistentConfigurationList) kernel.getGBean(PersistentConfigurationList.class);
+            configList.removeConfiguration(configId);
+        } catch (Exception e) {
+            log.warn("Unable to remove configuration from persistent configurations. id = "+configId, e);
+        }
 
         if (configurationInfo != null) {
             IOException ioException = null;
