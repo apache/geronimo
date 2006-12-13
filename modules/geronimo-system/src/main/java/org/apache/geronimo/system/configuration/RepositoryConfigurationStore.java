@@ -341,7 +341,6 @@ public class RepositoryConfigurationStore implements ConfigurationStore {
         // For now assume the repo is a Maven2Repository.  This should not cause any harm even if it is an
         // Maven1Repository, for it would be deleting the 'repository' directory if it happens to be empty.
         boolean m2repo = true;
-
         if(m2repo) {
             // Check version, artifact and group directories, i.e. 3 levels up
             dirDepth = 3;
@@ -361,7 +360,7 @@ public class RepositoryConfigurationStore implements ConfigurationStore {
         try {
             // Is this the right way to get hold of PersistentConfigurationList?
             PersistentConfigurationList configList = (PersistentConfigurationList) kernel.getGBean(PersistentConfigurationList.class);
-            configList.removeConfiguration(configId);
+            if(!configList.hasGBeanAttributes(configId)) configList.removeConfiguration(configId);
         } catch (Exception e) {
             log.warn("Unable to remove configuration from persistent configurations. id = "+configId, e);
         }
