@@ -425,7 +425,7 @@
             <dependency>
                 <groupId>org.tranql</groupId>
                 <artifactId>tranql</artifactId>
-                <version>1.4</version>
+                <version>1.4.1</version>
             </dependency>
 
             <dependency>
@@ -487,25 +487,25 @@
             <dependency>
                 <groupId>org.apache.yoko</groupId>
                 <artifactId>yoko-core</artifactId>
-                <version>1.0-incubating-M2-SNAPSHOT</version>
+                <version>1.0-incubating-M2-486709</version>
             </dependency>
 
             <dependency>
                 <groupId>org.apache.yoko</groupId>
                 <artifactId>yoko-spec-corba</artifactId>
-                <version>1.0-incubating-M2-SNAPSHOT</version>
+                <version>1.0-incubating-M2-486709</version>
             </dependency>
 
             <dependency>
                 <groupId>org.apache.yoko</groupId>
                 <artifactId>yoko-rmi-spec</artifactId>
-                <version>1.0-incubating-M2-SNAPSHOT</version>
+                <version>1.0-incubating-M2-486709</version>
             </dependency>
 
             <dependency>
                 <groupId>org.apache.yoko</groupId>
                 <artifactId>yoko-rmi-impl</artifactId>
-                <version>1.0-incubating-M2-SNAPSHOT</version>
+                <version>1.0-incubating-M2-486709</version>
             </dependency>
 
             <dependency>
@@ -847,7 +847,7 @@
             <dependency>
                 <groupId>jetty</groupId>
                 <artifactId>org.mortbay.jetty</artifactId>
-                <version>5.1.11</version>
+                <version>5.1.12</version>
             </dependency>
 
             <dependency>
