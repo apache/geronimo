@@ -47,6 +47,7 @@
         <axisDeployer>org.apache.geronimo.configs/axis-deployer/${version}/car</axisDeployer>
         <cxfDeployer>org.apache.geronimo.configs/cxf-deployer/${version}/car</cxfDeployer>
         <tomcatDeployer>org.apache.geronimo.configs/tomcat6-deployer/${version}/car</tomcatDeployer>
+        <jettyDeployer>org.apache.geronimo.configs/jetty-deployer/${version}/car</jettyDeployer>
         <jetty6Deployer>org.apache.geronimo.configs/jetty6-deployer/${version}/car</jetty6Deployer>
 
         <!-- Common plan properties -->
@@ -137,6 +138,10 @@
         <module>j2ee-server</module>
         <module>j2ee-system</module>
         <module>javamail</module>
+        <module>jetty</module>
+        <module>jetty-clustering-builder-wadi</module>
+        <module>jetty-clustering-wadi</module>
+        <module>jetty-deployer</module>
         <module>jsp-examples-jetty</module>
         <module>jsp-examples-tomcat</module>
         <module>ldap-demo-jetty</module>
@@ -157,6 +162,7 @@
         <module>tomcat6</module>
         <module>tomcat6-deployer</module>
         <!--<module>transaction</module>-->
+        <module>uddi-jetty</module>
         <module>uddi-tomcat</module>
         <module>unavailable-client-deployer</module>
         <module>unavailable-ejb-deployer</module>
@@ -164,9 +170,11 @@
         <module>upgrade</module>
         <module>upgrade-cli</module>
         <module>wadi-clustering</module>
+        <module>webconsole-jetty</module>
         <module>webconsole-tomcat</module>
         <module>welcome-jetty</module>
         <module>welcome-tomcat</module>
+        <module>dojo-jetty</module>
         <module>dojo-tomcat</module>
         <module>ca-helper-jetty</module>
         <module>ca-helper-tomcat</module>
