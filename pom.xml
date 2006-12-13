@@ -76,7 +76,7 @@
         <!--
         HACK: Used by uddi-jetty and uddi-tomcat config plans
         -->
-        <tranqlVendorsVersion>1.2-SNAPSHOT</tranqlVendorsVersion>
+        <tranqlVendorsVersion>1.2</tranqlVendorsVersion>
     </properties>
 
     <dependencyManagement>
@@ -411,7 +411,7 @@
             <dependency>
                 <groupId>org.tranql</groupId>
                 <artifactId>tranql</artifactId>
-                <version>1.4-SNAPSHOT</version>
+                <version>1.4</version>
             </dependency>
 
             <dependency>
