@@ -1168,6 +1168,10 @@
                         <goals>
                             <goal>copy-legal-files</goal>
                         </goals>
+                        <configuration>
+                            <!-- Fail the build if no legal files were copied -->
+                            <strict>true</strict>
+                        </configuration>
                     </execution>
                 </executions>
             </plugin>
