@@ -1,0 +1,87 @@
+<?xml version="1.0"?>
+<project>
+    <parent>
+        <artifactId>jpa</artifactId>
+        <groupId>org.apache.geronimo.testsuite</groupId>
+        <version>2.0-SNAPSHOT</version>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+    <artifactId>jpa-ejb</artifactId>
+    <name>jpa itest ejb jar</name>
+    <packaging>ejb</packaging>
+    <build>
+        <plugins>
+            <plugin>
+              <artifactId>maven-antrun-plugin</artifactId>
+              <executions>
+                <execution>
+                  <phase>compile</phase>
+                  <configuration>
+                    <tasks>
+                      <path id="enhance.path.ref">
+                        <fileset dir="${project.build.outputDirectory}">
+                          <include name="**/*.class"/>
+                        </fileset>
+                      </path>
+                      <pathconvert property="enhance.files"
+                                   refid="enhance.path.ref"
+                                   pathsep=" "/>
+                      <java classname="org.apache.openjpa.enhance.PCEnhancer">
+                        <arg line="-p persistence.xml"/>
+                        <arg line="${enhance.files}"/>
+                        <classpath>
+                          <path refid="maven.dependency.classpath"/>
+                          <path refid="maven.compile.classpath"/>
+                        </classpath>
+                      </java>
+                    </tasks>
+                  </configuration>
+                  <goals>
+                    <goal>run</goal>
+                  </goals>
+                </execution>
+              </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-ejb-plugin</artifactId>
+            </plugin>
+        </plugins>
+    </build>
+    <dependencies>
+        <dependency>
+          <groupId>org.apache.geronimo.specs</groupId>
+          <artifactId>geronimo-jpa_3.0_spec</artifactId>
+          <version>1.0-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+          <groupId>org.apache.geronimo.specs</groupId>
+          <artifactId>geronimo-jta_1.1_spec</artifactId>
+          <version>1.0-SNAPSHOT</version>
+          <scope>test</scope>
+        </dependency>
+        <dependency>
+          <groupId>org.apache.openjpa</groupId>
+          <artifactId>openjpa-persistence-jdbc</artifactId>
+          <version>0.9.6-incubating-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.geronimo.specs</groupId>
+            <artifactId>geronimo-ejb_2.1_spec</artifactId>
+            <version>1.0.1</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>xerces</groupId>
+            <artifactId>xercesImpl</artifactId>
+            <version>2.6.2</version>
+        </dependency>
+
+        <dependency>
+            <groupId>xerces</groupId>
+            <artifactId>xmlParserAPIs</artifactId>
+            <version>2.2.1</version>
+        </dependency>
+    </dependencies>
+</project>

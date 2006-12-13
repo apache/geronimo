@@ -71,6 +71,7 @@
         <module>deployment-testsuite</module>
         <module>enterprise-testsuite</module>
         <module>web-testsuite</module>
+        <module>itests</module>
     </modules>
 
     <build>
@@ -87,7 +88,7 @@
                     <artifactId>testsuite-maven-plugin</artifactId>
                     <version>${version}</version>
                 </plugin>
-                
+
                 <!--
                 NOTE: Using 2.3-SNAPSHOT for TestNG w/JDK 1.5 support.
                 -->
@@ -298,5 +299,5 @@
             <id>child</id>
         </profile>
     </profiles>
-    
+
 </project>

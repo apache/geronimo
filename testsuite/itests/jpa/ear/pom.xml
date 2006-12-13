@@ -1,0 +1,51 @@
+<?xml version="1.0"?>
+<project>
+    <parent>
+        <artifactId>jpa</artifactId>
+        <groupId>org.apache.geronimo.testsuite</groupId>
+        <version>2.0-SNAPSHOT</version>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+    <artifactId>jpa-ear</artifactId>
+    <name>jpa itest ear</name>
+    <packaging>ear</packaging>
+    <build>
+        <plugins>
+            <plugin>
+                <artifactId>maven-ear-plugin</artifactId>
+                <configuration>
+                    <displayName>jpa Itest ear</displayName>
+                    <description>jpa Itest ear</description>
+                    <version>1.4</version>
+                    <modules>
+                        <webModule>
+                            <groupId>org.apache.geronimo.testsuite</groupId>
+                            <artifactId>jpa-war</artifactId>
+                            <contextRoot>/jpa</contextRoot>
+                            <bundleFileName>web.war</bundleFileName>
+                        </webModule>
+                        <ejbModule>
+                            <groupId>org.apache.geronimo.testsuite</groupId>
+                            <artifactId>jpa-ejb</artifactId>
+                            <bundleFileName>ejb.jar</bundleFileName>
+                        </ejbModule>
+                    </modules>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+    <dependencies>
+        <dependency>
+            <groupId>org.apache.geronimo.testsuite</groupId>
+            <artifactId>jpa-ejb</artifactId>
+            <version>${pom.version}</version>
+            <type>ejb</type>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.geronimo.testsuite</groupId>
+            <artifactId>jpa-war</artifactId>
+            <version>${pom.version}</version>
+            <type>war</type>
+        </dependency>
+    </dependencies>
+</project>
