@@ -67,8 +67,9 @@ public class CXFBuilder implements WebServiceBuilder {
     private JAXBContext ctx;
 
 
-    public CXFBuilder(Environment defaultEnvironment) {
+    public CXFBuilder(Environment defaultEnvironment) throws JAXBException {
         this.defaultEnvironment = defaultEnvironment;
+        ctx = JAXBContext.newInstance(WebservicesType.class);
     }
 
     public void findWebServices(JarFile moduleFile, boolean isEJB, Map servletLocations, Environment environment, Map sharedContext) throws DeploymentException {
@@ -97,13 +98,13 @@ public class CXFBuilder implements WebServiceBuilder {
                 throw new DeploymentException("unable to read descriptor " + wsDDUrl);
             }
 
-            Unmarshaller unmarshaller = getJAXBContext().createUnmarshaller();
+            Unmarshaller unmarshaller = ctx.createUnmarshaller();
             Object obj = unmarshaller.unmarshal(in);
 
-            WebservicesType wst = null;
-            if (obj instanceof JAXBElement) {
-                wst = (WebservicesType) ((JAXBElement) obj).getValue();
+            if (!(obj instanceof WebservicesType)) {
+                return map;
             }
+            WebservicesType wst = (WebservicesType) obj;
 
             for (WebserviceDescriptionType desc : wst.getWebserviceDescription()) {
                 final String wsdlFile = desc.getWsdlFile().getValue();
@@ -177,13 +178,6 @@ public class CXFBuilder implements WebServiceBuilder {
 
     public boolean configureEJB(GBeanData targetGBean, String ejbName, JarFile moduleFile, Map sharedContext, ClassLoader classLoader) throws DeploymentException {
         throw new DeploymentException("configureEJB NYI");
-    }
-
-    private JAXBContext getJAXBContext() throws JAXBException {
-        if (ctx == null) {
-            ctx = JAXBContext.newInstance("com.sun.java.xml.ns.j2ee", getClass().getClassLoader());
-        }
-        return ctx;
     }
 
     Class<?> loadSEI(String className, ClassLoader loader) throws DeploymentException {

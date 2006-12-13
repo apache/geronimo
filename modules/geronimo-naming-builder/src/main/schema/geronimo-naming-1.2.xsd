@@ -129,14 +129,14 @@
         </xsd:complexContent>
     </xsd:complexType>
 
-    <xsd:element name="entity-manager-factory-ref" type="gernaming:entity-manager-factory-refType"
+    <xsd:element name="persistence-unit-ref" type="gernaming:persistence-unit-refType"
                  substitutionGroup="gernaming:abstract-naming-entry"/>
 
-    <xsd:complexType name="entity-manager-factory-refType">
+    <xsd:complexType name="persistence-unit-refType">
         <xsd:complexContent>
             <xsd:extension base="gernaming:abstract-naming-entryType">
                 <xsd:sequence>
-                    <xsd:element name="entity-manager-factory-ref-name" type="xsd:string"/>
+                    <xsd:element name="persistence-unit-ref-name" type="xsd:string"/>
                     <xsd:choice>
                         <xsd:element name="persistence-unit-name" type="xsd:string"/>
                         <xsd:element name="pattern" type="gernaming:patternType"/>

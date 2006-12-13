@@ -27,10 +27,10 @@ import org.apache.geronimo.kernel.repository.Artifact;
 /**
  * @version $Rev$ $Date$
  */
-public class EntityManagerFactoryReference extends ConfigurationAwareReference {
+public class PersistenceUnitReference extends ConfigurationAwareReference {
 
 
-    public EntityManagerFactoryReference(Artifact configId, AbstractNameQuery abstractNameQuery) {
+    public PersistenceUnitReference(Artifact configId, AbstractNameQuery abstractNameQuery) {
         super(configId, abstractNameQuery);
     }
 

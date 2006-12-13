@@ -32,11 +32,11 @@ import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.kernel.config.Configuration;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.naming.deployment.AbstractNamingBuilder;
-import org.apache.geronimo.naming.reference.EntityManagerFactoryReference;
+import org.apache.geronimo.naming.reference.PersistenceUnitReference;
 import org.apache.geronimo.schema.NamespaceElementConverter;
 import org.apache.geronimo.schema.SchemaConversionUtils;
-import org.apache.geronimo.xbeans.geronimo.naming.GerEntityManagerFactoryRefDocument;
-import org.apache.geronimo.xbeans.geronimo.naming.GerEntityManagerFactoryRefType;
+import org.apache.geronimo.xbeans.geronimo.naming.GerPersistenceUnitRefDocument;
+import org.apache.geronimo.xbeans.geronimo.naming.GerPersistenceUnitRefType;
 import org.apache.geronimo.xbeans.geronimo.naming.GerPatternType;
 import org.apache.xmlbeans.QNameSet;
 import org.apache.xmlbeans.XmlObject;
@@ -44,38 +44,38 @@ import org.apache.xmlbeans.XmlObject;
 /**
  * @version $Rev$ $Date$
  */
-public class EntityManagerFactoryRefBuilder extends AbstractNamingBuilder {
-    private static final QName ENTITY_MANAGER_FACTORY_REF_QNAME = GerEntityManagerFactoryRefDocument.type.getDocumentElementName();
-    private static final QNameSet ENTITY_MANAGER_FACTORY_REF_QNAME_SET = QNameSet.singleton(EntityManagerFactoryRefBuilder.ENTITY_MANAGER_FACTORY_REF_QNAME);
+public class PersistenceUnitRefBuilder extends AbstractNamingBuilder {
+    private static final QName ENTITY_MANAGER_FACTORY_REF_QNAME = GerPersistenceUnitRefDocument.type.getDocumentElementName();
+    private static final QNameSet ENTITY_MANAGER_FACTORY_REF_QNAME_SET = QNameSet.singleton(PersistenceUnitRefBuilder.ENTITY_MANAGER_FACTORY_REF_QNAME);
 
 
-    public EntityManagerFactoryRefBuilder(Environment defaultEnvironment) {
+    public PersistenceUnitRefBuilder(Environment defaultEnvironment) {
         super(defaultEnvironment);
     }
 
     protected boolean willMergeEnvironment(XmlObject specDD, XmlObject plan) throws DeploymentException {
-        return getEntityManagerFactoryRefs(plan).length > 0;
+        return getPersistenceUnitRefs(plan).length > 0;
     }
 
     public void initContext(XmlObject specDD, XmlObject plan, Configuration localConfiguration, Configuration remoteConfiguration, Module module) throws DeploymentException {
     }
 
     public void buildNaming(XmlObject specDD, XmlObject plan, Configuration localConfiguration, Configuration remoteConfiguration, Module module, Map componentContext) throws DeploymentException {
-        XmlObject[] EntityManagerFactoryRefsUntyped = getEntityManagerFactoryRefs(plan);
-        for (int i = 0; i < EntityManagerFactoryRefsUntyped.length; i++) {
-            GerEntityManagerFactoryRefType EntityManagerFactoryRef = (GerEntityManagerFactoryRefType) EntityManagerFactoryRefsUntyped[i];
-            if (EntityManagerFactoryRef == null) {
-                throw new DeploymentException("Could not read EntityManagerFactoryRef number " + i + " as the correct xml type");
+        XmlObject[] PersistenceUnitRefsUntyped = getPersistenceUnitRefs(plan);
+        for (int i = 0; i < PersistenceUnitRefsUntyped.length; i++) {
+            GerPersistenceUnitRefType PersistenceUnitRef = (GerPersistenceUnitRefType) PersistenceUnitRefsUntyped[i];
+            if (PersistenceUnitRef == null) {
+                throw new DeploymentException("Could not read PersistenceUnitRef number " + i + " as the correct xml type");
             }
-            String EntityManagerFactoryRefName = EntityManagerFactoryRef.getEntityManagerFactoryRefName();
+            String PersistenceUnitRefName = PersistenceUnitRef.getPersistenceUnitRefName();
 
             Set interfaceTypes = Collections.singleton("org.apache.geronimo.persistence.PersistenceUnitGBean");
             AbstractNameQuery persistenceUnitNameQuery;
-            if (EntityManagerFactoryRef.isSetPersistenceUnitName()) {
-                String persistenceUnitName = EntityManagerFactoryRef.getPersistenceUnitName();
+            if (PersistenceUnitRef.isSetPersistenceUnitName()) {
+                String persistenceUnitName = PersistenceUnitRef.getPersistenceUnitName();
                 persistenceUnitNameQuery = new AbstractNameQuery(null, Collections.singletonMap("name", persistenceUnitName), interfaceTypes);
             } else {
-                GerPatternType gbeanLocator = EntityManagerFactoryRef.getPattern();
+                GerPatternType gbeanLocator = PersistenceUnitRef.getPattern();
 
                 persistenceUnitNameQuery = buildAbstractNameQuery(gbeanLocator, null, null, interfaceTypes);
             }
@@ -86,30 +86,30 @@ public class EntityManagerFactoryRefBuilder extends AbstractNamingBuilder {
                 throw new DeploymentException("Could not resolve reference at deploy time for query " + persistenceUnitNameQuery, e);
             }
 
-            EntityManagerFactoryReference reference = new EntityManagerFactoryReference(localConfiguration.getId(), persistenceUnitNameQuery);
+            PersistenceUnitReference reference = new PersistenceUnitReference(localConfiguration.getId(), persistenceUnitNameQuery);
 
-            ((Map)componentContext.get(JNDI_KEY)).put(ENV + EntityManagerFactoryRefName, reference);
+            ((Map)componentContext.get(JNDI_KEY)).put(ENV + PersistenceUnitRefName, reference);
 
         }
     }
 
     public QNameSet getSpecQNameSet() {
-        SchemaConversionUtils.registerNamespaceConversions(Collections.singletonMap(EntityManagerFactoryRefBuilder.ENTITY_MANAGER_FACTORY_REF_QNAME.getLocalPart(), new NamespaceElementConverter(EntityManagerFactoryRefBuilder.ENTITY_MANAGER_FACTORY_REF_QNAME.getNamespaceURI())));
+        SchemaConversionUtils.registerNamespaceConversions(Collections.singletonMap(PersistenceUnitRefBuilder.ENTITY_MANAGER_FACTORY_REF_QNAME.getLocalPart(), new NamespaceElementConverter(PersistenceUnitRefBuilder.ENTITY_MANAGER_FACTORY_REF_QNAME.getNamespaceURI())));
         return QNameSet.EMPTY;
     }
 
     public QNameSet getPlanQNameSet() {
-        return EntityManagerFactoryRefBuilder.ENTITY_MANAGER_FACTORY_REF_QNAME_SET;
+        return PersistenceUnitRefBuilder.ENTITY_MANAGER_FACTORY_REF_QNAME_SET;
     }
 
-    private XmlObject[] getEntityManagerFactoryRefs(XmlObject plan) throws DeploymentException {
-        return plan == null? NO_REFS: convert(plan.selectChildren(EntityManagerFactoryRefBuilder.ENTITY_MANAGER_FACTORY_REF_QNAME_SET), NAMING_CONVERTER, GerEntityManagerFactoryRefType.type);
+    private XmlObject[] getPersistenceUnitRefs(XmlObject plan) throws DeploymentException {
+        return plan == null? NO_REFS: convert(plan.selectChildren(PersistenceUnitRefBuilder.ENTITY_MANAGER_FACTORY_REF_QNAME_SET), NAMING_CONVERTER, GerPersistenceUnitRefType.type);
     }
 
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoBuilder = GBeanInfoBuilder.createStatic(EntityManagerFactoryRefBuilder.class, NameFactory.MODULE_BUILDER);
+        GBeanInfoBuilder infoBuilder = GBeanInfoBuilder.createStatic(PersistenceUnitRefBuilder.class, NameFactory.MODULE_BUILDER);
         infoBuilder.addAttribute("defaultEnvironment", Environment.class, true, true);
 
         infoBuilder.setConstructor(new String[] {"defaultEnvironment"});
@@ -117,6 +117,6 @@ public class EntityManagerFactoryRefBuilder extends AbstractNamingBuilder {
     }
 
     public static GBeanInfo getGBeanInfo() {
-        return EntityManagerFactoryRefBuilder.GBEAN_INFO;
+        return PersistenceUnitRefBuilder.GBEAN_INFO;
     }
 }
