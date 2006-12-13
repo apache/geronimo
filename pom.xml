@@ -430,7 +430,7 @@
             <dependency>
                 <groupId>wsdl4j</groupId>
                 <artifactId>wsdl4j</artifactId>
-                <version>1.5.2</version>
+                <version>1.6.1</version>
             </dependency>
 
             <!-- org.apache.xml.serialize.XMLSerializer is used by castor, hence this is still needed -->
@@ -973,42 +973,42 @@
              <dependency>
                  <groupId>org.apache.cxf</groupId>
                  <artifactId>cxf-api</artifactId>
-                 <version>2.0-incubator-M1-SNAPSHOT</version>
+                 <version>2.0-incubator-RC-SNAPSHOT</version>
              </dependency>
              <dependency>
                  <groupId>org.apache.cxf</groupId>
-                 <artifactId>cxf-common-metacode</artifactId>
-                 <version>2.0-incubator-M1-SNAPSHOT</version>
+                 <artifactId>cxf-metacode</artifactId>
+                 <version>2.0-incubator-RC-SNAPSHOT</version>
              </dependency>
              <dependency>
                  <groupId>org.apache.cxf</groupId>
                  <artifactId>cxf-common-utilities</artifactId>
-                 <version>2.0-incubator-M1-SNAPSHOT</version>
+                 <version>2.0-incubator-RC-SNAPSHOT</version>
              </dependency>
              <dependency>
                  <groupId>org.apache.cxf</groupId>
                  <artifactId>cxf-rt-core</artifactId>
-                 <version>2.0-incubator-M1-SNAPSHOT</version>
+                 <version>2.0-incubator-RC-SNAPSHOT</version>
              </dependency>
              <dependency>
                  <groupId>org.apache.cxf</groupId>
                  <artifactId>cxf-rt-bindings-xml</artifactId>
-                 <version>2.0-incubator-M1-SNAPSHOT</version>
+                 <version>2.0-incubator-RC-SNAPSHOT</version>
              </dependency>
              <dependency>
                  <groupId>org.apache.cxf</groupId>
                  <artifactId>cxf-rt-bindings-soap</artifactId>
-                 <version>2.0-incubator-M1-SNAPSHOT</version>
+                 <version>2.0-incubator-RC-SNAPSHOT</version>
              </dependency>
              <dependency>
                  <groupId>org.apache.cxf</groupId>
                  <artifactId>cxf-rt-databinding-jaxb</artifactId>
-                 <version>2.0-incubator-M1-SNAPSHOT</version>
+                 <version>2.0-incubator-RC-SNAPSHOT</version>
              </dependency>
              <dependency>
                  <groupId>org.apache.cxf</groupId>
                  <artifactId>cxf-rt-frontend-jaxws</artifactId>
-                 <version>2.0-incubator-M1-SNAPSHOT</version>
+                 <version>2.0-incubator-RC-SNAPSHOT</version>
                  <exclusions>
                      <exclusion>
                          <groupId>javax.annotation</groupId>
@@ -1023,17 +1023,17 @@
              <dependency>
                  <groupId>org.apache.cxf</groupId>
                  <artifactId>cxf-rt-frontend-simple</artifactId>
-                 <version>2.0-incubator-M1-SNAPSHOT</version>
+                 <version>2.0-incubator-RC-SNAPSHOT</version>
              </dependency>
              <dependency>
                  <groupId>org.apache.cxf</groupId>
                  <artifactId>cxf-rt-transports-http</artifactId>
-                 <version>2.0-incubator-M1-SNAPSHOT</version>
+                 <version>2.0-incubator-RC-SNAPSHOT</version>
              </dependency>
              <dependency>
                  <groupId>org.apache.cxf</groupId>
                  <artifactId>cxf-tools-common</artifactId>
-                 <version>2.0-incubator-M1-SNAPSHOT</version>
+                 <version>2.0-incubator-RC-SNAPSHOT</version>
              </dependency>
 
              <dependency>
@@ -1049,7 +1049,7 @@
              <dependency>
                  <groupId>org.apache.ws.commons</groupId>
                  <artifactId>XmlSchema</artifactId>
-                 <version>1.0.2</version>
+                 <version>1.1</version>
              </dependency>
              <dependency>
                  <groupId>javax.xml.soap</groupId>
