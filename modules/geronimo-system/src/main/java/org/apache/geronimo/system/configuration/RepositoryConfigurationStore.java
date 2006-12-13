@@ -360,7 +360,7 @@ public class RepositoryConfigurationStore implements ConfigurationStore {
         try {
             // Is this the right way to get hold of PersistentConfigurationList?
             PersistentConfigurationList configList = (PersistentConfigurationList) kernel.getGBean(PersistentConfigurationList.class);
-            configList.removeConfiguration(configId);
+            if(!configList.hasGBeanAttributes(configId)) configList.removeConfiguration(configId);
         } catch (Exception e) {
             log.warn("Unable to remove configuration from persistent configurations. id = "+configId, e);
         }

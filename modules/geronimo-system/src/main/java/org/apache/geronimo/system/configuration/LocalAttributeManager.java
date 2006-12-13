@@ -599,6 +599,17 @@ public class LocalAttributeManager implements PluginAttributeStore, PersistentCo
         attributeChanged();
     }
 
+    /**
+     * This method checks if there are any custom gbean attributes in the configuration.
+     *
+     * @param configName Name of the configuration
+     * @return true if the configuration contains any custom gbean attributes
+     */
+    public boolean hasGBeanAttributes(Artifact configName) {
+        ConfigurationOverride configInfo = serverOverride.getConfiguration(configName);
+        return configInfo != null && !configInfo.getGBeans().isEmpty();
+    }
+
     //GBeanLifeCycle
     public synchronized void doStart() throws Exception {
         load();
