@@ -1038,6 +1038,23 @@
                             <!-- Do not include META-INF/maven to avoid long file problems on windows -->
                             <addMavenDescriptor>false</addMavenDescriptor>
                         </archive>
+                        
+                        <!--
+                        HACK: Include legal files explicity, otherwise they will end up in the wrong path
+                              or in another jar file in the war.
+                        
+                        NOTE: targetPath is broken for webResources (as documented)
+                        -->
+                        <webResources>
+                            <resource>
+                                <directory>${pom.basedir}/target/classes</directory>
+                                <includes>
+                                    <include>META-INF/LICENSE*</include>
+                                    <include>META-INF/NOTICE*</include>
+                                    <include>META-INF/DISCLAIMER*</include>
+                                </includes>
+                            </resource>
+                        </webResources>
                     </configuration>
                 </plugin>
 
@@ -1145,13 +1162,6 @@
                         </configuration>
                     </execution>
 
-                    <!--
-                    NOTE: This will copy LICENSE.txt and NOTICE.txt to classes/META-INF.
-
-                          Its a itty-bitty HACK to avoid adding resource definitions to
-                          the build, which causes the Eclipse plugin to generate invalid
-                          .classpath files. :-(
-                    -->
                     <execution>
                         <id>install-legal-files</id>
                         <phase>generate-resources</phase>
