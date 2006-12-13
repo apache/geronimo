@@ -1173,6 +1173,18 @@
                             <strict>true</strict>
                         </configuration>
                     </execution>
+                    
+                    <execution>
+                        <id>verify-legal-files</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>verify-legal-files</goal>
+                        </goals>
+                        <configuration>
+                            <!-- Fail the build if no legal files were copied -->
+                            <strict>true</strict>
+                        </configuration>
+                    </execution>
                 </executions>
             </plugin>
 
