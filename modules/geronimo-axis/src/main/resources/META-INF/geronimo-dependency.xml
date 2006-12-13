@@ -26,8 +26,8 @@
     <dep:artifactId>commons-discovery</dep:artifactId>
   </dep:dependency>
   <dep:dependency>
-    <dep:groupId>org.apache.geronimo.specs</dep:groupId>
-    <dep:artifactId>geronimo-javamail_1.4_spec</dep:artifactId>
+    <dep:groupId>org.apache.geronimo.javamail</dep:groupId>
+    <dep:artifactId>geronimo-javamail_1.4_mail</dep:artifactId>
   </dep:dependency>
   <dep:dependency>
     <dep:groupId>wsdl4j</dep:groupId>
