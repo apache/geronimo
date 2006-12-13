@@ -63,7 +63,7 @@
                   </plugin>
 
                     <!--
-                     FIXME: Need to reset the default values here since out parent sets up wars
+                     FIXME: Need to reset the default values here since our parent sets up wars
                      for use with jspc.  Remove once parent pom has been fixed.
                      -->
                     <plugin>
@@ -95,7 +95,7 @@
                                     <goal>deploy-module</goal>
                                 </goals>
                                 <configuration>
-                                  <moduleArchive>${project.build.directory}/test-2.5-servlets-${version}.war</moduleArchive>
+                                  <moduleArchive>${project.build.directory}/${artifactId}-${version}.war</moduleArchive>
                                 </configuration>
                             </execution>
                             
