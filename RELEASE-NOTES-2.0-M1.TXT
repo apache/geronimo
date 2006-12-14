@@ -46,11 +46,6 @@ Apache Geronimo v2.0 includes the following features:
 - JMS 1.1
 - JCA 1.5
 - JACC 1.1
-- EJB 3.0
-- J2EE Management 1.1
-- Application Deploy 1.2
-- Connector 1.5
-- JAX RPC 1.1
 
 Installing & Starting Geronimo
 ------------------------------
