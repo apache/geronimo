@@ -49,10 +49,10 @@
 
     <dependencyManagement>
         <dependencies>
-          <!-- testsupport-common brings with it selenium and testng dependencies -->
+          <!-- testsupport-selenium brings with it testsupport-common, selenium and testng dependencies -->
             <dependency>
                 <groupId>org.apache.geronimo.testsupport</groupId>
-                <artifactId>testsupport-common</artifactId>
+                <artifactId>testsupport-selenium</artifactId>
                 <version>${version}</version>
             </dependency>
         </dependencies>
@@ -61,7 +61,7 @@
     <dependencies>
         <dependency>
             <groupId>org.apache.geronimo.testsupport</groupId>
-            <artifactId>testsupport-common</artifactId>
+            <artifactId>testsupport-selenium</artifactId>
             <scope>test</scope>
         </dependency>
     </dependencies>

@@ -56,12 +56,13 @@
 
         <!--
         If surefire sees testng anywhere in the dependency graph, it ignores junit.
-        Testng is needed by selenium class in testsupport-common.
-        So using excluding it here from transitive dependency.
+        Testng is needed by selenium class in testsupport-selenium.
+        So excluding it here from transitive dependency.
+        http://jira.codehaus.org/browse/MSUREFIRE-184
         -->
        <dependency>
             <groupId>org.apache.geronimo.testsupport</groupId>
-            <artifactId>testsupport-common</artifactId>
+            <artifactId>testsupport-selenium</artifactId>
             <scope>test</scope>
                 <exclusions>
                   <exclusion>

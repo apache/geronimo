@@ -14,7 +14,7 @@
     <dependencies>
         <dependency>
             <groupId>org.apache.geronimo.testsupport</groupId>
-            <artifactId>testsupport-common</artifactId>
+            <artifactId>testsupport-selenium</artifactId>
             <scope>test</scope>
         </dependency>
     </dependencies>

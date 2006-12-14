@@ -19,6 +19,8 @@
 
 package org.apache.geronimo.testsupport;
 
+import org.apache.geronimo.testsupport.TestSupport;
+
 import com.thoughtworks.selenium.Selenium;
 
 import org.openqa.selenium.server.SeleniumServer;
