@@ -1012,36 +1012,106 @@
                  <groupId>org.apache.cxf</groupId>
                  <artifactId>cxf-api</artifactId>
                  <version>2.0-incubator-M1-SNAPSHOT</version>
+                 <exclusions>
+                     <exclusion>
+                         <groupId>javax.annotation</groupId>
+                         <artifactId>jsr250-api</artifactId>
+                     </exclusion>
+                     <exclusion>
+                         <groupId>javax.jws</groupId>
+                         <artifactId>jsr181-api</artifactId>
+                     </exclusion>
+                 </exclusions>
              </dependency>
              <dependency>
                  <groupId>org.apache.cxf</groupId>
                  <artifactId>cxf-common-metacode</artifactId>
                  <version>2.0-incubator-M1-SNAPSHOT</version>
+                 <exclusions>
+                     <exclusion>
+                         <groupId>javax.annotation</groupId>
+                         <artifactId>jsr250-api</artifactId>
+                     </exclusion>
+                     <exclusion>
+                         <groupId>javax.jws</groupId>
+                         <artifactId>jsr181-api</artifactId>
+                     </exclusion>
+                 </exclusions>
              </dependency>
              <dependency>
                  <groupId>org.apache.cxf</groupId>
                  <artifactId>cxf-common-utilities</artifactId>
                  <version>2.0-incubator-M1-SNAPSHOT</version>
+                 <exclusions>
+                     <exclusion>
+                         <groupId>javax.annotation</groupId>
+                         <artifactId>jsr250-api</artifactId>
+                     </exclusion>
+                     <exclusion>
+                         <groupId>javax.jws</groupId>
+                         <artifactId>jsr181-api</artifactId>
+                     </exclusion>
+                 </exclusions>
              </dependency>
              <dependency>
                  <groupId>org.apache.cxf</groupId>
                  <artifactId>cxf-rt-core</artifactId>
                  <version>2.0-incubator-M1-SNAPSHOT</version>
+                 <exclusions>
+                     <exclusion>
+                         <groupId>javax.annotation</groupId>
+                         <artifactId>jsr250-api</artifactId>
+                     </exclusion>
+                     <exclusion>
+                         <groupId>javax.jws</groupId>
+                         <artifactId>jsr181-api</artifactId>
+                     </exclusion>
+                 </exclusions>
              </dependency>
              <dependency>
                  <groupId>org.apache.cxf</groupId>
                  <artifactId>cxf-rt-bindings-xml</artifactId>
                  <version>2.0-incubator-M1-SNAPSHOT</version>
+                 <exclusions>
+                     <exclusion>
+                         <groupId>javax.annotation</groupId>
+                         <artifactId>jsr250-api</artifactId>
+                     </exclusion>
+                     <exclusion>
+                         <groupId>javax.jws</groupId>
+                         <artifactId>jsr181-api</artifactId>
+                     </exclusion>
+                 </exclusions>
              </dependency>
              <dependency>
                  <groupId>org.apache.cxf</groupId>
                  <artifactId>cxf-rt-bindings-soap</artifactId>
                  <version>2.0-incubator-M1-SNAPSHOT</version>
+                 <exclusions>
+                     <exclusion>
+                         <groupId>javax.annotation</groupId>
+                         <artifactId>jsr250-api</artifactId>
+                     </exclusion>
+                     <exclusion>
+                         <groupId>javax.jws</groupId>
+                         <artifactId>jsr181-api</artifactId>
+                     </exclusion>
+                 </exclusions>
              </dependency>
              <dependency>
                  <groupId>org.apache.cxf</groupId>
                  <artifactId>cxf-rt-databinding-jaxb</artifactId>
                  <version>2.0-incubator-M1-SNAPSHOT</version>
+                 <exclusions>
+                     <exclusion>
+                         <groupId>javax.annotation</groupId>
+                         <artifactId>jsr250-api</artifactId>
+                     </exclusion>
+                     <exclusion>
+                         <groupId>javax.jws</groupId>
+                         <artifactId>jsr181-api</artifactId>
+                     </exclusion>
+                 </exclusions>
              </dependency>
              <dependency>
                  <groupId>org.apache.cxf</groupId>
@@ -1062,16 +1132,46 @@
                  <groupId>org.apache.cxf</groupId>
                  <artifactId>cxf-rt-frontend-simple</artifactId>
                  <version>2.0-incubator-M1-SNAPSHOT</version>
+                 <exclusions>
+                     <exclusion>
+                         <groupId>javax.annotation</groupId>
+                         <artifactId>jsr250-api</artifactId>
+                     </exclusion>
+                     <exclusion>
+                         <groupId>javax.jws</groupId>
+                         <artifactId>jsr181-api</artifactId>
+                     </exclusion>
+                 </exclusions>
              </dependency>
              <dependency>
                  <groupId>org.apache.cxf</groupId>
                  <artifactId>cxf-rt-transports-http</artifactId>
                  <version>2.0-incubator-M1-SNAPSHOT</version>
+                 <exclusions>
+                     <exclusion>
+                         <groupId>javax.annotation</groupId>
+                         <artifactId>jsr250-api</artifactId>
+                     </exclusion>
+                     <exclusion>
+                         <groupId>javax.jws</groupId>
+                         <artifactId>jsr181-api</artifactId>
+                     </exclusion>
+                 </exclusions>
              </dependency>
              <dependency>
                  <groupId>org.apache.cxf</groupId>
                  <artifactId>cxf-tools-common</artifactId>
                  <version>2.0-incubator-M1-SNAPSHOT</version>
+                 <exclusions>
+                     <exclusion>
+                         <groupId>javax.annotation</groupId>
+                         <artifactId>jsr250-api</artifactId>
+                     </exclusion>
+                     <exclusion>
+                         <groupId>javax.jws</groupId>
+                         <artifactId>jsr181-api</artifactId>
+                     </exclusion>
+                 </exclusions>
              </dependency>
 
              <dependency>
