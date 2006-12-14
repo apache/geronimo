@@ -676,6 +676,10 @@ public class PluginInstallerGBean implements PluginInstaller {
             OpenResult result = openStream(configID, repos, username, password, monitor);
             try {
                 File tempFile = downloadFile(result, monitor);
+                if (tempFile == null) {
+                    log.error("Null filehandle was returned for "+configID);
+                    throw new IllegalArgumentException("Null filehandle was returned for "+configID);
+                }
                 PluginMetadata pluginData = ((PluginMetadata) metadata.get(configID));
                 // Only bother with the hash if we got it from a source other than the download file itself
                 PluginMetadata.Hash hash = pluginData == null ? null : pluginData.getHash();
@@ -702,7 +706,10 @@ public class PluginInstallerGBean implements PluginInstaller {
                     log.warn("Unable to delete temporary download file "+tempFile.getAbsolutePath());
                     tempFile.deleteOnExit();
                 }
-                installConfigXMLData(result.getConfigID(), pluginData);
+                if (pluginData != null)
+                    installConfigXMLData(result.getConfigID(), pluginData);
+                else
+                    log.debug("No config XML data to install.");
                 if(dependency) {
                     monitor.getResults().addDependencyInstalled(configID);
                     configID = result.getConfigID();
