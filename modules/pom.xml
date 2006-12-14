@@ -55,7 +55,6 @@
         <module>geronimo-client</module>
         <module>geronimo-client-builder</module>
         <module>geronimo-clustering</module>
-        <module>geronimo-clustering-builder-wadi</module>
         <module>geronimo-clustering-wadi</module>
         <module>geronimo-common</module>
         <module>geronimo-connector</module>

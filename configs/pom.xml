@@ -156,7 +156,6 @@
         <module>system-database</module>
         <module>tomcat6</module>
         <module>tomcat6-deployer</module>
-        <!--<module>transaction</module>-->
         <module>uddi-tomcat</module>
         <module>unavailable-client-deployer</module>
         <module>unavailable-ejb-deployer</module>
