@@ -487,26 +487,25 @@
             <dependency>
                 <groupId>org.apache.yoko</groupId>
                 <artifactId>yoko-core</artifactId>
-                <!-- version>1.0-incubating-M2-486709</version -->
-                <version>1.0-incubating-M2-SNAPSHOT</version>
+                <version>1.0-incubating-M2-486709</version>
             </dependency>
 
             <dependency>
                 <groupId>org.apache.yoko</groupId>
                 <artifactId>yoko-spec-corba</artifactId>
-                <version>1.0-incubating-M2-SNAPSHOT</version>
+                <version>1.0-incubating-M2-486709</version>
             </dependency>
 
             <dependency>
                 <groupId>org.apache.yoko</groupId>
                 <artifactId>yoko-rmi-spec</artifactId>
-                <version>1.0-incubating-M2-SNAPSHOT</version>
+                <version>1.0-incubating-M2-486709</version>
             </dependency>
 
             <dependency>
                 <groupId>org.apache.yoko</groupId>
                 <artifactId>yoko-rmi-impl</artifactId>
-                <version>1.0-incubating-M2-SNAPSHOT</version>
+                <version>1.0-incubating-M2-486709</version>
             </dependency>
 
             <dependency>
@@ -987,25 +986,25 @@
              <dependency>
                  <groupId>org.mortbay.jetty</groupId>
                  <artifactId>jetty</artifactId>
-                 <version>6.1-SNAPSHOT</version>
+                 <version>6.1.0rc0</version>
              </dependency>
 
              <dependency>
                  <groupId>org.mortbay.jetty</groupId>
                  <artifactId>jetty-util</artifactId>
-                 <version>6.1-SNAPSHOT</version>
+                 <version>6.1.0rc0</version>
              </dependency>
 
              <dependency>
                  <groupId>org.mortbay.jetty</groupId>
                  <artifactId>jsp-2.1</artifactId>
-                 <version>6.1-SNAPSHOT</version>
+                 <version>6.1.0rc0</version>
              </dependency>
 
              <dependency>
                  <groupId>org.mortbay.jetty</groupId>
                  <artifactId>jsp-api-2.1</artifactId>
-                 <version>6.1-SNAPSHOT</version>
+                 <version>6.1.0rc0</version>
              </dependency>
 
              <dependency>
@@ -1501,7 +1500,7 @@
                 <checksumPolicy>ignore</checksumPolicy>
             </snapshots>
             <releases>
-                <enabled>false</enabled>
+                <enabled>true</enabled>
             </releases>
         </repository>
 
@@ -1511,12 +1510,12 @@
             <url>http://people.apache.org/repo/m2-incubating-repository/</url>
             <layout>default</layout>
             <snapshots>
-                <enabled>false</enabled>
+                <enabled>true</enabled>
                 <updatePolicy>daily</updatePolicy>
                 <checksumPolicy>ignore</checksumPolicy>
             </snapshots>
             <releases>
-                <enabled>true</enabled>
+                <enabled>false</enabled>
             </releases>
         </repository>
     </repositories>
