@@ -120,9 +120,9 @@ public abstract class InstallerMojoSupport
         try {
             ZipFile zipFile = new ZipFile(archive);
 
-            Enumeration enum = zipFile.entries();
-            while (enum.hasMoreElements()) {
-                ZipEntry entry = (ZipEntry)enum.nextElement();
+            Enumeration enumX = zipFile.entries();
+            while (enumX.hasMoreElements()) {
+                ZipEntry entry = (ZipEntry)enumX.nextElement();
                 if (entry.getName().endsWith("bin/server.jar")) {
                     File file = new File(installDirectory, entry.getName());
                     dir = file.getParentFile().getParentFile();
