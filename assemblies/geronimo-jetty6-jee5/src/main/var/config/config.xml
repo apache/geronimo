@@ -212,7 +212,7 @@
 
     <module name="org.apache.geronimo.configs/webconsole-jetty6/${version}/car"/>
 
-    <module name="org.apache.geronimo.configs/uddi-jetty/${version}/car" load="false"/>
+    <module name="org.apache.geronimo.configs/uddi-jetty6/${version}/car" load="false"/>
     
     <module name="org.apache.geronimo.configs/remote-deploy-jetty/${version}/car"/>
 
