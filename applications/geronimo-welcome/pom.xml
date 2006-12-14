@@ -53,6 +53,11 @@
             <artifactId>geronimo-jsp_2.0_spec</artifactId>
         </dependency>
 
+        <dependency>
+            <groupId>org.apache.geronimo.specs</groupId>
+            <artifactId>geronimo-servlet_2.5_spec</artifactId>
+        </dependency>
+
     </dependencies>
 
     <build>
