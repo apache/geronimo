@@ -232,10 +232,15 @@ extends MojoSupport
      */
     protected void doExecute() throws Exception {
 
+        if (buildNumber == null) {
+            log.warn("No build number specified; returning");
+            return;
+        }
+
         File currentSiteDirectory = new File(targetDirectory, "/site");
         if ( !currentSiteDirectory.exists() )
         {
-            log.warn("No site directory here");
+            log.warn("No site directory here; returning");
             return;
         }
 
