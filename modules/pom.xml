@@ -55,7 +55,6 @@
         <module>geronimo-client</module>
         <module>geronimo-client-builder</module>
         <module>geronimo-clustering</module>
-        <module>geronimo-clustering-builder-wadi</module>
         <module>geronimo-clustering-wadi</module>
         <module>geronimo-common</module>
         <module>geronimo-connector</module>
@@ -73,9 +72,6 @@
         <module>geronimo-j2ee</module>
         <module>geronimo-j2ee-builder</module>
         <module>geronimo-j2ee-schema</module>
-        <module>geronimo-jetty</module>
-        <module>geronimo-jetty-clustering-wadi</module>
-        <module>geronimo-jetty-builder</module>
         <module>geronimo-jmx-remoting</module>
         <module>geronimo-kernel</module>
         <module>geronimo-mail</module>

@@ -845,12 +845,6 @@
             </dependency>
 
             <dependency>
-                <groupId>jetty</groupId>
-                <artifactId>org.mortbay.jetty</artifactId>
-                <version>5.1.12</version>
-            </dependency>
-
-            <dependency>
                 <groupId>tomcat</groupId>
                 <artifactId>jasper-compiler-jdt</artifactId>
                 <version>${tomcat5Version}</version>
