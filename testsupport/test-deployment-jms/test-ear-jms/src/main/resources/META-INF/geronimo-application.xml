@@ -33,6 +33,7 @@
         <dep:dependency>
     	    <dep:groupId>org.apache.geronimo.configs</dep:groupId>
     	    <dep:artifactId>activemq-broker</dep:artifactId>
+            <dep:version>${version}</dep:version>
     	    <dep:type>car</dep:type>
         </dep:dependency>
         </dep:dependencies>
@@ -61,7 +62,7 @@
       </module>
       <ext-module>
         <connector>TestJMS</connector>
-        <external-path>org.apache.geronimo.modules/ge-activemq-rar/2.0-SNAPSHOT/rar</external-path>
+        <external-path>org.apache.geronimo.modules/ge-activemq-rar/${version}/rar</external-path>
         <connector xmlns="http://geronimo.apache.org/xml/ns/j2ee/connector-1.1">
           <resourceadapter>
             <resourceadapter-instance>
