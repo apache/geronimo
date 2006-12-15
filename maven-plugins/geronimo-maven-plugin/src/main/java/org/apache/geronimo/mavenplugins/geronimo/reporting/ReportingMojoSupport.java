@@ -34,8 +34,7 @@ import org.apache.maven.plugin.MojoFailureException;
  * @version $Rev$ $Date$
  */
 public abstract class ReportingMojoSupport
-    extends GeronimoMojoSupport
-{
+extends GeronimoMojoSupport {
     /**
      * Enable logging mode.
      *
@@ -69,6 +68,16 @@ public abstract class ReportingMojoSupport
      */
     protected Reporter[] reporters = null;
 
+
+    /**
+     * Whether to stop or proceed when errors and failures are encountered
+     *
+     * @parameter expression="${stopOnFailure}" default-value="true"
+     */
+    protected boolean stopOnFailure;
+
+    
+
     /**
      * Provides hooks into the reporting interface to allow for customized reports to be generated
      * for goal executions.
@@ -76,33 +85,38 @@ public abstract class ReportingMojoSupport
     public void execute() throws MojoExecutionException, MojoFailureException {
         init();
 
-        if (log.isDebugEnabled()) {
-            if (reporters != null) {
+        if ( log.isDebugEnabled() ) {
+            if ( reporters != null ) {
                 log.debug("Reporters: " + Arrays.asList(reporters));
             }
             else {
                 log.debug("No reporters configured");
             }
         }
-        
+
         reportBegin();
 
         try {
             doExecute();
         }
-        catch(Exception e) {
+        catch ( Exception e ) {
             reportError(e);
 
-            if (e instanceof MojoExecutionException) {
-                throw new MojoExecutionException(e.getMessage(), e);
-            }
-            else if (e instanceof MojoFailureException) {
-                MojoFailureException x = new MojoFailureException(e.getMessage());
-                x.initCause(e);
-                throw x;
+            if ( stopOnFailure ) {
+                if ( e instanceof MojoExecutionException ) {
+                    throw new MojoExecutionException(e.getMessage(), e);
+                }
+                else if ( e instanceof MojoFailureException ) {
+                    MojoFailureException x = new MojoFailureException(e.getMessage());
+                    x.initCause(e);
+                    throw x;
+                }
+                else {
+                    throw new MojoExecutionException(e.getMessage(), e);
+                }
             }
             else {
-                throw new MojoExecutionException(e.getMessage(), e);
+                log.warn("Ignoring failure !");
             }
         }
         finally {
@@ -111,7 +125,7 @@ public abstract class ReportingMojoSupport
     }
 
     protected File getLogFile() {
-        if (logFile == null) {
+        if ( logFile == null ) {
             return new File(logOutputDirectory, getFullClassName() + ".log");
         }
 
@@ -130,7 +144,7 @@ public abstract class ReportingMojoSupport
     //
 
     private void reportBegin() {
-        if (reporters == null) {
+        if ( reporters == null ) {
             return;
         }
 
@@ -150,29 +164,29 @@ public abstract class ReportingMojoSupport
             }
         };
 
-        for (int i =0; i < reporters.length; i++) {
+        for ( int i =0; i < reporters.length; i++ ) {
             reporters[i].reportBegin(source);
         }
     }
-    
+
     private void reportError(final Throwable cause) {
         assert cause != null;
 
-        if (reporters == null) {
+        if ( reporters == null ) {
             return;
         }
 
-        for (int i=0; i < reporters.length; i++) {
+        for ( int i=0; i < reporters.length; i++ ) {
             reporters[i].reportError(cause);
         }
     }
 
     private void reportEnd() {
-        if (reporters == null) {
+        if ( reporters == null ) {
             return;
         }
 
-        for (int i=0; i < reporters.length; i++) {
+        for ( int i=0; i < reporters.length; i++ ) {
             reporters[i].reportEnd();
         }
     }
