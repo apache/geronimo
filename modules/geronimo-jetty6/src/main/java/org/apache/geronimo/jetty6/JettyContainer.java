@@ -20,6 +20,7 @@ package org.apache.geronimo.jetty6;
 import org.apache.geronimo.management.geronimo.WebContainer;
 import org.mortbay.jetty.Connector;
 import org.mortbay.jetty.RequestLog;
+import org.mortbay.jetty.Server;
 import org.mortbay.jetty.handler.ContextHandler;
 
 /**
@@ -50,4 +51,6 @@ public interface JettyContainer extends WebContainer {
 
     /* ------------------------------------------------------------ */
     RequestLog getRequestLog();
+
+    Server getServer();
 }

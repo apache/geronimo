@@ -172,6 +172,7 @@ public class JettyWebAppContext implements GBeanLifecycle, JettyServletRegistrat
         ServletHandler servletHandler = new JettyServletHandler(preHandler);
 
         webAppContext = new WebAppContext(securityHandler, sessionHandler, servletHandler, null);
+        webAppContext.setServer(jettyContainer.getServer());
         AbstractHandler next = sessionHandler;
         next = new ThreadClassloaderHandler(next, classLoader);
 
