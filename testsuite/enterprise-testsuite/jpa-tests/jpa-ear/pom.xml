@@ -110,6 +110,7 @@
                 </configuration>
             </plugin>
 
+            <!-- "ear" packaging doesn't compile test classes -->
             <plugin>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <executions>
@@ -121,6 +122,7 @@
                 </executions>
             </plugin>
 
+            <!-- "ear" packaging doesn't process test resources -->
             <plugin>
                 <artifactId>maven-resources-plugin</artifactId>
                 <executions>
@@ -159,7 +161,7 @@
                             <goal>undeploy-module</goal>
                         </goals>
                         <configuration>
-                            <moduleId>org.apache.geronimo.testsuite/jpa-ear/${version}/ear</moduleId>
+                            <moduleId>${groupId}/${artifactId}/${version}/ear</moduleId>
                         </configuration>
                     </execution>
                 </executions>
