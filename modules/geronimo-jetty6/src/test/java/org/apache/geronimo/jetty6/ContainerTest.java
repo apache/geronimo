@@ -37,7 +37,9 @@ public class ContainerTest extends AbstractWebModuleTest {
             fail();
         } catch (Exception e) {
             // 404 proves we spoke to the server even if we didn't get anything
-//            assertEquals(HttpURLConnection.HTTP_NOT_FOUND, connection.getResponseCode());
+	    // TODO change back to 404 when Jetty server is updated
+            // assertEquals(HttpURLConnection.HTTP_NOT_FOUND, connection.getResponseCode());
+            assertEquals(HttpURLConnection.HTTP_SERVER_ERROR, connection.getResponseCode());
             connection.disconnect();
         }
     }
@@ -63,7 +65,9 @@ public class ContainerTest extends AbstractWebModuleTest {
             fail();
         } catch (Exception e) {
             // see if we removed the ws.
-//            assertEquals(HttpURLConnection.HTTP_NOT_FOUND, connection.getResponseCode());
+	    // TODO change back to 404 when Jetty server is updated
+            //assertEquals(HttpURLConnection.HTTP_NOT_FOUND, connection.getResponseCode());
+            assertEquals(HttpURLConnection.HTTP_SERVER_ERROR, connection.getResponseCode());
             connection.disconnect();
         }
     }
