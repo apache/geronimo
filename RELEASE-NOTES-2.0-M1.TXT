@@ -41,12 +41,10 @@ Apache Geronimo v2.0 includes the following features:
 - Common Annotations 1.0
 - JAF 1.1
 - JavaMail 1.4
-- JPA 1.0
+- EJB 3.0 (JPA only)
 - JTA 1.1
 - JMS 1.1
-- JCA 1.5
 - JACC 1.1
-
 
 Installing & Starting Geronimo
 ------------------------------
