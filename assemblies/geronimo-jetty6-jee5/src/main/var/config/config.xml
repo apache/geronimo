@@ -206,7 +206,7 @@
 
     <module name="org.apache.geronimo.configs/jetty6-deployer/${version}/car"/>
         
-    <module load="false" name="org.apache.geronimo.configs/welcome-jetty/${version}/car"/>
+    <module name="org.apache.geronimo.configs/welcome-jetty/${version}/car"/>
 
     <module name="org.apache.geronimo.configs/dojo-jetty6/${version}/car"/>
 
