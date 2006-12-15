@@ -238,10 +238,6 @@ public class JettyContainerImpl implements JettyContainer, SoapHandler, GBeanLif
         return this.requestLogHandler.getRequestLog();
     }
 
-    public Server getServer() {
-        return server;
-    }
-
     public void doStart() throws Exception {
         server.start();
     }

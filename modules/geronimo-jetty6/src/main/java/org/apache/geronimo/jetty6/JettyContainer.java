@@ -52,5 +52,4 @@ public interface JettyContainer extends WebContainer {
     /* ------------------------------------------------------------ */
     RequestLog getRequestLog();
 
-    Server getServer();
 }
