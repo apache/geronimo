@@ -202,5 +202,6 @@ public class AbstractWebModuleTest extends TestSupport {
 
     protected void tearDown() throws Exception {
         connector.doStop();
+        Thread.sleep(1000);
     }
 }
