@@ -33,7 +33,7 @@
 
     <artifactId>jms-war</artifactId>
     <name>Geronimo TestSuite :: Enterprise Testsuite :: JMS WAR</name>
-    <packaging>war</packaging
+    <packaging>war</packaging>
     
     <description>
         Geronimo test WAR for JMS
