@@ -89,7 +89,7 @@ public abstract class BaseCAHandler extends MultiPageAbstractHandler {
      * @return  null if a CA GBean is not running.
      */
     protected CertificationAuthority getCertificationAuthority(PortletRequest request) {
-        Object[] cas = PortletManager.getManagedBeans(request, CertificationAuthority.class);
+        Object[] cas = PortletManager.getManagementHelper(request).getGBeansImplementing(CertificationAuthority.class);
         return (CertificationAuthority)(cas != null && cas.length > 0 ? cas[0] : null);
     }
 
@@ -109,7 +109,7 @@ public abstract class BaseCAHandler extends MultiPageAbstractHandler {
      * @return  null if a CertificateRequestStore GBean is not running.
      */
     protected CertificateRequestStore getCertificateRequestStore(PortletRequest request) {
-        Object[] crs = PortletManager.getManagedBeans(request, CertificateRequestStore.class);
+        Object[] crs = PortletManager.getManagementHelper(request).getGBeansImplementing(CertificateRequestStore.class);
         return (CertificateRequestStore)(crs != null && crs.length > 0 ? crs[0] : null);
     }
 
@@ -119,7 +119,7 @@ public abstract class BaseCAHandler extends MultiPageAbstractHandler {
      * @return  null if a CertificateStore GBean is not running.
      */
     protected CertificateStore getCertificateStore(PortletRequest request) {
-        Object[] cs = PortletManager.getManagedBeans(request, CertificateStore.class);
+        Object[] cs = PortletManager.getManagementHelper(request).getGBeansImplementing(CertificateStore.class);
         return (CertificateStore)(cs != null && cs.length > 0 ? cs[0] : null);
     }
 }
