@@ -58,7 +58,6 @@ public class JettyContainerImpl implements JettyContainer, SoapHandler, GBeanLif
     public JettyContainerImpl(String objectName, WebManager manager) {
         this.objectName = objectName;
         server = new JettyServer();
-        contextHandlerCollection.setServer(server);
 
         //set up the new jetty6 handler structure which is to have a HandlerCollection,
         //each element of which is always tried on each request.
