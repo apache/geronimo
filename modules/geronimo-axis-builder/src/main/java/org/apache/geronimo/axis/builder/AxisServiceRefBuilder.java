@@ -69,13 +69,12 @@ public class AxisServiceRefBuilder extends AbstractNamingBuilder {
     }
     
     public void buildNaming(XmlObject specDD, XmlObject plan, Configuration localConfiguration, Configuration remoteConfiguration, Module module, Map componentContext) throws DeploymentException {
-        XmlObject[] serviceRefsUntyped = convert(specDD.selectChildren(serviceRefQNameSet), J2EE_CONVERTER, ServiceRefType.type);
+        List<ServiceRefType> serviceRefsUntyped = convert(specDD.selectChildren(serviceRefQNameSet), J2EE_CONVERTER, ServiceRefType.class, ServiceRefType.type);
         XmlObject[] gerServiceRefsUntyped = plan == null? NO_REFS: plan.selectChildren(GER_SERVICE_REF_QNAME_SET);
         Map serviceRefMap = mapServiceRefs(gerServiceRefsUntyped);
         ClassLoader cl = module.getEarContext().getClassLoader();
 
-        for (int i = 0; i < serviceRefsUntyped.length; i++) {
-            ServiceRefType serviceRef = (ServiceRefType) serviceRefsUntyped[i];
+        for (ServiceRefType serviceRef: serviceRefsUntyped) {
             String name = getStringValue(serviceRef.getServiceRefName());
             GerServiceRefType serviceRefType = (GerServiceRefType) serviceRefMap.get(name);
 //            Map credentialsNameMap = (Map) serviceRefCredentialsNameMap.get(name);

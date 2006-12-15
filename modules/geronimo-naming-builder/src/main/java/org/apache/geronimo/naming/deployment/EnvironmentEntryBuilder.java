@@ -18,6 +18,7 @@
 package org.apache.geronimo.naming.deployment;
 
 import java.util.Map;
+import java.util.List;
 
 import javax.xml.namespace.QName;
 
@@ -52,9 +53,8 @@ public class EnvironmentEntryBuilder extends AbstractNamingBuilder {
     }
 
     public void buildNaming(XmlObject specDD, XmlObject plan, Configuration localConfiguration, Configuration remoteConfiguration, Module module, Map componentContext) throws DeploymentException {
-        XmlObject[] envEntriesUntyped = convert(specDD.selectChildren(envEntryQNameSet), J2EE_CONVERTER, EnvEntryType.type);
-        for (int i = 0; i < envEntriesUntyped.length; i++) {
-            EnvEntryType envEntry = (EnvEntryType) envEntriesUntyped[i];
+        List<EnvEntryType> envEntriesUntyped = convert(specDD.selectChildren(envEntryQNameSet), J2EE_CONVERTER, EnvEntryType.class, EnvEntryType.type);
+        for (EnvEntryType envEntry: envEntriesUntyped) {
             String name = envEntry.getEnvEntryName().getStringValue().trim();
             String type = envEntry.getEnvEntryType().getStringValue().trim();
             String text = envEntry.getEnvEntryValue().getStringValue().trim();

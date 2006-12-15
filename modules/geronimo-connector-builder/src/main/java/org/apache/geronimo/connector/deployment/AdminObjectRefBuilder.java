@@ -20,6 +20,7 @@ package org.apache.geronimo.connector.deployment;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.List;
 
 import javax.naming.Reference;
 import javax.xml.namespace.QName;
@@ -72,7 +73,7 @@ public class AdminObjectRefBuilder extends AbstractNamingBuilder {
     }
 
     public void initContext(XmlObject specDD, XmlObject plan, Configuration localConfiguration, Configuration remoteConfiguration, Module module) throws DeploymentException {
-        XmlObject[] specDestinations = convert(specDD.selectChildren(messageDestinationQNameSet), J2EE_CONVERTER, MessageDestinationType.type);
+        List<MessageDestinationType> specDestinations = convert(specDD.selectChildren(messageDestinationQNameSet), J2EE_CONVERTER, MessageDestinationType.class, MessageDestinationType.type);
         XmlObject[] gerDestinations = plan.selectChildren(GER_MESSAGE_DESTINATION_QNAME_SET);
             Map nameMap = new HashMap();
             for (int i = 0; i < gerDestinations.length; i++) {
@@ -80,8 +81,7 @@ public class AdminObjectRefBuilder extends AbstractNamingBuilder {
                 String name = destination.getMessageDestinationName().trim();
                 nameMap.put(name, destination);
                 boolean found = false;
-                for (int j = 0; j < specDestinations.length; j++) {
-                    MessageDestinationType specDestination = (MessageDestinationType) specDestinations[j];
+                for (MessageDestinationType specDestination: specDestinations) {
                     if (specDestination.getMessageDestinationName().getStringValue().trim().equals(name)) {
                         found = true;
                         break;
@@ -96,12 +96,11 @@ public class AdminObjectRefBuilder extends AbstractNamingBuilder {
 
 
     public void buildNaming(XmlObject specDD, XmlObject plan, Configuration localConfiguration, Configuration remoteConfiguration, Module module, Map componentContext) throws DeploymentException {
-        XmlObject[] resourceEnvRefsUntyped = convert(specDD.selectChildren(adminOjbectRefQNameSet), J2EE_CONVERTER, ResourceEnvRefType.type);
+        List<ResourceEnvRefType> resourceEnvRefsUntyped = convert(specDD.selectChildren(adminOjbectRefQNameSet), J2EE_CONVERTER, ResourceEnvRefType.class, ResourceEnvRefType.type);
         ClassLoader cl = module.getEarContext().getClassLoader();
         XmlObject[] gerResourceEnvRefsUntyped = plan == null? NO_REFS: plan.selectChildren(GER_ADMIN_OBJECT_REF_QNAME_SET);
         Map refMap = mapResourceEnvRefs(gerResourceEnvRefsUntyped);
-        for (int i = 0; i < resourceEnvRefsUntyped.length; i++) {
-            ResourceEnvRefType resourceEnvRef = (ResourceEnvRefType) resourceEnvRefsUntyped[i];
+        for (ResourceEnvRefType resourceEnvRef: resourceEnvRefsUntyped) {
             String name = resourceEnvRef.getResourceEnvRefName().getStringValue().trim();
             String type = resourceEnvRef.getResourceEnvRefType().getStringValue().trim();
             Class iface;
@@ -121,10 +120,9 @@ public class AdminObjectRefBuilder extends AbstractNamingBuilder {
         }
 
         //message-destination-refs
-        XmlObject[] messageDestinationRefsUntyped = convert(specDD.selectChildren(messageDestinationRefQNameSet), J2EE_CONVERTER, MessageDestinationRefType.type);
+        List<MessageDestinationRefType> messageDestinationRefsUntyped = convert(specDD.selectChildren(messageDestinationRefQNameSet), J2EE_CONVERTER, MessageDestinationRefType.class, MessageDestinationRefType.type);
 
-        for (int i = 0; i < messageDestinationRefsUntyped.length; i++) {
-            MessageDestinationRefType messageDestinationRef = (MessageDestinationRefType) messageDestinationRefsUntyped[i];
+        for (MessageDestinationRefType messageDestinationRef: messageDestinationRefsUntyped) {
             String name = getStringValue(messageDestinationRef.getMessageDestinationRefName());
             String linkName = getStringValue(messageDestinationRef.getMessageDestinationLink());
             String type = getStringValue(messageDestinationRef.getMessageDestinationType());

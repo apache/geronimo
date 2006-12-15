@@ -21,6 +21,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.List;
 
 import javax.xml.namespace.QName;
 
@@ -57,16 +58,12 @@ public class PersistenceContextRefBuilder extends AbstractNamingBuilder {
     }
 
     protected boolean willMergeEnvironment(XmlObject specDD, XmlObject plan) throws DeploymentException {
-        return getPersistenceContextRefs(plan).length > 0;
+        return plan != null && plan.selectChildren(PersistenceContextRefBuilder.PERSISTENCE_CONTEXT_REF_QNAME_SET).length > 0;
     }
 
     public void buildNaming(XmlObject specDD, XmlObject plan, Configuration localConfiguration, Configuration remoteConfiguration, Module module, Map componentContext) throws DeploymentException {
-        XmlObject[] persistenceContextRefsUntyped = getPersistenceContextRefs(plan);
-        for (int i = 0; i < persistenceContextRefsUntyped.length; i++) {
-            GerPersistenceContextRefType persistenceContextRef = (GerPersistenceContextRefType) persistenceContextRefsUntyped[i];
-            if (persistenceContextRef == null) {
-                throw new DeploymentException("Could not read persistenceContextRef number " + i + " as the correct xml type");
-            }
+        List<GerPersistenceContextRefType> persistenceContextRefsUntyped = convert(plan.selectChildren(PersistenceContextRefBuilder.PERSISTENCE_CONTEXT_REF_QNAME_SET), NAMING_CONVERTER, GerPersistenceContextRefType.class, GerPersistenceContextRefType.type);
+        for (GerPersistenceContextRefType persistenceContextRef: persistenceContextRefsUntyped) {
             String persistenceContextRefName = persistenceContextRef.getPersistenceContextRefName();
             boolean transactionScoped = !persistenceContextRef.getPersistenceContextType().equals(GerPersistenceContextTypeType.EXTENDED);
             GerPropertyType[] propertyTypes = persistenceContextRef.getPropertyArray();
@@ -110,10 +107,6 @@ public class PersistenceContextRefBuilder extends AbstractNamingBuilder {
 
     public QNameSet getPlanQNameSet() {
         return PERSISTENCE_CONTEXT_REF_QNAME_SET;
-    }
-
-    private XmlObject[] getPersistenceContextRefs(XmlObject plan) throws DeploymentException {
-        return plan == null? NO_REFS: convert(plan.selectChildren(PersistenceContextRefBuilder.PERSISTENCE_CONTEXT_REF_QNAME_SET), NAMING_CONVERTER, GerPersistenceContextRefType.type);
     }
 
     public static final GBeanInfo GBEAN_INFO;

@@ -24,6 +24,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.HashSet;
+import java.util.List;
 
 import javax.naming.Reference;
 import javax.xml.namespace.QName;
@@ -72,13 +73,12 @@ public class ResourceRefBuilder extends AbstractNamingBuilder implements Resourc
     }
 
     public void buildNaming(XmlObject specDD, XmlObject plan, Configuration localConfiguration, Configuration remoteConfiguration, Module module, Map componentContext) throws DeploymentException {
-        XmlObject[] resourceRefsUntyped = convert(specDD.selectChildren(resourceRefQNameSet), J2EE_CONVERTER, ResourceRefType.type);
+        List<ResourceRefType> resourceRefsUntyped = convert(specDD.selectChildren(resourceRefQNameSet), J2EE_CONVERTER, ResourceRefType.class, ResourceRefType.type);
         XmlObject[] gerResourceRefsUntyped = plan == null? NO_REFS: plan.selectChildren(GER_RESOURCE_REF_QNAME_SET);
         Map refMap = mapResourceRefs(gerResourceRefsUntyped);
         ClassLoader cl = module.getEarContext().getClassLoader();
 
-        for (int i = 0; i < resourceRefsUntyped.length; i++) {
-            ResourceRefType resourceRef = (ResourceRefType) resourceRefsUntyped[i];
+        for (ResourceRefType resourceRef: resourceRefsUntyped) {
             String name = resourceRef.getResRefName().getStringValue().trim();
             String type = resourceRef.getResType().getStringValue().trim();
             GerResourceRefType gerResourceRef = (GerResourceRefType) refMap.get(name);
@@ -148,12 +148,11 @@ public class ResourceRefBuilder extends AbstractNamingBuilder implements Resourc
     }
 
     public void setResourceEnvironment(ResourceEnvironmentBuilder builder, XmlObject[] resourceRefs, GerResourceRefType[] gerResourceRefs) throws DeploymentException {
-        resourceRefs = convert(resourceRefs, J2EE_CONVERTER, ResourceRefType.type);
+        List<ResourceRefType> resourceRefList = convert(resourceRefs, J2EE_CONVERTER, ResourceRefType.class, ResourceRefType.type);
         Map refMap = mapResourceRefs(gerResourceRefs);
         Set unshareableResources = new HashSet();
         Set applicationManagedSecurityResources = new HashSet();
-        for (int i = 0; i < resourceRefs.length; i++) {
-            ResourceRefType resourceRefType = (ResourceRefType) resourceRefs[i];
+        for (ResourceRefType resourceRefType: resourceRefList) {
 
             String type = resourceRefType.getResType().getStringValue().trim();
 

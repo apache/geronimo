@@ -23,6 +23,8 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
+import java.util.List;
+import java.util.ArrayList;
 
 import javax.xml.namespace.QName;
 
@@ -124,8 +126,16 @@ public abstract class AbstractNamingBuilder implements NamingBuilder {
         return QNameSet.forSets(null, Collections.EMPTY_SET, Collections.EMPTY_SET, qnames);
     }
 
+    /**
+     * @deprecated
+     * @param xmlObjects
+     * @param converter
+     * @param type
+     * @return
+     * @throws DeploymentException
+     */
     protected static XmlObject[] convert(XmlObject[] xmlObjects, NamespaceElementConverter converter, SchemaType type) throws DeploymentException {
-        //bizarre ArrayStoreException if xmlObjects is loaded by the wrong classloader
+               //bizarre ArrayStoreException if xmlObjects is loaded by the wrong classloader
         XmlObject[] converted = new XmlObject[xmlObjects.length];
         for (int i = 0; i < xmlObjects.length; i++) {
             XmlObject xmlObject = xmlObjects[i].copy();
@@ -142,6 +152,26 @@ public abstract class AbstractNamingBuilder implements NamingBuilder {
             }
         }
         return converted;
+
+    }
+
+    protected static <T extends XmlObject> List<T> convert(XmlObject[] xmlObjects, NamespaceElementConverter converter, Class<T> c, SchemaType type) throws DeploymentException {
+        //there's probably a better way to say T extends XmlObject and get the type from that
+        List<T> result = new ArrayList<T>(xmlObjects.length);
+        for (XmlObject xmlObject : xmlObjects) {
+            xmlObject = xmlObject.copy();
+            if (xmlObject.schemaType() != type) {
+                converter.convertElement(xmlObject);
+                xmlObject = xmlObject.changeType(type);
+            }
+            try {
+                XmlBeansUtil.validateDD(xmlObject);
+            } catch (XmlException e) {
+                throw new DeploymentException("Could not validate xmlObject of type " + type, e);
+            }
+            result.add((T) xmlObject);
+        }
+        return result;
     }
 
     protected static String getStringValue(org.apache.geronimo.xbeans.j2ee.String string) {
