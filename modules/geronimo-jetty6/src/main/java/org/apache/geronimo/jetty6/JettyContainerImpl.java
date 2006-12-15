@@ -74,6 +74,7 @@ public class JettyContainerImpl implements JettyContainer, SoapHandler, GBeanLif
         handlers[0] = contextHandlerCollection;
         handlers[1] = defaultHandler;
         handlers[2] = requestLogHandler;
+        handlerCollection.setHandlers(handlers);
         server.setHandler(handlerCollection);
 
         stats = new JettyWebContainerStatsImpl();
@@ -179,11 +180,11 @@ public class JettyContainerImpl implements JettyContainer, SoapHandler, GBeanLif
     }
 
     public void addContext(ContextHandler context) {
-        server.addHandler(context);
+        contextHandlerCollection.addHandler(context);
     }
 
     public void removeContext(ContextHandler context) {
-        server.removeHandler(context);
+        contextHandlerCollection.removeHandler(context);
     }
 
     public InternalJAASJettyRealm addRealm(String realmName) {
