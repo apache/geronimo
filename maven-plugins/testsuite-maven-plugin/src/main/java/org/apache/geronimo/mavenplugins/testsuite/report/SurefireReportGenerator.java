@@ -712,8 +712,9 @@ public class SurefireReportGenerator
 
     private String getLink(String link) {
         if ( link.endsWith("#") ) {
-            int index = link.lastIndexOf("#");
-            return link.substring(0, index) + "/surefire-report.html";
+            link = link.replace("#", "/");
+            link = link.replace("@", "/");
+            return link + "surefire-report.html";
         }
         return "#" + link;
     }

@@ -74,6 +74,16 @@ extends MojoSupport
 
     private File parentReportsDirectory;
 
+    /**
+     * Sometimes it is necessary to generate the surefire xml in a grand parent project because
+     * the current pom was not invoked by the maven-maven-plugin by a parent project.
+     * Such a parent project whose packaging is set to pom will not transfer the surefire data to it's parent.
+     * So we will directly write to the grandparent's surefire-reports dir.
+     * 
+    * @parameter default-value="false"
+    */
+    private boolean grandParent;
+
     //
     // MojoSupport Hooks
     //
@@ -98,7 +108,11 @@ extends MojoSupport
         ant.setProject(getProject());
 
         currentReportsDirectory = new File(currentBuildDirectory, "surefire-reports");
+        if (grandParent) {
+            parentBuildDirectory = new File(project.getParent().getParent().getBuild().getDirectory());
+        }
         parentReportsDirectory = new File(parentBuildDirectory, "surefire-reports");
+        log.info("Updating directory: " + parentReportsDirectory.getAbsolutePath() );
     }
 
     protected void doExecute() throws Exception {
@@ -121,6 +135,14 @@ extends MojoSupport
             parentReportsDirectory.mkdirs();
         }
         File parentSurefireXMLFile = new File(parentReportsDirectory, "TEST-" + artifactName + ".xml");
+        if ( parentSurefireXMLFile.exists() )
+        {
+            parentSurefireXMLFile.delete();
+        }
+
+        if (grandParent) {
+            artifactName = project.getParent().getBasedir().getName() + "@" + artifactName;
+        }
 
         ArrayList xmlFiles = (ArrayList) FileUtils.getFiles(currentReportsDirectory, "TEST*.xml", null);
         for ( int i=0; i < xmlFiles.size(); i++ )
@@ -140,7 +162,7 @@ extends MojoSupport
 
             if ( parentSurefireXMLFile.exists() )
             {
-                log.info("Loading parent surefire xml for xmlproperty");
+                log.info("Loading parent surefire xml for xmlproperty: " + parentSurefireXMLFile.getAbsolutePath() );
                 String parentPrefix = "parent" + prefix;
                 loadXMLProperty(parentSurefireXMLFile, parentPrefix);
 
