@@ -29,6 +29,7 @@ import java.util.List;
  * @version $Rev$ $Date$
  */
 public class GOperationInfo implements Serializable {
+    private static final long serialVersionUID = -5593225815559931812L;
     /**
      * The name of this method.
      */

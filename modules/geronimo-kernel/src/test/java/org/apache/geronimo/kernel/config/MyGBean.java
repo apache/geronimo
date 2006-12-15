@@ -32,7 +32,7 @@ public class MyGBean {
 
     static {
         GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic(MyGBean.class);
-        infoFactory.addOperation("main", new Class[]{String[].class}, "void");
+        infoFactory.addOperation("main", new Class[]{String[].class});
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
 }
