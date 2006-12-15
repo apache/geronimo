@@ -41,7 +41,6 @@
     
     <modules>
         <!--<module>cxfPojoWS</module>-->
-        <module>jpa</module>
     </modules>
 
 </project>
