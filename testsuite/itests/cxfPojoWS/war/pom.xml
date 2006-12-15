@@ -28,8 +28,8 @@
     <build>
         <plugins>
             <!--<plugin>-->
-                <!--<groupId>org.apache.maven.plugins</groupId>-->
-                <!--<artifactId>maven-war-plugin</artifactId>-->
+            <!--<groupId>org.apache.maven.plugins</groupId>-->
+            <!--<artifactId>maven-war-plugin</artifactId>-->
             <!--</plugin>-->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -47,6 +47,16 @@
             <groupId>org.apache.cxf</groupId>
             <artifactId>cxf-testutils</artifactId>
             <version>2.0-incubator-M1-SNAPSHOT</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>javax.annotation</groupId>
+                    <artifactId>jsr250-api</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>javax.jws</groupId>
+                    <artifactId>jsr181-api</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
     </dependencies>
 </project>
