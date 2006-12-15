@@ -31,8 +31,8 @@
         <relativePath>../pom.xml</relativePath>
     </parent>
 
-    <artifactId>test-jms</artifactId>
-    <name>Geronimo TestSuite, Enterprise :: Test JMS</name>
+    <artifactId>jms-tests</artifactId>
+    <name>Geronimo TestSuite :: Enterprise :: JMS Tests</name>
     <packaging>jar</packaging>
     
     <description>

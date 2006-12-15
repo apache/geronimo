@@ -31,8 +31,8 @@
         <relativePath>../pom.xml</relativePath>
     </parent>
     
-    <artifactId>test-ejbcontainer</artifactId>
-    <name>Geronimo TestSuite, EJB Container :: Test ejb modules</name>
+    <artifactId>ejbcontainer-tests</artifactId>
+    <name>Geronimo TestSuite :: Enterprise Testsuite :: EJB Container Tests</name>
     <packaging>jar</packaging>
     
     <description>

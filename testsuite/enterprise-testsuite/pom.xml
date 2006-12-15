@@ -23,7 +23,7 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
     <modelVersion>4.0.0</modelVersion>
-    
+
     <parent>
         <groupId>org.apache.geronimo.testsuite</groupId>
         <artifactId>testsuite</artifactId>
@@ -46,7 +46,7 @@
         - JPA
         - JavaMail
     </description>
-    
+
     <build>
         <plugins>
             <plugin>
@@ -65,7 +65,7 @@
             </plugin>
         </plugins>
     </build>
-   
+
     <profiles>
         <profile>
             <id>default</id>
@@ -78,10 +78,29 @@
             -->
             <build>
                 <plugins>
-                  <plugin>
-                      <groupId>org.apache.geronimo.plugins</groupId>
-                      <artifactId>selenium-maven-plugin</artifactId>
-                  </plugin>
+                    <plugin>
+                        <!--
+                          One of the pom that this invokes using m-m-p has packaging set to "pom".
+                          That expects it's parent (this pom) to be installed already.
+                          So installing it ahead before we invoke it in the integration-test phase
+                        -->
+                        <artifactId>maven-install-plugin</artifactId>
+                        <inherited>false</inherited>
+                        <executions>
+                            <execution>
+                                <id>install-ahead</id>
+                                <phase>pre-integration-test</phase>
+                                <goals>
+                                    <goal>install</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+
+                    <plugin>
+                        <groupId>org.apache.geronimo.plugins</groupId>
+                        <artifactId>selenium-maven-plugin</artifactId>
+                    </plugin>
 
                     <plugin>
                         <groupId>org.apache.geronimo.plugins</groupId>
@@ -95,9 +114,11 @@
             </build>
         </profile>
         
+
         <profile>
             <id>child</id>
         </profile>
     </profiles>
     
+
 </project>
