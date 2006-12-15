@@ -1340,17 +1340,6 @@
                 </plugin>
 
                 <plugin>
-                  <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-ejb-plugin</artifactId>
-                    <configuration>
-                        <archive>
-                            <!-- Do not include META-INF/maven to avoid long file problems on windows -->
-                            <addMavenDescriptor>false</addMavenDescriptor>
-                        </archive>
-                    </configuration>
-                </plugin>
-
-                <plugin>
                     <groupId>org.apache.geronimo.plugins</groupId>
                     <artifactId>geronimo-maven-plugin</artifactId>
                     <version>${version}</version>
