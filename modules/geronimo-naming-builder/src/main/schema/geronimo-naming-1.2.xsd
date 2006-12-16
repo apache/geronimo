@@ -168,8 +168,8 @@
 
     <xsd:simpleType name="persistence-context-typeType">
         <xsd:restriction base="xsd:string">
-            <xsd:enumeration value="transaction-scoped"/>
-            <xsd:enumeration value="extended"/>
+            <xsd:enumeration value="Transactional"/>
+            <xsd:enumeration value="Extended"/>
         </xsd:restriction>
     </xsd:simpleType>
 

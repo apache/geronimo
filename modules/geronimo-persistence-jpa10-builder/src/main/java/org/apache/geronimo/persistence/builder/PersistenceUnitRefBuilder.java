@@ -72,13 +72,13 @@ public class PersistenceUnitRefBuilder extends AbstractNamingBuilder {
     }
 
     public void buildNaming(XmlObject specDD, XmlObject plan, Configuration localConfiguration, Configuration remoteConfiguration, Module module, Map componentContext) throws DeploymentException {
-        List<PersistenceUnitRefType> specPersistenceUnitRefsUntyped = convert(specDD.selectChildren(PersistenceUnitRefBuilder.PERSISTENCE_UNIT_REF_QNAME_SET), NAMING_CONVERTER, PersistenceUnitRefType.class, PersistenceUnitRefType.type);
+        List<PersistenceUnitRefType> specPersistenceUnitRefsUntyped = convert(specDD.selectChildren(PersistenceUnitRefBuilder.PERSISTENCE_UNIT_REF_QNAME_SET), JEE_CONVERTER, PersistenceUnitRefType.class, PersistenceUnitRefType.type);
         Map<String, GerPersistenceUnitRefType> gerPersistenceUnitRefsUntyped = getGerPersistenceUnitRefs(plan);
         for (PersistenceUnitRefType PersistenceUnitRef: specPersistenceUnitRefsUntyped) {
             String persistenceUnitRefName = PersistenceUnitRef.getPersistenceUnitRefName().getStringValue().trim();
 
             AbstractNameQuery persistenceUnitNameQuery;
-            GerPersistenceUnitRefType gerPersistenceUnitRef = gerPersistenceUnitRefsUntyped.get(persistenceUnitRefName);
+            GerPersistenceUnitRefType gerPersistenceUnitRef = gerPersistenceUnitRefsUntyped.remove(persistenceUnitRefName);
             if (gerPersistenceUnitRef != null) {
                 persistenceUnitNameQuery = findPersistenceUnit(gerPersistenceUnitRef);
             } else if (PersistenceUnitRef.isSetPersistenceUnitName()) {

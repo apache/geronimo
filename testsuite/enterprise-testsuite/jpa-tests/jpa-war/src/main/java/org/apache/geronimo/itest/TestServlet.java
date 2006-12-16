@@ -27,6 +27,12 @@ import javax.servlet.ServletException;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
 import javax.ejb.CreateException;
+import javax.transaction.UserTransaction;
+import javax.transaction.SystemException;
+import javax.transaction.NotSupportedException;
+import javax.transaction.HeuristicMixedException;
+import javax.transaction.HeuristicRollbackException;
+import javax.transaction.RollbackException;
 
 
 /**
@@ -42,17 +48,40 @@ public class TestServlet extends HttpServlet {
         httpServletResponse.getOutputStream().print("TestServlet\n");
         try {
             InitialContext ctx = new InitialContext();
+
+            //test ejb access using geronimo plan refs
             TestSessionHome home = (TestSessionHome)ctx.lookup("java:comp/env/TestSession");
             boolean result = home.create().testEntityManager();
-            httpServletResponse.getOutputStream().print("Test Servlet container managed entity manager test OK: " + result);
+            httpServletResponse.getOutputStream().print("Test EJB container managed entity manager test OK: " + result);
             result = home.create().testEntityManagerFactory();
-            httpServletResponse.getOutputStream().print("\nTest Servlet app managed entity manager factory test OK: " + result);
+            httpServletResponse.getOutputStream().print("\nTest EJB app managed entity manager factory test OK: " + result);
+
+            //test servlet access using spec dd refs
+            TestSessionBean bean = new TestSessionBean();
+            UserTransaction ut = (UserTransaction) ctx.lookup("java:comp/UserTransaction");
+            ut.begin();
+            result = bean.testEntityManager();
+            httpServletResponse.getOutputStream().print("\nTest servlet container managed entity manager test OK: " + result);
+            result = bean.testEntityManagerFactory();
+            httpServletResponse.getOutputStream().print("\nTest servlet app managed entity manager factory test OK: " + result);
+            ut.commit();
+            httpServletResponse.getOutputStream().print("\ncommit OK");
         } catch (NamingException e) {
             System.out.print("Exception:");
             e.printStackTrace();
         } catch (RemoteException e) {
             e.printStackTrace();
         } catch (CreateException e) {
+            e.printStackTrace();
+        } catch (SystemException e) {
+            e.printStackTrace();
+        } catch (NotSupportedException e) {
+            e.printStackTrace();
+        } catch (HeuristicMixedException e) {
+            e.printStackTrace();
+        } catch (HeuristicRollbackException e) {
+            e.printStackTrace();
+        } catch (RollbackException e) {
             e.printStackTrace();
         }
         httpServletResponse.flushBuffer();

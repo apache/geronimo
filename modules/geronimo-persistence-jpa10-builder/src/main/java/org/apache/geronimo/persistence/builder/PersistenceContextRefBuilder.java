@@ -43,6 +43,8 @@ import org.apache.geronimo.xbeans.geronimo.naming.GerPersistenceContextRefDocume
 import org.apache.geronimo.xbeans.geronimo.naming.GerPersistenceContextRefType;
 import org.apache.geronimo.xbeans.geronimo.naming.GerPersistenceContextTypeType;
 import org.apache.geronimo.xbeans.geronimo.naming.GerPropertyType;
+import org.apache.geronimo.xbeans.javaee.PersistenceContextRefType;
+import org.apache.geronimo.xbeans.javaee.PropertyType;
 import org.apache.xmlbeans.QNameSet;
 import org.apache.xmlbeans.XmlObject;
 
@@ -50,42 +52,70 @@ import org.apache.xmlbeans.XmlObject;
  * @version $Rev$ $Date$
  */
 public class PersistenceContextRefBuilder extends AbstractNamingBuilder {
-    private static final QName PERSISTENCE_CONTEXT_REF_QNAME = GerPersistenceContextRefDocument.type.getDocumentElementName();
+    private static final QName PERSISTENCE_CONTEXT_REF_QNAME = new QName(JEE_NAMESPACE, "persistence-context-ref");
     private static final QNameSet PERSISTENCE_CONTEXT_REF_QNAME_SET = QNameSet.singleton(PERSISTENCE_CONTEXT_REF_QNAME);
+    private static final QName GER_PERSISTENCE_CONTEXT_REF_QNAME = GerPersistenceContextRefDocument.type.getDocumentElementName();
+    private static final QNameSet GER_PERSISTENCE_CONTEXT_REF_QNAME_SET = QNameSet.singleton(GER_PERSISTENCE_CONTEXT_REF_QNAME);
+    private static final Set<String> PERSISTENCE_UNIT_INTERFACE_TYPES = Collections.singleton("org.apache.geronimo.persistence.PersistenceUnitGBean");
+    private final AbstractNameQuery defaultPersistenceUnitAbstractNameQuery;
 
-    public PersistenceContextRefBuilder(Environment defaultEnvironment) {
+    public PersistenceContextRefBuilder(Environment defaultEnvironment, AbstractNameQuery defaultPersistenceUnitAbstractNameQuery) {
         super(defaultEnvironment);
+        this.defaultPersistenceUnitAbstractNameQuery = defaultPersistenceUnitAbstractNameQuery;
     }
 
     protected boolean willMergeEnvironment(XmlObject specDD, XmlObject plan) throws DeploymentException {
-        return plan != null && plan.selectChildren(PersistenceContextRefBuilder.PERSISTENCE_CONTEXT_REF_QNAME_SET).length > 0;
+        return plan != null && plan.selectChildren(PersistenceContextRefBuilder.GER_PERSISTENCE_CONTEXT_REF_QNAME_SET).length > 0;
     }
 
     public void buildNaming(XmlObject specDD, XmlObject plan, Configuration localConfiguration, Configuration remoteConfiguration, Module module, Map componentContext) throws DeploymentException {
-        List<GerPersistenceContextRefType> persistenceContextRefsUntyped = convert(plan.selectChildren(PersistenceContextRefBuilder.PERSISTENCE_CONTEXT_REF_QNAME_SET), NAMING_CONVERTER, GerPersistenceContextRefType.class, GerPersistenceContextRefType.type);
-        for (GerPersistenceContextRefType persistenceContextRef: persistenceContextRefsUntyped) {
-            String persistenceContextRefName = persistenceContextRef.getPersistenceContextRefName();
-            boolean transactionScoped = !persistenceContextRef.getPersistenceContextType().equals(GerPersistenceContextTypeType.EXTENDED);
-            GerPropertyType[] propertyTypes = persistenceContextRef.getPropertyArray();
+        List<PersistenceContextRefType> specPersistenceContextRefsUntyped = convert(specDD.selectChildren(PERSISTENCE_CONTEXT_REF_QNAME_SET), JEE_CONVERTER, PersistenceContextRefType.class, PersistenceContextRefType.type);
+        Map<String, GerPersistenceContextRefType> gerPersistenceContextRefsUntyped = getGerPersistenceContextRefs(plan);
+        for (PersistenceContextRefType persistenceContextRef : specPersistenceContextRefsUntyped) {
+            String persistenceContextRefName = persistenceContextRef.getPersistenceContextRefName().getStringValue().trim();
+
+            boolean transactionScoped = !persistenceContextRef.getPersistenceContextType().getStringValue().equals("extended");
+
+            PropertyType[] propertyTypes = persistenceContextRef.getPersistencePropertyArray();
             Map properties = new HashMap();
-            for (int j = 0; j < propertyTypes.length; j++) {
-                GerPropertyType propertyType = propertyTypes[j];
-                String key = propertyType.getKey();
-                String value = propertyType.getValue();
+            for (PropertyType propertyType : propertyTypes) {
+                String key = propertyType.getName().getStringValue();
+                String value = propertyType.getValue().getStringValue();
                 properties.put(key, value);
             }
 
-
-            Set interfaceTypes = Collections.singleton("org.apache.geronimo.persistence.PersistenceUnitGBean");
             AbstractNameQuery persistenceUnitNameQuery;
-            if (persistenceContextRef.isSetPersistenceUnitName()) {
-                String persistenceUnitName = persistenceContextRef.getPersistenceUnitName();
-                persistenceUnitNameQuery = new AbstractNameQuery(null, Collections.singletonMap("name", persistenceUnitName), interfaceTypes);
+            GerPersistenceContextRefType gerPersistenceContextRef = gerPersistenceContextRefsUntyped.remove(persistenceContextRefName);
+            if (gerPersistenceContextRef != null) {
+                persistenceUnitNameQuery = findPersistenceUnit(gerPersistenceContextRef);
+                addProperties(gerPersistenceContextRef, properties);
+            } else if (persistenceContextRef.isSetPersistenceUnitName()) {
+                String persistenceUnitName = persistenceContextRef.getPersistenceUnitName().getStringValue().trim();
+                persistenceUnitNameQuery = new AbstractNameQuery(null, Collections.singletonMap("name", persistenceUnitName), PERSISTENCE_UNIT_INTERFACE_TYPES);
             } else {
-                GerPatternType gbeanLocator = persistenceContextRef.getPattern();
-
-                persistenceUnitNameQuery = buildAbstractNameQuery(gbeanLocator, null, null, interfaceTypes);
+                persistenceUnitNameQuery = defaultPersistenceUnitAbstractNameQuery;
             }
+
+            try {
+                localConfiguration.findGBeanData(persistenceUnitNameQuery);
+            } catch (GBeanNotFoundException e) {
+                throw new DeploymentException("Could not resolve reference at deploy time for query " + persistenceUnitNameQuery, e);
+            }
+
+            PersistenceContextReference reference = new PersistenceContextReference(localConfiguration.getId(), persistenceUnitNameQuery, transactionScoped, properties);
+
+            ((Map) componentContext.get(JNDI_KEY)).put(ENV + persistenceContextRefName, reference);
+
+        }
+
+        for (GerPersistenceContextRefType gerPersistenceContextRef : gerPersistenceContextRefsUntyped.values()) {
+            String persistenceContextRefName = gerPersistenceContextRef.getPersistenceContextRefName();
+            boolean transactionScoped = !gerPersistenceContextRef.getPersistenceContextType().equals(GerPersistenceContextTypeType.EXTENDED);
+            Map properties = new HashMap();
+            addProperties(gerPersistenceContextRef, properties);
+
+
+            AbstractNameQuery persistenceUnitNameQuery = findPersistenceUnit(gerPersistenceContextRef);
 
             try {
                 localConfiguration.findGBeanData(persistenceUnitNameQuery);
@@ -100,13 +130,46 @@ public class PersistenceContextRefBuilder extends AbstractNamingBuilder {
         }
     }
 
+    private void addProperties(GerPersistenceContextRefType persistenceContextRef, Map properties) {
+        GerPropertyType[] propertyTypes = persistenceContextRef.getPropertyArray();
+        for (GerPropertyType propertyType : propertyTypes) {
+            String key = propertyType.getKey();
+            String value = propertyType.getValue();
+            properties.put(key, value);
+        }
+    }
+
+    private Map<String, GerPersistenceContextRefType> getGerPersistenceContextRefs(XmlObject plan) throws DeploymentException {
+        Map<String, GerPersistenceContextRefType> map = new HashMap<String, GerPersistenceContextRefType>();
+        if (plan != null) {
+            List<GerPersistenceContextRefType> refs = convert(plan.selectChildren(GER_PERSISTENCE_CONTEXT_REF_QNAME_SET), NAMING_CONVERTER, GerPersistenceContextRefType.class, GerPersistenceContextRefType.type);
+            for (GerPersistenceContextRefType ref : refs) {
+                map.put(ref.getPersistenceContextRefName().trim(), ref);
+            }
+        }
+        return map;
+    }
+
+    private AbstractNameQuery findPersistenceUnit(GerPersistenceContextRefType persistenceContextRef) {
+        AbstractNameQuery persistenceUnitNameQuery;
+        if (persistenceContextRef.isSetPersistenceUnitName()) {
+            String persistenceUnitName = persistenceContextRef.getPersistenceUnitName();
+            persistenceUnitNameQuery = new AbstractNameQuery(null, Collections.singletonMap("name", persistenceUnitName), PERSISTENCE_UNIT_INTERFACE_TYPES);
+        } else {
+            GerPatternType gbeanLocator = persistenceContextRef.getPattern();
+
+            persistenceUnitNameQuery = buildAbstractNameQuery(gbeanLocator, null, null, PERSISTENCE_UNIT_INTERFACE_TYPES);
+        }
+        return persistenceUnitNameQuery;
+    }
+
     public QNameSet getSpecQNameSet() {
-        SchemaConversionUtils.registerNamespaceConversions(Collections.singletonMap(PERSISTENCE_CONTEXT_REF_QNAME.getLocalPart(), new NamespaceElementConverter(PERSISTENCE_CONTEXT_REF_QNAME.getNamespaceURI())));
+        SchemaConversionUtils.registerNamespaceConversions(Collections.singletonMap(GER_PERSISTENCE_CONTEXT_REF_QNAME.getLocalPart(), new NamespaceElementConverter(GER_PERSISTENCE_CONTEXT_REF_QNAME.getNamespaceURI())));
         return QNameSet.EMPTY;
     }
 
     public QNameSet getPlanQNameSet() {
-        return PERSISTENCE_CONTEXT_REF_QNAME_SET;
+        return GER_PERSISTENCE_CONTEXT_REF_QNAME_SET;
     }
 
     public static final GBeanInfo GBEAN_INFO;
@@ -114,8 +177,9 @@ public class PersistenceContextRefBuilder extends AbstractNamingBuilder {
     static {
         GBeanInfoBuilder infoBuilder = GBeanInfoBuilder.createStatic(PersistenceContextRefBuilder.class, NameFactory.MODULE_BUILDER);
         infoBuilder.addAttribute("defaultEnvironment", Environment.class, true, true);
+        infoBuilder.addAttribute("defaultPersistenceUnitAbstractNameQuery", AbstractNameQuery.class, true, true);
 
-        infoBuilder.setConstructor(new String[] {"defaultEnvironment"});
+        infoBuilder.setConstructor(new String[]{"defaultEnvironment", "defaultPersistenceUnitAbstractNameQuery"});
         GBEAN_INFO = infoBuilder.getBeanInfo();
     }
 

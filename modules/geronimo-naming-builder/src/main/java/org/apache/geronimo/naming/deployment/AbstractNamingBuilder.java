@@ -55,6 +55,7 @@ public abstract class AbstractNamingBuilder implements NamingBuilder {
     protected static final String J2EE_NAMESPACE = "http://java.sun.com/xml/ns/j2ee";
     protected static final String JEE_NAMESPACE = "http://java.sun.com/xml/ns/javaee";
     protected static final NamespaceElementConverter J2EE_CONVERTER = new NamespaceElementConverter(J2EE_NAMESPACE);
+    protected static final NamespaceElementConverter JEE_CONVERTER = new NamespaceElementConverter(JEE_NAMESPACE);
     protected static final NamespaceElementConverter NAMING_CONVERTER = new NamespaceElementConverter(GerAbstractNamingEntryDocument.type.getDocumentElementName().getNamespaceURI());
 
     private final Environment defaultEnvironment;

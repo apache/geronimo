@@ -36,7 +36,12 @@ public class JPATest
         selenium.open("/jpa/servlet");
         selenium.waitForPageToLoad("30000");
         //assertEquals("Hello J2EE 1.4", selenium.getTitle());
-        assertEquals("TestServlet\nTest Servlet container managed entity manager test OK: true\nTest Servlet app managed entity manager factory test OK: true", selenium.getText("xpath=/html/body"));
+        assertEquals("TestServlet\n" +
+                "Test EJB container managed entity manager test OK: true\n" +
+                "Test EJB app managed entity manager factory test OK: true\n" +
+                "Test servlet container managed entity manager test OK: true\n" +
+                "Test servlet app managed entity manager factory test OK: true\n" +
+                "commit OK", selenium.getText("xpath=/html/body"));
 
     }
 }
