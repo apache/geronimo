@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import java.io.Serializable;
 
 import org.apache.geronimo.gbean.DynamicGBean;
 import org.apache.geronimo.gbean.DynamicGOperationInfo;
@@ -32,7 +33,9 @@ import org.apache.geronimo.kernel.ClassLoading;
 /**
  * @version $Rev$ $Date$
  */
-public final class GBeanOperation {
+public final class GBeanOperation implements Serializable {
+    private static final long serialVersionUID = -5185515581104192977L;
+    
     private final GBeanInstance gbeanInstance;
     private final String name;
     private final List parameterTypes;
