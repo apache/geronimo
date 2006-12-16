@@ -28,7 +28,7 @@ import org.testng.annotations.Test;
  */
 @Test
 public class CxfPojoWSTest
-    extends SeleniumTestSupport
+    extends org.apache.geronimo.testsupport.SeleniumTestSupport
 {
     @Test
     public void testIndexContent() throws Exception {
