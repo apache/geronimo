@@ -113,6 +113,8 @@ public class AxisBuilder implements WebServiceBuilder {
                     EnvironmentBuilder.mergeEnvironments(environment, defaultEnvironment);
                 }
                 sharedContext.put(KEY, portMap);
+            } else {
+                sharedContext.put(KEY, Collections.EMPTY_MAP);
             }
         } catch (MalformedURLException e) {
             // The webservices.xml file doesn't exist.

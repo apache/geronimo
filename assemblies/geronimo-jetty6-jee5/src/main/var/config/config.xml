@@ -39,7 +39,7 @@
           <attribute name="userRepositories">[]</attribute>
         </gbean>
     </module>
-    
+
     <module name="org.apache.geronimo.configs/j2ee-server/${version}/car"/>
 
     <module name="org.apache.geronimo.configs/transaction-jta11/${version}/car"/>
@@ -56,8 +56,8 @@
             <attribute name="urlPath">/jndi/rmi://${PlanServerHostname}:${PlanNamingPort}/JMXConnector</attribute>
         </gbean>
     </module>
-    
-    <module name="org.apache.geronimo.configs/axis/${version}/car"/>
+
+    <module name="org.apache.geronimo.configs/axis/${version}/car" load="false"/>
     <module name="org.apache.geronimo.configs/cxf/${version}/car" load="false"/>
 
     <module name="org.apache.geronimo.configs/openejb/${version}/car">
@@ -80,23 +80,23 @@
             <attribute name="host">${PlanCOSNamingHost}</attribute>
         </gbean>
     </module>
-    
+
     <module name="org.apache.geronimo.configs/system-database/${version}/car">
         <gbean name="DerbyNetwork">
             <attribute name="host">${PlanServerHostname}</attribute>
             <attribute name="port">${PlanDerbyPort}</attribute>
         </gbean>
     </module>
-    
+
     <module name="org.apache.geronimo.configs/activemq-broker/${version}/car">
         <gbean name="ActiveMQ.tcp.default">
             <attribute name="host">${PlanServerHostname}</attribute>
             <attribute name="port">${PlanActiveMQPort}</attribute>
         </gbean>
     </module>
-    
+
     <module name="org.apache.geronimo.configs/activemq/${version}/car"/>
-    
+
     <module name="org.apache.geronimo.configs/jetty6/${version}/car">
         <gbean name="JettyWebConnector">
             <attribute name="host">${PlanServerHostname}</attribute>
@@ -113,13 +113,13 @@
         </gbean>
 -->
     </module>
-    
+
     <!--
-    NOTE: n.b. be sure the gbean deployer is explicitly loaded before j2ee-deployer 
+    NOTE: n.b. be sure the gbean deployer is explicitly loaded before j2ee-deployer
           so that defaultEnvironment overrides work properly
     -->
     <module name="org.apache.geronimo.configs/geronimo-gbean-deployer/${version}/car"/>
-    
+
     <module name="org.apache.geronimo.configs/j2ee-deployer/${version}/car">
         <gbean name="WebBuilder">
             <attribute name="defaultNamespace">http://geronimo.apache.org/xml/ns/j2ee/web/jetty-1.2</attribute>
@@ -128,7 +128,7 @@
             <attribute name="eeNamespaces">http://java.sun.com/xml/ns/j2ee,http://java.sun.com/xml/ns/javaee</attribute>
         </gbean>
     </module>
-    
+
     <module name="org.apache.geronimo.configs/connector-deployer/${version}/car">
         <gbean name="ResourceRefBuilder">
             <attribute name="eeNamespaces">http://java.sun.com/xml/ns/j2ee,http://java.sun.com/xml/ns/javaee</attribute>
@@ -175,11 +175,12 @@
         </gbean>
 
     </module>
-    
+
     <module name="org.apache.geronimo.configs/client-deployer/${version}/car">
     </module>
 
     <module name="org.apache.geronimo.configs/cxf-deployer/${version}/car">
+        <!-- this gbean is not yet written -->
         <!--<gbean name="CXFServiceRefBuilder">
             <attribute name="eeNamespaces">http://java.sun.com/xml/ns/j2ee,http://java.sun.com/xml/ns/javaee</attribute>
         </gbean>-->

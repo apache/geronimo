@@ -79,6 +79,8 @@ import org.apache.geronimo.deployment.xmlbeans.XmlBeansUtil;
 import org.apache.geronimo.webservices.builder.PortInfo;
 import org.apache.geronimo.webservices.builder.SchemaInfoBuilder;
 import org.apache.xmlbeans.XmlException;
+import org.apache.xmlbeans.XmlCursor;
+import org.apache.xmlbeans.XmlObject;
 
 /**
  * @version $Rev$ $Date$
@@ -380,7 +382,16 @@ public class WSDescriptorParser {
 
     public static Map parseWebServiceDescriptor(URL wsDDUrl, JarFile moduleFile, boolean isEJB, Map servletLocations) throws DeploymentException {
         try {
-            WebservicesDocument webservicesDocument = WebservicesDocument.Factory.parse(wsDDUrl);
+            XmlObject webservicesDocumentUntyped = XmlObject.Factory.parse(wsDDUrl);
+            XmlCursor cursor = webservicesDocumentUntyped.newCursor();
+            cursor.toFirstContentToken();
+            QName qname = cursor.getName();
+            if (!WebservicesDocument.type.getDocumentElementName().equals(qname)) {
+                //not a jaxrpc/j2ee 1.4 webservices document.
+                //TODO handle jaxrpc inside a jee5 webservices document.
+                return null;
+            }
+            WebservicesDocument webservicesDocument = (WebservicesDocument) webservicesDocumentUntyped;
             XmlBeansUtil.validateDD(webservicesDocument);
             WebservicesType webservicesType = webservicesDocument.getWebservices();
             return parseWebServiceDescriptor(webservicesType, moduleFile, isEJB, servletLocations);
