@@ -109,7 +109,8 @@ extends MojoSupport
 
         currentReportsDirectory = new File(currentBuildDirectory, "surefire-reports");
         if (grandParent) {
-            parentBuildDirectory = new File(project.getParent().getParent().getBuild().getDirectory());
+            log.debug(getProject().getParent().getParent().getArtifactId() + " -- " + getProject().getParent().getParent().getBasedir().getAbsolutePath());
+            parentBuildDirectory = new File(getProject().getParent().getParent().getBasedir(), "target");
         }
         parentReportsDirectory = new File(parentBuildDirectory, "surefire-reports");
         log.info("Updating directory: " + parentReportsDirectory.getAbsolutePath() );
