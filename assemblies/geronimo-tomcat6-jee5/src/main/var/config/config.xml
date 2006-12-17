@@ -186,10 +186,10 @@
     <module name="org.apache.geronimo.configs/client-deployer/${version}/car">
     </module>
 
-    <module name="org.apache.geronimo.configs/cxf-deployer/${version}/car" load="false">
-        <!--<gbean name="CXFServiceRefBuilder">-->
-            <!--<attribute name="eeNamespaces">http://java.sun.com/xml/ns/j2ee,http://java.sun.com/xml/ns/javaee</attribute>-->
-        <!--</gbean>-->
+    <module name="org.apache.geronimo.configs/cxf-deployer/${version}/car">
+        <gbean name="CXFServiceRefBuilder">
+            <attribute name="eeNamespaces">http://java.sun.com/xml/ns/j2ee,http://java.sun.com/xml/ns/javaee</attribute>
+        </gbean>
     </module>
     <module name="org.apache.geronimo.configs/axis-deployer/${version}/car">
         <gbean name="AxisServiceRefBuilder">
