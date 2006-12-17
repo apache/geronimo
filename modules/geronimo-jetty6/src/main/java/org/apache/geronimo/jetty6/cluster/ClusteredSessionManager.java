@@ -29,14 +29,13 @@ import org.mortbay.jetty.servlet.HashSessionIdManager;
 
 
 /**
- *
  * @version $Rev$ $Date$
  */
 public class ClusteredSessionManager extends AbstractSessionManager {
-    
+
     private final SessionManager sessionManager;
     private final Map<String, ClusteredSession> idToSession = new HashMap<String, ClusteredSession>();
-    
+
     public ClusteredSessionManager(SessionManager sessionManager) {
         this.sessionManager = sessionManager;
 
@@ -45,7 +44,7 @@ public class ClusteredSessionManager extends AbstractSessionManager {
         HashSessionIdManager sessionIdManager = new HashSessionIdManager();
         sessionIdManager.setWorkerName(workerName);
         setMetaManager(sessionIdManager);
-        
+
         sessionManager.registerListener(new MigrationListener());
 
         // sessions are not removed by this manager. They are invalidated via a callback mechanism
@@ -57,16 +56,64 @@ public class ClusteredSessionManager extends AbstractSessionManager {
         return new ClusteredSession(request);
     }
 
+    @Override
+    protected void addSession(Session session) {
+        //todo gianni fixme
+        synchronized (idToSession) {
+            idToSession.put(session.getId(), (ClusteredSession) session);
+        }
+    }
+
+    @Override
+    protected void removeSession(String idInCluster) {
+        //todo gianni fixme
+        synchronized (idToSession) {
+            idToSession.remove(idInCluster);
+        }
+    }
+
+    @Override
+    protected Session getSession(String idInCluster) {
+        //todo gianni fixme
+        synchronized (idToSession) {
+            return idToSession.get(idInCluster);
+        }
+    }
+
+    @Override
+    public int getSessions() {
+        //todo gianni fixme
+        synchronized (idToSession) {
+            return idToSession.size();
+        }
+    }
+
+
+    /**
+     * @deprecated. Need to review if it is needed.
+     */
+    @Override
+    public Map getSessionMap() {
+        //todo gianni fixme
+        return idToSession;
+    }
+
+    @Override
+    protected void invalidateSessions() {
+        //todo gianni fixme
+    }
+
+
     private class MigrationListener implements SessionListener {
-        
+
         public void notifyInboundSessionMigration(org.apache.geronimo.clustering.Session session) {
             addSession(new ClusteredSession(session), false);
         }
-        
+
         public void notifyOutboundSessionMigration(org.apache.geronimo.clustering.Session session) {
             ClusteredSession clusteredSession;
             synchronized (idToSession) {
-                clusteredSession = (ClusteredSession) idToSession.remove(session.getSessionId());  
+                clusteredSession = (ClusteredSession) idToSession.remove(session.getSessionId());
             }
             if (null == clusteredSession) {
                 throw new AssertionError("Session [" + session + "] is undefined");
@@ -89,7 +136,7 @@ public class ClusteredSessionManager extends AbstractSessionManager {
                 idToSession.put(getId(), this);
             }
         }
-        
+
         protected ClusteredSession(org.apache.geronimo.clustering.Session session) {
             super(session.getSessionId());
             this.session = session;
@@ -97,7 +144,7 @@ public class ClusteredSessionManager extends AbstractSessionManager {
                 idToSession.put(getId(), this);
             }
         }
-        
+
         @Override
         protected Map newAttributeMap() {
             return session.getState();
