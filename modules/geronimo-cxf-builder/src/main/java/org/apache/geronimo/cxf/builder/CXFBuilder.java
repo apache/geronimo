@@ -99,7 +99,11 @@ public class CXFBuilder implements WebServiceBuilder {
             }
 
             Unmarshaller unmarshaller = ctx.createUnmarshaller();
-            Object obj = unmarshaller.unmarshal(in);
+            Object obj = unmarshaller.unmarshal(new javax.xml.transform.stream.StreamSource(in), WebservicesType.class);
+
+            if (obj instanceof JAXBElement) {
+                obj = ((JAXBElement)obj).getValue();
+            }
 
             if (!(obj instanceof WebservicesType)) {
                 return map;

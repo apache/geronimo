@@ -23,6 +23,9 @@ import org.apache.cxf.transport.DestinationFactory;
 import org.apache.cxf.transport.DestinationFactoryManager;
 import org.apache.geronimo.webservices.WebServiceContainer;
 
+import java.util.List;
+import java.util.ArrayList;
+
 //TODO consider putting most of this in the CXFWebServiceContaInerFactoryGBean
 public class CXFWebServiceContainer implements WebServiceContainer {
 
@@ -33,8 +36,13 @@ public class CXFWebServiceContainer implements WebServiceContainer {
     public CXFWebServiceContainer(PortInfo portInfo, Object target, Bus bus) {
         //TODO actually use portInfo
         this.bus = bus;
+
+        List ids = new ArrayList();
+        ids.add("http://schemas.xmlsoap.org/wsdl/soap/http");
+
         DestinationFactoryManager destinationFactoryManager = bus.getExtension(DestinationFactoryManager.class);
-        DestinationFactory factory = new GeronimoDestinationFactory(bus);
+        GeronimoDestinationFactory factory = new GeronimoDestinationFactory(bus);
+        factory.setTransportIds(ids);
         destinationFactoryManager.registerDestinationFactory("http://cxf.apache.org/transports/http/configuration", factory);
         destinationFactoryManager.registerDestinationFactory("http://www.w3.org/2003/05/soap/bindings/HTTP/", factory);
         destinationFactoryManager.registerDestinationFactory("http://schemas.xmlsoap.org/soap/http", factory);
