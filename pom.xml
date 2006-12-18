@@ -61,7 +61,7 @@
         <!--
         Having a single well named property makes automatic updating for the weekly build much easier.
         -->
-        <openejbVersion>2.2-incubating-SNAPSHOT</openejbVersion>
+        <openejbVersion>2.2-incubating</openejbVersion>
 
         <!--
         HACK: Used by uddi-db to execute the sql plugin with the Derby driver.
@@ -933,13 +933,13 @@
             <dependency>
                  <groupId>org.apache.geronimo.specs</groupId>
                  <artifactId>geronimo-jpa_3.0_spec</artifactId>
-                 <version>1.0</version>
+                 <version>1.0-M1</version>
              </dependency>
 
              <dependency>
                  <groupId>org.apache.geronimo.specs</groupId>
                  <artifactId>geronimo-jta_1.1_spec</artifactId>
-                 <version>1.0</version>
+                 <version>1.0-M1</version>
              </dependency>
 
              <dependency>
@@ -955,8 +955,7 @@
              <dependency>
                  <groupId>org.apache.geronimo.specs</groupId>
                  <artifactId>geronimo-ws-metadata_2.0_spec</artifactId>
-                 <!--  <version>1.0</version>   -->
-                 <version>1.1</version>
+                 <version>1.1-M1</version>
              </dependency>
 
              <!-- javamail 1.4 config -->
@@ -1279,6 +1278,7 @@
                     <groupId>org.codehaus.mojo</groupId>
                     <artifactId>xmlbeans-maven-plugin</artifactId>
                     <version>2.0.1-SNAPSHOT</version>
+                    <!-- version>2.0.1-20060627.031204-7</version -->
 
                     <executions>
                         <execution>
@@ -1302,6 +1302,7 @@
                     <groupId>org.codehaus.mojo</groupId>
                     <artifactId>jspc-maven-plugin</artifactId>
                     <version>1.4.7-SNAPSHOT</version>
+                    <!-- version>1.4.7-20061214.092455-4</version -->
                     <executions>
                         <execution>
                             <id>jspc</id>
@@ -1350,6 +1351,7 @@
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-rar-plugin</artifactId>
                     <version>2.2-SNAPSHOT</version>
+                    <!-- version>2.2-20061214.023626-2</version -->
                     <configuration>
                         <archive>
                             <!-- Do not include META-INF/maven to avoid long file problems on windows -->
