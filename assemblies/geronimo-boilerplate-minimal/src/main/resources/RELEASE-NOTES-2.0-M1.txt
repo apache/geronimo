@@ -1,0 +1,265 @@
+Release Notes -- Apache Geronimo -- Version 2.0 - Milestone 1
+
+Geronimo URLs
+-------------
+Home Page:     http://geronimo.apache.org/
+Downloads:     http://geronimo.apache.org/downloads.html
+Documentation: http://geronimo.apache.org/documentation.html
+Mailing Lists: http://geronimo.apache.org/mailing.html
+Source Code:   http://geronimo.apache.org/svn.html
+Bug Tracking:  http://issues.apache.org/jira/browse/GERONIMO
+Wiki:          http://cwiki.apache.org/geronimo
+
+
+IMPORTANT
+---------
+This is a Milestone release, that means that is not the final version of
+Apache Geronimo v2.0 Take a look at "Known Issues and Limitations" section for
+further details.
+
+System Requirements
+-------------------
+You need a platform that supports the Sun JDK 5.0+ (J2SE 1.5.0+).
+
+Most testing has been done on Linux, Mac OS X, and Windows.
+
+
+Significant Changes in the 2.0 Release
+--------------------------------------
+Apache Geronimo v2.0 includes the following features:
+
+- Full Sun JDK 5.0+ (J2SE 1.5.0+)
+- Servlet 2.5 (Tomcat)
+- JSP 2.1 (Tomcat)
+- JSP Debug 1.0 (Tomcat)
+- Servlet 2.5 (Jetty)
+- JSP 2.1 (Jetty - via Jasper)
+- JSP Debug 1.0 (Jetty)
+- JSF 1.2
+- JSTL 1.2
+- Common Annotations 1.0
+- JAF 1.1
+- JavaMail 1.4
+- EJB 3.0 (JPA only)
+- JTA 1.1
+- JMS 1.1
+- JACC 1.1
+
+Installing & Starting Geronimo
+------------------------------
+To install, simply unpack the .zip (Windows) or tar.gz (Unix) file containing 
+Geronimo.
+
+If you wish to modify the default ports that Geronimo will use, edit the file 
+<geronimo_home>/var/config/config.xml
+
+Geronimo comes with batch and script files to control server start and stop 
+functions.  To see usage examples simply type geronimo.bat or geronimo.sh 
+command as appropriate for your platform.  It is necessary to set JAVA_HOME to 
+the copy of your Sun 5 JDK/JRE prior to executing the command.  
+
+Here is an example to set JAVA_HOME:
+
+export JAVA_HOME=<JDK/JRE_home>
+
+To see the available command options type:
+
+<geronimo_home>/bin/geronimo.sh
+or
+<geronimo_home>/bin/geronimo.bat
+
+The command will display help text instructing you as to how to start and stop 
+the Geronimo server.
+
+If you prefer to start the server without a script file you can simply type: 
+
+java -jar <geronimo_home>/bin/server.jar
+
+Once the server has started, you can access the Geronimo Administration Console
+at http://localhost:8080/console/ . The default user name is "system" and the 
+default password is "manager".
+
+
+Administration Console Security Configuration
+---------------------------------------------
+The default administration user/password for the Geronimo Administration Console 
+and deployment tool is system/manager.  You can change these defaults directly 
+from the Geronimo Administration Console by accessing Security -> Console Realm
+and change the user name and password from the Console Realm Users portlet.
+
+As an alternative, you can make the same changes by editing the 
+<geronimo_home>/var/security/users.properties and 
+<geronimo_home>/var/security/groups.properties files.
+
+
+Deploying Applications
+----------------------
+Geronimo comes with deploy scripts and batch files to deploy J2EE modules or 
+applications. You can use the scripts or simply invoke the executable jar by 
+running the following command (note that you need to start Geronimo first):
+
+<geronimo_home>/bin/java -jar deployer.jar deploy my-web-app.war [deploy plan]
+
+You will need to use the username "system" and password "manager" unless you 
+customized those during the install process.  The deployment plan argument is 
+optional -- you can pack a deployment plan into the application module, provide
+it on the command line, or in some cases omit it entirely.
+
+You can also use the "Login" command once and avoid to enter user name and 
+password every time you use the deploy tool
+
+For more information on the commands and options supported by the deploy tool,
+run from within the Geronimo directory <geronimo_home>/bin:
+
+java -jar deployer.jar help [command]
+
+You can also graphically deploy applications and resources via the Geronimo 
+Administration Console available at http://localhost:8080/console/
+
+
+Other Deployment Options
+------------------------
+As an alternative to the command-line deployer, you can copy application 
+modules into the <geronimo_home>/deploy/ directory and the
+hot deployer service will deploy them automatically.  The command-line deployer
+has some advantages, as it will output any
+deployment errors to its own console rather than just the server log.
+
+Additionally, Geronimo provides a Maven plugin that can deploy applications to 
+Geronimo as part of a Maven build.
+
+
+Configuration
+-------------
+Most configuration attributes can be updated in the 
+<geronimo_home>/var/config/config.xml file.  The attributes most likely to be 
+changed are already included in the supplied config.xml file, while others may
+need to be added manually.
+
+
+Certification Status
+--------------------
+Apache Geronimo v2.0-M1, being a MILESTONE release is not yet certified.
+
+
+Known Issues and Limitations
+----------------------------
+
+<!-- open Bugs for 1.2 + 2.*  -->
+
+     * GERONIMO-2657	Persistence-* builders need improvements
+     * GERONIMO-2644	Fix leaking ClassLoaders
+     * GERONIMO-2643	Stack trace (due to amq) while shutting down Geronimo
+     * GERONIMO-2642	welcome app not included in the jetty assembly.
+     * GERONIMO-2622	Implement PolicyContextHandlerSOAPMessage
+     * GERONIMO-2605	NPE if exporting plugin for module having dependency on module with no groupId
+     * GERONIMO-2598	Deploy tool prints useless message if configuration start fails
+     * GERONIMO-2551	Plugin hits NPE if maven-metadata listed artifact doesn't exist or JAR artifact maven-metadata doesn't exist
+     * GERONIMO-2534	Security realms portlet should validate the realm-name for duplicate name
+     * GERONIMO-2491	Hibernate passes connections between servlets which we don't support
+     * GERONIMO-2481	WebServers portlet: Create/Edit Tomcat Connectors should support editing of all supported connector attributes
+     * GERONIMO-2480	Plugin installer status sticks on "Searching for X at Y" while downloading
+     * GERONIMO-2416	ProxyMethodInterceptor should work with classes that have start,stop methods
+     * GERONIMO-2290	Percent complete goes over 100% when installing configurations
+     * GERONIMO-2289	GeronimoAsMavenServlet.java generates wrong default-repository element
+     * GERONIMO-2288	Abstract/Maven repositories install modules incorrectly
+     * GERONIMO-2286	app client plan still uses Strings for dependency Module IDs
+     * GERONIMO-2283	Common libs portlet guesses wrong group ID, gives no usage advice
+     * GERONIMO-2246	Why resource-env-ref:admin-object-module?
+     * GERONIMO-2082	[m2] stax dependencies are all wrong
+     * GERONIMO-2028	Plugin export errors don't stop process, but cause it to fail much later
+     * GERONIMO-2025	Undeploy and redeploy with no version leaves dangling entries in config.xml
+     * GERONIMO-1917	repository doesn't deal well with case insensitive file systems
+     * GERONIMO-1786	JMS Listeners for protocols activeio, peer and openwire fail to start
+     * GERONIMO-1761	Change geronimo-util module to geronimo-crypto, give credit where credit is due
+     * GERONIMO-1631	NoSuchConfigException when restarting app after undeploying
+     * GERONIMO-1285	Deployer does not list all modules that have been stopped
+     * GERONIMO-603	IllegalArgumentException when deploying WebApp containing a url-pattern of /* in security-constraint
+     * GERONIMO-268	Connection Error handling problems
+     * GERONIMO-250	Connector tries to commit after connection error
+
+
+Specific Issues, Features and Improvements fixed in Version 2.0-M1
+------------------------------------------------------------------
+Release Notes - Geronimo - Version 2.0-M1
+
+<!-- closed JIRAs  for 2.*  -->
+
+** Bug
+     * GERONIMO-2592	TSSLink doStart() method is not getting called.
+     * GERONIMO-2630	sun j2ee schemas are being redistributed in jsp and servlet specs
+     * GERONIMO-1135	Keystore password in System.properties
+     * GERONIMO-2522	Hot deployer makes app hangs
+     * GERONIMO-2402	Redeployment fails after third iteration.
+     * GERONIMO-2646	WAR without a geronimo-web.xml deploys to the wrong context
+     * GERONIMO-2560	Realm added using SecurityRealm portlet does not work
+     * GERONIMO-1657	CommandSupport doesn't bubble up the exception. Prints stacktrace.
+     * GERONIMO-2236	keystore portlet - providing a null or incorrect password on edit unlock can only be recovered with server recycle
+     * GERONIMO-2350	CertificateChainCallbackHandler willfully conceals causes of failure
+     * GERONIMO-2363	Console: create new pool using wizard, cannot use "show plan" button for any XA database, even derby
+     * GERONIMO-2458	MapEditor does not work
+     * GERONIMO-2459	Connector deployer needs to add dependency to j2ee-server for J2EEServer gbean reference
+     * GERONIMO-2479	j2ee remote ejb clients should look for "localhost" not 0.0.0.0 by default
+     * GERONIMO-2533	Password setup forms should use a confirmation field
+     * GERONIMO-2548	GBeanInfo should exclude attributes and operations of java.lang.Object class
+     * GERONIMO-2549	NullPointerException: CommandListConfigurations
+     * GERONIMO-2559	cannot stop activemq via kernel shutdown
+     * GERONIMO-2566	Creating new listeners for ActiveMQ from JMS Server portlet fails
+     * GERONIMO-2580	CorbaRefBuilder inserts ref for java:comp/CORBA that fails when corba gbean is not present.
+     * GERONIMO-2584	Hot deploy module/server restart, throws IllegalArgumentException if application deployed using hotdeployment
+     * GERONIMO-2585	KeystorePortlet: Lock keystore throws NullPointerException
+     * GERONIMO-2586	KeystorePortlet: Unlock keystore for availability shows key aliases only when keystore is unlocked for edit
+     * GERONIMO-2587	FileKeystoreInstance.loadKeystoreData() results in inconsistent state if wrong password is supplied
+     * GERONIMO-2588	KeyStorePortlet: Locking and unlocking could use some error and info messages
+     * GERONIMO-2591	Database Pools portlet: Create new pool dependency jar selection problems
+     * GERONIMO-2602	default compile scope is overloaded with 2 meanings in PlanProcessorMojo
+     * GERONIMO-2603	Building 1.2 if there are 2.0 artifacts in the repo results in mostly 2.0 artifacts in the server.
+     * GERONIMO-2611	Configuration should not have duplicates in allServiceParents
+     * GERONIMO-2615	Not enough info when a gbean ref can't be verified during deployment
+     * GERONIMO-2623	Infinite loop in the SMTPTransport code when a socket factory class is used.
+     * GERONIMO-2624	Offline deployer busted
+     * GERONIMO-2625	Geronimo Console: login page prevents using username, password longer than 25 characters for login
+     * GERONIMO-2627	jsr88 classpath is all messed up
+     * GERONIMO-2631	jetty5 builder needs to parameterize the jsp servlet class
+     * GERONIMO-2632	Connection errors can result in infinite loop
+     * GERONIMO-2456	NOTICE.txt is missing some notices added during 1.1.1 development
+     * GERONIMO-2377	deploying a new datasource with the same name does not indicate any problem in the console
+     * GERONIMO-2652	XmlBeans is having trouble validating some xml from substitution groups
+     * GERONIMO-2555	Windows scripts don't work when used from different drive
+     * GERONIMO-2656	for jetty, in servlet-mapping, url patterns must be trimmed.
+     * GERONIMO-2437	Empty dirs and config.xml entries left behind after undeploy
+     * GERONIMO-2599	deploying RAR leads to message that Geronimo can't find web.xml
+     * GERONIMO-2619	Javamail 1.4 spec needs to be using the JAF 1.1 version.
+     * GERONIMO-1982	server try to deploy the modules in hot deployment directory again during server startup
+     * GERONIMO-1519	ResourceException.toString() can return null
+     * GERONIMO-646	Servlet calling HttpServletRequest.isUserInRole(null) causes NPE using Jetty container
+
+** Improvement
+     * GERONIMO-931	Rename administrative security realm
+     * GERONIMO-1396	Provide consistent look and feel for table views in the web console across all portlets
+     * GERONIMO-1880	To Allow configurable password digests during REALM Deployment.
+     * GERONIMO-2392	Too hard to tell why a gbean doesn't start
+     * GERONIMO-2499	Generalize NamingBuilder so it can handle more than just jndi building
+     * GERONIMO-2589	Generate explicit-versions.properties transitvily
+     * GERONIMO-2597	Make web service builder optional
+     * GERONIMO-2604	Create a specs pom
+     * GERONIMO-2608	JACC 1.1 support (jsr-115 MR4)
+     * GERONIMO-2634	Switch to activemq 4.1.0-incubator: include apache incubator repo in our repo list.
+     * GERONIMO-2616	Move jee5 work from sandbox to trunk
+
+** New Feature
+     * GERONIMO-2460	JPA container managed persistence support
+     * GERONIMO-2636	Update Jetty 6 assembly to use Jasper 6 for JSP 2.1 support
+     * GERONIMO-2536	Support Java EE 5 JavaServerPages Standard Tag Library in Geronimo (JSTL, JSR 52)
+     * GERONIMO-2535	Support Java EE 5 Common Annotation Spec in Geronimo (JSR 250)
+
+** Task
+     * GERONIMO-2537	All Geronimo source files must be brought in line with the new ASF source header and copyright notice policy
+     * GERONIMO-2601	Remove the "Old Keystore" portlet
+     * GERONIMO-2639	Upgrade dojo to 0.4.1
+
+** Sub Task
+     * GERONIMO-1722	"GERONIMO-851 Module migration to Maven 2: activemq-embedded-rar"
+
+** Test
+     * GERONIMO-2620	Need to create javamail 1.4 versions of the provider and mail jars
