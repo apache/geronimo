@@ -121,7 +121,7 @@ public class AbsentSampleServlet extends HttpServlet {
             repos.refresh();
             urls = repos.getRepositories();
             if(urls.length == 0) {
-                throw new ServletException("Unable to install sample applicatoin; unable to download repository list");
+                throw new ServletException("Unable to install sample application; unable to download repository list");
             }
         }
         return urls[0];

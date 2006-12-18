@@ -125,6 +125,12 @@
             <p><center><b>If you're seeing this page via a web browser, it means you've setup<br />
             Apache Geronimo&#8482; successfully. Congratulations!</b></center></p>
 
+            <p>Welcome to <b>Geronimo 2.0 Milestone 1</b> which is a point in time of our efforts towards a compliant 
+            Java Enterprise Edition 5.0 Version.  Please review the Release notes located in the root directory of the
+            server for the latest information on this build.  Also, please check our website at <a href="http://geronimo.apache.org">
+            http://geronimo.apache.org</a> for the latest information on the project.  Project plans for further milestones 
+            and release status are available at <a href="http://cwiki.apache.org/GMOxPMGT/geronimo-jee-50-report-card.html">here</a>.
+            
             <p>As you may have guessed by now, this is the default home page for Geronimo. If you're seeing this page,
                 and you don't think you should be, then either you're either a user who has arrived at new installation
                 of Geronimo, or you're an administrator who hasn't got his/her setup quite right.  If you need help
