@@ -18,14 +18,13 @@ package org.apache.geronimo.jetty6.cluster;
 
 import java.io.IOException;
 
+import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.ServletException;
 
 import org.apache.geronimo.clustering.ClusteredInvocation;
 import org.apache.geronimo.clustering.ClusteredInvocationException;
 import org.apache.geronimo.jetty6.AbstractPreHandler;
-import org.mortbay.jetty.Handler;
 import org.mortbay.jetty.HttpException;
 
 /**
@@ -35,11 +34,6 @@ public abstract class AbstractClusteredPreHandler extends AbstractPreHandler {
 
     public void handle(String target, HttpServletRequest request, HttpServletResponse response, int dispatch)
             throws IOException, ServletException {
-//        if (dispatch != Handler.REQUEST) {
-//            next.handle(target, request, response, dispatch);
-//            return;
-//        }
-//        
         ClusteredInvocation invocation = newClusteredInvocation(target, request, response, dispatch);
         try {
             invocation.invoke();
@@ -70,10 +64,6 @@ public abstract class AbstractClusteredPreHandler extends AbstractPreHandler {
             this.request = request;
             this.response = response;
             this.dispatch = dispatch;
-            //TODO figure out if the normal SessionHandler will set the requestedSessionId correctly.
-            //My (djencks) guess is yes it will.
-//            GeronimoServletHttpRequest servletHttpRequest = (GeronimoServletHttpRequest) request.getWrapper();
-//            servletHttpRequest.setRequestedSessionId(pathParams);
         }
 
         protected void invokeLocally() throws ClusteredInvocationException {

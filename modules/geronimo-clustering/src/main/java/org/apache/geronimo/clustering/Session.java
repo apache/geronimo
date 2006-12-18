@@ -75,4 +75,11 @@ public interface Session {
      */
     void release();
     
+    /**
+     * Notifies the session that state accesses are now completed. 
+     * <p>
+     * When state accesses end, the underlying local SessionManager may decide to replicate synchronously or
+     * asynchronously the current state to remote SessionManagers.
+     */
+    void onEndAccess();
 }

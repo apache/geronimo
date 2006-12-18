@@ -20,6 +20,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 
 import org.apache.geronimo.clustering.SessionAlreadyExistException;
 import org.apache.geronimo.clustering.SessionListener;
@@ -43,7 +44,7 @@ public class ClusteredSessionManager extends AbstractSessionManager {
         workerName = workerName.replaceAll(" ", "");
         HashSessionIdManager sessionIdManager = new HashSessionIdManager();
         sessionIdManager.setWorkerName(workerName);
-        setMetaManager(sessionIdManager);
+        setIdManager(sessionIdManager);
 
         sessionManager.registerListener(new MigrationListener());
 
@@ -57,16 +58,21 @@ public class ClusteredSessionManager extends AbstractSessionManager {
     }
 
     @Override
+    public void complete(HttpSession session) {
+        ClusteredSession clusteredSession = (ClusteredSession) session;
+        clusteredSession.session.onEndAccess();
+    }
+    
+    @Override
     protected void addSession(Session session) {
-        //todo gianni fixme
+        ClusteredSession clusteredSession = (ClusteredSession) session;
         synchronized (idToSession) {
-            idToSession.put(session.getId(), (ClusteredSession) session);
+            idToSession.put(clusteredSession.getClusterId(), clusteredSession);
         }
     }
 
     @Override
     protected void removeSession(String idInCluster) {
-        //todo gianni fixme
         synchronized (idToSession) {
             idToSession.remove(idInCluster);
         }
@@ -74,7 +80,6 @@ public class ClusteredSessionManager extends AbstractSessionManager {
 
     @Override
     protected Session getSession(String idInCluster) {
-        //todo gianni fixme
         synchronized (idToSession) {
             return idToSession.get(idInCluster);
         }
@@ -82,38 +87,33 @@ public class ClusteredSessionManager extends AbstractSessionManager {
 
     @Override
     public int getSessions() {
-        //todo gianni fixme
         synchronized (idToSession) {
             return idToSession.size();
         }
     }
 
-
-    /**
-     * @deprecated. Need to review if it is needed.
-     */
     @Override
     public Map getSessionMap() {
-        //todo gianni fixme
-        return idToSession;
+        throw new AssertionError("getSessionMap is never used.");
     }
 
     @Override
     protected void invalidateSessions() {
-        //todo gianni fixme
+        synchronized (idToSession) {
+            idToSession.clear();
+        }
     }
-
 
     private class MigrationListener implements SessionListener {
 
         public void notifyInboundSessionMigration(org.apache.geronimo.clustering.Session session) {
-            addSession(new ClusteredSession(session), false);
+            addSession(new MigratedClusteredSession(session), false);
         }
 
         public void notifyOutboundSessionMigration(org.apache.geronimo.clustering.Session session) {
             ClusteredSession clusteredSession;
             synchronized (idToSession) {
-                clusteredSession = (ClusteredSession) idToSession.remove(session.getSessionId());
+                clusteredSession = idToSession.remove(session.getSessionId());
             }
             if (null == clusteredSession) {
                 throw new AssertionError("Session [" + session + "] is undefined");
@@ -128,26 +128,64 @@ public class ClusteredSessionManager extends AbstractSessionManager {
         protected ClusteredSession(HttpServletRequest request) {
             super(request);
             try {
-                this.session = sessionManager.createSession(getId());
+                this.session = sessionManager.createSession(getClusterId());
             } catch (SessionAlreadyExistException e) {
                 throw (IllegalStateException) new IllegalStateException().initCause(e);
             }
             synchronized (idToSession) {
-                idToSession.put(getId(), this);
+                idToSession.put(getClusterId(), this);
             }
+            forceDefinitionOfSessionValues();
         }
 
         protected ClusteredSession(org.apache.geronimo.clustering.Session session) {
             super(session.getSessionId());
             this.session = session;
-            synchronized (idToSession) {
-                idToSession.put(getId(), this);
-            }
+            forceDefinitionOfSessionValues();
         }
 
         @Override
         protected Map newAttributeMap() {
             return session.getState();
+        }
+
+        @Override
+        protected String getClusterId() {
+            return super.getClusterId();
+        }
+        
+        @Override
+        public void invalidate() throws IllegalStateException {
+            super.invalidate();
+            session.release();
+        }
+        
+        private void forceDefinitionOfSessionValues() {
+            String TOKEN = "GeronimoIntegration_forceDefinitionOfSessionValues";
+            setAttribute(TOKEN, TOKEN);
+            removeAttribute(TOKEN);
+        }
+    }
+    
+    public class MigratedClusteredSession extends ClusteredSession {
+        private final String clusterId;
+        
+        protected MigratedClusteredSession(org.apache.geronimo.clustering.Session session) {
+            super(session);
+            clusterId = session.getSessionId();
+            synchronized (idToSession) {
+                idToSession.put(clusterId, this);
+            }
+        }
+        
+        /**
+         * Implementation note: we need to override this method as the constructor Session(String) has a bug:
+         * it should also set _clusterId. W/o this override, this Session is bound to the null key during inbound
+         * session migration.
+         */
+        @Override
+        protected String getClusterId() {
+            return clusterId;
         }
     }
 

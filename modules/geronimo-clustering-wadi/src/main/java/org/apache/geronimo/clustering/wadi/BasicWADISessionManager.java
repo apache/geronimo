@@ -16,13 +16,7 @@
  */
 package org.apache.geronimo.clustering.wadi;
 
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.Iterator;
-import java.util.Map;
-import java.util.regex.Pattern;
-
-import javax.servlet.ServletContext;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -35,55 +29,27 @@ import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
-import org.codehaus.wadi.Collapser;
 import org.codehaus.wadi.Contextualiser;
 import org.codehaus.wadi.Emoter;
 import org.codehaus.wadi.Evicter;
 import org.codehaus.wadi.Immoter;
 import org.codehaus.wadi.Invocation;
 import org.codehaus.wadi.InvocationException;
-import org.codehaus.wadi.Manager;
-import org.codehaus.wadi.ManagerConfig;
 import org.codehaus.wadi.Motable;
 import org.codehaus.wadi.PoolableInvocationWrapperPool;
 import org.codehaus.wadi.SessionPool;
-import org.codehaus.wadi.Streamer;
+import org.codehaus.wadi.core.ConcurrentMotableMap;
 import org.codehaus.wadi.group.Dispatcher;
-import org.codehaus.wadi.impl.AbsoluteEvicter;
-import org.codehaus.wadi.impl.ClusterContextualiser;
 import org.codehaus.wadi.impl.ClusteredManager;
-import org.codehaus.wadi.impl.DummyContextualiser;
-import org.codehaus.wadi.impl.HashingCollapser;
-import org.codehaus.wadi.impl.HybridRelocater;
 import org.codehaus.wadi.impl.MemoryContextualiser;
-import org.codehaus.wadi.impl.SerialContextualiserFrontingMemory;
-import org.codehaus.wadi.impl.SimpleSessionPool;
-import org.codehaus.wadi.impl.SimpleStreamer;
-import org.codehaus.wadi.impl.SimpleValuePool;
-import org.codehaus.wadi.impl.StatelessContextualiser;
-import org.codehaus.wadi.replication.contextualizer.ReplicaAwareContextualiser;
-import org.codehaus.wadi.replication.manager.ReplicaterAdapterFactory;
-import org.codehaus.wadi.replication.manager.ReplicationManager;
+import org.codehaus.wadi.impl.StackContext;
 import org.codehaus.wadi.replication.manager.ReplicationManagerFactory;
-import org.codehaus.wadi.replication.manager.basic.SessionReplicationManager;
-import org.codehaus.wadi.replication.storage.ReplicaStorage;
 import org.codehaus.wadi.replication.storage.ReplicaStorageFactory;
 import org.codehaus.wadi.replication.strategy.BackingStrategyFactory;
-import org.codehaus.wadi.servicespace.ServiceRegistry;
+import org.codehaus.wadi.servicespace.ServiceSpace;
 import org.codehaus.wadi.servicespace.ServiceSpaceName;
-import org.codehaus.wadi.servicespace.basic.BasicServiceSpace;
 import org.codehaus.wadi.web.WebSession;
-import org.codehaus.wadi.web.WebSessionPool;
-import org.codehaus.wadi.web.impl.AtomicallyReplicableSessionFactory;
-import org.codehaus.wadi.web.impl.DistributableAttributesFactory;
-import org.codehaus.wadi.web.impl.DistributableValueFactory;
-import org.codehaus.wadi.web.impl.DummyRouter;
-import org.codehaus.wadi.web.impl.DummyStatefulHttpServletRequestWrapperPool;
-import org.codehaus.wadi.web.impl.StandardHttpProxy;
-import org.codehaus.wadi.web.impl.StandardSessionWrapperFactory;
-import org.codehaus.wadi.web.impl.WebSessionToSessionPoolAdapter;
 
-import EDU.oswego.cs.dl.util.concurrent.Sync;
 import edu.emory.mathcs.backport.java.util.concurrent.CopyOnWriteArrayList;
 
 /**
@@ -101,7 +67,7 @@ public class BasicWADISessionManager implements GBeanLifecycle, SessionManager, 
     private final CopyOnWriteArrayList listeners;
 
     private ClusteredManager manager;
-    private BasicServiceSpace serviceSpace;
+    private ServiceSpace serviceSpace;
 
     public BasicWADISessionManager(WADISessionManagerConfigInfo configInfo,
             ReplicationManagerFactory repManagerFactory, 
@@ -119,69 +85,28 @@ public class BasicWADISessionManager implements GBeanLifecycle, SessionManager, 
 
     public void doStart() throws Exception {
         Dispatcher underlyingDisp = dispatcherHolder.getDispatcher();
-
-        serviceSpace = new BasicServiceSpace(new ServiceSpaceName(configInfo.getServiceSpaceURI()), underlyingDisp);
-
-        boolean strictOrdering = true;
-        Streamer streamer = new SimpleStreamer();
-        Collapser collapser = new HashingCollapser(1024, 10000);
-        Map mmap = Collections.synchronizedMap(new HashMap());
-        WebSessionPool sessionPool = new SimpleSessionPool(new AtomicallyReplicableSessionFactory());
-
-        // end of contextualiser stack
-        Contextualiser contextualiser = new DummyContextualiser();
-
-        // replica aware contextualiser
-         ReplicationManager replicationManager = repManagerFactory.factory(serviceSpace, backingStrategyFactory);
-         ReplicationManager sessionRepManager = new SessionReplicationManager(replicationManager, sessionPool);
-         contextualiser = new ReplicaAwareContextualiser(contextualiser, sessionRepManager);
-
-        // cluster aware contextualiser
-        contextualiser = new ClusterContextualiser(contextualiser, collapser, new HybridRelocater(5000, 5000, true));
-
-        contextualiser = new StatelessContextualiser(contextualiser, Pattern.compile("GET|POST", 2), true, 
-                Pattern.compile(".*\\.(JPG|JPEG|GIF|PNG|ICO|HTML|HTM)", 2), false);
-
-        // in-memory contextualiser
-        Evicter mevicter = new AbsoluteEvicter(configInfo.getSweepInterval(), strictOrdering,
-                configInfo.getSessionTimeoutSeconds());
-        SessionPool contextPool = new WebSessionToSessionPoolAdapter(sessionPool);
-        PoolableInvocationWrapperPool requestPool = new DummyStatefulHttpServletRequestWrapperPool();
-        contextualiser = new MotionTracker(contextualiser, mevicter, mmap, streamer, contextPool, requestPool);
-
-        contextualiser = new SerialContextualiserFrontingMemory(contextualiser, collapser);
-
-        // Manager
-        manager = new ClusteredManager(sessionPool, 
-                new DistributableAttributesFactory(), 
-                new SimpleValuePool(new DistributableValueFactory()), 
-                new StandardSessionWrapperFactory(), 
-                null, 
-                contextualiser,
-                mmap, 
-                new DummyRouter(), 
-                false, 
-                streamer, 
-                true,
-                new ReplicaterAdapterFactory(replicationManager, sessionPool),
-                new StandardHttpProxy("jsessionid"), 
-                serviceSpace, 
-                configInfo.getNumPartitions(), 
-                collapser);
-
-        manager.init(new ManagerConfig() {
-            public void callback(Manager manager) {
+        
+        ServiceSpaceName serviceSpaceName = new ServiceSpaceName(configInfo.getServiceSpaceURI());
+        StackContext stackContext = new StackContext(serviceSpaceName,
+                underlyingDisp,
+                configInfo.getSessionTimeoutSeconds(),
+                configInfo.getNumPartitions(),
+                configInfo.getSweepInterval(),
+                repManagerFactory,
+                repStorageFactory,
+                backingStrategyFactory) {
+            @Override
+            protected MemoryContextualiser newMemoryContextualiser(Contextualiser next,
+                    ConcurrentMotableMap mmap,
+                    Evicter mevicter,
+                    PoolableInvocationWrapperPool requestPool) {
+                return new MotionTracker(next, mevicter, mmap, contextPool, requestPool);
             }
+        };
+        stackContext.build();
 
-            public ServletContext getServletContext() {
-                return null;
-            }
-        });
-
-        ServiceRegistry serviceRegistry = serviceSpace.getServiceRegistry();
-        serviceRegistry.register(ReplicaStorage.NAME, repStorageFactory.factory(serviceSpace));
-        serviceRegistry.register(ReplicationManager.NAME, replicationManager);
-        serviceRegistry.register(ClusteredManager.NAME, manager);
+        serviceSpace = stackContext.getServiceSpace();
+        manager = stackContext.getManager();
 
         serviceSpace.start();
     }
@@ -241,12 +166,14 @@ public class BasicWADISessionManager implements GBeanLifecycle, SessionManager, 
 
     private class MotionTracker extends MemoryContextualiser {
         private final Immoter immoter;
-
         private final Emoter emoter;
 
-        public MotionTracker(Contextualiser next, Evicter evicter, Map map, Streamer streamer, SessionPool pool,
+        public MotionTracker(Contextualiser next,
+                Evicter evicter,
+                ConcurrentMotableMap map,
+                SessionPool pool,
                 PoolableInvocationWrapperPool requestPool) {
-            super(next, evicter, map, streamer, pool, requestPool);
+            super(next, evicter, map, pool, requestPool);
 
             Immoter immoterDelegate = super.getImmoter();
             immoter = new InboundSessionTracker(immoterDelegate);
@@ -279,22 +206,10 @@ public class BasicWADISessionManager implements GBeanLifecycle, SessionManager, 
         public OutboundSessionTracker(Emoter delegate) {
             this.delegate = delegate;
         }
-
-        public void commit(String arg0, Motable arg1) {
-            notifyOutboundSessionMigration((WebSession) arg1);
-            delegate.commit(arg0, arg1);
-        }
-
-        public String getInfo() {
-            return delegate.getInfo();
-        }
-
-        public boolean prepare(String arg0, Motable arg1, Motable arg2) {
-            return delegate.prepare(arg0, arg1, arg2);
-        }
-
-        public void rollback(String arg0, Motable arg1) {
-            delegate.rollback(arg0, arg1);
+        
+        public boolean emote(Motable emotable, Motable immotable) {
+            notifyOutboundSessionMigration((WebSession) emotable);
+            return delegate.emote(emotable, immotable);
         }
     }
 
@@ -303,31 +218,24 @@ public class BasicWADISessionManager implements GBeanLifecycle, SessionManager, 
 
         public InboundSessionTracker(Immoter delegate) {
             this.delegate = delegate;
+            
         }
 
-        public void commit(String arg0, Motable arg1) {
-            notifyInboundSessionMigration((WebSession) arg1);
-            delegate.commit(arg0, arg1);
+        public boolean immote(Motable emotable, Motable immotable) {
+            boolean success = delegate.immote(emotable, immotable);
+            if (success) {
+                notifyInboundSessionMigration((WebSession) immotable);
+            }
+            return success;
+        }
+        
+        
+        public boolean contextualise(Invocation arg0, String arg1, Motable arg2) throws InvocationException {
+            return delegate.contextualise(arg0, arg1, arg2);
         }
 
-        public boolean contextualise(Invocation arg0, String arg1, Motable arg2, Sync arg3) throws InvocationException {
-            return delegate.contextualise(arg0, arg1, arg2, arg3);
-        }
-
-        public String getInfo() {
-            return delegate.getInfo();
-        }
-
-        public Motable nextMotable(String arg0, Motable arg1) {
-            return delegate.nextMotable(arg0, arg1);
-        }
-
-        public boolean prepare(String arg0, Motable arg1, Motable arg2) {
-            return delegate.prepare(arg0, arg1, arg2);
-        }
-
-        public void rollback(String arg0, Motable arg1) {
-            delegate.rollback(arg0, arg1);
+        public Motable newMotable() {
+            return delegate.newMotable();
         }
     }
 

@@ -38,7 +38,7 @@ public class WADISessionAdaptor implements Session {
     }
 
     public String getSessionId() {
-        return session.getId();
+        return session.getName();
     }
 
     public void release() {
@@ -63,6 +63,10 @@ public class WADISessionAdaptor implements Session {
 
     public Map getState() {
         return state;
+    }
+    
+    public void onEndAccess() {
+        session.onEndProcessing();
     }
     
     private class StateMap implements Map {
