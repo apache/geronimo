@@ -156,12 +156,13 @@ public class GBeanBinding implements GBeanLifecycle {
      * @param abstractName the abstract name of the gbean to unbind
      */
     protected synchronized void removeBinding(AbstractName abstractName) {
-        if (first(bindings).getKey().equals(abstractName)) {
+        Map.Entry entry = first(bindings);
+        if (entry != null && entry.getKey().equals(abstractName)) {
             Object oldValue = bindings.remove(abstractName);
-            Map.Entry newEntry = first(bindings);
-            if (newEntry != null) {
-                Object newAbstractName = newEntry.getValue();
-                Object newValue = newEntry.getValue();
+            entry = first(bindings);
+            if (entry != null) {
+                Object newAbstractName = entry.getValue();
+                Object newValue = entry.getValue();
                 try {
                     context.rebind(name, newValue);
                 } catch (NamingException e) {
