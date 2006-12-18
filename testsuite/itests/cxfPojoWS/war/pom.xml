@@ -44,19 +44,25 @@
     </build>
     <dependencies>
         <dependency>
-            <groupId>org.apache.cxf</groupId>
-            <artifactId>cxf-testutils</artifactId>
-            <version>2.0-incubator-M1-SNAPSHOT</version>
+            <groupId>javax.xml.ws</groupId>
+            <artifactId>jaxws-api</artifactId>
+            <version>2.0</version>
             <exclusions>
                 <exclusion>
-                    <groupId>javax.annotation</groupId>
-                    <artifactId>jsr250-api</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>javax.jws</groupId>
-                    <artifactId>jsr181-api</artifactId>
+                    <groupId>javax.xml.bind</groupId>
+                    <artifactId>jsr173_api</artifactId>
                 </exclusion>
             </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.geronimo.specs</groupId>
+            <artifactId>geronimo-annotation_1.0_spec</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.geronimo.specs</groupId>
+            <artifactId>geronimo-ws-metadata_2.0_spec</artifactId>
+            <version>1.1-SNAPSHOT</version>
         </dependency>
     </dependencies>
 </project>
