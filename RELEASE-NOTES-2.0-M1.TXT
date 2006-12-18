@@ -15,8 +15,7 @@ IMPORTANT
 ---------
 This is a Milestone release, that means that is not the final version of
 Apache Geronimo v2.0 Take a look at "Known Issues and Limitations" section for
-furhter details.
-
+further details.
 
 System Requirements
 -------------------
@@ -140,7 +139,7 @@ need to be added manually.
 
 Certification Status
 --------------------
-Apache Geronimo v2.0-M1, being a MILESTONE release is not a certified yet certified.
+Apache Geronimo v2.0-M1, being a MILESTONE release is not yet certified.
 
 
 Known Issues and Limitations
