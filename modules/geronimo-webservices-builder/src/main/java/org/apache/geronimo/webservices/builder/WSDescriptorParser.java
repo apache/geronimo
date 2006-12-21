@@ -60,6 +60,7 @@ import javax.xml.rpc.holders.ShortWrapperHolder;
 import javax.xml.rpc.holders.StringHolder;
 
 import org.apache.geronimo.common.DeploymentException;
+import org.apache.geronimo.deployment.xmlbeans.XmlBeansUtil;
 import org.apache.geronimo.kernel.ClassLoading;
 import org.apache.geronimo.xbeans.j2ee.ExceptionMappingType;
 import org.apache.geronimo.xbeans.j2ee.JavaWsdlMappingDocument;
@@ -75,11 +76,8 @@ import org.apache.geronimo.xbeans.j2ee.WebserviceDescriptionType;
 import org.apache.geronimo.xbeans.j2ee.WebservicesDocument;
 import org.apache.geronimo.xbeans.j2ee.WebservicesType;
 import org.apache.geronimo.xbeans.j2ee.XsdQNameType;
-import org.apache.geronimo.deployment.xmlbeans.XmlBeansUtil;
-import org.apache.geronimo.webservices.builder.PortInfo;
-import org.apache.geronimo.webservices.builder.SchemaInfoBuilder;
-import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlCursor;
+import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
 
 /**
@@ -95,17 +93,17 @@ public class WSDescriptorParser {
 
     public static JavaWsdlMappingType readJaxrpcMapping(JarFile moduleFile, String jaxrpcMappingPath) throws DeploymentException {
         JavaWsdlMappingType mapping;
-        InputStream jaxrpcInputStream = null;
+        InputStream jaxrpcInputStream;
         try {
             ZipEntry zipEntry = moduleFile.getEntry(jaxrpcMappingPath);
-            if(zipEntry == null){
-                throw new DeploymentException("The JAX-RPC mapping file "+jaxrpcMappingPath+" specified in webservices.xml for the ejb module could not be found.");
+            if (zipEntry == null) {
+                throw new DeploymentException("The JAX-RPC mapping file " + jaxrpcMappingPath + " specified in webservices.xml for the ejb module could not be found.");
             }
             jaxrpcInputStream = moduleFile.getInputStream(zipEntry);
         } catch (IOException e) {
             throw new DeploymentException("Could not open stream to jaxrpc mapping document", e);
         }
-        JavaWsdlMappingDocument mappingDocument = null;
+        JavaWsdlMappingDocument mappingDocument;
         try {
             mappingDocument = JavaWsdlMappingDocument.Factory.parse(jaxrpcInputStream);
         } catch (XmlException e) {
@@ -118,12 +116,11 @@ public class WSDescriptorParser {
     }
 
 
-    public static Map getExceptionMap(JavaWsdlMappingType mapping) {
-        Map exceptionMap = new HashMap();
+    public static Map<QName,ExceptionMappingType> getExceptionMap(JavaWsdlMappingType mapping) {
+        Map<QName,ExceptionMappingType> exceptionMap = new HashMap<QName, ExceptionMappingType>();
         if (mapping != null) {
             ExceptionMappingType[] exceptionMappings = mapping.getExceptionMappingArray();
-            for (int i = 0; i < exceptionMappings.length; i++) {
-                ExceptionMappingType exceptionMapping = exceptionMappings[i];
+            for (ExceptionMappingType exceptionMapping : exceptionMappings) {
                 QName exceptionMessageQName = exceptionMapping.getWsdlMessage().getQNameValue();
                 exceptionMap.put(exceptionMessageQName, exceptionMapping);
             }
@@ -133,8 +130,7 @@ public class WSDescriptorParser {
 
     public static String getPackageFromNamespace(String namespace, JavaWsdlMappingType mapping) throws DeploymentException {
         PackageMappingType[] packageMappings = mapping.getPackageMappingArray();
-        for (int i = 0; i < packageMappings.length; i++) {
-            PackageMappingType packageMapping = packageMappings[i];
+        for (PackageMappingType packageMapping : packageMappings) {
             if (namespace.equals(packageMapping.getNamespaceURI().getStringValue().trim())) {
                 return packageMapping.getPackageType().getStringValue().trim();
             }
@@ -142,7 +138,7 @@ public class WSDescriptorParser {
         throw new DeploymentException("Namespace " + namespace + " was not mapped in jaxrpc mapping file");
     }
 
-    private static final Map rpcHolderClasses = new HashMap();
+    private static final Map<Class,Class> rpcHolderClasses = new HashMap<Class, Class>();
 
     static {
         rpcHolderClasses.put(BigDecimal.class, BigDecimalHolder.class);
@@ -169,7 +165,7 @@ public class WSDescriptorParser {
     }
 
     public static Class getHolderType(String paramJavaTypeName, boolean isInOnly, QName typeQName, boolean isComplexType, JavaWsdlMappingType mapping, ClassLoader classLoader) throws DeploymentException {
-        Class paramJavaType = null;
+        Class paramJavaType;
         if (isInOnly) {
             //IN parameters just use their own type
             try {
@@ -198,7 +194,7 @@ public class WSDescriptorParser {
                 } catch (ClassNotFoundException e) {
                     throw new DeploymentException("could not load parameter type", e);
                 }
-                Class holder = (Class) rpcHolderClasses.get(paramJavaType);
+                Class holder = rpcHolderClasses.get(paramJavaType);
                 if (holder != null) {
                     try {
                         //TODO use class names in map or make sure we are in the correct classloader to start with.
@@ -219,8 +215,7 @@ public class WSDescriptorParser {
                 holderName = buf.toString();
             }
             try {
-                Class holder = ClassLoading.loadClass(holderName, classLoader);
-                return holder;
+                return ClassLoading.loadClass(holderName, classLoader);
             } catch (ClassNotFoundException e) {
                 throw new DeploymentException("Could not load holder class", e);
             }
@@ -228,8 +223,7 @@ public class WSDescriptorParser {
     }
 
     public static ServiceEndpointMethodMappingType getMethodMappingForOperation(String operationName, ServiceEndpointMethodMappingType[] methodMappings) throws DeploymentException {
-        for (int i = 0; i < methodMappings.length; i++) {
-            ServiceEndpointMethodMappingType methodMapping = methodMappings[i];
+        for (ServiceEndpointMethodMappingType methodMapping : methodMappings) {
             if (operationName.equals(methodMapping.getWsdlOperation().getStringValue())) {
                 return methodMapping;
             }
@@ -244,8 +238,7 @@ public class WSDescriptorParser {
     }
 
     public static ServiceEndpointInterfaceMappingType getServiceEndpointInterfaceMapping(ServiceEndpointInterfaceMappingType[] endpointMappings, QName portTypeQName) throws DeploymentException {
-        for (int i = 0; i < endpointMappings.length; i++) {
-            ServiceEndpointInterfaceMappingType endpointMapping = endpointMappings[i];
+        for (ServiceEndpointInterfaceMappingType endpointMapping : endpointMappings) {
             QName testPortQName = endpointMapping.getWsdlPortType().getQNameValue();
             if (portTypeQName.equals(testPortQName)) {
                 return endpointMapping;
@@ -275,8 +268,7 @@ public class WSDescriptorParser {
         Method[] methods = serviceEndpointInterface.getMethods();
         String opName = operation.getName();
         Method found = null;
-        for (int i = 0; i < methods.length; i++) {
-            Method method = methods[i];
+        for (Method method : methods) {
             if (method.getName().equals(opName)) {
                 if (found != null) {
                     throw new DeploymentException("Overloaded methods are not allowed in lightweight mappings");
@@ -300,38 +292,36 @@ public class WSDescriptorParser {
      * @param servletLocations
      * @return
      * @throws org.apache.geronimo.common.DeploymentException
+     *
      */
-    public static Map parseWebServiceDescriptor(WebservicesType webservicesType, JarFile moduleFile, boolean isEJB, Map servletLocations) throws DeploymentException {
-        Map portMap = new HashMap();
+    public static Map<String,PortInfo> parseWebServiceDescriptor(WebservicesType webservicesType, JarFile moduleFile, boolean isEJB, Map servletLocations) throws DeploymentException {
+        Map<String,PortInfo> portMap = new HashMap<String, PortInfo>();
         WebserviceDescriptionType[] webserviceDescriptions = webservicesType.getWebserviceDescriptionArray();
-        for (int i = 0; i < webserviceDescriptions.length; i++) {
-            WebserviceDescriptionType webserviceDescription = webserviceDescriptions[i];
-            URI wsdlURI = null;
+        for (WebserviceDescriptionType webserviceDescription : webserviceDescriptions) {
+            URI wsdlURI;
             try {
                 wsdlURI = new URI(webserviceDescription.getWsdlFile().getStringValue().trim());
             } catch (URISyntaxException e) {
                 throw new DeploymentException("could not construct wsdl uri from " + webserviceDescription.getWsdlFile().getStringValue(), e);
             }
-            URI jaxrpcMappingURI = null;
+            URI jaxrpcMappingURI;
             try {
                 jaxrpcMappingURI = new URI(webserviceDescription.getJaxrpcMappingFile().getStringValue().trim());
             } catch (URISyntaxException e) {
                 throw new DeploymentException("Could not construct jaxrpc mapping uri from " + webserviceDescription.getJaxrpcMappingFile(), e);
             }
-            SchemaInfoBuilder schemaInfoBuilder =  new SchemaInfoBuilder(moduleFile, wsdlURI);
+            SchemaInfoBuilder schemaInfoBuilder = new SchemaInfoBuilder(moduleFile, wsdlURI);
             Map wsdlPortMap = schemaInfoBuilder.getPortMap();
 
             JavaWsdlMappingType javaWsdlMapping = readJaxrpcMapping(moduleFile, jaxrpcMappingURI);
-            HashMap seiMappings = new HashMap();
+            HashMap<String, ServiceEndpointInterfaceMappingType> seiMappings = new HashMap<String, ServiceEndpointInterfaceMappingType>();
             ServiceEndpointInterfaceMappingType[] mappings = javaWsdlMapping.getServiceEndpointInterfaceMappingArray();
-            for (int j = 0; j < mappings.length; j++) {
-                ServiceEndpointInterfaceMappingType seiMapping = mappings[j];
+            for (ServiceEndpointInterfaceMappingType seiMapping : mappings) {
                 seiMappings.put(seiMapping.getServiceEndpointInterface().getStringValue(), seiMapping);
             }
 
             PortComponentType[] portComponents = webserviceDescription.getPortComponentArray();
-            for (int j = 0; j < portComponents.length; j++) {
-                PortComponentType portComponent = portComponents[j];
+            for (PortComponentType portComponent : portComponents) {
                 String portComponentName = portComponent.getPortComponentName().getStringValue().trim();
                 QName portQName = portComponent.getWsdlPort().getQNameValue();
                 String seiInterfaceName = portComponent.getServiceEndpointInterface().getStringValue().trim();
@@ -360,10 +350,10 @@ public class WSDescriptorParser {
                     throw new DeploymentException("No WSDL Port definition for port-component " + portComponentName);
                 }
 
-                ServiceEndpointInterfaceMappingType seiMapping = (ServiceEndpointInterfaceMappingType) seiMappings.get(seiInterfaceName);
+                ServiceEndpointInterfaceMappingType seiMapping = seiMappings.get(seiInterfaceName);
 
                 String wsdlLocation = webserviceDescription.getWsdlFile().getStringValue().trim();
-                URI contextURI = null;
+                URI contextURI;
                 try {
                     contextURI = new URI(servletLocation);
                 } catch (URISyntaxException e) {
@@ -380,16 +370,19 @@ public class WSDescriptorParser {
         return portMap;
     }
 
-    public static Map parseWebServiceDescriptor(URL wsDDUrl, JarFile moduleFile, boolean isEJB, Map servletLocations) throws DeploymentException {
+    public static Map<String,PortInfo> parseWebServiceDescriptor(URL wsDDUrl, JarFile moduleFile, boolean isEJB, Map servletLocations) throws DeploymentException {
         try {
             XmlObject webservicesDocumentUntyped = XmlObject.Factory.parse(wsDDUrl);
             XmlCursor cursor = webservicesDocumentUntyped.newCursor();
-            cursor.toFirstContentToken();
-            QName qname = cursor.getName();
-            if (!WebservicesDocument.type.getDocumentElementName().equals(qname)) {
-                //not a jaxrpc/j2ee 1.4 webservices document.
-                //TODO handle jaxrpc inside a jee5 webservices document.
-                return null;
+            try {
+                QName qname = cursor.getName();
+                if (!WebservicesDocument.type.getDocumentElementName().equals(qname)) {
+                    //not a jaxrpc/j2ee 1.4 webservices document.
+                    //TODO handle jaxrpc inside a jee5 webservices document.
+                    return null;
+                }
+            } finally {
+                cursor.dispose();
             }
             WebservicesDocument webservicesDocument = (WebservicesDocument) webservicesDocumentUntyped;
             XmlBeansUtil.validateDD(webservicesDocument);
@@ -403,13 +396,11 @@ public class WSDescriptorParser {
 
     }
 
-    public static List createHandlerInfoList(PortComponentHandlerType[] handlers, ClassLoader classLoader) throws DeploymentException {
-        List list = new ArrayList();
-        for (int i = 0; i < handlers.length; i++) {
-            PortComponentHandlerType handler = handlers[i];
-
+    public static List<HandlerInfo> createHandlerInfoList(PortComponentHandlerType[] handlers, ClassLoader classLoader) throws DeploymentException {
+        List<HandlerInfo> list = new ArrayList<HandlerInfo>();
+        for (PortComponentHandlerType handler : handlers) {
             // Get handler class
-            Class handlerClass = null;
+            Class handlerClass;
             String className = handler.getHandlerClass().getStringValue().trim();
             try {
                 handlerClass = classLoader.loadClass(className);
@@ -418,10 +409,9 @@ public class WSDescriptorParser {
             }
 
             // config data for the handler
-            Map config = new HashMap();
+            Map<String, String> config = new HashMap<String, String>();
             ParamValueType[] paramValues = handler.getInitParamArray();
-            for (int j = 0; j < paramValues.length; j++) {
-                ParamValueType paramValue = paramValues[j];
+            for (ParamValueType paramValue : paramValues) {
                 String paramName = paramValue.getParamName().getStringValue().trim();
                 String paramStringValue = paramValue.getParamValue().getStringValue().trim();
                 config.put(paramName, paramStringValue);
