@@ -58,7 +58,6 @@
             <groupId>org.tranql</groupId>
             <artifactId>tranql-connector-derby-embed-local</artifactId>
             <type>rar</type>
-            <version>1.2-SNAPSHOT</version>
         </dependency>
 
         <dependency>
