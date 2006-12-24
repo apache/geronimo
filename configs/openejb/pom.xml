@@ -90,6 +90,13 @@
             <!--<artifactId>concurrent</artifactId>-->
         <!--</dependency>-->
 
+        <dependency>
+            <groupId>org.apache.geronimo.configs</groupId>
+            <artifactId>webservices-common</artifactId>
+            <type>car</type>
+            <version>${version}</version>
+        </dependency>
+
     </dependencies>
 
 </project>

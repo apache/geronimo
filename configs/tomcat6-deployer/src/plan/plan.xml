@@ -30,6 +30,9 @@
         </reference>
         <references name="WebServiceBuilder">
             <pattern>
+                <name>CXFBuilder</name>
+            </pattern>
+            <pattern>
                 <name>WebServiceBuilder</name>
             </pattern>
             <pattern>
@@ -45,11 +48,6 @@
         <xml-attribute name="defaultEnvironment">
             <environment xmlns="http://geronimo.apache.org/xml/ns/deployment-${geronimoSchemaVersion}">
                 <dependencies>
-                    <dependency>
-                        <groupId>${pom.groupId}</groupId>
-                        <artifactId>j2ee-server</artifactId>
-                        <type>car</type>
-                    </dependency>
                     <dependency>
                         <groupId>${pom.groupId}</groupId>
                         <artifactId>tomcat6</artifactId>

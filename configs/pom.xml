@@ -172,6 +172,7 @@
         <module>transaction-jta11</module>
         <module>uddi-jetty6</module>
         <module>webconsole-jetty6</module>
+        <module>webservices-common</module>
 
     </modules>
 
