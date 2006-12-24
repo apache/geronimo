@@ -49,11 +49,18 @@ public class GeronimoDestination extends AbstractHTTPDestination
         super(bus, conduitInitiator, endpointInfo);
     }
 
+    public EndpointInfo getEndpointInfo() {
+        return this.endpointInfo;
+    }
 
-    public void invoke(Request request, Response response) {
-        Message message = new MessageImpl();
+    public void invoke(Request request, Response response) throws Exception {
+        MessageImpl message = new MessageImpl();
+        message.setContent(java.io.InputStream.class, request.getInputStream());
+        message.setDestination(this);
+
         message.put(Request.class, request);
         message.put(Response.class, response);
+
         messageObserver.onMessage(message);
     }
 
