@@ -24,6 +24,7 @@ import java.util.Map;
 import java.util.Iterator;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URL;
 
 import org.apache.geronimo.testsupport.TestSupport;
 
@@ -111,6 +112,16 @@ public class ParsingTest
         log.debug("ELEMENT MAP");
         log.debug(elements);
         assertEquals(4, elements.size());
+    }
+    
+    public void testWebservicesJ2ee14() throws Exception {
+        URL url = getClass().getClassLoader().getResource("webservices-j2ee14.xml");
+        assertNotNull(WSDescriptorParser.getWebservicesType(url));
+    }
+
+    public void testWebservicesJee5() throws Exception {
+        URL url = getClass().getClassLoader().getResource("webservices-jee5.xml");
+        assertNull(WSDescriptorParser.getWebservicesType(url));
     }
 
 }

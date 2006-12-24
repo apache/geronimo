@@ -371,10 +371,23 @@ public class WSDescriptorParser {
     }
 
     public static Map<String,PortInfo> parseWebServiceDescriptor(URL wsDDUrl, JarFile moduleFile, boolean isEJB, Map servletLocations) throws DeploymentException {
+            WebservicesType webservicesType = getWebservicesType(wsDDUrl);
+        if (webservicesType != null) {
+            return parseWebServiceDescriptor(webservicesType, moduleFile, isEJB, servletLocations);
+        } else {
+            return null;
+        }
+
+    }
+
+    static WebservicesType getWebservicesType(URL wsDDUrl) throws DeploymentException {
         try {
             XmlObject webservicesDocumentUntyped = XmlObject.Factory.parse(wsDDUrl);
             XmlCursor cursor = webservicesDocumentUntyped.newCursor();
             try {
+                if (cursor.currentTokenType() != XmlCursor.TokenType.START) {
+                    while(cursor.toNextToken()  != XmlCursor.TokenType.START) {}
+                }
                 QName qname = cursor.getName();
                 if (!WebservicesDocument.type.getDocumentElementName().equals(qname)) {
                     //not a jaxrpc/j2ee 1.4 webservices document.
@@ -384,10 +397,15 @@ public class WSDescriptorParser {
             } finally {
                 cursor.dispose();
             }
-            WebservicesDocument webservicesDocument = (WebservicesDocument) webservicesDocumentUntyped;
+
+            WebservicesDocument webservicesDocument;
+            if (webservicesDocumentUntyped instanceof WebservicesDocument) {
+                webservicesDocument = (WebservicesDocument) webservicesDocumentUntyped;
+            } else {
+                webservicesDocument = (WebservicesDocument) webservicesDocumentUntyped.changeType(WebservicesDocument.type);
+            }
             XmlBeansUtil.validateDD(webservicesDocument);
-            WebservicesType webservicesType = webservicesDocument.getWebservices();
-            return parseWebServiceDescriptor(webservicesType, moduleFile, isEJB, servletLocations);
+            return webservicesDocument.getWebservices();
         } catch (XmlException e) {
             throw new DeploymentException("Could not read descriptor document", e);
         } catch (IOException e) {
