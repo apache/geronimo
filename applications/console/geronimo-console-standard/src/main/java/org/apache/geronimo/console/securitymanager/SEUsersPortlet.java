@@ -33,6 +33,9 @@ import javax.portlet.WindowState;
 import org.apache.geronimo.console.util.SERealmGroupHelper;
 import org.apache.geronimo.console.util.SERealmUserHelper;
 
+/**
+ * @version $Rev$ $Date$
+ */
 public class SEUsersPortlet extends AbstractSecurityManagerPortlet {
 
     protected void doView(RenderRequest renderRequest,
@@ -129,7 +132,10 @@ public class SEUsersPortlet extends AbstractSecurityManagerPortlet {
                     }
                 }
             } else if ("update".equals(action)) {
-                SERealmUserHelper.updateUser(user, password);
+                if(password != null && !password.equals("")) {
+                    // Update the password only when it is not blank.
+                    SERealmUserHelper.updateUser(user, password);
+                }
             } else if ("add".equals(action)) {
                 try {
                     SERealmUserHelper.addUser(user, password);
