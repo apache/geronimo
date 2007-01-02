@@ -84,17 +84,6 @@
         </extensions>
         -->
 
-        <pluginManagement>
-            <plugins>
-                <plugin>
-                    <groupId>org.apache.geronimo.plugins</groupId>
-                    <artifactId>car-maven-plugin</artifactId>
-                    <version>${version}</version>
-                    <extensions>true</extensions>
-                </plugin>
-            </plugins>
-        </pluginManagement>
-
         <plugins>
             <plugin>
                 <groupId>org.apache.geronimo.plugins</groupId>
