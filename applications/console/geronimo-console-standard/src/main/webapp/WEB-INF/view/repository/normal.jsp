@@ -48,53 +48,43 @@ function <portlet:namespace/>validate() {
 }
 
 function <portlet:namespace/>parse(localFile) {
-   // Check for windows file delim
-   fileChar = "\\";
-   fileNameIndex = localFile.lastIndexOf(fileChar);
-   if (fileNameIndex == -1) {
-      // if not found check for *nix delim
-      fileChar = "/";
-      fileNameIndex = localFile.lastIndexOf(fileChar);
-   }
+    // Split the path
+    var pathParts = localFile.split("\\"); // Assuming windows file delim
+    if(localFile.indexOf("/") > 0) // May be *nix delim
+        pathParts = localFile.split("\\");
+    basename = pathParts[pathParts.length - 1]; // Last part is the base file name
 
-   if (fileNameIndex != -1) {
-      basename = localFile.substring(fileNameIndex + 1);
+    // Attempt to get the artifact and type from the basename
+    // This regular expression for repository filename is taken from Maven1Repository.MAVEN_1_PATTERN
+    regExpStr = "(.+)-([0-9].+)\\.([^0-9]+)";
+    var fileRegExp = new RegExp(regExpStr, "g");
+    if(basename.match(fileRegExp) != null) {
+        // base file name matches the regular expression
+        fileRegExp.compile(regExpStr, "g");
+        var fileParts = fileRegExp.exec(basename);
+        fileType = fileParts[fileParts.length - 1];
+        version = fileParts[fileParts.length - 2];
+        artifact = fileParts[fileParts.length - 3];
+        document.<portlet:namespace/>fileSelect.fileType.value = fileType;
+        document.<portlet:namespace/>fileSelect.version.value = version;
+        document.<portlet:namespace/>fileSelect.artifact.value = artifact;
 
-      prefix = localFile.substring(0 , fileNameIndex );
-
-      groupIndex = prefix.lastIndexOf(fileChar);
-      if (groupIndex != -1) {
-          group = prefix.substring(groupIndex + 1 );
-          document.<portlet:namespace/>fileSelect.group.value = group;        
-      }
-   }
-   else {
-      basename = localFile;
-   }
-
-   // Attempt to get the artifact and type from the basename
-   typeIndex = basename.lastIndexOf(".");
-   if (typeIndex != -1) {
-       fileType = basename.substring(typeIndex + 1);
-       document.<portlet:namespace/>fileSelect.fileType.value = fileType;
-
-       artifact = basename.substring(0 , typeIndex ); 
-
-       versionIndex = artifact.lastIndexOf("-");
-       if (versionIndex != -1) {
-           version = artifact.substring(versionIndex + 1); 
-           document.<portlet:namespace/>fileSelect.version.value = version;
-
-           artifact = artifact.substring(0 , versionIndex );
-           document.<portlet:namespace/>fileSelect.artifact.value = artifact;
-       }
-       else {
-          version = artifact = "";
-       }
-   }
-   else {
-      fileType = "";
-   }
+        // Attempt to suggest the group
+        if(pathParts.length >= 3 && pathParts[pathParts.length-2] == fileType +'s') {
+            // Maven1Repository
+            document.<portlet:namespace/>fileSelect.group.value = pathParts[pathParts.length-3];
+        } else if(pathParts.length >= 4 && pathParts[pathParts.length-2] == version && pathParts[pathParts.length-3] == artifact) {
+            // Maven2Repository
+            document.<portlet:namespace/>fileSelect.group.value = pathParts[pathParts.length-4];
+        } else {
+            document.<portlet:namespace/>fileSelect.group.value = '';
+        }
+    } else {
+        document.<portlet:namespace/>fileSelect.fileType.value = '';
+        document.<portlet:namespace/>fileSelect.version.value = '';
+        document.<portlet:namespace/>fileSelect.artifact.value = '';
+        document.<portlet:namespace/>fileSelect.group.value = '';
+    }
 }
 
 </script>
