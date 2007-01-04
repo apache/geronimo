@@ -20,7 +20,7 @@
 
 <geronimo-plugin xmlns="http://geronimo.apache.org/xml/ns/plugins-1.1">
     <name>Geronimo OpenJPA plugin</name>
-    <module-id>${pom.groupId}/${pom.artifactId}/${pom.currentVersion}/car</module-id>
+    <module-id>${pom.groupId}/${pom.artifactId}/${version}/car</module-id>
     <category>Geronimo</category>
     <description>
         OpenJPA plugin for geronimo.  This provides OpenJPA together with its dependencies as one dependency.
@@ -28,7 +28,7 @@
     <url>http://cwiki.apache.org/confluence/display/openjpa/Index</url>
     <author>Apache Software Foundation</author>
     <license osi-approved="true">ASL 2</license>
-    <geronimo-version>${pom.currentVersion}</geronimo-version>
+    <geronimo-version>${version}</geronimo-version>
     <source-repository>http://geronimo.apache.org/plugins/geronimo-1.2/repository/</source-repository>
     <source-repository>http://www.ibiblio.org/maven2/</source-repository>
 </geronimo-plugin>

@@ -20,7 +20,7 @@
 
 <geronimo-plugin xmlns="http://geronimo.apache.org/xml/ns/plugins-1.1">
     <name>Geronimo Dojo App (jetty)</name>
-    <module-id>${pom.groupId}/${pom.artifactId}/${pom.currentVersion}/car</module-id>
+    <module-id>${pom.groupId}/${pom.artifactId}/${version}/car</module-id>
     <category>Geronimo</category>
     <description>
         The Dojo AJAX library for Geronimo.  This binds to /dojo so that
@@ -30,7 +30,7 @@
     <url>http://dojotoolkit.org/</url>
     <author>Dojo Foundation</author>
     <license osi-approved="true">BSD and Academic Free License v2.1</license>
-    <geronimo-version>${pom.currentVersion}</geronimo-version>
+    <geronimo-version>${version}</geronimo-version>
     <prerequisite>
         <id>geronimo/jetty//car</id>
         <resource-type>Web Container</resource-type>

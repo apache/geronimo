@@ -20,7 +20,7 @@
 
 <geronimo-plugin xmlns="http://geronimo.apache.org/xml/ns/plugins-1.1">
     <name>Geronimo CA Helper Web App (Tomcat)</name>
-    <module-id>${pom.groupId}/${pom.artifactId}/${pom.currentVersion}/car</module-id>
+    <module-id>${pom.groupId}/${pom.artifactId}/${version}/car</module-id>
     <category>Core Geronimo</category>
     <description>
         This is a helper application for CA to enable receiving CSR's through
@@ -29,7 +29,7 @@
     <url>http://geronimo.apache.org/</url>
     <author>The Apache Geronimo development community</author>
     <license osi-approved="true">BSD -- Apache Software License (ASL) 2.0</license>
-    <geronimo-version>${pom.currentVersion}</geronimo-version>
+    <geronimo-version>${version}</geronimo-version>
     <prerequisite>
         <id>org.apache.geronimo.configs/tomcat6//car</id>
         <resource-type>Web Container</resource-type>
