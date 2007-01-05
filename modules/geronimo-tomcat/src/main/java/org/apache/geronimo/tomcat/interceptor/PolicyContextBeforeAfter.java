@@ -17,6 +17,7 @@
 package org.apache.geronimo.tomcat.interceptor;
 
 import javax.security.jacc.PolicyContext;
+import javax.security.auth.Subject;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 
@@ -25,19 +26,26 @@ import org.apache.geronimo.security.ContextManager;
 
 public class PolicyContextBeforeAfter implements BeforeAfter{
 
+    public static final String DEFAULT_SUBJECT = "~DEFAULT_SUBJECT";
+
     private final BeforeAfter next;
     private final String policyContextID;
     private final int policyContextIDIndex;
     private final int callersIndex;
+    private final int defaultSubjectIndex;
+    private final Subject defaultSubject;
 
-    public PolicyContextBeforeAfter(BeforeAfter next, int policyContextIDIndex, int callersIndex, String policyContextID) {
+    public PolicyContextBeforeAfter(BeforeAfter next, int policyContextIDIndex, int callersIndex, int defaultSubjectIndex, String policyContextID, Subject defaultSubject) {
         this.next = next;
         this.policyContextIDIndex = policyContextIDIndex;
         this.callersIndex = callersIndex;
+        this.defaultSubjectIndex = defaultSubjectIndex;
         this.policyContextID = policyContextID;
+        this.defaultSubject = defaultSubject;
     }
 
     public void before(Object[] context, ServletRequest httpRequest, ServletResponse httpResponse) {
+
 
         //Save the old
 
@@ -47,6 +55,10 @@ public class PolicyContextBeforeAfter implements BeforeAfter{
         //Set the new
         PolicyContext.setContextID(policyContextID);
         PolicyContext.setHandlerData(httpRequest);
+        if (httpRequest != null){
+            httpRequest.setAttribute(DEFAULT_SUBJECT, defaultSubject);
+            context[defaultSubjectIndex] = httpRequest.getAttribute(DEFAULT_SUBJECT);
+        }
 
         if (next != null) {
             next.before(context, httpRequest, httpResponse);
@@ -61,6 +73,8 @@ public class PolicyContextBeforeAfter implements BeforeAfter{
         //Replace the old
         PolicyContext.setContextID((String)context[policyContextIDIndex]);
         ContextManager.popCallers((Callers) context[callersIndex]);
+        if (httpRequest != null)
+            httpRequest.setAttribute(DEFAULT_SUBJECT, context[defaultSubjectIndex]);
     }
 
 }
