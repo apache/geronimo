@@ -62,7 +62,7 @@ public class ClusteredSessionManager extends AbstractSessionManager {
         ClusteredSession clusteredSession = (ClusteredSession) session;
         clusteredSession.session.onEndAccess();
     }
-    
+
     @Override
     protected void addSession(Session session) {
         ClusteredSession clusteredSession = (ClusteredSession) session;
@@ -139,7 +139,7 @@ public class ClusteredSessionManager extends AbstractSessionManager {
         }
 
         protected ClusteredSession(org.apache.geronimo.clustering.Session session) {
-            super(session.getSessionId());
+            super(System.currentTimeMillis(), session.getSessionId());
             this.session = session;
             forceDefinitionOfSessionValues();
         }
@@ -153,23 +153,23 @@ public class ClusteredSessionManager extends AbstractSessionManager {
         protected String getClusterId() {
             return super.getClusterId();
         }
-        
+
         @Override
         public void invalidate() throws IllegalStateException {
             super.invalidate();
             session.release();
         }
-        
+
         private void forceDefinitionOfSessionValues() {
             String TOKEN = "GeronimoIntegration_forceDefinitionOfSessionValues";
             setAttribute(TOKEN, TOKEN);
             removeAttribute(TOKEN);
         }
     }
-    
+
     public class MigratedClusteredSession extends ClusteredSession {
         private final String clusterId;
-        
+
         protected MigratedClusteredSession(org.apache.geronimo.clustering.Session session) {
             super(session);
             clusterId = session.getSessionId();
@@ -177,7 +177,7 @@ public class ClusteredSessionManager extends AbstractSessionManager {
                 idToSession.put(clusterId, this);
             }
         }
-        
+
         /**
          * Implementation note: we need to override this method as the constructor Session(String) has a bug:
          * it should also set _clusterId. W/o this override, this Session is bound to the null key during inbound
