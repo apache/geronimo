@@ -124,4 +124,6 @@
         <attribute name="servletName">dummy</attribute>
     </gbean>
 
+    <gbean name="Jetty6WARConfigurer" class="org.apache.geronimo.web.deployment.WARConfigurer"/>
+
 </module>

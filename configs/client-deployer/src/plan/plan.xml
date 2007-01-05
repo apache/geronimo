@@ -88,4 +88,6 @@
     </gbean>
 
 
+    <gbean name="ClientConfigurer" class="org.apache.geronimo.client.builder.jsr88.ClientConfigurer"/>
+
 </module>

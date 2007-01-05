@@ -113,4 +113,6 @@
 
     <gbean name="WebServiceEJBLinkTemplate" class="org.apache.openejb.server.axis.WSContainerGBean"/>
 
+    <gbean name="EJBConfigurer" class="org.apache.openejb.deployment.EjbConfigurer"/>
+
 </module>

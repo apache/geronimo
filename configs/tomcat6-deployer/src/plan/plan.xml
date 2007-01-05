@@ -71,4 +71,6 @@
         </xml-attribute>
     </gbean>
 
+    <gbean name="Tomcat6WARConfigurer" class="org.apache.geronimo.web.deployment.WARConfigurer"/>
+
 </module>

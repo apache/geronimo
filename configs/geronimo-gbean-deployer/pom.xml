@@ -54,6 +54,12 @@
             <artifactId>geronimo-j2ee-deployment_1.1_spec</artifactId>
         </dependency>
 
+        <!-- jsr88 dconfigbean support base classes -->
+        <dependency>
+            <groupId>org.apache.geronimo.modules</groupId>
+            <artifactId>geronimo-deploy-config</artifactId>
+            <version>${version}</version>
+        </dependency>
         <!-- Thirdparty Dependencies -->
         
         <dependency>
