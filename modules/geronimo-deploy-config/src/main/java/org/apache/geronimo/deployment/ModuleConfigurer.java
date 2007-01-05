@@ -19,6 +19,7 @@ package org.apache.geronimo.deployment;
 
 import javax.enterprise.deploy.spi.DeploymentConfiguration;
 import javax.enterprise.deploy.model.DeployableObject;
+import javax.enterprise.deploy.shared.ModuleType;
 
 /**
  * Interface to be implemented by the deployment subsystem for any type
@@ -33,4 +34,10 @@ public interface ModuleConfigurer {
      * @return the vendor-specific deployment configuration, or null a configurer cannot handle the DeployableObject
      */
     DeploymentConfiguration createConfiguration(DeployableObject deployable);
+
+    /**
+     * Supply the module type this configurer handles for indexing
+     * @return ModuleType handled by this Configurer.
+     */
+    ModuleType getModuleType();
 }

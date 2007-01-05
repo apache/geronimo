@@ -52,6 +52,10 @@ public class RARConfigurer implements ModuleConfigurer {
         }
     }
 
+    public ModuleType getModuleType() {
+        return ModuleType.RAR;
+    }
+
     public static final GBeanInfo GBEAN_INFO;
 
     static {

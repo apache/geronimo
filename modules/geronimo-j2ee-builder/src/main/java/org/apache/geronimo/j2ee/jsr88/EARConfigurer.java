@@ -41,6 +41,10 @@ public class EARConfigurer implements ModuleConfigurer {
         }
     }
 
+    public ModuleType getModuleType() {
+        return ModuleType.EAR;
+    }
+
     public static final GBeanInfo GBEAN_INFO;
 
     static {
