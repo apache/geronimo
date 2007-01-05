@@ -23,5 +23,5 @@ import org.mortbay.jetty.servlet.SessionHandler;
  * @version $Rev$ $Date$
  */
 public interface SessionHandlerFactory {
-    SessionHandler createHandler();
+    SessionHandler createHandler(PreHandler preHandler);
 }

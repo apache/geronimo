@@ -16,6 +16,14 @@
  */
 package org.apache.geronimo.jetty6.cluster;
 
+import java.io.IOException;
+
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.apache.geronimo.jetty6.AbstractPreHandler;
+import org.apache.geronimo.jetty6.PreHandler;
 import org.mortbay.jetty.servlet.SessionHandler;
 
 /**
@@ -23,8 +31,40 @@ import org.mortbay.jetty.servlet.SessionHandler;
  * @version $Rev$ $Date$
  */
 public class ClusteredSessionHandler extends SessionHandler {
+    private final PreHandler chainedHandler;
+    
+    public ClusteredSessionHandler(ClusteredSessionManager sessionManager, PreHandler chainedHandler) {
+        if (null == chainedHandler) {
+            throw new IllegalArgumentException("chainedHandler is required");
+        }
+        this.chainedHandler = chainedHandler;
+        chainedHandler.setNextHandler(new ActualHandler());
 
-    public ClusteredSessionHandler(ClusteredSessionManager sessionManager) {
         setSessionManager(sessionManager);
     }
+    
+    @Override
+    public void handle(String target, HttpServletRequest request, HttpServletResponse response, int dispatch)
+            throws IOException, ServletException {
+        setRequestedId(request, dispatch);
+        try {
+            chainedHandler.handle(target, request, response, dispatch);
+        } catch (ServletException e) {
+            throw (IOException) new IOException().initCause(e);
+        }
+    }
+    
+    protected void doHandle(String target, HttpServletRequest request, HttpServletResponse response, int dispatch)
+            throws IOException, ServletException {
+        super.handle(target, request, response, dispatch);
+    }
+
+    private class ActualHandler extends AbstractPreHandler {
+
+        public void handle(String target, HttpServletRequest request, HttpServletResponse response, int dispatch)
+                throws IOException, ServletException {
+            doHandle(target, request, response, dispatch);
+        }
+    }
+
 }

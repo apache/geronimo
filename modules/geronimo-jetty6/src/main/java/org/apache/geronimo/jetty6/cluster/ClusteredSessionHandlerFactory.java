@@ -20,6 +20,7 @@ import org.apache.geronimo.clustering.SessionManager;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
+import org.apache.geronimo.jetty6.PreHandler;
 import org.apache.geronimo.jetty6.SessionHandlerFactory;
 import org.mortbay.jetty.servlet.SessionHandler;
 
@@ -34,9 +35,9 @@ public class ClusteredSessionHandlerFactory implements SessionHandlerFactory {
         this.sessionManager = sessionManager;
     }
 
-    public SessionHandler createHandler() {
+    public SessionHandler createHandler(PreHandler preHandler) {
         ClusteredSessionManager clusteredSessionManager = new ClusteredSessionManager(sessionManager);
-        return new ClusteredSessionHandler(clusteredSessionManager);
+        return new ClusteredSessionHandler(clusteredSessionManager, preHandler);
     }
 
     public static final GBeanInfo GBEAN_INFO;

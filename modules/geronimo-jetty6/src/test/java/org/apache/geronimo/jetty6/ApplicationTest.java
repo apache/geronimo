@@ -18,16 +18,21 @@
 package org.apache.geronimo.jetty6;
 
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
-import org.apache.geronimo.clustering.SessionManager;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.apache.geronimo.clustering.BasicNode;
+import org.apache.geronimo.clustering.Node;
 import org.apache.geronimo.clustering.Session;
 import org.apache.geronimo.clustering.SessionAlreadyExistException;
 import org.apache.geronimo.clustering.SessionListener;
-import org.apache.geronimo.clustering.Node;
-import org.apache.geronimo.clustering.BasicNode;
+import org.apache.geronimo.clustering.SessionManager;
 import org.apache.geronimo.jetty6.cluster.ClusteredSessionHandlerFactory;
 
 /**
@@ -49,6 +54,7 @@ public class ApplicationTest extends AbstractWebModuleTest {
 
     public void testApplicationWithSessionHandler() throws Exception {
         SessionManager sessionManager = new MockSessionManager();
+        preHandlerFactory = new MockPreHandlerFactory();
         sessionHandlerFactory = new ClusteredSessionHandlerFactory(sessionManager);
         JettyWebAppContext app = setUpAppContext(null, null, null, null, null, null, null, "war1/");
 
@@ -79,5 +85,20 @@ public class ApplicationTest extends AbstractWebModuleTest {
             return node;
         }
     }
+
+    public class MockPreHandlerFactory implements PreHandlerFactory {
+        public PreHandler createHandler() {
+            return new AbstractPreHandler() {
+
+                public void handle(String target, HttpServletRequest request, HttpServletResponse response, int dispatch)
+                        throws IOException, ServletException {
+                    next.handle(target, request, response, dispatch);
+                }
+                
+            };
+        }
+
+    }
+
 
 }

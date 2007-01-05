@@ -62,6 +62,7 @@ public class AbstractWebModuleTest extends TestSupport {
     private TransactionManager transactionManager;
     private ConnectionTrackingCoordinator connectionTrackingCoordinator;
     private URL configurationBaseURL;
+    protected PreHandlerFactory preHandlerFactory = null;
     protected SessionHandlerFactory sessionHandlerFactory = null;
 
     protected void setUpStaticContentServlet(JettyServletRegistration webModule) throws Exception {
@@ -107,7 +108,7 @@ public class AbstractWebModuleTest extends TestSupport {
                 null,
                 0,
                 sessionHandlerFactory,
-                null,
+                preHandlerFactory,
                 policyContextId,
                 securityRealmName,
                 defaultPrincipal,

@@ -155,7 +155,17 @@ public class JettyWebAppContext implements GBeanLifecycle, JettyServletRegistrat
         assert transactionManager != null;
         assert trackedConnectionAssociator != null;
         assert jettyContainer != null;
-        SessionHandler sessionHandler = handlerFactory == null ? new SessionHandler() : handlerFactory.createHandler();
+        
+        SessionHandler sessionHandler;
+        if (null != handlerFactory) {
+            if (null == preHandlerFactory) {
+                throw new IllegalStateException("A preHandlerFactory must be set if an handler factory is set.");
+            }
+            PreHandler preHandler = preHandlerFactory.createHandler();
+            sessionHandler = handlerFactory.createHandler(preHandler);
+        } else {
+            sessionHandler = new SessionHandler();
+        }
         //TODO construct an interceptor chain inside one of the Handlers.
         JettySecurityHandler securityHandler = null;
         if (securityRealmName != null) {
@@ -168,8 +178,7 @@ public class JettyWebAppContext implements GBeanLifecycle, JettyServletRegistrat
             securityHandler.init(policyContextID, defaultPrincipal, checkedPermissions, excludedPermissions, classLoader);
         }
 
-        PreHandler preHandler = null == preHandlerFactory ? null : preHandlerFactory.createHandler();
-        ServletHandler servletHandler = new JettyServletHandler(preHandler);
+        ServletHandler servletHandler = new ServletHandler();
 
         webAppContext = new WebAppContext(securityHandler, sessionHandler, servletHandler, null);
         AbstractHandler next = sessionHandler;

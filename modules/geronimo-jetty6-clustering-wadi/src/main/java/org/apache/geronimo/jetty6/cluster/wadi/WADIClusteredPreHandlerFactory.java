@@ -23,7 +23,6 @@ import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.jetty6.PreHandler;
 import org.apache.geronimo.jetty6.PreHandlerFactory;
-import org.apache.geronimo.jetty6.SessionHandlerFactory;
 import org.codehaus.wadi.impl.ClusteredManager;
 
 
@@ -64,7 +63,7 @@ public class WADIClusteredPreHandlerFactory implements PreHandlerFactory, GBeanL
         infoFactory.addReference(GBEAN_REF_WADI_SESSION_MANAGER, WADISessionManager.class, 
                 NameFactory.GERONIMO_SERVICE);
 
-        infoFactory.addInterface(SessionHandlerFactory.class);
+        infoFactory.addInterface(PreHandlerFactory.class);
 
         infoFactory.setConstructor(new String[]{GBEAN_REF_WADI_SESSION_MANAGER});
 

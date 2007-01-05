@@ -99,15 +99,15 @@ public class ClusteredSessionManager extends AbstractSessionManager {
 
     @Override
     protected void invalidateSessions() {
-        synchronized (idToSession) {
-            idToSession.clear();
-        }
+        // We do not need to clear idToSession: when the SessionManager GBean is stopped, all the sessions
+        // it defines are migrated to other SessionManagers. These outbound session migrations will remove 
+        // them from idToSession.
     }
 
     private class MigrationListener implements SessionListener {
 
         public void notifyInboundSessionMigration(org.apache.geronimo.clustering.Session session) {
-            addSession(new MigratedClusteredSession(session), false);
+            addSession(new ClusteredSession(session), false);
         }
 
         public void notifyOutboundSessionMigration(org.apache.geronimo.clustering.Session session) {
@@ -132,16 +132,13 @@ public class ClusteredSessionManager extends AbstractSessionManager {
             } catch (SessionAlreadyExistException e) {
                 throw (IllegalStateException) new IllegalStateException().initCause(e);
             }
-            synchronized (idToSession) {
-                idToSession.put(getClusterId(), this);
-            }
-            forceDefinitionOfSessionValues();
+            initValues();
         }
 
         protected ClusteredSession(org.apache.geronimo.clustering.Session session) {
             super(System.currentTimeMillis(), session.getSessionId());
             this.session = session;
-            forceDefinitionOfSessionValues();
+            initValues();
         }
 
         @Override
@@ -158,34 +155,6 @@ public class ClusteredSessionManager extends AbstractSessionManager {
         public void invalidate() throws IllegalStateException {
             super.invalidate();
             session.release();
-        }
-
-        private void forceDefinitionOfSessionValues() {
-            String TOKEN = "GeronimoIntegration_forceDefinitionOfSessionValues";
-            setAttribute(TOKEN, TOKEN);
-            removeAttribute(TOKEN);
-        }
-    }
-
-    public class MigratedClusteredSession extends ClusteredSession {
-        private final String clusterId;
-
-        protected MigratedClusteredSession(org.apache.geronimo.clustering.Session session) {
-            super(session);
-            clusterId = session.getSessionId();
-            synchronized (idToSession) {
-                idToSession.put(clusterId, this);
-            }
-        }
-
-        /**
-         * Implementation note: we need to override this method as the constructor Session(String) has a bug:
-         * it should also set _clusterId. W/o this override, this Session is bound to the null key during inbound
-         * session migration.
-         */
-        @Override
-        protected String getClusterId() {
-            return clusterId;
         }
     }
 
