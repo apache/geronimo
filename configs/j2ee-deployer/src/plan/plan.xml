@@ -147,4 +147,6 @@
         <attribute name="eeNamespaces">http://java.sun.com/xml/ns/j2ee</attribute>
     </gbean>
 
+    <gbean name="EARConfigurer" class="org.apache.geronimo.j2ee.jsr88.EARConfigurer"/>
+
 </module>

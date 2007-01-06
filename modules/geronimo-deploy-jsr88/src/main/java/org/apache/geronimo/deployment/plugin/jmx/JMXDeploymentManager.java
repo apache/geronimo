@@ -19,8 +19,12 @@ package org.apache.geronimo.deployment.plugin.jmx;
 import java.io.File;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
+import java.util.Set;
+import java.util.HashMap;
 
 import javax.enterprise.deploy.model.DeployableObject;
 import javax.enterprise.deploy.shared.DConfigBeanVersionType;
@@ -36,7 +40,7 @@ import javax.enterprise.deploy.spi.status.ProgressObject;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-//import org.apache.geronimo.connector.deployment.RARConfigurer;
+import org.apache.geronimo.deployment.ModuleConfigurer;
 import org.apache.geronimo.deployment.plugin.TargetImpl;
 import org.apache.geronimo.deployment.plugin.TargetModuleIDImpl;
 import org.apache.geronimo.deployment.plugin.local.CommandSupport;
@@ -46,13 +50,14 @@ import org.apache.geronimo.deployment.plugin.local.StartCommand;
 import org.apache.geronimo.deployment.plugin.local.StopCommand;
 import org.apache.geronimo.deployment.plugin.local.UndeployCommand;
 import org.apache.geronimo.gbean.AbstractName;
+import org.apache.geronimo.gbean.AbstractNameQuery;
+import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.config.ConfigurationInfo;
 import org.apache.geronimo.kernel.config.ConfigurationManager;
 import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 import org.apache.geronimo.kernel.config.ConfigurationUtil;
 import org.apache.geronimo.kernel.management.State;
-//import org.apache.geronimo.web.deployment.WARConfigurer;
 
 
 /**
@@ -60,15 +65,27 @@ import org.apache.geronimo.kernel.management.State;
  */
 public abstract class JMXDeploymentManager implements DeploymentManager {
     private static final Log log = LogFactory.getLog(JMXDeploymentManager.class);
+    private static final AbstractNameQuery CONFIGURER_QUERY = new AbstractNameQuery(ModuleConfigurer.class.getName());
 
     protected Kernel kernel;
     private ConfigurationManager configurationManager;
     private CommandContext commandContext;
+    private Map moduleConfigurers = new HashMap();
 
     protected void initialize(Kernel kernel) {
         this.kernel = kernel;
         configurationManager = ConfigurationUtil.getConfigurationManager(kernel);
         commandContext = new CommandContext(true, true, null, null, false);
+        Set configurerNames = kernel.listGBeans(CONFIGURER_QUERY);
+        for (Iterator iterator = configurerNames.iterator(); iterator.hasNext(); ) {
+            AbstractName name = (AbstractName) iterator.next();
+            try {
+                ModuleConfigurer configurer = (ModuleConfigurer) kernel.getGBean(name);
+                moduleConfigurers.put(configurer.getModuleType(), configurer);
+            } catch (GBeanNotFoundException e) {
+                log.warn("No gbean found for name returned in query : " + name);
+            }
+        }
     }
 
     public void setAuthentication(String username, String password) {
@@ -152,10 +169,10 @@ public abstract class JMXDeploymentManager implements DeploymentManager {
                         List list = CommandSupport.loadChildren(kernel, name);
                         TargetModuleIDImpl moduleID = new TargetModuleIDImpl(target, name, (String[]) list.toArray(new String[list.size()]));
                         moduleID.setType(CommandSupport.convertModuleType(info.getType()));
-                        if(moduleID.getChildTargetModuleID() != null) {
+                        if (moduleID.getChildTargetModuleID() != null) {
                             for (int k = 0; k < moduleID.getChildTargetModuleID().length; k++) {
                                 TargetModuleIDImpl child = (TargetModuleIDImpl) moduleID.getChildTargetModuleID()[k];
-                                if(CommandSupport.isWebApp(kernel, child.getModuleID())) {
+                                if (CommandSupport.isWebApp(kernel, child.getModuleID())) {
                                     child.setType(ModuleType.WAR);
                                 }
                             }
@@ -280,23 +297,14 @@ public abstract class JMXDeploymentManager implements DeploymentManager {
     }
 
     public DeploymentConfiguration createConfiguration(DeployableObject dObj) throws InvalidModuleException {
-        if(dObj.getType().equals(ModuleType.CAR)) {
-            //todo: need a client configurer
-        } else if(dObj.getType().equals(ModuleType.EAR)) {
-            //todo: need an EAR configurer
-        } else if(dObj.getType().equals(ModuleType.EJB)) {
-            try {
-                Class cls = Class.forName("org.apache.openejb.deployment.EJBConfigurer");
-                return (DeploymentConfiguration)cls.getMethod("createConfiguration", new Class[]{DeployableObject.class}).invoke(cls.newInstance(), new Object[]{dObj});
-            } catch (Exception e) {
-                log.error("Unable to invoke EJB deployer", e);
-            }
-        } else if(dObj.getType().equals(ModuleType.RAR)) {
-//            return new RARConfigurer().createConfiguration(dObj);
-        } else if(dObj.getType().equals(ModuleType.WAR)) {
-//            return new WARConfigurer().createConfiguration(dObj);
+        if (dObj == null) {
+            throw new NullPointerException("No deployable object supplied to configure");
         }
-        throw new InvalidModuleException("Not supported");
+        ModuleConfigurer configurer = (ModuleConfigurer) moduleConfigurers.get(dObj.getType());
+        if (configurer == null) {
+            throw new InvalidModuleException("No configurer for module type: " + dObj.getType() + " registered");
+        }
+        return configurer.createConfiguration(dObj);
     }
 
     protected DistributeCommand createDistributeCommand(Target[] targetList, File moduleArchive, File deploymentPlan) {
