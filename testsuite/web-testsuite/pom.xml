@@ -32,11 +32,11 @@
     </parent>
     
     <artifactId>web-testsuite</artifactId>
-    <name>Geronimo TestSuite, web-tier</name>
+    <name>Geronimo TestSuite :: Web-tier Testsuite</name>
     <packaging>pom</packaging>
     
     <description>
-        Geronimo web tier testsuite. 
+        Geronimo web tier testsuite.
         Use this testsuite to test the webcontainer.
          - Servlet 2.5
          - JSP 2.1
@@ -44,7 +44,7 @@
          - JSF
          - JSTL
     </description>
-    
+
     <build>
         <plugins>
             <plugin>
@@ -86,10 +86,15 @@
                         <artifactId>geronimo-maven-plugin</artifactId>
                     </plugin>
                     
+                    <!-- Skipping this for now until Geronimo-2664 gets fixed.
+                     It hangs the jetty testrun.
+                     
                     <plugin>
                         <groupId>org.apache.geronimo.genesis.plugins</groupId>
                         <artifactId>maven-maven-plugin</artifactId>
                     </plugin>
+                    -->
+
                 </plugins>
             </build>
         </profile>

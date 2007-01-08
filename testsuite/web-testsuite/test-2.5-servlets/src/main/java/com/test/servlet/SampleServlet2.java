@@ -34,11 +34,11 @@ import javax.servlet.http.HttpServletResponse;
  *   url-pattern="/SampleServlet"
  *
  */
- public class  SampleServlet extends javax.servlet.http.HttpServlet implements javax.servlet.Servlet {
+ public class  SampleServlet2 extends javax.servlet.http.HttpServlet implements javax.servlet.Servlet {
     /* (non-Java-doc)
 	 * @see javax.servlet.http.HttpServlet#HttpServlet()
 	 */
-	public  SampleServlet() {
+	public  SampleServlet2() {
 		super();
 
 	}
@@ -61,7 +61,7 @@ import javax.servlet.http.HttpServletResponse;
 		out.println("<html><head><title>Sample application with Servlets 2.5</title></head></html>");
 		out.println("<body>");
 		out.println("<font align=Center face=\"Garamond\">Welcome to Servlets 2.5 samples.</font>");
-		out.println("<font align=Center face=\"Garamond\">Sample Servlet!</font>");
+		out.println("<font align=Center face=\"Garamond\">Another Sample Servlet!</font>");
 		out.println("</body></html>");
 
 	}

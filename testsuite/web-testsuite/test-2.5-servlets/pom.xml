@@ -32,7 +32,7 @@
     </parent>
     
     <artifactId>test-2.5-servlets</artifactId>
-    <name>Geronimo TestSuite, Web :: Test Servlets</name>
+    <name>Geronimo TestSuite :: Web Testsuite :: Test Servlets</name>
     <packaging>war</packaging>
     
 
@@ -106,7 +106,7 @@
                                     <goal>undeploy-module</goal>
                                 </goals>
                                 <configuration>
-                                    <moduleId>Samples/SampleServlet/1.1/car</moduleId>
+                                    <moduleId>Samples/SampleServlet/2.0/car</moduleId>
                                 </configuration>
                             </execution>
                         </executions>

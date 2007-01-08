@@ -18,17 +18,38 @@
 <web-app xmlns="http://java.sun.com/xml/ns/javaee" version="2.5"
 	metadata-complete="true">
 	<display-name>SampleServlet</display-name>
+	<filter>
+  	  <filter-name>Sample Filter</filter-name>
+    	<filter-class>com.test.servlet.SampleFilter</filter-class>
+    </filter>
 	<servlet>
 		<description></description>
 		<display-name>SampleServlet</display-name>
 		<servlet-name>SampleServlet</servlet-name>
 		<servlet-class>com.test.servlet.SampleServlet</servlet-class>
 	</servlet>
+	<servlet>
+		<description></description>
+		<display-name>SampleServlet2</display-name>
+		<servlet-name>SampleServlet2</servlet-name>
+		<servlet-class>com.test.servlet.SampleServlet2</servlet-class>
+	</servlet>
 	<servlet-mapping>
 		<servlet-name>SampleServlet</servlet-name>
-		<url-pattern>/</url-pattern>
-		<url-pattern>/*</url-pattern>
+		<url-pattern>/SampleServlet</url-pattern>
+		<url-pattern>/SampleServlet/*</url-pattern>
 	</servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>SampleServlet2</servlet-name>
+		<url-pattern>/SampleServlet2</url-pattern>
+		<url-pattern>/SampleServlet2/*</url-pattern>
+	</servlet-mapping>
+	<filter-mapping>
+	   <filter-name>Sample Filter</filter-name>
+        <servlet-name>*</servlet-name>
+ 		<!-- servlet-name>SampleServlet</servlet-name>
+ 		<servlet-name>SampleServlet2</servlet-name  -->
+    </filter-mapping> 
 	<welcome-file-list>
 		<welcome-file>index.html</welcome-file>
 		<welcome-file>index.htm</welcome-file>
