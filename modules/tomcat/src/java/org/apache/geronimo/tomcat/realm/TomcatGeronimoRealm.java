@@ -31,6 +31,7 @@ import org.apache.geronimo.security.jacc.PolicyContextHandlerContainerSubject;
 import org.apache.geronimo.security.realm.providers.CertificateChainCallbackHandler;
 import org.apache.geronimo.security.realm.providers.PasswordCallbackHandler;
 import org.apache.geronimo.tomcat.JAASTomcatPrincipal;
+import org.apache.geronimo.tomcat.interceptor.PolicyContextBeforeAfter;
 
 import javax.security.auth.Subject;
 import javax.security.auth.callback.CallbackHandler;
@@ -53,6 +54,9 @@ import java.security.Principal;
 import java.security.cert.X509Certificate;
 
 
+/**
+ * @version $Rev$ $Date$
+ */
 public class TomcatGeronimoRealm extends JAASRealm {
 
     private static final Log log = LogFactory.getLog(TomcatGeronimoRealm.class);
@@ -182,7 +186,8 @@ public class TomcatGeronimoRealm extends JAASRealm {
 
         //If we have no principal, then we should use the default.
         if (principal == null) {
-            return request.isSecure();
+            Subject defaultSubject = (Subject)request.getAttribute(PolicyContextBeforeAfter.DEFAULT_SUBJECT);
+            ContextManager.setCallers(defaultSubject, defaultSubject);
 
         } else {
             Subject currentCaller = ((JAASTomcatPrincipal) principal).getSubject();

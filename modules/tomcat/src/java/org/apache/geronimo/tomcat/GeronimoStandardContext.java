@@ -42,6 +42,7 @@ import org.apache.catalina.valves.ValveBase;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.common.DeploymentException;
+import org.apache.geronimo.common.GeronimoSecurityException;
 import org.apache.geronimo.naming.enc.EnterpriseNamingContext;
 import org.apache.geronimo.naming.reference.ClassLoaderAwareReference;
 import org.apache.geronimo.naming.reference.KernelAwareReference;
@@ -64,6 +65,9 @@ import org.apache.geronimo.webservices.WebServiceContainer;
 import org.apache.geronimo.webservices.WebServiceContainerInvoker;
 
 
+/**
+ * @version $Rev$ $Date$
+ */
 public class GeronimoStandardContext extends StandardContext {
 
     private static final Log log = LogFactory.getLog(GeronimoStandardContext.class);
@@ -134,14 +138,15 @@ public class GeronimoStandardContext extends StandardContext {
                  * Register our default subject with the ContextManager
                  */
                 DefaultPrincipal defaultPrincipal = securityHolder.getDefaultPrincipal();
-                if (defaultPrincipal != null) {
-                    defaultSubject = ConfigurationUtil.generateDefaultSubject(defaultPrincipal, ctx.getClassLoader());
-                    ContextManager.registerSubject(defaultSubject);
-                    SubjectId id = ContextManager.getSubjectId(defaultSubject);
-                    defaultSubject.getPrincipals().add(new IdentificationPrincipal(id));
+                if (defaultPrincipal == null) {
+                    throw new GeronimoSecurityException("Unable to generate default principal");
                 }
+                defaultSubject = ConfigurationUtil.generateDefaultSubject(defaultPrincipal, ctx.getClassLoader());
+                ContextManager.registerSubject(defaultSubject);
+                SubjectId id = ContextManager.getSubjectId(defaultSubject);
+                defaultSubject.getPrincipals().add(new IdentificationPrincipal(id));
 
-                interceptor = new PolicyContextBeforeAfter(interceptor, index++, index++, securityHolder.getPolicyContextID());
+                interceptor = new PolicyContextBeforeAfter(interceptor, index++, index++, index++, securityHolder.getPolicyContextID(), defaultSubject);
             }
         }
         
