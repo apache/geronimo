@@ -41,11 +41,14 @@
     
     <build>
         <plugins>
-<!--
             <plugin>
                 <groupId>org.apache.geronimo.plugins</groupId>
                 <artifactId>car-maven-plugin</artifactId>
                 <executions>
+                    <!--
+                    NOTE: Need to install some extra bits into the repository which do not
+                          normally make it there with the default car config installation.
+                    -->
                     <execution>
                         <id>install-repository</id>
                         <phase>compile</phase>
@@ -55,20 +58,58 @@
                         <configuration>
                             <repositoryDirectory>${project.build.outputDirectory}/repository</repositoryDirectory>
                             <artifacts>
-
                                 <artifact>
                                     <groupId>org.apache.geronimo.modules</groupId>
-                                    <artifactId>geronimo-persistence-jpa10</artifactId>
-                                    <version>${pom.version}</version>
+                                    <artifactId>ge-activemq-rar</artifactId>
+                                    <version>${version}</version>
+                                    <type>rar</type>
                                 </artifact>
 
+                                <artifact>
+                                    <groupId>org.tranql</groupId>
+                                    <artifactId>tranql-connector-ra</artifactId>
+                                    <type>rar</type>
+                                </artifact>
+
+                                <artifact>
+                                    <groupId>org.tranql</groupId>
+                                    <artifactId>tranql-connector-derby-embed-local</artifactId>
+                                    <type>rar</type>
+                                </artifact>
+
+                                <artifact>
+                                    <groupId>org.tranql</groupId>
+                                    <artifactId>tranql-connector-derby-embed-xa</artifactId>
+                                    <type>rar</type>
+                                </artifact>
+
+                                <artifact>
+                                    <groupId>org.tranql</groupId>
+                                    <artifactId>tranql-connector-derby-client-local</artifactId>
+                                    <type>rar</type>
+                                </artifact>
+
+                                <artifact>
+                                    <groupId>org.tranql</groupId>
+                                    <artifactId>tranql-connector-derby-client-xa</artifactId>
+                                    <type>rar</type>
+                                </artifact>
+
+                                <artifact>
+                                    <groupId>org.apache.derby</groupId>
+                                    <artifactId>derbyclient</artifactId>
+                                </artifact>
+
+                                <artifact>
+                                    <groupId>org.apache.derby</groupId>
+                                    <artifactId>derbytools</artifactId>
+                                </artifact>
                             </artifacts>
                         </configuration>
                     </execution>
                 </executions>
             </plugin>
--->
-
+            
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>dependency-maven-plugin</artifactId>
@@ -83,15 +124,36 @@
                             <artifactItems>
                                 <artifactItem>
                                     <groupId>org.apache.geronimo.assemblies</groupId>
-                                    <artifactId>geronimo-boilerplate-j2ee</artifactId>
-                                    <version>${pom.version}</version>
+                                    <artifactId>geronimo-boilerplate-minimal</artifactId>
+                                    <version>${version}</version>
                                     <type>jar</type>
                                 </artifactItem>
                             </artifactItems>
                             <outputDirectory>${project.build.directory}/boilerplate</outputDirectory>
                         </configuration>
                     </execution>
-
+                    
+                    <execution>
+                        <id>install-lib-endorsed</id>
+                        <phase>compile</phase>
+                        <goals>
+                            <goal>copy</goal>
+                        </goals>
+                        <configuration>
+                            <artifactItems>
+                                <artifactItem>
+                                    <groupId>org.apache.yoko</groupId>
+                                    <artifactId>yoko-spec-corba</artifactId>
+                                </artifactItem>
+                                <artifactItem>
+                                    <groupId>org.apache.yoko</groupId>
+                                    <artifactId>yoko-rmi-spec</artifactId>
+                                </artifactItem>
+                            </artifactItems>
+                            <outputDirectory>${project.build.directory}/classes/lib/endorsed</outputDirectory>
+                        </configuration>
+                    </execution>
+                    
                     <execution>
                         <id>install-lib</id>
                         <phase>compile</phase>

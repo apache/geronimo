@@ -69,13 +69,12 @@
 
     <modules>
         <module>geronimo-boilerplate-minimal</module>
-        <module>geronimo-boilerplate-j2ee</module>
         <module>geronimo-boilerplate-jee5</module>
         <module>geronimo-framework</module>
         <module>geronimo-jetty6-minimal</module>
         <module>geronimo-jetty6-jee5</module>
-        <module>geronimo-tomcat6-jee5</module>
         <module>geronimo-tomcat6-minimal</module>
+        <module>geronimo-tomcat6-jee5</module>
     </modules>
 
 </project>
