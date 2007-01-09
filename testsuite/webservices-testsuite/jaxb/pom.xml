@@ -18,27 +18,27 @@
     under the License.
 -->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-
-    <modelVersion>4.0.0</modelVersion>
-    
     <parent>
+        <artifactId>webservices-testsuite</artifactId>
         <groupId>org.apache.geronimo.testsuite</groupId>
-        <artifactId>testsuite</artifactId>
         <version>2.0-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
-    <artifactId>jee5-testsuite</artifactId>
-    <name>Geronimo TestSuite, JEE5 Test Suite</name>
+    <modelVersion>4.0.0</modelVersion>
+    <artifactId>jaxb-tests</artifactId>
     <packaging>pom</packaging>
-    
-    <description>
-        Tests JEE5 features.
-    </description>
-    
-    <modules>
-        <module>stax</module>
-        <module>jaxb</module>
-    </modules>
+    <name>Geronimo TestSuite :: WebServices TestSuite :: JAXB</name>
+    <description>Geronimo JEE5 Webservices JAXB tests</description>
+
+    <profiles>
+        <profile>
+            <id>child</id>
+            <modules>
+                <module>test-war</module>
+                <module>test-ejb</module>
+            </modules>
+        </profile>
+    </profiles>
 
 </project>
