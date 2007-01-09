@@ -35,8 +35,8 @@
         <profile>
             <id>child</id>
             <modules>
-                <module>test-war</module>
-                <module>test-ejb</module>
+                <module>jaxb-war</module>
+                <module>jaxb-ejb</module>
             </modules>
         </profile>
     </profiles>

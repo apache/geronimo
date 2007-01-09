@@ -53,8 +53,8 @@
         <profile>
             <id>child</id>
             <modules>
-                <module>test-war</module>
-                <module>test-ejb</module>
+                <module>stax-war</module>
+                <module>stax-ejb</module>
             </modules>
         </profile>
     </profiles>
