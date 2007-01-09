@@ -57,6 +57,9 @@ import org.apache.geronimo.security.realm.providers.GeronimoGroupPrincipal;
 import org.apache.geronimo.security.realm.providers.GeronimoUserPrincipal;
 
 
+/**
+ * @version $Rev$ $Date$
+ */
 public class LDAPLoginModule implements LoginModule {
 
     private static Log log = LogFactory.getLog(LDAPLoginModule.class);
@@ -419,9 +422,9 @@ public class LDAPLoginModule implements LoginModule {
             if (connectionPassword != null || !"".equals(connectionPassword)) {
                 env.put(Context.SECURITY_CREDENTIALS, connectionPassword);
             }
-            env.put(Context.SECURITY_PROTOCOL, connectionProtocol);
-            env.put(Context.PROVIDER_URL, connectionURL);
-            env.put(Context.SECURITY_AUTHENTICATION, authentication);
+            env.put(Context.SECURITY_PROTOCOL, connectionProtocol == null ? "" : connectionProtocol);
+            env.put(Context.PROVIDER_URL, connectionURL == null ? "" : connectionURL);
+            env.put(Context.SECURITY_AUTHENTICATION, authentication == null ? "" : authentication);
             context = new InitialDirContext(env);
 
         } catch (NamingException e) {
