@@ -61,6 +61,7 @@
         <dependency>
             <groupId>tomcat</groupId>
             <artifactId>jasper-runtime</artifactId>
+            <scope>provided</scope>
         </dependency>
         
     </dependencies>
