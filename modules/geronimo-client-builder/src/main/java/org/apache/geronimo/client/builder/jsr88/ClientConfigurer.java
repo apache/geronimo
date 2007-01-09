@@ -20,6 +20,8 @@
 
 package org.apache.geronimo.client.builder.jsr88;
 
+import java.io.Serializable;
+
 import javax.enterprise.deploy.spi.DeploymentConfiguration;
 import javax.enterprise.deploy.model.DeployableObject;
 import javax.enterprise.deploy.shared.ModuleType;
@@ -36,7 +38,7 @@ import org.apache.geronimo.gbean.GBeanInfoBuilder;
  *
  * @version $Rev$ $Date$
  */
-public class ClientConfigurer implements ModuleConfigurer {
+public class ClientConfigurer implements ModuleConfigurer, Serializable {
     public DeploymentConfiguration createConfiguration(DeployableObject deployable) {
         if (ModuleType.EAR.equals(deployable.getType())) {
             return new EARConfiguration(deployable);

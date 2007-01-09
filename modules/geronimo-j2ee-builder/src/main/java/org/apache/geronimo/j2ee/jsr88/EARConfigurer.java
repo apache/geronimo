@@ -17,6 +17,8 @@
 
 package org.apache.geronimo.j2ee.jsr88;
 
+import java.io.Serializable;
+
 import javax.enterprise.deploy.model.DeployableObject;
 import javax.enterprise.deploy.shared.ModuleType;
 import javax.enterprise.deploy.spi.DeploymentConfiguration;
@@ -32,7 +34,7 @@ import org.apache.geronimo.j2ee.jsr88.EARConfiguration;
  *
  * @version $Rev$ $Date$
  */
-public class EARConfigurer implements ModuleConfigurer {
+public class EARConfigurer implements ModuleConfigurer, Serializable {
     public DeploymentConfiguration createConfiguration(DeployableObject deployable) {
         if (ModuleType.EAR.equals(deployable.getType())) {
             return new EARConfiguration(deployable);

@@ -17,6 +17,8 @@
 
 package org.apache.geronimo.connector.deployment;
 
+import java.io.Serializable;
+
 import javax.enterprise.deploy.model.DeployableObject;
 import javax.enterprise.deploy.shared.ModuleType;
 import javax.enterprise.deploy.spi.DeploymentConfiguration;
@@ -34,7 +36,7 @@ import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
  *
  * @version $Rev$ $Date$
  */
-public class RARConfigurer implements ModuleConfigurer {
+public class RARConfigurer implements ModuleConfigurer, Serializable {
 
     public DeploymentConfiguration createConfiguration(DeployableObject deployable) {
         if (ModuleType.RAR.equals(deployable.getType())) {
