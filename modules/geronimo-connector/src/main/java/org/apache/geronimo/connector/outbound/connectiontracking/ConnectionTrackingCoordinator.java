@@ -22,13 +22,19 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
+import java.lang.reflect.Proxy;
+import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.Method;
 import javax.resource.ResourceException;
 
 import org.apache.geronimo.connector.outbound.ConnectionInfo;
 import org.apache.geronimo.connector.outbound.ConnectionTrackingInterceptor;
 import org.apache.geronimo.connector.outbound.ManagedConnectionInfo;
+import org.apache.geronimo.connector.outbound.ConnectionReturnAction;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import edu.emory.mathcs.backport.java.util.concurrent.ConcurrentMap;
+import edu.emory.mathcs.backport.java.util.concurrent.ConcurrentHashMap;
 
 /**
  * ConnectionTrackingCoordinator tracks connections that are in use by
@@ -49,103 +55,295 @@ import org.apache.commons.logging.LogFactory;
 public class ConnectionTrackingCoordinator implements TrackedConnectionAssociator, ConnectionTracker {
     private static final Log log = LogFactory.getLog(ConnectionTrackingCoordinator.class.getName());
 
+    private final boolean lazyConnect;
     private final ThreadLocal currentInstanceContexts = new ThreadLocal();
+    private final ConcurrentMap proxiesByConnectionInfo = new ConcurrentHashMap();
 
-    public ConnectorInstanceContext enter(ConnectorInstanceContext newConnectorInstanceContext)
-            throws ResourceException {
-        ConnectorInstanceContext oldConnectorInstanceContext = (ConnectorInstanceContext) currentInstanceContexts.get();
-        currentInstanceContexts.set(newConnectorInstanceContext);
-        notifyConnections(newConnectorInstanceContext);
-        return oldConnectorInstanceContext;
+    public ConnectionTrackingCoordinator() {
+        this(false);
     }
 
-    private void notifyConnections(ConnectorInstanceContext oldConnectorInstanceContext) throws ResourceException {
-        Map connectionManagerToManagedConnectionInfoMap = oldConnectorInstanceContext.getConnectionManagerMap();
-        for (Iterator i = connectionManagerToManagedConnectionInfoMap.entrySet().iterator(); i.hasNext();) {
-            Map.Entry entry = (Map.Entry) i.next();
-            ConnectionTrackingInterceptor mcci =
-                    (ConnectionTrackingInterceptor) entry.getKey();
-            Set connections = (Set) entry.getValue();
-            mcci.enter(connections);
+    public ConnectionTrackingCoordinator(boolean lazyConnect) {
+        this.lazyConnect = lazyConnect;
+    }
+
+    public boolean isLazyConnect() {
+        return lazyConnect;
+    }
+
+    public ConnectorInstanceContext enter(ConnectorInstanceContext newContext) throws ResourceException {
+        ConnectorInstanceContext oldContext = (ConnectorInstanceContext) currentInstanceContexts.get();
+        currentInstanceContexts.set(newContext);
+        associateConnections(newContext);
+        return oldContext;
+    }
+
+    private void associateConnections(ConnectorInstanceContext context) throws ResourceException {
+        if (!lazyConnect) {
+            Map connectionManagerToManagedConnectionInfoMap = context.getConnectionManagerMap();
+            for (Iterator i = connectionManagerToManagedConnectionInfoMap.entrySet().iterator(); i.hasNext();) {
+                Map.Entry entry = (Map.Entry) i.next();
+                ConnectionTrackingInterceptor mcci =
+                        (ConnectionTrackingInterceptor) entry.getKey();
+                Set connections = (Set) entry.getValue();
+                mcci.enter(connections);
+            }
         }
     }
 
     public void newTransaction() throws ResourceException {
-        ConnectorInstanceContext oldConnectorInstanceContext = (ConnectorInstanceContext) currentInstanceContexts.get();
-        if (oldConnectorInstanceContext == null) {
+        ConnectorInstanceContext currentContext = (ConnectorInstanceContext) currentInstanceContexts.get();
+        if (currentContext == null) {
             return;
         }
-        notifyConnections(oldConnectorInstanceContext);
+        associateConnections(currentContext);
     }
 
-    public void exit(ConnectorInstanceContext reenteringConnectorInstanceContext)
-            throws ResourceException {
-        ConnectorInstanceContext oldConnectorInstanceContext = (ConnectorInstanceContext) currentInstanceContexts.get();
-        Map resources = oldConnectorInstanceContext.getConnectionManagerMap();
-        for (Iterator i = resources.entrySet().iterator(); i.hasNext();) {
-            Map.Entry entry = (Map.Entry) i.next();
-            ConnectionTrackingInterceptor mcci =
-                    (ConnectionTrackingInterceptor) entry.getKey();
-            Set connections = (Set) entry.getValue();
-            mcci.exit(connections);
-            if (connections.isEmpty()) {
-                i.remove();
+    public void exit(ConnectorInstanceContext oldContext) throws ResourceException {
+        ConnectorInstanceContext currentContext = (ConnectorInstanceContext) currentInstanceContexts.get();
+        try {
+            // for each connection type opened in this componet
+            Map resources = currentContext.getConnectionManagerMap();
+            for (Iterator i = resources.entrySet().iterator(); i.hasNext();) {
+                Map.Entry entry = (Map.Entry) i.next();
+                ConnectionTrackingInterceptor mcci =
+                        (ConnectionTrackingInterceptor) entry.getKey();
+                Set connections = (Set) entry.getValue();
+
+                // use connection interceptor to dissociate connections that support disassociation
+                mcci.exit(connections);
+
+                // if no connection remain clear context... we could support automatic commit, rollback or exception here
+                if (connections.isEmpty()) {
+                    i.remove();
+                }
             }
+        } finally {
+            // when lazy we do not need or want to track open connections... they will automatically reconnect
+            if (lazyConnect) {
+                currentContext.getConnectionManagerMap().clear();
+            }
+            currentInstanceContexts.set(oldContext);
         }
-        currentInstanceContexts.set(reenteringConnectorInstanceContext);
     }
 
+    /**
+     * A new connection (handle) has been obtained.  If we are within a component context, store the connection handle
+     * so we can disassociate connections that support disassociation on exit.
+     * @param connectionTrackingInterceptor our interceptor in the connection manager which is used to disassociate the connections
+     * @param connectionInfo the connection that was obtained
+     * @param reassociate
+     */
+    public void handleObtained(ConnectionTrackingInterceptor connectionTrackingInterceptor,
+            ConnectionInfo connectionInfo,
+            boolean reassociate) throws ResourceException {
 
-    public void handleObtained(
-            ConnectionTrackingInterceptor connectionTrackingInterceptor,
-            ConnectionInfo connectionInfo) {
-        ConnectorInstanceContext connectorInstanceContext = (ConnectorInstanceContext) currentInstanceContexts.get();
-        if (connectorInstanceContext == null) {
+        ConnectorInstanceContext currentContext = (ConnectorInstanceContext) currentInstanceContexts.get();
+        if (currentContext == null) {
             return;
         }
-        Map resources = connectorInstanceContext.getConnectionManagerMap();
+
+        Map resources = currentContext.getConnectionManagerMap();
         Set infos = (Set) resources.get(connectionTrackingInterceptor);
         if (infos == null) {
             infos = new HashSet();
             resources.put(connectionTrackingInterceptor, infos);
         }
+
         infos.add(connectionInfo);
+
+        // if lazyConnect, we must proxy so we know when to connect the proxy
+        if (!reassociate && lazyConnect) {
+            proxyConnection(connectionTrackingInterceptor, connectionInfo);
+        }
     }
 
-    public void handleReleased(
-            ConnectionTrackingInterceptor connectionTrackingInterceptor,
-            ConnectionInfo connectionInfo) {
-        ConnectorInstanceContext connectorInstanceContext = (ConnectorInstanceContext) currentInstanceContexts.get();
-        if (connectorInstanceContext == null) {
+    /**
+     * A connection (handle) has been released or destroyed.  If we are within a component context, remove the connection
+     * handle from the context.
+     * @param connectionTrackingInterceptor our interceptor in the connection manager
+     * @param connectionInfo the connection that was released
+     * @param connectionReturnAction
+     */
+    public void handleReleased(ConnectionTrackingInterceptor connectionTrackingInterceptor,
+            ConnectionInfo connectionInfo,
+            ConnectionReturnAction connectionReturnAction) {
+
+        ConnectorInstanceContext currentContext = (ConnectorInstanceContext) currentInstanceContexts.get();
+        if (currentContext == null) {
             return;
         }
-        Map resources = connectorInstanceContext.getConnectionManagerMap();
+
+        Map resources = currentContext.getConnectionManagerMap();
         Set infos = (Set) resources.get(connectionTrackingInterceptor);
-        if (infos == null) {
-            if (log.isTraceEnabled()) {
-                log.trace("No infos found for handle " + connectionInfo.getConnectionHandle() + " for MCI: " + connectionInfo.getManagedConnectionInfo() + " for MC: " + connectionInfo.getManagedConnectionInfo().getManagedConnection() + " for CTI: " + connectionTrackingInterceptor, new Exception("Stack Trace"));
+        if (infos != null) {
+            if (connectionInfo.getConnectionHandle() == null) {
+                //destroy was called as a result of an error
+                ManagedConnectionInfo mci = connectionInfo.getManagedConnectionInfo();
+                Collection toRemove = mci.getConnectionInfos();
+                infos.removeAll(toRemove);
+            } else {
+                infos.remove(connectionInfo);
+            }
+        } else {
+            if ( log.isTraceEnabled()) {
+                 log.trace("No infos found for handle " + connectionInfo.getConnectionHandle() +
+                         " for MCI: " + connectionInfo.getManagedConnectionInfo() +
+                         " for MC: " + connectionInfo.getManagedConnectionInfo().getManagedConnection() +
+                         " for CTI: " + connectionTrackingInterceptor, new Exception("Stack Trace"));
             }
         }
-        if (connectionInfo.getConnectionHandle() == null) {
-            //destroy was called as a result of an error
-            ManagedConnectionInfo mci = connectionInfo.getManagedConnectionInfo();
-            Collection toRemove = mci.getConnectionInfos();
-            infos.removeAll(toRemove);
-        } else {
-            infos.remove(connectionInfo);
+
+        if (lazyConnect) {
+            releaseProxyConnection(connectionInfo, connectionReturnAction);
         }
     }
 
+    /**
+     * If we are within a component context, before a connection is obtained, set the connection unshareable and
+     * applicationManagedSecurity properties so the correct connection type is obtained.
+     * @param connectionInfo the connection to be obtained
+     * @param key the unique id of the connection manager
+     */
     public void setEnvironment(ConnectionInfo connectionInfo, String key) {
-        ConnectorInstanceContext currentConnectorInstanceContext = (ConnectorInstanceContext) currentInstanceContexts.get();
-        if (currentConnectorInstanceContext != null) {
-            Set unshareableResources = currentConnectorInstanceContext.getUnshareableResources();
+        ConnectorInstanceContext currentContext = (ConnectorInstanceContext) currentInstanceContexts.get();
+        if (currentContext != null) {
+            // is this resource unshareable in this component context
+            Set unshareableResources = currentContext.getUnshareableResources();
             boolean unshareable = unshareableResources.contains(key);
             connectionInfo.setUnshareable(unshareable);
-            Set applicationManagedSecurityResources = currentConnectorInstanceContext.getApplicationManagedSecurityResources();
+
+            // does this resource use application managed security in this component context
+            Set applicationManagedSecurityResources = currentContext.getApplicationManagedSecurityResources();
             boolean applicationManagedSecurity = applicationManagedSecurityResources.contains(key);
             connectionInfo.setApplicationManagedSecurity(applicationManagedSecurity);
         }
     }
 
+    private void proxyConnection(ConnectionTrackingInterceptor connectionTrackingInterceptor, ConnectionInfo connectionInfo) throws ResourceException {
+        // if this connection already has a proxy no need to create another
+        if (connectionInfo.getConnectionProxy() != null) return;
+
+        try {
+            Object handle = connectionInfo.getConnectionHandle();
+            ConnectionInvocationHandler invocationHandler = new ConnectionInvocationHandler(connectionTrackingInterceptor, connectionInfo, handle);
+            Object proxy = Proxy.newProxyInstance(getClassLoader(handle), handle.getClass().getInterfaces(), invocationHandler);
+
+            // add it to our map... if the map already has a proxy for this connection, use the existing one
+            Object existingProxy = proxiesByConnectionInfo.putIfAbsent(connectionInfo, proxy);
+            if (existingProxy != null) proxy = existingProxy;
+
+            connectionInfo.setConnectionProxy(proxy);
+        } catch (Throwable e) {
+            throw new ResourceException("Unable to construct connection proxy", e);
+        }
+    }
+
+    private void releaseProxyConnection(ConnectionInfo connectionInfo, ConnectionReturnAction connectionReturnAction) {
+        Object proxy = connectionInfo.getConnectionProxy();
+        if (proxy == null) {
+            proxy = proxiesByConnectionInfo.get(connectionInfo);
+        }
+        if (proxy == null) {
+            // no proxy or proxy alreayd destroyed
+            return;
+        }
+
+        ConnectionInvocationHandler invocationHandler = getConnectionInvocationHandler(proxy);
+        if (invocationHandler != null) {
+            if (connectionReturnAction == ConnectionReturnAction.RETURN_HANDLE) {
+                invocationHandler.releaseHandle();
+            } else if (connectionReturnAction == ConnectionReturnAction.DESTROY) {
+                invocationHandler.destroy();
+                proxiesByConnectionInfo.remove(connectionInfo);
+                connectionInfo.setConnectionProxy(null);
+            } else {
+                throw new IllegalArgumentException("Unknown ConnectionReturnAction " + connectionReturnAction);
+            }
+        }
+    }
+
+    // Favor the thread context class loader for proxy construction
+    private ClassLoader getClassLoader(Object handle) {
+        ClassLoader threadClassLoader = Thread.currentThread().getContextClassLoader();
+        if (threadClassLoader != null) {
+            return threadClassLoader;
+        }
+        return handle.getClass().getClassLoader();
+    }
+
+    private static ConnectionInvocationHandler getConnectionInvocationHandler(Object handle) {
+        if (handle == null) return null;
+
+        if (Proxy.isProxyClass(handle.getClass())) {
+            InvocationHandler invocationHandler = Proxy.getInvocationHandler(handle);
+            if (invocationHandler instanceof ConnectionInvocationHandler) {
+                return (ConnectionInvocationHandler) invocationHandler;
+            }
+        }
+        return null;
+    }
+
+    public static class ConnectionInvocationHandler implements InvocationHandler {
+        private ConnectionTrackingInterceptor connectionTrackingInterceptor;
+        private ConnectionInfo connectionInfo;
+        private Object handle;
+        private boolean released = false;
+
+        public ConnectionInvocationHandler(ConnectionTrackingInterceptor connectionTrackingInterceptor, ConnectionInfo connectionInfo, Object handle) {
+            this.connectionTrackingInterceptor = connectionTrackingInterceptor;
+            this.connectionInfo = connectionInfo;
+            this.handle = handle;
+        }
+
+        public Object invoke(Object object, Method method, Object[] args) throws Throwable {
+            Object handle;
+            if (method.getDeclaringClass() == Object.class) {
+                if (method.getName().equals("finalize")) {
+                    // ignore the handle will get called if it implemented the method
+                    return null;
+                }
+                if (method.getName().equals("clone")) {
+                    throw new CloneNotSupportedException();
+                }
+                // for equals, hashCode and toString don't activate handle
+                synchronized (this) {
+                    handle = this.handle;
+                }
+            } else {
+                handle = getHandle();
+            }
+            Object value = method.invoke(handle, args);
+            return value;
+        }
+
+        public synchronized boolean isReleased() {
+            return released;
+        }
+
+        public synchronized void releaseHandle() {
+            released = true;
+        }
+
+        public synchronized void destroy() {
+            connectionTrackingInterceptor = null;
+            connectionInfo = null;
+            handle = null;
+        }
+
+        public synchronized Object getHandle() {
+            if (connectionTrackingInterceptor == null) {
+                throw new IllegalStateException("Connection has been destroyed");
+            }
+            if (released) {
+                try {
+                    connectionTrackingInterceptor.reassociateConnection(connectionInfo);
+                } catch (ResourceException e) {
+                    throw (IllegalStateException) new IllegalStateException("Could not obtain a physical connection").initCause(e);
+                }
+                released = false;
+            }
+            return handle;
+        }
+    }
 }

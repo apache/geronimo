@@ -21,6 +21,7 @@
 <module xmlns="http://geronimo.apache.org/xml/ns/deployment-1.1">
 
     <gbean name="ConnectionTracker" class="org.apache.geronimo.connector.outbound.connectiontracking.ConnectionTrackingCoordinatorGBean">
+        <attribute name="lazyConnect">true</attribute>
         <reference name="TransactionManager">
             <name>TransactionManager</name>
         </reference>

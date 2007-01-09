@@ -17,8 +17,8 @@
 
 package org.apache.geronimo.connector.outbound;
 
-import org.apache.geronimo.connector.mock.MockConnection;
 import org.apache.geronimo.connector.mock.MockXAResource;
+import org.apache.geronimo.connector.mock.ConnectionExtension;
 import org.apache.geronimo.connector.outbound.connectiontracking.DefaultInterceptor;
 import org.apache.geronimo.connector.outbound.connectiontracking.ConnectorInstanceContext;
 import org.apache.geronimo.transaction.GeronimoUserTransaction;
@@ -66,7 +66,7 @@ public class ConnectionManagerTest extends ConnectionManagerTestUtils {
     public void testUserTransactionEnlistingExistingConnections() throws Throwable {
         mockComponent = new DefaultInterceptor() {
             public Object invoke(ConnectorInstanceContext newConnectorInstanceContext) throws Throwable {
-                MockConnection mockConnection = (MockConnection) connectionFactory.getConnection();
+                ConnectionExtension mockConnection = (ConnectionExtension) connectionFactory.getConnection();
                 mockManagedConnection = mockConnection.getManagedConnection();
                 userTransaction.begin();
                 MockXAResource mockXAResource = (MockXAResource) mockManagedConnection.getXAResource();
@@ -96,9 +96,9 @@ public class ConnectionManagerTest extends ConnectionManagerTestUtils {
         unshareableResources.add(name);
         mockComponent = new DefaultInterceptor() {
             public Object invoke(ConnectorInstanceContext newConnectorInstanceContext) throws Throwable {
-                MockConnection mockConnection1 = (MockConnection) connectionFactory.getConnection();
+                ConnectionExtension mockConnection1 = (ConnectionExtension) connectionFactory.getConnection();
                 mockManagedConnection = mockConnection1.getManagedConnection();
-                MockConnection mockConnection2 = (MockConnection) connectionFactory.getConnection();
+                ConnectionExtension mockConnection2 = (ConnectionExtension) connectionFactory.getConnection();
                 //the 2 cx are for the same RM, so tm will call commit only one one (the first)
                 //mockManagedConnection = mockConnection2.getManagedConnection();
                 assertNotNull("Expected non-null managedconnection 1", mockConnection1.getManagedConnection());

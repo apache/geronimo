@@ -125,14 +125,16 @@ public class ConnectionTrackingInterceptorTest extends ConnectionInterceptorTest
     //ConnectionTracker interface
     public void handleObtained(
             ConnectionTrackingInterceptor connectionTrackingInterceptor,
-            ConnectionInfo connectionInfo) {
+            ConnectionInfo connectionInfo, 
+            boolean reassociate) {
         obtainedConnectionTrackingInterceptor = connectionTrackingInterceptor;
         obtainedTrackedConnectionInfo = connectionInfo;
     }
 
     public void handleReleased(
             ConnectionTrackingInterceptor connectionTrackingInterceptor,
-            ConnectionInfo connectionInfo) {
+            ConnectionInfo connectionInfo, 
+            ConnectionReturnAction connectionReturnAction) {
         releasedConnectionTrackingInterceptor = connectionTrackingInterceptor;
         releasedTrackedConnectionInfo = connectionInfo;
     }

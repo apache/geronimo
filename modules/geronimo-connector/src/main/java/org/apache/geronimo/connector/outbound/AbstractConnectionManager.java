@@ -59,7 +59,11 @@ public abstract class AbstractConnectionManager implements ConnectionManagerCont
         ManagedConnectionInfo mci = new ManagedConnectionInfo(managedConnectionFactory, connectionRequestInfo);
         ConnectionInfo ci = new ConnectionInfo(mci);
         getStack().getConnection(ci);
-        return ci.getConnectionHandle();
+        Object connection = ci.getConnectionProxy();
+        if (connection == null) {
+            connection = ci.getConnectionHandle();
+        }
+        return connection;
     }
 
     /**
