@@ -26,13 +26,16 @@ import javax.resource.ResourceException;
  *
  */
 public interface TrackedConnectionAssociator {
+    /**
+     * If true, ConnectorInstanceContext instance does not have to be kept on a per component basis; otherwise the
+     * same instance must be passed to enter each time the specific component instance is entered.
+     * @return true if connections are proxied and only connect when invoked
+     */
+    boolean isLazyConnect();
 
-    ConnectorInstanceContext enter(ConnectorInstanceContext newConnectorInstanceContext)
-            throws ResourceException;
+    ConnectorInstanceContext enter(ConnectorInstanceContext newConnectorInstanceContext) throws ResourceException;
 
     void newTransaction() throws ResourceException;
 
-    void exit(ConnectorInstanceContext connectorInstanceContext)
-            throws ResourceException;
-
+    void exit(ConnectorInstanceContext connectorInstanceContext) throws ResourceException;
 }

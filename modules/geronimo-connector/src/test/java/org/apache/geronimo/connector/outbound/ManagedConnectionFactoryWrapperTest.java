@@ -155,11 +155,13 @@ public class ManagedConnectionFactoryWrapperTest extends TestCase {
 
     public static class MockConnectionTrackingCoordinator implements ConnectionTracker {
         public void handleObtained(ConnectionTrackingInterceptor connectionTrackingInterceptor,
-                                   ConnectionInfo connectionInfo) {
+                                   ConnectionInfo connectionInfo,
+                                   boolean reassociate) {
         }
 
         public void handleReleased(ConnectionTrackingInterceptor connectionTrackingInterceptor,
-                                   ConnectionInfo connectionInfo) {
+                                   ConnectionInfo connectionInfo,
+                                   ConnectionReturnAction connectionReturnAction) {
         }
 
         public void setEnvironment(ConnectionInfo connectionInfo, String key) {

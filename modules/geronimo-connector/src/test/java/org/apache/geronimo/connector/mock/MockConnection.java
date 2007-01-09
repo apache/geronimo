@@ -18,7 +18,6 @@
 package org.apache.geronimo.connector.mock;
 
 import javax.resource.ResourceException;
-import javax.resource.cci.Connection;
 import javax.resource.cci.ConnectionMetaData;
 import javax.resource.cci.Interaction;
 import javax.resource.cci.LocalTransaction;
@@ -31,7 +30,7 @@ import javax.security.auth.Subject;
  * @version $Rev$ $Date$
  *
  * */
-public class MockConnection implements Connection {
+public class MockConnection implements ConnectionExtension {
 
     private MockManagedConnection managedConnection;
     private Subject subject;

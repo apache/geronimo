@@ -31,7 +31,8 @@ public class ConnectionTrackingCoordinatorGBean extends ConnectionTrackingCoordi
     private final MonitorableTransactionManager monitorableTm;
     private final GeronimoTransactionListener listener;
 
-    public ConnectionTrackingCoordinatorGBean(MonitorableTransactionManager monitorableTm) {
+    public ConnectionTrackingCoordinatorGBean(MonitorableTransactionManager monitorableTm, boolean lazyConnect) {
+        super(lazyConnect);
         this.monitorableTm = monitorableTm;
         listener = new GeronimoTransactionListener(this);
     }
@@ -54,11 +55,12 @@ public class ConnectionTrackingCoordinatorGBean extends ConnectionTrackingCoordi
         GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic(ConnectionTrackingCoordinatorGBean.class, NameFactory.JCA_CONNECTION_TRACKER);
 
         infoFactory.addReference("TransactionManager", MonitorableTransactionManager.class, NameFactory.TRANSACTION_MANAGER);
+        infoFactory.addAttribute("lazyConnect", boolean.class, true);
 
         infoFactory.addInterface(TrackedConnectionAssociator.class);
         infoFactory.addInterface(ConnectionTracker.class);
 
-        infoFactory.setConstructor(new String[] {"TransactionManager"});
+        infoFactory.setConstructor(new String[] {"TransactionManager", "lazyConnect"});
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
 

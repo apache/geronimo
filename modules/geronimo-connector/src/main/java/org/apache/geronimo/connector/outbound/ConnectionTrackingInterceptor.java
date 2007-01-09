@@ -64,7 +64,16 @@ public class ConnectionTrackingInterceptor implements ConnectionInterceptor {
     public void getConnection(ConnectionInfo connectionInfo) throws ResourceException {
         connectionTracker.setEnvironment(connectionInfo, key);
         next.getConnection(connectionInfo);
-        connectionTracker.handleObtained(this, connectionInfo);
+        connectionTracker.handleObtained(this, connectionInfo, false);
+    }
+
+    /**
+     * Called when a proxied connection which has been released need to be reassociated with a real connection.
+     */
+    public void reassociateConnection(ConnectionInfo connectionInfo) throws ResourceException {
+        connectionTracker.setEnvironment(connectionInfo, key);
+        next.getConnection(connectionInfo);
+        connectionTracker.handleObtained(this, connectionInfo, true);
     }
 
     /**
@@ -78,7 +87,7 @@ public class ConnectionTrackingInterceptor implements ConnectionInterceptor {
     public void returnConnection(
             ConnectionInfo connectionInfo,
             ConnectionReturnAction connectionReturnAction) {
-        connectionTracker.handleReleased(this, connectionInfo);
+        connectionTracker.handleReleased(this, connectionInfo, connectionReturnAction);
         next.returnConnection(connectionInfo, connectionReturnAction);
     }
 
@@ -107,9 +116,7 @@ public class ConnectionTrackingInterceptor implements ConnectionInterceptor {
             ManagedConnection managedConnection = managedConnectionInfo.getManagedConnection();
             if (managedConnection instanceof DissociatableManagedConnection
                     && managedConnectionInfo.isFirstConnectionInfo(connectionInfo)) {
-                int size = connectionInfos.size();
                 i.remove();
-                assert size - 1 == connectionInfos.size();
                 ((DissociatableManagedConnection) managedConnection).dissociateConnections();
                 managedConnectionInfo.clearConnectionHandles();
                 //todo this needs some kind of check so cx isn't returned more than once

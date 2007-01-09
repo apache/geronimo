@@ -21,18 +21,14 @@ import javax.naming.NamingException;
 import javax.naming.Reference;
 import javax.resource.ResourceException;
 import javax.resource.cci.Connection;
-import javax.resource.cci.ConnectionFactory;
 import javax.resource.cci.ConnectionSpec;
 import javax.resource.cci.RecordFactory;
 import javax.resource.cci.ResourceAdapterMetaData;
 import javax.resource.spi.ConnectionManager;
 
 /**
- *
- *
  * @version $Rev$ $Date$
- *
- * */
+ */
 public class MockConnectionFactory implements ConnectionFactoryExtension {
 
     private ConnectionManager connectionManager;
@@ -49,7 +45,7 @@ public class MockConnectionFactory implements ConnectionFactoryExtension {
     }
 
     public Connection getConnection(ConnectionSpec properties) throws ResourceException {
-        return (MockConnection) connectionManager.allocateConnection(managedConnectionFactory, (MockConnectionRequestInfo) properties);
+        return (Connection) connectionManager.allocateConnection(managedConnectionFactory, (MockConnectionRequestInfo) properties);
     }
 
     public RecordFactory getRecordFactory() throws ResourceException {

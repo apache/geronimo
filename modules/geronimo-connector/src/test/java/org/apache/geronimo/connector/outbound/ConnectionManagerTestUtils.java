@@ -23,10 +23,10 @@ import javax.security.auth.Subject;
 import javax.transaction.TransactionManager;
 import javax.transaction.UserTransaction;
 
-import org.apache.geronimo.connector.mock.MockConnection;
 import org.apache.geronimo.connector.mock.MockConnectionFactory;
 import org.apache.geronimo.connector.mock.MockManagedConnection;
 import org.apache.geronimo.connector.mock.MockManagedConnectionFactory;
+import org.apache.geronimo.connector.mock.ConnectionExtension;
 import org.apache.geronimo.connector.outbound.connectionmanagerconfig.PartitionedPool;
 import org.apache.geronimo.connector.outbound.connectionmanagerconfig.PoolingSupport;
 import org.apache.geronimo.connector.outbound.connectionmanagerconfig.TransactionSupport;
@@ -80,7 +80,7 @@ public class ConnectionManagerTestUtils extends TestSupport implements DefaultIn
 
     protected DefaultInterceptor mockComponent = new DefaultInterceptor() {
         public Object invoke(ConnectorInstanceContext newConnectorInstanceContext) throws Throwable {
-            MockConnection mockConnection = (MockConnection) connectionFactory.getConnection();
+            ConnectionExtension mockConnection = (ConnectionExtension) connectionFactory.getConnection();
             mockManagedConnection = mockConnection.getManagedConnection();
             mockConnection.close();
             return null;

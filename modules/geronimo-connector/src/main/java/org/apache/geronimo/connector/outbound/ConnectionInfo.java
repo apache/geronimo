@@ -29,6 +29,7 @@ public class ConnectionInfo {
 
     private ManagedConnectionInfo mci;
     private Object connection;
+    private Object connectionProxy;
     private boolean unshareable;
     private boolean applicationManagedSecurity;
     private Exception trace;
@@ -71,6 +72,14 @@ public class ConnectionInfo {
     public void setConnectionHandle(Object connection) {
         assert this.connection == null;
         this.connection = connection;
+    }
+
+    public Object getConnectionProxy() {
+        return connectionProxy;
+    }
+
+    public void setConnectionProxy(Object connectionProxy) {
+        this.connectionProxy = connectionProxy;
     }
 
     public boolean isUnshareable() {

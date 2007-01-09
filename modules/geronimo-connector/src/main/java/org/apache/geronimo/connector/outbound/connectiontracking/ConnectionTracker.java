@@ -19,6 +19,9 @@ package org.apache.geronimo.connector.outbound.connectiontracking;
 
 import org.apache.geronimo.connector.outbound.ConnectionInfo;
 import org.apache.geronimo.connector.outbound.ConnectionTrackingInterceptor;
+import org.apache.geronimo.connector.outbound.ConnectionReturnAction;
+
+import javax.resource.ResourceException;
 
 /**
  *
@@ -29,12 +32,13 @@ import org.apache.geronimo.connector.outbound.ConnectionTrackingInterceptor;
 public interface ConnectionTracker {
     void handleObtained(
             ConnectionTrackingInterceptor connectionTrackingInterceptor,
-            ConnectionInfo connectionInfo);
+            ConnectionInfo connectionInfo,
+            boolean reassociate) throws ResourceException;
 
     void handleReleased(
             ConnectionTrackingInterceptor connectionTrackingInterceptor,
-            ConnectionInfo connectionInfo);
+            ConnectionInfo connectionInfo,
+            ConnectionReturnAction connectionReturnAction);
 
     void setEnvironment(ConnectionInfo connectionInfo, String key);
-
 }
