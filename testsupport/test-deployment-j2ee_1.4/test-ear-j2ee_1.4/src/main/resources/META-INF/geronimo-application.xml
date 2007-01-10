@@ -20,9 +20,9 @@
 
 <!-- $Rev$ $Date$ -->
 
-<application xmlns="http://geronimo.apache.org/xml/ns/j2ee/application-1.1">
+<application xmlns="http://geronimo.apache.org/xml/ns/j2ee/application-1.2">
 
-    <environment xmlns="http://geronimo.apache.org/xml/ns/deployment-1.1">
+    <environment xmlns="http://geronimo.apache.org/xml/ns/deployment-1.2">
         <moduleId>
             <groupId>${pom.groupId}</groupId>
             <artifactId>${pom.artifactId}</artifactId>
