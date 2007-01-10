@@ -71,7 +71,7 @@
         <!--
         HACK: Used by jsp and servlet example configs to point to the tomcat deployer
         -->
-        <tomcatVersion>6.0.2-beta</tomcatVersion>
+        <tomcatVersion>6.0.7-SNAPSHOT</tomcatVersion>
 
         <!--
         HACK: Used by uddi-jetty and uddi-tomcat config plans
