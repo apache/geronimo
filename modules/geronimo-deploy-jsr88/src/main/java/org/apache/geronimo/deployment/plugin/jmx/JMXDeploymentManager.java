@@ -65,27 +65,16 @@ import org.apache.geronimo.kernel.management.State;
  */
 public abstract class JMXDeploymentManager implements DeploymentManager {
     private static final Log log = LogFactory.getLog(JMXDeploymentManager.class);
-    private static final AbstractNameQuery CONFIGURER_QUERY = new AbstractNameQuery(ModuleConfigurer.class.getName());
 
     protected Kernel kernel;
     private ConfigurationManager configurationManager;
     private CommandContext commandContext;
-    private Map moduleConfigurers = new HashMap();
+    protected Map moduleConfigurers = new HashMap();
 
     protected void initialize(Kernel kernel) {
         this.kernel = kernel;
         configurationManager = ConfigurationUtil.getConfigurationManager(kernel);
         commandContext = new CommandContext(true, true, null, null, false);
-        Set configurerNames = kernel.listGBeans(CONFIGURER_QUERY);
-        for (Iterator iterator = configurerNames.iterator(); iterator.hasNext(); ) {
-            AbstractName name = (AbstractName) iterator.next();
-            try {
-                ModuleConfigurer configurer = (ModuleConfigurer) kernel.getGBean(name);
-                moduleConfigurers.put(configurer.getModuleType(), configurer);
-            } catch (GBeanNotFoundException e) {
-                log.warn("No gbean found for name returned in query : " + name);
-            }
-        }
     }
 
     public void setAuthentication(String username, String password) {
