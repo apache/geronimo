@@ -266,6 +266,8 @@
                                         <background>true</background>
                                     </configuration>
                                 </execution>
+
+                                <!-- Stopping server and restarting it after every testsuite seems to be an overkill.
                                 <execution>
                                     <id>stop-server</id>
                                     <phase>install</phase>
@@ -273,6 +275,8 @@
                                         <goal>stop-server</goal>
                                     </goals>
                                 </execution>
+                                -->
+
                             </executions>
                         </plugin>
                     </plugins>
