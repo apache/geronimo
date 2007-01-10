@@ -16,7 +16,15 @@
  */
 package org.apache.geronimo.deployment.plugin.jmx;
 
+import java.util.Set;
+
 import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.kernel.GBeanNotFoundException;
+import org.apache.geronimo.gbean.AbstractName;
+import org.apache.geronimo.gbean.AbstractNameQuery;
+import org.apache.geronimo.deployment.ModuleConfigurer;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 /**
  * Connects to a kernel in the same VM.
@@ -24,7 +32,20 @@ import org.apache.geronimo.kernel.Kernel;
  * @version $Rev$ $Date$
  */
 public class LocalDeploymentManager extends JMXDeploymentManager {
+    private static final Log log = LogFactory.getLog(LocalDeploymentManager.class);
+    private static final AbstractNameQuery CONFIGURER_QUERY = new AbstractNameQuery(ModuleConfigurer.class.getName());
+
     public LocalDeploymentManager(Kernel kernel) {
         initialize(kernel);
+        Set configurerNames = kernel.listGBeans(CONFIGURER_QUERY);
+        for (Object configurerName : configurerNames) {
+            AbstractName name = (AbstractName) configurerName;
+            try {
+                ModuleConfigurer configurer = (ModuleConfigurer) kernel.getGBean(name);
+                moduleConfigurers.put(configurer.getModuleType(), configurer);
+            } catch (GBeanNotFoundException e) {
+                log.warn("No gbean found for name returned in query : " + name);
+            }
+        }
     }
 }
