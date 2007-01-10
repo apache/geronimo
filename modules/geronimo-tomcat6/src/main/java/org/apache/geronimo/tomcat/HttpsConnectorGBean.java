@@ -57,6 +57,7 @@ public class HttpsConnectorGBean extends ConnectorGBean implements TomcatSecureC
         super.initializeParams(protocol, params);
         params.put("scheme", "https");
         params.put("secure", "true");
+        params.put("SSLEnabled", "true");
     }
 
     /**
