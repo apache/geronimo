@@ -37,10 +37,8 @@
 
     <description>
         Basic test for the Geronimo console.
-        Note the parent artifactId and the relativePath.
-        Since no other build executions are done here, the profile is not explicitly
-        defined. It inherits the 'child' profile from parent. maven-maven-plugin:invoke
-        executes the 'child' profile.i
+        maven-maven-plugin:invoke executes the 'child' profile.
+        Since build executions are done here, a 'child' profile is explicitly defined here to prevent inheriting other configurations and executions from parent.
     </description>
 
     <profiles>
