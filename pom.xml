@@ -1618,33 +1618,6 @@
         </profile>
 
         <profile>
-            <id>sign-artifacts</id>
-
-            <!--
-            NOTE: To use you need to enable this profile and pass in the passphrase:
-
-                  mvn -Psign-artifacts -Dpassphrase=thephrase
-            -->
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>org.apache.geronimo.genesis.plugins</groupId>
-                        <artifactId>tools-maven-plugin</artifactId>
-                        <executions>
-                            <execution>
-                                <id>sign-artifacts</id>
-                                <phase>verify</phase>
-                                <goals>
-                                    <goal>gpg-sign-attached</goal>
-                                </goals>
-                            </execution>
-                        </executions>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
-
-        <profile>
             <id>itests-environment</id>
 
             <activation>
