@@ -51,11 +51,6 @@
         </dependency>
 
         <dependency>
-            <groupId>org.apache.geronimo.testsupport</groupId>
-            <artifactId>testsupport-common</artifactId>
-        </dependency>
-
-        <dependency>
             <groupId>taglibs</groupId>
             <artifactId>standard</artifactId>
         </dependency>
