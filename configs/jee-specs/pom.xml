@@ -104,12 +104,6 @@
             <artifactId>geronimo-jta_1.0.1B_spec</artifactId>
         </dependency>
         
-        <!-- qname is in j2ee-system module-->
-        <!--dependency>
-            <groupId>org.apache.geronimo.specs</groupId>
-            <artifactId>geronimo-qname_1.1_spec</artifactId>
-        </dependency-->
-        
         <dependency>
             <groupId>org.apache.geronimo.specs</groupId>
             <artifactId>geronimo-saaj_1.1_spec</artifactId>

@@ -92,10 +92,6 @@
                             <version>${version}</version>
                         </element>
                         <element>
-                            <groupId>org.apache.geronimo.specs</groupId>
-                            <artifactId>geronimo-qname_1.1_spec</artifactId>
-                        </element>
-                        <element>
                             <groupId>mx4j</groupId>
                             <artifactId>mx4j</artifactId>
                         </element>

@@ -81,11 +81,6 @@
         </dependency>
 
         <dependency>
-            <groupId>org.apache.geronimo.specs</groupId>
-            <artifactId>geronimo-qname_1.1_spec</artifactId>
-        </dependency>
-        
-        <dependency>
             <groupId>asm</groupId>
             <artifactId>asm</artifactId>
         </dependency>

@@ -103,10 +103,6 @@
                                 </artifactItem>
                                 <artifactItem>
                                     <groupId>org.apache.geronimo.specs</groupId>
-                                    <artifactId>geronimo-qname_1.1_spec</artifactId>
-                                </artifactItem>
-                                <artifactItem>
-                                    <groupId>org.apache.geronimo.specs</groupId>
                                     <artifactId>geronimo-j2ee-deployment_1.1_spec</artifactId>
                                 </artifactItem>
                                 <artifactItem>
