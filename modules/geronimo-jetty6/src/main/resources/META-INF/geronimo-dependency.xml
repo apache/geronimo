@@ -37,7 +37,11 @@
         <dep:artifactId>jasper-el</dep:artifactId>
     </dep:dependency>
     <dep:dependency>
-        <dep:groupId>org.apache.tomcat</dep:groupId>
+        <dep:groupId>org.apache.tomcat.extras</dep:groupId>
         <dep:artifactId>juli</dep:artifactId>
+    </dep:dependency>
+    <dep:dependency>
+        <dep:groupId>org.apache.tomcat.extras</dep:groupId>
+        <dep:artifactId>juli-adapters</dep:artifactId>
     </dep:dependency>
 </dep:service>

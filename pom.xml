@@ -875,8 +875,14 @@
             </dependency>
 
             <dependency>
-                <groupId>org.apache.tomcat</groupId>
+                <groupId>org.apache.tomcat.extras</groupId>
                 <artifactId>juli</artifactId>
+                <version>${tomcatVersion}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.tomcat.extras</groupId>
+                <artifactId>juli-adapters</artifactId>
                 <version>${tomcatVersion}</version>
             </dependency>
 
