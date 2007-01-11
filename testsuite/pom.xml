@@ -236,6 +236,16 @@
                 <groupId>org.apache.geronimo.plugins</groupId>
                 <artifactId>testsuite-maven-plugin</artifactId>
             </plugin>
+
+            <!-- This should actually be configured in genesis:project-config -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <version>2.1</version>
+                <configuration>
+                    <source>1.5</source>
+                </configuration>
+            </plugin>
         </plugins>
     </reporting>
 
