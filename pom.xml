@@ -1274,11 +1274,10 @@
                 FIXME: Should not configure war to assume jsp by default
                 -->
                 
-                <!-- FIXME: Use 2.0.2 -->
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-war-plugin</artifactId>
-                    <version>2.0.1</version>
+                    <version>2.0.2</version>
                     <configuration>
                         <warSourceDirectory>${pom.basedir}/src/main/webapp</warSourceDirectory>
                         <webXml>${pom.basedir}/target/jspweb.xml</webXml>
@@ -1290,11 +1289,10 @@
                     </configuration>
                 </plugin>
                 
-                <!-- FIXME: Use 2.3 -->
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-ear-plugin</artifactId>
-                    <version>2.2</version>
+                    <version>2.3</version>
                     <configuration>
                         <archive>
                             <!-- Do not include META-INF/maven to avoid long file problems on windows -->
