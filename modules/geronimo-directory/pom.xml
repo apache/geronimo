@@ -134,7 +134,11 @@
             <groupId>antlr</groupId>
             <artifactId>antlr</artifactId>
         </dependency>
-
+        
+        <!--
+        FIXME: Use dependencyManagement for versions!
+        -->
+        
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-simple</artifactId>

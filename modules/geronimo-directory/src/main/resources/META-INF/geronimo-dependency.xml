@@ -17,6 +17,11 @@
 -->
 
 <dep:service xmlns:dep="http://geronimo.apache.org/xml/ns/deployment-1.2">
+
+    <!--
+    FIXME: Do not specify versions, let G pickup the version that is in the repo.
+    -->
+    
   <dep:dependency>
     <dep:groupId>directory</dep:groupId>
     <dep:artifactId>apacheds-core</dep:artifactId>

@@ -165,7 +165,7 @@
                                 <artifactItem>
                                     <groupId>org.apache.geronimo.modules</groupId>
                                     <artifactId>geronimo-transformer</artifactId>
-                                    <version>${pom.version}</version>
+                                    <version>${version}</version>
                                 </artifactItem>
                             </artifactItems>
                             <outputDirectory>${project.build.directory}/classes/lib</outputDirectory>

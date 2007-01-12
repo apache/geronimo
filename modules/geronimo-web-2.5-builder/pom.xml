@@ -37,7 +37,7 @@
         <dependency>
             <groupId>${pom.groupId}</groupId>
             <artifactId>geronimo-web-builder</artifactId>
-            <version>${pom.version}</version>
+            <version>${version}</version>
         </dependency>
 
         <dependency>

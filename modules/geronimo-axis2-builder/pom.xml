@@ -37,30 +37,27 @@
         <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
             <artifactId>geronimo-j2ee-builder</artifactId>
-            <version>${pom.version}</version>
+            <version>${version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
             <artifactId>geronimo-service-builder</artifactId>
-            <version>${pom.version}</version>
+            <version>${version}</version>
         </dependency>
 
         <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
             <artifactId>geronimo-j2ee</artifactId>
-            <version>${pom.version}</version>
+            <version>${version}</version>
         </dependency>
         
         <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
             <artifactId>geronimo-axis2</artifactId>
-            <version>${pom.version}</version>                                                                                                           
+            <version>${version}</version>                                                                                                           
         </dependency>
 
     </dependencies>
     
-    <build>
-    </build>
-
 </project>
 

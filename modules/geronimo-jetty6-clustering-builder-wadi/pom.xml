@@ -37,13 +37,13 @@
         <dependency>
             <groupId>${pom.groupId}</groupId>
             <artifactId>geronimo-jetty6-clustering-wadi</artifactId>
-            <version>${pom.version}</version>
+            <version>${version}</version>
         </dependency>
 
         <dependency>
             <groupId>${pom.groupId}</groupId>
             <artifactId>geronimo-naming-builder</artifactId>
-            <version>${pom.version}</version>
+            <version>${version}</version>
         </dependency>
 
         <!-- Thirdparty Dependencies -->

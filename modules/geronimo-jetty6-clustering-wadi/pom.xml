@@ -36,13 +36,13 @@
         <dependency>
             <groupId>${pom.groupId}</groupId>
             <artifactId>geronimo-clustering-wadi</artifactId>
-            <version>${pom.version}</version>
+            <version>${version}</version>
         </dependency>
 
         <dependency>
             <groupId>${pom.groupId}</groupId>
             <artifactId>geronimo-jetty6</artifactId>
-            <version>${pom.version}</version>
+            <version>${version}</version>
         </dependency>
     </dependencies>
     

@@ -59,7 +59,7 @@
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
             <artifactId>transaction-jta11</artifactId>
-            <version>${pom.version}</version>
+            <version>${version}</version>
             <type>car</type>
         </dependency>
 
