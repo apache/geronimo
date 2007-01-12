@@ -39,36 +39,19 @@
             <artifactId>geronimo-webservices</artifactId>
             <version>${version}</version>
         </dependency>
-        
-        <dependency>
-            <groupId>${pom.groupId}</groupId>
-            <artifactId>geronimo-kernel</artifactId>
-            <version>${version}</version>
-        </dependency>
 
-        <dependency>
-            <groupId>${pom.groupId}</groupId>
-            <artifactId>geronimo-common</artifactId>
-            <version>${version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>${pom.groupId}</groupId>
-            <artifactId>geronimo-j2ee</artifactId>
-            <version>${version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>${pom.groupId}</groupId>
-            <artifactId>geronimo-j2ee-schema</artifactId>
-            <version>${version}</version>
-        </dependency>
-
+        <!-- g-kernel, g-common, g-j2ee g-j2ee-schema coming from this -->
         <dependency>
             <groupId>${pom.groupId}</groupId>
             <artifactId>geronimo-naming-builder</artifactId>
             <version>${version}</version>
         </dependency>
+
+        <dependency>
+            <groupId>org.apache.geronimo.schema</groupId>
+            <artifactId>geronimo-schema-j2ee_1.4</artifactId>
+        </dependency>
+
         
         <dependency>
             <groupId>org.apache.geronimo.specs</groupId>
@@ -79,7 +62,7 @@
             <groupId>org.apache.geronimo.specs</groupId>
             <artifactId>geronimo-saaj_1.1_spec</artifactId>
         </dependency>
-
+        
         <dependency>
             <groupId>asm</groupId>
             <artifactId>asm</artifactId>

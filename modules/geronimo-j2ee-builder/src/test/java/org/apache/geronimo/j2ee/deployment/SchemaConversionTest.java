@@ -40,9 +40,9 @@ public class SchemaConversionTest extends XmlBeansTestSupport {
     private ClassLoader classLoader = this.getClass().getClassLoader();
 
 
-    public void testApplication13ToApplication14Transform() throws Exception {
+    public void testApplication13ToApplication5Transform() throws Exception {
         URL srcXml = classLoader.getResource("j2ee_1_3dtd/application-13.xml");
-        URL expectedOutputXml = classLoader.getResource("j2ee_1_3dtd/application-14.xml");
+        URL expectedOutputXml = classLoader.getResource("j2ee_1_3dtd/application-5.xml");
         XmlObject xmlObject = XmlObject.Factory.parse(srcXml);
         XmlObject expected = XmlObject.Factory.parse(expectedOutputXml);
         XmlBeansUtil.validateDD(expected);
@@ -55,9 +55,38 @@ public class SchemaConversionTest extends XmlBeansTestSupport {
         //make sure trying to convert twice has no bad effects
         XmlCursor cursor2 = xmlObject.newCursor();
         try {
-            String schemaLocationURL = "http://java.sun.com/xml/ns/j2ee/application_1_4.xsd";
-            String version = "1.4";
-            assertFalse(SchemaConversionUtils.convertToSchema(cursor2, SchemaConversionUtils.J2EE_NAMESPACE, schemaLocationURL, version));
+            String schemaLocationURL = "http://java.sun.com/xml/ns/javaee/application_5.xsd";
+            String version = "5";
+            assertFalse(SchemaConversionUtils.convertToSchema(cursor2, SchemaConversionUtils.JAVAEE_NAMESPACE, schemaLocationURL, version));
+        } finally {
+            cursor2.dispose();
+        }
+        boolean ok2 = compareXmlObjects(xmlObject, expected, problems);
+        assertTrue("Differences after reconverting to schema: " + problems, ok2);
+        //do the whole transform twice...
+        xmlObject = EARConfigBuilder.convertToApplicationSchema(xmlObject);
+        boolean ok3 = compareXmlObjects(xmlObject, expected, problems);
+        assertTrue("Differences after reconverting to application schema: " + problems, ok3);
+    }
+
+    public void testApplication14ToApplication5Transform() throws Exception {
+        URL srcXml = classLoader.getResource("j2ee_1_3dtd/application-14.xml");
+        URL expectedOutputXml = classLoader.getResource("j2ee_1_3dtd/application-5.xml");
+        XmlObject xmlObject = XmlObject.Factory.parse(srcXml);
+        XmlObject expected = XmlObject.Factory.parse(expectedOutputXml);
+        XmlBeansUtil.validateDD(expected);
+        xmlObject = EARConfigBuilder.convertToApplicationSchema(xmlObject);
+//        log.debug(xmlObject.toString());
+//        log.debug(expected.toString());
+        List problems = new ArrayList();
+        boolean ok = compareXmlObjects(xmlObject, expected, problems);
+        assertTrue("Differences: " + problems, ok);
+        //make sure trying to convert twice has no bad effects
+        XmlCursor cursor2 = xmlObject.newCursor();
+        try {
+            String schemaLocationURL = "http://java.sun.com/xml/ns/javaee/application_5.xsd";
+            String version = "5";
+            assertFalse(SchemaConversionUtils.convertToSchema(cursor2, SchemaConversionUtils.JAVAEE_NAMESPACE, schemaLocationURL, version));
         } finally {
             cursor2.dispose();
         }

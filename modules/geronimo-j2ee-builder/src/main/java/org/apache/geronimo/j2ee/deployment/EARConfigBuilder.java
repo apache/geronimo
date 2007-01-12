@@ -86,9 +86,9 @@ import org.apache.geronimo.xbeans.geronimo.j2ee.GerApplicationType;
 import org.apache.geronimo.xbeans.geronimo.j2ee.GerExtModuleType;
 import org.apache.geronimo.xbeans.geronimo.j2ee.GerModuleType;
 import org.apache.geronimo.xbeans.geronimo.j2ee.GerSecurityDocument;
-import org.apache.geronimo.xbeans.j2ee.ApplicationType;
-import org.apache.geronimo.xbeans.j2ee.ModuleType;
-import org.apache.geronimo.xbeans.j2ee.ApplicationDocument;
+import org.apache.geronimo.xbeans.javaee.ApplicationType;
+import org.apache.geronimo.xbeans.javaee.ModuleType;
+import org.apache.geronimo.xbeans.javaee.ApplicationDocument;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlCursor;
@@ -422,14 +422,24 @@ public class EARConfigBuilder implements ConfigurationBuilder, CorbaGBeanNameSou
         }
         XmlCursor cursor = xmlObject.newCursor();
         XmlCursor moveable = xmlObject.newCursor();
-        String schemaLocationURL = "http://java.sun.com/xml/ns/j2ee/application_1_4.xsd";
-        String version = "1.4";
+        String schemaLocationURL = "http://java.sun.com/xml/ns/javaee/application_5.xsd";
+        String version = "5";
         try {
-            SchemaConversionUtils.convertToSchema(cursor, SchemaConversionUtils.J2EE_NAMESPACE, schemaLocationURL, version);
             cursor.toStartDoc();
-            cursor.toChild(SchemaConversionUtils.J2EE_NAMESPACE, "application");
             cursor.toFirstChild();
-            SchemaConversionUtils.convertToDescriptionGroup(SchemaConversionUtils.J2EE_NAMESPACE, cursor, moveable);
+            if ("http://java.sun.com/xml/ns/j2ee".equals(cursor.getName().getNamespaceURI())) {
+                SchemaConversionUtils.convertSchemaVersion(cursor, SchemaConversionUtils.JAVAEE_NAMESPACE, schemaLocationURL, version);
+                XmlObject result = xmlObject.changeType(ApplicationDocument.type);
+                XmlBeansUtil.validateDD(result);
+                return (ApplicationDocument) result;
+            }
+            
+            // otherwise assume DTD
+            SchemaConversionUtils.convertToSchema(cursor, SchemaConversionUtils.JAVAEE_NAMESPACE, schemaLocationURL, version);
+            cursor.toStartDoc();
+            cursor.toChild(SchemaConversionUtils.JAVAEE_NAMESPACE, "application");
+            cursor.toFirstChild();
+            SchemaConversionUtils.convertToDescriptionGroup(SchemaConversionUtils.JAVAEE_NAMESPACE, cursor, moveable);
         } finally {
             cursor.dispose();
             moveable.dispose();

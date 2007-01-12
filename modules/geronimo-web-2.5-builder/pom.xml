@@ -36,7 +36,32 @@
 
         <dependency>
             <groupId>${pom.groupId}</groupId>
-            <artifactId>geronimo-web-builder</artifactId>
+            <artifactId>geronimo-j2ee-builder</artifactId>
+            <version>${version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>${pom.groupId}</groupId>
+            <artifactId>geronimo-security-builder</artifactId>
+            <version>${version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>${pom.groupId}</groupId>
+            <artifactId>geronimo-service-builder</artifactId>
+            <version>${version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>${pom.groupId}</groupId>
+            <artifactId>geronimo-naming-builder</artifactId>
+            <version>${version}</version>
+        </dependency>
+
+
+        <dependency>
+            <groupId>${pom.groupId}</groupId>
+            <artifactId>geronimo-test-ddbean</artifactId>
             <version>${version}</version>
         </dependency>
 
@@ -48,6 +73,12 @@
         <dependency>
             <groupId>org.apache.geronimo.specs</groupId>
             <artifactId>geronimo-servlet_2.5_spec</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.geronimo.testsupport</groupId>
+            <artifactId>testsupport-common</artifactId>
+            <version>${version}</version>
         </dependency>
 
         <dependency>
@@ -74,6 +105,39 @@
 
     <build>
         <plugins>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>xmlbeans-maven-plugin</artifactId>
+                <configuration>
+                    <sourceSchemas>geronimo-web-1.2.xsd</sourceSchemas>
+                </configuration>
+            </plugin>
+            
+            <!--
+            HACK: Copy the generated XmlBeans bits for clover
+            -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <phase>generate-resources</phase>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                        <configuration>
+                            <tasks>
+                                <mkdir dir="${pom.basedir}/target/clover/classes"/>
+                                <copy todir="${pom.basedir}/target/clover/classes">
+                                    <fileset dir="${pom.basedir}/target/classes">
+                                        <include name="schemaorg_apache_xmlbeans/**"/>
+                                    </fileset>
+                                </copy>
+                            </tasks>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
         </plugins>
     </build>
 

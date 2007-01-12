@@ -36,7 +36,7 @@ import org.apache.xmlbeans.XmlBeans;
  */
 public class ENCHelper {
     static final SchemaTypeLoader SCHEMA_TYPE_LOADER = XmlBeans.typeLoaderUnion(new SchemaTypeLoader[]{
-        XmlBeans.typeLoaderForClassLoader(org.apache.geronimo.xbeans.j2ee.String.class.getClassLoader()),
+        XmlBeans.typeLoaderForClassLoader(org.apache.geronimo.xbeans.javaee.String.class.getClassLoader()),
     });
 
 

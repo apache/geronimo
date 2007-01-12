@@ -175,7 +175,7 @@ public abstract class AbstractNamingBuilder implements NamingBuilder {
         return result;
     }
 
-    protected static String getStringValue(org.apache.geronimo.xbeans.j2ee.String string) {
+    protected static String getStringValue(org.apache.geronimo.xbeans.javaee.String string) {
         if (string == null) {
             return null;
         }

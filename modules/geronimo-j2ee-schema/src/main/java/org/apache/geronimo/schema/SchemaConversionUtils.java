@@ -22,11 +22,11 @@ import java.util.Map;
 
 import javax.xml.namespace.QName;
 
-import org.apache.geronimo.xbeans.j2ee.ApplicationClientDocument;
-import org.apache.geronimo.xbeans.j2ee.ApplicationDocument;
-import org.apache.geronimo.xbeans.j2ee.ConnectorDocument;
-import org.apache.geronimo.xbeans.j2ee.EjbJarDocument;
-import org.apache.geronimo.xbeans.j2ee.WebAppDocument;
+import org.apache.geronimo.xbeans.javaee.ApplicationClientDocument;
+import org.apache.geronimo.xbeans.javaee.ApplicationDocument;
+//import org.apache.geronimo.xbeans.javaee.ConnectorDocument;
+import org.apache.geronimo.xbeans.javaee.EjbJarDocument;
+import org.apache.geronimo.xbeans.javaee.WebAppDocument;
 import org.apache.geronimo.deployment.xmlbeans.XmlBeansUtil;
 import org.apache.xmlbeans.SchemaType;
 import org.apache.xmlbeans.XmlCursor;

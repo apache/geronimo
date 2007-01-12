@@ -89,11 +89,11 @@
         <module>geronimo-transaction</module>
         <module>geronimo-upgrade</module>
         <module>geronimo-util</module>
-        <module>geronimo-web-builder</module>
+<!--        <module>geronimo-web-builder</module> -->
         <module>geronimo-webservices</module>
         <module>geronimo-webservices-builder</module>
 
-        <!-- jee 5 modules -->
+        <!-- javaee 5 modules -->
         <module>geronimo-transformer</module>
         <module>geronimo-persistence-jpa10</module>
         <module>geronimo-persistence-jpa10-builder</module>

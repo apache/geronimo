@@ -84,7 +84,7 @@
 
         <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
-            <artifactId>geronimo-web-builder</artifactId>
+            <artifactId>geronimo-web-2.5-builder</artifactId>
             <version>${version}</version>
         </dependency>
 
@@ -100,7 +100,7 @@
             <artifactId>geronimo-security-builder</artifactId>
             <version>${version}</version>
         </dependency>
-        
+
     </dependencies>
     
 </project>

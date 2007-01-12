@@ -34,7 +34,7 @@
     
     <dependencies>
         
-        <!-- might not be necessary -->
+        <!-- XmlBeansUtil is needed --> 
         <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
             <artifactId>geronimo-service-builder</artifactId>
@@ -58,9 +58,14 @@
         
         <dependency>
             <groupId>org.apache.geronimo.schema</groupId>
-            <artifactId>geronimo-schema-j2ee_1.4</artifactId>
+            <artifactId>geronimo-schema-jee_5</artifactId>
         </dependency>
         
+        <dependency>
+            <groupId>org.apache.geronimo.schema</groupId>
+            <artifactId>geronimo-schema-j2ee_1.4</artifactId>
+        </dependency>
+
     </dependencies>
 
 </project>

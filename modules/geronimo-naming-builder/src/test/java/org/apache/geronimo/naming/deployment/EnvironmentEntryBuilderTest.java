@@ -39,9 +39,9 @@ import org.apache.xmlbeans.XmlCursor;
  */
 public class EnvironmentEntryBuilderTest extends TestCase {
     private Map componentContext = new HashMap();
-    private NamingBuilder environmentEntryBuilder = new EnvironmentEntryBuilder(new String[] {AbstractNamingBuilder.J2EE_NAMESPACE});
+    private NamingBuilder environmentEntryBuilder = new EnvironmentEntryBuilder(new String[] {AbstractNamingBuilder.JEE_NAMESPACE});
 
-    private static final String TEST = "<tmp xmlns=\"http://java.sun.com/xml/ns/j2ee\">" +
+    private static final String TEST = "<tmp xmlns=\"http://java.sun.com/xml/ns/javaee\">" +
             "<env-entry>" +
             "<env-entry-name>string</env-entry-name>" +
             "<env-entry-type>java.lang.String</env-entry-type>" +

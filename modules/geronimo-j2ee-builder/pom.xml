@@ -36,6 +36,12 @@
         
         <dependency>
             <groupId>${pom.groupId}</groupId>
+            <artifactId>geronimo-j2ee-schema</artifactId>
+            <version>${version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>${pom.groupId}</groupId>
             <artifactId>geronimo-security</artifactId>
             <version>${version}</version>
         </dependency>
@@ -43,12 +49,6 @@
         <dependency>
             <groupId>${pom.groupId}</groupId>
             <artifactId>geronimo-service-builder</artifactId>
-            <version>${version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>${pom.groupId}</groupId>
-            <artifactId>geronimo-j2ee-schema</artifactId>
             <version>${version}</version>
         </dependency>
         
@@ -107,6 +107,25 @@
                                     -->
                                     <destFileName>test-ear-j2ee_1.4-naked.ear</destFileName>
                                 </artifactItem>
+
+                                <artifactItem>
+                                    <groupId>org.apache.geronimo.testsupport</groupId>
+                                    <artifactId>test-ear-javaee_5</artifactId>
+                                    <version>${version}</version>
+                                    <type>ear</type>
+                                    <destFileName>test-ear-javaee_5.ear</destFileName>
+                                </artifactItem>
+                                
+                                <artifactItem>
+                                    <groupId>org.apache.geronimo.testsupport</groupId>
+                                    <artifactId>test-ear-javaee_5</artifactId>
+                                    <version>${version}</version>
+                                    <type>ear</type>
+                                    <!--
+                                    FIXME: need to remove the geronimo-application.xml file from this ear.
+                                    -->
+                                    <destFileName>test-ear-javaee_5-naked.ear</destFileName>
+                                </artifactItem>
                             </artifactItems>
                         </configuration>
                     </execution>
@@ -128,11 +147,20 @@
                         </goals>
                         <configuration>
                             <tasks>
+                                <mkdir dir="${project.build.directory}/test-ear-javaee_5-unpacked.ear"/>
+                                <unzip src="${project.build.directory}/test-ear-javaee_5.ear"
+                                    dest="${project.build.directory}/test-ear-javaee_5-unpacked.ear"/>
+                                
+                                <mkdir dir="${project.build.directory}/test-ear-javaee_5-naked-unpacked.ear"/>
+                                <unzip src="${project.build.directory}/test-ear-javaee_5-naked.ear"
+                                    dest="${project.build.directory}/test-ear-javaee_5-naked-unpacked.ear"/>
+
+                                <!-- are these tests needed ? -->
                                 <mkdir dir="${project.build.directory}/test-ear-j2ee_1.4-unpacked.ear"/>
                                 <unzip src="${project.build.directory}/test-ear-j2ee_1.4.ear"
                                     dest="${project.build.directory}/test-ear-j2ee_1.4-unpacked.ear"/>
                                 
-                                <mkdir dir="${project.build.directory}/test-ear-j2ee_1.4-naked-unpacked.ear"/>
+                                <mkdir dir="${project.build.directory}/test-ear-javaee_5-naked-unpacked.ear"/>
                                 <unzip src="${project.build.directory}/test-ear-j2ee_1.4-naked.ear"
                                     dest="${project.build.directory}/test-ear-j2ee_1.4-naked-unpacked.ear"/>
                             </tasks>

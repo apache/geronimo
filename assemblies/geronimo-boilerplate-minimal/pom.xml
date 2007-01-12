@@ -207,7 +207,7 @@
                                 </artifactItem>
                                 <artifactItem>
                                     <groupId>org.apache.geronimo.modules</groupId>
-                                    <artifactId>geronimo-web-builder</artifactId>
+                                    <artifactId>geronimo-web-2.5-builder</artifactId>
                                     <version>${version}</version>
                                 </artifactItem>
                                 <artifactItem>
