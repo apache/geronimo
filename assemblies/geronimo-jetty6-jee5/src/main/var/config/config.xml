@@ -58,6 +58,7 @@
     </module>
 
     <module name="org.apache.geronimo.configs/axis/${version}/car" load="false"/>
+    <module name="org.apache.geronimo.configs/axis2/${version}/car" load="false"/>
     <module name="org.apache.geronimo.configs/cxf/${version}/car" load="false"/>
 
     <module name="org.apache.geronimo.configs/openejb/${version}/car">
@@ -182,6 +183,12 @@
     <module name="org.apache.geronimo.configs/cxf-deployer/${version}/car">
         <!-- this gbean is not yet written -->
         <!--<gbean name="CXFServiceRefBuilder">
+            <attribute name="eeNamespaces">http://java.sun.com/xml/ns/j2ee,http://java.sun.com/xml/ns/javaee</attribute>
+        </gbean>-->
+    </module>
+    <module name="org.apache.geronimo.configs/axis2-deployer/${version}/car">
+        <!-- this gbean is not yet written -->
+        <!--<gbean name="Axis2ServiceRefBuilder">
             <attribute name="eeNamespaces">http://java.sun.com/xml/ns/j2ee,http://java.sun.com/xml/ns/javaee</attribute>
         </gbean>-->
     </module>
