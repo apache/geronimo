@@ -34,6 +34,13 @@ import org.apache.geronimo.mavenplugins.geronimo.reporting.ReportingMojoSupport;
 public class StopServerMojo
     extends ReportingMojoSupport
 {
+    /**
+     * Fail the build if the server is not started.
+     *
+     * @parameter expression="${failIfNotStarted}" default-value="true"
+     */
+    private boolean failIfNotStarted = true;
+    
     protected void doExecute() throws Exception {
         ServerProxy server = new ServerProxy(hostname, port, username, password);
 
@@ -42,7 +49,14 @@ public class StopServerMojo
         //
         
         if (!server.isFullyStarted()) {
-            throw new MojoExecutionException("Server does not appear to be started");
+            String msg = "Server does not appear to be started";
+            
+            if (failIfNotStarted) {
+                throw new MojoExecutionException(msg);
+            }
+            else {
+                log.warn(msg);
+            }
         }
         else {
             log.info("Stopping Geronimo server...");
