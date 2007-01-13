@@ -597,32 +597,84 @@ limitations under the License.
                 </fragment>
             </fragment>
     </fragment>
-    
-    <fragment name="JMXViewer" type="page">
+
+    <fragment name="DebugViews" type="page">
         <navigation>
-            <title>JMX Viewer</title>
-            <description>ico_filetree_16x16.gif JMX explorer</description> 
+            <title>Debug Views</title>
+            <description>ico_folder_16x16.gif Different debug viewers for the server</description>
         </navigation>
     
-        <fragment name="row1" type="row">
-            <fragment name="col1" type="column">
-                <fragment name="p1" type="portlet">
-                    <property name="portlet" value="5.72"/>
+        <fragment name="JMXViewer" type="page">
+            <navigation>
+                <title>JMX Viewer</title>
+                <description>ico_filetree_16x16.gif JMX explorer</description> 
+            </navigation>
+        
+            <fragment name="row1" type="row">
+                <fragment name="col1" type="column">
+                    <fragment name="p1" type="portlet">
+                        <property name="portlet" value="5.72"/>
+                    </fragment>
                 </fragment>
             </fragment>
         </fragment>
-    </fragment>
-
-    <fragment name="LDAPViewer" type="page">
-        <navigation>
-            <title>LDAP Viewer</title>
-            <description>ico_filetree_16x16.gif View contents of an LDAP server</description> 
-        </navigation>
     
-        <fragment name="row1" type="row">
-            <fragment name="col1" type="column">
-                <fragment name="p1" type="portlet">
-                    <property name="portlet" value="5.71"/>
+        <fragment name="LDAPViewer" type="page">
+            <navigation>
+                <title>LDAP Viewer</title>
+                <description>ico_filetree_16x16.gif View contents of an LDAP server</description> 
+            </navigation>
+        
+            <fragment name="row1" type="row">
+                <fragment name="col1" type="column">
+                    <fragment name="p1" type="portlet">
+                        <property name="portlet" value="5.71"/>
+                    </fragment>
+                </fragment>
+            </fragment>
+        </fragment>
+    
+        <fragment name="ClassLoaderViewer" type="page">
+            <navigation>
+                <title>ClassLoader Viewer</title>
+                <description>ico_filetree_16x16.gif View tree of ClassLoader loaded and its classes</description> 
+            </navigation>
+    
+            <fragment name="row1" type="row">
+                <fragment name="col1" type="column">
+                    <fragment name="p1" type="portlet">
+                        <property name="portlet" value="5.73"/>
+                    </fragment>
+                </fragment>
+            </fragment>
+        </fragment>
+    
+        <fragment name="JNDIViewer" type="page">
+            <navigation>
+                <title>JNDI Viewer</title>
+                <description>ico_filetree_16x16.gif View tree of JNDI naming registered for each application</description>
+            </navigation>
+    
+            <fragment name="row1" type="row">
+                <fragment name="col1" type="column">
+                    <fragment name="p1" type="portlet">
+                        <property name="portlet" value="5.74"/>
+                    </fragment>
+                </fragment>
+            </fragment>
+        </fragment>
+    
+        <fragment name="DependencyViewer" type="page">
+            <navigation>
+                <title>Dependency Viewer</title>
+                <description>ico_filetree_16x16.gif View tree of Dependencies for each modules</description> 
+            </navigation>
+    
+            <fragment name="row1" type="row">
+                <fragment name="col1" type="column">
+                    <fragment name="p1" type="portlet">
+                        <property name="portlet" value="5.75"/>
+                    </fragment>
                 </fragment>
             </fragment>
         </fragment>

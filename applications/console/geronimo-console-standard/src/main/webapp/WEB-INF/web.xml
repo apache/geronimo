@@ -799,6 +799,48 @@ limitations under the License.
             <param-value>console-standard.LDAPViewer</param-value>
         </init-param>
     </servlet>
+    <servlet>
+        <description>Automated generated Portlet Wrapper</description>
+        <display-name>Pluto Wrapper for ClassLoaderView Portlet</display-name>
+        <servlet-name>ClassLoaderViewer</servlet-name>
+        <servlet-class>org.apache.pluto.core.PortletServlet</servlet-class>
+        <init-param>
+            <param-name>portlet-class</param-name>
+            <param-value>org.apache.geronimo.console.classloaderview.ClassLoaderViewPortlet</param-value>
+        </init-param>
+        <init-param>
+            <param-name>portlet-guid</param-name>
+            <param-value>console-standard.ClassLoaderViewer</param-value>
+        </init-param>
+    </servlet>
+    <servlet>
+        <description>Automated generated Portlet Wrapper</description>
+        <display-name>Pluto Wrapper for JNDIView Portlet</display-name>
+        <servlet-name>JNDIViewer</servlet-name>
+        <servlet-class>org.apache.pluto.core.PortletServlet</servlet-class>
+        <init-param>
+            <param-name>portlet-class</param-name>
+            <param-value>org.apache.geronimo.console.jndiview.JNDIViewPortlet</param-value>
+        </init-param>
+        <init-param>
+            <param-name>portlet-guid</param-name>
+            <param-value>console-standard.JNDIViewer</param-value>
+        </init-param>
+    </servlet>
+    <servlet>
+        <description>Automated generated Portlet Wrapper</description>
+        <display-name>Pluto Wrapper for DependencyView Portlet</display-name>
+        <servlet-name>DependencyViewer</servlet-name>
+        <servlet-class>org.apache.pluto.core.PortletServlet</servlet-class>
+        <init-param>
+            <param-name>portlet-class</param-name>
+            <param-value>org.apache.geronimo.console.dependencyview.DependencyViewPortlet</param-value>
+        </init-param>
+        <init-param>
+            <param-name>portlet-guid</param-name>
+            <param-value>console-standard.DependencyViewer</param-value>
+        </init-param>
+    </servlet>
 
 <!-- [INSERT FRAGMENT HERE] -->
 
@@ -809,6 +851,18 @@ limitations under the License.
     <servlet-mapping>
         <servlet-name>JMXViewer</servlet-name>
         <url-pattern>/JMXViewer/*</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>ClassLoaderViewer</servlet-name>
+        <url-pattern>/ClassLoaderViewer/*</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>JNDIViewer</servlet-name>
+        <url-pattern>/JNDIViewer/*</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>DependencyViewer</servlet-name>
+        <url-pattern>/DependencyViewer/*</url-pattern>
     </servlet-mapping>
     <servlet-mapping>
       <servlet-name>dwr-invoker</servlet-name>

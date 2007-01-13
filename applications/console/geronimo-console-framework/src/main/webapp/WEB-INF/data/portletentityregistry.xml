@@ -155,6 +155,15 @@ limitations under the License.
         <portlet id="72">
             <definition-id>console-standard.JMXViewer</definition-id>
         </portlet>
+        <portlet id="73">
+            <definition-id>console-standard.ClassLoaderViewer</definition-id>
+        </portlet>
+        <portlet id="74">
+            <definition-id>console-standard.JNDIViewer</definition-id>
+        </portlet>
+        <portlet id="75">
+            <definition-id>console-standard.DependencyViewer</definition-id>
+        </portlet>
         <!-- Leave some free numbers for the portlets that are in HEAD but not 1.1 yet -->
         <portlet id="80">
             <definition-id>console-standard.ThreadPool</definition-id>

@@ -34,6 +34,7 @@ import java.util.Map;
 
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.kernel.repository.Artifact;
+import org.apache.geronimo.kernel.util.ClassLoaderRegistry;
 
 /**
  * A MultiParentClassLoader is a simple extension of the URLClassLoader that simply changes the single parent class
@@ -69,6 +70,7 @@ public class MultiParentClassLoader extends URLClassLoader {
         nonOverridableClasses = new String[0];
         hiddenResources = new String[0];
         nonOverridableResources = new String[0];
+        ClassLoaderRegistry.add(this);
     }
 
 
@@ -116,6 +118,7 @@ public class MultiParentClassLoader extends URLClassLoader {
         nonOverridableClasses = new String[0];
         hiddenResources = new String[0];
         nonOverridableResources = new String[0];
+        ClassLoaderRegistry.add(this);
     }
 
     public MultiParentClassLoader(Artifact id, URL[] urls, ClassLoader[] parents, boolean inverseClassLoading, Collection hiddenClasses, Collection nonOverridableClasses) {
@@ -131,6 +134,7 @@ public class MultiParentClassLoader extends URLClassLoader {
         this.nonOverridableClasses = nonOverridableClasses;
         hiddenResources = toResources(hiddenClasses);
         nonOverridableResources = toResources(nonOverridableClasses);
+        ClassLoaderRegistry.add(this);
     }
 
     public MultiParentClassLoader(MultiParentClassLoader source) {
@@ -178,6 +182,7 @@ public class MultiParentClassLoader extends URLClassLoader {
         nonOverridableClasses = new String[0];
         hiddenResources = new String[0];
         nonOverridableResources = new String[0];
+        ClassLoaderRegistry.add(this);
     }
 
     private static ClassLoader[] copyParents(ClassLoader[] parents) {
@@ -442,6 +447,8 @@ public class MultiParentClassLoader extends URLClassLoader {
         // it has introspected. If we don't flush the cache, we may run out of
         // Permanent Generation space.
         Introspector.flushCaches();
+        
+        ClassLoaderRegistry.remove(this);
     }
 
     private static final Object lock = new Object();
@@ -467,6 +474,9 @@ public class MultiParentClassLoader extends URLClassLoader {
                 cache.clear();
             }
         }
+    }
+    protected void Finalize(){
+        ClassLoaderRegistry.remove(this);
     }
 
 }

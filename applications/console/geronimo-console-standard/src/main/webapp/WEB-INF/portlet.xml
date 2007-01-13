@@ -1165,5 +1165,76 @@ limitations under the License.
         </portlet-info>
     </portlet>
 
+    <portlet>
+        <description>Portlet for viewing Classloader tree</description>
+        <portlet-name>ClassLoaderViewer</portlet-name>
+        <display-name>ClassLoader Viewer Portlet</display-name>
+                       
+        <portlet-class>org.apache.geronimo.console.classloaderview.ClassLoaderViewPortlet</portlet-class>
+
+        <expiration-cache>-1</expiration-cache>
+
+        <supports>
+            <mime-type>text/html</mime-type>
+            <portlet-mode>VIEW</portlet-mode>
+            <portlet-mode>HELP</portlet-mode>
+        </supports>
+
+        <supported-locale>en</supported-locale>
+
+        <portlet-info>
+            <title>ClassLoader Viewer</title>
+            <short-title>ClassLoader Viewer</short-title>
+            <keywords>ClassLoader Viewer</keywords>
+        </portlet-info>
+    </portlet>
+
+    <portlet>
+        <description>Portlet for viewing JNDI tree</description>
+        <portlet-name>JNDIViewer</portlet-name>
+        <display-name>JNDI Viewer Portlet</display-name>
+                       
+        <portlet-class>org.apache.geronimo.console.jndiview.JNDIViewPortlet</portlet-class>
+
+        <expiration-cache>-1</expiration-cache>
+
+        <supports>
+            <mime-type>text/html</mime-type>
+            <portlet-mode>VIEW</portlet-mode>
+            <portlet-mode>HELP</portlet-mode>
+        </supports>
+
+        <supported-locale>en</supported-locale>
+
+        <portlet-info>
+            <title>JNDI Viewer</title>
+            <short-title>JNDI Viewer</short-title>
+            <keywords>JNDI Viewer</keywords>
+        </portlet-info>
+    </portlet>
+
+    <portlet>
+        <description>Portlet for viewing Dependency tree</description>
+        <portlet-name>DependencyViewer</portlet-name>
+        <display-name>Dependency Viewer Portlet</display-name>
+                       
+        <portlet-class>org.apache.geronimo.console.dependencyview.DependencyViewPortlet</portlet-class>
+
+        <expiration-cache>-1</expiration-cache>
+
+        <supports>
+            <mime-type>text/html</mime-type>
+            <portlet-mode>VIEW</portlet-mode>
+            <portlet-mode>HELP</portlet-mode>
+        </supports>
+
+        <supported-locale>en</supported-locale>
+
+        <portlet-info>
+            <title>Dependency Viewer</title>
+            <short-title>Dependency Viewer</short-title>
+            <keywords>Dependency Viewer</keywords>
+        </portlet-info>
+    </portlet>
     <!-- End of console portlets -->
 </portlet-app>

@@ -28,6 +28,8 @@ import java.lang.reflect.Field;
 
 import org.apache.commons.logging.LogFactory;
 
+import org.apache.geronimo.kernel.util.ClassLoaderRegistry;
+
 /**
  *
  * @version $Rev$ $Date$
@@ -37,6 +39,7 @@ public class ConfigurationClassLoader extends URLClassLoader {
     
     public ConfigurationClassLoader(URI id, URL[] urls, ClassLoader parent) {
         super(urls, parent);
+        ClassLoaderRegistry.add(this);
         this.id = id;
     }
     
@@ -50,6 +53,7 @@ public class ConfigurationClassLoader extends URLClassLoader {
         clearSoftCache(ObjectOutputStream.class, "subclassAudits");
         clearSoftCache(ObjectStreamClass.class, "localDescs");
         clearSoftCache(ObjectStreamClass.class, "reflectors");
+        ClassLoaderRegistry.remove(this);    
     }
 
     public String toString() {
@@ -78,5 +82,8 @@ public class ConfigurationClassLoader extends URLClassLoader {
                 cache.clear();
             }
         }
+    }
+    protected void Finalize(){
+        ClassLoaderRegistry.remove(this);
     }
 }
