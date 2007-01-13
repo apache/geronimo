@@ -33,6 +33,9 @@
                 <name>CXFBuilder</name>
             </pattern>
             <pattern>
+                <name>Axis2Builder</name>
+            </pattern>
+            <pattern>
                 <name>WebServiceBuilder</name>
             </pattern>
             <pattern>
