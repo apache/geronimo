@@ -44,18 +44,6 @@
             <artifactId>geronimo-jetty6</artifactId>
             <version>${version}</version>
         </dependency>
-        
-        <!--
-        NOTE: This should have been picked up from geronimo-kernel (or geronimo-util)
-              but I think this might be caused by a bug in Maven, its overzelously 
-              excluding dependencies.  Might be fixed in Maven 2.0.5, check again
-              when its been released.
-        -->
-        
-        <dependency>
-            <groupId>commons-logging</groupId>
-            <artifactId>commons-logging</artifactId>
-        </dependency>
     </dependencies>
     
     <build>
