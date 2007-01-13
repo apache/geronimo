@@ -19,7 +19,7 @@ package org.apache.geronimo.j2ee.deployment;
 import org.apache.geronimo.deployment.util.DeploymentUtil;
 
 /**
- * EAR config builder tests for naked J2EE 1.4 unpacked.
+ * EAR config builder tests for naked JAVAEE 5 unpacked.
  *
  * @version $Rev:386276 $ $Date$
  */
