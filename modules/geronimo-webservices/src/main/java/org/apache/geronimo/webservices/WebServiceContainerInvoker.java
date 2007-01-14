@@ -120,6 +120,10 @@ public class WebServiceContainerInvoker implements Servlet {
             return request.getContentType();
         }
 
+        public String getContextPath() {
+            return request.getContextPath();
+        }
+
         public InputStream getInputStream() throws IOException {
             return request.getInputStream();
         }

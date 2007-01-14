@@ -35,6 +35,7 @@ import org.apache.axis2.transport.http.HTTPTransportUtils;
 import org.apache.axis2.transport.http.server.HttpUtils;
 import org.apache.axis2.transport.OutTransportInfo;
 import org.apache.axis2.util.UUIDGenerator;
+import org.apache.axis2.util.JavaUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.webservices.WebServiceContainer;
@@ -58,6 +59,7 @@ public class Axis2WebServiceContainer implements WebServiceContainer {
     private final String endpointClassName;
     private final PortInfo portInfo;
     ConfigurationContext configurationContext = ConfigurationContextFactory.createEmptyConfigurationContext();
+    private String contextRoot = null;
 
     public Axis2WebServiceContainer(PortInfo portInfo, String endpointClassName, ClassLoader classLoader) {
         this.classLoader = classLoader;
@@ -81,6 +83,8 @@ public class Axis2WebServiceContainer implements WebServiceContainer {
 
     protected void doService(final Request request, final Response response)
             throws Exception {
+        initContextRoot(request);
+
         if (LOG.isDebugEnabled()) {
             LOG.debug("Target URI: " + request.getURI());
         }
@@ -151,6 +155,24 @@ public class Axis2WebServiceContainer implements WebServiceContainer {
             }
         }
 
+    }
+
+    private void initContextRoot(Request request) {
+        if (contextRoot == null || "".equals(contextRoot)) {
+            String[] parts = JavaUtils.split(request.getContextPath(), '/');
+            if (parts != null) {
+                for (int i = 0; i < parts.length; i++) {
+                    if (parts[i].length() > 0) {
+                        contextRoot = parts[i];
+                        break;
+                    }
+                }
+            }
+            if (contextRoot == null || request.getContextPath().equals("/")) {
+                contextRoot = "/";
+            }
+            configurationContext.setContextRoot(contextRoot);
+        }
     }
 
     public void doService2(

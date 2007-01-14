@@ -97,6 +97,10 @@ public class AxisRequest implements WebServiceContainer.Request {
     }
 
     public String getRemoteAddr() {
+        return remoteAddress;
+    }
 
+    public String getContextPath() {
+        return "/axis2/";
     }
 }
