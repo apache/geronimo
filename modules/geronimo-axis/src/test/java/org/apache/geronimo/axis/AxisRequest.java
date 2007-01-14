@@ -32,6 +32,7 @@ public class AxisRequest implements WebServiceContainer.Request {
     private URI uri;
     private Map headers;
     private Map attributes;
+    private String remoteAddress;
 
     /**
      * 
@@ -43,7 +44,8 @@ public class AxisRequest implements WebServiceContainer.Request {
         int method,
         Map parameters,
         URI uri,
-        Map headers) {
+        Map headers,
+        String remoteAddress) {
         this.contentType = contentType;
         this.in = in;
         this.method = method;
@@ -51,6 +53,7 @@ public class AxisRequest implements WebServiceContainer.Request {
         this.uri = uri;
         this.headers = headers;
         this.attributes = new HashMap();
+        this.remoteAddress = remoteAddress;
     }
 
     public int getContentLength() {
@@ -91,5 +94,9 @@ public class AxisRequest implements WebServiceContainer.Request {
 
     public void setAttribute(String name, Object value){
         attributes.put(name, value);
+    }
+
+    public String getRemoteAddr() {
+
     }
 }

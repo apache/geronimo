@@ -159,6 +159,10 @@ public class WebServiceContainerInvoker implements Servlet {
             request.setAttribute(s, o);
         }
 
+        public String getRemoteAddr() {
+            return request.getRemoteAddr();
+        }
+
     }
 
     private static class ResponseAdapter implements WebServiceContainer.Response {

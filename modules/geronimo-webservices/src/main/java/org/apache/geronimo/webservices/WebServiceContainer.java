@@ -112,6 +112,8 @@ public interface WebServiceContainer extends Serializable {
         Object getAttribute(String name);
 
         void setAttribute(String name, Object value);
+
+        java.lang.String getRemoteAddr();
     }
 
     public interface Response {

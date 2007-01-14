@@ -259,6 +259,9 @@ public class JettyEJBWebServiceContext extends ContextHandler {
             request.setAttribute(name, value);
         }
 
+        public String getRemoteAddr() {
+            return request.getRemoteAddr();
+        }
 
         private static final Map methods = new HashMap();
 

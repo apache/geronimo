@@ -227,6 +227,9 @@ public class TomcatEJBWebServiceContext extends StandardContext{
             request.setAttribute(name, value);
         }
 
+        public String getRemoteAddr() {
+            return request.getRemoteAddr();
+        }
 
         private static final Map methods = new HashMap();
 
