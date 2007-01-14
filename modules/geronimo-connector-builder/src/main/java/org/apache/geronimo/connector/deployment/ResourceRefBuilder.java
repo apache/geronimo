@@ -209,7 +209,7 @@ public class ResourceRefBuilder extends AbstractNamingBuilder implements Resourc
         return GER_RESOURCE_REF_QNAME_SET;
     }
 
-    protected static String getStringValue(org.apache.geronimo.xbeans.j2ee.String string) {
+    private static String getStringValue(org.apache.geronimo.xbeans.j2ee.String string) {
         if (string == null) {
             return null;
         }

@@ -46,12 +46,6 @@
             <artifactId>geronimo-naming-builder</artifactId>
             <version>${version}</version>
         </dependency>
-
-        <dependency>
-            <groupId>org.apache.geronimo.schema</groupId>
-            <artifactId>geronimo-schema-j2ee_1.4</artifactId>
-        </dependency>
-
         
         <dependency>
             <groupId>org.apache.geronimo.specs</groupId>

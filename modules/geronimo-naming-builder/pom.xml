@@ -33,37 +33,9 @@
     <name>Geronimo :: Naming :: Builder</name>
     
     <dependencies>
-        
-        <dependency>
-            <groupId>${pom.groupId}</groupId>
-            <artifactId>geronimo-common</artifactId>
-            <version>${version}</version>
-        </dependency>
 
-        <dependency>
-            <groupId>${pom.groupId}</groupId>
-            <artifactId>geronimo-kernel</artifactId>
-            <version>${version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>${pom.groupId}</groupId>
-            <artifactId>geronimo-deployment</artifactId>
-            <version>${version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>${pom.groupId}</groupId>
-            <artifactId>geronimo-deploy-config</artifactId>
-            <version>${version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>${pom.groupId}</groupId>
-            <artifactId>geronimo-j2ee</artifactId>
-            <version>${version}</version>
-        </dependency>
-
+        <!-- g-kernel, g-common, g-j2ee coming from this via g-security -->
+        <!-- g-deployment, g-deploy-config coming from this via g-service-builder -->
         <dependency>
             <groupId>${pom.groupId}</groupId>
             <artifactId>geronimo-j2ee-builder</artifactId>
