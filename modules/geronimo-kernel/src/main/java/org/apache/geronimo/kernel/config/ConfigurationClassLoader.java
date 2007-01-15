@@ -83,7 +83,7 @@ public class ConfigurationClassLoader extends URLClassLoader {
             }
         }
     }
-    protected void Finalize(){
+    protected void finalize(){
         ClassLoaderRegistry.remove(this);
     }
 }
