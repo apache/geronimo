@@ -81,8 +81,8 @@ import org.apache.geronimo.xbeans.geronimo.client.GerApplicationClientDocument;
 import org.apache.geronimo.xbeans.geronimo.client.GerApplicationClientType;
 import org.apache.geronimo.xbeans.geronimo.client.GerResourceType;
 import org.apache.geronimo.xbeans.geronimo.naming.GerAbstractNamingEntryDocument;
-import org.apache.geronimo.xbeans.j2ee.ApplicationClientDocument;
-import org.apache.geronimo.xbeans.j2ee.ApplicationClientType;
+import org.apache.geronimo.xbeans.javaee.ApplicationClientDocument;
+import org.apache.geronimo.xbeans.javaee.ApplicationClientType;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlCursor;
@@ -377,14 +377,24 @@ public class AppClientModuleBuilder implements ModuleBuilder, CorbaGBeanNameSour
         }
         XmlCursor cursor = xmlObject.newCursor();
         XmlCursor moveable = xmlObject.newCursor();
-        String schemaLocationURL = "http://java.sun.com/xml/ns/j2ee/application-client_1_4.xsd";
-        String version = "1.4";
+        String schemaLocationURL = "http://java.sun.com/xml/ns/javaee/application-client_5.xsd";
+        String version = "5";
         try {
-            SchemaConversionUtils.convertToSchema(cursor, SchemaConversionUtils.J2EE_NAMESPACE, schemaLocationURL, version);
             cursor.toStartDoc();
-            cursor.toChild(SchemaConversionUtils.J2EE_NAMESPACE, "application-client");
             cursor.toFirstChild();
-            SchemaConversionUtils.convertToDescriptionGroup(SchemaConversionUtils.J2EE_NAMESPACE, cursor, moveable);
+            if ("http://java.sun.com/xml/ns/j2ee".equals(cursor.getName().getNamespaceURI())) {
+                SchemaConversionUtils.convertSchemaVersion(cursor, SchemaConversionUtils.JAVAEE_NAMESPACE, schemaLocationURL, version);
+                XmlObject result = xmlObject.changeType(ApplicationClientDocument.type);
+                XmlBeansUtil.validateDD(result);
+                return (ApplicationClientDocument) result;
+            }
+            
+            // otherwise assume DTD
+            SchemaConversionUtils.convertToSchema(cursor, SchemaConversionUtils.JAVAEE_NAMESPACE, schemaLocationURL, version);
+            cursor.toStartDoc();
+            cursor.toChild(SchemaConversionUtils.JAVAEE_NAMESPACE, "application-client");
+            cursor.toFirstChild();
+            SchemaConversionUtils.convertToDescriptionGroup(SchemaConversionUtils.JAVAEE_NAMESPACE, cursor, moveable);
         } finally {
             cursor.dispose();
             moveable.dispose();
@@ -484,7 +494,7 @@ public class AppClientModuleBuilder implements ModuleBuilder, CorbaGBeanNameSour
             }
             String classPath = manifest.getMainAttributes().getValue(Attributes.Name.CLASS_PATH);
             if (module.isStandAlone() && classPath != null) {
-                throw new DeploymentException("Manifest class path entry is not allowed in a standalone jar (J2EE 1.4 Section 8.2)");
+                throw new DeploymentException("Manifest class path entry is not allowed in a standalone jar (JAVAEE 5 Section 8.2)");
             }
         } catch (IOException e) {
             throw new DeploymentException("Could not get manifest from app client module: " + moduleFile.getName());
@@ -656,10 +666,10 @@ public class AppClientModuleBuilder implements ModuleBuilder, CorbaGBeanNameSour
             }
 
             if (!pathUri.getPath().endsWith(".jar")) {
-                throw new DeploymentException("Manifest class path entries must end with the .jar extension (J2EE 1.4 Section 8.2): jarFile=" + jarFileLocation + ", path=" + path);
+                throw new DeploymentException("Manifest class path entries must end with the .jar extension (JAVAEE 5 Section 8.2): jarFile=" + jarFileLocation + ", path=" + path);
             }
             if (pathUri.isAbsolute()) {
-                throw new DeploymentException("Manifest class path entries must be relative (J2EE 1.4 Section 8.2): jarFile=" + jarFileLocation + ", path=" + path);
+                throw new DeploymentException("Manifest class path entries must be relative (JAVAEE 5 Section 8.2): jarFile=" + jarFileLocation + ", path=" + path);
             }
 
             // determine the target file
@@ -686,7 +696,7 @@ public class AppClientModuleBuilder implements ModuleBuilder, CorbaGBeanNameSour
                 try {
                     classPathJarFile = new JarFile(classPathFile);
                 } catch (IOException e) {
-                    throw new DeploymentException("Manifest class path entries must be a valid jar file (J2EE 1.4 Section 8.2): jarFile=" + jarFileLocation + ", path=" + path, e);
+                    throw new DeploymentException("Manifest class path entries must be a valid jar file (JAVAEE 5 Section 8.2): jarFile=" + jarFileLocation + ", path=" + path, e);
                 }
 
                 // add the client jars of this class path jar
