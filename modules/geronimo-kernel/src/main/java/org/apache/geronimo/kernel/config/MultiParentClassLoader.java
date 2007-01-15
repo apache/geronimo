@@ -475,7 +475,7 @@ public class MultiParentClassLoader extends URLClassLoader {
             }
         }
     }
-    protected void Finalize(){
+    protected void finalize(){
         ClassLoaderRegistry.remove(this);
     }
 
