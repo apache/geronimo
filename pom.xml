@@ -1117,7 +1117,7 @@
             <dependency>
                 <groupId>woodstox</groupId>
                 <artifactId>wstx-asl</artifactId>
-                <version>3.0.2</version>
+                <version>3.2.0</version>
             </dependency>
             
             <dependency>
@@ -1165,7 +1165,7 @@
             <dependency>
                 <groupId>com.sun.xml.bind</groupId>
                 <artifactId>jaxb-impl</artifactId>
-                <version>2.0.2</version>
+                <version>2.0.3</version>
                 <exclusions>
                     <exclusion>
                         <groupId>javax.xml.bind</groupId>
