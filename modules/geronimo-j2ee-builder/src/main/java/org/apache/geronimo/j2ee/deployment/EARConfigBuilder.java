@@ -86,12 +86,12 @@ import org.apache.geronimo.xbeans.geronimo.j2ee.GerApplicationType;
 import org.apache.geronimo.xbeans.geronimo.j2ee.GerExtModuleType;
 import org.apache.geronimo.xbeans.geronimo.j2ee.GerModuleType;
 import org.apache.geronimo.xbeans.geronimo.j2ee.GerSecurityDocument;
+import org.apache.geronimo.xbeans.javaee.ApplicationDocument;
 import org.apache.geronimo.xbeans.javaee.ApplicationType;
 import org.apache.geronimo.xbeans.javaee.ModuleType;
-import org.apache.geronimo.xbeans.javaee.ApplicationDocument;
+import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
-import org.apache.xmlbeans.XmlCursor;
 
 /**
  * @version $Rev$ $Date$
@@ -302,16 +302,13 @@ public class EARConfigBuilder implements ConfigurationBuilder, CorbaGBeanNameSou
             try {
                 URL applicationXmlUrl = DeploymentUtil.createJarURL(earFile, "META-INF/application.xml");
                 specDD = DeploymentUtil.readAll(applicationXmlUrl);
-            } catch (Exception e) {
-                //no application.xml, not for us
-                return null;
-            }
-            //we found something called application.xml in the right place, if we can't parse it it's an error
-            try {
+                //we found something called application.xml in the right place, if we can't parse it it's an error
                 XmlObject xmlObject = XmlBeansUtil.parse(specDD);
                 application = convertToApplicationSchema(xmlObject).getApplication();
             } catch (XmlException e) {
-                throw new DeploymentException("Could not parse application.xml", e);
+            	throw new DeploymentException("Could not parse application.xml", e);
+            } catch (Exception e) {
+            	//ee5 spec allows optional application.xml, continue with application == null
             }
         }
 
@@ -397,7 +394,7 @@ public class EARConfigBuilder implements ConfigurationBuilder, CorbaGBeanNameSou
         artifactType.setGroupId(Artifact.DEFAULT_GROUP_ID);
 
         // set the configId
-        String id = application.getId();
+        String id = application != null ? application.getId() : null;
         if (id == null) {
             File fileName = new File(module.getName());
             id = fileName.getName();
@@ -657,132 +654,197 @@ public class EARConfigBuilder implements ConfigurationBuilder, CorbaGBeanNameSou
         Map altVendorDDs = new HashMap();
         try {
             if (earFile != null) {
-                ModuleType[] moduleTypes = application.getModuleArray();
-                //paths is used to check that all modules in the geronimo plan are in the application.xml.
-                Set paths = new HashSet();
-                for (int i = 0; i < moduleTypes.length; i++) {
-                    ModuleType type = moduleTypes[i];
-                    if (type.isSetEjb()) {
-                        paths.add(type.getEjb().getStringValue());
-                    } else if (type.isSetWeb()) {
-                        paths.add(type.getWeb().getWebUri().getStringValue());
-                    } else if (type.isSetConnector()) {
-                        paths.add(type.getConnector().getStringValue());
-                    } else if (type.isSetJava()) {
-                        paths.add(type.getJava().getStringValue());
-                    }
-                }
-
-                // build map from module path to alt vendor dd
-                GerModuleType gerModuleTypes[] = gerApplication.getModuleArray();
-                for (int i = 0; i < gerModuleTypes.length; i++) {
-                    GerModuleType gerModule = gerModuleTypes[i];
-                    String path = null;
-                    if (gerModule.isSetEjb()) {
-                        path = gerModule.getEjb().getStringValue();
-                    } else if (gerModule.isSetWeb()) {
-                        path = gerModule.getWeb().getStringValue();
-                    } else if (gerModule.isSetConnector()) {
-                        path = gerModule.getConnector().getStringValue();
-                    } else if (gerModule.isSetJava()) {
-                        path = gerModule.getJava().getStringValue();
-                    }
-                    if (!paths.contains(path)) {
-                        throw new DeploymentException("Geronimo deployment plan refers to module '" + path + "' but that was not defined in the META-INF/application.xml");
-                    }
-
-                    if (gerModule.isSetAltDd()) {
-                        // the the url of the alt dd
-                        try {
-                            altVendorDDs.put(path, DeploymentUtil.toTempFile(earFile, gerModule.getAltDd().getStringValue()));
-                        } catch (IOException e) {
-                            throw new DeploymentException("Invalid alt vendor dd url: " + gerModule.getAltDd().getStringValue(), e);
+            	ModuleType[] moduleTypes = null;
+            	if(application != null) {
+            		moduleTypes = application.getModuleArray();
+            		//paths is used to check that all modules in the geronimo plan are in the application.xml.
+            		Set paths = new HashSet();
+            		for (int i = 0; i < moduleTypes.length; i++) {
+            			ModuleType type = moduleTypes[i];
+            			if (type.isSetEjb()) {
+            				paths.add(type.getEjb().getStringValue());
+            			} else if (type.isSetWeb()) {
+            				paths.add(type.getWeb().getWebUri().getStringValue());
+            			} else if (type.isSetConnector()) {
+            				paths.add(type.getConnector().getStringValue());
+            			} else if (type.isSetJava()) {
+            				paths.add(type.getJava().getStringValue());
+            			}
+            		}
+                    // build map from module path to alt vendor dd
+                    GerModuleType gerModuleTypes[] = gerApplication.getModuleArray();
+                    for (int i = 0; i < gerModuleTypes.length; i++) {
+                        GerModuleType gerModule = gerModuleTypes[i];
+                        String path = null;
+                        if (gerModule.isSetEjb()) {
+                            path = gerModule.getEjb().getStringValue();
+                        } else if (gerModule.isSetWeb()) {
+                            path = gerModule.getWeb().getStringValue();
+                        } else if (gerModule.isSetConnector()) {
+                            path = gerModule.getConnector().getStringValue();
+                        } else if (gerModule.isSetJava()) {
+                            path = gerModule.getJava().getStringValue();
                         }
-                    } else {
-                        //dd is included explicitly
-                        XmlObject[] anys = gerModule.selectChildren(GerModuleType.type.qnameSetForWildcardElements());
-                        if (anys.length != 1) {
-                            throw new DeploymentException("Unexpected count of xs:any elements in embedded vendor plan " + anys.length + " qnameset: " + GerModuleType.type.qnameSetForWildcardElements());
+                        if (!paths.contains(path)) {
+                            throw new DeploymentException("Geronimo deployment plan refers to module '" + path + "' but that was not defined in the META-INF/application.xml");
                         }
-                        altVendorDDs.put(path, anys[0]);
-                    }
-                }
 
-                // get a set containing all of the files in the ear that are actually modules
-                for (int i = 0; i < moduleTypes.length; i++) {
-                    ModuleType moduleXml = moduleTypes[i];
-
-                    String modulePath;
-                    ModuleBuilder builder;
-
-                    Object moduleContextInfo = null;
-                    String moduleTypeName;
-                    if (moduleXml.isSetEjb()) {
-                        modulePath = moduleXml.getEjb().getStringValue();
-                        builder = getEjbConfigBuilder();
-                        if (builder == null) {
-                            throw new DeploymentException("Cannot deploy ejb application; No ejb deployer defined: " + modulePath);
-                        }
-                        moduleTypeName = "an EJB";
-                    } else if (moduleXml.isSetWeb()) {
-                        modulePath = moduleXml.getWeb().getWebUri().getStringValue();
-                        if (getWebConfigBuilder() == null) {
-                            throw new DeploymentException("Cannot deploy web application; No war deployer defined: " + modulePath);
-                        }
-                        builder = getWebConfigBuilder();
-                        moduleTypeName = "a war";
-                        moduleContextInfo = moduleXml.getWeb().getContextRoot().getStringValue().trim();
-                    } else if (moduleXml.isSetConnector()) {
-                        modulePath = moduleXml.getConnector().getStringValue();
-                        if (getConnectorConfigBuilder() == null) {
-                            throw new DeploymentException("Cannot deploy resource adapter; No rar deployer defined: " + modulePath);
-                        }
-                        builder = getConnectorConfigBuilder();
-                        moduleTypeName = "a connector";
-                    } else if (moduleXml.isSetJava()) {
-                        modulePath = moduleXml.getJava().getStringValue();
-                        if (getAppClientConfigBuilder() == null) {
-                            throw new DeploymentException("Cannot deploy app client; No app client deployer defined: " + modulePath);
-                        }
-                        builder = getAppClientConfigBuilder();
-                        moduleTypeName = "an application client";
-                    } else {
-                        throw new DeploymentException("Could not find a module builder for module: " + moduleXml);
-                    }
-
-                    moduleLocations.add(modulePath);
-
-                    URL altSpecDD = null;
-                    if (moduleXml.isSetAltDd()) {
-                        try {
-                            altSpecDD = DeploymentUtil.createJarURL(earFile, moduleXml.getAltDd().getStringValue());
-                        } catch (MalformedURLException e) {
-                            throw new DeploymentException("Invalid alt sped dd url: " + moduleXml.getAltDd().getStringValue(), e);
+                        if (gerModule.isSetAltDd()) {
+                            // the the url of the alt dd
+                            try {
+                                altVendorDDs.put(path, DeploymentUtil.toTempFile(earFile, gerModule.getAltDd().getStringValue()));
+                            } catch (IOException e) {
+                                throw new DeploymentException("Invalid alt vendor dd url: " + gerModule.getAltDd().getStringValue(), e);
+                            }
+                        } else {
+                            //dd is included explicitly
+                            XmlObject[] anys = gerModule.selectChildren(GerModuleType.type.qnameSetForWildcardElements());
+                            if (anys.length != 1) {
+                                throw new DeploymentException("Unexpected count of xs:any elements in embedded vendor plan " + anys.length + " qnameset: " + GerModuleType.type.qnameSetForWildcardElements());
+                            }
+                            altVendorDDs.put(path, anys[0]);
                         }
                     }
+            	} 
+            	
+            	if(moduleTypes == null) {
+            		//no application.xml available, must inspect ear to locate and process modules
+            		//TODO //suport EE.8.2.1 bundled libraries
+            		Enumeration entries = earFile.entries();
+            		while (entries.hasMoreElements()) {
+            			ModuleBuilder builder = null;
+            			Object moduleContextInfo = null;
+            			String moduleTypeName = null;
+            			ZipEntry entry = (ZipEntry) entries.nextElement();
+            			if(entry.getName().endsWith(".war")) {
+            				if (getWebConfigBuilder() == null) {
+            					throw new DeploymentException("Cannot deploy web application; No war deployer defined: " + entry.getName());
+            				}
+            				builder = getWebConfigBuilder();
+            				moduleTypeName = "a war";
+            				moduleContextInfo = entry.getName().split(".war")[0];
+            			} else if(entry.getName().endsWith(".rar")) {
+            				if (getConnectorConfigBuilder() == null) {
+            					throw new DeploymentException("Cannot deploy resource adapter; No rar deployer defined: " + entry.getName());
+            				}
+            				builder = getConnectorConfigBuilder();
+            				moduleTypeName = "a connector";
+            			} else if(entry.getName().endsWith(".jar") && !entry.getName().startsWith("lib")) {
+                			try {
+                				NestedJarFile moduleFile = new NestedJarFile(earFile, entry.getName());
+                				if(moduleFile.getEntry("META-INF/application-client.xml") != null) {
+                					if (getAppClientConfigBuilder() == null) {
+                    					throw new DeploymentException("Cannot deploy app client; No app client deployer defined: " + entry.getName());
+                    				}
+                    				builder = getAppClientConfigBuilder();
+                    				moduleTypeName = "an application client";
+                				} else if(moduleFile.getEntry("META-INF/ejb-jar.xml") != null) {
+                					builder = getEjbConfigBuilder();
+                    				if (builder == null) {
+                    					throw new DeploymentException("Cannot deploy ejb application; No ejb deployer defined: " + entry.getName());
+                    				}
+                    				moduleTypeName = "an EJB";
+                				}
+                				//TODO if no ejb-jar.xml inspect classes for EJB component annotations to identify as EJBJar module
+                			} catch (IOException e) {
+                				throw new DeploymentException("Invalid moduleFile: " + entry.getName(), e);
+                			}
+            			} else {
+            				continue;
+            			}
+            			
+            			moduleLocations.add(entry.getName());
+            			
+            			NestedJarFile moduleFile;
+            			try {
+            				moduleFile = new NestedJarFile(earFile, entry.getName());
+            			} catch (IOException e) {
+            				throw new DeploymentException("Invalid moduleFile: " + entry.getName(), e);
+            			}
 
-                    NestedJarFile moduleFile;
-                    try {
-                        moduleFile = new NestedJarFile(earFile, modulePath);
-                    } catch (IOException e) {
-                        throw new DeploymentException("Invalid moduleFile: " + modulePath, e);
-                    }
+            			Module module = builder.createModule(altVendorDDs.get(entry.getName()),
+            					moduleFile,
+            					entry.getName(),
+            					null,
+            					environment,
+            					moduleContextInfo,
+            					earName,
+            					naming, idBuilder);
 
-                    Module module = builder.createModule(altVendorDDs.get(modulePath),
-                            moduleFile,
-                            modulePath,
-                            altSpecDD,
-                            environment,
-                            moduleContextInfo,
-                            earName,
-                            naming, idBuilder);
+            			if (module == null) {
+            				throw new DeploymentException("Module was not " + moduleTypeName + ": " + entry.getName());
+            			}
 
-                    if (module == null) {
-                        throw new DeploymentException("Module was not " + moduleTypeName + ": " + modulePath);
-                    }
+            			modules.add(module);
+            		}
+            	} else {
+            		// get a set containing all of the files in the ear that are actually modules
+            		for (int i = 0; i < moduleTypes.length; i++) {
+            			ModuleType moduleXml = moduleTypes[i];
 
-                    modules.add(module);
-                }
+            			String modulePath;
+            			ModuleBuilder builder;
+
+            			Object moduleContextInfo = null;
+            			String moduleTypeName;
+            			if (moduleXml.isSetEjb()) {
+            				modulePath = moduleXml.getEjb().getStringValue();
+            				builder = getEjbConfigBuilder();
+            				if (builder == null) {
+            					throw new DeploymentException("Cannot deploy ejb application; No ejb deployer defined: " + modulePath);
+            				}
+            				moduleTypeName = "an EJB";
+            			} else if (moduleXml.isSetWeb()) {
+            				modulePath = moduleXml.getWeb().getWebUri().getStringValue();
+            				if (getWebConfigBuilder() == null) {
+            					throw new DeploymentException("Cannot deploy web application; No war deployer defined: " + modulePath);
+            				}
+            				builder = getWebConfigBuilder();
+            				moduleTypeName = "a war";
+            				moduleContextInfo = moduleXml.getWeb().getContextRoot().getStringValue().trim();
+            			} else if (moduleXml.isSetConnector()) {
+            				modulePath = moduleXml.getConnector().getStringValue();
+            				if (getConnectorConfigBuilder() == null) {
+            					throw new DeploymentException("Cannot deploy resource adapter; No rar deployer defined: " + modulePath);
+            				}
+            				builder = getConnectorConfigBuilder();
+            				moduleTypeName = "a connector";
+            			} else if (moduleXml.isSetJava()) {
+            				modulePath = moduleXml.getJava().getStringValue();
+            				if (getAppClientConfigBuilder() == null) {
+            					throw new DeploymentException("Cannot deploy app client; No app client deployer defined: " + modulePath);
+            				}
+            				builder = getAppClientConfigBuilder();
+            				moduleTypeName = "an application client";
+            			} else {
+            				throw new DeploymentException("Could not find a module builder for module: " + moduleXml);
+            			}
+
+            			moduleLocations.add(modulePath);
+
+            			NestedJarFile moduleFile;
+            			try {
+            				moduleFile = new NestedJarFile(earFile, modulePath);
+            			} catch (IOException e) {
+            				throw new DeploymentException("Invalid moduleFile: " + modulePath, e);
+            			}
+
+            			Module module = builder.createModule(altVendorDDs.get(modulePath),
+            					moduleFile,
+            					modulePath,
+            					getAltSpecDDURL(earFile, moduleXml),
+            					environment,
+            					moduleContextInfo,
+            					earName,
+            					naming, idBuilder);
+
+            			if (module == null) {
+            				throw new DeploymentException("Module was not " + moduleTypeName + ": " + modulePath);
+            			}
+
+            			modules.add(module);
+            		}
+            	}
             }
 
             //deploy the extension modules
@@ -904,6 +966,17 @@ public class EARConfigBuilder implements ConfigurationBuilder, CorbaGBeanNameSou
             }
         }
     }
+    
+	private URL getAltSpecDDURL(JarFile earFile, ModuleType moduleXml) throws DeploymentException {
+		if (moduleXml != null && moduleXml.isSetAltDd()) {
+			try {
+				return DeploymentUtil.createJarURL(earFile, moduleXml.getAltDd().getStringValue());
+			} catch (MalformedURLException e) {
+				throw new DeploymentException("Invalid alt sped dd url: " + moduleXml.getAltDd().getStringValue(), e);
+			}
+		}
+		return null;
+	}
 
     private ModuleBuilder getBuilder(Module module) throws DeploymentException {
         if (module instanceof EJBModule) {
