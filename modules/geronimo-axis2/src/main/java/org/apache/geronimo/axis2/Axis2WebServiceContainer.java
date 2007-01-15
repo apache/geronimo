@@ -44,6 +44,7 @@ import org.apache.ws.commons.schema.XmlSchema;
 import javax.xml.namespace.QName;
 import java.io.PrintWriter;
 import java.net.SocketException;
+import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -58,7 +59,7 @@ public class Axis2WebServiceContainer implements WebServiceContainer {
     private transient final ClassLoader classLoader;
     private final String endpointClassName;
     private final PortInfo portInfo;
-    ConfigurationContext configurationContext = ConfigurationContextFactory.createEmptyConfigurationContext();
+    private ConfigurationContext configurationContext;
     private String contextRoot = null;
 
     public Axis2WebServiceContainer(PortInfo portInfo, String endpointClassName, ClassLoader classLoader) {
@@ -66,10 +67,13 @@ public class Axis2WebServiceContainer implements WebServiceContainer {
         this.endpointClassName = endpointClassName;
         this.portInfo = portInfo;
         try {
+            configurationContext = ConfigurationContextFactory.createDefaultConfigurationContext();
             AxisService service = AxisService.createService(endpointClassName, configurationContext.getAxisConfiguration(), RPCMessageReceiver.class);
             configurationContext.getAxisConfiguration().addService(service);
         } catch (AxisFault af) {
             throw new RuntimeException(af);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
     }
 
@@ -144,12 +148,9 @@ public class Axis2WebServiceContainer implements WebServiceContainer {
                 } else {
                     response.setStatusCode(500);
                     String msg = ex.getMessage();
-                    if (msg == null || msg.trim().length() == 0) {
-                        msg = "Exception message unknown";
-                    }
                     response.setHeader(HTTPConstants.HEADER_CONTENT_TYPE, "text/plain");
                     PrintWriter pw = new PrintWriter(response.getOutputStream());
-                    pw.write(msg);
+                    ex.printStackTrace(pw);
                     pw.flush();
                 }
             }
@@ -184,7 +185,8 @@ public class Axis2WebServiceContainer implements WebServiceContainer {
         final String servicePath = configurationContext.getServiceContextPath();
         final String contextPath = (servicePath.startsWith("/") ? servicePath : "/" + servicePath) + "/";
 
-        String uri = request.getURI().toString();
+        URI uri = request.getURI();
+        String path = uri.getPath();
         String soapAction = request.getHeader(HTTPConstants.HEADER_SOAP_ACTION);
 
         // TODO: Port this section
@@ -209,14 +211,14 @@ public class Axis2WebServiceContainer implements WebServiceContainer {
 //        }
 
         if (request.getMethod() == Request.GET) {
-            if (!uri.startsWith(contextPath)) {
+            if (!path.startsWith(contextPath)) {
                 response.setStatusCode(301);
                 response.setHeader("Location", contextPath);
                 return;
             }
-            if (uri.indexOf("?") < 0) {
-                if (!uri.endsWith(contextPath)) {
-                    String serviceName = uri.replaceAll(contextPath, "");
+            if (uri.toString().indexOf("?") < 0) {
+                if (!path.endsWith(contextPath)) {
+                    String serviceName = path.replaceAll(contextPath, "");
                     if (serviceName.indexOf("/") < 0) {
                         String res = HTTPTransportReceiver.printServiceHTML(serviceName, configurationContext);
                         PrintWriter pw = new PrintWriter(response.getOutputStream());
@@ -225,28 +227,26 @@ public class Axis2WebServiceContainer implements WebServiceContainer {
                     }
                 }
             }
-            if (uri.endsWith("?wsdl2")) {
-                String serviceName = uri.substring(uri.lastIndexOf("/") + 1, uri.length() - 6);
+            if (uri.getQuery().startsWith("wsdl2")) {
+                String serviceName = path.substring(path.lastIndexOf("/") + 1, path.length() - 6);
                 HashMap services = configurationContext.getAxisConfiguration().getServices();
                 final AxisService service = (AxisService) services.get(serviceName);
                 if (service != null) {
-                    final String ip = HttpUtils.getIpAddress();
-                    service.printWSDL2(response.getOutputStream(), ip, servicePath);
+                    service.printWSDL2(response.getOutputStream(), uri.getHost(), servicePath);
                     return;
                 }
             }
-            if (uri.endsWith("?wsdl")) {
-                String serviceName = uri.substring(uri.lastIndexOf("/") + 1, uri.length() - 5);
+            if (uri.getQuery().startsWith("wsdl")) {
+                String serviceName = path.substring(path.lastIndexOf("/") + 1);
                 HashMap services = configurationContext.getAxisConfiguration().getServices();
                 final AxisService service = (AxisService) services.get(serviceName);
                 if (service != null) {
-                    final String ip = HttpUtils.getIpAddress();
-                    service.printWSDL(response.getOutputStream(), ip, servicePath);
+                    service.printWSDL(response.getOutputStream(), uri.getHost(), servicePath);
                     return;
                 }
             }
-            if (uri.endsWith("?xsd")) {
-                String serviceName = uri.substring(uri.lastIndexOf("/") + 1, uri.length() - 4);
+            if (uri.getQuery().startsWith("xsd=")) {
+                String serviceName = path.substring(path.lastIndexOf("/") + 1);
                 HashMap services = configurationContext.getAxisConfiguration().getServices();
                 final AxisService service = (AxisService) services.get(serviceName);
                 if (service != null) {
@@ -255,9 +255,9 @@ public class Axis2WebServiceContainer implements WebServiceContainer {
                 }
             }
             //cater for named xsds - check for the xsd name
-            if (uri.indexOf("?xsd=") > 0) {
-                String serviceName = uri.substring(uri.lastIndexOf("/") + 1, uri.lastIndexOf("?xsd="));
-                String schemaName = uri.substring(uri.lastIndexOf("=") + 1);
+            if (uri.getQuery().startsWith("xsd")) {
+                String serviceName = path.substring(path.lastIndexOf("/") + 1);
+                String schemaName = uri.getQuery().substring(uri.getQuery().lastIndexOf("=") + 1);
 
                 HashMap services = configurationContext.getAxisConfiguration().getServices();
                 AxisService service = (AxisService) services.get(serviceName);
@@ -287,9 +287,9 @@ public class Axis2WebServiceContainer implements WebServiceContainer {
                     msgContext,
                     response.getOutputStream(),
                     soapAction,
-                    uri,
+                    path,
                     configurationContext,
-                    HTTPTransportReceiver.getGetRequestParameters(uri));
+                    HTTPTransportReceiver.getGetRequestParameters(path));
 
             if (!processed) {
                 response.setStatusCode(200);
@@ -303,7 +303,7 @@ public class Axis2WebServiceContainer implements WebServiceContainer {
             // deal with POST request
 
             msgContext.setProperty(MessageContext.TRANSPORT_OUT, response.getOutputStream());
-            msgContext.setProperty(Constants.OUT_TRANSPORT_INFO, response.getOutputStream());
+            msgContext.setProperty(Constants.OUT_TRANSPORT_INFO, new Axis2TransportInfo(response));
 
             String contenttype = request.getHeader(HTTPConstants.HEADER_CONTENT_TYPE);
             HTTPTransportUtils.processHTTPPostRequest(
@@ -312,7 +312,7 @@ public class Axis2WebServiceContainer implements WebServiceContainer {
                     response.getOutputStream(),
                     contenttype,
                     soapAction,
-                    uri);
+                    path);
 
         } else {
             throw new UnsupportedOperationException("[" + request.getMethod() + " ] method not supported");
