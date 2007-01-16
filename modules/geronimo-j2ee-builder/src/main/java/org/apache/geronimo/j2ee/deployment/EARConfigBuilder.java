@@ -357,6 +357,10 @@ public class EARConfigBuilder implements ConfigurationBuilder, CorbaGBeanNameSou
         LinkedHashSet modules = new LinkedHashSet();
         try {
             addModules(earFile, application, gerApplication, moduleLocations, modules, environment, earName, idBuilder);
+            if(application == null && modules.isEmpty()) {
+            	//if no application.xml and no modules detected, return null for stand-alone module processing
+            	return null;
+            }
         } catch (Throwable e) {
             // close all the modules
             for (Iterator iterator = modules.iterator(); iterator.hasNext();) {
