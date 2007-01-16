@@ -788,7 +788,6 @@ public class EARConfigBuilder implements ConfigurationBuilder, CorbaGBeanNameSou
             		} 
             	} else {
             		//no application.xml available, must inspect ear to locate and process modules
-            		//TODO //suport EE.8.2.1 bundled libraries
             		Enumeration entries = earFile.entries();
             		while (entries.hasMoreElements()) {
             			ModuleBuilder builder = null;
@@ -823,6 +822,8 @@ public class EARConfigBuilder implements ConfigurationBuilder, CorbaGBeanNameSou
             							throw new DeploymentException("Cannot deploy ejb application; No ejb deployer defined: " + entry.getName());
             						}
             						moduleTypeName = "an EJB";
+            					} else {
+            						continue;
             					}
             					//TODO if no ejb-jar.xml inspect classes for EJB component annotations to identify as EJBJar module
             				} catch (IOException e) {
