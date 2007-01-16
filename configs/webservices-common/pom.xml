@@ -51,6 +51,12 @@
             <artifactId>jaxb-impl</artifactId>
         </dependency>
 
+        <!-- JAXR implementation -->
+        <dependency>
+            <groupId>scout</groupId>
+            <artifactId>scout</artifactId>
+        </dependency>
+
     </dependencies>
     
 </project>
