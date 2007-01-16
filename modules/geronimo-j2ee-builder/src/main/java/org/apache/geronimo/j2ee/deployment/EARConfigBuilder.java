@@ -522,7 +522,7 @@ public class EARConfigBuilder implements ConfigurationBuilder, CorbaGBeanNameSou
                             break;
                         }
                     }
-                    if(libDir != null && entry.getName().startsWith(libDir)) {
+                    if(libDir != null && entry.getName().startsWith(libDir) && entry.getName().endsWith(".jar")) {
             			NestedJarFile library = new NestedJarFile(earFile, entry.getName());
                         earContext.addIncludeAsPackedJar(URI.create(entry.getName()), library);
                     } else if(addEntry) {
