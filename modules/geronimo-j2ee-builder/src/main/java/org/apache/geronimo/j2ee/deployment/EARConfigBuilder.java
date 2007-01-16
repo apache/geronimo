@@ -498,6 +498,19 @@ public class EARConfigBuilder implements ConfigurationBuilder, CorbaGBeanNameSou
             // Copy over all files that are _NOT_ modules (e.g. META-INF and APP-INF files)
             Set moduleLocations = applicationInfo.getModuleLocations();
             if (ConfigurationModuleType.EAR == applicationType && earFile != null) {
+            	//get the value of the library-directory element in spec DD
+            	ApplicationType specDD = (ApplicationType) applicationInfo.getSpecDD();
+            	String libDir = null;
+            	//value 'lib' is used if element not set or ear does not contain a dd
+            	if(specDD == null || !specDD.isSetLibraryDirectory()) {
+            		libDir = "lib";
+            	} else {
+            		String value = specDD.getLibraryDirectory().getStringValue().trim();
+            		//only set if not empty value, empty value implies no library directory
+            		if(value.length() > 0) {
+            			libDir = value;
+            		}
+            	}
                 for (Enumeration e = earFile.entries(); e.hasMoreElements();) {
                     ZipEntry entry = (ZipEntry) e.nextElement();
                     String entryName = entry.getName();
@@ -509,8 +522,11 @@ public class EARConfigBuilder implements ConfigurationBuilder, CorbaGBeanNameSou
                             break;
                         }
                     }
-                    if (addEntry) {
-                        earContext.addFile(URI.create(entry.getName()), earFile, entry);
+                    if(libDir != null && entry.getName().startsWith(libDir)) {
+            			NestedJarFile library = new NestedJarFile(earFile, entry.getName());
+                        earContext.addIncludeAsPackedJar(URI.create(entry.getName()), library);
+                    } else if(addEntry) {
+                    	earContext.addFile(URI.create(entry.getName()), earFile, entry);
                     }
                 }
             }
