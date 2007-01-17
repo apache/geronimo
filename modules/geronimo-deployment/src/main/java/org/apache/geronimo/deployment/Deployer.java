@@ -121,7 +121,7 @@ public class Deployer {
         }
 
         try {
-            return deploy(inPlace, planFile, moduleFile, null, true, null, null, null, null, null, null, null, targetConfigStore);
+            return deploy(inPlace, moduleFile, planFile, null, true, null, null, null, null, null, null, null, targetConfigStore);
         } catch (DeploymentException e) {
             log.debug("Deployment failed: plan=" + planFile + ", module=" + originalModuleFile, e);
             throw e.cleanse();
@@ -185,8 +185,8 @@ public class Deployer {
     }
 
     public List deploy(boolean inPlace,
-            File planFile,
             File moduleFile,
+            File planFile,
             File targetFile,
             boolean install,
             String mainClass,

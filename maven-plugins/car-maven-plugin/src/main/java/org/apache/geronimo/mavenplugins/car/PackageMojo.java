@@ -649,8 +649,8 @@ public class PackageMojo
     private List invokeDeployer(final Kernel kernel, final AbstractName deployer, final String targetConfigStore) throws Exception {
         Object[] args = {
             Boolean.FALSE, // Not in-place
-            planFile,
             moduleFile,
+            planFile,
             null, // Target file
             Boolean.TRUE, // Install
             null, // main-class
