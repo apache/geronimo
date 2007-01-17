@@ -33,6 +33,8 @@ import org.apache.geronimo.kernel.KernelRegistry;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.Version;
 
+import org.apache.geronimo.derby.DerbySystemGBean;
+
 /**
  * A static class to handle retreiving connections. This class is built to
  * handle lookups to the SystemDatabase as a special case. If a connection is
@@ -94,7 +96,24 @@ public class DerbyConnectionUtil {
             throw new Error(t);
         }
     }
-
+    
+    private static String derbyHome = null;
+    
+    /**
+     * Get the Derby home directory path.
+     */
+    public static String getDerbyHome() {
+        if (derbyHome == null) {
+            try {
+                derbyHome = (String)KernelRegistry.getSingleKernel().getAttribute(DerbySystemGBean.class, "derbyHome");
+            }
+            catch (Exception e) {
+                throw new RuntimeException("Failed to query derbyHome", e);
+            }
+        }
+        return derbyHome;
+    }
+    
     /**
      * Get database connection.
      *
