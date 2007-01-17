@@ -29,6 +29,7 @@ import javax.management.remote.JMXServiceURL;
 import javax.management.remote.JMXConnector;
 import javax.management.remote.JMXConnectorFactory;
 import javax.management.MBeanServerConnection;
+import javax.management.ObjectName;
 
 //
 // FIXME: It should be possible to query state with-out any Geronimo classes,
@@ -135,6 +136,32 @@ public class ServerProxy
         }
         
         return fullyStarted;
+    }
+
+    public String getGeronimoHome() {
+        String home = null;
+
+        try {
+            ObjectName systemInfoQuery = new ObjectName("*:name=ServerInfo,j2eeType=GBean,*");
+
+            getConnection();
+           
+            Set set = this.mbeanConnection.queryNames(systemInfoQuery, null);
+
+            if (set.size() > 0) {
+                ObjectName found = (ObjectName)set.iterator().next();
+                home = (String)this.mbeanConnection.getAttribute(found, "currentBaseDirectory");
+            } 
+
+        } catch (IOException e) {
+            log.debug("Connection failure; ignoring", e);
+            lastError = e;
+        } catch (Exception e) {
+            log.debug("Unable to determine if the server home directory", e);
+            lastError = e;
+        }
+        
+        return home;
     }
 
     public Throwable getLastError() {
