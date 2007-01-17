@@ -42,6 +42,8 @@ import org.apache.geronimo.security.util.ConfigurationUtil;
 public final class AppClientContainer {
     private static final Class[] MAIN_ARGS = {String[].class};
 
+    public static LoginContext loginContext;
+
     private final String mainClassName;
     private final AppClientPlugin jndiContext;
     private final AbstractName appClientModuleName;
@@ -111,7 +113,7 @@ public final class AppClientContainer {
         ClassLoader oldClassLoader = thread.getContextClassLoader();
         Callers oldCallers = ContextManager.getCallers();
         Subject clientSubject = defaultSubject;
-        LoginContext loginContext = null;
+//        LoginContext loginContext = null;
         try {
             thread.setContextClassLoader(classLoader);
             if (callbackHandlerClass != null) {
