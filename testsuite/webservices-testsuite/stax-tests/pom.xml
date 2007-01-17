@@ -55,6 +55,7 @@
             <modules>
                 <module>stax-war</module>
                 <module>stax-ejb</module>
+                <module>stax-client</module>
             </modules>
         </profile>
     </profiles>

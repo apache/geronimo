@@ -55,6 +55,7 @@
             <modules>
                 <module>jaxr-war</module>
                 <module>jaxr-ejb</module>
+                <module>jaxr-client</module>
             </modules>
         </profile>
     </profiles>

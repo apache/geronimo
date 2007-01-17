@@ -37,6 +37,7 @@
             <modules>
                 <module>jaxb-war</module>
                 <module>jaxb-ejb</module>
+                <module>jaxb-client</module>
             </modules>
         </profile>
     </profiles>
