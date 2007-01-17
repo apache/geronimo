@@ -50,8 +50,8 @@ public class SchemaConversionTest extends XmlBeansTestSupport {
         XmlObject xmlObject = XmlObject.Factory.parse(srcXml, options);
         xmlObject = webModuleBuilder.convertToServletSchema(xmlObject);
         XmlObject expected = XmlObject.Factory.parse(expectedOutputXml);
-        System.out.println(xmlObject.toString());
-        System.out.println(expected.toString());
+        log.debug(xmlObject.toString());
+        log.debug(expected.toString());
         List problems = new ArrayList();
         boolean ok = compareXmlObjects(xmlObject, expected, problems);
         assertTrue("Differences: " + problems, ok);
@@ -66,8 +66,8 @@ public class SchemaConversionTest extends XmlBeansTestSupport {
         XmlObject xmlObject = XmlObject.Factory.parse(srcXml);
         xmlObject = webModuleBuilder.convertToServletSchema(xmlObject);
         XmlObject expected = XmlObject.Factory.parse(expectedOutputXml);
-        System.out.println(xmlObject.toString());
-        System.out.println(expected.toString());
+        log.debug(xmlObject.toString());
+        log.debug(expected.toString());
         List problems = new ArrayList();
         boolean ok = compareXmlObjects(xmlObject, expected, problems);
         assertTrue("Differences: " + problems, ok);
@@ -81,7 +81,7 @@ public class SchemaConversionTest extends XmlBeansTestSupport {
         URL expectedOutputXml = classLoader.getResource("j2ee_1_3dtd/web-1-25.xml");
         XmlObject xmlObject = XmlObject.Factory.parse(srcXml);
         xmlObject = webModuleBuilder.convertToServletSchema(xmlObject);
-//        System.out.println(xmlObject.toString());
+//        log.debug(xmlObject.toString());
         XmlObject expected = XmlObject.Factory.parse(expectedOutputXml);
         List problems = new ArrayList();
         boolean ok = compareXmlObjects(xmlObject, expected, problems);
@@ -97,8 +97,8 @@ public class SchemaConversionTest extends XmlBeansTestSupport {
         XmlObject xmlObject = XmlObject.Factory.parse(srcXml);
         xmlObject = webModuleBuilder.convertToServletSchema(xmlObject);
         XmlObject expected = XmlObject.Factory.parse(expectedOutputXml);
-//        System.out.println(xmlObject.toString());
-//        System.out.println(expected.toString());
+//        log.debug(xmlObject.toString());
+//        log.debug(expected.toString());
         List problems = new ArrayList();
         boolean ok = compareXmlObjects(xmlObject, expected, problems);
         assertTrue("Differences: " + problems, ok);
