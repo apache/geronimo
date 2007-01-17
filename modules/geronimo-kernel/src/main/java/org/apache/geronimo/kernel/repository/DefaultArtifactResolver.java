@@ -154,7 +154,11 @@ public class DefaultArtifactResolver implements ArtifactResolver {
             }
 
             if (list.isEmpty()) {
-                return null;
+                if ("xbean-naming".equals(working.getArtifactId())) {
+                    return new Artifact("org.apache.xbean", "xbean-naming", "2.8", "jar");
+                } else {
+                    return null;
+                }
             }
             return (Artifact) list.last();
         }

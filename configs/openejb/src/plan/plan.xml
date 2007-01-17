@@ -20,6 +20,9 @@
 
 <module xmlns="http://geronimo.apache.org/xml/ns/deployment-${geronimoSchemaVersion}">
 
+    <gbean name="OpenEjbSystem" class="org.apache.geronimo.openejb.OpenEjbSystemGBean"/>
+
+<!--
     <gbean name="StatelessEjbContainer" class="org.apache.openejb.slsb.DefaultStatelessEjbContainerGBean">
         <reference name="TransactionManager">
             <name>TransactionManager</name>
@@ -101,13 +104,13 @@
         </reference>
         <attribute name="doAsCurrentCaller">true</attribute>
     </gbean>
-    
+
     <gbean name="DefaultThreadPoolExecutorAdapter" class="org.apache.openejb.util.BackportExecutorAdapter">
         <reference name="TargetExecutor">
             <name>DefaultThreadPool</name>
         </reference>
     </gbean>
-    
+
     <gbean name="EJBNetworkService" class="org.activeio.xnet.StandardServiceStackGBean">
         <attribute name="name">EJB</attribute>
         <attribute name="port">${PlanOpenEJBPort}</attribute>
@@ -132,7 +135,6 @@
         </reference>
     </gbean>
 
-    <!-- pattern domain name must match the domain of the j2eeServer attribute of the EAR builder in the deployer plan -->
     <gbean name="DeploymentIndex" class="org.apache.openejb.DeploymentIndexGBean">
         <references name="EjbDeployments">
             <pattern>
@@ -152,5 +154,6 @@
             <name>MBeanServerReference</name>
         </reference>
     </gbean>
+-->
     
 </module>

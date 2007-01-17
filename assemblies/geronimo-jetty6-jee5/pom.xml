@@ -107,12 +107,12 @@
             <type>car</type>
         </dependency>
 
-        <dependency>
+        <!--dependency>
             <groupId>org.apache.geronimo.configs</groupId>
             <artifactId>j2ee-corba-yoko</artifactId>
             <version>${version}</version>
             <type>car</type>
-        </dependency>
+        </dependency-->
 
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
@@ -191,12 +191,12 @@
             <type>car</type>
         </dependency>
 
-        <dependency>
+        <!--dependency>
             <groupId>org.apache.geronimo.configs</groupId>
             <artifactId>client-corba-yoko</artifactId>
             <version>${version}</version>
             <type>car</type>
-        </dependency>
+        </dependency-->
 
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
@@ -226,12 +226,12 @@
             <type>car</type>
         </dependency>
 
-        <dependency>
+        <!--dependency>
             <groupId>org.apache.geronimo.configs</groupId>
             <artifactId>openejb-corba-deployer</artifactId>
             <version>${version}</version>
             <type>car</type>
-        </dependency>
+        </dependency-->
 
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>

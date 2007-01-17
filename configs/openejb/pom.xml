@@ -49,16 +49,9 @@
             <type>car</type>
         </dependency>
 
-        <!--<dependency>-->
-            <!--<groupId>org.apache.geronimo.configs</groupId>-->
-            <!--<artifactId>transaction-jta11</artifactId>-->
-            <!--<version>${version}</version>-->
-            <!--<type>car</type>-->
-        <!--</dependency>-->
-
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
-            <artifactId>axis</artifactId>
+            <artifactId>transaction-jta11</artifactId>
             <version>${version}</version>
             <type>car</type>
         </dependency>
@@ -76,19 +69,15 @@
         </dependency>
 
         <dependency>
-            <groupId>org.apache.openejb</groupId>
-            <artifactId>openejb-axis</artifactId>
+            <groupId>org.apache.geronimo.modules</groupId>
+            <artifactId>geronimo-openejb</artifactId>
+            <version>${version}</version>
         </dependency>
 
         <dependency>
             <groupId>org.apache.yoko</groupId>
             <artifactId>yoko-spec-corba</artifactId>
         </dependency>
-
-        <!--<dependency>-->
-            <!--<groupId>concurrent</groupId>-->
-            <!--<artifactId>concurrent</artifactId>-->
-        <!--</dependency>-->
 
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>

@@ -20,21 +20,9 @@
 
 <module xmlns="http://geronimo.apache.org/xml/ns/deployment-${geronimoSchemaVersion}">
 
-    <gbean name="EJBBuilder" class="org.apache.openejb.deployment.OpenEjbModuleBuilder">
-        <attribute name="listener">?name=WebContainer</attribute>
-        <attribute name="defaultStatelessEjbContainer">StatelessEjbContainer</attribute>
-        <attribute name="defaultStatefulEjbContainer">StatefulEjbContainer</attribute>
-        <attribute name="defaultBmpEjbContainer">BmpEjbContainer</attribute>
-        <attribute name="defaultCmpEjbContainer">CmpEjbContainer</attribute>
-        <attribute name="defaultMdbEjbContainer">MdbEjbContainer</attribute>
-        <reference name="WebServiceLinkTemplate">
-            <name>WebServiceEJBLinkTemplate</name>
-        </reference>
-        <reference name="SecurityBuilders">
-            <name>SecurityBuilder</name>
-        </reference>
-        <reference name="ServiceBuilders">
-            <name>GBeanBuilder</name>
+    <gbean name="EJBBuilder" class="org.apache.geronimo.openejb.deployment.EjbModuleBuilder">
+        <reference name="OpenEjbSystem">
+            <name>OpenEjbSystem</name>
         </reference>
         <references name="WebServiceBuilder">
             <pattern>
@@ -44,14 +32,17 @@
                 <name>UnavailableWebServiceBuilder</name>
             </pattern>
         </references>
+        <reference name="SecurityBuilders">
+            <name>SecurityBuilder</name>
+        </reference>
+        <reference name="ServiceBuilders">
+            <name>GBeanBuilder</name>
+        </reference>
         <reference name="NamingBuilders">
             <name>NamingBuilders</name>
         </reference>
         <reference name="ResourceEnvironmentSetter">
             <name>ResourceRefBuilder</name>
-        </reference>
-        <reference name="ActivationSpecInfoLocator">
-            <name>ConnectorBuilder</name>
         </reference>
         <xml-attribute name="defaultEnvironment">
             <environment xmlns="http://geronimo.apache.org/xml/ns/deployment-${geronimoSchemaVersion}">
@@ -72,10 +63,7 @@
     </gbean>
 
 
-    <!--<gbean name="CSSAttributeBuilder" class="org.apache.openejb.corba.security.config.css.CSSConfigEditor"/>-->
-    <!--<gbean name="TSSAttributeBuilder" class="org.apache.openejb.corba.security.config.tss.TSSConfigEditor"/>-->
-
-    <gbean name="OpenEjbRemoteRefBuilder" class="org.apache.openejb.deployment.OpenEjbRemoteRefBuilder">
+    <gbean name="OpenEjbRemoteRefBuilder" class="org.apache.geronimo.openejb.deployment.ejbref.RemoteEjbRefBuilder">
         <attribute name="eeNamespaces">http://java.sun.com/xml/ns/j2ee</attribute>
         <xml-attribute name="defaultEnvironment">
             <environment xmlns="http://geronimo.apache.org/xml/ns/deployment-${geronimoSchemaVersion}">
@@ -90,7 +78,7 @@
         </xml-attribute>
     </gbean>
 
-    <gbean name="OpenEjbClientRemoteRefBuilder" class="org.apache.openejb.deployment.OpenEjbClientRemoteRefBuilder">
+    <gbean name="OpenEjbClientRemoteRefBuilder" class="org.apache.geronimo.openejb.deployment.ejbref.ClientEjbRefBuilder">
         <attribute name="eeNamespaces">http://java.sun.com/xml/ns/j2ee</attribute>
         <attribute name="host">${PlanClientAddresses}</attribute>
         <attribute name="port">${PlanOpenEJBPort}</attribute>
@@ -107,12 +95,8 @@
         </xml-attribute>
     </gbean>
 
-    <gbean name="OpenEjbLocalRefBuilder" class="org.apache.openejb.deployment.OpenEjbLocalRefBuilder">
+    <gbean name="OpenEjbLocalRefBuilder" class="org.apache.geronimo.openejb.deployment.ejbref.LocalEjbRefBuilder">
         <attribute name="eeNamespaces">http://java.sun.com/xml/ns/j2ee</attribute>
     </gbean>
-
-    <gbean name="WebServiceEJBLinkTemplate" class="org.apache.openejb.server.axis.WSContainerGBean"/>
-
-    <gbean name="EJBConfigurer" class="org.apache.openejb.deployment.EjbConfigurer"/>
 
 </module>

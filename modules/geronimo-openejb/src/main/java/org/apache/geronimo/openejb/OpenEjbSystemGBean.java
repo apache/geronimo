@@ -1,0 +1,92 @@
+/**
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
+package org.apache.geronimo.openejb;
+
+import java.util.Properties;
+import java.io.IOException;
+
+import javax.naming.NamingException;
+
+import org.apache.openejb.alt.config.ConfigurationFactory;
+import org.apache.openejb.alt.config.ClientModule;
+import org.apache.openejb.alt.config.EjbModule;
+import org.apache.openejb.assembler.classic.Assembler;
+import org.apache.openejb.assembler.classic.ContainerInfo;
+import org.apache.openejb.assembler.classic.ClientInfo;
+import org.apache.openejb.assembler.classic.EjbJarInfo;
+import org.apache.openejb.spi.ContainerSystem;
+import org.apache.openejb.Container;
+import org.apache.openejb.OpenEJBException;
+import org.apache.openejb.DeploymentInfo;
+import org.apache.geronimo.gbean.GBeanInfo;
+import org.apache.geronimo.gbean.GBeanInfoBuilder;
+
+/**
+ * @version $Rev$ $Date$
+ */
+public class OpenEjbSystemGBean implements OpenEjbSystem {
+    private final ConfigurationFactory configurationFactory;
+    private final Assembler assembler;
+
+    public OpenEjbSystemGBean() {
+        configurationFactory = new ConfigurationFactory();
+        assembler = new Assembler();
+        GeronimoThreadContextListener.init();
+    }
+
+    public ContainerSystem getContainerSystem() {
+        return assembler.getContainerSystem();
+    }
+
+    public Container configureService(String serviceId, Properties declaredProperties, String providerId, String serviceType) throws OpenEJBException {
+        ContainerInfo containerInfo = configurationFactory.configureService(ContainerInfo.class, serviceId, declaredProperties, providerId, ContainerInfo.class.getSimpleName());
+        assembler.createContainer(containerInfo);
+        Container container = assembler.getContainerSystem().getContainer(serviceId);
+        return container;
+    }
+
+    public ClientInfo configureApplication(ClientModule clientModule) throws OpenEJBException {
+        return configurationFactory.configureApplication(clientModule);
+    }
+
+    public EjbJarInfo configureApplication(EjbModule ejbModule) throws OpenEJBException {
+        return configurationFactory.configureApplication(ejbModule);
+    }
+
+    public void createClient(ClientInfo clientInfo, ClassLoader classLoader) throws NamingException, IOException, OpenEJBException {
+        assembler.createClient(clientInfo, classLoader);
+    }
+
+    public void createEjbJar(EjbJarInfo ejbJarInfo, ClassLoader classLoader) throws NamingException, IOException, OpenEJBException {
+        assembler.createEjbJar(ejbJarInfo, classLoader);
+    }
+
+    public DeploymentInfo getDeploymentInfo(String deploymentId) {
+        return getContainerSystem().getDeploymentInfo(deploymentId);
+    }
+
+    public static final GBeanInfo GBEAN_INFO;
+
+    static {
+        GBeanInfoBuilder infoBuilder = GBeanInfoBuilder.createStatic(OpenEjbSystemGBean.class);
+        GBEAN_INFO = infoBuilder.getBeanInfo();
+    }
+
+    public static GBeanInfo getGBeanInfo() {
+        return GBEAN_INFO;
+    }
+}

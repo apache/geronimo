@@ -52,7 +52,7 @@
             <artifactId>openejb</artifactId>
             <version>${version}</version>
             <type>car</type>
-            <scope>runtime</scope>
+            <!--<scope>runtime</scope>-->
         </dependency>
 
         <dependency>
@@ -62,19 +62,20 @@
         </dependency>
         
         <dependency>
-            <groupId>org.apache.openejb</groupId>
-            <artifactId>openejb-builder</artifactId>
+            <groupId>org.apache.geronimo.modules</groupId>
+            <artifactId>geronimo-openejb-builder</artifactId>
+            <version>${version}</version>
         </dependency>
         
-        <dependency>
+        <!--dependency>
             <groupId>org.apache.openejb</groupId>
             <artifactId>openejb-axis</artifactId>
-        </dependency>
+        </dependency-->
         
-        <dependency>
+        <!--dependency>
             <groupId>org.apache.openejb</groupId>
             <artifactId>openejb-pkgen-builder</artifactId>
-        </dependency>
+        </dependency-->
         
     </dependencies>
     

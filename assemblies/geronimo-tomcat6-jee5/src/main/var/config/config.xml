@@ -62,10 +62,6 @@
     <module name="org.apache.geronimo.configs/cxf/${version}/car" load="false"/>
 
     <module name="org.apache.geronimo.configs/openejb/${version}/car">
-        <gbean name="EJBNetworkService">
-            <attribute name="host">${PlanServerHostname}</attribute>
-            <attribute name="port">${PlanOpenEJBPort}</attribute>
-        </gbean>
     </module>
 
     <module name="org.apache.geronimo.configs/j2ee-corba-yoko/${version}/car" load="false">
@@ -152,7 +148,6 @@
 
     <module name="org.apache.geronimo.configs/openejb-deployer/${version}/car">
         <gbean name="EJBBuilder">
-            <attribute name="listener">?name=TomcatWebContainer</attribute>
             <reference name="ServiceBuilders">
                 <pattern>
                     <name>GBeanBuilder</name>

@@ -1,0 +1,291 @@
+/**
+ *
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
+package org.apache.geronimo.openejb.deployment;
+
+import java.security.Permissions;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.TreeMap;
+import java.util.Collections;
+import javax.security.auth.Subject;
+
+import org.apache.geronimo.common.DeploymentException;
+import org.apache.geronimo.gbean.AbstractName;
+import org.apache.geronimo.gbean.GBeanData;
+import org.apache.geronimo.gbean.AbstractNameQuery;
+import org.apache.geronimo.j2ee.deployment.EARContext;
+import org.apache.geronimo.j2ee.deployment.NamingBuilder;
+import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
+import org.apache.geronimo.kernel.GBeanAlreadyExistsException;
+import org.apache.geronimo.naming.deployment.GBeanResourceEnvironmentBuilder;
+import org.apache.geronimo.naming.deployment.ResourceEnvironmentSetter;
+import org.apache.geronimo.openejb.xbeans.ejbjar.OpenejbGeronimoEjbJarType;
+import org.apache.geronimo.security.deployment.SecurityConfiguration;
+import org.apache.geronimo.security.jacc.ComponentPermissions;
+import org.apache.geronimo.xbeans.geronimo.naming.GerResourceRefType;
+import org.apache.geronimo.xbeans.javaee.EjbJarType;
+import org.apache.geronimo.xbeans.javaee.EnterpriseBeansType;
+import org.apache.geronimo.xbeans.javaee.EntityBeanType;
+import org.apache.geronimo.xbeans.javaee.MessageDrivenBeanType;
+import org.apache.geronimo.xbeans.javaee.ResourceRefType;
+import org.apache.geronimo.xbeans.javaee.SessionBeanType;
+import org.apache.openejb.jee.EnterpriseBean;
+import org.apache.openejb.jee.RemoteBean;
+import org.apache.openejb.jee.SecurityIdentity;
+import org.apache.openejb.jee.StatefulBean;
+import org.apache.openejb.jee.StatelessBean;
+import org.apache.openejb.jee.MessageDrivenBean;
+import org.apache.openejb.jee.EntityBean;
+import org.apache.openejb.spi.ContainerSystem;
+import org.apache.openejb.alt.config.ejb.EjbDeployment;
+import org.apache.geronimo.openejb.deployment.ejbref.LocalEjbRefBuilder;
+import org.apache.geronimo.openejb.deployment.ejbref.RemoteEjbRefBuilder;
+import org.apache.geronimo.openejb.StatelessDeploymentGBean;
+import org.apache.geronimo.openejb.StatefulDeploymentGBean;
+import org.apache.geronimo.openejb.EntityDeploymentGBean;
+import org.apache.geronimo.openejb.MessageDrivenDeploymentGBean;
+import org.apache.geronimo.connector.outbound.connectiontracking.TrackedConnectionAssociator;
+import org.apache.xmlbeans.XmlObject;
+
+/**
+ * Handles building ejb deployment gbeans.
+ */
+public class EjbDeploymentBuilder {
+    private final EARContext earContext;
+    private final EjbModule ejbModule;
+    private final NamingBuilder namingBuilder;
+    private final ResourceEnvironmentSetter resourceEnvironmentSetter;
+    private final Map<String,GBeanData> gbeans = new TreeMap<String,GBeanData>();
+
+    public EjbDeploymentBuilder(EARContext earContext, EjbModule ejbModule, NamingBuilder namingBuilder, ResourceEnvironmentSetter resourceEnvironmentSetter) {
+        this.earContext = earContext;
+        this.ejbModule = ejbModule;
+        this.namingBuilder = namingBuilder;
+        this.resourceEnvironmentSetter = resourceEnvironmentSetter;
+    }
+
+    public void initContext() throws DeploymentException {
+        for (EnterpriseBean enterpriseBean : ejbModule.getEjbJar().getEnterpriseBeans()) {
+            AbstractName abstractName = createEjbName(enterpriseBean);
+            GBeanData gbean;
+            if (enterpriseBean instanceof StatelessBean) {
+                gbean = new GBeanData(abstractName, StatelessDeploymentGBean.GBEAN_INFO);
+            } else if (enterpriseBean instanceof StatefulBean) {
+                gbean = new GBeanData(abstractName, StatefulDeploymentGBean.GBEAN_INFO);
+            } else if (enterpriseBean instanceof EntityBean) {
+                gbean = new GBeanData(abstractName, EntityDeploymentGBean.GBEAN_INFO);
+            } else if (enterpriseBean instanceof MessageDrivenBean) {
+                gbean = new GBeanData(abstractName, MessageDrivenDeploymentGBean.GBEAN_INFO);
+            } else {
+                throw new DeploymentException("Unknown enterprise bean type " + enterpriseBean.getClass().getTypeParameters());
+            }
+
+            String ejbName = enterpriseBean.getEjbName();
+
+            EjbDeployment ejbDeployment = ejbModule.getOpenejbJar().getDeploymentsByEjbName().get(ejbName);
+            if (ejbDeployment == null) {
+                throw new DeploymentException("OpenEJB configuration not found for ejb " + ejbName);
+            }
+            gbean.setAttribute("deploymentId", ejbDeployment.getDeploymentId());
+            gbean.setAttribute("ejbName", ejbName);
+
+            // set interface class names
+            if (enterpriseBean instanceof RemoteBean) {
+                RemoteBean remoteBean = (RemoteBean) enterpriseBean;
+
+                // Remote
+                if (remoteBean.getRemote() != null) {
+                    String remoteInterfaceName = remoteBean.getRemote();
+                    RemoteEjbRefBuilder.assureEJBObjectInterface(remoteInterfaceName, ejbModule.getClassLoader());
+                    gbean.setAttribute(EjbInterface.REMOTE.getAttributeName(), remoteInterfaceName);
+
+                    String homeInterfaceName = remoteBean.getHome();
+                    RemoteEjbRefBuilder.assureEJBHomeInterface(homeInterfaceName, ejbModule.getClassLoader());
+                    gbean.setAttribute(EjbInterface.HOME.getAttributeName(), homeInterfaceName);
+                }
+
+                // Local
+                if (remoteBean.getLocal() != null) {
+                    String localInterfaceName = remoteBean.getLocal();
+                    LocalEjbRefBuilder.assureEJBLocalObjectInterface(localInterfaceName, ejbModule.getClassLoader());
+                    gbean.setAttribute(EjbInterface.LOCAL.getAttributeName(), localInterfaceName);
+
+                    String localHomeInterfaceName = remoteBean.getLocalHome();
+                    LocalEjbRefBuilder.assureEJBLocalHomeInterface(localHomeInterfaceName, ejbModule.getClassLoader());
+                    gbean.setAttribute(EjbInterface.LOCAL_HOME.getAttributeName(), localHomeInterfaceName);
+                }
+
+                if (enterpriseBean instanceof StatelessBean) {
+                    StatelessBean statelessBean = (StatelessBean) enterpriseBean;
+                    gbean.setAttribute(EjbInterface.SERVICE_ENDPOINT.getAttributeName(), statelessBean.getServiceEndpoint());
+                }
+            }
+
+            // set reference patterns
+            gbean.setReferencePattern("TrackedConnectionAssociator", new AbstractNameQuery(null, Collections.EMPTY_MAP, TrackedConnectionAssociator.class.getName()));
+            gbean.setReferencePattern("ContainerSystem", new AbstractNameQuery(null, Collections.EMPTY_MAP, ContainerSystem.class.getName()));
+
+            try {
+                earContext.addGBean(gbean);
+            } catch (GBeanAlreadyExistsException e) {
+                throw new DeploymentException("Could not add entity bean to context", e);
+            }
+            gbeans.put(ejbName, gbean);
+        }
+    }
+
+
+    public ComponentPermissions buildComponentPermissions() throws DeploymentException {
+        ComponentPermissions componentPermissions = new ComponentPermissions(new Permissions(), new Permissions(), new HashMap());
+        for (EnterpriseBean enterpriseBean : ejbModule.getEjbJar().getEnterpriseBeans()) {
+            addSecurityData(enterpriseBean, componentPermissions);
+        }
+        return componentPermissions;
+    }
+
+    private void addSecurityData(EnterpriseBean enterpriseBean, ComponentPermissions componentPermissions) throws DeploymentException {
+        GBeanData gbean = getEjbGBean(enterpriseBean.getEjbName());
+        if (enterpriseBean instanceof RemoteBean) {
+            RemoteBean remoteBean = (RemoteBean) enterpriseBean;
+
+            SecurityBuilder xmlBeansSecurityBuilder = new SecurityBuilder();
+            Permissions permissions = new Permissions();
+
+            SecurityConfiguration securityConfiguration = (SecurityConfiguration) earContext.getSecurityConfiguration();
+            if (securityConfiguration != null) {
+                for (EjbInterface ejbInterface : EjbInterface.values()) {
+                    String interfaceName = (String) gbean.getAttribute(ejbInterface.getAttributeName());
+                    xmlBeansSecurityBuilder.addToPermissions(permissions,
+                            enterpriseBean.getEjbName(),
+                            ejbInterface.getJaccInterfaceName(),
+                            interfaceName,
+                            ejbModule.getClassLoader());
+                }
+
+                String defaultRole = securityConfiguration.getDefaultRole();
+                xmlBeansSecurityBuilder.addComponentPermissions(defaultRole,
+                        permissions,
+                        ejbModule.getEjbJar().getAssemblyDescriptor(),
+                        enterpriseBean.getEjbName(),
+                        remoteBean.getSecurityRoleRef(),
+                        componentPermissions);
+
+                // RunAs subject
+                SecurityIdentity securityIdentity = remoteBean.getSecurityIdentity();
+                if (securityIdentity != null) {
+                    String runAsName = securityIdentity.getRunAs().getRoleName();
+                    if (runAsName != null) {
+                        Subject runAsSubject = (Subject) securityConfiguration.getRoleDesignates().get(runAsName);
+                        if (runAsSubject == null) {
+                            throw new DeploymentException("No role designate found for run-as name: " + runAsName);
+                        }
+                        gbean.setAttribute("runAs", runAsSubject);
+                    }
+                }
+
+                // Default principal
+                gbean.setAttribute("defaultPrincipal", securityConfiguration.getDefaultPrincipal());
+            }
+        }
+    }
+
+    public void buildEnc() throws DeploymentException {
+        //
+        // XMLBeans types must be use because Geronimo naming building is coupled via XMLBeans objects
+        //
+        EjbJarType ejbJarType = (EjbJarType) ejbModule.getVendorDD();
+        EnterpriseBeansType enterpriseBeans = ejbJarType.getEnterpriseBeans();
+        if (enterpriseBeans != null) {
+            for (SessionBeanType xmlbeansEjb : enterpriseBeans.getSessionArray()) {
+                String ejbName = xmlbeansEjb.getEjbName().getStringValue().trim();
+                GBeanData gbean = getEjbGBean(ejbName);
+                ResourceRefType[] resourceRefs = xmlbeansEjb.getResourceRefArray();
+                addEnc(gbean, xmlbeansEjb, resourceRefs);
+            }
+            for (MessageDrivenBeanType xmlbeansEjb : enterpriseBeans.getMessageDrivenArray()) {
+                String ejbName = xmlbeansEjb.getEjbName().getStringValue().trim();
+                GBeanData gbean = getEjbGBean(ejbName);
+                ResourceRefType[] resourceRefs = xmlbeansEjb.getResourceRefArray();
+                addEnc(gbean, xmlbeansEjb, resourceRefs);
+            }
+            for (EntityBeanType xmlbeansEjb : enterpriseBeans.getEntityArray()) {
+                String ejbName = xmlbeansEjb.getEjbName().getStringValue().trim();
+                GBeanData gbean = getEjbGBean(ejbName);
+                ResourceRefType[] resourceRefs = xmlbeansEjb.getResourceRefArray();
+                addEnc(gbean, xmlbeansEjb, resourceRefs);
+            }
+
+        }
+    }
+
+    private void addEnc(GBeanData gbean, XmlObject xmlbeansEjb, ResourceRefType[] resourceRefs) throws DeploymentException {
+        OpenejbGeronimoEjbJarType geronimoOpenejb = (OpenejbGeronimoEjbJarType) ejbModule.getVendorDD();
+
+        //
+        // Build ENC
+        //
+
+        // Geronimo uses a map to pass data to the naming build and for the results data
+        Map<Object,Object> buildingContext = new HashMap<Object,Object>();
+        buildingContext.put(NamingBuilder.JNDI_KEY, new HashMap());
+        buildingContext.put(NamingBuilder.GBEAN_NAME_KEY, gbean.getAbstractName());
+
+        namingBuilder.buildNaming(xmlbeansEjb,
+                geronimoOpenejb,
+                ejbModule.getEarContext().getConfiguration(),
+                earContext.getConfiguration(),
+                ejbModule, buildingContext);
+
+        Map compContext = (Map) buildingContext.get(NamingBuilder.JNDI_KEY);
+        gbean.setAttribute("componentContext", compContext);
+
+        //
+        // Process resource refs
+        //
+        GerResourceRefType[] gerResourceRefs = null;
+
+        if (geronimoOpenejb != null) {
+            gerResourceRefs = geronimoOpenejb.getResourceRefArray();
+        }
+
+        GBeanResourceEnvironmentBuilder refBuilder = new GBeanResourceEnvironmentBuilder(gbean);
+        resourceEnvironmentSetter.setResourceEnvironment(refBuilder, resourceRefs, gerResourceRefs);
+    }
+
+    private GBeanData getEjbGBean(String ejbName) throws DeploymentException {
+        GBeanData gbean = gbeans.get(ejbName);
+        if (gbean == null) throw new DeploymentException("EJB not gbean not found " + ejbName);
+        return gbean;
+    }
+
+    private AbstractName createEjbName(EnterpriseBean enterpriseBean) {
+        String ejbName = enterpriseBean.getEjbName();
+        String type = null;
+        if (enterpriseBean instanceof StatelessBean) {
+            type = NameFactory.STATELESS_SESSION_BEAN;
+        } else if (enterpriseBean instanceof StatefulBean) {
+            type = NameFactory.STATEFUL_SESSION_BEAN;
+        } else if (enterpriseBean instanceof EntityBean) {
+            type = NameFactory.ENTITY_BEAN;
+        } else if (enterpriseBean instanceof MessageDrivenBean) {
+            type = NameFactory.MESSAGE_DRIVEN_BEAN;
+        }
+        return earContext.getNaming().createChildName(ejbModule.getModuleName(), ejbName, type);
+    }
+
+}
