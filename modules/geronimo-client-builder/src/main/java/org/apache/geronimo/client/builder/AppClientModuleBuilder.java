@@ -253,7 +253,7 @@ public class AppClientModuleBuilder implements ModuleBuilder, CorbaGBeanNameSour
         namingBuilders.buildEnvironment(appClient, gerAppClient, clientEnvironment);
 
         if (earName == null) {
-            earName = naming.createRootName(earEnvironment.getConfigId(), NameFactory.NULL, NameFactory.J2EE_APPLICATION);
+            earName = naming.createRootName(serverEnvironment.getConfigId(), NameFactory.NULL, NameFactory.J2EE_APPLICATION);
         }
 
         //always use the artifactId of the app client as the name component of the module name (on the server).
