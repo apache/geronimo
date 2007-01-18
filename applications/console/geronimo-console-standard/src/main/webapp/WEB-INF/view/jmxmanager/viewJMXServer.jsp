@@ -401,6 +401,9 @@ function <portlet:namespace/>updateAttributesTable(attributes) {
             function(attribute) { /* AttribType Column */
                 return attribute['type'];
             },
+            function(attribute) { /* AttribGetterName Column */
+                return attribute['getterName'];
+            },
             function(attribute) { /* AttribSetterName Column */
                 var attribSetterName = attribute['setterName']; 
                 var abstractName = $('abstractName').value;
@@ -422,27 +425,26 @@ function <portlet:namespace/>updateAttributesTable(attributes) {
             function(attribute) { /* AttribManageable Column */
                 var isManageable = attribute['manageable'];
                 if (isManageable == 'true') {
-                    return attribute['manageable'];   
+                    return 'Yes';   
                 }
-                return null;
+                return 'No';
                  
             },
             function(attribute) { /* AttribPersistent Column */
                 var isPersistent = attribute['persistent']; 
                 if (isPersistent == 'true') {
-                    return attribute['persistent']; 
+                    return 'Yes'; 
                 }
-                return null;
-            /* },
+                return 'No';
+            }
+            /*
             function(attribute) { AttribReadable Column
                 return attribute['readable']; 
             },
             function(attribute) { AttribWritable Column
-                return attribute['writable']; */
+                return attribute['writable'];
             },
-            function(attribute) { /* AttribGetterName Column */
-                return attribute['getterName'];
-            }
+            */
         ],
         tableOption
     );
@@ -832,7 +834,7 @@ callOnLoad(init);
     	    sizeShare="60">
             
             <!-- Attributes tab -->
-    		<div id="attributesTab" dojoType="ContentPane" title="MBean Attributes" label="Attributes">
+    		<div id="attributesTab" dojoType="ContentPane" title="MBean Attributes" label="Attributes" style="overflow: auto">
                 <br>
             	<table dojoType="SortableTable" 
             	    widgetId="attribsTable" 
@@ -849,14 +851,14 @@ callOnLoad(init);
                             <th field="Name" dataType="String" width="10%">&nbsp;Name&nbsp;</th>
                             <th dataType="html" width="20%">&nbsp;Value&nbsp;</th>
                             <th field="Type" dataType="String" width="10%">&nbsp;Type&nbsp;</th>
-                            <th dataType="html" width="10%">&nbsp;Writable&nbsp;</th>
-                            <th field="Manageable" dataType="String" width="10%">&nbsp;Manageable&nbsp;</th>
-                            <th field="Persistent" dataType="String" width="10%">&nbsp;Persistent&nbsp;</th>
+                            <th field="Getter" dataType="String" width="10%">&nbsp;Getter&nbsp;</th>
+                            <th dataType="html" width="10%">&nbsp;Setter&nbsp;</th>
+                            <th field="Manageable" dataType="String" width="10%" align="center">&nbsp;Manageable&nbsp;</th>
+                            <th field="Persistent" dataType="String" width="10%" align="center">&nbsp;Persistent&nbsp;</th>
                             <!--
                             <th field="Readable" dataType="String" width="10%">&nbsp;Readable&nbsp;</th>
                             <th field="Writable" dataType="String" width="10%">&nbsp;Writable&nbsp;</th>
                             -->
-                            <th field="Getter" dataType="String" width="10%">&nbsp;Getter&nbsp;</th>
                         </tr>
                     </thead>
                     <tbody id="attributesTableBody">
@@ -865,7 +867,7 @@ callOnLoad(init);
     		</div> <!-- Attributes tab -->
 
             <!-- Operations tab -->
-    		<div id="operationsTab" dojoType="ContentPane" title="MBean Operations" label="Operations">
+    		<div id="operationsTab" dojoType="ContentPane" title="MBean Operations" label="Operations" style="overflow: auto">
                 <br>
                 <table width="100%">
                     <tr>
@@ -882,7 +884,7 @@ callOnLoad(init);
     		</div> <!-- Operations tab -->
 
             <!-- Info tab -->
-    		<div id="infoTab" dojoType="ContentPane" title="MBean Info" label="Info">
+    		<div id="infoTab" dojoType="ContentPane" title="MBean Info" label="Info" style="overflow: auto">
     		    <br>
                 <table width="100%">
                     <tr>
@@ -899,7 +901,7 @@ callOnLoad(init);
             </div> <!-- Info tab -->
 
             <!-- Search tab -->
-            <div id="searchTab" dojoType="ContentPane" title="Search" label="Search">
+            <div id="searchTab" dojoType="ContentPane" title="Search" label="Search" style="overflow: auto">
                 <!-- JMXSearch Form -->
                 <form name="JMXSearchForm" onsubmit="return false;">
                     <br>
