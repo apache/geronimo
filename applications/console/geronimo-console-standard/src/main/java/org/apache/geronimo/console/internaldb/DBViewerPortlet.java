@@ -56,8 +56,6 @@ public class DBViewerPortlet extends BasePortlet {
 
     private static final String VIEWTBLCONTENTS_ACTION = "viewTableContents";
 
-    private static final String DERBY_HOME = System.getProperty("derby.system.home");
-
     private static DBViewerHelper helper = new DBViewerHelper();
 
     private PortletRequestDispatcher maximizedView;
@@ -113,7 +111,7 @@ public class DBViewerPortlet extends BasePortlet {
                 // Check is database & table is valid
                 if (LISTTBLS_ACTION.equals(action)
                         || VIEWTBLCONTENTS_ACTION.equals(action)) {
-                    if (!helper.isDBValid(DERBY_HOME, db)) {
+                    if (!helper.isDBValid(DerbyConnectionUtil.getDerbyHome(), db)) {
                         // DB not valid
                         log.error("Database is not valid: " + db);
                         action = "";
@@ -144,7 +142,7 @@ public class DBViewerPortlet extends BasePortlet {
                 viewTableContentsView.include(renderRequest, renderResponse);
             } else {
                 renderRequest.setAttribute("databases", helper
-                        .getDerbyDatabases(DERBY_HOME));
+                        .getDerbyDatabases(DerbyConnectionUtil.getDerbyHome()));
                 listDatabasesView.include(renderRequest, renderResponse);
             }
         } else {

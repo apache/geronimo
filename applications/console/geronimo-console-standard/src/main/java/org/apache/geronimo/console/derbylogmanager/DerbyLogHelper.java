@@ -28,14 +28,14 @@ import java.util.Stack;
 
 import org.apache.geronimo.console.util.KernelHelper;
 
+import org.apache.geronimo.console.internaldb.DerbyConnectionUtil;
+
 public class DerbyLogHelper extends KernelHelper {
     private static ArrayList logs = new ArrayList();
 
     private static boolean cached = false;
 
     private static int lineCount = 0;
-
-    private static final String DERBY_SYSTEM_HOME = "derby.system.home";
 
     private static final String LOG_FILENAME = "derby.log";
 
@@ -70,8 +70,7 @@ public class DerbyLogHelper extends KernelHelper {
     }
 
     public static String getSystemHome() {
-        return System.getProperty(DERBY_SYSTEM_HOME);
+        return DerbyConnectionUtil.getDerbyHome();
     }
-
 
 }

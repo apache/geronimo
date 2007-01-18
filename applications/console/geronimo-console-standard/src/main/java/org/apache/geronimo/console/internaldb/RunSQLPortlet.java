@@ -53,8 +53,6 @@ public class RunSQLPortlet extends BasePortlet {
 
     private static DBViewerHelper dbHelper = new DBViewerHelper();
 
-    private static String derbyHome = System.getProperty("derby.system.home");
-
     private PortletRequestDispatcher normalView;
 
     private PortletRequestDispatcher maximizedView;
@@ -93,13 +91,13 @@ public class RunSQLPortlet extends BasePortlet {
         if (CREATEDB_ACTION.equals(action)) {
             actionResult = sqlHelper.createDB(createDB);
         } else if (DELETEDB_ACTION.equals(action)) {
-            actionResult = sqlHelper.deleteDB(derbyHome, deleteDB);
+            actionResult = sqlHelper.deleteDB(DerbyConnectionUtil.getDerbyHome(), deleteDB);
         } else if (RUNSQL_ACTION.equals(action)) {
             actionResult = sqlHelper.runSQL(useDB, sqlStmts);
         } else if (BACKUPDB_ACTION.equals(action)) {
-            actionResult = sqlHelper.backupDB(derbyHome, backupDB);
+            actionResult = sqlHelper.backupDB(DerbyConnectionUtil.getDerbyHome(), backupDB);
         } else if (RESTOREDB_ACTION.equals(action)) {
-            actionResult = sqlHelper.restoreDB(derbyHome, restoreDB);
+            actionResult = sqlHelper.restoreDB(DerbyConnectionUtil.getDerbyHome(), restoreDB);
         }
     }
 
@@ -111,7 +109,7 @@ public class RunSQLPortlet extends BasePortlet {
 
         String singleSelectStmt;
         if (WindowState.NORMAL.equals(renderRequest.getWindowState())) {
-            databases = dbHelper.getDerbyDatabases(derbyHome);
+            databases = dbHelper.getDerbyDatabases(DerbyConnectionUtil.getDerbyHome());
             renderRequest.setAttribute("databases", databases);
             if (RUNSQL_ACTION.equals(action)) {
                 // check if it's a single Select statement
@@ -156,7 +154,7 @@ public class RunSQLPortlet extends BasePortlet {
                 MAXIMIZEDVIEW_JSP);
         helpView = portletConfig.getPortletContext().getRequestDispatcher(
                 HELPVIEW_JSP);
-        databases = dbHelper.getDerbyDatabases(derbyHome);
+        databases = dbHelper.getDerbyDatabases(DerbyConnectionUtil.getDerbyHome());
     }
 
     public void destroy() {
