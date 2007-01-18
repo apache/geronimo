@@ -49,6 +49,7 @@ public class EjbModuleBuilderTest extends TestCase {
         addEjbContainer(openEjbSystem, "Default Stateful Container");
         addEjbContainer(openEjbSystem, "Default BMP Container");
         addEjbContainer(openEjbSystem, "Default CMP Container");
+        addEjbContainer(openEjbSystem, "Default MDB Container");
 
         // load ejb-jar.xml
         String ejbJarXml = XmlUtil.loadEjbJarXml(null, moduleFile);
@@ -62,10 +63,9 @@ public class EjbModuleBuilderTest extends TestCase {
         // create the module object
         ClassLoader classLoader = new URLClassLoader(new URL[] {file.toURL()}, getClass().getClassLoader());
         EjbModule ejbModule = new EjbModule(classLoader, moduleFile.getName(), ejbJar, openejbJar);
-
+        EjbModuleBuilder.mapReferences(ejbModule.getEjbJar());
         // configure the application
 //        EjbJarInfo ejbJarInfo = openEjbSystem.configureApplication(ejbModule);
-
 //        openEjbSystem.createEjbJar(ejbJarInfo, classLoader);
     }
 

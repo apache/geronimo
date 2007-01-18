@@ -209,7 +209,7 @@ public class EjbModuleBuilder implements ModuleBuilder {
         return new EjbModule(standAlone, moduleName, environment, moduleFile, targetPath, ejbJar, openejbJar, geronimoOpenejb, ejbJarXml, sharedContext);
     }
 
-    private static void mapReferences(EjbJar ejbJar) {
+    protected static void mapReferences(EjbJar ejbJar) {
         for (EnterpriseBean enterpriseBean : ejbJar.getEnterpriseBeans()) {
             for (EjbRef ref : enterpriseBean.getEjbRef()) {
                 String refName = ref.getEjbRefName();

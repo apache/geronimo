@@ -26,6 +26,7 @@ import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.openejb.Container;
 import org.apache.openejb.DeploymentInfo;
 import org.apache.openejb.OpenEJBException;
+import org.apache.openejb.loader.SystemInstance;
 import org.apache.openejb.alt.config.ClientModule;
 import org.apache.openejb.alt.config.ConfigurationFactory;
 import org.apache.openejb.alt.config.EjbModule;
@@ -45,11 +46,13 @@ public class OpenEjbSystemGBean implements OpenEjbSystem {
     private final Assembler assembler;
 
     public OpenEjbSystemGBean(TransactionManager transactionManager) throws Exception {
+        System.setProperty("duct tape","");
         if (transactionManager == null) {
             throw new NullPointerException("transactionManager is null");
         }
 
-        configurationFactory = new ConfigurationFactory();
+        boolean offline = true;
+        configurationFactory = new ConfigurationFactory(offline);
         assembler = new Assembler();
 
         TransactionServiceInfo transactionServiceInfo = new TransactionServiceInfo();
