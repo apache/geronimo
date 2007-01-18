@@ -20,6 +20,7 @@ import java.util.Properties;
 import java.io.IOException;
 
 import javax.naming.NamingException;
+import javax.transaction.TransactionManager;
 
 import org.apache.openejb.alt.config.ConfigurationFactory;
 import org.apache.openejb.alt.config.ClientModule;
@@ -28,6 +29,8 @@ import org.apache.openejb.assembler.classic.Assembler;
 import org.apache.openejb.assembler.classic.ContainerInfo;
 import org.apache.openejb.assembler.classic.ClientInfo;
 import org.apache.openejb.assembler.classic.EjbJarInfo;
+import org.apache.openejb.assembler.classic.TransactionServiceInfo;
+import org.apache.openejb.assembler.dynamic.PassthroughFactory;
 import org.apache.openejb.spi.ContainerSystem;
 import org.apache.openejb.Container;
 import org.apache.openejb.OpenEJBException;
@@ -42,9 +45,21 @@ public class OpenEjbSystemGBean implements OpenEjbSystem {
     private final ConfigurationFactory configurationFactory;
     private final Assembler assembler;
 
-    public OpenEjbSystemGBean() {
+    public OpenEjbSystemGBean(TransactionManager transactionManager) throws OpenEJBException {
+        if (transactionManager == null) throw new NullPointerException("transactionManager is null");
+        
         configurationFactory = new ConfigurationFactory();
         assembler = new Assembler();
+
+        TransactionServiceInfo transactionServiceInfo = new TransactionServiceInfo();
+        PassthroughFactory.add(transactionServiceInfo, transactionManager);
+        try {
+            transactionServiceInfo.id = "Default Transaction Manager";
+            transactionServiceInfo.serviceType = "TransactionManager";
+            assembler.createTransactionManager(transactionServiceInfo);
+        } finally {
+            PassthroughFactory.remove(transactionServiceInfo);
+        }
         GeronimoThreadContextListener.init();
     }
 
@@ -83,6 +98,8 @@ public class OpenEjbSystemGBean implements OpenEjbSystem {
 
     static {
         GBeanInfoBuilder infoBuilder = GBeanInfoBuilder.createStatic(OpenEjbSystemGBean.class);
+        infoBuilder.addReference("TransactionManager", TransactionManager.class);
+        infoBuilder.setConstructor(new String[] {"TransactionManager"});
         GBEAN_INFO = infoBuilder.getBeanInfo();
     }
 

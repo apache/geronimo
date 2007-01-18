@@ -61,5 +61,7 @@ public class EjbModuleBuilderTest extends TestCase {
         // configure the application
         EjbJarInfo ejbJarInfo = openEjbSystem.configureApplication(ejbModule);
 
+        openEjbSystem.createEjbJar(ejbJarInfo, classLoader);
+
     }
 }

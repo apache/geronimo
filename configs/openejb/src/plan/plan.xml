@@ -20,7 +20,11 @@
 
 <module xmlns="http://geronimo.apache.org/xml/ns/deployment-${geronimoSchemaVersion}">
 
-    <gbean name="OpenEjbSystem" class="org.apache.geronimo.openejb.OpenEjbSystemGBean"/>
+    <gbean name="OpenEjbSystem" class="org.apache.geronimo.openejb.OpenEjbSystemGBean">
+        <reference name="TransactionManager">
+            <name>TransactionManager</name>
+        </reference>        
+    </gbean>
 
 <!--
     <gbean name="StatelessEjbContainer" class="org.apache.openejb.slsb.DefaultStatelessEjbContainerGBean">
