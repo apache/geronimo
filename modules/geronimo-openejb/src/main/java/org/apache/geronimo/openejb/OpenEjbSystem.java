@@ -27,6 +27,7 @@ import org.apache.openejb.alt.config.ClientModule;
 import org.apache.openejb.alt.config.EjbModule;
 import org.apache.openejb.assembler.classic.ClientInfo;
 import org.apache.openejb.assembler.classic.EjbJarInfo;
+import org.apache.openejb.assembler.classic.ContainerInfo;
 import org.apache.openejb.spi.ContainerSystem;
 
 /**
@@ -35,7 +36,7 @@ import org.apache.openejb.spi.ContainerSystem;
 public interface OpenEjbSystem {
     ContainerSystem getContainerSystem();
 
-    Container createContainer(String serviceId, Properties declaredProperties, String providerId, String serviceType) throws OpenEJBException;
+    Container createContainer(Class<? extends ContainerInfo> type, String serviceId, Properties declaredProperties, String providerId) throws OpenEJBException;
 
     ClientInfo configureApplication(ClientModule clientModule) throws OpenEJBException;
 

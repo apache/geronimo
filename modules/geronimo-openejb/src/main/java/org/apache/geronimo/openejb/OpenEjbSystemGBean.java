@@ -16,27 +16,26 @@
  */
 package org.apache.geronimo.openejb;
 
-import java.util.Properties;
 import java.io.IOException;
-
+import java.util.Properties;
 import javax.naming.NamingException;
 import javax.transaction.TransactionManager;
 
-import org.apache.openejb.alt.config.ConfigurationFactory;
+import org.apache.geronimo.gbean.GBeanInfo;
+import org.apache.geronimo.gbean.GBeanInfoBuilder;
+import org.apache.openejb.Container;
+import org.apache.openejb.DeploymentInfo;
+import org.apache.openejb.OpenEJBException;
 import org.apache.openejb.alt.config.ClientModule;
+import org.apache.openejb.alt.config.ConfigurationFactory;
 import org.apache.openejb.alt.config.EjbModule;
 import org.apache.openejb.assembler.classic.Assembler;
-import org.apache.openejb.assembler.classic.ContainerInfo;
 import org.apache.openejb.assembler.classic.ClientInfo;
+import org.apache.openejb.assembler.classic.ContainerInfo;
 import org.apache.openejb.assembler.classic.EjbJarInfo;
 import org.apache.openejb.assembler.classic.TransactionServiceInfo;
 import org.apache.openejb.assembler.dynamic.PassthroughFactory;
 import org.apache.openejb.spi.ContainerSystem;
-import org.apache.openejb.Container;
-import org.apache.openejb.OpenEJBException;
-import org.apache.openejb.DeploymentInfo;
-import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.gbean.GBeanInfoBuilder;
 
 /**
  * @version $Rev$ $Date$
@@ -45,8 +44,10 @@ public class OpenEjbSystemGBean implements OpenEjbSystem {
     private final ConfigurationFactory configurationFactory;
     private final Assembler assembler;
 
-    public OpenEjbSystemGBean(TransactionManager transactionManager) throws OpenEJBException {
-        if (transactionManager == null) throw new NullPointerException("transactionManager is null");
+    public OpenEjbSystemGBean(TransactionManager transactionManager) throws Exception {
+        if (transactionManager == null) {
+            throw new NullPointerException("transactionManager is null");
+        }
 
         configurationFactory = new ConfigurationFactory();
         assembler = new Assembler();
@@ -67,8 +68,8 @@ public class OpenEjbSystemGBean implements OpenEjbSystem {
         return assembler.getContainerSystem();
     }
 
-    public Container createContainer(String serviceId, Properties declaredProperties, String providerId, String serviceType) throws OpenEJBException {
-        ContainerInfo containerInfo = configurationFactory.configureService(ContainerInfo.class, serviceId, declaredProperties, providerId, ContainerInfo.class.getSimpleName());
+    public Container createContainer(Class<? extends ContainerInfo> type, String serviceId, Properties declaredProperties, String providerId) throws OpenEJBException {
+        ContainerInfo containerInfo = configurationFactory.configureService(type, serviceId, declaredProperties, providerId, "Container");
         assembler.createContainer(containerInfo);
         Container container = assembler.getContainerSystem().getContainer(serviceId);
         return container;
@@ -123,7 +124,9 @@ public class OpenEjbSystemGBean implements OpenEjbSystem {
     static {
         GBeanInfoBuilder infoBuilder = GBeanInfoBuilder.createStatic(OpenEjbSystemGBean.class);
         infoBuilder.addReference("TransactionManager", TransactionManager.class);
-        infoBuilder.setConstructor(new String[] {"TransactionManager"});
+        infoBuilder.setConstructor(new String[] {
+                "TransactionManager",
+        });
         GBEAN_INFO = infoBuilder.getBeanInfo();
     }
 

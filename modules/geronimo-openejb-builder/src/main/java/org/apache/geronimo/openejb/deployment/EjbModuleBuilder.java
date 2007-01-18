@@ -50,10 +50,10 @@ import org.apache.geronimo.kernel.Naming;
 import org.apache.geronimo.kernel.config.ConfigurationStore;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.naming.deployment.ResourceEnvironmentSetter;
-import org.apache.geronimo.openejb.xbeans.ejbjar.OpenejbGeronimoEjbJarType;
+import org.apache.geronimo.openejb.EjbDeployment;
 import org.apache.geronimo.openejb.EjbModuleImplGBean;
 import org.apache.geronimo.openejb.OpenEjbSystem;
-import org.apache.geronimo.openejb.EjbDeployment;
+import org.apache.geronimo.openejb.xbeans.ejbjar.OpenejbGeronimoEjbJarType;
 import org.apache.geronimo.security.jacc.ComponentPermissions;
 import org.apache.geronimo.xbeans.geronimo.j2ee.GerSecurityDocument;
 import org.apache.geronimo.xbeans.javaee.AssemblyDescriptorType;
@@ -62,6 +62,15 @@ import org.apache.openejb.OpenEJBException;
 import org.apache.openejb.alt.config.ejb.OpenejbJar;
 import org.apache.openejb.assembler.classic.EjbJarInfo;
 import org.apache.openejb.jee.EjbJar;
+import org.apache.openejb.jee.EjbLocalRef;
+import org.apache.openejb.jee.EjbRef;
+import org.apache.openejb.jee.EnterpriseBean;
+import org.apache.openejb.jee.MessageDestinationRef;
+import org.apache.openejb.jee.PersistenceContextRef;
+import org.apache.openejb.jee.PersistenceUnitRef;
+import org.apache.openejb.jee.ResourceEnvRef;
+import org.apache.openejb.jee.ResourceRef;
+import org.apache.openejb.jee.ServiceRef;
 import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlObject;
 
@@ -73,6 +82,7 @@ import org.apache.xmlbeans.XmlObject;
  */
 public class EjbModuleBuilder implements ModuleBuilder {
     private static final String OPENEJBJAR_NAMESPACE = XmlUtil.OPENEJBJAR_QNAME.getNamespaceURI();
+    private static final String MAPPED_NAME_PREFIX = "java:/comp/geronimo/";
 
     private final Environment defaultEnvironment;
     private final Collection webServiceBuilders;
@@ -167,6 +177,9 @@ public class EjbModuleBuilder implements ModuleBuilder {
             namingBuilder.buildEnvironment(assemblyDescriptor, geronimoOpenejb, environment);
         }
 
+        // set mapped name or all refs
+        mapReferences(ejbJar);
+
         //overridden web service locations
         Map correctedPortLocations = new HashMap();
 
@@ -195,6 +208,44 @@ public class EjbModuleBuilder implements ModuleBuilder {
 
         return new EjbModule(standAlone, moduleName, environment, moduleFile, targetPath, ejbJar, openejbJar, geronimoOpenejb, ejbJarXml, sharedContext);
     }
+
+    private static void mapReferences(EjbJar ejbJar) {
+        for (EnterpriseBean enterpriseBean : ejbJar.getEnterpriseBeans()) {
+            for (EjbRef ref : enterpriseBean.getEjbRef()) {
+                String refName = ref.getEjbRefName();
+                ref.setMappedName(MAPPED_NAME_PREFIX + refName);
+            }
+            for (EjbLocalRef ref : enterpriseBean.getEjbLocalRef()) {
+                String refName = ref.getEjbRefName();
+                ref.setMappedName(MAPPED_NAME_PREFIX + refName);
+            }
+            for (MessageDestinationRef ref : enterpriseBean.getMessageDestinationRef()) {
+                String refName = ref.getMessageDestinationRefName();
+                ref.setMappedName(MAPPED_NAME_PREFIX + refName);
+            }
+            for (PersistenceContextRef ref : enterpriseBean.getPersistenceContextRef()) {
+                String refName = ref.getPersistenceContextRefName();
+                ref.setMappedName(MAPPED_NAME_PREFIX + refName);
+            }
+            for (PersistenceUnitRef ref : enterpriseBean.getPersistenceUnitRef()) {
+                String refName = ref.getPersistenceUnitRefName();
+                ref.setMappedName(MAPPED_NAME_PREFIX + refName);
+            }
+            for (ResourceRef ref : enterpriseBean.getResourceRef()) {
+                String refName = ref.getResRefName();
+                ref.setMappedName(MAPPED_NAME_PREFIX + refName);
+            }
+            for (ResourceEnvRef ref : enterpriseBean.getResourceEnvRef()) {
+                String refName = ref.getResourceEnvRefName();
+                ref.setMappedName(MAPPED_NAME_PREFIX + refName);
+            }
+            for (ServiceRef ref : enterpriseBean.getServiceRef()) {
+                String refName = ref.getServiceRefName();
+                ref.setMappedName(MAPPED_NAME_PREFIX + refName);
+            }
+        }
+    }
+
 
     public void installModule(JarFile earFile, EARContext earContext, Module module, Collection configurationStores, ConfigurationStore targetConfigurationStore, Collection repository) throws DeploymentException {
         installModule(module, earContext);

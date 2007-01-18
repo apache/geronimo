@@ -136,7 +136,7 @@ public class EjbDeployment implements EJB {
     }
 
     public Context getComponentContext() {
-        return componentContext;
+        return deploymentInfo.getJndiEnc();
     }
 
     public Set getUnshareableResources() {
@@ -175,8 +175,9 @@ public class EjbDeployment implements EJB {
         return true;
     }
 
-    protected void start() {
+    protected void start() throws Exception {
         deploymentInfo = (CoreDeploymentInfo) openEjbSystem.getDeploymentInfo(deploymentId);
+        deploymentInfo.getJndiEnc().bind("geronimo", componentContext);
         if (deploymentInfo == null) {
             throw new IllegalStateException("Ejb does not exist " + deploymentId);
         }
