@@ -53,11 +53,11 @@ import org.apache.geronimo.naming.deployment.ResourceEnvironmentSetter;
 import org.apache.geronimo.openejb.xbeans.ejbjar.OpenejbGeronimoEjbJarType;
 import org.apache.geronimo.openejb.EjbModuleImplGBean;
 import org.apache.geronimo.openejb.OpenEjbSystem;
+import org.apache.geronimo.openejb.EjbDeployment;
 import org.apache.geronimo.security.jacc.ComponentPermissions;
 import org.apache.geronimo.xbeans.geronimo.j2ee.GerSecurityDocument;
 import org.apache.geronimo.xbeans.javaee.AssemblyDescriptorType;
 import org.apache.geronimo.xbeans.javaee.EjbJarType;
-import org.apache.openejb.EjbDeployment;
 import org.apache.openejb.OpenEJBException;
 import org.apache.openejb.alt.config.ejb.OpenejbJar;
 import org.apache.openejb.assembler.classic.EjbJarInfo;
@@ -223,6 +223,7 @@ public class EjbModuleBuilder implements ModuleBuilder {
             EjbJarInfo ejbJarInfo = openEjbSystem.configureApplication(ejbModule.getEjbModule());
             ejbModule.setEjbJarInfo(ejbJarInfo);
         } catch (OpenEJBException e) {
+            e.printStackTrace();
             throw new DeploymentException(e);
         }
 

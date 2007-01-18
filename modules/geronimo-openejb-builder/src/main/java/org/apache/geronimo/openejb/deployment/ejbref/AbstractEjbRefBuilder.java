@@ -39,8 +39,8 @@ import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.naming.deployment.AbstractNamingBuilder;
 import org.apache.geronimo.openejb.EjbReference;
+import org.apache.geronimo.openejb.EjbDeployment;
 import org.apache.geronimo.openejb.deployment.EjbInterface;
-import org.apache.openejb.RpcEjbDeployment;
 
 /**
  * @version $Rev: 451417 $ $Date: 2006-09-29 13:13:22 -0700 (Fri, 29 Sep 2006) $
@@ -67,7 +67,7 @@ public abstract class AbstractEjbRefBuilder extends AbstractNamingBuilder {
             } else {
                 checkLocalProxyInfo(query, homeInterface, businessInterface, configuration);
             }
-            match = new AbstractNameQuery(query.getArtifact(), query.getName(), RpcEjbDeployment.class.getName());
+            match = new AbstractNameQuery(query.getArtifact(), query.getName(), EjbDeployment.class.getName());
         } else if (name != null) {
             match = getMatch(refName, configuration, name, requiredModule, remote, isSession, homeInterface, businessInterface);
         } else {
@@ -96,7 +96,7 @@ public abstract class AbstractEjbRefBuilder extends AbstractNamingBuilder {
         } else {
             throw new UnresolvedEJBRefException(refName, !isRemote, isSession, home, remote, matches.size() > 0);
         }
-        return new AbstractNameQuery(stripVersion(match.getArtifact()), match.getName(), RpcEjbDeployment.class.getName());
+        return new AbstractNameQuery(stripVersion(match.getArtifact()), match.getName(), EjbDeployment.class.getName());
     }
 
     private Collection<AbstractName> getMatchesFromName(boolean isSession, Map<String, String> nameQuery, Configuration context, Artifact id, boolean isRemote, String home, String remote) {
@@ -126,7 +126,7 @@ public abstract class AbstractEjbRefBuilder extends AbstractNamingBuilder {
 
     @SuppressWarnings({"unchecked"})
     private Collection<GBeanData> findGBeanDatas(Configuration context, Artifact id, Map<String, String> q) {
-        return context.findGBeanDatas(Collections.singleton(new AbstractNameQuery(id, q, RpcEjbDeployment.class.getName())));
+        return context.findGBeanDatas(Collections.singleton(new AbstractNameQuery(id, q, EjbDeployment.class.getName())));
     }
 
     private AbstractNameQuery getImplicitMatch(String refName, Configuration context, String module, boolean isRemote, boolean isSession, String home, String remote) throws DeploymentException {
