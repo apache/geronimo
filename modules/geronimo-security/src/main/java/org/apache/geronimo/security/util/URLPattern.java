@@ -19,7 +19,6 @@ package org.apache.geronimo.security.util;
 
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Set;
 
 
@@ -27,23 +26,30 @@ import java.util.Set;
  * Utility class for <code>ModuleConfiguration</code>.  This class is used to generate qualified patterns, HTTP
  * method sets, complements of HTTP method sets, and HTTP method sets w/ transport restrictions for URL patterns that
  * are found in the web deployment descriptor.
+ *
  * @version $Rev$ $Date$
  */
 public class URLPattern {
-    private final static String[] HTTP_METHODS = {"GET", "POST", "PUT", "DELETE", "HEAD", "OPTIONS", "TRACE"};
-    private final static int[] HTTP_MASKS = {0x01, 0x02, 0x04, 0x08, 0x10, 0x20, 0x40};
-    private final static int NA = 0x00;
-    private final static int INTEGRAL = 0x01;
-    private final static int CONFIDENTIAL = 0x02;
+//    private final static String[] HTTP_METHODS = {"GET", "POST", "PUT", "DELETE", "HEAD", "OPTIONS", "TRACE"};
+//    private final static int[] HTTP_MASKS = {0x01, 0x02, 0x04, 0x08, 0x10, 0x20, 0x40};
+//    private static final String[] NO_METHODS = new String[0];
+//    private static final Pattern TOKEN_PATTERN = Pattern.compile("[!-~&&[^\\(\\)\\<\\>@,;:\\\\\"/\\[\\]\\?=\\{\\}]]*");
+    public final static int NA = 0x00;
+    public final static int INTEGRAL = 0x01;
+    public final static int CONFIDENTIAL = 0x02;
 
     private final URLPatternCheck type;
     private final String pattern;
-    private int httpMethodsMask;
+//    private int httpMethodsMask;
+//    private ArrayList<String> extensionMethods;
+//    private boolean isExcluded;
+    private final HTTPMethods httpMethods = new HTTPMethods();
     private int transport;
-    private final HashSet roles = new HashSet();
+    private final HashSet<String> roles = new HashSet<String>();
 
     /**
      * Construct an instance of the utility class for <code>WebModuleConfiguration</code>.
+     *
      * @param pat the URL pattern that this instance is to collect information on
      * @see "JSR 115, section 3.1.3" Translating Servlet Deployment Descriptors
      */
@@ -66,30 +72,28 @@ public class URLPattern {
     /**
      * Get a qualifed URL pattern relative to a particular set of URL patterns.  This algorithm is described in
      * JSR 115, section 3.1.3.1 "Qualified URL Pattern Names".
+     *
      * @param patterns the set of possible URL patterns that could be used to qualify this pattern
      * @return a qualifed URL pattern
      */
-    public String getQualifiedPattern(Set patterns) {
+    public String getQualifiedPattern(Set<URLPattern> patterns) {
         if (type == EXACT) {
             return pattern;
         } else {
-            HashSet bucket = new HashSet();
+            HashSet<String> bucket = new HashSet<String>();
             StringBuffer result = new StringBuffer(pattern);
-            Iterator iter = patterns.iterator();
 
             // Collect a set of qualifying patterns, depending on the type of this pattern.
-            while (iter.hasNext()) {
-                URLPattern p = (URLPattern) iter.next();
+            for (URLPattern p : patterns) {
                 if (type.check(this, p)) {
                     bucket.add(p.pattern);
                 }
             }
 
             // append the set of qualifying patterns
-            iter = bucket.iterator();
-            while (iter.hasNext()) {
+            for (String aBucket : bucket) {
                 result.append(':');
-                result.append((String) iter.next());
+                result.append(aBucket);
             }
             return result.toString();
         }
@@ -98,66 +102,41 @@ public class URLPattern {
     /**
      * Add a method to the union of HTTP methods associated with this URL pattern.  An empty string is short hand for
      * the set of all HTTP methods.
+     *
      * @param method the HTTP method to be added to the set.
      */
     public void addMethod(String method) {
-        if (method.length() == 0) {
-            httpMethodsMask = 0xFF;
-            return;
-        }
-
-        boolean found = false;
-        for (int j = 0; j < HTTP_METHODS.length; j++) {
-            if (method.equals(HTTP_METHODS[j])) {
-                httpMethodsMask |= HTTP_MASKS[j];
-                found = true;
-
-                break;
-            }
-        }
-        if (!found) throw new IllegalArgumentException("Invalid HTTP method");
+        httpMethods.add(method);
     }
 
     /**
      * Return the set of HTTP methods that have been associated with this URL pattern.
+     *
      * @return a set of HTTP methods
      */
     public String getMethods() {
-        StringBuffer buffer = null;
-
-        for (int i = 0; i < HTTP_MASKS.length; i++) {
-            if ((httpMethodsMask & HTTP_MASKS[i]) > 0) {
-                if (buffer == null) {
-                    buffer = new StringBuffer();
-                } else {
-                    buffer.append(",");
-                }
-                buffer.append(HTTP_METHODS[i]);
-            }
-        }
-
-        return (buffer == null ? "" : buffer.toString());
+        return httpMethods.getHttpMethods();
     }
 
+
     public String getComplementedMethods() {
-        StringBuffer buffer = null;
+        return httpMethods.getComplementedHttpMethods();
+    }
 
-        for (int i = 0; i < HTTP_MASKS.length; i++) {
-            if ((httpMethodsMask & HTTP_MASKS[i]) == 0) {
-                if (buffer == null) {
-                    buffer = new StringBuffer();
-                } else {
-                    buffer.append(",");
-                }
-                buffer.append(HTTP_METHODS[i]);
-            }
-        }
+    public HTTPMethods getHTTPMethods() {
+        return httpMethods;
+    }
 
-        return (buffer == null ? "" : buffer.toString());
+    public HTTPMethods getComplementedHTTPMethods() {
+        return new HTTPMethods(httpMethods, true);
     }
 
     public String getMethodsWithTransport() {
-        StringBuffer buffer = new StringBuffer(getMethods());
+        return getMethodsWithTransport(httpMethods, transport);
+    }
+
+    public static String getMethodsWithTransport(HTTPMethods methods, int transport) {
+        StringBuffer buffer = methods.getHttpMethodsBuffer();
 
 
         if (transport != NA) {
@@ -177,38 +156,46 @@ public class URLPattern {
 
     public void setTransport(String trans) {
         switch (transport) {
-            case NA:
-                {
-                    if ("INTEGRAL".equals(trans)) {
-                        transport = INTEGRAL;
-                    } else if ("CONFIDENTIAL".equals(trans)) {
-                        transport = CONFIDENTIAL;
-                    }
-                    break;
+            case NA: {
+                if ("INTEGRAL".equals(trans)) {
+                    transport = INTEGRAL;
+                } else if ("CONFIDENTIAL".equals(trans)) {
+                    transport = CONFIDENTIAL;
                 }
+                break;
+            }
 
-            case INTEGRAL:
-                {
-                    if ("CONFIDENTIAL".equals(trans)) {
-                        transport = CONFIDENTIAL;
-                    }
-                    break;
+            case INTEGRAL: {
+                if ("CONFIDENTIAL".equals(trans)) {
+                    transport = CONFIDENTIAL;
                 }
+                break;
+            }
         }
+    }
+
+    public int getTransport() {
+        return transport;
     }
 
     public void addRole(String role) {
         roles.add(role);
     }
 
-    public void addAllRoles(Collection collection) {
+    public void addAllRoles(Collection<String> collection) {
         roles.addAll(collection);
     }
 
-    public HashSet getRoles() {
+    public HashSet<String> getRoles() {
         return roles;
     }
 
+
+    /**
+     * TODO this is kinda weird without an explanation
+     * @param obj
+     * @return if this equals obj
+     */
     public boolean equals(Object obj) {
         if (!(obj instanceof URLPattern)) return false;
 
@@ -251,6 +238,7 @@ public class URLPattern {
          * This pattern is a path-prefix pattern (that is, it starts with "/" and ends with "/*") and the argument
          * pattern starts with the substring of this pattern, minus its last 2 characters, and the next character of
          * the argument pattern, if there is one, is "/"
+         *
          * @param base the base pattern
          * @param test the pattern to be tested
          * @return <code>true</code> if <code>test</code> is matched by <code>base</code>
@@ -283,6 +271,7 @@ public class URLPattern {
         /**
          * This pattern is an extension pattern (that is, it startswith "*.") and the argument pattern ends with
          * this pattern.
+         *
          * @param base the base pattern
          * @param test the pattern to be tested
          * @return <code>true</code> if <code>test</code> is matched by <code>base</code>
@@ -300,6 +289,7 @@ public class URLPattern {
         /**
          * This pattern is the path-prefix pattern "/*" or the reference pattern is the special default pattern,
          * "/", which matches all argument patterns.
+         *
          * @param base the base pattern
          * @param test the pattern to be tested
          * @return <code>true</code> if <code>test</code> is matched by <code>base</code>

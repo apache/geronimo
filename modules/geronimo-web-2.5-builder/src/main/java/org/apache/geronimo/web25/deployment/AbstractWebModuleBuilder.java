@@ -30,10 +30,10 @@ import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.Set;
+import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.zip.ZipEntry;
 
@@ -45,11 +45,11 @@ import javax.xml.namespace.QName;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.common.DeploymentException;
-import org.apache.geronimo.deployment.util.DeploymentUtil;
 import org.apache.geronimo.deployment.ModuleIDBuilder;
 import org.apache.geronimo.deployment.NamespaceDrivenBuilderCollection;
-import org.apache.geronimo.deployment.xmlbeans.XmlBeansUtil;
+import org.apache.geronimo.deployment.util.DeploymentUtil;
 import org.apache.geronimo.deployment.xbeans.ServiceDocument;
+import org.apache.geronimo.deployment.xmlbeans.XmlBeansUtil;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.j2ee.deployment.EARContext;
@@ -65,8 +65,11 @@ import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.kernel.repository.ImportType;
 import org.apache.geronimo.naming.deployment.ResourceEnvironmentSetter;
+import org.apache.geronimo.schema.SchemaConversionUtils;
 import org.apache.geronimo.security.jacc.ComponentPermissions;
 import org.apache.geronimo.security.util.URLPattern;
+import org.apache.geronimo.security.util.HTTPMethods;
+import org.apache.geronimo.xbeans.geronimo.j2ee.GerSecurityDocument;
 import org.apache.geronimo.xbeans.javaee.FilterMappingType;
 import org.apache.geronimo.xbeans.javaee.RoleNameType;
 import org.apache.geronimo.xbeans.javaee.SecurityConstraintType;
@@ -75,15 +78,13 @@ import org.apache.geronimo.xbeans.javaee.SecurityRoleType;
 import org.apache.geronimo.xbeans.javaee.ServletMappingType;
 import org.apache.geronimo.xbeans.javaee.ServletType;
 import org.apache.geronimo.xbeans.javaee.UrlPatternType;
+import org.apache.geronimo.xbeans.javaee.WebAppDocument;
 import org.apache.geronimo.xbeans.javaee.WebAppType;
 import org.apache.geronimo.xbeans.javaee.WebResourceCollectionType;
-import org.apache.geronimo.xbeans.javaee.WebAppDocument;
-import org.apache.geronimo.xbeans.geronimo.j2ee.GerSecurityDocument;
-import org.apache.geronimo.schema.SchemaConversionUtils;
-import org.apache.xmlbeans.XmlObject;
-import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlDocumentProperties;
+import org.apache.xmlbeans.XmlException;
+import org.apache.xmlbeans.XmlObject;
 
 /**
  * @version $Rev$ $Date$
@@ -167,17 +168,16 @@ public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
      * @param contextRoot
      * @return map of servlet names to path mapped to them.  Possibly inaccurate except for web services.
      */
-    protected Map buildServletNameToPathMap(WebAppType webApp, String contextRoot) {
+    protected Map<String,String> buildServletNameToPathMap(WebAppType webApp, String contextRoot) {
         contextRoot = "/" + contextRoot;
-        Map map = new HashMap();
+        Map<String,String> map = new HashMap<String, String>();
         ServletMappingType[] servletMappings = webApp.getServletMappingArray();
-        for (int j = 0; j < servletMappings.length; j++) {
-            ServletMappingType servletMapping = servletMappings[j];
+        for (ServletMappingType servletMapping : servletMappings) {
             String servletName = servletMapping.getServletName().getStringValue().trim();
             UrlPatternType[] urlPatterns = servletMapping.getUrlPatternArray();
 
-            for (int i=0; urlPatterns != null && (i < urlPatterns.length); i++) {
-                map.put(servletName, contextRoot +urlPatterns[i].getStringValue().trim());
+            for (int i = 0; urlPatterns != null && (i < urlPatterns.length); i++) {
+                map.put(servletName, contextRoot + urlPatterns[i].getStringValue().trim());
             }
         }
         return map;
@@ -250,9 +250,9 @@ public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
         try {
             // add the warfile's content to the configuration
             JarFile warFile = module.getModuleFile();
-            Enumeration entries = warFile.entries();
+            Enumeration<JarEntry> entries = warFile.entries();
             while (entries.hasMoreElements()) {
-                ZipEntry entry = (ZipEntry) entries.nextElement();
+                ZipEntry entry = entries.nextElement();
                 URI targetPath = new URI(null, entry.getName(), null);
                 if (entry.getName().equals("WEB-INF/web.xml")) {
                     moduleContext.addFile(targetPath, module.getOriginalSpecDD());
@@ -367,26 +367,24 @@ public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
     }
 
 
-    protected void addUnmappedJSPPermissions(Set securityRoles, Map rolePermissions) {
-        for (Iterator iter = securityRoles.iterator(); iter.hasNext();) {
-            String roleName = (String) iter.next();
+    protected void addUnmappedJSPPermissions(Set<String> securityRoles, Map<String, PermissionCollection> rolePermissions) {
+        for (String roleName : securityRoles) {
             addPermissionToRole(roleName, new WebRoleRefPermission("", roleName), rolePermissions);
         }
     }
 
-    protected ComponentPermissions buildSpecSecurityConfig(WebAppType webApp, Set securityRoles, Map rolePermissions) {
-        Map uncheckedPatterns = new HashMap();
-        Map uncheckedResourcePatterns = new HashMap();
-        Map uncheckedUserPatterns = new HashMap();
-        Map excludedPatterns = new HashMap();
-        Map rolesPatterns = new HashMap();
-        Set allSet = new HashSet();   // == allMap.values()
-        Map allMap = new HashMap();   //uncheckedPatterns union excludedPatterns union rolesPatterns.
+    protected ComponentPermissions buildSpecSecurityConfig(WebAppType webApp, Set<String> securityRoles, Map<String, PermissionCollection> rolePermissions) {
+        Map<String, URLPattern> uncheckedPatterns = new HashMap<String, URLPattern>();
+        Map<UncheckedItem, HTTPMethods> uncheckedResourcePatterns = new HashMap<UncheckedItem, HTTPMethods>();
+        Map<UncheckedItem, HTTPMethods> uncheckedUserPatterns = new HashMap<UncheckedItem, HTTPMethods>();
+        Map<String, URLPattern> excludedPatterns = new HashMap<String, URLPattern>();
+        Map<String, URLPattern> rolesPatterns = new HashMap<String, URLPattern>();
+        Set<URLPattern> allSet = new HashSet<URLPattern>();   // == allMap.values()
+        Map<String,URLPattern> allMap = new HashMap<String, URLPattern>();   //uncheckedPatterns union excludedPatterns union rolesPatterns.
 
         SecurityConstraintType[] securityConstraintArray = webApp.getSecurityConstraintArray();
-        for (int i = 0; i < securityConstraintArray.length; i++) {
-            SecurityConstraintType securityConstraintType = securityConstraintArray[i];
-            Map currentPatterns;
+        for (SecurityConstraintType securityConstraintType : securityConstraintArray) {
+            Map<String, URLPattern> currentPatterns;
             if (securityConstraintType.isSetAuthConstraint()) {
                 if (securityConstraintType.getAuthConstraint().getRoleNameArray().length == 0) {
                     currentPatterns = excludedPatterns;
@@ -403,19 +401,17 @@ public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
             }
 
             WebResourceCollectionType[] webResourceCollectionTypeArray = securityConstraintType.getWebResourceCollectionArray();
-            for (int j = 0; j < webResourceCollectionTypeArray.length; j++) {
-                WebResourceCollectionType webResourceCollectionType = webResourceCollectionTypeArray[j];
+            for (WebResourceCollectionType webResourceCollectionType : webResourceCollectionTypeArray) {
                 UrlPatternType[] urlPatternTypeArray = webResourceCollectionType.getUrlPatternArray();
-                for (int k = 0; k < urlPatternTypeArray.length; k++) {
-                    UrlPatternType urlPatternType = urlPatternTypeArray[k];
+                for (UrlPatternType urlPatternType : urlPatternTypeArray) {
                     String url = urlPatternType.getStringValue().trim();
-                    URLPattern pattern = (URLPattern) currentPatterns.get(url);
+                    URLPattern pattern = currentPatterns.get(url);
                     if (pattern == null) {
                         pattern = new URLPattern(url);
                         currentPatterns.put(url, pattern);
                     }
 
-                    URLPattern allPattern = (URLPattern) allMap.get(url);
+                    URLPattern allPattern = allMap.get(url);
                     if (allPattern == null) {
                         allPattern = new URLPattern(url);
                         allSet.add(allPattern);
@@ -427,9 +423,8 @@ public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
                         pattern.addMethod("");
                         allPattern.addMethod("");
                     } else {
-                        for (int l = 0; l < httpMethodTypeArray.length; l++) {
-                            //TODO is trim OK?
-                            String method = (httpMethodTypeArray[l]==null?null:httpMethodTypeArray[l].trim());
+                        for (String aHttpMethodTypeArray : httpMethodTypeArray) {
+                            String method = (aHttpMethodTypeArray == null ? null : aHttpMethodTypeArray.trim());
                             if (method != null) {
                                 pattern.addMethod(method);
                                 allPattern.addMethod(method);
@@ -438,8 +433,7 @@ public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
                     }
                     if (currentPatterns == rolesPatterns) {
                         RoleNameType[] roleNameTypeArray = securityConstraintType.getAuthConstraint().getRoleNameArray();
-                        for (int l = 0; l < roleNameTypeArray.length; l++) {
-                            RoleNameType roleNameType = roleNameTypeArray[l];
+                        for (RoleNameType roleNameType : roleNameTypeArray) {
                             String role = roleNameType.getStringValue().trim();
                             if (role.equals("*")) {
                                 pattern.addAllRoles(securityRoles);
@@ -457,9 +451,7 @@ public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
         PermissionCollection excludedPermissions = new Permissions();
         PermissionCollection uncheckedPermissions = new Permissions();
 
-        Iterator iter = excludedPatterns.keySet().iterator();
-        while (iter.hasNext()) {
-            URLPattern pattern = (URLPattern) excludedPatterns.get(iter.next());
+        for (URLPattern pattern : excludedPatterns.values()) {
             String name = pattern.getQualifiedPattern(allSet);
             String actions = pattern.getMethods();
 
@@ -467,44 +459,28 @@ public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
             excludedPermissions.add(new WebUserDataPermission(name, actions));
         }
 
-        iter = rolesPatterns.keySet().iterator();
-        while (iter.hasNext()) {
-            URLPattern pattern = (URLPattern) rolesPatterns.get(iter.next());
+        for (URLPattern pattern : rolesPatterns.values()) {
             String name = pattern.getQualifiedPattern(allSet);
             String actions = pattern.getMethods();
             WebResourcePermission permission = new WebResourcePermission(name, actions);
 
-            for (Iterator names = pattern.getRoles().iterator(); names.hasNext();) {
-                String roleName = (String) names.next();
+            for (String roleName : pattern.getRoles()) {
                 addPermissionToRole(roleName, permission, rolePermissions);
             }
+            HTTPMethods methods = pattern.getHTTPMethods();
+            int transportType = pattern.getTransport();
+
+            addOrUpdatePattern(uncheckedUserPatterns, name, methods, transportType);
         }
 
-        iter = uncheckedPatterns.keySet().iterator();
-        while (iter.hasNext()) {
-            URLPattern pattern = (URLPattern) uncheckedPatterns.get(iter.next());
+        for (URLPattern pattern : uncheckedPatterns.values()) {
             String name = pattern.getQualifiedPattern(allSet);
-            String actions = pattern.getMethods();
+            HTTPMethods methods = pattern.getHTTPMethods();
 
-            addOrUpdatePattern(uncheckedResourcePatterns, name, actions);
-        }
+            addOrUpdatePattern(uncheckedResourcePatterns, name, methods, URLPattern.NA);
 
-        iter = rolesPatterns.keySet().iterator();
-        while (iter.hasNext()) {
-            URLPattern pattern = (URLPattern) rolesPatterns.get(iter.next());
-            String name = pattern.getQualifiedPattern(allSet);
-            String actions = pattern.getMethodsWithTransport();
-
-            addOrUpdatePattern(uncheckedUserPatterns, name, actions);
-        }
-
-        iter = uncheckedPatterns.keySet().iterator();
-        while (iter.hasNext()) {
-            URLPattern pattern = (URLPattern) uncheckedPatterns.get(iter.next());
-            String name = pattern.getQualifiedPattern(allSet);
-            String actions = pattern.getMethodsWithTransport();
-
-            addOrUpdatePattern(uncheckedUserPatterns, name, actions);
+            int transportType = pattern.getTransport();
+            addOrUpdatePattern(uncheckedUserPatterns, name, methods, transportType);
         }
 
         /**
@@ -516,42 +492,38 @@ public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
          * The resulting permissions that must be added to the unchecked policy statements by calling the
          * <code>addToUncheckedPolcy</code> method on the <code>PolicyConfiguration</code> object.
          */
-        iter = allSet.iterator();
-        while (iter.hasNext()) {
-            URLPattern pattern = (URLPattern) iter.next();
+        for (URLPattern pattern : allSet) {
             String name = pattern.getQualifiedPattern(allSet);
-            String actions = pattern.getComplementedMethods();
+            HTTPMethods methods = pattern.getComplementedHTTPMethods();
 
-            if (actions.length() == 0) {
+            if (methods.isNone()) {
                 continue;
             }
 
-            addOrUpdatePattern(uncheckedResourcePatterns, name, actions);
-            addOrUpdatePattern(uncheckedUserPatterns, name, actions);
+            addOrUpdatePattern(uncheckedResourcePatterns, name, methods, URLPattern.NA);
+            addOrUpdatePattern(uncheckedUserPatterns, name, methods, URLPattern.NA);
         }
 
         URLPattern pattern = new URLPattern("/");
         if (!allSet.contains(pattern)) {
             String name = pattern.getQualifiedPattern(allSet);
-            String actions = pattern.getComplementedMethods();
+            HTTPMethods methods = pattern.getComplementedHTTPMethods();
 
-            addOrUpdatePattern(uncheckedResourcePatterns, name, actions);
-            addOrUpdatePattern(uncheckedUserPatterns, name, actions);
+            addOrUpdatePattern(uncheckedResourcePatterns, name, methods, URLPattern.NA);
+            addOrUpdatePattern(uncheckedUserPatterns, name, methods, URLPattern.NA);
         }
 
         //Create the uncheckedPermissions for WebResourcePermissions
-        iter = uncheckedResourcePatterns.keySet().iterator();
-        while (iter.hasNext()) {
-            UncheckedItem item = (UncheckedItem) iter.next();
-            String actions = (String) uncheckedResourcePatterns.get(item);
+        for (UncheckedItem item : uncheckedResourcePatterns.keySet()) {
+            HTTPMethods methods = uncheckedResourcePatterns.get(item);
+            String actions = URLPattern.getMethodsWithTransport(methods, item.getTransportType());
 
             uncheckedPermissions.add(new WebResourcePermission(item.getName(), actions));
         }
         //Create the uncheckedPermissions for WebUserDataPermissions
-        iter = uncheckedUserPatterns.keySet().iterator();
-        while (iter.hasNext()) {
-            UncheckedItem item = (UncheckedItem) iter.next();
-            String actions = (String) uncheckedUserPatterns.get(item);
+        for (UncheckedItem item : uncheckedUserPatterns.keySet()) {
+            HTTPMethods methods = uncheckedUserPatterns.get(item);
+            String actions = URLPattern.getMethodsWithTransport(methods, item.getTransportType());
 
             uncheckedPermissions.add(new WebUserDataPermission(item.getName(), actions));
         }
@@ -560,8 +532,8 @@ public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
 
     }
 
-    protected void addPermissionToRole(String roleName, Permission permission, Map rolePermissions) {
-        PermissionCollection permissionsForRole = (PermissionCollection) rolePermissions.get(roleName);
+    protected void addPermissionToRole(String roleName, Permission permission, Map<String, PermissionCollection> rolePermissions) {
+        PermissionCollection permissionsForRole = rolePermissions.get(roleName);
         if (permissionsForRole == null) {
             permissionsForRole = new Permissions();
             rolePermissions.put(roleName, permissionsForRole);
@@ -569,23 +541,23 @@ public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
         permissionsForRole.add(permission);
     }
 
-    private void addOrUpdatePattern(Map patternMap, String name, String actions) {
-        UncheckedItem item = new UncheckedItem(name, actions);
-        String existingActions = (String) patternMap.get(item);
+    private void addOrUpdatePattern(Map<UncheckedItem, HTTPMethods> patternMap, String name, HTTPMethods actions, int transportType) {
+        UncheckedItem item = new UncheckedItem(name, transportType);
+        HTTPMethods existingActions = patternMap.get(item);
         if (existingActions != null) {
-            patternMap.put(item, actions + "," + existingActions);
+            patternMap.put(item, existingActions.add(actions));
             return;
         }
 
-        patternMap.put(item, actions);
+        patternMap.put(item, new HTTPMethods(actions, false));
     }
 
-    protected static Set collectRoleNames(WebAppType webApp) {
-        Set roleNames = new HashSet();
+    protected static Set<String> collectRoleNames(WebAppType webApp) {
+        Set<String> roleNames = new HashSet<String>();
 
         SecurityRoleType[] securityRoles = webApp.getSecurityRoleArray();
-        for (int i = 0; i < securityRoles.length; i++) {
-            roleNames.add(securityRoles[i].getRoleName().getStringValue().trim());
+        for (SecurityRoleType securityRole : securityRoles) {
+            roleNames.add(securityRole.getRoleName().getStringValue().trim());
         }
 
         return roleNames;
@@ -599,28 +571,28 @@ public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
     private static void checkURLPattern(WebAppType webApp) throws DeploymentException {
 
         FilterMappingType[] filterMappings = webApp.getFilterMappingArray();
-        for (int i = 0; i < filterMappings.length; i++) {
-             UrlPatternType[] urlPatterns = filterMappings[i].getUrlPatternArray();
-            for (int j=0; (urlPatterns != null) && (j < urlPatterns.length); j++) {
+        for (FilterMappingType filterMapping : filterMappings) {
+            UrlPatternType[] urlPatterns = filterMapping.getUrlPatternArray();
+            for (int j = 0; (urlPatterns != null) && (j < urlPatterns.length); j++) {
                 checkString(urlPatterns[j].getStringValue().trim());
             }
         }
 
         ServletMappingType[] servletMappings = webApp.getServletMappingArray();
-        for (int i = 0; i < servletMappings.length; i++) {
-            UrlPatternType[] urlPatterns = servletMappings[i].getUrlPatternArray();
-            for (int j=0; (urlPatterns != null) && (j < urlPatterns.length); j++) {
+        for (ServletMappingType servletMapping : servletMappings) {
+            UrlPatternType[] urlPatterns = servletMapping.getUrlPatternArray();
+            for (int j = 0; (urlPatterns != null) && (j < urlPatterns.length); j++) {
                 checkString(urlPatterns[j].getStringValue().trim());
             }
         }
 
         SecurityConstraintType[] constraints = webApp.getSecurityConstraintArray();
-        for (int i = 0; i < constraints.length; i++) {
-            WebResourceCollectionType[] collections = constraints[i].getWebResourceCollectionArray();
-            for (int j = 0; j < collections.length; j++) {
-                UrlPatternType[] patterns = collections[j].getUrlPatternArray();
-                for (int k = 0; k < patterns.length; k++) {
-                    checkString(patterns[k].getStringValue().trim());
+        for (SecurityConstraintType constraint : constraints) {
+            WebResourceCollectionType[] collections = constraint.getWebResourceCollectionArray();
+            for (WebResourceCollectionType collection : collections) {
+                UrlPatternType[] patterns = collection.getUrlPatternArray();
+                for (UrlPatternType pattern : patterns) {
+                    checkString(pattern.getStringValue().trim());
                 }
             }
         }
@@ -640,7 +612,7 @@ public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
 
     private boolean cleanupConfigurationDir(File configurationDir)
     {
-        LinkedList cannotBeDeletedList = new LinkedList();
+        LinkedList<String> cannotBeDeletedList = new LinkedList<String>();
 
         if (!DeploymentUtil.recursiveDelete(configurationDir,cannotBeDeletedList)) {
             // Output a message to help user track down file problem
@@ -654,13 +626,12 @@ public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
         return true;
     }
 
-    protected void processRoleRefPermissions(ServletType servletType, Set securityRoles, Map rolePermissions) {
+    protected void processRoleRefPermissions(ServletType servletType, Set<String> securityRoles, Map<String, PermissionCollection> rolePermissions) {
         String servletName = servletType.getServletName().getStringValue().trim();
         //WebRoleRefPermissions
         SecurityRoleRefType[] securityRoleRefTypeArray = servletType.getSecurityRoleRefArray();
-        Set unmappedRoles = new HashSet(securityRoles);
-        for (int j = 0; j < securityRoleRefTypeArray.length; j++) {
-            SecurityRoleRefType securityRoleRefType = securityRoleRefTypeArray[j];
+        Set<String> unmappedRoles = new HashSet<String>(securityRoles);
+        for (SecurityRoleRefType securityRoleRefType : securityRoleRefTypeArray) {
             String roleName = securityRoleRefType.getRoleName().getStringValue().trim();
             String roleLink = securityRoleRefType.getRoleLink().getStringValue().trim();
             //jacc 3.1.3.2
@@ -674,8 +645,7 @@ public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
             addPermissionToRole(roleLink, new WebRoleRefPermission(servletName, roleName), rolePermissions);
             unmappedRoles.remove(roleName);
         }
-        for (Iterator iterator = unmappedRoles.iterator(); iterator.hasNext();) {
-            String roleName = (String) iterator.next();
+        for (String roleName : unmappedRoles) {
             addPermissionToRole(roleName, new WebRoleRefPermission(servletName, roleName), rolePermissions);
         }
 //        servletData.setAttribute("webRoleRefPermissions", webRoleRefPermissions);
@@ -698,22 +668,19 @@ public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
         private int transportType = NA;
         private String name;
 
-        public UncheckedItem(String name, String actions) {
+        public UncheckedItem(String name, int transportType) {
             setName(name);
-            setTransportType(actions);
+            setTransportType(transportType);
         }
 
         public boolean equals(Object o) {
             UncheckedItem item = (UncheckedItem) o;
-            return item.getKey().equals(this.getKey());
+            return item.transportType == transportType && item.name.equals(this.name);
         }
 
-        public String getKey() {
-            return (name + transportType);
-        }
 
         public int hashCode() {
-            return getKey().hashCode();
+            return name.hashCode() + transportType;
         }
 
         public String getName() {
@@ -728,15 +695,8 @@ public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
             return transportType;
         }
 
-        public void setTransportType(String actions) {
-            String[] tokens = actions.split(":", 2);
-            if (tokens.length == 2) {
-                if (tokens[1].equals("INTEGRAL")) {
-                    this.transportType = INTEGRAL;
-                } else if (tokens[1].equals("CONFIDENTIAL")) {
-                    this.transportType = CONFIDENTIAL;
-                }
-            }
+        public void setTransportType(int transportType) {
+            this.transportType = transportType;
         }
     }
 }
