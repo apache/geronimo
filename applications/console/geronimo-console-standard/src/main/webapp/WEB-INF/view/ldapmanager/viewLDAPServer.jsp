@@ -486,11 +486,11 @@ callOnLoad(init);
     	<div id="mainTabContainer" 
     	    dojoType="TabContainer" 
     	    selectedTab="attributesTab" 
-    	    style="overflow: auto" 
+    	    style="overflow: hidden" 
     	    sizeShare="60">
             
             <!-- Attributes tab -->
-    		<div id="attributesTab" dojoType="ContentPane" title="LDAP Entry Attributes" label="Attributes">
+    		<div id="attributesTab" dojoType="ContentPane" title="LDAP Entry Attributes" label="Attributes" style="overflow: auto">
                 <br>
                 <table width="100%">
                     <tr>
@@ -503,7 +503,7 @@ callOnLoad(init);
     		</div> <!-- Attributes tab -->
 
             <!-- Search tab -->
-    		<div id="searchTab" dojoType="ContentPane" title = "" label="Search">
+    		<div id="searchTab" dojoType="ContentPane" title = "" label="Search" style="overflow: auto">
     		    <br>
                 <form NAME="LDAPSearchForm">
         	        <table>
@@ -545,7 +545,7 @@ callOnLoad(init);
             </div> <!-- Search tab -->
 
             <!-- Connection Info tab -->
-    		<div id="connectInfoTab" dojoType="ContentPane" title = "" label="Connect Info">
+    		<div id="connectInfoTab" dojoType="ContentPane" title = "" label="Connect Info" style="overflow: auto">
     		    <br>
                 <form NAME="LDAPConnectForm">
         	        <table>
@@ -629,7 +629,7 @@ callOnLoad(init);
 
             <!-- Help tab -->
     		<!--
-    		<div id="helpTab" dojoType="ContentPane" title="Help Information" label="Help">
+    		<div id="helpTab" dojoType="ContentPane" title="Help Information" label="Help" style="overflow: auto">
                 <br>
                 <p>The LDAP viewer portlet can be used to do the following:
                 <ul>
