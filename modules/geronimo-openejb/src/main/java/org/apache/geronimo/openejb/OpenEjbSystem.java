@@ -35,7 +35,7 @@ import org.apache.openejb.spi.ContainerSystem;
 public interface OpenEjbSystem {
     ContainerSystem getContainerSystem();
 
-    Container configureService(String serviceId, Properties declaredProperties, String providerId, String serviceType) throws OpenEJBException;
+    Container createContainer(String serviceId, Properties declaredProperties, String providerId, String serviceType) throws OpenEJBException;
 
     ClientInfo configureApplication(ClientModule clientModule) throws OpenEJBException;
 

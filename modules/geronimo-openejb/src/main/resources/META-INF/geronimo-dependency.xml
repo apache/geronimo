@@ -85,4 +85,12 @@
       <groupId>stax</groupId>
       <artifactId>stax-api</artifactId>
     </dependency>
+    <dependency>
+      <groupId>xerces</groupId>
+      <artifactId>xercesImpl</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>oro</groupId>
+      <artifactId>oro</artifactId>
+    </dependency>
 </service>

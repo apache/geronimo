@@ -67,7 +67,7 @@ public class OpenEjbSystemGBean implements OpenEjbSystem {
         return assembler.getContainerSystem();
     }
 
-    public Container configureService(String serviceId, Properties declaredProperties, String providerId, String serviceType) throws OpenEJBException {
+    public Container createContainer(String serviceId, Properties declaredProperties, String providerId, String serviceType) throws OpenEJBException {
         ContainerInfo containerInfo = configurationFactory.configureService(ContainerInfo.class, serviceId, declaredProperties, providerId, ContainerInfo.class.getSimpleName());
         assembler.createContainer(containerInfo);
         Container container = assembler.getContainerSystem().getContainer(serviceId);
