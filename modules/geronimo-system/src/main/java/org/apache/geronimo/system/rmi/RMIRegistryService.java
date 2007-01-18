@@ -35,6 +35,7 @@ import org.apache.geronimo.gbean.GBeanLifecycle;
 public class RMIRegistryService implements GBeanLifecycle {
     private static final Log log = LogFactory.getLog(RMIRegistryService.class);
     private int port = Registry.REGISTRY_PORT;
+    private String host = "0.0.0.0";
     private Registry registry;
 
     public int getPort() {
@@ -46,9 +47,13 @@ public class RMIRegistryService implements GBeanLifecycle {
     }
 
     public String getHost() {
-        return "0.0.0.0";
+        return host;
     }
 
+    public void setHost(String host) {
+        this.host = host;
+    }
+    
     public String getProtocol() {
         return "rmi";
     }
@@ -80,7 +85,7 @@ public class RMIRegistryService implements GBeanLifecycle {
 
     static {
         GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic("RMI Naming", RMIRegistryService.class);
-        infoFactory.addAttribute("host", String.class, false);
+        infoFactory.addAttribute("host", String.class, true, true);
         infoFactory.addAttribute("protocol", String.class, false);
         infoFactory.addAttribute("port", int.class, true, true);
         infoFactory.addAttribute("listenAddress", InetSocketAddress.class, false);
