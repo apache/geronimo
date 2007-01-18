@@ -82,7 +82,7 @@ import org.apache.xmlbeans.XmlObject;
  */
 public class EjbModuleBuilder implements ModuleBuilder {
     private static final String OPENEJBJAR_NAMESPACE = XmlUtil.OPENEJBJAR_QNAME.getNamespaceURI();
-    private static final String MAPPED_NAME_PREFIX = "java:/comp/geronimo/";
+    private static final String MAPPED_NAME_PREFIX = "jndi:java:/comp/geronimo/";
 
     private final Environment defaultEnvironment;
     private final Collection webServiceBuilders;
