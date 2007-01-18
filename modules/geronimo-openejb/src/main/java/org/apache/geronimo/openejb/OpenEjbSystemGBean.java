@@ -47,7 +47,7 @@ public class OpenEjbSystemGBean implements OpenEjbSystem {
 
     public OpenEjbSystemGBean(TransactionManager transactionManager) throws OpenEJBException {
         if (transactionManager == null) throw new NullPointerException("transactionManager is null");
-        
+
         configurationFactory = new ConfigurationFactory();
         assembler = new Assembler();
 
@@ -75,19 +75,43 @@ public class OpenEjbSystemGBean implements OpenEjbSystem {
     }
 
     public ClientInfo configureApplication(ClientModule clientModule) throws OpenEJBException {
-        return configurationFactory.configureApplication(clientModule);
+        ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
+        Thread.currentThread().setContextClassLoader(clientModule.getClassLoader());
+        try {
+            return configurationFactory.configureApplication(clientModule);
+        } finally {
+            Thread.currentThread().setContextClassLoader(oldClassLoader);
+        }
     }
 
     public EjbJarInfo configureApplication(EjbModule ejbModule) throws OpenEJBException {
-        return configurationFactory.configureApplication(ejbModule);
+        ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
+        Thread.currentThread().setContextClassLoader(ejbModule.getClassLoader());
+        try {
+            return configurationFactory.configureApplication(ejbModule);
+        } finally {
+            Thread.currentThread().setContextClassLoader(oldClassLoader);
+        }
     }
 
     public void createClient(ClientInfo clientInfo, ClassLoader classLoader) throws NamingException, IOException, OpenEJBException {
-        assembler.createClient(clientInfo, classLoader);
+        ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
+        Thread.currentThread().setContextClassLoader(classLoader);
+        try {
+            assembler.createClient(clientInfo, classLoader);
+        } finally {
+            Thread.currentThread().setContextClassLoader(oldClassLoader);
+        }
     }
 
     public void createEjbJar(EjbJarInfo ejbJarInfo, ClassLoader classLoader) throws NamingException, IOException, OpenEJBException {
-        assembler.createEjbJar(ejbJarInfo, classLoader);
+        ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
+        Thread.currentThread().setContextClassLoader(classLoader);
+        try {
+            assembler.createEjbJar(ejbJarInfo, classLoader);
+        } finally {
+            Thread.currentThread().setContextClassLoader(oldClassLoader);
+        }
     }
 
     public DeploymentInfo getDeploymentInfo(String deploymentId) {
