@@ -86,14 +86,21 @@
                         <artifactId>geronimo-maven-plugin</artifactId>
                     </plugin>
                     
-                    <!-- Skipping this for now until Geronimo-2664 gets fixed.
-                     It hangs the jetty testrun.
                      
                     <plugin>
                         <groupId>org.apache.geronimo.genesis.plugins</groupId>
                         <artifactId>maven-maven-plugin</artifactId>
+                        <!-- Skipping servlets tests  for now until Geronimo-2664 gets fixed.
+                         It hangs the jetty testrun.
+                        -->
+                        <configuration>
+                          <fileset>
+                            <excludes>
+                              <exclude>test-2.5-servlets/pom.xml</exclude>
+                            </excludes>
+                          </fileset>
+                        </configuration>
                     </plugin>
-                    -->
 
                 </plugins>
             </build>
