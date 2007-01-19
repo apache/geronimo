@@ -39,6 +39,7 @@ import org.apache.openejb.assembler.classic.ContainerInfo;
 import org.apache.openejb.assembler.classic.EjbJarInfo;
 import org.apache.openejb.assembler.classic.TransactionServiceInfo;
 import org.apache.openejb.assembler.classic.ProxyFactoryInfo;
+import org.apache.openejb.assembler.classic.SecurityServiceInfo;
 import org.apache.openejb.assembler.dynamic.PassthroughFactory;
 import org.apache.openejb.spi.ContainerSystem;
 
@@ -62,7 +63,6 @@ public class OpenEjbSystemGBean implements OpenEjbSystem {
         configurationFactory = new ConfigurationFactory(offline);
         assembler = new Assembler();
 
-
         // install transaction manager
         transactionManager = getRawService(kernel, transactionManager);
         TransactionServiceInfo transactionServiceInfo = new TransactionServiceInfo();
@@ -74,6 +74,10 @@ public class OpenEjbSystemGBean implements OpenEjbSystem {
         } finally {
             PassthroughFactory.remove(transactionServiceInfo);
         }
+
+        // install security service
+        SecurityServiceInfo securityServiceInfo = configurationFactory.configureService(SecurityServiceInfo.class);
+        assembler.createSecurityService(securityServiceInfo);
 
         // install proxy factory
         ProxyFactoryInfo proxyFactoryInfo = new ProxyFactoryInfo();

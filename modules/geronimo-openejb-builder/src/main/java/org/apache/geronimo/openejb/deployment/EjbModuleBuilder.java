@@ -251,21 +251,27 @@ public class EjbModuleBuilder implements ModuleBuilder {
             enterpriseBean.getEjbRef().clear();
             for (EjbRef ref : enterpriseBean.getEjbRef()) {
                 ref.setMappedName(null);
+                ref.getInjectionTarget().clear();
             }
             for (EjbLocalRef ref : enterpriseBean.getEjbLocalRef()) {
                 ref.setMappedName(null);
+                ref.getInjectionTarget().clear();
             }
             for (MessageDestinationRef ref : enterpriseBean.getMessageDestinationRef()) {
                 ref.setMappedName(null);
+                ref.getInjectionTarget().clear();
             }
             for (PersistenceContextRef ref : enterpriseBean.getPersistenceContextRef()) {
                 ref.setMappedName(null);
+                ref.getInjectionTarget().clear();
             }
             for (PersistenceUnitRef ref : enterpriseBean.getPersistenceUnitRef()) {
                 ref.setMappedName(null);
+                ref.getInjectionTarget().clear();
             }
             for (ResourceRef ref : enterpriseBean.getResourceRef()) {
                 ref.setMappedName(null);
+                ref.getInjectionTarget().clear();
             }
             for (Iterator<ResourceEnvRef> iterator = enterpriseBean.getResourceEnvRef().iterator(); iterator.hasNext();) {
                 ResourceEnvRef ref = iterator.next();
@@ -276,10 +282,12 @@ public class EjbModuleBuilder implements ModuleBuilder {
                 } else {
                     ref.setMappedName(null);
                 }
+                ref.getInjectionTarget().clear();
 
             }
             for (ServiceRef ref : enterpriseBean.getServiceRef()) {
                 ref.setMappedName(null);
+                ref.getInjectionTarget().clear();
             }
         }
     }
