@@ -23,19 +23,21 @@ import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.management.geronimo.NetworkConnector;
-import org.apache.openejb.server.ejbd.EjbDaemon;
+import org.apache.openejb.server.ServiceManager;
+import org.apache.openejb.loader.SystemInstance;
 
 /**
  * @version $Rev$ $Date$
  */
 public class EjbDaemonGBean implements NetworkConnector, GBeanLifecycle {
-    private final EjbDaemon ejbDaemon;
     private String host;
     private int port;
     private int threads;
+    private ServiceManager serviceManager;
 
     public EjbDaemonGBean() {
-        ejbDaemon = EjbDaemon.getEjbDaemon();
+        System.setProperty("openejb.nobanner","true");
+        serviceManager = new ServiceManager();
     }
 
     public String getProtocol() {
@@ -71,17 +73,19 @@ public class EjbDaemonGBean implements NetworkConnector, GBeanLifecycle {
     }
 
     public void doStart() throws Exception {
-        Properties properties = new Properties();
-        properties.setProperty("server", "org.apache.openejb.server.ejbd.EjbServer");
-        properties.setProperty("bind", host);
-        properties.setProperty("port", Integer.toString(port));
+        Properties properties = SystemInstance.get().getProperties();
+        properties.setProperty("ejbd.bind", host);
+        properties.setProperty("ejbd.port", Integer.toString(port));
         if (threads > 0) {
-            properties.setProperty("threads", Integer.toString(threads));
+            properties.setProperty("ejbd.threads", Integer.toString(threads));
         }
-        ejbDaemon.init(properties);
+
+        serviceManager.start(false);
+
     }
 
     public void doStop() throws Exception {
+        serviceManager.stop();
     }
 
     public void doFail() {
