@@ -20,11 +20,11 @@ package org.apache.geronimo.openejb;
 import java.util.Set;
 import javax.ejb.EJBHome;
 import javax.ejb.EJBLocalHome;
-import javax.security.auth.Subject;
 import javax.naming.Context;
+import javax.security.auth.Subject;
 
-import org.apache.geronimo.management.EJB;
 import org.apache.geronimo.connector.outbound.connectiontracking.TrackedConnectionAssociator;
+import org.apache.geronimo.management.EJB;
 import org.apache.openejb.core.CoreDeploymentInfo;
 
 public class EjbDeployment implements EJB {
@@ -180,7 +180,9 @@ public class EjbDeployment implements EJB {
         if (deploymentInfo == null) {
             throw new IllegalStateException("Ejb does not exist " + deploymentId);
         }
-        deploymentInfo.getJndiEnc().bind("geronimo", componentContext);
+        if (componentContext != null) {
+            ((Context)deploymentInfo.getJndiEnc().lookup("java:comp")).bind("geronimo", componentContext);
+        }
         deploymentInfo.set(EjbDeployment.class, this);
     }
 

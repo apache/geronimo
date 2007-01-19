@@ -31,6 +31,7 @@ import org.apache.geronimo.security.deploy.DefaultPrincipal;
 import org.apache.geronimo.security.util.ConfigurationUtil;
 import org.apache.geronimo.transaction.manager.GeronimoTransactionManager;
 import org.apache.geronimo.connector.outbound.connectiontracking.TrackedConnectionAssociator;
+import org.apache.geronimo.kernel.Kernel;
 
 public class EjbDeploymentGBean extends EjbDeployment implements GBeanLifecycle {
     public EjbDeploymentGBean(String objectName,
@@ -50,7 +51,8 @@ public class EjbDeploymentGBean extends EjbDeployment implements GBeanLifecycle 
             Set applicationManagedSecurityResources,
             TrackedConnectionAssociator trackedConnectionAssociator,
             GeronimoTransactionManager transactionManager,
-            OpenEjbSystem openEjbSystem) throws Exception {
+            OpenEjbSystem openEjbSystem,
+            Kernel kernel) throws Exception {
         super(objectName,
                 deploymentId,
                 ejbName,
@@ -63,7 +65,7 @@ public class EjbDeploymentGBean extends EjbDeployment implements GBeanLifecycle 
                 classLoader,
                 generateDefaultSubject(defaultPrincipal, classLoader),
                 runAs,
-                EnterpriseNamingContext.createEnterpriseNamingContext(componentContext, transactionManager, null, classLoader),
+                EnterpriseNamingContext.createEnterpriseNamingContext(componentContext, transactionManager, kernel, classLoader),
                 unshareableResources,
                 applicationManagedSecurityResources,
                 trackedConnectionAssociator,
@@ -120,6 +122,8 @@ public class EjbDeploymentGBean extends EjbDeployment implements GBeanLifecycle 
 
         infoFactory.addReference("OpenEjbSystem", OpenEjbSystem.class);
 
+        infoFactory.addAttribute("kernel", Kernel.class, false);
+
         infoFactory.setConstructor(new String[]{
                 "objectName",
                 "deploymentId",
@@ -144,6 +148,8 @@ public class EjbDeploymentGBean extends EjbDeployment implements GBeanLifecycle 
                 "TransactionManager",
 
                 "OpenEjbSystem",
+
+                "kernel",
         });
 
         GBEAN_INFO = infoFactory.getBeanInfo();

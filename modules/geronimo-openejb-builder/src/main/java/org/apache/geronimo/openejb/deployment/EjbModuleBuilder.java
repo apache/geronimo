@@ -85,7 +85,7 @@ import org.apache.xmlbeans.XmlObject;
  */
 public class EjbModuleBuilder implements ModuleBuilder {
     private static final String OPENEJBJAR_NAMESPACE = XmlUtil.OPENEJBJAR_QNAME.getNamespaceURI();
-    private static final String MAPPED_NAME_PREFIX = "jndi:java:/comp/geronimo/";
+    private static final String MAPPED_NAME_PREFIX = "jndi:java:comp/geronimo/env/";
 
     private final Environment defaultEnvironment;
     private final Collection webServiceBuilders;
@@ -248,7 +248,7 @@ public class EjbModuleBuilder implements ModuleBuilder {
 
     protected static void unmapReferences(EjbJar ejbJar) {
         for (EnterpriseBean enterpriseBean : ejbJar.getEnterpriseBeans()) {
-            enterpriseBean.getEjbRef().clear();
+            enterpriseBean.getEnvEntry().clear();
             for (EjbRef ref : enterpriseBean.getEjbRef()) {
                 ref.setMappedName(null);
                 ref.getInjectionTarget().clear();
