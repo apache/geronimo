@@ -30,19 +30,12 @@ import java.util.Set;
  * @version $Rev$ $Date$
  */
 public class URLPattern {
-//    private final static String[] HTTP_METHODS = {"GET", "POST", "PUT", "DELETE", "HEAD", "OPTIONS", "TRACE"};
-//    private final static int[] HTTP_MASKS = {0x01, 0x02, 0x04, 0x08, 0x10, 0x20, 0x40};
-//    private static final String[] NO_METHODS = new String[0];
-//    private static final Pattern TOKEN_PATTERN = Pattern.compile("[!-~&&[^\\(\\)\\<\\>@,;:\\\\\"/\\[\\]\\?=\\{\\}]]*");
     public final static int NA = 0x00;
     public final static int INTEGRAL = 0x01;
     public final static int CONFIDENTIAL = 0x02;
 
     private final URLPatternCheck type;
     private final String pattern;
-//    private int httpMethodsMask;
-//    private ArrayList<String> extensionMethods;
-//    private boolean isExcluded;
     private final HTTPMethods httpMethods = new HTTPMethods();
     private int transport;
     private final HashSet<String> roles = new HashSet<String>();
@@ -59,6 +52,7 @@ public class URLPattern {
 
         if (pat.equals("/") || pat.equals("/*")) {
             type = DEFAULT;
+            pat = "/";
         } else if (pat.charAt(0) == '/' && pat.endsWith("/*")) {
             type = PATH_PREFIX;
         } else if (pat.charAt(0) == '*') {
@@ -193,7 +187,7 @@ public class URLPattern {
 
     /**
      * TODO this is kinda weird without an explanation
-     * @param obj
+     * @param obj object to compare with
      * @return if this equals obj
      */
     public boolean equals(Object obj) {
