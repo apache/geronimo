@@ -109,6 +109,14 @@
                     <plugin>
                         <groupId>org.apache.geronimo.genesis.plugins</groupId>
                         <artifactId>maven-maven-plugin</artifactId>
+                        <!-- Skipping ejbcontainer tests  for now until we move to itests in OpenEJB 3.0 -->
+                        <configuration>
+                          <fileset>
+                            <excludes>
+                              <exclude>ejbcontainer-tests/pom.xml</exclude>
+                            </excludes>
+                          </fileset>
+                        </configuration>
                     </plugin>
                 </plugins>
             </build>
