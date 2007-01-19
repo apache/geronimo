@@ -286,6 +286,7 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder {
 
         GBeanData webModuleData = new GBeanData(moduleName, TomcatWebAppContext.GBEAN_INFO);
         try {
+            moduleContext.addGBean(webModuleData);
             webModuleData.setReferencePattern("J2EEServer", moduleContext.getServerName());
             if (!module.isStandAlone()) {
                 webModuleData.setReferencePattern("J2EEApplication", earContext.getModuleName());
@@ -451,8 +452,6 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder {
 
                 webModuleData.setAttribute("securityHolder", securityHolder);
             }
-
-            moduleContext.addGBean(webModuleData);
 
             if (!module.isStandAlone()) {
                 ConfigurationData moduleConfigurationData = moduleContext.getConfigurationData();
