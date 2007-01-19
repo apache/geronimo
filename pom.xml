@@ -71,7 +71,7 @@
         <!--
         HACK: Used by jsp and servlet example configs to point to the tomcat deployer
         -->
-        <tomcatVersion>6.0.7-SNAPSHOT</tomcatVersion>
+        <tomcatVersion>6.0.8</tomcatVersion>
 
         <!--
         HACK: Used by uddi-jetty and uddi-tomcat config plans
@@ -1437,6 +1437,20 @@
                 <enabled>false</enabled>
             </releases>
         </repository>
+
+        <repository>
+            <id>tomcat-m2-repo</id>
+            <name>Tomcat M2 Repository</name>
+            <url>http://tomcat.apache.org/dev/dist/m2-repository/</url>
+            <layout>default</layout>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+        </repository>
+
     </repositories>
 
     <distributionManagement>
