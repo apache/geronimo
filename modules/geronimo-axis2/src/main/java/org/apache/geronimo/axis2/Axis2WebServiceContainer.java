@@ -17,6 +17,14 @@
 
 package org.apache.geronimo.axis2;
 
+import java.io.PrintWriter;
+import java.net.URI;
+import java.util.HashMap;
+import java.util.Map;
+
+import javax.xml.namespace.QName;
+
+import org.apache.axiom.om.util.UUIDGenerator;
 import org.apache.axis2.AxisFault;
 import org.apache.axis2.Constants;
 import org.apache.axis2.addressing.AddressingHelper;
@@ -29,29 +37,21 @@ import org.apache.axis2.description.TransportInDescription;
 import org.apache.axis2.description.TransportOutDescription;
 import org.apache.axis2.engine.AxisEngine;
 import org.apache.axis2.rpc.receivers.RPCMessageReceiver;
+import org.apache.axis2.transport.OutTransportInfo;
 import org.apache.axis2.transport.http.HTTPConstants;
 import org.apache.axis2.transport.http.HTTPTransportReceiver;
 import org.apache.axis2.transport.http.HTTPTransportUtils;
-import org.apache.axis2.transport.http.server.HttpUtils;
-import org.apache.axis2.transport.OutTransportInfo;
-import org.apache.axis2.util.UUIDGenerator;
 import org.apache.axis2.util.JavaUtils;
+import org.apache.axis2.util.MessageContextBuilder;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.webservices.WebServiceContainer;
 import org.apache.ws.commons.schema.XmlSchema;
 
-import javax.xml.namespace.QName;
-import java.io.PrintWriter;
-import java.net.SocketException;
-import java.net.URI;
-import java.util.HashMap;
-import java.util.Map;
-
 
 public class Axis2WebServiceContainer implements WebServiceContainer {
 
-    private static final Log LOG = LogFactory.getLog(Axis2WebServiceContainer.class);
+	private static final Log log = LogFactory.getLog(Axis2WebServiceContainer.class);
 
     public static final String REQUEST = Axis2WebServiceContainer.class.getName() + "@Request";
     public static final String RESPONSE = Axis2WebServiceContainer.class.getName() + "@Response";
@@ -61,6 +61,8 @@ public class Axis2WebServiceContainer implements WebServiceContainer {
     private final PortInfo portInfo;
     private ConfigurationContext configurationContext;
     private String contextRoot = null;
+    private Map servicesMap;
+    
 
     public Axis2WebServiceContainer(PortInfo portInfo, String endpointClassName, ClassLoader classLoader) {
         this.classLoader = classLoader;
@@ -89,8 +91,8 @@ public class Axis2WebServiceContainer implements WebServiceContainer {
             throws Exception {
         initContextRoot(request);
 
-        if (LOG.isDebugEnabled()) {
-            LOG.debug("Target URI: " + request.getURI());
+        if (log.isDebugEnabled()) {
+        	log.debug("Target URI: " + request.getURI());
         }
 
         MessageContext msgContext = new MessageContext();
@@ -134,7 +136,7 @@ public class Axis2WebServiceContainer implements WebServiceContainer {
                 msgContext.setProperty(MessageContext.TRANSPORT_OUT, response.getOutputStream());
                 msgContext.setProperty(Constants.OUT_TRANSPORT_INFO, new Axis2TransportInfo(response));
 
-                MessageContext faultContext = engine.createFaultMessageContext(msgContext, e);
+                MessageContext faultContext = MessageContextBuilder.createFaultMessageContext(msgContext, e);
                 // If the fault is not going along the back channel we should be 202ing
                 if (AddressingHelper.isFaultRedirected(msgContext)) {
                     response.setStatusCode(202);
@@ -147,7 +149,6 @@ public class Axis2WebServiceContainer implements WebServiceContainer {
                     response.setStatusCode(202);
                 } else {
                     response.setStatusCode(500);
-                    String msg = ex.getMessage();
                     response.setHeader(HTTPConstants.HEADER_CONTENT_TYPE, "text/plain");
                     PrintWriter pw = new PrintWriter(response.getOutputStream());
                     ex.printStackTrace(pw);
@@ -188,6 +189,19 @@ public class Axis2WebServiceContainer implements WebServiceContainer {
         URI uri = request.getURI();
         String path = uri.getPath();
         String soapAction = request.getHeader(HTTPConstants.HEADER_SOAP_ACTION);
+        
+        HashMap services = configurationContext.getAxisConfiguration().getServices();
+        AxisService service = null;
+        String serviceName = null;
+        
+        if(services.size() == 1){
+        	service = (AxisService)(services.values().iterator().next());
+        	serviceName = (String)(services.keySet().iterator().next());
+        }else { // can't be happen
+        	log.error("Invalid service configurations ");
+        	throw new RuntimeException("Invalid Configuration");
+        }
+
 
         // TODO: Port this section
 //        // Adjust version and content chunking based on the config
@@ -209,6 +223,7 @@ public class Axis2WebServiceContainer implements WebServiceContainer {
 //                }
 //            }
 //        }
+        
 
         if (request.getMethod() == Request.GET) {
             if (!path.startsWith(contextPath)) {
@@ -218,37 +233,29 @@ public class Axis2WebServiceContainer implements WebServiceContainer {
             }
             if (uri.toString().indexOf("?") < 0) {
                 if (!path.endsWith(contextPath)) {
-                    String serviceName = path.replaceAll(contextPath, "");
                     if (serviceName.indexOf("/") < 0) {
                         String res = HTTPTransportReceiver.printServiceHTML(serviceName, configurationContext);
                         PrintWriter pw = new PrintWriter(response.getOutputStream());
                         pw.write(res);
+                        pw.flush();
                         return;
                     }
                 }
             }
+            
             if (uri.getQuery().startsWith("wsdl2")) {
-                String serviceName = path.substring(path.lastIndexOf("/") + 1, path.length() - 6);
-                HashMap services = configurationContext.getAxisConfiguration().getServices();
-                final AxisService service = (AxisService) services.get(serviceName);
                 if (service != null) {
                     service.printWSDL2(response.getOutputStream(), uri.getHost(), servicePath);
                     return;
                 }
             }
             if (uri.getQuery().startsWith("wsdl")) {
-                String serviceName = path.substring(path.lastIndexOf("/") + 1);
-                HashMap services = configurationContext.getAxisConfiguration().getServices();
-                final AxisService service = (AxisService) services.get(serviceName);
-                if (service != null) {
-                    service.printWSDL(response.getOutputStream(), uri.getHost(), servicePath);
-                    return;
-                }
+            	if(service != null){
+            		service.printWSDL(response.getOutputStream(), uri.getHost(), servicePath);
+            		return;
+            	}
             }
             if (uri.getQuery().startsWith("xsd=")) {
-                String serviceName = path.substring(path.lastIndexOf("/") + 1);
-                HashMap services = configurationContext.getAxisConfiguration().getServices();
-                final AxisService service = (AxisService) services.get(serviceName);
                 if (service != null) {
                     service.printSchema(response.getOutputStream());
                     return;
@@ -256,11 +263,8 @@ public class Axis2WebServiceContainer implements WebServiceContainer {
             }
             //cater for named xsds - check for the xsd name
             if (uri.getQuery().startsWith("xsd")) {
-                String serviceName = path.substring(path.lastIndexOf("/") + 1);
                 String schemaName = uri.getQuery().substring(uri.getQuery().lastIndexOf("=") + 1);
 
-                HashMap services = configurationContext.getAxisConfiguration().getServices();
-                AxisService service = (AxisService) services.get(serviceName);
                 if (service != null) {
                     //run the population logic just to be sure
                     service.populateSchemaMappings();
@@ -333,12 +337,12 @@ public class Axis2WebServiceContainer implements WebServiceContainer {
                 response.setStatusCode(202);
                 return;
             }
-            response.setStatusCode(202);
+            response.setStatusCode(200);
         } else {
             response.setStatusCode(202);
         }
     }
-
+    
     public class Axis2TransportInfo implements OutTransportInfo {
         private Response response;
 
