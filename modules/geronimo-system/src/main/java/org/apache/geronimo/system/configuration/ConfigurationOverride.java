@@ -52,11 +52,21 @@ class ConfigurationOverride {
         this.load = load;
     }
 
+    /**
+     * Create a copy of a ConfigurationOverride with a new Artifact name
+     * @param base The original
+     * @param name The new Artifact name
+     */
     public ConfigurationOverride(ConfigurationOverride base, Artifact name) {
         this.name = name;
         this.load = base.load;
         this.condition = base.condition;
-        this.gbeans.putAll(base.gbeans);
+        for (Iterator it = base.gbeans.keySet().iterator(); it.hasNext();) {
+            Object gbeanName = it.next();
+            GBeanOverride gbean = (GBeanOverride) base.gbeans.get(gbeanName);
+            GBeanOverride replacement = new GBeanOverride(gbean, base.name.toString(), name.toString());
+            gbeans.put(replacement.getName(), replacement);
+        }
     }
 
     public ConfigurationOverride(Element element) throws InvalidGBeanException {

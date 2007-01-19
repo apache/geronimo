@@ -27,6 +27,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.SortedSet;
 import java.util.Set;
+import java.util.Collections;
 import java.util.jar.JarFile;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
@@ -201,12 +202,16 @@ public class RepositoryConfigurationStore implements ConfigurationStore {
                 location = new File(location, moduleName);
             }
 
-            if (location.isDirectory()) {
-                Set matches = IOUtil.search(location, path);
-                return matches;
+            if(path == null) {
+                return Collections.singleton(location.toURL());
             } else {
-                Set matches = IOUtil.search(location, path);
-                return matches;
+                if (location.isDirectory()) {
+                    Set matches = IOUtil.search(location, path);
+                    return matches;
+                } else {
+                    Set matches = IOUtil.search(location, path);
+                    return matches;
+                }
             }
         } else {
             Set matches = IOUtil.search(location, moduleName + "/" +path);
