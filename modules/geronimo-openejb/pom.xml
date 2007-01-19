@@ -37,6 +37,16 @@
         </dependency>
 
         <dependency>
+            <groupId>org.apache.openejb</groupId>
+            <artifactId>openejb-ejbd</artifactId>
+        </dependency>
+
+        <dependency>
+          <groupId>org.apache.openejb</groupId>
+          <artifactId>openejb-client</artifactId>
+        </dependency>
+
+        <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
             <artifactId>geronimo-connector</artifactId>
             <version>${pom.version}</version>

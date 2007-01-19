@@ -58,6 +58,15 @@
         </reference>
     </gbean>
 
+    <gbean name="EJBNetworkService" class="org.apache.geronimo.openejb.EjbDaemonGBean">
+        <attribute name="port">${PlanOpenEJBPort}</attribute>
+        <attribute name="host">${PlanServerHostname}</attribute>
+        <attribute name="threads">20</attribute>
+        <dependency>
+            <name>OpenEjbSystem</name>
+        </dependency>
+    </gbean>
+
 <!--
     <gbean name="StatelessEjbContainer" class="org.apache.openejb.slsb.DefaultStatelessEjbContainerGBean">
         <reference name="TransactionManager">

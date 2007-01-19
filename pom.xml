@@ -688,6 +688,18 @@
             </dependency>
 
             <dependency>
+                <groupId>org.apache.openejb</groupId>
+                <artifactId>openejb-client</artifactId>
+                <version>${openejbVersion}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.openejb</groupId>
+                <artifactId>openejb-ejbd</artifactId>
+                <version>${openejbVersion}</version>
+            </dependency>
+
+            <dependency>
                 <groupId>org.tranql</groupId>
                 <artifactId>tranql</artifactId>
                 <version>1.4.1</version>
