@@ -23,10 +23,13 @@ import javax.transaction.TransactionManager;
 
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
+import org.apache.geronimo.gbean.AbstractName;
+import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.openejb.Container;
 import org.apache.openejb.DeploymentInfo;
 import org.apache.openejb.OpenEJBException;
-import org.apache.openejb.loader.SystemInstance;
+import org.apache.openejb.util.proxy.Jdk13ProxyFactory;
 import org.apache.openejb.alt.config.ClientModule;
 import org.apache.openejb.alt.config.ConfigurationFactory;
 import org.apache.openejb.alt.config.EjbModule;
@@ -35,6 +38,7 @@ import org.apache.openejb.assembler.classic.ClientInfo;
 import org.apache.openejb.assembler.classic.ContainerInfo;
 import org.apache.openejb.assembler.classic.EjbJarInfo;
 import org.apache.openejb.assembler.classic.TransactionServiceInfo;
+import org.apache.openejb.assembler.classic.ProxyFactoryInfo;
 import org.apache.openejb.assembler.dynamic.PassthroughFactory;
 import org.apache.openejb.spi.ContainerSystem;
 
@@ -46,6 +50,9 @@ public class OpenEjbSystemGBean implements OpenEjbSystem {
     private final Assembler assembler;
 
     public OpenEjbSystemGBean(TransactionManager transactionManager) throws Exception {
+        this(transactionManager, null);
+    }
+    public OpenEjbSystemGBean(TransactionManager transactionManager, Kernel kernel) throws Exception {
         System.setProperty("duct tape","");
         if (transactionManager == null) {
             throw new NullPointerException("transactionManager is null");
@@ -55,6 +62,9 @@ public class OpenEjbSystemGBean implements OpenEjbSystem {
         configurationFactory = new ConfigurationFactory(offline);
         assembler = new Assembler();
 
+
+        // install transaction manager
+        transactionManager = getRawService(kernel, transactionManager);
         TransactionServiceInfo transactionServiceInfo = new TransactionServiceInfo();
         PassthroughFactory.add(transactionServiceInfo, transactionManager);
         try {
@@ -64,7 +74,33 @@ public class OpenEjbSystemGBean implements OpenEjbSystem {
         } finally {
             PassthroughFactory.remove(transactionServiceInfo);
         }
+
+        // install proxy factory
+        ProxyFactoryInfo proxyFactoryInfo = new ProxyFactoryInfo();
+        proxyFactoryInfo.id = "Default JDK 1.3 ProxyFactory";
+        proxyFactoryInfo.serviceType = "ProxyFactory";
+        proxyFactoryInfo.className = Jdk13ProxyFactory.class.getName();
+        proxyFactoryInfo.properties = new Properties();
+        assembler.createProxyFactory(proxyFactoryInfo);
+
+        // add our thread context listener
         GeronimoThreadContextListener.init();
+    }
+
+    @SuppressWarnings({"unchecked"})
+    private static <T> T getRawService(Kernel kernel, T proxy) {
+        if (kernel == null) return proxy;
+
+        AbstractName abstractName = kernel.getAbstractNameFor(proxy);
+        if (abstractName == null) return proxy;
+
+        try {
+            Object service = kernel.getGBean(abstractName);
+            return (T) service;
+        } catch (GBeanNotFoundException e) {
+        }
+
+        return proxy;
     }
 
     public ContainerSystem getContainerSystem() {
@@ -127,8 +163,10 @@ public class OpenEjbSystemGBean implements OpenEjbSystem {
     static {
         GBeanInfoBuilder infoBuilder = GBeanInfoBuilder.createStatic(OpenEjbSystemGBean.class);
         infoBuilder.addReference("TransactionManager", TransactionManager.class);
+        infoBuilder.addAttribute("kernel", Kernel.class, false);
         infoBuilder.setConstructor(new String[] {
                 "TransactionManager",
+                "kernel",
         });
         GBEAN_INFO = infoBuilder.getBeanInfo();
     }

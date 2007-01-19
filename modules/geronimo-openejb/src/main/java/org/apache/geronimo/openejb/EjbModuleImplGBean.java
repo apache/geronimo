@@ -50,7 +50,7 @@ public final class EjbModuleImplGBean extends EjbModuleImpl implements GBeanLife
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoBuilder = GBeanInfoBuilder.createStatic(EjbModuleImpl.class, NameFactory.EJB_MODULE);
+        GBeanInfoBuilder infoBuilder = GBeanInfoBuilder.createStatic(EjbModuleImplGBean.class, NameFactory.EJB_MODULE);
         infoBuilder.addReference("J2EEServer", J2EEServer.class);
         infoBuilder.addReference("J2EEApplication", J2EEApplication.class);
 
@@ -58,7 +58,7 @@ public final class EjbModuleImplGBean extends EjbModuleImpl implements GBeanLife
 
         infoBuilder.addReference("EJBCollection", EJB.class);
 
-        infoBuilder.addAttribute("classloader", ClassLoader.class, false);
+        infoBuilder.addAttribute("classLoader", ClassLoader.class, false);
 
         infoBuilder.addReference("OpenEjbSystem", OpenEjbSystem.class);
         infoBuilder.addAttribute("ejbJarInfo", EjbJarInfo.class, true);
@@ -69,7 +69,7 @@ public final class EjbModuleImplGBean extends EjbModuleImpl implements GBeanLife
                 "J2EEApplication",
                 "deploymentDescriptor",
                 "EJBCollection",
-                "classloader",
+                "classLoader",
                 "OpenEjbSystem",
                 "ejbJarInfo"
         });

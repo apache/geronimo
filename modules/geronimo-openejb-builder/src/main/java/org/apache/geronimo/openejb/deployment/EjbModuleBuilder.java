@@ -27,6 +27,9 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.jar.JarFile;
 
+import javax.ejb.SessionContext;
+import javax.ejb.EntityContext;
+
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.ModuleIDBuilder;
 import org.apache.geronimo.deployment.NamespaceDrivenBuilder;
@@ -165,13 +168,10 @@ public class EjbModuleBuilder implements ModuleBuilder {
             idBuilder.resolve(environment, new File(moduleFile.getName()).getName(), "jar");
         }
 
-        // create a xmlbeans version of the ejb-jar.xml file, because the jndi code is coupled based on xmlbeans objects
-        EjbJarType ejbJarType = XmlUtil.convertToXmlbeans(ejbJar);
-
-
         // todo THIS WILL NOT WORK WITH ANNOTATIONS... move this to initContext when naming is fixed
         // since assembly descriptor will only be valid once metadata complete
         // which is only available once a class loader has been constructed in the init phase
+        EjbJarType ejbJarType = XmlUtil.convertToXmlbeans(ejbJar);
         if (ejbJar.getAssemblyDescriptor() != null) {
             AssemblyDescriptorType assemblyDescriptor = ejbJarType.getAssemblyDescriptor();
             namingBuilder.buildEnvironment(assemblyDescriptor, geronimoOpenejb, environment);
@@ -246,6 +246,44 @@ public class EjbModuleBuilder implements ModuleBuilder {
         }
     }
 
+    protected static void unmapReferences(EjbJar ejbJar) {
+        for (EnterpriseBean enterpriseBean : ejbJar.getEnterpriseBeans()) {
+            enterpriseBean.getEjbRef().clear();
+            for (EjbRef ref : enterpriseBean.getEjbRef()) {
+                ref.setMappedName(null);
+            }
+            for (EjbLocalRef ref : enterpriseBean.getEjbLocalRef()) {
+                ref.setMappedName(null);
+            }
+            for (MessageDestinationRef ref : enterpriseBean.getMessageDestinationRef()) {
+                ref.setMappedName(null);
+            }
+            for (PersistenceContextRef ref : enterpriseBean.getPersistenceContextRef()) {
+                ref.setMappedName(null);
+            }
+            for (PersistenceUnitRef ref : enterpriseBean.getPersistenceUnitRef()) {
+                ref.setMappedName(null);
+            }
+            for (ResourceRef ref : enterpriseBean.getResourceRef()) {
+                ref.setMappedName(null);
+            }
+            for (Iterator<ResourceEnvRef> iterator = enterpriseBean.getResourceEnvRef().iterator(); iterator.hasNext();) {
+                ResourceEnvRef ref = iterator.next();
+                if (ref.getType().equals(SessionContext.class.getName())) {
+                    iterator.remove();
+                } else if (ref.getType().equals(EntityContext.class.getName())) {
+                    iterator.remove();
+                } else {
+                    ref.setMappedName(null);
+                }
+
+            }
+            for (ServiceRef ref : enterpriseBean.getServiceRef()) {
+                ref.setMappedName(null);
+            }
+        }
+    }
+
 
     public void installModule(JarFile earFile, EARContext earContext, Module module, Collection configurationStores, ConfigurationStore targetConfigurationStore, Collection repository) throws DeploymentException {
         installModule(module, earContext);
@@ -282,6 +320,9 @@ public class EjbModuleBuilder implements ModuleBuilder {
         EjbJar ejbJar = ejbModule.getEjbJar();
         ejbModule.setOriginalSpecDD(XmlUtil.marshal(ejbModule.getEjbJar()));
 
+        // We must set all mapped name references back to null or Geronimo will blow up
+        unmapReferences(ejbJar);
+
         // create a xmlbeans version of the ejb-jar.xml file, because the jndi code is coupled based on xmlbeans objects
         EjbJarType ejbJarType = XmlUtil.convertToXmlbeans(ejbJar);
         ejbModule.setSpecDD(ejbJarType);
@@ -316,6 +357,7 @@ public class EjbModuleBuilder implements ModuleBuilder {
      */
     public void addGBeans(EARContext earContext, Module module, ClassLoader cl, Collection repositories) throws DeploymentException {
         EjbModule ejbModule = (EjbModule) module;
+        EjbDeploymentBuilder ejbDeploymentBuilder = ejbModule.getEjbBuilder();
 
         // Add JSR77 EJBModule GBean
         GBeanData ejbModuleGBeanData = new GBeanData(ejbModule.getModuleName(), EjbModuleImplGBean.GBEAN_INFO);
@@ -340,14 +382,15 @@ public class EjbModuleBuilder implements ModuleBuilder {
             throw new DeploymentException("Unable to initialize EJBModule GBean " + ejbModuleGBeanData.getAbstractName(), e);
         }
 
+        // add a depdendency on the ejb module object
+        ejbDeploymentBuilder.addEjbModuleDependency(ejbModuleGBeanData.getAbstractName());
+
         // add enc
-        EjbDeploymentBuilder ejbDeploymentBuilder = ejbModule.getEjbBuilder();
         ejbDeploymentBuilder.buildEnc();
 
         // add the Jacc permissions to the ear
         ComponentPermissions componentPermissions = ejbDeploymentBuilder.buildComponentPermissions();
         earContext.addSecurityContext(ejbModule.getEjbJarInfo().moduleId, componentPermissions);
-
     }
 
 

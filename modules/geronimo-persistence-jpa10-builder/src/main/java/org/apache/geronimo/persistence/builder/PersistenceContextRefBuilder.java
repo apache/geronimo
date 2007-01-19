@@ -45,6 +45,7 @@ import org.apache.geronimo.xbeans.geronimo.naming.GerPersistenceContextTypeType;
 import org.apache.geronimo.xbeans.geronimo.naming.GerPropertyType;
 import org.apache.geronimo.xbeans.javaee.PersistenceContextRefType;
 import org.apache.geronimo.xbeans.javaee.PropertyType;
+import org.apache.geronimo.xbeans.javaee.PersistenceContextTypeType;
 import org.apache.xmlbeans.QNameSet;
 import org.apache.xmlbeans.XmlObject;
 
@@ -74,7 +75,8 @@ public class PersistenceContextRefBuilder extends AbstractNamingBuilder {
         for (PersistenceContextRefType persistenceContextRef : specPersistenceContextRefsUntyped) {
             String persistenceContextRefName = persistenceContextRef.getPersistenceContextRefName().getStringValue().trim();
 
-            boolean transactionScoped = !persistenceContextRef.getPersistenceContextType().getStringValue().equals("extended");
+            PersistenceContextTypeType persistenceContextType = persistenceContextRef.getPersistenceContextType();
+            boolean transactionScoped = persistenceContextType == null || !persistenceContextType.getStringValue().equalsIgnoreCase("extended");
 
             PropertyType[] propertyTypes = persistenceContextRef.getPersistencePropertyArray();
             Map properties = new HashMap();

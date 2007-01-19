@@ -28,17 +28,36 @@
 
     <gbean name="DefaultStatelessContainer" class="org.apache.geronimo.openejb.EjbContainer">
         <attribute name="id">Default Stateless Container</attribute>
+        <reference name="OpenEjbSystem">
+            <name>OpenEjbSystem</name>
+        </reference>
     </gbean>
     <gbean name="DefaultStatefulContainer" class="org.apache.geronimo.openejb.EjbContainer">
         <attribute name="id">Default Stateful Container</attribute>
+        <reference name="OpenEjbSystem">
+            <name>OpenEjbSystem</name>
+        </reference>
     </gbean>
     <gbean name="DefaultBMPContainer" class="org.apache.geronimo.openejb.EjbContainer">
         <attribute name="id">Default BMP Container</attribute>
+        <reference name="OpenEjbSystem">
+            <name>OpenEjbSystem</name>
+        </reference>
     </gbean>
     <gbean name="DefaultCMPContainer" class="org.apache.geronimo.openejb.EjbContainer">
         <attribute name="id">Default CMP Container</attribute>
+        <reference name="OpenEjbSystem">
+            <name>OpenEjbSystem</name>
+        </reference>
     </gbean>
     
+    <gbean name="DefaultMDBContainer" class="org.apache.geronimo.openejb.EjbContainer">
+        <attribute name="id">Default MDB Container</attribute>
+        <reference name="OpenEjbSystem">
+            <name>OpenEjbSystem</name>
+        </reference>
+    </gbean>
+
 <!--
     <gbean name="StatelessEjbContainer" class="org.apache.openejb.slsb.DefaultStatelessEjbContainerGBean">
         <reference name="TransactionManager">

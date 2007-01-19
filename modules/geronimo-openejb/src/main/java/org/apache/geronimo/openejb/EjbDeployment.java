@@ -177,15 +177,17 @@ public class EjbDeployment implements EJB {
 
     protected void start() throws Exception {
         deploymentInfo = (CoreDeploymentInfo) openEjbSystem.getDeploymentInfo(deploymentId);
-        deploymentInfo.getJndiEnc().bind("geronimo", componentContext);
         if (deploymentInfo == null) {
             throw new IllegalStateException("Ejb does not exist " + deploymentId);
         }
+        deploymentInfo.getJndiEnc().bind("geronimo", componentContext);
         deploymentInfo.set(EjbDeployment.class, this);
     }
 
     protected void stop() {
-        deploymentInfo.set(EjbDeployment.class, null);
-        deploymentInfo = null;
+        if (deploymentInfo != null) {
+            deploymentInfo.set(EjbDeployment.class, null);
+            deploymentInfo = null;
+        }
     }
 }

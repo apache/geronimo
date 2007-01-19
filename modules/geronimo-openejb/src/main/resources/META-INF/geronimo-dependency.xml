@@ -38,10 +38,6 @@
       <artifactId>openejb-persistence</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.codehaus.castor</groupId>
-      <artifactId>castor</artifactId>
-    </dependency>
-    <dependency>
       <groupId>org.apache.geronimo.specs</groupId>
       <artifactId>geronimo-annotation_1.0_spec</artifactId>
     </dependency>
@@ -85,6 +81,11 @@
       <groupId>stax</groupId>
       <artifactId>stax-api</artifactId>
     </dependency>
+    <!-- castor -->
+    <dependency>
+      <groupId>org.codehaus.castor</groupId>
+      <artifactId>castor</artifactId>
+    </dependency>
     <dependency>
       <groupId>xerces</groupId>
       <artifactId>xercesImpl</artifactId>
@@ -93,4 +94,15 @@
       <groupId>oro</groupId>
       <artifactId>oro</artifactId>
     </dependency>
+    <!-- end castor -->
+    <!-- activemq -->
+    <dependency>
+      <groupId>org.apache.activemq</groupId>
+      <artifactId>activemq-ra</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.activemq</groupId>
+      <artifactId>activemq-core</artifactId>
+    </dependency>
+    <!-- end activemq -->
 </service>

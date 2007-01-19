@@ -16,17 +16,17 @@
  */
 package org.apache.geronimo.openejb.deployment;
 
-import org.apache.geronimo.j2ee.deployment.EJBModule;
+import java.util.Map;
+import java.util.jar.JarFile;
+
 import org.apache.geronimo.gbean.AbstractName;
+import org.apache.geronimo.j2ee.deployment.EJBModule;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.openejb.xbeans.ejbjar.OpenejbGeronimoEjbJarType;
-import org.apache.openejb.jee.EjbJar;
 import org.apache.openejb.alt.config.ejb.OpenejbJar;
 import org.apache.openejb.assembler.classic.EjbJarInfo;
+import org.apache.openejb.jee.EjbJar;
 import org.apache.xmlbeans.XmlObject;
-
-import java.util.jar.JarFile;
-import java.util.Map;
 
 /**
  * @version $Rev$ $Date$

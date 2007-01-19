@@ -29,8 +29,6 @@ import javax.xml.namespace.QName;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.DeploymentContext;
 import org.apache.geronimo.deployment.NamespaceDrivenBuilder;
-import org.apache.geronimo.deployment.xbeans.ServiceDocument;
-import org.apache.geronimo.deployment.xmlbeans.XmlBeansUtil;
 import org.apache.geronimo.deployment.service.EnvironmentBuilder;
 import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.gbean.GBeanData;
@@ -138,7 +136,7 @@ public class PersistenceUnitBuilder implements NamespaceDrivenBuilder {
                 if (persistenceUnit.isSetExcludeUnlistedClasses()) {
                     gbeanData.setAttribute("excludeUnlistedClasses", persistenceUnit.getExcludeUnlistedClasses());
                 } else {
-                    gbeanData.setAttribute("excludeUnlistedClassesValue", false);
+                    gbeanData.setAttribute("excludeUnlistedClasses", false);
                 }
 
                 Properties properties = new Properties();

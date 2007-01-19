@@ -47,11 +47,10 @@ import org.apache.geronimo.xbeans.javaee.SessionBeanType;
 import org.apache.openejb.jee.EnterpriseBean;
 import org.apache.openejb.jee.RemoteBean;
 import org.apache.openejb.jee.SecurityIdentity;
-import org.apache.openejb.jee.StatefulBean;
 import org.apache.openejb.jee.StatelessBean;
 import org.apache.openejb.jee.MessageDrivenBean;
 import org.apache.openejb.jee.EntityBean;
-import org.apache.openejb.spi.ContainerSystem;
+import org.apache.openejb.jee.SessionBean;
 import org.apache.openejb.alt.config.ejb.EjbDeployment;
 import org.apache.geronimo.openejb.deployment.ejbref.LocalEjbRefBuilder;
 import org.apache.geronimo.openejb.deployment.ejbref.RemoteEjbRefBuilder;
@@ -59,6 +58,7 @@ import org.apache.geronimo.openejb.StatelessDeploymentGBean;
 import org.apache.geronimo.openejb.StatefulDeploymentGBean;
 import org.apache.geronimo.openejb.EntityDeploymentGBean;
 import org.apache.geronimo.openejb.MessageDrivenDeploymentGBean;
+import org.apache.geronimo.openejb.OpenEjbSystem;
 import org.apache.geronimo.connector.outbound.connectiontracking.TrackedConnectionAssociator;
 import org.apache.xmlbeans.XmlObject;
 
@@ -82,17 +82,24 @@ public class EjbDeploymentBuilder {
     public void initContext() throws DeploymentException {
         for (EnterpriseBean enterpriseBean : ejbModule.getEjbJar().getEnterpriseBeans()) {
             AbstractName abstractName = createEjbName(enterpriseBean);
-            GBeanData gbean;
-            if (enterpriseBean instanceof StatelessBean) {
-                gbean = new GBeanData(abstractName, StatelessDeploymentGBean.GBEAN_INFO);
-            } else if (enterpriseBean instanceof StatefulBean) {
-                gbean = new GBeanData(abstractName, StatefulDeploymentGBean.GBEAN_INFO);
+            GBeanData gbean = null;
+            if (enterpriseBean instanceof SessionBean) {
+                SessionBean sessionBean = (SessionBean) enterpriseBean;
+                switch (sessionBean.getSessionType()) {
+                    case STATELESS:
+                        gbean = new GBeanData(abstractName, StatelessDeploymentGBean.GBEAN_INFO);
+                        break;
+                    case STATEFUL:
+                        gbean = new GBeanData(abstractName, StatefulDeploymentGBean.GBEAN_INFO);
+                        break;
+                }
             } else if (enterpriseBean instanceof EntityBean) {
                 gbean = new GBeanData(abstractName, EntityDeploymentGBean.GBEAN_INFO);
             } else if (enterpriseBean instanceof MessageDrivenBean) {
                 gbean = new GBeanData(abstractName, MessageDrivenDeploymentGBean.GBEAN_INFO);
-            } else {
-                throw new DeploymentException("Unknown enterprise bean type " + enterpriseBean.getClass().getTypeParameters());
+            }
+            if (gbean == null) {
+                throw new DeploymentException("Unknown enterprise bean type " + enterpriseBean.getClass().getName());
             }
 
             String ejbName = enterpriseBean.getEjbName();
@@ -138,7 +145,7 @@ public class EjbDeploymentBuilder {
 
             // set reference patterns
             gbean.setReferencePattern("TrackedConnectionAssociator", new AbstractNameQuery(null, Collections.EMPTY_MAP, TrackedConnectionAssociator.class.getName()));
-            gbean.setReferencePattern("ContainerSystem", new AbstractNameQuery(null, Collections.EMPTY_MAP, ContainerSystem.class.getName()));
+            gbean.setReferencePattern("OpenEjbSystem", new AbstractNameQuery(null, Collections.EMPTY_MAP, OpenEjbSystem.class.getName()));
 
             try {
                 earContext.addGBean(gbean);
@@ -149,6 +156,12 @@ public class EjbDeploymentBuilder {
         }
     }
 
+
+    public void addEjbModuleDependency(AbstractName ejbModuleName) {
+        for (GBeanData gbean : gbeans.values()) {
+            gbean.addDependency(ejbModuleName);
+        }
+    }
 
     public ComponentPermissions buildComponentPermissions() throws DeploymentException {
         ComponentPermissions componentPermissions = new ComponentPermissions(new Permissions(), new Permissions(), new HashMap());
@@ -208,7 +221,7 @@ public class EjbDeploymentBuilder {
         //
         // XMLBeans types must be use because Geronimo naming building is coupled via XMLBeans objects
         //
-        EjbJarType ejbJarType = (EjbJarType) ejbModule.getVendorDD();
+        EjbJarType ejbJarType = (EjbJarType) ejbModule.getSpecDD();
         EnterpriseBeansType enterpriseBeans = ejbJarType.getEnterpriseBeans();
         if (enterpriseBeans != null) {
             for (SessionBeanType xmlbeansEjb : enterpriseBeans.getSessionArray()) {
@@ -252,7 +265,7 @@ public class EjbDeploymentBuilder {
                 ejbModule, buildingContext);
 
         Map compContext = (Map) buildingContext.get(NamingBuilder.JNDI_KEY);
-        gbean.setAttribute("componentContext", compContext);
+        gbean.setAttribute("componentContextMap", compContext);
 
         //
         // Process resource refs
@@ -276,14 +289,23 @@ public class EjbDeploymentBuilder {
     private AbstractName createEjbName(EnterpriseBean enterpriseBean) {
         String ejbName = enterpriseBean.getEjbName();
         String type = null;
-        if (enterpriseBean instanceof StatelessBean) {
-            type = NameFactory.STATELESS_SESSION_BEAN;
-        } else if (enterpriseBean instanceof StatefulBean) {
-            type = NameFactory.STATEFUL_SESSION_BEAN;
+        if (enterpriseBean instanceof SessionBean) {
+            SessionBean sessionBean = (SessionBean) enterpriseBean;
+            switch (sessionBean.getSessionType()) {
+                case STATELESS:
+                    type = NameFactory.STATELESS_SESSION_BEAN;
+                    break;
+                case STATEFUL:
+                    type = NameFactory.STATEFUL_SESSION_BEAN;
+                    break;
+            }
         } else if (enterpriseBean instanceof EntityBean) {
             type = NameFactory.ENTITY_BEAN;
         } else if (enterpriseBean instanceof MessageDrivenBean) {
             type = NameFactory.MESSAGE_DRIVEN_BEAN;
+        }
+        if (type == null) {
+            throw new IllegalArgumentException("Unknown enterprise bean type XXX " + enterpriseBean.getClass().getName());
         }
         return earContext.getNaming().createChildName(ejbModule.getModuleName(), ejbName, type);
     }
