@@ -53,6 +53,7 @@ public class URLPattern {
 
         if (pat.equals("/") || pat.equals("/*")) {
             type = DEFAULT;
+            pat = "/";
         } else if (pat.charAt(0) == '/' && pat.endsWith("/*")) {
             type = PATH_PREFIX;
         } else if (pat.charAt(0) == '*') {
