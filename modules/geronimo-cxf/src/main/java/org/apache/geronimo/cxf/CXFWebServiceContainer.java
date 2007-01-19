@@ -16,6 +16,8 @@
  */
 package org.apache.geronimo.cxf;
 
+import javax.naming.Context;
+
 import org.apache.cxf.Bus;
 import org.apache.cxf.binding.xml.XMLConstants;
 import org.apache.cxf.jaxws.EndpointImpl;
@@ -23,6 +25,7 @@ import org.apache.cxf.transport.DestinationFactory;
 import org.apache.cxf.transport.DestinationFactoryManager;
 import org.apache.cxf.service.model.EndpointInfo;
 import org.apache.cxf.wsdl11.ServiceWSDLBuilder;
+import org.apache.cxf.resource.ResourceManager;
 
 import org.apache.geronimo.webservices.WebServiceContainer;
 
@@ -39,12 +42,17 @@ public class CXFWebServiceContainer implements WebServiceContainer {
     private final GeronimoDestination destination;
     private final Bus bus;
 
-    public CXFWebServiceContainer(PortInfo portInfo, Object target, Bus bus) {
+    public CXFWebServiceContainer(PortInfo portInfo, Object target, Bus bus, Context context) {
         //TODO actually use portInfo
         this.bus = bus;
 
         List ids = new ArrayList();
         ids.add("http://schemas.xmlsoap.org/wsdl/soap/http");
+
+        ResourceManager resourceManager = bus.getExtension(ResourceManager.class);
+        if (context != null) {
+            resourceManager.addResourceResolver(new JNDIResourceResolver(context));
+        }
 
         DestinationFactoryManager destinationFactoryManager = bus.getExtension(DestinationFactoryManager.class);
         GeronimoDestinationFactory factory = new GeronimoDestinationFactory(bus);

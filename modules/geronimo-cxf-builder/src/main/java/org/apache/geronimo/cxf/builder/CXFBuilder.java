@@ -29,6 +29,7 @@ import java.util.Map;
 import java.util.Collections;
 import java.util.jar.JarFile;
 import java.util.logging.Logger;
+import java.util.logging.Level;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBElement;
@@ -53,6 +54,7 @@ import org.apache.geronimo.cxf.PortInfo;
 import org.apache.geronimo.cxf.CXFWebServiceContainerFactoryGBean;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.kernel.GBeanAlreadyExistsException;
+import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.deployment.DeploymentContext;
 import org.apache.geronimo.deployment.service.EnvironmentBuilder;
 import org.apache.geronimo.deployment.util.DeploymentUtil;
@@ -156,6 +158,13 @@ public class CXFBuilder implements WebServiceBuilder {
             return false;
         }
 
+        Map componentContext = null;
+        try {
+            GBeanData moduleGBean = context.getGBeanInstance(context.getModuleName()); 
+            componentContext = (Map)moduleGBean.getAttribute("componentContext");
+        } catch (GBeanNotFoundException e) {
+            LOG.warning("ModuleGBean not found. JNDI resource injection will not work.");
+        }
 
         LOG.info("configuring POJO webservice: " + servletName + " sei: " + seiClassName);
 
@@ -168,6 +177,7 @@ public class CXFBuilder implements WebServiceBuilder {
         GBeanData containerFactoryData = new GBeanData(containerFactoryName, CXFWebServiceContainerFactoryGBean.GBEAN_INFO);
         containerFactoryData.setAttribute("portInfo", portInfo);
         containerFactoryData.setAttribute("endpointClassName", seiClassName);
+        containerFactoryData.setAttribute("componentContext", componentContext);
         try {
             context.addGBean(containerFactoryData);
         } catch (GBeanAlreadyExistsException e) {

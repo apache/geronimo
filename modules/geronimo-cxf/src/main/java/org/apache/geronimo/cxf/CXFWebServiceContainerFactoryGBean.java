@@ -17,11 +17,19 @@
 
 package org.apache.geronimo.cxf;
 
+import java.util.Map;
+import java.util.logging.Logger;
+import java.util.logging.Level;
+import javax.naming.Context;
+import javax.naming.NamingException;
+
 import org.apache.cxf.Bus;
 import org.apache.cxf.bus.cxf.CXFBusFactory;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
+import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.naming.enc.EnterpriseNamingContext;
 import org.apache.geronimo.webservices.WebServiceContainer;
 import org.apache.geronimo.webservices.WebServiceContainerFactory;
 
@@ -30,11 +38,30 @@ import org.apache.geronimo.webservices.WebServiceContainerFactory;
  */
 public class CXFWebServiceContainerFactoryGBean implements WebServiceContainerFactory {
 
+    private static final Logger LOG = 
+        Logger.getLogger(CXFWebServiceContainerFactoryGBean.class.getName());
+
     private final PortInfo portInfo;
     private final Bus bus;
     private final Object endpointInstance;
+    private Context context;
+ 
+    public CXFWebServiceContainerFactoryGBean(PortInfo portInfo, 
+                                              String endpointClassName, 
+                                              ClassLoader classLoader,
+                                              Map componentContext,
+                                              Kernel kernel)
+        throws ClassNotFoundException, IllegalAccessException, InstantiationException {
+        
+        // TODO: get access to the transaction manager
+        if (componentContext != null) {
+            try {
+                this.context = EnterpriseNamingContext.createEnterpriseNamingContext(componentContext, null, kernel, classLoader);
+            } catch (NamingException e) {
+                LOG.log(Level.WARNING, "Failed to create naming context", e);
+            }
+        }
 
-    public CXFWebServiceContainerFactoryGBean(PortInfo portInfo, String endpointClassName, ClassLoader classLoader) throws ClassNotFoundException, IllegalAccessException, InstantiationException {
         this.portInfo = portInfo;
         this.bus = new CXFBusFactory().getDefaultBus();
         Class endpointClass = classLoader.loadClass(endpointClassName);
@@ -42,7 +69,7 @@ public class CXFWebServiceContainerFactoryGBean implements WebServiceContainerFa
     }
 
     public WebServiceContainer getWebServiceContainer() {
-        return new CXFWebServiceContainer(portInfo, endpointInstance, bus);
+        return new CXFWebServiceContainer(portInfo, endpointInstance, bus, context);
     }
 
     public static final GBeanInfo GBEAN_INFO;
@@ -52,7 +79,11 @@ public class CXFWebServiceContainerFactoryGBean implements WebServiceContainerFa
         infoBuilder.addAttribute("portInfo", PortInfo.class, true, true);
         infoBuilder.addAttribute("endpointClassName", String.class, true, true);
         infoBuilder.addAttribute("classLoader", ClassLoader.class, false);
-        infoBuilder.setConstructor(new String[] {"portInfo", "endpointClassName", "classLoader"});
+        infoBuilder.addAttribute("componentContext", Map.class, true, true);
+        infoBuilder.addAttribute("kernel", Kernel.class, false);
+
+        infoBuilder.setConstructor(new String[] {"portInfo", "endpointClassName", "classLoader", 
+                                                 "componentContext", "kernel"});
         GBEAN_INFO = infoBuilder.getBeanInfo();
     }
 
