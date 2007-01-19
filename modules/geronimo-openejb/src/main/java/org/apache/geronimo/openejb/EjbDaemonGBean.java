@@ -80,6 +80,7 @@ public class EjbDaemonGBean implements NetworkConnector, GBeanLifecycle {
             properties.setProperty("ejbd.threads", Integer.toString(threads));
         }
 
+        serviceManager.init();
         serviceManager.start(false);
 
     }
