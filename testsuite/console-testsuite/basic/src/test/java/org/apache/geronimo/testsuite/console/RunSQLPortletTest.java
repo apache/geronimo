@@ -37,10 +37,13 @@ public class RunSQLPortletTest
         selenium.click("link=DB Manager");
         selenium.waitForPageToLoad("30000");
         assertEquals("Geronimo Console", selenium.getTitle());
-        // TODO: Update xpath
-        // assertEquals("Run SQL", selenium.getText(
-        //     "xpath=/html/body/table[@id='rootfragment']/tbody/tr[2]/td/table/tbody/tr[2]/td[4]/table/tbody/tr[1]/td/table/tbody/tr[1]/td/div/table/tbody/tr/td[2]/table/tbody/tr/td[1]/strong"));
-        
+        assertEquals("Run SQL", selenium.getText(
+            "xpath=/html/body/table[@id='rootfragment']/tbody/tr[2]/td/table/tbody/tr[2]/td[4]/table/tbody/tr[3]/td/table/tbody/tr[1]/td/div/table/tbody/tr/td[2]/table/tbody/tr/td[1]/strong"));
+        // Test help link
+        selenium.click("//tr[3]/td/table/tbody/tr[1]/td/div/table/tbody/tr/td[2]/table/tbody/tr/td[2]/a[1]");
+        selenium.waitForPageToLoad("30000");
+        selenium.isTextPresent("Allows the user to run SQL commands");
+
         logout();
     }
 }
