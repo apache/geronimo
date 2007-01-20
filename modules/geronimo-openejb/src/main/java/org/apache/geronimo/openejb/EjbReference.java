@@ -36,7 +36,7 @@ public class EjbReference extends ConfigurationAwareReference {
         try {
             AbstractName abstractName = resolveTargetName();
             EjbDeployment ejbDeployment = (EjbDeployment) getKernel().getGBean(abstractName);
-            if (!remote) {
+            if (remote) {
                 return ejbDeployment.getEJBHome();
             } else {
                 return ejbDeployment.getEJBLocalHome();
