@@ -55,6 +55,7 @@ public class OpenEjbSystemGBean implements OpenEjbSystem {
     }
     public OpenEjbSystemGBean(TransactionManager transactionManager, Kernel kernel) throws Exception {
         System.setProperty("duct tape","");
+        System.setProperty("openejb.naming", "xbean");
         if (transactionManager == null) {
             throw new NullPointerException("transactionManager is null");
         }
