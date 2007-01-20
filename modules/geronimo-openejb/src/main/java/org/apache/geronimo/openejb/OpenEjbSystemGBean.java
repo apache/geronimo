@@ -29,6 +29,8 @@ import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.openejb.Container;
 import org.apache.openejb.DeploymentInfo;
 import org.apache.openejb.OpenEJBException;
+import org.apache.openejb.loader.SystemInstance;
+import org.apache.openejb.core.ServerFederation;
 import org.apache.openejb.util.proxy.Jdk13ProxyFactory;
 import org.apache.openejb.alt.config.ClientModule;
 import org.apache.openejb.alt.config.ConfigurationFactory;
@@ -42,6 +44,7 @@ import org.apache.openejb.assembler.classic.ProxyFactoryInfo;
 import org.apache.openejb.assembler.classic.SecurityServiceInfo;
 import org.apache.openejb.assembler.dynamic.PassthroughFactory;
 import org.apache.openejb.spi.ContainerSystem;
+import org.apache.openejb.spi.ApplicationServer;
 
 /**
  * @version $Rev$ $Date$
@@ -63,6 +66,10 @@ public class OpenEjbSystemGBean implements OpenEjbSystem {
         boolean offline = true;
         configurationFactory = new ConfigurationFactory(offline);
         assembler = new Assembler();
+
+        // install application server
+        ApplicationServer applicationServer = new ServerFederation();
+        SystemInstance.get().setComponent(ApplicationServer.class, applicationServer);
 
         // install transaction manager
         transactionManager = getRawService(kernel, transactionManager);
