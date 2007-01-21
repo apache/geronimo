@@ -111,6 +111,9 @@ public final class XmlUtil {
                     openejbJarXml = xmlObject.xmlText();
                 } else {
                     URL path = DeploymentUtil.createJarURL(moduleFile, "META-INF/openejb-jar.xml");
+                    if (path == null) {
+                        return null;
+                    }
                     openejbJarXml = DeploymentUtil.readAll(path);
                 }
             }

@@ -64,6 +64,8 @@ import org.apache.geronimo.xbeans.javaee.EjbJarType;
 import org.apache.openejb.OpenEJBException;
 import org.apache.openejb.alt.config.ejb.OpenejbJar;
 import org.apache.openejb.assembler.classic.EjbJarInfo;
+import org.apache.openejb.assembler.classic.Cmp2Builder;
+import org.apache.openejb.assembler.classic.AppInfo;
 import org.apache.openejb.jee.EjbJar;
 import org.apache.openejb.jee.EjbLocalRef;
 import org.apache.openejb.jee.EjbRef;
@@ -316,11 +318,31 @@ public class EjbModuleBuilder implements ModuleBuilder {
         // build the config info tree
         // this method fills in the ejbJar jaxb tree based on the annotations
         // (metadata complete) and it run the openejb verifier
+        EjbJarInfo ejbJarInfo;
         try {
-            EjbJarInfo ejbJarInfo = openEjbSystem.configureApplication(ejbModule.getEjbModule());
+            ejbJarInfo = openEjbSystem.configureApplication(ejbModule.getEjbModule());
             ejbModule.setEjbJarInfo(ejbJarInfo);
         } catch (OpenEJBException e) {
             e.printStackTrace();
+            throw new DeploymentException(e);
+        }
+
+        // generate the CMP2 implementation classes
+        // Generate the cmp2 concrete subclasses
+        AppInfo appInfo = new AppInfo();
+        appInfo.ejbJars.add(ejbJarInfo);
+        Cmp2Builder cmp2Builder = new Cmp2Builder(appInfo, classLoader);
+        try {
+            File generatedJar = cmp2Builder.getJarFile();
+            if (generatedJar != null) {
+                String generatedPath = module.getTargetPath();
+                if (generatedPath.endsWith(".jar")) {
+                    generatedPath = generatedPath.substring(0, generatedPath.length() -4);
+                }
+                generatedPath += "-cmp2.jar";
+                earContext.addInclude(URI.create(generatedPath), generatedJar);
+            }
+        } catch (IOException e) {
             throw new DeploymentException(e);
         }
 
