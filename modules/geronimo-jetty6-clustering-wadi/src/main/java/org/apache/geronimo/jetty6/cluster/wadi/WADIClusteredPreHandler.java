@@ -29,7 +29,6 @@ import org.apache.geronimo.clustering.ClusteredInvocation;
 import org.apache.geronimo.clustering.ClusteredInvocationException;
 import org.apache.geronimo.jetty6.cluster.AbstractClusteredPreHandler;
 import org.codehaus.wadi.InvocationException;
-import org.codehaus.wadi.InvocationProxy;
 import org.codehaus.wadi.impl.ClusteredManager;
 import org.codehaus.wadi.web.impl.WebInvocation;
 
@@ -68,8 +67,7 @@ public class WADIClusteredPreHandler extends AbstractClusteredPreHandler {
                     }
                 }
             };
-            InvocationProxy invocationProxy = wadiManager.getInvocationProxy();
-            invocation.init(request, response, chainAdapter, invocationProxy);
+            invocation.init(request, response, chainAdapter);
             try {
                 wadiManager.contextualise(invocation);
             } catch (InvocationException e) {

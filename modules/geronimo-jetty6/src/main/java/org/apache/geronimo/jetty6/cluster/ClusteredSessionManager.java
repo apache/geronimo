@@ -47,9 +47,6 @@ public class ClusteredSessionManager extends AbstractSessionManager {
         setIdManager(sessionIdManager);
 
         sessionManager.registerListener(new MigrationListener());
-
-        // sessions are not removed by this manager. They are invalidated via a callback mechanism
-        setMaxInactiveInterval(-1);
     }
 
     @Override
@@ -111,6 +108,16 @@ public class ClusteredSessionManager extends AbstractSessionManager {
         }
 
         public void notifyOutboundSessionMigration(org.apache.geronimo.clustering.Session session) {
+            ClusteredSession clusteredSession = getClusteredSession(session);
+            removeSession(clusteredSession, false);
+        }
+
+        public void notifySessionDestruction(org.apache.geronimo.clustering.Session session) {
+            ClusteredSession clusteredSession = getClusteredSession(session);
+            removeSession(clusteredSession, true);
+        }
+        
+        private ClusteredSession getClusteredSession(org.apache.geronimo.clustering.Session session) throws AssertionError {
             ClusteredSession clusteredSession;
             synchronized (idToSession) {
                 clusteredSession = idToSession.remove(session.getSessionId());
@@ -118,8 +125,10 @@ public class ClusteredSessionManager extends AbstractSessionManager {
             if (null == clusteredSession) {
                 throw new AssertionError("Session [" + session + "] is undefined");
             }
-            removeSession(clusteredSession, false);
+            return clusteredSession;
         }
+        
+        
     }
 
     public class ClusteredSession extends Session {

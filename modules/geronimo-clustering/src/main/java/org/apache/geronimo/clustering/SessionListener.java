@@ -48,4 +48,10 @@ public interface SessionListener {
      */
     void notifyOutboundSessionMigration(Session session);
     
+    /**
+     * Calls when a Session is destroyed.
+     * 
+     * @param session Destroyed session.
+     */
+    void notifySessionDestruction(Session session);
 }

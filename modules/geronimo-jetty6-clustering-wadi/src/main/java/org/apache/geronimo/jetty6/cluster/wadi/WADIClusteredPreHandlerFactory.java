@@ -36,6 +36,9 @@ public class WADIClusteredPreHandlerFactory implements PreHandlerFactory, GBeanL
     private ClusteredManager wadiManager;
 
     public WADIClusteredPreHandlerFactory(WADISessionManager sessionManager) {
+        if (null == sessionManager) {
+            throw new IllegalArgumentException("sessionManager is required");
+        }
         this.sessionManager = sessionManager;
     }
     

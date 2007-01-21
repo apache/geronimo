@@ -37,7 +37,7 @@ import org.codehaus.wadi.Invocation;
 import org.codehaus.wadi.InvocationException;
 import org.codehaus.wadi.Motable;
 import org.codehaus.wadi.PoolableInvocationWrapperPool;
-import org.codehaus.wadi.SessionPool;
+import org.codehaus.wadi.SessionMonitor;
 import org.codehaus.wadi.core.ConcurrentMotableMap;
 import org.codehaus.wadi.group.Dispatcher;
 import org.codehaus.wadi.impl.ClusteredManager;
@@ -49,6 +49,7 @@ import org.codehaus.wadi.replication.strategy.BackingStrategyFactory;
 import org.codehaus.wadi.servicespace.ServiceSpace;
 import org.codehaus.wadi.servicespace.ServiceSpaceName;
 import org.codehaus.wadi.web.WebSession;
+import org.codehaus.wadi.web.WebSessionFactory;
 
 import edu.emory.mathcs.backport.java.util.concurrent.CopyOnWriteArrayList;
 
@@ -67,6 +68,7 @@ public class BasicWADISessionManager implements GBeanLifecycle, SessionManager, 
     private final CopyOnWriteArrayList listeners;
 
     private ClusteredManager manager;
+    private SessionMonitor sessionMonitor;
     private ServiceSpace serviceSpace;
 
     public BasicWADISessionManager(WADISessionManagerConfigInfo configInfo,
@@ -100,7 +102,7 @@ public class BasicWADISessionManager implements GBeanLifecycle, SessionManager, 
                     ConcurrentMotableMap mmap,
                     Evicter mevicter,
                     PoolableInvocationWrapperPool requestPool) {
-                return new MotionTracker(next, mevicter, mmap, contextPool, requestPool);
+                return new MotionTracker(next, mevicter, mmap, sessionFactory, requestPool);
             }
         };
         stackContext.build();
@@ -108,6 +110,9 @@ public class BasicWADISessionManager implements GBeanLifecycle, SessionManager, 
         serviceSpace = stackContext.getServiceSpace();
         manager = stackContext.getManager();
 
+        sessionMonitor = stackContext.getSessionMonitor();
+        sessionMonitor.addSessionListener(new SessionListenerAdapter());
+        
         serviceSpace.start();
     }
 
@@ -164,6 +169,14 @@ public class BasicWADISessionManager implements GBeanLifecycle, SessionManager, 
         return webSession;
     }
 
+    private WebSession notifySessionDestruction(WebSession webSession) {
+        for (Iterator iter = listeners.iterator(); iter.hasNext();) {
+            SessionListener listener = (SessionListener) iter.next();
+            listener.notifySessionDestruction(new WADISessionAdaptor(webSession));
+        }
+        return webSession;
+    }
+
     private class MotionTracker extends MemoryContextualiser {
         private final Immoter immoter;
         private final Emoter emoter;
@@ -171,9 +184,9 @@ public class BasicWADISessionManager implements GBeanLifecycle, SessionManager, 
         public MotionTracker(Contextualiser next,
                 Evicter evicter,
                 ConcurrentMotableMap map,
-                SessionPool pool,
+                WebSessionFactory sessionFactory,
                 PoolableInvocationWrapperPool requestPool) {
-            super(next, evicter, map, pool, requestPool);
+            super(next, evicter, map, sessionFactory, requestPool);
 
             Immoter immoterDelegate = super.getImmoter();
             immoter = new InboundSessionTracker(immoterDelegate);
@@ -237,6 +250,17 @@ public class BasicWADISessionManager implements GBeanLifecycle, SessionManager, 
         public Motable newMotable() {
             return delegate.newMotable();
         }
+    }
+    
+    private class SessionListenerAdapter implements org.codehaus.wadi.SessionListener {
+
+        public void onSessionCreation(org.codehaus.wadi.Session session) {
+        }
+
+        public void onSessionDestruction(org.codehaus.wadi.Session session) {
+            notifySessionDestruction((WebSession) session);
+        }
+        
     }
 
     public static final GBeanInfo GBEAN_INFO;
