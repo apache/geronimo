@@ -24,7 +24,6 @@ package org.apache.geronimo.testsuite.testset;
  *
  * @version $Rev$ $Date$
  */
-@Test
 public class AppTest
 {
 
