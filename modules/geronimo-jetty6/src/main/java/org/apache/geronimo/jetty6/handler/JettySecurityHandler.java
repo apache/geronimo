@@ -180,7 +180,11 @@ public class JettySecurityHandler extends SecurityHandler {
             } else {
                 transportType = "NONE";
             }
-            WebUserDataPermission wudp = new WebUserDataPermission(pathInContext, new String[] { request.getMethod() }, transportType);
+            String substitutedPathInContext = pathInContext;
+            if (substitutedPathInContext.indexOf("%3A") > -1) substitutedPathInContext = substitutedPathInContext.replaceAll("%3A", "%3A%3A");
+            if (substitutedPathInContext.indexOf(":") > -1) substitutedPathInContext = substitutedPathInContext.replaceAll(":", "%3A");
+
+            WebUserDataPermission wudp = new WebUserDataPermission(substitutedPathInContext, new String[] { request.getMethod() }, transportType);
             WebResourcePermission webResourcePermission = new WebResourcePermission(request);
             Principal user = obtainUser(pathInContext, request, response, webResourcePermission, wudp);
 
