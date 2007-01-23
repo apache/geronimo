@@ -28,24 +28,28 @@
 
     <gbean name="DefaultStatelessContainer" class="org.apache.geronimo.openejb.EjbContainer">
         <attribute name="id">Default Stateless Container</attribute>
+        <attribute name="type">STATELESS</attribute>
         <reference name="OpenEjbSystem">
             <name>OpenEjbSystem</name>
         </reference>
     </gbean>
     <gbean name="DefaultStatefulContainer" class="org.apache.geronimo.openejb.EjbContainer">
         <attribute name="id">Default Stateful Container</attribute>
+        <attribute name="type">STATEFUL</attribute>
         <reference name="OpenEjbSystem">
             <name>OpenEjbSystem</name>
         </reference>
     </gbean>
     <gbean name="DefaultBMPContainer" class="org.apache.geronimo.openejb.EjbContainer">
         <attribute name="id">Default BMP Container</attribute>
+        <attribute name="type">BMP_ENTITY</attribute>
         <reference name="OpenEjbSystem">
             <name>OpenEjbSystem</name>
         </reference>
     </gbean>
     <gbean name="DefaultCMPContainer" class="org.apache.geronimo.openejb.EjbContainer">
         <attribute name="id">Default CMP Container</attribute>
+        <attribute name="type">CMP_ENTITY</attribute>
         <reference name="OpenEjbSystem">
             <name>OpenEjbSystem</name>
         </reference>
@@ -53,6 +57,7 @@
     
     <gbean name="DefaultMDBContainer" class="org.apache.geronimo.openejb.EjbContainer">
         <attribute name="id">Default MDB Container</attribute>
+        <attribute name="type">MESSAGE</attribute>
         <reference name="OpenEjbSystem">
             <name>OpenEjbSystem</name>
         </reference>

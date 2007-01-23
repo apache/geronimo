@@ -17,11 +17,19 @@
 package org.apache.geronimo.openejb;
 
 import java.util.Properties;
+import java.util.Map;
+import java.util.HashMap;
 
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.openejb.assembler.classic.ContainerInfo;
+import org.apache.openejb.assembler.classic.StatelessSessionContainerInfo;
+import org.apache.openejb.assembler.classic.StatefulSessionContainerInfo;
+import org.apache.openejb.assembler.classic.BmpEntityContainerInfo;
+import org.apache.openejb.assembler.classic.CmpEntityContainerInfo;
+import org.apache.openejb.assembler.classic.MdbContainerInfo;
+import org.apache.openejb.alt.config.Bean;
 
 /**
  * @version $Rev$ $Date$
@@ -31,7 +39,8 @@ public class EjbContainer implements GBeanLifecycle {
     private String id;
     private Properties properties;
     private String provider;
-    private Class<ContainerInfo> type = ContainerInfo.class;
+    private String type;
+    private Class<? extends ContainerInfo> infoType;
 
     public OpenEjbSystem getOpenEjbSystem() {
         return openEjbSystem;
@@ -65,16 +74,35 @@ public class EjbContainer implements GBeanLifecycle {
         this.provider = provider;
     }
 
-    public Class<ContainerInfo> getType() {
+    public String getType() {
         return type;
     }
 
-    public void setType(Class<ContainerInfo> type) {
+    public void setType(String type) {
         this.type = type;
+        this.infoType = getInfoType(type);
+    }
+
+    private Class<? extends ContainerInfo> getInfoType(String type) {
+        if ("STATELESS".equalsIgnoreCase(type)) return StatelessSessionContainerInfo.class;
+        if ("STATEFUL".equalsIgnoreCase(type)) return StatefulSessionContainerInfo.class;
+        if ("BMP_ENTITY".equalsIgnoreCase(type)) return BmpEntityContainerInfo.class;
+        if ("CMP_ENTITY".equalsIgnoreCase(type)) return CmpEntityContainerInfo.class;
+        if ("CMP2_ENTITY".equalsIgnoreCase(type)) return CmpEntityContainerInfo.class;
+        if ("MESSAGE".equalsIgnoreCase(type)) return MdbContainerInfo.class;
+        else return ContainerInfo.class;
+    }
+
+    public Class<? extends ContainerInfo> getInfoType() {
+        return infoType;
+    }
+
+    public void setInfoType(Class<? extends ContainerInfo> infoType) {
+        this.infoType = infoType;
     }
 
     public void doStart() throws Exception {
-        openEjbSystem.createContainer(type, id, properties, provider);
+        openEjbSystem.createContainer(infoType, id, properties, provider);
     }
 
     public void doStop() throws Exception {
@@ -91,7 +119,8 @@ public class EjbContainer implements GBeanLifecycle {
         infoBuilder.addAttribute("id", String.class, true);
         infoBuilder.addAttribute("properties", Properties.class, true);
         infoBuilder.addAttribute("provider", String.class, true);
-        infoBuilder.addAttribute("type", Class.class, true);
+        infoBuilder.addAttribute("type", String.class, true);
+        infoBuilder.addAttribute("infoType", Class.class, true);
         GBEAN_INFO = infoBuilder.getBeanInfo();
     }
 
