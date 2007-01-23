@@ -4,7 +4,7 @@
 =========================================================================
 
 Apache Geronimo 
-Copyright 2003-2006 The Apache Software Foundation
+Copyright 2003-2007 The Apache Software Foundation
 
 This product includes software developed by
 The Apache Software Foundation (http://www.apache.org/).
@@ -42,6 +42,19 @@ with separate copyright notices and license terms. The following notices
 apply to these dependencies.
 
 =========================================================================
+==  ANNOGEN Notice                                                     ==
+=========================================================================
+
+This product includes software developed by the Annogen project 
+(http://annogen.codehaus.org/)
+
+This software consists of voluntary contributions made by many
+individuals on behalf of the Apache Software Foundation and was
+originally based on software copyright (c) 2000-2004 BEA Systems 
+Inc., <http://www.bea.com/>. For more information on the Apache 
+Software Foundation, please see <http://www.apache.org/>.
+
+=========================================================================
 ==  ANTLR Notice                                                       ==
 =========================================================================
 
@@ -60,6 +73,14 @@ Copyright 2005-2006 The Apache Software Foundation
 This product includes software developed by
 The Apache Software Foundation (http://www.apache.org/).
 
+
+=========================================================================
+==  Apache Commons BeanUtils                                           ==
+=========================================================================
+
+This product includes software developed by
+The Apache Software Foundation (http://www.apache.org/).
+Portions Copyright 2006 International Business Machines Corp.
 
 =========================================================================
 ==  Apache Commons BeanUtils                                           ==
@@ -182,9 +203,6 @@ This Product also includes schemas developed by OASIS
 Java classes (source and binary) under org.apache.cxf.jaxws.javaee
 are generated from schema available here:
 (http://java.sun.com/xml/ns/javaee/javaee_5.xsd)
-
-Additional copyright notices and license terms applicable are
-present in the licenses directory of this distribution.
 
 
 =========================================================================
@@ -471,6 +489,82 @@ Copyright (c) 2004-2005 SLF4J.ORG
 Copyright (c) 2004-2005 QOS.ch
 All rights reserved.
 
+
+=========================================================================
+==  JAXB Notice                                                        ==
+=========================================================================
+
+This product includes software developed for the JAXB Reference 
+Implementation project. (https://jaxb.dev.java.net/)
+
+=========================================================================
+==  SAAJ Notice                                                        ==
+=========================================================================
+
+This product includes software developed for the SAAJ Standard 
+Implementation project. (https://saaj.dev.java.net/)
+
+=========================================================================
+==  JAF Notice                                                         ==
+=========================================================================
+
+This product includes software developed for the JavaBeans Activation
+Framework. The software is available from the GlassFish project
+(https://glassfish.dev.java.net/)
+
+=========================================================================
+==  JavaMail API Notice                                                ==
+=========================================================================
+
+This product includes software developed for JavaMail API. 
+The software is available from the GlassFish project 
+(https://glassfish.dev.java.net/)
+
+=========================================================================
+==  SAAJ Notice                                                        ==
+=========================================================================
+
+This product includes software developed for SOAP with Attachments
+API for Java (SAAJ). The software is available from the GlassFish project 
+(https://glassfish.dev.java.net/)
+
+=========================================================================
+==  JAX-WS API Notice                                                  ==
+=========================================================================
+
+This product includes software developed for Java API for XML Web Services
+project (JAX-WS) (https://jax-ws.dev.java.net/)
+
+=========================================================================
+==  jaxen  Notice                                                      ==
+=========================================================================
+
+This product includes software developed by the jaxen project
+(http://jaxen.org/). 
+
+ Copyright 2003-2006 The Werken Company. All Rights Reserved.
+
+=========================================================================
+==  WADI Notice                                                        ==
+=========================================================================
+
+This product includes software developed by the WADI project
+(http://wadi.codehaus.org/)
+
+=========================================================================
+==  woden Notice                                                       ==
+=========================================================================
+
+This product includes also software developed by :
+  - the W3C consortium (http://www.w3c.org) ,
+  - the SAX project (http://www.saxproject.org)
+
+=========================================================================
+==  Spring Notice                                                      ==
+=========================================================================
+
+This product also includes software developed by Spring Framework
+Project (http://www.springframework.org)
 
 =========================================================================
 ==  W3C DOM Notice (xercesImpl)                                        ==
