@@ -1,0 +1,226 @@
+Release Notes -- Apache Geronimo -- Version 2.0 - Milestone 2
+
+Geronimo URLs
+-------------
+Home Page:     http://geronimo.apache.org/
+Downloads:     http://geronimo.apache.org/downloads.html
+Documentation: http://geronimo.apache.org/documentation.html
+Mailing Lists: http://geronimo.apache.org/mailing.html
+Source Code:   http://geronimo.apache.org/svn.html
+Bug Tracking:  http://issues.apache.org/jira/browse/GERONIMO
+Wiki:          http://cwiki.apache.org/geronimo
+
+
+IMPORTANT
+---------
+This is a Milestone release, that means that is not the final version of
+Apache Geronimo v2.0 Take a look at "Known Issues and Limitations" section for
+further details.
+
+System Requirements
+-------------------
+You need a platform that supports the Sun JDK 5.0+ (J2SE 1.5.0+).
+
+Most testing has been done on Linux, Mac OS X, and Windows.
+
+Significant Changes in the 2.0-M2 Release
+-----------------------------------------
+- Java EE management 1.1
+- EJB 3.0 support 
+  - OpenEJB x.x integration
+- Web Services technologies 
+ - STAX 1.0 Streaming API for XML (JSR 173) 
+ - JAXB 2.0 - Java Architecture for XML Binding 
+ - JAX-WS 2.0 support is provided in this milestone. Only POJO based JAX-WS services are supported. (CXF integration)
+ - JAX-RPC 1.1 (POJO Only) (Only tested in CXF environment)
+ - JAXR 1.0
+
+
+*See "Functional Characteristics" section below for more details.
+
+
+Significant Changes in the 2.0-M1 Release (prior milestone)
+-----------------------------------------------------------
+
+- Full Sun JDK 5.0+ (J2SE 1.5.0+)
+- Servlet 2.5 (Tomcat)
+- JSP 2.1 (Tomcat)
+- JSP Debug 1.0 (Tomcat)
+- Servlet 2.5 (Jetty)
+- JSP 2.1 (Jetty - via Jasper)
+- JSP Debug 1.0 (Jetty)
+- JSF 1.2 (JSF applications won't execute)
+- JSTL 1.2
+- Common Annotations 1.0
+- JAF 1.1
+- JavaMail 1.4
+- EJB 3.0 (JPA only)
+- JTA 1.1
+- JMS 1.1
+- JACC 1.1
+
+Functional Characteristics for 2.0-M2
+-------------------------------------
+
+- EJB 3.0 (via OpenEJB project)
+   Supported:
+      -JPA (Custom Provider, App-managed, Container-managed) (Also supported in 2.0-M1)
+      - POJO as a Business Interface
+      - POJO Session EJBs
+      - Deployment with no ejb-jar.xml or openejb-jar (just need a geronimo-openejb.xml for all the geronimo-specific deployment stuff)
+      - Annotation-based Deployment (no need for EJB interfaces)
+      - injection via deployment descriptor
+      - @Resource injection for env-entries, resource-refs, message-destinations, service-refs,  most resource-env-refs
+      - @EJB injection of ejb-refs and ejb-local-refs
+      - @PersistenceContext injection
+      - @PersistenceUnit injection 
+      - JNDI references to the ejb 
+      - JNDI references from the ejb 
+      - Transaction support 
+        
+   Limitations:
+      - Extended JNDI and DI types
+      - Other limitations should be added here..
+
+- Web Services (CXF)
+   Supported:
+      - Deployng a JAX-WS based POJO service that leverages annotations to simplify the creation of the Web service.  
+      - Deploying a traditional JAX-RPC based POJO service 
+      - @Resource Annotations are fully supported provided they are also defined in the web.xml deployment descriptor
+      - The @Resource WebServiceContext annotation is fully supported.  
+   Limitations:
+      - No EJB support for Web Services in 2.0-M2
+      - <service-ref> elements in the deployment descriptor or @WebServiceRef annotations are not processed. 
+      - Dynamically generated WSDL returned via ?wsdl request might be missing some information. 
+      - Dynamic clients (obtained using the javax.xml.ws.Service API) might not always work. 
+ 
+- JSTL 1.2
+    Applications that use JSTL must add a dependency in their deployment plan to the jstl jar. 
+    Specifically: 
+     <dep:dependencies>
+      <dep:dependency>
+       <dep:groupId>jstl</dep:groupId>
+       <dep:artifactId>jstl</dep:artifactId>
+       </dep:dependency>
+     </dep:dependencies>
+
+- JSF 1.2 - Not yet supported
+  -JSF applications will deploy and start but will not execute yet. An updated MyFaces package
+   will remedy this in the near future.
+
+
+Installing & Starting Geronimo
+------------------------------
+To install, simply unpack the .zip (Windows) or tar.gz (Unix) file containing 
+Geronimo.
+
+If you wish to modify the default ports that Geronimo will use, edit the file 
+<geronimo_home>/var/config/config.xml
+
+Geronimo comes with batch and script files to control server start and stop 
+functions.  To see usage examples simply type geronimo.bat or geronimo.sh 
+command as appropriate for your platform.  It is necessary to set JAVA_HOME to 
+the copy of your Sun 5 JDK/JRE prior to executing the command.  
+
+Here is an example to set JAVA_HOME:
+
+export JAVA_HOME=<JDK/JRE_home>
+
+To see the available command options type:
+
+<geronimo_home>/bin/geronimo.sh
+or
+<geronimo_home>/bin/geronimo.bat
+
+The command will display help text instructing you as to how to start and stop 
+the Geronimo server.
+
+If you prefer to start the server without a script file you can simply type: 
+
+java -jar <geronimo_home>/bin/server.jar
+
+Once the server has started, you can access the Geronimo Administration Console
+at http://localhost:8080/console/ . The default user name is "system" and the 
+default password is "manager".
+
+
+Administration Console Security Configuration
+---------------------------------------------
+The default administration user/password for the Geronimo Administration Console 
+and deployment tool is system/manager.  You can change these defaults directly 
+from the Geronimo Administration Console by accessing Security -> Console Realm
+and change the user name and password from the Console Realm Users portlet.
+
+As an alternative, you can make the same changes by editing the 
+<geronimo_home>/var/security/users.properties and 
+<geronimo_home>/var/security/groups.properties files.
+
+
+Deploying Applications
+----------------------
+Geronimo comes with deploy scripts and batch files to deploy J2EE modules or 
+applications. You can use the scripts or simply invoke the executable jar by 
+running the following command (note that you need to start Geronimo first):
+
+<geronimo_home>/bin/java -jar deployer.jar deploy my-web-app.war [deploy plan]
+
+You will need to use the username "system" and password "manager" unless you 
+customized those during the install process.  The deployment plan argument is 
+optional -- you can pack a deployment plan into the application module, provide
+it on the command line, or in some cases omit it entirely.
+
+You can also use the "Login" command once and avoid to enter user name and 
+password every time you use the deploy tool
+
+For more information on the commands and options supported by the deploy tool,
+run from within the Geronimo directory <geronimo_home>/bin:
+
+java -jar deployer.jar help [command]
+
+You can also graphically deploy applications and resources via the Geronimo 
+Administration Console available at http://localhost:8080/console/
+
+
+Other Deployment Options
+------------------------
+As an alternative to the command-line deployer, you can copy application 
+modules into the <geronimo_home>/deploy/ directory and the
+hot deployer service will deploy them automatically.  The command-line deployer
+has some advantages, as it will output any
+deployment errors to its own console rather than just the server log.
+
+Additionally, Geronimo provides a Maven plugin that can deploy applications to 
+Geronimo as part of a Maven build.
+
+
+Configuration
+-------------
+Most configuration attributes can be updated in the 
+<geronimo_home>/var/config/config.xml file.  The attributes most likely to be 
+changed are already included in the supplied config.xml file, while others may
+need to be added manually.
+
+
+Certification Status
+--------------------
+Apache Geronimo v2.0-M2, being a MILESTONE release is not yet certified.
+
+
+Known Issues and Limitations
+----------------------------
+
+<!-- open Bugs for 2.*  -->
+
+<ADD THEM HERE>
+
+Specific Issues, Features and Improvements fixed in Version 2.0-M2
+------------------------------------------------------------------
+Release Notes - Geronimo - Version 2.0-m2
+
+
+<!-- closed/fixed JIRAs  for 2.*  -->
+
+<ADD THEM HERE>
+
+
+
