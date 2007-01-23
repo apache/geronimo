@@ -163,10 +163,10 @@ public class EjbModuleBuilder implements ModuleBuilder {
                 }
             });
 
-            List beans = new ArrayList();
-            beans.addAll(annotated.get(javax.ejb.Stateless.class));
-            beans.addAll(annotated.get(javax.ejb.Stateful.class));
-            beans.addAll(annotated.get(javax.ejb.MessageDriven.class));
+            List<String> beans = new ArrayList<String>();
+            beans.addAll(annotated.get(javax.ejb.Stateless.class.getName()));
+            beans.addAll(annotated.get(javax.ejb.Stateful.class.getName()));
+            beans.addAll(annotated.get(javax.ejb.MessageDriven.class.getName()));
             if (beans.size() <= 0){
                 return null;
             }
