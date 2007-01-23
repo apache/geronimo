@@ -181,9 +181,7 @@ public abstract class EARConfigBuilderTestSupport
             configurationData = getConfigurationData(context);
             fail("Should have thrown a DeploymentException");
         } catch (DeploymentException e) {
-            if (e.getCause() instanceof IOException) {
-                fail("Should not be complaining about bad vendor DD for invalid module entry");
-            }
+            //we now may get a FileNotFoundException for missing wars.
         } finally {
             if (context != null) {
                 context.close();
@@ -220,9 +218,7 @@ public abstract class EARConfigBuilderTestSupport
             configurationData = getConfigurationData(context);
             fail("Should have thrown a DeploymentException");
         } catch (DeploymentException e) {
-            if (e.getCause() instanceof IOException) {
-                fail("Should not be complaining about bad vendor DD for invalid module entry");
-            }
+            //we now may get a FileNotFoundException for missing wars.
         } finally {
             if (context != null) {
                 context.close();
@@ -259,9 +255,7 @@ public abstract class EARConfigBuilderTestSupport
             configurationData = getConfigurationData(context);
             fail("Should have thrown a DeploymentException");
         } catch (DeploymentException e) {
-            if (e.getCause() instanceof IOException) {
-                fail("Should not be complaining about bad vendor DD for invalid module entry");
-            }
+            //we now may get a FileNotFoundException for missing wars.
         } finally {
             if (context != null) {
                 context.close();
@@ -298,9 +292,7 @@ public abstract class EARConfigBuilderTestSupport
             configurationData = getConfigurationData(context);
             fail("Should have thrown a DeploymentException");
         } catch (DeploymentException e) {
-            if (e.getCause() instanceof IOException) {
-                fail("Should not be complaining about bad vendor DD for invalid module entry");
-            }
+            //we now may get a FileNotFoundException for missing wars.
         } finally {
             if (context != null) {
                 context.close();
