@@ -27,7 +27,7 @@ Significant Changes in the 2.0-M2 Release
 -----------------------------------------
 - Java EE management 1.1
 - EJB 3.0 support 
-  - OpenEJB x.x integration
+- OpenEJB x.x integration
 - Web Services technologies 
  - STAX 1.0 Streaming API for XML (JSR 173) 
  - JAXB 2.0 - Java Architecture for XML Binding 
@@ -64,7 +64,7 @@ Functional Characteristics for 2.0-M2
 
 - EJB 3.0 (via OpenEJB project)
    Supported:
-      -JPA (Custom Provider, App-managed, Container-managed) (Also supported in 2.0-M1)
+      - JPA (Custom Provider, App-managed, Container-managed) (Also supported in 2.0-M1)
       - POJO as a Business Interface
       - POJO Session EJBs
       - Deployment with no ejb-jar.xml or openejb-jar (just need a geronimo-openejb.xml for all the geronimo-specific deployment stuff)
@@ -80,6 +80,7 @@ Functional Characteristics for 2.0-M2
         
    Limitations:
       - Extended JNDI and DI types
+      - Undeploying an ejb module will not remove it's beans. The server has to be restarted to deploy the same module again.
       - Other limitations should be added here..
 
 - Web Services (CXF)
