@@ -150,28 +150,33 @@ public class EjbModuleBuilder implements ModuleBuilder {
                 return null;
             }
 
-            final ClassFinder classFinder = new ClassFinder(Thread.currentThread().getContextClassLoader(), moduleUrl);
+            try {
+                final ClassFinder classFinder = new ClassFinder(Thread.currentThread().getContextClassLoader(), moduleUrl);
 
-            // DMB: getting this via reflection is a temporary fix.  Just want to avoid having to
-            // make Geronimo dependent on an xbean snapshot right before we do the release.
-            // afterwards we can clean this up.
-            Map<String, List> annotated = (Map<String, List>) AccessController.doPrivileged(new PrivilegedAction() {
-                public Object run() {
-                    try {
-                        Field field = ClassFinder.class.getDeclaredField("annotated");
-                        field.setAccessible(true);
-                        return field.get(classFinder);
-                    } catch (Exception e2) {
+                // DMB: getting this via reflection is a temporary fix.  Just want to avoid having to
+                // make Geronimo dependent on an xbean snapshot right before we do the release.
+                // afterwards we can clean this up.
+                Map<String, List> annotated = (Map<String, List>) AccessController.doPrivileged(new PrivilegedAction() {
+                    public Object run() {
+                        try {
+                            Field field = ClassFinder.class.getDeclaredField("annotated");
+                            field.setAccessible(true);
+                            return field.get(classFinder);
+                        } catch (Exception e2) {
+                        }
+                        return null;
                     }
+                });
+
+                List<String> beans = new ArrayList<String>();
+                beans.addAll(annotated.get(javax.ejb.Stateless.class.getName()));
+                beans.addAll(annotated.get(javax.ejb.Stateful.class.getName()));
+                beans.addAll(annotated.get(javax.ejb.MessageDriven.class.getName()));
+                if (beans.size() <= 0){
                     return null;
                 }
-            });
-
-            List<String> beans = new ArrayList<String>();
-            beans.addAll(annotated.get(javax.ejb.Stateless.class.getName()));
-            beans.addAll(annotated.get(javax.ejb.Stateful.class.getName()));
-            beans.addAll(annotated.get(javax.ejb.MessageDriven.class.getName()));
-            if (beans.size() <= 0){
+            } catch (Throwable e) {
+                // how does one log this?
                 return null;
             }
         }
