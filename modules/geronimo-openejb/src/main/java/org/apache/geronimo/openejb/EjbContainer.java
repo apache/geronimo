@@ -80,7 +80,6 @@ public class EjbContainer implements GBeanLifecycle {
 
     public void setType(String type) {
         this.type = type;
-        this.infoType = getInfoType(type);
     }
 
     private Class<? extends ContainerInfo> getInfoType(String type) {
@@ -94,7 +93,7 @@ public class EjbContainer implements GBeanLifecycle {
     }
 
     public Class<? extends ContainerInfo> getInfoType() {
-        return infoType;
+        return infoType == null? getInfoType(type): infoType;
     }
 
     public void setInfoType(Class<? extends ContainerInfo> infoType) {
@@ -102,7 +101,7 @@ public class EjbContainer implements GBeanLifecycle {
     }
 
     public void doStart() throws Exception {
-        openEjbSystem.createContainer(infoType, id, properties, provider);
+        openEjbSystem.createContainer(getInfoType(), id, properties, provider);
     }
 
     public void doStop() throws Exception {
