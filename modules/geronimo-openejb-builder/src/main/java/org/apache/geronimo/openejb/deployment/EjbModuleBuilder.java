@@ -151,6 +151,10 @@ public class EjbModuleBuilder implements ModuleBuilder {
             }
 
             final ClassFinder classFinder = new ClassFinder(Thread.currentThread().getContextClassLoader(), moduleUrl);
+
+            // DMB: getting this via reflection is a temporary fix.  Just want to avoid having to
+            // make Geronimo dependent on an xbean snapshot right before we do the release.
+            // afterwards we can clean this up.
             Map<String, List> annotated = (Map<String, List>) AccessController.doPrivileged(new PrivilegedAction() {
                 public Object run() {
                     try {
