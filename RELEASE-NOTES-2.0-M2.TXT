@@ -103,6 +103,7 @@ Functional Characteristics for 2.0-M2
        <dep:artifactId>jstl</dep:artifactId>
        </dep:dependency>
      </dep:dependencies>
+    Alternatively, the jstl jar can be included in the application's WEB-INF/lib directory.
 
 - JSF 1.2 - Not yet supported
   -JSF applications will deploy and start but will not execute yet. An updated MyFaces package
@@ -130,7 +131,7 @@ To see the available command options type:
 
 <geronimo_home>/bin/geronimo.sh
 or
-<geronimo_home>/bin/geronimo.bat
+<geronimo_home>\bin\geronimo.bat
 
 The command will display help text instructing you as to how to start and stop 
 the Geronimo server.
@@ -147,9 +148,9 @@ default password is "manager".
 Administration Console Security Configuration
 ---------------------------------------------
 The default administration user/password for the Geronimo Administration Console 
-and deployment tool is system/manager.  You can change these defaults directly 
-from the Geronimo Administration Console by accessing Security -> Console Realm
-and change the user name and password from the Console Realm Users portlet.
+and command line deployment tool is system/manager.  You can change these defaults
+directly from the Geronimo Administration Console by accessing Security -> Console
+Realm and change the user name and password from the Console Realm Users portlet.
 
 As an alternative, you can make the same changes by editing the 
 <geronimo_home>/var/security/users.properties and 
@@ -165,12 +166,12 @@ running the following command (note that you need to start Geronimo first):
 <geronimo_home>/bin/java -jar deployer.jar deploy my-web-app.war [deploy plan]
 
 You will need to use the username "system" and password "manager" unless you 
-customized those during the install process.  The deployment plan argument is 
+customized those as described above.  The deployment plan argument is 
 optional -- you can pack a deployment plan into the application module, provide
 it on the command line, or in some cases omit it entirely.
 
-You can also use the "Login" command once and avoid to enter user name and 
-password every time you use the deploy tool
+You can also use the "Login" command to avoid entering a user name and password
+every time you use the deploy tool
 
 For more information on the commands and options supported by the deploy tool,
 run from within the Geronimo directory <geronimo_home>/bin:
