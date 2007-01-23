@@ -181,6 +181,9 @@ public class EjbModuleBuilder implements ModuleBuilder {
             }
         }
         EjbJar ejbJar = XmlUtil.unmarshal(EjbJar.class, ejbJarXml);
+        if (ejbJar == null){
+            ejbJar = new EjbJar();
+        }
 
         // load the geronimo-openejb.xml
         boolean standAlone = earEnvironment == null;
@@ -199,6 +202,9 @@ public class EjbModuleBuilder implements ModuleBuilder {
         }
         String openejbJarXml = XmlUtil.loadOpenejbJarXml(object, moduleFile);
         OpenejbJar openejbJar = XmlUtil.unmarshal(OpenejbJar.class, openejbJarXml);
+        if (openejbJar == null){
+            openejbJar = new OpenejbJar();
+        }
 
         // initialize the geronimo environment
         EnvironmentType environmentType = geronimoOpenejb.getEnvironment();
