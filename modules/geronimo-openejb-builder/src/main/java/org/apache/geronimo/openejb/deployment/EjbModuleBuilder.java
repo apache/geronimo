@@ -20,12 +20,19 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URL;
+import java.net.URLClassLoader;
+import java.net.MalformedURLException;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.List;
+import java.util.ArrayList;
 import java.util.jar.JarFile;
+import java.security.AccessController;
+import java.security.PrivilegedAction;
+import java.lang.reflect.Field;
 
 import javax.ejb.SessionContext;
 import javax.ejb.EntityContext;
@@ -78,6 +85,7 @@ import org.apache.openejb.jee.ResourceRef;
 import org.apache.openejb.jee.ServiceRef;
 import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlObject;
+import org.apache.xbean.finder.ClassFinder;
 
 /**
  * Master builder for processing EJB JAR deployments and creating the
@@ -87,7 +95,6 @@ import org.apache.xmlbeans.XmlObject;
  */
 public class EjbModuleBuilder implements ModuleBuilder {
     private static final String OPENEJBJAR_NAMESPACE = XmlUtil.OPENEJBJAR_QNAME.getNamespaceURI();
-    private static final String MAPPED_NAME_PREFIX = "jndi:java:comp/geronimo/env/";
 
     private final Environment defaultEnvironment;
     private final Collection webServiceBuilders;
@@ -98,12 +105,12 @@ public class EjbModuleBuilder implements ModuleBuilder {
     private final OpenEjbSystem openEjbSystem;
 
     public EjbModuleBuilder(Environment defaultEnvironment,
-            OpenEjbSystem openEjbSystem,
-            Collection webServiceBuilder,
-            Collection securityBuilders,
-            Collection serviceBuilders,
-            NamingBuilder namingBuilders,
-            ResourceEnvironmentSetter resourceEnvironmentSetter) {
+                            OpenEjbSystem openEjbSystem,
+                            Collection webServiceBuilder,
+                            Collection securityBuilders,
+                            Collection serviceBuilders,
+                            NamingBuilder namingBuilders,
+                            ResourceEnvironmentSetter resourceEnvironmentSetter) {
 
         this.openEjbSystem = openEjbSystem;
         this.defaultEnvironment = defaultEnvironment;
@@ -135,7 +142,34 @@ public class EjbModuleBuilder implements ModuleBuilder {
         String ejbJarXml = XmlUtil.loadEjbJarXml(specDDUrl, moduleFile);
         if (ejbJarXml == null) {
             // this is not an ejb module
-            return null;
+            URL moduleUrl = null;
+            try {
+                File file = new File(moduleFile.getName());
+                moduleUrl = file.toURL();
+            } catch (MalformedURLException e) {
+                return null;
+            }
+
+            final ClassFinder classFinder = new ClassFinder(Thread.currentThread().getContextClassLoader(), moduleUrl);
+            Map<String, List> annotated = (Map<String, List>) AccessController.doPrivileged(new PrivilegedAction() {
+                public Object run() {
+                    try {
+                        Field field = ClassFinder.class.getDeclaredField("annotated");
+                        field.setAccessible(true);
+                        return field.get(classFinder);
+                    } catch (Exception e2) {
+                    }
+                    return null;
+                }
+            });
+
+            List beans = new ArrayList();
+            beans.addAll(annotated.get(javax.ejb.Stateless.class));
+            beans.addAll(annotated.get(javax.ejb.Stateful.class));
+            beans.addAll(annotated.get(javax.ejb.MessageDriven.class));
+            if (beans.size() <= 0){
+                return null;
+            }
         }
         EjbJar ejbJar = XmlUtil.unmarshal(EjbJar.class, ejbJarXml);
 
@@ -179,9 +213,6 @@ public class EjbModuleBuilder implements ModuleBuilder {
             namingBuilder.buildEnvironment(assemblyDescriptor, geronimoOpenejb, environment);
         }
 
-        // set mapped name or all refs
-        mapReferences(ejbJar);
-
         //overridden web service locations
         Map correctedPortLocations = new HashMap();
 
@@ -209,43 +240,6 @@ public class EjbModuleBuilder implements ModuleBuilder {
         }
 
         return new EjbModule(standAlone, moduleName, environment, moduleFile, targetPath, ejbJar, openejbJar, geronimoOpenejb, ejbJarXml, sharedContext);
-    }
-
-    protected static void mapReferences(EjbJar ejbJar) {
-        for (EnterpriseBean enterpriseBean : ejbJar.getEnterpriseBeans()) {
-            for (EjbRef ref : enterpriseBean.getEjbRef()) {
-                String refName = ref.getEjbRefName();
-                ref.setMappedName(MAPPED_NAME_PREFIX + refName);
-            }
-            for (EjbLocalRef ref : enterpriseBean.getEjbLocalRef()) {
-                String refName = ref.getEjbRefName();
-                ref.setMappedName(MAPPED_NAME_PREFIX + refName);
-            }
-            for (MessageDestinationRef ref : enterpriseBean.getMessageDestinationRef()) {
-                String refName = ref.getMessageDestinationRefName();
-                ref.setMappedName(MAPPED_NAME_PREFIX + refName);
-            }
-            for (PersistenceContextRef ref : enterpriseBean.getPersistenceContextRef()) {
-                String refName = ref.getPersistenceContextRefName();
-                ref.setMappedName(MAPPED_NAME_PREFIX + refName);
-            }
-            for (PersistenceUnitRef ref : enterpriseBean.getPersistenceUnitRef()) {
-                String refName = ref.getPersistenceUnitRefName();
-                ref.setMappedName(MAPPED_NAME_PREFIX + refName);
-            }
-            for (ResourceRef ref : enterpriseBean.getResourceRef()) {
-                String refName = ref.getResRefName();
-                ref.setMappedName(MAPPED_NAME_PREFIX + refName);
-            }
-            for (ResourceEnvRef ref : enterpriseBean.getResourceEnvRef()) {
-                String refName = ref.getResourceEnvRefName();
-                ref.setMappedName(MAPPED_NAME_PREFIX + refName);
-            }
-            for (ServiceRef ref : enterpriseBean.getServiceRef()) {
-                String refName = ref.getServiceRefName();
-                ref.setMappedName(MAPPED_NAME_PREFIX + refName);
-            }
-        }
     }
 
     protected static void unmapReferences(EjbJar ejbJar) {

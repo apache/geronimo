@@ -29,6 +29,9 @@ import javax.xml.bind.Unmarshaller;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 import javax.xml.namespace.QName;
+import javax.xml.parsers.SAXParserFactory;
+import javax.xml.parsers.SAXParser;
+import javax.xml.transform.sax.SAXSource;
 
 import org.apache.geronimo.openejb.xbeans.ejbjar.OpenejbEjbJarDocument;
 import org.apache.geronimo.openejb.xbeans.ejbjar.OpenejbGeronimoEjbJarType;
@@ -45,6 +48,11 @@ import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlDocumentProperties;
 import org.apache.openejb.jee.EjbJar;
+import org.xml.sax.helpers.XMLFilterImpl;
+import org.xml.sax.XMLReader;
+import org.xml.sax.Attributes;
+import org.xml.sax.SAXException;
+import org.xml.sax.InputSource;
 
 public final class XmlUtil {
     public static final QName OPENEJBJAR_QNAME = OpenejbEjbJarDocument.type.getDocumentElementName();
@@ -69,8 +77,45 @@ public final class XmlUtil {
         }
     }
 
+    public static class EjbJarNamespaceFilter extends XMLFilterImpl {
+
+        public EjbJarNamespaceFilter(XMLReader xmlReader) {
+            super(xmlReader);
+        }
+
+        public void startElement(String uri, String localName, String qname, Attributes atts) throws SAXException {
+            super.startElement("http://java.sun.com/xml/ns/javaee", localName, qname, atts);
+        }
+    }
+
     @SuppressWarnings({"unchecked"})
     public static <T> T unmarshal(Class<T> type, String xml) throws DeploymentException {
+        if (xml == null){
+            return null;
+        }
+
+        if (type.equals(EjbJar.class)){
+            try {
+                SAXParserFactory factory = SAXParserFactory.newInstance();
+                factory.setNamespaceAware(true);
+                factory.setValidating(true);
+
+                SAXParser parser = factory.newSAXParser();
+
+                EjbJarNamespaceFilter xmlFilter = new EjbJarNamespaceFilter(parser.getXMLReader());
+
+                JAXBContext ctx = JAXBContext.newInstance(type);
+                Unmarshaller unmarshaller = ctx.createUnmarshaller();
+
+                xmlFilter.setContentHandler(unmarshaller.getUnmarshallerHandler());
+                SAXSource source = new SAXSource(xmlFilter, new InputSource(new ByteArrayInputStream(xml.getBytes())));
+
+                return (T) unmarshaller.unmarshal(source);
+            } catch (Exception e) {
+                throw new DeploymentException(e);
+            }
+        }
+
         try {
             JAXBContext ctx = JAXBContext.newInstance(type);
             Unmarshaller unmarshaller = ctx.createUnmarshaller();

@@ -37,6 +37,8 @@ import org.apache.openejb.jee.EjbJar;
  */
 public class EjbModuleBuilderTest extends TestCase {
     public void test() throws Exception {
+        System.setProperty("duct tape","");
+
         // create reference to openejb itests
         File file = new File(System.getProperty("user.home") + "/.m2/repository/org/apache/openejb/openejb-itests-beans/3.0-incubating-SNAPSHOT/openejb-itests-beans-3.0-incubating-SNAPSHOT.jar");
         if (!file.canRead()) return;
@@ -63,7 +65,6 @@ public class EjbModuleBuilderTest extends TestCase {
         // create the module object
         ClassLoader classLoader = new URLClassLoader(new URL[] {file.toURL()}, getClass().getClassLoader());
         EjbModule ejbModule = new EjbModule(classLoader, moduleFile.getName(), ejbJar, openejbJar);
-        EjbModuleBuilder.mapReferences(ejbModule.getEjbJar());
         // configure the application
         EjbJarInfo ejbJarInfo = openEjbSystem.configureApplication(ejbModule);
         openEjbSystem.createEjbJar(ejbJarInfo, classLoader);
