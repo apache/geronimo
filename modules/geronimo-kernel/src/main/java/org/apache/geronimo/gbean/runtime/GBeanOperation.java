@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import java.io.Serializable;
 
 import org.apache.geronimo.gbean.DynamicGBean;
 import org.apache.geronimo.gbean.DynamicGOperationInfo;
@@ -32,7 +33,9 @@ import org.apache.geronimo.kernel.ClassLoading;
 /**
  * @version $Rev$ $Date$
  */
-public final class GBeanOperation {
+public final class GBeanOperation implements Serializable {
+    private static final long serialVersionUID = -5185515581104192977L;
+    
     private final GBeanInstance gbeanInstance;
     private final String name;
     private final List parameterTypes;
@@ -40,6 +43,7 @@ public final class GBeanOperation {
     private final boolean framework;
     private final GOperationInfo operationInfo;
 
+    // TODO - deprecate this and add returnType
     static GBeanOperation createFrameworkOperation(GBeanInstance gbeanInstance, String name, List parameterTypes, MethodInvoker methodInvoker) {
         return new GBeanOperation(gbeanInstance, name, parameterTypes, methodInvoker);
     }
@@ -50,7 +54,6 @@ public final class GBeanOperation {
         this.name = name;
         this.parameterTypes = Collections.unmodifiableList(new ArrayList(parameterTypes));
         this.methodInvoker = methodInvoker;
-        // this is not used
         this.operationInfo = new GOperationInfo(this.name, this.parameterTypes, "java.lang.Object");
     }
 
