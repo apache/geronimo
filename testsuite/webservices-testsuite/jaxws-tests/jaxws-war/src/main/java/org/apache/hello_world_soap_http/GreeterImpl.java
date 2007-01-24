@@ -37,12 +37,14 @@ import javax.xml.ws.WebServiceContext;
             targetNamespace = "http://apache.org/hello_world_soap_http")
 public class GreeterImpl implements Greeter {
 
-    private static final Logger LOG = Logger.getLogger(GreeterImpl.class.getName());
+    private static final Logger LOG =
+        Logger.getLogger(GreeterImpl.class.getName());
 
     @Resource
     private WebServiceContext context;
 
-    private int invocationCount;
+    @Resource(name="greeting")
+    private String greeting;
 
     public WebServiceContext getContext() {
         return context;
@@ -50,7 +52,10 @@ public class GreeterImpl implements Greeter {
 
     public String greetMe(String me) {
         LOG.info("Invoking greetMe " + me);
-        invocationCount++;
-        return "Hello " + me;
+
+        LOG.info("Principal: " + context.getUserPrincipal());
+        LOG.info("Context: " + context.getMessageContext());
+        
+        return greeting + " " + me;
     }
 }

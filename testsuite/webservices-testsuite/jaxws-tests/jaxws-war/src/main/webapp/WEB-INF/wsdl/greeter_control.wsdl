@@ -19,13 +19,13 @@
 -->
 <wsdl:definitions xmlns="http://schemas.xmlsoap.org/wsdl/"
     xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"
-    xmlns:tns="http://cxf.apache.org/greeter_control"
-    xmlns:x1="http://cxf.apache.org/greeter_control/types"
+    xmlns:tns="http://apache.org/greeter_control"
+    xmlns:x1="http://apache.org/greeter_control/types"
     xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/"
     xmlns:xsd="http://www.w3.org/2001/XMLSchema"
-    targetNamespace="http://cxf.apache.org/greeter_control" name="HelloWorld">
+    targetNamespace="http://apache.org/greeter_control" name="HelloWorld">
     <wsdl:types>
-        <schema targetNamespace="http://cxf.apache.org/greeter_control/types" 
+        <schema targetNamespace="http://apache.org/greeter_control/types" 
             xmlns="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified">
             <element name="sayHi">
                 <complexType/>
@@ -73,31 +73,6 @@
                 </complexType>
             </element>
             
-            <element name="startGreeter">
-                <complexType>
-                    <sequence>
-                        <element name="requestType" type="xsd:string"/>
-                    </sequence>
-                </complexType>
-            </element>
-            <element name="startGreeterResponse">
-                <complexType>
-                    <sequence>
-                        <element name="responseType" type="xsd:boolean"/>
-                    </sequence>
-                </complexType>
-            </element>
-            <element name="stopGreeter">
-                <complexType/>
-            </element>
-            <element name="stopGreeterResponse">
-                <complexType>
-                    <sequence>
-                        <element name="responseType" type="xsd:boolean"/>
-                    </sequence>
-                </complexType>
-            </element>
-
         </schema>
     </wsdl:types>
 
@@ -126,20 +101,7 @@
     <wsdl:message name="pingMeFault">
         <wsdl:part name="faultDetail" element="x1:faultDetail"/>
     </wsdl:message> 
-    
-    <wsdl:message name="startGreeterRequest">
-        <wsdl:part element="x1:startGreeter" name="in"/>
-    </wsdl:message>
-    <wsdl:message name="startGreeterResponse">
-        <wsdl:part element="x1:startGreeterResponse" name="out"/>
-    </wsdl:message>    
-    <wsdl:message name="stopGreeterRequest">
-        <wsdl:part element="x1:stopGreeter" name="in"/>
-    </wsdl:message>
-    <wsdl:message name="stopGreeterResponse">
-        <wsdl:part element="x1:stopGreeterResponse" name="out"/>
-    </wsdl:message>
-    
+        
     <wsdl:portType name="Greeter">
         <wsdl:operation name="sayHi">
             <wsdl:input message="tns:sayHiRequest" name="sayHiRequest"/>
@@ -162,17 +124,6 @@
         </wsdl:operation> 
     </wsdl:portType>
     
-    <wsdl:portType name="Control">
-        <wsdl:operation name="startGreeter">
-            <wsdl:input message="tns:startGreeterRequest" name="startGreeterRequest"/>
-            <wsdl:output message="tns:startGreeterResponse" name="startGreeterResponse"/>
-        </wsdl:operation>
-        
-        <wsdl:operation name="stopGreeter">
-            <wsdl:input message="tns:stopGreeterRequest" name="stopGreeterRequest"/>
-            <wsdl:output message="tns:stopGreeterResponse" name="stopGreeterResponse"/>
-        </wsdl:operation>
-    </wsdl:portType>
 
     <wsdl:binding name="GreeterSOAPBinding" type="tns:Greeter">
         <soap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
@@ -219,37 +170,9 @@
         
     </wsdl:binding>
   
-    <wsdl:binding name="ControlSOAPBinding" type="tns:Control">
-        <soap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
-        <wsdl:operation name="startGreeter">
-            <soap:operation soapAction="" style="document"/>
-            <wsdl:input name="startGreeterRequest">
-                <soap:body use="literal"/>
-            </wsdl:input>
-            <wsdl:output name="startGreeterResponse">
-                <soap:body use="literal"/>
-            </wsdl:output>
-        </wsdl:operation>
-        <wsdl:operation name="stopGreeter">
-            <soap:operation soapAction="" style="document"/>
-            <wsdl:input name="stopGreeterRequest">
-                <soap:body use="literal"/>
-            </wsdl:input>
-            <wsdl:output name="stopGreeterResponse">
-                <soap:body use="literal"/>
-            </wsdl:output>
-        </wsdl:operation>
-    </wsdl:binding>
-
-    <wsdl:service name="ControlService">
-        <wsdl:port binding="tns:ControlSOAPBinding" name="ControlPort">
-            <soap:address location="http://localhost:9001/SoapContext/ControlPort"/>
-        </wsdl:port>
-    </wsdl:service>
-    
     <wsdl:service name="GreeterService">
         <wsdl:port binding="tns:GreeterSOAPBinding" name="GreeterPort">
-            <soap:address location="http://localhost:9020/SoapContext/GreeterPort"/>
+            <soap:address location="http://localhost:8080/SoapContext/GreeterPort"/>
             <wswa:UsingAddressing xmlns:wswa="http://www.w3.org/2005/08/addressing/wsdl"/>
         </wsdl:port>
     </wsdl:service>

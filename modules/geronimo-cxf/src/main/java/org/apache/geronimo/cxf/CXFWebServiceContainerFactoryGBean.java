@@ -63,7 +63,7 @@ public class CXFWebServiceContainerFactoryGBean implements WebServiceContainerFa
         }
 
         this.portInfo = portInfo;
-        this.bus = new CXFBusFactory().getDefaultBus();
+        this.bus = (new CXFBusFactory()).createBus();
         Class endpointClass = classLoader.loadClass(endpointClassName);
         endpointInstance = endpointClass.newInstance();
     }

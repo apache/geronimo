@@ -18,8 +18,8 @@
 <web-app xmlns="http://geronimo.apache.org/xml/ns/j2ee/web-1.1" xmlns:dep="http://geronimo.apache.org/xml/ns/deployment-1.1" xmlns:naming="http://geronimo.apache.org/xml/ns/naming-1.1">
   <dep:environment>
     <dep:moduleId>
-      <dep:groupId>CXF</dep:groupId>
-      <dep:artifactId>cxfPojoServlet</dep:artifactId>
+      <dep:groupId>JEE5</dep:groupId>
+      <dep:artifactId>JAXWSServlet</dep:artifactId>
       <dep:version>1.1</dep:version>
       <dep:type>car</dep:type>
     </dep:moduleId>
