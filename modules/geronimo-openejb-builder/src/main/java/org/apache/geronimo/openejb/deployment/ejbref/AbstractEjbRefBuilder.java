@@ -47,6 +47,7 @@ import org.apache.openejb.jee.JndiConsumer;
 import org.apache.openejb.alt.config.JndiEncInfoBuilder;
 import org.apache.openejb.assembler.classic.JndiEncInfo;
 import org.apache.openejb.assembler.classic.JndiEncBuilder;
+import org.apache.openejb.assembler.classic.EjbJarInfo;
 import org.apache.openejb.OpenEJBException;
 
 /**
@@ -61,8 +62,12 @@ public abstract class AbstractEjbRefBuilder extends AbstractNamingBuilder {
     protected void bindContext(Module module, JndiConsumer jndiConsumer, Map componentContext) throws DeploymentException {
         Map<String, Object> map = null;
         try {
-            EjbModuleBuilder.EarData earData = (EjbModuleBuilder.EarData) module.getEarContext().getGeneralData().get(EjbModuleBuilder.EarData.class);
-            JndiEncInfoBuilder jndiEncInfoBuilder = new JndiEncInfoBuilder(earData.getEjbJars());
+            EjbModuleBuilder.EarData earData = (EjbModuleBuilder.EarData) module.getRootEarContext().getGeneralData().get(EjbModuleBuilder.EarData.class);
+            Collection<EjbJarInfo> ejbJars = Collections.emptySet();
+            if (earData != null) {
+                ejbJars = earData.getEjbJars();
+            }
+            JndiEncInfoBuilder jndiEncInfoBuilder = new JndiEncInfoBuilder(ejbJars);
             JndiEncInfo jndiEncInfo = jndiEncInfoBuilder.build(jndiConsumer, "GeronimoEnc");
             JndiEncBuilder jndiEncBuilder = new JndiEncBuilder(jndiEncInfo);
             map = jndiEncBuilder.buildMap();

@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URL;
 import java.net.MalformedURLException;
+import java.net.URLClassLoader;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -83,6 +84,8 @@ import org.apache.openejb.jee.ServiceRef;
 import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlObject;
 import org.apache.xbean.finder.ClassFinder;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 /**
  * Master builder for processing EJB JAR deployments and creating the
@@ -91,6 +94,7 @@ import org.apache.xbean.finder.ClassFinder;
  * @version $Revision: 479481 $ $Date: 2006-11-26 16:52:20 -0800 (Sun, 26 Nov 2006) $
  */
 public class EjbModuleBuilder implements ModuleBuilder {
+    private static final Log log = LogFactory.getLog(EjbModuleBuilder.class);
     private static final String OPENEJBJAR_NAMESPACE = XmlUtil.OPENEJBJAR_QNAME.getNamespaceURI();
 
     private final Environment defaultEnvironment;
@@ -143,46 +147,12 @@ public class EjbModuleBuilder implements ModuleBuilder {
 
         // load the ejb-jar.xml
         String ejbJarXml = XmlUtil.loadEjbJarXml(specDDUrl, moduleFile);
-        if (ejbJarXml == null) {
-            // this is not an ejb module
-            URL moduleUrl = null;
-            try {
-                File file = new File(moduleFile.getName());
-                moduleUrl = file.toURL();
-            } catch (MalformedURLException e) {
-                return null;
-            }
-
-            try {
-                final ClassFinder classFinder = new ClassFinder(Thread.currentThread().getContextClassLoader(), moduleUrl);
-
-                // DMB: getting this via reflection is a temporary fix.  Just want to avoid having to
-                // make Geronimo dependent on an xbean snapshot right before we do the release.
-                // afterwards we can clean this up.
-                Map<String, List> annotated = (Map<String, List>) AccessController.doPrivileged(new PrivilegedAction() {
-                    public Object run() {
-                        try {
-                            Field field = ClassFinder.class.getDeclaredField("annotated");
-                            field.setAccessible(true);
-                            return field.get(classFinder);
-                        } catch (Exception e2) {
-                        }
-                        return null;
-                    }
-                });
-
-                List<String> beans = new ArrayList<String>();
-                beans.addAll(annotated.get(javax.ejb.Stateless.class.getName()));
-                beans.addAll(annotated.get(javax.ejb.Stateful.class.getName()));
-                beans.addAll(annotated.get(javax.ejb.MessageDriven.class.getName()));
-                if (beans.size() <= 0){
-                    return null;
-                }
-            } catch (Throwable e) {
-                // how does one log this?
-                return null;
-            }
+        // if there is no ejb-jar.xml and the module does not contain any
+        // classes annotated with ejb annotations, it is not an ejb module
+        if (ejbJarXml == null && !isEjbAnnotatedModule(moduleFile)) {
+            return null;
         }
+
         EjbJar ejbJar = XmlUtil.unmarshal(EjbJar.class, ejbJarXml);
         if (ejbJar == null){
             ejbJar = new EjbJar();
@@ -258,6 +228,48 @@ public class EjbModuleBuilder implements ModuleBuilder {
         }
 
         return new EjbModule(standAlone, moduleName, environment, moduleFile, targetPath, ejbJar, openejbJar, geronimoOpenejb, ejbJarXml, sharedContext);
+    }
+
+    private boolean isEjbAnnotatedModule(JarFile moduleFile) {
+        // this is not an ejb module
+        URL moduleUrl = null;
+        try {
+            File file = new File(moduleFile.getName());
+            moduleUrl = file.toURL();
+        } catch (MalformedURLException e) {
+            return false;
+        }
+
+        try {
+            URLClassLoader tempClassLoader = new URLClassLoader(new URL[]{moduleUrl}, Thread.currentThread().getContextClassLoader());
+            final ClassFinder classFinder = new ClassFinder(tempClassLoader, moduleUrl);
+
+            // DMB: getting this via reflection is a temporary fix.  Just want to avoid having to
+            // make Geronimo dependent on an xbean snapshot right before we do the release.
+            // afterwards we can clean this up.
+            Map<String, List> annotated = AccessController.doPrivileged(new PrivilegedAction<Map<String, List>>() {
+                public Map<String, List> run() {
+                    try {
+                        Field field = ClassFinder.class.getDeclaredField("annotated");
+                        field.setAccessible(true);
+                        return (Map<String, List>) field.get(classFinder);
+                    } catch (Exception e2) {
+                    }
+                    return null;
+                }
+            });
+
+            if (!isEmpty(annotated.get(javax.ejb.Stateless.class.getName()))) return true;
+            if (!isEmpty(annotated.get(javax.ejb.Stateful.class.getName()))) return true;
+            if (!isEmpty(annotated.get(javax.ejb.MessageDriven.class.getName()))) return true;
+        } catch (Throwable e) {
+            log.warn("Error while attempting to determine if a module is an EJB moduel", e);
+        }
+        return false;
+    }
+
+    private static boolean isEmpty(List l) {
+        return l == null || l.isEmpty();
     }
 
     protected static void unmapReferences(EjbJar ejbJar) {
