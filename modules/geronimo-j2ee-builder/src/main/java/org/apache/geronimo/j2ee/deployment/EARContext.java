@@ -48,6 +48,8 @@ public class EARContext extends DeploymentContext {
 
     private final Map  messageDestinations = new HashMap();
 
+    private final Map generalData = new HashMap();
+
     public EARContext(File baseDir,
             File inPlaceConfigurationDir,
             Environment environment,
@@ -170,4 +172,7 @@ public class EARContext extends DeploymentContext {
         return messageDestinations;
     }
 
+    public Map getGeneralData() {
+        return generalData;
+    }
 }

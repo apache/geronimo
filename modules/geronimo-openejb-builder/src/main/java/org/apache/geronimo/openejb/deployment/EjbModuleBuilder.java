@@ -20,7 +20,6 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URL;
-import java.net.URLClassLoader;
 import java.net.MalformedURLException;
 import java.util.Collection;
 import java.util.Collections;
@@ -74,8 +73,6 @@ import org.apache.openejb.assembler.classic.EjbJarInfo;
 import org.apache.openejb.assembler.classic.Cmp2Builder;
 import org.apache.openejb.assembler.classic.AppInfo;
 import org.apache.openejb.jee.EjbJar;
-import org.apache.openejb.jee.EjbLocalRef;
-import org.apache.openejb.jee.EjbRef;
 import org.apache.openejb.jee.EnterpriseBean;
 import org.apache.openejb.jee.MessageDestinationRef;
 import org.apache.openejb.jee.PersistenceContextRef;
@@ -134,9 +131,15 @@ public class EjbModuleBuilder implements ModuleBuilder {
     }
 
     private Module createModule(Object plan, JarFile moduleFile, String targetPath, URL specDDUrl, Environment earEnvironment, AbstractName earName, Naming naming, ModuleIDBuilder idBuilder) throws DeploymentException {
-        if (moduleFile == null) throw new NullPointerException("moduleFile is null");
-        if (targetPath == null) throw new NullPointerException("targetPath is null");
-        if (targetPath.endsWith("/")) throw new IllegalArgumentException("targetPath must not end with a '/'");
+        if (moduleFile == null) {
+            throw new NullPointerException("moduleFile is null");
+        }
+        if (targetPath == null) {
+            throw new NullPointerException("targetPath is null");
+        }
+        if (targetPath.endsWith("/")) {
+            throw new IllegalArgumentException("targetPath must not end with a '/'");
+        }
 
         // load the ejb-jar.xml
         String ejbJarXml = XmlUtil.loadEjbJarXml(specDDUrl, moduleFile);
@@ -260,14 +263,9 @@ public class EjbModuleBuilder implements ModuleBuilder {
     protected static void unmapReferences(EjbJar ejbJar) {
         for (EnterpriseBean enterpriseBean : ejbJar.getEnterpriseBeans()) {
             enterpriseBean.getEnvEntry().clear();
-            for (EjbRef ref : enterpriseBean.getEjbRef()) {
-                ref.setMappedName(null);
-                ref.getInjectionTarget().clear();
-            }
-            for (EjbLocalRef ref : enterpriseBean.getEjbLocalRef()) {
-                ref.setMappedName(null);
-                ref.getInjectionTarget().clear();
-            }
+            enterpriseBean.getEjbRef().clear();
+            enterpriseBean.getEjbLocalRef().clear();
+
             for (MessageDestinationRef ref : enterpriseBean.getMessageDestinationRef()) {
                 ref.setMappedName(null);
                 ref.getInjectionTarget().clear();
@@ -335,6 +333,12 @@ public class EjbModuleBuilder implements ModuleBuilder {
             e.printStackTrace();
             throw new DeploymentException(e);
         }
+        EarData earData = (EarData) earContext.getGeneralData().get(EarData.class);
+        if (earData == null) {
+            earData = new EarData();
+            earContext.getGeneralData().put(EarData.class, earData);
+        }
+        earData.getEjbJars().add(ejbJarInfo);
 
         // generate the CMP2 implementation classes
         // Generate the cmp2 concrete subclasses
@@ -430,6 +434,14 @@ public class EjbModuleBuilder implements ModuleBuilder {
         // add the Jacc permissions to the ear
         ComponentPermissions componentPermissions = ejbDeploymentBuilder.buildComponentPermissions();
         earContext.addSecurityContext(ejbModule.getEjbJarInfo().moduleId, componentPermissions);
+    }
+
+    public static class EarData {
+        private final Collection<EjbJarInfo> ejbJars = new ArrayList<EjbJarInfo>();
+
+        public Collection<EjbJarInfo> getEjbJars() {
+            return ejbJars;
+        }
     }
 
 

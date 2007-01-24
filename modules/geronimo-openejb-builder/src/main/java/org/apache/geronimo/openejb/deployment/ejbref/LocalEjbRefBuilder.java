@@ -36,8 +36,15 @@ import org.apache.geronimo.xbeans.geronimo.naming.GerEjbLocalRefDocument;
 import org.apache.geronimo.xbeans.geronimo.naming.GerEjbLocalRefType;
 import org.apache.geronimo.xbeans.geronimo.naming.GerPatternType;
 import org.apache.geronimo.xbeans.javaee.EjbLocalRefType;
+import org.apache.geronimo.xbeans.javaee.EjbRefType;
+import org.apache.geronimo.xbeans.javaee.InjectionTargetType;
 import org.apache.xmlbeans.QNameSet;
 import org.apache.xmlbeans.XmlObject;
+import org.apache.openejb.jee.JndiConsumer;
+import org.apache.openejb.jee.ApplicationClient;
+import org.apache.openejb.jee.EjbRef;
+import org.apache.openejb.jee.InjectionTarget;
+import org.apache.openejb.jee.EjbLocalRef;
 
 /**
  * @version $Revision: 470469 $ $Date: 2006-11-02 10:43:34 -0800 (Thu, 02 Nov 2006) $
@@ -67,88 +74,49 @@ public class LocalEjbRefBuilder extends AbstractEjbRefBuilder {
 
     public void buildNaming(XmlObject specDD, XmlObject plan, Configuration localConfiguration, Configuration remoteConfiguration, Module module, Map componentContext) throws DeploymentException {
         List<EjbLocalRefType> ejbLocalRefs = convert(specDD.selectChildren(ejbLocalRefQNameSet), J2EE_CONVERTER, EjbLocalRefType.class, EjbLocalRefType.type);
-        XmlObject[] gerEjbLocalRefsUntyped = plan == null ? NO_REFS : plan.selectChildren(GER_EJB_LOCAL_REF_QNAME_SET);
-        Map<String, GerEjbLocalRefType> ejbLocalRefMap = mapEjbLocalRefs(gerEjbLocalRefsUntyped);
-        ClassLoader cl = module.getEarContext().getClassLoader();
 
-        for (EjbLocalRefType ejbLocalRef : ejbLocalRefs) {
-            String ejbRefName = getStringValue(ejbLocalRef.getEjbRefName());
-            GerEjbLocalRefType localRef = ejbLocalRefMap.get(ejbRefName);
+        // build jndi consumer
+        JndiConsumer jndiConsumer = new ApplicationClient();
+        for (EjbLocalRefType xmlbeansRef : ejbLocalRefs) {
+            // create the ejb-ref
+            EjbLocalRef ref = new EjbLocalRef();
+            jndiConsumer.getEjbLocalRef().add(ref);
 
-            Reference ejbReference = createEjbLocalRef(remoteConfiguration, module.getModuleURI(), ejbLocalRef, localRef, cl);
-            if (ejbReference != null) {
-                //noinspection unchecked
-                getJndiContextMap(componentContext).put(ENV + ejbRefName, ejbReference);
+            // ejb-ref-name
+            ref.setEjbRefName(getStringValue(xmlbeansRef.getEjbRefName()));
+
+            // ejb-ref-type
+            String refType = getStringValue(xmlbeansRef.getEjbRefType());
+            if ("SESSION".equalsIgnoreCase(refType)) {
+                ref.setEjbRefType(org.apache.openejb.jee.EjbRefType.SESSION);
+            } else if ("ENTITY".equalsIgnoreCase(refType)) {
+                ref.setEjbRefType(org.apache.openejb.jee.EjbRefType.ENTITY);
+            }
+
+            // home
+            ref.setLocalHome(getStringValue(xmlbeansRef.getLocalHome()));
+
+            // remote
+            ref.setLocal(getStringValue(xmlbeansRef.getLocal()));
+
+            // ejb-link
+            ref.setEjbLink(getStringValue(xmlbeansRef.getEjbLink()));
+
+            // mapped-name
+            ref.setMappedName(getStringValue(xmlbeansRef.getMappedName()));
+
+            // injection-targets
+            if (xmlbeansRef.getInjectionTargetArray() != null) {
+                for (InjectionTargetType injectionTargetType : xmlbeansRef.getInjectionTargetArray()) {
+                    InjectionTarget injectionTarget = new InjectionTarget();
+                    injectionTarget.setInjectionTargetClass(getStringValue(injectionTargetType.getInjectionTargetClass()));
+                    injectionTarget.setInjectionTargetName(getStringValue(injectionTargetType.getInjectionTargetName()));
+                    ref.getInjectionTarget().add(injectionTarget);
+                }
             }
         }
-    }
 
-    private Reference createEjbLocalRef(Configuration ejbContext, URI moduleURI, EjbLocalRefType ejbLocalRef, GerEjbLocalRefType localRef, ClassLoader cl) throws DeploymentException {
-        String refName = getStringValue(ejbLocalRef.getEjbRefName());
-
-        String local = getStringValue(ejbLocalRef.getLocal());
-        try {
-            assureEJBLocalObjectInterface(local, cl);
-        } catch (DeploymentException e) {
-            throw new DeploymentException("Error processing 'local' element for EJB Local Reference '" + refName + "' for module '" + moduleURI + "': " + e.getMessage());
-        }
-
-        String localHome = getStringValue(ejbLocalRef.getLocalHome());
-        try {
-            assureEJBLocalHomeInterface(localHome, cl);
-        } catch (DeploymentException e) {
-            throw new DeploymentException("Error processing 'local-home' element for EJB Local Reference '" + refName + "' for module '" + moduleURI + "': " + e.getMessage());
-        }
-
-        boolean isSession = "Session".equals(getStringValue(ejbLocalRef.getEjbRefType()));
-
-        String ejbLink = null;
-        if (localRef != null && localRef.isSetEjbLink()) {
-            ejbLink = localRef.getEjbLink();
-        } else if (ejbLocalRef.isSetEjbLink()) {
-            ejbLink = getStringValue(ejbLocalRef.getEjbLink());
-        }
-
-        String optionalModule;
-        if (moduleURI == null) {
-            optionalModule = null;
-        } else {
-            optionalModule = moduleURI.toString();
-        }
-
-        String requiredModule = null;
-        AbstractNameQuery containerQuery = null;
-        if (ejbLink != null) {
-            String[] bits = ejbLink.split("#");
-            if (bits.length == 2) {
-                //look only in specified module.
-                requiredModule = bits[0];
-                ejbLink = bits[1];
-            }
-        } else if (localRef != null) {
-            GerPatternType patternType = localRef.getPattern();
-            containerQuery = buildAbstractNameQuery(patternType, null, NameFactory.EJB_MODULE, null);
-        }
-        return createEjbRef(refName, ejbContext, ejbLink, requiredModule, optionalModule, containerQuery, isSession, localHome, local, false);
-    }
-
-    private static Map<String, GerEjbLocalRefType> mapEjbLocalRefs(XmlObject[] refs) {
-        Map<String, GerEjbLocalRefType> refMap = new HashMap<String, GerEjbLocalRefType>();
-        if (refs != null) {
-            for (int i = 0; i < refs.length; i++) {
-                GerEjbLocalRefType ref = (GerEjbLocalRefType) refs[i].copy().changeType(GerEjbLocalRefType.type);
-                refMap.put(ref.getRefName().trim(), ref);
-            }
-        }
-        return refMap;
-    }
-
-    public static Class assureEJBLocalObjectInterface(String local, ClassLoader cl) throws DeploymentException {
-        return assureInterface(local, "javax.ejb.EJBLocalObject", "Local", cl);
-    }
-
-    public static Class assureEJBLocalHomeInterface(String localHome, ClassLoader cl) throws DeploymentException {
-        return assureInterface(localHome, "javax.ejb.EJBLocalHome", "LocalHome", cl);
+        bindContext(module, jndiConsumer, componentContext);
     }
 
     public static final GBeanInfo GBEAN_INFO;

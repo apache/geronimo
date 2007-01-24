@@ -50,7 +50,7 @@ public class PersistenceUnitReference extends ConfigurationAwareReference {
 
     Object entityManagerFactory;
     try {
-        entityManagerFactory = kernel.invoke(target, "getEntityManagerFactory");
+        entityManagerFactory = kernel.getAttribute(target, "entityManagerFactory");
     } catch (Exception e) {
         throw (IllegalStateException) new IllegalStateException("Could not get EntityManagerFactory").initCause(e);
     }
