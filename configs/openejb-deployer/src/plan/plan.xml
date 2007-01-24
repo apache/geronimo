@@ -94,9 +94,4 @@
             </environment>
         </xml-attribute>
     </gbean>
-
-    <gbean name="OpenEjbLocalRefBuilder" class="org.apache.geronimo.openejb.deployment.ejbref.LocalEjbRefBuilder">
-        <attribute name="eeNamespaces">http://java.sun.com/xml/ns/j2ee</attribute>
-    </gbean>
-
 </module>
