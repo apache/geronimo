@@ -19,6 +19,7 @@ package org.apache.geronimo.openejb.deployment;
 
 import java.net.URL;
 import java.util.jar.JarFile;
+import java.util.Iterator;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
@@ -32,6 +33,8 @@ import javax.xml.namespace.QName;
 import javax.xml.parsers.SAXParserFactory;
 import javax.xml.parsers.SAXParser;
 import javax.xml.transform.sax.SAXSource;
+import javax.ejb.SessionContext;
+import javax.ejb.EntityContext;
 
 import org.apache.geronimo.openejb.xbeans.ejbjar.OpenejbEjbJarDocument;
 import org.apache.geronimo.openejb.xbeans.ejbjar.OpenejbGeronimoEjbJarType;
@@ -48,6 +51,14 @@ import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlDocumentProperties;
 import org.apache.openejb.jee.EjbJar;
+import org.apache.openejb.jee.EnterpriseBean;
+import org.apache.openejb.jee.MessageDestinationRef;
+import org.apache.openejb.jee.PersistenceContextRef;
+import org.apache.openejb.jee.PersistenceUnitRef;
+import org.apache.openejb.jee.ResourceRef;
+import org.apache.openejb.jee.ResourceEnvRef;
+import org.apache.openejb.jee.ServiceRef;
+import org.apache.openejb.jee.PersistenceContextType;
 import org.xml.sax.helpers.XMLFilterImpl;
 import org.xml.sax.XMLReader;
 import org.xml.sax.Attributes;
@@ -175,6 +186,15 @@ public final class XmlUtil {
         // it would be nice if Jaxb had a way to convert the object to a
         // sax reader that could be fed directly into xmlbeans
         //
+
+        // the geronimo xml beans tree is totally broken... fix some obvious stuff here
+        for (EnterpriseBean enterpriseBean : ejbJar.getEnterpriseBeans()) {
+            for (PersistenceContextRef ref : enterpriseBean.getPersistenceContextRef()) {
+                if (ref.getPersistenceContextType() == PersistenceContextType.TRANSACTION) {
+                    ref.setPersistenceContextType(null);
+                }
+            }
+        }
 
         // marshal to xml
         String xml = marshal(ejbJar);
