@@ -47,11 +47,11 @@ public class EjbModuleBuilderTest extends TestCase {
         TransactionManager transactionManager = new GeronimoTransactionManager();
         OpenEjbSystem openEjbSystem = new OpenEjbSystemGBean(transactionManager);
 
-        addEjbContainer(openEjbSystem, "Default Stateless Container");
-        addEjbContainer(openEjbSystem, "Default Stateful Container");
-        addEjbContainer(openEjbSystem, "Default BMP Container");
-        addEjbContainer(openEjbSystem, "Default CMP Container");
-        addEjbContainer(openEjbSystem, "Default MDB Container");
+        addEjbContainer(openEjbSystem, "Default Stateless Container", "STATELESS");
+        addEjbContainer(openEjbSystem, "Default Stateful Container", "STATEFUL");
+        addEjbContainer(openEjbSystem, "Default BMP Container", "BMP_ENTITY");
+        addEjbContainer(openEjbSystem, "Default CMP Container", "CMP_ENTITY");
+        addEjbContainer(openEjbSystem, "Default MDB Container", "MESSAGE");
 
         // load ejb-jar.xml
         String ejbJarXml = XmlUtil.loadEjbJarXml(null, moduleFile);
@@ -70,10 +70,11 @@ public class EjbModuleBuilderTest extends TestCase {
         openEjbSystem.createEjbJar(ejbJarInfo, classLoader);
     }
 
-    private void addEjbContainer(OpenEjbSystem openEjbSystem, String id) throws Exception {
+    private void addEjbContainer(OpenEjbSystem openEjbSystem, String id, String type) throws Exception {
         EjbContainer ejbContainer = new EjbContainer();
         ejbContainer.setOpenEjbSystem(openEjbSystem);
         ejbContainer.setId(id);
+        ejbContainer.setType(type);
         ejbContainer.doStart();
     }
 }
