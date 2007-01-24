@@ -403,23 +403,23 @@ public class GBeanInfoBuilder {
     
     /**
      * @deprecated
-     */
+     */ 
     public void addOperation(String name) {
-        //addOperation(new GOperationInfo(name, NO_ARGS, ""));
+        addOperation(new GOperationInfo(name, NO_ARGS, ""));
     }
 
     /**
      * @deprecated
      */
     public void addOperation(String name, Class[] paramTypes) {
-        //addOperation(new GOperationInfo(name, paramTypes, ""));
+        addOperation(new GOperationInfo(name, paramTypes, ""));
     }
     
-    private void addOperation(String name, String returnType) {
+    public void addOperation(String name, String returnType) {
         addOperation(new GOperationInfo(name, NO_ARGS, returnType));
     }
 
-    private void addOperation(String name, Class[] paramTypes, String returnType) {
+    public void addOperation(String name, Class[] paramTypes, String returnType) {
         addOperation(new GOperationInfo(name, paramTypes, returnType));
     }
 

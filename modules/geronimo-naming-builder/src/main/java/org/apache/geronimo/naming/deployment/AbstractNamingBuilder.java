@@ -43,6 +43,7 @@ import org.apache.geronimo.kernel.repository.ImportType;
 import org.apache.geronimo.schema.NamespaceElementConverter;
 import org.apache.geronimo.xbeans.geronimo.naming.GerPatternType;
 import org.apache.geronimo.xbeans.geronimo.naming.GerAbstractNamingEntryDocument;
+import org.apache.geronimo.xbeans.javaee.XsdStringType;
 import org.apache.xmlbeans.QNameSet;
 import org.apache.xmlbeans.SchemaType;
 import org.apache.xmlbeans.XmlObject;
@@ -176,6 +177,14 @@ public abstract class AbstractNamingBuilder implements NamingBuilder {
     }
 
     protected static String getStringValue(org.apache.geronimo.xbeans.javaee.String string) {
+        if (string == null) {
+            return null;
+        }
+        String s = string.getStringValue();
+        return s == null ? null : s.trim();
+    }
+
+    protected static String getStringValue(XsdStringType string) {
         if (string == null) {
             return null;
         }

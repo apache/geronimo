@@ -34,6 +34,7 @@ import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.GBeanAlreadyExistsException;
 import org.apache.geronimo.naming.deployment.GBeanResourceEnvironmentBuilder;
 import org.apache.geronimo.naming.deployment.ResourceEnvironmentSetter;
+import org.apache.geronimo.naming.deployment.AbstractNamingBuilder;
 import org.apache.geronimo.openejb.xbeans.ejbjar.OpenejbGeronimoEjbJarType;
 import org.apache.geronimo.security.deployment.SecurityConfiguration;
 import org.apache.geronimo.security.jacc.ComponentPermissions;
@@ -52,8 +53,6 @@ import org.apache.openejb.jee.MessageDrivenBean;
 import org.apache.openejb.jee.EntityBean;
 import org.apache.openejb.jee.SessionBean;
 import org.apache.openejb.alt.config.ejb.EjbDeployment;
-import org.apache.geronimo.openejb.deployment.ejbref.LocalEjbRefBuilder;
-import org.apache.geronimo.openejb.deployment.ejbref.RemoteEjbRefBuilder;
 import org.apache.geronimo.openejb.StatelessDeploymentGBean;
 import org.apache.geronimo.openejb.StatefulDeploymentGBean;
 import org.apache.geronimo.openejb.EntityDeploymentGBean;
@@ -118,22 +117,22 @@ public class EjbDeploymentBuilder {
                 // Remote
                 if (remoteBean.getRemote() != null) {
                     String remoteInterfaceName = remoteBean.getRemote();
-                    RemoteEjbRefBuilder.assureEJBObjectInterface(remoteInterfaceName, ejbModule.getClassLoader());
+                    assureEJBObjectInterface(remoteInterfaceName, ejbModule.getClassLoader());
                     gbean.setAttribute(EjbInterface.REMOTE.getAttributeName(), remoteInterfaceName);
 
                     String homeInterfaceName = remoteBean.getHome();
-                    RemoteEjbRefBuilder.assureEJBHomeInterface(homeInterfaceName, ejbModule.getClassLoader());
+                    assureEJBHomeInterface(homeInterfaceName, ejbModule.getClassLoader());
                     gbean.setAttribute(EjbInterface.HOME.getAttributeName(), homeInterfaceName);
                 }
 
                 // Local
                 if (remoteBean.getLocal() != null) {
                     String localInterfaceName = remoteBean.getLocal();
-                    LocalEjbRefBuilder.assureEJBLocalObjectInterface(localInterfaceName, ejbModule.getClassLoader());
+                    assureEJBLocalObjectInterface(localInterfaceName, ejbModule.getClassLoader());
                     gbean.setAttribute(EjbInterface.LOCAL.getAttributeName(), localInterfaceName);
 
                     String localHomeInterfaceName = remoteBean.getLocalHome();
-                    LocalEjbRefBuilder.assureEJBLocalHomeInterface(localHomeInterfaceName, ejbModule.getClassLoader());
+                    assureEJBLocalHomeInterface(localHomeInterfaceName, ejbModule.getClassLoader());
                     gbean.setAttribute(EjbInterface.LOCAL_HOME.getAttributeName(), localHomeInterfaceName);
                 }
 
@@ -310,4 +309,19 @@ public class EjbDeploymentBuilder {
         return earContext.getNaming().createChildName(ejbModule.getModuleName(), ejbName, type);
     }
 
+    private static Class assureEJBObjectInterface(String remote, ClassLoader cl) throws DeploymentException {
+        return AbstractNamingBuilder.assureInterface(remote, "javax.ejb.EJBObject", "Remote", cl);
+    }
+
+    private static Class assureEJBHomeInterface(String home, ClassLoader cl) throws DeploymentException {
+        return AbstractNamingBuilder.assureInterface(home, "javax.ejb.EJBHome", "Home", cl);
+    }
+
+    public static Class assureEJBLocalObjectInterface(String local, ClassLoader cl) throws DeploymentException {
+        return AbstractNamingBuilder.assureInterface(local, "javax.ejb.EJBLocalObject", "Local", cl);
+    }
+
+    public static Class assureEJBLocalHomeInterface(String localHome, ClassLoader cl) throws DeploymentException {
+        return AbstractNamingBuilder.assureInterface(localHome, "javax.ejb.EJBLocalHome", "LocalHome", cl);
+    }
 }

@@ -17,16 +17,11 @@
 
 package org.apache.geronimo.openejb.deployment.ejbref;
 
-import java.net.URI;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import javax.naming.Reference;
 import javax.xml.namespace.QName;
 
 import org.apache.geronimo.common.DeploymentException;
-import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.j2ee.deployment.Module;
@@ -34,9 +29,12 @@ import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.config.Configuration;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.xbeans.geronimo.naming.GerEjbRefDocument;
-import org.apache.geronimo.xbeans.geronimo.naming.GerEjbRefType;
-import org.apache.geronimo.xbeans.geronimo.naming.GerPatternType;
 import org.apache.geronimo.xbeans.javaee.EjbRefType;
+import org.apache.geronimo.xbeans.javaee.InjectionTargetType;
+import org.apache.openejb.jee.ApplicationClient;
+import org.apache.openejb.jee.EjbRef;
+import org.apache.openejb.jee.InjectionTarget;
+import org.apache.openejb.jee.JndiConsumer;
 import org.apache.xmlbeans.QNameSet;
 import org.apache.xmlbeans.XmlObject;
 
@@ -67,103 +65,54 @@ public class RemoteEjbRefBuilder extends AbstractEjbRefBuilder {
     }
 
     public void buildNaming(XmlObject specDD, XmlObject plan, Configuration localConfiguration, Configuration remoteConfiguration, Module module, Map componentContext) throws DeploymentException {
+        JndiConsumer jndiConsumer = createJndiConsumer(specDD);
+        bindContext(module, jndiConsumer, componentContext);
+    }
+
+    protected JndiConsumer createJndiConsumer(XmlObject specDD) throws DeploymentException {
         List<EjbRefType> ejbRefs = convert(specDD.selectChildren(ejbRefQNameSet), J2EE_CONVERTER, EjbRefType.class, EjbRefType.type);
-        XmlObject[] gerEjbRefsUntyped = plan == null ? NO_REFS : plan.selectChildren(GER_EJB_REF_QNAME_SET);
-        Map<String, GerEjbRefType> ejbRefMap = mapEjbRefs(gerEjbRefsUntyped);
-        ClassLoader cl = module.getEarContext().getClassLoader();
 
-        for (EjbRefType ejbRef : ejbRefs) {
-            String ejbRefName = getStringValue(ejbRef.getEjbRefName());
-            GerEjbRefType remoteRef = ejbRefMap.get(ejbRefName);
+        // build jndi consumer
+        JndiConsumer jndiConsumer = new ApplicationClient();
+        for (EjbRefType xmlbeansRef : ejbRefs) {
+            // create the ejb-ref
+            EjbRef ref = new EjbRef();
+            jndiConsumer.getEjbRef().add(ref);
 
-            Reference ejbReference = createEjbRef(remoteConfiguration, module.getModuleURI(), ejbRef, remoteRef, cl);
-            if (ejbReference != null) {
-                //noinspection unchecked
-                getJndiContextMap(componentContext).put(ENV + ejbRefName, ejbReference);
+            // ejb-ref-name
+            ref.setEjbRefName(getStringValue(xmlbeansRef.getEjbRefName()));
+
+            // ejb-ref-type
+            String refType = getStringValue(xmlbeansRef.getEjbRefType());
+            if ("SESSION".equalsIgnoreCase(refType)) {
+                ref.setEjbRefType(org.apache.openejb.jee.EjbRefType.SESSION);
+            } else if ("ENTITY".equalsIgnoreCase(refType)) {
+                ref.setEjbRefType(org.apache.openejb.jee.EjbRefType.ENTITY);
             }
-        }
-    }
 
-    private Reference createEjbRef(Configuration ejbContext, URI moduleURI, EjbRefType ejbRef, GerEjbRefType remoteRef, ClassLoader cl) throws DeploymentException {
-        String refName = getStringValue(ejbRef.getEjbRefName());
+            // home
+            ref.setHome(getStringValue(xmlbeansRef.getHome()));
 
-        String remote = getStringValue(ejbRef.getRemote());
-        try {
-            assureEJBObjectInterface(remote, cl);
-        } catch (DeploymentException e) {
-            throw new DeploymentException("Error processing 'remote' element for EJB Reference '" + refName + "' for module '" + moduleURI + "': " + e.getMessage());
-        }
+            // remote
+            ref.setRemote(getStringValue(xmlbeansRef.getRemote()));
 
-        String home = getStringValue(ejbRef.getHome());
-        try {
-            assureEJBHomeInterface(home, cl);
-        } catch (DeploymentException e) {
-            throw new DeploymentException("Error processing 'home' element for EJB Reference '" + refName + "' for module '" + moduleURI + "': " + e.getMessage());
-        }
+            // ejb-link
+            ref.setEjbLink(getStringValue(xmlbeansRef.getEjbLink()));
 
-        boolean isSession = "Session".equals(getStringValue(ejbRef.getEjbRefType()));
+            // mapped-name
+            ref.setMappedName(getStringValue(xmlbeansRef.getMappedName()));
 
-        // MEJB
-        if (isSession && remote.equals("javax.management.j2ee.Management") && home.equals("javax.management.j2ee.ManagementHome")) {
-            AbstractNameQuery query = new AbstractNameQuery(null, Collections.singletonMap("name", "ejb/mgmt/MEJB"));
-            return createEjbRef(null, ejbContext, null, null, null, query, isSession, home, remote, true);
-        }
-
-        // corba refs are handled by another builder
-        if (remoteRef != null && remoteRef.isSetNsCorbaloc()) {
-            return null;
-        }
-
-        String ejbLink = null;
-        if (remoteRef != null && remoteRef.isSetEjbLink()) {
-            ejbLink = remoteRef.getEjbLink();
-        } else if (ejbRef.isSetEjbLink()) {
-            ejbLink = getStringValue(ejbRef.getEjbLink());
-        }
-
-        String optionalModule;
-        if (moduleURI == null) {
-            optionalModule = null;
-        } else {
-            optionalModule = moduleURI.toString();
-        }
-
-        String requiredModule = null;
-        AbstractNameQuery containerQuery = null;
-        if (ejbLink != null) {
-            String[] bits = ejbLink.split("#");
-            if (bits.length == 2) {
-                //look only in specified module.
-                requiredModule = bits[0];
-                if (moduleURI != null) {
-                    requiredModule = moduleURI.resolve(requiredModule).getPath();
+            // injection-targets
+            if (xmlbeansRef.getInjectionTargetArray() != null) {
+                for (InjectionTargetType injectionTargetType : xmlbeansRef.getInjectionTargetArray()) {
+                    InjectionTarget injectionTarget = new InjectionTarget();
+                    injectionTarget.setInjectionTargetClass(getStringValue(injectionTargetType.getInjectionTargetClass()));
+                    injectionTarget.setInjectionTargetName(getStringValue(injectionTargetType.getInjectionTargetName()));
+                    ref.getInjectionTarget().add(injectionTarget);
                 }
-                ejbLink = bits[1];
-            }
-        } else if (remoteRef != null) {
-            GerPatternType patternType = remoteRef.getPattern();
-            containerQuery = buildAbstractNameQuery(patternType, null, NameFactory.EJB_MODULE, null);
-        }
-        return createEjbRef(refName, ejbContext, ejbLink, requiredModule, optionalModule, containerQuery, isSession, home, remote, true);
-    }
-
-    private static Map<String, GerEjbRefType> mapEjbRefs(XmlObject[] refs) {
-        Map<String, GerEjbRefType> refMap = new HashMap<String, GerEjbRefType>();
-        if (refs != null) {
-            for (int i = 0; i < refs.length; i++) {
-                GerEjbRefType ref = (GerEjbRefType) refs[i].copy().changeType(GerEjbRefType.type);
-                refMap.put(ref.getRefName().trim(), ref);
             }
         }
-        return refMap;
-    }
-
-    public static Class assureEJBObjectInterface(String remote, ClassLoader cl) throws DeploymentException {
-        return assureInterface(remote, "javax.ejb.EJBObject", "Remote", cl);
-    }
-
-    public static Class assureEJBHomeInterface(String home, ClassLoader cl) throws DeploymentException {
-        return assureInterface(home, "javax.ejb.EJBHome", "Home", cl);
+        return jndiConsumer;
     }
 
     public static final GBeanInfo GBEAN_INFO;

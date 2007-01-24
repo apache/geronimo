@@ -19,18 +19,13 @@ package org.apache.geronimo.openejb.deployment.ejbref;
 
 import java.net.URI;
 import java.net.URISyntaxException;
-import javax.naming.Reference;
 
-import org.apache.geronimo.common.DeploymentException;
-import org.apache.geronimo.gbean.AbstractNameQuery;
-import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
-import org.apache.geronimo.kernel.GBeanNotFoundException;
-import org.apache.geronimo.kernel.config.Configuration;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.openejb.ClientEjbReference;
+import org.apache.openejb.core.ivm.naming.IntraVmJndiReference;
 
 /**
  * @version $Rev: 451417 $ $Date: 2006-09-29 13:13:22 -0700 (Fri, 29 Sep 2006) $
@@ -43,21 +38,14 @@ public class ClientEjbRefBuilder extends RemoteEjbRefBuilder {
         uri = new URI("ejb", null, host, port, null, null, null);
     }
 
-    protected Reference createEjbRef(String refName, Configuration configuration, String name, String requiredModule, String optionalModule, AbstractNameQuery query, boolean isSession, String homeInterface, String businessInterface, boolean remote) throws DeploymentException {
-        AbstractNameQuery match = getEjbRefQuery(refName, configuration, name, requiredModule, optionalModule, query, isSession, homeInterface, businessInterface, remote);
-
-        GBeanData data = null;
-        try {
-            data = configuration.findGBeanData(match);
-        } catch (GBeanNotFoundException ignored) {
-            throw new DeploymentException("Ejb not found for ejb-ref " + refName);
+    protected Object wrapReference(Object value) {
+        IntraVmJndiReference intraVmJndiReference = (IntraVmJndiReference) value;
+        String deploymentId = intraVmJndiReference.getJndiName();
+        if (deploymentId.startsWith("java:openejb/ejb/")) {
+            deploymentId = deploymentId.substring("java:openejb/ejb/".length());
         }
-
-        String deploymentId = (String) data.getAttribute("deploymentId");
-        if (deploymentId == null) {
-            throw new DeploymentException(("EjbDeployment GBeanData does not contain a \"deploymentId\" attribute"));
-        }
-        return new ClientEjbReference(uri.toString(), deploymentId);
+        ClientEjbReference clientRef = new ClientEjbReference(uri.toString(), deploymentId);
+        return clientRef;
     }
 
     public static final GBeanInfo GBEAN_INFO;
