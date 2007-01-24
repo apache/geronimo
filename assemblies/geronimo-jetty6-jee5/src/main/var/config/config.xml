@@ -168,11 +168,6 @@
         <gbean name="OpenEjbClientRemoteRefBuilder">
             <attribute name="eeNamespaces">http://java.sun.com/xml/ns/j2ee,http://java.sun.com/xml/ns/javaee</attribute>
         </gbean>
-
-        <gbean name="OpenEjbLocalRefBuilder">
-            <attribute name="eeNamespaces">http://java.sun.com/xml/ns/j2ee,http://java.sun.com/xml/ns/javaee</attribute>
-        </gbean>
-
     </module>
 
     <module name="org.apache.geronimo.configs/client-deployer/${version}/car">
