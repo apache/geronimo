@@ -120,10 +120,7 @@
                 <name>AxisServiceRefBuilder</name>
             </pattern>
             <pattern>
-                <name>OpenEjbRemoteRefBuilder</name>
-            </pattern>
-            <pattern>
-                <name>OpenEjbLocalRefBuilder</name>
+                <name>EjbRefBuilder</name>
             </pattern>
             <pattern>
                 <name>OpenEjbCorbaRefBuilder</name>

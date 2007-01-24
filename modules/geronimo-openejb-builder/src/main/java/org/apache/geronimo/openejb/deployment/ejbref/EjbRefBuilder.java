@@ -65,13 +65,13 @@ import org.apache.xmlbeans.XmlObject;
 /**
  * @version $Revision: 475950 $ $Date: 2006-11-16 14:18:14 -0800 (Thu, 16 Nov 2006) $
  */
-public class RemoteEjbRefBuilder extends AbstractNamingBuilder {
-    private static final Log log = LogFactory.getLog(RemoteEjbRefBuilder.class);
+public class EjbRefBuilder extends AbstractNamingBuilder {
+    private static final Log log = LogFactory.getLog(EjbRefBuilder.class);
 
     private final QNameSet ejbRefQNameSet;
     private final QNameSet ejbLocalRefQNameSet;
 
-    public RemoteEjbRefBuilder(Environment defaultEnvironment, String[] eeNamespaces) {
+    public EjbRefBuilder(Environment defaultEnvironment, String[] eeNamespaces) {
         super(defaultEnvironment);
         ejbRefQNameSet = buildQNameSet(eeNamespaces, "ejb-ref");
         ejbLocalRefQNameSet = buildQNameSet(eeNamespaces, "ejb-local-ref");
@@ -342,7 +342,7 @@ public class RemoteEjbRefBuilder extends AbstractNamingBuilder {
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoBuilder = GBeanInfoBuilder.createStatic(RemoteEjbRefBuilder.class, NameFactory.MODULE_BUILDER);
+        GBeanInfoBuilder infoBuilder = GBeanInfoBuilder.createStatic(EjbRefBuilder.class, NameFactory.MODULE_BUILDER);
         infoBuilder.addAttribute("eeNamespaces", String[].class, true, true);
         infoBuilder.addAttribute("defaultEnvironment", Environment.class, true, true);
 

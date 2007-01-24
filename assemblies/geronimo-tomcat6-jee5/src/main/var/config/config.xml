@@ -168,11 +168,11 @@
                 </pattern>
             </reference>
         </gbean>
-        <gbean name="OpenEjbRemoteRefBuilder">
+        <gbean name="EjbRefBuilder">
             <attribute name="eeNamespaces">http://java.sun.com/xml/ns/j2ee,http://java.sun.com/xml/ns/javaee</attribute>
         </gbean>
 
-        <gbean name="OpenEjbClientRemoteRefBuilder">
+        <gbean name="ClientEjbRefBuilder">
             <attribute name="eeNamespaces">http://java.sun.com/xml/ns/j2ee,http://java.sun.com/xml/ns/javaee</attribute>
         </gbean>
     </module>

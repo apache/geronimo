@@ -30,7 +30,7 @@ import org.apache.openejb.core.ivm.naming.IntraVmJndiReference;
 /**
  * @version $Rev: 451417 $ $Date: 2006-09-29 13:13:22 -0700 (Fri, 29 Sep 2006) $
  */
-public class ClientEjbRefBuilder extends RemoteEjbRefBuilder {
+public class ClientEjbRefBuilder extends EjbRefBuilder {
     private final URI uri;
 
     public ClientEjbRefBuilder(Environment defaultEnvironment, String[] eeNamespaces, String host, int port) throws URISyntaxException {
@@ -51,7 +51,7 @@ public class ClientEjbRefBuilder extends RemoteEjbRefBuilder {
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoBuilder = GBeanInfoBuilder.createStatic(ClientEjbRefBuilder.class, RemoteEjbRefBuilder.GBEAN_INFO, NameFactory.MODULE_BUILDER);
+        GBeanInfoBuilder infoBuilder = GBeanInfoBuilder.createStatic(ClientEjbRefBuilder.class, EjbRefBuilder.GBEAN_INFO, NameFactory.MODULE_BUILDER);
 
         infoBuilder.addAttribute("host", String.class, true);
         infoBuilder.addAttribute("port", int.class, true);

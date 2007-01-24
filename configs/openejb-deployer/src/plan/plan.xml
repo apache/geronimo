@@ -63,7 +63,7 @@
     </gbean>
 
 
-    <gbean name="OpenEjbRemoteRefBuilder" class="org.apache.geronimo.openejb.deployment.ejbref.RemoteEjbRefBuilder">
+    <gbean name="EjbRefBuilder" class="org.apache.geronimo.openejb.deployment.ejbref.EjbRefBuilder">
         <attribute name="eeNamespaces">http://java.sun.com/xml/ns/j2ee</attribute>
         <xml-attribute name="defaultEnvironment">
             <environment xmlns="http://geronimo.apache.org/xml/ns/deployment-${geronimoSchemaVersion}">
@@ -78,7 +78,7 @@
         </xml-attribute>
     </gbean>
 
-    <gbean name="OpenEjbClientRemoteRefBuilder" class="org.apache.geronimo.openejb.deployment.ejbref.ClientEjbRefBuilder">
+    <gbean name="ClientEjbRefBuilder" class="org.apache.geronimo.openejb.deployment.ejbref.ClientEjbRefBuilder">
         <attribute name="eeNamespaces">http://java.sun.com/xml/ns/j2ee</attribute>
         <attribute name="host">${PlanClientAddresses}</attribute>
         <attribute name="port">${PlanOpenEJBPort}</attribute>
