@@ -18,6 +18,7 @@ package org.apache.geronimo.console.util;
 
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.Hashtable;
 
 public class StringTree {
     public String name = null;
@@ -60,7 +61,24 @@ public class StringTree {
     }
            
     public String toJSONObject(String prependId){
+        return toJSONObject(prependId, null);
+    }
+           
+    public String toJSONObject(String prependId, Hashtable htLinks){
         StringBuffer stb = new StringBuffer();
+        if(htLinks != null){
+            if(!name.startsWith("class ") && !name.startsWith("interface ") && !name.equals("Classes") && !name.equals("Interfaces") && htLinks.containsKey(name)){
+                stb.append("{title:'link::");
+                stb.append(htLinks.get(name));
+                stb.append("',widgetId:'");
+                stb.append(prependId);
+                stb.append("'}");
+                return stb.toString();
+            }
+            else {
+                htLinks.put(name, prependId);
+            }       
+        }        
         stb.append("{title:'");
         if(name != null)
             stb.append(name);
@@ -76,7 +94,7 @@ public class StringTree {
                 Object obj = childs.get(i);
                 if(i !=0 )stb.append(",");
                 if(obj instanceof StringTree)
-                    stb.append(((StringTree)obj).toJSONObject(prependId+"."+i)); 
+                    stb.append(((StringTree)obj).toJSONObject(prependId+"."+i, htLinks)); 
                 else
                 {
                     stb.append("{title:'");
@@ -87,45 +105,6 @@ public class StringTree {
                 }
             }
             stb.append("]}");
-        }
-        return stb.toString();
-    }
-    public static String classIcon = "../images/ico_C.gif";
-    public static String interfaceIcon = "../images/ico_I.gif";
-    public static String folderIcon = "../images/ico_folder_16x16.gif";
-    public static String clIcon = "../images/ico_filetree_16x16.gif";
-    public String toHTMLNode(int depth)
-    {
-        //if(depth > 2)return "";
-        StringBuffer stb = new StringBuffer();
-        
-        if(childs == null || childs.size() == 0){
-            stb.append("<div dojoType='TreeNode' title='"+name+"'></div>");
-        }
-        else
-        {
-            if(name.equals("Classes") || name.equals("Interfaces"))
-                stb.append("<div dojoType='TreeNode' title='"+name+"' childIconSrc='"+folderIcon+"'>");
-            else
-                stb.append("<div dojoType='TreeNode' title='"+name+"' childIconSrc='"+clIcon+"'>");
-            Iterator iter = childs.iterator();
-            while(iter.hasNext()){
-                Object obj = iter.next();
-                if(obj instanceof StringTree)
-                    stb.append(((StringTree)obj).toHTMLNode(depth+1));
-                else
-                {/*
-                    String curr = (String)obj;
-                    if(curr.startsWith("class"))
-                        stb.append("<div dojoType='TreeNode' title='"+curr.substring(6)+"' childIconSrc='"+classIcon+"'></div>");
-                    else if(curr.startsWith("interface"))
-                        stb.append("<div dojoType='TreeNode' title='"+curr.substring(10)+"' childIconSrc='"+interfaceIcon+"'></div>");
-                    else
-                        stb.append("<div dojoType='TreeNode' title='"+curr+"'></div>");
-                        */
-                }                
-            }
-            stb.append("</div>");            
         }
         return stb.toString();
     }

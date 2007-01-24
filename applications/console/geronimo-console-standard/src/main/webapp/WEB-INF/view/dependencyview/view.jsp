@@ -1,12 +1,12 @@
 <%--
    Licensed to the Apache Software Foundation (ASF) under one or more
-   contributor license agreements.  See the NOTICE file distributed with
+   contributor license agreements.	See the NOTICE file distributed with
    this work for additional information regarding copyright ownership.
    The ASF licenses this file to You under the Apache License, Version 2.0
    (the "License"); you may not use this file except in compliance with
-   the License.  You may obtain a copy of the License at
+   the License.	 You may obtain a copy of the License at
 
-      http://www.apache.org/licenses/LICENSE-2.0
+	  http://www.apache.org/licenses/LICENSE-2.0
 
    Unless required by applicable law or agreed to in writing, software
    distributed under the License is distributed on an "AS IS" BASIS,
@@ -17,7 +17,7 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/portlet" prefix="portlet"%>
 <%@ page import="org.apache.geronimo.console.util.PortletManager,
-                 javax.portlet.RenderRequest"%>
+				 javax.portlet.RenderRequest"%>
 <portlet:defineObjects/>
 
 <%
@@ -36,7 +36,7 @@
 	
 	dojo.hostenv.writeIncludes();
 
-    dojo.addOnLoad(function(){
+	dojo.addOnLoad(function(){
 
 		var tree = dojo.widget.manager.getWidgetById('tree');
 
@@ -137,12 +137,12 @@ function findInSelected(selectedNodes)
 		dojo.widget.byId('selector').deselectAll();
 		select(v);
 		document.getElementById("findNext").disabled=false;
-		lastFound =  v;
+		lastFound =	 v;
 		doCheck = true;
 	}
 	else{
 		alert('Nothing found');
-		lastFound =  '';
+		lastFound =	 '';
 		doCheck = false;
 	}
 }
@@ -188,7 +188,7 @@ function searchContinue(){
 
 	<% 
 		String consoleFrameworkContext = PortletManager.getConsoleFrameworkServletPath(request);
-	    String iconCSS = consoleFrameworkContext + "/../TreeDocIcon.css";
+		String iconCSS = consoleFrameworkContext + "/../TreeDocIcon.css";
 	%>
 <TABLE cellpadding="1" cellspacing="1" border="1">
 <tr><td>

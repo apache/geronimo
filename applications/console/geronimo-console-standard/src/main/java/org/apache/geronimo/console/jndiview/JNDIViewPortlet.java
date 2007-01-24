@@ -16,7 +16,6 @@
  */
 package org.apache.geronimo.console.jndiview;
 
-// import org.apache.geronimo.kernel.config.*;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.gbean.AbstractName;
 import javax.naming.Context;
@@ -124,9 +123,7 @@ public class JNDIViewPortlet extends BasePortlet {
             throws Exception {
         Map query = new HashMap();
         query.put("j2eeType", "EJBModule");
-        Set setEnt = kernel
-                .listGBeans(new org.apache.geronimo.gbean.AbstractNameQuery(
-                        null, query));
+        Set setEnt = kernel.listGBeans(new org.apache.geronimo.gbean.AbstractNameQuery(null, query));
         Iterator iterator = setEnt.iterator();
 
         while (iterator.hasNext()) {

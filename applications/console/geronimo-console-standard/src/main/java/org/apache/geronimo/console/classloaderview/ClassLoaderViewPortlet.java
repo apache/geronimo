@@ -19,10 +19,11 @@ package org.apache.geronimo.console.classloaderview;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.Hashtable;
+import java.util.List;
 
 import org.apache.geronimo.console.BasePortlet;
 import org.apache.geronimo.console.util.StringTree;
-import java.util.List;
 
 import javax.portlet.ActionRequest;
 import javax.portlet.ActionResponse;
@@ -97,11 +98,12 @@ public class ClassLoaderViewPortlet extends BasePortlet {
 
         StringBuffer stb = new StringBuffer();
         stb.append("[");
+        Hashtable htLinks = new Hashtable();
         for (int i = 0; i < list.size(); i++) {
             StringTree node = (StringTree) list.get(i);
             if (i != 0)
                 stb.append(",");
-            stb.append(node.toJSONObject("" + i));
+            stb.append(node.toJSONObject("" + i, htLinks));
         }
         stb.append("]");
         list = null;
