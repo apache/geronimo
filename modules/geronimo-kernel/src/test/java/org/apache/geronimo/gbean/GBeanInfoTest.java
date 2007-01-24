@@ -85,7 +85,7 @@ public class GBeanInfoTest extends TestSupport {
 
     public void testGetOperationsSet() {
         Set gbeanOpSet = gbeanInfo.getOperations();
-        assertEquals(1, gbeanOpSet.size());
+        assertEquals(3, gbeanOpSet.size());
         assertTrue(gbeanOpSet.contains(opInfo));
     }
 
@@ -155,7 +155,8 @@ public class GBeanInfoTest extends TestSupport {
             infoFactory.addAttribute(persistentAttrInfo);
 
             infoFactory.addOperation(opInfo);
-
+            infoFactory.addOperation("addSomething", new Class[]{String.class}); // ignored
+            infoFactory.addOperation("removeSomething", new Class[]{String.class}); // ignored
             infoFactory.addReference(refInfo);
 
             infoFactory.addAttribute(CONSTRUCTOR_ARG_0, String.class, true);
@@ -175,6 +176,13 @@ public class GBeanInfoTest extends TestSupport {
         }
 
         public void setReference(String reference) {
+        }
+        
+        public void addSomething(String something){            
+        }
+        
+        public String removeSomething(String something){
+           return null; 
         }
     }
 }
