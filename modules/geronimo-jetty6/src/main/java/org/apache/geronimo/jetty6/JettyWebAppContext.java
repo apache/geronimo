@@ -178,7 +178,7 @@ public class JettyWebAppContext implements GBeanLifecycle, JettyServletRegistrat
             securityHandler.init(policyContextID, defaultPrincipal, checkedPermissions, excludedPermissions, classLoader);
         }
 
-        ServletHandler servletHandler = new ServletHandler();
+        ServletHandler servletHandler = new InjectionServletHandler();
 
         webAppContext = new WebAppContext(securityHandler, sessionHandler, servletHandler, null);
         AbstractHandler next = sessionHandler;
