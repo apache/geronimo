@@ -137,7 +137,7 @@
                             <goal>undeploy-module</goal>
                         </goals>
                         <configuration>
-                            <moduleId>CXF/cxfPojoServlet/1.1/car</moduleId>
+                            <moduleId>JEE5/JAXWSServlet/1.1/car</moduleId>
                         </configuration>
                     </execution>
                 </executions>

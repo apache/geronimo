@@ -22,18 +22,25 @@ limitations under the License.
          version="2.5"
         >
 
-    <display-name>Geronimo CXF POJO WS War</display-name>
+    <display-name>Geronimo POJO WS War</display-name>
 
     <servlet>
-        <display-name>Geronimo CXF POJO WS</display-name>
-        <servlet-name>cxfPojoServlet</servlet-name>
+        <display-name>Geronimo POJO WS</display-name>
+        <servlet-name>POJOServlet</servlet-name>
         <servlet-class>org.apache.hello_world_soap_http.GreeterImpl</servlet-class>
         <load-on-startup>0</load-on-startup>
     </servlet>
 
     <servlet-mapping>
-        <servlet-name>cxfPojoServlet</servlet-name>
+        <servlet-name>POJOServlet</servlet-name>
         <url-pattern>/servlet</url-pattern>
     </servlet-mapping>
+
+    <env-entry>
+        <description>Welcome message</description>
+        <env-entry-name>greeting</env-entry-name>
+        <env-entry-type>java.lang.String</env-entry-type>
+        <env-entry-value>Hello</env-entry-value>
+   </env-entry>
 
 </web-app>

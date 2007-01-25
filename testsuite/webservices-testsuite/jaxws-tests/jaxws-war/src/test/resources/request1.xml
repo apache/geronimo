@@ -19,7 +19,7 @@
 -->
 <soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
    <soap:Body>
-     <greetMe xmlns="http://apache.org/hello_world_soap_http">
+     <greetMe xmlns="http://apache.org/greeter_control/types">
        <requestType>foo bar</requestType>
      </greetMe>
    </soap:Body>

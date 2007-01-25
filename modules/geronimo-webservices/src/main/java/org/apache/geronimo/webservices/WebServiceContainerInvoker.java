@@ -40,19 +40,21 @@ public class WebServiceContainerInvoker implements Servlet {
 
     private final Object pojo;
     private WebServiceContainer service;
+    private ServletConfig config;
 
     public WebServiceContainerInvoker(Object pojo) {
         this.pojo = pojo;
     }
 
     public void init(ServletConfig config) throws ServletException {
+        this.config = config;
         ServletContext context = config.getServletContext();
         String webServiceContainerID = config.getInitParameter(WEBSERVICE_CONTAINER);
         service = (WebServiceContainer) context.getAttribute(webServiceContainerID);
     }
 
     public ServletConfig getServletConfig() {
-        return null;
+        return config;
     }
 
     public void service(ServletRequest req, ServletResponse res) throws ServletException, IOException {
@@ -62,6 +64,10 @@ public class WebServiceContainerInvoker implements Servlet {
 
         // This is the guy the WebServiceContainer should invoke
         req.setAttribute(WebServiceContainer.POJO_INSTANCE, pojo);
+
+        req.setAttribute(WebServiceContainer.SERVLET_REQUEST, (HttpServletRequest) req);
+        req.setAttribute(WebServiceContainer.SERVLET_RESPONSE, (HttpServletResponse) res);
+        req.setAttribute(WebServiceContainer.SERVLET_CONTEXT, config.getServletContext());
 
         if (req.getParameter("wsdl") != null || req.getParameter("WSDL") != null) {
             try {
@@ -91,6 +97,7 @@ public class WebServiceContainerInvoker implements Servlet {
     }
 
     public void destroy() {
+        service.destroy();
     }
 
     private static class RequestAdapter implements WebServiceContainer.Request {
@@ -141,7 +148,6 @@ public class WebServiceContainerInvoker implements Servlet {
             return request.getParameterMap();
         }
 
-
         private static final Map methods = new HashMap();
 
         static {
@@ -175,7 +181,7 @@ public class WebServiceContainerInvoker implements Servlet {
         public ResponseAdapter(HttpServletResponse response) {
             this.response = response;
         }
-
+        
         public void setHeader(String name, String value) {
             response.setHeader(name, value);
         }

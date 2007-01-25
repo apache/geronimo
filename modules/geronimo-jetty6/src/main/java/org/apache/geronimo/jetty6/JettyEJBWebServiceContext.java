@@ -137,6 +137,11 @@ public class JettyEJBWebServiceContext extends ContextHandler {
         RequestAdapter request = new RequestAdapter(jettyRequest);
         ResponseAdapter response = new ResponseAdapter(jettyResponse);
 
+        request.setAttribute(WebServiceContainer.SERVLET_REQUEST, req);
+        request.setAttribute(WebServiceContainer.SERVLET_RESPONSE, res);
+        // TODO: add support for context
+        request.setAttribute(WebServiceContainer.SERVLET_CONTEXT, null);
+
         if (req.getParameter("wsdl") != null) {
             try {
                 webServiceContainer.getWsdl(request, response);
@@ -325,5 +330,5 @@ public class JettyEJBWebServiceContext extends ContextHandler {
             response.setStatus(response.getStatus(), responseString);
         }
     }
-
+    
 }

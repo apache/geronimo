@@ -24,7 +24,10 @@ import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import org.apache.catalina.authenticator.BasicAuthenticator;
 import org.apache.catalina.authenticator.DigestAuthenticator;
@@ -130,6 +133,12 @@ public class TomcatEJBWebServiceContext extends StandardContext{
             req.setContentType("text/xml");
             RequestAdapter request = new RequestAdapter(req);
             ResponseAdapter response = new ResponseAdapter(res);
+
+            request.setAttribute(WebServiceContainer.SERVLET_REQUEST, (HttpServletRequest)req);
+            request.setAttribute(WebServiceContainer.SERVLET_RESPONSE, (HttpServletResponse)res);
+            // TODO: add support for context
+            request.setAttribute(WebServiceContainer.SERVLET_CONTEXT, null);
+
             req.finishRequest();
             if (req.getParameter("wsdl") != null) {
                 try {

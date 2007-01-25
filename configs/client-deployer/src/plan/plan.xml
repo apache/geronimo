@@ -51,7 +51,7 @@
                 <name>AxisClientServiceRefBuilder</name>
             </pattern>
             <pattern>
-                <name>OpenEjbClientRemoteRefBuilder</name>
+                <name>ClientEjbRefBuilder</name>
             </pattern>
             <pattern>
                 <name>OpenEjbClientCorbaRefBuilder</name>

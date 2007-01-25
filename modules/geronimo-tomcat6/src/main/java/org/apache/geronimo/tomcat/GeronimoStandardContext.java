@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.Map;
 
 import javax.naming.NamingException;
+import javax.naming.Context;
 import javax.security.auth.Subject;
 import javax.security.jacc.PolicyContext;
 import javax.servlet.Servlet;
@@ -34,6 +35,7 @@ import org.apache.catalina.Loader;
 import org.apache.catalina.Manager;
 import org.apache.catalina.Valve;
 import org.apache.catalina.Wrapper;
+import org.apache.catalina.util.DefaultAnnotationProcessor;
 import org.apache.catalina.connector.Request;
 import org.apache.catalina.connector.Response;
 import org.apache.catalina.core.StandardContext;
@@ -93,6 +95,13 @@ public class GeronimoStandardContext extends StandardContext {
             }
         } catch (NamingException ne) {
             log.error(ne);
+        }
+        try {
+            Context env = (Context) enc.lookup("env");
+            setAnnotationProcessor(new DefaultAnnotationProcessor(env));
+        } catch (NamingException e) {
+            // ignored
+            log.warn("Could not find env in enterprise naming context", e);
         }
 
         int index = 0;

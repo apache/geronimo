@@ -26,15 +26,15 @@
 		http://java.sun.com/xml/ns/javaee/javaee_web_services_1_2.xsd"
              version="1.2">
     <webservice-description>
-        <webservice-description-name>cxfPojo</webservice-description-name>
+        <webservice-description-name>POJO WS</webservice-description-name>
         <wsdl-file>WEB-INF/wsdl/greeter_control.wsdl</wsdl-file>
         <port-component>
-            <port-component-name>cxfPojoName</port-component-name>
+            <port-component-name>POJOPort</port-component-name>
             <wsdl-service></wsdl-service>
             <enable-mtom>false</enable-mtom>
             <service-endpoint-interface>org.apache.hello_world_soap_http.Greeter</service-endpoint-interface>
             <service-impl-bean>
-                <servlet-link>cxfPojoServlet</servlet-link>
+                <servlet-link>POJOServlet</servlet-link>
             </service-impl-bean>
         </port-component>
     </webservice-description>

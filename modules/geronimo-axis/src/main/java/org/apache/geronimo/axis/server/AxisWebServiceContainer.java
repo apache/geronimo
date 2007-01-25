@@ -262,6 +262,9 @@ public class AxisWebServiceContainer implements WebServiceContainer {
         response.getOutputStream().flush();
     }
 
+    public void destroy() {
+    }
+
     public URI getLocation() {
         return location;
     }

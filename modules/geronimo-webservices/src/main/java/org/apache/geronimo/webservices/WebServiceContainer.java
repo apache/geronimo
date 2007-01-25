@@ -43,6 +43,24 @@ public interface WebServiceContainer extends Serializable {
     public static final String MESSAGE_CONTEXT = WebServiceContainer.class.getName()+"@MessageContext";
 
     /**
+     * Used for JAX-WS MessageContext. MessageContext must expose HttpServletRequest. 
+     */
+    public static final String SERVLET_REQUEST = 
+        WebServiceContainer.class.getName()+"@ServletRequest";
+    
+    /**
+     * Used for JAX-WS MessageContext. MessageContext must expose HttpServletResponse.
+     */
+    public static final String SERVLET_RESPONSE = 
+        WebServiceContainer.class.getName()+"@ServletResponse";
+    
+    /**
+     * Used for JAX-WS MessageContext. MessageContext must expose ServletContext.
+     */
+    public static final String SERVLET_CONTEXT = 
+        WebServiceContainer.class.getName()+"@ServletContext";
+    
+    /**
      * Token inserted into wsdl where location should be replaced with the real location
      */
     public String LOCATION_REPLACEMENT_TOKEN = "LOCATIONREPLACEMENTTOKEN";
@@ -50,6 +68,8 @@ public interface WebServiceContainer extends Serializable {
     void invoke(Request request, Response response) throws Exception;
 
     void getWsdl(Request req, Response res) throws Exception;
+
+    void destroy();
 
     public interface Request {
         /** the HTTP OPTIONS type */

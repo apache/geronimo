@@ -49,6 +49,7 @@ import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.j2ee.deployment.WebServiceBuilder;
 import org.apache.geronimo.j2ee.deployment.WebModule;
 import org.apache.geronimo.j2ee.deployment.Module;
+import org.apache.geronimo.j2ee.deployment.EARContext;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.cxf.PortInfo;
 import org.apache.geronimo.cxf.CXFWebServiceContainerFactoryGBean;
@@ -186,6 +187,12 @@ public class CXFBuilder implements WebServiceBuilder {
 
         targetGBean.setReferencePattern("WebServiceContainerFactory", containerFactoryName);
         targetGBean.setAttribute("pojoClassName", seiClassName);
+
+        if (context instanceof EARContext) {
+            containerFactoryData.setReferencePattern("TransactionManager", 
+                                                     ((EARContext)context).getTransactionManagerName());
+        }
+
         return true;
     }
 
