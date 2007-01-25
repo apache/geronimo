@@ -30,4 +30,7 @@ public class MockWebServiceContainer implements WebServiceContainer {
     
     }
 
+    public void destroy() {
+    }
+
 }

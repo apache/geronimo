@@ -49,6 +49,13 @@
             <version>${version}</version>
         </dependency>
 
+        <dependency>
+            <groupId>org.apache.geronimo.configs</groupId>
+            <artifactId>transaction-jta11</artifactId>
+            <version>${version}</version>
+            <type>car</type>
+        </dependency>
+
        <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
             <artifactId>geronimo-cxf</artifactId>

@@ -99,6 +99,9 @@ public class CXFWebServiceContainer implements WebServiceContainer {
         wsdlWriter.writeWSDL(def, response.getOutputStream());
     }
 
+    public void destroy() {
+    }
+
     private  EndpointImpl publishEndpoint(Object target) {
 
         assert target != null : "null target received";

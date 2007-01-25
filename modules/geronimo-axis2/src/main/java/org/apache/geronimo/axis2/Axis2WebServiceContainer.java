@@ -343,6 +343,9 @@ public class Axis2WebServiceContainer implements WebServiceContainer {
         }
     }
     
+    public void destroy() {
+    }
+
     public class Axis2TransportInfo implements OutTransportInfo {
         private Response response;
 
