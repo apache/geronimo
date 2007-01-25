@@ -48,6 +48,7 @@ import org.apache.geronimo.kernel.config.LifecycleException;
 import org.apache.geronimo.kernel.config.NoSuchConfigException;
 import org.apache.geronimo.kernel.management.State;
 import org.apache.geronimo.kernel.repository.Artifact;
+import org.apache.geronimo.kernel.repository.MissingDependencyException;
 import org.apache.geronimo.management.geronimo.WebModule;
 
 public class ConfigManagerPortlet extends BasePortlet {
@@ -167,16 +168,22 @@ public class ConfigManagerPortlet extends BasePortlet {
                     boolean flag = false;
                     // Check if the configuration is loaded.  If not, load it to get information.
                     if(!kernel.isLoaded(configObjName)) {
-                        flag = true;
                         try {
                             configManager.loadConfiguration(configObjName.getArtifact());
+                            flag = true;
                         } catch (NoSuchConfigException e) {
                             // Should not occur
                             e.printStackTrace();
                         } catch (LifecycleException e) {
-                            // TODO Auto-generated catch block
-                            e.printStackTrace();
-                        }
+			    // config could not load because one or more of its dependencies
+			    // has been removed. cannot load the configuration in this case,
+			    // so don't rely on that technique to discover its parents or children
+			    if (e.getCause() instanceof MissingDependencyException) {
+				// do nothing
+			    } else {
+				e.printStackTrace();
+			    }
+			}
                     }
 
                     java.util.Set parents = depMgr.getParents(configObjName);
