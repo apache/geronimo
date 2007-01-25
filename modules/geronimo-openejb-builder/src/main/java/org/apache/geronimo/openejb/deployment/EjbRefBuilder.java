@@ -15,11 +15,13 @@
  * limitations under the License.
  */
 
-package org.apache.geronimo.openejb.deployment.ejbref;
+package org.apache.geronimo.openejb.deployment;
 
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -42,7 +44,7 @@ import org.apache.geronimo.kernel.config.Configuration;
 import org.apache.geronimo.kernel.config.MultiParentClassLoader;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.naming.deployment.AbstractNamingBuilder;
-import org.apache.geronimo.openejb.deployment.EjbModuleBuilder;
+import org.apache.geronimo.openejb.ClientEjbReference;
 import org.apache.geronimo.xbeans.javaee.EjbLocalRefType;
 import org.apache.geronimo.xbeans.javaee.EjbRefType;
 import org.apache.geronimo.xbeans.javaee.InjectionTargetType;
@@ -52,6 +54,7 @@ import org.apache.openejb.alt.config.JndiEncInfoBuilder;
 import org.apache.openejb.assembler.classic.EjbJarInfo;
 import org.apache.openejb.assembler.classic.JndiEncBuilder;
 import org.apache.openejb.assembler.classic.JndiEncInfo;
+import org.apache.openejb.core.ivm.naming.IntraVmJndiReference;
 import org.apache.openejb.jee.EjbLocalRef;
 import org.apache.openejb.jee.EjbRef;
 import org.apache.openejb.jee.InjectionTarget;
@@ -70,9 +73,16 @@ public class EjbRefBuilder extends AbstractNamingBuilder {
 
     private final QNameSet ejbRefQNameSet;
     private final QNameSet ejbLocalRefQNameSet;
+    private final URI uri;
 
-    public EjbRefBuilder(Environment defaultEnvironment, String[] eeNamespaces) {
+    public EjbRefBuilder(Environment defaultEnvironment, String[] eeNamespaces, String host, int port) throws URISyntaxException {
         super(defaultEnvironment);
+        if (host != null) {
+            uri = new URI("ejb", null, host, port, null, null, null);
+        } else {
+            uri = null;
+        }
+
         ejbRefQNameSet = buildQNameSet(eeNamespaces, "ejb-ref");
         ejbLocalRefQNameSet = buildQNameSet(eeNamespaces, "ejb-local-ref");
         ejbRefQNameSet.union(ejbLocalRefQNameSet);
@@ -120,14 +130,22 @@ public class EjbRefBuilder extends AbstractNamingBuilder {
 
             // if this is a ref it will be prefixed with env/
             if (name.startsWith("env/")) {
-                getJndiContextMap(componentContext).put(name, wrapReference(value));
+                if (uri != null) {
+                    value = createClientRef(value);
+                }
+                getJndiContextMap(componentContext).put(name, value);
             }
         }
     }
 
-    // this method exists so client refs can be made remote
-    protected Object wrapReference(Object value) {
-        return value;
+    private Object createClientRef(Object value) {
+        IntraVmJndiReference intraVmJndiReference = (IntraVmJndiReference) value;
+        String deploymentId = intraVmJndiReference.getJndiName();
+        if (deploymentId.startsWith("java:openejb/ejb/")) {
+            deploymentId = deploymentId.substring("java:openejb/ejb/".length());
+        }
+        ClientEjbReference clientRef = new ClientEjbReference(uri.toString(), deploymentId);
+        return clientRef;
     }
 
     protected JndiConsumer createJndiConsumer(XmlObject specDD) throws DeploymentException {
@@ -343,10 +361,13 @@ public class EjbRefBuilder extends AbstractNamingBuilder {
 
     static {
         GBeanInfoBuilder infoBuilder = GBeanInfoBuilder.createStatic(EjbRefBuilder.class, NameFactory.MODULE_BUILDER);
+
         infoBuilder.addAttribute("eeNamespaces", String[].class, true, true);
         infoBuilder.addAttribute("defaultEnvironment", Environment.class, true, true);
+        infoBuilder.addAttribute("host", String.class, true);
+        infoBuilder.addAttribute("port", int.class, true);
 
-        infoBuilder.setConstructor(new String[]{"defaultEnvironment", "eeNamespaces"});
+        infoBuilder.setConstructor(new String[]{"defaultEnvironment", "eeNamespaces", "host", "port"});
 
         GBEAN_INFO = infoBuilder.getBeanInfo();
     }
