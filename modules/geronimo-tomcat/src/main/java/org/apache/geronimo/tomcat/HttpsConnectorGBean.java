@@ -223,6 +223,22 @@ public class HttpsConnectorGBean extends ConnectorGBean implements TomcatSecureC
         connector.setAttribute("ciphers", ciphers);
     }
 
+    /**
+     * Sets a keyAlias if one is being used
+     * @param keyAlias
+     */
+     public void setKeyAlias(String keyAlias) {
+        connector.setAttribute("keyAlias", keyAlias);
+    }
+
+    /**
+     * Gets the key alias
+     * @return key alias
+     */
+     public String getKeyAlias() {
+        return (String)connector.getAttribute("keyAlias");
+    }
+
     public static final GBeanInfo GBEAN_INFO;
 
     static {
@@ -239,6 +255,7 @@ public class HttpsConnectorGBean extends ConnectorGBean implements TomcatSecureC
         infoFactory.addAttribute("truststoreType", String.class, true, true);
         infoFactory.addAttribute("clientAuthRequired", boolean.class, true, true);
         infoFactory.addAttribute("ciphers", String.class, true, true);
+        infoFactory.addAttribute("keyAlias", String.class, true, true);
         infoFactory.addInterface(TomcatSecureConnector.class);
 
         infoFactory.addReference("ServerInfo", ServerInfo.class, "GBean");

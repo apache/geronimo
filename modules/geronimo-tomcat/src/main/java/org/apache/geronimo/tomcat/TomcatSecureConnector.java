@@ -62,4 +62,16 @@ public interface TomcatSecureConnector extends SecureConnector {
      * specified, then any available cipher may be used.
      */
     public void setCiphers(String ciphers);
+
+    /**
+     * Sets a keyAlias if one is being used
+     * @param keyAlias
+     */
+    public void setKeyAlias(String keyAlias);
+
+    /**
+     * Gets the key alias
+     * @return key alias
+     */
+    public String getKeyAlias();
 }
