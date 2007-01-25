@@ -27,8 +27,8 @@ import org.apache.geronimo.openejb.EjbContainer;
 import org.apache.geronimo.openejb.OpenEjbSystem;
 import org.apache.geronimo.openejb.OpenEjbSystemGBean;
 import org.apache.geronimo.transaction.manager.GeronimoTransactionManager;
-import org.apache.openejb.alt.config.EjbModule;
-import org.apache.openejb.alt.config.ejb.OpenejbJar;
+import org.apache.openejb.config.EjbModule;
+import org.apache.openejb.jee.oejb3.OpenejbJar;
 import org.apache.openejb.assembler.classic.EjbJarInfo;
 import org.apache.openejb.jee.EjbJar;
 

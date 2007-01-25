@@ -26,6 +26,7 @@ import javax.security.auth.Subject;
 import org.apache.geronimo.connector.outbound.connectiontracking.TrackedConnectionAssociator;
 import org.apache.geronimo.management.EJB;
 import org.apache.openejb.core.CoreDeploymentInfo;
+import org.apache.openejb.DeploymentInfo;
 
 public class EjbDeployment implements EJB {
     private final String objectName;
@@ -56,22 +57,22 @@ public class EjbDeployment implements EJB {
     private CoreDeploymentInfo deploymentInfo;
 
     public EjbDeployment(String objectName,
-            String deploymentId,
-            String ejbName,
-            String homeInterfaceName,
-            String remoteInterfaceName,
-            String localHomeInterfaceName,
-            String localInterfaceName,
-            String serviceEndpointInterfaceName,
-            String beanClassName,
-            ClassLoader classLoader,
-            Subject defaultSubject,
-            Subject runAs,
-            Context componentContext,
-            Set unshareableResources,
-            Set applicationManagedSecurityResources,
-            TrackedConnectionAssociator trackedConnectionAssociator,
-            OpenEjbSystem openEjbSystem) {
+                         String deploymentId,
+                         String ejbName,
+                         String homeInterfaceName,
+                         String remoteInterfaceName,
+                         String localHomeInterfaceName,
+                         String localInterfaceName,
+                         String serviceEndpointInterfaceName,
+                         String beanClassName,
+                         ClassLoader classLoader,
+                         Subject defaultSubject,
+                         Subject runAs,
+                         Context componentContext,
+                         Set unshareableResources,
+                         Set applicationManagedSecurityResources,
+                         TrackedConnectionAssociator trackedConnectionAssociator,
+                         OpenEjbSystem openEjbSystem) {
         this.objectName = objectName;
         this.deploymentId = deploymentId;
         this.ejbName = ejbName;
@@ -157,6 +158,14 @@ public class EjbDeployment implements EJB {
 
     public EJBLocalHome getEJBLocalHome() {
         return deploymentInfo.getEJBLocalHome();
+    }
+
+    public DeploymentInfo.BusinessLocalHome getBusinessLocalHome() {
+        return deploymentInfo.getBusinessLocalHome();
+    }
+
+    public DeploymentInfo.BusinessRemoteHome getBusinessRemoteHome() {
+        return deploymentInfo.getBusinessRemoteHome();
     }
 
     public String getObjectName() {

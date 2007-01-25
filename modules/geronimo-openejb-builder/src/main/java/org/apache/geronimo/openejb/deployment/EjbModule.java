@@ -23,7 +23,7 @@ import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.j2ee.deployment.EJBModule;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.openejb.xbeans.ejbjar.OpenejbGeronimoEjbJarType;
-import org.apache.openejb.alt.config.ejb.OpenejbJar;
+import org.apache.openejb.jee.oejb3.OpenejbJar;
 import org.apache.openejb.assembler.classic.EjbJarInfo;
 import org.apache.openejb.jee.EjbJar;
 import org.apache.xmlbeans.XmlObject;
@@ -65,8 +65,8 @@ public class EjbModule extends EJBModule {
         this.specDD = specDD;
     }
 
-    public org.apache.openejb.alt.config.EjbModule getEjbModule() {
-        return new org.apache.openejb.alt.config.EjbModule(classLoader, getModuleFile().getName(), ejbJar,  openejbJar);
+    public org.apache.openejb.config.EjbModule getEjbModule() {
+        return new org.apache.openejb.config.EjbModule(classLoader, getModuleFile().getName(), ejbJar,  openejbJar);
     }
 
     public EjbJarInfo getEjbJarInfo() {

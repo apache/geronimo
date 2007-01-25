@@ -17,8 +17,6 @@
 package org.apache.geronimo.openejb;
 
 import java.util.Properties;
-import java.util.Map;
-import java.util.HashMap;
 
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
@@ -29,7 +27,6 @@ import org.apache.openejb.assembler.classic.StatefulSessionContainerInfo;
 import org.apache.openejb.assembler.classic.BmpEntityContainerInfo;
 import org.apache.openejb.assembler.classic.CmpEntityContainerInfo;
 import org.apache.openejb.assembler.classic.MdbContainerInfo;
-import org.apache.openejb.alt.config.Bean;
 
 /**
  * @version $Rev$ $Date$
