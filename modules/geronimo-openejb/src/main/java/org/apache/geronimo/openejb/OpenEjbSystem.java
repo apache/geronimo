@@ -23,6 +23,8 @@ import javax.naming.NamingException;
 import org.apache.openejb.Container;
 import org.apache.openejb.DeploymentInfo;
 import org.apache.openejb.OpenEJBException;
+import org.apache.openejb.UndeployException;
+import org.apache.openejb.NoSuchApplicationException;
 import org.apache.openejb.config.ClientModule;
 import org.apache.openejb.config.EjbModule;
 import org.apache.openejb.assembler.classic.ClientInfo;
@@ -47,4 +49,6 @@ public interface OpenEjbSystem {
     void createEjbJar(EjbJarInfo ejbJarInfo, ClassLoader classLoader) throws NamingException, IOException, OpenEJBException;
 
     DeploymentInfo getDeploymentInfo(String deploymentId);
+
+    void removeEjbJar(EjbJarInfo ejbJarInfo, ClassLoader classLoader) throws UndeployException, NoSuchApplicationException;
 }

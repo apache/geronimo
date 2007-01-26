@@ -19,6 +19,7 @@ package org.apache.geronimo.openejb;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Hashtable;
+import java.util.List;
 import javax.management.ObjectName;
 
 import org.apache.geronimo.j2ee.management.impl.InvalidObjectNameException;
@@ -28,11 +29,17 @@ import org.apache.geronimo.management.EJBModule;
 import org.apache.geronimo.management.J2EEApplication;
 import org.apache.geronimo.management.J2EEServer;
 import org.apache.openejb.assembler.classic.EjbJarInfo;
+import org.apache.openejb.UndeployException;
+import org.apache.openejb.NoSuchApplicationException;
+import org.apache.commons.logging.LogFactory;
+import org.apache.commons.logging.Log;
 
 /**
  * @version $Revision: 451417 $ $Date: 2006-09-29 13:13:22 -0700 (Fri, 29 Sep 2006) $
  */
 public class EjbModuleImpl implements EJBModule {
+
+    private static final Log log = LogFactory.getLog(EjbModuleImpl.class);
     private final J2EEServer server;
     private final J2EEApplication application;
     private final String deploymentDescriptor;
@@ -117,8 +124,17 @@ public class EjbModuleImpl implements EJBModule {
     }
 
     protected void stop() {
-        // todo enable when remove is implemented
-        // openEjbSystem.removeEjbJar(ejbJarInfo, classLoader);
+        try {
+            openEjbSystem.removeEjbJar(ejbJarInfo, classLoader);
+        } catch (NoSuchApplicationException e) {
+            log.error("Module does not exist.", e);
+        } catch (UndeployException e) {
+            List<Throwable> causes = e.getCauses();
+            log.error(e.getMessage()+": Encountered "+causes.size()+" failures.");
+            for (Throwable throwable : causes) {
+                log.info(throwable);
+            }
+        }
     }
 
     /**

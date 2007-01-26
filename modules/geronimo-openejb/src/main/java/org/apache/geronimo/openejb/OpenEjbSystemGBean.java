@@ -29,6 +29,8 @@ import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.openejb.Container;
 import org.apache.openejb.DeploymentInfo;
 import org.apache.openejb.OpenEJBException;
+import org.apache.openejb.UndeployException;
+import org.apache.openejb.NoSuchApplicationException;
 import org.apache.openejb.loader.SystemInstance;
 import org.apache.openejb.core.ServerFederation;
 import org.apache.openejb.util.proxy.Jdk13ProxyFactory;
@@ -164,6 +166,10 @@ public class OpenEjbSystemGBean implements OpenEjbSystem {
         } finally {
             Thread.currentThread().setContextClassLoader(oldClassLoader);
         }
+    }
+
+    public void removeEjbJar(EjbJarInfo ejbJarInfo, ClassLoader classLoader) throws UndeployException, NoSuchApplicationException {
+        assembler.destroyApplication(ejbJarInfo.jarPath);
     }
 
     public DeploymentInfo getDeploymentInfo(String deploymentId) {
