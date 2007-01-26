@@ -70,7 +70,7 @@ Functional Characteristics for 2.0-M2
      - geronimo-openejb.xml file not required unless you have geronimo specific information to configure
      - Deployment of annotated beans (@Stateful and @Stateless)
      - Injection via deployment descriptor
-      - @Resource injection for env-entries, resource-refs, message-destinations, service-refs,  most resource-env-refs
+      - @Resource injection for env-entries, message-destinations, service-refs,  most resource-env-refs
       - @EJB injection of ejb-refs and ejb-local-refs
       - @PersistenceContext injection
       - @PersistenceUnit injection
@@ -88,6 +88,7 @@ Functional Characteristics for 2.0-M2
        http://cwiki.apache.org/confluence/display/GMOxDOC20/Using+some+of+EJB+3.0+functionalities
      
   Limitations:
+     - @Resource injection for resource-refs is not available.  Specify them via deployment plan.
      - Undeploying an ejb module will not remove it's beans. The server has to be restarted to deploy the same module again.
      - No support for MDBs.
 
