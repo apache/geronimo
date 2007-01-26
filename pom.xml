@@ -978,19 +978,6 @@
         </dependencies>
     </dependencyManagement>
 
-    <pluginRepositories>
-        <pluginRepository>
-            <id>Codehaus Snapshots</id>
-            <url>http://snapshots.repository.codehaus.org/</url>
-            <snapshots>
-                <enabled>true</enabled>
-            </snapshots>
-            <releases>
-                <enabled>false</enabled>
-            </releases>
-        </pluginRepository>
-    </pluginRepositories>
-
     <build>
         <pluginManagement>
             <plugins>
@@ -1248,21 +1235,6 @@
             <layout>default</layout>
             <snapshots>
                 <enabled>true</enabled>
-                <updatePolicy>daily</updatePolicy>
-                <checksumPolicy>ignore</checksumPolicy>
-            </snapshots>
-            <releases>
-                <enabled>true</enabled>
-            </releases>
-        </repository>
-
-        <repository>
-            <id>apache.incubator</id>
-            <name>Apache Incubator Repository</name>
-            <url>http://people.apache.org/repo/m2-incubating-repository/</url>
-            <layout>default</layout>
-            <snapshots>
-                <enabled>false</enabled>
                 <updatePolicy>daily</updatePolicy>
                 <checksumPolicy>ignore</checksumPolicy>
             </snapshots>
