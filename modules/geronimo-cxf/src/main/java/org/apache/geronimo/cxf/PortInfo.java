@@ -17,70 +17,176 @@
 package org.apache.geronimo.cxf;
 
 import java.io.Serializable;
-import java.util.List;
+import java.io.StringReader;
+import java.io.StringWriter;
 
-import org.apache.cxf.jaxws.javaee.PortComponentHandlerType;
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBElement;
+import javax.xml.bind.Marshaller;
+import javax.xml.bind.Unmarshaller;
+import javax.xml.namespace.QName;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+
+import org.apache.cxf.jaxws.javaee.HandlerChainsType;
+import org.w3c.dom.Document;
+import org.xml.sax.InputSource;
 
 public class PortInfo implements Serializable {
 
     private String serviceName;
+
     private String portName;
+
     private String seiInterfaceName;
+
     private String wsdlFile;
+
     private String servletLink;
-    // TODO: will have to construct handlers when the container becomes active 
-    //
-    private List<PortComponentHandlerType> handlers;
-   
+
+    private String handlersAsXML;
+
+    private boolean mtomEnabled;
+
+    private String binding;
+    
+    private QName wsdlPort;
+    
+    private QName wsdlService;
+    
+    private String location;
+
     public String getPortName() {
         return portName;
     }
+
     public void setPortName(String pn) {
         portName = pn;
     }
+
     public String getServiceEndpointInterfaceName() {
         return seiInterfaceName;
     }
+
     public void setServiceEndpointInterfaceName(String sei) {
         seiInterfaceName = sei;
     }
-    public String getServletLink() {
+
+    public String getServiceLink() {
         return servletLink;
     }
-    public void setServletLink(String sl) {
+
+    public void setServiceLink(String sl) {
         servletLink = sl;
     }
+
     public String getWsdlFile() {
         return wsdlFile;
     }
+
     public void setWsdlFile(String wf) {
         wsdlFile = wf;
     }
-    
-    public void setHandlers(List<PortComponentHandlerType> h) {
-        handlers = h;
-    }
-    
-    public List<PortComponentHandlerType> getHandlers() {
-        return handlers;
-    }
-    
+
     public String getServiceName() {
         return serviceName;
     }
-    
+
     public void setServiceName(String sn) {
-        serviceName = sn;        
+        serviceName = sn;
+    }
+
+    public void setEnableMTOM(boolean mtomEnabled) {
+        this.mtomEnabled = mtomEnabled;
+    }
+
+    public boolean isMTOMEnabled() {
+        return this.mtomEnabled;
+    }
+
+    public void setProtocolBinding(String binding) {
+        this.binding = binding;
+    }
+
+    public String getProtocolBinding() {
+        return binding;
     }
 
     /*
-    private String serviceName;
-    private String portName;
-    private String seiInterfaceName;
-    private String wsdlFile;
-    private String servletLink;
+     * This is a bit tricky here since JAXB generated classes are not serializable, 
+     * so serialize the handler chain to XML and pass it as a String. 
+     */
+    
+    public void setHandlers(HandlerChainsType handlerChain) throws Exception {
+        if (handlerChain == null) {
+            return;
+        }
+
+        JAXBContext ctx = JAXBContext.newInstance(HandlerChainsType.class);
+        Marshaller m = ctx.createMarshaller();
+        StringWriter writer = new StringWriter();
+        /*
+         * Since HandlerChainsType is a type, have to wrap it into some element
+         */
+        QName rootElement = new QName("", "root");
+        JAXBElement element = new JAXBElement(rootElement,
+                HandlerChainsType.class, handlerChain);
+        m.marshal(element, writer);
+
+        this.handlersAsXML = writer.toString();
+    }
+
+    public HandlerChainsType getHandlers() throws Exception {
+        if (this.handlersAsXML == null) {
+            return null;
+        }
+
+        InputSource is = new InputSource(new StringReader(this.handlersAsXML));
+
+        DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+        dbf.setNamespaceAware(true);
+        DocumentBuilder db = dbf.newDocumentBuilder();
+        Document doc = db.parse(is);
+
+        JAXBContext ctx = JAXBContext.newInstance(HandlerChainsType.class);
+        Unmarshaller unmarshaller = ctx.createUnmarshaller();
+
+        JAXBElement<HandlerChainsType> handlerElement = unmarshaller.unmarshal(
+                doc.getDocumentElement(), HandlerChainsType.class);
+
+        return handlerElement.getValue();
+    }
+
+    public QName getWsdlPort() {
+        return wsdlPort;
+    }
+
+    public void setWsdlPort(QName wsdlPort) {
+        this.wsdlPort = wsdlPort;
+    }
+
+    public QName getWsdlService() {
+        return wsdlService;
+    }
+
+    public void setWsdlService(QName wsdlService) {
+        this.wsdlService = wsdlService;
+    }
+    
+    public String getLocation() {
+        return location;
+    }
+
+    public void setLocation(String location) {
+        this.location = location;
+    }
+    
+    /*
+     * private String serviceName; private String portName; private String
+     * seiInterfaceName; private String wsdlFile; private String servletLink;
      */
     public String toString() {
-        return "[" + serviceName + ":" + portName + ":" + seiInterfaceName + ":" + wsdlFile + "]";
+        return "[" + serviceName + ":" + portName + ":" + seiInterfaceName
+                + ":" + wsdlFile + "]";
     }
 }

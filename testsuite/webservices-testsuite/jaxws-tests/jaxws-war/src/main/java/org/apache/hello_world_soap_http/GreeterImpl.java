@@ -19,22 +19,27 @@
 
 package org.apache.hello_world_soap_http;
 
-
-import java.io.IOException;
-import java.util.concurrent.Future;
+import java.util.Iterator;
+import java.util.ArrayList;
+import java.util.Map;
 import java.util.logging.Logger;
 
 import javax.annotation.Resource;
+import javax.annotation.PreDestroy;
+import javax.annotation.PostConstruct;
 
 import javax.jws.WebService;
-import javax.xml.ws.AsyncHandler;
-import javax.xml.ws.Response;
+import javax.jws.HandlerChain;
 import javax.xml.ws.WebServiceContext;
+import javax.xml.ws.handler.MessageContext;
 
+/* serviceName, portName specified in webservices.xml */
 @WebService(serviceName = "SOAPService",
             portName = "SoapPort",
             endpointInterface = "org.apache.hello_world_soap_http.Greeter",
-            targetNamespace = "http://apache.org/hello_world_soap_http")
+            targetNamespace = "http://apache.org/greeter_control")
+/* two handlers specified in webservices.xml */
+@HandlerChain(file="handlers.xml")
 public class GreeterImpl implements Greeter {
 
     private static final Logger LOG =
@@ -53,9 +58,43 @@ public class GreeterImpl implements Greeter {
     public String greetMe(String me) {
         LOG.info("Invoking greetMe " + me);
 
+        LOG.info("WebServiceContext: " + context);
         LOG.info("Principal: " + context.getUserPrincipal());
         LOG.info("Context: " + context.getMessageContext());
+
+        MessageContext ctx = context.getMessageContext();
+        Iterator iter = ctx.entrySet().iterator();
+        while(iter.hasNext()) {
+            Map.Entry entry = (Map.Entry)iter.next();
+            System.out.println("Key: "+entry.getKey());
+            System.out.println("Value: " +entry.getValue());
+        }
+
+        // just playing around
+
+        // send foo=BAR header
+        Map responseHeaders = 
+            (Map)ctx.get(MessageContext.HTTP_RESPONSE_HEADERS);
+        ArrayList values = new ArrayList();
+        values.add("BAR");
+        responseHeaders.put("foo", values);
         
+        /*
+        // make return code 201
+        ctx.put(MessageContext.HTTP_RESPONSE_CODE,
+                new Integer(201));
+        */
+
         return greeting + " " + me;
+    }
+
+    @PostConstruct
+    public void init() {
+        System.out.println(this + " PostConstruct");
+    }
+
+    @PreDestroy()
+    public void destroy() {
+        System.out.println(this + " PreDestroy");
     }
 }

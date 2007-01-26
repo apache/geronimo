@@ -36,8 +36,6 @@ import javax.xml.ws.ResponseWrapper;
 @WebService(targetNamespace = "http://apache.org/hello_world_soap_http", name = "Greeter")
 
 public interface Greeter {
-    @ResponseWrapper(targetNamespace = "http://apache.org/hello_world_soap_http/types", className = "org.apache.hello_world_soap_http.types.GreetMeResponse", localName = "greetMeResponse")
-    @RequestWrapper(targetNamespace = "http://apache.org/hello_world_soap_http/types", className = "org.apache.hello_world_soap_http.types.GreetMe", localName = "greetMe")
     @WebResult(targetNamespace = "http://apache.org/hello_world_soap_http/types", name = "responseType")
     @WebMethod(operationName = "greetMe")
     public java.lang.String greetMe(

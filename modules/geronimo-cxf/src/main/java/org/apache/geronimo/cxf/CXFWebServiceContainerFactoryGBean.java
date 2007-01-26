@@ -17,14 +17,15 @@
 
 package org.apache.geronimo.cxf;
 
+import java.net.URL;
 import java.util.Map;
-import java.util.logging.Logger;
-import java.util.logging.Level;
 
 import javax.naming.Context;
 import javax.naming.NamingException;
 import javax.transaction.TransactionManager;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.cxf.Bus;
 import org.apache.cxf.bus.cxf.CXFBusFactory;
 import org.apache.geronimo.gbean.GBeanInfo;
@@ -41,42 +42,45 @@ import org.apache.geronimo.webservices.WebServiceContainerFactory;
  */
 public class CXFWebServiceContainerFactoryGBean implements WebServiceContainerFactory {
 
-    private static final Logger LOG =
-            Logger.getLogger(CXFWebServiceContainerFactoryGBean.class.getName());
+    private static final Log LOG = LogFactory.getLog(CXFWebServiceContainerFactoryGBean.class);
 
     private final PortInfo portInfo;
     private final Bus bus;
     private final Object endpointInstance;
     private Context context;
+    private URL configurationBaseUrl;
 
     public CXFWebServiceContainerFactoryGBean(PortInfo portInfo,
             String endpointClassName,
             ClassLoader classLoader,
             Map componentContext,
             Kernel kernel,
-            TransactionManager transactionManager)
+            TransactionManager transactionManager,
+            URL configurationBaseUrl)
             throws ClassNotFoundException, IllegalAccessException, InstantiationException {
-
-        GeronimoUserTransaction userTransaction = new GeronimoUserTransaction(transactionManager);
+        
         if (componentContext != null) {
+            GeronimoUserTransaction userTransaction = new GeronimoUserTransaction(transactionManager);
             try {
                 this.context = EnterpriseNamingContext.createEnterpriseNamingContext(componentContext,
                         userTransaction,
                         kernel,
                         classLoader);
             } catch (NamingException e) {
-                LOG.log(Level.WARNING, "Failed to create naming context", e);
+                LOG.warn("Failed to create naming context", e);
             }
         }
 
         this.portInfo = portInfo;
         this.bus = (new CXFBusFactory()).createBus();
+        this.configurationBaseUrl = configurationBaseUrl;
+        
         Class endpointClass = classLoader.loadClass(endpointClassName);
         endpointInstance = endpointClass.newInstance();
     }
 
     public WebServiceContainer getWebServiceContainer() {
-        return new CXFWebServiceContainer(portInfo, endpointInstance, bus, context);
+        return new CXFWebServiceContainer(portInfo, endpointInstance, bus, context, configurationBaseUrl);
     }
 
     public static final GBeanInfo GBEAN_INFO;
@@ -89,9 +93,10 @@ public class CXFWebServiceContainerFactoryGBean implements WebServiceContainerFa
         infoBuilder.addAttribute("componentContext", Map.class, true, true);
         infoBuilder.addAttribute("kernel", Kernel.class, false);
         infoBuilder.addReference("TransactionManager", TransactionManager.class, NameFactory.TRANSACTION_MANAGER);
+        infoBuilder.addAttribute("configurationBaseUrl", URL.class, true);
 
         infoBuilder.setConstructor(new String[]{"portInfo", "endpointClassName", "classLoader",
-                "componentContext", "kernel", "TransactionManager"});
+                "componentContext", "kernel", "TransactionManager", "configurationBaseUrl"});
         GBEAN_INFO = infoBuilder.getBeanInfo();
     }
 

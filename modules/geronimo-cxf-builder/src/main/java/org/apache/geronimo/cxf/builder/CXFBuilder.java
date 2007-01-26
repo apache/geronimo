@@ -22,22 +22,22 @@ import java.io.InputStream;
 import java.io.FileNotFoundException;
 import java.net.URL;
 import java.net.MalformedURLException;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Collections;
 import java.util.jar.JarFile;
-import java.util.logging.Logger;
-import java.util.logging.Level;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
-import javax.xml.ws.handler.Handler;
+import javax.xml.transform.stream.StreamSource;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import org.apache.cxf.jaxws.javaee.PortComponentType;
+import org.apache.cxf.jaxws.javaee.ServiceImplBeanType;
 import org.apache.cxf.jaxws.javaee.WebserviceDescriptionType;
 import org.apache.cxf.jaxws.javaee.WebservicesType;
 
@@ -60,19 +60,15 @@ import org.apache.geronimo.deployment.DeploymentContext;
 import org.apache.geronimo.deployment.service.EnvironmentBuilder;
 import org.apache.geronimo.deployment.util.DeploymentUtil;
 
-
 public class CXFBuilder implements WebServiceBuilder {
 
-    private static final Logger LOG = Logger.getLogger(CXFBuilder.class.getName());
-
+    private static final Log LOG = LogFactory.getLog(CXFBuilder.class);
+    
     private final Environment defaultEnvironment;
     private static final String KEY = CXFBuilder.class.getName();
-    private JAXBContext ctx;
 
-
-    public CXFBuilder(Environment defaultEnvironment) throws JAXBException {
+    public CXFBuilder(Environment defaultEnvironment) {
         this.defaultEnvironment = defaultEnvironment;
-        ctx = JAXBContext.newInstance(WebservicesType.class);
     }
 
     public void findWebServices(JarFile moduleFile, boolean isEJB, Map servletLocations, Environment environment, Map sharedContext) throws DeploymentException {
@@ -91,7 +87,7 @@ public class CXFBuilder implements WebServiceBuilder {
     
     private Map<String, PortInfo> parseWebServiceDescriptor(URL wsDDUrl, JarFile moduleFile, boolean isEJB, Map correctedPortLocations) throws DeploymentException {
 
-        LOG.fine("parsing descriptor " + wsDDUrl);
+        LOG.debug("Parsing descriptor " + wsDDUrl);
 
         Map<String, PortInfo> map = new HashMap<String, PortInfo>();
 
@@ -101,8 +97,9 @@ public class CXFBuilder implements WebServiceBuilder {
                 throw new DeploymentException("unable to read descriptor " + wsDDUrl);
             }
 
+            JAXBContext ctx = JAXBContext.newInstance(WebservicesType.class);
             Unmarshaller unmarshaller = ctx.createUnmarshaller();
-            Object obj = unmarshaller.unmarshal(new javax.xml.transform.stream.StreamSource(in), WebservicesType.class);
+            Object obj = unmarshaller.unmarshal(new StreamSource(in), WebservicesType.class);
 
             if (obj instanceof JAXBElement) {
                 obj = ((JAXBElement)obj).getValue();
@@ -114,24 +111,56 @@ public class CXFBuilder implements WebServiceBuilder {
             WebservicesType wst = (WebservicesType) obj;
 
             for (WebserviceDescriptionType desc : wst.getWebserviceDescription()) {
-                final String wsdlFile = desc.getWsdlFile().getValue();
-                final String serviceName = desc.getWebserviceDescriptionName().getValue();
+                String wsdlFile = null;                
+                if (desc.getWsdlFile() != null) {
+                    wsdlFile = getString(desc.getWsdlFile().getValue());
+                }
+                
+                String serviceName = desc.getWebserviceDescriptionName().getValue();
 
                 for (PortComponentType port : desc.getPortComponent()) {
-                    String servlet = port.getServiceImplBean().getServletLink().getValue();
-                    String sei = port.getServiceEndpointInterface().getValue();
-                    String portName = port.getPortComponentName().getValue();
-
+                    
                     PortInfo portInfo = new PortInfo();
-
-                    portInfo.setServiceName(serviceName);
-                    portInfo.setServletLink(servlet);
-                    portInfo.setServiceEndpointInterfaceName(sei);
+                                       
+                    String serviceLink = null;
+                    ServiceImplBeanType beanType = port.getServiceImplBean();
+                    if (beanType.getEjbLink() != null) {
+                        serviceLink = beanType.getEjbLink().getValue();
+                    } else if (beanType.getServletLink().getValue() != null) {
+                        serviceLink = beanType.getServletLink().getValue();
+                    }
+                    portInfo.setServiceLink(serviceLink);
+                                        
+                    if (port.getServiceEndpointInterface() != null) {
+                        String sei = port.getServiceEndpointInterface().getValue();
+                        portInfo.setServiceEndpointInterfaceName(sei);
+                    }
+                                        
+                    String portName = port.getPortComponentName().getValue();
                     portInfo.setPortName(portName);
-                    portInfo.setWsdlFile(wsdlFile);
-                    portInfo.setHandlers(port.getHandler());
-
-                    map.put(servlet, portInfo);
+                    
+                    portInfo.setProtocolBinding(port.getProtocolBinding());                    
+                    portInfo.setServiceName(serviceName);      
+                    portInfo.setWsdlFile(wsdlFile);                    
+                    
+                    if (port.getEnableMtom() != null) {
+                        portInfo.setEnableMTOM(port.getEnableMtom().isValue());
+                    }                    
+                                                                        
+                    portInfo.setHandlers(port.getHandlerChains());
+                    
+                    if (port.getWsdlPort() != null) {
+                        portInfo.setWsdlPort(port.getWsdlPort().getValue());
+                    }
+                    
+                    if (port.getWsdlService() != null) {
+                        portInfo.setWsdlService(port.getWsdlService().getValue());
+                    }
+                                                    
+                    String location = (String)correctedPortLocations.get(serviceLink);
+                    portInfo.setLocation(location);
+                    
+                    map.put(serviceLink, portInfo);
                 }
             }
 
@@ -139,18 +168,25 @@ public class CXFBuilder implements WebServiceBuilder {
         } catch (FileNotFoundException e) {
             return Collections.EMPTY_MAP;
         } catch (IOException ex) {
-            ex.printStackTrace();
             throw new DeploymentException("unable to read " + wsDDUrl, ex);
         } catch (JAXBException ex) {
             throw new DeploymentException("unable to parse webservices.xml", ex);
+        } catch (Exception ex) {
+            throw new DeploymentException("Unknown deployment error", ex);
         }
     }
-
+    
+    private static String getString(String in) {
+        if (in != null) {
+            in = in.trim();
+            if (in.length() == 0) {
+                return null;
+            }            
+        }
+        return in;
+    }
 
     public boolean configurePOJO(GBeanData targetGBean, String servletName, Module module, String seiClassName, DeploymentContext context) throws DeploymentException {
-
-        // assert pi instanceof PortInfo : "received incorrect portInfo object";
-
         Map sharedContext = ((WebModule) module).getSharedContext();
         Map portInfoMap = (Map) sharedContext.get(KEY);
         PortInfo portInfo = (PortInfo) portInfoMap.get(servletName);
@@ -164,7 +200,7 @@ public class CXFBuilder implements WebServiceBuilder {
             GBeanData moduleGBean = context.getGBeanInstance(context.getModuleName()); 
             componentContext = (Map)moduleGBean.getAttribute("componentContext");
         } catch (GBeanNotFoundException e) {
-            LOG.warning("ModuleGBean not found. JNDI resource injection will not work.");
+            LOG.warn("ModuleGBean not found. JNDI resource injection will not work.");
         }
 
         LOG.info("configuring POJO webservice: " + servletName + " sei: " + seiClassName);
@@ -173,7 +209,6 @@ public class CXFBuilder implements WebServiceBuilder {
         ClassLoader classLoader = context.getClassLoader();
         loadSEI(seiClassName, classLoader);
 
-        /*List<Handler> handlers =*/ buildHandlerChain(portInfo);
         AbstractName containerFactoryName = context.getNaming().createChildName(targetGBean.getAbstractName(), "cxfWebServiceContainerFactory", NameFactory.GERONIMO_SERVICE);
         GBeanData containerFactoryData = new GBeanData(containerFactoryName, CXFWebServiceContainerFactoryGBean.GBEAN_INFO);
         containerFactoryData.setAttribute("portInfo", portInfo);
@@ -186,7 +221,8 @@ public class CXFBuilder implements WebServiceBuilder {
         }
 
         targetGBean.setReferencePattern("WebServiceContainerFactory", containerFactoryName);
-        targetGBean.setAttribute("pojoClassName", seiClassName);
+        // our web container does not use that property 
+        targetGBean.setAttribute("pojoClassName", "java.lang.Object");
 
         if (context instanceof EARContext) {
             containerFactoryData.setReferencePattern("TransactionManager", 
@@ -195,7 +231,6 @@ public class CXFBuilder implements WebServiceBuilder {
 
         return true;
     }
-
 
     public boolean configureEJB(GBeanData targetGBean, String ejbName, JarFile moduleFile, Map sharedContext, ClassLoader classLoader) throws DeploymentException {
         throw new DeploymentException("configureEJB NYI");
@@ -207,10 +242,6 @@ public class CXFBuilder implements WebServiceBuilder {
         } catch (ClassNotFoundException ex) {
             throw new DeploymentException("unable to load Service Endpoint Interface: " + className, ex);
         }
-    }
-
-    private List<Handler> buildHandlerChain(PortInfo portInfo) {
-        return new ArrayList<Handler>();
     }
 
     public static final GBeanInfo GBEAN_INFO;
