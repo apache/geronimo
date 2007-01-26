@@ -26,17 +26,17 @@ Most testing has been done on Linux, Mac OS X, and Windows.
 Significant Changes in the 2.0-M2 Release
 -----------------------------------------
 - Java EE management 1.1
-- EJB 3.0 support 
-- OpenEJB x.x integration
-- Web Services technologies 
- - STAX 1.0 Streaming API for XML (JSR 173) 
- - JAXB 2.0 - Java Architecture for XML Binding 
- - JAX-WS 2.0 support is provided in this milestone. Only POJO based JAX-WS services are supported. (CXF integration)
- - JAX-RPC 1.1 (POJO Only) (Only tested in CXF environment)
- - JAXR 1.0
+- EJB 3.0 support (via OpenEJB integration)
+- Web Services technologies
+- STAX 1.0 Streaming API for XML (JSR 173)
+- JAXB 2.0 - Java Architecture for XML Binding
+- JAX-WS 2.0 support is provided in this milestone. Only POJO based JAX-WS services are supported. (CXF integration)
+- JAX-RPC 1.1 (POJO Only)
+- JAXR 1.0
+- Addition to admin console that allows users to graphically view classloader hierarchy, JNDI tree and module dependencies
 
 
-*See "Functional Characteristics" section below for more details.
+*See "Functional Characteristics" section below for more details on the new functions.
 
 
 Significant Changes in the 2.0-M1 Release (prior milestone)
@@ -63,66 +63,81 @@ Functional Characteristics for 2.0-M2
 -------------------------------------
 
 - EJB 3.0 (via OpenEJB project)
-   Supported:
-      - JPA (Custom Provider, App-managed, Container-managed) (Also supported in 2.0-M1)
-      - POJO as a Business Interface
-      - POJO Session EJBs
-      - Deployment with no ejb-jar.xml or openejb-jar (just need a geronimo-openejb.xml for all the geronimo-specific deployment stuff)
-      - Annotation-based Deployment (no need for EJB interfaces)
-      - injection via deployment descriptor
-      - @Resource injection for env-entries, resource-refs, message-destinations, service-refs,  most resource-env-refs
-      - @EJB injection of ejb-refs and ejb-local-refs
-      - @PersistenceContext injection
-      - @PersistenceUnit injection 
-      - JNDI references to the ejb 
-      - JNDI references from the ejb 
-      - Transaction support 
-        
-   Limitations:
-      - Extended JNDI and DI types
-      - Undeploying an ejb module will not remove it's beans. The server has to be restarted to deploy the same module again.
-      - Other limitations should be added here..
+  Supported:
+     - JPA (Custom Provider, App-managed, Container-managed) (Also supported in 2.0-M1)
+     - POJO as a Business Interface (both local and remote)
+     - POJO Session EJBs
+     - Deployment without ejb-jar.xml or openejb-jar
+     - geronimo-openejb.xml file not required unless you have geronimo specific information to configure
+     - Deployment of annotated beans (@Stateful and @Stateless)
+     - Injection via deployment descriptor
+     - @Resource injection for env-entries, resource-refs, message-destinations, service-refs,  most resource-env-refs
+     - @EJB injection of ejb-refs and ejb-local-refs
+     - @PersistenceContext injection
+     - @PersistenceUnit injection
+     - JNDI references to the ejb
+     - JNDI references from the ejb
+     - Transaction support
+     - Legacy component (i.e. home) interfaces on a Pojo session bean
+     - Xml-based *and* annotation-based injection for ejbs, except for message-destinations,
+       or SessionContext when the field or setter is not named setSessionContext
+     - References to business interfaces, local or remote, from a servlet or an ejb
+     - References to home interfaces, local or remote, from a servlet or an ejb
+     - Extended JNDI and DI types
+
+     Simple EJB 3.0 example application available at:
+       http://cwiki.apache.org/confluence/display/GMOxDOC20/Using+some+of+EJB+3.0+functionalities
+
+  Limitations:
+     - Undeploying an ejb module will not remove it's beans. The server has to be restarted to deploy the same module again.
+     - No support for MDBs.
+
 
 - Web Services (CXF)
-   Supported:
-      - Deployng a JAX-WS based POJO service that leverages annotations to simplify the creation of the Web service.  
-      - Deploying a traditional JAX-RPC based POJO service 
-      - @Resource Annotations are fully supported provided they are also defined in the web.xml deployment descriptor
-      - The @Resource WebServiceContext annotation is fully supported.  
-   Limitations:
-      - No EJB support for Web Services in 2.0-M2
-      - <service-ref> elements in the deployment descriptor or @WebServiceRef annotations are not processed. 
-      - Dynamically generated WSDL returned via ?wsdl request might be missing some information. 
-      - Dynamic clients (obtained using the javax.xml.ws.Service API) might not always work. 
- 
+  Supported:
+     - Deployng a JAX-WS based POJO service that leverages annotations to simplify the creation of the Web service.
+     - Deploying a traditional JAX-RPC based POJO service
+     - @Resource Annotations are fully supported provided they are also defined in the web.xml deployment descriptor
+     - The @Resource WebServiceContext annotation is fully supported.
+
+     Simple Web Services example available at: http://cwiki.apache.org/GMOxDOC20/simple-web-service-with-jax-ws.html
+
+  Limitations:
+     - No EJB support for Web Services in 2.0-M2
+     - <service-ref> elements in the deployment descriptor or @WebServiceRef annotations are not processed.
+     - Dynamically generated WSDL returned via ?wsdl request might be missing some information.
+     - Dynamic clients (obtained using the javax.xml.ws.Service API) might not always work.
+
+
 - JSTL 1.2
-    Applications that use JSTL must add a dependency in their deployment plan to the jstl jar. 
-    Specifically: 
-     <dep:dependencies>
-      <dep:dependency>
-       <dep:groupId>jstl</dep:groupId>
-       <dep:artifactId>jstl</dep:artifactId>
-       </dep:dependency>
-     </dep:dependencies>
-    Alternatively, the jstl jar can be included in the application's WEB-INF/lib directory.
+   Applications that use JSTL must add a dependency in their deployment plan to the jstl jar.
+   Specifically:
+    <dep:dependencies>
+     <dep:dependency>
+      <dep:groupId>jstl</dep:groupId>
+      <dep:artifactId>jstl</dep:artifactId>
+      </dep:dependency>
+    </dep:dependencies>
+   Alternatively, the jstl jar can be included in the application's WEB-INF/lib directory.
+
 
 - JSF 1.2 - Not yet supported
-  -JSF applications will deploy and start but will not execute yet. An updated MyFaces package
-   will remedy this in the near future.
+ -JSF applications will deploy and start but will not execute yet. An updated MyFaces package
+  will remedy this in the near future.
 
 
 Installing & Starting Geronimo
 ------------------------------
-To install, simply unpack the .zip (Windows) or tar.gz (Unix) file containing 
+To install, simply unpack the .zip (Windows) or tar.gz (Unix) file containing
 Geronimo.
 
-If you wish to modify the default ports that Geronimo will use, edit the file 
+If you wish to modify the default ports that Geronimo will use, edit the file
 <geronimo_home>/var/config/config.xml
 
-Geronimo comes with batch and script files to control server start and stop 
-functions.  To see usage examples simply type geronimo.bat or geronimo.sh 
-command as appropriate for your platform.  It is necessary to set JAVA_HOME to 
-the copy of your Sun 5 JDK/JRE prior to executing the command.  
+Geronimo comes with batch and script files to control server start and stop
+functions.  To see usage examples simply type geronimo.bat or geronimo.sh
+command as appropriate for your platform.  It is necessary to set JAVA_HOME to
+the copy of your Sun 5 JDK/JRE prior to executing the command.
 
 Here is an example to set JAVA_HOME:
 
@@ -134,40 +149,40 @@ To see the available command options type:
 or
 <geronimo_home>\bin\geronimo.bat
 
-The command will display help text instructing you as to how to start and stop 
+The command will display help text instructing you as to how to start and stop
 the Geronimo server.
 
-If you prefer to start the server without a script file you can simply type: 
+If you prefer to start the server without a script file you can simply type:
 
 java -jar <geronimo_home>/bin/server.jar
 
 Once the server has started, you can access the Geronimo Administration Console
-at http://localhost:8080/console/ . The default user name is "system" and the 
+at http://localhost:8080/console/ . The default user name is "system" and the
 default password is "manager".
 
 
 Administration Console Security Configuration
 ---------------------------------------------
-The default administration user/password for the Geronimo Administration Console 
+The default administration user/password for the Geronimo Administration Console
 and command line deployment tool is system/manager.  You can change these defaults
 directly from the Geronimo Administration Console by accessing Security -> Console
 Realm and change the user name and password from the Console Realm Users portlet.
 
-As an alternative, you can make the same changes by editing the 
-<geronimo_home>/var/security/users.properties and 
+As an alternative, you can make the same changes by editing the
+<geronimo_home>/var/security/users.properties and
 <geronimo_home>/var/security/groups.properties files.
 
 
 Deploying Applications
 ----------------------
-Geronimo comes with deploy scripts and batch files to deploy J2EE modules or 
-applications. You can use the scripts or simply invoke the executable jar by 
+Geronimo comes with deploy scripts and batch files to deploy J2EE modules or
+applications. You can use the scripts or simply invoke the executable jar by
 running the following command (note that you need to start Geronimo first):
 
 <geronimo_home>/bin/java -jar deployer.jar deploy my-web-app.war [deploy plan]
 
-You will need to use the username "system" and password "manager" unless you 
-customized those as described above.  The deployment plan argument is 
+You will need to use the username "system" and password "manager" unless you
+customized those as described above.  The deployment plan argument is
 optional -- you can pack a deployment plan into the application module, provide
 it on the command line, or in some cases omit it entirely.
 
@@ -179,26 +194,26 @@ run from within the Geronimo directory <geronimo_home>/bin:
 
 java -jar deployer.jar help [command]
 
-You can also graphically deploy applications and resources via the Geronimo 
+You can also graphically deploy applications and resources via the Geronimo
 Administration Console available at http://localhost:8080/console/
 
 
 Other Deployment Options
 ------------------------
-As an alternative to the command-line deployer, you can copy application 
+As an alternative to the command-line deployer, you can copy application
 modules into the <geronimo_home>/deploy/ directory and the
 hot deployer service will deploy them automatically.  The command-line deployer
 has some advantages, as it will output any
 deployment errors to its own console rather than just the server log.
 
-Additionally, Geronimo provides a Maven plugin that can deploy applications to 
+Additionally, Geronimo provides a Maven plugin that can deploy applications to
 Geronimo as part of a Maven build.
 
 
 Configuration
 -------------
-Most configuration attributes can be updated in the 
-<geronimo_home>/var/config/config.xml file.  The attributes most likely to be 
+Most configuration attributes can be updated in the
+<geronimo_home>/var/config/config.xml file.  The attributes most likely to be
 changed are already included in the supplied config.xml file, while others may
 need to be added manually.
 
@@ -210,19 +225,125 @@ Apache Geronimo v2.0-M2, being a MILESTONE release is not yet certified.
 
 Known Issues and Limitations
 ----------------------------
-
 <!-- open Bugs for 2.*  -->
+GERONIMO-2745  NPE at org.apache.geronimo.security.SubjectId.hashCode(SubjectId.java:79)
+GERONIMO-2744  App client needs to be able to log out
+GERONIMO-2741  Info messages are being displayed in the console output
+GERONIMO-2740  Filter out the Tomcat debug log msg - java.lang.ClassNotFoundException: org.apache.tomcat.util.net.puretls.PureTLSImplementation
+GERONIMO-2737  Server shutdown time has increased significantly because of ActiveMQ v4
+GERONIMO-2734  Client container does not terminate
+GERONIMO-2730  JAX-RPC EJB Web Services support appears to be broken
+GERONIMO-2728  Exception while removing directory module from the console
+GERONIMO-2709  Database creation pool wizard fails in Jetty
+GERONIMO-2699  Module was not a war
+GERONIMO-2696  SQL Exception: Failed to start database
+GERONIMO-2694  STATUS file sent out as the Geronimo Weekly Status email needs updating
+GERONIMO-2688  no-pool and xa-transaction with no caching result in connections being closed before the tx ends.
+GERONIMO-2687  All "default" Subjects should be obtained by logging in to a realm, not constructed explicitly
+GERONIMO-2682  Sending a message throws a SendFailedException
+GERONIMO-2681  IOException when reading content of a message
+GERONIMO-2680  mod_jk configfilegenerator produces unusable configentries
+GERONIMO-2676  Web Application without required jars throws NullPointer
+GERONIMO-2675  Fix geronimo assemblies
+GERONIMO-2673  WARN message from Global JNDI
+GERONIMO-2668  axis deployer still assumes it's the only one
+GERONIMO-2666  NPE in JavaComponentContext
+GERONIMO-2664  Servlet Filter Error
+GERONIMO-2657  Persistence-* builders need improvements
+GERONIMO-2655  Jetty 6 assemblies do not include sample AJP Connectors
+GERONIMO-2654  Enabling Welcome App (context "/") on geronimo-jetty6-jee5 assembly breaks web-console (context "/console")
+GERONIMO-2650  JSP 2.1 error in Jetty/Tomcat
+GERONIMO-2643  Stack trace (due to amq) while shutting down Geronimo
+GERONIMO-2626  Building geronimo-kernel leaves 46 files in java.io.tmpdir
+GERONIMO-2622  Implement PolicyContextHandlerSOAPMessage
+GERONIMO-2605  NPE if exporting plugin for module having dependency on module with no groupId
+GERONIMO-2598  Deploy tool prints useless message if configuration start fails
+GERONIMO-2481  WebServers portlet: Create/Edit Tomcat Connectors should support editing of all supported connector attributes
+GERONIMO-2105  When redeploying with no version number, new entries in config.xml break
 
-<ADD THEM HERE>
+
 
 Specific Issues, Features and Improvements fixed in Version 2.0-M2
 ------------------------------------------------------------------
-Release Notes - Geronimo - Version 2.0-m2
-
-
 <!-- closed/fixed JIRAs  for 2.*  -->
-
-<ADD THEM HERE>
-
-
-
+GERONIMO-1519  ResourceException.toString() can return null  FIXED
+GERONIMO-1657  CommandSupport doesn't bubble up the exception. Prints stacktrace.  FIXED
+GERONIMO-2027  Mismatched passwords when editing user in web console  FIXED
+GERONIMO-2560  Realm added using SecurityRealm portlet does not work  FIXED
+GERONIMO-2579  TestNG testcases in testsuite broken. JUnit expected. Move to JUnit 4.0 ?  WON'T FIX
+GERONIMO-2580  CorbaRefBuilder inserts ref for java:comp/CORBA that fails when corba gbean is not present.  FIXED
+GERONIMO-2587  FileKeystoreInstance.loadKeystoreData() results in inconsistent state if wrong password is supplied  FIXED
+GERONIMO-2586  KeystorePortlet: Unlock keystore for availability shows key aliases only when keystore is unlocked for edit  FIXED
+GERONIMO-2585  KeystorePortlet: Lock keystore throws NullPointerException  FIXED
+GERONIMO-2588  KeyStorePortlet: Locking and unlocking could use some error and info messages  FIXED
+GERONIMO-2592  TSSLink doStart() method is not getting called.  FIXED
+GERONIMO-2590  The TSSLinkBuilder is not included in the list of loaded builders.  FIXED
+GERONIMO-2591  Database Pools portlet: Create new pool dependency jar selection problems  FIXED
+GERONIMO-2602  default compile scope is overloaded with 2 meanings in PlanProcessorMojo  FIXED
+GERONIMO-2603  Building 1.2 if there are 2.0 artifacts in the repo results in mostly 2.0 artifacts in the server.  FIXED
+GERONIMO-2611  Configuration should not have duplicates in allServiceParents  FIXED
+GERONIMO-2615  Not enough info when a gbean ref can't be verified during deployment  FIXED
+GERONIMO-2619  Javamail 1.4 spec needs to be using the JAF 1.1 version.  FIXED
+GERONIMO-2623  Infinite loop in the SMTPTransport code when a socket factory class is used.  FIXED
+GERONIMO-2624  Offline deployer busted  FIXED
+GERONIMO-2625  Geronimo Console: login page prevents using username, password longer than 25 characters for login  FIXED
+GERONIMO-2627  jsr88 classpath is all messed up  FIXED
+GERONIMO-2631  jetty5 builder needs to parameterize the jsp servlet class  FIXED
+GERONIMO-2632  Connection errors can result in infinite loop  FIXED
+GERONIMO-2630  sun j2ee schemas are being redistributed in jsp and servlet specs  FIXED
+GERONIMO-2641  Missing license headers  FIXED
+GERONIMO-2644  Fix leaking ClassLoaders  INVALID
+GERONIMO-2646  WAR without a geronimo-web.xml deploys to the wrong context  FIXED
+GERONIMO-2649  Insert of new EJB does not appear to be occurring  FIXED
+GERONIMO-2652  XmlBeans is having trouble validating some xml from substitution groups  FIXED
+GERONIMO-2656  for jetty, in servlet-mapping, url patterns must be trimmed.  FIXED
+GERONIMO-2659  jspc plugin busted by spec >> provided change  FIXED
+GERONIMO-2663  Build Break ! at configs/client-deployer  CANNOT REPRODUCE
+GERONIMO-2669  fix o.a.g.j.ClusteredSessionManager to match changes in Jetty AbstractSessionManager  FIXED
+GERONIMO-2674  The basic CXF integration is not working  FIXED
+GERONIMO-2679  ArrayIndexOutOfBoundsException when getting Mails from Pop3-Account with geronimo-javamail_1.4_mail-1.0.jar  FIXED
+GERONIMO-2683  Multiple versions of org.codehaus.wadi.wadi-tribes listed in server/trunk/pom.xml  FIXED
+GERONIMO-2692  Current specs/trunk fails to build, due to missing modules  FIXED
+GERONIMO-2685  database pool type emty in pool creation wizard - Jetty  FIXED
+GERONIMO-2653  Inconsistencies between jetty6-builder and tomcat6-builder plan.xml files  FIXED
+GERONIMO-2686  database creation pool wizzard fails to deploy  FIXED
+GERONIMO-2706  Unable to create database pool  DUPLICATE
+GERONIMO-2642  welcome app not included in the jetty assembly.  FIXED
+GERONIMO-2713  LDAP Realm fails to test and deploy  FIXED
+GERONIMO-2714  FileAuditLoginModule fails to write login attempts  FIXED
+GERONIMO-2720  tomcat https connector needs additional param  FIXED
+GERONIMO-2721  Unable to deploy anything  FIXED
+GERONIMO-2722  enable commons-logging in tomcat module  FIXED
+GERONIMO-2711  specs/trunk fails to build  FIXED
+GERONIMO-2684  Upgrade server trunk (2.0) to use the latest released geronimo-spec versions  FIXED
+GERONIMO-2732  J2EE Application Client deployment fails with NPE  FIXED
+GERONIMO-2589  Generate explicit-versions.properties transitvily  FIXED
+GERONIMO-2594  Add xalan to endorsed directory  FIXED
+GERONIMO-2597  Make web service builder optional  FIXED
+GERONIMO-2604  Create a specs pom  FIXED
+GERONIMO-2608  JACC 1.1 support (jsr-115 MR4)  FIXED
+GERONIMO-2616  Move jee5 work from sandbox to trunk  FIXED
+GERONIMO-2629  Upgrade to J2EE Management 1.1 (JSR77)  FIXED
+GERONIMO-2634  Switch to activemq 4.1.0-incubator: include apache incubator repo in our repo list.  FIXED
+GERONIMO-2635  Upgrade to JavaMail 1.4 and JavaBeans Activation Framework 1.1  FIXED
+GERONIMO-2648  Integrate JSF 1.2 into 2.0-M1  FIXED
+GERONIMO-2662  remove jetty5 support from trunk and 2.0-m1  FIXED
+GERONIMO-2719  Use released Jetty 6.1 in Geronimo 2.0-M2  FIXED
+GERONIMO-2716  Create javaee 5 test jars for j2ee-builder tests  FIXED
+GERONIMO-2725  Remove geronimo-qname_1.1_spec usage  FIXED
+GERONIMO-2726  Update JAXB and StAX implementation versions  FIXED
+GERONIMO-2636  Update Jetty 6 assembly to use Jasper 6 for JSP 2.1 support  FIXED
+GERONIMO-2535  Support Java EE 5 Common Annotation Spec in Geronimo (JSR 250)  FIXED
+GERONIMO-2667  Streaming API for XML integration  DUPLICATE
+GERONIMO-2671  Streaming API for XML and JAXB integration  FIXED
+GERONIMO-2628  Upgrade to tomcat 6.0.2 beta  FIXED
+GERONIMO-2727  Enable axis2-deployer in jetty and tomcat jee5 assemblies  FIXED
+GERONIMO-2536  Support Java EE 5 JavaServerPages Standard Tag Library in Geronimo (JSTL, JSR 52)  FIXED
+GERONIMO-2729  JAX-RPC POJO WS tests  FIXED
+GERONIMO-2738  JAXB, STAX support for client applications  FIXED
+GERONIMO-2718  Upgrade to tomcat 6.0.7 beta  FIXED
+GERONIMO-2601  Remove the "Old Keystore" portlet  FIXED
+GERONIMO-2639  Upgrade dojo to 0.4.1  FIXED
+GERONIMO-2658  Add 2.0-M1 Release Notes  FIXED
+GERONIMO-2670  Update geronimo plugin repository version  FIXED
+GERONIMO-2620  Need to create javamail 1.4 versions of the provider and mail jars  FIXED
