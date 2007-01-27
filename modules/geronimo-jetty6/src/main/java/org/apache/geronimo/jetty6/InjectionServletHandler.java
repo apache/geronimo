@@ -46,7 +46,7 @@ class InjectionServletHandler extends ServletHandler {
         Context context = null;
         try {
             context = (Context) new InitialContext().lookup("java:comp/env");
-        } catch (NamingException e) {
+        } catch (Exception e) {
             return;
         }
         if (context == null) {
