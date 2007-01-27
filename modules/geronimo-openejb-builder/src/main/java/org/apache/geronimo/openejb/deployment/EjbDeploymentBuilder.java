@@ -52,7 +52,7 @@ import org.apache.openejb.jee.StatelessBean;
 import org.apache.openejb.jee.MessageDrivenBean;
 import org.apache.openejb.jee.EntityBean;
 import org.apache.openejb.jee.SessionBean;
-import org.apache.openejb.alt.config.ejb.EjbDeployment;
+import org.apache.openejb.jee.oejb3.EjbDeployment;
 import org.apache.geronimo.openejb.StatelessDeploymentGBean;
 import org.apache.geronimo.openejb.StatefulDeploymentGBean;
 import org.apache.geronimo.openejb.EntityDeploymentGBean;

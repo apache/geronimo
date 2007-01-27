@@ -29,12 +29,14 @@ import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.openejb.Container;
 import org.apache.openejb.DeploymentInfo;
 import org.apache.openejb.OpenEJBException;
+import org.apache.openejb.UndeployException;
+import org.apache.openejb.NoSuchApplicationException;
 import org.apache.openejb.loader.SystemInstance;
 import org.apache.openejb.core.ServerFederation;
 import org.apache.openejb.util.proxy.Jdk13ProxyFactory;
-import org.apache.openejb.alt.config.ClientModule;
-import org.apache.openejb.alt.config.ConfigurationFactory;
-import org.apache.openejb.alt.config.EjbModule;
+import org.apache.openejb.config.ClientModule;
+import org.apache.openejb.config.ConfigurationFactory;
+import org.apache.openejb.config.EjbModule;
 import org.apache.openejb.assembler.classic.Assembler;
 import org.apache.openejb.assembler.classic.ClientInfo;
 import org.apache.openejb.assembler.classic.ContainerInfo;
@@ -58,6 +60,13 @@ public class OpenEjbSystemGBean implements OpenEjbSystem {
     }
     public OpenEjbSystemGBean(TransactionManager transactionManager, Kernel kernel) throws Exception {
         System.setProperty("duct tape","");
+        SystemInstance systemInstance = SystemInstance.get();
+
+        String format = systemInstance.getProperty("openejb.deploymentId.format");
+        if (format == null){
+            systemInstance.setProperty("openejb.deploymentId.format", "{moduleId}/{ejbName}");
+        }
+
         System.setProperty("openejb.naming", "xbean");
         if (transactionManager == null) {
             throw new NullPointerException("transactionManager is null");
@@ -164,6 +173,10 @@ public class OpenEjbSystemGBean implements OpenEjbSystem {
         } finally {
             Thread.currentThread().setContextClassLoader(oldClassLoader);
         }
+    }
+
+    public void removeEjbJar(EjbJarInfo ejbJarInfo, ClassLoader classLoader) throws UndeployException, NoSuchApplicationException {
+        assembler.destroyApplication(ejbJarInfo.jarPath);
     }
 
     public DeploymentInfo getDeploymentInfo(String deploymentId) {

@@ -69,7 +69,7 @@ import org.apache.geronimo.xbeans.geronimo.j2ee.GerSecurityDocument;
 import org.apache.geronimo.xbeans.javaee.AssemblyDescriptorType;
 import org.apache.geronimo.xbeans.javaee.EjbJarType;
 import org.apache.openejb.OpenEJBException;
-import org.apache.openejb.alt.config.ejb.OpenejbJar;
+import org.apache.openejb.jee.oejb3.OpenejbJar;
 import org.apache.openejb.assembler.classic.EjbJarInfo;
 import org.apache.openejb.assembler.classic.Cmp2Builder;
 import org.apache.openejb.assembler.classic.AppInfo;
