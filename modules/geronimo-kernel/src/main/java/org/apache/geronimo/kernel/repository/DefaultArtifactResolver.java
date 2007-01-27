@@ -156,6 +156,8 @@ public class DefaultArtifactResolver implements ArtifactResolver {
             if (list.isEmpty()) {
                 if ("xbean-naming".equals(working.getArtifactId())) {
                     return new Artifact("org.apache.xbean", "xbean-naming", "2.8", "jar");
+                } else if ("geronimo-ejb_3.0_spec".equals(working.getArtifactId())) {
+                    return new Artifact("org.apache.geronimo.specs", "geronimo-ejb_3.0_spec", "1.0", "jar");
                 } else {
                     return null;
                 }
