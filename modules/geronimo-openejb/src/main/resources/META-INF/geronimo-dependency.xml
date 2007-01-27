@@ -66,6 +66,10 @@
       <artifactId>xbean-finder</artifactId>
     </dependency>
     <dependency>
+      <groupId>org.codehaus.swizzle</groupId>
+      <artifactId>swizzle-stream</artifactId>
+    </dependency>
+    <dependency>
       <groupId>asm</groupId>
       <artifactId>asm</artifactId>
     </dependency>
