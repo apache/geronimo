@@ -47,11 +47,18 @@
             <artifactId>geronimo-cxf-builder</artifactId>
             <version>${version}</version>
         </dependency>
+
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
             <artifactId>cxf</artifactId>
             <type>car</type>
             <version>${version}</version>
+            <scope>runtime</scope>
+       </dependency>
+
+       <dependency>
+            <groupId>org.apache.xbean</groupId>
+            <artifactId>xbean-finder</artifactId>
             <scope>runtime</scope>
        </dependency>
 
