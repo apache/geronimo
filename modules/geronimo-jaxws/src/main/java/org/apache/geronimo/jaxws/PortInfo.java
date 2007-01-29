@@ -28,7 +28,6 @@ import javax.xml.namespace.QName;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
-import org.apache.cxf.jaxws.javaee.HandlerChainsType;
 import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
 
@@ -117,12 +116,12 @@ public class PortInfo implements Serializable {
      * so serialize the handler chain to XML and pass it as a String. 
      */
     
-    public void setHandlers(HandlerChainsType handlerChain) throws Exception {
+    public void setHandlers(Class type, Object handlerChain) throws Exception {
         if (handlerChain == null) {
             return;
         }
 
-        JAXBContext ctx = JAXBContext.newInstance(HandlerChainsType.class);
+        JAXBContext ctx = JAXBContext.newInstance(type);
         Marshaller m = ctx.createMarshaller();
         StringWriter writer = new StringWriter();
         /*
@@ -130,13 +129,13 @@ public class PortInfo implements Serializable {
          */
         QName rootElement = new QName("", "root");
         JAXBElement element = new JAXBElement(rootElement,
-                HandlerChainsType.class, handlerChain);
+                type, handlerChain);
         m.marshal(element, writer);
 
         this.handlersAsXML = writer.toString();
     }
 
-    public HandlerChainsType getHandlers() throws Exception {
+    public Object getHandlers(Class type) throws Exception {
         if (this.handlersAsXML == null) {
             return null;
         }
@@ -148,11 +147,11 @@ public class PortInfo implements Serializable {
         DocumentBuilder db = dbf.newDocumentBuilder();
         Document doc = db.parse(is);
 
-        JAXBContext ctx = JAXBContext.newInstance(HandlerChainsType.class);
+        JAXBContext ctx = JAXBContext.newInstance(type);
         Unmarshaller unmarshaller = ctx.createUnmarshaller();
 
-        JAXBElement<HandlerChainsType> handlerElement = unmarshaller.unmarshal(
-                doc.getDocumentElement(), HandlerChainsType.class);
+        JAXBElement handlerElement = unmarshaller.unmarshal(
+                doc.getDocumentElement(), type);
 
         return handlerElement.getValue();
     }

@@ -303,7 +303,7 @@ public class CXFEndpoint extends Endpoint {
         List<Handler> chain = null;
 
         // handlers in DD overwrite the handlers in annotation
-        HandlerChainsType handlerChains = this.portInfo.getHandlers();
+        HandlerChainsType handlerChains = (HandlerChainsType)this.portInfo.getHandlers(HandlerChainsType.class);
         if (handlerChains != null && handlerChains.getHandlerChain() != null
                 && handlerChains.getHandlerChain().size() > 0) {
             chain = new ArrayList<Handler>();

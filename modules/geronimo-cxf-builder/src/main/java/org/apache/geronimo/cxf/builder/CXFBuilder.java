@@ -22,6 +22,7 @@ import org.apache.cxf.jaxws.javaee.PortComponentType;
 import org.apache.cxf.jaxws.javaee.ServiceImplBeanType;
 import org.apache.cxf.jaxws.javaee.WebserviceDescriptionType;
 import org.apache.cxf.jaxws.javaee.WebservicesType;
+import org.apache.cxf.jaxws.javaee.HandlerChainsType;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.jaxws.PortInfo;
 import org.apache.geronimo.gbean.GBeanInfo;
@@ -119,7 +120,7 @@ public class CXFBuilder extends JAXWSServiceBuilder {
                         portInfo.setEnableMTOM(port.getEnableMtom().isValue());
                     }
 
-                    portInfo.setHandlers(port.getHandlerChains());
+                    portInfo.setHandlers(HandlerChainsType.class, port.getHandlerChains());
 
                     if (port.getWsdlPort() != null) {
                         portInfo.setWsdlPort(port.getWsdlPort().getValue());

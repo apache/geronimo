@@ -53,7 +53,7 @@
     <dependencies>
         <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
-            <artifactId>geronimo-webservices</artifactId>
+            <artifactId>geronimo-jaxws</artifactId>
             <version>${version}</version>
         </dependency>
                 

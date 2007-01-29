@@ -96,6 +96,7 @@
         <module>geronimo-webservices-builder</module>
 
         <!-- javaee 5 modules -->
+        <module>geronimo-jaxws</module>
         <module>geronimo-transformer</module>
         <module>geronimo-persistence-jpa10</module>
         <module>geronimo-persistence-jpa10-builder</module>
