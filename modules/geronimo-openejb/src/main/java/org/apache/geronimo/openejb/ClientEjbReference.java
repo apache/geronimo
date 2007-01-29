@@ -35,7 +35,7 @@ public class ClientEjbReference extends SimpleReference {
 
     public Object getContent() throws NameNotFoundException {
         Properties p = new Properties();
-        p.put("java.naming.factory.initial", "org.apacheopenejb.client.RemoteInitialContextFactory");
+        p.put("java.naming.factory.initial", "org.apache.openejb.client.RemoteInitialContextFactory");
         p.put("java.naming.provider.url", url);
 
         try {
