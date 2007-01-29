@@ -16,12 +16,9 @@
  */
 package org.apache.geronimo.kernel.classloader;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 import java.io.File;
-import java.io.IOException;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -35,16 +32,13 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.StringTokenizer;
-import java.util.zip.ZipException;
 import java.util.jar.Attributes;
 import java.util.jar.Manifest;
-import java.util.jar.JarFile;
 
 /**
  * @version $Rev$ $Date$
  */
 public class UrlResourceFinder implements ResourceFinder {
-    private static final Log log = LogFactory.getLog(UrlResourceFinder.class);
     private final Object lock = new Object();
 
     private final LinkedHashSet urls = new LinkedHashSet();
@@ -258,16 +252,7 @@ public class UrlResourceFinder implements ResourceFinder {
             // do not user the DirectoryResourceLocation for non file based urls
             resourceLocation = new DirectoryResourceLocation(cacheFile);
         } else {
-            JarFile jarFile;
-            try {
-                jarFile = new JarFile(cacheFile);
-            } catch (ZipException ze){
-                // We get this exception on windows when the
-                // path to the jar file gets too long (Bug ID: 6374379)
-                log.info("File is unusable: " + cacheFile.getAbsolutePath());
-                throw ze;
-            }
-            resourceLocation = new JarResourceLocation(codeSource, jarFile);
+            resourceLocation = new JarResourceLocation(codeSource, cacheFile);
         }
         return resourceLocation;
     }
