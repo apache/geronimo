@@ -29,6 +29,8 @@ import org.apache.cxf.service.model.EndpointInfo;
 import org.apache.cxf.wsdl11.ServiceWSDLBuilder;
 
 import org.apache.geronimo.webservices.WebServiceContainer;
+import org.apache.geronimo.jaxws.JNDIResolver;
+import org.apache.geronimo.jaxws.PortInfo;
 import org.xmlsoap.schemas.wsdl.http.AddressType;
 
 import javax.wsdl.Definition;

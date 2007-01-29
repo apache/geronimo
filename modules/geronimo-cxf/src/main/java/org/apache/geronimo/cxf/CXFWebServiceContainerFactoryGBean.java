@@ -36,6 +36,7 @@ import org.apache.geronimo.naming.enc.EnterpriseNamingContext;
 import org.apache.geronimo.transaction.GeronimoUserTransaction;
 import org.apache.geronimo.webservices.WebServiceContainer;
 import org.apache.geronimo.webservices.WebServiceContainerFactory;
+import org.apache.geronimo.jaxws.PortInfo;
 
 /**
  * @version $Rev$ $Date$

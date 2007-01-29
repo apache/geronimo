@@ -14,26 +14,25 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.apache.geronimo.cxf.annotations;
+package org.apache.geronimo.jaxws.annotations;
 
+import javax.annotation.Resource;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 
-import javax.xml.ws.WebServiceRef;
-
-public abstract class WebServiceRefAnnotationHandler extends
+public abstract class ResourceAnnotationHandler extends
         InjectingAnnotationHandler {
 
     public Class<? extends Annotation> getAnnotationType() {
-        return WebServiceRef.class;
+        return Resource.class;
     }
 
     public void processFieldAnnotation(Object instance,
                                        Field field,
                                        Annotation annotation)
             throws InjectionException {
-        WebServiceRef resource = (WebServiceRef) annotation;
+        Resource resource = (Resource) annotation;
         injectField(instance, field, annotation, resource.name(), resource
                 .type());
     }
@@ -42,7 +41,7 @@ public abstract class WebServiceRefAnnotationHandler extends
                                         Method method,
                                         Annotation annotation)
             throws InjectionException {
-        WebServiceRef resource = (WebServiceRef) annotation;
+        Resource resource = (Resource) annotation;
         injectMethod(instance, method, annotation, resource.name(), resource
                 .type());
     }

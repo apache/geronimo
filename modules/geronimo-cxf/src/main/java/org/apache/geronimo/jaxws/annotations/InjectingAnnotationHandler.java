@@ -14,7 +14,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.apache.geronimo.cxf.annotations;
+package org.apache.geronimo.jaxws.annotations;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;

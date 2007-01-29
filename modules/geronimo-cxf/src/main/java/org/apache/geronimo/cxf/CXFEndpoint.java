@@ -53,8 +53,11 @@ import org.apache.cxf.jaxws.support.ProviderServiceFactoryBean;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.service.Service;
 import org.apache.cxf.service.factory.AbstractBindingInfoFactoryBean;
-import org.apache.geronimo.cxf.annotations.AnnotationException;
-import org.apache.geronimo.cxf.annotations.AnnotationProcessor;
+import org.apache.geronimo.jaxws.annotations.AnnotationException;
+import org.apache.geronimo.jaxws.annotations.AnnotationProcessor;
+import org.apache.geronimo.jaxws.JNDIResolver;
+import org.apache.geronimo.jaxws.JAXWSAnnotationProcessor;
+import org.apache.geronimo.jaxws.PortInfo;
 
 /*
  * This class somewhat replicates CXF Endpoint functionality but it is necessary
@@ -122,7 +125,7 @@ public class CXFEndpoint extends Endpoint {
 
         JNDIResolver jndiResolver = (JNDIResolver) bus
                 .getExtension(JNDIResolver.class);
-        this.annotationProcessor = new CXFAnnotationProcessor(jndiResolver);
+        this.annotationProcessor = new JAXWSAnnotationProcessor(jndiResolver, new CXFWebServiceContext());
     }
 
     private URL getWsdlURL(URL configurationBaseUrl, String wsdlFile) {

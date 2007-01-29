@@ -23,6 +23,7 @@ import java.net.URL;
 import javax.xml.namespace.QName;
 
 import org.apache.cxf.service.factory.AbstractServiceConfiguration;
+import org.apache.geronimo.jaxws.PortInfo;
 
 /**
  * Used to overwrite serviceName and portName values of WebService annotation.

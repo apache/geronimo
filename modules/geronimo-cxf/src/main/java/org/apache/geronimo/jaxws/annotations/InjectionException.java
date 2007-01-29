@@ -14,23 +14,23 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.apache.geronimo.cxf.annotations;
+package org.apache.geronimo.jaxws.annotations;
 
-public class AnnotationException extends Exception {
+public class InjectionException extends AnnotationException {
 
-    public AnnotationException() {
+    public InjectionException() {
         super();
     }
 
-    public AnnotationException(String message) {
+    public InjectionException(String message) {
         super(message);
     }
 
-    public AnnotationException(String message, Throwable cause) {
+    public InjectionException(String message, Throwable cause) {
         super(message, cause);
     }
 
-    public AnnotationException(Throwable cause) {
+    public InjectionException(Throwable cause) {
         super(cause);
     }
 

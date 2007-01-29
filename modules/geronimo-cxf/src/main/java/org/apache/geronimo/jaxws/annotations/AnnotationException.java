@@ -14,29 +14,24 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.apache.geronimo.cxf.annotations;
+package org.apache.geronimo.jaxws.annotations;
 
-import java.lang.annotation.Annotation;
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
+public class AnnotationException extends Exception {
 
-public interface AnnotationHandler {
+    public AnnotationException() {
+        super();
+    }
 
-    Class<? extends Annotation> getAnnotationType();
+    public AnnotationException(String message) {
+        super(message);
+    }
 
-    void processFieldAnnotation(Object instance,
-                                Field field,
-                                Annotation annotation)
-            throws AnnotationException;
+    public AnnotationException(String message, Throwable cause) {
+        super(message, cause);
+    }
 
-    void processMethodAnnotation(Object instance,
-                                 Method method,
-                                 Annotation annotation)
-            throws AnnotationException;
-
-    void processClassAnnotation(Object instance,
-                                Class clazz,
-                                Annotation annotation)
-            throws AnnotationException;
+    public AnnotationException(Throwable cause) {
+        super(cause);
+    }
 
 }

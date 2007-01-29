@@ -14,37 +14,33 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.apache.geronimo.cxf.annotations;
+package org.apache.geronimo.jaxws.annotations;
 
+import javax.ejb.EJB;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 
-import javax.annotation.Resource;
-
-public abstract class ResourceAnnotationHandler extends
-        InjectingAnnotationHandler {
+public abstract class EJBAnnotationHandler extends InjectingAnnotationHandler {
 
     public Class<? extends Annotation> getAnnotationType() {
-        return Resource.class;
+        return EJB.class;
     }
 
     public void processFieldAnnotation(Object instance,
                                        Field field,
                                        Annotation annotation)
             throws InjectionException {
-        Resource resource = (Resource) annotation;
-        injectField(instance, field, annotation, resource.name(), resource
-                .type());
+        EJB resource = (EJB) annotation;
+        injectField(instance, field, annotation, resource.name(), null);
     }
 
     public void processMethodAnnotation(Object instance,
                                         Method method,
                                         Annotation annotation)
             throws InjectionException {
-        Resource resource = (Resource) annotation;
-        injectMethod(instance, method, annotation, resource.name(), resource
-                .type());
+        EJB resource = (EJB) annotation;
+        injectMethod(instance, method, annotation, resource.name(), null);
     }
 
 }

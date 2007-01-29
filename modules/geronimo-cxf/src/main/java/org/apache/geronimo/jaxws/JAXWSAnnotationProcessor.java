@@ -14,32 +14,33 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.apache.geronimo.cxf;
+package org.apache.geronimo.jaxws;
 
-import java.lang.annotation.Annotation;
+import org.apache.geronimo.jaxws.annotations.AnnotationProcessor;
+import org.apache.geronimo.jaxws.annotations.EJBAnnotationHandler;
+import org.apache.geronimo.jaxws.annotations.InjectionException;
+import org.apache.geronimo.jaxws.annotations.ResourceAnnotationHandler;
+import org.apache.geronimo.jaxws.annotations.WebServiceRefAnnotationHandler;
 
 import javax.naming.NamingException;
 import javax.xml.ws.WebServiceContext;
+import java.lang.annotation.Annotation;
 
-import org.apache.geronimo.cxf.annotations.AnnotationProcessor;
-import org.apache.geronimo.cxf.annotations.EJBAnnotationHandler;
-import org.apache.geronimo.cxf.annotations.InjectionException;
-import org.apache.geronimo.cxf.annotations.ResourceAnnotationHandler;
-import org.apache.geronimo.cxf.annotations.WebServiceRefAnnotationHandler;
-
-public class CXFAnnotationProcessor extends AnnotationProcessor {
+public class JAXWSAnnotationProcessor extends AnnotationProcessor {
 
     private JNDIResolver jndiResolver;
+    private WebServiceContext context;
     
-    public CXFAnnotationProcessor(JNDIResolver jndiResolver) {
+    public JAXWSAnnotationProcessor(JNDIResolver jndiResolver, WebServiceContext context) {
         this.jndiResolver = jndiResolver;
+        this.context = context;
         
         // register @Resource annotation handler
-        registerHandler(new CXFResourceAnnotationHandler());
+        registerHandler(new JAXWSResourceAnnotationHandler());
         // register @EJB annotation handler
-        registerHandler(new CXFEJBAnnotationHandler());
+        registerHandler(new JAXWSEJBAnnotationHandler());
         // register @WebServiceRef annotation handler
-        registerHandler(new CXFWebServiceRefAnnotationHandler());
+        registerHandler(new JAXWSWebServiceRefAnnotationHandler());
     }
 
     private Object lookupJNDI(String name, Class<?> type)
@@ -51,21 +52,21 @@ public class CXFAnnotationProcessor extends AnnotationProcessor {
         }
     }
 
-    private class CXFResourceAnnotationHandler extends
+    private class JAXWSResourceAnnotationHandler extends
             ResourceAnnotationHandler {
         public Object getAnnotationValue(Annotation annotation,
                                          String name,
                                          Class<?> type)
                 throws InjectionException {
             if (WebServiceContext.class.isAssignableFrom(type)) {
-                return type.cast(new CXFWebServiceContext());
+                return type.cast(context);
             } else {
                 return lookupJNDI(name, type);
             }
         }
     }
 
-    private class CXFEJBAnnotationHandler extends EJBAnnotationHandler {
+    private class JAXWSEJBAnnotationHandler extends EJBAnnotationHandler {
         public Object getAnnotationValue(Annotation annotation,
                                          String name,
                                          Class<?> type)
@@ -74,7 +75,7 @@ public class CXFAnnotationProcessor extends AnnotationProcessor {
         }
     }
 
-    private class CXFWebServiceRefAnnotationHandler extends
+    private class JAXWSWebServiceRefAnnotationHandler extends
             WebServiceRefAnnotationHandler {
         public Object getAnnotationValue(Annotation annotation,
                                          String name,
