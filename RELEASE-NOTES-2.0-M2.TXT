@@ -27,12 +27,12 @@ Significant Changes in the 2.0-M2 Release
 -----------------------------------------
 - Java EE management 1.1
 - EJB 3.0 support (via OpenEJB integration)  
-- Web Services technologies
-- STAX 1.0 Streaming API for XML (JSR 173)
-- JAXB 2.0 - Java Architecture for XML Binding
-- JAX-WS 2.0 support is provided in this milestone. Only POJO based JAX-WS services are supported. (CXF integration)
-- JAX-RPC 1.1 (POJO Only)
-- JAXR 1.0
+- Web Services technologies:
+ - STAX 1.0 Streaming API for XML (JSR 173)
+ - JAXB 2.0 - Java Architecture for XML Binding
+ - JAX-WS 2.0 support is provided in this milestone. Only POJO based JAX-WS services are supported. (CXF integration)
+ - JAX-RPC 1.1 (POJO Only)
+ - JAXR 1.0
 - Addition to admin console that allows users to graphically view classloader hierarchy, JNDI tree and module dependencies
 
 
@@ -71,7 +71,7 @@ Functional Characteristics for 2.0-M2
      - Deployment of annotated beans (@Stateful and @Stateless)
      - Injection via deployment descriptor
      - @Resource injection for env-entries, resource-refs, message-destinations, service-refs,  most resource-env-refs
-     - @EJB injection of ejb-refs and ejb-local-refs
+     - @EJB injection of ejb-refs and ejb-local-refs (Tomcat)
      - @PersistenceContext injection
      - @PersistenceUnit injection
      - JNDI references to the ejb
@@ -90,6 +90,7 @@ Functional Characteristics for 2.0-M2
      
   Limitations:
      - No support for MDBs.
+     - @EJB injection of ejb-refs and ejb-local-refs (Jetty)
 
 
 - Web Services (CXF)
@@ -225,15 +226,22 @@ Apache Geronimo v2.0-M2, being a MILESTONE release is not yet certified.
 Known Issues and Limitations
 ----------------------------
 <!-- open Bugs for 2.*  -->
-GERONIMO-2745  NPE at org.apache.geronimo.security.SubjectId.hashCode(SubjectId.java:79)  
+GERONIMO-2779  JNDI, Dependency, and ClassLoader views don't work with Safari browser  
+GERONIMO-2778  Deployer should always fill in required <local> or <remote> interfaces elements in <ejb-ref>  
+GERONIMO-2775  Enabling web statistics collection for jetty fails from the admin console  
+GERONIMO-2773  cannot create a new jetty http connector from console  
+GERONIMO-2771  GlassFish specs are being included in 2.0-M2 builds  
+GERONIMO-2768  geronimo-j2ee-management_1.1_spec is still using geronimo-ejb_2.1_spec instead of new ejb_3.0_spec  
+GERONIMO-2766  cannot restart a tomcat http connector from the console  
+GERONIMO-2763  JACC URLPatternSpec does not accept *do:login.do as it should  
+GERONIMO-2754  Server wont start on Revision: 497496  
+GERONIMO-2749  AbstractWebModuleBuilder needs to support HTTP extension methods per jacc 1.1  
+GERONIMO-2747  Error while shutting down Geronimo  
 GERONIMO-2744  App client needs to be able to log out  
 GERONIMO-2741  Info messages are being displayed in the console output  
-GERONIMO-2740  Filter out the Tomcat debug log msg - java.lang.ClassNotFoundException: org.apache.tomcat.util.net.puretls.PureTLSImplementation  
 GERONIMO-2737  Server shutdown time has increased significantly because of ActiveMQ v4  
 GERONIMO-2734  Client container does not terminate  
 GERONIMO-2730  JAX-RPC EJB Web Services support appears to be broken  
-GERONIMO-2728  Exception while removing directory module from the console  
-GERONIMO-2709  Database creation pool wizard fails in Jetty  
 GERONIMO-2699  Module was not a war  
 GERONIMO-2696  SQL Exception: Failed to start database  
 GERONIMO-2694  STATUS file sent out as the Geronimo Weekly Status email needs updating  
@@ -258,17 +266,37 @@ GERONIMO-2622  Implement PolicyContextHandlerSOAPMessage
 GERONIMO-2605  NPE if exporting plugin for module having dependency on module with no groupId  
 GERONIMO-2598  Deploy tool prints useless message if configuration start fails  
 GERONIMO-2481  WebServers portlet: Create/Edit Tomcat Connectors should support editing of all supported connector attributes  
-GERONIMO-2105  When redeploying with no version number, new entries in config.xml break  
+GERONIMO-1939  Server Info portlet doesn't display the 'Server Memory Usage' live graph on Internet Explorer 
+
 
 
 
 Specific Issues, Features and Improvements fixed in Version 2.0-M2
 ------------------------------------------------------------------
 <!-- closed/fixed JIRAs  for 2.*  -->
+GERONIMO-2746  use dependencymanagement for some axis2 dependent modules  FIXED  
+GERONIMO-2752  Axis2 integration displays invalid information for URL requests  FIXED  
+GERONIMO-2764  Clustered HttpSessions are not properly destroyed during eviction  FIXED  
+GERONIMO-2679  ArrayIndexOutOfBoundsException when getting Mails from Pop3-Account with geronimo-javamail_1.4_mail-1.0.jar  FIXED  
+GERONIMO-2774  Server memory usage graph does not work  FIXED  
+GERONIMO-2706  Unable to create database pool  DUPLICATE  
+GERONIMO-2728  Exception while removing directory module from the console  FIXED  
 GERONIMO-1519  ResourceException.toString() can return null  FIXED  
+GERONIMO-2653  Inconsistencies between jetty6-builder and tomcat6-builder plan.xml files  FIXED  
 GERONIMO-1657  CommandSupport doesn't bubble up the exception. Prints stacktrace.  FIXED  
+GERONIMO-2769  EarConfigBuilder ignores geronimo plan if no application.xml present  FIXED  
+GERONIMO-2714  FileAuditLoginModule fails to write login attempts  FIXED  
+GERONIMO-2745  NPE at org.apache.geronimo.security.SubjectId.hashCode(SubjectId.java:79)  FIXED  
 GERONIMO-2027  Mismatched passwords when editing user in web console  FIXED  
+GERONIMO-2751  [BUILD BREAK] Module geronimo-axis2  FIXED  
+GERONIMO-2753  the "namingProviderUrl" element does *not* appear to control which IP addresses the RMI service binds to  FIXED  
+GERONIMO-2642  welcome app not included in the jetty assembly.  FIXED  
+GERONIMO-2683  Multiple versions of org.codehaus.wadi.wadi-tribes listed in server/trunk/pom.xml  FIXED  
+GERONIMO-2685  database pool type emty in pool creation wizard - Jetty  FIXED  
+GERONIMO-2740  Filter out the Tomcat debug log msg - java.lang.ClassNotFoundException: org.apache.tomcat.util.net.puretls.PureTLSImplementation  FIXED  
+GERONIMO-2686  database creation pool wizzard fails to deploy  FIXED  
 GERONIMO-2560  Realm added using SecurityRealm portlet does not work  FIXED  
+GERONIMO-2748  DB Manager portlets (DB Viewer and Run SQL) not working  FIXED  
 GERONIMO-2579  TestNG testcases in testsuite broken. JUnit expected. Move to JUnit 4.0 ?  WON'T FIX  
 GERONIMO-2580  CorbaRefBuilder inserts ref for java:comp/CORBA that fails when corba gbean is not present.  FIXED  
 GERONIMO-2587  FileKeystoreInstance.loadKeystoreData() results in inconsistent state if wrong password is supplied  FIXED  
@@ -280,14 +308,18 @@ GERONIMO-2590  The TSSLinkBuilder is not included in the list of loaded builders
 GERONIMO-2591  Database Pools portlet: Create new pool dependency jar selection problems  FIXED  
 GERONIMO-2602  default compile scope is overloaded with 2 meanings in PlanProcessorMojo  FIXED  
 GERONIMO-2603  Building 1.2 if there are 2.0 artifacts in the repo results in mostly 2.0 artifacts in the server.  FIXED  
+GERONIMO-2692  Current specs/trunk fails to build, due to missing modules  FIXED  
 GERONIMO-2611  Configuration should not have duplicates in allServiceParents  FIXED  
+GERONIMO-2709  Database creation pool wizard fails in Jetty  FIXED  
 GERONIMO-2615  Not enough info when a gbean ref can't be verified during deployment  FIXED  
 GERONIMO-2619  Javamail 1.4 spec needs to be using the JAF 1.1 version.  FIXED  
+GERONIMO-2722  enable commons-logging in tomcat module  FIXED  
 GERONIMO-2623  Infinite loop in the SMTPTransport code when a socket factory class is used.  FIXED  
 GERONIMO-2624  Offline deployer busted  FIXED  
 GERONIMO-2625  Geronimo Console: login page prevents using username, password longer than 25 characters for login  FIXED  
 GERONIMO-2627  jsr88 classpath is all messed up  FIXED  
 GERONIMO-2631  jetty5 builder needs to parameterize the jsp servlet class  FIXED  
+GERONIMO-2684  Upgrade server trunk (2.0) to use the latest released geronimo-spec versions  FIXED  
 GERONIMO-2632  Connection errors can result in infinite loop  FIXED  
 GERONIMO-2630  sun j2ee schemas are being redistributed in jsp and servlet specs  FIXED  
 GERONIMO-2641  Missing license headers  FIXED  
@@ -299,25 +331,22 @@ GERONIMO-2656  for jetty, in servlet-mapping, url patterns must be trimmed.  FIX
 GERONIMO-2659  jspc plugin busted by spec >> provided change  FIXED  
 GERONIMO-2663  Build Break ! at configs/client-deployer  CANNOT REPRODUCE  
 GERONIMO-2669  fix o.a.g.j.ClusteredSessionManager to match changes in Jetty AbstractSessionManager  FIXED  
-GERONIMO-2674  The basic CXF integration is not working  FIXED  
-GERONIMO-2679  ArrayIndexOutOfBoundsException when getting Mails from Pop3-Account with geronimo-javamail_1.4_mail-1.0.jar  FIXED  
-GERONIMO-2683  Multiple versions of org.codehaus.wadi.wadi-tribes listed in server/trunk/pom.xml  FIXED  
-GERONIMO-2692  Current specs/trunk fails to build, due to missing modules  FIXED  
-GERONIMO-2685  database pool type emty in pool creation wizard - Jetty  FIXED  
-GERONIMO-2653  Inconsistencies between jetty6-builder and tomcat6-builder plan.xml files  FIXED  
-GERONIMO-2686  database creation pool wizzard fails to deploy  FIXED  
-GERONIMO-2706  Unable to create database pool  DUPLICATE  
-GERONIMO-2642  welcome app not included in the jetty assembly.  FIXED  
-GERONIMO-2713  LDAP Realm fails to test and deploy  FIXED  
-GERONIMO-2714  FileAuditLoginModule fails to write login attempts  FIXED  
 GERONIMO-2720  tomcat https connector needs additional param  FIXED  
-GERONIMO-2721  Unable to deploy anything  FIXED  
-GERONIMO-2722  enable commons-logging in tomcat module  FIXED  
-GERONIMO-2711  specs/trunk fails to build  FIXED  
-GERONIMO-2684  Upgrade server trunk (2.0) to use the latest released geronimo-spec versions  FIXED  
+GERONIMO-1585  Web app security on /* causes deployment exception  FIXED  
+GERONIMO-2674  The basic CXF integration is not working  FIXED  
 GERONIMO-2732  J2EE Application Client deployment fails with NPE  FIXED  
+GERONIMO-2711  specs/trunk fails to build  FIXED  
+GERONIMO-2721  Unable to deploy anything  FIXED  
+GERONIMO-2713  LDAP Realm fails to test and deploy  FIXED  
+GERONIMO-2105  When redeploying with no version number, new entries in config.xml break  FIXED  
+GERONIMO-2689  New View for JNDI name in all the contexts  FIXED  
+GERONIMO-2691  New view for the hierarchical modules and linked dependencies  FIXED  
+GERONIMO-2750  Remove Depricated Code from Axis2 Integration  FIXED  
+GERONIMO-2719  Use released Jetty 6.1 in Geronimo 2.0-M2  FIXED  
+GERONIMO-2600  Upgrade to Derby 10.2.2.0  FIXED  
 GERONIMO-2589  Generate explicit-versions.properties transitvily  FIXED  
 GERONIMO-2594  Add xalan to endorsed directory  FIXED  
+GERONIMO-2716  Create javaee 5 test jars for j2ee-builder tests  FIXED  
 GERONIMO-2597  Make web service builder optional  FIXED  
 GERONIMO-2604  Create a specs pom  FIXED  
 GERONIMO-2608  JACC 1.1 support (jsr-115 MR4)  FIXED  
@@ -325,24 +354,33 @@ GERONIMO-2616  Move jee5 work from sandbox to trunk  FIXED
 GERONIMO-2629  Upgrade to J2EE Management 1.1 (JSR77)  FIXED  
 GERONIMO-2634  Switch to activemq 4.1.0-incubator: include apache incubator repo in our repo list.  FIXED  
 GERONIMO-2635  Upgrade to JavaMail 1.4 and JavaBeans Activation Framework 1.1  FIXED  
+GERONIMO-2761  Upgrade to Log4J 1.2.14 maintenance release  FIXED  
 GERONIMO-2648  Integrate JSF 1.2 into 2.0-M1  FIXED  
 GERONIMO-2662  remove jetty5 support from trunk and 2.0-m1  FIXED  
-GERONIMO-2719  Use released Jetty 6.1 in Geronimo 2.0-M2  FIXED  
-GERONIMO-2716  Create javaee 5 test jars for j2ee-builder tests  FIXED  
+GERONIMO-2783  CXF-based WebServices support: webservices.xml file is no longer required  FIXED  
 GERONIMO-2725  Remove geronimo-qname_1.1_spec usage  FIXED  
 GERONIMO-2726  Update JAXB and StAX implementation versions  FIXED  
+GERONIMO-2762  Updated JAX-WS tests  FIXED  
+GERONIMO-2690  New view for all the classloaders and classes loaded in it  FIXED  
+GERONIMO-2628  Upgrade to tomcat 6.0.2 beta  FIXED  
+GERONIMO-2770  Ejb Deployment with no ejb-jar.xml  FIXED  
+GERONIMO-2718  Upgrade to tomcat 6.0.7 beta  FIXED  
+GERONIMO-2772  Support for EJB 3 descriptors and previous  FIXED  
+GERONIMO-2777  Expose JAX-WS mandatory MessageContext properties  FIXED  
 GERONIMO-2636  Update Jetty 6 assembly to use Jasper 6 for JSP 2.1 support  FIXED  
 GERONIMO-2535  Support Java EE 5 Common Annotation Spec in Geronimo (JSR 250)  FIXED  
 GERONIMO-2667  Streaming API for XML integration  DUPLICATE  
 GERONIMO-2671  Streaming API for XML and JAXB integration  FIXED  
-GERONIMO-2628  Upgrade to tomcat 6.0.2 beta  FIXED  
+GERONIMO-2738  JAXB, STAX support for client applications  FIXED  
 GERONIMO-2727  Enable axis2-deployer in jetty and tomcat jee5 assemblies  FIXED  
 GERONIMO-2536  Support Java EE 5 JavaServerPages Standard Tag Library in Geronimo (JSTL, JSR 52)  FIXED  
 GERONIMO-2729  JAX-RPC POJO WS tests  FIXED  
-GERONIMO-2738  JAXB, STAX support for client applications  FIXED  
-GERONIMO-2718  Upgrade to tomcat 6.0.7 beta  FIXED  
+GERONIMO-2756  Basic @Resource injection for CXF web services  FIXED  
+GERONIMO-2781  Improved CXF-based POJO WebService support  FIXED  
 GERONIMO-2601  Remove the "Old Keystore" portlet  FIXED  
 GERONIMO-2639  Upgrade dojo to 0.4.1  FIXED  
 GERONIMO-2658  Add 2.0-M1 Release Notes  FIXED  
 GERONIMO-2670  Update geronimo plugin repository version  FIXED  
-GERONIMO-2620  Need to create javamail 1.4 versions of the provider and mail jars  FIXED 
+GERONIMO-2760  Upgrade tomcat to version 6.0.8a  FIXED  
+GERONIMO-2755  JSP tests for web-testsuite  FIXED  
+GERONIMO-2620  Need to create javamail 1.4 versions of the provider and mail jars  FIXED
