@@ -61,6 +61,12 @@
            <artifactId>geronimo-jaxws</artifactId>
            <version>${version}</version>
        </dependency>
+
+        <dependency>
+           <groupId>org.apache.geronimo.modules</groupId>
+           <artifactId>geronimo-j2ee-builder</artifactId>
+           <version>${version}</version>
+       </dependency>
        
        <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
