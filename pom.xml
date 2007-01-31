@@ -1317,8 +1317,7 @@
                 <plugin>
                     <groupId>org.codehaus.mojo</groupId>
                     <artifactId>xmlbeans-maven-plugin</artifactId>
-                    <version>2.0.1-20060627.031204-7</version>
-                    <!-- NOTE: Latest 2.0.1-SNAPSHOT broke our build, so use a specific SNAPSHOT release -->
+                    <version>2.0.1-SNAPSHOT</version>
 
                     <executions>
                         <execution>
