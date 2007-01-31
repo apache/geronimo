@@ -133,26 +133,30 @@
                         </configuration>
                     </execution>
                     
-                    <execution>
-                        <id>install-lib-endorsed</id>
-                        <phase>compile</phase>
-                        <goals>
-                            <goal>copy</goal>
-                        </goals>
-                        <configuration>
-                            <artifactItems>
-                                <artifactItem>
-                                    <groupId>org.apache.yoko</groupId>
-                                    <artifactId>yoko-spec-corba</artifactId>
-                                </artifactItem>
-                                <artifactItem>
-                                    <groupId>org.apache.yoko</groupId>
-                                    <artifactId>yoko-rmi-spec</artifactId>
-                                </artifactItem>
-                            </artifactItems>
-                            <outputDirectory>${project.build.directory}/classes/lib/endorsed</outputDirectory>
-                        </configuration>
-                    </execution>
+<!--                     Don't include yoko jars in lib/endorsed. This is a temporary measure to avoid -->
+<!--                     PortableRemoteObject constructor errors. Yoko jars will need to be reinstated -->
+<!--                     when we have corba support -->
+
+<!--                     <execution> -->
+<!--                         <id>install-lib-endorsed</id> -->
+<!--                         <phase>compile</phase> -->
+<!--                         <goals> -->
+<!--                             <goal>copy</goal> -->
+<!--                         </goals> -->
+<!--                         <configuration> -->
+<!--                             <artifactItems> -->
+<!--                                 <artifactItem> -->
+<!--                                     <groupId>org.apache.yoko</groupId> -->
+<!--                                     <artifactId>yoko-spec-corba</artifactId> -->
+<!--                                 </artifactItem> -->
+<!--                                 <artifactItem> -->
+<!--                                     <groupId>org.apache.yoko</groupId> -->
+<!--                                     <artifactId>yoko-rmi-spec</artifactId> -->
+<!--                                 </artifactItem> -->
+<!--                             </artifactItems> -->
+<!--                             <outputDirectory>${project.build.directory}/classes/lib/endorsed</outputDirectory> -->
+<!--                         </configuration> -->
+<!--                     </execution> -->
                     
                     <execution>
                         <id>install-lib</id>
