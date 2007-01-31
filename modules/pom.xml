@@ -103,6 +103,8 @@
         <module>geronimo-cxf-builder</module>
         <module>geronimo-axis2</module>
         <module>geronimo-axis2-builder</module>
+        <module>geronimo-jaxws</module>
+        <module>geronimo-jaxws-builder</module>
         <module>geronimo-jetty6</module>
         <module>geronimo-jetty6-builder</module>
         <module>geronimo-jetty6-clustering-builder-wadi</module>

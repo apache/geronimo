@@ -164,6 +164,7 @@
         <module>openjpa</module>
         <module>cxf</module>
         <module>cxf-deployer</module>
+        <module>jaxws-deployer</module>
         <module>axis2</module>
         <module>axis2-deployer</module>
         <module>dojo-jetty6</module>
