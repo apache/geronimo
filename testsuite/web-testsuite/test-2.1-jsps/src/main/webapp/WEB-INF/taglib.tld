@@ -8,7 +8,7 @@
     <uri>/tlt</uri>
     <tag>
        <name>hello</name>
-       <tagclass>com.test.jsp.HelloTag</tagclass>
+       <tagclass>org.apache.geronimo.testsuite.jsps.HelloTag</tagclass>
        <bodycontent>empty</bodycontent>
     </tag>
 </taglib>

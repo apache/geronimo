@@ -17,25 +17,19 @@
     specific language governing permissions and limitations
     under the License.
 -->
-
 <!-- $Rev$ $Date$ -->
-
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-
     <modelVersion>4.0.0</modelVersion>
-
     <parent>
         <groupId>org.apache.geronimo</groupId>
         <artifactId>geronimo</artifactId>
         <version>2.0-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
-
     <groupId>org.apache.geronimo.testsuite</groupId>
     <artifactId>testsuite</artifactId>
     <name>Geronimo TestSuite</name>
     <packaging>pom</packaging>
-
     <description>
         Geronimo integration testsuite. This contains 2 profiles, default and child.
         The default profile is used by the top level suites directly under this. The child profile is used by the test poms under the suites.
@@ -45,8 +39,6 @@
         The test poms under the suites should have this pom as their parent and set their relativePath appropriately
         The test poms under the suites inherit an empty 'child' profile from here. But any other build executions within the test poms should all be inside a 'child' profile.
     </description>
-
-
     <dependencyManagement>
         <dependencies>
             <!-- testsupport-selenium brings with it testsupport-common, selenium and testng dependencies -->
@@ -58,14 +50,12 @@
             </dependency>
         </dependencies>
     </dependencyManagement>
-
     <dependencies>
         <dependency>
             <groupId>org.apache.geronimo.testsupport</groupId>
             <artifactId>testsupport-selenium</artifactId>
         </dependency>
     </dependencies>
-
     <modules>
         <module>console-testsuite</module>
         <module>deployment-testsuite</module>
@@ -73,8 +63,13 @@
         <module>web-testsuite</module>
         <module>webservices-testsuite</module>
     </modules>
-
     <build>
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+                <filtering>true</filtering>
+            </resource>
+        </resources>
         <pluginManagement>
             <plugins>
                 <plugin>
@@ -82,13 +77,34 @@
                     <artifactId>selenium-maven-plugin</artifactId>
                     <version>${version}</version>
                 </plugin>
-
                 <plugin>
                     <groupId>org.apache.geronimo.plugins</groupId>
                     <artifactId>testsuite-maven-plugin</artifactId>
                     <version>${version}</version>
                 </plugin>
-
+                <plugin>
+                    <artifactId>maven-ear-plugin</artifactId>
+                    <configuration>
+                        <resourcesDir>${project.build.outputDirectory}</resourcesDir>
+                    </configuration>
+                </plugin>
+                <!--
+                     FIXME: Need to reset the default values here since our parent sets up wars
+                     for use with jspc.  Remove once parent pom has been fixed.
+                 -->
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-war-plugin</artifactId>
+                    <configuration>
+                        <webXml>${pom.basedir}/src/main/webapp/WEB-INF/web.xml</webXml>
+                        <webResources>
+                            <resource>
+                                <directory>${pom.basedir}/src/main/webapp</directory>
+                                <filtering>true</filtering>
+                            </resource>
+                        </webResources>
+                    </configuration>
+                </plugin>
                 <!--
                 NOTE: Using 2.3-SNAPSHOT for TestNG w/JDK 1.5 support.
                 -->
@@ -110,7 +126,6 @@
                                 <skip>true</skip>
                             </configuration>
                         </execution>
-
                         <execution>
                             <id>integration</id>
                             <phase>integration-test</phase>
@@ -124,7 +139,6 @@
                         </execution>
                     </executions>
                 </plugin>
-
                 <plugin>
                     <groupId>org.apache.geronimo.genesis.plugins</groupId>
                     <artifactId>maven-maven-plugin</artifactId>
@@ -146,7 +160,6 @@
                                 <goal>invoke</goal>
                             </goals>
                         </execution>
-
                         <execution>
                             <id>site-deploy</id>
                             <phase>site-deploy</phase>
@@ -162,7 +175,6 @@
                                 </parameters>
                             </configuration>
                         </execution>
-
                         <execution>
                             <id>clean</id>
                             <phase>clean</phase>
@@ -177,7 +189,6 @@
                         </execution>
                     </executions>
                 </plugin>
-
                 <plugin>
                     <groupId>org.apache.geronimo.plugins</groupId>
                     <artifactId>geronimo-maven-plugin</artifactId>
@@ -189,7 +200,6 @@
                         </reporters>
                     </configuration>
                 </plugin>
-
                 <plugin>
                     <groupId>org.apache.geronimo.plugins</groupId>
                     <artifactId>selenium-maven-plugin</artifactId>
@@ -207,10 +217,8 @@
                         </execution>
                     </executions>
                 </plugin>
-
             </plugins>
         </pluginManagement>
-
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -222,21 +230,18 @@
             </plugin>
         </plugins>
     </build>
-
     <distributionManagement>
         <site>
             <id>website</id>
             <url>scp://people.apache.org/www/geronimo.apache.org/maven/server/testsuite/${buildNumber}</url>
         </site>
     </distributionManagement>
-
     <reporting>
         <plugins>
             <plugin>
                 <groupId>org.apache.geronimo.plugins</groupId>
                 <artifactId>testsuite-maven-plugin</artifactId>
             </plugin>
-
             <!-- This should actually be configured in genesis:project-config -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -248,19 +253,16 @@
             </plugin>
         </plugins>
     </reporting>
-
     <profiles>
         <profile>
             <id>default</id>
             <activation>
                 <activeByDefault>true</activeByDefault>
             </activation>
-
             <build>
                 <pluginManagement>
                     <plugins>
                         
-
                         <plugin>
                             <groupId>org.apache.geronimo.plugins</groupId>
                             <artifactId>geronimo-maven-plugin</artifactId>
@@ -276,7 +278,6 @@
                                         <background>true</background>
                                     </configuration>
                                 </execution>
-
                                 <!-- Stopping server and restarting it after every testsuite seems to be an overkill.
                                 <execution>
                                     <id>stop-server</id>
@@ -291,7 +292,6 @@
                         </plugin>
                     </plugins>
                 </pluginManagement>
-
                 <plugins>
                     <plugin>
                         <groupId>org.apache.geronimo.plugins</groupId>
@@ -308,13 +308,10 @@
                         </executions>
                     </plugin>
                 </plugins>
-
             </build>
         </profile>
-
         <profile>
             <id>child</id>
         </profile>
     </profiles>
-
 </project>

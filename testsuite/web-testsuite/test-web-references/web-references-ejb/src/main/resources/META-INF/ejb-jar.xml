@@ -1,0 +1,29 @@
+<ejb-jar xmlns = "http://java.sun.com/xml/ns/j2ee" version = "2.1" xmlns:xsi = "http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation = "http://java.sun.com/xml/ns/j2ee http://java.sun.com/xml/ns/j2ee/ejb-jar_2_1.xsd">
+    <display-name>Test</display-name>
+    <enterprise-beans>
+        <session>
+            <display-name>Test</display-name>
+            <ejb-name>TestBean</ejb-name>
+            <home>org.apache.geronimo.test.remote.TestHome</home>
+            <remote>org.apache.geronimo.test.remote.Test</remote>
+            <ejb-class>org.apache.geronimo.test.remote.TestBean</ejb-class>
+            <session-type>Stateless</session-type>
+            <transaction-type>Container</transaction-type>
+            <security-identity>
+                <use-caller-identity/>
+            </security-identity>
+        </session>
+        <session>
+            <display-name>TestLocal</display-name>
+            <ejb-name>TestLocalBean</ejb-name>
+            <local-home>org.apache.geronimo.test.local.TestLocalHome</local-home>
+            <local>org.apache.geronimo.test.local.TestLocal</local>
+            <ejb-class>org.apache.geronimo.test.local.TestLocalBean</ejb-class>
+            <session-type>Stateless</session-type>
+            <transaction-type>Container</transaction-type>
+            <security-identity>
+                <use-caller-identity/>
+            </security-identity>
+        </session>
+    </enterprise-beans>
+</ejb-jar>

@@ -55,23 +55,4 @@
         </dependency>
     </dependencies>
 
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-war-plugin</artifactId>
-                <version>2.0.1</version>
-                <configuration>
-                    <warSourceDirectory>${pom.basedir}/src/main/webapp</warSourceDirectory>
-                    <webXml>${pom.basedir}/src/main/webapp/WEB-INF/web.xml</webXml>
-                    <archiveClasses>true</archiveClasses>
-                    <archive>
-                        <!-- Do not include META-INF/maven to avoid long file problems on windows -->
-                        <addMavenDescriptor>false</addMavenDescriptor>
-                    </archive>
-                </configuration>
-            </plugin>
-        </plugins>
-    </build>
-   
 </project>

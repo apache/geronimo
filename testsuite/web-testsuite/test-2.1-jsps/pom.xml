@@ -67,18 +67,6 @@
                     <extensions>true</extensions>
                   </plugin>
 
-                    <!--
-                     FIXME: Need to reset the default values here since our parent sets up wars
-                     for use with jspc.  Remove once parent pom has been fixed.
-                     -->
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-war-plugin</artifactId>
-                        <configuration>
-                            <webXml>src/main/webapp/WEB-INF/web.xml</webXml>
-                        </configuration>
-                    </plugin>
-
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-surefire-plugin</artifactId>
@@ -111,7 +99,7 @@
                                     <goal>undeploy-module</goal>
                                 </goals>
                                 <configuration>
-                                    <moduleId>Samples/SampleJsp/2.0/car</moduleId>
+                                    <moduleId>${groupId}/${artifactId}/${version}/car</moduleId>
                                 </configuration>
                             </execution>
                         </executions>
