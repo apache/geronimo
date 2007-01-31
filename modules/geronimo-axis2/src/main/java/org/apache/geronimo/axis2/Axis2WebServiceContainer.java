@@ -17,13 +17,33 @@
 
 package org.apache.geronimo.axis2;
 
+import java.io.BufferedOutputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
+import java.io.StringBufferInputStream;
+import java.io.StringReader;
+import java.io.Writer;
+import java.lang.reflect.Method;
 import java.net.URI;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
+import javax.wsdl.Definition;
+import javax.wsdl.Port;
+import javax.wsdl.Service;
+import javax.wsdl.factory.WSDLFactory;
+import javax.wsdl.xml.WSDLReader;
+import javax.wsdl.xml.WSDLWriter;
 import javax.xml.namespace.QName;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.ws.WebServiceException;
 
+import org.apache.axiom.om.OMElement;
+import org.apache.axiom.om.OMNamespace;
 import org.apache.axiom.om.util.UUIDGenerator;
 import org.apache.axis2.AxisFault;
 import org.apache.axis2.Constants;
@@ -32,21 +52,46 @@ import org.apache.axis2.context.ConfigurationContext;
 import org.apache.axis2.context.ConfigurationContextFactory;
 import org.apache.axis2.context.MessageContext;
 import org.apache.axis2.context.OperationContext;
+import org.apache.axis2.description.AxisMessage;
+import org.apache.axis2.description.AxisOperation;
 import org.apache.axis2.description.AxisService;
+import org.apache.axis2.description.Parameter;
 import org.apache.axis2.description.TransportInDescription;
 import org.apache.axis2.description.TransportOutDescription;
+import org.apache.axis2.description.WSDL11ToAxisServiceBuilder;
+import org.apache.axis2.description.WSDL20ToAxisServiceBuilder;
+import org.apache.axis2.description.WSDLToAxisServiceBuilder;
 import org.apache.axis2.engine.AxisEngine;
-import org.apache.axis2.rpc.receivers.RPCMessageReceiver;
+import org.apache.axis2.jaxws.description.DescriptionFactory;
+import org.apache.axis2.jaxws.description.EndpointDescription;
+import org.apache.axis2.jaxws.description.ServiceDescription;
+import org.apache.axis2.jaxws.description.builder.DescriptionBuilderComposite;
+import org.apache.axis2.jaxws.description.builder.MethodDescriptionComposite;
+import org.apache.axis2.jaxws.description.builder.ParameterDescriptionComposite;
+import org.apache.axis2.jaxws.description.builder.RequestWrapperAnnot;
+import org.apache.axis2.jaxws.description.builder.ResponseWrapperAnnot;
+import org.apache.axis2.jaxws.description.builder.WebMethodAnnot;
+import org.apache.axis2.jaxws.description.builder.WebParamAnnot;
+import org.apache.axis2.jaxws.description.builder.WebServiceAnnot;
+import org.apache.axis2.jaxws.description.builder.WsdlComposite;
+import org.apache.axis2.jaxws.description.builder.WsdlGenerator;
+import org.apache.axis2.jaxws.server.JAXWSMessageReceiver;
 import org.apache.axis2.transport.OutTransportInfo;
 import org.apache.axis2.transport.http.HTTPConstants;
 import org.apache.axis2.transport.http.HTTPTransportReceiver;
 import org.apache.axis2.transport.http.HTTPTransportUtils;
 import org.apache.axis2.util.JavaUtils;
 import org.apache.axis2.util.MessageContextBuilder;
+import org.apache.axis2.util.XMLUtils;
+import org.apache.axis2.wsdl.WSDLConstants;
+import org.apache.axis2.wsdl.WSDLUtil;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.webservices.WebServiceContainer;
 import org.apache.ws.commons.schema.XmlSchema;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+
 
 
 public class Axis2WebServiceContainer implements WebServiceContainer {
@@ -62,16 +107,157 @@ public class Axis2WebServiceContainer implements WebServiceContainer {
     private ConfigurationContext configurationContext;
     private String contextRoot = null;
     private Map servicesMap;
+    private Definition wsdlDefinition;
     
-
-    public Axis2WebServiceContainer(PortInfo portInfo, String endpointClassName, ClassLoader classLoader) {
+    
+    public Axis2WebServiceContainer(PortInfo portInfo, String endpointClassName, Definition wsdlDefinition, ClassLoader classLoader) {
         this.classLoader = classLoader;
         this.endpointClassName = endpointClassName;
         this.portInfo = portInfo;
+        this.wsdlDefinition = wsdlDefinition;
         try {
+            AxisService service = null;
+            
             configurationContext = ConfigurationContextFactory.createDefaultConfigurationContext();
-            AxisService service = AxisService.createService(endpointClassName, configurationContext.getAxisConfiguration(), RPCMessageReceiver.class);
+          
+            if(wsdlDefinition != null){ //WSDL Has been provided
+           		WSDLToAxisServiceBuilder wsdlBuilder = null;
+           		
+		        WSDLFactory factory = WSDLFactory.newInstance();
+		        WSDLWriter writer = factory.newWSDLWriter();
+		        
+		        ByteArrayOutputStream out = new ByteArrayOutputStream();
+		        writer.writeWSDL(wsdlDefinition, out);
+		        String wsdlContent = out.toString("UTF-8"); //TODO Pass correct encoding from WSDL
+		        
+           		OMNamespace documentElementNS = ((OMElement)XMLUtils.toOM(new StringReader(wsdlContent))).getNamespace();
+           		
+           		Map<QName, Service> serviceMap = wsdlDefinition.getServices();
+            	Service wsdlService = serviceMap.values().iterator().next();
+            	
+            	Map<String, Port> portMap = wsdlService.getPorts();
+            	Port port = portMap.values().iterator().next();
+            	String portName = port.getName();
+           		QName serviceQName = wsdlService.getQName();
+
+           		//Decide on WSDL Version : 
+            	if(WSDLConstants.WSDL20_2006Constants.DEFAULT_NAMESPACE_URI.equals(documentElementNS.getNamespaceURI())){
+            		wsdlBuilder = new WSDL20ToAxisServiceBuilder(new StringBufferInputStream(wsdlContent), serviceQName, null);
+            	}
+            	else if(Constants.NS_URI_WSDL11.equals(documentElementNS.getNamespaceURI())){
+            		wsdlBuilder = new WSDL11ToAxisServiceBuilder(wsdlDefinition, serviceQName , portName);
+            	}
+            	//populate with axis2 objects
+            	service = wsdlBuilder.populateService();
+            	service.addParameter(new Parameter("ServiceClass", endpointClassName));
+            	
+            	//Goind to create annotations by hand
+            	DescriptionBuilderComposite dbc = new DescriptionBuilderComposite();
+            	dbc.setClassLoader(classLoader);
+            	HashMap<String, DescriptionBuilderComposite> dbcMap = new HashMap<String, DescriptionBuilderComposite>();
+            	
+            	//Service related annotations
+           		WebServiceAnnot serviceAnnot = WebServiceAnnot.createWebServiceAnnotImpl();
+           		serviceAnnot.setPortName(portName);
+            	serviceAnnot.setServiceName(service.getName());
+           	 	serviceAnnot.setName(service.getName());
+           	 	serviceAnnot.setTargetNamespace(service.getTargetNamespace());
+           	 	serviceAnnot.setEndpointInterface(endpointClassName);
+          	
+           	 	Class endPointClass = classLoader.loadClass(endpointClassName);
+    	 		Method[] classMethods = endPointClass.getMethods();
+    	 		
+           	 	for(Iterator<AxisOperation> opIterator = service.getOperations() ; opIterator.hasNext() ;){
+           	 		AxisOperation operation = opIterator.next();
+           	 		operation.setMessageReceiver(JAXWSMessageReceiver.class.newInstance());
+           	 		
+           	 		for(Method method : classMethods){
+           	 			// TODO Is this correct method?
+           	 			String axisOpName = operation.getName().getLocalPart();
+           	 			
+           	 			if(method.getName().equals(axisOpName)){
+           	 				//Method level annotations
+           	 				MethodDescriptionComposite mdc = new MethodDescriptionComposite();
+           	 				WebMethodAnnot webMethodAnnot = WebMethodAnnot.createWebMethodAnnotImpl();
+           	 				webMethodAnnot.setOperationName(method.getName());
+//           	 				methodAnnot.setAction(operation.get);
+//           	 				methodAnnot.setExclude(false);
+           	 				
+           	 				mdc.setWebMethodAnnot(webMethodAnnot);
+
+           	 				mdc.setMethodName(method.getName());
+           	 				mdc.setDescriptionBuilderCompositeRef(dbc);
+
+	               	 		String MEP = operation.getMessageExchangePattern();
+	               	 		
+	               	 		if (WSDLUtil.isInputPresentForMEP(MEP)) {
+	               	 			AxisMessage inAxisMessage = operation.getMessage(WSDLConstants.MESSAGE_LABEL_IN_VALUE);
+	               	 			if(inAxisMessage != null){
+		               	 			//TODO: Has to explore more
+		               	 			Class[] paramTypes = method.getParameterTypes();
+		               	 			int i = 0;
+		               	 			for(Class paramType : paramTypes){
+		               	 				//Parameter level annotations
+		               	 				ParameterDescriptionComposite pdc = new ParameterDescriptionComposite();
+		               	 				WebParamAnnot webParamAnnot = WebParamAnnot.createWebParamAnnotImpl();
+
+		               	 				webParamAnnot.setName("arg"+i);
+		               	 				webParamAnnot.setName(inAxisMessage.getElementQName().getLocalPart());
+		               	 				webParamAnnot.setTargetNamespace(inAxisMessage.getElementQName().getNamespaceURI());
+		               	 				
+		               	 				pdc.setWebParamAnnot(webParamAnnot);
+		               	 				String strParamType = paramType.toString();
+		               	 				
+		               	 				pdc.setMethodDescriptionCompositeRef(mdc);
+		               	 				pdc.setParameterType(strParamType.split(" ")[1]);
+		               	 				mdc.addParameterDescriptionComposite(pdc, i);
+		               	 				//TODO: Do we need to set these things?
+		               	 				RequestWrapperAnnot requestWrapAnnot = RequestWrapperAnnot.createRequestWrapperAnnotImpl();
+		               	 				requestWrapAnnot.setLocalName(inAxisMessage.getElementQName().getLocalPart());
+		               	 				requestWrapAnnot.setTargetNamespace(inAxisMessage.getElementQName().getNamespaceURI());
+		               	 				
+		               	 				mdc.setRequestWrapperAnnot(requestWrapAnnot);
+		               	 				i++;
+		               	 			}
+	               	 			}
+	               	 		}
+	               	 		
+	               	 		if (WSDLUtil.isOutputPresentForMEP(MEP)) {
+	               	 			AxisMessage outAxisMessage = operation.getMessage(WSDLConstants.MESSAGE_LABEL_OUT_VALUE);
+	               	 			
+	               	 			if(outAxisMessage != null){
+	               	 				mdc.setReturnType(method.getReturnType().toString().split(" ")[1]);
+	               	 				//TODO:
+	               	 				ResponseWrapperAnnot responseWrapAnnot = ResponseWrapperAnnot.createResponseWrapperAnnotImpl();
+	               	 				responseWrapAnnot.setLocalName(outAxisMessage.getElementQName().getLocalPart());
+	               	 				responseWrapAnnot.setTargetNamespace(outAxisMessage.getElementQName().getNamespaceURI());
+	               	 				mdc.setResponseWrapperAnnot(responseWrapAnnot);
+	               	 			}
+	               	 		}
+	               	 		mdc.setWebMethodAnnot(webMethodAnnot);
+	               	 		dbc.addMethodDescriptionComposite(mdc);
+	               	 		
+           	 				break;
+           	 			}
+           	 		}
+           	 	}
+            	
+            	dbc.setWebServiceAnnot(serviceAnnot);
+           	 	dbc.setWsdlDefinition(wsdlDefinition);
+           	 	dbc.setClassName(endpointClassName);
+           	 	dbc.setCustomWsdlGenerator(new WSDLGeneratorImpl(wsdlDefinition));
+           	 	dbcMap.put(endpointClassName, dbc);
+                List<ServiceDescription> serviceDescList = DescriptionFactory.createServiceDescriptionFromDBCMap(dbcMap);
+                ServiceDescription sd = serviceDescList.get(0);
+                Parameter serviceDescription = new Parameter(EndpointDescription.AXIS_SERVICE_PARAMETER, sd.getEndpointDescriptions()[0]);
+                service.addParameter(serviceDescription);
+            	        	            	
+            }else { //No WSDL, Axis2 will handle it. Is it ?
+            	service = AxisService.createService(endpointClassName, configurationContext.getAxisConfiguration(), JAXWSMessageReceiver.class);
+            }
+
             configurationContext.getAxisConfiguration().addService(service);
+            
         } catch (AxisFault af) {
             throw new RuntimeException(af);
         } catch (Exception e) {
@@ -79,6 +265,7 @@ public class Axis2WebServiceContainer implements WebServiceContainer {
         }
     }
 
+    
     public void getWsdl(Request request, Response response) throws Exception {
         doService(request, response);
     }
@@ -98,12 +285,15 @@ public class Axis2WebServiceContainer implements WebServiceContainer {
         MessageContext msgContext = new MessageContext();
         msgContext.setIncomingTransportName(Constants.TRANSPORT_HTTP);
         msgContext.setProperty(MessageContext.REMOTE_ADDR, request.getRemoteAddr());
+        
 
         try {
             TransportOutDescription transportOut = this.configurationContext.getAxisConfiguration()
                     .getTransportOut(new QName(Constants.TRANSPORT_HTTP));
             TransportInDescription transportIn = this.configurationContext.getAxisConfiguration()
                     .getTransportIn(new QName(Constants.TRANSPORT_HTTP));
+            
+            
 
             msgContext.setConfigurationContext(this.configurationContext);
 
@@ -117,6 +307,7 @@ public class Axis2WebServiceContainer implements WebServiceContainer {
             msgContext.setTransportOut(transportOut);
             msgContext.setServiceGroupContextId(UUIDGenerator.getUUID());
             msgContext.setServerSide(true);
+            
 
 //            // set the transport Headers
 //            HashMap headerMap = new HashMap();
@@ -174,6 +365,9 @@ public class Axis2WebServiceContainer implements WebServiceContainer {
                 contextRoot = "/";
             }
             configurationContext.setContextRoot(contextRoot);
+            
+//            Parameter servicePath = new Parameter(Constants.PARAM_SERVICE_PATH, new String(""));
+            
         }
     }
 
@@ -243,27 +437,26 @@ public class Axis2WebServiceContainer implements WebServiceContainer {
                 }
             }
             
+            //TODO: Has to implement 
             if (uri.getQuery().startsWith("wsdl2")) {
                 if (service != null) {
-                    service.printWSDL2(response.getOutputStream(), uri.getHost(), servicePath);
+                    service.printWSDL2(response.getOutputStream());
                     return;
                 }
             }
             if (uri.getQuery().startsWith("wsdl")) {
-            	if(service != null){
-            		service.printWSDL(response.getOutputStream(), uri.getHost(), servicePath);
+            	if(wsdlDefinition != null){
+            		WSDLFactory factory = WSDLFactory.newInstance();
+            		WSDLWriter writer = factory.newWSDLWriter();            		
+            		writer.writeWSDL(wsdlDefinition, response.getOutputStream());
             		return;
+            	}else {
+            		//TODO: How do we give WSDL info now ?
             	}
             }
+            //TODO: Not working properly and do we need to have these requests ?
             if (uri.getQuery().startsWith("xsd=")) {
-                if (service != null) {
-                    service.printSchema(response.getOutputStream());
-                    return;
-                }
-            }
-            //cater for named xsds - check for the xsd name
-            if (uri.getQuery().startsWith("xsd")) {
-                String schemaName = uri.getQuery().substring(uri.getQuery().lastIndexOf("=") + 1);
+            	String schemaName = uri.getQuery().substring(uri.getQuery().lastIndexOf("=") + 1);
 
                 if (service != null) {
                     //run the population logic just to be sure
@@ -280,6 +473,16 @@ public class Axis2WebServiceContainer implements WebServiceContainer {
                         response.setStatusCode(404);
                         return;
                     }
+                }                
+            }
+            //cater for named xsds - check for the xsd name
+            if (uri.getQuery().startsWith("xsd")) {
+            	if (service != null) {
+            		response.setContentType("text/xml");
+            		response.setHeader("Transfer-Encoding", "chunked");
+                    service.printSchema(response.getOutputStream());
+                    response.getOutputStream().close();
+                    return;
                 }
             }
 
@@ -344,8 +547,8 @@ public class Axis2WebServiceContainer implements WebServiceContainer {
     }
     
     public void destroy() {
-    }
-
+	}
+    
     public class Axis2TransportInfo implements OutTransportInfo {
         private Response response;
 
@@ -356,6 +559,25 @@ public class Axis2WebServiceContainer implements WebServiceContainer {
         public void setContentType(String contentType) {
             response.setHeader(HTTPConstants.HEADER_CONTENT_TYPE, contentType);
         }
+    }
+    
+    class WSDLGeneratorImpl implements WsdlGenerator {
+
+    	private Definition def;
+    	
+    	public WSDLGeneratorImpl(Definition def) {
+    		this.def = def;
+    	}
+    	
+    	public WsdlComposite generateWsdl(String implClass, String bindingType) throws WebServiceException {
+    		// Need WSDL generation code
+    		WsdlComposite composite = new WsdlComposite();
+    		composite.setWsdlFileName(implClass);
+    		HashMap<String, Definition> testMap = new HashMap<String, Definition>();
+    		testMap.put(composite.getWsdlFileName(), def);
+    		composite.setWsdlDefinition(testMap);
+    		return composite;
+    	}
     }
 
 }

@@ -17,6 +17,8 @@
 
 package org.apache.geronimo.axis2;
 
+import javax.wsdl.Definition;
+
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
@@ -28,15 +30,17 @@ public class Axis2WebServiceContainerFactoryGBean implements WebServiceContainer
     private final PortInfo portInfo;
     private final String endpointClassName;
     private final ClassLoader classLoader;
+    private final Definition wsdlDefinition;
 
-    public Axis2WebServiceContainerFactoryGBean(PortInfo portInfo, String endpointClassName, ClassLoader classLoader) throws InstantiationException, IllegalAccessException, ClassNotFoundException {
+    public Axis2WebServiceContainerFactoryGBean(PortInfo portInfo, String endpointClassName, Definition wsdlDefinition, ClassLoader classLoader) throws InstantiationException, IllegalAccessException, ClassNotFoundException {
         this.portInfo = portInfo;
         this.classLoader = classLoader;
         this.endpointClassName = endpointClassName;
+        this.wsdlDefinition = wsdlDefinition;
     }
 
     public WebServiceContainer getWebServiceContainer() {
-        return new Axis2WebServiceContainer(portInfo, endpointClassName, classLoader);
+        return new Axis2WebServiceContainer(portInfo, endpointClassName, wsdlDefinition, classLoader);
     }
 
     public static final GBeanInfo GBEAN_INFO;
@@ -45,8 +49,9 @@ public class Axis2WebServiceContainerFactoryGBean implements WebServiceContainer
         GBeanInfoBuilder infoBuilder = GBeanInfoBuilder.createStatic(Axis2WebServiceContainerFactoryGBean.class, NameFactory.GERONIMO_SERVICE);
         infoBuilder.addAttribute("portInfo", PortInfo.class, true, true);
         infoBuilder.addAttribute("endpointClassName", String.class, true, true);
+        infoBuilder.addAttribute("wsdlDefinition", Definition.class, true, true);
         infoBuilder.addAttribute("classLoader", ClassLoader.class, false);
-        infoBuilder.setConstructor(new String[]{"portInfo", "endpointClassName", "classLoader"});
+        infoBuilder.setConstructor(new String[]{"portInfo", "endpointClassName", "wsdlDefinition", "classLoader"});
         GBEAN_INFO = infoBuilder.getBeanInfo();
     }
 

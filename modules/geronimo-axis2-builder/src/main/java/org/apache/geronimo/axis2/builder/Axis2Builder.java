@@ -17,9 +17,33 @@
 
 package org.apache.geronimo.axis2.builder;
 
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.jar.JarFile;
+
+import javax.wsdl.Definition;
+import javax.wsdl.WSDLException;
+import javax.wsdl.factory.WSDLFactory;
+import javax.wsdl.xml.WSDLReader;
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBElement;
+import javax.xml.bind.JAXBException;
+import javax.xml.bind.Unmarshaller;
+import javax.xml.ws.handler.Handler;
+
 import org.apache.axis2.jaxws.javaee.PortComponentType;
 import org.apache.axis2.jaxws.javaee.WebserviceDescriptionType;
 import org.apache.axis2.jaxws.javaee.WebservicesType;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.axis2.Axis2WebServiceContainerFactoryGBean;
 import org.apache.geronimo.axis2.PortInfo;
 import org.apache.geronimo.common.DeploymentException;
@@ -37,26 +61,14 @@ import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.GBeanAlreadyExistsException;
 import org.apache.geronimo.kernel.repository.Environment;
 
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBElement;
-import javax.xml.bind.JAXBException;
-import javax.xml.bind.Unmarshaller;
-import javax.xml.ws.handler.Handler;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.*;
-import java.util.jar.JarFile;
-import java.util.logging.Logger;
-
 public class Axis2Builder implements WebServiceBuilder {
 
-    private static final Logger LOG = Logger.getLogger(Axis2Builder.class.getName());
+	private static final Log log = LogFactory.getLog(Axis2Builder.class);
+	
     private final Environment defaultEnvironment;
     private static final String KEY = Axis2Builder.class.getName();
     private JAXBContext ctx;
+    private Definition wsdlDefinition = null;
 
     public Axis2Builder(Environment defaultEnviroment) throws JAXBException {
         this.defaultEnvironment = defaultEnviroment;
@@ -82,7 +94,7 @@ public class Axis2Builder implements WebServiceBuilder {
     private Map<String, PortInfo> parseWebServiceDescriptor(URL wsDDUrl, JarFile moduleFile, boolean isEJB, Map correctedPortLocations)
             throws DeploymentException {
 
-        LOG.fine("parsing descriptor " + wsDDUrl);
+        log.debug("parsing descriptor " + wsDDUrl);
 
         Map<String, PortInfo> map = new HashMap<String, PortInfo>();
 
@@ -107,6 +119,30 @@ public class Axis2Builder implements WebServiceBuilder {
             for (WebserviceDescriptionType desc : wst.getWebserviceDescription()) {
                 final String wsdlFile = desc.getWsdlFile().getValue();
                 final String serviceName = desc.getWebserviceDescriptionName().getValue();
+                
+                URL wsdlURL = null;
+                try {
+                	if(wsdlFile != null){
+                		wsdlURL = DeploymentUtil.createJarURL(moduleFile, wsdlFile);
+    					InputStream wsdlStream = wsdlURL.openStream();
+    					if(wsdlStream == null){
+    						throw new DeploymentException("unable to read descriptor "+wsdlURL);
+    					}else {
+    						wsdlStream.close();
+    					}
+    					try {
+							WSDLFactory factory = WSDLFactory.newInstance();
+							WSDLReader reader = factory.newWSDLReader();
+							reader.setFeature("javax.wsdl.importDocuments", true);
+							reader.setFeature("javax.wsdl.verbose", false);
+							wsdlDefinition = reader.readWSDL(wsdlURL.toString());
+						} catch (WSDLException e) {
+							throw new DeploymentException("Invalid WSDL provided "+e);
+						}
+                	}
+				} catch (RuntimeException e) {
+					throw new DeploymentException("Invalid url "+wsdlURL);
+				}
 
                 for (PortComponentType port : desc.getPortComponent()) {
                     String servlet = port.getServiceImplBean().getServletLink().getValue();
@@ -121,7 +157,7 @@ public class Axis2Builder implements WebServiceBuilder {
                     portInfo.setPortName(portName);
                     portInfo.setWsdlFile(wsdlFile);
                     portInfo.setHandlers(port.getHandler());
-
+                    
                     map.put(servlet, portInfo);
                 }
             }
@@ -149,8 +185,8 @@ public class Axis2Builder implements WebServiceBuilder {
             return false;
         }
 
-        LOG.info("configuring POJO webservice: " + servletName + " sei: " + seiClassName);
-
+        log.debug("configuring POJO webservice: " + servletName + " sei: " + seiClassName);
+        
         // verify that the class is loadable
         ClassLoader classLoader = context.getClassLoader();
         loadSEI(seiClassName, classLoader);
@@ -161,6 +197,7 @@ public class Axis2Builder implements WebServiceBuilder {
         GBeanData containerFactoryData = new GBeanData(containerFactoryName, Axis2WebServiceContainerFactoryGBean.GBEAN_INFO);
         containerFactoryData.setAttribute("portInfo", portInfo);
         containerFactoryData.setAttribute("endpointClassName", seiClassName);
+        containerFactoryData.setAttribute("wsdlDefinition", wsdlDefinition);
         try {
             context.addGBean(containerFactoryData);
         } catch (GBeanAlreadyExistsException e) {
