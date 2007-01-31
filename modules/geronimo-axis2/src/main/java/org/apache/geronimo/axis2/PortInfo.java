@@ -30,6 +30,7 @@ public class PortInfo implements Serializable {
     private String seiInterfaceName;
     private String wsdlFile;
     private String servletLink;
+    private String urlpattern;
 
     private List<PortComponentHandlerType> handlers;
 
@@ -80,8 +81,16 @@ public class PortInfo implements Serializable {
     public void setServiceName(String sn) {
         serviceName = sn;
     }
+    
+    public String getURLPattern() {
+        return urlpattern;
+    }
+    
+    public void setURLPattern(String up) {
+        urlpattern = up;
+    }
 
     public String toString() {
-        return "[" + serviceName + ":" + portName + ":" + seiInterfaceName + ":" + wsdlFile + "]";
+        return "[" + serviceName + ":" + portName + ":" + seiInterfaceName + ":" + wsdlFile + ":" + urlpattern + "]";
     }
 }

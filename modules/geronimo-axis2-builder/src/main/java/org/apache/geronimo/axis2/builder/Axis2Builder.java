@@ -148,7 +148,7 @@ public class Axis2Builder implements WebServiceBuilder {
                     String servlet = port.getServiceImplBean().getServletLink().getValue();
                     String sei = port.getServiceEndpointInterface().getValue();
                     String portName = port.getPortComponentName().getValue();
-
+                    String urlpattern = (String) correctedPortLocations.get(servlet);
                     PortInfo portInfo = new PortInfo();
 
                     portInfo.setServiceName(serviceName);
@@ -157,7 +157,7 @@ public class Axis2Builder implements WebServiceBuilder {
                     portInfo.setPortName(portName);
                     portInfo.setWsdlFile(wsdlFile);
                     portInfo.setHandlers(port.getHandler());
-                    
+                    portInfo.setURLPattern(urlpattern);
                     map.put(servlet, portInfo);
                 }
             }
@@ -178,8 +178,12 @@ public class Axis2Builder implements WebServiceBuilder {
         // assert pi instanceof PortInfo : "received incorrect portInfo object";
 
         Map sharedContext = ((WebModule) module).getSharedContext();
+        String contextRoot = ((WebModule) module).getContextRoot();
         Map portInfoMap = (Map) sharedContext.get(KEY);
         PortInfo portInfo = (PortInfo) portInfoMap.get(servletName);
+        
+        processURLPattern(contextRoot, portInfo);
+        
         if (portInfo == null) {
             // not ours
             return false;
@@ -226,6 +230,32 @@ public class Axis2Builder implements WebServiceBuilder {
         return new ArrayList<Handler>();
     }
 
+    private void processURLPattern(String contextRoot, PortInfo portInfo) throws DeploymentException {
+        //if the user specifies a url-pattern, set it here. 
+        String oldup = portInfo.getURLPattern();
+        if (oldup == null || oldup.length() == 0) { 
+            //if we cannot grab a valid urlpattern, default it to the port-component-name.
+            portInfo.setURLPattern(portInfo.getPortName());   
+        } else {
+            int i = oldup.indexOf(contextRoot);
+            oldup = oldup.substring(i + contextRoot.length() + 1);
+            oldup = oldup.trim();
+            if (oldup.indexOf("*") > 0) {
+                //uncomment this before we fix this issue.  workarond by assuming * is at the end.
+                //throw new DeploymentException("Per JSR 109, the url-pattern should not contain an asterisk.");
+                oldup = oldup.substring(0, oldup.length() - 1);
+            } 
+            //trim the forward slashes at the beginning or end.
+            if (oldup.substring(0, 1).equalsIgnoreCase("/")) {
+                oldup = oldup.substring(1);
+            } 
+            if (oldup.substring(oldup.length()-1).equalsIgnoreCase("/")) {
+                oldup = oldup.substring(0, oldup.length() - 1);
+            }
+        
+            portInfo.setURLPattern(oldup);
+        } 
+    }
     public static final GBeanInfo GBEAN_INFO;
 
     static {

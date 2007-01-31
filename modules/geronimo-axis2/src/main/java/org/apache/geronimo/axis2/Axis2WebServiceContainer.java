@@ -119,6 +119,7 @@ public class Axis2WebServiceContainer implements WebServiceContainer {
             AxisService service = null;
             
             configurationContext = ConfigurationContextFactory.createDefaultConfigurationContext();
+            configurationContext.setServicePath(portInfo.getURLPattern());
           
             if(wsdlDefinition != null){ //WSDL Has been provided
            		WSDLToAxisServiceBuilder wsdlBuilder = null;
