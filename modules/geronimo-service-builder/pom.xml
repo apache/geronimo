@@ -32,19 +32,8 @@
     <name>Geronimo :: Service :: Builder</name>
     
     <dependencies>
-        
-        <dependency>
-            <groupId>${pom.groupId}</groupId>
-            <artifactId>geronimo-kernel</artifactId>
-            <version>${version}</version>
-        </dependency>
 
-        <dependency>
-            <groupId>${pom.groupId}</groupId>
-            <artifactId>geronimo-common</artifactId>
-            <version>${version}</version>
-        </dependency>
-
+        <!-- g-kernel, g-common is coming from this via geronimo-system -->
         <dependency>
             <groupId>${pom.groupId}</groupId>
             <artifactId>geronimo-deployment</artifactId>
@@ -56,16 +45,6 @@
             <groupId>${pom.groupId}</groupId>
             <artifactId>geronimo-deploy-config</artifactId>
             <version>${version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>xmlbeans</groupId>
-            <artifactId>xbean</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>stax</groupId>
-            <artifactId>stax-api</artifactId>
         </dependency>
         
     </dependencies>
