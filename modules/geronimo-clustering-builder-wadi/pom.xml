@@ -30,7 +30,7 @@
     </parent>
 
     <artifactId>geronimo-clustering-builder-wadi</artifactId>
-    <name>Geronimo Clustering Builder WADI</name>
+    <name>Geronimo :: Clustering Builder WADI</name>
     
     <dependencies>
 

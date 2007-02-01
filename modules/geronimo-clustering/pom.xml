@@ -30,7 +30,7 @@
     </parent>
 
     <artifactId>geronimo-clustering</artifactId>
-    <name>Geronimo Clustering</name>
+    <name>Geronimo :: Clustering</name>
     
     <dependencies>
         <dependency>

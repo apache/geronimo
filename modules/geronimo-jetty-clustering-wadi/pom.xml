@@ -30,7 +30,7 @@
     </parent>
 
     <artifactId>geronimo-jetty-clustering-wadi</artifactId>
-    <name>Geronimo Jetty Clustering over WADI</name>
+    <name>Geronimo :: Jetty Clustering over WADI</name>
     
     <dependencies>
         <dependency>
