@@ -75,7 +75,8 @@
        <dependency>
             <groupId>org.apache.axis2</groupId>
             <artifactId>axis2-jaxws-api</artifactId>
-        </dependency>
+		   <version>SNAPSHOT</version>
+	   </dependency>
 
     </dependencies>
     
