@@ -38,6 +38,7 @@ import org.apache.geronimo.kernel.ClassLoading;
 import org.apache.geronimo.kernel.config.Configuration;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.naming.deployment.AbstractNamingBuilder;
+import org.apache.geronimo.naming.deployment.ServiceRefBuilder;
 import org.apache.geronimo.xbeans.geronimo.naming.GerServiceRefDocument;
 import org.apache.geronimo.xbeans.geronimo.naming.GerServiceRefType;
 import org.apache.geronimo.xbeans.j2ee.ParamValueType;
@@ -51,7 +52,7 @@ import org.apache.xmlbeans.XmlObject;
 /**
  * @version $Rev$ $Date$
  */
-public class AxisServiceRefBuilder extends AbstractNamingBuilder {
+public class AxisServiceRefBuilder extends AbstractNamingBuilder implements ServiceRefBuilder {
     private final QNameSet serviceRefQNameSet;
     private static final QName GER_SERVICE_REF_QNAME = GerServiceRefDocument.type.getDocumentElementName();
     private static final QNameSet GER_SERVICE_REF_QNAME_SET = QNameSet.singleton(GER_SERVICE_REF_QNAME);
@@ -72,65 +73,76 @@ public class AxisServiceRefBuilder extends AbstractNamingBuilder {
         List<ServiceRefType> serviceRefsUntyped = convert(specDD.selectChildren(serviceRefQNameSet), J2EE_CONVERTER, ServiceRefType.class, ServiceRefType.type);
         XmlObject[] gerServiceRefsUntyped = plan == null? NO_REFS: plan.selectChildren(GER_SERVICE_REF_QNAME_SET);
         Map serviceRefMap = mapServiceRefs(gerServiceRefsUntyped);
-        ClassLoader cl = module.getEarContext().getClassLoader();
-
+       
         for (ServiceRefType serviceRef: serviceRefsUntyped) {
             String name = getStringValue(serviceRef.getServiceRefName());
             GerServiceRefType serviceRefType = (GerServiceRefType) serviceRefMap.get(name);
+            buildNaming(serviceRef, serviceRefType, module, componentContext);
+        }
+    }
+
+    public void buildNaming(XmlObject serviceRef, GerServiceRefType gerServiceRefType, Module module, Map componentContext) throws DeploymentException {
+        ServiceRefType serviceRefType = 
+            (ServiceRefType)convert(serviceRef, J2EE_CONVERTER, ServiceRefType.type);
+        buildNaming(serviceRefType, gerServiceRefType, module, componentContext);
+    }
+    
+    private void buildNaming(ServiceRefType serviceRef, GerServiceRefType serviceRefType, Module module, Map componentContext) throws DeploymentException {
+        String name = getStringValue(serviceRef.getServiceRefName());
+        ClassLoader cl = module.getEarContext().getClassLoader();
+
 //            Map credentialsNameMap = (Map) serviceRefCredentialsNameMap.get(name);
-            String serviceInterfaceName = getStringValue(serviceRef.getServiceInterface());
-            assureInterface(serviceInterfaceName, "javax.xml.rpc.Service", "[Web]Service", cl);
-            Class serviceInterface;
+        String serviceInterfaceName = getStringValue(serviceRef.getServiceInterface());
+        assureInterface(serviceInterfaceName, "javax.xml.rpc.Service", "[Web]Service", cl);
+        Class serviceInterface;
+        try {
+            serviceInterface = cl.loadClass(serviceInterfaceName);
+        } catch (ClassNotFoundException e) {
+            throw new DeploymentException("Could not load service interface class: " + serviceInterfaceName, e);
+        }
+        URI wsdlURI = null;
+        if (serviceRef.isSetWsdlFile()) {
             try {
-                serviceInterface = cl.loadClass(serviceInterfaceName);
-            } catch (ClassNotFoundException e) {
-                throw new DeploymentException("Could not load service interface class: " + serviceInterfaceName, e);
+                wsdlURI = new URI(serviceRef.getWsdlFile().getStringValue().trim());
+            } catch (URISyntaxException e) {
+                throw new DeploymentException("could not construct wsdl uri from " + serviceRef.getWsdlFile().getStringValue(), e);
             }
-            URI wsdlURI = null;
-            if (serviceRef.isSetWsdlFile()) {
+        }
+        URI jaxrpcMappingURI = null;
+        if (serviceRef.isSetJaxrpcMappingFile()) {
+            try {
+                jaxrpcMappingURI = new URI(getStringValue(serviceRef.getJaxrpcMappingFile()));
+            } catch (URISyntaxException e) {
+                throw new DeploymentException("Could not construct jaxrpc mapping uri from " + serviceRef.getJaxrpcMappingFile(), e);
+            }
+        }
+        QName serviceQName = null;
+        if (serviceRef.isSetServiceQname()) {
+            serviceQName = serviceRef.getServiceQname().getQNameValue();
+        }
+        Map portComponentRefMap = new HashMap();
+        PortComponentRefType[] portComponentRefs = serviceRef.getPortComponentRefArray();
+        if (portComponentRefs != null) {
+            for (int j = 0; j < portComponentRefs.length; j++) {
+                PortComponentRefType portComponentRef = portComponentRefs[j];
+                String portComponentLink = getStringValue(portComponentRef.getPortComponentLink());
+                String serviceEndpointInterfaceType = getStringValue(portComponentRef.getServiceEndpointInterface());
+                assureInterface(serviceEndpointInterfaceType, "java.rmi.Remote", "ServiceEndpoint", cl);
+                Class serviceEndpointClass;
                 try {
-                    wsdlURI = new URI(serviceRef.getWsdlFile().getStringValue().trim());
-                } catch (URISyntaxException e) {
-                    throw new DeploymentException("could not construct wsdl uri from " + serviceRef.getWsdlFile().getStringValue(), e);
+                    serviceEndpointClass = cl.loadClass(serviceEndpointInterfaceType);
+                } catch (ClassNotFoundException e) {
+                    throw new DeploymentException("could not load service endpoint class " + serviceEndpointInterfaceType, e);
                 }
+                portComponentRefMap.put(serviceEndpointClass, portComponentLink);
             }
-            URI jaxrpcMappingURI = null;
-            if (serviceRef.isSetJaxrpcMappingFile()) {
-                try {
-                    jaxrpcMappingURI = new URI(getStringValue(serviceRef.getJaxrpcMappingFile()));
-                } catch (URISyntaxException e) {
-                    throw new DeploymentException("Could not construct jaxrpc mapping uri from " + serviceRef.getJaxrpcMappingFile(), e);
-                }
-            }
-            QName serviceQName = null;
-            if (serviceRef.isSetServiceQname()) {
-                serviceQName = serviceRef.getServiceQname().getQNameValue();
-            }
-            Map portComponentRefMap = new HashMap();
-            PortComponentRefType[] portComponentRefs = serviceRef.getPortComponentRefArray();
-            if (portComponentRefs != null) {
-                for (int j = 0; j < portComponentRefs.length; j++) {
-                    PortComponentRefType portComponentRef = portComponentRefs[j];
-                    String portComponentLink = getStringValue(portComponentRef.getPortComponentLink());
-                    String serviceEndpointInterfaceType = getStringValue(portComponentRef.getServiceEndpointInterface());
-                    assureInterface(serviceEndpointInterfaceType, "java.rmi.Remote", "ServiceEndpoint", cl);
-                    Class serviceEndpointClass;
-                    try {
-                        serviceEndpointClass = cl.loadClass(serviceEndpointInterfaceType);
-                    } catch (ClassNotFoundException e) {
-                        throw new DeploymentException("could not load service endpoint class " + serviceEndpointInterfaceType, e);
-                    }
-                    portComponentRefMap.put(serviceEndpointClass, portComponentLink);
-                }
-            }
-            ServiceRefHandlerType[] handlers = serviceRef.getHandlerArray();
-            List handlerInfos = buildHandlerInfoList(handlers, cl);
+        }
+        ServiceRefHandlerType[] handlers = serviceRef.getHandlerArray();
+        List handlerInfos = buildHandlerInfoList(handlers, cl);
 
 //we could get a Reference or the actual serializable Service back.
-            Object ref = axisBuilder.createService(serviceInterface, wsdlURI, jaxrpcMappingURI, serviceQName, portComponentRefMap, handlerInfos, serviceRefType, module, cl);
-            getJndiContextMap(componentContext).put(ENV + name, ref);
-        }
-
+        Object ref = axisBuilder.createService(serviceInterface, wsdlURI, jaxrpcMappingURI, serviceQName, portComponentRefMap, handlerInfos, serviceRefType, module, cl);
+        getJndiContextMap(componentContext).put(ENV + name, ref);
     }
 
     public QNameSet getSpecQNameSet() {
@@ -184,8 +196,7 @@ public class AxisServiceRefBuilder extends AbstractNamingBuilder {
         }
         return handlerInfos;
     }
-
-
+    
     private static Map mapServiceRefs(XmlObject[] refs) {
         Map refMap = new HashMap();
         if (refs != null) {
@@ -211,6 +222,7 @@ public class AxisServiceRefBuilder extends AbstractNamingBuilder {
 
     static {
         GBeanInfoBuilder infoBuilder = GBeanInfoBuilder.createStatic(AxisServiceRefBuilder.class, NameFactory.MODULE_BUILDER);
+        infoBuilder.addInterface(ServiceRefBuilder.class);
         infoBuilder.addAttribute("defaultEnvironment", Environment.class, true, true);
         infoBuilder.addAttribute("eeNamespaces", String[].class, true, true);
         infoBuilder.addReference("AxisBuilder", AxisBuilder.class, NameFactory.MODULE_BUILDER);

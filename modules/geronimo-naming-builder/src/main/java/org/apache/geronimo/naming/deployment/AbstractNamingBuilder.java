@@ -69,6 +69,10 @@ public abstract class AbstractNamingBuilder implements NamingBuilder {
         this.defaultEnvironment = defaultEnvironment;
     }
 
+    public Environment getEnvironment() {
+        return this.defaultEnvironment;
+    }
+    
     public void buildEnvironment(XmlObject specDD, XmlObject plan, Environment environment) throws DeploymentException {
         if (willMergeEnvironment(specDD, plan)) {
             EnvironmentBuilder.mergeEnvironments(environment, defaultEnvironment);
@@ -161,19 +165,24 @@ public abstract class AbstractNamingBuilder implements NamingBuilder {
         //there's probably a better way to say T extends XmlObject and get the type from that
         List<T> result = new ArrayList<T>(xmlObjects.length);
         for (XmlObject xmlObject : xmlObjects) {
-            xmlObject = xmlObject.copy();
-            if (xmlObject.schemaType() != type) {
-                converter.convertElement(xmlObject);
-                xmlObject = xmlObject.changeType(type);
-            }
-            try {
-                XmlBeansUtil.validateDD(xmlObject);
-            } catch (XmlException e) {
-                throw new DeploymentException("Could not validate xmlObject of type " + type, e);
-            }
+            xmlObject = convert(xmlObject, converter, type);
             result.add((T) xmlObject);
         }
         return result;
+    }
+
+    protected static XmlObject convert(XmlObject xmlObject, NamespaceElementConverter converter, SchemaType type) throws DeploymentException {
+        xmlObject = xmlObject.copy();
+        if (xmlObject.schemaType() != type) {
+            converter.convertElement(xmlObject);
+            xmlObject = xmlObject.changeType(type);
+        }
+        try {
+            XmlBeansUtil.validateDD(xmlObject);
+        } catch (XmlException e) {
+            throw new DeploymentException("Could not validate xmlObject of type " + type, e);
+        }
+        return xmlObject;
     }
 
     protected static String getStringValue(org.apache.geronimo.xbeans.javaee.String string) {

@@ -48,7 +48,7 @@
                 <name>EnvironmentEntryBuilder</name>
             </pattern>
             <pattern>
-                <name>AxisClientServiceRefBuilder</name>
+                <name>SwitchingClientServiceRefBuilder</name>
             </pattern>
             <pattern>
                 <name>ClientEjbRefBuilder</name>
@@ -89,5 +89,24 @@
 
 
     <gbean name="ClientConfigurer" class="org.apache.geronimo.client.builder.jsr88.ClientConfigurer"/>
+
+    <gbean name="SwitchingClientServiceRefBuilder" class="org.apache.geronimo.naming.deployment.SwitchingServiceRefBuilder">
+        <attribute name="eeNamespaces">http://java.sun.com/xml/ns/j2ee,http://java.sun.com/xml/ns/javaee</attribute>
+        <references name="JAXRPCBuilder">
+            <pattern>
+                <name>AxisClientServiceRefBuilder</name>
+            </pattern>
+        </references>
+        <references name="JAXWSBuilder">
+            <pattern>
+                <name>CXFClientServiceRefBuilder</name>
+            </pattern>
+<!--
+            <pattern>
+                <name>Axis2ClientServiceRefBuilder</name>
+            </pattern>
+-->
+        </references>
+    </gbean>
 
 </module>

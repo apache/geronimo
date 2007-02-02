@@ -27,9 +27,11 @@ import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.jaxws.PortInfo;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
+import org.apache.geronimo.j2ee.deployment.Module;
 import org.apache.geronimo.j2ee.deployment.WebServiceBuilder;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.repository.Environment;
+import org.apache.geronimo.xbeans.geronimo.naming.GerServiceRefType;
 import org.apache.geronimo.jaxws.builder.JAXWSServiceBuilder;
 import org.apache.geronimo.cxf.CXFWebServiceContainerFactoryGBean;
 
@@ -37,11 +39,13 @@ import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
+import javax.xml.namespace.QName;
 import javax.xml.transform.stream.StreamSource;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
+import java.net.URI;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -49,6 +53,10 @@ import java.util.jar.JarFile;
 
 public class CXFBuilder extends JAXWSServiceBuilder {
     private static final Log LOG = LogFactory.getLog(CXFBuilder.class);
+
+    public CXFBuilder() {
+        this(null);
+    }
 
     public CXFBuilder(Environment defaultEnvironment) {
         super(defaultEnvironment);
@@ -156,6 +164,27 @@ public class CXFBuilder extends JAXWSServiceBuilder {
                 // ignore
             }
         }
+    }
+
+    public Object createService(Class serviceInterface,
+                                Class serviceReference,
+                                URI wsdlURI,
+                                QName serviceQName,
+                                Map portComponentRefMap,
+                                Object object,
+                                GerServiceRefType serviceRefType,
+                                Module module,
+                                ClassLoader cl) throws DeploymentException {
+        System.out.println("createService");
+        /*
+        WSDLInfoBuilder builder = new WSDLInfoBuilder(serviceInterface, module.getModuleFile(), wsdlURI, serviceQName, cl);
+        builder.build();
+        
+        serviceQName = builder.getServiceQName(); 
+                
+        return new CXFServiceReference(serviceInterface.getName(), wsdlURI, serviceQName, module.getModuleName(), object, null, null);
+        */
+        return null;
     }
 
     private static String getString(String in) {

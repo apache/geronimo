@@ -117,7 +117,7 @@
                 <name>EnvironmentEntryBuilder</name>
             </pattern>
             <pattern>
-                <name>AxisServiceRefBuilder</name>
+                <name>SwitchingServiceRefBuilder</name>
             </pattern>
             <pattern>
                 <name>EjbRefBuilder</name>
@@ -143,5 +143,24 @@
     </gbean>
 
     <gbean name="EARConfigurer" class="org.apache.geronimo.j2ee.jsr88.EARConfigurer"/>
+
+    <gbean name="SwitchingServiceRefBuilder" class="org.apache.geronimo.naming.deployment.SwitchingServiceRefBuilder">
+        <attribute name="eeNamespaces">http://java.sun.com/xml/ns/j2ee,http://java.sun.com/xml/ns/javaee</attribute>
+        <references name="JAXRPCBuilder">
+            <pattern>
+                <name>AxisServiceRefBuilder</name>
+            </pattern>
+        </references>
+        <references name="JAXWSBuilder">
+            <pattern>
+                <name>CXFServiceRefBuilder</name>
+            </pattern>
+<!--
+            <pattern>
+                <name>Axis2ServiceRefBuilder</name>
+            </pattern>
+-->
+        </references>
+    </gbean>
 
 </module>
