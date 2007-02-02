@@ -73,13 +73,6 @@
         </gbean>
     </module>
 
-    <module name="org.apache.geronimo.configs/j2ee-corba-sun/${version}/car" load="false">
-        <gbean name="NameServer">
-            <attribute name="port">${PlanCOSSunNamingPort}</attribute>
-            <attribute name="host">${PlanCOSNamingHost}</attribute>
-        </gbean>
-    </module>
-
     <module name="org.apache.geronimo.configs/system-database/${version}/car">
         <gbean name="DerbyNetwork">
             <attribute name="host">${PlanServerHostname}</attribute>
