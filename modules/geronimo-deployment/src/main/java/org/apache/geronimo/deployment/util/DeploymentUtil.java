@@ -243,6 +243,15 @@ public final class DeploymentUtil {
         }
     }
 
+    private static void createDirectory(File dir) throws IOException {
+        if (dir != null && !dir.exists()) {
+            boolean success = dir.mkdirs();
+            if (!success) {
+                throw new IOException("Cannot create directory " + dir.getAbsolutePath());
+            }
+        }
+    }
+
     public static void unzipToDirectory(ZipFile zipFile, File destDir) throws IOException {
         Enumeration entries = zipFile.entries();
         try {
@@ -250,12 +259,10 @@ public final class DeploymentUtil {
                 ZipEntry entry = (ZipEntry) entries.nextElement();
                 if (entry.isDirectory()) {
                     File dir = new File(destDir, entry.getName());
-                    boolean success = dir.mkdirs();
-                    if (!success) {
-                        throw new IOException("Cannot create directory " + dir.getAbsolutePath());
-                    }
+                    createDirectory(dir);
                 } else {
                     File file = new File(destDir, entry.getName());
+                    createDirectory(file.getParentFile());
                     OutputStream out = null;
                     InputStream in = null;
                     try {
