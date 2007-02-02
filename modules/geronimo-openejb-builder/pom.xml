@@ -35,6 +35,17 @@
             <groupId>org.apache.geronimo.modules</groupId>
             <artifactId>geronimo-openejb</artifactId>
             <version>${pom.version}</version>
+            <!--
+               Hack to avoid a build error in the xmlbeans-plugin on some Windows and Linux machines.
+               The OpenEJB 3 container is not needed for geronimo. Something about the container
+               pom.xml is messing up the xmlbeans plugin. Excluding the pom allows builds to work.
+             -->
+            <exclusions>
+              <exclusion>
+                <groupId>org.apache.openejb</groupId>
+                <artifactId>container</artifactId>
+              </exclusion>
+            </exclusions>
         </dependency>
 
         <dependency>
