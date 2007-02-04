@@ -77,6 +77,11 @@ public class PortletManager {
     // nothing yet
 
     private static ManagementHelper createHelper() {
+        Kernel kernel = getKernel();
+        return new KernelManagementHelper(kernel);
+    }
+
+    private static Kernel getKernel() {
         //todo: consider making this configurable; we could easily connect to a remote kernel if we wanted to
         Kernel kernel = null;
         try {
@@ -88,11 +93,12 @@ public class PortletManager {
             log.debug("Unable to find kernel in JNDI; using KernelRegistry instead");
             kernel = KernelRegistry.getSingleKernel();
         }
-        return new KernelManagementHelper(kernel);
+        return kernel;
     }
 
     public static DeploymentManager getDeploymentManager(PortletRequest request) {
-        DeploymentFactoryImpl factory = new DeploymentFactoryImpl();
+        Kernel kernel = getKernel();
+        DeploymentFactoryImpl factory = new DeploymentFactoryImpl(kernel);
         try {
             return factory.getDeploymentManager("deployer:geronimo:inVM", null, null);
         } catch (DeploymentManagerCreationException e) {

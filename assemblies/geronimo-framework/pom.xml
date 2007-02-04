@@ -90,6 +90,20 @@
         
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
+            <artifactId>offline-deployer</artifactId>
+            <version>${version}</version>
+            <type>car</type>
+        </dependency>
+        
+        <dependency>
+            <groupId>org.apache.geronimo.configs</groupId>
+            <artifactId>jsr88-cli</artifactId>
+            <version>${version}</version>
+            <type>car</type>
+        </dependency>
+ 
+        <dependency>
+            <groupId>org.apache.geronimo.configs</groupId>
             <artifactId>unavailable-client-deployer</artifactId>
             <version>${version}</version>
             <type>car</type>
@@ -117,7 +131,8 @@
                 <directory>${pom.basedir}/src/main/var/config</directory>
                 <includes>
                     <include>config.xml</include>
-                    <include>offline-deployer-list</include>
+                    <include>offline-deployer-config.xml</include>
+                    <include>jsr88-configurer-config.xml</include>
                 </includes>
                 <filtering>true</filtering>
             </resource>
@@ -197,7 +212,8 @@
                                 <move todir="${project.build.directory}/scratch">
                                     <fileset dir="${project.build.directory}/classes">
                                         <include name="config.xml"/>
-                                        <include name="offline-deployer-list"/>
+                                        <include name="offline-deployer-config.xml"/>
+                                        <include name="jsr88-configurer-config.xml"/>
                                     </fileset>
                                 </move>
                             </tasks>

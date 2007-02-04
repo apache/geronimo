@@ -87,9 +87,6 @@
         </xml-attribute>
     </gbean>
 
-
-    <gbean name="ClientConfigurer" class="org.apache.geronimo.client.builder.jsr88.ClientConfigurer"/>
-
     <gbean name="SwitchingClientServiceRefBuilder" class="org.apache.geronimo.naming.deployment.SwitchingServiceRefBuilder">
         <attribute name="eeNamespaces">http://java.sun.com/xml/ns/j2ee,http://java.sun.com/xml/ns/javaee</attribute>
         <references name="JAXRPCBuilder">

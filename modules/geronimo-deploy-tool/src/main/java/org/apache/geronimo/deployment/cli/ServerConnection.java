@@ -20,11 +20,11 @@ package org.apache.geronimo.deployment.cli;
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
 import java.io.Serializable;
-import java.io.FileNotFoundException;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -41,11 +41,8 @@ import org.apache.geronimo.deployment.plugin.factories.AuthenticationFailedExcep
 import org.apache.geronimo.deployment.plugin.factories.DeploymentFactoryImpl;
 import org.apache.geronimo.deployment.plugin.jmx.JMXDeploymentManager;
 import org.apache.geronimo.deployment.plugin.jmx.LocalDeploymentManager;
-import org.apache.geronimo.util.SimpleEncryption;
 import org.apache.geronimo.kernel.Kernel;
-import org.apache.geronimo.kernel.config.ConfigurationManager;
-import org.apache.geronimo.kernel.config.ConfigurationUtil;
-import org.apache.geronimo.system.main.LocalServer;
+import org.apache.geronimo.util.SimpleEncryption;
 
 /**
  * Supports online connections to the server, via JSR-88, valid only
@@ -112,8 +109,13 @@ public class ServerConnection {
     private SavedAuthentication auth;
     private boolean logToSysErr;
     private boolean verboseMessages;
+    private final Kernel kernel;
 
-    public ServerConnection(String[] args, PrintWriter out, InputStream in) throws DeploymentException {
+    public ServerConnection(String[] args, PrintWriter out, InputStream in, Kernel kernel) throws DeploymentException {
+        if (null == kernel) {
+            throw new IllegalArgumentException("kernel is required");
+        }
+        this.kernel = kernel;
         String uri = null, driver = null, user = null, password = null, host = null;
         Integer port = null;
         this.out = out;
@@ -194,23 +196,19 @@ public class ServerConnection {
             uri = DEFAULT_URI + "://" + (host == null ? "" : host) + (port == null ? "" : ":" + port);
         }
         if (offline) {
-            LocalServer localServer;
-            try {
-                localServer = new LocalServer("org.apache.geronimo.configs/j2ee-system//car", "var/config/offline-deployer-list");
-            } catch (Exception e) {
-                throw new DeploymentException("Could not start local server", e);
-            }
-            Kernel kernel = localServer.getKernel();
-            ConfigurationManager configurationManager = ConfigurationUtil.getConfigurationManager(kernel);
-            configurationManager.setOnline(false);
-
-            manager = new LocalDeploymentManager(localServer.getKernel());
+            startOfflineDeployer(kernel);
+            manager = new LocalDeploymentManager(kernel);
         } else {
             tryToConnect(uri, driver, user, password, true);
         }
         if (manager == null) {
             throw new DeploymentException("Unexpected error; connection failed.");
         }
+    }
+
+    protected void startOfflineDeployer(Kernel kernel) throws DeploymentException {
+        OfflineDeployerStarter offlineDeployerStarter = new OfflineDeployerStarter(kernel);
+        offlineDeployerStarter.start();
     }
 
     public void close() throws DeploymentException {
@@ -232,7 +230,7 @@ public class ServerConnection {
         if (driver != null) {
             loadDriver(driver, mgr);
         } else {
-            mgr.registerDeploymentFactory(new DeploymentFactoryImpl());
+            mgr.registerDeploymentFactory(new DeploymentFactoryImpl(kernel));
         }
         String useURI = argURI == null ? DEFAULT_URI : argURI;
 

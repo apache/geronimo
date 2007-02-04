@@ -16,15 +16,17 @@
  */
 package org.apache.geronimo.deployment.plugin.jmx;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Set;
 
-import org.apache.geronimo.kernel.Kernel;
-import org.apache.geronimo.kernel.GBeanNotFoundException;
-import org.apache.geronimo.gbean.AbstractName;
-import org.apache.geronimo.gbean.AbstractNameQuery;
-import org.apache.geronimo.deployment.ModuleConfigurer;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.geronimo.deployment.ModuleConfigurer;
+import org.apache.geronimo.gbean.AbstractName;
+import org.apache.geronimo.gbean.AbstractNameQuery;
+import org.apache.geronimo.kernel.GBeanNotFoundException;
+import org.apache.geronimo.kernel.Kernel;
 
 /**
  * Connects to a kernel in the same VM.
@@ -36,16 +38,23 @@ public class LocalDeploymentManager extends JMXDeploymentManager {
     private static final AbstractNameQuery CONFIGURER_QUERY = new AbstractNameQuery(ModuleConfigurer.class.getName());
 
     public LocalDeploymentManager(Kernel kernel) {
+        super(loadModuleConfigurers(kernel));
         initialize(kernel);
+    }
+    
+    private static Collection<ModuleConfigurer> loadModuleConfigurers(Kernel kernel) {
+        Collection<ModuleConfigurer> moduleConfigurers = new ArrayList<ModuleConfigurer>();
         Set configurerNames = kernel.listGBeans(CONFIGURER_QUERY);
         for (Object configurerName : configurerNames) {
             AbstractName name = (AbstractName) configurerName;
             try {
                 ModuleConfigurer configurer = (ModuleConfigurer) kernel.getGBean(name);
-                moduleConfigurers.put(configurer.getModuleType(), configurer);
+                moduleConfigurers.add(configurer);
             } catch (GBeanNotFoundException e) {
                 log.warn("No gbean found for name returned in query : " + name);
             }
         }
+        return moduleConfigurers;
     }
+    
 }
