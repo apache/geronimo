@@ -30,6 +30,7 @@ import java.util.Set;
 
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
+import javax.management.j2ee.statistics.Stats;
 import javax.naming.directory.DirContext;
 import javax.transaction.TransactionManager;
 import javax.transaction.UserTransaction;
@@ -52,10 +53,12 @@ import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.ObjectNameUtil;
 import org.apache.geronimo.management.J2EEApplication;
 import org.apache.geronimo.management.J2EEServer;
+import org.apache.geronimo.management.StatisticsProvider;
 import org.apache.geronimo.management.geronimo.WebConnector;
 import org.apache.geronimo.management.geronimo.WebContainer;
 import org.apache.geronimo.management.geronimo.WebModule;
 import org.apache.geronimo.tomcat.util.SecurityHolder;
+import org.apache.geronimo.tomcat.stats.ModuleStats;
 import org.apache.geronimo.transaction.GeronimoUserTransaction;
 import org.apache.geronimo.webservices.WebServiceContainer;
 import org.apache.geronimo.webservices.WebServiceContainerFactory;
@@ -66,7 +69,7 @@ import org.apache.naming.resources.DirContextURLStreamHandler;
  *
  * @version $Rev$ $Date$
  */
-public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebModule {
+public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebModule, StatisticsProvider {
 
     private static Log log = LogFactory.getLog(TomcatWebAppContext.class);
 
@@ -123,6 +126,9 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
     private final String j2EEServer;
     
     private final String j2EEApplication;
+    
+//  statistics
+    private ModuleStats statsProvider;
 
     public TomcatWebAppContext(
             ClassLoader classLoader,
@@ -272,7 +278,7 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
     }
 
     public boolean isStatisticsProvider() {
-        return false;
+        return true;
     }
 
     public boolean isEventProvider() {
@@ -465,6 +471,17 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
     public String getDeploymentDescriptor() {
         return originalSpecDD;
     }
+    
+//  JSR 77 statistics - The static values are initialized at the time of 
+    // creration, getStats return fresh value everytime
+    public Stats getStats() {
+        return statsProvider.getStats();
+    }
+    
+    // Is this needed ?
+    public void reset() {
+        statsProvider.reset();
+    }
 
     public void doStart() throws Exception {
 
@@ -475,11 +492,14 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
         //register the classloader <> dir context association so that tomcat's jndi based getResources works.
         DirContext resources = context.getResources();
         DirContextURLStreamHandler.bind(classLoader, resources);
+        if (context instanceof StandardContext)
+            statsProvider =  new ModuleStats((StandardContext)context);
 
         log.debug("TomcatWebAppContext started for " + path);
     }
 
     public void doStop() throws Exception {
+        statsProvider = null;
         container.removeContext(this);
         DirContextURLStreamHandler.unbind(classLoader);
 
@@ -490,6 +510,7 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
     }
 
     public void doFail() {
+        statsProvider = null;
         container.removeContext(this);
 
         // No more logging will occur for this ClassLoader. Inform the LogFactory to avoid a memory leak.

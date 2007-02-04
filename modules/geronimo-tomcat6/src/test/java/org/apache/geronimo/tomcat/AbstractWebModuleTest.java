@@ -54,7 +54,7 @@ public abstract class AbstractWebModuleTest extends TestSupport {
     
     protected ClassLoader cl;
     protected final static String securityRealmName = "demo-properties-realm";
-    private ConnectorGBean connector;
+    protected ConnectorGBean connector;
     protected TomcatContainer container;
     private TransactionManager transactionManager;
     private ConnectionTrackingCoordinator connectionTrackingCoordinator;

@@ -21,6 +21,7 @@ import java.net.UnknownHostException;
 import java.net.InetAddress;
 import java.util.Map;
 import java.util.HashMap;
+import javax.management.j2ee.statistics.Stats;
 
 import org.apache.catalina.LifecycleException;
 import org.apache.catalina.connector.Connector;
@@ -30,12 +31,14 @@ import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
+import org.apache.geronimo.management.StatisticsProvider;
+import org.apache.geronimo.tomcat.stats.ConnectorStats;
 import org.apache.geronimo.management.geronimo.WebManager;
 
 /**
  * @version $Rev$ $Date$
  */
-public class ConnectorGBean extends BaseGBean implements GBeanLifecycle, ObjectRetriever, TomcatWebConnector {
+public class ConnectorGBean extends BaseGBean implements GBeanLifecycle, ObjectRetriever, TomcatWebConnector, StatisticsProvider {
     private static final Log log = LogFactory.getLog(ConnectorGBean.class);
     public final static String CONNECTOR_CONTAINER_REFERENCE = "TomcatContainer";
 
@@ -43,6 +46,9 @@ public class ConnectorGBean extends BaseGBean implements GBeanLifecycle, ObjectR
     private final TomcatContainer container;
     private String name;
     private String connectHost;
+    
+//  JSR77 stats
+    private ConnectorStats conStats = new ConnectorStats();
 
     public ConnectorGBean(String name, String protocol, String host, int port, TomcatContainer container) throws Exception {
         super(); // TODO: make it an attribute
@@ -562,6 +568,28 @@ public class ConnectorGBean extends BaseGBean implements GBeanLifecycle, ObjectR
 
     public String getStrategy() {
         return (String) connector.getAttribute("strategy");
+    }
+    
+//  JSR77 stuff
+    public String getObjectName() {
+        return name; // really an objectName
+    }
+
+    public boolean isStateManageable() {
+        return false;
+    }
+
+    public boolean isStatisticsProvider() {
+        return true;
+    }
+
+    public boolean isEventProvider() {
+        return false;
+    }
+
+    public Stats getStats() {
+        String port = String.valueOf(getPort());
+        return conStats.getStats(port);
     }
 
     public static final GBeanInfo GBEAN_INFO;
