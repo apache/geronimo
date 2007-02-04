@@ -63,4 +63,8 @@ public class BoundaryStatisticImpl extends StatisticImpl implements BoundaryStat
     public void setLowerBound(long lowerBound) {
         this.lowerBound = lowerBound;
     }
+    
+    public String toString() {
+        return(getName() + " in " + getUnit() + " -- lowerBound: " + lowerBound + ", upperBound: " + upperBound);
+    }
 }

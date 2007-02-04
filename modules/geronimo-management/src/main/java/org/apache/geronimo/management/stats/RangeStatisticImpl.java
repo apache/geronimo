@@ -64,4 +64,9 @@ public class RangeStatisticImpl extends StatisticImpl implements RangeStatistic 
     public void setLowWaterMark(long lowWaterMark) {
         this.lowWaterMark = lowWaterMark;
     }
+    
+    public String toString() {
+        return(getName() + " in " + getUnit() + " -- current: " + current + ", highWaterMark: " + highWaterMark + 
+                ", lowWaterMark: " + lowWaterMark);
+    }
 }

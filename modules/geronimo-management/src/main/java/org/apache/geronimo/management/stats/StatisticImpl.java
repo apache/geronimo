@@ -37,7 +37,8 @@ public class StatisticImpl implements Statistic, Serializable {
     public final static String UNIT_MEMORY_KILOBYTES = "KILOBYTE";
     public final static String UNIT_MEMORY_MEGABYTES = "MEGABYTE";
     public final static String UNIT_MEMORY_GIGABYTES = "GIGABYTE";
-    public final static String UNIT_COUNT = "COUNT";
+    // need a better name for this
+    public final static String UNIT_COUNT = "UNITCOUNT";
 
     private String name;
     private String unit;

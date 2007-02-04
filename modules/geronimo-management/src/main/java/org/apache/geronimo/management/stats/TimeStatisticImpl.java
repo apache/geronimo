@@ -62,4 +62,9 @@ public class TimeStatisticImpl extends StatisticImpl implements TimeStatistic {
     public void setTotalTime(long totalTime) {
         this.totalTime = totalTime;
     }
+    
+    public String toString() {
+        return(getName() + " in " + getUnit() + " -- count: " + count + ", minTime: " + minTime + ", maxTime: " + maxTime + 
+                ", totalTime: " + totalTime);
+    }
 }

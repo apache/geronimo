@@ -40,4 +40,8 @@ public class CountStatisticImpl extends StatisticImpl implements CountStatistic 
     public void setCount(long count) {
         this.count = count;
     }
+    
+    public String toString() {
+        return (getName() + " in " + getUnit() + " -- count: " + count);
+    }
 }

@@ -31,12 +31,12 @@ import javax.management.j2ee.statistics.Stats;
  * @version $Rev$ $Date$
  */
 public class StatsImpl implements Stats, Serializable {
-    private final Map stats = new HashMap();
+    private final Map <String,StatisticImpl> stats = new HashMap<String,StatisticImpl>();
 
     public StatsImpl() {
     }
 
-    protected void addStat(String name, Statistic value) {
+    protected void addStat(String name, StatisticImpl value) {
         stats.put(name, value);
     }
 
@@ -48,6 +48,20 @@ public class StatsImpl implements Stats, Serializable {
      */
     protected void removeStat(String name) {
         stats.remove(name);
+    }
+
+    public void setStartTime() {
+        long now = System.currentTimeMillis();
+        for (StatisticImpl item : stats.values()) {
+            item.setStartTime(now);
+        }            
+    }
+    
+    public void setLastSampleTime() {
+        long now = System.currentTimeMillis();
+        for (StatisticImpl item : stats.values()) {
+            item.setLastSampleTime(now);
+        }            
     }
 
     public Statistic getStatistic(String statisticName) {

@@ -65,4 +65,10 @@ public class BoundedRangeStatisticImpl extends RangeStatisticImpl implements Bou
             upperBound = current;
         }
     }
+    
+    public String toString() {
+        return(getName() + " in " + getUnit() + " -- lowerBound: " + lowerBound + ", upperBound: " +
+                ", current: " + getCurrent() + ", highWaterMark: " + getHighWaterMark() + 
+                ", lowWaterMark: " + getLowWaterMark());
+    }
 }
