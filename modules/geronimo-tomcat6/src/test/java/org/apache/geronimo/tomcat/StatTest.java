@@ -1,10 +1,10 @@
 /**
- *
- * Copyright 2003-2004 The Apache Software Foundation
- *
- *  Licensed under the Apache License, Version 2.0 (the "License");
- *  you may not use this file except in compliance with the License.
- *  You may obtain a copy of the License at
+ *  Licensed to the Apache Software Foundation (ASF) under one or more
+ *  contributor license agreements.  See the NOTICE file distributed with
+ *  this work for additional information regarding copyright ownership.
+ *  The ASF licenses this file to You under the Apache License, Version 2.0
+ *  (the "License"); you may not use this file except in compliance with
+ *  the License.  You may obtain a copy of the License at
  *
  *     http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -23,15 +23,8 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 
 import javax.management.ObjectName;
-import javax.management.j2ee.statistics.BoundedRangeStatistic;
-import javax.management.j2ee.statistics.CountStatistic;
-import javax.management.j2ee.statistics.RangeStatistic;
 import javax.management.j2ee.statistics.Statistic;
 import javax.management.j2ee.statistics.Stats;
-import javax.management.j2ee.statistics.TimeStatistic;
-
-import org.apache.geronimo.management.stats.WebServletStatsImpl;
-import org.apache.geronimo.tomcat.TomcatWebAppContext;
 
 /**
  * @version $Revision$ $Date$
@@ -64,7 +57,7 @@ public class StatTest extends AbstractWebModuleTest {
                 aStts = stats.getStatistic(sttsNames[i]);
                 assertTrue("startTime was not set", aStts.getStartTime() != 0);
                 assertTrue("lastSampleTime was not set", aStts.getLastSampleTime() != 0);
-                System.out.println(aStts);
+                //System.out.println(aStts);
             }
         }
         connection.disconnect();
