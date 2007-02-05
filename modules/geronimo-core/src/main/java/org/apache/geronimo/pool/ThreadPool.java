@@ -42,7 +42,7 @@ import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.management.J2EEManagedObject;
 import org.apache.geronimo.management.StatisticsProvider;
 import org.apache.geronimo.management.geronimo.stats.ThreadPoolStats;
-import org.apache.geronimo.management.stats.BoundedRangeImpl;
+import org.apache.geronimo.management.stats.BoundedRangeStatisticImpl;
 import org.apache.geronimo.management.stats.CountStatisticImpl;
 import org.apache.geronimo.management.stats.StatsImpl;
 
@@ -122,7 +122,9 @@ public class ThreadPool implements GeronimoExecutor, GBeanLifecycle, J2EEManaged
     }
 
     public static class PoolStatsImpl extends StatsImpl implements ThreadPoolStats {
-        private BoundedRangeImpl threadsInUse = new BoundedRangeImpl("Threads In Use", "", "The number of threads in use by this thread pool");
+        private BoundedRangeStatisticImpl threadsInUse = new BoundedRangeStatisticImpl(
+                "Threads In Use", "",
+                "The number of threads in use by this thread pool");
         private Map consumers = new HashMap();
 
         public PoolStatsImpl() {

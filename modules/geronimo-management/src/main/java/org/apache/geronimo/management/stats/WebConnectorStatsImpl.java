@@ -17,7 +17,6 @@
 
 package org.apache.geronimo.management.stats;
 
-import javax.management.j2ee.statistics.BoundedRangeStatistic;
 import javax.management.j2ee.statistics.CountStatistic;
 import javax.management.j2ee.statistics.RangeStatistic;
 import javax.management.j2ee.statistics.TimeStatistic;
@@ -49,7 +48,7 @@ public class WebConnectorStatsImpl extends StatsImpl implements WebConnectorStat
     private CountStatistic busyThreadCount;
     
     // TODO - change the name to BoundedRangeStatisticsImpl
-    private BoundedRangeImpl busyThreads;
+    private BoundedRangeStatisticImpl busyThreads;
     // TODO - spareThreads metrics = current - busy, maxSpareThreads, minSpareThreads 
 
     public WebConnectorStatsImpl() {
@@ -65,7 +64,7 @@ public class WebConnectorStatsImpl extends StatsImpl implements WebConnectorStat
                 "The number of bytes received during the observerd period", 0);
         openConnectionCount = new RangeStatisticImpl("" + "Open Connections", StatisticImpl.UNIT_COUNT,
                 "Range for connections opened during the observed period", 0); // all 0's
-        busyThreads = new BoundedRangeImpl("Busy Threads", StatisticImpl.UNIT_COUNT,
+        busyThreads = new BoundedRangeStatisticImpl("Busy Threads", StatisticImpl.UNIT_COUNT,
                 "BoundedRange for Threads currently busy serving requests", 0, 0, 0);
         addStat("RequestTime", requestTime); // better name
         addStat("activeRequestCount", activeRequestCount);

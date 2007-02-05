@@ -22,6 +22,7 @@ import java.net.UnknownHostException;
 import java.util.Date;
 import java.util.Hashtable;
 import java.util.Properties;
+
 import javax.management.ObjectName;
 import javax.management.j2ee.statistics.Stats;
 
@@ -32,7 +33,7 @@ import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.ObjectNameUtil;
 import org.apache.geronimo.management.StatisticsProvider;
 import org.apache.geronimo.management.geronimo.JVM;
-import org.apache.geronimo.management.stats.BoundedRangeImpl;
+import org.apache.geronimo.management.stats.BoundedRangeStatisticImpl;
 import org.apache.geronimo.management.stats.JVMStatsImpl;
 import org.apache.geronimo.system.logging.SystemLog;
 
@@ -150,7 +151,7 @@ public class JVMImpl implements JVM, StatisticsProvider {
     }
 
     public Stats getStats() {
-        BoundedRangeImpl heap;
+        BoundedRangeStatisticImpl heap;
         if(stats == null) {
             stats = new JVMStatsImpl();
             long start = kernel.getBootTime().getTime();
