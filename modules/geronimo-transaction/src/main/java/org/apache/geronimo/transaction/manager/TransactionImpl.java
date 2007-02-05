@@ -54,6 +54,7 @@ public class TransactionImpl implements Transaction {
     private final TransactionLog txnLog;
     private final long timeout;
     private final List syncList = new ArrayList(5);
+    private final List interposedSyncList = new ArrayList(3);
     private final LinkedList resourceManagers = new LinkedList();
     private final IdentityHashMap activeXaResources = new IdentityHashMap(3);
     private final IdentityHashMap suspendedXaResources = new IdentityHashMap(3);
@@ -61,7 +62,6 @@ public class TransactionImpl implements Transaction {
     private Object logMark;
 
     private final Map resources = new HashMap();
-    private Synchronization interposedSynchronization;
     private final Map entityManagers = new HashMap();
 
     TransactionImpl(XidFactory xidFactory, TransactionLog txnLog, long transactionTimeoutMilliseconds) throws SystemException {
@@ -122,7 +122,7 @@ public class TransactionImpl implements Transaction {
     }
 
     public void registerInterposedSynchronization(Synchronization synchronization) {
-        interposedSynchronization = synchronization;
+        interposedSyncList.add(synchronization);
     }
 
     public synchronized void setRollbackOnly() throws IllegalStateException {
@@ -494,21 +494,19 @@ public class TransactionImpl implements Transaction {
     }
 
     private void beforeCompletion() {
+        beforeCompletion(syncList);
+        beforeCompletion(interposedSyncList);
+    }
+
+    private void beforeCompletion(List syncs) {
         int i = 0;
         while (true) {
             Synchronization synch;
             synchronized (this) {
-                if (i == syncList.size()) {
-                    if (interposedSynchronization != null) {
-                        synch = interposedSynchronization;
-                        i++;
-                    } else {
-                        return;
-                    }
-                } else if (i == syncList.size() + 1) {
+                if (i == syncs.size()) {
                     return;
                 } else {
-                    synch = (Synchronization) syncList.get(i++);
+                    synch = (Synchronization) syncs.get(i++);
                 }
             }
             try {
@@ -524,25 +522,22 @@ public class TransactionImpl implements Transaction {
 
     private void afterCompletion() {
         // this does not synchronize because nothing can modify our state at this time
-        if (interposedSynchronization != null) {
-            try {
-                interposedSynchronization.afterCompletion(status);
-            } catch (Exception e) {
-                log.warn("Unexpected exception from afterCompletion; continuing", e);
-            }
+        afterCompletion(interposedSyncList);
+        afterCompletion(syncList);
+        for (Iterator i = entityManagers.values().iterator(); i.hasNext();) {
+            Closeable entityManager = (Closeable) i.next();
+            entityManager.close();
         }
-        for (Iterator i = syncList.iterator(); i.hasNext();) {
+    }
+
+    private void afterCompletion(List syncs) {
+        for (Iterator i = syncs.iterator(); i.hasNext();) {
             Synchronization synch = (Synchronization) i.next();
             try {
                 synch.afterCompletion(status);
             } catch (Exception e) {
                 log.warn("Unexpected exception from afterCompletion; continuing", e);
-                continue;
             }
-        }
-        for (Iterator i = entityManagers.values().iterator(); i.hasNext();) {
-            Closeable entityManager = (Closeable) i.next();
-            entityManager.close();
         }
     }
 
@@ -592,7 +587,6 @@ public class TransactionImpl implements Transaction {
                 if (cause == null) {
                     cause = new SystemException(e.errorCode);
                 }
-                continue;
             }
         }
         synchronized (this) {
@@ -617,7 +611,6 @@ public class TransactionImpl implements Transaction {
                 if (cause == null) {
                     cause = new SystemException(e.errorCode);
                 }
-                continue;
             }
         }
         //if all resources were read only, we didn't write a prepare record.
