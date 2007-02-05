@@ -207,27 +207,6 @@
 
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
-            <artifactId>online-deployer</artifactId>
-            <version>${version}</version>
-            <type>car</type>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.geronimo.configs</groupId>
-            <artifactId>offline-deployer</artifactId>
-            <version>${version}</version>
-            <type>car</type>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.geronimo.configs</groupId>
-            <artifactId>jsr88-cli</artifactId>
-            <version>${version}</version>
-            <type>car</type>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.geronimo.configs</groupId>
             <artifactId>geronimo-gbean-deployer</artifactId>
             <version>${version}</version>
             <type>car</type>
@@ -345,33 +324,12 @@
         
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
-            <artifactId>jsr88-jar-configurer</artifactId>
+            <artifactId>online-deployer</artifactId>
             <version>${version}</version>
             <type>car</type>
         </dependency>
         
-        <dependency>
-            <groupId>org.apache.geronimo.configs</groupId>
-            <artifactId>jsr88-rar-configurer</artifactId>
-            <version>${version}</version>
-            <type>car</type>
-        </dependency>
-        
-        <dependency>
-            <groupId>org.apache.geronimo.configs</groupId>
-            <artifactId>jsr88-war-configurer</artifactId>
-            <version>${version}</version>
-            <type>car</type>
-        </dependency>
-        
-        <dependency>
-            <groupId>org.apache.geronimo.configs</groupId>
-            <artifactId>jsr88-ear-configurer</artifactId>
-            <version>${version}</version>
-            <type>car</type>
-        </dependency>
-        
-        <dependency>
+       <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
             <artifactId>openjpa</artifactId>
             <version>${version}</version>
@@ -399,15 +357,14 @@
             <!--
             HACK: Because this is a pom packaging and assembly files/file is broke
                   we need to filter with the resources plugin... and must be a jar packaging
-                  because for some reason maven-resources-plugin can not
+                  because for some %^&#ing reason maven-resources-plugin can not
                   be attached!!!!
             -->
             <resource>
                 <directory>${pom.basedir}/src/main/var/config</directory>
                 <includes>
                     <include>config.xml</include>
-                    <include>offline-deployer-config.xml</include>
-                    <include>jsr88-configurer-config.xml</include>
+                    <include>offline-deployer-list</include>
                 </includes>
                 <filtering>true</filtering>
             </resource>
@@ -482,8 +439,7 @@
                                 <move todir="${project.build.directory}/scratch">
                                     <fileset dir="${project.build.directory}/classes">
                                         <include name="config.xml"/>
-                                        <include name="offline-deployer-config.xml"/>
-                                        <include name="jsr88-configurer-config.xml"/>
+                                        <include name="offline-deployer-list"/>
                                     </fileset>
                                 </move>
                             </tasks>

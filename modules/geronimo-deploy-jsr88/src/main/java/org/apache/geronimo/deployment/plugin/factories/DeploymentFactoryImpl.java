@@ -17,10 +17,12 @@
 
 package org.apache.geronimo.deployment.plugin.factories;
 
-import java.io.IOException;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
+import org.apache.geronimo.deployment.plugin.DisconnectedDeploymentManager;
+import org.apache.geronimo.deployment.plugin.jmx.LocalDeploymentManager;
+import org.apache.geronimo.deployment.plugin.jmx.RemoteDeploymentManager;
+import org.apache.geronimo.kernel.KernelRegistry;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import javax.enterprise.deploy.shared.factories.DeploymentFactoryManager;
 import javax.enterprise.deploy.spi.DeploymentManager;
@@ -29,15 +31,9 @@ import javax.enterprise.deploy.spi.factories.DeploymentFactory;
 import javax.management.remote.JMXConnector;
 import javax.management.remote.JMXConnectorFactory;
 import javax.management.remote.JMXServiceURL;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.apache.geronimo.deployment.plugin.DisconnectedDeploymentManager;
-import org.apache.geronimo.deployment.plugin.jmx.LocalDeploymentManager;
-import org.apache.geronimo.deployment.plugin.jmx.RemoteDeploymentManager;
-import org.apache.geronimo.kernel.GBeanNotFoundException;
-import org.apache.geronimo.kernel.Kernel;
-import org.apache.geronimo.kernel.KernelRegistry;
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Implementation of JSR88 DeploymentFactory.
@@ -54,16 +50,6 @@ public class DeploymentFactoryImpl implements DeploymentFactory {
     public static final String URI_PREFIX = "deployer:geronimo:";
     private static final int DEFAULT_PORT = 1099;
 
-    private final Kernel baseKernel;
-    
-    public DeploymentFactoryImpl() {
-        baseKernel = null;
-    }
-    
-    public DeploymentFactoryImpl(Kernel baseKernel) {
-        this.baseKernel = baseKernel;
-    }
-    
     public String getDisplayName() {
         return "Apache Geronimo";
     }
@@ -135,7 +121,22 @@ public class DeploymentFactoryImpl implements DeploymentFactory {
 
         try {
             if (params.getProtocol().equals("jmx")) {
-                return newRemoteDeploymentManager(username, password, params);
+                Map environment = new HashMap();
+                String[] credentials = new String[]{username, password};
+                environment.put(JMXConnector.CREDENTIALS, credentials);
+                try {
+                    JMXServiceURL address = new JMXServiceURL("service:jmx:rmi:///jndi/rmi://"+params.getHost()+":"+params.getPort()+"/JMXConnector");
+                    JMXConnector jmxConnector = JMXConnectorFactory.connect(address, environment);
+                    RemoteDeploymentManager manager = new RemoteDeploymentManager(jmxConnector, params.getHost());
+                    if(!manager.isSameMachine()) {
+                        manager.setAuthentication(username, password);
+                    }
+                    return manager;
+                } catch (IOException e) {
+                    throw (DeploymentManagerCreationException)new DeploymentManagerCreationException(e.getMessage()).initCause(e);
+                } catch (SecurityException e) {
+                    throw (AuthenticationFailedException) new AuthenticationFailedException("Invalid login.").initCause(e);
+                }
             } else if(params.getProtocol().equals("inVM")) {
                 return new LocalDeploymentManager(KernelRegistry.getKernel(params.getHost()));
             } else {
@@ -149,33 +150,6 @@ public class DeploymentFactoryImpl implements DeploymentFactory {
             // some DeploymentManagerFactories suppress unchecked exceptions - log and rethrow
             log.error(e.getMessage(), e);
             throw e;
-        }
-    }
-
-    protected DeploymentManager newRemoteDeploymentManager(String username, String password, ConnectParams params) throws DeploymentManagerCreationException, AuthenticationFailedException {
-        Map environment = new HashMap();
-        String[] credentials = new String[]{username, password};
-        environment.put(JMXConnector.CREDENTIALS, credentials);
-        try {
-            JMXServiceURL address = new JMXServiceURL("service:jmx:rmi:///jndi/rmi://"+params.getHost()+":"+params.getPort()+"/JMXConnector");
-            JMXConnector jmxConnector = JMXConnectorFactory.connect(address, environment);
-            RemoteDeploymentManager manager;
-            if (null != baseKernel) {
-                manager = (RemoteDeploymentManager) baseKernel.getGBean(RemoteDeploymentManager.class);
-            } else {
-                manager = new RemoteDeploymentManager(Collections.EMPTY_LIST);
-            }
-            manager.init(jmxConnector, params.getHost());
-            if(!manager.isSameMachine()) {
-                manager.setAuthentication(username, password);
-            }
-            return manager;
-        } catch (GBeanNotFoundException e) {
-            throw (DeploymentManagerCreationException)new DeploymentManagerCreationException(e.getMessage()).initCause(e);
-        } catch (IOException e) {
-            throw (DeploymentManagerCreationException)new DeploymentManagerCreationException(e.getMessage()).initCause(e);
-        } catch (SecurityException e) {
-            throw (AuthenticationFailedException) new AuthenticationFailedException("Invalid login.").initCause(e);
         }
     }
 
@@ -212,4 +186,7 @@ public class DeploymentFactoryImpl implements DeploymentFactory {
         }
     }
 
+    public static void main(String[] args) {
+        System.out.println("Parsed: "+new DeploymentFactoryImpl().parseURI("deployer:geronimo:inVM"));
+    }
 }

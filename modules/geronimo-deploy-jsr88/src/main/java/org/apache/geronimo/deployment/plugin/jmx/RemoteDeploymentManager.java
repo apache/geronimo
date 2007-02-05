@@ -22,15 +22,13 @@ import java.io.InputStream;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
 import java.util.Enumeration;
 import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
 import java.util.Set;
-
+import java.util.Map;
+import java.util.List;
+import java.util.ArrayList;
+import java.util.Arrays;
 import javax.enterprise.deploy.shared.CommandType;
 import javax.enterprise.deploy.spi.Target;
 import javax.enterprise.deploy.spi.TargetModuleID;
@@ -40,9 +38,6 @@ import javax.management.MBeanServerConnection;
 import javax.management.remote.JMXConnector;
 import javax.security.auth.login.FailedLoginException;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.apache.geronimo.deployment.ModuleConfigurer;
 import org.apache.geronimo.deployment.plugin.GeronimoDeploymentManager;
 import org.apache.geronimo.deployment.plugin.local.AbstractDeployCommand;
 import org.apache.geronimo.deployment.plugin.local.DistributeCommand;
@@ -50,16 +45,16 @@ import org.apache.geronimo.deployment.plugin.local.RedeployCommand;
 import org.apache.geronimo.deployment.plugin.remote.RemoteDeployUtil;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.AbstractNameQuery;
-import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.gbean.GBeanInfoBuilder;
-import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.system.jmx.KernelDelegate;
-import org.apache.geronimo.system.plugin.DownloadPoller;
 import org.apache.geronimo.system.plugin.DownloadResults;
-import org.apache.geronimo.system.plugin.PluginInstaller;
 import org.apache.geronimo.system.plugin.PluginList;
+import org.apache.geronimo.system.plugin.DownloadPoller;
 import org.apache.geronimo.system.plugin.PluginMetadata;
+import org.apache.geronimo.system.plugin.PluginInstaller;
 import org.apache.geronimo.system.plugin.PluginRepositoryList;
+import org.apache.geronimo.kernel.repository.Artifact;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 /**
  * Connects to a Kernel in a remote VM (may or many not be on the same machine).
@@ -72,17 +67,13 @@ public class RemoteDeploymentManager extends JMXDeploymentManager implements Ger
     private JMXConnector jmxConnector;
     private boolean isSameMachine;
 
-    public RemoteDeploymentManager(Collection<ModuleConfigurer> moduleConfigurers) {
-        super(moduleConfigurers);
-    }
-
-    public void init(JMXConnector jmxConnector, String hostname) throws IOException {
+    public RemoteDeploymentManager(JMXConnector jmxConnector, String hostname) throws IOException {
         this.jmxConnector = jmxConnector;
         MBeanServerConnection mbServerConnection = jmxConnector.getMBeanServerConnection();
         initialize(new KernelDelegate(mbServerConnection));
         checkSameMachine(hostname);
     }
-    
+
     public boolean isSameMachine() {
         return isSameMachine;
     }
@@ -283,22 +274,4 @@ public class RemoteDeploymentManager extends JMXDeploymentManager implements Ger
         }
         return (URL[]) list.toArray(new URL[list.size()]);
     }
-    
-    public static final GBeanInfo GBEAN_INFO;
-    public static final String GBEAN_REF_MODULE_CONFIGURERS = "ModuleConfigurers";
-    
-    static {
-        GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic(RemoteDeploymentManager.class, "RemoteDeploymentManager");
-        infoFactory.addInterface(GeronimoDeploymentManager.class);
-        infoFactory.addReference(GBEAN_REF_MODULE_CONFIGURERS, ModuleConfigurer.class);
-
-        infoFactory.setConstructor(new String[] {GBEAN_REF_MODULE_CONFIGURERS});
-        
-        GBEAN_INFO = infoFactory.getBeanInfo();
-    }
-
-    public static GBeanInfo getGBeanInfo() {
-        return GBEAN_INFO;
-    }
-
 }

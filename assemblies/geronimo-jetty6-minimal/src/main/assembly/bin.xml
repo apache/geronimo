@@ -132,11 +132,17 @@
         <fileSet>
             <directory>target/scratch</directory>
             <outputDirectory>var/config</outputDirectory>
+            <includes>
+                <include>offline-deployer-list</include>
+            </includes>
+        </fileSet>
+        
+        <fileSet>
+            <directory>target/scratch</directory>
+            <outputDirectory>var/config</outputDirectory>
             <fileMode>0644</fileMode>
             <includes>
                 <include>config.xml</include>
-                <include>jsr88-configurer-config.xml</include>
-                <include>offline-deployer-config.xml</include>
             </includes>
         </fileSet>
     </fileSets>

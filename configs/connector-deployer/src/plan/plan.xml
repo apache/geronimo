@@ -85,4 +85,6 @@
         <attribute name="eeNamespaces">http://java.sun.com/xml/ns/j2ee</attribute>
     </gbean>
 
+    <gbean name="RARConfigurer" class="org.apache.geronimo.connector.deployment.RARConfigurer"/>
+
 </module>

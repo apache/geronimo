@@ -142,7 +142,7 @@ public class DirectoryHotDeployer implements HotDeployer, DeploymentWatcher, GBe
 
     public void doStart() throws Exception {
         if (factory == null) {
-            factory = new DeploymentFactoryImpl(kernel);
+            factory = new DeploymentFactoryImpl();
         }
         File dir = serverInfo.resolve(path);
         if (!dir.exists()) {

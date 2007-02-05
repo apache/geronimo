@@ -19,9 +19,11 @@ package org.apache.geronimo.deployment.plugin.jmx;
 import java.io.File;
 import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
+import java.util.Set;
+import java.util.HashMap;
 
 import javax.enterprise.deploy.model.DeployableObject;
 import javax.enterprise.deploy.shared.DConfigBeanVersionType;
@@ -47,6 +49,8 @@ import org.apache.geronimo.deployment.plugin.local.StartCommand;
 import org.apache.geronimo.deployment.plugin.local.StopCommand;
 import org.apache.geronimo.deployment.plugin.local.UndeployCommand;
 import org.apache.geronimo.gbean.AbstractName;
+import org.apache.geronimo.gbean.AbstractNameQuery;
+import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.config.ConfigurationInfo;
 import org.apache.geronimo.kernel.config.ConfigurationManager;
@@ -64,15 +68,8 @@ public abstract class JMXDeploymentManager implements DeploymentManager {
     protected Kernel kernel;
     private ConfigurationManager configurationManager;
     private CommandContext commandContext;
-    private final Collection<ModuleConfigurer> moduleConfigurers;
+    protected final Map<ModuleType, ModuleConfigurer> moduleConfigurers = new HashMap<ModuleType, ModuleConfigurer>();
 
-    public JMXDeploymentManager(Collection<ModuleConfigurer> moduleConfigurers) {
-        if (null == moduleConfigurers) {
-            throw new IllegalArgumentException("moduleConfigurers is required");
-        }
-        this.moduleConfigurers = moduleConfigurers;
-    }
-    
     protected void initialize(Kernel kernel) {
         this.kernel = kernel;
         configurationManager = ConfigurationUtil.getConfigurationManager(kernel);
@@ -291,13 +288,7 @@ public abstract class JMXDeploymentManager implements DeploymentManager {
         if (dObj == null) {
             throw new NullPointerException("No deployable object supplied to configure");
         }
-        ModuleConfigurer configurer = null;
-        for (ModuleConfigurer moduleConfigurer : moduleConfigurers) {
-            if (moduleConfigurer.getModuleType() == dObj.getType()) {
-                configurer = moduleConfigurer;
-               break;
-            }
-        }
+        ModuleConfigurer configurer = moduleConfigurers.get(dObj.getType());
         if (configurer == null) {
             throw new InvalidModuleException("No configurer for module type: " + dObj.getType() + " registered");
         }

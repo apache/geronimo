@@ -237,12 +237,12 @@ public final class ConfigurationUtil {
     }
 
     /**
-     * Gets the name of the ConfigurationManager running in the specified kernel.
+     * Gets a reference or proxy to the ConfigurationManager running in the specified kernel.
      *
-     * @return Its AbstractName
+     * @return The ConfigurationManager
      * @throws IllegalStateException Occurs if a ConfigurationManager cannot be identified
      */
-    public static AbstractName getConfigurationManagerName(Kernel kernel) {
+    public static ConfigurationManager getConfigurationManager(Kernel kernel) {
         Set names = kernel.listGBeans(new AbstractNameQuery(ConfigurationManager.class.getName()));
         for (Iterator iterator = names.iterator(); iterator.hasNext();) {
             AbstractName abstractName = (AbstractName) iterator.next();
@@ -256,18 +256,7 @@ public final class ConfigurationUtil {
         if (names.size() > 1) {
             throw new IllegalStateException("More than one Configuration Manager was found in the kernel");
         }
-        return (AbstractName) names.iterator().next();
-    }
-    
-    
-    /**
-     * Gets a reference or proxy to the ConfigurationManager running in the specified kernel.
-     *
-     * @return The ConfigurationManager
-     * @throws IllegalStateException Occurs if a ConfigurationManager cannot be identified
-     */
-    public static ConfigurationManager getConfigurationManager(Kernel kernel) {
-        AbstractName configurationManagerName = getConfigurationManagerName(kernel);
+        AbstractName configurationManagerName = (AbstractName) names.iterator().next();
         return (ConfigurationManager) kernel.getProxyManager().createProxy(configurationManagerName, ConfigurationManager.class);
     }
 
