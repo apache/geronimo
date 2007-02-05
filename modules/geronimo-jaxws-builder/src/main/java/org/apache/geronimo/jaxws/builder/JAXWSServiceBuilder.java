@@ -237,13 +237,13 @@ public abstract class JAXWSServiceBuilder implements WebServiceBuilder {
         ClassLoader classLoader = context.getClassLoader();
         loadSEI(seiClassName, classLoader);
 
-        AbstractName containerFactoryName = context.getNaming().createChildName(targetGBean.getAbstractName(), "cxfWebServiceContainerFactory", NameFactory.GERONIMO_SERVICE);
+        AbstractName containerFactoryName = context.getNaming().createChildName(targetGBean.getAbstractName(), getContainerFactoryGBeanInfo().getName(), NameFactory.GERONIMO_SERVICE);
         GBeanData containerFactoryData = new GBeanData(containerFactoryName, getContainerFactoryGBeanInfo());
         containerFactoryData.setAttribute("portInfo", portInfo);
         containerFactoryData.setAttribute("endpointClassName", seiClassName);
         containerFactoryData.setAttribute("componentContext", componentContext);
         try {
-            context.addGBean(containerFactoryData);
+            context.addGBean(containerFactoryData);            
         } catch (GBeanAlreadyExistsException e) {
             throw new DeploymentException("Could not add web service container factory gbean", e);
         }
