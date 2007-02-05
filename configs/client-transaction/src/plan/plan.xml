@@ -22,7 +22,8 @@
 
     <!--client connector support-->
     <gbean name="ConnectionTracker" class="org.apache.geronimo.connector.outbound.connectiontracking.ConnectionTrackingCoordinatorGBean">
-        <attribute name="lazyConnect">true</attribute>
+        <!-- Turn off lazyConnect, it leaks connections. May need to revert the function -->
+        <attribute name="lazyConnect">false</attribute>
         <reference name="TransactionManager">
             <name>TransactionManager</name>
         </reference>
