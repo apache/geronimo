@@ -14,28 +14,25 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.apache.geronimo.jaxws;
+package org.apache.geronimo.cxf;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import javax.xml.ws.handler.Handler;
+import javax.xml.ws.handler.MessageContext;
 
-import javax.naming.Context;
-import javax.naming.InitialContext;
-import javax.naming.NamingException;
+public class TestHandler implements Handler {
 
-public class JNDIResolver {
-
-    private static final Log LOG = 
-        LogFactory.getLog(JNDIResolver.class.getName());
-
-    public Object resolve(String name, Class clz) throws NamingException {
-        Context ctx = new InitialContext();
-        ctx = (Context) ctx.lookup("java:comp/env");
-
-        LOG.debug("Looking up '" + name + "'");
-
-        Object o = ctx.lookup(name);
-
-        return clz.cast(o);
+    public void close(MessageContext arg0) {
+        // TODO Auto-generated method stub        
     }
+
+    public boolean handleFault(MessageContext arg0) {
+        // TODO Auto-generated method stub
+        return false;
+    }
+
+    public boolean handleMessage(MessageContext arg0) {
+        // TODO Auto-generated method stub
+        return false;
+    }
+    
 }

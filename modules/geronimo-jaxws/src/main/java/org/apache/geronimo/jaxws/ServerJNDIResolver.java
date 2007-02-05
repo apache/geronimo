@@ -16,26 +16,26 @@
  */
 package org.apache.geronimo.jaxws;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.apache.geronimo.naming.java.RootContext;
 
 import javax.naming.Context;
-import javax.naming.InitialContext;
 import javax.naming.NamingException;
 
-public class JNDIResolver {
+public class ServerJNDIResolver extends JNDIResolver {
 
-    private static final Log LOG = 
-        LogFactory.getLog(JNDIResolver.class.getName());
+    private Context componentContext;
+
+    public ServerJNDIResolver(Context context) {
+        this.componentContext = context;
+    }
 
     public Object resolve(String name, Class clz) throws NamingException {
-        Context ctx = new InitialContext();
-        ctx = (Context) ctx.lookup("java:comp/env");
-
-        LOG.debug("Looking up '" + name + "'");
-
-        Object o = ctx.lookup(name);
-
-        return clz.cast(o);
+        Context oldContext = RootContext.getComponentContext();
+        try {
+            RootContext.setComponentContext(componentContext);
+            return super.resolve(name, clz);
+        } finally {
+            RootContext.setComponentContext(oldContext);
+        }
     }
 }

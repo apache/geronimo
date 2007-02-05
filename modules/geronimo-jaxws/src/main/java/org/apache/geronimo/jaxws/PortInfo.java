@@ -17,19 +17,12 @@
 package org.apache.geronimo.jaxws;
 
 import java.io.Serializable;
-import java.io.StringReader;
 import java.io.StringWriter;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBElement;
 import javax.xml.bind.Marshaller;
-import javax.xml.bind.Unmarshaller;
 import javax.xml.namespace.QName;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-
-import org.w3c.dom.Document;
-import org.xml.sax.InputSource;
 
 public class PortInfo implements Serializable {
 
@@ -128,32 +121,15 @@ public class PortInfo implements Serializable {
          * Since HandlerChainsType is a type, have to wrap it into some element
          */
         QName rootElement = new QName("", "root");
-        JAXBElement element = new JAXBElement(rootElement,
-                type, handlerChain);
+        JAXBElement element = 
+            new JAXBElement(rootElement, type, handlerChain);
         m.marshal(element, writer);
 
         this.handlersAsXML = writer.toString();
     }
 
-    public Object getHandlers(Class type) throws Exception {
-        if (this.handlersAsXML == null) {
-            return null;
-        }
-
-        InputSource is = new InputSource(new StringReader(this.handlersAsXML));
-
-        DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-        dbf.setNamespaceAware(true);
-        DocumentBuilder db = dbf.newDocumentBuilder();
-        Document doc = db.parse(is);
-
-        JAXBContext ctx = JAXBContext.newInstance(type);
-        Unmarshaller unmarshaller = ctx.createUnmarshaller();
-
-        JAXBElement handlerElement = unmarshaller.unmarshal(
-                doc.getDocumentElement(), type);
-
-        return handlerElement.getValue();
+    public <T>T getHandlers(Class<T> type) throws Exception {
+        return HandlerChainsUtils.toHandlerChains(this.handlersAsXML, type);
     }
 
     public QName getWsdlPort() {

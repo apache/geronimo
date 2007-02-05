@@ -56,13 +56,17 @@ import java.util.jar.JarFile;
 
 public abstract class JAXWSServiceBuilder implements WebServiceBuilder {
     private static final Log LOG = LogFactory.getLog(JAXWSServiceBuilder.class);
+    
     protected final Environment defaultEnvironment;
-    private static final String KEY = JAXWSServiceBuilder.class.getName();
 
     public JAXWSServiceBuilder(Environment defaultEnvironment) {
         this.defaultEnvironment = defaultEnvironment;
     }
 
+    protected String getKey() {
+        return getClass().getName();
+    }
+    
     public void findWebServices(JarFile moduleFile,
                                 boolean isEJB,
                                 Map servletLocations,
@@ -81,7 +85,7 @@ public abstract class JAXWSServiceBuilder implements WebServiceBuilder {
 
         if (portMap != null) {
             EnvironmentBuilder.mergeEnvironments(environment, defaultEnvironment);
-            sharedContext.put(KEY, portMap);
+            sharedContext.put(getKey(), portMap);
         }
 
     }
@@ -208,7 +212,7 @@ public abstract class JAXWSServiceBuilder implements WebServiceBuilder {
                                  DeploymentContext context)
             throws DeploymentException {
         Map sharedContext = ((WebModule) module).getSharedContext();
-        Map portInfoMap = (Map) sharedContext.get(KEY);
+        Map portInfoMap = (Map) sharedContext.get(getKey());
         if (portInfoMap == null) {
             // not ours
             return false;

@@ -38,6 +38,11 @@
             <artifactId>geronimo-jaxws</artifactId>
             <version>${version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.apache.geronimo.modules</groupId>
+            <artifactId>geronimo-naming-builder</artifactId>
+            <version>${version}</version>
+        </dependency>
     </dependencies>
 
 </project>

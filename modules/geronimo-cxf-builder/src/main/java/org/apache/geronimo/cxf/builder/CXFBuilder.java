@@ -32,8 +32,10 @@ import org.apache.geronimo.j2ee.deployment.WebServiceBuilder;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.xbeans.geronimo.naming.GerServiceRefType;
+import org.apache.geronimo.xbeans.javaee.ServiceRefHandlerChainsType;
 import org.apache.geronimo.jaxws.builder.JAXWSServiceBuilder;
 import org.apache.geronimo.cxf.CXFWebServiceContainerFactoryGBean;
+//import org.apache.geronimo.cxf.client.CXFServiceReference;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBElement;
@@ -44,6 +46,7 @@ import javax.xml.transform.stream.StreamSource;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.StringWriter;
 import java.net.URL;
 import java.net.URI;
 import java.util.Collections;
@@ -171,22 +174,44 @@ public class CXFBuilder extends JAXWSServiceBuilder {
                                 URI wsdlURI,
                                 QName serviceQName,
                                 Map portComponentRefMap,
-                                Object object,
+                                ServiceRefHandlerChainsType handlerChains,
                                 GerServiceRefType serviceRefType,
                                 Module module,
                                 ClassLoader cl) throws DeploymentException {
         System.out.println("createService");
         /*
-        WSDLInfoBuilder builder = new WSDLInfoBuilder(serviceInterface, module.getModuleFile(), wsdlURI, serviceQName, cl);
+        WSDLInfoBuilder builder = new WSDLInfoBuilder(serviceInterface, module
+                .getModuleFile(), wsdlURI, serviceQName, cl);
         builder.build();
-        
-        serviceQName = builder.getServiceQName(); 
-                
-        return new CXFServiceReference(serviceInterface.getName(), wsdlURI, serviceQName, module.getModuleName(), object, null, null);
+
+        serviceQName = builder.getServiceQName();
+
+        String handlerChainsXML = null;
+        try {
+            handlerChainsXML = getHanderChainAsString(handlerChains);
+        } catch (IOException e) {
+            // should not happen
+            // TODO: log error
+        }
+
+        return new CXFServiceReference(serviceInterface.getName(), wsdlURI,
+                serviceQName, module.getModuleName(), handlerChainsXML, null,
+                null);
         */
         return null;
     }
-
+    
+    private static String getHanderChainAsString(ServiceRefHandlerChainsType handlerChains)
+            throws IOException {
+        String xml = null;
+        if (handlerChains != null) {
+            StringWriter w = new StringWriter();
+            handlerChains.save(w);
+            xml = w.toString();
+        }
+        return xml;
+    }
+    
     private static String getString(String in) {
         if (in != null) {
             in = in.trim();

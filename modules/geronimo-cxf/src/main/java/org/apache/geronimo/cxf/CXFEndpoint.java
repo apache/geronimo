@@ -20,7 +20,6 @@ package org.apache.geronimo.cxf;
 
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Executor;
@@ -29,6 +28,7 @@ import javax.xml.transform.Source;
 import javax.xml.ws.Binding;
 import javax.xml.ws.Provider;
 import javax.xml.ws.Endpoint;
+import javax.xml.ws.WebServiceException;
 import javax.xml.ws.handler.Handler;
 import javax.xml.ws.http.HTTPBinding;
 
@@ -42,8 +42,6 @@ import org.apache.cxf.jaxws.JaxWsServerFactoryBean;
 import org.apache.cxf.jaxws.ProviderChainObserver;
 import org.apache.cxf.jaxws.ProviderInvoker;
 import org.apache.cxf.jaxws.binding.soap.JaxWsSoapBindingInfoFactoryBean;
-import org.apache.cxf.jaxws.handler.AnnotationHandlerChainBuilder;
-import org.apache.cxf.jaxws.javaee.HandlerChainType;
 import org.apache.cxf.jaxws.javaee.HandlerChainsType;
 import org.apache.cxf.jaxws.support.AbstractJaxWsServiceFactoryBean;
 import org.apache.cxf.jaxws.support.JaxWsEndpointImpl;
@@ -123,8 +121,7 @@ public class CXFEndpoint extends Endpoint {
             service.setInvoker(new JAXWSMethodInvoker(instance));
         }
 
-        JNDIResolver jndiResolver = (JNDIResolver) bus
-                .getExtension(JNDIResolver.class);
+        JNDIResolver jndiResolver = (JNDIResolver) bus.getExtension(JNDIResolver.class);
         this.annotationProcessor = new JAXWSAnnotationProcessor(jndiResolver, new CXFWebServiceContext());
     }
 
@@ -233,11 +230,11 @@ public class CXFEndpoint extends Endpoint {
             bindingFactory = new XMLBindingInfoFactoryBean();
         } else {
             // Just assume soap otherwise...
-            bindingFactory = new JaxWsSoapBindingInfoFactoryBean();
+            bindingFactory = new JaxWsSoapBindingInfoFactoryBean();            
         }
 
         svrFactory.setBindingFactory(bindingFactory);
-
+      
         server = svrFactory.create();
         
         init();
@@ -256,32 +253,19 @@ public class CXFEndpoint extends Endpoint {
         server.start();
     }
 
-    protected void init() {
-        // configure handlers
+    protected void init() {        
+        // configure and inject handlers
         try {
             configureHandlers();
         } catch (Exception e) {
-            throw new RuntimeException("Error configuring handlers", e);
+            throw new WebServiceException("Error configuring handlers", e);
         }
 
         // inject resources into service
         try {
             injectResources(this.implementor);
         } catch (AnnotationException e) {
-            // TODO: better way to deal with it
-            throw new RuntimeException("Service resource injection failed", e);
-        }
-
-        // inject resources into handlers
-        List<Handler> handlers = getBinding().getHandlerChain();
-        for (Handler handler : handlers) {
-            try {
-                injectResources(handler);
-            } catch (AnnotationException e) {
-                // TODO: better way to deal with it
-                throw new RuntimeException("Handler resource injection failed",
-                        e);
-            }
+            throw new WebServiceException("Service resource injection failed", e);
         }
     }
 
@@ -290,33 +274,21 @@ public class CXFEndpoint extends Endpoint {
         this.annotationProcessor.invokePostConstruct(instance);
     }
 
-    protected void configureHandlers() throws Exception {
-        AnnotationHandlerChainBuilder builder = (new AnnotationHandlerChainBuilder() {
-            public ClassLoader getHandlerClassLoader() {
-                return implementor.getClass().getClassLoader();
-            }
-        });
-
-        // we'll do our own resource injection
-        builder.setHandlerInitEnabled(false);
-
-        List<Handler> chain = null;
-
-        // handlers in DD overwrite the handlers in annotation
-        HandlerChainsType handlerChains = (HandlerChainsType)this.portInfo.getHandlers(HandlerChainsType.class);
-        if (handlerChains != null && handlerChains.getHandlerChain() != null
-                && handlerChains.getHandlerChain().size() > 0) {
-            chain = new ArrayList<Handler>();
-            for (HandlerChainType chainType : handlerChains.getHandlerChain()) {
-                // TODO: check if the handler chain should be added to this
-                // service
-                chain.addAll(builder
-                        .buildHandlerChainFromConfiguration(chainType));
-            }
-            chain = builder.sortHandlers(chain);
-        } else {
-            chain = builder.buildHandlerChainFromClass(implementor.getClass());
-        }
+    /*
+     * Gets the right handlers for the port/service/bindings and 
+     * performs injection.
+     */
+    protected void configureHandlers() throws Exception {        
+        HandlerChainsType handlerChains = this.portInfo.getHandlers(HandlerChainsType.class);
+        CXFHandlerResolver handlerResolver =
+            new CXFHandlerResolver(this.implementor.getClass().getClassLoader(), 
+                                   this.implementor.getClass(),
+                                   handlerChains, 
+                                   this.annotationProcessor);
+        
+        
+        // TODO: pass non-null PortInfo to get the right handlers
+        List<Handler> chain = handlerResolver.getHandlerChain(null);
 
         getBinding().setHandlerChain(chain);
     }

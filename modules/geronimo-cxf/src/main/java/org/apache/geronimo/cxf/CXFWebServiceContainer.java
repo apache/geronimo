@@ -31,6 +31,7 @@ import org.apache.cxf.wsdl11.ServiceWSDLBuilder;
 import org.apache.geronimo.webservices.WebServiceContainer;
 import org.apache.geronimo.jaxws.JNDIResolver;
 import org.apache.geronimo.jaxws.PortInfo;
+import org.apache.geronimo.jaxws.ServerJNDIResolver;
 import org.xmlsoap.schemas.wsdl.http.AddressType;
 
 import javax.wsdl.Definition;
@@ -68,7 +69,7 @@ public class CXFWebServiceContainer implements WebServiceContainer {
         List ids = new ArrayList();
         ids.add("http://schemas.xmlsoap.org/wsdl/soap/http");
 
-        bus.setExtension(new JNDIResolver(context), JNDIResolver.class);
+        bus.setExtension(new ServerJNDIResolver(context), JNDIResolver.class);
         bus.setExtension(portInfo, PortInfo.class);
 
         DestinationFactoryManager destinationFactoryManager = bus
