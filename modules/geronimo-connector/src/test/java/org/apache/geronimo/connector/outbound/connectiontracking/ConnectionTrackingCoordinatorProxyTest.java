@@ -27,7 +27,6 @@ import org.apache.geronimo.connector.outbound.GeronimoConnectionEventListener;
 import javax.security.auth.Subject;
 import javax.resource.ResourceException;
 import javax.resource.spi.ManagedConnection;
-import javax.resource.spi.DissociatableManagedConnection;
 import javax.resource.spi.ConnectionRequestInfo;
 import javax.resource.spi.ConnectionEventListener;
 import javax.resource.spi.LocalTransaction;
@@ -118,13 +117,11 @@ public class ConnectionTrackingCoordinatorProxyTest extends TestCase implements 
         connectionTrackingCoordinator.handleReleased(key1, connectionInfo, ConnectionReturnAction.DESTROY);
         connectionTrackingCoordinator.exit(oldConnectorInstanceContext);
 
-        // verify proxy is invalid
-        try {
-            connectionProxy.getString();
-            fail("Connection was destroyed so proxy should throw an IllegalStateException");
-        } catch (IllegalStateException e) {
-            // expected
-        }
+        // use connection which will cause it to get a new handle if it is not closed
+        ConnectionTrackingCoordinator.ConnectionInvocationHandler invocationHandler = (ConnectionTrackingCoordinator.ConnectionInvocationHandler) Proxy.getInvocationHandler(connectionProxy);
+        assertEquals("connection.getString()", "ConnectionString", connectionProxy.getString());
+        assertTrue("Proxy should be connected", invocationHandler.isReleased());
+        assertSame("Expected connection.getUnmanaged() to be original connection", connection, connection.getUnmanaged());
     }
 
     public void testReassociateConnection() throws Exception {
@@ -186,13 +183,11 @@ public class ConnectionTrackingCoordinatorProxyTest extends TestCase implements 
         infos = (Set) connectionManagerMap.get(key1);
         assertNull("Expected no connection set for key1", infos);
 
-        // verify proxy is invalid
-        try {
-            connectionProxy.getString();
-            fail("Connection was destroyed so proxy should throw an IllegalStateException");
-        } catch (IllegalStateException e) {
-            // expected
-        }
+        // use connection which will cause it to get a new handle if it is not closed
+        assertEquals("connection.getString()", "ConnectionString", connectionProxy.getString());
+        assertTrue("Proxy should be connected", invocationHandler.isReleased());
+        assertSame("Expected connection.getUnmanaged() to be original connection", connection, connection.getUnmanaged());
+
     }
 
     // some code calls the release method using a freshly constructed ContainerInfo without a proxy
@@ -238,11 +233,10 @@ public class ConnectionTrackingCoordinatorProxyTest extends TestCase implements 
         ConnectionTrackingCoordinator.ConnectionInvocationHandler invocationHandler = (ConnectionTrackingCoordinator.ConnectionInvocationHandler) Proxy.getInvocationHandler(connectionProxy);
         assertTrue("Proxy should be disconnected", invocationHandler.isReleased());
 
-        // use connection to cause it to get a new handle
+        // use connection which will cause it to get a new handle if it is not closed
         assertEquals("connection.getString()", "ConnectionString", connectionProxy.getString());
-        assertFalse("Proxy should be connected", invocationHandler.isReleased());
+        assertTrue("Proxy should be connected", invocationHandler.isReleased());
         assertSame("Expected connection.getUnmanaged() to be original connection", connection, connection.getUnmanaged());
-        assertNotSame("Expected connection to not be original connection", connection, connectionProxy);
 
         // exit outer component context
         connectionTrackingCoordinator.exit(oldConnectorInstanceContext1);
@@ -250,41 +244,22 @@ public class ConnectionTrackingCoordinatorProxyTest extends TestCase implements 
         // proxy should be disconnected
         assertTrue("Proxy should be disconnected", invocationHandler.isReleased());
 
-        // enter again
-        oldConnectorInstanceContext1 = connectionTrackingCoordinator.enter(componentContext);
-        assertNull("Expected old component context to be null", oldConnectorInstanceContext1);
-
-        // use connection to cause it to get a new handle
-        assertEquals("connection.getString()", "ConnectionString", connectionProxy.getString());
-        assertSame("Expected connection.getUnmanaged() to be original connection", connection, connection.getUnmanaged());
-        assertNotSame("Expected connection to not be original connection", connection, connectionProxy);
-
-        // simulate handle destroy due to a event listener, which won't hav the proxy
-        connectionTrackingCoordinator.handleReleased(key1, createConnectionInfo(), ConnectionReturnAction.DESTROY);
-
-        // verify proxy is invalid
-        try {
-            connectionProxy.getString();
-            fail("Connection was destroyed so proxy should throw an IllegalStateException");
-        } catch (IllegalStateException e) {
-            // expected
-        }
-
-        // exit context
-        connectionTrackingCoordinator.exit(oldConnectorInstanceContext1);
-
         // connection should not be in context
         connectionManagerMap = componentContext.getConnectionManagerMap();
         infos = (Set) connectionManagerMap.get(key1);
         assertNull("Expected no connection set for key1", infos);
 
-        // verify proxy is invalid
-        try {
-            connectionProxy.getString();
-            fail("Connection was destroyed so proxy should throw an IllegalStateException");
-        } catch (IllegalStateException e) {
-            // expected
-        }
+        // enter again
+        oldConnectorInstanceContext1 = connectionTrackingCoordinator.enter(componentContext);
+        assertNull("Expected old component context to be null", oldConnectorInstanceContext1);
+
+        // exit context
+        connectionTrackingCoordinator.exit(oldConnectorInstanceContext1);
+
+        // use connection which will cause it to get a new handle if it is not closed
+        assertEquals("connection.getString()", "ConnectionString", connectionProxy.getString());
+        assertTrue("Proxy should be connected", invocationHandler.isReleased());
+        assertSame("Expected connection.getUnmanaged() to be original connection", connection, connection.getUnmanaged());
     }
 
 
@@ -330,7 +305,7 @@ public class ConnectionTrackingCoordinatorProxyTest extends TestCase implements 
         }
     }
 
-    public static class MockManagedConnection implements ManagedConnection, DissociatableManagedConnection {
+    public static class MockManagedConnection implements ManagedConnection {
            public Object getConnection(Subject defaultSubject, ConnectionRequestInfo connectionRequestInfo) throws ResourceException {
                return null;
            }
