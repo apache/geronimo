@@ -17,29 +17,25 @@
 
 package org.apache.geronimo.axis2;
 
-import java.io.BufferedOutputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.OutputStreamWriter;
+import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringBufferInputStream;
 import java.io.StringReader;
-import java.io.Writer;
 import java.lang.reflect.Method;
 import java.net.URI;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CountDownLatch;
 
 import javax.wsdl.Definition;
 import javax.wsdl.Port;
 import javax.wsdl.Service;
 import javax.wsdl.factory.WSDLFactory;
-import javax.wsdl.xml.WSDLReader;
 import javax.wsdl.xml.WSDLWriter;
 import javax.xml.namespace.QName;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.ws.WebServiceException;
 
 import org.apache.axiom.om.OMElement;
@@ -77,6 +73,7 @@ import org.apache.axis2.jaxws.description.builder.WsdlComposite;
 import org.apache.axis2.jaxws.description.builder.WsdlGenerator;
 import org.apache.axis2.jaxws.server.JAXWSMessageReceiver;
 import org.apache.axis2.transport.OutTransportInfo;
+import org.apache.axis2.transport.RequestResponseTransport;
 import org.apache.axis2.transport.http.HTTPConstants;
 import org.apache.axis2.transport.http.HTTPTransportReceiver;
 import org.apache.axis2.transport.http.HTTPTransportUtils;
@@ -89,8 +86,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.webservices.WebServiceContainer;
 import org.apache.ws.commons.schema.XmlSchema;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
 
 
 
@@ -151,6 +146,8 @@ public class Axis2WebServiceContainer implements WebServiceContainer {
             	//populate with axis2 objects
             	service = wsdlBuilder.populateService();
             	service.addParameter(new Parameter("ServiceClass", endpointClassName));
+                service.setWsdlFound(true);
+                service.setClassLoader(classLoader);
             	
             	//Goind to create annotations by hand
             	DescriptionBuilderComposite dbc = new DescriptionBuilderComposite();
@@ -158,12 +155,15 @@ public class Axis2WebServiceContainer implements WebServiceContainer {
             	HashMap<String, DescriptionBuilderComposite> dbcMap = new HashMap<String, DescriptionBuilderComposite>();
             	
             	//Service related annotations
-           		WebServiceAnnot serviceAnnot = WebServiceAnnot.createWebServiceAnnotImpl();
-           		serviceAnnot.setPortName(portName);
-            	serviceAnnot.setServiceName(service.getName());
-           	 	serviceAnnot.setName(service.getName());
-           	 	serviceAnnot.setTargetNamespace(service.getTargetNamespace());
-           	 	serviceAnnot.setEndpointInterface(endpointClassName);
+                WebServiceAnnot serviceAnnot = WebServiceAnnot.createWebServiceAnnotImpl();
+                serviceAnnot.setPortName(portName);
+                serviceAnnot.setServiceName(service.getName());
+                serviceAnnot.setName(service.getName());
+                serviceAnnot.setTargetNamespace(service.getTargetNamespace());
+                //don't set endpointinterface now otherwise you'll get a
+                //Validation error: SEI must not set a value for @WebService.endpointInterface.
+                //The default value is "".
+                //serviceAnnot.setEndpointInterface(endpointClassName);
           	
            	 	Class endPointClass = classLoader.loadClass(endpointClassName);
     	 		Method[] classMethods = endPointClass.getMethods();
@@ -334,6 +334,12 @@ public class Axis2WebServiceContainer implements WebServiceContainer {
                     response.setStatusCode(202);
                 } else {
                     response.setStatusCode(500);
+                    response.setHeader(HTTPConstants.HEADER_CONTENT_TYPE, "text/plain");
+                    PrintWriter pw = new PrintWriter(response.getOutputStream());
+                    e.printStackTrace(pw);
+                    pw.flush();
+                    String msg = "Exception occurred while trying to invoke service method doService()";
+                    log.error(msg, e);
                 }
                 engine.sendFault(faultContext);
             } catch (Exception ex) {
@@ -345,6 +351,8 @@ public class Axis2WebServiceContainer implements WebServiceContainer {
                     PrintWriter pw = new PrintWriter(response.getOutputStream());
                     ex.printStackTrace(pw);
                     pw.flush();
+                    String msg = "Exception occurred while trying to invoke service method doService()";
+                    log.error(msg, ex);
                 }
             }
         }
@@ -396,7 +404,6 @@ public class Axis2WebServiceContainer implements WebServiceContainer {
         	log.error("Invalid service configurations ");
         	throw new RuntimeException("Invalid Configuration");
         }
-
 
         // TODO: Port this section
 //        // Adjust version and content chunking based on the config
@@ -509,10 +516,16 @@ public class Axis2WebServiceContainer implements WebServiceContainer {
 
         } else if (request.getMethod() == Request.POST) {
             // deal with POST request
-
             msgContext.setProperty(MessageContext.TRANSPORT_OUT, response.getOutputStream());
             msgContext.setProperty(Constants.OUT_TRANSPORT_INFO, new Axis2TransportInfo(response));
-
+            msgContext.setAxisService(service);
+            msgContext.setProperty(RequestResponseTransport.TRANSPORT_CONTROL,
+                    new Axis2RequestResponseTransport(response));
+            msgContext.setProperty(Constants.Configuration.TRANSPORT_IN_URL, request.getURI().toString());
+            msgContext.setIncomingTransportName(Constants.TRANSPORT_HTTP);
+            msgContext.setProperty(HTTPConstants.MC_HTTP_SERVLETREQUEST, request);
+            msgContext.setProperty(HTTPConstants.MC_HTTP_SERVLETCONTEXT, contextPath);
+            
             String contenttype = request.getHeader(HTTPConstants.HEADER_CONTENT_TYPE);
             HTTPTransportUtils.processHTTPPostRequest(
                     msgContext,
@@ -560,6 +573,65 @@ public class Axis2WebServiceContainer implements WebServiceContainer {
         public void setContentType(String contentType) {
             response.setHeader(HTTPConstants.HEADER_CONTENT_TYPE, contentType);
         }
+    }
+    
+    class Axis2RequestResponseTransport implements RequestResponseTransport
+    {
+      private Response response;
+      private CountDownLatch responseReadySignal = new CountDownLatch(1);
+      RequestResponseTransportStatus status = RequestResponseTransportStatus.INITIAL;
+      
+      Axis2RequestResponseTransport(Response response)
+      {
+        this.response = response;
+}     
+      public void acknowledgeMessage(MessageContext msgContext) throws AxisFault
+      {
+        if (log.isDebugEnabled()) {
+            log.debug("acknowledgeMessage");
+        }
+         
+        if (log.isDebugEnabled()) {
+            log.debug("Acking one-way request");
+        }
+
+        response.setContentType("text/xml; charset="
+                                + msgContext.getProperty("message.character-set-encoding"));
+        
+        response.setStatusCode(202);
+        try
+        {
+          response.flushBuffer();
+        }
+        catch (IOException e)
+        {
+          throw new AxisFault("Error sending acknowledgement", e);
+        }
+        
+        signalResponseReady();
+      }
+      
+      public void awaitResponse() throws InterruptedException
+      {
+        if (log.isDebugEnabled()) {
+            log.debug("Blocking servlet thread -- awaiting response");
+        }
+        status = RequestResponseTransportStatus.WAITING;
+        responseReadySignal.await();
+      }
+
+      public void signalResponseReady()
+      {
+        if (log.isDebugEnabled()) {
+            log.debug("Signalling response available");
+        }
+        status = RequestResponseTransportStatus.SIGNALLED;
+        responseReadySignal.countDown();
+      }
+
+      public RequestResponseTransportStatus getStatus() {
+        return status;
+      }
     }
     
     class WSDLGeneratorImpl implements WsdlGenerator {

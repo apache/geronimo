@@ -217,5 +217,9 @@ public class WebServiceContainerInvoker implements Servlet {
         public void setStatusMessage(String responseString) {
             response.setStatus(getStatusCode(), responseString);
         }
+        
+        public void flushBuffer() throws java.io.IOException{
+            response.flushBuffer();
+        }
     }
 }

@@ -154,6 +154,8 @@ public interface WebServiceContainer extends Serializable {
         String getContentType();
 
         void setStatusMessage(String responseString);
+        
+        void flushBuffer() throws java.io.IOException;
     }
 
 }
