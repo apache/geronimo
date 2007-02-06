@@ -297,6 +297,11 @@ public class TomcatEJBWebServiceContext extends StandardContext{
         public void setStatusMessage(String responseString) {
             response.setStatus(response.getStatus(), responseString);
         }
+
+        public void flushBuffer() throws java.io.IOException{
+            response.flushBuffer();
+        }
+
     }
 
 }
