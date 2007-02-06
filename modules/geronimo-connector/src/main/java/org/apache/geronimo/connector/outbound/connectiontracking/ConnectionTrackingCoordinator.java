@@ -26,6 +26,7 @@ import java.lang.reflect.Proxy;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import javax.resource.ResourceException;
+import javax.resource.spi.DissociatableManagedConnection;
 
 import org.apache.geronimo.connector.outbound.ConnectionInfo;
 import org.apache.geronimo.connector.outbound.ConnectionTrackingInterceptor;
@@ -109,6 +110,14 @@ public class ConnectionTrackingCoordinator implements TrackedConnectionAssociato
                 ConnectionTrackingInterceptor mcci =
                         (ConnectionTrackingInterceptor) entry.getKey();
                 Set connections = (Set) entry.getValue();
+
+                // release proxy connections
+                if (lazyConnect) {
+                    for (Iterator infoIterator = connections.iterator(); infoIterator.hasNext();) {
+                        ConnectionInfo connectionInfo = (ConnectionInfo) infoIterator.next();
+                        releaseProxyConnection(connectionInfo);
+                    }
+                }
 
                 // use connection interceptor to dissociate connections that support disassociation
                 mcci.exit(connections);
@@ -194,9 +203,10 @@ public class ConnectionTrackingCoordinator implements TrackedConnectionAssociato
             }
         }
 
-        if (lazyConnect) {
-            releaseProxyConnection(connectionInfo, connectionReturnAction);
-        }
+        // NOTE: This method is also called by DissociatableManagedConnection when a connection has been
+        // dissociated in addition to the normal connection closed notification, but this is not a problem
+        // because DissociatableManagedConnection are not proied so this method will have no effect
+        closeProxyConnection(connectionInfo);
     }
 
     /**
@@ -224,6 +234,11 @@ public class ConnectionTrackingCoordinator implements TrackedConnectionAssociato
         // if this connection already has a proxy no need to create another
         if (connectionInfo.getConnectionProxy() != null) return;
 
+        // DissociatableManagedConnection do not need to be proxied
+        if (connectionInfo.getManagedConnectionInfo().getManagedConnection() instanceof DissociatableManagedConnection) {
+            return;
+        }
+
         try {
             Object handle = connectionInfo.getConnectionHandle();
             ConnectionInvocationHandler invocationHandler = new ConnectionInvocationHandler(connectionTrackingInterceptor, connectionInfo, handle);
@@ -239,27 +254,19 @@ public class ConnectionTrackingCoordinator implements TrackedConnectionAssociato
         }
     }
 
-    private void releaseProxyConnection(ConnectionInfo connectionInfo, ConnectionReturnAction connectionReturnAction) {
-        Object proxy = connectionInfo.getConnectionProxy();
-        if (proxy == null) {
-            proxy = proxiesByConnectionInfo.get(connectionInfo);
-        }
-        if (proxy == null) {
-            // no proxy or proxy alreayd destroyed
-            return;
-        }
-
-        ConnectionInvocationHandler invocationHandler = getConnectionInvocationHandler(proxy);
+    private void releaseProxyConnection(ConnectionInfo connectionInfo) {
+        ConnectionInvocationHandler invocationHandler = getConnectionInvocationHandler(connectionInfo);
         if (invocationHandler != null) {
-            if (connectionReturnAction == ConnectionReturnAction.RETURN_HANDLE) {
-                invocationHandler.releaseHandle();
-            } else if (connectionReturnAction == ConnectionReturnAction.DESTROY) {
-                invocationHandler.destroy();
-                proxiesByConnectionInfo.remove(connectionInfo);
-                connectionInfo.setConnectionProxy(null);
-            } else {
-                throw new IllegalArgumentException("Unknown ConnectionReturnAction " + connectionReturnAction);
-            }
+            invocationHandler.releaseHandle();
+        }
+    }
+
+    private void closeProxyConnection(ConnectionInfo connectionInfo) {
+        ConnectionInvocationHandler invocationHandler = getConnectionInvocationHandler(connectionInfo);
+        if (invocationHandler != null) {
+            invocationHandler.close();
+            proxiesByConnectionInfo.remove(connectionInfo);
+            connectionInfo.setConnectionProxy(null);
         }
     }
 
@@ -272,11 +279,17 @@ public class ConnectionTrackingCoordinator implements TrackedConnectionAssociato
         return handle.getClass().getClassLoader();
     }
 
-    private static ConnectionInvocationHandler getConnectionInvocationHandler(Object handle) {
-        if (handle == null) return null;
+    private ConnectionInvocationHandler getConnectionInvocationHandler(ConnectionInfo connectionInfo) {
+        Object proxy = connectionInfo.getConnectionProxy();
+        if (proxy == null) {
+            proxy = proxiesByConnectionInfo.get(connectionInfo);
+        }
 
-        if (Proxy.isProxyClass(handle.getClass())) {
-            InvocationHandler invocationHandler = Proxy.getInvocationHandler(handle);
+        // no proxy or proxy already destroyed
+        if (proxy == null) return null;
+
+        if (Proxy.isProxyClass(proxy.getClass())) {
+            InvocationHandler invocationHandler = Proxy.getInvocationHandler(proxy);
             if (invocationHandler instanceof ConnectionInvocationHandler) {
                 return (ConnectionInvocationHandler) invocationHandler;
             }
@@ -287,7 +300,7 @@ public class ConnectionTrackingCoordinator implements TrackedConnectionAssociato
     public static class ConnectionInvocationHandler implements InvocationHandler {
         private ConnectionTrackingInterceptor connectionTrackingInterceptor;
         private ConnectionInfo connectionInfo;
-        private Object handle;
+        private final Object handle;
         private boolean released = false;
 
         public ConnectionInvocationHandler(ConnectionTrackingInterceptor connectionTrackingInterceptor, ConnectionInfo connectionInfo, Object handle) {
@@ -325,16 +338,20 @@ public class ConnectionTrackingCoordinator implements TrackedConnectionAssociato
             released = true;
         }
 
-        public synchronized void destroy() {
+        public synchronized void close() {
             connectionTrackingInterceptor = null;
             connectionInfo = null;
-            handle = null;
+            released = true;
         }
 
         public synchronized Object getHandle() {
             if (connectionTrackingInterceptor == null) {
-                throw new IllegalStateException("Connection has been destroyed");
+                // connection has been closed... send invocations directly to the handle
+                // which will throw an exception or in some clases like JDBC connection.close()
+                // ignore the invocation
+                return handle;
             }
+
             if (released) {
                 try {
                     connectionTrackingInterceptor.reassociateConnection(connectionInfo);
