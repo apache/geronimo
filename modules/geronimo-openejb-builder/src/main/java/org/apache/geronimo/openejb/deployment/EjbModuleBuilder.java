@@ -153,9 +153,17 @@ public class EjbModuleBuilder implements ModuleBuilder {
         AppModule appModule = null;
         try {
             appModule = loader.load(file);
+        } catch (UnsupportedOperationException e){
+            // not an ejb module
         } catch (OpenEJBException e) {
             throw new DeploymentException(e);
         }
+
+        if (appModule.getEjbModules().size() == 0){
+            // not an ejb module
+            return null;
+        }
+        
         org.apache.openejb.config.EjbModule ejbModule = appModule.getEjbModules().get(0);
 
 
