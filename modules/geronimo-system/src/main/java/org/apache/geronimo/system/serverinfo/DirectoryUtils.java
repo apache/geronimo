@@ -44,10 +44,10 @@ public final class DirectoryUtils {
                 URI baseURI = new URI(url.toString()).resolve("..");
                 directory = new File(baseURI);
             } catch (Exception ignored) {
-                log.error("Error while determining the geronimo installation directory", ignored);
+                log.error("Error while determining the installation directory of Apache Geronimo", ignored);
             }
         } else {
-            log.error("Cound not determin the geronimo installation directory, because the startup jar could not be found in the current class loader.");
+            log.error("Cound not determine the installation directory of Apache Geronimo, because the startup jar could not be found in the current class loader.");
         }
         geronimoInstallDirectory = directory;
     }
