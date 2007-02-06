@@ -180,6 +180,9 @@ public class AxisResponse implements WebServiceContainer.Response {
 
     }
 
+    public void flushBuffer() throws java.io.IOException{
+    }
+
     public void setHeader(String name, String value) {
         headers.put(name,value);
 
