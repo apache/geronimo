@@ -112,7 +112,8 @@ public class PersistenceContextRefBuilder extends AbstractNamingBuilder {
 
         for (GerPersistenceContextRefType gerPersistenceContextRef : gerPersistenceContextRefsUntyped.values()) {
             String persistenceContextRefName = gerPersistenceContextRef.getPersistenceContextRefName();
-            boolean transactionScoped = !gerPersistenceContextRef.getPersistenceContextType().equals(GerPersistenceContextTypeType.EXTENDED);
+            GerPersistenceContextTypeType.Enum persistenceContextType = gerPersistenceContextRef.getPersistenceContextType();
+            boolean transactionScoped = persistenceContextType == null || !persistenceContextType.equals(GerPersistenceContextTypeType.EXTENDED);
             Map properties = new HashMap();
             addProperties(gerPersistenceContextRef, properties);
 

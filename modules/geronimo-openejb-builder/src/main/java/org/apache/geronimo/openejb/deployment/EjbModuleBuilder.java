@@ -20,8 +20,6 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URL;
-import java.net.MalformedURLException;
-import java.net.URLClassLoader;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -30,17 +28,16 @@ import java.util.Map;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.jar.JarFile;
-import java.security.AccessController;
-import java.security.PrivilegedAction;
-import java.lang.reflect.Field;
 
 import javax.ejb.SessionContext;
 import javax.ejb.EntityContext;
+import javax.xml.namespace.QName;
 
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.ModuleIDBuilder;
 import org.apache.geronimo.deployment.NamespaceDrivenBuilder;
 import org.apache.geronimo.deployment.NamespaceDrivenBuilderCollection;
+import org.apache.geronimo.deployment.xmlbeans.XmlBeansUtil;
 import org.apache.geronimo.deployment.service.EnvironmentBuilder;
 import org.apache.geronimo.deployment.service.GBeanBuilder;
 import org.apache.geronimo.deployment.xbeans.EnvironmentType;
@@ -69,9 +66,11 @@ import org.apache.geronimo.xbeans.geronimo.j2ee.GerSecurityDocument;
 import org.apache.geronimo.xbeans.javaee.AssemblyDescriptorType;
 import org.apache.geronimo.xbeans.javaee.EjbJarType;
 import org.apache.openejb.OpenEJBException;
-import org.apache.openejb.jee.oejb3.OpenejbJar;
+import org.apache.openejb.config.DeploymentLoader;
+import org.apache.openejb.config.ReadDescriptors;
+import org.apache.openejb.config.AppModule;
 import org.apache.openejb.assembler.classic.EjbJarInfo;
-import org.apache.openejb.assembler.classic.Cmp2Builder;
+import org.apache.openejb.assembler.classic.CmpJarBuilder;
 import org.apache.openejb.assembler.classic.AppInfo;
 import org.apache.openejb.jee.EjbJar;
 import org.apache.openejb.jee.EnterpriseBean;
@@ -81,9 +80,11 @@ import org.apache.openejb.jee.PersistenceUnitRef;
 import org.apache.openejb.jee.ResourceEnvRef;
 import org.apache.openejb.jee.ResourceRef;
 import org.apache.openejb.jee.ServiceRef;
-import org.apache.xmlbeans.XmlCursor;
+import org.apache.openejb.jee.oejb3.OpenejbJar;
+import org.apache.openejb.jee.oejb2.GeronimoEjbJarType;
 import org.apache.xmlbeans.XmlObject;
-import org.apache.xbean.finder.ClassFinder;
+import org.apache.xmlbeans.XmlException;
+import org.apache.xmlbeans.XmlCursor;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -145,38 +146,68 @@ public class EjbModuleBuilder implements ModuleBuilder {
             throw new IllegalArgumentException("targetPath must not end with a '/'");
         }
 
-        // load the ejb-jar.xml
-        String ejbJarXml = XmlUtil.loadEjbJarXml(specDDUrl, moduleFile);
-        // if there is no ejb-jar.xml and the module does not contain any
-        // classes annotated with ejb annotations, it is not an ejb module
-        if (ejbJarXml == null && !isEjbAnnotatedModule(moduleFile)) {
-            return null;
+
+        DeploymentLoader loader = new DeploymentLoader();
+        File file = new File(moduleFile.getName());
+
+        AppModule appModule = null;
+        try {
+            appModule = loader.load(file);
+        } catch (OpenEJBException e) {
+            throw new DeploymentException(e);
+        }
+        org.apache.openejb.config.EjbModule ejbModule = appModule.getEjbModules().get(0);
+
+
+        XmlObject unknownXmlObject = null;
+
+        if (plan instanceof XmlObject) {
+            unknownXmlObject = (XmlObject) plan;
+        } else if (plan != null) {
+            try {
+                unknownXmlObject = XmlBeansUtil.parse(((File) plan).toURL(), XmlUtil.class.getClassLoader());
+            } catch (Exception e) {
+                throw new DeploymentException(e);
+            }
         }
 
-        EjbJar ejbJar = XmlUtil.unmarshal(EjbJar.class, ejbJarXml);
-        if (ejbJar == null){
-            ejbJar = new EjbJar();
-        }
-
-        // load the geronimo-openejb.xml
-        boolean standAlone = earEnvironment == null;
-        OpenejbGeronimoEjbJarType geronimoOpenejb = XmlUtil.loadGeronimOpenejbJar(plan, moduleFile, standAlone, targetPath, ejbJar);
-        if (geronimoOpenejb == null) {
-            // Avoid NPE GERONIMO-1220; todo: remove this if we can work around the requirement for a plan
-            throw new DeploymentException("Currently a Geronimo deployment plan is required for an EJB module.  Please provide a plan as a deployer argument or packaged in the EJB JAR at META-INF/openejb-jar.xml");
-        }
-
-        // load the openejb-jar.xml
-        XmlObject object = null;
-        if (geronimoOpenejb.isSetOpenejbJar()) {
-            XmlCursor xmlCursor = geronimoOpenejb.getOpenejbJar().newCursor();
+        if (unknownXmlObject != null) {
+            XmlCursor xmlCursor = unknownXmlObject.newCursor();
             xmlCursor.toFirstChild();
-            object = xmlCursor.getObject();
+            QName qname = xmlCursor.getName();
+            if (qname.getLocalPart().equals("openejb-jar")){
+                ejbModule.getAltDDs().put("openejb-jar.xml", unknownXmlObject.xmlText());
+            } else if (qname.getLocalPart().equals("ejb-jar") && qname.getNamespaceURI().equals("http://geronimo.apache.org/xml/ns/j2ee/ejb/openejb-2.0")){
+                ejbModule.getAltDDs().put("geronimo-openejb.xml", unknownXmlObject.xmlText());
+            }
         }
-        String openejbJarXml = XmlUtil.loadOpenejbJarXml(object, moduleFile);
-        OpenejbJar openejbJar = XmlUtil.unmarshal(OpenejbJar.class, openejbJarXml);
-        if (openejbJar == null){
-            openejbJar = new OpenejbJar();
+
+        if (specDDUrl != null) {
+            ejbModule.getAltDDs().put("ejb-jar.xml", specDDUrl);
+        }
+
+        ReadDescriptors readDescriptors = new ReadDescriptors();
+
+        try {
+            readDescriptors.deploy(appModule);
+        } catch (OpenEJBException e) {
+            throw new DeploymentException("Failed parsing descriptors for module: "+moduleFile.getName(), e);
+        }
+
+        EjbJar ejbJar = ejbModule.getEjbJar();
+        OpenejbJar openejbJar = ejbModule.getOpenejbJar();
+
+        OpenejbGeronimoEjbJarType geronimoOpenejb;
+
+
+        boolean standAlone = earEnvironment == null;
+
+        GeronimoEjbJarType jaxbGeronimoOpenejb = (GeronimoEjbJarType) ejbModule.getAltDDs().get("geronimo-openejb.xml");
+        if (jaxbGeronimoOpenejb != null) {
+            geronimoOpenejb = XmlUtil.convertToXmlbeans(jaxbGeronimoOpenejb);
+        } else {
+            String path = (standAlone)? new File(moduleFile.getName()).getName(): targetPath;
+            geronimoOpenejb = XmlUtil.createDefaultPlan(path, ejbJar);
         }
 
         // initialize the geronimo environment
@@ -227,49 +258,7 @@ public class EjbModuleBuilder implements ModuleBuilder {
             moduleName = naming.createChildName(earName, targetPath, NameFactory.EJB_MODULE);
         }
 
-        return new EjbModule(standAlone, moduleName, environment, moduleFile, targetPath, ejbJar, openejbJar, geronimoOpenejb, ejbJarXml, sharedContext);
-    }
-
-    private boolean isEjbAnnotatedModule(JarFile moduleFile) {
-        // this is not an ejb module
-        URL moduleUrl = null;
-        try {
-            File file = new File(moduleFile.getName());
-            moduleUrl = file.toURL();
-        } catch (MalformedURLException e) {
-            return false;
-        }
-
-        try {
-            URLClassLoader tempClassLoader = new URLClassLoader(new URL[]{moduleUrl}, Thread.currentThread().getContextClassLoader());
-            final ClassFinder classFinder = new ClassFinder(tempClassLoader, moduleUrl);
-
-            // DMB: getting this via reflection is a temporary fix.  Just want to avoid having to
-            // make Geronimo dependent on an xbean snapshot right before we do the release.
-            // afterwards we can clean this up.
-            Map<String, List> annotated = AccessController.doPrivileged(new PrivilegedAction<Map<String, List>>() {
-                public Map<String, List> run() {
-                    try {
-                        Field field = ClassFinder.class.getDeclaredField("annotated");
-                        field.setAccessible(true);
-                        return (Map<String, List>) field.get(classFinder);
-                    } catch (Exception e2) {
-                    }
-                    return null;
-                }
-            });
-
-            if (!isEmpty(annotated.get(javax.ejb.Stateless.class.getName()))) return true;
-            if (!isEmpty(annotated.get(javax.ejb.Stateful.class.getName()))) return true;
-            if (!isEmpty(annotated.get(javax.ejb.MessageDriven.class.getName()))) return true;
-        } catch (Throwable e) {
-            log.warn("Error while attempting to determine if a module is an EJB moduel", e);
-        }
-        return false;
-    }
-
-    private static boolean isEmpty(List l) {
-        return l == null || l.isEmpty();
+        return new EjbModule(standAlone, moduleName, environment, moduleFile, targetPath, ejbJar, openejbJar, geronimoOpenejb, "", sharedContext);
     }
 
     protected static void unmapReferences(EjbJar ejbJar) {
@@ -356,7 +345,7 @@ public class EjbModuleBuilder implements ModuleBuilder {
         // Generate the cmp2 concrete subclasses
         AppInfo appInfo = new AppInfo();
         appInfo.ejbJars.add(ejbJarInfo);
-        Cmp2Builder cmp2Builder = new Cmp2Builder(appInfo, classLoader);
+        CmpJarBuilder cmp2Builder = new CmpJarBuilder(appInfo, classLoader);
         try {
             File generatedJar = cmp2Builder.getJarFile();
             if (generatedJar != null) {

@@ -19,7 +19,6 @@ package org.apache.geronimo.openejb.deployment;
 
 import java.net.URL;
 import java.util.jar.JarFile;
-import java.util.Iterator;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
@@ -29,12 +28,11 @@ import javax.xml.bind.JAXBContext;
 import javax.xml.bind.Unmarshaller;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
+import javax.xml.bind.JAXBElement;
 import javax.xml.namespace.QName;
 import javax.xml.parsers.SAXParserFactory;
 import javax.xml.parsers.SAXParser;
 import javax.xml.transform.sax.SAXSource;
-import javax.ejb.SessionContext;
-import javax.ejb.EntityContext;
 
 import org.apache.geronimo.openejb.xbeans.ejbjar.OpenejbEjbJarDocument;
 import org.apache.geronimo.openejb.xbeans.ejbjar.OpenejbGeronimoEjbJarType;
@@ -52,13 +50,9 @@ import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlDocumentProperties;
 import org.apache.openejb.jee.EjbJar;
 import org.apache.openejb.jee.EnterpriseBean;
-import org.apache.openejb.jee.MessageDestinationRef;
 import org.apache.openejb.jee.PersistenceContextRef;
-import org.apache.openejb.jee.PersistenceUnitRef;
-import org.apache.openejb.jee.ResourceRef;
-import org.apache.openejb.jee.ResourceEnvRef;
-import org.apache.openejb.jee.ServiceRef;
 import org.apache.openejb.jee.PersistenceContextType;
+import org.apache.openejb.jee.oejb2.GeronimoEjbJarType;
 import org.xml.sax.helpers.XMLFilterImpl;
 import org.xml.sax.XMLReader;
 import org.xml.sax.Attributes;
@@ -141,9 +135,15 @@ public final class XmlUtil {
 
     public static <T> String marshal(T object) throws DeploymentException {
         try {
-            JAXBContext ctx = JAXBContext.newInstance(object.getClass());
+            Class type = object.getClass();
+
+            if (object instanceof JAXBElement) {
+                JAXBElement element = (JAXBElement) object;
+                type = element.getValue().getClass();
+            }
+
+            JAXBContext ctx = JAXBContext.newInstance(type);
             Marshaller marshaller = ctx.createMarshaller();
-            marshaller.setProperty("jaxb.formatted.output", true);
 
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
             marshaller.marshal(object, baos);
@@ -208,6 +208,28 @@ public final class XmlUtil {
         }
 
     }
+
+    public static OpenejbGeronimoEjbJarType convertToXmlbeans(GeronimoEjbJarType geronimoEjbJarType) throws DeploymentException {
+        //
+        // it would be nice if Jaxb had a way to convert the object to a
+        // sax reader that could be fed directly into xmlbeans
+        //
+        JAXBElement root = new JAXBElement(new QName("http://geronimo.apache.org/xml/ns/j2ee/ejb/openejb-2.0","ejb-jar"), GeronimoEjbJarType.class, geronimoEjbJarType);
+
+        // marshal to xml
+
+        String xml = marshal(root);
+
+        try {
+            XmlObject xmlObject = XmlBeansUtil.parse(xml);
+
+            OpenejbGeronimoEjbJarType geronimoOpenejb = (OpenejbGeronimoEjbJarType) SchemaConversionUtils.fixGeronimoSchema(xmlObject, OPENEJBJAR_QNAME, OpenejbGeronimoEjbJarType.type);
+            return geronimoOpenejb;
+        } catch (XmlException e) {
+            throw new DeploymentException("Error parsing geronimo-openejb.xml", e);
+        }
+    }
+
     public static OpenejbGeronimoEjbJarType loadGeronimOpenejbJar(Object plan, JarFile moduleFile, boolean standAlone, String targetPath, EjbJar ejbJar) throws DeploymentException {
         OpenejbGeronimoEjbJarType openejbJar;
         XmlObject rawPlan = null;
