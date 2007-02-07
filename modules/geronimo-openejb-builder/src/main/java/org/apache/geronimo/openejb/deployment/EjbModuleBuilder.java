@@ -22,7 +22,6 @@ import org.apache.geronimo.deployment.NamespaceDrivenBuilder;
 import org.apache.geronimo.deployment.NamespaceDrivenBuilderCollection;
 import org.apache.geronimo.deployment.service.EnvironmentBuilder;
 import org.apache.geronimo.deployment.service.GBeanBuilder;
-import org.apache.geronimo.deployment.xbeans.EnvironmentType;
 import org.apache.geronimo.deployment.xmlbeans.XmlBeansUtil;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.AbstractNameQuery;
@@ -46,7 +45,6 @@ import org.apache.geronimo.openejb.OpenEjbSystem;
 import org.apache.geronimo.openejb.xbeans.ejbjar.OpenejbGeronimoEjbJarType;
 import org.apache.geronimo.security.jacc.ComponentPermissions;
 import org.apache.geronimo.xbeans.geronimo.j2ee.GerSecurityDocument;
-import org.apache.geronimo.xbeans.javaee.AssemblyDescriptorType;
 import org.apache.geronimo.xbeans.javaee.EjbJarType;
 import org.apache.openejb.OpenEJBException;
 import org.apache.openejb.assembler.classic.AppInfo;
@@ -204,12 +202,25 @@ public class EjbModuleBuilder implements ModuleBuilder {
         }
 
         // create the geronimo environment object
-        Environment environment = createEnvironment(ejbModule, geronimoEjbJarType, moduleFile, earEnvironment, idBuilder);
+        Environment environment = XmlUtil.buildEnvironment(geronimoEjbJarType.getEnvironment(), defaultEnvironment);
+        if (earEnvironment != null) {
+            EnvironmentBuilder.mergeEnvironments(earEnvironment, environment);
+            environment = earEnvironment;
+            if (!environment.getConfigId().isResolved()) {
+                throw new IllegalStateException("EJB module ID should be fully resolved (not " + environment.getConfigId() + ")");
+            }
+        } else {
+            idBuilder.resolve(environment, new File(moduleFile.getName()).getName(), "jar");
+        }
+
+        if (ejbModule.getEjbJar().getAssemblyDescriptor() != null) {
+            namingBuilder.buildEnvironment(null, null, environment);
+        }
 
         // overridden web service locations
         Map correctedPortLocations = new HashMap();
 
-        // todo
+        // todo Webservices not supported yet
 //        OpenejbSessionBeanType[] openejbSessionBeans = openejbJar.getEnterpriseBeans().getSessionArray();
 //        for (int i = 0; i < openejbSessionBeans.length; i++) {
 //            OpenejbSessionBeanType sessionBean = openejbSessionBeans[i];
@@ -233,32 +244,6 @@ public class EjbModuleBuilder implements ModuleBuilder {
         }
 
         return new EjbModule(ejbModule, standAlone, moduleName, environment, moduleFile, targetPath, "", sharedContext);
-    }
-
-    private Environment createEnvironment(org.apache.openejb.config.EjbModule ejbModule, GeronimoEjbJarType jaxbGeronimoOpenejb, JarFile moduleFile, Environment earEnvironment, ModuleIDBuilder idBuilder) throws DeploymentException {
-        OpenejbGeronimoEjbJarType geronimoOpenejb;
-        geronimoOpenejb = XmlUtil.convertToXmlbeans(jaxbGeronimoOpenejb);
-        EnvironmentType environmentType = geronimoOpenejb.getEnvironment();
-        Environment environment = EnvironmentBuilder.buildEnvironment(environmentType, defaultEnvironment);
-        if (earEnvironment != null) {
-            EnvironmentBuilder.mergeEnvironments(earEnvironment, environment);
-            environment = earEnvironment;
-            if (!environment.getConfigId().isResolved()) {
-                throw new IllegalStateException("EJB module ID should be fully resolved (not " + environment.getConfigId() + ")");
-            }
-        } else {
-            idBuilder.resolve(environment, new File(moduleFile.getName()).getName(), "jar");
-        }
-
-        // todo THIS WILL NOT WORK WITH ANNOTATIONS... move this to initContext when naming is fixed
-        // since assembly descriptor will only be valid once metadata complete
-        // which is only available once a class loader has been constructed in the init phase
-        if (ejbModule.getEjbJar().getAssemblyDescriptor() != null) {
-            EjbJarType ejbJarType = XmlUtil.convertToXmlbeans(ejbModule.getEjbJar());
-            AssemblyDescriptorType assemblyDescriptor = ejbJarType.getAssemblyDescriptor();
-            namingBuilder.buildEnvironment(assemblyDescriptor, geronimoOpenejb, environment);
-        }
-        return environment;
     }
 
     protected static void unmapReferences(EjbJar ejbJar) {
@@ -421,8 +406,8 @@ public class EjbModuleBuilder implements ModuleBuilder {
         // if not found create one
         if (persistenceUnit == null) {
             String jtaDataSource = null;
-            Object altDD = ejbModule.getEjbModule().getAltDDs().get("openejb-jar.xml");
             // todo Persistence Unit Data Sources need to be global JNDI names
+            // Object altDD = ejbModule.getEjbModule().getAltDDs().get("openejb-jar.xml");
             // if (altDD instanceof OpenejbJarType) {
             //     String datasourceName = ((OpenejbJarType) altDD).getCmpConnectionFactory().getResourceLink();
             //     jtaDataSource = "?name=" + datasourceName;

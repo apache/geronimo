@@ -44,7 +44,9 @@ public class UnavailableRefBuilder implements NamingBuilder {
         unavailableQNameSet = QNameSet.singleton(unavailableQName);
     }
     public void buildEnvironment(XmlObject specDD, XmlObject plan, Environment environment) throws DeploymentException {
-        checkUnavailable(specDD);
+        if (specDD != null) {
+            checkUnavailable(specDD);
+        }
     }
 
     private void checkUnavailable(XmlObject specDD) throws DeploymentException {

@@ -74,9 +74,12 @@ public abstract class AbstractNamingBuilder implements NamingBuilder {
     }
     
     public void buildEnvironment(XmlObject specDD, XmlObject plan, Environment environment) throws DeploymentException {
-        if (willMergeEnvironment(specDD, plan)) {
+        // TODO Currently this method is called before the xml is metadata complete, so will not contain all refs
+        // Just always call mergeEnvironment until this is fixed
+        //
+        // if (willMergeEnvironment(specDD, plan)) {
             EnvironmentBuilder.mergeEnvironments(environment, defaultEnvironment);
-        }
+        // }
     }
 
     protected boolean willMergeEnvironment(XmlObject specDD, XmlObject plan) throws DeploymentException {

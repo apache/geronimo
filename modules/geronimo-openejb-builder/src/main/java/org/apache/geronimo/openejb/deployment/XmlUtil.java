@@ -18,8 +18,11 @@
 package org.apache.geronimo.openejb.deployment;
 
 import org.apache.geronimo.common.DeploymentException;
-import org.apache.geronimo.deployment.util.DeploymentUtil;
 import org.apache.geronimo.deployment.xmlbeans.XmlBeansUtil;
+import org.apache.geronimo.deployment.service.EnvironmentBuilder;
+import org.apache.geronimo.kernel.repository.Artifact;
+import org.apache.geronimo.kernel.repository.Dependency;
+import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.openejb.xbeans.ejbjar.OpenejbEjbJarDocument;
 import org.apache.geronimo.openejb.xbeans.ejbjar.OpenejbGeronimoEjbJarType;
 import org.apache.geronimo.schema.SchemaConversionUtils;
@@ -29,9 +32,11 @@ import org.apache.openejb.jee.EjbJar;
 import org.apache.openejb.jee.EnterpriseBean;
 import org.apache.openejb.jee.PersistenceContextRef;
 import org.apache.openejb.jee.PersistenceContextType;
-import org.apache.openejb.jee.oejb2.GeronimoEjbJarType;
-import org.apache.openejb.jee.oejb2.EnvironmentType;
 import org.apache.openejb.jee.oejb2.ArtifactType;
+import org.apache.openejb.jee.oejb2.DependencyType;
+import org.apache.openejb.jee.oejb2.EnvironmentType;
+import org.apache.openejb.jee.oejb2.GeronimoEjbJarType;
+import org.apache.openejb.jee.oejb2.ImportType;
 import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlDocumentProperties;
 import org.apache.xmlbeans.XmlException;
@@ -54,10 +59,6 @@ import javax.xml.parsers.SAXParserFactory;
 import javax.xml.transform.sax.SAXSource;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.IOException;
-import java.net.URL;
-import java.util.jar.JarFile;
 
 public final class XmlUtil {
     public static final QName OPENEJBJAR_QNAME = OpenejbEjbJarDocument.type.getDocumentElementName();
@@ -186,6 +187,57 @@ public final class XmlUtil {
         } catch (XmlException e) {
             throw new DeploymentException("Error parsing geronimo-openejb.xml", e);
         }
+    }
+
+    public static Environment buildEnvironment(EnvironmentType environmentType, Environment defaultEnvironment) {
+        Environment environment = new Environment();
+        if (environmentType != null) {
+            if (environmentType.getModuleId() != null) {
+                environment.setConfigId(toArtifact(environmentType.getModuleId(), null));
+            }
+
+            if (environmentType.getDependencies() != null) {
+                for (DependencyType dependencyType : environmentType.getDependencies().getDependency()) {
+                    Dependency dependency = toDependency(dependencyType);
+                    environment.addDependency(dependency);
+                }
+            }
+            environment.setInverseClassLoading(environmentType.isInverseClassloading());
+            environment.setSuppressDefaultEnvironment(environmentType.isSuppressDefaultEnvironment());
+            if (environmentType.getHiddenClasses() != null) {
+                environment.setHiddenClasses(environmentType.getHiddenClasses().getFilter());
+            }
+            if (environmentType.getNonOverridableClasses() != null) {
+                environment.setNonOverrideableClasses(environmentType.getNonOverridableClasses().getFilter());
+            }
+        }
+        if (!environment.isSuppressDefaultEnvironment()) {
+            EnvironmentBuilder.mergeEnvironments(environment, defaultEnvironment);
+        }
+
+        return environment;
+    }
+
+    private static Dependency toDependency(DependencyType dependencyType) {
+        Artifact artifact = toArtifact(dependencyType, null);
+        if (ImportType.CLASSES.equals(dependencyType.getImport())) {
+            return new Dependency(artifact, org.apache.geronimo.kernel.repository.ImportType.CLASSES);
+        } else if (ImportType.SERVICES.equals(dependencyType.getImport())) {
+            return new Dependency(artifact, org.apache.geronimo.kernel.repository.ImportType.SERVICES);
+        } else if (dependencyType.getImport() == null) {
+            return new Dependency(artifact, org.apache.geronimo.kernel.repository.ImportType.ALL);
+        } else {
+            throw new IllegalArgumentException("Unknown import type: " + dependencyType.getImport());
+        }
+    }
+
+    private static Artifact toArtifact(ArtifactType artifactType, String defaultType) {
+        String groupId = artifactType.getGroupId();
+        String type = artifactType.getType();
+        if (type == null) type = defaultType;
+        String artifactId = artifactType.getArtifactId();
+        String version = artifactType.getVersion();
+        return new Artifact(groupId, artifactId, version, type);
     }
 
     public static GeronimoEjbJarType createDefaultPlan(String name, EjbJar ejbJar) {
