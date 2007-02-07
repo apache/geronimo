@@ -173,12 +173,12 @@ public class EjbModuleBuilder implements ModuleBuilder {
 
         if (unknownXmlObject != null) {
             XmlCursor xmlCursor = unknownXmlObject.newCursor();
-            xmlCursor.toFirstChild();
+            //
             QName qname = xmlCursor.getName();
             if (qname.getLocalPart().equals("openejb-jar")){
-                ejbModule.getAltDDs().put("openejb-jar.xml", unknownXmlObject.xmlText());
+                ejbModule.getAltDDs().put("openejb-jar.xml", xmlCursor.xmlText());
             } else if (qname.getLocalPart().equals("ejb-jar") && qname.getNamespaceURI().equals("http://geronimo.apache.org/xml/ns/j2ee/ejb/openejb-2.0")){
-                ejbModule.getAltDDs().put("geronimo-openejb.xml", unknownXmlObject.xmlText());
+                ejbModule.getAltDDs().put("geronimo-openejb.xml", xmlCursor.xmlText());
             }
         }
 

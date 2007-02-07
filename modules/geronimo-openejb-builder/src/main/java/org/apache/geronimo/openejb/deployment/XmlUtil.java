@@ -18,8 +18,8 @@
 package org.apache.geronimo.openejb.deployment;
 
 import org.apache.geronimo.common.DeploymentException;
-import org.apache.geronimo.deployment.xmlbeans.XmlBeansUtil;
 import org.apache.geronimo.deployment.service.EnvironmentBuilder;
+import org.apache.geronimo.deployment.xmlbeans.XmlBeansUtil;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.Dependency;
 import org.apache.geronimo.kernel.repository.Environment;
@@ -41,23 +41,13 @@ import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlDocumentProperties;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
-import org.xml.sax.Attributes;
-import org.xml.sax.InputSource;
-import org.xml.sax.SAXException;
-import org.xml.sax.XMLReader;
-import org.xml.sax.helpers.XMLFilterImpl;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
-import javax.xml.bind.Unmarshaller;
 import javax.xml.bind.ValidationEvent;
 import javax.xml.namespace.QName;
-import javax.xml.parsers.SAXParser;
-import javax.xml.parsers.SAXParserFactory;
-import javax.xml.transform.sax.SAXSource;
-import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 
 public final class XmlUtil {
@@ -65,57 +55,6 @@ public final class XmlUtil {
     private static final QName CMP_VERSION = new QName(SchemaConversionUtils.J2EE_NAMESPACE, "cmp-version");
 
     private XmlUtil() {
-    }
-
-    public static class EjbJarNamespaceFilter extends XMLFilterImpl {
-
-        public EjbJarNamespaceFilter(XMLReader xmlReader) {
-            super(xmlReader);
-        }
-
-        public void startElement(String uri, String localName, String qname, Attributes atts) throws SAXException {
-            super.startElement("http://java.sun.com/xml/ns/javaee", localName, qname, atts);
-        }
-    }
-
-    @SuppressWarnings({"unchecked"})
-    public static <T> T unmarshal(Class<T> type, String xml) throws DeploymentException {
-        if (xml == null){
-            return null;
-        }
-
-        if (type.equals(EjbJar.class)){
-            try {
-                SAXParserFactory factory = SAXParserFactory.newInstance();
-                factory.setNamespaceAware(true);
-                factory.setValidating(true);
-
-                SAXParser parser = factory.newSAXParser();
-
-                EjbJarNamespaceFilter xmlFilter = new EjbJarNamespaceFilter(parser.getXMLReader());
-
-                JAXBContext ctx = JAXBContext.newInstance(type);
-                Unmarshaller unmarshaller = ctx.createUnmarshaller();
-
-                xmlFilter.setContentHandler(unmarshaller.getUnmarshallerHandler());
-                SAXSource source = new SAXSource(xmlFilter, new InputSource(new ByteArrayInputStream(xml.getBytes())));
-
-                return (T) unmarshaller.unmarshal(source);
-            } catch (Exception e) {
-                throw new DeploymentException(e);
-            }
-        }
-
-        try {
-            JAXBContext ctx = JAXBContext.newInstance(type);
-            Unmarshaller unmarshaller = ctx.createUnmarshaller();
-
-            Object object = unmarshaller.unmarshal(new ByteArrayInputStream(xml.getBytes()));
-            unmarshaller.setEventHandler(new ValidationEventHandler());
-            return (T) object;
-        } catch (JAXBException e) {
-            throw new DeploymentException(e);
-        }
     }
 
     public static <T> String marshal(T object) throws DeploymentException {
