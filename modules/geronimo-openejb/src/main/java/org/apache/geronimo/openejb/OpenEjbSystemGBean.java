@@ -37,6 +37,7 @@ import org.apache.openejb.util.proxy.Jdk13ProxyFactory;
 import org.apache.openejb.config.ClientModule;
 import org.apache.openejb.config.ConfigurationFactory;
 import org.apache.openejb.config.EjbModule;
+import org.apache.openejb.config.AppModule;
 import org.apache.openejb.assembler.classic.Assembler;
 import org.apache.openejb.assembler.classic.ClientInfo;
 import org.apache.openejb.assembler.classic.ContainerInfo;
@@ -44,6 +45,7 @@ import org.apache.openejb.assembler.classic.EjbJarInfo;
 import org.apache.openejb.assembler.classic.TransactionServiceInfo;
 import org.apache.openejb.assembler.classic.ProxyFactoryInfo;
 import org.apache.openejb.assembler.classic.SecurityServiceInfo;
+import org.apache.openejb.assembler.classic.AppInfo;
 import org.apache.openejb.assembler.dynamic.PassthroughFactory;
 import org.apache.openejb.spi.ContainerSystem;
 import org.apache.openejb.spi.ApplicationServer;
@@ -140,6 +142,16 @@ public class OpenEjbSystemGBean implements OpenEjbSystem {
         Thread.currentThread().setContextClassLoader(clientModule.getClassLoader());
         try {
             return configurationFactory.configureApplication(clientModule);
+        } finally {
+            Thread.currentThread().setContextClassLoader(oldClassLoader);
+        }
+    }
+
+    public AppInfo configureApplication(AppModule appModule) throws OpenEJBException {
+        ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
+        Thread.currentThread().setContextClassLoader(appModule.getClassLoader());
+        try {
+            return configurationFactory.configureApplication(appModule);
         } finally {
             Thread.currentThread().setContextClassLoader(oldClassLoader);
         }

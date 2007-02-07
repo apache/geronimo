@@ -27,9 +27,11 @@ import org.apache.openejb.UndeployException;
 import org.apache.openejb.NoSuchApplicationException;
 import org.apache.openejb.config.ClientModule;
 import org.apache.openejb.config.EjbModule;
+import org.apache.openejb.config.AppModule;
 import org.apache.openejb.assembler.classic.ClientInfo;
 import org.apache.openejb.assembler.classic.EjbJarInfo;
 import org.apache.openejb.assembler.classic.ContainerInfo;
+import org.apache.openejb.assembler.classic.AppInfo;
 import org.apache.openejb.spi.ContainerSystem;
 
 /**
@@ -51,4 +53,6 @@ public interface OpenEjbSystem {
     DeploymentInfo getDeploymentInfo(String deploymentId);
 
     void removeEjbJar(EjbJarInfo ejbJarInfo, ClassLoader classLoader) throws UndeployException, NoSuchApplicationException;
+
+    AppInfo configureApplication(AppModule appModule) throws OpenEJBException;
 }

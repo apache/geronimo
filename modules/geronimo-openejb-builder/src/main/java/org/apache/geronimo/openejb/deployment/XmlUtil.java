@@ -17,69 +17,53 @@
  */
 package org.apache.geronimo.openejb.deployment;
 
-import java.net.URL;
-import java.util.jar.JarFile;
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.IOException;
-import java.io.ByteArrayOutputStream;
-import javax.xml.bind.ValidationEvent;
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.Unmarshaller;
-import javax.xml.bind.JAXBException;
-import javax.xml.bind.Marshaller;
-import javax.xml.bind.JAXBElement;
-import javax.xml.namespace.QName;
-import javax.xml.parsers.SAXParserFactory;
-import javax.xml.parsers.SAXParser;
-import javax.xml.transform.sax.SAXSource;
-
-import org.apache.geronimo.openejb.xbeans.ejbjar.OpenejbEjbJarDocument;
-import org.apache.geronimo.openejb.xbeans.ejbjar.OpenejbGeronimoEjbJarType;
+import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.util.DeploymentUtil;
 import org.apache.geronimo.deployment.xmlbeans.XmlBeansUtil;
-import org.apache.geronimo.deployment.xbeans.EnvironmentType;
-import org.apache.geronimo.deployment.xbeans.ArtifactType;
-import org.apache.geronimo.common.DeploymentException;
+import org.apache.geronimo.openejb.xbeans.ejbjar.OpenejbEjbJarDocument;
+import org.apache.geronimo.openejb.xbeans.ejbjar.OpenejbGeronimoEjbJarType;
 import org.apache.geronimo.schema.SchemaConversionUtils;
 import org.apache.geronimo.xbeans.javaee.EjbJarDocument;
 import org.apache.geronimo.xbeans.javaee.EjbJarType;
-import org.apache.xmlbeans.XmlObject;
-import org.apache.xmlbeans.XmlException;
-import org.apache.xmlbeans.XmlCursor;
-import org.apache.xmlbeans.XmlDocumentProperties;
 import org.apache.openejb.jee.EjbJar;
 import org.apache.openejb.jee.EnterpriseBean;
 import org.apache.openejb.jee.PersistenceContextRef;
 import org.apache.openejb.jee.PersistenceContextType;
 import org.apache.openejb.jee.oejb2.GeronimoEjbJarType;
-import org.xml.sax.helpers.XMLFilterImpl;
-import org.xml.sax.XMLReader;
+import org.apache.openejb.jee.oejb2.EnvironmentType;
+import org.apache.openejb.jee.oejb2.ArtifactType;
+import org.apache.xmlbeans.XmlCursor;
+import org.apache.xmlbeans.XmlDocumentProperties;
+import org.apache.xmlbeans.XmlException;
+import org.apache.xmlbeans.XmlObject;
 import org.xml.sax.Attributes;
-import org.xml.sax.SAXException;
 import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
+import org.xml.sax.XMLReader;
+import org.xml.sax.helpers.XMLFilterImpl;
+
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBElement;
+import javax.xml.bind.JAXBException;
+import javax.xml.bind.Marshaller;
+import javax.xml.bind.Unmarshaller;
+import javax.xml.bind.ValidationEvent;
+import javax.xml.namespace.QName;
+import javax.xml.parsers.SAXParser;
+import javax.xml.parsers.SAXParserFactory;
+import javax.xml.transform.sax.SAXSource;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.IOException;
+import java.net.URL;
+import java.util.jar.JarFile;
 
 public final class XmlUtil {
     public static final QName OPENEJBJAR_QNAME = OpenejbEjbJarDocument.type.getDocumentElementName();
     private static final QName CMP_VERSION = new QName(SchemaConversionUtils.J2EE_NAMESPACE, "cmp-version");
 
     private XmlUtil() {
-    }
-
-    public static String loadEjbJarXml(URL ejbJarUrl, JarFile moduleFile) {
-        String ejbJarXml;
-        try {
-            if (ejbJarUrl == null) {
-                ejbJarUrl = DeploymentUtil.createJarURL(moduleFile, "META-INF/ejb-jar.xml");
-            }
-
-            // read in the entire specDD as a string, we need this for getDeploymentDescriptor
-            // on the J2ee management object
-            ejbJarXml = DeploymentUtil.readAll(ejbJarUrl);
-            return ejbJarXml;
-        } catch (Exception e) {
-            return null;
-        }
     }
 
     public static class EjbJarNamespaceFilter extends XMLFilterImpl {
@@ -155,32 +139,6 @@ public final class XmlUtil {
         }
     }
 
-    public static String loadOpenejbJarXml(XmlObject xmlObject, JarFile moduleFile) throws DeploymentException {
-        // load the openejb-jar.xml from either the supplied plan or from the earFile
-        try {
-            String openejbJarXml;
-            if (xmlObject instanceof XmlObject) {
-                openejbJarXml = xmlObject.xmlText();
-            } else {
-                if (xmlObject != null) {
-                    xmlObject = XmlBeansUtil.parse(((File) xmlObject).toURL(), XmlUtil.class.getClassLoader());
-                    openejbJarXml = xmlObject.xmlText();
-                } else {
-                    URL path = DeploymentUtil.createJarURL(moduleFile, "META-INF/openejb-jar.xml");
-                    if (path == null) {
-                        return null;
-                    }
-                    openejbJarXml = DeploymentUtil.readAll(path);
-                }
-            }
-            return openejbJarXml;
-        } catch (IOException e) {
-            return null;
-        } catch (XmlException e) {
-            throw new DeploymentException(e);
-        }
-    }
-
     public static EjbJarType convertToXmlbeans(EjbJar ejbJar) throws DeploymentException {
         //
         // it would be nice if Jaxb had a way to convert the object to a
@@ -230,48 +188,7 @@ public final class XmlUtil {
         }
     }
 
-    public static OpenejbGeronimoEjbJarType loadGeronimOpenejbJar(Object plan, JarFile moduleFile, boolean standAlone, String targetPath, EjbJar ejbJar) throws DeploymentException {
-        OpenejbGeronimoEjbJarType openejbJar;
-        XmlObject rawPlan = null;
-        try {
-            // load the openejb-jar.xml from either the supplied plan or from the earFile
-            try {
-                if (plan instanceof XmlObject) {
-                    rawPlan = (XmlObject) plan;
-                } else {
-                    if (plan != null) {
-                        OpenejbEjbJarDocument document = (OpenejbEjbJarDocument) XmlBeansUtil.parse(((File) plan).toURL(), XmlUtil.class.getClassLoader());
-                        rawPlan = document.getEjbJar();
-                    } else {
-                        URL path = DeploymentUtil.createJarURL(moduleFile, "META-INF/geronimo-openejb.xml");
-                        rawPlan = XmlBeansUtil.parse(path, XmlUtil.class.getClassLoader());
-                    }
-                }
-            } catch (IOException e) {
-                //no plan, create a default
-            }
-
-            // if we got one extract, adjust, and validate it otherwise create a default one
-            if (rawPlan != null) {
-                openejbJar = (OpenejbGeronimoEjbJarType) SchemaConversionUtils.fixGeronimoSchema(rawPlan, OPENEJBJAR_QNAME, OpenejbGeronimoEjbJarType.type);
-            } else {
-                String path;
-                if (standAlone) {
-                    // default configId is based on the moduleFile name
-                    path = new File(moduleFile.getName()).getName();
-                } else {
-                    // default configId is based on the module uri from the application.xml
-                    path = targetPath;
-                }
-                openejbJar = createDefaultPlan(path, ejbJar);
-            }
-        } catch (XmlException e) {
-            throw new DeploymentException(e);
-        }
-        return openejbJar;
-    }
-
-    public static OpenejbGeronimoEjbJarType createDefaultPlan(String name, EjbJar ejbJar) {
+    public static GeronimoEjbJarType createDefaultPlan(String name, EjbJar ejbJar) {
         String id = ejbJar.getId();
         if (id == null) {
             id = name;
@@ -283,11 +200,17 @@ public final class XmlUtil {
             }
         }
 
-        OpenejbGeronimoEjbJarType openejbEjbJar = OpenejbGeronimoEjbJarType.Factory.newInstance();
-        EnvironmentType environmentType = openejbEjbJar.addNewEnvironment();
-        ArtifactType artifactType = environmentType.addNewModuleId();
+
+        ArtifactType artifactType = new ArtifactType();
         artifactType.setArtifactId(id);
-        return openejbEjbJar;
+
+        EnvironmentType environmentType = new EnvironmentType();
+        environmentType.setModuleId(artifactType);
+
+        GeronimoEjbJarType geronimoEjbJarType = new GeronimoEjbJarType();
+        geronimoEjbJarType.setEnvironment(environmentType);
+
+        return geronimoEjbJarType;
     }
 
     public static String getJ2eeStringValue(org.apache.geronimo.xbeans.javaee.String string) {
@@ -304,7 +227,9 @@ public final class XmlUtil {
         }
     }
 
-
+    // TODO I don't think we need this since openejb will always generate the newest spec,
+    // but this code is doing more than just schema conversion, it is also converting message
+    // driven properties to activation-config
     // coerce to newest spec... this shouldn't be necessary as the jaxb tree always creates the newest spec
     public static EjbJarDocument convertToEJBSchema(XmlObject xmlObject) throws XmlException {
         if (EjbJarDocument.type.equals(xmlObject.schemaType())) {

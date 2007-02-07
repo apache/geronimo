@@ -45,7 +45,6 @@ import org.apache.geronimo.kernel.classloader.JarFileClassLoader;
  * @version $Rev$ $Date$
  */
 public class PersistenceUnitGBean implements GBeanLifecycle {
-
     private final PersistenceUnitInfoImpl persistenceUnitInfo;
     private final EntityManagerFactory entityManagerFactory;
     private final TransactionManagerImpl transactionManager;
@@ -75,6 +74,8 @@ public class PersistenceUnitGBean implements GBeanLifecycle {
         List<String> managedClassNames = managedClassNamesUntyped == null? new ArrayList<String>(): new ArrayList<String>(managedClassNamesUntyped);
         PersistenceUnitTransactionType persistenceUnitTransactionType = persistenceUnitTransactionTypeString == null? PersistenceUnitTransactionType.JTA: PersistenceUnitTransactionType.valueOf(persistenceUnitTransactionTypeString);
 
+        if (persistenceProviderClassName == null) persistenceProviderClassName = "org.apache.openjpa.persistence.PersistenceProviderImpl";
+        
         persistenceUnitInfo = new PersistenceUnitInfoImpl(persistenceUnitName,
                 persistenceProviderClassName,
                 persistenceUnitTransactionType,

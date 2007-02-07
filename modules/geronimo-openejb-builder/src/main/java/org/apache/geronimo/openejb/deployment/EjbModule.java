@@ -26,6 +26,7 @@ import org.apache.geronimo.openejb.xbeans.ejbjar.OpenejbGeronimoEjbJarType;
 import org.apache.openejb.jee.oejb3.OpenejbJar;
 import org.apache.openejb.assembler.classic.EjbJarInfo;
 import org.apache.openejb.jee.EjbJar;
+import org.apache.openejb.jee.oejb2.GeronimoEjbJarType;
 import org.apache.xmlbeans.XmlObject;
 
 /**
@@ -34,17 +35,14 @@ import org.apache.xmlbeans.XmlObject;
 public class EjbModule extends EJBModule {
     private String originalSpecDD;
     private XmlObject specDD;
-    private ClassLoader classLoader;
-    private final EjbJar ejbJar;
-    private final OpenejbJar openejbJar;
     private EjbJarInfo ejbJarInfo;
     private EjbDeploymentBuilder ejbDeploymentBuilder;
+    private OpenejbGeronimoEjbJarType vendorDD;
+    private final org.apache.openejb.config.EjbModule ejbModule;
 
-    public EjbModule(boolean standAlone, AbstractName moduleName, Environment environment, JarFile moduleFile, String targetPath, EjbJar ejbJar, OpenejbJar openejbJar, OpenejbGeronimoEjbJarType geronimoOpenejb, String ejbJarXml, Map sharedContext) {
-        super(standAlone, moduleName, environment, moduleFile, targetPath, null, geronimoOpenejb, ejbJarXml, sharedContext);
-        this.ejbJar = ejbJar;
-        this.openejbJar = openejbJar;
-
+    public EjbModule(org.apache.openejb.config.EjbModule ejbModule, boolean standAlone, AbstractName moduleName, Environment environment, JarFile moduleFile, String targetPath, String ejbJarXml, Map sharedContext) {
+        super(standAlone, moduleName, environment, moduleFile, targetPath, null, null, ejbJarXml, sharedContext);
+        this.ejbModule = ejbModule;
     }
 
     @Override
@@ -65,8 +63,17 @@ public class EjbModule extends EJBModule {
         this.specDD = specDD;
     }
 
+    @Override
+    public OpenejbGeronimoEjbJarType getVendorDD() {
+        return vendorDD;
+    }
+
+    public void setVendorDD(OpenejbGeronimoEjbJarType vendorDD) {
+        this.vendorDD = vendorDD;
+    }
+
     public org.apache.openejb.config.EjbModule getEjbModule() {
-        return new org.apache.openejb.config.EjbModule(classLoader, getModuleFile().getName(), ejbJar,  openejbJar);
+        return ejbModule;
     }
 
     public EjbJarInfo getEjbJarInfo() {
@@ -86,18 +93,18 @@ public class EjbModule extends EJBModule {
     }
 
     public EjbJar getEjbJar() {
-        return ejbJar;
+        return ejbModule.getEjbJar();
     }
 
     public OpenejbJar getOpenejbJar() {
-        return openejbJar;
+        return ejbModule.getOpenejbJar();
     }
 
     public ClassLoader getClassLoader() {
-        return classLoader;
+        return ejbModule.getClassLoader();
     }
 
     public void setClassLoader(ClassLoader classLoader) {
-        this.classLoader = classLoader;
+        ejbModule.setClassLoader(classLoader);
     }
 }
