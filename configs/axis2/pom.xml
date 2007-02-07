@@ -175,8 +175,8 @@
 	         <artifactId>annogen</artifactId>
 	    </dependency>
 	    <dependency>
-	         <groupId>incubator-woden</groupId>
-	         <artifactId>woden</artifactId>
+		    <groupId>org.apache.woden</groupId>
+		    <artifactId>woden</artifactId>
 	    </dependency>
 	    <dependency>
 	          <groupId>javax.xml.bind</groupId>

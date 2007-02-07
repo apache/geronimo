@@ -1297,9 +1297,9 @@
 			    <version>0.1.0</version>
 		    </dependency>
 		    <dependency>
-			    <groupId>incubator-woden</groupId>
+			    <groupId>org.apache.woden</groupId>
 			    <artifactId>woden</artifactId>
-			    <version>1.0.0M6</version>
+			    <version>1.0-incubating-SNAPSHOT</version>
 		    </dependency>
         </dependencies>
     </dependencyManagement>
