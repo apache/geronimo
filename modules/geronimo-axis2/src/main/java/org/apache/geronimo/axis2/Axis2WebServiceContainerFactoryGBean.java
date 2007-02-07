@@ -17,22 +17,57 @@
 
 package org.apache.geronimo.axis2;
 
+import java.net.URL;
+import java.util.Map;
+
+import javax.naming.Context;
+import javax.naming.NamingException;
+import javax.transaction.TransactionManager;
 import javax.wsdl.Definition;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
+import org.apache.geronimo.jaxws.PortInfo;
+import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.naming.enc.EnterpriseNamingContext;
+import org.apache.geronimo.transaction.GeronimoUserTransaction;
 import org.apache.geronimo.webservices.WebServiceContainer;
 import org.apache.geronimo.webservices.WebServiceContainerFactory;
 
 public class Axis2WebServiceContainerFactoryGBean implements WebServiceContainerFactory {
 
+	private static final Log log = LogFactory.getLog(Axis2WebServiceContainerFactoryGBean.class);
+    private final ClassLoader classLoader;
     private final PortInfo portInfo;
     private final String endpointClassName;
-    private final ClassLoader classLoader;
-    private final Definition wsdlDefinition;
+    private URL configurationBaseUrl;
+    private Context context;
+    private Definition wsdlDefinition;
 
-    public Axis2WebServiceContainerFactoryGBean(PortInfo portInfo, String endpointClassName, Definition wsdlDefinition, ClassLoader classLoader) throws InstantiationException, IllegalAccessException, ClassNotFoundException {
+    public Axis2WebServiceContainerFactoryGBean(PortInfo portInfo, 
+    		String endpointClassName, 
+    		ClassLoader classLoader, 
+    		Map componentContext,
+            Kernel kernel,
+            TransactionManager transactionManager,
+            URL configurationBaseUrl, 
+            Definition wsdlDefinition) throws InstantiationException, IllegalAccessException, ClassNotFoundException {
+    	
+    	if (componentContext != null) {
+            GeronimoUserTransaction userTransaction = new GeronimoUserTransaction(transactionManager);
+            try {
+                this.context = EnterpriseNamingContext.createEnterpriseNamingContext(componentContext,
+                        userTransaction,
+                        kernel,
+                        classLoader);
+            } catch (NamingException e) {
+                log.warn("Failed to create naming context", e);
+            }
+        }
+
         this.portInfo = portInfo;
         this.classLoader = classLoader;
         this.endpointClassName = endpointClassName;
@@ -49,9 +84,15 @@ public class Axis2WebServiceContainerFactoryGBean implements WebServiceContainer
         GBeanInfoBuilder infoBuilder = GBeanInfoBuilder.createStatic(Axis2WebServiceContainerFactoryGBean.class, NameFactory.GERONIMO_SERVICE);
         infoBuilder.addAttribute("portInfo", PortInfo.class, true, true);
         infoBuilder.addAttribute("endpointClassName", String.class, true, true);
-        infoBuilder.addAttribute("wsdlDefinition", Definition.class, true, true);
         infoBuilder.addAttribute("classLoader", ClassLoader.class, false);
-        infoBuilder.setConstructor(new String[]{"portInfo", "endpointClassName", "wsdlDefinition", "classLoader"});
+        infoBuilder.addAttribute("componentContext", Map.class, true, true);
+        infoBuilder.addAttribute("kernel", Kernel.class, false);
+        infoBuilder.addReference("TransactionManager", TransactionManager.class, NameFactory.TRANSACTION_MANAGER);
+        infoBuilder.addAttribute("configurationBaseUrl", URL.class, true);
+        infoBuilder.addAttribute("wsdlDefinition", Definition.class, true);
+
+        infoBuilder.setConstructor(new String[]{"portInfo", "endpointClassName", "classLoader",
+                "componentContext", "kernel", "TransactionManager", "configurationBaseUrl", "wsdlDefinition"});
         GBEAN_INFO = infoBuilder.getBeanInfo();
     }
 

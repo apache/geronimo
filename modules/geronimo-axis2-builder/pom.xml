@@ -33,7 +33,11 @@
     <name>Geronimo :: Axis2 :: Builder</name>
     
     <dependencies>
-        
+        <dependency>
+            <groupId>org.apache.geronimo.modules</groupId>
+            <artifactId>geronimo-jaxws-builder</artifactId>
+            <version>${version}</version>
+        </dependency>
         <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
             <artifactId>geronimo-j2ee-builder</artifactId>

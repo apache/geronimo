@@ -98,14 +98,14 @@ public class Axis2WebServiceContainer implements WebServiceContainer {
 
     private transient final ClassLoader classLoader;
     private final String endpointClassName;
-    private final PortInfo portInfo;
+    private final org.apache.geronimo.jaxws.PortInfo portInfo;
     private ConfigurationContext configurationContext;
     private String contextRoot = null;
     private Map servicesMap;
     private Definition wsdlDefinition;
     
     
-    public Axis2WebServiceContainer(PortInfo portInfo, String endpointClassName, Definition wsdlDefinition, ClassLoader classLoader) {
+    public Axis2WebServiceContainer(org.apache.geronimo.jaxws.PortInfo portInfo, String endpointClassName, Definition wsdlDefinition, ClassLoader classLoader) {
         this.classLoader = classLoader;
         this.endpointClassName = endpointClassName;
         this.portInfo = portInfo;
@@ -114,7 +114,7 @@ public class Axis2WebServiceContainer implements WebServiceContainer {
             AxisService service = null;
             
             configurationContext = ConfigurationContextFactory.createDefaultConfigurationContext();
-            configurationContext.setServicePath(portInfo.getURLPattern());
+            configurationContext.setServicePath(portInfo.getLocation());
           
             if(wsdlDefinition != null){ //WSDL Has been provided
            		WSDLToAxisServiceBuilder wsdlBuilder = null;
@@ -387,7 +387,7 @@ public class Axis2WebServiceContainer implements WebServiceContainer {
 
         ConfigurationContext configurationContext = msgContext.getConfigurationContext();
         final String servicePath = configurationContext.getServiceContextPath();
-        final String contextPath = (servicePath.startsWith("/") ? servicePath : "/" + servicePath) + "/";
+        final String contextPath = (servicePath.startsWith("/") ? servicePath : "/" + servicePath);
 
         URI uri = request.getURI();
         String path = uri.getPath();
