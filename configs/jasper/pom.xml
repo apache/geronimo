@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!--
+  
+ Licensed to the Apache Software Foundation (ASF) under one or more
+  contributor license agreements.  See the NOTICE file distributed with
+  this work for additional information regarding copyright ownership.
+  The ASF licenses this file to You under the Apache License, Version 2.0
+  (the "License"); you may not use this file except in compliance with
+  the License.  You may obtain a copy of the License at
+  
+  http://www.apache.org/licenses/LICENSE-2.0
+  
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+
+<!-- $Rev: 500348 $ $Date: 2007-01-26 16:10:31 -0500 (Fri, 26 Jan 2007) $ -->
+
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>org.apache.geronimo.configs</groupId>
+        <artifactId>configs</artifactId>
+        <version>2.0-SNAPSHOT</version>
+        <relativePath>../pom.xml</relativePath>
+    </parent>
+
+    <artifactId>jasper</artifactId>
+    <name>Geronimo Configs :: Jasper</name>
+    <packaging>car</packaging>
+
+    <dependencies>
+
+        <dependency>
+            <groupId>org.apache.geronimo.configs</groupId>
+            <artifactId>j2ee-server</artifactId>
+            <version>${version}</version>
+            <type>car</type>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.geronimo.configs</groupId>
+            <artifactId>j2ee-security</artifactId>
+            <version>${version}</version>
+            <type>car</type>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.geronimo.configs</groupId>
+            <artifactId>transaction-jta11</artifactId>
+            <version>${version}</version>
+            <type>car</type>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.tomcat</groupId>
+            <artifactId>jasper</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.tomcat</groupId>
+            <artifactId>jasper-jdt</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.tomcat</groupId>
+            <artifactId>jasper-el</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.tomcat.extras</groupId>
+            <artifactId>juli-adapters</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.tomcat.extras</groupId>
+            <artifactId>juli</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>jstl</groupId>
+            <artifactId>jstl</artifactId>
+        </dependency>
+
+        <!-- start myfaces dependencies -->
+        <dependency>
+            <groupId>org.apache.myfaces.core</groupId>
+            <artifactId>myfaces-api</artifactId>
+            <version>1.2.0-SNAPSHOT</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.myfaces.core</groupId>
+            <artifactId>myfaces-impl</artifactId>
+            <version>1.2.0-SNAPSHOT</version>
+        </dependency>
+
+        <dependency>
+            <groupId>commons-collections</groupId>
+            <artifactId>commons-collections</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>commons-digester</groupId>
+            <artifactId>commons-digester</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>commons-beanutils</groupId>
+            <artifactId>commons-beanutils</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>commons-codec</groupId>
+            <artifactId>commons-codec</artifactId>
+        </dependency>
+        <!-- end myfaces dependencies -->
+
+    </dependencies>
+
+    <repositories>
+        <repository>
+            <id>module-local</id>
+            <url>file://${pom.basedir}/repository</url>
+             <layout>default</layout>
+             <snapshots>
+                  <enabled>true</enabled>
+             </snapshots>
+             <releases>
+                  <enabled>false</enabled>
+             </releases>
+         </repository>
+    </repositories>
+
+</project>

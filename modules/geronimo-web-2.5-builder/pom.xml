@@ -85,16 +85,6 @@
             <artifactId>jstl</artifactId>
         </dependency>
 
-        <dependency>
-            <groupId>org.apache.myfaces.core</groupId>
-            <artifactId>myfaces-api</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.myfaces.core</groupId>
-            <artifactId>myfaces-impl</artifactId>
-        </dependency>
-
     </dependencies>
 
     <build>
@@ -148,17 +138,6 @@
             <id>java.net</id>
             <url>https://maven-repository.dev.java.net/nonav/repository</url>
             <layout>legacy</layout>
-        </repository>
-        <repository>
-            <id>module-local</id>
-            <url>file://${pom.basedir}/repository</url>
-            <layout>default</layout>
-            <snapshots>
-                <enabled>true</enabled>
-            </snapshots>
-            <releases>
-                <enabled>false</enabled>
-            </releases>
         </repository>
     </repositories>
 

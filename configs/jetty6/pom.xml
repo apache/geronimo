@@ -76,13 +76,10 @@
         </dependency>
 
         <dependency>
-            <groupId>org.apache.myfaces.core</groupId>
-            <artifactId>myfaces-api</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.myfaces.core</groupId>
-            <artifactId>myfaces-impl</artifactId>
+            <groupId>org.apache.geronimo.configs</groupId>
+            <artifactId>jasper</artifactId>
+            <type>car</type>
+            <version>${version}</version>
         </dependency>
 
         <dependency>

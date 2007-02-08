@@ -70,7 +70,7 @@
                     <filter>org.apache.naming.</filter>
                     <filter>org.apache.catalina.</filter>
                     <filter>org.apache.tomcat.</filter>
-                    <filter>org.apache.tomcat.</filter>
+                    <filter>org.apache.myfaces.</filter>
                     <filter>org.xml.</filter>
                     <filter>org.w3c.</filter>
                 </non-overridable-classes>
