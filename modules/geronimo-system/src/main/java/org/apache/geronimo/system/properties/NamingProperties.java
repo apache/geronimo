@@ -19,6 +19,9 @@ package org.apache.geronimo.system.properties;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 
+import javax.naming.InitialContext;
+import javax.naming.NamingException;
+
 /** java.naming.factory.initial=com.sun.jndi.rmi.registry.RegistryContextFactory
 java.naming.factory.url.pkgs=org.apache.geronimo.naming
 java.naming.provider.url=rmi://localhost:1099
@@ -34,6 +37,14 @@ public class NamingProperties {
         setNamingFactoryInitial(namingFactoryInitial);
         setNamingFactoryUrlPkgs(namingFactoryUrlPkgs);
         setNamingProviderUrl(namingProviderUrl);
+
+        try {
+            // Calling this causes the System properties we just set
+            // to be read in and cached by the vm ensuring we can't
+            // be booted out by another module in the system.
+            new InitialContext().lookup("java:");
+        } catch (Throwable ignore) {
+        }
     }
 
     public String getNamingFactoryInitial() {
