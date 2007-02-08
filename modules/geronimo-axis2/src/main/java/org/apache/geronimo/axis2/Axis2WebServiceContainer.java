@@ -51,6 +51,7 @@ import org.apache.axis2.context.OperationContext;
 import org.apache.axis2.description.AxisMessage;
 import org.apache.axis2.description.AxisOperation;
 import org.apache.axis2.description.AxisService;
+import org.apache.axis2.description.AxisServiceGroup;
 import org.apache.axis2.description.Parameter;
 import org.apache.axis2.description.TransportInDescription;
 import org.apache.axis2.description.TransportOutDescription;
@@ -393,17 +394,8 @@ public class Axis2WebServiceContainer implements WebServiceContainer {
         String path = uri.getPath();
         String soapAction = request.getHeader(HTTPConstants.HEADER_SOAP_ACTION);
         
-        HashMap services = configurationContext.getAxisConfiguration().getServices();
-        AxisService service = null;
-        String serviceName = null;
-        
-        if(services.size() == 1){
-        	service = (AxisService)(services.values().iterator().next());
-        	serviceName = (String)(services.keySet().iterator().next());
-        }else { // can't be happen
-        	log.error("Invalid service configurations ");
-        	throw new RuntimeException("Invalid Configuration");
-        }
+        AxisService service = findServiceWithEndPointClassName(configurationContext, endpointClassName);
+        String serviceName = service.getName();
 
         // TODO: Port this section
 //        // Adjust version and content chunking based on the config
@@ -562,6 +554,37 @@ public class Axis2WebServiceContainer implements WebServiceContainer {
     
     public void destroy() {
 	}
+    
+    /**
+     * Resolves the Axis Service associated with the endPointClassName
+     * @param cfgCtx
+     * @param endPointClassName
+     */
+    private AxisService findServiceWithEndPointClassName(ConfigurationContext cfgCtx, String endPointClassName) {
+
+        // Visit all the AxisServiceGroups.
+        Iterator svcGrpIter = cfgCtx.getAxisConfiguration().getServiceGroups();
+        while (svcGrpIter.hasNext()) {
+
+            // Visit all the AxisServices
+            AxisServiceGroup svcGrp = (AxisServiceGroup) svcGrpIter.next();
+            Iterator svcIter = svcGrp.getServices();
+            while (svcIter.hasNext()) {
+                AxisService service = (AxisService) svcIter.next();
+
+                // Grab the Parameter that stores the ServiceClass.
+                String epc = (String)service.getParameter("ServiceClass").getValue();
+                
+                if (epc != null) {
+                    // If we have a match, then just return the AxisService now.
+                    if (endPointClassName.equals(epc)) {
+                        return service;
+                    }
+                }
+            }
+        }
+        return null;
+    }    
     
     public class Axis2TransportInfo implements OutTransportInfo {
         private Response response;
