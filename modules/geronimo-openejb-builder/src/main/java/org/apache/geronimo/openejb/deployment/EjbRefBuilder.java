@@ -113,7 +113,7 @@ public class EjbRefBuilder extends AbstractNamingBuilder {
             }
             JndiEncInfoBuilder jndiEncInfoBuilder = new JndiEncInfoBuilder(ejbJars);
             JndiEncInfo jndiEncInfo = jndiEncInfoBuilder.build(consumer, "GeronimoEnc");
-            JndiEncBuilder jndiEncBuilder = new JndiEncBuilder(jndiEncInfo);
+            JndiEncBuilder jndiEncBuilder = new JndiEncBuilder(jndiEncInfo, module.getName());
             map = jndiEncBuilder.buildMap();
         } catch (OpenEJBException e) {
             throw new DeploymentException(e);
