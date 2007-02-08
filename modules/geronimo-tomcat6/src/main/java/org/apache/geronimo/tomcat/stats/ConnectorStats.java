@@ -60,12 +60,19 @@ public class ConnectorStats {
     }
 
     public Stats getStats(String port) {
-        getStats(stats, port);
+        stats.setStartTime();
+        updateStats(stats, port);
+        return stats;
+
+    }
+    
+    public Stats updateStats(String port) {
+        updateStats(stats, port);
         return stats;
 
     }
 
-    private void getStats(WebConnectorStatsImpl stats, String port) {
+    private void updateStats(WebConnectorStatsImpl stats, String port) {
         Iterator iterator;
         Set set;
         ObjectName objectName;
@@ -92,9 +99,8 @@ public class ConnectorStats {
                     break;
                 }
             }
-            // Any http connector !
-            stats.setStartTime(); // TODO provide a stats enable mechanism
             stats.setLastSampleTime();
+            // Any http connector !
             long maxTime = ((Long) (mBeanServer.getAttribute(grpName, "maxTime"))).longValue();
             long processingTime = ((Long) (mBeanServer.getAttribute(grpName, "processingTime"))).longValue();
             int requestCount = ((Integer) (mBeanServer.getAttribute(grpName, "requestCount"))).intValue();

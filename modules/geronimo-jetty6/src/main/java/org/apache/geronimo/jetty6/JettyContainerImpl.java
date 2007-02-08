@@ -123,6 +123,10 @@ public class JettyContainerImpl implements JettyContainer, SoapHandler, GBeanLif
         return 0L;
     }
 
+    public void resetStats() {
+        // TODO 
+    }
+
     public Stats getStats() {
         if (getCollectStatistics()) {
 

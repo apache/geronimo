@@ -26,9 +26,16 @@ import javax.management.j2ee.statistics.Stats;
  */
 public interface StatisticsProvider {
     /**
-     * Gets the statistics collected for this class.
+     * Gets the statistics collected for this class. 
+     * The first call to this method initializes the startTime for
+     * all statistics. 
      *
      * @return gets collected for this class
      */
     Stats getStats();
+    
+    /**
+     * Reset the startTime for all statistics
+     */
+    void resetStats();
 }

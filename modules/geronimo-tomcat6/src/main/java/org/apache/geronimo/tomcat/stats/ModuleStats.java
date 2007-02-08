@@ -69,10 +69,10 @@ public class ModuleStats {
             if (objectName.getKeyProperty("path").indexOf(context.getPath()) > -1) {
                 mgrName = objectName;
                 break;
+                
             }
         }
-        // Initialize startTime for all statistics 
-        stats.setStartTime();
+
 //      initialize static values
         stats.setProcessingTime(context.getProcessingTime());
         stats.setStartupTime(context.getStartupTime());
@@ -80,15 +80,17 @@ public class ModuleStats {
     }
 
     public Stats getStats() {
+        // Initialize startTime for all statistics 
+        stats.setStartTime();
         // get transient statistics
         updateStats(stats);
         return stats;
-
     }
-
-    public void reset() {
-        // TODO - reset transient statistics
-        // set starTime and lastSampleTime to now, and
+    
+    public Stats updateStats() {
+        // get transient statistics
+        updateStats(stats);
+        return stats;
     }
 
     /*

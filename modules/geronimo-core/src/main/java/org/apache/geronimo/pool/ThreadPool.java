@@ -121,6 +121,10 @@ public class ThreadPool implements GeronimoExecutor, GBeanLifecycle, J2EEManaged
         return stats;
     }
 
+    public void resetStats() {
+        // TODO
+    }
+
     public static class PoolStatsImpl extends StatsImpl implements ThreadPoolStats {
         private BoundedRangeStatisticImpl threadsInUse = new BoundedRangeStatisticImpl(
                 "Threads In Use", "",

@@ -129,6 +129,7 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
     
 //  statistics
     private ModuleStats statsProvider;
+    private boolean reset = true;
 
     public TomcatWebAppContext(
             ClassLoader classLoader,
@@ -475,12 +476,15 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
 //  JSR 77 statistics - The static values are initialized at the time of 
     // creration, getStats return fresh value everytime
     public Stats getStats() {
-        return statsProvider.getStats();
+        if (reset) {
+            reset = false;
+            return statsProvider.getStats();
+        }
+        else return statsProvider.updateStats();
     }
-    
-    // Is this needed ?
-    public void reset() {
-        statsProvider.reset();
+        
+    public void resetStats() {
+        reset = true;
     }
 
     public void doStart() throws Exception {

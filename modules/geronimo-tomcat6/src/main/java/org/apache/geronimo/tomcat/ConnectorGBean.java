@@ -48,7 +48,8 @@ public class ConnectorGBean extends BaseGBean implements GBeanLifecycle, ObjectR
     private String connectHost;
     
 //  JSR77 stats
-    private ConnectorStats conStats = new ConnectorStats();
+    private ConnectorStats connStatsProvider = new ConnectorStats();
+    private boolean reset = true;
 
     public ConnectorGBean(String name, String protocol, String host, int port, TomcatContainer container) throws Exception {
         super(); // TODO: make it an attribute
@@ -586,10 +587,18 @@ public class ConnectorGBean extends BaseGBean implements GBeanLifecycle, ObjectR
     public boolean isEventProvider() {
         return false;
     }
-
+    
+    public void resetStats() {
+        reset = true;
+    }
+    
     public Stats getStats() {
         String port = String.valueOf(getPort());
-        return conStats.getStats(port);
+        if (reset) {
+            reset = false;
+            return connStatsProvider.getStats(port);
+        }
+        else return connStatsProvider.updateStats(port);
     }
 
     public static final GBeanInfo GBEAN_INFO;

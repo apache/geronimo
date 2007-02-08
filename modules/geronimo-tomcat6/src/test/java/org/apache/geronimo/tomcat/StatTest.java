@@ -45,20 +45,31 @@ public class StatTest extends AbstractWebModuleTest {
             assertEquals("Hello World", reader.readLine());
             //connection.disconnect();
         // Stats stats = (Stats) kernel.getAttribute(webModuleName, "stats");
-        Stats[] allStats = { webModule.getStats(), connector.getStats() };
-        Stats stats;
-        for (int j = 0; j < allStats.length; j++) {
-            stats = allStats[j];
-            Statistic[] stts = stats.getStatistics();
-            Statistic aStts;
-            String[] sttsNames = stats.getStatisticNames();
-            for (int i = 0; i < sttsNames.length; i++) {
-                assertFalse(sttsNames[i].equals(stts[i].getName()));
-                aStts = stats.getStatistic(sttsNames[i]);
-                assertTrue("startTime was not set", aStts.getStartTime() != 0);
-                assertTrue("lastSampleTime was not set", aStts.getLastSampleTime() != 0);
-                //System.out.println(aStts);
+
+        int n = 3;
+        for (int k = 0; k < n; k++) {
+            if (k == n-1) {
+                connector.resetStats();
+                webModule.resetStats();
             }
+            //System.out.println("******* NOW IS " + System.currentTimeMillis()); 
+            Stats[] allStats = { webModule.getStats(), connector.getStats() };
+            Stats stats;
+            for (int j = 0; j < allStats.length; j++) {
+                stats = allStats[j];
+                Statistic[] stts = stats.getStatistics();
+                Statistic aStts;
+                String[] sttsNames = stats.getStatisticNames();
+                for (int i = 0; i < sttsNames.length; i++) {
+                    assertFalse(sttsNames[i].equals(stts[i].getName()));
+                    aStts = stats.getStatistic(sttsNames[i]);
+                    assertTrue("startTime was not set", aStts.getStartTime() != 0);
+                    assertTrue("lastSampleTime was not set", aStts.getLastSampleTime() != 0);
+                    //System.out.println("lastSampleTime = " + aStts.getLastSampleTime() + "  startTime = " + aStts.getStartTime());
+                    //System.out.println(aStts);
+                }
+            }
+            Thread.sleep(1000);  // collection interval
         }
         connection.disconnect();
     }

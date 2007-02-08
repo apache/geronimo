@@ -174,6 +174,10 @@ public class JVMImpl implements JVM, StatisticsProvider {
         return stats;
     }
 
+    public void resetStats() {
+        // TODO
+    }
+
     public Properties getSystemProperties() {
         return System.getProperties();
     }
