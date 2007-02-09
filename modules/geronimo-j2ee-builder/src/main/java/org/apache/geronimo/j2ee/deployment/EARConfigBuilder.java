@@ -499,17 +499,7 @@ public class EARConfigBuilder implements ConfigurationBuilder, CorbaGBeanNameSou
             if (ConfigurationModuleType.EAR == applicationType && earFile != null) {
             	//get the value of the library-directory element in spec DD
             	ApplicationType specDD = (ApplicationType) applicationInfo.getSpecDD();
-            	String libDir = null;
-            	//value 'lib' is used if element not set or ear does not contain a dd
-            	if(specDD == null || !specDD.isSetLibraryDirectory()) {
-            		libDir = "lib";
-            	} else {
-            		String value = specDD.getLibraryDirectory().getStringValue().trim();
-            		//only set if not empty value, empty value implies no library directory
-            		if(value.length() > 0) {
-            			libDir = value;
-            		}
-            	}
+            	String libDir = getLibraryDirectory(specDD);
                 for (Enumeration<JarEntry> e = earFile.entries(); e.hasMoreElements();) {
                     ZipEntry entry = e.nextElement();
                     String entryName = entry.getName();
@@ -618,6 +608,17 @@ public class EARConfigBuilder implements ConfigurationBuilder, CorbaGBeanNameSou
             }
         }
     }
+    
+	private String getLibraryDirectory(ApplicationType specDD) {
+		if(specDD == null || !specDD.isSetLibraryDirectory()) {
+			//value 'lib' is used if element not set or ear does not contain a dd
+			return "lib";
+		}
+		
+		//only set if not empty value, empty value implies no library directory
+		String value = specDD.getLibraryDirectory().getStringValue();
+		return value.trim().length() > 0 ? value : null;
+	}
 
     private void cleanupContext(EARContext earContext, File configurationDir) {
         List<ConfigurationData> configurations = new ArrayList<ConfigurationData>();
@@ -756,7 +757,7 @@ public class EARConfigBuilder implements ConfigurationBuilder, CorbaGBeanNameSou
             				}
             				builder = getConnectorConfigBuilder();
             				moduleTypeName = "a connector";
-            			} else if(entry.getName().endsWith(".jar") && !entry.getName().startsWith("lib")) {
+            			} else if(entry.getName().endsWith(".jar") && !isLibraryEntry(application, entry)) {
             				try {
             					NestedJarFile moduleFile = new NestedJarFile(earFile, entry.getName());
             					if(moduleFile.getEntry("META-INF/application-client.xml") != null) {
@@ -913,6 +914,14 @@ public class EARConfigBuilder implements ConfigurationBuilder, CorbaGBeanNameSou
             }
         }
     }
+    
+	private boolean isLibraryEntry(ApplicationType application, ZipEntry entry) {
+		String libDir = getLibraryDirectory(application);
+		if(libDir != null && entry.getName().startsWith(libDir)) {
+			return true;
+		}
+		return false;
+	}
 
     private void mapVendorPlans(GerApplicationType gerApplication, Map<String, Object> altVendorDDs, JarFile earFile) throws DeploymentException {
         //build map from module path to alt vendor dd
