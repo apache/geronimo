@@ -35,9 +35,11 @@
             <pattern>
                 <name>GBeanRefBuilder</name>
             </pattern>
+<!--  temporariy removed to avoid duplicate loading of rmi-naming in client & server until we can get client/server specific jpa configs created.
             <pattern>
                 <name>PersistenceContextRefBuilder</name>
             </pattern>
+-->
             <pattern>
                 <name>ClientResourceRefBuilder</name>
             </pattern>
