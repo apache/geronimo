@@ -79,6 +79,7 @@
                     <displayName>Geronimo Test EAR for JAVAEE 5</displayName>
                     <description>Test EAR for 5 testing</description>
                     <version>5</version>
+                    <resourcesDir>${project.build.outputDirectory}</resourcesDir>
                     <modules>
                         <webModule>
                             <groupId>${pom.groupId}</groupId>

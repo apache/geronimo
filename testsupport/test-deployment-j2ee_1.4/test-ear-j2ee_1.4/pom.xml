@@ -79,6 +79,7 @@
                     <displayName>Geronimo Test EAR for J2EE 1.4</displayName>
                     <description>Test EAR for 1.4 testing</description>
                     <version>1.4</version>
+                    <resourcesDir>${project.build.outputDirectory}</resourcesDir>
                     <modules>
                         <webModule>
                             <groupId>${pom.groupId}</groupId>

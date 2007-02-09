@@ -76,6 +76,7 @@
             <plugin>
                 <artifactId>maven-ear-plugin</artifactId>
                 <configuration>
+                  <resourcesDir>${project.build.outputDirectory}</resourcesDir>
                     <displayName>Geronimo Test EAR for J2EE 1.3</displayName>
                     <description>Test EAR for 1.3 testing</description>
                     <version>1.3</version>
