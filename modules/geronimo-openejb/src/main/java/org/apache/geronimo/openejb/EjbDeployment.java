@@ -18,15 +18,22 @@
 package org.apache.geronimo.openejb;
 
 import java.util.Set;
+import java.lang.reflect.Method;
 import javax.ejb.EJBHome;
 import javax.ejb.EJBLocalHome;
+import javax.ejb.EJBObject;
 import javax.naming.Context;
 import javax.security.auth.Subject;
 
 import org.apache.geronimo.connector.outbound.connectiontracking.TrackedConnectionAssociator;
 import org.apache.geronimo.management.EJB;
+import org.apache.openejb.BeanType;
+import org.apache.openejb.Container;
+import org.apache.openejb.ProxyInfo;
+import org.apache.openejb.RpcContainer;
 import org.apache.openejb.core.CoreDeploymentInfo;
-import org.apache.openejb.DeploymentInfo;
+import org.apache.openejb.core.entity.EntityEjbHomeHandler;
+import org.apache.openejb.util.proxy.ProxyManager;
 
 public class EjbDeployment implements EJB {
     private final String objectName;
@@ -52,7 +59,6 @@ public class EjbDeployment implements EJB {
     private final TrackedConnectionAssociator trackedConnectionAssociator;
 
     private final OpenEjbSystem openEjbSystem;
-
 
     private CoreDeploymentInfo deploymentInfo;
 
@@ -90,6 +96,10 @@ public class EjbDeployment implements EJB {
         this.applicationManagedSecurityResources = applicationManagedSecurityResources;
         this.trackedConnectionAssociator = trackedConnectionAssociator;
         this.openEjbSystem = openEjbSystem;
+    }
+
+    public CoreDeploymentInfo getDeploymentInfo() {
+        return deploymentInfo;
     }
 
     public String getDeploymentId() {
@@ -160,12 +170,79 @@ public class EjbDeployment implements EJB {
         return deploymentInfo.getEJBLocalHome();
     }
 
-    public DeploymentInfo.BusinessLocalHome getBusinessLocalHome() {
+    public Object getBusinessLocalHome() {
         return deploymentInfo.getBusinessLocalHome();
     }
 
-    public DeploymentInfo.BusinessRemoteHome getBusinessRemoteHome() {
+    public Object getBusinessRemoteHome() {
         return deploymentInfo.getBusinessRemoteHome();
+    }
+
+    public EJBObject getEjbObject(Object primaryKey) {
+        // get the local interface
+        Class localInterface = deploymentInfo.getLocalInterface();
+
+        // get the container
+        RpcContainer container = (RpcContainer) deploymentInfo.getContainer();
+
+        // create a new ProxyInfo based on the deployment info and primary key
+        ProxyInfo proxyInfo = new ProxyInfo(deploymentInfo, primaryKey, localInterface, container);
+
+        // get the home proxy handler
+        EJBHome homeProxy = deploymentInfo.getEJBHome();
+        EntityEjbHomeHandler handler = (EntityEjbHomeHandler) ProxyManager.getInvocationHandler(homeProxy);
+
+        // create the proxy
+        EJBObject ejbObject = (EJBObject) handler.createProxy(proxyInfo);
+        return ejbObject;
+    }
+
+    public Class getHomeInterface() {
+        return deploymentInfo.getHomeInterface();
+    }
+
+    public Class getRemoteInterface() {
+        return deploymentInfo.getRemoteInterface();
+    }
+
+    public Class getLocalHomeInterface() {
+        return deploymentInfo.getLocalHomeInterface();
+    }
+
+    public Class getLocalInterface() {
+        return deploymentInfo.getLocalInterface();
+    }
+
+    public Class getBeanClass() {
+        return deploymentInfo.getBeanClass();
+    }
+
+    public Class getBusinessLocalInterface() {
+        return deploymentInfo.getBusinessLocalInterface();
+    }
+
+    public Class getBusinessRemoteInterface() {
+        return deploymentInfo.getBusinessRemoteInterface();
+    }
+
+    public Class getMdbInterface() {
+        return deploymentInfo.getMdbInterface();
+    }
+
+    public BeanType getComponentType() {
+        return deploymentInfo.getComponentType();
+    }
+
+    public Container getContainer() {
+        return deploymentInfo.getContainer();
+    }
+
+    public boolean isBeanManagedTransaction() {
+        return deploymentInfo.isBeanManagedTransaction();
+    }
+
+    public byte getTransactionAttribute(Method method) {
+        return deploymentInfo.getTransactionAttribute(method);
     }
 
     public String getObjectName() {
