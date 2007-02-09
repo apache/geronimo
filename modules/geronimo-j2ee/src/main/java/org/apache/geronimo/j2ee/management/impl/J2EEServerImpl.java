@@ -73,7 +73,7 @@ public class J2EEServerImpl implements J2EEServer {
     private final Collection securityRealms;
     private final Collection loginServices;
     private final Collection keystoreManagers;
-    private final PluginInstaller pluginInstaller;
+    private final Collection pluginInstallers;
     private final ConfigurationManager configurationManager;
 
     public J2EEServerImpl(String objectName,
@@ -94,7 +94,7 @@ public class J2EEServerImpl implements J2EEServer {
                           Collection securityRealms,
                           Collection loginServices,
                           Collection keystoreManagers,
-                          PluginInstaller configurationInstaller,
+                          Collection configurationInstallers,
                           ConfigurationManager configurationManager,
                           Collection pluginRepoLists) {
 
@@ -122,7 +122,7 @@ public class J2EEServerImpl implements J2EEServer {
         this.securityRealms = securityRealms;
         this.loginServices = loginServices;
         this.keystoreManagers = keystoreManagers;
-        this.pluginInstaller = configurationInstaller;
+        this.pluginInstallers = configurationInstallers;
         this.configurationManager = configurationManager;
         this.pluginRepoLists = pluginRepoLists;
     }
@@ -147,6 +147,7 @@ public class J2EEServerImpl implements J2EEServer {
      * ObjectName must match this pattern:
      * <p/>
      * domain:j2eeType=J2EEServer,name=MyName
+     * @param objectName object name to verify pattern
      */
     private void verifyObjectName(ObjectName objectName) {
         if (objectName.isPattern()) {
@@ -289,7 +290,10 @@ public class J2EEServerImpl implements J2EEServer {
     }
 
     public PluginInstaller getPluginInstaller() {
-        return pluginInstaller;
+        if (pluginInstallers.isEmpty()) {
+            return null;
+        }
+        return (PluginInstaller) pluginInstallers.iterator().next();
     }
 
     public ConfigurationManager getConfigurationManager() {
