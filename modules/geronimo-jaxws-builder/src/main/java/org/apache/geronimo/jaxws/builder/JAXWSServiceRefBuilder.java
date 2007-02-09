@@ -139,7 +139,7 @@ public abstract class JAXWSServiceRefBuilder extends AbstractNamingBuilder imple
             }
         }
                        
-        Map portComponentRefMap = new HashMap();
+        Map<Class, String> portComponentRefMap = new HashMap<Class, String>();
         PortComponentRefType[] portComponentRefs = serviceRef.getPortComponentRefArray();
         if (portComponentRefs != null) {
             for (int j = 0; j < portComponentRefs.length; j++) {
@@ -162,7 +162,7 @@ public abstract class JAXWSServiceRefBuilder extends AbstractNamingBuilder imple
     public abstract Object createService(ServiceRefType serviceRef, GerServiceRefType gerServiceRef, 
                                          Module module, ClassLoader cl, Class serviceInterfaceClass, 
                                          QName serviceQName, URI wsdlURI, Class serviceReferenceType, 
-                                         Map portComponentRefMap) throws DeploymentException;
+                                         Map<Class, String> portComponentRefMap) throws DeploymentException;
        
     private static Map mapServiceRefs(XmlObject[] refs) {
         Map refMap = new HashMap();

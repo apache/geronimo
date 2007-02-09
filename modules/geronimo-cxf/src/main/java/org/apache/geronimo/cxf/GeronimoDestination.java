@@ -26,6 +26,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Enumeration;
+import java.util.logging.Logger;
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -112,6 +113,14 @@ public class GeronimoDestination extends AbstractHTTPDestination
                 }
             }
         }
+    }
+
+    public Logger getLogger() {
+        return Logger.getLogger(GeronimoDestination.class.getName());
+    }
+
+    public Conduit getInbuiltBackChannel(Message inMessage) {
+        return new BackChannelConduit(null, inMessage);
     }
 
     public Conduit getBackChannel(Message inMessage,

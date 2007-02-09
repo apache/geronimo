@@ -48,7 +48,8 @@ public class JAXWSAnnotationProcessor extends AnnotationProcessor {
         try {
             return jndiResolver.resolve(name, type);
         } catch (NamingException e) {
-            throw new InjectionException("JNDI injection failed", e);
+            throw new InjectionException("JNDI injection failed for resource '" 
+                    + name + "'", e);
         }
     }
 

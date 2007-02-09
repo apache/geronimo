@@ -16,26 +16,16 @@
  */
 package org.apache.geronimo.cxf.builder;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.apache.cxf.jaxws.javaee.PortComponentType;
-import org.apache.cxf.jaxws.javaee.ServiceImplBeanType;
-import org.apache.cxf.jaxws.javaee.WebserviceDescriptionType;
-import org.apache.cxf.jaxws.javaee.WebservicesType;
-import org.apache.cxf.jaxws.javaee.HandlerChainsType;
-import org.apache.geronimo.common.DeploymentException;
-import org.apache.geronimo.jaxws.PortInfo;
-import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.gbean.GBeanInfoBuilder;
-import org.apache.geronimo.j2ee.deployment.Module;
-import org.apache.geronimo.j2ee.deployment.WebServiceBuilder;
-import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
-import org.apache.geronimo.kernel.repository.Environment;
-import org.apache.geronimo.xbeans.geronimo.naming.GerServiceRefType;
-import org.apache.geronimo.xbeans.javaee.ServiceRefHandlerChainsType;
-import org.apache.geronimo.jaxws.builder.JAXWSServiceBuilder;
-import org.apache.geronimo.cxf.CXFWebServiceContainerFactoryGBean;
-//import org.apache.geronimo.cxf.client.CXFServiceReference;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.StringWriter;
+import java.net.URI;
+import java.net.URL;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.jar.JarFile;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBElement;
@@ -43,16 +33,29 @@ import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
 import javax.xml.namespace.QName;
 import javax.xml.transform.stream.StreamSource;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.StringWriter;
-import java.net.URL;
-import java.net.URI;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.jar.JarFile;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.apache.cxf.jaxws.javaee.HandlerChainsType;
+import org.apache.cxf.jaxws.javaee.PortComponentType;
+import org.apache.cxf.jaxws.javaee.ServiceImplBeanType;
+import org.apache.cxf.jaxws.javaee.WebserviceDescriptionType;
+import org.apache.cxf.jaxws.javaee.WebservicesType;
+import org.apache.geronimo.common.DeploymentException;
+import org.apache.geronimo.cxf.CXFWebServiceContainerFactoryGBean;
+import org.apache.geronimo.cxf.client.CXFServiceReference;
+import org.apache.geronimo.gbean.GBeanInfo;
+import org.apache.geronimo.gbean.GBeanInfoBuilder;
+import org.apache.geronimo.j2ee.deployment.Module;
+import org.apache.geronimo.j2ee.deployment.WebServiceBuilder;
+import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
+import org.apache.geronimo.jaxws.PortInfo;
+import org.apache.geronimo.jaxws.builder.EndpointInfoBuilder;
+import org.apache.geronimo.jaxws.builder.JAXWSServiceBuilder;
+import org.apache.geronimo.jaxws.client.EndpointInfo;
+import org.apache.geronimo.kernel.repository.Environment;
+import org.apache.geronimo.xbeans.geronimo.naming.GerServiceRefType;
+import org.apache.geronimo.xbeans.javaee.ServiceRefHandlerChainsType;
 
 public class CXFBuilder extends JAXWSServiceBuilder {
     private static final Log LOG = LogFactory.getLog(CXFBuilder.class);
@@ -173,32 +176,32 @@ public class CXFBuilder extends JAXWSServiceBuilder {
                                 Class serviceReference,
                                 URI wsdlURI,
                                 QName serviceQName,
-                                Map portComponentRefMap,
+                                Map<Class, String> portComponentRefMap,
                                 ServiceRefHandlerChainsType handlerChains,
                                 GerServiceRefType serviceRefType,
                                 Module module,
-                                ClassLoader cl) throws DeploymentException {
-        System.out.println("createService");
-        /*
-        WSDLInfoBuilder builder = new WSDLInfoBuilder(serviceInterface, module
-                .getModuleFile(), wsdlURI, serviceQName, cl);
+                                ClassLoader cl) throws DeploymentException {     
+        EndpointInfoBuilder builder = new EndpointInfoBuilder(serviceInterface,
+                serviceRefType, portComponentRefMap, module.getModuleFile(),
+                wsdlURI, serviceQName);
         builder.build();
 
+        wsdlURI = builder.getWsdlURI();
         serviceQName = builder.getServiceQName();
+        Map<Object, EndpointInfo> seiInfoMap = builder.getEndpointInfo();
 
         String handlerChainsXML = null;
         try {
             handlerChainsXML = getHanderChainAsString(handlerChains);
         } catch (IOException e) {
-            // should not happen
-            // TODO: log error
+            // this should not happen
+            LOG.warn("Failed to serialize handler chains", e);
         }
 
-        return new CXFServiceReference(serviceInterface.getName(), wsdlURI,
-                serviceQName, module.getModuleName(), handlerChainsXML, null,
-                null);
-        */
-        return null;
+        String serviceReferenceName = (serviceReference == null) ? null : serviceReference.getName();
+        
+        return new CXFServiceReference(serviceInterface.getName(), serviceReferenceName,  wsdlURI,
+                serviceQName, module.getModuleName(), handlerChainsXML, seiInfoMap);
     }
     
     private static String getHanderChainAsString(ServiceRefHandlerChainsType handlerChains)
@@ -221,7 +224,7 @@ public class CXFBuilder extends JAXWSServiceBuilder {
         }
         return in;
     }
-
+    
     public static final GBeanInfo GBEAN_INFO;
 
     static {

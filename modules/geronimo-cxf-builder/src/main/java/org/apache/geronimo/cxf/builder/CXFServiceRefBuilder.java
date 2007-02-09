@@ -47,7 +47,7 @@ public class CXFServiceRefBuilder extends JAXWSServiceRefBuilder {
     public Object createService(ServiceRefType serviceRef, GerServiceRefType gerServiceRef, 
                                 Module module, ClassLoader cl, Class serviceInterfaceClass, 
                                 QName serviceQName, URI wsdlURI, Class serviceReferenceType, 
-                                Map portComponentRefMap) throws DeploymentException {   
+                                Map<Class, String> portComponentRefMap) throws DeploymentException {   
         return this.cxfBuilder.createService(serviceInterfaceClass, serviceReferenceType, wsdlURI, 
                                              serviceQName, portComponentRefMap, serviceRef.getHandlerChains(),
                                              gerServiceRef, module, cl);
