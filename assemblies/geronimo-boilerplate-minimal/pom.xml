@@ -164,8 +164,8 @@
                                 </artifactItem>
                                 
                                 <artifactItem>
-                                    <groupId>xerces</groupId>
-                                    <artifactId>xmlParserAPIs</artifactId>
+                                    <groupId>xml-apis</groupId>
+                                    <artifactId>xml-apis</artifactId>
                                 </artifactItem>
                             </artifactItems>
                             <outputDirectory>${project.build.directory}/classes/lib/endorsed</outputDirectory>

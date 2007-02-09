@@ -78,8 +78,8 @@
         </dependency>
         
         <dependency>
-            <groupId>xerces</groupId>
-            <artifactId>xmlParserAPIs</artifactId>
+            <groupId>xml-apis</groupId>
+            <artifactId>xml-apis</artifactId>
             <scope>test</scope>
         </dependency>
         
