@@ -53,8 +53,6 @@ public class SwitchingServiceRefBuilder extends AbstractNamingBuilder {
 
     private final Collection jaxwsBuilders;
 
-    private Environment environment;
-
     public SwitchingServiceRefBuilder(String[] eeNamespaces,
                                       Collection jaxrpcBuilders,
                                       Collection jaxwsBuilders) {
@@ -68,7 +66,41 @@ public class SwitchingServiceRefBuilder extends AbstractNamingBuilder {
                                  XmlObject plan,
                                  Environment environment)
             throws DeploymentException {
-        this.environment = environment;
+        // Since we don't have a classloader at this point do simple string-based
+        // check for Service classes, and if it does not match either merge
+        // both environments
+        
+        boolean mergedJAXRPCEnv = false;
+        boolean mergedJAXWSEnv = false;
+        
+        XmlObject[] serviceRefs = specDD.selectChildren(serviceRefQNameSet);
+        for (XmlObject serviceRef : serviceRefs) {
+            ServiceRefType serviceRefType = 
+                (ServiceRefType) convert(serviceRef, JEE_CONVERTER, ServiceRefType.type);
+            String serviceInterfaceName = getStringValue(serviceRefType.getServiceInterface());
+            if ("javax.xml.rpc.Service".equals(serviceInterfaceName)) {
+                if (!mergedJAXRPCEnv) {
+                    mergeEnvironment(environment, getJAXRCPBuilder());
+                    mergedJAXRPCEnv = true;
+                }
+            } else if ("javax.xml.ws.Service".equals(serviceInterfaceName)) {
+                if (!mergedJAXWSEnv) {
+                    mergeEnvironment(environment, getJAXWSBuilder());
+                    mergedJAXWSEnv = true;
+                }
+            } else {
+                // does not match either Service class, merge both environments
+                if (!mergedJAXRPCEnv) {
+                    mergeEnvironment(environment, getJAXRCPBuilder());
+                    mergedJAXRPCEnv = true;
+                }
+                if (!mergedJAXWSEnv) {
+                    mergeEnvironment(environment, getJAXWSBuilder());
+                    mergedJAXWSEnv = true;
+                }
+                break;
+            }                    
+        }        
     }
 
     public void buildNaming(XmlObject specDD,
@@ -80,9 +112,6 @@ public class SwitchingServiceRefBuilder extends AbstractNamingBuilder {
         ClassLoader cl = module.getEarContext().getClassLoader();
         Class jaxrpcClass = loadClass("javax.xml.rpc.Service", cl);
         Class jaxwsClass = loadClass("javax.xml.ws.Service", cl);
-
-        boolean mergedJAXRPCEnv = false;
-        boolean mergedJAXWSEnv = false;
 
         XmlObject[] serviceRefs = specDD.selectChildren(serviceRefQNameSet);
 
@@ -107,19 +136,11 @@ public class SwitchingServiceRefBuilder extends AbstractNamingBuilder {
                 ServiceRefBuilder jaxrpcBuilder = getJAXRCPBuilder();
                 jaxrpcBuilder.buildNaming(serviceRef, gerServiceRefType,
                         module, componentContext);
-                if (!mergedJAXRPCEnv) {
-                    mergeEnvironment(jaxrpcBuilder);
-                    mergedJAXRPCEnv = true;
-                }
             } else if (jaxwsClass.isAssignableFrom(serviceInterfaceClass)) {
                 // calll jaxws handler
                 ServiceRefBuilder jaxwsBuilder = getJAXWSBuilder();
                 jaxwsBuilder.buildNaming(serviceRef, gerServiceRefType, module,
                         componentContext);
-                if (!mergedJAXWSEnv) {
-                    mergeEnvironment(jaxwsBuilder);
-                    mergedJAXWSEnv = true;
-                }
             } else {
                 throw new DeploymentException(serviceInterfaceName
                                               + " does not extend "
@@ -153,10 +174,10 @@ public class SwitchingServiceRefBuilder extends AbstractNamingBuilder {
         return jaxrpcBuilder;
     }
 
-    private void mergeEnvironment(ServiceRefBuilder builder) {
+    private void mergeEnvironment(Environment environment, ServiceRefBuilder builder) {
         Environment env = builder.getEnvironment();
         if (env != null) {
-            EnvironmentBuilder.mergeEnvironments(this.environment, env);
+            EnvironmentBuilder.mergeEnvironments(environment, env);
         }
     }
 
