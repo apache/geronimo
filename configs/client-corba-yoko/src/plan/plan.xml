@@ -19,11 +19,11 @@
 <!-- $Rev$ $Date$ -->
 
 <module xmlns="http://geronimo.apache.org/xml/ns/deployment-${geronimoSchemaVersion}">
-    <gbean name="DyanmicStubClassLoader" class="org.apache.openejb.corba.util.DynamicStubClassLoaderGBean"/>
+    <gbean name="DyanmicStubClassLoader" class="org.apache.geronimo.corba.util.DynamicStubClassLoaderGBean"/>
 
-    <gbean name="ORBConfigAdapter" class="org.apache.openejb.yoko.ORBConfigAdapterGBean"/>
+    <gbean name="ORBConfigAdapter" class="org.apache.geronimo.yoko.ORBConfigAdapterGBean"/>
 
-    <gbean name="NameServerRef" class="org.apache.openejb.corba.NameServiceGBean">
+    <gbean name="NameServerRef" class="org.apache.geronimo.corba.NameServiceGBean">
         <reference name="ServerInfo">
             <name>ServerInfo</name>
         </reference>
@@ -36,7 +36,7 @@
 
     </gbean>
 
-    <gbean name="CORBASSLConfig" class="org.apache.openejb.corba.security.config.ssl.SSLConfigGBean">
+    <gbean name="CORBASSLConfig" class="org.apache.geronimo.corba.security.config.ssl.SSLConfigGBean">
         <attribute name="keyStore">geronimo-default</attribute>
         <attribute name="keyAlias">geronimo</attribute>
         <attribute name="trustStore">geronimo-default</attribute>
@@ -48,7 +48,7 @@
     </gbean>
 
 
-    <gbean name="Server" class="org.apache.openejb.corba.CORBABeanGBean">
+    <gbean name="Server" class="org.apache.geronimo.corba.CORBABeanGBean">
         <reference name="ConfigAdapter">
             <name>ORBConfigAdapter</name>
         </reference>
@@ -59,7 +59,7 @@
 
 <!-- a few sample css beans for the app client -->
     <!--
-    <gbean name="SSLClientCert" class="org.apache.openejb.corba.CSSBeanGBean">
+    <gbean name="SSLClientCert" class="org.apache.geronimo.corba.CSSBeanGBean">
         <reference name="TransactionManager">
             <module>geronimo/client/${version}/car</module>
             <name>TransactionManager</name>
@@ -89,7 +89,7 @@
         </xml-attribute>
     </gbean>
 
-    <gbean name="SSLClientPassword" class="org.apache.openejb.corba.CSSBeanGBean">
+    <gbean name="SSLClientPassword" class="org.apache.geronimo.corba.CSSBeanGBean">
         <reference name="TransactionManager">
             <module>geronimo/client/${version}/car</module>
             <name>TransactionManager</name>
@@ -119,7 +119,7 @@
         </xml-attribute>
     </gbean>
 
-    <gbean name="NoSecurity" class="org.apache.openejb.corba.CSSBeanGBean">
+    <gbean name="NoSecurity" class="org.apache.geronimo.corba.CSSBeanGBean">
         <reference name="TransactionManager">
             <module>geronimo/client/${version}/car</module>
             <name>TransactionManager</name>

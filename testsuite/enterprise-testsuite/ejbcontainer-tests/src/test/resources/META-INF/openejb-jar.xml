@@ -828,6 +828,6 @@
       ########################################################
       -->
 
-    <gbean name="ORBConfigAdapter" class="org.apache.openejb.yoko.ORBConfigAdapterGBean"/>
+    <gbean name="ORBConfigAdapter" class="org.apache.geronimo.yoko.ORBConfigAdapterGBean"/>
 
 </openejb-jar>

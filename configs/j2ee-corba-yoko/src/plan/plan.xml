@@ -21,15 +21,15 @@
 <module xmlns="http://geronimo.apache.org/xml/ns/deployment-${geronimoSchemaVersion}">
 
     <!-- CORBA -->
-    <gbean name="DynamicORBStubClassLoader" class="org.apache.openejb.corba.util.DynamicStubClassLoaderGBean">
+    <gbean name="DynamicORBStubClassLoader" class="org.apache.geronimo.corba.util.DynamicStubClassLoaderGBean">
         <dependency>
             <name>ORBConfigAdapter</name>
         </dependency>
     </gbean>
 
-    <gbean name="ORBConfigAdapter" class="org.apache.openejb.yoko.ORBConfigAdapterGBean"/>
+    <gbean name="ORBConfigAdapter" class="org.apache.geronimo.yoko.ORBConfigAdapterGBean"/>
 
-    <gbean name="NameServer" class="org.apache.openejb.corba.NameServiceGBean">
+    <gbean name="NameServer" class="org.apache.geronimo.corba.NameServiceGBean">
         <reference name="ServerInfo">
             <name>ServerInfo</name>
         </reference>
@@ -40,7 +40,7 @@
         <attribute name="host">${PlanCOSNamingHost}</attribute>
     </gbean>
 
-    <gbean name="CORBASSLConfig" class="org.apache.openejb.corba.security.config.ssl.SSLConfigGBean">
+    <gbean name="CORBASSLConfig" class="org.apache.geronimo.corba.security.config.ssl.SSLConfigGBean">
         <attribute name="keyStore">geronimo-default</attribute>
         <attribute name="keyAlias">geronimo</attribute>
         <attribute name="trustStore">geronimo-default</attribute>
@@ -52,7 +52,7 @@
     </gbean>
 
     <!-- connections require SSL, no client cert, client logs in with password, no identity token -->
-    <gbean name="Server" class="org.apache.openejb.corba.CORBABeanGBean">
+    <gbean name="Server" class="org.apache.geronimo.corba.CORBABeanGBean">
         <attribute name="host">${PlanORBSSLHost}</attribute>
         <attribute name="port">${PlanORBSSLPort}</attribute>
         <reference name="ConfigAdapter">
@@ -88,7 +88,7 @@
     </gbean>
 
     <!-- orb with no security whatsoever -->
-    <gbean name="UnprotectedServer" class="org.apache.openejb.corba.CORBABeanGBean">
+    <gbean name="UnprotectedServer" class="org.apache.geronimo.corba.CORBABeanGBean">
         <attribute name="host">${PlanORBHost}</attribute>
         <attribute name="port">${PlanORBPort}</attribute>
         <reference name="ConfigAdapter">
@@ -121,7 +121,7 @@
 
 <!-- tss bean examples, specify requirements for connection to orb.  Provide a ref in an ejb -->
     <!--
-    <gbean name="SSLClientCert" class="org.apache.openejb.corba.TSSBeanGBean">
+    <gbean name="SSLClientCert" class="org.apache.geronimo.corba.TSSBeanGBean">
         <attribute name="POAName">SSLClientCert</attribute>
         <reference name="Server">
             <name>Server</name>
@@ -148,7 +148,7 @@
         </xml-attribute>
     </gbean>
 
-    <gbean name="SSLClientPassword" class="org.apache.openejb.corba.TSSBeanGBean">
+    <gbean name="SSLClientPassword" class="org.apache.geronimo.corba.TSSBeanGBean">
         <attribute name="POAName">SSLClientPassword</attribute>
         <reference name="Server">
             <name>Server</name>
@@ -176,7 +176,7 @@
         </xml-attribute>
     </gbean>
 
-    <gbean name="SSLIdentityToken" class="org.apache.openejb.corba.TSSBeanGBean">
+    <gbean name="SSLIdentityToken" class="org.apache.geronimo.corba.TSSBeanGBean">
         <attribute name="POAName">SSLIdentityToken</attribute>
         <reference name="Server">
             <name>Server</name>
@@ -206,7 +206,7 @@
         </xml-attribute>
     </gbean>
 
-    <gbean name="IdentityTokenNoSecurity" class="org.apache.openejb.corba.TSSBeanGBean">
+    <gbean name="IdentityTokenNoSecurity" class="org.apache.geronimo.corba.TSSBeanGBean">
         <attribute name="POAName">IdentityTokenNoSecurity</attribute>
         <reference name="Server">
             <name>UnprotectedServer</name>
@@ -232,7 +232,7 @@
         </xml-attribute>
     </gbean>
 
-    <gbean name="SSLClientCertIdentityToken" class="org.apache.openejb.corba.TSSBeanGBean">
+    <gbean name="SSLClientCertIdentityToken" class="org.apache.geronimo.corba.TSSBeanGBean">
         <attribute name="POAName">SSLClientCertIdentityToken</attribute>
         <reference name="Server">
             <name>Server</name>
@@ -264,7 +264,7 @@
 -->
     <!--CSS beans for client security.  These specify what the client is willing to provide -->
     <!--
-    <gbean name="SSLClientCert" class="org.apache.openejb.corba.CSSBeanGBean">
+    <gbean name="SSLClientCert" class="org.apache.geronimo.corba.CSSBeanGBean">
         <reference name="TransactionManager">
             <name>TransactionManager</name>
         </reference>
@@ -292,7 +292,7 @@
         </xml-attribute>
     </gbean>
 
-    <gbean name="SSLClientPassword" class="org.apache.openejb.corba.CSSBeanGBean">
+    <gbean name="SSLClientPassword" class="org.apache.geronimo.corba.CSSBeanGBean">
         <reference name="TransactionManager">
             <name>TransactionManager</name>
         </reference>
@@ -321,7 +321,7 @@
         </xml-attribute>
     </gbean>
 
-    <gbean name="SSLIdentityTokenPrincipal" class="org.apache.openejb.corba.CSSBeanGBean">
+    <gbean name="SSLIdentityTokenPrincipal" class="org.apache.geronimo.corba.CSSBeanGBean">
         <reference name="TransactionManager">
             <name>TransactionManager</name>
         </reference>
@@ -349,7 +349,7 @@
         </xml-attribute>
     </gbean>
 
-    <gbean name="SSLIdentityTokenCert" class="org.apache.openejb.corba.CSSBeanGBean">
+    <gbean name="SSLIdentityTokenCert" class="org.apache.geronimo.corba.CSSBeanGBean">
         <reference name="TransactionManager">
             <name>TransactionManager</name>
         </reference>
@@ -377,7 +377,7 @@
         </xml-attribute>
     </gbean>
 
-    <gbean name="NoSecurityIdentityTokenPrincipal" class="org.apache.openejb.corba.CSSBeanGBean">
+    <gbean name="NoSecurityIdentityTokenPrincipal" class="org.apache.geronimo.corba.CSSBeanGBean">
         <reference name="TransactionManager">
             <name>TransactionManager</name>
         </reference>
@@ -401,7 +401,7 @@
         </xml-attribute>
     </gbean>
 
-    <gbean name="NoSecurityIdentityTokenCert" class="org.apache.openejb.corba.CSSBeanGBean">
+    <gbean name="NoSecurityIdentityTokenCert" class="org.apache.geronimo.corba.CSSBeanGBean">
         <reference name="TransactionManager">
             <name>TransactionManager</name>
         </reference>
@@ -425,7 +425,7 @@
         </xml-attribute>
     </gbean>
 
-    <gbean name="NoSecurity" class="org.apache.openejb.corba.CSSBeanGBean">
+    <gbean name="NoSecurity" class="org.apache.geronimo.corba.CSSBeanGBean">
         <reference name="TransactionManager">
             <name>TransactionManager</name>
         </reference>

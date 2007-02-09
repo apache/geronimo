@@ -61,6 +61,8 @@
         <module>geronimo-connector-builder</module>
         <module>geronimo-converter</module>
         <module>geronimo-core</module>
+        <module>geronimo-corba</module>
+        <module>geronimo-corba-builder</module>
         <module>geronimo-deploy-config</module>
         <module>geronimo-deploy-jsr88</module>
         <module>geronimo-deploy-tool</module>
@@ -91,6 +93,7 @@
         <module>geronimo-transaction</module>
         <module>geronimo-upgrade</module>
         <module>geronimo-util</module>
+        <module>geronimo-yoko</module>
 <!--        <module>geronimo-web-builder</module> -->
         <module>geronimo-webservices</module>
         <module>geronimo-webservices-builder</module>

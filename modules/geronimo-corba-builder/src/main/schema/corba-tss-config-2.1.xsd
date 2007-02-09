@@ -1,0 +1,272 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+/**
+  * Licensed to the Apache Software Foundation (ASF) under one or more
+  * contributor license agreements.  See the NOTICE file distributed with
+  * this work for additional information regarding copyright ownership.
+  * The ASF licenses this file to You under the Apache License, Version 2.0
+  * (the "License"); you may not use this file except in compliance with
+  * the License.  You may obtain a copy of the License at
+  *
+  *     http://www.apache.org/licenses/LICENSE-2.0
+  *
+  * Unless required by applicable law or agreed to in writing, software
+  * distributed under the License is distributed on an "AS IS" BASIS,
+  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  * See the License for the specific language governing permissions and
+  * limitations under the License.
+  */
+-->
+
+<xsd:schema
+    xmlns:tss="http://openejb.apache.org/xml/ns/corba-tss-config-2.1"
+    targetNamespace="http://openejb.apache.org/xml/ns/corba-tss-config-2.1"
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+    xmlns:security="http://geronimo.apache.org/xml/ns/security-1.2"
+    elementFormDefault="qualified"
+    attributeFormDefault="unqualified"
+    version="1.0">
+
+    <xsd:element name="tss" type="tss:tssType"/>
+
+    <xsd:complexType name="tssType">
+        <xsd:sequence>
+            <xsd:element name="description" type="tss:descriptionType" minOccurs="0" maxOccurs="unbounded"/>
+            <xsd:element name="default-principal" type="security:default-principalType" minOccurs="0"/>
+            <xsd:group ref="tss:transportMechGroup" minOccurs="0"/>
+            <xsd:element name="compoundSecMechTypeList" minOccurs="0">
+                <xsd:complexType>
+                    <xsd:sequence>
+                        <xsd:element name="compoundSecMech" type="tss:compoundSecMechType" maxOccurs="unbounded"/>
+                    </xsd:sequence>
+                    <xsd:attribute name="stateful" type="xsd:boolean" use="optional" default="false"/>
+                </xsd:complexType>
+            </xsd:element>
+        </xsd:sequence>
+        <xsd:attribute name="inherit" type="xsd:boolean" use="optional" default="false"/>
+    </xsd:complexType>
+
+    <xsd:complexType name="descriptionType">
+        <xsd:simpleContent>
+            <xsd:extension base="xsd:string">
+                <xsd:attribute ref="xml:lang"/>
+            </xsd:extension>
+        </xsd:simpleContent>
+    </xsd:complexType>
+
+    <xsd:group name="transportMechGroup">
+        <xsd:choice>
+            <xsd:element name="SSL" type="tss:SSLType"/>
+            <xsd:element name="SECIOP" type="tss:SECIOPType"/>
+        </xsd:choice>
+    </xsd:group>
+
+    <xsd:complexType name="SSLType">
+        <xsd:sequence>
+            <xsd:element name="description" type="tss:descriptionType" minOccurs="0" maxOccurs="unbounded"/>
+            <xsd:element name="supports" type="tss:associationOptionList"/>
+            <xsd:element name="requires" type="tss:associationOptionList"/>
+            <xsd:group ref="tss:trustGroup" minOccurs="0"/>
+        </xsd:sequence>
+        <xsd:attribute name="port" type="xsd:short" use="required"/>
+        <xsd:attribute name="hostname" type="xsd:string" use="required"/>
+        <xsd:attribute name="handshakeTimeout" type="xsd:short"/>
+    </xsd:complexType>
+
+    <xsd:complexType name="SECIOPType">
+        <xsd:sequence>
+            <xsd:element name="description" type="tss:descriptionType" minOccurs="0" maxOccurs="unbounded"/>
+            <xsd:element name="supports" type="tss:associationOptionList"/>
+            <xsd:element name="requires" type="tss:associationOptionList"/>
+            <xsd:element name="transportAddress" type="tss:transportAddressType" maxOccurs="unbounded"/>
+            <xsd:group ref="tss:trustGroup"/>
+        </xsd:sequence>
+        <xsd:attribute name="mechOID" type="xsd:string"/>
+        <xsd:attribute name="targetName" type="xsd:string"/>
+    </xsd:complexType>
+
+    <xsd:group name="trustGroup">
+        <xsd:choice>
+            <xsd:element name="trustEveryone" type="tss:trustEveryoneType"/>
+            <xsd:element name="trustNoone" type="tss:trustNooneType"/>
+            <xsd:element name="trustList">
+                <xsd:complexType>
+                    <xsd:sequence>
+                        <xsd:element name="entity" type="tss:entityType" maxOccurs="unbounded"/>
+                    </xsd:sequence>
+                </xsd:complexType>
+            </xsd:element>
+        </xsd:choice>
+    </xsd:group>
+
+    <xsd:complexType name="trustEveryoneType">
+        <xsd:complexContent>
+            <xsd:restriction base="xsd:anyType"/>
+        </xsd:complexContent>
+    </xsd:complexType>
+
+    <xsd:complexType name="trustNooneType">
+        <xsd:complexContent>
+            <xsd:restriction base="xsd:anyType"/>
+        </xsd:complexContent>
+    </xsd:complexType>
+
+    <xsd:complexType name="entityType">
+        <xsd:complexContent>
+            <xsd:restriction base="xsd:anyType">
+                <xsd:attribute name="hostname" type="xsd:string" use="optional"/>
+                <xsd:attribute name="distinguishedName" type="xsd:string" use="optional"/>
+            </xsd:restriction>
+        </xsd:complexContent>
+    </xsd:complexType>
+
+    <xsd:complexType name="transportAddressType">
+        <xsd:simpleContent>
+            <xsd:extension base="xsd:string">
+                <xsd:attribute name="port" type="xsd:short"/>
+                <xsd:attribute name="hostname" type="xsd:string"/>
+            </xsd:extension>
+        </xsd:simpleContent>
+    </xsd:complexType>
+
+    <xsd:complexType name="compoundSecMechType">
+        <xsd:sequence>
+            <xsd:element name="description" type="tss:descriptionType" minOccurs="0" maxOccurs="unbounded"/>
+            <xsd:group ref="tss:asMechGroup" minOccurs="0"/>
+            <xsd:element name="sasMech" type="tss:sasMechType" minOccurs="0"/>
+        </xsd:sequence>
+    </xsd:complexType>
+
+    <xsd:group name="asMechGroup">
+        <xsd:choice>
+            <xsd:element name="GSSUP" type="tss:GSSUPType"/>
+        </xsd:choice>
+    </xsd:group>
+
+    <xsd:complexType name="GSSUPType">
+        <xsd:sequence>
+            <xsd:element name="description" type="tss:descriptionType" minOccurs="0" maxOccurs="unbounded"/>
+        </xsd:sequence>
+        <xsd:attribute name="targetName" type="xsd:string"/>
+        <xsd:attribute name="required" type="xsd:boolean" use="optional" default="false"/>
+    </xsd:complexType>
+
+    <xsd:complexType name="sasMechType">
+        <xsd:sequence>
+            <xsd:element name="description" type="tss:descriptionType" minOccurs="0" maxOccurs="unbounded"/>
+            <xsd:element name="serviceConfigurationList" minOccurs="0">
+                <xsd:complexType>
+                    <xsd:sequence>
+                        <xsd:group ref="tss:serviceConfigurationGroup" maxOccurs="unbounded"/>
+                    </xsd:sequence>
+                    <xsd:attribute name="required" type="xsd:boolean" use="optional" default="false"/>
+                </xsd:complexType>
+            </xsd:element>
+            <xsd:element name="identityTokenTypes" type="tss:identityTokenTypeList"/>
+        </xsd:sequence>
+    </xsd:complexType>
+
+    <xsd:group name="serviceConfigurationGroup">
+        <xsd:choice>
+            <xsd:element name="generalName" type="tss:generalNameType"/>
+            <xsd:element name="gssExportedName" type="tss:gssExportedNameType"/>
+        </xsd:choice>
+    </xsd:group>
+
+    <xsd:complexType name="generalNameType">
+        <xsd:complexContent>
+            <xsd:restriction base="xsd:anyType">
+                <xsd:attribute name="privilegeAuthority" type="xsd:string"/>
+            </xsd:restriction>
+        </xsd:complexContent>
+    </xsd:complexType>
+
+    <xsd:complexType name="gssExportedNameType">
+        <xsd:complexContent>
+            <xsd:restriction base="xsd:anyType">
+                <xsd:attribute name="OID" type="xsd:string"/>
+                <xsd:attribute name="privilegeAuthority" type="xsd:string"/>
+            </xsd:restriction>
+        </xsd:complexContent>
+    </xsd:complexType>
+
+    <xsd:simpleType name="associationOption">
+        <xsd:restriction base="xsd:token">
+            <xsd:enumeration value="NoProtection"/>
+            <xsd:enumeration value="Integrity"/>
+            <xsd:enumeration value="Confidentiality"/>
+            <xsd:enumeration value="DetectReplay"/>
+            <xsd:enumeration value="DetectMisordering"/>
+            <xsd:enumeration value="EstablishTrustInTarget"/>
+            <xsd:enumeration value="EstablishTrustInClient"/>
+            <xsd:enumeration value="NoDelegation"/>
+            <xsd:enumeration value="SimpleDelegation"/>
+            <xsd:enumeration value="CompositeDelegation"/>
+            <xsd:enumeration value="IdentityAssertion"/>
+            <xsd:enumeration value="DelegationByClient"/>
+        </xsd:restriction>
+    </xsd:simpleType>
+
+    <xsd:simpleType name="associationOptionList">
+        <xsd:list itemType="tss:associationOption"/>
+    </xsd:simpleType>
+
+    <xsd:complexType name="identityTokenTypeList">
+        <xsd:sequence>
+            <xsd:choice>
+                <xsd:element name="ITTAbsent" type="tss:ITTAbsentType"/>
+                <xsd:group ref="tss:ittGroup"/>
+            </xsd:choice>
+        </xsd:sequence>
+    </xsd:complexType>
+
+    <xsd:group name="ittGroup">
+        <xsd:sequence>
+            <xsd:element name="ITTAnonymous" type="tss:ITTAnonymousType" minOccurs="0"/>
+            <xsd:element name="ITTPrincipalNameGSSUP" type="tss:ITTPrincipalNameGSSUPType" minOccurs="0"/>
+            <xsd:element name="ITTDistinguishedName" type="tss:ITTDistinguishedNameType" minOccurs="0"/>
+            <xsd:element name="ITTX509CertChain" type="tss:ITTX509CertChainType" minOccurs="0"/>
+        </xsd:sequence>
+    </xsd:group>
+
+    <xsd:complexType name="ITTAbsentType">
+        <xsd:complexContent>
+            <xsd:restriction base="xsd:anyType"/>
+        </xsd:complexContent>
+    </xsd:complexType>
+
+    <xsd:complexType name="ITTAnonymousType">
+        <xsd:complexContent>
+            <xsd:restriction base="xsd:anyType"/>
+        </xsd:complexContent>
+    </xsd:complexType>
+
+    <xsd:complexType name="ITTPrincipalNameGSSUPType">
+        <!--        <xsd:complexContent>-->
+        <!--            <xsd:restriction base="xsd:anyType"/>-->
+        <!--        </xsd:complexContent>-->
+        <xsd:sequence/>
+        <xsd:attribute name="principal-class" type="xsd:string"/>
+        <xsd:attribute name="domain" type="xsd:string" use="optional"/>
+        <xsd:attribute name="realm" type="xsd:string" use="optional"/>
+    </xsd:complexType>
+
+    <xsd:complexType name="ITTDistinguishedNameType">
+<!--        <xsd:complexContent>-->
+<!--            <xsd:restriction base="xsd:anyType"/>-->
+<!--        </xsd:complexContent>-->
+        <xsd:sequence/>
+        <xsd:attribute name="realm"  type="xsd:string" use="optional"/>
+        <xsd:attribute name="domain"  type="xsd:string" use="optional"/>
+    </xsd:complexType>
+
+    <xsd:complexType name="ITTX509CertChainType">
+<!--        <xsd:complexContent>-->
+<!--            <xsd:restriction base="xsd:anyType"/>-->
+<!--        </xsd:complexContent>-->
+        <xsd:sequence/>
+        <xsd:attribute name="realm"  type="xsd:string" use="optional"/>
+        <xsd:attribute name="domain"  type="xsd:string" use="optional"/>
+    </xsd:complexType>
+
+</xsd:schema>
