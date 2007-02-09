@@ -23,7 +23,8 @@ import org.apache.openejb.DeploymentInfo;
  * @version $Rev: 451417 $ $Date: 2006-09-29 13:13:22 -0700 (Fri, 29 Sep 2006) $
  */
 public class NoDTxServerTransactionPolicies {
-    private static final OperationTxPolicy[] policies = new OperationTxPolicy[DeploymentInfo.TX_MAX];
+    // toto remove hard coded max when new Openejb snapshots are published
+    private static final OperationTxPolicy[] policies = new OperationTxPolicy[5];
     static {
         policies[DeploymentInfo.TX_MANDITORY] = Required.INSTANCE;
         policies[DeploymentInfo.TX_NEVER] = NotRequired.INSTANCE;
