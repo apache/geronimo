@@ -936,12 +936,12 @@ public final class GBeanInstance implements StateManageable {
                 instance = constructor.newInstance(parameters);
             } catch (InvocationTargetException e) {
                 Throwable targetException = e.getTargetException();
+                stateReason = "the service constructor threw an exception. \n" + printException(e);
                 if (targetException instanceof Exception) {
                     throw (Exception) targetException;
                 } else if (targetException instanceof Error) {
                     throw (Error) targetException;
                 }
-                stateReason = "the service constructor threw an exception. \n" + printException(e);
                 throw e;
             } catch (IllegalArgumentException e) {
                 stateReason = "the service constructor threw an exception due to a parameter type mismatch. \n" + printException(e);
