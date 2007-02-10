@@ -29,7 +29,7 @@
         <relativePath>../pom.xml</relativePath>
     </parent>
 
-    <artifactId>openejb</artifactId>
+    <artifactId>openejb-config</artifactId>
     <name>Geronimo Configs :: OpenEJB</name>
     <packaging>car</packaging>
 

@@ -33,4 +33,12 @@
     <dep:groupId>wsdl4j</dep:groupId>
     <dep:artifactId>wsdl4j</dep:artifactId>
   </dep:dependency>
+  <dep:dependency>
+    <dep:groupId>org.apache.geronimo.modules</dep:groupId>
+    <dep:artifactId>geronimo-openejb</dep:artifactId>
+  </dep:dependency>
+  <dep:dependency>
+    <dep:groupId>org.apache.openejb</dep:groupId>
+    <dep:artifactId>openejb-axis</dep:artifactId>
+  </dep:dependency>
 </dep:service>

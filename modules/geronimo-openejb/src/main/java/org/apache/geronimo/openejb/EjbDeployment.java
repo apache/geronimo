@@ -229,6 +229,10 @@ public class EjbDeployment implements EJB {
         return deploymentInfo.getMdbInterface();
     }
 
+    public Class getServiceEndpointInterface() {
+        return deploymentInfo.getServiceEndpointInterface();
+    }
+
     public BeanType getComponentType() {
         return deploymentInfo.getComponentType();
     }

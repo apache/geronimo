@@ -34,6 +34,7 @@ import org.apache.geronimo.j2ee.deployment.Module;
 import org.apache.geronimo.j2ee.deployment.ModuleBuilder;
 import org.apache.geronimo.j2ee.deployment.NamingBuilder;
 import org.apache.geronimo.j2ee.deployment.WebServiceBuilder;
+import org.apache.geronimo.j2ee.deployment.ModuleBuilderExtension;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.Naming;
 import org.apache.geronimo.kernel.config.ConfigurationStore;
@@ -67,6 +68,8 @@ import org.apache.openejb.jee.jpa.unit.TransactionType;
 import org.apache.openejb.jee.oejb2.GeronimoEjbJarType;
 import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlObject;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import javax.ejb.EntityContext;
 import javax.ejb.SessionContext;
@@ -90,19 +93,21 @@ import java.util.jar.JarFile;
  * @version $Revision: 479481 $ $Date: 2006-11-26 16:52:20 -0800 (Sun, 26 Nov 2006) $
  */
 public class EjbModuleBuilder implements ModuleBuilder {
+    private static final Log log = LogFactory.getLog(EjbModuleBuilder.class);
+
     private static final String OPENEJBJAR_NAMESPACE = XmlUtil.OPENEJBJAR_QNAME.getNamespaceURI();
 
     private final Environment defaultEnvironment;
-    private final Collection webServiceBuilders;
     private final NamespaceDrivenBuilderCollection securityBuilders;
     private final NamespaceDrivenBuilderCollection serviceBuilders;
     private final NamingBuilder namingBuilder;
     private final ResourceEnvironmentSetter resourceEnvironmentSetter;
     private final OpenEjbSystem openEjbSystem;
+    private final Collection<ModuleBuilderExtension> moduleBuilderExtensions;
 
     public EjbModuleBuilder(Environment defaultEnvironment,
                             OpenEjbSystem openEjbSystem,
-                            Collection webServiceBuilder,
+                            Collection<ModuleBuilderExtension> moduleBuilderExtensions,
                             Collection securityBuilders,
                             Collection serviceBuilders,
                             NamingBuilder namingBuilders,
@@ -110,11 +115,15 @@ public class EjbModuleBuilder implements ModuleBuilder {
 
         this.openEjbSystem = openEjbSystem;
         this.defaultEnvironment = defaultEnvironment;
-        this.webServiceBuilders = webServiceBuilder;
         this.securityBuilders = new NamespaceDrivenBuilderCollection(securityBuilders, GerSecurityDocument.type.getDocumentElementName());
         this.serviceBuilders = new NamespaceDrivenBuilderCollection(serviceBuilders, GBeanBuilder.SERVICE_QNAME);
         this.namingBuilder = namingBuilders;
         this.resourceEnvironmentSetter = resourceEnvironmentSetter;
+
+        if (moduleBuilderExtensions == null){
+            moduleBuilderExtensions = Collections.EMPTY_LIST;
+        }
+        this.moduleBuilderExtensions = moduleBuilderExtensions;
     }
 
     public String getSchemaNamespace() {
@@ -175,6 +184,10 @@ public class EjbModuleBuilder implements ModuleBuilder {
             XmlCursor xmlCursor = unknownXmlObject.newCursor();
             //
             QName qname = xmlCursor.getName();
+            if (qname == null){
+                xmlCursor.toFirstChild();
+                qname = xmlCursor.getName();
+            }
             if (qname.getLocalPart().equals("openejb-jar")){
                 ejbModule.getAltDDs().put("openejb-jar.xml", xmlCursor.xmlText());
             } else if (qname.getLocalPart().equals("ejb-jar") && qname.getNamespaceURI().equals("http://geronimo.apache.org/xml/ns/j2ee/ejb/openejb-2.0")){
@@ -217,23 +230,7 @@ public class EjbModuleBuilder implements ModuleBuilder {
             namingBuilder.buildEnvironment(null, null, environment);
         }
 
-        // overridden web service locations
-        Map correctedPortLocations = new HashMap();
-
-        // todo Webservices not supported yet
-//        OpenejbSessionBeanType[] openejbSessionBeans = openejbJar.getEnterpriseBeans().getSessionArray();
-//        for (int i = 0; i < openejbSessionBeans.length; i++) {
-//            OpenejbSessionBeanType sessionBean = openejbSessionBeans[i];
-//                if (sessionBean.isSetWebServiceAddress()) {
-//                    String location = sessionBean.getWebServiceAddress().trim();
-//                    correctedPortLocations.put(sessionBean.getEjbName(), location);
-//                }
-//        }
         Map sharedContext = new HashMap();
-        for (Iterator iterator = webServiceBuilders.iterator(); iterator.hasNext();) {
-            WebServiceBuilder serviceBuilder = (WebServiceBuilder) iterator.next();
-            serviceBuilder.findWebServices(moduleFile, true, correctedPortLocations, environment, sharedContext);
-        }
 
         AbstractName moduleName;
         if (earName == null) {
@@ -243,7 +240,17 @@ public class EjbModuleBuilder implements ModuleBuilder {
             moduleName = naming.createChildName(earName, targetPath, NameFactory.EJB_MODULE);
         }
 
-        return new EjbModule(ejbModule, standAlone, moduleName, environment, moduleFile, targetPath, "", sharedContext);
+        EjbModule module = new EjbModule(ejbModule, standAlone, moduleName, environment, moduleFile, targetPath, "", sharedContext);
+
+        for (ModuleBuilderExtension builder : moduleBuilderExtensions) {
+            try {
+                builder.createModule(module, plan, moduleFile, targetPath, specDDUrl, earEnvironment, null, earName, naming, idBuilder);
+            } catch (Throwable t) {
+                String builderName = builder.getClass().getSimpleName();
+                log.error(builderName+".createModule() failed: "+t.getMessage(), t);
+            }
+        }
+        return module;
     }
 
     protected static void unmapReferences(EjbJar ejbJar) {
@@ -290,6 +297,14 @@ public class EjbModuleBuilder implements ModuleBuilder {
 
     public void installModule(JarFile earFile, EARContext earContext, Module module, Collection configurationStores, ConfigurationStore targetConfigurationStore, Collection repository) throws DeploymentException {
         installModule(module, earContext);
+        for (ModuleBuilderExtension builder : moduleBuilderExtensions) {
+            try {
+                builder.installModule(earFile, earContext, module, configurationStores, targetConfigurationStore, repository);
+            } catch (Throwable t) {
+                String builderName = builder.getClass().getSimpleName();
+                log.error(builderName+".installModule() failed: "+t.getMessage(), t);
+            }
+        }
     }
 
     private void installModule(Module module, EARContext earContext) throws DeploymentException {
@@ -388,6 +403,15 @@ public class EjbModuleBuilder implements ModuleBuilder {
 
         // Add extra gbean declared in the geronimo-openejb.xml file
         serviceBuilders.build(geronimoOpenejb, earContext, ejbModule.getEarContext());
+
+        for (ModuleBuilderExtension builder : moduleBuilderExtensions) {
+            try {
+                builder.initContext(earContext, module, classLoader);
+            } catch (Throwable t) {
+                String builderName = builder.getClass().getSimpleName();
+                log.error(builderName+".initContext() failed: "+t.getMessage(), t);
+            }
+        }
     }
 
     private void addGeronimmoOpenEJBPersistenceUnit(EjbModule ejbModule, GeronimoEjbJarType geronimoEjbJarType) {
@@ -472,6 +496,15 @@ public class EjbModuleBuilder implements ModuleBuilder {
         // add the Jacc permissions to the ear
         ComponentPermissions componentPermissions = ejbDeploymentBuilder.buildComponentPermissions();
         earContext.addSecurityContext(ejbModule.getEjbJarInfo().moduleId, componentPermissions);
+
+        for (ModuleBuilderExtension builder : moduleBuilderExtensions) {
+            try {
+                builder.addGBeans(earContext, module, cl, repositories);
+            } catch (Throwable t) {
+                String builderName = builder.getClass().getSimpleName();
+                log.error(builderName+".addGBeans() failed: "+t.getMessage(), t);
+            }
+        }
     }
 
     public static class EarData {
@@ -489,7 +522,7 @@ public class EjbModuleBuilder implements ModuleBuilder {
         GBeanInfoBuilder infoBuilder = GBeanInfoBuilder.createStatic(EjbModuleBuilder.class, NameFactory.MODULE_BUILDER);
         infoBuilder.addAttribute("defaultEnvironment", Environment.class, true);
         infoBuilder.addReference("OpenEjbSystem", OpenEjbSystem.class);
-        infoBuilder.addReference("WebServiceBuilder", WebServiceBuilder.class, NameFactory.MODULE_BUILDER);
+        infoBuilder.addReference("ModuleBuilderExtensions", ModuleBuilderExtension.class, NameFactory.MODULE_BUILDER);
         infoBuilder.addReference("SecurityBuilders", NamespaceDrivenBuilder.class, NameFactory.MODULE_BUILDER);
         infoBuilder.addReference("ServiceBuilders", NamespaceDrivenBuilder.class, NameFactory.MODULE_BUILDER);
         infoBuilder.addReference("NamingBuilders", NamingBuilder.class, NameFactory.MODULE_BUILDER);
@@ -498,7 +531,7 @@ public class EjbModuleBuilder implements ModuleBuilder {
         infoBuilder.setConstructor(new String[]{
                 "defaultEnvironment",
                 "OpenEjbSystem",
-                "WebServiceBuilder",
+                "ModuleBuilderExtensions",
                 "SecurityBuilders",
                 "ServiceBuilders",
                 "NamingBuilders",

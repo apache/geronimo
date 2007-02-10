@@ -32,6 +32,30 @@
         </xml-attribute>
     </gbean>
 
+    <gbean name="AxisModuleBuilderExtension" class="org.apache.geronimo.axis.builder.AxisModuleBuilderExtension">
+        <xml-attribute name="defaultEnvironment">
+            <environment xmlns="http://geronimo.apache.org/xml/ns/deployment-1.2">
+                <dependencies>
+                    <dependency>
+                        <groupId>org.apache.geronimo.modules</groupId>
+                        <artifactId>geronimo-axis</artifactId>
+                        <type>jar</type>
+                    </dependency>
+                    <dependency>
+                        <groupId>org.apache.geronimo.modules</groupId>
+                        <artifactId>openejb-axis</artifactId>
+                        <type>jar</type>
+                    </dependency>
+                    <dependency>
+                        <groupId>org.apache.geronimo.modules</groupId>
+                        <artifactId>geronimo-openejb-builder</artifactId>
+                        <type>jar</type>
+                    </dependency>
+                </dependencies>
+            </environment>
+        </xml-attribute>
+    </gbean>
+
     <gbean name="AxisServiceRefBuilder" class="org.apache.geronimo.axis.builder.AxisServiceRefBuilder">
         <attribute name="eeNamespaces">http://java.sun.com/xml/ns/j2ee</attribute>
         <xml-attribute name="defaultEnvironment">
@@ -49,6 +73,7 @@
             <name>WebServiceBuilder</name>
         </reference>
     </gbean>
+
     <gbean name="AxisClientServiceRefBuilder" class="org.apache.geronimo.axis.builder.AxisServiceRefBuilder">
         <attribute name="eeNamespaces">http://java.sun.com/xml/ns/j2ee</attribute>
         <xml-attribute name="defaultEnvironment">

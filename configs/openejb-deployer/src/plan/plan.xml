@@ -24,14 +24,9 @@
         <reference name="OpenEjbSystem">
             <name>OpenEjbSystem</name>
         </reference>
-        <references name="WebServiceBuilder">
-            <pattern>
-                <name>WebServiceBuilder</name>
-            </pattern>
-            <pattern>
-                <name>UnavailableWebServiceBuilder</name>
-            </pattern>
-        </references>
+        <reference name="ModuleBuilderExtensions">
+            <name>ModuleBuilderExtension</name>
+        </reference>
         <reference name="SecurityBuilders">
             <name>SecurityBuilder</name>
         </reference>

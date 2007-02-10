@@ -142,17 +142,6 @@
                     <name>PersistenceUnitBuilder</name>
                 </pattern>
             </reference>
-            <reference name="WebServiceBuilder">
-                <pattern>
-                    <name>CXFBuilder</name>
-                </pattern>
-                <pattern>
-                    <name>Axis2Builder</name>
-                </pattern>
-                <pattern>
-                    <name>WebServiceBuilder</name>
-                </pattern>
-            </reference>
         </gbean>
         <gbean name="EjbRefBuilder">
             <attribute name="eeNamespaces">http://java.sun.com/xml/ns/j2ee,http://java.sun.com/xml/ns/javaee</attribute>
