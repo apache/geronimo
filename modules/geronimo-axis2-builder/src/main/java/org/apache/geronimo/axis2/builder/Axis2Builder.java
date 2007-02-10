@@ -58,6 +58,7 @@ import org.apache.geronimo.j2ee.deployment.WebModule;
 import org.apache.geronimo.j2ee.deployment.WebServiceBuilder;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.jaxws.builder.JAXWSServiceBuilder;
+import org.apache.geronimo.jaxws.PortInfo;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.kernel.repository.Environment;
 
@@ -79,14 +80,16 @@ public class Axis2Builder extends JAXWSServiceBuilder {
         return Axis2WebServiceContainerFactoryGBean.GBEAN_INFO;
     }
     
-	protected Map<String, org.apache.geronimo.jaxws.PortInfo> parseWebServiceDescriptor(InputStream in,
-            URL wsDDUrl,
-            JarFile moduleFile,
-            boolean isEJB,
-            Map correctedPortLocations) throws DeploymentException {
-		log.debug("Parsing descriptor " + wsDDUrl);
-		
-		Map<String, org.apache.geronimo.jaxws.PortInfo> map = null;
+    protected Map<String, PortInfo> parseWebServiceDescriptor(InputStream in,
+                                                              URL wsDDUrl,
+                                                              JarFile moduleFile,
+                                                              boolean isEJB,
+                                                              Map correctedPortLocations)
+            throws DeploymentException {
+
+        log.debug("Parsing descriptor " + wsDDUrl);
+
+        Map<String, PortInfo> map = null;
 
         try {
             JAXBContext ctx = JAXBContext.newInstance(WebservicesType.class);
@@ -106,35 +109,14 @@ public class Axis2Builder extends JAXWSServiceBuilder {
                 String wsdlFile = null;
                 if (desc.getWsdlFile() != null) {
                     wsdlFile = getString(desc.getWsdlFile().getValue());
-                    
-                    if(wsdlFile != null && !wsdlFile.equals("")){
-                    	URL wsdlURL = DeploymentUtil.createJarURL(moduleFile, wsdlFile);
-                    	InputStream wsdlStream = wsdlURL.openStream();
-    					if(wsdlStream == null){
-    						throw new DeploymentException("unable to read descriptor "+wsdlURL);
-    					}else {
-    						try {
-								WSDLFactory factory = WSDLFactory.newInstance();
-								WSDLReader reader = factory.newWSDLReader();
-								reader.setFeature("javax.wsdl.importDocuments", true);
-								reader.setFeature("javax.wsdl.verbose", false);
-								wsdlDefinition = reader.readWSDL(wsdlURL.toString());
-								wsdlStream.close();
-							} catch (RuntimeException e) {
-								throw new DeploymentException("invalid WSDL provided "+wsdlURL);
-							}
-    					}
-                    }else {
-                    	throw new DeploymentException("invalid WSDL provided "+wsdlFile);
-                    }
                 }
-                
+
                 String serviceName = desc.getWebserviceDescriptionName().getValue();
 
                 for (PortComponentType port : desc.getPortComponent()) {
 
-                    org.apache.geronimo.jaxws.PortInfo portInfo = new org.apache.geronimo.jaxws.PortInfo();
-                    
+                    PortInfo portInfo = new PortInfo();
+
                     String serviceLink = null;
                     ServiceImplBeanType beanType = port.getServiceImplBean();
                     if (beanType.getEjbLink() != null) {
@@ -169,14 +151,13 @@ public class Axis2Builder extends JAXWSServiceBuilder {
                     if (port.getWsdlService() != null) {
                         portInfo.setWsdlService(port.getWsdlService().getValue());
                     }
-                    
+
                     String location = (String) correctedPortLocations.get(serviceLink);
                     portInfo.setLocation(location);
-                    
+
                     if (map == null) {
-                        map = new HashMap<String, org.apache.geronimo.jaxws.PortInfo>();
+                        map = new HashMap<String, PortInfo>();
                     }
-                    
                     map.put(serviceLink, portInfo);
                 }
             }
@@ -197,8 +178,8 @@ public class Axis2Builder extends JAXWSServiceBuilder {
                 // ignore
             }
         }
-	}
-	
+    }
+
 	public boolean configurePOJO(GBeanData targetGBean,
             String servletName,
             Module module,

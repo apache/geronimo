@@ -451,7 +451,8 @@ public class Axis2WebServiceContainer implements WebServiceContainer {
             		writer.writeWSDL(wsdlDefinition, response.getOutputStream());
             		return;
             	}else {
-            		//TODO: How do we give WSDL info now ?
+                    service.printWSDL(response.getOutputStream());
+                    return;
             	}
             }
             //TODO: Not working properly and do we need to have these requests ?
