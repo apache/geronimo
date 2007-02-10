@@ -516,8 +516,8 @@ public class Axis2WebServiceContainer implements WebServiceContainer {
                     new Axis2RequestResponseTransport(response));
             msgContext.setProperty(Constants.Configuration.TRANSPORT_IN_URL, request.getURI().toString());
             msgContext.setIncomingTransportName(Constants.TRANSPORT_HTTP);
-            msgContext.setProperty(HTTPConstants.MC_HTTP_SERVLETREQUEST, request);
-            msgContext.setProperty(HTTPConstants.MC_HTTP_SERVLETCONTEXT, contextPath);
+            //msgContext.setProperty(HTTPConstants.MC_HTTP_SERVLETREQUEST, request);
+            //msgContext.setProperty(HTTPConstants.MC_HTTP_SERVLETCONTEXT, contextPath);
             
             String contenttype = request.getHeader(HTTPConstants.HEADER_CONTENT_TYPE);
             HTTPTransportUtils.processHTTPPostRequest(
