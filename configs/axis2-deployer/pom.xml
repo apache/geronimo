@@ -49,11 +49,6 @@
         </dependency>
 
         <dependency>
-            <groupId>wsdl4j</groupId>
-            <artifactId>wsdl4j</artifactId>
-        </dependency>
-
-        <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
             <artifactId>axis2</artifactId>
             <type>car</type>

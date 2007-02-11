@@ -172,6 +172,10 @@ public class CXFBuilder extends JAXWSServiceBuilder {
         }
     }
 
+    protected String getProviderClass() {
+        return org.apache.cxf.jaxws.spi.ProviderImpl.class.getName();
+    }
+
     public Object createService(Class serviceInterface,
                                 Class serviceReference,
                                 URI wsdlURI,

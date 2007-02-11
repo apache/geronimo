@@ -56,7 +56,8 @@ import java.util.jar.JarFile;
 
 public abstract class JAXWSServiceBuilder implements WebServiceBuilder {
     private static final Log LOG = LogFactory.getLog(JAXWSServiceBuilder.class);
-    
+    public static final String JAXWSPROVIDER_PROPERTY = "javax.xml.ws.spi.Provider";
+
     protected final Environment defaultEnvironment;
 
     public JAXWSServiceBuilder(Environment defaultEnvironment) {
@@ -211,6 +212,10 @@ public abstract class JAXWSServiceBuilder implements WebServiceBuilder {
                                  String seiClassName,
                                  DeploymentContext context)
             throws DeploymentException {
+        String provider = System.getProperty(JAXWSPROVIDER_PROPERTY);
+        if(provider != null && !provider.equals(getProviderClass())){
+            return false;
+        }
         Map sharedContext = ((WebModule) module).getSharedContext();
         Map portInfoMap = (Map) sharedContext.get(getKey());
         if (portInfoMap == null) {
@@ -243,7 +248,7 @@ public abstract class JAXWSServiceBuilder implements WebServiceBuilder {
         containerFactoryData.setAttribute("endpointClassName", seiClassName);
         containerFactoryData.setAttribute("componentContext", componentContext);
         try {
-            context.addGBean(containerFactoryData);            
+            context.addGBean(containerFactoryData);
         } catch (GBeanAlreadyExistsException e) {
             throw new DeploymentException("Could not add web service container factory gbean", e);
         }
@@ -259,6 +264,8 @@ public abstract class JAXWSServiceBuilder implements WebServiceBuilder {
 
         return true;
     }
+
+    protected abstract String getProviderClass();
 
     protected abstract GBeanInfo getContainerFactoryGBeanInfo();
 

@@ -45,6 +45,12 @@
             <version>${version}</version>
         </dependency>
 
+        <dependency>
+            <groupId>wsdl4j</groupId>
+            <artifactId>wsdl4j</artifactId>
+        </dependency>
+
+
         <!-- StAX implementation -->
         <dependency>
             <groupId>woodstox</groupId>

@@ -17,27 +17,6 @@
 
 package org.apache.geronimo.axis2.builder;
 
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.jar.JarFile;
-
-import javax.wsdl.Definition;
-import javax.wsdl.factory.WSDLFactory;
-import javax.wsdl.xml.WSDLReader;
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBElement;
-import javax.xml.bind.JAXBException;
-import javax.xml.bind.Unmarshaller;
-import javax.xml.transform.stream.StreamSource;
-import javax.xml.ws.handler.Handler;
-
 import org.apache.axis2.jaxws.javaee.HandlerChainsType;
 import org.apache.axis2.jaxws.javaee.PortComponentType;
 import org.apache.axis2.jaxws.javaee.ServiceImplBeanType;
@@ -48,7 +27,6 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.axis2.Axis2WebServiceContainerFactoryGBean;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.DeploymentContext;
-import org.apache.geronimo.deployment.util.DeploymentUtil;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
@@ -57,10 +35,28 @@ import org.apache.geronimo.j2ee.deployment.Module;
 import org.apache.geronimo.j2ee.deployment.WebModule;
 import org.apache.geronimo.j2ee.deployment.WebServiceBuilder;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
-import org.apache.geronimo.jaxws.builder.JAXWSServiceBuilder;
 import org.apache.geronimo.jaxws.PortInfo;
+import org.apache.geronimo.jaxws.builder.JAXWSServiceBuilder;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.kernel.repository.Environment;
+
+import javax.wsdl.Definition;
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBElement;
+import javax.xml.bind.JAXBException;
+import javax.xml.bind.Unmarshaller;
+import javax.xml.transform.stream.StreamSource;
+import javax.xml.ws.handler.Handler;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.jar.JarFile;
 
 public class Axis2Builder extends JAXWSServiceBuilder {
 
@@ -188,8 +184,11 @@ public class Axis2Builder extends JAXWSServiceBuilder {
 		throws DeploymentException {
 		
 		boolean status = super.configurePOJO(targetGBean, servletName, module, seiClassName, context);
-		
-		if(wsdlDefinition != null){
+        if(!status) {
+            return false;
+        }
+
+        if(wsdlDefinition != null){
 			//add the WSDL
 			try {
 				AbstractName containerFactoryName = context.getNaming().createChildName(targetGBean.getAbstractName(), getContainerFactoryGBeanInfo().getName(), NameFactory.GERONIMO_SERVICE);
@@ -213,8 +212,12 @@ public class Axis2Builder extends JAXWSServiceBuilder {
         
 		return status;
 	}
-	
-	private static String getString(String in) {
+
+    protected String getProviderClass() {
+        return org.apache.axis2.jaxws.spi.Provider.class.getName();
+    }
+
+    private static String getString(String in) {
         if (in != null) {
             in = in.trim();
             if (in.length() == 0) {

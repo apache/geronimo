@@ -137,10 +137,6 @@
              <groupId>org.springframework</groupId>
              <artifactId>spring-context</artifactId>
          </dependency>
-        <dependency>
-            <groupId>wsdl4j</groupId>
-            <artifactId>wsdl4j</artifactId>
-        </dependency>
     </dependencies>
     
 </project>
