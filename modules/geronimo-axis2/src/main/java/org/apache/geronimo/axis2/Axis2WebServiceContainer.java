@@ -37,6 +37,9 @@ import javax.wsdl.factory.WSDLFactory;
 import javax.wsdl.xml.WSDLWriter;
 import javax.xml.namespace.QName;
 import javax.xml.ws.WebServiceException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.ServletContext;
 
 import org.apache.axiom.om.OMElement;
 import org.apache.axiom.om.OMNamespace;
@@ -516,8 +519,18 @@ public class Axis2WebServiceContainer implements WebServiceContainer {
                     new Axis2RequestResponseTransport(response));
             msgContext.setProperty(Constants.Configuration.TRANSPORT_IN_URL, request.getURI().toString());
             msgContext.setIncomingTransportName(Constants.TRANSPORT_HTTP);
-            //msgContext.setProperty(HTTPConstants.MC_HTTP_SERVLETREQUEST, request);
-            //msgContext.setProperty(HTTPConstants.MC_HTTP_SERVLETCONTEXT, contextPath);
+
+            HttpServletRequest servletRequest =
+                (HttpServletRequest)request.getAttribute(WebServiceContainer.SERVLET_REQUEST);
+            msgContext.setProperty(HTTPConstants.MC_HTTP_SERVLETREQUEST, servletRequest);
+
+            HttpServletResponse servletResponse =
+                (HttpServletResponse)request.getAttribute(WebServiceContainer.SERVLET_RESPONSE);
+            msgContext.setProperty(HTTPConstants.MC_HTTP_SERVLETREQUEST, servletResponse);
+
+            ServletContext servletContext =
+                (ServletContext)request.getAttribute(WebServiceContainer.SERVLET_CONTEXT);
+            msgContext.setProperty(HTTPConstants.MC_HTTP_SERVLETCONTEXT, servletContext);
             
             String contenttype = request.getHeader(HTTPConstants.HEADER_CONTENT_TYPE);
             HTTPTransportUtils.processHTTPPostRequest(

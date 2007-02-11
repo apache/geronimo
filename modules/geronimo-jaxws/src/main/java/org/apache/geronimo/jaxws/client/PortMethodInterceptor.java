@@ -14,27 +14,24 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.apache.geronimo.cxf.client;
+package org.apache.geronimo.jaxws.client;
 
+import net.sf.cglib.proxy.MethodInterceptor;
+import net.sf.cglib.proxy.MethodProxy;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.apache.geronimo.jaxws.JAXWSUtils;
+import org.apache.geronimo.security.ContextManager;
+import org.apache.geronimo.security.jaas.NamedUsernamePasswordCredential;
+
+import javax.security.auth.Subject;
+import javax.xml.namespace.QName;
+import javax.xml.ws.BindingProvider;
 import java.lang.reflect.Method;
 import java.net.URL;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
-
-import javax.security.auth.Subject;
-import javax.xml.namespace.QName;
-import javax.xml.ws.BindingProvider;
-
-import net.sf.cglib.proxy.MethodInterceptor;
-import net.sf.cglib.proxy.MethodProxy;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.apache.geronimo.jaxws.JAXWSUtils;
-import org.apache.geronimo.jaxws.client.EndpointInfo;
-import org.apache.geronimo.security.ContextManager;
-import org.apache.geronimo.security.jaas.NamedUsernamePasswordCredential;
 
 public class PortMethodInterceptor implements MethodInterceptor {
 

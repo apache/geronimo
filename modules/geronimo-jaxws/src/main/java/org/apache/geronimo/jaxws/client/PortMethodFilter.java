@@ -14,7 +14,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.apache.geronimo.cxf.client;
+package org.apache.geronimo.jaxws.client;
 
 import java.lang.reflect.Method;
 
