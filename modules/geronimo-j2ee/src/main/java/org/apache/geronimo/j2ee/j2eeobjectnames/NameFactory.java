@@ -97,6 +97,7 @@ public class NameFactory {
     public static final String SECURITY_REALM = "SecurityRealm";
     public static final String LOGIN_MODULE = "LoginModule";
     public static final String APP_CLIENT = "AppClient";
+    public static final String PERSISTENCE_UNIT = "PersistenceUnit";
     //jsr 88 configurer
     public static final String DEPLOYMENT_CONFIGURER = "DeploymentConfigurer";
     public static final String CONFIGURATION_STORE = "ConfigurationStore";

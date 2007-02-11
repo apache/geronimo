@@ -273,7 +273,7 @@ public class PersistenceUnitGBean implements GBeanLifecycle {
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoBuilder = GBeanInfoBuilder.createStatic(PersistenceUnitGBean.class);
+        GBeanInfoBuilder infoBuilder = GBeanInfoBuilder.createStatic(PersistenceUnitGBean.class, NameFactory.PERSISTENCE_UNIT);
         infoBuilder.setPriority(GBeanInfo.PRIORITY_CLASSLOADER);
 
         infoBuilder.addAttribute("persistenceUnitName", String.class, true, true);
