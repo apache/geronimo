@@ -48,7 +48,7 @@
         <attribute name="tmId">71,84,77,73,68</attribute>
     </gbean>
 
-    <gbean name="TransactionManager" class="org.apache.geronimo.transaction.manager.GeronimoTransactionManagerGBean">
+    <gbean name="TransactionManager" class="org.apache.geronimo.transaction.jta11.GeronimoTransactionManagerJTA11GBean">
         <!--no transaction log on the client-->
         <attribute name="defaultTransactionTimeoutSeconds">600</attribute>
         <reference name="XidFactory">
@@ -62,6 +62,21 @@
                 <type>ActivationSpec</type>
             </pattern>
         </references>
+    </gbean>
+
+    <gbean name="TransactionManagerBinding" class="org.apache.geronimo.gjndi.binding.GBeanBinding">
+        <attribute name="name">TransactionManager</attribute>
+        <attribute name="abstractNameQuery">?name=TransactionManager#</attribute>
+        <reference name="Context">
+            <name>JavaContext</name>
+        </reference>
+    </gbean>
+    <gbean name="TransactionSynchronizationRegistryBinding" class="org.apache.geronimo.gjndi.binding.GBeanBinding">
+        <attribute name="name">TransactionSynchronizationRegistry</attribute>
+        <attribute name="abstractNameQuery">?name=TransactionManager#</attribute>
+        <reference name="Context">
+            <name>JavaContext</name>
+        </reference>
     </gbean>
 
 </module>

@@ -60,4 +60,31 @@
         </xml-attribute>
     </gbean>
 
+    <gbean name="ClientPersistenceUnitBuilder" class="org.apache.geronimo.persistence.builder.PersistenceUnitBuilder">
+        <xml-attribute name="defaultEnvironment">
+            <environment xmlns="http://geronimo.apache.org/xml/ns/deployment-1.1">
+                <dependencies>
+                    <dependency>
+                        <groupId>org.apache.geronimo.configs</groupId>
+                        <artifactId>client-transaction</artifactId>
+                        <type>car</type>
+                    </dependency>
+                </dependencies>
+            </environment>
+        </xml-attribute>
+    </gbean>
+    <gbean name="ClientEntityManagerFactoryRefBuilder" class="org.apache.geronimo.persistence.builder.PersistenceUnitRefBuilder">
+        <xml-attribute name="defaultEnvironment">
+            <environment xmlns="http://geronimo.apache.org/xml/ns/deployment-1.1">
+                <dependencies>
+                    <dependency>
+                        <groupId>org.apache.geronimo.configs</groupId>
+                        <artifactId>client-transaction</artifactId>
+                        <type>car</type>
+                    </dependency>
+                </dependencies>
+            </environment>
+        </xml-attribute>
+    </gbean>
+
 </module>

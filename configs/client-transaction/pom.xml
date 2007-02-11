@@ -55,6 +55,12 @@
             <artifactId>geronimo-transaction</artifactId>
             <version>${version}</version>
         </dependency>
+        
+        <dependency>
+            <groupId>org.apache.geronimo.modules</groupId>
+            <artifactId>geronimo-transaction-jta11</artifactId>
+            <version>${version}</version>
+        </dependency>
 
     </dependencies>
 
