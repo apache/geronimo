@@ -341,10 +341,10 @@ public class StartServerMojo
         List selected = new ArrayList();
         while (stok.hasMoreTokens()) {
             String id = stok.nextToken();
-            OptionSet set = (OptionSet)map.get(options);
+            OptionSet set = (OptionSet)map.get(id);
             
             if (set == null) {
-                if ("default".equals(options)) {
+                if ("default".equals(id)) {
                     log.debug("Default optionSet selected, but no optionSet defined with that id; ignoring");
                 }
                 else {
