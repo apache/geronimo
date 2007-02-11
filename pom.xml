@@ -1481,6 +1481,14 @@
 
                         <optionSets>
                             <optionSet>
+                                <id>morememory</id>
+                                <options>
+                                    <option>-Xmx512m</option>
+                                    <option>-XX:MaxPermSize=128m</option>
+                                </options>
+                            </optionSet>
+                            
+                            <optionSet>
                                 <id>debug</id>
                                 <options>
                                     <option>-Xdebug</option>
