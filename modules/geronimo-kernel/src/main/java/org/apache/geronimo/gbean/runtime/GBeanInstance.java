@@ -937,8 +937,10 @@ public final class GBeanInstance implements StateManageable {
             } catch (InvocationTargetException e) {
                 Throwable targetException = e.getTargetException();
                 if (targetException instanceof Exception) {
+                    stateReason = "the service constructor threw an exception. \n" + printException(targetException);
                     throw (Exception) targetException;
                 } else if (targetException instanceof Error) {
+                    stateReason = "the service constructor threw an exception. \n" + printException(targetException);
                     throw (Error) targetException;
                 }
                 stateReason = "the service constructor threw an exception. \n" + printException(e);

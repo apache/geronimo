@@ -160,7 +160,8 @@ public class KernelConfigurationManager extends SimpleConfigurationManager imple
         try {
             kernel.startGBean(configurationName);
             if (State.RUNNING_INDEX != kernel.getGBeanState(configurationName)) {
-                throw new InvalidConfigurationException("Configuration gbean failed to start " + configurationId);
+                String stateReason = kernel.getStateReason(configurationName);
+                throw new InvalidConfigurationException("Configuration gbean failed to start " + configurationId + "\nreason: " + stateReason);
             }
 
             // get the configuration

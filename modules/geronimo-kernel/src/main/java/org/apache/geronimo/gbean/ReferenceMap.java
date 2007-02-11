@@ -16,15 +16,13 @@
  */
 package org.apache.geronimo.gbean;
 
-import java.util.Map;
 import java.util.Collection;
-import java.util.Iterator;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 
 
 public class ReferenceMap implements Map, ReferenceCollectionListener {
-    private final ReferenceCollection collection;
     private final Map map;
     private final Key key;
 
@@ -37,14 +35,14 @@ public class ReferenceMap implements Map, ReferenceCollectionListener {
      * @param key
      */
     public ReferenceMap(Collection collection, Map map, Key key) {
-        this.collection = (ReferenceCollection) collection;
         this.map = map;
         this.key = key;
-        for (Iterator iterator = this.collection.iterator(); iterator.hasNext();) {
-            Object object = iterator.next();
+        for (Object object : collection) {
             map.put(key.getKey(object), object);
         }
-        this.collection.addReferenceCollectionListener(this);
+        if (collection instanceof ReferenceCollection) {
+            ((ReferenceCollection)collection).addReferenceCollectionListener(this);
+        }
     }
 
     /**
