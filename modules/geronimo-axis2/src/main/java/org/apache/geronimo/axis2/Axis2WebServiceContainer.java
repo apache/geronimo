@@ -526,7 +526,7 @@ public class Axis2WebServiceContainer implements WebServiceContainer {
 
             HttpServletResponse servletResponse =
                 (HttpServletResponse)request.getAttribute(WebServiceContainer.SERVLET_RESPONSE);
-            msgContext.setProperty(HTTPConstants.MC_HTTP_SERVLETREQUEST, servletResponse);
+            msgContext.setProperty(HTTPConstants.MC_HTTP_SERVLETRESPONSE, servletResponse);
 
             ServletContext servletContext =
                 (ServletContext)request.getAttribute(WebServiceContainer.SERVLET_CONTEXT);
