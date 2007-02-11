@@ -229,8 +229,8 @@ public class TransactionManagerImpl implements TransactionManager, UserTransacti
     }
 
     public int getTransactionStatus() {
-        TransactionImpl tx = getActiveTransactionImpl();
-        return tx.getTransactionStatus();
+        TransactionImpl tx = (TransactionImpl) getTransaction();
+        return tx == null? Status.STATUS_NO_TRANSACTION: tx.getTransactionStatus();
     }
 
     public void putResource(Object key, Object value) {
