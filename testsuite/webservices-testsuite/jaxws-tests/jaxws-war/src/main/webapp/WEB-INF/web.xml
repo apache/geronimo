@@ -27,7 +27,7 @@ limitations under the License.
     <servlet>
         <display-name>Geronimo POJO WS</display-name>
         <servlet-name>POJOServlet</servlet-name>
-        <servlet-class>org.apache.hello_world_soap_http.GreeterImpl</servlet-class>
+        <servlet-class>org.apache.greeter_control.GreeterImpl</servlet-class>
         <load-on-startup>0</load-on-startup>
     </servlet>
 

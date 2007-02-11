@@ -30,10 +30,10 @@
         </reference>
         <references name="WebServiceBuilder">
             <pattern>
-                <name>CXFBuilder</name>
+                <name>Axis2Builder</name>
             </pattern>
             <pattern>
-                <name>Axis2Builder</name>
+				<name>CXFBuilder</name>
             </pattern>
             <pattern>
                 <name>WebServiceBuilder</name>

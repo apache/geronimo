@@ -45,6 +45,7 @@
         <openejbDeployer>org.apache.geronimo.configs/openejb-deployer/${version}/car</openejbDeployer>
         <!--openejbcorbaDeployer>org.apache.geronimo.configs/openejb-corba-deployer/${version}/car</openejbcorbaDeployer-->
         <axisDeployer>org.apache.geronimo.configs/axis-deployer/${version}/car</axisDeployer>
+		<axis2Deployer>org.apache.geronimo.configs/axis2-deployer/${version}/car</axis2Deployer>
         <cxfDeployer>org.apache.geronimo.configs/cxf-deployer/${version}/car</cxfDeployer>
         <tomcatDeployer>org.apache.geronimo.configs/tomcat6-deployer/${version}/car</tomcatDeployer>
         <jetty6Deployer>org.apache.geronimo.configs/jetty6-deployer/${version}/car</jetty6Deployer>
@@ -162,11 +163,11 @@
         <module>transformer-agent</module>
         <module>persistence-jpa10-deployer</module>
         <module>openjpa</module>
+		<module>axis2</module>
+		<module>axis2-deployer</module>
         <module>cxf</module>
         <module>cxf-deployer</module>
         <module>jaxws-deployer</module>
-        <module>axis2</module>
-        <module>axis2-deployer</module>
         <module>dojo-jetty6</module>
         <module>jetty6</module>
         <module>jetty6-clustering-builder-wadi</module>

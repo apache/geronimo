@@ -84,6 +84,7 @@ public class JaxWSTest extends TestSupport {
             out.close();
 
             boolean found = false;
+            boolean found2 = false;
 
             // FIXME: Simple test is required for now, as CXF has problems
             BufferedReader in = 
@@ -93,13 +94,21 @@ public class JaxWSTest extends TestSupport {
                 System.out.println(inputLine);
 
                 if (found == false &&
-                    inputLine.indexOf("Hello foo bar") != -1) {
+                    inputLine.indexOf("foo bar") != -1) {
                     found = true;
+                }
+                if (found2 == false &&
+                    inputLine.indexOf("Hello") != -1) {
+                    found2 = true;
                 }
             }
             in.close();
 
             assertTrue("Reply", found);
+
+            if(!found2) {
+                System.out.println("Did not find \"Hello\" in the Response");
+            }
 
             /* Better test, disabled for now
             InputSource is = new InputSource(conn.getInputStream());

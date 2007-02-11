@@ -17,7 +17,7 @@
  * under the License.
  */
 
-package org.apache.hello_world_soap_http;
+package org.apache.greeter_control;
 
 import java.util.Iterator;
 import java.util.ArrayList;
@@ -36,7 +36,7 @@ import javax.xml.ws.handler.MessageContext;
 /* serviceName, portName specified in webservices.xml */
 @WebService(serviceName = "SOAPService",
             portName = "SoapPort",
-            endpointInterface = "org.apache.hello_world_soap_http.Greeter",
+            endpointInterface = "org.apache.greeter_control.Greeter",
             targetNamespace = "http://apache.org/greeter_control")
 /* two handlers specified in webservices.xml */
 @HandlerChain(file="handlers.xml")
@@ -75,10 +75,13 @@ public class GreeterImpl implements Greeter {
         // send foo=BAR header
         Map responseHeaders = 
             (Map)ctx.get(MessageContext.HTTP_RESPONSE_HEADERS);
-        ArrayList values = new ArrayList();
-        values.add("BAR");
-        responseHeaders.put("foo", values);
-        
+        if(responseHeaders == null) { 
+			LOG.info("Can't get MessageContext.HTTP_RESPONSE_HEADERS from context");
+        } else {
+			ArrayList values = new ArrayList();
+			values.add("BAR");
+			responseHeaders.put("foo", values);
+        }
         /*
         // make return code 201
         ctx.put(MessageContext.HTTP_RESPONSE_CODE,
@@ -96,5 +99,21 @@ public class GreeterImpl implements Greeter {
     @PreDestroy()
     public void destroy() {
         System.out.println(this + " PreDestroy");
+    }
+
+    public String sayHi() {
+        LOG.info("Invoking sayHi ");
+		return "Hi";
+    }
+
+    public void greetMeOneWay(String me){
+        LOG.info("Invoking greetMeOneWay " + me);
+    }
+
+
+    public void pingMe()
+        throws PingMeFault {
+        LOG.info("Invoking pingMe ");
+        throw new PingMeFault("Custom Fault", null);
     }
 }

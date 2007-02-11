@@ -155,15 +155,15 @@
     <module name="org.apache.geronimo.configs/client-deployer/${version}/car">
     </module>
 
-    <module name="org.apache.geronimo.configs/cxf-deployer/${version}/car">
+	<module name="org.apache.geronimo.configs/axis2-deployer/${version}/car">
         <!-- this gbean is not yet written -->
-        <!--<gbean name="CXFServiceRefBuilder">
+		<!--<gbean name="Axis2ServiceRefBuilder">
             <attribute name="eeNamespaces">http://java.sun.com/xml/ns/j2ee,http://java.sun.com/xml/ns/javaee</attribute>
         </gbean>-->
     </module>
-    <module name="org.apache.geronimo.configs/axis2-deployer/${version}/car">
+	<module name="org.apache.geronimo.configs/cxf-deployer/${version}/car">
         <!-- this gbean is not yet written -->
-        <!--<gbean name="Axis2ServiceRefBuilder">
+		<!--<gbean name="CXFServiceRefBuilder">
             <attribute name="eeNamespaces">http://java.sun.com/xml/ns/j2ee,http://java.sun.com/xml/ns/javaee</attribute>
         </gbean>-->
     </module>

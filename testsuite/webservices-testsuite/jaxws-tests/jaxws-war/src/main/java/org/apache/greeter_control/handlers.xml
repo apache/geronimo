@@ -3,7 +3,7 @@
   <jws:handler-chain>
     <jws:handler>
       <jws:handler-name>GreeterHandler</jws:handler-name>
-      <jws:handler-class>org.apache.hello_world_soap_http.GreeterHandler</jws:handler-class>
+      <jws:handler-class>org.apache.greeter_control.GreeterHandler</jws:handler-class>
     </jws:handler>
   </jws:handler-chain>
 </jws:handler-chains>
