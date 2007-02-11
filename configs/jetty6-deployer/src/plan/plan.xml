@@ -49,12 +49,12 @@
         </references>
         <references name="WebServiceBuilder">
 			<pattern>
+                <name>CXFBuilder</name>
+            </pattern>
+			<pattern>
 				<name>Axis2Builder</name>
 			</pattern>
 			<pattern>
-                <name>CXFBuilder</name>
-            </pattern>
-            <pattern>
                 <name>WebServiceBuilder</name>
             </pattern>
             <pattern>
