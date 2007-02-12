@@ -418,13 +418,20 @@
                 <artifactId>wsdl4j</artifactId>
                 <version>1.5.2</version>
             </dependency>
-
-            <!--2/9/07 xalan 2.6.0 is the last version of xalan up to xalan 2.7.0 that passes the tck.
-            Do not change this version without checking that the tck passes -->
+            
+            <!--
+            NOTE: Need to resolve which version of Xalan actually passes the TCK.
+                  2.7.0 is needed for rmiiiop (because its the first version of Xalan
+                  that *does not* include old versions of BCEL (finally), < 2.7.0 is
+                  needed for some JAXP stuff.
+            -->
             <dependency>
                 <groupId>xalan</groupId>
                 <artifactId>xalan</artifactId>
+                <version>2.7.0</version>
+                <!--
                 <version>2.6.0</version>
+                -->
             </dependency>
 
             <dependency>
