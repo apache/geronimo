@@ -66,41 +66,12 @@ public class SwitchingServiceRefBuilder extends AbstractNamingBuilder {
                                  XmlObject plan,
                                  Environment environment)
             throws DeploymentException {
-        // Since we don't have a classloader at this point do simple string-based
-        // check for Service classes, and if it does not match either merge
-        // both environments
-        
-        boolean mergedJAXRPCEnv = false;
-        boolean mergedJAXWSEnv = false;
-        
-        XmlObject[] serviceRefs = specDD.selectChildren(serviceRefQNameSet);
-        for (XmlObject serviceRef : serviceRefs) {
-            ServiceRefType serviceRefType = 
-                (ServiceRefType) convert(serviceRef, JEE_CONVERTER, ServiceRefType.type);
-            String serviceInterfaceName = getStringValue(serviceRefType.getServiceInterface());
-            if ("javax.xml.rpc.Service".equals(serviceInterfaceName)) {
-                if (!mergedJAXRPCEnv) {
-                    mergeEnvironment(environment, getJAXRCPBuilder());
-                    mergedJAXRPCEnv = true;
-                }
-            } else if ("javax.xml.ws.Service".equals(serviceInterfaceName)) {
-                if (!mergedJAXWSEnv) {
-                    mergeEnvironment(environment, getJAXWSBuilder());
-                    mergedJAXWSEnv = true;
-                }
-            } else {
-                // does not match either Service class, merge both environments
-                if (!mergedJAXRPCEnv) {
-                    mergeEnvironment(environment, getJAXRCPBuilder());
-                    mergedJAXRPCEnv = true;
-                }
-                if (!mergedJAXWSEnv) {
-                    mergeEnvironment(environment, getJAXWSBuilder());
-                    mergedJAXWSEnv = true;
-                }
-                break;
-            }                    
-        }        
+        if (this.jaxrpcBuilders != null && !this.jaxrpcBuilders.isEmpty()) {
+            mergeEnvironment(environment, getJAXRCPBuilder());
+        }
+        if (this.jaxwsBuilders != null && !this.jaxwsBuilders.isEmpty()) {
+            mergeEnvironment(environment, getJAXWSBuilder());
+        }
     }
 
     public void buildNaming(XmlObject specDD,
