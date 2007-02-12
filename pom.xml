@@ -1249,7 +1249,7 @@
                 <checksumPolicy>ignore</checksumPolicy>
             </snapshots>
             <releases>
-                <enabled>true</enabled>
+                <enabled>false</enabled>
             </releases>
         </repository>
     </repositories>
