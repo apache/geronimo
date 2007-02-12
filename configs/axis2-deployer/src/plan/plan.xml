@@ -18,11 +18,11 @@
 
 <!-- $Rev: 482336 $ $Date: 2006-12-04 15:12:19 -0500 (Mon, 04 Dec 2006) $ -->
 
-<module xmlns="http://geronimo.apache.org/xml/ns/deployment-1.1">
+<module xmlns="http://geronimo.apache.org/xml/ns/deployment-${geronimoSchemaVersion}">
 
     <gbean name="Axis2Builder" class="org.apache.geronimo.axis2.builder.Axis2Builder">
         <xml-attribute name="defaultEnvironment">
-            <environment xmlns="http://geronimo.apache.org/xml/ns/deployment-1.1">
+            <environment xmlns="http://geronimo.apache.org/xml/ns/deployment-${geronimoSchemaVersion}">
                 <dependencies>
                     <dependency>
                         <groupId>org.apache.geronimo.configs</groupId>
@@ -33,5 +33,42 @@
             </environment>
         </xml-attribute>
     </gbean>
+
+    <gbean name="Axis2ServiceRefBuilder" class="org.apache.geronimo.axis2.builder.Axis2ServiceRefBuilder">
+        <attribute name="eeNamespaces">http://java.sun.com/xml/ns/javaee</attribute>
+        <xml-attribute name="defaultEnvironment">
+            <environment xmlns="http://geronimo.apache.org/xml/ns/deployment-${geronimoSchemaVersion}">
+                <dependencies>
+                    <dependency>
+                        <groupId>org.apache.geronimo.configs</groupId>
+                        <artifactId>axis2</artifactId>
+                        <type>car</type>
+                    </dependency>
+                </dependencies>
+            </environment>
+        </xml-attribute>
+        <reference name="Axis2Builder">
+            <name>Axis2Builder</name>
+        </reference>
+    </gbean>
+
+    <gbean name="Axis2ClientServiceRefBuilder" class="org.apache.geronimo.axis2.builder.Axis2ServiceRefBuilder">
+        <attribute name="eeNamespaces">http://java.sun.com/xml/ns/javaee</attribute>
+        <xml-attribute name="defaultEnvironment">
+            <environment xmlns="http://geronimo.apache.org/xml/ns/deployment-${geronimoSchemaVersion}">
+                <dependencies>
+                    <dependency>
+                        <groupId>org.apache.geronimo.modules</groupId>
+                        <artifactId>geronimo-axis2</artifactId>
+                        <type>jar</type>
+                    </dependency>
+                </dependencies>
+            </environment>
+        </xml-attribute>
+        <reference name="Axis2Builder">
+            <name>Axis2Builder</name>
+        </reference>
+    </gbean>
+
 
 </module>

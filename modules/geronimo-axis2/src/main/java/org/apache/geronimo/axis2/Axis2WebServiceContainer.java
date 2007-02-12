@@ -17,30 +17,6 @@
 
 package org.apache.geronimo.axis2;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.io.StringBufferInputStream;
-import java.io.StringReader;
-import java.lang.reflect.Method;
-import java.net.URI;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.CountDownLatch;
-
-import javax.wsdl.Definition;
-import javax.wsdl.Port;
-import javax.wsdl.Service;
-import javax.wsdl.factory.WSDLFactory;
-import javax.wsdl.xml.WSDLWriter;
-import javax.xml.namespace.QName;
-import javax.xml.ws.WebServiceException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.ServletContext;
-
 import org.apache.axiom.om.OMElement;
 import org.apache.axiom.om.OMNamespace;
 import org.apache.axiom.om.util.UUIDGenerator;
@@ -51,6 +27,8 @@ import org.apache.axis2.context.ConfigurationContext;
 import org.apache.axis2.context.ConfigurationContextFactory;
 import org.apache.axis2.context.MessageContext;
 import org.apache.axis2.context.OperationContext;
+import org.apache.axis2.context.ServiceContext;
+import org.apache.axis2.context.ServiceGroupContext;
 import org.apache.axis2.description.AxisMessage;
 import org.apache.axis2.description.AxisOperation;
 import org.apache.axis2.description.AxisService;
@@ -62,6 +40,8 @@ import org.apache.axis2.description.WSDL11ToAxisServiceBuilder;
 import org.apache.axis2.description.WSDL20ToAxisServiceBuilder;
 import org.apache.axis2.description.WSDLToAxisServiceBuilder;
 import org.apache.axis2.engine.AxisEngine;
+import org.apache.axis2.engine.DependencyManager;
+import org.apache.axis2.jaxws.binding.BindingImpl;
 import org.apache.axis2.jaxws.description.DescriptionFactory;
 import org.apache.axis2.jaxws.description.EndpointDescription;
 import org.apache.axis2.jaxws.description.ServiceDescription;
@@ -75,6 +55,7 @@ import org.apache.axis2.jaxws.description.builder.WebParamAnnot;
 import org.apache.axis2.jaxws.description.builder.WebServiceAnnot;
 import org.apache.axis2.jaxws.description.builder.WsdlComposite;
 import org.apache.axis2.jaxws.description.builder.WsdlGenerator;
+import org.apache.axis2.jaxws.javaee.HandlerChainsType;
 import org.apache.axis2.jaxws.server.JAXWSMessageReceiver;
 import org.apache.axis2.transport.OutTransportInfo;
 import org.apache.axis2.transport.RequestResponseTransport;
@@ -88,9 +69,38 @@ import org.apache.axis2.wsdl.WSDLConstants;
 import org.apache.axis2.wsdl.WSDLUtil;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.geronimo.jaxws.JAXWSAnnotationProcessor;
+import org.apache.geronimo.jaxws.JNDIResolver;
+import org.apache.geronimo.jaxws.ServerJNDIResolver;
+import org.apache.geronimo.jaxws.annotations.AnnotationException;
 import org.apache.geronimo.webservices.WebServiceContainer;
 import org.apache.ws.commons.schema.XmlSchema;
 
+import javax.naming.Context;
+import javax.servlet.ServletContext;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.wsdl.Definition;
+import javax.wsdl.Port;
+import javax.wsdl.Service;
+import javax.wsdl.factory.WSDLFactory;
+import javax.wsdl.xml.WSDLWriter;
+import javax.xml.namespace.QName;
+import javax.xml.ws.WebServiceException;
+import javax.xml.ws.handler.Handler;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.StringBufferInputStream;
+import java.io.StringReader;
+import java.lang.reflect.Method;
+import java.net.URI;
+import java.net.URL;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.CountDownLatch;
 
 
 public class Axis2WebServiceContainer implements WebServiceContainer {
@@ -107,16 +117,23 @@ public class Axis2WebServiceContainer implements WebServiceContainer {
     private String contextRoot = null;
     private Map servicesMap;
     private Definition wsdlDefinition;
-    
-    
-    public Axis2WebServiceContainer(org.apache.geronimo.jaxws.PortInfo portInfo, String endpointClassName, Definition wsdlDefinition, ClassLoader classLoader) {
+    private JNDIResolver jndiResolver;
+    private JAXWSAnnotationProcessor annotationProcessor;
+    private Object endpointInstance;
+    private List<Handler> chain;
+    private AxisService service;
+
+    public Axis2WebServiceContainer(org.apache.geronimo.jaxws.PortInfo portInfo,
+                                    String endpointClassName,
+                                    Definition wsdlDefinition,
+                                    ClassLoader classLoader,
+                                    Context context,
+                                    URL configurationBaseUrl) {
         this.classLoader = classLoader;
         this.endpointClassName = endpointClassName;
         this.portInfo = portInfo;
         this.wsdlDefinition = wsdlDefinition;
         try {
-            AxisService service = null;
-            
             configurationContext = ConfigurationContextFactory.createDefaultConfigurationContext();
             configurationContext.setServicePath(portInfo.getLocation());
           
@@ -174,7 +191,8 @@ public class Axis2WebServiceContainer implements WebServiceContainer {
     	 		
            	 	for(Iterator<AxisOperation> opIterator = service.getOperations() ; opIterator.hasNext() ;){
            	 		AxisOperation operation = opIterator.next();
-           	 		operation.setMessageReceiver(JAXWSMessageReceiver.class.newInstance());
+                        JAXWSMessageReceiver receiver = JAXWSMessageReceiver.class.newInstance();
+                        operation.setMessageReceiver(receiver);
            	 		
            	 		for(Method method : classMethods){
            	 			// TODO Is this correct method?
@@ -261,16 +279,17 @@ public class Axis2WebServiceContainer implements WebServiceContainer {
             	service = AxisService.createService(endpointClassName, configurationContext.getAxisConfiguration(), JAXWSMessageReceiver.class);
             }
 
+            service.setScope(Constants.SCOPE_APPLICATION);
             configurationContext.getAxisConfiguration().addService(service);
-            
+
         } catch (AxisFault af) {
             throw new RuntimeException(af);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
+        jndiResolver = new ServerJNDIResolver(context);
     }
 
-    
     public void getWsdl(Request request, Response response) throws Exception {
         doService(request, response);
     }
@@ -511,6 +530,15 @@ public class Axis2WebServiceContainer implements WebServiceContainer {
             }
 
         } else if (request.getMethod() == Request.POST) {
+            msgContext.setAxisService(service);
+            configurationContext.fillServiceContextAndServiceGroupContext(msgContext);
+            ServiceGroupContext serviceGroupContext = msgContext.getServiceGroupContext();
+            DependencyManager.initService(serviceGroupContext);
+            endpointInstance = msgContext.getServiceContext().getProperty(ServiceContext.SERVICE_OBJECT);
+
+            BindingImpl binding = new BindingImpl("GeronimoBinding");
+            binding.setHandlerChain(chain);
+            msgContext.setProperty(JAXWSMessageReceiver.PARAM_BINDING, binding);
             // deal with POST request
             msgContext.setProperty(MessageContext.TRANSPORT_OUT, response.getOutputStream());
             msgContext.setProperty(Constants.OUT_TRANSPORT_INFO, new Axis2TransportInfo(response));
@@ -533,14 +561,22 @@ public class Axis2WebServiceContainer implements WebServiceContainer {
             msgContext.setProperty(HTTPConstants.MC_HTTP_SERVLETCONTEXT, servletContext);
             
             String contenttype = request.getHeader(HTTPConstants.HEADER_CONTENT_TYPE);
-            HTTPTransportUtils.processHTTPPostRequest(
-                    msgContext,
-                    request.getInputStream(),
-                    response.getOutputStream(),
-                    contenttype,
-                    soapAction,
-                    path);
 
+            annotationProcessor = new JAXWSAnnotationProcessor(jndiResolver,
+                    new Axis2WebServiceContext(msgContext));
+
+            init();
+            try {
+                HTTPTransportUtils.processHTTPPostRequest(
+                        msgContext,
+                        request.getInputStream(),
+                        response.getOutputStream(),
+                        contenttype,
+                        soapAction,
+                        path);
+            } finally {
+                stop();
+            }
         } else {
             throw new UnsupportedOperationException("[" + request.getMethod() + " ] method not supported");
         }
@@ -567,7 +603,7 @@ public class Axis2WebServiceContainer implements WebServiceContainer {
     }
     
     public void destroy() {
-	}
+    }
     
     /**
      * Resolves the Axis Service associated with the endPointClassName
@@ -688,6 +724,54 @@ public class Axis2WebServiceContainer implements WebServiceContainer {
     		composite.setWsdlDefinition(testMap);
     		return composite;
     	}
+    }
+
+    protected void init() {
+        // configure and inject handlers
+        try {
+            configureHandlers();
+        } catch (Exception e) {
+            throw new WebServiceException("Error configuring handlers", e);
+        }
+
+        // inject resources into service
+        try {
+            injectResources(endpointInstance);
+        } catch (AnnotationException e) {
+            throw new WebServiceException("Service resource injection failed", e);
+        }
+    }
+
+    /*
+     * Gets the right handlers for the port/service/bindings and
+     * performs injection.
+     */
+    protected void configureHandlers() throws Exception {
+        HandlerChainsType handlerChains = this.portInfo.getHandlers(HandlerChainsType.class);
+        Axis2HandlerResolver handlerResolver =
+            new Axis2HandlerResolver(endpointInstance.getClass().getClassLoader(),
+                                   endpointInstance.getClass(),
+                                   handlerChains,
+                                   this.annotationProcessor);
+
+
+        // TODO: pass non-null PortInfo to get the right handlers
+        chain = handlerResolver.getHandlerChain(null);
+    }
+
+    public void stop() {
+        // call handlers preDestroy
+        for (Handler handler : chain) {
+            this.annotationProcessor.invokePreDestroy(handler);
+        }
+
+        // call service preDestroy
+        this.annotationProcessor.invokePreDestroy(endpointInstance);
+    }
+
+    private void injectResources(Object instance) throws AnnotationException {
+        this.annotationProcessor.processAnnotations(instance);
+        this.annotationProcessor.invokePostConstruct(instance);
     }
 
 }

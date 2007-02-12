@@ -155,11 +155,9 @@
             <pattern>
                 <name>CXFServiceRefBuilder</name>
             </pattern>
-<!--
             <pattern>
                 <name>Axis2ServiceRefBuilder</name>
             </pattern>
--->
         </references>
     </gbean>
 

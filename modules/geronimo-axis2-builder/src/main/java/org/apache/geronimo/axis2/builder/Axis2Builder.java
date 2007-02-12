@@ -25,6 +25,7 @@ import org.apache.axis2.jaxws.javaee.WebservicesType;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.axis2.Axis2WebServiceContainerFactoryGBean;
+import org.apache.geronimo.axis2.client.Axis2ServiceReference;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.DeploymentContext;
 import org.apache.geronimo.gbean.AbstractName;
@@ -36,25 +37,29 @@ import org.apache.geronimo.j2ee.deployment.WebModule;
 import org.apache.geronimo.j2ee.deployment.WebServiceBuilder;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.jaxws.PortInfo;
+import org.apache.geronimo.jaxws.builder.EndpointInfoBuilder;
 import org.apache.geronimo.jaxws.builder.JAXWSServiceBuilder;
+import org.apache.geronimo.jaxws.client.EndpointInfo;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.kernel.repository.Environment;
+import org.apache.geronimo.xbeans.geronimo.naming.GerServiceRefType;
+import org.apache.geronimo.xbeans.javaee.ServiceRefHandlerChainsType;
 
 import javax.wsdl.Definition;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
+import javax.xml.namespace.QName;
 import javax.xml.transform.stream.StreamSource;
-import javax.xml.ws.handler.Handler;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.StringWriter;
+import java.net.URI;
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.jar.JarFile;
 
@@ -217,6 +222,48 @@ public class Axis2Builder extends JAXWSServiceBuilder {
         return org.apache.axis2.jaxws.spi.Provider.class.getName();
     }
 
+    public Object createService(Class serviceInterface,
+                                Class serviceReference,
+                                URI wsdlURI,
+                                QName serviceQName,
+                                Map<Class, String> portComponentRefMap,
+                                ServiceRefHandlerChainsType handlerChains,
+                                GerServiceRefType serviceRefType,
+                                Module module,
+                                ClassLoader cl) throws DeploymentException {
+        EndpointInfoBuilder builder = new EndpointInfoBuilder(serviceInterface,
+                serviceRefType, portComponentRefMap, module.getModuleFile(),
+                wsdlURI, serviceQName);
+        builder.build();
+
+        wsdlURI = builder.getWsdlURI();
+        serviceQName = builder.getServiceQName();
+        Map<Object, EndpointInfo> seiInfoMap = builder.getEndpointInfo();
+
+        String handlerChainsXML = null;
+        try {
+            handlerChainsXML = getHanderChainAsString(handlerChains);
+        } catch (IOException e) {
+            // this should not happen
+            log.warn("Failed to serialize handler chains", e);
+        }
+
+        String serviceReferenceName = (serviceReference == null) ? null : serviceReference.getName();
+        return new Axis2ServiceReference(serviceInterface.getName(), serviceReferenceName,  wsdlURI,
+                serviceQName, module.getModuleName(), handlerChainsXML, seiInfoMap);
+    }
+
+    private static String getHanderChainAsString(ServiceRefHandlerChainsType handlerChains)
+            throws IOException {
+        String xml = null;
+        if (handlerChains != null) {
+            StringWriter w = new StringWriter();
+            handlerChains.save(w);
+            xml = w.toString();
+        }
+        return xml;
+    }
+
     private static String getString(String in) {
         if (in != null) {
             in = in.trim();
@@ -225,11 +272,6 @@ public class Axis2Builder extends JAXWSServiceBuilder {
             }
         }
         return in;
-	}
-
-
-    private List<Handler> buildHandlerChain(org.apache.geronimo.jaxws.PortInfo portInfo) {
-        return new ArrayList<Handler>();
     }
 
     private void processURLPattern(String contextRoot, org.apache.geronimo.jaxws.PortInfo portInfo) throws DeploymentException {
@@ -272,5 +314,4 @@ public class Axis2Builder extends JAXWSServiceBuilder {
     public static GBeanInfo getGBeanInfo() {
         return GBEAN_INFO;
     }
-
 }

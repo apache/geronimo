@@ -1,6 +1,7 @@
 package org.apache.geronimo.axis2;
 
 import org.apache.axis2.transport.http.HTTPConstants;
+import org.apache.axis2.jaxws.handler.LogicalMessageContext;
 
 import javax.xml.ws.WebServiceContext;
 import javax.xml.ws.handler.MessageContext;
@@ -15,8 +16,8 @@ public class Axis2WebServiceContext implements WebServiceContext {
 
     private MessageContext ctx;
 
-    public Axis2WebServiceContext(MessageContext ctx) {
-        this.ctx = ctx;
+    public Axis2WebServiceContext(org.apache.axis2.context.MessageContext ctx) {
+        this.ctx = new LogicalMessageContext(new org.apache.axis2.jaxws.core.MessageContext(ctx));
     }
     
     public final MessageContext getMessageContext() {

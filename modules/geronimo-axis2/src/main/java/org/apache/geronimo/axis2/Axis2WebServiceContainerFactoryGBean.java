@@ -72,10 +72,11 @@ public class Axis2WebServiceContainerFactoryGBean implements WebServiceContainer
         this.classLoader = classLoader;
         this.endpointClassName = endpointClassName;
         this.wsdlDefinition = wsdlDefinition;
+        this.configurationBaseUrl = configurationBaseUrl;
     }
 
     public WebServiceContainer getWebServiceContainer() {
-        return new Axis2WebServiceContainer(portInfo, endpointClassName, wsdlDefinition, classLoader);
+        return new Axis2WebServiceContainer(portInfo, endpointClassName, wsdlDefinition, classLoader, context, configurationBaseUrl);
     }
 
     public static final GBeanInfo GBEAN_INFO;

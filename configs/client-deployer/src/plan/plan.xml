@@ -103,11 +103,9 @@
             <pattern>
                 <name>CXFClientServiceRefBuilder</name>
             </pattern>
-<!--
             <pattern>
                 <name>Axis2ClientServiceRefBuilder</name>
             </pattern>
--->
         </references>
     </gbean>
 
