@@ -29,7 +29,7 @@
         <relativePath>../pom.xml</relativePath>
     </parent>
     
-    <artifactId>geronimo-corba-deployer</artifactId>
+    <artifactId>openejb-corba-deployer</artifactId>
     <name>Geronimo Configs :: Geronimo CORBA Deployer</name>
     <packaging>car</packaging>
     

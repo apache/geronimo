@@ -43,7 +43,7 @@
         <clientDeployer>org.apache.geronimo.configs/client-deployer/${version}/car</clientDeployer>
         <connectorDeployer>org.apache.geronimo.configs/connector-deployer/${version}/car</connectorDeployer>
         <openejbDeployer>org.apache.geronimo.configs/openejb-deployer/${version}/car</openejbDeployer>
-        <geronimocorbaDeployer>org.apache.geronimo.configs/geronimo-corba-deployer/${version}/car</geronimocorbaDeployer>
+        <openejbcorbaDeployer>org.apache.geronimo.configs/openejb-corba-deployer/${version}/car</openejbcorbaDeployer>
         <axisDeployer>org.apache.geronimo.configs/axis-deployer/${version}/car</axisDeployer>
 		<cxfDeployer>org.apache.geronimo.configs/cxf-deployer/${version}/car</cxfDeployer>
 		<axis2Deployer>org.apache.geronimo.configs/axis2-deployer/${version}/car</axis2Deployer>
@@ -134,6 +134,7 @@
         <module>ldap-realm</module>
         <module>online-deployer</module>
         <module>openejb</module>
+        <module>openejb-corba-deployer</module>
         <module>openejb-deployer</module>
         <module>remote-deploy-jetty</module>
         <module>remote-deploy-tomcat</module>

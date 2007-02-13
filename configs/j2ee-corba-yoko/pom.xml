@@ -92,7 +92,7 @@
 
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
-            <artifactId>geronimo-corba-deployer</artifactId>
+            <artifactId>openejb-corba-deployer</artifactId>
             <version>${version}</version>
             <type>car</type>
             <scope>provided</scope>
@@ -108,7 +108,7 @@
                     <deploymentConfigs>
                         <deploymentConfig>${gbeanDeployer}</deploymentConfig>
                         <!--<deploymentConfig>${openejbDeployer}</deploymentConfig>-->
-                        <deploymentConfig>${geronimocorbaDeployer}</deploymentConfig>
+                        <deploymentConfig>${openejbcorbaDeployer}</deploymentConfig>
                     </deploymentConfigs>
                 </configuration>
             </plugin>
