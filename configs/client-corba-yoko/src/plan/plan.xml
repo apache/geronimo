@@ -19,6 +19,18 @@
 <!-- $Rev$ $Date$ -->
 
 <module xmlns="http://geronimo.apache.org/xml/ns/deployment-${geronimoSchemaVersion}">
+
+    <gbean name="CORBASSLConfig" class="org.apache.geronimo.corba.security.config.ssl.SSLConfigGBean">
+        <attribute name="keyStore">geronimo-default</attribute>
+        <attribute name="keyAlias">geronimo</attribute>
+        <attribute name="trustStore">geronimo-default</attribute>
+        <attribute name="algorithm">Default</attribute>
+        <attribute name="protocol">SSL</attribute>
+        <reference name="KeystoreManager">
+            <name>KeystoreManager</name>
+        </reference>
+    </gbean>
+
     <gbean name="DyanmicStubClassLoader" class="org.apache.geronimo.corba.util.DynamicStubClassLoaderGBean"/>
 
     <gbean name="ORBConfigAdapter" class="org.apache.geronimo.yoko.ORBConfigAdapterGBean"/>
@@ -36,17 +48,6 @@
 
     </gbean>
 
-    <gbean name="CORBASSLConfig" class="org.apache.geronimo.corba.security.config.ssl.SSLConfigGBean">
-        <attribute name="keyStore">geronimo-default</attribute>
-        <attribute name="keyAlias">geronimo</attribute>
-        <attribute name="trustStore">geronimo-default</attribute>
-        <attribute name="algorithm">Default</attribute>
-        <attribute name="protocol">SSL</attribute>
-        <reference name="KeystoreManager">
-            <name>KeystoreManager</name>
-        </reference>
-    </gbean>
-
 
     <gbean name="Server" class="org.apache.geronimo.corba.CORBABeanGBean">
         <reference name="ConfigAdapter">
@@ -57,94 +58,5 @@
         </reference>
     </gbean>
 
-<!-- a few sample css beans for the app client -->
-    <!--
-    <gbean name="SSLClientCert" class="org.apache.geronimo.corba.CSSBeanGBean">
-        <reference name="TransactionManager">
-            <module>geronimo/client/${version}/car</module>
-            <name>TransactionManager</name>
-        </reference>
-        <reference name="ConfigAdapter">
-            <name>ORBConfigAdapter</name>
-        </reference>
-        <reference name="SSLConfig">
-            <name>CORBASSLConfig</name>
-        </reference>
-        <attribute name="description">SSLClientCert</attribute>
-        <xml-attribute name="cssConfig">
-            <css:css xmlns:css="http://www.openejb.org/xml/ns/corba-css-config-2.0">
-                <css:compoundSecMechTypeList>
-                    <css:compoundSecMech>
-                        <css:SSL>
-                            <css:supports>Integrity Confidentiality EstablishTrustInTarget
-                                EstablishTrustInClient</css:supports>
-                            <css:requires>Integrity Confidentiality EstablishTrustInClient</css:requires>
-                        </css:SSL>
-                        <css:sasMech>
-                            <css:ITTAbsent/>
-                        </css:sasMech>
-                    </css:compoundSecMech>
-                </css:compoundSecMechTypeList>
-            </css:css>
-        </xml-attribute>
-    </gbean>
-
-    <gbean name="SSLClientPassword" class="org.apache.geronimo.corba.CSSBeanGBean">
-        <reference name="TransactionManager">
-            <module>geronimo/client/${version}/car</module>
-            <name>TransactionManager</name>
-        </reference>
-        <reference name="ConfigAdapter">
-            <name>ORBConfigAdapter</name>
-        </reference>
-        <reference name="SSLConfig">
-            <name>CORBASSLConfig</name>
-        </reference>
-        <attribute name="description">SSLClientPassword</attribute>
-        <xml-attribute name="cssConfig">
-            <css:css xmlns:css="http://www.openejb.org/xml/ns/corba-css-config-2.0">
-                <css:compoundSecMechTypeList>
-                    <css:compoundSecMech>
-                        <css:SSL>
-                            <css:supports>Integrity Confidentiality EstablishTrustInClient</css:supports>
-                            <css:requires>Integrity Confidentiality</css:requires>
-                        </css:SSL>
-                        <css:GSSUPDynamic domain="default"/>
-                        <css:sasMech>
-                            <css:ITTAbsent/>
-                        </css:sasMech>
-                    </css:compoundSecMech>
-                </css:compoundSecMechTypeList>
-            </css:css>
-        </xml-attribute>
-    </gbean>
-
-    <gbean name="NoSecurity" class="org.apache.geronimo.corba.CSSBeanGBean">
-        <reference name="TransactionManager">
-            <module>geronimo/client/${version}/car</module>
-            <name>TransactionManager</name>
-        </reference>
-        <reference name="ConfigAdapter">
-            <name>ORBConfigAdapter</name>
-        </reference>
-        <reference name="SSLConfig">
-            <name>CORBASSLConfig</name>
-        </reference>
-        <attribute name="description">NoSecurity</attribute>
-        <xml-attribute name="cssConfig">
-            <css:css xmlns:css="http://www.openejb.org/xml/ns/corba-css-config-2.0">
-                <css:compoundSecMechTypeList>
-                    <css:compoundSecMech>
-                        <css:SSL>
-                            <css:supports>Integrity Confidentiality EstablishTrustInTarget
-                                EstablishTrustInClient</css:supports>
-                            <css:requires></css:requires>
-                        </css:SSL>
-                    </css:compoundSecMech>
-                </css:compoundSecMechTypeList>
-            </css:css>
-        </xml-attribute>
-    </gbean>
-    -->
 
 </module>

@@ -29,28 +29,40 @@
         <relativePath>../pom.xml</relativePath>
     </parent>
     
-    <artifactId>openejb-corba-deployer</artifactId>
-    <name>Geronimo Configs :: OpenEJB CORBA Deployer</name>
+    <artifactId>geronimo-corba-deployer</artifactId>
+    <name>Geronimo Configs :: Geronimo CORBA Deployer</name>
     <packaging>car</packaging>
     
     <dependencies>
     
+        <!-- ideally we wouldn't need this -->
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
             <artifactId>openejb-deployer</artifactId>
+            <version>${version}</version>
+            <type>car</type>
+            <scope>runtime</scope>
+        </dependency>
+
+        <!-- maybe gbean-deployer?? -->
+        <dependency>
+            <groupId>org.apache.geronimo.configs</groupId>
+            <artifactId>j2ee-deployer</artifactId>
             <version>${version}</version>
             <type>car</type>
         </dependency>
 
         <!-- ideally we wouldn't need this -->
         <dependency>
-            <groupId>org.apache.openejb</groupId>
-            <artifactId>openejb-corba</artifactId>
+            <groupId>org.apache.geronimo.modules</groupId>
+            <artifactId>geronimo-corba</artifactId>
+            <version>${version}</version>
         </dependency>
 
         <dependency>
-            <groupId>org.apache.openejb</groupId>
-            <artifactId>openejb-corba-builder</artifactId>
+            <groupId>org.apache.geronimo.modules</groupId>
+            <artifactId>geronimo-corba-builder</artifactId>
+            <version>${version}</version>
         </dependency>
 
     </dependencies>

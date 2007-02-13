@@ -55,25 +55,32 @@
             <!--<artifactId>geronimo-ejb_3.0_spec</artifactId>-->
         <!--</dependency>-->
 
-        <dependency>
-            <groupId>org.apache.geronimo.modules</groupId>
-            <artifactId>geronimo-webservices-builder</artifactId>
-            <version>${version}</version>
-        </dependency>
+        <!--<dependency>-->
+            <!--<groupId>org.apache.geronimo.modules</groupId>-->
+            <!--<artifactId>geronimo-webservices-builder</artifactId>-->
+            <!--<version>${version}</version>-->
+        <!--</dependency>-->
 
+        <dependency>
+            <groupId>org.apache.openejb</groupId>
+            <artifactId>openejb-client</artifactId>
+        </dependency>
+        <!-- client CORBABean needs the ApplicationServer class -->
         <dependency>
             <groupId>org.apache.openejb</groupId>
             <artifactId>openejb-core</artifactId>
         </dependency>
 
         <dependency>
-            <groupId>org.apache.openejb</groupId>
-            <artifactId>openejb-corba</artifactId>
+            <groupId>org.apache.geronimo.modules</groupId>
+            <artifactId>geronimo-corba</artifactId>
+            <version>${version}</version>
         </dependency>
 
         <dependency>
-            <groupId>org.apache.openejb</groupId>
-            <artifactId>openejb-yoko</artifactId>
+            <groupId>org.apache.geronimo.modules</groupId>
+            <artifactId>geronimo-yoko</artifactId>
+            <version>${version}</version>
         </dependency>
 
         <dependency>
@@ -113,9 +120,9 @@
                 <configuration>
                     <deploymentConfigs>
                         <deploymentConfig>${gbeanDeployer}</deploymentConfig>
-                        <deploymentConfig>${j2eeDeployer}</deploymentConfig>
-                        <deploymentConfig>${openejbDeployer}</deploymentConfig>
-                        <deploymentConfig>${openejbcorbaDeployer}</deploymentConfig>
+                        <!--<deploymentConfig>${j2eeDeployer}</deploymentConfig>-->
+                        <!--<deploymentConfig>${openejbDeployer}</deploymentConfig>-->
+                        <!--<deploymentConfig>${openejbcorbaDeployer}</deploymentConfig>-->
                     </deploymentConfigs>
                 </configuration>
             </plugin>

@@ -43,7 +43,7 @@
         <clientDeployer>org.apache.geronimo.configs/client-deployer/${version}/car</clientDeployer>
         <connectorDeployer>org.apache.geronimo.configs/connector-deployer/${version}/car</connectorDeployer>
         <openejbDeployer>org.apache.geronimo.configs/openejb-deployer/${version}/car</openejbDeployer>
-        <!--openejbcorbaDeployer>org.apache.geronimo.configs/openejb-corba-deployer/${version}/car</openejbcorbaDeployer-->
+        <geronimocorbaDeployer>org.apache.geronimo.configs/geronimo-corba-deployer/${version}/car</geronimocorbaDeployer>
         <axisDeployer>org.apache.geronimo.configs/axis-deployer/${version}/car</axisDeployer>
 		<cxfDeployer>org.apache.geronimo.configs/cxf-deployer/${version}/car</cxfDeployer>
 		<axis2Deployer>org.apache.geronimo.configs/axis2-deployer/${version}/car</axis2Deployer>
@@ -110,7 +110,7 @@
         <module>axis</module>
         <module>axis-deployer</module>
         <module>client</module>
-        <!--module>client-corba-yoko</module-->
+        <module>client-corba-yoko</module>
         <module>client-deployer</module>
         <module>client-security</module>
         <module>client-system</module>
@@ -118,10 +118,11 @@
         <module>connector-deployer</module>
         <module>clustering</module>
         <module>directory</module>
+        <module>geronimo-corba-deployer</module>
         <module>geronimo-gbean-deployer</module>
         <module>hot-deployer</module>
         <module>jee-specs</module>
-        <!--module>j2ee-corba-yoko</module-->
+        <module>j2ee-corba-yoko</module>
         <module>j2ee-deployer</module>
         <module>j2ee-security</module>
         <module>j2ee-server</module>
@@ -135,7 +136,6 @@
         <module>online-deployer</module>
         <module>openejb</module>
         <module>openejb-deployer</module>
-        <!--module>openejb-corba-deployer</module-->
         <module>remote-deploy-jetty</module>
         <module>remote-deploy-tomcat</module>
         <module>rmi-naming</module>

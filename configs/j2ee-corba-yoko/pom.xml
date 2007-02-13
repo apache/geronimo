@@ -35,12 +35,12 @@
 
     <dependencies>
 
-        <dependency>
-            <groupId>org.apache.geronimo.configs</groupId>
-            <artifactId>j2ee-server</artifactId>
-            <version>${version}</version>
-            <type>car</type>
-        </dependency>
+        <!--<dependency>-->
+            <!--<groupId>org.apache.geronimo.configs</groupId>-->
+            <!--<artifactId>j2ee-server</artifactId>-->
+            <!--<version>${version}</version>-->
+            <!--<type>car</type>-->
+        <!--</dependency>-->
 
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
@@ -50,22 +50,24 @@
         </dependency>
 
         <!-- to enforce build order -->
+        <!--<dependency>-->
+            <!--<groupId>org.apache.geronimo.configs</groupId>-->
+            <!--<artifactId>openejb-corba-deployer</artifactId>-->
+            <!--<version>${version}</version>-->
+            <!--<type>car</type>-->
+            <!--<scope>test</scope>-->
+        <!--</dependency>-->
+
         <dependency>
-            <groupId>org.apache.geronimo.configs</groupId>
-            <artifactId>openejb-corba-deployer</artifactId>
+            <groupId>org.apache.geronimo.modules</groupId>
+            <artifactId>geronimo-corba</artifactId>
             <version>${version}</version>
-            <type>car</type>
-            <scope>test</scope>
         </dependency>
 
         <dependency>
-            <groupId>org.apache.openejb</groupId>
-            <artifactId>openejb-corba</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.openejb</groupId>
-            <artifactId>openejb-yoko</artifactId>
+            <groupId>org.apache.geronimo.modules</groupId>
+            <artifactId>geronimo-yoko</artifactId>
+            <version>${version}</version>
         </dependency>
 
         <dependency>
@@ -90,7 +92,7 @@
 
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
-            <artifactId>openejb-corba-deployer</artifactId>
+            <artifactId>geronimo-corba-deployer</artifactId>
             <version>${version}</version>
             <type>car</type>
             <scope>provided</scope>
@@ -105,8 +107,8 @@
                 <configuration>
                     <deploymentConfigs>
                         <deploymentConfig>${gbeanDeployer}</deploymentConfig>
-                        <deploymentConfig>${openejbDeployer}</deploymentConfig>
-                        <deploymentConfig>${openejbcorbaDeployer}</deploymentConfig>
+                        <!--<deploymentConfig>${openejbDeployer}</deploymentConfig>-->
+                        <deploymentConfig>${geronimocorbaDeployer}</deploymentConfig>
                     </deploymentConfigs>
                 </configuration>
             </plugin>
