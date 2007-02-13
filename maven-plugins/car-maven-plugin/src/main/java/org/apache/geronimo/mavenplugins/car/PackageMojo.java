@@ -437,15 +437,15 @@ public class PackageMojo
      * Reference to the kernel that will last the lifetime of this classloader.
      * The KernelRegistry keeps soft references that may be garbage collected.
      */
-    private static Kernel kernel;
+    private  Kernel kernel;
 
-    private static AbstractName targetConfigStoreAName;
+    private  AbstractName targetConfigStoreAName;
 
-    private static AbstractName targetRepositoryAName;
+    private  AbstractName targetRepositoryAName;
 
     private boolean targetSet;
 
-    private static DependencyTree dependencies = new DependencyTree();
+    private  DependencyTree dependencies = new DependencyTree();
 
     public void buildPackage() throws Exception {
         log.info("Packaging module configuration: " + planFile);
@@ -485,7 +485,9 @@ public class PackageMojo
 
         AbstractName deployer = locateDeployer(kernel);
         invokeDeployer(kernel, deployer, targetConfigStoreAName.toString());
-//        kernel.shutdown();
+        //use a fresh kernel for each module
+        kernel.shutdown();
+        kernel = null;
     }
 
     /**
