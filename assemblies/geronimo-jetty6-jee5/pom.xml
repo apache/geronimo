@@ -228,7 +228,7 @@
 
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
-            <artifactId>geronimo-corba-deployer</artifactId>
+            <artifactId>openejb-corba-deployer</artifactId>
             <version>${version}</version>
             <type>car</type>
         </dependency>
