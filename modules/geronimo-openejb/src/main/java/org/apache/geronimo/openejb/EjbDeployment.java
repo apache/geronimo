@@ -62,6 +62,8 @@ public class EjbDeployment implements EJB {
 
     private CoreDeploymentInfo deploymentInfo;
 
+    private Context javaCompSubContext;
+
     public EjbDeployment(String objectName,
                          String deploymentId,
                          String ejbName,
@@ -147,7 +149,7 @@ public class EjbDeployment implements EJB {
     }
 
     public Context getComponentContext() {
-        return deploymentInfo.getJndiEnc();
+        return javaCompSubContext;
     }
 
     public Set getUnshareableResources() {
@@ -270,8 +272,9 @@ public class EjbDeployment implements EJB {
         if (deploymentInfo == null) {
             throw new IllegalStateException("Ejb does not exist " + deploymentId);
         }
+        javaCompSubContext = (Context) deploymentInfo.getJndiEnc().lookup("java:comp");
         if (componentContext != null) {
-            ((Context)deploymentInfo.getJndiEnc().lookup("java:comp")).bind("geronimo", componentContext);
+            javaCompSubContext.bind("geronimo", componentContext);
         }
         deploymentInfo.set(EjbDeployment.class, this);
     }
