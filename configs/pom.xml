@@ -118,7 +118,6 @@
         <module>connector-deployer</module>
         <module>clustering</module>
         <module>directory</module>
-        <module>geronimo-corba-deployer</module>
         <module>geronimo-gbean-deployer</module>
         <module>hot-deployer</module>
         <module>jee-specs</module>
