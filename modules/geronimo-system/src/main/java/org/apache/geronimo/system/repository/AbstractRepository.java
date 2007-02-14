@@ -59,8 +59,8 @@ public abstract class AbstractRepository implements WriteableRepository {
     protected final File rootFile;
     private final Map typeHandlers = new HashMap();
 
-    public AbstractRepository(URI root, ServerInfo serverInfo) {
-        this(resolveRoot(root, serverInfo));
+    public AbstractRepository(URI root, ServerInfo serverInfo, boolean resolveToServer) {
+        this(resolveRoot(root, serverInfo, resolveToServer));
     }
 
     public AbstractRepository(File rootFile) {
@@ -76,7 +76,7 @@ public abstract class AbstractRepository implements WriteableRepository {
         typeHandlers.put("car", new UnpackArtifactTypeHandler());
     }
 
-    private static File resolveRoot(URI root, ServerInfo serverInfo) {
+    private static File resolveRoot(URI root, ServerInfo serverInfo, boolean resolveToServer) {
         if (root == null) throw new NullPointerException("root is null");
 
         if (!root.toString().endsWith("/")) {
@@ -89,7 +89,7 @@ public abstract class AbstractRepository implements WriteableRepository {
 
         URI resolvedUri;
         if (serverInfo != null) {
-            resolvedUri = serverInfo.resolve(root);
+            resolvedUri = resolveToServer ? serverInfo.resolveServer(root) : serverInfo.resolve(root);
         } else {
             resolvedUri = root;
         }

@@ -38,8 +38,8 @@ import org.apache.geronimo.system.serverinfo.ServerInfo;
  * @version $Rev$ $Date$
  */
 public class Maven1Repository extends AbstractRepository implements WritableListableRepository {
-    public Maven1Repository(URI root, ServerInfo serverInfo) {
-        super(root, serverInfo);
+    public Maven1Repository(URI root, ServerInfo serverInfo, boolean resolveToServer) {
+        super(root, serverInfo, resolveToServer);
     }
 
     public Maven1Repository(File rootFile) {
@@ -166,10 +166,12 @@ public class Maven1Repository extends AbstractRepository implements WritableList
         infoFactory.addAttribute("root", URI.class, true);
 
         infoFactory.addReference("ServerInfo", ServerInfo.class, "GBean");
+        
+        infoFactory.addAttribute("resolveToServer", Boolean.TYPE, true);
 
         infoFactory.addInterface(Maven1Repository.class);
 
-        infoFactory.setConstructor(new String[]{"root", "ServerInfo"});
+        infoFactory.setConstructor(new String[]{"root", "ServerInfo", "resolveToServer"});
 
         GBEAN_INFO = infoFactory.getBeanInfo();
     }

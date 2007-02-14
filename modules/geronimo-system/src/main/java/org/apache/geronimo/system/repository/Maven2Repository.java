@@ -24,6 +24,8 @@ import java.util.List;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.kernel.repository.Artifact;
@@ -34,8 +36,12 @@ import org.apache.geronimo.system.serverinfo.ServerInfo;
  * @version $Rev$ $Date$
  */
 public class Maven2Repository extends AbstractRepository implements WritableListableRepository {
-    public Maven2Repository(URI root, ServerInfo serverInfo) {
-        super(root, serverInfo);
+    private static final Log log = LogFactory.getLog(Maven2Repository.class);
+    public Maven2Repository(URI root, ServerInfo serverInfo, boolean resolveToServer) {
+        super(root, serverInfo, resolveToServer);
+        log.debug("Maven2Repository(root = " + root + ", resolveToServer = "
+                + resolveToServer + ") rootFile = "
+                + rootFile.getAbsolutePath());
     }
 
     public Maven2Repository(File rootFile) {
@@ -204,8 +210,9 @@ public class Maven2Repository extends AbstractRepository implements WritableList
         GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic(Maven2Repository.class, "Repository");
         infoFactory.addAttribute("root", URI.class, true);
         infoFactory.addReference("ServerInfo", ServerInfo.class, "GBean");
+        infoFactory.addAttribute("resolveToServer", Boolean.TYPE, true);
         infoFactory.addInterface(Maven2Repository.class);
-        infoFactory.setConstructor(new String[]{"root", "ServerInfo"});
+        infoFactory.setConstructor(new String[]{"root", "ServerInfo", "resolveToServer"});
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
 
