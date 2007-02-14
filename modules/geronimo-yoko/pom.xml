@@ -144,8 +144,6 @@
             <plugin>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <configuration>
-                    <source>1.5</source>
-                    <target>1.5</target>
                     <compilerArguments>
                         <endorseddirs>${project.build.directory}/endorsed</endorseddirs>
                     </compilerArguments>
