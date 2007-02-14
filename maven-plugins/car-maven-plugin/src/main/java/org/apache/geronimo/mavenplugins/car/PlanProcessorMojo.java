@@ -40,6 +40,7 @@ import org.apache.maven.model.Dependency;
 
 import org.apache.velocity.Template;
 import org.apache.velocity.VelocityContext;
+import org.apache.velocity.app.Velocity;
 import org.apache.velocity.app.VelocityEngine;
 
 import org.apache.xmlbeans.XmlCursor;
@@ -112,11 +113,19 @@ public class PlanProcessorMojo
         //        could use resources plugin to do this for us, or
         //        implement what resources plugin does here
         //
+        //        Also velocity does not handle property expansion of expressions like
+        //        ${foo.bar} to the value of the "foo.bar" property :-(
+        //
+        //        Might be better of just hand rolling something...
+        //
         
         VelocityContext context = createContext();
 
         VelocityEngine velocity = new VelocityEngine();
-        velocity.setProperty(VelocityEngine.FILE_RESOURCE_LOADER_PATH, sourceDir.getAbsolutePath());
+        velocity.setProperty(Velocity.FILE_RESOURCE_LOADER_PATH, sourceDir.getAbsolutePath());
+        
+        // Don't spit out any logs
+        velocity.setProperty(Velocity.RUNTIME_LOG_LOGSYSTEM_CLASS, "org.apache.velocity.runtime.log.NullLogSystem");
         velocity.init();
 
         Template template = velocity.getTemplate(planFileName);
