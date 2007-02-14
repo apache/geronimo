@@ -16,19 +16,15 @@
   */
 package org.apache.geronimo.yoko;
 
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.geronimo.gbean.GBeanLifecycle;
-import org.apache.geronimo.security.deploy.DefaultDomainPrincipal;
-import org.apache.geronimo.security.deploy.DefaultPrincipal;
-import org.apache.geronimo.security.deploy.DefaultRealmPrincipal;
 import org.apache.geronimo.corba.CORBABean;
 import org.apache.geronimo.corba.CSSBean;
 import org.apache.geronimo.corba.NameService;
@@ -38,9 +34,13 @@ import org.apache.geronimo.corba.security.config.ConfigException;
 import org.apache.geronimo.corba.security.config.tss.TSSConfig;
 import org.apache.geronimo.corba.security.config.tss.TSSSSLTransportConfig;
 import org.apache.geronimo.corba.security.config.tss.TSSTransportMechConfig;
+import org.apache.geronimo.gbean.GBeanLifecycle;
+import org.apache.geronimo.security.deploy.DefaultDomainPrincipal;
+import org.apache.geronimo.security.deploy.DefaultPrincipal;
+import org.apache.geronimo.security.deploy.DefaultRealmPrincipal;
 import org.apache.yoko.orb.CosNaming.tnaming.TransientNameService;
 import org.apache.yoko.orb.CosNaming.tnaming.TransientServiceException;
-import org.apache.yoko.orb.OB.ZERO_PORT_POLICY_ID; 
+import org.apache.yoko.orb.OB.ZERO_PORT_POLICY_ID;
 import org.omg.CORBA.Any;
 import org.omg.CORBA.ORB;
 import org.omg.CORBA.Policy;
@@ -88,7 +88,10 @@ public class ORBConfigAdapter implements GBeanLifecycle, ConfigAdapter {
 
         // ok, now we have a potential classloading problem because of where our util delegates are located.
         // by forcing these classes to load now using our class loader, we can ensure things are properly initialized
-        this.getClass().getClassLoader().loadClass("javax.rmi.PortableRemoteObject");
+        Class clazz = this.getClass().getClassLoader().loadClass("javax.rmi.PortableRemoteObject");
+        Method m = clazz.getMethod("narrow", Object.class, Class.class);
+        m.invoke(null, new Object(), Object.class);
+
 
         log.debug("Started  Yoko ORBConfigAdapter");
     }
@@ -112,7 +115,7 @@ public class ORBConfigAdapter implements GBeanLifecycle, ConfigAdapter {
      * @exception ConfigException
      */
     public ORB createServerORB(CORBABean server)  throws ConfigException {
-        ORB orb = createORB(server.getURI(), (ORBConfiguration)server, translateToArgs(server), translateToProps(server));
+        ORB orb = createORB(server.getURI(), server, translateToArgs(server), translateToProps(server));
 
         // check the tss config for a transport mech definition.  If we have one, then 
         // the port information will be passed in that config, and the port in the IIOP profile 
@@ -147,7 +150,7 @@ public class ORBConfigAdapter implements GBeanLifecycle, ConfigAdapter {
      * @exception ConfigException
      */
     public ORB createClientORB(CSSBean client)  throws ConfigException {
-        return createORB(client.getURI(), (ORBConfiguration)client, translateToArgs(client), translateToProps(client));
+        return createORB(client.getURI(), client, translateToArgs(client), translateToProps(client));
     }
 
     /**
@@ -159,7 +162,7 @@ public class ORBConfigAdapter implements GBeanLifecycle, ConfigAdapter {
      * @exception ConfigException
      */
     public ORB createNameServiceClientORB(CSSBean client)  throws ConfigException {
-        return createORB(client.getURI(), (ORBConfiguration)client, translateToArgs(client), translateToNameServiceProps(client));
+        return createORB(client.getURI(), client, translateToArgs(client), translateToNameServiceProps(client));
     }
 
     /**
@@ -248,10 +251,10 @@ public class ORBConfigAdapter implements GBeanLifecycle, ConfigAdapter {
      *
      * @return A String{} array containing the initialization
      *         arguments.
-     * @exception ConfigException
+     * @exception ConfigException if configuration cannot be interpreted
      */
     private String[] translateToArgs(CORBABean server) throws ConfigException {
-        ArrayList list = new ArrayList();
+        ArrayList<String> list = new ArrayList<String>();
 
         TSSConfig config = server.getTssConfig();
 
@@ -283,12 +286,12 @@ public class ORBConfigAdapter implements GBeanLifecycle, ConfigAdapter {
         }
 
         if (log.isDebugEnabled()) {
-            for (Iterator iter = list.iterator(); iter.hasNext();) {
-                log.debug(iter.next());
+            for (String configArg : list) {
+                log.debug(configArg);
             }
         }
 
-        return (String[]) list.toArray(new String[list.size()]);
+        return list.toArray(new String[list.size()]);
     }
 
     private Properties translateToProps(CORBABean server) throws ConfigException {
@@ -336,21 +339,21 @@ public class ORBConfigAdapter implements GBeanLifecycle, ConfigAdapter {
      * @param client The CSSBean holding the configuration.
      *
      * @return A String array to be passed to ORB.init().
-     * @exception ConfigException
+     * @exception ConfigException if configuration cannot be interpreted
      */
     private String[] translateToArgs(CSSBean client) throws ConfigException {
-        ArrayList list = new ArrayList();
+        ArrayList<String> list = new ArrayList<String>();
 
         // enable the connection plugin
         enableSocketFactory(client.getURI(), list);
 
         if (log.isDebugEnabled()) {
-            for (Iterator iter = list.iterator(); iter.hasNext();) {
-                log.debug(iter.next());
+            for (String configArg : list) {
+                log.debug(configArg);
             }
         }
 
-        return (String[]) list.toArray(new String[list.size()]);
+        return list.toArray(new String[list.size()]);
     }
 
     /**
@@ -360,9 +363,9 @@ public class ORBConfigAdapter implements GBeanLifecycle, ConfigAdapter {
      *
      * @param uri    The URI name of the configuration GBean (either a
      *               CSSBean or a CORBABean).
-     * @param args
+     * @param args configuration arguments to add to
      */
-    private void enableSocketFactory(String uri, List args) {
+    private void enableSocketFactory(String uri, List<String> args) {
         args.add("-IIOPconnectionHelper");
         args.add("org.apache.geronimo.yoko.SocketFactory");
         args.add("-IIOPconnectionHelperArgs");
@@ -378,7 +381,7 @@ public class ORBConfigAdapter implements GBeanLifecycle, ConfigAdapter {
      * @param client The CSSBean holding the configuration.
      *
      * @return A property bundle that can be passed to ORB.init();
-     * @exception ConfigException
+     * @exception ConfigException if configuration cannot be interpreted
      */
     private Properties translateToProps(CSSBean client) throws ConfigException {
         Properties result = new Properties();
@@ -408,7 +411,7 @@ public class ORBConfigAdapter implements GBeanLifecycle, ConfigAdapter {
      * @param client The CSSBean holding the configuration.
      *
      * @return A property bundle that can be passed to ORB.init();
-     * @exception ConfigException
+     * @exception ConfigException if configuration cannot be interpreted
      */
     private Properties translateToNameServiceProps(CSSBean client) throws ConfigException {
         Properties result = new Properties();
