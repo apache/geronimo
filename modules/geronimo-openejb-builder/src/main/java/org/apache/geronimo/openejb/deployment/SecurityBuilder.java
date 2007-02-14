@@ -23,9 +23,9 @@ import java.security.Permissions;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.Map;
+
 import javax.security.jacc.EJBMethodPermission;
 import javax.security.jacc.EJBRoleRefPermission;
-import javax.xml.bind.annotation.XmlEnumValue;
 
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.security.jacc.ComponentPermissions;
@@ -34,7 +34,6 @@ import org.apache.openejb.jee.ExcludeList;
 import org.apache.openejb.jee.Method;
 import org.apache.openejb.jee.MethodPermission;
 import org.apache.openejb.jee.SecurityRoleRef;
-import org.apache.openejb.jee.MethodIntf;
 
 public class SecurityBuilder {
     /**
@@ -86,7 +85,7 @@ public class SecurityBuilder {
                         methodName = null;
                     }
                     // method interface
-                    String methodIntf = getMethodIntfName(method);
+                    String methodIntf = method.getMethodIntf().toString();
 
                     // method parameters
                     String[] methodParams;
@@ -131,7 +130,7 @@ public class SecurityBuilder {
                     // method name
                     String methodName = method.getMethodName();
                     // method interface
-                    String methodIntf = getMethodIntfName(method);
+                    String methodIntf = method.getMethodIntf().toString();
 
                     // method parameters
                     String[] methodParams;
@@ -196,10 +195,6 @@ public class SecurityBuilder {
             permissions.add(p);
         }
 
-    }
-
-    private String getMethodIntfName(Method method) {
-        return MethodIntf.class.getFields()[method.getMethodIntf().ordinal()].getAnnotation(XmlEnumValue.class).value();
     }
 
     /**
