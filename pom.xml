@@ -369,6 +369,12 @@
             </dependency>
 
             <dependency>
+                <groupId>org.slf4j</groupId>
+                <artifactId>slf4j-simple</artifactId>
+                <version>1.0-beta7</version>
+            </dependency>
+            
+            <dependency>
                 <groupId>mx4j</groupId>
                 <artifactId>mx4j</artifactId>
                 <version>3.0.1</version>
