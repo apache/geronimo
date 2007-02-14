@@ -22,7 +22,6 @@
 
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     
-
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
@@ -32,16 +31,13 @@
         <relativePath>../pom.xml</relativePath>
     </parent>
     
-
     <artifactId>testsuite-maven-plugin</artifactId>
     <name>Geronimo Maven2 Plugins :: Testsuite Plugin</name>
     <packaging>maven-plugin</packaging>
     
-
-    <description> Plugin to help Geronimo testsuite</description>
+    <description>Plugin to help Geronimo testsuite</description>
 
     <dependencies>
-
         <dependency>
             <groupId>org.apache.geronimo.genesis.plugins</groupId>
             <artifactId>plugin-support</artifactId>
@@ -86,6 +82,5 @@
         </repository>
     </repositories>
     
-
 </project>
 
