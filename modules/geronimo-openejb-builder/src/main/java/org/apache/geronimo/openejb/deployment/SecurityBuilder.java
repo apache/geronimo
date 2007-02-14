@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Map;
 import javax.security.jacc.EJBMethodPermission;
 import javax.security.jacc.EJBRoleRefPermission;
+import javax.xml.bind.annotation.XmlEnumValue;
 
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.security.jacc.ComponentPermissions;
@@ -33,6 +34,7 @@ import org.apache.openejb.jee.ExcludeList;
 import org.apache.openejb.jee.Method;
 import org.apache.openejb.jee.MethodPermission;
 import org.apache.openejb.jee.SecurityRoleRef;
+import org.apache.openejb.jee.MethodIntf;
 
 public class SecurityBuilder {
     /**
@@ -41,12 +43,14 @@ public class SecurityBuilder {
      * is also filled with permissions that need to be used to fill the JACC
      * policy configuration.
      *
+     * @param defaultRole default role for otherwise unassigned permissions
      * @param notAssigned the set of all possible permissions.  These will be
      * culled so that all that are left are those that have
      * not been assigned roles.
      * @param assemblyDescriptor the assembly descriptor
      * @param ejbName the name of the EJB
      * @param securityRoleRefs the EJB's role references
+     * @param componentPermissions the holder for the ejb's permissions
      * @throws DeploymentException if any constraints are violated
      */
     public void addComponentPermissions(String defaultRole,
@@ -81,9 +85,8 @@ public class SecurityBuilder {
                         // jacc uses null instead of *
                         methodName = null;
                     }
-
                     // method interface
-                    String methodIntf = method.getMethodIntf().toString();
+                    String methodIntf = getMethodIntfName(method);
 
                     // method parameters
                     String[] methodParams;
@@ -128,7 +131,7 @@ public class SecurityBuilder {
                     // method name
                     String methodName = method.getMethodName();
                     // method interface
-                    String methodIntf = method.getMethodIntf().toString();
+                    String methodIntf = getMethodIntfName(method);
 
                     // method parameters
                     String[] methodParams;
@@ -195,6 +198,10 @@ public class SecurityBuilder {
 
     }
 
+    private String getMethodIntfName(Method method) {
+        return MethodIntf.class.getFields()[method.getMethodIntf().ordinal()].getAnnotation(XmlEnumValue.class).value();
+    }
+
     /**
      * Generate all the possible permissions for a bean's interface.
      * <p/>
@@ -210,6 +217,7 @@ public class SecurityBuilder {
      * @param methodInterface the EJB method interface
      * @param interfaceClass the class name of the interface to be used to generate the permissions
      * @param classLoader the class loader to be used in obtaining the interface class
+     * @throws org.apache.geronimo.common.DeploymentException in case a class could not be found
      */
     public void addToPermissions(Permissions permissions,
             String ejbName,

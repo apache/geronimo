@@ -199,7 +199,7 @@ public class EjbDeploymentBuilder {
 
                 // RunAs subject
                 SecurityIdentity securityIdentity = remoteBean.getSecurityIdentity();
-                if (securityIdentity != null) {
+                if (securityIdentity != null && securityIdentity.getRunAs() != null) {
                     String runAsName = securityIdentity.getRunAs().getRoleName();
                     if (runAsName != null) {
                         Subject runAsSubject = (Subject) securityConfiguration.getRoleDesignates().get(runAsName);
