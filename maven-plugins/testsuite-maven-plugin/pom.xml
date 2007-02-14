@@ -69,7 +69,7 @@
             <plugin>
                 <artifactId>maven-plugin-plugin</artifactId>
                 <configuration>
-                    <goalPrefix>geronimo</goalPrefix>
+                    <goalPrefix>testsuite</goalPrefix>
                 </configuration>
             </plugin>
         </plugins>
