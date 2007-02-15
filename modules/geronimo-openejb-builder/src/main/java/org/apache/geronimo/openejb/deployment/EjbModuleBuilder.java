@@ -38,6 +38,7 @@ import org.apache.geronimo.j2ee.deployment.ModuleBuilderExtension;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.Naming;
 import org.apache.geronimo.kernel.config.ConfigurationStore;
+import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.naming.deployment.ResourceEnvironmentSetter;
 import org.apache.geronimo.openejb.EjbDeployment;
@@ -320,7 +321,8 @@ public class EjbModuleBuilder implements ModuleBuilder {
     public void initContext(EARContext earContext, Module module, ClassLoader classLoader) throws DeploymentException {
         EjbModule ejbModule = (EjbModule) module;
         ejbModule.setClassLoader(classLoader);
-        ejbModule.setEarContext(earContext);
+        EARContext moduleContext = new EARContext(module.getModuleName(), earContext);
+        ejbModule.setEarContext(moduleContext);
         ejbModule.setRootEarContext(earContext);
 
         // build the config info tree

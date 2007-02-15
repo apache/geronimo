@@ -101,12 +101,29 @@ public class DeploymentContext {
         this.configuration = createTempConfiguration(environment, moduleType, baseDir, inPlaceConfigurationDir, configurationManager, naming);
 
         this.configurationManager = configurationManager;
-        
+
         if (null == inPlaceConfigurationDir) {
             resourceContext = new CopyResourceContext(configuration, baseDir);
         } else {
             resourceContext = new InPlaceResourceContext(configuration, inPlaceConfigurationDir);
         }
+    }
+
+    public DeploymentContext(AbstractName name, DeploymentContext sharedParent) {
+        this.baseDir = sharedParent.baseDir;
+
+        this.inPlaceConfigurationDir = sharedParent.inPlaceConfigurationDir;
+
+        this.moduleName = name;
+
+        this.naming = sharedParent.naming;
+
+        this.configuration = sharedParent.configuration;
+
+        this.configurationManager = sharedParent.configurationManager;
+
+        resourceContext = sharedParent.resourceContext;
+
     }
 
     private static ConfigurationManager createConfigurationManager(ConfigurationManager configurationManager, Collection repositories) {
@@ -203,7 +220,7 @@ public class DeploymentContext {
      * to the classpath of the configuration.
      *
      * @param targetPath where the packed jar file should be placed
-     * @param jarFile the jar file to copy
+     * @param jarFile    the jar file to copy
      * @throws IOException if there's a problem copying the jar file
      */
     public void addIncludeAsPackedJar(URI targetPath, JarFile jarFile) throws IOException {
@@ -216,8 +233,8 @@ public class DeploymentContext {
      * to the classpath of the configuration.
      *
      * @param targetPath where the ZIP file entry should be placed
-     * @param zipFile the ZIP file
-     * @param zipEntry the ZIP file entry
+     * @param zipFile    the ZIP file
+     * @param zipEntry   the ZIP file entry
      * @throws IOException if there's a problem copying the ZIP entry
      */
     public void addInclude(URI targetPath, ZipFile zipFile, ZipEntry zipEntry) throws IOException {
@@ -294,7 +311,8 @@ public class DeploymentContext {
 
             try {
                 URI targetUri = moduleBaseUri.resolve(pathUri);
-                if (targetUri.getPath().endsWith("/")) throw new IllegalStateException("target path must not end with a '/' character: " + targetUri);
+                if (targetUri.getPath().endsWith("/"))
+                    throw new IllegalStateException("target path must not end with a '/' character: " + targetUri);
                 configuration.addToClassPath(targetUri.toString());
             } catch (IOException e) {
                 throw new DeploymentException(e);
@@ -303,7 +321,8 @@ public class DeploymentContext {
     }
 
     public void addClass(URI targetPath, String fqcn, byte[] bytes) throws IOException, URISyntaxException {
-        if (!targetPath.getPath().endsWith("/")) throw new IllegalStateException("target path must end with a '/' character: " + targetPath);
+        if (!targetPath.getPath().endsWith("/"))
+            throw new IllegalStateException("target path must end with a '/' character: " + targetPath);
 
         String classFileName = fqcn.replace('.', '/') + ".class";
 
@@ -355,7 +374,7 @@ public class DeploymentContext {
         return configuration;
     }
 
-    public void flush() throws IOException{
+    public void flush() throws IOException {
         resourceContext.flush();
     }
 

@@ -73,12 +73,27 @@ public class PersistenceUnitBuilder implements NamespaceDrivenBuilder {
         XmlObject[] raws = container.selectChildren(PERSISTENCE_QNAME);
         for (XmlObject raw : raws) {
             PersistenceDocument.Persistence persistence = (PersistenceDocument.Persistence) raw.copy().changeType(PersistenceDocument.Persistence.type);
-            buildPersistenceUnits(persistence, moduleContext);
+            buildPersistenceUnits(persistence, moduleContext, null, null);
         }
         ResourceFinder finder = new ResourceFinder("", moduleContext.getClassLoader(), null);
         try {
+            //TODO the code that figures out the persistence unit name is incomplete
+            URI baseURI = applicationContext.getBaseDir().toURI();
             List<URL> persistenceUrls = finder.findAll("META-INF/persistence.xml");
             for (URL persistenceUrl: persistenceUrls) {
+                URI relativeURI;
+                try {
+                    relativeURI = baseURI.relativize(persistenceUrl.toURI());
+                } catch (URISyntaxException e) {
+                    continue;
+                }
+                String relative = relativeURI.toString();
+                int pos = relative.indexOf("!/");
+                if (pos > 0) {
+                    relative = relative.substring(0, pos -1);
+                } else {
+                    relative = null;
+                }
                 PersistenceDocument persistenceDocument;
                 try {
                     persistenceDocument = (PersistenceDocument) XmlBeansUtil.parse(persistenceUrl, moduleContext.getClassLoader());
@@ -86,23 +101,29 @@ public class PersistenceUnitBuilder implements NamespaceDrivenBuilder {
                     throw new DeploymentException("Could not parse persistence.xml file: " + persistenceUrl, e);
                 }
                 PersistenceDocument.Persistence persistence = persistenceDocument.getPersistence();
-                buildPersistenceUnits(persistence, moduleContext);
+                buildPersistenceUnits(persistence, moduleContext, NameFactory.PERSISTENCE_UNIT_MODULE, relative);
             }
         } catch (IOException e) {
             throw new DeploymentException("Could not look for META-INF/persistence.xml files", e);
         }
     }
 
-    private void buildPersistenceUnits(PersistenceDocument.Persistence persistence, DeploymentContext moduleContext) throws DeploymentException {
+    private void buildPersistenceUnits(PersistenceDocument.Persistence persistence, DeploymentContext moduleContext, String moduleType, String moduleName) throws DeploymentException {
         PersistenceDocument.Persistence.PersistenceUnit[] persistenceUnits = persistence.getPersistenceUnitArray();
         for (PersistenceDocument.Persistence.PersistenceUnit persistenceUnit : persistenceUnits) {
-            installPersistenceUnitGBean(persistenceUnit, moduleContext);
+            installPersistenceUnitGBean(persistenceUnit, moduleContext, moduleType, moduleName);
         }
     }
 
-    private void installPersistenceUnitGBean(PersistenceDocument.Persistence.PersistenceUnit persistenceUnit, DeploymentContext moduleContext) throws DeploymentException {
+    private void installPersistenceUnitGBean(PersistenceDocument.Persistence.PersistenceUnit persistenceUnit, DeploymentContext moduleContext, String moduleType, String moduleName) throws DeploymentException {
         String persistenceUnitName = persistenceUnit.getName().trim();
-        AbstractName abstractName = moduleContext.getNaming().createChildName(moduleContext.getModuleName(), persistenceUnitName, PersistenceUnitGBean.GBEAN_INFO.getJ2eeType());
+        AbstractName abstractName;
+        if (moduleType == null || moduleName == null) {
+            abstractName = moduleContext.getNaming().createChildName(moduleContext.getModuleName(), persistenceUnitName, PersistenceUnitGBean.GBEAN_INFO.getJ2eeType());
+        } else {
+            abstractName = moduleContext.getNaming().createChildName(moduleContext.getModuleName(), moduleName, moduleType);
+            abstractName = moduleContext.getNaming().createChildName(abstractName, persistenceUnitName, PersistenceUnitGBean.GBEAN_INFO.getJ2eeType());
+        }
         GBeanData gbeanData = new GBeanData(abstractName, PersistenceUnitGBean.GBEAN_INFO);
         try {
             moduleContext.addGBean(gbeanData);
