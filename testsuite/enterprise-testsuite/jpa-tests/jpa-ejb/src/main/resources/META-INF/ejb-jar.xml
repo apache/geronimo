@@ -30,6 +30,15 @@ limitations under the License.
             <ejb-class>org.apache.geronimo.itest.TestSessionBean</ejb-class>
             <session-type>Stateless</session-type>
             <transaction-type>Container</transaction-type>
+            <persistence-context-ref>
+                <persistence-context-ref-name>jpa/test</persistence-context-ref-name>
+                <persistence-unit-name>test-unit</persistence-unit-name>
+                <persistence-context-type>Transactional</persistence-context-type>
+            </persistence-context-ref>
+            <persistence-unit-ref>
+                <persistence-unit-ref-name>jpa/testEMF</persistence-unit-ref-name>
+                <persistence-unit-name>test-unit</persistence-unit-name>
+            </persistence-unit-ref>
         </session>
     </enterprise-beans>
 </ejb-jar>
