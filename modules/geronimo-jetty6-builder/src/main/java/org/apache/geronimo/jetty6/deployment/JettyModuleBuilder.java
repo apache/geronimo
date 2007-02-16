@@ -25,6 +25,7 @@ import java.security.Permission;
 import java.security.PermissionCollection;
 import java.security.Permissions;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
@@ -36,7 +37,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
-import java.util.Arrays;
 import java.util.jar.JarFile;
 
 import javax.management.ObjectName;
@@ -60,11 +60,10 @@ import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.j2ee.deployment.EARContext;
 import org.apache.geronimo.j2ee.deployment.Module;
 import org.apache.geronimo.j2ee.deployment.ModuleBuilder;
+import org.apache.geronimo.j2ee.deployment.NamingBuilder;
 import org.apache.geronimo.j2ee.deployment.WebModule;
 import org.apache.geronimo.j2ee.deployment.WebServiceBuilder;
-import org.apache.geronimo.j2ee.deployment.NamingBuilder;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
-//import org.apache.geronimo.jetty6.DefaultWebApplicationHandlerFactory;
 import org.apache.geronimo.jetty6.Host;
 import org.apache.geronimo.jetty6.JettyDefaultServletHolder;
 import org.apache.geronimo.jetty6.JettyFilterHolder;
@@ -76,8 +75,8 @@ import org.apache.geronimo.kernel.GBeanAlreadyExistsException;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.Naming;
-import org.apache.geronimo.kernel.config.ConfigurationData;
 import org.apache.geronimo.kernel.config.Configuration;
+import org.apache.geronimo.kernel.config.ConfigurationData;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.naming.deployment.ENCConfigBuilder;
 import org.apache.geronimo.naming.deployment.GBeanResourceEnvironmentBuilder;
@@ -85,12 +84,12 @@ import org.apache.geronimo.naming.deployment.ResourceEnvironmentSetter;
 import org.apache.geronimo.security.deploy.DefaultPrincipal;
 import org.apache.geronimo.security.deployment.SecurityConfiguration;
 import org.apache.geronimo.security.jacc.ComponentPermissions;
-import org.apache.geronimo.web25.deployment.AbstractWebModuleBuilder;
 import org.apache.geronimo.web.deployment.GenericToSpecificPlanConverter;
+import org.apache.geronimo.web25.deployment.AbstractWebModuleBuilder;
+import org.apache.geronimo.xbeans.geronimo.j2ee.GerClusteringDocument;
 import org.apache.geronimo.xbeans.geronimo.web.jetty.JettyWebAppDocument;
 import org.apache.geronimo.xbeans.geronimo.web.jetty.JettyWebAppType;
 import org.apache.geronimo.xbeans.geronimo.web.jetty.config.GerJettyDocument;
-import org.apache.geronimo.xbeans.geronimo.j2ee.GerClusteringDocument;
 import org.apache.geronimo.xbeans.javaee.DispatcherType;
 import org.apache.geronimo.xbeans.javaee.ErrorPageType;
 import org.apache.geronimo.xbeans.javaee.FilterMappingType;
@@ -106,10 +105,10 @@ import org.apache.geronimo.xbeans.javaee.ParamValueType;
 import org.apache.geronimo.xbeans.javaee.ServletMappingType;
 import org.apache.geronimo.xbeans.javaee.ServletType;
 import org.apache.geronimo.xbeans.javaee.TaglibType;
+import org.apache.geronimo.xbeans.javaee.UrlPatternType;
 import org.apache.geronimo.xbeans.javaee.WebAppDocument;
 import org.apache.geronimo.xbeans.javaee.WebAppType;
 import org.apache.geronimo.xbeans.javaee.WelcomeFileListType;
-import org.apache.geronimo.xbeans.javaee.UrlPatternType;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
 import org.mortbay.jetty.security.BasicAuthenticator;
@@ -185,8 +184,8 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
         assert !targetPath.endsWith("/"): "targetPath must not end with a '/'";
 
         // parse the spec dd
-        String specDD;
-        WebAppType webApp;
+        String specDD = null;
+        WebAppType webApp = null;
         try {
             if (specDDUrl == null) {
                 specDDUrl = DeploymentUtil.createJarURL(moduleFile, "WEB-INF/web.xml");
@@ -195,23 +194,20 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
             // read in the entire specDD as a string, we need this for getDeploymentDescriptor
             // on the J2ee management object
             specDD = DeploymentUtil.readAll(specDDUrl);
-        } catch (Exception e) {
-            //no web.xml, not for us
-            return null;
-        }
-        //we found web.xml, if it won't parse that's an error.
-        try {
-            // parse it
+            
+            // we found web.xml, if it won't parse that's an error.
             XmlObject parsed = XmlBeansUtil.parse(specDD);
             WebAppDocument webAppDoc = convertToServletSchema(parsed);
             webApp = webAppDoc.getWebApp();
-        } catch (XmlException xmle) {
-            // Output the target path in the error to make it clearer to the user which webapp
+            check(webApp);
+        } catch (XmlException e) {
+        	// Output the target path in the error to make it clearer to the user which webapp
             // has the problem.  The targetPath is used, as moduleFile may have an unhelpful
             // value such as C:\geronimo-1.1\var\temp\geronimo-deploymentUtil22826.tmpdir
-            throw new DeploymentException("Error parsing web.xml for " + targetPath, xmle);
+            throw new DeploymentException("Error parsing web.xml for " + targetPath, e);
+        } catch (Exception e) {
+            //ignore as jee5 allows optional spec dd
         }
-        check(webApp);
 
         // parse vendor dd
         JettyWebAppType jettyWebApp = getJettyWebApp(plan, moduleFile, standAlone, targetPath, webApp);

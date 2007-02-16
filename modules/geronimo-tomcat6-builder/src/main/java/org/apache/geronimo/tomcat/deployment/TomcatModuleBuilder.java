@@ -119,8 +119,8 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder {
         assert !targetPath.endsWith("/"): "targetPath must not end with a '/'";
 
         // parse the spec dd
-        String specDD;
-        WebAppType webApp;
+        String specDD = null;
+        WebAppType webApp = null;
         try {
             if (specDDUrl == null) {
                 specDDUrl = DeploymentUtil.createJarURL(moduleFile, "WEB-INF/web.xml");
@@ -129,23 +129,20 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder {
             // read in the entire specDD as a string, we need this for getDeploymentDescriptor
             // on the J2ee management object
             specDD = DeploymentUtil.readAll(specDDUrl);
-        } catch (Exception e) {
-            //no web.xml, not for us
-            return null;
-        }
-        //we found web.xml, if it won't parse that's an error.
-        try {
-            // parse it
+            
+            // we found web.xml, if it won't parse that's an error.
             XmlObject parsed = XmlBeansUtil.parse(specDD);
             WebAppDocument webAppDoc = convertToServletSchema(parsed);
             webApp = webAppDoc.getWebApp();
-        } catch (XmlException xmle) {
-            // Output the target path in the error to make it clearer to the user which webapp
+            check(webApp);
+        } catch (XmlException e) {
+        	// Output the target path in the error to make it clearer to the user which webapp
             // has the problem.  The targetPath is used, as moduleFile may have an unhelpful
             // value such as C:\geronimo-1.1\var\temp\geronimo-deploymentUtil22826.tmpdir
-            throw new DeploymentException("Error parsing web.xml for " + targetPath, xmle);
+            throw new DeploymentException("Error parsing web.xml for " + targetPath, e);
+        } catch (Exception e) {
+            //ignore as jee5 allows optional spec dd
         }
-        check(webApp);
 
         // parse vendor dd
         TomcatWebAppType tomcatWebApp = getTomcatWebApp(plan, moduleFile, standAlone, targetPath, webApp);
