@@ -141,7 +141,11 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder {
             // value such as C:\geronimo-1.1\var\temp\geronimo-deploymentUtil22826.tmpdir
             throw new DeploymentException("Error parsing web.xml for " + targetPath, e);
         } catch (Exception e) {
-            //ignore as jee5 allows optional spec dd
+        	if(!moduleFile.getName().endsWith(".war")) {
+        		//not for us
+        		return null;
+        	} 
+            //else ignore as jee5 allows optional spec dd for .war's
         }
 
         // parse vendor dd
