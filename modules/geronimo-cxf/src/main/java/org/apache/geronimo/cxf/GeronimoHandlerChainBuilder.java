@@ -25,6 +25,7 @@ import javax.xml.ws.handler.PortInfo;
 
 import org.apache.cxf.jaxws.handler.AnnotationHandlerChainBuilder;
 import org.apache.cxf.jaxws.javaee.HandlerChainType;
+import org.apache.geronimo.jaxws.JAXWSUtils;
 
 public class GeronimoHandlerChainBuilder extends AnnotationHandlerChainBuilder {
 
@@ -63,15 +64,26 @@ public class GeronimoHandlerChainBuilder extends AnnotationHandlerChainBuilder {
         return match((info == null ? null : info.getPortName()), namePattern);
     }
 
-    private boolean matchBinding(PortInfo info, List bindings) {
+    private boolean matchBinding(PortInfo info, List<String> bindings) {
         return match((info == null ? null : info.getBindingID()), bindings);
     }
 
-    private boolean match(String binding, List bindings) {
+    private boolean match(String binding, List<String> bindings) {
         if (binding == null) {
             return (bindings == null || bindings.isEmpty());
         } else {
-            return (bindings == null || bindings.isEmpty()) ? true : bindings.contains(binding);
+            if (bindings == null || bindings.isEmpty()) {
+                return true;
+            } else {
+                String actualBindingURI = JAXWSUtils.getBindingURI(binding);
+                for (String bindingToken : bindings) {
+                    String bindingURI = JAXWSUtils.getBindingURI(bindingToken);
+                    if (actualBindingURI.equals(bindingURI)) {
+                        return true;
+                    }
+                }
+                return false;               
+            }
         }
     }
 

@@ -16,11 +16,25 @@
  */
 package org.apache.geronimo.jaxws;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import javax.jws.WebService;
 import javax.xml.namespace.QName;
 
 public class JAXWSUtils {
-
+    
+    private static final Map<String, String> BINDING_MAP = 
+        new HashMap<String, String>();
+    
+    static {
+        BINDING_MAP.put("##SOAP11_HTTP", "http://schemas.xmlsoap.org/wsdl/soap/http");
+        BINDING_MAP.put("##SOAP12_HTTP", "http://www.w3.org/2003/05/soap/bindings/HTTP/");
+        BINDING_MAP.put("##SOAP11_HTTP_MTOM", "http://schemas.xmlsoap.org/wsdl/soap/http?mtom=true");
+        BINDING_MAP.put("##SOAP12_HTTP_MTOM", "http://www.w3.org/2003/05/soap/bindings/HTTP/?mtom=true");
+        BINDING_MAP.put("##XML_HTTP", "http://www.w3.org/2004/08/wsdl/http");
+    }
+    
     private JAXWSUtils() {
     }
 
@@ -37,4 +51,18 @@ public class JAXWSUtils {
         return null;
     }
 
+    public static String getBindingURI(String token) {
+        if (token == null) {
+            // return the default
+            return BINDING_MAP.get("##SOAP11_HTTP");
+        } else if (token.startsWith("##")) {
+            String uri = BINDING_MAP.get(token);
+            if (uri == null) {
+                throw new IllegalArgumentException("Unsupported binding token: " + token);
+            }
+            return uri;
+        } else {
+            return token;            
+        }
+    }
 }

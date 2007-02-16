@@ -64,6 +64,11 @@ public class EjbDeployment implements EJB {
 
     private Context javaCompSubContext;
 
+    public EjbDeployment() {
+        this(null, null, null, null, null, null, null, null, null, null, 
+             null, null, null, null, null, null, null);
+    }
+
     public EjbDeployment(String objectName,
                          String deploymentId,
                          String ejbName,

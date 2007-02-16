@@ -7,6 +7,13 @@
       <jws:handler-class>org.apache.geronimo.cxf.TestHandler</jws:handler-class>
     </jws:handler>
   </jws:handler-chain>
+    <jws:handler-chain>
+    <jws:protocol-bindings>http://www.w3.org/2004/08/wsdl/http</jws:protocol-bindings>
+    <jws:handler>
+      <jws:handler-name>GreeterHandler</jws:handler-name>
+      <jws:handler-class>org.apache.geronimo.cxf.TestHandler</jws:handler-class>
+    </jws:handler>
+  </jws:handler-chain>
   <jws:handler-chain>
     <jws:protocol-bindings>##SOAP11_HTTP</jws:protocol-bindings>
     <jws:handler>

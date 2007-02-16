@@ -145,7 +145,7 @@ public class JettyEJBWebServiceContext extends ContextHandler {
         if (req.getParameter("wsdl") != null) {
             try {
                 webServiceContainer.getWsdl(request, response);
-                //WHO IS RESPONSIBLE FOR CLOSING OUT?
+                jettyRequest.setHandled(true);
             } catch (IOException e) {
                 throw e;
             } catch (Exception e) {
@@ -221,7 +221,7 @@ public class JettyEJBWebServiceContext extends ContextHandler {
         public java.net.URI getURI() {
             if (uri == null) {
                 try {
-                    String uriString = request.getScheme() + "://" + request.getRemoteHost() + ":" + request.getRemotePort() + request.getRequestURI();
+                    String uriString = request.getScheme() + "://" + request.getServerName() + ":" + request.getServerPort() + request.getRequestURI();
                     //return new java.net.URI(uri.getScheme(),uri.getHost(),uri.getPath(),uri.);
                     uri = new java.net.URI(uriString);
                 } catch (URISyntaxException e) {

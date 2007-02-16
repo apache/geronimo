@@ -245,7 +245,7 @@ public class EjbModuleBuilder implements ModuleBuilder {
 
         for (ModuleBuilderExtension builder : moduleBuilderExtensions) {
             try {
-                builder.createModule(module, plan, moduleFile, targetPath, specDDUrl, earEnvironment, null, earName, naming, idBuilder);
+                builder.createModule(module, plan, moduleFile, targetPath, specDDUrl, environment, null, earName, naming, idBuilder);
             } catch (Throwable t) {
                 String builderName = builder.getClass().getSimpleName();
                 log.error(builderName+".createModule() failed: "+t.getMessage(), t);

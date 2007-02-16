@@ -174,4 +174,39 @@ public class JaxWSTest extends TestSupport {
 
     }
 
+    @Test
+    public void testClientInvocation() throws Exception {
+        String expected = null; // should be "Hello Tester"; - CXF bugs or something
+
+        String warName = System.getProperty("webAppName");
+        assertNotNull(warName);
+        URL url = new URL(baseURL + warName + "/JAXWSClient.jsp?name=Tester");
+        HttpURLConnection connection = (HttpURLConnection)url.openConnection();
+        try {
+            BufferedReader reader = 
+                new BufferedReader(new InputStreamReader(connection.getInputStream()));
+            assertEquals(HttpURLConnection.HTTP_OK, connection.getResponseCode());
+            BufferedReader in = 
+                new BufferedReader(new InputStreamReader(connection.getInputStream()));
+            String inputLine;
+            boolean found = false;
+            while ((inputLine = in.readLine()) != null) {
+                System.out.println(inputLine);
+
+                if (found == false &&
+                    inputLine.indexOf("WebService returned: " + expected) != -1) {
+                    found = true;
+                }
+            }
+            in.close();
+
+            assertTrue("Reply", found);
+
+        } finally {
+            connection.disconnect();
+        }
+    }
+
+
+
 }

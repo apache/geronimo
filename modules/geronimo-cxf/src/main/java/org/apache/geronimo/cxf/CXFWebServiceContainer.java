@@ -41,6 +41,8 @@ import javax.wsdl.extensions.ExtensibilityElement;
 import javax.wsdl.factory.WSDLFactory;
 import javax.wsdl.xml.WSDLWriter;
 
+import java.io.PrintWriter;
+import java.net.URI;
 import java.net.URL;
 import java.util.List;
 import java.util.ArrayList;
@@ -85,8 +87,6 @@ public class CXFWebServiceContainer implements WebServiceContainer {
         destinationFactoryManager.registerDestinationFactory(
                 "http://schemas.xmlsoap.org/wsdl/http/", factory);
         destinationFactoryManager.registerDestinationFactory(
-                "http://schemas.xmlsoap.org/wsdl/soap/", factory);
-        destinationFactoryManager.registerDestinationFactory(
                 "http://schemas.xmlsoap.org/wsdl/soap/http", factory);
         destinationFactoryManager.registerDestinationFactory(
                 XMLConstants.NS_XML_FORMAT, factory);
@@ -97,7 +97,17 @@ public class CXFWebServiceContainer implements WebServiceContainer {
     }
 
     public void invoke(Request request, Response response) throws Exception {
-        destination.invoke(request, response);
+        if (request.getMethod() == Request.GET) {
+            EndpointInfo ei = this.destination.getEndpointInfo();
+            response.setContentType("text/html");
+            PrintWriter pw = new PrintWriter(response.getOutputStream());
+            pw.write("<html><title>Web Service</title><body>");
+            pw.write("Hi, this is '" + ei.getService().getName().getLocalPart() + "' web service.");
+            pw.write("</body></html>");
+            pw.flush();
+        } else {
+            destination.invoke(request, response);
+        }
     }
 
     public void getWsdl(Request request, Response response) throws Exception {
@@ -114,14 +124,18 @@ public class CXFWebServiceContainer implements WebServiceContainer {
         } else {
             List<?> exts = port.getExtensibilityElements();
             if (exts != null && exts.size() > 0) {
+                URI requestURI = request.getURI();
+                URI serviceURI = new URI(requestURI.getScheme(), null, 
+                                         requestURI.getHost(), requestURI.getPort(), 
+                                         requestURI.getPath(), null, null);
                 ExtensibilityElement el = (ExtensibilityElement) exts.get(0);
                 if (SOAPBindingUtil.isSOAPAddress(el)) {
                     SoapAddress add = SOAPBindingUtil.getSoapAddress(el);
-                    add.setLocationURI(request.getURI().toString());
+                    add.setLocationURI(serviceURI.toString());
                 }
                 if (el instanceof AddressType) {
                     AddressType add = (AddressType) el;
-                    add.setLocation(request.getURI().toString());
+                    add.setLocation(serviceURI.toString());
                 }
             }
         }
@@ -138,8 +152,7 @@ public class CXFWebServiceContainer implements WebServiceContainer {
     private CXFEndpoint publishEndpoint(Object target) {
         assert target != null : "null target received";
 
-        CXFEndpoint ep = new CXFEndpoint(bus, configurationBaseUrl, target,
-                (String) null);
+        CXFEndpoint ep = new CXFEndpoint(bus, configurationBaseUrl, target);
         ep.publish("http://nopath");
         return ep;
     }

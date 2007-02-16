@@ -42,6 +42,7 @@ import org.apache.cxf.jaxws.JaxWsServerFactoryBean;
 import org.apache.cxf.jaxws.ProviderChainObserver;
 import org.apache.cxf.jaxws.ProviderInvoker;
 import org.apache.cxf.jaxws.binding.soap.JaxWsSoapBindingInfoFactoryBean;
+import org.apache.cxf.jaxws.handler.PortInfoImpl;
 import org.apache.cxf.jaxws.javaee.HandlerChainsType;
 import org.apache.cxf.jaxws.support.AbstractJaxWsServiceFactoryBean;
 import org.apache.cxf.jaxws.support.JaxWsEndpointImpl;
@@ -53,6 +54,7 @@ import org.apache.cxf.service.Service;
 import org.apache.cxf.service.factory.AbstractBindingInfoFactoryBean;
 import org.apache.geronimo.jaxws.annotations.AnnotationException;
 import org.apache.geronimo.jaxws.annotations.AnnotationProcessor;
+import org.apache.geronimo.jaxws.JAXWSUtils;
 import org.apache.geronimo.jaxws.JNDIResolver;
 import org.apache.geronimo.jaxws.JAXWSAnnotationProcessor;
 import org.apache.geronimo.jaxws.PortInfo;
@@ -83,14 +85,13 @@ public class CXFEndpoint extends Endpoint {
 
     public CXFEndpoint(Bus bus,
                        URL configurationBaseUrl,
-                       Object instance,
-                       String bindingURI) {
+                       Object instance) {
         this.bus = bus;
         this.implementor = instance;
-        this.bindingURI = bindingURI;
 
         this.portInfo = (PortInfo) bus.getExtension(PortInfo.class);
-
+        this.bindingURI = JAXWSUtils.getBindingURI(this.portInfo.getProtocolBinding());
+        
         implInfo = new JaxWsImplementorInfo(implementor.getClass());
 
         if (implInfo.isWebServiceProvider()) {
@@ -222,15 +223,14 @@ public class CXFEndpoint extends Endpoint {
         // FIXME: setServiceClass() or setSerivceBean() ?
         svrFactory.setServiceClass(implementor.getClass());
         // svrFactory.setServiceBean(implementor);
-
-        // TODO: Replace with discovery mechanism!!
+        
         AbstractBindingInfoFactoryBean bindingFactory = null;
         if (XMLConstants.NS_XML_FORMAT.equals(bindingURI)
-                || HTTPBinding.HTTP_BINDING.equals(bindingURI)) {
+            || HTTPBinding.HTTP_BINDING.equals(bindingURI)) {
             bindingFactory = new XMLBindingInfoFactoryBean();
         } else {
             // Just assume soap otherwise...
-            bindingFactory = new JaxWsSoapBindingInfoFactoryBean();            
+            bindingFactory = new JaxWsSoapBindingInfoFactoryBean();
         }
 
         svrFactory.setBindingFactory(bindingFactory);
@@ -285,10 +285,11 @@ public class CXFEndpoint extends Endpoint {
                                    this.implementor.getClass(),
                                    handlerChains, 
                                    this.annotationProcessor);
+                
+        PortInfoImpl portInfo = 
+            new PortInfoImpl(this.bindingURI, serviceFactory.getEndpointName(), service.getName());
         
-        
-        // TODO: pass non-null PortInfo to get the right handlers
-        List<Handler> chain = handlerResolver.getHandlerChain(null);
+        List<Handler> chain = handlerResolver.getHandlerChain(portInfo);
 
         getBinding().setHandlerChain(chain);
     }

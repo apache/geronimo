@@ -43,4 +43,10 @@ limitations under the License.
         <env-entry-value>Hello</env-entry-value>
    </env-entry>
 
+   <service-ref>
+       <service-ref-name>services/Greeter</service-ref-name>
+       <service-interface>javax.xml.ws.Service</service-interface>
+       <wsdl-file>WEB-INF/wsdl/greeter_control.wsdl</wsdl-file>
+   </service-ref>
+
 </web-app>
