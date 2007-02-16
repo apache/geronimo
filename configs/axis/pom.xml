@@ -37,7 +37,7 @@
         <!-- parent -->
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
-            <artifactId>j2ee-server</artifactId>
+            <artifactId>webservices-common</artifactId>
             <version>${version}</version>
             <type>car</type>
         </dependency>
@@ -53,6 +53,7 @@
             <artifactId>geronimo-axis</artifactId>
             <version>${version}</version>
         </dependency>
+
     </dependencies>
     
 </project>
