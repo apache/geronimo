@@ -20,6 +20,7 @@ import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.ModuleIDBuilder;
 import org.apache.geronimo.deployment.NamespaceDrivenBuilder;
 import org.apache.geronimo.deployment.NamespaceDrivenBuilderCollection;
+import org.apache.geronimo.deployment.util.DeploymentUtil;
 import org.apache.geronimo.deployment.service.EnvironmentBuilder;
 import org.apache.geronimo.deployment.service.GBeanBuilder;
 import org.apache.geronimo.deployment.xmlbeans.XmlBeansUtil;
@@ -75,6 +76,7 @@ import org.apache.commons.logging.LogFactory;
 import javax.ejb.EntityContext;
 import javax.ejb.SessionContext;
 import javax.xml.namespace.QName;
+
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
@@ -85,6 +87,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.LinkedList;
 import java.util.jar.JarFile;
 
 /**
@@ -107,12 +110,12 @@ public class EjbModuleBuilder implements ModuleBuilder {
     private final Collection<ModuleBuilderExtension> moduleBuilderExtensions;
 
     public EjbModuleBuilder(Environment defaultEnvironment,
-                            OpenEjbSystem openEjbSystem,
-                            Collection<ModuleBuilderExtension> moduleBuilderExtensions,
-                            Collection securityBuilders,
-                            Collection serviceBuilders,
-                            NamingBuilder namingBuilders,
-                            ResourceEnvironmentSetter resourceEnvironmentSetter) {
+            OpenEjbSystem openEjbSystem,
+            Collection<ModuleBuilderExtension> moduleBuilderExtensions,
+            Collection securityBuilders,
+            Collection serviceBuilders,
+            NamingBuilder namingBuilders,
+            ResourceEnvironmentSetter resourceEnvironmentSetter) {
 
         this.openEjbSystem = openEjbSystem;
         this.defaultEnvironment = defaultEnvironment;
@@ -121,7 +124,7 @@ public class EjbModuleBuilder implements ModuleBuilder {
         this.namingBuilder = namingBuilders;
         this.resourceEnvironmentSetter = resourceEnvironmentSetter;
 
-        if (moduleBuilderExtensions == null){
+        if (moduleBuilderExtensions == null) {
             moduleBuilderExtensions = Collections.EMPTY_LIST;
         }
         this.moduleBuilderExtensions = moduleBuilderExtensions;
@@ -150,14 +153,14 @@ public class EjbModuleBuilder implements ModuleBuilder {
         try {
             appModule = loader.load(new File(moduleFile.getName()));
         } catch (OpenEJBException e) {
-            if (e.getMessage().startsWith("Unsupported module type")){
+            if (e.getMessage().startsWith("Unsupported module type")) {
                 return null;
             }
             throw new DeploymentException(e);
         }
 
         // did we find a ejb jar?
-        if (appModule.getEjbModules().size() == 0){
+        if (appModule.getEjbModules().size() == 0) {
             return null;
         }
 
@@ -185,13 +188,14 @@ public class EjbModuleBuilder implements ModuleBuilder {
             XmlCursor xmlCursor = unknownXmlObject.newCursor();
             //
             QName qname = xmlCursor.getName();
-            if (qname == null){
+            if (qname == null) {
                 xmlCursor.toFirstChild();
                 qname = xmlCursor.getName();
             }
-            if (qname.getLocalPart().equals("openejb-jar")){
+            if (qname.getLocalPart().equals("openejb-jar")) {
                 ejbModule.getAltDDs().put("openejb-jar.xml", xmlCursor.xmlText());
-            } else if (qname.getLocalPart().equals("ejb-jar") && qname.getNamespaceURI().equals("http://geronimo.apache.org/xml/ns/j2ee/ejb/openejb-2.0")){
+            } else
+            if (qname.getLocalPart().equals("ejb-jar") && qname.getNamespaceURI().equals("http://geronimo.apache.org/xml/ns/j2ee/ejb/openejb-2.0")) {
                 ejbModule.getAltDDs().put("geronimo-openejb.xml", xmlCursor.xmlText());
             }
         }
@@ -201,16 +205,15 @@ public class EjbModuleBuilder implements ModuleBuilder {
         try {
             readDescriptors.deploy(appModule);
         } catch (OpenEJBException e) {
-            throw new DeploymentException("Failed parsing descriptors for module: "+moduleFile.getName(), e);
+            throw new DeploymentException("Failed parsing descriptors for module: " + moduleFile.getName(), e);
         }
-
 
         // Get the geronimo-openejb.xml tree
         boolean standAlone = earEnvironment == null;
         GeronimoEjbJarType geronimoEjbJarType = (GeronimoEjbJarType) ejbModule.getAltDDs().get("geronimo-openejb.xml");
         if (geronimoEjbJarType == null) {
             // create default plan
-            String path = (standAlone)? new File(moduleFile.getName()).getName(): targetPath;
+            String path = (standAlone) ? new File(moduleFile.getName()).getName() : targetPath;
             geronimoEjbJarType = XmlUtil.createDefaultPlan(path, ejbModule.getEjbJar());
             ejbModule.getAltDDs().put("geronimo-openejb.xml", geronimoEjbJarType);
         }
@@ -248,7 +251,7 @@ public class EjbModuleBuilder implements ModuleBuilder {
                 builder.createModule(module, plan, moduleFile, targetPath, specDDUrl, environment, null, earName, naming, idBuilder);
             } catch (Throwable t) {
                 String builderName = builder.getClass().getSimpleName();
-                log.error(builderName+".createModule() failed: "+t.getMessage(), t);
+                log.error(builderName + ".createModule() failed: " + t.getMessage(), t);
             }
         }
         return module;
@@ -276,7 +279,8 @@ public class EjbModuleBuilder implements ModuleBuilder {
                 ref.setMappedName(null);
                 ref.getInjectionTarget().clear();
             }
-            for (Iterator<ResourceEnvRef> iterator = enterpriseBean.getResourceEnvRef().iterator(); iterator.hasNext();) {
+            for (Iterator<ResourceEnvRef> iterator = enterpriseBean.getResourceEnvRef().iterator(); iterator.hasNext();)
+            {
                 ResourceEnvRef ref = iterator.next();
                 if (ref.getType().equals(SessionContext.class.getName())) {
                     iterator.remove();
@@ -298,12 +302,39 @@ public class EjbModuleBuilder implements ModuleBuilder {
 
     public void installModule(JarFile earFile, EARContext earContext, Module module, Collection configurationStores, ConfigurationStore targetConfigurationStore, Collection repository) throws DeploymentException {
         installModule(module, earContext);
+        EARContext moduleContext;
+        if (module.isStandAlone()) {
+            moduleContext = earContext;
+        } else {
+            Environment environment = earContext.getConfiguration().getEnvironment();
+            File configurationDir = new File(earContext.getBaseDir(), module.getTargetPath());
+//            configurationDir.mkdirs();
+
+            // construct the ejb app deployment context... this is the same class used by the ear context
+            try {
+                File inPlaceConfigurationDir = null;
+                if (null != earContext.getInPlaceConfigurationDir()) {
+                    inPlaceConfigurationDir = new File(earContext.getInPlaceConfigurationDir(), module.getTargetPath());
+                }
+                moduleContext = new EARContext(configurationDir,
+                        inPlaceConfigurationDir,
+                        environment,
+                        ConfigurationModuleType.EJB,
+                        module.getModuleName(),
+                        earContext);
+            } catch (DeploymentException e) {
+                cleanupConfigurationDir(configurationDir);
+                throw e;
+            }
+        }
+        module.setEarContext(moduleContext);
+        module.setRootEarContext(earContext);
         for (ModuleBuilderExtension builder : moduleBuilderExtensions) {
             try {
                 builder.installModule(earFile, earContext, module, configurationStores, targetConfigurationStore, repository);
             } catch (Throwable t) {
                 String builderName = builder.getClass().getSimpleName();
-                log.error(builderName+".installModule() failed: "+t.getMessage(), t);
+                log.error(builderName + ".installModule() failed: " + t.getMessage(), t);
             }
         }
     }
@@ -318,12 +349,26 @@ public class EjbModuleBuilder implements ModuleBuilder {
         }
     }
 
+    private static final String LINE_SEP = System.getProperty("line.separator");
+
+    private boolean cleanupConfigurationDir(File configurationDir) {
+        LinkedList<String> cannotBeDeletedList = new LinkedList<String>();
+
+        if (!DeploymentUtil.recursiveDelete(configurationDir, cannotBeDeletedList)) {
+            // Output a message to help user track down file problem
+            log.warn("Unable to delete " + cannotBeDeletedList.size() +
+                    " files while recursively deleting directory "
+                    + configurationDir + LINE_SEP +
+                    "The first file that could not be deleted was:" + LINE_SEP + "  " +
+                    (!cannotBeDeletedList.isEmpty() ? cannotBeDeletedList.getFirst() : ""));
+            return false;
+        }
+        return true;
+    }
+
     public void initContext(EARContext earContext, Module module, ClassLoader classLoader) throws DeploymentException {
         EjbModule ejbModule = (EjbModule) module;
         ejbModule.setClassLoader(classLoader);
-        EARContext moduleContext = new EARContext(module.getModuleName(), earContext);
-        ejbModule.setEarContext(moduleContext);
-        ejbModule.setRootEarContext(earContext);
 
         // build the config info tree
         // this method fills in the ejbJar jaxb tree based on the annotations
@@ -355,7 +400,7 @@ public class EjbModuleBuilder implements ModuleBuilder {
             if (generatedJar != null) {
                 String generatedPath = module.getTargetPath();
                 if (generatedPath.endsWith(".jar")) {
-                    generatedPath = generatedPath.substring(0, generatedPath.length() -4);
+                    generatedPath = generatedPath.substring(0, generatedPath.length() - 4);
                 }
                 generatedPath += "-cmp2.jar";
                 earContext.addInclude(URI.create(generatedPath), generatedJar);
@@ -400,7 +445,7 @@ public class EjbModuleBuilder implements ModuleBuilder {
         ejbModule.setEjbBuilder(ejbDeploymentBuilder);
         ejbDeploymentBuilder.initContext();
 
-        // Build the security configuration.  Attempt to auto generate role mappings.
+        // Build the security configuration.
         securityBuilders.build(geronimoOpenejb, earContext, ejbModule.isStandAlone() ? ejbModule.getEarContext() : null);
 
         // Add extra gbean declared in the geronimo-openejb.xml file
@@ -411,7 +456,7 @@ public class EjbModuleBuilder implements ModuleBuilder {
                 builder.initContext(earContext, module, classLoader);
             } catch (Throwable t) {
                 String builderName = builder.getClass().getSimpleName();
-                log.error(builderName+".initContext() failed: "+t.getMessage(), t);
+                log.error(builderName + ".initContext() failed: " + t.getMessage(), t);
             }
         }
     }
@@ -504,7 +549,7 @@ public class EjbModuleBuilder implements ModuleBuilder {
                 builder.addGBeans(earContext, module, cl, repositories);
             } catch (Throwable t) {
                 String builderName = builder.getClass().getSimpleName();
-                log.error(builderName+".addGBeans() failed: "+t.getMessage(), t);
+                log.error(builderName + ".addGBeans() failed: " + t.getMessage(), t);
             }
         }
     }

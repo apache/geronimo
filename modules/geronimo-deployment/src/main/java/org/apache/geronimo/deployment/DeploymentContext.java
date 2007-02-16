@@ -109,23 +109,6 @@ public class DeploymentContext {
         }
     }
 
-    public DeploymentContext(AbstractName name, DeploymentContext sharedParent) {
-        this.baseDir = sharedParent.baseDir;
-
-        this.inPlaceConfigurationDir = sharedParent.inPlaceConfigurationDir;
-
-        this.moduleName = name;
-
-        this.naming = sharedParent.naming;
-
-        this.configuration = sharedParent.configuration;
-
-        this.configurationManager = sharedParent.configurationManager;
-
-        resourceContext = sharedParent.resourceContext;
-
-    }
-
     private static ConfigurationManager createConfigurationManager(ConfigurationManager configurationManager, Collection repositories) {
         return new DeploymentConfigurationManager(configurationManager, repositories);
     }

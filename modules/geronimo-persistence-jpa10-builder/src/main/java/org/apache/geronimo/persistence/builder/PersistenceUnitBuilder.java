@@ -78,25 +78,28 @@ public class PersistenceUnitBuilder implements NamespaceDrivenBuilder {
         ResourceFinder finder = new ResourceFinder("", moduleContext.getClassLoader(), null);
         try {
             //TODO the code that figures out the persistence unit name is incomplete
-            URI baseURI = applicationContext.getBaseDir().toURI();
+            URI baseURI = moduleContext.getBaseDir().toURI();
+            String base = baseURI.toString();
             List<URL> persistenceUrls = finder.findAll("META-INF/persistence.xml");
             for (URL persistenceUrl: persistenceUrls) {
-                URI relativeURI;
+                String persistenceLocation;
                 try {
-                    relativeURI = baseURI.relativize(persistenceUrl.toURI());
+                     persistenceLocation = persistenceUrl.toURI().toString();
                 } catch (URISyntaxException e) {
+                    //????
                     continue;
                 }
-                String relative = relativeURI.toString();
-                int pos = relative.indexOf("!/");
-                if (pos > 0) {
-                    relative = relative.substring(0, pos -1);
-                } else {
-                    relative = null;
+                int pos = persistenceLocation.indexOf(base);
+                if (pos < 0) {
+                    //wrong location?
+                    continue;
                 }
+                int endPos = persistenceLocation.lastIndexOf("!/");
+                String relative = persistenceLocation.substring(pos + base.length(), endPos);
                 PersistenceDocument persistenceDocument;
                 try {
-                    persistenceDocument = (PersistenceDocument) XmlBeansUtil.parse(persistenceUrl, moduleContext.getClassLoader());
+                    XmlObject xmlObject = XmlBeansUtil.parse(persistenceUrl, moduleContext.getClassLoader());
+                    persistenceDocument = (PersistenceDocument)xmlObject.changeType(PersistenceDocument.type);
                 } catch (XmlException e) {
                     throw new DeploymentException("Could not parse persistence.xml file: " + persistenceUrl, e);
                 }
@@ -118,7 +121,7 @@ public class PersistenceUnitBuilder implements NamespaceDrivenBuilder {
     private void installPersistenceUnitGBean(PersistenceDocument.Persistence.PersistenceUnit persistenceUnit, DeploymentContext moduleContext, String moduleType, String moduleName) throws DeploymentException {
         String persistenceUnitName = persistenceUnit.getName().trim();
         AbstractName abstractName;
-        if (moduleType == null || moduleName == null) {
+        if (moduleType == null || moduleName == null || moduleName.length() == 0) {
             abstractName = moduleContext.getNaming().createChildName(moduleContext.getModuleName(), persistenceUnitName, PersistenceUnitGBean.GBEAN_INFO.getJ2eeType());
         } else {
             abstractName = moduleContext.getNaming().createChildName(moduleContext.getModuleName(), moduleName, moduleType);

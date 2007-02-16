@@ -110,18 +110,6 @@ public class EARContext extends DeploymentContext {
         this.corbaGBeanObjectName = parent.getCORBAGBeanName();
     }
 
-    public EARContext(AbstractName moduleName, EARContext parent) {
-        super(moduleName, parent);
-        this.serverName = parent.getServerName();
-
-        this.transactionManagerObjectName = parent.getTransactionManagerName();
-        this.connectionTrackerObjectName = parent.getConnectionTrackerName();
-        this.transactedTimerName = parent.getTransactedTimerName();
-        this.nonTransactedTimerName = parent.getNonTransactedTimerName();
-        this.corbaGBeanObjectName = parent.getCORBAGBeanName();
-
-    }
-
     public AbstractNameQuery getServerName() {
         return serverName;
     }
