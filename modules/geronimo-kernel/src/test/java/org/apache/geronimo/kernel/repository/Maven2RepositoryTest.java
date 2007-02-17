@@ -14,19 +14,19 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.apache.geronimo.system.repository;
+package org.apache.geronimo.kernel.repository;
 
 import java.io.File;
 
 /**
- * @version $Rev$ $Date$
+ * @version $Rev: 476049 $ $Date: 2006-11-17 15:35:17 +1100 (Fri, 17 Nov 2006) $
  */
-public class Maven1RepositoryTest extends AbstractRepositoryTest {
+public class Maven2RepositoryTest extends AbstractRepositoryTest {
     private File basedir = new File(System.getProperty("basedir"));
     
     protected void setUp() throws Exception {
-        rootRepoDir = new File(basedir, "target/m1");
-        repository = new Maven1Repository(rootRepoDir);
+        rootRepoDir = new File(basedir, "target/m2");
+        repository = new Maven2Repository(rootRepoDir);
         super.setUp();
     }
 }

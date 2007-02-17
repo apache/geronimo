@@ -14,7 +14,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.apache.geronimo.system.repository;
+package org.apache.geronimo.kernel.repository;
 
 import java.io.InputStream;
 import java.io.File;
@@ -30,7 +30,7 @@ import org.apache.geronimo.kernel.repository.FileWriteMonitor;
 import org.apache.geronimo.kernel.config.IOUtil;
 
 /**
- * @version $Rev$ $Date$
+ * @version $Rev: 476049 $ $Date: 2006-11-17 15:35:17 +1100 (Fri, 17 Nov 2006) $
  */
 public class UnpackArtifactTypeHandler implements ArtifactTypeHandler {
     private final static int TRANSFER_NOTIFICATION_SIZE = 10240;  // announce every this many bytes

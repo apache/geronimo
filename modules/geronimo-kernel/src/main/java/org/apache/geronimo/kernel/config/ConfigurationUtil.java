@@ -16,23 +16,27 @@
  */
 package org.apache.geronimo.kernel.config;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintWriter;
-import java.io.File;
+import java.net.JarURLConnection;
+import java.net.URI;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.Set;
-import java.util.List;
-import java.util.Collections;
-import java.util.ArrayList;
-import java.util.Properties;
-import java.util.Map;
 import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Set;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.gbean.GAttributeInfo;
@@ -40,16 +44,18 @@ import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GReferenceInfo;
 import org.apache.geronimo.gbean.InvalidConfigurationException;
 import org.apache.geronimo.gbean.ReferencePatterns;
+import org.apache.geronimo.kernel.ClassLoading;
 import org.apache.geronimo.kernel.GBeanAlreadyExistsException;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
-import org.apache.geronimo.kernel.Kernel;
-import org.apache.geronimo.kernel.ClassLoading;
 import org.apache.geronimo.kernel.InternalKernelException;
+import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.basic.BasicKernel;
 import org.apache.geronimo.kernel.management.State;
 import org.apache.geronimo.kernel.repository.Artifact;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.apache.geronimo.kernel.repository.ArtifactResolver;
+import org.apache.geronimo.kernel.repository.DefaultArtifactManager;
+import org.apache.geronimo.kernel.repository.DefaultArtifactResolver;
+import org.apache.geronimo.kernel.repository.Maven2Repository;
 
 /**
  * @version $Rev:386276 $ $Date$
@@ -82,6 +88,29 @@ public final class ConfigurationUtil {
         }
 
         configurationMarshaler = marshaler;
+    }
+    
+    private static final File bootDirectory;
+
+    static {
+        // guess from the location of the jar
+        URL url = ConfigurationUtil.class.getClassLoader().getResource("META-INF/startup-jar");
+
+        File directory = null;
+        if (url != null) {
+            try {
+                JarURLConnection jarConnection = (JarURLConnection) url.openConnection();
+                url = jarConnection.getJarFileURL();
+
+                URI baseURI = new URI(url.toString()).resolve("..");
+                directory = new File(baseURI);
+            } catch (Exception ignored) {
+                log.error("Error while determining the installation directory of Apache Geronimo", ignored);
+            }
+        } else {
+            log.error("Cound not determine the installation directory of Apache Geronimo, because the startup jar could not be found in the current class loader.");
+        }
+        bootDirectory = directory;
     }
 
     public static ConfigurationMarshaler createConfigurationMarshaler(String marshalerClass) throws Exception {
@@ -122,28 +151,44 @@ public final class ConfigurationUtil {
     }
 
     public static AbstractName loadBootstrapConfiguration(Kernel kernel, InputStream in, ClassLoader classLoader) throws Exception {
+        return loadBootstrapConfiguration(kernel, in, classLoader, false);
+    }
+
+    public static AbstractName loadBootstrapConfiguration(Kernel kernel, InputStream in, ClassLoader classLoader, boolean enableBootRepo) throws Exception {
         ConfigurationData configurationData = readConfigurationData(in);
-        return loadBootstrapConfiguration(kernel, configurationData, classLoader);
+        return loadBootstrapConfiguration(kernel, configurationData, classLoader, enableBootRepo);
     }
 
     public static AbstractName loadBootstrapConfiguration(Kernel kernel, ConfigurationData configurationData, ClassLoader classLoader) throws Exception {
+        return loadBootstrapConfiguration(kernel, configurationData, classLoader, false);
+    }
+
+    public static AbstractName loadBootstrapConfiguration(Kernel kernel, ConfigurationData configurationData, ClassLoader classLoader, boolean enableBootRepo) throws Exception {
         if (kernel == null) throw new NullPointerException("kernel is null");
         if (configurationData == null) throw new NullPointerException("configurationData is null");
         if (classLoader == null) throw new NullPointerException("classLoader is null");
-
-        // a bootstrap configuration can not have any dependencies
-        List dependencies = configurationData.getEnvironment().getDependencies();
-        if (!dependencies.isEmpty()) {
-            configurationData.getEnvironment().setDependencies(Collections.EMPTY_SET);
-//            throw new InvalidConfigurationException("Booststrap configuration can not have dependendencies: " + dependencies);
-        }
 
         // build the gbean data
         Artifact configId = configurationData.getId();
         AbstractName abstractName = Configuration.getConfigurationAbstractName(configId);
         GBeanData gbeanData = new GBeanData(abstractName, Configuration.GBEAN_INFO);
         gbeanData.setAttribute("configurationData", configurationData);
-        gbeanData.setAttribute("configurationResolver", new ConfigurationResolver(configurationData, null, null));
+        
+        Collection repositories = null;
+        ArtifactResolver artifactResolver = null;
+        if (enableBootRepo) {
+            String repository = System.getProperty("Xorg.apache.geronimo.repository.boot.path", "repository");
+            Maven2Repository bootRepository = new Maven2Repository(new File(bootDirectory, repository));
+            repositories = Collections.singleton(bootRepository);
+            artifactResolver = new DefaultArtifactResolver(new DefaultArtifactManager(), bootRepository);
+        } else {
+            // a bootstrap configuration can not have any dependencies
+            List dependencies = configurationData.getEnvironment().getDependencies();
+            if (!dependencies.isEmpty()) {
+                configurationData.getEnvironment().setDependencies(Collections.EMPTY_SET);
+            }
+        }
+        gbeanData.setAttribute("configurationResolver", new ConfigurationResolver(configurationData, repositories, artifactResolver));
 
         // load and start the gbean
         kernel.loadGBean(gbeanData, classLoader);
@@ -237,12 +282,12 @@ public final class ConfigurationUtil {
     }
 
     /**
-     * Gets a reference or proxy to the ConfigurationManager running in the specified kernel.
+     * Gets the name of the ConfigurationManager running in the specified kernel.
      *
-     * @return The ConfigurationManager
+     * @return Its AbstractName
      * @throws IllegalStateException Occurs if a ConfigurationManager cannot be identified
      */
-    public static ConfigurationManager getConfigurationManager(Kernel kernel) {
+    public static AbstractName getConfigurationManagerName(Kernel kernel) {
         Set names = kernel.listGBeans(new AbstractNameQuery(ConfigurationManager.class.getName()));
         for (Iterator iterator = names.iterator(); iterator.hasNext();) {
             AbstractName abstractName = (AbstractName) iterator.next();
@@ -256,7 +301,18 @@ public final class ConfigurationUtil {
         if (names.size() > 1) {
             throw new IllegalStateException("More than one Configuration Manager was found in the kernel");
         }
-        AbstractName configurationManagerName = (AbstractName) names.iterator().next();
+        return (AbstractName) names.iterator().next();
+    }
+    
+    
+    /**
+     * Gets a reference or proxy to the ConfigurationManager running in the specified kernel.
+     *
+     * @return The ConfigurationManager
+     * @throws IllegalStateException Occurs if a ConfigurationManager cannot be identified
+     */
+    public static ConfigurationManager getConfigurationManager(Kernel kernel) {
+        AbstractName configurationManagerName = getConfigurationManagerName(kernel);
         return (ConfigurationManager) kernel.getProxyManager().createProxy(configurationManagerName, ConfigurationManager.class);
     }
 

@@ -65,6 +65,7 @@
         <module>geronimo-corba-builder</module>
         <module>geronimo-deploy-config</module>
         <module>geronimo-deploy-jsr88</module>
+        <module>geronimo-deploy-jsr88-bootstrapper</module>
         <module>geronimo-deploy-tool</module>
         <module>geronimo-deployment</module>
         <module>geronimo-derby</module>

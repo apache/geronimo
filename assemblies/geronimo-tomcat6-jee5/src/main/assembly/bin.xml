@@ -77,6 +77,14 @@
         </dependencySet>
         
         <dependencySet>
+            <outputDirectory>lib</outputDirectory>
+            <outputFileNameMapping>jsr88-deploymentfactory.jar</outputFileNameMapping>
+            <includes>
+                <include>org.apache.geronimo.configs:jsr88-deploymentfactory</include>
+            </includes>
+        </dependencySet>
+
+        <dependencySet>
             <outputDirectory>bin</outputDirectory>
             <outputFileNameMapping>shutdown.jar</outputFileNameMapping>
             <includes>
@@ -145,17 +153,11 @@
         <fileSet>
             <directory>target/scratch</directory>
             <outputDirectory>var/config</outputDirectory>
-            <includes>
-                <include>offline-deployer-list</include>
-            </includes>
-        </fileSet>
-        
-        <fileSet>
-            <directory>target/scratch</directory>
-            <outputDirectory>var/config</outputDirectory>
             <fileMode>0644</fileMode>
             <includes>
                 <include>config.xml</include>
+                <include>jsr88-configurer-config.xml</include>
+                <include>offline-deployer-config.xml</include>
             </includes>
         </fileSet>
     </fileSets>

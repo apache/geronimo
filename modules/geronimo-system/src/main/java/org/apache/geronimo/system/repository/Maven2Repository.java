@@ -17,28 +17,22 @@
 package org.apache.geronimo.system.repository;
 
 import java.io.File;
-import java.io.FilenameFilter;
 import java.net.URI;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.SortedSet;
-import java.util.TreeSet;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
-import org.apache.geronimo.kernel.repository.Artifact;
-import org.apache.geronimo.kernel.repository.WritableListableRepository;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
 
 /**
  * @version $Rev$ $Date$
  */
-public class Maven2Repository extends AbstractRepository implements WritableListableRepository {
+public class Maven2Repository extends org.apache.geronimo.kernel.repository.Maven2Repository {
+
     private static final Log log = LogFactory.getLog(Maven2Repository.class);
     public Maven2Repository(URI root, ServerInfo serverInfo, boolean resolveToServer) {
-        super(root, serverInfo, resolveToServer);
+        super(new ServerInfoRootResolver(serverInfo, resolveToServer).resolve(root));
         log.debug("Maven2Repository(root = " + root + ", resolveToServer = "
                 + resolveToServer + ") rootFile = "
                 + rootFile.getAbsolutePath());
@@ -47,162 +41,6 @@ public class Maven2Repository extends AbstractRepository implements WritableList
     public Maven2Repository(File rootFile) {
         super(rootFile);
     }
-
-    public File getLocation(Artifact artifact) {
-        if(!artifact.isResolved()) {
-            throw new IllegalArgumentException("Artifact "+artifact+" is not fully resolved");
-        }
-        File path = new File(rootFile, artifact.getGroupId().replace('.', File.separatorChar));
-        path = new File(path, artifact.getArtifactId());
-        path = new File(path, artifact.getVersion().toString());
-        path = new File(path, artifact.getArtifactId() + "-" + artifact.getVersion() + "." + artifact.getType());
-
-        return path;
-    }
-
-    public SortedSet list() {
-        return listInternal(null, null, null);
-    }
-
-    public SortedSet list(Artifact query) {
-        if(query.getGroupId() != null) { // todo: see if more logic can be shared with the other case
-            File path = new File(rootFile, query.getGroupId().replace('.', File.separatorChar));
-            path = new File(path, query.getArtifactId());
-            if(!path.canRead() || !path.isDirectory()) {
-                return new TreeSet();
-            }
-
-            SortedSet artifacts = new TreeSet();
-
-            File[] versionDirs = path.listFiles();
-            for (int i = 0; i < versionDirs.length; i++) {
-                File versionDir = versionDirs[i];
-                if (versionDir.canRead() && versionDir.isDirectory()) {
-                    String version = versionDir.getName();
-                    if(query.getVersion() != null && !query.getVersion().toString().equals(version)) {
-                        continue;
-                    }
-                    // Assumes that artifactId is set
-                    final String filePrefix = query.getArtifactId() + "-" + version + ".";
-                    File[] list = versionDir.listFiles(new FilenameFilter() {
-                        public boolean accept(File dir, String name) {
-                            return name.startsWith(filePrefix);
-                        }
-                    });
-                    for (int j = 0; j < list.length; j++) {
-                        File file = list[j];
-                        String end = file.getName().substring(filePrefix.length());
-                        if(query.getType() != null && !query.getType().equals(end)) {
-                            continue;
-                        }
-                        if(end.indexOf('.') < 0) {
-                            artifacts.add(new Artifact(query.getGroupId(), query.getArtifactId(), version, end));
-                        }
-                    }
-                }
-            }
-            return artifacts;
-        } else {
-            return listInternal(query.getArtifactId(), query.getType(), query.getVersion() == null ? null : query.getVersion().toString());
-        }
-    }
-
-    private SortedSet listInternal(String artifactMatch, String typeMatch, String versionMatch) {
-        SortedSet artifacts = new TreeSet();
-        File[] groupIds = rootFile.listFiles();
-        for (int i = 0; i < groupIds.length; i++) {
-            File groupId = groupIds[i];
-            if (groupId.canRead() && groupId.isDirectory()) {
-                File[] versionDirs = groupId.listFiles();
-                for (int j = 0; j < versionDirs.length; j++) {
-                    File versionDir = versionDirs[j];
-                    if (versionDir.canRead() && versionDir.isDirectory()) {
-                        artifacts.addAll(getArtifacts(null, versionDir, artifactMatch, typeMatch, versionMatch));
-                    }
-                }
-            }
-        }
-        return artifacts;
-    }
-
-    private List getArtifacts(String groupId, File versionDir, String artifactMatch, String typeMatch, String versionMatch) {
-        // org/apache/xbean/xbean-classpath/2.2-SNAPSHOT/xbean-classpath-2.2-SNAPSHOT.jar
-        List artifacts = new ArrayList();
-        String artifactId = versionDir.getParentFile().getName();
-
-        File[] files = versionDir.listFiles();
-        for (int i = 0; i < files.length; i++) {
-            File file = files[i];
-            if (file.canRead()) {
-                if (file.isDirectory()) {
-                    File test = new File(file, "META-INF");
-                    if(test.exists() && test.isDirectory() && test.canRead() && groupId != null) {
-                        String version = versionDir.getName();
-                        String fileHeader = artifactId + "-" + version + ".";
-
-                        String fileName = file.getName();
-                        if (fileName.startsWith(fileHeader)) {
-                            // type is everything after the file header
-                            String type = fileName.substring(fileHeader.length());
-
-                            if (!type.endsWith(".sha1") && !type.endsWith(".md5")) {
-                                if(artifactMatch != null && !artifactMatch.equals(artifactId)) {
-                                    continue;
-                                }
-                                if(typeMatch != null && !typeMatch.equals(type)) {
-                                    continue;
-                                }
-                                if(versionMatch != null && !versionMatch.equals(version)) {
-                                    continue;
-                                }
-                                artifacts.add(new Artifact(groupId,
-                                        artifactId,
-                                        version,
-                                        type));
-                            }
-                        }
-                    } else { // this is just part of the path to the artifact
-                        String nextGroupId;
-                        if (groupId == null) {
-                            nextGroupId = artifactId;
-                        } else {
-                            nextGroupId = groupId + "." + artifactId;
-                        }
-
-                        artifacts.addAll(getArtifacts(nextGroupId, file, artifactMatch, typeMatch, versionMatch));
-                    }
-                } else if (groupId != null) {
-                    String version = versionDir.getName();
-                    String fileHeader = artifactId + "-" + version + ".";
-
-                    String fileName = file.getName();
-                    if (fileName.startsWith(fileHeader)) {
-                        // type is everything after the file header
-                        String type = fileName.substring(fileHeader.length());
-
-                        if (!type.endsWith(".sha1") && !type.endsWith(".md5")) {
-                            if(artifactMatch != null && !artifactMatch.equals(artifactId)) {
-                                continue;
-                            }
-                            if(typeMatch != null && !typeMatch.equals(type)) {
-                                continue;
-                            }
-                            if(versionMatch != null && !versionMatch.equals(version)) {
-                                continue;
-                            }
-                            artifacts.add(new Artifact(groupId,
-                                    artifactId,
-                                    version,
-                                    type
-                            ));
-                        }
-                    }
-                }
-            }
-        }
-        return artifacts;
-    }
-
 
     public static final GBeanInfo GBEAN_INFO;
 

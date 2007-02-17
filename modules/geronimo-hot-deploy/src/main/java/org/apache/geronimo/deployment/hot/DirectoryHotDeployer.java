@@ -16,36 +16,37 @@
  */
 package org.apache.geronimo.deployment.hot;
 
-import org.apache.geronimo.gbean.GBeanLifecycle;
-import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.gbean.GBeanInfoBuilder;
-import org.apache.geronimo.gbean.AbstractName;
-import org.apache.geronimo.gbean.AbstractNameQuery;
-import org.apache.geronimo.system.serverinfo.ServerInfo;
-import org.apache.geronimo.deployment.plugin.factories.DeploymentFactoryImpl;
-import org.apache.geronimo.deployment.plugin.jmx.JMXDeploymentManager;
-import org.apache.geronimo.deployment.cli.DeployUtils;
-import org.apache.geronimo.common.DeploymentException;
-import org.apache.geronimo.kernel.config.PersistentConfigurationList;
-import org.apache.geronimo.kernel.config.ConfigurationManager;
-import org.apache.geronimo.kernel.config.Configuration;
-import org.apache.geronimo.kernel.config.DeploymentWatcher;
-import org.apache.geronimo.kernel.Kernel;
-import org.apache.geronimo.kernel.repository.Artifact;
-import org.apache.geronimo.kernel.repository.MissingDependencyException;
+import java.io.File;
+import java.util.Iterator;
+import java.util.Set;
+
+import javax.enterprise.deploy.spi.DeploymentManager;
+import javax.enterprise.deploy.spi.Target;
+import javax.enterprise.deploy.spi.TargetModuleID;
+import javax.enterprise.deploy.spi.exceptions.DeploymentManagerCreationException;
+import javax.enterprise.deploy.spi.factories.DeploymentFactory;
+import javax.enterprise.deploy.spi.status.ProgressObject;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.geronimo.common.DeploymentException;
+import org.apache.geronimo.deployment.cli.DeployUtils;
+import org.apache.geronimo.deployment.plugin.factories.DeploymentFactoryWithKernel;
+import org.apache.geronimo.deployment.plugin.jmx.JMXDeploymentManager;
 import org.apache.geronimo.deployment.util.DeploymentUtil;
-import javax.enterprise.deploy.spi.DeploymentManager;
-import javax.enterprise.deploy.spi.TargetModuleID;
-import javax.enterprise.deploy.spi.Target;
-import javax.enterprise.deploy.spi.exceptions.DeploymentManagerCreationException;
-import javax.enterprise.deploy.spi.status.ProgressObject;
-import javax.enterprise.deploy.spi.factories.DeploymentFactory;
-
-import java.io.File;
-import java.util.Set;
-import java.util.Iterator;
+import org.apache.geronimo.gbean.AbstractName;
+import org.apache.geronimo.gbean.AbstractNameQuery;
+import org.apache.geronimo.gbean.GBeanInfo;
+import org.apache.geronimo.gbean.GBeanInfoBuilder;
+import org.apache.geronimo.gbean.GBeanLifecycle;
+import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.kernel.config.Configuration;
+import org.apache.geronimo.kernel.config.ConfigurationManager;
+import org.apache.geronimo.kernel.config.DeploymentWatcher;
+import org.apache.geronimo.kernel.config.PersistentConfigurationList;
+import org.apache.geronimo.kernel.repository.Artifact;
+import org.apache.geronimo.kernel.repository.MissingDependencyException;
+import org.apache.geronimo.system.serverinfo.ServerInfo;
 
 /**
  * A directory-scanning hot deployer
@@ -142,7 +143,7 @@ public class DirectoryHotDeployer implements HotDeployer, DeploymentWatcher, GBe
 
     public void doStart() throws Exception {
         if (factory == null) {
-            factory = new DeploymentFactoryImpl();
+            factory = new DeploymentFactoryWithKernel(kernel);
         }
         File dir = serverInfo.resolve(path);
         if (!dir.exists()) {

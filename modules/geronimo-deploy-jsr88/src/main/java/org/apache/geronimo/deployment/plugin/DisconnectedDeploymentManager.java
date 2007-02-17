@@ -19,6 +19,7 @@ package org.apache.geronimo.deployment.plugin;
 
 import java.io.File;
 import java.io.InputStream;
+import java.util.Collection;
 import java.util.Locale;
 
 import javax.enterprise.deploy.model.DeployableObject;
@@ -35,6 +36,7 @@ import javax.enterprise.deploy.spi.status.ProgressObject;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.geronimo.deployment.ModuleConfigurer;
 
 /**
  * Implementation of a disconnected JSR88 DeploymentManager.
@@ -45,25 +47,30 @@ import org.apache.commons.logging.LogFactory;
 public class DisconnectedDeploymentManager implements DeploymentManager {
     private static final Log log = LogFactory.getLog(DisconnectedDeploymentManager.class);
 
-    public DeploymentConfiguration createConfiguration(DeployableObject dObj) throws InvalidModuleException {
-        if(dObj.getType().equals(ModuleType.CAR)) {
-            //todo: need a client configurer
-        } else if(dObj.getType().equals(ModuleType.EAR)) {
-            //todo: need an EAR configurer
-        } else if(dObj.getType().equals(ModuleType.EJB)) {
-            try {
-                Class cls = Class.forName("org.apache.openejb.deployment.EJBConfigurer");
-                return (DeploymentConfiguration)cls.getMethod("createConfiguration", new Class[]{DeployableObject.class}).invoke(cls.newInstance(), new Object[]{dObj});
-            } catch (Exception e) {
-                log.error("Unable to invoke EJB deployer", e);
-            }
-        } else if(dObj.getType().equals(ModuleType.RAR)) {
-//            return new RARConfigurer().createConfiguration(dObj);
-        } else if(dObj.getType().equals(ModuleType.WAR)) {
-//            return new WARConfigurer().createConfiguration(dObj); // this is jetty
-            // todo: Tomcat WARConfigurer
+    private final Collection<ModuleConfigurer> moduleConfigurers;
+
+    public DisconnectedDeploymentManager(Collection<ModuleConfigurer> moduleConfigurers) {
+        if (null == moduleConfigurers) {
+            throw new IllegalArgumentException("moduleConfigurers is required");
         }
-        throw new InvalidModuleException("Not supported");
+        this.moduleConfigurers = moduleConfigurers;
+    }
+
+    public DeploymentConfiguration createConfiguration(DeployableObject dObj) throws InvalidModuleException {
+        if (dObj == null) {
+            throw new NullPointerException("No deployable object supplied to configure");
+        }
+        ModuleConfigurer configurer = null;
+        for (ModuleConfigurer moduleConfigurer : moduleConfigurers) {
+            if (moduleConfigurer.getModuleType() == dObj.getType()) {
+                configurer = moduleConfigurer;
+               break;
+            }
+        }
+        if (configurer == null) {
+            throw new InvalidModuleException("No configurer for module type: " + dObj.getType() + " registered");
+        }
+        return configurer.createConfiguration(dObj);
     }
 
     public Locale[] getSupportedLocales() {

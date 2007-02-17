@@ -53,24 +53,5 @@
         
     </dependencies>
 
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-jar-plugin</artifactId>
-                <configuration>
-                    <archive>
-                        <manifest>
-                            <addClasspath>true</addClasspath>
-                        </manifest>
-                        <manifestEntries>
-                            <J2EE-DeploymentFactory-Implementation-Class>org.apache.geronimo.deployment.plugin.factories.DeploymentFactoryImpl</J2EE-DeploymentFactory-Implementation-Class>
-                        </manifestEntries>
-                    </archive>
-                </configuration>
-            </plugin>
-        </plugins>
-    </build>
-    
 </project>
 

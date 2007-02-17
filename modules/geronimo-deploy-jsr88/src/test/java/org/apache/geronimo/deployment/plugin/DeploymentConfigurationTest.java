@@ -17,13 +17,12 @@
 
 package org.apache.geronimo.deployment.plugin;
 
-import javax.enterprise.deploy.spi.factories.DeploymentFactory;
-import javax.enterprise.deploy.spi.DeploymentManager;
-import javax.enterprise.deploy.spi.DeploymentConfiguration;
 import javax.enterprise.deploy.model.DDBeanRoot;
+import javax.enterprise.deploy.spi.factories.DeploymentFactory;
+
+import junit.framework.TestCase;
 
 import org.apache.geronimo.deployment.plugin.factories.DeploymentFactoryImpl;
-import junit.framework.TestCase;
 
 /**
  *

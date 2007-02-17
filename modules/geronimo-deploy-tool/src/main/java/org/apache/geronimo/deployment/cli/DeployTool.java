@@ -17,11 +17,32 @@
 
 package org.apache.geronimo.deployment.cli;
 
-import org.apache.geronimo.common.DeploymentException;
-import org.apache.geronimo.common.GeronimoEnvironment;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 
-import java.util.*;
-import java.io.*;
+import javax.enterprise.deploy.spi.factories.DeploymentFactory;
+
+import org.apache.geronimo.common.DeploymentException;
+import org.apache.geronimo.gbean.GBeanInfo;
+import org.apache.geronimo.gbean.GBeanInfoBuilder;
+import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.kernel.util.Main;
+
 
 /**
  * The main class for the CLI deployer.  Handles chunking the input arguments
@@ -35,56 +56,43 @@ import java.io.*;
  *
  * @version $Rev$ $Date$
  */
-public class DeployTool {
-    private final static Map commands = new HashMap();
+public class DeployTool implements Main {
 
-    public static void registerCommand(DeployCommand command) {
-        String key = command.getCommandName();
-        if(commands.containsKey(key)) {
-            throw new IllegalArgumentException("Command "+key+" is already registered!");
-        } else {
-            commands.put(key, command);
-        }
-    }
-
-    private static DeployCommand getCommand(String name) {
-        return (DeployCommand) commands.get(name);
-    }
-
-    private static DeployCommand[] getAllCommands() {
-        DeployCommand[] list = (DeployCommand[]) commands.values().toArray(new DeployCommand[0]);
-        Arrays.sort(list, new Comparator() {
-            public int compare(Object o1, Object o2) {
-                return ((DeployCommand)o1).getCommandName().compareTo(((DeployCommand)o2).getCommandName());
-            }
-        });
-        return list;
-    }
+    private static final Collection<DeployCommand> commands = new ArrayList<DeployCommand>();
 
     static {
-        // Perform initialization tasks common with the various Geronimo process environments.
-        GeronimoEnvironment.init();
-        
-        registerCommand(new CommandLogin());
-        registerCommand(new CommandDeploy());
-        registerCommand(new CommandDistribute());
-        registerCommand(new CommandListModules());
-        registerCommand(new CommandListTargets());
-        registerCommand(new CommandRedeploy());
-        registerCommand(new CommandStart());
-        registerCommand(new CommandStop());
-        registerCommand(new CommandRestart());
-        registerCommand(new CommandUndeploy());
-        registerCommand(new CommandListConfigurations());
-        registerCommand(new CommandInstallCAR());
+        commands.add(new CommandLogin());
+        commands.add(new CommandDeploy());
+        commands.add(new CommandDistribute());
+        commands.add(new CommandListModules());
+        commands.add(new CommandListTargets());
+        commands.add(new CommandRedeploy());
+        commands.add(new CommandStart());
+        commands.add(new CommandStop());
+        commands.add(new CommandRestart());
+        commands.add(new CommandUndeploy());
+        commands.add(new CommandListConfigurations());
+        commands.add(new CommandInstallCAR());
     }
 
     private boolean failed = false;
     String[] generalArgs = new String[0];
     ServerConnection con = null;
     private boolean multipleCommands = false;
+    private final Kernel kernel;
+    private final DeploymentFactory deploymentFactory;
 
-    public boolean execute(String args[]) {
+    public DeployTool(Kernel kernel, DeploymentFactory deploymentFactory) {
+        if (null == kernel) {
+            throw new IllegalArgumentException("kernel is required");
+        } else if (null == deploymentFactory) {
+            throw new IllegalArgumentException("deploymentFactory is required");
+        }
+        this.kernel = kernel;
+        this.deploymentFactory = deploymentFactory;
+    }
+    
+    public int execute(String args[]) {
         PrintWriter out = new PrintWriter(new OutputStreamWriter(System.out), true);
         InputStream in = System.in;
 
@@ -154,7 +162,7 @@ public class DeployTool {
             } else {
                 try {
                     if(con == null) {
-                        con = new ServerConnection(generalArgs, out, in);
+                        con = new ServerConnection(generalArgs, out, in, kernel, deploymentFactory);
                     }
                     try {
                         dc.execute(out, con, commandArgs);
@@ -178,7 +186,7 @@ public class DeployTool {
         }
         out.flush();
         System.out.flush();
-        return !failed;
+        return failed ? 1 : 0;
     }
 
     public static String[] splitCommand(String line) {
@@ -310,11 +318,42 @@ public class DeployTool {
         return (String[]) list.toArray(new String[list.size()]);
     }
 
-    public static void main(String[] args) {
-        if(!new DeployTool().execute(args)) {
-            System.exit(1);
-        } else {
-            System.exit(0);
+    private DeployCommand getCommand(String commandName) {
+        for (DeployCommand command : commands) {
+            if (command.getCommandName().equals(commandName)) {
+                return command;
+            }
         }
+        return null;
     }
+
+    private DeployCommand[] getAllCommands() {
+        DeployCommand[] list = (DeployCommand[]) commands.toArray(new DeployCommand[0]);
+        Arrays.sort(list, new Comparator() {
+            public int compare(Object o1, Object o2) {
+                return ((DeployCommand)o1).getCommandName().compareTo(((DeployCommand)o2).getCommandName());
+            }
+        });
+        return list;
+    }
+    
+    
+    public static final GBeanInfo GBEAN_INFO;
+    public static final String GBEAN_REF_DEPLOYMENT_FACTORY = "DeploymentFactory";
+    
+    static {
+        GBeanInfoBuilder infoBuilder = GBeanInfoBuilder.createStatic("DeployTool", DeployTool.class, "DeployTool");
+
+        infoBuilder.addReference(GBEAN_REF_DEPLOYMENT_FACTORY, DeploymentFactory.class);
+        infoBuilder.addInterface(Main.class);
+        
+        infoBuilder.setConstructor(new String[] {"kernel", GBEAN_REF_DEPLOYMENT_FACTORY});
+        
+        GBEAN_INFO = infoBuilder.getBeanInfo();
+    }
+    
+    public static GBeanInfo getGBeanInfo() {
+        return GBEAN_INFO;
+    }
+
 }
