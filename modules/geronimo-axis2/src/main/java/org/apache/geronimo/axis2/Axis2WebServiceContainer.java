@@ -17,8 +17,27 @@
 
 package org.apache.geronimo.axis2;
 
-import org.apache.axiom.om.OMElement;
-import org.apache.axiom.om.OMNamespace;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.net.URI;
+import java.net.URL;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.CountDownLatch;
+
+import javax.naming.Context;
+import javax.servlet.ServletContext;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.wsdl.Definition;
+import javax.wsdl.factory.WSDLFactory;
+import javax.wsdl.xml.WSDLWriter;
+import javax.xml.namespace.QName;
+import javax.xml.ws.WebServiceException;
+import javax.xml.ws.handler.Handler;
+
 import org.apache.axiom.om.util.UUIDGenerator;
 import org.apache.axis2.AxisFault;
 import org.apache.axis2.Constants;
@@ -29,30 +48,13 @@ import org.apache.axis2.context.MessageContext;
 import org.apache.axis2.context.OperationContext;
 import org.apache.axis2.context.ServiceContext;
 import org.apache.axis2.context.ServiceGroupContext;
-import org.apache.axis2.description.AxisMessage;
-import org.apache.axis2.description.AxisOperation;
 import org.apache.axis2.description.AxisService;
 import org.apache.axis2.description.AxisServiceGroup;
-import org.apache.axis2.description.Parameter;
 import org.apache.axis2.description.TransportInDescription;
 import org.apache.axis2.description.TransportOutDescription;
-import org.apache.axis2.description.WSDL11ToAxisServiceBuilder;
-import org.apache.axis2.description.WSDL20ToAxisServiceBuilder;
-import org.apache.axis2.description.WSDLToAxisServiceBuilder;
 import org.apache.axis2.engine.AxisEngine;
 import org.apache.axis2.engine.DependencyManager;
 import org.apache.axis2.jaxws.binding.BindingImpl;
-import org.apache.axis2.jaxws.description.DescriptionFactory;
-import org.apache.axis2.jaxws.description.EndpointDescription;
-import org.apache.axis2.jaxws.description.ServiceDescription;
-import org.apache.axis2.jaxws.description.builder.DescriptionBuilderComposite;
-import org.apache.axis2.jaxws.description.builder.MethodDescriptionComposite;
-import org.apache.axis2.jaxws.description.builder.ParameterDescriptionComposite;
-import org.apache.axis2.jaxws.description.builder.RequestWrapperAnnot;
-import org.apache.axis2.jaxws.description.builder.ResponseWrapperAnnot;
-import org.apache.axis2.jaxws.description.builder.WebMethodAnnot;
-import org.apache.axis2.jaxws.description.builder.WebParamAnnot;
-import org.apache.axis2.jaxws.description.builder.WebServiceAnnot;
 import org.apache.axis2.jaxws.description.builder.WsdlComposite;
 import org.apache.axis2.jaxws.description.builder.WsdlGenerator;
 import org.apache.axis2.jaxws.javaee.HandlerChainsType;
@@ -64,9 +66,6 @@ import org.apache.axis2.transport.http.HTTPTransportReceiver;
 import org.apache.axis2.transport.http.HTTPTransportUtils;
 import org.apache.axis2.util.JavaUtils;
 import org.apache.axis2.util.MessageContextBuilder;
-import org.apache.axis2.util.XMLUtils;
-import org.apache.axis2.wsdl.WSDLConstants;
-import org.apache.axis2.wsdl.WSDLUtil;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.jaxws.JAXWSAnnotationProcessor;
@@ -75,32 +74,6 @@ import org.apache.geronimo.jaxws.ServerJNDIResolver;
 import org.apache.geronimo.jaxws.annotations.AnnotationException;
 import org.apache.geronimo.webservices.WebServiceContainer;
 import org.apache.ws.commons.schema.XmlSchema;
-
-import javax.naming.Context;
-import javax.servlet.ServletContext;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.wsdl.Definition;
-import javax.wsdl.Port;
-import javax.wsdl.Service;
-import javax.wsdl.factory.WSDLFactory;
-import javax.wsdl.xml.WSDLWriter;
-import javax.xml.namespace.QName;
-import javax.xml.ws.WebServiceException;
-import javax.xml.ws.handler.Handler;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.io.StringBufferInputStream;
-import java.io.StringReader;
-import java.lang.reflect.Method;
-import java.net.URI;
-import java.net.URL;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.CountDownLatch;
 
 
 public class Axis2WebServiceContainer implements WebServiceContainer {
@@ -112,34 +85,31 @@ public class Axis2WebServiceContainer implements WebServiceContainer {
 
     private transient final ClassLoader classLoader;
     private final String endpointClassName;
-    private final org.apache.geronimo.jaxws.PortInfo portInfo;
+    private final PortInfo portInfo;
     private ConfigurationContext configurationContext;
     private String contextRoot = null;
     private Map servicesMap;
-    private Definition wsdlDefinition;
     private JNDIResolver jndiResolver;
     private JAXWSAnnotationProcessor annotationProcessor;
     private Object endpointInstance;
     private List<Handler> chain;
     private AxisService service;
 
-    public Axis2WebServiceContainer(org.apache.geronimo.jaxws.PortInfo portInfo,
+    public Axis2WebServiceContainer(PortInfo portInfo,
                                     String endpointClassName,
-                                    Definition wsdlDefinition,
                                     ClassLoader classLoader,
                                     Context context,
                                     URL configurationBaseUrl) {
         this.classLoader = classLoader;
         this.endpointClassName = endpointClassName;
         this.portInfo = portInfo;
-        this.wsdlDefinition = wsdlDefinition;
         try {
             configurationContext = ConfigurationContextFactory.createDefaultConfigurationContext();
             configurationContext.setServicePath(portInfo.getLocation());
-          
-            if(wsdlDefinition != null){ //WSDL Has been provided
+            
+            if(portInfo.getWsdlDefinition() != null){ //WSDL Has been provided
             	AxisServiceGenerator serviceGen = new AxisServiceGenerator();
-            	service = serviceGen.getServiceFromWSDL(portInfo, endpointClassName, wsdlDefinition, classLoader);
+            	service = serviceGen.getServiceFromWSDL(portInfo, endpointClassName, portInfo.getWsdlDefinition(), classLoader);
             	        	            	
             }else { //No WSDL, Axis2 will handle it. Is it ?
             	service = AxisService.createService(endpointClassName, configurationContext.getAxisConfiguration(), JAXWSMessageReceiver.class);
@@ -333,10 +303,10 @@ public class Axis2WebServiceContainer implements WebServiceContainer {
                 }
             }
             if (uri.getQuery().startsWith("wsdl")) {
-            	if(wsdlDefinition != null){
+            	if(portInfo.getWsdlDefinition() != null){
             		WSDLFactory factory = WSDLFactory.newInstance();
             		WSDLWriter writer = factory.newWSDLWriter();            		
-            		writer.writeWSDL(wsdlDefinition, response.getOutputStream());
+            		writer.writeWSDL(portInfo.getWsdlDefinition(), response.getOutputStream());
             		return;
             	}else {
                     service.printWSDL(response.getOutputStream());

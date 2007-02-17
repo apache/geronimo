@@ -28,6 +28,7 @@ import org.apache.geronimo.axis2.Axis2WebServiceContainerFactoryGBean;
 import org.apache.geronimo.axis2.client.Axis2ServiceReference;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.DeploymentContext;
+import org.apache.geronimo.deployment.util.DeploymentUtil;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
@@ -46,6 +47,8 @@ import org.apache.geronimo.xbeans.geronimo.naming.GerServiceRefType;
 import org.apache.geronimo.xbeans.javaee.ServiceRefHandlerChainsType;
 
 import javax.wsdl.Definition;
+import javax.wsdl.factory.WSDLFactory;
+import javax.wsdl.xml.WSDLReader;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;
@@ -104,6 +107,7 @@ public class Axis2Builder extends JAXWSServiceBuilder {
             if (!(obj instanceof WebservicesType)) {
                 return map;
             }
+            
             WebservicesType wst = (WebservicesType) obj;
 
             for (WebserviceDescriptionType desc : wst.getWebserviceDescription()) {
@@ -116,7 +120,27 @@ public class Axis2Builder extends JAXWSServiceBuilder {
 
                 for (PortComponentType port : desc.getPortComponent()) {
 
-                    PortInfo portInfo = new PortInfo();
+                    org.apache.geronimo.axis2.PortInfo portInfo = new org.apache.geronimo.axis2.PortInfo();
+                    
+                    if(wsdlFile != null && !wsdlFile.equals("")){
+                    	URL wsdlURL = DeploymentUtil.createJarURL(moduleFile, wsdlFile);
+                    	InputStream wsdlStream = wsdlURL.openStream();
+        				if(wsdlStream == null){
+        					throw new DeploymentException("unable to read descriptor "+wsdlURL);
+        				}else {
+        					try {
+        						WSDLFactory factory = WSDLFactory.newInstance();
+        						WSDLReader reader = factory.newWSDLReader();
+        						reader.setFeature("javax.wsdl.importDocuments", true);
+        						reader.setFeature("javax.wsdl.verbose", false);
+        						wsdlDefinition = reader.readWSDL(wsdlURL.toString());
+        						portInfo.setWsdlDefinition(wsdlDefinition);
+        						wsdlStream.close();
+        					} catch (RuntimeException e) {
+        						throw new DeploymentException("invalid WSDL provided "+wsdlURL);
+        					}
+        				}
+                    }
 
                     String serviceLink = null;
                     ServiceImplBeanType beanType = port.getServiceImplBean();
@@ -159,6 +183,7 @@ public class Axis2Builder extends JAXWSServiceBuilder {
                     if (map == null) {
                         map = new HashMap<String, PortInfo>();
                     }
+
                     map.put(serviceLink, portInfo);
                 }
             }
@@ -191,18 +216,7 @@ public class Axis2Builder extends JAXWSServiceBuilder {
 		boolean status = super.configurePOJO(targetGBean, servletName, module, seiClassName, context);
         if(!status) {
             return false;
-        }
-
-        if(wsdlDefinition != null){
-			//add the WSDL
-			try {
-				AbstractName containerFactoryName = context.getNaming().createChildName(targetGBean.getAbstractName(), getContainerFactoryGBeanInfo().getName(), NameFactory.GERONIMO_SERVICE);
-				GBeanData factory = context.getGBeanInstance(containerFactoryName); 
-				factory.setAttribute("wsdlDefinition", wsdlDefinition);
-			} catch (GBeanNotFoundException e) {
-				throw new DeploymentException("Unexpected condition"+e, e);
-			}
-		}
+        }       
 		
 		//change the URL
 		Map sharedContext = ((WebModule) module).getSharedContext();
@@ -212,7 +226,6 @@ public class Axis2Builder extends JAXWSServiceBuilder {
         if(portInfoMap != null && portInfoMap.get(servletName) != null){
         	org.apache.geronimo.jaxws.PortInfo portInfo = (org.apache.geronimo.jaxws.PortInfo) portInfoMap.get(servletName);
     		processURLPattern(contextRoot, portInfo);
-
         }
         
 		return status;

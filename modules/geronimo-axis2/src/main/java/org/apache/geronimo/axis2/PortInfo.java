@@ -17,80 +17,21 @@
 
 package org.apache.geronimo.axis2;
 
-import org.apache.axis2.jaxws.javaee.PortComponentHandlerType;
+import javax.wsdl.Definition;
 
-import java.io.Serializable;
-import java.util.List;
+public class PortInfo extends org.apache.geronimo.jaxws.PortInfo {
+	
+	private Definition wsdlDefinition;
+	
+    public Definition getWsdlDefinition() {
+		return wsdlDefinition;
+	}
 
+	public void setWsdlDefinition(Definition wsdlDefinition) {
+		this.wsdlDefinition = wsdlDefinition;
+	}
 
-public class PortInfo implements Serializable {
-
-    private String serviceName;
-    private String portName;
-    private String seiInterfaceName;
-    private String wsdlFile;
-    private String servletLink;
-    private String urlpattern;
-
-    private List<PortComponentHandlerType> handlers;
-
-    public String getPortName() {
-        return portName;
-    }
-
-    public void setPortName(String pn) {
-        portName = pn;
-    }
-
-    public String getServiceEndpointInterfaceName() {
-        return seiInterfaceName;
-    }
-
-    public void setServiceEndpointInterfaceName(String sei) {
-        seiInterfaceName = sei;
-    }
-
-    public String getServletLink() {
-        return servletLink;
-    }
-
-    public void setServletLink(String sl) {
-        servletLink = sl;
-    }
-
-    public String getWsdlFile() {
-        return wsdlFile;
-    }
-
-    public void setWsdlFile(String wf) {
-        wsdlFile = wf;
-    }
-
-    public void setHandlers(List<PortComponentHandlerType> h) {
-        handlers = h;
-    }
-
-    public List<PortComponentHandlerType> getHandlers() {
-        return handlers;
-    }
-
-    public String getServiceName() {
-        return serviceName;
-    }
-
-    public void setServiceName(String sn) {
-        serviceName = sn;
-    }
-    
-    public String getURLPattern() {
-        return urlpattern;
-    }
-    
-    public void setURLPattern(String up) {
-        urlpattern = up;
-    }
-
-    public String toString() {
-        return "[" + serviceName + ":" + portName + ":" + seiInterfaceName + ":" + wsdlFile + ":" + urlpattern + "]";
+	public String toString() {
+        return "[" + getServiceName() + ":" + getPortName() + ":" + getServiceEndpointInterfaceName() + ":" + getWsdlFile() + ":" + getLocation() + "]";
     }
 }
