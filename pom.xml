@@ -1441,7 +1441,7 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-rar-plugin</artifactId>
-                    <version>2.2-SNAPSHOT</version>
+                    <version>2.2</version>
                     <configuration>
                         <archive>
                             <!-- Do not include META-INF/maven to avoid long file problems on windows -->
