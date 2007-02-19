@@ -43,13 +43,6 @@
     <dependencies>
 
         <dependency>
-            <groupId>org.apache.geronimo.configs</groupId>
-            <artifactId>jsr88-deploymentfactory</artifactId>
-            <version>${version}</version>
-            <type>car</type>
-        </dependency>
-
-        <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
             <artifactId>geronimo-deploy-jsr88</artifactId>
             <version>${version}</version>
