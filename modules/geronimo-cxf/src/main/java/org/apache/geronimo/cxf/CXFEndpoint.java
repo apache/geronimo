@@ -39,8 +39,6 @@ import org.apache.cxf.endpoint.Server;
 import org.apache.cxf.endpoint.ServerImpl;
 import org.apache.cxf.jaxws.JAXWSMethodInvoker;
 import org.apache.cxf.jaxws.JaxWsServerFactoryBean;
-import org.apache.cxf.jaxws.ProviderChainObserver;
-import org.apache.cxf.jaxws.ProviderInvoker;
 import org.apache.cxf.jaxws.binding.soap.JaxWsSoapBindingInfoFactoryBean;
 import org.apache.cxf.jaxws.handler.PortInfoImpl;
 import org.apache.cxf.jaxws.javaee.HandlerChainsType;
@@ -48,7 +46,6 @@ import org.apache.cxf.jaxws.support.AbstractJaxWsServiceFactoryBean;
 import org.apache.cxf.jaxws.support.JaxWsEndpointImpl;
 import org.apache.cxf.jaxws.support.JaxWsImplementorInfo;
 import org.apache.cxf.jaxws.support.JaxWsServiceFactoryBean;
-import org.apache.cxf.jaxws.support.ProviderServiceFactoryBean;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.service.Service;
 import org.apache.cxf.service.factory.AbstractBindingInfoFactoryBean;
@@ -95,7 +92,7 @@ public class CXFEndpoint extends Endpoint {
         implInfo = new JaxWsImplementorInfo(implementor.getClass());
 
         if (implInfo.isWebServiceProvider()) {
-            serviceFactory = new ProviderServiceFactoryBean(implInfo);
+            //serviceFactory = new ProviderServiceFactoryBean(implInfo);
         } else {
             serviceFactory = new JaxWsServiceFactoryBean(implInfo);
         }
@@ -117,7 +114,7 @@ public class CXFEndpoint extends Endpoint {
                 .getEnableSchemaValidationForAllPort());
 
         if (implInfo.isWebServiceProvider()) {
-            service.setInvoker(new ProviderInvoker((Provider<?>) instance));
+            //service.setInvoker(new ProviderInvoker((Provider<?>) instance));
         } else {
             service.setInvoker(new JAXWSMethodInvoker(instance));
         }
@@ -239,10 +236,12 @@ public class CXFEndpoint extends Endpoint {
         
         init();
 
+        /*
         if (implInfo.isWebServiceProvider()) {
             getServer().setMessageObserver(
                     new ProviderChainObserver(getEndpoint(), bus, implInfo));
         }
+        */
 
         org.apache.cxf.endpoint.Endpoint endpoint = getEndpoint();
 
