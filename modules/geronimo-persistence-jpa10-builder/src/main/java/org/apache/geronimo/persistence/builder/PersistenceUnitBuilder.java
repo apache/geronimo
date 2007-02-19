@@ -143,7 +143,7 @@ public class PersistenceUnitBuilder implements NamespaceDrivenBuilder {
         if (persistenceUnit.isSetJtaDataSource()) {
             String jtaDataSourceString = persistenceUnit.getJtaDataSource().trim();
             if (jtaDataSourceString.indexOf('=') == -1) {
-                jtaDataSourceString = "name=" + jtaDataSourceString;
+                jtaDataSourceString = "?name=" + jtaDataSourceString;
             }
             try {
                 AbstractNameQuery jtaDataSourceNameQuery = new AbstractNameQuery(new URI(jtaDataSourceString + "#org.apache.geronimo.connector.outbound.ConnectionFactorySource"));
@@ -156,7 +156,7 @@ public class PersistenceUnitBuilder implements NamespaceDrivenBuilder {
         if (persistenceUnit.isSetNonJtaDataSource()) {
             String nonJtaDataSourceString = persistenceUnit.getNonJtaDataSource().trim();
             if (nonJtaDataSourceString.indexOf('=') == -1) {
-                nonJtaDataSourceString = "name=" + nonJtaDataSourceString;
+                nonJtaDataSourceString = "?name=" + nonJtaDataSourceString;
             }
             try {
                 AbstractNameQuery nonJtaDataSourceNameQuery = new AbstractNameQuery(new URI(nonJtaDataSourceString + "#org.apache.geronimo.connector.outbound.ConnectionFactorySource"));
