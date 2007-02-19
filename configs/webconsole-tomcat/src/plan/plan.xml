@@ -90,11 +90,6 @@
                     <artifactId>dwr</artifactId>
                     <type>jar</type>
                 </dependency>
-                <dependency>
-                    <groupId>taglibs</groupId>
-                    <artifactId>standard</artifactId>
-                    <type>jar</type>
-                </dependency>
               </dependencies>
               <inverse-classloading/>
             </environment>

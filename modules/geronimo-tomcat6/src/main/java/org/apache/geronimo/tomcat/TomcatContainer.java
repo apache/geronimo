@@ -78,12 +78,14 @@ public class TomcatContainer implements SoapHandler, GBeanLifecycle, TomcatWebCo
 
     private final Map webServices = new HashMap();
     private final String objectName;
+    private final String[] applicationListeners;
     private final WebManager manager;
     private static boolean first = true;
 
     // Required as it's referenced by deployed webapps
     public TomcatContainer() {
         this.objectName = null; // is this OK??
+        this.applicationListeners = null;
         setCatalinaHome(DEFAULT_CATALINA_HOME);
         manager = null;
     }
@@ -91,7 +93,7 @@ public class TomcatContainer implements SoapHandler, GBeanLifecycle, TomcatWebCo
     /**
      * GBean constructor (invoked dynamically when the gbean is declared in a plan)
      */
-    public TomcatContainer(ClassLoader classLoader, String catalinaHome, ObjectRetriever engineGBean, ServerInfo serverInfo, String objectName, WebManager manager) {
+    public TomcatContainer(ClassLoader classLoader, String catalinaHome, String[] applicationListeners, ObjectRetriever engineGBean, ServerInfo serverInfo, String objectName, WebManager manager) {
         // Register a stream handler factory for the JNDI protocol
         URLStreamHandlerFactory streamHandlerFactory =
             new DirContextURLStreamHandlerFactory();
@@ -128,6 +130,7 @@ public class TomcatContainer implements SoapHandler, GBeanLifecycle, TomcatWebCo
         this.engine = (Engine) engineGBean.getInternalObject();
 
         this.objectName = objectName;
+        this.applicationListeners = applicationListeners;
         this.manager = manager;
     }
 
@@ -317,6 +320,13 @@ public class TomcatContainer implements SoapHandler, GBeanLifecycle, TomcatWebCo
                 anotherCtxObj.setRealm(realm);
             }
         }
+        
+        // add application listeners to the new context
+        if (applicationListeners != null) {
+            for (String listener : applicationListeners) {
+                anotherCtxObj.addApplicationListener(listener);
+            }
+        }
 
         host.addChild(anotherCtxObj);
     }
@@ -389,11 +399,13 @@ public class TomcatContainer implements SoapHandler, GBeanLifecycle, TomcatWebCo
     static {
         GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic("Tomcat Web Container", TomcatContainer.class);
 
-        infoFactory.setConstructor(new String[]{"classLoader", "catalinaHome", "EngineGBean", "ServerInfo", "objectName", "WebManager"});
+        infoFactory.setConstructor(new String[]{"classLoader", "catalinaHome", "applicationListeners", "EngineGBean", "ServerInfo", "objectName", "WebManager"});
 
         infoFactory.addAttribute("classLoader", ClassLoader.class, false);
 
         infoFactory.addAttribute("catalinaHome", String.class, true);
+
+        infoFactory.addAttribute("applicationListeners", String[].class, true);
 
         infoFactory.addAttribute("objectName", String.class, false);
 

@@ -39,6 +39,7 @@
     <!-- The TomcatContainer/Service -->
     <gbean name="TomcatWebContainer" class="org.apache.geronimo.tomcat.TomcatContainer">
         <attribute name="catalinaHome">var/catalina</attribute>
+        <attribute name="applicationListeners">org.apache.myfaces.webapp.StartupServletContextListener</attribute>
         <reference name="EngineGBean">
             <name>TomcatEngine</name>
         </reference>

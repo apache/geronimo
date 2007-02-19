@@ -207,7 +207,7 @@ public class JettyWebAppContext implements GBeanLifecycle, JettyServletRegistrat
         this.originalSpecDD = originalSpecDD;
 //        this.handleInterceptor = handleInterceptor;
 
-        this.webAppContext.setConfigurationClasses(new String[]{});
+        this.webAppContext.setConfigurationClasses(new String[]{"org.mortbay.jetty.webapp.TagLibConfiguration"});
 
         webAppRoot = configurationBaseUrl.toString();
         this.webClassLoader = classLoader;

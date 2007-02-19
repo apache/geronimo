@@ -48,8 +48,9 @@
         </dependency>
         
         <dependency>
-            <groupId>taglibs</groupId>
-            <artifactId>standard</artifactId>
+            <groupId>jstl</groupId>
+            <artifactId>jstl</artifactId>
+            <scope>provided</scope>
         </dependency>
 
         <dependency>

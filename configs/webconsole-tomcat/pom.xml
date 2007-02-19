@@ -177,11 +177,6 @@
         </dependency>
 
         <dependency>
-            <groupId>taglibs</groupId>
-            <artifactId>standard</artifactId>
-        </dependency>
-
-        <dependency>
             <groupId>dwr</groupId>
             <artifactId>dwr</artifactId>
         </dependency>
