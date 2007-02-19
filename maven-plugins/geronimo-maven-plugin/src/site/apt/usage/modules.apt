@@ -27,11 +27,11 @@ Module Goals Usage
 
 * <deploy-module> configuration
 
- <<<j2ee>>> modules can be deployed into a running Geronimo server using the <deploy-module> goal.
+ <<<JavaEE>>> modules can be deployed into a running Geronimo server using the <deploy-module> goal.
  Multiple modules can be specified as maven artifacts in which case they will be retrieved from
  the local maven repository or a single module can be specified by it's absolute file location.
 
- <<NOTE:>> Archive files <<MUST>> be a valid <<<j2ee>>> artifact of the type <<<jar>>>, <<<war>>>, <<<rar>>> or <<<ear>>>.
+ <<NOTE:>> Archive files <<MUST>> be a valid <<<JavaEE>>> artifact of the type <<<jar>>>, <<<war>>>, <<<rar>>> or <<<ear>>>.
 
  This example shows one module from an absolute file location which will be deployed by setting
  the <<<moduleArchive>>> parameter.

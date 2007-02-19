@@ -44,7 +44,7 @@ Server Goals Usage
         <assemblies>
             <assembly>
                 <groupId>org.apache.geronimo.assemblies</groupId>
-                <artifactId>geronimo-jetty-j2ee</artifactId>
+                <artifactId>geronimo-jetty-jee5</artifactId>
                 <version>${pom.version}</version>
                 <classifier>bin</classifier>
                 <type>zip</type>
@@ -68,7 +68,7 @@ Server Goals Usage
             <assembly>
                 <id>jetty</id>
                 <groupId>org.apache.geronimo.assemblies</groupId>
-                <artifactId>geronimo-jetty-j2ee</artifactId>
+                <artifactId>geronimo-jetty6-jee5</artifactId>
                 <version>${pom.version}</version>
                 <classifier>bin</classifier>
                 <type>zip</type>
@@ -77,7 +77,7 @@ Server Goals Usage
             <assembly>
                 <id>jetty-minimal</id>
                 <groupId>org.apache.geronimo.assemblies</groupId>
-                <artifactId>geronimo-jetty-minimal</artifactId>
+                <artifactId>geronimo-jetty6-minimal</artifactId>
                 <version>${pom.version}</version>
                 <classifier>bin</classifier>
                 <type>zip</type>
@@ -86,7 +86,7 @@ Server Goals Usage
             <assembly>
                 <id>tomcat</id>
                 <groupId>org.apache.geronimo.assemblies</groupId>
-                <artifactId>geronimo-tomcat-j2ee</artifactId>
+                <artifactId>geronimo-tomcat6-jee5</artifactId>
                 <version>${pom.version}</version>
                 <classifier>bin</classifier>
                 <type>zip</type>
@@ -95,7 +95,7 @@ Server Goals Usage
             <assembly>
                 <id>tomcat-minimal</id>
                 <groupId>org.apache.geronimo.assemblies</groupId>
-                <artifactId>geronimo-tomcat-minimal</artifactId>
+                <artifactId>geronimo-tomcat6-minimal</artifactId>
                 <version>${pom.version}</version>
                 <classifier>bin</classifier>
                 <type>zip</type>

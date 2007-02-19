@@ -136,7 +136,7 @@ public class DeployModuleMojo
             (!"rar".equals(type)) &&
             (!"jar".equals(type)))
         {
-            throw new MojoExecutionException("Module does not look like a J2EE archive: " + module);
+            throw new MojoExecutionException("Module does not look like a JavaEE archive: " + module);
         }
 
         return file;
