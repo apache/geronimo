@@ -21,8 +21,10 @@ import java.net.URI;
 import java.net.URL;
 import java.text.DateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -30,6 +32,13 @@ import java.util.Set;
 import java.util.TreeMap;
 
 import javax.management.ObjectName;
+import javax.management.j2ee.statistics.BoundaryStatistic;
+import javax.management.j2ee.statistics.BoundedRangeStatistic;
+import javax.management.j2ee.statistics.CountStatistic;
+import javax.management.j2ee.statistics.RangeStatistic;
+import javax.management.j2ee.statistics.Statistic;
+import javax.management.j2ee.statistics.Stats;
+import javax.management.j2ee.statistics.TimeStatistic;
 
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.AbstractNameQuery;
@@ -47,8 +56,11 @@ import org.apache.geronimo.kernel.KernelRegistry;
 public class JMXManagerHelper {
     /** Used to return all MBeans */
     private static final String ALL_MBEANS = "AllMBeans";
-    private static final String GBEANINFO_NAME = "GBeanInfo";
     private static final String SERVICEMODULE_KEY = "ServiceModule";
+    private static final String GBEANINFO_ATTRIB = "GBeanInfo";
+    private static final String STATSPROVIDER_ATTRIB = "statisticsProvider";
+    private static final String STATS_ATTRIB = "stats";
+    
 
     private final Kernel kernel;
 
@@ -220,7 +232,7 @@ public class JMXManagerHelper {
                 GAttributeInfo attribInfo = (GAttributeInfo) i.next();
                 // Don't include 'GBeanInfo' attributes
                 String attribName = attribInfo.getName();
-                if (!GBEANINFO_NAME.equals(attribName)) {
+                if (!GBEANINFO_ATTRIB.equals(attribName)) {
                     Map attribInfoMap = getAttribInfoAsMap(aname, attribInfo);
                     attributes.put(attribName, attribInfoMap);
                 }
@@ -252,7 +264,12 @@ public class JMXManagerHelper {
             try {
                 Object value = kernel.getAttribute(abstractName, attribName);
                 if (value != null) {
-                    attribValue = value.toString();
+                    if (value instanceof String[]) {
+                        attribValue = Arrays.asList((String[]) value)
+                                .toString();
+                    } else {
+                        attribValue = value.toString();
+                    }
                 }
             } catch (Exception e) {
                 // GBean or attribute not found, just ignore
@@ -320,6 +337,129 @@ public class JMXManagerHelper {
         }
 
         return info;
+    }
+
+    /**
+     * Return all MBeans that provide stats
+     */
+    public Collection getStatsProvidersMBeans() {
+        Collection result = new ArrayList();
+
+        Object[] allMBeans = listByPattern("*:*").toArray();
+        for (int i = 0; i < allMBeans.length; i++) {
+            try {
+                String[] mbean = (String[]) allMBeans[i];
+                AbstractName abstractName = new AbstractName(URI
+                        .create(mbean[0]));
+                Boolean statisticsProvider = (Boolean) kernel.getAttribute(
+                        abstractName, "statisticsProvider");
+                if (Boolean.TRUE.equals(statisticsProvider)) {
+                    result.add(mbean);
+                }
+            } catch (Exception e) {
+                // ignore
+            }
+        }
+
+        return result;
+    }
+
+    /**
+     * Return MBean stats
+     */
+    public Collection getMBeanStats(String abstractName) {
+        Map mbeanStats = new TreeMap();
+        try {
+            AbstractName aname = new AbstractName(URI.create(abstractName));
+            Boolean statisticsProvider = (Boolean) kernel.getAttribute(aname,
+                    STATSPROVIDER_ATTRIB);
+            Stats stats = (Stats) kernel.getAttribute(aname, STATS_ATTRIB);
+            if (statisticsProvider.booleanValue() == true && (stats != null)) {
+                String[] statisticNames = stats.getStatisticNames();
+                for (int i = 0; i < statisticNames.length; i++) {
+                    Statistic statistic = stats.getStatistic(statisticNames[i]);
+
+                    Collection mbeanStat = new ArrayList();
+                    String name = statistic.getName();
+                    mbeanStat.add(new String[] { "Name", name });
+                    String className = statistic.getClass().getName();
+                    // mbeanStat.add(new String[] { "Type", className });
+                    mbeanStat.add(new String[] { "Description",
+                            statistic.getDescription() });
+                    mbeanStat.add(new String[] { "Unit", statistic.getUnit() });
+                    Date startTime = new Date(statistic.getStartTime());
+                    mbeanStat.add(new String[] { "Start Time",
+                            startTime.toString() });
+                    Date lastSampleTime = new Date(statistic
+                            .getLastSampleTime());
+                    mbeanStat.add(new String[] { "Last Sample Time",
+                            lastSampleTime.toString() });
+
+                    if (statistic instanceof CountStatistic) {
+                        CountStatistic cStat = (CountStatistic) statistic;
+                        long count = cStat.getCount();
+                        mbeanStat.add(new String[] { "Count",
+                                Long.toString(count) });
+                    } else if (statistic instanceof BoundaryStatistic) {
+                        BoundaryStatistic bStat = (BoundaryStatistic) statistic;
+                        long upperBound = bStat.getUpperBound();
+                        mbeanStat.add(new String[] { "Upper Bound",
+                                Long.toString(upperBound) });
+                        long lowerBound = bStat.getLowerBound();
+                        mbeanStat.add(new String[] { "Lower Bound",
+                                Long.toString(lowerBound) });
+                    } else if (statistic instanceof RangeStatistic) {
+                        RangeStatistic rStat = (RangeStatistic) statistic;
+                        long highWaterMark = rStat.getHighWaterMark();
+                        mbeanStat.add(new String[] { "High Water Mark",
+                                Long.toString(highWaterMark) });
+                        long lowWaterMark = rStat.getLowWaterMark();
+                        mbeanStat.add(new String[] { "Low Water Mark",
+                                Long.toString(lowWaterMark) });
+                        long current = rStat.getCurrent();
+                        mbeanStat.add(new String[] { "Current",
+                                Long.toString(current) });
+                    } else if (statistic instanceof TimeStatistic) {
+                        TimeStatistic tStat = (TimeStatistic) statistic;
+                        long count = tStat.getCount();
+                        mbeanStat.add(new String[] { "Count",
+                                Long.toString(count) });
+                        long maxTime = tStat.getMaxTime();
+                        mbeanStat.add(new String[] { "Max Time",
+                                Long.toString(maxTime) });
+                        long minTime = tStat.getMinTime();
+                        mbeanStat.add(new String[] { "Min Time",
+                                Long.toString(minTime) });
+                        long totalTime = tStat.getTotalTime();
+                        mbeanStat.add(new String[] { "Total Time",
+                                Long.toString(totalTime) });
+                    } else if (statistic instanceof BoundedRangeStatistic) {
+                        BoundedRangeStatistic brStat = (BoundedRangeStatistic) statistic;
+                        long upperBound = brStat.getUpperBound();
+                        mbeanStat.add(new String[] { "Upper Bound",
+                                Long.toString(upperBound) });
+                        long lowerBound = brStat.getLowerBound();
+                        mbeanStat.add(new String[] { "Lower Bound",
+                                Long.toString(lowerBound) });
+                        long highWaterMark = brStat.getHighWaterMark();
+                        mbeanStat.add(new String[] { "High Water Mark",
+                                Long.toString(highWaterMark) });
+                        long lowWaterMark = brStat.getLowWaterMark();
+                        mbeanStat.add(new String[] { "Low Water Mark",
+                                Long.toString(lowWaterMark) });
+                        long current = brStat.getCurrent();
+                        mbeanStat.add(new String[] { "Current",
+                                Long.toString(current) });
+                    }
+
+                    mbeanStats.put(name, mbeanStat);
+                }
+            }
+        } catch (Exception e) {
+            // GBean not found, just ignore
+        }
+
+        return mbeanStats.values();
     }
 
     /**

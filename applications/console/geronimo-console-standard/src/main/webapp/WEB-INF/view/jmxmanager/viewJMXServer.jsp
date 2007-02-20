@@ -179,6 +179,9 @@ dojo.addOnLoad(
                                 // Remove service module marker
                 			    var svcModule = id.substring(id.indexOf('<SVCMODULE>') + '<SVCMODULE>'.length);  
                 			    JMXHelper.listBySubstring(<portlet:namespace/>updateJMXTree, svcModule);
+                            } else if (selectedNode.widgetId == 'statisticsProviderMBeans') {
+                                // Get statistics provider MBeans
+                			    JMXHelper.getStatsProvidersMBeans(<portlet:namespace/>updateJMXTree);
                             } else {
                                 // Marker not recognized
                             }
@@ -208,6 +211,7 @@ dojo.addOnLoad(
     			    JMXHelper.getMBeanInfo(<portlet:namespace/>updateBasicInfoTable, abstractName);
     			    JMXHelper.getAttributes(<portlet:namespace/>updateAttributesTable, abstractName);
     			    JMXHelper.getOperations(<portlet:namespace/>updateOperationsTable, abstractName);
+    			    JMXHelper.getMBeanStats(<portlet:namespace/>updateStatsTable, abstractName);
     			}
 			}
 		);
@@ -306,6 +310,23 @@ dojo.addOnLoad(
 			    var mainTabContainer = dojo.widget.byId('mainTabContainer');
 			    var infoTab = dojo.widget.byId('infoTab');
 			    mainTabContainer.selectTab(infoTab);
+            }
+		);
+
+        /**
+         * Tree context menu event handler: 'View Stats' 
+         */
+		dojo.event.topic.subscribe(
+		    'treeContextMenuViewStats/engage',
+			function (menuItem) {
+			    var selectedNode = getSelectedNode();
+                if (selectedNode == null) {
+                    alert('Please select a tree node.');
+                    return;
+                }
+			    var mainTabContainer = dojo.widget.byId('mainTabContainer');
+			    var statsTab = dojo.widget.byId('statsTab');
+			    mainTabContainer.selectTab(statsTab);
             }
 		);
     }
@@ -527,6 +548,37 @@ function <portlet:namespace/>updateBasicInfoTable(basicInfo) {
 }
 
 /**
+ * Update MBean stats table
+ */
+function <portlet:namespace/>updateStatsTable(stats) {
+    DWRUtil.removeAllRows('statsTableBody');
+    DWRUtil.addRows(
+        'statsTableBody', 
+        stats,
+        [
+            function(stat) { /* StatisticName Column */
+                var name = "<div align='right'>" + stat[0][1] + ":&nbsp;</div>";
+                return name;
+            },
+            function(stat) { /* StatisticValue Column */
+                var value = '';
+                for (var i = 1; i < stat.length; i++) {
+                    value += '<b>' + stat[i][0] + ':</b> ' + stat[i][1] + '<br>';
+                }
+                return value;
+            }
+        ],
+        tableOption
+    );
+    
+    // Render sortable table
+	var tbl = dojo.widget.byId("statsTable");
+	if (tbl) {
+	    tbl.render(false);
+	}
+}
+
+/**
  * Update 'Search MBeans' tree node 
  */
 function <portlet:namespace/>updateSearchMBeansTreeNode(searchResult) {
@@ -687,6 +739,7 @@ callOnLoad(init);
 	<div dojoType="TreeMenuItem" treeActions="view" widgetId="treeContextMenuViewAttribs" caption="View Attributes"></div>
 	<div dojoType="TreeMenuItem" treeActions="view" widgetId="treeContextMenuViewOps" caption="View Operations"></div>
 	<div dojoType="TreeMenuItem" treeActions="view" widgetId="treeContextMenuViewInfo" caption="View Info"></div>
+	<div dojoType="TreeMenuItem" treeActions="view" widgetId="treeContextMenuViewStats" caption="View Stats"></div>
 </div>
 
 <div dojoType="TreeSelector" widgetId="treeSelector"></div>
@@ -821,6 +874,10 @@ callOnLoad(init);
          	    </c:forEach>
             </div>
 
+         	<!-- Statistics Provider MBeans -->
+         	<div dojoType="TreeNode" title="Statistics Provider MBeans" widgetId="statisticsProviderMBeans" isFolder="true" childIconSrc="<%= jmxIconURI %>" actionsDisabled="view">
+            </div>
+
             <!-- Search MBeans -->
          	<div dojoType="TreeNode" title="Search MBeans" widgetId="searchMBeans" isFolder="true" childIconSrc="<%= jmxIconURI %>" actionsDisabled="view">
          	</div>
@@ -899,6 +956,30 @@ callOnLoad(init);
                     </tbody>
                 </table>
             </div> <!-- Info tab -->
+
+            <!-- Stats tab -->
+    		<div id="statsTab" dojoType="ContentPane" title="MBean Stats" label="Stats" style="overflow: auto">
+    		    <br>
+            	<table dojoType="SortableTable" 
+            	    widgetId="statsTable" 
+            	    tbodyClass="scrollContent" 
+            	    enableMultipleSelect="true" 
+            	    enableAlternateRows="true" 
+            	    rowAlternateClass="alternateRow" 
+            	    cellpadding="0" 
+            	    cellspacing="2" 
+            	    border="0"
+            	    width="100%">
+                    <thead>
+                        <tr>
+                            <th field="Name" dataType="String" width="30%">&nbsp;Name&nbsp;</th>
+                            <th dataType="html" width="70%">&nbsp;Value&nbsp;</th>
+                        </tr>
+                    </thead>
+                    <tbody id="statsTableBody">
+                    </tbody>
+                </table>
+            </div> <!-- Stats tab -->
 
             <!-- Search tab -->
             <div id="searchTab" dojoType="ContentPane" title="Search" label="Search" style="overflow: auto">
