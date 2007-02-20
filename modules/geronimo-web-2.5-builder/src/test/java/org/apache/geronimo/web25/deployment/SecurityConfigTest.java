@@ -23,6 +23,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.Collections;
 import java.util.jar.JarFile;
 
 import org.apache.geronimo.common.DeploymentException;
@@ -84,7 +85,7 @@ public class SecurityConfigTest extends TestSupport {
     private static class WebModuleBuilder extends AbstractWebModuleBuilder {
 
         protected WebModuleBuilder(Kernel kernel) {
-            super(kernel, null, null, null, null);
+            super(kernel, null, null, null, null, Collections.EMPTY_SET);
         }
 
         protected Module createModule(Object plan, JarFile moduleFile,

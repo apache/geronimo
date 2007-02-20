@@ -94,8 +94,6 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder {
     private final Environment defaultEnvironment;
     private final AbstractNameQuery tomcatContainerName;
 
-    private final Collection webServiceBuilder;
-
     private static final String TOMCAT_NAMESPACE = TomcatWebAppDocument.type.getDocumentElementName().getNamespaceURI();
 
     public TomcatModuleBuilder(Environment defaultEnvironment,
@@ -106,11 +104,10 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder {
             NamingBuilder namingBuilders,
             ResourceEnvironmentSetter resourceEnvironmentSetter,
             Kernel kernel) {
-        super(kernel, securityBuilders, serviceBuilders, namingBuilders, resourceEnvironmentSetter);
+        super(kernel, securityBuilders, serviceBuilders, namingBuilders, resourceEnvironmentSetter, webServiceBuilder);
         this.defaultEnvironment = defaultEnvironment;
 
         this.tomcatContainerName = tomcatContainerName;
-        this.webServiceBuilder = webServiceBuilder;
     }
 
     protected Module createModule(Object plan, JarFile moduleFile, String targetPath, URL specDDUrl, boolean standAlone, String contextRoot, AbstractName earName, Naming naming, ModuleIDBuilder idBuilder) throws DeploymentException {
@@ -186,13 +183,6 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder {
         }
         idBuilder.resolve(environment, warName, "war");
 
-        Map servletNameToPathMap = buildServletNameToPathMap(webApp, contextRoot);
-
-        Map sharedContext = new HashMap();
-        for (Iterator iterator = webServiceBuilder.iterator(); iterator.hasNext();) {
-            WebServiceBuilder serviceBuilder = (WebServiceBuilder) iterator.next();
-            serviceBuilder.findWebServices(moduleFile, false, servletNameToPathMap, environment, sharedContext);
-        }
         AbstractName moduleName;
         if (earName == null) {
             earName = naming.createRootName(environment.getConfigId(), NameFactory.NULL, NameFactory.J2EE_APPLICATION);
@@ -201,7 +191,7 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder {
             moduleName = naming.createChildName(earName, targetPath, NameFactory.WEB_MODULE);
         }
 
-        return new WebModule(standAlone, moduleName, environment, moduleFile, targetPath, webApp, tomcatWebApp, specDD, contextRoot, sharedContext, TOMCAT_NAMESPACE);
+        return new WebModule(standAlone, moduleName, environment, moduleFile, targetPath, webApp, tomcatWebApp, specDD, contextRoot, new HashMap(), TOMCAT_NAMESPACE);
     }
 
 

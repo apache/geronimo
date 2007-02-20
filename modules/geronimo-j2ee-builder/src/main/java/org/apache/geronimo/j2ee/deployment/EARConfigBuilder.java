@@ -156,6 +156,7 @@ public class EARConfigBuilder implements ConfigurationBuilder, CorbaGBeanNameSou
                 serviceBuilders,
                 kernel.getNaming());
     }
+
     public EARConfigBuilder(Environment defaultEnvironment,
             AbstractNameQuery transactionManagerAbstractName,
             AbstractNameQuery connectionTrackerAbstractName,
@@ -186,8 +187,8 @@ public class EARConfigBuilder implements ConfigurationBuilder, CorbaGBeanNameSou
                 new SingleElementCollection(connectorConfigBuilder),
                 new SingleElementCollection(activationSpecInfoLocator),
                 new SingleElementCollection(appClientConfigBuilder),
-                securityBuilder == null? Collections.EMPTY_SET: Collections.singleton(securityBuilder),
-                serviceBuilder == null? Collections.EMPTY_SET: Collections.singleton(serviceBuilder),
+                securityBuilder == null ? Collections.EMPTY_SET : Collections.singleton(securityBuilder),
+                serviceBuilder == null ? Collections.EMPTY_SET : Collections.singleton(serviceBuilder),
                 naming);
     }
 
@@ -302,9 +303,9 @@ public class EARConfigBuilder implements ConfigurationBuilder, CorbaGBeanNameSou
                 XmlObject xmlObject = XmlBeansUtil.parse(specDD);
                 application = convertToApplicationSchema(xmlObject).getApplication();
             } catch (XmlException e) {
-            	throw new DeploymentException("Could not parse application.xml", e);
+                throw new DeploymentException("Could not parse application.xml", e);
             } catch (Exception e) {
-            	//ee5 spec allows optional application.xml, continue with application == null
+                //ee5 spec allows optional application.xml, continue with application == null
             }
         }
 
@@ -353,9 +354,9 @@ public class EARConfigBuilder implements ConfigurationBuilder, CorbaGBeanNameSou
         LinkedHashSet<Module> modules = new LinkedHashSet<Module>();
         try {
             addModules(earFile, application, gerApplication, moduleLocations, modules, environment, earName, idBuilder);
-            if(application == null && modules.isEmpty()) {
-            	//if no application.xml and no modules detected, return null for stand-alone module processing
-            	return null;
+            if (application == null && modules.isEmpty()) {
+                //if no application.xml and no modules detected, return null for stand-alone module processing
+                return null;
             }
         } catch (Throwable e) {
             // close all the modules
@@ -429,7 +430,7 @@ public class EARConfigBuilder implements ConfigurationBuilder, CorbaGBeanNameSou
                 XmlBeansUtil.validateDD(result);
                 return (ApplicationDocument) result;
             }
-            
+
             // otherwise assume DTD
             SchemaConversionUtils.convertToSchema(cursor, SchemaConversionUtils.JAVAEE_NAMESPACE, schemaLocationURL, version);
             cursor.toStartDoc();
@@ -452,8 +453,8 @@ public class EARConfigBuilder implements ConfigurationBuilder, CorbaGBeanNameSou
     public Artifact getConfigurationID(Object plan, JarFile module, ModuleIDBuilder idBuilder) throws IOException, DeploymentException {
         ApplicationInfo applicationInfo = (ApplicationInfo) plan;
         Artifact test = applicationInfo.getEnvironment().getConfigId();
-        if(!test.isResolved()) {
-            throw new IllegalStateException("Module ID should be fully resolved by now (not "+test+")");
+        if (!test.isResolved()) {
+            throw new IllegalStateException("Module ID should be fully resolved by now (not " + test + ")");
         }
         return test;
     }
@@ -497,9 +498,9 @@ public class EARConfigBuilder implements ConfigurationBuilder, CorbaGBeanNameSou
             // Copy over all files that are _NOT_ modules (e.g. META-INF and APP-INF files)
             Set moduleLocations = applicationInfo.getModuleLocations();
             if (ConfigurationModuleType.EAR == applicationType && earFile != null) {
-            	//get the value of the library-directory element in spec DD
-            	ApplicationType specDD = (ApplicationType) applicationInfo.getSpecDD();
-            	String libDir = getLibraryDirectory(specDD);
+                //get the value of the library-directory element in spec DD
+                ApplicationType specDD = (ApplicationType) applicationInfo.getSpecDD();
+                String libDir = getLibraryDirectory(specDD);
                 for (Enumeration<JarEntry> e = earFile.entries(); e.hasMoreElements();) {
                     ZipEntry entry = e.nextElement();
                     String entryName = entry.getName();
@@ -511,11 +512,11 @@ public class EARConfigBuilder implements ConfigurationBuilder, CorbaGBeanNameSou
                             break;
                         }
                     }
-                    if(libDir != null && entry.getName().startsWith(libDir) && entry.getName().endsWith(".jar")) {
-            			NestedJarFile library = new NestedJarFile(earFile, entry.getName());
+                    if (libDir != null && entry.getName().startsWith(libDir) && entry.getName().endsWith(".jar")) {
+                        NestedJarFile library = new NestedJarFile(earFile, entry.getName());
                         earContext.addIncludeAsPackedJar(URI.create(entry.getName()), library);
-                    } else if(addEntry) {
-                    	earContext.addFile(URI.create(entry.getName()), earFile, entry);
+                    } else if (addEntry) {
+                        earContext.addFile(URI.create(entry.getName()), earFile, entry);
                     }
                 }
             }
@@ -595,10 +596,10 @@ public class EARConfigBuilder implements ConfigurationBuilder, CorbaGBeanNameSou
         } catch (DeploymentException e) {
             cleanupContext(earContext, configurationDir);
             throw e;
-        } catch(RuntimeException e) {
+        } catch (RuntimeException e) {
             cleanupContext(earContext, configurationDir);
             throw e;
-        } catch(Error e) {
+        } catch (Error e) {
             cleanupContext(earContext, configurationDir);
             throw e;
         } finally {
@@ -608,17 +609,17 @@ public class EARConfigBuilder implements ConfigurationBuilder, CorbaGBeanNameSou
             }
         }
     }
-    
-	private String getLibraryDirectory(ApplicationType specDD) {
-		if(specDD == null || !specDD.isSetLibraryDirectory()) {
-			//value 'lib' is used if element not set or ear does not contain a dd
-			return "lib";
-		}
-		
-		//only set if not empty value, empty value implies no library directory
-		String value = specDD.getLibraryDirectory().getStringValue();
-		return value.trim().length() > 0 ? value : null;
-	}
+
+    private String getLibraryDirectory(ApplicationType specDD) {
+        if (specDD == null || !specDD.isSetLibraryDirectory()) {
+            //value 'lib' is used if element not set or ear does not contain a dd
+            return "lib";
+        }
+
+        //only set if not empty value, empty value implies no library directory
+        String value = specDD.getLibraryDirectory().getStringValue();
+        return value.trim().length() > 0 ? value : null;
+    }
 
     private void cleanupContext(EARContext earContext, File configurationDir) {
         List<ConfigurationData> configurations = new ArrayList<ConfigurationData>();
@@ -642,17 +643,16 @@ public class EARConfigBuilder implements ConfigurationBuilder, CorbaGBeanNameSou
         }
     }
 
-    private boolean cleanupConfigurationDir(File configurationDir)
-    {
+    private boolean cleanupConfigurationDir(File configurationDir) {
         LinkedList<String> cannotBeDeletedList = new LinkedList<String>();
 
-        if (!DeploymentUtil.recursiveDelete(configurationDir,cannotBeDeletedList)) {
+        if (!DeploymentUtil.recursiveDelete(configurationDir, cannotBeDeletedList)) {
             // Output a message to help user track down file problem
             log.warn("Unable to delete " + cannotBeDeletedList.size() +
                     " files while recursively deleting directory "
                     + configurationDir + LINE_SEP +
-                    "The first file that could not be deleted was:" + LINE_SEP + "  "+
-                    ( !cannotBeDeletedList.isEmpty() ? cannotBeDeletedList.getFirst() : "") );
+                    "The first file that could not be deleted was:" + LINE_SEP + "  " +
+                    (!cannotBeDeletedList.isEmpty() ? cannotBeDeletedList.getFirst() : ""));
             return false;
         }
         return true;
@@ -669,8 +669,8 @@ public class EARConfigBuilder implements ConfigurationBuilder, CorbaGBeanNameSou
         try {
             mapVendorPlans(gerApplication, altVendorDDs, earFile);
             if (earFile != null) {
-            	if(application != null) {
-            		ModuleType[] moduleTypes = application.getModuleArray();
+                if (application != null) {
+                    ModuleType[] moduleTypes = application.getModuleArray();
 
                     //get a set containing all of the files in the ear that are actually modules
                     for (ModuleType moduleXml : moduleTypes) {
@@ -737,77 +737,77 @@ public class EARConfigBuilder implements ConfigurationBuilder, CorbaGBeanNameSou
                         modules.add(module);
                     }
                 } else {
-            		//no application.xml available, must inspect ear to locate and process modules
-            		Enumeration<JarEntry> entries = earFile.entries();
-            		while (entries.hasMoreElements()) {
-            			ModuleBuilder builder;
-            			Object moduleContextInfo = null;
-            			String moduleTypeName;
-            			ZipEntry entry = entries.nextElement();
-            			if(entry.getName().endsWith(".war")) {
-            				if (getWebConfigBuilder() == null) {
-            					throw new DeploymentException("Cannot deploy web application; No war deployer defined: " + entry.getName());
-            				}
-            				builder = getWebConfigBuilder();
-            				moduleTypeName = "a war";
-            				moduleContextInfo = entry.getName().split(".war")[0];
-            			} else if(entry.getName().endsWith(".rar")) {
-            				if (getConnectorConfigBuilder() == null) {
-            					throw new DeploymentException("Cannot deploy resource adapter; No rar deployer defined: " + entry.getName());
-            				}
-            				builder = getConnectorConfigBuilder();
-            				moduleTypeName = "a connector";
-            			} else if(entry.getName().endsWith(".jar") && !isLibraryEntry(application, entry)) {
-            				try {
-            					NestedJarFile moduleFile = new NestedJarFile(earFile, entry.getName());
-            					if(moduleFile.getEntry("META-INF/application-client.xml") != null) {
-            						if (getAppClientConfigBuilder() == null) {
-            							throw new DeploymentException("Cannot deploy app client; No app client deployer defined: " + entry.getName());
-            						}
-            						builder = getAppClientConfigBuilder();
-            						moduleTypeName = "an application client";
-            					} else if(moduleFile.getEntry("META-INF/ejb-jar.xml") != null) {
-            						builder = getEjbConfigBuilder();
-            						if (builder == null) {
-            							throw new DeploymentException("Cannot deploy ejb application; No ejb deployer defined: " + entry.getName());
-            						}
-            						moduleTypeName = "an EJB";
-            					} else {
-            						continue;
-            					}
-            					//TODO if no ejb-jar.xml inspect classes for EJB component annotations to identify as EJBJar module
-            				} catch (IOException e) {
-            					throw new DeploymentException("Invalid moduleFile: " + entry.getName(), e);
-            				}
-            			} else {
-            				continue;
-            			}
+                    //no application.xml available, must inspect ear to locate and process modules
+                    Enumeration<JarEntry> entries = earFile.entries();
+                    while (entries.hasMoreElements()) {
+                        ModuleBuilder builder;
+                        Object moduleContextInfo = null;
+                        String moduleTypeName;
+                        ZipEntry entry = entries.nextElement();
+                        if (entry.getName().endsWith(".war")) {
+                            if (getWebConfigBuilder() == null) {
+                                throw new DeploymentException("Cannot deploy web application; No war deployer defined: " + entry.getName());
+                            }
+                            builder = getWebConfigBuilder();
+                            moduleTypeName = "a war";
+                            moduleContextInfo = entry.getName().split(".war")[0];
+                        } else if (entry.getName().endsWith(".rar")) {
+                            if (getConnectorConfigBuilder() == null) {
+                                throw new DeploymentException("Cannot deploy resource adapter; No rar deployer defined: " + entry.getName());
+                            }
+                            builder = getConnectorConfigBuilder();
+                            moduleTypeName = "a connector";
+                        } else if (entry.getName().endsWith(".jar") && !isLibraryEntry(application, entry)) {
+                            try {
+                                NestedJarFile moduleFile = new NestedJarFile(earFile, entry.getName());
+                                if (moduleFile.getEntry("META-INF/application-client.xml") != null) {
+                                    if (getAppClientConfigBuilder() == null) {
+                                        throw new DeploymentException("Cannot deploy app client; No app client deployer defined: " + entry.getName());
+                                    }
+                                    builder = getAppClientConfigBuilder();
+                                    moduleTypeName = "an application client";
+                                } else if (moduleFile.getEntry("META-INF/ejb-jar.xml") != null) {
+                                    builder = getEjbConfigBuilder();
+                                    if (builder == null) {
+                                        throw new DeploymentException("Cannot deploy ejb application; No ejb deployer defined: " + entry.getName());
+                                    }
+                                    moduleTypeName = "an EJB";
+                                } else {
+                                    continue;
+                                }
+                                //TODO if no ejb-jar.xml inspect classes for EJB component annotations to identify as EJBJar module
+                            } catch (IOException e) {
+                                throw new DeploymentException("Invalid moduleFile: " + entry.getName(), e);
+                            }
+                        } else {
+                            continue;
+                        }
 
-            			moduleLocations.add(entry.getName());
+                        moduleLocations.add(entry.getName());
 
-            			NestedJarFile moduleFile;
-            			try {
-            				moduleFile = new NestedJarFile(earFile, entry.getName());
-            			} catch (IOException e) {
-            				throw new DeploymentException("Invalid moduleFile: " + entry.getName(), e);
-            			}
+                        NestedJarFile moduleFile;
+                        try {
+                            moduleFile = new NestedJarFile(earFile, entry.getName());
+                        } catch (IOException e) {
+                            throw new DeploymentException("Invalid moduleFile: " + entry.getName(), e);
+                        }
 
-            			Module module = builder.createModule(altVendorDDs.get(entry.getName()),
-            					moduleFile,
-            					entry.getName(),
-            					null,
-            					environment,
-            					moduleContextInfo,
-            					earName,
-            					naming, idBuilder);
+                        Module module = builder.createModule(altVendorDDs.get(entry.getName()),
+                                moduleFile,
+                                entry.getName(),
+                                null,
+                                environment,
+                                moduleContextInfo,
+                                earName,
+                                naming, idBuilder);
 
-            			if (module == null) {
-            				throw new DeploymentException("Module was not " + moduleTypeName + ": " + entry.getName());
-            			}
+                        if (module == null) {
+                            throw new DeploymentException("Module was not " + moduleTypeName + ": " + entry.getName());
+                        }
 
-            			modules.add(module);
-            		}
-            	}
+                        modules.add(module);
+                    }
+                }
             }
 
             //all the modules in the geronimo plan should have been found by now.
@@ -914,14 +914,14 @@ public class EARConfigBuilder implements ConfigurationBuilder, CorbaGBeanNameSou
             }
         }
     }
-    
-	private boolean isLibraryEntry(ApplicationType application, ZipEntry entry) {
-		String libDir = getLibraryDirectory(application);
-		if(libDir != null && entry.getName().startsWith(libDir)) {
-			return true;
-		}
-		return false;
-	}
+
+    private boolean isLibraryEntry(ApplicationType application, ZipEntry entry) {
+        String libDir = getLibraryDirectory(application);
+        if (libDir != null && entry.getName().startsWith(libDir)) {
+            return true;
+        }
+        return false;
+    }
 
     private void mapVendorPlans(GerApplicationType gerApplication, Map<String, Object> altVendorDDs, JarFile earFile) throws DeploymentException {
         //build map from module path to alt vendor dd
@@ -959,15 +959,15 @@ public class EARConfigBuilder implements ConfigurationBuilder, CorbaGBeanNameSou
     }
 
     private URL getAltSpecDDURL(JarFile earFile, ModuleType moduleXml) throws DeploymentException {
-		if (moduleXml != null && moduleXml.isSetAltDd()) {
-			try {
-				return DeploymentUtil.createJarURL(earFile, moduleXml.getAltDd().getStringValue());
-			} catch (MalformedURLException e) {
-				throw new DeploymentException("Invalid alt sped dd url: " + moduleXml.getAltDd().getStringValue(), e);
-			}
-		}
-		return null;
-	}
+        if (moduleXml != null && moduleXml.isSetAltDd()) {
+            try {
+                return DeploymentUtil.createJarURL(earFile, moduleXml.getAltDd().getStringValue());
+            } catch (MalformedURLException e) {
+                throw new DeploymentException("Invalid alt sped dd url: " + moduleXml.getAltDd().getStringValue(), e);
+            }
+        }
+        return null;
+    }
 
     private ModuleBuilder getBuilder(Module module) throws DeploymentException {
         if (module instanceof EJBModule) {

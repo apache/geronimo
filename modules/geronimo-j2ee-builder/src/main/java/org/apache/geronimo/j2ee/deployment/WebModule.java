@@ -29,12 +29,10 @@ import org.apache.xmlbeans.XmlObject;
  */
 public class WebModule extends Module {
     private final String contextRoot;
-    private final Map sharedContext;
 
     public WebModule(boolean standAlone, AbstractName moduleName, Environment environment, JarFile moduleFile, String targetPath, XmlObject specDD, XmlObject vendorDD, String originalSpecDD, String contextRoot, Map sharedContext, String namespace) {
-        super(standAlone, moduleName, environment, moduleFile, targetPath, specDD, vendorDD, originalSpecDD, namespace);
+        super(standAlone, moduleName, environment, moduleFile, targetPath, specDD, vendorDD, originalSpecDD, namespace, sharedContext);
         this.contextRoot = contextRoot;
-        this.sharedContext = sharedContext;
     }
 
     public String getContextRoot() {
@@ -43,10 +41,6 @@ public class WebModule extends Module {
 
     public ConfigurationModuleType getType() {
         return ConfigurationModuleType.WAR;
-    }
-
-    public Map getSharedContext() {
-        return sharedContext;
     }
 
 }

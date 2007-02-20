@@ -17,6 +17,7 @@
 package org.apache.geronimo.j2ee.deployment;
 
 import java.util.jar.JarFile;
+import java.util.Map;
 import java.net.URI;
 
 import org.apache.xmlbeans.XmlObject;
@@ -45,8 +46,9 @@ public abstract class Module {
 
     private EARContext earContext;
     private EARContext rootEarContext;
+    protected final Map sharedContext;
 
-    protected Module(boolean standAlone, AbstractName moduleName, Environment environment, JarFile moduleFile, String targetPath, XmlObject specDD, XmlObject vendorDD, String originalSpecDD, String namespace) {
+    protected Module(boolean standAlone, AbstractName moduleName, Environment environment, JarFile moduleFile, String targetPath, XmlObject specDD, XmlObject vendorDD, String originalSpecDD, String namespace, Map sharedContext) {
         assert targetPath != null: "targetPath is null";
         assert moduleName != null: "moduleName is null";
 
@@ -69,6 +71,7 @@ public abstract class Module {
         }
 
         targetPathURI = URI.create(targetPath + "/");
+        this.sharedContext = sharedContext;
     }
 
     public abstract ConfigurationModuleType getType();
@@ -155,5 +158,9 @@ public abstract class Module {
 
     public void setRootEarContext(EARContext rootEarContext) {
         this.rootEarContext = rootEarContext;
+    }
+
+    public Map getSharedContext() {
+        return sharedContext;
     }
 }

@@ -230,9 +230,6 @@ public class EjbModuleBuilder implements ModuleBuilder {
             idBuilder.resolve(environment, new File(moduleFile.getName()).getName(), "jar");
         }
 
-        if (ejbModule.getEjbJar().getAssemblyDescriptor() != null) {
-            namingBuilder.buildEnvironment(null, null, environment);
-        }
 
         Map sharedContext = new HashMap();
 
@@ -329,6 +326,9 @@ public class EjbModuleBuilder implements ModuleBuilder {
         }
         module.setEarContext(moduleContext);
         module.setRootEarContext(earContext);
+        if (((EjbModule)module).getEjbJar().getAssemblyDescriptor() != null) {
+            namingBuilder.buildEnvironment(null, null, module.getEnvironment());
+        }
         for (ModuleBuilderExtension builder : moduleBuilderExtensions) {
             try {
                 builder.installModule(earFile, earContext, module, configurationStores, targetConfigurationStore, repository);

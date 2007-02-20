@@ -129,7 +129,6 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
     private final Collection defaultFilterMappings;
     private final GBeanData pojoWebServiceTemplate;
 
-    private final Collection webServiceBuilder;
     protected final NamespaceDrivenBuilderCollection clusteringBuilders;
 
     private final List defaultWelcomeFiles;
@@ -153,7 +152,7 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
             NamingBuilder namingBuilders,
             ResourceEnvironmentSetter resourceEnvironmentSetter,
             Kernel kernel) throws GBeanNotFoundException {
-        super(kernel, securityBuilders, serviceBuilders, namingBuilders, resourceEnvironmentSetter);
+        super(kernel, securityBuilders, serviceBuilders, namingBuilders, resourceEnvironmentSetter, webServiceBuilder);
         this.defaultEnvironment = defaultEnvironment;
         this.defaultSessionTimeoutSeconds = (defaultSessionTimeoutSeconds == null) ? new Integer(30 * 60) : defaultSessionTimeoutSeconds;
         this.jettyContainerObjectName = jettyContainerName;
@@ -162,7 +161,6 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
         this.defaultFilters = defaultFilters;
         this.defaultFilterMappings = defaultFilterMappings;
         this.pojoWebServiceTemplate = getGBeanData(kernel, pojoWebServiceTemplate);
-        this.webServiceBuilder = webServiceBuilder;
         this.clusteringBuilders = new NamespaceDrivenBuilderCollection(clusteringBuilders, GerClusteringDocument.type.getDocumentElementName());
 
         //todo locale mappings
@@ -233,8 +231,6 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
             clusteringBuilders.buildEnvironment(jettyWebApp, environment);
         }
 
-        getNamingBuilders().buildEnvironment(webApp, jettyWebApp, environment);
-
         // Note: logic elsewhere depends on the default artifact ID being the file name less extension (ConfigIDExtractor)
         String warName = new File(moduleFile.getName()).getName();
         if (warName.lastIndexOf('.') > -1) {
@@ -242,13 +238,6 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
         }
         idBuilder.resolve(environment, warName, "war");
 
-        Map servletNameToPathMap = buildServletNameToPathMap(webApp, contextRoot);
-
-        Map sharedContext = new HashMap();
-        for (Iterator iterator = webServiceBuilder.iterator(); iterator.hasNext();) {
-            WebServiceBuilder serviceBuilder = (WebServiceBuilder) iterator.next();
-            serviceBuilder.findWebServices(moduleFile, false, servletNameToPathMap, environment, sharedContext);
-        }
         AbstractName moduleName;
         if (earName == null) {
             earName = naming.createRootName(environment.getConfigId(), NameFactory.NULL, NameFactory.J2EE_APPLICATION);
@@ -257,7 +246,7 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
             moduleName = naming.createChildName(earName, targetPath, NameFactory.WEB_MODULE);
         }
 
-        return new WebModule(standAlone, moduleName, environment, moduleFile, targetPath, webApp, jettyWebApp, specDD, contextRoot, sharedContext, JETTY_NAMESPACE);
+        return new WebModule(standAlone, moduleName, environment, moduleFile, targetPath, webApp, jettyWebApp, specDD, contextRoot, new HashMap(), JETTY_NAMESPACE);
     }
 
     JettyWebAppType getJettyWebApp(Object plan, JarFile moduleFile, boolean standAlone, String targetPath, WebAppType webApp) throws DeploymentException {
@@ -317,7 +306,6 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
 //        GerMessageDestinationType[] gerMessageDestinations = gerWebApp.getMessageDestinationArray();
 
 //        ENCConfigBuilder.registerMessageDestinations(earContext, module.getName(), messageDestinations, gerMessageDestinations);
-        getNamingBuilders().initContext(webApp, gerWebApp, module.getEarContext().getConfiguration(), earContext.getConfiguration(), module);
         if ((webApp.getSecurityConstraintArray().length > 0 || webApp.getSecurityRoleArray().length > 0) &&
                 !gerWebApp.isSetSecurityRealmName()) {
             throw new DeploymentException("web.xml for web app " + module.getName() + " includes security elements but Geronimo deployment plan is not provided or does not contain <security-realm-name> element necessary to configure security accordingly.");

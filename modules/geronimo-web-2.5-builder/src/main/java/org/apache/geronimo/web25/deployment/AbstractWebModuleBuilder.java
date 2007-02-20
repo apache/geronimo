@@ -33,6 +33,7 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.Set;
+import java.util.Iterator;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.zip.ZipEntry;
@@ -56,6 +57,8 @@ import org.apache.geronimo.j2ee.deployment.EARContext;
 import org.apache.geronimo.j2ee.deployment.Module;
 import org.apache.geronimo.j2ee.deployment.ModuleBuilder;
 import org.apache.geronimo.j2ee.deployment.NamingBuilder;
+import org.apache.geronimo.j2ee.deployment.WebServiceBuilder;
+import org.apache.geronimo.j2ee.deployment.WebModule;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.Naming;
@@ -105,6 +108,7 @@ public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
     protected final NamespaceDrivenBuilderCollection securityBuilders;
     protected final NamespaceDrivenBuilderCollection serviceBuilders;
     protected final ResourceEnvironmentSetter resourceEnvironmentSetter;
+    protected final Collection webServiceBuilder;
 
     protected final NamingBuilder namingBuilders;
 
@@ -118,12 +122,13 @@ public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
      */
     private static final URI RELATIVE_MODULE_BASE_URI = URI.create("../");
 
-    protected AbstractWebModuleBuilder(Kernel kernel, Collection securityBuilders, Collection serviceBuilders, NamingBuilder namingBuilders, ResourceEnvironmentSetter resourceEnvironmentSetter) {
+    protected AbstractWebModuleBuilder(Kernel kernel, Collection securityBuilders, Collection serviceBuilders, NamingBuilder namingBuilders, ResourceEnvironmentSetter resourceEnvironmentSetter, Collection webServiceBuilder) {
         this.kernel = kernel;
         this.securityBuilders = new NamespaceDrivenBuilderCollection(securityBuilders, SECURITY_QNAME);
         this.serviceBuilders = new NamespaceDrivenBuilderCollection(serviceBuilders, SERVICE_QNAME);
         this.namingBuilders = namingBuilders;
         this.resourceEnvironmentSetter = resourceEnvironmentSetter;
+        this.webServiceBuilder = webServiceBuilder;
     }
 
     static {
@@ -655,6 +660,17 @@ public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
         XmlObject[] securityElements = XmlBeansUtil.selectSubstitutionGroupElements(SECURITY_QNAME, gerWebApp);
         if (securityElements.length > 0 && !hasSecurityRealmName) {
             throw new DeploymentException("You have supplied a security configuration for web app " + module.getName() + " but no security-realm-name to allow login");
+        }
+        getNamingBuilders().buildEnvironment(module.getSpecDD(), module.getVendorDD(), module.getEnvironment());
+        //this is silly
+        getNamingBuilders().initContext(module.getSpecDD(), gerWebApp, module.getEarContext().getConfiguration(), earContext.getConfiguration(), module);
+
+        Map servletNameToPathMap = buildServletNameToPathMap((WebAppType) module.getSpecDD(), ((WebModule)module).getContextRoot());
+
+        Map sharedContext = module.getSharedContext();
+        for (Iterator iterator = webServiceBuilder.iterator(); iterator.hasNext();) {
+            WebServiceBuilder serviceBuilder = (WebServiceBuilder) iterator.next();
+            serviceBuilder.findWebServices(module.getModuleFile(), false, servletNameToPathMap, module.getEnvironment(), sharedContext);
         }
         securityBuilders.build(gerWebApp, earContext, module.getEarContext());
         serviceBuilders.build(gerWebApp, earContext, module.getEarContext());

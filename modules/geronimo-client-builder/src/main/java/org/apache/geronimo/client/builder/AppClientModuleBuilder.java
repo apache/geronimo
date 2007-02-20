@@ -250,8 +250,6 @@ public class AppClientModuleBuilder implements ModuleBuilder, CorbaGBeanNameSour
             idBuilder.resolve(serverEnvironment, new File(moduleFile.getName()).getName(), "jar");
         }
 
-        namingBuilders.buildEnvironment(appClient, gerAppClient, clientEnvironment);
-
         if (earName == null) {
             earName = naming.createRootName(serverEnvironment.getConfigId(), NameFactory.NULL, NameFactory.J2EE_APPLICATION);
         }
@@ -466,6 +464,8 @@ public class AppClientModuleBuilder implements ModuleBuilder, CorbaGBeanNameSour
     }
 
     public void initContext(EARContext earContext, Module clientModule, ClassLoader cl) throws DeploymentException {
+        namingBuilders.buildEnvironment(clientModule.getSpecDD(), clientModule.getVendorDD(), clientModule.getEnvironment());
+
         AppClientModule appClientModule = ((AppClientModule) clientModule);
         for (Iterator resources = appClientModule.getResourceModules().iterator(); resources.hasNext();) {
             ConnectorModule connectorModule = (ConnectorModule) resources.next();

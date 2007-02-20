@@ -26,6 +26,7 @@ import java.util.Set;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.HashMap;
+import java.util.Collections;
 import java.util.jar.JarFile;
 import java.security.PermissionCollection;
 
@@ -45,7 +46,7 @@ import org.apache.xmlbeans.XmlOptions;
 import org.apache.xmlbeans.XmlObject;
 
 /**
- * @version $Rev:$ $Date:$
+ * @version $Rev$ $Date$
  */
 public class SpecSecurityParsingTest extends TestCase {
 
@@ -73,7 +74,7 @@ public class SpecSecurityParsingTest extends TestCase {
     public static class TestWebModuleBuilder extends AbstractWebModuleBuilder {
 
         protected TestWebModuleBuilder() {
-            super(null, null, null, null, null);
+            super(null, null, null, null, null, Collections.EMPTY_SET);
         }
 
         protected Module createModule(Object plan, JarFile moduleFile, String targetPath, URL specDDUrl, boolean standAlone, String contextRoot, AbstractName earName, Naming naming, ModuleIDBuilder idBuilder) throws DeploymentException {

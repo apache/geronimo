@@ -21,6 +21,7 @@ import java.net.URL;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.jar.JarFile;
 
 import org.apache.geronimo.testsupport.XmlBeansTestSupport;
@@ -127,7 +128,7 @@ public class SchemaConversionTest extends XmlBeansTestSupport {
     private static class WebModuleBuilder extends AbstractWebModuleBuilder {
 
         protected WebModuleBuilder(Kernel kernel) {
-            super(kernel, null, null, null, null);
+            super(kernel, null, null, null, null, Collections.EMPTY_SET);
         }
 
         protected Module createModule(Object plan, JarFile moduleFile, String targetPath, URL specDDUrl, boolean standAlone, String contextRoot, AbstractName earName, Naming naming, ModuleIDBuilder idBuilder) throws DeploymentException {
