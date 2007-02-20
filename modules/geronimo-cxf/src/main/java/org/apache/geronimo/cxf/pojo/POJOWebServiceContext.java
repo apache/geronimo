@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.geronimo.cxf;
+package org.apache.geronimo.cxf.pojo;
 
 import java.security.Principal;
 
@@ -31,7 +31,7 @@ import org.apache.cxf.jaxws.context.WebServiceContextImpl;
  * Implementation of WebServiceContext for POJO WS to ensure that getUserPrincipal()
  * and isUserInRole() are properly handled.
  */
-public class CXFWebServiceContext implements WebServiceContext {
+public class POJOWebServiceContext implements WebServiceContext {
 
     private WebServiceContextImpl ctx = new WebServiceContextImpl();
 

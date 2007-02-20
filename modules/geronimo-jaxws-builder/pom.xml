@@ -43,6 +43,11 @@
             <artifactId>geronimo-naming-builder</artifactId>
             <version>${version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.apache.geronimo.modules</groupId>
+            <artifactId>geronimo-openejb-builder</artifactId>
+            <version>${version}</version>
+        </dependency>
     </dependencies>
 
 </project>

@@ -162,17 +162,22 @@
     <module name="org.apache.geronimo.configs/client-deployer/${version}/car">
     </module>
 
-    <module name="org.apache.geronimo.configs/axis2-deployer/${version}/car">
+    <module name="org.apache.geronimo.configs/axis2-deployer/${version}/car" load="false">
         <!-- this gbean is not yet written -->
         <!--<gbean name="Axis2ServiceRefBuilder">
             <attribute name="eeNamespaces">http://java.sun.com/xml/ns/j2ee,http://java.sun.com/xml/ns/javaee</attribute>
         </gbean>-->
     </module>
-	<module name="org.apache.geronimo.configs/cxf-deployer/${version}/car">
-		<!--<gbean name="CXFServiceRefBuilder">
-            <attribute name="eeNamespaces">http://java.sun.com/xml/ns/j2ee,http://java.sun.com/xml/ns/javaee</attribute>
-        </gbean>-->
-	</module>
+
+    <module name="org.apache.geronimo.configs/cxf-deployer/${version}/car">
+
+        <gbean name="CXFModuleBuilderExtension">
+            <attribute name="listener">?name=TomcatWebContainer</attribute>
+            <attribute name="listenerModuleName">org.apache.geronimo.configs/tomcat6/${version}/car</attribute>
+        </gbean>
+
+    </module>
+
     <module name="org.apache.geronimo.configs/axis-deployer/${version}/car">
         <gbean name="AxisServiceRefBuilder">
             <attribute name="eeNamespaces">http://java.sun.com/xml/ns/j2ee,http://java.sun.com/xml/ns/javaee</attribute>

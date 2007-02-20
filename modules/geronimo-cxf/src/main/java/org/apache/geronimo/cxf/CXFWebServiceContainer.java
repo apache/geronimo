@@ -16,23 +16,11 @@
  */
 package org.apache.geronimo.cxf;
 
-import javax.naming.Context;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.apache.cxf.Bus;
-import org.apache.cxf.binding.xml.XMLConstants;
-import org.apache.cxf.tools.common.extensions.soap.SoapAddress;
-import org.apache.cxf.tools.util.SOAPBindingUtil;
-import org.apache.cxf.transport.DestinationFactoryManager;
-import org.apache.cxf.service.model.EndpointInfo;
-import org.apache.cxf.wsdl11.ServiceWSDLBuilder;
-
-import org.apache.geronimo.webservices.WebServiceContainer;
-import org.apache.geronimo.jaxws.JNDIResolver;
-import org.apache.geronimo.jaxws.PortInfo;
-import org.apache.geronimo.jaxws.ServerJNDIResolver;
-import org.xmlsoap.schemas.wsdl.http.AddressType;
+import java.io.PrintWriter;
+import java.net.URI;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.wsdl.Definition;
 import javax.wsdl.Port;
@@ -41,38 +29,38 @@ import javax.wsdl.extensions.ExtensibilityElement;
 import javax.wsdl.factory.WSDLFactory;
 import javax.wsdl.xml.WSDLWriter;
 
-import java.io.PrintWriter;
-import java.net.URI;
-import java.net.URL;
-import java.util.List;
-import java.util.ArrayList;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.apache.cxf.Bus;
+import org.apache.cxf.binding.xml.XMLConstants;
+import org.apache.cxf.service.model.EndpointInfo;
+import org.apache.cxf.tools.common.extensions.soap.SoapAddress;
+import org.apache.cxf.tools.util.SOAPBindingUtil;
+import org.apache.cxf.transport.DestinationFactoryManager;
+import org.apache.cxf.wsdl11.ServiceWSDLBuilder;
+import org.apache.geronimo.webservices.WebServiceContainer;
+import org.xmlsoap.schemas.wsdl.http.AddressType;
 
-// TODO consider putting most of this in the CXFWebServiceContaInerFactoryGBean
-public class CXFWebServiceContainer implements WebServiceContainer {
+public abstract class CXFWebServiceContainer implements WebServiceContainer {
 
     private static final Log LOG = LogFactory.getLog(CXFWebServiceContainer.class);
     
-    private final GeronimoDestination destination;
+    protected final GeronimoDestination destination;
 
-    private final Bus bus;
+    protected final Bus bus;
 
-    private final CXFEndpoint endpoint;
+    protected final CXFEndpoint endpoint;
 
-    private URL configurationBaseUrl;
+    protected URL configurationBaseUrl;
 
-    public CXFWebServiceContainer(PortInfo portInfo,
-                                  Object target,
-                                  Bus bus,
-                                  Context context,
-                                  URL configurationBaseUrl) {
+    public CXFWebServiceContainer(Bus bus,
+                                  URL configurationBaseUrl,
+                                  Object target) {
         this.bus = bus;
         this.configurationBaseUrl = configurationBaseUrl;
 
         List ids = new ArrayList();
         ids.add("http://schemas.xmlsoap.org/wsdl/soap/http");
-
-        bus.setExtension(new ServerJNDIResolver(context), JNDIResolver.class);
-        bus.setExtension(portInfo, PortInfo.class);
 
         DestinationFactoryManager destinationFactoryManager = bus
                 .getExtension(DestinationFactoryManager.class);
@@ -92,8 +80,7 @@ public class CXFWebServiceContainer implements WebServiceContainer {
                 XMLConstants.NS_XML_FORMAT, factory);
 
         endpoint = publishEndpoint(target);
-        destination = (GeronimoDestination) endpoint.getServer()
-                .getDestination();
+        destination = (GeronimoDestination) endpoint.getServer().getDestination();
     }
 
     public void invoke(Request request, Response response) throws Exception {
@@ -149,12 +136,6 @@ public class CXFWebServiceContainer implements WebServiceContainer {
         }
     }
 
-    private CXFEndpoint publishEndpoint(Object target) {
-        assert target != null : "null target received";
-
-        CXFEndpoint ep = new CXFEndpoint(bus, configurationBaseUrl, target);
-        ep.publish("http://nopath");
-        return ep;
-    }
+    abstract protected CXFEndpoint publishEndpoint(Object target);
 
 }

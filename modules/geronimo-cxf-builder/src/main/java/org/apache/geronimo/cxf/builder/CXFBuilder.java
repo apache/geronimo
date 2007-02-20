@@ -42,8 +42,8 @@ import org.apache.cxf.jaxws.javaee.ServiceImplBeanType;
 import org.apache.cxf.jaxws.javaee.WebserviceDescriptionType;
 import org.apache.cxf.jaxws.javaee.WebservicesType;
 import org.apache.geronimo.common.DeploymentException;
-import org.apache.geronimo.cxf.CXFWebServiceContainerFactoryGBean;
 import org.apache.geronimo.cxf.client.CXFServiceReference;
+import org.apache.geronimo.cxf.pojo.POJOWebServiceContainerFactoryGBean;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.j2ee.deployment.Module;
@@ -69,7 +69,7 @@ public class CXFBuilder extends JAXWSServiceBuilder {
     }
 
     protected GBeanInfo getContainerFactoryGBeanInfo() {
-        return CXFWebServiceContainerFactoryGBean.GBEAN_INFO;
+        return POJOWebServiceContainerFactoryGBean.GBEAN_INFO;
     }
 
     protected Map<String, PortInfo> parseWebServiceDescriptor(InputStream in,

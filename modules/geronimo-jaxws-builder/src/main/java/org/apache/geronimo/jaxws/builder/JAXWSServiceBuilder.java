@@ -236,7 +236,7 @@ public abstract class JAXWSServiceBuilder implements WebServiceBuilder {
             LOG.warn("ModuleGBean not found. JNDI resource injection will not work.");
         }
 
-        LOG.info("configuring POJO webservice: " + servletName + " sei: " + seiClassName);
+        LOG.info("Configuring POJO Web Service: " + servletName + " sei: " + seiClassName);
 
         // verify that the class is loadable
         ClassLoader classLoader = context.getClassLoader();
@@ -274,8 +274,47 @@ public abstract class JAXWSServiceBuilder implements WebServiceBuilder {
                                 JarFile moduleFile,
                                 Map sharedContext,
                                 ClassLoader classLoader)
-            throws DeploymentException {
-        throw new DeploymentException("configureEJB NYI");
+            throws DeploymentException {        
+        Map portInfoMap = (Map) sharedContext.get(getKey());
+        if (portInfoMap == null) {
+            // not ours
+            return false;
+        }
+        PortInfo portInfo = (PortInfo) portInfoMap.get(ejbName);
+        if (portInfo == null) {
+            // not ours
+            return false;
+        }
+        
+        String shortEjbName = (String)targetGBean.getAttribute("ejbName");
+                
+        // FIXME: kind of a hack now, need better solution
+        String location = portInfo.getLocation();
+        if (location == null) {            
+            location = "/" + trimPath(new File(moduleFile.getName()).getName()) + "/" + shortEjbName;
+            portInfo.setLocation(location);
+        }
+
+        LOG.info("Configuring EJB Web Service: " + ejbName + " at " + location);
+        
+        targetGBean.setAttribute("portInfo", portInfo);
+        
+        return true;
+    }
+    
+    private String trimPath(String path) {
+        if (path == null) {
+            return null;
+        }
+
+        if (path.endsWith(".war") || path.endsWith(".jar")) {
+            path = path.substring(0, path.length() - 4);
+        }
+        if (path.endsWith("/")) {
+            path = path.substring(0, path.length() - 1);
+        }
+
+        return path;
     }
 
     Class<?> loadSEI(String className, ClassLoader loader) throws DeploymentException {

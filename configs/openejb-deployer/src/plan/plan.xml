@@ -24,9 +24,11 @@
         <reference name="OpenEjbSystem">
             <name>OpenEjbSystem</name>
         </reference>
-        <reference name="ModuleBuilderExtensions">
-            <name>ModuleBuilderExtension</name>
-        </reference>
+        <references name="ModuleBuilderExtensions">
+          <pattern>
+            <name>CXFModuleBuilderExtension</name>
+          </pattern>
+        </references>
         <reference name="SecurityBuilders">
             <name>SecurityBuilder</name>
         </reference>

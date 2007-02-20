@@ -176,7 +176,7 @@ public class JaxWSTest extends TestSupport {
 
     @Test
     public void testClientInvocation() throws Exception {
-        String expected = null; // should be "Hello Tester"; - CXF bugs or something
+        String expected = "Hello Tester";
 
         String warName = System.getProperty("webAppName");
         assertNotNull(warName);

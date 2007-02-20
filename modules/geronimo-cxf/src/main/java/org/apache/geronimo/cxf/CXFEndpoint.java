@@ -26,104 +26,40 @@ import java.util.concurrent.Executor;
 
 import javax.xml.transform.Source;
 import javax.xml.ws.Binding;
-import javax.xml.ws.Provider;
 import javax.xml.ws.Endpoint;
-import javax.xml.ws.WebServiceException;
-import javax.xml.ws.handler.Handler;
-import javax.xml.ws.http.HTTPBinding;
 
 import org.apache.cxf.Bus;
-import org.apache.cxf.binding.xml.XMLBindingInfoFactoryBean;
-import org.apache.cxf.binding.xml.XMLConstants;
 import org.apache.cxf.endpoint.Server;
 import org.apache.cxf.endpoint.ServerImpl;
-import org.apache.cxf.jaxws.JAXWSMethodInvoker;
 import org.apache.cxf.jaxws.JaxWsServerFactoryBean;
-import org.apache.cxf.jaxws.binding.soap.JaxWsSoapBindingInfoFactoryBean;
-import org.apache.cxf.jaxws.handler.PortInfoImpl;
-import org.apache.cxf.jaxws.javaee.HandlerChainsType;
 import org.apache.cxf.jaxws.support.AbstractJaxWsServiceFactoryBean;
 import org.apache.cxf.jaxws.support.JaxWsEndpointImpl;
 import org.apache.cxf.jaxws.support.JaxWsImplementorInfo;
-import org.apache.cxf.jaxws.support.JaxWsServiceFactoryBean;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.service.Service;
-import org.apache.cxf.service.factory.AbstractBindingInfoFactoryBean;
-import org.apache.geronimo.jaxws.annotations.AnnotationException;
-import org.apache.geronimo.jaxws.annotations.AnnotationProcessor;
-import org.apache.geronimo.jaxws.JAXWSUtils;
-import org.apache.geronimo.jaxws.JNDIResolver;
-import org.apache.geronimo.jaxws.JAXWSAnnotationProcessor;
-import org.apache.geronimo.jaxws.PortInfo;
 
-/*
- * This class somewhat replicates CXF Endpoint functionality but it is necessary
- * to do custom annotation handling for the service and handlers.
- */
-public class CXFEndpoint extends Endpoint {
+public abstract class CXFEndpoint extends Endpoint {
 
-    private Bus bus;
+    protected Bus bus;
 
-    private Object implementor;
+    protected Object implementor;
 
-    private Server server;
+    protected Server server;
 
-    private Service service;
+    protected Service service;
 
-    private JaxWsImplementorInfo implInfo;
+    protected JaxWsImplementorInfo implInfo;
 
-    private AbstractJaxWsServiceFactoryBean serviceFactory;
+    protected AbstractJaxWsServiceFactoryBean serviceFactory;
 
-    private String bindingURI;
+    protected String bindingURI;
 
-    private PortInfo portInfo;
-
-    private AnnotationProcessor annotationProcessor;
-
-    public CXFEndpoint(Bus bus,
-                       URL configurationBaseUrl,
-                       Object instance) {
+    public CXFEndpoint(Bus bus, Object implementor) {
         this.bus = bus;
-        this.implementor = instance;
-
-        this.portInfo = (PortInfo) bus.getExtension(PortInfo.class);
-        this.bindingURI = JAXWSUtils.getBindingURI(this.portInfo.getProtocolBinding());
-        
-        implInfo = new JaxWsImplementorInfo(implementor.getClass());
-
-        if (implInfo.isWebServiceProvider()) {
-            //serviceFactory = new ProviderServiceFactoryBean(implInfo);
-        } else {
-            serviceFactory = new JaxWsServiceFactoryBean(implInfo);
-        }
-        serviceFactory.setBus(bus);
-
-        /*
-         * TODO: The WSDL processing needs to be improved
-         */
-        URL wsdlURL = getWsdlURL(configurationBaseUrl, this.portInfo.getWsdlFile());
-
-        // install as first to overwrite annotations (wsdl-file, wsdl-port, wsdl-service)
-        CXFServiceConfiguration configuration = new CXFServiceConfiguration(
-                this.portInfo, wsdlURL);
-        serviceFactory.getConfigurations().add(0, configuration);
-
-        service = serviceFactory.create();
-
-        service.put(Message.SCHEMA_VALIDATION_ENABLED, service
-                .getEnableSchemaValidationForAllPort());
-
-        if (implInfo.isWebServiceProvider()) {
-            //service.setInvoker(new ProviderInvoker((Provider<?>) instance));
-        } else {
-            service.setInvoker(new JAXWSMethodInvoker(instance));
-        }
-
-        JNDIResolver jndiResolver = (JNDIResolver) bus.getExtension(JNDIResolver.class);
-        this.annotationProcessor = new JAXWSAnnotationProcessor(jndiResolver, new CXFWebServiceContext());
+        this.implementor = implementor;
     }
-
-    private URL getWsdlURL(URL configurationBaseUrl, String wsdlFile) {
+  
+    protected URL getWsdlURL(URL configurationBaseUrl, String wsdlFile) {
         URL wsdlURL = null;
         if (wsdlFile != null) {
 
@@ -148,7 +84,7 @@ public class CXFEndpoint extends Endpoint {
         }
         return wsdlURL;
     }
-
+    
     org.apache.cxf.endpoint.Endpoint getEndpoint() {
         return ((ServerImpl) getServer()).getEndpoint();
     }
@@ -216,93 +152,25 @@ public class CXFEndpoint extends Endpoint {
         svrFactory.setAddress(address);
         svrFactory.setServiceFactory(serviceFactory);
         svrFactory.setStart(false);
-
-        // FIXME: setServiceClass() or setSerivceBean() ?
-        svrFactory.setServiceClass(implementor.getClass());
-        // svrFactory.setServiceBean(implementor);
-        
-        AbstractBindingInfoFactoryBean bindingFactory = null;
-        if (XMLConstants.NS_XML_FORMAT.equals(bindingURI)
-            || HTTPBinding.HTTP_BINDING.equals(bindingURI)) {
-            bindingFactory = new XMLBindingInfoFactoryBean();
-        } else {
-            // Just assume soap otherwise...
-            bindingFactory = new JaxWsSoapBindingInfoFactoryBean();
-        }
-
-        svrFactory.setBindingFactory(bindingFactory);
-      
+        svrFactory.setServiceBean(implementor);
+              
         server = svrFactory.create();
         
         init();
 
-        /*
-        if (implInfo.isWebServiceProvider()) {
-            getServer().setMessageObserver(
-                    new ProviderChainObserver(getEndpoint(), bus, implInfo));
-        }
-        */
-
         org.apache.cxf.endpoint.Endpoint endpoint = getEndpoint();
 
         if (endpoint.getEnableSchemaValidation()) {
-            endpoint.put(Message.SCHEMA_VALIDATION_ENABLED, endpoint
-                    .getEnableSchemaValidation());
+            endpoint.put(Message.SCHEMA_VALIDATION_ENABLED, 
+                         endpoint.getEnableSchemaValidation());
         }
         server.start();
     }
 
-    protected void init() {        
-        // configure and inject handlers
-        try {
-            configureHandlers();
-        } catch (Exception e) {
-            throw new WebServiceException("Error configuring handlers", e);
-        }
-
-        // inject resources into service
-        try {
-            injectResources(this.implementor);
-        } catch (AnnotationException e) {
-            throw new WebServiceException("Service resource injection failed", e);
-        }
+    protected void init() { 
     }
-
-    private void injectResources(Object instance) throws AnnotationException {
-        this.annotationProcessor.processAnnotations(instance);
-        this.annotationProcessor.invokePostConstruct(instance);
-    }
-
-    /*
-     * Gets the right handlers for the port/service/bindings and 
-     * performs injection.
-     */
-    protected void configureHandlers() throws Exception {        
-        HandlerChainsType handlerChains = this.portInfo.getHandlers(HandlerChainsType.class);
-        CXFHandlerResolver handlerResolver =
-            new CXFHandlerResolver(this.implementor.getClass().getClassLoader(), 
-                                   this.implementor.getClass(),
-                                   handlerChains, 
-                                   this.annotationProcessor);
-                
-        PortInfoImpl portInfo = 
-            new PortInfoImpl(this.bindingURI, serviceFactory.getEndpointName(), service.getName());
-        
-        List<Handler> chain = handlerResolver.getHandlerChain(portInfo);
-
-        getBinding().setHandlerChain(chain);
-    }
-
+          
     public void stop() {
-        // call handlers preDestroy
-        List<Handler> handlers = getBinding().getHandlerChain();
-        for (Handler handler : handlers) {
-            this.annotationProcessor.invokePreDestroy(handler);
-        }
-
-        // call service preDestroy
-        this.annotationProcessor.invokePreDestroy(this.implementor);
-
         // shutdown server
         if (this.server != null) {
             this.server.stop();

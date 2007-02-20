@@ -100,9 +100,11 @@ public abstract class JAXWSServiceReference extends SimpleReference implements C
                         this.moduleName, "configurationBaseUrl");
                 return new URL(moduleBaseUrl.toString() + this.wsdlURI.toString());
             } catch (Exception e) {
-                // this should not happen
-                LOG.warn("Error constructing WSDL location", e);
-                return null;
+                URL wsdlURL = this.classLoader.getResource(this.wsdlURI.toString());
+                if (wsdlURL == null) {
+                    LOG.warn("Error obtaining WSDL: " + this.wsdlURI, e);
+                }
+                return wsdlURL;
             }
         }
     }
