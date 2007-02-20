@@ -16,8 +16,8 @@ import javax.xml.bind.annotation.XmlType;
 /**
  * 
  * 
- * 	The local-homeType defines the fully-qualified
- * 	name of an enterprise bean's local home interface.
+ *     The local-homeType defines the fully-qualified
+ *     name of an enterprise bean's local home interface.
  * 
  *       
  * 

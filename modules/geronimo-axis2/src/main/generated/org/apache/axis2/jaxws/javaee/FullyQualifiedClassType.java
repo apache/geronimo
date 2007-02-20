@@ -16,12 +16,12 @@ import javax.xml.bind.annotation.XmlType;
 /**
  * 
  * 
- * 	The elements that use this type designate the name of a
- * 	Java class or interface.  The name is in the form of a
- * 	"binary name", as defined in the JLS.  This is the form
- * 	of name used in Class.forName().  Tools that need the
- * 	canonical name (the name used in source code) will need
- * 	to convert this binary name to the canonical name.
+ *     The elements that use this type designate the name of a
+ *     Java class or interface.  The name is in the form of a
+ *     "binary name", as defined in the JLS.  This is the form
+ *     of name used in Class.forName().  Tools that need the
+ *     canonical name (the name used in source code) will need
+ *     to convert this binary name to the canonical name.
  * 
  *       
  * 

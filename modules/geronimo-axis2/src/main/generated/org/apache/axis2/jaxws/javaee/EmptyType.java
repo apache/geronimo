@@ -20,8 +20,8 @@ import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 /**
  * 
  * 
- * 	This type is used to designate an empty
- * 	element when used.
+ *     This type is used to designate an empty
+ *     element when used.
  * 
  *       
  * 

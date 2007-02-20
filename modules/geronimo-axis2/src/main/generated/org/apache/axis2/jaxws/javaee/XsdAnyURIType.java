@@ -21,7 +21,7 @@ import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 /**
  * 
  * 
- * 	This type adds an "id" attribute to xsd:anyURI.
+ *     This type adds an "id" attribute to xsd:anyURI.
  * 
  *       
  * 

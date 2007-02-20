@@ -16,14 +16,14 @@ import javax.xml.bind.annotation.XmlType;
 /**
  * 
  * 
- * 	The ejb-ref-typeType contains the expected type of the
- * 	referenced enterprise bean.
+ *     The ejb-ref-typeType contains the expected type of the
+ *     referenced enterprise bean.
  * 
- * 	The ejb-ref-type designates a value
- * 	that must be one of the following:
+ *     The ejb-ref-type designates a value
+ *     that must be one of the following:
  * 
- * 	    Entity
- * 	    Session
+ *         Entity
+ *         Session
  * 
  *       
  * 

@@ -20,18 +20,18 @@ package org.apache.geronimo.axis2;
 import javax.wsdl.Definition;
 
 public class PortInfo extends org.apache.geronimo.jaxws.PortInfo {
-	
-	private Definition wsdlDefinition;
-	
+    
+    private Definition wsdlDefinition;
+    
     public Definition getWsdlDefinition() {
-		return wsdlDefinition;
-	}
+        return wsdlDefinition;
+    }
 
-	public void setWsdlDefinition(Definition wsdlDefinition) {
-		this.wsdlDefinition = wsdlDefinition;
-	}
+    public void setWsdlDefinition(Definition wsdlDefinition) {
+        this.wsdlDefinition = wsdlDefinition;
+    }
 
-	public String toString() {
+    public String toString() {
         return "[" + getServiceName() + ":" + getPortName() + ":" + getServiceEndpointInterfaceName() + ":" + getWsdlFile() + ":" + getLocation() + "]";
     }
 }

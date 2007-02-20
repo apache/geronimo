@@ -23,10 +23,10 @@ import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 /**
  * 
  * 
- * 	Declares the handler for a port-component. Handlers can access the
- * 	init-param name/value pairs using the HandlerInfo interface.
+ *     Declares the handler for a port-component. Handlers can access the
+ *     init-param name/value pairs using the HandlerInfo interface.
  * 
- * 	Used in: port-component
+ *     Used in: port-component
  * 
  *       
  * 

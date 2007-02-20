@@ -16,17 +16,17 @@ import javax.xml.bind.annotation.XmlType;
 /**
  * 
  * 
- * 	The res-authType specifies whether the Deployment Component
- * 	code signs on programmatically to the resource manager, or
- * 	whether the Container will sign on to the resource manager
- * 	on behalf of the Deployment Component. In the latter case,
- * 	the Container uses information that is supplied by the
- * 	Deployer.
+ *     The res-authType specifies whether the Deployment Component
+ *     code signs on programmatically to the resource manager, or
+ *     whether the Container will sign on to the resource manager
+ *     on behalf of the Deployment Component. In the latter case,
+ *     the Container uses information that is supplied by the
+ *     Deployer.
  * 
- * 	The value must be one of the two following:
+ *     The value must be one of the two following:
  * 
- * 	    Application
- * 	    Container
+ *         Application
+ *         Container
  * 
  *       
  * 

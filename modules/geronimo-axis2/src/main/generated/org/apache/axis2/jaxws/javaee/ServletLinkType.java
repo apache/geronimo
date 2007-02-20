@@ -15,21 +15,21 @@ import javax.xml.bind.annotation.XmlType;
 
 /**
  * 
- * 	
+ *     
  * 
- * 	  The servlet-link element is used in the service-impl-bean element
- * 	  to specify that a Service Implementation Bean is defined as a
- * 	  JAX-RPC Service Endpoint.
+ *       The servlet-link element is used in the service-impl-bean element
+ *       to specify that a Service Implementation Bean is defined as a
+ *       JAX-RPC Service Endpoint.
  * 
- * 	  The value of the servlet-link element must be the servlet-name of
- * 	  a JAX-RPC Service Endpoint in the same WAR file.
+ *       The value of the servlet-link element must be the servlet-name of
+ *       a JAX-RPC Service Endpoint in the same WAR file.
  * 
- * 	  Used in: service-impl-bean
+ *       Used in: service-impl-bean
  * 
- * 	  Example:
- * 		  <servlet-link>StockQuoteService</servlet-link>
+ *       Example:
+ *           <servlet-link>StockQuoteService</servlet-link>
  * 
- * 	  
+ *       
  *       
  * 
  * <p>Java class for servlet-linkType complex type.

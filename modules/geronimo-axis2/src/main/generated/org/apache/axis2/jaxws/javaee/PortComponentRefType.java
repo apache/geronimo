@@ -21,11 +21,11 @@ import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 /**
  * 
  * 
- * 	The port-component-ref element declares a client dependency
- * 	on the container for resolving a Service Endpoint Interface
- * 	to a WSDL port. It optionally associates the Service Endpoint
- * 	Interface with a particular port-component. This is only used
- * 	by the container for a Service.getPort(Class) method call.
+ *     The port-component-ref element declares a client dependency
+ *     on the container for resolving a Service Endpoint Interface
+ *     to a WSDL port. It optionally associates the Service Endpoint
+ *     Interface with a particular port-component. This is only used
+ *     by the container for a Service.getPort(Class) method call.
  * 
  *       
  * 

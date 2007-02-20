@@ -23,13 +23,13 @@ import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 /**
  * 
  * 
- * 	The service-ref element declares a reference to a Web
- * 	service. It contains optional description, display name and
- * 	icons, a declaration of the required Service interface,
- * 	an optional WSDL document location, an optional set
- * 	of JAX-RPC mappings, an optional QName for the service element,
- * 	an optional set of Service Endpoint Interfaces to be resolved
- * 	by the container to a WSDL port, and an optional set of handlers.
+ *     The service-ref element declares a reference to a Web
+ *     service. It contains optional description, display name and
+ *     icons, a declaration of the required Service interface,
+ *     an optional WSDL document location, an optional set
+ *     of JAX-RPC mappings, an optional QName for the service element,
+ *     an optional set of Service Endpoint Interfaces to be resolved
+ *     by the container to a WSDL port, and an optional set of handlers.
  * 
  *       
  * 

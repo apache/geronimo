@@ -21,14 +21,14 @@ import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 /**
  * 
  * 
- * 	The icon type contains small-icon and large-icon elements
- * 	that specify the file names for small and large GIF, JPEG,
- * 	or PNG icon images used to represent the parent element in a
- * 	GUI tool.
+ *     The icon type contains small-icon and large-icon elements
+ *     that specify the file names for small and large GIF, JPEG,
+ *     or PNG icon images used to represent the parent element in a
+ *     GUI tool.
  * 
- * 	The xml:lang attribute defines the language that the
- * 	icon file names are provided in. Its value is "en" (English)
- * 	by default.
+ *     The xml:lang attribute defines the language that the
+ *     icon file names are provided in. Its value is "en" (English)
+ *     by default.
  * 
  *       
  * 

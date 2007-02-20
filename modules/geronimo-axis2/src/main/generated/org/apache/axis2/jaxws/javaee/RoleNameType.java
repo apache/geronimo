@@ -16,9 +16,9 @@ import javax.xml.bind.annotation.XmlType;
 /**
  * 
  * 
- * 	The role-nameType designates the name of a security role.
+ *     The role-nameType designates the name of a security role.
  * 
- * 	The name must conform to the lexical rules for a token.
+ *     The name must conform to the lexical rules for a token.
  * 
  *       
  * 

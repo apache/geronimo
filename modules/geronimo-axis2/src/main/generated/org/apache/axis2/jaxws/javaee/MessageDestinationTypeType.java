@@ -15,18 +15,18 @@ import javax.xml.bind.annotation.XmlType;
 
 /**
  * 
- * 	
+ *     
  * 
- * 	  The message-destination-typeType specifies the type of
- * 	  the destination. The type is specified by the Java interface
- * 	  expected to be implemented by the destination.
+ *       The message-destination-typeType specifies the type of
+ *       the destination. The type is specified by the Java interface
+ *       expected to be implemented by the destination.
  * 
- * 	  Example:
+ *       Example:
  * 
- * 	    <message-destination-type>javax.jms.Queue
- * 	    </message-destination-type>
+ *         <message-destination-type>javax.jms.Queue
+ *         </message-destination-type>
  * 
- * 	  
+ *       
  *       
  * 
  * <p>Java class for message-destination-typeType complex type.

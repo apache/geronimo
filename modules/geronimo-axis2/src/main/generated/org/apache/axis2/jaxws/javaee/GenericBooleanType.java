@@ -16,9 +16,9 @@ import javax.xml.bind.annotation.XmlType;
 /**
  * 
  * 
- * 	This type defines four different values which can designate
- * 	boolean values. This includes values yes and no which are
- * 	not designated by xsd:boolean
+ *     This type defines four different values which can designate
+ *     boolean values. This includes values yes and no which are
+ *     not designated by xsd:boolean
  * 
  *       
  * 

@@ -17,11 +17,11 @@ import javax.xml.bind.annotation.XmlType;
 /**
  * 
  * 
- * 	The lifecycle-callback type specifies a method on a
- * 	class to be called when a lifecycle event occurs.
- * 	Note that each class may have only one lifecycle callback
+ *     The lifecycle-callback type specifies a method on a
+ *     class to be called when a lifecycle event occurs.
+ *     Note that each class may have only one lifecycle callback
  *         method for any given event and that the method may not
- * 	be overloaded.
+ *     be overloaded.
  * 
  *         If the lifefycle-callback-class element is missing then
  *         the class defining the callback is assumed to be the

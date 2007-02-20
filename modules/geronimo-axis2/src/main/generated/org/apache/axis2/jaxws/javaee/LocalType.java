@@ -16,8 +16,8 @@ import javax.xml.bind.annotation.XmlType;
 /**
  * 
  * 
- * 	The localType defines the fully-qualified name of an
- * 	enterprise bean's local interface.
+ *     The localType defines the fully-qualified name of an
+ *     enterprise bean's local interface.
  * 
  *       
  * 

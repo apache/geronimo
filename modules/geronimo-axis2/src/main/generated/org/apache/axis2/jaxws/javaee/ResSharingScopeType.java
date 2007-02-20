@@ -16,15 +16,15 @@ import javax.xml.bind.annotation.XmlType;
 /**
  * 
  * 
- * 	The res-sharing-scope type specifies whether connections
- * 	obtained through the given resource manager connection
- * 	factory reference can be shared. The value, if specified,
- * 	must be one of the two following:
+ *     The res-sharing-scope type specifies whether connections
+ *     obtained through the given resource manager connection
+ *     factory reference can be shared. The value, if specified,
+ *     must be one of the two following:
  * 
- * 	    Shareable
- * 	    Unshareable
+ *         Shareable
+ *         Unshareable
  * 
- * 	The default value is Shareable.
+ *     The default value is Shareable.
  * 
  *       
  * 

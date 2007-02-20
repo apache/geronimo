@@ -23,13 +23,13 @@ import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 /**
  * 
  * 
- * 	The security-role-refType contains the declaration of a
- * 	security role reference in a component's or a
- * 	Deployment Component's code. The declaration consists of an
- * 	optional description, the security role name used in the
- * 	code, and an optional link to a security role. If the
- * 	security role is not specified, the Deployer must choose an
- * 	appropriate security role.
+ *     The security-role-refType contains the declaration of a
+ *     security role reference in a component's or a
+ *     Deployment Component's code. The declaration consists of an
+ *     optional description, the security role name used in the
+ *     code, and an optional link to a security role. If the
+ *     security role is not specified, the Deployer must choose an
+ *     appropriate security role.
  * 
  *       
  * 

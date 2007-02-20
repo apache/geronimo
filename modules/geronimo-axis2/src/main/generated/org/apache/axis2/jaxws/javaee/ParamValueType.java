@@ -23,8 +23,8 @@ import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 /**
  * 
  * 
- * 	This type is a general type that can be used to declare
- * 	parameter/value lists.
+ *     This type is a general type that can be used to declare
+ *     parameter/value lists.
  * 
  *       
  * 

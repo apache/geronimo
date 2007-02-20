@@ -21,7 +21,7 @@ import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 /**
  * 
  * 
- * 	Specifies a name/value pair.
+ *     Specifies a name/value pair.
  * 
  *       
  * 

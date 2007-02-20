@@ -23,14 +23,14 @@ import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 /**
  * 
  * 
- * 	The port-component element associates a WSDL port with a web service
- * 	interface and implementation.  It defines the name of the port as a
- * 	component, optional description, optional display name, optional iconic
- * 	representations, WSDL port QName, Service Endpoint Interface, Service
- * 	Implementation Bean.
+ *     The port-component element associates a WSDL port with a web service
+ *     interface and implementation.  It defines the name of the port as a
+ *     component, optional description, optional display name, optional iconic
+ *     representations, WSDL port QName, Service Endpoint Interface, Service
+ *     Implementation Bean.
  * 
- * 	This element also associates a WSDL service with a JAX-WS Provider
- * 	implementation.
+ *     This element also associates a WSDL service with a JAX-WS Provider
+ *     implementation.
  * 
  *       
  * 

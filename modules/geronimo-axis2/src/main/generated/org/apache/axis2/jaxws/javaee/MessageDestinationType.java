@@ -22,30 +22,30 @@ import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 /**
  * 
- * 	
+ *     
  * 
- * 	  The message-destinationType specifies a message
- * 	  destination. The logical destination described by this
- * 	  element is mapped to a physical destination by the Deployer.
+ *       The message-destinationType specifies a message
+ *       destination. The logical destination described by this
+ *       element is mapped to a physical destination by the Deployer.
  * 
- * 	  The message destination element contains:
+ *       The message destination element contains:
  * 
- * 		  - an optional description
- * 		  - an optional display-name
- * 		  - an optional icon
- * 		  - a message destination name which must be unique
- * 		    among message destination names within the same
- * 		    Deployment File.
- * 		  - an optional mapped name
+ *           - an optional description
+ *           - an optional display-name
+ *           - an optional icon
+ *           - a message destination name which must be unique
+ *             among message destination names within the same
+ *             Deployment File.
+ *           - an optional mapped name
  * 
- * 	  Example:
+ *       Example:
  * 
- * 	  <message-destination>
- * 		  <message-destination-name>CorporateStocks
- * 		  </message-destination-name>
- * 	  </message-destination>
+ *       <message-destination>
+ *           <message-destination-name>CorporateStocks
+ *           </message-destination-name>
+ *       </message-destination>
  * 
- * 	  
+ *       
  *       
  * 
  * <p>Java class for message-destinationType complex type.

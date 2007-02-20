@@ -23,8 +23,8 @@ import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 /**
  * 
  * 
- * 	The listenerType indicates the deployment properties for a web
- * 	application listener bean.
+ *     The listenerType indicates the deployment properties for a web
+ *     application listener bean.
  * 
  *       
  * 

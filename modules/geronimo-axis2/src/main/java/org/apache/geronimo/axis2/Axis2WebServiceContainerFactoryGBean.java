@@ -37,7 +37,7 @@ import org.apache.geronimo.webservices.WebServiceContainerFactory;
 
 public class Axis2WebServiceContainerFactoryGBean implements WebServiceContainerFactory {
 
-	private static final Log log = LogFactory.getLog(Axis2WebServiceContainerFactoryGBean.class);
+    private static final Log log = LogFactory.getLog(Axis2WebServiceContainerFactoryGBean.class);
     private final ClassLoader classLoader;
     private final org.apache.geronimo.axis2.PortInfo portInfo;
     private final String endpointClassName;
@@ -45,14 +45,14 @@ public class Axis2WebServiceContainerFactoryGBean implements WebServiceContainer
     private Context context;
 
     public Axis2WebServiceContainerFactoryGBean(org.apache.geronimo.axis2.PortInfo portInfo, 
-    		String endpointClassName, 
-    		ClassLoader classLoader, 
-    		Map componentContext,
+            String endpointClassName, 
+            ClassLoader classLoader, 
+            Map componentContext,
             Kernel kernel,
             TransactionManager transactionManager,
             URL configurationBaseUrl) throws InstantiationException, IllegalAccessException, ClassNotFoundException {
-    	
-    	if (componentContext != null) {
+        
+        if (componentContext != null) {
             GeronimoUserTransaction userTransaction = new GeronimoUserTransaction(transactionManager);
             try {
                 this.context = EnterpriseNamingContext.createEnterpriseNamingContext(componentContext,

@@ -22,7 +22,7 @@ import javax.xml.namespace.QName;
 /**
  * 
  * 
- * 	This type adds an "id" attribute to xsd:QName.
+ *     This type adds an "id" attribute to xsd:QName.
  * 
  *       
  * 

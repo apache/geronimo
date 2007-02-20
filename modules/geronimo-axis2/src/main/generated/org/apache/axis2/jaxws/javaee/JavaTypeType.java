@@ -16,9 +16,9 @@ import javax.xml.bind.annotation.XmlType;
 /**
  * 
  * 
- * 	This is a generic type that designates a Java primitive
- * 	type or a fully qualified name of a Java interface/type,
- * 	or an array of such types.
+ *     This is a generic type that designates a Java primitive
+ *     type or a fully qualified name of a Java interface/type,
+ *     or an array of such types.
  * 
  *       
  * 

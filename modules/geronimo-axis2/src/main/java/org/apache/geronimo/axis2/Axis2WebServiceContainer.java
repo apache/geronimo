@@ -78,7 +78,7 @@ import org.apache.ws.commons.schema.XmlSchema;
 
 public class Axis2WebServiceContainer implements WebServiceContainer {
 
-	private static final Log log = LogFactory.getLog(Axis2WebServiceContainer.class);
+    private static final Log log = LogFactory.getLog(Axis2WebServiceContainer.class);
 
     public static final String REQUEST = Axis2WebServiceContainer.class.getName() + "@Request";
     public static final String RESPONSE = Axis2WebServiceContainer.class.getName() + "@Response";
@@ -108,11 +108,11 @@ public class Axis2WebServiceContainer implements WebServiceContainer {
             configurationContext.setServicePath(portInfo.getLocation());
             
             if(portInfo.getWsdlDefinition() != null){ //WSDL Has been provided
-            	AxisServiceGenerator serviceGen = new AxisServiceGenerator();
-            	service = serviceGen.getServiceFromWSDL(portInfo, endpointClassName, portInfo.getWsdlDefinition(), classLoader);
-            	        	            	
+                AxisServiceGenerator serviceGen = new AxisServiceGenerator();
+                service = serviceGen.getServiceFromWSDL(portInfo, endpointClassName, portInfo.getWsdlDefinition(), classLoader);
+                                            
             }else { //No WSDL, Axis2 will handle it. Is it ?
-            	service = AxisService.createService(endpointClassName, configurationContext.getAxisConfiguration(), JAXWSMessageReceiver.class);
+                service = AxisService.createService(endpointClassName, configurationContext.getAxisConfiguration(), JAXWSMessageReceiver.class);
             }
 
             service.setScope(Constants.SCOPE_APPLICATION);
@@ -139,7 +139,7 @@ public class Axis2WebServiceContainer implements WebServiceContainer {
         initContextRoot(request);
 
         if (log.isDebugEnabled()) {
-        	log.debug("Target URI: " + request.getURI());
+            log.debug("Target URI: " + request.getURI());
         }
 
         MessageContext msgContext = new MessageContext();
@@ -303,19 +303,19 @@ public class Axis2WebServiceContainer implements WebServiceContainer {
                 }
             }
             if (uri.getQuery().startsWith("wsdl")) {
-            	if(portInfo.getWsdlDefinition() != null){
-            		WSDLFactory factory = WSDLFactory.newInstance();
-            		WSDLWriter writer = factory.newWSDLWriter();            		
-            		writer.writeWSDL(portInfo.getWsdlDefinition(), response.getOutputStream());
-            		return;
-            	}else {
+                if(portInfo.getWsdlDefinition() != null){
+                    WSDLFactory factory = WSDLFactory.newInstance();
+                    WSDLWriter writer = factory.newWSDLWriter();                    
+                    writer.writeWSDL(portInfo.getWsdlDefinition(), response.getOutputStream());
+                    return;
+                }else {
                     service.printWSDL(response.getOutputStream());
                     return;
-            	}
+                }
             }
             //TODO: Not working properly and do we need to have these requests ?
             if (uri.getQuery().startsWith("xsd=")) {
-            	String schemaName = uri.getQuery().substring(uri.getQuery().lastIndexOf("=") + 1);
+                String schemaName = uri.getQuery().substring(uri.getQuery().lastIndexOf("=") + 1);
 
                 if (service != null) {
                     //run the population logic just to be sure
@@ -336,9 +336,9 @@ public class Axis2WebServiceContainer implements WebServiceContainer {
             }
             //cater for named xsds - check for the xsd name
             if (uri.getQuery().startsWith("xsd")) {
-            	if (service != null) {
-            		response.setContentType("text/xml");
-            		response.setHeader("Transfer-Encoding", "chunked");
+                if (service != null) {
+                    response.setContentType("text/xml");
+                    response.setHeader("Transfer-Encoding", "chunked");
                     service.printSchema(response.getOutputStream());
                     response.getOutputStream().close();
                     return;
@@ -545,21 +545,21 @@ public class Axis2WebServiceContainer implements WebServiceContainer {
     
     class WSDLGeneratorImpl implements WsdlGenerator {
 
-    	private Definition def;
-    	
-    	public WSDLGeneratorImpl(Definition def) {
-    		this.def = def;
-    	}
-    	
-    	public WsdlComposite generateWsdl(String implClass, String bindingType) throws WebServiceException {
-    		// Need WSDL generation code
-    		WsdlComposite composite = new WsdlComposite();
-    		composite.setWsdlFileName(implClass);
-    		HashMap<String, Definition> testMap = new HashMap<String, Definition>();
-    		testMap.put(composite.getWsdlFileName(), def);
-    		composite.setWsdlDefinition(testMap);
-    		return composite;
-    	}
+        private Definition def;
+        
+        public WSDLGeneratorImpl(Definition def) {
+            this.def = def;
+        }
+        
+        public WsdlComposite generateWsdl(String implClass, String bindingType) throws WebServiceException {
+            // Need WSDL generation code
+            WsdlComposite composite = new WsdlComposite();
+            composite.setWsdlFileName(implClass);
+            HashMap<String, Definition> testMap = new HashMap<String, Definition>();
+            testMap.put(composite.getWsdlFileName(), def);
+            composite.setWsdlDefinition(testMap);
+            return composite;
+        }
     }
 
     protected void init() {

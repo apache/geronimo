@@ -23,9 +23,9 @@ import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 /**
  * 
  * 
- * 	The run-asType specifies the run-as identity to be
- * 	used for the execution of a component. It contains an
- * 	optional description, and the name of a security role.
+ *     The run-asType specifies the run-as identity to be
+ *     used for the execution of a component. It contains an
+ *     optional description, and the name of a security role.
  * 
  *       
  * 

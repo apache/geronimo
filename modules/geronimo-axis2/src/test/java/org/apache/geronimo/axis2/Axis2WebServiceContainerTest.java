@@ -35,7 +35,7 @@ public class Axis2WebServiceContainerTest extends Axis2AbstractTestCase {
     }
 
     public void testInvokeWithWSDLDocLit() throws Exception {
-    	testInvokeWithWSDL("test_service_doc_lit_request.xml", "test_service_doc_lit.wsdl");
+        testInvokeWithWSDL("test_service_doc_lit_request.xml", "test_service_doc_lit.wsdl");
     }
     
     //TODO:
@@ -43,15 +43,15 @@ public class Axis2WebServiceContainerTest extends Axis2AbstractTestCase {
     }
     
     private void testInvokeWithWSDL(String requestFile, String wsdlFile) throws Exception {
-    	ClassLoader cl = Thread.currentThread().getContextClassLoader();
-    	InputStream in = cl.getResourceAsStream(requestFile);
+        ClassLoader cl = Thread.currentThread().getContextClassLoader();
+        InputStream in = cl.getResourceAsStream(requestFile);
 
-    	PortInfo portInfo = new PortInfo();
-    	portInfo.setLocation("servlet");
-    	File file = new File(getTestFile("src/test/resources/"+wsdlFile));
-    	portInfo.setWsdlDefinition(readWSDL(file.toURL().toString()));
-    	
-    	try {
+        PortInfo portInfo = new PortInfo();
+        portInfo.setLocation("servlet");
+        File file = new File(getTestFile("src/test/resources/"+wsdlFile));
+        portInfo.setWsdlDefinition(readWSDL(file.toURL().toString()));
+        
+        try {
             Axis2Request req = new Axis2Request(504,
                     "text/xml; charset=utf-8",
                     in,
@@ -72,7 +72,7 @@ public class Axis2WebServiceContainerTest extends Axis2AbstractTestCase {
             out.flush();
      
         } catch(Exception ex){
-        	throw new Exception(ex.toString());
+            throw new Exception(ex.toString());
         }finally {
             if (in != null) {
                 try {
@@ -85,12 +85,12 @@ public class Axis2WebServiceContainerTest extends Axis2AbstractTestCase {
     }
     
     private Definition readWSDL(String url) throws Exception{
-    	WSDLFactory factory = WSDLFactory.newInstance();
-		WSDLReader reader = factory.newWSDLReader();
-		reader.setFeature("javax.wsdl.importDocuments", true);
-		reader.setFeature("javax.wsdl.verbose", false);
-		Definition wsdlDefinition = reader.readWSDL(url);
-		return wsdlDefinition;
+        WSDLFactory factory = WSDLFactory.newInstance();
+        WSDLReader reader = factory.newWSDLReader();
+        reader.setFeature("javax.wsdl.importDocuments", true);
+        reader.setFeature("javax.wsdl.verbose", false);
+        Definition wsdlDefinition = reader.readWSDL(url);
+        return wsdlDefinition;
     }
 
     protected void setUp() throws Exception {

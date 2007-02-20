@@ -22,24 +22,24 @@ import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 /**
  * 
- * 	
+ *     
  * 
- * 	  The persistence-context-ref element contains a declaration
- * 	  of Deployment Component's reference to a persistence context
- * 	  associated within a Deployment Component's
- * 	  environment. It consists of:
+ *       The persistence-context-ref element contains a declaration
+ *       of Deployment Component's reference to a persistence context
+ *       associated within a Deployment Component's
+ *       environment. It consists of:
  * 
- * 		  - an optional description
- * 		  - the persistence context reference name
- * 		  - an optional persistence unit name.  If not specified,
+ *           - an optional description
+ *           - the persistence context reference name
+ *           - an optional persistence unit name.  If not specified,
  *                     the default persistence unit is assumed.
- * 		  - an optional specification as to whether
- * 		    the persistence context type is Transaction or
- * 		    Extended.  If not specified, Transaction is assumed.
+ *           - an optional specification as to whether
+ *             the persistence context type is Transaction or
+ *             Extended.  If not specified, Transaction is assumed.
  *                   - an optional list of persistence properties
- * 		  - optional injection targets
+ *           - optional injection targets
  * 
- * 	  Examples:
+ *       Examples:
  * 
  *             <persistence-context-ref>
  *               <persistence-context-ref-name>myPersistenceContext
@@ -54,7 +54,7 @@ import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
  *               <persistence-context-type>Extended</persistence-context-type>
  *             </persistence-context-ref>
  * 
- * 	  
+ *       
  *       
  * 
  * <p>Java class for persistence-context-refType complex type.

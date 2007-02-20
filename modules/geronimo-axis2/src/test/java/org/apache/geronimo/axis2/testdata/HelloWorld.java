@@ -22,8 +22,8 @@ import javax.jws.WebService;
 @WebService(name="HelloWorld")
 public class HelloWorld {
 
-	@WebMethod
-	public String sayHello(String me){
-		return "Hello "+me;
-	}
+    @WebMethod
+    public String sayHello(String me){
+        return "Hello "+me;
+    }
 }

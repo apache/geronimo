@@ -17,13 +17,13 @@ import javax.xml.bind.annotation.XmlValue;
 /**
  * 
  * 
- * 	The url-patternType contains the url pattern of the mapping.
- * 	It must follow the rules specified in Section 11.2 of the
- * 	Servlet API Specification. This pattern is assumed to be in
- * 	URL-decoded form and must not contain CR(#xD) or LF(#xA).
- * 	If it contains those characters, the container must inform
- * 	the developer with a descriptive error message.
- * 	The container must preserve all characters including whitespaces.
+ *     The url-patternType contains the url pattern of the mapping.
+ *     It must follow the rules specified in Section 11.2 of the
+ *     Servlet API Specification. This pattern is assumed to be in
+ *     URL-decoded form and must not contain CR(#xD) or LF(#xA).
+ *     If it contains those characters, the container must inform
+ *     the developer with a descriptive error message.
+ *     The container must preserve all characters including whitespaces.
  * 
  *       
  * 

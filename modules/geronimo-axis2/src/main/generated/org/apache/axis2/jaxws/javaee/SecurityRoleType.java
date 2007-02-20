@@ -22,23 +22,23 @@ import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 /**
  * 
- * 	
+ *     
  * 
- * 	  The security-roleType contains the definition of a security
- * 	  role. The definition consists of an optional description of
- * 	  the security role, and the security role name.
+ *       The security-roleType contains the definition of a security
+ *       role. The definition consists of an optional description of
+ *       the security role, and the security role name.
  * 
- * 	  Example:
+ *       Example:
  * 
- * 	      <security-role>
- * 	      <description>
- * 		  This role includes all employees who are authorized
- * 		  to access the employee service application.
- * 	      </description>
- * 	      <role-name>employee</role-name>
- * 	      </security-role>
+ *           <security-role>
+ *           <description>
+ *           This role includes all employees who are authorized
+ *           to access the employee service application.
+ *           </description>
+ *           <role-name>employee</role-name>
+ *           </security-role>
  * 
- * 	  
+ *       
  *       
  * 
  * <p>Java class for security-roleType complex type.

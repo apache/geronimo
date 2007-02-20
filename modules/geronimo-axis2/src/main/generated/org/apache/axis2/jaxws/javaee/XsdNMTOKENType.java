@@ -21,7 +21,7 @@ import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 /**
  * 
  * 
- * 	This type adds an "id" attribute to xsd:NMTOKEN.
+ *     This type adds an "id" attribute to xsd:NMTOKEN.
  * 
  *       
  * 

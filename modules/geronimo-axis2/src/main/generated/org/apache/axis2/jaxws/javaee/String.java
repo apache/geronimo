@@ -21,11 +21,11 @@ import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 /**
  * 
  * 
- * 	This is a special string datatype that is defined by Java EE as
- * 	a base type for defining collapsed strings. When schemas
- * 	require trailing/leading space elimination as well as
- * 	collapsing the existing whitespace, this base type may be
- * 	used.
+ *     This is a special string datatype that is defined by Java EE as
+ *     a base type for defining collapsed strings. When schemas
+ *     require trailing/leading space elimination as well as
+ *     collapsing the existing whitespace, this base type may be
+ *     used.
  * 
  *       
  * 

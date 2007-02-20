@@ -25,86 +25,86 @@ import java.util.Map;
 import org.apache.geronimo.webservices.WebServiceContainer;
 
 class Axis2Request implements WebServiceContainer.Request {
-	private int contentLength;
+    private int contentLength;
 
-	private String contentType;
+    private String contentType;
 
-	private InputStream in;
+    private InputStream in;
 
-	private int method;
+    private int method;
 
-	private Map parameters;
+    private Map parameters;
 
-	private URI uri;
+    private URI uri;
 
-	private Map headers;
+    private Map headers;
 
-	private Map attributes;
+    private Map attributes;
 
-	private String remoteAddress;
+    private String remoteAddress;
 
-	/**
-	 * 
-	 */
-	public Axis2Request(int contentLength, String contentType, InputStream in,
-			int method, Map parameters, URI uri, Map headers,
-			String remoteAddress) {
-		this.contentType = contentType;
-		this.in = in;
-		this.method = method;
-		this.parameters = parameters;
-		this.uri = uri;
-		this.headers = headers;
-		this.attributes = new HashMap();
-		this.remoteAddress = remoteAddress;
-	}
+    /**
+     * 
+     */
+    public Axis2Request(int contentLength, String contentType, InputStream in,
+            int method, Map parameters, URI uri, Map headers,
+            String remoteAddress) {
+        this.contentType = contentType;
+        this.in = in;
+        this.method = method;
+        this.parameters = parameters;
+        this.uri = uri;
+        this.headers = headers;
+        this.attributes = new HashMap();
+        this.remoteAddress = remoteAddress;
+    }
 
-	public int getContentLength() {
-		return contentLength;
-	}
+    public int getContentLength() {
+        return contentLength;
+    }
 
-	public String getContentType() {
-		return contentType;
-	}
+    public String getContentType() {
+        return contentType;
+    }
 
-	public String getHeader(String name) {
-		return (String) headers.get(name);
-	}
+    public String getHeader(String name) {
+        return (String) headers.get(name);
+    }
 
-	public InputStream getInputStream() throws IOException {
-		return in;
-	}
+    public InputStream getInputStream() throws IOException {
+        return in;
+    }
 
-	public int getMethod() {
-		return method;
-	}
+    public int getMethod() {
+        return method;
+    }
 
-	public String getParameter(String name) {
-		return (String) parameters.get(name);
-	}
+    public String getParameter(String name) {
+        return (String) parameters.get(name);
+    }
 
-	public Map getParameters() {
-		return parameters;
-	}
+    public Map getParameters() {
+        return parameters;
+    }
 
-	public URI getURI() {
-		return uri;
-	}
+    public URI getURI() {
+        return uri;
+    }
 
-	public Object getAttribute(String name) {
-		return attributes.get(name);
-	}
+    public Object getAttribute(String name) {
+        return attributes.get(name);
+    }
 
-	public void setAttribute(String name, Object value) {
-		attributes.put(name, value);
-	}
+    public void setAttribute(String name, Object value) {
+        attributes.put(name, value);
+    }
 
-	public String getRemoteAddr() {
-		return remoteAddress;
-	}
+    public String getRemoteAddr() {
+        return remoteAddress;
+    }
 
-	public String getContextPath() {
-		return "/axis2";
-	}
+    public String getContextPath() {
+        return "/axis2";
+    }
 
 }

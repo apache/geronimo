@@ -15,21 +15,21 @@ import javax.xml.bind.annotation.XmlType;
 
 /**
  * 
- * 	
+ *     
  * 
- * 	  The ejb-ref-name element contains the name of an EJB
- * 	  reference. The EJB reference is an entry in the
- * 	  Deployment Component's environment and is relative to the
- * 	  java:comp/env context.  The name must be unique within the
- * 	  Deployment Component.
+ *       The ejb-ref-name element contains the name of an EJB
+ *       reference. The EJB reference is an entry in the
+ *       Deployment Component's environment and is relative to the
+ *       java:comp/env context.  The name must be unique within the
+ *       Deployment Component.
  * 
- * 	  It is recommended that name is prefixed with "ejb/".
+ *       It is recommended that name is prefixed with "ejb/".
  * 
- * 	  Example:
+ *       Example:
  * 
- * 	  <ejb-ref-name>ejb/Payroll</ejb-ref-name>
+ *       <ejb-ref-name>ejb/Payroll</ejb-ref-name>
  * 
- * 	  
+ *       
  *       
  * 
  * <p>Java class for ejb-ref-nameType complex type.

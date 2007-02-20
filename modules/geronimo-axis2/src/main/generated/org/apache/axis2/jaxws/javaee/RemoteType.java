@@ -15,16 +15,16 @@ import javax.xml.bind.annotation.XmlType;
 
 /**
  * 
- * 	
+ *     
  * 
- * 	  The remote element contains the fully-qualified name
- * 	  of the enterprise bean's remote interface.
+ *       The remote element contains the fully-qualified name
+ *       of the enterprise bean's remote interface.
  * 
- * 	  Example:
+ *       Example:
  * 
- * 	      <remote>com.wombat.empl.EmployeeService</remote>
+ *           <remote>com.wombat.empl.EmployeeService</remote>
  * 
- * 	  
+ *       
  *       
  * 
  * <p>Java class for remoteType complex type.

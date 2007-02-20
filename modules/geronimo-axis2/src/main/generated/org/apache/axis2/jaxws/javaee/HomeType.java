@@ -15,16 +15,16 @@ import javax.xml.bind.annotation.XmlType;
 
 /**
  * 
- * 	
+ *     
  * 
- * 	  The homeType defines the fully-qualified name of
- * 	  an enterprise bean's home interface.
+ *       The homeType defines the fully-qualified name of
+ *       an enterprise bean's home interface.
  * 
- * 	  Example:
+ *       Example:
  * 
- * 	      <home>com.aardvark.payroll.PayrollHome</home>
+ *           <home>com.aardvark.payroll.PayrollHome</home>
  * 
- * 	  
+ *       
  *       
  * 
  * <p>Java class for homeType complex type.

@@ -16,22 +16,22 @@ import javax.xml.bind.annotation.XmlType;
 
 /**
  * 
- * 	
+ *     
  * 
- * 	  The display-name type contains a short name that is intended
- * 	  to be displayed by tools. It is used by display-name
- * 	  elements.  The display name need not be unique.
+ *       The display-name type contains a short name that is intended
+ *       to be displayed by tools. It is used by display-name
+ *       elements.  The display name need not be unique.
  * 
- * 	  Example:
+ *       Example:
  * 
- * 	  ...
- * 	     <display-name xml:lang="en">
- * 	       Employee Self Service
- * 	     </display-name>
+ *       ...
+ *          <display-name xml:lang="en">
+ *            Employee Self Service
+ *          </display-name>
  * 
- * 	  The value of the xml:lang attribute is "en" (English) by default.
+ *       The value of the xml:lang attribute is "en" (English) by default.
  * 
- * 	  
+ *       
  *       
  * 
  * <p>Java class for display-nameType complex type.

@@ -21,12 +21,12 @@ import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 /**
  * 
  * 
- * 	The service-impl-bean element defines the web service implementation.
- * 	A service implementation can be an EJB bean class or JAX-RPC web
- * 	component.  Existing EJB implementations are exposed as a web service
- * 	using an ejb-link.
+ *     The service-impl-bean element defines the web service implementation.
+ *     A service implementation can be an EJB bean class or JAX-RPC web
+ *     component.  Existing EJB implementations are exposed as a web service
+ *     using an ejb-link.
  * 
- * 	Used in: port-component
+ *     Used in: port-component
  * 
  *       
  * 

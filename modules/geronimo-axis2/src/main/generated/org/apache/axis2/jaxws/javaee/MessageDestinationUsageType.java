@@ -16,18 +16,18 @@ import javax.xml.bind.annotation.XmlType;
 /**
  * 
  * 
- * 	The message-destination-usageType specifies the use of the
- * 	message destination indicated by the reference.  The value
- * 	indicates whether messages are consumed from the message
- * 	destination, produced for the destination, or both.  The
- * 	Assembler makes use of this information in linking producers
- * 	of a destination with its consumers.
+ *     The message-destination-usageType specifies the use of the
+ *     message destination indicated by the reference.  The value
+ *     indicates whether messages are consumed from the message
+ *     destination, produced for the destination, or both.  The
+ *     Assembler makes use of this information in linking producers
+ *     of a destination with its consumers.
  * 
- * 	The value of the message-destination-usage element must be
- * 	one of the following:
- * 	    Consumes
- * 	    Produces
- * 	    ConsumesProduces
+ *     The value of the message-destination-usage element must be
+ *     one of the following:
+ *         Consumes
+ *         Produces
+ *         ConsumesProduces
  * 
  *       
  * 

@@ -22,37 +22,37 @@ import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 /**
  * 
- * 	
+ *     
  * 
- * 	  The resource-refType contains a declaration of a
- * 	  Deployment Component's reference to an external resource. It
- * 	  consists of an optional description, the resource manager
- * 	  connection factory reference name, an optional indication of
- * 	  the resource manager connection factory type expected by the
- * 	  Deployment Component code, an optional type of authentication
- * 	  (Application or Container), and an optional specification of
- * 	  the shareability of connections obtained from the resource
- * 	  (Shareable or Unshareable).
+ *       The resource-refType contains a declaration of a
+ *       Deployment Component's reference to an external resource. It
+ *       consists of an optional description, the resource manager
+ *       connection factory reference name, an optional indication of
+ *       the resource manager connection factory type expected by the
+ *       Deployment Component code, an optional type of authentication
+ *       (Application or Container), and an optional specification of
+ *       the shareability of connections obtained from the resource
+ *       (Shareable or Unshareable).
  * 
- * 	  It also includes optional elements to define injection of
- * 	  the named resource into fields or JavaBeans properties.
+ *       It also includes optional elements to define injection of
+ *       the named resource into fields or JavaBeans properties.
  * 
- * 	  The connection factory type must be supplied unless an
- * 	  injection target is specified, in which case the type
- * 	  of the target is used.  If both are specified, the type
- * 	  must be assignment compatible with the type of the injection
- * 	  target.
+ *       The connection factory type must be supplied unless an
+ *       injection target is specified, in which case the type
+ *       of the target is used.  If both are specified, the type
+ *       must be assignment compatible with the type of the injection
+ *       target.
  * 
- * 	  Example:
+ *       Example:
  * 
- * 	  <resource-ref>
- * 	      <res-ref-name>jdbc/EmployeeAppDB</res-ref-name>
- * 	      <res-type>javax.sql.DataSource</res-type>
- * 	      <res-auth>Container</res-auth>
- * 	      <res-sharing-scope>Shareable</res-sharing-scope>
- * 	  </resource-ref>
+ *       <resource-ref>
+ *           <res-ref-name>jdbc/EmployeeAppDB</res-ref-name>
+ *           <res-type>javax.sql.DataSource</res-type>
+ *           <res-auth>Container</res-auth>
+ *           <res-sharing-scope>Shareable</res-sharing-scope>
+ *       </resource-ref>
  * 
- * 	  
+ *       
  *       
  * 
  * <p>Java class for resource-refType complex type.

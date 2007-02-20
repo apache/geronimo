@@ -16,10 +16,10 @@ import javax.xml.bind.annotation.XmlType;
 /**
  * 
  * 
- * 	The jndi-nameType type designates a JNDI name in the
- * 	Deployment Component's environment and is relative to the
- * 	java:comp/env context.  A JNDI name must be unique within the
- * 	Deployment Component.
+ *     The jndi-nameType type designates a JNDI name in the
+ *     Deployment Component's environment and is relative to the
+ *     java:comp/env context.  A JNDI name must be unique within the
+ *     Deployment Component.
  * 
  *       
  * 

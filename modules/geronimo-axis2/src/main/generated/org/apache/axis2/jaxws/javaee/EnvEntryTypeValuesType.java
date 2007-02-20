@@ -15,29 +15,29 @@ import javax.xml.bind.annotation.XmlType;
 
 /**
  * 
- * 	
+ *     
  * 
- * 	  This type contains the fully-qualified Java type of the
- * 	  environment entry value that is expected by the
- * 	  application's code.
+ *       This type contains the fully-qualified Java type of the
+ *       environment entry value that is expected by the
+ *       application's code.
  * 
- * 	  The following are the legal values of env-entry-type-valuesType:
+ *       The following are the legal values of env-entry-type-valuesType:
  * 
- * 	      java.lang.Boolean
- * 	      java.lang.Byte
- * 	      java.lang.Character
- * 	      java.lang.String
- * 	      java.lang.Short
- * 	      java.lang.Integer
- * 	      java.lang.Long
- * 	      java.lang.Float
- * 	      java.lang.Double
+ *           java.lang.Boolean
+ *           java.lang.Byte
+ *           java.lang.Character
+ *           java.lang.String
+ *           java.lang.Short
+ *           java.lang.Integer
+ *           java.lang.Long
+ *           java.lang.Float
+ *           java.lang.Double
  * 
- * 	  Example:
+ *       Example:
  * 
- * 	  <env-entry-type>java.lang.Boolean</env-entry-type>
+ *       <env-entry-type>java.lang.Boolean</env-entry-type>
  * 
- * 	  
+ *       
  *       
  * 
  * <p>Java class for env-entry-type-valuesType complex type.

@@ -23,15 +23,15 @@ import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 /**
  * 
  * 
- * 	The webservice-description element defines a WSDL document file
- * 	and the set of Port components associated with the WSDL ports
- * 	defined in the WSDL document.  There may be multiple
- * 	webservice-descriptions defined within a module.
+ *     The webservice-description element defines a WSDL document file
+ *     and the set of Port components associated with the WSDL ports
+ *     defined in the WSDL document.  There may be multiple
+ *     webservice-descriptions defined within a module.
  * 
- * 	All WSDL file ports must have a corresponding port-component element
- * 	defined.
+ *     All WSDL file ports must have a corresponding port-component element
+ *     defined.
  * 
- * 	Used in: webservices
+ *     Used in: webservices
  * 
  *       
  * 

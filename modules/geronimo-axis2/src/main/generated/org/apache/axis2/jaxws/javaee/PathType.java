@@ -16,17 +16,17 @@ import javax.xml.bind.annotation.XmlType;
 /**
  * 
  * 
- * 	The elements that use this type designate either a relative
- * 	path or an absolute path starting with a "/".
+ *     The elements that use this type designate either a relative
+ *     path or an absolute path starting with a "/".
  * 
- * 	In elements that specify a pathname to a file within the
- * 	same Deployment File, relative filenames (i.e., those not
- * 	starting with "/") are considered relative to the root of
- * 	the Deployment File's namespace.  Absolute filenames (i.e.,
- * 	those starting with "/") also specify names in the root of
- * 	the Deployment File's namespace.  In general, relative names
- * 	are preferred.  The exception is .war files where absolute
- * 	names are preferred for consistency with the Servlet API.
+ *     In elements that specify a pathname to a file within the
+ *     same Deployment File, relative filenames (i.e., those not
+ *     starting with "/") are considered relative to the root of
+ *     the Deployment File's namespace.  Absolute filenames (i.e.,
+ *     those starting with "/") also specify names in the root of
+ *     the Deployment File's namespace.  In general, relative names
+ *     are preferred.  The exception is .war files where absolute
+ *     names are preferred for consistency with the Servlet API.
  * 
  *       
  * 

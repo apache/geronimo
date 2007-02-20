@@ -16,11 +16,11 @@ import javax.xml.bind.annotation.XmlType;
 /**
  * 
  * 
- * 	This simple type designates a boolean with only two
- * 	permissible values
+ *     This simple type designates a boolean with only two
+ *     permissible values
  * 
- * 	- true
- * 	- false
+ *     - true
+ *     - false
  * 
  *       
  * 

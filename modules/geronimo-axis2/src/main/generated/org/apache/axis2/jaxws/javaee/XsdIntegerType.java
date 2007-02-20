@@ -22,7 +22,7 @@ import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 /**
  * 
  * 
- * 	This type adds an "id" attribute to xsd:integer.
+ *     This type adds an "id" attribute to xsd:integer.
  * 
  *       
  * 

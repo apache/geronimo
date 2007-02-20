@@ -16,9 +16,9 @@ import javax.xml.bind.annotation.XmlType;
 /**
  * 
  * 
- * 	The java-identifierType defines a Java identifier.
- * 	The users of this type should further verify that
- * 	the content does not contain Java reserved keywords.
+ *     The java-identifierType defines a Java identifier.
+ *     The users of this type should further verify that
+ *     the content does not contain Java reserved keywords.
  * 
  *       
  * 

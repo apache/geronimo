@@ -22,20 +22,20 @@ import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 /**
  * 
- * 	
+ *     
  * 
- * 	  The persistence-unit-ref element contains a declaration
- * 	  of Deployment Component's reference to a persistence unit
- * 	  associated within a Deployment Component's
- * 	  environment. It consists of:
+ *       The persistence-unit-ref element contains a declaration
+ *       of Deployment Component's reference to a persistence unit
+ *       associated within a Deployment Component's
+ *       environment. It consists of:
  * 
- * 		  - an optional description
- * 		  - the persistence unit reference name
- * 		  - an optional persistence unit name.  If not specified,
+ *           - an optional description
+ *           - the persistence unit reference name
+ *           - an optional persistence unit name.  If not specified,
  *                     the default persistence unit is assumed.
- * 		  - optional injection targets
+ *           - optional injection targets
  * 
- * 	  Examples:
+ *       Examples:
  * 
  *             <persistence-unit-ref>
  *               <persistence-unit-ref-name>myPersistenceUnit
@@ -49,7 +49,7 @@ import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
  *                 </persistence-unit-name>
  *             </persistence-unit-ref>
  * 
- * 	  
+ *       
  *       
  * 
  * <p>Java class for persistence-unit-refType complex type.

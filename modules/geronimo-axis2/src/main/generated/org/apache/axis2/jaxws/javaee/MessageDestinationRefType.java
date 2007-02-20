@@ -22,43 +22,43 @@ import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 /**
  * 
- * 	
+ *     
  * 
- * 	  The message-destination-ref element contains a declaration
- * 	  of Deployment Component's reference to a message destination
- * 	  associated with a resource in Deployment Component's
- * 	  environment. It consists of:
+ *       The message-destination-ref element contains a declaration
+ *       of Deployment Component's reference to a message destination
+ *       associated with a resource in Deployment Component's
+ *       environment. It consists of:
  * 
- * 		  - an optional description
- * 		  - the message destination reference name
- * 		  - an optional message destination type
- * 		  - an optional specification as to whether
- * 		    the destination is used for
- * 		    consuming or producing messages, or both.
- * 		    if not specified, "both" is assumed.
- * 		  - an optional link to the message destination
- * 		  - optional injection targets
+ *           - an optional description
+ *           - the message destination reference name
+ *           - an optional message destination type
+ *           - an optional specification as to whether
+ *             the destination is used for
+ *             consuming or producing messages, or both.
+ *             if not specified, "both" is assumed.
+ *           - an optional link to the message destination
+ *           - optional injection targets
  * 
- * 	  The message destination type must be supplied unless an
- * 	  injection target is specified, in which case the type
- * 	  of the target is used.  If both are specified, the type
- * 	  must be assignment compatible with the type of the injection
- * 	  target.
+ *       The message destination type must be supplied unless an
+ *       injection target is specified, in which case the type
+ *       of the target is used.  If both are specified, the type
+ *       must be assignment compatible with the type of the injection
+ *       target.
  * 
- * 	  Examples:
+ *       Examples:
  * 
- * 	  <message-destination-ref>
- * 		  <message-destination-ref-name>jms/StockQueue
- * 		  </message-destination-ref-name>
- * 		  <message-destination-type>javax.jms.Queue
- * 		  </message-destination-type>
- * 		  <message-destination-usage>Consumes
- * 		  </message-destination-usage>
- * 		  <message-destination-link>CorporateStocks
- * 		  </message-destination-link>
- * 	  </message-destination-ref>
+ *       <message-destination-ref>
+ *           <message-destination-ref-name>jms/StockQueue
+ *           </message-destination-ref-name>
+ *           <message-destination-type>javax.jms.Queue
+ *           </message-destination-type>
+ *           <message-destination-usage>Consumes
+ *           </message-destination-usage>
+ *           <message-destination-link>CorporateStocks
+ *           </message-destination-link>
+ *       </message-destination-ref>
  * 
- * 	  
+ *       
  *       
  * 
  * <p>Java class for message-destination-refType complex type.

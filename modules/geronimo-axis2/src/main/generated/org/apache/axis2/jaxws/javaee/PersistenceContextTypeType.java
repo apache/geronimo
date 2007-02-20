@@ -16,12 +16,12 @@ import javax.xml.bind.annotation.XmlType;
 /**
  * 
  * 
- * 	The persistence-context-typeType specifies the transactional
- * 	nature of a persistence context reference.
+ *     The persistence-context-typeType specifies the transactional
+ *     nature of a persistence context reference.
  * 
- * 	The value of the persistence-context-type element must be
- * 	one of the following:
- * 	    Transaction
+ *     The value of the persistence-context-type element must be
+ *     one of the following:
+ *         Transaction
  *             Extended
  * 
  *       
