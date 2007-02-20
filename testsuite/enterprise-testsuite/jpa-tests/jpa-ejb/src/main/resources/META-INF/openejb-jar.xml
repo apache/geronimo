@@ -59,7 +59,7 @@ limitations under the License.
 
 
             <provider>org.apache.openjpa.persistence.PersistenceProviderImpl</provider>
-            <jta-data-source>?name=SystemDatasource</jta-data-source>
+            <jta-data-source>SystemDatasource</jta-data-source>
             <non-jta-data-source>?name=NoTxDatasource</non-jta-data-source>
             <class>org.apache.geronimo.itest.jpa.AllFieldTypes</class>
             <exclude-unlisted-classes/>
