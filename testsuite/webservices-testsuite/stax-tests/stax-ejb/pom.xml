@@ -29,7 +29,7 @@
         <relativePath>../pom.xml</relativePath>
     </parent>
 
-    <artifactId>test-ejb</artifactId>
+    <artifactId>stax-ejb</artifactId>
     <name>Geronimo TestSuite :: WebServices TestSuite :: StAX EJB</name>
     <packaging>jar</packaging>
 

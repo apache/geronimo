@@ -120,7 +120,7 @@
                     </execution>
 
                     <execution>
-                        <phase>integration-test</phase>
+                        <phase>pre-integration-test</phase>
                         <id>run-client</id>
                         <goals>
                             <goal>run-client</goal>

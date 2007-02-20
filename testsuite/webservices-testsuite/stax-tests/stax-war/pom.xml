@@ -28,7 +28,7 @@
         <relativePath>../pom.xml</relativePath>
     </parent>
 
-    <artifactId>test-war</artifactId>
+    <artifactId>stax-war</artifactId>
     <name>Geronimo TestSuite :: WebServices TestSuite :: StAX WAR</name>
     <packaging>war</packaging>
 
