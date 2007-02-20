@@ -32,7 +32,7 @@
     </parent>
     
     <artifactId>console-testsuite</artifactId>
-    <name>Geronimo TestSuite, Console</name>
+    <name>Geronimo TestSuite :: Console Testsuite</name>
     <packaging>pom</packaging>
     
     <description>
