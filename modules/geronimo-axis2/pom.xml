@@ -81,6 +81,32 @@
                     </execution>
                 </executions>
             </plugin>
+            <plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-antrun-plugin</artifactId>
+				<version>1.1</version>
+				<executions>
+					<execution>
+						<id>gen-ts</id>
+						<phase>generate-sources</phase>
+						<configuration>
+							<tasks>
+								<echo>Generating java from test_service_doc_lit.wsdl</echo>
+								<property name="schema.generated.src.dir" value="src/test/java"/>
+								
+								<java classname="com.sun.tools.xjc.Driver" fork="true">
+										<classpath refid="maven.runtime.classpath"/>
+										<classpath location="${compiled.classes.dir}"/>
+									<arg line="-d ${schema.generated.src.dir} -quiet -wsdl src/test/resources/test_service_doc_lit.wsdl"/>
+								</java>
+							</tasks>
+						</configuration>
+						<goals>
+							<goal>run</goal>
+						</goals>
+					</execution>
+				</executions>
+            </plugin>
         </plugins>
     </build>
 </project>
