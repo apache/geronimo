@@ -273,13 +273,13 @@ public final class ResourceAnnotationHelper {
         // -- When annotation is applied on a field:    type is the field type (or as provided on the
         //                                              annotation)
         //------------------------------------------------------------------------------------------
-        String resourceType = annotation.name();
-        if ( resourceType.equals("") ) {
+        String resourceType = annotation.type().getCanonicalName();
+        if ( resourceType.equals("") || resourceType.equals(Object.class.getName()) ) {
             if ( method != null ) {
                 resourceType = method.getParameterTypes()[0].getCanonicalName();
             }
             else if ( field != null ) {
-                resourceType = field.getType().toString();
+                resourceType = field.getType().getName();
             }
         }
 
@@ -303,18 +303,25 @@ public final class ResourceAnnotationHelper {
             injectionClass = field.getDeclaringClass().getName();
         }
 
+        // 0. exclusions
+        //  WebServiceContext
+
+        if (resourceType.equals("javax.xml.ws.WebServiceContext")) {
+            return;
+        }
+
         //------------------------------------------------------------------------------------------
         // 1. <env-entry>
         //------------------------------------------------------------------------------------------
-        if ( annotation.type().getCanonicalName().equals( "java.lang.String" )      ||
-             annotation.type().getCanonicalName().equals( "java.lang.Character" )   ||
-             annotation.type().getCanonicalName().equals( "java.lang.Integer" )     ||
-             annotation.type().getCanonicalName().equals( "java.lang.Boolean" )     ||
-             annotation.type().getCanonicalName().equals( "java.lang.Double" )      ||
-             annotation.type().getCanonicalName().equals( "java.lang.Byte" )        ||
-             annotation.type().getCanonicalName().equals( "java.lang.Short" )       ||
-             annotation.type().getCanonicalName().equals( "java.lang.Long" )        ||
-             annotation.type().getCanonicalName().equals( "java.lang.Float" ) ) {
+        if ( resourceType.equals( "java.lang.String" )      ||
+             resourceType.equals( "java.lang.Character" )   ||
+             resourceType.equals( "java.lang.Integer" )     ||
+             resourceType.equals( "java.lang.Boolean" )     ||
+             resourceType.equals( "java.lang.Double" )      ||
+             resourceType.equals( "java.lang.Byte" )        ||
+             resourceType.equals( "java.lang.Short" )       ||
+             resourceType.equals( "java.lang.Long" )        ||
+             resourceType.equals( "java.lang.Float" ) ) {
 
             boolean exists = false;
             EnvEntryType[] envEntries = webApp.getEnvEntryArray();
@@ -335,34 +342,23 @@ public final class ResourceAnnotationHelper {
                     //------------------------------------------------------------------------------
 
                     // env-entry-name
-                    JndiNameType envEntryName = JndiNameType.Factory.newInstance();
+                    JndiNameType envEntryName = envEntry.addNewEnvEntryName();
                     envEntryName.setStringValue( resourceName );
-                    envEntry.setEnvEntryName( envEntryName );
 
                     if ( !resourceType.equals("") ) {
                         // env-entry-type
-                        EnvEntryTypeValuesType envEntryType = EnvEntryTypeValuesType.Factory.newInstance();
+                        EnvEntryTypeValuesType envEntryType = envEntry.addNewEnvEntryType();
                         envEntryType.setStringValue( resourceType );
-                        envEntry.setEnvEntryType( envEntryType );
                     }
                     else if ( !injectionJavaType.equals("") ) {
                         // injectionTarget
-                        InjectionTargetType injectionTarget = InjectionTargetType.Factory.newInstance();
-                        FullyQualifiedClassType qualifiedClass = FullyQualifiedClassType.Factory.newInstance();
-                        JavaIdentifierType javaType = JavaIdentifierType.Factory.newInstance();
-                        qualifiedClass.setStringValue( injectionClass );
-                        javaType.setStringValue( injectionJavaType );
-                        injectionTarget.setInjectionTargetClass( qualifiedClass );
-                        injectionTarget.setInjectionTargetName( javaType );
-                        int arraySize = envEntry.sizeOfInjectionTargetArray();
-                        envEntry.insertNewInjectionTarget( arraySize );
-                        envEntry.setInjectionTargetArray( arraySize, injectionTarget );
+                        InjectionTargetType injectionTarget = envEntry.addNewInjectionTarget();
+                        configureInjectionTarget(injectionTarget, injectionClass, injectionJavaType);
                     }
 
                     // env-entry-value
-                    XsdStringType value = XsdStringType.Factory.newInstance();
+                    XsdStringType value = envEntry.addNewEnvEntryValue();
                     value.setStringValue( annotation.mappedName() );
-                    envEntry.setEnvEntryValue( value);
 
                     //------------------------------------------------------------------------------
                     // <env-entry> optional elements:
@@ -370,18 +366,14 @@ public final class ResourceAnnotationHelper {
 
                     // description
                     String descriptionAnnotation = annotation.description();
-                    if ( descriptionAnnotation.length() > 0 ) {
-                        DescriptionType description = DescriptionType.Factory.newInstance();
+                    if ( descriptionAnnotation != null && descriptionAnnotation.length() > 0 ) {
+                        DescriptionType description = envEntry.addNewDescription();
                         description.setStringValue( descriptionAnnotation );
-                        int arraySize = envEntry.sizeOfDescriptionArray();
-                        envEntry.insertNewDescription( arraySize );
-                        envEntry.setDescriptionArray( arraySize,description );
                     }
 
                 }
                 catch ( Exception anyException ) {
                     log.debug( "ResourceAnnotationHelper: Exception caught while processing <env-entry>" );
-                    anyException.printStackTrace();
                 }
             }
         }
@@ -389,7 +381,7 @@ public final class ResourceAnnotationHelper {
         //------------------------------------------------------------------------------------------
         // 2. <service-ref>
         //------------------------------------------------------------------------------------------
-        else if ( annotation.type().getCanonicalName().equals("javax.xml.rpc.Service") ) {
+        else if ( resourceType.equals("javax.xml.rpc.Service") ) {
 
             boolean exists = false;
             ServiceRefType[] serviceRefs = webApp.getServiceRefArray();
@@ -410,28 +402,18 @@ public final class ResourceAnnotationHelper {
                     //------------------------------------------------------------------------------
 
                     // service-ref-name
-                    JndiNameType serviceRefName = JndiNameType.Factory.newInstance();
+                    JndiNameType serviceRefName = serviceRef.addNewServiceRefName();
                     serviceRefName.setStringValue( resourceName );
-                    serviceRef.setServiceRefName( serviceRefName );
 
                     if ( !resourceType.equals("") ) {
                         // service-ref-type
-                        FullyQualifiedClassType qualifiedClass = FullyQualifiedClassType.Factory.newInstance();
+                        FullyQualifiedClassType qualifiedClass = serviceRef.addNewServiceInterface();
                         qualifiedClass.setStringValue( resourceType );
-                        serviceRef.setServiceInterface( qualifiedClass );
                     }
                     else if ( !injectionJavaType.equals("") ) {
                         // injectionTarget
-                        InjectionTargetType injectionTarget = InjectionTargetType.Factory.newInstance();
-                        FullyQualifiedClassType qualifiedClass = FullyQualifiedClassType.Factory.newInstance();
-                        JavaIdentifierType javaType = JavaIdentifierType.Factory.newInstance();
-                        qualifiedClass.setStringValue( injectionClass );
-                        javaType.setStringValue( injectionJavaType );
-                        injectionTarget.setInjectionTargetClass( qualifiedClass );
-                        injectionTarget.setInjectionTargetName( javaType );
-                        int arraySize = serviceRef.sizeOfInjectionTargetArray();
-                        serviceRef.insertNewInjectionTarget( arraySize );
-                        serviceRef.setInjectionTargetArray( arraySize, injectionTarget );
+                        InjectionTargetType injectionTarget = serviceRef.addNewInjectionTarget();
+                        configureInjectionTarget(injectionTarget, injectionClass, injectionJavaType);
                     }
 
                     //------------------------------------------------------------------------------
@@ -441,11 +423,8 @@ public final class ResourceAnnotationHelper {
                     // description
                     String descriptionAnnotation = annotation.description();
                     if ( descriptionAnnotation.length() > 0 ) {
-                        DescriptionType description = DescriptionType.Factory.newInstance();
+                        DescriptionType description = serviceRef.addNewDescription();
                         description.setStringValue( descriptionAnnotation );
-                        int arraySize = serviceRef.sizeOfDescriptionArray();
-                        serviceRef.insertNewDescription( arraySize );
-                        serviceRef.setDescriptionArray( arraySize,description );
                     }
 
                     // WSDL document location
@@ -467,15 +446,15 @@ public final class ResourceAnnotationHelper {
         //------------------------------------------------------------------------------------------
         // 3. <resource-ref>
         //------------------------------------------------------------------------------------------
-        else if ( annotation.type().getCanonicalName().equals("javax.sql.DataSource")                   ||
-                  annotation.type().getCanonicalName().equals("javax.jms.ConnectionFactory")            ||
-                  annotation.type().getCanonicalName().equals("javax.jms.QueueConnectionFactory")       ||
-                  annotation.type().getCanonicalName().equals("javax.jms.TopicConnectionFactory")       ||
-                  annotation.type().getCanonicalName().equals("javax.mail.Session")                     ||
-                  annotation.type().getCanonicalName().equals("java.net.URL")                           ||
-                  annotation.type().getCanonicalName().equals("javax.resource.cci.ConnectionFactory")   ||
-                  annotation.type().getCanonicalName().equals("org.omg.CORBA_2_3.ORB")                  ||
-                  annotation.type().getCanonicalName().endsWith("ConnectionFactory") ) {
+        else if ( resourceType.equals("javax.sql.DataSource")                   ||
+                  resourceType.equals("javax.jms.ConnectionFactory")            ||
+                  resourceType.equals("javax.jms.QueueConnectionFactory")       ||
+                  resourceType.equals("javax.jms.TopicConnectionFactory")       ||
+                  resourceType.equals("javax.mail.Session")                     ||
+                  resourceType.equals("java.net.URL")                           ||
+                  resourceType.equals("javax.resource.cci.ConnectionFactory")   ||
+                  resourceType.equals("org.omg.CORBA_2_3.ORB")                  ||
+                  resourceType.endsWith("ConnectionFactory") ) {
 
             boolean exists = false;
             ResourceRefType[] resourceRefs = webApp.getResourceRefArray();
@@ -568,8 +547,8 @@ public final class ResourceAnnotationHelper {
         //------------------------------------------------------------------------------------------
         // 4. <message-destination-ref>
         //------------------------------------------------------------------------------------------
-        else if ( annotation.type().getCanonicalName().equals("javax.jms.Queue")    ||
-                  annotation.type().getCanonicalName().equals("javax.jms.Topic") ) {
+        else if ( resourceType.equals("javax.jms.Queue")    ||
+                  resourceType.equals("javax.jms.Topic") ) {
 
             boolean exists = false;
             MessageDestinationRefType[] messageDestinationRefs = webApp.getMessageDestinationRefArray();
@@ -723,6 +702,15 @@ public final class ResourceAnnotationHelper {
             }
         }
         log.debug( "addResource(): Exit" );
+    }
+
+    private static void configureInjectionTarget(InjectionTargetType injectionTarget, String injectionClass, String injectionJavaType) {
+        FullyQualifiedClassType qualifiedClass = injectionTarget.addNewInjectionTargetClass();
+        JavaIdentifierType javaType = injectionTarget.addNewInjectionTargetName();
+        qualifiedClass.setStringValue( injectionClass );
+        javaType.setStringValue( injectionJavaType );
+        injectionTarget.setInjectionTargetClass( qualifiedClass );
+        injectionTarget.setInjectionTargetName( javaType );
     }
 
 
