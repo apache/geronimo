@@ -72,8 +72,8 @@ import org.apache.geronimo.tomcat.RealmGBean;
 import org.apache.geronimo.tomcat.TomcatWebAppContext;
 import org.apache.geronimo.tomcat.ValveGBean;
 import org.apache.geronimo.tomcat.util.SecurityHolder;
-import org.apache.geronimo.web25.deployment.AbstractWebModuleBuilder;
 import org.apache.geronimo.web.deployment.GenericToSpecificPlanConverter;
+import org.apache.geronimo.web25.deployment.AbstractWebModuleBuilder;
 import org.apache.geronimo.xbeans.geronimo.web.tomcat.TomcatWebAppDocument;
 import org.apache.geronimo.xbeans.geronimo.web.tomcat.TomcatWebAppType;
 import org.apache.geronimo.xbeans.geronimo.web.tomcat.config.GerTomcatDocument;
@@ -82,7 +82,6 @@ import org.apache.geronimo.xbeans.javaee.WebAppDocument;
 import org.apache.geronimo.xbeans.javaee.WebAppType;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
-
 
 /**
  * @version $Rev:385659 $ $Date$
@@ -111,9 +110,9 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder {
     }
 
     protected Module createModule(Object plan, JarFile moduleFile, String targetPath, URL specDDUrl, boolean standAlone, String contextRoot, AbstractName earName, Naming naming, ModuleIDBuilder idBuilder) throws DeploymentException {
-        assert moduleFile != null: "moduleFile is null";
-        assert targetPath != null: "targetPath is null";
-        assert !targetPath.endsWith("/"): "targetPath must not end with a '/'";
+        assert moduleFile != null : "moduleFile is null";
+        assert targetPath != null : "targetPath is null";
+        assert !targetPath.endsWith("/") : "targetPath must not end with a '/'";
 
         // parse the spec dd
         String specDD = null;
@@ -126,22 +125,22 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder {
             // read in the entire specDD as a string, we need this for getDeploymentDescriptor
             // on the J2ee management object
             specDD = DeploymentUtil.readAll(specDDUrl);
-            
+
             // we found web.xml, if it won't parse that's an error.
             XmlObject parsed = XmlBeansUtil.parse(specDD);
             WebAppDocument webAppDoc = convertToServletSchema(parsed);
             webApp = webAppDoc.getWebApp();
             check(webApp);
         } catch (XmlException e) {
-        	// Output the target path in the error to make it clearer to the user which webapp
+            // Output the target path in the error to make it clearer to the user which webapp
             // has the problem.  The targetPath is used, as moduleFile may have an unhelpful
             // value such as C:\geronimo-1.1\var\temp\geronimo-deploymentUtil22826.tmpdir
             throw new DeploymentException("Error parsing web.xml for " + targetPath, e);
         } catch (Exception e) {
-        	if(!moduleFile.getName().endsWith(".war")) {
-        		//not for us
-        		return null;
-        	} 
+            if (!moduleFile.getName().endsWith(".war")) {
+                //not for us
+                return null;
+            }
             //else ignore as jee5 allows optional spec dd for .war's
         }
 
@@ -161,20 +160,18 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder {
         EnvironmentType environmentType = tomcatWebApp.getEnvironment();
         Environment environment = EnvironmentBuilder.buildEnvironment(environmentType, defaultEnvironment);
 
-        getNamingBuilders().buildEnvironment(webApp, tomcatWebApp, environment);
-
         // Note: logic elsewhere depends on the default artifact ID being the file name less extension (ConfigIDExtractor)
         String warName = "";
         File temp = new File(moduleFile.getName());
-        if(temp.isFile()) {
+        if (temp.isFile()) {
             warName = temp.getName();
-            if(warName.lastIndexOf('.') > -1) {
+            if (warName.lastIndexOf('.') > -1) {
                 warName = warName.substring(0, warName.lastIndexOf('.'));
             }
         } else {
             try {
                 warName = temp.getCanonicalFile().getName();
-                if(warName.equals("")) {
+                if (warName.equals("")) {
                     // Root directory
                     warName = "$root-dir$";
                 }
@@ -241,7 +238,7 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder {
 
     private TomcatWebAppType createDefaultPlan(String path) {
         TomcatWebAppType tomcatWebApp = TomcatWebAppType.Factory.newInstance();
-        if (path!=null && !path.startsWith("/")) {
+        if (path != null && !path.startsWith("/")) {
             tomcatWebApp.setContextRoot("/" + path);
         } else {
             tomcatWebApp.setContextRoot(path);
@@ -251,17 +248,7 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder {
 
 
     public void initContext(EARContext earContext, Module module, ClassLoader cl) throws DeploymentException {
-        WebAppType webApp = (WebAppType) module.getSpecDD();
-//        MessageDestinationType[] messageDestinations = webApp.getMessageDestinationArray();
         TomcatWebAppType gerWebApp = (TomcatWebAppType) module.getVendorDD();
-//        GerMessageDestinationType[] gerMessageDestinations = gerWebApp.getMessageDestinationArray();
-
-//        ENCConfigBuilder.registerMessageDestinations(earContext, module.getName(), messageDestinations, gerMessageDestinations);
-        getNamingBuilders().initContext(webApp, gerWebApp, module.getEarContext().getConfiguration(), earContext.getConfiguration(), module);
-        if ((webApp.getSecurityConstraintArray().length > 0 || webApp.getSecurityRoleArray().length > 0) &&
-                !gerWebApp.isSetSecurityRealmName()) {
-            throw new DeploymentException("web.xml for web app " + module.getName() + " includes security elements but Geronimo deployment plan is not provided or does not contain <security-realm-name> element necessary to configure security accordingly.");
-        }
         boolean hasSecurityRealmName = gerWebApp.isSetSecurityRealmName();
         buildSubstitutionGroups(gerWebApp, hasSecurityRealmName, module, earContext);
     }

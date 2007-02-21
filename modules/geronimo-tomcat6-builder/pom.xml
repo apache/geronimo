@@ -31,9 +31,9 @@
 
     <artifactId>geronimo-tomcat6-builder</artifactId>
     <name>Geronimo :: Tomcat :: Builder</name>
-    
+
     <dependencies>
-        
+
         <dependency>
             <groupId>${pom.groupId}</groupId>
             <artifactId>geronimo-naming-builder</artifactId>
@@ -69,7 +69,7 @@
             <artifactId>geronimo-web-2.5-builder</artifactId>
             <version>${version}</version>
         </dependency>
-        
+
         <dependency>
             <groupId>xmlbeans</groupId>
             <artifactId>xbean</artifactId>
@@ -79,7 +79,7 @@
             <groupId>stax</groupId>
             <artifactId>stax-api</artifactId>
         </dependency>
-        
+
         <dependency>
             <groupId>org.apache.geronimo.specs</groupId>
             <artifactId>geronimo-annotation_1.0_spec</artifactId>
@@ -116,9 +116,14 @@
             <scope>test</scope>
         </dependency>
 
-        
+        <dependency>
+            <!-- TODO remove this WTF??? why isn't this picked up from geronimo-web-2.5-builder? -->
+            <groupId>asm</groupId>
+            <artifactId>asm</artifactId>
+        </dependency>
+
     </dependencies>
-    
+
     <build>
         <plugins>
             <plugin>
@@ -144,7 +149,7 @@
                     <sourceSchemas>geronimo-tomcat-1.2.xsd,geronimo-tomcat-config-1.0.xsd</sourceSchemas>
                 </configuration>
             </plugin>
-            
+
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-dependency-plugin</artifactId>
@@ -171,11 +176,11 @@
                     </execution>
                 </executions>
             </plugin>
-            
+
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-antrun-plugin</artifactId>
-                
+
                 <executions>
                     <!--
                     HACK: Copy the generated XmlBeans bits for clover
@@ -197,7 +202,7 @@
                             </tasks>
                         </configuration>
                     </execution>
-                    
+
                     <execution>
                         <id>setup-test-environment</id>
                         <phase>process-test-resources</phase>

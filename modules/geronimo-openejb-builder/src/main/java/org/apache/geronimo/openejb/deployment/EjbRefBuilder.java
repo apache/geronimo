@@ -102,7 +102,7 @@ public class EjbRefBuilder extends AbstractNamingBuilder {
 
     public void buildNaming(XmlObject specDD, XmlObject plan, Configuration localConfiguration, Configuration remoteConfiguration, Module module, Map componentContext) throws DeploymentException {
         JndiConsumer consumer = createJndiConsumer(specDD);
-        processWebEjbAnnotations(module, consumer);
+//      processWebEjbAnnotations(module, consumer);
 
         Map<String, Object> map = null;
         try {

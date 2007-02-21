@@ -301,15 +301,7 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
 
     public void initContext(EARContext earContext, Module module, ClassLoader cl) throws DeploymentException {
         WebAppType webApp = (WebAppType) module.getSpecDD();
-//        MessageDestinationType[] messageDestinations = webApp.getMessageDestinationArray();
         JettyWebAppType gerWebApp = (JettyWebAppType) module.getVendorDD();
-//        GerMessageDestinationType[] gerMessageDestinations = gerWebApp.getMessageDestinationArray();
-
-//        ENCConfigBuilder.registerMessageDestinations(earContext, module.getName(), messageDestinations, gerMessageDestinations);
-        if ((webApp.getSecurityConstraintArray().length > 0 || webApp.getSecurityRoleArray().length > 0) &&
-                !gerWebApp.isSetSecurityRealmName()) {
-            throw new DeploymentException("web.xml for web app " + module.getName() + " includes security elements but Geronimo deployment plan is not provided or does not contain <security-realm-name> element necessary to configure security accordingly.");
-        }
         boolean hasSecurityRealmName = gerWebApp.isSetSecurityRealmName();
         buildSubstitutionGroups(gerWebApp, hasSecurityRealmName, module, earContext);
     }

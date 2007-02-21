@@ -39,13 +39,14 @@ public abstract class Module {
     private final JarFile moduleFile;
     private final String targetPath;
     private final URI targetPathURI;
-    private final XmlObject specDD;
     private final XmlObject vendorDD;
-    private final String originalSpecDD;
     private final String namespace;
 
     private EARContext earContext;
     private EARContext rootEarContext;
+    private XmlObject specDD;
+    private String originalSpecDD;
+
     protected final Map sharedContext;
 
     protected Module(boolean standAlone, AbstractName moduleName, Environment environment, JarFile moduleFile, String targetPath, XmlObject specDD, XmlObject vendorDD, String originalSpecDD, String namespace, Map sharedContext) {
@@ -162,5 +163,13 @@ public abstract class Module {
 
     public Map getSharedContext() {
         return sharedContext;
+    }
+
+    public void setSpecDD(XmlObject specDD) {
+        this.specDD = specDD;
+    }
+
+    public void setOriginalSpecDD(String originalSpecDD) {
+        this.originalSpecDD = originalSpecDD;
     }
 }
