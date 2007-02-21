@@ -231,10 +231,6 @@ public class Axis2Builder extends JAXWSServiceBuilder {
 		return status;
 	}
 
-    protected String getProviderClass() {
-        return org.apache.axis2.jaxws.spi.Provider.class.getName();
-    }
-
     public Object createService(Class serviceInterface,
                                 Class serviceReference,
                                 URI wsdlURI,
