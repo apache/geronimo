@@ -23,6 +23,7 @@ import org.apache.commons.jexl.ExpressionFactory;
 import org.apache.commons.jexl.JexlContext;
 import org.apache.commons.jexl.JexlHelper;
 
+import java.util.Properties;
 import java.util.Map;
 import java.util.HashMap;
 import java.util.Collections;
@@ -47,10 +48,13 @@ public class JexlConditionParser
     public JexlConditionParser() {
         // Setup the default vars
         vars = new HashMap();
-
-        vars.put("props", Collections.unmodifiableMap(System.getProperties()));
+        
         vars.put("java", new JavaVariable());
         vars.put("os", new OsVariable());
+        
+        // Install properties (to allow getProperty(x,y) to be used for defaults
+        // Using nested defaults to avoid modifications to system props in expresssion
+        vars.put("props", new Properties(System.getProperties()));
     }
 
     /**
