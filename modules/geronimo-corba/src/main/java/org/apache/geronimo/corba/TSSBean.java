@@ -19,6 +19,7 @@ package org.apache.geronimo.corba;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.gbean.GBeanLifecycle;
+import org.apache.geronimo.gbean.InvalidConfigurationException; 
 import org.omg.CORBA.Any;
 import org.omg.CORBA.ORB;
 import org.omg.CORBA.Policy;
@@ -130,6 +131,9 @@ public class TSSBean implements GBeanLifecycle {
             // NB:  This is initial context is never used by the TSSBean, but we request it here
             // to verify that the server ORB is correctly configured and our target server is accessible.
             initialContext = NamingContextExtHelper.narrow(obj);
+        } catch (NoSuchMethodError e) {
+            log.error("Incorrect level of org.omg.CORBA classes found.\nLikely cause is an incorrect java.endorsed.dirs configuration"); 
+            throw new InvalidConfigurationException("CORBA usage requires Yoko CORBA spec classes in java.endorsed.dirs classpath", e); 
         } finally {
             Thread.currentThread().setContextClassLoader(savedLoader);
         }

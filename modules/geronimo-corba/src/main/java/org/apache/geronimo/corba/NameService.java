@@ -19,6 +19,7 @@ package org.apache.geronimo.corba;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.gbean.GBeanLifecycle;
+import org.apache.geronimo.gbean.InvalidConfigurationException; 
 import org.apache.geronimo.system.serverinfo.ServerInfo;
 
 import org.apache.geronimo.corba.security.config.ConfigAdapter;
@@ -159,8 +160,13 @@ public class NameService implements GBeanLifecycle {
      */
     public void doStart() throws Exception {
         if (localServer) {
-            service = config.createNameService(host, port);
-            log.debug("Started transient CORBA name service on port " + port);
+            try {
+                service = config.createNameService(host, port);
+                log.debug("Started transient CORBA name service on port " + port);
+            } catch (NoSuchMethodError e) {
+                log.error("Incorrect level of org.omg.CORBA classes found.\nLikely cause is an incorrect java.endorsed.dirs configuration"); 
+                throw new InvalidConfigurationException("CORBA usage requires Yoko CORBA spec classes in java.endorsed.dirs classpath", e); 
+            }
         }
     }
 

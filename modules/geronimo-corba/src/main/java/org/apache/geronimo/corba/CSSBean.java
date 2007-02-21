@@ -24,6 +24,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.GBeanLifecycle;
+import org.apache.geronimo.gbean.InvalidConfigurationException; 
 import org.apache.geronimo.corba.security.config.ConfigAdapter;
 import org.apache.geronimo.corba.security.config.css.CSSConfig;
 import org.apache.geronimo.corba.security.config.ssl.SSLConfig;
@@ -158,6 +159,9 @@ public class CSSBean implements GBeanLifecycle, ORBConfiguration {
             bean = cssORB.string_to_object(beanIOR);
 
             return bean;
+        } catch (NoSuchMethodError e) {
+            log.error("Incorrect level of org.omg.CORBA classes found.\nLikely cause is an incorrect java.endorsed.dirs configuration"); 
+            throw new InvalidConfigurationException("CORBA usage requires Yoko CORBA spec classes in java.endorsed.dirs classpath", e); 
         } catch (UserException ue) {
             log.error(description + " - Looking up home", ue);
             throw new RuntimeException(ue);
