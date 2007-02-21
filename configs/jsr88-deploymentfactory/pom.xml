@@ -100,28 +100,6 @@
                         </element>
                         <element>
                             <groupId>org.apache.geronimo.modules</groupId>
-                            <artifactId>geronimo-common</artifactId>
-                            <version>${version}</version>
-                        </element>
-
-                        <element>
-                            <groupId>org.apache.geronimo.modules</groupId>
-                            <artifactId>geronimo-util</artifactId>
-                            <version>${version}</version>
-                        </element>
-
-                        <element>
-                            <groupId>org.apache.geronimo.modules</groupId>
-                            <artifactId>geronimo-system</artifactId>
-                            <version>${version}</version>
-                        </element>
-
-                        <element>
-                            <groupId>backport-util-concurrent</groupId>
-                            <artifactId>backport-util-concurrent</artifactId>
-                        </element>
-                        <element>
-                            <groupId>org.apache.geronimo.modules</groupId>
                             <artifactId>geronimo-deploy-jsr88-bootstrapper</artifactId>
                             <version>${version}</version>
                         </element>                        
