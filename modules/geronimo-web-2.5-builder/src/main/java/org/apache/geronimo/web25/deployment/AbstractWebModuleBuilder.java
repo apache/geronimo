@@ -25,15 +25,16 @@ import java.net.URL;
 import java.security.Permission;
 import java.security.PermissionCollection;
 import java.security.Permissions;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.Iterator;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.zip.ZipEntry;
@@ -57,8 +58,10 @@ import org.apache.geronimo.j2ee.deployment.EARContext;
 import org.apache.geronimo.j2ee.deployment.Module;
 import org.apache.geronimo.j2ee.deployment.ModuleBuilder;
 import org.apache.geronimo.j2ee.deployment.NamingBuilder;
-import org.apache.geronimo.j2ee.deployment.WebServiceBuilder;
 import org.apache.geronimo.j2ee.deployment.WebModule;
+import org.apache.geronimo.j2ee.deployment.WebServiceBuilder;
+import org.apache.geronimo.j2ee.deployment.annotation.EJBAnnotationHelper;
+import org.apache.geronimo.j2ee.deployment.annotation.ResourceAnnotationHelper;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.Naming;
@@ -70,10 +73,13 @@ import org.apache.geronimo.kernel.repository.ImportType;
 import org.apache.geronimo.naming.deployment.ResourceEnvironmentSetter;
 import org.apache.geronimo.schema.SchemaConversionUtils;
 import org.apache.geronimo.security.jacc.ComponentPermissions;
-import org.apache.geronimo.security.util.URLPattern;
 import org.apache.geronimo.security.util.HTTPMethods;
+import org.apache.geronimo.security.util.URLPattern;
 import org.apache.geronimo.xbeans.geronimo.j2ee.GerSecurityDocument;
 import org.apache.geronimo.xbeans.javaee.FilterMappingType;
+import org.apache.geronimo.xbeans.javaee.FilterType;
+import org.apache.geronimo.xbeans.javaee.FullyQualifiedClassType;
+import org.apache.geronimo.xbeans.javaee.ListenerType;
 import org.apache.geronimo.xbeans.javaee.RoleNameType;
 import org.apache.geronimo.xbeans.javaee.SecurityConstraintType;
 import org.apache.geronimo.xbeans.javaee.SecurityRoleRefType;
@@ -88,6 +94,7 @@ import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlDocumentProperties;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
+import org.apache.xbean.finder.ClassFinder;
 
 /**
  * @version $Rev$ $Date$
@@ -169,13 +176,13 @@ public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
      * Some servlets will have multiple url patterns.  However, webservice servlets
      * will only have one, which is what this method is intended for.
      *
-     * @param webApp
-     * @param contextRoot
+     * @param webApp spec deployment descriptor
+     * @param contextRoot context root for web app from application.xml or geronimo plan
      * @return map of servlet names to path mapped to them.  Possibly inaccurate except for web services.
      */
-    protected Map<String,String> buildServletNameToPathMap(WebAppType webApp, String contextRoot) {
+    protected Map<String, String> buildServletNameToPathMap(WebAppType webApp, String contextRoot) {
         contextRoot = "/" + contextRoot;
-        Map<String,String> map = new HashMap<String, String>();
+        Map<String, String> map = new HashMap<String, String>();
         ServletMappingType[] servletMappings = webApp.getServletMappingArray();
         for (ServletMappingType servletMapping : servletMappings) {
             String servletName = servletMapping.getServletName().getStringValue().trim();
@@ -385,7 +392,7 @@ public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
         Map<String, URLPattern> excludedPatterns = new HashMap<String, URLPattern>();
         Map<String, URLPattern> rolesPatterns = new HashMap<String, URLPattern>();
         Set<URLPattern> allSet = new HashSet<URLPattern>();   // == allMap.values()
-        Map<String,URLPattern> allMap = new HashMap<String, URLPattern>();   //uncheckedPatterns union excludedPatterns union rolesPatterns.
+        Map<String, URLPattern> allMap = new HashMap<String, URLPattern>();   //uncheckedPatterns union excludedPatterns union rolesPatterns.
 
         SecurityConstraintType[] securityConstraintArray = webApp.getSecurityConstraintArray();
         for (SecurityConstraintType securityConstraintType : securityConstraintArray) {
@@ -610,22 +617,24 @@ public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
     }
 
     private static void checkMultiplicities(WebAppType webApp) throws DeploymentException {
-        if (webApp.getSessionConfigArray().length > 1) throw new DeploymentException("Multiple <session-config> elements found");
-        if (webApp.getJspConfigArray().length > 1) throw new DeploymentException("Multiple <jsp-config> elements found");
-        if (webApp.getLoginConfigArray().length > 1) throw new DeploymentException("Multiple <login-config> elements found");
+        if (webApp.getSessionConfigArray().length > 1)
+            throw new DeploymentException("Multiple <session-config> elements found");
+        if (webApp.getJspConfigArray().length > 1)
+            throw new DeploymentException("Multiple <jsp-config> elements found");
+        if (webApp.getLoginConfigArray().length > 1)
+            throw new DeploymentException("Multiple <login-config> elements found");
     }
 
-    private boolean cleanupConfigurationDir(File configurationDir)
-    {
+    private boolean cleanupConfigurationDir(File configurationDir) {
         LinkedList<String> cannotBeDeletedList = new LinkedList<String>();
 
-        if (!DeploymentUtil.recursiveDelete(configurationDir,cannotBeDeletedList)) {
+        if (!DeploymentUtil.recursiveDelete(configurationDir, cannotBeDeletedList)) {
             // Output a message to help user track down file problem
             log.warn("Unable to delete " + cannotBeDeletedList.size() +
                     " files while recursively deleting directory "
                     + configurationDir + LINE_SEP +
-                    "The first file that could not be deleted was:" + LINE_SEP + "  "+
-                    ( !cannotBeDeletedList.isEmpty() ? cannotBeDeletedList.getFirst() : "") );
+                    "The first file that could not be deleted was:" + LINE_SEP + "  " +
+                    (!cannotBeDeletedList.isEmpty() ? cannotBeDeletedList.getFirst() : ""));
             return false;
         }
         return true;
@@ -657,23 +666,139 @@ public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
     }
 
     protected void buildSubstitutionGroups(XmlObject gerWebApp, boolean hasSecurityRealmName, Module module, EARContext earContext) throws DeploymentException {
+        WebAppType webApp = (WebAppType) module.getSpecDD();
+        makeMetadataComplete(webApp, module);
+        if ((webApp.getSecurityConstraintArray().length > 0 || webApp.getSecurityRoleArray().length > 0) &&
+                !hasSecurityRealmName) {
+            throw new DeploymentException("web.xml for web app " + module.getName() + " includes security elements but Geronimo deployment plan is not provided or does not contain <security-realm-name> element necessary to configure security accordingly.");
+        }
         XmlObject[] securityElements = XmlBeansUtil.selectSubstitutionGroupElements(SECURITY_QNAME, gerWebApp);
         if (securityElements.length > 0 && !hasSecurityRealmName) {
             throw new DeploymentException("You have supplied a security configuration for web app " + module.getName() + " but no security-realm-name to allow login");
         }
-        getNamingBuilders().buildEnvironment(module.getSpecDD(), module.getVendorDD(), module.getEnvironment());
+        getNamingBuilders().buildEnvironment(webApp, module.getVendorDD(), module.getEnvironment());
         //this is silly
-        getNamingBuilders().initContext(module.getSpecDD(), gerWebApp, module.getEarContext().getConfiguration(), earContext.getConfiguration(), module);
+        getNamingBuilders().initContext(webApp, gerWebApp, module.getEarContext().getConfiguration(), earContext.getConfiguration(), module);
 
-        Map servletNameToPathMap = buildServletNameToPathMap((WebAppType) module.getSpecDD(), ((WebModule)module).getContextRoot());
+        Map servletNameToPathMap = buildServletNameToPathMap((WebAppType) module.getSpecDD(), ((WebModule) module).getContextRoot());
 
         Map sharedContext = module.getSharedContext();
-        for (Iterator iterator = webServiceBuilder.iterator(); iterator.hasNext();) {
-            WebServiceBuilder serviceBuilder = (WebServiceBuilder) iterator.next();
+        for (Object aWebServiceBuilder : webServiceBuilder) {
+            WebServiceBuilder serviceBuilder = (WebServiceBuilder) aWebServiceBuilder;
             serviceBuilder.findWebServices(module.getModuleFile(), false, servletNameToPathMap, module.getEnvironment(), sharedContext);
         }
         securityBuilders.build(gerWebApp, earContext, module.getEarContext());
         serviceBuilders.build(gerWebApp, earContext, module.getEarContext());
+    }
+
+    protected void makeMetadataComplete(WebAppType webApp, Module module) throws DeploymentException {
+        if (!webApp.getMetadataComplete()) {
+            processAnnotations(webApp, module);
+            webApp.setMetadataComplete(true);
+            module.setSpecDD(webApp);
+            module.setOriginalSpecDD(webApp.toString());
+        }
+    }
+
+    private void processAnnotations(WebAppType webApp, Module module) throws DeploymentException {
+
+        //--------------------------------------------------------------------------------------
+        // First find the list of classes from the WAR we want to search for annotations in
+        //--------------------------------------------------------------------------------------
+        List<Class> classes = new ArrayList<Class>();
+
+        // Get the classloader from the module's EARContext
+        ClassLoader classLoader = module.getEarContext().getClassLoader();
+
+        // Get all the servlets from the deployment descriptor
+        ServletType[] servlets = webApp.getServletArray();
+        for (ServletType servlet : servlets) {
+            FullyQualifiedClassType cls = servlet.getServletClass();
+            Class<?> clas;
+            try {
+                clas = classLoader.loadClass(cls.getStringValue());
+            }
+            catch (ClassNotFoundException e) {
+                throw new DeploymentException("WebModuleBuilder: Could not load servlet class: " + cls.getStringValue());
+            }
+            classes.add(clas);   
+        }
+
+        // Get all the listeners from the deployment descriptor
+        ListenerType[] listeners = webApp.getListenerArray();
+        for (ListenerType listener : listeners) {
+            FullyQualifiedClassType cls = listener.getListenerClass();
+            if (cls != null) { //don't try this for jsps
+                Class<?> clas;
+                try {
+                    clas = classLoader.loadClass(cls.getStringValue());
+                }
+                catch (ClassNotFoundException e) {
+                    throw new DeploymentException("WebModuleBuilder: Could not load listener class: " + cls.getStringValue());
+                }
+                classes.add(clas);
+            }
+        }
+
+        // Get all the filters from the deployment descriptor
+        FilterType[] filters = webApp.getFilterArray();
+        for (FilterType filter : filters) {
+            FullyQualifiedClassType cls = filter.getFilterClass();
+            Class<?> clas;
+            try {
+                clas = classLoader.loadClass(cls.getStringValue());
+            }
+            catch (ClassNotFoundException e) {
+                throw new DeploymentException("WebModuleBuilder: Could not load filter class: " + cls.getStringValue());
+            }
+            classes.add(clas);
+        }
+
+        if (classes.size() > 0) {
+
+            //----------------------------------------------------
+            // Find all the annotated classes via ClassFinder
+            //----------------------------------------------------
+            ClassFinder classFinder = new ClassFinder(classes);
+
+            //--------------------------------------------------------------
+            // Finally process all the annotations for this module type
+            //--------------------------------------------------------------
+
+            // <ejb-ref>
+            // <ejb-local-ref>
+            if (EJBAnnotationHelper.annotationsPresent(classFinder)) {
+                try {
+                    webApp = EJBAnnotationHelper.processAnnotations(webApp, classFinder);
+                }
+                catch (Exception e) {
+                    throw new DeploymentException("TomcatModuleBuilder: Error processing @EJB(s) annotations");
+                }
+            }
+
+            // <env-entry>
+            // <message-destination>
+            // <message-destination-ref>
+            // <resource-env-ref>
+            // <resource-ref>
+            // <service-ref>
+            if (ResourceAnnotationHelper.annotationsPresent(classFinder)) {
+                try {
+                    ResourceAnnotationHelper.processAnnotations(webApp, classFinder);
+                }
+                catch (Exception e) {
+                    throw new DeploymentException("TomcatModuleBuilder: Error processing @Resource(s) annotations");
+                }
+            }
+
+            /*  TODO
+               <security-role-ref>
+               <post-construct>
+               <pre-destroy>
+               <persistence-context-ref>
+               <persistence-unit-ref>
+            */
+        }
     }
 
     class UncheckedItem {
