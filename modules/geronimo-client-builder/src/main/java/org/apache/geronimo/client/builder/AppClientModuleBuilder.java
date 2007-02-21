@@ -464,7 +464,7 @@ public class AppClientModuleBuilder implements ModuleBuilder, CorbaGBeanNameSour
     }
 
     public void initContext(EARContext earContext, Module clientModule, ClassLoader cl) throws DeploymentException {
-        namingBuilders.buildEnvironment(clientModule.getSpecDD(), clientModule.getVendorDD(), clientModule.getEnvironment());
+        namingBuilders.buildEnvironment(clientModule.getSpecDD(), clientModule.getVendorDD(), ((AppClientModule)clientModule).getClientEnvironment());
 
         AppClientModule appClientModule = ((AppClientModule) clientModule);
         for (Iterator resources = appClientModule.getResourceModules().iterator(); resources.hasNext();) {
