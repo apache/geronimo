@@ -15,88 +15,93 @@
     See the License for the specific language governing permissions and
     limitations under the License.
 -->
-
 <!-- $Rev: 482336 $ $Date: 2006-12-04 15:12:19 -0500 (Mon, 04 Dec 2006) $ -->
-
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-
-    <modelVersion>4.0.0</modelVersion>
-
-    <parent>
-        <groupId>org.apache.geronimo.modules</groupId>
-        <artifactId>modules</artifactId>
-        <version>2.0-SNAPSHOT</version>
-        <relativePath>../pom.xml</relativePath>
-    </parent>
-
-    <artifactId>geronimo-axis2</artifactId>
-    <name>Geronimo :: AXIS2</name>
-
-    <dependencies>
-        <dependency>
-            <groupId>org.apache.geronimo.modules</groupId>
-            <artifactId>geronimo-webservices</artifactId>
-            <version>${version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.axis2</groupId>
-            <artifactId>axis2-jaxws</artifactId>
-        </dependency>
-        <dependency>
-		    <groupId>org.apache.geronimo.modules</groupId>
-	        <artifactId>geronimo-naming</artifactId>
-	        <version>${version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.geronimo.modules</groupId>
-            <artifactId>geronimo-transaction</artifactId>
-            <version>${version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.geronimo.modules</groupId>
-            <artifactId>geronimo-jaxws</artifactId>
-            <version>${version}</version>
-        </dependency>
-    </dependencies>
-
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>build-helper-maven-plugin</artifactId>
-                <version>1.0</version>
-                <executions>
-                    <execution>
-                        <id>add-source</id>
-                        <phase>generate-sources</phase>
-                        <goals>
-                            <goal>add-source</goal>
-                        </goals>
-                        <configuration>
-                            <sources>
-                                <source>${basedir}/src/main/generated</source>
-                            </sources>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>org.apache.geronimo.modules</groupId>
+		<artifactId>modules</artifactId>
+		<version>2.0-SNAPSHOT</version>
+		<relativePath>../pom.xml</relativePath>
+	</parent>
+	<artifactId>geronimo-axis2</artifactId>
+	<name>Geronimo :: AXIS2</name>
+	<dependencies>
+		<dependency>
+			<groupId>org.apache.geronimo.modules</groupId>
+			<artifactId>geronimo-webservices</artifactId>
+			<version>${version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.axis2</groupId>
+			<artifactId>axis2-jaxws</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.geronimo.modules</groupId>
+			<artifactId>geronimo-naming</artifactId>
+			<version>${version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.geronimo.modules</groupId>
+			<artifactId>geronimo-transaction</artifactId>
+			<version>${version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.geronimo.modules</groupId>
+			<artifactId>geronimo-jaxws</artifactId>
+			<version>${version}</version>
+		</dependency>
+	</dependencies>
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>build-helper-maven-plugin</artifactId>
+				<version>1.0</version>
+				<executions>
+					<execution>
+						<id>add-source</id>
+						<phase>generate-sources</phase>
+						<goals>
+							<goal>add-source</goal>
+						</goals>
+						<configuration>
+							<sources>
+								<source>${basedir}/src/main/generated</source>
+							</sources>
+						</configuration>
+					</execution>
+					<execution>
+						<id>add-test-source</id>
+						<phase>generate-sources</phase>
+						<goals>
+							<goal>add-test-source</goal>
+						</goals>
+						<configuration>
+							<sources>
+								<source>${basedir}/target/schema/src</source>
+							</sources>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-antrun-plugin</artifactId>
 				<version>1.1</version>
 				<executions>
 					<execution>
-						<id>gen-ts</id>
-						<phase>generate-sources</phase>
+						<id>generate-test-sources</id>
+						<phase>generate-test-sources</phase>
 						<configuration>
 							<tasks>
 								<echo>Generating java from test_service_doc_lit.wsdl</echo>
-								<property name="schema.generated.src.dir" value="src/test/java"/>
-								
+								<property name="schema.output.base.dir" location="target/schema"/>
+								<property name="schema.generated.src.dir" location="${schema.output.base.dir}/src"/>
+								<mkdir dir="${schema.generated.src.dir}"/>
 								<java classname="com.sun.tools.xjc.Driver" fork="true">
-										<classpath refid="maven.runtime.classpath"/>
-										<classpath location="${compiled.classes.dir}"/>
+									<classpath refid="maven.runtime.classpath"/>
+									<classpath location="${compiled.classes.dir}"/>
 									<arg line="-d ${schema.generated.src.dir} -quiet -wsdl src/test/resources/test_service_doc_lit.wsdl"/>
 								</java>
 							</tasks>
@@ -106,8 +111,7 @@
 						</goals>
 					</execution>
 				</executions>
-            </plugin>
-        </plugins>
-    </build>
+			</plugin>
+		</plugins>
+	</build>
 </project>
-
