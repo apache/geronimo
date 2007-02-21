@@ -53,8 +53,9 @@ public class OgnlConditionParser
         vars.put("os", new OsVariable());
         
         // Install properties (to allow getProperty(x,y) to be used for defaults
-        // Using nested defaults to avoid modifications to system props in expresssion
-        vars.put("props", new Properties(System.getProperties()));
+        Properties props = new Properties();
+        props.putAll(System.getProperties());
+        vars.put("props", props);
     }
     
     /**
