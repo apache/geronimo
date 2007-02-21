@@ -162,14 +162,14 @@
     <module name="org.apache.geronimo.configs/client-deployer/${version}/car">
     </module>
 
-    <module name="org.apache.geronimo.configs/axis2-deployer/${version}/car" load="false">
+    <module name="org.apache.geronimo.configs/axis2-deployer/${version}/car"  condition="props['org.apache.geronimo.jaxwsimpl'] == 'axis2' || props['org.apache.geronimo.jaxwsimpl'] == null">
         <!-- this gbean is not yet written -->
         <!--<gbean name="Axis2ServiceRefBuilder">
             <attribute name="eeNamespaces">http://java.sun.com/xml/ns/j2ee,http://java.sun.com/xml/ns/javaee</attribute>
         </gbean>-->
     </module>
 
-    <module name="org.apache.geronimo.configs/cxf-deployer/${version}/car">
+    <module name="org.apache.geronimo.configs/cxf-deployer/${version}/car" condition="props['org.apache.geronimo.jaxwsimpl'] == 'cxf'">
 
         <gbean name="CXFModuleBuilderExtension">
             <attribute name="listener">?name=TomcatWebContainer</attribute>
