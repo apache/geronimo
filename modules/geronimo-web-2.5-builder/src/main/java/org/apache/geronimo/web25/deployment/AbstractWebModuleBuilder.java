@@ -90,11 +90,11 @@ import org.apache.geronimo.xbeans.javaee.UrlPatternType;
 import org.apache.geronimo.xbeans.javaee.WebAppDocument;
 import org.apache.geronimo.xbeans.javaee.WebAppType;
 import org.apache.geronimo.xbeans.javaee.WebResourceCollectionType;
+import org.apache.xbean.finder.ClassFinder;
 import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlDocumentProperties;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
-import org.apache.xbean.finder.ClassFinder;
 
 /**
  * @version $Rev$ $Date$
@@ -176,7 +176,7 @@ public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
      * Some servlets will have multiple url patterns.  However, webservice servlets
      * will only have one, which is what this method is intended for.
      *
-     * @param webApp spec deployment descriptor
+     * @param webApp      spec deployment descriptor
      * @param contextRoot context root for web app from application.xml or geronimo plan
      * @return map of servlet names to path mapped to them.  Possibly inaccurate except for web services.
      */
@@ -714,30 +714,30 @@ public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
         ServletType[] servlets = webApp.getServletArray();
         for (ServletType servlet : servlets) {
             FullyQualifiedClassType cls = servlet.getServletClass();
-            Class<?> clas;
-            try {
-                clas = classLoader.loadClass(cls.getStringValue());
-            }
-            catch (ClassNotFoundException e) {
-                throw new DeploymentException("WebModuleBuilder: Could not load servlet class: " + cls.getStringValue());
-            }
-            classes.add(clas);   
-        }
-
-        // Get all the listeners from the deployment descriptor
-        ListenerType[] listeners = webApp.getListenerArray();
-        for (ListenerType listener : listeners) {
-            FullyQualifiedClassType cls = listener.getListenerClass();
             if (cls != null) { //don't try this for jsps
                 Class<?> clas;
                 try {
                     clas = classLoader.loadClass(cls.getStringValue());
                 }
                 catch (ClassNotFoundException e) {
-                    throw new DeploymentException("WebModuleBuilder: Could not load listener class: " + cls.getStringValue());
+                    throw new DeploymentException("WebModuleBuilder: Could not load servlet class: " + cls.getStringValue());
                 }
                 classes.add(clas);
             }
+        }
+
+        // Get all the listeners from the deployment descriptor
+        ListenerType[] listeners = webApp.getListenerArray();
+        for (ListenerType listener : listeners) {
+            FullyQualifiedClassType cls = listener.getListenerClass();
+            Class<?> clas;
+            try {
+                clas = classLoader.loadClass(cls.getStringValue());
+            }
+            catch (ClassNotFoundException e) {
+                throw new DeploymentException("WebModuleBuilder: Could not load listener class: " + cls.getStringValue());
+            }
+            classes.add(clas);
         }
 
         // Get all the filters from the deployment descriptor
