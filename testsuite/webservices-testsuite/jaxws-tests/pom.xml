@@ -36,6 +36,8 @@
             <id>child</id>
             <modules>
                 <module>jaxws-war</module>
+                <module>jaxws-client</module>
+                <module>jaxws-ejb</module>
             </modules>
         </profile>
     </profiles>
