@@ -93,10 +93,13 @@ public class PersistenceUnitGBean implements GBeanLifecycle {
             PersistenceProvider persistenceProvider = (PersistenceProvider) clazz.newInstance();
             entityManagerFactory = persistenceProvider.createContainerEntityManagerFactory(persistenceUnitInfo, properties);
         } catch (ClassNotFoundException e) {
+            persistenceUnitInfo.destroyTempClassLoader();
             throw new PersistenceException("Could not locate PersistenceProvider class: " + persistenceProviderClassName + " in classloader " + classLoader, e);
         } catch (InstantiationException e) {
+            persistenceUnitInfo.destroyTempClassLoader();
             throw new PersistenceException("Could not create PersistenceProvider instance: " + persistenceProviderClassName + " loaded from classloader " + classLoader, e);
         } catch (IllegalAccessException e) {
+            persistenceUnitInfo.destroyTempClassLoader();
             throw new PersistenceException("Could not create PersistenceProvider instance: " + persistenceProviderClassName + " loaded from classloader " + classLoader, e);
         }
         this.transactionManager = transactionManager;
@@ -176,10 +179,12 @@ public class PersistenceUnitGBean implements GBeanLifecycle {
     public void doStop() throws Exception {
         //TODO remove any classtransformers added
         entityManagerFactory.close();
+        persistenceUnitInfo.destroyTempClassLoader();
     }
 
     public void doFail() {
         entityManagerFactory.close();
+        persistenceUnitInfo.destroyTempClassLoader();
     }
 
     private static class PersistenceUnitInfoImpl implements PersistenceUnitInfo {
@@ -195,6 +200,7 @@ public class PersistenceUnitGBean implements GBeanLifecycle {
         private final boolean excludeUnlistedClassesValue;
         private final Properties properties;
         private final ClassLoader classLoader;
+        private final JarFileClassLoader tempClassLoader;
 
 
         public PersistenceUnitInfoImpl(String persistenceUnitName, String persistenceProviderClassName, PersistenceUnitTransactionType persistenceUnitTransactionType, DataSource jtaDataSource, DataSource nonJtaDataSource, List<String> mappingFileNames, List<URL> jarFileUrls, URL persistenceUnitRootUrl, List<String> managedClassNames, boolean excludeUnlistedClassesValue, Properties properties, ClassLoader classLoader) {
@@ -210,6 +216,10 @@ public class PersistenceUnitGBean implements GBeanLifecycle {
             this.excludeUnlistedClassesValue = excludeUnlistedClassesValue;
             this.properties = properties;
             this.classLoader = classLoader;
+            
+            // This classloader can only be used during PersistenceProvider.createContainerEntityManagerFactory() calls
+            // Possible that it could be cleaned up sooner, but for now it's destroyed when the PUGBean is stopped
+            this.tempClassLoader = (JarFileClassLoader)JarFileClassLoader.copy(classLoader); 
         }
 
         public String getPersistenceUnitName() {
@@ -265,7 +275,11 @@ public class PersistenceUnitGBean implements GBeanLifecycle {
         }
 
         public ClassLoader getNewTempClassLoader() {
-            return JarFileClassLoader.copy(classLoader);
+            return tempClassLoader;
+        }
+
+        private void destroyTempClassLoader() {
+            tempClassLoader.destroy();
         }
 
     }
