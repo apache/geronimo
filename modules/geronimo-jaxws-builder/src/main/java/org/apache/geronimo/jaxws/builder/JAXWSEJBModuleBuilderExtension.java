@@ -25,6 +25,7 @@ import java.util.jar.JarFile;
 
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.ModuleIDBuilder;
+import org.apache.geronimo.deployment.service.EnvironmentBuilder;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.gbean.GBeanData;
@@ -40,10 +41,7 @@ import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.Naming;
 import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 import org.apache.geronimo.kernel.config.ConfigurationStore;
-import org.apache.geronimo.kernel.repository.Artifact;
-import org.apache.geronimo.kernel.repository.Dependency;
 import org.apache.geronimo.kernel.repository.Environment;
-import org.apache.geronimo.kernel.repository.ImportType;
 import org.apache.geronimo.openejb.deployment.EjbModule;
 import org.apache.openejb.assembler.classic.EnterpriseBeanInfo;
 
@@ -53,23 +51,22 @@ import org.apache.openejb.assembler.classic.EnterpriseBeanInfo;
 public class JAXWSEJBModuleBuilderExtension implements ModuleBuilderExtension {
 
     protected WebServiceBuilder jaxwsBuilder;
-    protected AbstractNameQuery listener;
-    protected String listenerModuleName;
+    protected AbstractNameQuery listener;    
     protected GBeanInfo wsGBeanInfo;
+    protected Environment defaultEnvironment;
 
     public JAXWSEJBModuleBuilderExtension() throws Exception {
-        this(null, null, null, null, null, null);
+        this(null, null, null, null, null);
     }
 
     public JAXWSEJBModuleBuilderExtension(WebServiceBuilder wsBuilder,
                                           Environment defaultEnvironment,
                                           AbstractNameQuery listener,
-                                          String listenerModuleName,
                                           Object dataLink,
                                           Kernel kernel) throws Exception {
         this.jaxwsBuilder = wsBuilder;
-        this.listener = listener;                
-        this.listenerModuleName = listenerModuleName;
+        this.listener = listener;    
+        this.defaultEnvironment = defaultEnvironment;
         this.wsGBeanInfo = getGBeanInfo(kernel, dataLink);
     }
     
@@ -93,12 +90,9 @@ public class JAXWSEJBModuleBuilderExtension implements ModuleBuilderExtension {
                
         jaxwsBuilder.findWebServices(moduleFile, true, correctedPortLocations, environment, ejbModule.getSharedContext());
         
-        if (this.listenerModuleName != null) {
-            Artifact id = Artifact.create(this.listenerModuleName);        
-            Dependency dep = new Dependency(id, ImportType.ALL);
-            environment.addDependency(dep);
-        }
-        
+        if (this.defaultEnvironment != null) {
+            EnvironmentBuilder.mergeEnvironments(environment, this.defaultEnvironment);
+        }        
     }
 
     public void installModule(JarFile earFile, EARContext earContext, Module module, Collection configurationStores, ConfigurationStore targetConfigurationStore, Collection repository) throws DeploymentException {
@@ -159,7 +153,6 @@ public class JAXWSEJBModuleBuilderExtension implements ModuleBuilderExtension {
         infoBuilder.addReference("WebServiceBuilder", WebServiceBuilder.class, NameFactory.MODULE_BUILDER);
         infoBuilder.addAttribute("defaultEnvironment", Environment.class, true, true);
         infoBuilder.addAttribute("listener", AbstractNameQuery.class, true);
-        infoBuilder.addAttribute("listenerModuleName", String.class, true);
         infoBuilder.addReference("WebServiceLinkTemplate", Object.class, NameFactory.WEB_SERVICE_LINK);
         infoBuilder.addAttribute("kernel", Kernel.class, false);
 
@@ -167,7 +160,6 @@ public class JAXWSEJBModuleBuilderExtension implements ModuleBuilderExtension {
                 "WebServiceBuilder",
                 "defaultEnvironment", 
                 "listener", 
-                "listenerModuleName",
                 "WebServiceLinkTemplate",
                 "kernel"
         });
