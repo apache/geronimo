@@ -16,20 +16,15 @@ Upcoming Releases:
     
 RELEASE SHOWSTOPPERS:
 
-Certification - Historically certification has been the most time 
-consuming portion of a release, and his release is proving to be no
-different than the previous ones.  The biggest problem area is code 
-related to the new CORBA ORB implementation Yoko.
- 
-Snapshots - Before a final release can be cut we need to resolve any 
-SNAPSHOT dependencies must be replaced with final released versions.
+The release is stalled waiting for final releases from dependent
+projects.  Specifically, we need releases from:
 
-Legal Review - There are many items in this category, but at the very
-lease all source files must have the current Apache license header and all 
-archives must contain LICENSE, NOTICE and DISCLAIMER files as required by 
-the ASF.  
+  Yoko 1.0 - Contains many fixes to CORBA interoperability
+  ActiveMQ 4.1.1 - We need a release which contains AMQ-1165 and AMQ-1088
+  OpenEJB 2.3 - Once Yoko is released, OpenEJB 2.3 can be release
 
 RELEASE HISTORY:
+  2006-12-16  Geronimo 1.2-beta
   2006-09-18  Geronimo 1.1.1
   2006-06-26  Geronimo 1.1
   2006-01-05  Geronimo 1.0
