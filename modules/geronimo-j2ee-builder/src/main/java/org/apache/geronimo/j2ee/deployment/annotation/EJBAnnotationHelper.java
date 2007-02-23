@@ -248,9 +248,13 @@ public final class EJBAnnotationHelper {
             }
         }
 
+        //------------------------------------------------------------------------------------------
+        // 1. <ejb-local-ref>
+        //------------------------------------------------------------------------------------------
         if ( localFlag ) {
 
-            // <ejb-local-ref>
+            log.debug( "addEJB(): <ejb-local-ref> found");
+
             String localRefName = annotation.name();
             if ( localRefName.equals("") ) {
                 if ( method != null ) {
@@ -264,7 +268,7 @@ public final class EJBAnnotationHelper {
             boolean exists = false;
             EjbLocalRefType[] ejbLocalRefEntries = webApp.getEjbLocalRefArray();
             for ( EjbLocalRefType ejbLocalRefEntry : ejbLocalRefEntries ) {
-                if ( ejbLocalRefEntry.getEjbRefName().equals( localRefName ) ) {
+                if ( ejbLocalRefEntry.getEjbRefName().getStringValue().equals( localRefName ) ) {
                     exists = true;
                     break;
                 }
@@ -354,7 +358,12 @@ public final class EJBAnnotationHelper {
         }                                                                           // end if local
         else {                                                                      // else remote
 
-            // <ejb-ref>
+            //--------------------------------------------------------------------------------------
+            // 2. <ejb-ref>
+            //--------------------------------------------------------------------------------------
+
+            log.debug( "addEJB(): <ejb-ref> found");
+
             String remoteRefName = annotation.name();
             if ( remoteRefName.equals("") ) {
                 if ( method != null ) {
@@ -368,7 +377,7 @@ public final class EJBAnnotationHelper {
             boolean exists = false;
             EjbRefType[] ejbRefEntries = webApp.getEjbRefArray();
             for ( EjbRefType ejbRefEntry : ejbRefEntries ) {
-                if ( ejbRefEntry.getEjbRefName().equals( remoteRefName ) ) {
+                if ( ejbRefEntry.getEjbRefName().getStringValue().equals( remoteRefName ) ) {
                     exists = true;
                     break;
                 }
