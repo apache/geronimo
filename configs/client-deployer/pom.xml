@@ -57,84 +57,17 @@
             <scope>runtime</scope>
         </dependency>
 
-        <!--<dependency>-->
-            <!--<groupId>org.apache.geronimo.modules</groupId>-->
-            <!--<artifactId>geronimo-management</artifactId>-->
-            <!--<version>${version}</version>-->
-        <!--</dependency>-->
-
-        <!--<dependency>-->
-            <!--<groupId>org.apache.geronimo.modules</groupId>-->
-            <!--<artifactId>geronimo-transaction</artifactId>-->
-            <!--<version>${version}</version>-->
-        <!--</dependency>-->
-        
-        <!-- this will get g-j2ee-schema -->
-        <!--<dependency>-->
-            <!--<groupId>org.apache.geronimo.modules</groupId>-->
-            <!--<artifactId>geronimo-j2ee-builder</artifactId>-->
-            <!--<version>${version}</version>-->
-        <!--</dependency>-->
-
         <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
             <artifactId>geronimo-client-builder</artifactId>
             <version>${version}</version>
         </dependency>
 
-        <!--<dependency>-->
-            <!--<groupId>org.apache.geronimo.modules</groupId>-->
-            <!--<artifactId>geronimo-naming-builder</artifactId>-->
-            <!--<version>${version}</version>-->
-        <!--</dependency>-->
-        
-        <!--<dependency>-->
-            <!--<groupId>org.apache.geronimo.modules</groupId>-->
-            <!--<artifactId>geronimo-naming</artifactId>-->
-            <!--<version>${version}</version>-->
-        <!--</dependency>-->
-
-        <!--<dependency>-->
-            <!--<groupId>org.apache.geronimo.modules</groupId>-->
-            <!--<artifactId>geronimo-security-builder</artifactId>-->
-            <!--<version>${version}</version>-->
-        <!--</dependency>-->
-        
-        <!--<dependency>-->
-            <!--<groupId>org.apache.geronimo.modules</groupId>-->
-            <!--<artifactId>geronimo-security</artifactId>-->
-            <!--<version>${version}</version>-->
-        <!--</dependency>-->
-        
-        <!--<dependency>-->
-            <!--<groupId>org.apache.geronimo.modules</groupId>-->
-            <!--<artifactId>geronimo-axis</artifactId>-->
-            <!--<version>${version}</version>-->
-        <!--</dependency>-->
-
-        <!--<dependency>-->
-            <!--<groupId>org.apache.geronimo.modules</groupId>-->
-            <!--<artifactId>geronimo-webservices</artifactId>-->
-            <!--<version>${version}</version>-->
-        <!--</dependency>-->
-        
        <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
             <artifactId>geronimo-connector-builder</artifactId>
             <version>${version}</version>
         </dependency>
-        
-        <!--<dependency>-->
-            <!--<groupId>org.apache.geronimo.modules</groupId>-->
-            <!--<artifactId>geronimo-connector</artifactId>-->
-            <!--<version>${version}</version>-->
-        <!--</dependency>-->
-
-        <!--<dependency>-->
-            <!--<groupId>org.apache.geronimo.modules</groupId>-->
-            <!--<artifactId>geronimo-web-builder</artifactId>-->
-            <!--<version>${version}</version>-->
-        <!--</dependency>-->
         
     </dependencies>
     
