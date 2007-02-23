@@ -116,8 +116,12 @@ public class SerializedGBeanState implements GBeanState, Serializable {
                 } finally {
                     ois.close();
                 }
+            } catch (ClassNotFoundException e) {
+                throw new InvalidConfigException("Class not loadable in classloader: " + classLoader, e);
+            } catch (NoClassDefFoundError e) {
+                throw new InvalidConfigException("Class not loadable in classloader: " + classLoader, e);
             } catch (Exception e) {
-                throw new InvalidConfigException("Unable to deserialize GBeanState", e);
+                throw new InvalidConfigException("Unable to deserialize GBeanState in classloader: " + classLoader, e);
             } finally {
                 Thread.currentThread().setContextClassLoader(oldCl);
             }
