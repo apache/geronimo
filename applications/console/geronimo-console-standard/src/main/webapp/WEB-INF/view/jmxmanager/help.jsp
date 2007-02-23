@@ -148,6 +148,19 @@
     </ul>
 </ul>
 
+<p><b>Stats Tab</b></p>
+
+<ul>
+    <li>Lists the statistics provided by a managed object. Statistics can be any of the following types:</li>
+    <ul>
+        <li>Count Statistic - specifies standard count measurements
+        <li>Time Statistic - specifies standard timing measurements for a given operation
+        <li>Boundary Statistic - specifies standard measurements of the upper and lower limits of the value of an attribute
+        <li>Range Statistic - specifies standard measurements of the lowest and highest values an attribute has held as well as its current value
+        <li>Bounded Range Statistic - provides standard measurements of a range that has fixed limits
+    </ul>
+</ul>
+
 <p><b>Search Tab</b></p>
 
 <ul>
