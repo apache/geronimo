@@ -264,6 +264,7 @@ public final class ResourceAnnotationHelper {
                 resourceName = field.getDeclaringClass().getName() + "/" + field.getName();
             }
         }
+        log.debug( "addResource(): resourceName: " + resourceName );
 
         //------------------------------------------------------------------------------------------
         // Resource type:
@@ -282,6 +283,7 @@ public final class ResourceAnnotationHelper {
                 resourceType = field.getType().getName();
             }
         }
+        log.debug( "addResource(): resourceType: " + resourceType );
 
         //------------------------------------------------------------------------------------------
         // Method name (for setter-based injection) must follow JavaBeans conventions:
@@ -302,10 +304,12 @@ public final class ResourceAnnotationHelper {
             injectionJavaType = field.getName();
             injectionClass = field.getDeclaringClass().getName();
         }
+        log.debug( "addResource(): injectionJavaType: " + injectionJavaType );
+        log.debug( "addResource(): injectionClass   : " + injectionClass );
+
 
         // 0. exclusions
         //  WebServiceContext
-
         if (resourceType.equals("javax.xml.ws.WebServiceContext")) {
             return;
         }
@@ -323,10 +327,12 @@ public final class ResourceAnnotationHelper {
              resourceType.equals( "java.lang.Long" )        ||
              resourceType.equals( "java.lang.Float" ) ) {
 
+            log.debug( "addResource(): <env-entry> found");
+
             boolean exists = false;
             EnvEntryType[] envEntries = webApp.getEnvEntryArray();
             for ( EnvEntryType envEntry : envEntries ) {
-                if ( envEntry.getEnvEntryName().equals(resourceName) ) {
+                if ( envEntry.getEnvEntryName().getStringValue().equals(resourceName) ) {
                     exists = true;
                     break;
                 }
@@ -383,10 +389,12 @@ public final class ResourceAnnotationHelper {
         //------------------------------------------------------------------------------------------
         else if ( resourceType.equals("javax.xml.rpc.Service") ) {
 
+            log.debug( "addResource(): <service-ref> found");
+
             boolean exists = false;
             ServiceRefType[] serviceRefs = webApp.getServiceRefArray();
             for ( ServiceRefType serviceRef : serviceRefs ) {
-                if ( serviceRef.getServiceRefName().equals(resourceName) ) {
+                if ( serviceRef.getServiceRefName().getStringValue().equals(resourceName) ) {
                     exists = true;
                     break;
                 }
@@ -456,10 +464,12 @@ public final class ResourceAnnotationHelper {
                   resourceType.equals("org.omg.CORBA_2_3.ORB")                  ||
                   resourceType.endsWith("ConnectionFactory") ) {
 
+            log.debug( "addResource(): <resource-ref> found");
+
             boolean exists = false;
             ResourceRefType[] resourceRefs = webApp.getResourceRefArray();
             for ( ResourceRefType resourceRef : resourceRefs ) {
-                if ( resourceRef.getResRefName().equals(resourceName) ) {
+                if ( resourceRef.getResRefName().getStringValue().equals(resourceName) ) {
                     exists = true;
                     break;
                 }
@@ -550,10 +560,12 @@ public final class ResourceAnnotationHelper {
         else if ( resourceType.equals("javax.jms.Queue")    ||
                   resourceType.equals("javax.jms.Topic") ) {
 
+            log.debug( "addResource(): <message-destination-ref> found");
+
             boolean exists = false;
             MessageDestinationRefType[] messageDestinationRefs = webApp.getMessageDestinationRefArray();
             for ( MessageDestinationRefType messageDestinationRef : messageDestinationRefs ) {
-                if ( messageDestinationRef.getMessageDestinationRefName().equals(resourceName) ) {
+                if ( messageDestinationRef.getMessageDestinationRefName().getStringValue().equals(resourceName) ) {
                     exists = true;
                     break;
                 }
@@ -629,10 +641,12 @@ public final class ResourceAnnotationHelper {
         else if ( annotation.type().getCanonicalName().equals("javax.resource.cci.InteractionSpec") ||
                   annotation.type().getCanonicalName().equals("javax.transaction.UserTransaction")  || true ) {
 
+            log.debug( "addResource(): <resource-env-ref> found");
+
             boolean exists = false;
             ResourceEnvRefType[] resourceEnvRefs = webApp.getResourceEnvRefArray();
             for ( ResourceEnvRefType resourceEnvRef : resourceEnvRefs ) {
-                if ( resourceEnvRef.getResourceEnvRefName().equals(resourceName) ) {
+                if ( resourceEnvRef.getResourceEnvRefName().getStringValue().equals(resourceName) ) {
                     exists = true;
                     break;
                 }
