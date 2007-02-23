@@ -339,6 +339,14 @@ function searchBtnClicked() {
     var jmxQuery = dojo.widget.byId('jmxQuery').getValue();
     JMXHelper.listByPattern(<portlet:namespace/>updateSearchMBeansTreeNode, jmxQuery);
 }
+
+/**
+ * Refresh managed object stats button clicked event handler 
+ */
+function refreshStatsBtnClicked() {
+    var abstractName = $('abstractName').value;
+    JMXHelper.getMBeanStats(<portlet:namespace/>updateStatsTable, abstractName);
+}
 </script>
 
 <!----------------------->
@@ -979,6 +987,8 @@ callOnLoad(init);
                     <tbody id="statsTableBody">
                     </tbody>
                 </table>
+                <br>
+                &nbsp;<input type='button' value='Refresh Stats' onclick='refreshStatsBtnClicked()' /> 
             </div> <!-- Stats tab -->
 
             <!-- Search tab -->

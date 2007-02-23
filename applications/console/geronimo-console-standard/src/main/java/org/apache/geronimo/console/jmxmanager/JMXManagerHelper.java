@@ -400,36 +400,17 @@ public class JMXManagerHelper {
                         long count = cStat.getCount();
                         mbeanStat.add(new String[] { "Count",
                                 Long.toString(count) });
-                    } else if (statistic instanceof BoundaryStatistic) {
-                        BoundaryStatistic bStat = (BoundaryStatistic) statistic;
-                        long upperBound = bStat.getUpperBound();
-                        mbeanStat.add(new String[] { "Upper Bound",
-                                Long.toString(upperBound) });
-                        long lowerBound = bStat.getLowerBound();
-                        mbeanStat.add(new String[] { "Lower Bound",
-                                Long.toString(lowerBound) });
-                    } else if (statistic instanceof RangeStatistic) {
-                        RangeStatistic rStat = (RangeStatistic) statistic;
-                        long highWaterMark = rStat.getHighWaterMark();
-                        mbeanStat.add(new String[] { "High Water Mark",
-                                Long.toString(highWaterMark) });
-                        long lowWaterMark = rStat.getLowWaterMark();
-                        mbeanStat.add(new String[] { "Low Water Mark",
-                                Long.toString(lowWaterMark) });
-                        long current = rStat.getCurrent();
-                        mbeanStat.add(new String[] { "Current",
-                                Long.toString(current) });
                     } else if (statistic instanceof TimeStatistic) {
                         TimeStatistic tStat = (TimeStatistic) statistic;
                         long count = tStat.getCount();
                         mbeanStat.add(new String[] { "Count",
                                 Long.toString(count) });
-                        long maxTime = tStat.getMaxTime();
+                        Date maxTime = new Date(tStat.getMaxTime());
                         mbeanStat.add(new String[] { "Max Time",
-                                Long.toString(maxTime) });
-                        long minTime = tStat.getMinTime();
+                                maxTime.toString() });
+                        Date minTime = new Date(tStat.getMinTime());
                         mbeanStat.add(new String[] { "Min Time",
-                                Long.toString(minTime) });
+                                minTime.toString() });
                         long totalTime = tStat.getTotalTime();
                         mbeanStat.add(new String[] { "Total Time",
                                 Long.toString(totalTime) });
@@ -448,6 +429,25 @@ public class JMXManagerHelper {
                         mbeanStat.add(new String[] { "Low Water Mark",
                                 Long.toString(lowWaterMark) });
                         long current = brStat.getCurrent();
+                        mbeanStat.add(new String[] { "Current",
+                                Long.toString(current) });
+                    } else if (statistic instanceof BoundaryStatistic) {
+                        BoundaryStatistic bStat = (BoundaryStatistic) statistic;
+                        long upperBound = bStat.getUpperBound();
+                        mbeanStat.add(new String[] { "Upper Bound",
+                                Long.toString(upperBound) });
+                        long lowerBound = bStat.getLowerBound();
+                        mbeanStat.add(new String[] { "Lower Bound",
+                                Long.toString(lowerBound) });
+                    } else if (statistic instanceof RangeStatistic) {
+                        RangeStatistic rStat = (RangeStatistic) statistic;
+                        long highWaterMark = rStat.getHighWaterMark();
+                        mbeanStat.add(new String[] { "High Water Mark",
+                                Long.toString(highWaterMark) });
+                        long lowWaterMark = rStat.getLowWaterMark();
+                        mbeanStat.add(new String[] { "Low Water Mark",
+                                Long.toString(lowWaterMark) });
+                        long current = rStat.getCurrent();
                         mbeanStat.add(new String[] { "Current",
                                 Long.toString(current) });
                     }
