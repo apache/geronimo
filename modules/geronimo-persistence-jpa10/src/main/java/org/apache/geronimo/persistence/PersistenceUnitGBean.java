@@ -93,13 +93,13 @@ public class PersistenceUnitGBean implements GBeanLifecycle {
             PersistenceProvider persistenceProvider = (PersistenceProvider) clazz.newInstance();
             entityManagerFactory = persistenceProvider.createContainerEntityManagerFactory(persistenceUnitInfo, properties);
         } catch (ClassNotFoundException e) {
-            persistenceUnitInfo.destroyTempClassLoader();
+            persistenceUnitInfo.destroy();
             throw new PersistenceException("Could not locate PersistenceProvider class: " + persistenceProviderClassName + " in classloader " + classLoader, e);
         } catch (InstantiationException e) {
-            persistenceUnitInfo.destroyTempClassLoader();
+            persistenceUnitInfo.destroy();
             throw new PersistenceException("Could not create PersistenceProvider instance: " + persistenceProviderClassName + " loaded from classloader " + classLoader, e);
         } catch (IllegalAccessException e) {
-            persistenceUnitInfo.destroyTempClassLoader();
+            persistenceUnitInfo.destroy();
             throw new PersistenceException("Could not create PersistenceProvider instance: " + persistenceProviderClassName + " loaded from classloader " + classLoader, e);
         }
         this.transactionManager = transactionManager;
@@ -179,12 +179,12 @@ public class PersistenceUnitGBean implements GBeanLifecycle {
     public void doStop() throws Exception {
         //TODO remove any classtransformers added
         entityManagerFactory.close();
-        persistenceUnitInfo.destroyTempClassLoader();
+        persistenceUnitInfo.destroy();
     }
 
     public void doFail() {
         entityManagerFactory.close();
-        persistenceUnitInfo.destroyTempClassLoader();
+        persistenceUnitInfo.destroy();
     }
 
     private static class PersistenceUnitInfoImpl implements PersistenceUnitInfo {
@@ -201,6 +201,7 @@ public class PersistenceUnitGBean implements GBeanLifecycle {
         private final Properties properties;
         private final ClassLoader classLoader;
         private final JarFileClassLoader tempClassLoader;
+        private final List<TransformerWrapper> transformers;
 
 
         public PersistenceUnitInfoImpl(String persistenceUnitName, String persistenceProviderClassName, PersistenceUnitTransactionType persistenceUnitTransactionType, DataSource jtaDataSource, DataSource nonJtaDataSource, List<String> mappingFileNames, List<URL> jarFileUrls, URL persistenceUnitRootUrl, List<String> managedClassNames, boolean excludeUnlistedClassesValue, Properties properties, ClassLoader classLoader) {
@@ -216,6 +217,7 @@ public class PersistenceUnitGBean implements GBeanLifecycle {
             this.excludeUnlistedClassesValue = excludeUnlistedClassesValue;
             this.properties = properties;
             this.classLoader = classLoader;
+            this .transformers = new ArrayList<TransformerWrapper>();
             
             // This classloader can only be used during PersistenceProvider.createContainerEntityManagerFactory() calls
             // Possible that it could be cleaned up sooner, but for now it's destroyed when the PUGBean is stopped
@@ -271,14 +273,20 @@ public class PersistenceUnitGBean implements GBeanLifecycle {
         }
 
         public void addTransformer(ClassTransformer classTransformer) {
-            TransformerAgent.addTransformer(new TransformerWrapper(classTransformer, classLoader));
+            TransformerWrapper transformer = new TransformerWrapper(classTransformer, classLoader);
+            transformers.add(transformer);
+            TransformerAgent.addTransformer(transformer);
         }
 
         public ClassLoader getNewTempClassLoader() {
             return tempClassLoader;
         }
 
-        private void destroyTempClassLoader() {
+        private void destroy() {
+            for (TransformerWrapper t : transformers) {
+                TransformerAgent.removeTransformer(t);
+            }
+
             tempClassLoader.destroy();
         }
 
