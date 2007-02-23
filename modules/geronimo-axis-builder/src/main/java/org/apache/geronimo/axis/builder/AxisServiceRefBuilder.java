@@ -41,11 +41,11 @@ import org.apache.geronimo.naming.deployment.AbstractNamingBuilder;
 import org.apache.geronimo.naming.deployment.ServiceRefBuilder;
 import org.apache.geronimo.xbeans.geronimo.naming.GerServiceRefDocument;
 import org.apache.geronimo.xbeans.geronimo.naming.GerServiceRefType;
-import org.apache.geronimo.xbeans.j2ee.ParamValueType;
-import org.apache.geronimo.xbeans.j2ee.PortComponentRefType;
-import org.apache.geronimo.xbeans.j2ee.ServiceRefHandlerType;
-import org.apache.geronimo.xbeans.j2ee.ServiceRefType;
-import org.apache.geronimo.xbeans.j2ee.XsdQNameType;
+import org.apache.geronimo.xbeans.javaee.ParamValueType;
+import org.apache.geronimo.xbeans.javaee.PortComponentRefType;
+import org.apache.geronimo.xbeans.javaee.ServiceRefHandlerType;
+import org.apache.geronimo.xbeans.javaee.ServiceRefType;
+import org.apache.geronimo.xbeans.javaee.XsdQNameType;
 import org.apache.xmlbeans.QNameSet;
 import org.apache.xmlbeans.XmlObject;
 
@@ -70,7 +70,7 @@ public class AxisServiceRefBuilder extends AbstractNamingBuilder implements Serv
     }
     
     public void buildNaming(XmlObject specDD, XmlObject plan, Configuration localConfiguration, Configuration remoteConfiguration, Module module, Map componentContext) throws DeploymentException {
-        List<ServiceRefType> serviceRefsUntyped = convert(specDD.selectChildren(serviceRefQNameSet), J2EE_CONVERTER, ServiceRefType.class, ServiceRefType.type);
+        List<ServiceRefType> serviceRefsUntyped = convert(specDD.selectChildren(serviceRefQNameSet), JEE_CONVERTER, ServiceRefType.class, ServiceRefType.type);
         XmlObject[] gerServiceRefsUntyped = plan == null? NO_REFS: plan.selectChildren(GER_SERVICE_REF_QNAME_SET);
         Map serviceRefMap = mapServiceRefs(gerServiceRefsUntyped);
        
@@ -83,7 +83,7 @@ public class AxisServiceRefBuilder extends AbstractNamingBuilder implements Serv
 
     public void buildNaming(XmlObject serviceRef, GerServiceRefType gerServiceRefType, Module module, Map componentContext) throws DeploymentException {
         ServiceRefType serviceRefType = 
-            (ServiceRefType)convert(serviceRef, J2EE_CONVERTER, ServiceRefType.type);
+            (ServiceRefType)convert(serviceRef, JEE_CONVERTER, ServiceRefType.type);
         buildNaming(serviceRefType, gerServiceRefType, module, componentContext);
     }
     
@@ -158,7 +158,7 @@ public class AxisServiceRefBuilder extends AbstractNamingBuilder implements Serv
         List handlerInfos = new ArrayList();
         for (int i = 0; i < handlers.length; i++) {
             ServiceRefHandlerType handler = handlers[i];
-            org.apache.geronimo.xbeans.j2ee.String[] portNameArray = handler.getPortNameArray();
+            org.apache.geronimo.xbeans.javaee.String[] portNameArray = handler.getPortNameArray();
             List portNames = new ArrayList();
             for (int j = 0; j < portNameArray.length; j++) {
                 portNames.add(portNameArray[j].getStringValue().trim());
