@@ -19,6 +19,8 @@ package org.apache.geronimo.tomcat;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Map;
+
+import org.apache.catalina.Cluster;
 import org.apache.catalina.Host;
 import org.apache.catalina.Manager;
 import org.apache.catalina.Realm;
@@ -30,6 +32,7 @@ import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
+import org.apache.geronimo.tomcat.cluster.CatalinaClusterGBean;
 
 /**
  * @version $Rev$ $Date$
@@ -53,7 +56,7 @@ public class HostGBean extends BaseGBean implements GBeanLifecycle, ObjectRetrie
             ArrayList aliases,
             ObjectRetriever realmGBean,            
             ValveGBean tomcatValveChain,
-//            CatalinaClusterGBean clusterGBean,
+            CatalinaClusterGBean clusterGBean,
             ManagerGBean manager) throws Exception {
         super(); // TODO: make it an attribute
         
@@ -105,9 +108,9 @@ public class HostGBean extends BaseGBean implements GBeanLifecycle, ObjectRetrie
         }
 
         //Add clustering
-//        if (clusterGBean != null){
-//            host.setCluster((Cluster)clusterGBean.getInternalObject());
-//        }
+        if (clusterGBean != null){
+            host.setCluster((Cluster)clusterGBean.getInternalObject());
+        }
         
         //Add manager
         if (manager != null)
@@ -139,7 +142,7 @@ public class HostGBean extends BaseGBean implements GBeanLifecycle, ObjectRetrie
         infoFactory.addAttribute("aliases", ArrayList.class, true);
         infoFactory.addReference("RealmGBean", ObjectRetriever.class, NameFactory.GERONIMO_SERVICE);
         infoFactory.addReference("TomcatValveChain", ValveGBean.class, ValveGBean.J2EE_TYPE);
-//        infoFactory.addReference("CatalinaCluster", CatalinaClusterGBean.class, CatalinaClusterGBean.J2EE_TYPE);
+        infoFactory.addReference("CatalinaCluster", CatalinaClusterGBean.class, CatalinaClusterGBean.J2EE_TYPE);
         infoFactory.addReference("Manager", ManagerGBean.class, ManagerGBean.J2EE_TYPE);
         infoFactory.addOperation("getInternalObject");
         infoFactory.setConstructor(new String[] { 
@@ -148,7 +151,7 @@ public class HostGBean extends BaseGBean implements GBeanLifecycle, ObjectRetrie
                 "aliases", 
                 "RealmGBean", 
                 "TomcatValveChain",
-//                "CatalinaCluster",
+                "CatalinaCluster",
                 "Manager"});
         GBEAN_INFO = infoFactory.getBeanInfo();
     }

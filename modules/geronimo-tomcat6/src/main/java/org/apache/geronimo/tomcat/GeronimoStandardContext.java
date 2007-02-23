@@ -39,6 +39,7 @@ import org.apache.catalina.util.DefaultAnnotationProcessor;
 import org.apache.catalina.connector.Request;
 import org.apache.catalina.connector.Response;
 import org.apache.catalina.core.StandardContext;
+import org.apache.catalina.ha.CatalinaCluster;
 import org.apache.catalina.valves.ValveBase;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -162,9 +163,9 @@ public class GeronimoStandardContext extends StandardContext {
             }
         }
 
-//        CatalinaCluster cluster = ctx.getCluster();
-//        if (cluster != null)
-//            this.setCluster(cluster);
+        CatalinaCluster cluster = ctx.getCluster();
+        if (cluster != null)
+            this.setCluster(cluster);
 
         Manager manager = ctx.getManager();
         if (manager != null)

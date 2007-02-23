@@ -40,6 +40,7 @@ import org.apache.catalina.Manager;
 import org.apache.catalina.Realm;
 import org.apache.catalina.Valve;
 import org.apache.catalina.core.StandardContext;
+import org.apache.catalina.ha.CatalinaCluster;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.connector.outbound.connectiontracking.TrackedConnectionAssociator;
@@ -58,6 +59,7 @@ import org.apache.geronimo.management.geronimo.WebConnector;
 import org.apache.geronimo.management.geronimo.WebContainer;
 import org.apache.geronimo.management.geronimo.WebModule;
 import org.apache.geronimo.tomcat.util.SecurityHolder;
+import org.apache.geronimo.tomcat.cluster.CatalinaClusterGBean;
 import org.apache.geronimo.tomcat.stats.ModuleStats;
 import org.apache.geronimo.transaction.GeronimoUserTransaction;
 import org.apache.geronimo.webservices.WebServiceContainer;
@@ -89,7 +91,7 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
 
     private final List valveChain;
 
-//    private final CatalinaCluster catalinaCluster;
+    private final CatalinaCluster catalinaCluster;
 
     private final Manager manager;
 
@@ -146,7 +148,7 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
             TomcatContainer container,
             ObjectRetriever tomcatRealm,
             ValveGBean tomcatValveChain,
-//            CatalinaClusterGBean cluster,
+            CatalinaClusterGBean cluster,
             ManagerGBean manager,
             boolean crossContext,
             boolean disableCookies,
@@ -212,11 +214,11 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
         }
 
         //Add the cluster
-//        if (cluster != null) {
-//            catalinaCluster = (CatalinaCluster) cluster.getInternalObject();
-//        } else {
-//            catalinaCluster = null;
-//        }
+        if (cluster != null) {
+            catalinaCluster = (CatalinaCluster) cluster.getInternalObject();
+        } else {
+            catalinaCluster = null;
+        }
 
         //Add the manager
         if (manager != null) {
@@ -404,9 +406,9 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
         return valveChain;
     }
 
-//    public CatalinaCluster getCluster() {
-//        return catalinaCluster;
-//    }
+    public CatalinaCluster getCluster() {
+        return catalinaCluster;
+    }
 
     public Manager getManager() {
         return manager;
@@ -546,7 +548,7 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
         infoBuilder.addReference("Container", TomcatContainer.class, NameFactory.GERONIMO_SERVICE);
         infoBuilder.addReference("TomcatRealm", ObjectRetriever.class);
         infoBuilder.addReference("TomcatValveChain", ValveGBean.class);
-//        infoBuilder.addReference("Cluster", CatalinaClusterGBean.class, CatalinaClusterGBean.J2EE_TYPE);
+        infoBuilder.addReference("Cluster", CatalinaClusterGBean.class, CatalinaClusterGBean.J2EE_TYPE);
         infoBuilder.addReference("Manager", ManagerGBean.class);
         infoBuilder.addAttribute("crossContext", boolean.class, true);
         infoBuilder.addAttribute("disableCookies", boolean.class, true);
@@ -572,7 +574,7 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
                 "Container",
                 "TomcatRealm",
                 "TomcatValveChain",
-//                "Cluster",
+                "Cluster",
                 "Manager",
                 "crossContext",
                 "disableCookies",

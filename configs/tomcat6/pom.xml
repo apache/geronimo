@@ -76,6 +76,16 @@
             <version>${version}</version>
         </dependency>
 
+        <dependency>
+            <groupId>org.apache.tomcat</groupId>
+            <artifactId>catalina-ha</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.tomcat</groupId>
+            <artifactId>tribes</artifactId>
+        </dependency>
+
     </dependencies>
 
     <build>

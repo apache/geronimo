@@ -896,6 +896,18 @@
 
             <dependency>
                 <groupId>org.apache.tomcat</groupId>
+                <artifactId>catalina-ha</artifactId>
+                <version>${tomcatVersion}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.tomcat</groupId>
+                <artifactId>tribes</artifactId>
+                <version>${tomcatVersion}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.tomcat</groupId>
                 <artifactId>coyote</artifactId>
                 <version>${tomcatVersion}</version>
             </dependency>

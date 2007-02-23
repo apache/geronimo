@@ -79,6 +79,7 @@ public abstract class AbstractWebModuleTest extends TestSupport {
                 tomcatRealm,
                 valveChain,
                 null,
+                null,
                 false,
                 false,
                 null,
@@ -159,7 +160,7 @@ public abstract class AbstractWebModuleTest extends TestSupport {
         initParams.put("name", "localhost");
         initParams.put("appBase", "");
 
-        HostGBean host = new HostGBean("org.apache.catalina.core.StandardHost", initParams, null, realm, null, null);
+        HostGBean host = new HostGBean("org.apache.catalina.core.StandardHost", initParams, null, realm, null, null, null);
         //Default Engine
         initParams = Collections.singletonMap("name", "Geronimo");
 
@@ -168,6 +169,7 @@ public abstract class AbstractWebModuleTest extends TestSupport {
                 host,
                 Collections.singleton(host),
                 realm,
+                null,
                 null,
                 null);
         engine.doStart();
