@@ -56,6 +56,7 @@ import org.apache.openejb.assembler.classic.EjbJarInfo;
 import org.apache.openejb.config.AppModule;
 import org.apache.openejb.config.DeploymentLoader;
 import org.apache.openejb.config.ReadDescriptors;
+import org.apache.openejb.config.UnsupportedModuleTypeException;
 import org.apache.openejb.jee.EjbJar;
 import org.apache.openejb.jee.EnterpriseBean;
 import org.apache.openejb.jee.MessageDestinationRef;
@@ -152,10 +153,9 @@ public class EjbModuleBuilder implements ModuleBuilder {
         AppModule appModule = null;
         try {
             appModule = loader.load(new File(moduleFile.getName()));
+        } catch (UnsupportedModuleTypeException e){
+            return null;
         } catch (OpenEJBException e) {
-            if (e.getMessage().startsWith("Unsupported module type")) {
-                return null;
-            }
             throw new DeploymentException(e);
         }
 
