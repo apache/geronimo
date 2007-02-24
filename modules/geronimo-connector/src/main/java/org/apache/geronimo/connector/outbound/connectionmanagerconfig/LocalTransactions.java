@@ -44,4 +44,8 @@ public class LocalTransactions extends TransactionSupport {
         stack = new TransactionEnlistingInterceptor(stack, transactionManager);
         return new TransactionCachingInterceptor(stack, transactionManager);
     }
+    
+    public boolean isRecoverable() {
+        return false;
+    }
 }

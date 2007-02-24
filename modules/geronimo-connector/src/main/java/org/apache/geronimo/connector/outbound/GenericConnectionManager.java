@@ -98,9 +98,13 @@ public class GenericConnectionManager extends AbstractConnectionManager {
                 stack = new SubjectInterceptor(stack);
             }
 
-            ConnectionInterceptor recoveryStack = stack;
-            this.recoveryStack = new TCCLInterceptor(recoveryStack, classLoader);
-
+            // Only create a recovery stack, if the resource is recoverable.
+            if (transactionSupport.isRecoverable()) {
+                this.recoveryStack = new TCCLInterceptor(stack, classLoader);
+            }
+            else {
+                this.recoveryStack = null;
+            }
 
             stack = new ConnectionHandleInterceptor(stack);
             stack = new TCCLInterceptor(stack, classLoader);

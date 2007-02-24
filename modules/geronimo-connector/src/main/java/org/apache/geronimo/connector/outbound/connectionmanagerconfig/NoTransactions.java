@@ -40,4 +40,8 @@ public class NoTransactions extends TransactionSupport {
     public ConnectionInterceptor addTransactionInterceptors(ConnectionInterceptor stack, TransactionManager transactionManager) {
         return stack;
     }
+    
+    public boolean isRecoverable() {
+        return false;
+    }
 }
