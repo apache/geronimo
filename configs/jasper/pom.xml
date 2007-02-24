@@ -123,18 +123,4 @@
 
     </dependencies>
 
-    <repositories>
-        <repository>
-            <id>module-local</id>
-            <url>file://${pom.basedir}/repository</url>
-             <layout>default</layout>
-             <snapshots>
-                  <enabled>true</enabled>
-             </snapshots>
-             <releases>
-                  <enabled>false</enabled>
-             </releases>
-         </repository>
-    </repositories>
-
 </project>
