@@ -32,5 +32,5 @@ import org.apache.geronimo.connector.outbound.ConnectionInterceptor;
 public abstract class TransactionSupport implements Serializable {
     public abstract ConnectionInterceptor addXAResourceInsertionInterceptor(ConnectionInterceptor stack, String name);
     public abstract ConnectionInterceptor addTransactionInterceptors(ConnectionInterceptor stack, TransactionManager transactionManager);
-
+    public abstract boolean isRecoverable();
 }

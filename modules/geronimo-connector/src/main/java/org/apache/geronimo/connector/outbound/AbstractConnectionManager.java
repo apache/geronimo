@@ -88,13 +88,17 @@ public abstract class AbstractConnectionManager implements ConnectionManagerCont
 
     public ConnectionManagerContainer.ReturnableXAResource getRecoveryXAResource(ManagedConnectionFactory managedConnectionFactory) throws ResourceException {
         ManagedConnectionInfo mci = new ManagedConnectionInfo(managedConnectionFactory, null);
-        NamedXAResource namedXAResource = (NamedXAResource) mci.getXAResource();
-        if (namedXAResource == null) {
-            //obviously, we can't do recovery.
+
+        // if no recovery stack, then this isn't a recoverable resource.
+        if (getRecoveryStack() == null) {
             return null;
         }
+        
         ConnectionInfo recoveryConnectionInfo = new ConnectionInfo(mci);
         getRecoveryStack().getConnection(recoveryConnectionInfo);
+
+        NamedXAResource namedXAResource = (NamedXAResource) mci.getXAResource();
+        getRecoveryStack().returnConnection(recoveryConnectionInfo, ConnectionReturnAction.DESTROY);
         return new ConnectionManagerContainer.ReturnableXAResource(namedXAResource, getRecoveryStack(), recoveryConnectionInfo);
     }
 

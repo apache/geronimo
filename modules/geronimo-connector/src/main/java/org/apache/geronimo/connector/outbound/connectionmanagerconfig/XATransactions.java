@@ -32,6 +32,7 @@ import org.apache.geronimo.connector.outbound.XAResourceInsertionInterceptor;
  *
  * */
 public class XATransactions extends TransactionSupport {
+    
     private boolean useTransactionCaching;
     private boolean useThreadCaching;
 
@@ -71,5 +72,9 @@ public class XATransactions extends TransactionSupport {
             stack = new TransactionCachingInterceptor(stack, transactionManager);
         }
         return stack;
+    }
+    
+    public boolean isRecoverable() {
+        return true;
     }
 }
