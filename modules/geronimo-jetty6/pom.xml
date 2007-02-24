@@ -98,7 +98,12 @@
             <groupId>commons-primitives</groupId>
             <artifactId>commons-primitives</artifactId>
         </dependency>
-        
+
+        <dependency>
+            <groupId>org.apache.myfaces.core</groupId>
+            <artifactId>myfaces-api</artifactId>
+        </dependency>        
+
     </dependencies>
     
     <build>

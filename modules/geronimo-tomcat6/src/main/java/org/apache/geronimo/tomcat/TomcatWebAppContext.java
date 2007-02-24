@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import javax.faces.FactoryFinder;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 import javax.management.j2ee.statistics.Stats;
@@ -512,6 +513,9 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
         // No more logging will occur for this ClassLoader. Inform the LogFactory to avoid a memory leak.
 //        LogFactory.release(classLoader);
 
+        // need to release the JSF factories. Otherwise, we'll leak ClassLoaders.
+        FactoryFinder.releaseFactories();
+        
         log.debug("TomcatWebAppContext stopped");
     }
 
@@ -521,6 +525,9 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
 
         // No more logging will occur for this ClassLoader. Inform the LogFactory to avoid a memory leak.
 //        LogFactory.release(classLoader);
+
+        // need to release the JSF factories. Otherwise, we'll leak ClassLoaders.
+        FactoryFinder.releaseFactories();
 
         log.warn("TomcatWebAppContext failed");
     }

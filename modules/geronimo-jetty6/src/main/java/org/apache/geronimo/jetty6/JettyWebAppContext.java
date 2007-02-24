@@ -29,6 +29,7 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
+import javax.faces.FactoryFinder;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 import javax.naming.Context;
@@ -333,6 +334,9 @@ public class JettyWebAppContext implements GBeanLifecycle, JettyServletRegistrat
 
         // No more logging will occur for this ClassLoader. Inform the LogFactory to avoid a memory leak.
         LogFactory.release(webClassLoader);
+
+        // need to release the JSF factories. Otherwise, we'll leak ClassLoaders.
+        FactoryFinder.releaseFactories();
 
         log.debug("JettyWebAppContext stopped");
     }
