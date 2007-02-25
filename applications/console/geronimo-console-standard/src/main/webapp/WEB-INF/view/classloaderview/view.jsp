@@ -21,11 +21,20 @@
 <portlet:defineObjects />
 
 <%
+    boolean inverse = false;
+    if(renderRequest.getPortletSession().getAttribute("inverse") != null){
+        inverse = ((Boolean)renderRequest.getPortletSession().getAttribute("inverse")).booleanValue();        
+    }
+    renderRequest.getPortletSession().setAttribute("inverse",new Boolean(!inverse));
+    String selectedNode = (String)renderRequest.getPortletSession().getAttribute("selectedNode");
+    if(selectedNode != null){
+        renderRequest.getPortletSession().removeAttribute("selectedNode");
+    }
 
 
     ClassLoaderViewPortlet cp = (ClassLoaderViewPortlet) renderRequest.getPortletSession().getAttribute("classloaderTree");
     renderRequest.getPortletSession().removeAttribute("classloaderTree");
-    String childs = cp.getJSONTrees();
+    String childs = cp.getJSONTrees(inverse);
 %>
 
 <script>
@@ -39,7 +48,7 @@
         
         dojo.hostenv.writeIncludes();
 
-    dojo.addOnLoad(function(){
+        dojo.addOnLoad(function(){
 
         var tree = dojo.widget.manager.getWidgetById('tree');
 
@@ -60,7 +69,14 @@
                 }
             }
         );
-
+        <%
+    if(selectedNode != null && !selectedNode.equals("")) {
+    %>
+        findPrevious('<%= selectedNode %>');
+    <%
+    }
+    %>
+    
         });
 
 
@@ -104,7 +120,7 @@ function findNext(children, str)
                         else {
                                 if(children[child].widgetId == lastFound)doCheck = false;
             }
-                }
+        }
         if(children[child].title.indexOf("link::") == 0) {
             var node = children[child].title.substring(6);
             load(node);
@@ -143,15 +159,23 @@ function load(node)
                 if(curr == "")curr=curr+nodes[nod];
                 else curr=curr+"."+nodes[nod];
                 if(dojo.widget.byId(curr).state != "LOADED" && dojo.widget.byId(curr).children.length != 0)
-                        dojo.widget.byId(curr).setChildren(dojo.widget.byId(curr).children);
-        }
-        dojo.widget.byId('selector').select(dojo.widget.byId(node));
+                    dojo.widget.byId(curr).setChildren(dojo.widget.byId(curr).children);
+        }        
 }
 
 function select(node)
 {
-    load(node);
-    dojo.widget.byId('selector').select(dojo.widget.byId(node));
+        var nodes = node.split(".");
+        var curr ="";
+        for(nod in nodes)
+        {
+                if(curr == "")curr=curr+nodes[nod];
+                else curr=curr+"."+nodes[nod];
+                if(dojo.widget.byId(curr).state != "LOADED" && dojo.widget.byId(curr).children.length != 0)
+                    dojo.widget.byId(curr).setChildren(dojo.widget.byId(curr).children);
+                dojo.widget.byId('controller').expandToLevel(dojo.widget.byId(curr),1);
+        }        
+        dojo.widget.byId('selector').select(dojo.widget.byId(node));
 }
 
 function findInSelected(selectedNodes)
@@ -172,7 +196,7 @@ function findInSelected(selectedNodes)
                 lastFound =  v;
                 doCheck = true;
         }
-        else{
+        else {
                 debug.innerHTML = "<br/>Failure in search: No more matching result found";
                 alert('Failure in search: No more matching result found');
                 lastFound =  '';
@@ -213,12 +237,35 @@ function search() {
         }
         document.body.style.cursor = '';
 }
+function findPrevious(search)
+{
+        var selectNodes = dojo.widget.byId('tree').children;
+        var v= findNext(selectNodes,search);
+        if(v)
+        {
+                dojo.widget.byId('selector').deselectAll();
+                select(v);
+                lastFound =  '';
+                doCheck = false;
+        }
+}
 
 function searchContinue() {
         debug.innerHTML = "";
         document.body.style.cursor = "wait";
         findInSelected(lastSearchOn);
         document.body.style.cursor = '';
+}
+function getAction(){
+    var nodes= dojo.widget.manager.getWidgetById('selector').selectedNodes[0];
+    if(nodes != undefined){
+        if(nodes.title == 'Classes' || nodes.title == 'Interfaces')
+            document.clform.snNode.value = nodes.parent.title;
+        else
+            document.clform.snNode.value = nodes.title;
+    }
+    document.clform.action = '<portlet:actionURL><portlet:param name="action" value="invert"/></portlet:actionURL>'
+    return true;
 }
 
 </script>
@@ -228,17 +275,19 @@ function searchContinue() {
                     .getConsoleFrameworkServletPath(request);
             String iconCSS = consoleFrameworkContext + "/../TreeDocIcon.css";
 %>
-
+<form name="clform" onSubmit="return getAction()">
+<input type="hidden" name="snNode" value=""/>
 <TABLE cellpadding="1" cellspacing="1" border="1">
  <tr>
-  <td><b>Search Text:</b> <input type="text" id="searchText"
-   onChange="javascript:textChange()" /> <input type="button"
+  <td><b>Search Text:</b> <input type="text" name="searchText" id="searchText"
+   onChange="javascript:textChange()"/> <input type="button"
    value="Find" onClick="javascript:search()" /> <input type="button"
    id="findNext" value="Find Next" onClick="javascript:searchContinue()"
    disabled=true /> Search only selected:<input type="checkbox"
    id="inSelected" onChange="javascript:textChange()" /></td>
  </tr>
 </table>
+<input type="submit" value="Invert Tree" />
 <br />
 
 <div dojoType="TreeBasicControllerV3" widgetId="controller"></div>
@@ -252,3 +301,4 @@ function searchContinue() {
  widgetId='tree' allowedMulti='false'></div>
 
 <div id="debug"></div>
+</form>

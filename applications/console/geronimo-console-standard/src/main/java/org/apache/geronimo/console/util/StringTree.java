@@ -59,15 +59,23 @@ public class StringTree {
         }
         return null;
     }
+    public boolean equals(Object node){
+        if(node instanceof StringTree && ((StringTree)node).name.equals(this.name))
+            return true;
+        return false;
+    }
            
     public String toJSONObject(String prependId){
         return toJSONObject(prependId, null);
     }
-           
     public String toJSONObject(String prependId, Hashtable htLinks){
+        return toJSONObject(prependId, htLinks, false);
+    }
+           
+    public String toJSONObject(String prependId, Hashtable htLinks, boolean level1){
         StringBuffer stb = new StringBuffer();
         if(htLinks != null){
-            if(!name.startsWith("class ") && !name.startsWith("interface ") && !name.equals("Classes") && !name.equals("Interfaces") && htLinks.containsKey(name)){
+            if(!name.startsWith("class ") && !name.startsWith("interface ") && !name.equals("Classes") && !name.equals("Interfaces") && htLinks.containsKey(name) && !level1){
                 stb.append("{title:'link::");
                 stb.append(htLinks.get(name));
                 stb.append("',widgetId:'");

@@ -52,6 +52,7 @@ public class ClassLoaderViewPortlet extends BasePortlet {
 
     public void processAction(ActionRequest actionRequest,
             ActionResponse actionResponse) throws PortletException, IOException {
+        actionRequest.getPortletSession().setAttribute("selectedNode", actionRequest.getParameter("snNode"));
     }
 
     protected void doView(RenderRequest renderRequest,
@@ -91,33 +92,68 @@ public class ClassLoaderViewPortlet extends BasePortlet {
         super.destroy();
     }
 
-    public String getJSONTrees() {
-        List list = getTrees();
+    public String getJSONTrees(boolean inverse) {
+        List list = getTrees(inverse);
         if (list == null)
             return "[]";
 
         StringBuffer stb = new StringBuffer();
         stb.append("[");
         Hashtable htLinks = new Hashtable();
+        // First level cannot be a link
+        for (int i = 0; i < list.size(); i++) {
+            StringTree node = (StringTree) list.get(i);
+            htLinks.put(node.name, ""+i);
+        }
         for (int i = 0; i < list.size(); i++) {
             StringTree node = (StringTree) list.get(i);
             if (i != 0)
                 stb.append(",");
-            stb.append(node.toJSONObject("" + i, htLinks));
+            stb.append(node.toJSONObject("" + i, htLinks, true));
         }
         stb.append("]");
         list = null;
         return stb.toString();
     }
 
-    public ArrayList getTrees() {
+    public ArrayList getTrees(boolean inverse) {
         ArrayList parentNodes = new ArrayList();
         List list = ClassLoaderRegistry.getList();
         Iterator iter = list.iterator();
         while (iter.hasNext()) {
-            updateTree((ClassLoader) iter.next(), parentNodes);
-        }
+            if(!inverse)
+                updateTree((ClassLoader) iter.next(), parentNodes);
+            else
+                inverseTree((ClassLoader) iter.next(), parentNodes);
+        }            
         return parentNodes;
+    }
+
+    public StringTree inverseTree(ClassLoader classloader, ArrayList parentNodes) {
+        
+        StringTree node = new StringTree(classloader.toString());
+        int index = parentNodes.indexOf(node);
+        if(index != -1)
+            return (StringTree)parentNodes.get(index);
+        
+        node = addClasses(node, classloader);
+        
+        if (classloader instanceof org.apache.geronimo.kernel.config.MultiParentClassLoader) {
+            org.apache.geronimo.kernel.config.MultiParentClassLoader mpclassloader = (org.apache.geronimo.kernel.config.MultiParentClassLoader) classloader;
+            ClassLoader[] parents = mpclassloader.getParents();
+            if (parents != null)
+                for (int i = 0; i < parents.length; i++) {
+                    StringTree parentNode = inverseTree(parents[i],parentNodes);
+                    node.addChild(parentNode);
+                }
+        } else if (classloader.getParent() != null) {
+            StringTree parentNode = inverseTree(classloader.getParent(),parentNodes);
+            node.addChild(parentNode);
+        }        
+        if(!parentNodes.contains(node))
+            parentNodes.add(node);
+        
+        return node;
     }
 
     public StringTree updateTree(ClassLoader classloader, ArrayList parentNodes) {
