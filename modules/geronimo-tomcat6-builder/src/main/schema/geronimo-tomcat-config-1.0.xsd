@@ -1,15 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-
     Licensed to the Apache Software Foundation (ASF) under one or more
     contributor license agreements.  See the NOTICE file distributed with
     this work for additional information regarding copyright ownership.
     The ASF licenses this file to You under the Apache License, Version 2.0
     (the "License"); you may not use this file except in compliance with
     the License.  You may obtain a copy of the License at
-
-       http://www.apache.org/licenses/LICENSE-2.0
-
+    
+        http://www.apache.org/licenses/LICENSE-2.0
+    
     Unless required by applicable law or agreed to in writing, software
     distributed under the License is distributed on an "AS IS" BASIS,
     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -20,25 +19,99 @@
 <xs:schema
     xmlns:tomcat="http://geronimo.apache.org/xml/ns/web/tomcat/config-1.0"
     targetNamespace="http://geronimo.apache.org/xml/ns/web/tomcat/config-1.0"
-    xmlns:xs="http://www.w3.org/2001/XMLSchema"
-    elementFormDefault="qualified"
-    attributeFormDefault="unqualified"
-    version="1.0">
+    xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified"
+    attributeFormDefault="unqualified" version="1.0">
 
-    <xs:element name="tomcat" type="tomcat:tomcat-configType"/>
+    <xs:annotation>
+        <xs:documentation>
+            This is an XML Schema Definition for Geronimo tomcat specific
+            configuration. It is a used as a sub part of the web application
+            deployment plan. The elements defined in this plan are included in
+            container-config element of web application plan. The top level
+            element included in container-config is tomcat with namespace
+            specified as
+            xmlns="http://geronimo.apache.org/xml/ns/j2ee/tomcat-config-1.0".
+            The default location for this document is
+            http://geronimo.apache.org/schemas-1.2/geronimo-tomcat-config-1.0.xsd
+        </xs:documentation>
+    </xs:annotation>
+    <xs:element name="tomcat" type="tomcat:tomcat-configType">
+        <xs:annotation>
+            <xs:documentation>
+                The tomcat element is the root of the deployment descriptor for
+                a tomcat specific configuration in web application. Note that
+                the sub-elements of this element should be as in the given order
+                in a sequence.
+            </xs:documentation>
+        </xs:annotation>
+    </xs:element>
 
     <xs:complexType name="tomcat-configType">
         <xs:sequence>
-            <xs:element name="host" type="xs:string" minOccurs="0"/>
-            <xs:element name="cross-context" type="tomcat:emptyType" minOccurs="0"/>
-            <xs:element name="disable-cookies" type="tomcat:emptyType" minOccurs="0"/>
-            <xs:element name="valve-chain" type="xs:string" minOccurs="0"/>
-            <xs:element name="tomcat-realm" type="xs:string" minOccurs="0"/>
-            <xs:element name="manager" type="xs:string" minOccurs="0"/>
-            <xs:element name="cluster" type="xs:string" minOccurs="0"/>
+            <xs:element name="host" type="xs:string" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>
+                        The host element maps the web application to this
+                        particular host name.
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="cross-context" type="tomcat:emptyType"
+                minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>
+                        The cross-context is an indicative element to specify
+                        that the web application will use dispatch request to
+                        other applications and this cross context should be
+                        enabled.
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="disable-cookies" type="tomcat:emptyType"
+                minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>
+                        The presence of disable-cookies element indicates the
+                        cookies will not be used by tomcat web application and
+                        should be disabled.
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="valve-chain" type="xs:string" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>
+                        The valve-chain provides the list of first element
+                        tomcat valves chain for this web application.
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="tomcat-realm" type="xs:string" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>
+                        The tomcat-realm provides the tomcat security realm used
+                        by this web application.
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="manager" type="xs:string" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>
+                        The manager provides the clustering implementation used
+                        by this web application.
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="cluster" type="xs:string" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>
+                        The cluster provides the name of cluster this web
+                        application belongs to.
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
         </xs:sequence>
     </xs:complexType>
 
-    <xs:complexType name="emptyType"/>
+    <xs:complexType name="emptyType" />
 
 </xs:schema>
