@@ -19,18 +19,27 @@
 package org.apache.geronimo.jetty6;
 
 import java.io.IOException;
+import java.util.List;
+import java.util.Map;
 
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.ServletException;
 import javax.servlet.UnavailableException;
 import javax.security.auth.Subject;
+import javax.naming.Context;
+import javax.naming.InitialContext;
+import javax.naming.NamingException;
 
 import org.mortbay.jetty.servlet.ServletHolder;
 import org.apache.geronimo.jetty6.handler.AbstractImmutableHandler;
 import org.apache.geronimo.jetty6.handler.LifecycleCommand;
 import org.apache.geronimo.security.Callers;
 import org.apache.geronimo.security.ContextManager;
+import org.apache.geronimo.j2ee.annotation.Injection;
+import org.apache.xbean.recipe.ObjectRecipe;
+import org.apache.xbean.recipe.Option;
+import org.apache.xbean.recipe.StaticRecipe;
 
 /**
  * @version $Rev$ $Date$
@@ -41,10 +50,12 @@ public class InternalJettyServletHolder extends ServletHolder {
 
     private final AbstractImmutableHandler lifecycleChain;
     private final Subject runAsSubject;
+    private final JettyServletRegistration servletRegistration;
 
-    public InternalJettyServletHolder(AbstractImmutableHandler lifecycleChain, Subject runAsSubject) {
+    public InternalJettyServletHolder(AbstractImmutableHandler lifecycleChain, Subject runAsSubject, JettyServletRegistration servletRegistration) {
         this.lifecycleChain = lifecycleChain;
         this.runAsSubject = runAsSubject;
+        this.servletRegistration = servletRegistration;
     }
 
     //TODO probably need to override init and destroy (?) to handle runAsSubject since we are not setting it in the superclass any more.
@@ -73,11 +84,16 @@ public class InternalJettyServletHolder extends ServletHolder {
         }
     }
 
+
+    public synchronized Object newInstance() throws InstantiationException, IllegalAccessException {
+        return servletRegistration.newInstance(_class);
+    }
+
     /**
      * Provide the thread's current JettyServletHolder
      *
      * @return the thread's current JettyServletHolder
-     * @see org.apache.geronimo.jetty6.JAASJettyRealm#isUserInRole(java.security.Principal, java.lang.String)
+     * @see org.apache.geronimo.jetty6.JAASJettyRealm#isUserInRole(java.security.Principal,java.lang.String)
      */
     static String getCurrentServletName() {
         return currentServletName.get();

@@ -101,7 +101,7 @@ public class EjbRefBuilder extends AbstractNamingBuilder {
     }
 
     public void buildNaming(XmlObject specDD, XmlObject plan, Configuration localConfiguration, Configuration remoteConfiguration, Module module, Map componentContext) throws DeploymentException {
-        JndiConsumer consumer = createJndiConsumer(specDD);
+        JndiConsumer consumer = createJndiConsumer(specDD, componentContext);
 //      processWebEjbAnnotations(module, consumer);
 
         Map<String, Object> map = null;
@@ -148,9 +148,9 @@ public class EjbRefBuilder extends AbstractNamingBuilder {
         return clientRef;
     }
 
-    protected JndiConsumer createJndiConsumer(XmlObject specDD) throws DeploymentException {
-        List<EjbRefType> ejbRefs = convert(specDD.selectChildren(ejbRefQNameSet), J2EE_CONVERTER, EjbRefType.class, EjbRefType.type);
-        List<EjbLocalRefType> ejbLocalRefs = convert(specDD.selectChildren(ejbLocalRefQNameSet), J2EE_CONVERTER, EjbLocalRefType.class, EjbLocalRefType.type);
+    protected JndiConsumer createJndiConsumer(XmlObject specDD, Map componentContext) throws DeploymentException {
+        List<EjbRefType> ejbRefs = convert(specDD.selectChildren(ejbRefQNameSet), JEE_CONVERTER, EjbRefType.class, EjbRefType.type);
+        List<EjbLocalRefType> ejbLocalRefs = convert(specDD.selectChildren(ejbLocalRefQNameSet), JEE_CONVERTER, EjbLocalRefType.class, EjbLocalRefType.type);
 
         // build jndi consumer
         JndiConsumer jndiConsumer = new SessionBean();
@@ -160,7 +160,8 @@ public class EjbRefBuilder extends AbstractNamingBuilder {
             jndiConsumer.getEjbRef().add(ref);
 
             // ejb-ref-name
-            ref.setEjbRefName(getStringValue(xmlbeansRef.getEjbRefName()));
+            String refName = getStringValue(xmlbeansRef.getEjbRefName());
+            ref.setEjbRefName(refName);
 
             // ejb-ref-type
             String refType = getStringValue(xmlbeansRef.getEjbRefType());
@@ -182,7 +183,7 @@ public class EjbRefBuilder extends AbstractNamingBuilder {
             // mapped-name
             ref.setMappedName(getStringValue(xmlbeansRef.getMappedName()));
 
-            // injection-targets
+            // openejb handling of injection-targets
             if (xmlbeansRef.getInjectionTargetArray() != null) {
                 for (InjectionTargetType injectionTargetType : xmlbeansRef.getInjectionTargetArray()) {
                     InjectionTarget injectionTarget = new InjectionTarget();
@@ -191,6 +192,9 @@ public class EjbRefBuilder extends AbstractNamingBuilder {
                     ref.getInjectionTarget().add(injectionTarget);
                 }
             }
+            //geronimo's handling of injection-target
+            addInjections(refName, xmlbeansRef.getInjectionTargetArray(), componentContext);
+
         }
 
         for (EjbLocalRefType xmlbeansRef : ejbLocalRefs) {
@@ -199,7 +203,8 @@ public class EjbRefBuilder extends AbstractNamingBuilder {
             jndiConsumer.getEjbLocalRef().add(ref);
 
             // ejb-ref-name
-            ref.setEjbRefName(getStringValue(xmlbeansRef.getEjbRefName()));
+            String refName = getStringValue(xmlbeansRef.getEjbRefName());
+            ref.setEjbRefName(refName);
 
             // ejb-ref-type
             String refType = getStringValue(xmlbeansRef.getEjbRefType());
@@ -221,7 +226,7 @@ public class EjbRefBuilder extends AbstractNamingBuilder {
             // mapped-name
             ref.setMappedName(getStringValue(xmlbeansRef.getMappedName()));
 
-            // injection-targets
+            // openejb handling of injection-targets
             if (xmlbeansRef.getInjectionTargetArray() != null) {
                 for (InjectionTargetType injectionTargetType : xmlbeansRef.getInjectionTargetArray()) {
                     InjectionTarget injectionTarget = new InjectionTarget();
@@ -230,6 +235,8 @@ public class EjbRefBuilder extends AbstractNamingBuilder {
                     ref.getInjectionTarget().add(injectionTarget);
                 }
             }
+            //geronimo's handling of injection-target
+            addInjections(refName, xmlbeansRef.getInjectionTargetArray(), componentContext);
         }
         return jndiConsumer;
     }

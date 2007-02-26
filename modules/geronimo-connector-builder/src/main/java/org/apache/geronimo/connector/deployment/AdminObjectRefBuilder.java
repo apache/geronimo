@@ -42,9 +42,9 @@ import org.apache.geronimo.xbeans.geronimo.naming.GerMessageDestinationType;
 import org.apache.geronimo.xbeans.geronimo.naming.GerPatternType;
 import org.apache.geronimo.xbeans.geronimo.naming.GerResourceEnvRefDocument;
 import org.apache.geronimo.xbeans.geronimo.naming.GerResourceEnvRefType;
-import org.apache.geronimo.xbeans.j2ee.MessageDestinationRefType;
-import org.apache.geronimo.xbeans.j2ee.MessageDestinationType;
-import org.apache.geronimo.xbeans.j2ee.ResourceEnvRefType;
+import org.apache.geronimo.xbeans.javaee.MessageDestinationRefType;
+import org.apache.geronimo.xbeans.javaee.MessageDestinationType;
+import org.apache.geronimo.xbeans.javaee.ResourceEnvRefType;
 import org.apache.xmlbeans.QNameSet;
 import org.apache.xmlbeans.XmlObject;
 
@@ -73,7 +73,7 @@ public class AdminObjectRefBuilder extends AbstractNamingBuilder {
     }
 
     public void initContext(XmlObject specDD, XmlObject plan, Configuration localConfiguration, Configuration remoteConfiguration, Module module) throws DeploymentException {
-        List<MessageDestinationType> specDestinations = convert(specDD.selectChildren(messageDestinationQNameSet), J2EE_CONVERTER, MessageDestinationType.class, MessageDestinationType.type);
+        List<MessageDestinationType> specDestinations = convert(specDD.selectChildren(messageDestinationQNameSet), JEE_CONVERTER, MessageDestinationType.class, MessageDestinationType.type);
         XmlObject[] gerDestinations = plan.selectChildren(GER_MESSAGE_DESTINATION_QNAME_SET);
             Map nameMap = new HashMap();
             for (int i = 0; i < gerDestinations.length; i++) {
@@ -96,12 +96,13 @@ public class AdminObjectRefBuilder extends AbstractNamingBuilder {
 
 
     public void buildNaming(XmlObject specDD, XmlObject plan, Configuration localConfiguration, Configuration remoteConfiguration, Module module, Map componentContext) throws DeploymentException {
-        List<ResourceEnvRefType> resourceEnvRefsUntyped = convert(specDD.selectChildren(adminOjbectRefQNameSet), J2EE_CONVERTER, ResourceEnvRefType.class, ResourceEnvRefType.type);
+        List<ResourceEnvRefType> resourceEnvRefsUntyped = convert(specDD.selectChildren(adminOjbectRefQNameSet), JEE_CONVERTER, ResourceEnvRefType.class, ResourceEnvRefType.type);
         ClassLoader cl = module.getEarContext().getClassLoader();
         XmlObject[] gerResourceEnvRefsUntyped = plan == null? NO_REFS: plan.selectChildren(GER_ADMIN_OBJECT_REF_QNAME_SET);
         Map refMap = mapResourceEnvRefs(gerResourceEnvRefsUntyped);
         for (ResourceEnvRefType resourceEnvRef: resourceEnvRefsUntyped) {
             String name = resourceEnvRef.getResourceEnvRefName().getStringValue().trim();
+            addInjections(name, resourceEnvRef.getInjectionTargetArray(), componentContext);
             String type = resourceEnvRef.getResourceEnvRefType().getStringValue().trim();
             Class iface;
             try {
@@ -120,7 +121,7 @@ public class AdminObjectRefBuilder extends AbstractNamingBuilder {
         }
 
         //message-destination-refs
-        List<MessageDestinationRefType> messageDestinationRefsUntyped = convert(specDD.selectChildren(messageDestinationRefQNameSet), J2EE_CONVERTER, MessageDestinationRefType.class, MessageDestinationRefType.type);
+        List<MessageDestinationRefType> messageDestinationRefsUntyped = convert(specDD.selectChildren(messageDestinationRefQNameSet), JEE_CONVERTER, MessageDestinationRefType.class, MessageDestinationRefType.type);
 
         for (MessageDestinationRefType messageDestinationRef: messageDestinationRefsUntyped) {
             String name = getStringValue(messageDestinationRef.getMessageDestinationRefName());

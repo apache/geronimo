@@ -18,6 +18,7 @@ package org.apache.geronimo.jetty6;
 
 import java.util.Map;
 import java.util.Set;
+import java.util.List;
 
 import javax.security.auth.Subject;
 
@@ -25,6 +26,7 @@ import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
+import org.apache.geronimo.j2ee.annotation.Injection;
 import org.apache.geronimo.management.Servlet;
 import org.mortbay.jetty.servlet.ServletHolder;
 
@@ -63,7 +65,7 @@ public class JettyServletHolder implements Servlet, GBeanLifecycle {
             Subject runAsSubject,
             JettyServletRegistration context) throws Exception {
         servletRegistration = context;
-        servletHolder = new InternalJettyServletHolder(context == null? null: context.getLifecycleChain(), runAsSubject);
+        servletHolder = new InternalJettyServletHolder(context == null? null: context.getLifecycleChain(), runAsSubject, servletRegistration);
         servletHolder.setName(servletName);
         servletHolder.setClassName(servletClassName);
         //context will be null only for use as "default servlet info holder" in deployer.

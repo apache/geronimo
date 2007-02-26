@@ -35,6 +35,7 @@ public interface NamingBuilder extends AbstractNamespaceBuilder {
     String ENV = "env/";
 
     String JNDI_KEY = "JNDI_COMPONENT_CONTEXT";
+    String INJECTION_KEY = "INJECTIONS";
     String GBEAN_NAME_KEY = "GBEAN_NAME";
 
     void buildEnvironment(XmlObject specDD, XmlObject plan, Environment environment) throws DeploymentException;

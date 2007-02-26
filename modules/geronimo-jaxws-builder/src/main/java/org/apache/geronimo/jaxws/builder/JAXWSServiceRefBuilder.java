@@ -75,6 +75,7 @@ public abstract class JAXWSServiceRefBuilder extends AbstractNamingBuilder imple
         
         for (ServiceRefType serviceRef : serviceRefsUntyped) {
             String name = getStringValue(serviceRef.getServiceRefName());            
+            addInjections(name, serviceRef.getInjectionTargetArray(), componentContext);
             GerServiceRefType serviceRefType = (GerServiceRefType) serviceRefMap.get(name);
             
             buildNaming(serviceRef, serviceRefType, module, componentContext);

@@ -24,6 +24,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
+import java.util.List;
 
 import javax.transaction.TransactionManager;
 
@@ -47,6 +48,7 @@ import org.apache.geronimo.security.realm.GenericSecurityRealm;
 import org.apache.geronimo.system.serverinfo.BasicServerInfo;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
 import org.apache.geronimo.transaction.manager.TransactionManagerImpl;
+import org.apache.geronimo.j2ee.annotation.Injection;
 import org.mortbay.jetty.security.Authenticator;
 import org.mortbay.jetty.security.FormAuthenticator;
 
@@ -114,6 +116,7 @@ public class AbstractWebModuleTest extends TestSupport {
                 defaultPrincipal,
                 checkedPermissions,
                 excludedPermissions,
+                new HashMap<String, List<Injection>>(),
                 null,
                 transactionManager,
                 connectionTrackingCoordinator,

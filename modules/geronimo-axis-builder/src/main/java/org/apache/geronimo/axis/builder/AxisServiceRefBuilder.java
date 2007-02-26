@@ -68,25 +68,26 @@ public class AxisServiceRefBuilder extends AbstractNamingBuilder implements Serv
     protected boolean willMergeEnvironment(XmlObject specDD, XmlObject plan) {
         return specDD.selectChildren(serviceRefQNameSet).length > 0;
     }
-    
+
     public void buildNaming(XmlObject specDD, XmlObject plan, Configuration localConfiguration, Configuration remoteConfiguration, Module module, Map componentContext) throws DeploymentException {
         List<ServiceRefType> serviceRefsUntyped = convert(specDD.selectChildren(serviceRefQNameSet), JEE_CONVERTER, ServiceRefType.class, ServiceRefType.type);
-        XmlObject[] gerServiceRefsUntyped = plan == null? NO_REFS: plan.selectChildren(GER_SERVICE_REF_QNAME_SET);
+        XmlObject[] gerServiceRefsUntyped = plan == null ? NO_REFS : plan.selectChildren(GER_SERVICE_REF_QNAME_SET);
         Map serviceRefMap = mapServiceRefs(gerServiceRefsUntyped);
-       
-        for (ServiceRefType serviceRef: serviceRefsUntyped) {
+
+        for (ServiceRefType serviceRef : serviceRefsUntyped) {
             String name = getStringValue(serviceRef.getServiceRefName());
+            addInjections(name, serviceRef.getInjectionTargetArray(), componentContext);
             GerServiceRefType serviceRefType = (GerServiceRefType) serviceRefMap.get(name);
             buildNaming(serviceRef, serviceRefType, module, componentContext);
         }
     }
 
     public void buildNaming(XmlObject serviceRef, GerServiceRefType gerServiceRefType, Module module, Map componentContext) throws DeploymentException {
-        ServiceRefType serviceRefType = 
-            (ServiceRefType)convert(serviceRef, JEE_CONVERTER, ServiceRefType.type);
+        ServiceRefType serviceRefType =
+                (ServiceRefType) convert(serviceRef, JEE_CONVERTER, ServiceRefType.type);
         buildNaming(serviceRefType, gerServiceRefType, module, componentContext);
     }
-    
+
     private void buildNaming(ServiceRefType serviceRef, GerServiceRefType serviceRefType, Module module, Map componentContext) throws DeploymentException {
         String name = getStringValue(serviceRef.getServiceRefName());
         ClassLoader cl = module.getEarContext().getClassLoader();
@@ -196,7 +197,7 @@ public class AxisServiceRefBuilder extends AbstractNamingBuilder implements Serv
         }
         return handlerInfos;
     }
-    
+
     private static Map mapServiceRefs(XmlObject[] refs) {
         Map refMap = new HashMap();
         if (refs != null) {
@@ -227,7 +228,7 @@ public class AxisServiceRefBuilder extends AbstractNamingBuilder implements Serv
         infoBuilder.addAttribute("eeNamespaces", String[].class, true, true);
         infoBuilder.addReference("AxisBuilder", AxisBuilder.class, NameFactory.MODULE_BUILDER);
 
-        infoBuilder.setConstructor(new String[] {"defaultEnvironment", "eeNamespaces", "AxisBuilder"});
+        infoBuilder.setConstructor(new String[]{"defaultEnvironment", "eeNamespaces", "AxisBuilder"});
 
         GBEAN_INFO = infoBuilder.getBeanInfo();
     }

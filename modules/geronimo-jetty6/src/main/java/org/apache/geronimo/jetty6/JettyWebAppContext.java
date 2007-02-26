@@ -28,11 +28,13 @@ import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
+import java.util.List;
 
 import javax.faces.FactoryFinder;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 import javax.naming.Context;
+import javax.naming.NamingException;
 import javax.transaction.TransactionManager;
 
 import org.apache.commons.logging.Log;
@@ -43,6 +45,7 @@ import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.j2ee.management.impl.InvalidObjectNameException;
+import org.apache.geronimo.j2ee.annotation.Injection;
 import org.apache.geronimo.jetty6.handler.AbstractImmutableHandler;
 import org.apache.geronimo.jetty6.handler.ComponentContextHandler;
 import org.apache.geronimo.jetty6.handler.InstanceContextHandler;
@@ -59,6 +62,9 @@ import org.apache.geronimo.management.geronimo.WebModule;
 import org.apache.geronimo.naming.enc.EnterpriseNamingContext;
 import org.apache.geronimo.security.deploy.DefaultPrincipal;
 import org.apache.geronimo.transaction.GeronimoUserTransaction;
+import org.apache.xbean.recipe.ObjectRecipe;
+import org.apache.xbean.recipe.Option;
+import org.apache.xbean.recipe.StaticRecipe;
 import org.mortbay.jetty.handler.AbstractHandler;
 import org.mortbay.jetty.security.Authenticator;
 import org.mortbay.jetty.servlet.ErrorPageErrorHandler;
@@ -93,6 +99,8 @@ public class JettyWebAppContext implements GBeanLifecycle, JettyServletRegistrat
     private final String objectName;
     private final WebAppContext webAppContext;//delegate
     private final AbstractImmutableHandler lifecycleChain;
+    private final Context componentContext;
+    private final Map<String, List<Injection>> injectionMap;
 
     private final Set servletNames = new HashSet();
 
@@ -112,6 +120,8 @@ public class JettyWebAppContext implements GBeanLifecycle, JettyServletRegistrat
         configurationBaseURL = null;
         webAppContext = null;
         lifecycleChain = null;
+        componentContext = null;
+        injectionMap = null;
     }
 
     public JettyWebAppContext(String objectName,
@@ -142,6 +152,8 @@ public class JettyWebAppContext implements GBeanLifecycle, JettyServletRegistrat
             PermissionCollection checkedPermissions,
             PermissionCollection excludedPermissions,
 
+            Map<String, List<Injection>> injectionMap,
+
             Host host,
             TransactionManager transactionManager,
             TrackedConnectionAssociator trackedConnectionAssociator,
@@ -156,7 +168,9 @@ public class JettyWebAppContext implements GBeanLifecycle, JettyServletRegistrat
         assert transactionManager != null;
         assert trackedConnectionAssociator != null;
         assert jettyContainer != null;
-        
+
+        this.injectionMap = injectionMap;
+
         SessionHandler sessionHandler;
         if (null != handlerFactory) {
             if (null == preHandlerFactory) {
@@ -179,15 +193,15 @@ public class JettyWebAppContext implements GBeanLifecycle, JettyServletRegistrat
             securityHandler.init(policyContextID, defaultPrincipal, checkedPermissions, excludedPermissions, classLoader);
         }
 
-        ServletHandler servletHandler = new InjectionServletHandler();
+        ServletHandler servletHandler = new ServletHandler();
 
         webAppContext = new WebAppContext(securityHandler, sessionHandler, servletHandler, null);
         AbstractHandler next = sessionHandler;
         next = new ThreadClassloaderHandler(next, classLoader);
 
         GeronimoUserTransaction userTransaction = new GeronimoUserTransaction(transactionManager);
-        Context enc = EnterpriseNamingContext.createEnterpriseNamingContext(componentContext, userTransaction, kernel, classLoader);
-        next = new ComponentContextHandler(next, enc);
+        this.componentContext = EnterpriseNamingContext.createEnterpriseNamingContext(componentContext, userTransaction, kernel, classLoader);
+        next = new ComponentContextHandler(next, this.componentContext);
         next = new InstanceContextHandler(next, unshareableResources, applicationManagedSecurityResources, trackedConnectionAssociator);
         lifecycleChain = (AbstractImmutableHandler) next;
         webAppContext.setHandler(next);
@@ -321,6 +335,46 @@ public class JettyWebAppContext implements GBeanLifecycle, JettyServletRegistrat
         return lifecycleChain;
     }
 
+    public Object newInstance(Class clazz) throws InstantiationException, IllegalAccessException {
+        if (clazz == null) {
+            throw new InstantiationException("no class loaded");
+        }
+        ObjectRecipe objectRecipe = new ObjectRecipe(clazz);
+        objectRecipe.allow(Option.FIELD_INJECTION);
+        objectRecipe.allow(Option.PRIVATE_PROPERTIES);
+        objectRecipe.allow(Option.IGNORE_MISSING_PROPERTIES);
+        String className = clazz.getName();
+        List<Injection> injections = injectionMap.get(className);
+        if (injections != null) {
+            for (Injection injection : injections) {
+                try {
+                    String jndiName = injection.getJndiName();
+                    //our componentContext is attached to jndi at "java:comp" so we remove that when looking stuff up in it
+                    Object object = componentContext.lookup("env/" + jndiName);
+                    if (object instanceof String) {
+                        String string = (String) object;
+                        // Pass it in raw so it could be potentially converted to
+                        // another data type by an xbean-reflect property editor
+                        objectRecipe.setProperty(injection.getTargetName(), string);
+                    } else {
+                        objectRecipe.setProperty(injection.getTargetName(), new StaticRecipe(object));
+                    }
+                } catch (NamingException e) {
+                    //log.warn("could not look up ");
+                }
+            }
+        }
+        Object filter = objectRecipe.create(clazz.getClassLoader());
+        Map unsetProperties = objectRecipe.getUnsetProperties();
+        if (unsetProperties.size() > 0) {
+            for (Object property : unsetProperties.keySet()) {
+//                log.warning("Injection: No such property '"+property+"' in class "+_class.getName());
+            }
+        }
+        return filter;
+
+    }
+
     public void doStart() throws Exception {
         // reset the classsloader... jetty likes to set it to null when stopping
         this.webAppContext.setClassLoader(webClassLoader);
@@ -383,7 +437,7 @@ public class JettyWebAppContext implements GBeanLifecycle, JettyServletRegistrat
             for (Iterator iterator = eventListeners.iterator(); iterator.hasNext();) {
                 String listenerClassName = (String) iterator.next();
                 Class clazz = this.webAppContext.loadClass(listenerClassName);
-                EventListener listener = (EventListener) clazz.newInstance();
+                EventListener listener = (EventListener) newInstance(clazz);
                 this.webAppContext.addEventListener(listener);
             }
         }
@@ -568,6 +622,8 @@ public class JettyWebAppContext implements GBeanLifecycle, JettyServletRegistrat
         infoBuilder.addAttribute("checkedPermissions", PermissionCollection.class, true);
         infoBuilder.addAttribute("excludedPermissions", PermissionCollection.class, true);
 
+        infoBuilder.addAttribute("injections", Map.class, true);
+
         infoBuilder.addReference("J2EEServer", J2EEServer.class);
         infoBuilder.addReference("J2EEApplication", J2EEApplication.class);
 
@@ -609,6 +665,8 @@ public class JettyWebAppContext implements GBeanLifecycle, JettyServletRegistrat
 
                 "checkedPermissions",
                 "excludedPermissions",
+
+                "injections",
 
                 "Host",
                 "TransactionManager",

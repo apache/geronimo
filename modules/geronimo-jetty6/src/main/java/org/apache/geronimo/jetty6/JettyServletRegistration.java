@@ -17,6 +17,9 @@
 package org.apache.geronimo.jetty6;
 
 import java.util.Set;
+import java.util.Map;
+
+import javax.naming.Context;
 
 import org.mortbay.jetty.servlet.ServletHandler;
 import org.mortbay.jetty.servlet.ServletHolder;
@@ -28,6 +31,7 @@ import org.apache.geronimo.jetty6.handler.AbstractImmutableHandler;
 public interface JettyServletRegistration {
 
     void registerServletHolder(ServletHolder servletHolder, String servletName, Set servletMappings, String objectName) throws Exception;
+
     void unregisterServletHolder(ServletHolder servletHolder, String servletName, Set servletMappings, String objectName) throws Exception;
 
     ServletHandler getServletHandler();
@@ -36,4 +40,6 @@ public interface JettyServletRegistration {
 
     AbstractImmutableHandler getLifecycleChain();
 
+    Object newInstance(Class clazz) throws InstantiationException, IllegalAccessException;
+    
 }

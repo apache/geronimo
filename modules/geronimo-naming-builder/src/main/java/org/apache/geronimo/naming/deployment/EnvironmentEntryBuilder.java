@@ -56,6 +56,7 @@ public class EnvironmentEntryBuilder extends AbstractNamingBuilder {
         List<EnvEntryType> envEntriesUntyped = convert(specDD.selectChildren(envEntryQNameSet), JEE_CONVERTER, EnvEntryType.class, EnvEntryType.type);
         for (EnvEntryType envEntry: envEntriesUntyped) {
             String name = envEntry.getEnvEntryName().getStringValue().trim();
+            addInjections(name, envEntry.getInjectionTargetArray(), componentContext);
             String type = envEntry.getEnvEntryType().getStringValue().trim();
             String text = envEntry.getEnvEntryValue().getStringValue().trim();
             try {

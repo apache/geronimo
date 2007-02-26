@@ -769,10 +769,11 @@ public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
             // <ejb-local-ref>
             if (EJBAnnotationHelper.annotationsPresent(classFinder)) {
                 try {
-                    webApp = EJBAnnotationHelper.processAnnotations(webApp, classFinder);
+                    ClassFinder ejbFinder = new ClassFinder(classLoader);
+                    webApp = EJBAnnotationHelper.processAnnotations(webApp, classFinder, ejbFinder);
                 }
                 catch (Exception e) {
-                    throw new DeploymentException("TomcatModuleBuilder: Error processing @EJB(s) annotations");
+                    throw new DeploymentException("TomcatModuleBuilder: Error processing @EJB(s) annotations", e);
                 }
             }
 
@@ -787,7 +788,7 @@ public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
                     ResourceAnnotationHelper.processAnnotations(webApp, classFinder);
                 }
                 catch (Exception e) {
-                    throw new DeploymentException("TomcatModuleBuilder: Error processing @Resource(s) annotations");
+                    throw new DeploymentException("TomcatModuleBuilder: Error processing @Resource(s) annotations", e);
                 }
             }
 

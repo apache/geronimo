@@ -17,11 +17,19 @@
 package org.apache.geronimo.jetty6;
 
 import java.util.Map;
+import java.util.List;
+
+import javax.naming.Context;
+import javax.naming.NamingException;
 
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
+import org.apache.geronimo.j2ee.annotation.Injection;
+import org.apache.xbean.recipe.ObjectRecipe;
+import org.apache.xbean.recipe.Option;
+import org.apache.xbean.recipe.StaticRecipe;
 import org.mortbay.jetty.servlet.FilterHolder;
 
 /**
@@ -37,7 +45,7 @@ public class JettyFilterHolder implements GBeanLifecycle {
     }
 
     public JettyFilterHolder(String filterName, String filterClass, Map initParams, JettyServletRegistration jettyServletRegistration) throws Exception {
-        filterHolder = new FilterHolder();
+        filterHolder = new InternalFilterHolder(jettyServletRegistration);
         if (jettyServletRegistration != null) {
             filterHolder.setName(filterName);
             filterHolder.setClassName(filterClass);
@@ -72,6 +80,19 @@ public class JettyFilterHolder implements GBeanLifecycle {
             filterHolder.stop();
         } catch (Exception e) {
             //ignore?
+        }
+    }
+
+    private static class InternalFilterHolder extends FilterHolder {
+        private final JettyServletRegistration servletRegistration;
+
+        public InternalFilterHolder(JettyServletRegistration servletRegistration) {
+            this.servletRegistration = servletRegistration;
+        }
+
+
+        public synchronized Object newInstance() throws InstantiationException, IllegalAccessException {
+            return servletRegistration.newInstance(_class);
         }
     }
     

@@ -64,6 +64,7 @@ import org.apache.geronimo.j2ee.deployment.NamingBuilder;
 import org.apache.geronimo.j2ee.deployment.WebModule;
 import org.apache.geronimo.j2ee.deployment.WebServiceBuilder;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
+import org.apache.geronimo.j2ee.annotation.Injection;
 import org.apache.geronimo.jetty6.Host;
 import org.apache.geronimo.jetty6.JettyDefaultServletHolder;
 import org.apache.geronimo.jetty6.JettyFilterHolder;
@@ -317,11 +318,13 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
 
         //N.B. we use the ear context which has all the gbeans we could possibly be looking up from this ear.
         Map buildingContext = new HashMap();
-        buildingContext.put(NamingBuilder.JNDI_KEY, new HashMap());
+        buildingContext.put(NamingBuilder.JNDI_KEY, new HashMap<String, Object>());
         buildingContext.put(NamingBuilder.GBEAN_NAME_KEY, moduleName);
+        buildingContext.put(NamingBuilder.INJECTION_KEY, new HashMap<String, List<Injection>>());
         Configuration earConfiguration = earContext.getConfiguration();
         getNamingBuilders().buildNaming(webApp, jettyWebApp, earConfiguration, earConfiguration, (Module) webModule, buildingContext);
         Map compContext = (Map) buildingContext.get(NamingBuilder.JNDI_KEY);
+        Map<String, List<Injection>> injections = (Map<String, List<Injection>>) buildingContext.get(NamingBuilder.INJECTION_KEY);
 
 
         GBeanData webModuleData = new GBeanData(moduleName, JettyWebAppContext.GBEAN_INFO);
@@ -333,6 +336,8 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
             if (!module.isStandAlone()) {
                 webModuleData.setReferencePattern("J2EEApplication", earContext.getModuleName());
             }
+
+            webModuleData.setAttribute("injections", injections);
 
             webModuleData.setAttribute("deploymentDescriptor", module.getOriginalSpecDD());
             Set securityRoles = collectRoleNames(webApp);

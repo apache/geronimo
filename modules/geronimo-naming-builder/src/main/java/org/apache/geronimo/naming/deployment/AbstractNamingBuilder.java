@@ -35,6 +35,7 @@ import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.j2ee.deployment.Module;
 import org.apache.geronimo.j2ee.deployment.NamingBuilder;
+import org.apache.geronimo.j2ee.annotation.Injection;
 import org.apache.geronimo.kernel.config.Configuration;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.Environment;
@@ -44,10 +45,12 @@ import org.apache.geronimo.schema.NamespaceElementConverter;
 import org.apache.geronimo.xbeans.geronimo.naming.GerPatternType;
 import org.apache.geronimo.xbeans.geronimo.naming.GerAbstractNamingEntryDocument;
 import org.apache.geronimo.xbeans.javaee.XsdStringType;
+import org.apache.geronimo.xbeans.javaee.InjectionTargetType;
 import org.apache.xmlbeans.QNameSet;
 import org.apache.xmlbeans.SchemaType;
 import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlException;
+import org.apache.xmlbeans.XmlCursor;
 
 /**
  * @version $Rev$ $Date$
@@ -72,13 +75,13 @@ public abstract class AbstractNamingBuilder implements NamingBuilder {
     public Environment getEnvironment() {
         return this.defaultEnvironment;
     }
-    
+
     public void buildEnvironment(XmlObject specDD, XmlObject plan, Environment environment) throws DeploymentException {
         // TODO Currently this method is called before the xml is metadata complete, so will not contain all refs
         // Just always call mergeEnvironment until this is fixed
         //
         // if (willMergeEnvironment(specDD, plan)) {
-            EnvironmentBuilder.mergeEnvironments(environment, defaultEnvironment);
+        EnvironmentBuilder.mergeEnvironments(environment, defaultEnvironment);
         // }
     }
 
@@ -116,8 +119,13 @@ public abstract class AbstractNamingBuilder implements NamingBuilder {
     public void initContext(XmlObject specDD, XmlObject plan, Configuration localConfiguration, Configuration remoteConfiguration, Module module) throws DeploymentException {
     }
 
-    protected Map getJndiContextMap(Map sharedContext) {
-        return (Map) sharedContext.get(JNDI_KEY);
+    protected Map<String, Object> getJndiContextMap(Map sharedContext) {
+        Map jndiContext = (Map) sharedContext.get(JNDI_KEY);
+        if (jndiContext == null) {
+            jndiContext = new HashMap<String, Object>();
+            sharedContext.put(JNDI_KEY, jndiContext);
+        }
+        return jndiContext;
     }
 
     protected AbstractName getGBeanName(Map sharedContext) {
@@ -136,15 +144,15 @@ public abstract class AbstractNamingBuilder implements NamingBuilder {
     }
 
     /**
-     * @deprecated
      * @param xmlObjects
      * @param converter
      * @param type
      * @return
      * @throws DeploymentException
+     * @deprecated
      */
     protected static XmlObject[] convert(XmlObject[] xmlObjects, NamespaceElementConverter converter, SchemaType type) throws DeploymentException {
-               //bizarre ArrayStoreException if xmlObjects is loaded by the wrong classloader
+        //bizarre ArrayStoreException if xmlObjects is loaded by the wrong classloader
         XmlObject[] converted = new XmlObject[xmlObjects.length];
         for (int i = 0; i < xmlObjects.length; i++) {
             XmlObject xmlObject = xmlObjects[i].copy();
@@ -269,4 +277,26 @@ public abstract class AbstractNamingBuilder implements NamingBuilder {
     }
 
 
+    protected void addInjections(String jndiName, InjectionTargetType[] injectionTargetArray, Map sharedContext) {
+        Map<String, List<Injection>> injectionsMap = getInjectionsMap(sharedContext);
+        for (InjectionTargetType injectionTarget : injectionTargetArray) {
+            String targetName = injectionTarget.getInjectionTargetName().getStringValue().trim();
+            String targetClassName = injectionTarget.getInjectionTargetClass().getStringValue().trim();
+            List<Injection> injections = injectionsMap.get(targetClassName);
+            if (injections == null) {
+                injections = new ArrayList<Injection>();
+                injectionsMap.put(targetClassName, injections);
+            }
+            injections.add(new Injection(targetClassName, targetName, jndiName));
+        }
+    }
+
+    private Map<String, List<Injection>> getInjectionsMap(Map sharedContext) {
+        Map<String, List<Injection>> injectionsMap = (Map<String, List<Injection>>) sharedContext.get(INJECTION_KEY);
+        if (injectionsMap == null) {
+            injectionsMap = new HashMap<String, List<Injection>>();
+            sharedContext.put(INJECTION_KEY, injectionsMap);
+        }
+        return injectionsMap;
+    }
 }

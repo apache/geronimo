@@ -18,6 +18,9 @@ package org.apache.geronimo.jetty6;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.util.List;
+import java.util.Map;
+
 import javax.ejb.EJB;
 import javax.naming.Context;
 import javax.naming.InitialContext;
@@ -27,13 +30,28 @@ import javax.servlet.Servlet;
 import org.mortbay.jetty.servlet.ServletHandler;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.geronimo.j2ee.annotation.Injection;
 
 /**
  * @version $Rev$ $Date$
  */
 class InjectionServletHandler extends ServletHandler {
     private static final Log log = LogFactory.getLog(InjectionServletHandler.class);
+
+    private final Map<String, List<Injection>> injections;
+
+
+    public InjectionServletHandler(Map<String, List<Injection>> injections) {
+        this.injections = injections;
+    }
+
     public Servlet customizeServlet(Servlet servlet) throws Exception {
+        List<Injection> classInjections = injections.get(servlet.getClass().getName());
+        if (classInjections != null) {
+            for (Injection injection: classInjections) {
+                
+            }
+        }
         servlet = super.customizeServlet(servlet);
         processAnnotations(servlet);
         return servlet;

@@ -75,6 +75,7 @@ public class PersistenceContextRefBuilder extends AbstractNamingBuilder {
         for (PersistenceContextRefType persistenceContextRef : specPersistenceContextRefsUntyped) {
             String persistenceContextRefName = persistenceContextRef.getPersistenceContextRefName().getStringValue().trim();
 
+            addInjections(persistenceContextRefName, persistenceContextRef.getInjectionTargetArray(), componentContext);
             PersistenceContextTypeType persistenceContextType = persistenceContextRef.getPersistenceContextType();
             boolean transactionScoped = persistenceContextType == null || !persistenceContextType.getStringValue().equalsIgnoreCase("extended");
 

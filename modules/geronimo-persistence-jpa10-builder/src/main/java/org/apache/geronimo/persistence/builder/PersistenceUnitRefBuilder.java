@@ -77,6 +77,7 @@ public class PersistenceUnitRefBuilder extends AbstractNamingBuilder {
         for (PersistenceUnitRefType PersistenceUnitRef: specPersistenceUnitRefsUntyped) {
             String persistenceUnitRefName = PersistenceUnitRef.getPersistenceUnitRefName().getStringValue().trim();
 
+            addInjections(persistenceUnitRefName, PersistenceUnitRef.getInjectionTargetArray(), componentContext);
             AbstractNameQuery persistenceUnitNameQuery;
             GerPersistenceUnitRefType gerPersistenceUnitRef = gerPersistenceUnitRefsUntyped.remove(persistenceUnitRefName);
             if (gerPersistenceUnitRef != null) {

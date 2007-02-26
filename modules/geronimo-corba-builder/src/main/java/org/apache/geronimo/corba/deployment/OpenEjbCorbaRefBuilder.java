@@ -102,6 +102,7 @@ public class OpenEjbCorbaRefBuilder extends EjbRefBuilder {
             EjbRefType ejbRef = (EjbRefType) ejbRefsUntyped[i];
 
             String ejbRefName = getStringValue(ejbRef.getEjbRefName());
+            addInjections(ejbRefName, ejbRef.getInjectionTargetArray(), componentContext);
             GerEjbRefType remoteRef = (GerEjbRefType) ejbRefMap.get(ejbRefName);
 
             Reference ejbReference = addEJBRef(localConfiguration, module.getModuleURI(), ejbRef, remoteRef, cl);

@@ -21,10 +21,10 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
 import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import javax.naming.Reference;
 import javax.xml.namespace.QName;
@@ -46,7 +46,7 @@ import org.apache.geronimo.naming.reference.ResourceReference;
 import org.apache.geronimo.xbeans.geronimo.naming.GerPatternType;
 import org.apache.geronimo.xbeans.geronimo.naming.GerResourceRefDocument;
 import org.apache.geronimo.xbeans.geronimo.naming.GerResourceRefType;
-import org.apache.geronimo.xbeans.j2ee.ResourceRefType;
+import org.apache.geronimo.xbeans.javaee.ResourceRefType;
 import org.apache.xmlbeans.QNameSet;
 import org.apache.xmlbeans.XmlObject;
 
@@ -80,6 +80,7 @@ public class ResourceRefBuilder extends AbstractNamingBuilder implements Resourc
 
         for (ResourceRefType resourceRef: resourceRefsUntyped) {
             String name = resourceRef.getResRefName().getStringValue().trim();
+            addInjections(name, resourceRef.getInjectionTargetArray(), componentContext);
             String type = resourceRef.getResType().getStringValue().trim();
             GerResourceRefType gerResourceRef = (GerResourceRefType) refMap.get(name);
             Class iface;
@@ -175,11 +176,11 @@ public class ResourceRefBuilder extends AbstractNamingBuilder implements Resourc
         builder.setApplicationManagedSecurityResources(applicationManagedSecurityResources);
     }
 
-    private Map mapResourceRefs(XmlObject[] refs) {
-        Map refMap = new HashMap();
+    private Map<String, GerResourceRefType> mapResourceRefs(XmlObject[] refs) {
+        Map<String, GerResourceRefType> refMap = new HashMap<String, GerResourceRefType>();
         if (refs != null) {
-            for (int i = 0; i < refs.length; i++) {
-                GerResourceRefType ref = (GerResourceRefType) refs[i].copy().changeType(GerResourceRefType.type);
+            for (XmlObject ref1 : refs) {
+                GerResourceRefType ref = (GerResourceRefType) ref1.copy().changeType(GerResourceRefType.type);
                 refMap.put(ref.getRefName().trim(), ref);
             }
         }
@@ -207,14 +208,6 @@ public class ResourceRefBuilder extends AbstractNamingBuilder implements Resourc
 
     public QNameSet getPlanQNameSet() {
         return GER_RESOURCE_REF_QNAME_SET;
-    }
-
-    private static String getStringValue(org.apache.geronimo.xbeans.j2ee.String string) {
-        if (string == null) {
-            return null;
-        }
-        String s = string.getStringValue();
-        return s == null ? null : s.trim();
     }
 
     public static final GBeanInfo GBEAN_INFO;
