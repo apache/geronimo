@@ -41,21 +41,20 @@
 
         <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
-            <artifactId>geronimo-j2ee-builder</artifactId>
+            <artifactId>geronimo-security</artifactId>
             <version>${version}</version>
         </dependency>
         
         <dependency>
-            <groupId>org.apache.geronimo.modules</groupId>
-            <artifactId>geronimo-service-builder</artifactId>
-            <version>${version}</version>
+            <groupId>stax</groupId>
+            <artifactId>stax-api</artifactId>
         </dependency>
 
-        <dependency>
-            <groupId>org.apache.geronimo.modules</groupId>
-            <artifactId>geronimo-j2ee</artifactId>
-            <version>${version}</version>
-        </dependency>
+        <!--<dependency>-->
+            <!--<groupId>org.apache.geronimo.modules</groupId>-->
+            <!--<artifactId>geronimo-j2ee</artifactId>-->
+            <!--<version>${version}</version>-->
+        <!--</dependency>-->
         
        <dependency>
             <groupId>org.apache.xbean</groupId>
