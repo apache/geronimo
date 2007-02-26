@@ -81,24 +81,25 @@ public class AxisServiceGenerator {
         super();
     }
     
-    public AxisService getServiceFromWSDL(org.apache.geronimo.jaxws.PortInfo portInfo, String endpointClassName, Definition wsdlDefinition, ClassLoader classLoader) throws Exception {
+    public AxisService getServiceFromWSDL(PortInfo portInfo, String endpointClassName, ClassLoader classLoader) throws Exception {
         WSDLToAxisServiceBuilder wsdlBuilder = null;
         WSDLFactory factory = WSDLFactory.newInstance();
         WSDLWriter writer = factory.newWSDLWriter();
         
+        Definition wsdlDefinition = portInfo.getWsdlDefinition();
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         writer.writeWSDL(wsdlDefinition, out);
         String wsdlContent = out.toString(WSDL_ENCODING); //Will the Axis2 give us this information soon ?
         
-           OMNamespace documentElementNS = ((OMElement)XMLUtils.toOM(new StringReader(wsdlContent))).getNamespace();
+        OMNamespace documentElementNS = ((OMElement)XMLUtils.toOM(new StringReader(wsdlContent))).getNamespace();
            
-           Map<QName, Service> serviceMap = wsdlDefinition.getServices();
+        Map<QName, Service> serviceMap = wsdlDefinition.getServices();
         Service wsdlService = serviceMap.values().iterator().next();
         
         Map<String, Port> portMap = wsdlService.getPorts();
         Port port = portMap.values().iterator().next();
         String portName = port.getName();
-           QName serviceQName = wsdlService.getQName();
+        QName serviceQName = wsdlService.getQName();
 
            //Decide WSDL Version : 
         if(WSDLConstants.WSDL20_2006Constants.DEFAULT_NAMESPACE_URI.equals(documentElementNS.getNamespaceURI())){
@@ -125,26 +126,26 @@ public class AxisServiceGenerator {
         serviceAnnot.setName(service.getName());
         serviceAnnot.setTargetNamespace(service.getTargetNamespace());
       
-            Class endPointClass = classLoader.loadClass(endpointClassName);
-         Method[] classMethods = endPointClass.getMethods();
+        Class endPointClass = classLoader.loadClass(endpointClassName);
+        Method[] classMethods = endPointClass.getMethods();
          
-            for(Iterator<AxisOperation> opIterator = service.getOperations() ; opIterator.hasNext() ;){
-                AxisOperation operation = opIterator.next();
-                operation.setMessageReceiver(JAXWSMessageReceiver.class.newInstance());
-                
-                for(Method method : classMethods){
-                    String axisOpName = operation.getName().getLocalPart();
-                    if(method.getName().equals(axisOpName)){
-                        fillOperationInformation(method, operation, dbc);
-                    }
-                }
-            }
+        for (Iterator<AxisOperation> opIterator = service.getOperations(); opIterator.hasNext();) {
+			AxisOperation operation = opIterator.next();
+			operation.setMessageReceiver(JAXWSMessageReceiver.class.newInstance());
+
+			for (Method method : classMethods) {
+				String axisOpName = operation.getName().getLocalPart();
+				if (method.getName().equals(axisOpName)) {
+					fillOperationInformation(method, operation, dbc);
+				}
+			}
+		}
         
         dbc.setWebServiceAnnot(serviceAnnot);
-            dbc.setWsdlDefinition(wsdlDefinition);
-            dbc.setClassName(endpointClassName);
-            dbc.setCustomWsdlGenerator(new WSDLGeneratorImpl(wsdlDefinition));
-            dbcMap.put(endpointClassName, dbc);
+        dbc.setWsdlDefinition(wsdlDefinition);
+        dbc.setClassName(endpointClassName);
+        dbc.setCustomWsdlGenerator(new WSDLGeneratorImpl(wsdlDefinition));
+        dbcMap.put(endpointClassName, dbc);
         List<ServiceDescription> serviceDescList = DescriptionFactory.createServiceDescriptionFromDBCMap(dbcMap);
         ServiceDescription sd = serviceDescList.get(0);
         Parameter serviceDescription = new Parameter(EndpointDescription.AXIS_SERVICE_PARAMETER, sd.getEndpointDescriptions()[0]);
@@ -205,7 +206,7 @@ public class AxisServiceGenerator {
                      }
                  }
                  
-                 ParameterDescriptionComposite pdc = new ParameterDescriptionComposite();
+                ParameterDescriptionComposite pdc = new ParameterDescriptionComposite();
                 WebParamAnnot webParamAnnot = WebParamAnnot.createWebParamAnnotImpl();
             
                 webParamAnnot.setName(element.getName());
@@ -214,8 +215,8 @@ public class AxisServiceGenerator {
                 Class[] paramTypes = method.getParameterTypes();
                     
                 for(Class paramType : paramTypes){
-                        String strParamType = paramType.toString();
-                        pdc.setParameterType(strParamType.split(" ")[1]);
+                    String strParamType = paramType.toString();
+                    pdc.setParameterType(strParamType.split(" ")[1]);
                 }
                     
                 mdc.addParameterDescriptionComposite(pdc);
@@ -260,14 +261,14 @@ public class AxisServiceGenerator {
                          }
                      }
                      
-                     WebResultAnnot webResult = WebResultAnnot.createWebResultAnnotImpl();
+                    WebResultAnnot webResult = WebResultAnnot.createWebResultAnnotImpl();
                     webResult.setName(element.getName());
                     mdc.setWebResultAnnot(webResult);
 
                     ResponseWrapperAnnot responseWrap = ResponseWrapperAnnot.createResponseWrapperAnnotImpl();
-                     responseWrap.setClassName(getWrapperClassName(outAxisMessage.getElementQName()));
-                     mdc.setResponseWrapperAnnot(responseWrap);
-                     }
+                    responseWrap.setClassName(getWrapperClassName(outAxisMessage.getElementQName()));
+                    mdc.setResponseWrapperAnnot(responseWrap);
+                   }
                  
                  }
          }
