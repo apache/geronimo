@@ -157,11 +157,21 @@
 
     <module name="org.apache.geronimo.configs/axis2-deployer/${version}/car" 
             condition="props['org.apache.geronimo.jaxws.provider'] == 'axis2'">
-        <!-- this gbean is not yet written -->
-		<!--<gbean name="Axis2ServiceRefBuilder">
-            <attribute name="eeNamespaces">http://java.sun.com/xml/ns/j2ee,http://java.sun.com/xml/ns/javaee</attribute>
-        </gbean>-->
-    </module>
+
+        <gbean name="Axis2ModuleBuilderExtension">
+            <attribute name="listener">?name=JettyWebContainer</attribute>
+            <attribute name="defaultEnvironment">
+              <environment xmlns="http://geronimo.apache.org/xml/ns/deployment-1.2">
+                <dependencies>
+                    <dependency>
+                        <groupId>org.apache.geronimo.configs</groupId>
+                        <artifactId>jetty6</artifactId>
+                        <type>car</type>
+                    </dependency>
+                </dependencies>
+              </environment>
+             </attribute>
+        </gbean>    </module>
 
     <module name="org.apache.geronimo.configs/cxf-deployer/${version}/car" 
             condition="props.getProperty('org.apache.geronimo.jaxws.provider', 'cxf') == 'cxf'">

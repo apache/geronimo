@@ -39,12 +39,12 @@ public class Axis2WebServiceContainerFactoryGBean implements WebServiceContainer
 
     private static final Log log = LogFactory.getLog(Axis2WebServiceContainerFactoryGBean.class);
     private final ClassLoader classLoader;
-    private final org.apache.geronimo.axis2.PortInfo portInfo;
+    private final org.apache.geronimo.jaxws.PortInfo portInfo;
     private final String endpointClassName;
     private URL configurationBaseUrl;
     private Context context;
 
-    public Axis2WebServiceContainerFactoryGBean(org.apache.geronimo.axis2.PortInfo portInfo, 
+    public Axis2WebServiceContainerFactoryGBean(org.apache.geronimo.jaxws.PortInfo portInfo, 
             String endpointClassName, 
             ClassLoader classLoader, 
             Map componentContext,
@@ -78,7 +78,7 @@ public class Axis2WebServiceContainerFactoryGBean implements WebServiceContainer
 
     static {
         GBeanInfoBuilder infoBuilder = GBeanInfoBuilder.createStatic(Axis2WebServiceContainerFactoryGBean.class, NameFactory.GERONIMO_SERVICE);
-        infoBuilder.addAttribute("portInfo", org.apache.geronimo.axis2.PortInfo.class, true, true);
+        infoBuilder.addAttribute("portInfo", org.apache.geronimo.jaxws.PortInfo.class, true, true);
         infoBuilder.addAttribute("endpointClassName", String.class, true, true);
         infoBuilder.addAttribute("classLoader", ClassLoader.class, false);
         infoBuilder.addAttribute("componentContext", Map.class, true, true);

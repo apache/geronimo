@@ -17,44 +17,6 @@
 
 package org.apache.geronimo.axis2.builder;
 
-import org.apache.axis2.jaxws.javaee.HandlerChainsType;
-import org.apache.axis2.jaxws.javaee.PortComponentType;
-import org.apache.axis2.jaxws.javaee.ServiceImplBeanType;
-import org.apache.axis2.jaxws.javaee.WebserviceDescriptionType;
-import org.apache.axis2.jaxws.javaee.WebservicesType;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.apache.geronimo.axis2.Axis2WebServiceContainerFactoryGBean;
-import org.apache.geronimo.axis2.client.Axis2ServiceReference;
-import org.apache.geronimo.common.DeploymentException;
-import org.apache.geronimo.deployment.DeploymentContext;
-import org.apache.geronimo.deployment.util.DeploymentUtil;
-import org.apache.geronimo.gbean.AbstractName;
-import org.apache.geronimo.gbean.GBeanData;
-import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.gbean.GBeanInfoBuilder;
-import org.apache.geronimo.j2ee.deployment.Module;
-import org.apache.geronimo.j2ee.deployment.WebModule;
-import org.apache.geronimo.j2ee.deployment.WebServiceBuilder;
-import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
-import org.apache.geronimo.jaxws.PortInfo;
-import org.apache.geronimo.jaxws.builder.EndpointInfoBuilder;
-import org.apache.geronimo.jaxws.builder.JAXWSServiceBuilder;
-import org.apache.geronimo.jaxws.client.EndpointInfo;
-import org.apache.geronimo.kernel.GBeanNotFoundException;
-import org.apache.geronimo.kernel.repository.Environment;
-import org.apache.geronimo.xbeans.geronimo.naming.GerServiceRefType;
-import org.apache.geronimo.xbeans.javaee.ServiceRefHandlerChainsType;
-
-import javax.wsdl.Definition;
-import javax.wsdl.factory.WSDLFactory;
-import javax.wsdl.xml.WSDLReader;
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBElement;
-import javax.xml.bind.JAXBException;
-import javax.xml.bind.Unmarshaller;
-import javax.xml.namespace.QName;
-import javax.xml.transform.stream.StreamSource;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -66,11 +28,42 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.jar.JarFile;
 
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBElement;
+import javax.xml.bind.JAXBException;
+import javax.xml.bind.Unmarshaller;
+import javax.xml.namespace.QName;
+import javax.xml.transform.stream.StreamSource;
+
+import org.apache.axis2.jaxws.javaee.HandlerChainsType;
+import org.apache.axis2.jaxws.javaee.PortComponentType;
+import org.apache.axis2.jaxws.javaee.ServiceImplBeanType;
+import org.apache.axis2.jaxws.javaee.WebserviceDescriptionType;
+import org.apache.axis2.jaxws.javaee.WebservicesType;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.apache.geronimo.axis2.Axis2WebServiceContainerFactoryGBean;
+import org.apache.geronimo.axis2.client.Axis2ServiceReference;
+import org.apache.geronimo.common.DeploymentException;
+import org.apache.geronimo.deployment.DeploymentContext;
+import org.apache.geronimo.gbean.GBeanData;
+import org.apache.geronimo.gbean.GBeanInfo;
+import org.apache.geronimo.gbean.GBeanInfoBuilder;
+import org.apache.geronimo.j2ee.deployment.Module;
+import org.apache.geronimo.j2ee.deployment.WebModule;
+import org.apache.geronimo.j2ee.deployment.WebServiceBuilder;
+import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
+import org.apache.geronimo.jaxws.PortInfo;
+import org.apache.geronimo.jaxws.builder.EndpointInfoBuilder;
+import org.apache.geronimo.jaxws.builder.JAXWSServiceBuilder;
+import org.apache.geronimo.jaxws.client.EndpointInfo;
+import org.apache.geronimo.kernel.repository.Environment;
+import org.apache.geronimo.xbeans.geronimo.naming.GerServiceRefType;
+import org.apache.geronimo.xbeans.javaee.ServiceRefHandlerChainsType;
+
 public class Axis2Builder extends JAXWSServiceBuilder {
 
 	private static final Log log = LogFactory.getLog(Axis2Builder.class);
-	
-	private Definition wsdlDefinition = null;
 	
     public Axis2Builder(Environment defaultEnviroment) {
     	super(defaultEnviroment);
@@ -120,28 +113,7 @@ public class Axis2Builder extends JAXWSServiceBuilder {
 
                 for (PortComponentType port : desc.getPortComponent()) {
 
-                    org.apache.geronimo.axis2.PortInfo portInfo = new org.apache.geronimo.axis2.PortInfo();
-                    
-                    if(wsdlFile != null && !wsdlFile.equals("")){
-                    	URL wsdlURL = DeploymentUtil.createJarURL(moduleFile, wsdlFile);
-                    	InputStream wsdlStream = wsdlURL.openStream();
-        				if(wsdlStream == null){
-        					throw new DeploymentException("unable to read descriptor "+wsdlURL);
-        				}else {
-        					try {
-        						WSDLFactory factory = WSDLFactory.newInstance();
-        						WSDLReader reader = factory.newWSDLReader();
-        						reader.setFeature("javax.wsdl.importDocuments", true);
-        						reader.setFeature("javax.wsdl.verbose", false);
-        						wsdlDefinition = reader.readWSDL(wsdlURL.toString());
-        						portInfo.setWsdlDefinition(wsdlDefinition);
-        						wsdlStream.close();
-        					} catch (RuntimeException e) {
-        						throw new DeploymentException("invalid WSDL provided "+wsdlURL);
-        					}
-        				}
-                    }
-
+                    PortInfo portInfo = new PortInfo();
                     String serviceLink = null;
                     ServiceImplBeanType beanType = port.getServiceImplBean();
                     if (beanType.getEjbLink() != null) {
@@ -224,7 +196,7 @@ public class Axis2Builder extends JAXWSServiceBuilder {
         Map portInfoMap = (Map) sharedContext.get(getKey());
         
         if(portInfoMap != null && portInfoMap.get(servletName) != null){
-        	org.apache.geronimo.jaxws.PortInfo portInfo = (org.apache.geronimo.jaxws.PortInfo) portInfoMap.get(servletName);
+        	PortInfo portInfo = (PortInfo) portInfoMap.get(servletName);
     		processURLPattern(contextRoot, portInfo);
         }
         
@@ -283,7 +255,7 @@ public class Axis2Builder extends JAXWSServiceBuilder {
         return in;
     }
 
-    private void processURLPattern(String contextRoot, org.apache.geronimo.jaxws.PortInfo portInfo) throws DeploymentException {
+    private void processURLPattern(String contextRoot, PortInfo portInfo) throws DeploymentException {
         //if the user specifies a url-pattern, set it here. 
         String oldup = portInfo.getLocation();
         if (oldup == null || oldup.length() == 0) { 

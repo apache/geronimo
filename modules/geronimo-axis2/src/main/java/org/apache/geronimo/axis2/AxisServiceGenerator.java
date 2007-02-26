@@ -18,9 +18,13 @@ package org.apache.geronimo.axis2;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.io.StringReader;
 import java.lang.reflect.Method;
+import java.net.MalformedURLException;
 import java.net.URI;
+import java.net.URL;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -29,7 +33,9 @@ import java.util.Map;
 import javax.wsdl.Definition;
 import javax.wsdl.Port;
 import javax.wsdl.Service;
+import javax.wsdl.WSDLException;
 import javax.wsdl.factory.WSDLFactory;
+import javax.wsdl.xml.WSDLReader;
 import javax.wsdl.xml.WSDLWriter;
 import javax.xml.namespace.QName;
 import javax.xml.ws.WebServiceException;
@@ -61,9 +67,9 @@ import org.apache.axis2.jaxws.server.JAXWSMessageReceiver;
 import org.apache.axis2.util.XMLUtils;
 import org.apache.axis2.wsdl.WSDLConstants;
 import org.apache.axis2.wsdl.WSDLUtil;
+import org.apache.geronimo.jaxws.PortInfo;
 import org.apache.ws.commons.schema.XmlSchemaComplexType;
 import org.apache.ws.commons.schema.XmlSchemaElement;
-import org.apache.ws.commons.schema.XmlSchemaObject;
 import org.apache.ws.commons.schema.XmlSchemaParticle;
 import org.apache.ws.commons.schema.XmlSchemaSequence;
 import org.apache.ws.commons.schema.XmlSchemaType;
@@ -81,12 +87,12 @@ public class AxisServiceGenerator {
         super();
     }
     
-    public AxisService getServiceFromWSDL(PortInfo portInfo, String endpointClassName, ClassLoader classLoader) throws Exception {
+    public AxisService getServiceFromWSDL(PortInfo portInfo, String endpointClassName, URL configurationBaseUrl, ClassLoader classLoader) throws Exception {
         WSDLToAxisServiceBuilder wsdlBuilder = null;
         WSDLFactory factory = WSDLFactory.newInstance();
         WSDLWriter writer = factory.newWSDLWriter();
+        Definition wsdlDefinition = getWSDLDefition(portInfo, configurationBaseUrl, classLoader);
         
-        Definition wsdlDefinition = portInfo.getWsdlDefinition();
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         writer.writeWSDL(wsdlDefinition, out);
         String wsdlContent = out.toString(WSDL_ENCODING); //Will the Axis2 give us this information soon ?
@@ -129,17 +135,17 @@ public class AxisServiceGenerator {
         Class endPointClass = classLoader.loadClass(endpointClassName);
         Method[] classMethods = endPointClass.getMethods();
          
-        for (Iterator<AxisOperation> opIterator = service.getOperations(); opIterator.hasNext();) {
-			AxisOperation operation = opIterator.next();
-			operation.setMessageReceiver(JAXWSMessageReceiver.class.newInstance());
-
-			for (Method method : classMethods) {
-				String axisOpName = operation.getName().getLocalPart();
-				if (method.getName().equals(axisOpName)) {
-					fillOperationInformation(method, operation, dbc);
-				}
-			}
-		}
+        for(Iterator<AxisOperation> opIterator = service.getOperations() ; opIterator.hasNext() ;){
+            AxisOperation operation = opIterator.next();
+            operation.setMessageReceiver(JAXWSMessageReceiver.class.newInstance());
+                
+            for(Method method : classMethods){
+                String axisOpName = operation.getName().getLocalPart();
+                if(method.getName().equals(axisOpName)){
+                    fillOperationInformation(method, operation, dbc);
+                }
+            }
+        }
         
         dbc.setWebServiceAnnot(serviceAnnot);
         dbc.setWsdlDefinition(wsdlDefinition);
@@ -155,56 +161,56 @@ public class AxisServiceGenerator {
     }
     
     private void fillOperationInformation(Method method, AxisOperation operation, DescriptionBuilderComposite dbc) throws Exception{
-            MethodDescriptionComposite mdc = new MethodDescriptionComposite();
-            WebMethodAnnot webMethodAnnot = WebMethodAnnot.createWebMethodAnnotImpl();
-            webMethodAnnot.setOperationName(method.getName());
-            
-            if(operation.getStyle().equals(AxisOperation.STYLE_DOC)){
-                fillDocOperationInfo(method, operation, dbc, mdc, webMethodAnnot);
-            }else if(operation.getStyle().equals(AxisOperation.STYLE_RPC)){
-                throw new RuntimeException("Not Yet Implemented");
-            }
+        MethodDescriptionComposite mdc = new MethodDescriptionComposite();
+        WebMethodAnnot webMethodAnnot = WebMethodAnnot.createWebMethodAnnotImpl();
+        webMethodAnnot.setOperationName(method.getName());
+           
+        if(operation.getStyle().equals(AxisOperation.STYLE_DOC)){
+            fillDocOperationInfo(method, operation, dbc, mdc, webMethodAnnot);
+        }else if(operation.getStyle().equals(AxisOperation.STYLE_RPC)){
+            throw new RuntimeException("Not Yet Implemented");
+        }
     }
     
     private void fillDocOperationInfo(Method method, AxisOperation operation, DescriptionBuilderComposite dbc, MethodDescriptionComposite mdc, WebMethodAnnot webMethodAnnot ) throws Exception{
         mdc.setWebMethodAnnot(webMethodAnnot);
         mdc.setMethodName(method.getName());
 
-         String MEP = operation.getMessageExchangePattern();
+        String MEP = operation.getMessageExchangePattern();
          
-         if (WSDLUtil.isInputPresentForMEP(MEP)) {
-             AxisMessage inAxisMessage = operation.getMessage(WSDLConstants.MESSAGE_LABEL_IN_VALUE);
-             if(inAxisMessage != null){
+        if (WSDLUtil.isInputPresentForMEP(MEP)) {
+            AxisMessage inAxisMessage = operation.getMessage(WSDLConstants.MESSAGE_LABEL_IN_VALUE);
+            if(inAxisMessage != null){
                  
-                 XmlSchemaElement element = inAxisMessage.getSchemaElement();
-                 XmlSchemaType schemaType = element.getSchemaType();
+                XmlSchemaElement element = inAxisMessage.getSchemaElement();
+                XmlSchemaType schemaType = element.getSchemaType();
                  
-                 if(schemaType instanceof XmlSchemaComplexType){
+                if(schemaType instanceof XmlSchemaComplexType){
 
-                     XmlSchemaComplexType complexSchemaType = (XmlSchemaComplexType)element.getSchemaType();
-                     XmlSchemaParticle particle = complexSchemaType.getParticle();
+                    XmlSchemaComplexType complexSchemaType = (XmlSchemaComplexType)element.getSchemaType();
+                    XmlSchemaParticle particle = complexSchemaType.getParticle();
                      
 //                     TODO: What if we have more than one complex type in a sequence ???
-                     if (particle instanceof XmlSchemaSequence) {
-                         XmlSchemaSequence xmlSchemaSequence = (XmlSchemaSequence) particle;
-                         Iterator iterator = xmlSchemaSequence.getItems().getIterator();
+                    if (particle instanceof XmlSchemaSequence) {
+                        XmlSchemaSequence xmlSchemaSequence = (XmlSchemaSequence) particle;
+                        Iterator iterator = xmlSchemaSequence.getItems().getIterator();
                          
-                         while (iterator.hasNext()) {
-                             XmlSchemaElement innerElement = (XmlSchemaElement) iterator.next();
-                             XmlSchemaType innerElementSchemaType = innerElement.getSchemaType();
+                        while (iterator.hasNext()) {
+                            XmlSchemaElement innerElement = (XmlSchemaElement) iterator.next();
+                            XmlSchemaType innerElementSchemaType = innerElement.getSchemaType();
                              
-                             if(!(innerElementSchemaType instanceof XmlSchemaComplexType)){
-                                 element = innerElement;
-                                 break;
-                             }else { 
-                                 XmlSchemaComplexType innerComplexSchemaType = (XmlSchemaComplexType)innerElementSchemaType;
-                                  XmlSchemaParticle innerParticle = innerComplexSchemaType.getParticle();
-                                  XmlSchemaSequence innerXmlSchemaSequence = (XmlSchemaSequence) innerParticle;
-                                  iterator = innerXmlSchemaSequence.getItems().getIterator();
-                             }
-                         }
-                     }
-                 }
+                            if(!(innerElementSchemaType instanceof XmlSchemaComplexType)){
+                                element = innerElement;
+                                break;
+                            }else { 
+                                XmlSchemaComplexType innerComplexSchemaType = (XmlSchemaComplexType)innerElementSchemaType;
+                                XmlSchemaParticle innerParticle = innerComplexSchemaType.getParticle();
+                                XmlSchemaSequence innerXmlSchemaSequence = (XmlSchemaSequence) innerParticle;
+                                iterator = innerXmlSchemaSequence.getItems().getIterator();
+                            }
+                        }
+                    }
+                }
                  
                 ParameterDescriptionComposite pdc = new ParameterDescriptionComposite();
                 WebParamAnnot webParamAnnot = WebParamAnnot.createWebParamAnnotImpl();
@@ -220,46 +226,46 @@ public class AxisServiceGenerator {
                 }
                     
                 mdc.addParameterDescriptionComposite(pdc);
-             }
-         }
+            }
+        }
          
-         if (WSDLUtil.isOutputPresentForMEP(MEP)) {
-             AxisMessage outAxisMessage = operation.getMessage(WSDLConstants.MESSAGE_LABEL_OUT_VALUE);
+        if (WSDLUtil.isOutputPresentForMEP(MEP)) {
+            AxisMessage outAxisMessage = operation.getMessage(WSDLConstants.MESSAGE_LABEL_OUT_VALUE);
              
-             if(outAxisMessage != null){
+            if(outAxisMessage != null){
                  
-                 if(!method.getReturnType().toString().equals("void")){
-                     mdc.setReturnType(method.getReturnType().toString().split(" ")[1]);
+                if(!method.getReturnType().toString().equals("void")){
+                    mdc.setReturnType(method.getReturnType().toString().split(" ")[1]);
                      
-                     XmlSchemaElement element = outAxisMessage.getSchemaElement();
-                     XmlSchemaType schemaType = element.getSchemaType();
+                    XmlSchemaElement element = outAxisMessage.getSchemaElement();
+                    XmlSchemaType schemaType = element.getSchemaType();
                      
-                     if(schemaType instanceof XmlSchemaComplexType){
+                    if(schemaType instanceof XmlSchemaComplexType){
 
-                         XmlSchemaComplexType complexSchemaType = (XmlSchemaComplexType)element.getSchemaType();
-                         XmlSchemaParticle particle = complexSchemaType.getParticle();
+                        XmlSchemaComplexType complexSchemaType = (XmlSchemaComplexType)element.getSchemaType();
+                        XmlSchemaParticle particle = complexSchemaType.getParticle();
                          
-//                         TODO: What if we have more than one complex type in a sequence ???
-                         if (particle instanceof XmlSchemaSequence) {
-                             XmlSchemaSequence xmlSchemaSequence = (XmlSchemaSequence) particle;
-                             Iterator iterator = xmlSchemaSequence.getItems().getIterator();
+//                      TODO: What if we have more than one complex type in a sequence ???
+                        if (particle instanceof XmlSchemaSequence) {
+                            XmlSchemaSequence xmlSchemaSequence = (XmlSchemaSequence) particle;
+                            Iterator iterator = xmlSchemaSequence.getItems().getIterator();
                              
-                             while (iterator.hasNext()) {
-                                 XmlSchemaElement innerElement = (XmlSchemaElement) iterator.next();
-                                 XmlSchemaType innerElementSchemaType = innerElement.getSchemaType();
+                            while (iterator.hasNext()) {
+                                XmlSchemaElement innerElement = (XmlSchemaElement) iterator.next();
+                                XmlSchemaType innerElementSchemaType = innerElement.getSchemaType();
                                  
-                                 if(!(innerElementSchemaType instanceof XmlSchemaComplexType)){
-                                     element = innerElement;
-                                     break;
-                                 }else { 
-                                     XmlSchemaComplexType innerComplexSchemaType = (XmlSchemaComplexType)innerElementSchemaType;
-                                      XmlSchemaParticle innerParticle = innerComplexSchemaType.getParticle();
-                                      XmlSchemaSequence innerXmlSchemaSequence = (XmlSchemaSequence) innerParticle;
-                                      iterator = innerXmlSchemaSequence.getItems().getIterator();
-                                 }
-                             }
-                         }
-                     }
+                                if(!(innerElementSchemaType instanceof XmlSchemaComplexType)){
+                                    element = innerElement;
+                                    break;
+                                }else { 
+                                    XmlSchemaComplexType innerComplexSchemaType = (XmlSchemaComplexType)innerElementSchemaType;
+                                    XmlSchemaParticle innerParticle = innerComplexSchemaType.getParticle();
+                                    XmlSchemaSequence innerXmlSchemaSequence = (XmlSchemaSequence) innerParticle;
+                                    iterator = innerXmlSchemaSequence.getItems().getIterator();
+                                }
+                            }
+                        }
+                    }
                      
                     WebResultAnnot webResult = WebResultAnnot.createWebResultAnnotImpl();
                     webResult.setName(element.getName());
@@ -268,18 +274,17 @@ public class AxisServiceGenerator {
                     ResponseWrapperAnnot responseWrap = ResponseWrapperAnnot.createResponseWrapperAnnotImpl();
                     responseWrap.setClassName(getWrapperClassName(outAxisMessage.getElementQName()));
                     mdc.setResponseWrapperAnnot(responseWrap);
-                   }
-                 
-                 }
-         }
+                }     
+            }
+        }
          
-         List faultMessages = operation.getFaultMessages(); 
-         if(faultMessages != null){//TODO Implement it 
+        List faultMessages = operation.getFaultMessages(); 
+        if(faultMessages != null){//TODO Implement it 
              
-         }
+        }
          
-         mdc.setWebMethodAnnot(webMethodAnnot);
-         dbc.addMethodDescriptionComposite(mdc);
+        mdc.setWebMethodAnnot(webMethodAnnot);
+        dbc.addMethodDescriptionComposite(mdc);
     }
     
     //TODO: Has to verify how JAXB default class wrapper class generation logic
@@ -334,5 +339,59 @@ public class AxisServiceGenerator {
             composite.setWsdlDefinition(testMap);
             return composite;
         }
+    }
+    
+    protected Definition getWSDLDefition(PortInfo portInfo, URL configurationBaseUrl, ClassLoader classLoader) throws IOException, WSDLException {
+        String wsdlFile = portInfo.getWsdlFile();
+        Definition wsdlDefinition = null;
+        
+        if(wsdlFile == null || wsdlFile.equals(""))
+            return null;
+        else {
+            URL wsdlURL = getWsdlURL(wsdlFile, configurationBaseUrl, classLoader);
+            InputStream wsdlStream;
+            try {
+                wsdlStream = wsdlURL.openStream();
+                if(wsdlStream == null){
+                    throw new IOException("unable to read descriptor " + wsdlURL);
+                }
+                else {
+                    WSDLFactory factory = WSDLFactory.newInstance();
+                    WSDLReader reader = factory.newWSDLReader();
+                    reader.setFeature("javax.wsdl.importDocuments", true);
+                    reader.setFeature("javax.wsdl.verbose", false);
+                    wsdlDefinition = reader.readWSDL(wsdlURL.toString());
+                    wsdlStream.close();                   
+                }
+            } catch (RuntimeException e) {
+                throw new RuntimeException("invalid WSDL provided " + wsdlURL);
+            } 
+            return wsdlDefinition;
+        }
+    }
+    
+    private URL getWsdlURL(String wsdlFile, URL configurationBaseUrl, ClassLoader classLoader) {
+        URL wsdlURL = null;
+        if (wsdlFile != null) {
+
+            try {
+                wsdlURL = new URL(wsdlFile);
+            } catch (MalformedURLException e) {
+                // Not a URL, try as a resource
+                wsdlURL = classLoader.getResource("/" + wsdlFile);
+
+                if (wsdlURL == null && configurationBaseUrl != null) {
+                    // Cannot get it as a resource, try with
+                    // configurationBaseUrl
+                    try {
+                        wsdlURL = new URL(configurationBaseUrl.toString()
+                                + wsdlFile);
+                    } catch (MalformedURLException ee) {
+                        // ignore
+                    }
+                }
+            }
+        }
+        return wsdlURL;
     }
 }

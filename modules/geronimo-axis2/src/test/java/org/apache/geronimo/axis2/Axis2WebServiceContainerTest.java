@@ -17,16 +17,12 @@
 package org.apache.geronimo.axis2;
 
 import java.io.ByteArrayOutputStream;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 import java.util.HashMap;
 
-import javax.wsdl.Definition;
-import javax.wsdl.factory.WSDLFactory;
-import javax.wsdl.xml.WSDLReader;
-
+import org.apache.geronimo.jaxws.PortInfo;
 import org.apache.geronimo.webservices.WebServiceContainer.Request;
 
 public class Axis2WebServiceContainerTest extends Axis2AbstractTestCase {
@@ -48,9 +44,7 @@ public class Axis2WebServiceContainerTest extends Axis2AbstractTestCase {
 
         PortInfo portInfo = new PortInfo();
         portInfo.setLocation("servlet");
-        File file = new File(getTestFile("src/test/resources/"+wsdlFile));
-        portInfo.setWsdlDefinition(readWSDL(file.toURL().toString()));
-        
+     
         try {
             Axis2Request req = new Axis2Request(504,
                     "text/xml; charset=utf-8",
@@ -70,7 +64,7 @@ public class Axis2WebServiceContainerTest extends Axis2AbstractTestCase {
             out.flush();
      
         } catch(Throwable ex){    
-        	ex.printStackTrace();
+            ex.printStackTrace();
             throw new Exception(ex.toString());
         }finally {
             if (in != null) {
@@ -81,15 +75,6 @@ public class Axis2WebServiceContainerTest extends Axis2AbstractTestCase {
                 }
             }
         }
-    }
-    
-    private Definition readWSDL(String url) throws Exception{
-        WSDLFactory factory = WSDLFactory.newInstance();
-        WSDLReader reader = factory.newWSDLReader();
-        reader.setFeature("javax.wsdl.importDocuments", true);
-        reader.setFeature("javax.wsdl.verbose", false);
-        Definition wsdlDefinition = reader.readWSDL(url);
-        return wsdlDefinition;
     }
 
     protected void setUp() throws Exception {

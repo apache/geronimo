@@ -70,6 +70,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.jaxws.JAXWSAnnotationProcessor;
 import org.apache.geronimo.jaxws.JNDIResolver;
+import org.apache.geronimo.jaxws.PortInfo;
 import org.apache.geronimo.jaxws.ServerJNDIResolver;
 import org.apache.geronimo.jaxws.annotations.AnnotationException;
 import org.apache.geronimo.webservices.WebServiceContainer;
@@ -85,7 +86,7 @@ public class Axis2WebServiceContainer implements WebServiceContainer {
 
     private transient final ClassLoader classLoader;
     private final String endpointClassName;
-    private final PortInfo portInfo;
+    private final org.apache.geronimo.jaxws.PortInfo portInfo;
     private ConfigurationContext configurationContext;
     private String contextRoot = null;
     private Map servicesMap;
@@ -94,6 +95,7 @@ public class Axis2WebServiceContainer implements WebServiceContainer {
     private Object endpointInstance;
     private List<Handler> chain;
     private AxisService service;
+    private URL configurationBaseUrl;
 
     public Axis2WebServiceContainer(PortInfo portInfo,
                                     String endpointClassName,
@@ -103,13 +105,14 @@ public class Axis2WebServiceContainer implements WebServiceContainer {
         this.classLoader = classLoader;
         this.endpointClassName = endpointClassName;
         this.portInfo = portInfo;
+        this.configurationBaseUrl = configurationBaseUrl;
         try {
             configurationContext = ConfigurationContextFactory.createDefaultConfigurationContext();
             configurationContext.setServicePath(portInfo.getLocation());
             
-            if(portInfo.getWsdlDefinition() != null){ //WSDL Has been provided
+            if(portInfo.getWsdlFile() != null && !portInfo.getWsdlFile().equals("")){ //WSDL file Has been provided
                 AxisServiceGenerator serviceGen = new AxisServiceGenerator();
-                service = serviceGen.getServiceFromWSDL(portInfo, endpointClassName, classLoader);
+                service = serviceGen.getServiceFromWSDL(portInfo, endpointClassName, configurationBaseUrl, classLoader);
                                             
             }else { //No WSDL, Axis2 will handle it. Is it ?
                 service = AxisService.createService(endpointClassName, configurationContext.getAxisConfiguration(), JAXWSMessageReceiver.class);
@@ -124,7 +127,7 @@ public class Axis2WebServiceContainer implements WebServiceContainer {
             throw new RuntimeException(e);
         }
         jndiResolver = new ServerJNDIResolver(context);
-    }
+    }  
 
     public void getWsdl(Request request, Response response) throws Exception {
         doService(request, response);
@@ -303,11 +306,14 @@ public class Axis2WebServiceContainer implements WebServiceContainer {
                 }
             }
             if (uri.getQuery().startsWith("wsdl")) {
-                if(portInfo.getWsdlDefinition() != null){
-                    WSDLFactory factory = WSDLFactory.newInstance();
-                    WSDLWriter writer = factory.newWSDLWriter();                    
-                    writer.writeWSDL(portInfo.getWsdlDefinition(), response.getOutputStream());
-                    return;
+                if (portInfo.getWsdlFile() != null && !portInfo.getWsdlFile().equals("")) { //wsdl file has been provided
+                    Definition wsdlDefinition = new AxisServiceGenerator().getWSDLDefition(portInfo, configurationBaseUrl, classLoader);
+                    if(wsdlDefinition != null){
+                        WSDLFactory factory = WSDLFactory.newInstance();
+                        WSDLWriter writer = factory.newWSDLWriter();                    
+                        writer.writeWSDL(wsdlDefinition, response.getOutputStream());
+                        return;
+                    }
                 }else {
                     service.printWSDL(response.getOutputStream());
                     return;
