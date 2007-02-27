@@ -1668,6 +1668,7 @@
             </activation>
 
             <modules>
+                <module>repository</module>
                 <module>testsupport</module>
                 <module>modules</module>
                 <module>maven-plugins</module>
@@ -1751,6 +1752,7 @@
             </activation>
 
             <modules>
+                <module>repository</module>
                 <module>applications</module>
                 <module>configs</module>
                 <module>assemblies</module>
@@ -1768,6 +1770,7 @@
             </activation>
 
             <modules>
+                <module>repository</module>
                 <module>testsupport</module>
                 <module>modules</module>
                 <module>maven-plugins</module>
@@ -1787,6 +1790,7 @@
             </activation>
 
             <modules>
+                <module>repository</module>
                 <module>testsupport</module>
                 <module>modules</module>
                 <module>maven-plugins</module>
