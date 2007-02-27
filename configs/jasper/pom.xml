@@ -91,13 +91,13 @@
         <dependency>
             <groupId>org.apache.myfaces.core</groupId>
             <artifactId>myfaces-api</artifactId>
-            <version>1.2.0-SNAPSHOT</version>
+            <version>1.2.0-20070226.0500</version>
         </dependency>
 
         <dependency>
             <groupId>org.apache.myfaces.core</groupId>
             <artifactId>myfaces-impl</artifactId>
-            <version>1.2.0-SNAPSHOT</version>
+            <version>1.2.0-20070226.0500</version>
         </dependency>
 
         <dependency>
@@ -122,19 +122,5 @@
         <!-- end myfaces dependencies -->
 
     </dependencies>
-
-    <repositories>
-        <repository>
-            <id>module-local</id>
-            <url>file://${pom.basedir}/repository</url>
-             <layout>default</layout>
-             <snapshots>
-                  <enabled>true</enabled>
-             </snapshots>
-             <releases>
-                  <enabled>false</enabled>
-             </releases>
-         </repository>
-    </repositories>
 
 </project>

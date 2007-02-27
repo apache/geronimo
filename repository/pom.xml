@@ -19,48 +19,66 @@
 <!-- $Rev$ $Date$ -->
 
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-
+    
     <modelVersion>4.0.0</modelVersion>
-
+    
     <parent>
-        <groupId>org.apache.geronimo.applications</groupId>
-        <artifactId>applications</artifactId>
+        <groupId>org.apache.geronimo</groupId>
+        <artifactId>geronimo</artifactId>
         <version>2.0-M3-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
-    <artifactId>geronimo-uddi-server</artifactId>
-    <name>Geronimo Applications :: UDDI Server</name>
-    <packaging>war</packaging>
+    <artifactId>repository</artifactId>
+    <name>Geronimo Local Repository</name>
+    <packaging>jar</packaging>
 
     <dependencies>
+      <dependency>
+            <groupId>dwr</groupId>
+            <artifactId>dwr</artifactId>
+            <scope>provided</scope>
+        </dependency>
 
-        <dependency>
+      <dependency>
             <groupId>juddi</groupId>
             <artifactId>juddi</artifactId>
             <scope>provided</scope>
         </dependency>
 
         <dependency>
-            <groupId>org.apache.geronimo.specs</groupId>
-            <artifactId>geronimo-jsp_2.1_spec</artifactId>
-            <scope>provided</scope>
+          <groupId>org.dojotoolkit</groupId>
+          <artifactId>dojo</artifactId>
+          <version>0.4.1</version>
+          <type>zip</type>
         </dependency>
 
+        <dependency>
+            <groupId>org.apache.myfaces.core</groupId>
+            <artifactId>myfaces-api</artifactId>
+            <version>1.2.0-20070226.0500</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.myfaces.core</groupId>
+            <artifactId>myfaces-impl</artifactId>
+            <version>1.2.0-20070226.0500</version>
+        </dependency>
     </dependencies>
-
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>jspc-maven-plugin</artifactId>
-            </plugin>
-
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-war-plugin</artifactId>
-            </plugin>
-        </plugins>
-    </build>
+    
+   <repositories>
+      <repository>
+            <id>module-local</id>
+            <name>Local Repository</name>
+            <url>file://${pom.basedir}/</url>
+             <layout>default</layout>
+             <snapshots>
+                  <enabled>false</enabled>
+             </snapshots>
+             <releases>
+                  <enabled>true</enabled>
+             </releases>
+         </repository> 
+   </repositories>
     
 </project>

@@ -27,7 +27,7 @@ import java.util.regex.Pattern;
 /**
  * Tracks sets of HTTP actions for use while computing permissions during web deployment.
  *
- * @version $Rev:$ $Date:$
+ * @version $Rev$ $Date$
  */
 public class HTTPMethods {
     private static final Pattern TOKEN_PATTERN = Pattern.compile("[!-~&&[^\\(\\)\\<\\>@,;:\\\\\"/\\[\\]\\?=\\{\\}]]*");
