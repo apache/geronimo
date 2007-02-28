@@ -183,7 +183,25 @@ public abstract class AbstractNamingBuilder implements NamingBuilder {
     }
 
     protected static XmlObject convert(XmlObject xmlObject, NamespaceElementConverter converter, SchemaType type) throws DeploymentException {
+        Map ns = new HashMap();
+        XmlCursor cursor = xmlObject.newCursor();
+        try {
+            cursor.getAllNamespaces(ns);
+        } finally {
+            cursor.dispose();
+        }
         xmlObject = xmlObject.copy();
+        cursor = xmlObject.newCursor();
+        cursor.toNextToken();
+        try {
+            for (Object o : ns.entrySet()) {
+                Map.Entry entry = (Map.Entry) o;
+                cursor.insertNamespace((String) entry.getKey(), (String) entry.getValue());
+            }
+        } finally {
+            cursor.dispose();
+        }
+
         if (xmlObject.schemaType() != type) {
             converter.convertElement(xmlObject);
             xmlObject = xmlObject.changeType(type);
