@@ -30,7 +30,7 @@
     </parent>
 
     <artifactId>dojo-tomcat</artifactId>
-    <name>Geronimo Configs :: Dojo app Tomcat</name>
+    <name>Geronimo Configs :: Dojo app - Tomcat</name>
     <packaging>car</packaging>
     
     <dependencies>

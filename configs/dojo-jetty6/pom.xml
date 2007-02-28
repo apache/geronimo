@@ -30,7 +30,7 @@
     </parent>
 
     <artifactId>dojo-jetty6</artifactId>
-    <name>Geronimo Configs :: Dojo app jetty6</name>
+    <name>Geronimo Configs :: Dojo app - Jetty6</name>
     <packaging>car</packaging>
 
     <dependencies>
