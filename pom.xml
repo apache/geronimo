@@ -537,26 +537,26 @@
             </dependency>
             
             <!--
-            NOTE: Using AMQ 4.1-incubator-SNAPSHOT (AIO 3.x-incubator-SNAPSHOT) to 
+            NOTE: Using AMQ 4.1-SNAPSHOT (AIO 3.1-SNAPSHOT) to 
                   pick up spec compliance fix for AMQ-1165 until AMQ 4.1.1 is released.
             -->
             
             <dependency>
                 <groupId>org.apache.activemq</groupId>
                 <artifactId>activeio-core</artifactId>
-                <version>3.x-incubator-SNAPSHOT</version>
+                <version>3.1-SNAPSHOT</version>
             </dependency>
 
             <dependency>
                 <groupId>org.apache.activemq</groupId>
                 <artifactId>activemq-core</artifactId>
-                <version>4.1-incubator-SNAPSHOT</version>
+                <version>4.1-SNAPSHOT</version>
             </dependency>
 
             <dependency>
                 <groupId>org.apache.activemq</groupId>
                 <artifactId>activemq-ra</artifactId>
-                <version>4.1-incubator-SNAPSHOT</version>
+                <version>4.1-SNAPSHOT</version>
             </dependency>
 
             <dependency>
