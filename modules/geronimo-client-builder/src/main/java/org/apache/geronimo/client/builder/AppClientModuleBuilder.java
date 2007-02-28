@@ -200,8 +200,8 @@ public class AppClientModuleBuilder implements ModuleBuilder, CorbaGBeanNameSour
         assert !targetPath.endsWith("/"): "targetPath must not end with a '/'";
         assert (earName == null) == (earEnvironment == null): "if earName is not null you must supply earEnvironment as well";
 
-        String specDD;
-        ApplicationClientType appClient;
+        String specDD = null;
+        ApplicationClientType appClient = null;
         try {
             if (specDDUrl == null) {
                 specDDUrl = DeploymentUtil.createJarURL(moduleFile, "META-INF/application-client.xml");
@@ -210,18 +210,25 @@ public class AppClientModuleBuilder implements ModuleBuilder, CorbaGBeanNameSour
             // read in the entire specDD as a string, we need this for getDeploymentDescriptor
             // on the J2ee management object
             specDD = DeploymentUtil.readAll(specDDUrl);
-        } catch (Exception e) {
-            //no application-client.xml, not for us.
-            return null;
-        }
-        //we found application-client.xml, if it won't parse it's an error.
-        try {
-            // parse it
+            
+            //we found application-client.xml, if it won't parse it's an error.
             XmlObject xmlObject = XmlBeansUtil.parse(specDD);
             ApplicationClientDocument appClientDoc = convertToApplicationClientSchema(xmlObject);
             appClient = appClientDoc.getApplicationClient();
         } catch (XmlException e) {
             throw new DeploymentException("Unable to parse application-client.xml", e);
+        } catch (Exception e) {
+            //no application-client.xml
+        	try {
+				Manifest manifest = moduleFile.getManifest();
+				if(manifest == null || manifest.getMainAttributes().getValue(Attributes.Name.MAIN_CLASS) == null) {
+					//not for us
+					return null;
+				}
+			} catch (IOException e2) {
+				throw new DeploymentException(e2);
+			}
+			//continue processing considering this as an annotated app-client module with no spec dd
         }
 
         // parse vendor dd
