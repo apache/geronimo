@@ -348,7 +348,7 @@ public class AppClientModuleBuilder implements ModuleBuilder, CorbaGBeanNameSour
     }
 
     private GerApplicationClientType createDefaultPlan(String name, ApplicationClientType appClient, boolean standAlone, Environment environment) {
-        String id = appClient.getId();
+        /*String id = appClient.getId();
         if (id == null) {
             id = name;
             if (id.endsWith(".jar")) {
@@ -357,7 +357,7 @@ public class AppClientModuleBuilder implements ModuleBuilder, CorbaGBeanNameSour
             if (id.endsWith("/")) {
                 id = id.substring(0, id.length() - 1);
             }
-        }
+        }*/
 
         GerApplicationClientType geronimoAppClient = GerApplicationClientType.Factory.newInstance();
         EnvironmentType clientEnvironmentType = geronimoAppClient.addNewClientEnvironment();
