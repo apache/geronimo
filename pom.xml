@@ -1453,6 +1453,23 @@
                             <!-- Do not include META-INF/maven to avoid long file problems on windows -->
                             <addMavenDescriptor>false</addMavenDescriptor>
                         </archive>
+                        
+                        <!--
+                        HACK: Include legal files explicity, otherwise they will end up in the wrong path
+                              or in another jar file in the war.
+                        
+                        NOTE: targetPath is broken for webResources (as documented)
+                        -->
+                        <webResources>
+                            <resource>
+                                <directory>${pom.basedir}/target/classes</directory>
+                                <includes>
+                                    <include>META-INF/LICENSE*</include>
+                                    <include>META-INF/NOTICE*</include>
+                                    <include>META-INF/DISCLAIMER*</include>
+                                </includes>
+                            </resource>
+                        </webResources>
                     </configuration>
                 </plugin>
                 
