@@ -165,23 +165,4 @@
         </plugins>
     </build>
     
-    <!--
-    HACK: dwr:dwr:jar:1.1.1 is not available on a m2 repo, so include them here
-          to avoid needing to setup an m1 repo which causes problems resolving
-          dependencies.
-    -->
-    <repositories>
-        <repository>
-            <id>module-local</id>
-            <url>file://${pom.basedir}/repository</url>
-            <layout>default</layout>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-            <releases>
-                <enabled>true</enabled>
-            </releases>
-        </repository>
-    </repositories>
-    
 </project>

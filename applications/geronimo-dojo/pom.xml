@@ -51,20 +51,6 @@
     <!-- the dojo.zip file is not available in a maven repo yet
          so its kept here in a local repo for the time being -->
     
-    <repositories>
-        <repository>
-            <id>module-local</id>
-            <url>file://${pom.basedir}/repository</url>
-            <layout>default</layout>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-            <releases>
-                <enabled>true</enabled>
-            </releases>
-        </repository>
-    </repositories>
-
     <properties>
         <dojoVersion>0.4.1</dojoVersion>
     </properties>

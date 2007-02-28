@@ -23,51 +23,52 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>org.apache.geronimo.applications</groupId>
-        <artifactId>applications</artifactId>
+        <groupId>org.apache.geronimo</groupId>
+        <artifactId>geronimo</artifactId>
         <version>1.2-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
-    <artifactId>geronimo-uddi-server</artifactId>
-    <name>Geronimo Applications :: UDDI Server</name>
-    <packaging>war</packaging>
-
+    <artifactId>repository</artifactId>
+    <name>Geronimo Local Repository</name>
+    <packaging>jar</packaging>
+    
+    <description>
+        Container for local artifacts, this is a temporary solution until a more
+        permeant Geronimo specific repository solution can be implemented.
+    </description>
+    
     <dependencies>
+        <dependency>
+            <groupId>dwr</groupId>
+            <artifactId>dwr</artifactId>
+        </dependency>
 
         <dependency>
             <groupId>juddi</groupId>
             <artifactId>juddi</artifactId>
-            <scope>provided</scope>
         </dependency>
-
+        
         <dependency>
-            <groupId>org.apache.geronimo.specs</groupId>
-            <artifactId>geronimo-jsp_2.0_spec</artifactId>
-            <scope>provided</scope>
+            <groupId>org.dojotoolkit</groupId>
+            <artifactId>dojo</artifactId>
+            <type>zip</type>
         </dependency>
-
-        <!-- Required for JSPC compilation -->
-        <dependency>
-            <groupId>tomcat</groupId>
-            <artifactId>jasper-runtime</artifactId>
-            <scope>provided</scope>
-        </dependency>
-
     </dependencies>
 
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>jspc-maven-plugin</artifactId>
-            </plugin>
+    <repositories>
+        <repository>
+            <id>module-local</id>
+            <name>Local Repository</name>
+            <url>file://${pom.basedir}/</url>
+            <layout>default</layout>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+        </repository>
+    </repositories>
 
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-war-plugin</artifactId>
-            </plugin>
-        </plugins>
-    </build>
-    
 </project>

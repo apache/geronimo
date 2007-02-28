@@ -19,9 +19,7 @@
 <!-- $Rev$ $Date$ -->
 
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-
     <modelVersion>4.0.0</modelVersion>
-
     <parent>
         <groupId>org.apache.geronimo.genesis.config</groupId>
         <artifactId>project-config</artifactId>
@@ -44,7 +42,7 @@
         <developerConnection>scm:svn:https://svn.apache.org/repos/asf/geronimo/server/trunk</developerConnection>
         <url>http://svn.apache.org/viewvc/geronimo/trunk</url>
     </scm>
-    
+
     <prerequisites>
         <maven>2.0.5</maven>
     </prerequisites>
@@ -698,7 +696,7 @@
                 <version>${openejbVersion}</version>
             </dependency>
 
-             <dependency>
+            <dependency>
                 <groupId>org.apache.openejb</groupId>
                 <artifactId>openejb-builder</artifactId>
                 <version>${openejbVersion}</version>
@@ -994,12 +992,14 @@
                     <extensions>true</extensions>
                 </plugin>
                 
+
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-dependency-plugin</artifactId>
                     <version>2.0-alpha-1</version>
                 </plugin>
                 
+
                 <plugin>
                     <groupId>org.codehaus.mojo</groupId>
                     <artifactId>xmlbeans-maven-plugin</artifactId>
@@ -1041,6 +1041,7 @@
                     </executions>
                 </plugin>
                 
+
                 <plugin>
                     <groupId>org.codehaus.mojo</groupId>
                     <artifactId>sql-maven-plugin</artifactId>
@@ -1161,6 +1162,7 @@
                                 </options>
                             </optionSet>
                             
+
                             <optionSet>
                                 <id>debug</id>
                                 <options>
@@ -1206,6 +1208,7 @@
                         </configuration>
                     </execution>
                     
+
                     <execution>
                         <id>verify-legal-files</id>
                         <phase>verify</phase>
@@ -1245,7 +1248,7 @@
                     <tagBase>https://svn.apache.org/repos/asf/geronimo/server/tags</tagBase>
                 </configuration>
             </plugin>
-         </plugins>
+        </plugins>
     </build>
 
     <repositories>
@@ -1290,6 +1293,7 @@
             </activation>
 
             <modules>
+                <module>repository</module>
                 <module>testsupport</module>
                 <module>modules</module>
                 <module>maven-plugins</module>
@@ -1356,6 +1360,7 @@
                       includes most modules, so for now just build everything.
                       Fix this when the modules are reorganized.
                 -->
+                <module>repository</module>
                 <module>testsupport</module>
                 <module>modules</module>
                 <module>maven-plugins</module>
@@ -1390,6 +1395,7 @@
             </activation>
 
             <modules>
+                <module>repository</module>
                 <module>testsupport</module>
                 <module>modules</module>
                 <module>maven-plugins</module>
@@ -1415,6 +1421,7 @@
             </activation>
 
             <modules>
+                <module>repository</module>
                 <module>testsupport</module>
                 <module>modules</module>
                 <module>maven-plugins</module>
