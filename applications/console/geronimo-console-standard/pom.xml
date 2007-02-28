@@ -157,18 +157,4 @@
         </plugins>
     </build>
     
-    <!--
-    HACK: jstl:jstl:jar:1.2 is not available on a m2 repo :-(
-    
-    FIXME: Don't include this legacy repo... drop the jars into the top-level repository module
-           as a workaround, until these foolios get these artifacts into central
-    -->
-    <repositories>
-        <repository>
-            <id>java.net</id>
-            <url>https://maven-repository.dev.java.net/nonav/repository</url>
-            <layout>legacy</layout>
-        </repository>
-    </repositories>
-    
 </project>
