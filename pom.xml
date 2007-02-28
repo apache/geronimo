@@ -1406,18 +1406,11 @@
             </activation>
 
             <modules>
-                <module>repository</module>
                 <module>testsupport</module>
                 <module>modules</module>
                 <module>maven-plugins</module>
                 <module>applications</module>
                 <module>configs</module>
-
-                <!--
-                NOTE: Probably do not want to publish these to the repo...  Or do we?
-
-                <module>assemblies</module>
-                -->
             </modules>
         </profile>
 
