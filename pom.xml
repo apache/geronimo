@@ -1747,12 +1747,6 @@
             </activation>
 
             <modules>
-                <!--
-                NOTE: This should really only include the bare minimum set of modules
-                      that are required to build the plugins.  But right now that set
-                      includes most modules, so for now just build everything.
-                      Fix this when the modules are reorganized.
-                -->
                 <module>repository</module>
                 <module>testsupport</module>
                 <module>modules</module>
