@@ -62,22 +62,5 @@
             </plugin>
         </plugins>
     </build>
-    
-    <!--
-    HACK: Include local repo to pick up juddi:juddi:jar:0.9rc4
-    -->
-    <repositories>
-        <repository>
-            <id>module-local</id>
-            <url>file://${pom.basedir}/repository</url>
-            <layout>default</layout>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-            <releases>
-                <enabled>true</enabled>
-            </releases>
-        </repository>
-    </repositories>
-    
+
 </project>
