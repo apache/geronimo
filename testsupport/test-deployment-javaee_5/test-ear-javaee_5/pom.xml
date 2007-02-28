@@ -32,11 +32,11 @@
     </parent>
 
     <artifactId>test-ear-javaee_5</artifactId>
-    <name>Geronimo Test Support, Test Deployment JAVAEE 5 :: EAR</name>
+    <name>Geronimo Test Support, Test Deployment JavaEE 5 :: EAR</name>
     <packaging>ear</packaging>
     
     <description>
-        Geronimo test EAR for JAVAEE 5.
+        Geronimo test EAR for JavaEE 5.
     </description>
     
     <dependencies>
@@ -76,7 +76,7 @@
             <plugin>
                 <artifactId>maven-ear-plugin</artifactId>
                 <configuration>
-                    <displayName>Geronimo Test EAR for JAVAEE 5</displayName>
+                    <displayName>Geronimo Test EAR for JavaEE 5</displayName>
                     <description>Test EAR for 5 testing</description>
                     <version>5</version>
                     <resourcesDir>${project.build.outputDirectory}</resourcesDir>

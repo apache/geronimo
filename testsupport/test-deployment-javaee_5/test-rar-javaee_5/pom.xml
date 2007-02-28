@@ -32,7 +32,7 @@
     </parent>
 
     <artifactId>test-rar-javaee_5</artifactId>
-    <name>Geronimo Test Support, Test Deployment JAVAEE 5 :: RAR</name>
+    <name>Geronimo Test Support, Test Deployment JavaEE 5 :: RAR</name>
     <packaging>rar</packaging>
     
     <description>

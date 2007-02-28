@@ -32,11 +32,11 @@
     </parent>
 
     <artifactId>test-war-javaee_5</artifactId>
-    <name>Geronimo Test Support, Test Deployment JAVAEE 5 :: WAR</name>
+    <name>Geronimo Test Support, Test Deployment JavaEE 5 :: WAR</name>
     <packaging>war</packaging>
     
     <description>
-        Geronimo test WAR for JAVAEE 5.
+        Geronimo test WAR for JavaEE 5.
     </description>
 
     <dependencies>

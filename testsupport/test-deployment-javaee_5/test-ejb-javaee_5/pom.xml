@@ -32,11 +32,11 @@
     </parent>
 
     <artifactId>test-ejb-javaee_5</artifactId>
-    <name>Geronimo Test Support, Test Deployment JAVAEE 5 :: EJB</name>
+    <name>Geronimo Test Support, Test Deployment JavaEE 5 :: EJB</name>
     <packaging>ejb</packaging>
     
     <description>
-        Geronimo test EJBs for JAVAEE 5.
+        Geronimo test EJBs for JavaEE 5.
     </description>
 
     <dependencies>

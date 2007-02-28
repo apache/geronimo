@@ -32,11 +32,11 @@
     </parent>
 
     <artifactId>test-deployment-javaee_5</artifactId>
-    <name>Geronimo Test Support, Test Deployment JAVAEE 5</name>
+    <name>Geronimo Test Support, Test Deployment JavaEE 5</name>
     <packaging>pom</packaging>
     
     <description>
-        Geronimo test deployments for JAVAEE 5.
+        Geronimo test deployments for JavaEE 5.
     </description>
     
     <modules>
