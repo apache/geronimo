@@ -42,19 +42,16 @@
         <dependency>
             <groupId>dwr</groupId>
             <artifactId>dwr</artifactId>
-            <scope>provided</scope>
         </dependency>
 
         <dependency>
             <groupId>juddi</groupId>
             <artifactId>juddi</artifactId>
-            <scope>provided</scope>
         </dependency>
         
         <dependency>
             <groupId>jstl</groupId>
             <artifactId>jstl</artifactId>
-            <scope>provided</scope>
         </dependency>
         
         <dependency>
