@@ -536,22 +536,27 @@
                 <version>1.0.1</version>
             </dependency>
             
+            <!--
+            NOTE: Using AMQ 4.1-incubator-SNAPSHOT (AIO 3.x-incubator-SNAPSHOT) to 
+                  pick up spec compliance fix for AMQ-1165 until AMQ 4.1.1 is released.
+            -->
+            
             <dependency>
                 <groupId>org.apache.activemq</groupId>
                 <artifactId>activeio-core</artifactId>
-                <version>3.0.0-incubator</version>
+                <version>3.x-incubator-SNAPSHOT</version>
             </dependency>
 
             <dependency>
                 <groupId>org.apache.activemq</groupId>
                 <artifactId>activemq-core</artifactId>
-                <version>4.1.0-incubator</version>
+                <version>4.1-incubator-SNAPSHOT</version>
             </dependency>
 
             <dependency>
                 <groupId>org.apache.activemq</groupId>
                 <artifactId>activemq-ra</artifactId>
-                <version>4.1.0-incubator</version>
+                <version>4.1-incubator-SNAPSHOT</version>
             </dependency>
 
             <dependency>
@@ -1219,7 +1224,6 @@
                         </configuration>
                     </execution>
                     
-
                     <execution>
                         <id>verify-legal-files</id>
                         <phase>verify</phase>
@@ -1227,7 +1231,7 @@
                             <goal>verify-legal-files</goal>
                         </goals>
                         <configuration>
-                            <!-- Fail the build if no legal files were copied -->
+                            <!-- Fail the build if no legal files were found -->
                             <strict>true</strict>
                         </configuration>
                     </execution>
