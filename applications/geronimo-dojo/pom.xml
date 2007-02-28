@@ -48,10 +48,6 @@
         </dependency>
     </dependencies>
 
-    <properties>
-        <dojoVersion>0.4.1</dojoVersion>
-    </properties>
-
     <!-- this build process extracts certain files from dojo.zip
          into a webapp. -->
     <build>
@@ -70,7 +66,6 @@
                                 <artifactItem>
                                     <groupId>org.dojotoolkit</groupId>
                                     <artifactId>dojo</artifactId>
-                                    <version>${dojoVersion}</version>
                                     <type>zip</type>
                                     <outputDirectory>${project.build.directory}/</outputDirectory>
                                 </artifactItem>

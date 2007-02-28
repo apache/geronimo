@@ -81,7 +81,12 @@
         HACK: Used by uddi-jetty and uddi-tomcat config plans
         -->
         <tranqlVendorsVersion>1.3-SNAPSHOT</tranqlVendorsVersion>
-
+        
+        <!--
+        HACK: Used by applications/geronimo-dojo
+        -->
+        <dojoVersion>0.4.1</dojoVersion>
+        
         <cxfVersion>2.0-incubator-RC-SNAPSHOT</cxfVersion>
     </properties>
 
@@ -1353,6 +1358,13 @@
 			    <artifactId>woden</artifactId>
 			    <version>1.0-incubating-SNAPSHOT</version>
 		    </dependency>
+            
+            <dependency>
+                <groupId>org.dojotoolkit</groupId>
+                <artifactId>dojo</artifactId>
+                <version>${dojoVersion}</version>
+                <type>zip</type>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 

@@ -19,9 +19,9 @@
 <!-- $Rev$ $Date$ -->
 
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-    
+
     <modelVersion>4.0.0</modelVersion>
-    
+
     <parent>
         <groupId>org.apache.geronimo</groupId>
         <artifactId>geronimo</artifactId>
@@ -32,42 +32,51 @@
     <artifactId>repository</artifactId>
     <name>Geronimo Local Repository</name>
     <packaging>jar</packaging>
-
+    
+    <description>
+        Container for local artifacts, this is a temporary solution until a more
+        permeant Geronimo specific repository solution can be implemented.
+    </description>
+    
     <dependencies>
-      <dependency>
+        <dependency>
             <groupId>dwr</groupId>
             <artifactId>dwr</artifactId>
             <scope>provided</scope>
         </dependency>
 
-      <dependency>
+        <dependency>
             <groupId>juddi</groupId>
             <artifactId>juddi</artifactId>
             <scope>provided</scope>
         </dependency>
-
+        
         <dependency>
-          <groupId>org.dojotoolkit</groupId>
-          <artifactId>dojo</artifactId>
-          <version>0.4.1</version>
-          <type>zip</type>
+            <groupId>jstl</groupId>
+            <artifactId>jstl</artifactId>
+            <scope>provided</scope>
         </dependency>
-
+        
+        <dependency>
+            <groupId>org.dojotoolkit</groupId>
+            <artifactId>dojo</artifactId>
+            <type>zip</type>
+        </dependency>
     </dependencies>
-    
-   <repositories>
-      <repository>
+
+    <repositories>
+        <repository>
             <id>module-local</id>
             <name>Local Repository</name>
             <url>file://${pom.basedir}/</url>
-             <layout>default</layout>
-             <snapshots>
-                  <enabled>false</enabled>
-             </snapshots>
-             <releases>
-                  <enabled>true</enabled>
-             </releases>
-         </repository> 
-   </repositories>
-    
+            <layout>default</layout>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+        </repository>
+    </repositories>
+
 </project>
