@@ -72,7 +72,7 @@
             <build>
                 <plugins>
                     <plugin>
-                        <groupId>org.apache.geronimo.plugins</groupId>
+                        <groupId>org.codehaus.mojo</groupId>
                         <artifactId>selenium-maven-plugin</artifactId>
                     </plugin>
                     

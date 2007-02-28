@@ -88,7 +88,7 @@
                     NOTE: The following plugin starts selenium server used for testing with a browser.
                           Uncomment the plugin if you need it
                     <plugin>
-                        <groupId>org.apache.geronimo.plugins</groupId>
+                        <groupId>org.codehaus.mojo</groupId>
                         <artifactId>selenium-maven-plugin</artifactId>
                     </plugin>
                     -->
