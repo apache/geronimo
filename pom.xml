@@ -79,6 +79,11 @@
         HACK: Used by uddi-jetty and uddi-tomcat config plans
         -->
         <tranqlVendorsVersion>1.2</tranqlVendorsVersion>
+        
+        <!--
+        HACK: Used by applications/geronimo-dojo
+        -->
+        <dojoVersion>0.4.1</dojoVersion>
     </properties>
 
     <dependencyManagement>
@@ -530,7 +535,7 @@
                 <artifactId>pluto-descriptors</artifactId>
                 <version>1.0.1</version>
             </dependency>
-
+            
             <dependency>
                 <groupId>org.apache.activemq</groupId>
                 <artifactId>activeio-core</artifactId>
@@ -978,7 +983,13 @@
                 <artifactId>tribes</artifactId>
                 <version>0.9.5.2</version>
             </dependency>
-
+            
+            <dependency>
+                <groupId>org.dojotoolkit</groupId>
+                <artifactId>dojo</artifactId>
+                <version>${dojoVersion}</version>
+                <type>zip</type>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
