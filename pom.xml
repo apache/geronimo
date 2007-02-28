@@ -1566,7 +1566,7 @@
 
                 <!-- Tools includes custom packagings, install as extension to pick them up -->
                 <extensions>true</extensions>
-
+                
                 <executions>
                     <execution>
                         <id>validate-java-version</id>
@@ -1578,13 +1578,29 @@
                             <version>1.5*</version>
                         </configuration>
                     </execution>
-
+                    
                     <execution>
                         <id>install-legal-files</id>
                         <phase>generate-resources</phase>
                         <goals>
                             <goal>copy-legal-files</goal>
                         </goals>
+                        <configuration>
+                            <!-- Fail the build if no legal files were copied -->
+                            <strict>true</strict>
+                        </configuration>
+                    </execution>
+                    
+                    <execution>
+                        <id>verify-legal-files</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>verify-legal-files</goal>
+                        </goals>
+                        <configuration>
+                            <!-- Fail the build if no legal files were found -->
+                            <strict>true</strict>
+                        </configuration>
                     </execution>
                 </executions>
             </plugin>
