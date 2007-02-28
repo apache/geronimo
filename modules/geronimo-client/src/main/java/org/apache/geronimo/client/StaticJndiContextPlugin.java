@@ -16,22 +16,18 @@
  */
 package org.apache.geronimo.client;
 
-import java.util.Iterator;
 import java.util.Map;
-import java.util.Collections;
+
 import javax.naming.InitialContext;
 import javax.naming.Context;
 import javax.naming.NamingException;
 
 import org.apache.geronimo.naming.java.RootContext;
-import org.apache.geronimo.naming.reference.KernelAwareReference;
-import org.apache.geronimo.naming.reference.ClassLoaderAwareReference;
 import org.apache.geronimo.naming.enc.EnterpriseNamingContext;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.kernel.Kernel;
-import org.apache.xbean.naming.context.ImmutableContext;
 
 /**
  * @version $Rev$ $Date$
@@ -52,12 +48,17 @@ public class StaticJndiContextPlugin implements AppClientPlugin {
         RootContext.setComponentContext(null);
     }
 
+    public Context getJndiContext() {
+        return context;
+    }
+
     public static final GBeanInfo GBEAN_INFO;
 
     static {
         GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic(StaticJndiContextPlugin.class);
 
         infoFactory.addAttribute("context", Map.class, true);
+        infoFactory.addAttribute("jndiContext", Context.class, false);
         infoFactory.addAttribute("kernel", Kernel.class, false);
         infoFactory.addAttribute("classLoader", ClassLoader.class, false);
         infoFactory.addInterface(AppClientPlugin.class);

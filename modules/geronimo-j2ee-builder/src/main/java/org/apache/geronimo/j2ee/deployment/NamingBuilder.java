@@ -18,11 +18,15 @@
 package org.apache.geronimo.j2ee.deployment;
 
 import java.util.Map;
+import java.util.List;
+import java.util.HashMap;
 
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.kernel.config.Configuration;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.deployment.AbstractNamespaceBuilder;
+import org.apache.geronimo.j2ee.annotation.Injection;
+import org.apache.geronimo.gbean.AbstractName;
 import org.apache.xmlbeans.QNameSet;
 import org.apache.xmlbeans.XmlObject;
 
@@ -34,14 +38,45 @@ public interface NamingBuilder extends AbstractNamespaceBuilder {
     XmlObject[] NO_REFS = new XmlObject[] {};
     String ENV = "env/";
 
-    String JNDI_KEY = "JNDI_COMPONENT_CONTEXT";
-    String INJECTION_KEY = "INJECTIONS";
-    String GBEAN_NAME_KEY = "GBEAN_NAME";
+    Key<Map<String, Object>> JNDI_KEY = new Key<Map<String, Object>>() {
+
+        public Map<String, Object> get(Map context) {
+            Map<String, Object> result = (Map<String, Object>) context.get(this);
+            if (result == null) {
+                result = new HashMap<String, Object>();
+                context.put(this, result);
+            }
+            return result;
+        }
+    };
+    Key<Map<String, List<Injection>>> INJECTION_KEY = new Key<Map<String, List<Injection>>>() {
+
+        public Map<String, List<Injection>> get(Map context) {
+            Map<String, List<Injection>> result = (Map<String, List<Injection>>) context.get(this);
+            if (result == null) {
+                result = new HashMap<String, List<Injection>>();
+                context.put(this, result);
+            }
+            return result;
+        }
+    };
+    Key<AbstractName> GBEAN_NAME_KEY = new Key<AbstractName>() {
+
+        public AbstractName get(Map context) {
+            return (AbstractName) context.get(this);
+        }
+    };
 
     void buildEnvironment(XmlObject specDD, XmlObject plan, Environment environment) throws DeploymentException;
 
     void initContext(XmlObject specDD, XmlObject plan, Configuration localConfiguration, Configuration remoteConfiguration, Module module) throws DeploymentException;
     
     void buildNaming(XmlObject specDD, XmlObject plan, Configuration localConfiguration, Configuration remoteConfiguration, Module module, Map componentContext) throws DeploymentException;
+
+    public interface Key<T> {
+        T get(Map context);
+    }
+
+
 
 }

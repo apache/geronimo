@@ -254,7 +254,6 @@ public class EjbDeploymentBuilder {
 
         // Geronimo uses a map to pass data to the naming build and for the results data
         Map<Object,Object> buildingContext = new HashMap<Object,Object>();
-        buildingContext.put(NamingBuilder.JNDI_KEY, new HashMap());
         buildingContext.put(NamingBuilder.GBEAN_NAME_KEY, gbean.getAbstractName());
 
         namingBuilder.buildNaming(xmlbeansEjb,
@@ -263,7 +262,7 @@ public class EjbDeploymentBuilder {
                 earContext.getConfiguration(),
                 ejbModule, buildingContext);
 
-        Map compContext = (Map) buildingContext.get(NamingBuilder.JNDI_KEY);
+        Map compContext = NamingBuilder.JNDI_KEY.get(buildingContext);
         gbean.setAttribute("componentContextMap", compContext);
 
         //

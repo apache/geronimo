@@ -318,14 +318,11 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
 
         //N.B. we use the ear context which has all the gbeans we could possibly be looking up from this ear.
         Map buildingContext = new HashMap();
-        buildingContext.put(NamingBuilder.JNDI_KEY, new HashMap<String, Object>());
         buildingContext.put(NamingBuilder.GBEAN_NAME_KEY, moduleName);
-        buildingContext.put(NamingBuilder.INJECTION_KEY, new HashMap<String, List<Injection>>());
         Configuration earConfiguration = earContext.getConfiguration();
         getNamingBuilders().buildNaming(webApp, jettyWebApp, earConfiguration, earConfiguration, (Module) webModule, buildingContext);
-        Map compContext = (Map) buildingContext.get(NamingBuilder.JNDI_KEY);
-        Map<String, List<Injection>> injections = (Map<String, List<Injection>>) buildingContext.get(NamingBuilder.INJECTION_KEY);
-
+        Map compContext = NamingBuilder.JNDI_KEY.get(buildingContext);
+        Map<String, List<Injection>> injections = NamingBuilder.INJECTION_KEY.get(buildingContext);
 
         GBeanData webModuleData = new GBeanData(moduleName, JettyWebAppContext.GBEAN_INFO);
         try {

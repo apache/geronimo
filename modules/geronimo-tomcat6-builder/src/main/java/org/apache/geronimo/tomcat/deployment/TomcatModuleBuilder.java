@@ -284,11 +284,10 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder {
 
             //N.B. we use the ear context which has all the gbeans we could possibly be looking up from this ear.
             Map buildingContext = new HashMap();
-            buildingContext.put(NamingBuilder.JNDI_KEY, new HashMap());
             buildingContext.put(NamingBuilder.GBEAN_NAME_KEY, moduleName);
             Configuration earConfiguration = earContext.getConfiguration();
             getNamingBuilders().buildNaming(webApp, tomcatWebApp, earConfiguration, earConfiguration, webModule, buildingContext);
-            Map compContext = (Map) buildingContext.get(NamingBuilder.JNDI_KEY);
+            Map compContext = NamingBuilder.JNDI_KEY.get(buildingContext);
 
             webModuleData.setAttribute("componentContext", compContext);
             // unsharableResources, applicationManagedSecurityResources

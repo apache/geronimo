@@ -33,10 +33,10 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.jar.Attributes;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.jar.Manifest;
+import java.util.jar.Attributes;
 import java.util.zip.ZipEntry;
 
 import javax.xml.namespace.QName;
@@ -308,6 +308,10 @@ public class EARConfigBuilder implements ConfigurationBuilder, CorbaGBeanNameSou
                 throw new DeploymentException("Could not parse application.xml", e);
             } catch (Exception e) {
                 //ee5 spec allows optional application.xml, continue with application == null
+                if (!earFile.getName().endsWith(".ear")) {
+                    return null;
+                }
+                //TODO return application.xml that we can make metadata complete?
             }
         }
 
@@ -762,20 +766,35 @@ public class EARConfigBuilder implements ConfigurationBuilder, CorbaGBeanNameSou
                         } else if (entry.getName().endsWith(".jar") && !isLibraryEntry(application, entry)) {
                             try {
                                 NestedJarFile moduleFile = new NestedJarFile(earFile, entry.getName());
-                                Manifest manifest = moduleFile.getManifest();
-                                if (moduleFile.getEntry("META-INF/application-client.xml") != null || (manifest != null && manifest.getMainAttributes().getValue(Attributes.Name.MAIN_CLASS) != null)) {
+                                Manifest mf = moduleFile.getManifest();
+
+                                if (mf.getMainAttributes().getValue(Attributes.Name.MAIN_CLASS) != null) {
                                     if (getAppClientConfigBuilder() == null) {
                                         throw new DeploymentException("Cannot deploy app client; No app client deployer defined: " + entry.getName());
                                     }
                                     builder = getAppClientConfigBuilder();
                                     moduleTypeName = "an application client";
-                                } else if (moduleFile.getEntry("META-INF/ejb-jar.xml") != null) {
+                                } else {
+                                    //ask the ejb builder if its an ejb module
                                     builder = getEjbConfigBuilder();
                                     if (builder == null) {
-                                        throw new DeploymentException("Cannot deploy ejb application; No ejb deployer defined: " + entry.getName());
+//                                        throw new DeploymentException("Cannot deploy ejb application; No ejb deployer defined: " + entry.getName());
+                                        continue;
                                     }
-                                    moduleTypeName = "an EJB";
-                                } else {
+
+                                    Module module = builder.createModule(altVendorDDs.get(entry.getName()),
+                                            moduleFile,
+                                            entry.getName(),
+                                            null,
+                                            environment,
+                                            moduleContextInfo,
+                                            earName,
+                                            naming, idBuilder);
+
+                                    if (module != null) {
+                                        moduleLocations.add(entry.getName());
+                                        modules.add(module);
+                                    }
                                     continue;
                                 }
                                 //TODO if no ejb-jar.xml inspect classes for EJB component annotations to identify as EJBJar module

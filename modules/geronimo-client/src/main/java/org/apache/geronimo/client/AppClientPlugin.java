@@ -16,6 +16,8 @@
  */
 package org.apache.geronimo.client;
 
+import javax.naming.Context;
+
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.kernel.Kernel;
 
@@ -26,5 +28,7 @@ public interface AppClientPlugin {
     public void startClient(AbstractName appClientModuleName, Kernel kernel, ClassLoader classLoader) throws Exception;
 
     public void stopClient(AbstractName appClientModuleName) throws Exception;
+
+    public Context getJndiContext();
 
 }

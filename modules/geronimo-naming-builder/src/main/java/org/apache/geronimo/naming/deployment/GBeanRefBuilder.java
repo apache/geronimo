@@ -98,7 +98,7 @@ public class GBeanRefBuilder implements NamingBuilder {
 
             String refName = gbeanRef.getRefName();
 
-            ((Map)componentContext.get(JNDI_KEY)).put(ENV + refName, new GBeanReference(localConfiguration.getId(), queries, gBeanType));
+            NamingBuilder.JNDI_KEY.get(componentContext).put(ENV + refName, new GBeanReference(localConfiguration.getId(), queries, gBeanType));
 
         }
     }

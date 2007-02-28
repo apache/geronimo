@@ -29,6 +29,7 @@ import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.j2ee.deployment.Module;
+import org.apache.geronimo.j2ee.deployment.NamingBuilder;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.kernel.config.Configuration;
@@ -97,7 +98,7 @@ public class PersistenceUnitRefBuilder extends AbstractNamingBuilder {
 
             PersistenceUnitReference reference = new PersistenceUnitReference(localConfiguration.getId(), persistenceUnitNameQuery);
 
-            ((Map)componentContext.get(JNDI_KEY)).put(ENV + persistenceUnitRefName, reference);
+            NamingBuilder.JNDI_KEY.get(componentContext).put(ENV + persistenceUnitRefName, reference);
 
         }
 
@@ -115,7 +116,7 @@ public class PersistenceUnitRefBuilder extends AbstractNamingBuilder {
 
             PersistenceUnitReference reference = new PersistenceUnitReference(localConfiguration.getId(), persistenceUnitNameQuery);
 
-            ((Map)componentContext.get(JNDI_KEY)).put(ENV + PersistenceUnitRefName, reference);
+            NamingBuilder.JNDI_KEY.get(componentContext).put(ENV + PersistenceUnitRefName, reference);
 
         }
     }

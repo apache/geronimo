@@ -20,21 +20,29 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.security.PrivilegedAction;
+import java.util.List;
+import java.util.Map;
 
 import javax.security.auth.Subject;
 import javax.security.auth.callback.CallbackHandler;
 import javax.security.auth.login.LoginContext;
 import javax.security.auth.login.LoginException;
+import javax.naming.NamingException;
+import javax.naming.Context;
 
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
+import org.apache.geronimo.j2ee.annotation.Injection;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.security.ContextManager;
 import org.apache.geronimo.security.Callers;
 import org.apache.geronimo.security.deploy.DefaultPrincipal;
 import org.apache.geronimo.security.util.ConfigurationUtil;
+import org.apache.xbean.recipe.ObjectRecipe;
+import org.apache.xbean.recipe.Option;
+import org.apache.xbean.recipe.StaticRecipe;
 
 /**
  * @version $Rev$ $Date$
@@ -53,12 +61,16 @@ public final class AppClientContainer {
     private final Method mainMethod;
     private final ClassLoader classLoader;
     private final Kernel kernel;
+    private final List<Injection> injections;
+    private final List<Injection> callbackHandlerinjections;
 
     public AppClientContainer(String mainClassName,
             AbstractName appClientModuleName,
             String realmName,
             String callbackHandlerClassName,
             DefaultPrincipal defaultPrincipal,
+            List<Injection> injections,
+            List<Injection> callbackHandlerinjections,
             AppClientPlugin jndiContext,
             ClassLoader classLoader,
             Kernel kernel
@@ -83,6 +95,8 @@ public final class AppClientContainer {
         } else {
             defaultSubject = null;
         }
+        this.injections = injections;
+        this.callbackHandlerinjections = callbackHandlerinjections;
         this.classLoader = classLoader;
         this.kernel = kernel;
         this.jndiContext = jndiContext;
@@ -136,6 +150,38 @@ public final class AppClientContainer {
             }
             ContextManager.setCallers(clientSubject, clientSubject);
             jndiContext.startClient(appClientModuleName, kernel, classLoader);
+            Context componentContext = jndiContext.getJndiContext();
+            ObjectRecipe objectRecipe = new ObjectRecipe(mainClassName);
+            objectRecipe.allow(Option.FIELD_INJECTION);
+            objectRecipe.allow(Option.PRIVATE_PROPERTIES);
+            objectRecipe.allow(Option.IGNORE_MISSING_PROPERTIES);
+            if (injections != null) {
+                for (Injection injection : injections) {
+                    try {
+                        String jndiName = injection.getJndiName();
+                        //our componentContext is attached to jndi at "java:comp" so we remove that when looking stuff up in it
+                        Object object = componentContext.lookup("env/" + jndiName);
+                        if (object instanceof String) {
+                            String string = (String) object;
+                            // Pass it in raw so it could be potentially converted to
+                            // another data type by an xbean-reflect property editor
+                            objectRecipe.setProperty(injection.getTargetName(), string);
+                        } else {
+                            objectRecipe.setProperty(injection.getTargetName(), new StaticRecipe(object));
+                        }
+                    } catch (NamingException e) {
+//                        log.warn("could not look up ", e);
+                    }
+                }
+            }
+            objectRecipe.setStaticProperties(classLoader);
+            Map unsetProperties = objectRecipe.getUnsetProperties();
+            if (unsetProperties.size() > 0) {
+                for (Object property : unsetProperties.keySet()) {
+//                log.warning("Injection: No such property '"+property+"' in class "+_class.getName());
+                }
+            }
+
             if (clientSubject == null) {
                 mainMethod.invoke(null, new Object[]{args});
             } else {
@@ -183,6 +229,8 @@ public final class AppClientContainer {
         infoFactory.addAttribute("realmName", String.class, true);
         infoFactory.addAttribute("callbackHandlerClassName", String.class, true);
         infoFactory.addAttribute("defaultPrincipal", DefaultPrincipal.class, true);
+        infoFactory.addAttribute("injections", List.class, true);
+        infoFactory.addAttribute("callbackHandlerInjections", List.class, true);
 
         infoFactory.addReference("JNDIContext", AppClientPlugin.class, NameFactory.GERONIMO_SERVICE);
 
@@ -195,6 +243,8 @@ public final class AppClientContainer {
                                                 "realmName",
                                                 "callbackHandlerClassName",
                                                 "defaultPrincipal",
+                                                "injections",
+                                                "callbackHandlerInjections",
                                                 "JNDIContext",
                                                 "classLoader",
                                                 "kernel"

@@ -18,9 +18,8 @@
 package org.apache.geronimo.connector.deployment;
 
 import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
 import java.util.List;
+import java.util.Map;
 
 import javax.naming.Reference;
 import javax.xml.namespace.QName;
@@ -42,6 +41,7 @@ import org.apache.geronimo.xbeans.geronimo.naming.GerMessageDestinationType;
 import org.apache.geronimo.xbeans.geronimo.naming.GerPatternType;
 import org.apache.geronimo.xbeans.geronimo.naming.GerResourceEnvRefDocument;
 import org.apache.geronimo.xbeans.geronimo.naming.GerResourceEnvRefType;
+import org.apache.geronimo.xbeans.javaee.InjectionTargetType;
 import org.apache.geronimo.xbeans.javaee.MessageDestinationRefType;
 import org.apache.geronimo.xbeans.javaee.MessageDestinationType;
 import org.apache.geronimo.xbeans.javaee.ResourceEnvRefType;
@@ -75,23 +75,23 @@ public class AdminObjectRefBuilder extends AbstractNamingBuilder {
     public void initContext(XmlObject specDD, XmlObject plan, Configuration localConfiguration, Configuration remoteConfiguration, Module module) throws DeploymentException {
         List<MessageDestinationType> specDestinations = convert(specDD.selectChildren(messageDestinationQNameSet), JEE_CONVERTER, MessageDestinationType.class, MessageDestinationType.type);
         XmlObject[] gerDestinations = plan.selectChildren(GER_MESSAGE_DESTINATION_QNAME_SET);
-            Map nameMap = new HashMap();
-            for (int i = 0; i < gerDestinations.length; i++) {
-                GerMessageDestinationType destination = (GerMessageDestinationType) gerDestinations[i].copy().changeType(GerMessageDestinationType.type);
-                String name = destination.getMessageDestinationName().trim();
-                nameMap.put(name, destination);
-                boolean found = false;
-                for (MessageDestinationType specDestination: specDestinations) {
-                    if (specDestination.getMessageDestinationName().getStringValue().trim().equals(name)) {
-                        found = true;
-                        break;
-                    }
-                }
-                if (!found) {
-                    throw new DeploymentException("No spec DD message-destination for " + name);
+            Map<String, GerMessageDestinationType> nameMap = new HashMap<String, GerMessageDestinationType>();
+        for (XmlObject gerDestination : gerDestinations) {
+            GerMessageDestinationType destination = (GerMessageDestinationType) gerDestination.copy().changeType(GerMessageDestinationType.type);
+            String name = destination.getMessageDestinationName().trim();
+            nameMap.put(name, destination);
+            boolean found = false;
+            for (MessageDestinationType specDestination : specDestinations) {
+                if (specDestination.getMessageDestinationName().getStringValue().trim().equals(name)) {
+                    found = true;
+                    break;
                 }
             }
-            module.getRootEarContext().registerMessageDestionations(module.getName(), nameMap);
+            if (!found) {
+                throw new DeploymentException("No spec DD message-destination for " + name);
+            }
+        }
+        module.getRootEarContext().registerMessageDestionations(module.getName(), nameMap);
     }
 
 
@@ -125,8 +125,24 @@ public class AdminObjectRefBuilder extends AbstractNamingBuilder {
 
         for (MessageDestinationRefType messageDestinationRef: messageDestinationRefsUntyped) {
             String name = getStringValue(messageDestinationRef.getMessageDestinationRefName());
+            addInjections(name, messageDestinationRef.getInjectionTargetArray(), componentContext);
             String linkName = getStringValue(messageDestinationRef.getMessageDestinationLink());
+            //TODO figure out something better to do here!
+            if (linkName == null) {
+                linkName = name;
+            }
             String type = getStringValue(messageDestinationRef.getMessageDestinationType());
+            if (type == null) {
+                //must have an injection target to determine type EE5.8.1.3
+                InjectionTargetType[] targets = messageDestinationRef.getInjectionTargetArray();
+                if (targets.length == 0) {
+                    throw new DeploymentException("No type for message-destination-ref can be determined from explicit specification or injection target: " + messageDestinationRef );
+                }
+                type = getStringValue(targets[0].getInjectionTargetClass());
+                if (type == null) {
+                    throw new DeploymentException("no type for message destination ref in injection target: " + targets[0]);
+                }
+            }
             Class iface;
             try {
                 iface = cl.loadClass(type);
@@ -134,7 +150,7 @@ public class AdminObjectRefBuilder extends AbstractNamingBuilder {
                 throw new DeploymentException("could not load class " + type, e);
             }
             String moduleURI = null;
-            Map messageDestinations = module.getRootEarContext().getMessageDestinations();
+            Map<String, Map<String, GerMessageDestinationType>> messageDestinations = module.getRootEarContext().getMessageDestinations();
             GerMessageDestinationType destination = getMessageDestination(linkName, messageDestinations);
             if (destination != null) {
                 if (destination.isSetAdminObjectLink()) {
@@ -163,27 +179,26 @@ public class AdminObjectRefBuilder extends AbstractNamingBuilder {
 
     }
 
-    public static GerMessageDestinationType getMessageDestination(String messageDestinationLink, Map messageDestinations) throws DeploymentException {
+    public static GerMessageDestinationType getMessageDestination(String messageDestinationLink, Map<String, Map<String, GerMessageDestinationType>> messageDestinations) throws DeploymentException {
         GerMessageDestinationType destination = null;
         int pos = messageDestinationLink.indexOf('#');
         if (pos > -1) {
             String targetModule = messageDestinationLink.substring(0, pos);
-            Map destinations = (Map) messageDestinations.get(targetModule);
+            Map<String, GerMessageDestinationType> destinations = messageDestinations.get(targetModule);
             // Hmmm...if we don't find the module then something is wrong in the deployment.
             if (destinations == null) {
                 StringBuffer sb = new StringBuffer();
-                for (Iterator mapIterator = messageDestinations.keySet().iterator(); mapIterator.hasNext();) {
-                    sb.append(mapIterator.next()).append("\n");
+                for (Object o : messageDestinations.keySet()) {
+                    sb.append(o).append("\n");
                 }
                 throw new DeploymentException("Unknown module " + targetModule + " when processing message destination " + messageDestinationLink +
                         "\nKnown modules in deployable unit are:\n" + sb.toString());
             }
             messageDestinationLink = messageDestinationLink.substring(pos + 1);
-            destination = (GerMessageDestinationType) destinations.get(messageDestinationLink);
+            destination = destinations.get(messageDestinationLink);
         } else {
-            for (Iterator iterator = messageDestinations.values().iterator(); iterator.hasNext();) {
-                Map destinations = (Map) iterator.next();
-                GerMessageDestinationType destinationTest = (GerMessageDestinationType) destinations.get(messageDestinationLink);
+            for (Map<String, GerMessageDestinationType> destinations : messageDestinations.values()) {
+                GerMessageDestinationType destinationTest = destinations.get(messageDestinationLink);
                 if (destinationTest != null) {
                     if (destination != null) {
                         throw new DeploymentException("Duplicate message destination " + messageDestinationLink + " accessed from a message-destination-link without a module");
@@ -225,11 +240,11 @@ public class AdminObjectRefBuilder extends AbstractNamingBuilder {
         return containerId;
     }
 
-    private static Map mapResourceEnvRefs(XmlObject[] refs) {
-        Map refMap = new HashMap();
+    private static Map<String, XmlObject> mapResourceEnvRefs(XmlObject[] refs) {
+        Map<String, XmlObject> refMap = new HashMap<String, XmlObject>();
         if (refs != null) {
-            for (int i = 0; i < refs.length; i++) {
-                GerResourceEnvRefType ref = (GerResourceEnvRefType) refs[i].copy().changeType(GerResourceEnvRefType.type);
+            for (XmlObject ref1 : refs) {
+                GerResourceEnvRefType ref = (GerResourceEnvRefType) ref1.copy().changeType(GerResourceEnvRefType.type);
                 refMap.put(ref.getRefName().trim(), ref);
             }
         }
@@ -242,14 +257,6 @@ public class AdminObjectRefBuilder extends AbstractNamingBuilder {
 
     public QNameSet getPlanQNameSet() {
         return GER_ADMIN_OBJECT_REF_QNAME_SET;
-    }
-
-    private static String getStringValue(org.apache.geronimo.xbeans.j2ee.String string) {
-        if (string == null) {
-            return null;
-        }
-        String s = string.getStringValue();
-        return s == null ? null : s.trim();
     }
 
     public static final GBeanInfo GBEAN_INFO;

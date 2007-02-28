@@ -29,6 +29,7 @@ import java.util.LinkedList;
 import java.util.Map;
 import java.util.StringTokenizer;
 import java.util.HashMap;
+import java.util.List;
 import java.util.jar.Attributes;
 import java.util.jar.JarFile;
 import java.util.jar.Manifest;
@@ -66,6 +67,7 @@ import org.apache.geronimo.j2ee.deployment.NamingBuilderCollection;
 import org.apache.geronimo.j2ee.deployment.ConnectorModule;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.j2ee.management.impl.J2EEAppClientModuleImpl;
+import org.apache.geronimo.j2ee.annotation.Injection;
 import org.apache.geronimo.kernel.GBeanAlreadyExistsException;
 import org.apache.geronimo.kernel.Naming;
 import org.apache.geronimo.kernel.config.ConfigurationAlreadyExistsException;
@@ -200,8 +202,30 @@ public class AppClientModuleBuilder implements ModuleBuilder, CorbaGBeanNameSour
         assert !targetPath.endsWith("/"): "targetPath must not end with a '/'";
         assert (earName == null) == (earEnvironment == null): "if earName is not null you must supply earEnvironment as well";
 
-        String specDD = null;
-        ApplicationClientType appClient = null;
+        boolean standAlone = earEnvironment == null;
+
+        // get the app client main class
+        String mainClass;
+        try {
+            Manifest manifest = moduleFile.getManifest();
+            if (manifest == null) {
+                throw new DeploymentException("App client module jar does not contain a manifest: " + moduleFile.getName());
+            }
+            mainClass = manifest.getMainAttributes().getValue(Attributes.Name.MAIN_CLASS);
+            if (mainClass == null) {
+                //not an app client
+                return null;
+            }
+            String classPath = manifest.getMainAttributes().getValue(Attributes.Name.CLASS_PATH);
+            if (standAlone && classPath != null) {
+                throw new DeploymentException("Manifest class path entry is not allowed in a standalone jar (JAVAEE 5 Section 8.2)");
+            }
+        } catch (IOException e) {
+            throw new DeploymentException("Could not get manifest from app client module: " + moduleFile.getName());
+        }
+
+        String specDD;
+        ApplicationClientType appClient  = null;
         try {
             if (specDDUrl == null) {
                 specDDUrl = DeploymentUtil.createJarURL(moduleFile, "META-INF/application-client.xml");
@@ -210,29 +234,27 @@ public class AppClientModuleBuilder implements ModuleBuilder, CorbaGBeanNameSour
             // read in the entire specDD as a string, we need this for getDeploymentDescriptor
             // on the J2ee management object
             specDD = DeploymentUtil.readAll(specDDUrl);
-            
-            //we found application-client.xml, if it won't parse it's an error.
-            XmlObject xmlObject = XmlBeansUtil.parse(specDD);
-            ApplicationClientDocument appClientDoc = convertToApplicationClientSchema(xmlObject);
-            appClient = appClientDoc.getApplicationClient();
-        } catch (XmlException e) {
-            throw new DeploymentException("Unable to parse application-client.xml", e);
         } catch (Exception e) {
-            //no application-client.xml
-        	try {
-				Manifest manifest = moduleFile.getManifest();
-				if(manifest == null || manifest.getMainAttributes().getValue(Attributes.Name.MAIN_CLASS) == null) {
-					//not for us
-					return null;
-				}
-			} catch (IOException e2) {
-				throw new DeploymentException(e2);
-			}
-			//continue processing considering this as an annotated app-client module with no spec dd
+            //construct a default spec dd
+            ApplicationClientDocument appClientDoc = ApplicationClientDocument.Factory.newInstance();
+            appClientDoc.addNewApplicationClient();
+            appClient = appClientDoc.getApplicationClient();
+            specDD = appClientDoc.xmlText();
+        }
+
+        if (appClient == null) {
+            //we found application-client.xml, if it won't parse it's an error.
+            try {
+                // parse it
+                XmlObject xmlObject = XmlBeansUtil.parse(specDD);
+                ApplicationClientDocument appClientDoc = convertToApplicationClientSchema(xmlObject);
+                appClient = appClientDoc.getApplicationClient();
+            } catch (XmlException e) {
+                throw new DeploymentException("Unable to parse application-client.xml", e);
+            }
         }
 
         // parse vendor dd
-        boolean standAlone = earEnvironment == null;
         GerApplicationClientType gerAppClient = getGeronimoAppClient(plan, moduleFile, standAlone, targetPath, appClient, earEnvironment);
 
 
@@ -304,7 +326,7 @@ public class AppClientModuleBuilder implements ModuleBuilder, CorbaGBeanNameSour
             resourceModules.add(connectorModule);
         }
 
-        return new AppClientModule(standAlone, moduleName, clientBaseName, serverEnvironment, clientEnvironment, moduleFile, targetPath, appClient, gerAppClient, specDD, resourceModules);
+        return new AppClientModule(standAlone, moduleName, clientBaseName, serverEnvironment, clientEnvironment, moduleFile, targetPath, appClient, mainClass, gerAppClient, specDD, resourceModules);
     }
 
     GerApplicationClientType getGeronimoAppClient(Object plan, JarFile moduleFile, boolean standAlone, String targetPath, ApplicationClientType appClient, Environment environment) throws DeploymentException {
@@ -348,7 +370,7 @@ public class AppClientModuleBuilder implements ModuleBuilder, CorbaGBeanNameSour
     }
 
     private GerApplicationClientType createDefaultPlan(String name, ApplicationClientType appClient, boolean standAlone, Environment environment) {
-        /*String id = appClient.getId();
+        String id = appClient == null? null: appClient.getId();
         if (id == null) {
             id = name;
             if (id.endsWith(".jar")) {
@@ -357,7 +379,7 @@ public class AppClientModuleBuilder implements ModuleBuilder, CorbaGBeanNameSour
             if (id.endsWith("/")) {
                 id = id.substring(0, id.length() - 1);
             }
-        }*/
+        }
 
         GerApplicationClientType geronimoAppClient = GerApplicationClientType.Factory.newInstance();
         EnvironmentType clientEnvironmentType = geronimoAppClient.addNewClientEnvironment();
@@ -483,29 +505,10 @@ public class AppClientModuleBuilder implements ModuleBuilder, CorbaGBeanNameSour
     public void addGBeans(EARContext earContext, Module module, ClassLoader earClassLoader, Collection repositories) throws DeploymentException {
 
         AppClientModule appClientModule = (AppClientModule) module;
+        JarFile moduleFile = module.getModuleFile();
 
         ApplicationClientType appClient = (ApplicationClientType) appClientModule.getSpecDD();
         GerApplicationClientType geronimoAppClient = (GerApplicationClientType) appClientModule.getVendorDD();
-
-        // get the app client main class
-        JarFile moduleFile = module.getModuleFile();
-        String mainClasss;
-        try {
-            Manifest manifest = moduleFile.getManifest();
-            if (manifest == null) {
-                throw new DeploymentException("App client module jar does not contain a manifest: " + moduleFile.getName());
-            }
-            mainClasss = manifest.getMainAttributes().getValue(Attributes.Name.MAIN_CLASS);
-            if (mainClasss == null) {
-                throw new DeploymentException("App client module jar does not have Main-Class defined in the manifest: " + moduleFile.getName());
-            }
-            String classPath = manifest.getMainAttributes().getValue(Attributes.Name.CLASS_PATH);
-            if (module.isStandAlone() && classPath != null) {
-                throw new DeploymentException("Manifest class path entry is not allowed in a standalone jar (JAVAEE 5 Section 8.2)");
-            }
-        } catch (IOException e) {
-            throw new DeploymentException("Could not get manifest from app client module: " + moduleFile.getName());
-        }
 
         // generate the object name for the app client
         AbstractName appClientModuleName = appClientModule.getModuleName();
@@ -564,18 +567,19 @@ public class AppClientModuleBuilder implements ModuleBuilder, CorbaGBeanNameSour
                     }
                 }
 
+                Map<String, List<Injection>> injectionsMap;
                 // add the app client static jndi provider
                 //TODO track resource ref shared and app managed security
                 AbstractName jndiContextName = earContext.getNaming().createChildName(appClientDeploymentContext.getModuleName(), "StaticJndiContext", "StaticJndiContext");
                 GBeanData jndiContextGBeanData = new GBeanData(jndiContextName, StaticJndiContextPlugin.GBEAN_INFO);
                 try {
                     Map buildingContext = new HashMap();
-                    buildingContext.put(NamingBuilder.JNDI_KEY, new HashMap());
                     buildingContext.put(NamingBuilder.GBEAN_NAME_KEY, jndiContextName);
                     Configuration localConfiguration = appClientDeploymentContext.getConfiguration();
                     Configuration remoteConfiguration = earContext.getConfiguration();
                     namingBuilders.buildNaming(appClient, geronimoAppClient, localConfiguration, remoteConfiguration, appClientModule, buildingContext);
-                    jndiContextGBeanData.setAttribute("context", buildingContext.get(NamingBuilder.JNDI_KEY));
+                    injectionsMap = NamingBuilder.INJECTION_KEY.get(buildingContext);
+                    jndiContextGBeanData.setAttribute("context", NamingBuilder.JNDI_KEY.get(buildingContext));
                 } catch (DeploymentException e) {
                     throw e;
                 } catch (Exception e) {
@@ -587,7 +591,7 @@ public class AppClientModuleBuilder implements ModuleBuilder, CorbaGBeanNameSour
                 AbstractName appClientContainerName = appClientDeploymentContext.getModuleName();
                 GBeanData appClientContainerGBeanData = new GBeanData(appClientContainerName, AppClientContainer.GBEAN_INFO);
                 try {
-                    appClientContainerGBeanData.setAttribute("mainClassName", mainClasss);
+                    appClientContainerGBeanData.setAttribute("mainClassName", appClientModule.getMainClassName());
                     appClientContainerGBeanData.setAttribute("appClientModuleName", appClientModuleName);
                     String callbackHandlerClassName = null;
                     if (appClient.isSetCallbackHandler()) {
@@ -611,6 +615,15 @@ public class AppClientModuleBuilder implements ModuleBuilder, CorbaGBeanNameSour
                         appClientContainerGBeanData.setAttribute("defaultPrincipal", defaultPrincipal);
                     }
                     appClientContainerGBeanData.setReferencePattern("JNDIContext", jndiContextName);
+                    List<Injection> injections = injectionsMap.get(appClientModule.getMainClassName());
+                    if (injections != null) {
+                        appClientContainerGBeanData.setAttribute("injections", injections);
+                    }
+                    List<Injection> callbackHandlerInjections = injectionsMap.get(callbackHandlerClassName);
+                    if (callbackHandlerInjections != null) {
+                        appClientContainerGBeanData.setAttribute("callbackHandlerInjections", callbackHandlerInjections);
+                    }
+
                 } catch (Exception e) {
                     throw new DeploymentException("Unable to initialize AppClientModule GBean", e);
                 }

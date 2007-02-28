@@ -120,16 +120,11 @@ public abstract class AbstractNamingBuilder implements NamingBuilder {
     }
 
     protected Map<String, Object> getJndiContextMap(Map sharedContext) {
-        Map jndiContext = (Map) sharedContext.get(JNDI_KEY);
-        if (jndiContext == null) {
-            jndiContext = new HashMap<String, Object>();
-            sharedContext.put(JNDI_KEY, jndiContext);
-        }
-        return jndiContext;
+        return NamingBuilder.JNDI_KEY.get(sharedContext);
     }
 
     protected AbstractName getGBeanName(Map sharedContext) {
-        return (AbstractName) sharedContext.get(GBEAN_NAME_KEY);
+        return GBEAN_NAME_KEY.get(sharedContext);
     }
 
     protected static QNameSet buildQNameSet(String[] eeNamespaces, String localPart) {
@@ -296,7 +291,7 @@ public abstract class AbstractNamingBuilder implements NamingBuilder {
 
 
     protected void addInjections(String jndiName, InjectionTargetType[] injectionTargetArray, Map sharedContext) {
-        Map<String, List<Injection>> injectionsMap = getInjectionsMap(sharedContext);
+        Map<String, List<Injection>> injectionsMap = NamingBuilder.INJECTION_KEY.get(sharedContext);
         for (InjectionTargetType injectionTarget : injectionTargetArray) {
             String targetName = injectionTarget.getInjectionTargetName().getStringValue().trim();
             String targetClassName = injectionTarget.getInjectionTargetClass().getStringValue().trim();
@@ -309,12 +304,4 @@ public abstract class AbstractNamingBuilder implements NamingBuilder {
         }
     }
 
-    private Map<String, List<Injection>> getInjectionsMap(Map sharedContext) {
-        Map<String, List<Injection>> injectionsMap = (Map<String, List<Injection>>) sharedContext.get(INJECTION_KEY);
-        if (injectionsMap == null) {
-            injectionsMap = new HashMap<String, List<Injection>>();
-            sharedContext.put(INJECTION_KEY, injectionsMap);
-        }
-        return injectionsMap;
-    }
 }

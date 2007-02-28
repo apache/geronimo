@@ -364,7 +364,7 @@ public class JettyWebAppContext implements GBeanLifecycle, JettyServletRegistrat
                 }
             }
         }
-        Object filter = objectRecipe.create(clazz.getClassLoader());
+        Object filter = objectRecipe.create(webClassLoader);
         Map unsetProperties = objectRecipe.getUnsetProperties();
         if (unsetProperties.size() > 0) {
             for (Object property : unsetProperties.keySet()) {

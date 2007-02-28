@@ -37,13 +37,15 @@ public class AppClientModule extends Module {
     private final Environment clientEnvironment;
     private JarFile earFile;
     private final AbstractName appClientName;
+    private final String mainClassName;
     private final Collection resourceModules;
 
 
-    public AppClientModule(boolean standAlone, AbstractName moduleName, AbstractName appClientName, Environment serverEnvironment, Environment clientEnvironment, JarFile moduleFile, String targetPath, XmlObject specDD, XmlObject vendorDD, String originalSpecDD, Collection resourceModules) {
+    public AppClientModule(boolean standAlone, AbstractName moduleName, AbstractName appClientName, Environment serverEnvironment, Environment clientEnvironment, JarFile moduleFile, String targetPath, XmlObject specDD, String mainClassName, XmlObject vendorDD, String originalSpecDD, Collection resourceModules) {
         super(standAlone, moduleName, serverEnvironment, moduleFile, targetPath, specDD, vendorDD, originalSpecDD, null, new HashMap());
         this.clientEnvironment = clientEnvironment;
         this.appClientName = appClientName;
+        this.mainClassName = mainClassName;
         this.resourceModules = resourceModules;
     }
 
@@ -65,6 +67,10 @@ public class AppClientModule extends Module {
 
     public AbstractName getAppClientName() {
         return appClientName;
+    }
+
+    public String getMainClassName() {
+        return mainClassName;
     }
 
     public void addClass(URI location, String fqcn, byte[] bytes, DeploymentContext context) throws IOException, URISyntaxException {

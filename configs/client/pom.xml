@@ -120,6 +120,11 @@
             <version>${version}</version>
         </dependency>
 
+        <dependency>
+            <groupId>org.apache.xbean</groupId>
+            <artifactId>xbean-reflect</artifactId>
+        </dependency>
+
 
         <!-- geronimo-spec-corba, geronimo-j2ee_1.4_spec -->
         <!-- openejb-core, tranql, asm, activemq,
