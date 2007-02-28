@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?><metadata>
+  <plugins>
+    <plugin>
+      <name>Apache CXF Common XSD2Java  Plugins</name>
+      <prefix>cxf-common-xsd</prefix>
+      <artifactId>cxf-common-xsd</artifactId>
+    </plugin>
+    <plugin>
+      <name>Apache CXF Code Generation Maven 2 Plugins</name>
+      <prefix>cxf-codegen</prefix>
+      <artifactId>cxf-codegen-plugin</artifactId>
+    </plugin>
+  </plugins>
+</metadata>
