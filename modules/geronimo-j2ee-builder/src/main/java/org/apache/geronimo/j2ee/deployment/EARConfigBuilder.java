@@ -33,8 +33,10 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.jar.Attributes;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
+import java.util.jar.Manifest;
 import java.util.zip.ZipEntry;
 
 import javax.xml.namespace.QName;
@@ -760,7 +762,8 @@ public class EARConfigBuilder implements ConfigurationBuilder, CorbaGBeanNameSou
                         } else if (entry.getName().endsWith(".jar") && !isLibraryEntry(application, entry)) {
                             try {
                                 NestedJarFile moduleFile = new NestedJarFile(earFile, entry.getName());
-                                if (moduleFile.getEntry("META-INF/application-client.xml") != null) {
+                                Manifest manifest = moduleFile.getManifest();
+                                if (moduleFile.getEntry("META-INF/application-client.xml") != null || (manifest != null && manifest.getMainAttributes().getValue(Attributes.Name.MAIN_CLASS) != null)) {
                                     if (getAppClientConfigBuilder() == null) {
                                         throw new DeploymentException("Cannot deploy app client; No app client deployer defined: " + entry.getName());
                                     }
