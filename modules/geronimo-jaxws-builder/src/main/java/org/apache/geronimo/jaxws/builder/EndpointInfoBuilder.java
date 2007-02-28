@@ -51,6 +51,7 @@ import org.apache.geronimo.jaxws.JAXWSUtils;
 import org.apache.geronimo.jaxws.client.EndpointInfo;
 import org.apache.geronimo.xbeans.geronimo.naming.GerPortType;
 import org.apache.geronimo.xbeans.geronimo.naming.GerServiceRefType;
+import org.apache.geronimo.xbeans.javaee.PortComponentRefType;
 import org.xml.sax.InputSource;
 
 public class EndpointInfoBuilder {
@@ -69,11 +70,11 @@ public class EndpointInfoBuilder {
 
     private Map<Object, EndpointInfo> portInfoMap = new HashMap<Object, EndpointInfo>();
 
-    private Map<Class, String> portComponentRefMap;
+    private Map<Class, PortComponentRefType> portComponentRefMap;
 
     public EndpointInfoBuilder(Class serviceClass,
                                GerServiceRefType serviceRefType,
-                               Map<Class, String> portComponentRefMap,
+                               Map<Class, PortComponentRefType> portComponentRefMap,
                                JarFile moduleFile,
                                URI wsdlURI,
                                QName serviceQName) {
@@ -214,7 +215,9 @@ public class EndpointInfoBuilder {
                     throw new DeploymentException("No portType for binding: " + binding.getQName());
                 }
 
-                EndpointInfo info = new EndpointInfo(location, credentialsName);
+                boolean mtomEnabled = isMTOMEnabled(portType.getQName());
+                
+                EndpointInfo info = new EndpointInfo(location, credentialsName, mtomEnabled);
                 this.portInfoMap.put(portName, info);
                 // prefer first binding listed in wsdl
                 if (!this.portInfoMap.containsKey(portType.getQName())) {
@@ -308,6 +311,31 @@ public class EndpointInfoBuilder {
                 throw new DeploymentException("No portType found in WSDL for SEI: " + sei.getName());
             }            
         }        
+    }
+    
+    private boolean isMTOMEnabled(QName portType) {
+        boolean mtomEnabled = false;
+        PortComponentRefType portRef = getPortComponentRef(portType);
+        if (portRef != null && portRef.isSetEnableMtom()) {
+            mtomEnabled = portRef.getEnableMtom().getBooleanValue();
+        }
+        return mtomEnabled;
+    }
+    
+    private PortComponentRefType getPortComponentRef(QName portType) {
+        if (this.portComponentRefMap == null) {
+            return null;
+        }
+        for (Class sei : this.portComponentRefMap.keySet()) {
+            QName seiPortType = JAXWSUtils.getPortType(sei);
+            if (seiPortType == null) {
+                continue;
+            }
+            if (portType.equals(seiPortType)) {
+                return this.portComponentRefMap.get(sei);
+            }        
+        }
+        return null;
     }
     
     private class JarWSDLLocator implements WSDLLocator {

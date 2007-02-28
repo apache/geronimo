@@ -14,36 +14,25 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.apache.geronimo.jaxws.client;
+package org.apache.geronimo.cxf;
 
-import java.io.Serializable;
-import java.net.URL;
+import org.apache.cxf.jaxws.support.JaxWsImplementorInfo;
 
-public class EndpointInfo implements Serializable {
+public class GeronimoJaxWsImplementorInfo extends JaxWsImplementorInfo {
 
-    private URL location;
-    private String credentialsName;
-    private boolean mtomEnabled;
-    
-    public EndpointInfo(URL location, String credentialsName, boolean mtomEnabled) {
-        this.location = location;
-        this.credentialsName = credentialsName;  
-        this.mtomEnabled = mtomEnabled;        
-    }
+    private String bindingURI;
 
-    public boolean isMTOMEnabled() {
-        return this.mtomEnabled;
+    public GeronimoJaxWsImplementorInfo(Class clazz, String bindingURI) {
+        super(clazz);
+        this.bindingURI = bindingURI;
     }
     
-    public URL getLocation() {
-        return this.location;
+    public String getBindingType() {
+        if (this.bindingURI != null) {
+            return this.bindingURI;
+        } else {
+            return super.getBindingType();
+        }
     }
-    
-    public String getCredentialsName() {
-        return this.credentialsName;
-    }
-    
-    public String toString() {
-        return this.location + " " + this.credentialsName + " " + this.mtomEnabled;
-    }
+   
 }

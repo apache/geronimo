@@ -20,31 +20,27 @@ package org.apache.geronimo.cxf.ejb;
 
 import java.net.URL;
 
-import javax.xml.ws.WebServiceException;
-
 import org.apache.cxf.Bus;
-import org.apache.cxf.jaxws.support.JaxWsImplementorInfo;
 import org.apache.cxf.jaxws.support.JaxWsServiceFactoryBean;
 import org.apache.cxf.message.Message;
 import org.apache.geronimo.cxf.CXFEndpoint;
 import org.apache.geronimo.cxf.CXFServiceConfiguration;
+import org.apache.geronimo.cxf.GeronimoJaxWsImplementorInfo;
 import org.apache.geronimo.jaxws.JAXWSUtils;
-import org.apache.geronimo.jaxws.PortInfo;
 import org.apache.openejb.DeploymentInfo;
 
 public class EJBEndpoint extends CXFEndpoint {
-
-    private PortInfo portInfo;
 
     public EJBEndpoint(Bus bus,
                        URL configurationBaseUrl,
                        Class instance) {
         super(bus, instance);
-
-        this.portInfo = (PortInfo) bus.getExtension(PortInfo.class);
-        this.bindingURI = JAXWSUtils.getBindingURI(this.portInfo.getProtocolBinding());
-        
-        implInfo = new JaxWsImplementorInfo( (Class)implementor );
+                
+        String bindingURI = null;
+        if (this.portInfo.getProtocolBinding() != null) {
+            bindingURI = JAXWSUtils.getBindingURI(this.portInfo.getProtocolBinding());
+        }
+        implInfo = new GeronimoJaxWsImplementorInfo((Class)implementor, bindingURI);
 
         serviceFactory = new JaxWsServiceFactoryBean(implInfo);       
         serviceFactory.setBus(bus);

@@ -28,36 +28,34 @@ import org.apache.cxf.Bus;
 import org.apache.cxf.jaxws.JAXWSMethodInvoker;
 import org.apache.cxf.jaxws.handler.PortInfoImpl;
 import org.apache.cxf.jaxws.javaee.HandlerChainsType;
-import org.apache.cxf.jaxws.support.JaxWsImplementorInfo;
 import org.apache.cxf.jaxws.support.JaxWsServiceFactoryBean;
 import org.apache.cxf.message.Message;
 import org.apache.geronimo.cxf.CXFEndpoint;
 import org.apache.geronimo.cxf.CXFHandlerResolver;
 import org.apache.geronimo.cxf.CXFServiceConfiguration;
+import org.apache.geronimo.cxf.GeronimoJaxWsImplementorInfo;
 import org.apache.geronimo.jaxws.JAXWSAnnotationProcessor;
 import org.apache.geronimo.jaxws.JAXWSUtils;
 import org.apache.geronimo.jaxws.JNDIResolver;
-import org.apache.geronimo.jaxws.PortInfo;
 import org.apache.geronimo.jaxws.annotations.AnnotationException;
 import org.apache.geronimo.jaxws.annotations.AnnotationProcessor;
 
 public class POJOEndpoint extends CXFEndpoint {
 
-    private PortInfo portInfo;
-
     private AnnotationProcessor annotationProcessor;
 
     public POJOEndpoint(Bus bus, URL configurationBaseUrl, Object instance) {
         super(bus, instance);
-
-        this.portInfo = (PortInfo) bus.getExtension(PortInfo.class);
-        this.bindingURI = JAXWSUtils.getBindingURI(this.portInfo.getProtocolBinding());
         
-        implInfo = new JaxWsImplementorInfo(implementor.getClass());
+        String bindingURI = null;
+        if (this.portInfo.getProtocolBinding() != null) {
+            bindingURI = JAXWSUtils.getBindingURI(this.portInfo.getProtocolBinding());
+        }
+        implInfo = new GeronimoJaxWsImplementorInfo(implementor.getClass(), bindingURI);
 
         serviceFactory = new JaxWsServiceFactoryBean(implInfo);        
         serviceFactory.setBus(bus);
-
+                
         /*
          * TODO: The WSDL processing needs to be improved
          */
@@ -111,9 +109,10 @@ public class POJOEndpoint extends CXFEndpoint {
                                    this.implementor.getClass(),
                                    handlerChains, 
                                    this.annotationProcessor);
-                
-        PortInfoImpl portInfo = 
-            new PortInfoImpl(this.bindingURI, serviceFactory.getEndpointName(), service.getName());
+                      
+        PortInfoImpl portInfo = new PortInfoImpl(implInfo.getBindingType(), 
+                                                 serviceFactory.getEndpointName(),
+                                                 service.getName());
         
         List<Handler> chain = handlerResolver.getHandlerChain(portInfo);
 

@@ -140,17 +140,17 @@ public abstract class JAXWSServiceRefBuilder extends AbstractNamingBuilder imple
             }
         }
                        
-        Map<Class, String> portComponentRefMap = new HashMap<Class, String>();
+        Map<Class, PortComponentRefType> portComponentRefMap = new HashMap<Class, PortComponentRefType>();
         PortComponentRefType[] portComponentRefs = serviceRef.getPortComponentRefArray();
         if (portComponentRefs != null) {
             for (int j = 0; j < portComponentRefs.length; j++) {
                 PortComponentRefType portComponentRef = portComponentRefs[j];
                 String serviceEndpointInterfaceType = getStringValue(portComponentRef.getServiceEndpointInterface());
                 Class serviceEndpointClass = loadClass(serviceEndpointInterfaceType, cl, "service endpoint");
-                // TODO: check if it is annotated?
-                String portComponentLink = getStringValue(portComponentRef.getPortComponentLink());
                 
-                portComponentRefMap.put(serviceEndpointClass, portComponentLink);
+                // TODO: check if it is annotated?
+                
+                portComponentRefMap.put(serviceEndpointClass, portComponentRef);
             }
         }
         
@@ -163,7 +163,7 @@ public abstract class JAXWSServiceRefBuilder extends AbstractNamingBuilder imple
     public abstract Object createService(ServiceRefType serviceRef, GerServiceRefType gerServiceRef, 
                                          Module module, ClassLoader cl, Class serviceInterfaceClass, 
                                          QName serviceQName, URI wsdlURI, Class serviceReferenceType, 
-                                         Map<Class, String> portComponentRefMap) throws DeploymentException;
+                                         Map<Class, PortComponentRefType> portComponentRefMap) throws DeploymentException;
        
     private static Map mapServiceRefs(XmlObject[] refs) {
         Map refMap = new HashMap();

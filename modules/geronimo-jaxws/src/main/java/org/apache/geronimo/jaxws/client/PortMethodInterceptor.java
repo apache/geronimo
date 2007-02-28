@@ -27,6 +27,8 @@ import org.apache.geronimo.security.jaas.NamedUsernamePasswordCredential;
 import javax.security.auth.Subject;
 import javax.xml.namespace.QName;
 import javax.xml.ws.BindingProvider;
+import javax.xml.ws.soap.SOAPBinding;
+
 import java.lang.reflect.Method;
 import java.net.URL;
 import java.util.Iterator;
@@ -86,6 +88,13 @@ public class PortMethodInterceptor implements MethodInterceptor {
             return;
         }       
         
+        // set mtom
+        boolean enableMTOM = info.isMTOMEnabled();
+        if (enableMTOM && proxy.getBinding() instanceof SOAPBinding) {
+            ((SOAPBinding)proxy.getBinding()).setMTOMEnabled(enableMTOM);
+            LOG.debug("Set mtom property: " + enableMTOM);
+        }
+      
         // set address
         URL location = info.getLocation();
         if (location != null) {

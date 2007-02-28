@@ -27,6 +27,7 @@ import java.util.concurrent.Executor;
 import javax.xml.transform.Source;
 import javax.xml.ws.Binding;
 import javax.xml.ws.Endpoint;
+import javax.xml.ws.soap.SOAPBinding;
 
 import org.apache.cxf.Bus;
 import org.apache.cxf.endpoint.Server;
@@ -37,6 +38,7 @@ import org.apache.cxf.jaxws.support.JaxWsEndpointImpl;
 import org.apache.cxf.jaxws.support.JaxWsImplementorInfo;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.service.Service;
+import org.apache.geronimo.jaxws.PortInfo;
 
 public abstract class CXFEndpoint extends Endpoint {
 
@@ -52,11 +54,12 @@ public abstract class CXFEndpoint extends Endpoint {
 
     protected AbstractJaxWsServiceFactoryBean serviceFactory;
 
-    protected String bindingURI;
+    protected PortInfo portInfo;
 
     public CXFEndpoint(Bus bus, Object implementor) {
         this.bus = bus;
         this.implementor = implementor;
+        this.portInfo = (PortInfo) bus.getExtension(PortInfo.class);       
     }
   
     protected URL getWsdlURL(URL configurationBaseUrl, String wsdlFile) {
@@ -160,6 +163,10 @@ public abstract class CXFEndpoint extends Endpoint {
 
         org.apache.cxf.endpoint.Endpoint endpoint = getEndpoint();
 
+        if (getBinding() instanceof SOAPBinding) {
+            ((SOAPBinding)getBinding()).setMTOMEnabled(this.portInfo.isMTOMEnabled());
+        }
+        
         if (endpoint.getEnableSchemaValidation()) {
             endpoint.put(Message.SCHEMA_VALIDATION_ENABLED, 
                          endpoint.getEnableSchemaValidation());

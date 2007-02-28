@@ -59,6 +59,7 @@ import org.apache.geronimo.jaxws.builder.JAXWSServiceBuilder;
 import org.apache.geronimo.jaxws.client.EndpointInfo;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.xbeans.geronimo.naming.GerServiceRefType;
+import org.apache.geronimo.xbeans.javaee.PortComponentRefType;
 import org.apache.geronimo.xbeans.javaee.ServiceRefHandlerChainsType;
 
 public class Axis2Builder extends JAXWSServiceBuilder {
@@ -207,7 +208,7 @@ public class Axis2Builder extends JAXWSServiceBuilder {
                                 Class serviceReference,
                                 URI wsdlURI,
                                 QName serviceQName,
-                                Map<Class, String> portComponentRefMap,
+                                Map<Class, PortComponentRefType> portComponentRefMap,
                                 ServiceRefHandlerChainsType handlerChains,
                                 GerServiceRefType serviceRefType,
                                 Module module,

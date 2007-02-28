@@ -2,6 +2,7 @@ package org.apache.geronimo.axis2.builder;
 
 import org.apache.geronimo.jaxws.builder.JAXWSServiceRefBuilder;
 import org.apache.geronimo.kernel.repository.Environment;
+import org.apache.geronimo.xbeans.javaee.PortComponentRefType;
 import org.apache.geronimo.xbeans.javaee.ServiceRefType;
 import org.apache.geronimo.xbeans.geronimo.naming.GerServiceRefType;
 import org.apache.geronimo.j2ee.deployment.Module;
@@ -29,7 +30,7 @@ public class Axis2ServiceRefBuilder extends JAXWSServiceRefBuilder {
     public Object createService(ServiceRefType serviceRef, GerServiceRefType gerServiceRef,
                                 Module module, ClassLoader cl, Class serviceInterfaceClass,
                                 QName serviceQName, URI wsdlURI, Class serviceReferenceType,
-                                Map<Class, String> portComponentRefMap) throws DeploymentException {
+                                Map<Class, PortComponentRefType> portComponentRefMap) throws DeploymentException {
         return this.axis2Builder.createService(serviceInterfaceClass, serviceReferenceType, wsdlURI,
                                              serviceQName, portComponentRefMap, serviceRef.getHandlerChains(),
                                              gerServiceRef, module, cl);
