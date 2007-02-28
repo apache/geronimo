@@ -19,6 +19,8 @@ package org.apache.geronimo.deployment.plugin.remote;
 import org.apache.geronimo.kernel.Kernel;
 
 import javax.enterprise.deploy.spi.Target;
+import javax.enterprise.deploy.shared.ModuleType;
+
 import java.io.File;
 import java.io.InputStream;
 
@@ -33,8 +35,8 @@ public class DistributeCommand extends org.apache.geronimo.deployment.plugin.loc
         super(kernel, targetList, moduleArchive, deploymentPlan);
     }
 
-    public DistributeCommand(Kernel kernel, Target[] targetList, InputStream moduleStream, InputStream deploymentStream) {
-        super(kernel, targetList, moduleStream, deploymentStream);
+    public DistributeCommand(Kernel kernel, Target[] targetList, ModuleType moduleType, InputStream moduleStream, InputStream deploymentStream) {
+        super(kernel, targetList, moduleType, moduleStream, deploymentStream);
     }
 
     protected void massageFileNames(File[] inputs) {

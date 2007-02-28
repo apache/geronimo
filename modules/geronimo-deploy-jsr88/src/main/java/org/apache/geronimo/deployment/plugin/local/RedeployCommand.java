@@ -21,6 +21,7 @@ import java.io.InputStream;
 import java.util.Iterator;
 
 import javax.enterprise.deploy.shared.CommandType;
+import javax.enterprise.deploy.shared.ModuleType;
 import javax.enterprise.deploy.spi.Target;
 import javax.enterprise.deploy.spi.TargetModuleID;
 
@@ -46,12 +47,12 @@ public class RedeployCommand extends AbstractDeployCommand {
     private final TargetModuleID[] modules;
 
     public RedeployCommand(Kernel kernel, TargetModuleID[] moduleIDList, File moduleArchive, File deploymentPlan) {
-        super(CommandType.REDEPLOY, kernel, moduleArchive, deploymentPlan, null, null, false);
+        super(CommandType.REDEPLOY, kernel, moduleArchive, deploymentPlan, null, null, null, false);
         this.modules = moduleIDList;
     }
 
     public RedeployCommand(Kernel kernel, TargetModuleID[] moduleIDList, InputStream moduleArchive, InputStream deploymentPlan) {
-        super(CommandType.REDEPLOY, kernel, null, null, moduleArchive, deploymentPlan, true);
+        super(CommandType.REDEPLOY, kernel, null, null, null, moduleArchive, deploymentPlan, true);
         this.modules = moduleIDList;
     }
 
@@ -63,11 +64,11 @@ public class RedeployCommand extends AbstractDeployCommand {
         try {
             if (spool) {
                 if (moduleStream != null) {
-                    moduleArchive = createTempFile();
+                    moduleArchive = createTempFile(moduleType == null? null: moduleType.getModuleExtension());
                     copyTo(moduleArchive, moduleStream);
                 }
                 if (deploymentStream != null) {
-                    deploymentPlan = createTempFile();
+                    deploymentPlan = createTempFile(null);
                     copyTo(deploymentPlan, deploymentStream);
                 }
             }

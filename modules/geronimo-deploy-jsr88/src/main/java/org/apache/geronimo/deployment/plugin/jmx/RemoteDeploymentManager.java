@@ -32,6 +32,7 @@ import java.util.Map;
 import java.util.Set;
 
 import javax.enterprise.deploy.shared.CommandType;
+import javax.enterprise.deploy.shared.ModuleType;
 import javax.enterprise.deploy.spi.Target;
 import javax.enterprise.deploy.spi.TargetModuleID;
 import javax.enterprise.deploy.spi.status.ProgressEvent;
@@ -129,11 +130,11 @@ public class RemoteDeploymentManager extends JMXDeploymentManager implements Ger
         }
     }
 
-    protected DistributeCommand createDistributeCommand(Target[] targetList, InputStream moduleArchive, InputStream deploymentPlan) {
+    protected DistributeCommand createDistributeCommand(Target[] targetList, ModuleType moduleType, InputStream moduleArchive, InputStream deploymentPlan) {
         if(isSameMachine) {
-            return super.createDistributeCommand(targetList, moduleArchive, deploymentPlan);
+            return super.createDistributeCommand(targetList, moduleType, moduleArchive, deploymentPlan);
         } else {
-            return new org.apache.geronimo.deployment.plugin.remote.DistributeCommand(kernel, targetList, moduleArchive, deploymentPlan);
+            return new org.apache.geronimo.deployment.plugin.remote.DistributeCommand(kernel, targetList, moduleType, moduleArchive, deploymentPlan);
         }
     }
 
@@ -203,7 +204,7 @@ public class RemoteDeploymentManager extends JMXDeploymentManager implements Ger
     public Object startInstall(File carFile, String username, String password) {
         File[] args = new File[]{carFile};
         if(!isSameMachine) {
-            AbstractDeployCommand progress = new AbstractDeployCommand(CommandType.DISTRIBUTE, kernel, null, null, null, null, false) {
+            AbstractDeployCommand progress = new AbstractDeployCommand(CommandType.DISTRIBUTE, kernel, null, null, null, null, null, false) {
                 public void run() {
                 }
             };

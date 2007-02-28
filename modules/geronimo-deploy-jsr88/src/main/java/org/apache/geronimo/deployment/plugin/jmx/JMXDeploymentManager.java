@@ -35,8 +35,6 @@ import javax.enterprise.deploy.spi.exceptions.InvalidModuleException;
 import javax.enterprise.deploy.spi.exceptions.TargetException;
 import javax.enterprise.deploy.spi.status.ProgressObject;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.deployment.ModuleConfigurer;
 import org.apache.geronimo.deployment.plugin.TargetImpl;
 import org.apache.geronimo.deployment.plugin.TargetModuleIDImpl;
@@ -59,7 +57,6 @@ import org.apache.geronimo.kernel.management.State;
  * @version $Rev$ $Date$
  */
 public abstract class JMXDeploymentManager implements DeploymentManager {
-    private static final Log log = LogFactory.getLog(JMXDeploymentManager.class);
 
     protected Kernel kernel;
     private ConfigurationManager configurationManager;
@@ -173,7 +170,7 @@ public abstract class JMXDeploymentManager implements DeploymentManager {
                 }
             }
             CommandSupport.addWebURLs(kernel, result);
-            return result.size() == 0 ? null : (TargetModuleID[]) result.toArray(new TargetModuleID[result.size()]);
+            return result.size() == 0 ? null : result.toArray(new TargetModuleID[result.size()]);
         } catch (Exception e) {
             throw (TargetException) new TargetException(e.getMessage()).initCause(e);
         }
@@ -189,11 +186,18 @@ public abstract class JMXDeploymentManager implements DeploymentManager {
         return command;
     }
 
+    /**
+     * @deprecated
+     */
     public ProgressObject distribute(Target[] targetList, InputStream moduleArchive, InputStream deploymentPlan) {
+        return distribute(targetList, null, moduleArchive, deploymentPlan);
+    }
+
+    public ProgressObject distribute(Target[] targetList, ModuleType moduleType, InputStream moduleArchive, InputStream deploymentPlan) throws IllegalStateException {
         if (kernel == null) {
             throw new IllegalStateException("Disconnected");
         }
-        DistributeCommand command = createDistributeCommand(targetList, moduleArchive, deploymentPlan);
+        DistributeCommand command = createDistributeCommand(targetList, moduleType, moduleArchive, deploymentPlan);
         command.setCommandContext(commandContext);
         new Thread(command).start();
         return command;
@@ -308,8 +312,8 @@ public abstract class JMXDeploymentManager implements DeploymentManager {
         return new DistributeCommand(kernel, targetList, moduleArchive, deploymentPlan);
     }
 
-    protected DistributeCommand createDistributeCommand(Target[] targetList, InputStream moduleArchive, InputStream deploymentPlan) {
-        return new DistributeCommand(kernel, targetList, moduleArchive, deploymentPlan);
+    protected DistributeCommand createDistributeCommand(Target[] targetList, ModuleType moduleType, InputStream moduleArchive, InputStream deploymentPlan) {
+        return new DistributeCommand(kernel, targetList, moduleType, moduleArchive, deploymentPlan);
     }
 
     protected RedeployCommand createRedeployCommand(TargetModuleID[] moduleIDList, File moduleArchive, File deploymentPlan) {

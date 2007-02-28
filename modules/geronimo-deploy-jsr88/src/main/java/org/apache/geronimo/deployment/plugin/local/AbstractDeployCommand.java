@@ -44,15 +44,17 @@ public abstract class AbstractDeployCommand extends CommandSupport {
     protected final boolean spool;
     protected File moduleArchive;
     protected File deploymentPlan;
+    protected final ModuleType moduleType;
     protected InputStream moduleStream;
     protected InputStream deploymentStream;
     protected AbstractName deployer;
 
-    public AbstractDeployCommand(CommandType command, Kernel kernel, File moduleArchive, File deploymentPlan, InputStream moduleStream, InputStream deploymentStream, boolean spool) {
+    public AbstractDeployCommand(CommandType command, Kernel kernel, File moduleArchive, File deploymentPlan, ModuleType moduleType, InputStream moduleStream, InputStream deploymentStream, boolean spool) {
         super(command);
         this.kernel = kernel;
         this.moduleArchive = moduleArchive;
         this.deploymentPlan = deploymentPlan;
+        this.moduleType = moduleType;
         this.moduleStream = moduleStream;
         this.deploymentStream = deploymentStream;
         this.spool = spool;
@@ -88,8 +90,8 @@ public abstract class AbstractDeployCommand extends CommandSupport {
     // be careful to clean up the temp file... we tell the vm to delete this on exit
     // but VMs can't be trusted to acutally delete the file
     // Copied from DeploymentUtil
-    protected static File createTempFile() throws IOException {
-        File tempFile = File.createTempFile("geronimo-deploymentUtil", ".tmpdir");
+    protected static File createTempFile(String extension) throws IOException {
+        File tempFile = File.createTempFile("geronimo-deploymentUtil", extension == null? ".tmpdir": extension);
         tempFile.deleteOnExit();
         return tempFile;
     }

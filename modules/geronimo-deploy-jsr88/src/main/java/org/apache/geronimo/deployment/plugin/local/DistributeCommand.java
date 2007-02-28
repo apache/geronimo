@@ -21,6 +21,7 @@ import java.io.File;
 import java.io.InputStream;
 
 import javax.enterprise.deploy.shared.CommandType;
+import javax.enterprise.deploy.shared.ModuleType;
 import javax.enterprise.deploy.spi.Target;
 
 import org.apache.geronimo.kernel.Kernel;
@@ -32,12 +33,12 @@ public class DistributeCommand extends AbstractDeployCommand {
     protected final Target[] targetList;
 
     public DistributeCommand(Kernel kernel, Target[] targetList, File moduleArchive, File deploymentPlan) {
-        super(CommandType.DISTRIBUTE, kernel, moduleArchive, deploymentPlan, null, null, false);
+        super(CommandType.DISTRIBUTE, kernel, moduleArchive, deploymentPlan, null, null, null, false);
         this.targetList = targetList;
     }
 
-    public DistributeCommand(Kernel kernel, Target[] targetList, InputStream moduleStream, InputStream deploymentStream) {
-        super(CommandType.DISTRIBUTE, kernel, null, null, moduleStream, deploymentStream, true);
+    public DistributeCommand(Kernel kernel, Target[] targetList, ModuleType moduleType, InputStream moduleStream, InputStream deploymentStream) {
+        super(CommandType.DISTRIBUTE, kernel, null, null, moduleType, moduleStream, deploymentStream, true);    
         this.targetList = targetList;
     }
 
@@ -45,11 +46,11 @@ public class DistributeCommand extends AbstractDeployCommand {
         try {
             if (spool) {
                 if (moduleStream != null) {
-                    moduleArchive = createTempFile();
+                    moduleArchive = createTempFile(moduleType == null? null: moduleType.getModuleExtension());
                     copyTo(moduleArchive, moduleStream);
                 }
                 if (deploymentStream != null) {
-                    deploymentPlan = createTempFile();
+                    deploymentPlan = createTempFile(null);
                     copyTo(deploymentPlan, deploymentStream);
                 }
             }

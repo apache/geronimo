@@ -34,8 +34,6 @@ import javax.enterprise.deploy.spi.exceptions.InvalidModuleException;
 import javax.enterprise.deploy.spi.exceptions.TargetException;
 import javax.enterprise.deploy.spi.status.ProgressObject;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.deployment.ModuleConfigurer;
 
 /**
@@ -45,7 +43,6 @@ import org.apache.geronimo.deployment.ModuleConfigurer;
  * @version $Rev$ $Date$
  */
 public class DisconnectedDeploymentManager implements DeploymentManager {
-    private static final Log log = LogFactory.getLog(DisconnectedDeploymentManager.class);
 
     private final Collection<ModuleConfigurer> moduleConfigurers;
 
@@ -129,7 +126,14 @@ public class DisconnectedDeploymentManager implements DeploymentManager {
         throw new IllegalStateException("Disconnected");
     }
 
+    /**
+     * @deprecated
+     */
     public ProgressObject distribute(Target[] targets, InputStream inputStream, InputStream inputStream1) throws IllegalStateException {
+        throw new IllegalStateException("Disconnected");
+    }
+
+    public ProgressObject distribute(Target[] targets, ModuleType moduleType, InputStream inputStream, InputStream inputStream1) throws IllegalStateException {
         throw new IllegalStateException("Disconnected");
     }
 
