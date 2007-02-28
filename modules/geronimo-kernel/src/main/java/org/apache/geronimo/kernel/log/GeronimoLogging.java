@@ -55,7 +55,12 @@ public class GeronimoLogging {
 
             // force the log factory to initialize
             LogFactory.getLog(GeronimoLogging.class);
-
+            
+            //
+            // FIXME: Replace the bits below with this:
+            //
+            // System.setProperty("mx4j.log.prototype", "mx4j.log.CommonsLogger");
+            
             // force mx4j to use commons logging
             // Use reflection so mx4j is not required (this is important in JDK 1.5)
             // mx4j.log.Log.redirectTo(new mx4j.log.CommonsLogger());

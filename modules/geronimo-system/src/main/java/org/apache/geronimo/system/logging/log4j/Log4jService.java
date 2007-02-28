@@ -512,6 +512,8 @@ public class Log4jService implements GBeanLifecycle, SystemLog {
         File file = resolveConfigurationFile();
         if (file == null || !file.exists()) {
             return;
+        } else {
+            lastChanged = file.lastModified();
         }
 
         // Record the default console log level
@@ -552,23 +554,8 @@ public class Log4jService implements GBeanLifecycle, SystemLog {
     public void doStart() {
         LogFactory logFactory = LogFactory.getFactory();
         if (logFactory instanceof GeronimoLogFactory) {
-            synchronized (this) {
-                timer = new Timer(true);
-
-                // Periodically check the configuration file
-                schedule();
-
-                // Make sure the root Logger has loaded
-                Logger logger = LogManager.getRootLogger();
-
-                reconfigure();
-
-                File file = resolveConfigurationFile();
-                if (file != null) {
-                    lastChanged = file.lastModified();
-                }
-                logEnvInfo(logger);
-            }
+            // Make sure the root Logger has loaded
+            Logger logger = LogManager.getRootLogger();
 
             // Change all of the loggers over to use log4j
             GeronimoLogFactory geronimoLogFactory = (GeronimoLogFactory) logFactory;
@@ -577,6 +564,17 @@ public class Log4jService implements GBeanLifecycle, SystemLog {
                     geronimoLogFactory.setLogFactory(new CachingLog4jLogFactory());
                 }
             }
+
+            synchronized (this) {
+                reconfigure();
+
+                timer = new Timer(true);
+
+                // Periodically check the configuration file
+                schedule();
+            }
+
+            logEnvInfo();
         }
 
         synchronized (this) {
@@ -608,8 +606,9 @@ public class Log4jService implements GBeanLifecycle, SystemLog {
         }
     }
 
-    private void logEnvInfo(Logger log) {
+    private void logEnvInfo() {
        try {
+          Log log = LogFactory.getLog(Log4jService.class);
           log.info("----------------------------------------------");
           log.info("Started Logging Service");
           log.debug("Log4jService created with configFileName=" + this.configurationFile +
@@ -640,9 +639,7 @@ public class Log4jService implements GBeanLifecycle, SystemLog {
           log.info("  System property [sun.boot.class.path] = " + System.getProperty("sun.boot.class.path"));
           log.info("----------------------------------------------");
        } catch (Exception e) {
-          String msg = "Exception caught during logging of Runtime Information.  Exception=" + e.toString();
-          log.error(msg);
-          System.err.println(msg);
+          System.err.println("Exception caught during logging of Runtime Information.  Exception=" + e.toString());
        }
     }
 
