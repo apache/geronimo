@@ -256,18 +256,18 @@ public class JNDIViewPortlet extends BasePortlet {
                         jspNode = new StringTree("JSP");
                         servletsNode.addChild(jspNode);
                     }
-                    jspNode.addChild(servlet.substring(4));
+                    jspNode.addChild(new StringTree(servlet.substring(4)));
                 } else if (!servlet.equals("jsp")) {
                     if (servletsNode == null) {
                         servletsNode = new StringTree("Servlets");
                         webModule.addChild(servletsNode);
                     }
-                    servletsNode.addChild(servlet);
+                    servletsNode.addChild(new StringTree(servlet));
                 }
             }
             Iterator contexts = map.keySet().iterator();
             while (contexts.hasNext())
-                webModule.addChild("java:comp/" + contexts.next());
+                webModule.addChild(new StringTree("java:comp/" + contexts.next()));
         }
     }
 
@@ -287,12 +287,12 @@ public class JNDIViewPortlet extends BasePortlet {
                     || gb.getNameProperty("J2EEApplication").equals("null")) {
                 StringTree treeEnt = (StringTree) entApp
                         .get("ResourceAdapterModule");
-                treeEnt.addChild(resourceModule);
+                treeEnt.addChild(new StringTree(resourceModule));
             } else {
                 StringTree treeEnt = (StringTree) entApp.get(gb
                         .getNameProperty("J2EEApplication"));
                 treeEnt = treeEnt.findNode("ResourceAdapterModule");
-                treeEnt.addChild(resourceModule);
+                treeEnt.addChild(new StringTree(resourceModule));
             }
         }
     }
@@ -312,12 +312,12 @@ public class JNDIViewPortlet extends BasePortlet {
             if (gb.getNameProperty("J2EEApplication") == null
                     || gb.getNameProperty("J2EEApplication").equals("null")) {
                 StringTree treeEnt = (StringTree) entApp.get("AppClientModule");
-                treeEnt.addChild(appClienteModule);
+                treeEnt.addChild(new StringTree(appClienteModule));
             } else {
                 StringTree treeEnt = (StringTree) entApp.get(gb
                         .getNameProperty("J2EEApplication"));
                 treeEnt = treeEnt.findNode("AppClientModule");
-                treeEnt.addChild(appClienteModule);
+                treeEnt.addChild(new StringTree(appClienteModule));
             }
         }
     }
@@ -333,7 +333,7 @@ public class JNDIViewPortlet extends BasePortlet {
                     buildContext(node, (Context) obj, nodeCurr + "/"
                             + pair.getName());
                 } else {
-                    node.addChild(new String(nodeCurr + "/" + pair.getName()));
+                    node.addChild(new StringTree(nodeCurr + "/" + pair.getName()));
                 }
             }
         } catch (Exception e) {
@@ -355,7 +355,7 @@ public class JNDIViewPortlet extends BasePortlet {
             if (obj instanceof Context) {
                 buildGlobal(tree, (Context) obj, parent + pair.getName());
             } else {
-                tree.addChild(parent + pair.getName());
+                tree.addChild(new StringTree(parent + pair.getName()));
             }
         }
     }

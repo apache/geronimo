@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Hashtable;
 import java.util.List;
+import java.util.Collections;
 
 import org.apache.geronimo.console.BasePortlet;
 import org.apache.geronimo.console.util.StringTree;
@@ -125,7 +126,8 @@ public class ClassLoaderViewPortlet extends BasePortlet {
                 updateTree((ClassLoader) iter.next(), parentNodes);
             else
                 inverseTree((ClassLoader) iter.next(), parentNodes);
-        }            
+        }
+        Collections.sort(parentNodes);
         return parentNodes;
     }
 

@@ -19,8 +19,9 @@ package org.apache.geronimo.console.util;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Hashtable;
+import java.util.Collections;
 
-public class StringTree {
+public class StringTree implements Comparable{
     public String name = null;
     public ArrayList childs = new ArrayList();    
     public StringTree(String nm, ArrayList elements){
@@ -98,6 +99,7 @@ public class StringTree {
         else
         {
             stb.append("',children:[");
+            Collections.sort(childs);
             for(int i=0;i<childs.size();i++){
                 Object obj = childs.get(i);
                 if(i !=0 )stb.append(",");
@@ -115,5 +117,10 @@ public class StringTree {
             stb.append("]}");
         }
         return stb.toString();
+    }
+    public int compareTo(Object obj){
+        if(name == null)
+            return -1;
+        return name.compareTo(((StringTree)obj).getName());
     }
 }
