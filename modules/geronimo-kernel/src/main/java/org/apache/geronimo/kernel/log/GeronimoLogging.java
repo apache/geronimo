@@ -44,9 +44,7 @@ public class GeronimoLogging {
 
     /**
      * Initializes the logging system used by Geronimo.  This MUST be called in
-     * in the main class used to start the geronimo server.  This method forces
-     * commons logging to use GeronimoLogFactory, starts the initial commons-logging
-     * logging system, and forces mx4j to use commons logging.
+     * in the main class used to start the geronimo server.
      */
     public static void initialize(GeronimoLogging level) {
         if (!initialized) {
@@ -56,26 +54,6 @@ public class GeronimoLogging {
             // force the log factory to initialize
             LogFactory.getLog(GeronimoLogging.class);
             
-            //
-            // FIXME: Replace the bits below with this:
-            //
-            // System.setProperty("mx4j.log.prototype", "mx4j.log.CommonsLogger");
-            
-            // force mx4j to use commons logging
-            // Use reflection so mx4j is not required (this is important in JDK 1.5)
-            // mx4j.log.Log.redirectTo(new mx4j.log.CommonsLogger());
-            try {
-                Class clazz = Class.forName("mx4j.log.Log");
-                Class paramClazz = Class.forName("mx4j.log.Logger");
-                Method method = clazz.getDeclaredMethod("redirectTo", new Class[] {paramClazz});
-                paramClazz = Class.forName("mx4j.log.CommonsLogger");
-                method.invoke(null, new Object[] {paramClazz.newInstance()});
-            } catch (ClassNotFoundException e) {
-                // MX4J is not present.
-            } catch (Exception e) {
-                throw (AssertionError) new AssertionError("Cannot force MX4J to use commons logging.").initCause(e);
-            }
-
             initialized = true;
         }
     }
