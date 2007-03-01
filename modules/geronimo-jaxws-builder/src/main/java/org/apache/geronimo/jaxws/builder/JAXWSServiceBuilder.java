@@ -183,9 +183,9 @@ public abstract class JAXWSServiceBuilder implements WebServiceBuilder {
                     map = new HashMap<String, PortInfo>();
                 }
                 PortInfo portInfo = new PortInfo();
-                String location = (String) correctedPortLocations.get(clazz.getSimpleName());
+                String location = (String) correctedPortLocations.get(clazz.getName());
                 portInfo.setLocation(location);
-                map.put(clazz.getSimpleName(), portInfo);
+                map.put(clazz.getName(), portInfo);
             }
         }
         return map;
