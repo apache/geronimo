@@ -102,7 +102,10 @@ public class AxisBuilder implements WebServiceBuilder {
         this.defaultEnvironment = defaultEnvironment;
     }
 
-
+    public void findWebServices(Module module, boolean isEJB, Map servletLocations, Environment environment, Map sharedContext) throws DeploymentException {
+        findWebServices(module.getModuleFile(), isEJB, servletLocations, environment, sharedContext);       
+    }
+    
     public void findWebServices(JarFile moduleFile, boolean isEJB, Map servletLocations, Environment environment, Map sharedContext) throws DeploymentException {
         final String path = isEJB ? "META-INF/webservices.xml" : "WEB-INF/webservices.xml";
         try {

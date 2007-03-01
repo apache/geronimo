@@ -31,10 +31,10 @@ import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.webservices.SerializableWebServiceContainerFactoryGBean;
 
 /**
- * @version $Rev$ $Date$
+ * @version $Rev: 479496 $ $Date: 2006-11-26 18:57:00 -0700 (Sun, 26 Nov 2006) $
  */
 public class MockWebServiceBuilder implements WebServiceBuilder {
-    public void findWebServices(Module module, boolean isEJB, Map correctedPortLocations, Environment environment, Map sharedContext) throws DeploymentException {
+    public void findWebServices(JarFile moduleFile, boolean isEJB, Map correctedPortLocations, Environment environment, Map sharedContext) throws DeploymentException {
     }
 
     public boolean configurePOJO(GBeanData targetGBean, String servletName, Module module, String seiClassName, DeploymentContext context) throws DeploymentException {

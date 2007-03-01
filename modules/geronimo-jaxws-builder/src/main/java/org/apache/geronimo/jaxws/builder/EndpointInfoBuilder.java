@@ -132,6 +132,7 @@ public class EndpointInfoBuilder {
         }
         WSDLReader wsdlReader = wsdlFactory.newWSDLReader();
         wsdlReader.setFeature("javax.wsdl.importDocuments", false);
+        wsdlReader.setFeature("javax.wsdl.verbose", false);
         try {
             if (wsdlURL != null) {
                 definition = wsdlReader.readWSDL(wsdlURL.toString());

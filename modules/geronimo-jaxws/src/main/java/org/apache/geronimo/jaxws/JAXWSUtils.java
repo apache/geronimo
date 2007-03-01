@@ -16,11 +16,13 @@
  */
 package org.apache.geronimo.jaxws;
 
+import java.lang.reflect.Modifier;
 import java.util.HashMap;
 import java.util.Map;
 
 import javax.jws.WebService;
 import javax.xml.namespace.QName;
+import javax.xml.ws.WebServiceProvider;
 
 public class JAXWSUtils {
     
@@ -64,5 +66,18 @@ public class JAXWSUtils {
         } else {
             return token;            
         }
+    }
+    
+    public static boolean isWebService(Class clazz) {
+        return ((clazz.isAnnotationPresent(WebService.class) || 
+                 clazz.isAnnotationPresent(WebServiceProvider.class)) &&
+                 isProperWebService(clazz));
+    }
+    
+    private static boolean isProperWebService(Class clazz) {
+        int modifiers = clazz.getModifiers();
+        return (Modifier.isPublic(modifiers) &&
+                !Modifier.isFinal(modifiers) &&
+                !Modifier.isAbstract(modifiers));
     }
 }

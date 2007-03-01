@@ -32,7 +32,7 @@ import org.apache.geronimo.kernel.repository.Environment;
  */
 public class UnavailableWebServiceBuilder implements WebServiceBuilder {
 
-    public void findWebServices(JarFile moduleFile, boolean isEJB, Map correctedPortLocations, Environment environment, Map sharedContext) throws DeploymentException {
+    public void findWebServices(Module module, boolean isEJB, Map correctedPortLocations, Environment environment, Map sharedContext) throws DeploymentException {
     }
 
     public boolean configurePOJO(GBeanData targetGBean, String servletName, Module module, String seiClassName, DeploymentContext context) throws DeploymentException {

@@ -685,7 +685,7 @@ public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
         Map sharedContext = module.getSharedContext();
         for (Object aWebServiceBuilder : webServiceBuilder) {
             WebServiceBuilder serviceBuilder = (WebServiceBuilder) aWebServiceBuilder;
-            serviceBuilder.findWebServices(module.getModuleFile(), false, servletNameToPathMap, module.getEnvironment(), sharedContext);
+            serviceBuilder.findWebServices(module, false, servletNameToPathMap, module.getEnvironment(), sharedContext);
         }
         securityBuilders.build(gerWebApp, earContext, module.getEarContext());
         serviceBuilders.build(gerWebApp, earContext, module.getEarContext());

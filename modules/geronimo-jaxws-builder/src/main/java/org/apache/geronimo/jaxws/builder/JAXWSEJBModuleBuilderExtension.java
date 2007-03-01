@@ -88,7 +88,7 @@ public class JAXWSEJBModuleBuilderExtension implements ModuleBuilderExtension {
         //overridden web service locations
         Map correctedPortLocations = new HashMap();
                
-        jaxwsBuilder.findWebServices(moduleFile, true, correctedPortLocations, environment, ejbModule.getSharedContext());
+        jaxwsBuilder.findWebServices(module, true, correctedPortLocations, environment, ejbModule.getSharedContext());
         
         if (this.defaultEnvironment != null) {
             EnvironmentBuilder.mergeEnvironments(environment, this.defaultEnvironment);

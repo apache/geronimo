@@ -31,11 +31,14 @@ import org.apache.geronimo.j2ee.deployment.Module;
 import org.apache.geronimo.j2ee.deployment.WebModule;
 import org.apache.geronimo.j2ee.deployment.WebServiceBuilder;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
+import org.apache.geronimo.jaxws.JAXWSUtils;
 import org.apache.geronimo.jaxws.PortInfo;
 import org.apache.geronimo.kernel.GBeanAlreadyExistsException;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.kernel.classloader.JarFileClassLoader;
 import org.apache.geronimo.kernel.repository.Environment;
+import org.apache.geronimo.xbeans.javaee.ServletType;
+import org.apache.geronimo.xbeans.javaee.WebAppType;
 import org.apache.xbean.finder.ClassFinder;
 
 import javax.jws.WebService;
@@ -67,29 +70,77 @@ public abstract class JAXWSServiceBuilder implements WebServiceBuilder {
         return getClass().getName();
     }
     
-    public void findWebServices(JarFile moduleFile,
+    public void findWebServices(Module module,
                                 boolean isEJB,
                                 Map servletLocations,
                                 Environment environment,
                                 Map sharedContext) throws DeploymentException {
         Map portMap = null;
         String path = isEJB ? "META-INF/webservices.xml" : "WEB-INF/webservices.xml";
+        JarFile moduleFile = module.getModuleFile();
         try {
             URL wsDDUrl = DeploymentUtil.createJarURL(moduleFile, path);
             InputStream in = wsDDUrl.openStream();
             portMap = parseWebServiceDescriptor(in, wsDDUrl, moduleFile, isEJB, servletLocations);
         } catch (IOException e) {
-            // webservices.xml does not exist, search classes for annotations
-            portMap = discoverWebServices(moduleFile, isEJB, servletLocations);
+            // webservices.xml does not exist
+            portMap = discoverWebServices(module, isEJB, servletLocations);
         }
 
-        if (portMap != null) {
+        if (portMap != null && !portMap.isEmpty()) {
             EnvironmentBuilder.mergeEnvironments(environment, defaultEnvironment);
             sharedContext.put(getKey(), portMap);
         }
 
     }
 
+    private Map<String, PortInfo> discoverWebServices(Module module,
+                                                      boolean isEJB,
+                                                      Map correctedPortLocations)
+            throws DeploymentException {
+        if (isEJB) {
+            return discoverWebServices(module.getModuleFile(), isEJB, correctedPortLocations);
+        } else {
+            Map<String, PortInfo> map = new HashMap<String, PortInfo>();
+            ClassLoader classLoader = module.getEarContext().getClassLoader();
+            WebAppType webApp = (WebAppType) module.getSpecDD();
+            
+            // find web services
+            ServletType[] servletTypes = webApp.getServletArray();
+            for (ServletType servletType : servletTypes) {
+                String servletName = servletType.getServletName().getStringValue().trim();
+                if (servletType.isSetServletClass()) {
+                    String servletClassName = servletType.getServletClass().getStringValue().trim();
+                    try {
+                        Class servletClass = classLoader.loadClass(servletClassName);
+                        if (JAXWSUtils.isWebService(servletClass)) {
+                            PortInfo portInfo = new PortInfo();                                                       
+                            map.put(servletName, portInfo);
+                        }
+                    } catch (Exception e) {                       
+                        throw new DeploymentException("Failed to load servlet class " + servletClassName, e);
+                    }
+                }
+            }
+                        
+            // update web service locations
+            for (Map.Entry entry : map.entrySet()) {
+                String servletName = (String)entry.getKey();
+                PortInfo portInfo = (PortInfo)entry.getValue();
+                
+                String location = (String)correctedPortLocations.get(servletName);
+                if (location == null) {
+                    // TODO: not sure this case should be handled: Web service without servlet-mapping?
+                    throw new DeploymentException("Unsupported: Web Service without servlet-mapping");
+                } else {
+                    portInfo.setLocation(location);
+                }                                   
+            }
+            
+            return map;
+        }
+    }
+                       
     private Map<String, PortInfo> discoverWebServices(JarFile moduleFile,
                                                       boolean isEJB,
                                                       Map correctedPortLocations)
@@ -177,7 +228,7 @@ public abstract class JAXWSServiceBuilder implements WebServiceBuilder {
                                                        Map<String, PortInfo> map,
                                                        Map correctedPortLocations) {
         for (Class clazz : classes) {
-            if (isProperWebService(clazz)) {
+            if (JAXWSUtils.isWebService(clazz)) {
                 LOG.debug("Found web service class: " + clazz.getName());
                 if (map == null) {
                     map = new HashMap<String, PortInfo>();
@@ -191,18 +242,11 @@ public abstract class JAXWSServiceBuilder implements WebServiceBuilder {
         return map;
     }
 
-    private static boolean isProperWebService(Class clazz) {
-        int modifiers = clazz.getModifiers();
-        return (Modifier.isPublic(modifiers) &&
-                !Modifier.isFinal(modifiers) &&
-                !Modifier.isAbstract(modifiers));
-    }
-
     protected abstract Map<String, PortInfo> parseWebServiceDescriptor(InputStream in,
-                                                            URL wsDDUrl,
-                                                            JarFile moduleFile,
-                                                            boolean isEJB,
-                                                            Map correctedPortLocations)
+                                                                       URL wsDDUrl,
+                                                                       JarFile moduleFile,
+                                                                       boolean isEJB,
+                                                                       Map correctedPortLocations)
             throws DeploymentException;
 
     public boolean configurePOJO(GBeanData targetGBean,
