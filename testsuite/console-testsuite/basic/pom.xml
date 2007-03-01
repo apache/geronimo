@@ -32,7 +32,7 @@
     </parent>
     
     <artifactId>basic</artifactId>
-    <name>Geronimo TestSuite, Console :: Basic</name>
+    <name>Geronimo TestSuite :: Console Testsuite :: Basic Tests</name>
     <packaging>jar</packaging>
 
     <description>
