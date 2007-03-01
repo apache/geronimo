@@ -58,7 +58,7 @@
                     <artifactId>maven-war-plugin</artifactId>
                     <configuration>
                         <webXml>${pom.basedir}/src/main/webapp/WEB-INF/web.xml</webXml>
-                        <warSourceIncludes>WEB-INF/lib/${artifactId}-${version}.jar, **/*.jsp, **/*.xml, **/*.class, META-INF/*.txt</warSourceIncludes>
+                        <warSourceIncludes>WEB-INF/lib/${artifactId}-${version}.jar, **/*.wsdl, **/*.xsd, **/*.jsp, **/*.xml, **/*.class, META-INF/*.txt</warSourceIncludes>
                     </configuration>
                 </plugin>
             </plugins>
