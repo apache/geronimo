@@ -355,13 +355,16 @@ public class Axis2WebServiceContainer implements WebServiceContainer {
             msgContext.setProperty(Constants.OUT_TRANSPORT_INFO, new Axis2TransportInfo(response));
 
             // deal with GET request
-            boolean processed = HTTPTransportUtils.processHTTPGetRequest(
-                    msgContext,
-                    response.getOutputStream(),
-                    soapAction,
-                    path,
-                    configurationContext,
-                    HTTPTransportReceiver.getGetRequestParameters(path));
+//   Temporary hack ... Looks like AXIS2 removed this method.  Commented out for now and 
+//   replaced with a simple setting of the processed boolean below
+//          boolean processed = HTTPTransportUtils.processHTTPGetRequest(
+//                  msgContext,
+//                  response.getOutputStream(),
+//                  soapAction,
+//                  path,
+//                  configurationContext,
+//                  HTTPTransportReceiver.getGetRequestParameters(path));
+            boolean processed = false;
 
             if (!processed) {
                 response.setStatusCode(200);
