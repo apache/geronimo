@@ -88,16 +88,10 @@
         </dependency>
 
         <!-- start myfaces dependencies -->
-        <dependency>
-            <groupId>org.apache.myfaces.core</groupId>
-            <artifactId>myfaces-api</artifactId>
-            <version>1.2.0-SNAPSHOT</version>
-        </dependency>
 
         <dependency>
             <groupId>org.apache.myfaces.core</groupId>
             <artifactId>myfaces-impl</artifactId>
-            <version>1.2.0-SNAPSHOT</version>
         </dependency>
 
         <dependency>
