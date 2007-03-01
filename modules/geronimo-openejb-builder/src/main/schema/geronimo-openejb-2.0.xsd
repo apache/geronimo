@@ -46,6 +46,7 @@
             <!-- Naming -->
             <xs:group ref="naming:jndiEnvironmentRefsGroup" minOccurs="0" maxOccurs="unbounded"/>
             <xs:element ref="naming:message-destination" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element name="tss-link" type="openejb:tss-linkType" minOccurs="0" maxOccurs="unbounded"/>
 
             <!-- Security -->
             <xs:element ref="app:security" minOccurs="0"/>
@@ -59,6 +60,14 @@
     <xs:complexType name="openejb-jarType">
         <xs:sequence>
             <xs:any namespace="##other" processContents="lax"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="tss-linkType">
+        <xs:sequence>
+            <xs:element name="ejb-name" type="xs:string" minOccurs="0"/>
+            <xs:element name="tss-name" type="xs:string" minOccurs="0"/>
+            <xs:element name="jndi-name" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
         </xs:sequence>
     </xs:complexType>
 </xs:schema>
