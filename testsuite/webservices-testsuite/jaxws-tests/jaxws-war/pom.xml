@@ -28,10 +28,6 @@
     <name>Geronimo TestSuite :: WebServices TestSuite :: JAX-WS WAR</name>
     <packaging>war</packaging>
 
-    <properties>
-        <myWarIncludes>WEB-INF/lib/${artifactId}-${version}.jar, **/*.wsdl, **/*.xsd, **/*.jsp, **/*.xml, **/*.class</myWarIncludes>
-    </properties>
-
     <dependencies>
         <dependency>
             <groupId>javax.xml.ws</groupId>
@@ -174,15 +170,6 @@
                 <groupId>org.apache.geronimo.genesis.plugins</groupId>
                 <artifactId>tools-maven-plugin</artifactId>
                 <extensions>true</extensions>
-            </plugin>
-
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-war-plugin</artifactId>
-                <configuration>
-                    <webXml>${pom.basedir}/src/main/webapp/WEB-INF/web.xml</webXml>
-                    <warSourceIncludes>${myWarIncludes}</warSourceIncludes>
-                </configuration>
             </plugin>
 
             <plugin>

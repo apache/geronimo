@@ -20,7 +20,7 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
     <modelVersion>4.0.0</modelVersion>
-    
+
     <parent>
         <groupId>org.apache.geronimo.testsuite</groupId>
         <artifactId>testsuite</artifactId>
@@ -31,9 +31,9 @@
     <artifactId>webservices-testsuite</artifactId>
     <name>Geronimo TestSuite :: WebServices TestSuite</name>
     <packaging>pom</packaging>
-    <description>Tests JEE5 WebServices features. </description>
+    <description>Tests JEE5 WebServices features.</description>
     
-     <build>
+    <build>
         <plugins>
             <plugin>
                 <!--  This plugin is needed for all suite poms. -->
@@ -50,6 +50,19 @@
                 </executions>
             </plugin>
         </plugins>
+
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-war-plugin</artifactId>
+                    <configuration>
+                        <webXml>${pom.basedir}/src/main/webapp/WEB-INF/web.xml</webXml>
+                        <warSourceIncludes>WEB-INF/lib/${artifactId}-${version}.jar, **/*.jsp, **/*.xml, **/*.class, META-INF/*.txt</warSourceIncludes>
+                    </configuration>
+                </plugin>
+            </plugins>
+        </pluginManagement>
     </build>
 
     <profiles>
@@ -64,7 +77,7 @@
             -->
             <build>
                 <plugins>
-                  <plugin>
+                    <plugin>
                         <!--
                           One of the pom that this invokes using m-m-p has packaging set to "pom".
                           That expects it's parent (this pom) to be installed already.

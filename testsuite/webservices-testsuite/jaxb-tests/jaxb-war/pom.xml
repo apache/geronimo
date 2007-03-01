@@ -89,15 +89,6 @@
             </plugin>
 
             <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-war-plugin</artifactId>
-                <configuration>
-                    <webXml>${pom.basedir}/src/main/webapp/WEB-INF/web.xml</webXml>
-                    <warSourceIncludes>WEB-INF/lib/${artifactId}-${version}.jar, **/*.jsp, **/*.xml, **/*.class</warSourceIncludes>
-                </configuration>
-            </plugin>
-
-            <plugin>
                 <groupId>org.apache.geronimo.plugins</groupId>
                 <artifactId>geronimo-maven-plugin</artifactId>
                 <executions>

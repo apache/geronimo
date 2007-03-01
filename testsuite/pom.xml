@@ -97,6 +97,9 @@
                                 <directory>${pom.basedir}/src/main/webapp</directory>
                                 <filtering>true</filtering>
                             </resource>
+                            <resource>
+                                <directory>${project.build.outputDirectory}</directory>
+                            </resource>
                         </webResources>
                     </configuration>
                 </plugin>
