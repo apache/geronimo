@@ -46,11 +46,6 @@
             <version>${version}</version>
         </dependency>
         
-        <dependency>
-            <groupId>mx4j</groupId>
-            <artifactId>mx4j-remote</artifactId>
-        </dependency>
-        
     </dependencies>
 
 </project>

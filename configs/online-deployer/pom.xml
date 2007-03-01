@@ -59,10 +59,6 @@
                             <version>${version}</version>
                         </element>
                         <element>
-                            <groupId>mx4j</groupId>
-                            <artifactId>mx4j</artifactId>
-                        </element>
-                        <element>
                             <groupId>commons-logging</groupId>
                             <artifactId>commons-logging</artifactId>
                         </element>

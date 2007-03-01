@@ -53,11 +53,6 @@
             <artifactId>geronimo-kernel</artifactId>
             <version>${version}</version>
         </dependency>
-
-        <dependency>
-            <groupId>mx4j</groupId>
-            <artifactId>mx4j-remote</artifactId>
-        </dependency>
         
         <!-- Support for SurefireReporter -->
         <dependency>

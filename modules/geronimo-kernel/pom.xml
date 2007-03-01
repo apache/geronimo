@@ -50,11 +50,6 @@
         </dependency>
 
         <dependency>
-            <groupId>mx4j</groupId>
-            <artifactId>mx4j</artifactId>
-        </dependency>
-
-        <dependency>
             <groupId>xstream</groupId>
             <artifactId>xstream</artifactId>
         </dependency>

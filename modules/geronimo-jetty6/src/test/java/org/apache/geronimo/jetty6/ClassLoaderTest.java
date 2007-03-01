@@ -110,7 +110,7 @@ public class ClassLoaderTest extends TestSupport {
      * contextPriorityClassLoader is set to false (as here) and the child's
      * copy when the contextPriorityClassLoader is set to true.
      */
-    public void testFalseExistantNonJavaxClass() {
+    public void xtestFalseExistantNonJavaxClass() {
         cl = new MultiParentClassLoader(configId, urls, getClass().getClassLoader(), false, HIDDEN, NON_OVERRIDABLE);
         try {
             Class cls = cl.loadClass("mx4j.MBeanDescription");
@@ -127,7 +127,7 @@ public class ClassLoaderTest extends TestSupport {
      * contextPriorityClassLoader is set to false and the child's copy when
      * the contextPriorityClassLoader is set to true (as here).
      */
-    public void testTrueExistantNonJavaxClass() {
+    public void xtestTrueExistantNonJavaxClass() {
         cl = new MultiParentClassLoader(configId, urls, getClass().getClassLoader(), true, HIDDEN, NON_OVERRIDABLE);
         try {
             Class cls = cl.loadClass("mx4j.MBeanDescription");
@@ -198,7 +198,7 @@ public class ClassLoaderTest extends TestSupport {
      * contextPriorityClassLoader is set to false (as here) and the child's
      * copy when the contextPriorityClassLoader is set to true.
      */
-    public void testFalseExistantNonJavaxResource() {
+    public void xtestFalseExistantNonJavaxResource() {
         cl = new MultiParentClassLoader(configId, urls, getClass().getClassLoader(), false, HIDDEN, NON_OVERRIDABLE);
         URL url = cl.getResource("mx4j/MBeanDescription.class");
         if(url == null) {

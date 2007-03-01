@@ -70,11 +70,6 @@
             <version>${version}</version>
         </dependency>
 
-        <dependency>
-            <groupId>mx4j</groupId>
-            <artifactId>mx4j-remote</artifactId>
-        </dependency>
-
     </dependencies>
 
     <build>
@@ -124,10 +119,6 @@
                             <groupId>org.apache.geronimo.modules</groupId>
                             <artifactId>geronimo-deploy-jsr88-bootstrapper</artifactId>
                             <version>${version}</version>
-                        </element>
-                        <element>
-                            <groupId>mx4j</groupId>
-                            <artifactId>mx4j</artifactId>
                         </element>
                         <element>
                             <groupId>commons-logging</groupId>

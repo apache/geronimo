@@ -70,10 +70,6 @@
                                     <artifactId>log4j</artifactId>
                                 </artifactItem>
                                 <artifactItem>
-                                    <groupId>mx4j</groupId>
-                                    <artifactId>mx4j</artifactId>
-                                </artifactItem>
-                                <artifactItem>
                                     <groupId>xpp3</groupId>
                                     <artifactId>xpp3</artifactId>
                                 </artifactItem>

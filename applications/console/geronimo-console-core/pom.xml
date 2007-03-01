@@ -41,11 +41,6 @@
         </dependency>
         
         <dependency>
-            <groupId>mx4j</groupId>
-            <artifactId>mx4j-remote</artifactId>
-        </dependency>
-        
-        <dependency>
             <groupId>org.apache.geronimo.specs</groupId>
             <artifactId>geronimo-jms_1.1_spec</artifactId>
         </dependency>
