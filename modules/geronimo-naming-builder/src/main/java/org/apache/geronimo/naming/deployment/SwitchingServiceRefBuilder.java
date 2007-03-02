@@ -17,29 +17,40 @@
 
 package org.apache.geronimo.naming.deployment;
 
+import java.io.IOException;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
 import javax.xml.namespace.QName;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.service.EnvironmentBuilder;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
+import org.apache.geronimo.j2ee.deployment.annotation.AnnotatedApp;
+import org.apache.geronimo.j2ee.deployment.annotation.WebServiceRefAnnotationHelper;
 import org.apache.geronimo.j2ee.deployment.Module;
+import org.apache.geronimo.j2ee.deployment.WebModule;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.config.Configuration;
+import org.apache.geronimo.kernel.config.MultiParentClassLoader;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.naming.deployment.AbstractNamingBuilder;
 import org.apache.geronimo.xbeans.geronimo.naming.GerServiceRefDocument;
 import org.apache.geronimo.xbeans.geronimo.naming.GerServiceRefType;
 import org.apache.geronimo.xbeans.javaee.ServiceRefType;
-
+import org.apache.geronimo.xbeans.javaee.WebAppType;
+import org.apache.xbean.finder.ClassFinder;
+import org.apache.xbean.finder.UrlSet;
 import org.apache.xmlbeans.QNameSet;
 import org.apache.xmlbeans.XmlObject;
 
 public class SwitchingServiceRefBuilder extends AbstractNamingBuilder {
+
+    private static final Log log = LogFactory.getLog(SwitchingServiceRefBuilder.class);
 
     private static final QName GER_SERVICE_REF_QNAME = GerServiceRefDocument.type
             .getDocumentElementName();
@@ -80,6 +91,22 @@ public class SwitchingServiceRefBuilder extends AbstractNamingBuilder {
                             Configuration remoteConfiguration,
                             Module module,
                             Map componentContext) throws DeploymentException {
+
+        if ( module instanceof WebModule ) {
+            //TODO determine if its metdatacomplete by presence of ClassFinder in module
+            //This will let this code work on any dd type.
+            WebAppType webApp = (WebAppType) specDD;
+            if (!webApp.getMetadataComplete()) {
+
+                // Discover and process any @WebServiceRef annotations
+                processAnnotations(module);
+
+                // Update both versions of specDD in module
+                module.setSpecDD(webApp);
+                module.setOriginalSpecDD(webApp.toString());
+            }
+        }
+
         ClassLoader cl = module.getEarContext().getClassLoader();
         Class jaxrpcClass = loadClass("javax.xml.rpc.Service", cl);
         Class jaxwsClass = loadClass("javax.xml.ws.Service", cl);
@@ -173,6 +200,43 @@ public class SwitchingServiceRefBuilder extends AbstractNamingBuilder {
             }
         }
         return refMap;
+    }
+
+    private void processAnnotations(Module module) throws DeploymentException {
+
+        // Find all the annotated classes via ClassFinder
+        try {
+            ClassLoader classLoader = module.getEarContext().getClassLoader();
+            UrlSet urlSet = new UrlSet(classLoader);
+            if (classLoader instanceof MultiParentClassLoader) {
+                MultiParentClassLoader multiParentClassLoader = (MultiParentClassLoader) classLoader;
+                for (ClassLoader parent : multiParentClassLoader.getParents()) {
+                    if (parent != null) {
+                        urlSet = urlSet.exclude(parent);
+                    }
+                }
+            } else {
+                ClassLoader parent = classLoader.getParent();
+                if (parent != null) {
+                    urlSet = urlSet.exclude(parent);
+                }
+            }
+            ClassFinder finder = new ClassFinder(classLoader, urlSet.getUrls());
+
+            // Process all the annotations for this naming builder type
+            if (WebServiceRefAnnotationHelper.annotationsPresent(finder)) {
+                try {
+                    WebServiceRefAnnotationHelper.processAnnotations(module.getAnnotatedApp(), finder);
+                }
+                catch (Exception e) {
+                    log.warn("Unable to process @WebServiceRef annotations for web module" + module.getName(), e);
+                }
+            }
+
+        } catch (IOException e) {
+            // ignored... we tried
+            log.warn("Unable to process @WebServiceRef annotations for web module" + module.getName(), e);
+        }
     }
 
     public QNameSet getSpecQNameSet() {
