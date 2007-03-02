@@ -44,11 +44,11 @@
         <developerConnection>scm:svn:https://svn.apache.org/repos/asf/geronimo/server/trunk</developerConnection>
         <url>http://svn.apache.org/viewvc/geronimo/trunk</url>
     </scm>
-    
+
     <prerequisites>
         <maven>2.0.5</maven>
     </prerequisites>
-    
+
     <properties>
         <!--
         NOTE: Project version, to be used instead of ${pom.version} since that
@@ -86,31 +86,31 @@
         HACK: Used by applications/geronimo-dojo
         -->
         <dojoVersion>0.4.1</dojoVersion>
-        
+
         <cxfVersion>2.0-incubator-RC-SNAPSHOT</cxfVersion>
     </properties>
 
     <dependencyManagement>
         <dependencies>
-            
+
             <dependency>
                 <groupId>org.apache.geronimo.specs</groupId>
                 <artifactId>geronimo-activation_1.1_spec</artifactId>
                 <version>1.0-SNAPSHOT</version>
             </dependency>
-            
+
             <dependency>
                 <groupId>org.apache.geronimo.specs</groupId>
                 <artifactId>geronimo-ejb_3.0_spec</artifactId>
                 <version>1.0</version>
             </dependency>
-            
+
             <dependency>
                 <groupId>org.apache.geronimo.specs</groupId>
                 <artifactId>geronimo-interceptor_3.0_spec</artifactId>
                 <version>1.0</version>
             </dependency>
-            
+
             <dependency>
                 <groupId>org.apache.geronimo.specs</groupId>
                 <artifactId>geronimo-j2ee-connector_1.5_spec</artifactId>
@@ -156,19 +156,19 @@
                 <artifactId>geronimo-jaxrpc_1.1_spec</artifactId>
                 <version>1.1</version>
             </dependency>
-            
+
             <dependency>
                 <groupId>org.apache.geronimo.specs</groupId>
                 <artifactId>geronimo-jsp_2.1_spec</artifactId>
                 <version>1.0-SNAPSHOT</version>
             </dependency>
-            
+
             <dependency>
                 <groupId>org.apache.geronimo.specs</groupId>
                 <artifactId>geronimo-el_1.0_spec</artifactId>
                 <version>1.0-SNAPSHOT</version>
             </dependency>
-            
+
             <dependency>
                 <groupId>org.apache.geronimo.specs</groupId>
                 <artifactId>geronimo-jms_1.1_spec</artifactId>
@@ -187,7 +187,7 @@
                 <artifactId>axis2-saaj-api</artifactId>
                 <version>SNAPSHOT</version>
             </dependency>
-            
+
             <dependency>
                 <groupId>org.apache.geronimo.specs</groupId>
                 <artifactId>geronimo-servlet_2.5_spec</artifactId>
@@ -211,7 +211,7 @@
                 <artifactId>geronimo-jta_1.1_spec</artifactId>
                 <version>1.0</version>
             </dependency>
-            
+
             <dependency>
                 <groupId>org.apache.geronimo.specs</groupId>
                 <artifactId>geronimo-ws-metadata_2.0_spec</artifactId>
@@ -249,7 +249,7 @@
                 <artifactId>geronimo-schema-j2ee_1.4</artifactId>
                 <version>1.1-SNAPSHOT</version>
             </dependency>
-            
+
             <dependency>
                 <groupId>org.apache.openjpa</groupId>
                 <artifactId>openjpa-all</artifactId>
@@ -439,13 +439,13 @@
             <!--
             FIXME: Upgrade to a newer version of scout
             -->
-            
+
             <dependency>
                 <groupId>scout</groupId>
                 <artifactId>scout</artifactId>
                 <version>0.5</version>
             </dependency>
-            
+
             <dependency>
                 <groupId>wsdl4j</groupId>
                 <artifactId>wsdl4j</artifactId>
@@ -633,8 +633,7 @@
                         <groupId>commons-logging</groupId>
                         <artifactId>commons-logging</artifactId>
                     </exclusion>
-                    -->
-                </exclusions>
+                    --></exclusions>
             </dependency>
 
             <dependency>
@@ -732,7 +731,7 @@
                 <artifactId>tranql</artifactId>
                 <version>1.4.1</version>
             </dependency>
-            
+
             <dependency>
                 <groupId>org.tranql</groupId>
                 <artifactId>tranql-connector-ra</artifactId>
@@ -856,7 +855,7 @@
                 <version>${tomcatVersion}</version>
             </dependency>
 
-           <dependency>
+            <dependency>
                 <groupId>org.apache.tomcat</groupId>
                 <artifactId>jasper</artifactId>
                 <version>${tomcatVersion}</version>
@@ -961,7 +960,7 @@
                     </exclusion>
                 </exclusions>
             </dependency>
-            
+
             <dependency>
                 <groupId>org.apache.cxf</groupId>
                 <artifactId>cxf-metacode</artifactId>
@@ -977,7 +976,7 @@
                     </exclusion>
                 </exclusions>
             </dependency>
-            
+
             <dependency>
                 <groupId>org.apache.cxf</groupId>
                 <artifactId>cxf-common-utilities</artifactId>
@@ -993,7 +992,7 @@
                     </exclusion>
                 </exclusions>
             </dependency>
-            
+
             <dependency>
                 <groupId>org.apache.cxf</groupId>
                 <artifactId>cxf-rt-core</artifactId>
@@ -1009,7 +1008,7 @@
                     </exclusion>
                 </exclusions>
             </dependency>
-            
+
             <dependency>
                 <groupId>org.apache.cxf</groupId>
                 <artifactId>cxf-rt-bindings-xml</artifactId>
@@ -1025,7 +1024,7 @@
                     </exclusion>
                 </exclusions>
             </dependency>
-            
+
             <dependency>
                 <groupId>org.apache.cxf</groupId>
                 <artifactId>cxf-rt-bindings-soap</artifactId>
@@ -1041,7 +1040,7 @@
                     </exclusion>
                 </exclusions>
             </dependency>
-            
+
             <dependency>
                 <groupId>org.apache.cxf</groupId>
                 <artifactId>cxf-rt-databinding-jaxb</artifactId>
@@ -1057,7 +1056,7 @@
                     </exclusion>
                 </exclusions>
             </dependency>
-            
+
             <dependency>
                 <groupId>org.apache.cxf</groupId>
                 <artifactId>cxf-rt-frontend-jaxws</artifactId>
@@ -1073,7 +1072,7 @@
                     </exclusion>
                 </exclusions>
             </dependency>
-            
+
             <dependency>
                 <groupId>org.apache.cxf</groupId>
                 <artifactId>cxf-rt-frontend-simple</artifactId>
@@ -1089,7 +1088,7 @@
                     </exclusion>
                 </exclusions>
             </dependency>
-            
+
             <dependency>
                 <groupId>org.apache.cxf</groupId>
                 <artifactId>cxf-rt-transports-http</artifactId>
@@ -1105,7 +1104,7 @@
                     </exclusion>
                 </exclusions>
             </dependency>
-            
+
             <dependency>
                 <groupId>org.apache.cxf</groupId>
                 <artifactId>cxf-tools-common</artifactId>
@@ -1127,19 +1126,19 @@
                 <artifactId>stax-api</artifactId>
                 <version>1.0.1</version>
             </dependency>
-            
+
             <dependency>
                 <groupId>woodstox</groupId>
                 <artifactId>wstx-asl</artifactId>
                 <version>3.2.0</version>
             </dependency>
-            
+
             <dependency>
                 <groupId>org.apache.ws.commons</groupId>
                 <artifactId>XmlSchema</artifactId>
                 <version>1.1</version>
             </dependency>
-            
+
             <dependency>
                 <groupId>javax.xml.soap</groupId>
                 <artifactId>saaj-api</artifactId>
@@ -1151,7 +1150,7 @@
                     </exclusion>
                 </exclusions>
             </dependency>
-            
+
             <dependency>
                 <groupId>javax.xml.bind</groupId>
                 <artifactId>jaxb-api</artifactId>
@@ -1163,7 +1162,7 @@
                     </exclusion>
                 </exclusions>
             </dependency>
-            
+
             <dependency>
                 <groupId>com.sun.xml.messaging.saaj</groupId>
                 <artifactId>saaj-impl</artifactId>
@@ -1191,25 +1190,25 @@
                     </exclusion>
                 </exclusions>
             </dependency>
-            
+
             <dependency>
                 <groupId>org.springframework</groupId>
                 <artifactId>spring-core</artifactId>
                 <version>2.0</version>
             </dependency>
-            
+
             <dependency>
                 <groupId>org.springframework</groupId>
                 <artifactId>spring-beans</artifactId>
                 <version>2.0</version>
             </dependency>
-            
+
             <dependency>
                 <groupId>org.springframework</groupId>
                 <artifactId>spring-context</artifactId>
                 <version>2.0</version>
             </dependency>
-            
+
             <dependency>
                 <groupId>javax.xml.ws</groupId>
                 <artifactId>jaxws-api</artifactId>
@@ -1228,7 +1227,7 @@
                 <artifactId>myfaces-api</artifactId>
                 <version>1.2.0-SNAPSHOT</version>
             </dependency>
-            
+
             <dependency>
                 <groupId>org.apache.myfaces.core</groupId>
                 <artifactId>myfaces-impl</artifactId>
@@ -1237,115 +1236,131 @@
 
             <!--Axis2 modules dependencies-->
             <dependency>
-			    <groupId>org.apache.axis2</groupId>
-			    <artifactId>axis2-java2wsdl</artifactId>
-			    <version>SNAPSHOT</version>
-		    </dependency>
-		    <dependency>
-			    <groupId>org.apache.axis2</groupId>
-			    <artifactId>axis2-kernel</artifactId>
-			    <version>SNAPSHOT</version>
-		    </dependency>
-		    <dependency>
-			    <groupId>org.apache.axis2</groupId>
-			    <artifactId>axis2-adb</artifactId>
-			    <version>SNAPSHOT</version>
-	    	</dependency>
-		    <dependency>
-			    <groupId>org.apache.axis2</groupId>
-			    <artifactId>axis2-jaxws-api</artifactId>
-			    <version>SNAPSHOT</version>
-		    </dependency>
-		    <dependency>
-			    <groupId>org.apache.axis2</groupId>
-			    <artifactId>axis2-jaxws</artifactId>
-			    <version>SNAPSHOT</version>
-		    </dependency>
-		    <dependency>
-			    <groupId>org.apache.axis2</groupId>
-			    <artifactId>axis2-metadata</artifactId>
-			    <version>SNAPSHOT</version>
-		    </dependency>
-		    <dependency>
-			    <groupId>org.apache.ws.commons.axiom</groupId>
-			    <artifactId>axiom-api</artifactId>
-			    <version>SNAPSHOT</version>
-			    <exclusions>
-				    <exclusion>
-					    <groupId>log4j</groupId>
-					    <artifactId>log4j</artifactId>
-				    </exclusion>
-			    </exclusions>
-		    </dependency>
-		    <dependency>
-			    <groupId>org.apache.ws.commons.axiom</groupId>
-			    <artifactId>axiom-impl</artifactId>
-			    <version>SNAPSHOT</version>
-			    <exclusions>
-				    <exclusion>
-					    <groupId>log4j</groupId>
-					    <artifactId>log4j</artifactId>
-				    </exclusion>
-			    </exclusions>
-		    </dependency>
-		    <dependency>
-			    <groupId>org.apache.neethi</groupId>
-			    <artifactId>neethi</artifactId>
-			    <version>2.0</version>
-		    </dependency>
-		    <dependency>
-			    <groupId>commons-httpclient</groupId>
-			    <artifactId>commons-httpclient</artifactId>
-			    <version>3.0.1</version>
-			    <exclusions>
-				    <exclusion>
-					    <groupId>junit</groupId>
-					    <artifactId>junit</artifactId>
-				    </exclusion>
-			    </exclusions>
-		    </dependency>
-		    <dependency>
-			    <groupId>commons-codec</groupId>
-			    <artifactId>commons-codec</artifactId>
-			    <version>1.3</version>
-			    <exclusions>
-				    <exclusion>
-					    <groupId>junit</groupId>
-					    <artifactId>junit</artifactId>
-				    </exclusion>
-			    </exclusions>
-		    </dependency>
-		    <dependency>
-			    <groupId>javax.mail</groupId>
-			    <artifactId>mail</artifactId>
-			    <version>1.4</version>
-		    </dependency>
-		    <dependency>
-			    <groupId>javax.activation</groupId>
-			    <artifactId>activation</artifactId>
-			    <version>1.1</version>
-		    </dependency>
-		    <dependency>
-			    <groupId>xalan</groupId>
-			    <artifactId>xalan</artifactId>
-			    <version>2.7.0</version>
-		    </dependency>
-		    <dependency>
-			    <groupId>jaxen</groupId>
-			    <artifactId>jaxen</artifactId>
-			    <version>1.1-beta-10</version>
-		    </dependency>
-		    <dependency>
-			    <groupId>annogen</groupId>
-			    <artifactId>annogen</artifactId>
-			    <version>0.1.0</version>
-		    </dependency>
-		    <dependency>
-			    <groupId>org.apache.woden</groupId>
-			    <artifactId>woden</artifactId>
-			    <version>1.0-incubating-SNAPSHOT</version>
-		    </dependency>
-            
+                <groupId>org.apache.axis2</groupId>
+                <artifactId>axis2-java2wsdl</artifactId>
+                <version>SNAPSHOT</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.axis2</groupId>
+                <artifactId>axis2-kernel</artifactId>
+                <version>SNAPSHOT</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.axis2</groupId>
+                <artifactId>axis2-adb</artifactId>
+                <version>SNAPSHOT</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.axis2</groupId>
+                <artifactId>axis2-jaxws-api</artifactId>
+                <version>SNAPSHOT</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.axis2</groupId>
+                <artifactId>axis2-jaxws</artifactId>
+                <version>SNAPSHOT</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.axis2</groupId>
+                <artifactId>axis2-metadata</artifactId>
+                <version>SNAPSHOT</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.ws.commons.axiom</groupId>
+                <artifactId>axiom-api</artifactId>
+                <version>SNAPSHOT</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>log4j</groupId>
+                        <artifactId>log4j</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.ws.commons.axiom</groupId>
+                <artifactId>axiom-impl</artifactId>
+                <version>SNAPSHOT</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>log4j</groupId>
+                        <artifactId>log4j</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.neethi</groupId>
+                <artifactId>neethi</artifactId>
+                <version>2.0</version>
+            </dependency>
+
+            <dependency>
+                <groupId>commons-httpclient</groupId>
+                <artifactId>commons-httpclient</artifactId>
+                <version>3.0.1</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>junit</groupId>
+                        <artifactId>junit</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+
+            <dependency>
+                <groupId>commons-codec</groupId>
+                <artifactId>commons-codec</artifactId>
+                <version>1.3</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>junit</groupId>
+                        <artifactId>junit</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+
+            <dependency>
+                <groupId>javax.mail</groupId>
+                <artifactId>mail</artifactId>
+                <version>1.4</version>
+            </dependency>
+
+            <dependency>
+                <groupId>javax.activation</groupId>
+                <artifactId>activation</artifactId>
+                <version>1.1</version>
+            </dependency>
+
+            <dependency>
+                <groupId>xalan</groupId>
+                <artifactId>xalan</artifactId>
+                <version>2.7.0</version>
+            </dependency>
+
+            <dependency>
+                <groupId>jaxen</groupId>
+                <artifactId>jaxen</artifactId>
+                <version>1.1-beta-10</version>
+            </dependency>
+
+            <dependency>
+                <groupId>annogen</groupId>
+                <artifactId>annogen</artifactId>
+                <version>0.1.0</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.woden</groupId>
+                <artifactId>woden</artifactId>
+                <version>1.0-incubating-SNAPSHOT</version>
+            </dependency>
+
             <dependency>
                 <groupId>org.dojotoolkit</groupId>
                 <artifactId>dojo</artifactId>
@@ -1364,19 +1379,19 @@
                     <version>${version}</version>
                     <extensions>true</extensions>
                 </plugin>
-                
+
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-dependency-plugin</artifactId>
                     <version>2.0-alpha-1</version>
                 </plugin>
-                
+
                 <plugin>
                     <groupId>org.codehaus.mojo</groupId>
                     <artifactId>selenium-maven-plugin</artifactId>
                     <version>1.0-beta-1</version>
                 </plugin>
-                
+
                 <plugin>
                     <groupId>org.codehaus.mojo</groupId>
                     <artifactId>xmlbeans-maven-plugin</artifactId>
@@ -1417,7 +1432,7 @@
                         </execution>
                     </executions>
                 </plugin>
-                
+
                 <plugin>
                     <groupId>org.codehaus.mojo</groupId>
                     <artifactId>sql-maven-plugin</artifactId>
@@ -1427,7 +1442,7 @@
                 <!--
                 FIXME: Should not configure war to assume jsp by default
                 -->
-                
+
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-war-plugin</artifactId>
@@ -1459,7 +1474,7 @@
                         </webResources>
                     </configuration>
                 </plugin>
-                
+
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-ear-plugin</artifactId>
@@ -1485,7 +1500,7 @@
                 </plugin>
 
                 <plugin>
-                  <groupId>org.apache.maven.plugins</groupId>
+                    <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-jar-plugin</artifactId>
                     <configuration>
                         <archive>
@@ -1549,7 +1564,7 @@
                                     <option>-XX:MaxPermSize=128m</option>
                                 </options>
                             </optionSet>
-                            
+
                             <optionSet>
                                 <id>debug</id>
                                 <options>
@@ -1570,7 +1585,7 @@
 
                 <!-- Tools includes custom packagings, install as extension to pick them up -->
                 <extensions>true</extensions>
-                
+
                 <executions>
                     <execution>
                         <id>validate-java-version</id>
@@ -1582,7 +1597,7 @@
                             <version>1.5*</version>
                         </configuration>
                     </execution>
-                    
+
                     <execution>
                         <id>install-legal-files</id>
                         <phase>generate-resources</phase>
@@ -1594,7 +1609,7 @@
                             <strict>true</strict>
                         </configuration>
                     </execution>
-                    
+
                     <execution>
                         <id>verify-legal-files</id>
                         <phase>verify</phase>
@@ -1641,8 +1656,9 @@
     <repositories>
         <!--
         NOTE: The default repositories are picked up by Genesis, but need to
-              specify where Genesis lives to pick it up  any additional repositories.        -->
-        
+              specify where Genesis lives to pick it up  any additional repositories.
+        -->
+
         <repository>
             <id>apache-snapshots</id>
             <name>Apache Snapshots Repository</name>
@@ -1671,20 +1687,20 @@
             </releases>
         </repository>
 
-		<repository>
-			<id>axis2-m2-repo</id>
-			<name>Axis2 M2 Repository</name>
-			<url>http://ws.zones.apache.org/repository2/</url>
-			<layout>default</layout>
-			<snapshots>
-				<enabled>true</enabled>
-			</snapshots>
-			<releases>
-				<enabled>true</enabled>
-			</releases>
-		</repository>
+        <repository>
+            <id>axis2-m2-repo</id>
+            <name>Axis2 M2 Repository</name>
+            <url>http://ws.zones.apache.org/repository2/</url>
+            <layout>default</layout>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+        </repository>
 
-	</repositories>
+    </repositories>
 
     <distributionManagement>
         <!--
@@ -1740,7 +1756,7 @@
                         <groupId>org.apache.geronimo.genesis.plugins</groupId>
                         <artifactId>maven-maven-plugin</artifactId>
                     </plugin>
-                    
+
                     <plugin>
                         <groupId>org.codehaus.mojo</groupId>
                         <artifactId>selenium-maven-plugin</artifactId>
@@ -1755,7 +1771,6 @@
 
               See http://issues.apache.org/jira/browse/GERONIMO-2172 for more details.
         -->
-
         <profile>
             <id>stage-bootstrap</id>
 
