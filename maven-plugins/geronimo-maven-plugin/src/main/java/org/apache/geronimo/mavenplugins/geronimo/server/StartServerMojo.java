@@ -31,6 +31,11 @@ import java.util.StringTokenizer;
 import java.util.List;
 import java.util.ArrayList;
 
+import java.io.InputStream;
+import java.io.BufferedInputStream;
+import java.io.FileInputStream;
+import java.io.IOException;
+
 import org.apache.maven.plugin.MojoExecutionException;
 
 import org.apache.tools.ant.taskdefs.Java;
@@ -39,6 +44,7 @@ import org.apache.geronimo.genesis.util.ObjectHolder;
 import org.apache.geronimo.mavenplugins.geronimo.ServerProxy;
 
 import org.codehaus.plexus.util.FileUtils;
+import org.apache.commons.io.IOUtils;
 
 /**
  * Start the Geronimo server.
@@ -271,11 +277,17 @@ public class StartServerMojo
         boolean started = false;
         while (!started) {
             if (verifyTimedOut.isSet()) {
-                throw new MojoExecutionException("Unable to verify if the server was started in the given time");
+                String msg = "Unable to verify if the server was started in the given time";
+                log.error(msg);
+                dumpServerLog();
+                throw new MojoExecutionException(msg);
             }
 
             if (errorHolder.isSet()) {
-                throw new MojoExecutionException("Failed to start Geronimo server", (Throwable)errorHolder.get());
+                String msg = "Failed to start Geronimo server";
+                log.error(msg);
+                dumpServerLog();
+                throw new MojoExecutionException(msg, (Throwable)errorHolder.get());
             }
 
             started = server.isFullyStarted();
@@ -301,7 +313,32 @@ public class StartServerMojo
             t.join();
         }
     }
-
+    
+    private void dumpServerLog() throws IOException {
+        // If we logged output, copy the logs into the console stream
+        if (logOutput) {
+            File file = getLogFile();
+            if (!file.exists()) {
+                log.warn("Server log does not exist; skipping dump");
+            }
+            else {
+                System.out.println("----8<----");
+                InputStream input = new BufferedInputStream(new FileInputStream(file));
+                try {
+                    //
+                    // TODO: Might be nice to just get the last ~100 lines or something...
+                    //
+                    
+                    IOUtils.copy(input, System.out);
+                }
+                finally {
+                    input.close();
+                }
+                System.out.println("---->8----");
+            }
+        }
+    }
+    
     private String appendSystemPath(final String name, final File file) {
         assert name != null;
         assert file != null;

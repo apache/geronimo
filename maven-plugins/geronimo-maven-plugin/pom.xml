@@ -59,6 +59,12 @@
             <artifactId>mx4j-remote</artifactId>
         </dependency>
         
+        <dependency>
+            <groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
+            <version>1.2</version>
+        </dependency>
+        
         <!-- Support for SurefireReporter -->
         <dependency>
             <groupId>org.apache.maven.surefire</groupId>
