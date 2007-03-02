@@ -37,6 +37,7 @@ import org.apache.geronimo.kernel.GBeanAlreadyExistsException;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.kernel.classloader.JarFileClassLoader;
 import org.apache.geronimo.kernel.repository.Environment;
+import org.apache.geronimo.xbeans.javaee.ServletMappingType;
 import org.apache.geronimo.xbeans.javaee.ServletType;
 import org.apache.geronimo.xbeans.javaee.WebAppType;
 import org.apache.xbean.finder.ClassFinder;
@@ -46,7 +47,6 @@ import javax.xml.ws.WebServiceProvider;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.lang.reflect.Modifier;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -98,52 +98,85 @@ public abstract class JAXWSServiceBuilder implements WebServiceBuilder {
                                                       boolean isEJB,
                                                       Map correctedPortLocations)
             throws DeploymentException {
-        if (isEJB) {
-            return discoverWebServices(module.getModuleFile(), isEJB, correctedPortLocations);
-        } else {
-            Map<String, PortInfo> map = new HashMap<String, PortInfo>();
+        Map<String, PortInfo> map = new HashMap<String, PortInfo>();
+        
+        if (isEJB) {            
+            List<Class> services = discoverWebServices(module.getModuleFile(), isEJB);
+            updatePortMap(services, map, correctedPortLocations);
+        } else {                        
             ClassLoader classLoader = module.getEarContext().getClassLoader();
             WebAppType webApp = (WebAppType) module.getSpecDD();
             
             // find web services
             ServletType[] servletTypes = webApp.getServletArray();
-            for (ServletType servletType : servletTypes) {
-                String servletName = servletType.getServletName().getStringValue().trim();
-                if (servletType.isSetServletClass()) {
-                    String servletClassName = servletType.getServletClass().getStringValue().trim();
-                    try {
-                        Class servletClass = classLoader.loadClass(servletClassName);
-                        if (JAXWSUtils.isWebService(servletClass)) {
-                            PortInfo portInfo = new PortInfo();                                                       
-                            map.put(servletName, portInfo);
+                                                
+            if (webApp.getDomNode().getChildNodes().getLength() == 0) {
+                // web.xml not present (empty really), discover annotated classes and update DD
+                List<Class> services = discoverWebServices(module.getModuleFile(), isEJB);
+                String contextRoot = ((WebModule) module).getContextRoot();
+                for (Class service : services) {
+                    // skip interfaces and such
+                    if (!JAXWSUtils.isWebService(service)) {
+                        continue;
+                    }
+                    
+                    // add new <servlet/> element
+                    ServletType servlet = webApp.addNewServlet();
+                    servlet.addNewServletName().setStringValue(service.getName());
+                    servlet.addNewServletClass().setStringValue(service.getName());
+                    
+                    // add new <servlet-mapping/> element
+                    String location = "/" + JAXWSUtils.getServiceName(service);
+                    ServletMappingType servletMapping = webApp.addNewServletMapping();
+                    servletMapping.addNewServletName().setStringValue(service.getName());                                      
+                    servletMapping.addNewUrlPattern().setStringValue(location);
+                    
+                    // map service
+                    PortInfo portInfo = new PortInfo();
+                    portInfo.setLocation(contextRoot + location);
+                    map.put(service.getName(), portInfo);
+                }
+            } else {
+                // web.xml present, examine servlet classes and check for web services
+                for (ServletType servletType : servletTypes) {
+                    String servletName = servletType.getServletName().getStringValue().trim();
+                    if (servletType.isSetServletClass()) {
+                        String servletClassName = servletType.getServletClass().getStringValue().trim();
+                        try {
+                            Class servletClass = classLoader.loadClass(servletClassName);
+                            if (JAXWSUtils.isWebService(servletClass)) {
+                                PortInfo portInfo = new PortInfo();
+                                map.put(servletName, portInfo);
+                            }
+                        } catch (Exception e) {
+                            throw new DeploymentException("Failed to load servlet class "
+                                                          + servletClassName, e);
                         }
-                    } catch (Exception e) {                       
-                        throw new DeploymentException("Failed to load servlet class " + servletClassName, e);
+                    }
+                }
+                                  
+                // update web service locations
+                for (Map.Entry entry : map.entrySet()) {
+                    String servletName = (String) entry.getKey();
+                    PortInfo portInfo = (PortInfo) entry.getValue();
+
+                    String location = (String) correctedPortLocations.get(servletName);
+                    if (location != null) {
+                        portInfo.setLocation(location);
                     }
                 }
             }
-                        
-            // update web service locations
-            for (Map.Entry entry : map.entrySet()) {
-                String servletName = (String)entry.getKey();
-                PortInfo portInfo = (PortInfo)entry.getValue();
-                
-                String location = (String)correctedPortLocations.get(servletName);
-                if (location == null) {
-                    // TODO: not sure this case should be handled: Web service without servlet-mapping?
-                    throw new DeploymentException("Unsupported: Web Service without servlet-mapping");
-                } else {
-                    portInfo.setLocation(location);
-                }                                   
-            }
-            
-            return map;
         }
+        
+        return map;        
     }
                        
-    private Map<String, PortInfo> discoverWebServices(JarFile moduleFile,
-                                                      boolean isEJB,
-                                                      Map correctedPortLocations)
+    /**
+     * Returns a list of any classes annotated with @WebService or 
+     * @WebServiceProvider annotation.
+     */
+    private List<Class> discoverWebServices(JarFile moduleFile,
+                                            boolean isEJB)                                                      
             throws DeploymentException {
         LOG.debug("Discovering web service classes");
 
@@ -202,18 +235,15 @@ public abstract class JAXWSServiceBuilder implements WebServiceBuilder {
                 }
             }
         }
-
+        
         URL[] urls = urlList.toArray(new URL[] {});
         JarFileClassLoader tempClassLoader = new JarFileClassLoader(null, urls, this.getClass().getClassLoader());
         ClassFinder classFinder = new ClassFinder(tempClassLoader, urlList);
 
-        Map<String, PortInfo> map = null;
-        List<Class> classes = null;
+        List<Class> classes = new ArrayList<Class>();
 
-        classes = classFinder.findAnnotatedClasses(WebService.class);
-        map = updatePortMap(classes, map, correctedPortLocations);
-        classes = classFinder.findAnnotatedClasses(WebServiceProvider.class);
-        map = updatePortMap(classes, map, correctedPortLocations);
+        classes.addAll(classFinder.findAnnotatedClasses(WebService.class));
+        classes.addAll(classFinder.findAnnotatedClasses(WebServiceProvider.class));       
 
         tempClassLoader.destroy();
 
@@ -221,25 +251,21 @@ public abstract class JAXWSServiceBuilder implements WebServiceBuilder {
             DeploymentUtil.recursiveDelete(tmpDir);
         }
 
-        return map;
+        return classes;
     }
 
-    private static Map<String, PortInfo> updatePortMap(List<Class> classes,
-                                                       Map<String, PortInfo> map,
-                                                       Map correctedPortLocations) {
+    private static void updatePortMap(List<Class> classes,
+                                      Map<String, PortInfo> map,
+                                      Map correctedPortLocations) {
         for (Class clazz : classes) {
             if (JAXWSUtils.isWebService(clazz)) {
                 LOG.debug("Found web service class: " + clazz.getName());
-                if (map == null) {
-                    map = new HashMap<String, PortInfo>();
-                }
                 PortInfo portInfo = new PortInfo();
                 String location = (String) correctedPortLocations.get(clazz.getName());
                 portInfo.setLocation(location);
                 map.put(clazz.getName(), portInfo);
             }
         }
-        return map;
     }
 
     protected abstract Map<String, PortInfo> parseWebServiceDescriptor(InputStream in,

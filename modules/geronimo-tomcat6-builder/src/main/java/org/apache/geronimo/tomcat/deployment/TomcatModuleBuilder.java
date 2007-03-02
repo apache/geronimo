@@ -144,6 +144,10 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder {
             }
             //else ignore as jee5 allows optional spec dd for .war's
         }
+        
+        if (webApp == null) {
+            webApp = WebAppType.Factory.newInstance();
+        }
 
         // parse vendor dd
         TomcatWebAppType tomcatWebApp = getTomcatWebApp(plan, moduleFile, standAlone, targetPath, webApp);

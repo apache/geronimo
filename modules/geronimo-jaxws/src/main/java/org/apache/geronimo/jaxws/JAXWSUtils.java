@@ -80,4 +80,27 @@ public class JAXWSUtils {
                 !Modifier.isFinal(modifiers) &&
                 !Modifier.isAbstract(modifiers));
     }
+    
+    public static String getServiceName(Class clazz) {
+        WebService webService = 
+            (WebService)clazz.getAnnotation(WebService.class);
+        if (webService == null) {
+            WebServiceProvider webServiceProvider = 
+                (WebServiceProvider)clazz.getAnnotation(WebServiceProvider.class);
+            if (webServiceProvider == null) {
+                throw new IllegalArgumentException("The " + clazz.getName() + " is not annotated");
+            }
+            return getServiceName(clazz, webServiceProvider.serviceName());
+        } else {
+            return getServiceName(clazz, webService.serviceName());
+        }
+    }
+    
+    private static String getServiceName(Class clazz, String name) {
+        if (name == null || name.trim().length() == 0) {
+            return clazz.getSimpleName() + "Service";
+        } else {
+            return name.trim();
+        }       
+    }
 }

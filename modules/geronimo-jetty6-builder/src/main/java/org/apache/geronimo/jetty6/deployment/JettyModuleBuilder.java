@@ -214,6 +214,10 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
             //else ignore as jee5 allows optional spec dd for .war's
         }
 
+        if (webApp == null) {
+            webApp = WebAppType.Factory.newInstance();
+        }
+        
         // parse vendor dd
         JettyWebAppType jettyWebApp = getJettyWebApp(plan, moduleFile, standAlone, targetPath, webApp);
         if (contextRoot == null || contextRoot.trim().equals("")) {
