@@ -667,7 +667,7 @@ public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
 
     protected void buildSubstitutionGroups(XmlObject gerWebApp, boolean hasSecurityRealmName, Module module, EARContext earContext) throws DeploymentException {
         WebAppType webApp = (WebAppType) module.getSpecDD();
-        makeMetadataComplete(webApp, module);
+//      makeMetadataComplete(webApp, module);
         if ((webApp.getSecurityConstraintArray().length > 0 || webApp.getSecurityRoleArray().length > 0) &&
                 !hasSecurityRealmName) {
             throw new DeploymentException("web.xml for web app " + module.getName() + " includes security elements but Geronimo deployment plan is not provided or does not contain <security-realm-name> element necessary to configure security accordingly.");
@@ -770,7 +770,7 @@ public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
             if (EJBAnnotationHelper.annotationsPresent(classFinder)) {
                 try {
                     ClassFinder ejbFinder = new ClassFinder(classLoader);
-                    webApp = EJBAnnotationHelper.processAnnotations(webApp, classFinder, ejbFinder);
+//                  webApp = EJBAnnotationHelper.processAnnotations(webApp, classFinder, ejbFinder);
                 }
                 catch (Exception e) {
                     throw new DeploymentException("TomcatModuleBuilder: Error processing @EJB(s) annotations", e);
@@ -785,7 +785,7 @@ public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
             // <service-ref>
             if (ResourceAnnotationHelper.annotationsPresent(classFinder)) {
                 try {
-                    ResourceAnnotationHelper.processAnnotations(webApp, classFinder);
+//                  ResourceAnnotationHelper.processAnnotations(webApp, classFinder);
                 }
                 catch (Exception e) {
                     throw new DeploymentException("TomcatModuleBuilder: Error processing @Resource(s) annotations", e);

@@ -24,6 +24,7 @@ import java.util.Map;
 
 import org.apache.geronimo.deployment.DeploymentContext;
 import org.apache.geronimo.gbean.AbstractName;
+import org.apache.geronimo.j2ee.deployment.annotation.AnnotatedApp;
 import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.xmlbeans.XmlObject;
@@ -34,8 +35,8 @@ import org.apache.xmlbeans.XmlObject;
 public class EJBModule extends Module {
     private AbstractName moduleCmpEngineName;
 
-    public EJBModule(boolean standAlone, AbstractName moduleName, Environment environment, JarFile moduleFile, String targetPath, XmlObject specDD, XmlObject vendorDD, String originalSpecDD, Map sharedContext) {
-        super(standAlone, moduleName, environment, moduleFile, targetPath, specDD, vendorDD, originalSpecDD, null, sharedContext);
+    public EJBModule(boolean standAlone, AbstractName moduleName, Environment environment, JarFile moduleFile, String targetPath, XmlObject specDD, XmlObject vendorDD, String originalSpecDD, Map sharedContext, AnnotatedApp annoatedApp) {
+        super(standAlone, moduleName, environment, moduleFile, targetPath, specDD, vendorDD, originalSpecDD, null, sharedContext, annoatedApp);
     }
 
     public ConfigurationModuleType getType() {

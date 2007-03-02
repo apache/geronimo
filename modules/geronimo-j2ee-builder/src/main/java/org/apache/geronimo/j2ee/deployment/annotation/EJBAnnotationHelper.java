@@ -22,13 +22,11 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Set;
-import java.util.HashSet;
 
 import javax.ejb.EJB;
-import javax.ejb.EJBs;
 import javax.ejb.EJBHome;
 import javax.ejb.EJBLocalHome;
+import javax.ejb.EJBs;
 import javax.ejb.Local;
 import javax.ejb.Remote;
 
@@ -36,26 +34,23 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.deployment.xmlbeans.XmlBeansUtil;
 import org.apache.geronimo.xbeans.javaee.DescriptionType;
-import org.apache.geronimo.xbeans.javaee.FullyQualifiedClassType;
-import org.apache.geronimo.xbeans.javaee.JavaIdentifierType;
 import org.apache.geronimo.xbeans.javaee.EjbLinkType;
 import org.apache.geronimo.xbeans.javaee.EjbLocalRefType;
 import org.apache.geronimo.xbeans.javaee.EjbRefNameType;
 import org.apache.geronimo.xbeans.javaee.EjbRefType;
+import org.apache.geronimo.xbeans.javaee.FullyQualifiedClassType;
 import org.apache.geronimo.xbeans.javaee.InjectionTargetType;
+import org.apache.geronimo.xbeans.javaee.JavaIdentifierType;
 import org.apache.geronimo.xbeans.javaee.LocalType;
 import org.apache.geronimo.xbeans.javaee.RemoteType;
-import org.apache.geronimo.xbeans.javaee.WebAppType;
 import org.apache.geronimo.xbeans.javaee.XsdStringType;
 import org.apache.xbean.finder.ClassFinder;
 
 /**
  * Static helper class used to encapsulate all the functions related to the translation of
- *
- * @version $Rev$ $Date$
- * @EJB and @EBJs annotations to deployment descriptor tags. The EJBAnnotationHelper class can be
- * used as part of the deployment of a module into the Geronimo server. It performs the following
- * major functions:
+ * <strong>@EJB</strong> and <strong>@EJBs</strong> annotations to deployment descriptor tags. The
+ * EJBAnnotationHelper class can be used as part of the deployment of a module into the Geronimo
+ * server. It performs the following major functions:
  * <p/>
  * <ol>
  * <li>Translates annotations into corresponding deployment descriptor elements (so that the
@@ -71,10 +66,13 @@ import org.apache.xbean.finder.ClassFinder;
  * <p/>
  * <p><strong>Remaining ToDo(s):</strong>
  * <ul>
- * <li>How to determine Session/Entity remote/local for @EJB
+ * <li>None
  * </ul>
+ *
+ * @version $Rev$ $Date$
  * @since 02-2007
  */
+
 public final class EJBAnnotationHelper {
 
     // Private instance variables
@@ -103,47 +101,22 @@ public final class EJBAnnotationHelper {
      * @return Updated deployment descriptor
      * @throws Exception if parsing or validation error
      */
-    public static WebAppType processAnnotations(WebAppType webApp, ClassFinder classFinder, ClassFinder ejbFinder) throws Exception {
-        Set<Class> remotes = extractRemotes(ejbFinder);
-        Set<Class> locals = extractLocals(ejbFinder);
-        processEJBs(webApp, classFinder, remotes, locals);
-        processEJB(webApp, classFinder, remotes, locals);
-        return webApp;
-    }
-
-    private static Set<Class> extractRemotes(ClassFinder classFinder) {
-        List<Class> classesWithRemote = classFinder.findAnnotatedClasses(Remote.class);
-        Set<Class> remotes = new HashSet<Class>();
-        for (Class clazz : classesWithRemote) {
-            Remote remoteAnnotation = (Remote) clazz.getAnnotation(Remote.class);
-            for (Class remote : remoteAnnotation.value()) {
-                remotes.add(remote);
-            }
+    public static void processAnnotations(AnnotatedApp annotatedApp, ClassFinder classFinder) throws Exception {
+        if (annotatedApp != null) {
+            processEJBs(annotatedApp, classFinder);
+            processEJB(annotatedApp, classFinder);
         }
-        return remotes;
-    }
-
-    private static Set<Class> extractLocals(ClassFinder classFinder) {
-        List<Class> classesWithLocal = classFinder.findAnnotatedClasses(Local.class);
-        Set<Class> locals = new HashSet<Class>();
-        for (Class clazz : classesWithLocal) {
-            Local localAnnotation = (Local) clazz.getAnnotation(Local.class);
-            for (Class local : localAnnotation.value()) {
-                locals.add(local);
-            }
-        }
-        return locals;
     }
 
 
     /**
      * Process @EJB annotations
      *
-     * @param webApp
+     * @param annotatedApp
      * @param classFinder
      * @throws Exception
      */
-    private static void processEJB(WebAppType webApp, ClassFinder classFinder, Set<Class> remotes, Set<Class> locals) throws Exception {
+    private static void processEJB(AnnotatedApp annotatedApp, ClassFinder classFinder) throws Exception {
         log.debug("processEJB(): Entry");
 
         // Save the EJB lists
@@ -155,7 +128,7 @@ public final class EJBAnnotationHelper {
         for (Class cls : classesWithEJB) {
             EJB ejb = (EJB) cls.getAnnotation(EJB.class);
             if (ejb != null) {
-                addEJB(webApp, ejb, cls, null, null, remotes, locals);
+                addEJB(annotatedApp, ejb, cls, null, null);
             }
         }
 
@@ -163,7 +136,7 @@ public final class EJBAnnotationHelper {
         for (Method method : methodsWithEJB) {
             EJB ejb = (EJB) method.getAnnotation(EJB.class);
             if (ejb != null) {
-                addEJB(webApp, ejb, null, method, null, remotes, locals);
+                addEJB(annotatedApp, ejb, null, method, null);
             }
         }
 
@@ -171,25 +144,25 @@ public final class EJBAnnotationHelper {
         for (Field field : fieldsWithEJB) {
             EJB ejb = (EJB) field.getAnnotation(EJB.class);
             if (ejb != null) {
-                addEJB(webApp, ejb, null, null, field, remotes, locals);
+                addEJB(annotatedApp, ejb, null, null, field);
             }
         }
 
         // Validate deployment descriptor to ensure it's still okay
-        validateDD(webApp);
+        validateDD(annotatedApp);
 
-        log.debug("processEJB(): Exit: webApp: " + webApp.toString());
+        log.debug("processEJB(): Exit: AnnotatedApp: " + annotatedApp.toString());
     }
 
 
     /**
      * Process @EJBs annotations
      *
-     * @param webApp
+     * @param annotatedApp
      * @param classFinder
      * @throws Exception
      */
-    private static void processEJBs(WebAppType webApp, ClassFinder classFinder, Set<Class> remotes, Set<Class> locals) throws Exception {
+    private static void processEJBs(AnnotatedApp annotatedApp, ClassFinder classFinder) throws Exception {
         log.debug("processEJBs(): Entry");
 
         // Save the EJBs list
@@ -203,7 +176,7 @@ public final class EJBAnnotationHelper {
                 ejbList.addAll(Arrays.asList(ejbs.value()));
             }
             for (EJB ejb : ejbList) {
-                addEJB(webApp, ejb, cls, null, null, remotes, locals);
+                addEJB(annotatedApp, ejb, cls, null, null);
             }
             ejbList.clear();
         }
@@ -215,7 +188,8 @@ public final class EJBAnnotationHelper {
     /**
      * Add @EJB and @EJBs annotations to the deployment descriptor. XMLBeans are used to read and
      * manipulate the deployment descriptor as necessary. The EJB annotation(s) will be converted to
-     * one of the following deployment descriptors:
+     * one of the following deployment descriptors if possible. Otherwise they will be listed as
+     * ambiguous and resolved in OpenEJB.
      * <p/>
      * <ol>
      * <li><ejb-ref>
@@ -228,21 +202,22 @@ public final class EJBAnnotationHelper {
      * existing elements in it are not overwritten by annoations
      * </ul>
      *
-     * @param webApp
-     * @param annotation @EJB annotation
-     * @param cls        Class name with the @EJB annoation
-     * @param method     Method name with the @EJB annoation
-     * @param field      Field name with the @EJB annoation
+     * @param annotatedApp
+     * @param annotation   @EJB annotation
+     * @param cls          Class name with the @EJB annoation
+     * @param method       Method name with the @EJB annoation
+     * @param field        Field name with the @EJB annoation
      */
-    private static void addEJB(WebAppType webApp, EJB annotation, Class cls, Method method, Field field, Set<Class> remotes, Set<Class> locals) {
-        log.debug("addEJB( " + webApp.toString() + "," + '\n' +
+    private static void addEJB(AnnotatedApp annotatedApp, EJB annotation, Class cls, Method method, Field field) {
+        log.debug("addEJB( " + annotatedApp.toString() + "," + '\n' +
                 annotation.name() + "," + '\n' +
                 (cls != null ? cls.getName() : null) + "," + '\n' +
                 (method != null ? method.getName() : null) + "," + '\n' +
                 (field != null ? field.getName() : null) + " ): Entry");
 
-        // First determine if the interface is "Local" or "Remote"
-        boolean localFlag = true;
+        // First determine if the interface is "Local" or "Remote" (if we can--we may not be able to)
+        boolean localFlag = false;
+        boolean remoteFlag = false;
         Class interfce = annotation.beanInterface();
         if (interfce.equals(Object.class)) {
             if (method != null) {
@@ -258,14 +233,14 @@ public final class EJBAnnotationHelper {
         // they are optional in EJB 3.0)
         if (interfce != null && !interfce.equals(Object.class)) {
             if (EJBHome.class.isAssignableFrom(interfce)) {
-                localFlag = false;
+                remoteFlag = true;
             } else if (EJBLocalHome.class.isAssignableFrom(interfce)) {
                 localFlag = true;
             } else {
-                if (locals.contains(interfce) || interfce.getAnnotation(Local.class) != null) {
+                if (interfce.getAnnotation(Local.class) != null) {
                     localFlag = true;
-                } else if (remotes.contains(interfce) || interfce.getAnnotation(Remote.class) != null) {
-                    localFlag = false;
+                } else if (interfce.getAnnotation(Remote.class) != null) {
+                    remoteFlag = true;
                 }
             }
         }
@@ -278,7 +253,7 @@ public final class EJBAnnotationHelper {
             log.debug("addEJB(): <ejb-local-ref> found");
 
             String localRefName = annotation.name();
-            if (localRefName.equals("")) {
+            if (localRefName.trim().equals("")) {
                 if (method != null) {
                     localRefName = method.getDeclaringClass().getName() + "/" + method.getName().substring(3);  // method should start with "set"
                 } else if (field != null) {
@@ -287,9 +262,9 @@ public final class EJBAnnotationHelper {
             }
 
             boolean exists = false;
-            EjbLocalRefType[] ejbLocalRefEntries = webApp.getEjbLocalRefArray();
+            EjbLocalRefType[] ejbLocalRefEntries = annotatedApp.getEjbLocalRefArray();
             for (EjbLocalRefType ejbLocalRefEntry : ejbLocalRefEntries) {
-                if (ejbLocalRefEntry.getEjbRefName().getStringValue().equals(localRefName)) {
+                if (ejbLocalRefEntry.getEjbRefName().getStringValue().trim().equals(localRefName)) {
                     exists = true;
                     break;
                 }
@@ -298,14 +273,14 @@ public final class EJBAnnotationHelper {
                 try {
 
                     // Doesn't exist in deployment descriptor -- add new
-                    EjbLocalRefType ejbLocalRef = webApp.addNewEjbLocalRef();
+                    EjbLocalRefType ejbLocalRef = annotatedApp.addNewEjbLocalRef();
 
                     //------------------------------------------------------------------------------
                     // <ejb-local-ref> required elements:
                     //------------------------------------------------------------------------------
 
                     // ejb-ref-name
-                    EjbRefNameType ejbRefName = EjbRefNameType.Factory.newInstance();
+                    EjbRefNameType ejbRefName = ejbLocalRef.addNewEjbRefName();
                     ejbRefName.setStringValue(localRefName);
                     ejbLocalRef.setEjbRefName(ejbRefName);
 
@@ -315,58 +290,49 @@ public final class EJBAnnotationHelper {
 
                     // local
                     String localAnnotation = interfce.getName();
-                    if (localAnnotation.length() > 0) {
-                        LocalType local = LocalType.Factory.newInstance();
+                    if (!localAnnotation.trim().equals("")) {
+                        LocalType local = ejbLocalRef.addNewLocal();
                         local.setStringValue(localAnnotation);
                         ejbLocalRef.setLocal(local);
                     }
 
                     // ejb-link
                     String beanName = annotation.beanName();
-                    if (beanName.length() > 0) {
-                        EjbLinkType ejbLink = EjbLinkType.Factory.newInstance();
+                    if (!beanName.trim().equals("")) {
+                        EjbLinkType ejbLink = ejbLocalRef.addNewEjbLink();
                         ejbLink.setStringValue(beanName);
                         ejbLocalRef.setEjbLink(ejbLink);
                     }
 
                     // mappedName
                     String mappdedNameAnnotation = annotation.mappedName();
-                    if (mappdedNameAnnotation.length() > 0) {
-                        XsdStringType mappedName = XsdStringType.Factory.newInstance();
+                    if (!mappdedNameAnnotation.trim().equals("")) {
+                        XsdStringType mappedName = ejbLocalRef.addNewMappedName();
                         mappedName.setStringValue(mappdedNameAnnotation);
                         ejbLocalRef.setMappedName(mappedName);
                     }
 
                     // description
                     String descriptionAnnotation = annotation.description();
-                    if (descriptionAnnotation.length() > 0) {
-                        DescriptionType description = DescriptionType.Factory.newInstance();
+                    if (!descriptionAnnotation.trim().equals("")) {
+                        DescriptionType description = ejbLocalRef.addNewDescription();
                         description.setStringValue(descriptionAnnotation);
-                        int arraySize = ejbLocalRef.sizeOfDescriptionArray();
-                        ejbLocalRef.insertNewDescription(arraySize);
-                        ejbLocalRef.setDescriptionArray(arraySize, description);
                     }
 
                     // injectionTarget
-                    InjectionTargetType injectionTarget = InjectionTargetType.Factory.newInstance();
-                    FullyQualifiedClassType qualifiedClass = FullyQualifiedClassType.Factory.newInstance();
-                    JavaIdentifierType javaType = JavaIdentifierType.Factory.newInstance();
+                    InjectionTargetType injectionTarget = ejbLocalRef.addNewInjectionTarget();
+                    FullyQualifiedClassType qualifiedClass = injectionTarget.addNewInjectionTargetClass();
+                    JavaIdentifierType javaType = injectionTarget.addNewInjectionTargetName();
                     if (method != null) {
                         qualifiedClass.setStringValue(method.getDeclaringClass().getName());
                         javaType.setStringValue(method.getName().substring(3));   // method should start with "set"
                         injectionTarget.setInjectionTargetClass(qualifiedClass);
                         injectionTarget.setInjectionTargetName(javaType);
-                        int arraySize = ejbLocalRef.sizeOfInjectionTargetArray();
-                        ejbLocalRef.insertNewInjectionTarget(arraySize);
-                        ejbLocalRef.setInjectionTargetArray(arraySize, injectionTarget);
                     } else if (field != null) {
                         qualifiedClass.setStringValue(field.getDeclaringClass().getName());
                         javaType.setStringValue(field.getName());
                         injectionTarget.setInjectionTargetClass(qualifiedClass);
                         injectionTarget.setInjectionTargetName(javaType);
-                        int arraySize = ejbLocalRef.sizeOfInjectionTargetArray();
-                        ejbLocalRef.insertNewInjectionTarget(arraySize);
-                        ejbLocalRef.setInjectionTargetArray(arraySize, injectionTarget);
                     }
 
                 }
@@ -376,7 +342,7 @@ public final class EJBAnnotationHelper {
                 }
             }
         }                                                                           // end if local
-        else {                                                                      // else remote
+        else if (remoteFlag) {                                                      // remote
 
             //--------------------------------------------------------------------------------------
             // 2. <ejb-ref>
@@ -385,7 +351,7 @@ public final class EJBAnnotationHelper {
             log.debug("addEJB(): <ejb-ref> found");
 
             String remoteRefName = annotation.name();
-            if (remoteRefName.equals("")) {
+            if (remoteRefName.trim().equals("")) {
                 if (method != null) {
                     remoteRefName = method.getDeclaringClass().getName() + "/" + method.getName().substring(3); // method should start with "set"
                 } else if (field != null) {
@@ -394,9 +360,9 @@ public final class EJBAnnotationHelper {
             }
 
             boolean exists = false;
-            EjbRefType[] ejbRefEntries = webApp.getEjbRefArray();
+            EjbRefType[] ejbRefEntries = annotatedApp.getEjbRefArray();
             for (EjbRefType ejbRefEntry : ejbRefEntries) {
-                if (ejbRefEntry.getEjbRefName().getStringValue().equals(remoteRefName)) {
+                if (ejbRefEntry.getEjbRefName().getStringValue().trim().equals(remoteRefName)) {
                     exists = true;
                     break;
                 }
@@ -405,14 +371,14 @@ public final class EJBAnnotationHelper {
                 try {
 
                     // Doesn't exist in deployment descriptor -- add new
-                    EjbRefType ejbRef = webApp.addNewEjbRef();
+                    EjbRefType ejbRef = annotatedApp.addNewEjbRef();
 
                     //------------------------------------------------------------------------------
                     // <ejb-ref> required elements:
                     //------------------------------------------------------------------------------
 
                     // ejb-ref-name
-                    EjbRefNameType ejbRefName = EjbRefNameType.Factory.newInstance();
+                    EjbRefNameType ejbRefName = ejbRef.addNewEjbRefName();
                     ejbRefName.setStringValue(remoteRefName);
                     ejbRef.setEjbRefName(ejbRefName);
 
@@ -422,66 +388,156 @@ public final class EJBAnnotationHelper {
 
                     // remote
                     String remoteAnnotation = interfce.getName();
-                    if (remoteAnnotation.length() > 0) {
-                        RemoteType remote = RemoteType.Factory.newInstance();
+                    if (!remoteAnnotation.trim().equals("")) {
+                        RemoteType remote = ejbRef.addNewRemote();
                         remote.setStringValue(remoteAnnotation);
                         ejbRef.setRemote(remote);
                     }
 
                     // ejb-link
                     String beanName = annotation.beanName();
-                    if (beanName.length() > 0) {
-                        EjbLinkType ejbLink = EjbLinkType.Factory.newInstance();
+                    if (!beanName.trim().equals("")) {
+                        EjbLinkType ejbLink = ejbRef.addNewEjbLink();
                         ejbLink.setStringValue(beanName);
                         ejbRef.setEjbLink(ejbLink);
                     }
 
                     // mappedName
                     String mappdedNameAnnotation = annotation.mappedName();
-                    if (mappdedNameAnnotation.length() > 0) {
-                        XsdStringType mappedName = XsdStringType.Factory.newInstance();
+                    if (!mappdedNameAnnotation.trim().equals("")) {
+                        XsdStringType mappedName = ejbRef.addNewMappedName();
                         mappedName.setStringValue(mappdedNameAnnotation);
                         ejbRef.setMappedName(mappedName);
                     }
 
                     // description
                     String descriptionAnnotation = annotation.description();
-                    if (descriptionAnnotation.length() > 0) {
-                        DescriptionType description = DescriptionType.Factory.newInstance();
+                    if (!descriptionAnnotation.trim().equals("")) {
+                        DescriptionType description = ejbRef.addNewDescription();
                         description.setStringValue(descriptionAnnotation);
-                        int arraySize = ejbRef.sizeOfDescriptionArray();
-                        ejbRef.insertNewDescription(arraySize);
-                        ejbRef.setDescriptionArray(arraySize, description);
                     }
 
                     // injectionTarget
-                    InjectionTargetType injectionTarget = InjectionTargetType.Factory.newInstance();
-                    FullyQualifiedClassType qualifiedClass = FullyQualifiedClassType.Factory.newInstance();
-                    JavaIdentifierType javaType = JavaIdentifierType.Factory.newInstance();
+                    InjectionTargetType injectionTarget = ejbRef.addNewInjectionTarget();
+                    FullyQualifiedClassType qualifiedClass = injectionTarget.addNewInjectionTargetClass();
+                    JavaIdentifierType javaType = injectionTarget.addNewInjectionTargetName();
                     if (method != null) {
                         qualifiedClass.setStringValue(method.getDeclaringClass().getName());
                         javaType.setStringValue(method.getName().substring(3));   // method should start with "set"
                         injectionTarget.setInjectionTargetClass(qualifiedClass);
                         injectionTarget.setInjectionTargetName(javaType);
-                        int arraySize = ejbRef.sizeOfInjectionTargetArray();
-                        ejbRef.insertNewInjectionTarget(arraySize);
-                        ejbRef.setInjectionTargetArray(arraySize, injectionTarget);
                     } else if (field != null) {
                         qualifiedClass.setStringValue(field.getDeclaringClass().getName());
                         javaType.setStringValue(field.getName());
                         injectionTarget.setInjectionTargetClass(qualifiedClass);
                         injectionTarget.setInjectionTargetName(javaType);
-                        int arraySize = ejbRef.sizeOfInjectionTargetArray();
-                        ejbRef.insertNewInjectionTarget(arraySize);
-                        ejbRef.setInjectionTargetArray(arraySize, injectionTarget);
                     }
 
                 }
                 catch (Exception anyException) {
-                    log.debug("EJBAnnotationHelper: Exception caught while <processing ejb-ref>");
+                    log.debug("EJBAnnotationHelper: Exception caught while processing <ejb-ref>");
                     anyException.printStackTrace();
                 }
             }
+        }                                                                           // end if remote
+        else {                                                                      // ambiguous
+
+            //--------------------------------------------------------------------------------------
+            // 3. <UNKNOWN>
+            //--------------------------------------------------------------------------------------
+            log.debug("addEJB(): <UNKNOWN> found");
+
+            String remoteRefName = annotation.name();
+            if (remoteRefName.trim().equals("")) {
+                if (method != null) {
+                    remoteRefName = method.getDeclaringClass().getName() + "/" + method.getName().substring(3); // method should start with "set"
+                } else if (field != null) {
+                    remoteRefName = field.getDeclaringClass().getName() + "/" + field.getName();
+                }
+            }
+
+            boolean exists = false;
+            EjbRefType[] ejbRefEntries = annotatedApp.getEjbRefArray();
+            for (EjbRefType ejbRefEntry : ejbRefEntries) {
+                if (ejbRefEntry.getEjbRefName().getStringValue().trim().equals(remoteRefName)) {
+                    exists = true;
+                    break;
+                }
+            }
+            if (!exists) {
+                try {
+                    // Doesn't exist in deployment descriptor -- add to as an <ejb-ref> to the
+                    // ambiguous list so that it can be resolved later
+                    EjbRefType ejbRef = EjbRefType.Factory.newInstance();
+                    annotatedApp.getAmbiguousEjbRefs().add(ejbRef);
+
+                    //------------------------------------------------------------------------------
+                    // <ejb-ref> required elements:
+                    //------------------------------------------------------------------------------
+
+                    // ejb-ref-name
+                    EjbRefNameType ejbRefName = ejbRef.addNewEjbRefName();
+                    ejbRefName.setStringValue(remoteRefName);
+                    ejbRef.setEjbRefName(ejbRefName);
+
+                    //------------------------------------------------------------------------------
+                    // <ejb-ref> optional elements:
+                    //------------------------------------------------------------------------------
+
+                    // remote
+                    String remoteAnnotation = interfce.getName();
+                    if (!remoteAnnotation.trim().equals("")) {
+                        RemoteType remote = ejbRef.addNewRemote();
+                        remote.setStringValue(remoteAnnotation);
+                        ejbRef.setRemote(remote);
+                    }
+
+                    // ejb-link
+                    String beanName = annotation.beanName();
+                    if (!beanName.trim().equals("")) {
+                        EjbLinkType ejbLink = ejbRef.addNewEjbLink();
+                        ejbLink.setStringValue(beanName);
+                        ejbRef.setEjbLink(ejbLink);
+                    }
+
+                    // mappedName
+                    String mappdedNameAnnotation = annotation.mappedName();
+                    if (!mappdedNameAnnotation.trim().equals("")) {
+                        XsdStringType mappedName = ejbRef.addNewMappedName();
+                        mappedName.setStringValue(mappdedNameAnnotation);
+                        ejbRef.setMappedName(mappedName);
+                    }
+
+                    // description
+                    String descriptionAnnotation = annotation.description();
+                    if (!descriptionAnnotation.trim().equals("")) {
+                        DescriptionType description = ejbRef.addNewDescription();
+                        description.setStringValue(descriptionAnnotation);
+                    }
+
+                    // injectionTarget
+                    InjectionTargetType injectionTarget = ejbRef.addNewInjectionTarget();
+                    FullyQualifiedClassType qualifiedClass = injectionTarget.addNewInjectionTargetClass();
+                    JavaIdentifierType javaType = injectionTarget.addNewInjectionTargetName();
+                    if (method != null) {
+                        qualifiedClass.setStringValue(method.getDeclaringClass().getName());
+                        javaType.setStringValue(method.getName().substring(3));   // method should start with "set"
+                        injectionTarget.setInjectionTargetClass(qualifiedClass);
+                        injectionTarget.setInjectionTargetName(javaType);
+                    } else if (field != null) {
+                        qualifiedClass.setStringValue(field.getDeclaringClass().getName());
+                        javaType.setStringValue(field.getName());
+                        injectionTarget.setInjectionTargetClass(qualifiedClass);
+                        injectionTarget.setInjectionTargetName(javaType);
+                    }
+
+                }
+                catch (Exception anyException) {
+                    log.debug("EJBAnnotationHelper: Exception caught while processing <UNKNOWN>");
+                    anyException.printStackTrace();
+                }
+            }
+
         }
         log.debug("addEJB(): Exit");
     }
@@ -490,13 +546,13 @@ public final class EJBAnnotationHelper {
     /**
      * Validate deployment descriptor
      *
-     * @param webApp
+     * @param annotatedApp
      * @throws Exception thrown if deployment descriptor cannot be parsed
      */
-    private static void validateDD(WebAppType webApp) throws Exception {
-        log.debug("validateDD( " + webApp.toString() + " ): Entry");
+    private static void validateDD(AnnotatedApp annotatedApp) throws Exception {
+        log.debug("validateDD( " + annotatedApp.toString() + " ): Entry");
 
-        XmlBeansUtil.parse(webApp.toString());
+        XmlBeansUtil.parse(annotatedApp.toString());
 
         log.debug("validateDD(): Exit");
     }

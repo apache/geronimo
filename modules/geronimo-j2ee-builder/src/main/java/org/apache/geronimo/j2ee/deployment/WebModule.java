@@ -20,6 +20,7 @@ import java.util.Map;
 import java.util.jar.JarFile;
 
 import org.apache.geronimo.gbean.AbstractName;
+import org.apache.geronimo.j2ee.deployment.annotation.AnnotatedWebApp;
 import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.xmlbeans.XmlObject;
@@ -30,8 +31,8 @@ import org.apache.xmlbeans.XmlObject;
 public class WebModule extends Module {
     private final String contextRoot;
 
-    public WebModule(boolean standAlone, AbstractName moduleName, Environment environment, JarFile moduleFile, String targetPath, XmlObject specDD, XmlObject vendorDD, String originalSpecDD, String contextRoot, Map sharedContext, String namespace) {
-        super(standAlone, moduleName, environment, moduleFile, targetPath, specDD, vendorDD, originalSpecDD, namespace, sharedContext);
+    public WebModule(boolean standAlone, AbstractName moduleName, Environment environment, JarFile moduleFile, String targetPath, XmlObject specDD, XmlObject vendorDD, String originalSpecDD, String contextRoot, Map sharedContext, String namespace, AnnotatedWebApp annotatedWebApp) {
+        super(standAlone, moduleName, environment, moduleFile, targetPath, specDD, vendorDD, originalSpecDD, namespace, sharedContext, annotatedWebApp );
         this.contextRoot = contextRoot;
     }
 

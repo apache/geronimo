@@ -76,7 +76,7 @@ public class MessageDestinationTest extends TestCase {
                 new ConfigurationData(id, naming),
                 new ConfigurationResolver(id, null),
                 null);
-        module  = new ConnectorModule(false, new AbstractName(id, Collections.singletonMap("name", "test")), null, null, "foo", null, null, null);
+        module  = new ConnectorModule(false, new AbstractName(id, Collections.singletonMap("name", "test")), null, null, "foo", null, null, null, null);
         EARContext earContext = new EARContext(new File("foo"), null, new Environment(new Artifact("foo", "bar", "1.0", "car")), ConfigurationModuleType.EAR, naming,
                 new ConfigurationManager() {
                     public boolean isInstalled(Artifact configurationId) {

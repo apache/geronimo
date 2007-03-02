@@ -79,6 +79,7 @@ import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.InvalidConfigurationException;
+import org.apache.geronimo.j2ee.deployment.annotation.AnnotatedApp;
 import org.apache.geronimo.j2ee.deployment.ActivationSpecInfoLocator;
 import org.apache.geronimo.j2ee.deployment.ConnectorModule;
 import org.apache.geronimo.j2ee.deployment.EARContext;
@@ -98,17 +99,7 @@ import org.apache.geronimo.management.geronimo.ResourceAdapterModule;
 import org.apache.geronimo.naming.deployment.ENCConfigBuilder;
 import org.apache.geronimo.naming.reference.ResourceReference;
 import org.apache.geronimo.schema.SchemaConversionUtils;
-import org.apache.geronimo.xbeans.geronimo.GerAdminobjectInstanceType;
-import org.apache.geronimo.xbeans.geronimo.GerAdminobjectType;
-import org.apache.geronimo.xbeans.geronimo.GerConfigPropertySettingType;
-import org.apache.geronimo.xbeans.geronimo.GerConnectionDefinitionType;
-import org.apache.geronimo.xbeans.geronimo.GerConnectiondefinitionInstanceType;
-import org.apache.geronimo.xbeans.geronimo.GerConnectionmanagerType;
-import org.apache.geronimo.xbeans.geronimo.GerConnectorDocument;
-import org.apache.geronimo.xbeans.geronimo.GerConnectorType;
-import org.apache.geronimo.xbeans.geronimo.GerPartitionedpoolType;
-import org.apache.geronimo.xbeans.geronimo.GerResourceadapterType;
-import org.apache.geronimo.xbeans.geronimo.GerSinglepoolType;
+import org.apache.geronimo.xbeans.geronimo.*;
 import org.apache.geronimo.xbeans.j2ee.ActivationspecType;
 import org.apache.geronimo.xbeans.j2ee.AdminobjectType;
 import org.apache.geronimo.xbeans.j2ee.ConfigPropertyType;
@@ -263,7 +254,9 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ActivationSpecInfo
         }
 
         boolean standAlone = earEnvironment == null;
-        return new ConnectorModule(standAlone, moduleName, environment, moduleFile, targetPath, connector, gerConnector, specDD);
+        AnnotatedApp annotatedApp = null;
+        return new ConnectorModule(standAlone, moduleName, environment, moduleFile, targetPath, connector, gerConnector, specDD, annotatedApp);
+
     }
 
     static ConnectorDocument convertToConnectorSchema(XmlObject xmlObject) throws XmlException {

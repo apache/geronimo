@@ -24,6 +24,7 @@ import java.util.HashMap;
 
 import org.apache.geronimo.deployment.DeploymentContext;
 import org.apache.geronimo.gbean.AbstractName;
+import org.apache.geronimo.j2ee.deployment.annotation.AnnotatedApp;
 import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.xmlbeans.XmlObject;
@@ -32,8 +33,8 @@ import org.apache.xmlbeans.XmlObject;
  * @version $Rev$ $Date$
  */
 public class ConnectorModule extends Module {
-    public ConnectorModule(boolean standAlone, AbstractName moduleName, Environment environment, JarFile moduleFile, String targetPath, XmlObject specDD, XmlObject vendorDD, String originalSpecDD) {
-        super(standAlone, moduleName, environment, moduleFile, targetPath, specDD, vendorDD, originalSpecDD, null, new HashMap());
+    public ConnectorModule(boolean standAlone, AbstractName moduleName, Environment environment, JarFile moduleFile, String targetPath, XmlObject specDD, XmlObject vendorDD, String originalSpecDD, AnnotatedApp annotatedApp ) {
+        super(standAlone, moduleName, environment, moduleFile, targetPath, specDD, vendorDD, originalSpecDD, null, new HashMap(), annotatedApp );
     }
 
     public ConfigurationModuleType getType() {

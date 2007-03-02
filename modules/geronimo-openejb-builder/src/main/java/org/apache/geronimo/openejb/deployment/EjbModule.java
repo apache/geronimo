@@ -20,6 +20,7 @@ import java.util.Map;
 import java.util.jar.JarFile;
 
 import org.apache.geronimo.gbean.AbstractName;
+import org.apache.geronimo.j2ee.deployment.annotation.AnnotatedApp;
 import org.apache.geronimo.j2ee.deployment.EJBModule;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.openejb.xbeans.ejbjar.OpenejbGeronimoEjbJarType;
@@ -40,8 +41,8 @@ public class EjbModule extends EJBModule {
     private OpenejbGeronimoEjbJarType vendorDD;
     private final org.apache.openejb.config.EjbModule ejbModule;
 
-    public EjbModule(org.apache.openejb.config.EjbModule ejbModule, boolean standAlone, AbstractName moduleName, Environment environment, JarFile moduleFile, String targetPath, String ejbJarXml, Map sharedContext) {
-        super(standAlone, moduleName, environment, moduleFile, targetPath, null, null, ejbJarXml, sharedContext);
+    public EjbModule(org.apache.openejb.config.EjbModule ejbModule, boolean standAlone, AbstractName moduleName, Environment environment, JarFile moduleFile, String targetPath, String ejbJarXml, Map sharedContext, AnnotatedApp annoatedApp) {
+        super(standAlone, moduleName, environment, moduleFile, targetPath, null, null, ejbJarXml, sharedContext, annoatedApp);
         this.ejbModule = ejbModule;
     }
 

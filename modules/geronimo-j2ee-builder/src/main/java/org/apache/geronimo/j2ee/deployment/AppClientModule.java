@@ -26,6 +26,7 @@ import java.util.jar.JarFile;
 
 import org.apache.geronimo.deployment.DeploymentContext;
 import org.apache.geronimo.gbean.AbstractName;
+import org.apache.geronimo.j2ee.deployment.annotation.AnnotatedApplicationClient;
 import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.xmlbeans.XmlObject;
@@ -41,8 +42,8 @@ public class AppClientModule extends Module {
     private final Collection resourceModules;
 
 
-    public AppClientModule(boolean standAlone, AbstractName moduleName, AbstractName appClientName, Environment serverEnvironment, Environment clientEnvironment, JarFile moduleFile, String targetPath, XmlObject specDD, String mainClassName, XmlObject vendorDD, String originalSpecDD, Collection resourceModules) {
-        super(standAlone, moduleName, serverEnvironment, moduleFile, targetPath, specDD, vendorDD, originalSpecDD, null, new HashMap());
+    public AppClientModule(boolean standAlone, AbstractName moduleName, AbstractName appClientName, Environment serverEnvironment, Environment clientEnvironment, JarFile moduleFile, String targetPath, XmlObject specDD, String mainClassName, XmlObject vendorDD, String originalSpecDD, Collection resourceModules, AnnotatedApplicationClient annotatedAppClient ) {
+        super(standAlone, moduleName, serverEnvironment, moduleFile, targetPath, specDD, vendorDD, originalSpecDD, null, new HashMap(), annotatedAppClient );
         this.clientEnvironment = clientEnvironment;
         this.appClientName = appClientName;
         this.mainClassName = mainClassName;

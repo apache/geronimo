@@ -47,12 +47,12 @@ public class MockConnectorConfigBuilder extends Assert implements ModuleBuilder,
     public Module createModule(File plan, JarFile moduleFile, Naming naming, ModuleIDBuilder idBuilder) throws DeploymentException {
         AbstractName earName = naming.createRootName(new Artifact("test", "test-war", "", "rar"), NameFactory.NULL, NameFactory.J2EE_APPLICATION) ;
         AbstractName moduleName = naming.createChildName(earName, "rar", NameFactory.RESOURCE_ADAPTER_MODULE);
-        return new ConnectorModule(true, moduleName, null, moduleFile, "connector", null, null, null);
+        return new ConnectorModule(true, moduleName, null, moduleFile, "connector", null, null, null, null);
     }
 
     public Module createModule(Object plan, JarFile moduleFile, String targetPath, URL specDDUrl, Environment environment, Object moduleContextInfo, AbstractName earName, Naming naming, ModuleIDBuilder idBuilder) throws DeploymentException {
         AbstractName moduleName = naming.createChildName(earName, "rar", NameFactory.RESOURCE_ADAPTER_MODULE);
-        return new ConnectorModule(false, moduleName, null, moduleFile, targetPath, null, null, null);
+        return new ConnectorModule(false, moduleName, null, moduleFile, targetPath, null, null, null, null);
     }
 
     public void installModule(JarFile earFile, EARContext earContext, Module connectorModule, Collection configurationStores, ConfigurationStore targetConfigurationStore, Collection repository) {

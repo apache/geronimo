@@ -57,6 +57,7 @@ import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
+import org.apache.geronimo.j2ee.deployment.annotation.AnnotatedWebApp;
 import org.apache.geronimo.j2ee.deployment.EARContext;
 import org.apache.geronimo.j2ee.deployment.Module;
 import org.apache.geronimo.j2ee.deployment.ModuleBuilder;
@@ -116,6 +117,7 @@ import org.mortbay.jetty.security.BasicAuthenticator;
 import org.mortbay.jetty.security.ClientCertAuthenticator;
 import org.mortbay.jetty.security.DigestAuthenticator;
 import org.mortbay.jetty.security.FormAuthenticator;
+import org.apache.geronimo.j2ee.deployment.annotation.AnnotatedWebApp;
 
 
 /**
@@ -193,22 +195,22 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
             // read in the entire specDD as a string, we need this for getDeploymentDescriptor
             // on the J2ee management object
             specDD = DeploymentUtil.readAll(specDDUrl);
-            
+
             // we found web.xml, if it won't parse that's an error.
             XmlObject parsed = XmlBeansUtil.parse(specDD);
             WebAppDocument webAppDoc = convertToServletSchema(parsed);
             webApp = webAppDoc.getWebApp();
             check(webApp);
         } catch (XmlException e) {
-        	// Output the target path in the error to make it clearer to the user which webapp
+            // Output the target path in the error to make it clearer to the user which webapp
             // has the problem.  The targetPath is used, as moduleFile may have an unhelpful
             // value such as C:\geronimo-1.1\var\temp\geronimo-deploymentUtil22826.tmpdir
             throw new DeploymentException("Error parsing web.xml for " + targetPath, e);
         } catch (Exception e) {
-        	if(!moduleFile.getName().endsWith(".war")) {
-        		//not for us
-        		return null;
-        	} 
+            if(!moduleFile.getName().endsWith(".war")) {
+                //not for us
+                return null;
+            }
             //else ignore as jee5 allows optional spec dd for .war's
         }
 
@@ -247,7 +249,10 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
             moduleName = naming.createChildName(earName, targetPath, NameFactory.WEB_MODULE);
         }
 
-        return new WebModule(standAlone, moduleName, environment, moduleFile, targetPath, webApp, jettyWebApp, specDD, contextRoot, new HashMap(), JETTY_NAMESPACE);
+        // Create the AnnotatedApp interface for the WebModule
+        AnnotatedWebApp annotatedWebApp = new AnnotatedWebApp(webApp);
+
+        return new WebModule(standAlone, moduleName, environment, moduleFile, targetPath, webApp, jettyWebApp, specDD, contextRoot, new HashMap(), JETTY_NAMESPACE, annotatedWebApp);
     }
 
     JettyWebAppType getJettyWebApp(Object plan, JarFile moduleFile, boolean standAlone, String targetPath, WebAppType webApp) throws DeploymentException {

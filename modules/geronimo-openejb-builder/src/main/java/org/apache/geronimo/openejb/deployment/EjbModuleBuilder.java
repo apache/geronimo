@@ -16,13 +16,32 @@
  */
 package org.apache.geronimo.openejb.deployment;
 
+import java.io.File;
+import java.io.IOException;
+import java.net.URI;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.Map;
+import java.util.jar.JarFile;
+
+import javax.ejb.EntityContext;
+import javax.ejb.SessionContext;
+import javax.xml.namespace.QName;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.ModuleIDBuilder;
 import org.apache.geronimo.deployment.NamespaceDrivenBuilder;
 import org.apache.geronimo.deployment.NamespaceDrivenBuilderCollection;
-import org.apache.geronimo.deployment.util.DeploymentUtil;
 import org.apache.geronimo.deployment.service.EnvironmentBuilder;
 import org.apache.geronimo.deployment.service.GBeanBuilder;
+import org.apache.geronimo.deployment.util.DeploymentUtil;
 import org.apache.geronimo.deployment.xmlbeans.XmlBeansUtil;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.AbstractNameQuery;
@@ -33,13 +52,14 @@ import org.apache.geronimo.gbean.ReferencePatterns;
 import org.apache.geronimo.j2ee.deployment.EARContext;
 import org.apache.geronimo.j2ee.deployment.Module;
 import org.apache.geronimo.j2ee.deployment.ModuleBuilder;
+import org.apache.geronimo.j2ee.deployment.ModuleBuilderExtension;
 import org.apache.geronimo.j2ee.deployment.NamingBuilder;
 import org.apache.geronimo.j2ee.deployment.WebServiceBuilder;
-import org.apache.geronimo.j2ee.deployment.ModuleBuilderExtension;
+import org.apache.geronimo.j2ee.deployment.annotation.AnnotatedEjbJar;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.Naming;
-import org.apache.geronimo.kernel.config.ConfigurationStore;
 import org.apache.geronimo.kernel.config.ConfigurationModuleType;
+import org.apache.geronimo.kernel.config.ConfigurationStore;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.naming.deployment.ResourceEnvironmentSetter;
 import org.apache.geronimo.openejb.EjbDeployment;
@@ -56,8 +76,8 @@ import org.apache.openejb.assembler.classic.EjbJarInfo;
 import org.apache.openejb.config.AppModule;
 import org.apache.openejb.config.DeploymentLoader;
 import org.apache.openejb.config.ReadDescriptors;
-import org.apache.openejb.config.UnsupportedModuleTypeException;
 import org.apache.openejb.config.UnknownModuleTypeException;
+import org.apache.openejb.config.UnsupportedModuleTypeException;
 import org.apache.openejb.jee.EjbJar;
 import org.apache.openejb.jee.EnterpriseBean;
 import org.apache.openejb.jee.MessageDestinationRef;
@@ -72,25 +92,6 @@ import org.apache.openejb.jee.jpa.unit.TransactionType;
 import org.apache.openejb.jee.oejb2.GeronimoEjbJarType;
 import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlObject;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
-import javax.ejb.EntityContext;
-import javax.ejb.SessionContext;
-import javax.xml.namespace.QName;
-
-import java.io.File;
-import java.io.IOException;
-import java.net.URI;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.LinkedList;
-import java.util.jar.JarFile;
 
 /**
  * Master builder for processing EJB JAR deployments and creating the
@@ -248,7 +249,12 @@ public class EjbModuleBuilder implements ModuleBuilder {
             moduleName = naming.createChildName(earName, targetPath, NameFactory.EJB_MODULE);
         }
 
-        EjbModule module = new EjbModule(ejbModule, standAlone, moduleName, environment, moduleFile, targetPath, "", sharedContext);
+        // Create XMLBeans version of EjbJarType for the AnnotatedApp interface
+        EjbJar ejbJar = ejbModule.getEjbJar();
+        EjbJarType ejbJarType = XmlUtil.convertToXmlbeans(ejbJar);
+        AnnotatedEjbJar annotatedEjbJar = new AnnotatedEjbJar(ejbJarType);
+
+        EjbModule module = new EjbModule(ejbModule, standAlone, moduleName, environment, moduleFile, targetPath, "", sharedContext, annotatedEjbJar);
 
         for (ModuleBuilderExtension builder : moduleBuilderExtensions) {
             try {
@@ -256,6 +262,7 @@ public class EjbModuleBuilder implements ModuleBuilder {
             } catch (Throwable t) {
                 String builderName = builder.getClass().getSimpleName();
                 log.error(builderName + ".createModule() failed: " + t.getMessage(), t);
+
             }
         }
         return module;

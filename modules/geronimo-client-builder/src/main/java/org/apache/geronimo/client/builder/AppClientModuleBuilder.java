@@ -24,12 +24,12 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.StringTokenizer;
-import java.util.HashMap;
-import java.util.List;
 import java.util.jar.Attributes;
 import java.util.jar.JarFile;
 import java.util.jar.Manifest;
@@ -56,24 +56,25 @@ import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.SingleElementCollection;
+import org.apache.geronimo.j2ee.annotation.Injection;
 import org.apache.geronimo.j2ee.deployment.AppClientModule;
+import org.apache.geronimo.j2ee.deployment.ConnectorModule;
+import org.apache.geronimo.j2ee.deployment.CorbaGBeanNameSource;
 import org.apache.geronimo.j2ee.deployment.EARContext;
 import org.apache.geronimo.j2ee.deployment.Module;
 import org.apache.geronimo.j2ee.deployment.ModuleBuilder;
-import org.apache.geronimo.j2ee.deployment.SecurityBuilder;
-import org.apache.geronimo.j2ee.deployment.CorbaGBeanNameSource;
 import org.apache.geronimo.j2ee.deployment.NamingBuilder;
 import org.apache.geronimo.j2ee.deployment.NamingBuilderCollection;
-import org.apache.geronimo.j2ee.deployment.ConnectorModule;
+import org.apache.geronimo.j2ee.deployment.SecurityBuilder;
+import org.apache.geronimo.j2ee.deployment.annotation.AnnotatedApplicationClient;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.j2ee.management.impl.J2EEAppClientModuleImpl;
-import org.apache.geronimo.j2ee.annotation.Injection;
 import org.apache.geronimo.kernel.GBeanAlreadyExistsException;
 import org.apache.geronimo.kernel.Naming;
+import org.apache.geronimo.kernel.config.Configuration;
 import org.apache.geronimo.kernel.config.ConfigurationAlreadyExistsException;
 import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 import org.apache.geronimo.kernel.config.ConfigurationStore;
-import org.apache.geronimo.kernel.config.Configuration;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.kernel.repository.Repository;
@@ -85,9 +86,9 @@ import org.apache.geronimo.xbeans.geronimo.client.GerResourceType;
 import org.apache.geronimo.xbeans.geronimo.naming.GerAbstractNamingEntryDocument;
 import org.apache.geronimo.xbeans.javaee.ApplicationClientDocument;
 import org.apache.geronimo.xbeans.javaee.ApplicationClientType;
+import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
-import org.apache.xmlbeans.XmlCursor;
 
 
 /**
@@ -326,7 +327,10 @@ public class AppClientModuleBuilder implements ModuleBuilder, CorbaGBeanNameSour
             resourceModules.add(connectorModule);
         }
 
-        return new AppClientModule(standAlone, moduleName, clientBaseName, serverEnvironment, clientEnvironment, moduleFile, targetPath, appClient, mainClass, gerAppClient, specDD, resourceModules);
+        // Create the AnnotatedApp interface for the AppClientModule
+        AnnotatedApplicationClient annotatedApplicationClient = new AnnotatedApplicationClient(appClient);
+
+        return new AppClientModule(standAlone, moduleName, clientBaseName, serverEnvironment, clientEnvironment, moduleFile, targetPath, appClient, mainClass, gerAppClient, specDD, resourceModules, annotatedApplicationClient);
     }
 
     GerApplicationClientType getGeronimoAppClient(Object plan, JarFile moduleFile, boolean standAlone, String targetPath, ApplicationClientType appClient, Environment environment) throws DeploymentException {
@@ -420,7 +424,7 @@ public class AppClientModuleBuilder implements ModuleBuilder, CorbaGBeanNameSour
                 XmlBeansUtil.validateDD(result);
                 return (ApplicationClientDocument) result;
             }
-            
+
             // otherwise assume DTD
             SchemaConversionUtils.convertToSchema(cursor, SchemaConversionUtils.JAVAEE_NAMESPACE, schemaLocationURL, version);
             cursor.toStartDoc();

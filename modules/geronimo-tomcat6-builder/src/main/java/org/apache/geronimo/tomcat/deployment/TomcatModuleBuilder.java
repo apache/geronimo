@@ -49,6 +49,7 @@ import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.ReferencePatterns;
+import org.apache.geronimo.j2ee.deployment.annotation.AnnotatedWebApp;
 import org.apache.geronimo.j2ee.deployment.EARContext;
 import org.apache.geronimo.j2ee.deployment.Module;
 import org.apache.geronimo.j2ee.deployment.ModuleBuilder;
@@ -188,7 +189,10 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder {
             moduleName = naming.createChildName(earName, targetPath, NameFactory.WEB_MODULE);
         }
 
-        return new WebModule(standAlone, moduleName, environment, moduleFile, targetPath, webApp, tomcatWebApp, specDD, contextRoot, new HashMap(), TOMCAT_NAMESPACE);
+        // Create the AnnotatedApp interface for the WebModule
+        AnnotatedWebApp annotatedWebApp = new AnnotatedWebApp(webApp);
+
+        return new WebModule(standAlone, moduleName, environment, moduleFile, targetPath, webApp, tomcatWebApp, specDD, contextRoot, new HashMap(), TOMCAT_NAMESPACE, annotatedWebApp);
     }
 
 

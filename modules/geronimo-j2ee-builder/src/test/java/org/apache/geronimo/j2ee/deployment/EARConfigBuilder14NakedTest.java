@@ -28,12 +28,12 @@ public class EARConfigBuilder14NakedTest
 {
     protected void setUp() throws Exception {
         super.setUp();
-        
+
         earFile = DeploymentUtil.createJarFile(resolveFile("target/test-ear-j2ee_1.4-naked.ear"));
-        ejbConfigBuilder.ejbModule = new EJBModule(false, ejbModuleName, null, null, "test-ejb-jar.jar", null, null, null, portMap);
+        ejbConfigBuilder.ejbModule = new EJBModule(false, ejbModuleName, null, null, "test-ejb-jar.jar", null, null, null, portMap, null);
         webConfigBuilder.contextRoot = contextRoot;
-        webConfigBuilder.webModule = new WebModule(false, webModuleName, null, null, "test-war.war", null, null, null, contextRoot, portMap, WEB_NAMESPACE);
-        connectorConfigBuilder.connectorModule = new ConnectorModule(false, raModuleName, null, null, "test-rar.rar", null, null, null);
+        webConfigBuilder.webModule = new WebModule(false, webModuleName, null, null, "test-war.war", null, null, null, contextRoot, portMap, WEB_NAMESPACE, null);
+        connectorConfigBuilder.connectorModule = new ConnectorModule(false, raModuleName, null, null, "test-rar.rar", null, null, null, null);
     }
 
     protected void tearDown() throws Exception {
@@ -41,7 +41,7 @@ public class EARConfigBuilder14NakedTest
         close(ejbConfigBuilder.ejbModule);
         close(webConfigBuilder.webModule);
         close(connectorConfigBuilder.connectorModule);
-        
+
         super.tearDown();
     }
 }
