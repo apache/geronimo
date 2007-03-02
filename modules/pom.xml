@@ -35,14 +35,12 @@
     <packaging>pom</packaging>
     
     <dependencies>
-
         <dependency>
             <groupId>org.apache.geronimo.testsupport</groupId>
             <artifactId>testsupport-common</artifactId>
             <version>${version}</version>
             <scope>test</scope>
         </dependency>
-
     </dependencies>
     
     <modules>
@@ -95,7 +93,9 @@
         <module>geronimo-upgrade</module>
         <module>geronimo-util</module>
         <module>geronimo-yoko</module>
-<!--        <module>geronimo-web-builder</module> -->
+        <!--    
+        <module>geronimo-web-builder</module>
+        -->
         <module>geronimo-webservices</module>
         <module>geronimo-webservices-builder</module>
 
@@ -105,10 +105,10 @@
         <module>geronimo-persistence-jpa10-builder</module>
         <module>geronimo-axis2</module>
         <module>geronimo-axis2-builder</module>
-<!--
-		<module>geronimo-cxf</module>
+        <!--
+        <module>geronimo-cxf</module>
         <module>geronimo-cxf-builder</module>
--->
+        -->
         <module>geronimo-jaxws</module>
         <module>geronimo-jaxws-builder</module>
         <module>geronimo-jetty6</module>
