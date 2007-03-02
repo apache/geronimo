@@ -132,7 +132,6 @@
                     <groupId>org.apache.activemq</groupId>
                     <artifactId>activeio-core</artifactId>
                 </exclusion>
-                
             </exclusions>
         </dependency>
         

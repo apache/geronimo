@@ -33,7 +33,6 @@
     <name>Geronimo :: ActiveMQ GBeans</name>
     
     <dependencies>
-
         <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
             <artifactId>geronimo-activemq-gbean-management</artifactId>
@@ -68,12 +67,6 @@
             <groupId>org.apache.activemq</groupId>
             <artifactId>activemq-core</artifactId>
         </dependency>
-        
-        <dependency>
-            <groupId>org.apache.activemq</groupId>
-            <artifactId>activeio-core</artifactId>
-        </dependency>
-        
     </dependencies>
     
 </project>
