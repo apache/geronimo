@@ -23,7 +23,6 @@ import java.net.URI;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 
@@ -36,7 +35,6 @@ import javax.wsdl.factory.WSDLFactory;
 import javax.wsdl.xml.WSDLWriter;
 import javax.xml.namespace.QName;
 import javax.xml.ws.WebServiceException;
-import javax.xml.ws.handler.Handler;
 
 import org.apache.axiom.om.util.UUIDGenerator;
 import org.apache.axis2.AxisFault;
@@ -46,7 +44,6 @@ import org.apache.axis2.context.ConfigurationContext;
 import org.apache.axis2.context.ConfigurationContextFactory;
 import org.apache.axis2.context.MessageContext;
 import org.apache.axis2.context.OperationContext;
-import org.apache.axis2.context.ServiceContext;
 import org.apache.axis2.context.ServiceGroupContext;
 import org.apache.axis2.description.AxisService;
 import org.apache.axis2.description.AxisServiceGroup;
@@ -54,30 +51,25 @@ import org.apache.axis2.description.TransportInDescription;
 import org.apache.axis2.description.TransportOutDescription;
 import org.apache.axis2.engine.AxisEngine;
 import org.apache.axis2.engine.DependencyManager;
-import org.apache.axis2.jaxws.binding.BindingImpl;
 import org.apache.axis2.jaxws.description.builder.WsdlComposite;
 import org.apache.axis2.jaxws.description.builder.WsdlGenerator;
-import org.apache.axis2.jaxws.javaee.HandlerChainsType;
 import org.apache.axis2.jaxws.server.JAXWSMessageReceiver;
 import org.apache.axis2.transport.OutTransportInfo;
 import org.apache.axis2.transport.RequestResponseTransport;
 import org.apache.axis2.transport.http.HTTPConstants;
 import org.apache.axis2.transport.http.HTTPTransportReceiver;
 import org.apache.axis2.transport.http.HTTPTransportUtils;
-import org.apache.axis2.util.JavaUtils;
 import org.apache.axis2.util.MessageContextBuilder;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.geronimo.jaxws.JAXWSAnnotationProcessor;
 import org.apache.geronimo.jaxws.JNDIResolver;
 import org.apache.geronimo.jaxws.PortInfo;
 import org.apache.geronimo.jaxws.ServerJNDIResolver;
-import org.apache.geronimo.jaxws.annotations.AnnotationException;
 import org.apache.geronimo.webservices.WebServiceContainer;
 import org.apache.ws.commons.schema.XmlSchema;
 
 
-public class Axis2WebServiceContainer implements WebServiceContainer {
+public abstract class Axis2WebServiceContainer implements WebServiceContainer {
 
     private static final Log log = LogFactory.getLog(Axis2WebServiceContainer.class);
 
@@ -86,14 +78,9 @@ public class Axis2WebServiceContainer implements WebServiceContainer {
 
     private transient final ClassLoader classLoader;
     private final String endpointClassName;
-    private final org.apache.geronimo.jaxws.PortInfo portInfo;
-    private ConfigurationContext configurationContext;
-    private String contextRoot = null;
-    private Map servicesMap;
+    protected org.apache.geronimo.jaxws.PortInfo portInfo;
+    protected ConfigurationContext configurationContext;
     private JNDIResolver jndiResolver;
-    private JAXWSAnnotationProcessor annotationProcessor;
-    private Object endpointInstance;
-    private List<Handler> chain;
     private AxisService service;
     private URL configurationBaseUrl;
 
@@ -108,7 +95,6 @@ public class Axis2WebServiceContainer implements WebServiceContainer {
         this.configurationBaseUrl = configurationBaseUrl;
         try {
             configurationContext = ConfigurationContextFactory.createDefaultConfigurationContext();
-            configurationContext.setServicePath(portInfo.getLocation());
             
             if(portInfo.getWsdlFile() != null && !portInfo.getWsdlFile().equals("")){ //WSDL file Has been provided
                 AxisServiceGenerator serviceGen = new AxisServiceGenerator();
@@ -221,26 +207,7 @@ public class Axis2WebServiceContainer implements WebServiceContainer {
 
     }
 
-    private void initContextRoot(Request request) {
-        if (contextRoot == null || "".equals(contextRoot)) {
-            String[] parts = JavaUtils.split(request.getContextPath(), '/');
-            if (parts != null) {
-                for (int i = 0; i < parts.length; i++) {
-                    if (parts[i].length() > 0) {
-                        contextRoot = parts[i];
-                        break;
-                    }
-                }
-            }
-            if (contextRoot == null || request.getContextPath().equals("/")) {
-                contextRoot = "/";
-            }
-            configurationContext.setContextRoot(contextRoot);
-            
-//            Parameter servicePath = new Parameter(Constants.PARAM_SERVICE_PATH, new String(""));
-            
-        }
-    }
+    protected abstract void initContextRoot(Request request);
 
     public void doService2(
             final Request request,
@@ -248,15 +215,9 @@ public class Axis2WebServiceContainer implements WebServiceContainer {
             final MessageContext msgContext) throws Exception {
 
         ConfigurationContext configurationContext = msgContext.getConfigurationContext();
-        final String servicePath = configurationContext.getServiceContextPath();
-        final String contextPath = (servicePath.startsWith("/") ? servicePath : "/" + servicePath);
-
-        URI uri = request.getURI();
-        String path = uri.getPath();
         String soapAction = request.getHeader(HTTPConstants.HEADER_SOAP_ACTION);
         
         AxisService service = findServiceWithEndPointClassName(configurationContext, endpointClassName);
-        String serviceName = service.getName();
 
         // TODO: Port this section
 //        // Adjust version and content chunking based on the config
@@ -281,147 +242,10 @@ public class Axis2WebServiceContainer implements WebServiceContainer {
         
 
         if (request.getMethod() == Request.GET) {
-            if (!path.startsWith(contextPath)) {
-                response.setStatusCode(301);
-                response.setHeader("Location", contextPath);
-                return;
-            }
-            if (uri.toString().indexOf("?") < 0) {
-                if (!path.endsWith(contextPath)) {
-                    if (serviceName.indexOf("/") < 0) {
-                        String res = HTTPTransportReceiver.printServiceHTML(serviceName, configurationContext);
-                        PrintWriter pw = new PrintWriter(response.getOutputStream());
-                        pw.write(res);
-                        pw.flush();
-                        return;
-                    }
-                }
-            }
-            
-            //TODO: Has to implement 
-            if (uri.getQuery().startsWith("wsdl2")) {
-                if (service != null) {
-                    service.printWSDL2(response.getOutputStream());
-                    return;
-                }
-            }
-            if (uri.getQuery().startsWith("wsdl")) {
-                if (portInfo.getWsdlFile() != null && !portInfo.getWsdlFile().equals("")) { //wsdl file has been provided
-                    Definition wsdlDefinition = new AxisServiceGenerator().getWSDLDefition(portInfo, configurationBaseUrl, classLoader);
-                    if(wsdlDefinition != null){
-                        WSDLFactory factory = WSDLFactory.newInstance();
-                        WSDLWriter writer = factory.newWSDLWriter();                    
-                        writer.writeWSDL(wsdlDefinition, response.getOutputStream());
-                        return;
-                    }
-                }else {
-                    service.printWSDL(response.getOutputStream());
-                    return;
-                }
-            }
-            //TODO: Not working properly and do we need to have these requests ?
-            if (uri.getQuery().startsWith("xsd=")) {
-                String schemaName = uri.getQuery().substring(uri.getQuery().lastIndexOf("=") + 1);
-
-                if (service != null) {
-                    //run the population logic just to be sure
-                    service.populateSchemaMappings();
-                    //write out the correct schema
-                    Map schemaTable = service.getSchemaMappingTable();
-                    final XmlSchema schema = (XmlSchema) schemaTable.get(schemaName);
-                    //schema found - write it to the stream
-                    if (schema != null) {
-                        schema.write(response.getOutputStream());
-                        return;
-                    } else {
-                        // no schema available by that name  - send 404
-                        response.setStatusCode(404);
-                        return;
-                    }
-                }                
-            }
-            //cater for named xsds - check for the xsd name
-            if (uri.getQuery().startsWith("xsd")) {
-                if (service != null) {
-                    response.setContentType("text/xml");
-                    response.setHeader("Transfer-Encoding", "chunked");
-                    service.printSchema(response.getOutputStream());
-                    response.getOutputStream().close();
-                    return;
-                }
-            }
-
-            msgContext.setProperty(MessageContext.TRANSPORT_OUT, response.getOutputStream());
-            msgContext.setProperty(Constants.OUT_TRANSPORT_INFO, new Axis2TransportInfo(response));
-
-            // deal with GET request
-//   Temporary hack ... Looks like AXIS2 removed this method.  Commented out for now and 
-//   replaced with a simple setting of the processed boolean below
-//          boolean processed = HTTPTransportUtils.processHTTPGetRequest(
-//                  msgContext,
-//                  response.getOutputStream(),
-//                  soapAction,
-//                  path,
-//                  configurationContext,
-//                  HTTPTransportReceiver.getGetRequestParameters(path));
-            boolean processed = false;
-
-            if (!processed) {
-                response.setStatusCode(200);
-                String s = HTTPTransportReceiver.getServicesHTML(configurationContext);
-                PrintWriter pw = new PrintWriter(response.getOutputStream());
-                pw.write(s);
-                pw.flush();
-            }
+            processGetRequest(request, response, service, configurationContext, msgContext, soapAction);
 
         } else if (request.getMethod() == Request.POST) {
-            msgContext.setAxisService(service);
-            configurationContext.fillServiceContextAndServiceGroupContext(msgContext);
-            ServiceGroupContext serviceGroupContext = msgContext.getServiceGroupContext();
-            DependencyManager.initService(serviceGroupContext);
-            endpointInstance = msgContext.getServiceContext().getProperty(ServiceContext.SERVICE_OBJECT);
-
-            BindingImpl binding = new BindingImpl("GeronimoBinding");
-            binding.setHandlerChain(chain);
-            msgContext.setProperty(JAXWSMessageReceiver.PARAM_BINDING, binding);
-            // deal with POST request
-            msgContext.setProperty(MessageContext.TRANSPORT_OUT, response.getOutputStream());
-            msgContext.setProperty(Constants.OUT_TRANSPORT_INFO, new Axis2TransportInfo(response));
-            msgContext.setAxisService(service);
-            msgContext.setProperty(RequestResponseTransport.TRANSPORT_CONTROL,
-                    new Axis2RequestResponseTransport(response));
-            msgContext.setProperty(Constants.Configuration.TRANSPORT_IN_URL, request.getURI().toString());
-            msgContext.setIncomingTransportName(Constants.TRANSPORT_HTTP);
-
-            HttpServletRequest servletRequest =
-                (HttpServletRequest)request.getAttribute(WebServiceContainer.SERVLET_REQUEST);
-            msgContext.setProperty(HTTPConstants.MC_HTTP_SERVLETREQUEST, servletRequest);
-
-            HttpServletResponse servletResponse =
-                (HttpServletResponse)request.getAttribute(WebServiceContainer.SERVLET_RESPONSE);
-            msgContext.setProperty(HTTPConstants.MC_HTTP_SERVLETRESPONSE, servletResponse);
-
-            ServletContext servletContext =
-                (ServletContext)request.getAttribute(WebServiceContainer.SERVLET_CONTEXT);
-            msgContext.setProperty(HTTPConstants.MC_HTTP_SERVLETCONTEXT, servletContext);
-            
-            String contenttype = request.getHeader(HTTPConstants.HEADER_CONTENT_TYPE);
-
-            annotationProcessor = new JAXWSAnnotationProcessor(jndiResolver,
-                    new Axis2WebServiceContext(msgContext));
-
-            init();
-            try {
-                HTTPTransportUtils.processHTTPPostRequest(
-                        msgContext,
-                        request.getInputStream(),
-                        response.getOutputStream(),
-                        contenttype,
-                        soapAction,
-                        path);
-            } finally {
-                stop();
-            }
+            processPostRequest(request, response, service, configurationContext, msgContext, soapAction, jndiResolver);
         } else {
             throw new UnsupportedOperationException("[" + request.getMethod() + " ] method not supported");
         }
@@ -571,52 +395,154 @@ public class Axis2WebServiceContainer implements WebServiceContainer {
         }
     }
 
-    protected void init() {
-        // configure and inject handlers
+    protected void processGetRequest(Request request, Response response, AxisService service, ConfigurationContext configurationContext, MessageContext msgContext, String soapAction) throws Exception{
+        String servicePath = configurationContext.getServiceContextPath();
+        //This is needed as some cases the servicePath contains two // at the beginning.
+        while (servicePath.startsWith("/")) {
+            servicePath = servicePath.substring(1);
+        }
+        final String contextPath = "/" + servicePath;
+
+        URI uri = request.getURI();
+        String path = uri.getPath();
+        String serviceName = service.getName();
+        
+        if (!path.startsWith(contextPath)) {
+            response.setStatusCode(301);
+            response.setHeader("Location", contextPath);
+            return;
+        }
+        if (uri.toString().indexOf("?") < 0) {
+            if (!path.endsWith(contextPath)) {
+                if (serviceName.indexOf("/") < 0) {
+                    String res = HTTPTransportReceiver.printServiceHTML(serviceName, configurationContext);
+                    PrintWriter pw = new PrintWriter(response.getOutputStream());
+                    pw.write(res);
+                    pw.flush();
+                    return;
+                }
+            }
+        }
+        
+        //TODO: Has to implement 
+        if (uri.getQuery().startsWith("wsdl2")) {
+            if (service != null) {
+                service.printWSDL2(response.getOutputStream());
+                return;
+            }
+        }
+        if (uri.getQuery().startsWith("wsdl")) {
+            if (portInfo.getWsdlFile() != null && !portInfo.getWsdlFile().equals("")) { //wsdl file has been provided
+                Definition wsdlDefinition = new AxisServiceGenerator().getWSDLDefition(portInfo, configurationBaseUrl, classLoader);
+                if(wsdlDefinition != null){
+                    WSDLFactory factory = WSDLFactory.newInstance();
+                    WSDLWriter writer = factory.newWSDLWriter();                    
+                    writer.writeWSDL(wsdlDefinition, response.getOutputStream());
+                    return;
+                }
+            }else {
+                service.printWSDL(response.getOutputStream());
+                return;
+            }
+        }
+        //TODO: Not working properly and do we need to have these requests ?
+        if (uri.getQuery().startsWith("xsd=")) {
+            String schemaName = uri.getQuery().substring(uri.getQuery().lastIndexOf("=") + 1);
+
+            if (service != null) {
+                //run the population logic just to be sure
+                service.populateSchemaMappings();
+                //write out the correct schema
+                Map schemaTable = service.getSchemaMappingTable();
+                final XmlSchema schema = (XmlSchema) schemaTable.get(schemaName);
+                //schema found - write it to the stream
+                if (schema != null) {
+                    schema.write(response.getOutputStream());
+                    return;
+                } else {
+                    // no schema available by that name  - send 404
+                    response.setStatusCode(404);
+                    return;
+                }
+            }                
+        }
+        //cater for named xsds - check for the xsd name
+        if (uri.getQuery().startsWith("xsd")) {
+            if (service != null) {
+                response.setContentType("text/xml");
+                response.setHeader("Transfer-Encoding", "chunked");
+                service.printSchema(response.getOutputStream());
+                response.getOutputStream().close();
+                return;
+            }
+        }
+
+        msgContext.setProperty(MessageContext.TRANSPORT_OUT, response.getOutputStream());
+        msgContext.setProperty(Constants.OUT_TRANSPORT_INFO, new Axis2TransportInfo(response));
+
+        // deal with GET request
+        boolean processed = HTTPTransportUtils.processHTTPGetRequest(
+                msgContext,
+                response.getOutputStream(),
+                soapAction,
+                path,
+                configurationContext,
+                HTTPTransportReceiver.getGetRequestParameters(path));
+
+        if (!processed) {
+            response.setStatusCode(200);
+            String s = HTTPTransportReceiver.getServicesHTML(configurationContext);
+            PrintWriter pw = new PrintWriter(response.getOutputStream());
+            pw.write(s);
+            pw.flush();
+        }
+    }
+    
+    protected void setMsgContextProperties(MessageContext msgContext, AxisService service, Response response, Request request) {
+        //BindingImpl binding = new BindingImpl("GeronimoBinding");
+        //binding.setHandlerChain(chain);
+        //msgContext.setProperty(JAXWSMessageReceiver.PARAM_BINDING, binding);
+        // deal with POST request
+        msgContext.setProperty(MessageContext.TRANSPORT_OUT, response.getOutputStream());
+        msgContext.setProperty(Constants.OUT_TRANSPORT_INFO, new Axis2TransportInfo(response));
+        msgContext.setProperty(RequestResponseTransport.TRANSPORT_CONTROL,
+                new Axis2RequestResponseTransport(response));
+        msgContext.setProperty(Constants.Configuration.TRANSPORT_IN_URL, request.getURI().toString());
+        msgContext.setIncomingTransportName(Constants.TRANSPORT_HTTP);
+
+        HttpServletRequest servletRequest =
+            (HttpServletRequest)request.getAttribute(WebServiceContainer.SERVLET_REQUEST);
+        msgContext.setProperty(HTTPConstants.MC_HTTP_SERVLETREQUEST, servletRequest);
+
+        HttpServletResponse servletResponse =
+            (HttpServletResponse)request.getAttribute(WebServiceContainer.SERVLET_RESPONSE);
+        msgContext.setProperty(HTTPConstants.MC_HTTP_SERVLETRESPONSE, servletResponse);
+
+        ServletContext servletContext =
+            (ServletContext)request.getAttribute(WebServiceContainer.SERVLET_CONTEXT);
+        msgContext.setProperty(HTTPConstants.MC_HTTP_SERVLETCONTEXT, servletContext);        
+    }
+
+    protected void processPostRequest (Request request, Response response, AxisService service, ConfigurationContext configurationContext, MessageContext msgContext, String soapAction, JNDIResolver jndiResolver) throws Exception {
+        String contenttype = request.getHeader(HTTPConstants.HEADER_CONTENT_TYPE);
+        msgContext.setAxisService(service);
+        configurationContext.fillServiceContextAndServiceGroupContext(msgContext);
+        ServiceGroupContext serviceGroupContext = msgContext.getServiceGroupContext();
+        DependencyManager.initService(serviceGroupContext);
+        //endpointInstance = msgContext.getServiceContext().getProperty(ServiceContext.SERVICE_OBJECT);
+
+        setMsgContextProperties(msgContext, service, response, request);       
+
         try {
-            configureHandlers();
-        } catch (Exception e) {
-            throw new WebServiceException("Error configuring handlers", e);
-        }
-
-        // inject resources into service
-        try {
-            injectResources(endpointInstance);
-        } catch (AnnotationException e) {
-            throw new WebServiceException("Service resource injection failed", e);
-        }
+            HTTPTransportUtils.processHTTPPostRequest(
+                    msgContext,
+                    request.getInputStream(),
+                    response.getOutputStream(),
+                    contenttype,
+                    soapAction,
+                    request.getURI().getPath());
+        } catch (Exception ex) {
+            //ignore
+        }        
     }
-
-    /*
-     * Gets the right handlers for the port/service/bindings and
-     * performs injection.
-     */
-    protected void configureHandlers() throws Exception {
-        HandlerChainsType handlerChains = this.portInfo.getHandlers(HandlerChainsType.class);
-        Axis2HandlerResolver handlerResolver =
-            new Axis2HandlerResolver(endpointInstance.getClass().getClassLoader(),
-                                   endpointInstance.getClass(),
-                                   handlerChains,
-                                   this.annotationProcessor);
-
-
-        // TODO: pass non-null PortInfo to get the right handlers
-        chain = handlerResolver.getHandlerChain(null);
-    }
-
-    public void stop() {
-        // call handlers preDestroy
-        for (Handler handler : chain) {
-            this.annotationProcessor.invokePreDestroy(handler);
-        }
-
-        // call service preDestroy
-        this.annotationProcessor.invokePreDestroy(endpointInstance);
-    }
-
-    private void injectResources(Object instance) throws AnnotationException {
-        this.annotationProcessor.processAnnotations(instance);
-        this.annotationProcessor.invokePostConstruct(instance);
-    }
-
 }

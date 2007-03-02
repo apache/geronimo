@@ -24,9 +24,9 @@ import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.ServletException;
 
 import org.apache.geronimo.security.ContextManager;
 import org.apache.geronimo.webservices.WebServiceContainer;
@@ -77,6 +77,8 @@ public class JettyEJBWebServiceContext extends ContextHandler {
     public JettyEJBWebServiceContext(String contextPath, WebServiceContainer webServiceContainer, InternalJAASJettyRealm internalJAASJettyRealm, String realmName, String transportGuarantee, String authMethod, ClassLoader classLoader) {
         this.contextPath = contextPath;
         this.webServiceContainer = webServiceContainer;
+        this.setContextPath(contextPath);
+        
         if (internalJAASJettyRealm != null) {
             realm = new JAASJettyRealm(realmName, internalJAASJettyRealm);
             //TODO
@@ -221,9 +223,9 @@ public class JettyEJBWebServiceContext extends ContextHandler {
         public java.net.URI getURI() {
             if (uri == null) {
                 try {
-                    String uriString = request.getScheme() + "://" + request.getServerName() + ":" + request.getServerPort() + request.getRequestURI();
+                    //String uriString = request.getScheme() + "://" + request.getServerName() + ":" + request.getServerPort() + request.getRequestURI();
                     //return new java.net.URI(uri.getScheme(),uri.getHost(),uri.getPath(),uri.);
-                    uri = new java.net.URI(uriString);
+                    uri = new java.net.URI(request.getScheme(), null, request.getServerName(), request.getServerPort(), request.getRequestURI(), request.getQueryString(), null);
                 } catch (URISyntaxException e) {
                     throw new IllegalStateException(e.getMessage());
                 }
@@ -269,7 +271,10 @@ public class JettyEJBWebServiceContext extends ContextHandler {
         }
 
         public String getContextPath() {
-            return request.getContextPath();
+            //request.getContextPath() isn't working correctly and returned null.  
+            //use getRequestURI() for now before it is fixed.
+            //return request.getContextPath();
+            return request.getRequestURI();
         }
 
         private static final Map methods = new HashMap();

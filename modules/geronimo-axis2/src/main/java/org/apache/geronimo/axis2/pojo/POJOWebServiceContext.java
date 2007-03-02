@@ -1,4 +1,4 @@
-package org.apache.geronimo.axis2;
+package org.apache.geronimo.axis2.pojo;
 
 import org.apache.axis2.transport.http.HTTPConstants;
 import org.apache.axis2.jaxws.handler.LogicalMessageContext;
@@ -12,11 +12,11 @@ import java.security.Principal;
  * Implementation of WebServiceContext for POJO WS to ensure that getUserPrincipal()
  * and isUserInRole() are properly handled.
  */
-public class Axis2WebServiceContext implements WebServiceContext {
+public class POJOWebServiceContext implements WebServiceContext {
 
     private MessageContext ctx;
 
-    public Axis2WebServiceContext(org.apache.axis2.context.MessageContext ctx) {
+    public POJOWebServiceContext(org.apache.axis2.context.MessageContext ctx) {
         this.ctx = new LogicalMessageContext(new org.apache.axis2.jaxws.core.MessageContext(ctx));
     }
     

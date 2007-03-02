@@ -15,7 +15,7 @@
  *  limitations under the License.
  */
 
-package org.apache.geronimo.axis2;
+package org.apache.geronimo.axis2.pojo;
 
 import java.net.URL;
 import java.util.Map;
@@ -35,16 +35,16 @@ import org.apache.geronimo.transaction.GeronimoUserTransaction;
 import org.apache.geronimo.webservices.WebServiceContainer;
 import org.apache.geronimo.webservices.WebServiceContainerFactory;
 
-public class Axis2WebServiceContainerFactoryGBean implements WebServiceContainerFactory {
+public class POJOWebServiceContainerFactoryGBean implements WebServiceContainerFactory {
 
-    private static final Log log = LogFactory.getLog(Axis2WebServiceContainerFactoryGBean.class);
+    private static final Log log = LogFactory.getLog(POJOWebServiceContainerFactoryGBean.class);
     private final ClassLoader classLoader;
     private final org.apache.geronimo.jaxws.PortInfo portInfo;
     private final String endpointClassName;
     private URL configurationBaseUrl;
     private Context context;
 
-    public Axis2WebServiceContainerFactoryGBean(org.apache.geronimo.jaxws.PortInfo portInfo, 
+    public POJOWebServiceContainerFactoryGBean(org.apache.geronimo.jaxws.PortInfo portInfo, 
             String endpointClassName, 
             ClassLoader classLoader, 
             Map componentContext,
@@ -71,13 +71,13 @@ public class Axis2WebServiceContainerFactoryGBean implements WebServiceContainer
     }
 
     public WebServiceContainer getWebServiceContainer() {
-        return new Axis2WebServiceContainer(portInfo, endpointClassName, classLoader, context, configurationBaseUrl);
+        return new POJOWebServiceContainer(portInfo, endpointClassName, classLoader, context, configurationBaseUrl);
     }
 
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoBuilder = GBeanInfoBuilder.createStatic(Axis2WebServiceContainerFactoryGBean.class, NameFactory.GERONIMO_SERVICE);
+        GBeanInfoBuilder infoBuilder = GBeanInfoBuilder.createStatic(POJOWebServiceContainerFactoryGBean.class, NameFactory.GERONIMO_SERVICE);
         infoBuilder.addAttribute("portInfo", org.apache.geronimo.jaxws.PortInfo.class, true, true);
         infoBuilder.addAttribute("endpointClassName", String.class, true, true);
         infoBuilder.addAttribute("classLoader", ClassLoader.class, false);

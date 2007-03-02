@@ -193,9 +193,9 @@ public class TomcatEJBWebServiceContext extends StandardContext{
         public java.net.URI getURI() {
             if (uri == null) {
                 try {
-                    String uriString = request.getScheme() + "://" + request.getServerName() + ":" + request.getLocalPort() + request.getRequestURI();
+                    //String uriString = request.getScheme() + "://" + request.getServerName() + ":" + request.getLocalPort() + request.getRequestURI();
                     //return new java.net.URI(uri.getScheme(),uri.getHost(),uri.getPath(),uri.);
-                    uri = new java.net.URI(uriString);
+                    uri = new java.net.URI(request.getScheme(), null, request.getServerName(), request.getServerPort(), request.getRequestURI(), request.getQueryString(), null);
                 } catch (URISyntaxException e) {
                     throw new IllegalStateException(e.getMessage());
                 }

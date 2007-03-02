@@ -42,8 +42,8 @@ import org.apache.axis2.jaxws.javaee.WebserviceDescriptionType;
 import org.apache.axis2.jaxws.javaee.WebservicesType;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.geronimo.axis2.Axis2WebServiceContainerFactoryGBean;
 import org.apache.geronimo.axis2.client.Axis2ServiceReference;
+import org.apache.geronimo.axis2.pojo.POJOWebServiceContainerFactoryGBean;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.DeploymentContext;
 import org.apache.geronimo.gbean.GBeanData;
@@ -75,7 +75,7 @@ public class Axis2Builder extends JAXWSServiceBuilder {
     }
     
     protected GBeanInfo getContainerFactoryGBeanInfo() {
-        return Axis2WebServiceContainerFactoryGBean.GBEAN_INFO;
+        return POJOWebServiceContainerFactoryGBean.GBEAN_INFO;
     }
     
     protected Map<String, PortInfo> parseWebServiceDescriptor(InputStream in,

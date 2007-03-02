@@ -82,6 +82,6 @@
         </reference>
     </gbean>
 
-    <gbean name="Axis2WebServiceEJBLinkTemplate" class="org.apache.geronimo.axis2.EJBWebServiceGBean"/>
+    <gbean name="Axis2WebServiceEJBLinkTemplate" class="org.apache.geronimo.axis2.ejb.EJBWebServiceGBean"/>
 
 </module>

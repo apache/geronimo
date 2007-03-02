@@ -14,12 +14,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.geronimo.axis2;
+package org.apache.geronimo.axis2.ejb;
 
 import java.net.URL;
 
 import javax.naming.Context;
 
+import org.apache.geronimo.axis2.Axis2WebServiceContainer;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
@@ -60,7 +61,7 @@ public class EJBWebServiceGBean implements GBeanLifecycle {
         //TODO: need to invoke the EJB container and forward the call to the EJB container.
         
         Axis2WebServiceContainer container = 
-            new Axis2WebServiceContainer(portInfo, beanClassName, classLoader, context, configurationBaseUrl);
+            new EJBWebServiceContainer(portInfo, beanClassName, classLoader, context, configurationBaseUrl);
          
         if (soapHandler != null) {
             soapHandler.addWebService(this.location, 
