@@ -158,10 +158,12 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder {
         // parse vendor dd
         TomcatWebAppType tomcatWebApp = getTomcatWebApp(plan, moduleFile, standAlone, targetPath, webApp);
 
-        if (contextRoot == null || contextRoot.trim().equals("")) {
-            if (tomcatWebApp.isSetContextRoot()) {
-                contextRoot = tomcatWebApp.getContextRoot();
-            } else {
+        //If we have a context root, override everything
+        if (tomcatWebApp.isSetContextRoot()) {
+            contextRoot = tomcatWebApp.getContextRoot();
+        } else {
+            //Otherwise if no contextRoot was passed in from the ear, then make up a default
+            if (contextRoot == null || contextRoot.trim().equals("")) {
                 contextRoot = determineDefaultContextRoot(webApp, standAlone, moduleFile, targetPath);
             }
         }
@@ -296,7 +298,7 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder {
 
                 WebAppDocument doc = WebAppDocument.Factory.newInstance();
                 doc.setWebApp(webApp);
-                
+
                 outFile.write(doc.xmlText(opts));
                 outFile.flush();
                 outFile.close();
@@ -304,7 +306,7 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder {
                 throw new DeploymentException(e);
             }
         }
-        
+
         TomcatWebAppType tomcatWebApp = (TomcatWebAppType) webModule.getVendorDD();
 
         GBeanData webModuleData = new GBeanData(moduleName, TomcatWebAppContext.GBEAN_INFO);
