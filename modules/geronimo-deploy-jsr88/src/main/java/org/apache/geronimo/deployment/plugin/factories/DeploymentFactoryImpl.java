@@ -154,6 +154,7 @@ public class DeploymentFactoryImpl implements DeploymentFactory {
         Map environment = new HashMap();
         String[] credentials = new String[]{username, password};
         environment.put(JMXConnector.CREDENTIALS, credentials);
+        environment.put(JMXConnectorFactory.DEFAULT_CLASS_LOADER, DeploymentFactoryImpl.class.getClassLoader());
         try {
             JMXServiceURL address = new JMXServiceURL("service:jmx:rmi:///jndi/rmi://"+params.getHost()+":"+params.getPort()+"/JMXConnector");
             JMXConnector jmxConnector = JMXConnectorFactory.connect(address, environment);
