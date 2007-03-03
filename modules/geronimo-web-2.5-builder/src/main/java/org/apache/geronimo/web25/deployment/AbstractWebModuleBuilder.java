@@ -181,7 +181,10 @@ public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
      * @return map of servlet names to path mapped to them.  Possibly inaccurate except for web services.
      */
     protected Map<String, String> buildServletNameToPathMap(WebAppType webApp, String contextRoot) {
-        contextRoot = "/" + contextRoot;
+        if (contextRoot == null)
+            contextRoot = "";
+        else
+            contextRoot = "/" + contextRoot;
         Map<String, String> map = new HashMap<String, String>();
         ServletMappingType[] servletMappings = webApp.getServletMappingArray();
         for (ServletMappingType servletMapping : servletMappings) {
