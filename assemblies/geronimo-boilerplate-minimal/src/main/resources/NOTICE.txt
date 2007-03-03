@@ -343,8 +343,7 @@ http://www.eclipse.org.
    Community Process. The original software is available 
    as part of the project glassfish
    		https://glassfish.dev.java.net/
-   
- 
+
 
 =========================================================================
 ==  ASM Notice                                                         ==
@@ -369,10 +368,12 @@ domain sources from:
 
 
 =========================================================================
-==  Castor Intalio Notice                                              ==
+==  Castor Notice                                                      ==
 =========================================================================
 
-This product includes software developed by the Exolab project. 
+Copyright 2004-2005 Werner Guttmann
+
+This product includes software developed by the Exolab project.
 ((http://www.exolab.org/)
 
 Copyright 1999-2004 (C) Intalio Inc., and others. All Rights Reserved.
