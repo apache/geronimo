@@ -18,7 +18,7 @@
     under the License.
 -->
 
-<!-- $Rev: 439996 $ $Date: 2006-09-04 02:43:04 -0700 (Mon, 04 Sep 2006) $ -->
+<!-- $Rev$ $Date$ -->
 
 <module xmlns="http://geronimo.apache.org/xml/ns/deployment-1.1">
     <dep:environment xmlns:dep="http://geronimo.apache.org/xml/ns/deployment-1.2">

@@ -36,7 +36,7 @@ import java.util.ResourceBundle;
  * Creates a nicely formatted Surefire Test Report in html format.
  *
  * @author <a href="mailto:jruiz@exist.com">Johnny R. Ruiz III</a>
- * @version $Id: SurefireReportMojo.java 433277 2006-08-21 16:28:06Z vsiveton $
+ * @version $Id$
  * @goal generate-surefire-report
  */
 public class SurefireReportMojo
