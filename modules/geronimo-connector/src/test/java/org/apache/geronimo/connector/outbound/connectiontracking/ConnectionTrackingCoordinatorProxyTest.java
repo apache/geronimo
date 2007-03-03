@@ -39,7 +39,7 @@ import java.lang.reflect.Proxy;
 import java.io.PrintWriter;
 
 /**
- * @version $Rev: 476049 $ $Date: 2006-11-16 20:35:17 -0800 (Thu, 16 Nov 2006) $
+ * @version $Rev$ $Date$
  */
 public class ConnectionTrackingCoordinatorProxyTest extends TestCase implements ConnectionInterceptor {
     private static final String name1 = "foo";

@@ -16,7 +16,7 @@
     limitations under the License.
 -->
 
-<!-- $Rev: 451669 $ $Date: 2006-09-30 14:11:47 -0700 (Sat, 30 Sep 2006) $ -->
+<!-- $Rev$ $Date$ -->
 
 <project name="${project.name}">
     
