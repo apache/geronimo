@@ -83,7 +83,7 @@ public class ExpressionParser
     private FlatResolver resolver = new FlatResolver(true);
 
     protected Expression createExpression(final String expression) throws Exception {
-        // assert expression != null;
+        assert expression != null;
 
         Expression expr = ExpressionFactory.createExpression(expression);
         expr.addPreResolver(resolver);
