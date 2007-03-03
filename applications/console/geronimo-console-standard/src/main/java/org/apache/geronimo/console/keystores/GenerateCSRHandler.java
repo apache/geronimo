@@ -29,7 +29,7 @@ import java.io.IOException;
 /**
  * Handler for generating a Certificate Signing Request (CSR)
  *
- * @version $Rev: 409817 $ $Date: 2006-05-27 13:26:38 +0530 (Sat, 27 May 2006) $
+ * @version $Rev$ $Date$
  */
 public class GenerateCSRHandler extends BaseKeystoreHandler {
     public GenerateCSRHandler() {
