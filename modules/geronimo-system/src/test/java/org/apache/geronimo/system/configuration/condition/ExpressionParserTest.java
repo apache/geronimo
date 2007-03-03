@@ -18,15 +18,13 @@ package org.apache.geronimo.system.configuration.condition;
 
 import org.apache.geronimo.testsupport.TestSupport;
 
-import junit.framework.TestCase;
-
 /**
  * Unit tests for the {@link ExpressionParser} class.
  *
  * @version $Rev$ $Date$
  */
 public class ExpressionParserTest
-    extends TestCase
+    extends TestSupport
 {
     protected ExpressionParser parser;
     
