@@ -328,15 +328,11 @@ public class KernelConfigurationManager extends SimpleConfigurationManager imple
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic(KernelConfigurationManager.class, "ConfigurationManager");
+        GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic(KernelConfigurationManager.class, SimpleConfigurationManager.GBEAN_INFO, "ConfigurationManager");
         infoFactory.addAttribute("kernel", Kernel.class, false);
-        infoFactory.addReference("Stores", ConfigurationStore.class, "ConfigurationStore");
         infoFactory.addReference("AttributeStore", ManageableAttributeStore.class, ManageableAttributeStore.ATTRIBUTE_STORE);
         infoFactory.addReference("PersistentConfigurationList", PersistentConfigurationList.class, PersistentConfigurationList.PERSISTENT_CONFIGURATION_LIST);
         infoFactory.addReference("ArtifactManager", ArtifactManager.class, "ArtifactManager");
-        infoFactory.addReference("ArtifactResolver", ArtifactResolver.class, "ArtifactResolver");
-        infoFactory.addReference("Repositories", Repository.class, "Repository");
-        infoFactory.addReference("Watchers", DeploymentWatcher.class);
         infoFactory.addAttribute("classLoader", ClassLoader.class, false);
         infoFactory.addInterface(ConfigurationManager.class);
         infoFactory.setConstructor(new String[]{"kernel", "Stores", "AttributeStore", "PersistentConfigurationList", "ArtifactManager", "ArtifactResolver", "Repositories", "Watchers", "classLoader"});

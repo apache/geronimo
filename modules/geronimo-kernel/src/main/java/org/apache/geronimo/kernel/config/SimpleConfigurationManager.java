@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -27,11 +28,12 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
 import java.util.Set;
-import java.util.HashSet;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.gbean.AbstractName;
+import org.apache.geronimo.gbean.GBeanInfo;
+import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.kernel.management.State;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.ArtifactResolver;
@@ -39,6 +41,7 @@ import org.apache.geronimo.kernel.repository.Dependency;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.kernel.repository.ImportType;
 import org.apache.geronimo.kernel.repository.MissingDependencyException;
+import org.apache.geronimo.kernel.repository.Repository;
 import org.apache.geronimo.kernel.repository.Version;
 
 /**
@@ -1304,4 +1307,22 @@ public class SimpleConfigurationManager implements ConfigurationManager {
         }
         return map;
     }
+
+    public static final GBeanInfo GBEAN_INFO;
+
+    static {
+        GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic(SimpleConfigurationManager.class, "ConfigurationManager");
+        infoFactory.addReference("Stores", ConfigurationStore.class, "ConfigurationStore");
+        infoFactory.addReference("ArtifactResolver", ArtifactResolver.class, "ArtifactResolver");
+        infoFactory.addReference("Repositories", Repository.class, "Repository");
+        infoFactory.addReference("Watchers", DeploymentWatcher.class);
+        infoFactory.addInterface(ConfigurationManager.class);
+        infoFactory.setConstructor(new String[]{"Stores", "ArtifactResolver", "Repositories", "Watchers"});
+        GBEAN_INFO = infoFactory.getBeanInfo();
+    }
+
+    public static GBeanInfo getGBeanInfo() {
+        return GBEAN_INFO;
+    }
+
 }

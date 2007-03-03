@@ -27,13 +27,16 @@ import javax.management.remote.JMXConnector;
 import javax.management.remote.JMXConnectorFactory;
 import javax.management.remote.JMXServiceURL;
 
+import org.apache.geronimo.gbean.GBeanInfo;
+import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.kernel.util.Main;
 import org.apache.geronimo.system.jmx.KernelDelegate;
 
 /**
  * @version $Rev$ $Date$
  */
-public class StopServer {
+public class StopServer implements Main {
 
 	public static final String RMI_NAMING_CONFG_ID = "org/apache/geronimo/RMINaming";
 
@@ -52,7 +55,7 @@ public class StopServer {
 		cmd.execute(args);
 	}
 
-	public void execute(String args[]) throws IOException {
+	public int execute(String args[]) {
         this.args = args;
 
         int i = 0;
@@ -73,11 +76,11 @@ public class StopServer {
             }
         } catch (NumberFormatException e) {
             System.out.println("Invalid port number specified.");
-            System.exit(1);
+            return 1;
         }
 
-        InputPrompt prompt = new InputPrompt(System.in, System.out);
         try {
+            InputPrompt prompt = new InputPrompt(System.in, System.out);
             if (user == null) {
                 user = prompt.getInput("Username: ");
             }
@@ -86,7 +89,7 @@ public class StopServer {
             }
         } catch (IOException e) {
             System.out.println("Unable to prompt for login.");
-            System.exit(1);
+            return 1;
         }
 
         try {
@@ -108,7 +111,9 @@ public class StopServer {
             }
         } catch (Exception e) {
             e.printStackTrace();
+            return 1;
         }
+        return 0;
     }
 
 	private boolean argumentHasValue(int i) {
@@ -160,5 +165,21 @@ public class StopServer {
 		System.out.println("    --port");
 		System.exit(1);
 	}
+
+    public static final GBeanInfo GBEAN_INFO;
+    
+    static {
+        GBeanInfoBuilder infoBuilder = GBeanInfoBuilder.createStatic(StopServer.class, "StopServer");
+
+        infoBuilder.addInterface(Main.class);
+        
+        infoBuilder.setConstructor(new String[0]);
+        
+        GBEAN_INFO = infoBuilder.getBeanInfo();
+    }
+    
+    public static GBeanInfo getGBeanInfo() {
+        return GBEAN_INFO;
+    }
 
 }
