@@ -29,7 +29,7 @@ import org.apache.maven.plugin.logging.SystemStreamLog;
 import org.apache.maven.project.MavenProject;
 
 /**
- * @version $Rev: 433457 $ $Date: 2006-08-22 11:40:18 +1000 (Tue, 22 Aug 2006) $
+ * @version $Rev$ $Date$
  */
 public class PlanProcessorMojoTest extends TestSupport {
 
