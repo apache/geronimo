@@ -38,9 +38,7 @@ public class ExpressionParser
     protected JexlContext context;
 
     public ExpressionParser(final Map vars) {
-        if (vars == null) {
-            throw new IllegalArgumentException("vars");
-        }
+        assert vars != null;
 
         context = JexlHelper.createContext();
         context.setVars(vars);
@@ -59,33 +57,25 @@ public class ExpressionParser
     }
 
     public Object getVariable(final Object name) {
-        if (name == null) {
-            throw new IllegalArgumentException("name");
-        }
+        assert name != null;
 
         return getVariables().get(name);
     }
 
     public Object setVariable(final Object name, final Object value) {
-        if (name == null) {
-            throw new IllegalArgumentException("name");
-        }
+        assert name != null;
 
         return getVariables().put(name, value);
     }
 
     public Object unsetVariable(final Object name) {
-        if (name == null) {
-            throw new IllegalArgumentException("name");
-        }
+        assert name != null;
 
         return getVariables().remove(name);
     }
 
     public void addVariables(final Map map) {
-        if (map == null) {
-            throw new IllegalArgumentException("map");
-        }
+        assert map != null;
 
         getVariables().putAll(map);
     }
@@ -102,9 +92,7 @@ public class ExpressionParser
     }
 
     public Object evaluate(final String expression) throws Exception {
-        if (expression == null) {
-            throw new IllegalArgumentException("expression");
-        }
+        assert expression != null;
 
         boolean trace = log.isTraceEnabled();
         if (trace) {
@@ -121,9 +109,7 @@ public class ExpressionParser
     }
 
     public String parse(final String input) {
-        if (input == null) {
-            throw new IllegalArgumentException("input");
-        }
+        assert input != null;
 
         boolean trace = log.isTraceEnabled();
         if (trace) {
