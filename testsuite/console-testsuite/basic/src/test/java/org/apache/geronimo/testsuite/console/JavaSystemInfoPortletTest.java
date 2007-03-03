@@ -24,7 +24,7 @@ import org.testng.annotations.Test;
 /**
  * Java system information portlet tests
  *
- * @version $Rev: 479803 $ $Date: 2006-11-27 15:26:54 -0800 (Mon, 27 Nov 2006) $
+ * @version $Rev$ $Date$
  */
 @Test
 public class JavaSystemInfoPortletTest
