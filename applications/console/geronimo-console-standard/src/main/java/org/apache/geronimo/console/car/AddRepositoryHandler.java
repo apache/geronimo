@@ -41,7 +41,7 @@ import java.util.List;
 /**
  * Handler for the import export main screen.
  *
- * @version $Rev: 409817 $ $Date: 2006-05-27 03:56:38 -0400 (Sat, 27 May 2006) $
+ * @version $Rev$ $Date$
  */
 public class AddRepositoryHandler extends BaseImportExportHandler {
     private final static Log log = LogFactory.getLog(AddRepositoryHandler.class);

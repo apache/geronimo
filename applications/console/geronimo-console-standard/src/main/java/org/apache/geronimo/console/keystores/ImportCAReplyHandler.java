@@ -30,7 +30,7 @@ import org.apache.geronimo.management.geronimo.KeystoreException;
 /**
  * Handler for importing a certficate issued by a CA
  *
- * @version $Rev: 409817 $ $Date: 2006-05-27 13:26:38 +0530 (Sat, 27 May 2006) $
+ * @version $Rev$ $Date$
  */
 public class ImportCAReplyHandler extends BaseKeystoreHandler {
     public ImportCAReplyHandler() {
