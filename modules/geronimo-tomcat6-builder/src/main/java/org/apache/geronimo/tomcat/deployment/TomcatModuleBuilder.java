@@ -20,7 +20,9 @@ package org.apache.geronimo.tomcat.deployment;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.FileWriter;
 import java.net.URL;
+import java.net.MalformedURLException;
 import java.security.Permission;
 import java.security.PermissionCollection;
 import java.security.Permissions;
@@ -81,8 +83,12 @@ import org.apache.geronimo.xbeans.geronimo.web.tomcat.config.GerTomcatDocument;
 import org.apache.geronimo.xbeans.javaee.ServletType;
 import org.apache.geronimo.xbeans.javaee.WebAppDocument;
 import org.apache.geronimo.xbeans.javaee.WebAppType;
+import org.apache.geronimo.xbeans.javaee.ServletMappingType;
+import org.apache.geronimo.xbeans.javaee.impl.WebAppDocumentImpl;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
+import org.apache.xmlbeans.XmlOptions;
+import org.apache.xmlbeans.XmlCursor;
 
 /**
  * @version $Rev:385659 $ $Date$
@@ -97,13 +103,13 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder {
     private static final String TOMCAT_NAMESPACE = TomcatWebAppDocument.type.getDocumentElementName().getNamespaceURI();
 
     public TomcatModuleBuilder(Environment defaultEnvironment,
-            AbstractNameQuery tomcatContainerName,
-            Collection webServiceBuilder,
-            Collection securityBuilders,
-            Collection serviceBuilders,
-            NamingBuilder namingBuilders,
-            ResourceEnvironmentSetter resourceEnvironmentSetter,
-            Kernel kernel) {
+                               AbstractNameQuery tomcatContainerName,
+                               Collection webServiceBuilder,
+                               Collection securityBuilders,
+                               Collection serviceBuilders,
+                               NamingBuilder namingBuilders,
+                               ResourceEnvironmentSetter resourceEnvironmentSetter,
+                               Kernel kernel) {
         super(kernel, securityBuilders, serviceBuilders, namingBuilders, resourceEnvironmentSetter, webServiceBuilder);
         this.defaultEnvironment = defaultEnvironment;
 
@@ -125,13 +131,17 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder {
 
             // read in the entire specDD as a string, we need this for getDeploymentDescriptor
             // on the J2ee management object
-            specDD = DeploymentUtil.readAll(specDDUrl);
+            try {
+                specDD = DeploymentUtil.readAll(specDDUrl);
 
-            // we found web.xml, if it won't parse that's an error.
-            XmlObject parsed = XmlBeansUtil.parse(specDD);
-            WebAppDocument webAppDoc = convertToServletSchema(parsed);
-            webApp = webAppDoc.getWebApp();
-            check(webApp);
+                // we found web.xml, if it won't parse that's an error.
+                XmlObject parsed = XmlBeansUtil.parse(specDD);
+                WebAppDocument webAppDoc = convertToServletSchema(parsed);
+                webApp = webAppDoc.getWebApp();
+                check(webApp);
+            } catch (FileNotFoundException fnfe) {
+                webApp = WebAppType.Factory.newInstance();
+            }
         } catch (XmlException e) {
             // Output the target path in the error to make it clearer to the user which webapp
             // has the problem.  The targetPath is used, as moduleFile may have an unhelpful
@@ -143,10 +153,6 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder {
                 return null;
             }
             //else ignore as jee5 allows optional spec dd for .war's
-        }
-        
-        if (webApp == null) {
-            webApp = WebAppType.Factory.newInstance();
         }
 
         // parse vendor dd
@@ -268,6 +274,37 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder {
         WebModule webModule = (WebModule) module;
 
         WebAppType webApp = (WebAppType) webModule.getSpecDD();
+
+        /**
+         * This next bit of code is kind of a kludge to get Tomcat to get a default
+         * web.xml if one does not exist.  This is primarily for jaxws.  This code is
+         * necessary because Tomcat either has a bug or there is a problem dynamically
+         * adding a wrapper to an already running context.  Although the wrapper
+         * can be added, the url mappings do not get picked up at the proper level
+         * and therefore Tomcat cannot dispatch the request.  Hence, creating and
+         * writing out a web.xml to the deployed location is the only way around this
+         * until Tomcat fixes that bug.
+         */
+        File webXml = new File(moduleContext.getBaseDir(), "/WEB-INF/web.xml");
+        if (!webXml.exists()) {
+            try {
+                FileWriter outFile = new FileWriter(webXml);
+
+                XmlOptions opts = new XmlOptions();
+                opts.setUseDefaultNamespace();
+                opts.setSavePrettyPrint();
+
+                WebAppDocument doc = WebAppDocument.Factory.newInstance();
+                doc.setWebApp(webApp);
+                
+                outFile.write(doc.xmlText(opts));
+                outFile.flush();
+                outFile.close();
+            } catch (Exception e) {
+                throw new DeploymentException(e);
+            }
+        }
+        
         TomcatWebAppType tomcatWebApp = (TomcatWebAppType) webModule.getVendorDD();
 
         GBeanData webModuleData = new GBeanData(moduleName, TomcatWebAppContext.GBEAN_INFO);
@@ -395,6 +432,7 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder {
                         //force all the factories to start before the web app that needs them.
                         webModuleData.addDependency(wsContainerFactoryName);
                     }
+
                 }
             }
 

@@ -40,6 +40,7 @@ public class MockWebServiceBuilder implements WebServiceBuilder {
     public boolean configurePOJO(GBeanData targetGBean, String servletName, Module module, String seiClassName, DeploymentContext context) throws DeploymentException {
         AbstractName webServiceContainerFactoryName = context.getNaming().createChildName(targetGBean.getAbstractName(), "webServiceContainer", NameFactory.GERONIMO_SERVICE);
         GBeanData webServiceContainerFactoryGBean = new GBeanData(webServiceContainerFactoryName, SerializableWebServiceContainerFactoryGBean.GBEAN_INFO);
+        webServiceContainerFactoryGBean.setAttribute("webServiceContainer", new MockWebServiceContainer());
         try {
             context.addGBean(webServiceContainerFactoryGBean);
         } catch (GBeanAlreadyExistsException e) {

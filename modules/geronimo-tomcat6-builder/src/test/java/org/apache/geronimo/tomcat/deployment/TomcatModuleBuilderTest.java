@@ -22,12 +22,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.security.PermissionCollection;
 import java.security.Permissions;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import org.apache.geronimo.testsupport.TestSupport;
 
@@ -113,7 +108,10 @@ public class TomcatModuleBuilderTest extends TestSupport {
     public void testDeployWar6() throws Exception {
         verifyStartable("war6-jee5");
     }
-    
+
+    public void testDeployWarNoDD() throws Exception {
+        verifyStartable("war-no-dd");
+    }
     public void testContextRootWithSpaces() throws Exception {
         WebModuleInfo info = deployWar("war-spaces-in-context");
         String contextRoot = (String) kernel.getAttribute(info.moduleName, "contextPath");
@@ -139,7 +137,8 @@ public class TomcatModuleBuilderTest extends TestSupport {
         recursiveDelete(outputPath);
         outputPath.mkdirs();
         File path = new File(BASEDIR, "src/test/resources/deployables/" + warName);
-        File dest = new File(BASEDIR, "target/test-resources/deployables/" + warName + "/war");
+        //File dest = new File(BASEDIR, "target/test-resources/deployables/" + warName + "/war");
+        File dest = new File(BASEDIR, "target/test-resources/deployables/" + warName );
         recursiveCopy(path, dest);
         UnpackedJarFile jarFile = new UnpackedJarFile(path);
         Module module = builder.createModule(null, jarFile, kernel.getNaming(), new ModuleIDBuilder());
@@ -320,6 +319,7 @@ public class TomcatModuleBuilderTest extends TestSupport {
 
         defaultEnvironment.addDependency(baseId, ImportType.ALL);
         defaultEnvironment.setConfigId(webModuleArtifact);
+        ArrayList naming = new ArrayList();
         builder = new TomcatModuleBuilder(defaultEnvironment, new AbstractNameQuery(containerName), Collections.singleton(webServiceBuilder), Collections.singleton(new GeronimoSecurityBuilderImpl()), Collections.singleton(new GBeanBuilder(null, null)), new NamingBuilderCollection(null, null), new MockResourceEnvironmentSetter(), null);
     }
 
