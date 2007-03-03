@@ -16,7 +16,7 @@
     limitations under the License.
 -->
 
-<!-- $Rev: 502583 $ $Date: 2007-02-02 22:36:02 +1100 (Fri, 02 Feb 2007) $ -->
+<!-- $Rev$ $Date$ -->
 
 <attributes xmlns="http://geronimo.apache.org/xml/ns/attributes-1.1">
   <module name="org.apache.geronimo.configs/geronimo-gbean-deployer/${version}/car"/>
