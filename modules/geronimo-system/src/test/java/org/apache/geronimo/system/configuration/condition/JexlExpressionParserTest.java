@@ -23,8 +23,8 @@ import org.apache.geronimo.testsupport.TestSupport;
  *
  * @version $Rev$ $Date$
  */
-public class ExpressionParserTest
-    extends TestSupport
+public class JexlExpressionParserTest
+        extends TestSupport
 {
     protected ExpressionParser parser;
     
