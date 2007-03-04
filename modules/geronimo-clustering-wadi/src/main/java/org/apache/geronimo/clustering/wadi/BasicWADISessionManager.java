@@ -29,27 +29,15 @@ import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
-import org.codehaus.wadi.Contextualiser;
-import org.codehaus.wadi.Emoter;
-import org.codehaus.wadi.Evicter;
-import org.codehaus.wadi.Immoter;
-import org.codehaus.wadi.Invocation;
-import org.codehaus.wadi.InvocationException;
-import org.codehaus.wadi.Motable;
-import org.codehaus.wadi.PoolableInvocationWrapperPool;
-import org.codehaus.wadi.SessionMonitor;
-import org.codehaus.wadi.core.ConcurrentMotableMap;
+import org.codehaus.wadi.core.assembler.StackContext;
+import org.codehaus.wadi.core.manager.ClusteredManager;
+import org.codehaus.wadi.core.manager.SessionMonitor;
 import org.codehaus.wadi.group.Dispatcher;
-import org.codehaus.wadi.impl.ClusteredManager;
-import org.codehaus.wadi.impl.MemoryContextualiser;
-import org.codehaus.wadi.impl.StackContext;
 import org.codehaus.wadi.replication.manager.ReplicationManagerFactory;
 import org.codehaus.wadi.replication.storage.ReplicaStorageFactory;
 import org.codehaus.wadi.replication.strategy.BackingStrategyFactory;
 import org.codehaus.wadi.servicespace.ServiceSpace;
 import org.codehaus.wadi.servicespace.ServiceSpaceName;
-import org.codehaus.wadi.web.WebSession;
-import org.codehaus.wadi.web.WebSessionFactory;
 
 import edu.emory.mathcs.backport.java.util.concurrent.CopyOnWriteArrayList;
 
@@ -96,15 +84,7 @@ public class BasicWADISessionManager implements GBeanLifecycle, SessionManager, 
                 configInfo.getSweepInterval(),
                 repManagerFactory,
                 repStorageFactory,
-                backingStrategyFactory) {
-            @Override
-            protected MemoryContextualiser newMemoryContextualiser(Contextualiser next,
-                    ConcurrentMotableMap mmap,
-                    Evicter mevicter,
-                    PoolableInvocationWrapperPool requestPool) {
-                return new MotionTracker(next, mevicter, mmap, sessionFactory, requestPool);
-            }
-        };
+                backingStrategyFactory);
         stackContext.build();
 
         serviceSpace = stackContext.getServiceSpace();
@@ -129,10 +109,10 @@ public class BasicWADISessionManager implements GBeanLifecycle, SessionManager, 
     }
 
     public Session createSession(String sessionId) throws SessionAlreadyExistException {
-        WebSession session;
+        org.codehaus.wadi.core.session.Session session;
         try {
             session = manager.createWithName(sessionId);
-        } catch (org.codehaus.wadi.SessionAlreadyExistException e) {
+        } catch (org.codehaus.wadi.core.manager.SessionAlreadyExistException e) {
             throw new SessionAlreadyExistException(sessionId);
         }
         return new WADISessionAdaptor(session);
@@ -154,111 +134,42 @@ public class BasicWADISessionManager implements GBeanLifecycle, SessionManager, 
         listeners.remove(listener);
     }
 
-    private void notifyInboundSessionMigration(WebSession webSession) {
+    private void notifyInboundSessionMigration(org.codehaus.wadi.core.session.Session session) {
         for (Iterator iter = listeners.iterator(); iter.hasNext();) {
             SessionListener listener = (SessionListener) iter.next();
-            listener.notifyInboundSessionMigration(new WADISessionAdaptor(webSession));
+            listener.notifyInboundSessionMigration(new WADISessionAdaptor(session));
         }
     }
 
-    private WebSession notifyOutboundSessionMigration(WebSession webSession) {
+    private void notifyOutboundSessionMigration(org.codehaus.wadi.core.session.Session session) {
         for (Iterator iter = listeners.iterator(); iter.hasNext();) {
             SessionListener listener = (SessionListener) iter.next();
-            listener.notifyOutboundSessionMigration(new WADISessionAdaptor(webSession));
+            listener.notifyOutboundSessionMigration(new WADISessionAdaptor(session));
         }
-        return webSession;
     }
 
-    private WebSession notifySessionDestruction(WebSession webSession) {
+    private void notifySessionDestruction(org.codehaus.wadi.core.session.Session session) {
         for (Iterator iter = listeners.iterator(); iter.hasNext();) {
             SessionListener listener = (SessionListener) iter.next();
-            listener.notifySessionDestruction(new WADISessionAdaptor(webSession));
-        }
-        return webSession;
-    }
-
-    private class MotionTracker extends MemoryContextualiser {
-        private final Immoter immoter;
-        private final Emoter emoter;
-
-        public MotionTracker(Contextualiser next,
-                Evicter evicter,
-                ConcurrentMotableMap map,
-                WebSessionFactory sessionFactory,
-                PoolableInvocationWrapperPool requestPool) {
-            super(next, evicter, map, sessionFactory, requestPool);
-
-            Immoter immoterDelegate = super.getImmoter();
-            immoter = new InboundSessionTracker(immoterDelegate);
-
-            Emoter emoterDelegate = super.getEmoter();
-            emoter = new OutboundSessionTracker(emoterDelegate);
-        }
-
-        public Immoter getPromoter(Immoter immoter) {
-            Immoter delegate = super.getPromoter(immoter);
-            if (null == immoter) {
-                return new InboundSessionTracker(delegate);
-            } else {
-                return delegate;
-            }
-        }
-
-        public Immoter getImmoter() {
-            return immoter;
-        }
-
-        public Emoter getEmoter() {
-            return emoter;
+            listener.notifySessionDestruction(new WADISessionAdaptor(session));
         }
     }
 
-    private class OutboundSessionTracker implements Emoter {
-        private final Emoter delegate;
+    private class SessionListenerAdapter implements org.codehaus.wadi.core.manager.SessionListener {
 
-        public OutboundSessionTracker(Emoter delegate) {
-            this.delegate = delegate;
+        public void onSessionCreation(org.codehaus.wadi.core.session.Session session) {
+        }
+
+        public void onSessionDestruction(org.codehaus.wadi.core.session.Session session) {
+            notifySessionDestruction(session);
         }
         
-        public boolean emote(Motable emotable, Motable immotable) {
-            notifyOutboundSessionMigration((WebSession) emotable);
-            return delegate.emote(emotable, immotable);
-        }
-    }
-
-    private class InboundSessionTracker implements Immoter {
-        private final Immoter delegate;
-
-        public InboundSessionTracker(Immoter delegate) {
-            this.delegate = delegate;
-            
-        }
-
-        public boolean immote(Motable emotable, Motable immotable) {
-            boolean success = delegate.immote(emotable, immotable);
-            if (success) {
-                notifyInboundSessionMigration((WebSession) immotable);
-            }
-            return success;
+        public void onInboundSessionMigration(org.codehaus.wadi.core.session.Session session) {
+            notifyInboundSessionMigration(session);
         }
         
-        
-        public boolean contextualise(Invocation arg0, String arg1, Motable arg2) throws InvocationException {
-            return delegate.contextualise(arg0, arg1, arg2);
-        }
-
-        public Motable newMotable() {
-            return delegate.newMotable();
-        }
-    }
-    
-    private class SessionListenerAdapter implements org.codehaus.wadi.SessionListener {
-
-        public void onSessionCreation(org.codehaus.wadi.Session session) {
-        }
-
-        public void onSessionDestruction(org.codehaus.wadi.Session session) {
-            notifySessionDestruction((WebSession) session);
+        public void onOutbountSessionMigration(org.codehaus.wadi.core.session.Session session) {
+            notifyOutboundSessionMigration(session);
         }
         
     }

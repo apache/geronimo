@@ -28,8 +28,8 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.geronimo.clustering.ClusteredInvocation;
 import org.apache.geronimo.clustering.ClusteredInvocationException;
 import org.apache.geronimo.jetty6.cluster.AbstractClusteredPreHandler;
-import org.codehaus.wadi.InvocationException;
-import org.codehaus.wadi.impl.ClusteredManager;
+import org.codehaus.wadi.core.contextualiser.InvocationException;
+import org.codehaus.wadi.core.manager.ClusteredManager;
 import org.codehaus.wadi.web.impl.WebInvocation;
 
 

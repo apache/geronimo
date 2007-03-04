@@ -16,7 +16,7 @@
  */
 package org.apache.geronimo.clustering.wadi;
 
-import org.codehaus.wadi.impl.ClusteredManager;
+import org.codehaus.wadi.core.manager.ClusteredManager;
 
 /**
  * 

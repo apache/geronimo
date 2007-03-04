@@ -86,7 +86,7 @@
         </dependency>
 
         <dependency>
-            <groupId>org.apache.catalina.tribes</groupId>
+            <groupId>org.apache.tomcat</groupId>
             <artifactId>tribes</artifactId>
         </dependency>
     </dependencies>

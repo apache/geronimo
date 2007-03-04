@@ -16,25 +16,19 @@
  */
 package org.apache.geronimo.clustering.wadi;
 
-import java.util.Collection;
 import java.util.Map;
-import java.util.Set;
 
 import org.apache.geronimo.clustering.Session;
-import org.codehaus.wadi.web.WebSession;
 
 /**
  *
  * @version $Rev$ $Date$
  */
 public class WADISessionAdaptor implements Session {
-    private final WebSession session;
-    private final Map state;
+    private final org.codehaus.wadi.core.session.Session session;
     
-    public WADISessionAdaptor(WebSession session) {
+    public WADISessionAdaptor(org.codehaus.wadi.core.session.Session session) {
         this.session = session;
-        
-        state = new StateMap();
     }
 
     public String getSessionId() {
@@ -50,83 +44,23 @@ public class WADISessionAdaptor implements Session {
     }
 
     public Object addState(String key, Object value) {
-        return session.setAttribute(key, value);
+        return session.addState(key, value);
     }
 
     public Object getState(String key) {
-        return session.getAttribute(key);
+        return session.getState(key);
      }
 
     public Object removeState(String key) {
-        return session.removeAttribute(key);
+        return session.removeState(key);
     }
 
     public Map getState() {
-        return state;
+        return session.getState();
     }
     
     public void onEndAccess() {
         session.onEndProcessing();
     }
     
-    private class StateMap implements Map {
-
-        public Object put(Object key, Object value) {
-            String wadiKey = ensureTypeAndCast(key);
-            return addState(wadiKey, value);
-        }
-
-        public Object remove(Object key) {
-            String wadiKey = ensureTypeAndCast(key);
-            return removeState(wadiKey);
-        }
-
-        public void clear() {
-            throw new UnsupportedOperationException();
-        }
-
-        public boolean containsKey(Object key) {
-            throw new UnsupportedOperationException();
-        }
-
-        public boolean containsValue(Object value) {
-            throw new UnsupportedOperationException();
-        }
-
-        public Set entrySet() {
-            throw new UnsupportedOperationException();
-        }
-
-        public Object get(Object key) {
-            String wadiKey = ensureTypeAndCast(key);
-            return getState(wadiKey);
-        }
-
-        public boolean isEmpty() {
-            throw new UnsupportedOperationException();
-        }
-
-        public Set keySet() {
-            return session.getAttributeNameSet();
-        }
-
-        public void putAll(Map t) {
-            throw new UnsupportedOperationException();
-        }
-
-        public int size() {
-            return session.getAttributeNameSet().size();
-        }
-
-        public Collection values() {
-            throw new UnsupportedOperationException();
-        }
-
-        private String ensureTypeAndCast(Object key) {
-            if (!(key instanceof String)) {
-                throw new ClassCastException(String.class + " is expected.");
-            }
-            return (String) key;
-        }
-    }
 }

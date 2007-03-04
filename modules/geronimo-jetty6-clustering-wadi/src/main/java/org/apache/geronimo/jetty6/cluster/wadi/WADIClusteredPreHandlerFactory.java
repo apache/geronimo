@@ -23,7 +23,7 @@ import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.jetty6.PreHandler;
 import org.apache.geronimo.jetty6.PreHandlerFactory;
-import org.codehaus.wadi.impl.ClusteredManager;
+import org.codehaus.wadi.core.manager.ClusteredManager;
 
 
 /**
