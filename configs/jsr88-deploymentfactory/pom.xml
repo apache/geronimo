@@ -70,6 +70,11 @@
             <version>${version}</version>
         </dependency>
 
+        <dependency>
+            <groupId>commons-jexl</groupId>
+            <artifactId>commons-jexl</artifactId>
+        </dependency>
+        
     </dependencies>
 
     <build>
