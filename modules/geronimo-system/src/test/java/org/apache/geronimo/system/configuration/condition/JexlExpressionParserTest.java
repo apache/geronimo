@@ -19,20 +19,20 @@ package org.apache.geronimo.system.configuration.condition;
 import org.apache.geronimo.testsupport.TestSupport;
 
 /**
- * Unit tests for the {@link ExpressionParser} class.
+ * Unit tests for the {@link JexlExpressionParser} class.
  *
  * @version $Rev$ $Date$
  */
 public class JexlExpressionParserTest
         extends TestSupport
 {
-    protected ExpressionParser parser;
+    protected JexlExpressionParser parser;
     
     /**
      * Set up instance variables required by this test case.
      */
     protected void setUp() {
-        parser = new ExpressionParser();
+        parser = new JexlExpressionParser();
     }
     
     /**
