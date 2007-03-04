@@ -34,8 +34,8 @@ import org.apache.geronimo.system.serverinfo.ServerInfo;
 public class SwitchableLocalAttributeManager extends LocalAttributeManager implements SwitchablePersistentConfigurationList {
     private boolean online;
     
-    public SwitchableLocalAttributeManager(String configFile, boolean readOnly, ServerInfo serverInfo) {
-        super(configFile, readOnly, serverInfo);
+    public SwitchableLocalAttributeManager(String configFile, String substitutionsFile, boolean readOnly, ServerInfo serverInfo) {
+        super(configFile, substitutionsFile, readOnly, serverInfo);
     }
 
     @Override

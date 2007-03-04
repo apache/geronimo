@@ -16,6 +16,36 @@
  */
 package org.apache.geronimo.system.configuration;
 
+import java.beans.PropertyEditor;
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Timer;
+import java.util.TimerTask;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.OutputKeys;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.common.propertyeditor.PropertyEditors;
@@ -27,13 +57,14 @@ import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.gbean.GReferenceInfo;
 import org.apache.geronimo.gbean.ReferencePatterns;
+import org.apache.geronimo.kernel.InvalidGBeanException;
+import org.apache.geronimo.kernel.config.Configuration;
 import org.apache.geronimo.kernel.config.InvalidConfigException;
 import org.apache.geronimo.kernel.config.ManageableAttributeStore;
 import org.apache.geronimo.kernel.config.PersistentConfigurationList;
-import org.apache.geronimo.kernel.config.Configuration;
 import org.apache.geronimo.kernel.repository.Artifact;
-import org.apache.geronimo.kernel.InvalidGBeanException;
 import org.apache.geronimo.kernel.util.XmlUtil;
+import org.apache.geronimo.system.configuration.condition.JexlExpressionParser;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -41,37 +72,6 @@ import org.xml.sax.ErrorHandler;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
-
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.OutputKeys;
-import javax.xml.transform.TransformerException;
-import javax.xml.transform.stream.StreamResult;
-import javax.xml.transform.dom.DOMSource;
-
-import java.beans.PropertyEditor;
-
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.InputStream;
-import java.io.BufferedInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.io.BufferedOutputStream;
-
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Timer;
-import java.util.TimerTask;
 
 /**
  * Stores managed attributes in an XML file on the local filesystem.
@@ -82,6 +82,7 @@ public class LocalAttributeManager implements PluginAttributeStore, PersistentCo
     private static final Log log = LogFactory.getLog(LocalAttributeManager.class);
 
     private static final String CONFIG_FILE_PROPERTY = "org.apache.geronimo.config.file";
+    private final static String SUBSTITUTIONS_FILE_PROPERTY = "org.apache.geronimo.config.substitutions.file";
 
     private static final String BACKUP_EXTENSION = ".bak";
     private static final String TEMP_EXTENSION = ".working";
@@ -90,6 +91,7 @@ public class LocalAttributeManager implements PluginAttributeStore, PersistentCo
     private final ServerInfo serverInfo;
     private final String configFile;
     private final boolean readOnly;
+    private final JexlExpressionParser expressionParser;
 
     private File attributeFile;
     private File backupFile;
@@ -101,20 +103,23 @@ public class LocalAttributeManager implements PluginAttributeStore, PersistentCo
 
     private boolean kernelFullyStarted;
 
-    public LocalAttributeManager(String configFile, boolean readOnly, ServerInfo serverInfo) {
+    public LocalAttributeManager(String configFile, String configSubstitutionsFile, boolean readOnly, ServerInfo serverInfo) {
         this.configFile = System.getProperty(CONFIG_FILE_PROPERTY, configFile);
+        String resolvedPropertiesFile = System.getProperty(SUBSTITUTIONS_FILE_PROPERTY, configSubstitutionsFile);
+        expressionParser = loadProperties(resolvedPropertiesFile, serverInfo);
         this.readOnly = readOnly;
         this.serverInfo = serverInfo;
         serverOverride = new ServerOverride();
+        log.debug("setting configSubstitutionsFile to " + configSubstitutionsFile + ".");
     }
 
     public boolean isReadOnly() {
         return readOnly;
     }
 
-    public synchronized Collection applyOverrides(Artifact configName, Collection gbeanDatas, ClassLoader classLoader) throws InvalidConfigException {
+    public synchronized Collection applyOverrides(Artifact configName, Collection untypedGbeanDatas, ClassLoader classLoader) throws InvalidConfigException {
         // clone the datas since we will be modifying this collection
-        gbeanDatas = new ArrayList(gbeanDatas);
+        Collection<GBeanData> gbeanDatas = new ArrayList<GBeanData>(untypedGbeanDatas);
 
         ConfigurationOverride configuration = serverOverride.getConfiguration(configName);
         if (configuration == null) {
@@ -122,16 +127,15 @@ public class LocalAttributeManager implements PluginAttributeStore, PersistentCo
         }
 
         // index the incoming datas
-        Map datasByName = new HashMap();
-        for (Iterator iterator = gbeanDatas.iterator(); iterator.hasNext();) {
-            GBeanData gbeanData = (GBeanData) iterator.next();
+        Map<Object, GBeanData> datasByName = new HashMap<Object, GBeanData>();
+        for (GBeanData gbeanData : gbeanDatas) {
             datasByName.put(gbeanData.getAbstractName(), gbeanData);
             datasByName.put(gbeanData.getAbstractName().getName().get("name"), gbeanData);
         }
 
         // add the new GBeans
-        for (Iterator iterator = configuration.getGBeans().entrySet().iterator(); iterator.hasNext();) {
-            Map.Entry entry = (Map.Entry) iterator.next();
+        for (Object o : configuration.getGBeans().entrySet()) {
+            Map.Entry entry = (Map.Entry) o;
             Object name = entry.getKey();
             GBeanOverride gbean = (GBeanOverride) entry.getValue();
             if (!datasByName.containsKey(name) && gbean.isLoad()) {
@@ -150,7 +154,7 @@ public class LocalAttributeManager implements PluginAttributeStore, PersistentCo
                     throw new InvalidConfigException(message.toString());
                 }
                 GBeanInfo gbeanInfo = GBeanInfo.getGBeanInfo(gbean.getGBeanInfo(), classLoader);
-                AbstractName abstractName = (AbstractName)name;
+                AbstractName abstractName = (AbstractName) name;
                 GBeanData gBeanData = new GBeanData(abstractName, gbeanInfo);
                 gbeanDatas.add(gBeanData);
             }
@@ -170,12 +174,12 @@ public class LocalAttributeManager implements PluginAttributeStore, PersistentCo
     /**
      * Set the attributes from the attribute store on a single gbean, and return whether or not to load the gbean.
      *
-     * @param data
-     * @param configuration
-     * @param configName
-     * @param classLoader
+     * @param data GBeanData we are going to override attributes on
+     * @param configuration the module override the gbean relates to
+     * @param configName name of the module (why can't this be determined from the configuration?)
+     * @param classLoader ClassLoader to use for property objects/PropertyEditors
      * @return true if the gbean should be loaded, false otherwise.
-     * @throws org.apache.geronimo.kernel.config.InvalidConfigException
+     * @throws org.apache.geronimo.kernel.config.InvalidConfigException if we cannot update the gbeanData
      *
      */
     private synchronized boolean setAttributes(GBeanData data, ConfigurationOverride configuration, Artifact configName, ClassLoader classLoader) throws InvalidConfigException {
@@ -190,86 +194,7 @@ public class LocalAttributeManager implements PluginAttributeStore, PersistentCo
             return true;
         }
 
-        if (!gbean.isLoad()) {
-            return false;
-        }
-
-        GBeanInfo gbeanInfo = data.getGBeanInfo();
-
-        // set attributes
-        for (Iterator iterator = gbean.getAttributes().entrySet().iterator(); iterator.hasNext();) {
-            Map.Entry entry = (Map.Entry) iterator.next();
-            String attributeName = (String) entry.getKey();
-            GAttributeInfo attributeInfo = gbeanInfo.getAttribute(attributeName);
-            if (attributeInfo == null) {
-                throw new InvalidConfigException("No attribute: " + attributeName + " for gbean: " + data.getAbstractName());
-            }
-            String valueString = (String) entry.getValue();
-            Object value = getValue(attributeInfo, valueString, configName, gbeanName, classLoader);
-            data.setAttribute(attributeName, value);
-        }
-
-        //Clear attributes
-        for (Iterator iterator = gbean.getClearAttributes().iterator(); iterator.hasNext();){
-           String attribute = (String) iterator.next();
-           if (gbean.getClearAttribute(attribute)){
-               data.clearAttribute(attribute);
-           }
-        }
-
-        //Null attributes
-        for (Iterator iterator = gbean.getNullAttributes().iterator(); iterator.hasNext();){
-           String attribute = (String) iterator.next();
-           if (gbean.getNullAttribute(attribute)){
-               data.setAttribute(attribute, null);
-           }
-        }
-
-        // set references
-        for (Iterator iterator = gbean.getReferences().entrySet().iterator(); iterator.hasNext();) {
-            Map.Entry entry = (Map.Entry) iterator.next();
-
-            String referenceName = (String) entry.getKey();
-            GReferenceInfo referenceInfo = gbeanInfo.getReference(referenceName);
-            if (referenceInfo == null) {
-                throw new InvalidConfigException("No reference: " + referenceName + " for gbean: " + data.getAbstractName());
-            }
-
-            ReferencePatterns referencePatterns = (ReferencePatterns) entry.getValue();
-
-            data.setReferencePatterns(referenceName, referencePatterns);
-        }
-
-        //Clear references
-        for (Iterator iterator = gbean.getClearReferences().iterator(); iterator.hasNext();){
-           String reference = (String) iterator.next();
-           if (gbean.getClearReference(reference)){
-               data.clearReference(reference);
-           }
-        }
-
-        return true;
-    }
-
-
-    private synchronized Object getValue(GAttributeInfo attribute, String value, Artifact configurationName, AbstractName gbeanName, ClassLoader classLoader) {
-        if (value == null) {
-            return null;
-        }
-
-        try {
-            PropertyEditor editor = PropertyEditors.findEditor(attribute.getType(), classLoader);
-            if (editor == null) {
-                log.debug("Unable to parse attribute of type " + attribute.getType() + "; no editor found");
-                return null;
-            }
-            editor.setAsText(value);
-            log.debug("Setting value for " + configurationName + "/" + gbeanName + "/" + attribute.getName() + " to value " + value);
-            return editor.getValue();
-        } catch (ClassNotFoundException e) {
-            log.error("Unable to load attribute type " + attribute.getType());
-            return null;
-        }
+        return gbean.applyOverrides(data, configName, gbeanName, classLoader);
     }
 
     public void setModuleGBeans(Artifact moduleName, GBeanOverride[] gbeans) {
@@ -277,8 +202,7 @@ public class LocalAttributeManager implements PluginAttributeStore, PersistentCo
             return;
         }
         ConfigurationOverride configuration = serverOverride.getConfiguration(moduleName, true);
-        for (int i = 0; i < gbeans.length; i++) {
-            GBeanOverride gbean = gbeans[i];
+        for (GBeanOverride gbean : gbeans) {
             configuration.addGBean(gbean);
         }
         attributeChanged();
@@ -293,7 +217,7 @@ public class LocalAttributeManager implements PluginAttributeStore, PersistentCo
         if (gbean == null) {
             gbean = configuration.getGBean((String) gbeanName.getName().get("name"));
             if (gbean == null) {
-                gbean = new GBeanOverride(gbeanName, true);
+                gbean = new GBeanOverride(gbeanName, true, expressionParser);
                 configuration.addGBean(gbeanName, gbean);
             }
         }
@@ -315,9 +239,9 @@ public class LocalAttributeManager implements PluginAttributeStore, PersistentCo
         ConfigurationOverride configuration = serverOverride.getConfiguration(configurationName, true);
         GBeanOverride gbean = configuration.getGBean(gbeanName);
         if (gbean == null) {
-            gbean = configuration.getGBean((String)gbeanName.getName().get("name"));
+            gbean = configuration.getGBean((String) gbeanName.getName().get("name"));
             if (gbean == null) {
-                gbean = new GBeanOverride(gbeanName, true);
+                gbean = new GBeanOverride(gbeanName, true, expressionParser);
                 configuration.addGBean(gbeanName, gbean);
             }
         }
@@ -334,11 +258,11 @@ public class LocalAttributeManager implements PluginAttributeStore, PersistentCo
         GBeanOverride gbean = configuration.getGBean(gbeanName);
         if (gbean == null) {
             // attempt to lookup by short name
-            gbean = configuration.getGBean((String)gbeanName.getName().get("name"));
+            gbean = configuration.getGBean((String) gbeanName.getName().get("name"));
         }
 
         if (gbean == null) {
-            gbean = new GBeanOverride(gbeanName, load);
+            gbean = new GBeanOverride(gbeanName, load, expressionParser);
             configuration.addGBean(gbeanName, gbean);
         } else {
             gbean.setLoad(load);
@@ -356,7 +280,7 @@ public class LocalAttributeManager implements PluginAttributeStore, PersistentCo
             return;
         }
         try {
-            GBeanOverride gbean = new GBeanOverride(gbeanData);
+            GBeanOverride gbean = new GBeanOverride(gbeanData, expressionParser);
             configuration.addGBean(gbean);
             attributeChanged();
         } catch (InvalidAttributeException e) {
@@ -370,29 +294,28 @@ public class LocalAttributeManager implements PluginAttributeStore, PersistentCo
         if (!attributeFile.exists()) {
             return;
         }
-        
         InputStream input = new BufferedInputStream(new FileInputStream(attributeFile));
         InputSource source = new InputSource(input);
         source.setSystemId(attributeFile.toString());
         DocumentBuilderFactory dFactory = XmlUtil.newDocumentBuilderFactory();
-        
+
         try {
             dFactory.setValidating(true);
             dFactory.setNamespaceAware(true);
             dFactory.setAttribute("http://java.sun.com/xml/jaxp/properties/schemaLanguage",
-                                 "http://www.w3.org/2001/XMLSchema");
-            
+                    "http://www.w3.org/2001/XMLSchema");
+
             dFactory.setAttribute("http://java.sun.com/xml/jaxp/properties/schemaSource",
-                                 LocalAttributeManager.class.getResourceAsStream("/META-INF/schema/attributes-1.1.xsd"));
+                    LocalAttributeManager.class.getResourceAsStream("/META-INF/schema/attributes-1.1.xsd"));
 
             DocumentBuilder builder = dFactory.newDocumentBuilder();
             builder.setErrorHandler(new ErrorHandler() {
                 public void error(SAXParseException e) {
                     log.error("Unable to read saved manageable attributes. " +
-                        "SAX parse error: " + e.getMessage() +
-                        " at line " + e.getLineNumber() +
-                        ", column " + e.getColumnNumber() +
-                        " in entity " + e.getSystemId());
+                            "SAX parse error: " + e.getMessage() +
+                            " at line " + e.getLineNumber() +
+                            ", column " + e.getColumnNumber() +
+                            " in entity " + e.getSystemId());
 
                     if (log.isTraceEnabled()) {
                         log.trace("Exception deatils", e);
@@ -407,11 +330,11 @@ public class LocalAttributeManager implements PluginAttributeStore, PersistentCo
                             " at line " + e.getLineNumber() +
                             ", column " + e.getColumnNumber() +
                             " in entity " + e.getSystemId());
-                    
+
                     if (log.isTraceEnabled()) {
                         log.trace("Exception deatils", e);
                     }
-                    
+
                     // TODO throw an exception here?
                 }
 
@@ -421,16 +344,16 @@ public class LocalAttributeManager implements PluginAttributeStore, PersistentCo
                             " at line " + e.getLineNumber() +
                             ", column " + e.getColumnNumber() +
                             " in entity " + e.getSystemId());
-                    
+
                     if (log.isTraceEnabled()) {
                         log.trace("Exception deatils", e);
                     }
                 }
             });
-            
+
             Document doc = builder.parse(source);
             Element root = doc.getDocumentElement();
-            serverOverride = new ServerOverride(root);
+            serverOverride = new ServerOverride(root, expressionParser);
         } catch (SAXException e) {
             log.error("Unable to read saved manageable attributes", e);
         } catch (ParserConfigurationException e) {
@@ -483,9 +406,9 @@ public class LocalAttributeManager implements PluginAttributeStore, PersistentCo
         dFactory.setValidating(true);
         dFactory.setNamespaceAware(true);
         dFactory.setAttribute("http://java.sun.com/xml/jaxp/properties/schemaLanguage",
-                             "http://www.w3.org/2001/XMLSchema");
+                "http://www.w3.org/2001/XMLSchema");
         dFactory.setAttribute("http://java.sun.com/xml/jaxp/properties/schemaSource",
-                             LocalAttributeManager.class.getResourceAsStream("/META-INF/schema/attributes-1.1.xsd"));
+                LocalAttributeManager.class.getResourceAsStream("/META-INF/schema/attributes-1.1.xsd"));
 
         OutputStream output = null;
         try {
@@ -533,12 +456,11 @@ public class LocalAttributeManager implements PluginAttributeStore, PersistentCo
     }
 
     public synchronized List restore() throws IOException {
-        List configs = new ArrayList();
-        for (Iterator iterator = serverOverride.getConfigurations().entrySet().iterator(); iterator.hasNext();) {
-            Map.Entry entry = (Map.Entry) iterator.next();
-            ConfigurationOverride configuration = (ConfigurationOverride) entry.getValue();
+        List<Artifact> configs = new ArrayList<Artifact>();
+        for (Map.Entry<Artifact, ConfigurationOverride> entry : serverOverride.getConfigurations().entrySet()) {
+            ConfigurationOverride configuration = entry.getValue();
             if (configuration.isLoad()) {
-                Artifact configID = (Artifact) entry.getKey();
+                Artifact configID = entry.getKey();
                 configs.add(configID);
             }
         }
@@ -547,7 +469,7 @@ public class LocalAttributeManager implements PluginAttributeStore, PersistentCo
 
     public void startConfiguration(Artifact configurationName) {
         ConfigurationOverride configuration = serverOverride.getConfiguration(configurationName, false);
-        if(configuration == null) {
+        if (configuration == null) {
             return;
         }
         configuration.setLoad(true);
@@ -558,7 +480,7 @@ public class LocalAttributeManager implements PluginAttributeStore, PersistentCo
         // Check whether we have it already
         ConfigurationOverride configuration = serverOverride.getConfiguration(configurationName, false);
         // If not, initialize it
-        if(configuration == null) {
+        if (configuration == null) {
             configuration = serverOverride.getConfiguration(configurationName, true);
             configuration.setLoad(false);
             attributeChanged();
@@ -589,7 +511,7 @@ public class LocalAttributeManager implements PluginAttributeStore, PersistentCo
 
     public void migrateConfiguration(Artifact oldName, Artifact newName, Configuration configuration) {
         ConfigurationOverride configInfo = serverOverride.getConfiguration(oldName);
-        if(configInfo == null) {
+        if (configInfo == null) {
             throw new IllegalArgumentException("Trying to migrate unknown configuration: " + oldName);
         }
         serverOverride.removeConfiguration(oldName);
@@ -685,6 +607,28 @@ public class LocalAttributeManager implements PluginAttributeStore, PersistentCo
         }
     }
 
+    private static JexlExpressionParser loadProperties(String propertiesFile, ServerInfo serverInfo) {
+        Map<Object, Object> vars = new HashMap<Object, Object>();
+        //properties file is least significant
+        if (propertiesFile != null) {
+            Properties properties = new Properties();
+            File thePropertiesFile = serverInfo.resolveServer(propertiesFile);
+            log.debug("Loading properties file " + thePropertiesFile.getAbsolutePath());
+            try {
+                properties.load(new FileInputStream(propertiesFile));
+            } catch (Exception e) {
+                log.error("Caught exception " + e
+                        + " trying to open properties file " + thePropertiesFile.getAbsolutePath());
+            }
+            vars.putAll(properties);
+        }
+        //environment variables are next
+        vars.putAll(System.getenv());
+        //most significant are the command line system properties
+        vars.putAll(System.getProperties());
+        return new JexlExpressionParser(vars);
+    }
+
     public static final GBeanInfo GBEAN_INFO;
 
     static {
@@ -692,10 +636,11 @@ public class LocalAttributeManager implements PluginAttributeStore, PersistentCo
         infoFactory.addReference("ServerInfo", ServerInfo.class, "GBean");
         infoFactory.addAttribute("configFile", String.class, true);
         infoFactory.addAttribute("readOnly", boolean.class, true);
+        infoFactory.addAttribute("substitutionsFile", String.class, true);
         infoFactory.addInterface(ManageableAttributeStore.class);
         infoFactory.addInterface(PersistentConfigurationList.class);
 
-        infoFactory.setConstructor(new String[]{"configFile", "readOnly", "ServerInfo"});
+        infoFactory.setConstructor(new String[]{"configFile", "substitutionsFile", "readOnly", "ServerInfo"});
 
         GBEAN_INFO = infoFactory.getBeanInfo();
     }

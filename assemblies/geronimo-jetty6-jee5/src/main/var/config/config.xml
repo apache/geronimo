@@ -89,13 +89,13 @@
 
     <module name="org.apache.geronimo.configs/jetty6/${version}/car">
         <gbean name="JettyWebConnector">
-            <attribute name="host">${PlanServerHostname}</attribute>
-            <attribute name="port">${PlanHTTPPortPrimary}</attribute>
-            <attribute name="redirectPort">${PlanHTTPSPortPrimary}</attribute>
+            <attribute name="host">${hostName}</attribute>
+            <attribute name="port">${httpPort + portOffset}</attribute>
+            <attribute name="redirectPort">${httpsPort + portOffset}</attribute>
         </gbean>
         <gbean name="JettySSLConnector">
-            <attribute name="host">${PlanServerHostname}</attribute>
-            <attribute name="port">${PlanHTTPSPortPrimary}</attribute>
+            <attribute name="host">${hostName}</attribute>
+            <attribute name="port">${httpsPort + portOffset}</attribute>
         </gbean>
 <!--        <gbean name="JettyAJP13Connector">
             <attribute name="host">0.0.0.0</attribute>

@@ -22,9 +22,10 @@ import org.apache.geronimo.gbean.GBeanInfoBuilder;
 
 public class MockGBean {
 
-    private static final GBeanInfo GBEAN_INFO;
+    public static final GBeanInfo GBEAN_INFO;
 
     private String value;
+    private int port;
 
     public String getValue() {
         return value;
@@ -34,6 +35,15 @@ public class MockGBean {
         this.value = value;
     }
 
+
+    public int getPort() {
+        return port;
+    }
+
+    public void setPort(int port) {
+        this.port = port;
+    }
+
     public static GBeanInfo getGBeanInfo() {
         return GBEAN_INFO;
     }
@@ -41,6 +51,7 @@ public class MockGBean {
     static {
         GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic(MockGBean.class);
         infoFactory.addAttribute("value", String.class, true);
+        infoFactory.addAttribute("port", int.class, true);
 
         GBEAN_INFO = infoFactory.getBeanInfo();
     }

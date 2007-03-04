@@ -1361,7 +1361,8 @@ public class PluginInstallerGBean implements PluginInstaller {
         for (int i = 0; i < overrides.length; i++) {
             Element node = (Element) gbeans.item(i);
             try {
-                overrides[i] = new GBeanOverride(node);
+                //TODO figure out whether property substitutions should be allowed here
+                overrides[i] = new GBeanOverride(node, null);
             } catch (InvalidGBeanException e) {
                 log.error("Unable to process config.xml entry "+node.getAttribute("name")+" ("+node+")", e);
             }

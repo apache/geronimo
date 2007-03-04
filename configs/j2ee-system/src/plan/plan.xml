@@ -52,6 +52,7 @@ specific services - those should be provided by children.
             <name>ServerInfo</name>
         </reference>
         <attribute name="configFile">var/config/config.xml</attribute>
+        <attribute name="substitutionsFile">var/config/config-substitutions.properties</attribute>
     </gbean>
 
     <!-- ArtifactManager -->
@@ -97,5 +98,5 @@ specific services - those should be provided by children.
             <name>ServerInfo</name>
         </reference>
     </gbean>
-    
+
 </module>

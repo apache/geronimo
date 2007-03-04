@@ -19,9 +19,9 @@ package org.apache.geronimo.system.configuration;
 import java.beans.PropertyEditor;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.io.StringWriter;
 import java.io.Serializable;
 import java.io.StringReader;
+import java.io.StringWriter;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -32,9 +32,11 @@ import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 
-import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.common.propertyeditor.PropertyEditors;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.AbstractNameQuery;
@@ -42,46 +44,55 @@ import org.apache.geronimo.gbean.GAttributeInfo;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.ReferencePatterns;
+import org.apache.geronimo.gbean.GReferenceInfo;
 import org.apache.geronimo.kernel.InvalidGBeanException;
-import org.apache.geronimo.kernel.util.XmlUtil;
+import org.apache.geronimo.kernel.config.InvalidConfigException;
 import org.apache.geronimo.kernel.repository.Artifact;
+import org.apache.geronimo.kernel.util.XmlUtil;
 import org.apache.geronimo.util.EncryptionManager;
+import org.apache.geronimo.system.configuration.condition.JexlExpressionParser;
+import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
-import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
 
 /**
  * @version $Rev$ $Date$
  */
 public class GBeanOverride implements Serializable {
+
+    private static final Log log = LogFactory.getLog(GBeanOverride.class);
+
     private final Object name;
     private boolean load;
-    private final Map attributes = new LinkedHashMap();
-    private final Map references = new LinkedHashMap();
-    private final ArrayList clearAttributes = new ArrayList();
-    private final ArrayList nullAttributes = new ArrayList();
-    private final ArrayList clearReferences = new ArrayList();
+    private final Map<String, String> attributes = new LinkedHashMap<String, String>();
+    private final Map<String, ReferencePatterns> references = new LinkedHashMap<String, ReferencePatterns>();
+    private final ArrayList<String> clearAttributes = new ArrayList<String>();
+    private final ArrayList<String> nullAttributes = new ArrayList<String>();
+    private final ArrayList<String> clearReferences = new ArrayList<String>();
     private final String gbeanInfo;
+    private final JexlExpressionParser expressionParser;
 
-    public GBeanOverride(String name, boolean load) {
+    public GBeanOverride(String name, boolean load, JexlExpressionParser expressionParser) {
         this.name = name;
         this.load = load;
         gbeanInfo = null;
+        this.expressionParser = expressionParser;
     }
 
-    public GBeanOverride(AbstractName name, boolean load) {
+    public GBeanOverride(AbstractName name, boolean load, JexlExpressionParser expressionParser) {
         this.name = name;
         this.load = load;
         gbeanInfo = null;
+        this.expressionParser = expressionParser;
     }
 
     public GBeanOverride(GBeanOverride original, String oldArtifact, String newArtifact) {
         Object name = original.name;
-        if(name instanceof String) {
-            name = replace((String)name, oldArtifact, newArtifact);
-        } else if(name instanceof AbstractName) {
+        if (name instanceof String) {
+            name = replace((String) name, oldArtifact, newArtifact);
+        } else if (name instanceof AbstractName) {
             String value = name.toString();
             value = replace(value, oldArtifact, newArtifact);
             name = new AbstractName(URI.create(value));
@@ -94,26 +105,27 @@ public class GBeanOverride implements Serializable {
         this.nullAttributes.addAll(original.nullAttributes);
         this.clearReferences.addAll(original.clearReferences);
         this.gbeanInfo = original.gbeanInfo;
+        this.expressionParser = original.expressionParser;
     }
 
     private static String replace(String original, String oldArtifact, String newArtifact) {
         int pos = original.indexOf(oldArtifact);
-        if(pos == -1) {
+        if (pos == -1) {
             return original;
         }
         int last = -1;
         StringBuffer buf = new StringBuffer();
-        while(pos > -1) {
-            buf.append(original.substring(last+1, pos));
+        while (pos > -1) {
+            buf.append(original.substring(last + 1, pos));
             buf.append(newArtifact);
-            last = pos+oldArtifact.length()-1;
+            last = pos + oldArtifact.length() - 1;
             pos = original.indexOf(oldArtifact, last);
         }
-        buf.append(original.substring(last+1));
+        buf.append(original.substring(last + 1));
         return buf.toString();
     }
 
-    public GBeanOverride(GBeanData gbeanData) throws InvalidAttributeException {
+    public GBeanOverride(GBeanData gbeanData, JexlExpressionParser expressionParser) throws InvalidAttributeException {
         GBeanInfo gbeanInfo = gbeanData.getGBeanInfo();
         this.gbeanInfo = gbeanInfo.getSourceClass();
         if (this.gbeanInfo == null) {
@@ -123,8 +135,8 @@ public class GBeanOverride implements Serializable {
         load = true;
 
         // set attributes
-        for (Iterator iterator = gbeanData.getAttributes().entrySet().iterator(); iterator.hasNext();) {
-            Map.Entry entry = (Map.Entry) iterator.next();
+        for (Object o : gbeanData.getAttributes().entrySet()) {
+            Map.Entry entry = (Map.Entry) o;
             String attributeName = (String) entry.getKey();
             GAttributeInfo attributeInfo = gbeanInfo.getAttribute(attributeName);
             if (attributeInfo == null) {
@@ -136,9 +148,10 @@ public class GBeanOverride implements Serializable {
 
         // references can be coppied in blind
         references.putAll(gbeanData.getReferences());
+        this.expressionParser = expressionParser;
     }
 
-    public GBeanOverride(Element gbean) throws InvalidGBeanException {
+    public GBeanOverride(Element gbean, JexlExpressionParser expressionParser) throws InvalidGBeanException {
         String nameString = gbean.getAttribute("name");
         if (nameString.indexOf('?') > -1) {
             name = new AbstractName(URI.create(nameString));
@@ -199,7 +212,7 @@ public class GBeanOverride implements Serializable {
 
             String referenceName = reference.getAttribute("name");
 
-            Set objectNamePatterns = new LinkedHashSet();
+            Set<AbstractNameQuery> objectNamePatterns = new LinkedHashSet<AbstractNameQuery>();
             NodeList patterns = reference.getElementsByTagName("pattern");
 
             // If there is no pattern, then its an empty set, so its a
@@ -225,7 +238,7 @@ public class GBeanOverride implements Serializable {
                 if (artifactId != null) {
                     referenceArtifact = new Artifact(groupId, artifactId, version, type);
                 }
-                Map nameMap = new HashMap();
+                Map<String, String> nameMap = new HashMap<String, String>();
                 if (module != null) {
                     nameMap.put("module", module);
                 }
@@ -238,6 +251,7 @@ public class GBeanOverride implements Serializable {
 
             setReferencePatterns(referenceName, new ReferencePatterns(objectNamePatterns));
         }
+        this.expressionParser = expressionParser;
     }
 
     private static String getChildAsText(Element element, String name) throws InvalidGBeanException {
@@ -292,19 +306,19 @@ public class GBeanOverride implements Serializable {
         this.load = load;
     }
 
-    public Map getAttributes() {
+    public Map<String, String> getAttributes() {
         return attributes;
     }
 
     public String getAttribute(String attributeName) {
-        return (String) attributes.get(attributeName);
+        return attributes.get(attributeName);
     }
 
-    public ArrayList getClearAttributes() {
+    public ArrayList<String> getClearAttributes() {
         return clearAttributes;
     }
 
-    public ArrayList getNullAttributes() {
+    public ArrayList<String> getNullAttributes() {
         return nullAttributes;
     }
 
@@ -316,7 +330,7 @@ public class GBeanOverride implements Serializable {
         return clearAttributes.contains(attributeName);
     }
 
-    public ArrayList getClearReferences() {
+    public ArrayList<String> getClearReferences() {
         return clearReferences;
     }
 
@@ -341,29 +355,116 @@ public class GBeanOverride implements Serializable {
 
     public void setAttribute(String attributeName, Object attributeValue, String attributeType) throws InvalidAttributeException {
         String stringValue = getAsText(attributeValue, attributeType);
-        attributes.put(attributeName, stringValue);
+        setAttribute(attributeName, stringValue);
     }
 
     public void setAttribute(String attributeName, String attributeValue) {
         attributes.put(attributeName, attributeValue);
     }
 
-    public Map getReferences() {
+    public Map<String, ReferencePatterns> getReferences() {
         return references;
     }
 
     public ReferencePatterns getReferencePatterns(String name) {
-        return (ReferencePatterns) references.get(name);
+        return references.get(name);
     }
 
     public void setReferencePatterns(String name, ReferencePatterns patterns) {
         references.put(name, patterns);
     }
 
+    public boolean applyOverrides(GBeanData data, Artifact configName, AbstractName gbeanName, ClassLoader classLoader) throws InvalidConfigException {
+        if (!isLoad()) {
+            return false;
+        }
+
+        GBeanInfo gbeanInfo = data.getGBeanInfo();
+
+        // set attributes
+        for (Map.Entry<String, String> entry : getAttributes().entrySet()) {
+            String attributeName = entry.getKey();
+            GAttributeInfo attributeInfo = gbeanInfo.getAttribute(attributeName);
+            if (attributeInfo == null) {
+                throw new InvalidConfigException("No attribute: " + attributeName + " for gbean: " + data.getAbstractName());
+            }
+            String valueString = entry.getValue();
+            Object value = getValue(attributeInfo, valueString, configName, gbeanName, classLoader);
+            data.setAttribute(attributeName, value);
+        }
+
+        //Clear attributes
+        for (String attribute : getClearAttributes()) {
+            if (getClearAttribute(attribute)) {
+                data.clearAttribute(attribute);
+            }
+        }
+
+        //Null attributes
+        for (String attribute : getNullAttributes()) {
+            if (getNullAttribute(attribute)) {
+                data.setAttribute(attribute, null);
+            }
+        }
+
+        // set references
+        for (Map.Entry<String, ReferencePatterns> entry : getReferences().entrySet()) {
+
+            String referenceName = entry.getKey();
+            GReferenceInfo referenceInfo = gbeanInfo.getReference(referenceName);
+            if (referenceInfo == null) {
+                throw new InvalidConfigException("No reference: " + referenceName + " for gbean: " + data.getAbstractName());
+            }
+
+            ReferencePatterns referencePatterns = entry.getValue();
+
+            data.setReferencePatterns(referenceName, referencePatterns);
+        }
+
+        //Clear references
+        for (String reference : getClearReferences()) {
+            if (getClearReference(reference)) {
+                data.clearReference(reference);
+            }
+        }
+
+        return true;
+    }
+
+    private synchronized Object getValue(GAttributeInfo attribute, String value, Artifact configurationName, AbstractName gbeanName, ClassLoader classLoader) {
+        if (value == null) {
+            return null;
+        }
+        value = substituteVariables(attribute.getName(), value);
+        try {
+            PropertyEditor editor = PropertyEditors.findEditor(attribute.getType(), classLoader);
+            if (editor == null) {
+                log.debug("Unable to parse attribute of type " + attribute.getType() + "; no editor found");
+                return null;
+            }
+            editor.setAsText(value);
+            log.debug("Setting value for " + configurationName + "/" + gbeanName + "/" + attribute.getName() + " to value " + value);
+            return editor.getValue();
+        } catch (ClassNotFoundException e) {
+            log.error("Unable to load attribute type " + attribute.getType());
+            return null;
+        }
+    }
+
+    public String substituteVariables(String attributeName, String input) {
+        if (expressionParser != null) {
+            return expressionParser.parse(input);
+        }
+        return input;
+    }
+
     /**
      * Creates a new child of the supplied parent with the data for this
      * GBeanOverride, adds it to the parent, and then returns the new
      * child element.
+     * @param doc document containing the module, hence also the element returned from this method.
+     * @param parent module element this override will be inserted into
+     * @return newly created element for this override
      */
     public Element writeXml(Document doc, Element parent) {
         String gbeanName;
@@ -384,14 +485,12 @@ public class GBeanOverride implements Serializable {
         }
 
         // attributes
-        for (Iterator iterator = attributes.entrySet().iterator(); iterator.hasNext();) {
-            Map.Entry entry = (Map.Entry) iterator.next();
-            String name = (String) entry.getKey();
-            String value = (String) entry.getValue();
+        for (Map.Entry<String, String> entry : attributes.entrySet()) {
+            String name = entry.getKey();
+            String value = entry.getValue();
             if (value == null) {
                 setNullAttribute(name);
-            }
-            else {
+            } else {
                 if (getNullAttribute(name)) {
                     nullAttributes.remove(name);
                 }
@@ -403,17 +502,26 @@ public class GBeanOverride implements Serializable {
                 gbean.appendChild(attribute);
                 if (value.length() == 0) {
                     attribute.setAttribute("value", "");
-                }
-                else {
+                } else {
                     try {
                         //
                         // NOTE: Construct a new document to handle mixed content attribute values
                         //       then add nodes which are children of the first node.  This allows
                         //       value to be XML or text.
                         //
-                        
+
                         DocumentBuilderFactory factory = XmlUtil.newDocumentBuilderFactory();
                         DocumentBuilder builder = factory.newDocumentBuilder();
+
+//                        String unsubstitutedValue = unsubstitutedAttributes.get(name);
+//                        if (unsubstitutedValue != null) {
+//                            log.debug("writeXML attribute " + name
+//                                    + " using raw value "
+//                                    + unsubstitutedValue
+//                                    + " instead of cooked value "
+//                                    + value + ".");
+//                            value = unsubstitutedValue;
+//                        }
 
                         // Wrap value in an element to be sure we can handle xml or text values
                         String xml = "<fragment>" + value + "</fragment>";
@@ -422,7 +530,7 @@ public class GBeanOverride implements Serializable {
 
                         Node root = fragment.getFirstChild();
                         NodeList children = root.getChildNodes();
-                        for (int i=0; i<children.getLength(); i++) {
+                        for (int i = 0; i < children.getLength(); i++) {
                             Node child = children.item(i);
 
                             // Import the child (and its children) into the new document
@@ -438,16 +546,14 @@ public class GBeanOverride implements Serializable {
         }
 
         // cleared attributes
-        for (Iterator iterator = clearAttributes.iterator(); iterator.hasNext();) {
-            String name = (String) iterator.next();
+        for (String name : clearAttributes) {
             Element attribute = doc.createElement("attribute");
             gbean.appendChild(attribute);
             attribute.setAttribute("name", name);
         }
 
         // Null attributes
-        for (Iterator iterator = nullAttributes.iterator(); iterator.hasNext();) {
-            String name = (String) iterator.next();
+        for (String name : nullAttributes) {
             Element attribute = doc.createElement("attribute");
             gbean.appendChild(attribute);
             attribute.setAttribute("name", name);
@@ -455,24 +561,22 @@ public class GBeanOverride implements Serializable {
         }
 
         // references
-        for (Iterator iterator = references.entrySet().iterator(); iterator.hasNext();) {
-            Map.Entry entry = (Map.Entry) iterator.next();
-            String name = (String) entry.getKey();
-            ReferencePatterns patterns = (ReferencePatterns) entry.getValue();
+        for (Map.Entry<String, ReferencePatterns> entry : references.entrySet()) {
+            String name = entry.getKey();
+            ReferencePatterns patterns = entry.getValue();
 
             Element reference = doc.createElement("reference");
             reference.setAttribute("name", name);
             gbean.appendChild(reference);
 
-            Set patternSet;
+            Set<AbstractNameQuery> patternSet;
             if (patterns.isResolved()) {
                 patternSet = Collections.singleton(new AbstractNameQuery(patterns.getAbstractName()));
             } else {
                 patternSet = patterns.getPatterns();
             }
 
-            for (Iterator patternIterator = patternSet.iterator(); patternIterator.hasNext();) {
-                AbstractNameQuery pattern = (AbstractNameQuery) patternIterator.next();
+            for (AbstractNameQuery pattern : patternSet) {
                 Element pat = doc.createElement("pattern");
                 reference.appendChild(pat);
                 Artifact artifact = pattern.getArtifact();
@@ -516,8 +620,7 @@ public class GBeanOverride implements Serializable {
         }
 
         // cleared references
-        for (Iterator iterator = clearReferences.iterator(); iterator.hasNext();) {
-            String name = (String) iterator.next();
+        for (String name : clearReferences) {
             Element reference = doc.createElement("reference");
             reference.setAttribute("name", name);
             gbean.appendChild(reference);

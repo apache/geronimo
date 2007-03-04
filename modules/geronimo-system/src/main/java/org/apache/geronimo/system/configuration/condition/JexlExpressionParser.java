@@ -31,14 +31,15 @@ import org.apache.commons.logging.LogFactory;
  *
  * @version $Rev$ $Date$
  */
-public class ExpressionParser
-{
-    private static final Log log = LogFactory.getLog(ExpressionParser.class);
+public class JexlExpressionParser {
+    private static final Log log = LogFactory.getLog(JexlExpressionParser.class);
 
     protected JexlContext context;
 
-    public ExpressionParser(final Map vars) {
-        assert vars != null;
+    public JexlExpressionParser(final Map vars) {
+        if (vars == null) {
+            throw new IllegalArgumentException("vars");
+        }
 
         context = JexlHelper.createContext();
         context.setVars(vars);
@@ -48,7 +49,7 @@ public class ExpressionParser
         }
     }
 
-    public ExpressionParser() {
+    public JexlExpressionParser() {
         this(System.getProperties());
     }
 
@@ -57,25 +58,33 @@ public class ExpressionParser
     }
 
     public Object getVariable(final Object name) {
-        assert name != null;
+        if (name == null) {
+            throw new IllegalArgumentException("name");
+        }
 
         return getVariables().get(name);
     }
 
     public Object setVariable(final Object name, final Object value) {
-        assert name != null;
+        if (name == null) {
+            throw new IllegalArgumentException("name");
+        }
 
         return getVariables().put(name, value);
     }
 
     public Object unsetVariable(final Object name) {
-        assert name != null;
+        if (name == null) {
+            throw new IllegalArgumentException("name");
+        }
 
         return getVariables().remove(name);
     }
 
     public void addVariables(final Map map) {
-        assert map != null;
+        if (map == null) {
+            throw new IllegalArgumentException("map");
+        }
 
         getVariables().putAll(map);
     }
@@ -83,7 +92,7 @@ public class ExpressionParser
     private FlatResolver resolver = new FlatResolver(true);
 
     protected Expression createExpression(final String expression) throws Exception {
-        assert expression != null;
+        // assert expression != null;
 
         Expression expr = ExpressionFactory.createExpression(expression);
         expr.addPreResolver(resolver);
@@ -92,7 +101,9 @@ public class ExpressionParser
     }
 
     public Object evaluate(final String expression) throws Exception {
-        assert expression != null;
+        if (expression == null) {
+            throw new IllegalArgumentException("expression");
+        }
 
         boolean trace = log.isTraceEnabled();
         if (trace) {
@@ -109,7 +120,9 @@ public class ExpressionParser
     }
 
     public String parse(final String input) {
-        assert input != null;
+        if (input == null) {
+            throw new IllegalArgumentException("input");
+        }
 
         boolean trace = log.isTraceEnabled();
         if (trace) {

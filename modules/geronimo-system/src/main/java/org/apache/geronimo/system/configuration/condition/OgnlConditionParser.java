@@ -17,16 +17,14 @@
 
 package org.apache.geronimo.system.configuration.condition;
 
-import java.util.Properties;
-import java.util.Map;
 import java.util.HashMap;
-import java.util.Collections;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import java.util.Map;
+import java.util.Properties;
 
 import ognl.Ognl;
 import ognl.OgnlContext;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 /**
  * Provides a simple facility to evaluate condition expressions using the
@@ -43,11 +41,11 @@ public class OgnlConditionParser
 {
     private static final Log log = LogFactory.getLog(OgnlConditionParser.class);
     
-    private final Map vars;
+    private final Map<String, Object> vars;
     
     public OgnlConditionParser() {
         // Setup the default vars
-        vars = new HashMap();
+        vars = new HashMap<String, Object>();
         
         vars.put("java", new JavaVariable());
         vars.put("os", new OsVariable());
@@ -87,7 +85,7 @@ public class OgnlConditionParser
         }
 
         if (result instanceof Boolean) {
-            return ((Boolean)result).booleanValue();
+            return (Boolean) result;
         }
         else {
             throw new ConditionParserException("Expression '" + expression + "' did not evaluate to a boolean value; found: " + result);

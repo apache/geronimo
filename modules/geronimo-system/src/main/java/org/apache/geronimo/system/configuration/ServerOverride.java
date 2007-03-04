@@ -25,6 +25,7 @@ import java.util.Map;
 
 import org.apache.geronimo.kernel.InvalidGBeanException;
 import org.apache.geronimo.kernel.repository.Artifact;
+import org.apache.geronimo.system.configuration.condition.JexlExpressionParser;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 import org.w3c.dom.Document;
@@ -33,16 +34,16 @@ import org.w3c.dom.Document;
  * @version $Rev$ $Date$
  */
 class ServerOverride {
-    private final Map configurations = new LinkedHashMap();
+    private final Map<Artifact, ConfigurationOverride> configurations = new LinkedHashMap<Artifact, ConfigurationOverride>();
 
     public ServerOverride() {
     }
 
-    public ServerOverride(Element element) throws InvalidGBeanException {
+    public ServerOverride(Element element, JexlExpressionParser expressionParser) throws InvalidGBeanException {
         NodeList configs = element.getElementsByTagName("module");
         for (int i = 0; i < configs.getLength(); i++) {
             Element configurationElement = (Element) configs.item(i);
-            ConfigurationOverride configuration = new ConfigurationOverride(configurationElement);
+            ConfigurationOverride configuration = new ConfigurationOverride(configurationElement, expressionParser);
             addConfiguration(configuration);
         }
 
@@ -50,7 +51,7 @@ class ServerOverride {
         configs = element.getElementsByTagName("configuration");
         for (int i = 0; i < configs.getLength(); i++) {
             Element configurationElement = (Element) configs.item(i);
-            ConfigurationOverride configuration = new ConfigurationOverride(configurationElement);
+            ConfigurationOverride configuration = new ConfigurationOverride(configurationElement, expressionParser);
             addConfiguration(configuration);
         }
     }
@@ -76,7 +77,7 @@ class ServerOverride {
         configurations.remove(configurationName);
     }
 
-    public Map getConfigurations() {
+    public Map<Artifact, ConfigurationOverride> getConfigurations() {
         return configurations;
     }
 

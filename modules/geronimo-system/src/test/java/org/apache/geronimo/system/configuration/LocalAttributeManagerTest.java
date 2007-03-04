@@ -218,7 +218,7 @@ public class LocalAttributeManagerTest extends TestCase {
 
     protected void setUp() throws Exception {
         super.setUp();
-        localAttributeManager = new LocalAttributeManager("target/test-config.xml", false, new BasicServerInfo(basedir));
+        localAttributeManager = new LocalAttributeManager("target/test-config.xml", "target/test-config-substitutions.properties", false, new BasicServerInfo(basedir));
         configurationName = Artifact.create("configuration/name/1/car");
         ObjectName objectName = ObjectName.getInstance(":name=gbean,parent="+configurationName+",foo=bar");
         gbeanName = new AbstractName(configurationName, objectName.getKeyPropertyList(), objectName);

@@ -19,8 +19,10 @@ package org.apache.geronimo.system.configuration;
 import junit.framework.TestCase;
 import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.gbean.ReferencePatterns;
+import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.util.XmlUtil;
+import org.apache.geronimo.system.configuration.condition.JexlExpressionParser;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
@@ -43,6 +45,7 @@ import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.HashMap;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -52,9 +55,18 @@ import org.apache.commons.logging.LogFactory;
  */
 public class ServerOverrideTest extends TestCase {
     private static final Log log = LogFactory.getLog(ServerOverrideTest.class);
-    
+    private JexlExpressionParser expressionParser;
+
+    protected void setUp() throws java.lang.Exception {
+        HashMap<String, String> subs = new HashMap<String, String>();
+        subs.put("host", "localhost");
+        subs.put("port", "8080");
+        subs.put("portOffset", "1");
+        expressionParser = new JexlExpressionParser(subs);
+    }
+
     public void testBasics() throws Exception {
-        GBeanOverride pizza = new GBeanOverride("Pizza", true);
+        GBeanOverride pizza = new GBeanOverride("Pizza", true, expressionParser);
         assertTrue(pizza.isLoad());
 
         pizza.setLoad(false);
@@ -99,7 +111,7 @@ public class ServerOverrideTest extends TestCase {
     }
 
     public void testGBeanXml() throws Exception {
-        GBeanOverride pizza = new GBeanOverride("Pizza", true);
+        GBeanOverride pizza = new GBeanOverride("Pizza", true, expressionParser);
         assertCopyIdentical(pizza);
 
         pizza.setLoad(false);
@@ -130,7 +142,7 @@ public class ServerOverrideTest extends TestCase {
         dinnerMenu.setLoad(false);
         assertCopyIdentical(dinnerMenu);
 
-        GBeanOverride pizza = new GBeanOverride("Pizza", false);
+        GBeanOverride pizza = new GBeanOverride("Pizza", false, expressionParser);
         pizza.setAttribute("cheese", "mozzarella");
         pizza.setAttribute("size", "x-large");
         pizza.setAttribute("emptyString", "");
@@ -149,7 +161,7 @@ public class ServerOverrideTest extends TestCase {
         dinnerMenu.addGBean(pizza);
         assertCopyIdentical(dinnerMenu);
 
-        GBeanOverride garlicCheeseBread = new GBeanOverride("Garlic Cheese Bread", true);
+        GBeanOverride garlicCheeseBread = new GBeanOverride("Garlic Cheese Bread", true, expressionParser);
         ReferencePatterns toasterOvenPatterns = new ReferencePatterns(Collections.singleton(toasterOvenQuery));
         garlicCheeseBread.setReferencePatterns("oven", toasterOvenPatterns);
         dinnerMenu.addGBean(garlicCheeseBread);
@@ -162,7 +174,7 @@ public class ServerOverrideTest extends TestCase {
 
         ConfigurationOverride dinnerMenu = new ConfigurationOverride(new Artifact("test","Dinner Menu","1.0","car"), false);
         restaurant.addConfiguration(dinnerMenu);
-        GBeanOverride pizza = new GBeanOverride("Pizza", false);
+        GBeanOverride pizza = new GBeanOverride("Pizza", false, expressionParser);
         pizza.setAttribute("cheese", "mozzarella");
         pizza.setAttribute("size", "x-large");
         pizza.setAttribute("emptyString", "");
@@ -175,7 +187,7 @@ public class ServerOverrideTest extends TestCase {
         pizza.setReferencePatterns("oven", ovenPatterns);
         pizza.setClearReference("microwave");
         dinnerMenu.addGBean(pizza);
-        GBeanOverride garlicCheeseBread = new GBeanOverride("Garlic Cheese Bread", true);
+        GBeanOverride garlicCheeseBread = new GBeanOverride("Garlic Cheese Bread", true, expressionParser);
         ReferencePatterns toasterOvenPatterns = new ReferencePatterns(Collections.singleton(toasterOvenQuery));
         garlicCheeseBread.setReferencePatterns("oven", toasterOvenPatterns);
         dinnerMenu.addGBean(garlicCheeseBread);
@@ -183,7 +195,7 @@ public class ServerOverrideTest extends TestCase {
 
         ConfigurationOverride drinkMenu = new ConfigurationOverride(new Artifact("test","Drink Menu","1.0","car"), false);
         restaurant.addConfiguration(drinkMenu);
-        GBeanOverride beer = new GBeanOverride("Beer", true);
+        GBeanOverride beer = new GBeanOverride("Beer", true, expressionParser);
         pizza.setReferencePatterns("glass", getReferencePatterns(new AbstractNameQuery[] {
             getAbstractNameQuery(":name=PintGlass"),
             getAbstractNameQuery(":name=BeerStein"),
@@ -191,7 +203,7 @@ public class ServerOverrideTest extends TestCase {
             getAbstractNameQuery(":name=BeerCan")
         }));
         drinkMenu.addGBean(beer);
-        GBeanOverride wine = new GBeanOverride("Wine", true);
+        GBeanOverride wine = new GBeanOverride("Wine", true, expressionParser);
         wine.setReferencePatterns("glass", getReferencePatterns(new AbstractNameQuery[] {
             getAbstractNameQuery(":name=WineGlass"),
             getAbstractNameQuery(":name=WineBottle"),
@@ -222,8 +234,31 @@ public class ServerOverrideTest extends TestCase {
     public void testReferenceXml() throws Exception {
         InputStream in = new ByteArrayInputStream(REFERENCE_XML.getBytes());
         Element gbeanElement = parseXml(in, "gbean");
-        GBeanOverride gbean = new GBeanOverride(gbeanElement);
+        GBeanOverride gbean = new GBeanOverride(gbeanElement, expressionParser);
         assertCopyIdentical(gbean);
+    }
+
+    private static final String EXPRESSION_XML =
+            "        <gbean name=\"mockGBean\">\n" +
+                    "            <attribute name=\"value\">${host}</attribute>\n" +
+                    "            <attribute name=\"port\">${port}</attribute>\n" +
+                    "        </gbean>";
+
+    public void testExpressionXml() throws Exception {
+        InputStream in = new ByteArrayInputStream(EXPRESSION_XML.getBytes());
+        Element gbeanElement = parseXml(in, "gbean");
+        GBeanOverride gbean = new GBeanOverride(gbeanElement, expressionParser);
+        assertCopyIdentical(gbean);
+        GBeanData data = new GBeanData(MockGBean.GBEAN_INFO);
+        gbean.setAttribute("port", "${port}");
+        gbean.applyOverrides(data, null, null, getClass().getClassLoader());
+        assertEquals(8080, data.getAttribute("port"));
+        gbean.setAttribute("port", "${port + 1}");
+        gbean.applyOverrides(data, null, null, getClass().getClassLoader());
+        assertEquals(8081, data.getAttribute("port"));
+        gbean.setAttribute("port", "${port + portOffset}");
+        gbean.applyOverrides(data, null, null, getClass().getClassLoader());
+        assertEquals(8081, data.getAttribute("port"));
     }
 
     private void assertCopyIdentical(ServerOverride server) throws Exception {
@@ -294,21 +329,21 @@ public class ServerOverrideTest extends TestCase {
 
     private ServerOverride copy(ServerOverride server) throws Exception {
         Document doc = createDocument();
-        return new ServerOverride(readElement(server.writeXml(doc), "attributes"));
+        return new ServerOverride(readElement(server.writeXml(doc), "attributes"), expressionParser);
     }
 
     private ConfigurationOverride copy(ConfigurationOverride configuration) throws Exception {
         Document doc = createDocument();
         Element root = doc.createElement("temp");
         doc.appendChild(root);
-        return new ConfigurationOverride(readElement(configuration.writeXml(doc, root), "module"));
+        return new ConfigurationOverride(readElement(configuration.writeXml(doc, root), "module"), expressionParser);
     }
 
     private GBeanOverride copy(GBeanOverride gbean) throws Exception {
         Document doc = createDocument();
         Element root = doc.createElement("temp");
         doc.appendChild(root);
-        return new GBeanOverride(readElement(gbean.writeXml(doc, root), "gbean"));
+        return new GBeanOverride(readElement(gbean.writeXml(doc, root), "gbean"), expressionParser);
     }
 
     private Element parseXml(InputStream in, String name) throws Exception {

@@ -17,20 +17,18 @@
 
 package org.apache.geronimo.system.configuration;
 
-import org.apache.geronimo.system.configuration.condition.ConditionParser;
-import org.apache.geronimo.system.configuration.condition.JexlConditionParser;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.kernel.InvalidGBeanException;
 import org.apache.geronimo.kernel.repository.Artifact;
-
+import org.apache.geronimo.system.configuration.condition.ConditionParser;
+import org.apache.geronimo.system.configuration.condition.JexlConditionParser;
+import org.apache.geronimo.system.configuration.condition.JexlExpressionParser;
+import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
-import org.w3c.dom.Document;
-
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.Map;
 
 /**
  * @version $Rev$ $Date$
@@ -39,7 +37,7 @@ class ConfigurationOverride {
     private final Artifact name;
     private boolean load;
     private String condition;
-    private final Map gbeans = new LinkedHashMap();
+    private final Map<Object, GBeanOverride> gbeans = new LinkedHashMap<Object, GBeanOverride>();
 
     /**
      * Cached condition parser; lazy init on the first call to {@link #parseCondition()}
@@ -61,15 +59,13 @@ class ConfigurationOverride {
         this.name = name;
         this.load = base.load;
         this.condition = base.condition;
-        for (Iterator it = base.gbeans.keySet().iterator(); it.hasNext();) {
-            Object gbeanName = it.next();
-            GBeanOverride gbean = (GBeanOverride) base.gbeans.get(gbeanName);
+        for (GBeanOverride gbean : base.gbeans.values()) {
             GBeanOverride replacement = new GBeanOverride(gbean, base.name.toString(), name.toString());
             gbeans.put(replacement.getName(), replacement);
         }
     }
 
-    public ConfigurationOverride(Element element) throws InvalidGBeanException {
+    public ConfigurationOverride(Element element, JexlExpressionParser expressionParser) throws InvalidGBeanException {
         name = Artifact.create(element.getAttribute("name"));
         
         condition = element.getAttribute("condition");
@@ -80,7 +76,7 @@ class ConfigurationOverride {
         NodeList gbeans = element.getElementsByTagName("gbean");
         for (int g = 0; g < gbeans.getLength(); g++) {
             Element gbeanElement = (Element) gbeans.item(g);
-            GBeanOverride gbean = new GBeanOverride(gbeanElement);
+            GBeanOverride gbean = new GBeanOverride(gbeanElement, expressionParser);
             addGBean(gbean);
         }
     }
@@ -120,7 +116,7 @@ class ConfigurationOverride {
     }
     
     public GBeanOverride getGBean(String gbeanName) {
-        return (GBeanOverride) gbeans.get(gbeanName);
+        return gbeans.get(gbeanName);
     }
 
     public void addGBean(GBeanOverride gbean) {
@@ -136,7 +132,7 @@ class ConfigurationOverride {
     }
 
     public GBeanOverride getGBean(AbstractName gbeanName) {
-        return (GBeanOverride) gbeans.get(gbeanName);
+        return gbeans.get(gbeanName);
     }
 
     public void addGBean(AbstractName gbeanName, GBeanOverride gbean) {
@@ -155,9 +151,7 @@ class ConfigurationOverride {
         }
 
         // GBeans
-        for (Iterator gb = gbeans.entrySet().iterator(); gb.hasNext();) {
-            Map.Entry gbean = (Map.Entry) gb.next();
-            GBeanOverride gbeanOverride = (GBeanOverride) gbean.getValue();
+        for (GBeanOverride gbeanOverride : gbeans.values()) {
             gbeanOverride.writeXml(doc, module);
         }
         return module;

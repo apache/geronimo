@@ -16,17 +16,16 @@
  */
 package org.apache.geronimo.system.configuration.condition;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Properties;
+
 import org.apache.commons.jexl.Expression;
 import org.apache.commons.jexl.ExpressionFactory;
 import org.apache.commons.jexl.JexlContext;
 import org.apache.commons.jexl.JexlHelper;
-
-import java.util.Properties;
-import java.util.Map;
-import java.util.HashMap;
-import java.util.Collections;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 /**
  * Provides a simple facility to evaluate condition expressions using the
@@ -43,11 +42,11 @@ public class JexlConditionParser
 {
     private static final Log log = LogFactory.getLog(JexlConditionParser.class);
 
-    private final Map vars;
+    private final Map<String, Object> vars;
 
     public JexlConditionParser() {
         // Setup the default vars
-        vars = new HashMap();
+        vars = new HashMap<String, Object>();
         
         vars.put("java", new JavaVariable());
         vars.put("os", new OsVariable());
@@ -87,7 +86,7 @@ public class JexlConditionParser
         }
 
         if (result instanceof Boolean) {
-            return ((Boolean)result).booleanValue();
+            return (Boolean) result;
         }
         else {
             throw new ConditionParserException("Expression '" + expression + "' did not evaluate to a boolean value; found: " + result);
