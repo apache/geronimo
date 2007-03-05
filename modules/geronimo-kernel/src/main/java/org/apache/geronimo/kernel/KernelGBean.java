@@ -334,6 +334,10 @@ public class KernelGBean implements Kernel{
         return kernel.invoke(objectName, methodName, args, types);
     }
 
+    public String getStateReason(AbstractName abstractName) {
+        return kernel.getStateReason(abstractName);
+    }
+
     public Object invoke(AbstractName abstractName, String methodName, Object[] args, String[] types) throws GBeanNotFoundException, NoSuchOperationException, InternalKernelException, Exception {
         return kernel.invoke(abstractName, methodName, args, types);
     }

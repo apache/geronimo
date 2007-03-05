@@ -537,6 +537,16 @@ public class KernelDelegate implements Kernel {
         return invokeKernel("invoke", new Object[]{objectName, methodName, args, types}, new String[]{ObjectName.class.getName(), String.class.getName(), Object[].class.getName(), String[].class.getName()});
     }
 
+    public String getStateReason(AbstractName abstractName) {
+        try {
+            return ((String) invokeKernel("getStateReason", new Object[]{abstractName}, new String[]{AbstractName.class.getName()}));
+        } catch (RuntimeException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new InternalKernelException(e);
+        }
+    }
+
     public Object invoke(AbstractName abstractName, String methodName, Object[] args, String[] types) throws GBeanNotFoundException, NoSuchOperationException, InternalKernelException, Exception {
         return invokeKernel("invoke", new Object[]{abstractName, methodName, args, types}, new String[]{AbstractName.class.getName(), String.class.getName(), Object[].class.getName(), String[].class.getName()});
     }

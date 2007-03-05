@@ -373,4 +373,6 @@ public interface Kernel {
      * @deprecated Use AbstractName version instead
      */
     Object invoke(ObjectName name, String methodName, Object[] args, String[] types) throws GBeanNotFoundException, NoSuchOperationException, InternalKernelException, Exception;
+
+    String getStateReason(AbstractName abstractName);
 }
