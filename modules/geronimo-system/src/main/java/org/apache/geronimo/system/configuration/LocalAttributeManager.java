@@ -615,7 +615,7 @@ public class LocalAttributeManager implements PluginAttributeStore, PersistentCo
             File thePropertiesFile = serverInfo.resolveServer(propertiesFile);
             log.debug("Loading properties file " + thePropertiesFile.getAbsolutePath());
             try {
-                properties.load(new FileInputStream(propertiesFile));
+                properties.load(new FileInputStream(thePropertiesFile));
             } catch (Exception e) {
                 log.error("Caught exception " + e
                         + " trying to open properties file " + thePropertiesFile.getAbsolutePath());
