@@ -45,6 +45,7 @@
         </reference>
         <attribute name="readOnly">true</attribute>
         <attribute name="configFile">var/config/jsr88-configurer-config.xml</attribute>
+        <attribute name="substitutionsFile">var/config/config-substitutions.properties</attribute>
     </gbean>
 
     <!-- ArtifactManager -->
