@@ -82,10 +82,10 @@
             <artifactId>juli</artifactId>
         </dependency>
 
-        <dependency>
-            <groupId>jstl</groupId>
-            <artifactId>jstl</artifactId>
-        </dependency>
+        <!--<dependency>-->
+            <!--<groupId>jstl</groupId>-->
+            <!--<artifactId>jstl</artifactId>-->
+        <!--</dependency>-->
 
         <!-- start myfaces dependencies -->
 
