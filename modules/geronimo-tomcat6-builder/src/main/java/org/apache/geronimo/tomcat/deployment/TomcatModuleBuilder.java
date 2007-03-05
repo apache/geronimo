@@ -131,17 +131,13 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder {
 
             // read in the entire specDD as a string, we need this for getDeploymentDescriptor
             // on the J2ee management object
-            try {
-                specDD = DeploymentUtil.readAll(specDDUrl);
+            specDD = DeploymentUtil.readAll(specDDUrl);
 
-                // we found web.xml, if it won't parse that's an error.
-                XmlObject parsed = XmlBeansUtil.parse(specDD);
-                WebAppDocument webAppDoc = convertToServletSchema(parsed);
-                webApp = webAppDoc.getWebApp();
-                check(webApp);
-            } catch (FileNotFoundException fnfe) {
-                webApp = WebAppType.Factory.newInstance();
-            }
+            // we found web.xml, if it won't parse that's an error.
+            XmlObject parsed = XmlBeansUtil.parse(specDD);
+            WebAppDocument webAppDoc = convertToServletSchema(parsed);
+            webApp = webAppDoc.getWebApp();
+            check(webApp);
         } catch (XmlException e) {
             // Output the target path in the error to make it clearer to the user which webapp
             // has the problem.  The targetPath is used, as moduleFile may have an unhelpful
@@ -154,6 +150,9 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder {
             }
             //else ignore as jee5 allows optional spec dd for .war's
         }
+
+        if (webApp == null)
+            webApp = WebAppType.Factory.newInstance();
 
         // parse vendor dd
         TomcatWebAppType tomcatWebApp = getTomcatWebApp(plan, moduleFile, standAlone, targetPath, webApp);

@@ -109,9 +109,6 @@ public class TomcatModuleBuilderTest extends TestSupport {
         verifyStartable("war6-jee5");
     }
 
-    public void testDeployWarNoDD() throws Exception {
-        verifyStartable("war-no-dd");
-    }
     public void testContextRootWithSpaces() throws Exception {
         WebModuleInfo info = deployWar("war-spaces-in-context");
         String contextRoot = (String) kernel.getAttribute(info.moduleName, "contextPath");
