@@ -100,6 +100,7 @@ public class DerbySystemGBean implements DerbySystem, GBeanLifecycle {
         infoFactory.addAttribute("derbyHome", String.class, false);
         infoFactory.addReference("ServerInfo", ServerInfo.class, "GBean");
         infoFactory.setConstructor(new String[]{"ServerInfo", "derbySystemHome"});
+        infoFactory.setPriority(GBeanInfo.PRIORITY_CLASSLOADER);
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
 }
