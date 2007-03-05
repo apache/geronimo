@@ -116,6 +116,11 @@
                                 </artifactItem>
                                 <artifactItem>
                                     <groupId>org.apache.geronimo.modules</groupId>
+                                    <artifactId>geronimo-deploy-config</artifactId>
+                                    <version>${version}</version>
+                                </artifactItem>
+                                <artifactItem>
+                                    <groupId>org.apache.geronimo.modules</groupId>
                                     <artifactId>geronimo-deploy-jsr88</artifactId>
                                     <version>${version}</version>
                                 </artifactItem>

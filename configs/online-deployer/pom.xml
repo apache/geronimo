@@ -75,6 +75,11 @@
                         </element>
                         <element>
                             <groupId>org.apache.geronimo.modules</groupId>
+                            <artifactId>geronimo-deploy-config</artifactId>
+                            <version>${version}</version>
+                        </element>
+                        <element>
+                            <groupId>org.apache.geronimo.modules</groupId>
                             <artifactId>geronimo-deploy-jsr88</artifactId>
                             <version>${version}</version>
                         </element>
