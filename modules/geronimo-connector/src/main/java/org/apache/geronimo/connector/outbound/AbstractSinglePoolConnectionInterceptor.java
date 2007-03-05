@@ -304,6 +304,8 @@ public abstract class AbstractSinglePoolConnectionInterceptor implements Connect
                     interceptor.internalReturn(killInfo, ConnectionReturnAction.DESTROY);
                 }
                 interceptor.permits.release(killList.size());
+            } catch (Throwable t) {
+                log.error("Error occurred during execution of ExpirationMonitor TimerTask", t);
             } finally {
                 interceptor.resizeLock.readLock().unlock();
             }
@@ -342,6 +344,8 @@ public abstract class AbstractSinglePoolConnectionInterceptor implements Connect
                         return;
                     }
                 }
+            } catch (Throwable t) {
+                log.error("FillTask encountered error in run method", t);
             } finally {
                 resizeLock.readLock().unlock();
             }

@@ -410,23 +410,27 @@ public class JaasLoginService implements GBeanLifecycle, JaasLoginServiceMBean {
     private class ExpirationMonitor extends TimerTask { //todo: different timeouts per realm?
 
         public void run() {
-            long now = System.currentTimeMillis();
-            List list = new LinkedList();
-            synchronized (activeLogins) {
-                for (Iterator it = activeLogins.keySet().iterator(); it.hasNext();) {
-                    JaasSessionId id = (JaasSessionId) it.next();
-                    JaasSecuritySession session = (JaasSecuritySession) activeLogins.get(id);
-                    int age = (int) (now - session.getCreated());
-                    if (session.isDone() || age > maxLoginDurationMillis) {
-                        list.add(session);
-                        session.setDone(true);
-                        it.remove();
+            try {
+                long now = System.currentTimeMillis();
+                List list = new LinkedList();
+                synchronized (activeLogins) {
+                    for (Iterator it = activeLogins.keySet().iterator(); it.hasNext();) {
+                        JaasSessionId id = (JaasSessionId) it.next();
+                        JaasSecuritySession session = (JaasSecuritySession) activeLogins.get(id);
+                        int age = (int) (now - session.getCreated());
+                        if (session.isDone() || age > maxLoginDurationMillis) {
+                            list.add(session);
+                            session.setDone(true);
+                            it.remove();
+                        }
                     }
                 }
-            }
-            for (Iterator it = list.iterator(); it.hasNext();) {
-                JaasSecuritySession session = (JaasSecuritySession) it.next();
-                ContextManager.unregisterSubject(session.getSubject());
+                for (Iterator it = list.iterator(); it.hasNext();) {
+                    JaasSecuritySession session = (JaasSecuritySession) it.next();
+                    ContextManager.unregisterSubject(session.getSubject());
+                }
+            } catch (Throwable t) {
+                log.error("Error occurred during execution of ExpirationMonitor TimerTask", t);
             }
         }
     }

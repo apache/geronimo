@@ -47,7 +47,11 @@ public class ExecutorFeedingTimerTask extends TimerTask {
     }
 
     public void run() {
-        threadPooledTimer.getExecutor().execute(workInfo.getExecutorTask());
+        try {
+            threadPooledTimer.getExecutor().execute(workInfo.getExecutorTask());
+        } catch (Throwable t) {
+            log.error("Error occurred during execution of ExpirationMonitor TimerTask", t);
+        }
     }
 
     public boolean cancel() {

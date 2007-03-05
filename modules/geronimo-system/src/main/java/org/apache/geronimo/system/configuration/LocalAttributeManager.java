@@ -599,7 +599,9 @@ public class LocalAttributeManager implements PluginAttributeStore, PersistentCo
                     try {
                         LocalAttributeManager.this.save();
                     } catch (IOException e) {
-                        log.error("Error saving attributes", e);
+                        log.error("IOException occurred while saving attributes", e);
+                    } catch (Throwable t) {
+                        log.error("Error occurred during execution of attributeChanged TimerTask", t);
                     }
                 }
             };
