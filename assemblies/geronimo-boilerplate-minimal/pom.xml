@@ -158,16 +158,22 @@
                         <configuration>
                             <artifactItems>
 
+                                <!--<artifactItem>-->
+                                    <!--<groupId>xalan</groupId>-->
+                                    <!--<artifactId>xalan</artifactId>-->
+                                <!--</artifactItem>-->
+
                                 <artifactItem>
-                                    <groupId>xalan</groupId>
-                                    <artifactId>xalan</artifactId>
+                                    <groupId>org.apache.geronimo.modules</groupId>
+                                    <artifactId>geronimo-xalan</artifactId>
+                                    <version>${version}</version>
                                 </artifactItem>
 
                                 <artifactItem>
                                     <groupId>xerces</groupId>
                                     <artifactId>xercesImpl</artifactId>
                                 </artifactItem>
-                                
+
                                 <artifactItem>
                                     <groupId>xml-apis</groupId>
                                     <artifactId>xml-apis</artifactId>

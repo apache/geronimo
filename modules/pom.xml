@@ -97,6 +97,9 @@
         <module>geronimo-webservices</module>
         <module>geronimo-webservices-builder</module>
 
+        <!-- xalan hack modification -->
+        <module>geronimo-xalan</module>
+
         <!-- jee 5 modules -->
         <module>geronimo-transformer</module>
         <module>geronimo-persistence-jpa10</module>
