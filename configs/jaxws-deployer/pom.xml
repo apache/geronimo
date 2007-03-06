@@ -62,11 +62,11 @@
             <version>${version}</version>
         </dependency>
 
-        <dependency>
-            <groupId>org.apache.xbean</groupId>
-            <artifactId>xbean-finder</artifactId>
-            <scope>runtime</scope>
-        </dependency>
+        <!--<dependency>-->
+            <!--<groupId>org.apache.xbean</groupId>-->
+            <!--<artifactId>xbean-finder</artifactId>-->
+            <!--<scope>runtime</scope>-->
+        <!--</dependency>-->
         
     </dependencies>
     

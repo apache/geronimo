@@ -49,10 +49,10 @@
             <version>${version}</version>
         </dependency>
 
-        <dependency>
-            <groupId>org.apache.xbean</groupId>
-            <artifactId>xbean-finder</artifactId>
-        </dependency>
+        <!--<dependency>-->
+            <!--<groupId>org.apache.xbean</groupId>-->
+            <!--<artifactId>xbean-finder</artifactId>-->
+        <!--</dependency>-->
 
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>

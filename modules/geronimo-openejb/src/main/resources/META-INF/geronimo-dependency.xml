@@ -61,10 +61,11 @@
       <groupId>org.apache.xbean</groupId>
       <artifactId>xbean-reflect</artifactId>
     </dependency>
-    <dependency>
-      <groupId>org.apache.xbean</groupId>
-      <artifactId>xbean-finder</artifactId>
-    </dependency>
+    <!-- moved to the openejb config -->
+    <!--<dependency>-->
+      <!--<groupId>org.apache.xbean</groupId>-->
+      <!--<artifactId>xbean-finder</artifactId>-->
+    <!--</dependency>-->
     <dependency>
       <groupId>org.codehaus.swizzle</groupId>
       <artifactId>swizzle-stream</artifactId>
