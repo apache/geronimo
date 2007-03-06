@@ -89,6 +89,10 @@ public class InternalJettyServletHolder extends ServletHolder {
         return servletRegistration.newInstance(_class);
     }
 
+    public void destroyInstance(Object o) throws Exception {
+        servletRegistration.destroyInstance(o);
+    }
+
     /**
      * Provide the thread's current JettyServletHolder
      *

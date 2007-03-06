@@ -49,6 +49,7 @@ import org.apache.geronimo.system.serverinfo.BasicServerInfo;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
 import org.apache.geronimo.transaction.manager.TransactionManagerImpl;
 import org.apache.geronimo.j2ee.annotation.Injection;
+import org.apache.geronimo.j2ee.annotation.Holder;
 import org.mortbay.jetty.security.Authenticator;
 import org.mortbay.jetty.security.FormAuthenticator;
 
@@ -116,7 +117,7 @@ public class AbstractWebModuleTest extends TestSupport {
                 defaultPrincipal,
                 checkedPermissions,
                 excludedPermissions,
-                new HashMap<String, List<Injection>>(),
+                new HashMap<String, Holder>(),
                 null,
                 transactionManager,
                 connectionTrackingCoordinator,

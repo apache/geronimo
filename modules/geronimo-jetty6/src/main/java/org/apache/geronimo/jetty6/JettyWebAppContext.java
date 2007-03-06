@@ -29,6 +29,7 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 import java.util.List;
+import java.lang.reflect.InvocationTargetException;
 
 import javax.faces.FactoryFinder;
 import javax.management.MalformedObjectNameException;
@@ -46,6 +47,8 @@ import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.j2ee.management.impl.InvalidObjectNameException;
 import org.apache.geronimo.j2ee.annotation.Injection;
+import org.apache.geronimo.j2ee.annotation.Holder;
+import org.apache.geronimo.j2ee.annotation.LifecycleMethod;
 import org.apache.geronimo.jetty6.handler.AbstractImmutableHandler;
 import org.apache.geronimo.jetty6.handler.ComponentContextHandler;
 import org.apache.geronimo.jetty6.handler.InstanceContextHandler;
@@ -100,7 +103,7 @@ public class JettyWebAppContext implements GBeanLifecycle, JettyServletRegistrat
     private final WebAppContext webAppContext;//delegate
     private final AbstractImmutableHandler lifecycleChain;
     private final Context componentContext;
-    private final Map<String, List<Injection>> injectionMap;
+    private final Map<String, Holder> injectionMap;
 
     private final Set servletNames = new HashSet();
 
@@ -152,7 +155,7 @@ public class JettyWebAppContext implements GBeanLifecycle, JettyServletRegistrat
             PermissionCollection checkedPermissions,
             PermissionCollection excludedPermissions,
 
-            Map<String, List<Injection>> injectionMap,
+            Map<String, Holder> injectionMap,
 
             Host host,
             TransactionManager transactionManager,
@@ -344,7 +347,11 @@ public class JettyWebAppContext implements GBeanLifecycle, JettyServletRegistrat
         objectRecipe.allow(Option.PRIVATE_PROPERTIES);
         objectRecipe.allow(Option.IGNORE_MISSING_PROPERTIES);
         String className = clazz.getName();
-        List<Injection> injections = injectionMap.get(className);
+        Holder holder = injectionMap.get(className);
+        if (holder == null) {
+            holder = Holder.EMPTY;
+        }
+        List<Injection> injections = holder.getInjections();
         if (injections != null) {
             for (Injection injection : injections) {
                 try {
@@ -371,8 +378,28 @@ public class JettyWebAppContext implements GBeanLifecycle, JettyServletRegistrat
 //                log.warning("Injection: No such property '"+property+"' in class "+_class.getName());
             }
         }
+        LifecycleMethod postConstruct = holder.getPostConstruct();
+        if (postConstruct != null) {
+            try {
+                postConstruct.call(filter);
+            } catch (InvocationTargetException e) {
+                Throwable cause = e.getCause();
+                throw (InstantiationException)new InstantiationException("Could not call postConstruct method").initCause(cause);
+            }
+        }
         return filter;
 
+    }
+
+    public void destroyInstance(Object o) throws Exception {
+        Class clazz = o.getClass();
+        Holder holder = injectionMap.get(clazz.getName());
+        if (holder != null) {
+            LifecycleMethod lifecycleMethod = holder.getPreDestroy();
+            if (lifecycleMethod != null) {
+                lifecycleMethod.call(o);
+            }
+        }
     }
 
     public void doStart() throws Exception {

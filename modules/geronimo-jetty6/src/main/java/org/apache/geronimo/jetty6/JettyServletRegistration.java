@@ -18,6 +18,7 @@ package org.apache.geronimo.jetty6;
 
 import java.util.Set;
 import java.util.Map;
+import java.lang.reflect.InvocationTargetException;
 
 import javax.naming.Context;
 
@@ -41,5 +42,6 @@ public interface JettyServletRegistration {
     AbstractImmutableHandler getLifecycleChain();
 
     Object newInstance(Class clazz) throws InstantiationException, IllegalAccessException;
-    
+
+    void destroyInstance(Object o) throws Exception;
 }

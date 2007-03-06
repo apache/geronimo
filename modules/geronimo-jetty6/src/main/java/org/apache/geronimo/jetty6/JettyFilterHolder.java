@@ -17,19 +17,11 @@
 package org.apache.geronimo.jetty6;
 
 import java.util.Map;
-import java.util.List;
-
-import javax.naming.Context;
-import javax.naming.NamingException;
 
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
-import org.apache.geronimo.j2ee.annotation.Injection;
-import org.apache.xbean.recipe.ObjectRecipe;
-import org.apache.xbean.recipe.Option;
-import org.apache.xbean.recipe.StaticRecipe;
 import org.mortbay.jetty.servlet.FilterHolder;
 
 /**
@@ -94,6 +86,22 @@ public class JettyFilterHolder implements GBeanLifecycle {
         public synchronized Object newInstance() throws InstantiationException, IllegalAccessException {
             return servletRegistration.newInstance(_class);
         }
+
+
+        public void doStop() {
+            //TODO ask jetty folks to have a Holder destroyInstance method.
+            super.doStop();
+            try {
+                destroyInstance(getFilter());
+            } catch (Exception e) {
+                //guess we should log it
+            }
+        }
+
+        public void destroyInstance(Object o) throws Exception {
+            servletRegistration.destroyInstance(o);
+        }
+
     }
     
     public static final GBeanInfo GBEAN_INFO;

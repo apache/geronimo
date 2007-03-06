@@ -66,6 +66,7 @@ import org.apache.geronimo.j2ee.deployment.WebModule;
 import org.apache.geronimo.j2ee.deployment.WebServiceBuilder;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.j2ee.annotation.Injection;
+import org.apache.geronimo.j2ee.annotation.Holder;
 import org.apache.geronimo.jetty6.Host;
 import org.apache.geronimo.jetty6.JettyDefaultServletHolder;
 import org.apache.geronimo.jetty6.JettyFilterHolder;
@@ -332,6 +333,11 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
         getNamingBuilders().buildNaming(webApp, jettyWebApp, earConfiguration, earConfiguration, (Module) webModule, buildingContext);
         Map compContext = NamingBuilder.JNDI_KEY.get(buildingContext);
         Map<String, List<Injection>> injections = NamingBuilder.INJECTION_KEY.get(buildingContext);
+        Map<String, Holder> holders = new HashMap<String, Holder> ();
+        //TODO naming builders should return the holder map
+        for (Map.Entry<String, List<Injection>> entry: injections.entrySet()) {
+            holders.put(entry.getKey(), new Holder(entry.getValue(), null, null));
+        }
 
         GBeanData webModuleData = new GBeanData(moduleName, JettyWebAppContext.GBEAN_INFO);
         try {
@@ -343,7 +349,7 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
                 webModuleData.setReferencePattern("J2EEApplication", earContext.getModuleName());
             }
 
-            webModuleData.setAttribute("injections", injections);
+            webModuleData.setAttribute("injections", holders);
 
             webModuleData.setAttribute("deploymentDescriptor", module.getOriginalSpecDD());
             Set securityRoles = collectRoleNames(webApp);
