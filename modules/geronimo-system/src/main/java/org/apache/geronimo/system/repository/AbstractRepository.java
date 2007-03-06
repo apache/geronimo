@@ -121,7 +121,11 @@ public abstract class AbstractRepository implements WriteableRepository {
         } catch (MalformedURLException e) {
             throw (IllegalStateException)new IllegalStateException("Unable to get URL for dependency " + artifact).initCause(e);
         }
-        ClassLoader depCL = new URLClassLoader(new URL[]{url}, ClassLoader.getSystemClassLoader());
+        ClassLoader depCL = new URLClassLoader(new URL[]{url}, new ClassLoader() {
+            public URL getResource(String name) {
+                return null;
+            }
+        });
         InputStream is = depCL.getResourceAsStream("META-INF/geronimo-dependency.xml");
         try {
             if (is != null) {
