@@ -17,6 +17,8 @@
 
 package org.apache.geronimo.connector.deployment;
 
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
@@ -26,6 +28,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import javax.annotation.Resource;
 import javax.naming.Reference;
 import javax.xml.namespace.QName;
 
@@ -37,6 +40,7 @@ import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.j2ee.deployment.Module;
+import org.apache.geronimo.j2ee.deployment.annotation.AnnotatedApp;
 import org.apache.geronimo.j2ee.deployment.annotation.ResourceAnnotationHelper;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
@@ -49,7 +53,14 @@ import org.apache.geronimo.naming.reference.ResourceReference;
 import org.apache.geronimo.xbeans.geronimo.naming.GerPatternType;
 import org.apache.geronimo.xbeans.geronimo.naming.GerResourceRefDocument;
 import org.apache.geronimo.xbeans.geronimo.naming.GerResourceRefType;
+import org.apache.geronimo.xbeans.javaee.DescriptionType;
+import org.apache.geronimo.xbeans.javaee.FullyQualifiedClassType;
+import org.apache.geronimo.xbeans.javaee.InjectionTargetType;
+import org.apache.geronimo.xbeans.javaee.JndiNameType;
+import org.apache.geronimo.xbeans.javaee.ResAuthType;
+import org.apache.geronimo.xbeans.javaee.ResSharingScopeType;
 import org.apache.geronimo.xbeans.javaee.ResourceRefType;
+import org.apache.geronimo.xbeans.javaee.XsdStringType;
 import org.apache.xmlbeans.QNameSet;
 import org.apache.xmlbeans.XmlObject;
 
@@ -63,7 +74,7 @@ public class ResourceRefBuilder extends AbstractNamingBuilder implements Resourc
     private static final QName GER_RESOURCE_REF_QNAME = GerResourceRefDocument.type.getDocumentElementName();
     private static final QNameSet GER_RESOURCE_REF_QNAME_SET = QNameSet.singleton(GER_RESOURCE_REF_QNAME);
 
-    private  final QNameSet resourceRefQNameSet;
+    private final QNameSet resourceRefQNameSet;
 
     private static final String JAXR_CONNECTION_FACTORY_CLASS = "javax.xml.registry.ConnectionFactory";
     private static final String JAVAX_MAIL_SESSION_CLASS = "javax.mail.Session";
@@ -82,15 +93,22 @@ public class ResourceRefBuilder extends AbstractNamingBuilder implements Resourc
 
         // Discover and process any @Resource annotations (if !metadata-complete)
         if ((module != null) && (module.getClassFinder() != null)) {
-            processAnnotations(module);
+
+            // Process all the annotations for this naming builder type
+            try {
+                ResourceAnnotationHelper.processAnnotations(module.getAnnotatedApp(), module.getClassFinder(), ResourceRefProcessor.INSTANCE);
+            }
+            catch (Exception e) {
+                log.warn("Unable to process @Resource annotations for module" + module.getName(), e);
+            }
         }
 
         List<ResourceRefType> resourceRefsUntyped = convert(specDD.selectChildren(resourceRefQNameSet), J2EE_CONVERTER, ResourceRefType.class, ResourceRefType.type);
-        XmlObject[] gerResourceRefsUntyped = plan == null? NO_REFS: plan.selectChildren(GER_RESOURCE_REF_QNAME_SET);
+        XmlObject[] gerResourceRefsUntyped = plan == null ? NO_REFS : plan.selectChildren(GER_RESOURCE_REF_QNAME_SET);
         Map refMap = mapResourceRefs(gerResourceRefsUntyped);
         ClassLoader cl = module.getEarContext().getClassLoader();
 
-        for (ResourceRefType resourceRef: resourceRefsUntyped) {
+        for (ResourceRefType resourceRef : resourceRefsUntyped) {
             String name = resourceRef.getResRefName().getStringValue().trim();
             addInjections(name, resourceRef.getInjectionTargetArray(), componentContext);
             String type = resourceRef.getResType().getStringValue().trim();
@@ -165,7 +183,7 @@ public class ResourceRefBuilder extends AbstractNamingBuilder implements Resourc
         Map refMap = mapResourceRefs(gerResourceRefs);
         Set unshareableResources = new HashSet();
         Set applicationManagedSecurityResources = new HashSet();
-        for (ResourceRefType resourceRefType: resourceRefList) {
+        for (ResourceRefType resourceRefType : resourceRefList) {
 
             String type = resourceRefType.getResType().getStringValue().trim();
 
@@ -215,19 +233,6 @@ public class ResourceRefBuilder extends AbstractNamingBuilder implements Resourc
     }
 
 
-    private void processAnnotations(Module module) throws DeploymentException {
-
-        // Process all the annotations for this naming builder type
-        if (ResourceAnnotationHelper.annotationsPresent(module.getClassFinder())) {
-            try {
-                ResourceAnnotationHelper.processAnnotations(module.getAnnotatedApp(), module.getClassFinder());
-            }
-            catch (Exception e) {
-                log.warn("Unable to process @Resource annotations for module" + module.getName(), e);
-            }
-        }
-    }
-
     public QNameSet getSpecQNameSet() {
         return resourceRefQNameSet;
     }
@@ -236,6 +241,112 @@ public class ResourceRefBuilder extends AbstractNamingBuilder implements Resourc
         return GER_RESOURCE_REF_QNAME_SET;
     }
 
+    static class ResourceRefProcessor extends ResourceAnnotationHelper.ResourceProcessor {
+
+        public static final ResourceRefProcessor INSTANCE = new ResourceRefProcessor();
+
+        private ResourceRefProcessor() {
+        }
+
+        public boolean processResource(AnnotatedApp annotatedApp, Resource annotation, Class cls, Method method, Field field) {
+            String resourceName = getResourceName(annotation, method, field);
+            String resourceType = getResourceType(annotation, method, field);
+            if (resourceType.equals("javax.sql.DataSource") ||
+                    resourceType.equals("javax.jms.ConnectionFactory") ||
+                    resourceType.equals("javax.jms.QueueConnectionFactory") ||
+                    resourceType.equals("javax.jms.TopicConnectionFactory") ||
+                    resourceType.equals("javax.mail.Session") ||
+                    resourceType.equals("java.net.URL") ||
+                    resourceType.equals("javax.resource.cci.ConnectionFactory") ||
+                    resourceType.equals("org.omg.CORBA_2_3.ORB") ||
+                    resourceType.endsWith("ConnectionFactory")) {
+
+                log.debug("addResource(): <resource-ref> found");
+
+                boolean exists = false;
+                ResourceRefType[] resourceRefs = annotatedApp.getResourceRefArray();
+                for (ResourceRefType resourceRef : resourceRefs) {
+                    if (resourceRef.getResRefName().getStringValue().trim().equals(resourceName)) {
+                        exists = true;
+                        break;
+                    }
+                }
+                if (!exists) {
+                    try {
+
+                        log.debug("addResource(): Does not exist in DD: " + resourceName);
+
+                        // Doesn't exist in deployment descriptor -- add new
+                        ResourceRefType resourceRef = annotatedApp.addNewResourceRef();
+
+                        //------------------------------------------------------------------------------
+                        // <resource-ref> required elements:
+                        //------------------------------------------------------------------------------
+
+                        // resource-ref-name
+                        JndiNameType resourceRefName = resourceRef.addNewResRefName();
+                        resourceRefName.setStringValue(resourceName);
+                        resourceRef.setResRefName(resourceRefName);
+
+                        if (!resourceType.equals("")) {
+                            // resource-ref-type
+                            FullyQualifiedClassType qualifiedClass = resourceRef.addNewResType();
+                            qualifiedClass.setStringValue(resourceType);
+                            resourceRef.setResType(qualifiedClass);
+                        } else if (method != null || field != null) {
+                            // injectionTarget
+                            InjectionTargetType injectionTarget = resourceRef.addNewInjectionTarget();
+                            configureInjectionTarget(injectionTarget, method, field);
+                        }
+
+                        //------------------------------------------------------------------------------
+                        // <resource-ref> optional elements:
+                        //------------------------------------------------------------------------------
+
+                        // description
+                        String descriptionAnnotation = annotation.description();
+                        if (!descriptionAnnotation.equals("")) {
+                            DescriptionType description = resourceRef.addNewDescription();
+                            description.setStringValue(descriptionAnnotation);
+                        }
+
+                        // authentication
+                        if (annotation.authenticationType() == Resource.AuthenticationType.CONTAINER) {
+                            ResAuthType resAuth = resourceRef.addNewResAuth();
+                            resAuth.setStringValue("Container");
+                            resourceRef.setResAuth(resAuth);
+                        } else if (annotation.authenticationType() == Resource.AuthenticationType.APPLICATION) {
+                            ResAuthType resAuth = resourceRef.addNewResAuth();
+                            resAuth.setStringValue("Application");
+                            resourceRef.setResAuth(resAuth);
+                        }
+
+                        // sharing scope
+                        ResSharingScopeType resScope = resourceRef.addNewResSharingScope();
+                        resScope.setStringValue(annotation.shareable() ? "Shareable" : "Unshareable");
+                        resourceRef.setResSharingScope(resScope);
+
+                        // mappedName
+                        String mappdedNameAnnotation = annotation.mappedName();
+                        if (!mappdedNameAnnotation.equals("")) {
+                            XsdStringType mappedName = resourceRef.addNewMappedName();
+                            mappedName.setStringValue(mappdedNameAnnotation);
+                            resourceRef.setMappedName(mappedName);
+                        }
+
+                    }
+                    catch (Exception anyException) {
+                        log.debug("ResourceAnnotationHelper: Exception caught while processing <resource-ref>");
+                        anyException.printStackTrace();
+                    }
+                }
+                return true;
+            }
+            return false;
+        }
+    }
+
+
     public static final GBeanInfo GBEAN_INFO;
 
     static {
@@ -243,7 +354,7 @@ public class ResourceRefBuilder extends AbstractNamingBuilder implements Resourc
         infoBuilder.addAttribute("eeNamespaces", String[].class, true, true);
         infoBuilder.addAttribute("defaultEnvironment", Environment.class, true, true);
 
-        infoBuilder.setConstructor(new String[] {"defaultEnvironment", "eeNamespaces"});
+        infoBuilder.setConstructor(new String[]{"defaultEnvironment", "eeNamespaces"});
 
         GBEAN_INFO = infoBuilder.getBeanInfo();
     }

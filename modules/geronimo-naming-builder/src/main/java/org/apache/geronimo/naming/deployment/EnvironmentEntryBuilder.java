@@ -19,8 +19,10 @@ package org.apache.geronimo.naming.deployment;
 
 import java.util.Map;
 import java.util.List;
+import java.lang.reflect.Method;
+import java.lang.reflect.Field;
 
-import javax.xml.namespace.QName;
+import javax.annotation.Resource;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -29,13 +31,17 @@ import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.j2ee.deployment.annotation.ResourceAnnotationHelper;
+import org.apache.geronimo.j2ee.deployment.annotation.AnnotatedApp;
 import org.apache.geronimo.j2ee.deployment.Module;
-import org.apache.geronimo.j2ee.deployment.NamingBuilder;
 import org.apache.geronimo.kernel.config.Configuration;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.naming.reference.KernelReference;
 import org.apache.geronimo.xbeans.javaee.EnvEntryType;
-import org.apache.geronimo.schema.NamespaceElementConverter;
+import org.apache.geronimo.xbeans.javaee.JndiNameType;
+import org.apache.geronimo.xbeans.javaee.EnvEntryTypeValuesType;
+import org.apache.geronimo.xbeans.javaee.InjectionTargetType;
+import org.apache.geronimo.xbeans.javaee.XsdStringType;
+import org.apache.geronimo.xbeans.javaee.DescriptionType;
 import org.apache.xmlbeans.QNameSet;
 import org.apache.xmlbeans.XmlObject;
 
@@ -61,7 +67,14 @@ public class EnvironmentEntryBuilder extends AbstractNamingBuilder {
 
         // Discover and process any @Resource annotations (if !metadata-complete)
         if ((module != null) && (module.getClassFinder() != null)) {
-            processAnnotations(module);
+
+            // Process all the annotations for this naming builder type
+            try {
+                ResourceAnnotationHelper.processAnnotations(module.getAnnotatedApp(), module.getClassFinder(), EnvEntryRefProcessor.INSTANCE);
+            }
+            catch (Exception e) {
+                log.warn("Unable to process @Resource annotations for module" + module.getName(), e);
+            }
         }
 
         List<EnvEntryType> envEntriesUntyped = convert(specDD.selectChildren(envEntryQNameSet), JEE_CONVERTER, EnvEntryType.class, EnvEntryType.type);
@@ -107,25 +120,93 @@ public class EnvironmentEntryBuilder extends AbstractNamingBuilder {
 
     }
 
-    private void processAnnotations(Module module) throws DeploymentException {
-
-        // Process all the annotations for this naming builder type
-        if (ResourceAnnotationHelper.annotationsPresent(module.getClassFinder())) {
-            try {
-                ResourceAnnotationHelper.processAnnotations(module.getAnnotatedApp(), module.getClassFinder());
-            }
-            catch (Exception e) {
-                log.warn("Unable to process @Resource annotations for module" + module.getName(), e);
-            }
-        }
-    }
-
     public QNameSet getSpecQNameSet() {
         return envEntryQNameSet;
     }
 
     public QNameSet getPlanQNameSet() {
         return QNameSet.EMPTY;
+    }
+
+    static class EnvEntryRefProcessor extends ResourceAnnotationHelper.ResourceProcessor {
+
+        public static final EnvEntryRefProcessor INSTANCE = new EnvEntryRefProcessor();
+
+        private EnvEntryRefProcessor() {
+        }
+
+        public boolean processResource(AnnotatedApp annotatedApp, Resource annotation, Class cls, Method method, Field field) {
+            String resourceName = getResourceName(annotation, method, field);
+            String resourceType = getResourceType(annotation, method, field);
+            if (resourceType.equals("java.lang.String") ||
+                    resourceType.equals("java.lang.Character") ||
+                    resourceType.equals("java.lang.Integer") ||
+                    resourceType.equals("java.lang.Boolean") ||
+                    resourceType.equals("java.lang.Double") ||
+                    resourceType.equals("java.lang.Byte") ||
+                    resourceType.equals("java.lang.Short") ||
+                    resourceType.equals("java.lang.Long") ||
+                    resourceType.equals("java.lang.Float")) {
+
+                log.debug("addResource(): <env-entry> found");
+
+                boolean exists = false;
+                EnvEntryType[] envEntries = annotatedApp.getEnvEntryArray();
+                for (EnvEntryType envEntry : envEntries) {
+                    if (envEntry.getEnvEntryName().getStringValue().trim().equals(resourceName)) {
+                        exists = true;
+                        break;
+                    }
+                }
+                if (!exists) {
+                    try {
+
+                        log.debug("addResource(): Does not exist in DD: " + resourceName);
+
+                        // Doesn't exist in deployment descriptor -- add new
+                        EnvEntryType envEntry = annotatedApp.addNewEnvEntry();
+
+                        //------------------------------------------------------------------------------
+                        // <env-entry> required elements:
+                        //------------------------------------------------------------------------------
+
+                        // env-entry-name
+                        JndiNameType envEntryName = envEntry.addNewEnvEntryName();
+                        envEntryName.setStringValue(resourceName);
+
+                        if (!resourceType.equals("")) {
+                            // env-entry-type
+                            EnvEntryTypeValuesType envEntryType = envEntry.addNewEnvEntryType();
+                            envEntryType.setStringValue(resourceType);
+                        } else if (method != null || field != null) {
+                            // injectionTarget
+                            InjectionTargetType injectionTarget = envEntry.addNewInjectionTarget();
+                            configureInjectionTarget(injectionTarget, method, field);
+                        }
+
+                        // env-entry-value
+                        XsdStringType value = envEntry.addNewEnvEntryValue();
+                        value.setStringValue(annotation.mappedName());
+
+                        //------------------------------------------------------------------------------
+                        // <env-entry> optional elements:
+                        //------------------------------------------------------------------------------
+
+                        // description
+                        String descriptionAnnotation = annotation.description();
+                        if (!descriptionAnnotation.equals("")) {
+                            DescriptionType description = envEntry.addNewDescription();
+                            description.setStringValue(descriptionAnnotation);
+                        }
+
+                    }
+                    catch (Exception anyException) {
+                        log.debug("ResourceAnnotationHelper: Exception caught while processing <env-entry>");
+                    }
+                }
+            }
+            return false;
+        }
     }
 
     public static final GBeanInfo GBEAN_INFO;

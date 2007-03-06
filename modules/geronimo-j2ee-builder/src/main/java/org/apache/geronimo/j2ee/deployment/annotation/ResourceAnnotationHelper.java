@@ -53,22 +53,22 @@ import org.apache.xbean.finder.ClassFinder;
  * <strong>@Resource</strong> and <strong>@Resources</strong> annotations to deployment descriptor
  * tags. The ResourceAnnotationHelper class can be used as part of the deployment of a module into
  * the Geronimo server. It performs the following major functions:
- *
+ * <p/>
  * <ol>
- *      <li>Translates annotations into corresponding deployment descriptor elements (so that the
- *      actual deployment descriptor in the module can be updated or even created if necessary)
+ * <li>Translates annotations into corresponding deployment descriptor elements (so that the
+ * actual deployment descriptor in the module can be updated or even created if necessary)
  * </ol>
- *
+ * <p/>
  * <p><strong>Note(s):</strong>
  * <ul>
- *      <li>The user is responsible for invoking change to metadata-complete
- *      <li>This helper class will validate any changes it makes to the deployment descriptor. An
- *      exception will be thrown if it fails to parse
+ * <li>The user is responsible for invoking change to metadata-complete
+ * <li>This helper class will validate any changes it makes to the deployment descriptor. An
+ * exception will be thrown if it fails to parse
  * </ul>
- *
+ * <p/>
  * <p><strong>Remaining ToDo(s):</strong>
  * <ul>
- *      <li>Usage of mappedName
+ * <li>Usage of mappedName
  * </ul>
  *
  * @version $Rev$ $Date$
@@ -101,10 +101,12 @@ public final class ResourceAnnotationHelper {
      * @return Updated deployment descriptor
      * @throws Exception if parsing or validation error
      */
-    public static void processAnnotations(AnnotatedApp annotatedApp, ClassFinder classFinder) throws Exception {
+    public static void processAnnotations(AnnotatedApp annotatedApp, ClassFinder classFinder, ResourceProcessor resourceProcessor) throws Exception {
         if (annotatedApp != null) {
-            processResources(annotatedApp, classFinder);
-            processResource(annotatedApp, classFinder);
+            if (!classFinder.isAnnotationPresent(Resource.class)
+                    && !classFinder.isAnnotationPresent(Resources.class)) return;
+            processResources(annotatedApp, classFinder, resourceProcessor);
+            processResource(annotatedApp, classFinder, resourceProcessor);
         }
     }
 
@@ -114,9 +116,10 @@ public final class ResourceAnnotationHelper {
      *
      * @param annotatedApp
      * @param classFinder
+     * @param resourceProcessor
      * @throws Exception
      */
-    private static void processResource(AnnotatedApp annotatedApp, ClassFinder classFinder) throws Exception {
+    private static void processResource(AnnotatedApp annotatedApp, ClassFinder classFinder, ResourceProcessor resourceProcessor) throws Exception {
         log.debug("processResource(): Entry: AnnotatedApp: " + annotatedApp.toString());
 
         List<Class> classeswithResource = classFinder.findAnnotatedClasses(Resource.class);
@@ -127,7 +130,7 @@ public final class ResourceAnnotationHelper {
         for (Class cls : classeswithResource) {
             Resource resource = (Resource) cls.getAnnotation(Resource.class);
             if (resource != null) {
-                addResource(annotatedApp, resource, cls, null, null);
+                resourceProcessor.processResource(annotatedApp, resource, cls, null, null);
             }
         }
 
@@ -135,7 +138,7 @@ public final class ResourceAnnotationHelper {
         for (Method method : methodswithResource) {
             Resource resource = (Resource) method.getAnnotation(Resource.class);
             if (resource != null) {
-                addResource(annotatedApp, resource, null, method, null);
+                resourceProcessor.processResource(annotatedApp, resource, null, method, null);
             }
         }
 
@@ -143,7 +146,7 @@ public final class ResourceAnnotationHelper {
         for (Field field : fieldswithResource) {
             Resource resource = (Resource) field.getAnnotation(Resource.class);
             if (resource != null) {
-                addResource(annotatedApp, resource, null, null, field);
+                resourceProcessor.processResource(annotatedApp, resource, null, null, field);
             }
         }
 
@@ -159,9 +162,10 @@ public final class ResourceAnnotationHelper {
      *
      * @param annotatedApp
      * @param classFinder
-     * @exception Exception
+     * @param resourceProcessor
+     * @throws Exception
      */
-    private static void processResources(AnnotatedApp annotatedApp, ClassFinder classFinder) throws Exception {
+    private static void processResources(AnnotatedApp annotatedApp, ClassFinder classFinder, ResourceProcessor resourceProcessor) throws Exception {
         log.debug("processResources(): Entry");
 
         List<Class> classeswithResources = classFinder.findAnnotatedClasses(Resources.class);
@@ -174,12 +178,96 @@ public final class ResourceAnnotationHelper {
                 resourceList.addAll(Arrays.asList(resources.value()));
             }
             for (Resource resource : resourceList) {
-                addResource(annotatedApp, resource, cls, null, null);
+                resourceProcessor.processResource(annotatedApp, resource, cls, null, null);
             }
             resourceList.clear();
         }
 
         log.debug("processResources(): Exit");
+    }
+
+    public abstract static class ResourceProcessor {
+
+        public abstract boolean processResource(AnnotatedApp annotatedApp, Resource annotation, Class cls, Method method, Field field);
+
+        /**
+         * Resource name:
+         * -- When annotation is applied on a class:    Name must be provided (cannot be inferred)
+         * -- When annotation is applied on a method:   Name is JavaBeans property name qualified
+         * by the class (or as provided on the annotation)
+         * -- When annotation is applied on a field:    Name is the field name qualified by the
+         * class (or as provided on the annotation)
+         *
+         * @param annotation
+         * @param method
+         * @param field
+         * @return
+         */
+        protected static String getResourceName(Resource annotation, Method method, Field field) {
+            String resourceName = annotation.name();
+            if (resourceName.equals("")) {
+                if (method != null) {
+                    StringBuilder stringBuilder = new StringBuilder(method.getName().substring(3));
+                    stringBuilder.setCharAt(0, Character.toLowerCase(stringBuilder.charAt(0)));
+                    resourceName = method.getDeclaringClass().getName() + "/" + stringBuilder.toString();
+                } else if (field != null) {
+                    resourceName = field.getDeclaringClass().getName() + "/" + field.getName();
+                }
+            }
+            return resourceName;
+        }
+
+        protected static String getResourceType(Resource annotation, Method method, Field field) {
+            //------------------------------------------------------------------------------------------
+            // Resource type:
+            // -- When annotation is applied on a class:    Type must be provided (cannot be inferred)
+            // -- When annotation is applied on a method:   Type is the JavaBeans property type (or as
+            //                                              provided on the annotation)
+            // -- When annotation is applied on a field:    Type is the field type (or as provided on
+            //                                              the annotation)
+            //------------------------------------------------------------------------------------------
+            String resourceType = annotation.type().getCanonicalName();
+            if (resourceType.equals("") || resourceType.equals(Object.class.getName())) {
+                if (method != null) {
+                    resourceType = method.getParameterTypes()[0].getCanonicalName();
+                } else if (field != null) {
+                    resourceType = field.getType().getName();
+                }
+            }
+            return resourceType;
+        }
+
+        /**
+         * Configure Injection Target
+         *
+         * @param injectionTarget
+         * @param method
+         * @param field
+         */
+        protected static void configureInjectionTarget(InjectionTargetType injectionTarget, Method method, Field field) {
+            log.debug("configureInjectionTarget(): Entry");
+
+            String injectionJavaType = "";
+            String injectionClass = null;
+            if (method != null) {
+                injectionJavaType = method.getName().substring(3);
+                StringBuilder stringBuilder = new StringBuilder(injectionJavaType);
+                stringBuilder.setCharAt(0, Character.toLowerCase(stringBuilder.charAt(0)));
+                injectionJavaType = stringBuilder.toString();
+                injectionClass = method.getDeclaringClass().getName();
+            } else if (field != null) {
+                injectionJavaType = field.getName();
+                injectionClass = field.getDeclaringClass().getName();
+            }
+            FullyQualifiedClassType qualifiedClass = injectionTarget.addNewInjectionTargetClass();
+            JavaIdentifierType javaType = injectionTarget.addNewInjectionTargetName();
+            qualifiedClass.setStringValue(injectionClass);
+            javaType.setStringValue(injectionJavaType);
+            injectionTarget.setInjectionTargetClass(qualifiedClass);
+            injectionTarget.setInjectionTargetName(javaType);
+
+            log.debug("configureInjectionTarget(): Exit");
+        }
     }
 
 
@@ -331,7 +419,7 @@ public final class ResourceAnnotationHelper {
                     } else if (!injectionJavaType.equals("")) {
                         // injectionTarget
                         InjectionTargetType injectionTarget = envEntry.addNewInjectionTarget();
-                        configureInjectionTarget(injectionTarget, injectionClass, injectionJavaType);
+                        configureInjectionTarget(injectionTarget, method, field);
                     }
 
                     // env-entry-value
@@ -344,7 +432,7 @@ public final class ResourceAnnotationHelper {
 
                     // description
                     String descriptionAnnotation = annotation.description();
-                    if ( !descriptionAnnotation.equals("") ) {
+                    if (!descriptionAnnotation.equals("")) {
                         DescriptionType description = envEntry.addNewDescription();
                         description.setStringValue(descriptionAnnotation);
                     }
@@ -395,7 +483,7 @@ public final class ResourceAnnotationHelper {
                     } else if (!injectionJavaType.equals("")) {
                         // injectionTarget
                         InjectionTargetType injectionTarget = serviceRef.addNewInjectionTarget();
-                        configureInjectionTarget(injectionTarget, injectionClass, injectionJavaType);
+                        configureInjectionTarget(injectionTarget, method, field);
                     }
 
                     //------------------------------------------------------------------------------
@@ -411,7 +499,7 @@ public final class ResourceAnnotationHelper {
 
                     // WSDL document location
                     String documentAnnotation = annotation.mappedName();
-                    if ( !documentAnnotation.equals("") ) {
+                    if (!documentAnnotation.equals("")) {
                         XsdAnyURIType wsdlFile = serviceRef.addNewWsdlFile();
                         wsdlFile.setStringValue(documentAnnotation);
                         serviceRef.setWsdlFile(wsdlFile);
@@ -473,7 +561,7 @@ public final class ResourceAnnotationHelper {
                     } else if (!injectionJavaType.equals("")) {
                         // injectionTarget
                         InjectionTargetType injectionTarget = resourceRef.addNewInjectionTarget();
-                        configureInjectionTarget(injectionTarget, injectionClass, injectionJavaType);
+                        configureInjectionTarget(injectionTarget, method, field);
                     }
 
                     //------------------------------------------------------------------------------
@@ -482,7 +570,7 @@ public final class ResourceAnnotationHelper {
 
                     // description
                     String descriptionAnnotation = annotation.description();
-                    if ( !descriptionAnnotation.equals("") ) {
+                    if (!descriptionAnnotation.equals("")) {
                         DescriptionType description = resourceRef.addNewDescription();
                         description.setStringValue(descriptionAnnotation);
                     }
@@ -492,8 +580,7 @@ public final class ResourceAnnotationHelper {
                         ResAuthType resAuth = resourceRef.addNewResAuth();
                         resAuth.setStringValue("Container");
                         resourceRef.setResAuth(resAuth);
-                    }
-                    else if (annotation.authenticationType() == Resource.AuthenticationType.APPLICATION) {
+                    } else if (annotation.authenticationType() == Resource.AuthenticationType.APPLICATION) {
                         ResAuthType resAuth = resourceRef.addNewResAuth();
                         resAuth.setStringValue("Application");
                         resourceRef.setResAuth(resAuth);
@@ -506,7 +593,7 @@ public final class ResourceAnnotationHelper {
 
                     // mappedName
                     String mappdedNameAnnotation = annotation.mappedName();
-                    if (!mappdedNameAnnotation.equals("") ) {
+                    if (!mappdedNameAnnotation.equals("")) {
                         XsdStringType mappedName = resourceRef.addNewMappedName();
                         mappedName.setStringValue(mappdedNameAnnotation);
                         resourceRef.setMappedName(mappedName);
@@ -561,7 +648,7 @@ public final class ResourceAnnotationHelper {
                     } else if (!injectionJavaType.equals("")) {
                         // injectionTarget
                         InjectionTargetType injectionTarget = messageDestinationRef.addNewInjectionTarget();
-                        configureInjectionTarget(injectionTarget, injectionClass, injectionJavaType);
+                        configureInjectionTarget(injectionTarget, method, field);
                     }
 
                     //------------------------------------------------------------------------------
@@ -570,14 +657,14 @@ public final class ResourceAnnotationHelper {
 
                     // description
                     String descriptionAnnotation = annotation.description();
-                    if ( !descriptionAnnotation.equals("") ) {
+                    if (!descriptionAnnotation.equals("")) {
                         DescriptionType description = messageDestinationRef.addNewDescription();
                         description.setStringValue(descriptionAnnotation);
                     }
 
                     // mappedName
                     String mappdedNameAnnotation = annotation.mappedName();
-                    if (!mappdedNameAnnotation.equals("") ) {
+                    if (!mappdedNameAnnotation.equals("")) {
                         XsdStringType mappedName = messageDestinationRef.addNewMappedName();
                         mappedName.setStringValue(mappdedNameAnnotation);
                         messageDestinationRef.setMappedName(mappedName);
@@ -632,7 +719,7 @@ public final class ResourceAnnotationHelper {
                     } else if (!injectionJavaType.equals("")) {
                         // injectionTarget
                         InjectionTargetType injectionTarget = resourceEnvRef.addNewInjectionTarget();
-                        configureInjectionTarget(injectionTarget, injectionClass, injectionJavaType);
+                        configureInjectionTarget(injectionTarget, method, field);
                     }
 
                     //------------------------------------------------------------------------------
@@ -641,14 +728,14 @@ public final class ResourceAnnotationHelper {
 
                     // description
                     String descriptionAnnotation = annotation.description();
-                    if ( !descriptionAnnotation.equals("") ) {
+                    if (!descriptionAnnotation.equals("")) {
                         DescriptionType description = resourceEnvRef.addNewDescription();
                         description.setStringValue(descriptionAnnotation);
                     }
 
                     // mappedName
                     String mappdedNameAnnotation = annotation.mappedName();
-                    if (!mappdedNameAnnotation.equals("") ) {
+                    if (!mappdedNameAnnotation.equals("")) {
                         XsdStringType mappedName = resourceEnvRef.addNewMappedName();
                         mappedName.setStringValue(mappdedNameAnnotation);
                         resourceEnvRef.setMappedName(mappedName);
@@ -669,12 +756,24 @@ public final class ResourceAnnotationHelper {
      * Configure Injection Target
      *
      * @param injectionTarget
-     * @param injectionClass
-     * @param injectionJavaType
+     * @param method
+     * @param field
      */
-    private static void configureInjectionTarget(InjectionTargetType injectionTarget, String injectionClass, String injectionJavaType) {
+    private static void configureInjectionTarget(InjectionTargetType injectionTarget, Method method, Field field) {
         log.debug("configureInjectionTarget(): Entry");
 
+        String injectionJavaType = "";
+        String injectionClass = null;
+        if (method != null) {
+            injectionJavaType = method.getName().substring(3);
+            StringBuilder stringBuilder = new StringBuilder(injectionJavaType);
+            stringBuilder.setCharAt(0, Character.toLowerCase(stringBuilder.charAt(0)));
+            injectionJavaType = stringBuilder.toString();
+            injectionClass = method.getDeclaringClass().getName();
+        } else if (field != null) {
+            injectionJavaType = field.getName();
+            injectionClass = field.getDeclaringClass().getName();
+        }
         FullyQualifiedClassType qualifiedClass = injectionTarget.addNewInjectionTargetClass();
         JavaIdentifierType javaType = injectionTarget.addNewInjectionTargetName();
         qualifiedClass.setStringValue(injectionClass);
@@ -689,7 +788,7 @@ public final class ResourceAnnotationHelper {
     /**
      * Validate deployment descriptor
      *
-     * @param AnnotatedApp
+     * @param annotatedApp
      * @throws Exception thrown if deployment descriptor cannot be parsed
      */
     private static void validateDD(AnnotatedApp annotatedApp) throws Exception {

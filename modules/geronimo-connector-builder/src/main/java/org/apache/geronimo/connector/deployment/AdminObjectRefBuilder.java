@@ -17,10 +17,13 @@
 
 package org.apache.geronimo.connector.deployment;
 
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.annotation.Resource;
 import javax.naming.Reference;
 import javax.xml.namespace.QName;
 
@@ -32,6 +35,7 @@ import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.j2ee.deployment.Module;
+import org.apache.geronimo.j2ee.deployment.annotation.AnnotatedApp;
 import org.apache.geronimo.j2ee.deployment.annotation.ResourceAnnotationHelper;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
@@ -44,10 +48,15 @@ import org.apache.geronimo.xbeans.geronimo.naming.GerMessageDestinationType;
 import org.apache.geronimo.xbeans.geronimo.naming.GerPatternType;
 import org.apache.geronimo.xbeans.geronimo.naming.GerResourceEnvRefDocument;
 import org.apache.geronimo.xbeans.geronimo.naming.GerResourceEnvRefType;
+import org.apache.geronimo.xbeans.javaee.DescriptionType;
+import org.apache.geronimo.xbeans.javaee.FullyQualifiedClassType;
 import org.apache.geronimo.xbeans.javaee.InjectionTargetType;
+import org.apache.geronimo.xbeans.javaee.JndiNameType;
 import org.apache.geronimo.xbeans.javaee.MessageDestinationRefType;
 import org.apache.geronimo.xbeans.javaee.MessageDestinationType;
+import org.apache.geronimo.xbeans.javaee.MessageDestinationTypeType;
 import org.apache.geronimo.xbeans.javaee.ResourceEnvRefType;
+import org.apache.geronimo.xbeans.javaee.XsdStringType;
 import org.apache.xmlbeans.QNameSet;
 import org.apache.xmlbeans.XmlObject;
 
@@ -56,7 +65,7 @@ import org.apache.xmlbeans.XmlObject;
  */
 public class AdminObjectRefBuilder extends AbstractNamingBuilder {
     private final static Log log = LogFactory.getLog(AdminObjectRefBuilder.class);
-    private  final QNameSet adminOjbectRefQNameSet;
+    private final QNameSet adminOjbectRefQNameSet;
     private final QNameSet messageDestinationQNameSet;
     private final QNameSet messageDestinationRefQNameSet;
 
@@ -79,7 +88,7 @@ public class AdminObjectRefBuilder extends AbstractNamingBuilder {
     public void initContext(XmlObject specDD, XmlObject plan, Configuration localConfiguration, Configuration remoteConfiguration, Module module) throws DeploymentException {
         List<MessageDestinationType> specDestinations = convert(specDD.selectChildren(messageDestinationQNameSet), JEE_CONVERTER, MessageDestinationType.class, MessageDestinationType.type);
         XmlObject[] gerDestinations = plan.selectChildren(GER_MESSAGE_DESTINATION_QNAME_SET);
-            Map<String, GerMessageDestinationType> nameMap = new HashMap<String, GerMessageDestinationType>();
+        Map<String, GerMessageDestinationType> nameMap = new HashMap<String, GerMessageDestinationType>();
         for (XmlObject gerDestination : gerDestinations) {
             GerMessageDestinationType destination = (GerMessageDestinationType) gerDestination.copy().changeType(GerMessageDestinationType.type);
             String name = destination.getMessageDestinationName().trim();
@@ -103,14 +112,21 @@ public class AdminObjectRefBuilder extends AbstractNamingBuilder {
 
         // Discover and process any @Resource annotations (if !metadata-complete)
         if ((module != null) && (module.getClassFinder() != null)) {
-            processAnnotations(module);
+
+            // Process all the annotations for this naming builder type
+            try {
+                ResourceAnnotationHelper.processAnnotations(module.getAnnotatedApp(), module.getClassFinder(), AdminObjectRefProcessor.INSTANCE);
+            }
+            catch (Exception e) {
+                log.warn("Unable to process @Resource annotations for module" + module.getName(), e);
+            }
         }
 
         List<ResourceEnvRefType> resourceEnvRefsUntyped = convert(specDD.selectChildren(adminOjbectRefQNameSet), JEE_CONVERTER, ResourceEnvRefType.class, ResourceEnvRefType.type);
         ClassLoader cl = module.getEarContext().getClassLoader();
-        XmlObject[] gerResourceEnvRefsUntyped = plan == null? NO_REFS: plan.selectChildren(GER_ADMIN_OBJECT_REF_QNAME_SET);
+        XmlObject[] gerResourceEnvRefsUntyped = plan == null ? NO_REFS : plan.selectChildren(GER_ADMIN_OBJECT_REF_QNAME_SET);
         Map refMap = mapResourceEnvRefs(gerResourceEnvRefsUntyped);
-        for (ResourceEnvRefType resourceEnvRef: resourceEnvRefsUntyped) {
+        for (ResourceEnvRefType resourceEnvRef : resourceEnvRefsUntyped) {
             String name = resourceEnvRef.getResourceEnvRefName().getStringValue().trim();
             addInjections(name, resourceEnvRef.getInjectionTargetArray(), componentContext);
             String type = resourceEnvRef.getResourceEnvRefType().getStringValue().trim();
@@ -133,7 +149,7 @@ public class AdminObjectRefBuilder extends AbstractNamingBuilder {
         //message-destination-refs
         List<MessageDestinationRefType> messageDestinationRefsUntyped = convert(specDD.selectChildren(messageDestinationRefQNameSet), JEE_CONVERTER, MessageDestinationRefType.class, MessageDestinationRefType.type);
 
-        for (MessageDestinationRefType messageDestinationRef: messageDestinationRefsUntyped) {
+        for (MessageDestinationRefType messageDestinationRef : messageDestinationRefsUntyped) {
             String name = getStringValue(messageDestinationRef.getMessageDestinationRefName());
             addInjections(name, messageDestinationRef.getInjectionTargetArray(), componentContext);
             String linkName = getStringValue(messageDestinationRef.getMessageDestinationLink());
@@ -146,7 +162,7 @@ public class AdminObjectRefBuilder extends AbstractNamingBuilder {
                 //must have an injection target to determine type EE5.8.1.3
                 InjectionTargetType[] targets = messageDestinationRef.getInjectionTargetArray();
                 if (targets.length == 0) {
-                    throw new DeploymentException("No type for message-destination-ref can be determined from explicit specification or injection target: " + messageDestinationRef );
+                    throw new DeploymentException("No type for message-destination-ref can be determined from explicit specification or injection target: " + messageDestinationRef);
                 }
                 type = getStringValue(targets[0].getInjectionTargetClass());
                 if (type == null) {
@@ -250,20 +266,6 @@ public class AdminObjectRefBuilder extends AbstractNamingBuilder {
         return containerId;
     }
 
-    private void processAnnotations(Module module) throws DeploymentException {
-
-        // Process all the annotations for this naming builder type
-        if (ResourceAnnotationHelper.annotationsPresent(module.getClassFinder())) {
-            try {
-                ResourceAnnotationHelper.processAnnotations(module.getAnnotatedApp(), module.getClassFinder());
-            }
-            catch (Exception e) {
-                log.warn("Unable to process @Resource annotations for module" +
-                module.getName(), e);
-            }
-        }
-    }
-
     private static Map<String, XmlObject> mapResourceEnvRefs(XmlObject[] refs) {
         Map<String, XmlObject> refMap = new HashMap<String, XmlObject>();
         if (refs != null) {
@@ -283,6 +285,156 @@ public class AdminObjectRefBuilder extends AbstractNamingBuilder {
         return GER_ADMIN_OBJECT_REF_QNAME_SET;
     }
 
+    static class AdminObjectRefProcessor extends ResourceAnnotationHelper.ResourceProcessor {
+
+        public static final AdminObjectRefProcessor INSTANCE = new AdminObjectRefProcessor();
+
+        private AdminObjectRefProcessor() {
+        }
+
+        public boolean processResource(AnnotatedApp annotatedApp, Resource annotation, Class cls, Method method, Field field) {
+            String resourceName = getResourceName(annotation, method, field);
+            String resourceType = getResourceType(annotation, method, field);
+            if (resourceType.equals("javax.jms.Queue") ||
+                    resourceType.equals("javax.jms.Topic")) {
+
+                log.debug("addResource(): <message-destination-ref> found");
+
+                boolean exists = false;
+                MessageDestinationRefType[] messageDestinationRefs = annotatedApp.getMessageDestinationRefArray();
+                for (MessageDestinationRefType messageDestinationRef : messageDestinationRefs) {
+                    if (messageDestinationRef.getMessageDestinationRefName().getStringValue().trim().equals(resourceName)) {
+                        exists = true;
+                        break;
+                    }
+                }
+                if (!exists) {
+                    try {
+
+                        log.debug("addResource(): Does not exist in DD: " + resourceName);
+
+                        // Doesn't exist in deployment descriptor -- add new
+                        MessageDestinationRefType messageDestinationRef = annotatedApp.addNewMessageDestinationRef();
+
+                        //------------------------------------------------------------------------------
+                        // <message-destination-ref> required elements:
+                        //------------------------------------------------------------------------------
+
+                        // message-destination-ref-name
+                        JndiNameType messageDestinationRefName = messageDestinationRef.addNewMessageDestinationRefName();
+                        messageDestinationRefName.setStringValue(resourceName);
+                        messageDestinationRef.setMessageDestinationRefName(messageDestinationRefName);
+
+                        if (!resourceType.equals("")) {
+                            // message-destination-ref-type
+                            MessageDestinationTypeType msgDestType = messageDestinationRef.addNewMessageDestinationType();
+                            msgDestType.setStringValue(resourceType);
+                            messageDestinationRef.setMessageDestinationType(msgDestType);
+                        } else if (method != null || field != null) {
+                            // injectionTarget
+                            InjectionTargetType injectionTarget = messageDestinationRef.addNewInjectionTarget();
+                            configureInjectionTarget(injectionTarget, method, field);
+                        }
+
+                        //------------------------------------------------------------------------------
+                        // <message-destination-ref> optional elements:
+                        //------------------------------------------------------------------------------
+
+                        // description
+                        String descriptionAnnotation = annotation.description();
+                        if (!descriptionAnnotation.equals("")) {
+                            DescriptionType description = messageDestinationRef.addNewDescription();
+                            description.setStringValue(descriptionAnnotation);
+                        }
+
+                        // mappedName
+                        String mappdedNameAnnotation = annotation.mappedName();
+                        if (!mappdedNameAnnotation.equals("")) {
+                            XsdStringType mappedName = messageDestinationRef.addNewMappedName();
+                            mappedName.setStringValue(mappdedNameAnnotation);
+                            messageDestinationRef.setMappedName(mappedName);
+                        }
+
+                    }
+                    catch (Exception anyException) {
+                        log.debug("ResourceAnnotationHelper: Exception caught while processing <message-destination-ref>");
+                        anyException.printStackTrace();
+                    }
+                }
+            }
+
+            //------------------------------------------------------------------------------------------
+            // 5. Everything else must be a <resource-env-ref>
+            //------------------------------------------------------------------------------------------
+            else if (annotation.type().getCanonicalName().equals("javax.resource.cci.InteractionSpec") ||
+                    annotation.type().getCanonicalName().equals("javax.transaction.UserTransaction") || true) {
+
+                log.debug("addResource(): <resource-env-ref> found");
+
+                boolean exists = false;
+                ResourceEnvRefType[] resourceEnvRefs = annotatedApp.getResourceEnvRefArray();
+                for (ResourceEnvRefType resourceEnvRef : resourceEnvRefs) {
+                    if (resourceEnvRef.getResourceEnvRefName().getStringValue().trim().equals(resourceName)) {
+                        exists = true;
+                        break;
+                    }
+                }
+                if (!exists) {
+                    try {
+
+                        log.debug("addResource(): Does not exist in DD: " + resourceName);
+
+                        // Doesn't exist in deployment descriptor -- add new
+                        ResourceEnvRefType resourceEnvRef = annotatedApp.addNewResourceEnvRef();
+
+                        //------------------------------------------------------------------------------
+                        // <resource-env-ref> required elements:
+                        //------------------------------------------------------------------------------
+
+                        // resource-env-ref-name
+                        JndiNameType resourceEnvRefName = resourceEnvRef.addNewResourceEnvRefName();
+                        resourceEnvRefName.setStringValue(resourceName);
+                        resourceEnvRef.setResourceEnvRefName(resourceEnvRefName);
+
+                        if (!resourceType.equals("")) {
+                            // resource-env-ref-type
+                            FullyQualifiedClassType qualifiedClass = resourceEnvRef.addNewResourceEnvRefType();
+                            qualifiedClass.setStringValue(resourceType);
+                            resourceEnvRef.setResourceEnvRefType(qualifiedClass);
+                        } else if (method != null || field != null) {
+                            // injectionTarget
+                            InjectionTargetType injectionTarget = resourceEnvRef.addNewInjectionTarget();
+                            configureInjectionTarget(injectionTarget, method, field);
+                        }
+
+                        //------------------------------------------------------------------------------
+                        // <resource-env-ref> optional elements:
+                        //------------------------------------------------------------------------------
+
+                        // description
+                        String descriptionAnnotation = annotation.description();
+                        if (!descriptionAnnotation.equals("")) {
+                            DescriptionType description = resourceEnvRef.addNewDescription();
+                            description.setStringValue(descriptionAnnotation);
+                        }
+
+                        // mappedName
+                        String mappdedNameAnnotation = annotation.mappedName();
+                        if (!mappdedNameAnnotation.equals("")) {
+                            XsdStringType mappedName = resourceEnvRef.addNewMappedName();
+                            mappedName.setStringValue(mappdedNameAnnotation);
+                            resourceEnvRef.setMappedName(mappedName);
+                        }
+                    } catch (Exception e) {
+                        log.debug("ResourceAnnotationHelper: Exception caught while processing <resource-env-ref>", e);
+                    }
+                }
+                return true;
+            }
+            return false;
+        }
+    }
+
     public static final GBeanInfo GBEAN_INFO;
 
     static {
@@ -290,12 +442,13 @@ public class AdminObjectRefBuilder extends AbstractNamingBuilder {
         infoBuilder.addAttribute("eeNamespaces", String[].class, true, true);
         infoBuilder.addAttribute("defaultEnvironment", Environment.class, true, true);
 
-        infoBuilder.setConstructor(new String[] {"defaultEnvironment", "eeNamespaces"});
+        infoBuilder.setConstructor(new String[]{"defaultEnvironment", "eeNamespaces"});
 
         GBEAN_INFO = infoBuilder.getBeanInfo();
     }
 
-    public static GBeanInfo getGBeanInfo() {
+    public static GBeanInfo getGBeanInfo
+            () {
         return GBEAN_INFO;
     }
 
