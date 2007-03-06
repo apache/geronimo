@@ -88,13 +88,17 @@ public abstract class AbstractConnectionManager implements ConnectionManagerCont
 
     public ConnectionManagerContainer.ReturnableXAResource getRecoveryXAResource(ManagedConnectionFactory managedConnectionFactory) throws ResourceException {
         ManagedConnectionInfo mci = new ManagedConnectionInfo(managedConnectionFactory, null);
-        NamedXAResource namedXAResource = (NamedXAResource) mci.getXAResource();
-        if (namedXAResource == null) {
-            //obviously, we can't do recovery.
+
+        // if we aren't recoverable, then there's nothing to do...
+        if (!getIsRecoverable()) {
             return null;
         }
+        
         ConnectionInfo recoveryConnectionInfo = new ConnectionInfo(mci);
         getRecoveryStack().getConnection(recoveryConnectionInfo);
+
+        // For pooled resources, we may now have a new MCI (not the one constructed above). Make sure we use the correct MCI
+        NamedXAResource namedXAResource = (NamedXAResource) recoveryConnectionInfo.getManagedConnectionInfo().getXAResource();
         return new ConnectionManagerContainer.ReturnableXAResource(namedXAResource, getRecoveryStack(), recoveryConnectionInfo);
     }
 
@@ -152,6 +156,10 @@ public abstract class AbstractConnectionManager implements ConnectionManagerCont
         return interceptors.getRecoveryStack();
     }
 
+    private boolean getIsRecoverable() {
+        return interceptors.getRecoveryStack() != null;
+    }
+
     //public for persistence of pooling attributes (max, min size, blocking/idle timeouts)
     public PoolingSupport getPooling() {
         return interceptors.getPoolingAttributes();
@@ -161,7 +169,7 @@ public abstract class AbstractConnectionManager implements ConnectionManagerCont
         ConnectionInterceptor getStack();
 
         ConnectionInterceptor getRecoveryStack();
-
+        
         PoolingSupport getPoolingAttributes();
     }
 

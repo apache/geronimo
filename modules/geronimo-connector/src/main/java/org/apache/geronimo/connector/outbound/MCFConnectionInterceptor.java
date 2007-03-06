@@ -20,6 +20,9 @@ package org.apache.geronimo.connector.outbound;
 import javax.resource.ResourceException;
 import javax.resource.spi.ManagedConnection;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 /**
  * MCFConnectionInterceptor.java
  *
@@ -27,6 +30,8 @@ import javax.resource.spi.ManagedConnection;
  * @version $Rev$ $Date$
  */
 public class MCFConnectionInterceptor implements ConnectionInterceptor {
+
+    protected static final Log log = LogFactory.getLog(MCFConnectionInterceptor.class.getName());
 
     private ConnectionInterceptor stack;
 
@@ -38,14 +43,20 @@ public class MCFConnectionInterceptor implements ConnectionInterceptor {
         if (mci.getManagedConnection() != null) {
             return;
         }
-        ManagedConnection mc =
+        
+        try {
+            ManagedConnection mc =
                 mci.getManagedConnectionFactory().createManagedConnection(
                         mci.getSubject(),
                         mci.getConnectionRequestInfo());
-        mci.setManagedConnection(mc);
-        GeronimoConnectionEventListener listener = new GeronimoConnectionEventListener(stack, mci);
-        mci.setConnectionEventListener(listener);
-        mc.addConnectionEventListener(listener);
+            mci.setManagedConnection(mc);
+            GeronimoConnectionEventListener listener = new GeronimoConnectionEventListener(stack, mci);
+            mci.setConnectionEventListener(listener);
+            mc.addConnectionEventListener(listener);
+        } catch (ResourceException re) {
+            log.error("Error occurred creating ManagedConnection for " + connectionInfo, re);
+            throw re;
+        }
     }
 
     public void returnConnection(
