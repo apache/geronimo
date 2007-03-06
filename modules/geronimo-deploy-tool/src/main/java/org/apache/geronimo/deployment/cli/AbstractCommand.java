@@ -121,23 +121,29 @@ public abstract class AbstractCommand implements DeployCommand {
     }
 
     protected static Target[] identifyTargets(List targetNames, final DeploymentManager mgr) throws DeploymentException {
+        //TODO consider if nicknames that match multiple servers should be allowed.  Also if regexps should be used in matching
         Target[] tlist = new Target[targetNames.size()];
         Target[] all = mgr.getTargets();
         Set found = new HashSet();
         for (int i = 0; i < tlist.length; i++) {
-            if(found.contains(targetNames.get(i))) {
-                throw new DeploymentException("Target list should not contain duplicates ("+targetNames.get(i)+")");
-            }
             for (int j = 0; j < all.length; j++) {
                 Target server = all[j];
-                if(server.getName().equals(targetNames.get(i))) {
+                // check for exact target name match
+                if(server.getName().equals(targetNames.get(i))
+                   // check for "target-nickname" match (they match if
+                   // the full target name contains the user-provided
+                   // nickname)
+                   || server.getName().indexOf(targetNames.get(i).toString()) > -1) {
                     tlist[i] = server;
+                    if(found.contains(server.getName())) {
+                        throw new DeploymentException("Target list should not contain duplicates or nicknames that match duplicates ("+targetNames.get(i)+")");
+                    }
                     found.add(server.getName());
                     break;
                 }
             }
             if(tlist[i] == null) {
-                throw new DeploymentException("No target named '"+targetNames.get(i)+"' was found");
+                throw new DeploymentException("No target named or matching '"+targetNames.get(i)+"' was found");
             }
         }
         return tlist;
