@@ -86,6 +86,7 @@ import org.apache.geronimo.xbeans.javaee.WebAppDocument;
 import org.apache.geronimo.xbeans.javaee.WebAppType;
 import org.apache.geronimo.xbeans.javaee.ServletMappingType;
 import org.apache.geronimo.xbeans.javaee.impl.WebAppDocumentImpl;
+import org.apache.xbean.finder.ClassFinder;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlOptions;
@@ -319,7 +320,6 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder {
                 webModuleData.setReferencePattern("J2EEApplication", earContext.getModuleName());
             }
 
-            webModuleData.setAttribute("deploymentDescriptor", module.getOriginalSpecDD());
             Set securityRoles = collectRoleNames(webApp);
             Map rolePermissions = new HashMap();
 
@@ -335,7 +335,21 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder {
             Map buildingContext = new HashMap();
             buildingContext.put(NamingBuilder.GBEAN_NAME_KEY, moduleName);
             Configuration earConfiguration = earContext.getConfiguration();
+
+            if (!webApp.getMetadataComplete()) {
+                // Create a classfinder and populate it for the naming builder(s). The absence of a
+                // classFinder in the module will convey whether metadata-complete is set (or not)
+                webModule.setClassFinder(createWebAppClassFinder(webApp, webModule));
+            }
+
             getNamingBuilders().buildNaming(webApp, tomcatWebApp, earConfiguration, earConfiguration, webModule, buildingContext);
+
+            if (!webApp.getMetadataComplete()) {
+                webApp.setMetadataComplete(true);
+                module.setOriginalSpecDD(module.getSpecDD().toString());
+            }
+            webModuleData.setAttribute("deploymentDescriptor", module.getOriginalSpecDD());
+
             Map compContext = NamingBuilder.JNDI_KEY.get(buildingContext);
 
             webModuleData.setAttribute("componentContext", compContext);

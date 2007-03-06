@@ -86,9 +86,11 @@ import org.apache.geronimo.xbeans.geronimo.client.GerResourceType;
 import org.apache.geronimo.xbeans.geronimo.naming.GerAbstractNamingEntryDocument;
 import org.apache.geronimo.xbeans.javaee.ApplicationClientDocument;
 import org.apache.geronimo.xbeans.javaee.ApplicationClientType;
+import org.apache.geronimo.xbeans.javaee.FullyQualifiedClassType;
 import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
+import org.apache.xbean.finder.ClassFinder;
 
 
 /**
@@ -529,7 +531,7 @@ public class AppClientModuleBuilder implements ModuleBuilder, CorbaGBeanNameSour
             if (!module.isStandAlone()) {
                 appClientModuleGBeanData.setReferencePattern("J2EEApplication", earContext.getModuleName());
             }
-            appClientModuleGBeanData.setAttribute("deploymentDescriptor", appClientModule.getOriginalSpecDD());
+// below    appClientModuleGBeanData.setAttribute("deploymentDescriptor", appClientModule.getOriginalSpecDD());
 
         } catch (Exception e) {
             throw new DeploymentException("Unable to initialize AppClientModule GBean", e);
@@ -586,7 +588,22 @@ public class AppClientModuleBuilder implements ModuleBuilder, CorbaGBeanNameSour
                     buildingContext.put(NamingBuilder.GBEAN_NAME_KEY, jndiContextName);
                     Configuration localConfiguration = appClientDeploymentContext.getConfiguration();
                     Configuration remoteConfiguration = earContext.getConfiguration();
+
+                    if (!appClient.getMetadataComplete()) {
+                        // Create a classfinder and populate it for the naming builder(s). The absence of a
+                        // classFinder in the module will convey whether metadata-complete is set
+                        // (or not)
+                        appClientModule.setClassFinder(createAppClientClassFinder(appClient, appClientModule));
+                    }
+
                     namingBuilders.buildNaming(appClient, geronimoAppClient, localConfiguration, remoteConfiguration, appClientModule, buildingContext);
+
+                    if (!appClient.getMetadataComplete()) {
+                        appClient.setMetadataComplete(true);
+                        module.setOriginalSpecDD(module.getSpecDD().toString());
+                    }
+
+                    appClientModuleGBeanData.setAttribute("deploymentDescriptor", appClientModule.getOriginalSpecDD());
                     injectionsMap = NamingBuilder.INJECTION_KEY.get(buildingContext);
                     jndiContextGBeanData.setAttribute("context", NamingBuilder.JNDI_KEY.get(buildingContext));
                 } catch (DeploymentException e) {
@@ -662,6 +679,46 @@ public class AppClientModuleBuilder implements ModuleBuilder, CorbaGBeanNameSour
             }
             throw new Error(e);
         }
+    }
+
+
+    private ClassFinder createAppClientClassFinder(ApplicationClientType appClient, AppClientModule appClientModule) throws DeploymentException {
+
+        //------------------------------------------------------------------------------------
+        // Find the list of classes from the application-client.xml we want to search for
+        // annotations in
+        //------------------------------------------------------------------------------------
+        List<Class> classes = new ArrayList<Class>();
+
+        // Get the classloader from the module's EARContext
+        ClassLoader classLoader = appClientModule.getEarContext().getClassLoader();
+
+        // Get the main class from the module
+        //TODO the main class is specified in the manifest
+        String mainClass = appClientModule.getMainClassName();
+        Class<?> mainClas;
+        try {
+            mainClas = classLoader.loadClass(mainClass);
+        }
+        catch (ClassNotFoundException e) {
+            throw new DeploymentException("AppClientModuleBuilder: Could not load main class: " + mainClass);
+        }
+        classes.add(mainClas);
+
+        // Get the callback-handler from the deployment descriptor
+        if (appClient.isSetCallbackHandler()) {
+            FullyQualifiedClassType cls = appClient.getCallbackHandler();
+            Class<?> clas;
+            try {
+                clas = classLoader.loadClass(cls.getStringValue().trim());
+            }
+            catch (ClassNotFoundException e) {
+                throw new DeploymentException("AppClientModuleBuilder: Could not load callback-handler class: " + cls.getStringValue());
+            }
+            classes.add(clas);
+        }
+
+        return new ClassFinder(classes);
     }
 
     public String getSchemaNamespace() {

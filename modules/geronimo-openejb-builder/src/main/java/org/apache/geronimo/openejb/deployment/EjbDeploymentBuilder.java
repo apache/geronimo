@@ -18,7 +18,9 @@
 package org.apache.geronimo.openejb.deployment;
 
 import java.security.Permissions;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.Collections;
@@ -59,6 +61,7 @@ import org.apache.geronimo.openejb.EntityDeploymentGBean;
 import org.apache.geronimo.openejb.MessageDrivenDeploymentGBean;
 import org.apache.geronimo.openejb.OpenEjbSystem;
 import org.apache.geronimo.connector.outbound.connectiontracking.TrackedConnectionAssociator;
+import org.apache.xbean.finder.ClassFinder;
 import org.apache.xmlbeans.XmlObject;
 
 /**
@@ -220,7 +223,15 @@ public class EjbDeploymentBuilder {
         //
         // XMLBeans types must be use because Geronimo naming building is coupled via XMLBeans objects
         //
+
         EjbJarType ejbJarType = (EjbJarType) ejbModule.getSpecDD();
+
+        if (!ejbJarType.getMetadataComplete()) {
+            // Create a classfinder and populate it for the naming builder(s). The absence of a
+            // classFinder in the module will convey whether metadata-complete is set (or not)
+            ejbModule.setClassFinder(createEjbJarClassFinder(ejbJarType, ejbModule));
+        }
+
         EnterpriseBeansType enterpriseBeans = ejbJarType.getEnterpriseBeans();
         if (enterpriseBeans != null) {
             for (SessionBeanType xmlbeansEjb : enterpriseBeans.getSessionArray()) {
@@ -242,6 +253,11 @@ public class EjbDeploymentBuilder {
                 addEnc(gbean, xmlbeansEjb, resourceRefs);
             }
 
+        }
+
+        if (!ejbJarType.getMetadataComplete()) {
+            ejbJarType.setMetadataComplete(true);
+            ejbModule.setOriginalSpecDD(ejbModule.getSpecDD().toString());
         }
     }
 
@@ -276,6 +292,21 @@ public class EjbDeploymentBuilder {
 
         GBeanResourceEnvironmentBuilder refBuilder = new GBeanResourceEnvironmentBuilder(gbean);
         resourceEnvironmentSetter.setResourceEnvironment(refBuilder, resourceRefs, gerResourceRefs);
+    }
+
+    private ClassFinder createEjbJarClassFinder( EjbJarType ejbJarType, EjbModule ejbModule) throws DeploymentException {
+
+        //----------------------------------------------------------------------------------------
+        // Find the list of classes from the ejb-jar.xml we want to search for annotations in
+        //----------------------------------------------------------------------------------------
+        List<Class> classes = new ArrayList<Class>();
+
+        // Get the classloader from the module's EARContext
+        ClassLoader classLoader = ejbModule.getEarContext().getClassLoader();
+
+        // TODO Openejb has the classfinder we need, we just have to get it from them.
+
+        return new ClassFinder(classes);
     }
 
     private GBeanData getEjbGBean(String ejbName) throws DeploymentException {

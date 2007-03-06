@@ -24,12 +24,15 @@ import java.util.Map;
 import javax.naming.Reference;
 import javax.xml.namespace.QName;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.common.UnresolvedReferenceException;
 import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.j2ee.deployment.Module;
+import org.apache.geronimo.j2ee.deployment.annotation.ResourceAnnotationHelper;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.kernel.config.Configuration;
@@ -52,6 +55,7 @@ import org.apache.xmlbeans.XmlObject;
  * @version $Rev$ $Date$
  */
 public class AdminObjectRefBuilder extends AbstractNamingBuilder {
+    private final static Log log = LogFactory.getLog(AdminObjectRefBuilder.class);
     private  final QNameSet adminOjbectRefQNameSet;
     private final QNameSet messageDestinationQNameSet;
     private final QNameSet messageDestinationRefQNameSet;
@@ -96,6 +100,12 @@ public class AdminObjectRefBuilder extends AbstractNamingBuilder {
 
 
     public void buildNaming(XmlObject specDD, XmlObject plan, Configuration localConfiguration, Configuration remoteConfiguration, Module module, Map componentContext) throws DeploymentException {
+
+        // Discover and process any @Resource annotations (if !metadata-complete)
+        if ((module != null) && (module.getClassFinder() != null)) {
+            processAnnotations(module);
+        }
+
         List<ResourceEnvRefType> resourceEnvRefsUntyped = convert(specDD.selectChildren(adminOjbectRefQNameSet), JEE_CONVERTER, ResourceEnvRefType.class, ResourceEnvRefType.type);
         ClassLoader cl = module.getEarContext().getClassLoader();
         XmlObject[] gerResourceEnvRefsUntyped = plan == null? NO_REFS: plan.selectChildren(GER_ADMIN_OBJECT_REF_QNAME_SET);
@@ -238,6 +248,20 @@ public class AdminObjectRefBuilder extends AbstractNamingBuilder {
             containerId = buildAbstractNameQuery(patternType, NameFactory.JCA_ADMIN_OBJECT, NameFactory.RESOURCE_ADAPTER_MODULE, null);
         }
         return containerId;
+    }
+
+    private void processAnnotations(Module module) throws DeploymentException {
+
+        // Process all the annotations for this naming builder type
+        if (ResourceAnnotationHelper.annotationsPresent(module.getClassFinder())) {
+            try {
+                ResourceAnnotationHelper.processAnnotations(module.getAnnotatedApp(), module.getClassFinder());
+            }
+            catch (Exception e) {
+                log.warn("Unable to process @Resource annotations for module" +
+                module.getName(), e);
+            }
+        }
     }
 
     private static Map<String, XmlObject> mapResourceEnvRefs(XmlObject[] refs) {

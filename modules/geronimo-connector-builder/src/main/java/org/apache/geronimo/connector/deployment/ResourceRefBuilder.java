@@ -29,12 +29,15 @@ import java.util.Set;
 import javax.naming.Reference;
 import javax.xml.namespace.QName;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.common.UnresolvedReferenceException;
 import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.j2ee.deployment.Module;
+import org.apache.geronimo.j2ee.deployment.annotation.ResourceAnnotationHelper;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.kernel.config.Configuration;
@@ -54,6 +57,9 @@ import org.apache.xmlbeans.XmlObject;
  * @version $Rev$ $Date$
  */
 public class ResourceRefBuilder extends AbstractNamingBuilder implements ResourceEnvironmentSetter {
+
+    private static final Log log = LogFactory.getLog(ResourceRefBuilder.class);
+
     private static final QName GER_RESOURCE_REF_QNAME = GerResourceRefDocument.type.getDocumentElementName();
     private static final QNameSet GER_RESOURCE_REF_QNAME_SET = QNameSet.singleton(GER_RESOURCE_REF_QNAME);
 
@@ -73,6 +79,12 @@ public class ResourceRefBuilder extends AbstractNamingBuilder implements Resourc
     }
 
     public void buildNaming(XmlObject specDD, XmlObject plan, Configuration localConfiguration, Configuration remoteConfiguration, Module module, Map componentContext) throws DeploymentException {
+
+        // Discover and process any @Resource annotations (if !metadata-complete)
+        if ((module != null) && (module.getClassFinder() != null)) {
+            processAnnotations(module);
+        }
+
         List<ResourceRefType> resourceRefsUntyped = convert(specDD.selectChildren(resourceRefQNameSet), J2EE_CONVERTER, ResourceRefType.class, ResourceRefType.type);
         XmlObject[] gerResourceRefsUntyped = plan == null? NO_REFS: plan.selectChildren(GER_RESOURCE_REF_QNAME_SET);
         Map refMap = mapResourceRefs(gerResourceRefsUntyped);
@@ -200,6 +212,20 @@ public class ResourceRefBuilder extends AbstractNamingBuilder implements Resourc
             containerId = buildAbstractNameQuery(patternType, type, NameFactory.RESOURCE_ADAPTER_MODULE, null);
         }
         return containerId;
+    }
+
+
+    private void processAnnotations(Module module) throws DeploymentException {
+
+        // Process all the annotations for this naming builder type
+        if (ResourceAnnotationHelper.annotationsPresent(module.getClassFinder())) {
+            try {
+                ResourceAnnotationHelper.processAnnotations(module.getAnnotatedApp(), module.getClassFinder());
+            }
+            catch (Exception e) {
+                log.warn("Unable to process @Resource annotations for module" + module.getName(), e);
+            }
+        }
     }
 
     public QNameSet getSpecQNameSet() {

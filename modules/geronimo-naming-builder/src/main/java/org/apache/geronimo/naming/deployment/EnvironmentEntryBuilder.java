@@ -22,10 +22,13 @@ import java.util.List;
 
 import javax.xml.namespace.QName;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
+import org.apache.geronimo.j2ee.deployment.annotation.ResourceAnnotationHelper;
 import org.apache.geronimo.j2ee.deployment.Module;
 import org.apache.geronimo.j2ee.deployment.NamingBuilder;
 import org.apache.geronimo.kernel.config.Configuration;
@@ -41,6 +44,8 @@ import org.apache.xmlbeans.XmlObject;
  */
 public class EnvironmentEntryBuilder extends AbstractNamingBuilder {
 
+    private static final Log log = LogFactory.getLog(EnvironmentEntryBuilder.class);
+
     private final QNameSet envEntryQNameSet;
 
     public EnvironmentEntryBuilder(String[] eeNamespaces) {
@@ -53,6 +58,12 @@ public class EnvironmentEntryBuilder extends AbstractNamingBuilder {
     }
 
     public void buildNaming(XmlObject specDD, XmlObject plan, Configuration localConfiguration, Configuration remoteConfiguration, Module module, Map componentContext) throws DeploymentException {
+
+        // Discover and process any @Resource annotations (if !metadata-complete)
+        if ((module != null) && (module.getClassFinder() != null)) {
+            processAnnotations(module);
+        }
+
         List<EnvEntryType> envEntriesUntyped = convert(specDD.selectChildren(envEntryQNameSet), JEE_CONVERTER, EnvEntryType.class, EnvEntryType.type);
         for (EnvEntryType envEntry: envEntriesUntyped) {
             String name = envEntry.getEnvEntryName().getStringValue().trim();
@@ -94,6 +105,19 @@ public class EnvironmentEntryBuilder extends AbstractNamingBuilder {
             }
         }
 
+    }
+
+    private void processAnnotations(Module module) throws DeploymentException {
+
+        // Process all the annotations for this naming builder type
+        if (ResourceAnnotationHelper.annotationsPresent(module.getClassFinder())) {
+            try {
+                ResourceAnnotationHelper.processAnnotations(module.getAnnotatedApp(), module.getClassFinder());
+            }
+            catch (Exception e) {
+                log.warn("Unable to process @Resource annotations for module" + module.getName(), e);
+            }
+        }
     }
 
     public QNameSet getSpecQNameSet() {

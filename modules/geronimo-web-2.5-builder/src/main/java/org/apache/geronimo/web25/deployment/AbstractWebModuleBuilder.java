@@ -60,8 +60,6 @@ import org.apache.geronimo.j2ee.deployment.ModuleBuilder;
 import org.apache.geronimo.j2ee.deployment.NamingBuilder;
 import org.apache.geronimo.j2ee.deployment.WebModule;
 import org.apache.geronimo.j2ee.deployment.WebServiceBuilder;
-import org.apache.geronimo.j2ee.deployment.annotation.EJBAnnotationHelper;
-import org.apache.geronimo.j2ee.deployment.annotation.ResourceAnnotationHelper;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.Naming;
@@ -76,6 +74,8 @@ import org.apache.geronimo.security.jacc.ComponentPermissions;
 import org.apache.geronimo.security.util.HTTPMethods;
 import org.apache.geronimo.security.util.URLPattern;
 import org.apache.geronimo.xbeans.geronimo.j2ee.GerSecurityDocument;
+import org.apache.geronimo.xbeans.javaee.EjbLocalRefType;
+import org.apache.geronimo.xbeans.javaee.EjbRefType;
 import org.apache.geronimo.xbeans.javaee.FilterMappingType;
 import org.apache.geronimo.xbeans.javaee.FilterType;
 import org.apache.geronimo.xbeans.javaee.FullyQualifiedClassType;
@@ -694,36 +694,36 @@ public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
         serviceBuilders.build(gerWebApp, earContext, module.getEarContext());
     }
 
-    protected void makeMetadataComplete(WebAppType webApp, Module module) throws DeploymentException {
-        if (!webApp.getMetadataComplete()) {
-            processAnnotations(webApp, module);
-            webApp.setMetadataComplete(true);
-            module.setSpecDD(webApp);
-            module.setOriginalSpecDD(webApp.toString());
-        }
-    }
+//  protected void makeMetadataComplete(WebAppType webApp, Module module) throws DeploymentException
+//      { if (!webApp.getMetadataComplete()) {
+//          processAnnotations(webApp, module);
+//          webApp.setMetadataComplete(true);
+//          module.setSpecDD(webApp);
+//          module.setOriginalSpecDD(webApp.toString());
+//      }
+//  }
 
-    private void processAnnotations(WebAppType webApp, Module module) throws DeploymentException {
+    protected ClassFinder createWebAppClassFinder(WebAppType webApp, WebModule webModule) throws DeploymentException {
 
-        //--------------------------------------------------------------------------------------
-        // First find the list of classes from the WAR we want to search for annotations in
-        //--------------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------------
+        // Find the list of classes from the web.xml we want to search for annotations in
+        //------------------------------------------------------------------------------------
         List<Class> classes = new ArrayList<Class>();
 
         // Get the classloader from the module's EARContext
-        ClassLoader classLoader = module.getEarContext().getClassLoader();
+        ClassLoader classLoader = webModule.getEarContext().getClassLoader();
 
         // Get all the servlets from the deployment descriptor
         ServletType[] servlets = webApp.getServletArray();
         for (ServletType servlet : servlets) {
             FullyQualifiedClassType cls = servlet.getServletClass();
-            if (cls != null) { //don't try this for jsps
+            if (cls != null) {                              // Don't try this for JSPs
                 Class<?> clas;
                 try {
                     clas = classLoader.loadClass(cls.getStringValue());
                 }
                 catch (ClassNotFoundException e) {
-                    throw new DeploymentException("WebModuleBuilder: Could not load servlet class: " + cls.getStringValue());
+                    throw new DeploymentException("AbstractWebModuleBuilder: Could not load servlet class: " + cls.getStringValue());
                 }
                 classes.add(clas);
             }
@@ -738,7 +738,7 @@ public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
                 clas = classLoader.loadClass(cls.getStringValue());
             }
             catch (ClassNotFoundException e) {
-                throw new DeploymentException("WebModuleBuilder: Could not load listener class: " + cls.getStringValue());
+                throw new DeploymentException("AbstractWebModuleBuilder: Could not load listener class: " + cls.getStringValue());
             }
             classes.add(clas);
         }
@@ -752,57 +752,12 @@ public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
                 clas = classLoader.loadClass(cls.getStringValue());
             }
             catch (ClassNotFoundException e) {
-                throw new DeploymentException("WebModuleBuilder: Could not load filter class: " + cls.getStringValue());
+                throw new DeploymentException("AbstractWebModuleBuilder: Could not load filter class: " + cls.getStringValue());
             }
             classes.add(clas);
         }
 
-        if (classes.size() > 0) {
-
-            //----------------------------------------------------
-            // Find all the annotated classes via ClassFinder
-            //----------------------------------------------------
-            ClassFinder classFinder = new ClassFinder(classes);
-
-            //--------------------------------------------------------------
-            // Finally process all the annotations for this module type
-            //--------------------------------------------------------------
-
-            // <ejb-ref>
-            // <ejb-local-ref>
-            if (EJBAnnotationHelper.annotationsPresent(classFinder)) {
-                try {
-                    ClassFinder ejbFinder = new ClassFinder(classLoader);
-//                  webApp = EJBAnnotationHelper.processAnnotations(webApp, classFinder, ejbFinder);
-                }
-                catch (Exception e) {
-                    throw new DeploymentException("TomcatModuleBuilder: Error processing @EJB(s) annotations", e);
-                }
-            }
-
-            // <env-entry>
-            // <message-destination>
-            // <message-destination-ref>
-            // <resource-env-ref>
-            // <resource-ref>
-            // <service-ref>
-            if (ResourceAnnotationHelper.annotationsPresent(classFinder)) {
-                try {
-//                  ResourceAnnotationHelper.processAnnotations(webApp, classFinder);
-                }
-                catch (Exception e) {
-                    throw new DeploymentException("TomcatModuleBuilder: Error processing @Resource(s) annotations", e);
-                }
-            }
-
-            /*  TODO
-               <security-role-ref>
-               <post-construct>
-               <pre-destroy>
-               <persistence-context-ref>
-               <persistence-unit-ref>
-            */
-        }
+        return new ClassFinder(classes);
     }
 
     class UncheckedItem {

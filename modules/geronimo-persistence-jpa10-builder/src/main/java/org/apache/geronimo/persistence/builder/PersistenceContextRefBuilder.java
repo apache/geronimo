@@ -71,6 +71,12 @@ public class PersistenceContextRefBuilder extends AbstractNamingBuilder {
     }
 
     public void buildNaming(XmlObject specDD, XmlObject plan, Configuration localConfiguration, Configuration remoteConfiguration, Module module, Map componentContext) throws DeploymentException {
+
+        // Discover and process any @PersistenceContextRef annotations (if !metadata-complete)
+        if ((module != null) && (module.getClassFinder() != null)) {
+            processAnnotations(module);
+        }
+
         List<PersistenceContextRefType> specPersistenceContextRefsUntyped = convert(specDD.selectChildren(PERSISTENCE_CONTEXT_REF_QNAME_SET), JEE_CONVERTER, PersistenceContextRefType.class, PersistenceContextRefType.type);
         Map<String, GerPersistenceContextRefType> gerPersistenceContextRefsUntyped = getGerPersistenceContextRefs(plan);
         for (PersistenceContextRefType persistenceContextRef : specPersistenceContextRefsUntyped) {
@@ -166,6 +172,21 @@ public class PersistenceContextRefBuilder extends AbstractNamingBuilder {
             persistenceUnitNameQuery = buildAbstractNameQuery(gbeanLocator, null, null, PERSISTENCE_UNIT_INTERFACE_TYPES);
         }
         return persistenceUnitNameQuery;
+    }
+
+    private void processAnnotations(Module module) throws DeploymentException {
+
+        // Process all the annotations for this naming builder type
+//      if (PersistenceContextRefAnnotationHelper.annotationsPresent(module.getClassFinder()))
+//              { try {
+//              PersistenceContextRefAnnotationHelper.processAnnotations(module.getAnnotatedApp(),
+//              module.getClassFinder());
+//          }
+//          catch (Exception e) {
+//              log.warn("Unable to process @PersistenceContextRef annotations for module" +
+//              module.getName(), e);
+//          }
+//      }
     }
 
     public QNameSet getSpecQNameSet() {

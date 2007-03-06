@@ -525,6 +525,9 @@ public class EjbModuleBuilder implements ModuleBuilder {
         EjbModule ejbModule = (EjbModule) module;
         EjbDeploymentBuilder ejbDeploymentBuilder = ejbModule.getEjbBuilder();
 
+        // add enc
+        ejbDeploymentBuilder.buildEnc();
+
         // Add JSR77 EJBModule GBean
         GBeanData ejbModuleGBeanData = new GBeanData(ejbModule.getModuleName(), EjbModuleImplGBean.GBEAN_INFO);
         try {
@@ -550,9 +553,6 @@ public class EjbModuleBuilder implements ModuleBuilder {
 
         // add a depdendency on the ejb module object
         ejbDeploymentBuilder.addEjbModuleDependency(ejbModuleGBeanData.getAbstractName());
-
-        // add enc
-        ejbDeploymentBuilder.buildEnc();
 
         // add the Jacc permissions to the ear
         ComponentPermissions componentPermissions = ejbDeploymentBuilder.buildComponentPermissions();

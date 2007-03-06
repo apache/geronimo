@@ -17,7 +17,6 @@
 
 package org.apache.geronimo.naming.deployment;
 
-import java.io.IOException;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -30,7 +29,6 @@ import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.service.EnvironmentBuilder;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
-import org.apache.geronimo.j2ee.deployment.annotation.AnnotatedApp;
 import org.apache.geronimo.j2ee.deployment.annotation.WebServiceRefAnnotationHelper;
 import org.apache.geronimo.j2ee.deployment.Module;
 import org.apache.geronimo.j2ee.deployment.WebModule;
@@ -42,7 +40,6 @@ import org.apache.geronimo.naming.deployment.AbstractNamingBuilder;
 import org.apache.geronimo.xbeans.geronimo.naming.GerServiceRefDocument;
 import org.apache.geronimo.xbeans.geronimo.naming.GerServiceRefType;
 import org.apache.geronimo.xbeans.javaee.ServiceRefType;
-import org.apache.geronimo.xbeans.javaee.WebAppType;
 import org.apache.xbean.finder.ClassFinder;
 import org.apache.xbean.finder.UrlSet;
 import org.apache.xmlbeans.QNameSet;
@@ -92,19 +89,9 @@ public class SwitchingServiceRefBuilder extends AbstractNamingBuilder {
                             Module module,
                             Map componentContext) throws DeploymentException {
 
-        if ( module instanceof WebModule ) {
-            //TODO determine if its metdatacomplete by presence of ClassFinder in module
-            //This will let this code work on any dd type.
-            WebAppType webApp = (WebAppType) specDD;
-            if (!webApp.getMetadataComplete()) {
-
-                // Discover and process any @WebServiceRef annotations
-                processAnnotations(module);
-
-                // Update both versions of specDD in module
-                module.setSpecDD(webApp);
-                module.setOriginalSpecDD(webApp.toString());
-            }
+        // Discover and process any @WebServiceRef annotations (if !metadata-complete)
+        if ((module != null) && (module.getClassFinder() != null)) {
+            processAnnotations(module);
         }
 
         ClassLoader cl = module.getEarContext().getClassLoader();
@@ -204,38 +191,14 @@ public class SwitchingServiceRefBuilder extends AbstractNamingBuilder {
 
     private void processAnnotations(Module module) throws DeploymentException {
 
-        // Find all the annotated classes via ClassFinder
-        try {
-            ClassLoader classLoader = module.getEarContext().getClassLoader();
-            UrlSet urlSet = new UrlSet(classLoader);
-            if (classLoader instanceof MultiParentClassLoader) {
-                MultiParentClassLoader multiParentClassLoader = (MultiParentClassLoader) classLoader;
-                for (ClassLoader parent : multiParentClassLoader.getParents()) {
-                    if (parent != null) {
-                        urlSet = urlSet.exclude(parent);
-                    }
-                }
-            } else {
-                ClassLoader parent = classLoader.getParent();
-                if (parent != null) {
-                    urlSet = urlSet.exclude(parent);
-                }
+        // Process all the annotations for this naming builder type
+        if (WebServiceRefAnnotationHelper.annotationsPresent(module.getClassFinder())) {
+            try {
+                WebServiceRefAnnotationHelper.processAnnotations(module.getAnnotatedApp(), module.getClassFinder());
             }
-            ClassFinder finder = new ClassFinder(classLoader, urlSet.getUrls());
-
-            // Process all the annotations for this naming builder type
-            if (WebServiceRefAnnotationHelper.annotationsPresent(finder)) {
-                try {
-                    WebServiceRefAnnotationHelper.processAnnotations(module.getAnnotatedApp(), finder);
-                }
-                catch (Exception e) {
-                    log.warn("Unable to process @WebServiceRef annotations for web module" + module.getName(), e);
-                }
+            catch (Exception e) {
+                log.warn("Unable to process @WebServiceRef annotations for module" + module.getName(), e);
             }
-
-        } catch (IOException e) {
-            // ignored... we tried
-            log.warn("Unable to process @WebServiceRef annotations for web module" + module.getName(), e);
         }
     }
 

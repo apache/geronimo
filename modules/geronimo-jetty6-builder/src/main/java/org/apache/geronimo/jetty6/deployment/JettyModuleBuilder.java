@@ -112,13 +112,13 @@ import org.apache.geronimo.xbeans.javaee.UrlPatternType;
 import org.apache.geronimo.xbeans.javaee.WebAppDocument;
 import org.apache.geronimo.xbeans.javaee.WebAppType;
 import org.apache.geronimo.xbeans.javaee.WelcomeFileListType;
+import org.apache.xbean.finder.ClassFinder;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
 import org.mortbay.jetty.security.BasicAuthenticator;
 import org.mortbay.jetty.security.ClientCertAuthenticator;
 import org.mortbay.jetty.security.DigestAuthenticator;
 import org.mortbay.jetty.security.FormAuthenticator;
-import org.apache.geronimo.j2ee.deployment.annotation.AnnotatedWebApp;
 
 
 /**
@@ -330,7 +330,20 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
         Map buildingContext = new HashMap();
         buildingContext.put(NamingBuilder.GBEAN_NAME_KEY, moduleName);
         Configuration earConfiguration = earContext.getConfiguration();
+
+        if (!webApp.getMetadataComplete()) {
+            // Create a classfinder and populate it for the naming builder(s). The absence of a
+            // classFinder in the module will convey whether metadata-complete is set (or not)
+            webModule.setClassFinder(createWebAppClassFinder(webApp, webModule));
+        }
+
         getNamingBuilders().buildNaming(webApp, jettyWebApp, earConfiguration, earConfiguration, (Module) webModule, buildingContext);
+
+        if (!webApp.getMetadataComplete()) {
+            webApp.setMetadataComplete(true);
+            module.setOriginalSpecDD(module.getSpecDD().toString());
+        }
+
         Map compContext = NamingBuilder.JNDI_KEY.get(buildingContext);
         Map<String, List<Injection>> injections = NamingBuilder.INJECTION_KEY.get(buildingContext);
         Map<String, Holder> holders = new HashMap<String, Holder> ();

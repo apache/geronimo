@@ -73,6 +73,12 @@ public class PersistenceUnitRefBuilder extends AbstractNamingBuilder {
     }
 
     public void buildNaming(XmlObject specDD, XmlObject plan, Configuration localConfiguration, Configuration remoteConfiguration, Module module, Map componentContext) throws DeploymentException {
+
+        // Discover and process any @PersistenceUnitRef annotations (if !metadata-complete)
+        if ((module != null) && (module.getClassFinder() != null)) {
+            processAnnotations(module);
+        }
+
         List<PersistenceUnitRefType> specPersistenceUnitRefsUntyped = convert(specDD.selectChildren(PersistenceUnitRefBuilder.PERSISTENCE_UNIT_REF_QNAME_SET), JEE_CONVERTER, PersistenceUnitRefType.class, PersistenceUnitRefType.type);
         Map<String, GerPersistenceUnitRefType> gerPersistenceUnitRefsUntyped = getGerPersistenceUnitRefs(plan);
         for (PersistenceUnitRefType PersistenceUnitRef: specPersistenceUnitRefsUntyped) {
@@ -119,6 +125,21 @@ public class PersistenceUnitRefBuilder extends AbstractNamingBuilder {
             NamingBuilder.JNDI_KEY.get(componentContext).put(ENV + PersistenceUnitRefName, reference);
 
         }
+    }
+
+    private void processAnnotations(Module module) throws DeploymentException {
+
+        // Process all the annotations for this naming builder type
+//      if (PersistenceUnitRefAnnotationHelper.annotationsPresent(module.getClassFinder())) {
+//          try {
+//              PersistenceUnitRefAnnotationHelper.processAnnotations(module.getAnnotatedApp(),
+//              module.getClassFinder());
+//          }
+//          catch (Exception e) {
+//              log.warn("Unable to process @PersistenceUnitRef annotations for module" +
+//              module.getName(), e);
+//          }
+//      }
     }
 
     private AbstractNameQuery findPersistenceUnit(GerPersistenceUnitRefType gerPersistenceUnitRef) {

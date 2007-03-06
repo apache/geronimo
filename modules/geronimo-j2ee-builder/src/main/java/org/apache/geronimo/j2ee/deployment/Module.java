@@ -26,6 +26,7 @@ import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.deployment.util.DeploymentUtil;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.j2ee.deployment.annotation.AnnotatedApp;
+import org.apache.xbean.finder.ClassFinder;
 
 /**
  * @version $Rev$ $Date$
@@ -48,10 +49,11 @@ public abstract class Module {
     private XmlObject specDD;
     private String originalSpecDD;
     private AnnotatedApp annotatedApp;
+    private ClassFinder classFinder;
 
     protected final Map sharedContext;
 
-    protected Module(boolean standAlone, AbstractName moduleName, Environment environment, JarFile moduleFile, String targetPath, XmlObject specDD, XmlObject vendorDD, String originalSpecDD, String namespace, Map sharedContext, AnnotatedApp annotatedApp) {
+    protected Module(boolean standAlone, AbstractName moduleName, Environment environment, JarFile moduleFile, String targetPath, XmlObject specDD, XmlObject vendorDD, String originalSpecDD, String namespace, Map sharedContext, AnnotatedApp annotatedApp ) {
         assert targetPath != null: "targetPath is null";
         assert moduleName != null: "moduleName is null";
 
@@ -76,6 +78,7 @@ public abstract class Module {
         targetPathURI = URI.create(targetPath + "/");
         this.sharedContext = sharedContext;
         this.annotatedApp = annotatedApp;
+        this.classFinder = classFinder;
     }
 
     public abstract ConfigurationModuleType getType();
@@ -182,5 +185,13 @@ public abstract class Module {
 
     public void setAnnotatedApp(AnnotatedApp annotatedApp) {
         this.annotatedApp = annotatedApp;
+    }
+
+    public ClassFinder getClassFinder() {
+        return classFinder;
+    }
+
+    public void setClassFinder(ClassFinder classFinder) {
+        this.classFinder = classFinder;
     }
 }
