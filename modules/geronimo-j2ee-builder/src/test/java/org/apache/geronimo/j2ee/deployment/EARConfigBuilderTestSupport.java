@@ -16,7 +16,6 @@
  */
 package org.apache.geronimo.j2ee.deployment;
 
-import java.io.IOException;
 import java.util.Collections;
 import java.util.Map;
 import java.util.jar.JarFile;
@@ -75,6 +74,8 @@ public abstract class EARConfigBuilderTestSupport
     protected static final NamespaceDrivenBuilder securityBuilder = null;
     
     protected static final NamespaceDrivenBuilder serviceBuilder = null;
+
+    protected static final NamespaceDrivenBuilder persistenceUnitBuilder = null;
 
     protected static final Naming naming = new Jsr77Naming();
 
@@ -140,6 +141,7 @@ public abstract class EARConfigBuilderTestSupport
                     appClientConfigBuilder,
                     securityBuilder,
                     serviceBuilder,
+                    persistenceUnitBuilder,
                     naming);
 
             Object plan = configBuilder.getDeploymentPlan(null, earFile, idBuilder);
@@ -171,6 +173,7 @@ public abstract class EARConfigBuilderTestSupport
                 appClientConfigBuilder,
                 securityBuilder,
                 serviceBuilder,
+                persistenceUnitBuilder,
                 naming);
 
         ConfigurationData configurationData = null;
@@ -208,6 +211,7 @@ public abstract class EARConfigBuilderTestSupport
                 appClientConfigBuilder,
                 securityBuilder,
                 serviceBuilder,
+                persistenceUnitBuilder,
                 naming);
 
         ConfigurationData configurationData = null;
@@ -245,6 +249,7 @@ public abstract class EARConfigBuilderTestSupport
                 appClientConfigBuilder,
                 securityBuilder,
                 serviceBuilder,
+                persistenceUnitBuilder,
                 naming);
 
         ConfigurationData configurationData = null;
@@ -282,6 +287,7 @@ public abstract class EARConfigBuilderTestSupport
                 appClientConfigBuilder,
                 securityBuilder,
                 serviceBuilder,
+                persistenceUnitBuilder,
                 naming);
 
         ConfigurationData configurationData = null;
@@ -319,6 +325,7 @@ public abstract class EARConfigBuilderTestSupport
                 appClientConfigBuilder,
                 securityBuilder,
                 serviceBuilder,
+                persistenceUnitBuilder,
                 naming);
 
 
@@ -357,6 +364,7 @@ public abstract class EARConfigBuilderTestSupport
                 appClientConfigBuilder,
                 securityBuilder,
                 serviceBuilder,
+                persistenceUnitBuilder,
                 naming);
 
         ConfigurationData configurationData = null;
@@ -394,6 +402,7 @@ public abstract class EARConfigBuilderTestSupport
                 appClientConfigBuilder,
                 securityBuilder,
                 serviceBuilder,
+                persistenceUnitBuilder,
                 naming);
 
         ConfigurationData configurationData = null;

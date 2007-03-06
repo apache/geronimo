@@ -153,6 +153,7 @@ public class ConnectorModuleBuilderTest extends TestSupport {
                     null,
                     null,
                     serviceBuilder,
+                    null,
                     kernel.getNaming());
             ConfigurationData configData = null;
             DeploymentContext context = null;

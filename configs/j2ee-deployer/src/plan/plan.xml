@@ -39,6 +39,11 @@
         <reference name="ServiceBuilders">
             <name>GBeanBuilder</name>
         </reference>
+        <references name="PersistenceUnitBuilders">
+            <pattern>
+                <name>PersistenceUnitBuilder</name>
+            </pattern>
+        </references>
         <references name="EJBConfigBuilder">
             <pattern>
                 <name>EJBBuilder</name>
