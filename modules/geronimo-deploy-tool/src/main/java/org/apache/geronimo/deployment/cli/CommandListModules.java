@@ -94,25 +94,48 @@ public class CommandListModules extends AbstractCommand {
             notrunning = new TargetModuleID[0];
         }
 
+        // print the module count, and if there are more than one
+        // targets print that count, too
         int total = running.length+notrunning.length;
-        out.println("Found "+total+" module"+(total != 1 ? "s" : ""));
-        for (int i = 0; i < running.length; i++) {
-            TargetModuleID result = running[i];
-            out.println("  + "+result.getModuleID()+(tlist.length > 1 ? " on "+result.getTarget().getName(): "")+(result.getWebURL() == null ? "" : " @ "+result.getWebURL()));
-            if(result.getChildTargetModuleID() != null) {
-                for (int j = 0; j < result.getChildTargetModuleID().length; j++) {
-                    TargetModuleID child = result.getChildTargetModuleID()[j];
-                    out.println("      `-> "+child.getModuleID()+(child.getWebURL() == null ? "" : " @ "+child.getWebURL()));
-                }
-            }
+        out.print("Found "+total+" module"+(total != 1 ? "s" : ""));
+        if (tlist.length > 1)
+            out.println(" deployed to " + tlist.length + " target" + (tlist.length != 1 ? "s" : ""));
+        else
+            out.println("");
+
+        // for each target, print the modules that were deployed to it
+        for (int i = 0; i < tlist.length; i++) {
+            Target target = tlist[i];
+            if (tlist.length > 1)
+                out.println("\n Target " + target);
+            printTargetModules(out, target, running, "  + ");
+            printTargetModules(out, target, notrunning, "    ");
         }
-        for (int i = 0; i < notrunning.length; i++) {
-            TargetModuleID result = notrunning[i];
-            out.println("    "+result.getModuleID()+(tlist.length > 1 ? " on "+result.getTarget().getName(): ""));
-            if(result.getChildTargetModuleID() != null) {
-                for (int j = 0; j < result.getChildTargetModuleID().length; j++) {
-                    TargetModuleID child = result.getChildTargetModuleID()[j];
-                    out.println("      `-> "+child.getModuleID());
+    }
+
+
+    /**
+     * Prints the names of the modules (that belong to the target) on
+     * the provided PrintWriter.
+     *
+     * @param out a <code>PrintWriter</code> 
+     * @param target a <code>Target</code> value; only the modules
+     * whose target equals this one will be listed.  Must not be null.
+     * @param modules a <code>TargetModuleID[]</code> value, must not
+     * be null.
+     * @param prefix a <code>String</code> value that will be
+     * prepended to each module
+     */
+    void printTargetModules(PrintWriter out, Target target, TargetModuleID[] modules, String prefix) {
+        for (int i = 0; i < modules.length; i++) {
+            TargetModuleID result = modules[i];
+            if (result.getTarget().equals(target)) {
+                out.println(prefix+result.getModuleID());
+                if(result.getChildTargetModuleID() != null) {
+                    for (int j = 0; j < result.getChildTargetModuleID().length; j++) {
+                        TargetModuleID child = result.getChildTargetModuleID()[j];
+                        out.println("      `-> "+child.getModuleID());
+                    }
                 }
             }
         }
