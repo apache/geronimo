@@ -154,10 +154,11 @@ public final class AppClientContainer {
             ObjectRecipe objectRecipe = new ObjectRecipe(mainClassName);
             objectRecipe.allow(Option.FIELD_INJECTION);
             objectRecipe.allow(Option.PRIVATE_PROPERTIES);
+            objectRecipe.allow(Option.STATIC_PROPERTIES);
             objectRecipe.allow(Option.IGNORE_MISSING_PROPERTIES);
             if (injections != null) {
                 for (Injection injection : injections) {
-                    try {
+                    try {                                                          
                         String jndiName = injection.getJndiName();
                         //our componentContext is attached to jndi at "java:comp" so we remove that when looking stuff up in it
                         Object object = componentContext.lookup("env/" + jndiName);
