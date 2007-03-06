@@ -174,10 +174,6 @@
         </gbean>
     </module>
     
-    <!--
-    FIXME: This is disabled for now because of issues with building the latest
-           cxf bits... should be fixed soon (I hope) and then can turn this back on.
-    
     <module name="org.apache.geronimo.configs/cxf-deployer/${version}/car" 
             condition="props.getProperty('org.apache.geronimo.jaxws.provider', 'cxf') == 'cxf'">
 
@@ -196,7 +192,6 @@
              </attribute>
         </gbean>
     </module>
-    -->
     
     <module name="org.apache.geronimo.configs/axis-deployer/${version}/car">
         <gbean name="AxisServiceRefBuilder">

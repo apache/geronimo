@@ -105,10 +105,8 @@
         <module>geronimo-persistence-jpa10-builder</module>
         <module>geronimo-axis2</module>
         <module>geronimo-axis2-builder</module>
-        <!--
         <module>geronimo-cxf</module>
         <module>geronimo-cxf-builder</module>
-        -->
         <module>geronimo-jaxws</module>
         <module>geronimo-jaxws-builder</module>
         <module>geronimo-jetty6</module>

@@ -54,7 +54,7 @@ public class GeronimoDestination extends AbstractHTTPDestination
     public GeronimoDestination(Bus bus, 
                                ConduitInitiator conduitInitiator, 
                                EndpointInfo endpointInfo) throws IOException {
-        super(bus, conduitInitiator, endpointInfo);
+        super(bus, conduitInitiator, endpointInfo, true);
     }
 
     public EndpointInfo getEndpointInfo() {
