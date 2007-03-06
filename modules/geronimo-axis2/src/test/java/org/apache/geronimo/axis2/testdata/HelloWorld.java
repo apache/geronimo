@@ -19,7 +19,7 @@ package org.apache.geronimo.axis2.testdata;
 import javax.jws.WebMethod;
 import javax.jws.WebService;
 
-@WebService(name="HelloWorld")
+@WebService(name="HelloWorld", targetNamespace = "http://example.org")
 public class HelloWorld {
 
     @WebMethod

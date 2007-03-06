@@ -24,7 +24,7 @@ import org.apache.geronimo.testsupport.TestSupport;
 public abstract class Axis2AbstractTestCase
     extends TestSupport
 {
-    protected String testDir = "src/main/test/";
+    protected String testDir = "src/test/";
     protected String sampleDir = "src/main/test/samples/";
     protected String outDir = "target/generated/samples/";
     protected String tempDir = "target/generated/temp";

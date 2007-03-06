@@ -19,12 +19,14 @@ package org.apache.geronimo.axis2;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.StringReader;
 import java.net.URI;
 import java.util.HashMap;
 
 import org.apache.geronimo.axis2.pojo.POJOWebServiceContainer;
 import org.apache.geronimo.jaxws.PortInfo;
 import org.apache.geronimo.webservices.WebServiceContainer.Request;
+import org.xml.sax.InputSource;
 
 public class Axis2WebServiceContainerTest extends Axis2AbstractTestCase {
     public Axis2WebServiceContainerTest(String testName) {
@@ -34,18 +36,44 @@ public class Axis2WebServiceContainerTest extends Axis2AbstractTestCase {
     public void testInvokeWithWSDLDocLit() throws Exception {
         testInvokeWithWSDL("test_service_doc_lit_request.xml", "test_service_doc_lit.wsdl");
     }
-    
+
     //TODO:
     public void testInvokeWithWSDLRPCLit() throws Exception {
     }
-    
+
+    public void testGetWSDL() throws Exception {
+        ClassLoader cl = Thread.currentThread().getContextClassLoader();
+
+        PortInfo portInfo = new PortInfo();
+        portInfo.setLocation("HelloWorld");
+        portInfo.setServiceEndpointInterfaceName("org.apache.geronimo.axis2.testdata.HelloWorld");
+//        portInfo.setWsdlFile("file://" + testDir + "/resources/test_service_doc_lit.wsdl");
+
+        Axis2Request req = new Axis2Request(504,
+                "text/xml; charset=utf-8",
+                null,
+                Request.GET,
+                new HashMap(),
+                new URI("/axis2/HelloWorld?wsdl"),
+                new HashMap(),
+                "127.0.0.1");
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        Axis2Response res = new Axis2Response("text/xml; charset=utf-8", "127.0.0.1", null, null, 8080, out);
+        
+        String endpointClassName = "org.apache.geronimo.axis2.testdata.HelloWorld";
+        POJOWebServiceContainer container = new POJOWebServiceContainer(portInfo, endpointClassName, cl, null, null);
+        container.invoke(req, res);
+        out.flush();
+
+    }
+
     private void testInvokeWithWSDL(String requestFile, String wsdlFile) throws Exception {
         ClassLoader cl = Thread.currentThread().getContextClassLoader();
         InputStream in = cl.getResourceAsStream(requestFile);
 
         PortInfo portInfo = new PortInfo();
         portInfo.setLocation("servlet");
-     
+
         try {
             Axis2Request req = new Axis2Request(504,
                     "text/xml; charset=utf-8",
@@ -55,19 +83,19 @@ public class Axis2WebServiceContainerTest extends Axis2AbstractTestCase {
                     new URI("/axis2/servlet"),
                     new HashMap(),
                     "127.0.0.1");
-            
+
             ByteArrayOutputStream out = new ByteArrayOutputStream();
             Axis2Response res = new Axis2Response("text/xml; charset=utf-8", "127.0.0.1", null, null, 8080, out);
-            
+
             String endpointClassName = "org.apache.geronimo.axis2.testdata.HelloWorld";
-            POJOWebServiceContainer container = new POJOWebServiceContainer(portInfo, endpointClassName, cl , null, null);
+            POJOWebServiceContainer container = new POJOWebServiceContainer(portInfo, endpointClassName, cl, null, null);
             container.invoke(req, res);
             out.flush();
-     
-        } catch(Throwable ex){    
+
+        } catch (Throwable ex) {
             ex.printStackTrace();
             throw new Exception(ex.toString());
-        }finally {
+        } finally {
             if (in != null) {
                 try {
                     in.close();
@@ -83,6 +111,6 @@ public class Axis2WebServiceContainerTest extends Axis2AbstractTestCase {
 
     protected void tearDown() throws Exception {
     }
-    
+
 }
 

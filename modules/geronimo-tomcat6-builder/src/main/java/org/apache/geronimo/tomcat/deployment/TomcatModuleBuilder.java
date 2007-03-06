@@ -32,6 +32,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.jar.JarFile;
 
 import javax.servlet.Servlet;
@@ -155,10 +156,11 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder {
             webApp = WebAppType.Factory.newInstance();
 
         // parse vendor dd
-        TomcatWebAppType tomcatWebApp = getTomcatWebApp(plan, moduleFile, standAlone, targetPath, webApp);
+        AtomicBoolean usedDefault = new AtomicBoolean(false);
+        TomcatWebAppType tomcatWebApp = getTomcatWebApp(plan, moduleFile, standAlone, targetPath, webApp, usedDefault);
 
         //If we have a context root, override everything
-        if (tomcatWebApp.isSetContextRoot()) {
+        if (tomcatWebApp.isSetContextRoot() && !usedDefault.get()) {
             contextRoot = tomcatWebApp.getContextRoot();
         } else {
             //Otherwise if no contextRoot was passed in from the ear, then make up a default
@@ -207,7 +209,7 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder {
     }
 
 
-    TomcatWebAppType getTomcatWebApp(Object plan, JarFile moduleFile, boolean standAlone, String targetPath, WebAppType webApp) throws DeploymentException {
+    TomcatWebAppType getTomcatWebApp(Object plan, JarFile moduleFile, boolean standAlone, String targetPath, WebAppType webApp, AtomicBoolean usedDefault) throws DeploymentException {
         XmlObject rawPlan = null;
         try {
             // load the geronimo-web.xml from either the supplied plan or from the earFile
@@ -244,6 +246,7 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder {
             } else {
                 String defaultContextRoot = determineDefaultContextRoot(webApp, standAlone, moduleFile, targetPath);
                 tomcatWebApp = createDefaultPlan(defaultContextRoot);
+                usedDefault.set(true);
             }
             return tomcatWebApp;
         } catch (XmlException e) {
