@@ -694,7 +694,6 @@ public class AppClientModuleBuilder implements ModuleBuilder, CorbaGBeanNameSour
         ClassLoader classLoader = appClientModule.getEarContext().getClassLoader();
 
         // Get the main class from the module
-        //TODO the main class is specified in the manifest
         String mainClass = appClientModule.getMainClassName();
         Class<?> mainClas;
         try {
