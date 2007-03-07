@@ -160,22 +160,29 @@ public class Daemon {
 
             // Perform initialization tasks common with the various Geronimo environments
             GeronimoEnvironment.init();
-
-            // This MUST be done before the first log is acquired (WHICH THE STARTUP MONITOR 5 LINES LATER DOES!)
-            // Generally we want to suppress anything but WARN until the log GBean starts up
-            GeronimoLogging.initialize(verboseArg == null || verboseArg.equals(ARGUMENT_VERBOSE) ? GeronimoLogging.WARN : GeronimoLogging.DEBUG);
-            // The following will be used once the log GBean starts up
-            GeronimoLogging.setConsoleLogLevel(verboseArg == null ? GeronimoLogging.INFO : verboseArg.equals(ARGUMENT_VERBOSE) ? GeronimoLogging.DEBUG : GeronimoLogging.TRACE);
+            
+            // This MUST be done before the first log is acquired (which the startup monitor below does)
+            GeronimoLogging level = GeronimoLogging.WARN;
+            if (verboseArg != null) {
+                if (verboseArg.equals(ARGUMENT_VERBOSE)) {
+                    level = GeronimoLogging.DEBUG;
+                } else if (verboseArg.equals(ARGUMENT_MORE_VERBOSE)) {
+                    level = GeronimoLogging.TRACE;
+                }
+            }
+            GeronimoLogging.initialize(level);
+            
             log = LogFactory.getLog(Daemon.class.getName());
         }
 
         if (verboseArg != null || noProgressArg != null) {
             monitor = new SilentStartupMonitor();
         } else {
-            if (longProgressArg != null)
+            if (longProgressArg != null) {
                 monitor = new LongStartupMonitor();
-            else
+            } else {
                 monitor = new ProgressBarStartupMonitor();
+            }
         }
 
         // JVMCheck();   // Removed for 1.1
@@ -197,13 +204,11 @@ public class Daemon {
             // since we allow it to be configured in geronimo.bat and geronimo.sh
             // (since 1.0 release) the same way Tomcat allows it to be configured.
             String tmpDir = System.getProperty("java.io.tmpdir");
-            if (tmpDir == null || (!(new File(tmpDir)).exists()) ||
-                    (!(new File(tmpDir)).isDirectory())) {
-                    System.err.println("The java.io.tmpdir system property specifies the "+
-                            "non-existent directory " +tmpDir);
-                    System.exit(1);
-                    throw new AssertionError();
-                }
+            if (tmpDir == null || (!(new File(tmpDir)).exists()) || (!(new File(tmpDir)).isDirectory())) {
+                System.err.println("The java.io.tmpdir system property specifies the non-existent directory: " + tmpDir);
+                System.exit(1);
+                throw new AssertionError();
+            }
 
             // Determine the geronimo installation directory
             File geronimoInstallDirectory = DirectoryUtils.getGeronimoInstallDirectory();
