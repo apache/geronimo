@@ -86,7 +86,7 @@
                 <type>JCAManagedConnectionFactory</type>
             </pattern>
             <pattern>
-                <type>ActivationSpec</type>
+                <type>JCAActivationSpec</type>
             </pattern>
         </references>
     </gbean>
