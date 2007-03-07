@@ -25,7 +25,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 /**
- * @version $Rev:$ $Date:$
+ * @version $Rev$ $Date$
  */
 public class LifecycleMethod implements Serializable {
 
@@ -46,8 +46,10 @@ public class LifecycleMethod implements Serializable {
         return methodName;
     }
 
-    public void call(Object o) throws IllegalAccessException, InvocationTargetException {
-        Class clazz = o.getClass();
+    public void call(Object o, Class clazz) throws IllegalAccessException, InvocationTargetException {
+        if (clazz == null) {
+            clazz = o.getClass();
+        }
         Method m;
         try {
             m = clazz.getMethod(methodName);

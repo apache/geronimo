@@ -17,14 +17,14 @@
 
 package org.apache.geronimo.naming.deployment;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.List;
-import java.util.ArrayList;
 
 import javax.xml.namespace.QName;
 
@@ -33,24 +33,26 @@ import org.apache.geronimo.deployment.service.EnvironmentBuilder;
 import org.apache.geronimo.deployment.xmlbeans.XmlBeansUtil;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.AbstractNameQuery;
+import org.apache.geronimo.j2ee.annotation.Holder;
+import org.apache.geronimo.j2ee.annotation.Injection;
+import org.apache.geronimo.j2ee.annotation.LifecycleMethod;
 import org.apache.geronimo.j2ee.deployment.Module;
 import org.apache.geronimo.j2ee.deployment.NamingBuilder;
-import org.apache.geronimo.j2ee.annotation.Injection;
 import org.apache.geronimo.kernel.config.Configuration;
 import org.apache.geronimo.kernel.repository.Artifact;
-import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.kernel.repository.Dependency;
+import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.kernel.repository.ImportType;
 import org.apache.geronimo.schema.NamespaceElementConverter;
-import org.apache.geronimo.xbeans.geronimo.naming.GerPatternType;
 import org.apache.geronimo.xbeans.geronimo.naming.GerAbstractNamingEntryDocument;
-import org.apache.geronimo.xbeans.javaee.XsdStringType;
+import org.apache.geronimo.xbeans.geronimo.naming.GerPatternType;
 import org.apache.geronimo.xbeans.javaee.InjectionTargetType;
+import org.apache.geronimo.xbeans.javaee.XsdStringType;
 import org.apache.xmlbeans.QNameSet;
 import org.apache.xmlbeans.SchemaType;
-import org.apache.xmlbeans.XmlObject;
-import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlCursor;
+import org.apache.xmlbeans.XmlException;
+import org.apache.xmlbeans.XmlObject;
 
 /**
  * @version $Rev$ $Date$
@@ -291,17 +293,43 @@ public abstract class AbstractNamingBuilder implements NamingBuilder {
 
 
     protected void addInjections(String jndiName, InjectionTargetType[] injectionTargetArray, Map sharedContext) {
-        Map<String, List<Injection>> injectionsMap = NamingBuilder.INJECTION_KEY.get(sharedContext);
+        Map<String, Holder> holders = NamingBuilder.INJECTION_KEY.get(sharedContext);
         for (InjectionTargetType injectionTarget : injectionTargetArray) {
             String targetName = injectionTarget.getInjectionTargetName().getStringValue().trim();
             String targetClassName = injectionTarget.getInjectionTargetClass().getStringValue().trim();
-            List<Injection> injections = injectionsMap.get(targetClassName);
+            Holder holder = getHolder(holders, targetClassName);
+            List<Injection> injections = holder.getInjections();
             if (injections == null) {
                 injections = new ArrayList<Injection>();
-                injectionsMap.put(targetClassName, injections);
+                holder.setInjections(injections);
             }
             injections.add(new Injection(targetClassName, targetName, jndiName));
         }
     }
 
+    protected void addPostConstruct(LifecycleMethod postConstruct, Map sharedContext) {
+        Map<String, Holder> holders = NamingBuilder.INJECTION_KEY.get(sharedContext);
+        String targetClassName = postConstruct.getTargetClassName();
+        Holder holder = getHolder(holders, targetClassName);
+        holder.setPostConstruct(postConstruct);
+    }
+
+    protected void addPreDestroy(LifecycleMethod preDestroy, Map sharedContext) {
+        Map<String, Holder> holders = NamingBuilder.INJECTION_KEY.get(sharedContext);
+        String targetClassName = preDestroy.getTargetClassName();
+        Holder holder = getHolder(holders, targetClassName);
+        holder.setPreDestroy(preDestroy);
+    }
+
+    private Holder getHolder(Map<String, Holder> holders, String targetClassName) {
+        Holder holder = holders.get(targetClassName);
+        if (holder == null) {
+            holder = new Holder();
+            holders.put(targetClassName, holder);
+        }
+        return holder;
+    }
+
 }
+
+

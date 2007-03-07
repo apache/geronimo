@@ -26,6 +26,7 @@ import org.apache.geronimo.kernel.config.Configuration;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.deployment.AbstractNamespaceBuilder;
 import org.apache.geronimo.j2ee.annotation.Injection;
+import org.apache.geronimo.j2ee.annotation.Holder;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.xmlbeans.QNameSet;
 import org.apache.xmlbeans.XmlObject;
@@ -49,12 +50,12 @@ public interface NamingBuilder extends AbstractNamespaceBuilder {
             return result;
         }
     };
-    Key<Map<String, List<Injection>>> INJECTION_KEY = new Key<Map<String, List<Injection>>>() {
+    Key<Map<String, Holder>> INJECTION_KEY = new Key<Map<String, Holder>>() {
 
-        public Map<String, List<Injection>> get(Map context) {
-            Map<String, List<Injection>> result = (Map<String, List<Injection>>) context.get(this);
+        public Map<String, Holder> get(Map context) {
+            Map<String, Holder> result = (Map<String, Holder>) context.get(this);
             if (result == null) {
-                result = new HashMap<String, List<Injection>>();
+                result = new HashMap<String, Holder>();
                 context.put(this, result);
             }
             return result;

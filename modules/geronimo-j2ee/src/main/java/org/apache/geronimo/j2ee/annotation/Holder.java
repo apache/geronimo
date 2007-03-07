@@ -24,23 +24,45 @@ import java.util.List;
 import java.io.Serializable;
 
 /**
- * @version $Rev:$ $Date:$
+ * @version $Rev$ $Date$
  */
 public class Holder implements Serializable {
 
-    public static final Holder EMPTY = new Holder(null, null, null);
+    public static final Holder EMPTY = new Holder() {
+
+        @Override
+        public void setInjections(List<Injection> injections) {
+        }
+
+        @Override
+        public void setPostConstruct(LifecycleMethod postConstruct) {
+        }
+
+        @Override
+        public void setPreDestroy(LifecycleMethod preDestroy) {
+        }
+    };
     
-    private final List<Injection> injections;
-    private final LifecycleMethod postConstruct;
-    private final LifecycleMethod preDestroy;
+    private List<Injection> injections;
+    private LifecycleMethod postConstruct;
+    private LifecycleMethod preDestroy;
 
 
-    public Holder(List<Injection> injections, LifecycleMethod postConstruct, LifecycleMethod preDestroy) {
-        this.injections = injections;
-        this.postConstruct = postConstruct;
-        this.preDestroy = preDestroy;
+    public Holder() {
     }
 
+
+    public void setInjections(List<Injection> injections) {
+        this.injections = injections;
+    }
+
+    public void setPostConstruct(LifecycleMethod postConstruct) {
+        this.postConstruct = postConstruct;
+    }
+
+    public void setPreDestroy(LifecycleMethod preDestroy) {
+        this.preDestroy = preDestroy;
+    }
 
     public List<Injection> getInjections() {
         return injections;

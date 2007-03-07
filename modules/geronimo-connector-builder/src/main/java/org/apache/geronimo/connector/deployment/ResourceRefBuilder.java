@@ -251,6 +251,17 @@ public class ResourceRefBuilder extends AbstractNamingBuilder implements Resourc
         public boolean processResource(AnnotatedApp annotatedApp, Resource annotation, Class cls, Method method, Field field) {
             String resourceName = getResourceName(annotation, method, field);
             String resourceType = getResourceType(annotation, method, field);
+            boolean isResourceRef = false;
+            if (resourceType.equals("javax.sql.DataSource") ||
+                    resourceType.equals("javax.jms.ConnectionFactory") ||
+                    resourceType.equals("javax.jms.QueueConnectionFactory") ||
+                    resourceType.equals("javax.jms.TopicConnectionFactory") ||
+                    resourceType.equals("javax.mail.Session") ||
+                    resourceType.equals("java.net.URL") ||
+                    resourceType.equals("javax.resource.cci.ConnectionFactory") ||
+                    resourceType.endsWith("ConnectionFactory")) {
+                isResourceRef = true;
+            } else
             if (resourceType.equals("javax.sql.DataSource") ||
                     resourceType.equals("javax.jms.ConnectionFactory") ||
                     resourceType.equals("javax.jms.QueueConnectionFactory") ||

@@ -57,6 +57,7 @@ import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.SingleElementCollection;
 import org.apache.geronimo.j2ee.annotation.Injection;
+import org.apache.geronimo.j2ee.annotation.Holder;
 import org.apache.geronimo.j2ee.deployment.AppClientModule;
 import org.apache.geronimo.j2ee.deployment.ConnectorModule;
 import org.apache.geronimo.j2ee.deployment.CorbaGBeanNameSource;
@@ -578,7 +579,7 @@ public class AppClientModuleBuilder implements ModuleBuilder, CorbaGBeanNameSour
                     }
                 }
 
-                Map<String, List<Injection>> injectionsMap;
+                Map<String, Holder> injectionsMap;
                 // add the app client static jndi provider
                 //TODO track resource ref shared and app managed security
                 AbstractName jndiContextName = earContext.getNaming().createChildName(appClientDeploymentContext.getModuleName(), "StaticJndiContext", "StaticJndiContext");
@@ -641,11 +642,11 @@ public class AppClientModuleBuilder implements ModuleBuilder, CorbaGBeanNameSour
                         appClientContainerGBeanData.setAttribute("defaultPrincipal", defaultPrincipal);
                     }
                     appClientContainerGBeanData.setReferencePattern("JNDIContext", jndiContextName);
-                    List<Injection> injections = injectionsMap.get(appClientModule.getMainClassName());
+                    Holder injections = injectionsMap.get(appClientModule.getMainClassName());
                     if (injections != null) {
                         appClientContainerGBeanData.setAttribute("injections", injections);
                     }
-                    List<Injection> callbackHandlerInjections = injectionsMap.get(callbackHandlerClassName);
+                    Holder callbackHandlerInjections = injectionsMap.get(callbackHandlerClassName);
                     if (callbackHandlerInjections != null) {
                         appClientContainerGBeanData.setAttribute("callbackHandlerInjections", callbackHandlerInjections);
                     }

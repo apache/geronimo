@@ -381,7 +381,7 @@ public class JettyWebAppContext implements GBeanLifecycle, JettyServletRegistrat
         LifecycleMethod postConstruct = holder.getPostConstruct();
         if (postConstruct != null) {
             try {
-                postConstruct.call(filter);
+                postConstruct.call(filter, null);
             } catch (InvocationTargetException e) {
                 Throwable cause = e.getCause();
                 throw (InstantiationException)new InstantiationException("Could not call postConstruct method").initCause(cause);
@@ -397,7 +397,7 @@ public class JettyWebAppContext implements GBeanLifecycle, JettyServletRegistrat
         if (holder != null) {
             LifecycleMethod lifecycleMethod = holder.getPreDestroy();
             if (lifecycleMethod != null) {
-                lifecycleMethod.call(o);
+                lifecycleMethod.call(o, o.getClass());
             }
         }
     }
