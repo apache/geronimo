@@ -559,11 +559,11 @@ public class EARConfigBuilder implements ConfigurationBuilder, CorbaGBeanNameSou
                 serviceBuilders.build(geronimoApplication, earContext, earContext);
             }
             
-            // process persistence unit in EAR library directory
-            persistenceUnitBuilders.build(geronimoApplication, earContext, earContext);
-            
-            // Create the J2EEApplication managed object
             if (ConfigurationModuleType.EAR == applicationType) {
+                // process persistence unit in EAR library directory
+                persistenceUnitBuilders.build(geronimoApplication, earContext, earContext);
+                
+                // Create the J2EEApplication managed object
                 GBeanData gbeanData = new GBeanData(earContext.getModuleName(), J2EEApplicationImpl.GBEAN_INFO);
                 try {
                     String originalSpecDD = applicationInfo.getOriginalSpecDD();
