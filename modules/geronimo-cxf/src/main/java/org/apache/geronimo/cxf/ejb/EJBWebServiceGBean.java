@@ -22,6 +22,7 @@ import javax.naming.Context;
 
 import org.apache.cxf.Bus;
 import org.apache.cxf.bus.CXFBusFactory;
+import org.apache.geronimo.cxf.CXFCatalogUtils;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
@@ -64,6 +65,10 @@ public class EJBWebServiceGBean implements GBeanLifecycle {
         bus.setExtension(new ServerJNDIResolver(context), JNDIResolver.class);
         bus.setExtension(portInfo, PortInfo.class);  
         bus.setExtension(ejbDeploymentContext.getDeploymentInfo(), DeploymentInfo.class);
+        
+        CXFCatalogUtils.loadOASISCatalog(bus, 
+                                         configurationBaseUrl, 
+                                         "META-INF/jax-ws-catalog.xml");
         
         EJBWebServiceContainer container = 
             new EJBWebServiceContainer(bus, configurationBaseUrl, beanClass);

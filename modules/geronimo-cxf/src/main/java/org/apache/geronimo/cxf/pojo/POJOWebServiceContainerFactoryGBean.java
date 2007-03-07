@@ -28,6 +28,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.cxf.Bus;
 import org.apache.cxf.bus.CXFBusFactory;
+import org.apache.geronimo.cxf.CXFCatalogUtils;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
@@ -52,12 +53,12 @@ public class POJOWebServiceContainerFactoryGBean implements WebServiceContainerF
     private final URL configurationBaseUrl;
 
     public POJOWebServiceContainerFactoryGBean(PortInfo portInfo,
-                                              String endpointClassName,
-                                              ClassLoader classLoader,
-                                              Map componentContext,
-                                              Kernel kernel,
-                                              TransactionManager transactionManager,
-                                              URL configurationBaseUrl)
+                                               String endpointClassName,
+                                               ClassLoader classLoader,
+                                               Map componentContext,
+                                               Kernel kernel,
+                                               TransactionManager transactionManager,
+                                               URL configurationBaseUrl)
             throws ClassNotFoundException, 
                    IllegalAccessException,
                    InstantiationException {
@@ -83,7 +84,11 @@ public class POJOWebServiceContainerFactoryGBean implements WebServiceContainerF
         this.endpointInstance = endpointClass.newInstance();
         
         this.bus.setExtension(new ServerJNDIResolver(context), JNDIResolver.class);
-        this.bus.setExtension(portInfo, PortInfo.class);        
+        this.bus.setExtension(portInfo, PortInfo.class);   
+        
+        CXFCatalogUtils.loadOASISCatalog(this.bus, 
+                                         this.configurationBaseUrl, 
+                                         "WEB-INF/jax-ws-catalog.xml");
     }
 
     public WebServiceContainer getWebServiceContainer() {
