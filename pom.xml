@@ -1879,6 +1879,55 @@
                 <module>applications</module>
             </modules>
         </profile>
+
+        <profile>
+            <id>makeeclipse</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-eclipse-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <phase>validate</phase>
+                                <goals>
+                                    <goal>eclipse</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.geronimo.genesis.plugins</groupId>
+                        <artifactId>script-maven-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <phase>validate</phase>
+                                <goals>
+                                    <goal>groovy</goal>
+                                </goals>
+                                <configuration>
+                                    <source>
+                                        <body>
+                                            def file = new File(project.basedir, '.classpath')
+                                            def dir = new File(project.basedir, 'target/generated-sources/xmlbeans')
+                                            def targetPath = 'target/clover/classes'
+                                            if (file.exists() &amp;&amp; dir.exists()) {
+                                                def classpath = new XmlParser().parse(file)
+                                                if (!classpath.classpathentry.findAll { it.'@path' == targetPath }) {
+                                                    println "Updating Eclipse .classpath for XMLBeans muck..."
+                                                    def node = new Node(classpath, "classpathentry", [ kind: 'lib', path: targetPath ])
+                                                    new XmlNodePrinter(file.newPrintWriter()).print(classpath)
+                                                }
+                                            }
+                                        </body>
+                                    </source>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
     </profiles>
 
 </project>
