@@ -97,14 +97,21 @@ public class RecoveryImpl implements Recovery {
             Xid xid = prepared[i];
             ByteArrayWrapper globalIdWrapper = new ByteArrayWrapper(xid.getGlobalTransactionId());
             XidBranchesPair xidNamesPair = (XidBranchesPair) ourXids.get(globalIdWrapper);
+            
             if (xidNamesPair != null) {
-                try {
-                    xaResource.commit(xid, false);
-                } catch (XAException e) {
-                    recoveryErrors.add(e);
-                    log.error(e);
+                
+                // Only commit if this NamedXAResource was the XAResource for the transaction.
+                // Otherwise, wait for recoverResourceManager to be called for the actual XAResource 
+                // This is a bit wasteful, but given our management of XAResources by "name", is about the best we can do.
+                if (isNameInTransaction(xidNamesPair, name)) {
+                    try {
+                        xaResource.commit(xid, false);
+                    } catch(XAException e) {
+                        recoveryErrors.add(e);
+                        log.error(e);
+                    }
+                    removeNameFromTransaction(xidNamesPair, name, true);
                 }
-                removeNameFromTransaction(xidNamesPair, name, true);
             } else if (xidFactory.matchesGlobalId(xid.getGlobalTransactionId())) {
                 //ours, but prepare not logged
                 try {
@@ -140,6 +147,16 @@ public class RecoveryImpl implements Recovery {
         }
     }
 
+    private boolean isNameInTransaction(XidBranchesPair xidBranchesPair, String name) {
+        for (Iterator branches = xidBranchesPair.getBranches().iterator(); branches.hasNext();) {
+            TransactionBranchInfo transactionBranchInfo = (TransactionBranchInfo) branches.next();
+            if (name.equals(transactionBranchInfo.getResourceName())) {
+                return true;
+            }
+        }
+        return false;
+    }
+    
     private void removeNameFromTransaction(XidBranchesPair xidBranchesPair, String name, boolean warn) {
         int removed = 0;
         for (Iterator branches = xidBranchesPair.getBranches().iterator(); branches.hasNext();) {
