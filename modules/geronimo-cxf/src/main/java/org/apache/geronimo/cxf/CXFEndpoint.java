@@ -64,21 +64,19 @@ public abstract class CXFEndpoint extends Endpoint {
   
     protected URL getWsdlURL(URL configurationBaseUrl, String wsdlFile) {
         URL wsdlURL = null;
-        if (wsdlFile != null) {
-
+        if (wsdlFile != null && wsdlFile.trim().length() > 0) {
+            wsdlFile = wsdlFile.trim();
             try {
                 wsdlURL = new URL(wsdlFile);
             } catch (MalformedURLException e) {
                 // Not a URL, try as a resource
-                wsdlURL = this.implementor.getClass().getResource(
-                        "/" + wsdlFile);
+                wsdlURL = this.implementor.getClass().getResource("/" + wsdlFile);
 
                 if (wsdlURL == null && configurationBaseUrl != null) {
                     // Cannot get it as a resource, try with
                     // configurationBaseUrl
                     try {
-                        wsdlURL = new URL(configurationBaseUrl.toString()
-                                + wsdlFile);
+                        wsdlURL = new URL(configurationBaseUrl, wsdlFile);
                     } catch (MalformedURLException ee) {
                         // ignore
                     }

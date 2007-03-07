@@ -56,10 +56,13 @@ public class POJOEndpoint extends CXFEndpoint {
         serviceFactory = new JaxWsServiceFactoryBean(implInfo);        
         serviceFactory.setBus(bus);
                 
-        /*
-         * TODO: The WSDL processing needs to be improved
-         */
-        URL wsdlURL = getWsdlURL(configurationBaseUrl, this.portInfo.getWsdlFile());
+        String wsdlLocation = null;
+        if (this.portInfo.getWsdlFile() != null) {
+            wsdlLocation = this.portInfo.getWsdlFile();
+        } else {
+            wsdlLocation = implInfo.getWsdlLocation();
+        }        
+        URL wsdlURL = getWsdlURL(configurationBaseUrl, wsdlLocation);
 
         // install as first to overwrite annotations (wsdl-file, wsdl-port, wsdl-service)
         CXFServiceConfiguration configuration = 
