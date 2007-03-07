@@ -148,6 +148,11 @@
                         <type>jar</type>
                     </dependency>
                     <dependency>
+                       <groupId>xml-resolver</groupId>
+                       <artifactId>xml-resolver</artifactId>
+                       <type>jar</type>
+                    </dependency>
+                    <dependency>
                         <groupId>org.apache.geronimo.configs</groupId>
                         <artifactId>client-security</artifactId>
                         <type>car</type>
