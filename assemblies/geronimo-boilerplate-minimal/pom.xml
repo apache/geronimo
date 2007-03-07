@@ -116,34 +116,6 @@
                     </execution>
                     
                     <execution>
-                        <id>install-lib-endorsed</id>
-                        <phase>compile</phase>
-                        <goals>
-                            <goal>copy</goal>
-                        </goals>
-                        <configuration>
-                            <artifactItems>
-                                <artifactItem>
-                                    <groupId>xerces</groupId>
-                                    <artifactId>xercesImpl</artifactId>
-                                </artifactItem>
-                                
-                                <artifactItem>
-                                    <groupId>xml-apis</groupId>
-                                    <artifactId>xml-apis</artifactId>
-                                </artifactItem>
-
-                                <artifactItem>
-                                    <groupId>xalan</groupId>
-                                    <artifactId>xalan</artifactId>
-                                </artifactItem>
-
-                            </artifactItems>
-                            <outputDirectory>${project.build.directory}/classes/lib/endorsed</outputDirectory>
-                        </configuration>
-                    </execution>
-                    
-                    <execution>
                         <id>unpack-schemas</id>
                         <phase>compile</phase>
                         <goals>
