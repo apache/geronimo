@@ -63,7 +63,7 @@ public class Daemon {
         // Very first startup tasks
         long start = System.currentTimeMillis();
         // Command line arguments affect logging configuration, etc.
-        if(processArguments(args)) {
+        if (processArguments(args)) {
             System.out.println("Booting Geronimo Kernel (in Java " + System.getProperty("java.version") + ")...");
             System.out.flush();
 
@@ -122,33 +122,31 @@ public class Daemon {
         boolean override = false;
         boolean help = false;
         for (int i = 0; i < args.length; i++) {
-            if(override) {
+            if (override) {
                 configs.add(Artifact.create(args[i]));
             } else if (args[i].equals(ARGUMENT_NO_PROGRESS)) {
                 noProgressArg = ARGUMENT_NO_PROGRESS;
             } else if (args[i].equals(ARGUMENT_LONG_PROGRESS)) {
                 longProgressArg = ARGUMENT_LONG_PROGRESS;
-            } else if (args[i].equals(ARGUMENT_VERBOSE_SHORTFORM) ||
-                    args[i].equals(ARGUMENT_VERBOSE)) {
+            } else if (args[i].equals(ARGUMENT_VERBOSE_SHORTFORM) || args[i].equals(ARGUMENT_VERBOSE)) {
                 if (verboseArg == null) {
                     verboseArg = ARGUMENT_VERBOSE;
                 }
-            } else if (args[i].equals(ARGUMENT_MORE_VERBOSE_SHORTFORM) ||
-                    args[i].equals(ARGUMENT_MORE_VERBOSE)) {
+            } else if (args[i].equals(ARGUMENT_MORE_VERBOSE_SHORTFORM) || args[i].equals(ARGUMENT_MORE_VERBOSE)) {
                 if (verboseArg == null) {
                     verboseArg = ARGUMENT_MORE_VERBOSE;
                 }
             } else if (args[i].equals(ARGUMENT_MODULE_OVERRIDE)) {
                 override = true;
             } else if(args[i].equalsIgnoreCase("-help") || args[i].equalsIgnoreCase("--help") ||
-                    args[i].equalsIgnoreCase("-h") || args[i].equalsIgnoreCase("/?")) {
+                      args[i].equalsIgnoreCase("-h") || args[i].equalsIgnoreCase("/?")) {
                 help = true;
             } else {
                 System.out.println("Unrecognized argument: "+args[i]);
                 help = true;
             }
         }
-        if(help) {
+        if (help) {
             printHelp(System.out);
         }
         return !help;
@@ -184,18 +182,6 @@ public class Daemon {
                 monitor = new ProgressBarStartupMonitor();
             }
         }
-
-        // JVMCheck();   // Removed for 1.1
-    }
-
-    private void JVMCheck() {
-        String jvmVersion = System.getProperty("java.specification.version");
-        if (! jvmVersion.equals("1.4"))
-            log.warn("\n====================================== Warning =======================================\n" +
-                     " Geronimo is currently only certified on version 1.4 of the Java Virtual Machine.\n" +
-                     " Use of version " + jvmVersion + " is not currently supported.  Use at your own risk.\n" +
-                     " Check http://geronimo.apache.org for current information on JDK certification level.\n" +
-                     "====================================== Warning =======================================");
     }
 
     private void doStartup() {
@@ -338,26 +324,6 @@ public class Daemon {
         }
     }
 
-    private void AddToSystemProperty(String propertyName, List dirsFromManifest, File geronimoInstallDirectory) {
-        String dirs = System.getProperty(propertyName, "");
-        for (Iterator iterator = dirsFromManifest.iterator(); iterator.hasNext();) {
-            String directoryName = (String) iterator.next();
-            File directory = new File(directoryName);
-            if (!directory.isAbsolute()) {
-                directory = new File(geronimoInstallDirectory, directoryName);
-            }
-
-            if (dirs.length() > 0) {
-                dirs += File.pathSeparatorChar;
-            }
-            dirs += directory.getAbsolutePath();
-        }
-        if (dirs.length() > 0) {
-            System.setProperty(propertyName, dirs);
-        }
-        log.debug(propertyName + "=" + System.getProperty(propertyName));
-    }
-
     /**
      * Static entry point allowing a Kernel to be run from the command line.
      *
@@ -370,5 +336,4 @@ public class Daemon {
     public static void main(String[] args) {
         new Daemon(args);
     }
-
 }
