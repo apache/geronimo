@@ -131,7 +131,7 @@ public class EndpointInfoBuilder {
             throw new DeploymentException("Could not create WSDLFactory", e);
         }
         WSDLReader wsdlReader = wsdlFactory.newWSDLReader();
-        wsdlReader.setFeature("javax.wsdl.importDocuments", false);
+        wsdlReader.setFeature("javax.wsdl.importDocuments", true);
         wsdlReader.setFeature("javax.wsdl.verbose", false);
         try {
             if (wsdlURL != null) {
@@ -238,9 +238,9 @@ public class EndpointInfoBuilder {
     
     private URI getWSDLLocation(WebServiceClient webServiceClient) throws DeploymentException {
         String wsdlLocation = webServiceClient.wsdlLocation();
-        if (wsdlLocation != null) {
+        if (wsdlLocation != null && wsdlLocation.trim().length() > 0) {            
             try {
-                return new URI(wsdlLocation);
+                return new URI(wsdlLocation.trim());
             } catch (URISyntaxException e) {
                 throw new DeploymentException(
                         "Invalid wsdl location in annotation: " + wsdlLocation);
