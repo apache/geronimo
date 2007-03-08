@@ -60,6 +60,7 @@ import org.apache.geronimo.j2ee.deployment.ModuleBuilder;
 import org.apache.geronimo.j2ee.deployment.NamingBuilder;
 import org.apache.geronimo.j2ee.deployment.WebModule;
 import org.apache.geronimo.j2ee.deployment.WebServiceBuilder;
+import org.apache.geronimo.j2ee.deployment.ModuleBuilderExtension;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.Naming;
@@ -118,6 +119,7 @@ public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
     protected final Collection webServiceBuilder;
 
     protected final NamingBuilder namingBuilders;
+    protected final Collection<ModuleBuilderExtension> moduleBuilderExtensions;
 
     private static final QName SECURITY_QNAME = GerSecurityDocument.type.getDocumentElementName();
     private static final QName SERVICE_QNAME = ServiceDocument.type.getDocumentElementName();
@@ -129,13 +131,14 @@ public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
      */
     private static final URI RELATIVE_MODULE_BASE_URI = URI.create("../");
 
-    protected AbstractWebModuleBuilder(Kernel kernel, Collection securityBuilders, Collection serviceBuilders, NamingBuilder namingBuilders, ResourceEnvironmentSetter resourceEnvironmentSetter, Collection webServiceBuilder) {
+    protected AbstractWebModuleBuilder(Kernel kernel, Collection securityBuilders, Collection serviceBuilders, NamingBuilder namingBuilders, ResourceEnvironmentSetter resourceEnvironmentSetter, Collection webServiceBuilder, Collection<ModuleBuilderExtension> moduleBuilderExtensions) {
         this.kernel = kernel;
         this.securityBuilders = new NamespaceDrivenBuilderCollection(securityBuilders, SECURITY_QNAME);
         this.serviceBuilders = new NamespaceDrivenBuilderCollection(serviceBuilders, SERVICE_QNAME);
         this.namingBuilders = namingBuilders;
         this.resourceEnvironmentSetter = resourceEnvironmentSetter;
         this.webServiceBuilder = webServiceBuilder;
+        this.moduleBuilderExtensions = moduleBuilderExtensions == null? new ArrayList<ModuleBuilderExtension>(): moduleBuilderExtensions;
     }
 
     static {
@@ -299,6 +302,9 @@ public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
                     throw new DeploymentException("Problem closing war context", e);
                 }
             }
+        }
+        for (ModuleBuilderExtension mbe: moduleBuilderExtensions) {
+            mbe.installModule(earFile, earContext, module, configurationStores, targetConfigurationStore, repositories);
         }
     }
 

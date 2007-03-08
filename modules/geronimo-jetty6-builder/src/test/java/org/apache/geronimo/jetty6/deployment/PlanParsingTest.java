@@ -79,6 +79,7 @@ public class PlanParsingTest extends XmlBeansTestSupport {
                 Collections.singleton(new GeronimoSecurityBuilderImpl()),
                 Collections.singleton(new GBeanBuilder(null, null)),
                 new NamingBuilderCollection(null, null),
+                null,
                 new MockResourceEnvironmentSetter(),
                 null);
     }

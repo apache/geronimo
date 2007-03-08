@@ -43,7 +43,6 @@ import org.apache.geronimo.xbeans.javaee.WebAppType;
 import org.apache.geronimo.xbeans.javaee.WebAppDocument;
 import org.apache.geronimo.security.jacc.ComponentPermissions;
 import org.apache.xmlbeans.XmlOptions;
-import org.apache.xmlbeans.XmlObject;
 
 /**
  * @version $Rev$ $Date$
@@ -74,7 +73,7 @@ public class SpecSecurityParsingTest extends TestCase {
     public static class TestWebModuleBuilder extends AbstractWebModuleBuilder {
 
         protected TestWebModuleBuilder() {
-            super(null, null, null, null, null, Collections.EMPTY_SET);
+            super(null, null, null, null, null, Collections.EMPTY_SET, null);
         }
 
         protected Module createModule(Object plan, JarFile moduleFile, String targetPath, URL specDDUrl, boolean standAlone, String contextRoot, AbstractName earName, Naming naming, ModuleIDBuilder idBuilder) throws DeploymentException {

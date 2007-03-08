@@ -27,6 +27,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
+import java.util.ArrayList;
 
 import org.apache.geronimo.testsupport.TestSupport;
 
@@ -46,6 +47,7 @@ import org.apache.geronimo.j2ee.deployment.Module;
 import org.apache.geronimo.j2ee.deployment.UnavailableWebServiceBuilder;
 import org.apache.geronimo.j2ee.deployment.WebServiceBuilder;
 import org.apache.geronimo.j2ee.deployment.NamingBuilderCollection;
+import org.apache.geronimo.j2ee.deployment.ModuleBuilderExtension;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.j2ee.management.impl.J2EEServerImpl;
 import org.apache.geronimo.jetty6.JettyContainerImpl;
@@ -265,6 +267,7 @@ public class JettyModuleBuilderTest extends TestSupport {
 
         defaultEnvironment.addDependency(baseId, ImportType.ALL);
         defaultEnvironment.setConfigId(webModuleArtifact);
+        Collection<ModuleBuilderExtension> moduleBuilderExtensions = new ArrayList<ModuleBuilderExtension>();
         builder = new JettyModuleBuilder(defaultEnvironment,
                 new Integer(1800),
                 Collections.EMPTY_LIST,
@@ -278,6 +281,7 @@ public class JettyModuleBuilderTest extends TestSupport {
                 Collections.singleton(new GeronimoSecurityBuilderImpl()),
                 Collections.singleton(new GBeanBuilder(null, null)),
                 new NamingBuilderCollection(null, null),
+                moduleBuilderExtensions,
                 new MockResourceEnvironmentSetter(),
                 kernel);
     }

@@ -22,7 +22,6 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.FileWriter;
 import java.net.URL;
-import java.net.MalformedURLException;
 import java.security.Permission;
 import java.security.PermissionCollection;
 import java.security.Permissions;
@@ -59,6 +58,7 @@ import org.apache.geronimo.j2ee.deployment.ModuleBuilder;
 import org.apache.geronimo.j2ee.deployment.NamingBuilder;
 import org.apache.geronimo.j2ee.deployment.WebModule;
 import org.apache.geronimo.j2ee.deployment.WebServiceBuilder;
+import org.apache.geronimo.j2ee.deployment.ModuleBuilderExtension;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.Naming;
@@ -84,13 +84,9 @@ import org.apache.geronimo.xbeans.geronimo.web.tomcat.config.GerTomcatDocument;
 import org.apache.geronimo.xbeans.javaee.ServletType;
 import org.apache.geronimo.xbeans.javaee.WebAppDocument;
 import org.apache.geronimo.xbeans.javaee.WebAppType;
-import org.apache.geronimo.xbeans.javaee.ServletMappingType;
-import org.apache.geronimo.xbeans.javaee.impl.WebAppDocumentImpl;
-import org.apache.xbean.finder.ClassFinder;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlOptions;
-import org.apache.xmlbeans.XmlCursor;
 
 /**
  * @version $Rev:385659 $ $Date$
@@ -105,14 +101,15 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder {
     private static final String TOMCAT_NAMESPACE = TomcatWebAppDocument.type.getDocumentElementName().getNamespaceURI();
 
     public TomcatModuleBuilder(Environment defaultEnvironment,
-                               AbstractNameQuery tomcatContainerName,
-                               Collection webServiceBuilder,
-                               Collection securityBuilders,
-                               Collection serviceBuilders,
-                               NamingBuilder namingBuilders,
-                               ResourceEnvironmentSetter resourceEnvironmentSetter,
-                               Kernel kernel) {
-        super(kernel, securityBuilders, serviceBuilders, namingBuilders, resourceEnvironmentSetter, webServiceBuilder);
+            AbstractNameQuery tomcatContainerName,
+            Collection webServiceBuilder,
+            Collection securityBuilders,
+            Collection serviceBuilders,
+            NamingBuilder namingBuilders,
+            Collection<ModuleBuilderExtension> moduleBuilderExtensions,
+            ResourceEnvironmentSetter resourceEnvironmentSetter,
+            Kernel kernel) {
+        super(kernel, securityBuilders, serviceBuilders, namingBuilders, resourceEnvironmentSetter, webServiceBuilder, moduleBuilderExtensions);
         this.defaultEnvironment = defaultEnvironment;
 
         this.tomcatContainerName = tomcatContainerName;
@@ -206,7 +203,11 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder {
         // Create the AnnotatedApp interface for the WebModule
         AnnotatedWebApp annotatedWebApp = new AnnotatedWebApp(webApp);
 
-        return new WebModule(standAlone, moduleName, environment, moduleFile, targetPath, webApp, tomcatWebApp, specDD, contextRoot, new HashMap(), TOMCAT_NAMESPACE, annotatedWebApp);
+        WebModule module = new WebModule(standAlone, moduleName, environment, moduleFile, targetPath, webApp, tomcatWebApp, specDD, contextRoot, new HashMap(), TOMCAT_NAMESPACE, annotatedWebApp);
+        for (ModuleBuilderExtension mbe: moduleBuilderExtensions) {
+            mbe.createModule(module, plan, moduleFile, targetPath, specDDUrl, environment, contextRoot, earName, naming, idBuilder);
+        }
+        return module;
     }
 
 
@@ -270,6 +271,9 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder {
         TomcatWebAppType gerWebApp = (TomcatWebAppType) module.getVendorDD();
         boolean hasSecurityRealmName = gerWebApp.isSetSecurityRealmName();
         buildSubstitutionGroups(gerWebApp, hasSecurityRealmName, module, earContext);
+        for (ModuleBuilderExtension mbe: moduleBuilderExtensions) {
+            mbe.initContext(earContext, module, cl);
+        }
     }
 
     public void addGBeans(EARContext earContext, Module module, ClassLoader cl, Collection repository) throws DeploymentException {
@@ -503,6 +507,10 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder {
         } catch (Exception e) {
             throw new DeploymentException("Unable to initialize GBean for web app " + module.getName(), e);
         }
+        //TODO this may definitely not be the best place for this!
+        for (ModuleBuilderExtension mbe: moduleBuilderExtensions) {
+            mbe.addGBeans(earContext, module, cl, repository);
+        }
     }
 
     public String getSchemaNamespace() {
@@ -520,6 +528,7 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder {
         infoBuilder.addReference("SecurityBuilders", NamespaceDrivenBuilder.class, NameFactory.MODULE_BUILDER);
         infoBuilder.addReference("ServiceBuilders", NamespaceDrivenBuilder.class, NameFactory.MODULE_BUILDER);
         infoBuilder.addReference("NamingBuilders", NamingBuilder.class, NameFactory.MODULE_BUILDER);
+        infoBuilder.addReference("ModuleBuilderExtensions", ModuleBuilderExtension.class, NameFactory.MODULE_BUILDER);
         infoBuilder.addReference("ResourceEnvironmentSetter", ResourceEnvironmentSetter.class, NameFactory.MODULE_BUILDER);
         infoBuilder.addAttribute("kernel", Kernel.class, false);
         infoBuilder.addInterface(ModuleBuilder.class);
@@ -531,6 +540,7 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder {
                 "SecurityBuilders",
                 "ServiceBuilders",
                 "NamingBuilders",
+                "ModuleBuilderExtensions",
                 "ResourceEnvironmentSetter",
                 "kernel"});
         GBEAN_INFO = infoBuilder.getBeanInfo();

@@ -64,6 +64,7 @@ import org.apache.geronimo.j2ee.deployment.ModuleBuilder;
 import org.apache.geronimo.j2ee.deployment.NamingBuilder;
 import org.apache.geronimo.j2ee.deployment.WebModule;
 import org.apache.geronimo.j2ee.deployment.WebServiceBuilder;
+import org.apache.geronimo.j2ee.deployment.ModuleBuilderExtension;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.j2ee.annotation.Holder;
 import org.apache.geronimo.jetty6.Host;
@@ -152,9 +153,10 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
             Collection securityBuilders,
             Collection serviceBuilders,
             NamingBuilder namingBuilders,
+            Collection<ModuleBuilderExtension> moduleBuilderExtensions,
             ResourceEnvironmentSetter resourceEnvironmentSetter,
             Kernel kernel) throws GBeanNotFoundException {
-        super(kernel, securityBuilders, serviceBuilders, namingBuilders, resourceEnvironmentSetter, webServiceBuilder);
+        super(kernel, securityBuilders, serviceBuilders, namingBuilders, resourceEnvironmentSetter, webServiceBuilder, moduleBuilderExtensions);
         this.defaultEnvironment = defaultEnvironment;
         this.defaultSessionTimeoutSeconds = (defaultSessionTimeoutSeconds == null) ? new Integer(30 * 60) : defaultSessionTimeoutSeconds;
         this.jettyContainerObjectName = jettyContainerName;
@@ -255,7 +257,12 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
         // Create the AnnotatedApp interface for the WebModule
         AnnotatedWebApp annotatedWebApp = new AnnotatedWebApp(webApp);
 
-        return new WebModule(standAlone, moduleName, environment, moduleFile, targetPath, webApp, jettyWebApp, specDD, contextRoot, new HashMap(), JETTY_NAMESPACE, annotatedWebApp);
+        WebModule module = new WebModule(standAlone, moduleName, environment, moduleFile, targetPath, webApp, jettyWebApp, specDD, contextRoot, new HashMap(), JETTY_NAMESPACE, annotatedWebApp);
+
+        for (ModuleBuilderExtension mbe: moduleBuilderExtensions) {
+            mbe.createModule(module, plan, moduleFile, targetPath, specDDUrl, environment, contextRoot, earName, naming, idBuilder);
+        }
+        return module;
     }
 
     JettyWebAppType getJettyWebApp(Object plan, JarFile moduleFile, boolean standAlone, String targetPath, WebAppType webApp) throws DeploymentException {
@@ -309,10 +316,12 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
     }
 
     public void initContext(EARContext earContext, Module module, ClassLoader cl) throws DeploymentException {
-        WebAppType webApp = (WebAppType) module.getSpecDD();
         JettyWebAppType gerWebApp = (JettyWebAppType) module.getVendorDD();
         boolean hasSecurityRealmName = gerWebApp.isSetSecurityRealmName();
         buildSubstitutionGroups(gerWebApp, hasSecurityRealmName, module, earContext);
+        for (ModuleBuilderExtension mbe: moduleBuilderExtensions) {
+            mbe.initContext(earContext, module, cl);
+        }
     }
 
     public void addGBeans(EARContext earContext, Module module, ClassLoader cl, Collection repository) throws DeploymentException {
@@ -509,6 +518,11 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
             throw de;
         } catch (Exception e) {
             throw new DeploymentException("Unable to initialize webapp GBean for " + module.getName(), e);
+        }
+
+        //TODO this may definitely not be the best place for this!
+        for (ModuleBuilderExtension mbe: moduleBuilderExtensions) {
+            mbe.addGBeans(earContext, module, cl, repository);
         }
     }
 
@@ -1047,6 +1061,7 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
         infoBuilder.addReference("SecurityBuilders", NamespaceDrivenBuilder.class, NameFactory.MODULE_BUILDER);
         infoBuilder.addReference("ServiceBuilders", NamespaceDrivenBuilder.class, NameFactory.MODULE_BUILDER);
         infoBuilder.addReference("NamingBuilders", NamingBuilder.class, NameFactory.MODULE_BUILDER);
+        infoBuilder.addReference("ModuleBuilderExtensions", ModuleBuilderExtension.class, NameFactory.MODULE_BUILDER);
         infoBuilder.addReference("ResourceEnvironmentSetter", ResourceEnvironmentSetter.class, NameFactory.MODULE_BUILDER);
         infoBuilder.addAttribute("kernel", Kernel.class, false);
         infoBuilder.addInterface(ModuleBuilder.class);
@@ -1066,6 +1081,7 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
                 "SecurityBuilders",
                 "ServiceBuilders",
                 "NamingBuilders",
+                "ModuleBuilderExtensions",
                 "ResourceEnvironmentSetter",
                 "kernel"});
         GBEAN_INFO = infoBuilder.getBeanInfo();

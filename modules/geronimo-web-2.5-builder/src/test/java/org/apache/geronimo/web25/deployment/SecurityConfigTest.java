@@ -24,6 +24,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.Collections;
+import java.util.ArrayList;
 import java.util.jar.JarFile;
 
 import org.apache.geronimo.common.DeploymentException;
@@ -34,6 +35,7 @@ import org.apache.geronimo.deployment.xmlbeans.XmlBeansUtil;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.j2ee.deployment.EARContext;
 import org.apache.geronimo.j2ee.deployment.Module;
+import org.apache.geronimo.j2ee.deployment.ModuleBuilderExtension;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.Naming;
 import org.apache.geronimo.security.jacc.ComponentPermissions;
@@ -85,7 +87,7 @@ public class SecurityConfigTest extends TestSupport {
     private static class WebModuleBuilder extends AbstractWebModuleBuilder {
 
         protected WebModuleBuilder(Kernel kernel) {
-            super(kernel, null, null, null, null, Collections.EMPTY_SET);
+            super(kernel, null, null, null, null, Collections.EMPTY_SET, null);
         }
 
         protected Module createModule(Object plan, JarFile moduleFile,
