@@ -16,31 +16,30 @@
  */
 package org.apache.geronimo.client;
 
-import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.security.PrivilegedAction;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import javax.naming.Context;
+import javax.naming.NamingException;
 import javax.security.auth.Subject;
 import javax.security.auth.callback.CallbackHandler;
 import javax.security.auth.login.LoginContext;
 import javax.security.auth.login.LoginException;
-import javax.naming.NamingException;
-import javax.naming.Context;
 
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
-import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
-import org.apache.geronimo.j2ee.annotation.Injection;
 import org.apache.geronimo.j2ee.annotation.Holder;
-import org.apache.geronimo.j2ee.annotation.LifecycleMethod;
+import org.apache.geronimo.j2ee.annotation.Injection;
+import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.Kernel;
-import org.apache.geronimo.security.ContextManager;
 import org.apache.geronimo.security.Callers;
+import org.apache.geronimo.security.ContextManager;
 import org.apache.geronimo.security.deploy.DefaultPrincipal;
 import org.apache.geronimo.security.util.ConfigurationUtil;
 import org.apache.xbean.recipe.ObjectRecipe;
@@ -64,8 +63,7 @@ public final class AppClientContainer implements GBeanLifecycle {
     private final Method mainMethod;
     private final ClassLoader classLoader;
     private final Kernel kernel;
-    private final Holder injections;
-    private final Holder callbackHandlerinjections;
+    private final Holder holder;
     private CallbackHandler callbackHandler;
 
     public AppClientContainer(String mainClassName,
@@ -73,8 +71,7 @@ public final class AppClientContainer implements GBeanLifecycle {
             String realmName,
             String callbackHandlerClassName,
             DefaultPrincipal defaultPrincipal,
-            Holder injections,
-            Holder callbackHandlerinjections,
+            Holder holder,
             AppClientPlugin jndiContext,
             ClassLoader classLoader,
             Kernel kernel
@@ -100,8 +97,7 @@ public final class AppClientContainer implements GBeanLifecycle {
         } else {
             defaultSubject = null;
         }
-        this.injections = injections;
-        this.callbackHandlerinjections = callbackHandlerinjections;
+        this.holder = holder == null ? Holder.EMPTY : holder;
         this.classLoader = classLoader;
         this.kernel = kernel;
         this.jndiContext = jndiContext;
@@ -139,41 +135,7 @@ public final class AppClientContainer implements GBeanLifecycle {
             Context componentContext = jndiContext.getJndiContext();
 
             if (callbackHandlerClass != null) {
-                ObjectRecipe objectRecipe = new ObjectRecipe(callbackHandlerClass);
-                objectRecipe.allow(Option.FIELD_INJECTION);
-                objectRecipe.allow(Option.PRIVATE_PROPERTIES);
-                objectRecipe.allow(Option.IGNORE_MISSING_PROPERTIES);
-                if (callbackHandlerinjections != null && callbackHandlerinjections.getInjections() != null) {
-                    //TODO figure out how to call a String[] arg constructor
-                    for (Injection injection : callbackHandlerinjections.getInjections()) {
-                        try {
-                            String jndiName = injection.getJndiName();
-                            //our componentContext is attached to jndi at "java:comp" so we remove that when looking stuff up in it
-                            Object object = componentContext.lookup("env/" + jndiName);
-                            if (object instanceof String) {
-                                String string = (String) object;
-                                // Pass it in raw so it could be potentially converted to
-                                // another data type by an xbean-reflect property editor
-                                objectRecipe.setProperty(injection.getTargetName(), string);
-                            } else {
-                                objectRecipe.setProperty(injection.getTargetName(), new StaticRecipe(object));
-                            }
-                        } catch (NamingException e) {
-//                        log.warn("could not look up ", e);
-                        }
-                    }
-                }
-                callbackHandler = (CallbackHandler) objectRecipe.create(classLoader);
-                Map unsetProperties = objectRecipe.getUnsetProperties();
-                if (unsetProperties.size() > 0) {
-                    for (Object property : unsetProperties.keySet()) {
-//                log.warning("Injection: No such property '"+property+"' in class "+_class.getName());
-                    }
-                }
-                if (callbackHandlerinjections != null && callbackHandlerinjections.getPostConstruct() != null) {
-                    LifecycleMethod postConstruct = callbackHandlerinjections.getPostConstruct();
-                    postConstruct.call(callbackHandler, null);
-                }
+                callbackHandler = (CallbackHandler) holder.newInstance(callbackHandlerClass, classLoader, componentContext);
                 //look for a constructor taking the args
                 /*
                 CallbackHandler callbackHandler;
@@ -199,9 +161,18 @@ public final class AppClientContainer implements GBeanLifecycle {
             objectRecipe.allow(Option.PRIVATE_PROPERTIES);
             objectRecipe.allow(Option.STATIC_PROPERTIES);
             objectRecipe.allow(Option.IGNORE_MISSING_PROPERTIES);
-            if (injections != null && injections.getInjections() != null) {
-                for (Injection injection : injections.getInjections()) {
-                    try {                                                          
+            Class mainClass = classLoader.loadClass(mainClassName);
+            List<Injection> injections = new ArrayList<Injection>();
+            while (mainClass != null && mainClass != Object.class) {
+                List<Injection> perClass = holder.getInjections(mainClass.getName());
+                if (perClass != null) {
+                    injections.addAll(perClass);
+                }
+                mainClass = mainClass.getSuperclass();
+            }
+            if (injections != null) {
+                for (Injection injection : injections) {
+                    try {
                         String jndiName = injection.getJndiName();
                         //our componentContext is attached to jndi at "java:comp" so we remove that when looking stuff up in it
                         Object object = componentContext.lookup("env/" + jndiName);
@@ -225,9 +196,8 @@ public final class AppClientContainer implements GBeanLifecycle {
 //                log.warning("Injection: No such property '"+property+"' in class "+_class.getName());
                 }
             }
-            if (injections != null && injections.getPostConstruct() != null) {
-                LifecycleMethod postConstruct = injections.getPostConstruct();
-                postConstruct.call(null, clazz);
+            if (holder.getPostConstruct() != null) {
+                Holder.apply(null, clazz, holder.getPostConstruct());
             }
 
             if (clientSubject == null) {
@@ -265,9 +235,8 @@ public final class AppClientContainer implements GBeanLifecycle {
     }
 
     public void doStop() throws Exception {
-        if (callbackHandler != null && callbackHandlerinjections != null && callbackHandlerinjections.getPreDestroy() != null) {
-            LifecycleMethod preDestroy = callbackHandlerinjections.getPreDestroy();
-            preDestroy.call(callbackHandler, null);
+        if (callbackHandler != null) {
+            holder.destroyInstance(callbackHandler);
         }
         if (loginContext != null) {
             loginContext.logout();
@@ -296,8 +265,7 @@ public final class AppClientContainer implements GBeanLifecycle {
         infoFactory.addAttribute("realmName", String.class, true);
         infoFactory.addAttribute("callbackHandlerClassName", String.class, true);
         infoFactory.addAttribute("defaultPrincipal", DefaultPrincipal.class, true);
-        infoFactory.addAttribute("injections", Holder.class, true);
-        infoFactory.addAttribute("callbackHandlerInjections", Holder.class, true);
+        infoFactory.addAttribute("holder", Holder.class, true);
 
         infoFactory.addReference("JNDIContext", AppClientPlugin.class, NameFactory.GERONIMO_SERVICE);
 
@@ -306,15 +274,14 @@ public final class AppClientContainer implements GBeanLifecycle {
 
 
         infoFactory.setConstructor(new String[]{"mainClassName",
-                                                "appClientModuleName",
-                                                "realmName",
-                                                "callbackHandlerClassName",
-                                                "defaultPrincipal",
-                                                "injections",
-                                                "callbackHandlerInjections",
-                                                "JNDIContext",
-                                                "classLoader",
-                                                "kernel"
+                "appClientModuleName",
+                "realmName",
+                "callbackHandlerClassName",
+                "defaultPrincipal",
+                "holder",
+                "JNDIContext",
+                "classLoader",
+                "kernel"
         });
 
         GBEAN_INFO = infoFactory.getBeanInfo();

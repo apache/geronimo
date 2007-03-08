@@ -50,10 +50,16 @@ public class LifecycleMethod implements Serializable {
         if (clazz == null) {
             clazz = o.getClass();
         }
-        Method m;
-        try {
-            m = clazz.getMethod(methodName);
-        } catch (NoSuchMethodException e) {
+        Method m = null;
+        while (m == null && clazz != null && clazz != Object.class) {
+            try {
+                m = clazz.getDeclaredMethod(methodName);
+            } catch (NoSuchMethodException e) {
+                clazz = clazz.getSuperclass();
+            }
+
+        }
+        if (m == null) {
             throw new AssertionError("We checked that the class had this method at deploy time. expected class: " + targetClassName + ", actual class: " + clazz.getName() + ", method: " + methodName);
         }
         if (!m.isAccessible()) {
@@ -64,7 +70,7 @@ public class LifecycleMethod implements Serializable {
                 m.setAccessible(false);
             }
         } else {
-        m.invoke(o);
+            m.invoke(o);
         }
     }
 }

@@ -65,7 +65,6 @@ import org.apache.geronimo.j2ee.deployment.NamingBuilder;
 import org.apache.geronimo.j2ee.deployment.WebModule;
 import org.apache.geronimo.j2ee.deployment.WebServiceBuilder;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
-import org.apache.geronimo.j2ee.annotation.Injection;
 import org.apache.geronimo.j2ee.annotation.Holder;
 import org.apache.geronimo.jetty6.Host;
 import org.apache.geronimo.jetty6.JettyDefaultServletHolder;
@@ -112,7 +111,6 @@ import org.apache.geronimo.xbeans.javaee.UrlPatternType;
 import org.apache.geronimo.xbeans.javaee.WebAppDocument;
 import org.apache.geronimo.xbeans.javaee.WebAppType;
 import org.apache.geronimo.xbeans.javaee.WelcomeFileListType;
-import org.apache.xbean.finder.ClassFinder;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
 import org.mortbay.jetty.security.BasicAuthenticator;
@@ -345,7 +343,7 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
         }
 
         Map compContext = NamingBuilder.JNDI_KEY.get(buildingContext);
-        Map<String, Holder> injections = NamingBuilder.INJECTION_KEY.get(buildingContext);
+        Holder holder = NamingBuilder.INJECTION_KEY.get(buildingContext);
 
         GBeanData webModuleData = new GBeanData(moduleName, JettyWebAppContext.GBEAN_INFO);
         try {
@@ -357,7 +355,7 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
                 webModuleData.setReferencePattern("J2EEApplication", earContext.getModuleName());
             }
 
-            webModuleData.setAttribute("injections", injections);
+            webModuleData.setAttribute("holder", holder);
 
             webModuleData.setAttribute("deploymentDescriptor", module.getOriginalSpecDD());
             Set securityRoles = collectRoleNames(webApp);

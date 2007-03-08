@@ -74,6 +74,11 @@
             <version>${version}</version>
         </dependency>
 
+        <dependency>
+            <groupId>org.apache.xbean</groupId>
+            <artifactId>xbean-reflect</artifactId>
+        </dependency>
+
         <!-- purpose unknown -->
         <dependency>
             <groupId>asm</groupId>

@@ -25,7 +25,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -56,11 +55,10 @@ import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.SingleElementCollection;
-import org.apache.geronimo.j2ee.annotation.Injection;
-import org.apache.geronimo.j2ee.annotation.Holder;
 import org.apache.geronimo.j2ee.deployment.AppClientModule;
 import org.apache.geronimo.j2ee.deployment.ConnectorModule;
 import org.apache.geronimo.j2ee.deployment.CorbaGBeanNameSource;
+import org.apache.geronimo.j2ee.deployment.EARConfigBuilder;
 import org.apache.geronimo.j2ee.deployment.EARContext;
 import org.apache.geronimo.j2ee.deployment.Module;
 import org.apache.geronimo.j2ee.deployment.ModuleBuilder;
@@ -88,10 +86,10 @@ import org.apache.geronimo.xbeans.geronimo.naming.GerAbstractNamingEntryDocument
 import org.apache.geronimo.xbeans.javaee.ApplicationClientDocument;
 import org.apache.geronimo.xbeans.javaee.ApplicationClientType;
 import org.apache.geronimo.xbeans.javaee.FullyQualifiedClassType;
+import org.apache.xbean.finder.ClassFinder;
 import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
-import org.apache.xbean.finder.ClassFinder;
 
 
 /**
@@ -112,7 +110,7 @@ public class AppClientModuleBuilder implements ModuleBuilder, CorbaGBeanNameSour
     private final NamespaceDrivenBuilderCollection serviceBuilder;
     private final NamingBuilderCollection namingBuilders;
 
-    private final Collection repositories;
+    private final Collection<Repository> repositories;
 
     private static final String GERAPPCLIENT_NAMESPACE = GerApplicationClientDocument.type.getDocumentElementName().getNamespaceURI();
 
@@ -121,7 +119,7 @@ public class AppClientModuleBuilder implements ModuleBuilder, CorbaGBeanNameSour
             AbstractNameQuery transactionManagerObjectName,
             AbstractNameQuery connectionTrackerObjectName,
             AbstractNameQuery corbaGBeanObjectName,
-            Collection repositories,
+            Collection<Repository> repositories,
             ModuleBuilder connectorModuleBuilder,
             NamespaceDrivenBuilder securityBuilder,
             NamespaceDrivenBuilder serviceBuilder,
@@ -140,7 +138,7 @@ public class AppClientModuleBuilder implements ModuleBuilder, CorbaGBeanNameSour
     public AppClientModuleBuilder(AbstractNameQuery transactionManagerObjectName,
             AbstractNameQuery connectionTrackerObjectName,
             AbstractNameQuery corbaGBeanObjectName,
-            Collection repositories,
+            Collection<Repository> repositories,
             Collection connectorModuleBuilder,
             Collection securityBuilder,
             Collection serviceBuilder,
@@ -163,7 +161,7 @@ public class AppClientModuleBuilder implements ModuleBuilder, CorbaGBeanNameSour
             AbstractNameQuery transactionManagerObjectName,
             AbstractNameQuery connectionTrackerObjectName,
             AbstractNameQuery corbaGBeanObjectName,
-            Collection repositories,
+            Collection<Repository> repositories,
             SingleElementCollection connectorModuleBuilder,
             SingleElementCollection securityBuilder,
             Collection serviceBuilder, Collection namingBuilders) {
@@ -292,18 +290,16 @@ public class AppClientModuleBuilder implements ModuleBuilder, CorbaGBeanNameSour
         AbstractName clientBaseName = naming.createRootName(clientEnvironment.getConfigId(), clientEnvironment.getConfigId().toString(), NameFactory.J2EE_APPLICATION);
 
         //start installing the resource adapters in the client.
-        Collection resourceModules = new ArrayList();
+        Collection<ConnectorModule> resourceModules = new ArrayList<ConnectorModule>();
         GerResourceType[] resources = gerAppClient.getResourceArray();
-        for (int i = 0; i < resources.length; i++) {
-            GerResourceType resource = resources[i];
+        for (GerResourceType resource : resources) {
             String path;
             JarFile connectorFile;
             if (resource.isSetExternalRar()) {
                 path = resource.getExternalRar().trim();
                 Artifact artifact = Artifact.create(path);
                 File file = null;
-                for (Iterator iterator = repositories.iterator(); iterator.hasNext();) {
-                    Repository repository = (Repository) iterator.next();
+                for (Repository repository : repositories) {
                     if (repository.contains(artifact)) {
                         file = repository.getLocation(artifact);
                         break;
@@ -326,7 +322,7 @@ public class AppClientModuleBuilder implements ModuleBuilder, CorbaGBeanNameSour
                 }
             }
             XmlObject connectorPlan = resource.getConnector();
-            Module connectorModule = getConnectorModuleBuilder().createModule(connectorPlan, connectorFile, path, null, clientEnvironment, null, clientBaseName, naming, idBuilder);
+            ConnectorModule connectorModule = (ConnectorModule) getConnectorModuleBuilder().createModule(connectorPlan, connectorFile, path, null, clientEnvironment, null, clientBaseName, naming, idBuilder);
             resourceModules.add(connectorModule);
         }
 
@@ -450,12 +446,12 @@ public class AppClientModuleBuilder implements ModuleBuilder, CorbaGBeanNameSour
 
     public void installModule(JarFile earFile, EARContext earContext, Module module, Collection configurationStores, ConfigurationStore targetConfigurationStore, Collection repositories) throws DeploymentException {
         // extract the app client jar file into a standalone packed jar file and add the contents to the output
-        JarFile moduleFile = module.getModuleFile();
-        try {
-            earContext.addIncludeAsPackedJar(URI.create(module.getTargetPath()), moduleFile);
-        } catch (IOException e) {
-            throw new DeploymentException("Unable to copy app client module jar into configuration: " + moduleFile.getName());
-        }
+//        JarFile moduleFile = module.getModuleFile();
+//        try {
+//            earContext.addIncludeAsPackedJar(URI.create(module.getTargetPath()), moduleFile);
+//        } catch (IOException e) {
+//            throw new DeploymentException("Unable to copy app client module jar into configuration: " + moduleFile.getName());
+//        }
         AppClientModule appClientModule = (AppClientModule) module;
         appClientModule.setEarFile(earFile);
         //create the ear context for the app client.
@@ -493,12 +489,29 @@ public class AppClientModuleBuilder implements ModuleBuilder, CorbaGBeanNameSour
             );
             appClientModule.setEarContext(appClientDeploymentContext);
             appClientModule.setRootEarContext(earContext);
+            // extract the app client jar file into a standalone packed jar file and add the contents to the output
+            JarFile moduleFile = module.getModuleFile();
+            try {
+                appClientDeploymentContext.addIncludeAsPackedJar(URI.create(module.getTargetPath()), moduleFile);
+            } catch (IOException e) {
+                throw new DeploymentException("Unable to copy app client module jar into configuration: " + moduleFile.getName());
+            }
+            EARConfigBuilder.LibClasspath libClasspath = (EARConfigBuilder.LibClasspath) earContext.getGeneralData().get(EARConfigBuilder.LibClasspath.class);
+            if (libClasspath != null) {
+                for (String libEntryPath: libClasspath) {
+                    try {
+                        NestedJarFile library = new NestedJarFile(earFile, libEntryPath);
+                        appClientDeploymentContext.addIncludeAsPackedJar(URI.create(libEntryPath), library);
+                    } catch (IOException e) {
+                        throw new DeploymentException("Could not add to app client library classpath: " + libEntryPath, e);
+                    }
+                }
+            }
         } catch (DeploymentException e) {
             cleanupAppClientDir(appClientDir);
             throw e;
         }
-        for (Iterator resources = appClientModule.getResourceModules().iterator(); resources.hasNext();) {
-            ConnectorModule connectorModule = (ConnectorModule) resources.next();
+        for (ConnectorModule connectorModule : appClientModule.getResourceModules()) {
             getConnectorModuleBuilder().installModule(connectorModule.getModuleFile(), appClientDeploymentContext, connectorModule, configurationStores, targetConfigurationStore, repositories);
         }
 
@@ -508,8 +521,7 @@ public class AppClientModuleBuilder implements ModuleBuilder, CorbaGBeanNameSour
         namingBuilders.buildEnvironment(clientModule.getSpecDD(), clientModule.getVendorDD(), ((AppClientModule)clientModule).getClientEnvironment());
 
         AppClientModule appClientModule = ((AppClientModule) clientModule);
-        for (Iterator resources = appClientModule.getResourceModules().iterator(); resources.hasNext();) {
-            ConnectorModule connectorModule = (ConnectorModule) resources.next();
+        for (ConnectorModule connectorModule : appClientModule.getResourceModules()) {
             getConnectorModuleBuilder().initContext(appClientModule.getEarContext(), connectorModule, cl);
         }
     }
@@ -573,19 +585,20 @@ public class AppClientModuleBuilder implements ModuleBuilder, CorbaGBeanNameSour
                     serviceBuilder.build(geronimoAppClient, appClientDeploymentContext, appClientDeploymentContext);
                     //deploy the resource adapters specified in the geronimo-application.xml
 
-                    for (Iterator resources = appClientModule.getResourceModules().iterator(); resources.hasNext();) {
-                        ConnectorModule connectorModule = (ConnectorModule) resources.next();
+                    for (ConnectorModule connectorModule : appClientModule.getResourceModules()) {
                         getConnectorModuleBuilder().addGBeans(appClientDeploymentContext, connectorModule, appClientClassLoader, repositories);
                     }
                 }
 
-                Map<String, Holder> injectionsMap;
+                //Holder may be loaded in the "client" module classloader here, whereas
+                //NamingBuilder.INJECTION_KEY.get(buildingContext) returns a Holder loaded in the j2ee-server classloader.
+                Object holder;
                 // add the app client static jndi provider
                 //TODO track resource ref shared and app managed security
                 AbstractName jndiContextName = earContext.getNaming().createChildName(appClientDeploymentContext.getModuleName(), "StaticJndiContext", "StaticJndiContext");
                 GBeanData jndiContextGBeanData = new GBeanData(jndiContextName, StaticJndiContextPlugin.GBEAN_INFO);
                 try {
-                    Map buildingContext = new HashMap();
+                    Map<NamingBuilder.Key, Object> buildingContext = new HashMap<NamingBuilder.Key, Object>();
                     buildingContext.put(NamingBuilder.GBEAN_NAME_KEY, jndiContextName);
                     Configuration localConfiguration = appClientDeploymentContext.getConfiguration();
                     Configuration remoteConfiguration = earContext.getConfiguration();
@@ -605,7 +618,7 @@ public class AppClientModuleBuilder implements ModuleBuilder, CorbaGBeanNameSour
                     }
 
                     appClientModuleGBeanData.setAttribute("deploymentDescriptor", appClientModule.getOriginalSpecDD());
-                    injectionsMap = NamingBuilder.INJECTION_KEY.get(buildingContext);
+                    holder = NamingBuilder.INJECTION_KEY.get(buildingContext);
                     jndiContextGBeanData.setAttribute("context", NamingBuilder.JNDI_KEY.get(buildingContext));
                 } catch (DeploymentException e) {
                     throw e;
@@ -642,14 +655,7 @@ public class AppClientModuleBuilder implements ModuleBuilder, CorbaGBeanNameSour
                         appClientContainerGBeanData.setAttribute("defaultPrincipal", defaultPrincipal);
                     }
                     appClientContainerGBeanData.setReferencePattern("JNDIContext", jndiContextName);
-                    Holder injections = injectionsMap.get(appClientModule.getMainClassName());
-                    if (injections != null) {
-                        appClientContainerGBeanData.setAttribute("injections", injections);
-                    }
-                    Holder callbackHandlerInjections = injectionsMap.get(callbackHandlerClassName);
-                    if (callbackHandlerInjections != null) {
-                        appClientContainerGBeanData.setAttribute("callbackHandlerInjections", callbackHandlerInjections);
-                    }
+                    appClientContainerGBeanData.setAttribute("holder", holder);
 
                 } catch (Exception e) {
                     throw new DeploymentException("Unable to initialize AppClientModule GBean", e);
@@ -703,7 +709,10 @@ public class AppClientModuleBuilder implements ModuleBuilder, CorbaGBeanNameSour
         catch (ClassNotFoundException e) {
             throw new DeploymentException("AppClientModuleBuilder: Could not load main class: " + mainClass);
         }
-        classes.add(mainClas);
+        while (mainClas != null && mainClas != Object.class) {
+            classes.add(mainClas);
+            mainClas = mainClas.getSuperclass();
+        }
 
         // Get the callback-handler from the deployment descriptor
         if (appClient.isSetCallbackHandler()) {

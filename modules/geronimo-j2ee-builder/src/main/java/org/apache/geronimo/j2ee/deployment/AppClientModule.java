@@ -20,7 +20,6 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Collection;
-import java.util.Iterator;
 import java.util.HashMap;
 import java.util.jar.JarFile;
 
@@ -39,10 +38,10 @@ public class AppClientModule extends Module {
     private JarFile earFile;
     private final AbstractName appClientName;
     private final String mainClassName;
-    private final Collection resourceModules;
+    private final Collection<ConnectorModule> resourceModules;
 
 
-    public AppClientModule(boolean standAlone, AbstractName moduleName, AbstractName appClientName, Environment serverEnvironment, Environment clientEnvironment, JarFile moduleFile, String targetPath, XmlObject specDD, String mainClassName, XmlObject vendorDD, String originalSpecDD, Collection resourceModules, AnnotatedApplicationClient annotatedAppClient ) {
+    public AppClientModule(boolean standAlone, AbstractName moduleName, AbstractName appClientName, Environment serverEnvironment, Environment clientEnvironment, JarFile moduleFile, String targetPath, XmlObject specDD, String mainClassName, XmlObject vendorDD, String originalSpecDD, Collection<ConnectorModule> resourceModules, AnnotatedApplicationClient annotatedAppClient ) {
         super(standAlone, moduleName, serverEnvironment, moduleFile, targetPath, specDD, vendorDD, originalSpecDD, null, new HashMap(), annotatedAppClient );
         this.clientEnvironment = clientEnvironment;
         this.appClientName = appClientName;
@@ -78,15 +77,14 @@ public class AppClientModule extends Module {
         context.addClass(location, fqcn, bytes);
     }
 
-    public Collection getResourceModules() {
+    public Collection<ConnectorModule> getResourceModules() {
         return resourceModules;
     }
 
     public void close() {
         if (resourceModules != null) {
-            for (Iterator iterator = resourceModules.iterator(); iterator.hasNext();) {
-                ConnectorModule connectorModule = (ConnectorModule) iterator.next();
-                connectorModule.close();
+            for (ConnectorModule resourceModule : resourceModules) {
+                resourceModule.close();
             }
         }
         super.close();

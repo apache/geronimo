@@ -30,6 +30,7 @@ import org.apache.geronimo.xbeans.javaee.MessageDestinationRefType;
 import org.apache.geronimo.xbeans.javaee.ResourceEnvRefType;
 import org.apache.geronimo.xbeans.javaee.ResourceRefType;
 import org.apache.geronimo.xbeans.javaee.ServiceRefType;
+import org.apache.geronimo.xbeans.javaee.LifecycleCallbackType;
 
 /**
  * Wrapper class to encapsulate the EjbJarType class with an interface that the various
@@ -159,5 +160,21 @@ public class AnnotatedEjbJar implements AnnotatedApp {
             ambiguousEjbRefs = new ArrayList<EjbRefType>();
         }
         return this.ambiguousEjbRefs;
+    }
+
+    public LifecycleCallbackType[] getPostConstructArray() {
+        return new LifecycleCallbackType[0];
+    }
+
+    public LifecycleCallbackType addPostConstruct() {
+        return null;
+    }
+
+    public LifecycleCallbackType[] getPreDestroyArray() {
+        return new LifecycleCallbackType[0];
+    }
+
+    public LifecycleCallbackType addPreDestroy() {
+        return null;
     }
 }

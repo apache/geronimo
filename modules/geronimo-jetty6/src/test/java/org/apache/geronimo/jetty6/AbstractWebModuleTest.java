@@ -117,7 +117,7 @@ public class AbstractWebModuleTest extends TestSupport {
                 defaultPrincipal,
                 checkedPermissions,
                 excludedPermissions,
-                new HashMap<String, Holder>(),
+                null,
                 null,
                 transactionManager,
                 connectionTrackingCoordinator,

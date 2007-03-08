@@ -61,6 +61,9 @@
             <pattern>
                 <name>ClientCorbaRefBuilder</name>
             </pattern>
+            <pattern>
+                <name>LifecycleMethodBuilder</name>
+            </pattern>
         </references>
         <reference name="ConnectorModuleBuilder">
             <name>ClientConnectorBuilder</name>

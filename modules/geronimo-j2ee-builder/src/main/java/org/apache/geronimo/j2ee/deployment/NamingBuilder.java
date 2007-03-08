@@ -50,12 +50,12 @@ public interface NamingBuilder extends AbstractNamespaceBuilder {
             return result;
         }
     };
-    Key<Map<String, Holder>> INJECTION_KEY = new Key<Map<String, Holder>>() {
+    Key<Holder> INJECTION_KEY = new Key<Holder>() {
 
-        public Map<String, Holder> get(Map context) {
-            Map<String, Holder> result = (Map<String, Holder>) context.get(this);
+        public Holder get(Map context) {
+            Holder result = (Holder) context.get(this);
             if (result == null) {
-                result = new HashMap<String, Holder>();
+                result = new Holder();
                 context.put(this, result);
             }
             return result;

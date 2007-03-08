@@ -30,6 +30,7 @@ import org.apache.geronimo.xbeans.javaee.MessageDestinationRefType;
 import org.apache.geronimo.xbeans.javaee.ResourceEnvRefType;
 import org.apache.geronimo.xbeans.javaee.ResourceRefType;
 import org.apache.geronimo.xbeans.javaee.ServiceRefType;
+import org.apache.geronimo.xbeans.javaee.LifecycleCallbackType;
 
 /**
  * Wrapper class to encapsulate the ApplicationClientType class with an interface that the various
@@ -160,5 +161,21 @@ public class AnnotatedApplicationClient implements AnnotatedApp {
             ambiguousEjbRefs = new ArrayList<EjbRefType>();
         }
         return this.ambiguousEjbRefs;
+    }
+
+    public LifecycleCallbackType[] getPostConstructArray() {
+        return applicationClient.getPostConstructArray();
+    }
+
+    public LifecycleCallbackType addPostConstruct() {
+        return applicationClient.addNewPostConstruct();
+    }
+
+    public LifecycleCallbackType[] getPreDestroyArray() {
+        return applicationClient.getPreDestroyArray();
+    }
+
+    public LifecycleCallbackType addPreDestroy() {
+        return applicationClient.addNewPreDestroy();
     }
 }

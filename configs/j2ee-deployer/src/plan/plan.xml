@@ -139,6 +139,9 @@
             <pattern>
                 <name>OpenEjbTSSLinkBuilder</name>
             </pattern>
+            <pattern>
+                <name>LifecycleMethodBuilder</name>
+            </pattern>
         </references>
     </gbean>
 
@@ -163,5 +166,6 @@
             </pattern>
         </references>
     </gbean>
+    <gbean name="LifecycleMethodBuilder" class="org.apache.geronimo.naming.deployment.LifecycleMethodBuilder"/>
 
 </module>

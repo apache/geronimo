@@ -515,6 +515,7 @@ public class EARConfigBuilder implements ConfigurationBuilder, CorbaGBeanNameSou
                 //get the value of the library-directory element in spec DD
                 ApplicationType specDD = (ApplicationType) applicationInfo.getSpecDD();
                 String libDir = getLibraryDirectory(specDD);
+                LibClasspath libClasspath = new LibClasspath();
                 for (Enumeration<JarEntry> e = earFile.entries(); e.hasMoreElements();) {
                     ZipEntry entry = e.nextElement();
                     String entryName = entry.getName();
@@ -529,9 +530,13 @@ public class EARConfigBuilder implements ConfigurationBuilder, CorbaGBeanNameSou
                     if (libDir != null && entry.getName().startsWith(libDir) && entry.getName().endsWith(".jar")) {
                         NestedJarFile library = new NestedJarFile(earFile, entry.getName());
                         earContext.addIncludeAsPackedJar(URI.create(entry.getName()), library);
+                        libClasspath.add(entry.getName());
                     } else if (addEntry) {
                         earContext.addFile(URI.create(entry.getName()), earFile, entry);
                     }
+                }
+                if (!libClasspath.isEmpty()) {
+                    earContext.getGeneralData().put(LibClasspath.class, libClasspath);
                 }
             }
 
@@ -1026,6 +1031,8 @@ public class EARConfigBuilder implements ConfigurationBuilder, CorbaGBeanNameSou
         }
         throw new IllegalArgumentException("Unknown module type: " + module.getClass().getName());
     }
+
+    public static class LibClasspath extends ArrayList<String> {}
 
     public static final GBeanInfo GBEAN_INFO;
 

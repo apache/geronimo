@@ -26,6 +26,7 @@ import org.apache.geronimo.xbeans.javaee.MessageDestinationRefType;
 import org.apache.geronimo.xbeans.javaee.ResourceEnvRefType;
 import org.apache.geronimo.xbeans.javaee.ResourceRefType;
 import org.apache.geronimo.xbeans.javaee.ServiceRefType;
+import org.apache.geronimo.xbeans.javaee.LifecycleCallbackType;
 
 /**
  * Many of the classes generated from the JEE schemas have methods with identical signatures (see
@@ -115,4 +116,12 @@ public interface AnnotatedApp {
      * @return ambiguousRefs list
      */
     List<EjbRefType> getAmbiguousEjbRefs();
+
+    LifecycleCallbackType[] getPostConstructArray();
+    LifecycleCallbackType addPostConstruct();
+
+    LifecycleCallbackType[] getPreDestroyArray();
+    LifecycleCallbackType addPreDestroy();
+
+
 }

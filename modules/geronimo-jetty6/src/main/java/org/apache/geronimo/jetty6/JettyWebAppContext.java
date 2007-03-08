@@ -103,7 +103,7 @@ public class JettyWebAppContext implements GBeanLifecycle, JettyServletRegistrat
     private final WebAppContext webAppContext;//delegate
     private final AbstractImmutableHandler lifecycleChain;
     private final Context componentContext;
-    private final Map<String, Holder> injectionMap;
+    private final Holder holder;
 
     private final Set servletNames = new HashSet();
 
@@ -124,7 +124,7 @@ public class JettyWebAppContext implements GBeanLifecycle, JettyServletRegistrat
         webAppContext = null;
         lifecycleChain = null;
         componentContext = null;
-        injectionMap = null;
+        holder = null;
     }
 
     public JettyWebAppContext(String objectName,
@@ -155,7 +155,7 @@ public class JettyWebAppContext implements GBeanLifecycle, JettyServletRegistrat
             PermissionCollection checkedPermissions,
             PermissionCollection excludedPermissions,
 
-            Map<String, Holder> injectionMap,
+            Holder holder,
 
             Host host,
             TransactionManager transactionManager,
@@ -172,7 +172,7 @@ public class JettyWebAppContext implements GBeanLifecycle, JettyServletRegistrat
         assert trackedConnectionAssociator != null;
         assert jettyContainer != null;
 
-        this.injectionMap = injectionMap;
+        this.holder = holder == null? Holder.EMPTY: holder;
 
         SessionHandler sessionHandler;
         if (null != handlerFactory) {
@@ -342,62 +342,15 @@ public class JettyWebAppContext implements GBeanLifecycle, JettyServletRegistrat
         if (clazz == null) {
             throw new InstantiationException("no class loaded");
         }
-        ObjectRecipe objectRecipe = new ObjectRecipe(clazz);
-        objectRecipe.allow(Option.FIELD_INJECTION);
-        objectRecipe.allow(Option.PRIVATE_PROPERTIES);
-        objectRecipe.allow(Option.IGNORE_MISSING_PROPERTIES);
-        String className = clazz.getName();
-        Holder holder = injectionMap.get(className);
-        if (holder == null) {
-            holder = Holder.EMPTY;
-        }
-        List<Injection> injections = holder.getInjections();
-        if (injections != null) {
-            for (Injection injection : injections) {
-                try {
-                    String jndiName = injection.getJndiName();
-                    //our componentContext is attached to jndi at "java:comp" so we remove that when looking stuff up in it
-                    Object object = componentContext.lookup("env/" + jndiName);
-                    if (object instanceof String) {
-                        String string = (String) object;
-                        // Pass it in raw so it could be potentially converted to
-                        // another data type by an xbean-reflect property editor
-                        objectRecipe.setProperty(injection.getTargetName(), string);
-                    } else {
-                        objectRecipe.setProperty(injection.getTargetName(), new StaticRecipe(object));
-                    }
-                } catch (NamingException e) {
-                    //log.warn("could not look up ");
-                }
-            }
-        }
-        Object filter = objectRecipe.create(webClassLoader);
-        Map unsetProperties = objectRecipe.getUnsetProperties();
-        if (unsetProperties.size() > 0) {
-            for (Object property : unsetProperties.keySet()) {
-//                log.warning("Injection: No such property '"+property+"' in class "+_class.getName());
-            }
-        }
-        LifecycleMethod postConstruct = holder.getPostConstruct();
-        if (postConstruct != null) {
-            try {
-                postConstruct.call(filter, null);
-            } catch (InvocationTargetException e) {
-                Throwable cause = e.getCause();
-                throw (InstantiationException)new InstantiationException("Could not call postConstruct method").initCause(cause);
-            }
-        }
-        return filter;
-
+        return holder.newInstance(clazz.getName(), webClassLoader, componentContext);
     }
 
     public void destroyInstance(Object o) throws Exception {
         Class clazz = o.getClass();
-        Holder holder = injectionMap.get(clazz.getName());
         if (holder != null) {
-            LifecycleMethod lifecycleMethod = holder.getPreDestroy();
-            if (lifecycleMethod != null) {
-                lifecycleMethod.call(o, o.getClass());
+            Map<String, LifecycleMethod> preDestroy = holder.getPreDestroy();
+            if (preDestroy != null) {
+                Holder.apply(o, clazz, preDestroy);
             }
         }
     }
@@ -649,7 +602,7 @@ public class JettyWebAppContext implements GBeanLifecycle, JettyServletRegistrat
         infoBuilder.addAttribute("checkedPermissions", PermissionCollection.class, true);
         infoBuilder.addAttribute("excludedPermissions", PermissionCollection.class, true);
 
-        infoBuilder.addAttribute("injections", Map.class, true);
+        infoBuilder.addAttribute("holder", Holder.class, true);
 
         infoBuilder.addReference("J2EEServer", J2EEServer.class);
         infoBuilder.addReference("J2EEApplication", J2EEApplication.class);
@@ -693,7 +646,7 @@ public class JettyWebAppContext implements GBeanLifecycle, JettyServletRegistrat
                 "checkedPermissions",
                 "excludedPermissions",
 
-                "injections",
+                "holder",
 
                 "Host",
                 "TransactionManager",

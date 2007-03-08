@@ -293,41 +293,12 @@ public abstract class AbstractNamingBuilder implements NamingBuilder {
 
 
     protected void addInjections(String jndiName, InjectionTargetType[] injectionTargetArray, Map sharedContext) {
-        Map<String, Holder> holders = NamingBuilder.INJECTION_KEY.get(sharedContext);
+        Holder holder = NamingBuilder.INJECTION_KEY.get(sharedContext);
         for (InjectionTargetType injectionTarget : injectionTargetArray) {
             String targetName = injectionTarget.getInjectionTargetName().getStringValue().trim();
             String targetClassName = injectionTarget.getInjectionTargetClass().getStringValue().trim();
-            Holder holder = getHolder(holders, targetClassName);
-            List<Injection> injections = holder.getInjections();
-            if (injections == null) {
-                injections = new ArrayList<Injection>();
-                holder.setInjections(injections);
-            }
-            injections.add(new Injection(targetClassName, targetName, jndiName));
+            holder.addInjection(targetClassName, new Injection(targetClassName, targetName, jndiName));
         }
-    }
-
-    protected void addPostConstruct(LifecycleMethod postConstruct, Map sharedContext) {
-        Map<String, Holder> holders = NamingBuilder.INJECTION_KEY.get(sharedContext);
-        String targetClassName = postConstruct.getTargetClassName();
-        Holder holder = getHolder(holders, targetClassName);
-        holder.setPostConstruct(postConstruct);
-    }
-
-    protected void addPreDestroy(LifecycleMethod preDestroy, Map sharedContext) {
-        Map<String, Holder> holders = NamingBuilder.INJECTION_KEY.get(sharedContext);
-        String targetClassName = preDestroy.getTargetClassName();
-        Holder holder = getHolder(holders, targetClassName);
-        holder.setPreDestroy(preDestroy);
-    }
-
-    private Holder getHolder(Map<String, Holder> holders, String targetClassName) {
-        Holder holder = holders.get(targetClassName);
-        if (holder == null) {
-            holder = new Holder();
-            holders.put(targetClassName, holder);
-        }
-        return holder;
     }
 
 }

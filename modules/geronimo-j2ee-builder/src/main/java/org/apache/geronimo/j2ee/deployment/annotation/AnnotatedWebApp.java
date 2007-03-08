@@ -30,6 +30,7 @@ import org.apache.geronimo.xbeans.javaee.ResourceEnvRefType;
 import org.apache.geronimo.xbeans.javaee.ResourceRefType;
 import org.apache.geronimo.xbeans.javaee.ServiceRefType;
 import org.apache.geronimo.xbeans.javaee.WebAppType;
+import org.apache.geronimo.xbeans.javaee.LifecycleCallbackType;
 
 /**
  * Wrapper class to encapsulate the WebAppType class with an interface that the various
@@ -161,5 +162,21 @@ public class AnnotatedWebApp implements AnnotatedApp {
             ambiguousEjbRefs = new ArrayList<EjbRefType>();
         }
         return this.ambiguousEjbRefs;
+    }
+
+    public LifecycleCallbackType[] getPostConstructArray() {
+        return webApp.getPostConstructArray();
+    }
+
+    public LifecycleCallbackType addPostConstruct() {
+        return webApp.addNewPostConstruct();
+    }
+
+    public LifecycleCallbackType[] getPreDestroyArray() {
+        return webApp.getPreDestroyArray();
+    }
+
+    public LifecycleCallbackType addPreDestroy() {
+        return webApp.addNewPreDestroy();
     }
 }
