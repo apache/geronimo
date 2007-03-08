@@ -30,6 +30,7 @@ public class Axis2ServiceReference extends JAXWSServiceReference {
                                  String handlerChainsXML,
                                  Map<Object, EndpointInfo> seiInfoMap) {
         super(handlerChainsXML, seiInfoMap, name, serviceQName, wsdlURI, referenceClassName, serviceClassName);
+        System.setProperty("javax.xml.ws.spi.Provider", "org.apache.axis2.jaxws.spi.Provider");
     }
 
     protected HandlerChainsType getHandlerChains() {
