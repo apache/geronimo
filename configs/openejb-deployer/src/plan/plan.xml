@@ -31,6 +31,9 @@
           <pattern>
             <name>Axis2ModuleBuilderExtension</name>
           </pattern>          
+          <pattern>
+            <name>CorbaModuleBuilderExtension</name>
+          </pattern>          
         </references>
         <reference name="SecurityBuilders">
             <name>SecurityBuilder</name>

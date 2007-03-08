@@ -88,7 +88,7 @@
         </reference>
     </gbean>
 
-    <gbean name="OpenEjbTSSLinkBuilder" class="org.apache.geronimo.corba.deployment.TSSLinkBuilder">
+    <gbean name="CorbaModuleBuilderExtension" class="org.apache.geronimo.corba.deployment.CorbaModuleBuilderExtension">
         <xml-attribute name="defaultEnvironment">
             <environment xmlns="http://geronimo.apache.org/xml/ns/deployment-${geronimoSchemaVersion}">
                 <dependencies>

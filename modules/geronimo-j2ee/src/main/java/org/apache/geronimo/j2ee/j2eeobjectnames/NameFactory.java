@@ -114,6 +114,7 @@ public class NameFactory {
     public static final String CORBA_SSL = "CORBASSL";
     public static final String ORB_CONFIG = "ORBConfig";
     public static final String WEB_SERVICE_LINK = "WSLink";
+    public static final String CORBA_TSS_LINK = "TSSLink";
     public static final String KEY_GENERATOR = "KeyGenerator";
     public static final String KEYSTORE_INSTANCE = "Keystore";
 
