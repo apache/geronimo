@@ -296,17 +296,23 @@ public class EjbDeploymentBuilder {
 
     private ClassFinder createEjbJarClassFinder( EjbJarType ejbJarType, EjbModule ejbModule) throws DeploymentException {
 
-        //----------------------------------------------------------------------------------------
-        // Find the list of classes from the ejb-jar.xml we want to search for annotations in
-        //----------------------------------------------------------------------------------------
-        List<Class> classes = new ArrayList<Class>();
+        try {
+            // Get the classloader from the module's EARContext
+            ClassLoader classLoader = ejbModule.getEarContext().getClassLoader();
 
-        // Get the classloader from the module's EARContext
-        ClassLoader classLoader = ejbModule.getEarContext().getClassLoader();
+            //----------------------------------------------------------------------------------------
+            // Find the list of classes from the ejb-jar.xml we want to search for annotations in
+            //----------------------------------------------------------------------------------------
+            List<Class> classes = new ArrayList<Class>();
 
-        // TODO Openejb has the classfinder we need, we just have to get it from them.
+            for (EnterpriseBean bean : ejbModule.getEjbJar().getEnterpriseBeans()) {
+                classes.add(classLoader.loadClass(bean.getEjbClass()));
+            }
 
-        return new ClassFinder(classes);
+            return new ClassFinder(classes);
+        } catch (ClassNotFoundException e) {
+            throw new DeploymentException("Unable to load bean class.", e);
+        }
     }
 
     private GBeanData getEjbGBean(String ejbName) throws DeploymentException {
