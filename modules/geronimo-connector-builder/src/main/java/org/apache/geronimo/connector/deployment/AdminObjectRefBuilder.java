@@ -364,10 +364,10 @@ public class AdminObjectRefBuilder extends AbstractNamingBuilder {
             }
 
             //------------------------------------------------------------------------------------------
-            // 5. Everything else must be a <resource-env-ref>
+            // 5. InteractionSpecs <resource-env-ref>
+            // There are a lot of choices that aren't covered...
             //------------------------------------------------------------------------------------------
-            else if (annotation.type().getCanonicalName().equals("javax.resource.cci.InteractionSpec") ||
-                    annotation.type().getCanonicalName().equals("javax.transaction.UserTransaction") || true) {
+            else if (annotation.type().getCanonicalName().equals("javax.resource.cci.InteractionSpec") ) {
 
                 log.debug("addResource(): <resource-env-ref> found");
 
