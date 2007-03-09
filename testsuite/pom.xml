@@ -113,13 +113,6 @@
                     <version>${version}</version>
                 </plugin>
                 
-
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-invoker-plugin</artifactId>
-                    <version>1.0-SNAPSHOT</version>
-                </plugin>
-                
                 <!--
                 NOTE: Using custom maven-surefire-plugin that supports TestNG:
                       http://testng.org/doc/maven.html
