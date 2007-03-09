@@ -21,6 +21,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.jar.JarFile;
 
 import org.apache.geronimo.deployment.util.UnpackedJarFile;
@@ -64,6 +65,7 @@ public class PlanParsingTest extends XmlBeansTestSupport {
     private WebServiceBuilder webServiceBuilder = null;
     private Environment defaultEnvironment = new Environment();
     private JettyModuleBuilder builder;
+    private AtomicBoolean isDefault = new AtomicBoolean(false);
 
     public PlanParsingTest() throws Exception {
         builder = new JettyModuleBuilder(defaultEnvironment,
@@ -87,7 +89,7 @@ public class PlanParsingTest extends XmlBeansTestSupport {
     public void testContents() throws Exception {
         URL resourcePlan = classLoader.getResource("plans/plan1.xml");
         assertTrue(resourcePlan != null);
-        JettyWebAppType jettyWebApp = builder.getJettyWebApp(new File(resourcePlan.getFile()), null, true, null, null);
+        JettyWebAppType jettyWebApp = builder.getJettyWebApp(new File(resourcePlan.getFile()), null, true, null, null, isDefault);
         assertEquals(1, jettyWebApp.getResourceRefArray().length);
 //        assertEquals(4, jettyWebApp.getSecurity().getRoleMappings().getRoleArray().length);
     }
@@ -95,7 +97,7 @@ public class PlanParsingTest extends XmlBeansTestSupport {
     public void testMoveSecurity1() throws Exception {
         URL resourcePlan = classLoader.getResource("plans/plan1A.xml");
         assertTrue(resourcePlan != null);
-        JettyWebAppType jettyWebApp = builder.getJettyWebApp(new File(resourcePlan.getFile()), null, true, null, null);
+        JettyWebAppType jettyWebApp = builder.getJettyWebApp(new File(resourcePlan.getFile()), null, true, null, null, isDefault);
         assertEquals(1, jettyWebApp.getResourceRefArray().length);
 //        assertEquals(4, jettyWebApp.getSecurity().getRoleMappings().getRoleArray().length);
     }
@@ -103,7 +105,7 @@ public class PlanParsingTest extends XmlBeansTestSupport {
     public void testMoveSecurity2() throws Exception {
         URL resourcePlan = classLoader.getResource("plans/plan1B.xml");
         assertTrue(resourcePlan != null);
-        JettyWebAppType jettyWebApp = builder.getJettyWebApp(new File(resourcePlan.getFile()), null, true, null, null);
+        JettyWebAppType jettyWebApp = builder.getJettyWebApp(new File(resourcePlan.getFile()), null, true, null, null, isDefault);
         assertEquals(1, jettyWebApp.getResourceRefArray().length);
 //        assertEquals(4, jettyWebApp.getSecurity().getRoleMappings().getRoleArray().length);
     }
@@ -111,7 +113,7 @@ public class PlanParsingTest extends XmlBeansTestSupport {
     public void testMoveSecurity3() throws Exception {
         URL resourcePlan = classLoader.getResource("plans/plan1C.xml");
         assertTrue(resourcePlan != null);
-        JettyWebAppType jettyWebApp = builder.getJettyWebApp(new File(resourcePlan.getFile()), null, true, null, null);
+        JettyWebAppType jettyWebApp = builder.getJettyWebApp(new File(resourcePlan.getFile()), null, true, null, null, isDefault);
 //        assertEquals(4, jettyWebApp.getSecurity().getRoleMappings().getRoleArray().length);
 //        log.debug(jettyWebApp.xmlText());
     }
@@ -119,7 +121,7 @@ public class PlanParsingTest extends XmlBeansTestSupport {
     public void testOldFormat() throws Exception {
         URL resourcePlan = classLoader.getResource("plans/plan2.xml");
         assertTrue(resourcePlan != null);
-        JettyWebAppType jettyWebApp = builder.getJettyWebApp(new File(resourcePlan.getFile()), null, true, null, null);
+        JettyWebAppType jettyWebApp = builder.getJettyWebApp(new File(resourcePlan.getFile()), null, true, null, null, isDefault);
         assertEquals(1, jettyWebApp.getResourceRefArray().length);
 //        assertEquals(4, jettyWebApp.getSecurity().getRoleMappings().getRoleArray().length);
     }
@@ -128,7 +130,7 @@ public class PlanParsingTest extends XmlBeansTestSupport {
         URL war = classLoader.getResource("deployables/war5");
         assertTrue(war != null);
         UnpackedJarFile moduleFile = new UnpackedJarFile(new File(war.getFile()));
-        JettyWebAppType jettyWebApp = builder.getJettyWebApp(null, moduleFile, true, null, null);
+        JettyWebAppType jettyWebApp = builder.getJettyWebApp(null, moduleFile, true, null, null, isDefault);
         moduleFile.close();
         assertEquals(1, jettyWebApp.getResourceRefArray().length);
     }
@@ -137,7 +139,7 @@ public class PlanParsingTest extends XmlBeansTestSupport {
         URL war = classLoader.getResource("deployables/war6.war");
         assertTrue(war != null);
         JarFile moduleFile = new JarFile(new File(war.getFile()));
-        JettyWebAppType jettyWebApp = builder.getJettyWebApp(null, moduleFile, true, null, null);
+        JettyWebAppType jettyWebApp = builder.getJettyWebApp(null, moduleFile, true, null, null, isDefault);
         moduleFile.close();
         assertEquals(1, jettyWebApp.getResourceRefArray().length);
     }
@@ -181,7 +183,7 @@ public class PlanParsingTest extends XmlBeansTestSupport {
         assertTrue(war != null);
         JarFile dummyFile = new JarFile(new File(war.getFile()));
 
-        webApp = builder.getJettyWebApp(webApp, dummyFile, true, null, null);
+        webApp = builder.getJettyWebApp(webApp, dummyFile, true, null, null, isDefault);
 
         assertEquals("myContextRoot", webApp.getContextRoot());
 
@@ -192,7 +194,7 @@ public class PlanParsingTest extends XmlBeansTestSupport {
         URL war = classLoader.getResource("deployables/war2.war");
         assertTrue(war != null);
         JarFile dummyFile = new JarFile(new File(war.getFile()));
-        JettyWebAppType GerWebAppType = builder.getJettyWebApp(null, dummyFile, true, null, null);
+        JettyWebAppType GerWebAppType = builder.getJettyWebApp(null, dummyFile, true, null, null, isDefault);
 
         assertEquals("/war2", GerWebAppType.getContextRoot());
 
@@ -203,7 +205,7 @@ public class PlanParsingTest extends XmlBeansTestSupport {
         URL war = classLoader.getResource("deployables/war2.war");
         assertTrue(war != null);
         JarFile dummyFile = new JarFile(new File(war.getFile()));
-        JettyWebAppType GerWebAppType = builder.getJettyWebApp(null, dummyFile, false, "myTargetPath", null);
+        JettyWebAppType GerWebAppType = builder.getJettyWebApp(null, dummyFile, false, "myTargetPath", null, isDefault);
 
         assertEquals("myTargetPath", GerWebAppType.getContextRoot());
 
@@ -218,7 +220,7 @@ public class PlanParsingTest extends XmlBeansTestSupport {
         URL war = classLoader.getResource("deployables/war2.war");
         assertTrue(war != null);
         JarFile dummyFile = new JarFile(new File(war.getFile()));
-        JettyWebAppType GerWebAppType = builder.getJettyWebApp(null, dummyFile, false, "myTargetPath", webAppType);
+        JettyWebAppType GerWebAppType = builder.getJettyWebApp(null, dummyFile, false, "myTargetPath", webAppType, isDefault);
 
         assertEquals("myId", GerWebAppType.getContextRoot());
 
