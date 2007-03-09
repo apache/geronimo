@@ -43,9 +43,11 @@
         </dependency>
 
         <dependency>
-            <groupId>org.apache.geronimo.modules</groupId>
-            <artifactId>geronimo-connector-builder</artifactId>
+            <groupId>org.apache.geronimo.configs</groupId>
+            <artifactId>connector-deployer</artifactId>
             <version>${version}</version>
+            <scope>runtime</scope>
+            <type>car</type>
         </dependency>
 
     </dependencies>

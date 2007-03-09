@@ -227,6 +227,8 @@
 
     <module name="org.apache.geronimo.configs/hot-deployer/${version}/car"/>
 
+    <module name="org.apache.geronimo.configs/jsr88-rar-configurer/${version}/car"/>
+
     <module name="org.apache.geronimo.configs/ca-helper-jetty/${version}/car" load="false"/>
     
 </attributes>
