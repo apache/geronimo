@@ -267,6 +267,12 @@ public class ResourceRefBuilder extends AbstractNamingBuilder implements Resourc
                 ResourceRefType[] resourceRefs = annotatedApp.getResourceRefArray();
                 for (ResourceRefType resourceRef : resourceRefs) {
                     if (resourceRef.getResRefName().getStringValue().trim().equals(resourceName)) {
+                        if (method != null || field != null) {
+                            InjectionTargetType[] targets = resourceRef.getInjectionTargetArray();
+                            if (!hasTarget(method, field, targets)) {
+                                configureInjectionTarget(resourceRef.addNewInjectionTarget(), method, field);
+                            }
+                        }
                         exists = true;
                         break;
                     }

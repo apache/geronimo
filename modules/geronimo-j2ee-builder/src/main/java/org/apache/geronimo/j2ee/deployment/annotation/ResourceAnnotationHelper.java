@@ -238,6 +238,40 @@ public final class ResourceAnnotationHelper {
             return resourceType;
         }
 
+        protected static String getInjectionJavaType(Method method, Field field) {
+            if (method != null) {
+                String injectionJavaType = method.getName().substring(3);
+                StringBuilder stringBuilder = new StringBuilder(injectionJavaType);
+                stringBuilder.setCharAt(0, Character.toLowerCase(stringBuilder.charAt(0)));
+                return stringBuilder.toString();
+            } else if (field != null) {
+                return field.getName();
+            } else {
+                throw new IllegalArgumentException("You must supply exactly one of Method, Field");
+            }
+        }
+
+        protected static String getInjectionClass(Method method, Field field) {
+            if (method != null) {
+                return method.getDeclaringClass().getName();
+            } else if (field != null) {
+                return field.getDeclaringClass().getName();
+            } else {
+                throw new IllegalArgumentException("You must supply exactly one of Method, Field");
+            }
+        }
+
+        protected static boolean hasTarget(Method method, Field field, InjectionTargetType[] targets) {
+            String injectionJavaType = getInjectionJavaType(method, field);
+            String injectionClass = getInjectionClass(method, field);
+            for (InjectionTargetType target : targets) {
+                if (injectionClass.equals(target.getInjectionTargetClass().getStringValue().trim())
+                        && injectionJavaType.equals(target.getInjectionTargetName().getStringValue().trim())) {
+                    return true;
+                }
+            }
+            return false;
+        }
         /**
          * Configure Injection Target
          *
@@ -248,18 +282,9 @@ public final class ResourceAnnotationHelper {
         protected static void configureInjectionTarget(InjectionTargetType injectionTarget, Method method, Field field) {
             log.debug("configureInjectionTarget(): Entry");
 
-            String injectionJavaType = "";
-            String injectionClass = null;
-            if (method != null) {
-                injectionJavaType = method.getName().substring(3);
-                StringBuilder stringBuilder = new StringBuilder(injectionJavaType);
-                stringBuilder.setCharAt(0, Character.toLowerCase(stringBuilder.charAt(0)));
-                injectionJavaType = stringBuilder.toString();
-                injectionClass = method.getDeclaringClass().getName();
-            } else if (field != null) {
-                injectionJavaType = field.getName();
-                injectionClass = field.getDeclaringClass().getName();
-            }
+            String injectionJavaType = getInjectionJavaType(method, field);
+            String injectionClass = getInjectionClass(method, field);
+
             FullyQualifiedClassType qualifiedClass = injectionTarget.addNewInjectionTargetClass();
             JavaIdentifierType javaType = injectionTarget.addNewInjectionTargetName();
             qualifiedClass.setStringValue(injectionClass);

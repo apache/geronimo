@@ -305,13 +305,25 @@ public class AdminObjectRefBuilder extends AbstractNamingBuilder {
             MessageDestinationRefType[] messageDestinationRefs = annotatedApp.getMessageDestinationRefArray();
             for (MessageDestinationRefType messageDestinationRef : messageDestinationRefs) {
                 if (messageDestinationRef.getMessageDestinationRefName().getStringValue().trim().equals(resourceName)) {
-                    return false;
+                    if (method != null || field != null) {
+                        InjectionTargetType[] targets = messageDestinationRef.getInjectionTargetArray();
+                        if (!hasTarget(method, field, targets)) {
+                            configureInjectionTarget(messageDestinationRef.addNewInjectionTarget(), method, field);
+                        }
+                    }
+                    return true;
                 }
             }
             ResourceEnvRefType[] ResourceEnvRefs = annotatedApp.getResourceEnvRefArray();
             for (ResourceEnvRefType resourceEnvRefType : ResourceEnvRefs) {
                 if (resourceEnvRefType.getResourceEnvRefName().getStringValue().trim().equals(resourceName)) {
-                    return false;
+                    if (method != null || field != null) {
+                        InjectionTargetType[] targets = resourceEnvRefType.getInjectionTargetArray();
+                        if (!hasTarget(method, field, targets)) {
+                            configureInjectionTarget(resourceEnvRefType.addNewInjectionTarget(), method, field);
+                        }
+                    }
+                    return true;
                 }
             }
 
