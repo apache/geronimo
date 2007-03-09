@@ -45,6 +45,7 @@ import org.apache.geronimo.xbeans.javaee.ResourceRefType;
 import org.apache.geronimo.xbeans.javaee.ServiceRefType;
 import org.apache.geronimo.xbeans.javaee.XsdAnyURIType;
 import org.apache.geronimo.xbeans.javaee.XsdStringType;
+import org.apache.geronimo.common.DeploymentException;
 import org.apache.xbean.finder.ClassFinder;
 
 
@@ -188,7 +189,7 @@ public final class ResourceAnnotationHelper {
 
     public abstract static class ResourceProcessor {
 
-        public abstract boolean processResource(AnnotatedApp annotatedApp, Resource annotation, Class cls, Method method, Field field);
+        public abstract boolean processResource(AnnotatedApp annotatedApp, Resource annotation, Class cls, Method method, Field field) throws DeploymentException;
 
         /**
          * Resource name:
