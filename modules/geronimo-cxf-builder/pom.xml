@@ -40,15 +40,10 @@
             <version>${version}</version>
         </dependency>
 
+        <!-- xbean-finder, g-service-builder comes transitively from this -->
         <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
             <artifactId>geronimo-j2ee-builder</artifactId>
-            <version>${version}</version>
-        </dependency>
-        
-        <dependency>
-            <groupId>org.apache.geronimo.modules</groupId>
-            <artifactId>geronimo-service-builder</artifactId>
             <version>${version}</version>
         </dependency>
 
@@ -69,11 +64,6 @@
             <artifactId>geronimo-cxf</artifactId>
             <version>${version}</version>
         </dependency>
-
-       <dependency>
-            <groupId>org.apache.xbean</groupId>
-            <artifactId>xbean-finder</artifactId>
-       </dependency>
 
        <dependency>
             <groupId>org.apache.geronimo.specs</groupId>

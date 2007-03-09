@@ -40,21 +40,11 @@
             <version>${version}</version>
         </dependency>
 
+        <!-- xmlbeans, stax-api comes transitively via g-service-builder from this -->
         <dependency>
             <groupId>${pom.groupId}</groupId>
             <artifactId>geronimo-naming-builder</artifactId>
             <version>${version}</version>
-        </dependency>
-
-        <!-- Thirdparty Dependencies -->
-        <dependency>
-            <groupId>xmlbeans</groupId>
-            <artifactId>xbean</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>stax</groupId>
-            <artifactId>stax-api</artifactId>
         </dependency>
 
     </dependencies>

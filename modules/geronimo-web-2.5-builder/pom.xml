@@ -35,8 +35,10 @@
     <dependencies>
 
         <dependency>
+
+            <!-- g-schema-jee_5 comes via g-j2ee-builder from this -->
             <groupId>${pom.groupId}</groupId>
-            <artifactId>geronimo-j2ee-builder</artifactId>
+            <artifactId>geronimo-naming-builder</artifactId>
             <version>${version}</version>
         </dependency>
 
@@ -48,26 +50,8 @@
 
         <dependency>
             <groupId>${pom.groupId}</groupId>
-            <artifactId>geronimo-service-builder</artifactId>
-            <version>${version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>${pom.groupId}</groupId>
-            <artifactId>geronimo-naming-builder</artifactId>
-            <version>${version}</version>
-        </dependency>
-
-
-        <dependency>
-            <groupId>${pom.groupId}</groupId>
             <artifactId>geronimo-test-ddbean</artifactId>
             <version>${version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.geronimo.schema</groupId>
-            <artifactId>geronimo-schema-jee_5</artifactId>
         </dependency>
 
         <dependency>

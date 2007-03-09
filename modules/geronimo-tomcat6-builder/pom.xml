@@ -36,48 +36,16 @@
 
         <dependency>
             <groupId>${pom.groupId}</groupId>
-            <artifactId>geronimo-naming-builder</artifactId>
-            <version>${version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>${pom.groupId}</groupId>
             <artifactId>geronimo-tomcat6</artifactId>
             <version>${version}</version>
         </dependency>
 
-        <dependency>
-            <groupId>${pom.groupId}</groupId>
-            <artifactId>geronimo-service-builder</artifactId>
-            <version>${version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>${pom.groupId}</groupId>
-            <artifactId>geronimo-j2ee-builder</artifactId>
-            <version>${version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>${pom.groupId}</groupId>
-            <artifactId>geronimo-security-builder</artifactId>
-            <version>${version}</version>
-        </dependency>
-
+        <!-- g-j2ee-builder and hence g-service-builder comes via g-naming-builder -->
+        <!-- g-security-builder comes from this -->
         <dependency>
             <groupId>${pom.groupId}</groupId>
             <artifactId>geronimo-web-2.5-builder</artifactId>
             <version>${version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>xmlbeans</groupId>
-            <artifactId>xbean</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>stax</groupId>
-            <artifactId>stax-api</artifactId>
         </dependency>
 
         <dependency>
