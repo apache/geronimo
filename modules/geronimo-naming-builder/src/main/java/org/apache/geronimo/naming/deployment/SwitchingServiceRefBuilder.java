@@ -32,7 +32,10 @@ import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.j2ee.deployment.annotation.WebServiceRefAnnotationHelper;
 import org.apache.geronimo.j2ee.deployment.Module;
 import org.apache.geronimo.j2ee.deployment.WebModule;
+import org.apache.geronimo.j2ee.deployment.NamingBuilder;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
+import org.apache.geronimo.j2ee.annotation.Holder;
+import org.apache.geronimo.j2ee.annotation.Injection;
 import org.apache.geronimo.kernel.config.Configuration;
 import org.apache.geronimo.kernel.config.MultiParentClassLoader;
 import org.apache.geronimo.kernel.repository.Environment;
@@ -40,6 +43,7 @@ import org.apache.geronimo.naming.deployment.AbstractNamingBuilder;
 import org.apache.geronimo.xbeans.geronimo.naming.GerServiceRefDocument;
 import org.apache.geronimo.xbeans.geronimo.naming.GerServiceRefType;
 import org.apache.geronimo.xbeans.javaee.ServiceRefType;
+import org.apache.geronimo.xbeans.javaee.InjectionTargetType;
 import org.apache.xbean.finder.ClassFinder;
 import org.apache.xbean.finder.UrlSet;
 import org.apache.xmlbeans.QNameSet;
@@ -115,6 +119,9 @@ public class SwitchingServiceRefBuilder extends AbstractNamingBuilder {
             String serviceInterfaceName = getStringValue(serviceRefType
                     .getServiceInterface());
             Class serviceInterfaceClass = loadClass(serviceInterfaceName, cl);
+
+            InjectionTargetType[] injections = serviceRefType.getInjectionTargetArray();
+            addInjections(name, injections, componentContext);
 
             if (jaxrpcClass.isAssignableFrom(serviceInterfaceClass)) {
                 // class jaxrpc handler
