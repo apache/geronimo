@@ -80,11 +80,11 @@ public class JavaCompContextTest extends TestCase {
         assertEquals("long name", intermediate.lookup("anywhere"));
     }
 
-    public void testSchemeLookup() throws NamingException {
-//        envContext.lookup("dns:apache.org");
-        assertEquals("Hello", envContext.lookup("java:comp/env/hello"));
-        assertEquals("Hello", compContext.lookup("java:comp/env/hello"));
-    }
+//     public void testSchemeLookup() throws NamingException {
+// //        envContext.lookup("dns:apache.org");
+//         assertEquals("Hello", envContext.lookup("java:comp/env/hello"));
+//         assertEquals("Hello", compContext.lookup("java:comp/env/hello"));
+//     }
 
     public void testLookupLink() throws NamingException {
         assertEquals("Hello", envContext.lookup("link"));
