@@ -18,16 +18,26 @@ package org.apache.geronimo.jaxws.client;
 
 import java.lang.reflect.Method;
 
+import javax.xml.ws.WebEndpoint;
+
 import net.sf.cglib.proxy.CallbackFilter;
 
 public class PortMethodFilter implements CallbackFilter {
 
     public int accept(Method method) {
-        if (method.getName().equals("getPort")) {
+        if (isGenericPortMethod(method) || isGeneratedPortMethod(method)) {
             return 1; // use second method interceptor
         } else {
             return 0; // use first method interceptor
         }
+    }
+    
+    private boolean isGenericPortMethod(Method method) {
+        return (method.getName().equals("getPort"));
+    }
+    
+    private boolean isGeneratedPortMethod(Method method) {
+        return (method.getName().startsWith("get") && method.isAnnotationPresent(WebEndpoint.class));
     }
 
 }

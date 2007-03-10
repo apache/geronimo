@@ -27,6 +27,7 @@ import org.apache.geronimo.security.jaas.NamedUsernamePasswordCredential;
 import javax.security.auth.Subject;
 import javax.xml.namespace.QName;
 import javax.xml.ws.BindingProvider;
+import javax.xml.ws.WebEndpoint;
 import javax.xml.ws.soap.SOAPBinding;
 
 import java.lang.reflect.Method;
@@ -48,7 +49,8 @@ public class PortMethodInterceptor implements MethodInterceptor {
     public Object intercept(Object target, Method method, Object[] arguments, MethodProxy methodProxy) throws Throwable {
         Object proxy = methodProxy.invokeSuper(target, arguments);       
         
-        if (method.getName().equals("getPort")) {            
+        if (method.getName().equals("getPort")) {     
+            // it's a generic getPort() method
             if (arguments.length == 1) {
                 // getPort(Class) called - use SEI annotation
                 setProperties((BindingProvider)proxy, JAXWSUtils.getPortType((Class)arguments[0]));
@@ -62,6 +64,10 @@ public class PortMethodInterceptor implements MethodInterceptor {
                     setProperties((BindingProvider)proxy, ((QName)arguments[0]).getLocalPart());
                 }
             }
+        } else if (method.getName().startsWith("get")) {
+            // it's a generated get<PortName>() method
+            WebEndpoint endpoint = method.getAnnotation(WebEndpoint.class);
+            setProperties((BindingProvider)proxy, endpoint.name());
         }
                 
         return proxy;
