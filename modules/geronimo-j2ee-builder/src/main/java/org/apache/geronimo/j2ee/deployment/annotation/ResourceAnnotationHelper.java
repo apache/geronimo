@@ -75,7 +75,7 @@ import org.apache.xbean.finder.ClassFinder;
  * @version $Rev$ $Date$
  * @since 02-2007
  */
-public final class ResourceAnnotationHelper {
+public final class ResourceAnnotationHelper extends AnnotationHelper {
 
     // Private instance variables
     private static final Log log = LogFactory.getLog(ResourceAnnotationHelper.class);
@@ -187,7 +187,7 @@ public final class ResourceAnnotationHelper {
         log.debug("processResources(): Exit");
     }
 
-    public abstract static class ResourceProcessor {
+    public abstract static class ResourceProcessor extends AnnotationHelper {
 
         public abstract boolean processResource(AnnotatedApp annotatedApp, Resource annotation, Class cls, Method method, Field field) throws DeploymentException;
 
@@ -237,65 +237,7 @@ public final class ResourceAnnotationHelper {
             }
             return resourceType;
         }
-
-        protected static String getInjectionJavaType(Method method, Field field) {
-            if (method != null) {
-                String injectionJavaType = method.getName().substring(3);
-                StringBuilder stringBuilder = new StringBuilder(injectionJavaType);
-                stringBuilder.setCharAt(0, Character.toLowerCase(stringBuilder.charAt(0)));
-                return stringBuilder.toString();
-            } else if (field != null) {
-                return field.getName();
-            } else {
-                throw new IllegalArgumentException("You must supply exactly one of Method, Field");
-            }
-        }
-
-        protected static String getInjectionClass(Method method, Field field) {
-            if (method != null) {
-                return method.getDeclaringClass().getName();
-            } else if (field != null) {
-                return field.getDeclaringClass().getName();
-            } else {
-                throw new IllegalArgumentException("You must supply exactly one of Method, Field");
-            }
-        }
-
-        protected static boolean hasTarget(Method method, Field field, InjectionTargetType[] targets) {
-            String injectionJavaType = getInjectionJavaType(method, field);
-            String injectionClass = getInjectionClass(method, field);
-            for (InjectionTargetType target : targets) {
-                if (injectionClass.equals(target.getInjectionTargetClass().getStringValue().trim())
-                        && injectionJavaType.equals(target.getInjectionTargetName().getStringValue().trim())) {
-                    return true;
-                }
-            }
-            return false;
-        }
-        /**
-         * Configure Injection Target
-         *
-         * @param injectionTarget
-         * @param method
-         * @param field
-         */
-        protected static void configureInjectionTarget(InjectionTargetType injectionTarget, Method method, Field field) {
-            log.debug("configureInjectionTarget(): Entry");
-
-            String injectionJavaType = getInjectionJavaType(method, field);
-            String injectionClass = getInjectionClass(method, field);
-
-            FullyQualifiedClassType qualifiedClass = injectionTarget.addNewInjectionTargetClass();
-            JavaIdentifierType javaType = injectionTarget.addNewInjectionTargetName();
-            qualifiedClass.setStringValue(injectionClass);
-            javaType.setStringValue(injectionJavaType);
-            injectionTarget.setInjectionTargetClass(qualifiedClass);
-            injectionTarget.setInjectionTargetName(javaType);
-
-            log.debug("configureInjectionTarget(): Exit");
-        }
     }
-
 
     /**
      * Add @Resource and @Resources annotations to the deployment descriptor. XMLBeans are used to
@@ -326,6 +268,7 @@ public final class ResourceAnnotationHelper {
      * @param method     Method name with the @Resource annoation
      * @param field      Field name with the @Resource annoation
      */
+    /*
     private static void addResource(AnnotatedApp annotatedApp, Resource annotation, Class cls, Method method, Field field) {
         log.debug("addResource( " + annotatedApp.toString() + "," + '\n' +
                 annotation.name() + "," + '\n' +
@@ -776,7 +719,7 @@ public final class ResourceAnnotationHelper {
         }
         log.debug("addResource(): Exit");
     }
-
+      */
 
     /**
      * Configure Injection Target
@@ -785,6 +728,7 @@ public final class ResourceAnnotationHelper {
      * @param method
      * @param field
      */
+    /*
     private static void configureInjectionTarget(InjectionTargetType injectionTarget, Method method, Field field) {
         log.debug("configureInjectionTarget(): Entry");
 
@@ -809,7 +753,7 @@ public final class ResourceAnnotationHelper {
 
         log.debug("configureInjectionTarget(): Exit");
     }
-
+    */
 
     /**
      * Validate deployment descriptor

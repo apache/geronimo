@@ -64,7 +64,7 @@ import org.apache.xbean.finder.ClassFinder;
  * @version $Rev $Date
  * @since 03-2007
  */
-public final class WebServiceRefAnnotationHelper {
+public final class WebServiceRefAnnotationHelper extends AnnotationHelper {
 
     // Private instance variables
     private static final Log log = LogFactory.getLog(WebServiceRefAnnotationHelper.class);
@@ -254,19 +254,8 @@ public final class WebServiceRefAnnotationHelper {
         // -- Have one parameter
         // -- Return void
         //------------------------------------------------------------------------------------------
-        String injectionJavaType = "";
-        String injectionClass = null;
-        if ( method != null ) {
-            injectionJavaType = method.getName().substring(3);
-            StringBuilder stringBuilder = new StringBuilder(injectionJavaType);
-            stringBuilder.setCharAt(0, Character.toLowerCase(stringBuilder.charAt(0)));
-            injectionJavaType = stringBuilder.toString();
-            injectionClass = method.getDeclaringClass().getName();
-        }
-        else if ( field != null ) {
-            injectionJavaType = field.getName();
-            injectionClass = field.getDeclaringClass().getName();
-        }
+        String injectionJavaType = getInjectionJavaType(method, field);
+        String injectionClass = getInjectionClass(method, field);
         log.debug("addWebServiceRef(): injectionJavaType: " + injectionJavaType);
         log.debug("addWebServiceRef(): injectionClass   : " + injectionClass);
 
@@ -278,8 +267,13 @@ public final class WebServiceRefAnnotationHelper {
         ServiceRefType[] serviceRefs = annotatedApp.getServiceRefArray();
         for ( ServiceRefType serviceRef : serviceRefs ) {
             if ( serviceRef.getServiceRefName().getStringValue().trim().equals(webServiceRefName) ) {
-                exists = true;
-                break;
+                if (method != null || field != null) {
+                    InjectionTargetType[] targets = serviceRef.getInjectionTargetArray();
+                    if (!hasTarget(method, field, targets)) {
+                        configureInjectionTarget(serviceRef.addNewInjectionTarget(), method, field);
+                    }
+                }
+                return;
             }
         }
         if ( !exists ) {
@@ -348,7 +342,7 @@ public final class WebServiceRefAnnotationHelper {
     /**
      * Validate deployment descriptor
      *
-     * @param AnnotatedApp
+     * @parama annotatedApp
      * @throws Exception thrown if deployment descriptor cannot be parsed
      */
     private static void validateDD(AnnotatedApp annotatedApp) throws Exception {
@@ -358,4 +352,5 @@ public final class WebServiceRefAnnotationHelper {
 
         log.debug("validateDD(): Exit");
     }
+
 }
