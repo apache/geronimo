@@ -35,7 +35,9 @@ import org.apache.geronimo.xbeans.javaee.JavaIdentifierType;
 import org.apache.geronimo.xbeans.javaee.JndiNameType;
 import org.apache.geronimo.xbeans.javaee.ServiceRefType;
 import org.apache.geronimo.xbeans.javaee.XsdAnyURIType;
+import org.apache.geronimo.common.DeploymentException;
 import org.apache.xbean.finder.ClassFinder;
+import org.apache.xmlbeans.XmlException;
 
 
 /**
@@ -73,28 +75,18 @@ public final class WebServiceRefAnnotationHelper extends AnnotationHelper {
     private WebServiceRefAnnotationHelper() {
     }
 
-
     /**
-     * Determine if there are any annotations present
-     *
-     * @return true or false
+     * Update the deployment descriptor from the WebServiceRef and WebServiceRefs annotations
+     * @throws DeploymentException if parsing or validation error
      */
-    public static boolean annotationsPresent(ClassFinder classFinder) {
-        if ( classFinder.isAnnotationPresent(WebServiceRef.class) ) return true;
-        if ( classFinder.isAnnotationPresent(WebServiceRefs.class) ) return true;
-        return false;
-    }
-
-    /**
-     * Process the annotations
-     *
-     * @return Updated deployment descriptor
-     * @throws Exception if parsing or validation error
-     */
-    public static void processAnnotations(AnnotatedApp annotatedApp, ClassFinder classFinder) throws Exception {
+    public static void processAnnotations(AnnotatedApp annotatedApp, ClassFinder classFinder) throws DeploymentException {
         if ( annotatedApp != null ) {
-            processWebServiceRefs(annotatedApp, classFinder);
-            processWebServiceRef(annotatedApp, classFinder);
+            if (classFinder.isAnnotationPresent(WebServiceRefs.class)) {
+                processWebServiceRefs(annotatedApp, classFinder);
+            }
+            if (classFinder.isAnnotationPresent(WebServiceRef.class)) {
+                processWebServiceRef(annotatedApp, classFinder);
+            }
         }
     }
 
@@ -104,9 +96,9 @@ public final class WebServiceRefAnnotationHelper extends AnnotationHelper {
      *
      * @param annotatedApp
      * @param classFinder
-     * @throws Exception
+     * @throws DeploymentException
      */
-    private static void processWebServiceRef(AnnotatedApp annotatedApp, ClassFinder classFinder) throws Exception {
+    private static void processWebServiceRef(AnnotatedApp annotatedApp, ClassFinder classFinder) throws DeploymentException {
         log.debug("processWebServiceRef(): Entry: AnnotatedApp: " + annotatedApp.toString());
 
         List<Class> classeswithWebServiceRef = classFinder.findAnnotatedClasses(WebServiceRef.class);
@@ -151,7 +143,7 @@ public final class WebServiceRefAnnotationHelper extends AnnotationHelper {
      * @param classFinder
      * @exception Exception
      */
-    private static void processWebServiceRefs(AnnotatedApp annotatedApp, ClassFinder classFinder) throws Exception {
+    private static void processWebServiceRefs(AnnotatedApp annotatedApp, ClassFinder classFinder) throws DeploymentException {
         log.debug("processWebServiceRefs(): Entry");
 
         List<Class> classeswithWebServiceRefs = classFinder.findAnnotatedClasses(WebServiceRefs.class);
@@ -335,22 +327,6 @@ public final class WebServiceRefAnnotationHelper extends AnnotationHelper {
             }
         }
         log.debug("addWebServiceRef(): Exit");
-    }
-
-
-
-    /**
-     * Validate deployment descriptor
-     *
-     * @parama annotatedApp
-     * @throws Exception thrown if deployment descriptor cannot be parsed
-     */
-    private static void validateDD(AnnotatedApp annotatedApp) throws Exception {
-        log.debug("validateDD( " + annotatedApp.toString() + " ): Entry");
-
-        XmlBeansUtil.parse(annotatedApp.toString());
-
-        log.debug("validateDD(): Exit");
     }
 
 }

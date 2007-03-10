@@ -28,23 +28,6 @@ import javax.annotation.Resources;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.geronimo.deployment.xmlbeans.XmlBeansUtil;
-import org.apache.geronimo.xbeans.javaee.DescriptionType;
-import org.apache.geronimo.xbeans.javaee.EnvEntryType;
-import org.apache.geronimo.xbeans.javaee.EnvEntryTypeValuesType;
-import org.apache.geronimo.xbeans.javaee.FullyQualifiedClassType;
-import org.apache.geronimo.xbeans.javaee.InjectionTargetType;
-import org.apache.geronimo.xbeans.javaee.JavaIdentifierType;
-import org.apache.geronimo.xbeans.javaee.JndiNameType;
-import org.apache.geronimo.xbeans.javaee.MessageDestinationRefType;
-import org.apache.geronimo.xbeans.javaee.MessageDestinationTypeType;
-import org.apache.geronimo.xbeans.javaee.ResAuthType;
-import org.apache.geronimo.xbeans.javaee.ResSharingScopeType;
-import org.apache.geronimo.xbeans.javaee.ResourceEnvRefType;
-import org.apache.geronimo.xbeans.javaee.ResourceRefType;
-import org.apache.geronimo.xbeans.javaee.ServiceRefType;
-import org.apache.geronimo.xbeans.javaee.XsdAnyURIType;
-import org.apache.geronimo.xbeans.javaee.XsdStringType;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.xbean.finder.ClassFinder;
 
@@ -84,30 +67,18 @@ public final class ResourceAnnotationHelper extends AnnotationHelper {
     private ResourceAnnotationHelper() {
     }
 
-
     /**
-     * Determine if there are any annotations present
-     *
-     * @return true or false
-     */
-    public static boolean annotationsPresent(ClassFinder classFinder) {
-        if (classFinder.isAnnotationPresent(Resource.class)) return true;
-        if (classFinder.isAnnotationPresent(Resources.class)) return true;
-        return false;
-    }
-
-    /**
-     * Process the annotations
-     *
-     * @return Updated deployment descriptor
+     * Update the deployment descriptor from Resource and Resources annotations
      * @throws Exception if parsing or validation error
      */
     public static void processAnnotations(AnnotatedApp annotatedApp, ClassFinder classFinder, ResourceProcessor resourceProcessor) throws Exception {
         if (annotatedApp != null) {
-            if (!classFinder.isAnnotationPresent(Resource.class)
-                    && !classFinder.isAnnotationPresent(Resources.class)) return;
-            processResources(annotatedApp, classFinder, resourceProcessor);
-            processResource(annotatedApp, classFinder, resourceProcessor);
+            if (classFinder.isAnnotationPresent(Resources.class)) {
+                processResources(annotatedApp, classFinder, resourceProcessor);
+            }
+            if (classFinder.isAnnotationPresent(Resource.class)) {
+                processResource(annotatedApp, classFinder, resourceProcessor);
+            }
         }
     }
 
@@ -755,17 +726,4 @@ public final class ResourceAnnotationHelper extends AnnotationHelper {
     }
     */
 
-    /**
-     * Validate deployment descriptor
-     *
-     * @param annotatedApp
-     * @throws Exception thrown if deployment descriptor cannot be parsed
-     */
-    private static void validateDD(AnnotatedApp annotatedApp) throws Exception {
-        log.debug("validateDD( " + annotatedApp.toString() + " ): Entry");
-
-        XmlBeansUtil.parse(annotatedApp.toString());
-
-        log.debug("validateDD(): Exit");
-    }
 }

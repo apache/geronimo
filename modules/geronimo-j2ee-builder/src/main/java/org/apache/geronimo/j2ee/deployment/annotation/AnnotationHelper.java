@@ -26,9 +26,12 @@ import java.lang.reflect.Field;
 import org.apache.geronimo.xbeans.javaee.InjectionTargetType;
 import org.apache.geronimo.xbeans.javaee.FullyQualifiedClassType;
 import org.apache.geronimo.xbeans.javaee.JavaIdentifierType;
+import org.apache.geronimo.common.DeploymentException;
+import org.apache.geronimo.deployment.xmlbeans.XmlBeansUtil;
+import org.apache.xmlbeans.XmlException;
 
 /**
- * @version $Rev:$ $Date:$
+ * @version $Rev$ $Date$
  */
 public class AnnotationHelper {
     protected static String getInjectionJavaType(Method method, Field field) {
@@ -85,5 +88,19 @@ public class AnnotationHelper {
         injectionTarget.setInjectionTargetClass(qualifiedClass);
         injectionTarget.setInjectionTargetName(javaType);
 
+    }
+
+    /**
+     * Validate deployment descriptor
+     *
+     * @param annotatedApp the wrapped deployment descriptor
+     * @throws org.apache.geronimo.common.DeploymentException thrown if deployment descriptor cannot be parsed
+     */
+    protected static void validateDD(AnnotatedApp annotatedApp) throws DeploymentException {
+        try {
+            XmlBeansUtil.parse(annotatedApp.toString());
+        } catch (XmlException e) {
+            throw new DeploymentException("Result of processing web service refs invalid.", e);
+        }
     }
 }

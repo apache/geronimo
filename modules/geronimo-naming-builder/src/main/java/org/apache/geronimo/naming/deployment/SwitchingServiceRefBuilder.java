@@ -29,23 +29,16 @@ import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.service.EnvironmentBuilder;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
-import org.apache.geronimo.j2ee.deployment.annotation.WebServiceRefAnnotationHelper;
 import org.apache.geronimo.j2ee.deployment.Module;
-import org.apache.geronimo.j2ee.deployment.WebModule;
-import org.apache.geronimo.j2ee.deployment.NamingBuilder;
+import org.apache.geronimo.j2ee.deployment.annotation.HandlerChainAnnotationHelper;
+import org.apache.geronimo.j2ee.deployment.annotation.WebServiceRefAnnotationHelper;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
-import org.apache.geronimo.j2ee.annotation.Holder;
-import org.apache.geronimo.j2ee.annotation.Injection;
 import org.apache.geronimo.kernel.config.Configuration;
-import org.apache.geronimo.kernel.config.MultiParentClassLoader;
 import org.apache.geronimo.kernel.repository.Environment;
-import org.apache.geronimo.naming.deployment.AbstractNamingBuilder;
 import org.apache.geronimo.xbeans.geronimo.naming.GerServiceRefDocument;
 import org.apache.geronimo.xbeans.geronimo.naming.GerServiceRefType;
-import org.apache.geronimo.xbeans.javaee.ServiceRefType;
 import org.apache.geronimo.xbeans.javaee.InjectionTargetType;
-import org.apache.xbean.finder.ClassFinder;
-import org.apache.xbean.finder.UrlSet;
+import org.apache.geronimo.xbeans.javaee.ServiceRefType;
 import org.apache.xmlbeans.QNameSet;
 import org.apache.xmlbeans.XmlObject;
 
@@ -66,8 +59,8 @@ public class SwitchingServiceRefBuilder extends AbstractNamingBuilder {
     private final Collection jaxwsBuilders;
 
     public SwitchingServiceRefBuilder(String[] eeNamespaces,
-                                      Collection jaxrpcBuilders,
-                                      Collection jaxwsBuilders) {
+            Collection jaxrpcBuilders,
+            Collection jaxwsBuilders) {
         super(null);
         this.jaxrpcBuilders = jaxrpcBuilders;
         this.jaxwsBuilders = jaxwsBuilders;
@@ -75,8 +68,8 @@ public class SwitchingServiceRefBuilder extends AbstractNamingBuilder {
     }
 
     public void buildEnvironment(XmlObject specDD,
-                                 XmlObject plan,
-                                 Environment environment)
+            XmlObject plan,
+            Environment environment)
             throws DeploymentException {
         if (this.jaxrpcBuilders != null && !this.jaxrpcBuilders.isEmpty()) {
             mergeEnvironment(environment, getJAXRCPBuilder());
@@ -87,11 +80,11 @@ public class SwitchingServiceRefBuilder extends AbstractNamingBuilder {
     }
 
     public void buildNaming(XmlObject specDD,
-                            XmlObject plan,
-                            Configuration localConfiguration,
-                            Configuration remoteConfiguration,
-                            Module module,
-                            Map componentContext) throws DeploymentException {
+            XmlObject plan,
+            Configuration localConfiguration,
+            Configuration remoteConfiguration,
+            Module module,
+            Map componentContext) throws DeploymentException {
 
         // Discover and process any @WebServiceRef annotations (if !metadata-complete)
         if ((module != null) && (module.getClassFinder() != null)) {
@@ -135,9 +128,9 @@ public class SwitchingServiceRefBuilder extends AbstractNamingBuilder {
                         componentContext);
             } else {
                 throw new DeploymentException(serviceInterfaceName
-                                              + " does not extend "
-                                              + jaxrpcClass.getName() + " or "
-                                              + jaxwsClass.getName());
+                        + " does not extend "
+                        + jaxrpcClass.getName() + " or "
+                        + jaxwsClass.getName());
             }
         }
     }
@@ -179,7 +172,7 @@ public class SwitchingServiceRefBuilder extends AbstractNamingBuilder {
             return cl.loadClass(name);
         } catch (ClassNotFoundException e) {
             throw new DeploymentException("Could not load service class "
-                                          + name, e);
+                    + name, e);
         }
     }
 
@@ -199,14 +192,9 @@ public class SwitchingServiceRefBuilder extends AbstractNamingBuilder {
     private void processAnnotations(Module module) throws DeploymentException {
 
         // Process all the annotations for this naming builder type
-        if (WebServiceRefAnnotationHelper.annotationsPresent(module.getClassFinder())) {
-            try {
-                WebServiceRefAnnotationHelper.processAnnotations(module.getAnnotatedApp(), module.getClassFinder());
-            }
-            catch (Exception e) {
-                log.warn("Unable to process @WebServiceRef annotations for module" + module.getName(), e);
-            }
-        }
+        //At the moment the only exception thrown is if the resulting doc is not valid.  Bail now.
+        WebServiceRefAnnotationHelper.processAnnotations(module.getAnnotatedApp(), module.getClassFinder());
+        HandlerChainAnnotationHelper.processAnnotations(module.getAnnotatedApp(), module.getClassFinder());
     }
 
     public QNameSet getSpecQNameSet() {
@@ -228,8 +216,8 @@ public class SwitchingServiceRefBuilder extends AbstractNamingBuilder {
         infoBuilder.addReference("JAXWSBuilder", ServiceRefBuilder.class,
                 NameFactory.MODULE_BUILDER);
 
-        infoBuilder.setConstructor(new String[] { "eeNamespaces",
-                "JAXRPCBuilder", "JAXWSBuilder" });
+        infoBuilder.setConstructor(new String[]{"eeNamespaces",
+                "JAXRPCBuilder", "JAXWSBuilder"});
 
         GBEAN_INFO = infoBuilder.getBeanInfo();
     }
