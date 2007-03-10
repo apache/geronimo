@@ -257,15 +257,17 @@ public final class WebServiceRefAnnotationHelper extends AnnotationHelper {
         //------------------------------------------------------------------------------------------
         boolean exists = false;
         ServiceRefType[] serviceRefs = annotatedApp.getServiceRefArray();
-        for ( ServiceRefType serviceRef : serviceRefs ) {
-            if ( serviceRef.getServiceRefName().getStringValue().trim().equals(webServiceRefName) ) {
-                if (method != null || field != null) {
-                    InjectionTargetType[] targets = serviceRef.getInjectionTargetArray();
-                    if (!hasTarget(method, field, targets)) {
-                        configureInjectionTarget(serviceRef.addNewInjectionTarget(), method, field);
+        if (serviceRefs != null){
+            for ( ServiceRefType serviceRef : serviceRefs ) {
+                if ( serviceRef.getServiceRefName().getStringValue().trim().equals(webServiceRefName) ) {
+                    if (method != null || field != null) {
+                        InjectionTargetType[] targets = serviceRef.getInjectionTargetArray();
+                        if (!hasTarget(method, field, targets)) {
+                            configureInjectionTarget(serviceRef.addNewInjectionTarget(), method, field);
+                        }
                     }
+                    return;
                 }
-                return;
             }
         }
         if ( !exists ) {
