@@ -55,13 +55,13 @@
         </reference>
     </gbean>
     
-    <gbean name="DefaultMDBContainer" class="org.apache.geronimo.openejb.EjbContainer">
-        <attribute name="id">Default MDB Container</attribute>
-        <attribute name="type">MESSAGE</attribute>
-        <reference name="OpenEjbSystem">
-            <name>OpenEjbSystem</name>
-        </reference>
-    </gbean>
+    <!--<gbean name="DefaultMDBContainer" class="org.apache.geronimo.openejb.EjbContainer">-->
+        <!--<attribute name="id">Default MDB Container</attribute>-->
+        <!--<attribute name="type">MESSAGE</attribute>-->
+        <!--<reference name="OpenEjbSystem">-->
+            <!--<name>OpenEjbSystem</name>-->
+        <!--</reference>-->
+    <!--</gbean>-->
 
     <gbean name="EJBNetworkService" class="org.apache.geronimo.openejb.EjbDaemonGBean">
         <attribute name="port">${PlanOpenEJBPort}</attribute>
