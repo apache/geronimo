@@ -35,8 +35,8 @@ public class JettyDefaultServletHolder extends JettyServletHolder {
     public JettyDefaultServletHolder() {
     }
 
-    public JettyDefaultServletHolder(String objectName, String servletName, String servletClassName, String jspFile, Map initParams, Integer loadOnStartup, Set servletMappings, Subject runAsSubject, JettyServletRegistration context) throws Exception {
-        super(objectName, servletName, servletClassName, jspFile, initParams, loadOnStartup, servletMappings, runAsSubject, context);
+    public JettyDefaultServletHolder(String objectName, String servletName, String servletClassName, String jspFile, Map initParams, Integer loadOnStartup, Set servletMappings, String runAsId, JettyServletRegistration context) throws Exception {
+        super(objectName, servletName, servletClassName, jspFile, initParams, loadOnStartup, servletMappings, runAsId, context);
     }
 
     public static final GBeanInfo GBEAN_INFO;

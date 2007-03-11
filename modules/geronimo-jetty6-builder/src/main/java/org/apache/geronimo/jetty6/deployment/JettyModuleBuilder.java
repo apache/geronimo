@@ -1017,7 +1017,12 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
 
         //run-as
         if (servletType.isSetRunAs()) {
-            servletData.setAttribute("runAsRole", servletType.getRunAs().getRoleName().getStringValue().trim());
+            String runAsRole = servletType.getRunAs().getRoleName().getStringValue().trim();
+            //TODO implement role to id mapping
+            //Or go back to direct subject construction.
+            //See GERONIMO-2687
+            String runAsId = null;
+            servletData.setAttribute("runAsId", runAsId);
         }
 
         processRoleRefPermissions(servletType, securityRoles, rolePermissions);

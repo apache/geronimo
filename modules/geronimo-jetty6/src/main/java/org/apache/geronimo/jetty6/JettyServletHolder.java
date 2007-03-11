@@ -62,9 +62,10 @@ public class JettyServletHolder implements Servlet, GBeanLifecycle {
             Map initParams,
             Integer loadOnStartup,
             Set servletMappings,
-            Subject runAsSubject,
+            String runAsId,
             JettyServletRegistration context) throws Exception {
         servletRegistration = context;
+        Subject runAsSubject = getSubjectFromId(runAsId);
         servletHolder = new InternalJettyServletHolder(context == null? null: context.getLifecycleChain(), runAsSubject, servletRegistration);
         servletHolder.setName(servletName);
         servletHolder.setClassName(servletClassName);
@@ -81,6 +82,12 @@ public class JettyServletHolder implements Servlet, GBeanLifecycle {
             context.registerServletHolder(servletHolder, servletName, servletMappings, objectName);
         }
         this.objectName = objectName;
+    }
+
+    private Subject getSubjectFromId(String runAsId) {
+        //TODO implement this.
+        //See GERONIMO-2687
+        return null;
     }
 
     public String getServletName() {
@@ -135,7 +142,7 @@ public class JettyServletHolder implements Servlet, GBeanLifecycle {
         infoBuilder.addAttribute("initParams", Map.class, true);
         infoBuilder.addAttribute("loadOnStartup", Integer.class, true);
         infoBuilder.addAttribute("servletMappings", Set.class, true);
-        infoBuilder.addAttribute("runAsSubject", Subject.class, true);
+        infoBuilder.addAttribute("runAsId", String.class, true);
         infoBuilder.addAttribute("objectName", String.class, false);
         infoBuilder.addInterface(Servlet.class);
 
@@ -148,7 +155,7 @@ public class JettyServletHolder implements Servlet, GBeanLifecycle {
                 "initParams",
                 "loadOnStartup",
                 "servletMappings",
-                "runAsSubject",
+                "runAsId",
                 "JettyServletRegistration"});
 
         GBEAN_INFO = infoBuilder.getBeanInfo();
