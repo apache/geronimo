@@ -32,6 +32,7 @@ import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.j2ee.deployment.EARContext;
 import org.apache.geronimo.j2ee.deployment.NamingBuilder;
+import org.apache.geronimo.j2ee.deployment.annotation.AnnotatedEjbJar;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.GBeanAlreadyExistsException;
 import org.apache.geronimo.naming.deployment.GBeanResourceEnvironmentBuilder;
@@ -262,7 +263,7 @@ public class EjbDeploymentBuilder {
     }
 
     private void addEnc(GBeanData gbean, XmlObject xmlbeansEjb, ResourceRefType[] resourceRefs) throws DeploymentException {
-        OpenejbGeronimoEjbJarType geronimoOpenejb = (OpenejbGeronimoEjbJarType) ejbModule.getVendorDD();
+        OpenejbGeronimoEjbJarType geronimoOpenejb = ejbModule.getVendorDD();
 
         //
         // Build ENC
@@ -271,6 +272,7 @@ public class EjbDeploymentBuilder {
         // Geronimo uses a map to pass data to the naming build and for the results data
         Map<Object,Object> buildingContext = new HashMap<Object,Object>();
         buildingContext.put(NamingBuilder.GBEAN_NAME_KEY, gbean.getAbstractName());
+        ((AnnotatedEjbJar)ejbModule.getAnnotatedApp()).setBean(xmlbeansEjb);
 
         namingBuilder.buildNaming(xmlbeansEjb,
                 geronimoOpenejb,
