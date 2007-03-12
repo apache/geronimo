@@ -62,7 +62,7 @@ public class JaxWSTest extends TestSupport {
         InputStream requestInput = JaxWSTest.class.getResourceAsStream("/request1.xml");
         assertNotNull("SOAP request not specified", requestInput);
                 
-        URL url = new URL(baseURL + warName + "/JAXWSBean");
+        URL url = new URL(baseURL + warName + "/JAXWSBean/");
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
         try {
             conn.setDoOutput(true);
