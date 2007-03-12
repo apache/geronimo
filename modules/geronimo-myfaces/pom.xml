@@ -1,0 +1,30 @@
+<?xml version="1.0"?>
+<project>
+    <parent>
+        <artifactId>modules</artifactId>
+        <groupId>org.apache.geronimo.modules</groupId>
+        <version>2.0-SNAPSHOT</version>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>org.apache.geronimo.modules</groupId>
+    <artifactId>geronimo-myfaces</artifactId>
+    <name>geronimo-myfaces</name>
+    <version>2.0-SNAPSHOT</version>
+    <url>http://maven.apache.org</url>
+    <dependencies>
+        <dependency>
+            <groupId>org.apache.geronimo.modules</groupId>
+            <artifactId>geronimo-j2ee</artifactId>
+            <version>${version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.geronimo.modules</groupId>
+            <artifactId>geronimo-naming</artifactId>
+            <version>${version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.myfaces.core</groupId>
+            <artifactId>myfaces-impl</artifactId>
+        </dependency>
+    </dependencies>
+</project>
