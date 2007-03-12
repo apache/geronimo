@@ -103,17 +103,21 @@ public final class HandlerChainAnnotationHelper extends AnnotationHelper {
     private static void processHandlerChain(AnnotatedApp annotatedApp, ClassFinder classFinder) throws DeploymentException {
         log.debug("processHandlerChain(): Entry: AnnotatedApp: " + annotatedApp.toString());
 
-        List<Class> classeswithHandlerChain = classFinder.findAnnotatedClasses(HandlerChain.class);
+//      List<Class> classeswithHandlerChain = classFinder.findAnnotatedClasses(HandlerChain.class);
         List<Method> methodswithHandlerChain = classFinder.findAnnotatedMethods(HandlerChain.class);
         List<Field> fieldswithHandlerChain = classFinder.findAnnotatedFields(HandlerChain.class);
 
-        // Class-level annotation
-        for ( Class cls : classeswithHandlerChain ) {
-            HandlerChain handlerChain = (HandlerChain) cls.getAnnotation(HandlerChain.class);
-            if ( handlerChain != null ) {
-                addHandlerChain(annotatedApp, handlerChain, cls, null, null);
-            }
-        }
+// TODO: GERONIMO-2956
+//       If we ultimately determine that handler chain annotations at a class-level do not need to be processed
+//       in conjunction with any other annotations, which seems likely at this point, then these comments can be
+//       removed
+// Class-level annotation
+//      for ( Class cls : classeswithHandlerChain ) {
+//          HandlerChain handlerChain = (HandlerChain) cls.getAnnotation(HandlerChain.class);
+//          if ( handlerChain != null ) {
+//              addHandlerChain(annotatedApp, handlerChain, cls, null, null);
+//          }
+//      }
 
         // Method-level annotation
         for ( Method method : methodswithHandlerChain ) {
