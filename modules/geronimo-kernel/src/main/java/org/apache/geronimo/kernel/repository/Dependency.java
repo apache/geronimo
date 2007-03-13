@@ -53,7 +53,7 @@ public class Dependency implements Serializable {
 
         return true;
     }
-
+    
     public int hashCode() {
         return (artifact != null ? artifact.hashCode() : 0);
     }
