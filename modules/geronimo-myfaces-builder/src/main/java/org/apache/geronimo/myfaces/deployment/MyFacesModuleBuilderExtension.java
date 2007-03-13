@@ -18,12 +18,15 @@
 package org.apache.geronimo.myfaces.deployment;
 
 import java.io.File;
+import java.io.IOException;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.StringTokenizer;
 import java.util.jar.JarFile;
 
 import org.apache.commons.logging.Log;
@@ -31,6 +34,7 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.ModuleIDBuilder;
 import org.apache.geronimo.deployment.service.EnvironmentBuilder;
+import org.apache.geronimo.deployment.util.DeploymentUtil;
 import org.apache.geronimo.deployment.xmlbeans.XmlBeansUtil;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.AbstractNameQuery;
@@ -54,8 +58,10 @@ import org.apache.geronimo.xbeans.javaee.FacesConfigDocument;
 import org.apache.geronimo.xbeans.javaee.FacesConfigManagedBeanType;
 import org.apache.geronimo.xbeans.javaee.FacesConfigType;
 import org.apache.geronimo.xbeans.javaee.FullyQualifiedClassType;
+import org.apache.geronimo.xbeans.javaee.ParamValueType;
 import org.apache.geronimo.xbeans.javaee.WebAppType;
 import org.apache.xbean.finder.ClassFinder;
+import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
 
 /**
@@ -96,7 +102,7 @@ public class MyFacesModuleBuilderExtension implements ModuleBuilderExtension {
         WebModule webModule = (WebModule) module;
         WebAppType webApp = (WebAppType) webModule.getSpecDD();
         XmlObject jettyWebApp = webModule.getVendorDD();
-        ClassFinder classFinder = createMyFacesClassFinder(webModule);
+        ClassFinder classFinder = createMyFacesClassFinder(webApp, webModule);
         if (classFinder == null) {
             //no jsf config found, nothing to do
             return;
@@ -130,22 +136,92 @@ public class MyFacesModuleBuilderExtension implements ModuleBuilderExtension {
 
     }
 
-    private ClassFinder createMyFacesClassFinder(WebModule webModule) throws DeploymentException {
 
-        List<Class> classes = new ArrayList<Class>();
+    protected ClassFinder createMyFacesClassFinder(WebAppType webApp, WebModule webModule) throws DeploymentException {
 
+        List<Class> classes = getFacesClasses(webApp, webModule);
+        return new ClassFinder(classes);
+    }
+
+
+    /**
+     * getFacesConfigFileURL()
+     * <p/>
+     * <p>Locations to search for the MyFaces configuration file(s):
+     * <ol>
+     * <li>META-INF/faces-config.xml
+     * <li>WEB-INF/faces-config.xml
+     * <li>javax.faces.CONFIG_FILES -- Context initialization param of Comma separated
+     * list of URIs of (additional) faces config files
+     * </ol>
+     * <p/>
+     * <p><strong>Notes:</strong>
+     * <ul>
+     * </ul>
+     *
+     * @param webApp    spec DD for module
+     * @param webModule module being deployed
+     * @return list of all managed bean classes from all faces-config xml files.
+     * @throws org.apache.geronimo.common.DeploymentException if a faces-config.xml file is located but cannot be parsed.
+     */
+    private List<Class> getFacesClasses(WebAppType webApp, WebModule webModule) throws DeploymentException {
+        log.debug("GetConfigFileURL() Entry");
         // Get the classloader from the module's EARContext
         ClassLoader classLoader = webModule.getEarContext().getClassLoader();
 
+        // 1. META-INF/faces-config.xml
+        List<Class> classes = new ArrayList<Class>();
         try {
-            URL url = getConfigFileURL(classLoader);
+            URL url = DeploymentUtil.createJarURL(webModule.getModuleFile(), "META-INF/faces-config.xml");
+            parseConfigFile(url, classLoader, classes);
+        } catch (MalformedURLException mfe) {
+            throw new DeploymentException("Could not locate META-INF/faces-config.xml" + mfe.getMessage());
+        }
 
-// TODO: Handle JSF 1.1 config files with DTD schema
+        // 2. WEB-INF/faces-config.xml
+        try {
+            URL url = DeploymentUtil.createJarURL(webModule.getModuleFile(), "WEB-INF/faces-config.xml");
+            parseConfigFile(url, classLoader, classes);
+        } catch (MalformedURLException mfe) {
+            throw new DeploymentException("Could not locate WEB-INF/faces-config.xml" + mfe.getMessage());
+        }
+
+        // 3. javax.faces.CONFIG_FILES
+        ParamValueType[] paramValues = webApp.getContextParamArray();
+        for (ParamValueType paramValue : paramValues) {
+            if (paramValue.getParamName().getStringValue().trim().equals("javax.faces.CONFIG_FILES")) {
+                String configFiles = paramValue.getParamValue().getStringValue().trim();
+                StringTokenizer st = new StringTokenizer(configFiles, ",", false);
+                while (st.hasMoreTokens()) {
+                    String configfile = st.nextToken().trim();
+                    if (!configfile.equals("")) {
+                        if (configfile.startsWith("/")) {
+                            configfile = configfile.substring(1);
+                        }
+                        try {
+                            URL url = DeploymentUtil.createJarURL(webModule.getModuleFile(), configfile);
+                            parseConfigFile(url, classLoader, classes);
+                        } catch (MalformedURLException mfe) {
+                            throw new DeploymentException("Could not locate config file " + configfile + ", " + mfe.getMessage());
+                        }
+                    }
+                }
+                break;
+            }
+        }
+
+        log.debug("GetConfigFileURL() Exit: " + classes.size() + " " + classes.toString());
+        return classes;
+    }
+
+    // TODO: Handle JSF 1.1 config files with DTD schema
+    private void parseConfigFile(URL url, ClassLoader classLoader, List<Class> classes) throws DeploymentException {
+        try {
             XmlObject xml = XmlBeansUtil.parse(url, null);
             FacesConfigDocument fcd = (FacesConfigDocument) XmlBeansUtil.typedCopy(xml, FacesConfigDocument.type);
             FacesConfigType facesConfig = fcd.getFacesConfig();
 
-            // Get all the managed beans from the faces config file
+            // Get all the managed beans from the faces configuration file
             FacesConfigManagedBeanType[] managedBeans = facesConfig.getManagedBeanArray();
             for (FacesConfigManagedBeanType managedBean : managedBeans) {
                 FullyQualifiedClassType cls = managedBean.getManagedBeanClass();
@@ -159,22 +235,12 @@ public class MyFacesModuleBuilderExtension implements ModuleBuilderExtension {
                 classes.add(clas);
             }
         }
-        catch (Exception anyException) {
-            log.debug("MyFacesModuleBuilderExtension: Exception caught while create classfinder");
+        catch (XmlException xmle) {
+            throw new DeploymentException("Could not parse alleged faces-config.xml at " + url.toString(), xmle);
         }
-        return new ClassFinder(classes);
-    }
-
-
-    private static URL getConfigFileURL(ClassLoader moduleClassLoader) {
-        URL url = moduleClassLoader.getResource("META-INF/faces-confg.xml");
-        if (url == null) {
-            //todo context initialization param javax.faces.CONFIG_FILES
+        catch (IOException ioe) {
+            //config file does not exist
         }
-        if (url == null) {
-            url = moduleClassLoader.getResource("WEB-INF/faces-confg.xml");
-        }
-        return url;
     }
 
     public static final GBeanInfo GBEAN_INFO;
