@@ -282,6 +282,14 @@ if [ "$1" = "jpda" ] ; then
   shift
 fi
 
+# Setup the Java programming language agent
+JAVA_AGENT_JAR="$GERONIMO_BASE/bin/jpa.jar"
+if [ -f "$JAVA_AGENT_JAR" ]; then
+    JAVA_AGENT_OPTS="-javaagent:$JAVA_AGENT_JAR"
+else
+    JAVA_AGENT_OPTS=""
+fi
+
 if [ "$1" = "debug" ] ; then
   if $os400; then
     echo "Debug command not available on OS400"
@@ -303,9 +311,9 @@ if [ "$1" = "debug" ] ; then
   fi
 
 elif [ "$1" = "run" ]; then
-
   shift
   exec "$_RUNJAVA" $JAVA_OPTS $GERONIMO_OPTS \
+    $JAVA_AGENT_OPTS \
     -Dorg.apache.geronimo.base.dir="$GERONIMO_BASE" \
     -Djava.endorsed.dirs="$ENDORSED_DIRS" \
     -Djava.ext.dirs="$EXT_DIRS" \
@@ -313,10 +321,10 @@ elif [ "$1" = "run" ]; then
     -jar "$GERONIMO_HOME"/bin/server.jar $LONG_OPT "$@"
 
 elif [ "$1" = "start" ] ; then
-
   shift
   touch "$GERONIMO_OUT"
   $START_OS_CMD "$_RUNJAVA" $JAVA_OPTS $GERONIMO_OPTS \
+    $JAVA_AGENT_OPTS \
     -Dorg.apache.geronimo.base.dir="$GERONIMO_BASE" \
     -Djava.endorsed.dirs="$ENDORSED_DIRS" \
     -Djava.ext.dirs="$EXT_DIRS" \
@@ -330,7 +338,6 @@ elif [ "$1" = "start" ] ; then
     fi
 
 elif [ "$1" = "stop" ] ; then
-
   shift
   FORCE=0
 # support -force as that is the option Tomcat uses, we will document

@@ -141,7 +141,13 @@ public class StartServerMojo
         if (maximumMemory != null) {
             java.setMaxmemory(maximumMemory);
         }
-
+        
+        // Load the Java programming language agent for JPA
+        File javaAgentJar = new File(geronimoHome, "bin/jpa.jar");
+        if (javaAgentJar.exists()) {
+            java.createJvmarg().setValue("-javaagent:" + javaAgentJar.getCanonicalPath());
+        }
+        
         // Apply option sets
         if (options != null  && (optionSets == null || optionSets.length == 0)) {
             throw new MojoExecutionException("At least one optionSet must be defined to select one using options");
