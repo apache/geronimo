@@ -52,11 +52,6 @@ public class ConfigurationResolver {
      * For nested configurations, the module name will be non-null.
      */
     private final String moduleName;
-    
-    /**
-     * Added this List for diagnostics of failed artifact resolution.
-     */
-    private Stack parentHierarchy = new Stack();
    
 
     public ConfigurationResolver(Artifact configurationId, File baseDir) {
