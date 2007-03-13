@@ -33,25 +33,28 @@ import org.apache.geronimo.deployment.ModuleIDBuilder;
 import org.apache.geronimo.deployment.service.EnvironmentBuilder;
 import org.apache.geronimo.deployment.xmlbeans.XmlBeansUtil;
 import org.apache.geronimo.gbean.AbstractName;
-import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.AbstractNameQuery;
+import org.apache.geronimo.gbean.GBeanData;
+import org.apache.geronimo.gbean.GBeanInfo;
+import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.j2ee.annotation.Holder;
 import org.apache.geronimo.j2ee.deployment.EARContext;
 import org.apache.geronimo.j2ee.deployment.Module;
 import org.apache.geronimo.j2ee.deployment.ModuleBuilderExtension;
 import org.apache.geronimo.j2ee.deployment.NamingBuilder;
 import org.apache.geronimo.j2ee.deployment.WebModule;
-import org.apache.geronimo.kernel.Naming;
+import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.GBeanAlreadyExistsException;
+import org.apache.geronimo.kernel.Naming;
 import org.apache.geronimo.kernel.config.Configuration;
 import org.apache.geronimo.kernel.config.ConfigurationStore;
 import org.apache.geronimo.kernel.repository.Environment;
+import org.apache.geronimo.myfaces.LifecycleProviderGBean;
 import org.apache.geronimo.xbeans.javaee.FacesConfigDocument;
 import org.apache.geronimo.xbeans.javaee.FacesConfigManagedBeanType;
 import org.apache.geronimo.xbeans.javaee.FacesConfigType;
 import org.apache.geronimo.xbeans.javaee.FullyQualifiedClassType;
 import org.apache.geronimo.xbeans.javaee.WebAppType;
-import org.apache.geronimo.myfaces.LifecycleProviderGBean;
 import org.apache.xbean.finder.ClassFinder;
 import org.apache.xmlbeans.XmlObject;
 
@@ -173,4 +176,25 @@ public class MyFacesModuleBuilderExtension implements ModuleBuilderExtension {
         }
         return url;
     }
+
+    public static final GBeanInfo GBEAN_INFO;
+
+    static {
+        GBeanInfoBuilder infoBuilder = GBeanInfoBuilder.createStatic(MyFacesModuleBuilderExtension.class, NameFactory.MODULE_BUILDER);
+        infoBuilder.addAttribute("defaultEnvironment", Environment.class, true, true);
+        infoBuilder.addAttribute("providerFactoryNameQuery", AbstractNameQuery.class, true, true);
+        infoBuilder.addReference("NamingBuilders", NamingBuilder.class, NameFactory.MODULE_BUILDER);
+
+        infoBuilder.setConstructor(new String[]{
+                "defaultEnvironment",
+                "providerFactoryNameQuery",
+                "NamingBuilders"});
+        GBEAN_INFO = infoBuilder.getBeanInfo();
+    }
+
+    public static GBeanInfo getGBeanInfo() {
+        return GBEAN_INFO;
+    }
+
+
 }
