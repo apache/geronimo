@@ -122,6 +122,7 @@
             fork=false
             logVerbosityLevel=DEBUG
             xpoweredBy=false
+            engineOptionsClass=org.apache.geronimo.jasper.JspServletOptions
         </attribute>
         <attribute name="servletMappings">*.jsp,*.jspf,*.jspx,*.xsp</attribute>
     </gbean>

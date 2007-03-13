@@ -87,14 +87,9 @@
         </dependency>
 
         <dependency>
-            <groupId>org.apache.tomcat</groupId>
-            <artifactId>jasper</artifactId>
-            <scope>test</scope>
-        </dependency>
-        
-        <dependency>
-            <groupId>org.apache.tomcat</groupId>
-            <artifactId>jasper-el</artifactId>
+            <groupId>org.apache.geronimo.modules</groupId>
+            <artifactId>geronimo-jasper</artifactId>
+            <version>${version}</version>
             <scope>test</scope>
         </dependency>
 

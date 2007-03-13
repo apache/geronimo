@@ -242,6 +242,10 @@
             <param-name>xpoweredBy</param-name>
             <param-value>false</param-value>
         </init-param>
+        <init-param>
+            <param-name>engineOptionsClass</param-name>
+            <param-value>org.apache.geronimo.jasper.JspServletOptions</param-value>
+        </init-param>
         <load-on-startup>3</load-on-startup>
     </servlet>
 
