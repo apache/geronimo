@@ -29,6 +29,7 @@ import javax.resource.spi.ResourceAdapter;
 import javax.resource.spi.ResourceAdapterAssociation;
 import javax.resource.spi.XATerminator;
 import javax.resource.spi.work.WorkManager;
+import java.util.Map;
 
 /**
  * 
@@ -44,8 +45,8 @@ public class ResourceAdapterWrapperGBean extends ResourceAdapterWrapper implemen
         objectName = null;
     }
 
-    public ResourceAdapterWrapperGBean(String resourceAdapterClass, WorkManager workManager, XATerminator xaTerminator, ClassLoader cl, String objectName) throws InstantiationException, IllegalAccessException, ClassNotFoundException {
-        super(resourceAdapterClass, new GeronimoBootstrapContext (workManager, xaTerminator), cl);
+    public ResourceAdapterWrapperGBean(String resourceAdapterClass, Map<String,String> messageListenerToActivationSpecMap, WorkManager workManager, XATerminator xaTerminator, ClassLoader cl, String objectName) throws InstantiationException, IllegalAccessException, ClassNotFoundException {
+        super(objectName, resourceAdapterClass, messageListenerToActivationSpecMap, new GeronimoBootstrapContext (workManager, xaTerminator), cl);
         delegate = new DynamicGBeanDelegate();
         delegate.addAll(resourceAdapter);
         this.objectName = objectName;
@@ -73,7 +74,7 @@ public class ResourceAdapterWrapperGBean extends ResourceAdapterWrapper implemen
     }
 
     public boolean isStatisticsProvider() {
-        return false;
+        return false;                 
     }
 
     public boolean isEventProvider() {
@@ -87,6 +88,7 @@ public class ResourceAdapterWrapperGBean extends ResourceAdapterWrapper implemen
         infoBuilder.addAttribute("resourceAdapterClass", String.class, true);
         infoBuilder.addAttribute("classLoader", ClassLoader.class, false);
         infoBuilder.addAttribute("objectName", String.class, false);
+        infoBuilder.addAttribute("messageListenerToActivationSpecMap", Map.class, true);
 
         infoBuilder.addReference("WorkManager", WorkManager.class, NameFactory.JCA_WORK_MANAGER);
         infoBuilder.addReference("XATerminator", XATerminator.class, NameFactory.JCA_WORK_MANAGER);
@@ -96,7 +98,7 @@ public class ResourceAdapterWrapperGBean extends ResourceAdapterWrapper implemen
         infoBuilder.addInterface(ResourceAdapter.class);
         infoBuilder.addInterface(JCAResourceAdapter.class);
 
-        infoBuilder.setConstructor(new String[]{"resourceAdapterClass", "WorkManager", "XATerminator", "classLoader", "objectName"});
+        infoBuilder.setConstructor(new String[]{"resourceAdapterClass", "messageListenerToActivationSpecMap", "WorkManager", "XATerminator", "classLoader", "objectName"});
 
         GBEAN_INFO = infoBuilder.getBeanInfo();
     }

@@ -25,6 +25,7 @@ import javax.resource.spi.ResourceAdapterAssociation;
 import javax.resource.spi.ResourceAdapterInternalException;
 import javax.resource.spi.endpoint.MessageEndpointFactory;
 import javax.transaction.xa.XAResource;
+import java.util.Map;
 
 /**
  * Dynamic GBean wrapper around a ResourceAdapter object, exposing the config-properties as
@@ -34,39 +35,63 @@ import javax.transaction.xa.XAResource;
  */
 public class ResourceAdapterWrapper implements ResourceAdapter {
 
+    private final String name;
+
     private final String resourceAdapterClass;
 
     private final BootstrapContext bootstrapContext;
 
     protected final ResourceAdapter resourceAdapter;
 
+    private final Map<String,String> messageListenerToActivationSpecMap;
+
 
     /**
      *  default constructor for enhancement proxy endpoint
      */
     public ResourceAdapterWrapper() {
+        this.name = null;
         this.resourceAdapterClass = null;
         this.bootstrapContext = null;
         this.resourceAdapter = null;
+        this.messageListenerToActivationSpecMap = null;
     }
 
-    public ResourceAdapterWrapper(String resourceAdapterClass,
+    public ResourceAdapterWrapper(String name,
+            String resourceAdapterClass,
+            Map<String,String> messageListenerToActivationSpecMap,
             BootstrapContext bootstrapContext,
             ClassLoader cl) throws InstantiationException, IllegalAccessException, ClassNotFoundException {
+        this.name = name;
         this.resourceAdapterClass = resourceAdapterClass;
         this.bootstrapContext = bootstrapContext;
         Class clazz = cl.loadClass(resourceAdapterClass);
         resourceAdapter = (ResourceAdapter) clazz.newInstance();
+        this.messageListenerToActivationSpecMap = messageListenerToActivationSpecMap;
     }
     
-    public ResourceAdapterWrapper(ResourceAdapter resourceAdapter, BootstrapContext bootstrapContext) {
+    public ResourceAdapterWrapper(String name, ResourceAdapter resourceAdapter, Map<String,String> messageListenerToActivationSpecMap, BootstrapContext bootstrapContext) {
+        this.name = name;
         this.resourceAdapterClass = resourceAdapter.getClass().getName();
         this.bootstrapContext = bootstrapContext;
         this.resourceAdapter = resourceAdapter;
+        this.messageListenerToActivationSpecMap = messageListenerToActivationSpecMap;
+    }
+
+    public String getName() {
+        return name;
     }
 
     public String getResourceAdapterClass() {
         return resourceAdapterClass;
+    }
+
+    public Map<String,String> getMessageListenerToActivationSpecMap() {
+        return messageListenerToActivationSpecMap;
+    }
+
+    public ResourceAdapter getResourceAdapter() {
+        return resourceAdapter;
     }
 
     public void registerResourceAdapterAssociation(final ResourceAdapterAssociation resourceAdapterAssociation) throws ResourceException {

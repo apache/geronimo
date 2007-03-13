@@ -33,6 +33,7 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
 import java.util.jar.JarFile;
 import java.util.zip.ZipEntry;
 
@@ -99,7 +100,17 @@ import org.apache.geronimo.management.geronimo.ResourceAdapterModule;
 import org.apache.geronimo.naming.deployment.ENCConfigBuilder;
 import org.apache.geronimo.naming.reference.ResourceReference;
 import org.apache.geronimo.schema.SchemaConversionUtils;
-import org.apache.geronimo.xbeans.geronimo.*;
+import org.apache.geronimo.xbeans.geronimo.GerAdminobjectInstanceType;
+import org.apache.geronimo.xbeans.geronimo.GerAdminobjectType;
+import org.apache.geronimo.xbeans.geronimo.GerConfigPropertySettingType;
+import org.apache.geronimo.xbeans.geronimo.GerConnectionDefinitionType;
+import org.apache.geronimo.xbeans.geronimo.GerConnectiondefinitionInstanceType;
+import org.apache.geronimo.xbeans.geronimo.GerConnectionmanagerType;
+import org.apache.geronimo.xbeans.geronimo.GerConnectorDocument;
+import org.apache.geronimo.xbeans.geronimo.GerConnectorType;
+import org.apache.geronimo.xbeans.geronimo.GerPartitionedpoolType;
+import org.apache.geronimo.xbeans.geronimo.GerResourceadapterType;
+import org.apache.geronimo.xbeans.geronimo.GerSinglepoolType;
 import org.apache.geronimo.xbeans.j2ee.ActivationspecType;
 import org.apache.geronimo.xbeans.j2ee.AdminobjectType;
 import org.apache.geronimo.xbeans.j2ee.ConfigPropertyType;
@@ -407,6 +418,17 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ActivationSpecInfo
             GBeanData resourceAdapterGBeanData = setUpDynamicGBean(resourceAdapterInfoBuilder, resourceadapter.getConfigPropertyArray(), cl);
 
             resourceAdapterGBeanData.setAttribute("resourceAdapterClass", resourceadapter.getResourceadapterClass().getStringValue().trim());
+
+            // Add map from messageListenerInterface to activationSpec class
+            Map<String,String> messageListenerToActivationSpecMap = new TreeMap<String,String>();
+            for (MessagelistenerType messagelistenerType : resourceadapter.getInboundResourceadapter().getMessageadapter().getMessagelistenerArray()) {
+                String messageListenerInterface = messagelistenerType.getMessagelistenerType().getStringValue().trim();
+                ActivationspecType activationspec = messagelistenerType.getActivationspec();
+                String activationSpecClassName = activationspec.getActivationspecClass().getStringValue().trim();
+                messageListenerToActivationSpecMap.put(messageListenerInterface, activationSpecClassName);
+                resourceAdapterGBeanData.setAttribute("messageListenerToActivationSpecMap", messageListenerToActivationSpecMap);
+            }
+
             resourceAdapterModuleData.setAttribute("resourceAdapterGBeanData", resourceAdapterGBeanData);
         }
 
@@ -439,8 +461,8 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ActivationSpecInfo
 
         GBeanData jcaResourceData = new GBeanData(jcaResourcejsr77Name, JCAResourceImplGBean.GBEAN_INFO);
         Map thisModule = new LinkedHashMap(2);
-        thisModule .put(NameFactory.J2EE_APPLICATION, resourceAdapterModuleName.getNameProperty(NameFactory.J2EE_APPLICATION));
-        thisModule .put(NameFactory.RESOURCE_ADAPTER_MODULE, resourceAdapterModuleName.getNameProperty(NameFactory.J2EE_NAME));
+        thisModule.put(NameFactory.J2EE_APPLICATION, resourceAdapterModuleName.getNameProperty(NameFactory.J2EE_APPLICATION));
+        thisModule.put(NameFactory.RESOURCE_ADAPTER_MODULE, resourceAdapterModuleName.getNameProperty(NameFactory.J2EE_NAME));
         jcaResourceData.setReferencePattern("ConnectionFactories", new AbstractNameQuery(resourceAdapterModuleName.getArtifact(), thisModule, JCAConnectionFactory.class.getName()));
         jcaResourceData.setReferencePattern("ResourceAdapters", new AbstractNameQuery(resourceAdapterModuleName.getArtifact(), thisModule, JCAResourceAdapter.class.getName()));
         jcaResourceData.setReferencePattern("AdminObjects", new AbstractNameQuery(resourceAdapterModuleName.getArtifact(), thisModule, JCAAdminObject.class.getName()));
@@ -556,7 +578,6 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ActivationSpecInfo
             }
         }
     }
-
     private Map getActivationSpecInfoMap(MessagelistenerType[] messagelistenerArray, ClassLoader cl) throws DeploymentException {
         Map activationSpecInfos = new HashMap();
         for (int i = 0; i < messagelistenerArray.length; i++) {

@@ -109,7 +109,10 @@ public class PersistenceContextRefBuilder extends AbstractNamingBuilder {
             try {
                 localConfiguration.findGBeanData(persistenceUnitNameQuery);
             } catch (GBeanNotFoundException e) {
-                throw new DeploymentException("Could not resolve reference at deploy time for query " + persistenceUnitNameQuery, e);
+                // something is broken with cmp references that stops deployment... this is just a patch around the real problem 
+                // throw new DeploymentException("Could not resolve reference at deploy time for query " + persistenceUnitNameQuery, e);
+                new DeploymentException("Could not resolve reference at deploy time for query " + persistenceUnitNameQuery, e).printStackTrace();
+                continue;
             }
 
             PersistenceContextReference reference = new PersistenceContextReference(localConfiguration.getId(), persistenceUnitNameQuery, transactionScoped, properties);

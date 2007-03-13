@@ -31,6 +31,7 @@ import java.util.jar.JarFile;
 
 import javax.ejb.EntityContext;
 import javax.ejb.SessionContext;
+import javax.ejb.MessageDrivenContext;
 import javax.xml.namespace.QName;
 
 import org.apache.commons.logging.Log;
@@ -296,6 +297,8 @@ public class EjbModuleBuilder implements ModuleBuilder {
                 if (ref.getType().equals(SessionContext.class.getName())) {
                     iterator.remove();
                 } else if (ref.getType().equals(EntityContext.class.getName())) {
+                    iterator.remove();
+                } else if (ref.getType().equals(MessageDrivenContext.class.getName())) {
                     iterator.remove();
                 } else {
                     ref.setMappedName(null);

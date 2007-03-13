@@ -16,51 +16,69 @@
  */
 package org.apache.geronimo.openejb;
 
-import java.io.IOException;
-import java.util.Properties;
-import javax.naming.NamingException;
-import javax.transaction.TransactionManager;
-
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.apache.geronimo.connector.ResourceAdapterWrapper;
+import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
-import org.apache.geronimo.gbean.AbstractName;
-import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.gbean.ReferenceCollection;
+import org.apache.geronimo.gbean.ReferenceCollectionListener;
+import org.apache.geronimo.gbean.ReferenceCollectionEvent;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
+import org.apache.geronimo.kernel.Kernel;
 import org.apache.openejb.Container;
 import org.apache.openejb.DeploymentInfo;
+import org.apache.openejb.NoSuchApplicationException;
 import org.apache.openejb.OpenEJBException;
 import org.apache.openejb.UndeployException;
-import org.apache.openejb.NoSuchApplicationException;
-import org.apache.openejb.loader.SystemInstance;
-import org.apache.openejb.core.ServerFederation;
-import org.apache.openejb.util.proxy.Jdk13ProxyFactory;
-import org.apache.openejb.config.ClientModule;
-import org.apache.openejb.config.ConfigurationFactory;
-import org.apache.openejb.config.EjbModule;
-import org.apache.openejb.config.AppModule;
+import org.apache.openejb.assembler.classic.AppInfo;
 import org.apache.openejb.assembler.classic.Assembler;
 import org.apache.openejb.assembler.classic.ClientInfo;
 import org.apache.openejb.assembler.classic.ContainerInfo;
 import org.apache.openejb.assembler.classic.EjbJarInfo;
-import org.apache.openejb.assembler.classic.TransactionServiceInfo;
+import org.apache.openejb.assembler.classic.MdbContainerInfo;
 import org.apache.openejb.assembler.classic.ProxyFactoryInfo;
 import org.apache.openejb.assembler.classic.SecurityServiceInfo;
-import org.apache.openejb.assembler.classic.AppInfo;
+import org.apache.openejb.assembler.classic.TransactionServiceInfo;
 import org.apache.openejb.assembler.dynamic.PassthroughFactory;
-import org.apache.openejb.spi.ContainerSystem;
+import org.apache.openejb.config.AppModule;
+import org.apache.openejb.config.ClientModule;
+import org.apache.openejb.config.ConfigurationFactory;
+import org.apache.openejb.config.EjbModule;
+import org.apache.openejb.core.ServerFederation;
+import org.apache.openejb.loader.SystemInstance;
 import org.apache.openejb.spi.ApplicationServer;
+import org.apache.openejb.spi.ContainerSystem;
+import org.apache.openejb.util.proxy.Jdk13ProxyFactory;
+
+import javax.naming.NamingException;
+import javax.resource.spi.ResourceAdapter;
+import javax.transaction.TransactionManager;
+import javax.management.ObjectName;
+import javax.management.MalformedObjectNameException;
+import java.io.IOException;
+import java.util.Collection;
+import java.util.Map;
+import java.util.Properties;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 /**
  * @version $Rev$ $Date$
  */
 public class OpenEjbSystemGBean implements OpenEjbSystem {
+    private static final Log log = LogFactory.getLog(OpenEjbSystemGBean.class);
     private final ConfigurationFactory configurationFactory;
     private final Assembler assembler;
+    private final ConcurrentMap<String,ResourceAdapterWrapper> processedResourceAdapterWrappers =  new ConcurrentHashMap<String,ResourceAdapterWrapper>() ;
+    private final ClassLoader classLoader;
 
     public OpenEjbSystemGBean(TransactionManager transactionManager) throws Exception {
-        this(transactionManager, null);
+        this(transactionManager, null, null, OpenEjbSystemGBean.class.getClassLoader());
     }
-    public OpenEjbSystemGBean(TransactionManager transactionManager, Kernel kernel) throws Exception {
+    public OpenEjbSystemGBean(TransactionManager transactionManager, Collection<ResourceAdapterWrapper> resourceAdapters, Kernel kernel, ClassLoader classLoader) throws Exception {
+        this.classLoader = classLoader;
         System.setProperty("duct tape","");
         SystemInstance systemInstance = SystemInstance.get();
 
@@ -108,6 +126,9 @@ public class OpenEjbSystemGBean implements OpenEjbSystem {
 
         // add our thread context listener
         GeronimoThreadContextListener.init();
+
+        // process all resource adapters
+        processResourceAdapterWrappers(resourceAdapters);
     }
 
     @SuppressWarnings({"unchecked"})
@@ -124,6 +145,97 @@ public class OpenEjbSystemGBean implements OpenEjbSystem {
         }
 
         return proxy;
+    }
+
+    private void processResourceAdapterWrappers(Collection<ResourceAdapterWrapper> resourceAdapterWrappers) {
+        if (resourceAdapterWrappers == null) {
+            return;
+        }
+
+        if (resourceAdapterWrappers instanceof ReferenceCollection) {
+            ReferenceCollection referenceCollection = (ReferenceCollection) resourceAdapterWrappers;
+            referenceCollection.addReferenceCollectionListener(new ReferenceCollectionListener() {
+                public void memberAdded(ReferenceCollectionEvent event) {
+                    addResourceAdapter((ResourceAdapterWrapper) event.getMember());
+                }
+
+                public void memberRemoved(ReferenceCollectionEvent event) {
+                    removeResourceAdapter((ResourceAdapterWrapper) event.getMember());
+                }
+            });
+        }
+        for (ResourceAdapterWrapper resourceAdapterWrapper : resourceAdapterWrappers) {
+            addResourceAdapter(resourceAdapterWrapper);
+        }
+
+    }
+
+    private void addResourceAdapter(ResourceAdapterWrapper resourceAdapterWrapper) {
+        ResourceAdapter resourceAdapter = resourceAdapterWrapper.getResourceAdapter();
+        if (resourceAdapter == null) {
+            return;
+        }
+        
+        Map<String, String> listenerToActivationSpecMap = resourceAdapterWrapper.getMessageListenerToActivationSpecMap();
+        if (listenerToActivationSpecMap == null) {
+            return;
+        }
+
+        ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
+        Thread.currentThread().setContextClassLoader(classLoader);
+        try {
+            for (Map.Entry<String, String> entry : listenerToActivationSpecMap.entrySet()) {
+                String messageListenerInterface = entry.getKey();
+                String activationSpecClass = entry.getValue();
+
+                // only process RA if not previously processed
+                String containerName = getResourceAdapterId(resourceAdapterWrapper) + "-" + messageListenerInterface;
+                if (processedResourceAdapterWrappers.putIfAbsent(containerName,  resourceAdapterWrapper) == null) {
+                    try {
+                        // get default mdb config
+                        ContainerInfo containerInfo = configurationFactory.configureService(MdbContainerInfo.class);
+                        containerInfo.id = containerName;
+                        containerInfo.displayName = containerName;
+
+                        // set ra specific properties
+                        containerInfo.properties.setProperty("MessageListenerInterface", messageListenerInterface);
+                        containerInfo.properties.setProperty("ActivationSpecClass", activationSpecClass);
+                        containerInfo.properties.put("ResourceAdapter", resourceAdapter);
+
+                        // create the container
+                        assembler.createContainer(containerInfo);
+                    } catch (OpenEJBException e) {
+                        log.error("Unable to deploy mdb container " + containerName, e);
+                    }
+                }
+            }
+        } finally {
+            Thread.currentThread().setContextClassLoader(oldClassLoader);
+        }
+    }
+
+
+    private void removeResourceAdapter(ResourceAdapterWrapper resourceAdapterWrapper) {
+        for (String messageListenerInterface : resourceAdapterWrapper.getMessageListenerToActivationSpecMap().keySet()) {
+            String containerName = getResourceAdapterId(resourceAdapterWrapper) + "-" + messageListenerInterface;
+            processedResourceAdapterWrappers.remove(containerName);
+            assembler.removeContainer(containerName);
+        }
+    }
+
+    private String getResourceAdapterId(ResourceAdapterWrapper resourceAdapterWrapper) {
+        String name = resourceAdapterWrapper.getName();
+        try {
+            ObjectName objectName = new ObjectName(name);
+            Map properties = objectName.getKeyPropertyList();
+            String shortName = (String) properties.get("name");
+            String moduleName = (String) properties.get("ResourceAdapterModule");
+            if (shortName != null && moduleName != null) {
+                return moduleName + "." + shortName;
+            }
+        } catch (Exception ignored) {
+        }
+        return name;
     }
 
     public ContainerSystem getContainerSystem() {
@@ -200,10 +312,14 @@ public class OpenEjbSystemGBean implements OpenEjbSystem {
     static {
         GBeanInfoBuilder infoBuilder = GBeanInfoBuilder.createStatic(OpenEjbSystemGBean.class);
         infoBuilder.addReference("TransactionManager", TransactionManager.class);
+        infoBuilder.addReference("ResourceAdapterWrappers", ResourceAdapterWrapper.class);
         infoBuilder.addAttribute("kernel", Kernel.class, false);
+        infoBuilder.addAttribute("classLoader", ClassLoader.class, false);
         infoBuilder.setConstructor(new String[] {
                 "TransactionManager",
+                "ResourceAdapterWrappers",
                 "kernel",
+                "classLoader",
         });
         GBEAN_INFO = infoBuilder.getBeanInfo();
     }
