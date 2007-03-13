@@ -86,7 +86,7 @@ public class InternalJettyServletHolder extends ServletHolder {
 
 
     public synchronized Object newInstance() throws InstantiationException, IllegalAccessException {
-        return servletRegistration.newInstance(_class);
+        return servletRegistration.newInstance(_className);
     }
 
     public void destroyInstance(Object o) throws Exception {

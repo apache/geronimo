@@ -43,15 +43,6 @@ public class JettyFilterHolder implements GBeanLifecycle {
             filterHolder.setClassName(filterClass);
             filterHolder.setInitParameters(initParams);
             (jettyServletRegistration.getServletHandler()).addFilter(filterHolder);
-
-//            ClassLoader oldCL = Thread.currentThread().getContextClassLoader();
-//            try {
-//                ClassLoader newCL = jettyServletRegistration.getWebClassLoader();
-//                Thread.currentThread().setContextClassLoader(newCL);
-//                start();
-//            } finally {
-//                Thread.currentThread().setContextClassLoader(oldCL);
-//            }
         }
     }
 
@@ -84,21 +75,11 @@ public class JettyFilterHolder implements GBeanLifecycle {
 
 
         public synchronized Object newInstance() throws InstantiationException, IllegalAccessException {
-            return servletRegistration.newInstance(_class);
-        }
-
-
-        public void doStop() {
-            //TODO ask jetty folks to have a Holder destroyInstance method.
-            super.doStop();
-            try {
-                destroyInstance(getFilter());
-            } catch (Exception e) {
-                //guess we should log it
-            }
+            return servletRegistration.newInstance(_className);
         }
 
         public void destroyInstance(Object o) throws Exception {
+            super.destroyInstance(o);
             servletRegistration.destroyInstance(o);
         }
 

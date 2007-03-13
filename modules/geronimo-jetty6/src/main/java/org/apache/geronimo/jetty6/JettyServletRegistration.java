@@ -31,9 +31,9 @@ import org.apache.geronimo.jetty6.handler.AbstractImmutableHandler;
  */
 public interface JettyServletRegistration {
 
-    void registerServletHolder(ServletHolder servletHolder, String servletName, Set servletMappings, String objectName) throws Exception;
+    void registerServletHolder(ServletHolder servletHolder, String servletName, Set<String> servletMappings, String objectName) throws Exception;
 
-    void unregisterServletHolder(ServletHolder servletHolder, String servletName, Set servletMappings, String objectName) throws Exception;
+    void unregisterServletHolder(ServletHolder servletHolder, String servletName, Set<String> servletMappings, String objectName) throws Exception;
 
     ServletHandler getServletHandler();
 
@@ -41,7 +41,7 @@ public interface JettyServletRegistration {
 
     AbstractImmutableHandler getLifecycleChain();
 
-    Object newInstance(Class clazz) throws InstantiationException, IllegalAccessException;
+    Object newInstance(String className) throws InstantiationException, IllegalAccessException;
 
     void destroyInstance(Object o) throws Exception;
 }

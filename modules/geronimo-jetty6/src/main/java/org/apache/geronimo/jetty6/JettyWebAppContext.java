@@ -20,22 +20,19 @@ package org.apache.geronimo.jetty6;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.security.PermissionCollection;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.EventListener;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Hashtable;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
-import java.util.List;
-import java.lang.reflect.InvocationTargetException;
 
 import javax.faces.FactoryFinder;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 import javax.naming.Context;
-import javax.naming.NamingException;
 import javax.transaction.TransactionManager;
 
 import org.apache.commons.logging.Log;
@@ -44,11 +41,10 @@ import org.apache.geronimo.connector.outbound.connectiontracking.TrackedConnecti
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
-import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
-import org.apache.geronimo.j2ee.management.impl.InvalidObjectNameException;
-import org.apache.geronimo.j2ee.annotation.Injection;
 import org.apache.geronimo.j2ee.annotation.Holder;
 import org.apache.geronimo.j2ee.annotation.LifecycleMethod;
+import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
+import org.apache.geronimo.j2ee.management.impl.InvalidObjectNameException;
 import org.apache.geronimo.jetty6.handler.AbstractImmutableHandler;
 import org.apache.geronimo.jetty6.handler.ComponentContextHandler;
 import org.apache.geronimo.jetty6.handler.InstanceContextHandler;
@@ -65,9 +61,7 @@ import org.apache.geronimo.management.geronimo.WebModule;
 import org.apache.geronimo.naming.enc.EnterpriseNamingContext;
 import org.apache.geronimo.security.deploy.DefaultPrincipal;
 import org.apache.geronimo.transaction.GeronimoUserTransaction;
-import org.apache.xbean.recipe.ObjectRecipe;
-import org.apache.xbean.recipe.Option;
-import org.apache.xbean.recipe.StaticRecipe;
+import org.mortbay.jetty.MimeTypes;
 import org.mortbay.jetty.handler.AbstractHandler;
 import org.mortbay.jetty.security.Authenticator;
 import org.mortbay.jetty.servlet.ErrorPageErrorHandler;
@@ -76,7 +70,6 @@ import org.mortbay.jetty.servlet.ServletHolder;
 import org.mortbay.jetty.servlet.ServletMapping;
 import org.mortbay.jetty.servlet.SessionHandler;
 import org.mortbay.jetty.webapp.WebAppContext;
-import org.mortbay.jetty.MimeTypes;
 
 /**
  * Wrapper for a WebApplicationContext that sets up its J2EE environment.
@@ -95,9 +88,7 @@ public class JettyWebAppContext implements GBeanLifecycle, JettyServletRegistrat
 
     private final String webAppRoot;
     private final URL configurationBaseURL;
-//    private final HandleInterceptor handleInterceptor;
     private String displayName;
-    private final String[] welcomeFiles;
 
     private final String objectName;
     private final WebAppContext webAppContext;//delegate
@@ -105,11 +96,12 @@ public class JettyWebAppContext implements GBeanLifecycle, JettyServletRegistrat
     private final Context componentContext;
     private final Holder holder;
 
-    private final Set servletNames = new HashSet();
+    private final Set<String> servletNames = new HashSet<String>();
 
     /**
-     * @deprecated never use this... this is only here because Jetty WebApplicationContext is externalizable
+     * @deprecated never use this...
      */
+/*
     public JettyWebAppContext() {
         server = null;
         application = null;
@@ -117,8 +109,6 @@ public class JettyWebAppContext implements GBeanLifecycle, JettyServletRegistrat
         webClassLoader = null;
         jettyContainer = null;
         webAppRoot = null;
-//        handleInterceptor = null;
-        welcomeFiles = null;
         objectName = null;
         configurationBaseURL = null;
         webAppContext = null;
@@ -126,25 +116,26 @@ public class JettyWebAppContext implements GBeanLifecycle, JettyServletRegistrat
         componentContext = null;
         holder = null;
     }
+*/
 
     public JettyWebAppContext(String objectName,
             String originalSpecDD,
-            Map componentContext,
+            Map<String, Object> componentContext,
             ClassLoader classLoader,
             URL configurationBaseUrl,
             Set unshareableResources,
             Set applicationManagedSecurityResources,
             String displayName,
             Map contextParamMap,
-            Collection listenerClassNames,
+            Collection<String> listenerClassNames,
             boolean distributable,
             Map mimeMap,
             String[] welcomeFiles,
-            Map localeEncodingMapping,
+            Map<String, String> localeEncodingMapping,
             Map errorPages,
             Authenticator authenticator,
             String realmName,
-            Map tagLibMap,
+            Map<String, String> tagLibMap,
             int sessionTimeoutSeconds,
             SessionHandlerFactory handlerFactory,
             PreHandlerFactory preHandlerFactory,
@@ -163,7 +154,7 @@ public class JettyWebAppContext implements GBeanLifecycle, JettyServletRegistrat
             JettyContainer jettyContainer,
             J2EEServer server,
             J2EEApplication application,
-            Kernel kernel) throws Exception, IllegalAccessException, InstantiationException, ClassNotFoundException {
+            Kernel kernel) throws Exception {
 
         assert componentContext != null;
         assert classLoader != null;
@@ -184,7 +175,6 @@ public class JettyWebAppContext implements GBeanLifecycle, JettyServletRegistrat
         } else {
             sessionHandler = new SessionHandler();
         }
-        //TODO construct an interceptor chain inside one of the Handlers.
         JettySecurityHandler securityHandler = null;
         if (securityRealmName != null) {
             securityHandler = new JettySecurityHandler();
@@ -223,30 +213,27 @@ public class JettyWebAppContext implements GBeanLifecycle, JettyServletRegistrat
         this.configurationBaseURL = configurationBaseUrl;
         this.jettyContainer = jettyContainer;
         this.originalSpecDD = originalSpecDD;
-//        this.handleInterceptor = handleInterceptor;
 
-        this.webAppContext.setConfigurationClasses(new String[]{"org.mortbay.jetty.webapp.TagLibConfiguration"});
+        webAppContext.setConfigurationClasses(new String[]{"org.mortbay.jetty.webapp.TagLibConfiguration"});
 
         webAppRoot = configurationBaseUrl.toString();
-        this.webClassLoader = classLoader;
-        this.webAppContext.setClassLoader(this.webClassLoader);
+        webClassLoader = classLoader;
+        webAppContext.setClassLoader(webClassLoader);
 
         if (host != null) {
-            this.webAppContext.setConnectorNames(host.getHosts());
-            this.webAppContext.setVirtualHosts(host.getVirtualHosts());
+            webAppContext.setConnectorNames(host.getHosts());
+            webAppContext.setVirtualHosts(host.getVirtualHosts());
         }
 
         //stuff from spec dd
-        this.webAppContext.setDisplayName(displayName);
-        this.webAppContext.setInitParams(contextParamMap);
+        webAppContext.setDisplayName(displayName);
+        webAppContext.setInitParams(contextParamMap);
         setListenerClassNames(listenerClassNames);
-        this.webAppContext.setDistributable(distributable);
-        //TODO: for jetty6
-        //setMimeMap(mimeMap);
-        this.welcomeFiles = welcomeFiles;
+        webAppContext.setDistributable(distributable);
+        webAppContext.setWelcomeFiles(welcomeFiles);
         setLocaleEncodingMapping(localeEncodingMapping);
         setErrorPages(errorPages);
-        this.webAppContext.getSecurityHandler().setAuthenticator(authenticator);
+        webAppContext.getSecurityHandler().setAuthenticator(authenticator);
         setTagLibMap(tagLibMap);
 
         if (!distributable) {
@@ -291,15 +278,14 @@ public class JettyWebAppContext implements GBeanLifecycle, JettyServletRegistrat
 
     public URL getURLFor() {
         WebConnector[] connectors = (WebConnector[]) jettyContainer.getConnectors();
-        Map map = new HashMap();
-        for (int i = 0; i < connectors.length; i++) {
-            WebConnector connector = connectors[i];
+        Map<String, String> map = new HashMap<String, String>();
+        for (WebConnector connector : connectors) {
             map.put(connector.getProtocol(), connector.getConnectUrl());
         }
         String urlPrefix;
-        if ((urlPrefix = (String) map.get("HTTP")) == null) {
-            if ((urlPrefix = (String) map.get("HTTPS")) == null) {
-                urlPrefix = (String) map.get("AJP");
+        if ((urlPrefix = map.get("HTTP")) == null) {
+            if ((urlPrefix = map.get("HTTPS")) == null) {
+                urlPrefix = map.get("AJP");
             }
         }
         if (urlPrefix == null) {
@@ -338,11 +324,11 @@ public class JettyWebAppContext implements GBeanLifecycle, JettyServletRegistrat
         return lifecycleChain;
     }
 
-    public Object newInstance(Class clazz) throws InstantiationException, IllegalAccessException {
-        if (clazz == null) {
+    public Object newInstance(String className) throws InstantiationException, IllegalAccessException {
+        if (className == null) {
             throw new InstantiationException("no class loaded");
         }
-        return holder.newInstance(clazz.getName(), webClassLoader, componentContext);
+        return holder.newInstance(className, webClassLoader, componentContext);
     }
 
     public void destroyInstance(Object o) throws Exception {
@@ -398,28 +384,31 @@ public class JettyWebAppContext implements GBeanLifecycle, JettyServletRegistrat
 
         public void lifecycleMethod() throws Exception {
             webAppContext.stop();
+            //TODO is this order correct?
+            for (EventListener listener: webAppContext.getEventListeners()) {
+                destroyInstance(listener);
+            }
             jettyContainer.removeContext(webAppContext);
         }
     }
     //pass through attributes.  They should be constructor params
 
-    public void setLocaleEncodingMapping(Map localeEncodingMap) {
+    public void setLocaleEncodingMapping(Map<String, String> localeEncodingMap) {
         if (localeEncodingMap != null) {
-            for (Iterator iterator = localeEncodingMap.entrySet().iterator(); iterator.hasNext();) {
-                Map.Entry entry = (Map.Entry) iterator.next();
-                this.webAppContext.addLocaleEncoding((String) entry.getKey(), (String) entry.getValue());
+            for (Map.Entry<String, String> entry : localeEncodingMap.entrySet()) {
+                this.webAppContext.addLocaleEncoding(entry.getValue(), entry.getKey());
             }
         }
     }
 
-    public void setListenerClassNames(Collection eventListeners) throws ClassNotFoundException, IllegalAccessException, InstantiationException {
+    public void setListenerClassNames(Collection<String> eventListeners) throws ClassNotFoundException, IllegalAccessException, InstantiationException {
         if (eventListeners != null) {
-            for (Iterator iterator = eventListeners.iterator(); iterator.hasNext();) {
-                String listenerClassName = (String) iterator.next();
-                Class clazz = this.webAppContext.loadClass(listenerClassName);
-                EventListener listener = (EventListener) newInstance(clazz);
-                this.webAppContext.addEventListener(listener);
+            Collection<EventListener> listeners = new ArrayList<EventListener>();
+            for (String listenerClassName: eventListeners) {
+                EventListener listener = (EventListener) newInstance(listenerClassName);
+                listeners.add(listener);
             }
+            webAppContext.setEventListeners(listeners.toArray(new EventListener[listeners.size()]));
         }
     }
 
@@ -429,11 +418,10 @@ public class JettyWebAppContext implements GBeanLifecycle, JettyServletRegistrat
         }
     }
 
-    public void setTagLibMap(Map tagLibMap) {
+    public void setTagLibMap(Map<String, String> tagLibMap) {
         if (tagLibMap != null) {
-            for (Iterator iterator = tagLibMap.entrySet().iterator(); iterator.hasNext();) {
-                Map.Entry entry = (Map.Entry) iterator.next();
-                this.webAppContext.setResourceAlias((String) entry.getKey(), (String) entry.getValue());
+            for (Map.Entry<String, String> entry : tagLibMap.entrySet()) {
+                this.webAppContext.setResourceAlias(entry.getKey(), entry.getValue());
             }
         }
     }
@@ -443,7 +431,8 @@ public class JettyWebAppContext implements GBeanLifecycle, JettyServletRegistrat
     }
 
 
-    //TODO this is really dumb, but jetty6 likes to set the displayname to null frequently.
+    //TODO this is really dumb, but jetty5 liked to set the displayname to null frequently.
+    //we need to re-check for jetty6
     public String getDisplayName() {
         return displayName;
     }
@@ -474,7 +463,7 @@ public class JettyWebAppContext implements GBeanLifecycle, JettyServletRegistrat
 
     public String[] getServlets() {
         synchronized (servletNames) {
-            return (String[]) servletNames.toArray(new String[servletNames.size()]);
+            return servletNames.toArray(new String[servletNames.size()]);
         }
     }
 
@@ -486,6 +475,7 @@ public class JettyWebAppContext implements GBeanLifecycle, JettyServletRegistrat
      * ObjectName must match this pattern:
      * <p/>
      * domain:j2eeType=WebModule,name=MyName,J2EEServer=MyServer,J2EEApplication=MyApplication
+     * @param objectName ObjectName to verify
      */
     private void verifyObjectName(ObjectName objectName) {
         if (objectName.isPattern()) {
@@ -509,12 +499,10 @@ public class JettyWebAppContext implements GBeanLifecycle, JettyServletRegistrat
         }
     }
 
-    public void registerServletHolder(ServletHolder servletHolder, String servletName, Set servletMappings, String objectName) throws Exception {
-        //TODO filters
+    public void registerServletHolder(ServletHolder servletHolder, String servletName, Set<String> servletMappings, String objectName) throws Exception {
         webAppContext.getServletHandler().addServlet(servletHolder);
         if (servletMappings != null) {
-            for (Iterator iterator = servletMappings.iterator(); iterator.hasNext();) {
-                String urlPattern = (String) iterator.next();
+            for (String urlPattern : servletMappings) {
                 ServletMapping servletMapping = new ServletMapping();
                 servletMapping.setPathSpec(urlPattern);
                 servletMapping.setServletName(servletName);
@@ -530,7 +518,7 @@ public class JettyWebAppContext implements GBeanLifecycle, JettyServletRegistrat
         }
     }
 
-    public void unregisterServletHolder(ServletHolder servletHolder, String servletName, Set servletMappings, String objectName) throws Exception {
+    public void unregisterServletHolder(ServletHolder servletHolder, String servletName, Set<String> servletMappings, String objectName) throws Exception {
         //no way to remove servlets
 //        webAppContext.getServletHandler().removeServlet(servletHolder);
 //        if (servletMappings != null) {
