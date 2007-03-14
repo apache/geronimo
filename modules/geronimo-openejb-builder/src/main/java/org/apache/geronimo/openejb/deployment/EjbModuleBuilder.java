@@ -27,6 +27,8 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Map;
+import java.util.Set;
+import java.util.TreeMap;
 import java.util.jar.JarFile;
 
 import javax.ejb.EntityContext;
@@ -55,13 +57,14 @@ import org.apache.geronimo.j2ee.deployment.Module;
 import org.apache.geronimo.j2ee.deployment.ModuleBuilder;
 import org.apache.geronimo.j2ee.deployment.ModuleBuilderExtension;
 import org.apache.geronimo.j2ee.deployment.NamingBuilder;
-import org.apache.geronimo.j2ee.deployment.WebServiceBuilder;
 import org.apache.geronimo.j2ee.deployment.annotation.AnnotatedEjbJar;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.Naming;
+import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 import org.apache.geronimo.kernel.config.ConfigurationStore;
 import org.apache.geronimo.kernel.repository.Environment;
+import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.naming.deployment.ResourceEnvironmentSetter;
 import org.apache.geronimo.openejb.EjbDeployment;
 import org.apache.geronimo.openejb.EjbModuleImplGBean;
@@ -74,6 +77,8 @@ import org.apache.openejb.OpenEJBException;
 import org.apache.openejb.assembler.classic.AppInfo;
 import org.apache.openejb.assembler.classic.CmpJarBuilder;
 import org.apache.openejb.assembler.classic.EjbJarInfo;
+import org.apache.openejb.assembler.classic.EnterpriseBeanInfo;
+import org.apache.openejb.assembler.classic.MessageDrivenBeanInfo;
 import org.apache.openejb.config.AppModule;
 import org.apache.openejb.config.DeploymentLoader;
 import org.apache.openejb.config.ReadDescriptors;
@@ -91,6 +96,10 @@ import org.apache.openejb.jee.jpa.unit.Persistence;
 import org.apache.openejb.jee.jpa.unit.PersistenceUnit;
 import org.apache.openejb.jee.jpa.unit.TransactionType;
 import org.apache.openejb.jee.oejb2.GeronimoEjbJarType;
+import org.apache.openejb.jee.oejb2.ResourceLocatorType;
+import org.apache.openejb.jee.oejb2.PatternType;
+import org.apache.openejb.jee.oejb2.OpenejbJarType;
+import org.apache.openejb.jee.oejb2.MessageDrivenBeanType;
 import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlObject;
 
@@ -129,7 +138,7 @@ public class EjbModuleBuilder implements ModuleBuilder {
         this.resourceEnvironmentSetter = resourceEnvironmentSetter;
 
         if (moduleBuilderExtensions == null) {
-            moduleBuilderExtensions = Collections.EMPTY_LIST;
+            moduleBuilderExtensions = Collections.emptyList();
         }
         this.moduleBuilderExtensions = moduleBuilderExtensions;
     }
@@ -440,7 +449,7 @@ public class EjbModuleBuilder implements ModuleBuilder {
         // add the cmp persistence unit if needed
         GeronimoEjbJarType geronimoEjbJarType = (GeronimoEjbJarType) ejbModule.getEjbModule().getAltDDs().get("geronimo-openejb.xml");
         if (appInfo.cmpMappingsXml != null) {
-            addGeronimmoOpenEJBPersistenceUnit(ejbModule, geronimoEjbJarType);
+            addGeronimmoOpenEJBPersistenceUnit(geronimoEjbJarType);
         }
 
         // convert the plan to xmlbeans since geronimo naming is coupled on xmlbeans objects
@@ -478,7 +487,7 @@ public class EjbModuleBuilder implements ModuleBuilder {
         }
     }
 
-    private void addGeronimmoOpenEJBPersistenceUnit(EjbModule ejbModule, GeronimoEjbJarType geronimoEjbJarType) {
+    private void addGeronimmoOpenEJBPersistenceUnit(GeronimoEjbJarType geronimoEjbJarType) {
         // search for the cmp persistence unit
         PersistenceUnit persistenceUnit = null;
         for (Persistence persistence : geronimoEjbJarType.getPersistence()) {
@@ -561,6 +570,8 @@ public class EjbModuleBuilder implements ModuleBuilder {
         ComponentPermissions componentPermissions = ejbDeploymentBuilder.buildComponentPermissions();
         earContext.addSecurityContext(ejbModule.getEjbJarInfo().moduleId, componentPermissions);
 
+        setMdbContainerIds(earContext, ejbModule);
+
         for (ModuleBuilderExtension builder : moduleBuilderExtensions) {
             try {
                 builder.addGBeans(earContext, module, cl, repositories);
@@ -569,6 +580,81 @@ public class EjbModuleBuilder implements ModuleBuilder {
                 log.error(builderName + ".addGBeans() failed: " + t.getMessage(), t);
             }
         }
+    }
+
+    private void setMdbContainerIds(EARContext earContext, EjbModule ejbModule) throws DeploymentException {
+        Object altDD = ejbModule.getEjbModule().getAltDDs().get("openejb-jar.xml");
+        if (!(altDD instanceof OpenejbJarType)) {
+            return;
+        }
+        OpenejbJarType openejbJarType = (OpenejbJarType) altDD;
+        EjbJarInfo ejbJarInfo = ejbModule.getEjbJarInfo();
+
+        Map<String, MessageDrivenBeanInfo> mdbs =  new TreeMap<String, MessageDrivenBeanInfo>();
+        for (EnterpriseBeanInfo enterpriseBean : ejbJarInfo.enterpriseBeans) {
+            if (enterpriseBean instanceof MessageDrivenBeanInfo) {
+                mdbs.put(enterpriseBean.ejbName, (MessageDrivenBeanInfo) enterpriseBean);
+            }
+        }
+        for (org.apache.openejb.jee.oejb2.EnterpriseBean enterpriseBean : openejbJarType.getEnterpriseBeans()) {
+            if (!(enterpriseBean instanceof MessageDrivenBeanType)) {
+                continue;
+            }
+            MessageDrivenBeanType bean = (MessageDrivenBeanType) enterpriseBean;
+            MessageDrivenBeanInfo messageDrivenBeanInfo = mdbs.get(bean.getEjbName());
+            if (messageDrivenBeanInfo == null) {
+                continue;
+            }
+            if (messageDrivenBeanInfo.containerId != null) {
+                // containerId already set
+                continue;
+            }
+
+            if (bean.getResourceAdapter() == null) {
+                throw new DeploymentException("Resource Adapter defined for MDB '" + bean.getEjbName() + "'");
+            }
+
+            AbstractNameQuery resourceAdapterNameQuery = getResourceAdapterNameQuery(bean.getResourceAdapter());
+            AbstractName resourceAdapterAbstractName = null;
+            try {
+                resourceAdapterAbstractName = earContext.findGBean(resourceAdapterNameQuery);
+            } catch (GBeanNotFoundException e) {
+                throw new DeploymentException("Resource Adapter for MDB '" + bean.getEjbName() + "'not found: " + resourceAdapterNameQuery);
+            }
+
+            Map properties = resourceAdapterAbstractName.getName();
+            String shortName = (String) properties.get("name");
+            String moduleName = (String) properties.get("ResourceAdapterModule");
+            if (shortName != null && moduleName != null) {
+                messageDrivenBeanInfo.containerId = moduleName + "." + shortName + "-" + messageDrivenBeanInfo.mdbInterface;
+            } else {
+                messageDrivenBeanInfo.containerId = resourceAdapterAbstractName.getObjectName().toString() + "-" + messageDrivenBeanInfo.mdbInterface;
+            }
+        }
+    }
+
+    private static AbstractNameQuery getResourceAdapterNameQuery(ResourceLocatorType resourceLocator) {
+        if (resourceLocator.getResourceLink() != null) {
+            Map<String, String> nameMap = new HashMap<String, String>();
+            nameMap.put("name", resourceLocator.getResourceLink());
+            nameMap.put("j2eeType", NameFactory.JCA_RESOURCE_ADAPTER);
+            return new AbstractNameQuery(null, nameMap);
+        }
+
+        //construct name from components
+        PatternType pattern = resourceLocator.getPattern();
+        Artifact artifact = null;
+        if (pattern.getArtifactId() != null) {
+            artifact = new Artifact(pattern.getGroupId(), pattern.getArtifactId(), pattern.getVersion(), "car");
+        }
+
+        Map<String, String> nameMap = new HashMap<String, String>();
+        nameMap.put("name", pattern.getName());
+        nameMap.put("j2eeType", NameFactory.JCA_RESOURCE_ADAPTER);
+        if (pattern.getModule() != null) {
+            nameMap.put(NameFactory.RESOURCE_ADAPTER_MODULE, pattern.getModule());
+        }
+        return new AbstractNameQuery(artifact, nameMap, (Set)null);
     }
 
     public static class EarData {

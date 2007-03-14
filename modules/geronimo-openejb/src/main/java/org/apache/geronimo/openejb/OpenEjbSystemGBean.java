@@ -56,7 +56,6 @@ import javax.naming.NamingException;
 import javax.resource.spi.ResourceAdapter;
 import javax.transaction.TransactionManager;
 import javax.management.ObjectName;
-import javax.management.MalformedObjectNameException;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.Map;
@@ -198,13 +197,15 @@ public class OpenEjbSystemGBean implements OpenEjbSystem {
                         containerInfo.displayName = containerName;
 
                         // set ra specific properties
-                        containerInfo.properties.setProperty("MessageListenerInterface", messageListenerInterface);
-                        containerInfo.properties.setProperty("ActivationSpecClass", activationSpecClass);
+                        containerInfo.properties.put("MessageListenerInterface",
+                                resourceAdapter.getClass().getClassLoader().loadClass(messageListenerInterface));
+                        containerInfo.properties.put("ActivationSpecClass",
+                                resourceAdapter.getClass().getClassLoader().loadClass(activationSpecClass));
                         containerInfo.properties.put("ResourceAdapter", resourceAdapter);
 
                         // create the container
                         assembler.createContainer(containerInfo);
-                    } catch (OpenEJBException e) {
+                    } catch (Exception e) {
                         log.error("Unable to deploy mdb container " + containerName, e);
                     }
                 }
@@ -213,7 +214,6 @@ public class OpenEjbSystemGBean implements OpenEjbSystem {
             Thread.currentThread().setContextClassLoader(oldClassLoader);
         }
     }
-
 
     private void removeResourceAdapter(ResourceAdapterWrapper resourceAdapterWrapper) {
         for (String messageListenerInterface : resourceAdapterWrapper.getMessageListenerToActivationSpecMap().keySet()) {
