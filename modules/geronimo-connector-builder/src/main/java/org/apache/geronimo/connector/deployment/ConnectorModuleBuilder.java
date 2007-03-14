@@ -421,12 +421,14 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ActivationSpecInfo
 
             // Add map from messageListenerInterface to activationSpec class
             Map<String,String> messageListenerToActivationSpecMap = new TreeMap<String,String>();
-            for (MessagelistenerType messagelistenerType : resourceadapter.getInboundResourceadapter().getMessageadapter().getMessagelistenerArray()) {
-                String messageListenerInterface = messagelistenerType.getMessagelistenerType().getStringValue().trim();
-                ActivationspecType activationspec = messagelistenerType.getActivationspec();
-                String activationSpecClassName = activationspec.getActivationspecClass().getStringValue().trim();
-                messageListenerToActivationSpecMap.put(messageListenerInterface, activationSpecClassName);
-                resourceAdapterGBeanData.setAttribute("messageListenerToActivationSpecMap", messageListenerToActivationSpecMap);
+            if (resourceadapter.isSetInboundResourceadapter() && resourceadapter.getInboundResourceadapter().isSetMessageadapter()) {
+                for (MessagelistenerType messagelistenerType : resourceadapter.getInboundResourceadapter().getMessageadapter().getMessagelistenerArray()) {
+                    String messageListenerInterface = messagelistenerType.getMessagelistenerType().getStringValue().trim();
+                    ActivationspecType activationspec = messagelistenerType.getActivationspec();
+                    String activationSpecClassName = activationspec.getActivationspecClass().getStringValue().trim();
+                    messageListenerToActivationSpecMap.put(messageListenerInterface, activationSpecClassName);
+                    resourceAdapterGBeanData.setAttribute("messageListenerToActivationSpecMap", messageListenerToActivationSpecMap);
+                }
             }
 
             resourceAdapterModuleData.setAttribute("resourceAdapterGBeanData", resourceAdapterGBeanData);
