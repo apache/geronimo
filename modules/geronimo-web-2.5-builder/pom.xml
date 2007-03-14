@@ -59,11 +59,6 @@
             <artifactId>geronimo-servlet_2.5_spec</artifactId>
         </dependency>
 
-        <dependency>
-            <groupId>jstl</groupId>
-            <artifactId>jstl</artifactId>
-        </dependency>
-
     </dependencies>
 
     <build>
