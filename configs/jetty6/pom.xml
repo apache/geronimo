@@ -69,7 +69,17 @@
             <version>${version}</version>
             <type>car</type>
         </dependency>
-
+        
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+        </dependency>
+        
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-jcl</artifactId>
+        </dependency>
+        
         <dependency>
             <groupId>xerces</groupId>
             <artifactId>xercesImpl</artifactId>
