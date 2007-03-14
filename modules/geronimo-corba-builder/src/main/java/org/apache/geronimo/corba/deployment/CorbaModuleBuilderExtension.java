@@ -101,9 +101,11 @@ public class CorbaModuleBuilderExtension implements ModuleBuilderExtension {
             EjbModule ejbModule = (EjbModule) module;
             OpenejbGeronimoEjbJarType jarInfo = ejbModule.getVendorDD(); 
 
-            OpenejbTssLinkType[] links = jarInfo.getTssLinkArray(); 
-            if (links != null && links.length > 0) {
-                EnvironmentBuilder.mergeEnvironments(environment, this.defaultEnvironment);
+            if (jarInfo != null) {
+                OpenejbTssLinkType[] links = jarInfo.getTssLinkArray(); 
+                if (links != null && links.length > 0) {
+                    EnvironmentBuilder.mergeEnvironments(environment, this.defaultEnvironment);
+                }
             }
         }        
     }
