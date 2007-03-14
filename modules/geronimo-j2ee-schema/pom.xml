@@ -52,8 +52,8 @@
         </dependency>
         
         <dependency>
-            <groupId>stax</groupId>
-            <artifactId>stax-api</artifactId>
+            <groupId>org.apache.geronimo.specs</groupId>
+            <artifactId>geronimo-stax-api_1.0_spec</artifactId>
         </dependency>
         
         <dependency>

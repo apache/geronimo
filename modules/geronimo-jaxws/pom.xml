@@ -45,10 +45,10 @@
             <version>${version}</version>
         </dependency>
         
-        <dependency>
-            <groupId>stax</groupId>
-            <artifactId>stax-api</artifactId>
-        </dependency>
+	    <dependency>
+	        <groupId>org.apache.geronimo.specs</groupId>
+	        <artifactId>geronimo-stax-api_1.0_spec</artifactId>
+	    </dependency>
 
         <!--<dependency>-->
             <!--<groupId>org.apache.geronimo.modules</groupId>-->
