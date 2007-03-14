@@ -20,14 +20,13 @@
 
 package org.apache.geronimo.myfaces;
 
-import org.apache.myfaces.config.annotation.ApplicationIndexedLifecycleProviderFactory;
 import org.apache.myfaces.config.annotation.LifecycleProviderFactory;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 
 /**
- * @version $Rev:$ $Date:$
+ * @version $Rev$ $Date$
  */
 public class LifecycleProviderFactoryGBean {
 
@@ -35,7 +34,7 @@ public class LifecycleProviderFactoryGBean {
 
     public LifecycleProviderFactoryGBean() {
         factory = new ApplicationIndexedLifecycleProviderFactory();
-        LifecycleProviderFactory.setInstance(factory);
+        LifecycleProviderFactory.setLifecycleProviderFactory(factory);
     }
 
 

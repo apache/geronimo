@@ -27,7 +27,6 @@ import javax.naming.NamingException;
 import javax.naming.Context;
 
 import org.apache.myfaces.config.annotation.LifecycleProvider;
-import org.apache.myfaces.config.annotation.ApplicationIndexedLifecycleProviderFactory;
 import org.apache.geronimo.j2ee.annotation.Holder;
 import org.apache.geronimo.j2ee.annotation.LifecycleMethod;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
@@ -38,7 +37,7 @@ import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.naming.enc.EnterpriseNamingContext;
 
 /**
- * @version $Rev:$ $Date:$
+ * @version $Rev$ $Date$
  */
 public class LifecycleProviderGBean implements LifecycleProvider, GBeanLifecycle {
     
@@ -48,11 +47,11 @@ public class LifecycleProviderGBean implements LifecycleProvider, GBeanLifecycle
     private final ClassLoader classLoader;
 
 
-    public LifecycleProviderGBean(Holder holder, Map componentContext, ApplicationIndexedLifecycleProviderFactory factory, Kernel kernel, ClassLoader classLoader) throws NamingException {
+    public LifecycleProviderGBean(Holder holder, Map componentContext, LifecycleProviderFactoryGBean factory, Kernel kernel, ClassLoader classLoader) throws NamingException {
         this.holder = holder;
 //        GeronimoUserTransaction userTransaction = new GeronimoUserTransaction(transactionManager);
         context = EnterpriseNamingContext.createEnterpriseNamingContext(componentContext, null, kernel, classLoader);
-        this.factory = factory;
+        this.factory = factory.getLifecycleProviderFactory();
         this.classLoader = classLoader;
     }
 
@@ -88,7 +87,7 @@ public class LifecycleProviderGBean implements LifecycleProvider, GBeanLifecycle
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoBuilder = GBeanInfoBuilder.createStatic(LifecycleProviderFactoryGBean.class, NameFactory.GERONIMO_SERVICE);
+        GBeanInfoBuilder infoBuilder = GBeanInfoBuilder.createStatic(LifecycleProviderGBean.class, NameFactory.GERONIMO_SERVICE);
         infoBuilder.addAttribute("holder", Holder.class, true);
         infoBuilder.addAttribute("componentContext", Map.class, true);
 

@@ -102,7 +102,7 @@ public class MyFacesModuleBuilderExtension implements ModuleBuilderExtension {
         WebModule webModule = (WebModule) module;
         WebAppType webApp = (WebAppType) webModule.getSpecDD();
         XmlObject jettyWebApp = webModule.getVendorDD();
-        ClassFinder classFinder = createMyFacesClassFinder(webApp, webModule);
+        ClassFinder classFinder = createMyFacesClassFinder(webApp, webModule); 
         if (classFinder == null) {
             //no jsf config found, nothing to do
             return;
@@ -140,7 +140,11 @@ public class MyFacesModuleBuilderExtension implements ModuleBuilderExtension {
     protected ClassFinder createMyFacesClassFinder(WebAppType webApp, WebModule webModule) throws DeploymentException {
 
         List<Class> classes = getFacesClasses(webApp, webModule);
-        return new ClassFinder(classes);
+        if (classes.isEmpty()) {
+            return null;
+        } else {
+            return new ClassFinder(classes);
+        }
     }
 
 
