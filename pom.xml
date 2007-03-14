@@ -1436,6 +1436,12 @@
 
                 <plugin>
                     <groupId>org.codehaus.mojo</groupId>
+                    <artifactId>groovy-maven-plugin</artifactId>
+                    <version>1.0-alpha-1</version>
+                </plugin>
+
+                <plugin>
+                    <groupId>org.codehaus.mojo</groupId>
                     <artifactId>selenium-maven-plugin</artifactId>
                     <version>1.0-beta-1</version>
                 </plugin>
@@ -1894,6 +1900,7 @@
 
         <profile>
             <id>makeeclipse</id>
+            
             <build>
                 <plugins>
                     <plugin>
@@ -1908,14 +1915,15 @@
                             </execution>
                         </executions>
                     </plugin>
+                    
                     <plugin>
-                        <groupId>org.apache.geronimo.genesis.plugins</groupId>
-                        <artifactId>script-maven-plugin</artifactId>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>groovy-maven-plugin</artifactId>
                         <executions>
                             <execution>
                                 <phase>validate</phase>
                                 <goals>
-                                    <goal>groovy</goal>
+                                    <goal>execute</goal>
                                 </goals>
                                 <configuration>
                                     <source>
