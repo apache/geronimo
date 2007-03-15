@@ -28,7 +28,7 @@ import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 /**
  * @version $Rev$ $Date$
  */
-public class LifecycleProviderFactoryGBean {
+public class LifecycleProviderFactoryGBean implements LifecycleProviderFactorySource {
 
     private final ApplicationIndexedLifecycleProviderFactory factory;
 

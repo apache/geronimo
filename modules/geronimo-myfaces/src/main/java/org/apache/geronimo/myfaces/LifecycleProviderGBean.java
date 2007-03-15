@@ -47,7 +47,7 @@ public class LifecycleProviderGBean implements LifecycleProvider, GBeanLifecycle
     private final ClassLoader classLoader;
 
 
-    public LifecycleProviderGBean(Holder holder, Map componentContext, LifecycleProviderFactoryGBean factory, Kernel kernel, ClassLoader classLoader) throws NamingException {
+    public LifecycleProviderGBean(Holder holder, Map componentContext, LifecycleProviderFactorySource factory, Kernel kernel, ClassLoader classLoader) throws NamingException {
         this.holder = holder;
 //        GeronimoUserTransaction userTransaction = new GeronimoUserTransaction(transactionManager);
         context = EnterpriseNamingContext.createEnterpriseNamingContext(componentContext, null, kernel, classLoader);
@@ -91,7 +91,7 @@ public class LifecycleProviderGBean implements LifecycleProvider, GBeanLifecycle
         infoBuilder.addAttribute("holder", Holder.class, true);
         infoBuilder.addAttribute("componentContext", Map.class, true);
 
-        infoBuilder.addReference("LifecycleProviderFactory", LifecycleProviderFactoryGBean.class);
+        infoBuilder.addReference("LifecycleProviderFactory", LifecycleProviderFactorySource.class);
 //        infoBuilder.addReference("TransactionManager", TransactionManager.class);
         infoBuilder.addAttribute("kernel", Kernel.class, false);
         infoBuilder.addAttribute("classLoader", ClassLoader.class, false);
