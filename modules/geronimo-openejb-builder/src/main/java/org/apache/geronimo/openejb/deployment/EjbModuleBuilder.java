@@ -23,10 +23,8 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
-import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.jar.JarFile;
@@ -249,8 +247,6 @@ public class EjbModuleBuilder implements ModuleBuilder {
         }
 
 
-        Map sharedContext = new HashMap();
-
         AbstractName moduleName;
         if (earName == null) {
             earName = naming.createRootName(environment.getConfigId(), NameFactory.NULL, NameFactory.J2EE_APPLICATION);
@@ -264,7 +260,7 @@ public class EjbModuleBuilder implements ModuleBuilder {
         EjbJarType ejbJarType = XmlUtil.convertToXmlbeans(ejbJar);
         AnnotatedEjbJar annotatedEjbJar = new AnnotatedEjbJar(ejbJarType);
 
-        EjbModule module = new EjbModule(ejbModule, standAlone, moduleName, environment, moduleFile, targetPath, "", sharedContext, annotatedEjbJar);
+        EjbModule module = new EjbModule(ejbModule, standAlone, moduleName, environment, moduleFile, targetPath, "", annotatedEjbJar);
 
         for (ModuleBuilderExtension builder : moduleBuilderExtensions) {
             try {

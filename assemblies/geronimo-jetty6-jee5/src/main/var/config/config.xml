@@ -87,6 +87,8 @@
 
     <module name="org.apache.geronimo.configs/activemq/${version}/car"/>
 
+    <module name="org.apache.geronimo.configs/myfaces/${version}/car"/>
+
     <module name="org.apache.geronimo.configs/jetty6/${version}/car">
         <gbean name="JettyWebConnector">
             <attribute name="host">${hostName}</attribute>
@@ -215,6 +217,8 @@
 
     <module name="org.apache.geronimo.configs/jetty6-deployer/${version}/car"/>
         
+    <module name="org.apache.geronimo.configs/myfaces-deployer/${version}/car"/>
+
     <module name="org.apache.geronimo.configs/welcome-jetty/${version}/car"/>
 
     <module name="org.apache.geronimo.configs/dojo-jetty6/${version}/car"/>

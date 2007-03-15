@@ -258,7 +258,7 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
         // Create the AnnotatedApp interface for the WebModule
         AnnotatedWebApp annotatedWebApp = new AnnotatedWebApp(webApp);
 
-        WebModule module = new WebModule(standAlone, moduleName, environment, moduleFile, targetPath, webApp, jettyWebApp, specDD, contextRoot, new HashMap(), JETTY_NAMESPACE, annotatedWebApp);
+        WebModule module = new WebModule(standAlone, moduleName, environment, moduleFile, targetPath, webApp, jettyWebApp, specDD, contextRoot, JETTY_NAMESPACE, annotatedWebApp);
 
         for (ModuleBuilderExtension mbe : moduleBuilderExtensions) {
             mbe.createModule(module, plan, moduleFile, targetPath, specDDUrl, environment, contextRoot, earName, naming, idBuilder);
@@ -348,15 +348,11 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
 
         getNamingBuilders().buildNaming(webApp, jettyWebApp, earConfiguration, earConfiguration, webModule, buildingContext);
 
-        if (!webApp.getMetadataComplete()) {
-            webApp.setMetadataComplete(true);
-            module.setOriginalSpecDD(module.getSpecDD().toString());
-        }
-
         Map compContext = NamingBuilder.JNDI_KEY.get(buildingContext);
         Holder holder = NamingBuilder.INJECTION_KEY.get(buildingContext);
 
         GBeanData webModuleData = new GBeanData(moduleName, JettyWebAppContext.GBEAN_INFO);
+        webModule.getSharedContext().put(WebModule.WEB_APP_DATA, webModuleData);
         try {
             moduleContext.addGBean(webModuleData);
             if (moduleContext.getServerName() != null) {
@@ -525,6 +521,13 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
         for (ModuleBuilderExtension mbe : moduleBuilderExtensions) {
             mbe.addGBeans(earContext, module, cl, repository);
         }
+        //not truly metadata complete until MBEs have run
+        if (!webApp.getMetadataComplete()) {
+            webApp.setMetadataComplete(true);
+            module.setOriginalSpecDD(module.getSpecDD().toString());
+            webModuleData.setAttribute("deploymentDescriptor", module.getOriginalSpecDD());
+        }
+
     }
 
     private void configureNoClustering(EARContext moduleContext, GBeanData webModuleData) throws GBeanAlreadyExistsException {

@@ -28,9 +28,9 @@ public class EARConfigBuilder5AltDDUnpackedTest
 {
     protected void setUp() throws Exception {
         earFile = DeploymentUtil.createJarFile(resolveFile("target/test-ear-javaee_5-unpacked.ear"));
-        ejbConfigBuilder.ejbModule = new EJBModule(false, ejbModuleName, null, null, "ejb.jar/", null, null, null, portMap, null);
+        ejbConfigBuilder.ejbModule = new EJBModule(false, ejbModuleName, null, null, "ejb.jar/", null, null, null, null);
         webConfigBuilder.contextRoot = contextRoot;
-        webConfigBuilder.webModule = new WebModule(false, webModuleName, null, null, "war.war/", null, null, null, contextRoot, portMap, WEB_NAMESPACE, null);
+        webConfigBuilder.webModule = new WebModule(false, webModuleName, null, null, "war.war/", null, null, null, contextRoot, WEB_NAMESPACE, null);
         connectorConfigBuilder.connectorModule = new ConnectorModule(false, raModuleName, null, null, "rar.rar/", null, null, null, null);
     }
 

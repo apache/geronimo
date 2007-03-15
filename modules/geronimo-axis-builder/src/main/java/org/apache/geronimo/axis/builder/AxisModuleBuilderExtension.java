@@ -58,9 +58,6 @@ public class AxisModuleBuilderExtension implements ModuleBuilderExtension {
         axisBuilder = new AxisBuilder(defaultEnvironment);
     }
 
-    public void createModule(Module module, File plan, JarFile moduleFile, Naming naming, ModuleIDBuilder idBuilder) throws DeploymentException {
-    }
-
     public void createModule(Module module, Object plan, JarFile moduleFile, String targetPath, URL specDDUrl, Environment environment, Object moduleContextInfo, AbstractName earName, Naming naming, ModuleIDBuilder idBuilder) throws DeploymentException {
         if (module.getType() != ConfigurationModuleType.EJB) {
             return;

@@ -446,12 +446,15 @@ public class AppClientModuleBuilder implements ModuleBuilder, CorbaGBeanNameSour
 
     public void installModule(JarFile earFile, EARContext earContext, Module module, Collection configurationStores, ConfigurationStore targetConfigurationStore, Collection repositories) throws DeploymentException {
         // extract the app client jar file into a standalone packed jar file and add the contents to the output
-//        JarFile moduleFile = module.getModuleFile();
-//        try {
-//            earContext.addIncludeAsPackedJar(URI.create(module.getTargetPath()), moduleFile);
-//        } catch (IOException e) {
-//            throw new DeploymentException("Unable to copy app client module jar into configuration: " + moduleFile.getName());
-//        }
+        //This duplicates the copy in the app client's own configuration, made below.
+        //this should really only be done if there's a manifest classpath reference to the app client jar by another
+        //javaee module.
+        JarFile moduleFile = module.getModuleFile();
+        try {
+            earContext.addIncludeAsPackedJar(URI.create(module.getTargetPath()), moduleFile);
+        } catch (IOException e) {
+            throw new DeploymentException("Unable to copy app client module jar into configuration: " + moduleFile.getName());
+        }
         AppClientModule appClientModule = (AppClientModule) module;
         appClientModule.setEarFile(earFile);
         //create the ear context for the app client.
@@ -490,7 +493,7 @@ public class AppClientModuleBuilder implements ModuleBuilder, CorbaGBeanNameSour
             appClientModule.setEarContext(appClientDeploymentContext);
             appClientModule.setRootEarContext(earContext);
             // extract the app client jar file into a standalone packed jar file and add the contents to the output
-            JarFile moduleFile = module.getModuleFile();
+//            JarFile moduleFile = module.getModuleFile();
             try {
                 appClientDeploymentContext.addIncludeAsPackedJar(URI.create(module.getTargetPath()), moduleFile);
             } catch (IOException e) {

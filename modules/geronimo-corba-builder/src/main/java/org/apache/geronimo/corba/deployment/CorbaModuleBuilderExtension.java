@@ -67,9 +67,6 @@ public class CorbaModuleBuilderExtension implements ModuleBuilderExtension {
         this.defaultEnvironment = defaultEnvironment;
     }
 
-    public void createModule(Module module, File plan, JarFile moduleFile, Naming naming, ModuleIDBuilder idBuilder) throws DeploymentException {
-    }
-
     /**
      * Early module creation.  If this module contains
      * and CORBA enablement links, the corba default 

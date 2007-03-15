@@ -180,6 +180,8 @@
         <module>jetty6-clustering-builder-wadi</module>
         <module>jetty6-clustering-wadi</module>
         <module>jetty6-deployer</module>
+        <module>myfaces</module>
+        <module>myfaces-deployer</module>
         <module>transaction-jta11</module>
         <module>uddi-jetty6</module>
         <module>webconsole-jetty6</module>

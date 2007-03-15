@@ -16,7 +16,6 @@
  */
 package org.apache.geronimo.openejb.deployment;
 
-import java.util.Map;
 import java.util.jar.JarFile;
 
 import org.apache.geronimo.gbean.AbstractName;
@@ -27,7 +26,6 @@ import org.apache.geronimo.openejb.xbeans.ejbjar.OpenejbGeronimoEjbJarType;
 import org.apache.openejb.jee.oejb3.OpenejbJar;
 import org.apache.openejb.assembler.classic.EjbJarInfo;
 import org.apache.openejb.jee.EjbJar;
-import org.apache.openejb.jee.oejb2.GeronimoEjbJarType;
 import org.apache.xmlbeans.XmlObject;
 
 /**
@@ -41,8 +39,8 @@ public class EjbModule extends EJBModule {
     private OpenejbGeronimoEjbJarType vendorDD;
     private final org.apache.openejb.config.EjbModule ejbModule;
 
-    public EjbModule(org.apache.openejb.config.EjbModule ejbModule, boolean standAlone, AbstractName moduleName, Environment environment, JarFile moduleFile, String targetPath, String ejbJarXml, Map sharedContext, AnnotatedApp annoatedApp) {
-        super(standAlone, moduleName, environment, moduleFile, targetPath, null, null, ejbJarXml, sharedContext, annoatedApp);
+    public EjbModule(org.apache.openejb.config.EjbModule ejbModule, boolean standAlone, AbstractName moduleName, Environment environment, JarFile moduleFile, String targetPath, String ejbJarXml, AnnotatedApp annoatedApp) {
+        super(standAlone, moduleName, environment, moduleFile, targetPath, null, null, ejbJarXml, annoatedApp);
         this.ejbModule = ejbModule;
     }
 

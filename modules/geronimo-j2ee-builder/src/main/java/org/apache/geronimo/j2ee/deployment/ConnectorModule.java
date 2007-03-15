@@ -20,7 +20,6 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.jar.JarFile;
-import java.util.HashMap;
 
 import org.apache.geronimo.deployment.DeploymentContext;
 import org.apache.geronimo.gbean.AbstractName;
@@ -34,7 +33,7 @@ import org.apache.xmlbeans.XmlObject;
  */
 public class ConnectorModule extends Module {
     public ConnectorModule(boolean standAlone, AbstractName moduleName, Environment environment, JarFile moduleFile, String targetPath, XmlObject specDD, XmlObject vendorDD, String originalSpecDD, AnnotatedApp annotatedApp ) {
-        super(standAlone, moduleName, environment, moduleFile, targetPath, specDD, vendorDD, originalSpecDD, null, new HashMap(), annotatedApp );
+        super(standAlone, moduleName, environment, moduleFile, targetPath, specDD, vendorDD, originalSpecDD, null, annotatedApp );
     }
 
     public ConfigurationModuleType getType() {

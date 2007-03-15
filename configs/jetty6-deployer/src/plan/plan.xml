@@ -67,6 +67,9 @@
         <reference name="ClusteringBuilders">
             <name>JettyClusteringBuilder</name>
         </reference>
+        <reference name="ModuleBuilderExtensions">
+            <name>MyFacesModuleBuilderExtension</name>
+        </reference>
         <reference name="ResourceEnvironmentSetter">
             <name>ResourceRefBuilder</name>
         </reference>

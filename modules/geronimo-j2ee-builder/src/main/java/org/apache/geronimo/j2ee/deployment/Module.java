@@ -18,6 +18,7 @@ package org.apache.geronimo.j2ee.deployment;
 
 import java.util.jar.JarFile;
 import java.util.Map;
+import java.util.HashMap;
 import java.net.URI;
 
 import org.apache.xmlbeans.XmlObject;
@@ -51,9 +52,9 @@ public abstract class Module {
     private AnnotatedApp annotatedApp;
     private ClassFinder classFinder;
 
-    protected final Map sharedContext;
+    protected final Map sharedContext = new HashMap();
 
-    protected Module(boolean standAlone, AbstractName moduleName, Environment environment, JarFile moduleFile, String targetPath, XmlObject specDD, XmlObject vendorDD, String originalSpecDD, String namespace, Map sharedContext, AnnotatedApp annotatedApp ) {
+    protected Module(boolean standAlone, AbstractName moduleName, Environment environment, JarFile moduleFile, String targetPath, XmlObject specDD, XmlObject vendorDD, String originalSpecDD, String namespace, AnnotatedApp annotatedApp) {
         assert targetPath != null: "targetPath is null";
         assert moduleName != null: "moduleName is null";
 
@@ -76,9 +77,7 @@ public abstract class Module {
         }
 
         targetPathURI = URI.create(targetPath + "/");
-        this.sharedContext = sharedContext;
         this.annotatedApp = annotatedApp;
-        this.classFinder = classFinder;
     }
 
     public abstract ConfigurationModuleType getType();

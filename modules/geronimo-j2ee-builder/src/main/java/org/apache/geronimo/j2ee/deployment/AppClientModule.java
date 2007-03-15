@@ -20,7 +20,6 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.jar.JarFile;
 
 import org.apache.geronimo.deployment.DeploymentContext;
@@ -42,7 +41,7 @@ public class AppClientModule extends Module {
 
 
     public AppClientModule(boolean standAlone, AbstractName moduleName, AbstractName appClientName, Environment serverEnvironment, Environment clientEnvironment, JarFile moduleFile, String targetPath, XmlObject specDD, String mainClassName, XmlObject vendorDD, String originalSpecDD, Collection<ConnectorModule> resourceModules, AnnotatedApplicationClient annotatedAppClient ) {
-        super(standAlone, moduleName, serverEnvironment, moduleFile, targetPath, specDD, vendorDD, originalSpecDD, null, new HashMap(), annotatedAppClient );
+        super(standAlone, moduleName, serverEnvironment, moduleFile, targetPath, specDD, vendorDD, originalSpecDD, null, annotatedAppClient );
         this.clientEnvironment = clientEnvironment;
         this.appClientName = appClientName;
         this.mainClassName = mainClassName;

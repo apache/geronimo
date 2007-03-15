@@ -29,6 +29,8 @@ import java.util.Map;
 import java.util.StringTokenizer;
 import java.util.jar.JarFile;
 
+import javax.faces.webapp.FacesServlet;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.common.DeploymentException;
@@ -59,7 +61,9 @@ import org.apache.geronimo.xbeans.javaee.FacesConfigManagedBeanType;
 import org.apache.geronimo.xbeans.javaee.FacesConfigType;
 import org.apache.geronimo.xbeans.javaee.FullyQualifiedClassType;
 import org.apache.geronimo.xbeans.javaee.ParamValueType;
+import org.apache.geronimo.xbeans.javaee.ServletType;
 import org.apache.geronimo.xbeans.javaee.WebAppType;
+import org.apache.myfaces.webapp.StartupServletContextListener;
 import org.apache.xbean.finder.ClassFinder;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
@@ -74,6 +78,8 @@ public class MyFacesModuleBuilderExtension implements ModuleBuilderExtension {
     private final Environment defaultEnvironment;
     private final AbstractNameQuery providerFactoryNameQuery;
     private final NamingBuilder namingBuilders;
+    private static final String CONTEXT_LISTENER_NAME = StartupServletContextListener.class.getName();
+    private static final String FACES_SERVLET_NAME = FacesServlet.class.getName();
 
 
     public MyFacesModuleBuilderExtension(Environment defaultEnvironment, AbstractNameQuery providerFactoryNameQuery, NamingBuilder namingBuilders) {
@@ -82,10 +88,18 @@ public class MyFacesModuleBuilderExtension implements ModuleBuilderExtension {
         this.namingBuilders = namingBuilders;
     }
 
-    public void createModule(Module module, File plan, JarFile moduleFile, Naming naming, ModuleIDBuilder idBuilder) throws DeploymentException {
-    }
-
     public void createModule(Module module, Object plan, JarFile moduleFile, String targetPath, URL specDDUrl, Environment environment, Object moduleContextInfo, AbstractName earName, Naming naming, ModuleIDBuilder idBuilder) throws DeploymentException {
+        if (!(module instanceof WebModule)) {
+            //not a web module, nothing to do
+            return;
+        }
+        WebModule webModule = (WebModule) module;
+        WebAppType webApp = (WebAppType) webModule.getSpecDD();
+        if (!hasFacesServlet(webApp)) {
+            return;
+        }
+
+        EnvironmentBuilder.mergeEnvironments(environment, defaultEnvironment);
     }
 
     public void installModule(JarFile earFile, EARContext earContext, Module module, Collection configurationStores, ConfigurationStore targetConfigurationStore, Collection repository) throws DeploymentException {
@@ -101,32 +115,42 @@ public class MyFacesModuleBuilderExtension implements ModuleBuilderExtension {
         }
         WebModule webModule = (WebModule) module;
         WebAppType webApp = (WebAppType) webModule.getSpecDD();
-        XmlObject jettyWebApp = webModule.getVendorDD();
-        ClassFinder classFinder = createMyFacesClassFinder(webApp, webModule); 
-        if (classFinder == null) {
-            //no jsf config found, nothing to do
+        if (!hasFacesServlet(webApp)) {
             return;
         }
 
         EARContext moduleContext = module.getEarContext();
-        EnvironmentBuilder.mergeEnvironments(moduleContext.getConfiguration().getEnvironment(), defaultEnvironment);
-
+        Map sharedContext = module.getSharedContext();
+        //add the ServletContextListener to the web app context
+        GBeanData webAppData = (GBeanData) sharedContext.get(WebModule.WEB_APP_DATA);
+        //jetty specific support
+        Object value = webAppData.getAttribute("listenerClassNames");
+        if (value instanceof Collection && !((Collection) value).contains(CONTEXT_LISTENER_NAME)) {
+            ((Collection<String>) value).add(CONTEXT_LISTENER_NAME);
+        }
         AbstractName moduleName = moduleContext.getModuleName();
         Map<NamingBuilder.Key, Object> buildingContext = new HashMap<NamingBuilder.Key, Object>();
         buildingContext.put(NamingBuilder.GBEAN_NAME_KEY, moduleName);
+
+        //use the same holder object as the web app.
+        Holder holder = NamingBuilder.INJECTION_KEY.get(sharedContext);
+        buildingContext.put(NamingBuilder.INJECTION_KEY, holder);
+
+        XmlObject jettyWebApp = webModule.getVendorDD();
+
         Configuration earConfiguration = earContext.getConfiguration();
 
+        ClassFinder classFinder = createMyFacesClassFinder(webApp, webModule);
         webModule.setClassFinder(classFinder);
 
         namingBuilders.buildNaming(webApp, jettyWebApp, earConfiguration, earConfiguration, webModule, buildingContext);
 
         Map compContext = NamingBuilder.JNDI_KEY.get(buildingContext);
-        Holder holder = NamingBuilder.INJECTION_KEY.get(buildingContext);
 
         AbstractName providerName = moduleContext.getNaming().createChildName(moduleName, "jsf-lifecycle", "jsf");
         GBeanData providerData = new GBeanData(providerName, LifecycleProviderGBean.GBEAN_INFO);
         providerData.setAttribute("holder", holder);
-        providerData.setAttribute("context", compContext);
+        providerData.setAttribute("componentContext", compContext);
         providerData.setReferencePattern("LifecycleProviderFactory", providerFactoryNameQuery);
         try {
             moduleContext.addGBean(providerData);
@@ -134,17 +158,25 @@ public class MyFacesModuleBuilderExtension implements ModuleBuilderExtension {
             throw new DeploymentException("Duplicate jsf config gbean in web module", e);
         }
 
+        //make the web app start second after the injection machinery
+        webAppData.addDependency(providerName);
+
+    }
+
+    private boolean hasFacesServlet(WebAppType webApp) {
+        for (ServletType servlet : webApp.getServletArray()) {
+            if (servlet.isSetServletClass() & FACES_SERVLET_NAME.equals(servlet.getServletClass().getStringValue().trim())) {
+                return true;
+            }
+        }
+        return false;
     }
 
 
     protected ClassFinder createMyFacesClassFinder(WebAppType webApp, WebModule webModule) throws DeploymentException {
 
         List<Class> classes = getFacesClasses(webApp, webModule);
-        if (classes.isEmpty()) {
-            return null;
-        } else {
-            return new ClassFinder(classes);
-        }
+        return new ClassFinder(classes);
     }
 
 
@@ -166,7 +198,8 @@ public class MyFacesModuleBuilderExtension implements ModuleBuilderExtension {
      * @param webApp    spec DD for module
      * @param webModule module being deployed
      * @return list of all managed bean classes from all faces-config xml files.
-     * @throws org.apache.geronimo.common.DeploymentException if a faces-config.xml file is located but cannot be parsed.
+     * @throws org.apache.geronimo.common.DeploymentException
+     *          if a faces-config.xml file is located but cannot be parsed.
      */
     private List<Class> getFacesClasses(WebAppType webApp, WebModule webModule) throws DeploymentException {
         log.debug("GetConfigFileURL() Entry");
