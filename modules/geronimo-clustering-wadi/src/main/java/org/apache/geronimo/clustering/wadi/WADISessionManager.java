@@ -16,12 +16,12 @@
  */
 package org.apache.geronimo.clustering.wadi;
 
-import org.codehaus.wadi.core.manager.ClusteredManager;
+import org.codehaus.wadi.core.manager.Manager;
 
 /**
  * 
  * @version $Rev$ $Date$
  */
 public interface WADISessionManager {
-    ClusteredManager getManager();
+    Manager getManager();
 }

@@ -23,7 +23,7 @@ import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.jetty6.PreHandler;
 import org.apache.geronimo.jetty6.PreHandlerFactory;
-import org.codehaus.wadi.core.manager.ClusteredManager;
+import org.codehaus.wadi.core.manager.Manager;
 
 
 /**
@@ -33,7 +33,7 @@ import org.codehaus.wadi.core.manager.ClusteredManager;
 public class WADIClusteredPreHandlerFactory implements PreHandlerFactory, GBeanLifecycle {
 
     private final WADISessionManager sessionManager;
-    private ClusteredManager wadiManager;
+    private Manager wadiManager;
 
     public WADIClusteredPreHandlerFactory(WADISessionManager sessionManager) {
         if (null == sessionManager) {

@@ -29,7 +29,7 @@ import org.apache.geronimo.clustering.ClusteredInvocation;
 import org.apache.geronimo.clustering.ClusteredInvocationException;
 import org.apache.geronimo.jetty6.cluster.AbstractClusteredPreHandler;
 import org.codehaus.wadi.core.contextualiser.InvocationException;
-import org.codehaus.wadi.core.manager.ClusteredManager;
+import org.codehaus.wadi.core.manager.Manager;
 import org.codehaus.wadi.web.impl.WebInvocation;
 
 
@@ -38,9 +38,9 @@ import org.codehaus.wadi.web.impl.WebInvocation;
  * @version $Rev$ $Date$
  */
 public class WADIClusteredPreHandler extends AbstractClusteredPreHandler {
-    private final ClusteredManager wadiManager;
+    private final Manager wadiManager;
 
-    public WADIClusteredPreHandler(ClusteredManager wadiManager) {
+    public WADIClusteredPreHandler(Manager wadiManager) {
         this.wadiManager = wadiManager;
     }
     

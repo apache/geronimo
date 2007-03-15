@@ -30,7 +30,7 @@ import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.codehaus.wadi.core.assembler.StackContext;
-import org.codehaus.wadi.core.manager.ClusteredManager;
+import org.codehaus.wadi.core.manager.Manager;
 import org.codehaus.wadi.core.manager.SessionMonitor;
 import org.codehaus.wadi.group.Dispatcher;
 import org.codehaus.wadi.replication.manager.ReplicationManagerFactory;
@@ -55,7 +55,7 @@ public class BasicWADISessionManager implements GBeanLifecycle, SessionManager, 
     private final DispatcherHolder dispatcherHolder;
     private final CopyOnWriteArrayList listeners;
 
-    private ClusteredManager manager;
+    private Manager manager;
     private SessionMonitor sessionMonitor;
     private ServiceSpace serviceSpace;
 
@@ -118,7 +118,7 @@ public class BasicWADISessionManager implements GBeanLifecycle, SessionManager, 
         return new WADISessionAdaptor(session);
     }
 
-    public ClusteredManager getManager() {
+    public Manager getManager() {
         return manager;
     }
 
