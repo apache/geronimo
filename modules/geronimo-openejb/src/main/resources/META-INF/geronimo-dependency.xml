@@ -18,10 +18,6 @@
 
 <service xmlns="http://geronimo.apache.org/xml/ns/deployment-1.2">
     <dependency>
-      <groupId>org.apache.geronimo.specs</groupId>
-      <artifactId>geronimo-jpa_3.0_spec</artifactId>
-    </dependency>
-    <dependency>
       <groupId>org.apache.openejb</groupId>
       <artifactId>openejb-loader</artifactId>
     </dependency>
@@ -46,26 +42,9 @@
       <artifactId>openejb-jee</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.apache.geronimo.specs</groupId>
-      <artifactId>geronimo-annotation_1.0_spec</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.geronimo.specs</groupId>
-      <artifactId>geronimo-ejb_3.0_spec</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.geronimo.specs</groupId>
-      <artifactId>geronimo-interceptor_3.0_spec</artifactId>
-    </dependency>
-    <dependency>
       <groupId>org.apache.xbean</groupId>
       <artifactId>xbean-reflect</artifactId>
     </dependency>
-    <!-- moved to the openejb config -->
-    <!--<dependency>-->
-      <!--<groupId>org.apache.xbean</groupId>-->
-      <!--<artifactId>xbean-finder</artifactId>-->
-    <!--</dependency>-->
     <dependency>
       <groupId>org.codehaus.swizzle</groupId>
       <artifactId>swizzle-stream</artifactId>
@@ -78,62 +57,14 @@
       <groupId>asm</groupId>
       <artifactId>asm-commons</artifactId>
     </dependency>
-    <dependency>
-      <groupId>org.apache.geronimo.specs</groupId>
-      <artifactId>geronimo-activation_1.1_spec</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>com.sun.xml.bind</groupId>
-      <artifactId>jaxb-impl</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.geronimo.specs</groupId>
-      <artifactId>geronimo-stax-api_1.0_spec</artifactId>
-    </dependency>
     <!-- castor -->
     <dependency>
       <groupId>org.codehaus.castor</groupId>
       <artifactId>castor</artifactId>
     </dependency>
     <dependency>
-      <groupId>xerces</groupId>
-      <artifactId>xercesImpl</artifactId>
-    </dependency>
-    <dependency>
       <groupId>oro</groupId>
       <artifactId>oro</artifactId>
     </dependency>
     <!-- end castor -->
-    <!-- activemq -->
-    <dependency>
-      <groupId>org.apache.activemq</groupId>
-      <artifactId>activemq-ra</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.activemq</groupId>
-      <artifactId>activemq-core</artifactId>
-    </dependency>
-    <!-- end activemq -->
-    <!-- openjpa -->
-    <dependency>
-      <groupId>org.apache.openjpa</groupId>
-      <artifactId>openjpa-all</artifactId>
-      <version>0.9.6-incubating</version>
-    </dependency>
-    <dependency>
-      <groupId>net.sourceforge.serp</groupId>
-      <artifactId>serp</artifactId>
-      <version>1.11.0</version>
-    </dependency>
-    <dependency>
-      <groupId>commons-collections</groupId>
-      <artifactId>commons-collections</artifactId>
-      <version>3.1</version>
-    </dependency>
-    <dependency>
-      <groupId>commons-lang</groupId>
-      <artifactId>commons-lang</artifactId>
-       <version>2.0</version>
-    </dependency>
-    <!-- end openjpa -->
 </service>

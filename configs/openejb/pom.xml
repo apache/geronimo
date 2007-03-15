@@ -62,6 +62,13 @@
             <version>${version}</version>
             <type>car</type>
         </dependency>
+        
+        <dependency>
+            <groupId>org.apache.geronimo.configs</groupId>
+            <artifactId>activemq</artifactId>
+            <version>${version}</version>
+            <type>car</type>
+        </dependency>
 
         <dependency>
             <groupId>org.apache.openejb</groupId>
@@ -123,6 +130,12 @@
         <dependency>
              <groupId>org.apache.xbean</groupId>
              <artifactId>xbean-finder</artifactId>
+        </dependency>
+
+        <!-- required for castor -->
+        <dependency>
+             <groupId>xerces</groupId>
+             <artifactId>xercesImpl</artifactId>
         </dependency>
 
     </dependencies>

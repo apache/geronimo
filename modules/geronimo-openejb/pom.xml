@@ -67,6 +67,10 @@
                 <groupId>org.apache.geronimo.modules</groupId>
                 <artifactId>geronimo-webservices</artifactId>
               </exclusion>
+              <exclusion>
+                <groupId>stax</groupId>
+                <artifactId>stax-api</artifactId>
+              </exclusion>
             </exclusions>
         </dependency>
 
