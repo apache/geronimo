@@ -19,9 +19,9 @@ package org.apache.geronimo.persistence.builder;
 
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.List;
 
 import javax.xml.namespace.QName;
 
@@ -45,8 +45,8 @@ import org.apache.geronimo.xbeans.geronimo.naming.GerPersistenceContextRefType;
 import org.apache.geronimo.xbeans.geronimo.naming.GerPersistenceContextTypeType;
 import org.apache.geronimo.xbeans.geronimo.naming.GerPropertyType;
 import org.apache.geronimo.xbeans.javaee.PersistenceContextRefType;
-import org.apache.geronimo.xbeans.javaee.PropertyType;
 import org.apache.geronimo.xbeans.javaee.PersistenceContextTypeType;
+import org.apache.geronimo.xbeans.javaee.PropertyType;
 import org.apache.xmlbeans.QNameSet;
 import org.apache.xmlbeans.XmlObject;
 
