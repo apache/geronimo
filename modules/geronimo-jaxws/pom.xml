@@ -45,16 +45,10 @@
             <version>${version}</version>
         </dependency>
         
-	    <dependency>
-	        <groupId>org.apache.geronimo.specs</groupId>
-	        <artifactId>geronimo-stax-api_1.0_spec</artifactId>
-	    </dependency>
-
-        <!--<dependency>-->
-            <!--<groupId>org.apache.geronimo.modules</groupId>-->
-            <!--<artifactId>geronimo-j2ee</artifactId>-->
-            <!--<version>${version}</version>-->
-        <!--</dependency>-->
+        <dependency>
+            <groupId>org.apache.geronimo.specs</groupId>
+            <artifactId>geronimo-stax-api_1.0_spec</artifactId>
+        </dependency>
         
        <dependency>
             <groupId>org.apache.xbean</groupId>

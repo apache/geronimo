@@ -35,16 +35,12 @@
     <dependencies>
     
         <dependency>
-            <groupId>org.apache.geronimo.specs</groupId>
-            <artifactId>geronimo-javaee-deployment_1.1MR3_spec</artifactId>
-        </dependency>
-
-        <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
             <artifactId>geronimo-j2ee-schema</artifactId>
             <version>${version}</version>
         </dependency>
 
+        <!-- g-javaee-deployment_1.1MR3_spec comes from this via g-deploy-config -->
         <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
             <artifactId>geronimo-service-builder</artifactId>

@@ -54,40 +54,6 @@
         </dependency>
 
         <dependency>
-            <groupId>org.apache.geronimo.modules</groupId>
-            <artifactId>geronimo-core</artifactId>
-            <version>${version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.geronimo.modules</groupId>
-            <artifactId>geronimo-j2ee</artifactId>
-            <version>${version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.geronimo.modules</groupId>
-            <artifactId>geronimo-kernel</artifactId>
-            <version>${version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.geronimo.modules</groupId>
-            <artifactId>geronimo-transaction</artifactId>
-            <version>${version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.geronimo.specs</groupId>
-            <artifactId>geronimo-jta_1.1_spec</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.geronimo.specs</groupId>
-            <artifactId>geronimo-j2ee-connector_1.5_spec</artifactId>
-        </dependency>
-
-        <dependency>
             <groupId>org.apache.derby</groupId>
             <artifactId>derby</artifactId>
         </dependency>

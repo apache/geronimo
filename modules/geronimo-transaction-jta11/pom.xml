@@ -35,55 +35,10 @@
 
     <dependencies>
 
-        <!-- temp, for ServerInfo. Remove when it is moved to Kernel-->
-        <dependency>
-            <groupId>org.apache.geronimo.modules</groupId>
-            <artifactId>geronimo-system</artifactId>
-            <version>${version}</version>
-        </dependency>
-
-        <!-- thread pool, for timer -->
-        <dependency>
-            <groupId>org.apache.geronimo.modules</groupId>
-            <artifactId>geronimo-core</artifactId>
-            <version>${version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.geronimo.modules</groupId>
-            <artifactId>geronimo-j2ee</artifactId>
-            <version>${version}</version>
-        </dependency>
-
         <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
             <artifactId>geronimo-transaction</artifactId>
             <version>${version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.geronimo.specs</groupId>
-            <artifactId>geronimo-jta_1.1_spec</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.geronimo.specs</groupId>
-            <artifactId>geronimo-ejb_3.0_spec</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.geronimo.specs</groupId>
-            <artifactId>geronimo-j2ee-connector_1.5_spec</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>backport-util-concurrent</groupId>
-            <artifactId>backport-util-concurrent</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>org.objectweb.howl</groupId>
-            <artifactId>howl</artifactId>
         </dependency>
 
     </dependencies>

@@ -33,13 +33,8 @@
     <name>Geronimo :: Axis :: Builder</name>
 
     <dependencies>
-        
-        <dependency>
-            <groupId>${pom.groupId}</groupId>
-            <artifactId>geronimo-webservices-builder</artifactId>
-            <version>${version}</version>
-        </dependency>
 
+        <!-- g-webservices-builder comes transitively from this -->
         <dependency>
             <groupId>${pom.groupId}</groupId>
             <artifactId>geronimo-openejb-builder</artifactId>

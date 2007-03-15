@@ -35,27 +35,11 @@
     <description>Provides hot deployment for Geronimo.</description>
     
     <dependencies>
-        
-        <dependency>
-            <groupId>org.apache.geronimo.specs</groupId>
-            <artifactId>geronimo-javaee-deployment_1.1MR3_spec</artifactId>
-        </dependency>
 
+        <!-- g-deply-jsr88, g-javaee-deployment_1.1MR3_spec comes from this -->
         <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
             <artifactId>geronimo-deploy-tool</artifactId>
-            <version>${version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.geronimo.modules</groupId>
-            <artifactId>geronimo-deploy-jsr88</artifactId>
-            <version>${version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.geronimo.modules</groupId>
-            <artifactId>geronimo-system</artifactId>
             <version>${version}</version>
         </dependency>
 

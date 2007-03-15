@@ -84,46 +84,13 @@
           <artifactId>openejb-client</artifactId>
         </dependency>
 
+        <!-- g-transaction, g-security, g-naming  come transitively from this -->
+        <!-- g-j2ee, g-kernel come from this via g-management -->
         <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
             <artifactId>geronimo-connector</artifactId>
             <version>${version}</version>
         </dependency>
 
-        <dependency>
-            <groupId>org.apache.geronimo.modules</groupId>
-            <artifactId>geronimo-j2ee</artifactId>
-            <version>${version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.geronimo.modules</groupId>
-            <artifactId>geronimo-kernel</artifactId>
-            <version>${version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.geronimo.modules</groupId>
-            <artifactId>geronimo-management</artifactId>
-            <version>${version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.geronimo.modules</groupId>
-            <artifactId>geronimo-naming</artifactId>
-            <version>${version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.geronimo.modules</groupId>
-            <artifactId>geronimo-security</artifactId>
-            <version>${version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.geronimo.modules</groupId>
-            <artifactId>geronimo-transaction</artifactId>
-            <version>${version}</version>
-        </dependency>
     </dependencies>
 </project>

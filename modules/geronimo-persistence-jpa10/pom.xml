@@ -35,13 +35,7 @@
 
     <dependencies>
 
-        <!-- temp, for ServerInfo. Remove when it is moved to Kernel-->
-        <dependency>
-            <groupId>org.apache.geronimo.modules</groupId>
-            <artifactId>geronimo-system</artifactId>
-            <version>${version}</version>
-        </dependency>
-        
+        <!-- g-transaction, g-system come from this -->
         <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
             <artifactId>geronimo-connector</artifactId>
@@ -57,12 +51,6 @@
         <dependency>
             <groupId>org.apache.geronimo.specs</groupId>
             <artifactId>geronimo-jpa_3.0_spec</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.geronimo.modules</groupId>
-            <artifactId>geronimo-transaction</artifactId>
-            <version>${version}</version>
         </dependency>
 
     </dependencies>

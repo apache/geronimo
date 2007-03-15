@@ -33,12 +33,6 @@
     <name>Geronimo :: Client</name>
     
     <dependencies>
-    
-        <dependency>
-            <groupId>org.apache.geronimo.modules</groupId>
-            <artifactId>geronimo-j2ee</artifactId>
-            <version>${version}</version>
-        </dependency>
 
         <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
@@ -46,37 +40,18 @@
             <version>${version}</version>
         </dependency>
 
+        <!-- g-system comes from this -->
         <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
             <artifactId>geronimo-security</artifactId>
             <version>${version}</version>
         </dependency>
-        
-        <dependency>
-            <groupId>org.apache.geronimo.modules</groupId>
-            <artifactId>geronimo-system</artifactId>
-            <version>${version}</version>
-        </dependency>
 
+        <!-- g-j2ee, jta spec, connector spec comes transitively from this -->
         <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
             <artifactId>geronimo-transaction</artifactId>
             <version>${version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.geronimo.specs</groupId>
-            <artifactId>geronimo-jta_1.1_spec</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.geronimo.specs</groupId>
-            <artifactId>geronimo-j2ee-connector_1.5_spec</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.xbean</groupId>
-            <artifactId>xbean-reflect</artifactId>
         </dependency>
 
     </dependencies>

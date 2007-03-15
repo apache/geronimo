@@ -33,22 +33,11 @@
     <name>Geronimo :: Mail</name>
 
     <dependencies>
-        
+
+        <!-- g-kernel, g-management comes transitively from this -->        
         <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
             <artifactId>geronimo-j2ee</artifactId>
-            <version>${version}</version>
-        </dependency>
-        
-        <dependency>
-            <groupId>org.apache.geronimo.modules</groupId>
-            <artifactId>geronimo-kernel</artifactId>
-            <version>${version}</version>
-        </dependency>
-        
-        <dependency>
-            <groupId>org.apache.geronimo.modules</groupId>
-            <artifactId>geronimo-management</artifactId>
             <version>${version}</version>
         </dependency>
 

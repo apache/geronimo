@@ -45,22 +45,11 @@
             <artifactId>geronimo-interceptor</artifactId>
             <version>${version}</version>
         </dependency>
-        
+
+        <!-- g-system and g-management come from this -->
         <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
             <artifactId>geronimo-j2ee</artifactId>
-            <version>${version}</version>
-        </dependency>
-        
-        <dependency>
-            <groupId>org.apache.geronimo.modules</groupId>
-            <artifactId>geronimo-management</artifactId>
-            <version>${version}</version>
-        </dependency>
-        
-        <dependency>
-            <groupId>org.apache.geronimo.modules</groupId>
-            <artifactId>geronimo-system</artifactId>
             <version>${version}</version>
         </dependency>
         

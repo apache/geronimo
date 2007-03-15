@@ -39,18 +39,7 @@
             <artifactId>geronimo-javaee-deployment_1.1MR3_spec</artifactId>
         </dependency>
 
-        <dependency>
-            <groupId>org.apache.geronimo.modules</groupId>
-            <artifactId>geronimo-system</artifactId>
-            <version>${version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.geronimo.modules</groupId>
-            <artifactId>geronimo-deployment</artifactId>
-            <version>${version}</version>
-        </dependency>
-        
+        <!-- g-deployment comes from this -->
         <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
             <artifactId>geronimo-service-builder</artifactId>
@@ -60,12 +49,6 @@
         <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
             <artifactId>geronimo-deploy-jsr88</artifactId>
-            <version>${version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.geronimo.modules</groupId>
-            <artifactId>geronimo-service-builder</artifactId>
             <version>${version}</version>
         </dependency>
 

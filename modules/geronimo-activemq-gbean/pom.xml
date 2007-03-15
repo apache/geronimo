@@ -39,25 +39,8 @@
             <artifactId>geronimo-activemq-gbean-management</artifactId>
             <version>${version}</version>
         </dependency>
-        
-        <dependency>
-            <groupId>org.apache.geronimo.modules</groupId>
-            <artifactId>geronimo-system</artifactId>
-            <version>${version}</version>
-        </dependency>
-        
-        <dependency>
-            <groupId>org.apache.geronimo.modules</groupId>
-            <artifactId>geronimo-management</artifactId>
-            <version>${version}</version>
-        </dependency>
-        
-        <dependency>
-            <groupId>org.apache.geronimo.modules</groupId>
-            <artifactId>geronimo-j2ee</artifactId>
-            <version>${version}</version>
-        </dependency>
-        
+ 
+        <!-- g-j2ee comes from this -->
         <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
             <artifactId>geronimo-connector</artifactId>
