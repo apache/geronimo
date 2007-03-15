@@ -55,6 +55,12 @@
         <dependency>
             <groupId>woodstox</groupId>
             <artifactId>wstx-asl</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>stax</groupId>
+                    <artifactId>stax-api</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
         <!-- JAXB implementation -->
