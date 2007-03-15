@@ -70,11 +70,11 @@ public class DeploymentContext {
     private final File inPlaceConfigurationDir;
     private final ResourceContext resourceContext;
     private final byte[] buffer = new byte[4096];
-    private final Map childConfigurationDatas = new LinkedHashMap();
+    private final Map<String, ConfigurationData> childConfigurationDatas = new LinkedHashMap<String, ConfigurationData>();
     private final ConfigurationManager configurationManager;
     private final Configuration configuration;
     private final Naming naming;
-    private final List additionalDeployment = new ArrayList();
+    private final List<ConfigurationData> additionalDeployment = new ArrayList<ConfigurationData>();
     protected final AbstractName moduleName;
 
     public DeploymentContext(File baseDir, File inPlaceConfigurationDir, Environment environment, AbstractName moduleName, ConfigurationModuleType moduleType, Naming naming, ConfigurationManager configurationManager, Collection repositories) throws DeploymentException {
@@ -161,14 +161,14 @@ public class DeploymentContext {
         configuration.removeGBean(name);
     }
 
-    public Set getGBeanNames() {
-        return new HashSet(configuration.getGBeans().keySet());
+    public Set<AbstractName> getGBeanNames() {
+        return new HashSet<AbstractName>(configuration.getGBeans().keySet());
     }
 
     /**
      * @deprecated use findGBeans(pattern)
      */
-    public Set listGBeans(AbstractNameQuery pattern) {
+    public Set<AbstractName> listGBeans(AbstractNameQuery pattern) {
         return findGBeans(pattern);
     }
 
@@ -176,15 +176,15 @@ public class DeploymentContext {
         return configuration.findGBean(pattern);
     }
 
-    public AbstractName findGBean(Set patterns) throws GBeanNotFoundException {
+    public AbstractName findGBean(Set<AbstractNameQuery> patterns) throws GBeanNotFoundException {
         return configuration.findGBean(patterns);
     }
 
-    public LinkedHashSet findGBeans(AbstractNameQuery pattern) {
+    public LinkedHashSet<AbstractName> findGBeans(AbstractNameQuery pattern) {
         return configuration.findGBeans(pattern);
     }
 
-    public LinkedHashSet findGBeans(Set patterns) {
+    public LinkedHashSet<AbstractName> findGBeans(Set<AbstractNameQuery> patterns) {
         return configuration.findGBeans(patterns);
     }
 
@@ -376,21 +376,20 @@ public class DeploymentContext {
     }
 
     public ConfigurationData getConfigurationData() throws DeploymentException {
-        List failures = verify();
+        List<String> failures = verify(configuration);
         if (!failures.isEmpty()) {
             StringBuffer message = new StringBuffer();
-            for (Iterator iterator = failures.iterator(); iterator.hasNext();) {
-                String failure = (String) iterator.next();
+            for (String failure : failures) {
                 if (message.length() > 0) message.append("\n");
                 message.append(failure);
             }
             throw new DeploymentException(message.toString());
         }
 
-        ArrayList gbeans = new ArrayList(configuration.getGBeans().values());
+        ArrayList<GBeanData> gbeans = new ArrayList<GBeanData>(configuration.getGBeans().values());
         Collections.sort(gbeans, new GBeanData.PriorityComparator());
         ConfigurationData configurationData = new ConfigurationData(configuration.getModuleType(),
-                new LinkedHashSet(configuration.getClassPath()),
+                new LinkedHashSet<String>(configuration.getClassPath()),
                 gbeans,
                 childConfigurationDatas,
                 configuration.getEnvironment(),
@@ -418,9 +417,9 @@ public class DeploymentContext {
         return moduleName;
     }
 
-    public List verify() throws DeploymentException {
-        List failures = new ArrayList();
-        for (Iterator iterator = configuration.getGBeans().entrySet().iterator(); iterator.hasNext();) {
+    public List<String> verify(Configuration configuration) throws DeploymentException {
+        List<String> failures = new ArrayList<String>();
+        for (Iterator iterator = this.configuration.getGBeans().entrySet().iterator(); iterator.hasNext();) {
             Map.Entry entry = (Map.Entry) iterator.next();
             AbstractName name = (AbstractName) entry.getKey();
             GBeanData gbean = (GBeanData) entry.getValue();
@@ -430,7 +429,7 @@ public class DeploymentContext {
                 String referenceName = (String) referenceEntry.getKey();
                 ReferencePatterns referencePatterns = (ReferencePatterns) referenceEntry.getValue();
 
-                String failure = verifyReference(gbean, referenceName, referencePatterns);
+                String failure = verifyReference(gbean, referenceName, referencePatterns, configuration);
                 if (failure != null) {
                     failures.add(failure);
                 }
@@ -438,7 +437,7 @@ public class DeploymentContext {
 
             for (Iterator iterator1 = gbean.getDependencies().iterator(); iterator1.hasNext();) {
                 ReferencePatterns referencePatterns = (ReferencePatterns) iterator1.next();
-                String failure = verifyDependency(name, referencePatterns);
+                String failure = verifyDependency(name, referencePatterns, configuration);
                 if (failure != null) {
                     failures.add(failure);
                 }
@@ -447,7 +446,7 @@ public class DeploymentContext {
         return failures;
     }
 
-    private String verifyReference(GBeanData gbean, String referenceName, ReferencePatterns referencePatterns) {
+    private String verifyReference(GBeanData gbean, String referenceName, ReferencePatterns referencePatterns, Configuration configuration) {
         GReferenceInfo referenceInfo = gbean.getGBeanInfo().getReference(referenceName);
 
         // if there is no reference info we can't verify
@@ -456,7 +455,7 @@ public class DeploymentContext {
         // A collection valued reference doesn't need to be verified
         if (referenceInfo.getProxyType().equals(Collection.class.getName())) return null;
 
-        String message = isVerifyReference(referencePatterns);
+        String message = isVerifyReference(referencePatterns, configuration);
         if (message != null) {
             return "Unable to resolve reference \"" + referenceName + "\" in gbean " +
                     gbean.getAbstractName() + " to a gbean matching the pattern " + referencePatterns.getPatterns() + "due to: " + message;
@@ -464,8 +463,8 @@ public class DeploymentContext {
         return null;
     }
 
-    private String verifyDependency(AbstractName name, ReferencePatterns referencePatterns) {
-        String message = isVerifyReference(referencePatterns);
+    private String verifyDependency(AbstractName name, ReferencePatterns referencePatterns, Configuration configuration) {
+        String message = isVerifyReference(referencePatterns, configuration);
         if (message != null) {
             return "Unable to resolve dependency in gbean " + name +
                     " to a gbean matching the pattern " + referencePatterns.getPatterns() + "due to: " + message;
@@ -474,22 +473,21 @@ public class DeploymentContext {
         return null;
     }
 
-    private String isVerifyReference(ReferencePatterns referencePatterns) {
+    private String isVerifyReference(ReferencePatterns referencePatterns, Configuration configuration) {
         // we can't verify a resolved reference since it will have a specific artifact already set...
         // hopefully the deployer won't generate bad resolved references
         if (referencePatterns.isResolved()) return null;
 
         // Do not verify the reference if it has an explicit depenency on another artifact, because it it likely
         // that the other artifact is not in the "environment" (if it were you wouldn't use the long form)
-        Set patterns = referencePatterns.getPatterns();
-        for (Iterator iterator = patterns.iterator(); iterator.hasNext();) {
-            AbstractNameQuery query = (AbstractNameQuery) iterator.next();
+        Set<AbstractNameQuery> patterns = referencePatterns.getPatterns();
+        for (AbstractNameQuery query : patterns) {
             if (query.getArtifact() != null) return null;
         }
 
         // attempt to find the bean
         try {
-            findGBean(patterns);
+            configuration.findGBean(patterns);
             return null;
         } catch (GBeanNotFoundException e) {
             return e.getMessage();
