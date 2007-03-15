@@ -42,7 +42,7 @@ public class HelloWorldBacking {
      * default empty constructor
      */
     public HelloWorldBacking(){
-        greeting = "Hello " + testDouble;
+        greeting = "Hello";
     }
 
     @PostConstruct()
@@ -67,6 +67,16 @@ public class HelloWorldBacking {
     public void setGreeting(String greeting)
     {
         this.greeting = greeting;
+    }
+
+    public Double getTestDouble()
+    {
+        return testDouble;
+    }
+
+    public void setTestDouble(Double testDouble)
+    {
+        this.testDouble = testDouble;
     }
 
     /**
