@@ -19,6 +19,7 @@ package org.apache.geronimo.corba.deployment;
 import java.util.Collection;
 import java.util.Map;
 import java.util.HashMap;
+import java.util.List;
 import java.util.jar.JarFile;
 import java.io.File;
 import java.net.URI;
@@ -48,6 +49,9 @@ import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.naming.deployment.ENCConfigBuilder;
 import org.apache.geronimo.openejb.deployment.EjbModule;
 import org.apache.openejb.assembler.classic.EnterpriseBeanInfo;
+
+import org.apache.openejb.jee.oejb2.GeronimoEjbJarType; 
+import org.apache.openejb.jee.oejb2.TssLinkType; 
 
 import org.apache.geronimo.openejb.xbeans.ejbjar.OpenejbGeronimoEjbJarType;
 import org.apache.geronimo.openejb.xbeans.ejbjar.OpenejbTssLinkType;
@@ -93,14 +97,15 @@ public class CorbaModuleBuilderExtension implements ModuleBuilderExtension {
         }
         
         // if we have a default environment specified, we merge it in, but only if 
-        // this module has tss links. 
+        // this module has tss links.  The vendorDD isn't available yet, so we'll have to look at the  
+        // jaxb version of this information now. 
         if (this.defaultEnvironment != null) {
-            EjbModule ejbModule = (EjbModule) module;
-            OpenejbGeronimoEjbJarType jarInfo = ejbModule.getVendorDD(); 
-
-            if (jarInfo != null) {
-                OpenejbTssLinkType[] links = jarInfo.getTssLinkArray(); 
-                if (links != null && links.length > 0) {
+            EjbModule ejbModule = (EjbModule)module;
+            GeronimoEjbJarType geronimoEjbJarType = (GeronimoEjbJarType) ejbModule.getEjbModule().getAltDDs().get("geronimo-openejb.xml");
+            
+            if (geronimoEjbJarType != null) {
+                List<TssLinkType> links = geronimoEjbJarType.getTssLink(); 
+                if (links != null && links.size() > 0) {
                     EnvironmentBuilder.mergeEnvironments(environment, this.defaultEnvironment);
                 }
             }
