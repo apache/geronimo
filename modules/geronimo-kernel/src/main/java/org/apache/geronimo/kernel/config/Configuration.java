@@ -140,27 +140,27 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
     /**
      * Parent configurations used for class loader.
      */
-    private final List classParents = new ArrayList();
+    private final List<Configuration> classParents = new ArrayList<Configuration>();
 
     /**
      * Parent configuations used for service resolution.
      */
-    private final List serviceParents = new ArrayList();
+    private final List<Configuration> serviceParents = new ArrayList<Configuration>();
 
     /**
      * All service parents depth first
      */
-    private final List allServiceParents = new ArrayList();
+    private final List<Configuration> allServiceParents = new ArrayList<Configuration>();
 
     /**
      * Artifacts added to the class loader (non-configuation artifacts).
      */
-    private final LinkedHashSet dependencies = new LinkedHashSet();
+    private final LinkedHashSet<Artifact> dependencies = new LinkedHashSet<Artifact>();
 
     /**
      * The GBeanData objects by ObjectName
      */
-    private final Map gbeans = new HashMap();
+    private final Map<AbstractName, GBeanData> gbeans = new HashMap<AbstractName, GBeanData>();
 
     /**
      * The classloader used to load the child GBeans contained in this configuration.
@@ -170,7 +170,7 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
     /**
      * The relative class path (URI) of this configuation.
      */
-    private final LinkedHashSet classPath;
+    private final LinkedHashSet<String> classPath;
 
     /**
      * Naming system used when generating a name for a new gbean
@@ -185,7 +185,7 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
     /**
      * The nested configurations of this configuration.
      */
-    List children = new ArrayList();
+    List<Configuration> children = new ArrayList<Configuration>();
 
     /**
      * The parent of this configuration;
@@ -211,7 +211,7 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
      * @param configurationData the module type, environment and classpath of the configuration
      * @param configurationResolver used to resolve dependecies and paths
      */
-    public Configuration(Collection parents,
+    public Configuration(Collection<Configuration> parents,
             ConfigurationData configurationData,
             ConfigurationResolver configurationResolver,
             ManageableAttributeStore attributeStore) throws MissingDependencyException, MalformedURLException, NoSuchConfigException, InvalidConfigException {
@@ -222,7 +222,7 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
         this.configurationData = configurationData;
         this.environment = configurationData.getEnvironment();
         this.configurationResolver = configurationResolver;
-        this.classPath = new LinkedHashSet(configurationData.getClassPath());
+        this.classPath = new LinkedHashSet<String>(configurationData.getClassPath());
         this.naming = configurationData.getNaming();
 
         this.id = environment.getConfigId();
@@ -231,23 +231,21 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
         //
         // Transitively resolve all the dependencies in the environment
         //
-        List transtiveDependencies = configurationResolver.resolveTransitiveDependencies(parents, environment.getDependencies());
+        List<Dependency> transitiveDependencies = configurationResolver.resolveTransitiveDependencies(parents, environment.getDependencies());
 
         //
         // Process transtive dependencies splitting it into classParents, serviceParents and artifactDependencies
         //
-        Map parentsById = new HashMap();
-        for (Iterator iterator = parents.iterator(); iterator.hasNext();) {
-            Configuration configuration = (Configuration) iterator.next();
+        Map<Artifact, Configuration> parentsById = new HashMap<Artifact, Configuration>();
+        for (Configuration configuration : parents) {
             Artifact id = configuration.getId();
             parentsById.put(id, configuration);
         }
 
-        for (Iterator iterator = transtiveDependencies.iterator(); iterator.hasNext();) {
-            Dependency dependency = (Dependency) iterator.next();
+        for (Dependency dependency : transitiveDependencies) {
             Artifact artifact = dependency.getArtifact();
             if (parentsById.containsKey(artifact)) {
-                Configuration parent = (Configuration) parentsById.get(artifact);
+                Configuration parent = parentsById.get(artifact);
                 if (dependency.getImportType() == ImportType.CLASSES || dependency.getImportType() == ImportType.ALL) {
                     classParents.add(parent);
                 }
@@ -271,24 +269,23 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
             // Get all service parents in depth first order
             //
 
-            addDepthFirstServiceParents(this, allServiceParents, new HashSet());
+            addDepthFirstServiceParents(this, allServiceParents, new HashSet<Artifact>());
 
             //
             // Deserialize the GBeans in the configurationData
             //
-            Collection gbeans = configurationData.getGBeans(configurationClassLoader);
+            Collection<GBeanData> gbeans = configurationData.getGBeans(configurationClassLoader);
             if (attributeStore != null) {
                 gbeans = attributeStore.applyOverrides(id, gbeans, configurationClassLoader);
             }
-            for (Iterator iterator = gbeans.iterator(); iterator.hasNext();) {
-                GBeanData gbeanData = (GBeanData) iterator.next();
+            for (GBeanData gbeanData : gbeans) {
                 this.gbeans.put(gbeanData.getAbstractName(), gbeanData);
             }
 
             //
             // Create child configurations
             //
-            LinkedHashSet childParents = new LinkedHashSet(parents);
+            LinkedHashSet<Configuration> childParents = new LinkedHashSet<Configuration>(parents);
             childParents.add(this);
             for (Iterator iterator = configurationData.getChildConfigurations().entrySet().iterator(); iterator.hasNext();) {
                 Map.Entry entry = (Map.Entry) iterator.next();
@@ -319,7 +316,7 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
         }
     }
 
-    private MultiParentClassLoader createConfigurationClasssLoader(Collection parents, Environment environment, LinkedHashSet classPath) throws MalformedURLException, MissingDependencyException, NoSuchConfigException {
+    private MultiParentClassLoader createConfigurationClasssLoader(Collection<Configuration> parents, Environment environment, LinkedHashSet<String> classPath) throws MalformedURLException, MissingDependencyException, NoSuchConfigException {
         // create the URL list
         URL[] urls = buildClassPath(classPath);
 
@@ -339,29 +336,26 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
         }
 
         // hidden classes
-        Set hiddenClassesSet = environment.getHiddenClasses();
-        String[] hiddenClasses = (String[]) hiddenClassesSet.toArray(new String[hiddenClassesSet.size()]);
+        Set<String> hiddenClassesSet = environment.getHiddenClasses();
+        String[] hiddenClasses = hiddenClassesSet.toArray(new String[hiddenClassesSet.size()]);
 
         // we need to propagate the non-overrideable classes from parents
-        LinkedHashSet nonOverridableSet = new LinkedHashSet();
-        for (Iterator iterator = classParents.iterator(); iterator.hasNext();) {
-            Configuration parent = (Configuration) iterator.next();
+        LinkedHashSet<String> nonOverridableSet = new LinkedHashSet<String>();
+        for (Configuration parent : classParents) {
 
             Environment parentEnvironment = parent.getEnvironment();
             nonOverridableSet.addAll(parentEnvironment.getNonOverrideableClasses());
         }
-        String[] nonOverridableClasses = (String[]) nonOverridableSet.toArray(new String[nonOverridableSet.size()]);
+        String[] nonOverridableClasses = nonOverridableSet.toArray(new String[nonOverridableSet.size()]);
 
         if (log.isDebugEnabled()) {
             StringBuffer buf = new StringBuffer("ClassLoader structure for configuration ").append(id).append("\n");
             buf.append("Parent configurations:\n");
-            for (Iterator iterator = classParents.iterator(); iterator.hasNext();) {
-                Configuration configuration = (Configuration) iterator.next();
+            for (Configuration configuration : classParents) {
                 buf.append("     ").append(configuration.getId()).append("\n");
             }
             buf.append("ClassPath:\n");
-            for (int i = 0; i < urls.length; i++) {
-                URL url = urls[i];
+            for (URL url : urls) {
                 buf.append("     ").append(url).append("\n");
             }
             log.debug(buf.toString());
@@ -384,35 +378,31 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
         }
     }
 
-    private void addDepthFirstServiceParents(Configuration configuration, List ancestors, Set ids) {
+    private void addDepthFirstServiceParents(Configuration configuration, List<Configuration> ancestors, Set<Artifact> ids) {
         if (!ids.contains(configuration.getId())) {
             ancestors.add(configuration);
             ids.add(configuration.getId());
-            for (Iterator parents = configuration.getServiceParents().iterator(); parents.hasNext();) {
-                Configuration parent = (Configuration) parents.next();
+            for (Configuration parent : configuration.getServiceParents()) {
                 addDepthFirstServiceParents(parent, ancestors, ids);
             }
         }
     }
 
-    private URL[] buildClassPath(LinkedHashSet classPath) throws MalformedURLException, MissingDependencyException, NoSuchConfigException {
-        List urls = new ArrayList();
-        for (Iterator i = dependencies.iterator(); i.hasNext();) {
-            Artifact artifact = (Artifact) i.next();
+    private URL[] buildClassPath(LinkedHashSet<String> classPath) throws MalformedURLException, MissingDependencyException, NoSuchConfigException {
+        List<URL> urls = new ArrayList<URL>();
+        for (Artifact artifact : dependencies) {
             File file = configurationResolver.resolve(artifact);
             urls.add(file.toURL());
         }
         if (classPath != null) {
-            for (Iterator i = classPath.iterator(); i.hasNext();) {
-                String pattern = (String) i.next();
-                Set matches = configurationResolver.resolve(pattern);
-                for (Iterator iterator = matches.iterator(); iterator.hasNext();) {
-                    URL url = (URL) iterator.next();
+            for (String pattern : classPath) {
+                Set<URL> matches = configurationResolver.resolve(pattern);
+                for (URL url : matches) {
                     urls.add(url);
                 }
             }
         }
-        return (URL[]) urls.toArray(new URL[urls.size()]);
+        return urls.toArray(new URL[urls.size()]);
     }
 
     /**
@@ -443,7 +433,7 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
      * Gets the parent configurations used for class loading.
      * @return the parents of this configuration used for class loading
      */
-    public List getClassParents() {
+    public List<Configuration> getClassParents() {
         return classParents;
     }
 
@@ -451,7 +441,7 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
      * Gets the parent configurations used for service resolution.
      * @return the parents of this configuration used for service resolution
      */
-    public List getServiceParents() {
+    public List<Configuration> getServiceParents() {
         return serviceParents;
     }
 
@@ -459,7 +449,7 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
      * Gets the artifact dependencies of this configuration.
      * @return the artifact dependencies of this configuration
      */
-    public LinkedHashSet getDependencies() {
+    public LinkedHashSet<Artifact> getDependencies() {
         return dependencies;
     }
 
@@ -491,16 +481,15 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
      * Gets the relative class path (URIs) of this configuration.
      * @return the relative class path of this configuation
      */
-    public List getClassPath() {
-        return new ArrayList(classPath);
+    public List<String> getClassPath() {
+        return new ArrayList<String>(classPath);
     }
 
     public void addToClassPath(String pattern) throws IOException {
         if (!classPath.contains(pattern)) {
             try {
-                Set matches = configurationResolver.resolve(pattern);
-                for (Iterator iterator = matches.iterator(); iterator.hasNext();) {
-                    URL url = (URL) iterator.next();
+                Set<URL> matches = configurationResolver.resolve(pattern);
+                for (URL url : matches) {
                     configurationClassLoader.addURL(url);
                 }
                 classPath.add(pattern);
@@ -542,7 +531,7 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
      * 
      * @return the nested configuration of this configuration
      */
-    public List getChildren() {
+    public List<Configuration> getChildren() {
         return Collections.unmodifiableList(children);
     }
 
@@ -550,7 +539,7 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
      * Gets the configurations owned by this configuration.  This is only used for cascade-uninstall.
      * @return the configurations owned by this configuration
      */
-    public Set getOwnedConfigurations() {
+    public Set<Configuration> getOwnedConfigurations() {
         return configurationData.getOwnedConfigurations();
     }
 
@@ -558,7 +547,7 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
      * Gets an unmodifiable collection of the GBeanDatas for the GBeans in this configuration.
      * @return the GBeans in this configuration
      */
-    public Map getGBeans() {
+    public Map<AbstractName, GBeanData> getGBeans() {
         return Collections.unmodifiableMap(gbeans);
     }
 
@@ -574,6 +563,7 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
     /**
      * Gets the enclosing configuration of this one (e.g. the EAR for a WAR),
      * or null if it has none.
+     * @return enclosing configuration, if any
      */
     public Configuration getEnclosingConfiguration() {
         return parent;
@@ -628,18 +618,18 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
         }
 
         // check the local config
-        Set patterns = referencePatterns.getPatterns();
+        Set<AbstractNameQuery> patterns = referencePatterns.getPatterns();
         return findGBean(patterns);
     }
 
-    public AbstractName findGBean(Set patterns) throws GBeanNotFoundException {
+    public AbstractName findGBean(Set<AbstractNameQuery> patterns) throws GBeanNotFoundException {
         if (patterns == null) throw new NullPointerException("patterns is null");
         return findGBeanData(patterns).getAbstractName();
     }
 
-    public GBeanData findGBeanData(Set patterns) throws GBeanNotFoundException {
+    public GBeanData findGBeanData(Set<AbstractNameQuery> patterns) throws GBeanNotFoundException {
         if (patterns == null) throw new NullPointerException("patterns is null");
-        Set result = findGBeanDatas(this, patterns);
+        Set<GBeanData> result = findGBeanDatas(this, patterns);
         if (result.size() > 1) {
             throw new GBeanNotFoundException("More than one match to referencePatterns", patterns);
         } else if (result.size() == 1) {
@@ -647,15 +637,13 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
         }
 
         // search all parents
-        for (Iterator iterator = allServiceParents.iterator(); iterator.hasNext();) {
-            Configuration configuration = (Configuration) iterator.next();
+        for (Configuration configuration : allServiceParents) {
             result.addAll(findGBeanDatas(configuration, patterns));
 
             // if we already found a match we have an ambiguous query
             if (result.size() > 1) {
-                List names = new ArrayList(result.size());
-                for (Iterator iterator1 = result.iterator(); iterator1.hasNext();) {
-                    GBeanData gBeanData = (GBeanData) iterator1.next();
+                List<AbstractName> names = new ArrayList<AbstractName>(result.size());
+                for (GBeanData gBeanData : result) {
                     names.add(gBeanData.getAbstractName());
                 }
                 throw new GBeanNotFoundException("More than one match to referencePatterns: " + names.toString(), patterns);
@@ -666,48 +654,46 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
             throw new GBeanNotFoundException("No matches for referencePatterns", patterns);
         }
 
-        return (GBeanData) result.iterator().next();
+        return result.iterator().next();
     }
 
-    public LinkedHashSet findGBeans(AbstractNameQuery pattern) {
+    public LinkedHashSet<AbstractName> findGBeans(AbstractNameQuery pattern) {
         if (pattern == null) throw new NullPointerException("pattern is null");
         return findGBeans(Collections.singleton(pattern));
     }
 
-    public LinkedHashSet findGBeans(ReferencePatterns referencePatterns) {
+    public LinkedHashSet<AbstractName> findGBeans(ReferencePatterns referencePatterns) {
         if (referencePatterns == null) throw new NullPointerException("referencePatterns is null");
         if (referencePatterns.getAbstractName() != null) {
             // this pattern is already resolved
-            LinkedHashSet result = new LinkedHashSet();
+            LinkedHashSet<AbstractName> result = new LinkedHashSet<AbstractName>();
             result.add(referencePatterns.getAbstractName());
             return result;
         }
 
         // check the local config
-        Set patterns = referencePatterns.getPatterns();
+        Set<AbstractNameQuery> patterns = referencePatterns.getPatterns();
         return findGBeans(patterns);
     }
 
-    public LinkedHashSet findGBeans(Set patterns) {
+    public LinkedHashSet<AbstractName> findGBeans(Set<AbstractNameQuery> patterns) {
         if (patterns == null) throw new NullPointerException("patterns is null");
-        LinkedHashSet datas = findGBeanDatas(patterns);
-        LinkedHashSet result = new LinkedHashSet(datas.size());
-        for (Iterator iterator = datas.iterator(); iterator.hasNext();) {
-            GBeanData gBeanData = (GBeanData) iterator.next();
+        LinkedHashSet<GBeanData> datas = findGBeanDatas(patterns);
+        LinkedHashSet<AbstractName> result = new LinkedHashSet<AbstractName>(datas.size());
+        for (GBeanData gBeanData : datas) {
             result.add(gBeanData.getAbstractName());
         }
 
         return result;
     }
 
-    public LinkedHashSet findGBeanDatas(Set patterns) {
+    public LinkedHashSet<GBeanData> findGBeanDatas(Set<AbstractNameQuery> patterns) {
         if (patterns == null) throw new NullPointerException("patterns is null");
-        LinkedHashSet datas = findGBeanDatas(this, patterns);
+        LinkedHashSet<GBeanData> datas = findGBeanDatas(this, patterns);
 
         // search all parents
-        for (Iterator iterator = allServiceParents.iterator(); iterator.hasNext();) {
-            Configuration configuration = (Configuration) iterator.next();
-            Set match = findGBeanDatas(configuration, patterns);
+        for (Configuration configuration : allServiceParents) {
+            Set<GBeanData> match = findGBeanDatas(configuration, patterns);
             datas.addAll(match);
         }
         return datas;
@@ -716,26 +702,24 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
     /**
      * Find the gbeanDatas matching the patterns in this configuration only, ignoring parents.
      *
-     * @param configuration
-     * @param patterns
+     * @param configuration configuration to look in
+     * @param patterns patterns to look for
      * @return set of gbeandatas matching one of the patterns from this configuration only, not including parents.
      */
-    private LinkedHashSet findGBeanDatas(Configuration configuration, Set patterns) {
-        LinkedHashSet result = new LinkedHashSet();
+    private LinkedHashSet<GBeanData> findGBeanDatas(Configuration configuration, Set<AbstractNameQuery> patterns) {
+        LinkedHashSet<GBeanData> result = new LinkedHashSet<GBeanData>();
 
-        Set gbeanNames = configuration.getGBeans().entrySet();
-        for (Iterator abstractNameQueries = patterns.iterator(); abstractNameQueries.hasNext();) {
-            AbstractNameQuery abstractNameQuery =  (AbstractNameQuery) abstractNameQueries.next();
+        Set<Map.Entry<AbstractName, GBeanData>> gbeanNames = configuration.getGBeans().entrySet();
+        for (AbstractNameQuery abstractNameQuery : patterns) {
             Artifact queryArtifact = abstractNameQuery.getArtifact();
 
             // Does this query apply to this configuration
             if (queryArtifact == null || queryArtifact.matches(configuration.getId())) {
 
                 // Search the GBeans
-                for (Iterator iterator = gbeanNames.iterator(); iterator.hasNext();) {
-                    Map.Entry entry = (Map.Entry) iterator.next();
-                    AbstractName abstractName = (AbstractName) entry.getKey();
-                    GBeanData gbeanData = (GBeanData) entry.getValue();
+                for (Map.Entry<AbstractName, GBeanData> entry : gbeanNames) {
+                    AbstractName abstractName = entry.getKey();
+                    GBeanData gbeanData = entry.getValue();
                     if (abstractNameQuery.matches(abstractName, gbeanData.getGBeanInfo().getInterfaces())) {
                         result.add(gbeanData);
                     }
@@ -761,8 +745,7 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
     }
 
     private void shutdown() {
-        for (Iterator iterator = children.iterator(); iterator.hasNext();) {
-            Configuration configuration = (Configuration) iterator.next();
+        for (Configuration configuration : children) {
             configuration.shutdown();
         }
 

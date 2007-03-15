@@ -459,13 +459,13 @@ public class SimpleConfigurationManager implements ConfigurationManager {
         throw exception;
     }
 
-    private LinkedHashSet resolveParentIds(ConfigurationData configurationData) throws MissingDependencyException, InvalidConfigException {
+    private LinkedHashSet<Artifact> resolveParentIds(ConfigurationData configurationData) throws MissingDependencyException, InvalidConfigException {
         Environment environment = configurationData.getEnvironment();
 
-        LinkedHashSet parentIds = new LinkedHashSet();
-        List dependencies = new ArrayList(environment.getDependencies());
-        for (ListIterator iterator = dependencies.listIterator(); iterator.hasNext();) {
-            Dependency dependency = (Dependency) iterator.next();
+        LinkedHashSet<Artifact> parentIds = new LinkedHashSet<Artifact>();
+        List<Dependency> dependencies = new ArrayList<Dependency>(environment.getDependencies());
+        for (ListIterator<Dependency> iterator = dependencies.listIterator(); iterator.hasNext();) {
+            Dependency dependency = iterator.next();
             Artifact resolvedArtifact = artifactResolver.resolveInClassLoader(dependency.getArtifact());
             if (isConfiguration(resolvedArtifact)) {
                 parentIds.add(resolvedArtifact);
@@ -481,7 +481,7 @@ public class SimpleConfigurationManager implements ConfigurationManager {
 
         for (Iterator iterator = configurationData.getChildConfigurations().values().iterator(); iterator.hasNext();) {
             ConfigurationData childConfigurationData = (ConfigurationData) iterator.next();
-            LinkedHashSet childParentIds = resolveParentIds(childConfigurationData);
+            LinkedHashSet<Artifact> childParentIds = resolveParentIds(childConfigurationData);
             // remove this configuration's id from the parent Ids since it will cause an infinite loop
             childParentIds.remove(configurationData.getId());
             parentIds.addAll(childParentIds);
