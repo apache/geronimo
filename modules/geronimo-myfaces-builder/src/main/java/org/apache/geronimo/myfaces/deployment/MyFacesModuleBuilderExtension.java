@@ -165,7 +165,7 @@ public class MyFacesModuleBuilderExtension implements ModuleBuilderExtension {
 
     private boolean hasFacesServlet(WebAppType webApp) {
         for (ServletType servlet : webApp.getServletArray()) {
-            if (servlet.isSetServletClass() & FACES_SERVLET_NAME.equals(servlet.getServletClass().getStringValue().trim())) {
+            if (servlet.isSetServletClass() && FACES_SERVLET_NAME.equals(servlet.getServletClass().getStringValue().trim())) {
                 return true;
             }
         }
