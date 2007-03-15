@@ -1005,6 +1005,7 @@ public final class GBeanInstance implements StateManageable {
             stateReason = null;
             return true;
         } catch (Throwable t) {
+            stateReason = "Throwable during start of gbean: \n" + printException(t);
             // something went wrong... we need to destroy this instance
             synchronized (this) {
                 instanceState = DESTROYING;
