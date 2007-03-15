@@ -26,20 +26,21 @@
                 <dependencies>
                     <dependency>
                         <groupId>org.apache.geronimo.configs</groupId>
-                        <artifactId>transaction-jta11</artifactId>
+                        <artifactId>openjpa</artifactId>
                         <type>car</type>
                     </dependency>
                 </dependencies>
             </environment>
         </xml-attribute>
     </gbean>
+    <!-- TODO possibly the ref builders only need a dependency on transaction-jta11 -->
     <gbean name="PersistenceContextRefBuilder" class="org.apache.geronimo.persistence.builder.PersistenceContextRefBuilder">
         <xml-attribute name="defaultEnvironment">
             <environment xmlns="http://geronimo.apache.org/xml/ns/deployment-1.1">
                 <dependencies>
                     <dependency>
                         <groupId>org.apache.geronimo.configs</groupId>
-                        <artifactId>transaction-jta11</artifactId>
+                        <artifactId>openjpa</artifactId>
                         <type>car</type>
                     </dependency>
                 </dependencies>
@@ -52,7 +53,7 @@
                 <dependencies>
                     <dependency>
                         <groupId>org.apache.geronimo.configs</groupId>
-                        <artifactId>transaction-jta11</artifactId>
+                        <artifactId>openjpa</artifactId>
                         <type>car</type>
                     </dependency>
                 </dependencies>
@@ -66,7 +67,7 @@
                 <dependencies>
                     <dependency>
                         <groupId>org.apache.geronimo.configs</groupId>
-                        <artifactId>client-transaction</artifactId>
+                        <artifactId>openjpa</artifactId>
                         <type>car</type>
                     </dependency>
                 </dependencies>
@@ -79,7 +80,7 @@
                 <dependencies>
                     <dependency>
                         <groupId>org.apache.geronimo.configs</groupId>
-                        <artifactId>client-transaction</artifactId>
+                        <artifactId>openjpa</artifactId>
                         <type>car</type>
                     </dependency>
                 </dependencies>
