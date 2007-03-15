@@ -42,7 +42,7 @@ public class HelloWorldBacking {
      * default empty constructor
      */
     public HelloWorldBacking(){
-        greeting = "Hello";
+        greeting = "Hello " + testDouble;
     }
 
     @PostConstruct()

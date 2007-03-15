@@ -28,10 +28,9 @@ public class TestMyFaces extends SeleniumTestSupport
 
     @Test
     public void testManagedBean() throws Exception {
-        selenium.open("/myfaces/index.jsp");
+        selenium.open("/myfaces");
         selenium.waitForPageToLoad("30000");
-        //     this is not done yet...  need to match the actual output of the JSP here
-        assertEquals("One Two", selenium.getText("xpath=/html/body"));
+        assertEquals("Please enter your name Hello 0.99 Update greeting", selenium.getBodyText());
     }
     
 }
