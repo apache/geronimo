@@ -25,7 +25,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Enumeration;
-import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
@@ -41,9 +40,9 @@ import java.util.jar.Manifest;
 public class UrlResourceFinder implements ResourceFinder {
     private final Object lock = new Object();
 
-    private final LinkedHashSet urls = new LinkedHashSet();
-    private final LinkedHashMap classPath = new LinkedHashMap();
-    private final LinkedHashSet watchedFiles = new LinkedHashSet();
+    private final LinkedHashSet<URL> urls = new LinkedHashSet<URL>();
+    private final LinkedHashMap<URL,ResourceLocation> classPath = new LinkedHashMap<URL,ResourceLocation>();
+    private final LinkedHashSet<File> watchedFiles = new LinkedHashSet<File>();
 
     private boolean destroyed = false;
 
@@ -61,8 +60,7 @@ public class UrlResourceFinder implements ResourceFinder {
             }
             destroyed = true;
             urls.clear();
-            for (Iterator iterator = classPath.values().iterator(); iterator.hasNext();) {
-                ResourceLocation resourceLocation = (ResourceLocation) iterator.next();
+            for (ResourceLocation resourceLocation : classPath.values()) {
                 resourceLocation.close();
             }
             classPath.clear();
@@ -74,9 +72,8 @@ public class UrlResourceFinder implements ResourceFinder {
             if (destroyed) {
                 return null;
             }
-            for (Iterator iterator = getClassPath().entrySet().iterator(); iterator.hasNext();) {
-                Map.Entry entry = (Map.Entry) iterator.next();
-                ResourceLocation resourceLocation = (ResourceLocation) entry.getValue();
+            for (Map.Entry<URL, ResourceLocation> entry : getClassPath().entrySet()) {
+                ResourceLocation resourceLocation = entry.getValue();
                 ResourceHandle resourceHandle = resourceLocation.getResourceHandle(resourceName);
                 if (resourceHandle != null && !resourceHandle.isDirectory()) {
                     return resourceHandle;
@@ -91,9 +88,8 @@ public class UrlResourceFinder implements ResourceFinder {
             if (destroyed) {
                 return null;
             }
-            for (Iterator iterator = getClassPath().entrySet().iterator(); iterator.hasNext();) {
-                Map.Entry entry = (Map.Entry) iterator.next();
-                ResourceLocation resourceLocation = (ResourceLocation) entry.getValue();
+            for (Map.Entry<URL, ResourceLocation> entry : getClassPath().entrySet()) {
+                ResourceLocation resourceLocation = entry.getValue();
                 ResourceHandle resourceHandle = resourceLocation.getResourceHandle(resourceName);
                 if (resourceHandle != null) {
                     return resourceHandle.getUrl();
@@ -105,7 +101,7 @@ public class UrlResourceFinder implements ResourceFinder {
 
     public Enumeration findResources(String resourceName) {
         synchronized (lock) {
-            return new ResourceEnumeration(new ArrayList(getClassPath().values()), resourceName);
+            return new ResourceEnumeration(new ArrayList<ResourceLocation>(getClassPath().values()), resourceName);
         }
     }
 
@@ -115,7 +111,7 @@ public class UrlResourceFinder implements ResourceFinder {
 
     public URL[] getUrls() {
         synchronized (lock) {
-            return (URL[]) urls.toArray(new URL[urls.size()]);
+            return urls.toArray(new URL[urls.size()]);
         }
     }
 
@@ -131,7 +127,7 @@ public class UrlResourceFinder implements ResourceFinder {
      * Adds a list of urls to the end of this class loader.
      * @param urls the URLs to add
      */
-    protected void addUrls(List urls) {
+    protected void addUrls(List<URL> urls) {
         synchronized (lock) {
             if (destroyed) {
                 throw new IllegalStateException("UrlResourceFinder has been destroyed");
@@ -144,11 +140,10 @@ public class UrlResourceFinder implements ResourceFinder {
         }
     }
 
-    private LinkedHashMap getClassPath() {
+    private LinkedHashMap<URL, ResourceLocation> getClassPath() {
         assert Thread.holdsLock(lock): "This method can only be called while holding the lock";
 
-        for (Iterator iterator = watchedFiles.iterator(); iterator.hasNext();) {
-            File file = (File) iterator.next();
+        for (File file : watchedFiles) {
             if (file.canRead()) {
                 rebuildClassPath();
                 break;
@@ -167,21 +162,21 @@ public class UrlResourceFinder implements ResourceFinder {
         assert Thread.holdsLock(lock): "This method can only be called while holding the lock";
 
         // copy all of the existing locations into a temp map and clear the class path
-        Map existingJarFiles = new LinkedHashMap(classPath);
+        Map<URL,ResourceLocation> existingJarFiles = new LinkedHashMap<URL,ResourceLocation>(classPath);
         classPath.clear();
 
-        LinkedList locationStack = new LinkedList(urls);
+        LinkedList<URL> locationStack = new LinkedList<URL>(urls);
         try {
             while (!locationStack.isEmpty()) {
-                URL url = (URL) locationStack.removeFirst();
+                URL url = locationStack.removeFirst();
 
-                // Skip any duplicate urls in the claspath
+                // Skip any duplicate urls in the classpath
                 if (classPath.containsKey(url)) {
                     continue;
                 }
 
                 // Check is this URL has already been opened
-                ResourceLocation resourceLocation = (ResourceLocation) existingJarFiles.remove(url);
+                ResourceLocation resourceLocation = existingJarFiles.remove(url);
 
                 // If not opened, cache the url and wrap it with a resource location
                 if (resourceLocation == null) {
@@ -208,7 +203,7 @@ public class UrlResourceFinder implements ResourceFinder {
                 classPath.put(resourceLocation.getCodeSource(), resourceLocation);
 
                 // push the manifest classpath on the stack (make sure to maintain the order)
-                List manifestClassPath = getManifestClassPath(resourceLocation);
+                List<URL> manifestClassPath = getManifestClassPath(resourceLocation);
                 locationStack.addAll(0, manifestClassPath);
             }
         } catch (Error e) {
@@ -216,8 +211,7 @@ public class UrlResourceFinder implements ResourceFinder {
             throw e;
         }
 
-        for (Iterator iterator = existingJarFiles.values().iterator(); iterator.hasNext();) {
-            ResourceLocation resourceLocation = (ResourceLocation) iterator.next();
+        for (ResourceLocation resourceLocation : existingJarFiles.values()) {
             resourceLocation.close();
         }
     }
@@ -246,7 +240,7 @@ public class UrlResourceFinder implements ResourceFinder {
             throw new IOException("File is not readable: " + cacheFile.getAbsolutePath());
         }
 
-        ResourceLocation resourceLocation = null;
+        ResourceLocation resourceLocation;
         if (cacheFile.isDirectory()) {
             // DirectoryResourceLocation will only return "file" URLs within this directory
             // do not user the DirectoryResourceLocation for non file based urls
@@ -257,7 +251,7 @@ public class UrlResourceFinder implements ResourceFinder {
         return resourceLocation;
     }
 
-    private List getManifestClassPath(ResourceLocation resourceLocation) {
+    private List<URL> getManifestClassPath(ResourceLocation resourceLocation) {
         try {
             // get the manifest, if possible
             Manifest manifest = resourceLocation.getManifest();
@@ -275,7 +269,7 @@ public class UrlResourceFinder implements ResourceFinder {
             // build the urls...
             // the class-path attribute is space delimited
             URL codeSource = resourceLocation.getCodeSource();
-            LinkedList classPathUrls = new LinkedList();
+            LinkedList<URL> classPathUrls = new LinkedList<URL>();
             for (StringTokenizer tokenizer = new StringTokenizer(manifestClassPath, " "); tokenizer.hasMoreTokens();) {
                 String entry = tokenizer.nextToken();
                 try {

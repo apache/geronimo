@@ -24,14 +24,14 @@ import java.util.NoSuchElementException;
 /**
  * @version $Rev$ $Date$
  */
-public final class UnionEnumeration implements Enumeration {
-    private final LinkedList enumerations = new LinkedList();
+public final class UnionEnumeration<T> implements Enumeration<T> {
+    private final LinkedList<Enumeration<T>> enumerations = new LinkedList<Enumeration<T>>();
 
-    public UnionEnumeration(List enumerations) {
+    public UnionEnumeration(List<Enumeration<T>> enumerations) {
         this.enumerations.addAll(enumerations);
     }
 
-    public UnionEnumeration(Enumeration first, Enumeration second) {
+    public UnionEnumeration(Enumeration<T> first, Enumeration<T> second) {
         if (first == null) throw new NullPointerException("first is null");
         if (second == null) throw new NullPointerException("second is null");
 
@@ -41,7 +41,7 @@ public final class UnionEnumeration implements Enumeration {
 
     public boolean hasMoreElements() {
         while (!enumerations.isEmpty()) {
-            Enumeration enumeration = (Enumeration) enumerations.getFirst();
+            Enumeration enumeration = enumerations.getFirst();
             if (enumeration.hasMoreElements()) {
                 return true;
             }
@@ -50,9 +50,9 @@ public final class UnionEnumeration implements Enumeration {
         return false;
     }
 
-    public Object nextElement() {
+    public T nextElement() {
         while (!enumerations.isEmpty()) {
-            Enumeration enumeration = (Enumeration) enumerations.getFirst();
+            Enumeration<T> enumeration = enumerations.getFirst();
             if (enumeration.hasMoreElements()) {
                 return enumeration.nextElement();
             }

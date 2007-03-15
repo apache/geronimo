@@ -184,6 +184,7 @@ public class JarFileClassLoader extends MultiParentClassLoader {
     /**
      * {@inheritDoc}
      */
+/*
     public Enumeration findResources(final String resourceName) throws IOException {
         // todo this is not right
         // first get the resources from the parent classloaders
@@ -199,6 +200,15 @@ public class JarFileClassLoader extends MultiParentClassLoader {
         // join the two together
         Enumeration resources = new UnionEnumeration(parentResources, myResources);
         return resources;
+    }
+*/
+
+    protected Enumeration<URL> internalfindResources(final String name) throws IOException {
+        return  AccessController.doPrivileged(new PrivilegedAction<Enumeration<URL>>() {
+            public Enumeration<URL> run() {
+                return resourceFinder.findResources(name);
+            }
+        }, acc);
     }
 
     /**

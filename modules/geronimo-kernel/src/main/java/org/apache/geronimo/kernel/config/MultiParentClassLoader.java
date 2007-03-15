@@ -29,10 +29,13 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Enumeration;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.commons.logging.LogFactory;
+import org.apache.geronimo.kernel.classloader.UnionEnumeration;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.util.ClassLoaderRegistry;
 
@@ -145,7 +148,7 @@ public class MultiParentClassLoader extends URLClassLoader {
         if (source instanceof MultiParentClassLoader) {
             return new MultiParentClassLoader((MultiParentClassLoader) source);
         } else if (source instanceof URLClassLoader) {
-            return new URLClassLoader(((URLClassLoader)source).getURLs(), source.getParent());
+            return new URLClassLoader(((URLClassLoader) source).getURLs(), source.getParent());
         } else {
             return new URLClassLoader(new URL[0], source);
         }
@@ -175,7 +178,7 @@ public class MultiParentClassLoader extends URLClassLoader {
      */
     public MultiParentClassLoader(Artifact id, URL[] urls, ClassLoader[] parents, URLStreamHandlerFactory factory) {
         super(urls, null, factory);
-        this.id = id;        
+        this.id = id;
         this.parents = copyParents(parents);
         inverseClassLoading = false;
         hiddenClasses = new String[0];
@@ -205,7 +208,7 @@ public class MultiParentClassLoader extends URLClassLoader {
                 throw new NullPointerException("parent[" + i + "] is null");
             }
             if (parent instanceof MultiParentClassLoader) {
-                parent = ((MultiParentClassLoader)parent).copy();
+                parent = ((MultiParentClassLoader) parent).copy();
             }
             newParentsArray[i] = parent;
         }
@@ -243,23 +246,23 @@ public class MultiParentClassLoader extends URLClassLoader {
         if (cachedClass != null) {
             return resolveClass(cachedClass, resolve);
         }
-        
+
         // This is a reasonable hack.  We can add some classes to the list below.
         // Since we know these classes are in the system class loader let's not waste our
         // time going through the hierarchy.
         //
         // The order is based on profiling the server.  It may not be optimal for all
         // workloads.
-        
-        if ( name.startsWith("java.") ||
-          	 name.equals("boolean")   ||
-        	 name.equals("int")       ||
-        	 name.equals("double")    ||
-        	 name.equals("long")) {
+
+        if (name.startsWith("java.") ||
+                name.equals("boolean") ||
+                name.equals("int") ||
+                name.equals("double") ||
+                name.equals("long")) {
             Class clazz = ClassLoader.getSystemClassLoader().loadClass(name);
             return resolveClass(clazz, resolve);
         }
-        
+
         //
         // if we are using inverse class loading, check local urls first
         //
@@ -275,8 +278,7 @@ public class MultiParentClassLoader extends URLClassLoader {
         // Check parent class loaders
         //
         if (!isHiddenClass(name)) {
-            for (int i = 0; i < parents.length; i++) {
-                ClassLoader parent = parents[i];
+            for (ClassLoader parent : parents) {
                 try {
                     Class clazz = parent.loadClass(name);
                     return resolveClass(clazz, resolve);
@@ -304,8 +306,8 @@ public class MultiParentClassLoader extends URLClassLoader {
     }
 
     private boolean isNonOverridableClass(String name) {
-        for (int i = 0; i < nonOverridableClasses.length; i++) {
-            if (name.startsWith(nonOverridableClasses[i])) {
+        for (String nonOverridableClass : nonOverridableClasses) {
+            if (name.startsWith(nonOverridableClass)) {
                 return true;
             }
         }
@@ -313,8 +315,8 @@ public class MultiParentClassLoader extends URLClassLoader {
     }
 
     private boolean isHiddenClass(String name) {
-        for (int i = 0; i < hiddenClasses.length; i++) {
-            if (name.startsWith(hiddenClasses[i])) {
+        for (String hiddenClass : hiddenClasses) {
+            if (name.startsWith(hiddenClass)) {
                 return true;
             }
         }
@@ -347,8 +349,7 @@ public class MultiParentClassLoader extends URLClassLoader {
         // Check parent class loaders
         //
         if (!isHiddenResource(name)) {
-            for (int i = 0; i < parents.length; i++) {
-                ClassLoader parent = parents[i];
+            for (ClassLoader parent : parents) {
                 URL url = parent.getResource(name);
                 if (url != null) {
                     return url;
@@ -370,44 +371,94 @@ public class MultiParentClassLoader extends URLClassLoader {
         return null;
     }
 
-    public Enumeration findResources(String name) throws IOException {
+    public Enumeration<URL> findResources(String name) throws IOException {
         if (isDestroyed()) {
             return Collections.enumeration(Collections.EMPTY_SET);
         }
 
-        List resources = new ArrayList();
+        Set<ClassLoader> knownClassloaders = new HashSet<ClassLoader>();
+        List<Enumeration<URL>> enumerations = new ArrayList<Enumeration<URL>>();
 
-        //
-        // if we are using inverse class loading, add the resources from local urls first
-        //
-        if (inverseClassLoading && !isDestroyed()) {
-            List myResources = Collections.list(super.findResources(name));
-            resources.addAll(myResources);
+        recursiveFind(knownClassloaders, enumerations, name);
+
+        return new UnionEnumeration<URL>(enumerations);
+        /*
+             List<URL> resources = new ArrayList<URL>();
+             Set<URL> found = new HashSet<URL>();
+
+             //
+             // if we are using inverse class loading, add the resources from local urls first
+             //
+             if (inverseClassLoading && !isDestroyed()) {
+                 for (Enumeration myResources = super.findResources(name); myResources.hasMoreElements();) {
+                     URL url = (URL) myResources.nextElement();
+                     if (!found.contains(url)) {
+                         found.add(url);
+                         resources.add(url);
+                     }
+                 }
+             }
+
+             //
+             // Add parent resources
+             //
+             for (ClassLoader parent : parents) {
+                 for (Enumeration parentResources = parent.getResources(name); parentResources.hasMoreElements();) {
+                     URL url = (URL) parentResources.nextElement();
+                     if (!found.contains(url)) {
+                         found.add(url);
+                         resources.add(url);
+                     }
+                 }
+             }
+
+             //
+             // if we are not using inverse class loading, add the resources from local urls now
+             //
+             if (!inverseClassLoading && !isDestroyed()) {
+                 for (Enumeration myResources = super.findResources(name); myResources.hasMoreElements();) {
+                     URL url = (URL) myResources.nextElement();
+                     if (!found.contains(url)) {
+                         found.add(url);
+                         resources.add(url);
+                     }
+                 }
+             }
+
+             return Collections.enumeration(resources);
+        */
+    }
+
+    protected void recursiveFind(Set<ClassLoader> knownClassloaders, List<Enumeration<URL>> enumerations, String name) throws IOException {
+        if (isDestroyed() || knownClassloaders.contains(this)) {
+            return;
         }
-
-        //
-        // Add parent resources
-        //
-        for (int i = 0; i < parents.length; i++) {
-            ClassLoader parent = parents[i];
-            List parentResources = Collections.list(parent.getResources(name));
-            resources.addAll(parentResources);
+        knownClassloaders.add(this);
+        if (inverseClassLoading) {
+            enumerations.add(internalfindResources(name));
         }
-
-        //
-        // if we are not using inverse class loading, add the resources from local urls now
-        //
-        if (!inverseClassLoading && !isDestroyed()) {
-            List myResources = Collections.list(super.findResources(name));
-            resources.addAll(myResources);
+        for (ClassLoader parent : parents) {
+            if (parent instanceof MultiParentClassLoader) {
+                ((MultiParentClassLoader) parent).recursiveFind(knownClassloaders, enumerations, name);
+            } else {
+                if (!knownClassloaders.contains(parent)) {
+                    enumerations.add(parent.getResources(name));
+                    knownClassloaders.add(parent);
+                }
+            }
         }
+        if (!inverseClassLoading) {
+            enumerations.add(internalfindResources(name));
+        }
+    }
 
-        return Collections.enumeration(resources);
+    protected Enumeration<URL> internalfindResources(String name) throws IOException {
+        return super.findResources(name);
     }
 
     private boolean isNonOverridableResource(String name) {
-        for (int i = 0; i < nonOverridableResources.length; i++) {
-            if (name.startsWith(nonOverridableResources[i])) {
+        for (String nonOverridableResource : nonOverridableResources) {
+            if (name.startsWith(nonOverridableResource)) {
                 return true;
             }
         }
@@ -415,8 +466,8 @@ public class MultiParentClassLoader extends URLClassLoader {
     }
 
     private boolean isHiddenResource(String name) {
-        for (int i = 0; i < hiddenResources.length; i++) {
-            if (name.startsWith(hiddenResources[i])) {
+        for (String hiddenResource : hiddenResources) {
+            if (name.startsWith(hiddenResource)) {
                 return true;
             }
         }
@@ -432,7 +483,7 @@ public class MultiParentClassLoader extends URLClassLoader {
     }
 
     public void destroy() {
-        synchronized(this) {
+        synchronized (this) {
             if (destroyed) return;
             destroyed = true;
         }
@@ -447,7 +498,7 @@ public class MultiParentClassLoader extends URLClassLoader {
         // it has introspected. If we don't flush the cache, we may run out of
         // Permanent Generation space.
         Introspector.flushCaches();
-        
+
         ClassLoaderRegistry.remove(this);
     }
 
@@ -475,8 +526,10 @@ public class MultiParentClassLoader extends URLClassLoader {
             }
         }
     }
-    protected void finalize(){
+
+    protected void finalize() throws Throwable {
         ClassLoaderRegistry.remove(this);
+        super.finalize();
     }
 
 }

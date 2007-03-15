@@ -189,7 +189,7 @@ public class IOUtil {
             if (!SelectorUtils.hasWildcards(pattern)) {
                 File match = new File(root, pattern);
                 if (match.exists() && match.canRead()) {
-                    return Collections.singleton(match.toURL());
+                    return Collections.singleton(match.toURI().normalize().toURL());
                 } else {
                     return Collections.EMPTY_SET;
                 }
@@ -201,7 +201,7 @@ public class IOUtil {
                     String fileName = (String) entry.getKey();
                     if (SelectorUtils.matchPath(pattern, fileName)) {
                         File file = (File) entry.getValue();
-                        matches.add(file.toURL());
+                        matches.add(file.toURI().normalize().toURL());
                     }
                 }
                 return matches;
