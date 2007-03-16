@@ -202,7 +202,7 @@ public class SchemaConversionUtils {
                 cursor.toNextToken();
                 if (isFirstStart) {
                     cursor.insertNamespace("xsi", "http://www.w3.org/2001/XMLSchema-instance");
-                    cursor.insertAttributeWithValue(new QName("http://www.w3.org/2001/XMLSchema-instance", "schemaLocation", "xsi"), namespace + schemaLocationURL);
+                    cursor.insertAttributeWithValue(new QName("http://www.w3.org/2001/XMLSchema-instance", "schemaLocation", "xsi"), namespace + "  " + schemaLocationURL);
                     cursor.insertAttributeWithValue(new QName("version"), version);
                     isFirstStart = false;
                 }

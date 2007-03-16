@@ -17,7 +17,6 @@
 
 package org.apache.geronimo.myfaces.deployment;
 
-import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -56,6 +55,7 @@ import org.apache.geronimo.kernel.config.Configuration;
 import org.apache.geronimo.kernel.config.ConfigurationStore;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.myfaces.LifecycleProviderGBean;
+import org.apache.geronimo.schema.SchemaConversionUtils;
 import org.apache.geronimo.xbeans.javaee.FacesConfigDocument;
 import org.apache.geronimo.xbeans.javaee.FacesConfigManagedBeanType;
 import org.apache.geronimo.xbeans.javaee.FacesConfigType;
@@ -65,6 +65,7 @@ import org.apache.geronimo.xbeans.javaee.ServletType;
 import org.apache.geronimo.xbeans.javaee.WebAppType;
 import org.apache.myfaces.webapp.StartupServletContextListener;
 import org.apache.xbean.finder.ClassFinder;
+import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
 
@@ -80,6 +81,8 @@ public class MyFacesModuleBuilderExtension implements ModuleBuilderExtension {
     private final NamingBuilder namingBuilders;
     private static final String CONTEXT_LISTENER_NAME = StartupServletContextListener.class.getName();
     private static final String FACES_SERVLET_NAME = FacesServlet.class.getName();
+    private static final String SCHEMA_LOCATION_URL = "http://java.sun.com/xml/ns/javaee/web-facesconfig_1_2.xsd";
+    private static final String VERSION = "1.2";
 
 
     public MyFacesModuleBuilderExtension(Environment defaultEnvironment, AbstractNameQuery providerFactoryNameQuery, NamingBuilder namingBuilders) {
@@ -202,7 +205,9 @@ public class MyFacesModuleBuilderExtension implements ModuleBuilderExtension {
      *          if a faces-config.xml file is located but cannot be parsed.
      */
     private List<Class> getFacesClasses(WebAppType webApp, WebModule webModule) throws DeploymentException {
-        log.debug("GetConfigFileURL() Entry");
+        log.debug("getFacesClasses( " + webApp.toString() + "," + '\n' +
+                           (webModule != null ? webModule.getName() : null) + " ): Entry");
+
         // Get the classloader from the module's EARContext
         ClassLoader classLoader = webModule.getEarContext().getClassLoader();
 
@@ -247,29 +252,31 @@ public class MyFacesModuleBuilderExtension implements ModuleBuilderExtension {
             }
         }
 
-        log.debug("GetConfigFileURL() Exit: " + classes.size() + " " + classes.toString());
+        log.debug("getFacesClasses() Exit: " + classes.size() + " " + classes.toString());
         return classes;
     }
 
-    // TODO: Handle JSF 1.1 config files with DTD schema
     private void parseConfigFile(URL url, ClassLoader classLoader, List<Class> classes) throws DeploymentException {
+        log.debug("parseConfigFile( " + url.toString() + " ): Entry");
+
         try {
             XmlObject xml = XmlBeansUtil.parse(url, null);
-            FacesConfigDocument fcd = (FacesConfigDocument) XmlBeansUtil.typedCopy(xml, FacesConfigDocument.type);
+            FacesConfigDocument fcd = convertToFacesConfigSchema(xml);
             FacesConfigType facesConfig = fcd.getFacesConfig();
 
             // Get all the managed beans from the faces configuration file
             FacesConfigManagedBeanType[] managedBeans = facesConfig.getManagedBeanArray();
             for (FacesConfigManagedBeanType managedBean : managedBeans) {
                 FullyQualifiedClassType cls = managedBean.getManagedBeanClass();
+                String className = cls.getStringValue().trim();
                 Class<?> clas;
                 try {
-                    clas = classLoader.loadClass(cls.getStringValue());
+                    clas = classLoader.loadClass(className);
+                    classes.add(clas);
                 }
                 catch (ClassNotFoundException e) {
-                    throw new DeploymentException("MyFacesModuleBuilderExtension: Could not load managed bean class: " + cls.getStringValue());
+                    log.warn("MyFacesModuleBuilderExtension: Could not load managed bean class: " + className  + " mentioned in faces-config.xml file at " + url.toString());
                 }
-                classes.add(clas);
             }
         }
         catch (XmlException xmle) {
@@ -278,6 +285,37 @@ public class MyFacesModuleBuilderExtension implements ModuleBuilderExtension {
         catch (IOException ioe) {
             //config file does not exist
         }
+
+        log.debug("parseConfigFile(): Exit");
+    }
+
+    private static FacesConfigDocument convertToFacesConfigSchema(XmlObject xmlObject) throws XmlException {
+        log.debug("convertToFacesConfigSchema( " + xmlObject.toString() + " ): Entry");
+        XmlCursor cursor = xmlObject.newCursor();
+        try {
+            cursor.toStartDoc();
+            cursor.toFirstChild();
+            if (SchemaConversionUtils.JAVAEE_NAMESPACE.equals(cursor.getName().getNamespaceURI())) {
+                //do nothing
+            } else if (SchemaConversionUtils.J2EE_NAMESPACE.equals(cursor.getName().getNamespaceURI())) {
+                SchemaConversionUtils.convertSchemaVersion(cursor, SchemaConversionUtils.JAVAEE_NAMESPACE, SCHEMA_LOCATION_URL, VERSION);
+            } else {
+            // otherwise assume DTD
+                SchemaConversionUtils.convertToSchema(cursor, SchemaConversionUtils.JAVAEE_NAMESPACE, SCHEMA_LOCATION_URL, VERSION);
+            }
+        }
+        finally {
+            cursor.dispose();
+        }
+        XmlObject result = xmlObject.changeType(FacesConfigDocument.type);
+        if (result != null) {
+            XmlBeansUtil.validateDD(result);
+            log.debug("convertToFacesConfigSchema(): Exit 2" );
+            return(FacesConfigDocument) result;
+        }
+        XmlBeansUtil.validateDD(xmlObject);
+        log.debug("convertToFacesConfigSchema(): Exit 3" );
+        return(FacesConfigDocument) xmlObject;
     }
 
     public static final GBeanInfo GBEAN_INFO;
