@@ -221,8 +221,7 @@ public class AxisServiceGenerator {
                 Class[] paramTypes = method.getParameterTypes();
                     
                 for(Class paramType : paramTypes){
-                    String strParamType = paramType.toString();
-                    pdc.setParameterType(strParamType.split(" ")[1]);
+                    pdc.setParameterType(paramType.getName());
                 }
                     
                 mdc.addParameterDescriptionComposite(pdc);
@@ -235,7 +234,7 @@ public class AxisServiceGenerator {
             if(outAxisMessage != null){
                  
                 if(!method.getReturnType().toString().equals("void")){
-                    mdc.setReturnType(method.getReturnType().toString().split(" ")[1]);
+                    mdc.setReturnType(method.getReturnType().getName());
                      
                     XmlSchemaElement element = outAxisMessage.getSchemaElement();
                     XmlSchemaType schemaType = element.getSchemaType();
