@@ -27,7 +27,11 @@
     xmlns:modules="local:modules"
     xmlns:gscm="g:scm">
 
-
+    <goal name="install-local-repository">
+        <maven:reactor basedir="${basedir}" includes="repository/project.xml"
+            excludes="" goals="default" banner="repository" ignoreFailures="false" />
+    </goal>
+    
     <goal name="new0">
         <maven:reactor basedir="${basedir}" includes="tranql/tranql/project.xml"
             excludes="" goals="multiproject:install-callback" banner="tranql" ignoreFailures="false" />
@@ -64,6 +68,7 @@
     </goal>
 
     <goal name="new">
+        <attainGoal name="install-local-repository"/>
         <attainGoal name="new0"/>
         <attainGoal name="new00"/>
         <attainGoal name="new1"/>
