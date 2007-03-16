@@ -445,12 +445,12 @@ public class EjbModuleBuilder implements ModuleBuilder {
         ejbModule.setSpecDD(ejbJarType);
 
         // add the cmp persistence unit if needed
-        GeronimoEjbJarType geronimoEjbJarType = (GeronimoEjbJarType) ejbModule.getEjbModule().getAltDDs().get("geronimo-openejb.xml");
         if (appInfo.cmpMappingsXml != null) {
-            addGeronimmoOpenEJBPersistenceUnit(geronimoEjbJarType);
+            addGeronimmoOpenEJBPersistenceUnit(ejbModule);
         }
 
         // convert the plan to xmlbeans since geronimo naming is coupled on xmlbeans objects
+        GeronimoEjbJarType geronimoEjbJarType = (GeronimoEjbJarType) ejbModule.getEjbModule().getAltDDs().get("geronimo-openejb.xml");
         OpenejbGeronimoEjbJarType geronimoOpenejb = XmlUtil.convertToXmlbeans(geronimoEjbJarType);
         ejbModule.setVendorDD(geronimoOpenejb);
 
@@ -485,7 +485,9 @@ public class EjbModuleBuilder implements ModuleBuilder {
         }
     }
 
-    private void addGeronimmoOpenEJBPersistenceUnit(GeronimoEjbJarType geronimoEjbJarType) {
+    private void addGeronimmoOpenEJBPersistenceUnit(EjbModule ejbModule) {
+        GeronimoEjbJarType geronimoEjbJarType = (GeronimoEjbJarType) ejbModule.getEjbModule().getAltDDs().get("geronimo-openejb.xml");
+
         // search for the cmp persistence unit
         PersistenceUnit persistenceUnit = null;
         for (Persistence persistence : geronimoEjbJarType.getPersistence()) {
@@ -502,11 +504,13 @@ public class EjbModuleBuilder implements ModuleBuilder {
         if (persistenceUnit == null) {
             String jtaDataSource = null;
             // todo Persistence Unit Data Sources need to be global JNDI names
-            // Object altDD = ejbModule.getEjbModule().getAltDDs().get("openejb-jar.xml");
-            // if (altDD instanceof OpenejbJarType) {
-            //     String datasourceName = ((OpenejbJarType) altDD).getCmpConnectionFactory().getResourceLink();
-            //     jtaDataSource = "?name=" + datasourceName;
-            // }
+            Object altDD = ejbModule.getEjbModule().getAltDDs().get("openejb-jar.xml");
+            if (altDD instanceof OpenejbJarType) {
+                String datasourceName = ((OpenejbJarType) altDD).getCmpConnectionFactory().getResourceLink();
+                if (datasourceName != null) {
+                    jtaDataSource = "?name=" + datasourceName;
+                }
+            }
 
             persistenceUnit = new PersistenceUnit();
             persistenceUnit.setName("cmp");
@@ -515,8 +519,8 @@ public class EjbModuleBuilder implements ModuleBuilder {
                 persistenceUnit.setJtaDataSource(jtaDataSource);
             } else {
                 persistenceUnit.setJtaDataSource("?name=SystemDatasource");
-                persistenceUnit.setNonJtaDataSource("?name=NoTxDatasource");
             }
+            persistenceUnit.setNonJtaDataSource("?name=NoTxDatasource");
 
             Persistence persistence = new Persistence();
             persistence.setVersion("1.0");
