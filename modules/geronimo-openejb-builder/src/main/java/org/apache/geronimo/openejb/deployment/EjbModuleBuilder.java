@@ -506,9 +506,12 @@ public class EjbModuleBuilder implements ModuleBuilder {
             // todo Persistence Unit Data Sources need to be global JNDI names
             Object altDD = ejbModule.getEjbModule().getAltDDs().get("openejb-jar.xml");
             if (altDD instanceof OpenejbJarType) {
-                String datasourceName = ((OpenejbJarType) altDD).getCmpConnectionFactory().getResourceLink();
-                if (datasourceName != null) {
-                    jtaDataSource = "?name=" + datasourceName;
+                ResourceLocatorType cmpConnectionFactory = ((OpenejbJarType) altDD).getCmpConnectionFactory();
+                if (cmpConnectionFactory != null) {
+                    String datasourceName = cmpConnectionFactory.getResourceLink();
+                    if (datasourceName != null) {
+                        jtaDataSource = "?name=" + datasourceName;
+                    }
                 }
             }
 
