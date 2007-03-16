@@ -116,6 +116,13 @@
         </dependency>
 
         <dependency>
+            <groupId>org.apache.geronimo.configs</groupId>
+            <artifactId>openjpa</artifactId>
+            <type>car</type>
+            <version>${version}</version>
+        </dependency>
+
+        <dependency>
             <groupId>org.apache.yoko</groupId>
             <artifactId>yoko-spec-corba</artifactId>
         </dependency>
