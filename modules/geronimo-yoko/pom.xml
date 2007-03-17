@@ -91,13 +91,13 @@
                 <configuration>
                     <forkMode>once</forkMode>
                     <systemProperties>
-                      <property>
-                        <name>java.endorsed.dirs</name>
-                        <value>${project.build.directory}/endorsed</value>
-                      </property>
+                        <property>
+                            <name>java.endorsed.dirs</name>
+                            <value>${project.build.directory}/endorsed</value>
+                        </property>
                     </systemProperties>
                     <excludes>
-                      <exclude>**/NameServiceTest*</exclude>
+                        <exclude>**/NameServiceTest*</exclude>
                     </excludes>
                 </configuration>
             </plugin>
