@@ -106,26 +106,26 @@
                 <artifactId>maven-dependency-plugin</artifactId>
                 <executions>
                     <execution>
-                      <phase>generate-sources</phase>
-                      <goals>
-                        <goal>copy</goal>
-                      </goals>
-                      <configuration>
-                        <artifactItems>
-                          <artifactItem>
-                            <groupId>org.apache.yoko</groupId>
-                            <artifactId>yoko-spec-corba</artifactId>
-                            <type>jar</type>
-                            <outputDirectory>${project.build.directory}/endorsed</outputDirectory>
-                          </artifactItem>
-                          <artifactItem>
-                            <groupId>org.apache.yoko</groupId>
-                            <artifactId>yoko-core</artifactId>
-                            <type>jar</type>
-                            <outputDirectory>${project.build.directory}/endorsed</outputDirectory>
-                          </artifactItem>
-                        </artifactItems>
-                      </configuration>
+                        <phase>generate-sources</phase>
+                        <goals>
+                            <goal>copy</goal>
+                        </goals>
+                        <configuration>
+                            <artifactItems>
+                                <artifactItem>
+                                    <groupId>org.apache.yoko</groupId>
+                                    <artifactId>yoko-spec-corba</artifactId>
+                                    <type>jar</type>
+                                    <outputDirectory>${project.build.directory}/endorsed</outputDirectory>
+                                </artifactItem>
+                                <artifactItem>
+                                    <groupId>org.apache.yoko</groupId>
+                                    <artifactId>yoko-core</artifactId>
+                                    <type>jar</type>
+                                    <outputDirectory>${project.build.directory}/endorsed</outputDirectory>
+                                </artifactItem>
+                            </artifactItems>
+                        </configuration>
                     </execution>
                 </executions>
             </plugin>
