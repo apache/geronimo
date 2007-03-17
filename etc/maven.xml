@@ -213,11 +213,13 @@
         <j:remove var="${uptodatePropName}"/>
         <ant:mkdir dir="${basedir}/target/test-reports/"/>
         <j:set var="uptodateFile" value="${basedir}/target/test-reports/tstamp"/>
-
-        <ant:uptodate property="${uptodatePropName}" targetfile="${uptodateFile}">
-          <ant:srcfiles dir="${basedir}/src/" includes="**/*"/>
-        </ant:uptodate>
-
+        
+        <u:available file="${basedir}/src">
+            <ant:uptodate property="${uptodatePropName}" targetfile="${uptodateFile}">
+              <ant:srcfiles dir="${basedir}/src/" includes="**/*"/>
+            </ant:uptodate>
+        </u:available>
+        
         <j:if test="${context.getVariable(uptodatePropName) == 'true'}">
           <ant:echo>NOTICE: Skipping tests; they seem to have passed already</ant:echo>
           <j:set var="maven.test.skip" value="true"/>
