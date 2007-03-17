@@ -39,7 +39,7 @@ import org.apache.geronimo.system.serverinfo.ServerInfo;
 /**
  * Default implementation of the ActiveMQ Message Server
  *
- * @version $Revision$
+ * @version $Rev$ $Date$
  */
 public class BrokerServiceGBeanImpl implements GBeanLifecycle, BrokerServiceGBean {
 
@@ -232,7 +232,7 @@ public class BrokerServiceGBeanImpl implements GBeanLifecycle, BrokerServiceGBea
     }
 
     public ClassLoader getClassLoader() {
-        if( classLoader == null ) {
+        if (classLoader == null) {
             classLoader = this.getClass().getClassLoader();
         }
         return classLoader;

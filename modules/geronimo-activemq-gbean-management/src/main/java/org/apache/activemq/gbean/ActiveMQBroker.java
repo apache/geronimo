@@ -24,7 +24,7 @@ import org.apache.geronimo.management.geronimo.JMSBroker;
  * links to code in activemq-core, yet we still want to be able to
  * distinguish ActiveMQ brokers from non-ActiveMQ JMS brokers.
  *
- * @version $Revision: 1.0$
+ * @version $Rev$ $Date$
  */
 public interface ActiveMQBroker extends JMSBroker {
 }

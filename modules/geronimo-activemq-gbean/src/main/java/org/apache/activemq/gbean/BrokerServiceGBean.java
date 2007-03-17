@@ -23,11 +23,9 @@ import org.apache.activemq.gbean.ActiveMQBroker;
  * An interface to the ActiveMQContainerGBean for use by the 
  * ActiveMQConnectorGBean.
  *
- * @version $Revision$
+ * @version $Rev$ $Date$
  */
 public interface BrokerServiceGBean extends ActiveMQBroker {
-	
-	abstract BrokerService getBrokerContainer();	
-	String getBrokerName();
-	
+    BrokerService getBrokerContainer();
+    String getBrokerName();
 }

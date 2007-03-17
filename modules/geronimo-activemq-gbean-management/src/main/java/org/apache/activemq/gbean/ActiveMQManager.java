@@ -23,7 +23,7 @@ import org.apache.geronimo.management.geronimo.JMSManager;
  * The GBean interface for the ActiveMQ management GBean.  This defines the
  * features that should be available to the management interface at runtime.
  *
- * @version $Revision: 1.0$
+ * @version $Rev$ $Date$
  */
 public interface ActiveMQManager extends JMSManager, J2EEManagedObject {
 }

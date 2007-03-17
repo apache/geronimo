@@ -21,10 +21,10 @@ import org.apache.geronimo.management.geronimo.JMSConnector;
 /**
  * The GBean interface for the ActiveMQ network connector GBean
  *
- * @version $Revision: 1.0$
+ * @version $Rev$ $Date$
  */
 public interface ActiveMQConnector extends JMSConnector {
-    public final static String CONNECTOR_J2EE_TYPE = "JMSConnector";
+    String CONNECTOR_J2EE_TYPE = "JMSConnector";
 
     // Additional stuff you can add to an ActiveMQ connector URI
     String getPath();

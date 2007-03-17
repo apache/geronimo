@@ -32,7 +32,7 @@ import org.apache.geronimo.gbean.GConstructorInfo;
 /**
  * Default implementation of the ActiveMQ connector
  *
- * @version $Revision$ $Date$
+ * @version $Rev$ $Date$
  */
 public class TransportConnectorGBeanImpl implements GBeanLifecycle, ActiveMQConnector {
     private Log log = LogFactory.getLog(getClass().getName());
@@ -116,13 +116,13 @@ public class TransportConnectorGBeanImpl implements GBeanLifecycle, ActiveMQConn
     	ClassLoader old = Thread.currentThread().getContextClassLoader();
     	Thread.currentThread().setContextClassLoader(getClassLoader());
     	try {
-	        if (transportConnector == null) {
+            if (transportConnector == null) {
                 urlAsStarted = getUrl();
-	            transportConnector = createBrokerConnector(urlAsStarted);
-	            transportConnector.start();
-	        }
+                transportConnector = createBrokerConnector(urlAsStarted);
+                transportConnector.start();
+            }
     	} finally {
-        	Thread.currentThread().setContextClassLoader(old);
+            Thread.currentThread().setContextClassLoader(old);
     	}
     }
 
@@ -152,7 +152,7 @@ public class TransportConnectorGBeanImpl implements GBeanLifecycle, ActiveMQConn
     }
 
     public ClassLoader getClassLoader() {
-        if( classLoader == null ) {
+        if (classLoader == null) {
             classLoader = this.getClass().getClassLoader();
         }
         return classLoader;
