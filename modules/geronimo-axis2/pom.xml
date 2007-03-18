@@ -219,14 +219,26 @@
 						<phase>generate-test-sources</phase>
 						<configuration>
 							<tasks>
-								<echo>Generating java from test_service_doc_lit.wsdl</echo>
+								<echo>Generating java from test_service_simple.wsdl</echo>
 								<property name="schema.output.base.dir" location="target/schema"/>
 								<property name="schema.generated.src.dir" location="${schema.output.base.dir}/src"/>
 								<mkdir dir="${schema.generated.src.dir}"/>
 								<java classname="com.sun.tools.xjc.Driver" fork="true">
 									<classpath refid="maven.runtime.classpath"/>
 									<classpath location="${compiled.classes.dir}"/>
-									<arg line="-d ${schema.generated.src.dir} -quiet -wsdl src/test/resources/test_service_doc_lit.wsdl"/>
+									<arg line="-d ${schema.generated.src.dir} -quiet -wsdl src/test/resources/test_service_simple.wsdl"/>
+								</java>
+								<echo>Generating java from test_service_doclitbare.wsdl</echo>
+								<java classname="com.sun.tools.xjc.Driver" fork="true">
+									<classpath refid="maven.runtime.classpath"/>
+									<classpath location="${compiled.classes.dir}"/>
+									<arg line="-d ${schema.generated.src.dir} -quiet -wsdl src/test/resources/test_service_doclitbare.wsdl"/>
+								</java>
+								<echo>Generating java from test_service_rpclit.wsdl</echo>
+								<java classname="com.sun.tools.xjc.Driver" fork="true">
+									<classpath refid="maven.runtime.classpath"/>
+									<classpath location="${compiled.classes.dir}"/>
+									<arg line="-d ${schema.generated.src.dir} -quiet -wsdl src/test/resources/test_service_rpclit.wsdl"/>
 								</java>
 							</tasks>
 						</configuration>

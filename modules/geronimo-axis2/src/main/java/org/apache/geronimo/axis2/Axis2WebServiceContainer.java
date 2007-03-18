@@ -51,6 +51,7 @@ import org.apache.axis2.description.TransportInDescription;
 import org.apache.axis2.description.TransportOutDescription;
 import org.apache.axis2.engine.AxisEngine;
 import org.apache.axis2.engine.DependencyManager;
+import org.apache.axis2.engine.Handler.InvocationResponse;
 import org.apache.axis2.jaxws.description.builder.WsdlComposite;
 import org.apache.axis2.jaxws.description.builder.WsdlGenerator;
 import org.apache.axis2.jaxws.server.JAXWSMessageReceiver;
@@ -59,6 +60,7 @@ import org.apache.axis2.transport.RequestResponseTransport;
 import org.apache.axis2.transport.http.HTTPConstants;
 import org.apache.axis2.transport.http.HTTPTransportReceiver;
 import org.apache.axis2.transport.http.HTTPTransportUtils;
+import org.apache.axis2.transport.http.util.RESTUtil;
 import org.apache.axis2.util.MessageContextBuilder;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -480,22 +482,16 @@ public abstract class Axis2WebServiceContainer implements WebServiceContainer {
         msgContext.setProperty(MessageContext.TRANSPORT_OUT, response.getOutputStream());
         msgContext.setProperty(Constants.OUT_TRANSPORT_INFO, new Axis2TransportInfo(response));
 
-        // deal with GET request
-        boolean processed = HTTPTransportUtils.processHTTPGetRequest(
-                msgContext,
-                response.getOutputStream(),
-                soapAction,
-                path,
-                configurationContext,
-                HTTPTransportReceiver.getGetRequestParameters(path));
+        InvocationResponse processed = RESTUtil.processURLRequest(msgContext, response.getOutputStream(), null);
 
-        if (!processed) {
-            response.setStatusCode(200);
-            String s = HTTPTransportReceiver.getServicesHTML(configurationContext);
-            PrintWriter pw = new PrintWriter(response.getOutputStream());
-            pw.write(s);
-            pw.flush();
-        }
+      if (!processed.equals(InvocationResponse.CONTINUE)) {
+          response.setStatusCode(200);
+          String s = HTTPTransportReceiver.getServicesHTML(configurationContext);
+          PrintWriter pw = new PrintWriter(response.getOutputStream());
+          pw.write(s);
+          pw.flush();
+      }
+
     }
     
     protected void setMsgContextProperties(MessageContext msgContext, AxisService service, Response response, Request request) {
