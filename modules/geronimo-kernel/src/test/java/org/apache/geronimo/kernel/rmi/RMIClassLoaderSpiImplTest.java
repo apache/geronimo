@@ -15,7 +15,7 @@
  *  limitations under the License.
  */
 
-package org.apache.geronimo.system.rmi;
+package org.apache.geronimo.kernel.rmi;
 
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -29,6 +29,7 @@ import junit.framework.TestCase;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.geronimo.kernel.rmi.RMIClassLoaderSpiImpl;
 
 /**
  * Unit tests for {@link RMIClassLoaderSpiImpl} class.

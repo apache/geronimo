@@ -15,7 +15,7 @@
  *  limitations under the License.
  */
 
-package org.apache.geronimo.system.rmi;
+package org.apache.geronimo.kernel.rmi;
 
 import java.net.MalformedURLException;
 import java.net.URL;

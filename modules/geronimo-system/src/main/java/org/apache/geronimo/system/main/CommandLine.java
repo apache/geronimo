@@ -19,30 +19,30 @@ package org.apache.geronimo.system.main;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URL;
+import java.util.Collection;
+import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Enumeration;
 import java.util.Set;
-import java.util.Collection;
-import java.net.URL;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.common.GeronimoEnvironment;
+import org.apache.geronimo.gbean.AbstractName;
+import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.kernel.InternalKernelException;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.KernelFactory;
+import org.apache.geronimo.kernel.config.ConfigurationData;
 import org.apache.geronimo.kernel.config.ConfigurationManager;
 import org.apache.geronimo.kernel.config.ConfigurationUtil;
-import org.apache.geronimo.kernel.config.NoSuchConfigException;
 import org.apache.geronimo.kernel.config.LifecycleException;
-import org.apache.geronimo.kernel.config.ConfigurationData;
+import org.apache.geronimo.kernel.config.NoSuchConfigException;
 import org.apache.geronimo.kernel.log.GeronimoLogging;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.MissingDependencyException;
-import org.apache.geronimo.gbean.AbstractName;
-import org.apache.geronimo.gbean.AbstractNameQuery;
 
 
 /**
@@ -88,20 +88,18 @@ public class CommandLine {
     private AbstractName configurationName;
 
     public void invokeMainGBean(List configurations, AbstractNameQuery mainGBeanQuery, String mainMethod, String[] args) throws Exception {
-        startKernel();
-        Runtime.getRuntime().addShutdownHook(new Thread("Geronimo shutdown thread") {
-            public void run() {
-                log.info("Server shutdown begun");
-                try {
-                    stopKernel();
-                } catch (GBeanNotFoundException e) {
+        // boot the kernel
+        kernel = getBootedKernel();
 
-                }
-            }
-        });
+        initializeKernel();
+        
         loadConfigurations(configurations);
 
         log.info("Server startup completed");
+        doInvokeMainGBean(mainGBeanQuery, mainMethod, args);
+    }
+
+    protected void doInvokeMainGBean(AbstractNameQuery mainGBeanQuery, String mainMethod, String[] args) throws Exception {
         Set matches = kernel.listGBeans(mainGBeanQuery);
         if (matches.isEmpty()) {
             throw new Exception("No match for AbstractNameQuery: " + mainGBeanQuery);
@@ -117,17 +115,27 @@ public class CommandLine {
                 mainMethod,
                 new Object[]{args},
                 new String[]{String[].class.getName()});
-
     }
 
-    protected void startKernel() throws Exception {
+    protected void initializeKernel() throws Exception {
+        loadBootstrapConfiguration();
+        
+        Runtime.getRuntime().addShutdownHook(new Thread("Geronimo shutdown thread") {
+            public void run() {
+                log.info("Server shutdown begun");
+                try {
+                    stopKernel();
+                } catch (GBeanNotFoundException e) {
+
+                }
+            }
+        });
+    }
+
+    protected void loadBootstrapConfiguration() throws Exception {
         ClassLoader classLoader = CommandLine.class.getClassLoader();
         InputStream in = classLoader.getResourceAsStream("META-INF/config.ser");
         try {
-            // boot the kernel
-            kernel = KernelFactory.newInstance().createKernel("geronimo");
-            kernel.boot();
-    
             // load the configuration
             configurationName = ConfigurationUtil.loadBootstrapConfiguration(kernel, in, classLoader);
         } finally {
@@ -141,10 +149,14 @@ public class CommandLine {
         }
     }
 
-    protected void startKernel(Artifact moduleId) throws Exception {
-        // boot the kernel
+    protected Kernel getBootedKernel() throws Exception {
         kernel = KernelFactory.newInstance().createKernel("geronimo");
         kernel.boot();
+        return kernel;
+    }
+
+    protected void startKernel(Artifact moduleId) throws Exception {
+        getBootedKernel();
         ClassLoader classLoader = CommandLine.class.getClassLoader();
         for (Enumeration modules = classLoader.getResources("META-INF/config.ser"); modules.hasMoreElements(); ) {
             URL moduleDataURL = (URL) modules.nextElement();

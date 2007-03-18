@@ -32,27 +32,9 @@ public class ClientCommandLine extends CommandLine {
      * @param args command line args
      */
     public static void main(String[] args) {
-        log.info("Client startup begun");
-        if(args.length == 0) {
-            System.out.println();
-            System.out.println("ERROR: No arguments");
-            showHelp();
-            System.exit(1);
-        } else if(args[0].equals("--help") || args[0].equals("-h") || args[0].equals("/?")) {
-            showHelp();
-            System.exit(0);
-        }
-        try {
-            Artifact configuration = Artifact.create(args[0]);
-            String[] clientArgs = new String[args.length -1];
-            System.arraycopy(args, 1, clientArgs, 0, clientArgs.length);
-            new ClientCommandLine(configuration, clientArgs);
-        } catch (Exception e) {
-            ExceptionUtil.trimStackTrace(e);
-            e.printStackTrace();
-            System.exit(2);
-            throw new AssertionError();
-        }
+        ClientCommandLine clientCommandLine = new ClientCommandLine();
+        int exitCode = clientCommandLine.execute(args);
+        System.exit(exitCode);
     }
 
     private static void showHelp() {
@@ -67,13 +49,43 @@ public class ClientCommandLine extends CommandLine {
         System.out.println();
     }
 
-
     public ClientCommandLine(Artifact configuration, String[] args) throws Exception {
+        startClient(configuration, args);
+    }
+    
+    protected ClientCommandLine() {
+    }
+    
+    public int execute(String[] args) {
+        log.info("Client startup begun");
+        if(args.length == 0) {
+            System.out.println();
+            System.out.println("ERROR: No arguments");
+            showHelp();
+            return 1;
+        } else if(args[0].equals("--help") || args[0].equals("-h") || args[0].equals("/?")) {
+            showHelp();
+            return 0;
+        }
+        try {
+            Artifact configuration = Artifact.create(args[0]);
+            String[] clientArgs = new String[args.length -1];
+            System.arraycopy(args, 1, clientArgs, 0, clientArgs.length);
+            return startClient(configuration, clientArgs);
+        } catch (Exception e) {
+            ExceptionUtil.trimStackTrace(e);
+            e.printStackTrace();
+            return 2;
+        }
+    }
+    
+    protected int startClient(Artifact configuration, String[] args) throws Exception {
         Jsr77Naming naming = new Jsr77Naming();
         //this kinda sucks, but resource adapter modules deployed on the client insist on having a
         //J2EEApplication name component
         AbstractName baseName = naming.createRootName(configuration, configuration.toString(), "J2EEApplication");
         AbstractNameQuery baseNameQuery = new AbstractNameQuery(baseName);
         invokeMainGBean(Collections.singletonList(configuration), baseNameQuery, "main", args);
+        return 0;
     }
 }

@@ -14,7 +14,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.apache.geronimo.system.rmi;
+package org.apache.geronimo.kernel.rmi;
 
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;

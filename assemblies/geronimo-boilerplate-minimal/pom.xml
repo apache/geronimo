@@ -78,31 +78,8 @@
                                     <artifactId>xstream</artifactId>
                                 </artifactItem>
                                 <artifactItem>
-                                    <groupId>commons-jexl</groupId>
-                                    <artifactId>commons-jexl</artifactId>
-                                </artifactItem>
-                                <artifactItem>
-                                    <groupId>ognl</groupId>
-                                    <artifactId>ognl</artifactId>
-                                </artifactItem>
-                                <artifactItem>
-                                    <groupId>org.apache.geronimo.modules</groupId>
-                                    <artifactId>geronimo-common</artifactId>
-                                    <version>${version}</version>
-                                </artifactItem>
-                                <artifactItem>
                                     <groupId>org.apache.geronimo.modules</groupId>
                                     <artifactId>geronimo-kernel</artifactId>
-                                    <version>${version}</version>
-                                </artifactItem>
-                                <artifactItem>
-                                    <groupId>org.apache.geronimo.modules</groupId>
-                                    <artifactId>geronimo-util</artifactId>
-                                    <version>${version}</version>
-                                </artifactItem>
-                                <artifactItem>
-                                    <groupId>org.apache.geronimo.modules</groupId>
-                                    <artifactId>geronimo-system</artifactId>
                                     <version>${version}</version>
                                 </artifactItem>
                                 <artifactItem>

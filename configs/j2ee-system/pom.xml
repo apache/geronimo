@@ -42,13 +42,45 @@
             <type>car</type>
             <scope>test</scope>
         </dependency>
+
+        <dependency>
+            <groupId>org.apache.geronimo.modules</groupId>
+            <artifactId>geronimo-common</artifactId>
+            <version>${version}</version>
+        </dependency>
         
         <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
             <artifactId>geronimo-system</artifactId>
             <version>${version}</version>
         </dependency>
+
+        <dependency>
+            <groupId>org.apache.geronimo.modules</groupId>
+            <artifactId>geronimo-util</artifactId>
+            <version>${version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>commons-cli</groupId>
+            <artifactId>commons-cli</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>jline</groupId>
+            <artifactId>jline</artifactId>
+        </dependency>
         
+        <dependency>
+            <groupId>commons-jexl</groupId>
+            <artifactId>commons-jexl</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>ognl</groupId>
+            <artifactId>ognl</artifactId>
+        </dependency>
+
     </dependencies>
     
     <build>
@@ -63,7 +95,7 @@
                             <Extension-Dirs>lib/ext</Extension-Dirs>
                         </manifestEntries>
                         <manifest>
-                            <mainClass>org.apache.geronimo.system.main.Daemon</mainClass>
+                            <mainClass>org.apache.geronimo.kernel.util.MainConfigurationBootstrapper</mainClass>
                         </manifest>
                     </archive>
                     
@@ -73,27 +105,12 @@
                     <classpath>
                         <element>
                             <groupId>org.apache.geronimo.modules</groupId>
-                            <artifactId>geronimo-common</artifactId>
-                            <version>${version}</version>
-                        </element>
-                        <element>
-                            <groupId>org.apache.geronimo.modules</groupId>
                             <artifactId>geronimo-kernel</artifactId>
                             <version>${version}</version>
                         </element>
                         <element>
-                            <groupId>org.apache.geronimo.modules</groupId>
-                            <artifactId>geronimo-system</artifactId>
-                            <version>${version}</version>
-                        </element>
-                        <element>
-                            <groupId>org.apache.geronimo.modules</groupId>
-                            <artifactId>geronimo-util</artifactId>
-                            <version>${version}</version>
-                        </element>
-                        <element>
-                            <groupId>commons-cli</groupId>
-                            <artifactId>commons-cli</artifactId>
+                            <groupId>backport-util-concurrent</groupId>
+                            <artifactId>backport-util-concurrent</artifactId>
                         </element>
                         <element>
                             <groupId>commons-logging</groupId>
@@ -108,28 +125,12 @@
                             <artifactId>log4j</artifactId>
                         </element>
                         <element>
-                            <groupId>jline</groupId>
-                            <artifactId>jline</artifactId>
-                        </element>
-                        <element>
                             <groupId>xpp3</groupId>
                             <artifactId>xpp3</artifactId>
                         </element>
                         <element>
                             <groupId>xstream</groupId>
                             <artifactId>xstream</artifactId>
-                        </element>
-                        <element>
-                            <groupId>commons-jexl</groupId>
-                            <artifactId>commons-jexl</artifactId>
-                        </element>
-                        <element>
-                            <groupId>ognl</groupId>
-                            <artifactId>ognl</artifactId>
-                        </element>
-                        <element>
-                            <groupId>backport-util-concurrent</groupId>
-                            <artifactId>backport-util-concurrent</artifactId>
                         </element>
                     </classpath>
                     <classpathPrefix>../lib</classpathPrefix>

@@ -18,6 +18,8 @@
 
 <module xmlns="http://geronimo.apache.org/xml/ns/deployment-${geronimoSchemaVersion}">
 
+    <gbean name="EmbeddedClientCommandLine" class="org.apache.geronimo.system.main.EmbeddedClientCommandLine"/>
+
     <!-- ServerInfo service -->
     <gbean name="ServerInfo" class="org.apache.geronimo.system.serverinfo.BasicServerInfo"/>
 

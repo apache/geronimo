@@ -16,8 +16,6 @@
  */
 package org.apache.geronimo.kernel.util;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -25,8 +23,6 @@ import java.util.Set;
 
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.AbstractNameQuery;
-import org.apache.geronimo.kernel.Kernel;
-import org.apache.geronimo.kernel.KernelFactory;
 import org.apache.geronimo.kernel.config.ConfigurationManager;
 import org.apache.geronimo.kernel.config.ConfigurationUtil;
 import org.apache.geronimo.kernel.config.PersistentConfigurationList;
@@ -36,72 +32,10 @@ import org.apache.geronimo.kernel.repository.Artifact;
  *
  * @version $Rev: 476049 $ $Date: 2006-11-17 15:35:17 +1100 (Fri, 17 Nov 2006) $
  */
-public class MainBootstrapper {
+public class MainBootstrapper extends MainConfigurationBootstrapper {
 
     public static void main(String[] args) {
-        MainBootstrapper bootstrapper = new MainBootstrapper();
-        Main main = bootstrapper.getMain(MainBootstrapper.class.getClassLoader());
-
-        int exitCode;
-        ClassLoader oldTCCL = Thread.currentThread().getContextClassLoader();
-        try {
-            ClassLoader newTCCL = main.getClass().getClassLoader();
-            Thread.currentThread().setContextClassLoader(newTCCL);
-            exitCode = main.execute(args);
-        } finally {
-            Thread.currentThread().setContextClassLoader(oldTCCL);
-        }
-        bootstrapper.shutdown();
-        
-        System.exit(exitCode);
-    }
-    
-    protected Kernel kernel;
-    
-    public Main getMain(ClassLoader classLoader) {
-        try {
-            bootKernel();
-            loadBootConfiguration(classLoader);
-            loadPersistentConfigurations();
-            return getMain();
-        } catch (Exception e) {
-            if (null != kernel) {
-                kernel.shutdown();
-            }
-            e.printStackTrace();
-            System.exit(1);
-            throw new AssertionError();
-        }
-    }
-    
-    public void shutdown() {
-        kernel.shutdown();
-    }
-
-    public void bootKernel() throws Exception {
-        kernel = KernelFactory.newInstance().createKernel("MainBootstrapper");
-        kernel.boot();
-
-        Runtime.getRuntime().addShutdownHook(new Thread("MainBootstrapper shutdown thread") {
-            public void run() {
-                kernel.shutdown();
-            }
-        });
-    }
-    
-    public void loadBootConfiguration(ClassLoader classLoader) throws Exception {
-        InputStream in = classLoader.getResourceAsStream("META-INF/config.ser");
-        try {
-            ConfigurationUtil.loadBootstrapConfiguration(kernel, in, classLoader, true);
-        } finally {
-            if (in != null) {
-                try {
-                    in.close();
-                } catch (IOException ignored) {
-                    // ignored
-                }
-            }
-        }
+        main(new MainBootstrapper(), args);
     }
     
     public void loadPersistentConfigurations() throws Exception {
@@ -125,12 +59,4 @@ public class MainBootstrapper {
         }
     }
 
-    public Main getMain() throws Exception {
-        return (Main) kernel.getGBean(Main.class);
-    }
-
-    public Kernel getKernel() {
-        return kernel;
-    }
-    
 }
