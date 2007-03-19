@@ -22,6 +22,7 @@ import java.util.regex.Pattern;
 
 import javax.enterprise.deploy.spi.DeploymentManager;
 import javax.enterprise.deploy.spi.exceptions.DeploymentManagerCreationException;
+import javax.enterprise.deploy.spi.factories.DeploymentFactory;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
 import javax.portlet.PortletRequest;
@@ -35,7 +36,6 @@ import javax.servlet.http.HttpSession;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.geronimo.deployment.plugin.factories.DeploymentFactoryImpl;
 import org.apache.geronimo.deployment.plugin.factories.DeploymentFactoryWithKernel;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.GBeanData;
@@ -99,7 +99,7 @@ public class PortletManager {
 
     public static DeploymentManager getDeploymentManager(PortletRequest request) {
         Kernel kernel = getKernel();
-        DeploymentFactoryImpl factory = new DeploymentFactoryWithKernel(kernel);
+        DeploymentFactory factory = new DeploymentFactoryWithKernel(kernel);
         try {
             return factory.getDeploymentManager("deployer:geronimo:inVM", null, null);
         } catch (DeploymentManagerCreationException e) {
