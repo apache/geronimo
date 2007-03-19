@@ -169,7 +169,7 @@ java -jar bin/deployer.jar deploy MyWebApp.war</pre>
            </ul>
 
             <p>Thanks for using Geronimo!</p>
-<!-- Needs to be updated if we want to keep using it
+            <%-- Needs to be updated if we want to keep using it
             <div style="margin-left: 50px; margin-right: 50px; padding: 10px; background-color:#eee">
                 <p><b>Would you like a slimmer Geronimo installation?</b><br />
                  Geronimo ships with a number of sample applications and demonstration services
@@ -260,7 +260,7 @@ java -jar bin/deployer.jar deploy MyWebApp.war</pre>
                     </tr>
                 </table>
             </div>
--->
+            --%>
 
             <p align="right"><font size=-1>
             <img src="<%=request.getContextPath()%>/images/powered_by_100x30.gif"/>
