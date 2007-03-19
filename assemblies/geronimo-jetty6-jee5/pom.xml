@@ -429,6 +429,7 @@
                     <include>config.xml</include>
                     <include>offline-deployer-config.xml</include>
                     <include>jsr88-configurer-config.xml</include>
+                    <include>artifact_aliases.properties</include>
                 </includes>
                 <filtering>true</filtering>
             </resource>
@@ -505,6 +506,7 @@
                                         <include name="config.xml"/>
                                         <include name="offline-deployer-config.xml"/>
                                         <include name="jsr88-configurer-config.xml"/>
+                                        <include name="artifact_aliases.properties"/>
                                     </fileset>
                                 </move>
                             </tasks>
