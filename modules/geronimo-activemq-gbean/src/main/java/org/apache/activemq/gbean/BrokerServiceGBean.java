@@ -26,8 +26,6 @@ import org.apache.activemq.gbean.ActiveMQBroker;
  * @version $Revision$
  */
 public interface BrokerServiceGBean extends ActiveMQBroker {
-	
-	abstract BrokerService getBrokerContainer();	
-	String getBrokerName();
-	
+    BrokerService getBrokerContainer();
+    String getBrokerName();
 }
