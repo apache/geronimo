@@ -37,7 +37,7 @@ import org.apache.geronimo.kernel.Kernel;
  *
  * @version $Rev: 503905 $ $Date: 2007-02-06 09:20:49 +1100 (Tue, 06 Feb 2007) $
  */
-public class DeploymentFactoryWithKernel extends DeploymentFactoryImpl {
+public class DeploymentFactoryWithKernel extends BaseDeploymentFactory {
     private final Kernel kernel;
     
     public DeploymentFactoryWithKernel(Kernel kernel) {

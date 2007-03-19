@@ -39,6 +39,7 @@
             <groupId>org.apache.geronimo.configs</groupId>
             <artifactId>jsr88-cli</artifactId>
             <version>${version}</version>
+            <scope>runtime</scope>
             <type>car</type>
         </dependency>
 
