@@ -29,14 +29,13 @@
         <relativePath>../pom.xml</relativePath>
     </parent>
 
-    <artifactId>geronimo-activemq-gbean</artifactId>
-    <name>Geronimo :: ActiveMQ GBeans</name>
+    <artifactId>geronimo-activemq</artifactId>
+    <name>Geronimo :: ActiveMQ</name>
     
     <dependencies>
-
         <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
-            <artifactId>geronimo-activemq-gbean-management</artifactId>
+            <artifactId>geronimo-activemq-management</artifactId>
             <version>${version}</version>
         </dependency>
  
@@ -48,8 +47,8 @@
         </dependency>
 
         <dependency>
-                <groupId>org.apache.geronimo.specs</groupId>
-                <artifactId>geronimo-jms_1.1_spec</artifactId>
+            <groupId>org.apache.geronimo.specs</groupId>
+            <artifactId>geronimo-jms_1.1_spec</artifactId>
         </dependency>
         
         <dependency>
@@ -61,7 +60,6 @@
             <groupId>org.apache.activemq</groupId>
             <artifactId>activeio-core</artifactId>
         </dependency>
-        
     </dependencies>
     
 </project>

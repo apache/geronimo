@@ -30,8 +30,8 @@
     </parent>
 
     <artifactId>webconsole-tomcat</artifactId>
-    <packaging>car</packaging>
     <name>Geronimo Configs :: WebConsole Tomcat</name>
+    <packaging>car</packaging>
 
     <dependencies>
         
@@ -120,13 +120,13 @@
 
         <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
-            <artifactId>geronimo-activemq-gbean</artifactId>
+            <artifactId>geronimo-activemq</artifactId>
             <version>${version}</version>
         </dependency>
 
         <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
-            <artifactId>geronimo-activemq-gbean-management</artifactId>
+            <artifactId>geronimo-activemq-management</artifactId>
             <version>${version}</version>
         </dependency>
 

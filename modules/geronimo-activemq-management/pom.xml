@@ -29,17 +29,15 @@
         <relativePath>../pom.xml</relativePath>
     </parent>
 
-    <artifactId>geronimo-activemq-gbean-management</artifactId>
-    <name>Geronimo :: ActiveMQ GBean Management Interfaces</name>
+    <artifactId>geronimo-activemq-management</artifactId>
+    <name>Geronimo :: ActiveMQ Management Interfaces</name>
     
     <dependencies>
-
         <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
             <artifactId>geronimo-management</artifactId>
             <version>${version}</version>
         </dependency>
-        
     </dependencies>
     
 </project>
