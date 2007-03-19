@@ -75,8 +75,8 @@ public class Environment implements Serializable {
      *
      * @see Dependency
      */
-    public List getDependencies() {
-        return Collections.unmodifiableList(new ArrayList(dependencies));
+    public List<Dependency> getDependencies() {
+        return Collections.unmodifiableList(new ArrayList<Dependency>(dependencies));
     }
 
     public void addDependency(Artifact artifact, ImportType importType) {

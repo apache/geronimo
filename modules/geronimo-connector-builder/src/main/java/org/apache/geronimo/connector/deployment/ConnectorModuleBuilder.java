@@ -31,6 +31,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
@@ -80,12 +81,12 @@ import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.InvalidConfigurationException;
-import org.apache.geronimo.j2ee.deployment.annotation.AnnotatedApp;
 import org.apache.geronimo.j2ee.deployment.ActivationSpecInfoLocator;
 import org.apache.geronimo.j2ee.deployment.ConnectorModule;
 import org.apache.geronimo.j2ee.deployment.EARContext;
 import org.apache.geronimo.j2ee.deployment.Module;
 import org.apache.geronimo.j2ee.deployment.ModuleBuilder;
+import org.apache.geronimo.j2ee.deployment.annotation.AnnotatedApp;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.GBeanAlreadyExistsException;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
@@ -171,9 +172,9 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ActivationSpecInfo
     }
 
     private Module createModule(Object plan, JarFile moduleFile, String targetPath, URL specDDUrl, Environment earEnvironment, AbstractName earName, Naming naming, ModuleIDBuilder idBuilder) throws DeploymentException {
-        assert moduleFile != null: "moduleFile is null";
-        assert targetPath != null: "targetPath is null";
-        assert !targetPath.endsWith("/"): "targetPath must not end with a '/'";
+        assert moduleFile != null : "moduleFile is null";
+        assert targetPath != null : "targetPath is null";
+        assert !targetPath.endsWith("/") : "targetPath must not end with a '/'";
 
         String specDD;
         XmlObject connector;
@@ -420,7 +421,7 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ActivationSpecInfo
             resourceAdapterGBeanData.setAttribute("resourceAdapterClass", resourceadapter.getResourceadapterClass().getStringValue().trim());
 
             // Add map from messageListenerInterface to activationSpec class
-            Map<String,String> messageListenerToActivationSpecMap = new TreeMap<String,String>();
+            Map<String, String> messageListenerToActivationSpecMap = new TreeMap<String, String>();
             if (resourceadapter.isSetInboundResourceadapter() && resourceadapter.getInboundResourceadapter().isSetMessageadapter()) {
                 for (MessagelistenerType messagelistenerType : resourceadapter.getInboundResourceadapter().getMessageadapter().getMessagelistenerArray()) {
                     String messageListenerInterface = messagelistenerType.getMessagelistenerType().getStringValue().trim();
@@ -434,8 +435,7 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ActivationSpecInfo
             resourceAdapterModuleData.setAttribute("resourceAdapterGBeanData", resourceAdapterGBeanData);
         }
 
-        if (resourceadapter.isSetInboundResourceadapter() && resourceadapter.getInboundResourceadapter().isSetMessageadapter())
-        {
+        if (resourceadapter.isSetInboundResourceadapter() && resourceadapter.getInboundResourceadapter().isSetMessageadapter()) {
             Map activationSpecInfoMap = getActivationSpecInfoMap(resourceadapter.getInboundResourceadapter().getMessageadapter().getMessagelistenerArray(), cl);
             resourceAdapterModuleData.setAttribute("activationSpecInfoMap", activationSpecInfoMap);
         }
@@ -534,7 +534,7 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ActivationSpecInfo
                 for (int i = 0; i < geronimoResourceAdapter.getOutboundResourceadapter().getConnectionDefinitionArray().length; i++)
                 {
                     GerConnectionDefinitionType geronimoConnectionDefinition = geronimoResourceAdapter.getOutboundResourceadapter().getConnectionDefinitionArray(i);
-                    assert geronimoConnectionDefinition != null: "Null GeronimoConnectionDefinition";
+                    assert geronimoConnectionDefinition != null : "Null GeronimoConnectionDefinition";
 
                     String connectionFactoryInterfaceName = geronimoConnectionDefinition.getConnectionfactoryInterface().trim();
                     GBeanData connectionFactoryGBeanData = locateConnectionFactoryInfo(resourceAdapterModuleData, connectionFactoryInterfaceName);
@@ -580,6 +580,7 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ActivationSpecInfo
             }
         }
     }
+
     private Map getActivationSpecInfoMap(MessagelistenerType[] messagelistenerArray, ClassLoader cl) throws DeploymentException {
         Map activationSpecInfos = new HashMap();
         for (int i = 0; i < messagelistenerArray.length; i++) {
@@ -602,8 +603,7 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ActivationSpecInfo
             for (int j = 0; j < methods.length; j++) {
                 Method method = methods[j];
                 String methodName = method.getName();
-                if ((methodName.startsWith("get") || methodName.startsWith("is")) && method.getParameterTypes().length == 0)
-                {
+                if ((methodName.startsWith("get") || methodName.startsWith("is")) && method.getParameterTypes().length == 0) {
                     String attributeName = (methodName.startsWith("get")) ? methodName.substring(3) : methodName.substring(2);
                     getters.put(Introspector.decapitalize(attributeName), method.getReturnType().getName());
                 } else if (methodName.startsWith("set") && method.getParameterTypes().length == 1) {
@@ -689,22 +689,25 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ActivationSpecInfo
     }
 
     private void setDynamicGBeanDataAttributes(GBeanData gbeanData, GerConfigPropertySettingType[] configProperties, ClassLoader cl) throws DeploymentException {
-
-        try {
-            for (int i = 0; i < configProperties.length; i++) {
-                String name = configProperties[i].getName();
-                GAttributeInfo attributeInfo = gbeanData.getGBeanInfo().getAttribute(name);
-                if (attributeInfo == null) {
-                    throw new DeploymentException("The plan is trying to set attribute: " + name + " which does not exist.  Known attributs are: " + gbeanData.getGBeanInfo().getAttributes());
-                }
+        List<String> unknownNames = new ArrayList<String>();
+        for (GerConfigPropertySettingType configProperty : configProperties) {
+            String name = configProperty.getName();
+            GAttributeInfo attributeInfo = gbeanData.getGBeanInfo().getAttribute(name);
+            if (attributeInfo == null) {
+                unknownNames.add(name);
+//                    throw new DeploymentException("The plan is trying to set attribute: " + name + " which does not exist.  Known attributes are: " + gbeanData.getGBeanInfo().getAttributes());
+            } else {
                 String type = attributeInfo.getType();
-                gbeanData.setAttribute(name,
-                        getValue(type, configProperties[i].getStringValue().trim(), cl));
+                gbeanData.setAttribute(name, getValue(type, configProperty.getStringValue().trim(), cl));
             }
-        } catch (DeploymentException e) {
-            throw e;
-        } catch (Exception e) {
-            throw new DeploymentException(e);
+        }
+        if (unknownNames.size() > 0) {
+            StringBuffer buf = new StringBuffer("The plan is trying to set attributes: ").append(unknownNames).append("\n");
+            buf.append("Known attributes: \n");
+            for (GAttributeInfo attributeInfo: gbeanData.getGBeanInfo().getAttributes()) {
+                buf.append(attributeInfo).append("\n");
+            }
+            throw new DeploymentException(buf.toString());
         }
     }
 
@@ -849,9 +852,9 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ActivationSpecInfo
         Object driver = managedConnectionFactoryInstanceGBeanData.getAttribute("Driver");
         if (driver != null && driver instanceof String) {
             try {
-                cl.loadClass((String)driver);
+                cl.loadClass((String) driver);
             } catch (ClassNotFoundException e1) {
-                log.warn("Problem loading driver class '"+driver+"', possibly due to a missing dependency on the driver jar!!", e1);
+                log.warn("Problem loading driver class '" + driver + "', possibly due to a missing dependency on the driver jar!!", e1);
             }
         }
 

@@ -150,21 +150,28 @@ public class BasicRegistry implements InstanceRegistry {
         Set instances = listGBeans(nameQuery);
 
         if (instances.size() == 0) {
-            throw new GBeanNotFoundException("No GBeans found", Collections.singleton(nameQuery));
+            throw new GBeanNotFoundException("No GBeans found", Collections.singleton(nameQuery), null);
         }
 
         if (instances.size() > 1) {
             if (type == null) {
-                throw new GBeanNotFoundException("More then one GBean was found with shortName '" + shortName + "'", Collections.singleton(nameQuery));
+                throw new GBeanNotFoundException("More then one GBean was found with shortName '" + shortName + "'", Collections.singleton(nameQuery), mapToNames(instances));
             }
             if (shortName == null) {
-                throw new GBeanNotFoundException("More then one GBean was found with type '" + type.getName() + "'", Collections.singleton(nameQuery));
+                throw new GBeanNotFoundException("More then one GBean was found with type '" + type.getName() + "'", Collections.singleton(nameQuery), mapToNames(instances));
             }
-            throw new GBeanNotFoundException("More then one GBean was found with shortName '" + shortName + "' and type '" + type.getName() + "'", Collections.singleton(nameQuery));
+            throw new GBeanNotFoundException("More then one GBean was found with shortName '" + shortName + "' and type '" + type.getName() + "'", Collections.singleton(nameQuery), mapToNames(instances));
         }
 
-        GBeanInstance instance = (GBeanInstance) instances.iterator().next();
-        return instance;
+        return (GBeanInstance) instances.iterator().next();
+    }
+
+    private Set<AbstractName> mapToNames(Set<GBeanInstance> instances) {
+        Set<AbstractName> names = new HashSet<AbstractName>(instances.size());
+        for (GBeanInstance instance: instances) {
+            names.add(instance.getAbstractName());
+        }
+        return names;
     }
 
 

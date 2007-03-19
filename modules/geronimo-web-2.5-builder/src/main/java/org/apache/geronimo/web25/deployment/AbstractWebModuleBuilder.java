@@ -54,16 +54,19 @@ import org.apache.geronimo.deployment.xbeans.ServiceDocument;
 import org.apache.geronimo.deployment.xmlbeans.XmlBeansUtil;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.AbstractNameQuery;
+import org.apache.geronimo.gbean.GBeanData;
+import org.apache.geronimo.j2ee.annotation.Holder;
 import org.apache.geronimo.j2ee.deployment.EARContext;
 import org.apache.geronimo.j2ee.deployment.Module;
 import org.apache.geronimo.j2ee.deployment.ModuleBuilder;
+import org.apache.geronimo.j2ee.deployment.ModuleBuilderExtension;
 import org.apache.geronimo.j2ee.deployment.NamingBuilder;
 import org.apache.geronimo.j2ee.deployment.WebModule;
 import org.apache.geronimo.j2ee.deployment.WebServiceBuilder;
-import org.apache.geronimo.j2ee.deployment.ModuleBuilderExtension;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.Naming;
+import org.apache.geronimo.kernel.config.Configuration;
 import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 import org.apache.geronimo.kernel.config.ConfigurationStore;
 import org.apache.geronimo.kernel.repository.Artifact;
@@ -75,8 +78,6 @@ import org.apache.geronimo.security.jacc.ComponentPermissions;
 import org.apache.geronimo.security.util.HTTPMethods;
 import org.apache.geronimo.security.util.URLPattern;
 import org.apache.geronimo.xbeans.geronimo.j2ee.GerSecurityDocument;
-import org.apache.geronimo.xbeans.javaee.EjbLocalRefType;
-import org.apache.geronimo.xbeans.javaee.EjbRefType;
 import org.apache.geronimo.xbeans.javaee.FilterMappingType;
 import org.apache.geronimo.xbeans.javaee.FilterType;
 import org.apache.geronimo.xbeans.javaee.FullyQualifiedClassType;
@@ -116,7 +117,7 @@ public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
     protected final NamespaceDrivenBuilderCollection securityBuilders;
     protected final NamespaceDrivenBuilderCollection serviceBuilders;
     protected final ResourceEnvironmentSetter resourceEnvironmentSetter;
-    protected final Collection webServiceBuilder;
+    protected final Collection<WebServiceBuilder> webServiceBuilder;
 
     protected final NamingBuilder namingBuilders;
     protected final Collection<ModuleBuilderExtension> moduleBuilderExtensions;
@@ -131,7 +132,7 @@ public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
      */
     private static final URI RELATIVE_MODULE_BASE_URI = URI.create("../");
 
-    protected AbstractWebModuleBuilder(Kernel kernel, Collection securityBuilders, Collection serviceBuilders, NamingBuilder namingBuilders, ResourceEnvironmentSetter resourceEnvironmentSetter, Collection webServiceBuilder, Collection<ModuleBuilderExtension> moduleBuilderExtensions) {
+    protected AbstractWebModuleBuilder(Kernel kernel, Collection securityBuilders, Collection serviceBuilders, NamingBuilder namingBuilders, ResourceEnvironmentSetter resourceEnvironmentSetter, Collection<WebServiceBuilder> webServiceBuilder, Collection<ModuleBuilderExtension> moduleBuilderExtensions) {
         this.kernel = kernel;
         this.securityBuilders = new NamespaceDrivenBuilderCollection(securityBuilders, SECURITY_QNAME);
         this.serviceBuilders = new NamespaceDrivenBuilderCollection(serviceBuilders, SERVICE_QNAME);
@@ -156,7 +157,7 @@ public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
 
     //TODO configid these need to be converted to ReferencePatterns
     protected Set findGBeanDependencies(EARContext earContext) {
-        Set dependencies = new HashSet();
+        Set<AbstractName> dependencies = new HashSet<AbstractName>();
         dependencies.addAll(earContext.listGBeans(MANAGED_CONNECTION_FACTORY_PATTERN));
         dependencies.addAll(earContext.listGBeans(ADMIN_OBJECT_PATTERN));
         dependencies.addAll(earContext.listGBeans(STATELESS_SESSION_BEAN_PATTERN));
@@ -764,6 +765,44 @@ public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
         }
 
         return new ClassFinder(classes);
+    }
+
+    protected void configureBasicWebModuleAttributes(WebAppType webApp, XmlObject vendorPlan, EARContext moduleContext, EARContext earContext, WebModule webModule, GBeanData webModuleData) throws DeploymentException {
+        Map<NamingBuilder.Key, Object> buildingContext = new HashMap<NamingBuilder.Key, Object>();
+        buildingContext.put(NamingBuilder.GBEAN_NAME_KEY, moduleContext.getModuleName());
+
+        if (!webApp.getMetadataComplete()) {
+            // Create a classfinder and populate it for the naming builder(s). The absence of a
+            // classFinder in the module will convey whether metadata-complete is set (or not)
+            webModule.setClassFinder(createWebAppClassFinder(webApp, webModule));
+        }
+        //N.B. we use the ear context which has all the gbeans we could possibly be looking up from this ear.
+        //This means that you cannot use the default environment of the web builder to add configs that will be searched.
+        Configuration earConfiguration = earContext.getConfiguration();
+        getNamingBuilders().buildNaming(webApp, vendorPlan, earConfiguration, earConfiguration, webModule, buildingContext);
+
+        Map compContext = NamingBuilder.JNDI_KEY.get(buildingContext);
+        Holder holder = NamingBuilder.INJECTION_KEY.get(buildingContext);
+
+        webModule.getSharedContext().put(WebModule.WEB_APP_DATA, webModuleData);
+        if (moduleContext.getServerName() != null) {
+            webModuleData.setReferencePattern("J2EEServer", moduleContext.getServerName());
+        }
+        if (!webModule.isStandAlone()) {
+            webModuleData.setReferencePattern("J2EEApplication", earContext.getModuleName());
+        }
+
+        webModuleData.setAttribute("holder", holder);
+
+        //Add dependencies on managed connection factories and ejbs in this app
+        //This is overkill, but allows for people not using java:comp context (even though we don't support it)
+        //and sidesteps the problem of circular references between ejbs.
+        Set dependencies = findGBeanDependencies(earContext);
+        webModuleData.addDependencies(dependencies);
+
+        webModuleData.setAttribute("componentContext", compContext);
+        webModuleData.setReferencePattern("TransactionManager", moduleContext.getTransactionManagerName());
+        webModuleData.setReferencePattern("TrackedConnectionAssociator", moduleContext.getConnectionTrackerName());
     }
 
     class UncheckedItem {

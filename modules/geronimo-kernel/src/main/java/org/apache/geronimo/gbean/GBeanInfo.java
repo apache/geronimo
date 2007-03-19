@@ -90,7 +90,7 @@ public final class GBeanInfo implements Serializable {
     private final String name;
     private final String className;
     private final String j2eeType;
-    private final Set attributes;
+    private final Set<GAttributeInfo> attributes;
     private final Map attributesByName;
     private final GConstructorInfo constructor;
     private final Set operations;
@@ -218,7 +218,7 @@ public final class GBeanInfo implements Serializable {
     /**
      * Returns a Set where the elements are type GAttributeInfo
      */
-    public Set getAttributes() {
+    public Set<GAttributeInfo> getAttributes() {
         return attributes;
     }
 

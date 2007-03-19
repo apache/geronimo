@@ -35,7 +35,7 @@ import javax.xml.namespace.QName;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.common.DeploymentException;
-import org.apache.geronimo.common.UnresolvedReferenceException;
+import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
@@ -46,6 +46,7 @@ import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.kernel.config.Configuration;
 import org.apache.geronimo.kernel.repository.Environment;
+import org.apache.geronimo.kernel.repository.Dependency;
 import org.apache.geronimo.naming.deployment.AbstractNamingBuilder;
 import org.apache.geronimo.naming.deployment.ResourceEnvironmentBuilder;
 import org.apache.geronimo.naming.deployment.ResourceEnvironmentSetter;
@@ -144,21 +145,20 @@ public class ResourceRefBuilder extends AbstractNamingBuilder implements Resourc
                 try {
                     AbstractNameQuery containerId = getResourceContainerId(name, j2eeType, null, gerResourceRef);
 
-                    try {
-                        localConfiguration.findGBean(containerId);
-                    } catch (GBeanNotFoundException e) {
-                        throw new UnresolvedReferenceException("Resource", false, containerId.toString(), localConfiguration.getId().toString());
-                    }
+                    localConfiguration.findGBean(containerId);
 
                     Reference ref = new ResourceReference(localConfiguration.getId(), containerId, iface);
                     getJndiContextMap(componentContext).put(ENV + name, ref);
-                } catch (UnresolvedReferenceException e) {
+                } catch (GBeanNotFoundException e) {
 
                     StringBuffer errorMessage = new StringBuffer("Unable to resolve resource reference '");
                     errorMessage.append(name);
                     errorMessage.append("' (");
-                    if (e.isMultiple()) {
-                        errorMessage.append("Found multiple matching resources.  Try being more specific in a resource-ref mapping in your Geronimo deployment plan.");
+                    if (e.hasMatches()) {
+                        errorMessage.append("Found multiple matching resources.  Try being more specific in a resource-ref mapping in your Geronimo deployment plan.\n");
+                        for (AbstractName match : e.getMatches()) {
+                            errorMessage.append(match).append("\n");
+                        }
                     } else if (gerResourceRef == null) {
                         errorMessage.append("Could not auto-map to resource.  Try adding a resource-ref mapping to your Geronimo deployment plan.");
                     } else if (gerResourceRef.isSetResourceLink()) {
@@ -168,6 +168,10 @@ public class ResourceRefBuilder extends AbstractNamingBuilder implements Resourc
                     } else {
                         errorMessage.append("Could not find the resource specified in your Geronimo deployment plan:");
                         errorMessage.append(gerResourceRef.getPattern());
+                    }
+                    errorMessage.append("\nSearch conducted in current module and dependencies:\n");
+                    for (Dependency dependency: localConfiguration.getEnvironment().getDependencies()) {
+                        errorMessage.append(dependency).append("\n");
                     }
                     errorMessage.append(")");
 

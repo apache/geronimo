@@ -28,6 +28,7 @@ import javax.management.ObjectName;
 public class GBeanNotFoundException extends KernelException {
     private ObjectName gBeanName;
     private AbstractName abstractName;
+    private Set<AbstractName> matches;
 
     public GBeanNotFoundException(ObjectName gBeanName) {
         super(gBeanName+" not found");
@@ -44,8 +45,9 @@ public class GBeanNotFoundException extends KernelException {
         this.abstractName = abstractName;
     }
 
-    public GBeanNotFoundException(String message, Set patterns) {
+    public GBeanNotFoundException(String message, Set patterns, Set<AbstractName> matches) {
         super(message + ": " + patterns);
+        this.matches = matches;
     }
 
     public GBeanNotFoundException(String message, Throwable cause) {
@@ -66,5 +68,13 @@ public class GBeanNotFoundException extends KernelException {
 
     public boolean isAbstractName() {
         return abstractName != null;
+    }
+
+    public Set<AbstractName> getMatches() {
+        return matches;
+    }
+
+    public boolean hasMatches() {
+        return matches != null && matches.size() > 0;
     }
 }

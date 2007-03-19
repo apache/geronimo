@@ -631,7 +631,7 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
         if (patterns == null) throw new NullPointerException("patterns is null");
         Set<GBeanData> result = findGBeanDatas(this, patterns);
         if (result.size() > 1) {
-            throw new GBeanNotFoundException("More than one match to referencePatterns", patterns);
+            throw new GBeanNotFoundException("More than one match to referencePatterns in local configuration", patterns, mapToNames(result));
         } else if (result.size() == 1) {
             return (GBeanData) result.iterator().next();
         }
@@ -640,21 +640,29 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
         for (Configuration configuration : allServiceParents) {
             result.addAll(findGBeanDatas(configuration, patterns));
 
-            // if we already found a match we have an ambiguous query
-            if (result.size() > 1) {
-                List<AbstractName> names = new ArrayList<AbstractName>(result.size());
-                for (GBeanData gBeanData : result) {
-                    names.add(gBeanData.getAbstractName());
-                }
-                throw new GBeanNotFoundException("More than one match to referencePatterns: " + names.toString(), patterns);
+        }
+        // if we already found a match we have an ambiguous query
+        if (result.size() > 1) {
+            List<AbstractName> names = new ArrayList<AbstractName>(result.size());
+            for (GBeanData gBeanData : result) {
+                names.add(gBeanData.getAbstractName());
             }
+            throw new GBeanNotFoundException("More than one match to referencePatterns in parent configurations: " + names.toString(), patterns, mapToNames(result));
         }
 
         if (result.isEmpty()) {
-            throw new GBeanNotFoundException("No matches for referencePatterns", patterns);
+            throw new GBeanNotFoundException("No matches for referencePatterns", patterns, null);
         }
 
         return result.iterator().next();
+    }
+
+    private Set<AbstractName> mapToNames(Set<GBeanData> datas) {
+        Set<AbstractName> names = new HashSet<AbstractName>(datas.size());
+        for (GBeanData gBeanData: datas) {
+            names.add(gBeanData.getAbstractName());
+        }
+        return names;
     }
 
     public LinkedHashSet<AbstractName> findGBeans(AbstractNameQuery pattern) {
