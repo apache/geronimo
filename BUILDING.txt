@@ -21,11 +21,11 @@ Welcome to Apache Geronimo
 To build you will need:
 
  * JDK 5.0+ (J2SE 1.5.0+) (http://java.sun.com/j2se/1.5.0)
- * Maven 2.0.4+ (http://maven.apache.org)
+ * Maven 2.0.5+ (http://maven.apache.org)
 
 For detailed instructions please see:
 
-    http://cwiki.apache.org/GMOxDEV/building-apache-geronimo-with-maven-2.html
+    http://cwiki.apache.org/GMOxDEV/building-apache-geronimo.html
 
 
 Building Geroniomo
