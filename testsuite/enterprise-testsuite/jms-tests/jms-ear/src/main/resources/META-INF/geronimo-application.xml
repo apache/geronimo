@@ -62,7 +62,7 @@
       </module>
       <ext-module>
         <connector>TestJMS</connector>
-        <external-path>org.apache.geronimo.modules/ge-activemq-rar/${version}/rar</external-path>
+        <external-path>org.apache.geronimo.modules/geronimo-activemq-ra/${version}/rar</external-path>
         <connector xmlns="http://geronimo.apache.org/xml/ns/j2ee/connector-1.1">
           <resourceadapter>
             <resourceadapter-instance>

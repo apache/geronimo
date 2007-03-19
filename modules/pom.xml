@@ -41,7 +41,7 @@
     
     <modules>
         <module>geronimo-activation</module>
-        <module>ge-activemq-rar</module>
+        <module>geronimo-activemq-ra</module>
         <module>geronimo-activemq</module>
         <module>geronimo-activemq-management</module>
         <module>geronimo-axis</module>

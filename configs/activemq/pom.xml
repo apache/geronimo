@@ -45,7 +45,7 @@
 
         <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
-            <artifactId>ge-activemq-rar</artifactId>
+            <artifactId>geronimo-activemq-ra</artifactId>
             <version>${version}</version>
             <type>rar</type>
             <scope>test</scope>
@@ -75,7 +75,7 @@
                     </deploymentConfigs>
                     <module>
                         <groupId>org.apache.geronimo.modules</groupId>
-                        <artifactId>ge-activemq-rar</artifactId>
+                        <artifactId>geronimo-activemq-ra</artifactId>
                         <version>${version}</version>
                         <type>rar</type>
                     </module>

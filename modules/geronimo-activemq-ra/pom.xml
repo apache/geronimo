@@ -29,12 +29,12 @@
         <relativePath>../pom.xml</relativePath>
     </parent>
 
-    <artifactId>ge-activemq-rar</artifactId>
-    <name>Geronimo :: ActiveMQ Embedded RAR</name>
+    <artifactId>geronimo-activemq-ra</artifactId>
+    <name>Geronimo :: ActiveMQ Resource Adapter</name>
     <packaging>rar</packaging>
     
     <description>
-        Resource Adapter configuration for using ActiveMQ as a bundled JMS provider.
+        Resource Adapter for using ActiveMQ in Geronimo.
     </description>
     
     <!--
@@ -43,7 +43,6 @@
     -->
     
     <dependencies>
-        
         <dependency>
             <groupId>org.apache.activemq</groupId>
             <artifactId>activemq-core</artifactId>
@@ -117,17 +116,20 @@
                     <groupId>javax.servlet</groupId>
                     <artifactId>servlet-api</artifactId>
                 </exclusion>
-
-                <!-- TODO if/when amq updates to 1.1 spec, change this -->
+                
+                <!--
+                FIXME: if/when amq updates to 1.1 spec, change this, for now exclude both versions.
+                -->
                 <exclusion>
                     <groupId>org.apache.geronimo.specs</groupId>
                     <artifactId>geronimo-j2ee-management_1.0_spec</artifactId>
                 </exclusion>
+                
                 <exclusion>
                     <groupId>org.apache.geronimo.specs</groupId>
                     <artifactId>geronimo-j2ee-management_1.1_spec</artifactId>
                 </exclusion>
-
+                
                 <exclusion>
                     <groupId>org.apache.geronimo.specs</groupId>
                     <artifactId>geronimo-jms_1.1_spec</artifactId>
@@ -137,7 +139,6 @@
                     <groupId>org.apache.activemq</groupId>
                     <artifactId>activeio-core</artifactId>
                 </exclusion>
-
             </exclusions>
         </dependency>
 
@@ -161,7 +162,6 @@
                 </exclusion>
             </exclusions>
         </dependency>
-        
     </dependencies>
     
     <build>

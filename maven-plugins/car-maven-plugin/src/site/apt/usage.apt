@@ -178,7 +178,7 @@ Basic Usage
                 <artifacts>
                     <artifactItem>
                         <groupId>org.apache.geronimo.modules</groupId>
-                        <artifactId>ge-activemq-rar</artifactId>
+                        <artifactId>geronimo-activemq-ra</artifactId>
                         <type>rar</type>
                     </artifactItem>
                 </artifacts>
