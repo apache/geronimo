@@ -29,8 +29,8 @@
         <relativePath>../pom.xml</relativePath>
     </parent>
 
-    <artifactId>activemq</artifactId>
-    <name>Geronimo Configs :: ActiveMQ</name>
+    <artifactId>activemq-ra</artifactId>
+    <name>Geronimo Configs :: ActiveMQ Resource Adapter</name>
     <packaging>car</packaging>
     
     <dependencies>
@@ -58,7 +58,6 @@
             <type>car</type>
             <scope>provided</scope>
         </dependency>
-
 
     </dependencies>
     

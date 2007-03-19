@@ -45,7 +45,7 @@
             </dependency>
             <dependency>
                 <groupId>org.apache.geronimo.configs</groupId>
-                <artifactId>activemq</artifactId>
+                <artifactId>activemq-ra</artifactId>
                 <type>car</type>
             </dependency>
         </dependencies>

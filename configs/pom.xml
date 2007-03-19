@@ -105,7 +105,7 @@
     </build>
 
     <modules>
-        <module>activemq</module>
+        <module>activemq-ra</module>
         <module>activemq-broker</module>
         <module>axis</module>
         <module>axis-deployer</module>

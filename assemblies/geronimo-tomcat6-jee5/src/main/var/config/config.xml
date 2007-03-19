@@ -85,7 +85,7 @@
         </gbean>
     </module>
 
-    <module name="org.apache.geronimo.configs/activemq/${version}/car"/>
+    <module name="org.apache.geronimo.configs/activemq-ra/${version}/car"/>
 
     <module name="org.apache.geronimo.configs/tomcat6/${version}/car">
         <!-- To disable accesslogging uncomment the following lines
