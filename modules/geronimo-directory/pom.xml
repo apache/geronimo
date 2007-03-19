@@ -159,7 +159,7 @@
                 <artifactId>xmlbeans-maven-plugin</artifactId>
                 <configuration>
                     <sourceSchemas>directory.xsd</sourceSchemas>
-                    <outputDirectory>${pom.basedir}/target/classes/schemaorg_apache_xmlbeans</outputDirectory>
+                    <outputDirectory>${project.build.outputDirectory}/schemaorg_apache_xmlbeans</outputDirectory>
                     <defaultXmlConfigDir>${pom.basedir}/src/main/schema/xmlconfig.xml</defaultXmlConfigDir>
                 </configuration>
             </plugin>
@@ -181,7 +181,7 @@
                             <tasks>
                                 <mkdir dir="${pom.basedir}/target/clover/classes"/>
                                 <copy todir="${pom.basedir}/target/clover/classes">
-                                    <fileset dir="${pom.basedir}/target/classes">
+                                    <fileset dir="${project.build.outputDirectory}">
                                         <include name="schemaorg_apache_xmlbeans/**"/>
                                     </fileset>
                                 </copy>
@@ -198,9 +198,9 @@
                         <configuration>
                             <tasks>
                                 <tstamp/>
-                                <mkdir dir="${pom.basedir}/target/var"/>
+                                <mkdir dir="${project.build.directory}/var"/>
                                 <copy file="${pom.basedir}/src/test/resources/directory.xml"
-                                    todir="${pom.basedir}/target/var"/>
+                                    todir="${project.build.directory}/var"/>
                             </tasks>
                         </configuration>
                     </execution>

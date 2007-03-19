@@ -1509,7 +1509,7 @@
                     <version>2.0.2</version>
                     <configuration>
                         <warSourceDirectory>${pom.basedir}/src/main/webapp</warSourceDirectory>
-                        <webXml>${pom.basedir}/target/jspweb.xml</webXml>
+                        <webXml>${project.build.directory}/jspweb.xml</webXml>
                         <archiveClasses>true</archiveClasses>
                         <archive>
                             <!-- Do not include META-INF/maven to avoid long file problems on windows -->
@@ -1524,7 +1524,7 @@
                         -->
                         <webResources>
                             <resource>
-                                <directory>${pom.basedir}/target/classes</directory>
+                                <directory>${project.build.outputDirectory}</directory>
                                 <includes>
                                     <include>META-INF/LICENSE*</include>
                                     <include>META-INF/NOTICE*</include>

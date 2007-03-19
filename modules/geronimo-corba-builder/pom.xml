@@ -68,7 +68,7 @@
                             <tasks>
                                 <mkdir dir="${pom.basedir}/target/clover/classes"/>
                                 <copy todir="${pom.basedir}/target/clover/classes">
-                                    <fileset dir="${pom.basedir}/target/classes">
+                                    <fileset dir="${project.build.outputDirectory}">
                                         <include name="schemaorg_apache_xmlbeans/**"/>
                                     </fileset>
                                 </copy>
