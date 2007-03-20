@@ -1071,6 +1071,10 @@
         <mime-type>x-world/x-vrml</mime-type>
     </mime-mapping>
     <mime-mapping>
+        <extension>wsdl</extension>
+        <mime-type>text/xml</mime-type>
+    </mime-mapping>
+    <mime-mapping>
         <extension>Z</extension>
         <mime-type>application/x-compress</mime-type>
     </mime-mapping>
