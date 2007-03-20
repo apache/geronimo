@@ -32,9 +32,9 @@
     <artifactId>axis2</artifactId>
     <name>Geronimo Configs :: Axis2</name>
     <packaging>car</packaging>
-    
+
     <dependencies>
-        
+
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
             <artifactId>j2ee-server</artifactId>
@@ -62,8 +62,8 @@
             <version>${version}</version>
             <type>car</type>
         </dependency>
-        
-       <dependency>
+
+        <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
             <artifactId>geronimo-axis2</artifactId>
             <version>${version}</version>
@@ -173,4 +173,5 @@
 	    </dependency>
 	        	
     </dependencies>
+
 </project>
