@@ -198,12 +198,7 @@
     <build>
         <resources>
             <resource>
-                <directory>${pom.basedir}/src/main/var/config</directory>
-                <includes>
-                    <include>config.xml</include>
-                    <include>offline-deployer-config.xml</include>
-                    <include>jsr88-configurer-config.xml</include>
-                </includes>
+                <directory>${pom.basedir}/src/main/resources</directory>
                 <filtering>true</filtering>
             </resource>
         </resources>
@@ -272,15 +267,6 @@
                                     </fileset>
                                     <mapper type="flatten"/>
                                 </copy>
-                                
-                                <!-- Move filtered files -->
-                                <move todir="${project.build.directory}/scratch">
-                                    <fileset dir="${project.build.directory}/classes">
-                                        <include name="config.xml"/>
-                                        <include name="offline-deployer-config.xml"/>
-                                        <include name="jsr88-configurer-config.xml"/>
-                                    </fileset>
-                                </move>
                             </tasks>
                         </configuration>
                     </execution>

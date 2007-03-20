@@ -135,12 +135,7 @@
     <build>
         <resources>
             <resource>
-                <directory>${pom.basedir}/src/main/var/config</directory>
-                <includes>
-                    <include>config.xml</include>
-                    <include>offline-deployer-config.xml</include>
-                    <include>jsr88-configurer-config.xml</include>
-                </includes>
+                <directory>${pom.basedir}/src/main/resources</directory>
                 <filtering>true</filtering>
             </resource>
         </resources>

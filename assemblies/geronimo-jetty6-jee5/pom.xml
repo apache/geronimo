@@ -408,7 +408,7 @@
 
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
-            <artifactId>jetty6-clustering-wadi</artifactId> 
+            <artifactId>jetty6-clustering-wadi</artifactId>
             <version>${version}</version>
             <type>car</type>
         </dependency>
@@ -417,20 +417,8 @@
     
     <build>
         <resources>
-            <!--
-            HACK: Because this is a pom packaging and assembly files/file is broke
-                  we need to filter with the resources plugin... and must be a jar packaging
-                  because for some reason maven-resources-plugin can not
-                  be attached!!!!
-            -->
             <resource>
-                <directory>${pom.basedir}/src/main/var/config</directory>
-                <includes>
-                    <include>config.xml</include>
-                    <include>offline-deployer-config.xml</include>
-                    <include>jsr88-configurer-config.xml</include>
-                    <include>artifact_aliases.properties</include>
-                </includes>
+                <directory>${pom.basedir}/src/main/resources</directory>
                 <filtering>true</filtering>
             </resource>
         </resources>
@@ -499,16 +487,6 @@
                                     </fileset>
                                     <mapper type="flatten"/>
                                 </copy>
-                                
-                                <!-- Move filtered files -->
-                                <move todir="${project.build.directory}/scratch">
-                                    <fileset dir="${project.build.directory}/classes">
-                                        <include name="config.xml"/>
-                                        <include name="offline-deployer-config.xml"/>
-                                        <include name="jsr88-configurer-config.xml"/>
-                                        <include name="artifact_aliases.properties"/>
-                                    </fileset>
-                                </move>
                             </tasks>
                         </configuration>
                     </execution>

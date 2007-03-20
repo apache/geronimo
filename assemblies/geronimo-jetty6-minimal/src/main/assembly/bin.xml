@@ -138,13 +138,23 @@
         </fileSet>
         
         <fileSet>
-            <directory>target/scratch</directory>
-            <outputDirectory>var/config</outputDirectory>
+            <directory>target/classes</directory>
+            <outputDirectory>/</outputDirectory>
+            <includes>
+                <include>var/config/**</include>
+            </includes>
+        </fileSet>
+        
+        <!--
+        NOTE: config.xml must be marked as writable or the server will complain when booting.
+        -->
+        
+        <fileSet>
+            <directory>target/classes</directory>
+            <outputDirectory>/</outputDirectory>
             <fileMode>0644</fileMode>
             <includes>
-                <include>config.xml</include>
-                <include>jsr88-configurer-config.xml</include>
-                <include>offline-deployer-config.xml</include>
+                <include>var/config/config.xml</include>
             </includes>
         </fileSet>
     </fileSets>

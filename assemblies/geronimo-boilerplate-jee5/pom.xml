@@ -43,12 +43,6 @@
         <resources>
             <resource>
                 <directory>${pom.basedir}/src/main/resources</directory>
-            </resource>
-            <resource>
-                <directory>${pom.basedir}/src/main/resources</directory>
-                <includes>
-                    <include>var/config/**</include>
-                </includes>
                 <filtering>true</filtering>
             </resource>
         </resources>
