@@ -32,9 +32,9 @@
     <artifactId>cxf</artifactId>
     <name>Geronimo Configs :: CXF</name>
     <packaging>car</packaging>
-    
+
     <dependencies>
-        
+
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
             <artifactId>j2ee-server</artifactId>
@@ -70,7 +70,7 @@
             <type>car</type>
         </dependency>
 
-       <dependency>
+        <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
             <artifactId>geronimo-cxf</artifactId>
             <version>${version}</version>
@@ -120,26 +120,26 @@
             <groupId>org.apache.cxf</groupId>
             <artifactId>cxf-tools-common</artifactId>
         </dependency>
-         <dependency>
-             <groupId>org.apache.ws.commons</groupId>
-             <artifactId>XmlSchema</artifactId>
-         </dependency>
-         <dependency>
-             <groupId>org.springframework</groupId>
-             <artifactId>spring-core</artifactId>
-         </dependency>
-         <dependency>
-             <groupId>org.springframework</groupId>
-             <artifactId>spring-beans</artifactId>
-         </dependency>
-         <dependency>
-             <groupId>org.springframework</groupId>
-             <artifactId>spring-context</artifactId>
-         </dependency>
+        <dependency>
+            <groupId>org.apache.ws.commons</groupId>
+            <artifactId>XmlSchema</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-beans</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-context</artifactId>
+        </dependency>
         <dependency>
             <groupId>xml-resolver</groupId>
             <artifactId>xml-resolver</artifactId>
         </dependency>
     </dependencies>
-    
+
 </project>
