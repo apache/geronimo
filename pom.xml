@@ -1612,6 +1612,15 @@
                                 <classifier>bin</classifier>
                                 <type>zip</type>
                             </assembly>
+                            
+                            <assembly>
+                                <id>framework</id>
+                                <groupId>org.apache.geronimo.assemblies</groupId>
+                                <artifactId>geronimo-framework</artifactId>
+                                <version>${version}</version>
+                                <classifier>bin</classifier>
+                                <type>zip</type>
+                            </assembly>
                         </assemblies>
 
                         <defaultAssemblyId>jetty</defaultAssemblyId>
