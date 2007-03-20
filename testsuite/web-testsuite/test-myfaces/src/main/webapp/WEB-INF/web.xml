@@ -174,6 +174,10 @@
         <env-entry-name>testDouble</env-entry-name>
         <env-entry-type>java.lang.Double</env-entry-type>
         <env-entry-value>0.99</env-entry-value>
+        <injection-target>
+            <injection-target-class>org.apache.myfaces.blank.HelloWorldBacking</injection-target-class>
+            <injection-target-name>testDouble</injection-target-name>
+        </injection-target>
     </env-entry>
 
 </web-app>
