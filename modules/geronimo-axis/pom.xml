@@ -81,8 +81,8 @@
         </dependency>
 
         <dependency>
-            <groupId>org.apache.geronimo.specs</groupId>
-            <artifactId>geronimo-saaj_1.1_spec</artifactId>
+            <groupId>org.apache.axis2</groupId>
+            <artifactId>axis2-saaj-api</artifactId>
         </dependency>
 
         <dependency>

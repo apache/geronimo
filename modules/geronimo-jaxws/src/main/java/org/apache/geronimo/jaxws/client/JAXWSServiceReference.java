@@ -21,8 +21,6 @@ import org.apache.geronimo.naming.reference.SimpleReference;
 import org.apache.geronimo.naming.reference.ClassLoaderAwareReference;
 import org.apache.geronimo.naming.reference.KernelAwareReference;
 import org.apache.geronimo.kernel.Kernel;
-import org.apache.geronimo.jaxws.JAXWSAnnotationProcessor;
-import org.apache.geronimo.jaxws.JNDIResolver;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;

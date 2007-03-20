@@ -27,8 +27,8 @@ import javax.transaction.TransactionManager;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.cxf.Bus;
-import org.apache.cxf.bus.CXFBusFactory;
 import org.apache.geronimo.cxf.CXFCatalogUtils;
+import org.apache.geronimo.cxf.CXFWebServiceContainer;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
@@ -77,7 +77,7 @@ public class POJOWebServiceContainerFactoryGBean implements WebServiceContainerF
             }
         }
 
-        this.bus = (new CXFBusFactory()).createBus();
+        this.bus = CXFWebServiceContainer.getBus();     
         this.configurationBaseUrl = configurationBaseUrl;
         
         Class endpointClass = classLoader.loadClass(endpointClassName);
@@ -90,7 +90,7 @@ public class POJOWebServiceContainerFactoryGBean implements WebServiceContainerF
                                          this.configurationBaseUrl, 
                                          "WEB-INF/jax-ws-catalog.xml");
     }
-
+    
     public WebServiceContainer getWebServiceContainer() {
         return new POJOWebServiceContainer(bus, configurationBaseUrl, endpointInstance);
     }

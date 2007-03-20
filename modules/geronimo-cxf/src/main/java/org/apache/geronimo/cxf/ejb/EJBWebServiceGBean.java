@@ -21,8 +21,8 @@ import java.net.URL;
 import javax.naming.Context;
 
 import org.apache.cxf.Bus;
-import org.apache.cxf.bus.CXFBusFactory;
 import org.apache.geronimo.cxf.CXFCatalogUtils;
+import org.apache.geronimo.cxf.CXFWebServiceContainer;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
@@ -61,7 +61,7 @@ public class EJBWebServiceGBean implements GBeanLifecycle {
         Class beanClass = ejbDeploymentContext.getBeanClass();    
         Context context = ejbDeploymentContext.getComponentContext();
         
-        Bus bus = (new CXFBusFactory()).createBus();
+        Bus bus = CXFWebServiceContainer.getBus();
         bus.setExtension(new ServerJNDIResolver(context), JNDIResolver.class);
         bus.setExtension(portInfo, PortInfo.class);  
         bus.setExtension(ejbDeploymentContext.getDeploymentInfo(), DeploymentInfo.class);

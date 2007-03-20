@@ -17,6 +17,14 @@
 
 package org.apache.geronimo.cxf.client;
 
+import java.net.URI;
+import java.util.Map;
+
+import javax.naming.NamingException;
+import javax.xml.bind.JAXBException;
+import javax.xml.namespace.QName;
+import javax.xml.ws.handler.HandlerResolver;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.cxf.jaxws.context.WebServiceContextImpl;
@@ -29,12 +37,6 @@ import org.apache.geronimo.jaxws.JNDIResolver;
 import org.apache.geronimo.jaxws.client.EndpointInfo;
 import org.apache.geronimo.jaxws.client.JAXWSServiceReference;
 
-import javax.xml.bind.JAXBException;
-import javax.xml.namespace.QName;
-import javax.xml.ws.handler.HandlerResolver;
-import java.net.URI;
-import java.util.Map;
-
 public class CXFServiceReference extends JAXWSServiceReference {
 
     private static final Log LOG = LogFactory.getLog(CXFServiceReference.class);
@@ -46,9 +48,15 @@ public class CXFServiceReference extends JAXWSServiceReference {
                                AbstractName name,
                                String handlerChainsXML,
                                Map<Object, EndpointInfo> seiInfoMap) {
-        super(handlerChainsXML, seiInfoMap, name, serviceQName, wsdlURI, referenceClassName, serviceClassName);
+        super(handlerChainsXML, seiInfoMap, name, serviceQName, wsdlURI, referenceClassName, serviceClassName);        
     }
-   
+       
+    public Object getContent() throws NamingException {
+        Object reference = super.getContent();   
+        SAAJInterceptor.registerInterceptors();        
+        return reference;
+    }
+    
     protected HandlerChainsType getHandlerChains() {
         try {
             return HandlerChainsUtils.toHandlerChains(this.handlerChainsXML, HandlerChainsType.class);

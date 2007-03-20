@@ -68,6 +68,7 @@ import org.apache.geronimo.jaxws.JNDIResolver;
 import org.apache.geronimo.jaxws.PortInfo;
 import org.apache.geronimo.jaxws.ServerJNDIResolver;
 import org.apache.geronimo.webservices.WebServiceContainer;
+import org.apache.geronimo.webservices.saaj.SAAJUniverse;
 import org.apache.ws.commons.schema.XmlSchema;
 
 
@@ -122,7 +123,13 @@ public abstract class Axis2WebServiceContainer implements WebServiceContainer {
     }
 
     public void invoke(Request request, Response response) throws Exception {
-        doService(request, response);
+        SAAJUniverse universe = new SAAJUniverse();
+        universe.set(SAAJUniverse.AXIS2);
+        try {
+            doService(request, response);
+        } finally {
+            universe.unset();
+        }        
     }
 
     protected void doService(final Request request, final Response response)

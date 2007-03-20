@@ -34,6 +34,7 @@ import org.apache.axis.description.ParameterDesc;
 import org.apache.axis.utils.JavaUtils;
 import org.apache.geronimo.security.ContextManager;
 import org.apache.geronimo.security.jaas.NamedUsernamePasswordCredential;
+import org.apache.geronimo.webservices.saaj.SAAJUniverse;
 
 /**
  * @version $Rev$ $Date$
@@ -51,6 +52,16 @@ public class ServiceEndpointMethodInterceptor implements MethodInterceptor {
     }
 
     public Object intercept(Object o, Method method, Object[] objects, MethodProxy methodProxy) throws Throwable {
+        SAAJUniverse universe = new SAAJUniverse();
+        universe.set(SAAJUniverse.AXIS1);
+        try {
+            return doIntercept(o, method, objects, methodProxy);
+        } finally {
+            universe.unset();
+        }
+    }
+    
+    private Object doIntercept(Object o, Method method, Object[] objects, MethodProxy methodProxy) throws Throwable {
         int index = methodProxy.getSuperIndex();
         OperationInfo operationInfo = operations[index];
         if (operationInfo == null) {

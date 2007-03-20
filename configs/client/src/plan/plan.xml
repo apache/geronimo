@@ -92,4 +92,8 @@
             <name>ConfigurationManager</name>
         </reference>
     </gbean>
+
+    <gbean name="SAAJGBean" 
+           class="org.apache.geronimo.webservices.saaj.SAAJGBean"/>
+
 </module>

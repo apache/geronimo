@@ -27,6 +27,7 @@ import javax.xml.soap.MimeHeader;
 import javax.xml.soap.MimeHeaders;
 import javax.xml.soap.SOAPMessage;
 
+import org.apache.axis.AxisEngine;
 import org.apache.axis.AxisFault;
 import org.apache.axis.Constants;
 import org.apache.axis.Message;
@@ -40,6 +41,7 @@ import org.apache.axis.utils.Messages;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.webservices.WebServiceContainer;
+import org.apache.geronimo.webservices.saaj.SAAJUniverse;
 import org.w3c.dom.Element;
 
 /**
@@ -73,6 +75,16 @@ public class AxisWebServiceContainer implements WebServiceContainer {
     }
 
     public void invoke(Request req, Response res) throws Exception {
+        SAAJUniverse universe = new SAAJUniverse();
+        universe.set(SAAJUniverse.AXIS1);
+        try {
+            doService(req, res);
+        } finally {
+            universe.unset();
+        }
+    }
+    
+    protected void doService(Request req, Response res) throws Exception {
         org.apache.axis.MessageContext messageContext = new org.apache.axis.MessageContext(null);
         req.setAttribute(MESSAGE_CONTEXT, messageContext);
 
@@ -91,6 +103,7 @@ public class AxisWebServiceContainer implements WebServiceContainer {
         messageContext.setService(service);
         messageContext.setProperty(REQUEST, req);
         messageContext.setProperty(RESPONSE, res);
+        messageContext.setProperty(AxisEngine.PROP_DISABLE_PRETTY_XML, Boolean.TRUE);
 
         ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
         try {

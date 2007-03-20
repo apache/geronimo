@@ -32,13 +32,16 @@ import javax.wsdl.xml.WSDLWriter;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.cxf.Bus;
+import org.apache.cxf.BusFactory;
 import org.apache.cxf.binding.xml.XMLConstants;
+import org.apache.cxf.bus.CXFBusFactory;
 import org.apache.cxf.service.model.EndpointInfo;
 import org.apache.cxf.tools.common.extensions.soap.SoapAddress;
 import org.apache.cxf.tools.util.SOAPBindingUtil;
 import org.apache.cxf.transport.DestinationFactoryManager;
 import org.apache.cxf.wsdl11.ServiceWSDLBuilder;
 import org.apache.geronimo.webservices.WebServiceContainer;
+import org.apache.geronimo.webservices.saaj.SAAJUniverse;
 import org.xmlsoap.schemas.wsdl.http.AddressType;
 
 public abstract class CXFWebServiceContainer implements WebServiceContainer {
@@ -61,7 +64,7 @@ public abstract class CXFWebServiceContainer implements WebServiceContainer {
 
         List ids = new ArrayList();
         ids.add("http://schemas.xmlsoap.org/wsdl/soap/http");
-
+        
         DestinationFactoryManager destinationFactoryManager = bus
                 .getExtension(DestinationFactoryManager.class);
         GeronimoDestinationFactory factory = new GeronimoDestinationFactory(bus);
@@ -93,7 +96,13 @@ public abstract class CXFWebServiceContainer implements WebServiceContainer {
             pw.write("</body></html>");
             pw.flush();
         } else {
-            destination.invoke(request, response);
+            SAAJUniverse universe = new SAAJUniverse();
+            universe.set(SAAJUniverse.SUN);
+            try {
+                destination.invoke(request, response);
+            } finally {
+                universe.unset();
+            }
         }
     }
 
@@ -137,5 +146,24 @@ public abstract class CXFWebServiceContainer implements WebServiceContainer {
     }
 
     abstract protected CXFEndpoint publishEndpoint(Object target);
+        
+    /*
+     * Ensure the bus created is unqiue and non-shared. 
+     * The very first bus created is set as a default bus which then can
+     * be (re)used in other places.
+     */
+    public static Bus getBus() {
+        CXFBusFactory busFactory = new CXFBusFactory();
+        Bus bus = busFactory.createBus();
+        Bus defaultBus = BusFactory.getDefaultBus(false);
+        if (defaultBus == null) {
+            BusFactory.setDefaultBus(bus);
+            return busFactory.createBus();
+        } else if (defaultBus == bus) {
+            return busFactory.createBus();
+        } else {
+            return bus;
+        }
+    }
 
 }

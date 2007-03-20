@@ -84,6 +84,9 @@
         </reference>
     </gbean>
 
+    <gbean name="SAAJGBean" 
+           class="org.apache.geronimo.webservices.saaj.SAAJGBean"/>
+
     <!--<gbean name="eis/JAXR" class="org.apache.geronimo.webservices.jaxr.JAXRGBean"/>-->
 
 </module>
