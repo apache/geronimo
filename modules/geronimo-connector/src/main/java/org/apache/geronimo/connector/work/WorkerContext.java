@@ -35,7 +35,7 @@ import org.apache.commons.logging.LogFactory;
 
 import org.apache.geronimo.transaction.manager.ImportedTransactionActiveException;
 import org.apache.geronimo.transaction.manager.XAWork;
-import edu.emory.mathcs.backport.java.util.concurrent.CountDownLatch;
+import java.util.concurrent.CountDownLatch;
 
 /**
  * Work wrapper providing an execution context to a Work instance.

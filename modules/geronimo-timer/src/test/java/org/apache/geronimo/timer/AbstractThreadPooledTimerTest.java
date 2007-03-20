@@ -19,7 +19,7 @@ package org.apache.geronimo.timer;
 
 import javax.transaction.TransactionManager;
 
-import edu.emory.mathcs.backport.java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import junit.framework.TestCase;
 

@@ -33,7 +33,6 @@
     <name>Geronimo :: Naming</name>
     
     <dependencies>
-        
         <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
             <artifactId>geronimo-kernel</artifactId>
@@ -49,7 +48,6 @@
             <groupId>org.apache.geronimo.specs</groupId>
             <artifactId>geronimo-jta_1.1_spec</artifactId>
         </dependency>
-        
     </dependencies>
     
 </project>

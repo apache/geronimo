@@ -21,7 +21,7 @@ import javax.resource.spi.work.WorkException;
 
 import org.apache.geronimo.connector.work.WorkerContext;
 
-import edu.emory.mathcs.backport.java.util.concurrent.Executor;
+import java.util.concurrent.Executor;
 
 /**
  *

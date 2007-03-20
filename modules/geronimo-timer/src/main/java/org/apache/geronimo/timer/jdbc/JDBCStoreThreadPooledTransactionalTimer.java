@@ -21,7 +21,7 @@ import java.sql.SQLException;
 import javax.sql.DataSource;
 import javax.transaction.TransactionManager;
 
-import edu.emory.mathcs.backport.java.util.concurrent.Executor;
+import java.util.concurrent.Executor;
 
 import org.apache.geronimo.connector.outbound.ConnectionFactorySource;
 import org.apache.geronimo.gbean.GBeanInfo;

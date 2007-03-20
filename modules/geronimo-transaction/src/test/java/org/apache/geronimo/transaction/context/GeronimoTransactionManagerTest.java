@@ -20,7 +20,7 @@ package org.apache.geronimo.transaction.context;
 import javax.transaction.xa.XAResource;
 import javax.transaction.xa.Xid;
 
-import edu.emory.mathcs.backport.java.util.concurrent.CountDownLatch;
+import java.util.concurrent.CountDownLatch;
 import junit.framework.AssertionFailedError;
 import junit.framework.TestCase;
 import org.apache.geronimo.transaction.manager.ImportedTransactionActiveException;

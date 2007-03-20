@@ -132,10 +132,6 @@ Basic Usage
                             <artifactId>xstream</artifactId>
                         </classpathElement>
                         <classpathElement>
-                            <groupId>backport-util-concurrent</groupId>
-                            <artifactId>backport-util-concurrent</artifactId>
-                        </classpathElement>
-                        <classpathElement>
                             <groupId>xerces</groupId>
                             <artifactId>xercesImpl</artifactId>
                             <classpathPrefix>../lib/endorsed</classpathPrefix>

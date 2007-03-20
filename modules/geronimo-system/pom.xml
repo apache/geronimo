@@ -33,7 +33,6 @@
     <name>Geronimo :: System</name>
     
     <dependencies>
-        
         <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
             <artifactId>geronimo-common</artifactId>
@@ -53,11 +52,6 @@
         </dependency>
         
         <dependency>
-            <groupId>backport-util-concurrent</groupId>
-            <artifactId>backport-util-concurrent</artifactId>
-        </dependency>
-        
-        <dependency>
             <groupId>commons-jexl</groupId>
             <artifactId>commons-jexl</artifactId>
         </dependency>
@@ -66,12 +60,12 @@
             <groupId>ognl</groupId>
             <artifactId>ognl</artifactId>
         </dependency>
-
     </dependencies>
     
     <build>
         <plugins>
             <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-antrun-plugin</artifactId>
                 <executions>
                     <execution>

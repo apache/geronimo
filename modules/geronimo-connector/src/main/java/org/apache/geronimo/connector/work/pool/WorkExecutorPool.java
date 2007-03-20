@@ -17,7 +17,7 @@
 
 package org.apache.geronimo.connector.work.pool;
 
-import edu.emory.mathcs.backport.java.util.concurrent.Executor;
+import java.util.concurrent.Executor;
 
 /**
  * Defines the operations that a pool in charge of the execution of Work

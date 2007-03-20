@@ -101,10 +101,6 @@
                             <version>${version}</version>
                         </element>
                         <element>
-                            <groupId>backport-util-concurrent</groupId>
-                            <artifactId>backport-util-concurrent</artifactId>
-                        </element>
-                        <element>
                             <groupId>commons-logging</groupId>
                             <artifactId>commons-logging</artifactId>
                         </element>

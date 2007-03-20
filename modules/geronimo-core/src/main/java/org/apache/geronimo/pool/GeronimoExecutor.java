@@ -16,7 +16,7 @@
  */
 package org.apache.geronimo.pool;
 
-import edu.emory.mathcs.backport.java.util.concurrent.Executor;
+import java.util.concurrent.Executor;
 
 /**
  * A Geronimo-specific extension that contributes a little extra manageability

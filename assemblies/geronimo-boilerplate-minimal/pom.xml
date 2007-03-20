@@ -54,10 +54,6 @@
                         <configuration>
                             <artifactItems>
                                 <artifactItem>
-                                    <groupId>backport-util-concurrent</groupId>
-                                    <artifactId>backport-util-concurrent</artifactId>
-                                </artifactItem>
-                                <artifactItem>
                                     <groupId>cglib</groupId>
                                     <artifactId>cglib-nodep</artifactId>
                                 </artifactItem>

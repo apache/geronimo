@@ -17,9 +17,9 @@
 
 package org.apache.geronimo.connector.work.pool;
 
-import edu.emory.mathcs.backport.java.util.concurrent.ThreadPoolExecutor;
-import edu.emory.mathcs.backport.java.util.concurrent.TimeUnit;
-import edu.emory.mathcs.backport.java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.LinkedBlockingQueue;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -47,9 +47,8 @@ public class WorkExecutorPoolImpl implements WorkExecutorPool {
      * @param maxSize Maximum size of the work executor pool.
      */
     public WorkExecutorPoolImpl(int maxSize) {
-        pooledExecutor = new ThreadPoolExecutor(1, maxSize, 1, TimeUnit.MINUTES, new LinkedBlockingQueue());
+        pooledExecutor = new ThreadPoolExecutor(1, maxSize, 60, TimeUnit.SECONDS, new LinkedBlockingQueue());
         /*
-
         FIXME: How to do this with concurrent.util ?
         pooledExecutor.waitWhenBlocked();
         */

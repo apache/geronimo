@@ -18,7 +18,7 @@ package org.apache.geronimo.connector.work.pool;
 
 import javax.resource.spi.work.WorkException;
 
-import edu.emory.mathcs.backport.java.util.concurrent.Executor;
+import java.util.concurrent.Executor;
 
 import org.apache.geronimo.connector.work.WorkerContext;
 

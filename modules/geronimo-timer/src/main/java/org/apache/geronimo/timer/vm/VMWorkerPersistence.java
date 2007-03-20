@@ -24,7 +24,7 @@ import java.util.Map;
 import java.util.Collection;
 import java.util.ArrayList;
 
-import edu.emory.mathcs.backport.java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.atomic.AtomicLong;
 
 import org.apache.geronimo.timer.PersistenceException;
 import org.apache.geronimo.timer.Playback;
