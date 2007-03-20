@@ -185,6 +185,9 @@
     </dependencies>
     
     <build>
+
+      <testSourceDirectory>src/test/javaa</testSourceDirectory>
+
         <plugins>
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
