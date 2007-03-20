@@ -21,7 +21,7 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
     <modelVersion>4.0.0</modelVersion>
-    
+
     <parent>
         <groupId>org.apache.geronimo.modules</groupId>
         <artifactId>modules</artifactId>
@@ -31,7 +31,7 @@
 
     <artifactId>geronimo-axis2-builder</artifactId>
     <name>Geronimo :: Axis2 :: Builder</name>
-    
+
     <dependencies>
         <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
@@ -43,11 +43,13 @@
             <artifactId>geronimo-jaxws-builder</artifactId>
             <version>${version}</version>
         </dependency>
+        
         <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
             <artifactId>geronimo-j2ee-builder</artifactId>
             <version>${version}</version>
         </dependency>
+        
         <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
             <artifactId>geronimo-service-builder</artifactId>
@@ -59,35 +61,34 @@
             <artifactId>geronimo-j2ee</artifactId>
             <version>${version}</version>
         </dependency>
-        
+
         <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
             <artifactId>geronimo-axis2</artifactId>
-            <version>${version}</version>                                                                                                           
+            <version>${version}</version>
         </dependency>
-        
+
         <dependency>
             <groupId>wsdl4j</groupId>
             <artifactId>wsdl4j</artifactId>
         </dependency>
-        
+
         <dependency>
             <groupId>com.sun.xml.bind</groupId>
             <artifactId>jaxb-impl</artifactId>
         </dependency>
-        
+
         <dependency>
             <groupId>javax.xml.bind</groupId>
             <artifactId>jaxb-api</artifactId>
         </dependency>
-        
-       <dependency>
+
+        <dependency>
             <groupId>org.apache.axis2</groupId>
             <artifactId>axis2-jaxws-api</artifactId>
-		   <version>SNAPSHOT</version>
-	   </dependency>
-
+            <version>SNAPSHOT</version>
+        </dependency>
     </dependencies>
-    
+
 </project>
 
