@@ -28,7 +28,8 @@ import javax.xml.transform.stream.StreamSource;
 
 import javax.xml.ws.handler.Handler;
 import javax.xml.ws.handler.PortInfo;
-import org.apache.axis2.jaxws.javaee.HandlerChainsType;
+
+import org.apache.geronimo.xbeans.javaee.HandlerChainsType;
 
 import org.apache.geronimo.testsupport.TestSupport;
 
@@ -38,7 +39,7 @@ public class Axis2HandlerResolverTest extends TestSupport {
         InputStream in = getClass().getResourceAsStream("/handlers.xml");
         assertTrue(in != null);
         HandlerChainsType handlerChains = toHandlerChains(in); 
-        assertEquals(3, handlerChains.getHandlerChain().size());
+        assertEquals(3, handlerChains.getHandlerChainArray().length);
         
         Axis2HandlerResolver resolver = 
             new Axis2HandlerResolver(getClass().getClassLoader(), getClass(), handlerChains, null);
@@ -53,7 +54,7 @@ public class Axis2HandlerResolverTest extends TestSupport {
         InputStream in = getClass().getResourceAsStream("/handlers_service.xml");
         assertTrue(in != null);
         HandlerChainsType handlerChains = toHandlerChains(in); 
-        assertEquals(3, handlerChains.getHandlerChain().size());
+        assertEquals(3, handlerChains.getHandlerChainArray().length);
         
         Axis2HandlerResolver resolver = 
             new Axis2HandlerResolver(getClass().getClassLoader(), getClass(), handlerChains, null);
@@ -84,7 +85,7 @@ public class Axis2HandlerResolverTest extends TestSupport {
         InputStream in = getClass().getResourceAsStream("/handlers_bindings.xml");
         assertTrue(in != null);
         HandlerChainsType handlerChains = toHandlerChains(in); 
-        assertEquals(3, handlerChains.getHandlerChain().size());
+        assertEquals(3, handlerChains.getHandlerChainArray().length);
         
         Axis2HandlerResolver resolver = 
             new Axis2HandlerResolver(getClass().getClassLoader(), getClass(), handlerChains, null);
@@ -108,7 +109,7 @@ public class Axis2HandlerResolverTest extends TestSupport {
         InputStream in = getClass().getResourceAsStream("/handlers_port.xml");
         assertTrue(in != null);
         HandlerChainsType handlerChains = toHandlerChains(in); 
-        assertEquals(3, handlerChains.getHandlerChain().size());
+        assertEquals(3, handlerChains.getHandlerChainArray().length);
         
         Axis2HandlerResolver resolver = 
             new Axis2HandlerResolver(getClass().getClassLoader(), getClass(), handlerChains, null);
@@ -139,7 +140,7 @@ public class Axis2HandlerResolverTest extends TestSupport {
         InputStream in = getClass().getResourceAsStream("/handlers_mixed.xml");
         assertTrue(in != null);
         HandlerChainsType handlerChains = toHandlerChains(in); 
-        assertEquals(3, handlerChains.getHandlerChain().size());
+        assertEquals(3, handlerChains.getHandlerChainArray().length);
         
         Axis2HandlerResolver resolver = 
             new Axis2HandlerResolver(getClass().getClassLoader(), getClass(), handlerChains, null);
