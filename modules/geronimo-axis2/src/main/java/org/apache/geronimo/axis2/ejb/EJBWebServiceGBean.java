@@ -14,6 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.apache.geronimo.axis2.ejb;
 
 import org.apache.geronimo.axis2.Axis2WebServiceContainer;
@@ -29,6 +30,9 @@ import org.apache.geronimo.webservices.SoapHandler;
 import javax.naming.Context;
 import java.net.URL;
 
+/**
+ * @version $Rev$ $Date$
+ */
 public class EJBWebServiceGBean implements GBeanLifecycle {
 
     private SoapHandler soapHandler;
