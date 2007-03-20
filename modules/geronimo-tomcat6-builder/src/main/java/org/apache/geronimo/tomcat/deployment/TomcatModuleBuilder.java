@@ -295,7 +295,10 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder {
          * until Tomcat fixes that bug.
          */
         File webXml = new File(moduleContext.getBaseDir(), "/WEB-INF/web.xml");
-        if (!webXml.exists()) {
+        File inPlaceDir = moduleContext.getInPlaceConfigurationDir();
+        boolean webXmlExists = (inPlaceDir != null && new File(inPlaceDir,"/WEB-INF/web.xml").exists()) || webXml.exists();
+        if (!webXmlExists) {
+        	webXml.getParentFile().mkdirs();
             try {
                 FileWriter outFile = new FileWriter(webXml);
 
