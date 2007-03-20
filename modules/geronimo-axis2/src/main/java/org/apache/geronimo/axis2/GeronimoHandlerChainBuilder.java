@@ -1,8 +1,8 @@
 package org.apache.geronimo.axis2;
 
-import org.apache.axis2.jaxws.javaee.HandlerChainType;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.geronimo.xbeans.javaee.HandlerChainType;
 
 import javax.xml.namespace.QName;
 import javax.xml.ws.handler.Handler;

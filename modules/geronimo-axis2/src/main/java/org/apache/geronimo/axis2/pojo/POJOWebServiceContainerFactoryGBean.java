@@ -17,13 +17,6 @@
 
 package org.apache.geronimo.axis2.pojo;
 
-import java.net.URL;
-import java.util.Map;
-
-import javax.naming.Context;
-import javax.naming.NamingException;
-import javax.transaction.TransactionManager;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.gbean.GBeanInfo;
@@ -34,6 +27,12 @@ import org.apache.geronimo.naming.enc.EnterpriseNamingContext;
 import org.apache.geronimo.transaction.GeronimoUserTransaction;
 import org.apache.geronimo.webservices.WebServiceContainer;
 import org.apache.geronimo.webservices.WebServiceContainerFactory;
+
+import javax.naming.Context;
+import javax.naming.NamingException;
+import javax.transaction.TransactionManager;
+import java.net.URL;
+import java.util.Map;
 
 public class POJOWebServiceContainerFactoryGBean implements WebServiceContainerFactory {
 

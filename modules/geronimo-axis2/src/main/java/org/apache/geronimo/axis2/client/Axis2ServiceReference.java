@@ -1,7 +1,6 @@
 package org.apache.geronimo.axis2.client;
 
 import org.apache.axis2.jaxws.context.WebServiceContextImpl;
-import org.apache.axis2.jaxws.javaee.HandlerChainsType;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.axis2.Axis2HandlerResolver;
@@ -11,6 +10,7 @@ import org.apache.geronimo.jaxws.JAXWSAnnotationProcessor;
 import org.apache.geronimo.jaxws.JNDIResolver;
 import org.apache.geronimo.jaxws.client.EndpointInfo;
 import org.apache.geronimo.jaxws.client.JAXWSServiceReference;
+import org.apache.geronimo.xbeans.javaee.HandlerChainsType;
 
 import javax.xml.bind.JAXBException;
 import javax.xml.namespace.QName;

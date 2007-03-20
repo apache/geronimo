@@ -35,6 +35,11 @@
     <dependencies>
         <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
+            <artifactId>geronimo-j2ee-schema</artifactId>
+            <version>${version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.geronimo.modules</groupId>
             <artifactId>geronimo-jaxws-builder</artifactId>
             <version>${version}</version>
         </dependency>

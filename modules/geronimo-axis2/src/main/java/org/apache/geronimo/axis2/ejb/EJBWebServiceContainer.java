@@ -17,13 +17,12 @@
 
 package org.apache.geronimo.axis2.ejb;
 
-import java.net.URL;
-
-import javax.naming.Context;
-
 import org.apache.axis2.util.JavaUtils;
 import org.apache.geronimo.axis2.Axis2WebServiceContainer;
 import org.apache.geronimo.jaxws.PortInfo;
+
+import javax.naming.Context;
+import java.net.URL;
 
 
 public class EJBWebServiceContainer extends Axis2WebServiceContainer {

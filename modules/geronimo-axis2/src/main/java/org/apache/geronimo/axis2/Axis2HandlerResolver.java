@@ -1,9 +1,9 @@
 package org.apache.geronimo.axis2;
 
-import org.apache.axis2.jaxws.javaee.HandlerChainType;
-import org.apache.axis2.jaxws.javaee.HandlerChainsType;
 import org.apache.geronimo.jaxws.annotations.AnnotationException;
 import org.apache.geronimo.jaxws.annotations.AnnotationProcessor;
+import org.apache.geronimo.xbeans.javaee.HandlerChainType;
+import org.apache.geronimo.xbeans.javaee.HandlerChainsType;
 
 import javax.xml.ws.WebServiceException;
 import javax.xml.ws.handler.Handler;
@@ -41,7 +41,7 @@ public class Axis2HandlerResolver implements HandlerResolver {
             handlers = builder.buildHandlerChainFromClass(this.serviceClass);
         } else {
             handlers = new ArrayList<Handler>();
-            for (HandlerChainType handlerChain : this.handlerChains.getHandlerChain()) {
+            for (HandlerChainType handlerChain : this.handlerChains.getHandlerChainArray()) {
                 handlers.addAll(builder.buildHandlerChainFromConfiguration(handlerChain));
             }
             handlers = builder.sortHandlers(handlers);

@@ -1,11 +1,11 @@
 package org.apache.geronimo.axis2.pojo;
 
-import org.apache.axis2.transport.http.HTTPConstants;
 import org.apache.axis2.jaxws.handler.LogicalMessageContext;
+import org.apache.axis2.transport.http.HTTPConstants;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.xml.ws.WebServiceContext;
 import javax.xml.ws.handler.MessageContext;
-import javax.servlet.http.HttpServletRequest;
 import java.security.Principal;
 
 /**

@@ -27,6 +27,11 @@
 	<artifactId>geronimo-axis2</artifactId>
 	<name>Geronimo :: AXIS2</name>
 	<dependencies>
+        <dependency>
+            <groupId>org.apache.geronimo.modules</groupId>
+            <artifactId>geronimo-j2ee-schema</artifactId>
+            <version>${version}</version>
+        </dependency>
 		<dependency>
 			<groupId>org.apache.geronimo.modules</groupId>
 			<artifactId>geronimo-webservices</artifactId>

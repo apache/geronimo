@@ -17,25 +17,6 @@
 
 package org.apache.geronimo.axis2;
 
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.net.URI;
-import java.net.URL;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.concurrent.CountDownLatch;
-
-import javax.naming.Context;
-import javax.servlet.ServletContext;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.wsdl.Definition;
-import javax.wsdl.factory.WSDLFactory;
-import javax.wsdl.xml.WSDLWriter;
-import javax.xml.namespace.QName;
-import javax.xml.ws.WebServiceException;
-
 import org.apache.axiom.om.util.UUIDGenerator;
 import org.apache.axis2.AxisFault;
 import org.apache.axis2.Constants;
@@ -70,6 +51,24 @@ import org.apache.geronimo.jaxws.ServerJNDIResolver;
 import org.apache.geronimo.webservices.WebServiceContainer;
 import org.apache.geronimo.webservices.saaj.SAAJUniverse;
 import org.apache.ws.commons.schema.XmlSchema;
+
+import javax.naming.Context;
+import javax.servlet.ServletContext;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.wsdl.Definition;
+import javax.wsdl.factory.WSDLFactory;
+import javax.wsdl.xml.WSDLWriter;
+import javax.xml.namespace.QName;
+import javax.xml.ws.WebServiceException;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.net.URI;
+import java.net.URL;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.concurrent.CountDownLatch;
 
 
 public abstract class Axis2WebServiceContainer implements WebServiceContainer {
@@ -534,18 +533,14 @@ public abstract class Axis2WebServiceContainer implements WebServiceContainer {
         DependencyManager.initService(serviceGroupContext);
         //endpointInstance = msgContext.getServiceContext().getProperty(ServiceContext.SERVICE_OBJECT);
 
-        setMsgContextProperties(msgContext, service, response, request);       
+        setMsgContextProperties(msgContext, service, response, request);
 
-        try {
-            HTTPTransportUtils.processHTTPPostRequest(
-                    msgContext,
-                    request.getInputStream(),
-                    response.getOutputStream(),
-                    contenttype,
-                    soapAction,
-                    request.getURI().getPath());
-        } catch (Exception ex) {
-            //ignore
-        }        
+        HTTPTransportUtils.processHTTPPostRequest(
+                msgContext,
+                request.getInputStream(),
+                response.getOutputStream(),
+                contenttype,
+                soapAction,
+                request.getURI().getPath());
     }
 }

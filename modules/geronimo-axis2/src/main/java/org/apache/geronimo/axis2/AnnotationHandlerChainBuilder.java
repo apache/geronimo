@@ -19,16 +19,13 @@
 
 package org.apache.geronimo.axis2;
 
-import org.apache.axis2.jaxws.javaee.HandlerChainType;
-import org.apache.axis2.jaxws.javaee.HandlerChainsType;
-import org.apache.axis2.jaxws.javaee.PortComponentHandlerType;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.geronimo.xbeans.javaee.HandlerChainType;
+import org.apache.geronimo.xbeans.javaee.HandlerChainsType;
+import org.apache.geronimo.xbeans.javaee.PortComponentHandlerType;
 
 import javax.jws.HandlerChain;
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBElement;
-import javax.xml.bind.Unmarshaller;
 import javax.xml.ws.WebServiceException;
 import javax.xml.ws.handler.Handler;
 import javax.xml.ws.handler.LogicalHandler;
@@ -60,19 +57,14 @@ public class AnnotationHandlerChainBuilder {
 
             HandlerChainType hc = null;
             try {
-                JAXBContext jc = JAXBContext
-                        .newInstance(org.apache.axis2.jaxws.javaee.ObjectFactory.class);
-                Unmarshaller u = jc.createUnmarshaller();
                 URL handlerFileURL = clz.getResource(hcAnn.getFileName());
-                JAXBElement<?> o = (JAXBElement<?>) u.unmarshal(handlerFileURL);
+                HandlerChainsType handlerChainsType = HandlerChainsType.Factory.parse(handlerFileURL);
 
-                HandlerChainsType handlerChainsType = (HandlerChainsType) o.getValue();
-
-                if (null == handlerChainsType || handlerChainsType.getHandlerChain().size() == 0) {
+                if (null == handlerChainsType || handlerChainsType.getHandlerChainArray() == null) {
                     throw new WebServiceException("Chain not specified");
                 }
                 //We expect only one HandlerChainType here
-                hc = (HandlerChainType) handlerChainsType.getHandlerChain().iterator().next();
+                hc = handlerChainsType.getHandlerChainArray()[0];
             } catch (Exception e) {
                 e.printStackTrace();
                 throw new WebServiceException("Chain not specified", e);
@@ -117,13 +109,13 @@ public class AnnotationHandlerChainBuilder {
 
     protected List<Handler> buildHandlerChain(HandlerChainType hc, ClassLoader classLoader) {
         List<Handler> handlerChain = new ArrayList<Handler>();
-        for (PortComponentHandlerType ht : hc.getHandler()) {
+        for (PortComponentHandlerType ht : hc.getHandlerArray()) {
             try {
-                log.debug("loading handler :" + trimString(ht.getHandlerName().getValue()));
+                log.debug("loading handler :" + trimString(ht.getHandlerName().getStringValue()));
 
                 Class<? extends Handler> handlerClass = Class.forName(
                         trimString(ht.getHandlerClass()
-                                .getValue()), true, classLoader)
+                                .getStringValue()), true, classLoader)
                         .asSubclass(Handler.class);
 
                 Handler handler = handlerClass.newInstance();

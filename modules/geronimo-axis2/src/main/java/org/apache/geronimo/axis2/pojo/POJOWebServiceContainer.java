@@ -17,13 +17,6 @@
 
 package org.apache.geronimo.axis2.pojo;
 
-import java.net.URL;
-import java.util.List;
-
-import javax.naming.Context;
-import javax.xml.ws.WebServiceException;
-import javax.xml.ws.handler.Handler;
-
 import org.apache.axis2.context.ConfigurationContext;
 import org.apache.axis2.context.MessageContext;
 import org.apache.axis2.context.ServiceContext;
@@ -31,7 +24,6 @@ import org.apache.axis2.context.ServiceGroupContext;
 import org.apache.axis2.description.AxisService;
 import org.apache.axis2.engine.DependencyManager;
 import org.apache.axis2.jaxws.binding.BindingImpl;
-import org.apache.axis2.jaxws.javaee.HandlerChainsType;
 import org.apache.axis2.jaxws.server.JAXWSMessageReceiver;
 import org.apache.axis2.transport.http.HTTPConstants;
 import org.apache.axis2.transport.http.HTTPTransportUtils;
@@ -42,6 +34,13 @@ import org.apache.geronimo.jaxws.JAXWSAnnotationProcessor;
 import org.apache.geronimo.jaxws.JNDIResolver;
 import org.apache.geronimo.jaxws.PortInfo;
 import org.apache.geronimo.jaxws.annotations.AnnotationException;
+import org.apache.geronimo.xbeans.javaee.HandlerChainsType;
+
+import javax.naming.Context;
+import javax.xml.ws.WebServiceException;
+import javax.xml.ws.handler.Handler;
+import java.net.URL;
+import java.util.List;
 
 
 public class POJOWebServiceContainer extends Axis2WebServiceContainer {
@@ -68,7 +67,7 @@ public class POJOWebServiceContainer extends Axis2WebServiceContainer {
         DependencyManager.initService(serviceGroupContext);
         endpointInstance = msgContext.getServiceContext().getProperty(ServiceContext.SERVICE_OBJECT);
         
-        super.setMsgContextProperties(msgContext, service, response, request);
+        setMsgContextProperties(msgContext, service, response, request);
         annotationProcessor = new JAXWSAnnotationProcessor(jndiResolver,
                 new POJOWebServiceContext(msgContext));
         init();
