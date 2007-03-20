@@ -17,29 +17,6 @@
 
 package org.apache.geronimo.axis2.builder;
 
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.StringWriter;
-import java.net.URI;
-import java.net.URL;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.jar.JarFile;
-
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBElement;
-import javax.xml.bind.JAXBException;
-import javax.xml.bind.Unmarshaller;
-import javax.xml.namespace.QName;
-import javax.xml.transform.stream.StreamSource;
-
-import org.apache.axis2.jaxws.javaee.HandlerChainsType;
-import org.apache.axis2.jaxws.javaee.PortComponentType;
-import org.apache.axis2.jaxws.javaee.ServiceImplBeanType;
-import org.apache.axis2.jaxws.javaee.WebserviceDescriptionType;
-import org.apache.axis2.jaxws.javaee.WebservicesType;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.axis2.client.Axis2ServiceReference;
@@ -59,8 +36,26 @@ import org.apache.geronimo.jaxws.builder.JAXWSServiceBuilder;
 import org.apache.geronimo.jaxws.client.EndpointInfo;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.xbeans.geronimo.naming.GerServiceRefType;
+import org.apache.geronimo.xbeans.javaee.HandlerChainsType;
 import org.apache.geronimo.xbeans.javaee.PortComponentRefType;
+import org.apache.geronimo.xbeans.javaee.PortComponentType;
+import org.apache.geronimo.xbeans.javaee.ServiceImplBeanType;
 import org.apache.geronimo.xbeans.javaee.ServiceRefHandlerChainsType;
+import org.apache.geronimo.xbeans.javaee.WebserviceDescriptionType;
+import org.apache.geronimo.xbeans.javaee.WebservicesType;
+
+import javax.xml.bind.JAXBException;
+import javax.xml.namespace.QName;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.StringWriter;
+import java.net.URI;
+import java.net.URL;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.jar.JarFile;
 
 public class Axis2Builder extends JAXWSServiceBuilder {
 
@@ -90,46 +85,34 @@ public class Axis2Builder extends JAXWSServiceBuilder {
         Map<String, PortInfo> map = null;
 
         try {
-            JAXBContext ctx = JAXBContext.newInstance(WebservicesType.class);
-            Unmarshaller unmarshaller = ctx.createUnmarshaller();
-            Object obj = unmarshaller.unmarshal(new StreamSource(in), WebservicesType.class);
+            WebservicesType wst = WebservicesType.Factory.parse(in);
 
-            if (obj instanceof JAXBElement) {
-                obj = ((JAXBElement) obj).getValue();
-            }
-
-            if (!(obj instanceof WebservicesType)) {
-                return map;
-            }
-            
-            WebservicesType wst = (WebservicesType) obj;
-
-            for (WebserviceDescriptionType desc : wst.getWebserviceDescription()) {
+            for (WebserviceDescriptionType desc : wst.getWebserviceDescriptionArray()) {
                 String wsdlFile = null;
                 if (desc.getWsdlFile() != null) {
-                    wsdlFile = getString(desc.getWsdlFile().getValue());
+                    wsdlFile = getString(desc.getWsdlFile().getStringValue());
                 }
 
-                String serviceName = desc.getWebserviceDescriptionName().getValue();
+                String serviceName = desc.getWebserviceDescriptionName().getStringValue();
 
-                for (PortComponentType port : desc.getPortComponent()) {
+                for (PortComponentType port : desc.getPortComponentArray()) {
 
                     PortInfo portInfo = new PortInfo();
                     String serviceLink = null;
                     ServiceImplBeanType beanType = port.getServiceImplBean();
                     if (beanType.getEjbLink() != null) {
-                        serviceLink = beanType.getEjbLink().getValue();
-                    } else if (beanType.getServletLink().getValue() != null) {
-                        serviceLink = beanType.getServletLink().getValue();
+                        serviceLink = beanType.getEjbLink().getStringValue();
+                    } else if (beanType.getServletLink().getStringValue() != null) {
+                        serviceLink = beanType.getServletLink().getStringValue();
                     }
                     portInfo.setServiceLink(serviceLink);
 
                     if (port.getServiceEndpointInterface() != null) {
-                        String sei = port.getServiceEndpointInterface().getValue();
+                        String sei = port.getServiceEndpointInterface().getStringValue();
                         portInfo.setServiceEndpointInterfaceName(sei);
                     }
 
-                    String portName = port.getPortComponentName().getValue();
+                    String portName = port.getPortComponentName().getStringValue();
                     portInfo.setPortName(portName);
 
                     portInfo.setProtocolBinding(port.getProtocolBinding());
@@ -137,17 +120,17 @@ public class Axis2Builder extends JAXWSServiceBuilder {
                     portInfo.setWsdlFile(wsdlFile);
 
                     if (port.getEnableMtom() != null) {
-                        portInfo.setEnableMTOM(port.getEnableMtom().isValue());
+                        portInfo.setEnableMTOM(port.getEnableMtom().getBooleanValue());
                     }
 
                     portInfo.setHandlers(HandlerChainsType.class, port.getHandlerChains());
 
                     if (port.getWsdlPort() != null) {
-                        portInfo.setWsdlPort(port.getWsdlPort().getValue());
+                        portInfo.setWsdlPort(port.getWsdlPort().getQNameValue());
                     }
 
                     if (port.getWsdlService() != null) {
-                        portInfo.setWsdlService(port.getWsdlService().getValue());
+                        portInfo.setWsdlService(port.getWsdlService().getQNameValue());
                     }
 
                     String location = (String) correctedPortLocations.get(serviceLink);
