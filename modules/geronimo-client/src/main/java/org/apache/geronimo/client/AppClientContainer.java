@@ -52,7 +52,7 @@ import org.apache.xbean.recipe.StaticRecipe;
 public final class AppClientContainer implements GBeanLifecycle {
     private static final Class[] MAIN_ARGS = {String[].class};
 
-    public static LoginContext loginContext;
+    private LoginContext loginContext;
 
     private final String mainClassName;
     private final AppClientPlugin jndiContext;
@@ -83,15 +83,7 @@ public final class AppClientContainer implements GBeanLifecycle {
         }
         this.realmName = realmName;
         this.callbackHandlerClass = callbackHandlerClassName;
-//        if (callbackHandlerClassName != null) {
-//            try {
-//                this.callbackHandlerClass = classLoader.loadClass(callbackHandlerClassName);
-//            } catch (ClassNotFoundException e) {
-//                throw new AppClientInitializationException("Could not load callbackHandlerClass", e);
-//            }
-//        } else {
-//            callbackHandlerClass = null;
-//        }
+
         if (defaultPrincipal != null) {
             defaultSubject = ConfigurationUtil.generateDefaultSubject(defaultPrincipal, classLoader);
         } else {
@@ -146,6 +138,7 @@ public final class AppClientContainer implements GBeanLifecycle {
                     callbackHandler = (CallbackHandler) callbackHandlerClass.newInstance();
                 }
                 */
+                
                 loginContext = new LoginContext(realmName, callbackHandler);
                 try {
                     loginContext.login();
