@@ -53,11 +53,18 @@ public class NestedJarFile extends JarFile {
         }
 
         if (targetEntry.isDirectory()) {
-            baseJar = jarFile;
-            if (!path.endsWith("/")) {
-                path += "/";
-            }
-            basePath = path;
+        	if(targetEntry instanceof UnpackedJarEntry) {
+        		//unpacked nested module inside unpacked ear
+        		File targetFile = ((UnpackedJarEntry) targetEntry).getFile();
+        		baseJar = new UnpackedJarFile(targetFile);
+                basePath = "";
+        	} else {
+        		baseJar = jarFile;
+        		if (!path.endsWith("/")) {
+                    path += "/";
+                }
+                basePath = path;
+        	}
         } else {
             if (targetEntry instanceof UnpackedJarEntry) {
                 // for unpacked jars we don't need to copy the jar file
