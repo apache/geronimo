@@ -175,7 +175,7 @@
              </attribute>
         </gbean>
     </module>
-    
+
     <module name="org.apache.geronimo.configs/cxf-deployer/${version}/car" 
             condition="props.getProperty('org.apache.geronimo.jaxws.provider', 'cxf') == 'cxf'">
 
@@ -191,10 +191,10 @@
                     </dependency>
                 </dependencies>
               </environment>
-             </attribute>
+            </attribute>
         </gbean>
     </module>
-    
+
     <module name="org.apache.geronimo.configs/axis-deployer/${version}/car">
         <gbean name="AxisServiceRefBuilder">
             <attribute name="eeNamespaces">http://java.sun.com/xml/ns/j2ee,http://java.sun.com/xml/ns/javaee</attribute>
@@ -207,7 +207,7 @@
             <attribute name="port">25</attribute>
         </gbean>
     </module>
-    
+
     <module name="org.apache.geronimo.configs/sharedlib/${version}/car">
         <gbean name="SharedLib">
             <attribute name="classesDirs">var/shared/classes</attribute>

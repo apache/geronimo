@@ -25,6 +25,50 @@
         <attribute name="defaultWelcomeFiles">index.html,index.htm,index.jsp</attribute>
         <attribute name="jettyContainerObjectName">?name=JettyWebContainer</attribute>
         <attribute name="jspServletClassName">org.apache.jasper.servlet.JspServlet</attribute>
+        <attribute name="defaultLocaleEncodingMappings">
+ar=ISO-8859-6
+be=ISO-8859-5
+bg=ISO-8859-5
+ca=ISO-8859-1
+cs=ISO-8859-2
+da=ISO-8859-1
+de=ISO-8859-1
+el=ISO-8859-7
+en=ISO-8859-1
+es=ISO-8859-1
+et=ISO-8859-1
+fi=ISO-8859-1
+fr=ISO-8859-1
+hr=ISO-8859-2
+hu=ISO-8859-2
+is=ISO-8859-1
+it=ISO-8859-1
+iw=ISO-8859-8
+ja=Shift_JIS
+ko=EUC-KR
+lt=ISO-8859-2
+lv=ISO-8859-2
+mk=ISO-8859-5
+nl=ISO-8859-1
+no=ISO-8859-1
+pl=ISO-8859-2
+pt=ISO-8859-1
+ro=ISO-8859-2
+ru=ISO-8859-5
+sh=ISO-8859-5
+sk=ISO-8859-2
+sl=ISO-8859-2
+sq=ISO-8859-2
+sr=ISO-8859-5
+sv=ISO-8859-1
+tr=ISO-8859-9
+uk=ISO-8859-5
+zh=GB2312
+zh_TW=Big5
+        </attribute>
+        <attribute name="defaultMimeTypeMappings">
+wsdl=text/xml            
+        </attribute>
         <references name="DefaultServlets">
             <pattern>
                 <name>StaticContent</name>
@@ -48,13 +92,13 @@
             </pattern>
         </references>
         <references name="WebServiceBuilder">
-			<pattern>
+            <pattern>
                 <name>CXFBuilder</name>
             </pattern>
-			<pattern>
-				<name>Axis2Builder</name>
-			</pattern>
-			<pattern>
+            <pattern>
+                <name>Axis2Builder</name>
+            </pattern>
+            <pattern>
                 <name>WebServiceBuilder</name>
             </pattern>
             <pattern>
@@ -67,9 +111,14 @@
         <reference name="ClusteringBuilders">
             <name>JettyClusteringBuilder</name>
         </reference>
-        <reference name="ModuleBuilderExtensions">
-            <name>MyFacesModuleBuilderExtension</name>
-        </reference>
+        <references name="ModuleBuilderExtensions">
+            <pattern>
+                <name>MyFacesModuleBuilderExtension</name>
+            </pattern>
+            <pattern>
+                <name>JspModuleBuilderExtension</name>
+            </pattern>
+        </references>
         <reference name="ResourceEnvironmentSetter">
             <name>ResourceRefBuilder</name>
         </reference>

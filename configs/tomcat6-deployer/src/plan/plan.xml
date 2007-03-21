@@ -45,6 +45,14 @@
         <reference name="NamingBuilders">
             <name>NamingBuilders</name>
         </reference>
+        <references name="ModuleBuilderExtensions">
+            <pattern>
+                <name>MyFacesModuleBuilderExtension</name>
+            </pattern>
+            <pattern>
+                <name>JspModuleBuilderExtension</name>
+            </pattern>
+        </references>
         <reference name="ResourceEnvironmentSetter">
             <name>ResourceRefBuilder</name>
         </reference>

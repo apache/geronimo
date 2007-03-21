@@ -57,7 +57,7 @@
         </gbean>
     </module>
 
-    <module name="org.apache.geronimo.configs/axis/${version}/car"/>
+    <module name="org.apache.geronimo.configs/axis/${version}/car" load="false"/>
     <module name="org.apache.geronimo.configs/axis2/${version}/car" load="false"/>
     <module name="org.apache.geronimo.configs/cxf/${version}/car" load="false"/>
 
@@ -86,6 +86,8 @@
     </module>
 
     <module name="org.apache.geronimo.configs/activemq-ra/${version}/car"/>
+
+    <module name="org.apache.geronimo.configs/myfaces/${version}/car"/>
 
     <module name="org.apache.geronimo.configs/tomcat6/${version}/car">
         <!-- To disable accesslogging uncomment the following lines
@@ -198,7 +200,6 @@
               </environment>
             </attribute>
         </gbean>
-
     </module>
 
     <module name="org.apache.geronimo.configs/axis-deployer/${version}/car">
@@ -222,8 +223,12 @@
     </module>
 
     <module name="org.apache.geronimo.configs/tomcat6-deployer/${version}/car"/>
+        
+    <module name="org.apache.geronimo.configs/myfaces-deployer/${version}/car"/>
 
     <module name="org.apache.geronimo.configs/welcome-tomcat/${version}/car"/>
+
+    <module name="org.apache.geronimo.configs/dojo-tomcat/${version}/car"/>
 
     <module name="org.apache.geronimo.configs/webconsole-tomcat/${version}/car"/>
 
