@@ -148,9 +148,9 @@ public abstract class Axis2WebServiceContainer implements WebServiceContainer {
 
         try {
             TransportOutDescription transportOut = this.configurationContext.getAxisConfiguration()
-                    .getTransportOut(new QName(Constants.TRANSPORT_HTTP));
+                    .getTransportOut(Constants.TRANSPORT_HTTP);
             TransportInDescription transportIn = this.configurationContext.getAxisConfiguration()
-                    .getTransportIn(new QName(Constants.TRANSPORT_HTTP));
+                    .getTransportIn(Constants.TRANSPORT_HTTP);
             
             
 
