@@ -19,9 +19,9 @@
 <!-- $Rev: 482336 $ $Date: 2006-12-04 15:12:19 -0500 (Mon, 04 Dec 2006) $ -->
 
 <soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
-   <soap:Body>
-     <sayHello xmlns="http://apache.org/hello_control/types">
-       <requestType>World</requestType>
-     </sayHello>
-   </soap:Body>
+    <soap:Body>
+        <sayHello xmlns="http://apache.org/hello_control/types">
+            <requestType>World</requestType>
+        </sayHello>
+    </soap:Body>
 </soap:Envelope>

@@ -19,25 +19,25 @@
 <!-- $Rev: 482336 $ $Date: 2006-12-04 15:12:19 -0500 (Mon, 04 Dec 2006) $ -->
 
 <ServiceRequest>
-	<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
-	   <soap:Body>
-	     <oneWayEmpty xmlns="http://doclitbare.axis2.geronimo.apache.org">
-	       <NoParam/>
-	     </oneWayEmpty>     
-	   </soap:Body>
-	</soap:Envelope>
-	<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
-	   <soap:Body>     
-	     <twoWaySimple xmlns="http://doclitbare.axis2.geronimo.apache.org">
-	       <SingleParamInt>25</SingleParamInt>
-	     </twoWaySimple>
-	   </soap:Body>
-	</soap:Envelope>
-	<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
-	   <soap:Body>     
-	     <oneWay xmlns="http://doclitbare.axis2.geronimo.apache.org">
-	       <SingleParam>Hello World</SingleParam>
-	     </oneWay>
-	   </soap:Body>
-	</soap:Envelope>
+    <soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
+        <soap:Body>
+            <oneWayEmpty xmlns="http://doclitbare.axis2.geronimo.apache.org">
+                <NoParam/>
+            </oneWayEmpty>
+        </soap:Body>
+    </soap:Envelope>
+    <soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
+        <soap:Body>
+            <twoWaySimple xmlns="http://doclitbare.axis2.geronimo.apache.org">
+                <SingleParamInt>25</SingleParamInt>
+            </twoWaySimple>
+        </soap:Body>
+    </soap:Envelope>
+    <soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
+        <soap:Body>
+            <oneWay xmlns="http://doclitbare.axis2.geronimo.apache.org">
+                <SingleParam>Hello World</SingleParam>
+            </oneWay>
+        </soap:Body>
+    </soap:Envelope>
 </ServiceRequest>

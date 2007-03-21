@@ -19,571 +19,571 @@
 <!-- $Rev: 482336 $ $Date: 2006-12-04 15:12:19 -0500 (Mon, 04 Dec 2006) $ -->
 
 <wsdl:definitions targetNamespace="http://org/apache/geronimo/axis2/rpclit" xmlns="http://schemas.xmlsoap.org/wsdl/" xmlns:apachesoap="http://xml.apache.org/xml-soap" xmlns:impl="http://org/apache/geronimo/axis2/rpclit" xmlns:intf="http://org/apache/geronimo/axis2/rpclit" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:wsdlsoap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
- <wsdl:types>
-  <schema targetNamespace="http://org/apache/geronimo/axis2/rpclit" xmlns="http://www.w3.org/2001/XMLSchema">
-  
-  <!-- Example of a QName list.  This should map to javax.xml.namespace.QName[] -->
-   <xsd:simpleType name="QNameList">
-      <xsd:list itemType="xsd:QName"/>
-   </xsd:simpleType>
-   <element name="QNameList" nillable="true" type="impl:QNameList"/>
+    <wsdl:types>
+        <schema targetNamespace="http://org/apache/geronimo/axis2/rpclit" xmlns="http://www.w3.org/2001/XMLSchema">
 
-  <!-- Example of a Calendar list.  This should map to java.util.Calendar[] -->
-   <xsd:simpleType name="CalendarList">   
-      <xsd:list itemType="xsd:dateTime"/> 
-   </xsd:simpleType>                 
-   <element name="CalendarList" nillable="true" type="impl:CalendarList"/>
-  
-  <!-- Example of a String list.  This should map to java.lang.String[] -->
-   <xsd:simpleType name="StringList">   
-      <xsd:list itemType="xsd:string"/> 
-   </xsd:simpleType>
-   <element name="StringList" nillable="true" type="impl:StringList"/>
-  
-  <!-- Example of a xsd:negativeInteger list.  This should map to java.math.BigInteger[] -->
-   <xsd:simpleType name="BigIntegerList">
-      <xsd:restriction>     
-          <xsd:simpleType> 
-             <xsd:list itemType="xsd:negativeInteger"/>
-          </xsd:simpleType>
-      </xsd:restriction>
-   </xsd:simpleType>
-   <element name="BigIntegerList" nillable="true" type="impl:BigIntegerList"/>
-  
-  <!-- Example of a xsd:unsignedInt list.  This should map to long[] -->
-   <xsd:simpleType name="LongList">
-      <xsd:list>
-          <xsd:simpleType>
-             <xsd:restriction base="xsd:unsignedInt"/>
-          </xsd:simpleType>
-      </xsd:list>
-   </xsd:simpleType>
-   <element name="LongList" nillable="true" type="impl:LongList"/>
+            <!-- Example of a QName list.  This should map to javax.xml.namespace.QName[] -->
+            <xsd:simpleType name="QNameList">
+                <xsd:list itemType="xsd:QName"/>
+            </xsd:simpleType>
+            <element name="QNameList" nillable="true" type="impl:QNameList"/>
+
+            <!-- Example of a Calendar list.  This should map to java.util.Calendar[] -->
+            <xsd:simpleType name="CalendarList">
+                <xsd:list itemType="xsd:dateTime"/>
+            </xsd:simpleType>
+            <element name="CalendarList" nillable="true" type="impl:CalendarList"/>
+
+            <!-- Example of a String list.  This should map to java.lang.String[] -->
+            <xsd:simpleType name="StringList">
+                <xsd:list itemType="xsd:string"/>
+            </xsd:simpleType>
+            <element name="StringList" nillable="true" type="impl:StringList"/>
+
+            <!-- Example of a xsd:negativeInteger list.  This should map to java.math.BigInteger[] -->
+            <xsd:simpleType name="BigIntegerList">
+                <xsd:restriction>
+                    <xsd:simpleType>
+                        <xsd:list itemType="xsd:negativeInteger"/>
+                    </xsd:simpleType>
+                </xsd:restriction>
+            </xsd:simpleType>
+            <element name="BigIntegerList" nillable="true" type="impl:BigIntegerList"/>
+
+            <!-- Example of a xsd:unsignedInt list.  This should map to long[] -->
+            <xsd:simpleType name="LongList">
+                <xsd:list>
+                    <xsd:simpleType>
+                        <xsd:restriction base="xsd:unsignedInt"/>
+                    </xsd:simpleType>
+                </xsd:list>
+            </xsd:simpleType>
+            <element name="LongList" nillable="true" type="impl:LongList"/>
+
+            <!-- Example of an Enumeration type.  This should map to Enum.java -->
+            <xsd:simpleType name="Enum">
+                <xsd:restriction base="xsd:string">
+                    <xsd:enumeration value="one"/>
+                    <xsd:enumeration value="two"/>
+                    <xsd:enumeration value="three"/>
+                </xsd:restriction>
+            </xsd:simpleType>
+            <element name="Enum" nillable="true" type="impl:Enum"/>
+
+            <!-- Example of a xsd:enumeration list.  This should map to Enum[] -->
+            <xsd:simpleType name="EnumList">
+                <xsd:list itemType="impl:Enum"/>
+            </xsd:simpleType>
+            <element name="EnumList" nillable="true" type="impl:EnumList"/>
+
+            <!-- Example of a xsd:enumeration embedded list.  This should map to EnumList2[] -->
+            <xsd:simpleType name="EnumList2">
+                <xsd:list>
+                    <xsd:simpleType>
+                        <xsd:restriction base="xsd:string">
+                            <xsd:enumeration value="Apple" />
+                            <xsd:enumeration value="Orange" />
+                            <xsd:enumeration value="Grape" />
+                        </xsd:restriction>
+                    </xsd:simpleType>
+                </xsd:list>
+            </xsd:simpleType>
+            <element name="EnumList2" nillable="true" type="impl:EnumList2"/>
+
+            <xsd:complexType name="complexAll">
+                <xsd:all>
+                    <xsd:element name="myInt" type="xsd:int"/>
+                    <xsd:element name="myString" type="xsd:string"/>
+                    <xsd:element name="Enum" type="impl:Enum"/>
+                    <xsd:element name="myQNameList" type="impl:QNameList"/>
+                    <xsd:element name="myCalendarList" type="impl:CalendarList"/>
+                    <xsd:element name="myStringList" type="impl:StringList"/>
+                    <xsd:element name="myBigIntegerList" type="impl:BigIntegerList"/>
+                    <xsd:element name="myLongList" type="impl:LongList"/>
+                    <xsd:element name="myEnumList" type="impl:EnumList"/>
+                    <xsd:element name="myEnumList2" type="impl:EnumList2"/>
+                </xsd:all>
+            </xsd:complexType>
+
+            <xsd:element name="headerParam" type="xsd:string" />
+            <xsd:element name="headerReturn" type="xsd:string" />
+
+            <xsd:element name="myFault" type="xsd:int" />
+        </schema>
+    </wsdl:types>
+
+    <wsdl:message name="testListsResponse">
+
+        <wsdl:part name="testListsReturn" type="impl:QNameList"/>
+
+    </wsdl:message>
+
+    <wsdl:message name="testListsRequest">
+
+        <wsdl:part name="arg_0_0" type="impl:QNameList"/>
+
+        <wsdl:part name="arg_1_0" type="impl:CalendarList"/>
+
+        <wsdl:part name="arg_2_0" type="impl:StringList"/>
+
+        <wsdl:part name="arg_3_0" type="impl:BigIntegerList"/>
+
+        <wsdl:part name="arg_4_0" type="impl:LongList"/>
+
+        <wsdl:part name="arg_5_0" type="impl:EnumList"/>
+
+        <wsdl:part name="arg_7_0" type="impl:EnumList2"/>
+
+        <wsdl:part name="arg_6_0" type="impl:complexAll"/>
+
+    </wsdl:message>
    
-  <!-- Example of an Enumeration type.  This should map to Enum.java -->  
-   <xsd:simpleType name="Enum">
-      <xsd:restriction base="xsd:string">
-          <xsd:enumeration value="one"/>                      
-          <xsd:enumeration value="two"/>                    
-          <xsd:enumeration value="three"/>                    
-      </xsd:restriction>
-   </xsd:simpleType>
-   <element name="Enum" nillable="true" type="impl:Enum"/>
- 
-  <!-- Example of a xsd:enumeration list.  This should map to Enum[] -->  
-   <xsd:simpleType name="EnumList">
-      <xsd:list itemType="impl:Enum"/> 
-   </xsd:simpleType>
-   <element name="EnumList" nillable="true" type="impl:EnumList"/>
-  
-  <!-- Example of a xsd:enumeration embedded list.  This should map to EnumList2[] --> 
-   <xsd:simpleType name="EnumList2">
-      <xsd:list>
-          <xsd:simpleType>
-            <xsd:restriction base="xsd:string">
-              <xsd:enumeration value="Apple" />
-              <xsd:enumeration value="Orange" />
-              <xsd:enumeration value="Grape" />
-            </xsd:restriction>
-          </xsd:simpleType>
-      </xsd:list>
-   </xsd:simpleType>
-   <element name="EnumList2" nillable="true" type="impl:EnumList2"/> 
-
-   <xsd:complexType name="complexAll">
-      <xsd:all>
-          <xsd:element name="myInt" type="xsd:int"/>
-          <xsd:element name="myString" type="xsd:string"/>
-          <xsd:element name="Enum" type="impl:Enum"/>
-          <xsd:element name="myQNameList" type="impl:QNameList"/>
-          <xsd:element name="myCalendarList" type="impl:CalendarList"/>
-          <xsd:element name="myStringList" type="impl:StringList"/>
-          <xsd:element name="myBigIntegerList" type="impl:BigIntegerList"/>
-          <xsd:element name="myLongList" type="impl:LongList"/>
-          <xsd:element name="myEnumList" type="impl:EnumList"/>
-          <xsd:element name="myEnumList2" type="impl:EnumList2"/>
-      </xsd:all>
-   </xsd:complexType>
-   
-   <xsd:element name="headerParam" type="xsd:string" />
-   <xsd:element name="headerReturn" type="xsd:string" />
-   
-    <xsd:element name="myFault" type="xsd:int" />
-  </schema>
- </wsdl:types>
 
-   <wsdl:message name="testListsResponse">
+    <wsdl:message name="testCalendarList1Response">
 
-      <wsdl:part name="testListsReturn" type="impl:QNameList"/>
+        <wsdl:part name="testCalendarList1Return" type="impl:CalendarList"/>
 
-   </wsdl:message>
+    </wsdl:message>
 
-   <wsdl:message name="testListsRequest">
+    <wsdl:message name="testCalendarList1Request">
 
-      <wsdl:part name="arg_0_0" type="impl:QNameList"/>
+        <wsdl:part name="arg_1_0" type="impl:CalendarList"/>
 
-      <wsdl:part name="arg_1_0" type="impl:CalendarList"/>
+    </wsdl:message>
 
-      <wsdl:part name="arg_2_0" type="impl:StringList"/>
-      
-      <wsdl:part name="arg_3_0" type="impl:BigIntegerList"/>
-      
-      <wsdl:part name="arg_4_0" type="impl:LongList"/>
-      
-      <wsdl:part name="arg_5_0" type="impl:EnumList"/>
-      
-      <wsdl:part name="arg_7_0" type="impl:EnumList2"/>
-      
-      <wsdl:part name="arg_6_0" type="impl:complexAll"/>
+    <wsdl:message name="testStringList2Response">
 
-   </wsdl:message>
-   
-   
-   <wsdl:message name="testCalendarList1Response">
+        <wsdl:part name="testStringList2Return" type="impl:StringList"/>
 
-      <wsdl:part name="testCalendarList1Return" type="impl:CalendarList"/>
+    </wsdl:message>
 
-   </wsdl:message>
+    <wsdl:message name="testStringList2Request">
 
-   <wsdl:message name="testCalendarList1Request">
+        <wsdl:part name="arg_2_0" type="impl:StringList"/>
 
-      <wsdl:part name="arg_1_0" type="impl:CalendarList"/>
+    </wsdl:message>
 
-   </wsdl:message>
-   
-   <wsdl:message name="testStringList2Response">
+    <wsdl:message name="testBigIntegerList3Response">
 
-      <wsdl:part name="testStringList2Return" type="impl:StringList"/>
+        <wsdl:part name="testBigIntegerList3Return" type="impl:BigIntegerList"/>
 
-   </wsdl:message>
+    </wsdl:message>
 
-   <wsdl:message name="testStringList2Request">
+    <wsdl:message name="testBigIntegerList3Request">
 
-      <wsdl:part name="arg_2_0" type="impl:StringList"/>
+        <wsdl:part name="arg_3_0" type="impl:BigIntegerList"/>
 
-   </wsdl:message>
-   
-   <wsdl:message name="testBigIntegerList3Response">
+    </wsdl:message>
 
-      <wsdl:part name="testBigIntegerList3Return" type="impl:BigIntegerList"/>
+    <wsdl:message name="testLongList4Response">
 
-   </wsdl:message>
+        <wsdl:part name="testLongList4Return" type="impl:LongList"/>
 
-   <wsdl:message name="testBigIntegerList3Request">
+    </wsdl:message>
 
-      <wsdl:part name="arg_3_0" type="impl:BigIntegerList"/>
+    <wsdl:message name="testLongList4Request">
 
-   </wsdl:message>
-   
-   <wsdl:message name="testLongList4Response">
+        <wsdl:part name="arg_4_0" type="impl:LongList"/>
 
-      <wsdl:part name="testLongList4Return" type="impl:LongList"/>
+    </wsdl:message>
 
-   </wsdl:message>
+    <wsdl:message name="testEnumList5Response">
 
-   <wsdl:message name="testLongList4Request">
+        <wsdl:part name="testEnumList5Return" type="impl:EnumList"/>
 
-      <wsdl:part name="arg_4_0" type="impl:LongList"/>
+    </wsdl:message>
 
-   </wsdl:message>
-   
-   <wsdl:message name="testEnumList5Response">
+    <wsdl:message name="testEnumList5Request">
 
-      <wsdl:part name="testEnumList5Return" type="impl:EnumList"/>
+        <wsdl:part name="arg_5_0" type="impl:EnumList"/>
 
-   </wsdl:message>
+    </wsdl:message>
 
-   <wsdl:message name="testEnumList5Request">
+    <wsdl:message name="testEnumList7Response">
 
-      <wsdl:part name="arg_5_0" type="impl:EnumList"/>
+        <wsdl:part name="testEnumList7Return" type="impl:EnumList2"/>
 
-   </wsdl:message>
-   
-   <wsdl:message name="testEnumList7Response">
+    </wsdl:message>
 
-      <wsdl:part name="testEnumList7Return" type="impl:EnumList2"/>
+    <wsdl:message name="testEnumList7Request">
 
-   </wsdl:message>
+        <wsdl:part name="arg_7_0" type="impl:EnumList2"/>
 
-   <wsdl:message name="testEnumList7Request">
+    </wsdl:message>
 
-      <wsdl:part name="arg_7_0" type="impl:EnumList2"/>
+    <wsdl:message name="testComplexAll6Response">
 
-   </wsdl:message>
+        <wsdl:part name="testComplexAll6Return" type="impl:complexAll"/>
 
-   <wsdl:message name="testComplexAll6Response">
+    </wsdl:message>
 
-      <wsdl:part name="testComplexAll6Return" type="impl:complexAll"/>
+    <wsdl:message name="testComplexAll6Request">
 
-   </wsdl:message>
+        <wsdl:part name="arg_6_0" type="impl:complexAll"/>
 
-   <wsdl:message name="testComplexAll6Request">
+    </wsdl:message>
 
-      <wsdl:part name="arg_6_0" type="impl:complexAll"/>
+    <wsdl:message name="testSimpleRequest">
 
-   </wsdl:message>
+        <wsdl:part name="simpleIn" type="xsd:string"/>
 
-   <wsdl:message name="testSimpleRequest">
+    </wsdl:message>
 
-      <wsdl:part name="simpleIn" type="xsd:string"/>
+    <wsdl:message name="testSimpleResponse">
 
-   </wsdl:message>
+        <wsdl:part name="simpleOut" type="xsd:string"/>
 
-   <wsdl:message name="testSimpleResponse">
+    </wsdl:message>
 
-      <wsdl:part name="simpleOut" type="xsd:string"/>
+    <wsdl:message name="testSimple2Request">
 
-   </wsdl:message>
-   
-   <wsdl:message name="testSimple2Request">
+        <wsdl:part name="simple2In1" type="xsd:string"/>
+        <wsdl:part name="simple2In1" type="xsd:string"/>
 
-      <wsdl:part name="simple2In1" type="xsd:string"/>
-      <wsdl:part name="simple2In1" type="xsd:string"/>
+    </wsdl:message>
 
-   </wsdl:message>
+    <wsdl:message name="testSimple2Response">
 
-   <wsdl:message name="testSimple2Response">
+        <wsdl:part name="simple2Out" type="xsd:string"/>
 
-      <wsdl:part name="simple2Out" type="xsd:string"/>
+    </wsdl:message>
 
-   </wsdl:message>
-   
-   <wsdl:message name="testHeaderRequest">
+    <wsdl:message name="testHeaderRequest">
 
-      <wsdl:part name="bodyParam" type="xsd:string"/>
-      <wsdl:part name="headerParam" element="impl:headerParam"/>
+        <wsdl:part name="bodyParam" type="xsd:string"/>
+        <wsdl:part name="headerParam" element="impl:headerParam"/>
 
-   </wsdl:message>
+    </wsdl:message>
 
-   <wsdl:message name="testHeaderResponse">
+    <wsdl:message name="testHeaderResponse">
 
-      <wsdl:part name="headerReturn" element="impl:headerReturn"/>
+        <wsdl:part name="headerReturn" element="impl:headerReturn"/>
 
-   </wsdl:message>
-   
-   <wsdl:message name="testFaultRequest" />
-   <wsdl:message name="testFaultResponse" />
-   
-   <wsdl:message name="rpcFault">
-     <wsdl:part name="rpcFault" element="impl:myFault" />
-   </wsdl:message>
+    </wsdl:message>
 
-   <wsdl:portType name="RPCLit">
-     
-      <wsdl:operation name="testSimple" parameterOrder="simpleIn">
+    <wsdl:message name="testFaultRequest" />
+    <wsdl:message name="testFaultResponse" />
 
-         <wsdl:input message="impl:testSimpleRequest" name="testSimpleRequest"/>
+    <wsdl:message name="rpcFault">
+        <wsdl:part name="rpcFault" element="impl:myFault" />
+    </wsdl:message>
 
-         <wsdl:output message="impl:testSimpleResponse" name="testSimpleResponse"/>
+    <wsdl:portType name="RPCLit">
 
-      </wsdl:operation>
-      
-      <wsdl:operation name="testSimple2" parameterOrder="simple2In1 simple2In2">
+        <wsdl:operation name="testSimple" parameterOrder="simpleIn">
 
-         <wsdl:input message="impl:testSimple2Request" name="testSimple2Request"/>
+            <wsdl:input message="impl:testSimpleRequest" name="testSimpleRequest"/>
 
-         <wsdl:output message="impl:testSimple2Response" name="testSimple2Response"/>
+            <wsdl:output message="impl:testSimpleResponse" name="testSimpleResponse"/>
 
-      </wsdl:operation>
-      
-      <wsdl:operation name="testHeader" parameterOrder="bodyParam headerParam">
+        </wsdl:operation>
 
-         <wsdl:input message="impl:testHeaderRequest" name="testHeaderRequest"/>
+        <wsdl:operation name="testSimple2" parameterOrder="simple2In1 simple2In2">
 
-         <wsdl:output message="impl:testHeaderResponse" name="testHeaderResponse"/>
+            <wsdl:input message="impl:testSimple2Request" name="testSimple2Request"/>
 
-      </wsdl:operation>
+            <wsdl:output message="impl:testSimple2Response" name="testSimple2Response"/>
 
-      <wsdl:operation name="testLists" parameterOrder="arg_0_0 arg_1_0 arg_2_0 arg_3_0 arg_4_0 arg_5_0 arg_7_0 arg_6_0">
+        </wsdl:operation>
 
-         <wsdl:input message="impl:testListsRequest" name="testListsRequest"/>
+        <wsdl:operation name="testHeader" parameterOrder="bodyParam headerParam">
 
-         <wsdl:output message="impl:testListsResponse" name="testListsResponse"/>
+            <wsdl:input message="impl:testHeaderRequest" name="testHeaderRequest"/>
 
-      </wsdl:operation>
-      
-      <wsdl:operation name="testCalendarList1" parameterOrder="arg_1_0">
+            <wsdl:output message="impl:testHeaderResponse" name="testHeaderResponse"/>
 
-         <wsdl:input message="impl:testCalendarList1Request" name="testCalendarList1Request"/>
+        </wsdl:operation>
 
-         <wsdl:output message="impl:testCalendarList1Response" name="testCalendarList1Response"/>
+        <wsdl:operation name="testLists" parameterOrder="arg_0_0 arg_1_0 arg_2_0 arg_3_0 arg_4_0 arg_5_0 arg_7_0 arg_6_0">
 
-      </wsdl:operation>
-      
-      <wsdl:operation name="testStringList2" parameterOrder="arg_2_0">
+            <wsdl:input message="impl:testListsRequest" name="testListsRequest"/>
 
-         <wsdl:input message="impl:testStringList2Request" name="testStringList2Request"/>
+            <wsdl:output message="impl:testListsResponse" name="testListsResponse"/>
 
-         <wsdl:output message="impl:testStringList2Response" name="testStringList2Response"/>
+        </wsdl:operation>
 
-      </wsdl:operation>
-      
-      <wsdl:operation name="testBigIntegerList3" parameterOrder="arg_3_0">
+        <wsdl:operation name="testCalendarList1" parameterOrder="arg_1_0">
 
-         <wsdl:input message="impl:testBigIntegerList3Request" name="testBigIntegerList3Request"/>
+            <wsdl:input message="impl:testCalendarList1Request" name="testCalendarList1Request"/>
 
-         <wsdl:output message="impl:testBigIntegerList3Response" name="testBigIntegerList3Response"/>
+            <wsdl:output message="impl:testCalendarList1Response" name="testCalendarList1Response"/>
 
-      </wsdl:operation>
-      
-      <wsdl:operation name="testLongList4" parameterOrder="arg_4_0">
+        </wsdl:operation>
 
-         <wsdl:input message="impl:testLongList4Request" name="testLongList4Request"/>
+        <wsdl:operation name="testStringList2" parameterOrder="arg_2_0">
 
-         <wsdl:output message="impl:testLongList4Response" name="testLongList4Response"/>
+            <wsdl:input message="impl:testStringList2Request" name="testStringList2Request"/>
 
-      </wsdl:operation>
-      
-      <wsdl:operation name="testEnumList5" parameterOrder="arg_5_0">
+            <wsdl:output message="impl:testStringList2Response" name="testStringList2Response"/>
 
-         <wsdl:input message="impl:testEnumList5Request" name="testEnumList5Request"/>
+        </wsdl:operation>
 
-         <wsdl:output message="impl:testEnumList5Response" name="testEnumList5Response"/>
+        <wsdl:operation name="testBigIntegerList3" parameterOrder="arg_3_0">
 
-      </wsdl:operation>
-      
-      <wsdl:operation name="testEnumList7" parameterOrder="arg_7_0">
+            <wsdl:input message="impl:testBigIntegerList3Request" name="testBigIntegerList3Request"/>
 
-         <wsdl:input message="impl:testEnumList7Request" name="testEnumList7Request"/>
+            <wsdl:output message="impl:testBigIntegerList3Response" name="testBigIntegerList3Response"/>
 
-         <wsdl:output message="impl:testEnumList7Response" name="testEnumList7Response"/>
+        </wsdl:operation>
 
-      </wsdl:operation>
-      
-      <wsdl:operation name="testComplexAll6" parameterOrder="arg_6_0">
+        <wsdl:operation name="testLongList4" parameterOrder="arg_4_0">
 
-         <wsdl:input message="impl:testComplexAll6Request" name="testComplexAll6Request"/>
+            <wsdl:input message="impl:testLongList4Request" name="testLongList4Request"/>
 
-         <wsdl:output message="impl:testComplexAll6Response" name="testComplexAll6Response"/>
+            <wsdl:output message="impl:testLongList4Response" name="testLongList4Response"/>
 
-      </wsdl:operation>
-      
-      <wsdl:operation name="testFault">
+        </wsdl:operation>
 
-         <wsdl:input message="impl:testFaultRequest" name="testFaultRequest"/>
+        <wsdl:operation name="testEnumList5" parameterOrder="arg_5_0">
 
-         <wsdl:output message="impl:testFaultResponse" name="testFaultResponse"/>
-         <wsdl:fault name="rpcFault" message="impl:rpcFault" />
-      </wsdl:operation>
-      
-   </wsdl:portType>
+            <wsdl:input message="impl:testEnumList5Request" name="testEnumList5Request"/>
 
-   <wsdl:binding name="RPCLitSoapBinding" type="impl:RPCLit">
+            <wsdl:output message="impl:testEnumList5Response" name="testEnumList5Response"/>
 
-      <wsdlsoap:binding style="rpc" transport="http://schemas.xmlsoap.org/soap/http"/>
+        </wsdl:operation>
 
-     <wsdl:operation name="testSimple">
+        <wsdl:operation name="testEnumList7" parameterOrder="arg_7_0">
 
-         <wsdl:input name="testSimpleRequest">
-               <wsdlsoap:body namespace="http://org/apache/geronimo/axis2/rpclit" use="literal"/>
-         </wsdl:input>
+            <wsdl:input message="impl:testEnumList7Request" name="testEnumList7Request"/>
 
-         <wsdl:output name="testSimpleResponse">
-               <wsdlsoap:body namespace="http://org/apache/geronimo/axis2/rpclit" use="literal"/>
-         </wsdl:output>
+            <wsdl:output message="impl:testEnumList7Response" name="testEnumList7Response"/>
 
-      </wsdl:operation>
-      
-      <wsdl:operation name="testSimple2">
+        </wsdl:operation>
 
-         <wsdl:input name="testSimple2Request">
-               <wsdlsoap:body namespace="http://org/apache/geronimo/axis2/rpclit" use="literal"/>
-         </wsdl:input>
+        <wsdl:operation name="testComplexAll6" parameterOrder="arg_6_0">
 
-         <wsdl:output name="testSimple2Response">
-               <wsdlsoap:body namespace="http://org/apache/geronimo/axis2/rpclit" use="literal"/>
-         </wsdl:output>
+            <wsdl:input message="impl:testComplexAll6Request" name="testComplexAll6Request"/>
 
-      </wsdl:operation>
-      
-      <wsdl:operation name="testHeader">
-			
-         <wsdl:input name="testHeaderRequest">
-               <wsdlsoap:body parts="bodyParam" use="literal"/>
-               <wsdlsoap:header message="impl:testHeaderRequest" part="headerParam" use="literal"/>
-         </wsdl:input>
+            <wsdl:output message="impl:testComplexAll6Response" name="testComplexAll6Response"/>
 
-         <wsdl:output name="testHeaderResponse">
-               <wsdlsoap:header message="impl:testHeaderResponse" part="headerReturn" use="literal"/>
-         </wsdl:output>
+        </wsdl:operation>
 
-      </wsdl:operation>
+        <wsdl:operation name="testFault">
 
-      <wsdl:operation name="testLists">
+            <wsdl:input message="impl:testFaultRequest" name="testFaultRequest"/>
 
-         <wsdlsoap:operation soapAction=""/>
+            <wsdl:output message="impl:testFaultResponse" name="testFaultResponse"/>
+            <wsdl:fault name="rpcFault" message="impl:rpcFault" />
+        </wsdl:operation>
 
-         <wsdl:input name="testListsRequest">
+    </wsdl:portType>
 
-            <wsdlsoap:body namespace="http://org/apache/geronimo/axis2/rpclit" use="literal"/>
+    <wsdl:binding name="RPCLitSoapBinding" type="impl:RPCLit">
 
-         </wsdl:input>
+        <wsdlsoap:binding style="rpc" transport="http://schemas.xmlsoap.org/soap/http"/>
 
-         <wsdl:output name="testListsResponse">
+        <wsdl:operation name="testSimple">
 
-            <wsdlsoap:body namespace="http://org/apache/geronimo/axis2/rpclit" use="literal"/>
+            <wsdl:input name="testSimpleRequest">
+                <wsdlsoap:body namespace="http://org/apache/geronimo/axis2/rpclit" use="literal"/>
+            </wsdl:input>
 
-         </wsdl:output>
+            <wsdl:output name="testSimpleResponse">
+                <wsdlsoap:body namespace="http://org/apache/geronimo/axis2/rpclit" use="literal"/>
+            </wsdl:output>
 
-      </wsdl:operation>
-      
-      <wsdl:operation name="testCalendarList1">
+        </wsdl:operation>
 
-         <wsdlsoap:operation soapAction=""/>
+        <wsdl:operation name="testSimple2">
 
-         <wsdl:input name="testCalendarList1Request">
+            <wsdl:input name="testSimple2Request">
+                <wsdlsoap:body namespace="http://org/apache/geronimo/axis2/rpclit" use="literal"/>
+            </wsdl:input>
 
-            <wsdlsoap:body namespace="http://org/apache/geronimo/axis2/rpclit" use="literal"/>
+            <wsdl:output name="testSimple2Response">
+                <wsdlsoap:body namespace="http://org/apache/geronimo/axis2/rpclit" use="literal"/>
+            </wsdl:output>
 
-         </wsdl:input>
+        </wsdl:operation>
 
-         <wsdl:output name="testCalendarList1Response">
+        <wsdl:operation name="testHeader">
 
-            <wsdlsoap:body namespace="http://org/apache/geronimo/axis2/rpclit" use="literal"/>
+            <wsdl:input name="testHeaderRequest">
+                <wsdlsoap:body parts="bodyParam" use="literal"/>
+                <wsdlsoap:header message="impl:testHeaderRequest" part="headerParam" use="literal"/>
+            </wsdl:input>
 
-         </wsdl:output>
+            <wsdl:output name="testHeaderResponse">
+                <wsdlsoap:header message="impl:testHeaderResponse" part="headerReturn" use="literal"/>
+            </wsdl:output>
 
-      </wsdl:operation>
-      
-      <wsdl:operation name="testStringList2">
+        </wsdl:operation>
 
-         <wsdlsoap:operation soapAction=""/>
+        <wsdl:operation name="testLists">
 
-         <wsdl:input name="testStringList2Request">
+            <wsdlsoap:operation soapAction=""/>
 
-            <wsdlsoap:body namespace="http://org/apache/geronimo/axis2/rpclit" use="literal"/>
+            <wsdl:input name="testListsRequest">
 
-         </wsdl:input>
+                <wsdlsoap:body namespace="http://org/apache/geronimo/axis2/rpclit" use="literal"/>
 
-         <wsdl:output name="testStringList2Response">
+            </wsdl:input>
 
-            <wsdlsoap:body namespace="http://org/apache/geronimo/axis2/rpclit" use="literal"/>
+            <wsdl:output name="testListsResponse">
 
-         </wsdl:output>
+                <wsdlsoap:body namespace="http://org/apache/geronimo/axis2/rpclit" use="literal"/>
 
-      </wsdl:operation>
-      
-      <wsdl:operation name="testBigIntegerList3">
+            </wsdl:output>
 
-         <wsdlsoap:operation soapAction=""/>
+        </wsdl:operation>
 
-         <wsdl:input name="testBigIntegerList3Request">
+        <wsdl:operation name="testCalendarList1">
 
-            <wsdlsoap:body namespace="http://org/apache/geronimo/axis2/rpclit" use="literal"/>
+            <wsdlsoap:operation soapAction=""/>
 
-         </wsdl:input>
+            <wsdl:input name="testCalendarList1Request">
 
-         <wsdl:output name="testBigIntegerList3Response">
+                <wsdlsoap:body namespace="http://org/apache/geronimo/axis2/rpclit" use="literal"/>
 
-            <wsdlsoap:body namespace="http://org/apache/geronimo/axis2/rpclit" use="literal"/>
+            </wsdl:input>
 
-         </wsdl:output>
+            <wsdl:output name="testCalendarList1Response">
 
-      </wsdl:operation>
-      
-      <wsdl:operation name="testLongList4">
+                <wsdlsoap:body namespace="http://org/apache/geronimo/axis2/rpclit" use="literal"/>
 
-         <wsdlsoap:operation soapAction=""/>
+            </wsdl:output>
 
-         <wsdl:input name="testLongList4Request">
+        </wsdl:operation>
 
-            <wsdlsoap:body namespace="http://org/apache/geronimo/axis2/rpclit" use="literal"/>
+        <wsdl:operation name="testStringList2">
 
-         </wsdl:input>
+            <wsdlsoap:operation soapAction=""/>
 
-         <wsdl:output name="testLongList4Response">
+            <wsdl:input name="testStringList2Request">
 
-            <wsdlsoap:body namespace="http://org/apache/geronimo/axis2/rpclit" use="literal"/>
+                <wsdlsoap:body namespace="http://org/apache/geronimo/axis2/rpclit" use="literal"/>
 
-         </wsdl:output>
+            </wsdl:input>
 
-      </wsdl:operation>
-      
-      <wsdl:operation name="testEnumList5">
+            <wsdl:output name="testStringList2Response">
 
-         <wsdlsoap:operation soapAction=""/>
+                <wsdlsoap:body namespace="http://org/apache/geronimo/axis2/rpclit" use="literal"/>
 
-         <wsdl:input name="testEnumList5Request">
+            </wsdl:output>
 
-            <wsdlsoap:body namespace="http://org/apache/geronimo/axis2/rpclit" use="literal"/>
+        </wsdl:operation>
 
-         </wsdl:input>
+        <wsdl:operation name="testBigIntegerList3">
 
-         <wsdl:output name="testEnumList5Response">
+            <wsdlsoap:operation soapAction=""/>
 
-            <wsdlsoap:body namespace="http://org/apache/geronimo/axis2/rpclit" use="literal"/>
+            <wsdl:input name="testBigIntegerList3Request">
 
-         </wsdl:output>
+                <wsdlsoap:body namespace="http://org/apache/geronimo/axis2/rpclit" use="literal"/>
 
-      </wsdl:operation>
-      
-      <wsdl:operation name="testEnumList7">
+            </wsdl:input>
 
-         <wsdlsoap:operation soapAction=""/>
+            <wsdl:output name="testBigIntegerList3Response">
 
-         <wsdl:input name="testEnumList7Request">
+                <wsdlsoap:body namespace="http://org/apache/geronimo/axis2/rpclit" use="literal"/>
 
-            <wsdlsoap:body namespace="http://org/apache/geronimo/axis2/rpclit" use="literal"/>
+            </wsdl:output>
 
-         </wsdl:input>
+        </wsdl:operation>
 
-         <wsdl:output name="testEnumList7Response">
+        <wsdl:operation name="testLongList4">
 
-            <wsdlsoap:body namespace="http://org/apache/geronimo/axis2/rpclit" use="literal"/>
+            <wsdlsoap:operation soapAction=""/>
 
-         </wsdl:output>
+            <wsdl:input name="testLongList4Request">
 
-      </wsdl:operation>
-      
-      <wsdl:operation name="testComplexAll6">
+                <wsdlsoap:body namespace="http://org/apache/geronimo/axis2/rpclit" use="literal"/>
 
-         <wsdlsoap:operation soapAction=""/>
+            </wsdl:input>
 
-         <wsdl:input name="testComplexAll6Request">
+            <wsdl:output name="testLongList4Response">
 
-            <wsdlsoap:body namespace="http://org/apache/geronimo/axis2/rpclit" use="literal"/>
+                <wsdlsoap:body namespace="http://org/apache/geronimo/axis2/rpclit" use="literal"/>
 
-         </wsdl:input>
+            </wsdl:output>
 
-         <wsdl:output name="testComplexAll6Response">
+        </wsdl:operation>
 
-            <wsdlsoap:body namespace="http://org/apache/geronimo/axis2/rpclit" use="literal"/>
+        <wsdl:operation name="testEnumList5">
 
-         </wsdl:output>
+            <wsdlsoap:operation soapAction=""/>
 
-      </wsdl:operation> 
-      <wsdl:operation name="testFault">
+            <wsdl:input name="testEnumList5Request">
 
-         <wsdlsoap:operation soapAction="testFault"/>
+                <wsdlsoap:body namespace="http://org/apache/geronimo/axis2/rpclit" use="literal"/>
 
-         <wsdl:input name="testFaultRequest">
+            </wsdl:input>
 
-            <wsdlsoap:body namespace="http://org/apache/geronimo/axis2/rpclit" use="literal"/>
+            <wsdl:output name="testEnumList5Response">
 
-         </wsdl:input>
+                <wsdlsoap:body namespace="http://org/apache/geronimo/axis2/rpclit" use="literal"/>
 
-         <wsdl:output name="testFaultResponse">
+            </wsdl:output>
 
-            <wsdlsoap:body namespace="http://org/apache/geronimo/axis2/rpclit" use="literal"/>
+        </wsdl:operation>
 
-         </wsdl:output>
-         <wsdl:fault name="rpcFault">
-            <wsdlsoap:fault name="rpcFault" use="literal" />
-         </wsdl:fault>
+        <wsdl:operation name="testEnumList7">
 
-      </wsdl:operation>      
+            <wsdlsoap:operation soapAction=""/>
 
-   </wsdl:binding>
+            <wsdl:input name="testEnumList7Request">
 
-   <wsdl:service name="RPCLitService">
+                <wsdlsoap:body namespace="http://org/apache/geronimo/axis2/rpclit" use="literal"/>
 
-      <wsdl:port binding="impl:RPCLitSoapBinding" name="RPCLit">
+            </wsdl:input>
 
-         <wsdlsoap:address location="http://localhost:9080/axis2/services/RPCLitService"/>
+            <wsdl:output name="testEnumList7Response">
 
-      </wsdl:port>
+                <wsdlsoap:body namespace="http://org/apache/geronimo/axis2/rpclit" use="literal"/>
 
-   </wsdl:service>
+            </wsdl:output>
+
+        </wsdl:operation>
+
+        <wsdl:operation name="testComplexAll6">
+
+            <wsdlsoap:operation soapAction=""/>
+
+            <wsdl:input name="testComplexAll6Request">
+
+                <wsdlsoap:body namespace="http://org/apache/geronimo/axis2/rpclit" use="literal"/>
+
+            </wsdl:input>
+
+            <wsdl:output name="testComplexAll6Response">
+
+                <wsdlsoap:body namespace="http://org/apache/geronimo/axis2/rpclit" use="literal"/>
+
+            </wsdl:output>
+
+        </wsdl:operation>
+        <wsdl:operation name="testFault">
+
+            <wsdlsoap:operation soapAction="testFault"/>
+
+            <wsdl:input name="testFaultRequest">
+
+                <wsdlsoap:body namespace="http://org/apache/geronimo/axis2/rpclit" use="literal"/>
+
+            </wsdl:input>
+
+            <wsdl:output name="testFaultResponse">
+
+                <wsdlsoap:body namespace="http://org/apache/geronimo/axis2/rpclit" use="literal"/>
+
+            </wsdl:output>
+            <wsdl:fault name="rpcFault">
+                <wsdlsoap:fault name="rpcFault" use="literal" />
+            </wsdl:fault>
+
+        </wsdl:operation>
+
+    </wsdl:binding>
+
+    <wsdl:service name="RPCLitService">
+
+        <wsdl:port binding="impl:RPCLitSoapBinding" name="RPCLit">
+
+            <wsdlsoap:address location="http://localhost:9080/axis2/services/RPCLitService"/>
+
+        </wsdl:port>
+
+    </wsdl:service>
 
 </wsdl:definitions>
 

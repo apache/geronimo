@@ -19,22 +19,22 @@
 <!-- $Rev: 482336 $ $Date: 2006-12-04 15:12:19 -0500 (Mon, 04 Dec 2006) $ -->
 
 <ServiceRequest>
-	<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
-	   <soap:Body>
-	     <testSimple xmlns="http://org/apache/geronimo/axis2/rpclit">
-	       <simpleIn>A</simpleIn>
-	     </testSimple>     
-	   </soap:Body>
-	</soap:Envelope>
-	<!-- There is a problem in Axis2 when parameter order comes -->
-	<!--
-	<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
-	   <soap:Body>
-	     <testSimple2 xmlns="http://org/apache/geronimo/axis2/rpclit">
-	       <simple2In1>A</simple2In1>
-	       <simple2In1>B</simple2In1>
-	     </testSimple2>     
-	   </soap:Body>
-	</soap:Envelope>
-	-->
+    <soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
+        <soap:Body>
+            <testSimple xmlns="http://org/apache/geronimo/axis2/rpclit">
+                <simpleIn>A</simpleIn>
+            </testSimple>
+        </soap:Body>
+    </soap:Envelope>
+    <!-- There is a problem in Axis2 when parameter order comes -->
+    <!--
+    <soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
+       <soap:Body>
+         <testSimple2 xmlns="http://org/apache/geronimo/axis2/rpclit">
+           <simple2In1>A</simple2In1>
+           <simple2In1>B</simple2In1>
+         </testSimple2>
+       </soap:Body>
+    </soap:Envelope>
+    -->
 </ServiceRequest>
