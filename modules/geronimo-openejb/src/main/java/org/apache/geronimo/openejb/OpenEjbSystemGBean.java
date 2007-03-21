@@ -39,6 +39,7 @@ import org.apache.geronimo.gbean.ReferenceCollection;
 import org.apache.geronimo.gbean.ReferenceCollectionEvent;
 import org.apache.geronimo.gbean.ReferenceCollectionListener;
 import org.apache.geronimo.gbean.SingleElementCollection;
+import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.openejb.Container;
@@ -328,7 +329,7 @@ public class OpenEjbSystemGBean implements OpenEjbSystem {
         GBeanInfoBuilder infoBuilder = GBeanInfoBuilder.createStatic(OpenEjbSystemGBean.class);
         infoBuilder.addReference("TransactionManager", TransactionManager.class);
         infoBuilder.addReference("ResourceAdapterWrappers", ResourceAdapterWrapper.class);
-        infoBuilder.addReference("ORBProviders", ORBProvider.class);
+        infoBuilder.addReference("ORBProviders", ORBProvider.class, NameFactory.CORBA_SERVICE);
         infoBuilder.addAttribute("kernel", Kernel.class, false);
         infoBuilder.addAttribute("classLoader", ClassLoader.class, false);
         infoBuilder.setConstructor(new String[] {
