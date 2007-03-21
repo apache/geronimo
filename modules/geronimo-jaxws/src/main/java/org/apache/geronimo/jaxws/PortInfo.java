@@ -164,4 +164,12 @@ public class PortInfo implements Serializable {
         return "[" + serviceName + ":" + portName + ":" + seiInterfaceName
                 + ":" + wsdlFile + "]";
     }
+
+    public String getHandlersAsXML() {
+        return handlersAsXML;
+    }
+
+    public void setHandlersAsXML(String handlersAsXML) {
+        this.handlersAsXML = handlersAsXML;
+    }
 }

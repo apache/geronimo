@@ -186,15 +186,12 @@
     
     <build>
         <plugins>
-            <!--
-            HACK: Disable Axis2HandlerResolverTest until Dimms can fix it... :-(
-            -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <configuration>
                     <excludes>
-                        <exclude>**/Axis2HandlerResolverTest.java</exclude>
+                        <!--<exclude>**/Axis2HandlerResolverTest.java</exclude>-->
                     </excludes>
                 </configuration>
             </plugin>

@@ -35,6 +35,7 @@ import org.apache.geronimo.jaxws.JNDIResolver;
 import org.apache.geronimo.jaxws.PortInfo;
 import org.apache.geronimo.jaxws.annotations.AnnotationException;
 import org.apache.geronimo.xbeans.javaee.HandlerChainsType;
+import org.apache.geronimo.xbeans.javaee.HandlerChainsDocument;
 
 import javax.naming.Context;
 import javax.xml.ws.WebServiceException;
@@ -115,7 +116,8 @@ public class POJOWebServiceContainer extends Axis2WebServiceContainer {
      * performs injection.
      */
     protected void configureHandlers() throws Exception {
-        HandlerChainsType handlerChains = this.portInfo.getHandlers(HandlerChainsType.class);
+        String xml = this.portInfo.getHandlersAsXML();
+        HandlerChainsType handlerChains = xml == null ? null : HandlerChainsDocument.Factory.parse(xml).getHandlerChains();
         Axis2HandlerResolver handlerResolver =
             new Axis2HandlerResolver(endpointInstance.getClass().getClassLoader(),
                                    endpointInstance.getClass(),

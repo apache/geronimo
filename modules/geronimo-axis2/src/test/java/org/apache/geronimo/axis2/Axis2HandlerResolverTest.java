@@ -16,22 +16,17 @@
  */
 package org.apache.geronimo.axis2;
 
-import java.io.InputStream;
-import java.util.List;
+import org.apache.geronimo.testsupport.TestSupport;
+import org.apache.geronimo.xbeans.javaee.HandlerChainsDocument;
+import org.apache.geronimo.xbeans.javaee.HandlerChainsType;
+import org.apache.xmlbeans.XmlException;
 
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBElement;
-import javax.xml.bind.JAXBException;
-import javax.xml.bind.Unmarshaller;
 import javax.xml.namespace.QName;
-import javax.xml.transform.stream.StreamSource;
-
 import javax.xml.ws.handler.Handler;
 import javax.xml.ws.handler.PortInfo;
-
-import org.apache.geronimo.xbeans.javaee.HandlerChainsType;
-
-import org.apache.geronimo.testsupport.TestSupport;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.List;
 
 public class Axis2HandlerResolverTest extends TestSupport {
 
@@ -53,7 +48,7 @@ public class Axis2HandlerResolverTest extends TestSupport {
     public void testServiceMatching() throws Exception {
         InputStream in = getClass().getResourceAsStream("/handlers_service.xml");
         assertTrue(in != null);
-        HandlerChainsType handlerChains = toHandlerChains(in); 
+        HandlerChainsType handlerChains = toHandlerChains(in);
         assertEquals(3, handlerChains.getHandlerChainArray().length);
         
         Axis2HandlerResolver resolver = 
@@ -166,15 +161,8 @@ public class Axis2HandlerResolverTest extends TestSupport {
         assertEquals(1, handlers.size());
     }
     
-    private static HandlerChainsType toHandlerChains(InputStream input)
-            throws JAXBException {
-        JAXBContext ctx = JAXBContext.newInstance(HandlerChainsType.class);
-        Unmarshaller unmarshaller = ctx.createUnmarshaller();
-        StreamSource in = new StreamSource(input);
-        JAXBElement handlerElement = unmarshaller.unmarshal(in,
-                HandlerChainsType.class);
-
-        return (HandlerChainsType) handlerElement.getValue();
+    private static HandlerChainsType toHandlerChains(InputStream input) throws IOException, XmlException {
+        return HandlerChainsDocument.Factory.parse(input).getHandlerChains();
     }
     
     private static class TestPortInfo implements PortInfo {

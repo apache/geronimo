@@ -22,14 +22,14 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.axis2.Axis2HandlerResolver;
 import org.apache.geronimo.gbean.AbstractName;
-import org.apache.geronimo.jaxws.HandlerChainsUtils;
 import org.apache.geronimo.jaxws.JAXWSAnnotationProcessor;
 import org.apache.geronimo.jaxws.JNDIResolver;
 import org.apache.geronimo.jaxws.client.EndpointInfo;
 import org.apache.geronimo.jaxws.client.JAXWSServiceReference;
+import org.apache.geronimo.xbeans.javaee.HandlerChainsDocument;
 import org.apache.geronimo.xbeans.javaee.HandlerChainsType;
+import org.apache.xmlbeans.XmlException;
 
-import javax.xml.bind.JAXBException;
 import javax.xml.namespace.QName;
 import javax.xml.ws.handler.HandlerResolver;
 import java.net.URI;
@@ -55,9 +55,8 @@ public class Axis2ServiceReference extends JAXWSServiceReference {
 
     protected HandlerChainsType getHandlerChains() {
         try {
-            return HandlerChainsUtils.toHandlerChains(this.handlerChainsXML, HandlerChainsType.class);
-        } catch (JAXBException e) {
-            // this should not happen
+            return HandlerChainsDocument.Factory.parse(this.handlerChainsXML).getHandlerChains();
+        } catch (XmlException e) {
             log.warn("Failed to deserialize handler chains", e);
             return null;
         }

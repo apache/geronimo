@@ -22,6 +22,7 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.xbeans.javaee.HandlerChainType;
 import org.apache.geronimo.xbeans.javaee.HandlerChainsType;
 import org.apache.geronimo.xbeans.javaee.PortComponentHandlerType;
+import org.apache.geronimo.xbeans.javaee.HandlerChainsDocument;
 
 import javax.jws.HandlerChain;
 import javax.xml.ws.WebServiceException;
@@ -59,7 +60,7 @@ public class AnnotationHandlerChainBuilder {
             HandlerChainType hc = null;
             try {
                 URL handlerFileURL = clz.getResource(hcAnn.getFileName());
-                HandlerChainsType handlerChainsType = HandlerChainsType.Factory.parse(handlerFileURL);
+                HandlerChainsType handlerChainsType = HandlerChainsDocument.Factory.parse(handlerFileURL).getHandlerChains();
 
                 if (null == handlerChainsType || handlerChainsType.getHandlerChainArray() == null) {
                     throw new WebServiceException("Chain not specified");
