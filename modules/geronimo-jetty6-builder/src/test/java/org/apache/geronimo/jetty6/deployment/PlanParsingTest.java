@@ -75,6 +75,8 @@ public class PlanParsingTest extends XmlBeansTestSupport {
                 null, new HashSet(),
                 new HashSet(),
                 new HashSet(),
+                null,
+                null,
                 pojoWebServiceTemplate,
                 Collections.singleton(webServiceBuilder),
                 null,

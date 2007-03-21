@@ -275,6 +275,8 @@ public class JettyModuleBuilderTest extends TestSupport {
                 null, defaultServlets,
                 defaultFilters,
                 defaultFilterMappings,
+                null,
+                null,
                 pojoWebServiceTemplate,
                 Collections.singleton(webServiceBuilder),
                 null,

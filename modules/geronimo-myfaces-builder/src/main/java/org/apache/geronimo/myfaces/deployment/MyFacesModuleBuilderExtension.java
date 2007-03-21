@@ -63,6 +63,7 @@ import org.apache.geronimo.xbeans.javaee.FullyQualifiedClassType;
 import org.apache.geronimo.xbeans.javaee.ParamValueType;
 import org.apache.geronimo.xbeans.javaee.ServletType;
 import org.apache.geronimo.xbeans.javaee.WebAppType;
+import org.apache.geronimo.xbeans.javaee.ListenerType;
 import org.apache.myfaces.webapp.StartupServletContextListener;
 import org.apache.xbean.finder.ClassFinder;
 import org.apache.xmlbeans.XmlCursor;
@@ -130,6 +131,11 @@ public class MyFacesModuleBuilderExtension implements ModuleBuilderExtension {
         Object value = webAppData.getAttribute("listenerClassNames");
         if (value instanceof Collection && !((Collection) value).contains(CONTEXT_LISTENER_NAME)) {
             ((Collection<String>) value).add(CONTEXT_LISTENER_NAME);
+        } else {
+            //try to add listener to the web app xml
+            ListenerType listenerType = webApp.addNewListener();
+            FullyQualifiedClassType className = listenerType.addNewListenerClass();
+            className.setStringValue(CONTEXT_LISTENER_NAME);
         }
         AbstractName moduleName = moduleContext.getModuleName();
         Map<NamingBuilder.Key, Object> buildingContext = new HashMap<NamingBuilder.Key, Object>();

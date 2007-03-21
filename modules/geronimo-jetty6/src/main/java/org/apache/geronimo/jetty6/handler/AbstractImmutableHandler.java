@@ -18,14 +18,16 @@
 
 package org.apache.geronimo.jetty6.handler;
 
-import org.mortbay.jetty.handler.AbstractHandler;
 import org.mortbay.jetty.Handler;
+import org.mortbay.jetty.HandlerContainer;
 import org.mortbay.jetty.Server;
+import org.mortbay.jetty.handler.AbstractHandler;
+import org.mortbay.jetty.handler.AbstractHandlerContainer;
 
 /**
  * @version $Rev$ $Date$
  */
-public abstract class AbstractImmutableHandler extends AbstractHandler {
+public abstract class AbstractImmutableHandler extends AbstractHandlerContainer {
     protected final AbstractHandler next;
 
     protected AbstractImmutableHandler(AbstractHandler next) {
@@ -47,11 +49,30 @@ public abstract class AbstractImmutableHandler extends AbstractHandler {
 
     public void lifecycleCommand(LifecycleCommand lifecycleCommand) throws Exception {
         if (next instanceof AbstractImmutableHandler) {
-            ((AbstractImmutableHandler)next).lifecycleCommand(lifecycleCommand);
+            ((AbstractImmutableHandler) next).lifecycleCommand(lifecycleCommand);
         } else {
             lifecycleCommand.lifecycleMethod();
         }
     }
 
+
+    public void addHandler(Handler handler) {
+        if (next instanceof HandlerContainer) {
+            ((HandlerContainer) next).addHandler(handler);
+        } else {
+            throw new RuntimeException("geronimo HandlerContainers are immutable");
+        }
+    }
+
+    /**
+     * this is basically the implementation from HandlerWrapper.
+     * @param list partial list of handlers matching byClass (may be null)
+     * @param byClass class of the handlers we want
+     * @return extended list of handlers matching byClass
+     */
+    protected Object expandChildren(Object list, Class byClass)
+    {
+        return expandHandler(next, list, byClass);
+    }
 
 }

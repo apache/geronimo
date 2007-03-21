@@ -19,6 +19,7 @@
 package org.apache.geronimo.jetty6;
 
 import junit.framework.TestCase;
+import org.apache.geronimo.gbean.GBeanInfo;
 
 /**
  * @version $Rev$ $Date$
@@ -26,10 +27,12 @@ import junit.framework.TestCase;
 public class GBeanInfoTest extends TestCase {
 
     public void testJettyPOJOWebServiceHolder() throws Exception {
+        JettyPOJOWebServiceHolder.getGBeanInfo();
         new JettyPOJOWebServiceHolder();
     }
 
     public void testJettyContainerImpl() throws Exception {
+        JettyContainerImpl.getGBeanInfo();
         new JettyContainerImpl(null, null);
     }
 }

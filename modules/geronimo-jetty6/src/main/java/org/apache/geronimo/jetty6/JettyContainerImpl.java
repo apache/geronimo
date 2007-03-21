@@ -39,6 +39,7 @@ import org.mortbay.jetty.handler.ContextHandlerCollection;
 import org.mortbay.jetty.handler.DefaultHandler;
 import org.mortbay.jetty.handler.HandlerCollection;
 import org.mortbay.jetty.handler.RequestLogHandler;
+import org.mortbay.jetty.handler.AbstractHandlerContainer;
 
 /**
  * @version $Rev$ $Date$
@@ -183,11 +184,11 @@ public class JettyContainerImpl implements JettyContainer, SoapHandler, GBeanLif
         server.removeConnector(listener);
     }
 
-    public void addContext(ContextHandler context) {
+    public void addContext(AbstractHandlerContainer context) {
         contextHandlerCollection.addHandler(context);
     }
 
-    public void removeContext(ContextHandler context) {
+    public void removeContext(AbstractHandlerContainer context) {
         contextHandlerCollection.removeHandler(context);
     }
 
@@ -265,18 +266,18 @@ public class JettyContainerImpl implements JettyContainer, SoapHandler, GBeanLif
 
     static {
         GBeanInfoBuilder infoBuilder = GBeanInfoBuilder.createStatic("Jetty Web Container", JettyContainerImpl.class);
-        infoBuilder.addAttribute("collectStatistics", Boolean.TYPE, true);
-        infoBuilder.addAttribute("collectStatisticsStarted", Long.TYPE, false);
-        infoBuilder.addOperation("resetStatistics");
+//        infoBuilder.addAttribute("collectStatistics", Boolean.TYPE, true);
+//        infoBuilder.addAttribute("collectStatisticsStarted", Long.TYPE, false);
+//        infoBuilder.addOperation("resetStatistics");
 
-        infoBuilder.addAttribute("requestLog", RequestLog.class, false, false);
+//        infoBuilder.addAttribute("requestLog", RequestLog.class, false, false);
 
-        infoBuilder.addOperation("addListener", new Class[]{Connector.class});
-        infoBuilder.addOperation("removeListener", new Class[]{Connector.class});
-        infoBuilder.addOperation("addContext", new Class[]{ContextHandler.class});
-        infoBuilder.addOperation("removeContext", new Class[]{ContextHandler.class});
-        infoBuilder.addOperation("addRealm", new Class[]{String.class});
-        infoBuilder.addOperation("removeRealm", new Class[]{String.class});
+//        infoBuilder.addOperation("addListener", new Class[]{Connector.class});
+//        infoBuilder.addOperation("removeListener", new Class[]{Connector.class});
+//        infoBuilder.addOperation("addContext", new Class[]{ContextHandler.class});
+//        infoBuilder.addOperation("removeContext", new Class[]{ContextHandler.class});
+//        infoBuilder.addOperation("addRealm", new Class[]{String.class});
+//        infoBuilder.addOperation("removeRealm", new Class[]{String.class});
 
         infoBuilder.addAttribute("objectName", String.class, false);
         infoBuilder.addReference("WebManager", WebManager.class);

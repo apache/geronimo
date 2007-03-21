@@ -20,8 +20,7 @@ package org.apache.geronimo.jetty6;
 import org.apache.geronimo.management.geronimo.WebContainer;
 import org.mortbay.jetty.Connector;
 import org.mortbay.jetty.RequestLog;
-import org.mortbay.jetty.Server;
-import org.mortbay.jetty.handler.ContextHandler;
+import org.mortbay.jetty.handler.AbstractHandlerContainer;
 
 /**
  * @version $Rev$ $Date$
@@ -31,9 +30,9 @@ public interface JettyContainer extends WebContainer {
 
     void removeListener(Connector listener);
 
-    void addContext(ContextHandler context);
+    void addContext(AbstractHandlerContainer context);
 
-    void removeContext(ContextHandler context);
+    void removeContext(AbstractHandlerContainer context);
 
     InternalJAASJettyRealm addRealm(String realmName);
 
@@ -49,7 +48,6 @@ public interface JettyContainer extends WebContainer {
 
     void setRequestLog(RequestLog log);
 
-    /* ------------------------------------------------------------ */
     RequestLog getRequestLog();
 
 }

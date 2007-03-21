@@ -136,6 +136,8 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
 
     private final List<String> defaultWelcomeFiles;
     private final Integer defaultSessionTimeoutSeconds;
+    private final Map<String, String> defaultLocaleEncodingMappings;
+    private final Map<String, String> defaultMimeTypeMappings;
 
     private static final String JETTY_NAMESPACE = JettyWebAppDocument.type.getDocumentElementName().getNamespaceURI();
     private String jspServletClassName;
@@ -144,9 +146,12 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
             Integer defaultSessionTimeoutSeconds,
             List<String> defaultWelcomeFiles,
             AbstractNameQuery jettyContainerName,
-            String jspServletClassName, Collection defaultServlets,
+            String jspServletClassName,
+            Collection defaultServlets,
             Collection defaultFilters,
             Collection defaultFilterMappings,
+            Map<String, String> defaultLocaleEncodingMappings,
+            Map<String, String> defaultMimeTypeMappings,
             Object pojoWebServiceTemplate,
             Collection<WebServiceBuilder> webServiceBuilder,
             Collection clusteringBuilders,
@@ -167,9 +172,9 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
         this.pojoWebServiceTemplate = getGBeanData(kernel, pojoWebServiceTemplate);
         this.clusteringBuilders = new NamespaceDrivenBuilderCollection(clusteringBuilders, GerClusteringDocument.type.getDocumentElementName());
 
-        //todo locale mappings
-
-        this.defaultWelcomeFiles = defaultWelcomeFiles;
+        this.defaultWelcomeFiles = defaultWelcomeFiles == null? new ArrayList<String>(): defaultWelcomeFiles;
+        this.defaultLocaleEncodingMappings = defaultLocaleEncodingMappings == null? new HashMap<String, String>(): defaultLocaleEncodingMappings;
+        this.defaultMimeTypeMappings = defaultMimeTypeMappings == null? new HashMap<String, String>(): defaultMimeTypeMappings;
     }
 
     private static GBeanData getGBeanData(Kernel kernel, Object template) throws GBeanNotFoundException {
@@ -401,7 +406,7 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
             configureWelcomeFileLists(webApp, webModuleData);
 
             // configure local encoding mapping lists.
-            configureLocalEncodingMappingLists(webApp, webModuleData);
+            configureLocaleEncodingMappingLists(webApp, webModuleData);
 
             // configure error pages.
             configureErrorPages(webApp, webModuleData);
@@ -539,7 +544,7 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
             AbstractName defaultServletObjectName = earContext.getNaming().createChildName(moduleName, (String) servletGBeanData.getAttribute("servletName"), NameFactory.SERVLET);
             servletGBeanData.setAbstractName(defaultServletObjectName);
             servletGBeanData.setReferencePattern("JettyServletRegistration", moduleName);
-            Set<String> defaultServletMappings = new HashSet<String>((Collection) servletGBeanData.getAttribute("servletMappings"));
+            Set<String> defaultServletMappings = new HashSet<String>((Collection<String>) servletGBeanData.getAttribute("servletMappings"));
             defaultServletMappings.removeAll(knownServletMappings);
             servletGBeanData.setAttribute("servletMappings", defaultServletMappings);
             moduleContext.addGBean(servletGBeanData);
@@ -759,9 +764,9 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
         webModuleData.setAttribute("errorPages", errorPageMap);
     }
 
-    private void configureLocalEncodingMappingLists(WebAppType webApp, GBeanData webModuleData) {
+    private void configureLocaleEncodingMappingLists(WebAppType webApp, GBeanData webModuleData) {
         LocaleEncodingMappingListType[] localeEncodingMappingListArray = webApp.getLocaleEncodingMappingListArray();
-        Map<String, String> localeEncodingMappingMap = new HashMap<String, String>();
+        Map<String, String> localeEncodingMappingMap = new HashMap<String, String>(defaultLocaleEncodingMappings);
         for (LocaleEncodingMappingListType aLocaleEncodingMappingListArray : localeEncodingMappingListArray) {
             LocaleEncodingMappingType[] localeEncodingMappingArray = aLocaleEncodingMappingListArray.getLocaleEncodingMappingArray();
             for (LocaleEncodingMappingType localeEncodingMapping : localeEncodingMappingArray) {
@@ -790,7 +795,7 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
 
     private void configureMimeMappings(WebAppType webApp, GBeanData webModuleData) {
         MimeMappingType[] mimeMappingArray = webApp.getMimeMappingArray();
-        Map<String, String> mimeMappingMap = new HashMap<String, String>();
+        Map<String, String> mimeMappingMap = new HashMap<String, String>(defaultMimeTypeMappings);
         for (MimeMappingType mimeMappingType : mimeMappingArray) {
             mimeMappingMap.put(mimeMappingType.getExtension().getStringValue().trim(), mimeMappingType.getMimeType().getStringValue().trim());
         }
@@ -1009,6 +1014,8 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
         infoBuilder.addAttribute("defaultEnvironment", Environment.class, true, true);
         infoBuilder.addAttribute("defaultSessionTimeoutSeconds", Integer.class, true, true);
         infoBuilder.addAttribute("defaultWelcomeFiles", List.class, true, true);
+        infoBuilder.addAttribute("defaultLocaleEncodingMappings", Map.class, true, true);
+        infoBuilder.addAttribute("defaultMimeTypeMappings", Map.class, true, true);
         infoBuilder.addAttribute("jettyContainerObjectName", AbstractNameQuery.class, true, true);
         infoBuilder.addAttribute("jspServletClassName", String.class, true, true);
         infoBuilder.addReference("DefaultServlets", JettyDefaultServletHolder.class, NameFactory.SERVLET_TEMPLATE);
@@ -1034,6 +1041,8 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
                 "DefaultServlets",
                 "DefaultFilters",
                 "DefaultFilterMappings",
+                "defaultLocaleEncodingMappings",
+                "defaultMimeTypeMappings",
                 "PojoWebServiceTemplate",
                 "WebServiceBuilder",
                 "ClusteringBuilders",

@@ -63,6 +63,7 @@ import org.apache.geronimo.security.deploy.DefaultPrincipal;
 import org.apache.geronimo.transaction.GeronimoUserTransaction;
 import org.mortbay.jetty.MimeTypes;
 import org.mortbay.jetty.handler.AbstractHandler;
+import org.mortbay.jetty.handler.AbstractHandlerContainer;
 import org.mortbay.jetty.security.Authenticator;
 import org.mortbay.jetty.servlet.ErrorPageErrorHandler;
 import org.mortbay.jetty.servlet.ServletHandler;
@@ -92,31 +93,12 @@ public class JettyWebAppContext implements GBeanLifecycle, JettyServletRegistrat
 
     private final String objectName;
     private final WebAppContext webAppContext;//delegate
+    private final AbstractHandlerContainer contextHandler;
     private final AbstractImmutableHandler lifecycleChain;
     private final Context componentContext;
     private final Holder holder;
 
     private final Set<String> servletNames = new HashSet<String>();
-
-    /**
-     * @deprecated never use this...
-     */
-/*
-    public JettyWebAppContext() {
-        server = null;
-        application = null;
-        originalSpecDD = null;
-        webClassLoader = null;
-        jettyContainer = null;
-        webAppRoot = null;
-        objectName = null;
-        configurationBaseURL = null;
-        webAppContext = null;
-        lifecycleChain = null;
-        componentContext = null;
-        holder = null;
-    }
-*/
 
     public JettyWebAppContext(String objectName,
             String originalSpecDD,
@@ -163,7 +145,7 @@ public class JettyWebAppContext implements GBeanLifecycle, JettyServletRegistrat
         assert trackedConnectionAssociator != null;
         assert jettyContainer != null;
 
-        this.holder = holder == null? Holder.EMPTY: holder;
+        this.holder = holder == null ? Holder.EMPTY : holder;
 
         SessionHandler sessionHandler;
         if (null != handlerFactory) {
@@ -189,20 +171,29 @@ public class JettyWebAppContext implements GBeanLifecycle, JettyServletRegistrat
         ServletHandler servletHandler = new ServletHandler();
 
         webAppContext = new WebAppContext(securityHandler, sessionHandler, servletHandler, null);
-        AbstractHandler next = sessionHandler;
-        next = new ThreadClassloaderHandler(next, classLoader);
 
+        //wrap the web app context with the jndi handler
         GeronimoUserTransaction userTransaction = new GeronimoUserTransaction(transactionManager);
         this.componentContext = EnterpriseNamingContext.createEnterpriseNamingContext(componentContext, userTransaction, kernel, classLoader);
-        next = new ComponentContextHandler(next, this.componentContext);
-        next = new InstanceContextHandler(next, unshareableResources, applicationManagedSecurityResources, trackedConnectionAssociator);
-        lifecycleChain = (AbstractImmutableHandler) next;
-        webAppContext.setHandler(next);
+        contextHandler = new ComponentContextHandler(webAppContext, this.componentContext);
 
+        // localize access to next
+        {
+            //install the other handlers inside the web app context
+            AbstractHandler next = sessionHandler;
+            next = new ThreadClassloaderHandler(next, classLoader);
+
+            next = new InstanceContextHandler(next, unshareableResources, applicationManagedSecurityResources, trackedConnectionAssociator);
+            webAppContext.setHandler(next);
+
+            //install another component context handler for the lifecycle chain
+            next = new ComponentContextHandler(next, this.componentContext);
+            lifecycleChain = (AbstractImmutableHandler) next;
+        }
         MimeTypes mimeTypes = new MimeTypes();
         mimeTypes.setMimeMap(mimeMap);
         webAppContext.setMimeTypes(mimeTypes);
-        
+
         this.server = server;
         this.application = application;
         this.objectName = objectName;
@@ -375,20 +366,20 @@ public class JettyWebAppContext implements GBeanLifecycle, JettyServletRegistrat
 
         public void lifecycleMethod() throws Exception {
             //order seems backwards... .maybe container is calling start itself???
-            jettyContainer.addContext(webAppContext);
-            webAppContext.start();
+            jettyContainer.addContext(contextHandler);
+            contextHandler.start();
         }
     }
 
     public class StopCommand implements LifecycleCommand {
 
         public void lifecycleMethod() throws Exception {
-            webAppContext.stop();
+            contextHandler.stop();
             //TODO is this order correct?
-            for (EventListener listener: webAppContext.getEventListeners()) {
+            for (EventListener listener : webAppContext.getEventListeners()) {
                 destroyInstance(listener);
             }
-            jettyContainer.removeContext(webAppContext);
+            jettyContainer.removeContext(contextHandler);
         }
     }
     //pass through attributes.  They should be constructor params
@@ -404,7 +395,7 @@ public class JettyWebAppContext implements GBeanLifecycle, JettyServletRegistrat
     public void setListenerClassNames(Collection<String> eventListeners) throws ClassNotFoundException, IllegalAccessException, InstantiationException {
         if (eventListeners != null) {
             Collection<EventListener> listeners = new ArrayList<EventListener>();
-            for (String listenerClassName: eventListeners) {
+            for (String listenerClassName : eventListeners) {
                 EventListener listener = (EventListener) newInstance(listenerClassName);
                 listeners.add(listener);
             }
@@ -475,6 +466,7 @@ public class JettyWebAppContext implements GBeanLifecycle, JettyServletRegistrat
      * ObjectName must match this pattern:
      * <p/>
      * domain:j2eeType=WebModule,name=MyName,J2EEServer=MyServer,J2EEApplication=MyApplication
+     *
      * @param objectName ObjectName to verify
      */
     private void verifyObjectName(ObjectName objectName) {
