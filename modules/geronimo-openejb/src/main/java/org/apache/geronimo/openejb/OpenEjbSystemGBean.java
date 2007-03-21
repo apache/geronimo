@@ -16,6 +16,19 @@
  */
 package org.apache.geronimo.openejb;
 
+import java.io.IOException;
+import java.util.Collection;
+import java.util.Map;
+import java.util.Properties;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
+
+import javax.ejb.spi.HandleDelegate;
+import javax.management.ObjectName;
+import javax.naming.NamingException;
+import javax.resource.spi.ResourceAdapter;
+import javax.transaction.TransactionManager;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.connector.ResourceAdapterWrapper;
@@ -23,8 +36,9 @@ import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.ReferenceCollection;
-import org.apache.geronimo.gbean.ReferenceCollectionListener;
 import org.apache.geronimo.gbean.ReferenceCollectionEvent;
+import org.apache.geronimo.gbean.ReferenceCollectionListener;
+import org.apache.geronimo.gbean.SingleElementCollection;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.openejb.Container;
@@ -52,16 +66,7 @@ import org.apache.openejb.spi.ApplicationServer;
 import org.apache.openejb.spi.ContainerSystem;
 import org.apache.openejb.util.proxy.Jdk13ProxyFactory;
 
-import javax.naming.NamingException;
-import javax.resource.spi.ResourceAdapter;
-import javax.transaction.TransactionManager;
-import javax.management.ObjectName;
-import java.io.IOException;
-import java.util.Collection;
-import java.util.Map;
-import java.util.Properties;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
+import org.omg.CORBA.ORB;
 
 /**
  * @version $Rev$ $Date$
@@ -72,12 +77,15 @@ public class OpenEjbSystemGBean implements OpenEjbSystem {
     private final Assembler assembler;
     private final ConcurrentMap<String,ResourceAdapterWrapper> processedResourceAdapterWrappers =  new ConcurrentHashMap<String,ResourceAdapterWrapper>() ;
     private final ClassLoader classLoader;
+    private final SingleElementCollection orbProvider;                
 
     public OpenEjbSystemGBean(TransactionManager transactionManager) throws Exception {
-        this(transactionManager, null, null, OpenEjbSystemGBean.class.getClassLoader());
+        this(transactionManager, null, null, null, OpenEjbSystemGBean.class.getClassLoader());
     }
-    public OpenEjbSystemGBean(TransactionManager transactionManager, Collection<ResourceAdapterWrapper> resourceAdapters, Kernel kernel, ClassLoader classLoader) throws Exception {
+    public OpenEjbSystemGBean(TransactionManager transactionManager, Collection<ResourceAdapterWrapper> resourceAdapters, Collection<ORBProvider> orbProviders, Kernel kernel, ClassLoader classLoader) throws Exception {
         this.classLoader = classLoader;
+        orbProvider = new SingleElementCollection(orbProviders); 
+        
         System.setProperty("duct tape","");
         SystemInstance systemInstance = SystemInstance.get();
 
@@ -122,6 +130,13 @@ public class OpenEjbSystemGBean implements OpenEjbSystem {
         proxyFactoryInfo.className = Jdk13ProxyFactory.class.getName();
         proxyFactoryInfo.properties = new Properties();
         assembler.createProxyFactory(proxyFactoryInfo);
+        
+        // install CORBA values 
+        ORBProvider orbSource = (ORBProvider)orbProvider.getElement(); 
+        if (orbSource != null) {
+            SystemInstance.get().setComponent(ORB.class, orbSource.getORB());
+            SystemInstance.get().setComponent(HandleDelegate.class, orbSource.getHandleDelegate());
+        }
 
         // add our thread context listener
         GeronimoThreadContextListener.init();
@@ -313,11 +328,13 @@ public class OpenEjbSystemGBean implements OpenEjbSystem {
         GBeanInfoBuilder infoBuilder = GBeanInfoBuilder.createStatic(OpenEjbSystemGBean.class);
         infoBuilder.addReference("TransactionManager", TransactionManager.class);
         infoBuilder.addReference("ResourceAdapterWrappers", ResourceAdapterWrapper.class);
+        infoBuilder.addReference("ORBProviders", ORBProvider.class);
         infoBuilder.addAttribute("kernel", Kernel.class, false);
         infoBuilder.addAttribute("classLoader", ClassLoader.class, false);
         infoBuilder.setConstructor(new String[] {
                 "TransactionManager",
                 "ResourceAdapterWrappers",
+                "ORBProviders",
                 "kernel",
                 "classLoader",
         });

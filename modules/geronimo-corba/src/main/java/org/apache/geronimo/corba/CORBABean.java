@@ -33,6 +33,7 @@ import org.apache.geronimo.corba.security.config.tss.TSSConfig;
 import org.apache.geronimo.corba.security.config.tss.TSSSSLTransportConfig;
 import org.apache.geronimo.corba.security.config.tss.TSSTransportMechConfig;
 import org.apache.geronimo.corba.util.Util;
+import org.apache.geronimo.openejb.ORBProvider; 
 import org.omg.CORBA.ORB;
 import org.omg.CORBA.Policy;
 import org.omg.PortableServer.POA;
@@ -49,7 +50,7 @@ import org.omg.PortableServer.POAHelper;
  * endpoint and transport-level security.
  * @version $Revision: 497125 $ $Date: 2007-01-17 10:51:30 -0800 (Wed, 17 Jan 2007) $
  */
-public class CORBABean implements GBeanLifecycle, ORBRef, ORBConfiguration {
+public class CORBABean implements GBeanLifecycle, ORBRef, ORBProvider, ORBConfiguration {
     private final Log log = LogFactory.getLog(CORBABean.class);
 
     private final ClassLoader classLoader;

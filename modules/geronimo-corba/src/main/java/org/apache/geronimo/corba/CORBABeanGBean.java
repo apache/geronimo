@@ -27,6 +27,7 @@ import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.corba.security.config.ConfigAdapter;
 import org.apache.geronimo.corba.security.config.ssl.SSLConfig;
 import org.apache.geronimo.corba.security.config.tss.TSSConfig;
+import org.apache.geronimo.openejb.ORBProvider; 
 import org.omg.CORBA.ORB;
 import org.omg.PortableServer.POA;
 
@@ -56,6 +57,9 @@ public final class CORBABeanGBean {
         infoBuilder.addReference("ConfigAdapter", ConfigAdapter.class, NameFactory.ORB_CONFIG);
         infoBuilder.addReference("SSLConfig", SSLConfig.class, NameFactory.CORBA_SSL);
         infoBuilder.addReference("NameService", NameService.class, NameFactory.CORBA_NAME_SERVICE);
+        
+        // Used by the OpenEjbSystemGBean to obtain ORB information. 
+        infoBuilder.addInterface(ORBProvider.class); 
 
         infoBuilder.setConstructor(new String[]{"abstractName", "ConfigAdapter", "host", "port", "classLoader", "NameService", "SSLConfig"});
 
