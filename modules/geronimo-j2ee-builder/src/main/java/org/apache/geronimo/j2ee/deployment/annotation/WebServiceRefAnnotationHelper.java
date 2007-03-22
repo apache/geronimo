@@ -246,8 +246,12 @@ public final class WebServiceRefAnnotationHelper extends AnnotationHelper {
         // -- Have one parameter
         // -- Return void
         //------------------------------------------------------------------------------------------
-        String injectionJavaType = getInjectionJavaType(method, field);
-        String injectionClass = getInjectionClass(method, field);
+        String injectionJavaType = "";
+        String injectionClass = "";
+        if (method != null || field != null) {
+            injectionJavaType = getInjectionJavaType(method, field);
+            injectionClass = getInjectionClass(method, field);
+        }
         log.debug("addWebServiceRef(): injectionJavaType: " + injectionJavaType);
         log.debug("addWebServiceRef(): injectionClass   : " + injectionClass);
 
