@@ -73,16 +73,6 @@
         </dependency>
 
         <dependency>
-            <groupId>xfire</groupId>
-            <artifactId>xfire</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>xfire</groupId>
-            <artifactId>xfire-java</artifactId>
-        </dependency>
-
-        <dependency>
             <groupId>wsdl4j</groupId>
             <artifactId>wsdl4j</artifactId>
         </dependency>
