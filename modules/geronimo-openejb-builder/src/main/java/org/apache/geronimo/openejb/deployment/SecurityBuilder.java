@@ -71,7 +71,7 @@ public class SecurityBuilder {
              */
             for (MethodPermission methodPermission : assemblyDescriptor.getMethodPermission()) {
                 List<String> roleNames = methodPermission.getRoleName();
-                boolean unchecked = methodPermission.getUnchecked() != null;
+                boolean unchecked = methodPermission.getUnchecked();
 
                 for (Method method : methodPermission.getMethod()) {
                     if (!ejbName.equals(method.getEjbName())) {
