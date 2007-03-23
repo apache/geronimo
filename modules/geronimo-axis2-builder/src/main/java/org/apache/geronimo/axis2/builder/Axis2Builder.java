@@ -17,6 +17,19 @@
 
 package org.apache.geronimo.axis2.builder;
 
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.StringWriter;
+import java.net.URI;
+import java.net.URL;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.jar.JarFile;
+
+import javax.xml.namespace.QName;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.axis2.client.Axis2ServiceReference;
@@ -36,26 +49,13 @@ import org.apache.geronimo.jaxws.builder.JAXWSServiceBuilder;
 import org.apache.geronimo.jaxws.client.EndpointInfo;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.xbeans.geronimo.naming.GerServiceRefType;
-import org.apache.geronimo.xbeans.javaee.HandlerChainsType;
 import org.apache.geronimo.xbeans.javaee.PortComponentRefType;
 import org.apache.geronimo.xbeans.javaee.PortComponentType;
 import org.apache.geronimo.xbeans.javaee.ServiceImplBeanType;
 import org.apache.geronimo.xbeans.javaee.ServiceRefHandlerChainsType;
 import org.apache.geronimo.xbeans.javaee.WebserviceDescriptionType;
+import org.apache.geronimo.xbeans.javaee.WebservicesDocument;
 import org.apache.geronimo.xbeans.javaee.WebservicesType;
-
-import javax.xml.bind.JAXBException;
-import javax.xml.namespace.QName;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.StringWriter;
-import java.net.URI;
-import java.net.URL;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.jar.JarFile;
 
 public class Axis2Builder extends JAXWSServiceBuilder {
 
@@ -85,7 +85,7 @@ public class Axis2Builder extends JAXWSServiceBuilder {
         Map<String, PortInfo> map = null;
 
         try {
-            WebservicesType wst = WebservicesType.Factory.parse(in);
+            WebservicesType wst = WebservicesDocument.Factory.parse(in).getWebservices();
 
             for (WebserviceDescriptionType desc : wst.getWebserviceDescriptionArray()) {
                 String wsdlFile = null;
@@ -123,7 +123,14 @@ public class Axis2Builder extends JAXWSServiceBuilder {
                         portInfo.setEnableMTOM(port.getEnableMtom().getBooleanValue());
                     }
 
-                    portInfo.setHandlers(HandlerChainsType.class, port.getHandlerChains());
+                    //portInfo.setHandlers(HandlerChainsTypeImpl.class, port.getHandlerChains());
+                    //TODO: There can be a better method than this :)
+                    if(port.getHandlerChains() != null){
+                        StringBuffer chains = new StringBuffer("<handler-chains xmlns=\"http://java.sun.com/xml/ns/javaee\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">");
+                        chains.append(port.getHandlerChains().xmlText());
+                        chains.append("</handler-chains>");
+                        portInfo.setHandlersAsXML(chains.toString());
+                    }
 
                     if (port.getWsdlPort() != null) {
                         portInfo.setWsdlPort(port.getWsdlPort().getQNameValue());
@@ -149,8 +156,6 @@ public class Axis2Builder extends JAXWSServiceBuilder {
             return Collections.EMPTY_MAP;
         } catch (IOException ex) {
             throw new DeploymentException("Unable to read " + wsDDUrl, ex);
-        } catch (JAXBException ex) {
-            throw new DeploymentException("Unable to parse " + wsDDUrl, ex);
         } catch (Exception ex) {
             throw new DeploymentException("Unknown deployment error", ex);
         } finally {
