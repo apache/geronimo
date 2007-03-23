@@ -210,7 +210,12 @@ public class XmlBeansUtil {
                 }
 
                 if (!errors.isEmpty()) {
-                    throw new XmlException("Invalid deployment descriptor: " + errors + "\nDescriptor: " + dd.toString(), null, errors);
+                    StringBuffer buf = new StringBuffer("Invalid deployment descriptor: errors:\n\n");
+                    for (Object o: errors) {
+                        buf.append(o).append("\n\n");
+                    }
+                    buf.append("Descriptor:\n").append(dd.toString()).append("\n");
+                    throw new XmlException(buf.toString(), null, errors);
                 }
             }
         } catch (NullPointerException e) {
