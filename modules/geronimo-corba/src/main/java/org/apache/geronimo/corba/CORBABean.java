@@ -33,7 +33,7 @@ import org.apache.geronimo.corba.security.config.tss.TSSConfig;
 import org.apache.geronimo.corba.security.config.tss.TSSSSLTransportConfig;
 import org.apache.geronimo.corba.security.config.tss.TSSTransportMechConfig;
 import org.apache.geronimo.corba.util.Util;
-import org.apache.geronimo.openejb.ORBProvider; 
+import org.apache.geronimo.openejb.OpenEjbSystem; 
 import org.omg.CORBA.ORB;
 import org.omg.CORBA.Policy;
 import org.omg.PortableServer.POA;
@@ -50,7 +50,7 @@ import org.omg.PortableServer.POAHelper;
  * endpoint and transport-level security.
  * @version $Revision: 497125 $ $Date: 2007-01-17 10:51:30 -0800 (Wed, 17 Jan 2007) $
  */
-public class CORBABean implements GBeanLifecycle, ORBRef, ORBProvider, ORBConfiguration {
+public class CORBABean implements GBeanLifecycle, ORBRef, ORBConfiguration {
     private final Log log = LogFactory.getLog(CORBABean.class);
 
     private final ClassLoader classLoader;
@@ -65,6 +65,7 @@ public class CORBABean implements GBeanLifecycle, ORBRef, ORBProvider, ORBConfig
     private POA rootPOA;
     private NameService nameService;
     private AbstractName abstractName;
+    private OpenEjbSystem ejbSystem; 
     // ORB-specific policy overrides we need to add to POA policies created by 
     // child TSSBeans.  
     private Policy[] policyOverrides = null; 
@@ -77,6 +78,7 @@ public class CORBABean implements GBeanLifecycle, ORBRef, ORBProvider, ORBConfig
         this.host = null;
         this.abstractName = null;
         this.policyOverrides = null; 
+        this.ejbSystem = null;
     }
 
     /**
@@ -98,7 +100,7 @@ public class CORBABean implements GBeanLifecycle, ORBRef, ORBProvider, ORBConfig
      * @param ssl    The SSL configuration, including the KeystoreManager.
      *
      */
-    public CORBABean(AbstractName abstractName, ConfigAdapter configAdapter, String host, int listenerPort, ClassLoader classLoader, NameService nameService, SSLConfig ssl) {
+    public CORBABean(AbstractName abstractName, ConfigAdapter configAdapter, String host, int listenerPort, ClassLoader classLoader, NameService nameService, OpenEjbSystem ejbSystem, SSLConfig ssl) {
         this.abstractName = abstractName;
         this.classLoader = classLoader;
         this.configAdapter = configAdapter;
@@ -107,6 +109,7 @@ public class CORBABean implements GBeanLifecycle, ORBRef, ORBProvider, ORBConfig
         this.host = host;
         this.listenerPort = listenerPort;
         this.policyOverrides = null; 
+        this.ejbSystem = ejbSystem; 
     }
 
     /**
@@ -234,6 +237,11 @@ public class CORBABean implements GBeanLifecycle, ORBRef, ORBProvider, ORBConfig
             // TSSBeans are going to need our rootPOA instance, so resolve this now.
             org.omg.CORBA.Object obj = orb.resolve_initial_references("RootPOA");
             rootPOA = POAHelper.narrow(obj);
+            // if we have an OpenEjbSystem reference, inform the ejb subsystem 
+            // there's now an ORB available for the JNDI context. 
+            if (ejbSystem != null) {
+                ejbSystem.setORBContext(orb, getHandleDelegate()); 
+            }
         } catch (NoSuchMethodError e) {
             log.error("Incorrect level of org.omg.CORBA classes found.\nLikely cause is an incorrect java.endorsed.dirs configuration"); 
             throw new InvalidConfigurationException("CORBA usage requires Yoko CORBA spec classes in java.endorsed.dirs classpath", e); 

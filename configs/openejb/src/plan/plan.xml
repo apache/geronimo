@@ -25,7 +25,6 @@
             <name>TransactionManager</name>
         </reference>
         <reference name="ResourceAdapterWrappers"/>
-        <reference name="ORBProviders"/>
     </gbean>
 
     <gbean name="DefaultStatelessContainer" class="org.apache.geronimo.openejb.EjbContainer">

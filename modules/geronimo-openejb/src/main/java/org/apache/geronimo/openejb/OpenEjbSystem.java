@@ -18,6 +18,7 @@ package org.apache.geronimo.openejb;
 
 import java.io.IOException;
 import java.util.Properties;
+import javax.ejb.spi.HandleDelegate;
 import javax.naming.NamingException;
 
 import org.apache.openejb.Container;
@@ -33,6 +34,8 @@ import org.apache.openejb.assembler.classic.EjbJarInfo;
 import org.apache.openejb.assembler.classic.ContainerInfo;
 import org.apache.openejb.assembler.classic.AppInfo;
 import org.apache.openejb.spi.ContainerSystem;
+
+import org.omg.CORBA.ORB;
 
 /**
  * @version $Rev$ $Date$
@@ -55,4 +58,6 @@ public interface OpenEjbSystem {
     void removeEjbJar(EjbJarInfo ejbJarInfo, ClassLoader classLoader) throws UndeployException, NoSuchApplicationException;
 
     AppInfo configureApplication(AppModule appModule) throws OpenEJBException;
+
+    void setORBContext(ORB orb, HandleDelegate handleDelegate);
 }

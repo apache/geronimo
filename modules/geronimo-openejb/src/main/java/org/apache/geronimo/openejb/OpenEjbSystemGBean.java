@@ -78,14 +78,16 @@ public class OpenEjbSystemGBean implements OpenEjbSystem {
     private final Assembler assembler;
     private final ConcurrentMap<String,ResourceAdapterWrapper> processedResourceAdapterWrappers =  new ConcurrentHashMap<String,ResourceAdapterWrapper>() ;
     private final ClassLoader classLoader;
-    private final SingleElementCollection orbProvider;                
+    // These are provided by the corba subsystem when it first initializes.  
+    // Once we have a set, we ignore any additional notifications. 
+    private ORB orb; 
+    private HandleDelegate handleDelegate; 
 
     public OpenEjbSystemGBean(TransactionManager transactionManager) throws Exception {
-        this(transactionManager, null, null, null, OpenEjbSystemGBean.class.getClassLoader());
+        this(transactionManager, null, null, OpenEjbSystemGBean.class.getClassLoader());
     }
-    public OpenEjbSystemGBean(TransactionManager transactionManager, Collection<ResourceAdapterWrapper> resourceAdapters, Collection<ORBProvider> orbProviders, Kernel kernel, ClassLoader classLoader) throws Exception {
+    public OpenEjbSystemGBean(TransactionManager transactionManager, Collection<ResourceAdapterWrapper> resourceAdapters, Kernel kernel, ClassLoader classLoader) throws Exception {
         this.classLoader = classLoader;
-        orbProvider = new SingleElementCollection(orbProviders); 
         
         System.setProperty("duct tape","");
         SystemInstance systemInstance = SystemInstance.get();
@@ -132,13 +134,6 @@ public class OpenEjbSystemGBean implements OpenEjbSystem {
         proxyFactoryInfo.properties = new Properties();
         assembler.createProxyFactory(proxyFactoryInfo);
         
-        // install CORBA values 
-        ORBProvider orbSource = (ORBProvider)orbProvider.getElement(); 
-        if (orbSource != null) {
-            SystemInstance.get().setComponent(ORB.class, orbSource.getORB());
-            SystemInstance.get().setComponent(HandleDelegate.class, orbSource.getHandleDelegate());
-        }
-
         // add our thread context listener
         GeronimoThreadContextListener.init();
 
@@ -323,19 +318,27 @@ public class OpenEjbSystemGBean implements OpenEjbSystem {
         return getContainerSystem().getDeploymentInfo(deploymentId);
     }
 
+    public void setORBContext(ORB orb, HandleDelegate handleDelegate) {
+        // this is only processed once, since these are global values. 
+        if (this.orb == null) {
+            this.orb = orb; 
+            this.handleDelegate = handleDelegate; 
+            SystemInstance.get().setComponent(ORB.class, orb);
+            SystemInstance.get().setComponent(HandleDelegate.class, handleDelegate);
+        }
+    }
+
     public static final GBeanInfo GBEAN_INFO;
 
     static {
         GBeanInfoBuilder infoBuilder = GBeanInfoBuilder.createStatic(OpenEjbSystemGBean.class);
         infoBuilder.addReference("TransactionManager", TransactionManager.class);
         infoBuilder.addReference("ResourceAdapterWrappers", ResourceAdapterWrapper.class);
-        infoBuilder.addReference("ORBProviders", ORBProvider.class, NameFactory.CORBA_SERVICE);
         infoBuilder.addAttribute("kernel", Kernel.class, false);
         infoBuilder.addAttribute("classLoader", ClassLoader.class, false);
         infoBuilder.setConstructor(new String[] {
                 "TransactionManager",
                 "ResourceAdapterWrappers",
-                "ORBProviders",
                 "kernel",
                 "classLoader",
         });
