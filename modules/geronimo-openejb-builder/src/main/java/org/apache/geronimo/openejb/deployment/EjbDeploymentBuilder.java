@@ -179,14 +179,14 @@ public class EjbDeploymentBuilder {
         if (enterpriseBean instanceof RemoteBean) {
             RemoteBean remoteBean = (RemoteBean) enterpriseBean;
 
-            SecurityBuilder xmlBeansSecurityBuilder = new SecurityBuilder();
+            SecurityBuilder securityBuilder = new SecurityBuilder();
             Permissions permissions = new Permissions();
 
             SecurityConfiguration securityConfiguration = (SecurityConfiguration) earContext.getSecurityConfiguration();
             if (securityConfiguration != null) {
                 for (EjbInterface ejbInterface : EjbInterface.values()) {
                     String interfaceName = (String) gbean.getAttribute(ejbInterface.getAttributeName());
-                    xmlBeansSecurityBuilder.addToPermissions(permissions,
+                    securityBuilder.addToPermissions(permissions,
                             enterpriseBean.getEjbName(),
                             ejbInterface.getJaccInterfaceName(),
                             interfaceName,
@@ -194,7 +194,7 @@ public class EjbDeploymentBuilder {
                 }
 
                 String defaultRole = securityConfiguration.getDefaultRole();
-                xmlBeansSecurityBuilder.addComponentPermissions(defaultRole,
+                securityBuilder.addComponentPermissions(defaultRole,
                         permissions,
                         ejbModule.getEjbJar().getAssemblyDescriptor(),
                         enterpriseBean.getEjbName(),
@@ -204,7 +204,7 @@ public class EjbDeploymentBuilder {
                 // RunAs subject
                 SecurityIdentity securityIdentity = remoteBean.getSecurityIdentity();
                 if (securityIdentity != null && securityIdentity.getRunAs() != null) {
-                    String runAsName = securityIdentity.getRunAs().getRoleName();
+                    String runAsName = securityIdentity.getRunAs();
                     if (runAsName != null) {
                         Subject runAsSubject = (Subject) securityConfiguration.getRoleDesignates().get(runAsName);
                         if (runAsSubject == null) {
