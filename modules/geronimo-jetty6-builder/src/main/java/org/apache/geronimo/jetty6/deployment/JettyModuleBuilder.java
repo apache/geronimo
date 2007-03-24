@@ -172,9 +172,9 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
         this.pojoWebServiceTemplate = getGBeanData(kernel, pojoWebServiceTemplate);
         this.clusteringBuilders = new NamespaceDrivenBuilderCollection(clusteringBuilders, GerClusteringDocument.type.getDocumentElementName());
 
-        this.defaultWelcomeFiles = defaultWelcomeFiles == null? new ArrayList<String>(): defaultWelcomeFiles;
-        this.defaultLocaleEncodingMappings = defaultLocaleEncodingMappings == null? new HashMap<String, String>(): defaultLocaleEncodingMappings;
-        this.defaultMimeTypeMappings = defaultMimeTypeMappings == null? new HashMap<String, String>(): defaultMimeTypeMappings;
+        this.defaultWelcomeFiles = defaultWelcomeFiles == null ? new ArrayList<String>() : defaultWelcomeFiles;
+        this.defaultLocaleEncodingMappings = defaultLocaleEncodingMappings == null ? new HashMap<String, String>() : defaultLocaleEncodingMappings;
+        this.defaultMimeTypeMappings = defaultMimeTypeMappings == null ? new HashMap<String, String>() : defaultMimeTypeMappings;
     }
 
     private static GBeanData getGBeanData(Kernel kernel, Object template) throws GBeanNotFoundException {
@@ -335,17 +335,17 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
         WebModule webModule = (WebModule) module;
 
         WebAppType webApp = (WebAppType) webModule.getSpecDD();
-        JettyWebAppType jettyWebApp = (JettyWebAppType)webModule.getVendorDD();
+        JettyWebAppType jettyWebApp = (JettyWebAppType) webModule.getVendorDD();
         GBeanData webModuleData = new GBeanData(moduleName, JettyWebAppContext.GBEAN_INFO);
 
         configureBasicWebModuleAttributes(webApp, jettyWebApp, moduleContext, earContext, webModule, webModuleData);
 
         // unsharableResources, applicationManagedSecurityResources
-         GBeanResourceEnvironmentBuilder rebuilder = new GBeanResourceEnvironmentBuilder(webModuleData);
-         //N.B. use earContext not moduleContext
-         //TODO fix this for javaee 5 !!!
-         resourceEnvironmentSetter.setResourceEnvironment(rebuilder, webApp.getResourceRefArray(), jettyWebApp.getResourceRefArray());
-         try {
+        GBeanResourceEnvironmentBuilder rebuilder = new GBeanResourceEnvironmentBuilder(webModuleData);
+        //N.B. use earContext not moduleContext
+        //TODO fix this for javaee 5 !!!
+        resourceEnvironmentSetter.setResourceEnvironment(rebuilder, webApp.getResourceRefArray(), jettyWebApp.getResourceRefArray());
+        try {
             moduleContext.addGBean(webModuleData);
             Set<String> securityRoles = collectRoleNames(webApp);
             Map<String, PermissionCollection> rolePermissions = new HashMap<String, PermissionCollection>();
@@ -475,6 +475,18 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
             if (jettyWebApp.isSetSecurityRealmName()) {
                 configureSecurityRealm(earContext, webApp, jettyWebApp, webModuleData, securityRoles, rolePermissions);
             }
+
+            //TODO this may definitely not be the best place for this!
+            for (ModuleBuilderExtension mbe : moduleBuilderExtensions) {
+                mbe.addGBeans(earContext, module, cl, repository);
+            }
+            //not truly metadata complete until MBEs have run
+            if (!webApp.getMetadataComplete()) {
+                webApp.setMetadataComplete(true);
+                module.setOriginalSpecDD(module.getSpecDD().toString());
+                webModuleData.setAttribute("deploymentDescriptor", module.getOriginalSpecDD());
+            }
+
             if (!module.isStandAlone()) {
                 ConfigurationData moduleConfigurationData = moduleContext.getConfigurationData();
                 earContext.addChildConfiguration(module.getTargetPath(), moduleConfigurationData);
@@ -483,17 +495,6 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
             throw de;
         } catch (Exception e) {
             throw new DeploymentException("Unable to initialize webapp GBean for " + module.getName(), e);
-        }
-
-        //TODO this may definitely not be the best place for this!
-        for (ModuleBuilderExtension mbe : moduleBuilderExtensions) {
-            mbe.addGBeans(earContext, module, cl, repository);
-        }
-        //not truly metadata complete until MBEs have run
-        if (!webApp.getMetadataComplete()) {
-            webApp.setMetadataComplete(true);
-            module.setOriginalSpecDD(module.getSpecDD().toString());
-            webModuleData.setAttribute("deploymentDescriptor", module.getOriginalSpecDD());
         }
 
     }

@@ -29,7 +29,7 @@
     <module name="org.apache.geronimo.configs/rmi-naming/${version}/car">
         <gbean name="RMIRegistry">
             <attribute name="port">${PlanNamingPort}</attribute>
-        </gbean>
+        </gbean>                                                    
         <gbean name="NamingProperties">
             <!-- Check whether this really works if host name is 0.0.0.0 -->
             <attribute name="namingProviderUrl">rmi://${PlanServerHostname}:${PlanNamingPort}</attribute>
@@ -87,7 +87,8 @@
 
     <module name="org.apache.geronimo.configs/activemq-ra/${version}/car"/>
 
-    <module name="org.apache.geronimo.configs/myfaces/${version}/car"/>
+    <module name="org.apache.geronimo.configs/jasper/${version}/car" load="false"/>
+    <module name="org.apache.geronimo.configs/myfaces/${version}/car" load="false"/>
 
     <module name="org.apache.geronimo.configs/jetty6/${version}/car">
         <gbean name="JettyWebConnector">
@@ -216,7 +217,7 @@
     </module>
 
     <module name="org.apache.geronimo.configs/jetty6-deployer/${version}/car"/>
-        
+    <module name="org.apache.geronimo.configs/jasper-deployer/${version}/car"/>
     <module name="org.apache.geronimo.configs/myfaces-deployer/${version}/car"/>
 
     <module name="org.apache.geronimo.configs/welcome-jetty/${version}/car"/>

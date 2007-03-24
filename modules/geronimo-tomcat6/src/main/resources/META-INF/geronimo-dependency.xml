@@ -23,25 +23,25 @@
             <dep:artifactId>catalina</dep:artifactId>
         </dep:dependency>
 
-        <dep:dependency>
-            <dep:groupId>org.apache.tomcat</dep:groupId>
-            <dep:artifactId>annotations-api</dep:artifactId>
-        </dep:dependency>
+        <!--<dep:dependency>-->
+            <!--<dep:groupId>org.apache.tomcat</dep:groupId>-->
+            <!--<dep:artifactId>annotations-api</dep:artifactId>-->
+        <!--</dep:dependency>-->
 
-        <dep:dependency>
-            <dep:groupId>org.apache.tomcat</dep:groupId>
-            <dep:artifactId>jasper</dep:artifactId>
-        </dep:dependency>
+        <!--<dep:dependency>-->
+            <!--<dep:groupId>org.apache.tomcat</dep:groupId>-->
+            <!--<dep:artifactId>jasper</dep:artifactId>-->
+        <!--</dep:dependency>-->
         
-        <dep:dependency>
-            <dep:groupId>org.apache.tomcat</dep:groupId>
-            <dep:artifactId>jasper-el</dep:artifactId>
-        </dep:dependency>
+        <!--<dep:dependency>-->
+            <!--<dep:groupId>org.apache.tomcat</dep:groupId>-->
+            <!--<dep:artifactId>jasper-el</dep:artifactId>-->
+        <!--</dep:dependency>-->
 
-        <dep:dependency>
-            <dep:groupId>org.apache.tomcat</dep:groupId>
-            <dep:artifactId>jasper-jdt</dep:artifactId>
-        </dep:dependency>
+        <!--<dep:dependency>-->
+            <!--<dep:groupId>org.apache.tomcat</dep:groupId>-->
+            <!--<dep:artifactId>jasper-jdt</dep:artifactId>-->
+        <!--</dep:dependency>-->
 
         <dep:dependency>
             <dep:groupId>org.apache.tomcat</dep:groupId>

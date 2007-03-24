@@ -19,8 +19,8 @@ package org.apache.geronimo.tomcat.deployment;
 
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.io.FileWriter;
+import java.io.IOException;
 import java.net.URL;
 import java.security.Permission;
 import java.security.PermissionCollection;
@@ -51,18 +51,17 @@ import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.ReferencePatterns;
-import org.apache.geronimo.j2ee.deployment.annotation.AnnotatedWebApp;
 import org.apache.geronimo.j2ee.deployment.EARContext;
 import org.apache.geronimo.j2ee.deployment.Module;
 import org.apache.geronimo.j2ee.deployment.ModuleBuilder;
+import org.apache.geronimo.j2ee.deployment.ModuleBuilderExtension;
 import org.apache.geronimo.j2ee.deployment.NamingBuilder;
 import org.apache.geronimo.j2ee.deployment.WebModule;
 import org.apache.geronimo.j2ee.deployment.WebServiceBuilder;
-import org.apache.geronimo.j2ee.deployment.ModuleBuilderExtension;
+import org.apache.geronimo.j2ee.deployment.annotation.AnnotatedWebApp;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.Naming;
-import org.apache.geronimo.kernel.config.Configuration;
 import org.apache.geronimo.kernel.config.ConfigurationData;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.naming.deployment.ENCConfigBuilder;
@@ -84,6 +83,7 @@ import org.apache.geronimo.xbeans.geronimo.web.tomcat.config.GerTomcatDocument;
 import org.apache.geronimo.xbeans.javaee.ServletType;
 import org.apache.geronimo.xbeans.javaee.WebAppDocument;
 import org.apache.geronimo.xbeans.javaee.WebAppType;
+import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlOptions;
@@ -99,6 +99,7 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder {
     private final AbstractNameQuery tomcatContainerName;
 
     private static final String TOMCAT_NAMESPACE = TomcatWebAppDocument.type.getDocumentElementName().getNamespaceURI();
+    private static final String IS_JAVAEE = "IS_JAVAEE";
 
     public TomcatModuleBuilder(Environment defaultEnvironment,
             AbstractNameQuery tomcatContainerName,
@@ -123,6 +124,7 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder {
         // parse the spec dd
         String specDD = null;
         WebAppType webApp = null;
+        Boolean isJavaee;
         try {
             if (specDDUrl == null) {
                 specDDUrl = DeploymentUtil.createJarURL(moduleFile, "WEB-INF/web.xml");
@@ -134,6 +136,15 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder {
 
             // we found web.xml, if it won't parse that's an error.
             XmlObject parsed = XmlBeansUtil.parse(specDD);
+            //Dont save updated xml if it isn't javaee
+            XmlCursor cursor = parsed.newCursor();
+            try {
+                cursor.toStartDoc();
+                cursor.toFirstChild();
+                isJavaee = "http://java.sun.com/xml/ns/javaee".equals(cursor.getName().getNamespaceURI());
+            } finally {
+                cursor.dispose();
+            }
             WebAppDocument webAppDoc = convertToServletSchema(parsed);
             webApp = webAppDoc.getWebApp();
             check(webApp);
@@ -147,6 +158,7 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder {
                 //not for us
                 return null;
             }
+            isJavaee = true;
             //else ignore as jee5 allows optional spec dd for .war's
         }
 
@@ -204,9 +216,10 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder {
         AnnotatedWebApp annotatedWebApp = new AnnotatedWebApp(webApp);
 
         WebModule module = new WebModule(standAlone, moduleName, environment, moduleFile, targetPath, webApp, tomcatWebApp, specDD, contextRoot, TOMCAT_NAMESPACE, annotatedWebApp);
-        for (ModuleBuilderExtension mbe: moduleBuilderExtensions) {
+        for (ModuleBuilderExtension mbe : moduleBuilderExtensions) {
             mbe.createModule(module, plan, moduleFile, targetPath, specDDUrl, environment, contextRoot, earName, naming, idBuilder);
         }
+        module.getSharedContext().put(IS_JAVAEE, isJavaee);
         return module;
     }
 
@@ -271,7 +284,7 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder {
         TomcatWebAppType gerWebApp = (TomcatWebAppType) module.getVendorDD();
         boolean hasSecurityRealmName = gerWebApp.isSetSecurityRealmName();
         buildSubstitutionGroups(gerWebApp, hasSecurityRealmName, module, earContext);
-        for (ModuleBuilderExtension mbe: moduleBuilderExtensions) {
+        for (ModuleBuilderExtension mbe : moduleBuilderExtensions) {
             mbe.initContext(earContext, module, cl);
         }
     }
@@ -284,89 +297,19 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder {
 
         WebAppType webApp = (WebAppType) webModule.getSpecDD();
 
-        /**
-         * This next bit of code is kind of a kludge to get Tomcat to get a default
-         * web.xml if one does not exist.  This is primarily for jaxws.  This code is
-         * necessary because Tomcat either has a bug or there is a problem dynamically
-         * adding a wrapper to an already running context.  Although the wrapper
-         * can be added, the url mappings do not get picked up at the proper level
-         * and therefore Tomcat cannot dispatch the request.  Hence, creating and
-         * writing out a web.xml to the deployed location is the only way around this
-         * until Tomcat fixes that bug.
-         */
-        File webXml = new File(moduleContext.getBaseDir(), "/WEB-INF/web.xml");
-        File inPlaceDir = moduleContext.getInPlaceConfigurationDir();
-        boolean webXmlExists = (inPlaceDir != null && new File(inPlaceDir,"/WEB-INF/web.xml").exists()) || webXml.exists();
-        if (!webXmlExists) {
-        	webXml.getParentFile().mkdirs();
-            try {
-                FileWriter outFile = new FileWriter(webXml);
-
-                XmlOptions opts = new XmlOptions();
-                opts.setUseDefaultNamespace();
-                opts.setSavePrettyPrint();
-
-                WebAppDocument doc = WebAppDocument.Factory.newInstance();
-                doc.setWebApp(webApp);
-
-                outFile.write(doc.xmlText(opts));
-                outFile.flush();
-                outFile.close();
-            } catch (Exception e) {
-                throw new DeploymentException(e);
-            }
-        }
-
         TomcatWebAppType tomcatWebApp = (TomcatWebAppType) webModule.getVendorDD();
 
         GBeanData webModuleData = new GBeanData(moduleName, TomcatWebAppContext.GBEAN_INFO);
+        configureBasicWebModuleAttributes(webApp, tomcatWebApp, moduleContext, earContext, webModule, webModuleData);
         try {
             moduleContext.addGBean(webModuleData);
-            webModuleData.setReferencePattern("J2EEServer", moduleContext.getServerName());
-            if (!module.isStandAlone()) {
-                webModuleData.setReferencePattern("J2EEApplication", earContext.getModuleName());
-            }
-
             Set securityRoles = collectRoleNames(webApp);
             Map rolePermissions = new HashMap();
-
             webModuleData.setAttribute("contextPath", webModule.getContextRoot());
-
-            //Add dependencies on managed connection factories and ejbs in this app
-            //This is overkill, but allows for people not using java:comp context (even though we don't support it)
-            //and sidesteps the problem of circular references between ejbs.
-            Set dependencies = findGBeanDependencies(earContext);
-            webModuleData.addDependencies(dependencies);
-
-            //N.B. we use the ear context which has all the gbeans we could possibly be looking up from this ear.
-            Map buildingContext = new HashMap();
-            buildingContext.put(NamingBuilder.GBEAN_NAME_KEY, moduleName);
-            Configuration earConfiguration = earContext.getConfiguration();
-
-            if (!webApp.getMetadataComplete()) {
-                // Create a classfinder and populate it for the naming builder(s). The absence of a
-                // classFinder in the module will convey whether metadata-complete is set (or not)
-                webModule.setClassFinder(createWebAppClassFinder(webApp, webModule));
-            }
-
-            getNamingBuilders().buildNaming(webApp, tomcatWebApp, earConfiguration, earConfiguration, webModule, buildingContext);
-
-            if (!webApp.getMetadataComplete()) {
-                webApp.setMetadataComplete(true);
-                module.setOriginalSpecDD(module.getSpecDD().toString());
-            }
-            webModuleData.setAttribute("deploymentDescriptor", module.getOriginalSpecDD());
-
-            Map compContext = NamingBuilder.JNDI_KEY.get(buildingContext);
-
-            webModuleData.setAttribute("componentContext", compContext);
             // unsharableResources, applicationManagedSecurityResources
             GBeanResourceEnvironmentBuilder rebuilder = new GBeanResourceEnvironmentBuilder(webModuleData);
             //N.B. use earContext not moduleContext
             resourceEnvironmentSetter.setResourceEnvironment(rebuilder, webApp.getResourceRefArray(), tomcatWebApp.getResourceRefArray());
-
-            webModuleData.setReferencePattern("TransactionManager", earContext.getTransactionManagerName());
-            webModuleData.setReferencePattern("TrackedConnectionAssociator", earContext.getConnectionTrackerName());
 
             if (tomcatWebApp.isSetWebContainer()) {
                 AbstractNameQuery webContainerName = ENCConfigBuilder.getGBeanQuery(NameFactory.GERONIMO_SERVICE, tomcatWebApp.getWebContainer());
@@ -501,6 +444,61 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder {
                 webModuleData.setAttribute("securityHolder", securityHolder);
             }
 
+            //listeners added directly to the StandardContext will get loaded by the tomcat classloader, not the app classloader!
+            //TODO this may definitely not be the best place for this!
+            for (ModuleBuilderExtension mbe : moduleBuilderExtensions) {
+                mbe.addGBeans(earContext, module, cl, repository);
+            }
+            //not truly metadata complete until MBEs have run
+            if (!webApp.getMetadataComplete()) {
+                webApp.setMetadataComplete(true);
+                module.setOriginalSpecDD(module.getSpecDD().toString());
+                webModuleData.setAttribute("deploymentDescriptor", module.getOriginalSpecDD());
+            }
+            /**
+             * This next bit of code is kind of a kludge to get Tomcat to get a default
+             * web.xml if one does not exist.  This is primarily for jaxws.  This code is
+             * necessary because Tomcat either has a bug or there is a problem dynamically
+             * adding a wrapper to an already running context.  Although the wrapper
+             * can be added, the url mappings do not get picked up at the proper level
+             * and therefore Tomcat cannot dispatch the request.  Hence, creating and
+             * writing out a web.xml to the deployed location is the only way around this
+             * until Tomcat fixes that bug.
+             *
+             * For myfaces/jsf, the sped dd may have been updated with a listener.  So, we need to write it out again whether or not
+             * there originally was one. This might not work on windows due to file locking problems.
+             */
+
+            if ((Boolean)module.getSharedContext().get(IS_JAVAEE)) {
+                File webXml = new File(moduleContext.getBaseDir(), "/WEB-INF/web.xml");
+                File inPlaceDir = moduleContext.getInPlaceConfigurationDir();
+                if (inPlaceDir != null) {
+                    webXml = new File(inPlaceDir, "/WEB-INF/web.xml");
+                }
+//        boolean webXmlExists = (inPlaceDir != null && new File(inPlaceDir,"/WEB-INF/web.xml").exists()) || webXml.exists();
+//        if (!webXmlExists) {
+                webXml.getParentFile().mkdirs();
+                try {
+                    FileWriter outFile = new FileWriter(webXml);
+
+                    XmlOptions opts = new XmlOptions();
+                    opts.setSaveAggressiveNamespaces();
+                    opts.setSaveSyntheticDocumentElement(WebAppDocument.type.getDocumentElementName());
+                    opts.setUseDefaultNamespace();
+                    opts.setSavePrettyPrint();
+
+    //                WebAppDocument doc = WebAppDocument.Factory.newInstance();
+    //                doc.setWebApp(webApp);
+
+                    outFile.write(webApp.xmlText(opts));
+                    outFile.flush();
+                    outFile.close();
+                } catch (Exception e) {
+                    throw new DeploymentException(e);
+                }
+//        }
+            }
+
             if (!module.isStandAlone()) {
                 ConfigurationData moduleConfigurationData = moduleContext.getConfigurationData();
                 earContext.addChildConfiguration(module.getTargetPath(), moduleConfigurationData);
@@ -509,10 +507,6 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder {
             throw de;
         } catch (Exception e) {
             throw new DeploymentException("Unable to initialize GBean for web app " + module.getName(), e);
-        }
-        //TODO this may definitely not be the best place for this!
-        for (ModuleBuilderExtension mbe: moduleBuilderExtensions) {
-            mbe.addGBeans(earContext, module, cl, repository);
         }
     }
 

@@ -85,12 +85,12 @@
             <artifactId>xercesImpl</artifactId>
         </dependency>
 
-        <dependency>
-            <groupId>org.apache.geronimo.configs</groupId>
-            <artifactId>jasper</artifactId>
-            <type>car</type>
-            <version>${version}</version>
-        </dependency>
+        <!--<dependency>-->
+            <!--<groupId>org.apache.geronimo.configs</groupId>-->
+            <!--<artifactId>jasper</artifactId>-->
+            <!--<type>car</type>-->
+            <!--<version>${version}</version>-->
+        <!--</dependency>-->
 
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>

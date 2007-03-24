@@ -219,15 +219,19 @@ public class SchemaConversionUtils {
 
         while (cursor.hasNextToken()) {
             if (cursor.isStart()) {
-                //convert namespace of each starting element
-                cursor.setName(new QName(namespace, cursor.getName().getLocalPart()));
                 if (isFirstStart) {
+                    //HACK to work around digester's difficulty with namespaces
+                    if (cursor.getAttributeText(new QName("xmlns")) != null) {
+                        cursor.removeAttribute(new QName("xmlns"));
+                    }
                     //if we are at the first element in the document, reset the version number ...
                     cursor.setAttributeText(new QName("version"), version);
                     //... and also set the xsi:schemaLocation
                     cursor.setAttributeText(new QName("http://www.w3.org/2001/XMLSchema-instance", "schemaLocation", "xsi"), namespace + "  "+schemaLocationURL);
                     isFirstStart = false;
                 }
+                //convert namespace of each starting element
+                cursor.setName(new QName(namespace, cursor.getName().getLocalPart()));
                 cursor.toNextToken();
 
             } else {
@@ -250,6 +254,12 @@ public class SchemaConversionUtils {
         moveElements("description", namespace, moveable, cursor);
         moveElements("display-name", namespace, moveable, cursor);
         moveElements("icon", namespace, moveable, cursor);
+    }
+
+    public static void convertToTagRoot(String namespace, XmlCursor cursor, XmlCursor moveable) {
+        moveable.toCursor(cursor);
+        moveElements("description", namespace, moveable, cursor);
+        moveElements("name", namespace, moveable, cursor);
     }
 
     public static void convertToJNDIEnvironmentRefsGroup(String namespace, XmlCursor cursor, XmlCursor moveable) {

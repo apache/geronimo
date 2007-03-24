@@ -62,6 +62,7 @@
             <version>${version}</version>
         </dependency>
 
+        <!-- Required because tomcat and jasper share the LifecycleProvider interface, or AnnotationProcessor -->
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
             <artifactId>jasper</artifactId>

@@ -24,11 +24,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
-import java.util.List;
 
 import javax.transaction.TransactionManager;
-
-import org.apache.geronimo.testsupport.TestSupport;
 
 import org.apache.geronimo.connector.outbound.connectiontracking.ConnectionTrackingCoordinator;
 import org.apache.geronimo.connector.outbound.connectiontracking.GeronimoTransactionListener;
@@ -47,9 +44,8 @@ import org.apache.geronimo.security.jacc.PrincipalRoleMapper;
 import org.apache.geronimo.security.realm.GenericSecurityRealm;
 import org.apache.geronimo.system.serverinfo.BasicServerInfo;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
+import org.apache.geronimo.testsupport.TestSupport;
 import org.apache.geronimo.transaction.manager.TransactionManagerImpl;
-import org.apache.geronimo.j2ee.annotation.Injection;
-import org.apache.geronimo.j2ee.annotation.Holder;
 import org.mortbay.jetty.security.Authenticator;
 import org.mortbay.jetty.security.FormAuthenticator;
 
@@ -122,6 +118,7 @@ public class AbstractWebModuleTest extends TestSupport {
                 transactionManager,
                 connectionTrackingCoordinator,
                 container,
+                null,
                 null,
                 null,
                 null);

@@ -26,9 +26,10 @@ import org.apache.catalina.Context;
 import org.apache.catalina.Manager;
 import org.apache.catalina.Realm;
 import org.apache.catalina.ha.CatalinaCluster;
+import org.apache.catalina.lifecycle.LifecycleProvider;
+import org.apache.geronimo.connector.outbound.connectiontracking.TrackedConnectionAssociator;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.tomcat.util.SecurityHolder;
-import org.apache.geronimo.connector.outbound.connectiontracking.TrackedConnectionAssociator;
 
 /**
  * @version $Rev$ $Date$
@@ -51,7 +52,7 @@ public interface TomcatContext {
 
     public UserTransaction getUserTransaction();
 
-    public Map getComponentContext();
+    public javax.naming.Context getJndiContext();
 
     public Kernel getKernel();
 
@@ -74,4 +75,7 @@ public interface TomcatContext {
     public boolean isDisableCookies();
 
     public Map getWebServices();
+
+    public LifecycleProvider getLifecycleProvider();
+
 }

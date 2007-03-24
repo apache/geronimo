@@ -116,6 +116,7 @@ public class JettyServletHolder implements Servlet, GBeanLifecycle {
     }
 
     public void doStop() throws Exception {
+        servletHolder.stop();
         if (servletRegistration != null) {
             servletRegistration.unregisterServletHolder(servletHolder, servletHolder.getName(), null, objectName);
         }
@@ -123,7 +124,7 @@ public class JettyServletHolder implements Servlet, GBeanLifecycle {
 
     public void doFail() {
         try {
-            servletHolder.stop();
+            doStop();
         } catch (Exception e) {
             //?? ignore
         }

@@ -916,7 +916,7 @@
             <dependency>
                 <groupId>org.apache.tomcat</groupId>
                 <artifactId>jasper</artifactId>
-                <version>${tomcatVersion}</version>
+                <version>6.0-G521891</version>
             </dependency>
 
             <dependency>
@@ -946,7 +946,7 @@
             <dependency>
                 <groupId>org.apache.tomcat</groupId>
                 <artifactId>catalina</artifactId>
-                <version>${tomcatVersion}</version>
+                <version>6.0-G521891</version>
             </dependency>
 
             <dependency>
@@ -964,6 +964,12 @@
             <dependency>
                 <groupId>org.apache.tomcat</groupId>
                 <artifactId>coyote</artifactId>
+                <version>${tomcatVersion}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.tomcat</groupId>
+                <artifactId>juli</artifactId>
                 <version>${tomcatVersion}</version>
             </dependency>
 

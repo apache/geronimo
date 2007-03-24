@@ -18,7 +18,8 @@
 
 <!-- $Rev$ $Date$ -->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
     <modelVersion>4.0.0</modelVersion>
 
@@ -32,12 +33,12 @@
     <artifactId>repository</artifactId>
     <name>Geronimo Local Repository</name>
     <packaging>jar</packaging>
-    
+
     <description>
         Container for local artifacts, this is a temporary solution until a more
         permeant Geronimo specific repository solution can be implemented.
     </description>
-    
+
     <dependencies>
         <dependency>
             <groupId>dwr</groupId>
@@ -48,17 +49,32 @@
             <groupId>juddi</groupId>
             <artifactId>juddi</artifactId>
         </dependency>
-        
+
         <dependency>
             <groupId>jstl</groupId>
             <artifactId>jstl</artifactId>
         </dependency>
-        
+
         <dependency>
             <groupId>org.dojotoolkit</groupId>
             <artifactId>dojo</artifactId>
             <type>zip</type>
         </dependency>
+
+        <!-- See GERONIMO-3010  These artifacts are here temporarily while we discuss the proposed change in
+        managed object lifecycle handling with the tomcat team.  One way or another it should be gone in a couple
+        of weeks -->
+        <dependency>
+            <groupId>org.apache.tomcat</groupId>
+            <artifactId>catalina</artifactId>
+            <version>6.0-G521891</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.tomcat</groupId>
+            <artifactId>jasper</artifactId>
+        </dependency>
+
+
     </dependencies>
 
     <repositories>
@@ -75,7 +91,7 @@
             </releases>
         </repository>
     </repositories>
-    
+
     <build>
         <plugins>
             <!--
@@ -96,7 +112,7 @@
                             <strict>false</strict>
                         </configuration>
                     </execution>
-                    
+
                     <execution>
                         <id>verify-legal-files</id>
                         <phase>verify</phase>

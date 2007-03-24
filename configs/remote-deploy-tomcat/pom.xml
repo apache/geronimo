@@ -49,6 +49,13 @@
         
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
+            <artifactId>jasper</artifactId>
+            <version>${version}</version>
+            <type>car</type>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.geronimo.configs</groupId>
             <artifactId>tomcat6-deployer</artifactId>
             <version>${version}</version>
             <type>car</type>
@@ -67,6 +74,7 @@
                         <deploymentConfig>${gbeanDeployer}</deploymentConfig>
                         <deploymentConfig>${j2eeDeployer}</deploymentConfig>
                         <deploymentConfig>${tomcatDeployer}</deploymentConfig>
+                        <deploymentConfig>${jasperDeployer}</deploymentConfig>
                     </deploymentConfigs>
                     <module>
                         <groupId>org.apache.geronimo.applications</groupId>

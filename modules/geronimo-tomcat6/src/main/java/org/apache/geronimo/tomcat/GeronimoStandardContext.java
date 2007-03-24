@@ -22,8 +22,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import javax.naming.NamingException;
-import javax.naming.Context;
 import javax.security.auth.Subject;
 import javax.security.jacc.PolicyContext;
 import javax.servlet.Servlet;
@@ -35,7 +33,6 @@ import org.apache.catalina.Loader;
 import org.apache.catalina.Manager;
 import org.apache.catalina.Valve;
 import org.apache.catalina.Wrapper;
-import org.apache.catalina.util.DefaultAnnotationProcessor;
 import org.apache.catalina.connector.Request;
 import org.apache.catalina.connector.Response;
 import org.apache.catalina.core.StandardContext;
@@ -45,7 +42,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.common.GeronimoSecurityException;
-import org.apache.geronimo.naming.enc.EnterpriseNamingContext;
 import org.apache.geronimo.security.ContextManager;
 import org.apache.geronimo.security.IdentificationPrincipal;
 import org.apache.geronimo.security.SubjectId;
@@ -88,22 +84,8 @@ public class GeronimoStandardContext extends StandardContext {
             setJ2EEServer(tctx.getJ2EEServer());
         }
         // Create ReadOnlyContext
-        javax.naming.Context enc = null;
-        Map componentContext = ctx.getComponentContext();
-        try {
-            if (componentContext != null) {
-                enc = EnterpriseNamingContext.createEnterpriseNamingContext(componentContext, ctx.getUserTransaction(), ctx.getKernel(), ctx.getClassLoader());
-            }
-        } catch (NamingException ne) {
-            log.error(ne);
-        }
-        try {
-            Context env = (Context) enc.lookup("env");
-            setAnnotationProcessor(new DefaultAnnotationProcessor(env));
-        } catch (NamingException e) {
-            // ignored
-            log.warn("Could not find env in enterprise naming context", e);
-        }
+        javax.naming.Context enc = ctx.getJndiContext();
+        setLifecycleProvider(ctx.getLifecycleProvider());
 
         int index = 0;
         BeforeAfter interceptor = new InstanceContextBeforeAfter(null,
@@ -334,6 +316,9 @@ public class GeronimoStandardContext extends StandardContext {
                     GeronimoStandardContext.super.start();
                 } catch (LifecycleException e) {
                     throw (IOException) new IOException("wrapping lifecycle exception").initCause(e);
+                }
+                if (GeronimoStandardContext.this.getState() != 1 || !GeronimoStandardContext.this.getAvailable()){
+                    throw new IOException("Context did not start for an unknown reason");
                 }
             } else {
                 getNext().invoke(request, response);

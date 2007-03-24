@@ -34,6 +34,7 @@ import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 import javax.naming.Context;
 import javax.transaction.TransactionManager;
+import javax.servlet.ServletContext;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -45,6 +46,7 @@ import org.apache.geronimo.j2ee.annotation.Holder;
 import org.apache.geronimo.j2ee.annotation.LifecycleMethod;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.j2ee.management.impl.InvalidObjectNameException;
+import org.apache.geronimo.j2ee.RuntimeCustomizer;
 import org.apache.geronimo.jetty6.handler.AbstractImmutableHandler;
 import org.apache.geronimo.jetty6.handler.ComponentContextHandler;
 import org.apache.geronimo.jetty6.handler.InstanceContextHandler;
@@ -134,6 +136,8 @@ public class JettyWebAppContext implements GBeanLifecycle, JettyServletRegistrat
             TransactionManager transactionManager,
             TrackedConnectionAssociator trackedConnectionAssociator,
             JettyContainer jettyContainer,
+            RuntimeCustomizer contextCustomizer,
+
             J2EEServer server,
             J2EEApplication application,
             Kernel kernel) throws Exception {
@@ -177,6 +181,18 @@ public class JettyWebAppContext implements GBeanLifecycle, JettyServletRegistrat
         this.componentContext = EnterpriseNamingContext.createEnterpriseNamingContext(componentContext, userTransaction, kernel, classLoader);
         contextHandler = new ComponentContextHandler(webAppContext, this.componentContext);
 
+        //install jasper injection support if required
+        if (contextCustomizer != null) {
+            Map<String, Object> servletContext = new HashMap<String, Object>();
+            Map<Class, Object> customizerContext = new HashMap<Class, Object>();
+            customizerContext.put(Map.class, servletContext);
+            customizerContext.put(Context.class, JettyWebAppContext.this.componentContext);
+            contextCustomizer.customize(customizerContext);
+            for (Map.Entry<String, Object> entry: servletContext.entrySet()) {
+                webAppContext.setAttribute(entry.getKey(), entry.getValue());
+            }
+        }
+
         // localize access to next
         {
             //install the other handlers inside the web app context
@@ -205,7 +221,8 @@ public class JettyWebAppContext implements GBeanLifecycle, JettyServletRegistrat
         this.jettyContainer = jettyContainer;
         this.originalSpecDD = originalSpecDD;
 
-        webAppContext.setConfigurationClasses(new String[]{"org.mortbay.jetty.webapp.TagLibConfiguration"});
+        //DONT install the jetty TLD configuration as we find and create all the listeners ourselves
+        webAppContext.setConfigurationClasses(new String[]{});
 
         webAppRoot = configurationBaseUrl.toString();
         webClassLoader = classLoader;
@@ -572,6 +589,7 @@ public class JettyWebAppContext implements GBeanLifecycle, JettyServletRegistrat
         infoBuilder.addReference("TransactionManager", TransactionManager.class, NameFactory.TRANSACTION_MANAGER);
         infoBuilder.addReference("TrackedConnectionAssociator", TrackedConnectionAssociator.class, NameFactory.JCA_CONNECTION_TRACKER);
         infoBuilder.addReference("JettyContainer", JettyContainer.class, NameFactory.GERONIMO_SERVICE);
+        infoBuilder.addReference("ContextCustomizer", RuntimeCustomizer.class, NameFactory.GERONIMO_SERVICE);
 
         infoBuilder.addInterface(JettyServletRegistration.class);
 
@@ -632,6 +650,7 @@ public class JettyWebAppContext implements GBeanLifecycle, JettyServletRegistrat
                 "TransactionManager",
                 "TrackedConnectionAssociator",
                 "JettyContainer",
+                "ContextCustomizer",
 
                 "J2EEServer",
                 "J2EEApplication",

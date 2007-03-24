@@ -19,27 +19,18 @@
 package org.apache.geronimo.jetty6;
 
 import java.io.IOException;
-import java.util.List;
-import java.util.Map;
 
+import javax.security.auth.Subject;
+import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
-import javax.servlet.ServletException;
 import javax.servlet.UnavailableException;
-import javax.security.auth.Subject;
-import javax.naming.Context;
-import javax.naming.InitialContext;
-import javax.naming.NamingException;
 
-import org.mortbay.jetty.servlet.ServletHolder;
 import org.apache.geronimo.jetty6.handler.AbstractImmutableHandler;
 import org.apache.geronimo.jetty6.handler.LifecycleCommand;
 import org.apache.geronimo.security.Callers;
 import org.apache.geronimo.security.ContextManager;
-import org.apache.geronimo.j2ee.annotation.Injection;
-import org.apache.xbean.recipe.ObjectRecipe;
-import org.apache.xbean.recipe.Option;
-import org.apache.xbean.recipe.StaticRecipe;
+import org.mortbay.jetty.servlet.ServletHolder;
 
 /**
  * @version $Rev$ $Date$
@@ -51,6 +42,7 @@ public class InternalJettyServletHolder extends ServletHolder {
     private final AbstractImmutableHandler lifecycleChain;
     private final Subject runAsSubject;
     private final JettyServletRegistration servletRegistration;
+    private boolean stopped;
 
     public InternalJettyServletHolder(AbstractImmutableHandler lifecycleChain, Subject runAsSubject, JettyServletRegistration servletRegistration) {
         this.lifecycleChain = lifecycleChain;
@@ -90,7 +82,9 @@ public class InternalJettyServletHolder extends ServletHolder {
     }
 
     public void destroyInstance(Object o) throws Exception {
-        servletRegistration.destroyInstance(o);
+        if (!stopped) {
+            servletRegistration.destroyInstance(o);
+        }
     }
 
     /**
@@ -127,6 +121,7 @@ public class InternalJettyServletHolder extends ServletHolder {
 
     private void internalDoStop() {
         super.doStop();
+        stopped = true;
     }
 
     public class StartCommand implements LifecycleCommand {

@@ -28,7 +28,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import javax.faces.FactoryFinder;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 import javax.management.j2ee.statistics.Stats;
@@ -42,6 +41,7 @@ import org.apache.catalina.Realm;
 import org.apache.catalina.Valve;
 import org.apache.catalina.core.StandardContext;
 import org.apache.catalina.ha.CatalinaCluster;
+import org.apache.catalina.lifecycle.LifecycleProvider;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.connector.outbound.connectiontracking.TrackedConnectionAssociator;
@@ -49,6 +49,7 @@ import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
+import org.apache.geronimo.j2ee.annotation.Holder;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.j2ee.management.impl.InvalidObjectNameException;
 import org.apache.geronimo.kernel.Kernel;
@@ -59,9 +60,10 @@ import org.apache.geronimo.management.StatisticsProvider;
 import org.apache.geronimo.management.geronimo.WebConnector;
 import org.apache.geronimo.management.geronimo.WebContainer;
 import org.apache.geronimo.management.geronimo.WebModule;
-import org.apache.geronimo.tomcat.util.SecurityHolder;
+import org.apache.geronimo.naming.enc.EnterpriseNamingContext;
 import org.apache.geronimo.tomcat.cluster.CatalinaClusterGBean;
 import org.apache.geronimo.tomcat.stats.ModuleStats;
+import org.apache.geronimo.tomcat.util.SecurityHolder;
 import org.apache.geronimo.transaction.GeronimoUserTransaction;
 import org.apache.geronimo.webservices.WebServiceContainer;
 import org.apache.geronimo.webservices.WebServiceContainerFactory;
@@ -102,7 +104,7 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
 
     private final UserTransaction userTransaction;
 
-    private final Map componentContext;
+    private final javax.naming.Context componentContext;
 
     private final Kernel kernel;
 
@@ -123,8 +125,10 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
     private final String originalSpecDD;
 
     private final URL configurationBaseURL;
-    
-    // JSR 77 
+
+    private final Holder holder;
+
+    // JSR 77
     
     private final String j2EEServer;
     
@@ -154,6 +158,7 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
             boolean crossContext,
             boolean disableCookies,
             Map webServices,
+            Holder holder,
             J2EEServer server,
             J2EEApplication application,
             Kernel kernel)
@@ -182,8 +187,9 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
         this.virtualServer = virtualServer;
         this.securityHolder = securityHolder;
 
-        this.userTransaction = new GeronimoUserTransaction(transactionManager);
-        this.componentContext = componentContext;
+        userTransaction = new GeronimoUserTransaction(transactionManager);
+        this.componentContext = EnterpriseNamingContext.createEnterpriseNamingContext(componentContext, userTransaction, kernel, classLoader);
+;
         this.unshareableResources = unshareableResources;
         this.applicationManagedSecurityResources = applicationManagedSecurityResources;
         this.trackedConnectionAssociator = trackedConnectionAssociator;
@@ -191,6 +197,8 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
         this.server = server;
 
         this.configurationBaseURL = configurationBaseUrl;
+
+        this.holder = holder == null? new Holder(): holder;
 
         if (tomcatRealm != null){
             realm = (Realm)tomcatRealm.getInternalObject();
@@ -322,7 +330,7 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
         return userTransaction;
     }
 
-    public Map getComponentContext() {
+    public javax.naming.Context getJndiContext() {
         return componentContext;
     }
 
@@ -423,6 +431,10 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
         return webServices;
     }
 
+    public LifecycleProvider getLifecycleProvider() {
+        return new TomcatLifecycleProvider(holder, classLoader, componentContext);
+    }
+
     public String[] getServlets(){
         String[] result = null;
         if ((context != null) && (context instanceof StandardContext)) {
@@ -498,6 +510,9 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
         // super.start();
         //register the classloader <> dir context association so that tomcat's jndi based getResources works.
         DirContext resources = context.getResources();
+        if (resources == null) {
+            throw new IllegalStateException("JNDI environment was not set up correctly due to previous error");
+        }
         DirContextURLStreamHandler.bind(classLoader, resources);
         if (context instanceof StandardContext)
             statsProvider =  new ModuleStats((StandardContext)context);
@@ -513,9 +528,6 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
         // No more logging will occur for this ClassLoader. Inform the LogFactory to avoid a memory leak.
 //        LogFactory.release(classLoader);
 
-        // need to release the JSF factories. Otherwise, we'll leak ClassLoaders.
-        FactoryFinder.releaseFactories();
-        
         log.debug("TomcatWebAppContext stopped");
     }
 
@@ -525,9 +537,6 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
 
         // No more logging will occur for this ClassLoader. Inform the LogFactory to avoid a memory leak.
 //        LogFactory.release(classLoader);
-
-        // need to release the JSF factories. Otherwise, we'll leak ClassLoaders.
-        FactoryFinder.releaseFactories();
 
         log.warn("TomcatWebAppContext failed");
     }
@@ -560,6 +569,7 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
         infoBuilder.addAttribute("crossContext", boolean.class, true);
         infoBuilder.addAttribute("disableCookies", boolean.class, true);
         infoBuilder.addAttribute("webServices", Map.class, true);
+        infoBuilder.addAttribute("holder", Holder.class, true);
         infoBuilder.addReference("J2EEServer", J2EEServer.class);
         infoBuilder.addReference("J2EEApplication", J2EEApplication.class);
         infoBuilder.addAttribute("kernel", Kernel.class, false);
@@ -586,6 +596,7 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
                 "crossContext",
                 "disableCookies",
                 "webServices",
+                "holder",
                 "J2EEServer",
                 "J2EEApplication",
                 "kernel"

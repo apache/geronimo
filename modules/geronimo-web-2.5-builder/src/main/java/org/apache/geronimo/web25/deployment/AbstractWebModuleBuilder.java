@@ -334,8 +334,9 @@ public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
             //otherwise assume DTD
             XmlDocumentProperties xmlDocumentProperties = cursor.documentProperties();
             String publicId = xmlDocumentProperties.getDoctypePublicId();
+            boolean is22 = "-//Sun Microsystems, Inc.//DTD Web Application 2.2//EN".equals(publicId);
             if ("-//Sun Microsystems, Inc.//DTD Web Application 2.3//EN".equals(publicId) ||
-                    "-//Sun Microsystems, Inc.//DTD Web Application 2.2//EN".equals(publicId)) {
+                    is22) {
                 XmlCursor moveable = xmlObject.newCursor();
                 try {
                     moveable.toStartDoc();
@@ -368,6 +369,18 @@ public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
                                 cursor.toFirstChild();
                                 SchemaConversionUtils.convertToDescriptionGroup(SchemaConversionUtils.JAVAEE_NAMESPACE, cursor, moveable);
                                 cursor.pop();
+                            }
+                            cursor.pop();
+                            cursor.push();
+                            if (cursor.toChild(SchemaConversionUtils.JAVAEE_NAMESPACE, "jsp-file")) {
+                                String jspFile = cursor.getTextValue();
+                                if (!jspFile.startsWith("/")){
+                                    if (is22) {
+                                        cursor.setTextValue("/" + jspFile);
+                                    } else {
+                                        throw new XmlException("jsp-file does not start with / and this is not a 2.2 web app: " + jspFile);
+                                    }
+                                }
                             }
                             cursor.pop();
                         }
@@ -785,6 +798,8 @@ public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
         Holder holder = NamingBuilder.INJECTION_KEY.get(buildingContext);
 
         webModule.getSharedContext().put(WebModule.WEB_APP_DATA, webModuleData);
+        webModule.getSharedContext().put(NamingBuilder.JNDI_KEY, compContext);
+        webModule.getSharedContext().put(NamingBuilder.INJECTION_KEY, holder);
         if (moduleContext.getServerName() != null) {
             webModuleData.setReferencePattern("J2EEServer", moduleContext.getServerName());
         }

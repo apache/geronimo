@@ -141,6 +141,10 @@ public class MyFacesModuleBuilderExtension implements ModuleBuilderExtension {
         Map<NamingBuilder.Key, Object> buildingContext = new HashMap<NamingBuilder.Key, Object>();
         buildingContext.put(NamingBuilder.GBEAN_NAME_KEY, moduleName);
 
+        //use the same jndi context as the web app
+        Map compContext = NamingBuilder.JNDI_KEY.get(module.getSharedContext());
+        buildingContext.put(NamingBuilder.JNDI_KEY, compContext);
+
         //use the same holder object as the web app.
         Holder holder = NamingBuilder.INJECTION_KEY.get(sharedContext);
         buildingContext.put(NamingBuilder.INJECTION_KEY, holder);
@@ -153,8 +157,6 @@ public class MyFacesModuleBuilderExtension implements ModuleBuilderExtension {
         webModule.setClassFinder(classFinder);
 
         namingBuilders.buildNaming(webApp, jettyWebApp, earConfiguration, earConfiguration, webModule, buildingContext);
-
-        Map compContext = NamingBuilder.JNDI_KEY.get(buildingContext);
 
         AbstractName providerName = moduleContext.getNaming().createChildName(moduleName, "jsf-lifecycle", "jsf");
         GBeanData providerData = new GBeanData(providerName, LifecycleProviderGBean.GBEAN_INFO);

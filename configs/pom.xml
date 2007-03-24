@@ -49,6 +49,7 @@
         <axis2Deployer>org.apache.geronimo.configs/axis2-deployer/${version}/car</axis2Deployer>
         <tomcatDeployer>org.apache.geronimo.configs/tomcat6-deployer/${version}/car</tomcatDeployer>
         <jetty6Deployer>org.apache.geronimo.configs/jetty6-deployer/${version}/car</jetty6Deployer>
+        <jasperDeployer>org.apache.geronimo.configs/jasper-deployer/${version}/car</jasperDeployer>
 
         <!-- Common plan properties -->
         <PlanServerHostname>0.0.0.0</PlanServerHostname>
@@ -187,6 +188,7 @@
         <module>webconsole-jetty6</module>
         <module>webservices-common</module>
         <module>jasper</module>
+        <module>jasper-deployer</module>
     </modules>
 
 </project>

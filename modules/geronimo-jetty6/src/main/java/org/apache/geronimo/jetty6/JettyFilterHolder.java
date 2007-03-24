@@ -51,11 +51,11 @@ public class JettyFilterHolder implements GBeanLifecycle {
     }
 
     public void doStart() throws Exception {
-            filterHolder.start();
+        filterHolder.start();
     }
 
     public void doStop() throws Exception {
-                filterHolder.stop();
+        filterHolder.stop();
     }
 
     public void doFail() {
@@ -68,6 +68,7 @@ public class JettyFilterHolder implements GBeanLifecycle {
 
     private static class InternalFilterHolder extends FilterHolder {
         private final JettyServletRegistration servletRegistration;
+        private boolean destroyed;
 
         public InternalFilterHolder(JettyServletRegistration servletRegistration) {
             this.servletRegistration = servletRegistration;
@@ -79,12 +80,15 @@ public class JettyFilterHolder implements GBeanLifecycle {
         }
 
         public void destroyInstance(Object o) throws Exception {
-            super.destroyInstance(o);
-            servletRegistration.destroyInstance(o);
+            if (!destroyed) {
+                super.destroyInstance(o);
+                servletRegistration.destroyInstance(o);
+                destroyed = true;
+            }
         }
 
     }
-    
+
     public static final GBeanInfo GBEAN_INFO;
 
     static {
@@ -95,7 +99,7 @@ public class JettyFilterHolder implements GBeanLifecycle {
 
         infoBuilder.addReference("JettyServletRegistration", JettyServletRegistration.class, NameFactory.WEB_MODULE);
 
-        infoBuilder.setConstructor(new String[] {"filterName", "filterClass", "initParams", "JettyServletRegistration"});
+        infoBuilder.setConstructor(new String[]{"filterName", "filterClass", "initParams", "JettyServletRegistration"});
 
         GBEAN_INFO = infoBuilder.getBeanInfo();
 
