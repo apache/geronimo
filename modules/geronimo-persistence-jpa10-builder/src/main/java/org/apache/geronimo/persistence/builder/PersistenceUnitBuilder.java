@@ -139,7 +139,12 @@ public class PersistenceUnitBuilder implements NamespaceDrivenBuilder {
         } else {
             gbeanData.setAttribute("persistenceProviderClassName", defaultPersistenceProviderClassName);
         }
-        gbeanData.setAttribute("persistenceUnitTransactionType", persistenceUnit.getTransactionType().toString());
+        if (persistenceUnit.isSetTransactionType()) {
+            gbeanData.setAttribute("persistenceUnitTransactionType", persistenceUnit.getTransactionType().toString());
+        } else {
+            //TODO verify that the default is supposed to be JTA
+            gbeanData.setAttribute("persistenceUnitTransactionType", "JTA");
+        }
         if (persistenceUnit.isSetJtaDataSource()) {
             String jtaDataSourceString = persistenceUnit.getJtaDataSource().trim();
             if (jtaDataSourceString.indexOf('=') == -1) {
