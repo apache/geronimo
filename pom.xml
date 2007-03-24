@@ -1475,7 +1475,7 @@
                 <plugin>
                     <groupId>org.codehaus.mojo</groupId>
                     <artifactId>groovy-maven-plugin</artifactId>
-                    <version>1.0-alpha-1</version>
+                    <version>1.0-alpha-2</version>
                 </plugin>
 
                 <plugin>
