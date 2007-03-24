@@ -20,7 +20,6 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -364,6 +363,13 @@ public class EjbModuleBuilder implements ModuleBuilder {
     }
 
     private void installModule(Module module, EARContext earContext) throws DeploymentException {
+        EarData earData = (EarData) earContext.getGeneralData().get(EarData.class);
+        if (earData == null) {
+            earData = new EarData();
+            earContext.getGeneralData().put(EarData.class, earData);
+        }
+        earData.addEjbModule((EjbModule) module);
+
         JarFile moduleFile = module.getModuleFile();
         try {
             // extract the ejbJar file into a standalone packed jar file and add the contents to the output
@@ -393,45 +399,10 @@ public class EjbModuleBuilder implements ModuleBuilder {
     public void initContext(EARContext earContext, Module module, ClassLoader classLoader) throws DeploymentException {
         EjbModule ejbModule = (EjbModule) module;
         ejbModule.setClassLoader(classLoader);
+        EjbJarInfo ejbJarInfo = getEjbJarInfo(earContext, ejbModule, classLoader);
 
-        // build the config info tree
-        // this method fills in the ejbJar jaxb tree based on the annotations
-        // (metadata complete) and it run the openejb verifier
-        AppModule appModule = new AppModule(ejbModule.getEjbModule().getClassLoader(), ejbModule.getEjbModule().getModuleId());
-        appModule.getEjbModules().add(ejbModule.getEjbModule());
-        AppInfo appInfo;
-        EjbJarInfo ejbJarInfo;
-        try {
-            appInfo = openEjbSystem.configureApplication(appModule);
-            ejbJarInfo = appInfo.ejbJars.get(0);
-            ejbModule.setEjbJarInfo(ejbJarInfo);
-        } catch (OpenEJBException e) {
-            e.printStackTrace();
-            throw new DeploymentException(e);
-        }
-        EarData earData = (EarData) earContext.getGeneralData().get(EarData.class);
-        if (earData == null) {
-            earData = new EarData();
-            earContext.getGeneralData().put(EarData.class, earData);
-        }
-        earData.getEjbJars().add(ejbJarInfo);
 
-        // generate the CMP2 implementation classes
-        // Generate the cmp2 concrete subclasses
-        CmpJarBuilder cmp2Builder = new CmpJarBuilder(appInfo, classLoader);
-        try {
-            File generatedJar = cmp2Builder.getJarFile();
-            if (generatedJar != null) {
-                String generatedPath = module.getTargetPath();
-                if (generatedPath.endsWith(".jar")) {
-                    generatedPath = generatedPath.substring(0, generatedPath.length() - 4);
-                }
-                generatedPath += "-cmp2.jar";
-                earContext.addInclude(URI.create(generatedPath), generatedJar);
-            }
-        } catch (IOException e) {
-            throw new DeploymentException(e);
-        }
+        ejbModule.setEjbJarInfo(ejbJarInfo);
 
         // update the original spec dd with the metadata complete dd
         EjbJar ejbJar = ejbModule.getEjbJar();
@@ -443,11 +414,6 @@ public class EjbModuleBuilder implements ModuleBuilder {
         // create a xmlbeans version of the ejb-jar.xml file, because the jndi code is coupled based on xmlbeans objects
         EjbJarType ejbJarType = XmlUtil.convertToXmlbeans(ejbJar);
         ejbModule.setSpecDD(ejbJarType);
-
-        // add the cmp persistence unit if needed
-        if (appInfo.cmpMappingsXml != null) {
-            addGeronimmoOpenEJBPersistenceUnit(ejbModule);
-        }
 
         // convert the plan to xmlbeans since geronimo naming is coupled on xmlbeans objects
         GeronimoEjbJarType geronimoEjbJarType = (GeronimoEjbJarType) ejbModule.getEjbModule().getAltDDs().get("geronimo-openejb.xml");
@@ -485,6 +451,58 @@ public class EjbModuleBuilder implements ModuleBuilder {
         }
     }
 
+    private EjbJarInfo getEjbJarInfo(EARContext earContext, EjbModule ejbModule, ClassLoader classLoader) throws DeploymentException {
+        EarData earData = (EarData) earContext.getGeneralData().get(EarData.class);
+        if (earData.getEjbJars().isEmpty()) {
+            // create an openejb app module for the ear containing all ejb modules
+            AppModule appModule = new AppModule(ejbModule.getEjbModule().getClassLoader(), ejbModule.getEjbModule().getModuleId());
+            for (EjbModule module : earData.getEjbModuels()) {
+                appModule.getEjbModules().add(module.getEjbModule());
+            }
+
+            // build the config info tree
+            // this method fills in the ejbJar jaxb tree based on the annotations
+            // (metadata complete) and it run the openejb verifier
+            AppInfo appInfo;
+            try {
+                appInfo = openEjbSystem.configureApplication(appModule);
+            } catch (OpenEJBException e) {
+                e.printStackTrace();
+                throw new DeploymentException(e);
+            }
+
+            // add all of the modules to the ear data
+            for (EjbJarInfo ejbJar : appInfo.ejbJars) {
+                earData.addEjbJar(ejbJar);
+            }
+
+            // add the cmp jar
+            CmpJarBuilder cmp2Builder = new CmpJarBuilder(appInfo, classLoader);
+            try {
+                File generatedJar = cmp2Builder.getJarFile();
+                if (generatedJar != null) {
+                    String generatedPath = ejbModule.getTargetPath();
+                    if (generatedPath.endsWith(".jar")) {
+                        generatedPath = generatedPath.substring(0, generatedPath.length() - 4);
+                    }
+                    generatedPath += "-cmp2.jar";
+                    earContext.addInclude(URI.create(generatedPath), generatedJar);
+                }
+            } catch (IOException e) {
+                throw new DeploymentException(e);
+            }
+
+            // add the cmp persistence unit if needed
+            if (appInfo.cmpMappingsXml != null) {
+                addGeronimmoOpenEJBPersistenceUnit(ejbModule);
+            }
+        }
+
+        // find our module
+        EjbJarInfo ejbJarInfo = earData.getEjbJar(ejbModule.getEjbModule().getModuleId());
+        return ejbJarInfo;
+    }
+
     private void addGeronimmoOpenEJBPersistenceUnit(EjbModule ejbModule) {
         GeronimoEjbJarType geronimoEjbJarType = (GeronimoEjbJarType) ejbModule.getEjbModule().getAltDDs().get("geronimo-openejb.xml");
 
@@ -496,7 +514,6 @@ public class EjbModuleBuilder implements ModuleBuilder {
                     persistenceUnit = unit;
                     break;
                 }
-
             }
         }
 
@@ -663,10 +680,40 @@ public class EjbModuleBuilder implements ModuleBuilder {
     }
 
     public static class EarData {
-        private final Collection<EjbJarInfo> ejbJars = new ArrayList<EjbJarInfo>();
+        private final Map<String, EjbModule> ejbModules = new TreeMap<String, EjbModule>();
+        private final Map<String, EjbJarInfo> ejbJars = new TreeMap<String, EjbJarInfo>();
+
+        public void addEjbModule(EjbModule ejbModule) {
+            ejbModules.put(ejbModule.getEjbModule().getModuleId(), ejbModule);
+        }
+
+        public EjbModule getEjbModule(String moduleId) throws DeploymentException {
+            EjbModule ejbModule = ejbModules.get(moduleId);
+            if (ejbModule == null) {
+                throw new DeploymentException("Ejb  module " + moduleId + " was not found in configured module list " + ejbModules.keySet());
+            }
+            return ejbModule;
+        }
+
+        public Collection<EjbModule> getEjbModuels() {
+            return ejbModules.values();
+        }
+
+        public void addEjbJar(EjbJarInfo ejbJarInfo) {
+            ejbJars.put(ejbJarInfo.moduleId, ejbJarInfo);
+        }
+
+        public EjbJarInfo getEjbJar(String moduleId) throws DeploymentException {
+            EjbJarInfo ejbJarInfo = ejbJars.get(moduleId);
+            if (ejbJarInfo == null) {
+                throw new DeploymentException("Ejb jar configuration passed but expected module " +
+                        moduleId + " was not found in configured module list " + ejbJars.keySet());
+            }
+            return ejbJarInfo;
+        }
 
         public Collection<EjbJarInfo> getEjbJars() {
-            return ejbJars;
+            return ejbJars.values();
         }
     }
 

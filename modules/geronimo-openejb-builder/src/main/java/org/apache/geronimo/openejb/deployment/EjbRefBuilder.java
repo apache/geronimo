@@ -114,8 +114,6 @@ public class EjbRefBuilder extends AbstractNamingBuilder {
             augmentJndiConsumer(module, consumer, componentContext);
         }
 
-//      processWebEjbAnnotations(module, consumer);
-
         Map<String, Object> map = null;
         try {
             EjbModuleBuilder.EarData earData = (EjbModuleBuilder.EarData) module.getRootEarContext().getGeneralData().get(EjbModuleBuilder.EarData.class);
@@ -404,44 +402,6 @@ public class EjbRefBuilder extends AbstractNamingBuilder {
                 }
                 //geronimo's handling of injection-target
                 addInjections(refName, xmlbeansRef.getInjectionTargetArray(), componentContext);
-            }
-        }
-    }
-
-    private void processWebEjbAnnotations(Module module, JndiConsumer consumer) throws DeploymentException {
-        if (module instanceof WebModule) {
-            try {
-                ClassLoader classLoader = module.getEarContext().getClassLoader();
-                UrlSet urlSet = new UrlSet(classLoader);
-                if (classLoader instanceof MultiParentClassLoader) {
-                    MultiParentClassLoader multiParentClassLoader = (MultiParentClassLoader) classLoader;
-                    for (ClassLoader parent : multiParentClassLoader.getParents()) {
-                        if (parent != null) {
-                            urlSet = urlSet.exclude(parent);
-                        }
-                    }
-                } else {
-                    ClassLoader parent = classLoader.getParent();
-                    if (parent != null) {
-                        urlSet = urlSet.exclude(parent);
-                    }
-                }
-                ClassFinder finder = new ClassFinder(classLoader, urlSet.getUrls());
-                for (Field field : finder.findAnnotatedFields(EJB.class)) {
-                    EJB ejb = field.getAnnotation(EJB.class);
-                    AnnotationDeployer.Member member = new AnnotationDeployer.FieldMember(field);
-                    buildEjbRef(consumer, ejb, member);
-                }
-
-                for (Method method : finder.findAnnotatedMethods(EJB.class)) {
-                    EJB ejb = method.getAnnotation(EJB.class);
-                    AnnotationDeployer.Member member = new AnnotationDeployer.MethodMember(method);
-                    buildEjbRef(consumer, ejb, member);
-                }
-
-            } catch (IOException e) {
-                // ignored... we tried
-                log.warn("Unable to process @EJB annotations web module" + module.getName(), e);
             }
         }
     }
