@@ -136,7 +136,6 @@
             <artifactId>xbean-reflect</artifactId>
         </dependency>
 
-
         <!-- geronimo-spec-corba, geronimo-j2ee_1.4_spec -->
         <!-- openejb-core, tranql, asm, activemq,
              concurrent, jdom -->
@@ -174,11 +173,6 @@
         <dependency>
             <groupId>activeio</groupId>
             <artifactId>activeio</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>backport-util-concurrent</groupId>
-            <artifactId>backport-util-concurrent</artifactId>
         </dependency>
 
         <!--

@@ -304,15 +304,19 @@
             </dependency>
             
             <!--
-            NOTE: Need to use 2.2 to be compatible with AMQ 4.1, latest 3.0 causes CCE problems.
+            NOTE: This is included for AMQ 4.1 support only.  Need to use 2.2 to
+                  be compatible with AMQ 4.1, latest 3.0 causes CCE problems.
             -->
-            
             <dependency>
                 <groupId>backport-util-concurrent</groupId>
                 <artifactId>backport-util-concurrent</artifactId>
                 <version>2.2</version>
             </dependency>
             
+            <!--
+            NOTE: activeio and concurrent deps below are used for remote login
+                  support and eventually need to be removed.
+            -->
             <dependency>
                 <groupId>activeio</groupId>
                 <artifactId>activeio</artifactId>
