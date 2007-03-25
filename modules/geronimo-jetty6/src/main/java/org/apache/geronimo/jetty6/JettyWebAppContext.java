@@ -404,7 +404,7 @@ public class JettyWebAppContext implements GBeanLifecycle, JettyServletRegistrat
     public void setLocaleEncodingMapping(Map<String, String> localeEncodingMap) {
         if (localeEncodingMap != null) {
             for (Map.Entry<String, String> entry : localeEncodingMap.entrySet()) {
-                this.webAppContext.addLocaleEncoding(entry.getValue(), entry.getKey());
+                this.webAppContext.addLocaleEncoding(entry.getKey(), entry.getValue());
             }
         }
     }
