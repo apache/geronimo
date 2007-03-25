@@ -186,11 +186,11 @@ public final class WebServiceRefAnnotationHelper extends AnnotationHelper {
      * @param field      Field name with the @WebServiceRef annoation
      */
     private static void addWebServiceRef(AnnotatedApp annotatedApp, WebServiceRef annotation, Class cls, Method method, Field field) {
-        log.debug("addWebServiceRef( " + annotatedApp.toString() + "," + '\n' +
-                           annotation.name() + "," + '\n' +
-                           (cls != null ? cls.getName() : null) + "," + '\n' +
-                           (method != null ? method.getName() : null) + "," + '\n' +
-                           (field != null ? field.getName() : null) + " ): Entry");
+        log.debug("addWebServiceRef( [annotatedApp] " + annotatedApp.toString() + "," + '\n' +
+                           "[annotation] " +  annotation.toString() + "," + '\n' +
+                           "[cls] " + (cls != null ? cls.getName() : null) + "," + '\n' +
+                           "[method] " + (method != null ? method.getName() : null) + "," + '\n' +
+                           "[field] " + (field != null ? field.getName() : null) + " ): Entry");
 
         //------------------------------------------------------------------------------------------
         // WebServiceRef name:
@@ -227,14 +227,14 @@ public final class WebServiceRefAnnotationHelper extends AnnotationHelper {
         // -- When annotation is applied on a field:    Type is the field type (or as provided on
         //                                              the annotation)
         //------------------------------------------------------------------------------------------
-        String webServiceRefType = annotation.type().getCanonicalName();
-        Class webServiceRefValue = annotation.value().getClass();
-        if (webServiceRefType.equals("") || webServiceRefType.equals(Object.class.getName())) {
+        Class webServiceRefType = annotation.type();
+        Class webServiceRefValue = annotation.value();
+        if (webServiceRefType.equals(Object.class)) {
             if (method != null) {
-                webServiceRefType = method.getParameterTypes()[0].getCanonicalName();
+                webServiceRefType = method.getParameterTypes()[0];
             }
             else if (field != null) {
-                webServiceRefType = field.getType().getName();
+                webServiceRefType = field.getType();
             }
         }
         log.debug("addWebServiceRef(): webServiceRefType: " + webServiceRefType);
@@ -289,15 +289,21 @@ public final class WebServiceRefAnnotationHelper extends AnnotationHelper {
                 serviceRefName.setStringValue(webServiceRefName);
 
                 // service-ref-type
-                if ( !webServiceRefType.equals("") ) {
-                    FullyQualifiedClassType qualifiedClass = serviceRef.addNewServiceInterface();
-                    qualifiedClass.setStringValue(webServiceRefType);
-                    serviceRef.setServiceInterface(qualifiedClass);
+                if (!webServiceRefType.equals(Object.class)) {
+                    FullyQualifiedClassType qualifiedClass = serviceRef.addNewServiceRefType();
+                    qualifiedClass.setStringValue(webServiceRefType.getName());
+                    serviceRef.setServiceRefType(qualifiedClass);
                 }
-                else if ( !webServiceRefValue.equals("") ) {
-                    // service-ref-type
+
+                // service-ref-interface
+                if (!webServiceRefValue.equals(Object.class)) {
                     FullyQualifiedClassType qualifiedClass = serviceRef.addNewServiceInterface();
                     qualifiedClass.setStringValue(webServiceRefValue.getName());
+                    serviceRef.setServiceInterface(qualifiedClass);
+                }
+                else {
+                    FullyQualifiedClassType qualifiedClass = serviceRef.addNewServiceInterface();
+                    qualifiedClass.setStringValue(webServiceRefType.getName());
                     serviceRef.setServiceInterface(qualifiedClass);
                 }
 
