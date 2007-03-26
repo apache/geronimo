@@ -17,6 +17,7 @@
 
 package org.apache.geronimo.persistence.builder;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -60,10 +61,12 @@ public class PersistenceContextRefBuilder extends AbstractNamingBuilder {
     private static final QNameSet GER_PERSISTENCE_CONTEXT_REF_QNAME_SET = QNameSet.singleton(GER_PERSISTENCE_CONTEXT_REF_QNAME);
     private static final Set<String> PERSISTENCE_UNIT_INTERFACE_TYPES = Collections.singleton("org.apache.geronimo.persistence.PersistenceUnitGBean");
     private final AbstractNameQuery defaultPersistenceUnitAbstractNameQuery;
+    private final boolean strictMatching;
 
-    public PersistenceContextRefBuilder(Environment defaultEnvironment, AbstractNameQuery defaultPersistenceUnitAbstractNameQuery) {
+    public PersistenceContextRefBuilder(Environment defaultEnvironment, AbstractNameQuery defaultPersistenceUnitAbstractNameQuery, boolean strictMatching) {
         super(defaultEnvironment);
         this.defaultPersistenceUnitAbstractNameQuery = defaultPersistenceUnitAbstractNameQuery;
+        this.strictMatching = strictMatching;
     }
 
     protected boolean willMergeEnvironment(XmlObject specDD, XmlObject plan) throws DeploymentException {
@@ -79,72 +82,95 @@ public class PersistenceContextRefBuilder extends AbstractNamingBuilder {
 
         List<PersistenceContextRefType> specPersistenceContextRefsUntyped = convert(specDD.selectChildren(PERSISTENCE_CONTEXT_REF_QNAME_SET), JEE_CONVERTER, PersistenceContextRefType.class, PersistenceContextRefType.type);
         Map<String, GerPersistenceContextRefType> gerPersistenceContextRefsUntyped = getGerPersistenceContextRefs(plan);
+        List<DeploymentException> problems = new ArrayList<DeploymentException>();
         for (PersistenceContextRefType persistenceContextRef : specPersistenceContextRefsUntyped) {
-            String persistenceContextRefName = persistenceContextRef.getPersistenceContextRefName().getStringValue().trim();
-
-            addInjections(persistenceContextRefName, persistenceContextRef.getInjectionTargetArray(), componentContext);
-            PersistenceContextTypeType persistenceContextType = persistenceContextRef.getPersistenceContextType();
-            boolean transactionScoped = persistenceContextType == null || !persistenceContextType.getStringValue().equalsIgnoreCase("extended");
-
-            PropertyType[] propertyTypes = persistenceContextRef.getPersistencePropertyArray();
-            Map properties = new HashMap();
-            for (PropertyType propertyType : propertyTypes) {
-                String key = propertyType.getName().getStringValue();
-                String value = propertyType.getValue().getStringValue();
-                properties.put(key, value);
-            }
-
-            AbstractNameQuery persistenceUnitNameQuery;
-            GerPersistenceContextRefType gerPersistenceContextRef = gerPersistenceContextRefsUntyped.remove(persistenceContextRefName);
-            if (gerPersistenceContextRef != null) {
-                persistenceUnitNameQuery = findPersistenceUnit(gerPersistenceContextRef);
-                addProperties(gerPersistenceContextRef, properties);
-            } else if (persistenceContextRef.isSetPersistenceUnitName()) {
-                String persistenceUnitName = persistenceContextRef.getPersistenceUnitName().getStringValue().trim();
-                persistenceUnitNameQuery = new AbstractNameQuery(null, Collections.singletonMap("name", persistenceUnitName), PERSISTENCE_UNIT_INTERFACE_TYPES);
-            } else {
-                persistenceUnitNameQuery = defaultPersistenceUnitAbstractNameQuery;
-            }
-
             try {
-                localConfiguration.findGBeanData(persistenceUnitNameQuery);
-            } catch (GBeanNotFoundException e) {
-                // something is broken with cmp references that stops deployment... this is just a patch around the real problem 
-                // throw new DeploymentException("Could not resolve reference at deploy time for query " + persistenceUnitNameQuery, e);
-                new DeploymentException("Could not resolve reference at deploy time for query " + persistenceUnitNameQuery, e).printStackTrace();
-                continue;
+                String persistenceContextRefName = persistenceContextRef.getPersistenceContextRefName().getStringValue().trim();
+
+                addInjections(persistenceContextRefName, persistenceContextRef.getInjectionTargetArray(), componentContext);
+                PersistenceContextTypeType persistenceContextType = persistenceContextRef.getPersistenceContextType();
+                boolean transactionScoped = persistenceContextType == null || !persistenceContextType.getStringValue().equalsIgnoreCase("extended");
+
+                PropertyType[] propertyTypes = persistenceContextRef.getPersistencePropertyArray();
+                Map<String, String> properties = new HashMap<String, String>();
+                for (PropertyType propertyType : propertyTypes) {
+                    String key = propertyType.getName().getStringValue();
+                    String value = propertyType.getValue().getStringValue();
+                    properties.put(key, value);
+                }
+
+                AbstractNameQuery persistenceUnitNameQuery;
+                GerPersistenceContextRefType gerPersistenceContextRef = gerPersistenceContextRefsUntyped.remove(persistenceContextRefName);
+                if (gerPersistenceContextRef != null) {
+                    persistenceUnitNameQuery = findPersistenceUnit(gerPersistenceContextRef);
+                    addProperties(gerPersistenceContextRef, properties);
+                    checkForGBean(localConfiguration, persistenceUnitNameQuery, true);
+                } else if (persistenceContextRef.isSetPersistenceUnitName()) {
+                    String persistenceUnitName = persistenceContextRef.getPersistenceUnitName().getStringValue().trim();
+                    persistenceUnitNameQuery = new AbstractNameQuery(null, Collections.singletonMap("name", persistenceUnitName), PERSISTENCE_UNIT_INTERFACE_TYPES);
+                    if (!checkForGBean(localConfiguration, persistenceUnitNameQuery, strictMatching)) {
+                        persistenceUnitName = "persistence/" + persistenceUnitName;
+                        persistenceUnitNameQuery = new AbstractNameQuery(null, Collections.singletonMap("name", persistenceUnitName), PERSISTENCE_UNIT_INTERFACE_TYPES);
+                        checkForGBean(localConfiguration, persistenceUnitNameQuery, true);
+                    }
+                } else {
+                    persistenceUnitNameQuery = defaultPersistenceUnitAbstractNameQuery;
+                    checkForGBean(localConfiguration, persistenceUnitNameQuery, true);
+                }
+
+                PersistenceContextReference reference = new PersistenceContextReference(localConfiguration.getId(), persistenceUnitNameQuery, transactionScoped, properties);
+
+                NamingBuilder.JNDI_KEY.get(componentContext).put(ENV + persistenceContextRefName, reference);
+            } catch (DeploymentException e) {
+                problems.add(e);
             }
-
-            PersistenceContextReference reference = new PersistenceContextReference(localConfiguration.getId(), persistenceUnitNameQuery, transactionScoped, properties);
-
-            NamingBuilder.JNDI_KEY.get(componentContext).put(ENV + persistenceContextRefName, reference);
-
         }
 
+        // Support persistence context refs that are mentioned only in the geronimo plan
         for (GerPersistenceContextRefType gerPersistenceContextRef : gerPersistenceContextRefsUntyped.values()) {
-            String persistenceContextRefName = gerPersistenceContextRef.getPersistenceContextRefName();
-            GerPersistenceContextTypeType.Enum persistenceContextType = gerPersistenceContextRef.getPersistenceContextType();
-            boolean transactionScoped = persistenceContextType == null || !persistenceContextType.equals(GerPersistenceContextTypeType.EXTENDED);
-            Map properties = new HashMap();
-            addProperties(gerPersistenceContextRef, properties);
-
-
-            AbstractNameQuery persistenceUnitNameQuery = findPersistenceUnit(gerPersistenceContextRef);
-
             try {
-                localConfiguration.findGBeanData(persistenceUnitNameQuery);
-            } catch (GBeanNotFoundException e) {
-                throw new DeploymentException("Could not resolve reference at deploy time for query " + persistenceUnitNameQuery, e);
+                String persistenceContextRefName = gerPersistenceContextRef.getPersistenceContextRefName();
+                GerPersistenceContextTypeType.Enum persistenceContextType = gerPersistenceContextRef.getPersistenceContextType();
+                boolean transactionScoped = persistenceContextType == null || !persistenceContextType.equals(GerPersistenceContextTypeType.EXTENDED);
+                Map properties = new HashMap();
+                addProperties(gerPersistenceContextRef, properties);
+
+
+                AbstractNameQuery persistenceUnitNameQuery = findPersistenceUnit(gerPersistenceContextRef);
+
+                checkForGBean(localConfiguration, persistenceUnitNameQuery, true);
+
+                PersistenceContextReference reference = new PersistenceContextReference(localConfiguration.getId(), persistenceUnitNameQuery, transactionScoped, properties);
+
+                getJndiContextMap(componentContext).put(ENV + persistenceContextRefName, reference);
+            } catch (DeploymentException e) {
+                problems.add(e);
             }
 
-            PersistenceContextReference reference = new PersistenceContextReference(localConfiguration.getId(), persistenceUnitNameQuery, transactionScoped, properties);
-
-            getJndiContextMap(componentContext).put(ENV + persistenceContextRefName, reference);
-
+        }
+        if (!problems.isEmpty()) {
+            // something is broken with cmp references that stops deployment... this is just a patch around the real problem
+            // throw new DeploymentException("Could not resolve reference at deploy time for query " + persistenceUnitNameQuery, e);
+            for (DeploymentException e : problems) {
+                e.printStackTrace();
+            }
+            //TODO throw a "multi-exception"
         }
     }
 
-    private void addProperties(GerPersistenceContextRefType persistenceContextRef, Map properties) {
+    private boolean checkForGBean(Configuration localConfiguration, AbstractNameQuery persistenceUnitNameQuery, boolean complainIfMissing) throws DeploymentException {
+        try {
+            localConfiguration.findGBeanData(persistenceUnitNameQuery);
+            return true;
+        } catch (GBeanNotFoundException e) {
+            if (complainIfMissing) {
+                throw new DeploymentException("Could not resolve reference at deploy time for query " + persistenceUnitNameQuery, e);
+            }
+            return false;
+        }
+    }
+
+    private void addProperties(GerPersistenceContextRefType persistenceContextRef, Map<String, String> properties) {
         GerPropertyType[] propertyTypes = persistenceContextRef.getPropertyArray();
         for (GerPropertyType propertyType : propertyTypes) {
             String key = propertyType.getKey();
@@ -207,8 +233,9 @@ public class PersistenceContextRefBuilder extends AbstractNamingBuilder {
         GBeanInfoBuilder infoBuilder = GBeanInfoBuilder.createStatic(PersistenceContextRefBuilder.class, NameFactory.MODULE_BUILDER);
         infoBuilder.addAttribute("defaultEnvironment", Environment.class, true, true);
         infoBuilder.addAttribute("defaultPersistenceUnitAbstractNameQuery", AbstractNameQuery.class, true, true);
+        infoBuilder.addAttribute("strictMatching", boolean.class, true, true);
 
-        infoBuilder.setConstructor(new String[]{"defaultEnvironment", "defaultPersistenceUnitAbstractNameQuery"});
+        infoBuilder.setConstructor(new String[]{"defaultEnvironment", "defaultPersistenceUnitAbstractNameQuery", "strictMatching"});
         GBEAN_INFO = infoBuilder.getBeanInfo();
     }
 
