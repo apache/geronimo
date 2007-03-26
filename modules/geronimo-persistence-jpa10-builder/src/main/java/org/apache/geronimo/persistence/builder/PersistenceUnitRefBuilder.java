@@ -21,6 +21,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.HashMap;
 import java.util.List;
+import java.util.ArrayList;
 
 import javax.xml.namespace.QName;
 
@@ -55,11 +56,13 @@ public class PersistenceUnitRefBuilder extends AbstractNamingBuilder {
     private static final QNameSet GER_PERSISTENCE_UNIT_REF_QNAME_SET = QNameSet.singleton(GER_PERSISTENCE_UNIT_REF_QNAME);
     private static final Set PERSISTENCE_UNIT_INTERFACE_TYPES = Collections.singleton("org.apache.geronimo.persistence.PersistenceUnitGBean");
     private final AbstractNameQuery defaultPersistenceUnitAbstractNameQuery;
+    private final boolean strictMatching;
 
 
-    public PersistenceUnitRefBuilder(Environment defaultEnvironment, AbstractNameQuery defaultPersistenceUnitAbstractNameQuery) {
+    public PersistenceUnitRefBuilder(Environment defaultEnvironment, AbstractNameQuery defaultPersistenceUnitAbstractNameQuery, boolean strictMatching) {
         super(defaultEnvironment);
         this.defaultPersistenceUnitAbstractNameQuery = defaultPersistenceUnitAbstractNameQuery;
+        this.strictMatching = strictMatching;
     }
 
     protected boolean willMergeEnvironment(XmlObject specDD, XmlObject plan) throws DeploymentException {
@@ -81,49 +84,72 @@ public class PersistenceUnitRefBuilder extends AbstractNamingBuilder {
 
         List<PersistenceUnitRefType> specPersistenceUnitRefsUntyped = convert(specDD.selectChildren(PersistenceUnitRefBuilder.PERSISTENCE_UNIT_REF_QNAME_SET), JEE_CONVERTER, PersistenceUnitRefType.class, PersistenceUnitRefType.type);
         Map<String, GerPersistenceUnitRefType> gerPersistenceUnitRefsUntyped = getGerPersistenceUnitRefs(plan);
+        List<DeploymentException> problems = new ArrayList<DeploymentException>();
         for (PersistenceUnitRefType PersistenceUnitRef: specPersistenceUnitRefsUntyped) {
-            String persistenceUnitRefName = PersistenceUnitRef.getPersistenceUnitRefName().getStringValue().trim();
-
-            addInjections(persistenceUnitRefName, PersistenceUnitRef.getInjectionTargetArray(), componentContext);
-            AbstractNameQuery persistenceUnitNameQuery;
-            GerPersistenceUnitRefType gerPersistenceUnitRef = gerPersistenceUnitRefsUntyped.remove(persistenceUnitRefName);
-            if (gerPersistenceUnitRef != null) {
-                persistenceUnitNameQuery = findPersistenceUnit(gerPersistenceUnitRef);
-            } else if (PersistenceUnitRef.isSetPersistenceUnitName()) {
-                String persistenceUnitName = PersistenceUnitRef.getPersistenceUnitName().getStringValue().trim();
-                persistenceUnitNameQuery = new AbstractNameQuery(null, Collections.singletonMap("name", persistenceUnitName), PERSISTENCE_UNIT_INTERFACE_TYPES);
-            } else {
-                persistenceUnitNameQuery = defaultPersistenceUnitAbstractNameQuery;
-            }
-
             try {
-                localConfiguration.findGBeanData(persistenceUnitNameQuery);
-            } catch (GBeanNotFoundException e) {
-                throw new DeploymentException("Could not resolve reference at deploy time for query " + persistenceUnitNameQuery, e);
+                String persistenceUnitRefName = PersistenceUnitRef.getPersistenceUnitRefName().getStringValue().trim();
+
+                addInjections(persistenceUnitRefName, PersistenceUnitRef.getInjectionTargetArray(), componentContext);
+                AbstractNameQuery persistenceUnitNameQuery;
+                GerPersistenceUnitRefType gerPersistenceUnitRef = gerPersistenceUnitRefsUntyped.remove(persistenceUnitRefName);
+                if (gerPersistenceUnitRef != null) {
+                    persistenceUnitNameQuery = findPersistenceUnit(gerPersistenceUnitRef);
+                    checkForGBean(localConfiguration, persistenceUnitNameQuery, true);
+                } else if (PersistenceUnitRef.isSetPersistenceUnitName()) {
+                    String persistenceUnitName = PersistenceUnitRef.getPersistenceUnitName().getStringValue().trim();
+                    persistenceUnitNameQuery = new AbstractNameQuery(null, Collections.singletonMap("name", persistenceUnitName), PERSISTENCE_UNIT_INTERFACE_TYPES);
+                    if (!checkForGBean(localConfiguration, persistenceUnitNameQuery, strictMatching)) {
+                        persistenceUnitName = "persistence/" + persistenceUnitName;
+                        persistenceUnitNameQuery = new AbstractNameQuery(null, Collections.singletonMap("name", persistenceUnitName), PERSISTENCE_UNIT_INTERFACE_TYPES);
+                        checkForGBean(localConfiguration, persistenceUnitNameQuery, true);
+                    }
+                } else {
+                    persistenceUnitNameQuery = defaultPersistenceUnitAbstractNameQuery;
+                    checkForGBean(localConfiguration, persistenceUnitNameQuery, true);
+                }
+
+
+                PersistenceUnitReference reference = new PersistenceUnitReference(localConfiguration.getId(), persistenceUnitNameQuery);
+
+                NamingBuilder.JNDI_KEY.get(componentContext).put(ENV + persistenceUnitRefName, reference);
+            } catch (DeploymentException e) {
+                problems.add(e);
             }
-
-            PersistenceUnitReference reference = new PersistenceUnitReference(localConfiguration.getId(), persistenceUnitNameQuery);
-
-            NamingBuilder.JNDI_KEY.get(componentContext).put(ENV + persistenceUnitRefName, reference);
 
         }
 
 
         for (GerPersistenceUnitRefType gerPersistenceUnitRef: gerPersistenceUnitRefsUntyped.values()) {
-            String PersistenceUnitRefName = gerPersistenceUnitRef.getPersistenceUnitRefName();
-
-            AbstractNameQuery persistenceUnitNameQuery = findPersistenceUnit(gerPersistenceUnitRef);
-
             try {
-                localConfiguration.findGBeanData(persistenceUnitNameQuery);
-            } catch (GBeanNotFoundException e) {
-                throw new DeploymentException("Could not resolve reference at deploy time for query " + persistenceUnitNameQuery, e);
+                String PersistenceUnitRefName = gerPersistenceUnitRef.getPersistenceUnitRefName();
+
+                AbstractNameQuery persistenceUnitNameQuery = findPersistenceUnit(gerPersistenceUnitRef);
+
+                checkForGBean(localConfiguration, persistenceUnitNameQuery, true);
+
+                PersistenceUnitReference reference = new PersistenceUnitReference(localConfiguration.getId(), persistenceUnitNameQuery);
+
+                NamingBuilder.JNDI_KEY.get(componentContext).put(ENV + PersistenceUnitRefName, reference);
+            } catch (DeploymentException e) {
+                problems.add(e);
             }
 
-            PersistenceUnitReference reference = new PersistenceUnitReference(localConfiguration.getId(), persistenceUnitNameQuery);
+        }
+        if (!problems.isEmpty()) {
+            //TODO make DeploymentException accept a list of exceptions as causes.
+            throw new DeploymentException("At least one deployment problem:" + problems.toArray());
+        }
+    }
 
-            NamingBuilder.JNDI_KEY.get(componentContext).put(ENV + PersistenceUnitRefName, reference);
-
+    private boolean checkForGBean(Configuration localConfiguration, AbstractNameQuery persistenceUnitNameQuery, boolean complainIfMissing) throws DeploymentException {
+        try {
+            localConfiguration.findGBeanData(persistenceUnitNameQuery);
+            return true;
+        } catch (GBeanNotFoundException e) {
+            if (complainIfMissing) {
+                throw new DeploymentException("Could not resolve reference at deploy time for query " + persistenceUnitNameQuery, e);
+            }
+            return false;
         }
     }
 
@@ -181,8 +207,9 @@ public class PersistenceUnitRefBuilder extends AbstractNamingBuilder {
         GBeanInfoBuilder infoBuilder = GBeanInfoBuilder.createStatic(PersistenceUnitRefBuilder.class, NameFactory.MODULE_BUILDER);
         infoBuilder.addAttribute("defaultEnvironment", Environment.class, true, true);
         infoBuilder.addAttribute("defaultPersistenceUnitAbstractNameQuery", AbstractNameQuery.class, true, true);
+        infoBuilder.addAttribute("strictMatching", boolean.class, true, true);
 
-        infoBuilder.setConstructor(new String[] {"defaultEnvironment", "defaultPersistenceUnitAbstractNameQuery"});
+        infoBuilder.setConstructor(new String[]{"defaultEnvironment", "defaultPersistenceUnitAbstractNameQuery", "strictMatching"});
         GBEAN_INFO = infoBuilder.getBeanInfo();
     }
 
