@@ -103,4 +103,48 @@ public class JAXWSUtils {
             return name.trim();
         }       
     }
+    
+    public static String getName(Class clazz) {
+        WebService webService = 
+            (WebService)clazz.getAnnotation(WebService.class);
+        if (webService == null) {
+            WebServiceProvider webServiceProvider = 
+                (WebServiceProvider)clazz.getAnnotation(WebServiceProvider.class);
+            if (webServiceProvider == null) {
+                throw new IllegalArgumentException("The " + clazz.getName() + " is not annotated");
+            } 
+            return clazz.getSimpleName();         
+        } else {
+            String sei = webService.endpointInterface();
+            if (sei == null || sei.trim().length() == 0) {
+                return getName(clazz, webService.name());
+            } else {
+                try {
+                    Class seiClass = clazz.getClassLoader().loadClass(sei.trim());
+                    return getNameFromSEI(seiClass);
+                } catch (ClassNotFoundException e) {
+                    throw new RuntimeException("Unable to load SEI class: " + sei);
+                }
+            }
+        }
+        
+    }
+        
+    private static String getNameFromSEI(Class seiClass) {
+        WebService webService = 
+            (WebService)seiClass.getAnnotation(WebService.class);
+        if (webService == null) {
+            throw new IllegalArgumentException("The " + seiClass.getName() + " is not annotated");
+        } 
+        return getName(seiClass, webService.name());
+    }
+    
+    private static String getName(Class clazz, String name) {
+        if (name == null || name.trim().length() == 0) {
+            return clazz.getSimpleName();
+        } else {
+            return name.trim();
+        }  
+    }
+    
 }

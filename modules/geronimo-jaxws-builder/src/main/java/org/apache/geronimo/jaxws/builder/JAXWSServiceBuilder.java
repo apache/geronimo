@@ -305,7 +305,7 @@ public abstract class JAXWSServiceBuilder implements WebServiceBuilder {
 
         // verify that the class is loadable
         ClassLoader classLoader = context.getClassLoader();
-        loadSEI(seiClassName, classLoader);
+        loadClass(seiClassName, classLoader);
 
         AbstractName containerFactoryName = context.getNaming().createChildName(targetGBean.getAbstractName(), getContainerFactoryGBeanInfo().getName(), NameFactory.GERONIMO_SERVICE);
         GBeanData containerFactoryData = new GBeanData(containerFactoryName, getContainerFactoryGBeanInfo());
@@ -350,11 +350,13 @@ public abstract class JAXWSServiceBuilder implements WebServiceBuilder {
         }
         
         String shortEjbName = (String)targetGBean.getAttribute("ejbName");
+        String ejbClass = (String)targetGBean.getAttribute("ejbClass");
                 
-        // FIXME: kind of a hack now, need better solution
         String location = portInfo.getLocation();
-        if (location == null) {            
-            location = "/" + trimPath(new File(moduleFile.getName()).getName()) + "/" + shortEjbName;
+        if (location == null) {                   
+            // set default location, i.e. /@WebService.serviceName/@WebService.name
+            Class beanClass = loadClass(ejbClass, classLoader);
+            location = "/" + JAXWSUtils.getServiceName(beanClass) + "/" + JAXWSUtils.getName(beanClass);
             portInfo.setLocation(location);
         }
 
@@ -365,26 +367,11 @@ public abstract class JAXWSServiceBuilder implements WebServiceBuilder {
         return true;
     }
     
-    private String trimPath(String path) {
-        if (path == null) {
-            return null;
-        }
-
-        if (path.endsWith(".war") || path.endsWith(".jar")) {
-            path = path.substring(0, path.length() - 4);
-        }
-        if (path.endsWith("/")) {
-            path = path.substring(0, path.length() - 1);
-        }
-
-        return path;
-    }
-
-    Class<?> loadSEI(String className, ClassLoader loader) throws DeploymentException {
+    Class<?> loadClass(String className, ClassLoader loader) throws DeploymentException {
         try {
             return loader.loadClass(className);
         } catch (ClassNotFoundException ex) {
-            throw new DeploymentException("unable to load Service Endpoint Interface: " + className, ex);
+            throw new DeploymentException("Unable to load Web Service class: " + className);
         }
     }
 }

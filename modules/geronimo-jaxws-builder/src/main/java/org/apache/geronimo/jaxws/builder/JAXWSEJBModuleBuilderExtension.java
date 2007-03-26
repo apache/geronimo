@@ -118,6 +118,7 @@ public class JAXWSEJBModuleBuilderExtension implements ModuleBuilderExtension {
             GBeanData ejbWebServiceGBean = new GBeanData(ejbWebServiceName, this.wsGBeanInfo);
 
             ejbWebServiceGBean.setAttribute("ejbName", ejbName);
+            ejbWebServiceGBean.setAttribute("ejbClass", bean.ejbClass);
             
             if (jaxwsBuilder.configureEJB(ejbWebServiceGBean, bean.ejbClass, ejbModule.getModuleFile(), 
                                           ejbModule.getSharedContext(), cl)) {
@@ -126,7 +127,7 @@ public class JAXWSEJBModuleBuilderExtension implements ModuleBuilderExtension {
                     earContext.addGBean(ejbWebServiceGBean);
                 } catch (GBeanAlreadyExistsException e) {
                     throw new DeploymentException(
-                            "Could not add axis ejb web service gbean to context",
+                            "Could not add ejb web service gbean to context",
                             e);
                 }
                 
@@ -138,6 +139,7 @@ public class JAXWSEJBModuleBuilderExtension implements ModuleBuilderExtension {
             }
             
             ejbWebServiceGBean.clearAttribute("ejbName");
+            ejbWebServiceGBean.clearAttribute("ejbClass");
             
         }
     }
