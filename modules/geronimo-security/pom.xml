@@ -82,7 +82,13 @@
             <artifactId>hsqldb</artifactId>
             <scope>test</scope>
         </dependency>
-    
+
+        <dependency>
+            <groupId>org.apache.openejb</groupId>
+            <artifactId>openejb-client</artifactId>
+            <optional>true</optional>
+        </dependency>
+
     </dependencies>
     
     <build>

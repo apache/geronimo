@@ -76,6 +76,9 @@ public final class AppClientContainer implements GBeanLifecycle {
             ClassLoader classLoader,
             Kernel kernel
     ) throws Exception {
+        // set the geronimo identity resolver hook for openejb
+        System.setProperty("openejb.client.identityResolver", "geronimo");
+
         this.mainClassName = mainClassName;
         this.appClientModuleName = appClientModuleName;
         if ((realmName == null) != (callbackHandlerClassName == null)) {

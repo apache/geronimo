@@ -19,6 +19,8 @@ package org.apache.geronimo.openejb;
 
 import javax.naming.Context;
 import javax.resource.ResourceException;
+import javax.security.auth.Subject;
+import javax.security.jacc.PolicyContext;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -26,6 +28,8 @@ import org.apache.geronimo.connector.outbound.connectiontracking.ConnectorInstan
 import org.apache.geronimo.connector.outbound.connectiontracking.ConnectorInstanceContextImpl;
 import org.apache.geronimo.connector.outbound.connectiontracking.TrackedConnectionAssociator;
 import org.apache.geronimo.naming.java.RootContext;
+import org.apache.geronimo.security.ContextManager;
+import org.apache.geronimo.security.Callers;
 import org.apache.openejb.core.CoreDeploymentInfo;
 import org.apache.openejb.core.ThreadContext;
 import org.apache.openejb.core.ThreadContextListener;
@@ -82,6 +86,26 @@ public class GeronimoThreadContextListener implements ThreadContextListener {
         // Set the jndi context into Geronimo's root context
         RootContext.setComponentContext(jndiContext);
 
+        // set the policy (security) context id
+        String moduleID = newContext.getDeploymentInfo().getModuleID();
+        PolicyContext.setContextID(moduleID);
+
+        // set the default subject if needed
+        if (ContextManager.getCurrentCaller() == null) {
+            Subject defaultSubject = ejbDeployment.getDefaultSubject();
+
+            if (defaultSubject != null) {
+                ContextManager.setCallers(defaultSubject, defaultSubject);
+                geronimoCallContext.clearCallers = true;
+            }
+        }
+
+        // apply run as
+        Subject runAsSubject = ejbDeployment.getRunAs();
+        if (runAsSubject != null) {
+            geronimoCallContext.callers = ContextManager.pushNextCaller(runAsSubject);
+        }
+
         newContext.set(GeronimoCallContext.class, geronimoCallContext);
     }
 
@@ -95,6 +119,16 @@ public class GeronimoThreadContextListener implements ThreadContextListener {
         // Geronimo call context is used to track old state that must be restored
         GeronimoCallContext geronimoCallContext = exitedContext.get(GeronimoCallContext.class);
         if (geronimoCallContext == null) return;
+
+        // reset run as
+        if (geronimoCallContext.callers != null) {
+            ContextManager.popCallers(geronimoCallContext.callers);
+        }
+
+        // reset default subject
+        if (geronimoCallContext.clearCallers) {
+            ContextManager.clearCallers();
+        }
 
         // reset Geronimo's root jndi context
         RootContext.setComponentContext(geronimoCallContext.oldJndiContext);
@@ -113,5 +147,7 @@ public class GeronimoThreadContextListener implements ThreadContextListener {
     private static final class GeronimoCallContext {
         private Context oldJndiContext;
         private ConnectorInstanceContext oldConnectorContext;
+        private boolean clearCallers;
+        private Callers callers;
     }
 }

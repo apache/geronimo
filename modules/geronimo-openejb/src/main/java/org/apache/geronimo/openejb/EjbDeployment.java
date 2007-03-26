@@ -27,6 +27,7 @@ import javax.security.auth.Subject;
 
 import org.apache.geronimo.connector.outbound.connectiontracking.TrackedConnectionAssociator;
 import org.apache.geronimo.management.EJB;
+import org.apache.geronimo.security.ContextManager;
 import org.apache.openejb.BeanType;
 import org.apache.openejb.Container;
 import org.apache.openejb.ProxyInfo;
@@ -277,6 +278,15 @@ public class EjbDeployment implements EJB {
         if (deploymentInfo == null) {
             throw new IllegalStateException("Ejb does not exist " + deploymentId);
         }
+
+        if (defaultSubject != null) {
+            ContextManager.registerSubject(defaultSubject);
+        }
+
+        if (runAs != null) {
+            ContextManager.registerSubject(runAs);
+        }
+
         javaCompSubContext = (Context) deploymentInfo.getJndiEnc().lookup("java:comp");
         if (componentContext != null) {
             javaCompSubContext.bind("geronimo", componentContext);
@@ -288,6 +298,14 @@ public class EjbDeployment implements EJB {
         if (deploymentInfo != null) {
             deploymentInfo.set(EjbDeployment.class, null);
             deploymentInfo = null;
+        }
+
+        if (defaultSubject != null) {
+            ContextManager.unregisterSubject(defaultSubject);
+        }
+
+        if (runAs != null) {
+            ContextManager.unregisterSubject(runAs);
         }
     }
 }

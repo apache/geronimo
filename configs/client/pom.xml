@@ -120,6 +120,12 @@
             <version>${version}</version>
         </dependency>
 
+        <dependency>
+            <groupId>org.apache.geronimo.modules</groupId>
+            <artifactId>geronimo-openejb</artifactId>
+            <version>${version}</version>
+        </dependency>
+
 <!--
      Added geronimo-axis so that the client can gain access to Axis classes.  It would
      probably be good to move the JAXR gbean from client and the web containers into 

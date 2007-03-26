@@ -38,8 +38,6 @@ import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.ReferenceCollection;
 import org.apache.geronimo.gbean.ReferenceCollectionEvent;
 import org.apache.geronimo.gbean.ReferenceCollectionListener;
-import org.apache.geronimo.gbean.SingleElementCollection;
-import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.openejb.Container;
@@ -65,6 +63,7 @@ import org.apache.openejb.core.ServerFederation;
 import org.apache.openejb.loader.SystemInstance;
 import org.apache.openejb.spi.ApplicationServer;
 import org.apache.openejb.spi.ContainerSystem;
+import org.apache.openejb.spi.SecurityService;
 import org.apache.openejb.util.proxy.Jdk13ProxyFactory;
 
 import org.omg.CORBA.ORB;
@@ -81,7 +80,6 @@ public class OpenEjbSystemGBean implements OpenEjbSystem {
     // These are provided by the corba subsystem when it first initializes.  
     // Once we have a set, we ignore any additional notifications. 
     private ORB orb; 
-    private HandleDelegate handleDelegate; 
 
     public OpenEjbSystemGBean(TransactionManager transactionManager) throws Exception {
         this(transactionManager, null, null, OpenEjbSystemGBean.class.getClassLoader());
@@ -114,16 +112,16 @@ public class OpenEjbSystemGBean implements OpenEjbSystem {
         transactionManager = getRawService(kernel, transactionManager);
         TransactionServiceInfo transactionServiceInfo = new TransactionServiceInfo();
         PassthroughFactory.add(transactionServiceInfo, transactionManager);
-        try {
-            transactionServiceInfo.id = "Default Transaction Manager";
-            transactionServiceInfo.serviceType = "TransactionManager";
-            assembler.createTransactionManager(transactionServiceInfo);
-        } finally {
-            PassthroughFactory.remove(transactionServiceInfo);
-        }
+        transactionServiceInfo.id = "Default Transaction Manager";
+        transactionServiceInfo.serviceType = "TransactionManager";
+        assembler.createTransactionManager(transactionServiceInfo);
 
         // install security service
-        SecurityServiceInfo securityServiceInfo = configurationFactory.configureService(SecurityServiceInfo.class);
+        SecurityService securityService = new GeronimoSecurityService();
+        SecurityServiceInfo securityServiceInfo = new SecurityServiceInfo();
+        PassthroughFactory.add(securityServiceInfo, securityService);
+        securityServiceInfo.id = "Default Security Service";
+        securityServiceInfo.serviceType = "SecurityService";
         assembler.createSecurityService(securityServiceInfo);
 
         // install proxy factory
@@ -322,7 +320,6 @@ public class OpenEjbSystemGBean implements OpenEjbSystem {
         // this is only processed once, since these are global values. 
         if (this.orb == null) {
             this.orb = orb; 
-            this.handleDelegate = handleDelegate; 
             SystemInstance.get().setComponent(ORB.class, orb);
             SystemInstance.get().setComponent(HandleDelegate.class, handleDelegate);
         }
