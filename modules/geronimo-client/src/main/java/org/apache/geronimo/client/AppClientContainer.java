@@ -21,7 +21,6 @@ import java.lang.reflect.Method;
 import java.security.PrivilegedAction;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import javax.naming.Context;
 import javax.naming.NamingException;
@@ -51,7 +50,7 @@ import org.apache.xbean.recipe.StaticRecipe;
  */
 public final class AppClientContainer implements GBeanLifecycle {
     private static final Class[] MAIN_ARGS = {String[].class};
-
+    
     private LoginContext loginContext;
 
     private final String mainClassName;
@@ -123,7 +122,6 @@ public final class AppClientContainer implements GBeanLifecycle {
         ClassLoader oldClassLoader = thread.getContextClassLoader();
         Callers oldCallers = ContextManager.getCallers();
         Subject clientSubject = defaultSubject;
-//        LoginContext loginContext = null;
         try {
             thread.setContextClassLoader(classLoader);
             jndiContext.startClient(appClientModuleName, kernel, classLoader);
@@ -131,17 +129,6 @@ public final class AppClientContainer implements GBeanLifecycle {
 
             if (callbackHandlerClass != null) {
                 callbackHandler = (CallbackHandler) holder.newInstance(callbackHandlerClass, classLoader, componentContext);
-                //look for a constructor taking the args
-                /*
-                CallbackHandler callbackHandler;
-                try {
-                    Constructor cArgs = callbackHandlerClass.getConstructor(new Class[] {String[].class});
-                    callbackHandler = (CallbackHandler) cArgs.newInstance(new Object[] {args});
-                } catch (NoSuchMethodException e) {
-                    callbackHandler = (CallbackHandler) callbackHandlerClass.newInstance();
-                }
-                */
-                
                 loginContext = new LoginContext(realmName, callbackHandler);
                 try {
                     loginContext.login();
@@ -156,7 +143,6 @@ public final class AppClientContainer implements GBeanLifecycle {
             objectRecipe.allow(Option.FIELD_INJECTION);
             objectRecipe.allow(Option.PRIVATE_PROPERTIES);
             objectRecipe.allow(Option.STATIC_PROPERTIES);
-            objectRecipe.allow(Option.IGNORE_MISSING_PROPERTIES);
             Class mainClass = classLoader.loadClass(mainClassName);
             List<Injection> injections = new ArrayList<Injection>();
             while (mainClass != null && mainClass != Object.class) {
@@ -167,6 +153,7 @@ public final class AppClientContainer implements GBeanLifecycle {
                 mainClass = mainClass.getSuperclass();
             }
             if (injections != null) {
+                List<NamingException> problems = new ArrayList<NamingException>();
                 for (Injection injection : injections) {
                     try {
                         String jndiName = injection.getJndiName();
@@ -181,17 +168,14 @@ public final class AppClientContainer implements GBeanLifecycle {
                             objectRecipe.setProperty(injection.getTargetName(), new StaticRecipe(object));
                         }
                     } catch (NamingException e) {
-//                        log.warn("could not look up ", e);
+                        problems.add(e);
                     }
+                }
+                if (!problems.isEmpty()) {
+                    throw new Exception("Some object to be injected were not found in jndi: " + problems.toArray());
                 }
             }
             Class clazz = objectRecipe.setStaticProperties(classLoader);
-            Map unsetProperties = objectRecipe.getUnsetProperties();
-            if (unsetProperties.size() > 0) {
-                for (Object property : unsetProperties.keySet()) {
-//                log.warning("Injection: No such property '"+property+"' in class "+_class.getName());
-                }
-            }
             if (holder.getPostConstruct() != null) {
                 Holder.apply(null, clazz, holder.getPostConstruct());
             }
@@ -254,7 +238,6 @@ public final class AppClientContainer implements GBeanLifecycle {
     static {
         GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic(AppClientContainer.class, NameFactory.APP_CLIENT);
 
-        infoFactory.addOperation("main", new Class[]{String[].class});
 
         infoFactory.addAttribute("mainClassName", String.class, true);
         infoFactory.addAttribute("appClientModuleName", AbstractName.class, true);
