@@ -93,7 +93,7 @@ public class OpenEjbCorbaRefBuilder extends EjbRefBuilder {
 //    }
 
     public void buildNaming(XmlObject specDD, XmlObject plan, Configuration localConfiguration, Configuration remoteConfiguration, Module module, Map componentContext) throws DeploymentException {
-        XmlObject[] ejbRefsUntyped = convert(specDD.selectChildren(ejbRefQNameSet), J2EE_CONVERTER, EjbRefType.type);
+        XmlObject[] ejbRefsUntyped = convert(specDD.selectChildren(ejbRefQNameSet), JEE_CONVERTER, EjbRefType.type);
         XmlObject[] gerEjbRefsUntyped = plan == null ? NO_REFS : convert(plan.selectChildren(GER_EJB_REF_QNAME_SET), OPENEJB_CONVERTER, GerEjbRefType.type);
         Map ejbRefMap = mapEjbRefs(gerEjbRefsUntyped);
         ClassLoader cl = module.getEarContext().getClassLoader();

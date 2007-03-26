@@ -49,10 +49,10 @@
     </gbean>
 
     <gbean name="ResourceRefBuilder" class="org.apache.geronimo.connector.deployment.ResourceRefBuilder">
-        <attribute name="eeNamespaces">http://java.sun.com/xml/ns/j2ee</attribute>
+        <attribute name="eeNamespaces">http://java.sun.com/xml/ns/j2ee,http://java.sun.com/xml/ns/javaee</attribute>
     </gbean>
     <gbean name="AdminObjectRefBuilder" class="org.apache.geronimo.connector.deployment.AdminObjectRefBuilder">
-        <attribute name="eeNamespaces">http://java.sun.com/xml/ns/j2ee</attribute>
+        <attribute name="eeNamespaces">http://java.sun.com/xml/ns/j2ee,http://java.sun.com/xml/ns/javaee</attribute>
     </gbean>
 
     <gbean name="ClientConnectorBuilder" class="org.apache.geronimo.connector.deployment.ConnectorModuleBuilder">
@@ -79,10 +79,10 @@
     </gbean>
 
     <gbean name="ClientResourceRefBuilder" class="org.apache.geronimo.connector.deployment.ResourceRefBuilder">
-        <attribute name="eeNamespaces">http://java.sun.com/xml/ns/j2ee</attribute>
+        <attribute name="eeNamespaces">http://java.sun.com/xml/ns/j2ee,http://java.sun.com/xml/ns/javaee</attribute>
     </gbean>
     <gbean name="ClientAdminObjectRefBuilder" class="org.apache.geronimo.connector.deployment.AdminObjectRefBuilder">
-        <attribute name="eeNamespaces">http://java.sun.com/xml/ns/j2ee</attribute>
+        <attribute name="eeNamespaces">http://java.sun.com/xml/ns/j2ee,http://java.sun.com/xml/ns/javaee</attribute>
     </gbean>
 
 </module>

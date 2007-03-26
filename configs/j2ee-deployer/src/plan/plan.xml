@@ -141,7 +141,7 @@
 
     <gbean name="GBeanRefBuilder" class="org.apache.geronimo.naming.deployment.GBeanRefBuilder"/>
     <gbean name="EnvironmentEntryBuilder" class="org.apache.geronimo.naming.deployment.EnvironmentEntryBuilder">
-        <attribute name="eeNamespaces">http://java.sun.com/xml/ns/j2ee</attribute>
+        <attribute name="eeNamespaces">http://java.sun.com/xml/ns/j2ee,http://java.sun.com/xml/ns/javaee</attribute>
     </gbean>
 
     <gbean name="SwitchingServiceRefBuilder" class="org.apache.geronimo.naming.deployment.SwitchingServiceRefBuilder">

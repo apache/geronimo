@@ -25,7 +25,7 @@
     <gbean name="TSSAttributeBuilder" class="org.apache.geronimo.corba.security.config.tss.TSSConfigEditor"/>
 
     <gbean name="OpenEjbCorbaRefBuilder" class="org.apache.geronimo.corba.deployment.OpenEjbCorbaRefBuilder">
-        <attribute name="eeNamespaces">http://java.sun.com/xml/ns/j2ee</attribute>
+        <attribute name="eeNamespaces">http://java.sun.com/xml/ns/j2ee,http://java.sun.com/xml/ns/javaee</attribute>
         <xml-attribute name="defaultEnvironment">
             <environment xmlns="http://geronimo.apache.org/xml/ns/deployment-${geronimoSchemaVersion}">
                 <dependencies>
@@ -40,7 +40,7 @@
     </gbean>
     
     <gbean name="OpenEjbClientCorbaRefBuilder" class="org.apache.geronimo.corba.deployment.OpenEjbCorbaRefBuilder">
-        <attribute name="eeNamespaces">http://java.sun.com/xml/ns/j2ee</attribute>
+        <attribute name="eeNamespaces">http://java.sun.com/xml/ns/j2ee,http://java.sun.com/xml/ns/javaee</attribute>
         <xml-attribute name="defaultEnvironment">
             <environment xmlns="http://geronimo.apache.org/xml/ns/deployment-${geronimoSchemaVersion}">
                 <dependencies>
