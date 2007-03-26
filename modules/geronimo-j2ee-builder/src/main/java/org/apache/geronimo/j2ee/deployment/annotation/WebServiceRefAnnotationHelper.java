@@ -28,16 +28,13 @@ import javax.xml.ws.WebServiceRefs;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.geronimo.deployment.xmlbeans.XmlBeansUtil;
+import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.xbeans.javaee.FullyQualifiedClassType;
 import org.apache.geronimo.xbeans.javaee.InjectionTargetType;
-import org.apache.geronimo.xbeans.javaee.JavaIdentifierType;
 import org.apache.geronimo.xbeans.javaee.JndiNameType;
 import org.apache.geronimo.xbeans.javaee.ServiceRefType;
 import org.apache.geronimo.xbeans.javaee.XsdAnyURIType;
-import org.apache.geronimo.common.DeploymentException;
 import org.apache.xbean.finder.ClassFinder;
-import org.apache.xmlbeans.XmlException;
 
 
 /**
@@ -45,22 +42,22 @@ import org.apache.xmlbeans.XmlException;
  * <strong>@WebServieRef</strong> and <strong>@WebServieRef</strong> annotations to deployment
  * descriptor tags. The WebServiceRefAnnotationHelper class can be used as part of the deployment of
  * a module into the Geronimo server. It performs the following major functions:
- *
+ * <p/>
  * <ol>
- *      <li>Translates annotations into corresponding deployment descriptor elements (so that the
- *      actual deployment descriptor in the module can be updated or even created if necessary)
+ * <li>Translates annotations into corresponding deployment descriptor elements (so that the
+ * actual deployment descriptor in the module can be updated or even created if necessary)
  * </ol>
- *
+ * <p/>
  * <p><strong>Note(s):</strong>
  * <ul>
- *      <li>The user is responsible for invoking change to metadata-complete
- *      <li>This helper class will validate any changes it makes to the deployment descriptor. An
- *      exception will be thrown if it fails to parse
+ * <li>The user is responsible for invoking change to metadata-complete
+ * <li>This helper class will validate any changes it makes to the deployment descriptor. An
+ * exception will be thrown if it fails to parse
  * </ul>
- *
+ * <p/>
  * <p><strong>Remaining ToDo(s):</strong>
  * <ul>
- *      <li>None
+ * <li>None
  * </ul>
  *
  * @version $Rev $Date
@@ -77,10 +74,13 @@ public final class WebServiceRefAnnotationHelper extends AnnotationHelper {
 
     /**
      * Update the deployment descriptor from the WebServiceRef and WebServiceRefs annotations
+     *
+     * @param annotatedApp Access to the spec dd
+     * @param classFinder Access to the classes of interest
      * @throws DeploymentException if parsing or validation error
      */
     public static void processAnnotations(AnnotatedApp annotatedApp, ClassFinder classFinder) throws DeploymentException {
-        if ( annotatedApp != null ) {
+        if (annotatedApp != null) {
             if (classFinder.isAnnotationPresent(WebServiceRefs.class)) {
                 processWebServiceRefs(annotatedApp, classFinder);
             }
@@ -94,9 +94,9 @@ public final class WebServiceRefAnnotationHelper extends AnnotationHelper {
     /**
      * Process annotations
      *
-     * @param annotatedApp
-     * @param classFinder
-     * @throws DeploymentException
+     * @param annotatedApp Access to the spec dd
+     * @param classFinder Access to the classes of interest
+     * @throws DeploymentException if parsing or validation error
      */
     private static void processWebServiceRef(AnnotatedApp annotatedApp, ClassFinder classFinder) throws DeploymentException {
         log.debug("processWebServiceRef(): Entry: AnnotatedApp: " + annotatedApp.toString());
@@ -106,25 +106,25 @@ public final class WebServiceRefAnnotationHelper extends AnnotationHelper {
         List<Field> fieldswithWebServiceRef = classFinder.findAnnotatedFields(WebServiceRef.class);
 
         // Class-level annotation
-        for ( Class cls : classeswithWebServiceRef ) {
+        for (Class cls : classeswithWebServiceRef) {
             WebServiceRef webServiceRef = (WebServiceRef) cls.getAnnotation(WebServiceRef.class);
-            if ( webServiceRef != null ) {
+            if (webServiceRef != null) {
                 addWebServiceRef(annotatedApp, webServiceRef, cls, null, null);
             }
         }
 
         // Method-level annotation
-        for ( Method method : methodswithWebServiceRef ) {
-            WebServiceRef webServiceRef = (WebServiceRef) method.getAnnotation(WebServiceRef.class);
-            if ( webServiceRef != null ) {
+        for (Method method : methodswithWebServiceRef) {
+            WebServiceRef webServiceRef = method.getAnnotation(WebServiceRef.class);
+            if (webServiceRef != null) {
                 addWebServiceRef(annotatedApp, webServiceRef, null, method, null);
             }
         }
 
         // Field-level annotation
-        for ( Field field : fieldswithWebServiceRef ) {
-            WebServiceRef webServiceRef = (WebServiceRef) field.getAnnotation(WebServiceRef.class);
-            if ( webServiceRef != null ) {
+        for (Field field : fieldswithWebServiceRef) {
+            WebServiceRef webServiceRef = field.getAnnotation(WebServiceRef.class);
+            if (webServiceRef != null) {
                 addWebServiceRef(annotatedApp, webServiceRef, null, null, field);
             }
         }
@@ -139,9 +139,9 @@ public final class WebServiceRefAnnotationHelper extends AnnotationHelper {
     /**
      * Process multiple annotations
      *
-     * @param annotatedApp
-     * @param classFinder
-     * @exception Exception
+     * @param annotatedApp Access to the spec dd
+     * @param classFinder Access to the classes of interest
+     * @throws DeploymentException if parsing or validation error
      */
     private static void processWebServiceRefs(AnnotatedApp annotatedApp, ClassFinder classFinder) throws DeploymentException {
         log.debug("processWebServiceRefs(): Entry");
@@ -150,12 +150,12 @@ public final class WebServiceRefAnnotationHelper extends AnnotationHelper {
 
         // Class-level annotation(s)
         List<WebServiceRef> webServiceRefList = new ArrayList<WebServiceRef>();
-        for ( Class cls : classeswithWebServiceRefs ) {
+        for (Class cls : classeswithWebServiceRefs) {
             WebServiceRefs webServiceRefs = (WebServiceRefs) cls.getAnnotation(WebServiceRefs.class);
-            if ( webServiceRefs != null ) {
+            if (webServiceRefs != null) {
                 webServiceRefList.addAll(Arrays.asList(webServiceRefs.value()));
             }
-            for ( WebServiceRef webServiceRef : webServiceRefList ) {
+            for (WebServiceRef webServiceRef : webServiceRefList) {
                 addWebServiceRef(annotatedApp, webServiceRef, cls, null, null);
             }
             webServiceRefList.clear();
@@ -169,28 +169,29 @@ public final class WebServiceRefAnnotationHelper extends AnnotationHelper {
      * Add @WebServiceRef and @WebServiceRefs annotations to the deployment descriptor. XMLBeans are used to
      * read and manipulate the deployment descriptor as necessary. The WebServiceRef annotation(s) will be
      * converted to one of the following deployment descriptors:
-     *
+     * <p/>
      * <ol>
-     *      <li><service-ref> -- Declares a reference to a Web Service
+     * <li><service-ref> -- Declares a reference to a Web Service
      * </ol>
-     *
+     * <p/>
      * <p><strong>Note(s):</strong>
      * <ul>
-     *      <li>The deployment descriptor is the authoritative source so this method ensures that
-     *      existing elements in it are not overwritten by annoations
+     * <li>The deployment descriptor is the authoritative source so this method ensures that
+     * existing elements in it are not overwritten by annoations
      * </ul>
      *
      * @param annotation @WebServiceRef annotation
      * @param cls        Class name with the @WebServiceRef annoation
      * @param method     Method name with the @WebServiceRef annoation
      * @param field      Field name with the @WebServiceRef annoation
+     * @param annotatedApp  Access to the specc dd
      */
     private static void addWebServiceRef(AnnotatedApp annotatedApp, WebServiceRef annotation, Class cls, Method method, Field field) {
         log.debug("addWebServiceRef( [annotatedApp] " + annotatedApp.toString() + "," + '\n' +
-                           "[annotation] " +  annotation.toString() + "," + '\n' +
-                           "[cls] " + (cls != null ? cls.getName() : null) + "," + '\n' +
-                           "[method] " + (method != null ? method.getName() : null) + "," + '\n' +
-                           "[field] " + (field != null ? field.getName() : null) + " ): Entry");
+                "[annotation] " + annotation.toString() + "," + '\n' +
+                "[cls] " + (cls != null ? cls.getName() : null) + "," + '\n' +
+                "[method] " + (method != null ? method.getName() : null) + "," + '\n' +
+                "[field] " + (field != null ? field.getName() : null) + " ): Entry");
 
         //------------------------------------------------------------------------------------------
         // WebServiceRef name:
@@ -202,13 +203,12 @@ public final class WebServiceRefAnnotationHelper extends AnnotationHelper {
         //                                              class (or as provided on the annotation)
         //------------------------------------------------------------------------------------------
         String webServiceRefName = annotation.name();
-        if ( webServiceRefName.equals("") ) {
-            if ( method != null ) {
+        if (webServiceRefName.equals("")) {
+            if (method != null) {
                 StringBuilder stringBuilder = new StringBuilder(method.getName().substring(3));
                 stringBuilder.setCharAt(0, Character.toLowerCase(stringBuilder.charAt(0)));
                 webServiceRefName = method.getDeclaringClass().getName() + "/" + stringBuilder.toString();
-            }
-            else if ( field != null ) {
+            } else if (field != null) {
                 webServiceRefName = field.getDeclaringClass().getName() + "/" + field.getName();
             }
         }
@@ -232,8 +232,7 @@ public final class WebServiceRefAnnotationHelper extends AnnotationHelper {
         if (webServiceRefType.equals(Object.class)) {
             if (method != null) {
                 webServiceRefType = method.getParameterTypes()[0];
-            }
-            else if (field != null) {
+            } else if (field != null) {
                 webServiceRefType = field.getType();
             }
         }
@@ -246,23 +245,14 @@ public final class WebServiceRefAnnotationHelper extends AnnotationHelper {
         // -- Have one parameter
         // -- Return void
         //------------------------------------------------------------------------------------------
-        String injectionJavaType = "";
-        String injectionClass = "";
-        if (method != null || field != null) {
-            injectionJavaType = getInjectionJavaType(method, field);
-            injectionClass = getInjectionClass(method, field);
-        }
-        log.debug("addWebServiceRef(): injectionJavaType: " + injectionJavaType);
-        log.debug("addWebServiceRef(): injectionClass   : " + injectionClass);
-
 
         //------------------------------------------------------------------------------------------
         // 1. <service-ref>
         //------------------------------------------------------------------------------------------
-        boolean exists = false;
+        //If there is already xml for the service ref, just add injection targets and return.
         ServiceRefType[] serviceRefs = annotatedApp.getServiceRefArray();
-        for ( ServiceRefType serviceRef : serviceRefs ) {
-            if ( serviceRef.getServiceRefName().getStringValue().trim().equals(webServiceRefName) ) {
+        for (ServiceRefType serviceRef : serviceRefs) {
+            if (serviceRef.getServiceRefName().getStringValue().trim().equals(webServiceRefName)) {
                 if (method != null || field != null) {
                     InjectionTargetType[] targets = serviceRef.getInjectionTargetArray();
                     if (!hasTarget(method, field, targets)) {
@@ -272,71 +262,52 @@ public final class WebServiceRefAnnotationHelper extends AnnotationHelper {
                 return;
             }
         }
-        if ( !exists ) {
-            try {
 
-                log.debug("addWebServiceRef(): Does not exist in DD: " + webServiceRefName);
+        // Doesn't exist in deployment descriptor -- add new
+        ServiceRefType serviceRef = annotatedApp.addNewServiceRef();
 
-                // Doesn't exist in deployment descriptor -- add new
-                ServiceRefType serviceRef = annotatedApp.addNewServiceRef();
+        //------------------------------------------------------------------------------
+        // <service-ref> required elements:
+        //------------------------------------------------------------------------------
 
-                //------------------------------------------------------------------------------
-                // <service-ref> required elements:
-                //------------------------------------------------------------------------------
+        // service-ref-name
+        JndiNameType serviceRefName = serviceRef.addNewServiceRefName();
+        serviceRefName.setStringValue(webServiceRefName);
 
-                // service-ref-name
-                JndiNameType serviceRefName = serviceRef.addNewServiceRefName();
-                serviceRefName.setStringValue(webServiceRefName);
-
-                // service-ref-type
-                if (!webServiceRefType.equals(Object.class)) {
-                    FullyQualifiedClassType qualifiedClass = serviceRef.addNewServiceRefType();
-                    qualifiedClass.setStringValue(webServiceRefType.getName());
-                    serviceRef.setServiceRefType(qualifiedClass);
-                }
-
-                // service-ref-interface
-                if (!webServiceRefValue.equals(Object.class)) {
-                    FullyQualifiedClassType qualifiedClass = serviceRef.addNewServiceInterface();
-                    qualifiedClass.setStringValue(webServiceRefValue.getName());
-                    serviceRef.setServiceInterface(qualifiedClass);
-                }
-                else {
-                    FullyQualifiedClassType qualifiedClass = serviceRef.addNewServiceInterface();
-                    qualifiedClass.setStringValue(webServiceRefType.getName());
-                    serviceRef.setServiceInterface(qualifiedClass);
-                }
-
-                //------------------------------------------------------------------------------
-                // <service-ref> optional elements:
-                //------------------------------------------------------------------------------
-
-                // WSDL document location
-                String documentAnnotation = annotation.wsdlLocation();
-                if ( !documentAnnotation.equals("") ) {
-                    XsdAnyURIType wsdlFile = serviceRef.addNewWsdlFile();
-                    wsdlFile.setStringValue(documentAnnotation);
-                    serviceRef.setWsdlFile(wsdlFile);
-                }
-
-                if ( !injectionJavaType.equals("") ) {
-                    // injectionTarget
-                    InjectionTargetType injectionTarget = serviceRef.addNewInjectionTarget();
-                    FullyQualifiedClassType qualifiedClass = injectionTarget.addNewInjectionTargetClass();
-                    JavaIdentifierType javaType = injectionTarget.addNewInjectionTargetName();
-                    qualifiedClass.setStringValue(injectionClass);
-                    javaType.setStringValue(injectionJavaType);
-                    injectionTarget.setInjectionTargetClass(qualifiedClass);
-                    injectionTarget.setInjectionTargetName(javaType);
-                }
-
-            }
-            catch ( Exception anyException ) {
-                log.debug("WebServiceRefAnnotationHelper: Exception caught while processing <service-ref>");
-                anyException.printStackTrace();
-            }
+        // service-ref-type
+        if (!webServiceRefType.equals(Object.class)) {
+            FullyQualifiedClassType qualifiedClass = serviceRef.addNewServiceRefType();
+            qualifiedClass.setStringValue(webServiceRefType.getName());
+            serviceRef.setServiceRefType(qualifiedClass);
         }
-        log.debug("addWebServiceRef(): Exit");
+
+        // service-ref-interface
+        if (!webServiceRefValue.equals(Object.class)) {
+            FullyQualifiedClassType qualifiedClass = serviceRef.addNewServiceInterface();
+            qualifiedClass.setStringValue(webServiceRefValue.getName());
+            serviceRef.setServiceInterface(qualifiedClass);
+        } else {
+            FullyQualifiedClassType qualifiedClass = serviceRef.addNewServiceInterface();
+            qualifiedClass.setStringValue(webServiceRefType.getName());
+            serviceRef.setServiceInterface(qualifiedClass);
+        }
+
+        //------------------------------------------------------------------------------
+        // <service-ref> optional elements:
+        //------------------------------------------------------------------------------
+
+        // WSDL document location
+        String documentAnnotation = annotation.wsdlLocation();
+        if (!documentAnnotation.equals("")) {
+            XsdAnyURIType wsdlFile = serviceRef.addNewWsdlFile();
+            wsdlFile.setStringValue(documentAnnotation);
+            serviceRef.setWsdlFile(wsdlFile);
+        }
+
+        if (method != null || field != null) {
+            configureInjectionTarget(serviceRef.addNewInjectionTarget(), method, field);
+        }
+
     }
 
 }

@@ -20,14 +20,14 @@
 
 package org.apache.geronimo.j2ee.deployment.annotation;
 
-import java.lang.reflect.Method;
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 
-import org.apache.geronimo.xbeans.javaee.InjectionTargetType;
-import org.apache.geronimo.xbeans.javaee.FullyQualifiedClassType;
-import org.apache.geronimo.xbeans.javaee.JavaIdentifierType;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.xmlbeans.XmlBeansUtil;
+import org.apache.geronimo.xbeans.javaee.FullyQualifiedClassType;
+import org.apache.geronimo.xbeans.javaee.InjectionTargetType;
+import org.apache.geronimo.xbeans.javaee.JavaIdentifierType;
 import org.apache.xmlbeans.XmlException;
 
 /**
@@ -70,7 +70,7 @@ public class AnnotationHelper {
     }
 
     /**
-         * Configure Injection Target
+     * Configure Injection Target
      *
      * @param injectionTarget
      * @param method
@@ -85,16 +85,14 @@ public class AnnotationHelper {
         JavaIdentifierType javaType = injectionTarget.addNewInjectionTargetName();
         qualifiedClass.setStringValue(injectionClass);
         javaType.setStringValue(injectionJavaType);
-        injectionTarget.setInjectionTargetClass(qualifiedClass);
-        injectionTarget.setInjectionTargetName(javaType);
-
     }
 
     /**
      * Validate deployment descriptor
      *
      * @param annotatedApp the wrapped deployment descriptor
-     * @throws org.apache.geronimo.common.DeploymentException thrown if deployment descriptor cannot be parsed
+     * @throws org.apache.geronimo.common.DeploymentException
+     *          thrown if deployment descriptor cannot be parsed
      */
     protected static void validateDD(AnnotatedApp annotatedApp) throws DeploymentException {
         try {
