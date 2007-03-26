@@ -75,7 +75,6 @@ public class GeronimoSecurityService implements SecurityService {
     }
 
     public boolean isCallerAuthorized(Method method, InterfaceType typee) {
-        if (true) return true;
         ThreadContext threadContext = ThreadContext.getThreadContext();
 
         try {
