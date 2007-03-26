@@ -100,6 +100,14 @@ public class StartServerMojo
     private int verifyTimeout = -1;
 
     /**
+     * Enable propagation of <tt>org.apache.geronimo.*</tt> and <tt>geronimo.*</tt>
+     * properties from Maven to the forked server process.
+     *
+     * @parameter expression="${propagateGeronimoProperties}" default-value="true"
+     */
+    private boolean propagateGeronimoProperties;
+
+    /**
      * An array of option sets which can be enabled by setting optionSetId.
      *
      * @parameter
@@ -146,6 +154,24 @@ public class StartServerMojo
         File javaAgentJar = new File(geronimoHome, "bin/jpa.jar");
         if (javaAgentJar.exists()) {
             java.createJvmarg().setValue("-javaagent:" + javaAgentJar.getCanonicalPath());
+        }
+        
+        // Propagate some properties from Maven to the server if enabled
+        if (propagateGeronimoProperties) {
+            Properties props = System.getProperties();
+            Iterator iter = props.keySet().iterator();
+            while (iter.hasNext()) {
+                String name = (String)iter.next();
+                String value = System.getProperty(name);
+                
+                if (name.equals("geronimo.bootstrap.logging.enabled")) {
+                    // Skip this property, never propagate it
+                }
+                else if (name.startsWith("org.apache.geronimo") || name.startsWith("geronimo")) {
+                    log.debug("Propagating: " + name + "=" + value);
+                    setSystemProperty(java, name, value);
+                }
+            }
         }
         
         // Apply option sets
