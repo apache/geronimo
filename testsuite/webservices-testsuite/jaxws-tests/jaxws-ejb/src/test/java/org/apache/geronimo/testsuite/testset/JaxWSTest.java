@@ -56,13 +56,10 @@ public class JaxWSTest extends TestSupport {
 
     @Test
     public void testInvocation() throws Exception {
-        String warName = System.getProperty("webAppName");
-        assertNotNull("Web application name not specified", warName);
-        
         InputStream requestInput = JaxWSTest.class.getResourceAsStream("/request1.xml");
         assertNotNull("SOAP request not specified", requestInput);
                 
-        URL url = new URL(baseURL + warName + "/JAXWSBean/");
+        URL url = new URL(baseURL + "JAXWSBeanService/JAXWSBean/");
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
         try {
             conn.setDoOutput(true);
@@ -138,10 +135,7 @@ public class JaxWSTest extends TestSupport {
 
     @Test
     public void testWSDL() throws Exception {
-        String warName = System.getProperty("webAppName");
-        assertNotNull("Web application name not specified", warName);
-        
-        URL url = new URL(baseURL + warName + "/JAXWSBean?wsdl");
+        URL url = new URL(baseURL + "JAXWSBeanService/JAXWSBean?wsdl");
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
         try {
             conn.setUseCaches(false);
