@@ -67,6 +67,8 @@ public class EJBMethodInvoker extends JAXWSMethodInvoker {
         try {
             result = container.invoke(this.deploymentInfo.getDeploymentID(), m, paramArray, null, null);
         } catch (OpenEJBException e) {
+            throw new Fault(e);           
+        } catch (RuntimeException e) {
             throw new Fault(e);
         }
         
