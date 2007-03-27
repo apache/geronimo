@@ -252,8 +252,10 @@ public class EjbModuleBuilder implements ModuleBuilder {
         if (earName == null) {
             earName = naming.createRootName(environment.getConfigId(), NameFactory.NULL, NameFactory.J2EE_APPLICATION);
             moduleName = naming.createChildName(earName, environment.getConfigId().toString(), NameFactory.EJB_MODULE);
+            ejbModule.setModuleId(environment.getConfigId().getArtifactId());
         } else {
             moduleName = naming.createChildName(earName, targetPath, NameFactory.EJB_MODULE);
+            ejbModule.setModuleId(targetPath);
         }
 
         // Create XMLBeans version of EjbJarType for the AnnotatedApp interface
