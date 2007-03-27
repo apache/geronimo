@@ -162,13 +162,16 @@ public class EjbRefBuilder extends AbstractNamingBuilder {
     }
 
     private Object createClientRef(Object value) {
-        IntraVmJndiReference intraVmJndiReference = (IntraVmJndiReference) value;
-        String deploymentId = intraVmJndiReference.getJndiName();
-        if (deploymentId.startsWith("java:openejb/ejb/")) {
-            deploymentId = deploymentId.substring("java:openejb/ejb/".length());
+        if (value instanceof IntraVmJndiReference) {
+            IntraVmJndiReference intraVmJndiReference = (IntraVmJndiReference) value;
+            String deploymentId = intraVmJndiReference.getJndiName();
+            if (deploymentId.startsWith("java:openejb/ejb/")) {
+                deploymentId = deploymentId.substring("java:openejb/ejb/".length());
+            }
+            ClientEjbReference clientRef = new ClientEjbReference(uri.toString(), deploymentId);
+            return clientRef;
         }
-        ClientEjbReference clientRef = new ClientEjbReference(uri.toString(), deploymentId);
-        return clientRef;
+        return value;
     }
 
     private void addRefs(JndiConsumer jndiConsumer, List<EjbRefType> ejbRefs, Map<String, GerEjbRefType> refMap, List<EjbLocalRefType> ejbLocalRefs, Map<String, GerEjbLocalRefType> localRefMap, Map componentContext) {
