@@ -1811,19 +1811,6 @@
             </releases>
         </repository>
 
-        <repository>
-            <id>axis2-m2-repo</id>
-            <name>Axis2 M2 Repository</name>
-            <url>http://ws.zones.apache.org/repository2/</url>
-            <layout>default</layout>
-            <snapshots>
-                <enabled>true</enabled>
-            </snapshots>
-            <releases>
-                <enabled>true</enabled>
-            </releases>
-        </repository>
-
     </repositories>
 
     <distributionManagement>
