@@ -316,6 +316,8 @@
             <!--
             NOTE: activeio and concurrent deps below are used for remote login
                   support and eventually need to be removed.
+                  
+                  https://issues.apache.org/jira/browse/GERONIMO-2944
             -->
             <dependency>
                 <groupId>activeio</groupId>
