@@ -75,11 +75,16 @@ public class GeronimoSecurityService implements SecurityService {
     }
 
     public boolean isCallerAuthorized(Method method, InterfaceType typee) {
-        if (true) return true;
         ThreadContext threadContext = ThreadContext.getThreadContext();
 
         try {
             CoreDeploymentInfo deploymentInfo = threadContext.getDeploymentInfo();
+
+            // if security is not enabled we are autorized
+            EjbDeployment ejbDeployment = deploymentInfo.get(EjbDeployment.class);
+            if (ejbDeployment == null || !ejbDeployment.isSecurityEnabled()) {
+                return true;
+            }
 
             String ejbName = deploymentInfo.getEjbName();
 
@@ -104,11 +109,26 @@ public class GeronimoSecurityService implements SecurityService {
 
         ThreadContext threadContext = ThreadContext.getThreadContext();
 
-        CoreDeploymentInfo deployment = threadContext.getDeploymentInfo();
-        return ContextManager.isCallerInRole(deployment.getEjbName(), role);
+        CoreDeploymentInfo deploymentInfo = threadContext.getDeploymentInfo();
+
+        // if security is not enabled we are not in that role
+        EjbDeployment ejbDeployment = deploymentInfo.get(EjbDeployment.class);
+        if (ejbDeployment == null || !ejbDeployment.isSecurityEnabled()) {
+            return false;
+        }
+
+        return ContextManager.isCallerInRole(deploymentInfo.getEjbName(), role);
     }
 
     public Principal getCallerPrincipal() {
+        // if security is not enabled, we don't have a principal
+        ThreadContext threadContext = ThreadContext.getThreadContext();
+        CoreDeploymentInfo deploymentInfo = threadContext.getDeploymentInfo();
+        EjbDeployment ejbDeployment = deploymentInfo.get(EjbDeployment.class);
+        if (ejbDeployment == null || !ejbDeployment.isSecurityEnabled()) {
+            return null;
+        }
+
         Subject callerSubject = ContextManager.getCurrentCaller();
         return ContextManager.getCurrentPrincipal(callerSubject);
     }
@@ -118,7 +138,6 @@ public class GeronimoSecurityService implements SecurityService {
     //
 
     public Object getSecurityIdentity() {
-        // throw new UnsupportedOperationException();
         return null;
     }
 

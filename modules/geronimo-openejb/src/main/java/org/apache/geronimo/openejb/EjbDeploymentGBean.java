@@ -44,6 +44,7 @@ public class EjbDeploymentGBean extends EjbDeployment implements GBeanLifecycle 
             String serviceEndpointInterfaceName,
             String beanClassName,
             ClassLoader classLoader,
+            boolean securityEnabled,
             DefaultPrincipal defaultPrincipal,
             Subject runAs,
             Map componentContext,
@@ -63,6 +64,7 @@ public class EjbDeploymentGBean extends EjbDeployment implements GBeanLifecycle 
                 serviceEndpointInterfaceName,
                 beanClassName,
                 classLoader,
+                securityEnabled,
                 generateDefaultSubject(defaultPrincipal, classLoader),
                 runAs,
                 EnterpriseNamingContext.createEnterpriseNamingContext(componentContext, transactionManager, kernel, classLoader),
@@ -110,6 +112,7 @@ public class EjbDeploymentGBean extends EjbDeployment implements GBeanLifecycle 
         infoFactory.addAttribute("beanClassName", String.class, true);
         infoFactory.addAttribute("classLoader", ClassLoader.class, false);
 
+        infoFactory.addAttribute("securityEnabled", boolean.class, true);
         infoFactory.addAttribute("defaultPrincipal", DefaultPrincipal.class, true);
         infoFactory.addAttribute("runAs", Subject.class, true);
 
@@ -137,6 +140,7 @@ public class EjbDeploymentGBean extends EjbDeployment implements GBeanLifecycle 
                 "beanClassName",
                 "classLoader",
 
+                "securityEnabled",
                 "defaultPrincipal",
                 "runAs",
 

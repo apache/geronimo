@@ -49,6 +49,7 @@ public class EjbDeployment implements EJB {
     private final String beanClassName;
     private final ClassLoader classLoader;
 
+    private final boolean securityEnabled;
     private final Subject defaultSubject;
     private final Subject runAs;
 
@@ -67,7 +68,7 @@ public class EjbDeployment implements EJB {
 
     public EjbDeployment() {
         this(null, null, null, null, null, null, null, null, null, null, 
-             null, null, null, null, null, null, null);
+             false, null, null, null, null, null, null, null);
     }
 
     public EjbDeployment(String objectName,
@@ -80,6 +81,7 @@ public class EjbDeployment implements EJB {
                          String serviceEndpointInterfaceName,
                          String beanClassName,
                          ClassLoader classLoader,
+                         boolean securityEnabled,
                          Subject defaultSubject,
                          Subject runAs,
                          Context componentContext,
@@ -97,6 +99,7 @@ public class EjbDeployment implements EJB {
         this.serviceEndpointInterfaceName = serviceEndpointInterfaceName;
         this.beanClassName = beanClassName;
         this.classLoader = classLoader;
+        this.securityEnabled = securityEnabled;
         this.defaultSubject = defaultSubject;
         this.runAs = runAs;
         this.componentContext = componentContext;
@@ -144,6 +147,10 @@ public class EjbDeployment implements EJB {
 
     public ClassLoader getClassLoader() {
         return classLoader;
+    }
+
+    public boolean isSecurityEnabled() {
+        return securityEnabled;
     }
 
     public Subject getDefaultSubject() {
