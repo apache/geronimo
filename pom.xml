@@ -1468,6 +1468,12 @@
 
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-enforcer-plugin</artifactId>
+                    <version>1.0-alpha-1-SNAPSHOT</version>
+                </plugin>
+
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-dependency-plugin</artifactId>
                     <version>2.0-alpha-3</version>
                 </plugin>
@@ -1681,6 +1687,32 @@
 
         <plugins>
             <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-enforcer-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <phase>validate</phase>
+                        <goals>
+                            <goal>enforce</goal>
+                        </goals>
+                        <configuration>
+                            <rules>
+                                <!-- Allow any Java >= 1.5, but not 1.6 or above -->
+                                <requireJavaVersion>
+                                    <version>[1.5,1.6)</version>
+                                </requireJavaVersion>
+                                
+                                <!-- Allow any Maven >= 2.0.5 -->
+                                <requireMavenVersion>
+                                    <version>[2.0.5,)</version>
+                                </requireMavenVersion>
+                            </rules>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            
+            <plugin>
                 <groupId>org.apache.geronimo.genesis.plugins</groupId>
                 <artifactId>tools-maven-plugin</artifactId>
 
@@ -1688,17 +1720,6 @@
                 <extensions>true</extensions>
 
                 <executions>
-                    <execution>
-                        <id>validate-java-version</id>
-                        <phase>validate</phase>
-                        <goals>
-                            <goal>require-java-version</goal>
-                        </goals>
-                        <configuration>
-                            <version>1.5*</version>
-                        </configuration>
-                    </execution>
-
                     <execution>
                         <id>install-legal-files</id>
                         <phase>generate-resources</phase>
