@@ -358,10 +358,9 @@ public class JspModuleBuilderExtension implements ModuleBuilderExtension {
                 try {
                     JarURLConnection jarConnection = (JarURLConnection) url.openConnection();
                     URL urlJC = jarConnection.getJarFileURL();
-
-                    URI baseURI = new URI(urlJC.toString());
+                    URI baseURI = new URI(urlJC.toString().replaceAll(" ", "%20"));
                     directory = new File(baseURI);
-                    if (directory.canRead()) {
+                    if (directory.isDirectory() && directory.canRead()) {
                         JarFile temp = new JarFile(directory);
                         List<URL> tempURLs = scanJAR(temp, "META-INF");
                         for (URL jarURL : tempURLs) {
@@ -376,7 +375,7 @@ public class JspModuleBuilderExtension implements ModuleBuilderExtension {
                 }
             } else if (url.toString().startsWith("file:")) {
                 try {
-                    URI baseURI = new URI(url.toString());
+                    URI baseURI = new URI(url.toString().replaceAll(" ", "%20"));
                     directory = new File(baseURI);
                     if (directory.isDirectory() && directory.canRead()) {
                         File[] children = directory.listFiles();
