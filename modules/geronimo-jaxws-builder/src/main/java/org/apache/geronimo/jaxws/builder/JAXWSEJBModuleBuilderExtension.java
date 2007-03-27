@@ -16,7 +16,6 @@
  */
 package org.apache.geronimo.jaxws.builder;
 
-import java.io.File;
 import java.net.URL;
 import java.util.Collection;
 import java.util.HashMap;
@@ -76,26 +75,26 @@ public class JAXWSEJBModuleBuilderExtension implements ModuleBuilderExtension {
     }
 
     public void createModule(Module module, Object plan, JarFile moduleFile, String targetPath, URL specDDUrl, Environment environment, Object moduleContextInfo, AbstractName earName, Naming naming, ModuleIDBuilder idBuilder) throws DeploymentException {
-        if (module.getType() != ConfigurationModuleType.EJB) {
-            return;
-        }
-       
-        EjbModule ejbModule = (EjbModule) module;
-        
-        //overridden web service locations
-        Map correctedPortLocations = new HashMap();
-               
-        jaxwsBuilder.findWebServices(module, true, correctedPortLocations, environment, ejbModule.getSharedContext());
-        
         if (this.defaultEnvironment != null) {
             EnvironmentBuilder.mergeEnvironments(environment, this.defaultEnvironment);
-        }        
+        } 
     }
 
     public void installModule(JarFile earFile, EARContext earContext, Module module, Collection configurationStores, ConfigurationStore targetConfigurationStore, Collection repository) throws DeploymentException {
     }
 
     public void initContext(EARContext earContext, Module module, ClassLoader cl) throws DeploymentException {
+        if (module.getType() != ConfigurationModuleType.EJB) {
+            return;
+        }
+       
+        EjbModule ejbModule = (EjbModule) module;
+        Environment environment = module.getEnvironment();
+                
+        //overridden web service locations       
+        Map correctedPortLocations = new HashMap();       
+               
+        jaxwsBuilder.findWebServices(module, true, correctedPortLocations, environment, ejbModule.getSharedContext());
     }
 
     public void addGBeans(EARContext earContext, Module module, ClassLoader cl, Collection repository) throws DeploymentException {
@@ -120,7 +119,7 @@ public class JAXWSEJBModuleBuilderExtension implements ModuleBuilderExtension {
             ejbWebServiceGBean.setAttribute("ejbName", ejbName);
             ejbWebServiceGBean.setAttribute("ejbClass", bean.ejbClass);
             
-            if (jaxwsBuilder.configureEJB(ejbWebServiceGBean, bean.ejbClass, ejbModule.getModuleFile(), 
+            if (jaxwsBuilder.configureEJB(ejbWebServiceGBean, bean.ejbName, ejbModule.getModuleFile(), 
                                           ejbModule.getSharedContext(), cl)) {
 
                 try {
