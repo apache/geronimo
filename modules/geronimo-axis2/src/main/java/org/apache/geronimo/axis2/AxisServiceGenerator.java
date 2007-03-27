@@ -26,6 +26,7 @@ import org.apache.axis2.description.AxisService;
 import org.apache.axis2.description.Parameter;
 import org.apache.axis2.description.WSDL11ToAxisServiceBuilder;
 import org.apache.axis2.description.WSDL20ToAxisServiceBuilder;
+import org.apache.axis2.description.WSDL2Constants;
 import org.apache.axis2.description.WSDLToAxisServiceBuilder;
 import org.apache.axis2.jaxws.description.DescriptionFactory;
 import org.apache.axis2.jaxws.description.EndpointDescription;
@@ -110,7 +111,7 @@ public class AxisServiceGenerator {
         QName serviceQName = wsdlService.getQName();
 
         //Decide WSDL Version : 
-        if(WSDLConstants.WSDL20_2006Constants.DEFAULT_NAMESPACE_URI.equals(documentElementNS.getNamespaceURI())){
+        if(WSDL2Constants.WSDL_NAMESPACE.equals(documentElementNS.getNamespaceURI())){
             wsdlBuilder = new WSDL20ToAxisServiceBuilder(new ByteArrayInputStream(wsdlContent.getBytes()), serviceQName, null);
         }
         else if(Constants.NS_URI_WSDL11.equals(documentElementNS.getNamespaceURI())){
