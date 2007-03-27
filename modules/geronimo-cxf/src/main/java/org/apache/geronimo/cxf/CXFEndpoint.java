@@ -70,7 +70,7 @@ public abstract class CXFEndpoint extends Endpoint {
                 wsdlURL = new URL(wsdlFile);
             } catch (MalformedURLException e) {
                 // Not a URL, try as a resource
-                wsdlURL = this.implementor.getClass().getResource("/" + wsdlFile);
+                wsdlURL = getImplementorClass().getResource("/" + wsdlFile);
 
                 if (wsdlURL == null && configurationBaseUrl != null) {
                     // Cannot get it as a resource, try with
@@ -84,6 +84,10 @@ public abstract class CXFEndpoint extends Endpoint {
             }
         }
         return wsdlURL;
+    }
+    
+    protected Class getImplementorClass() {
+        return this.implementor.getClass();
     }
     
     org.apache.cxf.endpoint.Endpoint getEndpoint() {

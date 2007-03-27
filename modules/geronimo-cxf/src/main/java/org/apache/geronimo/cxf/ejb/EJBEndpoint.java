@@ -67,4 +67,8 @@ public class EJBEndpoint extends CXFEndpoint {
         service.setInvoker(new EJBMethodInvoker(deploymentInfo));       
     }
     
+    protected Class getImplementorClass() {
+        return (Class)this.implementor;
+    }
+    
 }
