@@ -45,8 +45,10 @@ public abstract class Adapter implements RefGenerator {
     private final NamingContextExt initialContext;
     private final byte[] home_id;
     private final org.omg.CORBA.Object homeReference;
+    private final TSSLink tssLink; 
 
     protected Adapter(TSSLink tssLink, ORB orb, POA parentPOA, Policy securityPolicy) throws CORBAException {
+        this.tssLink = tssLink; 
         this.deployment = tssLink.getDeployment();
         this.home_id = tssLink.getContainerId().getBytes();
         this.orb = orb;
@@ -118,17 +120,20 @@ public abstract class Adapter implements RefGenerator {
 
     public void stop() throws CORBAException {
         try {
-            NameComponent[] nameComponent = initialContext.to_name(deployment.getDeploymentId());
-            initialContext.unbind(nameComponent);
+            String[] names = tssLink.getJndiNames();
+            for (int i = 0; i < names.length; i++) {
+                NameComponent[] nameComponent = initialContext.to_name(names[i]);
+                initialContext.unbind(nameComponent);
 
-            for (int j = nameComponent.length - 1; 0 < j; --j) {
-                NameComponent[] nc = new NameComponent[j];
-                System.arraycopy(nameComponent, 0, nc, 0, j);
-                NamingContext currentContext = NamingContextHelper.narrow(initialContext.resolve(nc));
-                try {
-                    currentContext.destroy();
-                } catch (NotEmpty ne) {
-                    break;
+                for (int j = nameComponent.length - 1; 0 < j; --j) {
+                    NameComponent[] nc = new NameComponent[j];
+                    System.arraycopy(nameComponent, 0, nc, 0, j);
+                    NamingContext currentContext = NamingContextHelper.narrow(initialContext.resolve(nc));
+                    try {
+                        currentContext.destroy();
+                    } catch (NotEmpty ne) {
+                        break;
+                    }
                 }
             }
 
