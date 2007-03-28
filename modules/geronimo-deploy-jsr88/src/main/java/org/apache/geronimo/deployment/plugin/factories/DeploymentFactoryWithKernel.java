@@ -23,6 +23,7 @@ import java.util.Set;
 
 import javax.enterprise.deploy.spi.exceptions.DeploymentManagerCreationException;
 import javax.enterprise.deploy.spi.factories.DeploymentFactory;
+import javax.enterprise.deploy.shared.factories.DeploymentFactoryManager;
 
 import org.apache.geronimo.deployment.ModuleConfigurer;
 import org.apache.geronimo.deployment.plugin.jmx.RemoteDeploymentManager;
@@ -45,6 +46,7 @@ public class DeploymentFactoryWithKernel extends BaseDeploymentFactory {
             throw new IllegalArgumentException("kernel is required");
         }
         this.kernel = kernel;
+        DeploymentFactoryManager.getInstance().registerDeploymentFactory(this);
     }
     
     protected Collection<ModuleConfigurer> getModuleConfigurers() throws DeploymentManagerCreationException {

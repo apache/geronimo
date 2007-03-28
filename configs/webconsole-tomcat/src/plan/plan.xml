@@ -412,4 +412,6 @@
         <!--</reference>-->
     <!--</gbean>-->
 
+    <gbean name="DeploymentFactory" class="org.apache.geronimo.deployment.plugin.factories.DeploymentFactoryWithKernel" />
+
 </application>
