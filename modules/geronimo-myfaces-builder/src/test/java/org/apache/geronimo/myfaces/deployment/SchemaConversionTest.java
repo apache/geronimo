@@ -98,7 +98,7 @@ public class SchemaConversionTest extends XmlBeansTestSupport {
      */
     public void testFacesConfig10Moderate() throws Exception {
         URL srcXML = classLoader.getResource("1_0_dtd/faces-config-moderate-src.xml");
-        URL expectedXML = classLoader.getResource("1_0_dtd/faces-config-Moderate-expected.xml");
+        URL expectedXML = classLoader.getResource("1_0_dtd/faces-config-moderate-expected.xml");
         parseAndCompare(srcXML, expectedXML);
     }
     public void testFacesConfig11Moderate() throws Exception {
