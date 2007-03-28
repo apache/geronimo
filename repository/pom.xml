@@ -41,11 +41,6 @@
 
     <dependencies>
         <dependency>
-            <groupId>dwr</groupId>
-            <artifactId>dwr</artifactId>
-        </dependency>
-
-        <dependency>
             <groupId>juddi</groupId>
             <artifactId>juddi</artifactId>
         </dependency>
