@@ -27,6 +27,7 @@ import java.util.HashMap;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.Arrays;
+import java.util.ArrayList;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -355,11 +356,12 @@ public class EjbRefBuilder extends AbstractNamingBuilder {
 
 
     // XMLBean uses lame arrays that can be null, so we need an asList that handles nulls
+    // Beware Arrays.asList(), it returns an ArrayList lookalike, that is not fully mutable...
     public static <E> List<E> asList(E[] array) {
         if (array == null) {
-            return Collections.emptyList();
+            return new ArrayList<E>();
         } else {
-            return Arrays.asList(array);
+            return new ArrayList<E>(Arrays.asList(array));
         }
     }
 
