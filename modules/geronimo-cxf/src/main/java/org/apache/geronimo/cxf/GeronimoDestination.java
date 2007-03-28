@@ -33,6 +33,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.xml.ws.handler.MessageContext;
 
 import org.apache.cxf.Bus;
+import org.apache.cxf.io.AbstractWrappedOutputStream;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.message.MessageImpl;
 import org.apache.cxf.service.model.EndpointInfo;
@@ -193,43 +194,7 @@ public class GeronimoDestination extends AbstractHTTPDestination
          */
         public void send(Message message) throws IOException {
             Response response = (Response)request.get(Response.class);
-
-            // 1. handle response code
-            Integer i = (Integer)message.get(Message.RESPONSE_CODE);
-            if (i != null) {
-                response.setStatusCode(i.intValue());
-            }
-
-            // 2. handle response headers
-            updateResponseHeaders(message);
-
-            Map<String, List<String>> protocolHeaders =
-                (Map<String, List<String>>)message.get(Message.PROTOCOL_HEADERS);
-
-            // set headers of the HTTP response object
-            Iterator headers = protocolHeaders.entrySet().iterator();
-            while(headers.hasNext()) {
-                Map.Entry entry = (Map.Entry)headers.next();
-                String headerName = (String)entry.getKey();
-                String headerValue = getHeaderValue((List)entry.getValue());
-                response.setHeader(headerName, headerValue);
-            }
-
-            //TODO gregw says this should work: current cxf-jetty code wraps output stream.
-            //if this doesn't work, we'd see an error from jetty saying you cant write headers to the output stream.
-            message.setContent(OutputStream.class, response.getOutputStream());
-        }
-
-        private String getHeaderValue(List<String> values) {
-            Iterator iter = values.iterator();
-            StringBuffer buf = new StringBuffer();
-            while(iter.hasNext()) {
-                buf.append(iter.next());
-                if (iter.hasNext()) {
-                    buf.append(", ");
-                }
-            }
-            return buf.toString();
+            message.setContent(OutputStream.class, new WrappedOutputStream(message, response));
         }
         
         /**
@@ -253,6 +218,98 @@ public class GeronimoDestination extends AbstractHTTPDestination
          * Close the conduit
          */
         public void close() {
+        }
+    }
+        
+    private String getHeaderValue(List<String> values) {
+        Iterator iter = values.iterator();
+        StringBuffer buf = new StringBuffer();
+        while(iter.hasNext()) {
+            buf.append(iter.next());
+            if (iter.hasNext()) {
+                buf.append(", ");
+            }
+        }
+        return buf.toString();
+    }
+    
+    protected void copyResponseHeaders(Message message, Response response) {                
+        Map<String, List<String>> protocolHeaders =
+            (Map<String, List<String>>)message.get(Message.PROTOCOL_HEADERS);
+        
+        if (!protocolHeaders.containsKey(Message.CONTENT_TYPE)) {
+            String ct = (String) message.get(Message.CONTENT_TYPE);
+            String enc = (String) message.get(Message.ENCODING);
+            
+            if (null != ct) {
+                if (enc != null && ct.indexOf("charset=") == -1) {
+                    ct = ct + "; charset=" + enc;
+                }
+                response.setContentType(ct);
+            } else if (enc != null) {
+                response.setContentType("text/xml; charset=" + enc);
+            }
+        }
+
+        // set headers of the HTTP response object
+        Iterator headers = protocolHeaders.entrySet().iterator();
+        while(headers.hasNext()) {
+            Map.Entry entry = (Map.Entry)headers.next();
+            String headerName = (String)entry.getKey();
+            String headerValue = getHeaderValue((List)entry.getValue());
+            response.setHeader(headerName, headerValue);
+        }
+    }
+        
+    private class WrappedOutputStream extends AbstractWrappedOutputStream {
+
+        protected Response response;
+
+        WrappedOutputStream(Message m, Response response) {
+            super(m);
+            this.response = response;
+        }
+
+        protected void doFlush() throws IOException {
+            OutputStream responseStream = flushHeaders(outMessage);
+            if (null != responseStream && !alreadyFlushed()) {
+                resetOut(responseStream, true);
+            }
+        }
+        
+        protected void doClose() {
+            commitResponse();
+        }
+
+        protected void onWrite() throws IOException {
+        }
+
+        private void commitResponse() {
+            try {
+                response.flushBuffer();
+            } catch (IOException e) {
+                getLogger().warning(e.getMessage());                               
+            }
+        }
+        
+        protected OutputStream flushHeaders(Message outMessage) throws IOException {
+            updateResponseHeaders(outMessage);
+
+            Integer i = (Integer) outMessage.get(Message.RESPONSE_CODE);
+            if (i != null) {
+                response.setStatusCode(i.intValue());
+            } else {
+                response.setStatusCode(HttpURLConnection.HTTP_OK);
+            }
+
+            copyResponseHeaders(outMessage, response);
+            OutputStream responseStream = response.getOutputStream();
+
+            if (isOneWay(outMessage)) {
+                response.flushBuffer();
+            }
+
+            return responseStream;
         }
     }
 
