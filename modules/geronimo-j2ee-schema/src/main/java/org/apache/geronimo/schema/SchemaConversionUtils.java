@@ -256,10 +256,54 @@ public class SchemaConversionUtils {
         moveElements("icon", namespace, moveable, cursor);
     }
 
-    public static void convertToTagRoot(String namespace, XmlCursor cursor, XmlCursor moveable) {
+    public static void convertToTldTag(String namespace, XmlCursor cursor, XmlCursor moveable) {
+        moveable.toCursor(cursor);
+        moveElements("description", namespace, moveable, cursor);
+        moveElements("display-name", namespace, moveable, cursor);
+        moveElements("icon", namespace, moveable, cursor);
+        moveElements("name", namespace, moveable, cursor);
+        moveElements("tag-class", namespace, moveable, cursor);
+        moveElements("tei-class", namespace, moveable, cursor);
+        moveElements("body-content", namespace, moveable, cursor);
+        moveElements("variable", namespace, moveable, cursor);
+        moveElements("attribute", namespace, moveable, cursor);
+        moveElements("dynamic-attributes", namespace, moveable, cursor);
+        moveElements("example", namespace, moveable, cursor);
+        moveElements("tag-extension", namespace, moveable, cursor);
+    }
+
+    public static void convertToTldAttribute(String namespace, XmlCursor cursor, XmlCursor moveable) {
         moveable.toCursor(cursor);
         moveElements("description", namespace, moveable, cursor);
         moveElements("name", namespace, moveable, cursor);
+        moveElements("required", namespace, moveable, cursor);
+        moveElements("rtexprvalue", namespace, moveable, cursor);
+        moveElements("type", namespace, moveable, cursor);
+        moveElements("fragment", namespace, moveable, cursor);
+    }
+
+    public static void convertToTldInitParam(String namespace, XmlCursor cursor, XmlCursor moveable) {
+        moveable.toCursor(cursor);
+        moveElements("description", namespace, moveable, cursor);
+        moveElements("param-name", namespace, moveable, cursor);
+        moveElements("param-value", namespace, moveable, cursor);
+    }
+
+    public static void convertToTldValidator(String namespace, XmlCursor cursor, XmlCursor moveable) {
+        moveable.toCursor(cursor);
+        moveElements("description", namespace, moveable, cursor);
+        moveElements("validator-class", namespace, moveable, cursor);
+        moveElements("init-param", namespace, moveable, cursor);
+    }
+
+    public static void convertToTldVariable(String namespace, XmlCursor cursor, XmlCursor moveable) {
+        moveable.toCursor(cursor);
+        moveElements("description", namespace, moveable, cursor);
+        moveElements("name-given", namespace, moveable, cursor);
+        moveElements("name-from-attribute", namespace, moveable, cursor);
+        moveElements("variable-class", namespace, moveable, cursor);
+        moveElements("declare", namespace, moveable, cursor);
+        moveElements("scope", namespace, moveable, cursor);
     }
 
     public static void convertToJNDIEnvironmentRefsGroup(String namespace, XmlCursor cursor, XmlCursor moveable) {
