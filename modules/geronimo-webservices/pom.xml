@@ -78,7 +78,7 @@
         </dependency>
 
         <dependency>
-            <groupId>scout</groupId>
+            <groupId>org.apache.ws.scout</groupId>
             <artifactId>scout</artifactId>
         </dependency>
 

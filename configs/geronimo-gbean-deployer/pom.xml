@@ -66,18 +66,18 @@
             <artifactId>geronimo-deploy-config</artifactId>
             <version>${version}</version>
         </dependency>
+
         <!-- Thirdparty Dependencies -->
-        
         <dependency>
             <groupId>xmlbeans</groupId>
             <artifactId>xbean</artifactId>
         </dependency>
 
-	    <dependency>
-	        <groupId>org.apache.geronimo.specs</groupId>
-	        <artifactId>geronimo-stax-api_1.0_spec</artifactId>
-	    </dependency>
-        
+        <dependency>
+            <groupId>org.apache.geronimo.specs</groupId>
+            <artifactId>geronimo-stax-api_1.0_spec</artifactId>
+        </dependency>
+
     </dependencies>
     
     <build>

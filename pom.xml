@@ -495,14 +495,20 @@
                 <version>1.3</version>
             </dependency>
             
-            <!--
-            FIXME: Upgrade to a newer version of scout
-            -->
-
             <dependency>
-                <groupId>scout</groupId>
+                <groupId>org.apache.ws.scout</groupId>
                 <artifactId>scout</artifactId>
-                <version>0.5</version>
+                <version>SNAPSHOT</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>axis</groupId>
+                        <artifactId>axis-saaj</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>xmlbeans</groupId>
+                        <artifactId>xbean</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
 
             <dependency>

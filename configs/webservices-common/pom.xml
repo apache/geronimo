@@ -60,7 +60,6 @@
             <artifactId>wsdl4j</artifactId>
         </dependency>
 
-
         <!-- StAX implementation -->
         <dependency>
             <groupId>woodstox</groupId>
@@ -81,7 +80,7 @@
 
         <!-- JAXR implementation -->
         <dependency>
-            <groupId>scout</groupId>
+            <groupId>org.apache.ws.scout</groupId>
             <artifactId>scout</artifactId>
         </dependency>
 

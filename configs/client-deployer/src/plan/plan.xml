@@ -87,6 +87,16 @@
                         <artifactId>client</artifactId>
                         <type>car</type>
                     </dependency>
+                    <dependency>
+                        <groupId>${pom.groupId}</groupId>
+                        <artifactId>webservices-common</artifactId>
+                        <type>car</type>
+                    </dependency>
+                    <dependency>
+                        <groupId>${pom.groupId}</groupId>
+                        <artifactId>axis</artifactId>
+                        <type>car</type>
+                    </dependency>
                 </dependencies>
             </environment>
         </xml-attribute>
