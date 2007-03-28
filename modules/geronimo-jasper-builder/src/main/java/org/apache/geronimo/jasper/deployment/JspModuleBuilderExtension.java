@@ -486,7 +486,7 @@ public class JspModuleBuilderExtension implements ModuleBuilderExtension {
      * @return converted TagLibDocument in the new shiny schema
      * @throws XmlException if something goes horribly wrong
      */
-    private static TaglibDocument convertToTaglibSchema(XmlObject xmlObject) throws XmlException {
+    protected static TaglibDocument convertToTaglibSchema(XmlObject xmlObject) throws XmlException {
         log.debug("convertToTaglibSchema( " + xmlObject.toString() + " ): Entry");
 
         XmlCursor cursor = xmlObject.newCursor();
@@ -495,8 +495,10 @@ public class JspModuleBuilderExtension implements ModuleBuilderExtension {
             cursor.toStartDoc();
             cursor.toFirstChild();
             if (SchemaConversionUtils.JAVAEE_NAMESPACE.equals(cursor.getName().getNamespaceURI())) {
-                //do nothing
-            } else if (SchemaConversionUtils.J2EE_NAMESPACE.equals(cursor.getName().getNamespaceURI())) {
+                log.debug("Nothing to do");
+            }
+            else if (SchemaConversionUtils.J2EE_NAMESPACE.equals(cursor.getName().getNamespaceURI())) {
+                log.debug("Converting XSD 2.0 to 2.1 schema");
                 SchemaConversionUtils.convertSchemaVersion(cursor, SchemaConversionUtils.JAVAEE_NAMESPACE, SCHEMA_LOCATION_URL, VERSION);
                 cursor.toStartDoc();
                 cursor.toChild(SchemaConversionUtils.JAVAEE_NAMESPACE, "taglib");
@@ -507,30 +509,54 @@ public class JspModuleBuilderExtension implements ModuleBuilderExtension {
                         cursor.push();
                         cursor.toFirstChild();
                         SchemaConversionUtils.convertToDescriptionGroup(SchemaConversionUtils.JAVAEE_NAMESPACE, cursor, moveable);
-                        SchemaConversionUtils.convertToTagRoot(SchemaConversionUtils.JAVAEE_NAMESPACE, cursor, moveable);
                         do {
                             name = cursor.getName().getLocalPart();
                             boolean rtexprvalueFound = false;
+                            boolean typeFound = false;
                             if ("attribute".equals(name)) {
                                 cursor.push();
                                 cursor.toFirstChild();
-                                SchemaConversionUtils.convertToTagRoot(SchemaConversionUtils.JAVAEE_NAMESPACE, cursor, moveable);
                                 do {
                                     name = cursor.getName().getLocalPart();
                                     if ("rtexprvalue".equals(name)) {
                                         rtexprvalueFound = true;
                                     }
                                     if ("type".equals(name)) {
-                                        if (!rtexprvalueFound) {
-                                            rtexprvalueFound = true;
-                                            cursor.insertElementWithText("rtexprvalue", SchemaConversionUtils.JAVAEE_NAMESPACE, "false");
-                                        }
+                                        typeFound = true;
                                     }
                                 } while (cursor.toNextSibling());
+                                cursor.pop();
+                                if (typeFound && !rtexprvalueFound) {
+                                    //--------------------------------------------------------------
+                                    // Handle the case where the <type> tag must now be preceded by
+                                    // the <rtexprvalue> tag in the 2.1 schema. Cases are:
+                                    // 1: Only type found:
+                                    //      We are currently positioned directly after the attribute
+                                    //      tag (via the pop) so just insert the rtexprvalue tag
+                                    //      with the default value. The tags will be properly
+                                    //      ordered below.
+                                    // 2: Both type and rtexprvalue found:
+                                    //      The tags will be properly ordered below with the
+                                    //      convertToAttributeGroup() call, so nothing to do
+                                    // 3: Only rtexprvalue found:
+                                    //      Nothing to do
+                                    // 4: Neither found:
+                                    //      Nothing to do
+                                    //--------------------------------------------------------------
+                                    cursor.push();
+                                    cursor.toFirstChild();
+                                    cursor.insertElementWithText("rtexprvalue", SchemaConversionUtils.JAVAEE_NAMESPACE, "false");
+                                    cursor.pop();
+                                }
+                                cursor.push();
+                                cursor.toFirstChild();
+                                SchemaConversionUtils.convertToTldAttribute(SchemaConversionUtils.JAVAEE_NAMESPACE, cursor, moveable);
                                 cursor.pop();
                             }
                         } while (cursor.toNextSibling());
                         cursor.pop();
+                        // Do this conversion last after the other tags have been converted
+                        SchemaConversionUtils.convertToTldTag(SchemaConversionUtils.JAVAEE_NAMESPACE, cursor, moveable);
                     }
                 } while (cursor.toNextSibling());
             }
@@ -540,13 +566,17 @@ public class JspModuleBuilderExtension implements ModuleBuilderExtension {
                 cursor.toStartDoc();
                 cursor.toChild(SchemaConversionUtils.JAVAEE_NAMESPACE, "taglib");
                 cursor.toFirstChild();
-		//                SchemaConversionUtils.convertToDescriptionGroup(SchemaConversionUtils.JAVAEE_NAMESPACE, cursor, moveable);
+                SchemaConversionUtils.convertToDescriptionGroup(SchemaConversionUtils.JAVAEE_NAMESPACE, cursor, moveable);
                 do {
                     String name = cursor.getName().getLocalPart();
-                    if (cursor.getName().getLocalPart().equals("jsp-version") ||
-                            cursor.getName().getLocalPart().equals("jspversion") ||
-                            cursor.getName().getLocalPart().equals("validator")) {
+                    if ("jsp-version".equals(name) ||
+                        "jspversion".equals(name) ||
+                        "info".equals(name)) {
                         cursor.removeXmlContents();
+                        cursor.removeXml();
+                    }
+                    if ("tlibversion".equals(name)) {
+                        cursor.setName(TLIB_VERSION);
                     }
                     if ("tlibversion".equals(name)) {
                         cursor.setName(TLIB_VERSION);
@@ -558,7 +588,6 @@ public class JspModuleBuilderExtension implements ModuleBuilderExtension {
                         cursor.push();
                         cursor.toFirstChild();
                         SchemaConversionUtils.convertToDescriptionGroup(SchemaConversionUtils.JAVAEE_NAMESPACE, cursor, moveable);
-                        SchemaConversionUtils.convertToTagRoot(SchemaConversionUtils.JAVAEE_NAMESPACE, cursor, moveable);
                         do {
                             name = cursor.getName().getLocalPart();
                             if ("tagclass".equals(name)) {
@@ -573,7 +602,34 @@ public class JspModuleBuilderExtension implements ModuleBuilderExtension {
                             if ("attribute".equals(name)) {
                                 cursor.push();
                                 cursor.toFirstChild();
-                                SchemaConversionUtils.convertToTagRoot(SchemaConversionUtils.JAVAEE_NAMESPACE, cursor, moveable);
+                                SchemaConversionUtils.convertToTldAttribute(SchemaConversionUtils.JAVAEE_NAMESPACE, cursor, moveable);
+                                cursor.pop();
+                            }
+                            if ("variable".equals(name)) {
+                                cursor.push();
+                                cursor.toFirstChild();
+                                SchemaConversionUtils.convertToTldVariable(SchemaConversionUtils.JAVAEE_NAMESPACE, cursor, moveable);
+                                cursor.pop();
+                            }
+                            if ("info".equals(name)) {
+                                cursor.removeXmlContents();
+                                cursor.removeXml();
+                            }
+                        } while (cursor.toNextSibling());
+                        cursor.pop();
+                        // Do this conversion last after the other tags have been converted
+                        SchemaConversionUtils.convertToTldTag(SchemaConversionUtils.JAVAEE_NAMESPACE, cursor, moveable);
+                    }
+                    if ("validator".equals(name)) {
+                        cursor.push();
+                        cursor.toFirstChild();
+                        SchemaConversionUtils.convertToTldValidator(SchemaConversionUtils.JAVAEE_NAMESPACE, cursor, moveable);
+                        do {
+                            name = cursor.getName().getLocalPart();
+                            if ("init-param".equals(name)) {
+                                cursor.push();
+                                cursor.toFirstChild();
+                                SchemaConversionUtils.convertToTldInitParam(SchemaConversionUtils.JAVAEE_NAMESPACE, cursor, moveable);
                                 cursor.pop();
                             }
                         } while (cursor.toNextSibling());
@@ -584,6 +640,7 @@ public class JspModuleBuilderExtension implements ModuleBuilderExtension {
         }
         finally {
             cursor.dispose();
+            moveable.dispose();
         }
         XmlObject result = xmlObject.changeType(TaglibDocument.type);
         if (result != null) {
