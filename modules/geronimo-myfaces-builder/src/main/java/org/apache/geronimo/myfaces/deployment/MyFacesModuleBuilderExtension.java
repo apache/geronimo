@@ -297,7 +297,7 @@ public class MyFacesModuleBuilderExtension implements ModuleBuilderExtension {
         log.debug("parseConfigFile(): Exit");
     }
 
-    private static FacesConfigDocument convertToFacesConfigSchema(XmlObject xmlObject) throws XmlException {
+    protected static FacesConfigDocument convertToFacesConfigSchema(XmlObject xmlObject) throws XmlException {
         log.debug("convertToFacesConfigSchema( " + xmlObject.toString() + " ): Entry");
         XmlCursor cursor = xmlObject.newCursor();
         try {
