@@ -1840,6 +1840,7 @@
 
             <modules>
                 <module>repository</module>
+                <module>buildsupport</module>
                 <module>testsupport</module>
                 <module>modules</module>
                 <module>maven-plugins</module>
@@ -1900,6 +1901,7 @@
 
             <modules>
                 <module>repository</module>
+                <module>buildsupport</module>
                 <module>testsupport</module>
                 <module>modules</module>
                 <module>maven-plugins</module>
@@ -1935,6 +1937,7 @@
 
             <modules>
                 <module>repository</module>
+                <module>buildsupport</module>
                 <module>testsupport</module>
                 <module>modules</module>
                 <module>maven-plugins</module>
@@ -1954,6 +1957,7 @@
             </activation>
 
             <modules>
+                <module>buildsupport</module>
                 <module>testsupport</module>
                 <module>modules</module>
                 <module>maven-plugins</module>
@@ -1989,19 +1993,16 @@
                                     <goal>execute</goal>
                                 </goals>
                                 <configuration>
+                                    <classpath>
+                                        <element>
+                                            <groupId>org.apache.geronimo.buildsupport</groupId>
+                                            <artifactId>groovy-build-library</artifactId>
+                                            <version>${version}</version>
+                                        </element>
+                                    </classpath>
                                     <source>
                                         <body>
-                                            def file = new File(project.basedir, '.classpath')
-                                            def dir = new File(project.basedir, 'target/generated-sources/xmlbeans')
-                                            def targetPath = 'target/clover/classes'
-                                            if (file.exists() &amp;&amp; dir.exists()) {
-                                                def classpath = new XmlParser().parse(file)
-                                                if (!classpath.classpathentry.findAll { it.'@path' == targetPath }) {
-                                                    println "Updating Eclipse .classpath for XMLBeans muck..."
-                                                    def node = new Node(classpath, "classpathentry", [ kind: 'lib', path: targetPath ])
-                                                    new XmlNodePrinter(file.newPrintWriter()).print(classpath)
-                                                }
-                                            }
+                                            org.apache.geronimo.buildsupport.FixEclipseProjects.execute(this)
                                         </body>
                                     </source>
                                 </configuration>

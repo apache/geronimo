@@ -145,35 +145,43 @@
                     </execution>
                 </executions>
             </plugin>
-
+            
+            <!--
+            HACK: Copy XmlBeans generated schemas.
+            -->
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>groovy-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <phase>generate-resources</phase>
+                        <goals>
+                            <goal>execute</goal>
+                        </goals>
+                        <configuration>
+                            <classpath>
+                                <element>
+                                    <groupId>org.apache.geronimo.buildsupport</groupId>
+                                    <artifactId>groovy-build-library</artifactId>
+                                    <version>${version}</version>
+                                </element>
+                            </classpath>
+                            <source>
+                                <body>
+                                    org.apache.geronimo.buildsupport.CopyXmlBeansSchemas.execute(this)
+                                </body>
+                            </source>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-antrun-plugin</artifactId>
 
                 <executions>
-                    <!--
-                    HACK: Copy the generated XmlBeans bits for clover
-                    -->
                     <execution>
-                        <id>copy-xmlbeans-for-clover</id>
-                        <phase>generate-resources</phase>
-                        <goals>
-                            <goal>run</goal>
-                        </goals>
-                        <configuration>
-                            <tasks>
-                                <mkdir dir="${pom.basedir}/target/clover/classes"/>
-                                <copy todir="${pom.basedir}/target/clover/classes">
-                                    <fileset dir="${project.build.outputDirectory}">
-                                        <include name="schemaorg_apache_xmlbeans/**"/>
-                                    </fileset>
-                                </copy>
-                            </tasks>
-                        </configuration>
-                    </execution>
-
-                    <execution>
-                        <id>setup-test-environment</id>
                         <phase>process-test-resources</phase>
                         <goals>
                             <goal>run</goal>
