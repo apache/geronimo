@@ -24,6 +24,9 @@ public class SAAJUniverseTest extends TestSupport {
 
     private static final String SUN_MESSAGE_CLASS = 
         "com.sun.xml.messaging.saaj.soap.ver1_1.Message1_1Impl";
+
+    private static final String AXIS1_MESSAGE_CLASS = 
+        "org.apache.axis.Message";
     
     private static final String DEFAULT_MESSAGE_CLASS = SUN_MESSAGE_CLASS;
        
@@ -50,9 +53,41 @@ public class SAAJUniverseTest extends TestSupport {
         
         // case 4, Axis1 universe set        
         u.set(SAAJUniverse.AXIS1);        
-        assertEquals("org.apache.axis.Message", 
+        assertEquals(AXIS1_MESSAGE_CLASS,
                      MessageFactory.newInstance().createMessage().getClass().getName());        
         u.unset();       
+    }
+
+    public void testNested() throws Exception {
+        SAAJGBean b = new SAAJGBean();
+        b.doStart();
+
+        assertEquals(DEFAULT_MESSAGE_CLASS, 
+                     MessageFactory.newInstance().createMessage().getClass().getName());
+        
+        SAAJUniverse u = new SAAJUniverse();
+
+        // set axis1
+        u.set(SAAJUniverse.AXIS1);        
+        assertEquals(AXIS1_MESSAGE_CLASS,
+                     MessageFactory.newInstance().createMessage().getClass().getName());  
+        
+        // set sun, nested
+        u.set(SAAJUniverse.SUN);
+        assertEquals(SUN_MESSAGE_CLASS, 
+                     MessageFactory.newInstance().createMessage().getClass().getName());   
+
+        // unset sun
+        u.unset();
+
+        // should be axis
+        assertEquals(AXIS1_MESSAGE_CLASS,
+                     MessageFactory.newInstance().createMessage().getClass().getName());  
+
+        u.unset();
+
+        assertEquals(DEFAULT_MESSAGE_CLASS, 
+                     MessageFactory.newInstance().createMessage().getClass().getName());
     }
 
 }

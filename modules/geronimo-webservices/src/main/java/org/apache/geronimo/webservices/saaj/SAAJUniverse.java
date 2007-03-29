@@ -16,6 +16,9 @@
  */
 package org.apache.geronimo.webservices.saaj;
 
+import java.util.LinkedList;
+import java.util.List;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -29,39 +32,39 @@ public class SAAJUniverse {
     public static final Type SUN = Type.SUN;
     public static final Type AXIS1 = Type.AXIS1;
     public static final Type AXIS2 = Type.AXIS2;
-
-    private Type oldUniverse;
-    private boolean universeSet = false;
     
-    private static ThreadLocal<Type> currentUniverse = new InheritableThreadLocal<Type>();
-    
+    private static final ThreadLocal<LinkedList<Type>> currentUniverse = 
+        new InheritableThreadLocal<LinkedList<Type>>();
+        
     public void set(Type newUniverse) {
-        if (this.universeSet) {
-            throw new RuntimeException("Universe must be unset first");
-        } else {
-            this.oldUniverse = getCurrentUniverse();
-            setCurrentUniverse(newUniverse);   
-            this.universeSet = true;            
-            LOG.debug("Set universe: " + this + " " + newUniverse);
+        LinkedList<Type> universeList = currentUniverse.get();
+        if (universeList == null) {
+            universeList = new LinkedList<Type>();
+            currentUniverse.set(universeList);
+        }
+        universeList.add(newUniverse);
+        if (LOG.isDebugEnabled()) {                   
+            LOG.debug("Set universe: " + Thread.currentThread() + " " + newUniverse);
         }
     }
     
     public void unset() {
-        if (this.universeSet) {
-            setCurrentUniverse(this.oldUniverse);
-            this.universeSet = false;
-            LOG.debug("Restored universe: " + this);
-        } else {
-            LOG.warn("Universe was not set: " + this);
+        LinkedList<Type> universeList = currentUniverse.get();
+        if (universeList != null && !universeList.isEmpty()) {
+            universeList.removeLast();
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("Restored universe: " + Thread.currentThread());
+            }
         }
     }
     
     static Type getCurrentUniverse() {
-        return currentUniverse.get();
+        LinkedList<Type> universeList = currentUniverse.get();
+        if (universeList != null && !universeList.isEmpty()) {
+            return universeList.getLast();
+        } else {
+            return null;
+        }                
     }
-    
-    static void setCurrentUniverse(Type universe) {
-        currentUniverse.set(universe);
-    }
-   
+       
 }
