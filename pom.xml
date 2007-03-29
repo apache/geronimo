@@ -500,10 +500,6 @@
                         <groupId>axis</groupId>
                         <artifactId>axis-saaj</artifactId>
                     </exclusion>
-                    <exclusion>
-                        <groupId>xmlbeans</groupId>
-                        <artifactId>xbean</artifactId>
-                    </exclusion>
                 </exclusions>
             </dependency>
 
