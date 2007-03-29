@@ -258,7 +258,7 @@ public class GeronimoDestination extends AbstractHTTPDestination
         Map<String, List<String>> protocolHeaders =
             (Map<String, List<String>>)message.get(Message.PROTOCOL_HEADERS);
         
-        if (protocolHeaders != null && !protocolHeaders.containsKey(Message.CONTENT_TYPE)) {
+        if (protocolHeaders == null || !protocolHeaders.containsKey(Message.CONTENT_TYPE)) {
             String ct = (String) message.get(Message.CONTENT_TYPE);
             String enc = (String) message.get(Message.ENCODING);
             
