@@ -146,5 +146,57 @@ public class JAXWSUtils {
             return name.trim();
         }  
     }
+
+    private static String getWsdlLocation(Class clazz) {
+        WebService webService = (WebService) clazz.getAnnotation(WebService.class); 
+        if (webService == null) {
+            WebServiceProvider webServiceProvider = 
+                (WebServiceProvider)clazz.getAnnotation(WebServiceProvider.class);
+            if (webServiceProvider == null) //no WebService or WebServiceProvider annotation
+                return "";
+            return webServiceProvider.wsdlLocation().trim();
+            
+        } else
+            return webService.wsdlLocation().trim();
+    } 
+    
+    private static String getServiceInterface(Class clazz) {
+        WebService webService = (WebService) clazz.getAnnotation(WebService.class); 
+        if (webService == null) {
+            //WebServiceProvider doesn't support endpointInterface property (JAX-WS 2.0 sec 7.7)
+            return "";  
+        } else {
+            if (webService.endpointInterface() != null & !webService.endpointInterface().equals("")) 
+                return webService.endpointInterface();
+            else 
+                return "";
+        }
+
+    }
+    public static String getServiceWsdlLocation(Class clazz, ClassLoader loader) {
+        if (getWsdlLocation(clazz) != null && !getWsdlLocation(clazz).equals("")) {
+            return getWsdlLocation(clazz);
+        }
+        else { //check if the interface contains the wsdlLocation value
+            String serviceInterfaceClassName = getServiceInterface(clazz);
+            if (serviceInterfaceClassName != null && !serviceInterfaceClassName.equals("")) {
+                try {
+                    Class serviceInterfaceClass = loader.loadClass(getServiceInterface(clazz));
+                    return getWsdlLocation(serviceInterfaceClass);                    
+                } catch (Exception e) {
+                    return "";
+                }
+            } 
+        }
+        return "";
+        
+    }
+    
+    public static boolean containsWsdlLocation(Class clazz, ClassLoader loader) {
+        String wsdlLocSEIFromAnnotation = getServiceWsdlLocation(clazz, loader);
+        if (wsdlLocSEIFromAnnotation != null && !wsdlLocSEIFromAnnotation.equals(""))
+            return true;
+        return false;
+    }
     
 }

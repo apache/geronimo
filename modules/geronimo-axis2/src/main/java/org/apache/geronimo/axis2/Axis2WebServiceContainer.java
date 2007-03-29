@@ -45,6 +45,7 @@ import org.apache.axis2.transport.http.util.RESTUtil;
 import org.apache.axis2.util.MessageContextBuilder;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.geronimo.jaxws.JAXWSUtils;
 import org.apache.geronimo.jaxws.JNDIResolver;
 import org.apache.geronimo.jaxws.PortInfo;
 import org.apache.geronimo.jaxws.ServerJNDIResolver;
@@ -100,6 +101,16 @@ public abstract class Axis2WebServiceContainer implements WebServiceContainer {
         try {
             configurationContext = ConfigurationContextFactory.createDefaultConfigurationContext();
             
+            //check to see if the wsdlLocation property is set in portInfo, 
+            //if not checking if wsdlLocation exists in annotation
+            //if already set, annotation should not overwrite it.
+            if (portInfo.getWsdlFile() == null || portInfo.getWsdlFile().equals("")){
+                Class clazz = classLoader.loadClass(endpointClassName);
+                //getwsdllocation from annotation if it exists
+                if (JAXWSUtils.containsWsdlLocation(clazz, classLoader))
+                    portInfo.setWsdlFile(JAXWSUtils.getServiceWsdlLocation(clazz, classLoader));                
+            }
+
             if(portInfo.getWsdlFile() != null && !portInfo.getWsdlFile().equals("")){ //WSDL file Has been provided
                 AxisServiceGenerator serviceGen = new AxisServiceGenerator();
                 service = serviceGen.getServiceFromWSDL(portInfo, endpointClassName, configurationBaseUrl, classLoader);
