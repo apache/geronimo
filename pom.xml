@@ -45,10 +45,6 @@
         <url>http://svn.apache.org/viewvc/geronimo/trunk</url>
     </scm>
 
-    <prerequisites>
-        <maven>2.0.5</maven>
-    </prerequisites>
-
     <properties>
         <!--
         NOTE: Project version, to be used instead of ${pom.version} since that
