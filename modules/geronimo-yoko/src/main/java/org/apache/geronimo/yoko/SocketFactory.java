@@ -21,7 +21,11 @@ import java.net.ConnectException;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.security.cert.Certificate;
+import java.util.Arrays;
 
+import javax.net.ssl.HandshakeCompletedEvent;
+import javax.net.ssl.HandshakeCompletedListener;
 import javax.net.ssl.SSLServerSocket;
 import javax.net.ssl.SSLServerSocketFactory;
 import javax.net.ssl.SSLSocket;
@@ -38,6 +42,7 @@ import org.apache.geronimo.corba.security.config.tss.TSSConfig;
 import org.apache.geronimo.corba.security.config.tss.TSSSSLTransportConfig;
 import org.apache.geronimo.corba.security.config.tss.TSSTransportMechConfig;
 import org.apache.geronimo.corba.util.Util;
+import org.apache.yoko.orb.OB.IORDump;
 import org.apache.yoko.orb.OCI.IIOP.ConnectionHelper;
 import org.apache.yoko.orb.OCI.ProfileInfo;
 import org.apache.yoko.orb.OCI.ProfileInfoHolder;
@@ -56,20 +61,16 @@ import org.omg.IOP.IOR;
  * Socket factory instance used to interface openejb2
  * with the Yoko ORB.  Also enables the ORB for
  * SSL-type connections.
- * @version $Revision: 500002 $ $Date: 2007-01-25 13:37:26 -0800 (Thu, 25 Jan 2007) $
+ * @version $Revision: 505035 $ $Date: 2007-02-08 16:01:06 -0500 (Thu, 08 Feb 2007) $
  */
 public class SocketFactory implements ConnectionHelper {
 
     private final static Log log = LogFactory.getLog(SocketFactory.class);
 
-    // the configuration we're attached to. 
-    private String configName = null;
     // The initialized SSLSocketFactory obtained from the Geronimo KeystoreManager.
     private SSLSocketFactory socketFactory = null;
     // The initialized SSLServerSocketFactory obtained from the Geronimo KeystoreManager.
     private SSLServerSocketFactory serverSocketFactory = null;
-    // the ORB consumer that defines our configuration
-    private ORBConfiguration config;
     // The initialized SSLConfig we use to retrieve the SSL socket factories.
     private SSLConfig sslConfig = null;
     // The set of cypher suites we use with the SSL connection.
@@ -97,12 +98,11 @@ public class SocketFactory implements ConnectionHelper {
      */
     public void init(ORB orb, String configName) {
         this.orb = orb;
-        this.configName = configName;
         clientAuthSupported = false;
         clientAuthRequired = false;
 
         // retrieve the configuration from the config adapter registry.
-        config = (ORBConfiguration)ORBConfigAdapter.getConfiguration(configName);
+        ORBConfiguration config = ORBConfigAdapter.getConfiguration(configName);
         if (config == null) {
             throw new RuntimeException("Unable to resolve ORB configuration " + configName);
         }
@@ -159,39 +159,11 @@ public class SocketFactory implements ConnectionHelper {
      * @exception IOException
      * @exception ConnectException
      */
-    public Socket createSocket(IOR ior, Policy[] policies, InetAddress address, int port) throws IOException, ConnectException {
-
-        String host = address.getHostName();
-
-        // the Yoko ORB will use both the primary and secondary targets for connetions, which 
-        // sometimes gets us into trouble, forcing us to use an SSL target when we really need to 
-        // use the plain socket connection.  Therefore, we will ignore what's passed to us, 
-        // and extract the primary port information directly from the profile. 
-        for (int i = 0; i < ior.profiles.length; i++) {
-            if (ior.profiles[i].tag == org.omg.IOP.TAG_INTERNET_IOP.value) {
-                try {
-                    //
-                    // Get the IIOP profile body
-                    //
-                    byte[] data = ior.profiles[i].profile_data;
-                    ProfileBody_1_0 body = ProfileBody_1_0Helper.extract(Util.getCodec().decode_value(data, ProfileBody_1_0Helper.type()));
-
-                    //
-                    // Create new connector for this profile
-                    //                                             
-                    if (body.port < 0)
-                        port = 0xffff + (int) body.port + 1;
-                    else
-                        port = (int) body.port;
-                } catch (org.omg.IOP.CodecPackage.FormatMismatch e) {
-                    // just keep the orignal port. 
-                    break;
-                } catch (org.omg.IOP.CodecPackage.TypeMismatch e) {
-                    // just keep the orignal port. 
-                    break;
-                }
-
-            }
+    public Socket createSocket(IOR ior, Policy[] policies, InetAddress address, int port) throws IOException {
+        if (log.isDebugEnabled()) {
+            log.debug("SocketFactory attempting to create socket for address: " + address + " port: " + port);
+            log.debug("Policies: " + Arrays.asList(policies));
+            log.debug(IORDump.PrintObjref(orb, ior));
         }
 
         try {
@@ -206,6 +178,7 @@ public class SocketFactory implements ConnectionHelper {
                         try {
                             // decode and pull the transport information.
                             TSSCompoundSecMechListConfig config = TSSCompoundSecMechListConfig.decodeIOR(Util.getCodec(), profileInfo.components[i]);
+                            log.info("looking at tss: " + config);
                             for (int j = 0; j < config.size(); j++) {
                                 TSSTransportMechConfig transport_mech = config.mechAt(j).getTransport_mech();
                                 if (transport_mech instanceof TSSSSLTransportConfig) {
@@ -213,12 +186,12 @@ public class SocketFactory implements ConnectionHelper {
 
                                     int supports = transportConfig.getSupports();
                                     int requires = transportConfig.getRequires();
-                                    // override the port and hostname with what's configured here. 
-                                    int sslPort = transportConfig.getPort();
-                                    String sslHost = transportConfig.getHostname();
+                                    // override the port and hostname with what's configured here.
+                                    int sslPort = transportConfig.getPort(); 
+                                    String sslHost = transportConfig.getHostname(); 
 
                                     if (log.isDebugEnabled()) {
-                                        log.debug("IOR from target " + sslHost + ":" + sslPort);
+                                        log.debug("IOR to target " + sslHost + ":" + sslPort);
                                         log.debug("   SUPPORTS: " + ConfigUtil.flags(supports));
                                         log.debug("   REQUIRES: " + ConfigUtil.flags(requires));
                                     }
@@ -229,7 +202,7 @@ public class SocketFactory implements ConnectionHelper {
                                         break;
                                     }
                                     // we need SSL, so create an SSLSocket for this connection.
-                                    return createSSLSocket(sslHost, sslPort, supports, requires);
+                                    return createSSLSocket(sslHost, sslPort, requires, supports);
                                 }
                             }
                         } catch (Exception e) {
@@ -238,6 +211,45 @@ public class SocketFactory implements ConnectionHelper {
                     }
                 }
             }
+
+            //SSL not needed, look in the profile for host/port
+            String host = address.getHostName();
+
+            // the Yoko ORB will use both the primary and secondary targets for connetions, which
+            // sometimes gets us into trouble, forcing us to use an SSL target when we really need to
+            // use the plain socket connection.  Therefore, we will ignore what's passed to us,
+            // and extract the primary port information directly from the profile.
+            for (int i = 0; i < ior.profiles.length; i++) {
+                if (ior.profiles[i].tag == org.omg.IOP.TAG_INTERNET_IOP.value) {
+                    try {
+                        //
+                        // Get the IIOP profile body
+                        //
+                        byte[] data = ior.profiles[i].profile_data;
+                        ProfileBody_1_0 body = ProfileBody_1_0Helper.extract(Util.getCodec().decode_value(data, ProfileBody_1_0Helper.type()));
+
+                        //
+                        // Create new connector for this profile
+                        //
+                        if (body.port < 0) {
+                            port = 0xffff + (int) body.port + 1;
+                        } else {
+                            port = (int) body.port;
+                        }
+                        log.info("set port: " + port);
+                     } catch (org.omg.IOP.CodecPackage.FormatMismatch e) {
+                        // just keep the original port.
+                        log.info("could not set port: ", e);
+                        break;
+                    } catch (org.omg.IOP.CodecPackage.TypeMismatch e) {
+                        // just keep the original port.
+                        log.info("could not set port: ", e);
+                        break;
+                    }
+
+                }
+            }
+
 
             // if security is not required, just create a plain Socket.
             if (log.isDebugEnabled()) log.debug("Created plain endpoint to " + host + ":" + port);
@@ -261,7 +273,7 @@ public class SocketFactory implements ConnectionHelper {
      * @exception IOException
      * @exception ConnectException
      */
-    public Socket createSelfConnection(InetAddress address, int port) throws IOException, ConnectException {
+    public Socket createSelfConnection(InetAddress address, int port) throws IOException {
         try {
             // the requires information tells us whether we created a plain or SSL listener.  We need to create one
             // of the matching type.
@@ -271,7 +283,7 @@ public class SocketFactory implements ConnectionHelper {
                 return new Socket(address, port);
             }
             else {
-                return createSSLSocket(address.getHostName(), port, supports, requires);
+                return createSSLSocket(address.getHostName(), port, requires, supports);
             }
         } catch (IOException ex) {
             log.error("Exception creating a client socket to "  + address.getHostName() + ":" + port, ex);
@@ -289,7 +301,7 @@ public class SocketFactory implements ConnectionHelper {
      * @exception IOException
      * @exception ConnectException
      */
-    public ServerSocket createServerSocket(int port, int backlog)  throws IOException, ConnectException {
+    public ServerSocket createServerSocket(int port, int backlog)  throws IOException {
         try {
             // if no protection is required, just create a plain socket.
             if ((NoProtection.value & requires) == NoProtection.value) {
@@ -321,7 +333,7 @@ public class SocketFactory implements ConnectionHelper {
      * @exception IOException
      * @exception ConnectException
      */
-    public ServerSocket createServerSocket(int port, int backlog, InetAddress address) throws IOException, ConnectException {
+    public ServerSocket createServerSocket(int port, int backlog, InetAddress address) throws IOException {
         try {
             // if no protection is required, just create a plain socket.
             if ((NoProtection.value & requires) == NoProtection.value) {
@@ -347,6 +359,7 @@ public class SocketFactory implements ConnectionHelper {
      *
      * @return The SSLSocketFactory this connection should be using to create
      *         secure connections.
+     * @throws java.io.IOException if we can't get a socket factory
      */
     private SSLSocketFactory getSocketFactory() throws IOException {
         // first use?
@@ -358,7 +371,7 @@ public class SocketFactory implements ConnectionHelper {
             else {
                 // ask the SSLConfig bean to create a factory for us.
                 try {
-                    socketFactory = (SSLSocketFactory)sslConfig.createSSLFactory(Thread.currentThread().getContextClassLoader());
+                    socketFactory = sslConfig.createSSLFactory(Thread.currentThread().getContextClassLoader());
                 } catch (Exception e) {
                     log.error("Unable to create client SSL socket factory", e);
                     throw new IOException("Unable to create client SSL socket factory: " + e.getMessage());
@@ -374,6 +387,7 @@ public class SocketFactory implements ConnectionHelper {
      *
      * @return The SSLServerSocketFactory this connection should be using to create
      *         secure connections.
+     * @throws java.io.IOException if we can't get a server socket factory
      */
     private SSLServerSocketFactory getServerSocketFactory() throws IOException {
         // first use?
@@ -384,7 +398,7 @@ public class SocketFactory implements ConnectionHelper {
             }
             else {
                 try {
-                    serverSocketFactory = (SSLServerSocketFactory)sslConfig.createSSLServerFactory(Thread.currentThread().getContextClassLoader());
+                    serverSocketFactory = sslConfig.createSSLServerFactory(Thread.currentThread().getContextClassLoader());
                 } catch (Exception e) {
                     log.error("Unable to create server SSL socket factory", e);
                     throw new IOException("Unable to create server SSL socket factory: " + e.getMessage());
@@ -411,17 +425,24 @@ public class SocketFactory implements ConnectionHelper {
      * Set the server socket configuration to our required
      * QOS values.
      *
+     * A small experiment shows that setting either (want, need) parameter to either true or false sets the
+     * other parameter to false.
+     *
      * @param serverSocket
      *               The newly created SSLServerSocket.
      *
-     * @exception IOException
-     * @exception ConnectException
+     * @throws IOException if server socket can't be configured
      */
-    private void configureServerSocket(SSLServerSocket serverSocket) throws IOException, ConnectException {
+    private void configureServerSocket(SSLServerSocket serverSocket) throws IOException {
         // set the authentication value and cipher suite info.
         serverSocket.setEnabledCipherSuites(cipherSuites);
-        serverSocket.setWantClientAuth(clientAuthSupported);
-        serverSocket.setNeedClientAuth(clientAuthRequired);
+        if (clientAuthRequired) {
+            serverSocket.setNeedClientAuth(true);
+        } else if (clientAuthSupported) {
+            serverSocket.setWantClientAuth(true);
+        } else {
+            serverSocket.setNeedClientAuth(false); //could set want with the same effect
+        }
         serverSocket.setSoTimeout(60 * 1000);
 
         if (log.isDebugEnabled()) {
@@ -439,59 +460,47 @@ public class SocketFactory implements ConnectionHelper {
     /**
      * Create an SSL client socket using the IOR-encoded
      * security characteristics.
+     * Setting want/need client auth on a client socket has no effect so all we can do is use the right host, port, ciphers
      *
      * @param host     The target host name.
      * @param port     The target connection port.
-     * @param supports The connections supports information.
-     * @param requires The connection requires information.
      *
      * @return An appropriately configured client SSLSocket.
-     * @exception IOException
-     * @exception ConnectException
+     * @exception IOException if ssl socket can't be obtained and configured.
      */
-    private Socket createSSLSocket(String host, int port, int supports, int requires) throws IOException, ConnectException {
+    private Socket createSSLSocket(String host, int port, int requires, int supports) throws IOException {
         SSLSocketFactory factory = getSocketFactory();
         SSLSocket socket = (SSLSocket) factory.createSocket(host, port);
 
         socket.setSoTimeout(60 * 1000);
-
-        // figure out the supports and requires information from the flag values.
-        boolean authSupported = false;
-        boolean authRequired = false;
-
-        if ((supports & EstablishTrustInClient.value) != 0) {
-            authSupported = true;
-
-            if ((requires & EstablishTrustInClient.value) != 0) {
-                authRequired = true;
-            }
-        }
-
-        if ((supports & EstablishTrustInTarget.value) != 0) {
-            authSupported = true;
-
-            if ((requires & EstablishTrustInTarget.value) != 0) {
-                authSupported = true;
-            }
-        }
 
         // get a set of cipher suites appropriate for this connections requirements.
         // We request this for each connection, since the outgoing IOR's requirements may be different from
         // our server listener requirements.
         String[] iorSuites = SSLCipherSuiteDatabase.getCipherSuites(requires, supports, factory.getSupportedCipherSuites());
         socket.setEnabledCipherSuites(iorSuites);
-        socket.setWantClientAuth(authSupported);
-        socket.setNeedClientAuth(authRequired);
-
         if (log.isDebugEnabled()) {
             log.debug("Created SSL socket to " + host + ":" + port);
-            log.debug("    client authentication " + (authSupported ? "SUPPORTED" : "UNSUPPORTED"));
-            log.debug("    client authentication " + (authRequired ? "REQUIRED" : "OPTIONAL"));
             log.debug("    cipher suites:");
 
             for (int i = 0; i < iorSuites.length; i++) {
                 log.debug("    " + iorSuites[i]);
             }
+            socket.addHandshakeCompletedListener(new HandshakeCompletedListener() {
+
+                public void handshakeCompleted(HandshakeCompletedEvent handshakeCompletedEvent) {
+                    Certificate[] certs = handshakeCompletedEvent.getLocalCertificates();
+                    if (certs != null) {
+                        log.debug("handshake returned local certs count: " + certs.length);
+                        for (int i = 0; i < certs.length; i++) {
+                            Certificate cert = certs[i];
+                            log.debug("cert: " + cert.toString());
+                        }
+                    } else {
+                        log.debug("handshake returned no local certs");
+                    }
+                }
+            });
         }
         return socket;
     }
