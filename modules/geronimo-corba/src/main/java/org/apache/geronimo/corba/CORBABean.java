@@ -267,18 +267,6 @@ public class CORBABean implements GBeanLifecycle, ORBRef, ORBConfiguration {
      * the ORB.
      */
     private void resolveListenerAddress() {
-        // if we have a config with a TSSSSLTransportConfig defined, the
-        // host and port from the config override bean-configured values.
-        if (tssConfig != null) {
-            TSSTransportMechConfig transportMech = tssConfig.getTransport_mech();
-            if (transportMech != null) {
-                if (transportMech instanceof TSSSSLTransportConfig) {
-                    TSSSSLTransportConfig transportConfig = (TSSSSLTransportConfig) transportMech;
-                    host = transportConfig.getHostname();
-                    listenerPort = transportConfig.getPort();
-                }
-            }
-        }
         // now provide defaults for anything still needing resolving
         if (host == null) {
             try {
@@ -288,9 +276,23 @@ public class CORBABean implements GBeanLifecycle, ORBRef, ORBConfiguration {
                 host = "localhost";
             }
         }
-
+        
         // if nothing has been explicitly specified, we use a port value of -1, which
         // allows the ORB to allocate the address.
+        
+        // if we have a config with a TSSSSLTransportConfig defined, the
+        // host and port from the config override bean-configured values.
+        if (tssConfig != null) {
+            TSSTransportMechConfig transportMech = tssConfig.getTransport_mech();
+            if (transportMech != null) {
+                if (transportMech instanceof TSSSSLTransportConfig) {
+                    TSSSSLTransportConfig transportConfig = (TSSSSLTransportConfig) transportMech;
+                    transportConfig.setHostname(host); 
+                    transportConfig.setPort((short)listenerPort); 
+                }
+            }
+        }
+
     }
 
     /**
