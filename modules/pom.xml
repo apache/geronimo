@@ -91,9 +91,6 @@
         <module>geronimo-upgrade</module>
         <module>geronimo-util</module>
         <module>geronimo-yoko</module>
-        <!--    
-        <module>geronimo-web-builder</module>
-        -->
         <module>geronimo-webservices</module>
         <module>geronimo-webservices-builder</module>
 
