@@ -1469,7 +1469,12 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-enforcer-plugin</artifactId>
+                    <!--
+                    FIXME: Latest snapshot causes build failures... so use the previous one
+                           until Brian fixes it...
                     <version>1.0-alpha-1-SNAPSHOT</version>
+                    -->
+                    <version>1.0-alpha-1-20070328.035547-9</version>
                 </plugin>
 
                 <plugin>
