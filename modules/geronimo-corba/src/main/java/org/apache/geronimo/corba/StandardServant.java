@@ -44,6 +44,7 @@ import org.apache.openejb.InterfaceType;
 import org.apache.openejb.BeanType;
 import org.apache.openejb.RpcContainer;
 import org.apache.openejb.OpenEJBException;
+import org.apache.openejb.ProxyInfo;
 import org.apache.geronimo.corba.util.Util;
 import org.omg.CORBA.INVALID_TRANSACTION;
 import org.omg.CORBA.MARSHAL;
@@ -239,6 +240,11 @@ public class StandardServant extends Servant implements InvokeHandler {
                     try {
                         RpcContainer container = (RpcContainer) ejbDeployment.getContainer();
                         result = container.invoke(ejbDeployment.getDeploymentId(), method, arguments, primaryKey, null);
+                        // some methods like create() return a ProxyInfo object.  We need to 
+                        // turn this into a real EJB remote reference. 
+                        if (result instanceof ProxyInfo) {
+                            result = Util.getEJBProxy((ProxyInfo)result); 
+                        }
                     } catch (OpenEJBException e) {
                         Throwable cause = e.getCause();
                         if (cause instanceof Exception) {

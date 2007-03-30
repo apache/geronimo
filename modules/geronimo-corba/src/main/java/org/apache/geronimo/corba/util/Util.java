@@ -66,6 +66,7 @@ import org.omg.CORBA_2_3.portable.InputStream;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.corba.CorbaApplicationServer;
+import org.apache.openejb.ProxyInfo;
 import org.apache.openejb.spi.ApplicationServer;
 import org.apache.openejb.core.ServerFederation;
 import org.apache.openejb.util.ObjectInputStreamExt;
@@ -112,6 +113,15 @@ public final class Util {
             handleDelegate = (HandleDelegate) ic.lookup("java:comp/HandleDelegate");
         }
         return handleDelegate;
+    }
+    
+    public static Object getEJBProxy(ProxyInfo info) {
+        if (info.getInterfaceType().isHome()) {
+            return corbaApplicationServer.getEJBHome(info); 
+        }
+        else {
+            return corbaApplicationServer.getEJBObject(info); 
+        }
     }
 
     public static byte[] encodeOID(String oid) throws IOException {
