@@ -31,6 +31,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.catalina.authenticator.BasicAuthenticator;
 import org.apache.catalina.authenticator.DigestAuthenticator;
+import org.apache.catalina.authenticator.NonLoginAuthenticator;
 import org.apache.catalina.authenticator.SSLAuthenticator;
 import org.apache.catalina.connector.Request;
 import org.apache.catalina.connector.Response;
@@ -83,7 +84,8 @@ public class TomcatEJBWebServiceContext extends StandardContext{
                 throw new IllegalArgumentException("Invalid transport-guarantee: " + transportGuarantee);
             }
 
-            if ("BASIC".equals(authMethod) ||
+            if ("NONE".equals(authMethod) ||
+                "BASIC".equals(authMethod) ||
                 "DIGEST".equals(authMethod) ||
                 "CLIENT-CERT".equals(authMethod)) {
 
@@ -114,6 +116,8 @@ public class TomcatEJBWebServiceContext extends StandardContext{
                     this.addValve(new DigestAuthenticator());
                 } else if ("CLIENT-CERT".equals(authMethod) ){
                     this.addValve(new SSLAuthenticator());
+                } else if ("NONE".equals(authMethod)) {
+                    this.addValve(new NonLoginAuthenticator());
                 }
 
             } else {
