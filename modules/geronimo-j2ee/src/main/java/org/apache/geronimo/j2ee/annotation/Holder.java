@@ -107,9 +107,9 @@ public class Holder implements Serializable {
         ObjectRecipe objectRecipe = new ObjectRecipe(className);
         objectRecipe.allow(Option.FIELD_INJECTION);
         objectRecipe.allow(Option.PRIVATE_PROPERTIES);
-        objectRecipe.allow(Option.IGNORE_MISSING_PROPERTIES);
         List<Injection> callbackHandlerinjections = getInjections(className);
         if (callbackHandlerinjections != null) {
+            List<NamingException> problems = new ArrayList<NamingException>();
             for (Injection injection : callbackHandlerinjections) {
                 try {
                     String jndiName = injection.getJndiName();
@@ -124,17 +124,14 @@ public class Holder implements Serializable {
                         objectRecipe.setProperty(injection.getTargetName(), new StaticRecipe(object));
                     }
                 } catch (NamingException e) {
-//                        log.warn("could not look up ", e);
+                    problems.add(e);
                 }
+            }
+            if (!problems.isEmpty()) {
+                throw new InstantiationException("Some objects to be injected were not found in jndi: " + problems);
             }
         }
         Object result = objectRecipe.create(classLoader);
-        Map unsetProperties = objectRecipe.getUnsetProperties();
-        if (unsetProperties.size() > 0) {
-            for (Object property : unsetProperties.keySet()) {
-//                log.warning("Injection: No such property '"+property+"' in class "+_class.getName());
-            }
-        }
         if (getPostConstruct() != null) {
             try {
                 apply(result, null, postConstruct);
