@@ -49,26 +49,21 @@ public class Axis2ServiceReference extends JAXWSServiceReference {
                                  String handlerChainsXML,
                                  Map<Object, EndpointInfo> seiInfoMap) {
         super(handlerChainsXML, seiInfoMap, name, serviceQName, wsdlURI, referenceClassName, serviceClassName);
-        System.setProperty("javax.xml.ws.spi.Provider", "org.apache.axis2.jaxws.spi.Provider");
-    }
-
-    protected HandlerChainsType getHandlerChains() {
-        try {
-            if (this.handlerChainsXML == null) //handlerChains could be null if they are not specified.
-                return null;
-            else
-                return HandlerChainsDocument.Factory.parse(this.handlerChainsXML).getHandlerChains();
-        } catch (Exception e) {
-            log.warn("Failed to deserialize handler chains", e);
-            return null;
-        }
     }
 
     protected HandlerResolver getHandlerResolver(Class serviceClass) {
+        HandlerChainsType types = null;
+        try {
+            if (this.handlerChainsXML != null){
+                types = HandlerChainsDocument.Factory.parse(this.handlerChainsXML).getHandlerChains();
+            }
+        } catch (Exception e) {
+            log.warn("Failed to deserialize handler chains", e);
+        }
         JAXWSAnnotationProcessor annotationProcessor =
                 new JAXWSAnnotationProcessor(new JNDIResolver(), new WebServiceContextImpl());
         Axis2HandlerResolver handlerResolver =
-                new Axis2HandlerResolver(classLoader, serviceClass, getHandlerChains(), annotationProcessor);
+                new Axis2HandlerResolver(classLoader, serviceClass, types, annotationProcessor);
         return handlerResolver;
     }
 }
