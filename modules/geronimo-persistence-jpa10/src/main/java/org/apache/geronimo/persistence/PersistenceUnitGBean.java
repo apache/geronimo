@@ -38,8 +38,8 @@ import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.transaction.manager.TransactionManagerImpl;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.connector.outbound.ConnectionFactorySource;
+import org.apache.geronimo.persistence.TemporaryClassLoader;
 import org.apache.geronimo.transformer.TransformerAgent;
-import org.apache.geronimo.kernel.classloader.JarFileClassLoader;
 
 /**
  * @version $Rev$ $Date$
@@ -200,7 +200,7 @@ public class PersistenceUnitGBean implements GBeanLifecycle {
         private final boolean excludeUnlistedClassesValue;
         private final Properties properties;
         private final ClassLoader classLoader;
-        private final JarFileClassLoader tempClassLoader;
+        private final TemporaryClassLoader tempClassLoader;
         private final List<TransformerWrapper> transformers;
 
 
@@ -221,7 +221,7 @@ public class PersistenceUnitGBean implements GBeanLifecycle {
             
             // This classloader can only be used during PersistenceProvider.createContainerEntityManagerFactory() calls
             // Possible that it could be cleaned up sooner, but for now it's destroyed when the PUGBean is stopped
-            this.tempClassLoader = (JarFileClassLoader)JarFileClassLoader.copy(classLoader); 
+            this.tempClassLoader = new TemporaryClassLoader(classLoader); 
         }
 
         public String getPersistenceUnitName() {
@@ -286,8 +286,6 @@ public class PersistenceUnitGBean implements GBeanLifecycle {
             for (TransformerWrapper t : transformers) {
                 TransformerAgent.removeTransformer(t);
             }
-
-            tempClassLoader.destroy();
         }
 
     }
