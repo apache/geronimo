@@ -19,12 +19,10 @@ package org.apache.geronimo.axis2;
 import org.apache.geronimo.testsupport.TestSupport;
 import org.apache.geronimo.xbeans.javaee.HandlerChainsDocument;
 import org.apache.geronimo.xbeans.javaee.HandlerChainsType;
-import org.apache.xmlbeans.XmlException;
 
 import javax.xml.namespace.QName;
 import javax.xml.ws.handler.Handler;
 import javax.xml.ws.handler.PortInfo;
-import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
 
@@ -161,7 +159,7 @@ public class Axis2HandlerResolverTest extends TestSupport {
         assertEquals(1, handlers.size());
     }
     
-    private static HandlerChainsType toHandlerChains(InputStream input) throws IOException, XmlException {
+    private static HandlerChainsType toHandlerChains(InputStream input) throws Exception {
         return HandlerChainsDocument.Factory.parse(input).getHandlerChains();
     }
     
