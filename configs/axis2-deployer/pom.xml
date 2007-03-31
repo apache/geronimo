@@ -34,7 +34,12 @@
     <packaging>car</packaging>
     
     <dependencies>
-        
+        <!-- Thirdparty Dependencies -->
+        <dependency>
+            <groupId>xmlbeans</groupId>
+            <artifactId>xbean</artifactId>
+        </dependency>
+
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
              <artifactId>jaxws-deployer</artifactId>
