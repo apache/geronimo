@@ -100,22 +100,6 @@ function <portlet:namespace/>validateForm(){
     <td><div align="right"></div></td>
     <td>The network port to bind to.</td>
   </tr>
-<!-- Min Threads Field (Jetty only) -->
-<c:if test="${server eq 'jetty'}">
-  <tr>
-    <td><div align="right">Min Threads: </div></td>
-    <td>
-      <input name="minThreads" type="text" size="3" value="${minThreads}">
-	</td>
-  </tr>
-  <tr>
-    <td><div align="right"></div></td>
-    <td>The minimum number of threads this connector should use to handle incoming requests</td>
-  </tr>
-  <script language="JavaScript">
-    <portlet:namespace/>numericFields = <portlet:namespace/>numericFields.concat(new Array("minThreads"));
-  </script>
-</c:if>
 <!-- Max Threads Field -->
   <tr>
     <td><div align="right">Max Threads: </div></td>

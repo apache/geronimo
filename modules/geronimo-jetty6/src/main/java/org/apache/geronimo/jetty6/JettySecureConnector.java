@@ -22,9 +22,13 @@ import org.apache.geronimo.management.geronimo.SecureConnector;
  * @version $Rev$ $Date$
  */
 public interface JettySecureConnector extends SecureConnector {
+    
     public void setKeyStore(String keyStore);
+    public String getKeyStore();
 
     public void setTrustStore(String trustStore);
+    public String getTrustStore();
 
     public void setKeyAlias(String keyAlias);
+    public String getKeyAlias();
 }

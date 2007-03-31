@@ -101,21 +101,10 @@ public class ConnectorPortlet extends BasePortlet {
             String host = actionRequest.getParameter("host");
             int port = Integer.parseInt(actionRequest.getParameter("port"));
             int maxThreads = Integer.parseInt(actionRequest.getParameter("maxThreads"));
-            Integer minThreads = getInteger(actionRequest, "minThreads");
             String displayName = actionRequest.getParameter("displayName");
             // Create and configure the connector
             WebConnector connector = PortletManager.createWebConnector(actionRequest, new AbstractName(URI.create(managerURI)), new AbstractName(URI.create(containerURI)), displayName, protocol, host, port);
             connector.setMaxThreads(maxThreads);
-            // todo: more configurable HTTP/Jetty values
-            if(server.equals(WEB_SERVER_JETTY)) {
-                if(minThreads != null) {
-                    setProperty(connector, "minThreads", minThreads);
-                }
-            } else if (server.equals(WEB_SERVER_TOMCAT)) {
-                //todo:   Any Tomcat specific processing?
-            } else {
-                //todo:   Handle "should not occur" condition
-            }
             if(protocol.equals(WebManager.PROTOCOL_HTTPS)) {
                 String keystoreType = actionRequest.getParameter("keystoreType");
                 String keystoreFile = actionRequest.getParameter("keystoreFile");
@@ -180,7 +169,6 @@ public class ConnectorPortlet extends BasePortlet {
             String host = actionRequest.getParameter("host");
             int port = Integer.parseInt(actionRequest.getParameter("port"));
             int maxThreads = Integer.parseInt(actionRequest.getParameter("maxThreads"));
-            Integer minThreads = getInteger(actionRequest, "minThreads");
             String connectorURI = actionRequest.getParameter("connectorURI");
             // Identify and update the connector
             WebConnector connector = PortletManager.getWebConnector(actionRequest, new AbstractName(URI.create(connectorURI)));
@@ -188,17 +176,6 @@ public class ConnectorPortlet extends BasePortlet {
                 connector.setHost(host);
                 connector.setPort(port);
                 connector.setMaxThreads(maxThreads);
-                if(server.equals(WEB_SERVER_JETTY)) {
-                    if(minThreads != null) {
-                        setProperty(connector,"minThreads",minThreads);
-                    }
-                    else if (server.equals(WEB_SERVER_TOMCAT)) {
-                        //todo:   Any Tomcat specific processing?
-                    }
-                    else {
-                        //todo:   Handle "should not occur" condition
-                    }
-                }
                 if(connector instanceof SecureConnector) {
                     String keystoreType = actionRequest.getParameter("keystoreType");
                     String keystoreFile = actionRequest.getParameter("keystoreFile");
@@ -334,7 +311,6 @@ public class ConnectorPortlet extends BasePortlet {
                 String containerDisplayName = renderRequest.getParameter("containerDisplayName");
                 renderRequest.setAttribute("maxThreads", "50");
                 if(server.equals(WEB_SERVER_JETTY)) {
-                    renderRequest.setAttribute("minThreads", "10");
                     KeystoreManager mgr = PortletManager.getCurrentServer(renderRequest).getKeystoreManager();
                     KeystoreInstance[] stores = mgr.getUnlockedKeyStores();
                     String[] storeNames = new String[stores.length];
@@ -385,8 +361,6 @@ public class ConnectorPortlet extends BasePortlet {
                     int maxThreads = connector.getMaxThreads();
                     renderRequest.setAttribute("maxThreads", Integer.toString(maxThreads));
                     if(server.equals(WEB_SERVER_JETTY)) {
-                        int minThreads = ((Number)getProperty(connector, "minThreads")).intValue();
-                        renderRequest.setAttribute("minThreads", String.valueOf(minThreads));
                         KeystoreManager mgr = PortletManager.getCurrentServer(renderRequest).getKeystoreManager();
                         KeystoreInstance[] stores = mgr.getUnlockedKeyStores();
                         String[] storeNames = new String[stores.length];
