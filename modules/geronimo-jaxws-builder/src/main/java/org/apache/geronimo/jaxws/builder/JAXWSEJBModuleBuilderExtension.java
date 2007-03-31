@@ -19,6 +19,7 @@ package org.apache.geronimo.jaxws.builder;
 import java.net.URL;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.jar.JarFile;
 
@@ -43,6 +44,9 @@ import org.apache.geronimo.kernel.config.ConfigurationStore;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.openejb.deployment.EjbModule;
 import org.apache.openejb.assembler.classic.EnterpriseBeanInfo;
+import org.apache.openejb.jee.oejb2.GeronimoEjbJarType;
+import org.apache.openejb.jee.oejb2.WebServiceBindingType;
+import org.apache.openejb.jee.oejb2.WebServiceBindingType.WebServiceSecurityType;
 
 /**
  * @version $Rev$ $Date$
@@ -92,8 +96,18 @@ public class JAXWSEJBModuleBuilderExtension implements ModuleBuilderExtension {
         Environment environment = module.getEnvironment();
                 
         //overridden web service locations       
-        Map correctedPortLocations = new HashMap();       
-               
+        Map correctedPortLocations = new HashMap();         
+        GeronimoEjbJarType geronimoEjbJarType = 
+            (GeronimoEjbJarType) ejbModule.getEjbModule().getAltDDs().get("geronimo-openejb.xml");
+        if (geronimoEjbJarType != null) {
+           for (WebServiceBindingType bt : geronimoEjbJarType.getWebServiceBinding()) {
+               String location = bt.getWebServiceAddress();
+               if (location != null) {
+                   correctedPortLocations.put(bt.getEjbName(), location.trim());
+               }
+           }
+        }      
+        
         jaxwsBuilder.findWebServices(module, true, correctedPortLocations, environment, ejbModule.getSharedContext());
     }
 
@@ -104,8 +118,14 @@ public class JAXWSEJBModuleBuilderExtension implements ModuleBuilderExtension {
 
         EjbModule ejbModule = (EjbModule) module;
 
+        Map<String, WebServiceBindingType> wsBindingMap = 
+            createWebServiceBindingMap(ejbModule);
+        
         for (EnterpriseBeanInfo bean : ejbModule.getEjbJarInfo().enterpriseBeans) {
-            if (bean.type != EnterpriseBeanInfo.STATELESS) continue;
+            if (bean.type != EnterpriseBeanInfo.STATELESS) {
+                continue;
+            }
+            
             String ejbName = bean.ejbName;
 
             AbstractName sessionName = earContext.getNaming().createChildName(module.getModuleName(), ejbName, NameFactory.STATELESS_SESSION_BEAN);
@@ -118,6 +138,28 @@ public class JAXWSEJBModuleBuilderExtension implements ModuleBuilderExtension {
 
             ejbWebServiceGBean.setAttribute("ejbName", ejbName);
             ejbWebServiceGBean.setAttribute("ejbClass", bean.ejbClass);
+            
+            WebServiceBindingType wsBinding = wsBindingMap.get(ejbName);
+            if (wsBinding != null) {
+                List<String> ddVirtualHosts = wsBinding.getWebServiceVirtualHost();
+                if (ddVirtualHosts != null) {                    
+                    String[] virtualHosts = new String[ddVirtualHosts.size()];
+                    for (int i=0; i<ddVirtualHosts.size(); i++) {                    
+                        virtualHosts[i] = ddVirtualHosts.get(i).trim();
+                    }
+                    ejbWebServiceGBean.setAttribute("virtualHosts", virtualHosts);
+                }
+                
+                WebServiceSecurityType wsSecurity = wsBinding.getWebServiceSecurity();
+                if (wsSecurity != null) {
+                    ejbWebServiceGBean.setAttribute("securityRealmName", wsSecurity.getSecurityRealmName().trim());
+                    ejbWebServiceGBean.setAttribute("transportGuarantee", wsSecurity.getTransportGuarantee().toString());
+                    ejbWebServiceGBean.setAttribute("authMethod", wsSecurity.getAuthMethod().toString());
+                    if (wsSecurity.getRealmName() != null) {
+                        ejbWebServiceGBean.setAttribute("realmName", wsSecurity.getRealmName().trim());                    
+                    }
+                }
+            }
             
             if (jaxwsBuilder.configureEJB(ejbWebServiceGBean, bean.ejbName, ejbModule.getModuleFile(), 
                                           ejbModule.getSharedContext(), cl)) {
@@ -142,6 +184,19 @@ public class JAXWSEJBModuleBuilderExtension implements ModuleBuilderExtension {
             
         }
     }
+    
+    private Map<String, WebServiceBindingType> createWebServiceBindingMap(EjbModule ejbModule) {
+        Map<String, WebServiceBindingType> wsBindingMap = 
+            new HashMap<String, WebServiceBindingType>();
+        GeronimoEjbJarType geronimoEjbJarType = 
+            (GeronimoEjbJarType) ejbModule.getEjbModule().getAltDDs().get("geronimo-openejb.xml");
+        if (geronimoEjbJarType != null) {
+            for (WebServiceBindingType bt : geronimoEjbJarType.getWebServiceBinding()) {
+                wsBindingMap.put(bt.getEjbName(), bt);
+            }
+        }
+        return wsBindingMap;
+    } 
     
     public static final GBeanInfo GBEAN_INFO;
 
