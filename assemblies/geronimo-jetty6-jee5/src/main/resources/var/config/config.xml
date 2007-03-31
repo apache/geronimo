@@ -217,7 +217,9 @@
     </module>
 
     <module name="org.apache.geronimo.configs/jetty6-deployer/${version}/car"/>
+
     <module name="org.apache.geronimo.configs/jasper-deployer/${version}/car"/>
+
     <module name="org.apache.geronimo.configs/myfaces-deployer/${version}/car"/>
 
     <module name="org.apache.geronimo.configs/welcome-jetty/${version}/car"/>
