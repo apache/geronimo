@@ -478,7 +478,7 @@ public class JspModuleBuilderExtension implements ModuleBuilderExtension {
      *      tlib-version)
      *      <li>The <taglib> root and the <tag> root elements are reordered as necessary (i.e.,
      *      description, display-name)
-     *      <li>The <rtexprvalue> tag is inserted in the <attribute> tag if necessary since it was
+     *      <li>The <rtexprvalue> tag is inserted in the &lt;attribute> tag if necessary since it was
      *      not required to preceed <type> in 2.0 schema. Default value of false is used.
      * </ul>
      *
