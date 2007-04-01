@@ -30,6 +30,7 @@ import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
+import org.apache.geronimo.j2ee.deployment.annotation.PersistenceContextAnnotationHelper;
 import org.apache.geronimo.j2ee.deployment.Module;
 import org.apache.geronimo.j2ee.deployment.NamingBuilder;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
@@ -204,18 +205,8 @@ public class PersistenceContextRefBuilder extends AbstractNamingBuilder {
     }
 
     private void processAnnotations(Module module) throws DeploymentException {
-
         // Process all the annotations for this naming builder type
-//      if (PersistenceContextRefAnnotationHelper.annotationsPresent(module.getClassFinder()))
-//              { try {
-//              PersistenceContextRefAnnotationHelper.processAnnotations(module.getAnnotatedApp(),
-//              module.getClassFinder());
-//          }
-//          catch (Exception e) {
-//              log.warn("Unable to process @PersistenceContextRef annotations for module" +
-//              module.getName(), e);
-//          }
-//      }
+        PersistenceContextAnnotationHelper.processAnnotations(module.getAnnotatedApp(), module.getClassFinder());
     }
 
     public QNameSet getSpecQNameSet() {

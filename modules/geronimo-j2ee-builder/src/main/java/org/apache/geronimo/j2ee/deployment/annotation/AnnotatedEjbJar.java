@@ -29,6 +29,8 @@ import org.apache.geronimo.xbeans.javaee.EnvEntryType;
 import org.apache.geronimo.xbeans.javaee.LifecycleCallbackType;
 import org.apache.geronimo.xbeans.javaee.MessageDestinationRefType;
 import org.apache.geronimo.xbeans.javaee.MessageDrivenBeanType;
+import org.apache.geronimo.xbeans.javaee.PersistenceContextRefType;
+import org.apache.geronimo.xbeans.javaee.PersistenceUnitRefType;
 import org.apache.geronimo.xbeans.javaee.ResourceEnvRefType;
 import org.apache.geronimo.xbeans.javaee.ResourceRefType;
 import org.apache.geronimo.xbeans.javaee.ServiceRefType;
@@ -149,6 +151,21 @@ public class AnnotatedEjbJar implements AnnotatedApp {
         return delegate.addPreDestroy();
     }
 
+    public PersistenceContextRefType[] getPersistenceContextRefArray() {
+        return delegate.getPersistenceContextRefArray();
+    }
+
+    public PersistenceContextRefType addNewPersistenceContextRef() {
+        return delegate.addNewPersistenceContextRef();
+    }
+
+    public PersistenceUnitRefType[] getPersistenceUnitRefArray() {
+        return delegate.getPersistenceUnitRefArray();
+    }
+
+    public PersistenceUnitRefType addNewPersistenceUnitRef() {
+        return delegate.addNewPersistenceUnitRef();
+    }
 
     /**
      * ejbJar getter
@@ -286,6 +303,26 @@ public class AnnotatedEjbJar implements AnnotatedApp {
         public LifecycleCallbackType addPreDestroy() {
             return bean.addNewPreDestroy();
         }
+
+
+        public PersistenceContextRefType[] getPersistenceContextRefArray() {
+            return bean.getPersistenceContextRefArray();
+        }
+
+
+        public PersistenceContextRefType addNewPersistenceContextRef() {
+            return bean.addNewPersistenceContextRef();
+        }
+
+
+        public PersistenceUnitRefType[] getPersistenceUnitRefArray() {
+            return bean.getPersistenceUnitRefArray();
+        }
+
+
+        public PersistenceUnitRefType addNewPersistenceUnitRef() {
+            return bean.addNewPersistenceUnitRef();
+        }
     }
 
     public static class MessageDriveBean implements AnnotatedApp {
@@ -394,6 +431,26 @@ public class AnnotatedEjbJar implements AnnotatedApp {
         public LifecycleCallbackType addPreDestroy() {
             return bean.addNewPreDestroy();
         }
+
+
+        public PersistenceContextRefType[] getPersistenceContextRefArray() {
+            return bean.getPersistenceContextRefArray();
+        }
+
+
+        public PersistenceContextRefType addNewPersistenceContextRef() {
+            return bean.addNewPersistenceContextRef();
+        }
+
+
+        public PersistenceUnitRefType[] getPersistenceUnitRefArray() {
+            return bean.getPersistenceUnitRefArray();
+        }
+
+
+        public PersistenceUnitRefType addNewPersistenceUnitRef() {
+            return bean.addNewPersistenceUnitRef();
+        }
     }
 
     public static class SessionBean implements AnnotatedApp {
@@ -501,6 +558,26 @@ public class AnnotatedEjbJar implements AnnotatedApp {
 
         public LifecycleCallbackType addPreDestroy() {
             return bean.addNewPreDestroy();
+        }
+
+
+        public PersistenceContextRefType[] getPersistenceContextRefArray() {
+            return bean.getPersistenceContextRefArray();
+        }
+
+
+        public PersistenceContextRefType addNewPersistenceContextRef() {
+            return bean.addNewPersistenceContextRef();
+        }
+
+
+        public PersistenceUnitRefType[] getPersistenceUnitRefArray() {
+            return bean.getPersistenceUnitRefArray();
+        }
+
+
+        public PersistenceUnitRefType addNewPersistenceUnitRef() {
+            return bean.addNewPersistenceUnitRef();
         }
     }
 }

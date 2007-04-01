@@ -29,6 +29,7 @@ import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
+import org.apache.geronimo.j2ee.deployment.annotation.PersistenceUnitAnnotationHelper;
 import org.apache.geronimo.j2ee.deployment.Module;
 import org.apache.geronimo.j2ee.deployment.NamingBuilder;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
@@ -154,18 +155,8 @@ public class PersistenceUnitRefBuilder extends AbstractNamingBuilder {
     }
 
     private void processAnnotations(Module module) throws DeploymentException {
-
         // Process all the annotations for this naming builder type
-//      if (PersistenceUnitRefAnnotationHelper.annotationsPresent(module.getClassFinder())) {
-//          try {
-//              PersistenceUnitRefAnnotationHelper.processAnnotations(module.getAnnotatedApp(),
-//              module.getClassFinder());
-//          }
-//          catch (Exception e) {
-//              log.warn("Unable to process @PersistenceUnitRef annotations for module" +
-//              module.getName(), e);
-//          }
-//      }
+        PersistenceUnitAnnotationHelper.processAnnotations(module.getAnnotatedApp(), module.getClassFinder());
     }
 
     private AbstractNameQuery findPersistenceUnit(GerPersistenceUnitRefType gerPersistenceUnitRef) {

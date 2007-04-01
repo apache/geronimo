@@ -72,6 +72,11 @@
             <artifactId>axis2-jaxws-api</artifactId>
         </dependency>
 
+        <dependency>
+            <groupId>org.apache.geronimo.specs</groupId>
+            <artifactId>geronimo-jpa_3.0_spec</artifactId>
+        </dependency>
+
     </dependencies>
 
     <build>
@@ -151,7 +156,7 @@
                     </execution>
                 </executions>
             </plugin>
-            
+
             <!--
             HACK: Copy XmlBeans generated schemas.
             -->
@@ -181,7 +186,7 @@
                     </execution>
                 </executions>
             </plugin>
-            
+
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-antrun-plugin</artifactId>

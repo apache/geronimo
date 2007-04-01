@@ -26,11 +26,13 @@ import org.apache.geronimo.xbeans.javaee.ApplicationClientType;
 import org.apache.geronimo.xbeans.javaee.EjbLocalRefType;
 import org.apache.geronimo.xbeans.javaee.EjbRefType;
 import org.apache.geronimo.xbeans.javaee.EnvEntryType;
+import org.apache.geronimo.xbeans.javaee.LifecycleCallbackType;
 import org.apache.geronimo.xbeans.javaee.MessageDestinationRefType;
+import org.apache.geronimo.xbeans.javaee.PersistenceContextRefType;
+import org.apache.geronimo.xbeans.javaee.PersistenceUnitRefType;
 import org.apache.geronimo.xbeans.javaee.ResourceEnvRefType;
 import org.apache.geronimo.xbeans.javaee.ResourceRefType;
 import org.apache.geronimo.xbeans.javaee.ServiceRefType;
-import org.apache.geronimo.xbeans.javaee.LifecycleCallbackType;
 
 /**
  * Wrapper class to encapsulate the ApplicationClientType class with an interface that the various
@@ -178,4 +180,21 @@ public class AnnotatedApplicationClient implements AnnotatedApp {
     public LifecycleCallbackType addPreDestroy() {
         return applicationClient.addNewPreDestroy();
     }
+
+    public PersistenceContextRefType[] getPersistenceContextRefArray() {
+        return null;                                            // Not supported by app clients
+    }
+
+    public PersistenceContextRefType addNewPersistenceContextRef() {
+        return null;                                            // Not supported by app clients
+    }
+
+    public PersistenceUnitRefType[] getPersistenceUnitRefArray() {
+        return applicationClient.getPersistenceUnitRefArray();
+    }
+
+    public PersistenceUnitRefType addNewPersistenceUnitRef() {
+        return applicationClient.addNewPersistenceUnitRef();
+    }
+
 }

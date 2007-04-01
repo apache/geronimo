@@ -22,11 +22,13 @@ import java.util.List;
 import org.apache.geronimo.xbeans.javaee.EjbLocalRefType;
 import org.apache.geronimo.xbeans.javaee.EjbRefType;
 import org.apache.geronimo.xbeans.javaee.EnvEntryType;
+import org.apache.geronimo.xbeans.javaee.LifecycleCallbackType;
 import org.apache.geronimo.xbeans.javaee.MessageDestinationRefType;
+import org.apache.geronimo.xbeans.javaee.PersistenceContextRefType;
+import org.apache.geronimo.xbeans.javaee.PersistenceUnitRefType;
 import org.apache.geronimo.xbeans.javaee.ResourceEnvRefType;
 import org.apache.geronimo.xbeans.javaee.ResourceRefType;
 import org.apache.geronimo.xbeans.javaee.ServiceRefType;
-import org.apache.geronimo.xbeans.javaee.LifecycleCallbackType;
 
 /**
  * Many of the classes generated from the JEE schemas have methods with identical signatures (see
@@ -123,5 +125,9 @@ public interface AnnotatedApp {
     LifecycleCallbackType[] getPreDestroyArray();
     LifecycleCallbackType addPreDestroy();
 
+    PersistenceContextRefType[] getPersistenceContextRefArray();
+    PersistenceContextRefType addNewPersistenceContextRef();
 
+    PersistenceUnitRefType[] getPersistenceUnitRefArray();
+    PersistenceUnitRefType addNewPersistenceUnitRef();
 }

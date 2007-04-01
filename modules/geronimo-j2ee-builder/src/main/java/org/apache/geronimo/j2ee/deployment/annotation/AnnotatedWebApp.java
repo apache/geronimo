@@ -25,12 +25,14 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.xbeans.javaee.EjbLocalRefType;
 import org.apache.geronimo.xbeans.javaee.EjbRefType;
 import org.apache.geronimo.xbeans.javaee.EnvEntryType;
+import org.apache.geronimo.xbeans.javaee.LifecycleCallbackType;
 import org.apache.geronimo.xbeans.javaee.MessageDestinationRefType;
+import org.apache.geronimo.xbeans.javaee.PersistenceContextRefType;
+import org.apache.geronimo.xbeans.javaee.PersistenceUnitRefType;
 import org.apache.geronimo.xbeans.javaee.ResourceEnvRefType;
 import org.apache.geronimo.xbeans.javaee.ResourceRefType;
 import org.apache.geronimo.xbeans.javaee.ServiceRefType;
 import org.apache.geronimo.xbeans.javaee.WebAppType;
-import org.apache.geronimo.xbeans.javaee.LifecycleCallbackType;
 
 /**
  * Wrapper class to encapsulate the WebAppType class with an interface that the various
@@ -178,5 +180,21 @@ public class AnnotatedWebApp implements AnnotatedApp {
 
     public LifecycleCallbackType addPreDestroy() {
         return webApp.addNewPreDestroy();
+    }
+
+    public PersistenceContextRefType[] getPersistenceContextRefArray() {
+        return webApp.getPersistenceContextRefArray();
+    }
+
+    public PersistenceContextRefType addNewPersistenceContextRef() {
+        return webApp.addNewPersistenceContextRef();
+    }
+
+    public PersistenceUnitRefType[] getPersistenceUnitRefArray() {
+        return webApp.getPersistenceUnitRefArray();
+    }
+
+    public PersistenceUnitRefType addNewPersistenceUnitRef() {
+        return webApp.addNewPersistenceUnitRef();
     }
 }
