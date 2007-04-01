@@ -50,7 +50,7 @@ function <portlet:namespace/>validate() {
 function <portlet:namespace/>parse(localFile) {
     // Split the path
     var pathParts = localFile.split("\\"); // Assuming windows file delim
-    if(localFile.indexOf("/") > 0) // May be *nix delim
+    if(localFile.indexOf("/") >= 0) // check if *nix 
         pathParts = localFile.split("/");
     basename = pathParts[pathParts.length - 1]; // Last part is the base file name
 
