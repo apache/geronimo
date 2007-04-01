@@ -33,7 +33,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.cxf.Bus;
 import org.apache.cxf.BusFactory;
-import org.apache.cxf.binding.xml.XMLConstants;
 import org.apache.cxf.bus.CXFBusFactory;
 import org.apache.cxf.service.model.EndpointInfo;
 import org.apache.cxf.tools.common.extensions.soap.SoapAddress;
@@ -79,8 +78,6 @@ public abstract class CXFWebServiceContainer implements WebServiceContainer {
                 "http://schemas.xmlsoap.org/wsdl/http/", factory);
         destinationFactoryManager.registerDestinationFactory(
                 "http://schemas.xmlsoap.org/wsdl/soap/http", factory);
-        destinationFactoryManager.registerDestinationFactory(
-                XMLConstants.NS_XML_FORMAT, factory);
 
         endpoint = publishEndpoint(target);
         destination = (GeronimoDestination) endpoint.getServer().getDestination();
