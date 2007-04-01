@@ -44,7 +44,7 @@
 
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
-            <artifactId>openejb</artifactId>
+            <artifactId>j2ee-security</artifactId>
             <version>${version}</version>
             <type>car</type>
         </dependency>
@@ -54,6 +54,13 @@
             <artifactId>webservices-common</artifactId>
             <type>car</type>
             <version>${version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.geronimo.configs</groupId>
+            <artifactId>openejb</artifactId>
+            <version>${version}</version>
+            <type>car</type>
         </dependency>
 
         <dependency>
@@ -122,20 +129,6 @@
         <dependency>
             <groupId>commons-logging</groupId>
             <artifactId>commons-logging</artifactId>
-            <exclusions>
-                <exclusion>
-                    <groupId>log4j</groupId>
-                    <artifactId>log4j</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>logkit</groupId>
-                    <artifactId>logkit</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>avalon-framework</groupId>
-                    <artifactId>avalon-framework</artifactId>
-                </exclusion>
-            </exclusions>
         </dependency>
         <dependency>
             <groupId>commons-httpclient</groupId>
@@ -146,12 +139,12 @@
             <artifactId>commons-codec</artifactId>
         </dependency>
         <dependency>
-            <groupId>javax.mail</groupId>
-            <artifactId>mail</artifactId>
+            <groupId>org.apache.geronimo.javamail</groupId>
+            <artifactId>geronimo-javamail_1.4_mail</artifactId>
         </dependency>
         <dependency>
-            <groupId>javax.activation</groupId>
-            <artifactId>activation</artifactId>
+            <groupId>org.apache.geronimo.specs</groupId>
+            <artifactId>geronimo-activation_1.1_spec</artifactId>
         </dependency>
         <dependency>
             <groupId>xalan</groupId>
@@ -170,10 +163,9 @@
             <artifactId>annogen</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.apache.woden</groupId>
-            <artifactId>woden</artifactId>
+            <groupId>xml-resolver</groupId>
+            <artifactId>xml-resolver</artifactId>
         </dependency>
-
     </dependencies>
 
 </project>
