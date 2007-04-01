@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import javax.xml.ws.WebServiceClient;
 import javax.xml.ws.WebServiceRef;
 import javax.xml.ws.WebServiceRefs;
 
@@ -30,10 +31,10 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.xbeans.javaee.FullyQualifiedClassType;
-import org.apache.geronimo.xbeans.javaee.InjectionTargetType;
 import org.apache.geronimo.xbeans.javaee.JndiNameType;
 import org.apache.geronimo.xbeans.javaee.ServiceRefType;
 import org.apache.geronimo.xbeans.javaee.XsdAnyURIType;
+import org.apache.geronimo.xbeans.javaee.XsdStringType;
 import org.apache.xbean.finder.ClassFinder;
 
 
@@ -249,59 +250,82 @@ public final class WebServiceRefAnnotationHelper extends AnnotationHelper {
         //------------------------------------------------------------------------------------------
         // 1. <service-ref>
         //------------------------------------------------------------------------------------------
-        //If there is already xml for the service ref, just add injection targets and return.
+
+        ServiceRefType serviceRef = null;
+        
         ServiceRefType[] serviceRefs = annotatedApp.getServiceRefArray();
-        for (ServiceRefType serviceRef : serviceRefs) {
-            if (serviceRef.getServiceRefName().getStringValue().trim().equals(webServiceRefName)) {
-                if (method != null || field != null) {
-                    InjectionTargetType[] targets = serviceRef.getInjectionTargetArray();
-                    if (!hasTarget(method, field, targets)) {
-                        configureInjectionTarget(serviceRef.addNewInjectionTarget(), method, field);
-                    }
-                }
-                return;
+        for (ServiceRefType currServiceRef : serviceRefs) {
+            if (currServiceRef.getServiceRefName().getStringValue().trim().equals(webServiceRefName)) {
+                serviceRef = currServiceRef;
+                break;
             }
         }
 
-        // Doesn't exist in deployment descriptor -- add new
-        ServiceRefType serviceRef = annotatedApp.addNewServiceRef();
+        if (serviceRef == null) {
+            // Doesn't exist in deployment descriptor -- add new
+            serviceRef = annotatedApp.addNewServiceRef();
 
-        //------------------------------------------------------------------------------
-        // <service-ref> required elements:
-        //------------------------------------------------------------------------------
+            // ------------------------------------------------------------------------------
+            // <service-ref> required elements:
+            // ------------------------------------------------------------------------------
 
-        // service-ref-name
-        JndiNameType serviceRefName = serviceRef.addNewServiceRefName();
-        serviceRefName.setStringValue(webServiceRefName);
+            // service-ref-name
+            JndiNameType serviceRefName = serviceRef.addNewServiceRefName();
+            serviceRefName.setStringValue(webServiceRefName);
+        
+            // service-ref-interface
+            if (!webServiceRefValue.equals(Object.class)) {
+                FullyQualifiedClassType qualifiedClass = serviceRef.addNewServiceInterface();
+                qualifiedClass.setStringValue(webServiceRefValue.getName());
+                serviceRef.setServiceInterface(qualifiedClass);
+            } else {
+                FullyQualifiedClassType qualifiedClass = serviceRef.addNewServiceInterface();
+                qualifiedClass.setStringValue(webServiceRefType.getName());
+                serviceRef.setServiceInterface(qualifiedClass);
+            }
+        }
+        
+        //------------------------------------------------------------------------------
+        // <service-ref> optional elements:
+        //------------------------------------------------------------------------------
 
         // service-ref-type
-        if (!webServiceRefType.equals(Object.class)) {
+        if (!serviceRef.isSetServiceRefType() && !webServiceRefType.equals(Object.class)) {
             FullyQualifiedClassType qualifiedClass = serviceRef.addNewServiceRefType();
             qualifiedClass.setStringValue(webServiceRefType.getName());
             serviceRef.setServiceRefType(qualifiedClass);
         }
 
-        // service-ref-interface
-        if (!webServiceRefValue.equals(Object.class)) {
-            FullyQualifiedClassType qualifiedClass = serviceRef.addNewServiceInterface();
-            qualifiedClass.setStringValue(webServiceRefValue.getName());
-            serviceRef.setServiceInterface(qualifiedClass);
-        } else {
-            FullyQualifiedClassType qualifiedClass = serviceRef.addNewServiceInterface();
-            qualifiedClass.setStringValue(webServiceRefType.getName());
-            serviceRef.setServiceInterface(qualifiedClass);
+        // mapped-name
+        if (!serviceRef.isSetMappedName() && annotation.mappedName().trim().length() > 0) {
+            XsdStringType mappedName = serviceRef.addNewMappedName();
+            mappedName.setStringValue(annotation.mappedName().trim());
+            serviceRef.setMappedName(mappedName);
         }
 
-        //------------------------------------------------------------------------------
-        // <service-ref> optional elements:
-        //------------------------------------------------------------------------------
-
         // WSDL document location
-        String documentAnnotation = annotation.wsdlLocation();
-        if (!documentAnnotation.equals("")) {
-            XsdAnyURIType wsdlFile = serviceRef.addNewWsdlFile();
-            wsdlFile.setStringValue(documentAnnotation);
-            serviceRef.setWsdlFile(wsdlFile);
+        if (!serviceRef.isSetWsdlFile()) {
+            String wsdlLocation = annotation.wsdlLocation();
+            
+            if (wsdlLocation == null || wsdlLocation.trim().length() == 0) {
+                WebServiceClient wsClient = null;
+                if (Object.class.equals(webServiceRefValue)) {
+                    wsClient = (WebServiceClient) webServiceRefType.getAnnotation(WebServiceClient.class);
+                } else {
+                    wsClient = (WebServiceClient) webServiceRefValue.getAnnotation(WebServiceClient.class);
+                }
+                if (wsClient == null) {                    
+                    wsdlLocation = null;
+                } else {
+                    wsdlLocation = wsClient.wsdlLocation();
+                }
+            }
+            
+            if (wsdlLocation != null && wsdlLocation.trim().length() > 0) {
+                XsdAnyURIType wsdlFile = serviceRef.addNewWsdlFile();
+                wsdlFile.setStringValue(wsdlLocation);
+                serviceRef.setWsdlFile(wsdlFile);
+            }
         }
 
         if (method != null || field != null) {
