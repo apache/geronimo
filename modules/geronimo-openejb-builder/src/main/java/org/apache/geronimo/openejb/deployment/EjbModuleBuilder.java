@@ -594,7 +594,7 @@ public class EjbModuleBuilder implements ModuleBuilder {
         ComponentPermissions componentPermissions = ejbDeploymentBuilder.buildComponentPermissions();
         earContext.addSecurityContext(ejbModule.getEjbJarInfo().moduleId, componentPermissions);
 
-        setMdbContainerIds(earContext, ejbModule);
+        setMdbContainerIds(earContext, ejbModule, ejbModuleGBeanData);
 
         for (ModuleBuilderExtension builder : moduleBuilderExtensions) {
             try {
@@ -606,7 +606,7 @@ public class EjbModuleBuilder implements ModuleBuilder {
         }
     }
 
-    private void setMdbContainerIds(EARContext earContext, EjbModule ejbModule) throws DeploymentException {
+    private void setMdbContainerIds(EARContext earContext, EjbModule ejbModule, GBeanData ejbModuleGBeanData) throws DeploymentException {
         Object altDD = ejbModule.getEjbModule().getAltDDs().get("openejb-jar.xml");
         if (!(altDD instanceof OpenejbJarType)) {
             return;
@@ -654,6 +654,10 @@ public class EjbModuleBuilder implements ModuleBuilder {
             } else {
                 messageDrivenBeanInfo.containerId = resourceAdapterAbstractName.getObjectName().toString() + "-" + messageDrivenBeanInfo.mdbInterface;
             }
+
+            // add a dependency from the module to the ra so we can be assured the mdb
+            // container exists when this app is started
+            ejbModuleGBeanData.addDependency(resourceAdapterAbstractName);
         }
     }
 
