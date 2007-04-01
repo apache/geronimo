@@ -93,7 +93,7 @@ public class RecoveryImpl implements Recovery {
     public synchronized void recoverResourceManager(NamedXAResource xaResource) throws XAException {
         String name = xaResource.getName();
         Xid[] prepared = xaResource.recover(XAResource.TMSTARTRSCAN + XAResource.TMENDRSCAN);
-        for (int i = 0; i < prepared.length; i++) {
+        for (int i = 0; prepared != null && i < prepared.length; i++) {
             Xid xid = prepared[i];
             ByteArrayWrapper globalIdWrapper = new ByteArrayWrapper(xid.getGlobalTransactionId());
             XidBranchesPair xidNamesPair = (XidBranchesPair) ourXids.get(globalIdWrapper);
