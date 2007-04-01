@@ -114,8 +114,14 @@ public abstract class JAXWSServiceReference extends SimpleReference implements C
     public Object getContent() throws NamingException {
         Service instance = null;
         URL wsdlURL = getWsdlURL();
+        
         Class serviceClass = loadClass(this.serviceClassName);
-
+        Class referenceClass = getReferenceClass();              
+        
+        if (referenceClass != null && Service.class.isAssignableFrom(referenceClass)) {
+            serviceClass = referenceClass;
+        }
+                
         if (Service.class.equals(serviceClass)) {
             serviceClass = GenericService.class;
         }
@@ -127,7 +133,6 @@ public abstract class JAXWSServiceReference extends SimpleReference implements C
             instance.setHandlerResolver(handlerResolver);
         }
 
-        Class referenceClass = getReferenceClass();
         if (referenceClass != null && !Service.class.isAssignableFrom(referenceClass)) {
             // do port lookup
             return instance.getPort(referenceClass);
