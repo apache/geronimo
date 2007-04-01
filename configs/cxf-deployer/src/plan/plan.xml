@@ -142,15 +142,19 @@
                         <artifactId>spring-context</artifactId>
                         <type>jar</type>
                     </dependency>
-                   <dependency>
+                    <dependency>
                         <groupId>wsdl4j</groupId>
                         <artifactId>wsdl4j</artifactId>
                         <type>jar</type>
                     </dependency>
                     <dependency>
-                       <groupId>xml-resolver</groupId>
-                       <artifactId>xml-resolver</artifactId>
-                       <type>jar</type>
+                        <groupId>xml-resolver</groupId>
+                        <artifactId>xml-resolver</artifactId>
+                        <type>jar</type>
+                    </dependency>
+                    <dependency>
+                        <groupId>org.apache.neethi</groupId>
+                        <artifactId>neethi</artifactId>
                     </dependency>
                     <dependency>
                         <groupId>org.apache.geronimo.configs</groupId>
