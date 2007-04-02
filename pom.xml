@@ -522,20 +522,16 @@
                 <version>1.0.1</version>
             </dependency>
             
-            <!--
-            NOTE: Using AMQ 4.1-SNAPSHOT to pick up spec compliance fix for AMQ-1165 until AMQ 4.1.1 is released.
-            -->
-            
             <dependency>
                 <groupId>org.apache.activemq</groupId>
                 <artifactId>activemq-core</artifactId>
-                <version>4.1-SNAPSHOT</version>
+                <version>4.1.1</version>
             </dependency>
 
             <dependency>
                 <groupId>org.apache.activemq</groupId>
                 <artifactId>activemq-ra</artifactId>
-                <version>4.1-SNAPSHOT</version>
+                <version>4.1.1</version>
             </dependency>
 
             <dependency>
@@ -1004,6 +1000,9 @@
                 <plugin>
                     <groupId>org.codehaus.mojo</groupId>
                     <artifactId>xmlbeans-maven-plugin</artifactId>
+                    <!--
+                    FIXME: Remove this pinned SNAPSHOT (its still a SNAPSHOT, in an unstable SNAPSHOT repository).
+                    -->
                     <version>2.0.1-20060627.031204-7</version>
 
                     <executions>
