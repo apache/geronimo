@@ -210,7 +210,9 @@ public class CXFBuilder extends JAXWSServiceBuilder {
         String xml = null;
         if (handlerChains != null) {
             StringWriter w = new StringWriter();
+            w.write("<handler-chains xmlns=\"http://java.sun.com/xml/ns/javaee\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">");
             handlerChains.save(w);
+            w.write("</handler-chains>");
             xml = w.toString();
         }
         return xml;
