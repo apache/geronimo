@@ -28,6 +28,7 @@ import java.util.LinkedList;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
+import java.util.TreeSet;
 import java.util.jar.JarFile;
 
 import javax.ejb.EntityContext;
@@ -91,6 +92,7 @@ import org.apache.openejb.jee.PersistenceUnitRef;
 import org.apache.openejb.jee.ResourceEnvRef;
 import org.apache.openejb.jee.ResourceRef;
 import org.apache.openejb.jee.ServiceRef;
+import org.apache.openejb.jee.EjbRef;
 import org.apache.openejb.jee.jpa.unit.Persistence;
 import org.apache.openejb.jee.jpa.unit.PersistenceUnit;
 import org.apache.openejb.jee.jpa.unit.TransactionType;
@@ -99,6 +101,7 @@ import org.apache.openejb.jee.oejb2.ResourceLocatorType;
 import org.apache.openejb.jee.oejb2.PatternType;
 import org.apache.openejb.jee.oejb2.OpenejbJarType;
 import org.apache.openejb.jee.oejb2.MessageDrivenBeanType;
+import org.apache.openejb.jee.oejb2.EjbRefType;
 import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlObject;
 
@@ -277,11 +280,30 @@ public class EjbModuleBuilder implements ModuleBuilder {
         return module;
     }
 
-    protected static void unmapReferences(EjbJar ejbJar) {
+    protected static void unmapReferences(EjbJar ejbJar, GeronimoEjbJarType geronimoEjbJarType) {
+        Set<String> corbaEjbRefs = new TreeSet<String>();
+        for (EjbRefType ejbRef : geronimoEjbJarType.getEjbRef()) {
+            if (ejbRef.getNsCorbaloc() != null) {
+                corbaEjbRefs.add(ejbRef.getRefName());
+            }
+        }
+
         for (EnterpriseBean enterpriseBean : ejbJar.getEnterpriseBeans()) {
             enterpriseBean.getEnvEntry().clear();
             enterpriseBean.getEjbRef().clear();
             enterpriseBean.getEjbLocalRef().clear();
+
+            for (Iterator<EjbRef> iterator = enterpriseBean.getEjbRef().iterator(); iterator.hasNext();) {
+                EjbRef ref = iterator.next();
+                 if (!corbaEjbRefs.contains(ref.getEjbRefName())) {
+                     // remove all non corba refs to avoid overwriting normal ejb refs
+                     iterator.remove();
+                 } else {
+                     // clear mapped named data from corba refs
+                    ref.setMappedName(null);
+                    ref.getInjectionTarget().clear();
+                 }
+            }
 
             for (MessageDestinationRef ref : enterpriseBean.getMessageDestinationRef()) {
                 ref.setMappedName(null);
@@ -410,15 +432,17 @@ public class EjbModuleBuilder implements ModuleBuilder {
         EjbJar ejbJar = ejbModule.getEjbJar();
         ejbModule.setOriginalSpecDD(XmlUtil.marshal(ejbModule.getEjbJar()));
 
+        // Get the geronimo-openejb plan
+        GeronimoEjbJarType geronimoEjbJarType = (GeronimoEjbJarType) ejbModule.getEjbModule().getAltDDs().get("geronimo-openejb.xml");
+
         // We must set all mapped name references back to null or Geronimo will blow up
-        unmapReferences(ejbJar);
+        unmapReferences(ejbJar, geronimoEjbJarType);
 
         // create a xmlbeans version of the ejb-jar.xml file, because the jndi code is coupled based on xmlbeans objects
         EjbJarType ejbJarType = XmlUtil.convertToXmlbeans(ejbJar);
         ejbModule.setSpecDD(ejbJarType);
 
         // convert the plan to xmlbeans since geronimo naming is coupled on xmlbeans objects
-        GeronimoEjbJarType geronimoEjbJarType = (GeronimoEjbJarType) ejbModule.getEjbModule().getAltDDs().get("geronimo-openejb.xml");
         OpenejbGeronimoEjbJarType geronimoOpenejb = XmlUtil.convertToXmlbeans(geronimoEjbJarType);
         ejbModule.setVendorDD(geronimoOpenejb);
 

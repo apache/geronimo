@@ -187,6 +187,13 @@ public class EjbRefBuilder extends AbstractNamingBuilder {
                 continue;
             }
 
+            // skip corba refs
+            GerEjbRefType ejbRefType = refMap.get(refName);
+            if (ejbRefType != null) {
+                if (ejbRefType.getNsCorbaloc() != null) {
+                    continue;
+                }
+            }
             // create the ejb-ref
             EjbRef ref = new EjbRef();
             jndiConsumer.getEjbRef().add(ref);
@@ -217,7 +224,6 @@ public class EjbRefBuilder extends AbstractNamingBuilder {
             ref.setMappedName(getStringValue(xmlbeansRef.getMappedName()));
 
             // handle external refs
-            GerEjbRefType ejbRefType = refMap.get(ref.getEjbRefName());
             if (ejbRefType != null) {
                 if (ejbRefType.getNsCorbaloc() != null) {
                     // corba refs are simple delegated back to Geronimo
