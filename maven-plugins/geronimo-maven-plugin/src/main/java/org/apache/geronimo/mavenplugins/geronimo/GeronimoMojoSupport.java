@@ -22,7 +22,7 @@ package org.apache.geronimo.mavenplugins.geronimo;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.artifact.repository.ArtifactRepository;
 
-import org.apache.geronimo.genesis.ant.AntMojoSupport;
+import org.codehaus.mojo.pluginsupport.ant.AntMojoSupport;
 
 /**
  * Support for Geronimo mojos.

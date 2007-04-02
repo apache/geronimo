@@ -28,11 +28,11 @@ import java.util.Iterator;
 import java.util.Properties;
 import java.util.Map;
 
-import org.apache.geronimo.genesis.MojoSupport;
-import org.apache.geronimo.genesis.util.ArtifactItem;
-import org.apache.geronimo.genesis.dependency.DependencyHelper;
-import org.apache.geronimo.genesis.dependency.DependencyTree;
-import org.apache.geronimo.genesis.dependency.DependencyTree.Node;
+import org.codehaus.mojo.pluginsupport.MojoSupport;
+import org.codehaus.mojo.pluginsupport.util.ArtifactItem;
+import org.codehaus.mojo.pluginsupport.dependency.DependencyHelper;
+import org.codehaus.mojo.pluginsupport.dependency.DependencyTree;
+import org.codehaus.mojo.pluginsupport.dependency.DependencyTree.Node;
 
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;

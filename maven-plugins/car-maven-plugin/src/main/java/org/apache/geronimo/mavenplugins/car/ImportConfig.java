@@ -19,7 +19,7 @@
 
 package org.apache.geronimo.mavenplugins.car;
 
-import org.apache.geronimo.genesis.util.ArtifactItem;
+import org.codehaus.mojo.pluginsupport.util.ArtifactItem;
 
 /**
  * ???

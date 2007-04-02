@@ -37,7 +37,6 @@
     <packaging>pom</packaging>
     
     <dependencies>
-        
         <dependency>
             <groupId>org.apache.geronimo.testsupport</groupId>
             <artifactId>testsupport-common</artifactId>
@@ -46,22 +45,20 @@
         </dependency>
 
         <dependency>
-            <groupId>org.apache.geronimo.genesis.plugins</groupId>
+            <groupId>org.codehaus.mojo</groupId>
             <artifactId>plugin-support</artifactId>
+            <version>1.0-alpha-1</version>
         </dependency>
-        
     </dependencies>
     
     <build>
         <pluginManagement>
             <plugins>
-                
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-plugin-plugin</artifactId>
                     <version>2.2</version>
                 </plugin>
-                
             </plugins>
         </pluginManagement>
     </build>

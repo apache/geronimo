@@ -29,7 +29,8 @@ import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.Version;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
-import org.apache.geronimo.genesis.dependency.DependencyTree;
+
+import org.codehaus.mojo.pluginsupport.dependency.DependencyTree;
 
 /**
  * Helps adapt Geronimo repositories to Maven repositories for packaging building.

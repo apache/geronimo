@@ -34,7 +34,8 @@ import org.apache.geronimo.kernel.repository.Repository;
 import org.apache.geronimo.system.repository.Maven2Repository;
 import org.apache.geronimo.system.configuration.RepositoryConfigurationStore;
 import org.apache.geronimo.system.resolver.ExplicitDefaultArtifactResolver;
-import org.apache.geronimo.genesis.dependency.DependencyTree;
+
+import org.codehaus.mojo.pluginsupport.dependency.DependencyTree;
 
 import org.apache.maven.artifact.repository.ArtifactRepository;
 
@@ -65,7 +66,8 @@ import org.codehaus.plexus.util.FileUtils;
  * @goal install-modules
  */
 public class InstallModulesMojo
-        extends AbstractCarMojo {
+    extends AbstractCarMojo
+{
     /**
      * The location of the target repository.
      *
@@ -132,7 +134,7 @@ public class InstallModulesMojo
 
         Maven2RepositoryAdapter.ArtifactLookup lookup = new ArtifactLookupImpl(new HashMap());
         sourceRepo = new Maven2RepositoryAdapter(dependencies, lookup);
-//        sourceRepo = new Maven2RepositoryAdapter(new File(sourceRepository.getBasedir()));
+        // sourceRepo = new Maven2RepositoryAdapter(new File(sourceRepository.getBasedir()));
         sourceStore = new RepositoryConfigurationStore(sourceRepo);
 
         FileUtils.forceMkdir(targetRepositoryDirectory);

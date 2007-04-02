@@ -43,11 +43,10 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.dom.DOMSource; 
-import javax.xml.transform.stream.StreamResult; 
+import javax.xml.transform.stream.StreamResult;
 
-
-import org.apache.geronimo.genesis.MojoSupport;
-import org.apache.geronimo.genesis.ant.AntHelper;
+import org.codehaus.mojo.pluginsupport.MojoSupport;
+import org.codehaus.mojo.pluginsupport.ant.AntHelper;
 
 import org.apache.maven.model.DistributionManagement;
 import org.apache.maven.project.MavenProject;
@@ -73,7 +72,7 @@ import org.apache.tools.ant.taskdefs.optional.ssh.Scp;
  * @version $Rev$ $Date$
  */
 public class ResultsSummaryMojo
-extends MojoSupport
+    extends MojoSupport
 {
     /**
      * @component
@@ -118,7 +117,6 @@ extends MojoSupport
      */
     private String password;
 
-
     /**
      * The passphrase
      * 
@@ -147,7 +145,6 @@ extends MojoSupport
      */
     private int numberShown;
 
-
     private NumberFormat numberFormat = NumberFormat.getInstance();
 
     private static final int PCENT = 100;
@@ -170,7 +167,6 @@ extends MojoSupport
 
         scp = (Scp)ant.createTask("scp");
 
-
         String siteId = project.getDistributionManagement().getSite().getId();
         server = settings.getServer(siteId);
 
@@ -182,25 +178,25 @@ extends MojoSupport
     }
 
     private String getKeyFile() {
-       if (keyFile != null) {
-           return keyFile;
-       }
-       else if (server != null && server.getPrivateKey() != null) {
-           return server.getPrivateKey();
-       }
-
-       return "/home/" + getUsername() + "/.ssh/id_dsa";
+        if (keyFile != null) {
+            return keyFile;
+        }
+        else if (server != null && server.getPrivateKey() != null) {
+            return server.getPrivateKey();
+        }
+        
+        return "/home/" + getUsername() + "/.ssh/id_dsa";
     }
 
     private String getUsername() {
-       if (username != null) {
-           return username;
-       }
-       else if (server != null && server.getUsername() != null) {
-           return server.getUsername();
-       }
-
-       return System.getProperty("user.name");
+        if (username != null) {
+            return username;
+        }
+        else if (server != null && server.getUsername() != null) {
+            return server.getUsername();
+        }
+        
+        return System.getProperty("user.name");
     }
 
     private String getPassword() {
@@ -225,35 +221,28 @@ extends MojoSupport
         return " ";
     }
 
-
-
     /**
      * called by execute from super
      */
     protected void doExecute() throws Exception {
-
         if (buildNumber == null) {
             log.warn("No build number specified; returning");
             return;
         }
 
         File currentSiteDirectory = new File(targetDirectory, "/site");
-        if ( !currentSiteDirectory.exists() )
-        {
+        if (!currentSiteDirectory.exists()) {
             log.warn("No site directory here; returning");
             return;
         }
 
-
         // Download ResultsSummary.html and parse it.
         File resultsFile = null;
-        try
-        {
+        try {
             downloadHTML();
             resultsFile = new File(targetDirectory, resultsFileName);            
         }
-        catch ( Exception e )
-        {
+        catch (Exception e) {
             log.warn("Download failed. " + e.getMessage());
         }
 
@@ -261,10 +250,7 @@ extends MojoSupport
         tidy.setQuiet(true);
         tidy.setShowWarnings(false);
 
-
-
-        if ( resultsFile == null || !resultsFile.exists() )
-        {
+        if ( resultsFile == null || !resultsFile.exists() ) {
             log.info( resultsFileName + " could not be downloaded. Using the template to create anew");
             resultsFile = new File(project.getBasedir(), "src/main/resources/" + resultsFileName);
         }
@@ -274,29 +260,24 @@ extends MojoSupport
         is.close();
 
         File reportsDir = new File(targetDirectory, "surefire-reports");
-        if ( !reportsDir.exists() )
-        {
+        if ( !reportsDir.exists() ) {
             log.warn("No surefire-reports directory here");
             return;
         }
 
         ArrayList files = (ArrayList) FileUtils.getFiles(reportsDir, "TEST-*.xml", null, true);
-        if ( files.size() > 0 )
-        {
+        if ( files.size() > 0 ) {
             document = insertNewColumn(document);
-            if ( document == null )
-            {
+            if ( document == null ) {
                 throw new MojoFailureException("Main table cannot be found in the " + resultsFileName + ". The file may be corrupted");
             }
         }
 
-        for ( Iterator itr=files.iterator(); itr.hasNext(); )
-        {
+        for ( Iterator itr=files.iterator(); itr.hasNext(); ) {
             File file = (File) itr.next();
             log.debug("working on " + file.getAbsolutePath() );
             document = processFile(document, file);
         }
-
 
         // Use a Transformer for output
         TransformerFactory tFactory = TransformerFactory.newInstance();
@@ -323,19 +304,16 @@ extends MojoSupport
         // delete the temp file.
         tempFile.delete();
 
-        try
-        {
+        try {
             uploadHTML(resultsFile);
         }
-        catch ( Exception e )
-        {
+        catch ( Exception e ) {
             log.warn("Upload failed. " + e.getMessage());
         }
     }
 
 
-    private String getRemoteUri()
-    {
+    private String getRemoteUri() {
         String siteUri = project.getDistributionManagement().getSite().getUrl();
 
         // chop off the protocol
@@ -433,7 +411,6 @@ extends MojoSupport
         return document;
     }
 
-
     private Document processFile(Document document, File file)
     {
         String pcent = getResultsFromFile(file);
@@ -446,7 +423,6 @@ extends MojoSupport
 
         return document;
     }
-
 
     /**
      * Load the surefire-report xml file as an ANT xml property and get the values of the results
@@ -473,7 +449,6 @@ extends MojoSupport
         return pcent;
     }
 
-
     /**
      * http://ant.apache.org/manual/CoreTasks/xmlproperty.html
      */
@@ -489,7 +464,6 @@ extends MojoSupport
         xmlProperty.execute();
         log.debug("Loaded xml file as ant property with prefix " + prefix);
     }
-
 
     /**
      * compute percentage
@@ -508,8 +482,6 @@ extends MojoSupport
 
         return numberFormat.format( percentage );
     }
-
-
 
     /**
      * Insert the rest of the column. If there is no matching row for the suite name, create a new row.
@@ -568,9 +540,7 @@ extends MojoSupport
         log.debug("inserted column");
 
         return document;
-
     }
-
 
     /**
      * Get a child element identified by an ID
@@ -599,7 +569,6 @@ extends MojoSupport
 
         return foundElement;
     }
-
 
     /**
      * Removes the oldest test column(s) from the table based on the value set in 'numberShown' variable
@@ -634,5 +603,4 @@ extends MojoSupport
 
         return new_cols;
     }
-
 }

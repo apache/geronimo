@@ -24,8 +24,8 @@ import java.io.IOException;
 
 import java.util.ArrayList;
 
-import org.apache.geronimo.genesis.MojoSupport;
-import org.apache.geronimo.genesis.ant.AntHelper;
+import org.codehaus.mojo.pluginsupport.MojoSupport;
+import org.codehaus.mojo.pluginsupport.ant.AntHelper;
 
 import org.apache.maven.project.MavenProject;
 
@@ -45,7 +45,7 @@ import org.apache.tools.ant.taskdefs.XmlProperty;
  * @version $Rev$ $Date$
  */
 public class SurefireXMLGeneratorMojo
-extends MojoSupport
+    extends MojoSupport
 {
     /**
      * @component
@@ -61,15 +61,15 @@ extends MojoSupport
     private File currentReportsDirectory;
 
     /**
-    * @parameter default-value="${project.basedir}"
-    * @read-only
-    */
+     * @parameter default-value="${project.basedir}"
+     * @read-only
+     */
     private File currentBaseDirectory;
 
     /**
-    * @parameter default-value="${project.parent.basedir}/target"
-    * @read-only
-    */
+     * @parameter default-value="${project.parent.basedir}/target"
+     * @read-only
+     */
     private File parentBuildDirectory;
 
     private File parentReportsDirectory;
@@ -80,8 +80,8 @@ extends MojoSupport
      * Such a parent project whose packaging is set to pom will not transfer the surefire data to it's parent.
      * So we will directly write to the grandparent's surefire-reports dir.
      * 
-    * @parameter default-value="false"
-    */
+     * @parameter default-value="false"
+     */
     private boolean grandParent;
 
     //
@@ -117,7 +117,6 @@ extends MojoSupport
     }
 
     protected void doExecute() throws Exception {
-
         if ( !currentReportsDirectory.exists() )
         {
             log.info("No surefire-reports directory here");
@@ -185,8 +184,6 @@ extends MojoSupport
         }
     }
 
-
-
     /**
      * http://ant.apache.org/manual/CoreTasks/xmlproperty.html
      */
@@ -201,7 +198,6 @@ extends MojoSupport
         xmlProperty.setCollapseAttributes(true);
         xmlProperty.execute();
     }
-
 
     /**
      * (over)writes the surefire xml file in the parent's surefire-reports dir
@@ -221,5 +217,4 @@ extends MojoSupport
 
         return;
     }
-
 }

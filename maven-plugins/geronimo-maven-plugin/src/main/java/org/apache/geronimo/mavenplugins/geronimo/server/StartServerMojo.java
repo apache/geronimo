@@ -35,7 +35,8 @@ import org.apache.maven.plugin.MojoExecutionException;
 
 import org.apache.tools.ant.taskdefs.Java;
 
-import org.apache.geronimo.genesis.util.ObjectHolder;
+import org.codehaus.mojo.pluginsupport.util.ObjectHolder;
+
 import org.apache.geronimo.mavenplugins.geronimo.ServerProxy;
 
 import org.codehaus.plexus.util.FileUtils;

@@ -20,7 +20,7 @@
 package org.apache.geronimo.mavenplugins.geronimo;
 
 import java.io.File;
-import org.apache.geronimo.genesis.util.ArtifactItem;
+import org.codehaus.mojo.pluginsupport.util.ArtifactItem;
 
 /**
  * Module artifact configuration.
@@ -46,5 +46,4 @@ public class ModuleConfig
     public File getPlan() {
         return plan;
     }
-
 }

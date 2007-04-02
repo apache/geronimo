@@ -29,14 +29,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.codehaus.mojo.pluginsupport.util.ArtifactItem;
+import org.codehaus.mojo.pluginsupport.dependency.DependencyTree;
+
 import org.apache.geronimo.deployment.PluginBootstrap2;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.ReferencePatterns;
-import org.apache.geronimo.genesis.util.ArtifactItem;
-import org.apache.geronimo.genesis.dependency.DependencyTree;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.KernelFactory;
 import org.apache.geronimo.kernel.KernelRegistry;
@@ -389,33 +390,32 @@ public class PackageMojo
         StringBuffer buff = new StringBuffer();
 
         for (int i=0; i < classpath.length; i++) {
-        	
-        	String entry = classpath[i].getEntry();
-        	if(entry != null) {
-        		buff.append(entry);
-        	} else {
-        		Artifact artifact = getArtifact(classpath[i]);
+            String entry = classpath[i].getEntry();
+            if (entry != null) {
+                buff.append(entry);
+            } else {
+                Artifact artifact = getArtifact(classpath[i]);
 
-        		//
-        		// TODO: Need to optionally get all transitive dependencies... but dunno how to get that intel from m2
-        		//
+                //
+                // TODO: Need to optionally get all transitive dependencies... but dunno how to get that intel from m2
+                //
 
-        		String prefix = classpath[i].getClasspathPrefix();
-        		if (prefix == null) {
-        			prefix = classpathPrefix;
-        		}
+                String prefix = classpath[i].getClasspathPrefix();
+                if (prefix == null) {
+                    prefix = classpathPrefix;
+                }
 
-        		if (prefix != null) {
-        			buff.append(prefix);
+                if (prefix != null) {
+                    buff.append(prefix);
 
-        			if (!prefix.endsWith("/")) {
-        				buff.append("/");
-        			}
-        		}
+                    if (!prefix.endsWith("/")) {
+                        buff.append("/");
+                    }
+                }
 
-        		File file = artifact.getFile();
-        		buff.append(file.getName());
-        	}
+                File file = artifact.getFile();
+                buff.append(file.getName());
+            }
 
             if (i + 1< classpath.length) {
                 buff.append(" ");
@@ -437,15 +437,15 @@ public class PackageMojo
      * Reference to the kernel that will last the lifetime of this classloader.
      * The KernelRegistry keeps soft references that may be garbage collected.
      */
-    private  Kernel kernel;
+    private Kernel kernel;
 
-    private  AbstractName targetConfigStoreAName;
+    private AbstractName targetConfigStoreAName;
 
-    private  AbstractName targetRepositoryAName;
+    private AbstractName targetRepositoryAName;
 
     private boolean targetSet;
 
-    private  DependencyTree dependencies = new DependencyTree();
+    private DependencyTree dependencies = new DependencyTree();
 
     public void buildPackage() throws Exception {
         log.info("Packaging module configuration: " + planFile);
@@ -675,6 +675,5 @@ public class PackageMojo
     /**
      * Map of G artifact to M artifact which have already been resolved.
      */
-//    private static Map presolvedArtifacts = new HashMap();
-
+    // private static Map presolvedArtifacts = new HashMap();
 }

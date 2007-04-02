@@ -37,7 +37,7 @@ import org.apache.geronimo.deployment.plugin.factories.DeploymentFactoryImpl;
 import org.apache.geronimo.mavenplugins.geronimo.ModuleConfig;
 import org.apache.geronimo.mavenplugins.geronimo.reporting.ReportingMojoSupport;
 
-import org.apache.geronimo.genesis.util.ArtifactItem;
+import org.codehaus.mojo.pluginsupport.util.ArtifactItem;
 
 import org.apache.maven.plugin.MojoExecutionException;
 
@@ -64,14 +64,12 @@ public abstract class ModuleMojoSupport
      */
     private DeploymentManager deploymentManager;
 
-
     /**
      * Whether to stop or proceed when errors and failures are encountered
      *
      * @parameter expression="${stopOnFailure}" default-value="false"
      */
     protected boolean stopOnFailure = false;
-
 
     /**
      * Get a deployment manager; if the manager was previosuly initialized then that cached instance is used.
@@ -240,34 +238,34 @@ public abstract class ModuleMojoSupport
         assert modules != null;
 
         for (int i=0; i<modules.length; i++) {
-           String moduleId = getModuleId(modules[i]);
-        
-           if (isModuleStarted(moduleId)) {
-               log.warn("Module is already started: " + moduleId);
-               continue;
-               //throw new MojoExecutionException("Module is already started: " + moduleId);
-           }
+            String moduleId = getModuleId(modules[i]);
+            
+            if (isModuleStarted(moduleId)) {
+                log.warn("Module is already started: " + moduleId);
+                continue;
+                //throw new MojoExecutionException("Module is already started: " + moduleId);
+            }
+            
+            DeploymentManager manager = getDeploymentManager();
+            Target[] targets = manager.getTargets();
+            TargetModuleID[] targetIds = manager.getNonRunningModules(null, targets);
 
-           DeploymentManager manager = getDeploymentManager();
-           Target[] targets = manager.getTargets();
-           TargetModuleID[] targetIds = manager.getNonRunningModules(null, targets);
+            TargetModuleID[] found = findModules(moduleId, targetIds);
 
-           TargetModuleID[] found = findModules(moduleId, targetIds);
+            if (found.length == 0) {
+                throw new MojoExecutionException("Module is not deployed: " + moduleId);
+            }
 
-           if (found.length == 0) {
-               throw new MojoExecutionException("Module is not deployed: " + moduleId);
-           }
-
-           log.info("Starting module: " + moduleId);
-           ProgressObject progress = manager.start(found);
-
-           DeploymentStatus status = waitFor(progress);
-           if (status.isFailed()) {
-               throw new MojoExecutionException("Failed to start module: " + moduleId);
-           }
-
-           log.info("Started module(s):");
-           logModules(found, "    ");
+            log.info("Starting module: " + moduleId);
+            ProgressObject progress = manager.start(found);
+            
+            DeploymentStatus status = waitFor(progress);
+            if (status.isFailed()) {
+                throw new MojoExecutionException("Failed to start module: " + moduleId);
+            }
+            
+            log.info("Started module(s):");
+            logModules(found, "    ");
         }
     }
 
@@ -278,7 +276,7 @@ public abstract class ModuleMojoSupport
         Target[] targets = manager.getTargets();
         TargetModuleID[] targetIds = manager.getRunningModules(null, targets);
 
-         for (int i=0; i<modules.length; i++) {
+        for (int i=0; i<modules.length; i++) {
            String moduleId = getModuleId(modules[i]);
            if (!isModuleStarted(moduleId)) {
                log.info("Module is already stopped: " + moduleId);
@@ -302,7 +300,7 @@ public abstract class ModuleMojoSupport
 
            log.info("Stopped module(s):");
            logModules(found, "    ");
-         }
+        }
     }
 
     protected void undeployModule() throws Exception {
@@ -356,5 +354,4 @@ public abstract class ModuleMojoSupport
             }
         }
     }
-
 }

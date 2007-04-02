@@ -19,7 +19,7 @@
 
 package org.apache.geronimo.mavenplugins.car;
 
-import org.apache.geronimo.genesis.util.ArtifactItem;
+import org.codehaus.mojo.pluginsupport.util.ArtifactItem;
 
 /**
  * Represents a Maven-artifact with additional classpath prefix details to build a
@@ -58,11 +58,11 @@ public class ClasspathElement
         this.classpathPrefix = classpathPrefix;
     }
 
-	public String getEntry() {
-		return entry;
-	}
+    public String getEntry() {
+        return entry;
+    }
 
-	public void setEntry(String entry) {
-		this.entry = entry;
-	}
+    public void setEntry(final String entry) {
+        this.entry = entry;
+    }
 }
