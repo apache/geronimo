@@ -54,6 +54,7 @@ public class EJBWebServiceGBean implements GBeanLifecycle {
             return;
         }
                 
+        this.soapHandler = soapHandler;
         this.location = portInfo.getLocation();
         
         assert this.location != null : "null location received";
