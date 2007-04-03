@@ -41,11 +41,7 @@ class SAAJFactoryFinder {
                            createSAAJInfo("com.sun.xml.messaging.saaj.soap.ver1_1.SOAPMessageFactory1_1Impl", 
                                           "com.sun.xml.messaging.saaj.soap.ver1_1.SOAPFactory1_1Impl",
                                           "com.sun.xml.messaging.saaj.client.p2p.HttpSOAPConnectionFactory", 
-                                          "com.sun.xml.messaging.saaj.soap.SAAJMetaFactoryImpl"));
-        
-        // set the default to SUN
-        SAAJ_FACTORIES.put(SAAJUniverse.Type.DEFAULT.toString(), 
-                           SAAJ_FACTORIES.get(SAAJUniverse.Type.SUN.toString()));
+                                          "com.sun.xml.messaging.saaj.soap.SAAJMetaFactoryImpl"));       
     }
     
     private static Map<String, String> createSAAJInfo(String messageFactory,
@@ -73,44 +69,51 @@ class SAAJFactoryFinder {
     
     private static String getFactoryClass(String factoryName) {
         SAAJUniverse.Type universe = SAAJUniverse.getCurrentUniverse();
-        if (universe == null) {
-            return SAAJ_FACTORIES.get(SAAJUniverse.Type.DEFAULT.toString()).get(factoryName);
+        if (universe == null || universe == SAAJUniverse.Type.DEFAULT) {
+            // by default prefer Axis2 SAAJ if it is in class loader, otherwise use Sun's
+            if (isAxis2InClassLoader()) {
+                return SAAJ_FACTORIES.get(SAAJUniverse.Type.AXIS2.toString()).get(factoryName);
+            } else {
+                return SAAJ_FACTORIES.get(SAAJUniverse.Type.SUN.toString()).get(factoryName);
+            }
         } else {
             return SAAJ_FACTORIES.get(universe.toString()).get(factoryName);
         }
     }
     
-    // a bit of code from axis2 saaj-api
-    private static Object newInstance(String factoryClassName) throws SOAPException {
-        ClassLoader classloader = null;
+    private static boolean isAxis2InClassLoader() {
         try {
-            classloader = Thread.currentThread().getContextClassLoader();
-        } catch (Exception exception) {
-            throw new SOAPException(exception.toString(), exception);
-        }
-
-        try {
-            Class factory = null;
-            if (classloader == null) {
-                factory = Class.forName(factoryClassName);
-            } else {
-                try {
-                    factory = classloader.loadClass(factoryClassName);
-                } catch (ClassNotFoundException cnfe) {
-                }
-            }
-            if (factory == null) {
-                classloader = SAAJFactoryFinder.class.getClassLoader();
-                factory = classloader.loadClass(factoryClassName);
-            }
-            return factory.newInstance();
-        } catch (ClassNotFoundException classnotfoundexception) {
-            throw new SOAPException("Provider " + factoryClassName + " not found",
-                    classnotfoundexception);
-        } catch (Exception exception) {
-            throw new SOAPException("Provider " + factoryClassName + " could not be instantiated: "
-                                    + exception, exception);
+            loadClass("org.apache.axis2.saaj.MessageFactoryImpl");
+            return true;
+        } catch (ClassNotFoundException e) {
+            return false;
         }
     }
-       
+    
+    private static Class loadClass(String className) throws ClassNotFoundException {
+        ClassLoader classLoader = Thread.currentThread().getContextClassLoader();        
+        if (classLoader == null) {
+            return Class.forName(className);
+        } else {
+            return classLoader.loadClass(className);
+        }
+    }
+    
+    private static Object newInstance(String factoryClassName) throws SOAPException {
+        try {
+            Class factory = null;
+            try {
+                factory = loadClass(factoryClassName);
+            } catch (ClassNotFoundException cnfe) {
+                factory = SAAJFactoryFinder.class.getClassLoader().loadClass(factoryClassName);
+            }
+            return factory.newInstance();
+        } catch (ClassNotFoundException e) {
+            throw new SOAPException("Provider " + factoryClassName + " not found", e);
+        } catch (Exception e) {
+            throw new SOAPException("Provider " + factoryClassName + " could not be instantiated: "
+                                    + e.getMessage(), e);
+        }
+    }
+    
 }
