@@ -52,7 +52,7 @@ public class KernelContextGBean extends WritableContext implements GBeanLifecycl
     private final Map bindingsByAbstractName = new HashMap();
 
     public KernelContextGBean(String nameInNamespace, AbstractNameQuery abstractNameQuery, Kernel kernel) throws NamingException {
-        super(nameInNamespace, Collections.EMPTY_MAP, ContextAccess.UNMODIFIABLE, false);
+        super(nameInNamespace, Collections.EMPTY_MAP, ContextAccess.MODIFIABLE, false);
         this.abstractNameQuery = abstractNameQuery;
         this.kernel = kernel;
     }

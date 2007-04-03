@@ -22,6 +22,7 @@
 
     <gbean name="mail/MailSession" class="org.apache.geronimo.mail.MailGBean">
         <attribute name="transportProtocol">smtp</attribute>
+        <attribute name="jndiName">ger:/MailSession</attribute>
         <reference name="Protocols"/>
     </gbean>
     

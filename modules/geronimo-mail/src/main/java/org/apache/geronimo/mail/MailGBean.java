@@ -18,6 +18,10 @@ package org.apache.geronimo.mail;
 
 import javax.mail.Authenticator;
 import javax.mail.Session;
+import javax.naming.Context;
+import javax.naming.InitialContext;
+import javax.naming.NamingException;
+import javax.naming.Name;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.Properties;
@@ -59,6 +63,7 @@ public class MailGBean implements GBeanLifecycle, JavaMailResource {
     private String host;
     private String user;
     private Boolean debug;
+    private String jndiName;
 
 
     /**
@@ -76,9 +81,10 @@ public class MailGBean implements GBeanLifecycle, JavaMailResource {
      * @param host              the default Mail server
      * @param user              the username to provide when connecting to a Mail server
      * @param debug             the debug setting for Sessions created from this GBean
+     * @param jndiName          the JNDI name to which the mail Session should be bound
      */
     public MailGBean(String objectName, Collection protocols, Boolean useDefault, Properties properties, Authenticator authenticator,
-                     String storeProtocol, String transportProtocol, String host, String user, Boolean debug) {
+                     String storeProtocol, String transportProtocol, String host, String user, Boolean debug, String jndiName) {
         this.objectName = objectName;
         this.protocols = protocols;
         setUseDefault(useDefault);
@@ -89,7 +95,7 @@ public class MailGBean implements GBeanLifecycle, JavaMailResource {
         setHost(host);
         setUser(user);
         setDebug(debug);
-
+        setJndiName(jndiName);
     }
 
     /**
@@ -290,6 +296,22 @@ public class MailGBean implements GBeanLifecycle, JavaMailResource {
         this.debug = debug;
     }
 
+    /**
+     * Gets the JNDI name to which the mail Session should be bound
+     * @return the JNDI name to which the mail Session should be bound
+     */
+    public String getJndiName() {
+        return jndiName;
+    }
+
+    /**
+     * Sets the JNDI name to which the mail Session should be bound
+     * @param jndiName the JNDI name to which the mail Session should be bound
+     */
+    public void setJndiName(String jndiName) {
+        this.jndiName = jndiName;
+    }
+
     public Object $getResource() {
         Properties props = new Properties(properties);
 
@@ -330,14 +352,59 @@ public class MailGBean implements GBeanLifecycle, JavaMailResource {
                  + " JavaMail Session "
                  + (authenticator == null ? "without" : "with")
                  + " authenticator");
+
+        String jndiName = getJndiName();
+        if (jndiName != null && jndiName.length() > 0) {
+            // first get the resource incase there are exceptions
+            Object value = $getResource();
+
+            // get the initial context
+            Context context = new InitialContext();
+            Name parsedName = context.getNameParser("").parse(jndiName);
+
+            // create intermediate contexts
+            for (int i = 1; i < parsedName.size(); i++) {
+                Name contextName = parsedName.getPrefix(i);
+                if (!bindingExists(context, contextName)) {
+                    context.createSubcontext(contextName);
+                }
+            }
+
+            // bind
+            context.bind(jndiName, value);
+            log.info("JavaMail session bound to " + jndiName);
+        }
     }
 
     public void doStop() throws Exception {
         log.debug("Stopped " + objectName);
+        stop();
     }
 
     public void doFail() {
         log.warn("Failed " + objectName);
+        stop();
+    }
+
+    private void stop() {
+        String jndiName = getJndiName();
+        if (jndiName != null && jndiName.length() > 0) {
+            try {
+                Context context = new InitialContext();
+                context.unbind(jndiName);
+                log.info("JavaMail session unbound from " + jndiName);
+            } catch (NamingException e) {
+                // we tried... this is a common error which occurs during shutdown due to ordering
+            }
+        }
+    }
+
+    private static boolean bindingExists(Context context, Name contextName) {
+        try {
+            return context.lookup(contextName) != null;
+        } catch (NamingException e) {
+        }
+        return false;
     }
 
     /**
@@ -374,6 +441,7 @@ public class MailGBean implements GBeanLifecycle, JavaMailResource {
         infoFactory.addAttribute("host", String.class, true);
         infoFactory.addAttribute("user", String.class, true);
         infoFactory.addAttribute("debug", Boolean.class, true);
+        infoFactory.addAttribute("jndiName", String.class, true);
         infoFactory.addOperation("$getResource");
         infoFactory.addOperation("getProtocols");
         infoFactory.addInterface(JavaMailResource.class);
@@ -387,7 +455,8 @@ public class MailGBean implements GBeanLifecycle, JavaMailResource {
                                                 "transportProtocol",
                                                 "host",
                                                 "user",
-                                                "debug"});
+                                                "debug",
+                                                "jndiName"});
 
         GBEAN_INFO = infoFactory.getBeanInfo();
     }

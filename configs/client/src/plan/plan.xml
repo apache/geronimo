@@ -35,6 +35,9 @@
         <attribute name="nameInNamespace">java:</attribute>
     </gbean>
 
+    <gbean name="GeronimoContext" class="org.apache.geronimo.gjndi.WritableContextGBean">
+        <attribute name="nameInNamespace">ger:</attribute>
+    </gbean>
 
     <gbean name="DefaultThreadPool" class="org.apache.geronimo.pool.ThreadPool">
         <attribute name="keepAliveTime">5000</attribute>

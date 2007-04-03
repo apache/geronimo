@@ -38,6 +38,10 @@
         <attribute name="nameInNamespace">java:</attribute>
     </gbean>
 
+    <gbean name="GeronimoContext" class="org.apache.geronimo.gjndi.WritableContextGBean">
+        <attribute name="nameInNamespace">ger:</attribute>
+    </gbean>
+
     <gbean name="MBeanServerReference" class="org.apache.geronimo.system.jmx.RealMBeanServerReference"/>
 
     <!-- MBean server service -->
