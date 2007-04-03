@@ -290,7 +290,6 @@ public class EjbModuleBuilder implements ModuleBuilder {
 
         for (EnterpriseBean enterpriseBean : ejbJar.getEnterpriseBeans()) {
             enterpriseBean.getEnvEntry().clear();
-            enterpriseBean.getEjbRef().clear();
             enterpriseBean.getEjbLocalRef().clear();
 
             for (Iterator<EjbRef> iterator = enterpriseBean.getEjbRef().iterator(); iterator.hasNext();) {
