@@ -20,6 +20,9 @@ import java.io.IOException;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
+import java.util.TreeSet;
+import java.util.Iterator;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
@@ -38,6 +41,7 @@ import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.ReferenceCollection;
 import org.apache.geronimo.gbean.ReferenceCollectionEvent;
 import org.apache.geronimo.gbean.ReferenceCollectionListener;
+import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.openejb.Container;
@@ -75,7 +79,9 @@ public class OpenEjbSystemGBean implements OpenEjbSystem {
     private static final Log log = LogFactory.getLog(OpenEjbSystemGBean.class);
     private final ConfigurationFactory configurationFactory;
     private final Assembler assembler;
+    private final Set<String> registeredResouceAdapters = new TreeSet<String>();
     private final ConcurrentMap<String,ResourceAdapterWrapper> processedResourceAdapterWrappers =  new ConcurrentHashMap<String,ResourceAdapterWrapper>() ;
+    private final Kernel kernel;
     private final ClassLoader classLoader;
     // These are provided by the corba subsystem when it first initializes.  
     // Once we have a set, we ignore any additional notifications. 
@@ -85,6 +91,7 @@ public class OpenEjbSystemGBean implements OpenEjbSystem {
         this(transactionManager, null, null, OpenEjbSystemGBean.class.getClassLoader());
     }
     public OpenEjbSystemGBean(TransactionManager transactionManager, Collection<ResourceAdapterWrapper> resourceAdapters, Kernel kernel, ClassLoader classLoader) throws Exception {
+        this.kernel = kernel;
         this.classLoader = classLoader;
         
         System.setProperty("duct tape","");
@@ -183,6 +190,11 @@ public class OpenEjbSystemGBean implements OpenEjbSystem {
         if (resourceAdapter == null) {
             return;
         }
+        if (registeredResouceAdapters.contains(resourceAdapterWrapper.getName())) {
+            // already registered
+            return;
+        }
+        registeredResouceAdapters.add(resourceAdapterWrapper.getName());
         
         Map<String, String> listenerToActivationSpecMap = resourceAdapterWrapper.getMessageListenerToActivationSpecMap();
         if (listenerToActivationSpecMap == null) {
@@ -230,6 +242,8 @@ public class OpenEjbSystemGBean implements OpenEjbSystem {
             processedResourceAdapterWrappers.remove(containerName);
             assembler.removeContainer(containerName);
         }
+
+        registeredResouceAdapters.remove(resourceAdapterWrapper.getName());
     }
 
     private String getResourceAdapterId(ResourceAdapterWrapper resourceAdapterWrapper) {
@@ -299,6 +313,16 @@ public class OpenEjbSystemGBean implements OpenEjbSystem {
     }
 
     public void createEjbJar(EjbJarInfo ejbJarInfo, ClassLoader classLoader) throws NamingException, IOException, OpenEJBException {
+        Set names = kernel.listGBeans(new AbstractNameQuery(ResourceAdapterWrapper.class.getName()));
+        for (Iterator iterator = names.iterator(); iterator.hasNext();) {
+            try {
+                AbstractName name = (AbstractName) iterator.next();
+                ResourceAdapterWrapper resourceAdapterWrapper = (ResourceAdapterWrapper) kernel.getGBean(name);
+                addResourceAdapter(resourceAdapterWrapper);
+            } catch (GBeanNotFoundException ignored) {
+            }
+        }
+        
         ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
         Thread.currentThread().setContextClassLoader(classLoader);
         try {
