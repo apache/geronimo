@@ -14,13 +14,9 @@ Upcoming Releases:
 
   Geronimo 1.2 -- geronimo/server/branches/1.2
     Release Manager: Dain Sundstrom and Alan Cabrera
-    Estimated Date: Q4 2006
-    Status:  The release is stalled waiting for final releases from dependent
-      projects.  Specifically, we need releases from:
-    Showstoppers:
-      Yoko 1.0 - Contains many fixes to CORBA interoperability
-      ActiveMQ 4.1.1 - We need a release which contains AMQ-1165 and AMQ-1088
-      OpenEJB 2.3 - Once Yoko is released, OpenEJB 2.3 can be release
+    Estimated Date: early April 2007
+    Status:  We have final releases from our dependent projects and will begin
+      the release process for OpenEJB and Geronimo shortly.
 
 
 RELEASE HISTORY:
