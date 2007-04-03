@@ -76,7 +76,7 @@ public class ClusteredSessionManager extends AbstractSessionManager {
     }
 
     @Override
-    protected Session getSession(String idInCluster) {
+    public Session getSession(String idInCluster) {
         synchronized (idToSession) {
             return idToSession.get(idInCluster);
         }
