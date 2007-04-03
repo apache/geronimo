@@ -37,6 +37,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.cxf.Bus;
 import org.apache.cxf.BusFactory;
+import org.apache.cxf.binding.BindingFactoryManager;
 import org.apache.cxf.bus.CXFBusFactory;
 import org.apache.cxf.service.model.EndpointInfo;
 import org.apache.cxf.tools.common.extensions.soap.SoapAddress;
@@ -65,9 +66,18 @@ public abstract class CXFWebServiceContainer implements WebServiceContainer {
         this.bus = bus;
         this.configurationBaseUrl = configurationBaseUrl;
 
+        // XXX: This is a hack to force the default BindingFactoryManager and 
+        // DestinationFactoryManager implementations to be installed first so that
+        // we can overwrite them later.
+        try {
+            bus.getExtension(BindingFactoryManager.class).getBindingFactory("http://schemas.xmlsoap.org/wsdl/soap/http");
+        } catch (Exception e) {
+            LOG.warn("Failed to initialize BindingFactoryManager", e);
+        }
+            
         List ids = new ArrayList();
-        ids.add("http://schemas.xmlsoap.org/wsdl/soap/http");
-        
+        ids.add("http://schemas.xmlsoap.org/soap/http");
+               
         DestinationFactoryManager destinationFactoryManager = bus
                 .getExtension(DestinationFactoryManager.class);
         GeronimoDestinationFactory factory = new GeronimoDestinationFactory(bus);

@@ -39,6 +39,7 @@ public class EJBWebServiceGBean implements GBeanLifecycle {
 
     private SoapHandler soapHandler;
     private String location;
+    private EJBWebServiceContainer container;
 
     public EJBWebServiceGBean(EjbDeployment ejbDeploymentContext,
                               PortInfo portInfo,                              
@@ -71,14 +72,13 @@ public class EJBWebServiceGBean implements GBeanLifecycle {
                                          configurationBaseUrl, 
                                          "META-INF/jax-ws-catalog.xml");
         
-        EJBWebServiceContainer container = 
-            new EJBWebServiceContainer(bus, configurationBaseUrl, beanClass);
+        this.container = new EJBWebServiceContainer(bus, configurationBaseUrl, beanClass);
         
         ClassLoader classLoader = ejbDeploymentContext.getClassLoader();
         if (soapHandler != null) {
             soapHandler.addWebService(this.location, 
                                       virtualHosts, 
-                                      container, 
+                                      this.container, 
                                       securityRealmName, 
                                       realmName, 
                                       transportGuarantee, 
@@ -94,7 +94,10 @@ public class EJBWebServiceGBean implements GBeanLifecycle {
     public void doStop() throws Exception {        
         if (this.soapHandler != null) {
             this.soapHandler.removeWebService(this.location);
-        }        
+        } 
+        if (this.container != null) {
+            this.container.destroy();
+        }
     }
 
     public void doFail() {
