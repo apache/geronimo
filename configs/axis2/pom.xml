@@ -54,6 +54,12 @@
             <artifactId>webservices-common</artifactId>
             <type>car</type>
             <version>${version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>com.sun.xml.messaging.saaj</groupId>
+                    <artifactId>saaj-impl</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
         <dependency>
