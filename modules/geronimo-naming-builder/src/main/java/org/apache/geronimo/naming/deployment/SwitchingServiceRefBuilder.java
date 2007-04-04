@@ -17,10 +17,13 @@
 
 package org.apache.geronimo.naming.deployment;
 
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.annotation.Resource;
 import javax.xml.namespace.QName;
 
 import org.apache.commons.logging.Log;
@@ -30,15 +33,21 @@ import org.apache.geronimo.deployment.service.EnvironmentBuilder;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.j2ee.deployment.Module;
+import org.apache.geronimo.j2ee.deployment.annotation.AnnotatedApp;
 import org.apache.geronimo.j2ee.deployment.annotation.HandlerChainAnnotationHelper;
+import org.apache.geronimo.j2ee.deployment.annotation.ResourceAnnotationHelper;
 import org.apache.geronimo.j2ee.deployment.annotation.WebServiceRefAnnotationHelper;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.config.Configuration;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.xbeans.geronimo.naming.GerServiceRefDocument;
 import org.apache.geronimo.xbeans.geronimo.naming.GerServiceRefType;
+import org.apache.geronimo.xbeans.javaee.DescriptionType;
+import org.apache.geronimo.xbeans.javaee.FullyQualifiedClassType;
 import org.apache.geronimo.xbeans.javaee.InjectionTargetType;
+import org.apache.geronimo.xbeans.javaee.JndiNameType;
 import org.apache.geronimo.xbeans.javaee.ServiceRefType;
+import org.apache.geronimo.xbeans.javaee.XsdStringType;
 import org.apache.xmlbeans.QNameSet;
 import org.apache.xmlbeans.XmlObject;
 
@@ -193,8 +202,14 @@ public class SwitchingServiceRefBuilder extends AbstractNamingBuilder {
 
         // Process all the annotations for this naming builder type
         //At the moment the only exception thrown is if the resulting doc is not valid.  Bail now.
-        WebServiceRefAnnotationHelper.processAnnotations(module.getAnnotatedApp(), module.getClassFinder());
-        HandlerChainAnnotationHelper.processAnnotations(module.getAnnotatedApp(), module.getClassFinder());
+        try {
+            WebServiceRefAnnotationHelper.processAnnotations(module.getAnnotatedApp(), module.getClassFinder());
+            HandlerChainAnnotationHelper.processAnnotations(module.getAnnotatedApp(), module.getClassFinder());
+            ResourceAnnotationHelper.processAnnotations(module.getAnnotatedApp(), module.getClassFinder(), ServiceRefProcessor.INSTANCE);
+        }
+        catch (Exception e) {
+            log.warn("Unable to process @Resource annotations for module" + module.getName(), e);
+        }
     }
 
     public QNameSet getSpecQNameSet() {
@@ -203,6 +218,103 @@ public class SwitchingServiceRefBuilder extends AbstractNamingBuilder {
 
     public QNameSet getPlanQNameSet() {
         return GER_SERVICE_REF_QNAME_SET;
+    }
+
+    public static class ServiceRefProcessor extends ResourceAnnotationHelper.ResourceProcessor {
+
+        public static final ServiceRefProcessor INSTANCE = new ServiceRefProcessor();
+
+        private ServiceRefProcessor() {
+        }
+
+        public boolean processResource(AnnotatedApp annotatedApp, Resource annotation, Class cls, Method method, Field field) {
+            log.debug("processResource( [annotatedApp] " + annotatedApp.toString() + "," + '\n' +
+                    "[annotation] " + annotation.toString() + "," + '\n' +
+                    "[cls] " + (cls != null ? cls.getName() : null) + "," + '\n' +
+                    "[method] " + (method != null ? method.getName() : null) + "," + '\n' +
+                    "[field] " + (field != null ? field.getName() : null) + " ): Entry");
+
+            String resourceName = getResourceName(annotation, method, field);
+            String resourceType = getResourceType(annotation, method, field);
+
+            log.debug("processResource(): resourceName: " + resourceName);
+            log.debug("processResource(): resourceType: " + resourceType);
+
+            if (resourceType.equals("javax.xml.rpc.Service") ||
+                resourceType.equals("javax.xml.ws.Service") ||
+                resourceType.equals("javax.jws.WebService")) {
+
+                log.debug("processResource(): <service-ref> found");
+
+                boolean exists = false;
+                ServiceRefType[] serviceRefs = annotatedApp.getServiceRefArray();
+                for (ServiceRefType serviceRef : serviceRefs) {
+                    if (serviceRef.getServiceRefName().getStringValue().trim().equals(resourceName)) {
+                        if (method != null || field != null) {
+                            InjectionTargetType[] targets = serviceRef.getInjectionTargetArray();
+                            if (!hasTarget(method, field, targets)) {
+                                configureInjectionTarget(serviceRef.addNewInjectionTarget(), method, field);
+                            }
+                        }
+                        exists = true;
+                        break;
+                    }
+                }
+                if (!exists) {
+                    try {
+
+                        log.debug("processResource(): Does not exist in DD: " + resourceName);
+
+                        // Doesn't exist in deployment descriptor -- add new
+                        ServiceRefType serviceRef = annotatedApp.addNewServiceRef();
+
+                        //------------------------------------------------------------------------------
+                        // <service-ref> required elements:
+                        //------------------------------------------------------------------------------
+
+                        // service-ref-name
+                        JndiNameType serviceRefName = serviceRef.addNewServiceRefName();
+                        serviceRefName.setStringValue(resourceName);
+                        serviceRef.setServiceRefName(serviceRefName);
+
+                        // service-ref-interface
+                        FullyQualifiedClassType serviceRefInterfaceClass = serviceRef.addNewServiceInterface();
+                        serviceRefInterfaceClass.setStringValue(resourceType);
+                        serviceRef.setServiceInterface(serviceRefInterfaceClass);
+
+                        //------------------------------------------------------------------------------
+                        // <service-ref> optional elements:
+                        //------------------------------------------------------------------------------
+
+                        // description
+                        String descriptionAnnotation = annotation.description();
+                        if (!descriptionAnnotation.equals("")) {
+                            DescriptionType description = serviceRef.addNewDescription();
+                            description.setStringValue(descriptionAnnotation);
+                        }
+
+                        // service-ref-type
+                        if (!serviceRef.isSetServiceRefType()) {
+                            FullyQualifiedClassType serviceRefTypeClass = serviceRef.addNewServiceRefType();
+                            serviceRefTypeClass.setStringValue(resourceType);
+                            serviceRef.setServiceRefType(serviceRefTypeClass);
+                        }
+
+                        // mappedName
+                        if (!serviceRef.isSetMappedName() && annotation.mappedName().trim().length() > 0) {
+                            XsdStringType mappedName = serviceRef.addNewMappedName();
+                            mappedName.setStringValue(annotation.mappedName().trim());
+                            serviceRef.setMappedName(mappedName);
+                        }
+                    }
+                    catch (Exception anyException) {
+                        log.debug("SwitchServiceRefBuilder: Exception caught while processing <service-ref>");
+                    }
+                }
+                return true;
+            }
+            return false;
+        }
     }
 
     public static final GBeanInfo GBEAN_INFO;

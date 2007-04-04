@@ -61,11 +61,6 @@ import org.apache.xmlbeans.XmlObject;
  *      exception will be thrown if it fails to parse
  * </ul>
  *
- * <p><strong>Remaining ToDo(s):</strong>
- * <ul>
- *      <li>None
- * </ul>
- *
  * @version $Rev $Date
  * @since 03-2007
  */
@@ -103,21 +98,9 @@ public final class HandlerChainAnnotationHelper extends AnnotationHelper {
     private static void processHandlerChain(AnnotatedApp annotatedApp, ClassFinder classFinder) throws DeploymentException {
         log.debug("processHandlerChain(): Entry: AnnotatedApp: " + annotatedApp.toString());
 
-//      List<Class> classeswithHandlerChain = classFinder.findAnnotatedClasses(HandlerChain.class);
         List<Method> methodswithHandlerChain = classFinder.findAnnotatedMethods(HandlerChain.class);
         List<Field> fieldswithHandlerChain = classFinder.findAnnotatedFields(HandlerChain.class);
 
-// TODO: GERONIMO-2956
-//       If we ultimately determine that handler chain annotations at a class-level do not need to be processed
-//       in conjunction with any other annotations, which seems likely at this point, then these comments can be
-//       removed
-// Class-level annotation
-//      for ( Class cls : classeswithHandlerChain ) {
-//          HandlerChain handlerChain = (HandlerChain) cls.getAnnotation(HandlerChain.class);
-//          if ( handlerChain != null ) {
-//              addHandlerChain(annotatedApp, handlerChain, cls, null, null);
-//          }
-//      }
 
         // Method-level annotation
         for ( Method method : methodswithHandlerChain ) {
@@ -165,10 +148,11 @@ public final class HandlerChainAnnotationHelper extends AnnotationHelper {
      * @param field      Field name with the @HandlerChain annotation
      */
     private static void addHandlerChain(AnnotatedApp annotatedApp, final HandlerChain annotation, Class cls, Method method, Field field) {
-        log.debug("addHandlerChain( " + annotatedApp.toString() + "," + '\n' +
-                           (cls != null ? cls.getName() : null) + "," + '\n' +
-                           (method != null ? method.getName() : null) + "," + '\n' +
-                           (field != null ? field.getName() : null) + " ): Entry");
+        log.debug("addHandlerChain( [annotatedApp] " + annotatedApp.toString() + "," + '\n' +
+                "[annotation] " + annotation.toString() + "," + '\n' +
+                "[cls] " + (cls != null ? cls.getName() : null) + "," + '\n' +
+                "[method] " + (method != null ? method.getName() : null) + "," + '\n' +
+                "[field] " + (field != null ? field.getName() : null) + " ): Entry");
 
         //------------------------------------------------------------------------------------------
         // HandlerChain members:
@@ -290,7 +274,7 @@ public final class HandlerChainAnnotationHelper extends AnnotationHelper {
             url = Thread.currentThread().getContextClassLoader().getResource(loc);
         }
 
-        log.debug("getURL(): Exit: url: " + url.toString() );
+        log.debug("getURL(): Exit: url: " + (url != null ? url.toString() : null) );
         return url;
     }
 

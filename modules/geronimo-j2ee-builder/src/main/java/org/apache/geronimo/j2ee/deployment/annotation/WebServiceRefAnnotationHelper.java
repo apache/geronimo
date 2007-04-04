@@ -230,7 +230,7 @@ public final class WebServiceRefAnnotationHelper extends AnnotationHelper {
         //------------------------------------------------------------------------------------------
         Class webServiceRefType = annotation.type();
         Class webServiceRefValue = annotation.value();
-        if (webServiceRefType.equals(Object.class)) {
+        if (webServiceRefType.equals("") || webServiceRefType.equals(Object.class)) {
             if (method != null) {
                 webServiceRefType = method.getParameterTypes()[0];
             } else if (field != null) {
@@ -252,7 +252,7 @@ public final class WebServiceRefAnnotationHelper extends AnnotationHelper {
         //------------------------------------------------------------------------------------------
 
         ServiceRefType serviceRef = null;
-        
+
         ServiceRefType[] serviceRefs = annotatedApp.getServiceRefArray();
         for (ServiceRefType currServiceRef : serviceRefs) {
             if (currServiceRef.getServiceRefName().getStringValue().trim().equals(webServiceRefName)) {
@@ -272,7 +272,8 @@ public final class WebServiceRefAnnotationHelper extends AnnotationHelper {
             // service-ref-name
             JndiNameType serviceRefName = serviceRef.addNewServiceRefName();
             serviceRefName.setStringValue(webServiceRefName);
-        
+            serviceRef.setServiceRefName(serviceRefName);
+
             // service-ref-interface
             if (!webServiceRefValue.equals(Object.class)) {
                 FullyQualifiedClassType qualifiedClass = serviceRef.addNewServiceInterface();
@@ -284,7 +285,7 @@ public final class WebServiceRefAnnotationHelper extends AnnotationHelper {
                 serviceRef.setServiceInterface(qualifiedClass);
             }
         }
-        
+
         //------------------------------------------------------------------------------
         // <service-ref> optional elements:
         //------------------------------------------------------------------------------
@@ -306,7 +307,7 @@ public final class WebServiceRefAnnotationHelper extends AnnotationHelper {
         // WSDL document location
         if (!serviceRef.isSetWsdlFile()) {
             String wsdlLocation = annotation.wsdlLocation();
-            
+
             if (wsdlLocation == null || wsdlLocation.trim().length() == 0) {
                 WebServiceClient wsClient = null;
                 if (Object.class.equals(webServiceRefValue)) {
@@ -314,13 +315,13 @@ public final class WebServiceRefAnnotationHelper extends AnnotationHelper {
                 } else {
                     wsClient = (WebServiceClient) webServiceRefValue.getAnnotation(WebServiceClient.class);
                 }
-                if (wsClient == null) {                    
+                if (wsClient == null) {
                     wsdlLocation = null;
                 } else {
                     wsdlLocation = wsClient.wsdlLocation();
                 }
             }
-            
+
             if (wsdlLocation != null && wsdlLocation.trim().length() > 0) {
                 XsdAnyURIType wsdlFile = serviceRef.addNewWsdlFile();
                 wsdlFile.setStringValue(wsdlLocation);

@@ -286,7 +286,7 @@ public class AdminObjectRefBuilder extends AbstractNamingBuilder {
         return GER_ADMIN_OBJECT_REF_QNAME_SET;
     }
 
-    static class AdminObjectRefProcessor extends ResourceAnnotationHelper.ResourceProcessor {
+    public static class AdminObjectRefProcessor extends ResourceAnnotationHelper.ResourceProcessor {
         private final Configuration localConfiguration;
         private final Map<String, GerResourceEnvRefType> refMap;
         private final Map<String, Map<String, GerMessageDestinationType>> messageDestinations;

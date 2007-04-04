@@ -26,6 +26,7 @@ import java.util.List;
 import javax.persistence.PersistenceContext;
 import javax.persistence.PersistenceContexts;
 import javax.persistence.PersistenceContextType;
+import javax.persistence.PersistenceProperty;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -37,7 +38,7 @@ import org.apache.geronimo.xbeans.javaee.JndiNameType;
 import org.apache.geronimo.xbeans.javaee.PersistenceContextRefType;
 import org.apache.geronimo.xbeans.javaee.PersistenceContextTypeType;
 import org.apache.geronimo.xbeans.javaee.PropertyType;
-import org.apache.geronimo.xbeans.javaee.XsdAnyURIType;
+import org.apache.geronimo.xbeans.javaee.XsdStringType;
 import org.apache.xbean.finder.ClassFinder;
 
 
@@ -218,7 +219,7 @@ public final class PersistenceContextAnnotationHelper extends AnnotationHelper {
         }
         log.debug("addPersistenceContext(): PersistenceContextRefName: " + persistenceContextRefName);
 
-        // If there is already xml for the persistence unit ref, just add injection targets and return.
+        // If there is already xml for the persistence context ref, just add injection targets and return.
         PersistenceContextRefType[] persistenceContextRefs = annotatedApp.getPersistenceContextRefArray();
         for (PersistenceContextRefType persistenceContextRef : persistenceContextRefs) {
             if (persistenceContextRef.getPersistenceContextRefName().getStringValue().trim().equals(persistenceContextRefName)) {
@@ -263,6 +264,16 @@ public final class PersistenceContextAnnotationHelper extends AnnotationHelper {
             PersistenceContextTypeType persistenceContextType = persistenceContextRef.addNewPersistenceContextType();
             persistenceContextType.setStringValue("Extended");
             persistenceContextRef.setPersistenceContextType(persistenceContextType);
+        }
+
+        // persistence-context-properties
+        PersistenceProperty[] properties = annotation.properties();
+        for (PersistenceProperty property : properties) {
+            PropertyType propertyType = persistenceContextRef.addNewPersistenceProperty();
+            XsdStringType propertyName = propertyType.addNewName();
+            propertyName.setStringValue(property.name());
+            XsdStringType propertyValue = propertyType.addNewValue();
+            propertyValue.setStringValue(property.value());
         }
 
         // injection targets

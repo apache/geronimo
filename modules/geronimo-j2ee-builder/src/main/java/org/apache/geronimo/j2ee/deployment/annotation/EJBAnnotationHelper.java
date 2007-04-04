@@ -207,11 +207,11 @@ public final class EJBAnnotationHelper {
      * @param field        Field name with the @EJB annoation
      */
     private static void addEJB(AnnotatedApp annotatedApp, EJB annotation, Class cls, Method method, Field field) {
-        log.debug("addEJB( " + annotatedApp.toString() + "," + '\n' +
-                annotation.name() + "," + '\n' +
-                (cls != null ? cls.getName() : null) + "," + '\n' +
-                (method != null ? method.getName() : null) + "," + '\n' +
-                (field != null ? field.getName() : null) + " ): Entry");
+        log.debug("addEJB( [annotatedApp] " + annotatedApp.toString() + "," + '\n' +
+                "[annotation] " + annotation.toString() + "," + '\n' +
+                "[cls] " + (cls != null ? cls.getName() : null) + "," + '\n' +
+                "[method] " + (method != null ? method.getName() : null) + "," + '\n' +
+                "[field] " + (field != null ? field.getName() : null) + " ): Entry");
 
         // First determine if the interface is "Local" or "Remote" (if we can--we may not be able to)
         boolean localFlag = false;
@@ -226,6 +226,7 @@ public final class EJBAnnotationHelper {
                 interfce = null;
             }
         }
+        log.debug("addEJB(): interfce: " + interfce);
 
         // Just in case local and/or remote homes are still being implemented (even though
         // they are optional in EJB 3.0)
@@ -242,6 +243,8 @@ public final class EJBAnnotationHelper {
                 }
             }
         }
+        log.debug("addEJB(): localFlag: " + localFlag);
+        log.debug("addEJB(): remoteFlag: " + remoteFlag);
 
         //------------------------------------------------------------------------------------------
         // 1. <ejb-local-ref>
@@ -289,11 +292,13 @@ public final class EJBAnnotationHelper {
                     //------------------------------------------------------------------------------
 
                     // local
-                    String localAnnotation = interfce.getName();
-                    if (!localAnnotation.equals("")) {
-                        LocalType local = ejbLocalRef.addNewLocal();
-                        local.setStringValue(localAnnotation);
-                        ejbLocalRef.setLocal(local);
+                    if (interfce != null) {
+                        String localAnnotation = interfce.getName();
+                        if (!localAnnotation.equals("")) {
+                            LocalType local = ejbLocalRef.addNewLocal();
+                            local.setStringValue(localAnnotation);
+                            ejbLocalRef.setLocal(local);
+                        }
                     }
 
                     // ejb-link
@@ -320,19 +325,22 @@ public final class EJBAnnotationHelper {
                     }
 
                     // injectionTarget
-                    InjectionTargetType injectionTarget = ejbLocalRef.addNewInjectionTarget();
-                    FullyQualifiedClassType qualifiedClass = injectionTarget.addNewInjectionTargetClass();
-                    JavaIdentifierType javaType = injectionTarget.addNewInjectionTargetName();
-                    if (method != null) {
-                        qualifiedClass.setStringValue(method.getDeclaringClass().getName());
-                        javaType.setStringValue(method.getName().substring(3));   // method should start with "set"
-                        injectionTarget.setInjectionTargetClass(qualifiedClass);
-                        injectionTarget.setInjectionTargetName(javaType);
-                    } else if (field != null) {
-                        qualifiedClass.setStringValue(field.getDeclaringClass().getName());
-                        javaType.setStringValue(field.getName());
-                        injectionTarget.setInjectionTargetClass(qualifiedClass);
-                        injectionTarget.setInjectionTargetName(javaType);
+                    if (method != null || field != null) {                            // No class-level injection
+                        InjectionTargetType injectionTarget = ejbLocalRef.addNewInjectionTarget();
+                        FullyQualifiedClassType qualifiedClass = injectionTarget.addNewInjectionTargetClass();
+                        JavaIdentifierType javaType = injectionTarget.addNewInjectionTargetName();
+                        if (method != null) {
+                            qualifiedClass.setStringValue(method.getDeclaringClass().getName());
+                            javaType.setStringValue(method.getName().substring(3));   // method should start with "set"
+                            injectionTarget.setInjectionTargetClass(qualifiedClass);
+                            injectionTarget.setInjectionTargetName(javaType);
+                        }
+                        else if (field != null) {
+                            qualifiedClass.setStringValue(field.getDeclaringClass().getName());
+                            javaType.setStringValue(field.getName());
+                            injectionTarget.setInjectionTargetClass(qualifiedClass);
+                            injectionTarget.setInjectionTargetName(javaType);
+                        }
                     }
 
                 }
@@ -389,11 +397,13 @@ public final class EJBAnnotationHelper {
                     //------------------------------------------------------------------------------
 
                     // remote
-                    String remoteAnnotation = interfce.getName();
-                    if (!remoteAnnotation.equals("")) {
-                        RemoteType remote = ejbRef.addNewRemote();
-                        remote.setStringValue(remoteAnnotation);
-                        ejbRef.setRemote(remote);
+                    if (interfce != null) {
+                        String remoteAnnotation = interfce.getName();
+                        if (!remoteAnnotation.equals("")) {
+                            RemoteType remote = ejbRef.addNewRemote();
+                            remote.setStringValue(remoteAnnotation);
+                            ejbRef.setRemote(remote);
+                        }
                     }
 
                     // ejb-link
@@ -420,19 +430,22 @@ public final class EJBAnnotationHelper {
                     }
 
                     // injectionTarget
-                    InjectionTargetType injectionTarget = ejbRef.addNewInjectionTarget();
-                    FullyQualifiedClassType qualifiedClass = injectionTarget.addNewInjectionTargetClass();
-                    JavaIdentifierType javaType = injectionTarget.addNewInjectionTargetName();
-                    if (method != null) {
-                        qualifiedClass.setStringValue(method.getDeclaringClass().getName());
-                        javaType.setStringValue(method.getName().substring(3));   // method should start with "set"
-                        injectionTarget.setInjectionTargetClass(qualifiedClass);
-                        injectionTarget.setInjectionTargetName(javaType);
-                    } else if (field != null) {
-                        qualifiedClass.setStringValue(field.getDeclaringClass().getName());
-                        javaType.setStringValue(field.getName());
-                        injectionTarget.setInjectionTargetClass(qualifiedClass);
-                        injectionTarget.setInjectionTargetName(javaType);
+                    if (method != null || field != null) {                            // No class-level injection
+                        InjectionTargetType injectionTarget = ejbRef.addNewInjectionTarget();
+                        FullyQualifiedClassType qualifiedClass = injectionTarget.addNewInjectionTargetClass();
+                        JavaIdentifierType javaType = injectionTarget.addNewInjectionTargetName();
+                        if (method != null) {
+                            qualifiedClass.setStringValue(method.getDeclaringClass().getName());
+                            javaType.setStringValue(method.getName().substring(3));   // method should start with "set"
+                            injectionTarget.setInjectionTargetClass(qualifiedClass);
+                            injectionTarget.setInjectionTargetName(javaType);
+                        }
+                        else if (field != null) {
+                            qualifiedClass.setStringValue(field.getDeclaringClass().getName());
+                            javaType.setStringValue(field.getName());
+                            injectionTarget.setInjectionTargetClass(qualifiedClass);
+                            injectionTarget.setInjectionTargetName(javaType);
+                        }
                     }
 
                 }
@@ -490,11 +503,13 @@ public final class EJBAnnotationHelper {
                     //------------------------------------------------------------------------------
 
                     // remote
-                    String remoteAnnotation = interfce.getName();
-                    if (!remoteAnnotation.equals("")) {
-                        RemoteType remote = ejbRef.addNewRemote();
-                        remote.setStringValue(remoteAnnotation);
-                        ejbRef.setRemote(remote);
+                    if (interfce != null) {
+                        String remoteAnnotation = interfce.getName();
+                        if (!remoteAnnotation.equals("")) {
+                            RemoteType remote = ejbRef.addNewRemote();
+                            remote.setStringValue(remoteAnnotation);
+                            ejbRef.setRemote(remote);
+                        }
                     }
 
                     // ejb-link
@@ -521,19 +536,22 @@ public final class EJBAnnotationHelper {
                     }
 
                     // injectionTarget
-                    InjectionTargetType injectionTarget = ejbRef.addNewInjectionTarget();
-                    FullyQualifiedClassType qualifiedClass = injectionTarget.addNewInjectionTargetClass();
-                    JavaIdentifierType javaType = injectionTarget.addNewInjectionTargetName();
-                    if (method != null) {
-                        qualifiedClass.setStringValue(method.getDeclaringClass().getName());
-                        javaType.setStringValue(method.getName().substring(3));   // method should start with "set"
-                        injectionTarget.setInjectionTargetClass(qualifiedClass);
-                        injectionTarget.setInjectionTargetName(javaType);
-                    } else if (field != null) {
-                        qualifiedClass.setStringValue(field.getDeclaringClass().getName());
-                        javaType.setStringValue(field.getName());
-                        injectionTarget.setInjectionTargetClass(qualifiedClass);
-                        injectionTarget.setInjectionTargetName(javaType);
+                    if (method != null || field != null) {                            // No class-level injection
+                        InjectionTargetType injectionTarget = ejbRef.addNewInjectionTarget();
+                        FullyQualifiedClassType qualifiedClass = injectionTarget.addNewInjectionTargetClass();
+                        JavaIdentifierType javaType = injectionTarget.addNewInjectionTargetName();
+                        if (method != null) {
+                            qualifiedClass.setStringValue(method.getDeclaringClass().getName());
+                            javaType.setStringValue(method.getName().substring(3));   // method should start with "set"
+                            injectionTarget.setInjectionTargetClass(qualifiedClass);
+                            injectionTarget.setInjectionTargetName(javaType);
+                        }
+                        else if (field != null) {
+                            qualifiedClass.setStringValue(field.getDeclaringClass().getName());
+                            javaType.setStringValue(field.getName());
+                            injectionTarget.setInjectionTargetClass(qualifiedClass);
+                            injectionTarget.setInjectionTargetName(javaType);
+                        }
                     }
 
                 }

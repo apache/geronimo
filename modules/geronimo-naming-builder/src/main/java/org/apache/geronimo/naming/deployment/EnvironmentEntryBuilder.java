@@ -128,7 +128,7 @@ public class EnvironmentEntryBuilder extends AbstractNamingBuilder {
         return QNameSet.EMPTY;
     }
 
-    static class EnvEntryRefProcessor extends ResourceAnnotationHelper.ResourceProcessor {
+    public static class EnvEntryRefProcessor extends ResourceAnnotationHelper.ResourceProcessor {
 
         public static final EnvEntryRefProcessor INSTANCE = new EnvEntryRefProcessor();
 
@@ -185,8 +185,12 @@ public class EnvironmentEntryBuilder extends AbstractNamingBuilder {
                         }
 
                         // env-entry-value
-                        XsdStringType value = envEntry.addNewEnvEntryValue();
-                        value.setStringValue(annotation.mappedName());
+                        String mappdedNameAnnotation = annotation.mappedName();
+                        if (!mappdedNameAnnotation.equals("")) {
+                            XsdStringType value = envEntry.addNewEnvEntryValue();
+                            value.setStringValue(mappdedNameAnnotation);
+                            envEntry.setMappedName(value);
+                        }
 
                         //------------------------------------------------------------------------------
                         // <env-entry> optional elements:

@@ -245,7 +245,7 @@ public class ResourceRefBuilder extends AbstractNamingBuilder implements Resourc
         return GER_RESOURCE_REF_QNAME_SET;
     }
 
-    static class ResourceRefProcessor extends ResourceAnnotationHelper.ResourceProcessor {
+    public static class ResourceRefProcessor extends ResourceAnnotationHelper.ResourceProcessor {
 
         public static final ResourceRefProcessor INSTANCE = new ResourceRefProcessor();
 
@@ -253,6 +253,12 @@ public class ResourceRefBuilder extends AbstractNamingBuilder implements Resourc
         }
 
         public boolean processResource(AnnotatedApp annotatedApp, Resource annotation, Class cls, Method method, Field field) {
+            log.debug("processResource( [annotatedApp] " + annotatedApp.toString() + "," + '\n' +
+                    "[annotation] " + annotation.toString() + "," + '\n' +
+                    "[cls] " + (cls != null ? cls.getName() : null) + "," + '\n' +
+                    "[method] " + (method != null ? method.getName() : null) + "," + '\n' +
+                    "[field] " + (field != null ? field.getName() : null) + " ): Entry");
+
             String resourceName = getResourceName(annotation, method, field);
             String resourceType = getResourceType(annotation, method, field);
             if (resourceType.equals("javax.sql.DataSource") ||
@@ -265,7 +271,7 @@ public class ResourceRefBuilder extends AbstractNamingBuilder implements Resourc
                     resourceType.equals("org.omg.CORBA_2_3.ORB") ||
                     resourceType.endsWith("ConnectionFactory")) {
 
-                log.debug("addResource(): <resource-ref> found");
+                log.debug("processResource(): <resource-ref> found");
 
                 boolean exists = false;
                 ResourceRefType[] resourceRefs = annotatedApp.getResourceRefArray();
@@ -284,7 +290,7 @@ public class ResourceRefBuilder extends AbstractNamingBuilder implements Resourc
                 if (!exists) {
                     try {
 
-                        log.debug("addResource(): Does not exist in DD: " + resourceName);
+                        log.debug("processResource(): Does not exist in DD: " + resourceName);
 
                         // Doesn't exist in deployment descriptor -- add new
                         ResourceRefType resourceRef = annotatedApp.addNewResourceRef();
@@ -296,13 +302,11 @@ public class ResourceRefBuilder extends AbstractNamingBuilder implements Resourc
                         // resource-ref-name
                         JndiNameType resourceRefName = resourceRef.addNewResRefName();
                         resourceRefName.setStringValue(resourceName);
-                        resourceRef.setResRefName(resourceRefName);
 
                         if (!resourceType.equals("")) {
                             // resource-ref-type
                             FullyQualifiedClassType qualifiedClass = resourceRef.addNewResType();
                             qualifiedClass.setStringValue(resourceType);
-                            resourceRef.setResType(qualifiedClass);
                         }
                         if (method != null || field != null) {
                             // injectionTarget
@@ -347,8 +351,7 @@ public class ResourceRefBuilder extends AbstractNamingBuilder implements Resourc
 
                     }
                     catch (Exception anyException) {
-                        log.debug("ResourceAnnotationHelper: Exception caught while processing <resource-ref>");
-                        anyException.printStackTrace();
+                        log.debug("ResourceRefBuilder: Exception caught while processing <resource-ref>");
                     }
                 }
                 return true;
