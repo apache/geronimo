@@ -360,14 +360,16 @@ public class JspModuleBuilderExtension implements ModuleBuilderExtension {
                     URL urlJC = jarConnection.getJarFileURL();
                     URI baseURI = new URI(urlJC.toString().replaceAll(" ", "%20"));
                     directory = new File(baseURI);
-                    if (directory.isDirectory() && directory.canRead()) {
-                        JarFile temp = new JarFile(directory);
-                        List<URL> tempURLs = scanJAR(temp, "META-INF");
-                        for (URL jarURL : tempURLs) {
-                            dirURLs.add(jarURL);
+                    if (directory.isDirectory()) {
+                        if (directory.canRead()) {
+                            JarFile temp = new JarFile(directory);
+                            List<URL> tempURLs = scanJAR(temp, "META-INF");
+                            for (URL jarURL : tempURLs) {
+                                dirURLs.add(jarURL);
+                            }
+                        } else {
+                            log.warn("Cannot read JAR file: " + url.toString());
                         }
-                    } else {
-                        log.warn("Cannot read JAR file: " + url.toString());
                     }
                 }
                 catch (Exception e) {
