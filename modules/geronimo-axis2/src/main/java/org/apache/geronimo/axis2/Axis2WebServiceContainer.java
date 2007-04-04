@@ -58,6 +58,11 @@ import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.wsdl.Definition;
+import javax.wsdl.Service;
+import javax.wsdl.Port;
+import javax.wsdl.extensions.ExtensibilityElement;
+import javax.wsdl.extensions.soap.SOAPAddress;
+import javax.wsdl.extensions.soap12.SOAP12Address;
 import javax.wsdl.factory.WSDLFactory;
 import javax.wsdl.xml.WSDLWriter;
 import javax.xml.namespace.QName;
@@ -66,9 +71,11 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.URI;
 import java.net.URL;
+import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.List;
 import java.util.concurrent.CountDownLatch;
 
 /**
@@ -456,6 +463,14 @@ public abstract class Axis2WebServiceContainer implements WebServiceContainer {
             if (portInfo.getWsdlFile() != null && !portInfo.getWsdlFile().equals("")) { //wsdl file has been provided
                 Definition wsdlDefinition = new AxisServiceGenerator().getWSDLDefition(portInfo, configurationBaseUrl, classLoader);
                 if(wsdlDefinition != null){
+                    String portName = portInfo.getPortName();
+                    QName qName = portInfo.getWsdlService();
+                    if(qName == null || portName == null) {
+                        log.info("Unable to call updateServices ["+ qName + "][" + portName +"]");                        
+                    } else {
+                        log.info("calling updateServices ["+ qName + "][" + portName +"]");                        
+                        updateServices(qName, portName, wsdlDefinition, request);
+                    }
                     WSDLFactory factory = WSDLFactory.newInstance();
                     WSDLWriter writer = factory.newWSDLWriter();                    
                     writer.writeWSDL(wsdlDefinition, response.getOutputStream());
@@ -556,4 +571,69 @@ public abstract class Axis2WebServiceContainer implements WebServiceContainer {
                 soapAction,
                 request.getURI().getPath());
     }
+
+    private void updateServices(QName serviceName, String portName, Definition def, Request request)
+        throws Exception {
+        boolean updated = false;
+        Map services = def.getServices();
+        if (services != null) {
+            Iterator serviceIterator = services.entrySet().iterator();
+            while (serviceIterator.hasNext()) {
+                Map.Entry serviceEntry = (Map.Entry) serviceIterator.next();
+                QName currServiceName = (QName) serviceEntry.getKey();
+                if (currServiceName.equals(serviceName)) {
+                    Service service = (Service) serviceEntry.getValue();
+                    updatePorts(portName, service, request);
+                    updated = true;
+                } else {
+                    def.removeService(currServiceName);
+                }
+            }
+        }
+        if (!updated) {
+            log.warn("WSDL '" + serviceName.getLocalPart() + "' service not found.");
+        }
+    }
+
+    private void updatePorts(String portName, Service service, Request request)
+        throws Exception {
+        boolean updated = false;
+        Map ports = service.getPorts();
+        if (ports != null) {
+            Iterator portIterator = ports.entrySet().iterator();
+            while (portIterator.hasNext()) {
+                Map.Entry portEntry = (Map.Entry) portIterator.next();
+                String currPortName = (String) portEntry.getKey();
+                if (currPortName.equals(portName)) {
+                    Port port = (Port) portEntry.getValue();
+                    updatePortLocation(request, port);
+                    updated = true;
+                } else {
+                    service.removePort(currPortName);
+                }
+            }
+        }
+        if (!updated) {
+            log.warn("WSDL '" + portName + "' port not found.");
+        }
+    }
+
+    private void updatePortLocation(Request request, Port port) throws URISyntaxException {
+        List<?> exts = port.getExtensibilityElements();
+        if (exts != null && exts.size() > 0) {
+            URI requestURI = request.getURI();
+            URI serviceURI = new URI(requestURI.getScheme(), null,
+                                     requestURI.getHost(), requestURI.getPort(),
+                                     requestURI.getPath(), null, null);
+            ExtensibilityElement el = (ExtensibilityElement) exts.get(0);
+            if(el instanceof SOAP12Address){
+                SOAP12Address add = (SOAP12Address)el;
+                add.setLocationURI(serviceURI.toString());
+            } else if (el instanceof SOAPAddress) {
+                SOAPAddress add = (SOAPAddress)el;
+                add.setLocationURI(serviceURI.toString());
+            }
+        }
+    }
+
 }
