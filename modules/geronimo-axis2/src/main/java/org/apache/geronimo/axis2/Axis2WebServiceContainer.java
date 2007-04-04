@@ -465,6 +465,12 @@ public abstract class Axis2WebServiceContainer implements WebServiceContainer {
                 if(wsdlDefinition != null){
                     String portName = portInfo.getPortName();
                     QName qName = portInfo.getWsdlService();
+                    if (qName == null) {
+                        qName = new QName(service.getTargetNamespace(), service.getName());
+                    }
+                    if (portName == null) {
+                        portName = service.getEndpointName();
+                    }
                     if(qName == null || portName == null) {
                         log.info("Unable to call updateServices ["+ qName + "][" + portName +"]");                        
                     } else {
