@@ -56,6 +56,8 @@ import org.apache.geronimo.xbeans.javaee.ServiceRefHandlerChainsType;
 import org.apache.geronimo.xbeans.javaee.WebserviceDescriptionType;
 import org.apache.geronimo.xbeans.javaee.WebservicesDocument;
 import org.apache.geronimo.xbeans.javaee.WebservicesType;
+import org.apache.xmlbeans.XmlCursor;
+import org.apache.xmlbeans.XmlObject;
 
 public class Axis2Builder extends JAXWSServiceBuilder {
 
@@ -83,74 +85,83 @@ public class Axis2Builder extends JAXWSServiceBuilder {
         log.debug("Parsing descriptor " + wsDDUrl);
 
         Map<String, PortInfo> map = null;
+        XmlCursor cursor = null;
 
         try {
-            WebservicesType wst = WebservicesDocument.Factory.parse(in).getWebservices();
+            XmlObject xobj = XmlObject.Factory.parse(in);
+           
+            cursor = xobj.newCursor();
+            cursor.toStartDoc();
+            cursor.toFirstChild();
+            //the checking is needed as we also send JAX-RPC based webservices.xml here
+            if ("http://java.sun.com/xml/ns/javaee".equals(cursor.getName().getNamespaceURI())) {
+                WebservicesDocument wd = (WebservicesDocument)xobj.changeType(WebservicesDocument.type);
+                WebservicesType wst = wd.getWebservices();
 
-            for (WebserviceDescriptionType desc : wst.getWebserviceDescriptionArray()) {
-                String wsdlFile = null;
-                if (desc.getWsdlFile() != null) {
-                    wsdlFile = getString(desc.getWsdlFile().getStringValue());
-                }
-
-                String serviceName = desc.getWebserviceDescriptionName().getStringValue();
-
-                for (PortComponentType port : desc.getPortComponentArray()) {
-
-                    PortInfo portInfo = new PortInfo();
-                    String serviceLink = null;
-                    ServiceImplBeanType beanType = port.getServiceImplBean();
-                    if (beanType.getEjbLink() != null) {
-                        serviceLink = beanType.getEjbLink().getStringValue();
-                    } else if (beanType.getServletLink().getStringValue() != null) {
-                        serviceLink = beanType.getServletLink().getStringValue();
-                    }
-                    portInfo.setServiceLink(serviceLink);
-
-                    if (port.getServiceEndpointInterface() != null) {
-                        String sei = port.getServiceEndpointInterface().getStringValue();
-                        portInfo.setServiceEndpointInterfaceName(sei);
+                for (WebserviceDescriptionType desc : wst.getWebserviceDescriptionArray()) {
+                    String wsdlFile = null;
+                    if (desc.getWsdlFile() != null) {
+                        wsdlFile = getString(desc.getWsdlFile().getStringValue());
                     }
 
-                    String portName = port.getPortComponentName().getStringValue();
-                    portInfo.setPortName(portName);
+                    String serviceName = desc.getWebserviceDescriptionName().getStringValue();
 
-                    portInfo.setProtocolBinding(port.getProtocolBinding());
-                    portInfo.setServiceName(serviceName);
-                    portInfo.setWsdlFile(wsdlFile);
+                    for (PortComponentType port : desc.getPortComponentArray()) {
 
-                    if (port.getEnableMtom() != null) {
-                        portInfo.setEnableMTOM(port.getEnableMtom().getBooleanValue());
+                        PortInfo portInfo = new PortInfo();
+                        String serviceLink = null;
+                        ServiceImplBeanType beanType = port.getServiceImplBean();
+                        if (beanType.getEjbLink() != null) {
+                            serviceLink = beanType.getEjbLink().getStringValue();
+                        } else if (beanType.getServletLink().getStringValue() != null) {
+                            serviceLink = beanType.getServletLink().getStringValue();
+                        }
+                        portInfo.setServiceLink(serviceLink);
+
+                        if (port.getServiceEndpointInterface() != null) {
+                            String sei = port.getServiceEndpointInterface().getStringValue();
+                            portInfo.setServiceEndpointInterfaceName(sei);
+                        }
+
+                        String portName = port.getPortComponentName().getStringValue();
+                        portInfo.setPortName(portName);
+
+                        portInfo.setProtocolBinding(port.getProtocolBinding());
+                        portInfo.setServiceName(serviceName);
+                        portInfo.setWsdlFile(wsdlFile);
+
+                        if (port.getEnableMtom() != null) {
+                            portInfo.setEnableMTOM(port.getEnableMtom().getBooleanValue());
+                        }
+
+                        //TODO: There can be a better method than this :)
+                        if(port.getHandlerChains() != null){
+                            StringBuffer chains = new StringBuffer("<handler-chains xmlns=\"http://java.sun.com/xml/ns/javaee\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">");
+                            chains.append(port.getHandlerChains().xmlText());
+                            chains.append("</handler-chains>");
+                            portInfo.setHandlersAsXML(chains.toString());
+                        }
+
+                        if (port.getWsdlPort() != null) {
+                            portInfo.setWsdlPort(port.getWsdlPort().getQNameValue());
+                        }
+
+                        if (port.getWsdlService() != null) {
+                            portInfo.setWsdlService(port.getWsdlService().getQNameValue());
+                        }
+
+                        String location = (String) correctedPortLocations.get(serviceLink);
+                        portInfo.setLocation(location);
+
+                        if (map == null) {
+                            map = new HashMap<String, PortInfo>();
+                        }
+
+                        map.put(serviceLink, portInfo);
                     }
-
-                    //portInfo.setHandlers(HandlerChainsTypeImpl.class, port.getHandlerChains());
-                    //TODO: There can be a better method than this :)
-                    if(port.getHandlerChains() != null){
-                        StringBuffer chains = new StringBuffer("<handler-chains xmlns=\"http://java.sun.com/xml/ns/javaee\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">");
-                        chains.append(port.getHandlerChains().xmlText());
-                        chains.append("</handler-chains>");
-                        portInfo.setHandlersAsXML(chains.toString());
-                    }
-
-                    if (port.getWsdlPort() != null) {
-                        portInfo.setWsdlPort(port.getWsdlPort().getQNameValue());
-                    }
-
-                    if (port.getWsdlService() != null) {
-                        portInfo.setWsdlService(port.getWsdlService().getQNameValue());
-                    }
-
-                    String location = (String) correctedPortLocations.get(serviceLink);
-                    portInfo.setLocation(location);
-
-                    if (map == null) {
-                        map = new HashMap<String, PortInfo>();
-                    }
-
-                    map.put(serviceLink, portInfo);
                 }
             }
-
+            
             return map;
         } catch (FileNotFoundException e) {
             return Collections.EMPTY_MAP;
@@ -160,6 +171,7 @@ public class Axis2Builder extends JAXWSServiceBuilder {
             throw new DeploymentException("Unknown deployment error", ex);
         } finally {
             try {
+                cursor.dispose();
                 in.close();
             } catch (IOException e) {
                 // ignore

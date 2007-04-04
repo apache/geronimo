@@ -81,64 +81,20 @@ public abstract class JAXWSServiceBuilder implements WebServiceBuilder {
         Map portMap = null;
         String path = isEJB ? "META-INF/webservices.xml" : "WEB-INF/webservices.xml";
         JarFile moduleFile = module.getModuleFile();
-        if (containsAnnotation(module, isEJB)) {
-            try {
-                URL wsDDUrl = DeploymentUtil.createJarURL(moduleFile, path);
-                InputStream in = wsDDUrl.openStream();
-                portMap = parseWebServiceDescriptor(in, wsDDUrl, moduleFile, isEJB, servletLocations);
-            } catch (IOException e) {
-                // webservices.xml does not exist
-                portMap = discoverWebServices(module, isEJB, servletLocations);
-            }
-
-            if (portMap != null && !portMap.isEmpty()) {
-                EnvironmentBuilder.mergeEnvironments(environment, defaultEnvironment);
-                sharedContext.put(getKey(), portMap);
-            }
+        try {
+            URL wsDDUrl = DeploymentUtil.createJarURL(moduleFile, path);
+            InputStream in = wsDDUrl.openStream();
+            portMap = parseWebServiceDescriptor(in, wsDDUrl, moduleFile, isEJB, servletLocations);
+        } catch (IOException e) {
+            // webservices.xml does not exist
+            portMap = discoverWebServices(module, isEJB, servletLocations);
         }
 
-    }
-    
-    private boolean containsAnnotation(Module module, boolean isEJB) throws DeploymentException {
-        if (isEJB) {
-            ClassLoader classLoader = module.getEarContext().getClassLoader();
-            EjbModule ejbModule = (EjbModule) module;
-            for (EnterpriseBeanInfo bean : ejbModule.getEjbJarInfo().enterpriseBeans) {
-                if (bean.type != EnterpriseBeanInfo.STATELESS) {
-                    continue;
-                }            
-                try {
-                    Class ejbClass = classLoader.loadClass(bean.ejbClass);
-                    if (JAXWSUtils.isWebService(ejbClass)) {
-                        return true;
-                    }
-                } catch (Exception e) {
-                    throw new DeploymentException("Failed to load ejb class "
-                                                  + bean.ejbName, e);
-                }
-            }
-        } else {
-            ClassLoader classLoader = module.getEarContext().getClassLoader();
-            WebAppType webApp = (WebAppType) module.getSpecDD();
-
-            ServletType[] servletTypes = webApp.getServletArray();
-            for (ServletType servletType : servletTypes) {
-                if (servletType.isSetServletClass()) {
-                    String servletClassName = servletType.getServletClass().getStringValue().trim();
-                    try {
-                        Class servletClass = classLoader.loadClass(servletClassName);
-                        if (JAXWSUtils.isWebService(servletClass)) {
-                            return true;
-                        }
-                    } catch (Exception e) {
-                        throw new DeploymentException("Failed to load servlet class "
-                                                      + servletClassName, e);
-                    }
-                }
-            }
-            
+        if (portMap != null && !portMap.isEmpty()) {
+            EnvironmentBuilder.mergeEnvironments(environment, defaultEnvironment);
+            sharedContext.put(getKey(), portMap);
         }
-        return false;
+
     }
 
     private Map<String, PortInfo> discoverWebServices(Module module,
