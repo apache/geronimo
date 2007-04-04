@@ -72,7 +72,7 @@ public final class EnterpriseNamingContext {
     }
 
     public static Context createEnterpriseNamingContext(Map context) throws NamingException {
-        return new ImmutableContext(context);
+        return new ImmutableContext(context, false);
     }
 
 }
