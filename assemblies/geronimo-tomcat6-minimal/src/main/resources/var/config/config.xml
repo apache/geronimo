@@ -55,6 +55,8 @@
         </gbean>
     </module>
 
+    <module name="org.apache.geronimo.configs/jasper/${version}/car" load="false"/>
+
     <module name="org.apache.geronimo.configs/tomcat6/${version}/car">
         <gbean name="TomcatResources"/>
         <gbean name="TomcatWebConnector">
@@ -84,6 +86,8 @@
     <module name="org.apache.geronimo.configs/connector-deployer/${version}/car"/>
 
     <module name="org.apache.geronimo.configs/tomcat6-deployer/${version}/car"/>
+
+    <module name="org.apache.geronimo.configs/jasper-deployer/${version}/car"/>
 
     <module name="org.apache.geronimo.configs/unavailable-ejb-deployer/${version}/car"/>
 

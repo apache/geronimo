@@ -88,6 +88,7 @@
     <module name="org.apache.geronimo.configs/activemq-ra/${version}/car"/>
 
     <module name="org.apache.geronimo.configs/jasper/${version}/car" load="false"/>
+
     <module name="org.apache.geronimo.configs/myfaces/${version}/car" load="false"/>
 
     <module name="org.apache.geronimo.configs/jetty6/${version}/car">
