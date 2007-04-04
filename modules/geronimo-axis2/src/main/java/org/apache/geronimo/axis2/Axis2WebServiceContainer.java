@@ -350,6 +350,7 @@ public abstract class Axis2WebServiceContainer implements WebServiceContainer {
       private Response response;
       private CountDownLatch responseReadySignal = new CountDownLatch(1);
       RequestResponseTransportStatus status = RequestResponseTransportStatus.INITIAL;
+      AxisFault faultToBeThrownOut = null;
       
       Axis2RequestResponseTransport(Response response)
       {
@@ -381,13 +382,21 @@ public abstract class Axis2WebServiceContainer implements WebServiceContainer {
         signalResponseReady();
       }
       
-      public void awaitResponse() throws InterruptedException
+      public void awaitResponse() throws InterruptedException, AxisFault
       {
         if (log.isDebugEnabled()) {
             log.debug("Blocking servlet thread -- awaiting response");
         }
         status = RequestResponseTransportStatus.WAITING;
         responseReadySignal.await();
+        if (faultToBeThrownOut != null) {
+            throw faultToBeThrownOut;
+        }
+      }
+
+      public void signalFaultReady(AxisFault fault) {
+        faultToBeThrownOut = fault;
+        signalResponseReady();
       }
 
       public void signalResponseReady()
