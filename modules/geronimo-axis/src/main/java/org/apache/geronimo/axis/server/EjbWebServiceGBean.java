@@ -56,7 +56,7 @@ public class EjbWebServiceGBean implements GBeanLifecycle {
         if (ejbDeploymentContext == null) {
             return;
         }
-        RPCProvider provider = new EjbContainerProvider(ejbDeploymentContext.getDeploymentInfo());
+        RPCProvider provider = new EjbContainerProvider(ejbDeploymentContext.getDeploymentInfo(), serviceInfo.getHandlerInfos());
         SOAPService service = new SOAPService(null, provider, null);
 
         JavaServiceDesc serviceDesc = serviceInfo.getServiceDesc();
