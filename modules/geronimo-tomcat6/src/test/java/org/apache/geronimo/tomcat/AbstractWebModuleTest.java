@@ -86,6 +86,7 @@ public abstract class AbstractWebModuleTest extends TestSupport {
                 null,
                 null,
                 null,
+                null,
                 null);
         app.setContextPath("/test");
         app.doStart();

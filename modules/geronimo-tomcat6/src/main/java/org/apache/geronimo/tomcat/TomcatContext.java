@@ -25,8 +25,8 @@ import javax.transaction.UserTransaction;
 import org.apache.catalina.Context;
 import org.apache.catalina.Manager;
 import org.apache.catalina.Realm;
+import org.apache.catalina.instanceManagement.InstanceManager;
 import org.apache.catalina.ha.CatalinaCluster;
-import org.apache.catalina.lifecycle.LifecycleProvider;
 import org.apache.geronimo.connector.outbound.connectiontracking.TrackedConnectionAssociator;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.tomcat.util.SecurityHolder;
@@ -76,6 +76,6 @@ public interface TomcatContext {
 
     public Map getWebServices();
 
-    public LifecycleProvider getLifecycleProvider();
+    public InstanceManager getInstanceManager();
 
 }

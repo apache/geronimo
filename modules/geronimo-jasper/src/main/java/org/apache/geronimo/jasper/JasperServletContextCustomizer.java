@@ -26,47 +26,39 @@ import java.util.Map;
 import javax.naming.Context;
 import javax.naming.NamingException;
 
-import org.apache.catalina.lifecycle.LifecycleProvider;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.j2ee.RuntimeCustomizer;
 import org.apache.geronimo.j2ee.annotation.Holder;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
+import org.apache.jasper.instanceManagement.InstanceManager;
 
 /**
- * @version $Rev:$ $Date:$
+ * @version $Rev$ $Date$
  */
 public class JasperServletContextCustomizer implements RuntimeCustomizer {
     private final Holder holder;
-    private final ClassLoader classLoader;
 
 
-    public JasperServletContextCustomizer(Holder holder, ClassLoader classLoader) {
+    public JasperServletContextCustomizer(Holder holder) {
         this.holder = holder;
-        this.classLoader = classLoader;
     }
 
     public void customize(Map<Class, Object> context) {
         Map<String, Object> servletContext = (Map<String, Object>) context.get(Map.class);
         Context jndiContext = (Context) context.get(Context.class);
-        servletContext.put(LifecycleProvider.class.getName(), new JasperLifecycleProvider(holder, classLoader, jndiContext));
+        servletContext.put(InstanceManager.class.getName(), new JasperInstanceManager(holder, jndiContext));
     }
 
 
-    public static class JasperLifecycleProvider implements LifecycleProvider {
+    public static class JasperInstanceManager implements InstanceManager {
         private final Holder holder;
-        private final ClassLoader classLoader;
         private final Context context;
 
 
-        public JasperLifecycleProvider(Holder holder, ClassLoader classLoader, Context context) {
+        public JasperInstanceManager(Holder holder, Context context) {
             this.holder = holder;
-            this.classLoader = classLoader;
             this.context = context;
-        }
-
-        public Object newInstance(String className) throws IllegalAccessException, InvocationTargetException, NamingException, InstantiationException, ClassNotFoundException {
-            return holder.newInstance(className, classLoader, context);
         }
 
         public Object newInstance(String fqcn, ClassLoader classLoader) throws IllegalAccessException, InvocationTargetException, NamingException, InstantiationException, ClassNotFoundException {
@@ -88,8 +80,7 @@ public class JasperServletContextCustomizer implements RuntimeCustomizer {
     static {
         GBeanInfoBuilder infoBuilder = GBeanInfoBuilder.createStatic(JasperServletContextCustomizer.class, NameFactory.GERONIMO_SERVICE);
         infoBuilder.addAttribute("holder", Holder.class, true, true);
-        infoBuilder.addAttribute("classLoader", ClassLoader.class, false);
-        infoBuilder.setConstructor(new String[] {"holder", "classLoader"});
+        infoBuilder.setConstructor(new String[] {"holder"});
 
         GBEAN_INFO = infoBuilder.getBeanInfo();
     }

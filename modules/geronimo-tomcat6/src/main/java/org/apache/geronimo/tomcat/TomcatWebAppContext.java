@@ -39,9 +39,9 @@ import org.apache.catalina.Context;
 import org.apache.catalina.Manager;
 import org.apache.catalina.Realm;
 import org.apache.catalina.Valve;
+import org.apache.catalina.instanceManagement.InstanceManager;
 import org.apache.catalina.core.StandardContext;
 import org.apache.catalina.ha.CatalinaCluster;
-import org.apache.catalina.lifecycle.LifecycleProvider;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.connector.outbound.connectiontracking.TrackedConnectionAssociator;
@@ -52,6 +52,7 @@ import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.j2ee.annotation.Holder;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.j2ee.management.impl.InvalidObjectNameException;
+import org.apache.geronimo.j2ee.RuntimeCustomizer;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.ObjectNameUtil;
 import org.apache.geronimo.management.J2EEApplication;
@@ -128,6 +129,8 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
 
     private final Holder holder;
 
+    private final RuntimeCustomizer contextCustomizer;
+
     // JSR 77
     
     private final String j2EEServer;
@@ -159,6 +162,7 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
             boolean disableCookies,
             Map webServices,
             Holder holder,
+            RuntimeCustomizer contextCustomizer,
             J2EEServer server,
             J2EEApplication application,
             Kernel kernel)
@@ -189,7 +193,7 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
 
         userTransaction = new GeronimoUserTransaction(transactionManager);
         this.componentContext = EnterpriseNamingContext.createEnterpriseNamingContext(componentContext, userTransaction, kernel, classLoader);
-;
+
         this.unshareableResources = unshareableResources;
         this.applicationManagedSecurityResources = applicationManagedSecurityResources;
         this.trackedConnectionAssociator = trackedConnectionAssociator;
@@ -199,6 +203,7 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
         this.configurationBaseURL = configurationBaseUrl;
 
         this.holder = holder == null? new Holder(): holder;
+        this.contextCustomizer = contextCustomizer;
 
         if (tomcatRealm != null){
             realm = (Realm)tomcatRealm.getInternalObject();
@@ -431,8 +436,12 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
         return webServices;
     }
 
-    public LifecycleProvider getLifecycleProvider() {
-        return new TomcatLifecycleProvider(holder, classLoader, componentContext);
+    public InstanceManager getInstanceManager() {
+        return new TomcatInstanceManager(holder, classLoader, componentContext);
+    }
+
+    public RuntimeCustomizer getRuntimeCustomizer() {
+        return contextCustomizer;
     }
 
     public String[] getServlets(){
@@ -570,6 +579,7 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
         infoBuilder.addAttribute("disableCookies", boolean.class, true);
         infoBuilder.addAttribute("webServices", Map.class, true);
         infoBuilder.addAttribute("holder", Holder.class, true);
+        infoBuilder.addReference("ContextCustomizer", RuntimeCustomizer.class, NameFactory.GERONIMO_SERVICE);
         infoBuilder.addReference("J2EEServer", J2EEServer.class);
         infoBuilder.addReference("J2EEApplication", J2EEApplication.class);
         infoBuilder.addAttribute("kernel", Kernel.class, false);
@@ -597,6 +607,7 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
                 "disableCookies",
                 "webServices",
                 "holder",
+                "ContextCustomizer",
                 "J2EEServer",
                 "J2EEApplication",
                 "kernel"

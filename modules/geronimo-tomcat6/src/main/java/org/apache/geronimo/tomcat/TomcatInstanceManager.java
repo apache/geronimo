@@ -26,20 +26,20 @@ import java.lang.reflect.InvocationTargetException;
 import javax.naming.Context;
 import javax.naming.NamingException;
 
-import org.apache.catalina.lifecycle.LifecycleProvider;
+import org.apache.catalina.instanceManagement.InstanceManager;
 import org.apache.geronimo.j2ee.annotation.Holder;
 
 /**
- * @version $Rev:$ $Date:$
+ * @version $Rev$ $Date$
  */
-public class TomcatLifecycleProvider implements LifecycleProvider {
+public class TomcatInstanceManager implements InstanceManager {
 
     private final Holder holder;
     private final ClassLoader classLoader;
     private final Context context;
 
 
-    public TomcatLifecycleProvider(Holder holder, ClassLoader classLoader, Context context) {
+    public TomcatInstanceManager(Holder holder, ClassLoader classLoader, Context context) {
         this.holder = holder;
         this.classLoader = classLoader;
         this.context = context;
@@ -47,10 +47,6 @@ public class TomcatLifecycleProvider implements LifecycleProvider {
 
     public Object newInstance(String className) throws IllegalAccessException, InvocationTargetException, NamingException, InstantiationException, ClassNotFoundException {
         return holder.newInstance(className, classLoader, context);
-    }
-
-    public Object newInstance(String fqcn, ClassLoader classLoader) throws IllegalAccessException, InvocationTargetException, NamingException, InstantiationException, ClassNotFoundException {
-        return holder.newInstance(fqcn, classLoader, context);
     }
 
     public void destroyInstance(Object o) throws IllegalAccessException, InvocationTargetException {

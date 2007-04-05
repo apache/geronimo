@@ -18,7 +18,7 @@ package org.apache.geronimo.tomcat;
 
 import java.beans.PropertyChangeListener;
 import java.io.IOException;
-import java.util.Iterator;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -61,8 +61,6 @@ import org.apache.geronimo.webservices.WebServiceContainerInvoker;
 
 public class GeronimoStandardContext extends StandardContext {
 
-    private static final Log log = LogFactory.getLog(GeronimoStandardContext.class);
-
     private static final long serialVersionUID = 3834587716552831032L;
 
     private Subject defaultSubject = null;
@@ -75,6 +73,11 @@ public class GeronimoStandardContext extends StandardContext {
     private int contextCount = 0;
 
     public void setContextProperties(TomcatContext ctx) throws DeploymentException {
+
+        // Create ReadOnlyContext
+        javax.naming.Context enc = ctx.getJndiContext();
+        setInstanceManager(ctx.getInstanceManager());
+
         //try to make sure this mbean properties match those of the TomcatWebAppContext
         if (ctx instanceof TomcatWebAppContext) {
             TomcatWebAppContext tctx = (TomcatWebAppContext) ctx;
@@ -82,10 +85,18 @@ public class GeronimoStandardContext extends StandardContext {
             setServer(tctx.getServer());
             setJ2EEApplication(tctx.getJ2EEApplication());
             setJ2EEServer(tctx.getJ2EEServer());
+            //install jasper injection support if required
+            if (tctx.getRuntimeCustomizer() != null) {
+                Map<String, Object> servletContext = new HashMap<String, Object>();
+                Map<Class, Object> customizerContext = new HashMap<Class, Object>();
+                customizerContext.put(Map.class, servletContext);
+                customizerContext.put(javax.naming.Context.class, enc);
+                tctx.getRuntimeCustomizer().customize(customizerContext);
+                for (Map.Entry<String, Object> entry: servletContext.entrySet()) {
+                    getServletContext().setAttribute(entry.getKey(), entry.getValue());
+                }
+            }
         }
-        // Create ReadOnlyContext
-        javax.naming.Context enc = ctx.getJndiContext();
-        setLifecycleProvider(ctx.getLifecycleProvider());
 
         int index = 0;
         BeforeAfter interceptor = new InstanceContextBeforeAfter(null,
@@ -138,10 +149,8 @@ public class GeronimoStandardContext extends StandardContext {
         // Add User Defined Valves
         List valveChain = ctx.getValveChain();
         if (valveChain != null) {
-            Iterator iterator = valveChain.iterator();
-            while (iterator.hasNext()) {
-                Valve valve = (Valve) iterator.next();
-                addValve(valve);
+            for (Object valve : valveChain) {
+                addValve((Valve)valve);
             }
         }
 

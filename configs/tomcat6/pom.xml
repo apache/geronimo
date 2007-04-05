@@ -62,7 +62,7 @@
             <version>${version}</version>
         </dependency>
 
-        <!-- Required because tomcat and jasper share the LifecycleProvider interface, or AnnotationProcessor -->
+        <!-- Required because tomcat STARTS its default web.xml which has a jasper servlet in it -->
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
             <artifactId>jasper</artifactId>
