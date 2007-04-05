@@ -1442,12 +1442,6 @@
             </dependency>
 
             <dependency>
-                <groupId>org.apache.woden</groupId>
-                <artifactId>woden</artifactId>
-                <version>1.0-incubating-SNAPSHOT</version>
-            </dependency>
-
-            <dependency>
                 <groupId>org.dojotoolkit</groupId>
                 <artifactId>dojo</artifactId>
                 <version>${dojoVersion}</version>
