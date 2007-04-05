@@ -33,7 +33,7 @@ import org.apache.openejb.Container;
 import org.apache.openejb.ProxyInfo;
 import org.apache.openejb.RpcContainer;
 import org.apache.openejb.core.CoreDeploymentInfo;
-import org.apache.openejb.core.entity.EntityEjbHomeHandler;
+import org.apache.openejb.core.ivm.EjbHomeProxyHandler;
 import org.apache.openejb.util.proxy.ProxyManager;
 
 public class EjbDeployment implements EJB {
@@ -205,7 +205,7 @@ public class EjbDeployment implements EJB {
 
         // get the home proxy handler
         EJBHome homeProxy = deploymentInfo.getEJBHome();
-        EntityEjbHomeHandler handler = (EntityEjbHomeHandler) ProxyManager.getInvocationHandler(homeProxy);
+        EjbHomeProxyHandler handler = (EjbHomeProxyHandler) ProxyManager.getInvocationHandler(homeProxy);
 
         // create the proxy
         EJBObject ejbObject = (EJBObject) handler.createProxy(proxyInfo);
