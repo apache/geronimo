@@ -178,7 +178,9 @@ public class SocketFactory implements ConnectionHelper {
                         try {
                             // decode and pull the transport information.
                             TSSCompoundSecMechListConfig config = TSSCompoundSecMechListConfig.decodeIOR(Util.getCodec(), profileInfo.components[i]);
-                            log.info("looking at tss: " + config);
+                            if (log.isDebugEnabled()) {
+                                log.debug("looking at tss: " + config);
+                            }
                             for (int j = 0; j < config.size(); j++) {
                                 TSSTransportMechConfig transport_mech = config.mechAt(j).getTransport_mech();
                                 if (transport_mech instanceof TSSSSLTransportConfig) {
@@ -236,14 +238,14 @@ public class SocketFactory implements ConnectionHelper {
                         } else {
                             port = (int) body.port;
                         }
-                        log.info("set port: " + port);
+                        log.debug("set port: " + port);
                      } catch (org.omg.IOP.CodecPackage.FormatMismatch e) {
                         // just keep the original port.
-                        log.info("could not set port: ", e);
+                        log.debug("could not set port: ", e);
                         break;
                     } catch (org.omg.IOP.CodecPackage.TypeMismatch e) {
                         // just keep the original port.
-                        log.info("could not set port: ", e);
+                        log.debug("could not set port: ", e);
                         break;
                     }
 
