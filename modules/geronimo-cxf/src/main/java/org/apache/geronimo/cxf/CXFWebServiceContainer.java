@@ -66,15 +66,6 @@ public abstract class CXFWebServiceContainer implements WebServiceContainer {
                                   Object target) {
         this.bus = bus;
         this.configurationBaseUrl = configurationBaseUrl;
-
-        // XXX: This is a hack to force the default BindingFactoryManager and 
-        // DestinationFactoryManager implementations to be installed first so that
-        // we can overwrite them later.
-        try {
-            bus.getExtension(BindingFactoryManager.class).getBindingFactory("http://schemas.xmlsoap.org/wsdl/soap/http");
-        } catch (Exception e) {
-            LOG.warn("Failed to initialize BindingFactoryManager", e);
-        }
             
         List ids = new ArrayList();
         ids.add("http://schemas.xmlsoap.org/soap/http");
