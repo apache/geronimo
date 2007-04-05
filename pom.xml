@@ -242,7 +242,7 @@
             <dependency>
                 <groupId>org.apache.openjpa</groupId>
                 <artifactId>openjpa-all</artifactId>
-                <version>0.9.6-incubating</version>
+                <version>0.9.7-incubating-SNAPSHOT</version>
             </dependency>
 
             <dependency>
