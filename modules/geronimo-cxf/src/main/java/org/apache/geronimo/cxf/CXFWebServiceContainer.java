@@ -39,6 +39,7 @@ import org.apache.cxf.Bus;
 import org.apache.cxf.BusFactory;
 import org.apache.cxf.binding.BindingFactoryManager;
 import org.apache.cxf.bus.CXFBusFactory;
+import org.apache.cxf.bus.extension.ExtensionManagerBus;
 import org.apache.cxf.service.model.EndpointInfo;
 import org.apache.cxf.tools.common.extensions.soap.SoapAddress;
 import org.apache.cxf.tools.util.SOAPBindingUtil;
@@ -210,18 +211,9 @@ public abstract class CXFWebServiceContainer implements WebServiceContainer {
      * The very first bus created is set as a default bus which then can
      * be (re)used in other places.
      */
-    public static Bus getBus() {
-        CXFBusFactory busFactory = new CXFBusFactory();
-        Bus bus = busFactory.createBus();
-        Bus defaultBus = BusFactory.getDefaultBus(false);
-        if (defaultBus == null) {
-            BusFactory.setDefaultBus(bus);
-            return busFactory.createBus();
-        } else if (defaultBus == bus) {
-            return busFactory.createBus();
-        } else {
-            return bus;
-        }
+    public static Bus getBus() {        
+        BusFactory.getDefaultBus();
+        return new ExtensionManagerBus();
     }
 
 }

@@ -16,27 +16,14 @@
  */
 package org.apache.geronimo.cxf;
 
-import java.io.IOException;
+import java.util.List;
+import org.apache.cxf.resource.ResourceResolver;
+import org.apache.cxf.bus.resource.ResourceManagerImpl;
 
-import org.apache.cxf.service.model.EndpointInfo;
-import org.apache.cxf.transport.Destination;
-import org.apache.cxf.transport.http.AbstractHTTPTransportFactory;
-import org.apache.cxf.Bus;
+public class ResourceManager extends ResourceManagerImpl {
 
-public class GeronimoDestinationFactory extends AbstractHTTPTransportFactory {
-
-    public GeronimoDestinationFactory() {       
-    }
-        
-    public GeronimoDestinationFactory(Bus bus) {
-        setBus(bus);
-    }
-
-    public Destination getDestination(EndpointInfo endpointInfo)
-        throws IOException {
-        GeronimoDestination destination = new GeronimoDestination(getBus(), this, endpointInfo);
-        configure(destination);
-        return destination;
+    public ResourceManager(List<ResourceResolver> r) {
+        super(r);
     }
 
 }
