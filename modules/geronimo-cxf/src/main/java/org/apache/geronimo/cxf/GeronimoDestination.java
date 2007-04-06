@@ -184,6 +184,10 @@ public class GeronimoDestination extends AbstractHTTPDestination
         public void setMessageObserver(MessageObserver observer) {
             // shouldn't be called for a back channel conduit
         }
+        
+        public void prepare(Message message) throws IOException {
+            send(message);
+        }
 
         /**
          * Send an outbound message, assumed to contain all the name-value
