@@ -714,7 +714,7 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
      * @param patterns patterns to look for
      * @return set of gbeandatas matching one of the patterns from this configuration only, not including parents.
      */
-    private LinkedHashSet<GBeanData> findGBeanDatas(Configuration configuration, Set<AbstractNameQuery> patterns) {
+    public LinkedHashSet<GBeanData> findGBeanDatas(Configuration configuration, Set<AbstractNameQuery> patterns) {
         LinkedHashSet<GBeanData> result = new LinkedHashSet<GBeanData>();
 
         Set<Map.Entry<AbstractName, GBeanData>> gbeanNames = configuration.getGBeans().entrySet();

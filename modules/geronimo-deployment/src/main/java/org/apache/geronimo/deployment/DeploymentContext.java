@@ -184,6 +184,10 @@ public class DeploymentContext {
         return configuration.findGBeans(pattern);
     }
 
+    public LinkedHashSet<GBeanData> findGBeanDatas(Configuration configuration, AbstractNameQuery pattern) {
+        return configuration.findGBeanDatas(configuration, Collections.singleton(pattern));
+    }
+
     public LinkedHashSet<AbstractName> findGBeans(Set<AbstractNameQuery> patterns) {
         return configuration.findGBeans(patterns);
     }

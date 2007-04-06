@@ -35,6 +35,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.LinkedHashSet;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.zip.ZipEntry;
@@ -155,15 +156,20 @@ public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
         return namingBuilders;
     }
 
-    //TODO configid these need to be converted to ReferencePatterns
-    protected Set findGBeanDependencies(EARContext earContext) {
-        Set<AbstractName> dependencies = new HashSet<AbstractName>();
-        dependencies.addAll(earContext.listGBeans(MANAGED_CONNECTION_FACTORY_PATTERN));
-        dependencies.addAll(earContext.listGBeans(ADMIN_OBJECT_PATTERN));
-        dependencies.addAll(earContext.listGBeans(STATELESS_SESSION_BEAN_PATTERN));
-        dependencies.addAll(earContext.listGBeans(STATEFUL_SESSION_BEAN_PATTERN));
-        dependencies.addAll(earContext.listGBeans(ENTITY_BEAN_PATTERN));
-        return dependencies;
+    protected void addGBeanDependencies(EARContext earContext, GBeanData webModuleData) {
+        Configuration earConfiguration = earContext.getConfiguration();
+        addDependencies(earContext.findGBeanDatas(earConfiguration, MANAGED_CONNECTION_FACTORY_PATTERN), webModuleData);
+        addDependencies(earContext.findGBeanDatas(earConfiguration, ADMIN_OBJECT_PATTERN), webModuleData);
+        addDependencies(earContext.findGBeanDatas(earConfiguration, STATELESS_SESSION_BEAN_PATTERN), webModuleData);
+        addDependencies(earContext.findGBeanDatas(earConfiguration, STATEFUL_SESSION_BEAN_PATTERN), webModuleData);
+        addDependencies(earContext.findGBeanDatas(earConfiguration, ENTITY_BEAN_PATTERN), webModuleData);
+    }
+
+    private void addDependencies(LinkedHashSet<GBeanData> dependencies, GBeanData webModuleData) {
+        for (GBeanData dependency: dependencies) {
+            AbstractName dependencyName = dependency.getAbstractName();
+            webModuleData.addDependency(dependencyName);
+        }
     }
 
     public Module createModule(File plan, JarFile moduleFile, Naming naming, ModuleIDBuilder idBuilder) throws DeploymentException {
@@ -812,8 +818,9 @@ public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
         //Add dependencies on managed connection factories and ejbs in this app
         //This is overkill, but allows for people not using java:comp context (even though we don't support it)
         //and sidesteps the problem of circular references between ejbs.
-        Set dependencies = findGBeanDependencies(earContext);
-        webModuleData.addDependencies(dependencies);
+        if (earContext != moduleContext) {
+            addGBeanDependencies(earContext, webModuleData);
+        }
 
         webModuleData.setAttribute("componentContext", compContext);
         webModuleData.setReferencePattern("TransactionManager", moduleContext.getTransactionManagerName());
