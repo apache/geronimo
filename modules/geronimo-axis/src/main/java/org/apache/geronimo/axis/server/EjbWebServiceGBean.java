@@ -52,6 +52,7 @@ public class EjbWebServiceGBean implements GBeanLifecycle {
 
         this.soapHandler = soapHandler;
         this.location = location;
+                        
         //for use as a template
         if (ejbDeploymentContext == null) {
             return;
@@ -61,12 +62,15 @@ public class EjbWebServiceGBean implements GBeanLifecycle {
 
         JavaServiceDesc serviceDesc = serviceInfo.getServiceDesc();
         service.setServiceDescription(serviceDesc);
-        Class serviceEndpointInterface = ejbDeploymentContext.getServiceEndpointInterface();
-
+        
+        ClassLoader classLoader = ejbDeploymentContext.getClassLoader();
+                
+        Class serviceEndpointInterface = 
+            classLoader.loadClass(ejbDeploymentContext.getServiceEndpointInterfaceName());
+        
         service.setOption("className", serviceEndpointInterface.getName());
         serviceDesc.setImplClass(serviceEndpointInterface);
-
-        ClassLoader classLoader = ejbDeploymentContext.getClassLoader();
+        
         AxisWebServiceContainer axisContainer = new AxisWebServiceContainer(location, wsdlURI, service, serviceInfo.getWsdlMap(), classLoader);
         if (soapHandler != null) {
             soapHandler.addWebService(location.getPath(), virtualHosts, axisContainer, securityRealmName, realmName, transportGuarantee, authMethod, classLoader);
