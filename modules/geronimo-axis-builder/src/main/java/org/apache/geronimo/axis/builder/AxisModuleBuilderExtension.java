@@ -26,13 +26,16 @@ import java.util.jar.JarFile;
 import org.apache.geronimo.axis.server.EjbWebServiceGBean;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.ModuleIDBuilder;
+import org.apache.geronimo.deployment.service.EnvironmentBuilder;
 import org.apache.geronimo.gbean.AbstractName;
+import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.j2ee.deployment.EARContext;
 import org.apache.geronimo.j2ee.deployment.Module;
 import org.apache.geronimo.j2ee.deployment.ModuleBuilderExtension;
+import org.apache.geronimo.j2ee.deployment.WebServiceBuilder;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.GBeanAlreadyExistsException;
 import org.apache.geronimo.kernel.Naming;
@@ -50,14 +53,20 @@ import org.apache.openejb.jee.oejb2.WebServiceBindingType.WebServiceSecurityType
  */
 public class AxisModuleBuilderExtension implements ModuleBuilderExtension {
 
-    private final AxisBuilder axisBuilder;
+    private WebServiceBuilder axisBuilder;
+    private Environment defaultEnvironment;
+    private AbstractNameQuery listener;   
 
     public AxisModuleBuilderExtension() {
-        this(null);
+        this(null, null, null);
     }
 
-    public AxisModuleBuilderExtension(Environment defaultEnvironment) {
-        axisBuilder = new AxisBuilder(defaultEnvironment);
+    public AxisModuleBuilderExtension(WebServiceBuilder wsBuilder,
+                                      Environment defaultEnvironment,
+                                      AbstractNameQuery listener) {
+        this.axisBuilder = wsBuilder;
+        this.defaultEnvironment = defaultEnvironment;
+        this.listener = listener;
     }
 
     public void createModule(Module module, Object plan, JarFile moduleFile, String targetPath, URL specDDUrl, Environment environment, Object moduleContextInfo, AbstractName earName, Naming naming, ModuleIDBuilder idBuilder) throws DeploymentException {
@@ -80,7 +89,11 @@ public class AxisModuleBuilderExtension implements ModuleBuilderExtension {
            }
         }
 
-        axisBuilder.findWebServices(moduleFile, true, correctedPortLocations, environment, ejbModule.getSharedContext());
+        axisBuilder.findWebServices(module, true, correctedPortLocations, environment, ejbModule.getSharedContext());
+        
+        if (this.defaultEnvironment != null) {
+            EnvironmentBuilder.mergeEnvironments(environment, this.defaultEnvironment);
+        } 
     }
 
     public void installModule(JarFile earFile, EARContext earContext, Module module, Collection configurationStores, ConfigurationStore targetConfigurationStore, Collection repository) throws DeploymentException {
@@ -145,6 +158,10 @@ public class AxisModuleBuilderExtension implements ModuleBuilderExtension {
                             "Could not add axis ejb web service gbean to context", e);
                 }
                 
+                if (this.listener != null) {
+                    ejbWebServiceGBean.setReferencePattern("WebServiceContainer", this.listener);
+                }
+                
                 ejbWebServiceGBean.setReferencePattern("EjbDeployment", sessionName);
             }
 
@@ -169,9 +186,11 @@ public class AxisModuleBuilderExtension implements ModuleBuilderExtension {
     static {
         GBeanInfoBuilder infoBuilder = GBeanInfoBuilder.createStatic(AxisModuleBuilderExtension.class, NameFactory.MODULE_BUILDER);
         infoBuilder.addInterface(ModuleBuilderExtension.class);
+        infoBuilder.addReference("WebServiceBuilder", WebServiceBuilder.class, NameFactory.MODULE_BUILDER);
         infoBuilder.addAttribute("defaultEnvironment", Environment.class, true, true);
+        infoBuilder.addAttribute("listener", AbstractNameQuery.class, true);
 
-        infoBuilder.setConstructor(new String[]{"defaultEnvironment"});
+        infoBuilder.setConstructor(new String[]{"WebServiceBuilder","defaultEnvironment","listener"});
 
         GBEAN_INFO = infoBuilder.getBeanInfo();
     }

@@ -41,9 +41,17 @@
             <version>${version}</version>
             <type>car</type>
         </dependency>
+
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
             <artifactId>j2ee-security</artifactId>
+            <version>${version}</version>
+            <type>car</type>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.geronimo.configs</groupId>
+            <artifactId>openejb</artifactId>
             <version>${version}</version>
             <type>car</type>
         </dependency>

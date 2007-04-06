@@ -33,27 +33,12 @@
     </gbean>
 
     <gbean name="AxisModuleBuilderExtension" class="org.apache.geronimo.axis.builder.AxisModuleBuilderExtension">
-        <xml-attribute name="defaultEnvironment">
-            <environment xmlns="http://geronimo.apache.org/xml/ns/deployment-1.2">
-                <dependencies>
-                    <dependency>
-                        <groupId>org.apache.geronimo.configs</groupId>
-                        <artifactId>axis</artifactId>
-                        <type>car</type>
-                    </dependency>
-                    <dependency>
-                        <groupId>org.apache.geronimo.modules</groupId>
-                        <artifactId>openejb-axis</artifactId>
-                        <type>jar</type>
-                    </dependency>
-                    <dependency>
-                        <groupId>org.apache.geronimo.modules</groupId>
-                        <artifactId>geronimo-openejb-builder</artifactId>
-                        <type>jar</type>
-                    </dependency>
-                </dependencies>
-            </environment>
-        </xml-attribute>
+        <!-- This attribute and the environment must be updated appropriately in the config.xml file -->
+        <attribute name="listener">?name=WebContainer</attribute>
+
+        <reference name="WebServiceBuilder">
+            <name>WebServiceBuilder</name>
+        </reference>
     </gbean>
 
     <gbean name="AxisServiceRefBuilder" class="org.apache.geronimo.axis.builder.AxisServiceRefBuilder">
