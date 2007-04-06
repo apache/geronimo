@@ -55,6 +55,7 @@ import org.apache.openejb.jee.StatelessBean;
 import org.apache.openejb.jee.MessageDrivenBean;
 import org.apache.openejb.jee.EntityBean;
 import org.apache.openejb.jee.SessionBean;
+import org.apache.openejb.jee.SessionType;
 import org.apache.openejb.jee.oejb3.EjbDeployment;
 import org.apache.geronimo.openejb.StatelessDeploymentGBean;
 import org.apache.geronimo.openejb.StatefulDeploymentGBean;
@@ -140,8 +141,8 @@ public class EjbDeploymentBuilder {
                     gbean.setAttribute(EjbInterface.LOCAL_HOME.getAttributeName(), localHomeInterfaceName);
                 }
 
-                if (enterpriseBean instanceof StatelessBean) {
-                    StatelessBean statelessBean = (StatelessBean) enterpriseBean;
+                if (enterpriseBean instanceof SessionBean && ((SessionBean)enterpriseBean).getSessionType() == SessionType.STATELESS ) {
+                    SessionBean statelessBean = (SessionBean) enterpriseBean;
                     gbean.setAttribute(EjbInterface.SERVICE_ENDPOINT.getAttributeName(), statelessBean.getServiceEndpoint());
                 }
             }
