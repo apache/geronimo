@@ -40,6 +40,8 @@ import org.apache.geronimo.kernel.config.ConfigurationManager;
 import org.apache.geronimo.kernel.config.ConfigurationUtil;
 import org.apache.geronimo.kernel.config.LifecycleException;
 import org.apache.geronimo.kernel.config.NoSuchConfigException;
+import org.apache.geronimo.kernel.config.LifecycleMonitor;
+import org.apache.geronimo.kernel.config.DebugLoggingLifecycleMonitor;
 import org.apache.geronimo.kernel.log.GeronimoLogging;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.MissingDependencyException;
@@ -178,12 +180,12 @@ public class CommandLine {
     protected void loadConfigurations(List configurations) throws NoSuchConfigException, LifecycleException, MissingDependencyException {
         // load and start the configurations
         ConfigurationManager configurationManager = ConfigurationUtil.getConfigurationManager(kernel);
-        Collection resolvedConfigurations = configurationManager.getArtifactResolver().resolveInClassLoader(configurations);
+        Collection<Artifact> resolvedModules = configurationManager.getArtifactResolver().resolveInClassLoader(configurations);
+        LifecycleMonitor lifecycleMonitor = new DebugLoggingLifecycleMonitor(log);
         try {
-            for (Iterator i = resolvedConfigurations.iterator(); i.hasNext();) {
-                Artifact configID = (Artifact) i.next();
-                configurationManager.loadConfiguration(configID);
-                configurationManager.startConfiguration(configID);
+            for (Artifact moduleId : resolvedModules) {
+                configurationManager.loadConfiguration(moduleId, lifecycleMonitor);
+                configurationManager.startConfiguration(moduleId, lifecycleMonitor);
             }
         } finally {
             ConfigurationUtil.releaseConfigurationManager(kernel, configurationManager);

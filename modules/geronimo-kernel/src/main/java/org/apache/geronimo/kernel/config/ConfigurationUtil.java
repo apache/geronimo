@@ -345,6 +345,7 @@ public final class ConfigurationUtil {
     }
 
     static void preprocessGBeanData(AbstractName configurationName, Configuration configuration, GBeanData gbeanData) throws InvalidConfigException {
+        log.info("resolving dependencies for " + gbeanData.getAbstractName());
         for (Iterator references = gbeanData.getReferencesNames().iterator(); references.hasNext();) {
             String referenceName = (String) references.next();
             GReferenceInfo referenceInfo = gbeanData.getGBeanInfo().getReference(referenceName);
@@ -357,6 +358,7 @@ public final class ConfigurationUtil {
                 AbstractName abstractName;
                 try {
                     abstractName = configuration.findGBean(referencePatterns);
+                    log.info("referencePatterns: " + referencePatterns + " resolved to " + abstractName);
                 } catch (GBeanNotFoundException e) {
                     throw new InvalidConfigException("Unable to resolve reference \"" + referenceName + "\" in gbean " + gbeanData.getAbstractName() + " to a gbean matching the pattern " + referencePatterns, e);
                 }
@@ -370,6 +372,7 @@ public final class ConfigurationUtil {
             AbstractName abstractName;
             try {
                 abstractName = configuration.findGBean(referencePatterns);
+                log.info("referencePatterns: " + referencePatterns + " resolved to " + abstractName);
             } catch (GBeanNotFoundException e) {
                 throw new InvalidConfigException("Unable to resolve dependency in gbean " + gbeanData.getAbstractName(), e);
             }
