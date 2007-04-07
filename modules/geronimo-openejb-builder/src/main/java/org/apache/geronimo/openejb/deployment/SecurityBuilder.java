@@ -85,7 +85,7 @@ public class SecurityBuilder {
                         methodName = null;
                     }
                     // method interface
-                    String methodIntf = method.getMethodIntf().toString();
+                    String methodIntf = method.getMethodIntf() == null? null: method.getMethodIntf().toString();
 
                     // method parameters
                     String[] methodParams;
@@ -130,7 +130,7 @@ public class SecurityBuilder {
                     // method name
                     String methodName = method.getMethodName();
                     // method interface
-                    String methodIntf = method.getMethodIntf().toString();
+                    String methodIntf = method.getMethodIntf() == null? null: method.getMethodIntf().toString();
 
                     // method parameters
                     String[] methodParams;
@@ -153,11 +153,8 @@ public class SecurityBuilder {
              * JACC v1.0 section 3.1.5.3
              */
             for (SecurityRoleRef securityRoleRef : securityRoleRefs) {
-                if (securityRoleRef.getRoleLink() == null) {
-                    throw new DeploymentException("Missing role-link");
-                }
 
-                String roleLink = securityRoleRef.getRoleLink();
+                String roleLink = securityRoleRef.getRoleLink() == null? securityRoleRef.getRoleName(): securityRoleRef.getRoleLink();
 
                 PermissionCollection roleLinks = (PermissionCollection) rolePermissions.get(roleLink);
                 if (roleLinks == null) {

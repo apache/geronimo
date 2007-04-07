@@ -28,8 +28,8 @@ import org.apache.geronimo.connector.outbound.connectiontracking.ConnectorInstan
 import org.apache.geronimo.connector.outbound.connectiontracking.ConnectorInstanceContextImpl;
 import org.apache.geronimo.connector.outbound.connectiontracking.TrackedConnectionAssociator;
 import org.apache.geronimo.naming.java.RootContext;
-import org.apache.geronimo.security.ContextManager;
 import org.apache.geronimo.security.Callers;
+import org.apache.geronimo.security.ContextManager;
 import org.apache.openejb.core.CoreDeploymentInfo;
 import org.apache.openejb.core.ThreadContext;
 import org.apache.openejb.core.ThreadContextListener;
@@ -42,6 +42,7 @@ public class GeronimoThreadContextListener implements ThreadContextListener {
 
     // A single stateless listener is used for Geronimo
     private static final GeronimoThreadContextListener instance = new GeronimoThreadContextListener();
+
     static {
         ThreadContext.addThreadContextListener(instance);
     }
@@ -102,9 +103,7 @@ public class GeronimoThreadContextListener implements ThreadContextListener {
 
         // apply run as
         Subject runAsSubject = ejbDeployment.getRunAs();
-        if (runAsSubject != null) {
-            geronimoCallContext.callers = ContextManager.pushNextCaller(runAsSubject);
-        }
+        geronimoCallContext.callers = ContextManager.pushNextCaller(runAsSubject);
 
         newContext.set(GeronimoCallContext.class, geronimoCallContext);
     }
@@ -121,9 +120,7 @@ public class GeronimoThreadContextListener implements ThreadContextListener {
         if (geronimoCallContext == null) return;
 
         // reset run as
-        if (geronimoCallContext.callers != null) {
-            ContextManager.popCallers(geronimoCallContext.callers);
-        }
+        ContextManager.popCallers(geronimoCallContext.callers);
 
         // reset default subject
         if (geronimoCallContext.clearCallers) {

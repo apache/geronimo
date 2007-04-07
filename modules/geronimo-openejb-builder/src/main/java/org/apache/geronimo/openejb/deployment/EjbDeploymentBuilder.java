@@ -19,25 +19,32 @@ package org.apache.geronimo.openejb.deployment;
 
 import java.security.Permissions;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
-import java.util.Collections;
+
 import javax.security.auth.Subject;
 
 import org.apache.geronimo.common.DeploymentException;
+import org.apache.geronimo.connector.outbound.connectiontracking.TrackedConnectionAssociator;
 import org.apache.geronimo.gbean.AbstractName;
-import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.AbstractNameQuery;
+import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.j2ee.deployment.EARContext;
 import org.apache.geronimo.j2ee.deployment.NamingBuilder;
 import org.apache.geronimo.j2ee.deployment.annotation.AnnotatedEjbJar;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.GBeanAlreadyExistsException;
+import org.apache.geronimo.naming.deployment.AbstractNamingBuilder;
 import org.apache.geronimo.naming.deployment.GBeanResourceEnvironmentBuilder;
 import org.apache.geronimo.naming.deployment.ResourceEnvironmentSetter;
-import org.apache.geronimo.naming.deployment.AbstractNamingBuilder;
+import org.apache.geronimo.openejb.EntityDeploymentGBean;
+import org.apache.geronimo.openejb.MessageDrivenDeploymentGBean;
+import org.apache.geronimo.openejb.OpenEjbSystem;
+import org.apache.geronimo.openejb.StatefulDeploymentGBean;
+import org.apache.geronimo.openejb.StatelessDeploymentGBean;
 import org.apache.geronimo.openejb.xbeans.ejbjar.OpenejbGeronimoEjbJarType;
 import org.apache.geronimo.security.deployment.SecurityConfiguration;
 import org.apache.geronimo.security.jacc.ComponentPermissions;
@@ -48,21 +55,16 @@ import org.apache.geronimo.xbeans.javaee.EntityBeanType;
 import org.apache.geronimo.xbeans.javaee.MessageDrivenBeanType;
 import org.apache.geronimo.xbeans.javaee.ResourceRefType;
 import org.apache.geronimo.xbeans.javaee.SessionBeanType;
+import org.apache.openejb.DeploymentInfo;
 import org.apache.openejb.jee.EnterpriseBean;
+import org.apache.openejb.jee.EntityBean;
+import org.apache.openejb.jee.MessageDrivenBean;
 import org.apache.openejb.jee.RemoteBean;
 import org.apache.openejb.jee.SecurityIdentity;
-import org.apache.openejb.jee.StatelessBean;
-import org.apache.openejb.jee.MessageDrivenBean;
-import org.apache.openejb.jee.EntityBean;
 import org.apache.openejb.jee.SessionBean;
+import org.apache.openejb.jee.StatelessBean;
 import org.apache.openejb.jee.SessionType;
 import org.apache.openejb.jee.oejb3.EjbDeployment;
-import org.apache.geronimo.openejb.StatelessDeploymentGBean;
-import org.apache.geronimo.openejb.StatefulDeploymentGBean;
-import org.apache.geronimo.openejb.EntityDeploymentGBean;
-import org.apache.geronimo.openejb.MessageDrivenDeploymentGBean;
-import org.apache.geronimo.openejb.OpenEjbSystem;
-import org.apache.geronimo.connector.outbound.connectiontracking.TrackedConnectionAssociator;
 import org.apache.xbean.finder.ClassFinder;
 import org.apache.xmlbeans.XmlObject;
 
@@ -74,7 +76,7 @@ public class EjbDeploymentBuilder {
     private final EjbModule ejbModule;
     private final NamingBuilder namingBuilder;
     private final ResourceEnvironmentSetter resourceEnvironmentSetter;
-    private final Map<String,GBeanData> gbeans = new TreeMap<String,GBeanData>();
+    private final Map<String, GBeanData> gbeans = new TreeMap<String, GBeanData>();
 
     public EjbDeploymentBuilder(EARContext earContext, EjbModule ejbModule, NamingBuilder namingBuilder, ResourceEnvironmentSetter resourceEnvironmentSetter) {
         this.earContext = earContext;
@@ -185,12 +187,53 @@ public class EjbDeploymentBuilder {
 
             SecurityConfiguration securityConfiguration = (SecurityConfiguration) earContext.getSecurityConfiguration();
             if (securityConfiguration != null) {
-                for (EjbInterface ejbInterface : EjbInterface.values()) {
-                    String interfaceName = (String) gbean.getAttribute(ejbInterface.getAttributeName());
+                securityBuilder.addToPermissions(permissions,
+                        remoteBean.getEjbName(),
+                        EjbInterface.HOME.getJaccInterfaceName(),
+                        remoteBean.getHome(),
+                        ejbModule.getClassLoader());
+                securityBuilder.addToPermissions(permissions,
+                        remoteBean.getEjbName(),
+                        EjbInterface.REMOTE.getJaccInterfaceName(),
+                        remoteBean.getRemote(),
+                        ejbModule.getClassLoader());
+                securityBuilder.addToPermissions(permissions,
+                        remoteBean.getEjbName(),
+                        EjbInterface.LOCAL.getJaccInterfaceName(),
+                        remoteBean.getLocal(),
+                        ejbModule.getClassLoader());
+                securityBuilder.addToPermissions(permissions,
+                        remoteBean.getEjbName(),
+                        EjbInterface.LOCAL_HOME.getJaccInterfaceName(),
+                        remoteBean.getLocalHome(),
+                        ejbModule.getClassLoader());
+                securityBuilder.addToPermissions(permissions,
+                        remoteBean.getEjbName(),
+                        EjbInterface.SERVICE_ENDPOINT.getJaccInterfaceName(),
+                        remoteBean.getLocalHome(),
+                        ejbModule.getClassLoader());
+                if (remoteBean.getBusinessRemote() != null) {
                     securityBuilder.addToPermissions(permissions,
-                            enterpriseBean.getEjbName(),
-                            ejbInterface.getJaccInterfaceName(),
-                            interfaceName,
+                            remoteBean.getEjbName(),
+                            EjbInterface.REMOTE.getJaccInterfaceName(),
+                            remoteBean.getBusinessRemote(),
+                            ejbModule.getClassLoader());
+                    securityBuilder.addToPermissions(permissions,
+                            remoteBean.getEjbName(),
+                            EjbInterface.HOME.getJaccInterfaceName(),
+                            DeploymentInfo.BusinessRemoteHome.class.getName(),
+                            ejbModule.getClassLoader());
+                }
+                if (remoteBean.getBusinessLocal() != null) {
+                    securityBuilder.addToPermissions(permissions,
+                            remoteBean.getEjbName(),
+                            EjbInterface.LOCAL.getJaccInterfaceName(),
+                            remoteBean.getBusinessLocal(),
+                            ejbModule.getClassLoader());
+                    securityBuilder.addToPermissions(permissions,
+                            remoteBean.getEjbName(),
+                            EjbInterface.LOCAL_HOME.getJaccInterfaceName(),
+                            DeploymentInfo.BusinessLocalHome.class.getName(),
                             ejbModule.getClassLoader());
                 }
 
@@ -217,6 +260,7 @@ public class EjbDeploymentBuilder {
 
                 // Default principal
                 gbean.setAttribute("defaultPrincipal", securityConfiguration.getDefaultPrincipal());
+                gbean.setAttribute("securityEnabled", true);
             }
         }
     }
@@ -231,7 +275,7 @@ public class EjbDeploymentBuilder {
         if (!ejbJarType.getMetadataComplete()) {
             // Create a classfinder and populate it for the naming builder(s). The absence of a
             // classFinder in the module will convey whether metadata-complete is set (or not)
-            ejbModule.setClassFinder(createEjbJarClassFinder(ejbJarType, ejbModule));
+            ejbModule.setClassFinder(createEjbJarClassFinder(ejbModule));
         }
 
         EnterpriseBeansType enterpriseBeans = ejbJarType.getEnterpriseBeans();
@@ -271,9 +315,9 @@ public class EjbDeploymentBuilder {
         //
 
         // Geronimo uses a map to pass data to the naming build and for the results data
-        Map<Object,Object> buildingContext = new HashMap<Object,Object>();
+        Map<Object, Object> buildingContext = new HashMap<Object, Object>();
         buildingContext.put(NamingBuilder.GBEAN_NAME_KEY, gbean.getAbstractName());
-        ((AnnotatedEjbJar)ejbModule.getAnnotatedApp()).setBean(xmlbeansEjb);
+        ((AnnotatedEjbJar) ejbModule.getAnnotatedApp()).setBean(xmlbeansEjb);
 
         namingBuilder.buildNaming(xmlbeansEjb,
                 geronimoOpenejb,
@@ -297,7 +341,7 @@ public class EjbDeploymentBuilder {
         resourceEnvironmentSetter.setResourceEnvironment(refBuilder, resourceRefs, gerResourceRefs);
     }
 
-    private ClassFinder createEjbJarClassFinder( EjbJarType ejbJarType, EjbModule ejbModule) throws DeploymentException {
+    private ClassFinder createEjbJarClassFinder(EjbModule ejbModule) throws DeploymentException {
 
         try {
             // Get the classloader from the module's EARContext
