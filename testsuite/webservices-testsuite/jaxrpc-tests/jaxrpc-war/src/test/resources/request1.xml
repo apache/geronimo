@@ -19,8 +19,8 @@
 -->
 <soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
    <soap:Body>
-     <greetMe xmlns="http://org.apache.org/greeter/types">
-       <requestType>foo bar</requestType>
+     <greetMe xmlns="http://org.apache.org/greeter">
+       <in>foo bar</in>
      </greetMe>
    </soap:Body>
 </soap:Envelope>

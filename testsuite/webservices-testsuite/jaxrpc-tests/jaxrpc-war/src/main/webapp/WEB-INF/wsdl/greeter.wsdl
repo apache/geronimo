@@ -24,33 +24,12 @@
     xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/"
     xmlns:xsd="http://www.w3.org/2001/XMLSchema"
     targetNamespace="http://org.apache.org/greeter" name="HelloWorld">
-    <wsdl:types>
-        <schema targetNamespace="http://org.apache.org/greeter/types" 
-            xmlns="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified">
-
-            <element name="greetMe">
-                <complexType>
-                    <sequence>
-                        <element name="requestType" type="xsd:string"/>
-                    </sequence>
-                </complexType>
-            </element>
-            <element name="greetMeResponse">
-                <complexType>
-                    <sequence>
-                        <element name="responseType" type="xsd:string"/>
-                    </sequence>
-                </complexType>
-            </element>
-
-        </schema>
-    </wsdl:types>
    
     <wsdl:message name="greetMeRequest">
-        <wsdl:part element="x1:greetMe" name="in"/>
+        <wsdl:part name="in" type="xsd:string" />
     </wsdl:message>
     <wsdl:message name="greetMeResponse">
-        <wsdl:part element="x1:greetMeResponse" name="out"/>
+        <wsdl:part name="out" type="xsd:string" />
     </wsdl:message>
     
     <wsdl:portType name="Greeter">
@@ -61,10 +40,10 @@
     </wsdl:portType>
     
     <wsdl:binding name="GreeterSOAPBinding" type="tns:Greeter">
-        <soap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
+        <soap:binding style="rpc" transport="http://schemas.xmlsoap.org/soap/http"/>
                 
         <wsdl:operation name="greetMe">
-            <soap:operation soapAction="" style="document"/>
+            <soap:operation soapAction="" style="rpc"/>
             <wsdl:input name="greetMeRequest">
                 <soap:body use="literal"/>
             </wsdl:input>
