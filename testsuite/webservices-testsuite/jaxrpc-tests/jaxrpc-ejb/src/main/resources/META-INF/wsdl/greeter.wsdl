@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Licensed to the Apache Software Foundation (ASF) under one
+  or more contributor license agreements. See the NOTICE file
+  distributed with this work for additional information
+  regarding copyright ownership. The ASF licenses this file
+  to you under the Apache License, Version 2.0 (the
+  "License"); you may not use this file except in compliance
+  with the License. You may obtain a copy of the License at
+ 
+  http://www.apache.org/licenses/LICENSE-2.0
+ 
+  Unless required by applicable law or agreed to in writing,
+  software distributed under the License is distributed on an
+  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+  KIND, either express or implied. See the License for the
+  specific language governing permissions and limitations
+  under the License.
+-->
+<wsdl:definitions xmlns="http://schemas.xmlsoap.org/wsdl/"
+    xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"
+    xmlns:tns="http://org.apache.org/greeter"
+    xmlns:x1="http://org.apache.org/greeter/types"
+    xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/"
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+    targetNamespace="http://org.apache.org/greeter" name="HelloWorld">
+   
+    <wsdl:message name="greetMeRequest">
+        <wsdl:part name="in" type="xsd:string" />
+    </wsdl:message>
+    <wsdl:message name="greetMeResponse">
+        <wsdl:part name="out" type="xsd:string" />
+    </wsdl:message>
+    
+    <wsdl:portType name="Greeter">
+        <wsdl:operation name="greetMe">
+            <wsdl:input message="tns:greetMeRequest" name="greetMeRequest"/>
+            <wsdl:output message="tns:greetMeResponse" name="greetMeResponse"/>
+        </wsdl:operation>
+    </wsdl:portType>
+    
+    <wsdl:binding name="GreeterSOAPBinding" type="tns:Greeter">
+        <soap:binding style="rpc" transport="http://schemas.xmlsoap.org/soap/http"/>
+                
+        <wsdl:operation name="greetMe">
+            <soap:operation soapAction="" style="rpc"/>
+            <wsdl:input name="greetMeRequest">
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output name="greetMeResponse">
+                <soap:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+                
+    </wsdl:binding>
+  
+    <wsdl:service name="GreeterService">
+        <wsdl:port binding="tns:GreeterSOAPBinding" name="GreeterPort">
+            <soap:address location="http://localhost:9020/SoapContext/GreeterPort"/>
+        </wsdl:port>
+    </wsdl:service>
+       
+</wsdl:definitions>
+

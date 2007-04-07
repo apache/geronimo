@@ -36,6 +36,7 @@
             <id>child</id>
             <modules>
                 <module>jaxrpc-war</module>
+                <module>jaxrpc-ejb</module>
             </modules>
         </profile>
     </profiles>
