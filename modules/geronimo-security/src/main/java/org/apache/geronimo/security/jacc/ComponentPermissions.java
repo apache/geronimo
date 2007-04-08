@@ -26,9 +26,9 @@ import java.io.Serializable;
 public class ComponentPermissions implements Serializable {
     private final PermissionCollection excludedPermissions ;
     private final PermissionCollection uncheckedPermissions;
-    private final Map rolePermissions;
+    private final Map<String, PermissionCollection> rolePermissions;
 
-    public ComponentPermissions(PermissionCollection excludedPermissions, PermissionCollection uncheckedPermissions, Map rolePermissions) {
+    public ComponentPermissions(PermissionCollection excludedPermissions, PermissionCollection uncheckedPermissions, Map<String, PermissionCollection> rolePermissions) {
         this.excludedPermissions = excludedPermissions;
         this.uncheckedPermissions = uncheckedPermissions;
         this.rolePermissions = rolePermissions;
@@ -42,7 +42,7 @@ public class ComponentPermissions implements Serializable {
         return uncheckedPermissions;
     }
 
-    public Map getRolePermissions() {
+    public Map<String, PermissionCollection> getRolePermissions() {
         return rolePermissions;
     }
 }

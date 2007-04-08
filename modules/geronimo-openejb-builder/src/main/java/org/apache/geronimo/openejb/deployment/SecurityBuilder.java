@@ -61,7 +61,7 @@ public class SecurityBuilder {
 
         PermissionCollection uncheckedPermissions = componentPermissions.getUncheckedPermissions();
         PermissionCollection excludedPermissions = componentPermissions.getExcludedPermissions();
-        Map rolePermissions = componentPermissions.getRolePermissions();
+        Map<String, PermissionCollection> rolePermissions = componentPermissions.getRolePermissions();
 
         //this can occur in an ear when one ejb module has security and one doesn't.  In this case we still need
         //to make the non-secure one completely unchecked.
@@ -156,7 +156,7 @@ public class SecurityBuilder {
 
                 String roleLink = securityRoleRef.getRoleLink() == null? securityRoleRef.getRoleName(): securityRoleRef.getRoleLink();
 
-                PermissionCollection roleLinks = (PermissionCollection) rolePermissions.get(roleLink);
+                PermissionCollection roleLinks = rolePermissions.get(roleLink);
                 if (roleLinks == null) {
                     roleLinks = new Permissions();
                     rolePermissions.put(roleLink, roleLinks);
@@ -179,7 +179,7 @@ public class SecurityBuilder {
         if (defaultRole == null) {
             permissions = uncheckedPermissions;
         } else {
-            permissions = (PermissionCollection) rolePermissions.get(defaultRole);
+            permissions = rolePermissions.get(defaultRole);
             if (permissions == null) {
                 permissions = new Permissions();
                 rolePermissions.put(defaultRole, permissions);
@@ -211,7 +211,7 @@ public class SecurityBuilder {
      * @param classLoader the class loader to be used in obtaining the interface class
      * @throws org.apache.geronimo.common.DeploymentException in case a class could not be found
      */
-    public void addToPermissions(Permissions permissions,
+    public void addToPermissions(PermissionCollection permissions,
             String ejbName,
             String methodInterface,
             String interfaceClass,
@@ -240,7 +240,7 @@ public class SecurityBuilder {
      * @param permission the permission that is to be used for culling
      * @return the culled set of permissions that are not implied by <code>permission</code>
      */
-    private Permissions cullPermissions(Permissions toBeChecked, Permission permission) {
+    private Permissions cullPermissions(PermissionCollection toBeChecked, Permission permission) {
         Permissions result = new Permissions();
 
         for (Enumeration e = toBeChecked.elements(); e.hasMoreElements();) {

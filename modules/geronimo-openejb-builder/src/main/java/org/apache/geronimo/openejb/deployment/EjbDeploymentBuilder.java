@@ -62,7 +62,6 @@ import org.apache.openejb.jee.MessageDrivenBean;
 import org.apache.openejb.jee.RemoteBean;
 import org.apache.openejb.jee.SecurityIdentity;
 import org.apache.openejb.jee.SessionBean;
-import org.apache.openejb.jee.StatelessBean;
 import org.apache.openejb.jee.SessionType;
 import org.apache.openejb.jee.oejb3.EjbDeployment;
 import org.apache.xbean.finder.ClassFinder;
@@ -218,7 +217,7 @@ public class EjbDeploymentBuilder {
                             EjbInterface.REMOTE.getJaccInterfaceName(),
                             remoteBean.getBusinessRemote(),
                             ejbModule.getClassLoader());
-                    securityBuilder.addToPermissions(permissions,
+                    securityBuilder.addToPermissions(componentPermissions.getUncheckedPermissions(),
                             remoteBean.getEjbName(),
                             EjbInterface.HOME.getJaccInterfaceName(),
                             DeploymentInfo.BusinessRemoteHome.class.getName(),
@@ -230,7 +229,7 @@ public class EjbDeploymentBuilder {
                             EjbInterface.LOCAL.getJaccInterfaceName(),
                             remoteBean.getBusinessLocal(),
                             ejbModule.getClassLoader());
-                    securityBuilder.addToPermissions(permissions,
+                    securityBuilder.addToPermissions(componentPermissions.getUncheckedPermissions(),
                             remoteBean.getEjbName(),
                             EjbInterface.LOCAL_HOME.getJaccInterfaceName(),
                             DeploymentInfo.BusinessLocalHome.class.getName(),
