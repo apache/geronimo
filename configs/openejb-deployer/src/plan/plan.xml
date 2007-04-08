@@ -30,7 +30,10 @@
           </pattern>
           <pattern>
             <name>Axis2ModuleBuilderExtension</name>
-          </pattern>          
+          </pattern>        
+          <pattern>
+            <name>AxisModuleBuilderExtension</name>
+          </pattern>       
           <pattern>
             <name>CorbaModuleBuilderExtension</name>
           </pattern>          
