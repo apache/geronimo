@@ -28,7 +28,7 @@ import java.util.Set;
  */
 public class GeronimoIdentityResolver implements IdentityResolver {
     public Object getIdentity() {
-        Subject subject = Subject.getSubject(AccessController.getContext());
+        Subject subject = ContextManager.getCurrentCaller();
         if (subject == null) {
             return null;
         }
