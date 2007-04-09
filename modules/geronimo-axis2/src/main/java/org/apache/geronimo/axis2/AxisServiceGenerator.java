@@ -17,6 +17,30 @@
 
 package org.apache.geronimo.axis2;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.StringReader;
+import java.lang.reflect.Method;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URL;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+
+import javax.wsdl.Definition;
+import javax.wsdl.Port;
+import javax.wsdl.Service;
+import javax.wsdl.WSDLException;
+import javax.wsdl.factory.WSDLFactory;
+import javax.wsdl.xml.WSDLReader;
+import javax.wsdl.xml.WSDLWriter;
+import javax.xml.namespace.QName;
+import javax.xml.ws.WebServiceException;
+
 import org.apache.axiom.om.OMElement;
 import org.apache.axiom.om.OMNamespace;
 import org.apache.axis2.Constants;
@@ -51,29 +75,6 @@ import org.apache.ws.commons.schema.XmlSchemaElement;
 import org.apache.ws.commons.schema.XmlSchemaParticle;
 import org.apache.ws.commons.schema.XmlSchemaSequence;
 import org.apache.ws.commons.schema.XmlSchemaType;
-
-import javax.wsdl.Definition;
-import javax.wsdl.Port;
-import javax.wsdl.Service;
-import javax.wsdl.WSDLException;
-import javax.wsdl.factory.WSDLFactory;
-import javax.wsdl.xml.WSDLReader;
-import javax.wsdl.xml.WSDLWriter;
-import javax.xml.namespace.QName;
-import javax.xml.ws.WebServiceException;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.StringReader;
-import java.lang.reflect.Method;
-import java.net.MalformedURLException;
-import java.net.URI;
-import java.net.URL;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
 
 //TODO: Handle RPC Style Messaging
 //TODO: Handle Fault Messages
@@ -201,14 +202,19 @@ public class AxisServiceGenerator {
                         if (particle instanceof XmlSchemaSequence) {
                             XmlSchemaSequence xmlSchemaSequence = (XmlSchemaSequence) particle;
                             Iterator iterator = xmlSchemaSequence.getItems().getIterator();
-                             
+                            int i = 0;
+                            
                             while (iterator.hasNext()) {
                                 XmlSchemaElement innerElement = (XmlSchemaElement) iterator.next();
                                 XmlSchemaType innerElementSchemaType = innerElement.getSchemaType();
                                  
                                 if(!(innerElementSchemaType instanceof XmlSchemaComplexType)){
                                     element = innerElement;
-                                    break;
+                                    if(element != null){
+                                        attachPDC(mdc, method, element, i);
+                                    }
+                                    i++;
+                                    element = null;
                                 }else { 
                                     XmlSchemaComplexType innerComplexSchemaType = (XmlSchemaComplexType)innerElementSchemaType;
                                     XmlSchemaParticle innerParticle = innerComplexSchemaType.getParticle();
@@ -221,16 +227,15 @@ public class AxisServiceGenerator {
                 }
                  
                 if(element != null){
-                	ParameterDescriptionComposite pdc = new ParameterDescriptionComposite();
+                    ParameterDescriptionComposite pdc = new ParameterDescriptionComposite();
                     WebParamAnnot webParamAnnot = WebParamAnnot.createWebParamAnnotImpl();
                     webParamAnnot.setName(element.getName());
-                    pdc.setWebParamAnnot(webParamAnnot);
-                        
+                    pdc.setWebParamAnnot(webParamAnnot);  
                     Class[] paramTypes = method.getParameterTypes();
-                        
+                    //TODO: I think there is a bug here - the last paramType.getName will overwrite the previous ones.    
                     for(Class paramType : paramTypes){
                         String strParamType = paramType.getName();                        
-                       	pdc.setParameterType(strParamType);
+                        pdc.setParameterType(strParamType);
                     }
                     mdc.addParameterDescriptionComposite(pdc);
                 }
@@ -408,5 +413,20 @@ public class AxisServiceGenerator {
             }
         }
         return wsdlURL;
+    }
+    
+    private void attachPDC(MethodDescriptionComposite mdc, Method method, XmlSchemaElement element, int j) {
+        ParameterDescriptionComposite pdc = new ParameterDescriptionComposite();
+        WebParamAnnot webParamAnnot = WebParamAnnot.createWebParamAnnotImpl();
+        webParamAnnot.setName(element.getName());
+        pdc.setMethodDescriptionCompositeRef(mdc);
+        pdc.setWebParamAnnot(webParamAnnot); 
+        Class[] paramTypes = method.getParameterTypes();
+            
+        if (paramTypes.length >= j){
+            pdc.setParameterType(paramTypes[j].getName());
+            pdc.setListOrder(j);
+        }
+        mdc.addParameterDescriptionComposite(pdc);
     }
 }
