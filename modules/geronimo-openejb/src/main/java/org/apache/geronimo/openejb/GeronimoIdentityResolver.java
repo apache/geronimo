@@ -15,9 +15,11 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.apache.geronimo.security;
+package org.apache.geronimo.openejb;
 
 import org.apache.openejb.client.IdentityResolver;
+import org.apache.geronimo.security.ContextManager;
+import org.apache.geronimo.security.IdentificationPrincipal;
 
 import javax.security.auth.Subject;
 import java.security.AccessController;
