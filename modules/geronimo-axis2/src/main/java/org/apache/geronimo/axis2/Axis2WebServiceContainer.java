@@ -472,7 +472,7 @@ public abstract class Axis2WebServiceContainer implements WebServiceContainer {
             if (portInfo.getWsdlFile() != null && !portInfo.getWsdlFile().equals("")) { //wsdl file has been provided
                 Definition wsdlDefinition = new AxisServiceGenerator().getWSDLDefition(portInfo, configurationBaseUrl, classLoader);
                 if(wsdlDefinition != null){
-                    String portName = portInfo.getPortName();
+                    String portName = portInfo.getWsdlPort().getLocalPart();
                     QName qName = portInfo.getWsdlService();
                     if (qName == null) {
                         qName = new QName(service.getTargetNamespace(), service.getName());
