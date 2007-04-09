@@ -14,22 +14,29 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.geronimo.cxf;
+package org.apache.geronimo.webservices;
 
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 
-public class CXFGBean implements GBeanLifecycle {
+public class SystemPropertyGBean implements GBeanLifecycle {
 
-    public CXFGBean() {
+    private String propertyName;
+    private String propertyValue;
+    
+    public SystemPropertyGBean(String propertyName, String propertyValue) {
+        if (propertyName == null || propertyValue == null) {
+            throw new IllegalArgumentException("Property name or value is null");
+        }
+        
+        this.propertyName = propertyName;
+        this.propertyValue = propertyValue;
     }
 
     public void doStart() throws Exception {
-        // disable Endpoint.publish()
-        setProperty("org.apache.cxf.jaxws.checkPublishEndpointPermission",
-                    "true");               
+        setProperty(this.propertyName, this.propertyValue);          
     }
 
     private void setProperty(String propertyName, String value) {
@@ -49,8 +56,13 @@ public class CXFGBean implements GBeanLifecycle {
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic(CXFGBean.class, CXFGBean.class, NameFactory.GERONIMO_SERVICE);
+        GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic(SystemPropertyGBean.class, SystemPropertyGBean.class, NameFactory.GERONIMO_SERVICE);
                 
+        infoFactory.addAttribute("propertyName", String.class, true, true);
+        infoFactory.addAttribute("propertyValue", String.class, true, true);
+        
+        infoFactory.setConstructor(new String[] {"propertyName", "propertyValue"});
+        
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
 
