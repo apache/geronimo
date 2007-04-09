@@ -20,10 +20,11 @@
 
 <module xmlns="http://geronimo.apache.org/xml/ns/deployment-1.1">
 
-    <gbean name="CXFGBean" 
-           class="org.apache.geronimo.webservices.SystemPropertyGBean">
-        <attribute name="propertyName">org.apache.cxf.jaxws.checkPublishEndpointPermission</attribute>
-        <attribute name="propertyValue">true</attribute>
+    <gbean name="ServerSystemProperties" 
+           class="org.apache.geronimo.system.properties.SystemProperties">
+         <attribute name="systemProperties">
+             org.apache.cxf.jaxws.checkPublishEndpointPermission=true
+         </attribute>
     </gbean>
 
 </module>
