@@ -99,4 +99,10 @@
     <gbean name="SAAJGBean" 
            class="org.apache.geronimo.webservices.saaj.SAAJGBean"/>
 
+    <gbean name="CXFGBean" 
+           class="org.apache.geronimo.webservices.SystemPropertyGBean">
+        <attribute name="propertyName">org.apache.cxf.jaxws.checkPublishEndpointPermission</attribute>
+        <attribute name="propertyValue">true</attribute>
+    </gbean>
+
 </module>
