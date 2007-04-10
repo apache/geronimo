@@ -48,7 +48,6 @@
 
     </gbean>
 
-
     <gbean name="Server" class="org.apache.geronimo.corba.CORBABeanGBean">
         <reference name="ConfigAdapter">
             <name>ORBConfigAdapter</name>
@@ -56,7 +55,9 @@
         <reference name="NameService">
             <name>NameServerRef</name>
         </reference>
+        <reference name="SSLConfig">
+            <name>CORBASSLConfig</name>
+        </reference>
     </gbean>
-
 
 </module>

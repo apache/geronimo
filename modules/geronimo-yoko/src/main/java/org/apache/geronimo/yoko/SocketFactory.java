@@ -102,13 +102,14 @@ public class SocketFactory implements ConnectionHelper {
         clientAuthRequired = false;
 
         // retrieve the configuration from the config adapter registry.
-        ORBConfiguration config = ORBConfigAdapter.getConfiguration(configName);
+        ORBConfiguration config = Util.getRegisteredORB(configName);
         if (config == null) {
             throw new RuntimeException("Unable to resolve ORB configuration " + configName);
         }
         // get the configuration from the hosting bean and decode what needs to be implemented.
         sslConfig = config.getSslConfig();
         TSSConfig tssConfig = config.getTssConfig();
+
         TSSTransportMechConfig transportMech = tssConfig.getTransport_mech();
         // if we have a transport mech defined, this is the configuration for any listeners we end up
         // creating.

@@ -43,6 +43,7 @@ import javax.naming.InitialContext;
 import javax.naming.NamingException;
 import javax.rmi.PortableRemoteObject;
 
+import org.apache.geronimo.corba.ORBConfiguration;
 import org.apache.geronimo.util.asn1.DERInputStream;
 import org.apache.geronimo.util.asn1.DERObjectIdentifier;
 import org.apache.geronimo.util.asn1.DEROutputStream;
@@ -89,10 +90,25 @@ public final class Util {
     private static Codec codec;
     private static HandleDelegate handleDelegate;
     private static CorbaApplicationServer corbaApplicationServer = new CorbaApplicationServer();
+    private static HashMap<String,ORBConfiguration> configuredOrbs = new HashMap<String,ORBConfiguration>(); 
+    
     public static ORB getORB() {
         assert orb != null;
         return orb;
     }
+    
+    public static void registerORB(String id, ORBConfiguration orb) {
+        configuredOrbs.put(id, orb); 
+    }
+    
+    public static ORBConfiguration getRegisteredORB(String id) {
+        return configuredOrbs.get(id); 
+    }
+    
+    public static void unregisterORB(String id) {
+        configuredOrbs.remove(id); 
+    }
+    
 
     public static void setORB(ORB orb) throws UserException {
         if (Util.orb == null) {

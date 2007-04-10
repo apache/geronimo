@@ -33,6 +33,7 @@ import org.apache.geronimo.corba.security.ClientPolicy;
 import org.apache.geronimo.corba.transaction.ClientTransactionPolicyConfig;
 import org.apache.geronimo.corba.transaction.ClientTransactionPolicy;
 import org.apache.geronimo.corba.transaction.nodistributedtransactions.NoDTxClientTransactionPolicyConfig;
+import org.apache.geronimo.corba.util.Util;
 import org.omg.CORBA.ORB;
 import org.omg.CORBA.UserException;
 import org.omg.CORBA.PolicyManager;
@@ -190,6 +191,8 @@ public class CSSBean implements GBeanLifecycle, ORBConfiguration {
             log.debug("Starting CSS ORB " + getURI());
 
             Thread.currentThread().setContextClassLoader(classLoader);
+            // register this so we can retrieve this in the interceptors 
+            Util.registerORB(getURI(), this); 
 
             // create an ORB using the name service.
             nssORB = configAdapter.createNameServiceClientORB(this);
@@ -212,6 +215,8 @@ public class CSSBean implements GBeanLifecycle, ORBConfiguration {
     public void doStop() throws Exception {
         cssORB.destroy();
         nssORB.destroy();
+        // remove this from the registry 
+        Util.unregisterORB(getURI()); 
         cssORB = null;
         nssORB = null;
         log.debug("Stopped CORBA Client Security Server - " + description);

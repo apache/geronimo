@@ -34,6 +34,7 @@ import org.apache.geronimo.corba.security.config.ConfigException;
 import org.apache.geronimo.corba.security.config.tss.TSSConfig;
 import org.apache.geronimo.corba.security.config.tss.TSSSSLTransportConfig;
 import org.apache.geronimo.corba.security.config.tss.TSSTransportMechConfig;
+import org.apache.geronimo.corba.util.Util;
 import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.security.deploy.DefaultDomainPrincipal;
 import org.apache.geronimo.security.deploy.DefaultPrincipal;
@@ -54,9 +55,6 @@ import org.omg.CORBA.Policy;
 public class ORBConfigAdapter implements GBeanLifecycle, ConfigAdapter {
 
     private final Log log = LogFactory.getLog(ORBConfigAdapter.class);
-
-    // static registry used to hook up bean instances with
-    private static final HashMap registry = new HashMap();
 
     public ORBConfigAdapter() {
     }
@@ -200,22 +198,6 @@ public class ORBConfigAdapter implements GBeanLifecycle, ConfigAdapter {
     }
 
     /**
-     * Static method used by SocketFactory instances to
-     * retrieve the CORBABean or CSSBean that holds its
-     * configuration information.  The String name has
-     * been passed to the SocketFactory as part of its
-     * initialization parameters.
-     *
-     * @param name   The name of the bean holding the configuration
-     *               information.
-     *
-     * @return The bean mapping for this SocketFactory instance.
-     */
-    public static ORBConfiguration getConfiguration(String name) {
-        return (ORBConfiguration)registry.get(name);
-    }
-
-    /**
      * Create an ORB instance using the configured argument
      * and property bundles.
      *
@@ -229,17 +211,7 @@ public class ORBConfigAdapter implements GBeanLifecycle, ConfigAdapter {
      * @return An ORB constructed from the provided args and properties.
      */
     private ORB createORB(String name, ORBConfiguration config, String[] args, Properties props) {
-        try {
-            // we need to stuff this reference in the registry so that the SocketFactory can find it
-            // when it initializes.
-            registry.put(name, config);
-            return ORB.init(args, props);
-
-        } finally {
-            // remove the configuration object from the registry now that the ORB has initialized.  We
-            // don't want to create a memory leak on the GBean.
-            registry.remove(name);
-        }
+        return ORB.init(args, props);
     }
 
     /**
@@ -309,6 +281,10 @@ public class ORBConfigAdapter implements GBeanLifecycle, ConfigAdapter {
         else {
             result.put("yoko.orb.oa.endpoint", "iiop --host " + server.getHost());
         }
+        
+        // this gives us a connection we can use to retrieve the ORB configuration in the 
+        // interceptors. 
+        result.put("yoko.orb.id", server.getURI()); 
 
         // check the tss config for a transport mech definition.  If we have one, then 
         // the port information will be passed in that config, and the port in the IIOP profile 
@@ -391,6 +367,10 @@ public class ORBConfigAdapter implements GBeanLifecycle, ConfigAdapter {
         result.put("org.omg.PortableInterceptor.ORBInitializerClass.org.apache.geronimo.corba.transaction.TransactionInitializer", "");
         result.put("org.omg.PortableInterceptor.ORBInitializerClass.org.apache.geronimo.corba.security.SecurityInitializer", "");
         result.put("org.omg.PortableInterceptor.ORBInitializerClass.org.apache.geronimo.yoko.ORBInitializer", "");
+
+        // this gives us a connection we can use to retrieve the ORB configuration in the 
+        // interceptors. 
+        result.put("yoko.orb.id", client.getURI()); 
 
         if (log.isDebugEnabled()) {
             log.debug("translateToProps(CSSConfig)");

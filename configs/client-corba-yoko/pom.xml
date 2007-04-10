@@ -128,7 +128,7 @@
                         <deploymentConfig>${gbeanDeployer}</deploymentConfig>
                         <!--<deploymentConfig>${j2eeDeployer}</deploymentConfig>-->
                         <!--<deploymentConfig>${openejbDeployer}</deploymentConfig>-->
-                        <!--<deploymentConfig>${openejbcorbaDeployer}</deploymentConfig>-->
+                        <deploymentConfig>${openejbcorbaDeployer}</deploymentConfig>
                     </deploymentConfigs>
                 </configuration>
             </plugin>

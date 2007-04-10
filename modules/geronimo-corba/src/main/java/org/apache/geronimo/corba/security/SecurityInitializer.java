@@ -28,6 +28,9 @@ import org.omg.PortableInterceptor.ORBInitializer;
 
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.common.GeronimoSecurityException;
+import org.apache.geronimo.corba.ORBConfiguration;
+import org.apache.geronimo.corba.security.config.tss.TSSConfig;
+import org.apache.geronimo.corba.util.Util;
 import org.apache.geronimo.security.DomainPrincipal;
 import org.apache.geronimo.security.PrimaryDomainPrincipal;
 import org.apache.geronimo.security.PrimaryPrincipal;
@@ -106,11 +109,13 @@ public class SecurityInitializer extends LocalObject implements ORBInitializer {
             }
 
             if (log.isDebugEnabled()) log.debug("Default subject: " + defaultSubject);
+            
+            ORBConfiguration config = Util.getRegisteredORB(info.orb_id()); 
 
             try {
                 info.add_client_request_interceptor(new ClientSecurityInterceptor());
                 info.add_server_request_interceptor(new ServerSecurityInterceptor(info.allocate_slot_id(), info.allocate_slot_id(), defaultSubject));
-                info.add_ior_interceptor(new IORSecurityInterceptor());
+                info.add_ior_interceptor(new IORSecurityInterceptor(config.getTssConfig()));
             } catch (DuplicateName dn) {
                 log.error("Error registering interceptor", dn);
             }

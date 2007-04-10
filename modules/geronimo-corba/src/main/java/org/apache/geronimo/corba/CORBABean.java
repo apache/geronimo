@@ -27,6 +27,8 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.gbean.InvalidConfigurationException; 
+import org.apache.geronimo.corba.security.ServerPolicy;
+import org.apache.geronimo.corba.security.ServerPolicyFactory;
 import org.apache.geronimo.corba.security.config.ConfigAdapter;
 import org.apache.geronimo.corba.security.config.ssl.SSLConfig;
 import org.apache.geronimo.corba.security.config.tss.TSSConfig;
@@ -34,6 +36,7 @@ import org.apache.geronimo.corba.security.config.tss.TSSSSLTransportConfig;
 import org.apache.geronimo.corba.security.config.tss.TSSTransportMechConfig;
 import org.apache.geronimo.corba.util.Util;
 import org.apache.geronimo.openejb.OpenEjbSystem; 
+import org.omg.CORBA.Any;
 import org.omg.CORBA.ORB;
 import org.omg.CORBA.Policy;
 import org.omg.PortableServer.POA;
@@ -225,6 +228,8 @@ public class CORBABean implements GBeanLifecycle, ORBRef, ORBConfiguration {
 
             // make sure we've decided how the listener should be configured.
             resolveListenerAddress();
+            // register this so we can retrieve this in the interceptors 
+            Util.registerORB(getURI(), this); 
 
             log.debug("CORBABean " + getURI() + " creating listener on port " + listenerPort);
             // the config adapter creates the actual ORB instance for us.
@@ -233,7 +238,7 @@ public class CORBABean implements GBeanLifecycle, ORBRef, ORBConfiguration {
             // we set this ORB value into the Util.  The Util ORB is used for a lot of utility things, so
             // we'll cache the first instance created.
             Util.setORB(orb);
-
+            
             // TSSBeans are going to need our rootPOA instance, so resolve this now.
             org.omg.CORBA.Object obj = orb.resolve_initial_references("RootPOA");
             rootPOA = POAHelper.narrow(obj);
@@ -253,6 +258,8 @@ public class CORBABean implements GBeanLifecycle, ORBRef, ORBConfiguration {
 
     public void doStop() throws Exception {
         orb.destroy();
+        // remove this from the registry 
+        Util.unregisterORB(getURI()); 
         log.debug("Stopped CORBABean");
     }
 

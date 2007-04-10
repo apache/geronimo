@@ -24,6 +24,7 @@ import org.omg.IOP.TAG_INTERNET_IOP;
 import org.omg.PortableInterceptor.IORInfo;
 import org.omg.PortableInterceptor.IORInterceptor;
 
+import org.apache.geronimo.corba.security.config.tss.TSSConfig;
 import org.apache.geronimo.corba.util.Util;
 
 
@@ -33,15 +34,34 @@ import org.apache.geronimo.corba.util.Util;
 final class IORSecurityInterceptor extends LocalObject implements IORInterceptor {
 
     private final Log log = LogFactory.getLog(IORSecurityInterceptor.class);
+    
+    private final TSSConfig defaultConfig; 
+    
+    public IORSecurityInterceptor(TSSConfig defaultConfig) {
+        this.defaultConfig = defaultConfig; 
+    }
 
     public void establish_components(IORInfo info) {
 
         try {
             ServerPolicy policy = (ServerPolicy) info.get_effective_policy(ServerPolicyFactory.POLICY_TYPE);
+            // try to get a config from the policy, and fall back on the default 
+            TSSConfig config; 
+            if (policy == null) {
+                config = defaultConfig; 
+            }
+            else {
+                config = policy.getConfig(); 
+                if (config == null) {
+                    config = defaultConfig; 
+                }
+            }
+            // nothing to work with, just return 
+            if (config == null) {
+                return;
+            }
 
-            if (policy == null || policy.getConfig() == null) return;
-
-            info.add_ior_component_to_profile(policy.getConfig().generateIOR(Util.getORB(), Util.getCodec()), TAG_INTERNET_IOP.value);
+            info.add_ior_component_to_profile(config.generateIOR(Util.getORB(), Util.getCodec()), TAG_INTERNET_IOP.value);
         } catch (INV_POLICY e) {
             // do nothing
         } catch (Exception e) {
