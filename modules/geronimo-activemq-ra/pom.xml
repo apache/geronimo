@@ -38,6 +38,11 @@
     </description>
     
     <!--
+    FIXME: Should really extract the META-INF/ra.xml from the AMQ distribution
+           and use that to keep things in sync.
+    -->
+    
+    <!--
     NOTE: Excluding depenedencies which are already included in the server's repository
           or are uneeded by the runtime.
     -->
