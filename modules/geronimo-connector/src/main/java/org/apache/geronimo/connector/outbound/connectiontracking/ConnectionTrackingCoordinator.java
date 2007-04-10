@@ -24,6 +24,7 @@ import java.util.Map;
 import java.util.Set;
 import java.lang.reflect.Proxy;
 import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import javax.resource.ResourceException;
 import javax.resource.spi.DissociatableManagedConnection;
@@ -326,8 +327,19 @@ public class ConnectionTrackingCoordinator implements TrackedConnectionAssociato
             } else {
                 handle = getHandle();
             }
-            Object value = method.invoke(handle, args);
-            return value;
+            
+            try {
+                Object value = method.invoke(handle, args);
+                return value;
+            } catch (InvocationTargetException ite) {
+                // catch InvocationTargetExceptions and turn them into the target exception (if there is one)
+                Throwable t = ite.getTargetException();
+                if (t != null) {
+                    throw t;
+                }
+                throw ite;
+            }
+
         }
 
         public synchronized boolean isReleased() {
