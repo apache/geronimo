@@ -287,6 +287,7 @@ public class AxisServiceGenerator {
 
                     ResponseWrapperAnnot responseWrap = ResponseWrapperAnnot.createResponseWrapperAnnotImpl();
                     responseWrap.setClassName(getWrapperClassName(outAxisMessage.getElementQName()));
+                    responseWrap.setTargetNamespace(outAxisMessage.getElementQName().getNamespaceURI());
                     mdc.setResponseWrapperAnnot(responseWrap);
                 } 
             }
@@ -304,6 +305,7 @@ public class AxisServiceGenerator {
     }
     
     //TODO: Has to verify how JAXB default class wrapper class generation logic
+    //Note that this only works when the package name is based on the domain name of the namespace.
     private String getWrapperClassName(QName element) throws Exception {
         String localPart = element.getLocalPart();
         String nameSpace = element.getNamespaceURI();
@@ -312,21 +314,15 @@ public class AxisServiceGenerator {
         
         String host = nameSpaceURI.getHost();
         String path = nameSpaceURI.getPath();
+        String[] hostParts = host.split("\\.");
         String[] pathParts = path.split("/");
-        int index = 0;
-        
-        while(index < host.length()){
-            if(host.charAt(index) == '.'){
-                break;
-            }
-            index ++;
-        }
-        
         String packageName = "";
-        if(pathParts.length == 1){ 
-        	packageName = host.substring(index+1, host.length())+"."+host.substring(0, index);
-        }else {
-        	packageName = host;
+        
+        for (int i = hostParts.length - 1; i > -1; i--) {
+            if (i == 0)
+                packageName += hostParts[i];
+            else 
+                packageName += hostParts[i] + ".";
         }
         
         for(String pathPart : pathParts){
