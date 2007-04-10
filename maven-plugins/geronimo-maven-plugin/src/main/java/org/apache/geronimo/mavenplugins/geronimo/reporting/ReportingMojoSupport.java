@@ -34,7 +34,8 @@ import org.apache.maven.plugin.MojoFailureException;
  * @version $Rev$ $Date$
  */
 public abstract class ReportingMojoSupport
-extends GeronimoMojoSupport {
+    extends GeronimoMojoSupport
+{
     /**
      * Enable logging mode.
      *
@@ -75,8 +76,6 @@ extends GeronimoMojoSupport {
      * @parameter expression="${stopOnFailure}" default-value="true"
      */
     protected boolean stopOnFailure;
-
-    
 
     /**
      * Provides hooks into the reporting interface to allow for customized reports to be generated
