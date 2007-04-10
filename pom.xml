@@ -1383,6 +1383,24 @@
                 <version>2.0</version>
             </dependency>
 
+           <dependency>
+               <groupId>com.sun.xml.ws</groupId>
+               <artifactId>jaxws-tools</artifactId>
+                <version>2.0</version>
+           </dependency>
+    
+           <dependency>
+               <groupId>com.sun.xml.ws</groupId>
+               <artifactId>jaxws-rt</artifactId>
+                <version>2.0</version>
+           </dependency>
+     
+           <dependency>
+               <groupId>com.sun.xml.bind</groupId>
+               <artifactId>jaxb-xjc</artifactId>
+                <version>2.0.3</version>
+           </dependency>
+
             <dependency>
                 <groupId>commons-httpclient</groupId>
                 <artifactId>commons-httpclient</artifactId>

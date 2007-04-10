@@ -17,9 +17,11 @@
 
 package org.apache.geronimo.axis2.builder;
 
+import java.io.ByteArrayOutputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.StringWriter;
 import java.net.URI;
 import java.net.URL;
@@ -29,6 +31,8 @@ import java.util.Map;
 import java.util.jar.JarFile;
 
 import javax.xml.namespace.QName;
+import javax.xml.ws.WebServiceException;
+import javax.xml.ws.soap.SOAPBinding;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -39,15 +43,18 @@ import org.apache.geronimo.deployment.DeploymentContext;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
+import org.apache.geronimo.j2ee.deployment.EARContext;
 import org.apache.geronimo.j2ee.deployment.Module;
 import org.apache.geronimo.j2ee.deployment.WebModule;
 import org.apache.geronimo.j2ee.deployment.WebServiceBuilder;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
+import org.apache.geronimo.jaxws.JAXWSUtils;
 import org.apache.geronimo.jaxws.PortInfo;
 import org.apache.geronimo.jaxws.builder.EndpointInfoBuilder;
 import org.apache.geronimo.jaxws.builder.JAXWSServiceBuilder;
 import org.apache.geronimo.jaxws.client.EndpointInfo;
 import org.apache.geronimo.kernel.repository.Environment;
+import org.apache.geronimo.kernel.repository.MultipleMatchesException;
 import org.apache.geronimo.xbeans.geronimo.naming.GerServiceRefType;
 import org.apache.geronimo.xbeans.javaee.PortComponentRefType;
 import org.apache.geronimo.xbeans.javaee.PortComponentType;
@@ -59,6 +66,11 @@ import org.apache.geronimo.xbeans.javaee.WebservicesType;
 import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlObject;
 
+import com.sun.tools.ws.spi.WSToolsObjectFactory;
+
+/**
+ * @version $Rev$ $Date$
+ */
 public class Axis2Builder extends JAXWSServiceBuilder {
 
 	private static final Log log = LogFactory.getLog(Axis2Builder.class);
@@ -195,10 +207,27 @@ public class Axis2Builder extends JAXWSServiceBuilder {
 		Map sharedContext = ((WebModule) module).getSharedContext();
         String contextRoot = ((WebModule) module).getContextRoot();
         Map portInfoMap = (Map) sharedContext.get(getKey());
+        PortInfo portInfo;
         
         if(portInfoMap != null && portInfoMap.get(servletName) != null){
-        	PortInfo portInfo = (PortInfo) portInfoMap.get(servletName);
+        	portInfo = (PortInfo) portInfoMap.get(servletName);
     		processURLPattern(contextRoot, portInfo);
+        
+            try {
+                //hookup the wsgen tool here
+                //check to see if we need to generate a wsdl file first
+                Class clazz = context.getClassLoader().loadClass(seiClassName);
+                if ((portInfo.getWsdlFile() == null || portInfo.getWsdlFile().equals(""))
+                    && !JAXWSUtils.containsWsdlLocation(clazz, context.getClassLoader())) {
+                    //let's use the wsgen tool to create a wsdl file
+                    //todo: pass the correct bindingtype, use the default binding for now
+                    String fileName = generateWsdl(module, seiClassName, SOAPBinding.SOAP11HTTP_BINDING, context);
+                    //set the wsdlFile property on portInfo.
+                    portInfo.setWsdlFile(fileName);
+                }
+            } catch (ClassNotFoundException ex) {
+                log.warn("cannot load class " + seiClassName);
+            }
         }
         
 		return status;
@@ -283,6 +312,55 @@ public class Axis2Builder extends JAXWSServiceBuilder {
         portInfo.setLocation(oldup);
     }
     
+    private String generateWsdl(Module module, String sei, String bindingType, DeploymentContext context) throws DeploymentException {
+        //call wsgen tool to generate the wsdl file based on the bindingtype.
+        //let's put the outputDir in the module wsdl directory in repository.
+        String outputDir;
+
+        EARContext moduleContext = module.getEarContext();
+        outputDir = moduleContext.getBaseDir().getAbsolutePath();
+        
+        //let's figure out the classpath for wsgen tools
+        String classPath = Axis2BuilderUtil.getWsgenClasspath(module, context);
+
+        //create arguments;
+        String[] arguments = null;       
+        if(bindingType == null || bindingType.equals("") || bindingType.equals(
+                SOAPBinding.SOAP11HTTP_BINDING) || bindingType.equals(
+                        SOAPBinding.SOAP11HTTP_MTOM_BINDING)) {
+            log.info("wsgen - Generating WSDL with SOAP 1.1 binding type, based on type " + bindingType);
+            log.info("outputDir is " + outputDir);
+            log.info("classPath is " + classPath);
+            arguments = new String[]{"-cp", classPath, sei, "-keep", "-wsdl:soap1.1", "-d", 
+                    outputDir};
+        } else if (bindingType.equals(SOAPBinding.SOAP12HTTP_BINDING) || bindingType.equals(
+                SOAPBinding.SOAP12HTTP_MTOM_BINDING)) { 
+            //Xsoap1.2 is not standard and can only be
+            //used in conjunction with the -extension option
+            log.info("wsgen - Generating WSDL with SOAP 1.2 binding type, based on type " + bindingType);
+            log.info("outputDir is " + outputDir);
+            log.info("classPath is " + classPath);
+            arguments =  new String[]{"-cp", classPath, sei, "-keep", "-extension", 
+                    "-wsdl:Xsoap1.2", "-d", outputDir};
+        } else {
+            throw new WebServiceException("The bindingType specified by " + sei 
+                    + " is not supported and cannot be used to generate a wsdl");
+        }
+        
+        try {
+            WSToolsObjectFactory factory = WSToolsObjectFactory.newInstance();
+            OutputStream os = new ByteArrayOutputStream();
+            boolean result = factory.wsgen(os, arguments);   
+            os.close();
+            if (result) //check to see if the file is created.
+                return "SOAPService.wsdl"; //this is the default name of the wsdl file.  TODO: can we overwrite it?
+            else
+                return "";
+        } catch (IOException ex) {
+            log.warn("unable to generate the wsdl file using wsgen.");
+            return "";
+        }
+    }
     public static final GBeanInfo GBEAN_INFO;
 
     static {
