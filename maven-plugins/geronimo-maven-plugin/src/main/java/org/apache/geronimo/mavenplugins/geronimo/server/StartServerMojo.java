@@ -52,6 +52,14 @@ public class StartServerMojo
     extends InstallerMojoSupport
 {
     /**
+     * Set the false to skip the installation of the assembly, re-using anything
+     * that is already there.
+     *
+     * @parameter expression="${install}" default-value="true"
+     */
+    private boolean install = true;
+    
+    /**
      * Flag to control if we background the server or block Maven execution.
      *
      * @parameter expression="${background}" default-value="false"
@@ -132,8 +140,17 @@ public class StartServerMojo
     private Timer timer = new Timer(true);
 
     protected void doExecute() throws Exception {
-        installAssembly();
-
+        if (install) {
+            installAssembly();
+        }
+        else {
+            log.info("Skipping assembly installation");
+            
+            if (!geronimoHome.exists()) {
+                throw new MojoExecutionException("Missing pre-installed assembly directory: " + geronimoHome);
+            }
+        }
+        
         log.info("Starting Geronimo server...");
         
         // Setup the JVM to start the server with
