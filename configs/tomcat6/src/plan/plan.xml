@@ -19,6 +19,12 @@
 <!-- $Rev$ $Date$ -->
 
 <module xmlns="http://geronimo.apache.org/xml/ns/deployment-${geronimoSchemaVersion}">
+
+    <gbean name="CatalinaSystemProperties" class="org.apache.geronimo.system.properties.SystemProperties">
+        <attribute name="systemProperties">
+        org.apache.catalina.STRICT_SERVLET_COMPLIANCE=true
+        </attribute>
+    </gbean>
                                                                                
     <gbean name="TomcatResources" class="org.apache.geronimo.system.util.DirectoryInitializationGBean">
         <!-- copies tomcat initialization files into specified location -->
