@@ -123,7 +123,7 @@
                         <type>jar</type>
                     </dependency>
                     <dependency>
-                        <groupId>org.apache.ws.commons</groupId>
+                        <groupId>org.apache.ws.commons.schema</groupId>
                         <artifactId>XmlSchema</artifactId>
                         <type>jar</type>
                     </dependency>
