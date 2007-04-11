@@ -37,7 +37,7 @@
     <properties>
         <!--
         TODO: Move this where it can be shared with the configs/pom.xml values
-        -->
+        
         <PlanServerHostname>0.0.0.0</PlanServerHostname>
         <PlanNamingPort>1099</PlanNamingPort>
         <PlanOpenEJBPort>4201</PlanOpenEJBPort>
@@ -63,6 +63,7 @@
         <PlanHTTPSPortSecondary>8453</PlanHTTPSPortSecondary>
         <PlanAJPPortSecondary>8019</PlanAJPPortSecondary>
         <PlanJMXPort>9999</PlanJMXPort>
+        -->
         <PlanJettyWebBuilderDefaultNamespace>http://geronimo.apache.org/xml/ns/j2ee/web/jetty-1.0</PlanJettyWebBuilderDefaultNamespace>
         <PlanTomcatWebBuilderDefaultNamespace>http://geronimo.apache.org/xml/ns/j2ee/web/tomcat-1.0</PlanTomcatWebBuilderDefaultNamespace>
     </properties>

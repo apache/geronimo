@@ -28,11 +28,11 @@
 
     <module name="org.apache.geronimo.configs/rmi-naming/${version}/car">
         <gbean name="RMIRegistry">
-            <attribute name="port">${PlanNamingPort}</attribute>
+            <attribute name="port">${PlanNamingPort + portOffset}</attribute>
         </gbean>                                                    
         <gbean name="NamingProperties">
             <!-- Check whether this really works if host name is 0.0.0.0 -->
-            <attribute name="namingProviderUrl">rmi://${PlanServerHostname}:${PlanNamingPort}</attribute>
+            <attribute name="namingProviderUrl">rmi://${PlanServerHostname}:${PlanNamingPort + portOffset}</attribute>
         </gbean>
         <gbean name="DownloadedPluginRepos">
           <attribute name="repositoryList">http://geronimo.apache.org/plugins/plugin-repository-list-2.0.txt</attribute>
@@ -47,13 +47,13 @@
     <module name="org.apache.geronimo.configs/j2ee-security/${version}/car">
         <gbean name="JaasLoginServiceRemotingServer">
             <attribute name="host">${PlanServerHostname}</attribute>
-            <attribute name="port">${PlanRemoteLoginPort}</attribute>
+            <attribute name="port">${PlanRemoteLoginPort + portOffset}</attribute>
         </gbean>
         <gbean name="JMXService">
             <attribute name="protocol">rmi</attribute>
             <attribute name="host">${PlanServerHostname}</attribute>
-            <attribute name="port">${PlanJMXPort}</attribute>
-            <attribute name="urlPath">/jndi/rmi://${PlanServerHostname}:${PlanNamingPort}/JMXConnector</attribute>
+            <attribute name="port">${PlanJMXPort + portOffset}</attribute>
+            <attribute name="urlPath">/jndi/rmi://${PlanServerHostname}:${PlanNamingPort + portOffset}/JMXConnector</attribute>
         </gbean>
     </module>
 
@@ -62,11 +62,15 @@
     <module name="org.apache.geronimo.configs/cxf/${version}/car" load="false"/>
 
     <module name="org.apache.geronimo.configs/openejb/${version}/car">
+        <gbean name="EJBNetworkService">
+            <attribute name="port">${PlanOpenEJBPort + portOffset}</attribute>
+            <attribute name="host">${PlanServerHostname}</attribute>
+        </gbean>
     </module>
 
     <module name="org.apache.geronimo.configs/j2ee-corba-yoko/${version}/car" load="false">
         <gbean name="NameServer">
-            <attribute name="port">${PlanCOSNamingPort}</attribute>
+            <attribute name="port">${PlanCOSNamingPort + portOffset}</attribute>
             <attribute name="host">${PlanCOSNamingHost}</attribute>
         </gbean>
     </module>
@@ -74,18 +78,26 @@
     <module name="org.apache.geronimo.configs/system-database/${version}/car">
         <gbean name="DerbyNetwork">
             <attribute name="host">${PlanServerHostname}</attribute>
-            <attribute name="port">${PlanDerbyPort}</attribute>
+            <attribute name="port">${PlanDerbyPort + portOffset}</attribute>
         </gbean>
     </module>
 
     <module name="org.apache.geronimo.configs/activemq-broker/${version}/car">
         <gbean name="ActiveMQ.tcp.default">
             <attribute name="host">${PlanServerHostname}</attribute>
-            <attribute name="port">${PlanActiveMQPort}</attribute>
+            <attribute name="port">${PlanActiveMQPort + portOffset}</attribute>
+        </gbean>
+        <gbean name="ActiveMQ.stomp.default">
+            <attribute name="host">${PlanServerHostname}</attribute>
+            <attribute name="port">${PlanActiveMQStompPort + portOffset}</attribute>
         </gbean>
     </module>
 
-    <module name="org.apache.geronimo.configs/activemq-ra/${version}/car"/>
+    <module name="org.apache.geronimo.configs/activemq-ra/${version}/car">
+        <gbean name="ActiveMQ RA">
+                <attribute name="ServerUrl">tcp://${PlanServerHostname}:${PlanActiveMQPort + portOffset}</attribute>
+        </gbean>
+    </module>
 
     <module name="org.apache.geronimo.configs/jasper/${version}/car" load="false"/>
 
@@ -93,13 +105,13 @@
 
     <module name="org.apache.geronimo.configs/jetty6/${version}/car">
         <gbean name="JettyWebConnector">
-            <attribute name="host">${hostName}</attribute>
-            <attribute name="port">${httpPort + portOffset}</attribute>
-            <attribute name="redirectPort">${httpsPort + portOffset}</attribute>
+            <attribute name="host">${PlanServerHostname}</attribute>
+            <attribute name="port">${PlanHTTPPortPrimary + portOffset}</attribute>
+            <attribute name="redirectPort">${PlanHTTPSPortPrimary + portOffset}</attribute>
         </gbean>
         <gbean name="JettySSLConnector">
-            <attribute name="host">${hostName}</attribute>
-            <attribute name="port">${httpsPort + portOffset}</attribute>
+            <attribute name="host">${PlanServerHostname}</attribute>
+            <attribute name="port">${PlanHTTPSPortPrimary + portOffset}</attribute>
         </gbean>
 <!--        <gbean name="JettyAJP13Connector">
             <attribute name="host">0.0.0.0</attribute>
