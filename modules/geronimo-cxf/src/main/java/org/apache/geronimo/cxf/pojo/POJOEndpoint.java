@@ -70,9 +70,11 @@ public class POJOEndpoint extends CXFEndpoint {
         serviceFactory.getConfigurations().add(0, configuration);
 
         service = serviceFactory.create();
-
+        
+        /**
         service.put(Message.SCHEMA_VALIDATION_ENABLED, 
                     service.getEnableSchemaValidationForAllPort());
+        **/
 
         service.setInvoker(new JAXWSMethodInvoker(instance));       
 

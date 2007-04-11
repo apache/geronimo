@@ -58,8 +58,8 @@ public class CXFServiceConfiguration extends AbstractServiceConfiguration {
         return this.portInfo.getWsdlPort();
     }
     
-    public URL getWsdlURL() {
-        return this.wsdlURL;
+    public String getWsdlURL() {
+        return this.wsdlURL.toString();
     }
     
 }

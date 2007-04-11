@@ -169,10 +169,13 @@ public abstract class CXFEndpoint extends Endpoint {
             ((SOAPBinding)getBinding()).setMTOMEnabled(this.portInfo.isMTOMEnabled());
         }
         
+        /**
         if (endpoint.getEnableSchemaValidation()) {
+            endpoint.ge
             endpoint.put(Message.SCHEMA_VALIDATION_ENABLED, 
                          endpoint.getEnableSchemaValidation());
         }
+        **/
         server.start();
     }
 
