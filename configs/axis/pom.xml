@@ -54,12 +54,19 @@
             <artifactId>openejb</artifactId>
             <version>${version}</version>
             <type>car</type>
+            <scope>runtime</scope>
         </dependency>
 
         <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
             <artifactId>geronimo-axis</artifactId>
             <version>${version}</version>
+        </dependency>
+
+        <!-- JAXR implementation -->
+        <dependency>
+            <groupId>org.apache.ws.scout</groupId>
+            <artifactId>scout</artifactId>
         </dependency>
 
     </dependencies>

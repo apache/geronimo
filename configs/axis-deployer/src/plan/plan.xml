@@ -68,7 +68,7 @@
                         <groupId>org.apache.geronimo.configs</groupId>
                         <artifactId>axis</artifactId>
                         <type>car</type>
-                        <import>classes</import>
+                        <!--<import>classes</import>-->
                     </dependency>
                 </dependencies>
             </environment>

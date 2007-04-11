@@ -22,4 +22,6 @@
 
     <gbean name="AxisCLWorkaround" class="org.apache.geronimo.axis.AxisDiscoveryCLWorkaroundGBean"/>
 
+    <gbean name="eis/JAXR" class="org.apache.geronimo.webservices.jaxr.JAXRGBean"/>
+
 </module>

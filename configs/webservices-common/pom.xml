@@ -49,9 +49,22 @@
             <type>car</type>
         </dependency>
 
+         <dependency>
+            <groupId>org.apache.geronimo.configs</groupId>
+            <artifactId>xmlbeans</artifactId>
+            <version>${version}</version>
+            <type>car</type>
+        </dependency>
+
         <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
             <artifactId>geronimo-jaxws</artifactId>
+            <version>${version}</version>
+        </dependency>
+
+         <dependency>
+            <groupId>org.apache.geronimo.modules</groupId>
+            <artifactId>geronimo-webservices</artifactId>
             <version>${version}</version>
         </dependency>
 
@@ -64,12 +77,6 @@
         <dependency>
             <groupId>woodstox</groupId>
             <artifactId>wstx-asl</artifactId>
-            <exclusions>
-                <exclusion>
-                    <groupId>stax</groupId>
-                    <artifactId>stax-api</artifactId>
-                </exclusion>
-            </exclusions>
         </dependency>
 
         <!-- JAXB implementation -->
@@ -79,10 +86,10 @@
         </dependency>
 
         <!-- JAXR implementation -->
-        <dependency>
-            <groupId>org.apache.ws.scout</groupId>
-            <artifactId>scout</artifactId>
-        </dependency>
+       <!-- <dependency>  -->
+       <!--     <groupId>org.apache.ws.scout</groupId>  -->
+       <!--     <artifactId>scout</artifactId>  -->
+       <!-- </dependency> -->
 
         <!-- default SAAJ 1.3 implementation -->
         <dependency>

@@ -44,4 +44,16 @@
 	    </dependency>
     </dependencies>
 
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.geronimo.plugins</groupId>
+                <artifactId>car-maven-plugin</artifactId>
+                <configuration>
+                    <bootstrap>true</bootstrap>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
 </project>

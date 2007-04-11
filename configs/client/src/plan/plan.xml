@@ -45,7 +45,7 @@
         <attribute name="poolName">DefaultThreadPool</attribute>
     </gbean>
 
-    <gbean name="eis/JAXR" class="org.apache.geronimo.webservices.jaxr.JAXRGBean"/>
+<!-- <gbean name="eis/JAXR" class="org.apache.geronimo.webservices.jaxr.JAXRGBean"/>  -->
 
     <gbean name="geronimo.client" class="org.apache.geronimo.j2ee.management.impl.J2EEServerImpl">
         <reference name="ServerInfo">
@@ -96,8 +96,8 @@
         </reference>
     </gbean>
 
-    <gbean name="SAAJGBean" 
-           class="org.apache.geronimo.webservices.saaj.SAAJGBean"/>
+<!--  <gbean name="SAAJGBean" 
+           class="org.apache.geronimo.webservices.saaj.SAAJGBean"/>  -->
 
     <gbean name="ClientSystemProperties" 
            class="org.apache.geronimo.system.properties.SystemProperties">

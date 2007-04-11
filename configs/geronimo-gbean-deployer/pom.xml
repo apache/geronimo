@@ -36,6 +36,13 @@
     <dependencies>
 
         <dependency>
+            <groupId>org.apache.geronimo.configs</groupId>
+            <artifactId>xmlbeans</artifactId>
+            <version>${version}</version>
+            <type>car</type>
+        </dependency>
+        
+        <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
             <artifactId>geronimo-common</artifactId>
             <version>${version}</version>
@@ -68,6 +75,7 @@
         </dependency>
 
         <!-- Thirdparty Dependencies -->
+<!--
         <dependency>
             <groupId>xmlbeans</groupId>
             <artifactId>xbean</artifactId>
@@ -77,6 +85,7 @@
             <groupId>org.apache.geronimo.specs</groupId>
             <artifactId>geronimo-stax-api_1.0_spec</artifactId>
         </dependency>
+-->
 
     </dependencies>
     

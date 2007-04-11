@@ -66,10 +66,10 @@
             <artifactId>juddi</artifactId>
         </dependency>
 
-        <dependency>
-            <groupId>org.apache.ws.scout</groupId>
-            <artifactId>scout</artifactId>
-        </dependency>
+        <!--<dependency>-->
+        <!--    <groupId>org.apache.ws.scout</groupId>-->
+        <!--    <artifactId>scout</artifactId>-->
+        <!--</dependency>-->
         
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>

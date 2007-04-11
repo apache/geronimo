@@ -68,6 +68,6 @@
         </connector>
     </ext-module>
 
-    <gbean name="eis/JAXR" class="org.apache.geronimo.webservices.jaxr.JAXRGBean"/>
+    <!--<gbean name="eis/JAXR" class="org.apache.geronimo.webservices.jaxr.JAXRGBean"/>-->
     
 </application>

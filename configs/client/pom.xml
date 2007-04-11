@@ -62,15 +62,6 @@
             <version>${version}</version>
         </dependency>
 
-        <!--
-            for property editor support for some login modules/principals
-
-        <dependency>
-            <groupId>org.apache.geronimo.modules</groupId>
-            <artifactId>geronimo-common</artifactId>
-            <version>${version}</version>
-        </dependency> -->
-
         <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
             <artifactId>geronimo-interceptor</artifactId>
@@ -114,28 +105,17 @@
             <version>${version}</version>
         </dependency>
 
-        <dependency>
-            <groupId>org.apache.geronimo.modules</groupId>
-            <artifactId>geronimo-webservices</artifactId>
-            <version>${version}</version>
-        </dependency>
+        <!--<dependency>-->
+        <!--    <groupId>org.apache.geronimo.modules</groupId>-->
+        <!--    <artifactId>geronimo-webservices</artifactId>-->
+        <!--    <version>${version}</version>-->
+        <!--</dependency>-->
 
         <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
             <artifactId>geronimo-openejb</artifactId>
             <version>${version}</version>
         </dependency>
-
-<!--
-     Added geronimo-axis so that the client can gain access to Axis classes.  It would
-     probably be good to move the JAXR gbean from client and the web containers into 
-     the Axis config and then add Axis to the client config.
-         <dependency>
-             <groupId>org.apache.geronimo.modules</groupId>
-             <artifactId>geronimo-axis</artifactId>
-             <version>${version}</version>
-         </dependency>
--->
 
         <dependency>
             <groupId>org.apache.xbean</groupId>
@@ -145,35 +125,6 @@
         <!-- geronimo-spec-corba, geronimo-j2ee_1.4_spec -->
         <!-- openejb-core, tranql, asm, activemq,
              concurrent, jdom -->
-
-        <!-- jaxr must be available from a client -->
-        <dependency>
-            <groupId>org.apache.ws.scout</groupId>
-            <artifactId>scout</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>juddi</groupId>
-            <artifactId>juddi</artifactId>
-        </dependency>
-
-        <!-- StAX implementation -->
-        <dependency>
-            <groupId>woodstox</groupId>
-            <artifactId>wstx-asl</artifactId>
-        </dependency>
-
-        <!-- JAXB implementation -->
-        <dependency>
-            <groupId>com.sun.xml.bind</groupId>
-            <artifactId>jaxb-impl</artifactId>
-        </dependency>
-
-        <!-- default SAAJ 1.3 implementation -->
-        <dependency>
-            <groupId>com.sun.xml.messaging.saaj</groupId>
-            <artifactId>saaj-impl</artifactId>
-        </dependency>
 
         <!-- used by openejb -->
         <dependency>

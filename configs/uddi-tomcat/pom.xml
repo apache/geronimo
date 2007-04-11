@@ -35,23 +35,6 @@
     
     <dependencies>
 
-<!--
-        <dependency>
-            <groupId>org.apache.geronimo.configs</groupId>
-            <artifactId>tomcat6-deployer</artifactId>
-            <version>${version}</version>
-            <type>car</type>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.geronimo.configs</groupId>
-            <artifactId>connector-deployer</artifactId>
-            <version>${version}</version>
-            <type>car</type>
-            <scope>test</scope>
-        </dependency>
--->
-
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
             <artifactId>system-database</artifactId>
@@ -88,10 +71,10 @@
             <artifactId>juddi</artifactId>
         </dependency>
 
-        <dependency>
-            <groupId>org.apache.ws.scout</groupId>
-            <artifactId>scout</artifactId>
-        </dependency>
+        <!--<dependency>-->
+        <!--    <groupId>org.apache.ws.scout</groupId>-->
+        <!--    <artifactId>scout</artifactId>-->
+        <!--</dependency>-->
         
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
@@ -100,6 +83,7 @@
             <type>car</type>
             <scope>provided</scope>
         </dependency>
+
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
             <artifactId>connector-deployer</artifactId>
@@ -107,6 +91,7 @@
             <type>car</type>
             <scope>provided</scope>
         </dependency>
+
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
             <artifactId>jasper-deployer</artifactId>
@@ -114,6 +99,7 @@
             <type>car</type>
             <scope>provided</scope>
         </dependency>
+
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
             <artifactId>jasper</artifactId>

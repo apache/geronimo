@@ -24,6 +24,7 @@
     <gbean name="geronimo.server" class="org.apache.geronimo.j2ee.management.impl.J2EEDomainImpl">
         <reference name="Servers"/>
     </gbean>
+
     <gbean name="geronimo" class="org.apache.geronimo.j2ee.management.impl.J2EEServerImpl">
         <reference name="ServerInfo">
             <name>ServerInfo</name>
@@ -84,8 +85,8 @@
         </reference>
     </gbean>
 
-    <gbean name="SAAJGBean" 
-           class="org.apache.geronimo.webservices.saaj.SAAJGBean"/>
+<!--    <gbean name="SAAJGBean" 
+           class="org.apache.geronimo.webservices.saaj.SAAJGBean"/> -->
 
     <!--<gbean name="eis/JAXR" class="org.apache.geronimo.webservices.jaxr.JAXRGBean"/>-->
 
