@@ -59,7 +59,7 @@ public class CXFServiceConfiguration extends AbstractServiceConfiguration {
     }
     
     public String getWsdlURL() {
-        return this.wsdlURL.toString();
+        return (this.wsdlURL == null) ? null : this.wsdlURL.toString();
     }
     
 }
