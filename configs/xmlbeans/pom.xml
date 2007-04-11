@@ -39,9 +39,11 @@
             <artifactId>xbean</artifactId>
         </dependency>
 	    <dependency>
-	        <groupId>org.apache.geronimo.specs</groupId>
-	        <artifactId>geronimo-stax-api_1.0_spec</artifactId>
-	    </dependency>
+	        <groupId>org.apache.geronimo.configs</groupId>
+	        <artifactId>jee-specs</artifactId>
+            <version>${version}</version>
+            <type>car</type>
+        </dependency>
     </dependencies>
 
     <build>
