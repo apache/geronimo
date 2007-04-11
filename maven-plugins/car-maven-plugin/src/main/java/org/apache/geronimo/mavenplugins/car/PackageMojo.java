@@ -248,9 +248,11 @@ public class PackageMojo
 
         // Use the default configs if none specified
         if (deploymentConfigs == null) {
-            deploymentConfigs = new String[] {
-                    defaultDeploymentConfig
-            };
+            if (!bootstrap) {
+                deploymentConfigs = new String[] {defaultDeploymentConfig};
+            } else {
+                deploymentConfigs = new String[] {};
+            }
         }
         log.debug("Deployment configs: " + Arrays.asList(deploymentConfigs));
 

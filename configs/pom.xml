@@ -38,6 +38,7 @@
         <!-- This property is required by the car:package mojo -->
         <geronimoVersion>${version}</geronimoVersion>
 
+        <gbeanDeployerBootstrap>org.apache.geronimo.configs/geronimo-gbean-deployer-bootstrap/${version}/car</gbeanDeployerBootstrap>
         <gbeanDeployer>org.apache.geronimo.configs/geronimo-gbean-deployer/${version}/car</gbeanDeployer>
         <j2eeDeployer>org.apache.geronimo.configs/j2ee-deployer/${version}/car</j2eeDeployer>
         <clientDeployer>org.apache.geronimo.configs/client-deployer/${version}/car</clientDeployer>
@@ -106,6 +107,7 @@
     </build>
 
     <modules>
+        <module>geronimo-gbean-deployer-bootstrap</module>
         <module>activemq-ra</module>
         <module>activemq-broker</module>
         <module>axis</module>
