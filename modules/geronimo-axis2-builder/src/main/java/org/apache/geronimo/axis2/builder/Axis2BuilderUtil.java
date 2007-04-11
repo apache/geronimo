@@ -17,22 +17,21 @@
 
 package org.apache.geronimo.axis2.builder;
 
-import java.io.File;
-import java.util.Collection;
-import java.util.List;
-
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.DeploymentConfigurationManager;
 import org.apache.geronimo.deployment.DeploymentContext;
 import org.apache.geronimo.j2ee.deployment.EARContext;
 import org.apache.geronimo.j2ee.deployment.Module;
-import org.apache.geronimo.kernel.config.Configuration;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.Repository;
 
-/**
- * @version $Rev$ $Date$
- */
+import java.io.File;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+
 public class Axis2BuilderUtil {
 
     //TODO: need to update to released jars when they are avail.
@@ -49,8 +48,8 @@ public class Axis2BuilderUtil {
     private final static Artifact GERONIMO_WS_METADATA_ARTIFACT = new Artifact("org.apache.geronimo.specs","geronimo-ws-metadata_2.0_spec", "1.1-SNAPSHOT", "jar");    
     private final static String TOOLS = "tools.jar";
     
-    protected static String getWsgenClasspath(Module module, DeploymentContext context) throws DeploymentException {
-   
+    protected static URL[] getWsgenClasspath(Module module, DeploymentContext context) throws DeploymentException, MalformedURLException {
+        ArrayList<URL> jars = new ArrayList();
         EARContext moduleContext = module.getEarContext();
         String baseDir = moduleContext.getBaseDir().getAbsolutePath();
         List<String> moduleClassPath = context.getConfiguration().getClassPath(); 
@@ -59,31 +58,31 @@ public class Axis2BuilderUtil {
         Collection<Repository> repositories = cm.getRepositories();
 
         //start classpath with path to tools.jar
-        String classpath = getLocation(repositories, JAXB_API_ARTIFACT) + java.io.File.pathSeparator
-            + getLocation(repositories, JAXB_IMPL_ARTIFACT) + java.io.File.pathSeparator
-            + getLocation(repositories, JAXB_XJC_ARTIFACT) + java.io.File.pathSeparator
-            + getLocation(repositories, JAXWS_TOOLS_ARTIFACT) + java.io.File.pathSeparator
-            + getLocation(repositories, JAXWS_RT_ARTIFACT) + java.io.File.pathSeparator
-            + getLocation(repositories, AXIS2_JAXWS_API_ARTIFACT) + java.io.File.pathSeparator
-            + getLocation(repositories, AXIS2_SAAJ_API_ARTIFACT) + java.io.File.pathSeparator
-            + getLocation(repositories, AXIS2_SAAJ_ARTIFACT) + java.io.File.pathSeparator
-            + getLocation(repositories, GERONIMO_ACTIVATION_SPEC_ARTIFACT) + java.io.File.pathSeparator
-            + getLocation(repositories, GERONIMO_ANNOTATION_ARTIFACT) + java.io.File.pathSeparator
-            + getLocation(repositories, GERONIMO_WS_METADATA_ARTIFACT) + java.io.File.pathSeparator
-            + getToolsJarLoc() + java.io.File.pathSeparator
-            + getModuleClassPath(baseDir, moduleClassPath);
+        jars.add(getLocation(repositories, JAXB_API_ARTIFACT));
+        jars.add(getLocation(repositories, JAXB_IMPL_ARTIFACT));
+        jars.add(getLocation(repositories, JAXB_XJC_ARTIFACT));
+        jars.add(getLocation(repositories, JAXWS_TOOLS_ARTIFACT));
+        jars.add(getLocation(repositories, JAXWS_RT_ARTIFACT));
+        jars.add(getLocation(repositories, AXIS2_JAXWS_API_ARTIFACT));
+        jars.add(getLocation(repositories, AXIS2_SAAJ_API_ARTIFACT));
+        jars.add(getLocation(repositories, AXIS2_SAAJ_ARTIFACT));
+        jars.add(getLocation(repositories, GERONIMO_ACTIVATION_SPEC_ARTIFACT));
+        jars.add(getLocation(repositories, GERONIMO_ANNOTATION_ARTIFACT));
+        jars.add(getLocation(repositories, GERONIMO_WS_METADATA_ARTIFACT));
+        jars.add(new File(getToolsJarLoc()).toURL());
+        jars.addAll(getModuleClassPath(baseDir, moduleClassPath));
          
-        return classpath;    
+        return jars.toArray(new URL[jars.size()]);
         
     }
     
-    private static String getLocation(Collection<Repository> repositories, Artifact artifact) throws DeploymentException {
+    private static URL getLocation(Collection<Repository> repositories, Artifact artifact) throws DeploymentException, MalformedURLException {
         File file = null;
         
         for (Repository repository : repositories) {
             if (repository.contains(artifact)) {
                 file = repository.getLocation(artifact);
-                return file.getAbsolutePath();
+                return file.getAbsoluteFile().toURL();
             }
         }
         if (file == null) {
@@ -117,14 +116,13 @@ public class Axis2BuilderUtil {
         }
     }
     
-    private static String getModuleClassPath(String baseDir, List<String> moduleClassPath) {
-        String classpath = "";
+    private static List getModuleClassPath(String baseDir, List<String> moduleClassPath) throws MalformedURLException {
+        ArrayList jars = new ArrayList();
         for (String s : moduleClassPath) {
             if (s.contains("/"))
                 s = s.replace("/", java.io.File.separator);
-            classpath += baseDir + java.io.File.separator + s + java.io.File.pathSeparator;
+            jars.add(new File(baseDir + java.io.File.separator + s).toURL());
         }
-        System.out.println("getModuleClasspath: " + classpath);
-        return classpath;
+        return jars;
     }
 }

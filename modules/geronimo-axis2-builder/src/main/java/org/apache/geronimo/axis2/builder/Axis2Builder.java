@@ -25,10 +25,13 @@ import java.io.OutputStream;
 import java.io.StringWriter;
 import java.net.URI;
 import java.net.URL;
+import java.net.MalformedURLException;
+import java.net.URLClassLoader;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.jar.JarFile;
+import java.lang.reflect.Method;
 
 import javax.xml.namespace.QName;
 import javax.xml.ws.WebServiceException;
@@ -65,8 +68,6 @@ import org.apache.geronimo.xbeans.javaee.WebservicesDocument;
 import org.apache.geronimo.xbeans.javaee.WebservicesType;
 import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlObject;
-
-import com.sun.tools.ws.spi.WSToolsObjectFactory;
 
 /**
  * @version $Rev$ $Date$
@@ -319,9 +320,15 @@ public class Axis2Builder extends JAXWSServiceBuilder {
 
         EARContext moduleContext = module.getEarContext();
         outputDir = moduleContext.getBaseDir().getAbsolutePath();
-        
+
+        URL[] urls;
         //let's figure out the classpath for wsgen tools
-        String classPath = Axis2BuilderUtil.getWsgenClasspath(module, context);
+        try {
+             urls = Axis2BuilderUtil.getWsgenClasspath(module, context);
+        } catch (MalformedURLException e) {
+            log.warn("unable to generate the wsdl file using wsgen.", e);
+            return "";
+        }
 
         //create arguments;
         String[] arguments = null;       
@@ -330,8 +337,7 @@ public class Axis2Builder extends JAXWSServiceBuilder {
                         SOAPBinding.SOAP11HTTP_MTOM_BINDING)) {
             log.info("wsgen - Generating WSDL with SOAP 1.1 binding type, based on type " + bindingType);
             log.info("outputDir is " + outputDir);
-            log.info("classPath is " + classPath);
-            arguments = new String[]{"-cp", classPath, sei, "-keep", "-wsdl:soap1.1", "-d", 
+            arguments = new String[]{sei, "-keep", "-wsdl:soap1.1", "-d",
                     outputDir};
         } else if (bindingType.equals(SOAPBinding.SOAP12HTTP_BINDING) || bindingType.equals(
                 SOAPBinding.SOAP12HTTP_MTOM_BINDING)) { 
@@ -339,8 +345,7 @@ public class Axis2Builder extends JAXWSServiceBuilder {
             //used in conjunction with the -extension option
             log.info("wsgen - Generating WSDL with SOAP 1.2 binding type, based on type " + bindingType);
             log.info("outputDir is " + outputDir);
-            log.info("classPath is " + classPath);
-            arguments =  new String[]{"-cp", classPath, sei, "-keep", "-extension", 
+            arguments =  new String[]{sei, "-keep", "-extension",
                     "-wsdl:Xsoap1.2", "-d", outputDir};
         } else {
             throw new WebServiceException("The bindingType specified by " + sei 
@@ -348,16 +353,19 @@ public class Axis2Builder extends JAXWSServiceBuilder {
         }
         
         try {
-            WSToolsObjectFactory factory = WSToolsObjectFactory.newInstance();
+            URLClassLoader loader = new URLClassLoader(urls, ClassLoader.getSystemClassLoader());
+            Class clazz = loader.loadClass("com.sun.tools.ws.spi.WSToolsObjectFactory");
+            Object factory = clazz.newInstance();
+            Method method = clazz.getMethod("wsgen", OutputStream.class, String[].class);
             OutputStream os = new ByteArrayOutputStream();
-            boolean result = factory.wsgen(os, arguments);   
+            Boolean result = (Boolean) method.invoke(factory, os, arguments);
             os.close();
             if (result) //check to see if the file is created.
                 return "SOAPService.wsdl"; //this is the default name of the wsdl file.  TODO: can we overwrite it?
             else
                 return "";
-        } catch (IOException ex) {
-            log.warn("unable to generate the wsdl file using wsgen.");
+        } catch (Exception e) {
+            log.warn("unable to generate the wsdl file using wsgen.", e);
             return "";
         }
     }
