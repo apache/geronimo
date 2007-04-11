@@ -53,7 +53,7 @@ public class SecurityBuilder {
      * @throws DeploymentException if any constraints are violated
      */
     public void addComponentPermissions(String defaultRole,
-            Permissions notAssigned,
+            PermissionCollection notAssigned,
             AssemblyDescriptor assemblyDescriptor,
             String ejbName,
             List<SecurityRoleRef> securityRoleRefs,

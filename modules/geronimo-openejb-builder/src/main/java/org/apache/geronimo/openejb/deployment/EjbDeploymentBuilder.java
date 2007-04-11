@@ -18,6 +18,7 @@
 package org.apache.geronimo.openejb.deployment;
 
 import java.security.Permissions;
+import java.security.PermissionCollection;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -182,7 +183,7 @@ public class EjbDeploymentBuilder {
             RemoteBean remoteBean = (RemoteBean) enterpriseBean;
 
             SecurityBuilder securityBuilder = new SecurityBuilder();
-            Permissions permissions = new Permissions();
+            PermissionCollection permissions = new Permissions();
 
             SecurityConfiguration securityConfiguration = (SecurityConfiguration) earContext.getSecurityConfiguration();
             if (securityConfiguration != null) {
@@ -211,24 +212,28 @@ public class EjbDeploymentBuilder {
                         EjbInterface.SERVICE_ENDPOINT.getJaccInterfaceName(),
                         remoteBean.getLocalHome(),
                         ejbModule.getClassLoader());
-                if (remoteBean.getBusinessRemote() != null) {
-                    securityBuilder.addToPermissions(permissions,
+                if (remoteBean.getBusinessRemote() != null && !remoteBean.getBusinessRemote().isEmpty()) {
+                    for (String businessRemote: remoteBean.getBusinessRemote()) {
+                        securityBuilder.addToPermissions(permissions,
                             remoteBean.getEjbName(),
                             EjbInterface.REMOTE.getJaccInterfaceName(),
-                            remoteBean.getBusinessRemote(),
+                            businessRemote,
                             ejbModule.getClassLoader());
+                    }
                     securityBuilder.addToPermissions(componentPermissions.getUncheckedPermissions(),
                             remoteBean.getEjbName(),
                             EjbInterface.HOME.getJaccInterfaceName(),
                             DeploymentInfo.BusinessRemoteHome.class.getName(),
                             ejbModule.getClassLoader());
                 }
-                if (remoteBean.getBusinessLocal() != null) {
-                    securityBuilder.addToPermissions(permissions,
+                if (remoteBean.getBusinessLocal() != null && !remoteBean.getBusinessLocal().isEmpty()) {
+                    for (String businessLocal: remoteBean.getBusinessLocal()) {
+                        securityBuilder.addToPermissions(permissions,
                             remoteBean.getEjbName(),
                             EjbInterface.LOCAL.getJaccInterfaceName(),
-                            remoteBean.getBusinessLocal(),
+                            businessLocal,
                             ejbModule.getClassLoader());
+                    }
                     securityBuilder.addToPermissions(componentPermissions.getUncheckedPermissions(),
                             remoteBean.getEjbName(),
                             EjbInterface.LOCAL_HOME.getJaccInterfaceName(),
