@@ -1068,6 +1068,10 @@
                         <groupId>javax.jws</groupId>
                         <artifactId>jsr181-api</artifactId>
                     </exclusion>
+                    <exclusion>
+                        <groupId>com.sun.xml.bind</groupId>
+                        <artifactId>jaxb-impl</artifactId>
+                    </exclusion>
                 </exclusions>
             </dependency>
 
@@ -1116,6 +1120,10 @@
                         <groupId>javax.jws</groupId>
                         <artifactId>jsr181-api</artifactId>
                     </exclusion>
+                    <exclusion>
+                        <groupId>com.sun.xml.bind</groupId>
+                        <artifactId>jaxb-impl</artifactId>
+                    </exclusion>
                 </exclusions>
             </dependency>
 
@@ -1131,6 +1139,10 @@
                     <exclusion>
                         <groupId>javax.jws</groupId>
                         <artifactId>jsr181-api</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>com.sun.xml.bind</groupId>
+                        <artifactId>jaxb-impl</artifactId>
                     </exclusion>
                 </exclusions>
             </dependency>
