@@ -46,7 +46,7 @@ public class SharedLib {
         if (classesDirs != null) {
             for (int i = 0; i < classesDirs.length; i++) {
                 String classesDir = classesDirs[i];
-                File dir = serverInfo.resolve(classesDir);
+                File dir = serverInfo.resolveServer(classesDir);
                 if (!dir.exists()) {
                     if (!dir.mkdirs()) {
                         throw new IllegalArgumentException("Failed to create classes dir: " + dir);
@@ -65,7 +65,7 @@ public class SharedLib {
         if (libDirs != null) {
             for (int i = 0; i < libDirs.length; i++) {
                 String libDir = libDirs[i];
-                File dir = serverInfo.resolve(libDir);
+                File dir = serverInfo.resolveServer(libDir);
                 if (!dir.exists()) {
                     if (!dir.mkdirs()) {
                         throw new IllegalArgumentException("Failed to create lib dir: " + dir);

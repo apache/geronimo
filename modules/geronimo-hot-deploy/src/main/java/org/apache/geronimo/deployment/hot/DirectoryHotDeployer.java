@@ -145,7 +145,7 @@ public class DirectoryHotDeployer implements HotDeployer, DeploymentWatcher, GBe
         if (factory == null) {
             factory = new DeploymentFactoryWithKernel(kernel);
         }
-        File dir = serverInfo.resolve(path);
+        File dir = serverInfo.resolveServer(path);
         if (!dir.exists()) {
             if (!dir.mkdirs()) {
                 throw new IllegalStateException("Hot deploy directory " + dir.getAbsolutePath() + " does not exist and cannot be created!");
