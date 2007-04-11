@@ -96,13 +96,15 @@
         </reference>
     </gbean>
 
-<!--  <gbean name="SAAJGBean" 
-           class="org.apache.geronimo.webservices.saaj.SAAJGBean"/>  -->
-
     <gbean name="ClientSystemProperties" 
            class="org.apache.geronimo.system.properties.SystemProperties">
          <attribute name="systemProperties">
-             org.apache.cxf.jaxws.checkPublishEndpointPermission=true
+           javax.xml.soap.MessageFactory=org.apache.geronimo.webservices.saaj.GeronimoMessageFactory
+           javax.xml.soap.SOAPFactory=org.apache.geronimo.webservices.saaj.GeronimoSOAPFactory
+           javax.xml.soap.SOAPConnectionFactory=org.apache.geronimo.webservices.saaj.GeronimoSOAPConnectionFactory
+           javax.xml.soap.MetaFactory=org.apache.geronimo.webservices.saaj.GeronimoMetaFactory
+
+           org.apache.cxf.jaxws.checkPublishEndpointPermission=true
          </attribute>
     </gbean>
 
