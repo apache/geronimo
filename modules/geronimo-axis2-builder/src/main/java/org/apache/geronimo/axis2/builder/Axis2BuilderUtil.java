@@ -17,20 +17,25 @@
 
 package org.apache.geronimo.axis2.builder;
 
-import org.apache.geronimo.common.DeploymentException;
-import org.apache.geronimo.deployment.DeploymentConfigurationManager;
-import org.apache.geronimo.deployment.DeploymentContext;
-import org.apache.geronimo.j2ee.deployment.EARContext;
-import org.apache.geronimo.j2ee.deployment.Module;
-import org.apache.geronimo.kernel.repository.Artifact;
-import org.apache.geronimo.kernel.repository.Repository;
-
 import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+
+import javax.xml.namespace.QName;
+import javax.xml.ws.WebServiceException;
+import javax.xml.ws.soap.SOAPBinding;
+
+import org.apache.geronimo.common.DeploymentException;
+import org.apache.geronimo.deployment.DeploymentConfigurationManager;
+import org.apache.geronimo.deployment.DeploymentContext;
+import org.apache.geronimo.j2ee.deployment.EARContext;
+import org.apache.geronimo.j2ee.deployment.Module;
+import org.apache.geronimo.jaxws.PortInfo;
+import org.apache.geronimo.kernel.repository.Artifact;
+import org.apache.geronimo.kernel.repository.Repository;
 
 public class Axis2BuilderUtil {
 
@@ -140,5 +145,77 @@ public class Axis2BuilderUtil {
             }
             return new File(filename);
         }
+    }
+    
+    protected static String[] buildArguments(String classPath, String sei, String bindingType, File moduleBaseDir, PortInfo portInfo) {
+        String[] arguments = null; 
+        QName serviceName = portInfo.getWsdlService();
+        QName portName = portInfo.getWsdlPort();
+        
+        if(bindingType == null || bindingType.equals("") || bindingType.equals(
+        SOAPBinding.SOAP11HTTP_BINDING) || bindingType.equals(
+                SOAPBinding.SOAP11HTTP_MTOM_BINDING)) {
+            if (serviceName == null && portName == null)
+                arguments = new String[]{"-cp", classPath, sei, "-keep", "-wsdl:soap1.1", "-d",
+                    moduleBaseDir.getAbsolutePath()};
+            else if (serviceName == null)
+                arguments = new String[]{"-cp", classPath, sei, "-keep", "-wsdl:soap1.1", "-d",
+                    moduleBaseDir.getAbsolutePath(), "-servicename", serviceName.toString()};
+            else if (portName == null)
+                arguments = new String[]{"-cp", classPath, sei, "-keep", "-wsdl:soap1.1", "-d",
+                    moduleBaseDir.getAbsolutePath(), "-portname", portName.toString()};
+            else 
+                arguments = new String[]{"-cp", classPath, sei, "-keep", "-wsdl:soap1.1", "-d",
+                    moduleBaseDir.getAbsolutePath(), "-servicename", serviceName.toString(), 
+                    "-portname", portName.toString()};
+        } else if (bindingType.equals(SOAPBinding.SOAP12HTTP_BINDING) || bindingType.equals(
+            SOAPBinding.SOAP12HTTP_MTOM_BINDING)) { 
+            //Xsoap1.2 is not standard and can only be
+            //used in conjunction with the -extension option
+            if (serviceName == null && portName == null)
+                arguments =  new String[]{"-cp", classPath, sei, "-keep", "-extension",
+                    "-wsdl:Xsoap1.2", "-d", moduleBaseDir.getAbsolutePath()};
+            else if (serviceName == null)
+                arguments =  new String[]{"-cp", classPath, sei, "-keep", "-extension",
+                    "-wsdl:Xsoap1.2", "-d", moduleBaseDir.getAbsolutePath(), "-servicename", 
+                    serviceName.toString()};  
+            else if (portName == null)
+                arguments =  new String[]{"-cp", classPath, sei, "-keep", "-extension",
+                    "-wsdl:Xsoap1.2", "-d", moduleBaseDir.getAbsolutePath(), "-portname", 
+                    portName.toString()}; 
+            else
+                arguments =  new String[]{"-cp", classPath, sei, "-keep", "-extension",
+                    "-wsdl:Xsoap1.2", "-d", moduleBaseDir.getAbsolutePath(), "-servicename", 
+                    serviceName.toString(), "-portname", portName.toString()}; 
+        } else {
+            throw new WebServiceException("The bindingType specified by " + sei 
+                + " is not supported and cannot be used to generate a wsdl");
+       }
+        
+        return arguments;
+    }
+    
+    protected static String getWsdlFileLoc(File moduleBaseDir, PortInfo portInfo) {
+        QName serviceName = portInfo.getWsdlService();
+
+        if (serviceName != null) {
+            //check if serviceName.wsdl locates at the moduleBaseDir, if so, return its path.
+            File wsdlFile = new File(moduleBaseDir.getAbsolutePath() + java.io.File.separator + 
+                    serviceName.getLocalPart() + ".wsdl");
+            if (wsdlFile.exists())
+                return serviceName.getLocalPart() + ".wsdl";
+        } else {//scan the moduleBaseDir and return the first wsdl file found
+            if(moduleBaseDir.isDirectory()) {
+                File[] files = moduleBaseDir.listFiles();
+                for(File file : files) {
+                    String fileName = file.getName();
+                    if(fileName.endsWith(".wsdl")) {
+                        return fileName;
+                    }
+                }
+            }
+        }
+       //unable to find the wsdl file.
+       return "";   
     }
 }
