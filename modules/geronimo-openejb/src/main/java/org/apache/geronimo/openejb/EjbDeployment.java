@@ -194,14 +194,14 @@ public class EjbDeployment implements EJB {
     }
 
     public EJBObject getEjbObject(Object primaryKey) {
-        // get the local interface
-        Class localInterface = deploymentInfo.getLocalInterface();
+        // get the remote interface
+        Class remoteInterface = deploymentInfo.getRemoteInterface();
 
         // get the container
         RpcContainer container = (RpcContainer) deploymentInfo.getContainer();
 
         // create a new ProxyInfo based on the deployment info and primary key
-        ProxyInfo proxyInfo = new ProxyInfo(deploymentInfo, primaryKey, localInterface, container);
+        ProxyInfo proxyInfo = new ProxyInfo(deploymentInfo, primaryKey, remoteInterface, container);
 
         // get the home proxy handler
         EJBHome homeProxy = deploymentInfo.getEJBHome();
