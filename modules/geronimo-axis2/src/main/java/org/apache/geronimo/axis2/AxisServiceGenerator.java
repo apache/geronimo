@@ -59,6 +59,7 @@ import org.apache.axis2.jaxws.description.builder.DescriptionBuilderComposite;
 import org.apache.axis2.jaxws.description.builder.MethodDescriptionComposite;
 import org.apache.axis2.jaxws.description.builder.ParameterDescriptionComposite;
 import org.apache.axis2.jaxws.description.builder.ResponseWrapperAnnot;
+import org.apache.axis2.jaxws.description.builder.WebFaultAnnot;
 import org.apache.axis2.jaxws.description.builder.WebMethodAnnot;
 import org.apache.axis2.jaxws.description.builder.WebParamAnnot;
 import org.apache.axis2.jaxws.description.builder.WebResultAnnot;
@@ -77,8 +78,6 @@ import org.apache.ws.commons.schema.XmlSchemaSequence;
 import org.apache.ws.commons.schema.XmlSchemaType;
 
 //TODO: Handle RPC Style Messaging
-//TODO: Handle Fault Messages
-//TODO: Investigate more on JAXB Wrapper class gen default behaviour 
 
 /**
  * @version $Rev$ $Date$
@@ -296,8 +295,13 @@ public class AxisServiceGenerator {
         	mdc.setOneWayAnnot(true); 
         }
          
-        List faultMessages = operation.getFaultMessages(); 
-        if(faultMessages != null){//TODO Implement it 
+        List<AxisMessage> faultMessages = operation.getFaultMessages();
+        if(faultMessages != null){
+        	for(AxisMessage faultMessage: faultMessages){
+        		WebFaultAnnot faultAnnot = WebFaultAnnot.createWebFaultAnnotImpl();
+        		faultAnnot.setName(faultMessage.getName());
+        		dbc.setWebFaultAnnot(faultAnnot);
+        	}
         }
          
         mdc.setWebMethodAnnot(webMethodAnnot);
