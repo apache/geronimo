@@ -95,6 +95,7 @@ public class OpenEjbSystemGBean implements OpenEjbSystem {
         this.classLoader = classLoader;
         
         System.setProperty("duct tape","");
+        System.setProperty("admin.disabled", "true");
         SystemInstance systemInstance = SystemInstance.get();
 
         String format = systemInstance.getProperty("openejb.deploymentId.format");
