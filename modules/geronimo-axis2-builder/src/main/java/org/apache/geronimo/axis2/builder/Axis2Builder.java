@@ -17,26 +17,6 @@
 
 package org.apache.geronimo.axis2.builder;
 
-import java.io.ByteArrayOutputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.StringWriter;
-import java.net.URI;
-import java.net.URL;
-import java.net.MalformedURLException;
-import java.net.URLClassLoader;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.jar.JarFile;
-import java.lang.reflect.Method;
-
-import javax.xml.namespace.QName;
-import javax.xml.ws.WebServiceException;
-import javax.xml.ws.soap.SOAPBinding;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.axis2.client.Axis2ServiceReference;
@@ -57,7 +37,6 @@ import org.apache.geronimo.jaxws.builder.EndpointInfoBuilder;
 import org.apache.geronimo.jaxws.builder.JAXWSServiceBuilder;
 import org.apache.geronimo.jaxws.client.EndpointInfo;
 import org.apache.geronimo.kernel.repository.Environment;
-import org.apache.geronimo.kernel.repository.MultipleMatchesException;
 import org.apache.geronimo.xbeans.geronimo.naming.GerServiceRefType;
 import org.apache.geronimo.xbeans.javaee.PortComponentRefType;
 import org.apache.geronimo.xbeans.javaee.PortComponentType;
@@ -68,6 +47,25 @@ import org.apache.geronimo.xbeans.javaee.WebservicesDocument;
 import org.apache.geronimo.xbeans.javaee.WebservicesType;
 import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlObject;
+
+import javax.xml.namespace.QName;
+import javax.xml.ws.WebServiceException;
+import javax.xml.ws.soap.SOAPBinding;
+import java.io.ByteArrayOutputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.StringWriter;
+import java.lang.reflect.Method;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URL;
+import java.net.URLClassLoader;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.jar.JarFile;
 
 /**
  * @version $Rev$ $Date$
@@ -355,10 +353,11 @@ public class Axis2Builder extends JAXWSServiceBuilder {
         try {
             URLClassLoader loader = new URLClassLoader(urls, ClassLoader.getSystemClassLoader());
             Class clazz = loader.loadClass("com.sun.tools.ws.spi.WSToolsObjectFactory");
-            Object factory = clazz.newInstance();
-            Method method = clazz.getMethod("wsgen", OutputStream.class, String[].class);
+            Method method = clazz.getMethod("newInstance");
+            Object factory = method.invoke(null);
+            Method method2 = clazz.getMethod("wsgen", OutputStream.class, String[].class);
             OutputStream os = new ByteArrayOutputStream();
-            Boolean result = (Boolean) method.invoke(factory, os, arguments);
+            Boolean result = (Boolean) method2.invoke(factory, os, arguments);
             os.close();
             if (result) //check to see if the file is created.
                 return "SOAPService.wsdl"; //this is the default name of the wsdl file.  TODO: can we overwrite it?
