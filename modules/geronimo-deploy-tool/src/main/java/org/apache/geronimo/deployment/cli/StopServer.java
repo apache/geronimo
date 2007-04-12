@@ -40,7 +40,7 @@ public class StopServer implements Main {
 
 	public static final String RMI_NAMING_CONFG_ID = "org/apache/geronimo/RMINaming";
 
-	public static final String DEFAULT_PORT = "1098"; // 1099 is used by java.rmi.registry.Registry
+	public static final String DEFAULT_PORT = "1099"; // 1099 is used by java.rmi.registry.Registry
 
 	String port;
 

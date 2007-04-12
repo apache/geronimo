@@ -51,7 +51,7 @@ public class BaseDeploymentFactory implements DeploymentFactory {
     private static final Log log = LogFactory.getLog(BaseDeploymentFactory.class);
 
     public static final String URI_PREFIX = "deployer:geronimo:";
-    private static final int DEFAULT_PORT = 1098;
+    private static final int DEFAULT_PORT = 1099;
 
     public BaseDeploymentFactory() {
     }
