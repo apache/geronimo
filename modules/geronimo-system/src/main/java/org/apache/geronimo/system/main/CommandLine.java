@@ -94,7 +94,7 @@ public class CommandLine {
         kernel = getBootedKernel();
 
         initializeKernel();
-        
+
         loadConfigurations(configurations);
 
         log.info("Server startup completed");
@@ -121,10 +121,10 @@ public class CommandLine {
 
     protected void initializeKernel() throws Exception {
         loadBootstrapConfiguration();
-        
+
         Runtime.getRuntime().addShutdownHook(new Thread("Geronimo shutdown thread") {
             public void run() {
-                log.info("Server shutdown begun");
+                log.info("Server shutdown started");
                 try {
                     stopKernel();
                 } catch (GBeanNotFoundException e) {

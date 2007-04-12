@@ -105,7 +105,7 @@ public class StopServer implements Main {
             }
             if (kernel != null) {
                 System.out.println("Server found.");
-                System.out.println("Server shutdown begun");
+                System.out.println("Server shutdown started");
                 kernel.shutdown();
                 System.out.println("Server shutdown completed");
             }
@@ -119,7 +119,7 @@ public class StopServer implements Main {
 	private boolean argumentHasValue(int i) {
 		return i + 1 < args.length && !args[i + 1].startsWith("--");
 	}
-             
+
 	private boolean setParam(int i) {
 		if (argumentHasValue(i)) {
 			if (args[i].equals("--user")) {
@@ -167,17 +167,17 @@ public class StopServer implements Main {
 	}
 
     public static final GBeanInfo GBEAN_INFO;
-    
+
     static {
         GBeanInfoBuilder infoBuilder = GBeanInfoBuilder.createStatic(StopServer.class, "StopServer");
 
         infoBuilder.addInterface(Main.class);
-        
+
         infoBuilder.setConstructor(new String[0]);
-        
+
         GBEAN_INFO = infoBuilder.getBeanInfo();
     }
-    
+
     public static GBeanInfo getGBeanInfo() {
         return GBEAN_INFO;
     }

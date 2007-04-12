@@ -32,7 +32,7 @@ public class Daemon extends EmbeddedDaemon {
     private Daemon() {
         super(null);
     }
-    
+
     @Override
     protected int initializeKernel() throws Exception {
         ClassLoader classLoader = EmbeddedDaemon.class.getClassLoader();
@@ -51,7 +51,8 @@ public class Daemon extends EmbeddedDaemon {
         // add our shutdown hook
         Runtime.getRuntime().addShutdownHook(new Thread("Geronimo shutdown thread") {
             public void run() {
-                System.out.println("\rServer shutdown begun              ");
+                System.out.println("");
+                System.out.println("Server shutdown started");
                 kernel.shutdown();
                 System.out.println("Server shutdown completed");
             }
@@ -72,7 +73,7 @@ public class Daemon extends EmbeddedDaemon {
         }
         return 0;
     }
-    
+
     /**
      * Static entry point allowing a Kernel to be run from the command line.
      *
