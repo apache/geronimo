@@ -45,13 +45,13 @@ import org.apache.geronimo.kernel.KernelRegistry;
  * to contain the GBeans that are responsible for deploying each module
  * type.
  *
- * @version $Rev: 514067 $ $Date: 2007-03-03 15:17:02 +1100 (Sat, 03 Mar 2007) $
+ * @version $Rev$ $Date$
  */
 public class BaseDeploymentFactory implements DeploymentFactory {
     private static final Log log = LogFactory.getLog(BaseDeploymentFactory.class);
 
     public static final String URI_PREFIX = "deployer:geronimo:";
-    private static final int DEFAULT_PORT = 1099;
+    private static final int DEFAULT_PORT = 1098;
 
     public BaseDeploymentFactory() {
     }
