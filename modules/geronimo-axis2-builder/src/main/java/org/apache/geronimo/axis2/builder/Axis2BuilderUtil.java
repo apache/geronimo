@@ -48,11 +48,8 @@ public class Axis2BuilderUtil {
     private final static Artifact GERONIMO_WS_METADATA_ARTIFACT = new Artifact("org.apache.geronimo.specs","geronimo-ws-metadata_2.0_spec", "1.1-SNAPSHOT", "jar");    
     private final static String TOOLS = "tools.jar";
     
-    protected static URL[] getWsgenClasspath(Module module, DeploymentContext context) throws DeploymentException, MalformedURLException {
+    protected static URL[] getWsgenClasspath(DeploymentContext context) throws DeploymentException, MalformedURLException {
         ArrayList<URL> jars = new ArrayList();
-        EARContext moduleContext = module.getEarContext();
-        String baseDir = moduleContext.getBaseDir().getAbsolutePath();
-        List<String> moduleClassPath = context.getConfiguration().getClassPath(); 
         
         DeploymentConfigurationManager cm = (DeploymentConfigurationManager)context.getConfigurationManager();
         Collection<Repository> repositories = cm.getRepositories();
@@ -70,10 +67,22 @@ public class Axis2BuilderUtil {
         jars.add(getLocation(repositories, GERONIMO_ANNOTATION_ARTIFACT));
         jars.add(getLocation(repositories, GERONIMO_WS_METADATA_ARTIFACT));
         jars.add(new File(getToolsJarLoc()).toURL());
-        jars.addAll(getModuleClassPath(baseDir, moduleClassPath));
          
         return jars.toArray(new URL[jars.size()]);
         
+    }
+    
+    protected static String getModuleClasspath(Module module, DeploymentContext context) throws DeploymentException {
+        EARContext moduleContext = module.getEarContext();
+        String baseDir = moduleContext.getBaseDir().getAbsolutePath();
+        List<String> moduleClassPath = context.getConfiguration().getClassPath();
+        String classpath = "";
+        for (String s : moduleClassPath) {
+            if (s.contains("/"))
+                s = s.replace("/", java.io.File.separator);
+            classpath += baseDir + java.io.File.separator + s + java.io.File.pathSeparator;
+        }
+        return classpath;
     }
     
     private static URL getLocation(Collection<Repository> repositories, Artifact artifact) throws DeploymentException, MalformedURLException {
@@ -116,13 +125,20 @@ public class Axis2BuilderUtil {
         }
     }
     
-    private static List getModuleClassPath(String baseDir, List<String> moduleClassPath) throws MalformedURLException {
-        ArrayList jars = new ArrayList();
-        for (String s : moduleClassPath) {
-            if (s.contains("/"))
-                s = s.replace("/", java.io.File.separator);
-            jars.add(new File(baseDir + java.io.File.separator + s).toURL());
+    protected static File toFile(URL url) {
+        if (url == null || !url.getProtocol().equals("file")) {
+            return null;
+        } else {
+            String filename = url.getFile().replace('/', File.separatorChar);
+            int pos =0;
+            while ((pos = filename.indexOf('%', pos)) >= 0) {
+                if (pos + 2 < filename.length()) {
+                    String hexStr = filename.substring(pos + 1, pos + 3);
+                    char ch = (char) Integer.parseInt(hexStr, 16);
+                    filename = filename.substring(0, pos) + ch + filename.substring(pos + 3);
+                }
+            }
+            return new File(filename);
         }
-        return jars;
     }
 }

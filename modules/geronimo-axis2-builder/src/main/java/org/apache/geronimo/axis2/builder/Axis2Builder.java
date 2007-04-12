@@ -320,13 +320,21 @@ public class Axis2Builder extends JAXWSServiceBuilder {
         outputDir = moduleContext.getBaseDir().getAbsolutePath();
 
         URL[] urls;
+        String classPath = "";
         //let's figure out the classpath for wsgen tools
         try {
-             urls = Axis2BuilderUtil.getWsgenClasspath(module, context);
+             urls = Axis2BuilderUtil.getWsgenClasspath(context);
         } catch (MalformedURLException e) {
             log.warn("unable to generate the wsdl file using wsgen.", e);
             return "";
         }
+        //let's figure out the classpath string for the module and wsgen tools.
+        if (urls != null && urls.length > 0) {
+            for (int i = 0; i< urls.length; i++) {
+                classPath += Axis2BuilderUtil.toFile(urls[i]).getAbsolutePath() + ";";
+            }
+        }
+        classPath += Axis2BuilderUtil.getModuleClasspath(module, context);
 
         //create arguments;
         String[] arguments = null;       
@@ -335,7 +343,7 @@ public class Axis2Builder extends JAXWSServiceBuilder {
                         SOAPBinding.SOAP11HTTP_MTOM_BINDING)) {
             log.info("wsgen - Generating WSDL with SOAP 1.1 binding type, based on type " + bindingType);
             log.info("outputDir is " + outputDir);
-            arguments = new String[]{sei, "-keep", "-wsdl:soap1.1", "-d",
+            arguments = new String[]{"-cp", classPath, sei, "-keep", "-wsdl:soap1.1", "-d",
                     outputDir};
         } else if (bindingType.equals(SOAPBinding.SOAP12HTTP_BINDING) || bindingType.equals(
                 SOAPBinding.SOAP12HTTP_MTOM_BINDING)) { 
@@ -343,7 +351,7 @@ public class Axis2Builder extends JAXWSServiceBuilder {
             //used in conjunction with the -extension option
             log.info("wsgen - Generating WSDL with SOAP 1.2 binding type, based on type " + bindingType);
             log.info("outputDir is " + outputDir);
-            arguments =  new String[]{sei, "-keep", "-extension",
+            arguments =  new String[]{"-cp", classPath, sei, "-keep", "-extension",
                     "-wsdl:Xsoap1.2", "-d", outputDir};
         } else {
             throw new WebServiceException("The bindingType specified by " + sei 
