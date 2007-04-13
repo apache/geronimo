@@ -17,14 +17,12 @@
 
 package org.apache.geronimo.jasper.deployment;
 
-import java.io.BufferedInputStream;
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.net.JarURLConnection;
 import java.net.MalformedURLException;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -44,7 +42,6 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.ModuleIDBuilder;
 import org.apache.geronimo.deployment.service.EnvironmentBuilder;
-import org.apache.geronimo.deployment.util.DeploymentUtil;
 import org.apache.geronimo.deployment.xmlbeans.XmlBeansUtil;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.GBeanData;
@@ -61,6 +58,7 @@ import org.apache.geronimo.jasper.JasperServletContextCustomizer;
 import org.apache.geronimo.kernel.GBeanAlreadyExistsException;
 import org.apache.geronimo.kernel.Naming;
 import org.apache.geronimo.kernel.config.Configuration;
+import org.apache.geronimo.kernel.config.ConfigurationData;
 import org.apache.geronimo.kernel.config.ConfigurationStore;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.schema.SchemaConversionUtils;
@@ -219,11 +217,16 @@ public class JspModuleBuilderExtension implements ModuleBuilderExtension {
                         location = location.substring(1);
                     }
                     try {
-                        URL url = DeploymentUtil.createJarURL(webModule.getModuleFile(), location);
-                        tldURLs.add(url);
+                        File targetFile = webModule.getEarContext().getTargetFile(new URI(location));
+                        if (targetFile!=null) {
+                            tldURLs.add(targetFile.toURL());
+                        }
                     }
                     catch (MalformedURLException mfe) {
                         throw new DeploymentException("Could not locate TLD file specified in <taglib>: URI: " + uri + " Location: " + location + " " + mfe.getMessage());
+                    }
+                    catch (URISyntaxException use) {
+                        throw new DeploymentException("Could not locate TLD file specified in <taglib>: URI: " + uri + " Location: " + location + " " + use.getMessage());
                     }
                 }
             }
@@ -275,14 +278,14 @@ public class JspModuleBuilderExtension implements ModuleBuilderExtension {
             while (entries.hasMoreElements()) {
                 JarEntry jarEntry = entries.nextElement();
                 if (jarEntry.getName().startsWith("WEB-INF/") && jarEntry.getName().endsWith(".tld")) {
-                    URL tempURL = getJarEntryURL(webModule.getModuleFile(), jarEntry);
-                    if (tempURL != null) {
-                        modURLs.add(tempURL);
+                    File targetFile = webModule.getEarContext().getTargetFile(new URI(jarEntry.getName()));
+                    if (targetFile!=null) {
+                        modURLs.add(targetFile.toURL());
                     }
                 }
                 if (jarEntry.getName().startsWith("WEB-INF/lib/") && jarEntry.getName().endsWith(".jar")) {
-                    JarFile jarFile = createJarFile(webModule.getModuleFile(), jarEntry);
-                    List<URL> jarUrls = scanJAR(jarFile, null);
+                    File targetFile = webModule.getEarContext().getTargetFile(new URI(jarEntry.getName()));
+                    List<URL> jarUrls = scanJAR(new JarFile(targetFile), null);
                     for (URL jarURL : jarUrls) {
                         modURLs.add(jarURL);
                     }
@@ -320,17 +323,20 @@ public class JspModuleBuilderExtension implements ModuleBuilderExtension {
                 URL tempURL = null;
                 if (prefix != null) {
                     if (jarEntry.getName().endsWith(".tld") && jarEntry.getName().startsWith(prefix)) {
-                        tempURL = getJarEntryURL(jarFile, jarEntry);
+                        tempURL = new URL("jar:file:" + jarFile.getName() + "!/" + jarEntry.getName());
                     }
                 } else {
                     if (jarEntry.getName().endsWith(".tld")) {
-                        tempURL = getJarEntryURL(jarFile, jarEntry);
+                        tempURL = new URL("jar:file:" + jarFile.getName() + "!/" + jarEntry.getName());
                     }
                 }
                 if (tempURL != null) {
                     jarURLs.add(tempURL);
                 }
             }
+        }
+        catch (MalformedURLException mfe) {
+            throw new DeploymentException("Could not scan JAR file for TLD files: " + jarFile.getName() + " " + mfe.getMessage());
         }
         catch (Exception e) {
             throw new DeploymentException("Could not scan JAR file for TLD files: " + jarFile.getName() + " " + e.getMessage());
@@ -649,7 +655,7 @@ public class JspModuleBuilderExtension implements ModuleBuilderExtension {
             try {
                 XmlBeansUtil.validateDD(result);
             } catch (XmlException e) {
-                log.info("Invalid transformed taglib", e);
+                log.warn("Invalid transformed taglib", e);
             }
             log.debug("convertToTaglibSchema( " + result.toString() + " ): Exit 1");
             return (TaglibDocument) result;
@@ -657,54 +663,10 @@ public class JspModuleBuilderExtension implements ModuleBuilderExtension {
         try {
             XmlBeansUtil.validateDD(xmlObject);
         } catch (XmlException e) {
-            log.info("Invalid transformed taglib", e);
+            log.warn("Invalid transformed taglib", e);
         }
         log.debug("convertToTaglibSchema( " + xmlObject.toString() + " ): Exit 2");
         return (TaglibDocument) xmlObject;
-    }
-
-    //TODO this method and the next one should be unnecessary. Before we get here, we've copied all this stuff into the
-    //local repo and unpacked it, so copying  it again and/or unpacking it again is not needed.
-    private static JarFile createJarFile(JarFile jarFile, JarEntry jarEntry) throws IOException {
-        if (jarEntry.getName().endsWith(".jar")) {
-            File tempFile = DeploymentUtil.createTempFile();
-            byte[] buffer = new byte[4096];
-            int count;
-            OutputStream outputStream = new FileOutputStream(tempFile);
-            BufferedInputStream inputStream = new BufferedInputStream(jarFile.getInputStream(jarEntry));
-            try {
-                while ((count = inputStream.read(buffer)) > 0) {
-                    outputStream.write(buffer, 0, count);
-                }
-            }
-            finally {
-                outputStream.close();
-            }
-            return new JarFile(tempFile);
-        } else {
-            throw new IOException("jarEntry is not a jarFile");
-        }
-    }
-
-    public static URL getJarEntryURL(JarFile jarFile, JarEntry jarEntry) throws IOException {
-        File tempFile = DeploymentUtil.createTempFile();
-        byte[] buffer = new byte[4096];
-        int count;
-        OutputStream outputStream = new FileOutputStream(tempFile);
-        BufferedInputStream inputStream = new BufferedInputStream(jarFile.getInputStream(jarEntry));
-        try {
-            while ((count = inputStream.read(buffer)) > 0) {
-                outputStream.write(buffer, 0, count);
-            }
-        }
-        finally {
-            outputStream.close();
-        }
-        if (jarEntry.getName().endsWith(".jar")) {
-            return new URL("jar:" + tempFile.toURL() + "!/");
-        } else {
-            return tempFile.toURL();
-        }
     }
 
 
