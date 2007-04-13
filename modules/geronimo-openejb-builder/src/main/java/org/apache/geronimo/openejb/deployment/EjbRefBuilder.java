@@ -136,7 +136,12 @@ public class EjbRefBuilder extends AbstractNamingBuilder {
                 ejbJars = earData.getEjbJars();
             }
             JndiEncInfoBuilder jndiEncInfoBuilder = new JndiEncInfoBuilder(ejbJars);
-            JndiEncInfo jndiEncInfo = jndiEncInfoBuilder.build(consumer, "GeronimoEnc");
+            JndiEncInfo jndiEncInfo;
+            if (module.isStandAlone()) {
+                jndiEncInfo = jndiEncInfoBuilder.build(consumer, "GeronimoEnc", null);
+            } else {
+                jndiEncInfo = jndiEncInfoBuilder.build(consumer, "GeronimoEnc", module.getTargetPath());
+            }
             JndiEncBuilder jndiEncBuilder = new JndiEncBuilder(jndiEncInfo, module.getName());
             map = jndiEncBuilder.buildMap();
         } catch (OpenEJBException e) {
