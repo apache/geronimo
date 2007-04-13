@@ -423,7 +423,7 @@ public class AxisServiceGenerator {
         pdc.setWebParamAnnot(webParamAnnot); 
         Class[] paramTypes = method.getParameterTypes();
             
-        if (paramTypes.length >= j){
+        if (j < paramTypes.length){
             pdc.setParameterType(paramTypes[j].getName());
             pdc.setListOrder(j);
         }
