@@ -24,6 +24,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import javax.annotation.security.DeclareRoles;
+import javax.annotation.security.RunAs;
 import javax.ejb.EJB;
 import javax.ejb.EJBs;
 import javax.jws.HandlerChain;
@@ -51,7 +53,7 @@ public class AnnotationHelperTest extends XmlBeansTestSupport {
 
     private Class[] classes = {EJBAnnotationTest.class, HandlerChainAnnotationTest.class,
         PersistenceContextAnnotationTest.class, PersistenceUnitAnnotationTest.class,
-        WebServiceRefAnnotationTest.class};
+        WebServiceRefAnnotationTest.class, SecurityAnnotationTest.class};
 
     private ClassFinder classFinder = new ClassFinder(classes);
     private ClassLoader classLoader = this.getClass().getClassLoader();
@@ -260,6 +262,55 @@ public class AnnotationHelperTest extends XmlBeansTestSupport {
         log.debug("[@WebServiceRef Expected XML]" + '\n' + expected.toString() + '\n');
         List problems = new ArrayList();
         boolean ok = compareXmlObjects(webApp, expected, problems);
+        assertTrue("Differences: " + problems, ok);
+    }
+
+
+    public void testSecurityAnnotationHelper() throws Exception {
+
+        //-------------------------------------------------
+        // Ensure annotations are discovered correctly
+        //-------------------------------------------------
+        List<Class> annotatedClasses = classFinder.findAnnotatedClasses(DeclareRoles.class);
+        assertNotNull(annotatedClasses);
+        assertEquals(1, annotatedClasses.size());
+        assertTrue(annotatedClasses.contains(SecurityAnnotationTest.class));
+
+        annotatedClasses.clear();
+        annotatedClasses = classFinder.findAnnotatedClasses(RunAs.class);
+        assertNotNull(annotatedClasses);
+        assertEquals(1, annotatedClasses.size());
+        assertTrue(annotatedClasses.contains(SecurityAnnotationTest.class));
+
+        //-------------------------------------------------
+        // Ensure annotations are processed correctly
+        //-------------------------------------------------
+        URL srcXML = classLoader.getResource("annotation/empty-web-src.xml");
+        XmlObject xmlObject = XmlObject.Factory.parse(srcXML, options);
+        WebAppDocument webAppDoc = (WebAppDocument) xmlObject.changeType(WebAppDocument.type);
+        WebAppType webApp = webAppDoc.getWebApp();
+        AnnotatedWebApp annotatedWebApp = new AnnotatedWebApp(webApp);
+        SecurityAnnotationHelper.processAnnotations(annotatedWebApp, classFinder);
+        URL expectedXML = classLoader.getResource("annotation/security-expected.xml");
+        XmlObject expected = XmlObject.Factory.parse(expectedXML);
+        log.debug("[Security Source XML] " + '\n' + webApp.toString() + '\n');
+        log.debug("[Security Expected XML]" + '\n' + expected.toString() + '\n');
+        List problems = new ArrayList();
+        boolean ok = compareXmlObjects(webApp, expected, problems);
+        assertTrue("Differences: " + problems, ok);
+
+        srcXML = classLoader.getResource("annotation/security-src.xml");
+        xmlObject = XmlObject.Factory.parse(srcXML, options);
+        webAppDoc = (WebAppDocument) xmlObject.changeType(WebAppDocument.type);
+        webApp = webAppDoc.getWebApp();
+        annotatedWebApp = new AnnotatedWebApp(webApp);
+        SecurityAnnotationHelper.processAnnotations(annotatedWebApp, classFinder);
+        expectedXML = classLoader.getResource("annotation/security-expected-1.xml");
+        expected = XmlObject.Factory.parse(expectedXML);
+        log.debug("[Security Source XML] " + '\n' + webApp.toString() + '\n');
+        log.debug("[Security Expected XML]" + '\n' + expected.toString() + '\n');
+        problems = new ArrayList();
+        ok = compareXmlObjects(webApp, expected, problems);
         assertTrue("Differences: " + problems, ok);
     }
 }

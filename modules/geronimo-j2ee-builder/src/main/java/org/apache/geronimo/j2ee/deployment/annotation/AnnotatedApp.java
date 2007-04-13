@@ -28,7 +28,9 @@ import org.apache.geronimo.xbeans.javaee.PersistenceContextRefType;
 import org.apache.geronimo.xbeans.javaee.PersistenceUnitRefType;
 import org.apache.geronimo.xbeans.javaee.ResourceEnvRefType;
 import org.apache.geronimo.xbeans.javaee.ResourceRefType;
+import org.apache.geronimo.xbeans.javaee.SecurityRoleType;
 import org.apache.geronimo.xbeans.javaee.ServiceRefType;
+import org.apache.geronimo.xbeans.javaee.ServletType;
 
 /**
  * Many of the classes generated from the JEE schemas have methods with identical signatures (see
@@ -130,4 +132,10 @@ public interface AnnotatedApp {
 
     PersistenceUnitRefType[] getPersistenceUnitRefArray();
     PersistenceUnitRefType addNewPersistenceUnitRef();
+
+    SecurityRoleType[] getSecurityRoleArray();
+    SecurityRoleType addNewSecurityRole();
+
+    ServletType[] getServletArray();
+    ServletType addNewServlet();
 }

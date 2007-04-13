@@ -67,6 +67,7 @@ import org.apache.geronimo.j2ee.deployment.NamingBuilder;
 import org.apache.geronimo.j2ee.deployment.WebModule;
 import org.apache.geronimo.j2ee.deployment.WebServiceBuilder;
 import org.apache.geronimo.j2ee.deployment.annotation.AnnotatedWebApp;
+import org.apache.geronimo.j2ee.deployment.annotation.SecurityAnnotationHelper;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.jetty6.Host;
 import org.apache.geronimo.jetty6.JettyDefaultServletHolder;
@@ -476,10 +477,16 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
                 configureSecurityRealm(earContext, webApp, jettyWebApp, webModuleData, securityRoles, rolePermissions);
             }
 
+            if (servletTypes.length > 0) {
+                // Process security annotations for servlets only (before MBEs run)
+                SecurityAnnotationHelper.processAnnotations(webModule.getAnnotatedApp(), webModule.getClassFinder());
+            }
+
             //TODO this may definitely not be the best place for this!
             for (ModuleBuilderExtension mbe : moduleBuilderExtensions) {
                 mbe.addGBeans(earContext, module, cl, repository);
             }
+
             //not truly metadata complete until MBEs have run
             if (!webApp.getMetadataComplete()) {
                 webApp.setMetadataComplete(true);

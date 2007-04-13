@@ -32,7 +32,9 @@ import org.apache.geronimo.xbeans.javaee.PersistenceContextRefType;
 import org.apache.geronimo.xbeans.javaee.PersistenceUnitRefType;
 import org.apache.geronimo.xbeans.javaee.ResourceEnvRefType;
 import org.apache.geronimo.xbeans.javaee.ResourceRefType;
+import org.apache.geronimo.xbeans.javaee.SecurityRoleType;
 import org.apache.geronimo.xbeans.javaee.ServiceRefType;
+import org.apache.geronimo.xbeans.javaee.ServletType;
 
 /**
  * Wrapper class to encapsulate the ApplicationClientType class with an interface that the various
@@ -195,6 +197,22 @@ public class AnnotatedApplicationClient implements AnnotatedApp {
 
     public PersistenceUnitRefType addNewPersistenceUnitRef() {
         return applicationClient.addNewPersistenceUnitRef();
+    }
+
+    public SecurityRoleType[] getSecurityRoleArray() {
+        return null;                                            // Not supported by app clients
+    }
+
+    public SecurityRoleType addNewSecurityRole() {
+        return null;                                            // Not supported by app clients
+    }
+
+    public ServletType[] getServletArray() {
+        return null;                                            // Not supported by app clients
+    }
+
+    public ServletType addNewServlet() {
+        return null;                                            // Not supported by app clients
     }
 
 }
