@@ -18,6 +18,7 @@
 package org.apache.geronimo.openejb;
 
 import java.util.Set;
+import java.util.ArrayList;
 import java.lang.reflect.Method;
 import javax.ejb.EJBHome;
 import javax.ejb.EJBLocalHome;
@@ -32,8 +33,10 @@ import org.apache.openejb.BeanType;
 import org.apache.openejb.Container;
 import org.apache.openejb.ProxyInfo;
 import org.apache.openejb.RpcContainer;
+import org.apache.openejb.InterfaceType;
 import org.apache.openejb.core.CoreDeploymentInfo;
 import org.apache.openejb.core.ivm.EjbHomeProxyHandler;
+import org.apache.openejb.core.ivm.EjbObjectProxyHandler;
 import org.apache.openejb.util.proxy.ProxyManager;
 
 public class EjbDeployment implements EJB {
@@ -194,22 +197,7 @@ public class EjbDeployment implements EJB {
     }
 
     public EJBObject getEjbObject(Object primaryKey) {
-        // get the remote interface
-        Class remoteInterface = deploymentInfo.getRemoteInterface();
-
-        // get the container
-        RpcContainer container = (RpcContainer) deploymentInfo.getContainer();
-
-        // create a new ProxyInfo based on the deployment info and primary key
-        ProxyInfo proxyInfo = new ProxyInfo(deploymentInfo, primaryKey, remoteInterface, container);
-
-        // get the home proxy handler
-        EJBHome homeProxy = deploymentInfo.getEJBHome();
-        EjbHomeProxyHandler handler = (EjbHomeProxyHandler) ProxyManager.getInvocationHandler(homeProxy);
-
-        // create the proxy
-        EJBObject ejbObject = (EJBObject) handler.createProxy(proxyInfo);
-        return ejbObject;
+        return (EJBObject) EjbObjectProxyHandler.createProxy(deploymentInfo, primaryKey, new ArrayList<Class>(), InterfaceType.EJB_OBJECT);
     }
 
     public Class getHomeInterface() {
