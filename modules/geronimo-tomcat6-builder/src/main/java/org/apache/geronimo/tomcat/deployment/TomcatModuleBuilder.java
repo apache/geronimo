@@ -59,6 +59,7 @@ import org.apache.geronimo.j2ee.deployment.NamingBuilder;
 import org.apache.geronimo.j2ee.deployment.WebModule;
 import org.apache.geronimo.j2ee.deployment.WebServiceBuilder;
 import org.apache.geronimo.j2ee.deployment.annotation.AnnotatedWebApp;
+import org.apache.geronimo.j2ee.deployment.annotation.SecurityAnnotationHelper;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.Naming;
@@ -442,6 +443,11 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder {
                 }
 
                 webModuleData.setAttribute("securityHolder", securityHolder);
+            }
+
+            if (servletTypes.length > 0) {
+                // Process security annotations for servlets only (before MBEs run)
+                SecurityAnnotationHelper.processAnnotations(webModule.getAnnotatedApp(), webModule.getClassFinder());
             }
 
             //listeners added directly to the StandardContext will get loaded by the tomcat classloader, not the app classloader!
