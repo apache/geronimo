@@ -193,7 +193,7 @@ set _EXECJAVA=%_RUNJAVA%
 @REM MAINCLASS required for jdb debugger as it requires the mainclass
 @REM parameter. For other commands, the main class is obtained from
 @REM the JAR manifest.
-set MAINCLASS=org.apache.geronimo.system.main.Daemon
+set MAINCLASS=org.apache.geronimo.kernel.util.MainConfigurationBootstrapper
 set JPDA=
 set _JARFILE="%GERONIMO_HOME%"\bin\server.jar
 
