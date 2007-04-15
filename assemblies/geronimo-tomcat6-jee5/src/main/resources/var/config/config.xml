@@ -71,7 +71,7 @@
     <module name="org.apache.geronimo.configs/j2ee-corba-yoko/${version}/car" load="false">
         <gbean name="NameServer">
             <attribute name="port">${PlanCOSNamingPort + portOffset}</attribute>
-            <attribute name="host">${PlanCOSNamingHost + portOffset}</attribute>
+            <attribute name="host">${PlanCOSNamingHost}</attribute>
         </gbean>
     </module>
 
