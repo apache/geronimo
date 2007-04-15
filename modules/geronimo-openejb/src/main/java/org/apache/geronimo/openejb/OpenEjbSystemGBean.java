@@ -238,13 +238,15 @@ public class OpenEjbSystemGBean implements OpenEjbSystem {
     }
 
     private void removeResourceAdapter(ResourceAdapterWrapper resourceAdapterWrapper) {
-        for (String messageListenerInterface : resourceAdapterWrapper.getMessageListenerToActivationSpecMap().keySet()) {
-            String containerName = getResourceAdapterId(resourceAdapterWrapper) + "-" + messageListenerInterface;
-            processedResourceAdapterWrappers.remove(containerName);
-            assembler.removeContainer(containerName);
+        Map<String, String> listenerToActivationSpecMap = resourceAdapterWrapper.getMessageListenerToActivationSpecMap();
+        if (listenerToActivationSpecMap != null) {
+            for (String messageListenerInterface : listenerToActivationSpecMap.keySet()) {
+                String containerName = getResourceAdapterId(resourceAdapterWrapper) + "-" + messageListenerInterface;
+                processedResourceAdapterWrappers.remove(containerName);
+                assembler.removeContainer(containerName);
+            }
+            registeredResouceAdapters.remove(resourceAdapterWrapper.getName());
         }
-
-        registeredResouceAdapters.remove(resourceAdapterWrapper.getName());
     }
 
     private String getResourceAdapterId(ResourceAdapterWrapper resourceAdapterWrapper) {
