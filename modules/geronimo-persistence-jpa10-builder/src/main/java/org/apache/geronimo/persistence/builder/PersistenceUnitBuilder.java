@@ -95,16 +95,25 @@ public class PersistenceUnitBuilder implements NamespaceDrivenBuilder {
                     continue;
                 }
                 int endPos = persistenceLocation.lastIndexOf("!/");
-                String relative = persistenceLocation.substring(pos + base.length(), endPos);
-                PersistenceDocument persistenceDocument;
-                try {
-                    XmlObject xmlObject = XmlBeansUtil.parse(persistenceUrl, moduleContext.getClassLoader());
-                    persistenceDocument = (PersistenceDocument)xmlObject.changeType(PersistenceDocument.type);
-                } catch (XmlException e) {
-                    throw new DeploymentException("Could not parse persistence.xml file: " + persistenceUrl, e);
+                if (endPos < 0) {
+                    // if unable to find the '!/' marker, try to see if this is
+                    // a war file with the persistence.xml directly embeded - no ejb-jar
+                    endPos = persistenceLocation.lastIndexOf("WEB-INF");
                 }
-                PersistenceDocument.Persistence persistence = persistenceDocument.getPersistence();
-                buildPersistenceUnits(persistence, moduleContext, NameFactory.PERSISTENCE_UNIT_MODULE, relative);
+                if (endPos >= 0) {
+                    String relative = persistenceLocation.substring(pos + base.length(), endPos);
+                    PersistenceDocument persistenceDocument;
+                    try {
+                        XmlObject xmlObject = XmlBeansUtil.parse(persistenceUrl, moduleContext.getClassLoader());
+                        persistenceDocument = (PersistenceDocument)xmlObject.changeType(PersistenceDocument.type);
+                    } catch (XmlException e) {
+                        throw new DeploymentException("Could not parse persistence.xml file: " + persistenceUrl, e);
+                    }
+                    PersistenceDocument.Persistence persistence = persistenceDocument.getPersistence();
+                    buildPersistenceUnits(persistence, moduleContext, NameFactory.PERSISTENCE_UNIT_MODULE, relative);
+                } else {
+                    throw new DeploymentException("Could not find persistence.xml file: " + persistenceUrl);
+                }
             }
         } catch (IOException e) {
             throw new DeploymentException("Could not look for META-INF/persistence.xml files", e);
