@@ -296,7 +296,7 @@ public final class DeploymentUtil {
                 for (int i = 0; i < files.length; i++) {
                     File file = files[i];
                     if (file.isDirectory()) {
-                        recursiveDelete(file);
+                        recursiveDelete(file, unableToDeleteCollection);
                     } else {
                         if (!file.delete() && unableToDeleteCollection != null) {
                             unableToDeleteCollection.add(file);    
@@ -305,7 +305,11 @@ public final class DeploymentUtil {
                 }
             }
         }
-        return root.delete();
+        boolean rootDeleteStatus = false;
+        if (!(rootDeleteStatus = root.delete()) && unableToDeleteCollection != null) 
+        	unableToDeleteCollection.add(root);
+        
+        return rootDeleteStatus;
     }
     
     public static boolean recursiveDelete(File root) {
