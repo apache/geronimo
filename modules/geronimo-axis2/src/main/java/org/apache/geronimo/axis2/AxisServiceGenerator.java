@@ -50,6 +50,8 @@ import org.apache.axis2.jaxws.description.EndpointDescription;
 import org.apache.axis2.jaxws.description.ServiceDescription;
 import org.apache.axis2.jaxws.description.builder.DescriptionBuilderComposite;
 import org.apache.axis2.jaxws.description.builder.MethodDescriptionComposite;
+import org.apache.axis2.jaxws.description.builder.WebServiceAnnot;
+import org.apache.axis2.jaxws.description.builder.WebServiceProviderAnnot;
 import org.apache.axis2.jaxws.description.builder.WsdlComposite;
 import org.apache.axis2.jaxws.description.builder.WsdlGenerator;
 import org.apache.axis2.jaxws.description.builder.converter.JavaClassToDBCConverter;
@@ -101,10 +103,21 @@ public class AxisServiceGenerator {
 
         DescriptionBuilderComposite dbc = dbcMap.get(endpointClassName);
         dbc.setClassLoader(classLoader);
-
         dbc.setWsdlDefinition(wsdlDefinition);
         dbc.setClassName(endpointClassName);
         dbc.setCustomWsdlGenerator(new WSDLGeneratorImpl(wsdlDefinition));
+        if (dbc.getWebServiceAnnot() != null) { //information specified in .wsdl should overwrite annotation.
+            WebServiceAnnot serviceAnnot = dbc.getWebServiceAnnot();
+            serviceAnnot.setPortName(portName);
+            serviceAnnot.setServiceName(service.getName());
+            serviceAnnot.setTargetNamespace(service.getTargetNamespace());
+        } else if (dbc.getWebServiceProviderAnnot() != null) { 
+            //TODO: can webservice and webservice provider annot co-exist?
+            WebServiceProviderAnnot serviceProviderAnnot = dbc.getWebServiceProviderAnnot(); 
+            serviceProviderAnnot.setPortName(portName);
+            serviceProviderAnnot.setServiceName(service.getName());
+            serviceProviderAnnot.setTargetNamespace(service.getTargetNamespace());
+        }
 
         for(Iterator<AxisOperation> opIterator = service.getOperations() ; opIterator.hasNext() ;){
             AxisOperation operation = opIterator.next();
