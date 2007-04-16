@@ -46,7 +46,6 @@ import org.apache.geronimo.deployment.DeploymentContext;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
-import org.apache.geronimo.j2ee.deployment.EARContext;
 import org.apache.geronimo.j2ee.deployment.Module;
 import org.apache.geronimo.j2ee.deployment.WebModule;
 import org.apache.geronimo.j2ee.deployment.WebServiceBuilder;
@@ -312,7 +311,11 @@ public class Axis2Builder extends JAXWSServiceBuilder {
         portInfo.setLocation(oldup);
     }
     
-    private String generateWsdl(Module module, String sei, String bindingType, DeploymentContext context, PortInfo portInfo) throws DeploymentException {
+    private String generateWsdl(Module module, 
+                                String sei, 
+                                String bindingType, 
+                                DeploymentContext context, 
+                                PortInfo portInfo) throws DeploymentException {
         //call wsgen tool to generate the wsdl file based on the bindingtype.
         //let's set the outputDir as the module base directory in server repository.
         File moduleBaseDir = module.getEarContext().getBaseDir();
@@ -323,9 +326,9 @@ public class Axis2Builder extends JAXWSServiceBuilder {
         try {
              urls = Axis2BuilderUtil.getWsgenClasspath(context);
         } catch (MalformedURLException e) {
-            log.warn("unable to generate the wsdl file using wsgen.", e);
+            log.warn("unable to generate the wsdl file using wsgen. - unable to get the location of the required artifact(s).", e);
             return "";
-        }
+        } 
         //let's figure out the classpath string for the module and wsgen tools.
         if (urls != null && urls.length > 0) {
             for (int i = 0; i< urls.length; i++) {

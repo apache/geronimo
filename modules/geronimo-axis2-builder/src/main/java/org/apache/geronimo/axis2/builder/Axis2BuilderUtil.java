@@ -23,6 +23,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.SortedSet;
 
 import javax.xml.namespace.QName;
 import javax.xml.ws.WebServiceException;
@@ -35,31 +36,31 @@ import org.apache.geronimo.j2ee.deployment.EARContext;
 import org.apache.geronimo.j2ee.deployment.Module;
 import org.apache.geronimo.jaxws.PortInfo;
 import org.apache.geronimo.kernel.repository.Artifact;
-import org.apache.geronimo.kernel.repository.Repository;
+import org.apache.geronimo.kernel.repository.ListableRepository;
+import org.apache.geronimo.kernel.repository.Version;
 
 public class Axis2BuilderUtil {
 
-    //TODO: need to update to released jars when they are avail.
-    private final static Artifact AXIS2_JAXWS_API_ARTIFACT = new Artifact("org.apache.axis2","axis2-jaxws-api", "SNAPSHOT", "jar");
-    private final static Artifact AXIS2_SAAJ_API_ARTIFACT = new Artifact("org.apache.axis2","axis2-saaj-api", "SNAPSHOT", "jar");
-    private final static Artifact AXIS2_SAAJ_ARTIFACT = new Artifact("org.apache.axis2","axis2-saaj", "SNAPSHOT", "jar");
-    private final static Artifact JAXB_API_ARTIFACT = new Artifact("javax.xml.bind","jaxb-api", "2.0", "jar");
-    private final static Artifact JAXB_IMPL_ARTIFACT = new Artifact("com.sun.xml.bind","jaxb-impl", "2.0.3", "jar");
-    private final static Artifact JAXB_XJC_ARTIFACT = new Artifact("com.sun.xml.bind","jaxb-xjc", "2.0.3", "jar");    
-    private final static Artifact JAXWS_TOOLS_ARTIFACT = new Artifact("com.sun.xml.ws","jaxws-tools", "2.0", "jar");
-    private final static Artifact JAXWS_RT_ARTIFACT = new Artifact("com.sun.xml.ws","jaxws-rt", "2.0", "jar");
-    private final static Artifact GERONIMO_ACTIVATION_SPEC_ARTIFACT = new Artifact("org.apache.geronimo.specs","geronimo-activation_1.1_spec", "1.0-SNAPSHOT", "jar");    
-    private final static Artifact GERONIMO_ANNOTATION_ARTIFACT = new Artifact("org.apache.geronimo.specs","geronimo-annotation_1.0_spec", "1.0", "jar");     
-    private final static Artifact GERONIMO_WS_METADATA_ARTIFACT = new Artifact("org.apache.geronimo.specs","geronimo-ws-metadata_2.0_spec", "1.1-SNAPSHOT", "jar");    
+    private final static Artifact AXIS2_JAXWS_API_ARTIFACT = new Artifact("org.apache.axis2","axis2-jaxws-api", (Version)null, "jar");
+    private final static Artifact AXIS2_SAAJ_API_ARTIFACT = new Artifact("org.apache.axis2","axis2-saaj-api", (Version)null, "jar");
+    private final static Artifact AXIS2_SAAJ_ARTIFACT = new Artifact("org.apache.axis2","axis2-saaj", (Version)null, "jar");
+    private final static Artifact JAXB_API_ARTIFACT = new Artifact("javax.xml.bind","jaxb-api", (Version)null, "jar");
+    private final static Artifact JAXB_IMPL_ARTIFACT = new Artifact("com.sun.xml.bind","jaxb-impl", (Version)null, "jar");
+    private final static Artifact JAXB_XJC_ARTIFACT = new Artifact("com.sun.xml.bind","jaxb-xjc", (Version)null, "jar");    
+    private final static Artifact JAXWS_TOOLS_ARTIFACT = new Artifact("com.sun.xml.ws","jaxws-tools", (Version)null, "jar");
+    private final static Artifact JAXWS_RT_ARTIFACT = new Artifact("com.sun.xml.ws","jaxws-rt", (Version)null, "jar");
+    private final static Artifact GERONIMO_ACTIVATION_SPEC_ARTIFACT = new Artifact("org.apache.geronimo.specs","geronimo-activation_1.1_spec", (Version)null, "jar");    
+    private final static Artifact GERONIMO_ANNOTATION_ARTIFACT = new Artifact("org.apache.geronimo.specs","geronimo-annotation_1.0_spec", (Version)null, "jar");     
+    private final static Artifact GERONIMO_WS_METADATA_ARTIFACT = new Artifact("org.apache.geronimo.specs","geronimo-ws-metadata_2.0_spec", (Version)null, "jar");    
     private final static String TOOLS = "tools.jar";
     
-    protected static URL[] getWsgenClasspath(DeploymentContext context) throws DeploymentException, MalformedURLException {
+    protected static URL[] getWsgenClasspath(DeploymentContext context) 
+        throws DeploymentException, MalformedURLException {
         ArrayList<URL> jars = new ArrayList();
         
         DeploymentConfigurationManager cm = (DeploymentConfigurationManager)context.getConfigurationManager();
-        Collection<Repository> repositories = cm.getRepositories();
+        Collection<ListableRepository> repositories = cm.getRepositories();
 
-        //start classpath with path to tools.jar
         jars.add(getLocation(repositories, JAXB_API_ARTIFACT));
         jars.add(getLocation(repositories, JAXB_IMPL_ARTIFACT));
         jars.add(getLocation(repositories, JAXB_XJC_ARTIFACT));
@@ -90,17 +91,22 @@ public class Axis2BuilderUtil {
         return classpath;
     }
     
-    private static URL getLocation(Collection<Repository> repositories, Artifact artifact) throws DeploymentException, MalformedURLException {
+    private static URL getLocation(Collection<ListableRepository> repositories, Artifact artifactQuery) throws DeploymentException, MalformedURLException {
         File file = null;
         
-        for (Repository repository : repositories) {
-            if (repository.contains(artifact)) {
-                file = repository.getLocation(artifact);
+        for (ListableRepository repository : repositories) {
+            SortedSet artifactSet = repository.list(artifactQuery);
+            // if we have exactly one artifact found
+            if (artifactSet.size() == 1) {
+                file = repository.getLocation((Artifact) artifactSet.first());
                 return file.getAbsoluteFile().toURL();
-            }
+            } else if (artifactSet.size() > 1) {// if we have more than 1 artifacts found use the latest one.
+                file = repository.getLocation((Artifact) artifactSet.last());
+                return file.getAbsoluteFile().toURL();
+            } 
         }
         if (file == null) {
-            throw new DeploymentException("Missing artifact in repositories: " + artifact.toString());
+            throw new DeploymentException("Missing artifact in repositories: " + artifactQuery.toString());
         }
         return null;
     }
