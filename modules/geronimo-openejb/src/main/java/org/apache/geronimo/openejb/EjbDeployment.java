@@ -197,7 +197,7 @@ public class EjbDeployment implements EJB {
     }
 
     public EJBObject getEjbObject(Object primaryKey) {
-        return (EJBObject) EjbObjectProxyHandler.createProxy(deploymentInfo, primaryKey, new ArrayList<Class>(), InterfaceType.EJB_OBJECT);
+        return (EJBObject) EjbObjectProxyHandler.createProxy(deploymentInfo, primaryKey, new ArrayList<Class>(), InterfaceType.EJB_HOME);
     }
 
     public Class getHomeInterface() {
