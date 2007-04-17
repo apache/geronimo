@@ -31,13 +31,9 @@ import org.apache.geronimo.management.EJB;
 import org.apache.geronimo.security.ContextManager;
 import org.apache.openejb.BeanType;
 import org.apache.openejb.Container;
-import org.apache.openejb.ProxyInfo;
-import org.apache.openejb.RpcContainer;
 import org.apache.openejb.InterfaceType;
 import org.apache.openejb.core.CoreDeploymentInfo;
-import org.apache.openejb.core.ivm.EjbHomeProxyHandler;
 import org.apache.openejb.core.ivm.EjbObjectProxyHandler;
-import org.apache.openejb.util.proxy.ProxyManager;
 
 public class EjbDeployment implements EJB {
     private final String objectName;
@@ -70,7 +66,7 @@ public class EjbDeployment implements EJB {
     private Context javaCompSubContext;
 
     public EjbDeployment() {
-        this(null, null, null, null, null, null, null, null, null, null, 
+        this(null, null, null, null, null, null, null, null, null, null,
              false, null, null, null, null, null, null, null);
     }
 
@@ -197,7 +193,7 @@ public class EjbDeployment implements EJB {
     }
 
     public EJBObject getEjbObject(Object primaryKey) {
-        return (EJBObject) EjbObjectProxyHandler.createProxy(deploymentInfo, primaryKey, InterfaceType.EJB_HOME, new ArrayList<Class>());
+        return (EJBObject) EjbObjectProxyHandler.createProxy(deploymentInfo, primaryKey, InterfaceType.EJB_HOME);
     }
 
     public Class getHomeInterface() {
