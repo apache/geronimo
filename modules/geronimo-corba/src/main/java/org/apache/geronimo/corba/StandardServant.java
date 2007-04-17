@@ -22,6 +22,7 @@ import java.rmi.MarshalException;
 import java.rmi.NoSuchObjectException;
 import java.rmi.RemoteException;
 import java.util.HashMap;
+import java.util.Vector;
 import java.util.Map;
 
 import javax.ejb.EJBHome;
@@ -240,10 +241,10 @@ public class StandardServant extends Servant implements InvokeHandler {
                     try {
                         RpcContainer container = (RpcContainer) ejbDeployment.getContainer();
                         result = container.invoke(ejbDeployment.getDeploymentId(), method, arguments, primaryKey, null);
-                        // some methods like create() return a ProxyInfo object.  We need to 
-                        // turn this into a real EJB remote reference. 
-                        if (result instanceof ProxyInfo) {
-                            result = Util.getEJBProxy((ProxyInfo)result); 
+                        // some methods like create() or find* return ProxyInfo objects.  We need to 
+                        // turn those into real EJB remote references. 
+                        if (result instanceof ProxyInfo || method.getName().startsWith("find")) {
+                            result = createProxy(result);                    
                         }
                     } catch (OpenEJBException e) {
                         Throwable cause = e.getCause();
@@ -309,5 +310,46 @@ public class StandardServant extends Servant implements InvokeHandler {
         } catch (NoSuchMethodException e) {
             throw (IllegalStateException) new IllegalStateException().initCause(e);
         }
+    }
+
+    /**
+     * Convert ProxyInfo items in a create* or find* result
+     * for returning as a corba result. 
+     * 
+     * @param retValue The return value.
+     * 
+     * @return A CORBA compatible return result. 
+     * @exception Throwable
+     */
+    protected Object createProxy(Object retValue) throws Throwable {
+        if (retValue instanceof java.util.Collection) {
+            Object [] proxyInfos = ((java.util.Collection) retValue).toArray();
+            Vector proxies = new Vector();
+            for (int i = 0; i < proxyInfos.length; i++) {
+                ProxyInfo proxyInfo = (ProxyInfo) proxyInfos[i];
+                proxies.addElement(Util.getEJBProxy(proxyInfo));
+            }
+            return proxies;
+        } else if (retValue instanceof org.apache.openejb.util.ArrayEnumeration) {
+            org.apache.openejb.util.ArrayEnumeration enumeration = (org.apache.openejb.util.ArrayEnumeration) retValue;
+            for (int i = enumeration.size() - 1; i >= 0; --i) {
+                ProxyInfo proxyInfo = ((ProxyInfo) enumeration.get(i));
+                enumeration.set(i, Util.getEJBProxy(proxyInfo));
+            }
+            return enumeration;
+        } else if (retValue instanceof java.util.Enumeration) {
+            java.util.Enumeration enumeration = (java.util.Enumeration) retValue;
+
+            java.util.List proxies = new java.util.ArrayList();
+            while (enumeration.hasMoreElements()) {
+                ProxyInfo proxyInfo = ((ProxyInfo) enumeration.nextElement());
+                proxies.add(Util.getEJBProxy(proxyInfo));
+            }
+            return new org.apache.openejb.util.ArrayEnumeration(proxies);
+        } else {
+            org.apache.openejb.ProxyInfo proxyInfo = (org.apache.openejb.ProxyInfo) retValue;
+            return Util.getEJBProxy(proxyInfo);
+        }
+
     }
 }
