@@ -88,11 +88,24 @@ public class GeronimoDestination extends AbstractHTTPDestination
         message.put(Message.PATH_INFO, servletRequest.getPathInfo());
         message.put(Message.QUERY_STRING, servletRequest.getQueryString());
         message.put(Message.CONTENT_TYPE, servletRequest.getContentType());
-        message.put(Message.ENCODING, servletRequest.getCharacterEncoding());
+        message.put(Message.ENCODING, getCharacterEncoding(servletRequest.getCharacterEncoding()));
         
         messageObserver.onMessage(message);
     }
 
+    private static String getCharacterEncoding(String encoding) {
+        if (encoding != null) {
+            encoding = encoding.trim();
+            // work around a bug with Jetty which results in the character
+            // encoding not being trimmed correctly:
+            // http://jira.codehaus.org/browse/JETTY-302
+            if (encoding.endsWith("\"")) {
+                encoding = encoding.substring(0, encoding.length() - 1);
+            }
+        }
+        return encoding;
+    }
+    
     protected void copyRequestHeaders(Message message, Map<String, List<String>> headers) {
         HttpServletRequest servletRequest = (HttpServletRequest)message.get(MessageContext.SERVLET_REQUEST);
         if (servletRequest != null) {
