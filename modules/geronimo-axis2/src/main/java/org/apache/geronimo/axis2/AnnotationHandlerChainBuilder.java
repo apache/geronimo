@@ -68,7 +68,7 @@ public class AnnotationHandlerChainBuilder {
                 //We expect only one HandlerChainType here
                 hc = handlerChainsType.getHandlerChainArray()[0];
             } catch (Exception e) {
-                log.debug(e);
+                log.debug(e.getMessage(), e);
                 throw new WebServiceException("Chain not specified", e);
             }
 
