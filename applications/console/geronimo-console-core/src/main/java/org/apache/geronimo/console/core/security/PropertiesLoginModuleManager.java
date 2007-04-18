@@ -69,7 +69,7 @@ public class PropertiesLoginModuleManager {
         users.clear();
         InputStream in = null;
         try {
-            in = serverInfo.resolve(getUsersURI()).toURL().openStream();
+            in = serverInfo.resolveServer(getUsersURI()).toURL().openStream();
             users.load(in);
         } catch (Exception e) {
             throw new GeronimoSecurityException(e);
@@ -88,7 +88,7 @@ public class PropertiesLoginModuleManager {
         groups.clear();
         InputStream in = null;
         try {
-            in = serverInfo.resolve(getGroupsURI()).toURL().openStream();
+            in = serverInfo.resolveServer(getGroupsURI()).toURL().openStream();
             groups.load(in);
         } catch (Exception e) {
             throw new GeronimoSecurityException(e);
@@ -107,7 +107,7 @@ public class PropertiesLoginModuleManager {
         users.clear();
         InputStream in = null;
         try {
-            in = serverInfo.resolve(getUsersURI()).toURL().openStream();
+            in = serverInfo.resolveServer(getUsersURI()).toURL().openStream();
             users.load(in);
         } catch (Exception e) {
             throw new GeronimoSecurityException(e);
@@ -127,7 +127,7 @@ public class PropertiesLoginModuleManager {
         groups.clear();
         InputStream in = null;
         try {
-            in = serverInfo.resolve(getGroupsURI()).toURL().openStream();
+            in = serverInfo.resolveServer(getGroupsURI()).toURL().openStream();
             groups.load(in);
         } catch (Exception e) {
             throw new GeronimoSecurityException(e);
@@ -158,7 +158,7 @@ public class PropertiesLoginModuleManager {
                 password = digestPassword(password, digest);
             }
             users.setProperty(user, password);
-            store(users, serverInfo.resolve(getUsersURI()).toURL());
+            store(users, serverInfo.resolveServer(getUsersURI()).toURL());
         } catch (Exception e) {
             throw new GeronimoSecurityException("Cannot add user principal: "
                     + e.getMessage());
@@ -170,7 +170,7 @@ public class PropertiesLoginModuleManager {
         try {
             refreshUsers();
             users.remove(userPrincipal);
-            store(users, serverInfo.resolve(getUsersURI()).toURL());
+            store(users, serverInfo.resolveServer(getUsersURI()).toURL());
         } catch (Exception e) {
             throw new GeronimoSecurityException("Cannot remove user principal "
                     + userPrincipal + ": " + e.getMessage());
@@ -189,7 +189,7 @@ public class PropertiesLoginModuleManager {
                 password = digestPassword(password, digest);
             }
             users.setProperty(user, password);
-            store(users, serverInfo.resolve(getUsersURI()).toURL());
+            store(users, serverInfo.resolveServer(getUsersURI()).toURL());
         } catch (Exception e) {
             throw new GeronimoSecurityException("Cannot add user principal: "
                     + e.getMessage());
@@ -206,7 +206,7 @@ public class PropertiesLoginModuleManager {
         try {
             groups.setProperty((String) properties.get("GroupName"),
                     (String) properties.get("Members"));
-            store(groups, serverInfo.resolve(getGroupsURI()).toURL());
+            store(groups, serverInfo.resolveServer(getGroupsURI()).toURL());
         } catch (Exception e) {
             throw new GeronimoSecurityException("Cannot add group principal: "
                     + e.getMessage());
@@ -218,7 +218,7 @@ public class PropertiesLoginModuleManager {
         refreshGroups();
         try {
             groups.remove(groupPrincipal);
-            store(groups, serverInfo.resolve(getGroupsURI()).toURL());
+            store(groups, serverInfo.resolveServer(getGroupsURI()).toURL());
         } catch (Exception e) {
             throw new GeronimoSecurityException(
                     "Cannot remove group principal: " + e.getMessage());
@@ -232,7 +232,7 @@ public class PropertiesLoginModuleManager {
         try {
             groups.setProperty((String) properties.get("GroupName"),
                     (String) properties.get("Members"));
-            store(groups, serverInfo.resolve(getGroupsURI()).toURL());
+            store(groups, serverInfo.resolveServer(getGroupsURI()).toURL());
         } catch (Exception e) {
             throw new GeronimoSecurityException("Cannot add group principal: "
                     + e.getMessage());
