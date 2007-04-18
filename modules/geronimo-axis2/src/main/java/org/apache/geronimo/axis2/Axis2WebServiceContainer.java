@@ -198,6 +198,8 @@ public abstract class Axis2WebServiceContainer implements WebServiceContainer {
 
             doService2(request, response, msgContext);
         } catch (Throwable e) {
+            String msg = "Exception occurred while trying to invoke service method doService()";
+            log.error(msg, e);
             try {
                 AxisEngine engine = new AxisEngine(this.configurationContext);
 
@@ -210,12 +212,6 @@ public abstract class Axis2WebServiceContainer implements WebServiceContainer {
                     response.setStatusCode(202);
                 } else {
                     response.setStatusCode(500);
-                    response.setHeader(HTTPConstants.HEADER_CONTENT_TYPE, "text/plain");
-                    PrintWriter pw = new PrintWriter(response.getOutputStream());
-                    e.printStackTrace(pw);
-                    pw.flush();
-                    String msg = "Exception occurred while trying to invoke service method doService()";
-                    log.error(msg, e);
                 }
                 engine.sendFault(faultContext);
             } catch (Exception ex) {
@@ -227,7 +223,6 @@ public abstract class Axis2WebServiceContainer implements WebServiceContainer {
                     PrintWriter pw = new PrintWriter(response.getOutputStream());
                     ex.printStackTrace(pw);
                     pw.flush();
-                    String msg = "Exception occurred while trying to invoke service method doService()";
                     log.error(msg, ex);
                 }
             }
