@@ -81,7 +81,6 @@ public class ConnectionTrackingCoordinator implements TrackedConnectionAssociato
     }
 
     private void associateConnections(ConnectorInstanceContext context) throws ResourceException {
-        if (!lazyConnect) {
             Map connectionManagerToManagedConnectionInfoMap = context.getConnectionManagerMap();
             for (Iterator i = connectionManagerToManagedConnectionInfoMap.entrySet().iterator(); i.hasNext();) {
                 Map.Entry entry = (Map.Entry) i.next();
@@ -90,7 +89,6 @@ public class ConnectionTrackingCoordinator implements TrackedConnectionAssociato
                 Set connections = (Set) entry.getValue();
                 mcci.enter(connections);
             }
-        }
     }
 
     public void newTransaction() throws ResourceException {
