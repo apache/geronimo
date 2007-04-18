@@ -28,6 +28,7 @@ import org.apache.geronimo.jaxws.client.EndpointInfo;
 import org.apache.geronimo.jaxws.client.JAXWSServiceReference;
 import org.apache.geronimo.xbeans.javaee.HandlerChainsDocument;
 import org.apache.geronimo.xbeans.javaee.HandlerChainsType;
+import org.apache.xmlbeans.XmlException;
 
 import javax.xml.namespace.QName;
 import javax.xml.ws.handler.HandlerResolver;
@@ -55,7 +56,11 @@ public class Axis2ServiceReference extends JAXWSServiceReference {
         HandlerChainsType types = null;
         try {
             if (this.handlerChainsXML != null){
-                types = HandlerChainsDocument.Factory.parse(this.handlerChainsXML).getHandlerChains();
+                try {
+                    types = HandlerChainsDocument.Factory.parse(this.handlerChainsXML).getHandlerChains();
+                } catch (XmlException e){
+                    types = HandlerChainsType.Factory.parse(this.handlerChainsXML);
+                }
             }
         } catch (Exception e) {
             log.warn("Failed to deserialize handler chains", e);
