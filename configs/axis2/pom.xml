@@ -113,6 +113,10 @@
             <artifactId>axis2-metadata</artifactId>
         </dependency>
         <dependency>
+             <groupId>org.apache.httpcomponents</groupId>
+             <artifactId>jakarta-httpcore</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.apache.ws.commons.axiom</groupId>
             <artifactId>axiom-api</artifactId>
         </dependency>

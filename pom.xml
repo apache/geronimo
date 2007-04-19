@@ -85,8 +85,8 @@
 
         <cxfVersion>2.0-incubator-RC-SNAPSHOT</cxfVersion>
 
-	<axis2Version>SNAPSHOT</axis2Version>
-	</properties>
+        <axis2Version>SNAPSHOT</axis2Version>
+    </properties>
 
     <dependencyManagement>
         <dependencies>
@@ -1355,6 +1355,12 @@
                 <groupId>org.apache.axis2</groupId>
                 <artifactId>axis2-metadata</artifactId>
                 <version>${axis2Version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.httpcomponents</groupId>
+                <artifactId>jakarta-httpcore</artifactId>
+                <version>4.0-alpha4</version>
             </dependency>
 
             <dependency>
