@@ -162,7 +162,7 @@ public class ConnectorGBean extends BaseGBean implements GBeanLifecycle, ObjectR
     public String getConnectUrl() {
         if(connectHost == null) {
             String host = getHost();
-            if(host == null || host.equals("0.0.0.0")) {
+            if(host == null || host.equals("0.0.0.0") || host.equals("0:0:0:0:0:0:0:1")) {
                 InetAddress address = null;
                 try {
                     address = InetAddress.getLocalHost();
@@ -175,6 +175,11 @@ public class ConnectorGBean extends BaseGBean implements GBeanLifecycle, ObjectR
                         host = address.getHostAddress();
                     }
                 }
+            }
+            // this host address could be in IPv6 format, 
+            // which means we need to wrap it in brackets
+            if (host.indexOf(":") >= 0) {
+                host = "[" + host + "]"; 
             }
             connectHost = host;
         }
