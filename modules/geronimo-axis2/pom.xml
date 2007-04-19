@@ -35,38 +35,32 @@
     <dependencies>
         <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
-            <artifactId>geronimo-j2ee-schema</artifactId>
+            <artifactId>geronimo-webservices</artifactId>
+            <version>${version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.geronimo.modules</groupId>
+            <artifactId>geronimo-jaxws</artifactId>
             <version>${version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
-            <artifactId>geronimo-webservices</artifactId>
+            <artifactId>geronimo-j2ee-schema</artifactId>
             <version>${version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.axis2</groupId>
             <artifactId>axis2-jaxws</artifactId>
         </dependency>
-        <dependency>
-            <groupId>org.apache.geronimo.modules</groupId>
-            <artifactId>geronimo-naming</artifactId>
-            <version>${version}</version>
-        </dependency>
+
+        <!-- g-naming, g-transaction come from this -->
         <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
             <artifactId>geronimo-openejb</artifactId>
             <version>${version}</version>
         </dependency>
-        <dependency>
-            <groupId>org.apache.geronimo.modules</groupId>
-            <artifactId>geronimo-transaction</artifactId>
-            <version>${version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.geronimo.modules</groupId>
-            <artifactId>geronimo-jaxws</artifactId>
-            <version>${version}</version>
-        </dependency>
+
         <!-- Had to add due to the Axis2WebServiceContainerTest -->
         <dependency>
             <groupId>com.sun.xml.bind</groupId>
@@ -240,3 +234,4 @@
         </plugins>
     </build>
 </project>
+
