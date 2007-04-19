@@ -141,7 +141,7 @@ public class AxisModuleBuilderExtension implements ModuleBuilderExtension {
                 if (wsSecurity != null) {
                     ejbWebServiceGBean.setAttribute("securityRealmName", wsSecurity.getSecurityRealmName().trim());
                     ejbWebServiceGBean.setAttribute("transportGuarantee", wsSecurity.getTransportGuarantee().toString());
-                    ejbWebServiceGBean.setAttribute("authMethod", wsSecurity.getAuthMethod().toString());
+                    ejbWebServiceGBean.setAttribute("authMethod", wsSecurity.getAuthMethod().value());
                     if (wsSecurity.getRealmName() != null) {
                         ejbWebServiceGBean.setAttribute("realmName", wsSecurity.getRealmName().trim());                    
                     }
