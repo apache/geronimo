@@ -151,10 +151,6 @@
             <artifactId>activation</artifactId>
         </dependency>
         <dependency>
-            <groupId>xalan</groupId>
-            <artifactId>xalan</artifactId>
-        </dependency>
-        <dependency>
             <groupId>xmlbeans</groupId>
             <artifactId>xbean</artifactId>
         </dependency>
@@ -192,7 +188,6 @@
                     </execution>
                 </executions>
             </plugin>
-            
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-antrun-plugin</artifactId>
