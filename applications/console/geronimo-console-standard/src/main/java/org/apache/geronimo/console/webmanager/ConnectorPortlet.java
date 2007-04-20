@@ -173,9 +173,9 @@ public class ConnectorPortlet extends BasePortlet {
             // Identify and update the connector
             WebConnector connector = PortletManager.getWebConnector(actionRequest, new AbstractName(URI.create(connectorURI)));
             if(connector != null) {
-                connector.setHost(host);
-                connector.setPort(port);
-                connector.setMaxThreads(maxThreads);
+                if(!connector.getHost().equals(host)) connector.setHost(host);
+                if(connector.getPort() != port) connector.setPort(port);
+                if(connector.getMaxThreads() != maxThreads) connector.setMaxThreads(maxThreads);
                 if(connector instanceof SecureConnector) {
                     String keystoreType = actionRequest.getParameter("keystoreType");
                     String keystoreFile = actionRequest.getParameter("keystoreFile");
@@ -188,12 +188,12 @@ public class ConnectorPortlet extends BasePortlet {
                     String truststorePass = actionRequest.getParameter("truststorePassword");
                     boolean clientAuth = isValid(actionRequest.getParameter("clientAuth"));
                     SecureConnector secure = (SecureConnector) connector;
-                    if(isValid(keystoreType)) {secure.setKeystoreType(keystoreType);}
-                    if(isValid(keystoreFile)) {secure.setKeystoreFileName(keystoreFile);}
+                    if(isValid(keystoreType) && !keystoreType.equals(secure.getKeystoreType())) {secure.setKeystoreType(keystoreType);}
+                    if(isValid(keystoreFile) && !keystoreFile.equals(secure.getKeystoreFileName())) {secure.setKeystoreFileName(keystoreFile);}
                     if(isValid(keystorePass)) {secure.setKeystorePassword(keystorePass);}
-                    if(isValid(secureProtocol)) {secure.setSecureProtocol(secureProtocol);}
-                    if(isValid(algorithm)) {secure.setAlgorithm(algorithm);}
-                    secure.setClientAuthRequired(clientAuth);
+                    if(isValid(secureProtocol) && !secureProtocol.equals(secure.getSecureProtocol())) {secure.setSecureProtocol(secureProtocol);}
+                    if(isValid(algorithm) && !algorithm.equals(secure.getAlgorithm())) {secure.setAlgorithm(algorithm);}
+                    if(clientAuth != secure.isClientAuthRequired()) secure.setClientAuthRequired(clientAuth);
                     if(server.equals(WEB_SERVER_JETTY)) {
                         if(isValid(privateKeyPass)) {setProperty(secure, "keyPassword", privateKeyPass);}
                         String keyStore = actionRequest.getParameter("unlockKeyStore");
@@ -221,9 +221,9 @@ public class ConnectorPortlet extends BasePortlet {
                         setProperty(secure, "trustStore", isValid(trustStore) ? trustStore : null);
                     }
                     else if (server.equals(WEB_SERVER_TOMCAT)) {
-                        if(isValid(truststoreType)) {setProperty(secure, "truststoreType", truststoreType);}
+                        if(isValid(truststoreType) && !truststoreType.equals(getProperty(secure, "truststoreType"))) {setProperty(secure, "truststoreType", truststoreType);}
                         if(isValid(truststorePass)) {setProperty(secure, "truststorePassword", truststorePass);}
-                        if(isValid(truststoreFile)) {setProperty(secure, "truststoreFileName", truststoreFile);}
+                        if(isValid(truststoreFile) && !truststoreFile.equals(getProperty(secure, "truststoreFileName"))) {setProperty(secure, "truststoreFileName", truststoreFile);}
                     }
                     else {
                         //todo:   Handle "should not occur" condition
