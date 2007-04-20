@@ -23,6 +23,7 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 
 import javax.xml.namespace.QName;
@@ -80,7 +81,14 @@ public class PersistenceUnitBuilder implements NamespaceDrivenBuilder {
             //TODO the code that figures out the persistence unit name is incomplete
             URI baseURI = moduleContext.getBaseDir().toURI();
             String base = baseURI.toString();
+            Map generalData = ((EARContext) applicationContext).getGeneralData();
+            List<URL> knownPersistenceUrls = (List<URL>) generalData.get(PersistenceUnitBuilder.class.getName());
+            if (knownPersistenceUrls == null) {
+                knownPersistenceUrls = new ArrayList<URL>();
+                generalData.put(PersistenceUnitBuilder.class.getName(), knownPersistenceUrls);
+            }
             List<URL> persistenceUrls = finder.findAll("META-INF/persistence.xml");
+            persistenceUrls.removeAll(knownPersistenceUrls);
             for (URL persistenceUrl: persistenceUrls) {
                 String persistenceLocation;
                 try {
@@ -111,6 +119,7 @@ public class PersistenceUnitBuilder implements NamespaceDrivenBuilder {
                     }
                     PersistenceDocument.Persistence persistence = persistenceDocument.getPersistence();
                     buildPersistenceUnits(persistence, moduleContext, NameFactory.PERSISTENCE_UNIT_MODULE, relative);
+                    knownPersistenceUrls.add(persistenceUrl);
                 } else {
                     throw new DeploymentException("Could not find persistence.xml file: " + persistenceUrl);
                 }

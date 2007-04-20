@@ -164,8 +164,9 @@ public class PersistenceContextRefBuilder extends AbstractNamingBuilder {
             localConfiguration.findGBeanData(persistenceUnitNameQuery);
             return true;
         } catch (GBeanNotFoundException e) {
-            if (complainIfMissing) {
-                throw new DeploymentException("Could not resolve reference at deploy time for query " + persistenceUnitNameQuery, e);
+            if (complainIfMissing  || e.hasMatches()) { 
+                String reason = e.hasMatches() ? "More than one GBean reference found." : "No GBeans found.";
+                throw new DeploymentException("Could not resolve reference at deploy time for query " + persistenceUnitNameQuery + ". " + reason, e);
             }
             return false;
         }
