@@ -626,7 +626,8 @@ public class AppClientModuleBuilder implements ModuleBuilder, CorbaGBeanNameSour
                 } catch (DeploymentException e) {
                     throw e;
                 } catch (Exception e) {
-                    throw new DeploymentException("Unable to construct jndi context for AppClientModule GBean", e);
+                    throw new DeploymentException("Unable to construct jndi context for AppClientModule GBean "+
+                    		appClientModule.getName(), e);
                 }
                 appClientDeploymentContext.addGBean(jndiContextGBeanData);
 
