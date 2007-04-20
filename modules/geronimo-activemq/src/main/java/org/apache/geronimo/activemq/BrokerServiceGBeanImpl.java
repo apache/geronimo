@@ -27,6 +27,7 @@ import org.apache.commons.logging.LogFactory;
 
 import org.apache.activemq.broker.BrokerFactory;
 import org.apache.activemq.broker.BrokerService;
+import org.apache.activemq.broker.jmx.ManagementContext;
 import org.apache.activemq.store.DefaultPersistenceAdapterFactory;
 import org.apache.activemq.transport.TransportDisposedIOException;
 import org.apache.geronimo.connector.outbound.ConnectionFactorySource;
@@ -83,6 +84,11 @@ public class BrokerServiceGBeanImpl implements GBeanLifecycle, BrokerServiceGBea
                     }
                 }
             }
+            
+            // Do not allow creation of another ConnectorServer
+            ManagementContext mgmtctx = new ManagementContext();
+            mgmtctx.setCreateConnector(false);
+            brokerService.setManagementContext(mgmtctx);
 
             // Do not allow the broker to use a shutown hook, the kernel will stop it
             brokerService.setUseShutdownHook(isUseShutdownHook());
