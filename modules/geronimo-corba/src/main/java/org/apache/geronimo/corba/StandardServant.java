@@ -211,8 +211,9 @@ public class StandardServant extends Servant implements InvokeHandler {
                                 }
                             } else {
                                 try {
+                                    Object handleKey = handle.getPrimaryKey(); 
                                     RpcContainer container = (RpcContainer) ejbDeployment.getContainer();
-                                    result = container.invoke(ejbDeployment.getDeploymentId(), method, arguments, primaryKey, null);
+                                    result = container.invoke(ejbDeployment.getDeploymentId(), method, arguments, handleKey, null);
                                 } catch (OpenEJBException e) {
                                     Throwable cause = e.getCause();
                                     if (cause instanceof Exception) {
