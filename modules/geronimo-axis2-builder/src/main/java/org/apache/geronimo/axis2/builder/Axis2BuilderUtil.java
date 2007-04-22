@@ -52,6 +52,7 @@ public class Axis2BuilderUtil {
     private final static Artifact GERONIMO_ACTIVATION_SPEC_ARTIFACT = new Artifact("org.apache.geronimo.specs","geronimo-activation_1.1_spec", (Version)null, "jar");    
     private final static Artifact GERONIMO_ANNOTATION_ARTIFACT = new Artifact("org.apache.geronimo.specs","geronimo-annotation_1.0_spec", (Version)null, "jar");     
     private final static Artifact GERONIMO_WS_METADATA_ARTIFACT = new Artifact("org.apache.geronimo.specs","geronimo-ws-metadata_2.0_spec", (Version)null, "jar");    
+    private final static Artifact SAAJRI_IMPL_ARTIFACT = new Artifact("com.sun.xml.messaging.saaj","saaj-impl", (Version)null, "jar");
     private final static String TOOLS = "tools.jar";
     
     protected static URL[] getWsgenClasspath(DeploymentContext context) 
@@ -68,10 +69,11 @@ public class Axis2BuilderUtil {
         jars.add(getLocation(repositories, JAXWS_RT_ARTIFACT));
         jars.add(getLocation(repositories, AXIS2_JAXWS_API_ARTIFACT));
         jars.add(getLocation(repositories, AXIS2_SAAJ_API_ARTIFACT));
-        jars.add(getLocation(repositories, AXIS2_SAAJ_ARTIFACT));
+//        jars.add(getLocation(repositories, AXIS2_SAAJ_ARTIFACT));
         jars.add(getLocation(repositories, GERONIMO_ACTIVATION_SPEC_ARTIFACT));
         jars.add(getLocation(repositories, GERONIMO_ANNOTATION_ARTIFACT));
         jars.add(getLocation(repositories, GERONIMO_WS_METADATA_ARTIFACT));
+        jars.add(getLocation(repositories, SAAJRI_IMPL_ARTIFACT));
         jars.add(new File(getToolsJarLoc()).toURL());
          
         return jars.toArray(new URL[jars.size()]);
