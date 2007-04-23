@@ -88,7 +88,7 @@ public class FileKeystoreManager implements KeystoreManager, GBeanLifecycle {
     public void doStart() throws Exception {
         URI rootURI;
         if (serverInfo != null) {
-            rootURI = serverInfo.resolve(configuredDir);
+            rootURI = serverInfo.resolveServer(configuredDir);
         } else {
             rootURI = configuredDir;
         }

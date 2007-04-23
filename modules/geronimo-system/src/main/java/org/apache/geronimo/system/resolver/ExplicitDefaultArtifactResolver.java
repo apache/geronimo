@@ -51,7 +51,7 @@ public class ExplicitDefaultArtifactResolver extends DefaultArtifactResolver {
         if (versionMapLocation == null) {
             return null;
         }
-        File location = serverInfo == null? new File(versionMapLocation): serverInfo.resolve(versionMapLocation);
+        File location = serverInfo == null? new File(versionMapLocation): serverInfo.resolveServer(versionMapLocation);
         FileInputStream in = new FileInputStream(location);
         Properties properties = new Properties();
         try {
