@@ -317,7 +317,7 @@ public class StartServerMojo
 
             t.join();
             
-            log.info("Geronimo server shutdown; ran for: " + watch);
+            log.info("Geronimo server shutdown; ran for " + watch);
         }
     }
     
