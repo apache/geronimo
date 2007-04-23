@@ -79,10 +79,10 @@ public class EnvironmentEntryBuilder extends AbstractNamingBuilder {
 
         List<EnvEntryType> envEntriesUntyped = convert(specDD.selectChildren(envEntryQNameSet), JEE_CONVERTER, EnvEntryType.class, EnvEntryType.type);
         for (EnvEntryType envEntry: envEntriesUntyped) {
-            String name = envEntry.getEnvEntryName().getStringValue().trim();
+            String name = getStringValue(envEntry.getEnvEntryName());
             addInjections(name, envEntry.getInjectionTargetArray(), componentContext);
-            String type = envEntry.getEnvEntryType().getStringValue().trim();
-            String text = envEntry.getEnvEntryValue().getStringValue().trim();
+            String type = getStringValue(envEntry.getEnvEntryType());
+            String text = getStringValue(envEntry.getEnvEntryValue());
             try {
                 Object value;
                 if (text == null) {
@@ -153,7 +153,7 @@ public class EnvironmentEntryBuilder extends AbstractNamingBuilder {
                 boolean exists = false;
                 EnvEntryType[] envEntries = annotatedApp.getEnvEntryArray();
                 for (EnvEntryType envEntry : envEntries) {
-                    if (envEntry.getEnvEntryName().getStringValue().trim().equals(resourceName)) {
+                    if (getStringValue(envEntry.getEnvEntryName()).equals(resourceName)) {
                         exists = true;
                         break;
                     }
