@@ -211,13 +211,7 @@ public class GeronimoDestination extends AbstractHTTPDestination
         public void send(Message message) throws IOException {
             Response response = (Response)request.get(Response.class);
             
-            // 1. handle response code
-            Integer i = (Integer) message.get(Message.RESPONSE_CODE);
-            if (i != null) {
-                response.setStatusCode(i.intValue());
-            }
-
-            // 2. handle response headers
+            // handle response headers
             updateResponseHeaders(message);
 
             Map<String, List<String>> protocolHeaders = 
@@ -331,8 +325,15 @@ public class GeronimoDestination extends AbstractHTTPDestination
                 return;
             }
 
+            // set response code
+            Integer i = (Integer) this.message.get(Message.RESPONSE_CODE);
+            if (i != null) {
+                this.response.setStatusCode(i.intValue());
+            }
+            
+            // set content-type
             setContentType(this.message, this.response);
-
+            
             this.rawOutputStream = this.response.getOutputStream();
         }
 
