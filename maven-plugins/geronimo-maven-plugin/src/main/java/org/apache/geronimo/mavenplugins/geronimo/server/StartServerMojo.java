@@ -41,6 +41,8 @@ import org.apache.geronimo.mavenplugins.geronimo.ServerProxy;
 
 import org.codehaus.plexus.util.FileUtils;
 
+import org.apache.commons.lang.time.StopWatch;
+
 /**
  * Start the Geronimo server.
  *
@@ -281,7 +283,10 @@ public class StartServerMojo
 
         // Holds any exception that was thrown during startup
         final ObjectHolder errorHolder = new ObjectHolder();
-
+        
+        StopWatch watch = new StopWatch();
+        watch.start();
+        
         // Start the server int a seperate thread
         Thread t = new Thread("Geronimo Server Runner") {
             public void run() {
@@ -300,7 +305,7 @@ public class StartServerMojo
         };
         t.start();
 
-        log.debug("Waiting for Geronimo server...");
+        log.info("Waiting for Geronimo server...");
 
         // Setup a callback to time out verification
         final ObjectHolder verifyTimedOut = new ObjectHolder();
@@ -312,7 +317,7 @@ public class StartServerMojo
         };
 
         if (verifyTimeout > 0) {
-            log.debug("Starting verify timeout task; triggers in: " + verifyTimeout + "s");
+            log.debug("Starting verify timeout task; triggers in: " + verifyTimeout + " seconds");
             timer.schedule(timeoutTask, verifyTimeout * 1000);
         }
 
@@ -321,7 +326,7 @@ public class StartServerMojo
         boolean started = false;
         while (!started) {
             if (verifyTimedOut.isSet()) {
-                throw new MojoExecutionException("Unable to verify if the server was started in the given time");
+                throw new MojoExecutionException("Unable to verify if the server was started in the given time (" + verifyTimeout + " seconds)");
             }
 
             if (errorHolder.isSet()) {
@@ -343,7 +348,7 @@ public class StartServerMojo
         // Stop the timer, server should be up now
         timeoutTask.cancel();
         
-        log.info("Geronimo server started");
+        log.info("Geronimo server started in " + watch);
 
         if (!background) {
             log.info("Waiting for Geronimo server to shutdown...");
