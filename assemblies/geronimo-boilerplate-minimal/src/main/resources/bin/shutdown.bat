@@ -26,8 +26,8 @@
 @REM
 @REM This batch file is based upon Tomcat's shutdown.bat file to enable
 @REM those familiar with Tomcat to easily stop Geronimo.
-@REM 
-@REM Alternatively you can use the more comprehensive geronimo.bat file 
+@REM
+@REM Alternatively you can use the more comprehensive geronimo.bat file
 @REM directly.
 @REM
 @REM Invocation Syntax:
@@ -54,7 +54,8 @@ set ERRORLEVEL=1
 goto end
 
 :okOsCheck
-setlocal
+@setlocal enableextensions
+@set ERRORLEVEL=0
 
 if not "%GERONIMO_HOME%" == "" goto resolveHome
 @REM %~dp0 is expanded pathname of the current script
@@ -98,6 +99,6 @@ goto setArgs
 call "%EXECUTABLE%" stop %CMD_LINE_ARGS%
 
 :end
-
 @REM pause the batch file if GERONIMO_BATCH_PAUSE is set to 'on'
 if "%GERONIMO_BATCH_PAUSE%" == "on" pause
+@endlocal

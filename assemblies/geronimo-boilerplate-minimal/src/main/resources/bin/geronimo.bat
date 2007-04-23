@@ -143,7 +143,8 @@ set ERRORLEVEL=1
 goto end
 
 :okOsCheck
-setlocal
+@setlocal enableextensions
+@set ERRORLEVEL=0
 
 if not "%GERONIMO_HOME%" == "" goto resolveHome
 @REM %~dp0 is expanded pathname of the current script
@@ -324,3 +325,4 @@ goto end
 :end
 @REM pause the batch file if GERONIMO_BATCH_PAUSE is set to 'on'
 if "%GERONIMO_BATCH_PAUSE%" == "on" pause
+@endlocal

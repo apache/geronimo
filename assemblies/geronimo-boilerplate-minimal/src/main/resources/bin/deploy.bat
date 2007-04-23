@@ -23,17 +23,17 @@
 @REM
 @REM You should not have to edit this file.  If you wish to have
 @REM environment variables set each time you run this batch file
-@REM refer to the information on the setenv.bat file below. 
+@REM refer to the information on the setenv.bat file below.
 @REM
 @REM Invocation Syntax:
 @REM
-@REM   deploy [general options] command [command options] 
+@REM   deploy [general options] command [command options]
 @REM
 @REM   For detailed usage information, just run deploy without
 @REM   arguments.
 @REM
 @REM Environment Variable Prequisites
-@REM 
+@REM
 @REM   GERONIMO_HOME   May point at your Geronimo top-level directory.
 @REM                   If not specified, this batch file will attempt to
 @REM                   discover it relative to the location of this file.
@@ -54,7 +54,7 @@
 @REM                   It is mandatory either JAVA_HOME or JRE_HOME are set.
 @REM
 @REM   JRE_HOME        (Optional) Points to your Java Runtime Environment
-@REM                   Set this if you wish to run Geronimo using the JRE 
+@REM                   Set this if you wish to run Geronimo using the JRE
 @REM                   instead of the JDK.
 @REM                   Defaults to JAVA_HOME if empty.
 @REM                   It is mandatory either JAVA_HOME or JRE_HOME are set.
@@ -72,14 +72,14 @@
 @REM                        end of execution
 @REM
 @REM   GERONIMO_ENV_INFO    (Optional) Environment variable that when set to
-@REM                        "on" (the default) outputs the values of  
+@REM                        "on" (the default) outputs the values of
 @REM                        GERONIMO_HOME, GERONIMO_BASE, GERONIMO_TMPDIR,
 @REM                        JAVA_HOME and JRE_HOME before the command is
 @REM                        issued. Set to "off" if you do not want this
 @REM                        information displayed.
 @REM
 @REM Batch files called by this batch file:
-@REM 
+@REM
 @REM   %GERONIMO_HOME%\bin\setenv.bat
 @REM                   (Optional) This batch file is called if it is present.
 @REM                   Its contents may set one or more of the above environment
@@ -106,7 +106,8 @@ set ERRORLEVEL=1
 goto end
 
 :okOsCheck
-setlocal
+@setlocal enableextensions
+@set ERRORLEVEL=0
 
 if not "%GERONIMO_HOME%" == "" goto resolveHome
 @REM %~dp0 is expanded pathname of the current script
