@@ -104,7 +104,7 @@ public class OpenEjbSystemGBean implements OpenEjbSystem {
         }
 
         systemInstance.setProperty("openejb.jndiname.strategy", "org.apache.openejb.assembler.classic.JndiBuilder$TemplatedStrategy");
-        systemInstance.setProperty("openejb.jndiname.format", "{deploymentId}/{interfaceClass.simpleName}");
+        systemInstance.setProperty("openejb.jndiname.format", "{deploymentId}/{interfaceClass}");
 
         System.setProperty("openejb.naming", "xbean");
         if (transactionManager == null) {
