@@ -128,6 +128,21 @@ public class SchemaConversionTest extends XmlBeansTestSupport {
 
 
     /**
+     * Tests for missing TLD tags
+    */
+    public void testTLD11Missing() throws Exception {
+        URL srcXML = classLoader.getResource("1_1_dtd/taglib-missing-src.tld");
+        URL expectedXML = classLoader.getResource("1_1_dtd/taglib-missing-expected.tld");
+        parseAndCompare(srcXML, expectedXML);
+    }
+    public void testTLD12Missing() throws Exception {
+        URL srcXML = classLoader.getResource("1_2_dtd/taglib-missing-src.tld");
+        URL expectedXML = classLoader.getResource("1_1_dtd/taglib-missing-expected.tld");
+        parseAndCompare(srcXML, expectedXML);
+    }
+
+
+    /**
      * Common logic
      */
     private void parseAndCompare(URL srcXML, URL expectedXML) throws Exception {

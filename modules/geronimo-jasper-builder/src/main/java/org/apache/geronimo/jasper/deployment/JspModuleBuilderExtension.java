@@ -596,6 +596,7 @@ public class JspModuleBuilderExtension implements ModuleBuilderExtension {
                         cursor.push();
                         cursor.toFirstChild();
                         SchemaConversionUtils.convertToDescriptionGroup(SchemaConversionUtils.JAVAEE_NAMESPACE, cursor, moveable);
+                        boolean bodyContentFound = false;
                         do {
                             name = cursor.getName().getLocalPart();
                             if ("tagclass".equals(name)) {
@@ -606,6 +607,10 @@ public class JspModuleBuilderExtension implements ModuleBuilderExtension {
                             }
                             if ("bodycontent".equals(name)) {
                                 cursor.setName(BODY_CONTENT);
+                                bodyContentFound = true;
+                            }
+                            if ("body-content".equals(name)) {
+                                bodyContentFound = true;
                             }
                             if ("attribute".equals(name)) {
                                 cursor.push();
@@ -625,8 +630,23 @@ public class JspModuleBuilderExtension implements ModuleBuilderExtension {
                             }
                         } while (cursor.toNextSibling());
                         cursor.pop();
+                        if (!bodyContentFound) {
+                            //--------------------------------------------------------------
+                            // Handle the case where the <body-content> tag is missing. We
+                            // are currently positioned directly after the <tag> attribute
+                            // (via the pop) so just insert the <body-content> tag with the
+                            // default value. The tags will be properly ordered below.
+                            //--------------------------------------------------------------
+                            cursor.push();
+                            cursor.toFirstChild();
+                            cursor.insertElementWithText("body-content", SchemaConversionUtils.JAVAEE_NAMESPACE, "scriptless");
+                            cursor.pop();
+                        }
                         // Do this conversion last after the other tags have been converted
+                        cursor.push();
+                        cursor.toFirstChild();
                         SchemaConversionUtils.convertToTldTag(SchemaConversionUtils.JAVAEE_NAMESPACE, cursor, moveable);
+                        cursor.pop();
                     }
                     if ("validator".equals(name)) {
                         cursor.push();
