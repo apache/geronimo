@@ -103,6 +103,9 @@ public class OpenEjbSystemGBean implements OpenEjbSystem {
             systemInstance.setProperty("openejb.deploymentId.format", "{moduleId}/{ejbName}");
         }
 
+        systemInstance.setProperty("openejb.jndiname.strategy", "org.apache.openejb.assembler.classic.JndiBuilder$TemplatedStrategy");
+        systemInstance.setProperty("openejb.jndiname.format", "{deploymentId}-{interfaceClass.simpleName}");
+
         System.setProperty("openejb.naming", "xbean");
         if (transactionManager == null) {
             throw new NullPointerException("transactionManager is null");

@@ -171,8 +171,8 @@ public class EjbRefBuilder extends AbstractNamingBuilder {
         if (value instanceof IntraVmJndiReference) {
             IntraVmJndiReference intraVmJndiReference = (IntraVmJndiReference) value;
             String deploymentId = intraVmJndiReference.getJndiName();
-            if (deploymentId.startsWith("java:openejb/ejb/")) {
-                deploymentId = deploymentId.substring("java:openejb/ejb/".length());
+            if (deploymentId.startsWith("java:openejb/Deployment/")) {
+                deploymentId = deploymentId.substring("java:openejb/Deployment/".length());
             }
             ClientEjbReference clientRef = new ClientEjbReference(uri.toString(), deploymentId);
             return clientRef;
