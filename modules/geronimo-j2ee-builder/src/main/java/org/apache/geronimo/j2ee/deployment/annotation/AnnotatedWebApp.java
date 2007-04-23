@@ -31,9 +31,7 @@ import org.apache.geronimo.xbeans.javaee.PersistenceContextRefType;
 import org.apache.geronimo.xbeans.javaee.PersistenceUnitRefType;
 import org.apache.geronimo.xbeans.javaee.ResourceEnvRefType;
 import org.apache.geronimo.xbeans.javaee.ResourceRefType;
-import org.apache.geronimo.xbeans.javaee.SecurityRoleType;
 import org.apache.geronimo.xbeans.javaee.ServiceRefType;
-import org.apache.geronimo.xbeans.javaee.ServletType;
 import org.apache.geronimo.xbeans.javaee.WebAppType;
 
 /**
@@ -199,21 +197,4 @@ public class AnnotatedWebApp implements AnnotatedApp {
     public PersistenceUnitRefType addNewPersistenceUnitRef() {
         return webApp.addNewPersistenceUnitRef();
     }
-
-    public SecurityRoleType[] getSecurityRoleArray() {
-        return webApp.getSecurityRoleArray();
-    }
-
-    public SecurityRoleType addNewSecurityRole() {
-        return webApp.addNewSecurityRole();
-    }
-
-    public ServletType[] getServletArray() {
-        return webApp.getServletArray();
-    }
-
-    public ServletType addNewServlet() {
-        return webApp.addNewServlet();
-    }
-
 }

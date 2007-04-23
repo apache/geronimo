@@ -447,7 +447,7 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder {
 
             if (servletTypes.length > 0) {
                 // Process security annotations for servlets only (before MBEs run)
-                SecurityAnnotationHelper.processAnnotations(webModule.getAnnotatedApp(), webModule.getClassFinder());
+                SecurityAnnotationHelper.processAnnotations(webApp, webModule.getClassFinder());
             }
 
             //listeners added directly to the StandardContext will get loaded by the tomcat classloader, not the app classloader!

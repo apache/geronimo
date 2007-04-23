@@ -33,9 +33,7 @@ import org.apache.geronimo.xbeans.javaee.PersistenceContextRefType;
 import org.apache.geronimo.xbeans.javaee.PersistenceUnitRefType;
 import org.apache.geronimo.xbeans.javaee.ResourceEnvRefType;
 import org.apache.geronimo.xbeans.javaee.ResourceRefType;
-import org.apache.geronimo.xbeans.javaee.SecurityRoleType;
 import org.apache.geronimo.xbeans.javaee.ServiceRefType;
-import org.apache.geronimo.xbeans.javaee.ServletType;
 import org.apache.geronimo.xbeans.javaee.SessionBeanType;
 import org.apache.xmlbeans.XmlObject;
 
@@ -167,22 +165,6 @@ public class AnnotatedEjbJar implements AnnotatedApp {
 
     public PersistenceUnitRefType addNewPersistenceUnitRef() {
         return delegate.addNewPersistenceUnitRef();
-    }
-
-    public SecurityRoleType[] getSecurityRoleArray() {
-        return null;                                            // Not supported by EJB Jar types
-    }
-
-    public SecurityRoleType addNewSecurityRole() {
-        return null;                                            // Not supported by EJB Jar types
-    }
-
-    public ServletType[] getServletArray() {
-        return null;                                            // Not supported by EJB Jar types
-    }
-
-    public ServletType addNewServlet() {
-        return null;                                            // Not supported by EJB Jar types
     }
 
     /**
@@ -341,23 +323,6 @@ public class AnnotatedEjbJar implements AnnotatedApp {
         public PersistenceUnitRefType addNewPersistenceUnitRef() {
             return bean.addNewPersistenceUnitRef();
         }
-
-
-        public SecurityRoleType[] getSecurityRoleArray() {
-            return null;                                            // Not supported by EJB Jar types
-        }
-
-        public SecurityRoleType addNewSecurityRole() {
-            return null;                                            // Not supported by EJB Jar types
-        }
-
-        public ServletType[] getServletArray() {
-            return null;                                            // Not supported by EJB Jar types
-        }
-
-        public ServletType addNewServlet() {
-            return null;                                            // Not supported by EJB Jar types
-        }
     }
 
     public static class MessageDriveBean implements AnnotatedApp {
@@ -486,23 +451,6 @@ public class AnnotatedEjbJar implements AnnotatedApp {
         public PersistenceUnitRefType addNewPersistenceUnitRef() {
             return bean.addNewPersistenceUnitRef();
         }
-
-
-        public SecurityRoleType[] getSecurityRoleArray() {
-            return null;                                            // Not supported by EJB Jar types
-        }
-
-        public SecurityRoleType addNewSecurityRole() {
-            return null;                                            // Not supported by EJB Jar types
-        }
-
-        public ServletType[] getServletArray() {
-            return null;                                            // Not supported by EJB Jar types
-        }
-
-        public ServletType addNewServlet() {
-            return null;                                            // Not supported by EJB Jar types
-        }
     }
 
     public static class SessionBean implements AnnotatedApp {
@@ -630,23 +578,6 @@ public class AnnotatedEjbJar implements AnnotatedApp {
 
         public PersistenceUnitRefType addNewPersistenceUnitRef() {
             return bean.addNewPersistenceUnitRef();
-        }
-
-
-        public SecurityRoleType[] getSecurityRoleArray() {
-            return null;                                            // Not supported by EJB Jar types
-        }
-
-        public SecurityRoleType addNewSecurityRole() {
-            return null;                                            // Not supported by EJB Jar types
-        }
-
-        public ServletType[] getServletArray() {
-            return null;                                            // Not supported by EJB Jar types
-        }
-
-        public ServletType addNewServlet() {
-            return null;                                            // Not supported by EJB Jar types
         }
     }
 }

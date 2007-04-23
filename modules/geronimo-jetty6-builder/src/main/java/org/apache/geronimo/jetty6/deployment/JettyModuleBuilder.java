@@ -479,7 +479,7 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
 
             if (servletTypes.length > 0) {
                 // Process security annotations for servlets only (before MBEs run)
-                SecurityAnnotationHelper.processAnnotations(webModule.getAnnotatedApp(), webModule.getClassFinder());
+                SecurityAnnotationHelper.processAnnotations(webApp, webModule.getClassFinder());
             }
 
             //TODO this may definitely not be the best place for this!

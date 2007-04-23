@@ -289,8 +289,7 @@ public class AnnotationHelperTest extends XmlBeansTestSupport {
         XmlObject xmlObject = XmlObject.Factory.parse(srcXML, options);
         WebAppDocument webAppDoc = (WebAppDocument) xmlObject.changeType(WebAppDocument.type);
         WebAppType webApp = webAppDoc.getWebApp();
-        AnnotatedWebApp annotatedWebApp = new AnnotatedWebApp(webApp);
-        SecurityAnnotationHelper.processAnnotations(annotatedWebApp, classFinder);
+        SecurityAnnotationHelper.processAnnotations(webApp, classFinder);
         URL expectedXML = classLoader.getResource("annotation/security-expected.xml");
         XmlObject expected = XmlObject.Factory.parse(expectedXML);
         log.debug("[Security Source XML] " + '\n' + webApp.toString() + '\n');
@@ -303,8 +302,7 @@ public class AnnotationHelperTest extends XmlBeansTestSupport {
         xmlObject = XmlObject.Factory.parse(srcXML, options);
         webAppDoc = (WebAppDocument) xmlObject.changeType(WebAppDocument.type);
         webApp = webAppDoc.getWebApp();
-        annotatedWebApp = new AnnotatedWebApp(webApp);
-        SecurityAnnotationHelper.processAnnotations(annotatedWebApp, classFinder);
+        SecurityAnnotationHelper.processAnnotations(webApp, classFinder);
         expectedXML = classLoader.getResource("annotation/security-expected-1.xml");
         expected = XmlObject.Factory.parse(expectedXML);
         log.debug("[Security Source XML] " + '\n' + webApp.toString() + '\n');

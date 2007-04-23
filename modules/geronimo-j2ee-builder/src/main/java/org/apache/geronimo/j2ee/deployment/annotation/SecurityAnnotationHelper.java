@@ -32,6 +32,7 @@ import org.apache.geronimo.xbeans.javaee.SecurityRoleType;
 import org.apache.geronimo.xbeans.javaee.ServletType;
 import org.apache.geronimo.xbeans.javaee.ServletNameType;
 import org.apache.geronimo.xbeans.javaee.FullyQualifiedClassType;
+import org.apache.geronimo.xbeans.javaee.WebAppType;
 import org.apache.xbean.finder.ClassFinder;
 
 
@@ -69,17 +70,17 @@ public final class SecurityAnnotationHelper extends AnnotationHelper {
     /**
      * Update the deployment descriptor from the DeclareRoles and RunAs annotations
      *
-     * @param annotatedApp Access to the spec dd
+     * @param webApp Access to the spec dd
      * @param classFinder  Access to the classes of interest
      * @throws DeploymentException if parsing or validation error
      */
-    public static void processAnnotations(AnnotatedApp annotatedApp, ClassFinder classFinder) throws DeploymentException {
-        if (annotatedApp != null) {
+    public static void processAnnotations(WebAppType webApp, ClassFinder classFinder) throws DeploymentException {
+        if (webApp != null) {
             if (classFinder.isAnnotationPresent(DeclareRoles.class)) {
-                processDeclareRoles(annotatedApp, classFinder);
+                processDeclareRoles(webApp, classFinder);
             }
             if (classFinder.isAnnotationPresent(RunAs.class)) {
-                processRunAs(annotatedApp, classFinder);
+                processRunAs(webApp, classFinder);
             }
         }
     }
@@ -88,12 +89,12 @@ public final class SecurityAnnotationHelper extends AnnotationHelper {
     /**
      * Process @DeclareRole annotations (for servlets only)
      *
-     * @param annotatedApp Access to the spec dd
+     * @param webApp Access to the spec dd
      * @param classFinder Access to the classes of interest
      * @throws DeploymentException if parsing or validation error
      */
-    private static void processDeclareRoles(AnnotatedApp annotatedApp, ClassFinder classFinder) throws DeploymentException {
-        log.debug("processDeclareRoles(): Entry: AnnotatedApp: " + annotatedApp.toString());
+    private static void processDeclareRoles(WebAppType webApp, ClassFinder classFinder) throws DeploymentException {
+        log.debug("processDeclareRoles(): Entry: webApp: " + webApp.toString());
 
         List<Class> classesWithDeclareRoles = classFinder.findAnnotatedClasses(DeclareRoles.class);
 
@@ -101,26 +102,26 @@ public final class SecurityAnnotationHelper extends AnnotationHelper {
         for (Class cls : classesWithDeclareRoles) {
             DeclareRoles declareRoles = (DeclareRoles) cls.getAnnotation(DeclareRoles.class);
             if (declareRoles != null && Servlet.class.isAssignableFrom(cls)) {
-                addDeclareRoles(annotatedApp, declareRoles, cls);
+                addDeclareRoles(webApp, declareRoles, cls);
             }
         }
 
         // Validate deployment descriptor to ensure it's still okay
-        validateDD(annotatedApp);
+        validateDD(new AnnotatedWebApp(webApp));
 
-        log.debug("processDeclareRoles(): Exit: AnnotatedApp: " + annotatedApp.toString());
+        log.debug("processDeclareRoles(): Exit: webApp: " + webApp.toString());
     }
 
 
     /**
      * Process @RunAs annotations (for servlets only)
      *
-     * @param annotatedApp Access to the spec dd
+     * @param webApp Access to the spec dd
      * @param classFinder Access to the classes of interest
      * @throws DeploymentException if parsing or validation error
      */
-    private static void processRunAs(AnnotatedApp annotatedApp, ClassFinder classFinder) throws DeploymentException {
-        log.debug("processRunAs(): Entry: AnnotatedApp: " + annotatedApp.toString());
+    private static void processRunAs(WebAppType webApp, ClassFinder classFinder) throws DeploymentException {
+        log.debug("processRunAs(): Entry: webApp: " + webApp.toString());
 
         List<Class> classesWithRunAs = classFinder.findAnnotatedClasses(RunAs.class);
 
@@ -128,14 +129,14 @@ public final class SecurityAnnotationHelper extends AnnotationHelper {
         for (Class cls : classesWithRunAs) {
             RunAs runAs = (RunAs) cls.getAnnotation(RunAs.class);
             if (runAs != null && Servlet.class.isAssignableFrom(cls)) {
-                addRunAs(annotatedApp, runAs, cls);
+                addRunAs(webApp, runAs, cls);
             }
         }
 
         // Validate deployment descriptor to ensure it's still okay
-        validateDD(annotatedApp);
+        validateDD(new AnnotatedWebApp(webApp));
 
-        log.debug("processRunAs(): Exit: AnnotatedApp: " + annotatedApp.toString());
+        log.debug("processRunAs(): Exit: webApp: " + webApp.toString());
     }
 
 
@@ -154,17 +155,17 @@ public final class SecurityAnnotationHelper extends AnnotationHelper {
      *          existing elements in it are not overwritten by annoations
      * </ul>
      *
-     * @param annotatedApp  Access to the spec dd
+     * @param webApp  Access to the spec dd
      * @param annotation    @DeclareRoles annotation
      * @param cls           Class name with the @DeclareRoles annoation
      */
-    private static void addDeclareRoles(AnnotatedApp annotatedApp, DeclareRoles annotation, Class cls) {
-        log.debug("addDeclareRoles( [annotatedApp] " + annotatedApp.toString() + "," + '\n' +
+    private static void addDeclareRoles(WebAppType webApp, DeclareRoles annotation, Class cls) {
+        log.debug("addDeclareRoles( [webApp] " + webApp.toString() + "," + '\n' +
                   "[annotation] " + annotation.toString() + "," + '\n' +
                   "[cls] " + (cls != null ? cls.getName() : null) + "): Entry");
 
         // Get all the <security-role> tags from the deployment descriptor
-        SecurityRoleType[] securityRoles = annotatedApp.getSecurityRoleArray();
+        SecurityRoleType[] securityRoles = webApp.getSecurityRoleArray();
 
         String[] annotationRoleNames = annotation.value();
         for (String annotationRoleName : annotationRoleNames) {
@@ -181,7 +182,7 @@ public final class SecurityAnnotationHelper extends AnnotationHelper {
                 }
                 else {
                     log.debug("addDeclareRoles: <security-role> entry NOT found: " + annotationRoleName);
-                    SecurityRoleType securityRole = annotatedApp.addNewSecurityRole();
+                    SecurityRoleType securityRole = webApp.addNewSecurityRole();
                     RoleNameType roleName = securityRole.addNewRoleName();
                     roleName.setStringValue(annotationRoleName);
                 }
@@ -208,18 +209,18 @@ public final class SecurityAnnotationHelper extends AnnotationHelper {
      *          existing elements in it are not overwritten by annoations
      * </ul>
      *
-     * @param annotatedApp Access to the spec dd
+     * @param webApp Access to the spec dd
      * @param annotation    @RunAs annotation
      * @param cls           Class name with the @RunAs annoation
      */
-    private static void addRunAs(AnnotatedApp annotatedApp, RunAs annotation, Class cls) {
-        log.debug("addRunAs( [annotatedApp] " + annotatedApp.toString() + "," + '\n' +
+    private static void addRunAs(WebAppType webApp, RunAs annotation, Class cls) {
+        log.debug("addRunAs( [webApp] " + webApp.toString() + "," + '\n' +
                   "[annotation] " + annotation.toString() + "," + '\n' +
                   "[cls] " + (cls != null ? cls.getName() : null) + "): Entry");
 
         String annotationRunAs = annotation.value();
         if (!annotationRunAs.equals("")) {
-            ServletType[] servlets = annotatedApp.getServletArray();
+            ServletType[] servlets = webApp.getServletArray();
             boolean exists = false;
             for (ServletType servlet : servlets) {
                 if (servlet.getServletClass().getStringValue().trim().equals(cls.getName())) {
@@ -233,7 +234,7 @@ public final class SecurityAnnotationHelper extends AnnotationHelper {
                 }
             }
             if (!exists) {
-                log.warn("RunAs servlet not found in annotatedApp: " + cls.getName());
+                log.warn("RunAs servlet not found in webApp: " + cls.getName());
             }
         }
 
