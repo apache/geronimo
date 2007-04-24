@@ -154,11 +154,6 @@
             <artifactId>myfaces-api</artifactId>
         </dependency>
 
-        <dependency>
-            <groupId>jstl</groupId>
-            <artifactId>jstl</artifactId>
-        </dependency>
-
         <!-- build order hint -->
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>

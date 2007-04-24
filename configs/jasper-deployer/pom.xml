@@ -55,6 +55,12 @@
             <artifactId>geronimo-jasper-builder</artifactId>
             <version>${version}</version>
         </dependency>
+
+        <dependency>
+            <groupId>jstl</groupId>
+            <artifactId>jstl</artifactId>
+        </dependency>
+
     </dependencies>
 
 </project>

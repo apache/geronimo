@@ -78,6 +78,7 @@
             <artifactId>tomcat6-deployer</artifactId>
             <version>${version}</version>
             <type>car</type>
+            <scope>provided</scope>
         </dependency>
 
         <dependency>
@@ -200,13 +201,6 @@
             <artifactId>xercesImpl</artifactId>
         </dependency>
 
-        <dependency>
-            <groupId>org.apache.geronimo.configs</groupId>
-            <artifactId>tomcat6-deployer</artifactId>
-            <version>${version}</version>
-            <type>car</type>
-            <scope>provided</scope>
-        </dependency>
     </dependencies>
     
     <build>

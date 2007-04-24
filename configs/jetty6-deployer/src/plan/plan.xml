@@ -137,7 +137,6 @@ wsdl=text/xml
                     <filter>javax.</filter>
                     <filter>org.apache.geronimo.</filter>
                     <filter>org.apache.myfaces.</filter>
-                    <filter>org.apache.taglibs.</filter>
                     <filter>org.mortbay.</filter>
                     <filter>org.xml.</filter>
                     <filter>org.w3c.</filter>
