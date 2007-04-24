@@ -25,7 +25,9 @@ import net.sf.cglib.proxy.CallbackFilter;
 public class PortMethodFilter implements CallbackFilter {
 
     public int accept(Method method) {
-        if (isGenericPortMethod(method) || isGeneratedPortMethod(method)) {
+        if (isGenericPortMethod(method) || 
+            isGeneratedPortMethod(method) || 
+            isCreateDispatchMethod(method)) {
             return 1; // use second method interceptor
         } else {
             return 0; // use first method interceptor
@@ -40,4 +42,7 @@ public class PortMethodFilter implements CallbackFilter {
         return (method.getName().startsWith("get") && method.isAnnotationPresent(WebEndpoint.class));
     }
 
+    private boolean isCreateDispatchMethod(Method method) {
+        return (method.getName().equals("createDispatch"));
+    }
 }

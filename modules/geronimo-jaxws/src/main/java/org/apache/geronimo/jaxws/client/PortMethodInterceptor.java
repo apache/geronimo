@@ -68,6 +68,9 @@ public class PortMethodInterceptor implements MethodInterceptor {
             // it's a generated get<PortName>() method
             WebEndpoint endpoint = method.getAnnotation(WebEndpoint.class);
             setProperties((BindingProvider)proxy, endpoint.name());
+        } else if (method.getName().equals("createDispatch")) {
+            // it's one of createDispatch() methods
+            setProperties((BindingProvider)proxy, ((QName)arguments[0]).getLocalPart());
         }
                 
         return proxy;
