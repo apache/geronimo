@@ -83,7 +83,7 @@
         -->
         <dojoVersion>0.4.1</dojoVersion>
 
-        <cxfVersion>2.0-incubator-RC-SNAPSHOT</cxfVersion>
+        <cxfVersion>2.0-incubator-SNAPSHOT</cxfVersion>
 
         <axis2Version>SNAPSHOT</axis2Version>
     </properties>
