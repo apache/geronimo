@@ -362,8 +362,9 @@ public class StartServerMojo
         assert file != null;
 
         String dirs = System.getProperty(name, "");
-        if (dirs.length() > 0)
+        if (dirs.length() > 0) {
             dirs += File.pathSeparator;
+        }
         dirs += file.getPath();
         return dirs;
     }
