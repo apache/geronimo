@@ -37,8 +37,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.cxf.Bus;
 import org.apache.cxf.BusFactory;
-import org.apache.cxf.binding.BindingFactoryManager;
-import org.apache.cxf.bus.CXFBusFactory;
 import org.apache.cxf.bus.extension.ExtensionManagerBus;
 import org.apache.cxf.service.model.EndpointInfo;
 import org.apache.cxf.tools.common.extensions.soap.SoapAddress;
@@ -68,12 +66,13 @@ public abstract class CXFWebServiceContainer implements WebServiceContainer {
         this.configurationBaseUrl = configurationBaseUrl;
             
         List ids = new ArrayList();
-        ids.add("http://schemas.xmlsoap.org/soap/http");
+        ids.add("http://schemas.xmlsoap.org/wsdl/soap/");
                
         DestinationFactoryManager destinationFactoryManager = bus
                 .getExtension(DestinationFactoryManager.class);
         GeronimoDestinationFactory factory = new GeronimoDestinationFactory(bus);
         factory.setTransportIds(ids);
+                
         destinationFactoryManager.registerDestinationFactory(
                 "http://cxf.apache.org/transports/http/configuration", factory);
         destinationFactoryManager.registerDestinationFactory(
