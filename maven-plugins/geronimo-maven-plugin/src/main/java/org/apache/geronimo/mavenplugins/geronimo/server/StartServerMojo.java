@@ -60,7 +60,7 @@ public class StartServerMojo
      * @parameter expression="${install}" default-value="true"
      */
     private boolean install = true;
-    
+
     /**
      * Flag to control if we background the server or block Maven execution.
      *
@@ -147,21 +147,21 @@ public class StartServerMojo
         }
         else {
             log.info("Skipping assembly installation");
-            
+
             if (!geronimoHome.exists()) {
                 throw new MojoExecutionException("Missing pre-installed assembly directory: " + geronimoHome);
             }
         }
-        
+
         log.info("Starting Geronimo server...");
-        
+
         // Setup the JVM to start the server with
         final Java java = (Java)createTask("java");
         java.setJar(new File(geronimoHome, "bin/server.jar"));
         java.setDir(geronimoHome);
         java.setFailonerror(true);
         java.setFork(true);
-        
+
         if (timeout > 0) {
             java.setTimeout(new Long(timeout * 1000));
         }
@@ -169,13 +169,13 @@ public class StartServerMojo
         if (maximumMemory != null) {
             java.setMaxmemory(maximumMemory);
         }
-        
+
         // Load the Java programming language agent for JPA
         File javaAgentJar = new File(geronimoHome, "bin/jpa.jar");
         if (javaAgentJar.exists()) {
             java.createJvmarg().setValue("-javaagent:" + javaAgentJar.getCanonicalPath());
         }
-        
+
         // Propagate some properties from Maven to the server if enabled
         if (propagateGeronimoProperties) {
             Properties props = System.getProperties();
@@ -183,7 +183,7 @@ public class StartServerMojo
             while (iter.hasNext()) {
                 String name = (String)iter.next();
                 String value = System.getProperty(name);
-                
+
                 if (name.equals("geronimo.bootstrap.logging.enabled")) {
                     // Skip this property, never propagate it
                 }
@@ -193,7 +193,7 @@ public class StartServerMojo
                 }
             }
         }
-        
+
         // Apply option sets
         if (options != null  && (optionSets == null || optionSets.length == 0)) {
             throw new MojoExecutionException("At least one optionSet must be defined to select one using options");
@@ -201,7 +201,7 @@ public class StartServerMojo
         else if (options == null) {
             options = "default";
         }
-        
+
         if (optionSets != null && optionSets.length != 0) {
             OptionSet[] sets = selectOptionSets();
 
@@ -238,7 +238,7 @@ public class StartServerMojo
         setSystemProperty(java, "java.io.tmpdir", new File(geronimoHome, "var/temp"));
         setSystemProperty(java, "java.endorsed.dirs", appendSystemPath("java.endorsed.dirs", new File(geronimoHome, "lib/endorsed")));
         setSystemProperty(java, "java.ext.dirs", appendSystemPath("java.ext.dirs", new File(geronimoHome, "lib/ext")));
-        
+
         if (quiet) {
             java.createArg().setValue("--quiet");
         }
@@ -277,16 +277,16 @@ public class StartServerMojo
             FileUtils.forceMkdir(file.getParentFile());
 
             log.info("Redirecting output to: " + file);
-            
+
             java.setOutput(file);
         }
 
         // Holds any exception that was thrown during startup
         final ObjectHolder errorHolder = new ObjectHolder();
-        
+
         StopWatch watch = new StopWatch();
         watch.start();
-        
+
         // Start the server int a seperate thread
         Thread t = new Thread("Geronimo Server Runner") {
             public void run() {
@@ -347,7 +347,7 @@ public class StartServerMojo
 
         // Stop the timer, server should be up now
         timeoutTask.cancel();
-        
+
         log.info("Geronimo server started in " + watch);
 
         if (!background) {
@@ -361,7 +361,11 @@ public class StartServerMojo
         assert name != null;
         assert file != null;
 
-        return System.getProperty(name) + File.pathSeparator + file.getPath();
+        String dirs = System.getProperty(name, "");
+        if (dirs.length() > 0)
+            dirs += File.pathSeparator;
+        dirs += file.getPath();
+        return dirs;
     }
 
     private OptionSet[] selectOptionSets() throws MojoExecutionException {
@@ -371,7 +375,7 @@ public class StartServerMojo
             if (log.isDebugEnabled()) {
                 log.debug("Checking option set: " + optionSets[i]);
             }
-            
+
             String id = optionSets[i].getId();
 
             if (id == null && optionSets.length > 1) {
@@ -397,7 +401,7 @@ public class StartServerMojo
         while (stok.hasMoreTokens()) {
             String id = stok.nextToken();
             OptionSet set = (OptionSet)map.get(id);
-            
+
             if (set == null) {
                 if ("default".equals(id)) {
                     log.debug("Default optionSet selected, but no optionSet defined with that id; ignoring");
@@ -416,5 +420,5 @@ public class StartServerMojo
 
     protected String getFullClassName() {
         return this.getClass().getName();
-    } 
+    }
 }

@@ -46,7 +46,7 @@ public class RunClientMojo extends ReportingMojoSupport
      * @required
      */
     protected String moduleId = null;
-    
+
     /**
      * Set the maximum memory for the forked JVM.
      *
@@ -60,7 +60,7 @@ public class RunClientMojo extends ReportingMojoSupport
      * @parameter expression="${timeout}" default-value="-1"
      */
     private int timeout = -1;
-    
+
     /**
      * The arguments
      *
@@ -70,11 +70,11 @@ public class RunClientMojo extends ReportingMojoSupport
     protected String[] arg = null;
 
     protected void doExecute() throws Exception {
-        ServerProxy server = 
+        ServerProxy server =
             new ServerProxy(hostname, port, username, password);
 
         String geronimoHomeStr = server.getGeronimoHome();
-        
+
         log.info("Geronimo Home: " + geronimoHomeStr);
 
         if (geronimoHomeStr == null) {
@@ -82,19 +82,19 @@ public class RunClientMojo extends ReportingMojoSupport
         }
 
         File geronimoHome = new File(geronimoHomeStr);
-        
+
         if (!geronimoHome.exists()) {
             throw new MojoExecutionException("Geronimo installation directory does not exist: " + geronimoHomeStr);
         }
 
         log.info("Starting Geronimo client...");
-        
+
         Java java = (Java)createTask("java");
         java.setJar(new File(geronimoHome, "bin/client.jar"));
         java.setDir(geronimoHome);
         java.setFailonerror(true);
         java.setFork(true);
-        
+
         if (timeout > 0) {
             java.setTimeout(new Long(timeout * 1000));
         }
@@ -108,22 +108,22 @@ public class RunClientMojo extends ReportingMojoSupport
         setSystemProperty(java, "java.io.tmpdir", new File(geronimoHome, "var/temp"));
         setSystemProperty(java, "java.endorsed.dirs", appendSystemPath("java.endorsed.dirs", new File(geronimoHome, "lib/endorsed")));
         setSystemProperty(java, "java.ext.dirs", appendSystemPath("java.ext.dirs", new File(geronimoHome, "lib/ext")));
-        
+
         java.createArg().setValue(moduleId);
 
         for (int i=0;arg != null && i<arg.length;i++) {
             java.createArg().setValue(arg[i]);
         }
-       
+
         if (logOutput) {
             File file = getLogFile();
             FileUtils.forceMkdir(file.getParentFile());
-        
+
             log.info("Redirecting output to: " + file);
-            
+
             java.setOutput(file);
         }
-        
+
         java.execute();
     }
 
@@ -131,10 +131,14 @@ public class RunClientMojo extends ReportingMojoSupport
         assert name != null;
         assert file != null;
 
-        return System.getProperty(name) + File.pathSeparator + file.getPath();
+        String dirs = System.getProperty(name, "");
+        if (dirs.length() > 0)
+            dirs += File.pathSeparator;
+        dirs += file.getPath();
+        return dirs;
     }
 
     protected String getFullClassName() {
         return this.getClass().getName();
-    } 
+    }
 }
