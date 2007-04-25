@@ -26,7 +26,7 @@
     <parent>
         <groupId>org.apache.geronimo.plugins</groupId>
         <artifactId>maven-plugins</artifactId>
-        <version>2.0-SNAPSHOT</version>
+        <version>2.0-M5-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
     
