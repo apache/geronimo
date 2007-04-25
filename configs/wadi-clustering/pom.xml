@@ -75,6 +75,11 @@
             <groupId>org.apache.tomcat</groupId>
             <artifactId>tribes</artifactId>
         </dependency>
+        
+        <dependency>
+            <groupId>org.apache.tomcat</groupId>
+            <artifactId>juli</artifactId>
+        </dependency>
     </dependencies>
     
 </project>
