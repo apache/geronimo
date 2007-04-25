@@ -71,11 +71,6 @@ public class POJOEndpoint extends CXFEndpoint {
 
         service = serviceFactory.create();
         
-        /**
-        service.put(Message.SCHEMA_VALIDATION_ENABLED, 
-                    service.getEnableSchemaValidationForAllPort());
-        **/
-
         service.setInvoker(new JAXWSMethodInvoker(instance));       
 
         JNDIResolver jndiResolver = (JNDIResolver) bus.getExtension(JNDIResolver.class);

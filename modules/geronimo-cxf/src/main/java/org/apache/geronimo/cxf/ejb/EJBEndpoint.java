@@ -58,15 +58,13 @@ public class EJBEndpoint extends CXFEndpoint {
             new CXFServiceConfiguration(this.portInfo, wsdlURL);
         serviceFactory.getConfigurations().add(0, configuration);
 
-        service = serviceFactory.create();
-        
-        /**
-        service.put(Message.SCHEMA_VALIDATION_ENABLED, 
-                    service.getEnableSchemaValidationForAllPort());
-                    **/
-
-        DeploymentInfo deploymentInfo = (DeploymentInfo)bus.getExtension(DeploymentInfo.class);
-        service.setInvoker(new EJBMethodInvoker(deploymentInfo));       
+        service = serviceFactory.create();        
+    }
+    
+    protected void init() {         
+        DeploymentInfo deploymentInfo = 
+            (DeploymentInfo)bus.getExtension(DeploymentInfo.class);
+        service.setInvoker(new EJBMethodInvoker(deploymentInfo));        
     }
     
     protected Class getImplementorClass() {
