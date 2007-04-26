@@ -27,6 +27,7 @@ import java.util.concurrent.Executor;
 import javax.xml.transform.Source;
 import javax.xml.ws.Binding;
 import javax.xml.ws.Endpoint;
+import javax.xml.ws.http.HTTPBinding;
 import javax.xml.ws.soap.SOAPBinding;
 
 import org.apache.cxf.Bus;
@@ -159,6 +160,10 @@ public abstract class CXFEndpoint extends Endpoint {
         svrFactory.setStart(false);
         svrFactory.setServiceBean(implementor);
               
+        if (HTTPBinding.HTTP_BINDING.equals(implInfo.getBindingType())) {
+            svrFactory.setTransportId("http://cxf.apache.org/bindings/xformat");
+        }
+        
         server = svrFactory.create();
         
         init();

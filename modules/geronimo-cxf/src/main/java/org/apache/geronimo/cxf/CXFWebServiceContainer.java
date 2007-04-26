@@ -76,6 +76,8 @@ public abstract class CXFWebServiceContainer implements WebServiceContainer {
         destinationFactoryManager.registerDestinationFactory(
                 "http://cxf.apache.org/transports/http/configuration", factory);
         destinationFactoryManager.registerDestinationFactory(
+                "http://cxf.apache.org/bindings/xformat", factory);
+        destinationFactoryManager.registerDestinationFactory(
                 "http://www.w3.org/2003/05/soap/bindings/HTTP/", factory);
         destinationFactoryManager.registerDestinationFactory(
                 "http://schemas.xmlsoap.org/soap/http", factory);
