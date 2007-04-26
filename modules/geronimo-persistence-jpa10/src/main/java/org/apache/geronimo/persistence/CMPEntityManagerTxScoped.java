@@ -250,11 +250,7 @@ public class CMPEntityManagerTxScoped implements EntityManager {
             return entityManager.createQuery(s);
         } else {
             entityManager = createEntityManager();
-            try {
-                return entityManager.createQuery(s);
-            } finally {
-                entityManager.close();
-            }
+            return new NoTxQueryWrapper(entityManager, entityManager.createQuery(s));
         }
     }
 
@@ -264,11 +260,7 @@ public class CMPEntityManagerTxScoped implements EntityManager {
             return entityManager.createNamedQuery(s);
         } else {
             entityManager = createEntityManager();
-            try {
-                return entityManager.createNamedQuery(s);
-            } finally {
-                entityManager.close();
-            }
+            return new NoTxQueryWrapper(entityManager, entityManager.createNamedQuery(s));
         }
     }
 
@@ -278,11 +270,7 @@ public class CMPEntityManagerTxScoped implements EntityManager {
             return entityManager.createNativeQuery(s);
         } else {
             entityManager = createEntityManager();
-            try {
-                return entityManager.createNativeQuery(s);
-            } finally {
-                entityManager.close();
-            }
+            return new NoTxQueryWrapper(entityManager, entityManager.createNativeQuery(s));
         }
     }
 
@@ -292,11 +280,7 @@ public class CMPEntityManagerTxScoped implements EntityManager {
             return entityManager.createNativeQuery(s, aClass);
         } else {
             entityManager = createEntityManager();
-            try {
-                return entityManager.createNativeQuery(s, aClass);
-            } finally {
-                entityManager.close();
-            }
+            return new NoTxQueryWrapper(entityManager, entityManager.createNativeQuery(s, aClass));
         }
     }
 
@@ -306,11 +290,7 @@ public class CMPEntityManagerTxScoped implements EntityManager {
             return entityManager.createNativeQuery(s, s1);
         } else {
             entityManager = createEntityManager();
-            try {
-                return entityManager.createNativeQuery(s, s1);
-            } finally {
-                entityManager.close();
-            }
+            return new NoTxQueryWrapper(entityManager, entityManager.createNativeQuery(s, s1));
         }
     }
 
