@@ -39,10 +39,7 @@
                
                https://issues.apache.org/jira/browse/GERONIMO-2183
         -->
-        <!-- 
-        TEMP: Testing concurrent changes...
         <maven.test.skip>true</maven.test.skip>
-        -->
     </properties>
     
     <dependencies>
