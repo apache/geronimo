@@ -105,12 +105,6 @@ public class JspModuleBuilderExtension implements ModuleBuilderExtension {
     }
 
     public void createModule(Module module, Object plan, JarFile moduleFile, String targetPath, URL specDDUrl, Environment environment, Object moduleContextInfo, AbstractName earName, Naming naming, ModuleIDBuilder idBuilder) throws DeploymentException {
-        if (!(module instanceof WebModule)) {
-            //not a web module, nothing to do
-            return;
-        }
-        //TODO Only merge if we detect jsps???
-        EnvironmentBuilder.mergeEnvironments(module.getEnvironment(), defaultEnvironment);
     }
 
     public void installModule(JarFile earFile, EARContext earContext, Module module, Collection configurationStores, ConfigurationStore targetConfigurationStore, Collection repository) throws DeploymentException {
@@ -124,6 +118,8 @@ public class JspModuleBuilderExtension implements ModuleBuilderExtension {
             //not a web module, nothing to do
             return;
         }
+        //TODO Only merge if we detect jsps???
+        EnvironmentBuilder.mergeEnvironments(module.getEnvironment(), defaultEnvironment);
 
         WebModule webModule = (WebModule) module;
         WebAppType webApp = (WebAppType) webModule.getSpecDD();

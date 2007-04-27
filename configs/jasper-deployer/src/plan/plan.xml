@@ -32,10 +32,6 @@
                         <artifactId>jasper</artifactId>
                         <type>car</type>
                     </dependency>
-                    <dependency>
-                        <groupId>jstl</groupId>
-                        <artifactId>jstl</artifactId>
-                    </dependency>
                 </dependencies>
             </environment>
         </xml-attribute>
