@@ -79,6 +79,10 @@
         <attribute name="driverClassName">org.apache.derby.jdbc.EmbeddedDriver</attribute>
     </gbean>
 
+    <gbean name="DerbyClientDriver" class="org.apache.geronimo.system.util.JDBCDriverRegistrationGBean">
+        <attribute name="driverClassName">org.apache.derby.jdbc.ClientDriver</attribute>
+    </gbean>
+    
     <gbean name="TransactionalThreadPooledTimer" class="org.apache.geronimo.timer.jdbc.JDBCStoreThreadPooledTransactionalTimer">
         <attribute name="repeatCount">5</attribute>
         <reference name="TransactionManager"><name>TransactionManager</name></reference>
