@@ -39,6 +39,14 @@ import org.apache.jasper.instanceManagement.InstanceManager;
 public class JasperServletContextCustomizer implements RuntimeCustomizer {
     private final Holder holder;
 
+    static {
+        try {
+            Class clazz = Class.forName("org.apache.geronimo.jdbc.DataSourceDriver");
+            clazz.newInstance();
+        } catch (Throwable e) {
+            //how can we notify?
+        }
+    }
 
     public JasperServletContextCustomizer(Holder holder) {
         this.holder = holder;

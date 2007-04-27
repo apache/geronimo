@@ -71,6 +71,7 @@
         <module>geronimo-j2ee-schema</module>
         <module>geronimo-jasper</module>
         <module>geronimo-jasper-builder</module>
+        <module>geronimo-jdbc</module>
         <module>geronimo-jmx-remoting</module>
         <module>geronimo-kernel</module>
         <module>geronimo-mail</module>

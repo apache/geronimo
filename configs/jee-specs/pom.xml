@@ -150,8 +150,19 @@
         </dependency>
         
         <dependency>
+            <groupId>jstl</groupId>
+            <artifactId>jstl</artifactId>
+        </dependency>
+
+        <dependency>
             <groupId>org.apache.myfaces.core</groupId>
             <artifactId>myfaces-api</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.geronimo.modules</groupId>
+            <artifactId>geronimo-jdbc</artifactId>
+            <version>${version}</version>
         </dependency>
 
         <!-- build order hint -->
