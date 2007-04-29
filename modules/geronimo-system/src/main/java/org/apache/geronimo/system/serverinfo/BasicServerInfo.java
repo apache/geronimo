@@ -75,6 +75,8 @@ public class BasicServerInfo implements ServerInfo {
         baseServer = deriveBaseServer();
         baseServerURI = baseServer.toURI();
         System.setProperty(SERVER_DIR_SYS_PROP, baseServer.getAbsolutePath());
+        String tmpDir = resolveServerPath(System.getProperty("java.io.tmpdir"));       
+        System.setProperty("java.io.tmpdir", tmpDir);
     }
 
     /**

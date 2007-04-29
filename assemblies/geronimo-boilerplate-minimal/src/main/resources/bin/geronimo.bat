@@ -183,11 +183,14 @@ call "%GERONIMO_HOME%\bin\setJavaEnv.bat"
 if not %errorlevel% == 0 goto end
 
 if not "%GERONIMO_BASE%" == "" goto gotBase
+@REM GERONIMO_BASE is used by lib, ext and endorsed which are currently shared
 set GERONIMO_BASE=%GERONIMO_HOME%
+
 :gotBase
 
 if not "%GERONIMO_TMPDIR%" == "" goto gotTmpdir
-set GERONIMO_TMPDIR=%GERONIMO_BASE%\var\temp
+@REM A relative value will be resolved relative to each instance 
+set GERONIMO_TMPDIR=var\temp
 :gotTmpdir
 
 set _EXECJAVA=%_RUNJAVA%

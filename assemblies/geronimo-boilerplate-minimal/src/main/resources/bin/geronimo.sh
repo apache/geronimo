@@ -212,7 +212,8 @@ fi
 
 if [ -z "$GERONIMO_TMPDIR" ] ; then
   # Define the java.io.tmpdir to use for Geronimo
-  GERONIMO_TMPDIR="$GERONIMO_BASE"/var/temp
+  # A relative value will be resolved relative to each instance
+  GERONIMO_TMPDIR=var/temp
 fi
 
 if [ -z "$GERONIMO_OUT" ] ; then
