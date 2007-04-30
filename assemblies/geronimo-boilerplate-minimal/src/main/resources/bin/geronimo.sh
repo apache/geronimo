@@ -235,11 +235,11 @@ if $cygwin; then
   GERONIMO_HOME=`cygpath --absolute --windows "$GERONIMO_HOME"`
   GERONIMO_BASE=`cygpath --absolute --windows "$GERONIMO_BASE"`
   GERONIMO_TMPDIR=`cygpath --absolute --windows "$GERONIMO_TMPDIR"`
-  EXT_DIRS="$JRE_HOME/lib/ext;$GERONIMO_BASE/lib/ext"
-  ENDORSED_DIRS="$JRE_HOME/lib/endorsed;$GERONIMO_BASE/lib/endorsed"
+  EXT_DIRS="$GERONIMO_BASE/lib/ext;$JRE_HOME/lib/ext"
+  ENDORSED_DIRS="$GERONIMO_BASE/lib/endorsed;$JRE_HOME/lib/endorsed"
 else
-  EXT_DIRS="$JRE_HOME/lib/ext:$GERONIMO_BASE/lib/ext"
-  ENDORSED_DIRS="$JRE_HOME/lib/endorsed:$GERONIMO_BASE/lib/endorsed"
+  EXT_DIRS="$GERONIMO_BASE/lib/ext:$JRE_HOME/lib/ext"
+  ENDORSED_DIRS="$GERONIMO_BASE/lib/endorsed:$JRE_HOME/lib/endorsed"
 fi
 
 # ----- Execute The Requested Command -----------------------------------------

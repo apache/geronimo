@@ -318,11 +318,11 @@ if exist "%JAVA_AGENT_JAR%" set JAVA_AGENT_OPTS=-javaagent:%JAVA_AGENT_JAR%
 
 @REM Execute Java with the applicable properties
 if not "%JDB%" == "" goto doJDB
-%_EXECJAVA% %JAVA_OPTS% %GERONIMO_OPTS% "%JAVA_AGENT_OPTS%" -Djava.ext.dirs="%JRE_HOME%/lib/ext;%GERONIMO_BASE%/lib/ext" -Djava.endorsed.dirs="%JRE_HOME%\lib\endorsed;%GERONIMO_BASE%\lib\endorsed" -Dorg.apache.geronimo.base.dir="%GERONIMO_BASE%" -Djava.io.tmpdir="%GERONIMO_TMPDIR%" -jar %_JARFILE% %_LONG_OPT% %CMD_LINE_ARGS%
+%_EXECJAVA% %JAVA_OPTS% %GERONIMO_OPTS% "%JAVA_AGENT_OPTS%" -Djava.ext.dirs="%GERONIMO_BASE%\lib\ext;%JRE_HOME%\lib\ext" -Djava.endorsed.dirs="%GERONIMO_BASE%\lib\endorsed;%JRE_HOME%\lib\endorsed" -Dorg.apache.geronimo.base.dir="%GERONIMO_BASE%" -Djava.io.tmpdir="%GERONIMO_TMPDIR%" -jar %_JARFILE% %_LONG_OPT% %CMD_LINE_ARGS%
 goto end
 
 :doJDB
-%_EXECJAVA% %JAVA_OPTS% %GERONIMO_OPTS% -sourcepath "%JDB_SRCPATH%" -Djava.endorsed.dirs="%JRE_HOME%\lib\endorsed;%GERONIMO_BASE%\lib\endorsed" -Dorg.apache.geronimo.base.dir="%GERONIMO_BASE%" -Djava.io.tmpdir="%GERONIMO_TMPDIR%" -classpath %_JARFILE% %MAINCLASS% %CMD_LINE_ARGS%
+%_EXECJAVA% %JAVA_OPTS% %GERONIMO_OPTS% -sourcepath "%JDB_SRCPATH%" -Djava.endorsed.dirs="%GERONIMO_BASE%\lib\endorsed;%JRE_HOME%\lib\endorsed" -Dorg.apache.geronimo.base.dir="%GERONIMO_BASE%" -Djava.io.tmpdir="%GERONIMO_TMPDIR%" -classpath %_JARFILE% %MAINCLASS% %CMD_LINE_ARGS%
 goto end
 
 :end

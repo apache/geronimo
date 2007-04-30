@@ -106,8 +106,8 @@ public class RunClientMojo extends ReportingMojoSupport
         // Set the properties which we pass to the JVM from the startup script
         setSystemProperty(java, "org.apache.geronimo.base.dir", geronimoHome);
         setSystemProperty(java, "java.io.tmpdir", new File(geronimoHome, "var/temp"));
-        setSystemProperty(java, "java.endorsed.dirs", appendSystemPath("java.endorsed.dirs", new File(geronimoHome, "lib/endorsed")));
-        setSystemProperty(java, "java.ext.dirs", appendSystemPath("java.ext.dirs", new File(geronimoHome, "lib/ext")));
+        setSystemProperty(java, "java.endorsed.dirs", prefixSystemPath("java.endorsed.dirs", new File(geronimoHome, "lib/endorsed")));
+        setSystemProperty(java, "java.ext.dirs", prefixSystemPath("java.ext.dirs", new File(geronimoHome, "lib/ext")));
 
         java.createArg().setValue(moduleId);
 
@@ -127,15 +127,16 @@ public class RunClientMojo extends ReportingMojoSupport
         java.execute();
     }
 
-    private String appendSystemPath(final String name, final File file) {
+    private String prefixSystemPath(final String name, final File file) {
         assert name != null;
         assert file != null;
 
-        String dirs = System.getProperty(name, "");
-        if (dirs.length() > 0) {
+        String dirs = file.getPath();
+        String prop = System.getProperty(name, "");
+        if (prop.length() > 0) {
             dirs += File.pathSeparator;
+            dirs += prop;
         }
-        dirs += file.getPath();
         return dirs;
     }
 
