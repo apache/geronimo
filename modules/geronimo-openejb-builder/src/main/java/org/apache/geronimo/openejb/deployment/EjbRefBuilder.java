@@ -38,6 +38,7 @@ import org.apache.geronimo.j2ee.deployment.Module;
 import org.apache.geronimo.j2ee.deployment.annotation.EJBAnnotationHelper;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.config.Configuration;
+import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.naming.deployment.AbstractNamingBuilder;
 import org.apache.geronimo.openejb.ClientEjbReference;
@@ -99,6 +100,11 @@ public class EjbRefBuilder extends AbstractNamingBuilder {
     }
 
     public void buildNaming(XmlObject specDD, XmlObject plan, Configuration localConfiguration, Configuration remoteConfiguration, Module module, Map componentContext) throws DeploymentException {
+        // skip ejb modules... they have alreayd been processed
+        if (module.getType() == ConfigurationModuleType.EJB) {
+            return;
+        }
+
         // map the refs declared in the vendor plan, so we can match them to the spec references
         Map<String, GerEjbRefType> refMap = mapEjbRefs(plan);
         Map<String, GerEjbLocalRefType> localRefMap = mapEjbLocalRefs(plan);
