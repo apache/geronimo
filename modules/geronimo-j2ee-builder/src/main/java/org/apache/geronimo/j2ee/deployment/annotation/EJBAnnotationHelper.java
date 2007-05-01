@@ -232,8 +232,20 @@ public final class EJBAnnotationHelper {
         // they are optional in EJB 3.0)
         if (interfce != null && !interfce.equals(Object.class)) {
             if (EJBHome.class.isAssignableFrom(interfce)) {
+                for (Method m : interfce.getMethods()) {
+                    if (m.getName().startsWith("create")) {
+                        interfce = m.getReturnType();
+                        break;
+                    }
+                }
                 remoteFlag = true;
             } else if (EJBLocalHome.class.isAssignableFrom(interfce)) {
+                for (Method m : interfce.getMethods()) {
+                    if (m.getName().startsWith("create")) {
+                        interfce = m.getReturnType();
+                        break;
+                    }
+                }
                 localFlag = true;
             } else {
                 if (interfce.getAnnotation(Local.class) != null) {
