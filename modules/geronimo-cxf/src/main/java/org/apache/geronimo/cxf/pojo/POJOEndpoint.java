@@ -29,7 +29,6 @@ import org.apache.cxf.jaxws.JAXWSMethodInvoker;
 import org.apache.cxf.jaxws.handler.PortInfoImpl;
 import org.apache.cxf.jaxws.javaee.HandlerChainsType;
 import org.apache.cxf.jaxws.support.JaxWsServiceFactoryBean;
-import org.apache.cxf.message.Message;
 import org.apache.geronimo.cxf.CXFEndpoint;
 import org.apache.geronimo.cxf.CXFHandlerResolver;
 import org.apache.geronimo.cxf.CXFServiceConfiguration;
