@@ -46,6 +46,20 @@ public class CorbaApplicationServer implements ApplicationServer {
         }
     }
 
+    /**
+     * DMB: My vague understanding is that business interfaces aren't supported by
+     * corba as they do not extend java.rmi.Remote.  But we can try.
+     */
+    public Object getBusinessObject(ProxyInfo proxyInfo) {
+        try {
+            RefGenerator refGenerator = AdapterWrapper.getRefGenerator((String) proxyInfo.getDeploymentInfo().getDeploymentID());
+            org.omg.CORBA.Object object = refGenerator.genObjectReference(proxyInfo.getPrimaryKey());
+            return object;
+        } catch (Throwable e) {
+            throw new org.omg.CORBA.MARSHAL(e.getClass().getName() + " thrown while marshaling the reply: " + e.getMessage(), 0, org.omg.CORBA.CompletionStatus.COMPLETED_YES);
+        }
+    }
+
     public EJBHome getEJBHome(ProxyInfo proxyInfo) {
         try {
             RefGenerator refGenerator = AdapterWrapper.getRefGenerator((String) proxyInfo.getDeploymentInfo().getDeploymentID());
