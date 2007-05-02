@@ -150,7 +150,7 @@ set GERONIMO_BASE=%GERONIMO_HOME%
 :gotBase
 
 if not "%GERONIMO_TMPDIR%" == "" goto gotTmpdir
-set GERONIMO_TMPDIR=%GERONIMO_BASE%\var\temp
+set GERONIMO_TMPDIR=var\temp
 :gotTmpdir
 
 @REM ----- Execute The Requested Command ---------------------------------------

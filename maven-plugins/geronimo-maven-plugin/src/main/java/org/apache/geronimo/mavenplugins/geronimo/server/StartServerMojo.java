@@ -235,7 +235,8 @@ public class StartServerMojo
 
         // Set the properties which we pass to the JVM from the startup script
         setSystemProperty(java, "org.apache.geronimo.base.dir", geronimoHome);
-        setSystemProperty(java, "java.io.tmpdir", new File(geronimoHome, "var/temp"));
+        // Use relative path
+        setSystemProperty(java, "java.io.tmpdir", "var/temp");
         setSystemProperty(java, "java.endorsed.dirs", prefixSystemPath("java.endorsed.dirs", new File(geronimoHome, "lib/endorsed")));
         setSystemProperty(java, "java.ext.dirs", prefixSystemPath("java.ext.dirs", new File(geronimoHome, "lib/ext")));
 

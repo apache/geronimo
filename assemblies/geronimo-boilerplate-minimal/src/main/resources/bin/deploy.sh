@@ -167,7 +167,7 @@ fi
 
 if [ -z "$GERONIMO_TMPDIR" ] ; then
   # Define the java.io.tmpdir to use for Geronimo
-  GERONIMO_TMPDIR="$GERONIMO_BASE"/var/temp
+  GERONIMO_TMPDIR=var/temp
 fi
 
 # For Cygwin, switch paths to Windows format before running java
