@@ -164,7 +164,7 @@ public class TransactionImpl implements Transaction {
             case Status.STATUS_ACTIVE:
                 break;
             case Status.STATUS_MARKED_ROLLBACK:
-                throw new RollbackException("Transaction is marked for rollback");
+                break;
             default:
                 throw new IllegalStateException("Status is " + getStateString(status));
         }
