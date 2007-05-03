@@ -22,6 +22,7 @@ import java.lang.reflect.Method;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -39,17 +40,21 @@ import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
+import org.apache.geronimo.gbean.SingleElementCollection;
+import org.apache.geronimo.j2ee.deployment.CorbaGBeanNameSource;
 import org.apache.geronimo.j2ee.deployment.Module;
 import org.apache.geronimo.j2ee.deployment.annotation.AnnotatedApp;
 import org.apache.geronimo.j2ee.deployment.annotation.ResourceAnnotationHelper;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.kernel.config.Configuration;
-import org.apache.geronimo.kernel.repository.Environment;
+import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.Dependency;
+import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.naming.deployment.AbstractNamingBuilder;
 import org.apache.geronimo.naming.deployment.ResourceEnvironmentBuilder;
 import org.apache.geronimo.naming.deployment.ResourceEnvironmentSetter;
+import org.apache.geronimo.naming.reference.ORBReference;
 import org.apache.geronimo.naming.reference.ResourceReference;
 import org.apache.geronimo.xbeans.geronimo.naming.GerPatternType;
 import org.apache.geronimo.xbeans.geronimo.naming.GerResourceRefDocument;
@@ -64,6 +69,7 @@ import org.apache.geronimo.xbeans.javaee.ResourceRefType;
 import org.apache.geronimo.xbeans.javaee.XsdStringType;
 import org.apache.xmlbeans.QNameSet;
 import org.apache.xmlbeans.XmlObject;
+import org.omg.CORBA.ORB;
 
 /**
  * @version $Rev$ $Date$
@@ -74,16 +80,18 @@ public class ResourceRefBuilder extends AbstractNamingBuilder implements Resourc
 
     private static final QName GER_RESOURCE_REF_QNAME = GerResourceRefDocument.type.getDocumentElementName();
     private static final QNameSet GER_RESOURCE_REF_QNAME_SET = QNameSet.singleton(GER_RESOURCE_REF_QNAME);
-
-    private final QNameSet resourceRefQNameSet;
-
     private static final String JAXR_CONNECTION_FACTORY_CLASS = "javax.xml.registry.ConnectionFactory";
     private static final String JAVAX_MAIL_SESSION_CLASS = "javax.mail.Session";
 
-    public ResourceRefBuilder(Environment defaultEnvironment, String[] eeNamespaces) {
+
+    private final QNameSet resourceRefQNameSet;
+    private final SingleElementCollection corbaGBeanNameSourceCollection;
+
+    public ResourceRefBuilder(Environment defaultEnvironment, String[] eeNamespaces, Collection corbaGBeanNameSourceCollection) {
         super(defaultEnvironment);
 
         resourceRefQNameSet = buildQNameSet(eeNamespaces, "resource-ref");
+        this.corbaGBeanNameSourceCollection = new SingleElementCollection(corbaGBeanNameSourceCollection);
     }
 
     protected boolean willMergeEnvironment(XmlObject specDD, XmlObject plan) {
@@ -130,6 +138,17 @@ public class ResourceRefBuilder extends AbstractNamingBuilder implements Resourc
                 } catch (MalformedURLException e) {
                     throw new DeploymentException("Could not convert " + gerResourceRef.getUrl() + " to URL", e);
                 }
+            } else if (iface == ORB.class) {
+                CorbaGBeanNameSource corbaGBeanNameSource = (CorbaGBeanNameSource) corbaGBeanNameSourceCollection.getElement();
+                if (corbaGBeanNameSource == null) {
+                    throw new DeploymentException("No orb setup but there is a orb reference");
+                }
+                AbstractNameQuery corbaName = corbaGBeanNameSource.getCorbaGBeanName();
+                if (corbaName != null) {
+                    Artifact[] moduleId = getConfigId(localConfiguration, remoteConfiguration);
+                    Map context = getJndiContextMap(componentContext);
+                    context.put(ENV + name, new ORBReference(moduleId, corbaName));
+                }
             } else {
                 //determine jsr-77 type from interface
                 String j2eeType;
@@ -170,7 +189,7 @@ public class ResourceRefBuilder extends AbstractNamingBuilder implements Resourc
                         errorMessage.append(gerResourceRef.getPattern());
                     }
                     errorMessage.append("\nSearch conducted in current module and dependencies:\n");
-                    for (Dependency dependency: localConfiguration.getEnvironment().getDependencies()) {
+                    for (Dependency dependency : localConfiguration.getEnvironment().getDependencies()) {
                         errorMessage.append(dependency).append("\n");
                     }
                     errorMessage.append(")");
@@ -261,7 +280,7 @@ public class ResourceRefBuilder extends AbstractNamingBuilder implements Resourc
 
             String resourceName = getResourceName(annotation, method, field);
             String resourceType = getResourceType(annotation, method, field);
-            
+
             if (resourceType.equals("javax.sql.DataSource") ||
                     resourceType.equals("javax.jms.ConnectionFactory") ||
                     resourceType.equals("javax.jms.QueueConnectionFactory") ||
@@ -368,8 +387,9 @@ public class ResourceRefBuilder extends AbstractNamingBuilder implements Resourc
         GBeanInfoBuilder infoBuilder = GBeanInfoBuilder.createStatic(ResourceRefBuilder.class, NameFactory.MODULE_BUILDER);
         infoBuilder.addAttribute("eeNamespaces", String[].class, true, true);
         infoBuilder.addAttribute("defaultEnvironment", Environment.class, true, true);
+        infoBuilder.addReference("CorbaGBeanNameSource", CorbaGBeanNameSource.class);
 
-        infoBuilder.setConstructor(new String[]{"defaultEnvironment", "eeNamespaces"});
+        infoBuilder.setConstructor(new String[]{"defaultEnvironment", "eeNamespaces", "CorbaGBeanNameSource"});
 
         GBEAN_INFO = infoBuilder.getBeanInfo();
     }
