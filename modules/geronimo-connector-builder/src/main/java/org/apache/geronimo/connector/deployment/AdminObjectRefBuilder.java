@@ -25,6 +25,7 @@ import java.util.Map;
 
 import javax.annotation.Resource;
 import javax.naming.Reference;
+import javax.naming.LinkRef;
 import javax.xml.namespace.QName;
 
 import org.apache.commons.logging.Log;
@@ -140,9 +141,15 @@ public class AdminObjectRefBuilder extends AbstractNamingBuilder {
             }
             GerResourceEnvRefType gerResourceEnvRef = refMap.get(name);
             try {
-                AbstractNameQuery containerId = getAdminObjectContainerId(name, gerResourceEnvRef);
-                Reference ref = buildAdminObjectReference(localConfiguration, containerId, iface);
-                getJndiContextMap(componentContext).put(ENV + name, ref);
+                String refType = getStringValue(resourceEnvRef.getResourceEnvRefType());
+                if (refType.equals("javax.transaction.UserTransaction")) {
+                    LinkRef linkRef = new LinkRef("java:comp/UserTransaction");
+                    getJndiContextMap(componentContext).put(ENV + name, linkRef);
+                } else {
+                    AbstractNameQuery containerId = getAdminObjectContainerId(name, gerResourceEnvRef);
+                    Reference ref = buildAdminObjectReference(localConfiguration, containerId, iface);
+                    getJndiContextMap(componentContext).put(ENV + name, ref);
+                }
             } catch (UnresolvedReferenceException e) {
                 throw new DeploymentException("Unable to resolve resource env reference '" + name + "' (" + (e.isMultiple() ? "found multiple matching resources" : "no matching resources found") + ")");
             }
