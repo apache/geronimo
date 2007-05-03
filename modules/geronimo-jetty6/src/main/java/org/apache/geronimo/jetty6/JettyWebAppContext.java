@@ -34,7 +34,6 @@ import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 import javax.naming.Context;
 import javax.transaction.TransactionManager;
-import javax.servlet.ServletContext;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -42,11 +41,11 @@ import org.apache.geronimo.connector.outbound.connectiontracking.TrackedConnecti
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
+import org.apache.geronimo.j2ee.RuntimeCustomizer;
 import org.apache.geronimo.j2ee.annotation.Holder;
 import org.apache.geronimo.j2ee.annotation.LifecycleMethod;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.j2ee.management.impl.InvalidObjectNameException;
-import org.apache.geronimo.j2ee.RuntimeCustomizer;
 import org.apache.geronimo.jetty6.handler.AbstractImmutableHandler;
 import org.apache.geronimo.jetty6.handler.ComponentContextHandler;
 import org.apache.geronimo.jetty6.handler.InstanceContextHandler;
