@@ -147,7 +147,7 @@ public class AdminObjectRefBuilder extends AbstractNamingBuilder {
                     getJndiContextMap(componentContext).put(ENV + name, linkRef);
                 } else {
                     AbstractNameQuery containerId = getAdminObjectContainerId(name, gerResourceEnvRef);
-                    Reference ref = buildAdminObjectReference(localConfiguration, containerId, iface);
+                    Reference ref = buildAdminObjectReference(localConfiguration, remoteConfiguration, containerId, iface);
                     getJndiContextMap(componentContext).put(ENV + name, ref);
                 }
             } catch (UnresolvedReferenceException e) {
@@ -206,7 +206,7 @@ public class AdminObjectRefBuilder extends AbstractNamingBuilder {
             //try to resolve ref based only matching resource-ref-name
             //throws exception if it can't locate ref.
             AbstractNameQuery containerId = buildAbstractNameQuery(null, moduleURI, linkName, NameFactory.JCA_ADMIN_OBJECT, NameFactory.RESOURCE_ADAPTER_MODULE);
-            Reference ref = buildAdminObjectReference(localConfiguration, containerId, iface);
+            Reference ref = buildAdminObjectReference(localConfiguration, remoteConfiguration, containerId, iface);
             getJndiContextMap(componentContext).put(ENV + name, ref);
 
         }
@@ -245,13 +245,13 @@ public class AdminObjectRefBuilder extends AbstractNamingBuilder {
     }
 
 
-    private Reference buildAdminObjectReference(Configuration localConfiguration, AbstractNameQuery containerId, Class iface) throws DeploymentException {
+    private Reference buildAdminObjectReference(Configuration localConfiguration, Configuration remoteConfiguration, AbstractNameQuery containerId, Class iface) throws DeploymentException {
         try {
             localConfiguration.findGBean(containerId);
         } catch (GBeanNotFoundException e) {
             throw new DeploymentException("Can not resolve admin object ref " + containerId + " in configuration " + localConfiguration.getId());
         }
-        return new ResourceReference(localConfiguration.getId(), containerId, iface);
+        return new ResourceReference(getConfigId(localConfiguration, remoteConfiguration), containerId, iface);
     }
 
     private static AbstractNameQuery getAdminObjectContainerId(String name, GerResourceEnvRefType gerResourceEnvRef) {

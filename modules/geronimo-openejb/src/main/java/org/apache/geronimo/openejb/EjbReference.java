@@ -27,7 +27,7 @@ import org.apache.geronimo.naming.reference.ConfigurationAwareReference;
 public class EjbReference extends ConfigurationAwareReference {
     private final boolean remote;
 
-    public EjbReference(Artifact artifact, AbstractNameQuery abstractNameQuery, boolean remote) {
+    public EjbReference(Artifact[] artifact, AbstractNameQuery abstractNameQuery, boolean remote) {
         super(artifact, abstractNameQuery);
         this.remote = remote;
     }

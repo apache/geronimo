@@ -29,6 +29,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
+import java.util.LinkedHashSet;
 import java.util.jar.JarFile;
 
 import javax.ejb.EntityContext;
@@ -400,6 +401,10 @@ public class EjbModuleBuilder implements ModuleBuilder {
         } catch (IOException e) {
             throw new DeploymentException("Unable to copy ejb module jar into configuration: " + moduleFile.getName());
         }
+        LinkedHashSet<String> manifestcp = new LinkedHashSet<String>();
+        manifestcp.add(module.getTargetPath());
+        earContext.getCompleteManifestClassPath(moduleFile, URI.create(module.getTargetPath()), manifestcp);
+        earContext.getGeneralData().put("ManifestClassPath", manifestcp);
     }
 
     private static final String LINE_SEP = System.getProperty("line.separator");

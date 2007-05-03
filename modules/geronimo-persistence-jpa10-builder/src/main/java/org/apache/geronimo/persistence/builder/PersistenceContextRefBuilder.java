@@ -20,6 +20,7 @@ package org.apache.geronimo.persistence.builder;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -27,12 +28,14 @@ import java.util.Set;
 import javax.xml.namespace.QName;
 
 import org.apache.geronimo.common.DeploymentException;
+import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.AbstractNameQuery;
+import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
-import org.apache.geronimo.j2ee.deployment.annotation.PersistenceContextAnnotationHelper;
 import org.apache.geronimo.j2ee.deployment.Module;
 import org.apache.geronimo.j2ee.deployment.NamingBuilder;
+import org.apache.geronimo.j2ee.deployment.annotation.PersistenceContextAnnotationHelper;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.kernel.config.Configuration;
@@ -106,7 +109,7 @@ public class PersistenceContextRefBuilder extends AbstractNamingBuilder {
                     persistenceUnitNameQuery = findPersistenceUnit(gerPersistenceContextRef);
                     addProperties(gerPersistenceContextRef, properties);
                     checkForGBean(localConfiguration, persistenceUnitNameQuery, true);
-                } else if (persistenceContextRef.isSetPersistenceUnitName()) {
+                } else if (persistenceContextRef.isSetPersistenceUnitName() && persistenceContextRef.getPersistenceUnitName().getStringValue().trim().length() > 0) {
                     String persistenceUnitName = persistenceContextRef.getPersistenceUnitName().getStringValue().trim();
                     persistenceUnitNameQuery = new AbstractNameQuery(null, Collections.singletonMap("name", persistenceUnitName), PERSISTENCE_UNIT_INTERFACE_TYPES);
                     if (!checkForGBean(localConfiguration, persistenceUnitNameQuery, strictMatching)) {
@@ -115,11 +118,25 @@ public class PersistenceContextRefBuilder extends AbstractNamingBuilder {
                         checkForGBean(localConfiguration, persistenceUnitNameQuery, true);
                     }
                 } else {
-                    persistenceUnitNameQuery = defaultPersistenceUnitAbstractNameQuery;
+                    persistenceUnitNameQuery = new AbstractNameQuery(null, Collections.EMPTY_MAP, PERSISTENCE_UNIT_INTERFACE_TYPES);
+                    Set<AbstractNameQuery> patterns = Collections.singleton(persistenceUnitNameQuery);
+                    LinkedHashSet<GBeanData> gbeans = localConfiguration.findGBeanDatas(localConfiguration, patterns);
+                    persistenceUnitNameQuery = checkForDefaultPersistenceUnit(gbeans);
+                    if (gbeans.isEmpty()) {
+                        gbeans = localConfiguration.findGBeanDatas(patterns);
+                        persistenceUnitNameQuery = checkForDefaultPersistenceUnit(gbeans);
+
+                        if (gbeans.isEmpty()) {
+                            if (defaultPersistenceUnitAbstractNameQuery == null) {
+                                throw new DeploymentException("No default PersistenceUnit specified, and none located");
+                            }
+                            persistenceUnitNameQuery = defaultPersistenceUnitAbstractNameQuery;
+                        }
+                    }
                     checkForGBean(localConfiguration, persistenceUnitNameQuery, true);
                 }
 
-                PersistenceContextReference reference = new PersistenceContextReference(localConfiguration.getId(), persistenceUnitNameQuery, transactionScoped, properties);
+                PersistenceContextReference reference = new PersistenceContextReference(getConfigId(localConfiguration, remoteConfiguration), persistenceUnitNameQuery, transactionScoped, properties);
 
                 NamingBuilder.JNDI_KEY.get(componentContext).put(ENV + persistenceContextRefName, reference);
             } catch (DeploymentException e) {
@@ -141,7 +158,7 @@ public class PersistenceContextRefBuilder extends AbstractNamingBuilder {
 
                 checkForGBean(localConfiguration, persistenceUnitNameQuery, true);
 
-                PersistenceContextReference reference = new PersistenceContextReference(localConfiguration.getId(), persistenceUnitNameQuery, transactionScoped, properties);
+                PersistenceContextReference reference = new PersistenceContextReference(getConfigId(localConfiguration, remoteConfiguration), persistenceUnitNameQuery, transactionScoped, properties);
 
                 getJndiContextMap(componentContext).put(ENV + persistenceContextRefName, reference);
             } catch (DeploymentException e) {
@@ -159,12 +176,30 @@ public class PersistenceContextRefBuilder extends AbstractNamingBuilder {
         }
     }
 
+    private AbstractNameQuery checkForDefaultPersistenceUnit(LinkedHashSet<GBeanData> gbeans) throws DeploymentException {
+        AbstractNameQuery persistenceUnitNameQuery = null;
+        for (java.util.Iterator it = gbeans.iterator(); it.hasNext();) {
+            GBeanData gbean = (GBeanData) it.next();
+            AbstractName name = gbean.getAbstractName();
+            Map nameMap = name.getName();
+            if ("cmp".equals(nameMap.get("name"))) {
+                it.remove();
+            } else {
+                persistenceUnitNameQuery = new AbstractNameQuery(name);
+            }
+        }
+        if (gbeans.size() > 1) {
+            throw new DeploymentException("Too many matches for no-name persistence unit: " + gbeans);
+        }
+        return persistenceUnitNameQuery;
+    }
+
     private boolean checkForGBean(Configuration localConfiguration, AbstractNameQuery persistenceUnitNameQuery, boolean complainIfMissing) throws DeploymentException {
         try {
             localConfiguration.findGBeanData(persistenceUnitNameQuery);
             return true;
         } catch (GBeanNotFoundException e) {
-            if (complainIfMissing  || e.hasMatches()) { 
+            if (complainIfMissing || e.hasMatches()) {
                 String reason = e.hasMatches() ? "More than one GBean reference found." : "No GBeans found.";
                 throw new DeploymentException("Could not resolve reference at deploy time for query " + persistenceUnitNameQuery + ". " + reason, e);
             }

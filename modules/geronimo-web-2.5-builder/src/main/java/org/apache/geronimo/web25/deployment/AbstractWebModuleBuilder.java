@@ -273,6 +273,7 @@ public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
         module.setRootEarContext(earContext);
 
         try {
+            LinkedHashSet<String> manifestcp = new LinkedHashSet<String>();
             // add the warfile's content to the configuration
             JarFile warFile = module.getModuleFile();
             Enumeration<JarEntry> entries = warFile.entries();
@@ -283,6 +284,8 @@ public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
                     moduleContext.addFile(targetPath, module.getOriginalSpecDD());
                 } else if (entry.getName().startsWith("WEB-INF/lib") && entry.getName().endsWith(".jar")) {
                     moduleContext.addInclude(targetPath, warFile, entry);
+//                    manifestcp.add(module.getTargetPath() + "/" + entry.getName());
+                    manifestcp.add(entry.getName());
                 } else {
                     moduleContext.addFile(targetPath, warFile, entry);
                 }
@@ -291,11 +294,14 @@ public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
             //always add WEB-INF/classes to the classpath regardless of whether
             //any classes exist
             moduleContext.getConfiguration().addToClassPath("WEB-INF/classes/");
-
+//            manifestcp.add(module.getTargetPath() + "/WEB-INF/classes/");
+            manifestcp.add("WEB-INF/classes/");
             // add the manifest classpath entries declared in the war to the class loader
             // we have to explicitly add these since we are unpacking the web module
             // and the url class loader will not pick up a manifest from an unpacked dir
             moduleContext.addManifestClassPath(warFile, RELATIVE_MODULE_BASE_URI);
+            moduleContext.getCompleteManifestClassPath(warFile, URI.create(module.getTargetPath()), manifestcp);
+            moduleContext.getGeneralData().put("ManifestClassPath", manifestcp);
 
         } catch (IOException e) {
             throw new DeploymentException("Problem deploying war", e);
@@ -796,9 +802,11 @@ public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
             webModule.setClassFinder(createWebAppClassFinder(webApp, webModule));
         }
         //N.B. we use the ear context which has all the gbeans we could possibly be looking up from this ear.
+        //nope, persistence units can be in the war.
         //This means that you cannot use the default environment of the web builder to add configs that will be searched.
         Configuration earConfiguration = earContext.getConfiguration();
-        getNamingBuilders().buildNaming(webApp, vendorPlan, earConfiguration, earConfiguration, webModule, buildingContext);
+        Configuration localConfiguration = moduleContext.getConfiguration();
+        getNamingBuilders().buildNaming(webApp, vendorPlan, localConfiguration, earConfiguration, webModule, buildingContext);
 
         Map compContext = NamingBuilder.JNDI_KEY.get(buildingContext);
         Holder holder = NamingBuilder.INJECTION_KEY.get(buildingContext);

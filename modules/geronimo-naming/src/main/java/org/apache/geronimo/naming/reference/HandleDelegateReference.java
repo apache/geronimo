@@ -29,7 +29,7 @@ import org.apache.geronimo.gbean.AbstractName;
  */
 public class HandleDelegateReference extends ConfigurationAwareReference {
 
-    public HandleDelegateReference(Artifact configId, AbstractNameQuery abstractNameQuery) {
+    public HandleDelegateReference(Artifact[] configId, AbstractNameQuery abstractNameQuery) {
         super(configId, abstractNameQuery);
     }
 

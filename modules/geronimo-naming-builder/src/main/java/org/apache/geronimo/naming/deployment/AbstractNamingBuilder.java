@@ -35,7 +35,6 @@ import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.j2ee.annotation.Holder;
 import org.apache.geronimo.j2ee.annotation.Injection;
-import org.apache.geronimo.j2ee.annotation.LifecycleMethod;
 import org.apache.geronimo.j2ee.deployment.Module;
 import org.apache.geronimo.j2ee.deployment.NamingBuilder;
 import org.apache.geronimo.kernel.config.Configuration;
@@ -299,6 +298,13 @@ public abstract class AbstractNamingBuilder implements NamingBuilder {
             String targetClassName = injectionTarget.getInjectionTargetClass().getStringValue().trim();
             holder.addInjection(targetClassName, new Injection(targetClassName, targetName, jndiName));
         }
+    }
+
+    protected static Artifact[] getConfigId(Configuration localConfiguration, Configuration earConfiguration) {
+        if (localConfiguration == earConfiguration) {
+            return new Artifact[] {earConfiguration.getId()};
+        }
+        return new Artifact[] {earConfiguration.getId(),localConfiguration.getId()};
     }
 
 }

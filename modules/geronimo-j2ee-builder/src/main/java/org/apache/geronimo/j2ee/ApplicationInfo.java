@@ -18,82 +18,37 @@ package org.apache.geronimo.j2ee;
 
 import java.util.Set;
 import java.util.LinkedHashSet;
+import java.util.jar.JarFile;
 
 import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.gbean.AbstractName;
+import org.apache.geronimo.j2ee.deployment.Module;
 import org.apache.xmlbeans.XmlObject;
 
 /**
  * @version $Revision$ $Date$
  */
-public class ApplicationInfo {
+public class ApplicationInfo extends Module {
     private ConfigurationModuleType type;
-    private Environment environment;
-    private AbstractName baseName;
-    private XmlObject specDD;
-    private XmlObject vendorDD;
     private LinkedHashSet modules;
     private Set moduleLocations;
-    private String originalSpecDD;
 
-    public ApplicationInfo() {
-    }
 
-    public ApplicationInfo(ConfigurationModuleType type, Environment environment, AbstractName baseName, XmlObject specDD, XmlObject vendorDD, LinkedHashSet modules, Set moduleLocations, String originalSpecDD) {
+    public ApplicationInfo(ConfigurationModuleType type, Environment environment, AbstractName baseName, JarFile earFile, XmlObject specDD, XmlObject vendorDD, LinkedHashSet modules, Set moduleLocations, String originalSpecDD) {
+        super(true, baseName, environment, earFile, "", specDD, vendorDD, originalSpecDD, null, null);
         assert type != null;
         assert environment != null;
         assert modules != null;
         assert moduleLocations != null;
 
         this.type = type;
-        this.environment = environment;
-        this.baseName = baseName;
-        this.specDD = specDD;
-        this.vendorDD = vendorDD;
         this.modules = modules;
         this.moduleLocations = moduleLocations;
-        this.originalSpecDD = originalSpecDD;
     }
 
     public ConfigurationModuleType getType() {
         return type;
-    }
-
-    public void setType(ConfigurationModuleType type) {
-        this.type = type;
-    }
-
-    public Environment getEnvironment() {
-        return environment;
-    }
-
-    public void setEnvironment(Environment environment) {
-        this.environment = environment;
-    }
-
-    public AbstractName getBaseName() {
-        return baseName;
-    }
-
-    public void setBaseName(AbstractName baseName) {
-        this.baseName = baseName;
-    }
-
-    public XmlObject getVendorDD() {
-        return vendorDD;
-    }
-
-    public void setVendorDD(XmlObject vendorDD) {
-        this.vendorDD = vendorDD;
-    }
-
-    public XmlObject getSpecDD() {
-        return specDD;
-    }
-
-    public void setSpecDD(XmlObject specDD) {
-        this.specDD = specDD;
     }
 
     public LinkedHashSet getModules() {
@@ -112,11 +67,4 @@ public class ApplicationInfo {
         this.moduleLocations = moduleLocations;
     }
 
-    public String getOriginalSpecDD() {
-        return originalSpecDD;
-    }
-
-    public void setOriginalSpecDD(String originalSpecDD) {
-        this.originalSpecDD = originalSpecDD;
-    }
 }

@@ -31,7 +31,7 @@ import org.apache.geronimo.gbean.AbstractName;
 public class GBeanReference extends ConfigurationAwareReference {
     private final Class type;
 
-    public GBeanReference(Artifact configId, Set abstractNameQueries, Class type) {
+    public GBeanReference(Artifact[] configId, Set abstractNameQueries, Class type) {
         super(configId, abstractNameQueries);
         this.type = type;
     }

@@ -91,7 +91,6 @@ import org.apache.geronimo.xbeans.geronimo.j2ee.GerSecurityDocument;
 import org.apache.geronimo.xbeans.javaee.ApplicationDocument;
 import org.apache.geronimo.xbeans.javaee.ApplicationType;
 import org.apache.geronimo.xbeans.javaee.ModuleType;
-import org.apache.xmlbeans.QNameSet;
 import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
@@ -115,7 +114,7 @@ public class EARConfigBuilder implements ConfigurationBuilder, CorbaGBeanNameSou
     private final SingleElementCollection resourceReferenceBuilder;
     private final NamespaceDrivenBuilderCollection securityBuilders;
     private final NamespaceDrivenBuilderCollection serviceBuilders;
-    private final NamespaceDrivenBuilderCollection persistenceUnitBuilders;
+    private final Collection<ModuleBuilderExtension> persistenceUnitBuilders;
 
     private final Environment defaultEnvironment;
     private final AbstractNameQuery serverName;
@@ -141,7 +140,7 @@ public class EARConfigBuilder implements ConfigurationBuilder, CorbaGBeanNameSou
             Collection appClientConfigBuilder,
             Collection securityBuilders,
             Collection serviceBuilders,
-            Collection<NamespaceDrivenBuilder> persistenceUnitBuilders,
+            Collection<ModuleBuilderExtension> persistenceUnitBuilders,
             Kernel kernel) {
         this(defaultEnvironment,
                 transactionManagerAbstractName,
@@ -178,7 +177,7 @@ public class EARConfigBuilder implements ConfigurationBuilder, CorbaGBeanNameSou
             ModuleBuilder appClientConfigBuilder,
             NamespaceDrivenBuilder securityBuilder,
             NamespaceDrivenBuilder serviceBuilder,
-            NamespaceDrivenBuilder persistenceUnitBuilder,
+            ModuleBuilderExtension persistenceUnitBuilder,
             Naming naming) {
         this(defaultEnvironment,
                 transactionManagerAbstractName,
@@ -216,7 +215,7 @@ public class EARConfigBuilder implements ConfigurationBuilder, CorbaGBeanNameSou
             SingleElementCollection appClientConfigBuilder,
             Collection securityBuilders,
             Collection serviceBuilders,
-            Collection<NamespaceDrivenBuilder> persistenceUnitBuilders,
+            Collection<ModuleBuilderExtension> persistenceUnitBuilders,
             Naming naming) {
         this.configurationManager = configurationManager;
         this.repositories = repositories;
@@ -229,7 +228,7 @@ public class EARConfigBuilder implements ConfigurationBuilder, CorbaGBeanNameSou
         this.appClientConfigBuilder = appClientConfigBuilder;
         this.securityBuilders = new NamespaceDrivenBuilderCollection(securityBuilders, GerSecurityDocument.type.getDocumentElementName());
         this.serviceBuilders = new NamespaceDrivenBuilderCollection(serviceBuilders, GBeanBuilder.SERVICE_QNAME);
-        this.persistenceUnitBuilders = new NamespaceDrivenBuilderCollection(persistenceUnitBuilders, QName.valueOf("Placeholder-Not-Used"));
+        this.persistenceUnitBuilders = persistenceUnitBuilders;
         
         this.transactionManagerObjectName = transactionManagerAbstractName;
         this.connectionTrackerObjectName = connectionTrackerAbstractName;
@@ -295,6 +294,7 @@ public class EARConfigBuilder implements ConfigurationBuilder, CorbaGBeanNameSou
         return new ApplicationInfo(module.getType(),
                 module.getEnvironment(),
                 module.getModuleName(),
+                jarFile,
                 null,
                 null,
                 new LinkedHashSet<Module>(Collections.singleton(module)),
@@ -391,6 +391,7 @@ public class EARConfigBuilder implements ConfigurationBuilder, CorbaGBeanNameSou
         return new ApplicationInfo(ConfigurationModuleType.EAR,
                 environment,
                 earName,
+                earFile,
                 application,
                 gerApplication,
                 modules,
@@ -501,16 +502,20 @@ public class EARConfigBuilder implements ConfigurationBuilder, CorbaGBeanNameSou
                     configurationManager,
                     repositories,
                     serverName,
-                    applicationInfo.getBaseName(),
+                    applicationInfo.getModuleName(),
                     transactionManagerObjectName,
                     connectionTrackerObjectName,
                     transactionalTimerObjectName,
                     nonTransactionalTimerObjectName,
                     corbaGBeanObjectName
             );
+            applicationInfo.setEarContext(earContext);
+            applicationInfo.setRootEarContext(earContext);
 
             // Copy over all files that are _NOT_ modules (e.g. META-INF and APP-INF files)
             Set moduleLocations = applicationInfo.getModuleLocations();
+            //TODO make LibClassPath a non-inner class and use it for manifestcp.
+            LinkedHashSet<String> manifestcp = new LinkedHashSet<String>();
             if (ConfigurationModuleType.EAR == applicationType && earFile != null) {
                 //get the value of the library-directory element in spec DD
                 ApplicationType specDD = (ApplicationType) applicationInfo.getSpecDD();
@@ -531,6 +536,7 @@ public class EARConfigBuilder implements ConfigurationBuilder, CorbaGBeanNameSou
                         NestedJarFile library = new NestedJarFile(earFile, entry.getName());
                         earContext.addIncludeAsPackedJar(URI.create(entry.getName()), library);
                         libClasspath.add(entry.getName());
+                        manifestcp.add(entry.getName());
                     } else if (addEntry) {
                         earContext.addFile(URI.create(entry.getName()), earFile, entry);
                     }
@@ -566,7 +572,10 @@ public class EARConfigBuilder implements ConfigurationBuilder, CorbaGBeanNameSou
             
             if (ConfigurationModuleType.EAR == applicationType) {
                 // process persistence unit in EAR library directory
-                persistenceUnitBuilders.build(geronimoApplication, earContext, earContext);
+                earContext.getGeneralData().put("ManifestClassPath", manifestcp);
+                for (ModuleBuilderExtension mbe: persistenceUnitBuilders) {
+                    mbe.initContext(earContext, applicationInfo, earContext.getClassLoader());
+                }
                 
                 // Create the J2EEApplication managed object
                 GBeanData gbeanData = new GBeanData(earContext.getModuleName(), J2EEApplicationImpl.GBEAN_INFO);
@@ -1054,7 +1063,7 @@ public class EARConfigBuilder implements ConfigurationBuilder, CorbaGBeanNameSou
         infoBuilder.addReference("AppClientConfigBuilder", ModuleBuilder.class, NameFactory.MODULE_BUILDER);
         infoBuilder.addReference("SecurityBuilders", NamespaceDrivenBuilder.class, NameFactory.MODULE_BUILDER);
         infoBuilder.addReference("ServiceBuilders", NamespaceDrivenBuilder.class, NameFactory.MODULE_BUILDER);
-        infoBuilder.addReference("PersistenceUnitBuilders", NamespaceDrivenBuilder.class, NameFactory.MODULE_BUILDER);
+        infoBuilder.addReference("PersistenceUnitBuilders", ModuleBuilderExtension.class, NameFactory.MODULE_BUILDER);
 
         infoBuilder.addAttribute("kernel", Kernel.class, false);
 

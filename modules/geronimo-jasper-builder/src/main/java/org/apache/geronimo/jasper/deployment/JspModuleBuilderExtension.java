@@ -150,7 +150,7 @@ public class JspModuleBuilderExtension implements ModuleBuilderExtension {
         ClassFinder classFinder = createJspClassFinder(webApp, webModule, listenerNames);
         webModule.setClassFinder(classFinder);
 
-        namingBuilders.buildNaming(webApp, jettyWebApp, earConfiguration, earConfiguration, webModule, buildingContext);
+        namingBuilders.buildNaming(webApp, jettyWebApp, moduleContext.getConfiguration(), earConfiguration, webModule, buildingContext);
 
         //only try to install it if reference will work.
         //Some users (tomcat?) may have back doors into jasper that make adding this gbean unnecessary.

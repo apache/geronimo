@@ -75,7 +75,7 @@ public abstract class EARConfigBuilderTestSupport
     
     protected static final NamespaceDrivenBuilder serviceBuilder = null;
 
-    protected static final NamespaceDrivenBuilder persistenceUnitBuilder = null;
+    protected static final ModuleBuilderExtension persistenceUnitBuilder = null;
 
     protected static final Naming naming = new Jsr77Naming();
 

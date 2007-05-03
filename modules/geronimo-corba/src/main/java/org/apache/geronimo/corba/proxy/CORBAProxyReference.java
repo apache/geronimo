@@ -40,7 +40,7 @@ public final class CORBAProxyReference extends ConfigurationAwareReference {
     private final String objectName;
     private final String home;
 
-    public CORBAProxyReference(Artifact configId, AbstractNameQuery abstractNameQuery, URI nsCorbaloc, String objectName, String home) {
+    public CORBAProxyReference(Artifact[] configId, AbstractNameQuery abstractNameQuery, URI nsCorbaloc, String objectName, String home) {
         super(configId, abstractNameQuery);
         this.nsCorbaloc = nsCorbaloc;
         this.objectName = objectName;

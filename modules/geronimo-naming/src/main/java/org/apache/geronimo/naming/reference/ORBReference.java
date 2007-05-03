@@ -29,7 +29,7 @@ import javax.naming.NamingException;
  */
 public class ORBReference extends ConfigurationAwareReference {
 
-    public ORBReference(Artifact configId, AbstractNameQuery abstractNameQuery) {
+    public ORBReference(Artifact[] configId, AbstractNameQuery abstractNameQuery) {
         super(configId, abstractNameQuery);
     }
 

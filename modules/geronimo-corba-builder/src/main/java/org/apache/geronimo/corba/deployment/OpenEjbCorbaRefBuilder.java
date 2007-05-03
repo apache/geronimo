@@ -33,6 +33,7 @@ import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.kernel.config.Configuration;
 import org.apache.geronimo.kernel.repository.Environment;
+import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.openejb.deployment.EjbRefBuilder;
 import org.apache.geronimo.schema.NamespaceElementConverter;
 import org.apache.geronimo.xbeans.geronimo.naming.GerEjbRefDocument;
@@ -105,14 +106,14 @@ public class OpenEjbCorbaRefBuilder extends EjbRefBuilder {
             addInjections(ejbRefName, ejbRef.getInjectionTargetArray(), componentContext);
             GerEjbRefType remoteRef = (GerEjbRefType) ejbRefMap.get(ejbRefName);
 
-            Reference ejbReference = addEJBRef(localConfiguration, module.getModuleURI(), ejbRef, remoteRef, cl);
+            Reference ejbReference = addEJBRef(localConfiguration, remoteConfiguration, module.getModuleURI(), ejbRef, remoteRef, cl);
             if (ejbReference != null) {
                 getJndiContextMap(componentContext).put(ENV + ejbRefName, ejbReference);
             }
         }
     }
 
-    private Reference addEJBRef(Configuration earContext, URI moduleURI, EjbRefType ejbRef, GerEjbRefType remoteRef, ClassLoader cl) throws DeploymentException {
+    private Reference addEJBRef(Configuration localConfiguration, Configuration earConfiguration, URI moduleURI, EjbRefType ejbRef, GerEjbRefType remoteRef, ClassLoader cl) throws DeploymentException {
         Reference ejbReference = null;
         if (remoteRef != null && remoteRef.isSetNsCorbaloc()) {
             String refName = getStringValue(ejbRef.getEjbRefName());
@@ -134,13 +135,13 @@ public class OpenEjbCorbaRefBuilder extends EjbRefBuilder {
 
                 // verify the cssBean query is valid
                 try {
-                    earContext.findGBean(cssBean);
+                    localConfiguration.findGBean(cssBean);
                 } catch (GBeanNotFoundException e) {
-                    throw new DeploymentException("Could not find css bean matching " + cssBean + " from configuration " + earContext.getId());
+                    throw new DeploymentException("Could not find css bean matching " + cssBean + " from configuration " + localConfiguration.getId());
                 }
 
                 // create ref
-                ejbReference = new CORBAProxyReference(earContext.getId(), cssBean, new URI(remoteRef.getNsCorbaloc().trim()), remoteRef.getName().trim(), home);
+                ejbReference = new CORBAProxyReference(getConfigId(localConfiguration, earConfiguration), cssBean, new URI(remoteRef.getNsCorbaloc().trim()), remoteRef.getName().trim(), home);
             } catch (URISyntaxException e) {
                 throw new DeploymentException("Could not construct CORBA NameServer URI: " + remoteRef.getNsCorbaloc(), e);
             }

@@ -17,28 +17,30 @@
 
 package org.apache.geronimo.persistence;
 
-import java.util.List;
-import java.util.Properties;
-import java.util.Map;
-import java.util.ArrayList;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
 
-import javax.persistence.spi.PersistenceUnitInfo;
-import javax.persistence.spi.PersistenceUnitTransactionType;
-import javax.persistence.spi.ClassTransformer;
-import javax.persistence.spi.PersistenceProvider;
+import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.PersistenceException;
-import javax.persistence.EntityManager;
+import javax.persistence.spi.ClassTransformer;
+import javax.persistence.spi.PersistenceProvider;
+import javax.persistence.spi.PersistenceUnitInfo;
+import javax.persistence.spi.PersistenceUnitTransactionType;
 import javax.sql.DataSource;
 
+import org.apache.geronimo.connector.outbound.ConnectionFactorySource;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
-import org.apache.geronimo.transaction.manager.TransactionManagerImpl;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
-import org.apache.geronimo.connector.outbound.ConnectionFactorySource;
-import org.apache.geronimo.persistence.TemporaryClassLoader;
+import org.apache.geronimo.transaction.manager.TransactionManagerImpl;
 import org.apache.geronimo.transformer.TransformerAgent;
 
 /**
@@ -62,15 +64,22 @@ public class PersistenceUnitGBean implements GBeanLifecycle {
             ConnectionFactorySource jtaDataSourceWrapper,
             ConnectionFactorySource nonJtaDataSourceWrapper,
             List mappingFileNamesUntyped,
-            List jarFileUrlsUntyped,
-            URL persistenceUnitRootUrl,
+            List<String> jarFileUrlsUntyped,
+            String persistenceUnitRoot,
             List managedClassNamesUntyped,
             boolean excludeUnlistedClassesValue,
             Properties properties,
             TransactionManagerImpl transactionManager,
-            ClassLoader classLoader) {
+            URL configurationBaseURL,
+            ClassLoader classLoader) throws URISyntaxException, MalformedURLException {
         List<String> mappingFileNames = mappingFileNamesUntyped == null? new ArrayList<String>(): new ArrayList<String>(mappingFileNamesUntyped);
-        List<URL> jarFileUrls = jarFileUrlsUntyped == null? new ArrayList<URL>(): new ArrayList<URL>(jarFileUrlsUntyped);
+        URI configurationBaseURI = configurationBaseURL.toURI();
+        URL rootURL = configurationBaseURI.resolve(persistenceUnitRoot).normalize().toURL();
+        List<URL> jarFileUrls = new ArrayList<URL>();
+        for (String urlString: jarFileUrlsUntyped) {
+            URL url = configurationBaseURI.resolve(urlString).normalize().toURL();
+            jarFileUrls.add(url);
+        }
         List<String> managedClassNames = managedClassNamesUntyped == null? new ArrayList<String>(): new ArrayList<String>(managedClassNamesUntyped);
         PersistenceUnitTransactionType persistenceUnitTransactionType = persistenceUnitTransactionTypeString == null? PersistenceUnitTransactionType.JTA: PersistenceUnitTransactionType.valueOf(persistenceUnitTransactionTypeString);
 
@@ -83,7 +92,7 @@ public class PersistenceUnitGBean implements GBeanLifecycle {
                 nonJtaDataSourceWrapper == null? null: (DataSource)nonJtaDataSourceWrapper.$getResource(),
                 mappingFileNames,
                 jarFileUrls,
-                persistenceUnitRootUrl,
+                rootURL,
                 managedClassNames,
                 excludeUnlistedClassesValue,
                 properties,
@@ -301,13 +310,16 @@ public class PersistenceUnitGBean implements GBeanLifecycle {
         infoBuilder.addAttribute("persistenceUnitTransactionType", String.class, true, true);
         infoBuilder.addAttribute("mappingFileNames", List.class, true, true);
         infoBuilder.addAttribute("jarFileUrls", List.class, true, true);
-        infoBuilder.addAttribute("persistenceUnitRootUrl", URL.class, true, true);
+        infoBuilder.addAttribute("persistenceUnitRoot", String.class, true, true);
         infoBuilder.addAttribute("managedClassNames", List.class, true, true);
         infoBuilder.addAttribute("excludeUnlistedClasses", boolean.class, true, true);
         infoBuilder.addAttribute("properties", Properties.class, true, true);
+        infoBuilder.addAttribute("configurationBaseUrl", URL.class, true);
+
         infoBuilder.addReference("TransactionManager", TransactionManagerImpl.class, NameFactory.TRANSACTION_MANAGER);
         infoBuilder.addReference("JtaDataSourceWrapper", ConnectionFactorySource.class, NameFactory.JCA_MANAGED_CONNECTION_FACTORY);
         infoBuilder.addReference("NonJtaDataSourceWrapper", ConnectionFactorySource.class, NameFactory.JCA_MANAGED_CONNECTION_FACTORY);
+
         infoBuilder.addOperation("getEntityManagerFactory");
         infoBuilder.addOperation("getEntityManager", new Class[] {boolean.class, Map.class});
 
@@ -319,11 +331,12 @@ public class PersistenceUnitGBean implements GBeanLifecycle {
                 "NonJtaDataSourceWrapper",
                 "mappingFileNames",
                 "jarFileUrls",
-                "persistenceUnitRootUrl",
+                "persistenceUnitRoot",
                 "managedClassNames",
                 "excludeUnlistedClasses",
                 "properties",
                 "TransactionManager",
+                "configurationBaseUrl",
                 "classLoader"
         });
 

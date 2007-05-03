@@ -28,6 +28,7 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -36,7 +37,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.StringTokenizer;
-import java.util.Collections;
 import java.util.jar.Attributes;
 import java.util.jar.JarFile;
 import java.util.jar.Manifest;
@@ -49,8 +49,8 @@ import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.gbean.ReferencePatterns;
 import org.apache.geronimo.gbean.GReferenceInfo;
+import org.apache.geronimo.gbean.ReferencePatterns;
 import org.apache.geronimo.kernel.GBeanAlreadyExistsException;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.kernel.Naming;
@@ -252,6 +252,61 @@ public class DeploymentContext {
      */
     public void addInclude(URI targetPath, File source) throws IOException {
         resourceContext.addInclude(targetPath, source);
+    }
+
+    /**
+     * Recursively construct the complete set of paths in the ear for the manifest classpath of the supplied modulefile.
+     * Used only in PersistenceUnitBuilder to figure out if a persistence.xml relates to the starting module.  Having a classloader for
+     * each ejb module would eliminate the need for this and be more elegant.
+     */
+    public void getCompleteManifestClassPath(JarFile moduleFile, URI moduleBaseUri, LinkedHashSet<String> classpath) throws DeploymentException {
+        Manifest manifest;
+        try {
+            manifest = moduleFile.getManifest();
+        } catch (IOException e) {
+            throw new DeploymentException("Could not read manifest: " + moduleBaseUri);
+        }
+
+        if (manifest == null) {
+            return;
+        }
+        String manifestClassPath = manifest.getMainAttributes().getValue(Attributes.Name.CLASS_PATH);
+        if (manifestClassPath == null) {
+            return;
+        }
+
+        for (StringTokenizer tokenizer = new StringTokenizer(manifestClassPath, " "); tokenizer.hasMoreTokens();) {
+            String path = tokenizer.nextToken();
+
+            URI pathUri;
+            try {
+                pathUri = new URI(path);
+            } catch (URISyntaxException e) {
+                throw new DeploymentException("Invalid manifest classpath entry: module=" + moduleBaseUri + ", path=" + path);
+            }
+
+            if (!pathUri.getPath().endsWith(".jar")) {
+                throw new DeploymentException("Manifest class path entries must end with the .jar extension (J2EE 1.4 Section 8.2): module=" + moduleBaseUri);
+            }
+            if (pathUri.isAbsolute()) {
+                throw new DeploymentException("Manifest class path entries must be relative (J2EE 1.4 Section 8.2): moduel=" + moduleBaseUri);
+            }
+
+            URI targetUri = moduleBaseUri.resolve(pathUri);
+            if (targetUri.getPath().endsWith("/")) {
+                throw new IllegalStateException("target path must not end with a '/' character: " + targetUri);
+            }
+            classpath.add(targetUri.toString());
+            File targetFile = getTargetFile(targetUri);
+            JarFile classPathJarFile;
+            try {
+                classPathJarFile = new JarFile(targetFile);
+            } catch (IOException e) {
+                throw new DeploymentException("Manifest class path entries must be a valid jar file (JAVAEE 5 Section 8.2): jarFile=" + targetFile + ", path=" + path, e);
+            }
+
+            getCompleteManifestClassPath(classPathJarFile, targetUri, classpath);
+        }
     }
 
     /**

@@ -28,6 +28,7 @@ import org.apache.geronimo.kernel.GBeanNotFoundException;
 
 import java.util.Set;
 import java.util.Collections;
+import java.util.List;
 
 /**
  * TODO: document me
@@ -39,15 +40,17 @@ import java.util.Collections;
  */
 public abstract class ConfigurationAwareReference extends SimpleAwareReference {
     private static final long serialVersionUID = 283358809226901462L;
-    private final Artifact configId;
-    protected final Set abstractNameQueries;
+    private final Artifact[] configId;
+    protected final Set<AbstractNameQuery> abstractNameQueries;
 
-    protected ConfigurationAwareReference(Artifact configId, AbstractNameQuery abstractNameQuery) {
-        this.configId = configId;
-        this.abstractNameQueries = Collections.singleton(abstractNameQuery);
+    protected ConfigurationAwareReference(Artifact[] configId, AbstractNameQuery abstractNameQuery) {
+        this(configId, Collections.singleton(abstractNameQuery));
     }
 
-    protected ConfigurationAwareReference(Artifact configId, Set abstractNameQueries) {
+    protected ConfigurationAwareReference(Artifact[] configId, Set<AbstractNameQuery> abstractNameQueries) {
+        if (configId == null || configId.length == 0) {
+            throw new NullPointerException("No configId");
+        }
         this.configId = configId;
         this.abstractNameQueries = abstractNameQueries;
     }
@@ -55,7 +58,18 @@ public abstract class ConfigurationAwareReference extends SimpleAwareReference {
     public Configuration getConfiguration() {
         Kernel kernel = getKernel();
         ConfigurationManager configurationManager = ConfigurationUtil.getConfigurationManager(kernel);
-        return configurationManager.getConfiguration(configId);
+        Configuration configuration =  configurationManager.getConfiguration(configId[0]);
+        next: for (int i = 1; i < configId.length; i++) {
+            List<Configuration> children = configuration.getChildren();
+            for (Configuration child: children) {
+                if (child.getId().equals(configId[i])) {
+                    configuration = child;
+                    break next;
+                }
+            }
+            throw new IllegalStateException("No configuration found for id: " + configId[i]);
+        }
+        return configuration;
     }
 
     public AbstractName resolveTargetName() throws GBeanNotFoundException {

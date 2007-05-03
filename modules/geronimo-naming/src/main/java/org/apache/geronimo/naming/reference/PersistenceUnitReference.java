@@ -30,7 +30,7 @@ import org.apache.geronimo.kernel.repository.Artifact;
 public class PersistenceUnitReference extends ConfigurationAwareReference {
 
 
-    public PersistenceUnitReference(Artifact configId, AbstractNameQuery abstractNameQuery) {
+    public PersistenceUnitReference(Artifact[] configId, AbstractNameQuery abstractNameQuery) {
         super(configId, abstractNameQuery);
     }
 

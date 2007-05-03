@@ -62,7 +62,7 @@ public class CorbaRefBuilder extends AbstractNamingBuilder {
             if (corbaGBeanNameSource != null) {
                 AbstractNameQuery corbaName = corbaGBeanNameSource.getCorbaGBeanName();
                 if (corbaName != null) {
-                    Artifact moduleId = localConfiguration.getId();
+                    Artifact[] moduleId = getConfigId(localConfiguration, remoteConfiguration);
                     Map context = getJndiContextMap(componentContext);
                     context.put("ORB", new ORBReference(moduleId, corbaName));
                     context.put("HandleDelegate", new HandleDelegateReference(moduleId, corbaName));

@@ -35,7 +35,7 @@ public class PersistenceContextReference extends ConfigurationAwareReference {
     private boolean transactionScoped;
     private Map properties;
 
-    public PersistenceContextReference(Artifact configId, AbstractNameQuery abstractNameQuery, boolean transactionScoped, Map properties) {
+    public PersistenceContextReference(Artifact[] configId, AbstractNameQuery abstractNameQuery, boolean transactionScoped, Map properties) {
         super(configId, abstractNameQuery);
         this.transactionScoped = transactionScoped;
         this.properties = properties;

@@ -147,7 +147,7 @@ public class ResourceRefBuilder extends AbstractNamingBuilder implements Resourc
 
                     localConfiguration.findGBean(containerId);
 
-                    Reference ref = new ResourceReference(localConfiguration.getId(), containerId, iface);
+                    Reference ref = new ResourceReference(getConfigId(localConfiguration, remoteConfiguration), containerId, iface);
                     getJndiContextMap(componentContext).put(ENV + name, ref);
                 } catch (GBeanNotFoundException e) {
 

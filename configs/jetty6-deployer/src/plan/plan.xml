@@ -87,9 +87,6 @@ wsdl=text/xml
             <pattern>
                 <name>GBeanBuilder</name>
             </pattern>
-            <pattern>
-                <name>PersistenceUnitBuilder</name>
-            </pattern>
         </references>
         <references name="WebServiceBuilder">
             <pattern>
@@ -112,6 +109,9 @@ wsdl=text/xml
             <name>JettyClusteringBuilder</name>
         </reference>
         <references name="ModuleBuilderExtensions">
+            <pattern>
+                <name>PersistenceUnitBuilder</name>
+            </pattern>
             <pattern>
                 <name>MyFacesModuleBuilderExtension</name>
             </pattern>

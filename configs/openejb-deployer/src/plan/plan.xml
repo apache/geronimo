@@ -25,18 +25,21 @@
             <name>OpenEjbSystem</name>
         </reference>
         <references name="ModuleBuilderExtensions">
-          <pattern>
-            <name>CXFModuleBuilderExtension</name>
-          </pattern>
-          <pattern>
-            <name>Axis2ModuleBuilderExtension</name>
-          </pattern>        
-          <pattern>
-            <name>AxisModuleBuilderExtension</name>
-          </pattern>       
-          <pattern>
-            <name>CorbaModuleBuilderExtension</name>
-          </pattern>          
+            <pattern>
+                <name>PersistenceUnitBuilder</name>
+            </pattern>
+            <pattern>
+                <name>CXFModuleBuilderExtension</name>
+            </pattern>
+            <pattern>
+                <name>Axis2ModuleBuilderExtension</name>
+            </pattern>
+            <pattern>
+                <name>AxisModuleBuilderExtension</name>
+            </pattern>
+            <pattern>
+                <name>CorbaModuleBuilderExtension</name>
+            </pattern>
         </references>
         <reference name="SecurityBuilders">
             <name>SecurityBuilder</name>

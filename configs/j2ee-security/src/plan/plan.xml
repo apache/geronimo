@@ -83,7 +83,7 @@
         <reference name="ServerInfo"><name>ServerInfo</name></reference>
         <reference name="LoginService"><name>JaasLoginService</name></reference>
     </gbean>
-    
+
     <gbean name="properties-login" class="org.apache.geronimo.security.jaas.JaasLoginModuleUse">
          <attribute name="controlFlag">REQUIRED</attribute>
          <reference name="LoginModule">

@@ -24,6 +24,7 @@
     xmlns:naming="http://geronimo.apache.org/xml/ns/naming-1.2"
     xmlns:app="http://geronimo.apache.org/xml/ns/j2ee/application-1.2"
     xmlns:sys="http://geronimo.apache.org/xml/ns/deployment-1.2"
+    xmlns:ee="http://java.sun.com/xml/ns/persistence"
     xmlns:xs="http://www.w3.org/2001/XMLSchema"
     elementFormDefault="qualified"
     attributeFormDefault="unqualified"
@@ -32,6 +33,7 @@
     <xs:import namespace="http://geronimo.apache.org/xml/ns/naming-1.2" schemaLocation="geronimo-naming-1.2.xsd"/>
     <xs:import namespace="http://geronimo.apache.org/xml/ns/j2ee/application-1.2" schemaLocation="geronimo-application-1.2.xsd"/>
     <xs:import namespace="http://geronimo.apache.org/xml/ns/deployment-1.2" schemaLocation="geronimo-module-1.2.xsd"/>
+    <xs:import namespace="http://java.sun.com/xml/ns/persistence" schemaLocation="persistence-1.0.xsd"/>
 
     <xs:element name="ejb-jar" type="openejb:geronimo-ejb-jarType"/>
 
@@ -55,7 +57,10 @@
             <xs:element ref="app:security" minOccurs="0"/>
 
             <!-- GBeans -->
-            <xs:element ref="sys:service" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:choice minOccurs="0" maxOccurs="unbounded">
+                <xs:element ref="sys:service"/>
+                <xs:element ref="ee:persistence"/>
+            </xs:choice>
         </xs:sequence>
     </xs:complexType>
 

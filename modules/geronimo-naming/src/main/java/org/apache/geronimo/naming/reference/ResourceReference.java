@@ -37,7 +37,7 @@ public class ResourceReference extends ConfigurationAwareReference {
      * @param abstractNameQuery query for name of the resource adapter.
      * @param iface
      */
-    public ResourceReference(Artifact configId, AbstractNameQuery abstractNameQuery, Class iface) {
+    public ResourceReference(Artifact[] configId, AbstractNameQuery abstractNameQuery, Class iface) {
         super(configId, abstractNameQuery);
         this.iface = iface;
     }

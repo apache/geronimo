@@ -29,9 +29,6 @@
             <pattern>
                 <name>GBeanBuilder</name>
             </pattern>
-            <pattern>
-                <name>PersistenceUnitBuilder</name>
-            </pattern>
         </references>
         <references name="WebServiceBuilder">
             <pattern>
@@ -51,6 +48,9 @@
             <name>NamingBuilders</name>
         </reference>
         <references name="ModuleBuilderExtensions">
+            <pattern>
+                <name>PersistenceUnitBuilder</name>
+            </pattern>
             <pattern>
                 <name>MyFacesModuleBuilderExtension</name>
             </pattern>

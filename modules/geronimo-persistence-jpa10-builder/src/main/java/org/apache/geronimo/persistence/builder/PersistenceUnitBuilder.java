@@ -17,30 +17,36 @@
 package org.apache.geronimo.persistence.builder;
 
 import java.io.IOException;
-import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.LinkedHashSet;
+import java.util.jar.JarFile;
 
 import javax.xml.namespace.QName;
 
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.DeploymentContext;
-import org.apache.geronimo.deployment.NamespaceDrivenBuilder;
+import org.apache.geronimo.deployment.ModuleIDBuilder;
 import org.apache.geronimo.deployment.service.EnvironmentBuilder;
 import org.apache.geronimo.deployment.xmlbeans.XmlBeansUtil;
+import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
-import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.j2ee.deployment.EARContext;
+import org.apache.geronimo.j2ee.deployment.Module;
+import org.apache.geronimo.j2ee.deployment.ModuleBuilderExtension;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.GBeanAlreadyExistsException;
+import org.apache.geronimo.kernel.Naming;
+import org.apache.geronimo.kernel.config.ConfigurationStore;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.persistence.PersistenceUnitGBean;
 import org.apache.geronimo.xbeans.persistence.PersistenceDocument;
@@ -52,36 +58,59 @@ import org.apache.xmlbeans.XmlObject;
 /**
  * @version $Rev$ $Date$
  */
-public class PersistenceUnitBuilder implements NamespaceDrivenBuilder {
+public class PersistenceUnitBuilder implements ModuleBuilderExtension {
     private static final QName PERSISTENCE_QNAME = PersistenceDocument.type.getDocumentElementName();
 
     private final Environment defaultEnvironment;
     private final String defaultPersistenceProviderClassName;
+    private final Properties defaultPersistenceUnitProperties;
+    private final AbstractNameQuery defaultJtaDataSourceName;
+    private final AbstractNameQuery defaultNonJtaDataSourceName;
+    private static final String ANON_PU_NAME = "AnonymousPersistenceUnit";
 
-    public PersistenceUnitBuilder(Environment defaultEnvironment, String defaultPersistenceProviderClassName) {
+    public PersistenceUnitBuilder(Environment defaultEnvironment,
+            String defaultPersistenceProviderClassName,
+            String defaultJtaDataSourceName,
+            String defaultNonJtaDataSourceName,
+            Properties defaultPersistenceUnitProperties) throws URISyntaxException {
         this.defaultEnvironment = defaultEnvironment;
         this.defaultPersistenceProviderClassName = defaultPersistenceProviderClassName;
+        this.defaultJtaDataSourceName = defaultJtaDataSourceName == null ? null : getAbstractNameQuery(defaultJtaDataSourceName);
+        this.defaultNonJtaDataSourceName = defaultNonJtaDataSourceName == null ? null : getAbstractNameQuery(defaultNonJtaDataSourceName);
+        this.defaultPersistenceUnitProperties = defaultPersistenceUnitProperties == null ? new Properties() : defaultPersistenceUnitProperties;
     }
 
-    public void buildEnvironment(XmlObject container, Environment environment) throws DeploymentException {
-        XmlObject[] raws = container.selectChildren(PERSISTENCE_QNAME);
-        if (raws.length > 0) {
-            EnvironmentBuilder.mergeEnvironments(environment, defaultEnvironment);
-        }
+    public void createModule(Module module, Object plan, JarFile moduleFile, String targetPath, URL specDDUrl, Environment environment, Object moduleContextInfo, AbstractName earName, Naming naming, ModuleIDBuilder idBuilder) throws DeploymentException {
     }
 
-    public void build(XmlObject container, DeploymentContext applicationContext, DeploymentContext moduleContext) throws DeploymentException {
+    public void installModule(JarFile earFile, EARContext earContext, Module module, Collection configurationStores, ConfigurationStore targetConfigurationStore, Collection repository) throws DeploymentException {
+    }
+
+    public void initContext(EARContext earContext, Module module, ClassLoader cl) throws DeploymentException {
+        XmlObject container = module.getVendorDD();
+        EARContext moduleContext = module.getEarContext();
         XmlObject[] raws = container.selectChildren(PERSISTENCE_QNAME);
         for (XmlObject raw : raws) {
             PersistenceDocument.Persistence persistence = (PersistenceDocument.Persistence) raw.copy().changeType(PersistenceDocument.Persistence.type);
-            buildPersistenceUnits(persistence, moduleContext, null, null);
+            buildPersistenceUnits(persistence, module, NameFactory.PERSISTENCE_UNIT_MODULE, module.getTargetPath());
         }
-        ResourceFinder finder = new ResourceFinder("", moduleContext.getClassLoader(), null);
         try {
             //TODO the code that figures out the persistence unit name is incomplete
             URI baseURI = moduleContext.getBaseDir().toURI();
             String base = baseURI.toString();
-            Map generalData = ((EARContext) applicationContext).getGeneralData();
+            Map generalData = moduleContext.getGeneralData();
+            LinkedHashSet<String> manifestcp = (LinkedHashSet<String>) generalData.get("ManifestClassPath");
+            if (manifestcp == null) {
+                manifestcp = new LinkedHashSet<String>();
+                manifestcp.add(module.getTargetPath());
+            }
+            URL[] urls = new URL[manifestcp.size()];
+            int i = 0;
+            for (String path: manifestcp) {
+                URL url = baseURI.resolve(path).toURL();
+                urls[i++] = url;
+            }
+            ResourceFinder finder = new ResourceFinder("", null, urls);
             List<URL> knownPersistenceUrls = (List<URL>) generalData.get(PersistenceUnitBuilder.class.getName());
             if (knownPersistenceUrls == null) {
                 knownPersistenceUrls = new ArrayList<URL>();
@@ -89,36 +118,35 @@ public class PersistenceUnitBuilder implements NamespaceDrivenBuilder {
             }
             List<URL> persistenceUrls = finder.findAll("META-INF/persistence.xml");
             persistenceUrls.removeAll(knownPersistenceUrls);
-            for (URL persistenceUrl: persistenceUrls) {
+            if (raws.length > 0 || persistenceUrls.size() > 0) {
+                EnvironmentBuilder.mergeEnvironments(module.getEnvironment(), defaultEnvironment);
+            }
+            for (URL persistenceUrl : persistenceUrls) {
                 String persistenceLocation;
                 try {
-                     persistenceLocation = persistenceUrl.toURI().toString();
+                    persistenceLocation = persistenceUrl.toURI().toString();
                 } catch (URISyntaxException e) {
                     //????
                     continue;
                 }
                 int pos = persistenceLocation.indexOf(base);
-                if (pos < 0) {
-                    //wrong location?
-                    continue;
-                }
                 int endPos = persistenceLocation.lastIndexOf("!/");
                 if (endPos < 0) {
                     // if unable to find the '!/' marker, try to see if this is
                     // a war file with the persistence.xml directly embeded - no ejb-jar
-                    endPos = persistenceLocation.lastIndexOf("WEB-INF");
+                    endPos = persistenceLocation.lastIndexOf("META-INF");
                 }
                 if (endPos >= 0) {
                     String relative = persistenceLocation.substring(pos + base.length(), endPos);
                     PersistenceDocument persistenceDocument;
                     try {
                         XmlObject xmlObject = XmlBeansUtil.parse(persistenceUrl, moduleContext.getClassLoader());
-                        persistenceDocument = (PersistenceDocument)xmlObject.changeType(PersistenceDocument.type);
+                        persistenceDocument = (PersistenceDocument) xmlObject.changeType(PersistenceDocument.type);
                     } catch (XmlException e) {
                         throw new DeploymentException("Could not parse persistence.xml file: " + persistenceUrl, e);
                     }
                     PersistenceDocument.Persistence persistence = persistenceDocument.getPersistence();
-                    buildPersistenceUnits(persistence, moduleContext, NameFactory.PERSISTENCE_UNIT_MODULE, relative);
+                    buildPersistenceUnits(persistence, module, NameFactory.PERSISTENCE_UNIT_MODULE, relative);
                     knownPersistenceUrls.add(persistenceUrl);
                 } else {
                     throw new DeploymentException("Could not find persistence.xml file: " + persistenceUrl);
@@ -129,20 +157,27 @@ public class PersistenceUnitBuilder implements NamespaceDrivenBuilder {
         }
     }
 
-    private void buildPersistenceUnits(PersistenceDocument.Persistence persistence, DeploymentContext moduleContext, String moduleType, String moduleName) throws DeploymentException {
+    public void addGBeans(EARContext earContext, Module module, ClassLoader cl, Collection repository) throws DeploymentException {
+    }
+
+    private void buildPersistenceUnits(PersistenceDocument.Persistence persistence, Module module, String moduleType, String persistenceModulePath) throws DeploymentException {
         PersistenceDocument.Persistence.PersistenceUnit[] persistenceUnits = persistence.getPersistenceUnitArray();
         for (PersistenceDocument.Persistence.PersistenceUnit persistenceUnit : persistenceUnits) {
-            installPersistenceUnitGBean(persistenceUnit, moduleContext, moduleType, moduleName);
+            installPersistenceUnitGBean(persistenceUnit, module, moduleType, persistenceModulePath);
         }
     }
 
-    private void installPersistenceUnitGBean(PersistenceDocument.Persistence.PersistenceUnit persistenceUnit, DeploymentContext moduleContext, String moduleType, String moduleName) throws DeploymentException {
+    private void installPersistenceUnitGBean(PersistenceDocument.Persistence.PersistenceUnit persistenceUnit, Module module, String moduleType, String persistenceModulePath) throws DeploymentException {
+        EARContext moduleContext = module.getEarContext();
         String persistenceUnitName = persistenceUnit.getName().trim();
+        if (persistenceUnitName.length() == 0) {
+            persistenceUnitName = ANON_PU_NAME;
+        }
         AbstractName abstractName;
-        if (moduleType == null || moduleName == null || moduleName.length() == 0) {
-            abstractName = moduleContext.getNaming().createChildName(moduleContext.getModuleName(), persistenceUnitName, PersistenceUnitGBean.GBEAN_INFO.getJ2eeType());
+        if (moduleType == null || persistenceModulePath == null || persistenceModulePath.length() == 0) {
+            abstractName = moduleContext.getNaming().createChildName(module.getModuleName(), persistenceUnitName, PersistenceUnitGBean.GBEAN_INFO.getJ2eeType());
         } else {
-            abstractName = moduleContext.getNaming().createChildName(moduleContext.getModuleName(), moduleName, moduleType);
+            abstractName = moduleContext.getNaming().createChildName(module.getModuleName(), persistenceModulePath, moduleType);
             abstractName = moduleContext.getNaming().createChildName(abstractName, persistenceUnitName, PersistenceUnitGBean.GBEAN_INFO.getJ2eeType());
         }
         GBeanData gbeanData = new GBeanData(abstractName, PersistenceUnitGBean.GBEAN_INFO);
@@ -165,28 +200,26 @@ public class PersistenceUnitBuilder implements NamespaceDrivenBuilder {
         }
         if (persistenceUnit.isSetJtaDataSource()) {
             String jtaDataSourceString = persistenceUnit.getJtaDataSource().trim();
-            if (jtaDataSourceString.indexOf('=') == -1) {
-                jtaDataSourceString = "?name=" + jtaDataSourceString;
-            }
             try {
-                AbstractNameQuery jtaDataSourceNameQuery = new AbstractNameQuery(new URI(jtaDataSourceString + "#org.apache.geronimo.connector.outbound.ConnectionFactorySource"));
+                AbstractNameQuery jtaDataSourceNameQuery = getAbstractNameQuery(jtaDataSourceString);
                 gbeanData.setReferencePattern("JtaDataSourceWrapper", jtaDataSourceNameQuery);
             } catch (URISyntaxException e) {
                 throw new DeploymentException("Could not create jta-data-source AbstractNameQuery from string: " + jtaDataSourceString, e);
             }
+        } else if (defaultJtaDataSourceName != null) {
+            gbeanData.setReferencePattern("JtaDataSourceWrapper", defaultJtaDataSourceName);
         }
 
         if (persistenceUnit.isSetNonJtaDataSource()) {
             String nonJtaDataSourceString = persistenceUnit.getNonJtaDataSource().trim();
-            if (nonJtaDataSourceString.indexOf('=') == -1) {
-                nonJtaDataSourceString = "?name=" + nonJtaDataSourceString;
-            }
             try {
-                AbstractNameQuery nonJtaDataSourceNameQuery = new AbstractNameQuery(new URI(nonJtaDataSourceString + "#org.apache.geronimo.connector.outbound.ConnectionFactorySource"));
+                AbstractNameQuery nonJtaDataSourceNameQuery = getAbstractNameQuery(nonJtaDataSourceString);
                 gbeanData.setReferencePattern("NonJtaDataSourceWrapper", nonJtaDataSourceNameQuery);
             } catch (URISyntaxException e) {
                 throw new DeploymentException("Could not create non-jta-data-source AbstractNameQuery from string: " + nonJtaDataSourceString, e);
             }
+        } else if (defaultNonJtaDataSourceName != null) {
+            gbeanData.setReferencePattern("NonJtaDataSourceWrapper", defaultNonJtaDataSourceName);
         }
 
         List<String> mappingFileNames = new ArrayList<String>();
@@ -196,21 +229,19 @@ public class PersistenceUnitBuilder implements NamespaceDrivenBuilder {
         }
         gbeanData.setAttribute("mappingFileNames", mappingFileNames);
 
-        List<URL> jarFileUrls = new ArrayList<URL>();
+        gbeanData.setAttribute("persistenceUnitRoot", persistenceModulePath);
+
+        List<String> jarFileUrls = new ArrayList<String>();
+        //add the artifact the persistence.xml is in
+        //TODO since we are setting the root url, this might not be needed.  On the other hand,
+        //we might need to add all the manifest cp entries referenced from here.
+        jarFileUrls.add(persistenceModulePath);
+        //add the specified locations in the ear
         String[] jarFileUrlStrings = persistenceUnit.getJarFileArray();
-        for (String jarFileUrlString1 : jarFileUrlStrings) {
-            String jarFileUrlString = jarFileUrlString1.trim();
-            try {
-                URL jarFileUrl = new URL(jarFileUrlString);
-                jarFileUrls.add(jarFileUrl);
-            } catch (MalformedURLException e) {
-                throw new DeploymentException("could not create URL for jarFileURL", e);
-            }
+        for (String jarFileUrlString : jarFileUrlStrings) {
+            jarFileUrls.add(jarFileUrlString.trim());
         }
         gbeanData.setAttribute("jarFileUrls", jarFileUrls);
-        //TODO what is this from??
-//                URL persistenceUnitRootUrl = new URL(persistenceUnit.get)
-//                gbeanData.setAttribute("persistenceUnitRootUrl", persistenceUnitRootUrl);
 
         String[] managedClassNameStrings = persistenceUnit.getClass1Array();
         List<String> managedClassNames = new ArrayList<String>();
@@ -225,10 +256,10 @@ public class PersistenceUnitBuilder implements NamespaceDrivenBuilder {
         }
 
         Properties properties = new Properties();
+        properties.putAll(defaultPersistenceUnitProperties);
         if (persistenceUnit.isSetProperties()) {
             PersistenceDocument.Persistence.PersistenceUnit.Properties.Property[] propertyObjects = persistenceUnit.getProperties().getPropertyArray();
-            for (PersistenceDocument.Persistence.PersistenceUnit.Properties.Property propertyObject : propertyObjects)
-            {
+            for (PersistenceDocument.Persistence.PersistenceUnit.Properties.Property propertyObject : propertyObjects) {
                 String key = propertyObject.getName().trim();
                 String value = propertyObject.getValue().trim();
                 properties.setProperty(key, value);
@@ -236,10 +267,16 @@ public class PersistenceUnitBuilder implements NamespaceDrivenBuilder {
         }
 
         gbeanData.setAttribute("properties", properties);
-        if (moduleContext instanceof EARContext) {
-            AbstractNameQuery transactionManagerName = ((EARContext) moduleContext).getTransactionManagerName();
-            gbeanData.setReferencePattern("TransactionManager", transactionManagerName);
+        AbstractNameQuery transactionManagerName = moduleContext.getTransactionManagerName();
+        gbeanData.setReferencePattern("TransactionManager", transactionManagerName);
+    }
+
+    private AbstractNameQuery getAbstractNameQuery(String jtaDataSourceString) throws URISyntaxException {
+        if (jtaDataSourceString.indexOf('=') == -1) {
+            jtaDataSourceString = "?name=" + jtaDataSourceString;
         }
+        AbstractNameQuery jtaDataSourceNameQuery = new AbstractNameQuery(new URI(jtaDataSourceString + "#org.apache.geronimo.connector.outbound.ConnectionFactorySource"));
+        return jtaDataSourceNameQuery;
     }
 
     public QNameSet getSpecQNameSet() {
@@ -257,10 +294,16 @@ public class PersistenceUnitBuilder implements NamespaceDrivenBuilder {
 
         infoBuilder.addAttribute("defaultEnvironment", Environment.class, true, true);
         infoBuilder.addAttribute("defaultPersistenceProviderClassName", String.class, true, true);
+        infoBuilder.addAttribute("defaultJtaDataSourceName", String.class, true, true);
+        infoBuilder.addAttribute("defaultNonJtaDataSourceName", String.class, true, true);
+        infoBuilder.addAttribute("defaultPersistenceUnitProperties", Properties.class, true, true);
 
         infoBuilder.setConstructor(new String[]{
                 "defaultEnvironment",
-                "defaultPersistenceProviderClassName"
+                "defaultPersistenceProviderClassName",
+                "defaultJtaDataSourceName",
+                "defaultNonJtaDataSourceName",
+                "defaultPersistenceUnitProperties"
         });
 
         GBEAN_INFO = infoBuilder.getBeanInfo();

@@ -94,6 +94,8 @@
            javax.xml.soap.MetaFactory=org.apache.geronimo.webservices.saaj.GeronimoMetaFactory
 
            org.apache.cxf.jaxws.checkPublishEndpointPermission=true
+
+             
          </attribute>
     </gbean>
 
