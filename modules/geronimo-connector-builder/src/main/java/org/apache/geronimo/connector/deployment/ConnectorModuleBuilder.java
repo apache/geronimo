@@ -896,25 +896,6 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ActivationSpecInfo
         }
     }
 
-    //ResourceRefBuilder implementation
-    public Reference createResourceRef(AbstractNameQuery containerId, Class iface, Configuration configuration) throws DeploymentException {
-        try {
-            configuration.findGBean(containerId);
-        } catch (GBeanNotFoundException e) {
-            throw new UnresolvedReferenceException("Resource", false, containerId.toString(), configuration.getId().toString());
-        }
-        return new ResourceReference(configuration.getId(), containerId, iface);
-    }
-
-    public Reference createAdminObjectRef(AbstractNameQuery containerId, Class iface, Configuration configuration) throws DeploymentException {
-        try {
-            configuration.findGBean(containerId);
-        } catch (GBeanNotFoundException e) {
-            throw new DeploymentException("Can not resolve admin object ref " + containerId + " in configuration " + configuration.getId());
-        }
-        return new ResourceReference(configuration.getId(), containerId, iface);
-    }
-
     public GBeanData locateActivationSpecInfo(AbstractNameQuery resourceAdapterInstanceQuery, String messageListenerInterface, Configuration configuration) throws DeploymentException {
         //First, locate the module gbean from the JCAResourceAdapter instance
         AbstractName instanceName;
