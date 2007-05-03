@@ -35,7 +35,6 @@ import org.mortbay.jetty.handler.AbstractHandler;
  * @version $Rev$ $Date$
  */
 public class UserTransactionHandler extends AbstractImmutableHandler {
-
     private final UserTransaction userTransaction;
 
     public UserTransactionHandler(AbstractHandler next, UserTransaction userTransaction) {
@@ -48,7 +47,7 @@ public class UserTransactionHandler extends AbstractImmutableHandler {
         try {
             next.handle(target, request, response, dispatch);
         } finally {
-            if (!active && isActive()) {
+             if ((!active && isMarkedRollback()) || (dispatch == REQUEST && isActive())) {
                 try {
                     userTransaction.rollback();
                 } catch (SystemException e) {
@@ -77,6 +76,13 @@ public class UserTransactionHandler extends AbstractImmutableHandler {
         try {
             return !(userTransaction.getStatus() == Status.STATUS_NO_TRANSACTION
                     || userTransaction.getStatus() == Status.STATUS_COMMITTED);
+        } catch (SystemException e) {
+            throw new ServletException("Could not determine transaction status", e);
+        }
+    }
+    private boolean isMarkedRollback() throws ServletException {
+        try {
+            return userTransaction.getStatus() == Status.STATUS_MARKED_ROLLBACK;
         } catch (SystemException e) {
             throw new ServletException("Could not determine transaction status", e);
         }
