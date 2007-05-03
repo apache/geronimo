@@ -261,6 +261,7 @@ public class ResourceRefBuilder extends AbstractNamingBuilder implements Resourc
 
             String resourceName = getResourceName(annotation, method, field);
             String resourceType = getResourceType(annotation, method, field);
+            
             if (resourceType.equals("javax.sql.DataSource") ||
                     resourceType.equals("javax.jms.ConnectionFactory") ||
                     resourceType.equals("javax.jms.QueueConnectionFactory") ||
