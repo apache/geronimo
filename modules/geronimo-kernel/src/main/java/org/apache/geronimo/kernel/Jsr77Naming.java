@@ -66,6 +66,12 @@ public class Jsr77Naming extends Naming {
     }
 
     public AbstractName createChildName(AbstractName parentAbstractName, Artifact artifact, String name, String type) {
+        if (name == null) {
+            throw new NullPointerException("No name supplied");
+        }
+        if (type == null) {
+            throw new NullPointerException("No type supplied");
+        }
         Map nameMap = new HashMap(parentAbstractName.getName());
 
         String parentType = (String) nameMap.remove(J2EE_TYPE);
