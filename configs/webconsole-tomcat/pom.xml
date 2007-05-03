@@ -88,13 +88,6 @@
         </dependency>
 
         <dependency>
-            <groupId>org.apache.geronimo.configs</groupId>
-            <artifactId>openejb-deployer</artifactId>
-            <version>${version}</version>
-            <type>car</type>
-        </dependency>
-
-        <dependency>
             <groupId>org.apache.geronimo.applications.console</groupId>
             <artifactId>geronimo-console-core</artifactId>
             <version>${version}</version>
@@ -105,7 +98,7 @@
             <artifactId>geronimo-console</artifactId>
             <version>${version}</version>
             <type>ear</type>
-            <scope>test</scope>
+            <scope>provided</scope>
         </dependency>
 
         <dependency>
@@ -142,6 +135,13 @@
             <groupId>org.apache.geronimo.modules</groupId>
             <artifactId>geronimo-activemq-management</artifactId>
             <version>${version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.geronimo.configs</groupId>
+            <artifactId>j2ee-corba-yoko</artifactId>
+            <version>${version}</version>
+            <type>car</type>
         </dependency>
 
         <dependency>
@@ -195,18 +195,6 @@
             <artifactId>dwr</artifactId>
         </dependency>
 
-        <dependency>
-            <groupId>xerces</groupId>
-            <artifactId>xercesImpl</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.geronimo.configs</groupId>
-            <artifactId>tomcat6-deployer</artifactId>
-            <version>${version}</version>
-            <type>car</type>
-            <scope>provided</scope>
-        </dependency>
     </dependencies>
     
     <build>
