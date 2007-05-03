@@ -53,6 +53,7 @@ import org.apache.geronimo.jetty6.handler.InstanceContextHandler;
 import org.apache.geronimo.jetty6.handler.JettySecurityHandler;
 import org.apache.geronimo.jetty6.handler.LifecycleCommand;
 import org.apache.geronimo.jetty6.handler.ThreadClassloaderHandler;
+import org.apache.geronimo.jetty6.handler.UserTransactionHandler;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.ObjectNameUtil;
 import org.apache.geronimo.management.J2EEApplication;
@@ -200,6 +201,7 @@ public class JettyWebAppContext implements GBeanLifecycle, JettyServletRegistrat
             next = new ThreadClassloaderHandler(next, classLoader);
 
             next = new InstanceContextHandler(next, unshareableResources, applicationManagedSecurityResources, trackedConnectionAssociator);
+            next = new UserTransactionHandler(next, userTransaction);
             webAppContext.setHandler(next);
 
             //install another component context handler for the lifecycle chain
