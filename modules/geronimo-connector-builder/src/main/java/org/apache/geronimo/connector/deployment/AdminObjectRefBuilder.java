@@ -44,6 +44,7 @@ import org.apache.geronimo.kernel.config.Configuration;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.naming.deployment.AbstractNamingBuilder;
 import org.apache.geronimo.naming.reference.ResourceReference;
+import org.apache.geronimo.naming.reference.UserTransactionReference;
 import org.apache.geronimo.xbeans.geronimo.naming.GerMessageDestinationDocument;
 import org.apache.geronimo.xbeans.geronimo.naming.GerMessageDestinationType;
 import org.apache.geronimo.xbeans.geronimo.naming.GerPatternType;
@@ -143,8 +144,8 @@ public class AdminObjectRefBuilder extends AbstractNamingBuilder {
             try {
                 String refType = getStringValue(resourceEnvRef.getResourceEnvRefType());
                 if (refType.equals("javax.transaction.UserTransaction")) {
-                    LinkRef linkRef = new LinkRef("java:comp/UserTransaction");
-                    getJndiContextMap(componentContext).put(ENV + name, linkRef);
+                    Reference ref = new UserTransactionReference();
+                    getJndiContextMap(componentContext).put(ENV + name, ref);
                 } else {
                     AbstractNameQuery containerId = getAdminObjectContainerId(name, gerResourceEnvRef);
                     Reference ref = buildAdminObjectReference(localConfiguration, remoteConfiguration, containerId, iface);
@@ -351,14 +352,6 @@ public class AdminObjectRefBuilder extends AbstractNamingBuilder {
                     addResourceEnvRef(annotatedApp, resourceName, resourceType, method, field, annotation);
                     return true;
                 } else {
-                    //look for an JCAAdminObject gbean with the right name
-                    AbstractNameQuery containerId = buildAbstractNameQuery(null, null, resourceName, NameFactory.JCA_ADMIN_OBJECT, NameFactory.RESOURCE_ADAPTER_MODULE);
-                    try {
-                        localConfiguration.findGBean(containerId);
-                    } catch (GBeanNotFoundException e) {
-                        //not identifiable as an admin object ref
-                        return false;
-                    }
                     addResourceEnvRef(annotatedApp, resourceName, resourceType, method, field, annotation);
                     return true;
                 }
