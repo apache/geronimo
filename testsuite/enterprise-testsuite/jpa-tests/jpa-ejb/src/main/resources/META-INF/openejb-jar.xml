@@ -53,24 +53,5 @@ limitations under the License.
         </session>
     </enterprise-beans>
 
-    <persistence xmlns="http://java.sun.com/xml/ns/persistence" version="1.0">
-
-        <persistence-unit transaction-type="JTA" name="test-unit">
-
-
-            <provider>org.apache.openjpa.persistence.PersistenceProviderImpl</provider>
-            <jta-data-source>SystemDatasource</jta-data-source>
-            <non-jta-data-source>?name=NoTxDatasource</non-jta-data-source>
-            <class>org.apache.geronimo.itest.jpa.AllFieldTypes</class>
-            <exclude-unlisted-classes/>
-            <properties>
-                <property name="openjpa.jdbc.DBDictionary" value="org.apache.openjpa.jdbc.sql.DerbyDictionary"/>
-                <property name="openjpa.jdbc.SynchronizeMappings" value="buildSchema(ForeignKeys=true)"/>
-                <!--<property name="openjpa.Sequence" value="org.apache.openjpa.jdbc.kernel.TableJDBCSeq(Table=OPENJPASEQ, Increment=100)"/>-->
-            </properties>
-        </persistence-unit>
-    </persistence>
-
-
 </openejb-jar>
 

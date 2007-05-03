@@ -17,10 +17,12 @@
 -->
 <persistence xmlns="http://java.sun.com/xml/ns/persistence" version="1.0">
 
-    <persistence-unit transaction-type="RESOURCE_LOCAL" name="openjpa-itest">
+    <persistence-unit transaction-type="JTA" name="test-unit">
 
 
         <provider>org.apache.openjpa.persistence.PersistenceProviderImpl</provider>
+        <jta-data-source>SystemDatasource</jta-data-source>
+        <non-jta-data-source>NoTxDatasource</non-jta-data-source>
         <class>org.apache.geronimo.itest.jpa.AllFieldTypes</class>
         <exclude-unlisted-classes/>
         <properties>
