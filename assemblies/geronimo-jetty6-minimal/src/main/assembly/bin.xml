@@ -99,6 +99,7 @@
             <outputDirectory>/</outputDirectory>
             <excludes>
                 <exclude>META-INF/**</exclude>
+                <exclude>var/**</exclude>
             </excludes>
         </fileSet>
         
@@ -136,10 +137,15 @@
             </includes>
             <lineEnding>dos</lineEnding>
         </fileSet>
+
+        <fileSet>
+            <directory>target/boilerplate/var</directory>
+            <outputDirectory>${templateDir}/var</outputDirectory>
+        </fileSet>
         
         <fileSet>
             <directory>target/classes</directory>
-            <outputDirectory>/</outputDirectory>
+            <outputDirectory>${templateDir}</outputDirectory>
             <includes>
                 <include>var/config/**</include>
             </includes>
@@ -151,7 +157,30 @@
         
         <fileSet>
             <directory>target/classes</directory>
-            <outputDirectory>/</outputDirectory>
+            <outputDirectory>${templateDir}</outputDirectory>
+            <fileMode>0644</fileMode>
+            <includes>
+                <include>var/config/config.xml</include>
+            </includes>
+        </fileSet>
+
+        <!-- make a copy of var for default server named geronimo0 -->
+        <fileSet>
+            <directory>target/boilerplate/var</directory>
+            <outputDirectory>${defaultServerName}/var</outputDirectory>
+        </fileSet>
+
+        <fileSet>
+            <directory>target/classes</directory>
+            <outputDirectory>${defaultServerName}</outputDirectory>
+            <includes>
+                <include>var/config/**</include>
+            </includes>
+        </fileSet>
+
+        <fileSet>
+            <directory>target/classes</directory>
+            <outputDirectory>${defaultServerName}</outputDirectory>
             <fileMode>0644</fileMode>
             <includes>
                 <include>var/config/config.xml</include>

@@ -26,14 +26,17 @@ import org.apache.geronimo.kernel.log.GeronimoLogging;
 
 /**
  *
- * @version $Rev: 476049 $ $Date: 2006-11-17 15:35:17 +1100 (Fri, 17 Nov 2006) $
+ * @version $Rev$ $Date$
  */
 public class MainConfigurationBootstrapper {
     public final static String ARGUMENT_VERBOSE_SHORTFORM = "-v";
     public final static String ARGUMENT_VERBOSE = "--verbose";
     public final static String ARGUMENT_MORE_VERBOSE_SHORTFORM = "-vv";
     public final static String ARGUMENT_MORE_VERBOSE = "--veryverbose";
-
+    public final static String SERVER_NAME_SYS_PROP = "org.apache.geronimo.server.name";
+    public final static String SERVER_DIR_SYS_PROP = "org.apache.geronimo.server.dir";
+    public final static String DEFAULT_SERVER_NAME = "geronimo0";
+    
     public static String getVerboseLevel(String[] args) {
         String verboseArg = null;
         for (int i = 0; i < args.length; i++) {
@@ -67,6 +70,7 @@ public class MainConfigurationBootstrapper {
     }
 
     public static void main(MainConfigurationBootstrapper bootstrapper, String[] args) {
+        setSysProperties();
         bootstrapper.initializeLogging(args);
         
         Main main = bootstrapper.getMain(MainConfigurationBootstrapper.class.getClassLoader());
@@ -156,6 +160,14 @@ public class MainConfigurationBootstrapper {
             }
         }
         GeronimoLogging.initialize(level);
+    }
+    
+    private static void setSysProperties() {
+        String serverDir = System.getProperty(SERVER_DIR_SYS_PROP);
+        if ((serverDir == null) || (serverDir.length() == 0)) {
+            // use server name to set server dir
+            System.setProperty(SERVER_NAME_SYS_PROP, System.getProperty(SERVER_NAME_SYS_PROP, DEFAULT_SERVER_NAME));
+        }
     }
     
 }

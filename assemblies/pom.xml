@@ -35,35 +35,11 @@
     <packaging>pom</packaging>
 
     <properties>
-        <!--
-        TODO: Move this where it can be shared with the configs/pom.xml values
-        
-        <PlanServerHostname>0.0.0.0</PlanServerHostname>
-        <PlanNamingPort>1099</PlanNamingPort>
-        <PlanOpenEJBPort>4201</PlanOpenEJBPort>
-        <PlanClientAddresses>127.0.0.1</PlanClientAddresses>
-        <PlanIIOPPort>9000</PlanIIOPPort>
-        <PlanCOSNamingHost>localhost</PlanCOSNamingHost>
-        <PlanCOSNamingPort>1050</PlanCOSNamingPort>
-        <PlanCOSSunNamingPort>1050</PlanCOSSunNamingPort>
-        <PlanORBHost>localhost</PlanORBHost>
-        <PlanORBPort>6882</PlanORBPort>
-        <PlanORBSunPort>6882</PlanORBSunPort>
-        <PlanORBSSLHost>localhost</PlanORBSSLHost>
-        <PlanORBSSLPort>2001</PlanORBSSLPort>
-        <PlanORBSunSSLPort>2001</PlanORBSunSSLPort>
-        <PlanActiveMQPort>61616</PlanActiveMQPort>
-        <PlanDerbyPort>1527</PlanDerbyPort>
-        <PlanRemoteLoginPort>4242</PlanRemoteLoginPort>
-        <PlanLdapPort>1389</PlanLdapPort>
-        <PlanHTTPPortPrimary>8080</PlanHTTPPortPrimary>
-        <PlanHTTPSPortPrimary>8443</PlanHTTPSPortPrimary>
-        <PlanAJPPortPrimary>8009</PlanAJPPortPrimary>
-        <PlanHTTPPortSecondary>8090</PlanHTTPPortSecondary>
-        <PlanHTTPSPortSecondary>8453</PlanHTTPSPortSecondary>
-        <PlanAJPPortSecondary>8019</PlanAJPPortSecondary>
-        <PlanJMXPort>9999</PlanJMXPort>
-        -->
+        <!-- The template dir = GHOME/${templateDir} -->
+        <!-- default server instance is at GHOME/${defaultServerName} -->
+
+        <templateDir>template</templateDir>
+        <defaultServerName>geronimo0</defaultServerName>
         <PlanJettyWebBuilderDefaultNamespace>http://geronimo.apache.org/xml/ns/j2ee/web/jetty-1.0</PlanJettyWebBuilderDefaultNamespace>
         <PlanTomcatWebBuilderDefaultNamespace>http://geronimo.apache.org/xml/ns/j2ee/web/tomcat-1.0</PlanTomcatWebBuilderDefaultNamespace>
     </properties>
