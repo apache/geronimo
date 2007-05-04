@@ -16,6 +16,7 @@
  */
 package org.apache.geronimo.tomcat;
 
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -24,11 +25,12 @@ import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
+import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.catalina.Wrapper;
 import org.apache.catalina.authenticator.BasicAuthenticator;
 import org.apache.catalina.authenticator.DigestAuthenticator;
 import org.apache.catalina.authenticator.NonLoginAuthenticator;
@@ -126,11 +128,19 @@ public class TomcatEJBWebServiceContext extends StandardContext{
         } else {
             isSecureTransportGuarantee = false;
         }
+        
         this.classLoader = classLoader;
         this.addValve(new EJBWebServiceValve());
+        
+        //Create a dummy wrapper
+        Wrapper wrapper = this.createWrapper();
+        String name = System.currentTimeMillis() + "";
+        wrapper.setName(name);
+        this.addChild(wrapper);
+        this.addServletMapping("/*", name);
 
     }
-
+    
     public class EJBWebServiceValve extends ValveBase{
 
         public void invoke(Request req, Response res) throws IOException, ServletException {
