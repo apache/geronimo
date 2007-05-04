@@ -70,9 +70,9 @@ public interface NamingBuilder extends AbstractNamespaceBuilder {
 
     void buildEnvironment(XmlObject specDD, XmlObject plan, Environment environment) throws DeploymentException;
 
-    void initContext(XmlObject specDD, XmlObject plan, Configuration localConfiguration, Configuration remoteConfiguration, Module module) throws DeploymentException;
+    void initContext(XmlObject specDD, XmlObject plan, Module module) throws DeploymentException;
     
-    void buildNaming(XmlObject specDD, XmlObject plan, Configuration localConfiguration, Configuration remoteConfiguration, Module module, Map componentContext) throws DeploymentException;
+    void buildNaming(XmlObject specDD, XmlObject plan, Module module, Map componentContext) throws DeploymentException;
 
     public interface Key<T> {
         T get(Map context);

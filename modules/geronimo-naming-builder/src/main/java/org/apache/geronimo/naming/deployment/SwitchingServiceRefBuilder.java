@@ -38,7 +38,6 @@ import org.apache.geronimo.j2ee.deployment.annotation.HandlerChainAnnotationHelp
 import org.apache.geronimo.j2ee.deployment.annotation.ResourceAnnotationHelper;
 import org.apache.geronimo.j2ee.deployment.annotation.WebServiceRefAnnotationHelper;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
-import org.apache.geronimo.kernel.config.Configuration;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.xbeans.geronimo.naming.GerServiceRefDocument;
 import org.apache.geronimo.xbeans.geronimo.naming.GerServiceRefType;
@@ -90,8 +89,6 @@ public class SwitchingServiceRefBuilder extends AbstractNamingBuilder {
 
     public void buildNaming(XmlObject specDD,
             XmlObject plan,
-            Configuration localConfiguration,
-            Configuration remoteConfiguration,
             Module module,
             Map componentContext) throws DeploymentException {
 

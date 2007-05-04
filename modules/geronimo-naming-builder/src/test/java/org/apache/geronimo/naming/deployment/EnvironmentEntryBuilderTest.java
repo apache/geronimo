@@ -117,7 +117,7 @@ public class EnvironmentEntryBuilderTest extends TestCase {
         } finally {
             cursor.dispose();
         }
-        environmentEntryBuilder.buildNaming(doc, null, null, null, null, componentContext);
+        environmentEntryBuilder.buildNaming(doc, null, null, componentContext);
         Context context = EnterpriseNamingContext.createEnterpriseNamingContext(NamingBuilder.JNDI_KEY.get(componentContext));
         Set actual = new HashSet();
         for (NamingEnumeration e = context.listBindings("env"); e.hasMore();) {

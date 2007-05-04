@@ -65,6 +65,7 @@ import org.apache.geronimo.j2ee.deployment.ModuleBuilder;
 import org.apache.geronimo.j2ee.deployment.NamingBuilder;
 import org.apache.geronimo.j2ee.deployment.NamingBuilderCollection;
 import org.apache.geronimo.j2ee.deployment.SecurityBuilder;
+import org.apache.geronimo.j2ee.deployment.ModuleBuilderExtension;
 import org.apache.geronimo.j2ee.deployment.annotation.AnnotatedApplicationClient;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.j2ee.management.impl.J2EEAppClientModuleImpl;
@@ -109,6 +110,7 @@ public class AppClientModuleBuilder implements ModuleBuilder, CorbaGBeanNameSour
     private final SingleElementCollection securityBuilder;
     private final NamespaceDrivenBuilderCollection serviceBuilder;
     private final NamingBuilderCollection namingBuilders;
+    private final Collection<ModuleBuilderExtension> moduleBuilderExtensions;
 
     private final Collection<Repository> repositories;
 
@@ -123,7 +125,8 @@ public class AppClientModuleBuilder implements ModuleBuilder, CorbaGBeanNameSour
             ModuleBuilder connectorModuleBuilder,
             NamespaceDrivenBuilder securityBuilder,
             NamespaceDrivenBuilder serviceBuilder,
-            Collection namingBuilders) {
+            Collection<NamingBuilder> namingBuilders,
+            Collection<ModuleBuilderExtension> moduleBuilderExtensions) {
         this(defaultClientEnvironment,
                 defaultServerEnvironment,
                 transactionManagerObjectName,
@@ -132,7 +135,8 @@ public class AppClientModuleBuilder implements ModuleBuilder, CorbaGBeanNameSour
                 repositories, new SingleElementCollection(connectorModuleBuilder),
                 new SingleElementCollection(securityBuilder),
                 serviceBuilder == null ? Collections.EMPTY_SET : Collections.singleton(serviceBuilder),
-                namingBuilders == null ? Collections.EMPTY_SET : namingBuilders);
+                namingBuilders == null ? Collections.EMPTY_SET : namingBuilders,
+                moduleBuilderExtensions);
     }
 
     public AppClientModuleBuilder(AbstractNameQuery transactionManagerObjectName,
@@ -141,19 +145,23 @@ public class AppClientModuleBuilder implements ModuleBuilder, CorbaGBeanNameSour
             Collection<Repository> repositories,
             Collection connectorModuleBuilder,
             Collection securityBuilder,
-            Collection serviceBuilder,
-            Collection namingBuilders,
+            Collection<NamespaceDrivenBuilder> serviceBuilder,
+            Collection<NamingBuilder> namingBuilders,
+            Collection<ModuleBuilderExtension> moduleBuilderExtensions,
             Environment defaultClientEnvironment,
-            Environment defaultServerEnvironment) {
+            Environment defaultServerEnvironment
+    ) {
         this(defaultClientEnvironment,
                 defaultServerEnvironment,
                 transactionManagerObjectName,
                 connectionTrackerObjectName,
                 corbaGBeanObjectName,
-                repositories, new SingleElementCollection(connectorModuleBuilder),
+                repositories,
+                new SingleElementCollection(connectorModuleBuilder),
                 new SingleElementCollection(securityBuilder),
                 serviceBuilder,
-                namingBuilders);
+                namingBuilders,
+                moduleBuilderExtensions);
     }
 
     private AppClientModuleBuilder(Environment defaultClientEnvironment,
@@ -164,7 +172,9 @@ public class AppClientModuleBuilder implements ModuleBuilder, CorbaGBeanNameSour
             Collection<Repository> repositories,
             SingleElementCollection connectorModuleBuilder,
             SingleElementCollection securityBuilder,
-            Collection serviceBuilder, Collection namingBuilders) {
+            Collection<NamespaceDrivenBuilder> serviceBuilder,
+            Collection<NamingBuilder> namingBuilders,
+            Collection<ModuleBuilderExtension> moduleBuilderExtensions) {
         this.defaultClientEnvironment = defaultClientEnvironment;
         this.defaultServerEnvironment = defaultServerEnvironment;
         this.corbaGBeanObjectName = corbaGBeanObjectName;
@@ -175,6 +185,7 @@ public class AppClientModuleBuilder implements ModuleBuilder, CorbaGBeanNameSour
         this.securityBuilder = securityBuilder;
         this.serviceBuilder = new NamespaceDrivenBuilderCollection(serviceBuilder, GBeanBuilder.SERVICE_QNAME);
         this.namingBuilders = new NamingBuilderCollection(namingBuilders, GerAbstractNamingEntryDocument.type.getDocumentElementName());
+        this.moduleBuilderExtensions = moduleBuilderExtensions;
     }
 
 
@@ -329,7 +340,11 @@ public class AppClientModuleBuilder implements ModuleBuilder, CorbaGBeanNameSour
         // Create the AnnotatedApp interface for the AppClientModule
         AnnotatedApplicationClient annotatedApplicationClient = new AnnotatedApplicationClient(appClient);
 
-        return new AppClientModule(standAlone, moduleName, clientBaseName, serverEnvironment, clientEnvironment, moduleFile, targetPath, appClient, mainClass, gerAppClient, specDD, resourceModules, annotatedApplicationClient);
+        AppClientModule module = new AppClientModule(standAlone, moduleName, clientBaseName, serverEnvironment, clientEnvironment, moduleFile, targetPath, appClient, mainClass, gerAppClient, specDD, resourceModules, annotatedApplicationClient);
+        for (ModuleBuilderExtension mbe : moduleBuilderExtensions) {
+            mbe.createModule(module, plan, moduleFile, targetPath, specDDUrl, clientEnvironment, null, earName, naming, idBuilder);
+        }
+        return module;
     }
 
     GerApplicationClientType getGeronimoAppClient(Object plan, JarFile moduleFile, boolean standAlone, String targetPath, ApplicationClientType appClient, Environment environment) throws DeploymentException {
@@ -491,9 +506,8 @@ public class AppClientModuleBuilder implements ModuleBuilder, CorbaGBeanNameSour
                     corbaGBeanObjectName
             );
             appClientModule.setEarContext(appClientDeploymentContext);
-            appClientModule.setRootEarContext(earContext);
-            // extract the app client jar file into a standalone packed jar file and add the contents to the output
-//            JarFile moduleFile = module.getModuleFile();
+            appClientModule.setRootEarContext(appClientDeploymentContext);
+
             try {
                 appClientDeploymentContext.addIncludeAsPackedJar(URI.create(module.getTargetPath()), moduleFile);
             } catch (IOException e) {
@@ -518,6 +532,9 @@ public class AppClientModuleBuilder implements ModuleBuilder, CorbaGBeanNameSour
             getConnectorModuleBuilder().installModule(connectorModule.getModuleFile(), appClientDeploymentContext, connectorModule, configurationStores, targetConfigurationStore, repositories);
         }
 
+        for (ModuleBuilderExtension mbe : moduleBuilderExtensions) {
+            mbe.installModule(module.getModuleFile(), appClientDeploymentContext, module, configurationStores, targetConfigurationStore, repositories);
+        }
     }
 
     public void initContext(EARContext earContext, Module clientModule, ClassLoader cl) throws DeploymentException {
@@ -526,6 +543,9 @@ public class AppClientModuleBuilder implements ModuleBuilder, CorbaGBeanNameSour
         AppClientModule appClientModule = ((AppClientModule) clientModule);
         for (ConnectorModule connectorModule : appClientModule.getResourceModules()) {
             getConnectorModuleBuilder().initContext(appClientModule.getEarContext(), connectorModule, cl);
+        }
+        for (ModuleBuilderExtension mbe : moduleBuilderExtensions) {
+            mbe.initContext(earContext, clientModule, cl);
         }
     }
 
@@ -547,7 +567,6 @@ public class AppClientModuleBuilder implements ModuleBuilder, CorbaGBeanNameSour
             if (!module.isStandAlone()) {
                 appClientModuleGBeanData.setReferencePattern("J2EEApplication", earContext.getModuleName());
             }
-// below    appClientModuleGBeanData.setAttribute("deploymentDescriptor", appClientModule.getOriginalSpecDD());
 
         } catch (Exception e) {
             throw new DeploymentException("Unable to initialize AppClientModule GBean", e);
@@ -559,6 +578,17 @@ public class AppClientModuleBuilder implements ModuleBuilder, CorbaGBeanNameSour
         }
 
         EARContext appClientDeploymentContext = appClientModule.getEarContext();
+        //Share the ejb info with the ear.
+        //TODO this might be too much, but I don't want to impose a dependency on geronimo-openejb to get
+        //EjbModuleBuilder.EarData.class
+        Map<Object, Object> generalData = earContext.getGeneralData();
+        for (Map.Entry<Object, Object> entry : generalData.entrySet()) {
+            Object key = entry.getKey();
+            if (key instanceof Class && ((Class)key).getName().equals("org.apache.geronimo.openejb.deployment.EjbModuleBuilder$EarData")) {
+                appClientDeploymentContext.getGeneralData().put(key, entry.getValue());
+                break;
+            }
+        }
 
         // Create a Module ID Builder defaulting to similar settings to use for any children we create
         ModuleIDBuilder idBuilder = new ModuleIDBuilder();
@@ -568,7 +598,7 @@ public class AppClientModuleBuilder implements ModuleBuilder, CorbaGBeanNameSour
             try {
 
                 //register the message destinations in the app client ear context.
-                namingBuilders.initContext(appClient, geronimoAppClient, appClientDeploymentContext.getConfiguration(), earContext.getConfiguration(), appClientModule);
+                namingBuilders.initContext(appClient, geronimoAppClient, appClientModule);
                 // extract the client Jar file into a standalone packed jar file and add the contents to the output
                 URI moduleBase = new URI(appClientModule.getTargetPath());
                 try {
@@ -613,7 +643,7 @@ public class AppClientModuleBuilder implements ModuleBuilder, CorbaGBeanNameSour
                         appClientModule.setClassFinder(createAppClientClassFinder(appClient, appClientModule));
                     }
 
-                    namingBuilders.buildNaming(appClient, geronimoAppClient, localConfiguration, remoteConfiguration, appClientModule, buildingContext);
+                    namingBuilders.buildNaming(appClient, geronimoAppClient, appClientModule, buildingContext);
 
                     if (!appClient.getMetadataComplete()) {
                         appClient.setMetadataComplete(true);
@@ -665,6 +695,11 @@ public class AppClientModuleBuilder implements ModuleBuilder, CorbaGBeanNameSour
                     throw new DeploymentException("Unable to initialize AppClientModule GBean", e);
                 }
                 appClientDeploymentContext.addGBean(appClientContainerGBeanData);
+
+                //TODO this may definitely not be the best place for this!
+                for (ModuleBuilderExtension mbe : moduleBuilderExtensions) {
+                    mbe.addGBeans(appClientDeploymentContext, appClientModule, appClientClassLoader, repositories);
+                }
 
                 // get the configuration data
                 earContext.addAdditionalDeployment(appClientDeploymentContext.getConfigurationData());
@@ -833,6 +868,7 @@ public class AppClientModuleBuilder implements ModuleBuilder, CorbaGBeanNameSour
         infoBuilder.addReference("SecurityBuilder", SecurityBuilder.class, NameFactory.MODULE_BUILDER);
         infoBuilder.addReference("ServiceBuilders", NamespaceDrivenBuilder.class, NameFactory.MODULE_BUILDER);
         infoBuilder.addReference("NamingBuilders", NamingBuilder.class, NameFactory.MODULE_BUILDER);
+        infoBuilder.addReference("ModuleBuilderExtensions", ModuleBuilderExtension.class, NameFactory.MODULE_BUILDER);
 
         infoBuilder.addInterface(ModuleBuilder.class);
 
@@ -844,6 +880,7 @@ public class AppClientModuleBuilder implements ModuleBuilder, CorbaGBeanNameSour
                 "SecurityBuilder",
                 "ServiceBuilders",
                 "NamingBuilders",
+                "ModuleBuilderExtensions",
                 "defaultClientEnvironment",
                 "defaultServerEnvironment",
         });

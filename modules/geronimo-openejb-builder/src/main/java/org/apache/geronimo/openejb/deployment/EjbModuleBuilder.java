@@ -456,8 +456,6 @@ public class EjbModuleBuilder implements ModuleBuilder {
         if (ejbJarType.getAssemblyDescriptor() != null) {
             namingBuilder.initContext(ejbJarType.getAssemblyDescriptor(),
                     geronimoOpenejb,
-                    ejbModule.getEarContext().getConfiguration(),
-                    earContext.getConfiguration(),
                     ejbModule);
         }
 

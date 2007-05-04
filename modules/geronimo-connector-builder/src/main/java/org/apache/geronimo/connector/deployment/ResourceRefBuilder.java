@@ -47,7 +47,6 @@ import org.apache.geronimo.j2ee.deployment.annotation.AnnotatedApp;
 import org.apache.geronimo.j2ee.deployment.annotation.ResourceAnnotationHelper;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
-import org.apache.geronimo.kernel.config.Configuration;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.Dependency;
 import org.apache.geronimo.kernel.repository.Environment;
@@ -98,7 +97,7 @@ public class ResourceRefBuilder extends AbstractNamingBuilder implements Resourc
         return specDD.selectChildren(resourceRefQNameSet).length > 0;
     }
 
-    public void buildNaming(XmlObject specDD, XmlObject plan, Configuration localConfiguration, Configuration remoteConfiguration, Module module, Map componentContext) throws DeploymentException {
+    public void buildNaming(XmlObject specDD, XmlObject plan, Module module, Map componentContext) throws DeploymentException {
 
         // Discover and process any @Resource annotations (if !metadata-complete)
         if ((module != null) && (module.getClassFinder() != null)) {
@@ -145,7 +144,7 @@ public class ResourceRefBuilder extends AbstractNamingBuilder implements Resourc
                 }
                 AbstractNameQuery corbaName = corbaGBeanNameSource.getCorbaGBeanName();
                 if (corbaName != null) {
-                    Artifact[] moduleId = getConfigId(localConfiguration, remoteConfiguration);
+                    Artifact[] moduleId = module.getConfigId();
                     Map context = getJndiContextMap(componentContext);
                     context.put(ENV + name, new ORBReference(moduleId, corbaName));
                 }
@@ -164,9 +163,9 @@ public class ResourceRefBuilder extends AbstractNamingBuilder implements Resourc
                 try {
                     AbstractNameQuery containerId = getResourceContainerId(name, j2eeType, null, gerResourceRef);
 
-                    localConfiguration.findGBean(containerId);
+                    module.getEarContext().findGBean(containerId);
 
-                    Reference ref = new ResourceReference(getConfigId(localConfiguration, remoteConfiguration), containerId, iface);
+                    Reference ref = new ResourceReference(module.getConfigId(), containerId, iface);
                     getJndiContextMap(componentContext).put(ENV + name, ref);
                 } catch (GBeanNotFoundException e) {
 
@@ -189,7 +188,7 @@ public class ResourceRefBuilder extends AbstractNamingBuilder implements Resourc
                         errorMessage.append(gerResourceRef.getPattern());
                     }
                     errorMessage.append("\nSearch conducted in current module and dependencies:\n");
-                    for (Dependency dependency : localConfiguration.getEnvironment().getDependencies()) {
+                    for (Dependency dependency : module.getEnvironment().getDependencies()) {
                         errorMessage.append(dependency).append("\n");
                     }
                     errorMessage.append(")");

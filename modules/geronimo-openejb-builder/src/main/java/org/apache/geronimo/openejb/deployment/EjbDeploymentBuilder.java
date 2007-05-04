@@ -325,8 +325,6 @@ public class EjbDeploymentBuilder {
 
         namingBuilder.buildNaming(xmlbeansEjb,
                 geronimoOpenejb,
-                ejbModule.getEarContext().getConfiguration(),
-                earContext.getConfiguration(),
                 ejbModule, buildingContext);
 
         Map compContext = NamingBuilder.JNDI_KEY.get(buildingContext);

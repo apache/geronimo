@@ -50,7 +50,6 @@ import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.ArtifactResolver;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.kernel.repository.Version;
-import org.apache.geronimo.naming.deployment.AbstractNamingBuilder;
 import org.apache.geronimo.schema.SchemaConversionUtils;
 import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlException;
@@ -72,10 +71,6 @@ public class MessageDestinationTest extends TestCase {
     protected void setUp() throws Exception {
         super.setUp();
         Artifact id = new Artifact("test", "test", "", "car");
-        configuration = new Configuration(Collections.EMPTY_LIST,
-                new ConfigurationData(id, naming),
-                new ConfigurationResolver(id, null),
-                null);
         module  = new ConnectorModule(false, new AbstractName(id, Collections.singletonMap("name", "test")), null, null, "foo", null, null, null, null);
         EARContext earContext = new EARContext(new File("foo"), null, new Environment(new Artifact("foo", "bar", "1.0", "car")), ConfigurationModuleType.EAR, naming,
                 new ConfigurationManager() {
@@ -221,6 +216,7 @@ public class MessageDestinationTest extends TestCase {
                 }, null, null, null, null, null, null, null, null);
         module.setEarContext(earContext);
         module.setRootEarContext(earContext);
+        configuration = earContext.getConfiguration();
         baseName = naming.createRootName(configuration.getId(), "testRoot", NameFactory.RESOURCE_ADAPTER_MODULE);
     }
 
@@ -255,12 +251,12 @@ public class MessageDestinationTest extends TestCase {
     public void testMessageDestinations() throws Exception {
         XmlObject specDD = parse(SPECDD1);
         XmlObject plan = parse(PLAN1);
-        adminObjectRefBuilder.initContext(specDD, plan, configuration, configuration, module);
+        adminObjectRefBuilder.initContext(specDD, plan, module);
         AbstractName n1 = naming.createChildName(baseName, "l1", NameFactory.JCA_ADMIN_OBJECT);
         AbstractName n2 = naming.createChildName(baseName, "l2", NameFactory.JCA_ADMIN_OBJECT);
         configuration.addGBean(new GBeanData(n1, AdminObjectWrapperGBean.GBEAN_INFO));
         configuration.addGBean(new GBeanData(n2, AdminObjectWrapperGBean.GBEAN_INFO));
-        adminObjectRefBuilder.buildNaming(specDD, plan, configuration, configuration, module, componentContext);
+        adminObjectRefBuilder.buildNaming(specDD, plan, module, componentContext);
         assertEquals(2, NamingBuilder.JNDI_KEY.get(componentContext).size());
     }
 
@@ -279,12 +275,12 @@ public class MessageDestinationTest extends TestCase {
     public void testMessageDestinationsWithModule() throws Exception {
         XmlObject specDD = parse(SPECDD1);
         XmlObject plan = parse(PLAN2);
-        adminObjectRefBuilder.initContext(specDD, plan, configuration, configuration, module);
+        adminObjectRefBuilder.initContext(specDD, plan, module);
         AbstractName n1 = naming.createChildName(baseName, "l1", NameFactory.JCA_ADMIN_OBJECT);
         AbstractName n2 = naming.createChildName(baseName, "l2", NameFactory.JCA_ADMIN_OBJECT);
         configuration.addGBean(new GBeanData(n1, AdminObjectWrapperGBean.GBEAN_INFO));
         configuration.addGBean(new GBeanData(n2, AdminObjectWrapperGBean.GBEAN_INFO));
-        adminObjectRefBuilder.buildNaming(specDD, plan, configuration, configuration, module, componentContext);
+        adminObjectRefBuilder.buildNaming(specDD, plan, module, componentContext);
         assertEquals(2, NamingBuilder.JNDI_KEY.get(componentContext).size());
     }
 
@@ -296,7 +292,7 @@ public class MessageDestinationTest extends TestCase {
         XmlObject specDD = parse(SPECDD2);
         XmlObject plan = parse(PLAN1);
         try {
-            adminObjectRefBuilder.initContext(specDD, plan, configuration, configuration, module);
+            adminObjectRefBuilder.initContext(specDD, plan, module);
             fail("tried to register a GerMessageDestination witout a MessageDestination and it succeeded");
         } catch (DeploymentException e) {
 

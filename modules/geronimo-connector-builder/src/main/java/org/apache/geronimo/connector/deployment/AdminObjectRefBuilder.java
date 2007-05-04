@@ -25,7 +25,6 @@ import java.util.Map;
 
 import javax.annotation.Resource;
 import javax.naming.Reference;
-import javax.naming.LinkRef;
 import javax.xml.namespace.QName;
 
 import org.apache.commons.logging.Log;
@@ -36,6 +35,7 @@ import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.j2ee.deployment.Module;
+import org.apache.geronimo.j2ee.deployment.EARContext;
 import org.apache.geronimo.j2ee.deployment.annotation.AnnotatedApp;
 import org.apache.geronimo.j2ee.deployment.annotation.ResourceAnnotationHelper;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
@@ -87,7 +87,7 @@ public class AdminObjectRefBuilder extends AbstractNamingBuilder {
         return specDD.selectChildren(adminOjbectRefQNameSet).length > 0 || specDD.selectChildren(messageDestinationRefQNameSet).length > 0;
     }
 
-    public void initContext(XmlObject specDD, XmlObject plan, Configuration localConfiguration, Configuration remoteConfiguration, Module module) throws DeploymentException {
+    public void initContext(XmlObject specDD, XmlObject plan, Module module) throws DeploymentException {
         List<MessageDestinationType> specDestinations = convert(specDD.selectChildren(messageDestinationQNameSet), JEE_CONVERTER, MessageDestinationType.class, MessageDestinationType.type);
         XmlObject[] gerDestinations = plan.selectChildren(GER_MESSAGE_DESTINATION_QNAME_SET);
         Map<String, GerMessageDestinationType> nameMap = new HashMap<String, GerMessageDestinationType>();
@@ -110,8 +110,7 @@ public class AdminObjectRefBuilder extends AbstractNamingBuilder {
     }
 
 
-    public void buildNaming(XmlObject specDD, XmlObject plan, Configuration localConfiguration, Configuration remoteConfiguration, Module module, Map componentContext) throws DeploymentException {
-
+    public void buildNaming(XmlObject specDD, XmlObject plan, Module module, Map componentContext) throws DeploymentException {
         XmlObject[] gerResourceEnvRefsUntyped = plan == null ? NO_REFS : plan.selectChildren(GER_ADMIN_OBJECT_REF_QNAME_SET);
         Map<String, GerResourceEnvRefType> refMap = mapResourceEnvRefs(gerResourceEnvRefsUntyped);
         Map<String, Map<String, GerMessageDestinationType>> messageDestinations = module.getRootEarContext().getMessageDestinations();
@@ -121,7 +120,7 @@ public class AdminObjectRefBuilder extends AbstractNamingBuilder {
 
             // Process all the annotations for this naming builder type
             try {
-                ResourceAnnotationHelper.processAnnotations(module.getAnnotatedApp(), module.getClassFinder(), new AdminObjectRefProcessor(localConfiguration, refMap, messageDestinations));
+                ResourceAnnotationHelper.processAnnotations(module.getAnnotatedApp(), module.getClassFinder(), new AdminObjectRefProcessor(refMap, messageDestinations, module.getEarContext()));
             }
             catch (Exception e) {
                 log.warn("Unable to process @Resource annotations for module" + module.getName(), e);
@@ -148,7 +147,7 @@ public class AdminObjectRefBuilder extends AbstractNamingBuilder {
                     getJndiContextMap(componentContext).put(ENV + name, ref);
                 } else {
                     AbstractNameQuery containerId = getAdminObjectContainerId(name, gerResourceEnvRef);
-                    Reference ref = buildAdminObjectReference(localConfiguration, remoteConfiguration, containerId, iface);
+                    Reference ref = buildAdminObjectReference(module, containerId, iface);
                     getJndiContextMap(componentContext).put(ENV + name, ref);
                 }
             } catch (UnresolvedReferenceException e) {
@@ -207,7 +206,7 @@ public class AdminObjectRefBuilder extends AbstractNamingBuilder {
             //try to resolve ref based only matching resource-ref-name
             //throws exception if it can't locate ref.
             AbstractNameQuery containerId = buildAbstractNameQuery(null, moduleURI, linkName, NameFactory.JCA_ADMIN_OBJECT, NameFactory.RESOURCE_ADAPTER_MODULE);
-            Reference ref = buildAdminObjectReference(localConfiguration, remoteConfiguration, containerId, iface);
+            Reference ref = buildAdminObjectReference(module, containerId, iface);
             getJndiContextMap(componentContext).put(ENV + name, ref);
 
         }
@@ -246,13 +245,14 @@ public class AdminObjectRefBuilder extends AbstractNamingBuilder {
     }
 
 
-    private Reference buildAdminObjectReference(Configuration localConfiguration, Configuration remoteConfiguration, AbstractNameQuery containerId, Class iface) throws DeploymentException {
+    private Reference buildAdminObjectReference(Module module, AbstractNameQuery containerId, Class iface) throws DeploymentException {
+        Configuration localConfiguration = module.getEarContext().getConfiguration();
         try {
             localConfiguration.findGBean(containerId);
         } catch (GBeanNotFoundException e) {
             throw new DeploymentException("Can not resolve admin object ref " + containerId + " in configuration " + localConfiguration.getId());
         }
-        return new ResourceReference(getConfigId(localConfiguration, remoteConfiguration), containerId, iface);
+        return new ResourceReference(module.getConfigId(), containerId, iface);
     }
 
     private static AbstractNameQuery getAdminObjectContainerId(String name, GerResourceEnvRefType gerResourceEnvRef) {
@@ -295,14 +295,14 @@ public class AdminObjectRefBuilder extends AbstractNamingBuilder {
     }
 
     public static class AdminObjectRefProcessor extends ResourceAnnotationHelper.ResourceProcessor {
-        private final Configuration localConfiguration;
+        private final EARContext earContext;
         private final Map<String, GerResourceEnvRefType> refMap;
         private final Map<String, Map<String, GerMessageDestinationType>> messageDestinations;
 
-        public AdminObjectRefProcessor(Configuration localConfiguration, Map<String, GerResourceEnvRefType> refMap, Map<String, Map<String, GerMessageDestinationType>> messageDestinations) {
-            this.localConfiguration = localConfiguration;
+        public AdminObjectRefProcessor(Map<String, GerResourceEnvRefType> refMap, Map<String, Map<String, GerMessageDestinationType>> messageDestinations, EARContext earContext) {
             this.refMap = refMap;
             this.messageDestinations = messageDestinations;
+            this.earContext = earContext;
         }
 
         public boolean processResource(AnnotatedApp annotatedApp, Resource annotation, Class cls, Method method, Field field) throws DeploymentException {
@@ -355,7 +355,7 @@ public class AdminObjectRefBuilder extends AbstractNamingBuilder {
                     //look for an JCAAdminObject gbean with the right name
                     AbstractNameQuery containerId = buildAbstractNameQuery(null, null, resourceName, NameFactory.JCA_ADMIN_OBJECT, NameFactory.RESOURCE_ADAPTER_MODULE);
                     try {
-                        localConfiguration.findGBean(containerId);
+                        earContext.findGBean(containerId);
                     } catch (GBeanNotFoundException e) {
                         //not identifiable as an admin object ref
                         return false;

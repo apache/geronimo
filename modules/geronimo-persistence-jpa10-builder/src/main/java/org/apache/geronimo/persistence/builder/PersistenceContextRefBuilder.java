@@ -77,7 +77,7 @@ public class PersistenceContextRefBuilder extends AbstractNamingBuilder {
         return plan != null && plan.selectChildren(PersistenceContextRefBuilder.GER_PERSISTENCE_CONTEXT_REF_QNAME_SET).length > 0;
     }
 
-    public void buildNaming(XmlObject specDD, XmlObject plan, Configuration localConfiguration, Configuration remoteConfiguration, Module module, Map componentContext) throws DeploymentException {
+    public void buildNaming(XmlObject specDD, XmlObject plan, Module module, Map componentContext) throws DeploymentException {
 
         // Discover and process any @PersistenceContextRef annotations (if !metadata-complete)
         if ((module != null) && (module.getClassFinder() != null)) {
@@ -87,6 +87,7 @@ public class PersistenceContextRefBuilder extends AbstractNamingBuilder {
         List<PersistenceContextRefType> specPersistenceContextRefsUntyped = convert(specDD.selectChildren(PERSISTENCE_CONTEXT_REF_QNAME_SET), JEE_CONVERTER, PersistenceContextRefType.class, PersistenceContextRefType.type);
         Map<String, GerPersistenceContextRefType> gerPersistenceContextRefsUntyped = getGerPersistenceContextRefs(plan);
         List<DeploymentException> problems = new ArrayList<DeploymentException>();
+        Configuration localConfiguration = module.getEarContext().getConfiguration();
         for (PersistenceContextRefType persistenceContextRef : specPersistenceContextRefsUntyped) {
             try {
                 String persistenceContextRefName = persistenceContextRef.getPersistenceContextRefName().getStringValue().trim();
@@ -136,7 +137,7 @@ public class PersistenceContextRefBuilder extends AbstractNamingBuilder {
                     checkForGBean(localConfiguration, persistenceUnitNameQuery, true);
                 }
 
-                PersistenceContextReference reference = new PersistenceContextReference(getConfigId(localConfiguration, remoteConfiguration), persistenceUnitNameQuery, transactionScoped, properties);
+                PersistenceContextReference reference = new PersistenceContextReference(module.getConfigId(), persistenceUnitNameQuery, transactionScoped, properties);
 
                 NamingBuilder.JNDI_KEY.get(componentContext).put(ENV + persistenceContextRefName, reference);
             } catch (DeploymentException e) {
@@ -158,7 +159,7 @@ public class PersistenceContextRefBuilder extends AbstractNamingBuilder {
 
                 checkForGBean(localConfiguration, persistenceUnitNameQuery, true);
 
-                PersistenceContextReference reference = new PersistenceContextReference(getConfigId(localConfiguration, remoteConfiguration), persistenceUnitNameQuery, transactionScoped, properties);
+                PersistenceContextReference reference = new PersistenceContextReference(module.getConfigId(), persistenceUnitNameQuery, transactionScoped, properties);
 
                 getJndiContextMap(componentContext).put(ENV + persistenceContextRefName, reference);
             } catch (DeploymentException e) {

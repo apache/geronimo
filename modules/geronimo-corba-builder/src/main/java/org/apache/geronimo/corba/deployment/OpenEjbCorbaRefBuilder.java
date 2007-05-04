@@ -33,7 +33,6 @@ import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.kernel.config.Configuration;
 import org.apache.geronimo.kernel.repository.Environment;
-import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.openejb.deployment.EjbRefBuilder;
 import org.apache.geronimo.schema.NamespaceElementConverter;
 import org.apache.geronimo.xbeans.geronimo.naming.GerEjbRefDocument;
@@ -93,34 +92,34 @@ public class OpenEjbCorbaRefBuilder extends EjbRefBuilder {
 //        return false;
 //    }
 
-    public void buildNaming(XmlObject specDD, XmlObject plan, Configuration localConfiguration, Configuration remoteConfiguration, Module module, Map componentContext) throws DeploymentException {
+    public void buildNaming(XmlObject specDD, XmlObject plan, Module module, Map componentContext) throws DeploymentException {
         XmlObject[] ejbRefsUntyped = convert(specDD.selectChildren(ejbRefQNameSet), JEE_CONVERTER, EjbRefType.type);
         XmlObject[] gerEjbRefsUntyped = plan == null ? NO_REFS : convert(plan.selectChildren(GER_EJB_REF_QNAME_SET), OPENEJB_CONVERTER, GerEjbRefType.type);
         Map ejbRefMap = mapEjbRefs(gerEjbRefsUntyped);
         ClassLoader cl = module.getEarContext().getClassLoader();
 
-        for (int i = 0; i < ejbRefsUntyped.length; i++) {
-            EjbRefType ejbRef = (EjbRefType) ejbRefsUntyped[i];
+        for (XmlObject anEjbRefsUntyped : ejbRefsUntyped) {
+            EjbRefType ejbRef = (EjbRefType) anEjbRefsUntyped;
 
             String ejbRefName = getStringValue(ejbRef.getEjbRefName());
             addInjections(ejbRefName, ejbRef.getInjectionTargetArray(), componentContext);
             GerEjbRefType remoteRef = (GerEjbRefType) ejbRefMap.get(ejbRefName);
 
-            Reference ejbReference = addEJBRef(localConfiguration, remoteConfiguration, module.getModuleURI(), ejbRef, remoteRef, cl);
+            Reference ejbReference = addEJBRef(module, ejbRef, remoteRef, cl);
             if (ejbReference != null) {
                 getJndiContextMap(componentContext).put(ENV + ejbRefName, ejbReference);
             }
         }
     }
 
-    private Reference addEJBRef(Configuration localConfiguration, Configuration earConfiguration, URI moduleURI, EjbRefType ejbRef, GerEjbRefType remoteRef, ClassLoader cl) throws DeploymentException {
+    private Reference addEJBRef(Module module, EjbRefType ejbRef, GerEjbRefType remoteRef, ClassLoader cl) throws DeploymentException {
         Reference ejbReference = null;
         if (remoteRef != null && remoteRef.isSetNsCorbaloc()) {
             String refName = getStringValue(ejbRef.getEjbRefName());
             String home = getStringValue(ejbRef.getHome());
             String remote = getStringValue(ejbRef.getRemote());
 
-            verifyInterfaces(refName, moduleURI, cl, remote, home);
+            verifyInterfaces(refName, module.getModuleURI(), cl, remote, home);
 
             try {
                 // create the cssBean query
@@ -135,13 +134,13 @@ public class OpenEjbCorbaRefBuilder extends EjbRefBuilder {
 
                 // verify the cssBean query is valid
                 try {
-                    localConfiguration.findGBean(cssBean);
+                    module.getEarContext().findGBean(cssBean);
                 } catch (GBeanNotFoundException e) {
-                    throw new DeploymentException("Could not find css bean matching " + cssBean + " from configuration " + localConfiguration.getId());
+                    throw new DeploymentException("Could not find css bean matching " + cssBean + " from configuration " + module.getConfigId());
                 }
 
                 // create ref
-                ejbReference = new CORBAProxyReference(getConfigId(localConfiguration, earConfiguration), cssBean, new URI(remoteRef.getNsCorbaloc().trim()), remoteRef.getName().trim(), home);
+                ejbReference = new CORBAProxyReference(module.getConfigId(), cssBean, new URI(remoteRef.getNsCorbaloc().trim()), remoteRef.getName().trim(), home);
             } catch (URISyntaxException e) {
                 throw new DeploymentException("Could not construct CORBA NameServer URI: " + remoteRef.getNsCorbaloc(), e);
             }

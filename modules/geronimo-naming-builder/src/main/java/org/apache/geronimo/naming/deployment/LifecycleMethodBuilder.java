@@ -30,7 +30,6 @@ import javax.annotation.PreDestroy;
 
 import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.QNameSet;
-import org.apache.geronimo.kernel.config.Configuration;
 import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 import org.apache.geronimo.j2ee.deployment.Module;
 import org.apache.geronimo.j2ee.deployment.NamingBuilder;
@@ -50,7 +49,7 @@ import org.apache.xbean.finder.ClassFinder;
  * @version $Rev$ $Date$
  */
 public class LifecycleMethodBuilder extends AbstractNamingBuilder {
-    public void buildNaming(XmlObject specDD, XmlObject plan, Configuration localConfiguration, Configuration remoteConfiguration, Module module, Map componentContext) throws DeploymentException {
+    public void buildNaming(XmlObject specDD, XmlObject plan, Module module, Map componentContext) throws DeploymentException {
         // skip ejb modules... they have alreayd been processed
         if (module.getType() == ConfigurationModuleType.EJB) {
             return;

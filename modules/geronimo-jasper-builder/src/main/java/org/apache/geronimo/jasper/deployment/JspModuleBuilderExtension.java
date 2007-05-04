@@ -58,7 +58,6 @@ import org.apache.geronimo.jasper.JasperServletContextCustomizer;
 import org.apache.geronimo.kernel.GBeanAlreadyExistsException;
 import org.apache.geronimo.kernel.Naming;
 import org.apache.geronimo.kernel.config.Configuration;
-import org.apache.geronimo.kernel.config.ConfigurationData;
 import org.apache.geronimo.kernel.config.ConfigurationStore;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.schema.SchemaConversionUtils;
@@ -150,7 +149,7 @@ public class JspModuleBuilderExtension implements ModuleBuilderExtension {
         ClassFinder classFinder = createJspClassFinder(webApp, webModule, listenerNames);
         webModule.setClassFinder(classFinder);
 
-        namingBuilders.buildNaming(webApp, jettyWebApp, moduleContext.getConfiguration(), earConfiguration, webModule, buildingContext);
+        namingBuilders.buildNaming(webApp, jettyWebApp, webModule, buildingContext);
 
         //only try to install it if reference will work.
         //Some users (tomcat?) may have back doors into jasper that make adding this gbean unnecessary.

@@ -156,7 +156,7 @@ public class MyFacesModuleBuilderExtension implements ModuleBuilderExtension {
         ClassFinder classFinder = createMyFacesClassFinder(webApp, webModule);
         webModule.setClassFinder(classFinder);
 
-        namingBuilders.buildNaming(webApp, jettyWebApp, moduleContext.getConfiguration(), earConfiguration, webModule, buildingContext);
+        namingBuilders.buildNaming(webApp, jettyWebApp, webModule, buildingContext);
 
         AbstractName providerName = moduleContext.getNaming().createChildName(moduleName, "jsf-lifecycle", "jsf");
         GBeanData providerData = new GBeanData(providerName, LifecycleProviderGBean.GBEAN_INFO);

@@ -76,13 +76,10 @@ public class PersistenceUnitRefBuilder extends AbstractNamingBuilder {
         return plan != null && plan.selectChildren(PersistenceUnitRefBuilder.GER_PERSISTENCE_UNIT_REF_QNAME_SET).length > 0;
     }
 
-    public void initContext(XmlObject specDD, XmlObject plan, Configuration localConfiguration, Configuration remoteConfiguration, Module module) throws DeploymentException {
-    }
-
-    public void buildNaming(XmlObject specDD, XmlObject plan, Configuration localConfiguration, Configuration remoteConfiguration, Module module, Map componentContext) throws DeploymentException {
-
+    public void buildNaming(XmlObject specDD, XmlObject plan, Module module, Map componentContext) throws DeploymentException {
+        Configuration localConfiguration = module.getEarContext().getConfiguration();
         // Discover and process any @PersistenceUnitRef annotations (if !metadata-complete)
-        if ((module != null) && (module.getClassFinder() != null)) {
+        if (module.getClassFinder() != null) {
             processAnnotations(module);
         }
 
@@ -126,7 +123,7 @@ public class PersistenceUnitRefBuilder extends AbstractNamingBuilder {
                 }
                 checkForGBean(localConfiguration, persistenceUnitNameQuery, true);
 
-                PersistenceUnitReference reference = new PersistenceUnitReference(getConfigId(localConfiguration, remoteConfiguration), persistenceUnitNameQuery);
+                PersistenceUnitReference reference = new PersistenceUnitReference(module.getConfigId(), persistenceUnitNameQuery);
 
                 NamingBuilder.JNDI_KEY.get(componentContext).put(ENV + persistenceUnitRefName, reference);
             } catch (DeploymentException e) {
@@ -144,7 +141,7 @@ public class PersistenceUnitRefBuilder extends AbstractNamingBuilder {
 
                 checkForGBean(localConfiguration, persistenceUnitNameQuery, true);
 
-                PersistenceUnitReference reference = new PersistenceUnitReference(getConfigId(localConfiguration, remoteConfiguration), persistenceUnitNameQuery);
+                PersistenceUnitReference reference = new PersistenceUnitReference(module.getConfigId(), persistenceUnitNameQuery);
 
                 NamingBuilder.JNDI_KEY.get(componentContext).put(ENV + PersistenceUnitRefName, reference);
             } catch (DeploymentException e) {

@@ -17,10 +17,10 @@
 
 package org.apache.geronimo.naming.deployment;
 
-import java.util.Map;
-import java.util.List;
-import java.lang.reflect.Method;
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+import java.util.List;
+import java.util.Map;
 
 import javax.annotation.Resource;
 
@@ -29,19 +29,17 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
-import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
-import org.apache.geronimo.j2ee.deployment.annotation.ResourceAnnotationHelper;
-import org.apache.geronimo.j2ee.deployment.annotation.AnnotatedApp;
 import org.apache.geronimo.j2ee.deployment.Module;
-import org.apache.geronimo.kernel.config.Configuration;
-import org.apache.geronimo.kernel.repository.Environment;
+import org.apache.geronimo.j2ee.deployment.annotation.AnnotatedApp;
+import org.apache.geronimo.j2ee.deployment.annotation.ResourceAnnotationHelper;
+import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.naming.reference.KernelReference;
+import org.apache.geronimo.xbeans.javaee.DescriptionType;
 import org.apache.geronimo.xbeans.javaee.EnvEntryType;
-import org.apache.geronimo.xbeans.javaee.JndiNameType;
 import org.apache.geronimo.xbeans.javaee.EnvEntryTypeValuesType;
 import org.apache.geronimo.xbeans.javaee.InjectionTargetType;
+import org.apache.geronimo.xbeans.javaee.JndiNameType;
 import org.apache.geronimo.xbeans.javaee.XsdStringType;
-import org.apache.geronimo.xbeans.javaee.DescriptionType;
 import org.apache.xmlbeans.QNameSet;
 import org.apache.xmlbeans.XmlObject;
 
@@ -57,13 +55,8 @@ public class EnvironmentEntryBuilder extends AbstractNamingBuilder {
     public EnvironmentEntryBuilder(String[] eeNamespaces) {
         envEntryQNameSet = buildQNameSet(eeNamespaces, "env-entry");
     }
-    public void buildEnvironment(XmlObject specDD, XmlObject plan, Environment environment) {
-    }
 
-    public void initContext(XmlObject specDD, XmlObject plan, Configuration localConfiguration, Configuration remoteConfiguration, Module module) throws DeploymentException {
-    }
-
-    public void buildNaming(XmlObject specDD, XmlObject plan, Configuration localConfiguration, Configuration remoteConfiguration, Module module, Map componentContext) throws DeploymentException {
+    public void buildNaming(XmlObject specDD, XmlObject plan, Module module, Map componentContext) throws DeploymentException {
 
         // Discover and process any @Resource annotations (if !metadata-complete)
         if ((module != null) && (module.getClassFinder() != null)) {
@@ -94,7 +87,7 @@ public class EnvironmentEntryBuilder extends AbstractNamingBuilder {
                 } else if ("java.lang.String".equals(type)) {
                     value = text;
                 } else if ("java.lang.Character".equals(type)) {
-                    value = new Character(text.charAt(0));
+                    value = text.charAt(0);
                 } else if ("java.lang.Boolean".equals(type)) {
                     value = Boolean.valueOf(text);
                 } else if ("java.lang.Byte".equals(type)) {

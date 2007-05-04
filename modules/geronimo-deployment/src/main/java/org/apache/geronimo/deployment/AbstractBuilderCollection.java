@@ -18,37 +18,36 @@ package org.apache.geronimo.deployment;
 
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Iterator;
 
 import javax.xml.namespace.QName;
 
-import org.apache.xmlbeans.QNameSet;
 import org.apache.geronimo.deployment.xmlbeans.XmlBeansUtil;
 import org.apache.geronimo.gbean.ReferenceCollection;
-import org.apache.geronimo.gbean.ReferenceCollectionListener;
 import org.apache.geronimo.gbean.ReferenceCollectionEvent;
+import org.apache.geronimo.gbean.ReferenceCollectionListener;
+import org.apache.xmlbeans.QNameSet;
 
 /**
  * @version $Rev$ $Date$
  */
-public abstract class AbstractBuilderCollection {
-    protected final Collection builders;
+public abstract class AbstractBuilderCollection<T> {
+    protected final Collection<T> builders;
     protected final QName basePlanElementName;
     protected QNameSet specQNames = QNameSet.EMPTY;
     protected QNameSet planQNames = QNameSet.EMPTY;
 
-    protected AbstractBuilderCollection(Collection builders, final QName basePlanElementName) {
+    protected AbstractBuilderCollection(Collection<T> builders, final QName basePlanElementName) {
         this.builders = builders == null ? Collections.EMPTY_SET : builders;
         this.basePlanElementName = basePlanElementName;
         if (builders instanceof ReferenceCollection) {
             ((ReferenceCollection) builders).addReferenceCollectionListener(new ReferenceCollectionListener() {
 
                 public void memberAdded(ReferenceCollectionEvent event) {
-                    addBuilder(event.getMember());
+                    addBuilder((T) event.getMember());
                 }
 
                 public void memberRemoved(ReferenceCollectionEvent event) {
-                    Object builder = event.getMember();
+                    T builder = (T) event.getMember();
                     QNameSet builderSpecQNames = ((AbstractNamespaceBuilder) builder).getSpecQNameSet();
                     specQNames = specQNames.intersect(builderSpecQNames.inverse());
                     QNameSet builderPlanQNames = ((AbstractNamespaceBuilder) builder).getPlanQNameSet();
@@ -57,14 +56,13 @@ public abstract class AbstractBuilderCollection {
                 }
             });
         }
-        for (Iterator iterator = this.builders.iterator(); iterator.hasNext();) {
-            Object builder = iterator.next();
+        for (T builder : this.builders) {
             addBuilder(builder);
         }
     }
 
 
-    protected void addBuilder(Object builder) {
+    protected void addBuilder(T builder) {
         QNameSet builderSpecQNames = ((AbstractNamespaceBuilder) builder).getSpecQNameSet();
         QNameSet builderPlanQNames = ((AbstractNamespaceBuilder) builder).getPlanQNameSet();
         if (builderSpecQNames == null) {

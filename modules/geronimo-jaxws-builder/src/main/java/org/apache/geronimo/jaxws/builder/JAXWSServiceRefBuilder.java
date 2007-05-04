@@ -28,7 +28,6 @@ import javax.xml.ws.handler.Handler;
 
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.j2ee.deployment.Module;
-import org.apache.geronimo.kernel.config.Configuration;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.naming.deployment.AbstractNamingBuilder;
 import org.apache.geronimo.naming.deployment.ServiceRefBuilder;
@@ -64,11 +63,9 @@ public abstract class JAXWSServiceRefBuilder extends AbstractNamingBuilder imple
     }
 
     public void buildNaming(XmlObject specDD,
-                            XmlObject plan,
-                            Configuration localConfiguration,
-                            Configuration remoteConfiguration,
-                            Module module,
-                            Map componentContext) throws DeploymentException {       
+            XmlObject plan,
+            Module module,
+            Map componentContext) throws DeploymentException {
         List<ServiceRefType> serviceRefsUntyped = convert(specDD.selectChildren(serviceRefQNameSet), JEE_CONVERTER, ServiceRefType.class, ServiceRefType.type);
         XmlObject[] gerServiceRefsUntyped = plan == null ? NO_REFS : plan.selectChildren(GER_SERVICE_REF_QNAME_SET);
         Map serviceRefMap = mapServiceRefs(gerServiceRefsUntyped);

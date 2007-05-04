@@ -31,15 +31,18 @@
         <reference name="ServiceBuilders">
             <name>GBeanBuilder</name>
         </reference>
+        <references name="ModuleBuilderExtensions">
+            <pattern>
+                <name>PersistenceUnitBuilder</name>
+            </pattern>
+        </references>
         <references name="NamingBuilders">
             <pattern>
                 <name>GBeanRefBuilder</name>
             </pattern>
-<!--  temporariy removed to avoid duplicate loading of rmi-naming in client & server until we can get client/server specific jpa configs created.
             <pattern>
-                <name>PersistenceContextRefBuilder</name>
+                <name>PersistenceUnitRefBuilder</name>
             </pattern>
--->
             <pattern>
                 <name>ClientResourceRefBuilder</name>
             </pattern>

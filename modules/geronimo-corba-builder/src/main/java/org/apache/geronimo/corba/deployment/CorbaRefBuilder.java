@@ -22,7 +22,6 @@ import java.util.Map;
 
 import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.QNameSet;
-import org.apache.geronimo.kernel.config.Configuration;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.j2ee.deployment.Module;
@@ -56,13 +55,13 @@ public class CorbaRefBuilder extends AbstractNamingBuilder {
 //        return false;
     }
 
-    public void buildNaming(XmlObject specDD, XmlObject plan, Configuration localConfiguration, Configuration remoteConfiguration, Module module, Map componentContext) throws DeploymentException {
-        if (matchesDefaultEnvironment(localConfiguration.getEnvironment())) {
+    public void buildNaming(XmlObject specDD, XmlObject plan, Module module, Map componentContext) throws DeploymentException {
+        if (matchesDefaultEnvironment(module.getEnvironment())) {
             CorbaGBeanNameSource corbaGBeanNameSource = (CorbaGBeanNameSource) corbaGBeanNameSourceCollection.getElement();
             if (corbaGBeanNameSource != null) {
                 AbstractNameQuery corbaName = corbaGBeanNameSource.getCorbaGBeanName();
                 if (corbaName != null) {
-                    Artifact[] moduleId = getConfigId(localConfiguration, remoteConfiguration);
+                    Artifact[] moduleId = module.getConfigId();
                     Map context = getJndiContextMap(componentContext);
                     context.put("ORB", new ORBReference(moduleId, corbaName));
                     context.put("HandleDelegate", new HandleDelegateReference(moduleId, corbaName));

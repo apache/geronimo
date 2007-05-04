@@ -117,7 +117,7 @@ public abstract class AbstractNamingBuilder implements NamingBuilder {
         return false;
     }
 
-    public void initContext(XmlObject specDD, XmlObject plan, Configuration localConfiguration, Configuration remoteConfiguration, Module module) throws DeploymentException {
+    public void initContext(XmlObject specDD, XmlObject plan, Module module) throws DeploymentException {
     }
 
     protected Map<String, Object> getJndiContextMap(Map sharedContext) {

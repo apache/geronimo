@@ -24,6 +24,7 @@ import java.net.URI;
 import org.apache.xmlbeans.XmlObject;
 import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 import org.apache.geronimo.kernel.repository.Environment;
+import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.deployment.util.DeploymentUtil;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.j2ee.deployment.annotation.AnnotatedApp;
@@ -193,4 +194,15 @@ public abstract class Module {
     public void setClassFinder(ClassFinder classFinder) {
         this.classFinder = classFinder;
     }
+
+    public Artifact[] getConfigId() {
+        if (earContext == null) {
+            throw new NullPointerException("No ear context set");
+        }
+        if (rootEarContext == null || rootEarContext == earContext || rootEarContext.getConfigID().equals(earContext.getConfigID())) {
+            return new Artifact[] {earContext.getConfigID()};
+        }
+        return new Artifact[] {rootEarContext.getConfigID(), earContext.getConfigID()};
+    }
+    
 }

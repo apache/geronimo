@@ -713,7 +713,7 @@ public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
         }
         getNamingBuilders().buildEnvironment(webApp, module.getVendorDD(), module.getEnvironment());
         //this is silly
-        getNamingBuilders().initContext(webApp, gerWebApp, module.getEarContext().getConfiguration(), earContext.getConfiguration(), module);
+        getNamingBuilders().initContext(webApp, gerWebApp, module);
 
         Map servletNameToPathMap = buildServletNameToPathMap((WebAppType) module.getSpecDD(), ((WebModule) module).getContextRoot());
 
@@ -806,7 +806,7 @@ public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
         //This means that you cannot use the default environment of the web builder to add configs that will be searched.
         Configuration earConfiguration = earContext.getConfiguration();
         Configuration localConfiguration = moduleContext.getConfiguration();
-        getNamingBuilders().buildNaming(webApp, vendorPlan, localConfiguration, earConfiguration, webModule, buildingContext);
+        getNamingBuilders().buildNaming(webApp, vendorPlan, webModule, buildingContext);
 
         Map compContext = NamingBuilder.JNDI_KEY.get(buildingContext);
         Holder holder = NamingBuilder.INJECTION_KEY.get(buildingContext);

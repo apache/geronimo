@@ -35,7 +35,6 @@ import org.apache.geronimo.j2ee.deployment.Module;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.GBeanAlreadyExistsException;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
-import org.apache.geronimo.kernel.config.Configuration;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.naming.deployment.AbstractNamingBuilder;
 import org.apache.geronimo.naming.deployment.ENCConfigBuilder;
@@ -72,7 +71,7 @@ public class TSSLinkBuilder extends AbstractNamingBuilder {
 //                plan.selectChildren(TSS_QNAME).length > 0);
 //    }
 
-    public void buildNaming(XmlObject specDD, XmlObject plan, Configuration localConfiguration, Configuration remoteConfiguration, Module module, Map componentContext) throws DeploymentException {
+    public void buildNaming(XmlObject specDD, XmlObject plan, Module module, Map componentContext) throws DeploymentException {
         if (plan == null) {
             return;
         }
@@ -88,11 +87,11 @@ public class TSSLinkBuilder extends AbstractNamingBuilder {
             String moduleString = moduleURI == null ? null : moduleURI.toString();
             AbstractNameQuery tssBeanName = ENCConfigBuilder.buildAbstractNameQuery(null, moduleString, tssLink, NameFactory.EJB_MODULE, NameFactory.EJB_MODULE);
             try {
-                localConfiguration.findGBean(tssBeanName);
+                module.getEarContext().findGBean(tssBeanName);
             } catch (GBeanNotFoundException e) {
                 tssBeanName = ENCConfigBuilder.buildAbstractNameQuery(null, null, tssLink, null, NameFactory.EJB_MODULE);
                 try {
-                    localConfiguration.findGBean(tssBeanName);
+                    module.getEarContext().findGBean(tssBeanName);
                 } catch (GBeanNotFoundException e1) {
                     throw new DeploymentException("No tss bean found", e);
                 }
@@ -103,7 +102,7 @@ public class TSSLinkBuilder extends AbstractNamingBuilder {
             tssLinkData.setReferencePattern("EJB", ejbName);
             tssLinkData.setReferencePattern("TSSBean", tssBeanName);
             try {
-                localConfiguration.addGBean(tssLinkData);
+                module.getEarContext().addGBean(tssLinkData);
             } catch (GBeanAlreadyExistsException e) {
                 throw new DeploymentException("tss link gbean already present", e);
             }
@@ -117,7 +116,7 @@ public class TSSLinkBuilder extends AbstractNamingBuilder {
             tssLinkData.setReferencePattern("EJB", ejbName);
             tssLinkData.setReferencePattern("TSSBean", tssBeanName);
             try {
-                localConfiguration.addGBean(tssLinkData);
+                module.getEarContext().addGBean(tssLinkData);
             } catch (GBeanAlreadyExistsException e) {
                 throw new DeploymentException("tss link gbean already present", e);
             }
