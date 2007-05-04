@@ -115,7 +115,7 @@ public abstract class CXFWebServiceContainer implements WebServiceContainer {
 
         EndpointInfo ei = this.destination.getEndpointInfo();
 
-        Definition def = new ServiceWSDLBuilder(ei.getService()).build();
+        Definition def = new ServiceWSDLBuilder(bus,ei.getService()).build();
         
         QName serviceName = ei.getService().getName();
         String portName = ei.getName().getLocalPart();
