@@ -46,7 +46,7 @@ public class EARContext extends DeploymentContext {
     private AbstractName jaccManagerName;
     private Object securityConfiguration;
 
-    private final Map  messageDestinations = new HashMap();
+    private final Map  messageDestinations;
 
     private final Map<Object,Object> generalData = new HashMap<Object,Object>();
 
@@ -72,6 +72,7 @@ public class EARContext extends DeploymentContext {
         this.transactedTimerName = transactedTimerName;
         this.nonTransactedTimerName = nonTransactedTimerName;
         this.corbaGBeanObjectName = corbaGBeanObjectName;
+        this.messageDestinations = new HashMap();
     }
 
     public EARContext(File baseDir,
@@ -86,8 +87,8 @@ public class EARContext extends DeploymentContext {
             AbstractNameQuery connectionTrackerObjectName,
             AbstractNameQuery transactedTimerName,
             AbstractNameQuery nonTransactedTimerName,
-            AbstractNameQuery corbaGBeanObjectName
-    ) throws DeploymentException {
+            AbstractNameQuery corbaGBeanObjectName,
+            Map messageDestinations) throws DeploymentException {
         super(baseDir, inPlaceConfigurationDir, environment, baseName, moduleType, naming, configurationManager);
 
         this.serverName = serverName;
@@ -97,6 +98,7 @@ public class EARContext extends DeploymentContext {
         this.transactedTimerName = transactedTimerName;
         this.nonTransactedTimerName = nonTransactedTimerName;
         this.corbaGBeanObjectName = corbaGBeanObjectName;
+        this.messageDestinations = messageDestinations;
     }
 
     public EARContext(File baseDir, File inPlaceConfigurationDir, Environment environment, ConfigurationModuleType moduleType, AbstractName baseName, EARContext parent) throws DeploymentException {
@@ -108,6 +110,7 @@ public class EARContext extends DeploymentContext {
         this.transactedTimerName = parent.getTransactedTimerName();
         this.nonTransactedTimerName = parent.getNonTransactedTimerName();
         this.corbaGBeanObjectName = parent.getCORBAGBeanName();
+        this.messageDestinations  = new HashMap();
     }
 
     public AbstractNameQuery getServerName() {

@@ -503,8 +503,8 @@ public class AppClientModuleBuilder implements ModuleBuilder, CorbaGBeanNameSour
                     connectionTrackerObjectName,
                     null,
                     null,
-                    corbaGBeanObjectName
-            );
+                    corbaGBeanObjectName,
+                    earContext.getMessageDestinations());
             appClientModule.setEarContext(appClientDeploymentContext);
             appClientModule.setRootEarContext(appClientDeploymentContext);
 
