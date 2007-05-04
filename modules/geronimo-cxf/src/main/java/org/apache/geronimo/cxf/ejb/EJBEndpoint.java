@@ -19,18 +19,32 @@
 package org.apache.geronimo.cxf.ejb;
 
 import java.net.URL;
+import java.util.List;
+
+import javax.naming.InitialContext;
+import javax.naming.NamingException;
+import javax.xml.ws.WebServiceContext;
+import javax.xml.ws.WebServiceException;
 
 import org.apache.cxf.Bus;
+import org.apache.cxf.binding.soap.SoapBinding;
+import org.apache.cxf.binding.soap.interceptor.MustUnderstandInterceptor;
+import org.apache.cxf.binding.soap.saaj.SAAJInInterceptor;
+import org.apache.cxf.endpoint.Endpoint;
+import org.apache.cxf.interceptor.Interceptor;
+import org.apache.cxf.jaxws.handler.LogicalHandlerInterceptor;
+import org.apache.cxf.jaxws.handler.soap.SOAPHandlerInterceptor;
 import org.apache.cxf.jaxws.support.JaxWsServiceFactoryBean;
-import org.apache.cxf.message.Message;
 import org.apache.geronimo.cxf.CXFEndpoint;
 import org.apache.geronimo.cxf.CXFServiceConfiguration;
 import org.apache.geronimo.cxf.GeronimoJaxWsImplementorInfo;
+import org.apache.geronimo.jaxws.JAXWSAnnotationProcessor;
 import org.apache.geronimo.jaxws.JAXWSUtils;
+import org.apache.geronimo.jaxws.JNDIResolver;
 import org.apache.openejb.DeploymentInfo;
 
 public class EJBEndpoint extends CXFEndpoint {
-
+    
     public EJBEndpoint(Bus bus,
                        URL configurationBaseUrl,
                        Class instance) {
@@ -61,14 +75,75 @@ public class EJBEndpoint extends CXFEndpoint {
         service = serviceFactory.create();        
     }
     
-    protected void init() {         
-        DeploymentInfo deploymentInfo = 
-            (DeploymentInfo)bus.getExtension(DeploymentInfo.class);
-        service.setInvoker(new EJBMethodInvoker(deploymentInfo));        
-    }
-    
     protected Class getImplementorClass() {
         return (Class)this.implementor;
+    }
+    
+    protected void init() {
+        // configure handlers
+        try {
+            initHandlers();
+        } catch (Exception e) {
+            throw new WebServiceException("Error configuring handlers", e);
+        }
+                
+        DeploymentInfo deploymentInfo = 
+            (DeploymentInfo)bus.getExtension(DeploymentInfo.class);
+        
+        service.setInvoker(new EJBMethodInvoker(this, this.bus, deploymentInfo));  
+        
+        Endpoint endpoint = getEndpoint();
+        
+        /* 
+         * Remove interceptors that perform handler processing since
+         * handler processing must happen within the EJB container.
+         */        
+        removeHandlerInterceptors(bus.getInInterceptors());
+        removeHandlerInterceptors(endpoint.getInInterceptors());
+        removeHandlerInterceptors(endpoint.getBinding().getInInterceptors());
+        removeHandlerInterceptors(endpoint.getService().getInInterceptors());
+        
+        // install SAAJ interceptor        
+        if (endpoint.getBinding() instanceof SoapBinding &&
+            !this.implInfo.isWebServiceProvider()) {
+            endpoint.getService().getInInterceptors().add(new SAAJInInterceptor());
+        }        
+    }
+        
+    private static void removeHandlerInterceptors(List<Interceptor> interceptors) {
+        for (Interceptor interceptor : interceptors) {
+            if (interceptor instanceof MustUnderstandInterceptor ||
+                interceptor instanceof LogicalHandlerInterceptor ||
+                interceptor instanceof SOAPHandlerInterceptor) {
+                interceptors.remove(interceptor);
+            }
+        } 
+    }
+    
+    public synchronized void injectHandlers() {
+        if (this.annotationProcessor != null) {
+            // assume injection was already done
+            return;
+        }
+        
+        WebServiceContext wsContext = null;
+        try {
+            InitialContext ctx = new InitialContext();
+            wsContext = (WebServiceContext) ctx.lookup("java:comp/WebServiceContext");
+        } catch (NamingException e) {
+            throw new WebServiceException("Failed to lookup WebServiceContext", e);
+        }
+        
+        this.annotationProcessor = new JAXWSAnnotationProcessor(new JNDIResolver(), wsContext);
+        super.injectHandlers();
+    }
+    
+    public void stop() {
+        // call handler preDestroy
+        destroyHandlers();
+
+        // shutdown server
+        super.stop();
     }
     
 }

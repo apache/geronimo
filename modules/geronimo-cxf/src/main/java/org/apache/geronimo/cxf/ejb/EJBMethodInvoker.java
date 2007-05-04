@@ -19,27 +19,37 @@
 
 package org.apache.geronimo.cxf.ejb;
 
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.interceptor.InvocationContext;
 import javax.xml.ws.handler.MessageContext;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.apache.cxf.Bus;
 import org.apache.cxf.interceptor.Fault;
-import org.apache.cxf.jaxws.JAXWSMethodInvoker;
 import org.apache.cxf.jaxws.context.WebServiceContextImpl;
 import org.apache.cxf.jaxws.support.ContextPropertiesMapping;
 import org.apache.cxf.message.Exchange;
+import org.apache.cxf.message.FaultMode;
+import org.apache.cxf.service.invoker.AbstractInvoker;
 import org.apache.openejb.DeploymentInfo;
-import org.apache.openejb.OpenEJBException;
 import org.apache.openejb.RpcContainer;
 
-public class EJBMethodInvoker extends JAXWSMethodInvoker {
+public class EJBMethodInvoker extends AbstractInvoker {
 
+    private static final Log LOG = LogFactory.getLog(EJBMethodInvoker.class);
+    
     private DeploymentInfo deploymentInfo;
+    private Bus bus;
+    private EJBEndpoint endpoint;
 
-    public EJBMethodInvoker(DeploymentInfo deploymentInfo) {
-        super(null, null);
+    public EJBMethodInvoker(EJBEndpoint endpoint, Bus bus, DeploymentInfo deploymentInfo) {
+        this.endpoint = endpoint;
+        this.bus = bus;
         this.deploymentInfo = deploymentInfo;
     }
 
@@ -47,42 +57,108 @@ public class EJBMethodInvoker extends JAXWSMethodInvoker {
         return null;
     }
 
-    protected Object invoke(Exchange exchange,
-                            Object serviceObject,
-                            Method m,
-                            List<Object> params) {
-
+    protected Object invoke(Exchange exchange, 
+                            Object serviceObject, 
+                            Method m, 
+                            List<Object> params) {       
+        Object result = null;
+        
+        InvocationContext invContext = exchange.get(InvocationContext.class);
+        if (invContext == null) {
+            LOG.debug("PreEJBInvoke");
+            result = preEjbInvoke(exchange, serviceObject, m, params);
+        } else {
+            LOG.debug("EJBInvoke");
+            result = ejbInvoke(exchange, serviceObject, m, params);
+        }    
+        
+        return result;
+    }
+    
+    private Object preEjbInvoke(Exchange exchange, 
+                                Object serviceObject, 
+                                Method method, 
+                                List<Object> params) {           
+        
         MessageContext ctx = ContextPropertiesMapping.createWebServiceContext(exchange);
         WebServiceContextImpl.setMessageContext(ctx);
 
-        Object[] paramArray = new Object[] {};
-        if (params != null) {
-            paramArray = params.toArray();
-        }
+        try {           
+            EJBInterceptor interceptor = new EJBInterceptor(params, method, this.endpoint, this.bus, exchange);
+            Object[] arguments = { ctx, interceptor };
 
-        insertExchange(m, paramArray, exchange);
-        
-        RpcContainer container = (RpcContainer) this.deploymentInfo.getContainer();
-        Object result = null;
+            RpcContainer container = (RpcContainer) this.deploymentInfo.getContainer();
+
+            Class callInterface = this.deploymentInfo.getServiceEndpointInterface();
+            method = getMostSpecificMethod(method, callInterface);
+            Object res = container.invoke(this.deploymentInfo.getDeploymentID(), method, arguments, null);
+
+            if (exchange.isOneWay()) {
+                return null;
+            }
+
+            List<Object> retList = new ArrayList<Object>(1);
+            if (!((Class) method.getReturnType()).getName().equals("void")) {
+                retList.add(res);
+            }
+            
+            return retList;
+        } catch (Exception e) {
+            exchange.getInMessage().put(FaultMode.class, FaultMode.UNCHECKED_APPLICATION_FAULT);
+            throw new Fault(e);
+        } finally {
+            WebServiceContextImpl.clear();
+        }
+    }
+    
+    private Object ejbInvoke(Exchange exchange, 
+                             Object serviceObject, 
+                             Method m, 
+                             List<Object> params) {         
         try {
-            result = container.invoke(this.deploymentInfo.getDeploymentID(), m, paramArray, null, null);
-        } catch (OpenEJBException e) {
-            throw new Fault(e);           
-        } catch (RuntimeException e) {
+            Object res = directEjbInvoke(exchange, m, params);
+            
+            if (exchange.isOneWay()) {
+                return null;
+            }
+            
+            List<Object> retList = new ArrayList<Object>(1);
+            if (!((Class)m.getReturnType()).getName().equals("void")) {
+                retList.add(res);
+            }
+            
+            return retList;
+        } catch (InvocationTargetException e) {
+            Throwable t = e.getCause();
+            if (t == null) {
+                t = e;
+            }
+            exchange.getInMessage().put(FaultMode.class, FaultMode.CHECKED_APPLICATION_FAULT);
+            throw new Fault(t);
+        } catch (Exception e) {
+            exchange.getInMessage().put(FaultMode.class, FaultMode.UNCHECKED_APPLICATION_FAULT);
             throw new Fault(e);
         }
-        
-        if (exchange.isOneWay()) {
-            return null;
-        }
-
-        List<Object> retList = new ArrayList<Object>(1);
-        if (!((Class) m.getReturnType()).getName().equals("void")) {
-            retList.add(result);
-        }
-
-        ContextPropertiesMapping.updateWebServiceContext(exchange, ctx);
-
-        return retList;
     }
+
+    public Object directEjbInvoke(Exchange exchange, 
+                                  Method m, 
+                                  List<Object> params) throws Exception {
+        InvocationContext invContext = exchange.get(InvocationContext.class);
+        Object[] paramArray;
+        if (params != null) {
+            paramArray = params.toArray();
+        } else {
+            paramArray = new Object[]{};
+        }
+                    
+        invContext.setParameters(paramArray);
+        Object res = invContext.proceed();
+        
+        ContextPropertiesMapping.updateWebServiceContext(exchange, 
+                                                         (MessageContext)invContext.getContextData());
+                
+        return res;
+    }
+        
 }

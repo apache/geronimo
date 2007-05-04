@@ -19,30 +19,22 @@
 package org.apache.geronimo.cxf.pojo;
 
 import java.net.URL;
-import java.util.List;
 
 import javax.xml.ws.WebServiceException;
-import javax.xml.ws.handler.Handler;
 
 import org.apache.cxf.Bus;
 import org.apache.cxf.jaxws.JAXWSMethodInvoker;
-import org.apache.cxf.jaxws.handler.PortInfoImpl;
-import org.apache.cxf.jaxws.javaee.HandlerChainsType;
 import org.apache.cxf.jaxws.support.JaxWsServiceFactoryBean;
 import org.apache.geronimo.cxf.CXFEndpoint;
-import org.apache.geronimo.cxf.CXFHandlerResolver;
 import org.apache.geronimo.cxf.CXFServiceConfiguration;
 import org.apache.geronimo.cxf.GeronimoJaxWsImplementorInfo;
 import org.apache.geronimo.jaxws.JAXWSAnnotationProcessor;
 import org.apache.geronimo.jaxws.JAXWSUtils;
 import org.apache.geronimo.jaxws.JNDIResolver;
 import org.apache.geronimo.jaxws.annotations.AnnotationException;
-import org.apache.geronimo.jaxws.annotations.AnnotationProcessor;
 
 public class POJOEndpoint extends CXFEndpoint {
-
-    private AnnotationProcessor annotationProcessor;
-
+  
     public POJOEndpoint(Bus bus, URL configurationBaseUrl, Object instance) {
         super(bus, instance);
         
@@ -79,7 +71,8 @@ public class POJOEndpoint extends CXFEndpoint {
     protected void init() {        
         // configure and inject handlers
         try {
-            configureHandlers();
+            initHandlers();
+            injectHandlers();
         } catch (Exception e) {
             throw new WebServiceException("Error configuring handlers", e);
         }
@@ -92,38 +85,9 @@ public class POJOEndpoint extends CXFEndpoint {
         }
     }
 
-    private void injectResources(Object instance) throws AnnotationException {
-        this.annotationProcessor.processAnnotations(instance);
-        this.annotationProcessor.invokePostConstruct(instance);
-    }
-
-    /*
-     * Gets the right handlers for the port/service/bindings and 
-     * performs injection.
-     */
-    protected void configureHandlers() throws Exception {        
-        HandlerChainsType handlerChains = this.portInfo.getHandlers(HandlerChainsType.class);
-        CXFHandlerResolver handlerResolver =
-            new CXFHandlerResolver(this.implementor.getClass().getClassLoader(), 
-                                   this.implementor.getClass(),
-                                   handlerChains, 
-                                   this.annotationProcessor);
-                      
-        PortInfoImpl portInfo = new PortInfoImpl(implInfo.getBindingType(), 
-                                                 serviceFactory.getEndpointName(),
-                                                 service.getName());
-        
-        List<Handler> chain = handlerResolver.getHandlerChain(portInfo);
-
-        getBinding().setHandlerChain(chain);
-    }
-
     public void stop() {
-        // call handlers preDestroy
-        List<Handler> handlers = getBinding().getHandlerChain();
-        for (Handler handler : handlers) {
-            this.annotationProcessor.invokePreDestroy(handler);
-        }
+        // call handler preDestroy
+        destroyHandlers();
 
         // call service preDestroy
         this.annotationProcessor.invokePreDestroy(this.implementor);
