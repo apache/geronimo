@@ -549,6 +549,11 @@ public class DeploymentContext {
             configuration.findGBean(patterns);
             return null;
         } catch (GBeanNotFoundException e) {
+            //TODO bug!! GERONIMO-3140 Multiple matches may be caused by using an already-loaded configuration rather than reloading one
+            // using the client_artifact_aliases.properties which e.g. remap the server tm to the client tm.
+            if (e.hasMatches()) {
+                return null;
+            }
             return e.getMessage();
         }
     }
