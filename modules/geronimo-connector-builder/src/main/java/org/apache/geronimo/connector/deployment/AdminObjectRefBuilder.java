@@ -347,11 +347,19 @@ public class AdminObjectRefBuilder extends AbstractNamingBuilder {
             } else {
                 //if it maps to a resource-env-ref in the geronimo plan, it's a resource-ref
                 GerResourceEnvRefType resourceEnvRefType = refMap.get(resourceName);
-                if (resourceEnvRefType != null) {
+                if (resourceEnvRefType != null || resourceType.equals("javax.transaction.UserTransaction")) {
                     //mapped resource-env-ref
                     addResourceEnvRef(annotatedApp, resourceName, resourceType, method, field, annotation);
                     return true;
                 } else {
+                    //look for an JCAAdminObject gbean with the right name
+                    AbstractNameQuery containerId = buildAbstractNameQuery(null, null, resourceName, NameFactory.JCA_ADMIN_OBJECT, NameFactory.RESOURCE_ADAPTER_MODULE);
+                    try {
+                        localConfiguration.findGBean(containerId);
+                    } catch (GBeanNotFoundException e) {
+                        //not identifiable as an admin object ref
+                        return false;
+                    }
                     addResourceEnvRef(annotatedApp, resourceName, resourceType, method, field, annotation);
                     return true;
                 }
