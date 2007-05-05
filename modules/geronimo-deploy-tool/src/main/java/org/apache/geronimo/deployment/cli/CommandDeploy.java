@@ -17,13 +17,14 @@
 
 package org.apache.geronimo.deployment.cli;
 
-import org.apache.geronimo.common.DeploymentException;
+import java.io.File;
+import java.io.PrintWriter;
 
 import javax.enterprise.deploy.spi.DeploymentManager;
 import javax.enterprise.deploy.spi.Target;
 import javax.enterprise.deploy.spi.status.ProgressObject;
-import java.io.File;
-import java.io.PrintWriter;
+
+import org.apache.geronimo.common.DeploymentException;
 
 /**
  * The CLI deployer logic to deploy (distribute plus start).
@@ -31,17 +32,6 @@ import java.io.PrintWriter;
  * @version $Rev$ $Date$
  */
 public class CommandDeploy extends CommandDistribute {
-    public CommandDeploy() {
-        super("deploy", "1. Common Commands", "[--inPlace] [--targets target;target;...] [module] [plan]",
-                "Normally both a module and plan are passed to the deployer.  " +
-                "Sometimes the module contains a plan, or requires no plan, in which case " +
-                "the plan may be omitted.  Sometimes the plan references a module already " +
-                "deployed in the Geronimo server environment, in which case a module does " +
-                "not need to be provided.\n" +
-                "If no targets are provided, the module is deployed to all available " +
-                "targets.  Geronimo only provides one target (ever), so this is primarily " +
-                "useful when using a different driver.");
-    }
 
     protected String getAction() {
         return "Deployed";
@@ -56,7 +46,4 @@ public class CommandDeploy extends CommandDistribute {
         return mgr.start(po.getResultTargetModuleIDs());
     }
 
-    public void execute(PrintWriter out, ServerConnection connection, String[] args) throws DeploymentException {
-        super.execute(out, connection, args);
-    }
 }

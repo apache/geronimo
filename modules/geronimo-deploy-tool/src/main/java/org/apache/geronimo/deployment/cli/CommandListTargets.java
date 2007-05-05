@@ -17,10 +17,12 @@
 
 package org.apache.geronimo.deployment.cli;
 
-import org.apache.geronimo.common.DeploymentException;
+import java.io.PrintWriter;
 
 import javax.enterprise.deploy.spi.Target;
-import java.io.PrintWriter;
+
+import org.apache.geronimo.cli.deployer.CommandArgs;
+import org.apache.geronimo.common.DeploymentException;
 
 /**
  * The CLI deployer logic to list targets.
@@ -28,14 +30,8 @@ import java.io.PrintWriter;
  * @version $Rev$ $Date$
  */
 public class CommandListTargets extends AbstractCommand {
-    public CommandListTargets() {
-        super("list-targets", "2. Other Commands", "",
-                "Lists the targets known to the server you've connected to.\n" +
-                "In the case of Geronimo, each configuration store is a separate " +
-                "target.  Geronimo does not yet support clusters as targets.");
-    }
 
-    public void execute(PrintWriter out, ServerConnection connection, String[] args) throws DeploymentException {
+    public void execute(PrintWriter out, ServerConnection connection, CommandArgs commandArgs) throws DeploymentException {
         Target[] list = connection.getDeploymentManager().getTargets();
         out.println("Available Targets:");
         for(int i = 0; i < list.length; i++) {

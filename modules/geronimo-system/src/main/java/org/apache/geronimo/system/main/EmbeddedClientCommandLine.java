@@ -16,6 +16,7 @@
  */
 package org.apache.geronimo.system.main;
 
+import org.apache.geronimo.cli.client.ClientCLParser;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.kernel.Kernel;
@@ -35,6 +36,13 @@ public class EmbeddedClientCommandLine extends ClientCommandLine implements Main
         this.kernel = kernel;
     }
 
+    public int execute(Object opaque) {
+        if (! (opaque instanceof ClientCLParser)) {
+            throw new IllegalArgumentException("Argument type is [" + opaque.getClass() + "]; expected [" + String[].class + "]");
+        }
+        return super.execute((ClientCLParser) opaque);
+    }
+    
     @Override
     protected Kernel getBootedKernel() throws Exception {
         return kernel;

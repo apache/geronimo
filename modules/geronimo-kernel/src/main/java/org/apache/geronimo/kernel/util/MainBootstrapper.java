@@ -35,7 +35,8 @@ import org.apache.geronimo.kernel.repository.Artifact;
 public class MainBootstrapper extends MainConfigurationBootstrapper {
 
     public static void main(String[] args) {
-        main(new MainBootstrapper(), args);
+        int status = main(new MainBootstrapper(), args);
+        System.exit(status);
     }
     
     public void loadPersistentConfigurations() throws Exception {

@@ -22,53 +22,19 @@ import java.io.InputStream;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.KernelFactory;
 import org.apache.geronimo.kernel.config.ConfigurationUtil;
-import org.apache.geronimo.kernel.log.GeronimoLogging;
 
 /**
  *
  * @version $Rev: 476049 $ $Date: 2006-11-17 15:35:17 +1100 (Fri, 17 Nov 2006) $
  */
 public class MainConfigurationBootstrapper {
-    public final static String ARGUMENT_VERBOSE_SHORTFORM = "-v";
-    public final static String ARGUMENT_VERBOSE = "--verbose";
-    public final static String ARGUMENT_MORE_VERBOSE_SHORTFORM = "-vv";
-    public final static String ARGUMENT_MORE_VERBOSE = "--veryverbose";
-
-    public static String getVerboseLevel(String[] args) {
-        String verboseArg = null;
-        for (int i = 0; i < args.length; i++) {
-            verboseArg = filterVerboseArgument(args[i]);
-            if (null != verboseArg) {
-                break;
-            }
-        }
-        return verboseArg;
-    }
-
-    public static String filterVerboseArgument(String arg) {
-        if (arg.equals(ARGUMENT_VERBOSE_SHORTFORM) || arg.equals(ARGUMENT_VERBOSE)) {
-            return ARGUMENT_VERBOSE;
-        } else if (arg.equals(ARGUMENT_MORE_VERBOSE_SHORTFORM) || arg.equals(ARGUMENT_MORE_VERBOSE)) {
-            return ARGUMENT_MORE_VERBOSE;
-        }
-        return null;
-    }
-
-    public static boolean isVerboseLevel(String verboseLevel) {
-        return verboseLevel.equals(ARGUMENT_VERBOSE);
-    }
-
-    public static boolean isMoreVerboseLevel(String verboseLevel) {
-        return verboseLevel.equals(ARGUMENT_MORE_VERBOSE);
-    }
 
     public static void main(String[] args) {
-        main(new MainConfigurationBootstrapper(), args);
+        int status = main(new MainConfigurationBootstrapper(), args);
+        System.exit(status);
     }
 
-    public static void main(MainConfigurationBootstrapper bootstrapper, String[] args) {
-        bootstrapper.initializeLogging(args);
-        
+    public static int main(MainConfigurationBootstrapper bootstrapper, Object opaque) {
         Main main = bootstrapper.getMain(MainConfigurationBootstrapper.class.getClassLoader());
 
         int exitCode;
@@ -76,11 +42,11 @@ public class MainConfigurationBootstrapper {
         try {
             ClassLoader newTCCL = main.getClass().getClassLoader();
             Thread.currentThread().setContextClassLoader(newTCCL);
-            exitCode = main.execute(args);
+            exitCode = main.execute(opaque);
         } finally {
             Thread.currentThread().setContextClassLoader(oldTCCL);
         }
-        System.exit(exitCode);
+        return exitCode;
     }
 
     protected Kernel kernel;
@@ -136,26 +102,6 @@ public class MainConfigurationBootstrapper {
 
     public Kernel getKernel() {
         return kernel;
-    }
-    
-    protected void initializeLogging(String[] args) {
-        String verboseArg = getVerboseLevel(args);
-        
-        //
-        // FIXME: Allow -v -> INFO, -vv -> DEBUG, -vvv -> TRACE
-        //
-        
-        // This MUST be done before the first log is acquired (which the startup monitor below does)
-        // Generally we want to suppress anything but WARN until the log GBean starts up
-        GeronimoLogging level = GeronimoLogging.WARN;
-        if (verboseArg != null) {
-            if (isVerboseLevel(verboseArg)) {
-                level = GeronimoLogging.DEBUG;
-            } else if (isMoreVerboseLevel(verboseArg)) {
-                level = GeronimoLogging.TRACE;
-            }
-        }
-        GeronimoLogging.initialize(level);
     }
     
 }

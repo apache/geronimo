@@ -39,33 +39,9 @@ import org.apache.geronimo.common.DeploymentException;
  * @version $Rev$ $Date$
  */
 public abstract class AbstractCommand implements DeployCommand {
-    private String command;
-    private String group;
-    private String helpArgumentList;
-    private String helpText;
     private PrintWriter out = new PrintWriter(new OutputStreamWriter(System.out));
 
-    public AbstractCommand(String command, String group, String helpArgumentList, String helpText) {
-        this.command = command;
-        this.group = group;
-        this.helpArgumentList = helpArgumentList;
-        this.helpText = helpText;
-    }
-
-    public String getCommandName() {
-        return command;
-    }
-
-    public String getHelpArgumentList() {
-        return helpArgumentList;
-    }
-
-    public String getHelpText() {
-        return helpText;
-    }
-
-    public String getCommandGroup() {
-        return group;
+    public AbstractCommand() {
     }
 
     public boolean isLocalOnly() {

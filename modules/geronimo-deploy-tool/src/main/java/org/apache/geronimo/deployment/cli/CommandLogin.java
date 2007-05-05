@@ -17,19 +17,20 @@
 
 package org.apache.geronimo.deployment.cli;
 
-import org.apache.geronimo.common.DeploymentException;
-import org.apache.geronimo.util.SimpleEncryption;
-
-import java.io.PrintWriter;
-import java.io.File;
-import java.io.InputStream;
-import java.io.FileInputStream;
 import java.io.BufferedInputStream;
-import java.io.OutputStream;
 import java.io.BufferedOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.PrintWriter;
 import java.util.Properties;
+
+import org.apache.geronimo.cli.deployer.CommandArgs;
+import org.apache.geronimo.common.DeploymentException;
+import org.apache.geronimo.util.SimpleEncryption;
 
 /**
  * The CLI deployer logic to start.
@@ -37,27 +38,8 @@ import java.util.Properties;
  * @version $Rev$ $Date$
  */
 public class CommandLogin extends AbstractCommand {
-    public CommandLogin() {
-        super("login", "1. Common Commands", "",
-                "Saves the username and password for this connection to the "+
-                "file .geronimo-deployer in the current user's home directory.  " +
-                "Future connections to the same server will try to use this "+
-                "saved authentication information instead of prompting where " +
-                "possible.  This information is saved separately per connection " +
-                "URL, so you can specify --url or --host and/or --port on the command " +
-                "line to save a login to a different server.\n" +
-                "WARNING: while the login information is not saved in " +
-                "clear text, it is not secure either.  If you want to " +
-                "save the authentication securely, you should change the " +
-                ".geronimo-deployer file in your home directory so that nobody " +
-                "else can read or write it.");
-    }
 
-    public CommandLogin(String command, String group, String helpArgumentList, String helpText) {
-        super(command, group, helpArgumentList, helpText);
-    }
-
-    public void execute(PrintWriter out, ServerConnection connection, String[] args) throws DeploymentException {
+    public void execute(PrintWriter out, ServerConnection connection, CommandArgs commandArgs) throws DeploymentException {
         try {
             File authFile = new File(System.getProperty("user.home"), ".geronimo-deployer");
             if(!authFile.exists()) {

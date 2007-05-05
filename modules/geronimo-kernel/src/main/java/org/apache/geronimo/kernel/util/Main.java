@@ -22,5 +22,5 @@ package org.apache.geronimo.kernel.util;
  * @version $Rev: 476049 $ $Date: 2006-11-17 15:35:17 +1100 (Fri, 17 Nov 2006) $
  */
 public interface Main {
-    int execute(String[] args);
+    int execute(Object opaque);
 }

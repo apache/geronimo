@@ -17,16 +17,18 @@
 
 package org.apache.geronimo.deployment.cli;
 
-import org.apache.geronimo.common.DeploymentException;
+import java.io.PrintWriter;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.enterprise.deploy.spi.DeploymentManager;
 import javax.enterprise.deploy.spi.Target;
 import javax.enterprise.deploy.spi.TargetModuleID;
 import javax.enterprise.deploy.spi.exceptions.TargetException;
 import javax.enterprise.deploy.spi.status.ProgressObject;
-import java.io.PrintWriter;
-import java.util.ArrayList;
-import java.util.List;
+
+import org.apache.geronimo.cli.deployer.CommandArgs;
+import org.apache.geronimo.common.DeploymentException;
 
 /**
  * The CLI deployer logic to start.
@@ -34,25 +36,10 @@ import java.util.List;
  * @version $Rev$ $Date$
  */
 public class CommandStart extends AbstractCommand {
-    public CommandStart() {
-        super("start", "1. Common Commands", "[ModuleID|TargetModuleID]+",
-                "Accepts the configId of a module, or the fully-qualified " +
-                "TargetModuleID identifying both the module and the server or cluster it's " +
-                "on, and starts that module.  The module should be available to the server " +
-                "but not currently running.  If multiple modules are specified, they will " +
-                "all be started.\n" +
-                "If the server is not running, the module will be marked to start " +
-                "next time the server is started.");
-    }
 
-    public CommandStart(String command, String group, String helpArgumentList, String helpText) {
-        super(command, group, helpArgumentList, helpText);
-    }
-
-    public void execute(PrintWriter out, ServerConnection connection, String[] args) throws DeploymentException {
-        if(args.length == 0) {
-            throw new DeploymentSyntaxException("Must specify at least one module name or TargetModuleID");
-        }
+    public void execute(PrintWriter out, ServerConnection connection, CommandArgs commandArgs) throws DeploymentException {
+        String[] args = commandArgs.getArgs();
+        
         DeploymentManager mgr = connection.getDeploymentManager();
         Target[] allTargets = mgr.getTargets();
         TargetModuleID[] allModules;

@@ -26,8 +26,12 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+
 import javax.enterprise.deploy.spi.DeploymentManager;
 import javax.security.auth.login.FailedLoginException;
+
+import org.apache.geronimo.cli.deployer.BaseCommandArgs;
+import org.apache.geronimo.cli.deployer.CommandArgs;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.plugin.GeronimoDeploymentManager;
 import org.apache.geronimo.kernel.repository.Artifact;
@@ -41,31 +45,17 @@ import org.apache.geronimo.system.plugin.PluginMetadata;
  * @version $Rev$ $Date$
  */
 public class CommandListConfigurations extends AbstractCommand {
-    public CommandListConfigurations() {
-        super("search-plugins", "3. Geronimo Plugins", "[MavenRepoURL]",
-                "Lists the Geronimo plugins available in a Maven repository "+
-                "and lets you select a plugin to download and install.  This "+
-                "is used to add new functionality to the Geronimo server.  If " +
-                "no repository is specified the default repositories will be " +
-                "listed to select from, but this means there must have been " +
-                "some default repositories set (by hand or by having the " +
-                "console update to the latest defaults).");
-    }
 
     //todo: provide a way to handle a username and password for the remote repo?
 
-    public CommandListConfigurations(String command, String group, String helpArgumentList, String helpText) {
-        super(command, group, helpArgumentList, helpText);
-    }
-
-    public void execute(PrintWriter out, ServerConnection connection, String[] args) throws DeploymentException {
+    public void execute(PrintWriter out, ServerConnection connection, CommandArgs commandArgs) throws DeploymentException {
         DeploymentManager dmgr = connection.getDeploymentManager();
         if(dmgr instanceof GeronimoDeploymentManager) {
             GeronimoDeploymentManager mgr = (GeronimoDeploymentManager) dmgr;
             try {
                 String repo = null;
-                if(args.length == 1) {
-                    repo = args[0];
+                if(commandArgs.getArgs().length == 1) {
+                    repo = commandArgs.getArgs()[0];
                 } else {
                     repo = getRepository(out, new BufferedReader(new InputStreamReader(System.in)), mgr);
                 }
@@ -152,7 +142,7 @@ public class CommandListConfigurations extends AbstractCommand {
                 if(results.isFinished() && !results.isFailed()) {
                     out.print(DeployUtils.reformat("Now starting "+target.getModuleId()+"...", 4, 72));
                     out.flush();
-                    new CommandStart().execute(out, connection, new String[]{target.getModuleId().toString()});
+                    new CommandStart().execute(out, connection, new BaseCommandArgs(new String[]{target.getModuleId().toString()}));
                 }
             } catch (IOException e) {
                 throw new DeploymentException("Unable to install configuration", e);

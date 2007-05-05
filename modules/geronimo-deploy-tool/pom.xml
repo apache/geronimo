@@ -45,6 +45,12 @@
             <artifactId>geronimo-service-builder</artifactId>
             <version>${version}</version>
         </dependency>
+
+        <dependency>
+            <groupId>org.apache.geronimo.modules</groupId>
+            <artifactId>geronimo-cli</artifactId>
+            <version>${version}</version>
+        </dependency>
         
         <dependency>
             <groupId>org.apache.geronimo.modules</groupId>

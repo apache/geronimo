@@ -17,21 +17,18 @@
 
 package org.apache.geronimo.deployment.cli;
 
+import org.apache.geronimo.cli.deployer.CommandArgs;
 import org.apache.geronimo.common.DeploymentException;
 
 import java.io.PrintWriter;
 
 /**
- * An abstraction of various CLI deployer commands.  Holds metadata like help
- * text, and also the logic to validate arguments and execute the command.
+ * An abstraction of various CLI deployer commands.
  *
  * @version $Rev$ $Date$
  */
 public interface DeployCommand {
-    String getCommandGroup();
-    String getCommandName();
-    String getHelpArgumentList();
-    String getHelpText();
     boolean isLocalOnly();
-    void execute(PrintWriter out, ServerConnection connection, String[] args) throws DeploymentException;
+
+    void execute(PrintWriter out, ServerConnection connection, CommandArgs commandArgs) throws DeploymentException;
 }

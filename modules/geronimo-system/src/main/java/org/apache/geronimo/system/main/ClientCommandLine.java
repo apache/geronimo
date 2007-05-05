@@ -18,6 +18,8 @@ package org.apache.geronimo.system.main;
 
 import java.util.Collections;
 
+import org.apache.geronimo.cli.CLParserException;
+import org.apache.geronimo.cli.client.ClientCLParser;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.kernel.Jsr77Naming;
@@ -27,26 +29,24 @@ import org.apache.geronimo.kernel.repository.Artifact;
  * @version $Revision$ $Date$
  */
 public class ClientCommandLine extends CommandLine {
+
     /**
      * Command line entry point called by executable jar
      * @param args command line args
      */
     public static void main(String[] args) {
+        ClientCLParser parser = new ClientCLParser(System.out);
+        try {
+            parser.parse(args);
+        } catch (CLParserException e) {
+            System.err.println(e.getMessage());
+            parser.displayHelp();
+            System.exit(1);
+        }
+        
         ClientCommandLine clientCommandLine = new ClientCommandLine();
-        int exitCode = clientCommandLine.execute(args);
+        int exitCode = clientCommandLine.execute(parser);
         System.exit(exitCode);
-    }
-
-    private static void showHelp() {
-        System.out.println();
-        System.out.println("syntax:   java -jar bin/client.jar config-name [app arg] [app arg] ...");
-        System.out.println();
-        System.out.println("The first argument should identify the Geronimo configuration that");
-        System.out.println("contains the application client you want to run.");
-        System.out.println();
-        System.out.println("The rest of the arguments will be passed as arguments to the");
-        System.out.println("application client when it is started.");
-        System.out.println();
     }
 
     public ClientCommandLine(Artifact configuration, String[] args) throws Exception {
@@ -56,22 +56,11 @@ public class ClientCommandLine extends CommandLine {
     protected ClientCommandLine() {
     }
     
-    public int execute(String[] args) {
+    public int execute(ClientCLParser parser) {
         log.info("Client startup begun");
-        if(args.length == 0) {
-            System.out.println();
-            System.out.println("ERROR: No arguments");
-            showHelp();
-            return 1;
-        } else if(args[0].equals("--help") || args[0].equals("-h") || args[0].equals("/?")) {
-            showHelp();
-            return 0;
-        }
         try {
-            Artifact configuration = Artifact.create(args[0]);
-            String[] clientArgs = new String[args.length -1];
-            System.arraycopy(args, 1, clientArgs, 0, clientArgs.length);
-            return startClient(configuration, clientArgs);
+            Artifact configuration = Artifact.create(parser.getApplicationClientConfiguration());
+            return startClient(configuration, parser.getApplicationClientArgs());
         } catch (Exception e) {
             ExceptionUtil.trimStackTrace(e);
             e.printStackTrace();

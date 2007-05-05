@@ -25,9 +25,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
 import java.io.Serializable;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
 import java.util.Properties;
 import java.util.jar.JarFile;
 
@@ -36,6 +33,7 @@ import javax.enterprise.deploy.spi.DeploymentManager;
 import javax.enterprise.deploy.spi.exceptions.DeploymentManagerCreationException;
 import javax.enterprise.deploy.spi.factories.DeploymentFactory;
 
+import org.apache.geronimo.cli.deployer.DeployerCLParser;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.plugin.factories.AuthenticationFailedException;
 import org.apache.geronimo.deployment.plugin.jmx.JMXDeploymentManager;
@@ -50,55 +48,6 @@ import org.apache.geronimo.util.SimpleEncryption;
  * @version $Rev$ $Date$
  */
 public class ServerConnection {
-    private final static Map OPTION_HELP = new LinkedHashMap(9);
-
-    static {
-        OPTION_HELP.put("--uri", "A URI to contact the server.  If not specified, the deployer defaults to " +
-                "operating on a Geronimo server running on the standard port on localhost.\n" +
-                "A URI to connect to Geronimo (including optional host and port parameters) has the form: " +
-                "deployer:geronimo:jmx[://host[:port]] (though you could also just use --host and --port instead).");
-        OPTION_HELP.put("--host", "The host name of a Geronimo server to deploy to.  This option is " +
-                "not compatible with --uri, but is often used with --port.");
-        OPTION_HELP.put("--port", "The RMI listen port of a Geronimo server to deploy to.  This option is " +
-                "not compatible with --uri, but is often used with --host.  The default port is 1099.");
-        OPTION_HELP.put("--driver", "If you want to use this tool with a server other than Geronimo, " +
-                "then you must provide the path to its driver JAR.  Currently, manifest " +
-                "Class-Path entries in that JAR are ignored.");
-        OPTION_HELP.put("--user", "If the deployment operation requires authentication, then you can " +
-                "specify the username to use to connect.  If no password is specified, the " +
-                "deployer will attempt to connect to the server with no password, and if " +
-                "that fails, will prompt you for a password.");
-        OPTION_HELP.put("--password", "Specifies a password to use to authenticate to the server.");
-        OPTION_HELP.put("--syserr", "Enables error logging to syserr.  Disabled by default.");
-        OPTION_HELP.put("--verbose", "Enables verbose execution mode.  Disabled by default.");
-        OPTION_HELP.put("--offline", "Deploy offline to a local server, using whatever deployers are available in the local server");
-    }
-
-    public static Map getOptionHelp() {
-        return OPTION_HELP;
-    }
-
-    /**
-     * Checks whether the stated command-line argument is a general argument (which
-     * may be the general argument itself, or a required parameter after the general
-     * argument).  For example, if the arguments were "--user bob foo" then
-     * this should return true for "--user" and "bob" and false for "foo".
-     *
-     * @param args   The previous arguments on the command line
-     * @param option The argument we're checking at the moment
-     * @return True if the argument we're checking is part of a general argument
-     */
-    public static boolean isGeneralOption(List args, String option) {
-        if (OPTION_HELP.containsKey(option) || option.equals("--url")) {
-            return true;
-        }
-        if (args.size() == 0) {
-            return false;
-        }
-        String last = (String) args.get(args.size() - 1);
-        return last.equals("--uri") || last.equals("--url") || last.equals("--driver") || last.equals("--user") ||
-                last.equals("--password") || last.equals("--host") || last.equals("--port");
-    }
 
     private final static String DEFAULT_URI = "deployer:geronimo:jmx";
 
@@ -111,85 +60,26 @@ public class ServerConnection {
     private boolean logToSysErr;
     private boolean verboseMessages;
 
-    public ServerConnection(String[] args, PrintWriter out, InputStream in, Kernel kernel, DeploymentFactory geronimoDeploymentFactory) throws DeploymentException {
+    public ServerConnection(DeployerCLParser parser, PrintWriter out, InputStream in, Kernel kernel, DeploymentFactory geronimoDeploymentFactory) throws DeploymentException {
         if (null == kernel) {
             throw new IllegalArgumentException("kernel is required");
         }
         this.geronimoDeploymentFactory = geronimoDeploymentFactory;
 
-        String uri = null, driver = null, user = null, password = null, host = null;
-        Integer port = null;
         this.out = out;
         this.in = in;
         boolean offline = false;
-        for (int i = 0; i < args.length; i++) {
-            String arg = args[i];
-            if (arg.equals("--uri") || arg.equals("--url")) {
-                if (uri != null) {
-                    throw new DeploymentSyntaxException("Cannot specify more than one URI");
-                } else if (i >= args.length - 1) {
-                    throw new DeploymentSyntaxException("Must specify a URI (e.g. --uri deployer:...)");
-                }
-                if (host != null || port != null) {
-                    throw new DeploymentSyntaxException("Cannot specify a URI as well as a host/port");
-                }
-                uri = args[++i];
-            } else if (arg.equals("--host")) {
-                if (host != null) {
-                    throw new DeploymentSyntaxException("Cannot specify more than one host");
-                } else if (i >= args.length - 1) {
-                    throw new DeploymentSyntaxException("Must specify a hostname (e.g. --host localhost)");
-                }
-                if (uri != null) {
-                    throw new DeploymentSyntaxException("Cannot specify a URI as well as a host/port");
-                }
-                host = args[++i];
-            } else if (arg.equals("--port")) {
-                if (port != null) {
-                    throw new DeploymentSyntaxException("Cannot specify more than one port");
-                } else if (i >= args.length - 1) {
-                    throw new DeploymentSyntaxException("Must specify a port (e.g. --port 1099)");
-                }
-                if (uri != null) {
-                    throw new DeploymentSyntaxException("Cannot specify a URI as well as a host/port");
-                }
-                try {
-                    port = new Integer(args[++i]);
-                } catch (NumberFormatException e) {
-                    throw new DeploymentSyntaxException("Port must be a number (" + e.getMessage() + ")");
-                }
-            } else if (arg.equals("--driver")) {
-                if (driver != null) {
-                    throw new DeploymentSyntaxException("Cannot specify more than one driver");
-                } else if (i >= args.length - 1) {
-                    throw new DeploymentSyntaxException("Must specify a driver JAR (--driver jarfile)");
-                }
-                driver = args[++i];
-            } else if (arg.equals("--offline")) {
-                //throw new DeploymentSyntaxException("This tool no longer handles offline deployment");
-                offline = true;
-            } else if (arg.equals("--user")) {
-                if (user != null) {
-                    throw new DeploymentSyntaxException("Cannot specify more than one user name");
-                } else if (i >= args.length - 1) {
-                    throw new DeploymentSyntaxException("Must specify a username (--user username)");
-                }
-                user = args[++i];
-            } else if (arg.equals("--password")) {
-                if (password != null) {
-                    throw new DeploymentSyntaxException("Cannot specify more than one password");
-                } else if (i >= args.length - 1) {
-                    throw new DeploymentSyntaxException("Must specify a password (--password password)");
-                }
-                password = args[++i];
-            } else if (arg.equals("--verbose")) {
-                verboseMessages = true;
-            } else if (arg.equals("--syserr")) {
-                logToSysErr = true;
-            } else {
-                throw new DeploymentException("Invalid option " + arg);
-            }
-        }
+        
+        String uri = parser.getURI();
+        String driver = parser.getDriver();
+        String user = parser.getUser();
+        String password = parser.getPassword();
+        String host = parser.getHost();
+        Integer port = parser.getPort();
+        verboseMessages = parser.isVerbose();
+        logToSysErr = parser.isSyserr();
+        offline = parser.isOffline();
+
         if ((driver != null) && uri == null) {
             throw new DeploymentSyntaxException("A custom driver requires a custom URI");
         }

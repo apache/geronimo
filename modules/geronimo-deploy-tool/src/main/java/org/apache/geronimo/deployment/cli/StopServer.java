@@ -54,9 +54,12 @@ public class StopServer implements Main {
 		StopServer cmd = new StopServer();
 		cmd.execute(args);
 	}
-
-	public int execute(String args[]) {
-        this.args = args;
+    
+    public int execute(Object opaque) {
+        if (! (opaque instanceof String[])) {
+            throw new IllegalArgumentException("Argument type is [" + opaque.getClass() + "]; expected [" + String[].class + "]");
+        }
+        this.args = (String[]) opaque;
 
         int i = 0;
         while (i < args.length && args[i].startsWith("--")) {

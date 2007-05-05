@@ -18,7 +18,11 @@ package org.apache.geronimo.deployment.cli;
 
 import java.io.File;
 import java.io.PrintWriter;
+
 import javax.enterprise.deploy.spi.DeploymentManager;
+
+import org.apache.geronimo.cli.deployer.BaseCommandArgs;
+import org.apache.geronimo.cli.deployer.CommandArgs;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.plugin.GeronimoDeploymentManager;
 import org.apache.geronimo.kernel.repository.Artifact;
@@ -30,28 +34,14 @@ import org.apache.geronimo.system.plugin.DownloadResults;
  * @version $Rev$ $Date$
  */
 public class CommandInstallCAR extends AbstractCommand {
-    public CommandInstallCAR() {
-        super("install-plugin", "3. Geronimo Plugins", "PluginFile",
-                "Installs a Geronimo plugin you've exported from a Geronimo server " +
-                "or downloaded from an external repository.  The file must be a " +
-                "properly configured Geronimo CAR file.  This is used to add new " +
-                "functionality to the Geronimo server.");
-    }
 
     //todo: provide a way to handle a username and password for the remote repo?
 
-    public CommandInstallCAR(String command, String group, String helpArgumentList, String helpText) {
-        super(command, group, helpArgumentList, helpText);
-    }
-
-    public void execute(PrintWriter out, ServerConnection connection, String[] args) throws DeploymentException {
-        if(args.length == 0) {
-            throw new DeploymentSyntaxException("Must specify Plugin CAR file");
-        }
+    public void execute(PrintWriter out, ServerConnection connection, CommandArgs commandArgs) throws DeploymentException {
         DeploymentManager dmgr = connection.getDeploymentManager();
         if(dmgr instanceof GeronimoDeploymentManager) {
             GeronimoDeploymentManager mgr = (GeronimoDeploymentManager) dmgr;
-            File carFile = new File(args[0]);
+            File carFile = new File(commandArgs.getArgs()[0]);
             carFile = carFile.getAbsoluteFile();
             if(!carFile.exists() || !carFile.canRead()) {
                 throw new DeploymentException("CAR file cannot be read: "+carFile.getAbsolutePath());
@@ -80,7 +70,7 @@ public class CommandInstallCAR extends AbstractCommand {
                 Artifact target = results.getInstalledConfigIDs()[0];
                 System.out.print(DeployUtils.reformat("Now starting "+target+"...", 4, 72));
                 System.out.flush();
-                new CommandStart().execute(out, connection, new String[]{target.toString()});
+                new CommandStart().execute(out, connection, new BaseCommandArgs(new String[]{target.toString()}));
             }
         } else {
             throw new DeploymentException("Cannot install plugins when connected to "+connection.getServerURI());

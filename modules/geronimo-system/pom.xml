@@ -35,6 +35,12 @@
     <dependencies>
         <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
+            <artifactId>geronimo-cli</artifactId>
+            <version>${version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.geronimo.modules</groupId>
             <artifactId>geronimo-common</artifactId>
             <version>${version}</version>
         </dependency>

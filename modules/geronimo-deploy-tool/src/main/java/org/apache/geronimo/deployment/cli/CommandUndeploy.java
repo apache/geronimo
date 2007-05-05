@@ -18,8 +18,9 @@
 package org.apache.geronimo.deployment.cli;
 
 import java.io.PrintWriter;
-import javax.enterprise.deploy.spi.TargetModuleID;
+
 import javax.enterprise.deploy.spi.DeploymentManager;
+import javax.enterprise.deploy.spi.TargetModuleID;
 import javax.enterprise.deploy.spi.status.ProgressObject;
 
 /**
@@ -28,14 +29,6 @@ import javax.enterprise.deploy.spi.status.ProgressObject;
  * @version $Rev$ $Date$
  */
 public class CommandUndeploy extends CommandStart {
-    public CommandUndeploy() {
-        super("undeploy", "1. Common Commands", "[ModuleID|TargetModuleID]+",
-                "Accepts the configId of a module, or the fully-qualified " +
-                "TargetModuleID identifying both the module and the server or cluster it's " +
-                "on, stops that module, and removes the deployment files for that module " +
-                "from the server environment.  If multiple modules are specified, they will " +
-                "all be undeployed.");
-    }
 
     protected ProgressObject runCommand(PrintWriter out, DeploymentManager mgr, TargetModuleID[] ids) {
         ProgressObject po = mgr.undeploy(ids);

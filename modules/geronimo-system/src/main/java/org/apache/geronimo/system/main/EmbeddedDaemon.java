@@ -19,14 +19,12 @@ package org.apache.geronimo.system.main;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.apache.geronimo.cli.daemon.DaemonCLParser;
 import org.apache.geronimo.common.GeronimoEnvironment;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.AbstractNameQuery;
@@ -36,10 +34,8 @@ import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.config.ConfigurationManager;
 import org.apache.geronimo.kernel.config.ConfigurationUtil;
 import org.apache.geronimo.kernel.config.PersistentConfigurationList;
-import org.apache.geronimo.kernel.log.GeronimoLogging;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.util.Main;
-import org.apache.geronimo.kernel.util.MainConfigurationBootstrapper;
 import org.apache.geronimo.system.serverinfo.DirectoryUtils;
 
 
@@ -47,155 +43,55 @@ import org.apache.geronimo.system.serverinfo.DirectoryUtils;
  * @version $Rev:385659 $ $Date: 2007-03-07 14:40:07 +1100 (Wed, 07 Mar 2007) $
  */
 public class EmbeddedDaemon implements Main {
-    private final static String ARGUMENT_NO_PROGRESS = "--quiet";
-    private final static String ARGUMENT_LONG_PROGRESS = "--long";
-    private final static String ARGUMENT_MODULE_OVERRIDE = "--override";
-    private static boolean started = false;
-    private static Log log;
-    private StartupMonitor monitor;
     protected Kernel kernel;
+    private StartupMonitor monitor;
     private List configs = new ArrayList();
-    private String noProgressArg = null;
-    private String longProgressArg = null;
-    private String verboseArg;
 
     public EmbeddedDaemon(Kernel kernel) {
         this.kernel = kernel;
     }
     
-    public int execute(String[] args) {
-        // Very first startup tasks
+    public int execute(Object opaque) {
+        if (! (opaque instanceof DaemonCLParser)) {
+            throw new IllegalArgumentException("Argument type is [" + opaque.getClass() + "]; expected [" + DaemonCLParser.class + "]");
+        }
+        DaemonCLParser parser = (DaemonCLParser) opaque;
+        initializeMonitor(parser);
+        initializeOverride(parser);
+
         long start = System.currentTimeMillis();
-        // Command line arguments affect logging configuration, etc.
-        if (processArguments(args)) {
-            System.out.println("Booting Geronimo Kernel (in Java " + System.getProperty("java.version") + ")...");
-            System.out.flush();
 
-            // Initialization tasks that must run before anything else
-            initializeSystem();
-
-            monitor.systemStarting(start);
-            return doStartup();
-        } else {
-            return 1;
-        }
+        System.out.println("Booting Geronimo Kernel (in Java " + System.getProperty("java.version") + ")...");
+        System.out.flush();
+        
+        // Perform initialization tasks common with the various Geronimo environments
+        GeronimoEnvironment.init();
+        
+        monitor.systemStarting(start);
+        return doStartup();
     }
 
-    private void printHelp(PrintStream out) {
-        out.println();
-        out.println("Syntax: java -jar bin/server.jar [options]");
-        out.println();
-        out.println("Available options are: ");
-        out.println("  "+ARGUMENT_NO_PROGRESS);
-        out.println("             Suppress the normal startup progress bar.  This is typically\n" +
-                    "             used when redirecting console output to a file, or starting\n" +
-                    "             the server from an IDE or other tool.");
-        out.println("  "+ARGUMENT_LONG_PROGRESS);
-        out.println("             Write startup progress to the console in a format that is\n" +
-                    "             suitable for redirecting console output to a file, or starting\n" +
-                    "             the server from an IDE or other tool (doesn't use linefeeds to\n" +
-                    "             update the progress information that is used by default if you\n" +
-                    "             don't specify " +ARGUMENT_NO_PROGRESS +" or "+ARGUMENT_LONG_PROGRESS+").\n");
-        out.println("  "+MainConfigurationBootstrapper.ARGUMENT_VERBOSE_SHORTFORM +" " +MainConfigurationBootstrapper.ARGUMENT_VERBOSE);
-        out.println("             Reduces the console log level to DEBUG, resulting in more\n" +
-                    "             console output than is normally present.");
-        out.println("  "+MainConfigurationBootstrapper.ARGUMENT_MORE_VERBOSE_SHORTFORM +" " +MainConfigurationBootstrapper.ARGUMENT_MORE_VERBOSE);
-        out.println("             Reduces the console log level to TRACE, resulting in still\n" +
-                    "             more console output.");
-        out.println();
-        out.println("  "+ARGUMENT_MODULE_OVERRIDE+" [moduleId] [moduleId] ...");
-        out.println("             USE WITH CAUTION!  Overrides the modules in\n" +
-                    "             var/config/config.xml such that only the modules listed on\n" +
-                    "             the command line will be started.  Note that many J2EE\n" +
-                    "             features depend on certain modules being started, so you\n" +
-                    "             should be very careful what you omit.  Any arguments after\n" +
-                    "             this are assumed to be module names.");
-        out.println();
-        out.println("In addition you may specify a replacement for var/config/config.xml using by setting the property\n" +
-                    "-Dorg.apache.geronimo.config.file=var/config/<my-config.xml>\n" +
-                    "This is resolved relative to the geronimo base directory.");
-        out.println();
-    }
-
-    /**
-     * @return true if the server startup should proceed (all arguments
-     *              make sense and the user didn't ask for help)
-     */
-    private boolean processArguments(String[] args) {
-        verboseArg = MainConfigurationBootstrapper.getVerboseLevel(args);
-
-        boolean override = false;
-        boolean help = false;
-        for (int i = 0; i < args.length; i++) {
-            if (override) {
-                configs.add(Artifact.create(args[i]));
-            } else if (args[i].equals(ARGUMENT_NO_PROGRESS)) {
-                noProgressArg = ARGUMENT_NO_PROGRESS;
-            } else if (args[i].equals(ARGUMENT_LONG_PROGRESS)) {
-                longProgressArg = ARGUMENT_LONG_PROGRESS;
-            } else if (args[i].equals(ARGUMENT_MODULE_OVERRIDE)) {
-                override = true;
-            } else if (null != MainConfigurationBootstrapper.filterVerboseArgument(args[i])) {
-                ;
-            } else if (args[i].equalsIgnoreCase("-help") || args[i].equalsIgnoreCase("--help") ||
-                       args[i].equalsIgnoreCase("-h") || args[i].equalsIgnoreCase("/?")) {
-                help = true;
-            } else {
-                System.out.println("Unrecognized argument: "+args[i]);
-                help = true;
+    protected void initializeOverride(DaemonCLParser parser) {
+        String[] override = parser.getOverride();
+        if (null != override) {
+            for (int i = 0; i < override.length; i++) {
+                configs.add(Artifact.create(override[i]));
             }
         }
-        if (help) {
-            printHelp(System.out);
-        }
-        return !help;
     }
 
-    protected void initializeSystem() {
-        if (!started) {
-            started = true;
-
-            // Perform initialization tasks common with the various Geronimo environments
-            GeronimoEnvironment.init();
-            
-            initializeLogging();
-        }
-
-        initializeMonitor();
-    }
-
-    protected void initializeLogging() {
-        //
-        // FIXME: Allow -v -> INFO, -vv -> DEBUG, -vvv -> TRACE
-        //
-        
-        // This MUST be done before the first log is acquired (which the startup monitor below does)
-        // Generally we want to suppress anything but WARN until the log GBean starts up
-        GeronimoLogging level = GeronimoLogging.WARN;
-        if (verboseArg != null) {
-            if (MainConfigurationBootstrapper.isVerboseLevel(verboseArg)) {
-                level = GeronimoLogging.DEBUG;
-            } else if (MainConfigurationBootstrapper.isMoreVerboseLevel(verboseArg)) {
-                level = GeronimoLogging.TRACE;
-            }
-        }
-        GeronimoLogging.initialize(level);
-        
-        log = LogFactory.getLog(EmbeddedDaemon.class.getName());
-    }
-
-    protected void initializeMonitor() {
-        if (verboseArg != null || noProgressArg != null) {
+    protected void initializeMonitor(DaemonCLParser parser) {
+        if (parser.isVerboseInfo() || parser.isVerboseDebug() || parser.isVerboseTrace() || parser.isNoProgress()) {
             monitor = new SilentStartupMonitor();
         } else {
-            if (longProgressArg != null) {
+            if (parser.isLongProgress()) {
                 monitor = new LongStartupMonitor();
             } else {
                 monitor = new ProgressBarStartupMonitor();
             }
         }
     }
-
+    
     protected int doStartup() {
         try {
             // Check that the tmpdir exists - if not give friendly msg and exit

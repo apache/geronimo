@@ -20,13 +20,8 @@ package org.apache.geronimo.deployment.cli;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.StringReader;
-import java.util.Collection;
-import java.util.LinkedList;
-import java.util.List;
-import javax.enterprise.deploy.spi.TargetModuleID;
-import org.apache.geronimo.common.DeploymentException;
+
 import org.apache.geronimo.deployment.plugin.ConfigIDExtractor;
-import org.apache.geronimo.kernel.repository.Artifact;
 
 /**
  * Various helpers for deployment.

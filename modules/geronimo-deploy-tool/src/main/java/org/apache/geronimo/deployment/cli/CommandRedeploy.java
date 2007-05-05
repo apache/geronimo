@@ -17,19 +17,21 @@
 
 package org.apache.geronimo.deployment.cli;
 
-import org.apache.geronimo.common.DeploymentException;
-import org.apache.geronimo.kernel.repository.Artifact;
+import java.io.File;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.enterprise.deploy.spi.DeploymentManager;
 import javax.enterprise.deploy.spi.Target;
 import javax.enterprise.deploy.spi.TargetModuleID;
 import javax.enterprise.deploy.spi.exceptions.TargetException;
 import javax.enterprise.deploy.spi.status.ProgressObject;
-import java.io.File;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.util.ArrayList;
-import java.util.List;
+
+import org.apache.geronimo.cli.deployer.CommandArgs;
+import org.apache.geronimo.common.DeploymentException;
+import org.apache.geronimo.kernel.repository.Artifact;
 
 /**
  * The CLI deployer logic to redeploy.
@@ -37,31 +39,11 @@ import java.util.List;
  * @version $Rev$ $Date$
  */
 public class CommandRedeploy extends AbstractCommand {
-    public CommandRedeploy() {
-        super("redeploy", "1. Common Commands", "[module] [plan] [ModuleID|TargetModuleID+]",
-                "A shortcut to undeploy a module from one or more servers, then " +
-                "deploy a new version.  This is not a smooth cutover -- some client " +
-                "requests may be rejected while the redeploy takes place.\n" +
-                "Normally both a module and plan are passed to the deployer. " +
-                "Sometimes the module contains a plan, or requires no plan, in which case " +
-                "the plan may be omitted.  Sometimes the plan references a module already " +
-                "deployed in the Geronimo server environment, in which case a module does " +
-                "not need to be provided.\n" +
-                "If more than one TargetModuleID is provided, all TargetModuleIDs " +
-                "must refer to the same module (just running on different targets).\n" +
-                "Regardless of whether the old module was running or not, the new " +
-                "module will be started.\n" +
-                "If no ModuleID or TargetModuleID is specified, and you're deploying to "+
-                "Geronimo, the deployer will attempt to guess the correct ModuleID for "+
-                "you based on the module and/or plan you provided.\n"+
-                "Note: To specify a TargetModuleID, use the form TargetName|ModuleName");
-    }
 
-    public void execute(PrintWriter out, ServerConnection connection, String[] args) throws DeploymentException {
+    public void execute(PrintWriter out, ServerConnection connection, CommandArgs commandArgs) throws DeploymentException {
+        String[] args = commandArgs.getArgs();
         setOut(out);
-        if(args.length == 0) {
-            throw new DeploymentSyntaxException("Must specify a module or plan (or both) and optionally module IDs to replace");
-        }
+
         DeploymentManager mgr = connection.getDeploymentManager();
         Target[] allTargets = mgr.getTargets();
         TargetModuleID[] allModules;
@@ -70,6 +52,7 @@ public class CommandRedeploy extends AbstractCommand {
         } catch(TargetException e) {
             throw new DeploymentException("Unable to load modules from server", e);
         }
+        
         List modules = new ArrayList();
         File module = null;
         File plan = null;

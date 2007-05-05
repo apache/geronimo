@@ -17,15 +17,18 @@
 
 package org.apache.geronimo.deployment.cli;
 
-import org.apache.geronimo.common.DeploymentException;
-
-import javax.enterprise.deploy.spi.TargetModuleID;
-import javax.enterprise.deploy.spi.Target;
-import javax.enterprise.deploy.spi.DeploymentManager;
-import javax.enterprise.deploy.spi.exceptions.TargetException;
 import java.io.PrintWriter;
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+
+import javax.enterprise.deploy.spi.DeploymentManager;
+import javax.enterprise.deploy.spi.Target;
+import javax.enterprise.deploy.spi.TargetModuleID;
+import javax.enterprise.deploy.spi.exceptions.TargetException;
+
+import org.apache.geronimo.cli.deployer.CommandArgs;
+import org.apache.geronimo.cli.deployer.ListModulesCommandArgs;
+import org.apache.geronimo.common.DeploymentException;
 
 /**
  * The CLI deployer logic to list modules.
@@ -33,42 +36,22 @@ import java.util.List;
  * @version $Rev$ $Date$
  */
 public class CommandListModules extends AbstractCommand {
-    public CommandListModules() {
-        super("list-modules", "2. Other Commands", "[--all|--started|--stopped] [target*]",
-                "Lists the modules available on the specified targets.  If " +
-                "--started or --stopped is specified, only started or stopped modules will " +
-                "be listed; otherwise all modules will be listed.  If no targets are " +
-                "specified, then modules on all targets will be listed; otherwise only " +
-                "modules on the specified targets.");
-    }
 
-    public void execute(PrintWriter out, ServerConnection connection, String[] args) throws DeploymentException {
-        List targets = new ArrayList();
-        Boolean started = null;
-        for (int i = 0; i < args.length; i++) {
-            String arg = args[i];
-            if(arg.startsWith("--")) {
-                if(arg.equals("--all")) {
-                    if(started != null) {
-                        throw new DeploymentSyntaxException("Cannot specify more than one of --all, --started, --stopped");
-                    }
-                } else if(arg.equals("--started")) {
-                    if(started != null) {
-                        throw new DeploymentSyntaxException("Cannot specify more than one of --all, --started, --stopped");
-                    }
-                    started = Boolean.TRUE;
-                } else if(arg.equals("--stopped")) {
-                    if(started != null) {
-                        throw new DeploymentSyntaxException("Cannot specify more than one of --all, --started, --stopped");
-                    }
-                    started = Boolean.FALSE;
-                } else {
-                    throw new DeploymentSyntaxException("Unrecognized option '"+arg+"'");
-                }
-            } else {
-                targets.add(arg);
-            }
+    public void execute(PrintWriter out, ServerConnection connection, CommandArgs commandArgs) throws DeploymentException {
+        if (!(commandArgs instanceof ListModulesCommandArgs)) {
+            throw new DeploymentSyntaxException("CommandArgs has the type [" + commandArgs.getClass() + "]; expected [" + ListModulesCommandArgs.class + "]");
         }
+        ListModulesCommandArgs listModulesCommandArgs = (ListModulesCommandArgs) commandArgs;
+
+        Boolean started = null;
+        if (listModulesCommandArgs.isStarted()) {
+            started = Boolean.TRUE;
+        } else if (listModulesCommandArgs.isStopped()) {
+            started = Boolean.FALSE;
+        }
+        
+        List targets = Arrays.asList(listModulesCommandArgs.getArgs());
+
         final DeploymentManager mgr = connection.getDeploymentManager();
         TargetModuleID[] running = null, notrunning = null;
         Target[] tlist = identifyTargets(targets, mgr);

@@ -20,6 +20,8 @@ package org.apache.geronimo.system.main;
 import java.io.IOException;
 import java.io.InputStream;
 
+import org.apache.geronimo.cli.CLParserException;
+import org.apache.geronimo.cli.daemon.DaemonCLParser;
 import org.apache.geronimo.kernel.KernelFactory;
 import org.apache.geronimo.kernel.config.ConfigurationUtil;
 
@@ -84,6 +86,14 @@ public class Daemon extends EmbeddedDaemon {
      * @param args the command line arguments
      */
     public static void main(String[] args) {
-        new Daemon().execute(args);
+        DaemonCLParser parser = new DaemonCLParser(System.out);
+        try {
+            parser.parse(args);
+        } catch (CLParserException e) {
+            System.err.println(e.getMessage());
+            parser.displayHelp();
+            System.exit(1);
+        }
+        new Daemon().execute(parser);
     }
 }
