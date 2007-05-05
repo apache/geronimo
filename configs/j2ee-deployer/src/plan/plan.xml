@@ -110,7 +110,7 @@
                 <name>PersistenceContextRefBuilder</name>
             </pattern>
             <pattern>
-                <name>EntityManagerFactoryRefBuilder</name>
+                <name>PersistenceUnitRefBuilder</name>
             </pattern>
             <pattern>
                 <name>ResourceRefBuilder</name>

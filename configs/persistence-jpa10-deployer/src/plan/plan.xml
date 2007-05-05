@@ -55,7 +55,7 @@
             </environment>
         </xml-attribute>
     </gbean>
-    <gbean name="EntityManagerFactoryRefBuilder" class="org.apache.geronimo.persistence.builder.PersistenceUnitRefBuilder">
+    <gbean name="PersistenceUnitRefBuilder" class="org.apache.geronimo.persistence.builder.PersistenceUnitRefBuilder">
         <xml-attribute name="defaultEnvironment">
             <environment xmlns="http://geronimo.apache.org/xml/ns/deployment-1.1">
                 <dependencies>
@@ -69,39 +69,5 @@
         </xml-attribute>
     </gbean>
 
-    <gbean name="ClientPersistenceUnitBuilder" class="org.apache.geronimo.persistence.builder.PersistenceUnitBuilder">
-        <attribute name="defaultPersistenceProviderClassName">org.apache.openjpa.persistence.PersistenceProviderImpl</attribute>
-        <attribute name="defaultPersistenceUnitProperties">
-            openjpa.Log=commons
-            openjpa.ClassTransformerOptions=ScanDevPath=true;
-            openjpa.jdbc.DBDictionary=org.apache.openjpa.jdbc.sql.DerbyDictionary
-            openjpa.jdbc.SynchronizeMappings=buildSchema(ForeignKeys=true,SchemaAction='add,deleteTableContents')
-            openjpa.Sequence=table(Table=OPENJPASEQ, Increment=100)
-        </attribute>
-        <xml-attribute name="defaultEnvironment">
-            <environment xmlns="http://geronimo.apache.org/xml/ns/deployment-1.1">
-                <dependencies>
-                    <dependency>
-                        <groupId>org.apache.geronimo.configs</groupId>
-                        <artifactId>openjpa</artifactId>
-                        <type>car</type>
-                    </dependency>
-                </dependencies>
-            </environment>
-        </xml-attribute>
-    </gbean>
-    <gbean name="ClientEntityManagerFactoryRefBuilder" class="org.apache.geronimo.persistence.builder.PersistenceUnitRefBuilder">
-        <xml-attribute name="defaultEnvironment">
-            <environment xmlns="http://geronimo.apache.org/xml/ns/deployment-1.1">
-                <dependencies>
-                    <dependency>
-                        <groupId>org.apache.geronimo.configs</groupId>
-                        <artifactId>openjpa</artifactId>
-                        <type>car</type>
-                    </dependency>
-                </dependencies>
-            </environment>
-        </xml-attribute>
-    </gbean>
 
 </module>
