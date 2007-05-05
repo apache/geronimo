@@ -46,7 +46,7 @@
         <module>geronimo-activemq-management</module>
         <module>geronimo-axis</module>
         <module>geronimo-axis-builder</module>
-        <module>geronimo-client</module>
+        <module>geronimo-cli</module>
         <module>geronimo-client-builder</module>
         <module>geronimo-clustering</module>
         <module>geronimo-clustering-wadi</module>
