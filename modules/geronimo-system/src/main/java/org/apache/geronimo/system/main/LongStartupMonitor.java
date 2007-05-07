@@ -155,9 +155,8 @@ public class LongStartupMonitor implements StartupMonitor {
     }
 
     public synchronized void startupFinished() {
-        int time = Math.round((float) (System.currentTimeMillis() - started) / 1000f);
-
-        out.println("Startup completed in " + time + " seconds");
+        long time = System.currentTimeMillis() - started;
+        out.println("Startup completed in " + getFormattedTime(time) + " seconds");
         StartupMonitorUtil.wrapUp(out, kernel);
     }
 
