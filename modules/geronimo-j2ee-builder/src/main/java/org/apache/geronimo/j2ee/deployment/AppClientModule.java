@@ -30,10 +30,12 @@ import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.xmlbeans.XmlObject;
 
 /**
+ * TODO there is almost certainly a problem with the serverEnvironment when deploying a stand alone app client outside an ear.
+ *
  * @version $Rev$ $Date$
  */
 public class AppClientModule extends Module {
-    private final Environment clientEnvironment;
+    private final Environment serverEnvironment;
     private JarFile earFile;
     private final AbstractName appClientName;
     private final String mainClassName;
@@ -41,8 +43,8 @@ public class AppClientModule extends Module {
 
 
     public AppClientModule(boolean standAlone, AbstractName moduleName, AbstractName appClientName, Environment serverEnvironment, Environment clientEnvironment, JarFile moduleFile, String targetPath, XmlObject specDD, String mainClassName, XmlObject vendorDD, String originalSpecDD, Collection<ConnectorModule> resourceModules, AnnotatedApplicationClient annotatedAppClient ) {
-        super(standAlone, moduleName, serverEnvironment, moduleFile, targetPath, specDD, vendorDD, originalSpecDD, null, annotatedAppClient );
-        this.clientEnvironment = clientEnvironment;
+        super(standAlone, moduleName, clientEnvironment, moduleFile, targetPath, specDD, vendorDD, originalSpecDD, null, annotatedAppClient );
+        this.serverEnvironment = serverEnvironment;
         this.appClientName = appClientName;
         this.mainClassName = mainClassName;
         this.resourceModules = resourceModules;
@@ -52,8 +54,8 @@ public class AppClientModule extends Module {
         return ConfigurationModuleType.CAR;
     }
 
-    public Environment getClientEnvironment() {
-        return clientEnvironment;
+    public Environment getServerEnvironment() {
+        return serverEnvironment;
     }
 
     public JarFile getEarFile() {

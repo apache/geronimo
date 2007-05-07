@@ -473,7 +473,7 @@ public class AppClientModuleBuilder implements ModuleBuilder, CorbaGBeanNameSour
         AppClientModule appClientModule = (AppClientModule) module;
         appClientModule.setEarFile(earFile);
         //create the ear context for the app client.
-        Environment clientEnvironment = appClientModule.getClientEnvironment();
+        Environment clientEnvironment = appClientModule.getEnvironment();
 //        if (!appClientModule.isStandAlone() || clientEnvironment.getConfigId() == null) {
 //            Artifact earConfigId = earContext.getConfigID();
 //            Artifact configId = new Artifact(earConfigId.getGroupId(), earConfigId.getArtifactId() + "_" + module.getTargetPath(), earConfigId.getVersion(), "car");
@@ -538,7 +538,7 @@ public class AppClientModuleBuilder implements ModuleBuilder, CorbaGBeanNameSour
     }
 
     public void initContext(EARContext earContext, Module clientModule, ClassLoader cl) throws DeploymentException {
-        namingBuilders.buildEnvironment(clientModule.getSpecDD(), clientModule.getVendorDD(), ((AppClientModule)clientModule).getClientEnvironment());
+        namingBuilders.buildEnvironment(clientModule.getSpecDD(), clientModule.getVendorDD(), ((AppClientModule)clientModule).getEnvironment());
 
         AppClientModule appClientModule = ((AppClientModule) clientModule);
         for (ConnectorModule connectorModule : appClientModule.getResourceModules()) {
@@ -592,8 +592,8 @@ public class AppClientModuleBuilder implements ModuleBuilder, CorbaGBeanNameSour
 
         // Create a Module ID Builder defaulting to similar settings to use for any children we create
         ModuleIDBuilder idBuilder = new ModuleIDBuilder();
-        idBuilder.setDefaultGroup(appClientModule.getClientEnvironment().getConfigId().getGroupId());
-        idBuilder.setDefaultVersion(appClientModule.getClientEnvironment().getConfigId().getVersion());
+        idBuilder.setDefaultGroup(appClientModule.getEnvironment().getConfigId().getGroupId());
+        idBuilder.setDefaultVersion(appClientModule.getEnvironment().getConfigId().getVersion());
         try {
             try {
 
