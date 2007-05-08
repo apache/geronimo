@@ -48,7 +48,7 @@ public class UserTransactionBeforeAfter implements BeforeAfter {
         }
         
         boolean active = (Boolean)context[index];
-        if ((!active && isMarkedRollback()) || (dispatch != DISPATCHED && isActive())) {
+        if ((!active && isMarkedRollback()) || (dispatch == EDGE_SERVLET && isActive())) {
             try {
                 userTransaction.rollback();
             } catch (SystemException e) {

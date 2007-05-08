@@ -21,7 +21,7 @@ import javax.servlet.ServletResponse;
 
 public interface BeforeAfter {
 
-    public static final int DEFAULT = 0;
+    public static final int EDGE_SERVLET = 0;
 
     public static final int DISPATCHED = 1;
 

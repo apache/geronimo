@@ -40,7 +40,7 @@ public class GeronimoBeforeAfterValve extends ValveBase{
         Object context[] = new Object[contextIndexCount];
         
         if (beforeAfter != null){
-            beforeAfter.before(context, request, response, BeforeAfter.DEFAULT);
+            beforeAfter.before(context, request, response, BeforeAfter.EDGE_SERVLET);
         }
         
         // Pass this request on to the next valve in our pipeline
