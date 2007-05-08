@@ -33,17 +33,17 @@ public class ComponentContextBeforeAfter implements BeforeAfter{
         this.componentContext = componentContext;
     }
 
-    public void before(Object[] context, ServletRequest httpRequest, ServletResponse httpResponse) {
+    public void before(Object[] context, ServletRequest httpRequest, ServletResponse httpResponse, int dispatch) {
         context[index] = RootContext.getComponentContext();
         RootContext.setComponentContext(componentContext);
         if (next != null) {
-            next.before(context, httpRequest, httpResponse);
+            next.before(context, httpRequest, httpResponse, 0);
         }
     }
 
-    public void after(Object[] context, ServletRequest httpRequest, ServletResponse httpResponse) {
+    public void after(Object[] context, ServletRequest httpRequest, ServletResponse httpResponse, int dispatch) {
         if (next != null) {
-            next.after(context, httpRequest, httpResponse);
+            next.after(context, httpRequest, httpResponse, 0);
         }
         RootContext.setComponentContext((Context) context[index]);
     }

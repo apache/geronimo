@@ -38,8 +38,6 @@ import org.apache.catalina.connector.Response;
 import org.apache.catalina.core.StandardContext;
 import org.apache.catalina.ha.CatalinaCluster;
 import org.apache.catalina.valves.ValveBase;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.common.GeronimoSecurityException;
 import org.apache.geronimo.security.ContextManager;
@@ -51,6 +49,7 @@ import org.apache.geronimo.tomcat.interceptor.BeforeAfter;
 import org.apache.geronimo.tomcat.interceptor.ComponentContextBeforeAfter;
 import org.apache.geronimo.tomcat.interceptor.InstanceContextBeforeAfter;
 import org.apache.geronimo.tomcat.interceptor.PolicyContextBeforeAfter;
+import org.apache.geronimo.tomcat.interceptor.UserTransactionBeforeAfter;
 import org.apache.geronimo.tomcat.util.SecurityHolder;
 import org.apache.geronimo.tomcat.valve.DefaultSubjectValve;
 import org.apache.geronimo.tomcat.valve.GeronimoBeforeAfterValve;
@@ -134,6 +133,9 @@ public class GeronimoStandardContext extends StandardContext {
 
             }
         }
+        
+        //Set a UserTransactionBeforeAfter
+        interceptor = new UserTransactionBeforeAfter(interceptor, index++, ctx.getUserTransaction());
 
         //Set the BeforeAfters as a valve
         GeronimoBeforeAfterValve geronimoBAValve = new GeronimoBeforeAfterValve(interceptor, index);

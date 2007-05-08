@@ -43,7 +43,7 @@ public class InstanceContextBeforeAfter implements BeforeAfter{
         this.trackedConnectionAssociator = trackedConnectionAssociator;
     }
 
-    public void before(Object[] context, ServletRequest httpRequest, ServletResponse httpResponse) {
+    public void before(Object[] context, ServletRequest httpRequest, ServletResponse httpResponse, int dispatch) {
         try {
             SharedConnectorInstanceContext newConnectorInstanceContext = new SharedConnectorInstanceContext(unshareableResources, applicationManagedSecurityResources, false);
             SharedConnectorInstanceContext oldContext = (SharedConnectorInstanceContext) trackedConnectionAssociator.enter(newConnectorInstanceContext);
@@ -56,13 +56,13 @@ public class InstanceContextBeforeAfter implements BeforeAfter{
             throw new RuntimeException(e);
         }
         if (next != null) {
-            next.before(context, httpRequest, httpResponse);
+            next.before(context, httpRequest, httpResponse, dispatch);
         }
     }
 
-    public void after(Object[] context, ServletRequest httpRequest, ServletResponse httpResponse) {
+    public void after(Object[] context, ServletRequest httpRequest, ServletResponse httpResponse, int dispatch) {
         if (next != null) {
-            next.after(context, httpRequest, httpResponse);
+            next.after(context, httpRequest, httpResponse, dispatch);
         }
         try {
             SharedConnectorInstanceContext oldConnectorInstanceContext = (SharedConnectorInstanceContext) context[oldIndex];

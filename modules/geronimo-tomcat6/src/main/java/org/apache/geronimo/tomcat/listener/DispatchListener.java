@@ -70,7 +70,7 @@ public class DispatchListener implements InstanceListener {
             String wrapperName = getWrapperName(request, webContext);
             context[webContext.getContextCount()] = TomcatGeronimoRealm.setRequestWrapperName(wrapperName);
 
-            beforeAfter.before(context, request, response);
+            beforeAfter.before(context, request, response, BeforeAfter.DISPATCHED);
 
             stack.push(context);
         }
@@ -83,7 +83,7 @@ public class DispatchListener implements InstanceListener {
             Stack stack = (Stack) currentContext.get();
             Object context[] = (Object[]) stack.pop();
 
-            beforeAfter.after(context, request, response);
+            beforeAfter.after(context, request, response, BeforeAfter.DISPATCHED);
 
             TomcatGeronimoRealm.setRequestWrapperName((String) context[webContext.getContextCount()]);
         }

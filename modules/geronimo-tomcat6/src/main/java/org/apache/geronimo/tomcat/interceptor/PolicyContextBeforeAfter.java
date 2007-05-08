@@ -44,7 +44,7 @@ public class PolicyContextBeforeAfter implements BeforeAfter{
         this.defaultSubject = defaultSubject;
     }
 
-    public void before(Object[] context, ServletRequest httpRequest, ServletResponse httpResponse) {
+    public void before(Object[] context, ServletRequest httpRequest, ServletResponse httpResponse, int dispatch) {
 
         //Save the old
 
@@ -61,13 +61,13 @@ public class PolicyContextBeforeAfter implements BeforeAfter{
 
 
         if (next != null) {
-            next.before(context, httpRequest, httpResponse);
+            next.before(context, httpRequest, httpResponse, dispatch);
         }
     }
 
-    public void after(Object[] context, ServletRequest httpRequest, ServletResponse httpResponse) {
+    public void after(Object[] context, ServletRequest httpRequest, ServletResponse httpResponse, int dispatch) {
         if (next != null) {
-            next.after(context, httpRequest, httpResponse);
+            next.after(context, httpRequest, httpResponse, dispatch);
         }
 
         //Replace the old

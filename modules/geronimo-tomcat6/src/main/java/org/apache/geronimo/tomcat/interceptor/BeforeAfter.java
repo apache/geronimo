@@ -20,9 +20,13 @@ import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 
 public interface BeforeAfter {
-    
-    void before(Object[] context, ServletRequest httpRequest, ServletResponse httpResponse);
 
-    void after(Object[] context, ServletRequest httpRequest, ServletResponse httpResponse);
+    public static final int DEFAULT = 0;
+
+    public static final int DISPATCHED = 1;
+
+    void before(Object[] context, ServletRequest httpRequest, ServletResponse httpResponse, int dispatch);
+
+    void after(Object[] context, ServletRequest httpRequest, ServletResponse httpResponse, int dispatch);
 
 }
