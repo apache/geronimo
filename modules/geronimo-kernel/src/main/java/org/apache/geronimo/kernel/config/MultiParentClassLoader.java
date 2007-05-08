@@ -30,10 +30,12 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.kernel.classloader.UnionEnumeration;
 import org.apache.geronimo.kernel.repository.Artifact;
@@ -49,6 +51,7 @@ import org.apache.geronimo.kernel.util.ClassLoaderRegistry;
  * @version $Rev$ $Date$
  */
 public class MultiParentClassLoader extends URLClassLoader {
+    private static final Log log = LogFactory.getLog(MultiParentClassLoader.class);
     private final Artifact id;
     private final ClassLoader[] parents;
     private final boolean inverseClassLoading;
@@ -57,6 +60,32 @@ public class MultiParentClassLoader extends URLClassLoader {
     private final String[] hiddenResources;
     private final String[] nonOverridableResources;
     private boolean destroyed = false;
+
+    // I used this pattern as its temporary and with the static final we get compile time 
+    // optimizations.
+    private final static int classLoaderSearchMode;
+    private final static int ORIGINAL_SEARCH = 1;
+    private final static int OPTIMIZED_SEARCH = 2;
+     
+    static {
+    	// Extract the classLoaderSearchMode if specified.  If not, default to "safe".
+    	String mode = System.getProperty("Xorg.apache.geronimo.kernel.config.MPCLSearchOption");
+    	int runtimeMode = OPTIMIZED_SEARCH;  // Default to optimized
+    	String runtimeModeMessage = "Original Classloading";
+    	if (mode != null) { 
+    		if (mode.equals("safe")) {
+                runtimeMode = ORIGINAL_SEARCH;
+                runtimeModeMessage = "Safe ClassLoading";
+    		} else if (mode.equals("optimized"))
+    			runtimeMode = OPTIMIZED_SEARCH;
+    	}
+    	
+		classLoaderSearchMode = runtimeMode;
+		log.info("ClassLoading behaviour has changed.  The "+runtimeModeMessage+" mode is in effect.  If you are experiencing a problem\n"+
+				 "you can change the behaviour by specifying -DXorg.apache.geronimo.kernel.config.MPCLSearchOption= property.  Specify \n"+
+				 "=\"safe\" to revert to the original behaviour.  This is a temporary change until we decide whether or not to make it\n"+
+				 "permanent for the 2.0 release");
+    }
 
     /**
      * Creates a named class loader with no parents.
@@ -238,7 +267,26 @@ public class MultiParentClassLoader extends URLClassLoader {
         super.addURL(url);
     }
 
-    protected synchronized Class loadClass(String name, boolean resolve) throws ClassNotFoundException {
+    /**
+     * TODO This method should be removed and replaced with the best classLoading option.  Its intent is to 
+     * provide a way for folks to switch back to the old classLoader if this fix breaks something.
+     */
+    protected synchronized Class<?> loadClass(String name, boolean resolve) throws ClassNotFoundException {
+    	if (classLoaderSearchMode == ORIGINAL_SEARCH) 
+    		return loadSafeClass(name, resolve);
+    	else
+    		return loadOptimizedClass(name, resolve);
+    }
+    
+    /**
+     * This method executes the old class loading behaviour before optimization.
+     * 
+     * @param name
+     * @param resolve
+     * @return
+     * @throws ClassNotFoundException
+     */
+    protected synchronized Class<?> loadSafeClass(String name, boolean resolve) throws ClassNotFoundException {
         //
         // Check if class is in the loaded classes cache
         //
@@ -303,6 +351,162 @@ public class MultiParentClassLoader extends URLClassLoader {
         }
 
         throw new ClassNotFoundException(name + " in classloader " + id);
+    }    
+    
+    /**
+     * 
+     * Optimized classloading.
+     * 
+     * This method is the normal way to resolve class loads.  This method recursively calls its parents to resolve 
+     * classloading requests.  Here is the sequence of operations:
+     * 
+     *   1. Call findClass to see if we already have this class loaded.
+     *   2. If not, call the SystemClassLoader which needs to be called anyway.
+     *   3. Check if inverse loading, if so look in our class loader.
+     *   4. Search our parents, recursively.  Keeping track of which parents have already been called.
+     *      Since MultiParentClassLoaders can appear more than once we do not search an already searched classloader.
+     *   5. Search our classloader.  
+     * 
+     */
+    protected synchronized Class<?> loadOptimizedClass(String name, boolean resolve) throws ClassNotFoundException {
+    	// System.err.println("Started load for class "+name+" in classloader "+this);
+        //
+        // Check if class is in the loaded classes cache
+        //
+        Class cachedClass = findLoadedClass(name);
+        if (cachedClass != null) {
+            return resolveClass(cachedClass, resolve);
+        }
+
+        //
+        // No dice, let's offer the primordial loader a shot...
+        //
+        try {
+        	return resolveClass(findSystemClass(name), resolve);
+        } catch (ClassNotFoundException cnfe) {
+        	// ignore...just being a good citizen.
+        }
+
+        //
+        // if we are using inverse class loading, check local urls first
+        //
+        if (inverseClassLoading && !isDestroyed() && !isNonOverridableClass(name)) {
+            try {
+                Class clazz = findClass(name);
+                return resolveClass(clazz, resolve);
+            } catch (ClassNotFoundException ignored) {
+            }
+        }
+        
+        //
+        // Check parent class loaders
+        //
+        if (!isHiddenClass(name)) {
+       		try {
+       			LinkedList<ClassLoader> visitedClassLoaders = new LinkedList<ClassLoader>();
+                Class clazz = checkParents(name, resolve, visitedClassLoaders);
+                if (clazz != null) return resolveClass(clazz, resolve);
+      		} catch (ClassNotFoundException cnfe) {
+        			// ignore
+       		}
+        }
+
+        //
+        // if we are not using inverse class loading, check local urls now
+        //
+        // don't worry about excluding non-overridable classes here... we
+        // have alredy checked he parent and the parent didn't have the
+        // class, so we can override now
+        if (!isDestroyed()) {
+            try {
+                Class clazz = findClass(name);
+                return resolveClass(clazz, resolve);
+            } catch (ClassNotFoundException ignored) {
+            }
+        }
+
+        throw new ClassNotFoundException(name + " in classloader " + id);
+    }
+    
+    /**
+     * This method is an internal hook that allows us to be performant on Class lookups when multiparent
+     * classloaders are involved.  We can bypass certain lookups that have already occurred in the initiating
+     * classloader.  Also, we track the classLoaders that are visited by adding them to an already vistied list.
+     * In this way, we can bypass redundant checks for the same class.
+     * 
+     * @param name
+     * @param visitedClassLoaders
+     * @return
+     * @throws ClassNotFoundException
+     */
+    protected synchronized Class<?> loadClassInternal(String name, boolean resolve, LinkedList<ClassLoader> visitedClassLoaders) throws ClassNotFoundException {
+        //
+        // Check if class is in the loaded classes cache
+        //
+        Class cachedClass = findLoadedClass(name);
+        if (cachedClass != null) {
+            return resolveClass(cachedClass, resolve);
+        }
+
+        //
+        // Check parent class loaders
+        //
+        if (!isHiddenClass(name)) {
+            try {
+        	    Class clazz = checkParents(name, resolve, visitedClassLoaders);
+        	    if (clazz != null) return resolveClass(clazz,resolve);
+            } catch (ClassNotFoundException cnfe) {
+        	    // ignore
+            }
+        }
+        
+        //
+        // if we are not using inverse class loading, check local urls now
+        //
+        // don't worry about excluding non-overridable classes here... we
+        // have alredy checked he parent and the parent didn't have the
+        // class, so we can override now
+        if (!isDestroyed()) {
+        	Class clazz = findClass(name);
+            return resolveClass(clazz, resolve);
+        }
+
+        return null;  // Caler is expecting a class.  Null indicates CNFE and will save some time.
+    }
+
+    /**
+     * In order to optimize the classLoading process and visit a directed set of 
+     * classloaders this internal method for Geronimo MultiParentClassLoaders 
+     * is used.  Effectively, as each classloader is visited it is passed a linked
+     * list of classloaders that have already been visited and can safely be skipped.
+     * This method assumes the context of an MPCL and is not for use external to this class.
+     * 
+     * @param name
+     * @param visitedClassLoaders
+     * @return
+     * @throws ClassNotFoundException
+     */
+    private synchronized Class<?> checkParents(String name, boolean resolve, LinkedList<ClassLoader> visitedClassLoaders) throws ClassNotFoundException {
+     	for (ClassLoader parent : parents) {
+    		//  When we've encountered the primordial loader we are done.  Since we've already looked there we do not need
+     		// to repeat the check.  Simply return null and all things will be handled nicely.
+    		if (parent == ClassLoader.getSystemClassLoader()) return null;
+    		if (!visitedClassLoaders.contains(parent)) {
+    	        visitedClassLoaders.add(parent);  // Track that we've been here before
+    		    try {
+        	        if (parent instanceof MultiParentClassLoader) {
+        	        	Class clazz = ((MultiParentClassLoader) parent).loadClassInternal(name, resolve, visitedClassLoaders);
+        	        	if (clazz != null) return resolveClass(clazz, resolve);
+        	        } else {
+        	        	return parent.loadClass(name);
+        	        }
+    	    	} catch (ClassNotFoundException cnfe) {
+        	    	// ignore
+        	    }
+    		}
+    	} 
+     	// To avoid yet another CNFE we'll simply return null and let the caller handle appropriately.
+    	return null;
     }
 
     private boolean isNonOverridableClass(String name) {
@@ -531,5 +735,5 @@ public class MultiParentClassLoader extends URLClassLoader {
         ClassLoaderRegistry.remove(this);
         super.finalize();
     }
-
+    
 }
