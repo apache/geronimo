@@ -91,7 +91,7 @@ public class EJBMethodInvoker extends AbstractInvoker {
 
             Class callInterface = this.deploymentInfo.getServiceEndpointInterface();
             method = getMostSpecificMethod(method, callInterface);
-            Object res = container.invoke(this.deploymentInfo.getDeploymentID(), method, arguments, null, null);
+            Object res = container.invoke(this.deploymentInfo.getDeploymentID(), callInterface, method, arguments, null);
 
             if (exchange.isOneWay()) {
                 return null;
