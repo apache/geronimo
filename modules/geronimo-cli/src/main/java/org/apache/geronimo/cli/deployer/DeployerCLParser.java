@@ -37,7 +37,7 @@ import org.apache.geronimo.cli.PrintHelper;
  * @version $Rev: 476049 $ $Date: 2006-11-17 15:35:17 +1100 (Fri, 17 Nov 2006) $
  */
 public class DeployerCLParser extends BaseCLParser {
-    private final static String ARGUMENT_URI_SHORTFORM = "u";
+    private final static String ARGUMENT_URI_SHORTFORM = "U";
     private final static String ARGUMENT_URI = "uri";
     
     private final static String ARGUMENT_HOST_SHORTFORM = "host";

@@ -52,7 +52,7 @@ public class DeployerCLParserTest extends TestCase {
 
     public void testURI() throws Exception {
         String uri = "uri";
-        parser.parse(new String[] {"-u", uri, "start", "dummyID"});
+        parser.parse(new String[] {"-U", uri, "start", "dummyID"});
         assertEquals(uri, parser.getURI());
         
         parser.parse(new String[] {"--uri", uri, "start", "dummyID"});
