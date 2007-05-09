@@ -149,16 +149,6 @@
     <module name="org.apache.geronimo.configs/persistence-jpa10-deployer/${version}/car"/>
 
     <module name="org.apache.geronimo.configs/openejb-deployer/${version}/car">
-        <gbean name="EJBBuilder">
-            <reference name="ServiceBuilders">
-                <pattern>
-                    <name>GBeanBuilder</name>
-                </pattern>
-                <pattern>
-                    <name>PersistenceUnitBuilder</name>
-                </pattern>
-            </reference>
-        </gbean>
         <gbean name="EjbRefBuilder">
             <attribute name="eeNamespaces">http://java.sun.com/xml/ns/j2ee,http://java.sun.com/xml/ns/javaee</attribute>
         </gbean>
