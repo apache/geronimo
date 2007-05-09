@@ -110,9 +110,12 @@
                             <artifactId>geronimo-kernel</artifactId>
                             <version>${version}</version>
                         </element>
+                        <!--
+                        NOTE: geronimo-transformer is on the system classpath to avoid a potential deadlock. See GERONIMO-3141.
+                        -->
                         <element>
                             <groupId>org.apache.geronimo.modules</groupId>
-                            <artifactId>geronimo-util</artifactId>
+                            <artifactId>geronimo-transformer</artifactId>
                             <version>${version}</version>
                         </element>
                         <element>

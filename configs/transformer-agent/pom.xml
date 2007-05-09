@@ -45,18 +45,12 @@
                             <Extension-Dirs>lib/ext</Extension-Dirs>
                             <Premain-Class>org.apache.geronimo.transformer.TransformerAgent</Premain-Class>
                         </manifestEntries>
-                        <manifest>
-                            <mainClass>org.apache.geronimo.system.main.Daemon</mainClass>
-                        </manifest>
                     </archive>
                     
                     <!--
                     NOTE: This list of dependencies is non-transitive.
                     -->
                     <classpath>
-                        <element>
-                            <entry>server.jar</entry>
-                        </element>
                         <element>
                             <groupId>org.apache.geronimo.modules</groupId>
                             <artifactId>geronimo-transformer</artifactId>
