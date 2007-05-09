@@ -417,6 +417,7 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder {
 
                 SecurityHolder securityHolder = new SecurityHolder();
                 securityHolder.setSecurityRealm(tomcatWebApp.getSecurityRealmName().trim());
+                securityHolder.setRoleDesignates(((SecurityConfiguration) earContext.getSecurityConfiguration()).getRoleDesignates());
 
                 /**
                  * TODO - go back to commented version when possible.

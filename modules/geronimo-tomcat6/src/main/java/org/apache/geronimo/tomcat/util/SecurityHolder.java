@@ -18,6 +18,10 @@ package org.apache.geronimo.tomcat.util;
 
 import java.io.Serializable;
 import java.security.PermissionCollection;
+import java.util.Map;
+
+import javax.security.auth.Subject;
+
 import org.apache.geronimo.security.deploy.DefaultPrincipal;
 
 public class SecurityHolder implements Serializable
@@ -31,6 +35,7 @@ public class SecurityHolder implements Serializable
     private PermissionCollection excluded;
     private String securityRealm;
     private boolean security;
+    private Map<String, Subject> roleDesignates;
 
     public SecurityHolder()
     {
@@ -40,6 +45,7 @@ public class SecurityHolder implements Serializable
         excluded = null;
         securityRealm = null;
         security = false;
+        roleDesignates = null;
     }
 
     public String getSecurityRealm() {
@@ -96,6 +102,14 @@ public class SecurityHolder implements Serializable
 
     public void setSecurity(boolean security) {
         this.security = security;
+    }
+
+    public Map<String, Subject> getRoleDesignates() {
+        return roleDesignates;
+    }
+
+    public void setRoleDesignates(Map<String, Subject> roleDesignates) {
+        this.roleDesignates = roleDesignates;
     }
     
 }

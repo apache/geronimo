@@ -50,6 +50,7 @@ import org.apache.geronimo.tomcat.interceptor.ComponentContextBeforeAfter;
 import org.apache.geronimo.tomcat.interceptor.InstanceContextBeforeAfter;
 import org.apache.geronimo.tomcat.interceptor.PolicyContextBeforeAfter;
 import org.apache.geronimo.tomcat.interceptor.UserTransactionBeforeAfter;
+import org.apache.geronimo.tomcat.listener.RunAsInstanceListener;
 import org.apache.geronimo.tomcat.util.SecurityHolder;
 import org.apache.geronimo.tomcat.valve.DefaultSubjectValve;
 import org.apache.geronimo.tomcat.valve.GeronimoBeforeAfterValve;
@@ -70,6 +71,8 @@ public class GeronimoStandardContext extends StandardContext {
 
     private BeforeAfter beforeAfter = null;
     private int contextCount = 0;
+    
+    private Map<String,Subject> roleDesignates = null;
 
     public void setContextProperties(TomcatContext ctx) throws DeploymentException {
 
@@ -112,6 +115,10 @@ public class GeronimoStandardContext extends StandardContext {
         //Set a PolicyContext BeforeAfter
         SecurityHolder securityHolder = ctx.getSecurityHolder();
         if (securityHolder != null) {
+            
+            // save the role designates for mapping servlets to their run-as roles
+            roleDesignates = securityHolder.getRoleDesignates();
+            
             if (securityHolder.getPolicyContextID() != null) {
 
                 PolicyContext.setContextID(securityHolder.getPolicyContextID());
@@ -173,6 +180,11 @@ public class GeronimoStandardContext extends StandardContext {
 
         //Set the Dispatch listener
         this.addInstanceListener("org.apache.geronimo.tomcat.listener.DispatchListener");
+        
+        //Set the run-as listener. listeners must be added before start() is called
+        if (roleDesignates != null) {
+            this.addInstanceListener(RunAsInstanceListener.class.getName());
+        }
     }
 
     public synchronized void start() throws LifecycleException {
@@ -185,6 +197,17 @@ public class GeronimoStandardContext extends StandardContext {
 
                 Valve defaultSubjectValve = new DefaultSubjectValve(defaultSubject);
                 addValve(defaultSubjectValve);
+
+                // if a servlet uses run-as then make sure role desgnates have been provided
+                if (hasRunAsServlet()) {
+                    if (roleDesignates == null) {
+                        throw new GeronimoSecurityException("web.xml or annotation specifies a run-as role but deployment descriptor does not provide a designated-run-as prinicpal for the role");
+                    }
+                } else {
+                    // optimization
+                    this.removeInstanceListener(RunAsInstanceListener.class.getName());
+                }
+                
             } catch (IOException e) {
                 if (e.getCause() instanceof LifecycleException) {
                     throw (LifecycleException) e.getCause();
@@ -347,4 +370,32 @@ public class GeronimoStandardContext extends StandardContext {
         return contextCount;
     }
 
+    /**
+     * Determine if the context has at least one servlet that specifies a run-as role
+     * @return true if at least one servlet specifies a run-as role, false otherwise
+     */
+    protected boolean hasRunAsServlet() {
+        for (Container servlet : findChildren()) { 
+            if (servlet instanceof Wrapper) {
+                if (((Wrapper)servlet).getRunAs() != null) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+    
+    /**
+     * Get the Subject for the designated Principal of a servlet's run as role 
+     * @return Subject containing designated Prinicpal for the servlet's run-as role, if specified.  otherwise null. 
+     */
+    public Subject getRoleDesignate(String servletName) {
+        Subject roleDesignate = null;
+        Wrapper servlet = (Wrapper)findChild(servletName);
+        if (servlet!=null && roleDesignates!=null) {
+            String roleName = servlet.getRunAs();
+            roleDesignate = roleDesignates.get(roleName);
+        }
+        return roleDesignate;
+    }
 }
