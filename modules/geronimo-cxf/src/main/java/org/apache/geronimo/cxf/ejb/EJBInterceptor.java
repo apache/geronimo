@@ -40,7 +40,7 @@ import org.apache.cxf.interceptor.Interceptor;
 import org.apache.cxf.interceptor.InterceptorChain;
 import org.apache.cxf.interceptor.OutgoingChainInterceptor;
 import org.apache.cxf.interceptor.ServiceInvokerInterceptor;
-import org.apache.cxf.jaxws.handler.LogicalHandlerInterceptor;
+import org.apache.cxf.jaxws.handler.logical.LogicalHandlerInInterceptor;
 import org.apache.cxf.jaxws.handler.soap.SOAPHandlerInterceptor;
 import org.apache.cxf.jaxws.support.JaxWsEndpointImpl;
 import org.apache.cxf.message.Exchange;
@@ -136,7 +136,7 @@ public class EJBInterceptor {
 
             // install interceptors for handler processing
             chain.add(new MustUnderstandInterceptor());
-            chain.add(new LogicalHandlerInterceptor(binding));
+            chain.add(new LogicalHandlerInInterceptor(binding));
             chain.add(new SOAPHandlerInterceptor(binding));
 
             // install data binding interceptors

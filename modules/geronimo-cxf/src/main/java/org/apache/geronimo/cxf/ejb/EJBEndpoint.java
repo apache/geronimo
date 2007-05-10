@@ -32,7 +32,7 @@ import org.apache.cxf.binding.soap.interceptor.MustUnderstandInterceptor;
 import org.apache.cxf.binding.soap.saaj.SAAJInInterceptor;
 import org.apache.cxf.endpoint.Endpoint;
 import org.apache.cxf.interceptor.Interceptor;
-import org.apache.cxf.jaxws.handler.LogicalHandlerInterceptor;
+import org.apache.cxf.jaxws.handler.logical.LogicalHandlerInInterceptor;
 import org.apache.cxf.jaxws.handler.soap.SOAPHandlerInterceptor;
 import org.apache.cxf.jaxws.support.JaxWsServiceFactoryBean;
 import org.apache.geronimo.cxf.CXFEndpoint;
@@ -113,7 +113,7 @@ public class EJBEndpoint extends CXFEndpoint {
     private static void removeHandlerInterceptors(List<Interceptor> interceptors) {
         for (Interceptor interceptor : interceptors) {
             if (interceptor instanceof MustUnderstandInterceptor ||
-                interceptor instanceof LogicalHandlerInterceptor ||
+                interceptor instanceof LogicalHandlerInInterceptor ||
                 interceptor instanceof SOAPHandlerInterceptor) {
                 interceptors.remove(interceptor);
             }
