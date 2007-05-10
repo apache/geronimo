@@ -361,15 +361,25 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
             log.debug(buf.toString());
         }
 
-        if (Boolean.getBoolean("Xorg.apache.geronimo.OldClassLoader")) {
-            return new MultiParentClassLoader(environment.getConfigId(),
+        // The JarFileClassLoader was created to address a locking problem seen only on Windows platforms.
+        // It carries with it a slight performance penalty that needs to be addressed.  Rather than make
+        // *nix OSes carry this burden we'll engage the JarFileClassLoader for Windows or if the user 
+        // specifically requests it.  We'll look more at this issue in the future.
+        boolean useJarFileClassLoader = false;
+        if (System.getProperty("Xorg.apache.geronimo.JarFileClassLoader") == null) {
+            useJarFileClassLoader = System.getProperty("os.name").startsWith("Windows");
+        } else {
+            useJarFileClassLoader = Boolean.getBoolean("Xorg.apache.geronimo.JarFileClassLoader");
+        }
+        if (useJarFileClassLoader) {
+            return new JarFileClassLoader(environment.getConfigId(),
                     urls,
                     parentClassLoaders,
                     environment.isInverseClassLoading(),
                     hiddenClasses,
                     nonOverridableClasses);
         } else {
-            return new JarFileClassLoader(environment.getConfigId(),
+            return new MultiParentClassLoader(environment.getConfigId(),
                     urls,
                     parentClassLoaders,
                     environment.isInverseClassLoading(),
