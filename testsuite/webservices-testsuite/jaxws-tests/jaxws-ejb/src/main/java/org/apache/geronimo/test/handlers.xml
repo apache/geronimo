@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jws:handler-chains xmlns:jws="http://java.sun.com/xml/ns/javaee">
+  <jws:handler-chain>
+
+    <jws:handler>
+      <jws:handler-name>GreeterSOAPHandler</jws:handler-name>
+      <jws:handler-class>org.apache.geronimo.test.GreeterSOAPHandler</jws:handler-class>
+    </jws:handler>
+
+    <jws:handler>
+      <jws:handler-name>GreeterLogicalHandler</jws:handler-name>
+      <jws:handler-class>org.apache.geronimo.test.GreeterLogicalHandler</jws:handler-class>
+    </jws:handler>
+
+  </jws:handler-chain>
+</jws:handler-chains>

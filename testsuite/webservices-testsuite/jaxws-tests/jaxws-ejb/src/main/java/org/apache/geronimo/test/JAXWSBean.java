@@ -20,14 +20,24 @@ package org.apache.geronimo.test;
 
 import javax.ejb.Stateless;
 import javax.jws.WebService;
+import javax.jws.HandlerChain;
+import javax.jws.soap.SOAPBinding;
 
 @WebService
 @Stateless(mappedName="JAXWSBean")
+@HandlerChain(file="handlers.xml")
+@SOAPBinding(style=SOAPBinding.Style.RPC, 
+             use=SOAPBinding.Use.LITERAL,
+             parameterStyle=SOAPBinding.ParameterStyle.WRAPPED
+)
 public class JAXWSBean implements JAXWSGreeter { 
 
     public String greetMe(String me) {
-        System.out.println("i'm a ejb ws!!!!");
+        System.out.println("i'm a ejb ws: " + me);
+        if (!"foo bar".equals(me)) {
+            throw new RuntimeException("Wrong parameter");
+        }
         return "Hello " + me;
     }
-
+    
 }
