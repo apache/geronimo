@@ -72,6 +72,12 @@
             <name>OpenEjbSystem</name>
         </dependency>
     </gbean>
+    
+    <gbean name="ejb/mgmt/MEJB" class="org.apache.geronimo.openejb.MEJBGBean">
+        <reference name="StatelessContainer">
+            <name>DefaultStatelessContainer</name>
+        </reference>
+    </gbean>
 
 <!--
     <gbean name="StatelessEjbContainer" class="org.apache.openejb.slsb.DefaultStatelessEjbContainerGBean">
