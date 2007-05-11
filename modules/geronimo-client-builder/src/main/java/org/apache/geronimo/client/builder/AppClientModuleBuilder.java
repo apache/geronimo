@@ -840,13 +840,13 @@ public class AppClientModuleBuilder implements ModuleBuilder, CorbaGBeanNameSour
     }
 
     private boolean cleanupAppClientDir(File configurationDir) {
-        LinkedList cannotBeDeletedList = new LinkedList();
+        LinkedList<String> cannotBeDeletedList = new LinkedList<String>();
 
         if (!DeploymentUtil.recursiveDelete(configurationDir, cannotBeDeletedList)) {
             // Output a message to help user track down file problem
             log.warn("Unable to delete " + cannotBeDeletedList.size() +
                     " files while recursively deleting directory "
-                    + configurationDir + LINE_SEP +
+                    + configurationDir.getAbsolutePath() + LINE_SEP +
                     "The first file that could not be deleted was:" + LINE_SEP + "  " +
                     (!cannotBeDeletedList.isEmpty() ? cannotBeDeletedList.getFirst() : ""));
             return false;

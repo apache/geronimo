@@ -299,9 +299,12 @@ public final class DeploymentUtil {
                         recursiveDelete(file, unableToDeleteCollection);
                     } else {
                         if (!file.delete() && unableToDeleteCollection != null) {
-                            unableToDeleteCollection.add(file);    
+                            unableToDeleteCollection.add(file.getAbsolutePath());    
                         }
                     }
+                    // help out the GC of file handles by nulling the references
+                    file = null;
+                    files[i] = null;
                 }
             }
         }

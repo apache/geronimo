@@ -416,7 +416,7 @@ public class EjbModuleBuilder implements ModuleBuilder {
             // Output a message to help user track down file problem
             log.warn("Unable to delete " + cannotBeDeletedList.size() +
                     " files while recursively deleting directory "
-                    + configurationDir + LINE_SEP +
+                    + configurationDir.getAbsolutePath() + LINE_SEP +
                     "The first file that could not be deleted was:" + LINE_SEP + "  " +
                     (!cannotBeDeletedList.isEmpty() ? cannotBeDeletedList.getFirst() : ""));
             return false;
