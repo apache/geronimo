@@ -22,8 +22,17 @@ import java.io.Serializable;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import javax.enterprise.deploy.shared.ModuleType;
+import javax.enterprise.deploy.spi.DeploymentManager;
+import javax.enterprise.deploy.spi.Target;
+import javax.enterprise.deploy.spi.TargetModuleID;
+import javax.enterprise.deploy.spi.exceptions.TargetException;
 import javax.portlet.ActionRequest;
 import javax.portlet.ActionResponse;
 import javax.portlet.PortletConfig;
@@ -32,9 +41,13 @@ import javax.portlet.PortletRequestDispatcher;
 import javax.portlet.RenderRequest;
 import javax.portlet.RenderResponse;
 import javax.portlet.WindowState;
+
+import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.console.BasePortlet;
 import org.apache.geronimo.console.util.PortletManager;
+import org.apache.geronimo.deployment.plugin.TargetModuleIDImpl;
 import org.apache.geronimo.gbean.AbstractName;
+import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.kernel.DependencyManager;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.KernelRegistry;
@@ -50,6 +63,7 @@ import org.apache.geronimo.kernel.management.State;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.MissingDependencyException;
 import org.apache.geronimo.management.geronimo.WebModule;
+import org.apache.geronimo.kernel.config.LifecycleResults;
 
 public class ConfigManagerPortlet extends BasePortlet {
 
@@ -73,6 +87,111 @@ public class ConfigManagerPortlet extends BasePortlet {
 
     private PortletRequestDispatcher helpView;
 
+    private void printChilds(AbstractName config, int tab) {
+        messageStatus += "<br/>";
+        for (int i=0;i<tab;i++)
+            messageStatus += "&nbsp;&nbsp;";
+        messageStatus +=config.toString();
+
+        DependencyManager depMgr = kernel.getDependencyManager();
+
+        java.util.Set children = depMgr.getChildren(config);
+        for (Iterator itr = children.iterator(); itr.hasNext(); ) {
+            AbstractName child = (AbstractName)itr.next();
+            //if(configManager.isConfiguration(child.getArtifact()))
+            if (child.getNameProperty("configurationName") != null) {
+                printChilds(child,tab+1);
+            }
+        }
+    }
+
+    public static List loadChildren(Kernel kernel, String configName) {
+        List kids = new ArrayList();
+
+        Map filter = new HashMap();
+        filter.put("J2EEApplication", configName);
+
+        filter.put("j2eeType", "WebModule");
+        Set test = kernel.listGBeans(new AbstractNameQuery(null, filter));
+        for (Iterator it = test.iterator(); it.hasNext();) {
+            AbstractName child = (AbstractName) it.next();
+            String childName = child.getNameProperty("name");
+            kids.add(childName);
+        }
+
+        filter.put("j2eeType", "EJBModule");
+        test = kernel.listGBeans(new AbstractNameQuery(null, filter));
+        for (Iterator it = test.iterator(); it.hasNext();) {
+            AbstractName child = (AbstractName) it.next();
+            String childName = child.getNameProperty("name");
+            kids.add(childName);
+        }
+
+        filter.put("j2eeType", "AppClientModule");
+        test = kernel.listGBeans(new AbstractNameQuery(null, filter));
+        for (Iterator it = test.iterator(); it.hasNext();) {
+            AbstractName child = (AbstractName) it.next();
+            String childName = child.getNameProperty("name");
+            kids.add(childName);
+        }
+
+        filter.put("j2eeType", "ResourceAdapterModule");
+        test = kernel.listGBeans(new AbstractNameQuery(null, filter));
+        for (Iterator it = test.iterator(); it.hasNext();) {
+            AbstractName child = (AbstractName) it.next();
+            String childName = child.getNameProperty("name");
+            kids.add(childName);
+        }
+        return kids;
+    }
+
+    public static boolean isWebApp(Kernel kernel, String configName) {
+        Map filter = new HashMap();
+        filter.put("j2eeType", "WebModule");
+        filter.put("name", configName);
+        Set set = kernel.listGBeans(new AbstractNameQuery(null, filter));
+        return set.size() > 0;
+    }
+
+    public void printResults(Set lcresult, String action) {
+
+        java.util.Iterator iterator= lcresult.iterator();
+        while (iterator.hasNext()) {
+            Artifact config = (Artifact)iterator.next();
+
+            //TODO might be a hack
+            List kidsChild = loadChildren(kernel, config.toString());
+
+            // Build a response obect containg the started configuration and a list of it's contained modules
+            TargetModuleIDImpl idChild = new TargetModuleIDImpl(null, config.toString(),
+                                                                (String[]) kidsChild.toArray(new String[kidsChild.size()]));
+            if (isWebApp(kernel, config.toString())) {
+                idChild.setType(ModuleType.WAR);
+            }
+            if (idChild.getChildTargetModuleID() != null) {
+                for (int k = 0; k < idChild.getChildTargetModuleID().length; k++) {
+                    TargetModuleIDImpl child = (TargetModuleIDImpl) idChild.getChildTargetModuleID()[k];
+                    if (isWebApp(kernel, child.getModuleID())) {
+                        child.setType(ModuleType.WAR);
+                    }
+                }
+            }
+            messageStatus += "    ";
+            messageStatus += idChild.getModuleID()+(idChild.getWebURL() == null || !action.equals(START_ACTION) ? "" : " @ "+idChild.getWebURL());
+            messageStatus += "<br />";
+            if (idChild.getChildTargetModuleID() != null) {
+                for (int j = 0; j < idChild.getChildTargetModuleID().length; j++) {
+                    TargetModuleID child = idChild.getChildTargetModuleID()[j];
+                    messageStatus += "      `-> "+child.getModuleID()+(child.getWebURL() == null || !action.equals(START_ACTION) ? "" : " @ "+child.getWebURL());
+                    messageStatus += "<br />";
+                }
+            }
+            messageStatus += "<br />";
+
+
+        }
+    }
+
     public void processAction(ActionRequest actionRequest, ActionResponse actionResponse) throws PortletException, IOException {
         String action = actionRequest.getParameter("action");
         actionResponse.setRenderParameter("message", ""); // set to blank first
@@ -86,23 +205,26 @@ public class ConfigManagerPortlet extends BasePortlet {
                     configurationManager.loadConfiguration(configId);
                 }
                 if(!configurationManager.isRunning(configId)) {
-                    configurationManager.startConfiguration(configId);
+                    org.apache.geronimo.kernel.config.LifecycleResults lcresult = configurationManager.startConfiguration(configId);
                     messageStatus = "Started application<br /><br />";
+                    this.printResults(lcresult.getStarted(), action);
                 }
             } else if (STOP_ACTION.equals(action)) {
                 if(configurationManager.isRunning(configId)) {
                     configurationManager.stopConfiguration(configId);
                 }
                 if(configurationManager.isLoaded(configId)) {
-                    configurationManager.unloadConfiguration(configId);
+                    LifecycleResults lcresult = configurationManager.unloadConfiguration(configId);
                     messageStatus = "Stopped application<br /><br />";
+                    this.printResults(lcresult.getUnloaded(), action);
                 }
             } else if (UNINSTALL_ACTION.equals(action)) {
                 configurationManager.uninstallConfiguration(configId);
-                messageStatus = "Uninstalled application<br /><br />";
+                messageStatus = "Uninstalled application<br /><br />"+configId+"<br /><br />";                
             } else if (RESTART_ACTION.equals(action)) {
-                configurationManager.restartConfiguration(configId);
+                LifecycleResults lcresult = configurationManager.restartConfiguration(configId);
                 messageStatus = "Restarted application<br /><br />";
+                this.printResults(lcresult.getStarted(), START_ACTION);
             } else {
                 messageStatus = "Invalid value for changeState: " + action + "<br /><br />";
                 throw new PortletException("Invalid value for changeState: " + action);

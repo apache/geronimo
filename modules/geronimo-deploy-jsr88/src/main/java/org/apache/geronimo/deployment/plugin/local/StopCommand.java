@@ -17,12 +17,15 @@
 
 package org.apache.geronimo.deployment.plugin.local;
 
+import org.apache.geronimo.deployment.plugin.TargetModuleIDImpl;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.config.ConfigurationManager;
 import org.apache.geronimo.kernel.config.ConfigurationUtil;
 import org.apache.geronimo.kernel.repository.Artifact;
 
+import java.util.List;
 import javax.enterprise.deploy.shared.CommandType;
+import javax.enterprise.deploy.shared.ModuleType;
 import javax.enterprise.deploy.spi.TargetModuleID;
 
 /**
@@ -41,22 +44,58 @@ public class StopCommand extends CommandSupport {
     public void run() {
         try {
             ConfigurationManager configurationManager = ConfigurationUtil.getConfigurationManager(kernel);
+            int alreadyStopped = 0;
+
             try {
                 for (int i = 0; i < modules.length; i++) {
                     TargetModuleID module = modules[i];
                     Artifact moduleID = Artifact.create(module.getModuleID());
-                    if(configurationManager.isRunning(moduleID)) {
-                        configurationManager.stopConfiguration(moduleID);
-                    }
-                    if(configurationManager.isLoaded(moduleID)) {
-                        configurationManager.unloadConfiguration(moduleID);
+                    org.apache.geronimo.kernel.config.LifecycleResults lcresult = null;
+
+                    if (configurationManager.isRunning(moduleID)) {
+                        lcresult = configurationManager.stopConfiguration(moduleID);
                         addModule(module);
+                    } else {
+                        updateStatus("Module " + moduleID + " is already stopped");
+                        alreadyStopped++;
+                    }
+
+                    if (configurationManager.isLoaded(moduleID)) {
+                        configurationManager.unloadConfiguration(moduleID);
+                    }
+
+                    if (lcresult != null) {
+                        java.util.Iterator iterator = lcresult.getStopped().iterator();
+                        while (iterator.hasNext()) {
+                            Artifact config = (Artifact)iterator.next();
+                            if (!config.toString().equals(module.getModuleID())) {
+                                //TODO might be a hack
+                                List kidsChild = loadChildren(kernel, config.toString());
+                                //this.updateStatus("printing kidsChild="+kidsChild);
+                                //this.updateStatus("printing config="+config.toString());
+                                // Build a response obect containg the started configuration and a list of it's contained modules
+                                TargetModuleIDImpl idChild = new TargetModuleIDImpl(null, config.toString(),
+                                        (String[]) kidsChild.toArray(new String[kidsChild.size()]));
+                                if (isWebApp(kernel, config.toString())) {
+                                    idChild.setType(ModuleType.WAR);
+                                }
+                                if (idChild.getChildTargetModuleID() != null) {
+                                    for (int k = 0; k < idChild.getChildTargetModuleID().length; k++) {
+                                        TargetModuleIDImpl child = (TargetModuleIDImpl) idChild.getChildTargetModuleID()[k];
+                                        if (isWebApp(kernel, child.getModuleID())) {
+                                            child.setType(ModuleType.WAR);
+                                        }
+                                    }
+                                }
+                                addModule(idChild);
+                            }
+                        }
                     }
                 }
             } finally {
                 ConfigurationUtil.releaseConfigurationManager(kernel, configurationManager);
             }
-            if(getModuleCount() < modules.length) {
+            if ((getModuleCount() + alreadyStopped) < modules.length) {
                 fail("Some modules could not be stopped");
             } else {
                 complete("Completed");

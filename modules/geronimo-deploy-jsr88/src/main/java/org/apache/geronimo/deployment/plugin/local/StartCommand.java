@@ -64,7 +64,7 @@ public class StartCommand extends CommandSupport {
                     }
 
                     // Start
-                    configurationManager.startConfiguration(moduleID);
+                    org.apache.geronimo.kernel.config.LifecycleResults lcresult = configurationManager.startConfiguration(moduleID);
 
                     // Determine the child modules of the configuration
                     //TODO might be a hack
@@ -85,6 +85,30 @@ public class StartCommand extends CommandSupport {
                         }
                     }
                     addModule(id);
+                    java.util.Iterator iterator = lcresult.getStarted().iterator();
+                    while (iterator.hasNext()) {
+                        Artifact config = (Artifact)iterator.next();
+                        if (!config.toString().equals(id.getModuleID())) {
+                            //TODO might be a hack
+                            List kidsChild = loadChildren(kernel, config.toString());
+
+                            // Build a response obect containg the started configuration and a list of it's contained modules
+                            TargetModuleIDImpl idChild = new TargetModuleIDImpl(null, config.toString(),
+                                    (String[]) kidsChild.toArray(new String[kidsChild.size()]));
+                            if (isWebApp(kernel, config.toString())) {
+                                idChild.setType(ModuleType.WAR);
+                            }
+                            if (idChild.getChildTargetModuleID() != null) {
+                                for (int k = 0; k < idChild.getChildTargetModuleID().length; k++) {
+                                    TargetModuleIDImpl child = (TargetModuleIDImpl) idChild.getChildTargetModuleID()[k];
+                                    if (isWebApp(kernel, child.getModuleID())) {
+                                        child.setType(ModuleType.WAR);
+                                    }
+                                }
+                            }
+                            addModule(idChild);                            
+                        }
+                    }
                 }
             } finally {
                 ConfigurationUtil.releaseConfigurationManager(kernel, configurationManager);
