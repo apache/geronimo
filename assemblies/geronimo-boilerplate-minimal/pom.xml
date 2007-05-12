@@ -96,6 +96,28 @@
                             <outputDirectory>${project.build.directory}/classes/lib</outputDirectory>
                         </configuration>
                     </execution>
+
+                    <!-- HACK - Added by G3153 to get minimal assemblies working again.  Needs to be removed as part of G3155 -->
+                    <execution>
+                        <id>install-lib-endorsed</id>
+                        <phase>compile</phase>
+                        <goals>
+                            <goal>copy</goal>
+                        </goals>
+                        <configuration>
+                            <artifactItems>
+                                <artifactItem>
+                                    <groupId>org.apache.yoko</groupId>
+                                    <artifactId>yoko-spec-corba</artifactId>
+                                </artifactItem>
+                                <artifactItem>
+                                    <groupId>org.apache.yoko</groupId>
+                                    <artifactId>yoko-rmi-spec</artifactId>
+                                </artifactItem>
+                            </artifactItems>
+                            <outputDirectory>${project.build.directory}/classes/lib/endorsed</outputDirectory>
+                        </configuration>
+                    </execution>
                     
                     <execution>
                         <id>unpack-schemas</id>
