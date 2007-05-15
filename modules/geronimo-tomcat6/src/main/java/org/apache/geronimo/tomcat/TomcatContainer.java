@@ -212,6 +212,8 @@ public class TomcatContainer implements SoapHandler, GBeanLifecycle, TomcatWebCo
                 ctx.setJ2EEApplication(null);
                 // TODO if objectName != null extract J2EEServer from objectName/host
                 ctx.setJ2EEServer("geronimo");
+                ctx.setJavaVMs(new String[]{});
+                ctx.setServer("geronimo");
             }
             hosts[i].addChild(defaultContext);
         }
