@@ -66,8 +66,25 @@ public class SpecSecurityParsingTest extends TestCase {
         assertTrue(unchecked.implies(new WebResourcePermission("/login.do", "!")));
         assertTrue(unchecked.implies(new WebResourcePermission("/foo", "!")));
         assertFalse(unchecked.implies(new WebResourcePermission("/foo.do", "!")));
-        PermissionCollection adminPermissions = (PermissionCollection) permissions.getRolePermissions().get("Admin");
+        PermissionCollection adminPermissions = permissions.getRolePermissions().get("Admin");
         assertTrue(adminPermissions.implies(new WebResourcePermission("foo.do", "GET,POST")));
+    }
+
+    /**
+     * make sure a resource permission with a role doesn't turn into an unchecked permission due to mistakes in
+     * HTTPMethod "all" handling
+     * @throws Exception
+     */
+    public void testAllMethodsConstraint() throws Exception {
+        roleSet.add("Admin");
+        URL srcXml = classLoader.getResource("security/web2.xml");
+        WebAppDocument webAppDoc = WebAppDocument.Factory.parse(srcXml, options);
+        WebAppType webAppType = webAppDoc.getWebApp();
+        ComponentPermissions permissions = builder.buildSpecSecurityConfig(webAppType, roleSet, rolePermissionMap);
+        PermissionCollection unchecked = permissions.getUncheckedPermissions();
+        assertFalse(unchecked.implies(new WebResourcePermission("/Test", "!")));
+        PermissionCollection adminPermissions = permissions.getRolePermissions().get("Admin");
+        assertTrue(adminPermissions.implies(new WebResourcePermission("/Test", "GET,POST")));
     }
 
     public static class TestWebModuleBuilder extends AbstractWebModuleBuilder {

@@ -27,7 +27,7 @@ import java.util.regex.Pattern;
 /**
  * Tracks sets of HTTP actions for use while computing permissions during web deployment.
  *
- * @version $Rev:$ $Date:$
+ * @version $Rev$ $Date$
  */
 public class HTTPMethods {
     private static final Pattern TOKEN_PATTERN = Pattern.compile("[!-~&&[^\\(\\)\\<\\>@,;:\\\\\"/\\[\\]\\?=\\{\\}]]*");
@@ -46,14 +46,15 @@ public class HTTPMethods {
 
     public void add(String httpMethod) {
         if (isExcluded) {
-            return;
-        }
-        if (httpMethod.length() == 0) {
+            checkToken(httpMethod);
+            methods.remove(httpMethod);
+        } else if (httpMethod == null || httpMethod.length() == 0) {
             isExcluded = true;
             methods.clear();
+        } else {
+            checkToken(httpMethod);
+            methods.add(httpMethod);
         }
-        checkToken(httpMethod);
-        methods.add(httpMethod);
     }
 
     public HTTPMethods add(HTTPMethods httpMethods) {
@@ -114,6 +115,6 @@ public class HTTPMethods {
 
 
     public boolean isNone() {
-        return isExcluded && methods.isEmpty();
+        return !isExcluded && methods.isEmpty();
     }
 }
