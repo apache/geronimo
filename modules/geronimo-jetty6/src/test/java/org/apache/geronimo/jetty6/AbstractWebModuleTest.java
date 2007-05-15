@@ -111,8 +111,6 @@ public class AbstractWebModuleTest extends TestSupport {
                 policyContextId,
                 securityRealmName,
                 defaultPrincipal,
-                checkedPermissions,
-                excludedPermissions,
                 null,
                 null,
                 transactionManager,

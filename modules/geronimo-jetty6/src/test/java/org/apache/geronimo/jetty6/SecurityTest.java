@@ -73,14 +73,14 @@ public class SecurityTest extends AbstractWebModuleTest {
         buildPrincipalRoleMap(securityConfig, roleDesignates, principalRoleMap);
 
         PermissionCollection uncheckedPermissions = new Permissions();
+        uncheckedPermissions.add(new WebUserDataPermission("/protected/*", ""));
 
         PermissionCollection excludedPermissions = new Permissions();
-        excludedPermissions.add(new WebResourcePermission("/auth/login.html", ""));
-        excludedPermissions.add(new WebUserDataPermission("/auth/login.html", ""));
+        uncheckedPermissions.add(new WebResourcePermission("/auth/logon.html", ""));
+        uncheckedPermissions.add(new WebUserDataPermission("/auth/logon.html", ""));
 
         Map rolePermissions = new HashMap();
         PermissionCollection permissions = new Permissions();
-        permissions.add(new WebUserDataPermission("/protected/*", ""));
         permissions.add(new WebResourcePermission("/protected/*", ""));
         rolePermissions.put("content-administrator", permissions);
         rolePermissions.put("auto-administrator", permissions);

@@ -29,7 +29,7 @@ import java.util.Hashtable;
 import java.util.Map;
 import java.util.Set;
 
-import javax.faces.FactoryFinder;
+//import javax.faces.FactoryFinder;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 import javax.naming.Context;
@@ -127,8 +127,6 @@ public class JettyWebAppContext implements GBeanLifecycle, JettyServletRegistrat
             String policyContextID,
             String securityRealmName,
             DefaultPrincipal defaultPrincipal,
-            PermissionCollection checkedPermissions,
-            PermissionCollection excludedPermissions,
 
             Holder holder,
 
@@ -163,13 +161,10 @@ public class JettyWebAppContext implements GBeanLifecycle, JettyServletRegistrat
         }
         JettySecurityHandler securityHandler = null;
         if (securityRealmName != null) {
-            securityHandler = new JettySecurityHandler();
             InternalJAASJettyRealm internalJAASJettyRealm = jettyContainer.addRealm(securityRealmName);
             //wrap jetty realm with something that knows the dumb realmName
             JAASJettyRealm realm = new JAASJettyRealm(realmName, internalJAASJettyRealm);
-            securityHandler.setUserRealm(realm);
-
-            securityHandler.init(policyContextID, defaultPrincipal, checkedPermissions, excludedPermissions, classLoader);
+            securityHandler = new JettySecurityHandler(authenticator, realm, policyContextID, defaultPrincipal, classLoader);
         }
 
         ServletHandler servletHandler = new ServletHandler();
@@ -242,7 +237,6 @@ public class JettyWebAppContext implements GBeanLifecycle, JettyServletRegistrat
         webAppContext.setWelcomeFiles(welcomeFiles);
         setLocaleEncodingMapping(localeEncodingMapping);
         setErrorPages(errorPages);
-        webAppContext.getSecurityHandler().setAuthenticator(authenticator);
         setTagLibMap(tagLibMap);
 
         if (!distributable) {
@@ -365,7 +359,8 @@ public class JettyWebAppContext implements GBeanLifecycle, JettyServletRegistrat
         LogFactory.release(webClassLoader);
 
         // need to release the JSF factories. Otherwise, we'll leak ClassLoaders.
-        FactoryFinder.releaseFactories();
+        //should be done in a myfaces gbean
+//        FactoryFinder.releaseFactories();
 
         log.debug("JettyWebAppContext stopped");
     }
@@ -598,9 +593,6 @@ public class JettyWebAppContext implements GBeanLifecycle, JettyServletRegistrat
         infoBuilder.addAttribute("securityRealmName", String.class, true);
         infoBuilder.addAttribute("defaultPrincipal", DefaultPrincipal.class, true);
 
-        infoBuilder.addAttribute("checkedPermissions", PermissionCollection.class, true);
-        infoBuilder.addAttribute("excludedPermissions", PermissionCollection.class, true);
-
         infoBuilder.addAttribute("holder", Holder.class, true);
 
         infoBuilder.addReference("J2EEServer", J2EEServer.class);
@@ -641,9 +633,6 @@ public class JettyWebAppContext implements GBeanLifecycle, JettyServletRegistrat
                 "policyContextID",
                 "securityRealmName",
                 "defaultPrincipal",
-
-                "checkedPermissions",
-                "excludedPermissions",
 
                 "holder",
 

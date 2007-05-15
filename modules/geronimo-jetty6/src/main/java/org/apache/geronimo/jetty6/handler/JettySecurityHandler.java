@@ -32,21 +32,22 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.common.GeronimoSecurityException;
+import org.apache.geronimo.jetty6.JAASJettyPrincipal;
+import org.apache.geronimo.jetty6.JAASJettyRealm;
+import org.apache.geronimo.jetty6.JettyContainer;
 import org.apache.geronimo.security.Callers;
 import org.apache.geronimo.security.ContextManager;
 import org.apache.geronimo.security.IdentificationPrincipal;
 import org.apache.geronimo.security.SubjectId;
 import org.apache.geronimo.security.deploy.DefaultPrincipal;
 import org.apache.geronimo.security.util.ConfigurationUtil;
-import org.apache.geronimo.jetty6.JAASJettyPrincipal;
-import org.apache.geronimo.jetty6.JAASJettyRealm;
-import org.apache.geronimo.jetty6.JettyContainer;
 import org.mortbay.jetty.HttpException;
 import org.mortbay.jetty.Request;
 import org.mortbay.jetty.Response;
 import org.mortbay.jetty.security.Authenticator;
 import org.mortbay.jetty.security.FormAuthenticator;
 import org.mortbay.jetty.security.SecurityHandler;
+import org.mortbay.jetty.security.UserRealm;
 
 public class JettySecurityHandler extends SecurityHandler {
 
@@ -56,32 +57,16 @@ public class JettySecurityHandler extends SecurityHandler {
 
     private String formLoginPath;
 
-    private PermissionCollection checked;
-
-    private PermissionCollection excludedPermissions;
-
-
     private JAASJettyRealm realm;
 
-    public JettySecurityHandler() {
-    }
-
-    public boolean hasConstraints() {
-        return true;
-    }
-
-    public void init(String policyContextID,
-            DefaultPrincipal defaultPrincipal, 
-            PermissionCollection checkedPermissions,
-            PermissionCollection excludedPermissions, 
+    public JettySecurityHandler(Authenticator authenticator,
+            JAASJettyRealm userRealm,
+            String policyContextID,
+            DefaultPrincipal defaultPrincipal,
             ClassLoader classLoader) {
+        setAuthenticator(authenticator);
         this.policyContextID = policyContextID;
 
-        this.defaultPrincipal = generateDefaultPrincipal(defaultPrincipal,classLoader);
-        this.checked = checkedPermissions;
-        this.excludedPermissions = excludedPermissions;
-
-        Authenticator authenticator = getAuthenticator();
         if (authenticator instanceof FormAuthenticator) {
             String formLoginPath = ((FormAuthenticator) authenticator).getLoginPage();
             if (formLoginPath.indexOf('?') > 0) {
@@ -95,16 +80,23 @@ public class JettySecurityHandler extends SecurityHandler {
         /**
          * Register our default principal with the ContextManager
          */
+        this.defaultPrincipal = generateDefaultPrincipal(defaultPrincipal, classLoader);
+
         Subject defaultSubject = this.defaultPrincipal.getSubject();
         ContextManager.registerSubject(defaultSubject);
         SubjectId id = ContextManager.getSubjectId(defaultSubject);
         defaultSubject.getPrincipals().add(new IdentificationPrincipal(id));
-        this.realm = (JAASJettyRealm)getUserRealm();
+        setUserRealm(userRealm);
+        this.realm = userRealm;
         assert realm != null;
     }
 
+    public boolean hasConstraints() {
+        return true;
+    }
+
     public void doStop(JettyContainer jettyContainer) throws Exception {
-        try{
+        try {
             super.doStop();
         }
         finally {
@@ -148,19 +140,14 @@ public class JettySecurityHandler extends SecurityHandler {
 
     /**
      * Check the security constraints using JACC.
-     * 
-     * @param pathInContext
-     *            path in context
-     * @param request
-     *            HTTP request
-     * @param response
-     *            HTTP response
+     *
+     * @param pathInContext path in context
+     * @param request       HTTP request
+     * @param response      HTTP response
      * @return true if the path in context passes the security check, false if
      *         it fails or a redirection has occured during authentication.
      */
-    public boolean checkSecurityConstraints(String pathInContext,
-            Request request, Response response) throws HttpException,
-            IOException {
+    public boolean checkSecurityConstraints(String pathInContext, Request request, Response response) throws IOException {
         if (formLoginPath != null) {
             String pathToBeTested = (pathInContext.indexOf('?') > 0 ? pathInContext
                     .substring(0, pathInContext.indexOf('?'))
@@ -181,112 +168,91 @@ public class JettySecurityHandler extends SecurityHandler {
                 transportType = "NONE";
             }
             String substitutedPathInContext = pathInContext;
-            if (substitutedPathInContext.indexOf("%3A") > -1) substitutedPathInContext = substitutedPathInContext.replaceAll("%3A", "%3A%3A");
-            if (substitutedPathInContext.indexOf(":") > -1) substitutedPathInContext = substitutedPathInContext.replaceAll(":", "%3A");
+            if (substitutedPathInContext.indexOf("%3A") > -1)
+                substitutedPathInContext = substitutedPathInContext.replaceAll("%3A", "%3A%3A");
+            if (substitutedPathInContext.indexOf(":") > -1)
+                substitutedPathInContext = substitutedPathInContext.replaceAll(":", "%3A");
 
-            WebUserDataPermission wudp = new WebUserDataPermission(substitutedPathInContext, new String[] { request.getMethod() }, transportType);
-            WebResourcePermission webResourcePermission = new WebResourcePermission(request);
-            Principal user = obtainUser(pathInContext, request, response, webResourcePermission, wudp);
 
-            if (user == null) {
+            Authenticator authenticator = getAuthenticator();
+            boolean isAuthenticated = false;
+
+            if (authenticator instanceof FormAuthenticator
+                    && pathInContext.endsWith(FormAuthenticator.__J_SECURITY_CHECK)) {
+                /**
+                 * This is a post request to __J_SECURITY_CHECK. Stop now after authentication.
+                 * Whether or not authentication succeeded, we return.
+                 */
+                authenticator.authenticate(realm, pathInContext, request, response);
                 return false;
             }
-            if (user == SecurityHandler.__NOBODY) {
-                return true;
+            // attempt to access an unprotected resource that is not the
+            // j_security_check.
+            // if we are logged in, return the logged in principal.
+            if (request != null) {
+                // null response appears to prevent redirect to login page
+                Principal user = authenticator.authenticate(realm, pathInContext,
+                        request, null);
+                if (user == null || user == SecurityHandler.__NOBODY) {
+                    //TODO use run-as as nextCaller if present
+                    ContextManager.setCallers(defaultPrincipal.getSubject(), defaultPrincipal.getSubject());
+                    request.setUserPrincipal(new NotChecked());
+                } else if (user != null) {
+                    isAuthenticated = true;
+                }
             }
+
 
             AccessControlContext acc = ContextManager.getCurrentContext();
 
             /**
-             * JACC v1.0 secion 4.1.1
+             * JACC v1.0 section 4.1.1
              */
-
+            WebUserDataPermission wudp = new WebUserDataPermission(substitutedPathInContext, new String[]{request.getMethod()}, transportType);
             acc.checkPermission(wudp);
 
+            WebResourcePermission webResourcePermission = new WebResourcePermission(request);
             /**
-             * JACC v1.0 secion 4.1.2
+             * JACC v1.0 section 4.1.2
              */
-            acc.checkPermission(webResourcePermission);
+            if (isAuthenticated) {
+                //current user is logged in, this is the actual check
+                acc.checkPermission(webResourcePermission);
+            } else {
+                //user is not logged in: if access denied, try to log them in.
+                try {
+                    acc.checkPermission(webResourcePermission);
+                } catch (AccessControlException e) {
+                    //not logged in: try to log them in.
+                    Principal user = authenticator.authenticate(realm, pathInContext, request, response);
+                    if (user == SecurityHandler.__NOBODY) {
+                        return true;
+                    }
+                    if (user == null) {
+                        throw e;
+                    }
+                }
+            }
+
         } catch (HttpException he) {
             response.sendError(he.getStatus(), he.getReason());
             return false;
         } catch (AccessControlException ace) {
-            response.sendError(403);
+            if (!response.isCommitted()) {
+                response.sendError(403);
+            }
             return false;
         }
         return true;
     }
 
     /**
-     * Obtain an authenticated user, if one is required. Otherwise return the
-     * default principal. <p/> Also set the current caller for JACC security
-     * checks for the default principal. This is automatically done by
-     * <code>JAASJettyRealm</code>.
-     * 
-     * @param pathInContext
-     *            path in context
-     * @param request
-     *            HTTP request
-     * @param response
-     *            HTTP response
-     * @return <code>null</code> if there is no authenticated user at the
-     *         moment and security checking should not proceed and servlet
-     *         handling should also not proceed, e.g. redirect.
-     *         <code>SecurityConstraint.__NOBODY</code> if security checking
-     *         should not proceed and servlet handling should proceed, e.g.
-     *         login page.
-     */
-    private Principal obtainUser(String pathInContext, Request request,
-            Response response, WebResourcePermission resourcePermission,
-            WebUserDataPermission dataPermission) throws IOException {
-        boolean unauthenticated = !(checked.implies(resourcePermission) || checked.implies(dataPermission));
-        boolean forbidden = excludedPermissions.implies(resourcePermission) || excludedPermissions.implies(dataPermission);
-
-        Authenticator authenticator = getAuthenticator();
-        if (!unauthenticated && !forbidden) {
-            return authenticator.authenticate(realm, pathInContext, request,
-                    response);
-        } else if (authenticator instanceof FormAuthenticator
-                && pathInContext.endsWith(FormAuthenticator.__J_SECURITY_CHECK)) {
-            /**
-             * This could be a post request to __J_SECURITY_CHECK.
-             */
-            return authenticator.authenticate(realm, pathInContext, request,
-                    response);
-        }
-
-        // attempt to access an unprotected resource that is not the
-        // j_security_check.
-        // if we are logged in, return the logged in principal.
-        if (request != null) {
-            try {
-                // null response appears to prevent redirect to login page
-                Principal user = authenticator.authenticate(realm, pathInContext,
-                        request, null);
-                if (user != null) {
-                    return user;
-                }
-            } catch (Exception e) {
-            // the Jetty authenticator tries to write something to the response if 
-            // there is a failure.  Ignore any errors and continue as if this failed. 
-            }
-        }
-
-        /**
-         * No authentication is required. Return the defaultPrincipal.
-         */
-        //TODO use run-as as nextCaller if present
-        ContextManager.setCallers(defaultPrincipal.getSubject(), defaultPrincipal.getSubject());
-        return defaultPrincipal;
-    }
-
-    /**
      * Generate the default principal from the security config.
-     * 
-     * @param defaultPrincipal
-     *            The Geronimo security configuration.
-     * @param classLoader
+     *
+     * @param defaultPrincipal The Geronimo security configuration.
+     * @param classLoader to load principals for the default subject
      * @return the default principal
+     * @throws org.apache.geronimo.common.GeronimoSecurityException if the default principal cannot be constructed
      */
     protected JAASJettyPrincipal generateDefaultPrincipal(
             DefaultPrincipal defaultPrincipal, ClassLoader classLoader)

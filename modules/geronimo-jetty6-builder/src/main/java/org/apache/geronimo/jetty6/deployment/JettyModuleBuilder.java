@@ -23,15 +23,12 @@ import java.io.IOException;
 import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
 import java.net.URL;
-import java.security.Permission;
 import java.security.PermissionCollection;
-import java.security.Permissions;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -531,15 +528,6 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
         webModuleData.setAttribute("policyContextID", policyContextID);
 
         ComponentPermissions componentPermissions = buildSpecSecurityConfig(webApp, securityRoles, rolePermissions);
-        webModuleData.setAttribute("excludedPermissions", componentPermissions.getExcludedPermissions());
-        PermissionCollection checkedPermissions = new Permissions();
-        for (PermissionCollection permissionsForRole : rolePermissions.values()) {
-            for (Enumeration iterator2 = permissionsForRole.elements(); iterator2.hasMoreElements();) {
-                Permission permission = (Permission) iterator2.nextElement();
-                checkedPermissions.add(permission);
-            }
-        }
-        webModuleData.setAttribute("checkedPermissions", checkedPermissions);
 
         earContext.addSecurityContext(policyContextID, componentPermissions);
         DefaultPrincipal defaultPrincipal = ((SecurityConfiguration) earContext.getSecurityConfiguration()).getDefaultPrincipal();
@@ -867,9 +855,9 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
     private void addServlets(AbstractName webModuleName,
             Module module,
             ServletType[] servletTypes,
-            Map servletMappings,
-            Set securityRoles,
-            Map rolePermissions,
+            Map<String, Set<String>> servletMappings,
+            Set<String> securityRoles,
+            Map<String, PermissionCollection> rolePermissions,
             EARContext moduleContext) throws DeploymentException {
 
         // this TreeSet will order the ServletTypes based on whether
@@ -901,16 +889,16 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
     }
 
     /**
-     * @param webModuleName
-     * @param module
-     * @param previousServlet
-     * @param servletType
-     * @param servletMappings
-     * @param securityRoles
-     * @param rolePermissions
-     * @param moduleContext
+     * @param webModuleName AbstractName of the web module
+     * @param module the web module being added
+     * @param previousServlet the servlet to start before this one in init order
+     * @param servletType XMLObject specifying the servlet configuration
+     * @param servletMappings Map of servlet name to set of ServletMapping strings for this web app
+     * @param securityRoles security roles in the web app
+     * @param rolePermissions RolePermissions for the roles this servlet needs to access
+     * @param moduleContext deployment context for this module
      * @return AbstractName of servlet gbean added
-     * @throws DeploymentException
+     * @throws DeploymentException if something goes wrong
      */
     private AbstractName addServlet(AbstractName webModuleName,
             Module module,
@@ -992,7 +980,7 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
             servletData.setAttribute("loadOnStartup", loadOnStartup);
         }
 
-        Set mappings = (Set) servletMappings.get(servletName);
+        Set mappings = servletMappings.get(servletName);
         servletData.setAttribute("servletMappings", mappings == null ? Collections.EMPTY_SET : mappings);
 
         //run-as
