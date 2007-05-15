@@ -259,11 +259,16 @@ public class JettySecurityHandler extends SecurityHandler {
         // j_security_check.
         // if we are logged in, return the logged in principal.
         if (request != null) {
-            // null response appears to prevent redirect to login page
-            Principal user = authenticator.authenticate(realm, pathInContext,
-                    request, null);
-            if (user != null) {
-                return user;
+            try {
+                // null response appears to prevent redirect to login page
+                Principal user = authenticator.authenticate(realm, pathInContext,
+                        request, null);
+                if (user != null) {
+                    return user;
+                }
+            } catch (Exception e) {
+            // the Jetty authenticator tries to write something to the response if 
+            // there is a failure.  Ignore any errors and continue as if this failed. 
             }
         }
 
