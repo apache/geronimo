@@ -33,10 +33,10 @@ class SAAJFactoryFinder {
                                           "org.apache.axis.soap.SOAPConnectionFactoryImpl",
                                           "org.apache.axis.soap.SAAJMetaFactoryImpl"));
         SAAJ_FACTORIES.put(SAAJUniverse.Type.AXIS2.toString(),
-                           createSAAJInfo("com.sun.xml.messaging.saaj.soap.ver1_1.SOAPMessageFactory1_1Impl",
-                                          "com.sun.xml.messaging.saaj.soap.ver1_1.SOAPFactory1_1Impl",
-                                          "com.sun.xml.messaging.saaj.client.p2p.HttpSOAPConnectionFactory",
-                                          "com.sun.xml.messaging.saaj.soap.SAAJMetaFactoryImpl"));
+                           createSAAJInfo("org.apache.axis2.saaj.MessageFactoryImpl",
+                                          "org.apache.axis2.saaj.SOAPFactoryImpl",
+                                          "org.apache.axis2.saaj.SOAPConnectionFactoryImpl",
+                                          "org.apache.axis2.saaj.SAAJMetaFactoryImpl"));
         SAAJ_FACTORIES.put(SAAJUniverse.Type.SUN.toString(),
                            createSAAJInfo("com.sun.xml.messaging.saaj.soap.ver1_1.SOAPMessageFactory1_1Impl", 
                                           "com.sun.xml.messaging.saaj.soap.ver1_1.SOAPFactory1_1Impl",

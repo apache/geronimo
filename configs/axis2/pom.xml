@@ -107,12 +107,20 @@
             <artifactId>axis2-metadata</artifactId>
         </dependency>
         <dependency>
+            <groupId>org.apache.axis2</groupId>
+            <artifactId>axis2-saaj</artifactId>
+        </dependency>
+        <dependency>
              <groupId>org.apache.httpcomponents</groupId>
              <artifactId>jakarta-httpcore</artifactId>
         </dependency>
         <dependency>
             <groupId>org.apache.ws.commons.axiom</groupId>
             <artifactId>axiom-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.ws.commons.axiom</groupId>
+            <artifactId>axiom-dom</artifactId>
         </dependency>
         <dependency>
             <groupId>org.apache.ws.commons.axiom</groupId>
