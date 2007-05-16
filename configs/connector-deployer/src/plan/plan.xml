@@ -50,21 +50,8 @@
 
     <gbean name="ResourceRefBuilder" class="org.apache.geronimo.connector.deployment.ResourceRefBuilder">
         <attribute name="eeNamespaces">http://java.sun.com/xml/ns/j2ee,http://java.sun.com/xml/ns/javaee</attribute>
-        <xml-attribute name="defaultEnvironment">
-            <environment xmlns="http://geronimo.apache.org/xml/ns/deployment-${geronimoSchemaVersion}">
-                <dependencies>
-                    <dependency>
-                        <groupId>org.apache.geronimo.configs</groupId>
-                        <artifactId>j2ee-corba-yoko</artifactId>
-                        <type>car</type>
-                    </dependency>
-                </dependencies>
-            </environment>
-        </xml-attribute>
-        <reference name="CorbaGBeanNameSource">
-            <name>EARBuilder</name>
-        </reference>
     </gbean>
+
     <gbean name="AdminObjectRefBuilder" class="org.apache.geronimo.connector.deployment.AdminObjectRefBuilder">
         <attribute name="eeNamespaces">http://java.sun.com/xml/ns/j2ee,http://java.sun.com/xml/ns/javaee</attribute>
     </gbean>
@@ -94,21 +81,8 @@
 
     <gbean name="ClientResourceRefBuilder" class="org.apache.geronimo.connector.deployment.ResourceRefBuilder">
         <attribute name="eeNamespaces">http://java.sun.com/xml/ns/j2ee,http://java.sun.com/xml/ns/javaee</attribute>
-        <xml-attribute name="defaultEnvironment">
-            <environment xmlns="http://geronimo.apache.org/xml/ns/deployment-${geronimoSchemaVersion}">
-                <dependencies>
-                    <dependency>
-                        <groupId>org.apache.geronimo.configs</groupId>
-                        <artifactId>client-corba-yoko</artifactId>
-                        <type>car</type>
-                    </dependency>
-                </dependencies>
-            </environment>
-        </xml-attribute>
-        <reference name="CorbaGBeanNameSource">
-            <name>AppClientBuilder</name>
-        </reference>
     </gbean>
+
     <gbean name="ClientAdminObjectRefBuilder" class="org.apache.geronimo.connector.deployment.AdminObjectRefBuilder">
         <attribute name="eeNamespaces">http://java.sun.com/xml/ns/j2ee,http://java.sun.com/xml/ns/javaee</attribute>
     </gbean>
