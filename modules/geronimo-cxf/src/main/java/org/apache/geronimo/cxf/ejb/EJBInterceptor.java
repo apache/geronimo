@@ -178,13 +178,7 @@ public class EJBInterceptor {
         if (soapMessage == null) {
             return;
         }
-        
-        //replace header element if necessary
-        if (message.hasHeaders(Element.class)) {
-            Element headerElements = soapMessage.getSOAPHeader();    
-            message.setHeaders(Element.class, headerElements);
-        }
-        
+                
         XMLStreamReader xmlReader = message.getContent(XMLStreamReader.class);
         StaxUtils.readDocElements(soapMessage.getSOAPBody(), xmlReader, true);
         DOMSource bodySource = new DOMSource(soapMessage.getSOAPPart().getEnvelope().getBody());
