@@ -25,15 +25,27 @@ limitations under the License.
     <display-name>Geronimo POJO WS War</display-name>
 
     <servlet>
-        <display-name>Geronimo POJO WS</display-name>
-        <servlet-name>POJOServlet</servlet-name>
+        <display-name>Geronimo POJO WS 1</display-name>
+        <servlet-name>POJOServlet1</servlet-name>
         <servlet-class>org.apache.greeter_control.GreeterImpl</servlet-class>
         <load-on-startup>0</load-on-startup>
     </servlet>
 
     <servlet-mapping>
-        <servlet-name>POJOServlet</servlet-name>
-        <url-pattern>/servlet</url-pattern>
+        <servlet-name>POJOServlet1</servlet-name>
+        <url-pattern>/servlet1</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+        <display-name>Geronimo POJO WS 2</display-name>
+        <servlet-name>POJOServlet2</servlet-name>
+        <servlet-class>org.apache.greeter_control.GreeterImpl</servlet-class>
+        <load-on-startup>0</load-on-startup>
+    </servlet>
+
+    <servlet-mapping>
+        <servlet-name>POJOServlet2</servlet-name>
+        <url-pattern>/servlet2</url-pattern>
     </servlet-mapping>
 
     <env-entry>

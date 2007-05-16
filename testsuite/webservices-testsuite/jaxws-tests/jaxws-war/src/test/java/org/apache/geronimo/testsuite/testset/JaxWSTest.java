@@ -53,15 +53,26 @@ public class JaxWSTest extends TestSupport {
 
     private String baseURL = "http://localhost:8080/";
 
+    
     @Test
-    public void testInvocation() throws Exception {
+    public void testInvocation1() throws Exception {
+        testInvocation("/servlet1");
+    }
+
+    @Test
+    public void testInvocation2() throws Exception {
+        testInvocation("/servlet2");
+    }
+
+    @Test
+    private void testInvocation(String servlet) throws Exception {
         String warName = System.getProperty("webAppName");
         assertNotNull("Web application name not specified", warName);
         
         InputStream requestInput = JaxWSTest.class.getResourceAsStream("/request1.xml");
         assertNotNull("SOAP request not specified", requestInput);
                 
-        URL url = new URL(baseURL + warName + "/servlet");
+        URL url = new URL(baseURL + warName + servlet);
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
         try {
             conn.setDoOutput(true);
@@ -136,11 +147,21 @@ public class JaxWSTest extends TestSupport {
     }
 
     @Test
-    public void testWSDL() throws Exception {
+    public void testWSDL1() throws Exception {
+        testWSDL("/servlet1");
+    }
+
+    @Test
+    public void testWSDL2() throws Exception { 
+        testWSDL("/servlet2");
+    }
+
+    private void testWSDL(String servlet) throws Exception {
+
         String warName = System.getProperty("webAppName");
         assertNotNull("Web application name not specified", warName);
         
-        URL url = new URL(baseURL + warName + "/servlet?wsdl");
+        URL url = new URL(baseURL + warName + servlet + "?wsdl");
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
         try {
             conn.setUseCaches(false);

@@ -27,6 +27,10 @@
     <wsdl:types>
         <schema targetNamespace="http://apache.org/greeter_control/types" 
             xmlns="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified">
+
+            <import namespace="http://geronimo.apache.org/account" 
+                    schemaLocation="account.xsd" />
+
             <element name="sayHi">
                 <complexType/>
             </element>
