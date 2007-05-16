@@ -16,7 +16,6 @@
  */
 package org.apache.geronimo.j2ee;
 
-import java.util.Set;
 import java.util.LinkedHashSet;
 import java.util.jar.JarFile;
 
@@ -24,6 +23,7 @@ import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.j2ee.deployment.Module;
+import org.apache.geronimo.deployment.ModuleList;
 import org.apache.xmlbeans.XmlObject;
 
 /**
@@ -32,10 +32,10 @@ import org.apache.xmlbeans.XmlObject;
 public class ApplicationInfo extends Module {
     private ConfigurationModuleType type;
     private LinkedHashSet modules;
-    private Set moduleLocations;
+    private ModuleList moduleLocations;
 
 
-    public ApplicationInfo(ConfigurationModuleType type, Environment environment, AbstractName baseName, JarFile earFile, XmlObject specDD, XmlObject vendorDD, LinkedHashSet modules, Set moduleLocations, String originalSpecDD) {
+    public ApplicationInfo(ConfigurationModuleType type, Environment environment, AbstractName baseName, JarFile earFile, XmlObject specDD, XmlObject vendorDD, LinkedHashSet<Module> modules, ModuleList moduleLocations, String originalSpecDD) {
         super(true, baseName, environment, earFile, "", specDD, vendorDD, originalSpecDD, null, null);
         assert type != null;
         assert environment != null;
@@ -59,11 +59,11 @@ public class ApplicationInfo extends Module {
         this.modules = modules;
     }
 
-    public Set getModuleLocations() {
+    public ModuleList getModuleLocations() {
         return moduleLocations;
     }
 
-    public void setModuleLocations(Set moduleLocations) {
+    public void setModuleLocations(ModuleList moduleLocations) {
         this.moduleLocations = moduleLocations;
     }
 

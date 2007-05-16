@@ -284,7 +284,7 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder {
     public void initContext(EARContext earContext, Module module, ClassLoader cl) throws DeploymentException {
         TomcatWebAppType gerWebApp = (TomcatWebAppType) module.getVendorDD();
         boolean hasSecurityRealmName = gerWebApp.isSetSecurityRealmName();
-        buildSubstitutionGroups(gerWebApp, hasSecurityRealmName, module, earContext);
+        basicInitContext(earContext, module, gerWebApp, hasSecurityRealmName);
         for (ModuleBuilderExtension mbe : moduleBuilderExtensions) {
             mbe.initContext(earContext, module, cl);
         }

@@ -473,11 +473,15 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
 
     /**
      * This is used by the configuration manager to restart an existing configuation.
-     * Do not modify the configuation data.
-     * @return the configuation data for this configuration; do not modify
+     * Do not modify the configuration data.
+     * @return the configuration data for this configuration; do not modify
      */
     ConfigurationData getConfigurationData() {
         return configurationData;
+    }
+
+    public File getConfigurationDir() {
+        return configurationData.getConfigurationDir();
     }
 
     /**

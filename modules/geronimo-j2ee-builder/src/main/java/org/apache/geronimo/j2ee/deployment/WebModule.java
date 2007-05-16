@@ -44,5 +44,18 @@ public class WebModule extends Module {
         return ConfigurationModuleType.WAR;
     }
 
+    public String getRelativePath(String path) {
+        if (path.startsWith(getTargetPath())) {
+            //in the war, remove war path and leading '/'
+            path = path.substring(getTargetPath().length() + 1);
+        } else {
+            //outside war, add enough '../' to get to ear root
+            for (int j = 0; j< getTargetPath().split("/").length; j++) {
+                path = "../" + path;
+            }
+        }
+        return path;
+    }
+
 }
 

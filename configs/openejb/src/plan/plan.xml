@@ -25,6 +25,10 @@
             <name>TransactionManager</name>
         </reference>
         <reference name="ResourceAdapterWrappers"/>
+        <reference name="PersistenceUnitGBeans"/>
+    </gbean>
+
+    <gbean name="ExtendedEntityManagerRegistry" class="org.apache.geronimo.openejb.EntityManagerRegistryImpl">
     </gbean>
 
     <gbean name="DefaultStatelessContainer" class="org.apache.geronimo.openejb.EjbContainer">

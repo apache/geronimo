@@ -50,6 +50,8 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.ModuleIDBuilder;
 import org.apache.geronimo.deployment.NamespaceDrivenBuilderCollection;
+import org.apache.geronimo.deployment.ClassPathList;
+import org.apache.geronimo.deployment.ModuleList;
 import org.apache.geronimo.deployment.util.DeploymentUtil;
 import org.apache.geronimo.deployment.xbeans.ServiceDocument;
 import org.apache.geronimo.deployment.xmlbeans.XmlBeansUtil;
@@ -273,7 +275,7 @@ public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
         module.setRootEarContext(earContext);
 
         try {
-            LinkedHashSet<String> manifestcp = new LinkedHashSet<String>();
+            ClassPathList manifestcp = new ClassPathList();
             // add the warfile's content to the configuration
             JarFile warFile = module.getModuleFile();
             Enumeration<JarEntry> entries = warFile.entries();
@@ -284,7 +286,6 @@ public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
                     moduleContext.addFile(targetPath, module.getOriginalSpecDD());
                 } else if (entry.getName().startsWith("WEB-INF/lib") && entry.getName().endsWith(".jar")) {
                     moduleContext.addInclude(targetPath, warFile, entry);
-//                    manifestcp.add(module.getTargetPath() + "/" + entry.getName());
                     manifestcp.add(entry.getName());
                 } else {
                     moduleContext.addFile(targetPath, warFile, entry);
@@ -294,14 +295,12 @@ public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
             //always add WEB-INF/classes to the classpath regardless of whether
             //any classes exist
             moduleContext.getConfiguration().addToClassPath("WEB-INF/classes/");
-//            manifestcp.add(module.getTargetPath() + "/WEB-INF/classes/");
             manifestcp.add("WEB-INF/classes/");
             // add the manifest classpath entries declared in the war to the class loader
             // we have to explicitly add these since we are unpacking the web module
             // and the url class loader will not pick up a manifest from an unpacked dir
             moduleContext.addManifestClassPath(warFile, RELATIVE_MODULE_BASE_URI);
-            moduleContext.getCompleteManifestClassPath(warFile, URI.create(module.getTargetPath()), manifestcp);
-            moduleContext.getGeneralData().put("ManifestClassPath", manifestcp);
+            moduleContext.getGeneralData().put(ClassPathList.class, manifestcp);
 
         } catch (IOException e) {
             throw new DeploymentException("Problem deploying war", e);
@@ -319,6 +318,39 @@ public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
         for (ModuleBuilderExtension mbe: moduleBuilderExtensions) {
             mbe.installModule(earFile, earContext, module, configurationStores, targetConfigurationStore, repositories);
         }
+    }
+
+    protected void basicInitContext(EARContext earContext, Module module, XmlObject gerWebApp, boolean hasSecurityRealmName) throws DeploymentException {
+        //complete manifest classpath
+        EARContext moduleContext = module.getEarContext();
+        ClassPathList manifestcp = (ClassPathList) moduleContext.getGeneralData().get(ClassPathList.class);
+        ModuleList moduleLocations = (ModuleList) module.getRootEarContext().getGeneralData().get(ModuleList.class);
+        moduleContext.getCompleteManifestClassPath(module.getModuleFile(), URI.create(module.getTargetPath()).resolve(RELATIVE_MODULE_BASE_URI), manifestcp, moduleLocations);
+
+
+        WebAppType webApp = (WebAppType) module.getSpecDD();
+//      makeMetadataComplete(webApp, module);
+        if ((webApp.getSecurityConstraintArray().length > 0 || webApp.getSecurityRoleArray().length > 0) &&
+                !hasSecurityRealmName) {
+            throw new DeploymentException("web.xml for web app " + module.getName() + " includes security elements but Geronimo deployment plan is not provided or does not contain <security-realm-name> element necessary to configure security accordingly.");
+        }
+        XmlObject[] securityElements = XmlBeansUtil.selectSubstitutionGroupElements(SECURITY_QNAME, gerWebApp);
+        if (securityElements.length > 0 && !hasSecurityRealmName) {
+            throw new DeploymentException("You have supplied a security configuration for web app " + module.getName() + " but no security-realm-name to allow login");
+        }
+        getNamingBuilders().buildEnvironment(webApp, module.getVendorDD(), module.getEnvironment());
+        //this is silly
+        getNamingBuilders().initContext(webApp, gerWebApp, module);
+
+        Map servletNameToPathMap = buildServletNameToPathMap((WebAppType) module.getSpecDD(), ((WebModule) module).getContextRoot());
+
+        Map sharedContext = module.getSharedContext();
+        for (Object aWebServiceBuilder : webServiceBuilder) {
+            WebServiceBuilder serviceBuilder = (WebServiceBuilder) aWebServiceBuilder;
+            serviceBuilder.findWebServices(module, false, servletNameToPathMap, module.getEnvironment(), sharedContext);
+        }
+        securityBuilders.build(gerWebApp, earContext, module.getEarContext());
+        serviceBuilders.build(gerWebApp, earContext, module.getEarContext());
     }
 
     protected WebAppDocument convertToServletSchema(XmlObject xmlObject) throws XmlException {
@@ -699,41 +731,6 @@ public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
         }
 //        servletData.setAttribute("webRoleRefPermissions", webRoleRefPermissions);
     }
-
-    protected void buildSubstitutionGroups(XmlObject gerWebApp, boolean hasSecurityRealmName, Module module, EARContext earContext) throws DeploymentException {
-        WebAppType webApp = (WebAppType) module.getSpecDD();
-//      makeMetadataComplete(webApp, module);
-        if ((webApp.getSecurityConstraintArray().length > 0 || webApp.getSecurityRoleArray().length > 0) &&
-                !hasSecurityRealmName) {
-            throw new DeploymentException("web.xml for web app " + module.getName() + " includes security elements but Geronimo deployment plan is not provided or does not contain <security-realm-name> element necessary to configure security accordingly.");
-        }
-        XmlObject[] securityElements = XmlBeansUtil.selectSubstitutionGroupElements(SECURITY_QNAME, gerWebApp);
-        if (securityElements.length > 0 && !hasSecurityRealmName) {
-            throw new DeploymentException("You have supplied a security configuration for web app " + module.getName() + " but no security-realm-name to allow login");
-        }
-        getNamingBuilders().buildEnvironment(webApp, module.getVendorDD(), module.getEnvironment());
-        //this is silly
-        getNamingBuilders().initContext(webApp, gerWebApp, module);
-
-        Map servletNameToPathMap = buildServletNameToPathMap((WebAppType) module.getSpecDD(), ((WebModule) module).getContextRoot());
-
-        Map sharedContext = module.getSharedContext();
-        for (Object aWebServiceBuilder : webServiceBuilder) {
-            WebServiceBuilder serviceBuilder = (WebServiceBuilder) aWebServiceBuilder;
-            serviceBuilder.findWebServices(module, false, servletNameToPathMap, module.getEnvironment(), sharedContext);
-        }
-        securityBuilders.build(gerWebApp, earContext, module.getEarContext());
-        serviceBuilders.build(gerWebApp, earContext, module.getEarContext());
-    }
-
-//  protected void makeMetadataComplete(WebAppType webApp, Module module) throws DeploymentException
-//      { if (!webApp.getMetadataComplete()) {
-//          processAnnotations(webApp, module);
-//          webApp.setMetadataComplete(true);
-//          module.setSpecDD(webApp);
-//          module.setOriginalSpecDD(webApp.toString());
-//      }
-//  }
 
     protected ClassFinder createWebAppClassFinder(WebAppType webApp, WebModule webModule) throws DeploymentException {
 

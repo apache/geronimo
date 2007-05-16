@@ -22,6 +22,7 @@
 
     <gbean name="PersistenceUnitBuilder" class="org.apache.geronimo.persistence.builder.PersistenceUnitBuilder">
         <attribute name="defaultPersistenceProviderClassName">org.apache.openjpa.persistence.PersistenceProviderImpl</attribute>
+        <attribute name="extendedEntityManagerRegistryName">?name=ExtendedEntityManagerRegistry#org.apache.geronimo.persistence.ExtendedEntityManagerRegistry</attribute>
         <attribute name="defaultPersistenceUnitProperties">
             openjpa.Log=commons
             openjpa.ClassTransformerOptions=ScanDevPath=true

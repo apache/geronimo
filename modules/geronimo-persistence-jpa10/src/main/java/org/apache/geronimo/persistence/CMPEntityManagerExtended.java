@@ -26,118 +26,91 @@ import javax.persistence.FlushModeType;
 import javax.persistence.LockModeType;
 import javax.persistence.Query;
 
-import org.apache.geronimo.transaction.manager.TransactionManagerImpl;
-
 /**
  * @version $Rev$ $Date$
  */
 public class CMPEntityManagerExtended implements EntityManager {
 
-    private final TransactionManagerImpl transactionManager;
-    private final String persistenceUnit;
+    private final ExtendedEntityManagerRegistry entityManagerRegistry;
     private final EntityManagerFactory entityManagerFactory;
     private final Map entityManagerProperties;
-    private final InternalCMPEntityManagerExtended entityManager;
 
-    public CMPEntityManagerExtended(TransactionManagerImpl transactionManager, String persistenceUnit, EntityManagerFactory entityManagerFactory, Map entityManagerProperties) {
-        this.transactionManager = transactionManager;
-        this.persistenceUnit = persistenceUnit;
+    public CMPEntityManagerExtended(ExtendedEntityManagerRegistry entityManagerRegistry, EntityManagerFactory entityManagerFactory, Map entityManagerProperties) {
+        this.entityManagerRegistry = entityManagerRegistry;
         this.entityManagerFactory = entityManagerFactory;
         this.entityManagerProperties = entityManagerProperties;
-        entityManager = getEntityManager();
     }
 
-    private InternalCMPEntityManagerExtended getEntityManager() {
-        InternalCMPEntityManagerExtended entityManager = EntityManagerExtendedRegistry.getEntityManager(persistenceUnit);
-        if (entityManager == null) {
-            entityManager = createEntityManager();
-            EntityManagerExtendedRegistry.putEntityManager(persistenceUnit, entityManager);
-        }
-        entityManager.registerBean();
-        return entityManager;
+    private EntityManager getEntityManager() {
+        return entityManagerRegistry.getEntityManager(entityManagerFactory, entityManagerProperties);
     }
-
-    private InternalCMPEntityManagerExtended createEntityManager() {
-        EntityManager entityManager;
-        if (entityManagerProperties == null) {
-            entityManager = entityManagerFactory.createEntityManager();
-        } else {
-            entityManager = entityManagerFactory.createEntityManager(entityManagerProperties);
-        }
-        return new InternalCMPEntityManagerExtended(entityManager, persistenceUnit, transactionManager);
-    }
-
-    public void beanRemoved() {
-        entityManager.beanRemoved();
-    }
-
 
     public void persist(Object o) {
-        entityManager.persist(o);
+        getEntityManager().persist(o);
     }
 
     public <T>T merge(T t) {
-        return entityManager.merge(t);
+        return getEntityManager().merge(t);
     }
 
     public void remove(Object o) {
-        entityManager.remove(o);
+        getEntityManager().remove(o);
     }
 
     public <T>T find(Class<T> aClass, Object o) {
-        return entityManager.find(aClass, o);
+        return getEntityManager().find(aClass, o);
     }
 
     public <T>T getReference(Class<T> aClass, Object o) {
-        return entityManager.getReference(aClass, o);
+        return getEntityManager().getReference(aClass, o);
     }
 
     public void flush() {
-        entityManager.flush();
+        getEntityManager().flush();
     }
 
     public void setFlushMode(FlushModeType flushModeType) {
-        entityManager.setFlushMode(flushModeType);
+        getEntityManager().setFlushMode(flushModeType);
     }
 
     public FlushModeType getFlushMode() {
-        return entityManager.getFlushMode();
+        return getEntityManager().getFlushMode();
     }
 
     public void lock(Object o, LockModeType lockModeType) {
-        entityManager.lock(o, lockModeType);
+        getEntityManager().lock(o, lockModeType);
     }
 
     public void refresh(Object o) {
-        entityManager.refresh(o);
+        getEntityManager().refresh(o);
     }
 
     public void clear() {
-        entityManager.clear();
+        getEntityManager().clear();
     }
 
     public boolean contains(Object o) {
-        return entityManager.contains(o);
+        return getEntityManager().contains(o);
     }
 
     public Query createQuery(String s) {
-        return entityManager.createQuery(s);
+        return getEntityManager().createQuery(s);
     }
 
     public Query createNamedQuery(String s) {
-        return entityManager.createNamedQuery(s);
+        return getEntityManager().createNamedQuery(s);
     }
 
     public Query createNativeQuery(String s) {
-        return entityManager.createNativeQuery(s);
+        return getEntityManager().createNativeQuery(s);
     }
 
     public Query createNativeQuery(String s, Class aClass) {
-        return entityManager.createNativeQuery(s, aClass);
+        return getEntityManager().createNativeQuery(s, aClass);
     }
 
     public Query createNativeQuery(String s, String s1) {
-        return entityManager.createNativeQuery(s, s1);
+        return getEntityManager().createNativeQuery(s, s1);
     }
 
     public void close() {
@@ -157,7 +130,7 @@ public class CMPEntityManagerExtended implements EntityManager {
     }
 
     public Object getDelegate() {
-        return entityManager.getDelegate();
+        return getEntityManager().getDelegate();
     }
 
 }

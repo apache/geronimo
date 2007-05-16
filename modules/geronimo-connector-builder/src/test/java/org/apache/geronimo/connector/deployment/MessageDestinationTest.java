@@ -18,18 +18,18 @@ package org.apache.geronimo.connector.deployment;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.HashMap;
+import java.util.Collection;
 
 import junit.framework.TestCase;
-
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.connector.AdminObjectWrapperGBean;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.GBeanData;
+import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.j2ee.deployment.ConnectorModule;
 import org.apache.geronimo.j2ee.deployment.EARContext;
 import org.apache.geronimo.j2ee.deployment.Module;
@@ -41,6 +41,7 @@ import org.apache.geronimo.kernel.config.Configuration;
 import org.apache.geronimo.kernel.config.ConfigurationData;
 import org.apache.geronimo.kernel.config.ConfigurationManager;
 import org.apache.geronimo.kernel.config.ConfigurationModuleType;
+import org.apache.geronimo.kernel.config.ConfigurationResolver;
 import org.apache.geronimo.kernel.config.ConfigurationStore;
 import org.apache.geronimo.kernel.config.LifecycleException;
 import org.apache.geronimo.kernel.config.LifecycleMonitor;
@@ -193,6 +194,17 @@ public class MessageDestinationTest extends TestCase {
             return new Artifact[0];
         }
 
+        public void setOnline(boolean online) {
+        }
+
+        public boolean isLoaded(Artifact configurationId) {
+            return false;
+        }
+
+        public boolean isRunning(Artifact configurationId) {
+            return false;
+        }
+
         public Artifact[] getLoaded(Artifact query) {
             return new Artifact[0];
         }
@@ -201,12 +213,12 @@ public class MessageDestinationTest extends TestCase {
             return new Artifact[0];
         }
 
-        public boolean isLoaded(Artifact configID) {
-            return false;
+        public List listConfigurations() {
+            return null;
         }
 
         public List listStores() {
-            return Collections.EMPTY_LIST;
+            return null;
         }
 
         public ConfigurationStore[] getStores() {
@@ -218,14 +230,6 @@ public class MessageDestinationTest extends TestCase {
         }
 
         public List listConfigurations(AbstractName store) throws NoSuchStoreException {
-            return Collections.EMPTY_LIST;
-        }
-
-        public boolean isRunning(Artifact configurationId) {
-            return false;
-        }
-
-        public List listConfigurations() {
             return null;
         }
 
@@ -310,7 +314,6 @@ public class MessageDestinationTest extends TestCase {
         }
 
         public void uninstallConfiguration(Artifact configurationId) throws IOException, NoSuchConfigException {
-        
         }
 
         public ArtifactResolver getArtifactResolver() {
@@ -318,12 +321,8 @@ public class MessageDestinationTest extends TestCase {
         }
 
         public boolean isOnline() {
-            return true;
-        }
-
-        public void setOnline(boolean online) {
+            return false;
         }
     }
-
 }
 

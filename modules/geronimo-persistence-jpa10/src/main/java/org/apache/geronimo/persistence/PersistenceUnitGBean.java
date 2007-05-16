@@ -22,6 +22,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -39,6 +40,7 @@ import org.apache.geronimo.connector.outbound.ConnectionFactorySource;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
+import org.apache.geronimo.gbean.SingleElementCollection;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.transaction.manager.TransactionManagerImpl;
 import org.apache.geronimo.transformer.TransformerAgent;
@@ -47,15 +49,19 @@ import org.apache.geronimo.transformer.TransformerAgent;
  * @version $Rev$ $Date$
  */
 public class PersistenceUnitGBean implements GBeanLifecycle {
+    private final String persistenceUnitRoot;
     private final PersistenceUnitInfoImpl persistenceUnitInfo;
     private final EntityManagerFactory entityManagerFactory;
     private final TransactionManagerImpl transactionManager;
+    private final SingleElementCollection<ExtendedEntityManagerRegistry> entityManagerRegistry;
 
 
     public PersistenceUnitGBean() {
+        persistenceUnitRoot = null;
         persistenceUnitInfo = null;
         entityManagerFactory = null;
         transactionManager = null;
+        entityManagerRegistry = null;
     }
 
     public PersistenceUnitGBean(String persistenceUnitName,
@@ -63,16 +69,18 @@ public class PersistenceUnitGBean implements GBeanLifecycle {
             String persistenceUnitTransactionTypeString,
             ConnectionFactorySource jtaDataSourceWrapper,
             ConnectionFactorySource nonJtaDataSourceWrapper,
-            List mappingFileNamesUntyped,
+            List<String> mappingFileNamesUntyped,
             List<String> jarFileUrlsUntyped,
             String persistenceUnitRoot,
-            List managedClassNamesUntyped,
+            List<String> managedClassNamesUntyped,
             boolean excludeUnlistedClassesValue,
             Properties properties,
             TransactionManagerImpl transactionManager,
+            Collection<ExtendedEntityManagerRegistry > entityManagerRegistry,
             URL configurationBaseURL,
             ClassLoader classLoader) throws URISyntaxException, MalformedURLException {
         List<String> mappingFileNames = mappingFileNamesUntyped == null? new ArrayList<String>(): new ArrayList<String>(mappingFileNamesUntyped);
+        this.persistenceUnitRoot = persistenceUnitRoot;
         URI configurationBaseURI = configurationBaseURL.toURI();
         URL rootURL = configurationBaseURI.resolve(persistenceUnitRoot).normalize().toURL();
         List<URL> jarFileUrls = new ArrayList<URL>();
@@ -112,6 +120,7 @@ public class PersistenceUnitGBean implements GBeanLifecycle {
             throw new PersistenceException("Could not create PersistenceProvider instance: " + persistenceProviderClassName + " loaded from classloader " + classLoader, e);
         }
         this.transactionManager = transactionManager;
+        this.entityManagerRegistry = new SingleElementCollection<ExtendedEntityManagerRegistry>(entityManagerRegistry);
     }
 
     public EntityManagerFactory getEntityManagerFactory() {
@@ -121,13 +130,20 @@ public class PersistenceUnitGBean implements GBeanLifecycle {
     public EntityManager getEntityManager(boolean transactionScoped, Map properties) {
         if (transactionScoped) {
             return new CMPEntityManagerTxScoped(transactionManager, getPersistenceUnitName(), entityManagerFactory, properties);
+        } else if (entityManagerRegistry.getElement() != null) {
+            return new CMPEntityManagerExtended(entityManagerRegistry.getElement(), entityManagerFactory, properties);
         } else {
-            return new CMPEntityManagerExtended(transactionManager, getPersistenceUnitName(), entityManagerFactory, properties);
+            throw new NullPointerException("No ExtendedEntityManagerRegistry supplied, you cannot use extended persistence contexts");
         }
     }
 
     public String getPersistenceUnitName() {
         return persistenceUnitInfo.getPersistenceUnitName();
+    }
+
+
+    public String getPersistenceUnitRoot() {
+        return persistenceUnitRoot;
     }
 
     public String getPersistenceProviderClassName() {
@@ -226,7 +242,7 @@ public class PersistenceUnitGBean implements GBeanLifecycle {
             this.excludeUnlistedClassesValue = excludeUnlistedClassesValue;
             this.properties = properties;
             this.classLoader = classLoader;
-            this .transformers = new ArrayList<TransformerWrapper>();
+            this.transformers = new ArrayList<TransformerWrapper>();
             
             // This classloader can only be used during PersistenceProvider.createContainerEntityManagerFactory() calls
             // Possible that it could be cleaned up sooner, but for now it's destroyed when the PUGBean is stopped
@@ -319,9 +335,7 @@ public class PersistenceUnitGBean implements GBeanLifecycle {
         infoBuilder.addReference("TransactionManager", TransactionManagerImpl.class, NameFactory.TRANSACTION_MANAGER);
         infoBuilder.addReference("JtaDataSourceWrapper", ConnectionFactorySource.class, NameFactory.JCA_MANAGED_CONNECTION_FACTORY);
         infoBuilder.addReference("NonJtaDataSourceWrapper", ConnectionFactorySource.class, NameFactory.JCA_MANAGED_CONNECTION_FACTORY);
-
-        infoBuilder.addOperation("getEntityManagerFactory");
-        infoBuilder.addOperation("getEntityManager", new Class[] {boolean.class, Map.class});
+        infoBuilder.addReference("EntityManagerRegistry", ExtendedEntityManagerRegistry.class, NameFactory.GERONIMO_SERVICE);
 
         infoBuilder.setConstructor(new String[] {
                 "persistenceUnitName",
@@ -336,6 +350,7 @@ public class PersistenceUnitGBean implements GBeanLifecycle {
                 "excludeUnlistedClasses",
                 "properties",
                 "TransactionManager",
+                "EntityManagerRegistry",
                 "configurationBaseUrl",
                 "classLoader"
         });

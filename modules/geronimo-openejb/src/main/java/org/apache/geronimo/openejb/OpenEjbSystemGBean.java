@@ -23,6 +23,7 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.Iterator;
+import java.util.Collections;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
@@ -31,6 +32,7 @@ import javax.management.ObjectName;
 import javax.naming.NamingException;
 import javax.resource.spi.ResourceAdapter;
 import javax.transaction.TransactionManager;
+import javax.persistence.EntityManagerFactory;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -44,6 +46,7 @@ import org.apache.geronimo.gbean.ReferenceCollectionListener;
 import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.persistence.PersistenceUnitGBean;
 import org.apache.openejb.Container;
 import org.apache.openejb.DeploymentInfo;
 import org.apache.openejb.NoSuchApplicationException;
@@ -58,6 +61,8 @@ import org.apache.openejb.assembler.classic.MdbContainerInfo;
 import org.apache.openejb.assembler.classic.ProxyFactoryInfo;
 import org.apache.openejb.assembler.classic.SecurityServiceInfo;
 import org.apache.openejb.assembler.classic.TransactionServiceInfo;
+import org.apache.openejb.assembler.classic.LinkResolver;
+import org.apache.openejb.assembler.classic.UniqueDefaultLinkResolver;
 import org.apache.openejb.assembler.dynamic.PassthroughFactory;
 import org.apache.openejb.config.AppModule;
 import org.apache.openejb.config.ClientModule;
@@ -81,19 +86,25 @@ public class OpenEjbSystemGBean implements OpenEjbSystem {
     private final Assembler assembler;
     private final Set<String> registeredResouceAdapters = new TreeSet<String>();
     private final ConcurrentMap<String,ResourceAdapterWrapper> processedResourceAdapterWrappers =  new ConcurrentHashMap<String,ResourceAdapterWrapper>() ;
+    private final Collection<PersistenceUnitGBean> persistenceUnitGBeans;
     private final Kernel kernel;
     private final ClassLoader classLoader;
     // These are provided by the corba subsystem when it first initializes.  
     // Once we have a set, we ignore any additional notifications. 
-    private ORB orb; 
+    private ORB orb;
 
     public OpenEjbSystemGBean(TransactionManager transactionManager) throws Exception {
-        this(transactionManager, null, null, OpenEjbSystemGBean.class.getClassLoader());
+        this(transactionManager, null, null, null, OpenEjbSystemGBean.class.getClassLoader());
     }
-    public OpenEjbSystemGBean(TransactionManager transactionManager, Collection<ResourceAdapterWrapper> resourceAdapters, Kernel kernel, ClassLoader classLoader) throws Exception {
+    public OpenEjbSystemGBean(TransactionManager transactionManager, Collection<ResourceAdapterWrapper> resourceAdapters, Collection<PersistenceUnitGBean> persistenceUnitGBeans, Kernel kernel, ClassLoader classLoader) throws Exception {
         this.kernel = kernel;
         this.classLoader = classLoader;
-        
+        if (persistenceUnitGBeans == null) {
+            this.persistenceUnitGBeans = Collections.emptySet();
+        } else {
+            this.persistenceUnitGBeans = persistenceUnitGBeans;
+        }
+
         System.setProperty("duct tape","");
         System.setProperty("admin.disabled", "true");
         SystemInstance systemInstance = SystemInstance.get();
@@ -319,20 +330,28 @@ public class OpenEjbSystemGBean implements OpenEjbSystem {
     }
 
     public void createEjbJar(EjbJarInfo ejbJarInfo, ClassLoader classLoader) throws NamingException, IOException, OpenEJBException {
-        Set names = kernel.listGBeans(new AbstractNameQuery(ResourceAdapterWrapper.class.getName()));
-        for (Iterator iterator = names.iterator(); iterator.hasNext();) {
+        Set<AbstractName> names = kernel.listGBeans(new AbstractNameQuery(ResourceAdapterWrapper.class.getName()));
+        for (AbstractName name : names) {
             try {
-                AbstractName name = (AbstractName) iterator.next();
                 ResourceAdapterWrapper resourceAdapterWrapper = (ResourceAdapterWrapper) kernel.getGBean(name);
                 addResourceAdapter(resourceAdapterWrapper);
             } catch (GBeanNotFoundException ignored) {
             }
         }
-        
+
         ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
         Thread.currentThread().setContextClassLoader(classLoader);
+        LinkResolver<EntityManagerFactory> emfLinkResolver = new UniqueDefaultLinkResolver<EntityManagerFactory>();
+        for (PersistenceUnitGBean persistenceUnitGBean: persistenceUnitGBeans) {
+            EntityManagerFactory factory = persistenceUnitGBean.getEntityManagerFactory();
+            String persistenceUnitRoot = persistenceUnitGBean.getPersistenceUnitRoot();
+            String persistenceUnitName = persistenceUnitGBean.getPersistenceUnitName();
+            if (!"cmp".equals(persistenceUnitName)) {
+                emfLinkResolver.add(persistenceUnitRoot, persistenceUnitName, factory);
+            }
+        }
         try {
-            assembler.createEjbJar(ejbJarInfo, classLoader);
+            assembler.createEjbJar(ejbJarInfo, emfLinkResolver, classLoader);
         } finally {
             Thread.currentThread().setContextClassLoader(oldClassLoader);
         }
@@ -361,11 +380,13 @@ public class OpenEjbSystemGBean implements OpenEjbSystem {
         GBeanInfoBuilder infoBuilder = GBeanInfoBuilder.createStatic(OpenEjbSystemGBean.class);
         infoBuilder.addReference("TransactionManager", TransactionManager.class);
         infoBuilder.addReference("ResourceAdapterWrappers", ResourceAdapterWrapper.class);
+        infoBuilder.addReference("PersistenceUnitGBeans", PersistenceUnitGBean.class);
         infoBuilder.addAttribute("kernel", Kernel.class, false);
         infoBuilder.addAttribute("classLoader", ClassLoader.class, false);
         infoBuilder.setConstructor(new String[] {
                 "TransactionManager",
                 "ResourceAdapterWrappers",
+                "PersistenceUnitGBeans",
                 "kernel",
                 "classLoader",
         });

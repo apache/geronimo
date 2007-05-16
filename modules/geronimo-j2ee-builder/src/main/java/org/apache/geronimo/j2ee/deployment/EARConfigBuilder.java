@@ -49,6 +49,8 @@ import org.apache.geronimo.deployment.DeploymentContext;
 import org.apache.geronimo.deployment.ModuleIDBuilder;
 import org.apache.geronimo.deployment.NamespaceDrivenBuilder;
 import org.apache.geronimo.deployment.NamespaceDrivenBuilderCollection;
+import org.apache.geronimo.deployment.ClassPathList;
+import org.apache.geronimo.deployment.ModuleList;
 import org.apache.geronimo.deployment.service.EnvironmentBuilder;
 import org.apache.geronimo.deployment.service.GBeanBuilder;
 import org.apache.geronimo.deployment.util.DeploymentUtil;
@@ -298,7 +300,7 @@ public class EARConfigBuilder implements ConfigurationBuilder, CorbaGBeanNameSou
                 null,
                 null,
                 new LinkedHashSet<Module>(Collections.singleton(module)),
-                Collections.EMPTY_SET,
+                new ModuleList(),
                 null);
     }
 
@@ -364,7 +366,7 @@ public class EARConfigBuilder implements ConfigurationBuilder, CorbaGBeanNameSou
         // get the modules either the application plan or for a stand alone module from the specific deployer
         // todo change module so you can extract the real module path back out.. then we can eliminate
         // the moduleLocations and have addModules return the modules
-        Set<String> moduleLocations = new HashSet<String>();
+        ModuleList moduleLocations = new ModuleList();
         LinkedHashSet<Module> modules = new LinkedHashSet<Module>();
         try {
             addModules(earFile, application, gerApplication, moduleLocations, modules, environment, earName, idBuilder);
@@ -511,16 +513,15 @@ public class EARConfigBuilder implements ConfigurationBuilder, CorbaGBeanNameSou
             );
             applicationInfo.setEarContext(earContext);
             applicationInfo.setRootEarContext(earContext);
+            earContext.getGeneralData().put(ModuleList.class, applicationInfo.getModuleLocations());
 
             // Copy over all files that are _NOT_ modules (e.g. META-INF and APP-INF files)
             Set moduleLocations = applicationInfo.getModuleLocations();
-            //TODO make LibClassPath a non-inner class and use it for manifestcp.
-            LinkedHashSet<String> manifestcp = new LinkedHashSet<String>();
+            ClassPathList libClasspath = new ClassPathList();
             if (ConfigurationModuleType.EAR == applicationType && earFile != null) {
                 //get the value of the library-directory element in spec DD
                 ApplicationType specDD = (ApplicationType) applicationInfo.getSpecDD();
                 String libDir = getLibraryDirectory(specDD);
-                LibClasspath libClasspath = new LibClasspath();
                 for (Enumeration<JarEntry> e = earFile.entries(); e.hasMoreElements();) {
                     ZipEntry entry = e.nextElement();
                     String entryName = entry.getName();
@@ -536,13 +537,12 @@ public class EARConfigBuilder implements ConfigurationBuilder, CorbaGBeanNameSou
                         NestedJarFile library = new NestedJarFile(earFile, entry.getName());
                         earContext.addIncludeAsPackedJar(URI.create(entry.getName()), library);
                         libClasspath.add(entry.getName());
-                        manifestcp.add(entry.getName());
                     } else if (addEntry) {
                         earContext.addFile(URI.create(entry.getName()), earFile, entry);
                     }
                 }
                 if (!libClasspath.isEmpty()) {
-                    earContext.getGeneralData().put(LibClasspath.class, libClasspath);
+                    earContext.getGeneralData().put(ClassPathList.class, libClasspath);
                 }
             }
 
@@ -572,7 +572,7 @@ public class EARConfigBuilder implements ConfigurationBuilder, CorbaGBeanNameSou
             
             if (ConfigurationModuleType.EAR == applicationType) {
                 // process persistence unit in EAR library directory
-                earContext.getGeneralData().put("ManifestClassPath", manifestcp);
+                earContext.getGeneralData().put(ClassPathList.class, libClasspath);
                 for (ModuleBuilderExtension mbe: persistenceUnitBuilders) {
                     mbe.initContext(earContext, applicationInfo, earContext.getClassLoader());
                 }
@@ -695,7 +695,7 @@ public class EARConfigBuilder implements ConfigurationBuilder, CorbaGBeanNameSou
         return filter;
     }
 
-    private void addModules(JarFile earFile, ApplicationType application, GerApplicationType gerApplication, Set<String> moduleLocations, LinkedHashSet<Module> modules, Environment environment, AbstractName earName, ModuleIDBuilder idBuilder) throws DeploymentException {
+    private void addModules(JarFile earFile, ApplicationType application, GerApplicationType gerApplication, ModuleList moduleLocations, LinkedHashSet<Module> modules, Environment environment, AbstractName earName, ModuleIDBuilder idBuilder) throws DeploymentException {
         Map<String, Object> altVendorDDs = new HashMap<String, Object>();
         try {
             mapVendorPlans(gerApplication, altVendorDDs, earFile);
@@ -1040,8 +1040,6 @@ public class EARConfigBuilder implements ConfigurationBuilder, CorbaGBeanNameSou
         }
         throw new IllegalArgumentException("Unknown module type: " + module.getClass().getName());
     }
-
-    public static class LibClasspath extends ArrayList<String> {}
 
     public static final GBeanInfo GBEAN_INFO;
 

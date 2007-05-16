@@ -24,34 +24,34 @@ import java.util.Iterator;
 /**
  * A wrapper around a reference collection to simulate a 0..1 reference
  */
-public class SingleElementCollection {
+public class SingleElementCollection<T> {
 
-    private final Collection collection;
+    private final Collection<T> collection;
 
-    public SingleElementCollection(Object element) {
+    public SingleElementCollection(T element) {
         if (element == null) {
-            collection = Collections.EMPTY_SET;
+            collection = Collections.emptySet();
         } else {
             collection = Collections.singleton(element);
         }
     }
 
-    public SingleElementCollection(Collection collection) {
+    public SingleElementCollection(Collection<T> collection) {
         if (collection == null) {
-            collection = Collections.EMPTY_SET;            
+            collection = Collections.emptySet();
         }
 
         this.collection = collection;
     }
 
-    public Object getElement() {
+    public T getElement() {
         if (collection.isEmpty()) {
             return null;
         }
         if (collection.size() > 1) {
             throw new IllegalStateException("More than one element: " + collection);
         }
-        Iterator it = collection.iterator();
+        Iterator<T> it = collection.iterator();
         return it.next();
     }
 

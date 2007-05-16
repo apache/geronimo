@@ -58,7 +58,6 @@ import org.apache.geronimo.gbean.SingleElementCollection;
 import org.apache.geronimo.j2ee.deployment.AppClientModule;
 import org.apache.geronimo.j2ee.deployment.ConnectorModule;
 import org.apache.geronimo.j2ee.deployment.CorbaGBeanNameSource;
-import org.apache.geronimo.j2ee.deployment.EARConfigBuilder;
 import org.apache.geronimo.j2ee.deployment.EARContext;
 import org.apache.geronimo.j2ee.deployment.Module;
 import org.apache.geronimo.j2ee.deployment.ModuleBuilder;
@@ -66,6 +65,7 @@ import org.apache.geronimo.j2ee.deployment.NamingBuilder;
 import org.apache.geronimo.j2ee.deployment.NamingBuilderCollection;
 import org.apache.geronimo.j2ee.deployment.SecurityBuilder;
 import org.apache.geronimo.j2ee.deployment.ModuleBuilderExtension;
+import org.apache.geronimo.deployment.ClassPathList;
 import org.apache.geronimo.j2ee.deployment.annotation.AnnotatedApplicationClient;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.j2ee.management.impl.J2EEAppClientModuleImpl;
@@ -513,7 +513,7 @@ public class AppClientModuleBuilder implements ModuleBuilder, CorbaGBeanNameSour
             } catch (IOException e) {
                 throw new DeploymentException("Unable to copy app client module jar into configuration: " + moduleFile.getName());
             }
-            EARConfigBuilder.LibClasspath libClasspath = (EARConfigBuilder.LibClasspath) earContext.getGeneralData().get(EARConfigBuilder.LibClasspath.class);
+            ClassPathList libClasspath = (ClassPathList) earContext.getGeneralData().get(ClassPathList.class);
             if (libClasspath != null) {
                 for (String libEntryPath: libClasspath) {
                     try {

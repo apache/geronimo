@@ -17,6 +17,7 @@
 package org.apache.geronimo.persistence.builder;
 
 import java.io.IOException;
+import java.io.File;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -31,7 +32,6 @@ import java.util.jar.JarFile;
 import javax.xml.namespace.QName;
 
 import org.apache.geronimo.common.DeploymentException;
-import org.apache.geronimo.deployment.DeploymentContext;
 import org.apache.geronimo.deployment.ModuleIDBuilder;
 import org.apache.geronimo.deployment.service.EnvironmentBuilder;
 import org.apache.geronimo.deployment.xmlbeans.XmlBeansUtil;
@@ -43,10 +43,13 @@ import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.j2ee.deployment.EARContext;
 import org.apache.geronimo.j2ee.deployment.Module;
 import org.apache.geronimo.j2ee.deployment.ModuleBuilderExtension;
+import org.apache.geronimo.j2ee.deployment.WebModule;
+import org.apache.geronimo.deployment.ClassPathList;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.GBeanAlreadyExistsException;
 import org.apache.geronimo.kernel.Naming;
 import org.apache.geronimo.kernel.config.ConfigurationStore;
+import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.persistence.PersistenceUnitGBean;
 import org.apache.geronimo.xbeans.persistence.PersistenceDocument;
@@ -66,17 +69,19 @@ public class PersistenceUnitBuilder implements ModuleBuilderExtension {
     private final Properties defaultPersistenceUnitProperties;
     private final AbstractNameQuery defaultJtaDataSourceName;
     private final AbstractNameQuery defaultNonJtaDataSourceName;
+    private final AbstractNameQuery extendedEntityManagerRegistryName;
     private static final String ANON_PU_NAME = "AnonymousPersistenceUnit";
 
     public PersistenceUnitBuilder(Environment defaultEnvironment,
             String defaultPersistenceProviderClassName,
             String defaultJtaDataSourceName,
             String defaultNonJtaDataSourceName,
-            Properties defaultPersistenceUnitProperties) throws URISyntaxException {
+            AbstractNameQuery extendedEntityManagerRegistryName, Properties defaultPersistenceUnitProperties) throws URISyntaxException {
         this.defaultEnvironment = defaultEnvironment;
         this.defaultPersistenceProviderClassName = defaultPersistenceProviderClassName;
         this.defaultJtaDataSourceName = defaultJtaDataSourceName == null ? null : getAbstractNameQuery(defaultJtaDataSourceName);
         this.defaultNonJtaDataSourceName = defaultNonJtaDataSourceName == null ? null : getAbstractNameQuery(defaultNonJtaDataSourceName);
+        this.extendedEntityManagerRegistryName = extendedEntityManagerRegistryName;
         this.defaultPersistenceUnitProperties = defaultPersistenceUnitProperties == null ? new Properties() : defaultPersistenceUnitProperties;
     }
 
@@ -96,25 +101,26 @@ public class PersistenceUnitBuilder implements ModuleBuilderExtension {
         }
         try {
             //TODO the code that figures out the persistence unit name is incomplete
-            URI baseURI = moduleContext.getBaseDir().toURI();
-            String base = baseURI.toString();
-            Map generalData = moduleContext.getGeneralData();
-            LinkedHashSet<String> manifestcp = (LinkedHashSet<String>) generalData.get("ManifestClassPath");
+            File rootBaseFile = module.getRootEarContext().getConfiguration().getConfigurationDir();
+            String rootBase = rootBaseFile.toURI().normalize().toString();
+            URI moduleBaseURI = moduleContext.getBaseDir().toURI();
+            Map rootGeneralData = module.getRootEarContext().getGeneralData();
+            ClassPathList manifestcp = (ClassPathList) module.getEarContext().getGeneralData().get(ClassPathList.class);
             if (manifestcp == null) {
-                manifestcp = new LinkedHashSet<String>();
+                manifestcp = new ClassPathList();
                 manifestcp.add(module.getTargetPath());
             }
             URL[] urls = new URL[manifestcp.size()];
             int i = 0;
             for (String path: manifestcp) {
-                URL url = baseURI.resolve(path).toURL();
+                URL url = moduleBaseURI.resolve(path).toURL();
                 urls[i++] = url;
             }
             ResourceFinder finder = new ResourceFinder("", null, urls);
-            List<URL> knownPersistenceUrls = (List<URL>) generalData.get(PersistenceUnitBuilder.class.getName());
+            List<URL> knownPersistenceUrls = (List<URL>) rootGeneralData.get(PersistenceUnitBuilder.class.getName());
             if (knownPersistenceUrls == null) {
                 knownPersistenceUrls = new ArrayList<URL>();
-                generalData.put(PersistenceUnitBuilder.class.getName(), knownPersistenceUrls);
+                rootGeneralData.put(PersistenceUnitBuilder.class.getName(), knownPersistenceUrls);
             }
             List<URL> persistenceUrls = finder.findAll("META-INF/persistence.xml");
             persistenceUrls.removeAll(knownPersistenceUrls);
@@ -129,7 +135,11 @@ public class PersistenceUnitBuilder implements ModuleBuilderExtension {
                     //????
                     continue;
                 }
-                int pos = persistenceLocation.indexOf(base);
+                int pos = persistenceLocation.indexOf(rootBase);
+                if (pos < 0) {
+                    //not in the ear
+                    continue;
+                }
                 int endPos = persistenceLocation.lastIndexOf("!/");
                 if (endPos < 0) {
                     // if unable to find the '!/' marker, try to see if this is
@@ -137,7 +147,10 @@ public class PersistenceUnitBuilder implements ModuleBuilderExtension {
                     endPos = persistenceLocation.lastIndexOf("META-INF");
                 }
                 if (endPos >= 0) {
-                    String relative = persistenceLocation.substring(pos + base.length(), endPos);
+                    //path relative to ear base uri
+                    String relative = persistenceLocation.substring(pos + rootBase.length(), endPos);
+                    //find path relative to module base uri
+                    relative = module.getRelativePath(relative);
                     PersistenceDocument persistenceDocument;
                     try {
                         XmlObject xmlObject = XmlBeansUtil.parse(persistenceUrl, moduleContext.getClassLoader());
@@ -269,14 +282,15 @@ public class PersistenceUnitBuilder implements ModuleBuilderExtension {
         gbeanData.setAttribute("properties", properties);
         AbstractNameQuery transactionManagerName = moduleContext.getTransactionManagerName();
         gbeanData.setReferencePattern("TransactionManager", transactionManagerName);
+        gbeanData.setReferencePattern("EntityManagerRegistry", extendedEntityManagerRegistryName);
     }
 
-    private AbstractNameQuery getAbstractNameQuery(String jtaDataSourceString) throws URISyntaxException {
-        if (jtaDataSourceString.indexOf('=') == -1) {
-            jtaDataSourceString = "?name=" + jtaDataSourceString;
+    private AbstractNameQuery getAbstractNameQuery(String dataSourceString) throws URISyntaxException {
+        if (dataSourceString.indexOf('=') == -1) {
+            dataSourceString = "?name=" + dataSourceString;
         }
-        AbstractNameQuery jtaDataSourceNameQuery = new AbstractNameQuery(new URI(jtaDataSourceString + "#org.apache.geronimo.connector.outbound.ConnectionFactorySource"));
-        return jtaDataSourceNameQuery;
+        AbstractNameQuery dataSourceNameQuery = new AbstractNameQuery(new URI(dataSourceString + "#org.apache.geronimo.connector.outbound.ConnectionFactorySource"));
+        return dataSourceNameQuery;
     }
 
     public QNameSet getSpecQNameSet() {
@@ -296,6 +310,7 @@ public class PersistenceUnitBuilder implements ModuleBuilderExtension {
         infoBuilder.addAttribute("defaultPersistenceProviderClassName", String.class, true, true);
         infoBuilder.addAttribute("defaultJtaDataSourceName", String.class, true, true);
         infoBuilder.addAttribute("defaultNonJtaDataSourceName", String.class, true, true);
+        infoBuilder.addAttribute("extendedEntityManagerRegistryName", AbstractNameQuery.class, true, true);
         infoBuilder.addAttribute("defaultPersistenceUnitProperties", Properties.class, true, true);
 
         infoBuilder.setConstructor(new String[]{
@@ -303,6 +318,7 @@ public class PersistenceUnitBuilder implements ModuleBuilderExtension {
                 "defaultPersistenceProviderClassName",
                 "defaultJtaDataSourceName",
                 "defaultNonJtaDataSourceName",
+                "extendedEntityManagerRegistryName",
                 "defaultPersistenceUnitProperties"
         });
 

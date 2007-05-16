@@ -204,5 +204,20 @@ public abstract class Module {
         }
         return new Artifact[] {rootEarContext.getConfigID(), earContext.getConfigID()};
     }
+
+    /**
+     * Given a path in the ear module, return something that will resolve to that location against the eventual configuration
+     * base uri.  Currently for all modules except wars that is the original path.  If we create separate configurations for
+     * ejb or rar modules, those Module subclasses will need to reimplement this method.
+     *
+     * Example:  if a war is myweb.war, and you pass in myweb.war/WEB-INF/lib/foo.jar, you get WEB-INF/lib/foo.jar
+     * if you pass in myFoo.jar, you get ../myFoo.jar
+     *
+     * @param path a path in the ear config, relative to the ear root.
+     * @return a path to the same location, but relative to the configuration this module represents' base uri.
+     */
+    public String getRelativePath(String path) {
+        return path;
+    }
     
 }

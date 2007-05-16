@@ -29,7 +29,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
-import java.util.LinkedHashSet;
 import java.util.jar.JarFile;
 
 import javax.ejb.EntityContext;
@@ -58,6 +57,8 @@ import org.apache.geronimo.j2ee.deployment.Module;
 import org.apache.geronimo.j2ee.deployment.ModuleBuilder;
 import org.apache.geronimo.j2ee.deployment.ModuleBuilderExtension;
 import org.apache.geronimo.j2ee.deployment.NamingBuilder;
+import org.apache.geronimo.deployment.ModuleList;
+import org.apache.geronimo.deployment.ClassPathList;
 import org.apache.geronimo.j2ee.deployment.annotation.AnnotatedEjbJar;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.Naming;
@@ -401,10 +402,6 @@ public class EjbModuleBuilder implements ModuleBuilder {
         } catch (IOException e) {
             throw new DeploymentException("Unable to copy ejb module jar into configuration: " + moduleFile.getName());
         }
-        LinkedHashSet<String> manifestcp = new LinkedHashSet<String>();
-        manifestcp.add(module.getTargetPath());
-        earContext.getCompleteManifestClassPath(moduleFile, URI.create(module.getTargetPath()), manifestcp);
-        earContext.getGeneralData().put("ManifestClassPath", manifestcp);
     }
 
     private static final String LINE_SEP = System.getProperty("line.separator");
@@ -428,7 +425,6 @@ public class EjbModuleBuilder implements ModuleBuilder {
         EjbModule ejbModule = (EjbModule) module;
         ejbModule.setClassLoader(classLoader);
         EjbJarInfo ejbJarInfo = getEjbJarInfo(earContext, ejbModule, classLoader);
-
 
         ejbModule.setEjbJarInfo(ejbJarInfo);
 
@@ -468,6 +464,13 @@ public class EjbModuleBuilder implements ModuleBuilder {
 
         // Add extra gbean declared in the geronimo-openejb.xml file
         serviceBuilders.build(geronimoOpenejb, earContext, ejbModule.getEarContext());
+
+        ClassPathList manifestcp = new ClassPathList();
+        manifestcp.add(module.getTargetPath());
+        EARContext moduleContext = module.getEarContext();
+        ModuleList moduleLocations = (ModuleList) module.getRootEarContext().getGeneralData().get(ModuleList.class);
+        moduleContext.getCompleteManifestClassPath(module.getModuleFile(), URI.create(module.getTargetPath()), manifestcp, moduleLocations);
+        moduleContext.getGeneralData().put(ClassPathList.class, manifestcp);
 
         for (ModuleBuilderExtension builder : moduleBuilderExtensions) {
             try {
