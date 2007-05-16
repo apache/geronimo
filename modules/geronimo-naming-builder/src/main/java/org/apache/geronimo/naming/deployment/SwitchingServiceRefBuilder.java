@@ -112,8 +112,8 @@ public class SwitchingServiceRefBuilder extends AbstractNamingBuilder {
                     serviceRef, JEE_CONVERTER, ServiceRefType.type);
 
             String name = getStringValue(serviceRefType.getServiceRefName());
-            GerServiceRefType gerServiceRefType = (GerServiceRefType) serviceRefMap
-                    .get(name);
+            GerServiceRefType gerServiceRefType = (GerServiceRefType) serviceRefMap.get(name);
+            serviceRefMap.remove(name);
 
             String serviceInterfaceName = getStringValue(serviceRefType
                     .getServiceInterface());
@@ -138,6 +138,10 @@ public class SwitchingServiceRefBuilder extends AbstractNamingBuilder {
                         + jaxrpcClass.getName() + " or "
                         + jaxwsClass.getName());
             }
+        }
+
+        if (serviceRefMap.size() > 0) {
+            throw new DeploymentException("Failed to build reference to service reference "+serviceRefMap.keySet()+" defined in plan file, reason - corresponding entry in deployment descriptor missing.");
         }
     }
 

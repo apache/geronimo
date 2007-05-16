@@ -74,9 +74,13 @@ public abstract class JAXWSServiceRefBuilder extends AbstractNamingBuilder imple
             String name = getStringValue(serviceRef.getServiceRefName());            
             addInjections(name, serviceRef.getInjectionTargetArray(), componentContext);
             GerServiceRefType serviceRefType = (GerServiceRefType) serviceRefMap.get(name);
-            
+            serviceRefMap.remove(name);
             buildNaming(serviceRef, serviceRefType, module, componentContext);
         }        
+
+        if (serviceRefMap.size() > 0) {
+            throw new DeploymentException("Failed to build reference to service reference "+serviceRefMap.keySet()+" defined in plan file, reason - corresponding entry in deployment descriptor missing.");
+        }
     }
 
     private Class loadClass(String className, ClassLoader cl, String classDescription) throws DeploymentException {

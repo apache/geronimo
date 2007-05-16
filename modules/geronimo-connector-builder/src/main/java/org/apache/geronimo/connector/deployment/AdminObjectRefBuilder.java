@@ -140,6 +140,7 @@ public class AdminObjectRefBuilder extends AbstractNamingBuilder {
                 throw new DeploymentException("could not load class " + type, e);
             }
             GerResourceEnvRefType gerResourceEnvRef = refMap.get(name);
+            refMap.remove(name);
             try {
                 String refType = getStringValue(resourceEnvRef.getResourceEnvRefType());
                 if (refType.equals("javax.transaction.UserTransaction")) {
@@ -154,7 +155,11 @@ public class AdminObjectRefBuilder extends AbstractNamingBuilder {
                 throw new DeploymentException("Unable to resolve resource env reference '" + name + "' (" + (e.isMultiple() ? "found multiple matching resources" : "no matching resources found") + ")");
             }
         }
-
+        
+        if (refMap.size() > 0) {
+            throw new DeploymentException("Failed to build reference to Admin object reference "+refMap.keySet()+" defined in plan file, reason - corresponding entry in deployment descriptor missing.");
+        }
+        
         //message-destination-refs
         List<MessageDestinationRefType> messageDestinationRefsUntyped = convert(specDD.selectChildren(messageDestinationRefQNameSet), JEE_CONVERTER, MessageDestinationRefType.class, MessageDestinationRefType.type);
 

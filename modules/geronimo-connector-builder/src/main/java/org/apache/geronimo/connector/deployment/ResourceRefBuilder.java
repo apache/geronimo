@@ -121,6 +121,7 @@ public class ResourceRefBuilder extends AbstractNamingBuilder implements Resourc
             addInjections(name, resourceRef.getInjectionTargetArray(), componentContext);
             String type = resourceRef.getResType().getStringValue().trim();
             GerResourceRefType gerResourceRef = (GerResourceRefType) refMap.get(name);
+            refMap.remove(name);
             Class iface;
             try {
                 iface = cl.loadClass(type);
@@ -198,6 +199,9 @@ public class ResourceRefBuilder extends AbstractNamingBuilder implements Resourc
             }
         }
 
+        if (refMap.size() > 0) {
+            throw new DeploymentException("Failed to build reference to resource reference "+refMap.keySet()+" defined in plan file, reason - corresponding entry in deployment descriptor missing.");
+        }
     }
 
     public void setResourceEnvironment(ResourceEnvironmentBuilder builder, XmlObject[] resourceRefs, GerResourceRefType[] gerResourceRefs) throws DeploymentException {
