@@ -216,8 +216,8 @@ set JPDA_ADDRESS=8000
 :gotJpdaAddress
 if not "%JPDA_OPTS%" == "" goto gotJpdaOpts
 set JPDA_OPTS=-Xdebug -Xrunjdwp:transport=%JPDA_TRANSPORT%,address=%JPDA_ADDRESS%,server=y,suspend=%JPDA_SUSPEND%
-set GERONIMO_OPTS=%GERONIMO_OPTS% %JPDA_OPTS%
 :gotJpdaOpts
+set GERONIMO_OPTS=%GERONIMO_OPTS% %JPDA_OPTS%
 shift
 :noJpda
 
