@@ -50,6 +50,14 @@ public class MockDataSource implements DataSource {
         return 0;
     }
 
+    public boolean isWrapperFor(Class<?> iface) throws SQLException {
+        return false;
+    }
+
+    public <T> T unwrap(Class<T> iface) throws SQLException {
+        return null;
+    }
+
     public static final GBeanInfo GBEAN_INFO;
 
     public static GBeanInfo getGBeanInfo() {
