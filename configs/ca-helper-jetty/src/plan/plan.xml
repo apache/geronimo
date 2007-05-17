@@ -18,6 +18,6 @@
 
 <!-- $Rev$ $Date$ -->
 
-<web-app xmlns="http://geronimo.apache.org/xml/ns/j2ee/web/jetty-1.1">
+<web-app xmlns="http://geronimo.apache.org/xml/ns/j2ee/web/jetty-${geronimoSchemaVersion}">
     <context-root>/CAHelper</context-root>
 </web-app>

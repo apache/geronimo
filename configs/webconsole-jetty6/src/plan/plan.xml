@@ -18,11 +18,11 @@
 
 <!-- $Rev$ $Date$ -->
 
-<application xmlns="http://geronimo.apache.org/xml/ns/j2ee/application-1.1">
+<application xmlns="http://geronimo.apache.org/xml/ns/j2ee/application-${geronimoSchemaVersion}">
 
     <module>
         <web>framework.war</web>
-        <web-app xmlns="http://geronimo.apache.org/xml/ns/j2ee/web/jetty-1.1">
+        <web-app xmlns="http://geronimo.apache.org/xml/ns/j2ee/web/jetty-${geronimoSchemaVersion}">
             <environment xmlns="http://geronimo.apache.org/xml/ns/deployment-${geronimoSchemaVersion}">
               <dependencies>
                 <dependency>
@@ -66,7 +66,7 @@
 
     <module>
         <web>standard.war</web>
-        <web-app xmlns="http://geronimo.apache.org/xml/ns/j2ee/web/jetty-1.1">
+        <web-app xmlns="http://geronimo.apache.org/xml/ns/j2ee/web/jetty-${geronimoSchemaVersion}">
             <environment xmlns="http://geronimo.apache.org/xml/ns/deployment-${geronimoSchemaVersion}">
               <dependencies>
                 <dependency>
