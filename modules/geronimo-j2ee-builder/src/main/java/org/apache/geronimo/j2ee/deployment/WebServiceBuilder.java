@@ -17,7 +17,6 @@
 package org.apache.geronimo.j2ee.deployment;
 
 import java.util.Map;
-import java.util.jar.JarFile;
 
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.DeploymentContext;
@@ -68,6 +67,6 @@ public interface WebServiceBuilder {
      * @param classLoader
      * @throws DeploymentException
      */
-    boolean configureEJB(GBeanData targetGBean, String ejbName, JarFile moduleFile, Map sharedContext, ClassLoader classLoader) throws DeploymentException;
+    boolean configureEJB(GBeanData targetGBean, String ejbName, Module module, Map sharedContext, ClassLoader classLoader) throws DeploymentException;
 
 }

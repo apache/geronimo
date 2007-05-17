@@ -362,7 +362,7 @@ public abstract class JAXWSServiceBuilder implements WebServiceBuilder {
 
     public boolean configureEJB(GBeanData targetGBean,
                                 String ejbName,
-                                JarFile moduleFile,
+                                Module module,
                                 Map sharedContext,
                                 ClassLoader classLoader)
             throws DeploymentException {        

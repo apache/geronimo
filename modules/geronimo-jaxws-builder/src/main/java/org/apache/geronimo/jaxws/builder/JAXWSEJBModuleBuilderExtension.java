@@ -161,7 +161,7 @@ public class JAXWSEJBModuleBuilderExtension implements ModuleBuilderExtension {
                 }
             }
             
-            if (jaxwsBuilder.configureEJB(ejbWebServiceGBean, bean.ejbName, ejbModule.getModuleFile(), 
+            if (jaxwsBuilder.configureEJB(ejbWebServiceGBean, bean.ejbName, ejbModule, 
                                           ejbModule.getSharedContext(), cl)) {
 
                 try {

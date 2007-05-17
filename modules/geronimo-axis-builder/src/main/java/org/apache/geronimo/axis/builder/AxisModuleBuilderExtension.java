@@ -148,7 +148,7 @@ public class AxisModuleBuilderExtension implements ModuleBuilderExtension {
                 }
             }
             
-            if (axisBuilder.configureEJB(ejbWebServiceGBean, ejbName, ejbModule.getModuleFile(),
+            if (axisBuilder.configureEJB(ejbWebServiceGBean, ejbName, ejbModule,
                                          ejbModule.getSharedContext(), cl)) {
                 
                 try {

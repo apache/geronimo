@@ -173,7 +173,7 @@ public class AxisBuilder implements WebServiceBuilder {
         return true;
     }
 
-    public boolean configureEJB(GBeanData targetGBean, String ejbName, JarFile moduleFile, Map sharedContext, ClassLoader classLoader) throws DeploymentException {
+    public boolean configureEJB(GBeanData targetGBean, String ejbName, Module module, Map sharedContext, ClassLoader classLoader) throws DeploymentException {
         Map portInfoMap = (Map) sharedContext.get(KEY);
         PortInfo portInfo = (PortInfo) portInfoMap.get(ejbName);
         if (portInfo == null) {

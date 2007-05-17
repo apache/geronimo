@@ -17,7 +17,6 @@
 package org.apache.geronimo.tomcat.deployment;
 
 import java.util.Map;
-import java.util.jar.JarFile;
 
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.DeploymentContext;
@@ -50,7 +49,7 @@ public class MockWebServiceBuilder implements WebServiceBuilder {
         return true;
     }
 
-    public boolean configureEJB(GBeanData targetGBean, String ejbName, JarFile moduleFile, Map sharedContext, ClassLoader classLoader) throws DeploymentException {
+    public boolean configureEJB(GBeanData targetGBean, String ejbName, Module module, Map sharedContext, ClassLoader classLoader) throws DeploymentException {
         return true;
     }
 }
