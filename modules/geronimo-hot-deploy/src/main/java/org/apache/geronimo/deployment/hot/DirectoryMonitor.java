@@ -19,6 +19,7 @@ package org.apache.geronimo.deployment.hot;
 import org.apache.commons.logging.LogFactory;
 import org.apache.commons.logging.Log;
 import org.apache.geronimo.deployment.cli.DeployUtils;
+import org.apache.geronimo.deployment.util.DeploymentUtil;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.config.IOUtil;
 
@@ -55,8 +56,7 @@ public class DirectoryMonitor implements Runnable {
         boolean isServerRunning();
 
         /**
-         * Called during initialization on all files in the hot deploy
-         * directory.
+         * Checks if the file with same configID is already deployed 
          *
          * @return true if the file in question is already available in the
          *         server, false if it should be deployed on the next pass.
@@ -327,15 +327,56 @@ log.info("At startup, found "+now.getPath()+" with deploy time "+now.getModified
                             }
                             workingOnConfigId = null;
                         } else if (action.action == FileAction.NEW_FILE) {
-                            String result = listener.fileAdded(action.child);
-                            if (result != null) {
-                                if (!result.equals("")) {
-                                    action.info.setConfigId(result);
-                                } else {
-                                    action.info.setConfigId(calculateModuleId(action.child));
+                            if (listener.isFileDeployed(action.child, calculateModuleId(action.child))) {
+                                workingOnConfigId = calculateModuleId(action.child);
+                                String result = listener.fileUpdated(action.child, workingOnConfigId);
+                                if (result != null) {
+                                    if (!result.equals("")) {
+                                        action.info.setConfigId(result);
+                                    }
+                                    else {
+                                        action.info.setConfigId(calculateModuleId(action.child));
+                                    }
                                 }
-                                action.info.setNewFile(false);
+                                // remove the previous jar or directory if duplicate
+                                File[] childs = directory.listFiles();
+                                for (int i = 0; i < childs.length; i++) {
+                                    String path = childs[i].getAbsolutePath();
+                                    String configId = ((FileInfo)files.get(path)).configId;
+                                    if (configId != null && configId.equals(workingOnConfigId) && !action.child.getAbsolutePath().equals(path)) {
+                                        File fd = new File(path);
+                                        if (fd.isDirectory()) {
+                                            log.info("Deleting the Directory: "+path);
+                                            if (DeploymentUtil.recursiveDelete(fd))
+                                                log.debug("Successfully deleted the Directory: "+path);
+                                            else
+                                                log.error("Couldn't delete the hot deployed directory="+path);
+                                        }
+                                        else if (fd.isFile()) {
+                                            log.info("Deleting the File: "+path);
+                                            if (fd.delete()) {
+                                                log.debug("Successfully deleted the File: "+path); 
+                                            }
+                                            else
+                                                log.error("Couldn't delete the hot deployed file="+path); 
+                                        }
+                                        files.remove(path);
+                                    }
+                                }
+                                workingOnConfigId = null;
                             }
+                            else {
+                                String result = listener.fileAdded(action.child);
+                                if (result != null) {
+                                    if (!result.equals("")) {
+                                        action.info.setConfigId(result);
+                                    }
+                                    else {
+                                        action.info.setConfigId(calculateModuleId(action.child));
+                                    }
+                                }
+                            }
+                            action.info.setNewFile(false);
                         } else if (action.action == FileAction.UPDATED_FILE) {
                             workingOnConfigId = action.info.getConfigId();
                             String result = listener.fileUpdated(action.child, action.info.getConfigId());

@@ -181,11 +181,29 @@ public class DirectoryHotDeployer implements HotDeployer, DeploymentWatcher, GBe
     }
 
     public boolean isFileDeployed(File file, String configId) {
+        DeploymentManager mgr = null;
         try {
-            DeployUtils.identifyTargetModuleIDs(startupModules, configId, true).toArray(new TargetModuleID[0]);
+            if (startupModules != null) {
+                DeployUtils.identifyTargetModuleIDs(startupModules, configId, true).toArray(new TargetModuleID[0]);
+            }
+            else {
+                mgr = getDeploymentManager();
+                Target[] targets = mgr.getTargets();
+                TargetModuleID[] ids = mgr.getAvailableModules(null, targets);
+                DeployUtils.identifyTargetModuleIDs(ids, configId, true).toArray(new TargetModuleID[0]);
+                mgr.release();
+                mgr = null;
+            }
             return true;
         } catch (DeploymentException e) {
             log.debug("Found new file in deploy directory on startup with ID " + configId);
+        } catch (Exception e) {
+            log.error("Unable to check status", e);
+        } finally {
+            if (mgr != null) {
+                mgr.release();
+                mgr = null;
+            }
             return false;
         }
     }
