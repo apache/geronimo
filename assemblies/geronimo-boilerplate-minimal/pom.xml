@@ -54,6 +54,14 @@
                         <configuration>
                             <artifactItems>
                                 <artifactItem>
+                                    <groupId>asm</groupId>
+                                    <artifactId>asm</artifactId>
+                                </artifactItem>
+                                <artifactItem>
+                                    <groupId>asm</groupId>
+                                    <artifactId>asm-commons</artifactId>
+                                </artifactItem>
+                                <artifactItem>
                                     <groupId>cglib</groupId>
                                     <artifactId>cglib-nodep</artifactId>
                                 </artifactItem>

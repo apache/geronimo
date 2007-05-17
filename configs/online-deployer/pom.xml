@@ -114,6 +114,14 @@
                             <artifactId>commons-logging</artifactId>
                         </element>
                         <element>
+                            <groupId>asm</groupId>
+                            <artifactId>asm</artifactId>
+                        </element>
+                        <element>
+                            <groupId>asm</groupId>
+                            <artifactId>asm-commons</artifactId>
+                        </element>
+                        <element>
                             <groupId>cglib</groupId>
                             <artifactId>cglib-nodep</artifactId>
                         </element>

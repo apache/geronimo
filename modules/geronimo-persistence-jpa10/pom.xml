@@ -35,16 +35,6 @@
 
     <dependencies>
 
-        <dependency>
-            <groupId>asm</groupId>
-            <artifactId>asm</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>asm</groupId>
-            <artifactId>asm-commons</artifactId>
-        </dependency>
-
         <!-- g-transaction, g-system come from this -->
         <dependency>
             <groupId>org.apache.geronimo.modules</groupId>

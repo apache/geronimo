@@ -99,6 +99,14 @@
                             <version>${version}</version>
                         </element>
                         <element>
+                            <groupId>asm</groupId>
+                            <artifactId>asm</artifactId>
+                        </element>
+                        <element>
+                            <groupId>asm</groupId>
+                            <artifactId>asm-commons</artifactId>
+                        </element>
+                        <element>
                             <groupId>commons-logging</groupId>
                             <artifactId>commons-logging</artifactId>
                         </element>

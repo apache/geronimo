@@ -14,7 +14,7 @@
 *  See the License for the specific language governing permissions and
 *  limitations under the License.
 */
-package org.apache.geronimo.persistence;
+package org.apache.geronimo.kernel.classloader;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -75,7 +75,7 @@ public class TemporaryClassLoader extends URLClassLoader {
        if (name.startsWith("java.") ||
                name.startsWith("javax.") ||
                name.startsWith("sun.")) {
-           return Class.forName(name, resolve, getClass().getClassLoader());
+           return getParent().loadClass(name);
        }
 
        String resourceName = name.replace('.', '/') + ".class";

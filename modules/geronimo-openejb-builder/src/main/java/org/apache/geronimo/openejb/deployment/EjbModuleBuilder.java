@@ -20,6 +20,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URL;
+import java.net.MalformedURLException;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -61,6 +62,7 @@ import org.apache.geronimo.deployment.ModuleList;
 import org.apache.geronimo.deployment.ClassPathList;
 import org.apache.geronimo.j2ee.deployment.annotation.AnnotatedEjbJar;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
+import org.apache.geronimo.kernel.classloader.TemporaryClassLoader;
 import org.apache.geronimo.kernel.Naming;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.kernel.config.ConfigurationModuleType;
@@ -423,7 +425,8 @@ public class EjbModuleBuilder implements ModuleBuilder {
 
     public void initContext(EARContext earContext, Module module, ClassLoader classLoader) throws DeploymentException {
         EjbModule ejbModule = (EjbModule) module;
-        ejbModule.setClassLoader(classLoader);
+        EarData earData = (EarData) earContext.getGeneralData().get(EarData.class);
+        
         EjbJarInfo ejbJarInfo = getEjbJarInfo(earContext, ejbModule, classLoader);
 
         ejbModule.setEjbJarInfo(ejbJarInfo);
@@ -485,9 +488,14 @@ public class EjbModuleBuilder implements ModuleBuilder {
     private EjbJarInfo getEjbJarInfo(EARContext earContext, EjbModule ejbModule, ClassLoader classLoader) throws DeploymentException {
         EarData earData = (EarData) earContext.getGeneralData().get(EarData.class);
         if (earData.getEjbJars().isEmpty()) {
+            
+            // temporary classloader is used for processing ejb annotations and byte code manipulation during ejb load 
+            TemporaryClassLoader temporaryClassLoader = new TemporaryClassLoader(new URL[0], classLoader);
+            
             // create an openejb app module for the ear containing all ejb modules
-            AppModule appModule = new AppModule(ejbModule.getEjbModule().getClassLoader(), ejbModule.getEjbModule().getModuleId());
+            AppModule appModule = new AppModule(classLoader, ejbModule.getEjbModule().getModuleId());
             for (EjbModule module : earData.getEjbModuels()) {
+                module.setClassLoader(temporaryClassLoader);
                 appModule.getEjbModules().add(module.getEjbModule());
             }
 
