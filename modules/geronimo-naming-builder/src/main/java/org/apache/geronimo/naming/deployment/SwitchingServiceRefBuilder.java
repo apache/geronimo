@@ -141,7 +141,7 @@ public class SwitchingServiceRefBuilder extends AbstractNamingBuilder {
         }
 
         if (serviceRefMap.size() > 0) {
-            throw new DeploymentException("Failed to build reference to service reference "+serviceRefMap.keySet()+" defined in plan file, reason - corresponding entry in deployment descriptor missing.");
+            log.warn("Failed to build reference to service reference "+serviceRefMap.keySet()+" defined in plan file, reason - corresponding entry in deployment descriptor missing.");
         }
     }
 

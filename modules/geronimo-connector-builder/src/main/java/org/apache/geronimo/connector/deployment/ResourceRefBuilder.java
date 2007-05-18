@@ -200,7 +200,7 @@ public class ResourceRefBuilder extends AbstractNamingBuilder implements Resourc
         }
 
         if (refMap.size() > 0) {
-            throw new DeploymentException("Failed to build reference to resource reference "+refMap.keySet()+" defined in plan file, reason - corresponding entry in deployment descriptor missing.");
+            log.warn("Failed to build reference to resource reference "+refMap.keySet()+" defined in plan file, reason - corresponding entry in deployment descriptor missing.");
         }
     }
 
