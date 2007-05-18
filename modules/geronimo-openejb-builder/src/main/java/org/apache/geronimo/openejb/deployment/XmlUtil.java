@@ -37,6 +37,7 @@ import org.apache.openejb.jee.oejb2.DependencyType;
 import org.apache.openejb.jee.oejb2.EnvironmentType;
 import org.apache.openejb.jee.oejb2.GeronimoEjbJarType;
 import org.apache.openejb.jee.oejb2.ImportType;
+import org.apache.openejb.jee.oejb2.JaxbOpenejbJar2;
 import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlDocumentProperties;
 import org.apache.xmlbeans.XmlException;
@@ -49,6 +50,10 @@ import javax.xml.bind.Marshaller;
 import javax.xml.bind.ValidationEvent;
 import javax.xml.namespace.QName;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.InputStream;
+import java.io.IOException;
 
 public final class XmlUtil {
     public static final QName OPENEJBJAR_QNAME = OpenejbEjbJarDocument.type.getDocumentElementName();
@@ -123,8 +128,21 @@ public final class XmlUtil {
 
             OpenejbGeronimoEjbJarType geronimoOpenejb = (OpenejbGeronimoEjbJarType) SchemaConversionUtils.fixGeronimoSchema(xmlObject, OPENEJBJAR_QNAME, OpenejbGeronimoEjbJarType.type);
             return geronimoOpenejb;
-        } catch (XmlException e) {
-            throw new DeploymentException("Error parsing geronimo-openejb.xml", e);
+        } catch (Throwable e) {
+            String filePath = "<error: could not be written>";
+            try {
+                File tempFile = File.createTempFile("openejb-jar-", ".xml");
+                try {
+                    FileOutputStream out = new FileOutputStream(tempFile);
+                    out.write(xml.getBytes());
+                    out.close();
+                } catch (Exception weTried) {
+                }
+                filePath = tempFile.getAbsolutePath();
+            } catch (IOException notImportant) {
+            }
+
+            throw new DeploymentException("Error parsing geronimo-openejb.xml with xmlbeans.  For debug purposes, XML content written to: "+filePath, e);
         }
     }
 
