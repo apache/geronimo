@@ -265,7 +265,6 @@ goto end
 :doDebug
 shift
 set _EXECJAVA=%_RUNJDB%
-if not "%JDB_OPTS%" == "" goto gotJdbOpts
 set JDB=jdb
 if not "%JDB_SRCPATH%" == "" goto gotJdbSrcPath
 set JDB_SRCPATH=%GERONIMO_HOME%\src
