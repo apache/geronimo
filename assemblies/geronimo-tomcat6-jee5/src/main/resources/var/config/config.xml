@@ -73,6 +73,14 @@
             <attribute name="port">${PlanCOSNamingPort + portOffset}</attribute>
             <attribute name="host">${PlanCOSNamingHost}</attribute>
         </gbean>
+        <gbean name="Server">
+            <attribute name="port">${PlanORBSSLPort + portOffset}</attribute>
+            <attribute name="host">${PlanORBSSLHost}</attribute>
+        </gbean>
+        <gbean name="UnprotectedServer">
+            <attribute name="port">${PlanORBPort + portOffset}</attribute>
+            <attribute name="host">${PlanORBHost}</attribute>
+        </gbean>
     </module>
 
     <module name="org.apache.geronimo.configs/system-database/${version}/car">
