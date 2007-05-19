@@ -254,9 +254,8 @@ public class FileKeystoreManager implements KeystoreManager, GBeanLifecycle {
         try {
             Class cls = loader.loadClass("javax.net.ssl.SSLContext");
             Object ctx = cls.getMethod("getInstance", new Class[] {String.class}).invoke(null, new Object[]{protocol});
-            Class kmc = loader.loadClass("[Ljavax.net.ssl.KeyManager;");
-            Class tmc = loader.loadClass("[Ljavax.net.ssl.TrustManager;");
-            Class src = loader.loadClass("java.security.SecureRandom");
+            Class kmc = Class.forName("[Ljavax.net.ssl.KeyManager;", false, loader);
+            Class tmc = Class.forName("[Ljavax.net.ssl.TrustManager;", false, loader);            Class src = loader.loadClass("java.security.SecureRandom");
             cls.getMethod("init", new Class[]{kmc, tmc, src}).invoke(ctx, new Object[]{
                                                                             keyInstance == null ? null : keyInstance.getKeyManager(algorithm, keyAlias, null),
                                                                             trustInstance == null ? null : trustInstance.getTrustManager(algorithm, null),
@@ -307,8 +306,8 @@ public class FileKeystoreManager implements KeystoreManager, GBeanLifecycle {
         try {
             Class cls = loader.loadClass("javax.net.ssl.SSLContext");
             Object ctx = cls.getMethod("getInstance", new Class[] {String.class}).invoke(null, new Object[]{protocol});
-            Class kmc = loader.loadClass("[Ljavax.net.ssl.KeyManager;");
-            Class tmc = loader.loadClass("[Ljavax.net.ssl.TrustManager;");
+            Class kmc = Class.forName("[Ljavax.net.ssl.KeyManager;", false, loader);
+            Class tmc = Class.forName("[Ljavax.net.ssl.TrustManager;", false, loader);
             Class src = loader.loadClass("java.security.SecureRandom");
             cls.getMethod("init", new Class[]{kmc, tmc, src}).invoke(ctx, new Object[]{keyInstance.getKeyManager(algorithm, keyAlias, null),
                                                                             trustInstance == null ? null : trustInstance.getTrustManager(algorithm, null),
