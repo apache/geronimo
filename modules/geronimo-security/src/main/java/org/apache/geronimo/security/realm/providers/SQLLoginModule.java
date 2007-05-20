@@ -255,6 +255,8 @@ public class SQLLoginModule implements LoginModule {
             }
         } catch (SQLException sqle) {
             throw (LoginException) new LoginException("SQL error").initCause(sqle);
+        } catch (Exception e) {
+            throw (LoginException) new LoginException("Could not access datasource").initCause(e);
         }
 
         return true;
