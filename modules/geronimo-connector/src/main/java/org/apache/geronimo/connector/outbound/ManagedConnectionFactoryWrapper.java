@@ -254,16 +254,17 @@ public class ManagedConnectionFactoryWrapper implements GBeanLifecycle, DynamicG
         return null;
     }
 
-    public Object getConnectionFactory() {
+    public Object getConnectionFactory() throws ResourceException {
         return $getResource();
     }
 
-    public Object $getResource() {
-        return proxy;
+    public Object $getResource() throws ResourceException {
+        return connectionManagerContainer.createConnectionFactory(managedConnectionFactory);
     }
 
-    public Object $getConnectionFactory() {
-        return connectionFactory;
+    public Object $getConnectionFactory() throws ResourceException {
+        return connectionManagerContainer.createConnectionFactory(managedConnectionFactory);
+
     }
 
     public ManagedConnectionFactory $getManagedConnectionFactory() {

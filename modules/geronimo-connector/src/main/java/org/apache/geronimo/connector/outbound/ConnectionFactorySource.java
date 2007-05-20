@@ -17,6 +17,8 @@
 
 package org.apache.geronimo.connector.outbound;
 
+import javax.resource.ResourceException;
+
 /**
  * @version $Rev$ $Date$
  */
@@ -30,6 +32,6 @@ public interface ConnectionFactorySource {
     // not be likely to be called by the casual observer.
     //
 
-    Object $getResource();
+    Object $getResource() throws ResourceException;
 
 }

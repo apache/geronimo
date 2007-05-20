@@ -52,5 +52,5 @@ public interface JCAManagedConnectionFactory extends org.apache.geronimo.managem
      */
     public Object getConnectionManager();
     
-    public Object getConnectionFactory();
+    public Object getConnectionFactory() throws Exception;
 }
