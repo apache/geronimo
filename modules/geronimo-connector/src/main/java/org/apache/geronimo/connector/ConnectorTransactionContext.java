@@ -16,45 +16,45 @@
  */
 package org.apache.geronimo.connector;
 
-import java.util.Map;
 import java.util.HashMap;
-import java.util.Iterator;
-
-import javax.transaction.Transaction;
-import javax.transaction.Synchronization;
-import javax.transaction.RollbackException;
-import javax.transaction.SystemException;
-import javax.transaction.Status;
-
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+
+import javax.transaction.Status;
+import javax.transaction.Synchronization;
+import javax.transaction.SystemException;
+import javax.transaction.Transaction;
+
 import org.apache.geronimo.connector.outbound.TransactionCachingInterceptor;
+import org.apache.geronimo.transaction.manager.TransactionImpl;
 
 /**
  * @version $Rev$ $Date$
  */
 public class ConnectorTransactionContext {
-    private static final ConcurrentHashMap DATA_INDEX = new ConcurrentHashMap();
+    private static final ConcurrentHashMap<Transaction, ConnectorTransactionContext> DATA_INDEX = new ConcurrentHashMap<Transaction, ConnectorTransactionContext>();
 
     public static ConnectorTransactionContext get(Transaction transaction) {
         if (transaction == null) {
             throw new NullPointerException("transaction is null");
         }
 
-        ConnectorTransactionContext ctx = (ConnectorTransactionContext) DATA_INDEX.get(transaction);
+        ConnectorTransactionContext ctx = DATA_INDEX.get(transaction);
         if (ctx == null) {
             ctx = new ConnectorTransactionContext();
 
             try {
-                if (transaction.getStatus() == Status.STATUS_ACTIVE) {
-                    transaction.registerSynchronization(new ConnectorSynchronization(ctx, transaction));
+                int status = transaction.getStatus();
+                if (status != Status.STATUS_COMMITTED && status != Status.STATUS_ROLLEDBACK && status != Status.STATUS_UNKNOWN) {
+                    ((TransactionImpl)transaction).registerInterposedSynchronization(new ConnectorSynchronization(ctx, transaction));
                     // Note: no synchronization is necessary here.  Since a transaction can only be associated with a single
                     // thread at a time, it should not be possible for someone else to have snuck in and created a
                     // ConnectorTransactionContext for this transaction.  We still protect against that with the putIfAbsent
                     // call below, and we simply have an extra transaction synchronization registered that won't do anything
                     DATA_INDEX.putIfAbsent(transaction, ctx);
                 }
-            } catch (RollbackException e) {
-                throw (IllegalStateException) new IllegalStateException("Transaction is already rolled back").initCause(e);
+//            } catch (RollbackException e) {
+//                throw (IllegalStateException) new IllegalStateException("Transaction is already rolled back").initCause(e);
             } catch (SystemException e) {
                 throw new RuntimeException("Unable to register ejb transaction synchronization callback", e);
             }
@@ -77,18 +77,18 @@ public class ConnectorTransactionContext {
         DATA_INDEX.remove(transaction);
     }
 
-    private Map managedConnections;
+    private Map<ConnectionReleaser, TransactionCachingInterceptor.ManagedConnectionInfos> managedConnections;
 
     private synchronized TransactionCachingInterceptor.ManagedConnectionInfos getManagedConnectionInfo(ConnectionReleaser key) {
         if (managedConnections == null) {
             return null;
         }
-        return (TransactionCachingInterceptor.ManagedConnectionInfos) managedConnections.get(key);
+        return managedConnections.get(key);
     }
 
     private synchronized void setManagedConnectionInfo(ConnectionReleaser key, TransactionCachingInterceptor.ManagedConnectionInfos info) {
         if (managedConnections == null) {
-            managedConnections = new HashMap();
+            managedConnections = new HashMap<ConnectionReleaser, TransactionCachingInterceptor.ManagedConnectionInfos>();
         }
         managedConnections.put(key, info);
     }
@@ -109,9 +109,8 @@ public class ConnectorTransactionContext {
             try {
                 synchronized (ctx) {
                     if (ctx.managedConnections != null) {
-                        for (Iterator entries = ctx.managedConnections.entrySet().iterator(); entries.hasNext();) {
-                            Map.Entry entry = (Map.Entry) entries.next();
-                            ConnectionReleaser key = (ConnectionReleaser) entry.getKey();
+                        for (Map.Entry<ConnectionReleaser, TransactionCachingInterceptor.ManagedConnectionInfos> entry : ctx.managedConnections.entrySet()) {
+                            ConnectionReleaser key = entry.getKey();
                             key.afterCompletion(entry.getValue());
                         }
                         //If BeanTransactionContext never reuses the same instance for sequential BMT, this
