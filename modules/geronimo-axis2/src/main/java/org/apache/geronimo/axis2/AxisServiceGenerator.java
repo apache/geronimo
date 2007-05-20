@@ -57,6 +57,8 @@ import org.apache.axis2.jaxws.description.builder.WsdlGenerator;
 import org.apache.axis2.jaxws.description.builder.converter.JavaClassToDBCConverter;
 import org.apache.axis2.jaxws.server.JAXWSMessageReceiver;
 import org.apache.axis2.wsdl.WSDLUtil;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.jaxws.PortInfo;
 import org.apache.ws.commons.schema.XmlSchemaComplexType;
 import org.apache.ws.commons.schema.XmlSchemaElement;
@@ -70,6 +72,7 @@ import org.apache.ws.commons.schema.XmlSchemaType;
  * @version $Rev$ $Date$
  */
 public class AxisServiceGenerator {
+    private static final Log log = LogFactory.getLog(AxisServiceGenerator.class);
     
     private static String WSDL_ENCODING = "UTF-8";
     
@@ -134,9 +137,13 @@ public class AxisServiceGenerator {
         }
 
         List<ServiceDescription> serviceDescList = DescriptionFactory.createServiceDescriptionFromDBCMap(dbcMap);
-        ServiceDescription sd = serviceDescList.get(0);
-        Parameter serviceDescription = new Parameter(EndpointDescription.AXIS_SERVICE_PARAMETER, sd.getEndpointDescriptions()[0]);
-        service.addParameter(serviceDescription);
+        if ((serviceDescList != null) && (serviceDescList.size() > 0)) {
+            ServiceDescription sd = serviceDescList.get(0);
+            Parameter serviceDescription = new Parameter(EndpointDescription.AXIS_SERVICE_PARAMETER, sd.getEndpointDescriptions()[0]);
+            service.addParameter(serviceDescription);
+        } else {
+            log.debug("No ServiceDescriptions found.");
+        }
 
         return service;
     }
@@ -162,9 +169,10 @@ public class AxisServiceGenerator {
     protected Definition getWSDLDefinition(PortInfo portInfo, URL configurationBaseUrl, ClassLoader classLoader) throws IOException, WSDLException {
         String wsdlFile = portInfo.getWsdlFile();
         Definition wsdlDefinition = null;
-        if(wsdlFile == null || wsdlFile.equals(""))
+        if (wsdlFile == null || wsdlFile.equals("")) {
+            log.debug("A WSDL file was not supplied.");
             return null;
-        else {
+        } else {
             URL wsdlURL = getWsdlURL(wsdlFile, configurationBaseUrl, classLoader);
             InputStream wsdlStream;
             try {
