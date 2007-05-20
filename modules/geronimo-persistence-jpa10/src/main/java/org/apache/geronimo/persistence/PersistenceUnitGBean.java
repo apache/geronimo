@@ -35,6 +35,7 @@ import javax.persistence.spi.PersistenceProvider;
 import javax.persistence.spi.PersistenceUnitInfo;
 import javax.persistence.spi.PersistenceUnitTransactionType;
 import javax.sql.DataSource;
+import javax.resource.ResourceException;
 
 import org.apache.geronimo.connector.outbound.ConnectionFactorySource;
 import org.apache.geronimo.gbean.GBeanInfo;
@@ -73,23 +74,26 @@ public class PersistenceUnitGBean implements GBeanLifecycle {
             List<String> mappingFileNamesUntyped,
             List<String> jarFileUrlsUntyped,
             String persistenceUnitRoot,
-            List<String> managedClassNamesUntyped,
+            List<String> managedClassNames,
             boolean excludeUnlistedClassesValue,
             Properties properties,
             TransactionManagerImpl transactionManager,
             Collection<ExtendedEntityManagerRegistry > entityManagerRegistry,
             URL configurationBaseURL,
-            ClassLoader classLoader) throws URISyntaxException, MalformedURLException {
+            ClassLoader classLoader) throws URISyntaxException, MalformedURLException, ResourceException {
         List<String> mappingFileNames = mappingFileNamesUntyped == null? new ArrayList<String>(): new ArrayList<String>(mappingFileNamesUntyped);
         this.persistenceUnitRoot = persistenceUnitRoot;
         URI configurationBaseURI = configurationBaseURL.toURI();
-        URL rootURL = configurationBaseURI.resolve(persistenceUnitRoot).normalize().toURL();
-        List<URL> jarFileUrls = new ArrayList<URL>();
-        for (String urlString: jarFileUrlsUntyped) {
-            URL url = configurationBaseURI.resolve(urlString).normalize().toURL();
-            jarFileUrls.add(url);
+        URL rootURL = null;
+        List<URL> jarFileUrls = null;
+        if (!excludeUnlistedClassesValue) {
+            rootURL = configurationBaseURI.resolve(persistenceUnitRoot).normalize().toURL();
+            jarFileUrls = new ArrayList<URL>();
+            for (String urlString: jarFileUrlsUntyped) {
+                URL url = configurationBaseURI.resolve(urlString).normalize().toURL();
+                jarFileUrls.add(url);
+            }
         }
-        List<String> managedClassNames = managedClassNamesUntyped == null? new ArrayList<String>(): new ArrayList<String>(managedClassNamesUntyped);
         PersistenceUnitTransactionType persistenceUnitTransactionType = persistenceUnitTransactionTypeString == null? PersistenceUnitTransactionType.JTA: PersistenceUnitTransactionType.valueOf(persistenceUnitTransactionTypeString);
 
         if (persistenceProviderClassName == null) persistenceProviderClassName = "org.apache.openjpa.persistence.PersistenceProviderImpl";

@@ -242,30 +242,31 @@ public class PersistenceUnitBuilder implements ModuleBuilderExtension {
         }
         gbeanData.setAttribute("mappingFileNames", mappingFileNames);
 
+        boolean excludeUnlistedClasses = persistenceUnit.isSetExcludeUnlistedClasses() && persistenceUnit.getExcludeUnlistedClasses();
+        gbeanData.setAttribute("excludeUnlistedClasses", excludeUnlistedClasses);
+
+
         gbeanData.setAttribute("persistenceUnitRoot", persistenceModulePath);
 
-        List<String> jarFileUrls = new ArrayList<String>();
-        //add the artifact the persistence.xml is in
-        //TODO since we are setting the root url, this might not be needed.  On the other hand,
-        //we might need to add all the manifest cp entries referenced from here.
-        jarFileUrls.add(persistenceModulePath);
-        //add the specified locations in the ear
-        String[] jarFileUrlStrings = persistenceUnit.getJarFileArray();
-        for (String jarFileUrlString : jarFileUrlStrings) {
-            jarFileUrls.add(jarFileUrlString.trim());
-        }
-        gbeanData.setAttribute("jarFileUrls", jarFileUrls);
-
-        String[] managedClassNameStrings = persistenceUnit.getClass1Array();
-        List<String> managedClassNames = new ArrayList<String>();
-        for (String managedClassNameString : managedClassNameStrings) {
-            managedClassNames.add(managedClassNameString.trim());
-        }
-        gbeanData.setAttribute("managedClassNames", managedClassNames);
-        if (persistenceUnit.isSetExcludeUnlistedClasses()) {
-            gbeanData.setAttribute("excludeUnlistedClasses", persistenceUnit.getExcludeUnlistedClasses());
+        if (excludeUnlistedClasses) {
+            String[] managedClassNameStrings = persistenceUnit.getClass1Array();
+            List<String> managedClassNames = new ArrayList<String>();
+            for (String managedClassNameString : managedClassNameStrings) {
+                managedClassNames.add(managedClassNameString.trim());
+            }
+            gbeanData.setAttribute("managedClassNames", managedClassNames);
         } else {
-            gbeanData.setAttribute("excludeUnlistedClasses", false);
+            List<String> jarFileUrls = new ArrayList<String>();
+            //add the artifact the persistence.xml is in
+            //TODO since we are setting the root url, this might not be needed.  On the other hand,
+            //we might need to add all the manifest cp entries referenced from here.
+//            jarFileUrls.add(persistenceModulePath);
+            //add the specified locations in the ear
+            String[] jarFileUrlStrings = persistenceUnit.getJarFileArray();
+            for (String jarFileUrlString : jarFileUrlStrings) {
+                jarFileUrls.add(jarFileUrlString.trim());
+            }
+            gbeanData.setAttribute("jarFileUrls", jarFileUrls);
         }
 
         Properties properties = new Properties();

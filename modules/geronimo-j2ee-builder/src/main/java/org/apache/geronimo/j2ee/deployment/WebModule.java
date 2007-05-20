@@ -45,6 +45,9 @@ public class WebModule extends Module {
     }
 
     public String getRelativePath(String path) {
+        if (isStandAlone()) {
+            return path;
+        }
         if (path.startsWith(getTargetPath())) {
             //in the war, remove war path and leading '/'
             path = path.substring(getTargetPath().length() + 1);

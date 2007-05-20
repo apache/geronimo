@@ -154,7 +154,7 @@ public class EjbModuleBuilder implements ModuleBuilder {
     }
 
     public Module createModule(File plan, JarFile moduleFile, Naming naming, ModuleIDBuilder idBuilder) throws DeploymentException {
-        return createModule(plan, moduleFile, "ejb", null, null, null, naming, idBuilder);
+        return createModule(plan, moduleFile, "ejb.jar", null, null, null, naming, idBuilder);
     }
 
     public Module createModule(Object plan, JarFile moduleFile, String targetPath, URL specDDUrl, Environment environment, Object moduleContextInfo, AbstractName earName, Naming naming, ModuleIDBuilder idBuilder) throws DeploymentException {
@@ -426,7 +426,7 @@ public class EjbModuleBuilder implements ModuleBuilder {
     public void initContext(EARContext earContext, Module module, ClassLoader classLoader) throws DeploymentException {
         EjbModule ejbModule = (EjbModule) module;
         EarData earData = (EarData) earContext.getGeneralData().get(EarData.class);
-        
+
         EjbJarInfo ejbJarInfo = getEjbJarInfo(earContext, ejbModule, classLoader);
 
         ejbModule.setEjbJarInfo(ejbJarInfo);
@@ -488,10 +488,10 @@ public class EjbModuleBuilder implements ModuleBuilder {
     private EjbJarInfo getEjbJarInfo(EARContext earContext, EjbModule ejbModule, ClassLoader classLoader) throws DeploymentException {
         EarData earData = (EarData) earContext.getGeneralData().get(EarData.class);
         if (earData.getEjbJars().isEmpty()) {
-            
-            // temporary classloader is used for processing ejb annotations and byte code manipulation during ejb load 
+
+            // temporary classloader is used for processing ejb annotations and byte code manipulation during ejb load
             TemporaryClassLoader temporaryClassLoader = new TemporaryClassLoader(new URL[0], classLoader);
-            
+
             // create an openejb app module for the ear containing all ejb modules
             AppModule appModule = new AppModule(classLoader, ejbModule.getEjbModule().getModuleId());
             for (EjbModule module : earData.getEjbModuels()) {
@@ -580,6 +580,7 @@ public class EjbModuleBuilder implements ModuleBuilder {
                 persistenceUnit.setJtaDataSource("?name=SystemDatasource");
             }
             persistenceUnit.setNonJtaDataSource("?name=NoTxDatasource");
+            persistenceUnit.setExcludeUnlistedClasses(true);
 
             Persistence persistence = new Persistence();
             persistence.setVersion("1.0");
