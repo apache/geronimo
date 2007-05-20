@@ -20,6 +20,7 @@ package org.apache.geronimo.timer.jdbc;
 import java.sql.SQLException;
 import javax.sql.DataSource;
 import javax.transaction.TransactionManager;
+import javax.resource.ResourceException;
 
 import java.util.concurrent.Executor;
 
@@ -44,7 +45,7 @@ public class JDBCStoreThreadPooledTransactionalTimer extends ThreadPooledTimer {
             TransactionManager transactionManager,
             ConnectionFactorySource managedConnectionFactoryWrapper,
             Executor threadPool,
-            Kernel kernel) throws SQLException {
+            Kernel kernel) throws SQLException, ResourceException {
         super(new TransactionalExecutorTaskFactory(transactionManager, repeatCount),
                 new JDBCWorkerPersistence(kernel.getKernelName(), (DataSource)managedConnectionFactoryWrapper.$getResource(), false), threadPool, transactionManager);
     }
