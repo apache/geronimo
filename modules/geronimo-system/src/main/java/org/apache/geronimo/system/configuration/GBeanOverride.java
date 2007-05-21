@@ -415,6 +415,13 @@ public class GBeanOverride implements Serializable {
                         DocumentBuilderFactory factory = XmlUtil.newDocumentBuilderFactory();
                         DocumentBuilder builder = factory.newDocumentBuilder();
 
+                        /**
+                         * if there was a value such as jdbc url with &amp; then when that value was oulled
+                         * from the config.xml the &amp; would have been replaced/converted to '&', we need to check
+                         * and change it back because an & would create a parse exception.
+                         */
+                        value = value.replaceAll("&(?!amp;)", "&amp;");
+
                         // Wrap value in an element to be sure we can handle xml or text values
                         String xml = "<fragment>" + value + "</fragment>";
                         InputSource input = new InputSource(new StringReader(xml));
