@@ -66,7 +66,7 @@ function isEmptyString(value){
         <tr>
             <td class="${backgroundClass}"> ${user.key} </td>
             <td class="${backgroundClass}">
-            <a href = "<portlet:actionURL portletMode="view"><portlet:param name="action" value="edit"/><portlet:param name="userId" value="${user.key}"/></portlet:actionURL>">Details</a>
+            <a href = "<portlet:actionURL portletMode="view"><portlet:param name="action" value="edit"/><portlet:param name="userId" value="${user.key}"/></portlet:actionURL>">Edit</a>
             &nbsp;
             <a href="<portlet:actionURL><portlet:param name="userId" value="${user.key}"/><portlet:param name="action" value="delete"/></portlet:actionURL>" onclick="return confirm('Confirm Delete user ${user.key}?');">Delete</a>
             </td>

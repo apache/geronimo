@@ -72,6 +72,22 @@ function <portlet:namespace/>passwordMatch(){
             
         </td>
     </tr>   
+    <c:choose>
+      <c:when test="${add}">
+        <tr>
+          <td width="200">Group</td>
+          <td>
+            <select name="group">
+              <c:forEach var="groups" items="${groupsInfo}">
+                <option value="${groups.key}">${groups.key}</option>
+              </c:forEach>
+            </select>
+          </td>
+        </tr>
+      </c:when>
+      <c:otherwise>
+      </c:otherwise>
+    </c:choose>
     <tr>
         <td width="200">Password</td>
         <td><input type="password" name="password" value=""></td>

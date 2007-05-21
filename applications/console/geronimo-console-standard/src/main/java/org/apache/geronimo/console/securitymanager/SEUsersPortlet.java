@@ -56,25 +56,35 @@ public class SEUsersPortlet extends AbstractSecurityManagerPortlet {
                 Hashtable userInfo = new Hashtable();
                 for (int i = 0; i < users.length; i++) {
                     String currentUser = users[i];
-                    userInfo.put(currentUser, SERealmUserHelper
-                            .getPassword(currentUser.toString()));
+                    // We really shouldn't be attaching everyone's password as portlet data!!!
+                    // And the current Portlet doesn't use it, so why send it....
+                    // userInfo.put(currentUser, SERealmUserHelper.getPassword(currentUser.toString()));
+                    userInfo.put(currentUser, currentUser.toString());
                 }
 
                 String currAction = renderRequest.getParameter("currAction");
-                renderRequest.setAttribute("message", renderRequest
-                        .getParameter("message"));
+                renderRequest.setAttribute("message", renderRequest.getParameter("message"));
 
-                if ("new".equals(currAction) || "edit".equals(currAction)) {
-                    if (currAction.equals("edit")) {
-                        String user = renderRequest.getParameter("user");
-                        renderRequest.setAttribute("userID", user);
-                        renderRequest.setAttribute("password",
-                                SERealmUserHelper.getPassword(user));
+                if ("new".equals(currAction)) {
+                    String[] groups = SERealmGroupHelper.getGroups();
+                    Hashtable groupsInfo = new Hashtable();
+                    for (int i = 0; i < groups.length; i++) {
+                        String currentGroup = groups[i];
+                        groupsInfo.put(currentGroup, SERealmGroupHelper.getUsers(currentGroup));
                     }
+                    renderRequest.setAttribute("groupsInfo", groupsInfo);
+                    addMaximizedView.include(renderRequest, renderResponse);
+                } else if ("edit".equals(currAction)) {
+                    String user = renderRequest.getParameter("user");
+                    renderRequest.setAttribute("userID", user);
+                    // We really shouldn't be sending the user's password as portlet data!!!
+                    // And the current Portlet doesn't use it, so why send it....
+                    //renderRequest.setAttribute("password", SERealmUserHelper.getPassword(user));
+                    // Current Portlet doesn't use groupsInfo, so why send it 
+                    //renderRequest.setAttribute("groupsInfo", groupsInfo);
                     addMaximizedView.include(renderRequest, renderResponse);
                 } else {
-                    if (WindowState.NORMAL.equals(renderRequest
-                            .getWindowState())) {
+                    if (WindowState.NORMAL.equals(renderRequest.getWindowState())) {
                         renderRequest.setAttribute("userInfo", userInfo);
                         normalView.include(renderRequest, renderResponse);
                     } else {
@@ -117,19 +127,25 @@ public class SEUsersPortlet extends AbstractSecurityManagerPortlet {
         }
         String user = actionRequest.getParameter("userId");
         String password = actionRequest.getParameter("password");
+        String group = actionRequest.getParameter("group");
 
         try {
             if ("delete".equals(action)) {
-                SERealmUserHelper.deleteUser(user);
-                String[] groups = SERealmGroupHelper.getGroups();
-                for (int i = 0; i < groups.length; i++) {
-                    String currentGroup = groups[i];
-                    if (SERealmGroupHelper.isGroupMember(currentGroup, user)) {
-                        Collection list = SERealmGroupHelper.getUsers(currentGroup);
-                        list.remove(user);
-                        String[] groupUsers = (String[]) list.toArray(new String[0]);
-                        SERealmGroupHelper.updateGroup(currentGroup, groupUsers);
+                try {
+                    String[] groups = SERealmGroupHelper.getGroups();
+                    for (int i = 0; i < groups.length; i++) {
+                        String currentGroup = groups[i];
+                        if (SERealmGroupHelper.isGroupMember(currentGroup, user)) {
+                            Collection list = SERealmGroupHelper.getUsers(currentGroup);
+                            list.remove(user);
+                            String[] groupUsers = (String[]) list.toArray(new String[0]);
+                            SERealmGroupHelper.updateGroup(currentGroup, groupUsers);
+                        }
                     }
+                    SERealmUserHelper.deleteUser(user);
+                } catch (Exception e) {
+                    actionResponse.setRenderParameter("message",
+                            "ERROR: Error in SEUsersPortlet while deleting user "+user+". Cause: "+e.getMessage());
                 }
             } else if ("update".equals(action)) {
                 if(password != null && !password.equals("")) {
@@ -139,9 +155,15 @@ public class SEUsersPortlet extends AbstractSecurityManagerPortlet {
             } else if ("add".equals(action)) {
                 try {
                     SERealmUserHelper.addUser(user, password);
+                    if ((group != null) && (!group.equals(""))) {
+                        Collection list = SERealmGroupHelper.getUsers(group);
+                        list.add(user);
+                        String[] groupUsers = (String[]) list.toArray(new String[0]);
+                        SERealmGroupHelper.updateGroup(group, groupUsers);
+                    }
                 } catch (Exception e) {
                     actionResponse.setRenderParameter("message",
-                            "ERROR: Error in SEUsersPortlet while adding user "+user+". Cause: "+e.getMessage());
+                            "ERROR: Error in SEUsersPortlet while adding user "+user+" to group "+group+". Cause: "+e.getMessage());
                 }
             } else if ("new".equals(action)) {
                 currAction = "new";
