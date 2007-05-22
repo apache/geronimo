@@ -21,6 +21,8 @@
 <module xmlns="http://geronimo.apache.org/xml/ns/deployment-${geronimoSchemaVersion}">
 
     <gbean name="EJBBuilder" class="org.apache.geronimo.openejb.deployment.EjbModuleBuilder">
+        <attribute name="defaultCmpJTADataSource">SystemDatasource</attribute>
+        <attribute name="defaultCmpNonJTADataSource">NoTxDatasource</attribute>
         <reference name="OpenEjbSystem">
             <name>OpenEjbSystem</name>
         </reference>

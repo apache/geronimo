@@ -121,6 +121,8 @@ public class EjbModuleBuilder implements ModuleBuilder {
     private static final String OPENEJBJAR_NAMESPACE = XmlUtil.OPENEJBJAR_QNAME.getNamespaceURI();
 
     private final Environment defaultEnvironment;
+    private final String defaultCmpJTADataSource;
+    private final String defaultCmpNonJTADataSource;
     private final NamespaceDrivenBuilderCollection securityBuilders;
     private final NamespaceDrivenBuilderCollection serviceBuilders;
     private final NamingBuilder namingBuilder;
@@ -129,7 +131,8 @@ public class EjbModuleBuilder implements ModuleBuilder {
     private final Collection<ModuleBuilderExtension> moduleBuilderExtensions;
 
     public EjbModuleBuilder(Environment defaultEnvironment,
-            OpenEjbSystem openEjbSystem,
+
+            String defaultCmpJTADataSource, String defaultCmpNonJTADataSource, OpenEjbSystem openEjbSystem,
             Collection<ModuleBuilderExtension> moduleBuilderExtensions,
             Collection securityBuilders,
             Collection serviceBuilders,
@@ -138,6 +141,8 @@ public class EjbModuleBuilder implements ModuleBuilder {
 
         this.openEjbSystem = openEjbSystem;
         this.defaultEnvironment = defaultEnvironment;
+        this.defaultCmpJTADataSource = defaultCmpJTADataSource;
+        this.defaultCmpNonJTADataSource = defaultCmpNonJTADataSource;
         this.securityBuilders = new NamespaceDrivenBuilderCollection(securityBuilders, GerSecurityDocument.type.getDocumentElementName());
         this.serviceBuilders = new NamespaceDrivenBuilderCollection(serviceBuilders, GBeanBuilder.SERVICE_QNAME);
         this.namingBuilder = namingBuilders;
@@ -566,7 +571,7 @@ public class EjbModuleBuilder implements ModuleBuilder {
                 if (cmpConnectionFactory != null) {
                     String datasourceName = cmpConnectionFactory.getResourceLink();
                     if (datasourceName != null) {
-                        jtaDataSource = "?name=" + datasourceName;
+                        jtaDataSource = datasourceName.trim();
                     }
                 }
             }
@@ -577,9 +582,9 @@ public class EjbModuleBuilder implements ModuleBuilder {
             if (jtaDataSource != null) {
                 persistenceUnit.setJtaDataSource(jtaDataSource);
             } else {
-                persistenceUnit.setJtaDataSource("?name=SystemDatasource");
+                persistenceUnit.setJtaDataSource(defaultCmpJTADataSource);
             }
-            persistenceUnit.setNonJtaDataSource("?name=NoTxDatasource");
+            persistenceUnit.setNonJtaDataSource(defaultCmpNonJTADataSource);
             persistenceUnit.setExcludeUnlistedClasses(true);
 
             Persistence persistence = new Persistence();
@@ -767,6 +772,8 @@ public class EjbModuleBuilder implements ModuleBuilder {
     static {
         GBeanInfoBuilder infoBuilder = GBeanInfoBuilder.createStatic(EjbModuleBuilder.class, NameFactory.MODULE_BUILDER);
         infoBuilder.addAttribute("defaultEnvironment", Environment.class, true);
+        infoBuilder.addAttribute("defaultCmpJTADataSource", String.class, true);
+        infoBuilder.addAttribute("defaultCmpNonJTADataSource", String.class, true);
         infoBuilder.addReference("OpenEjbSystem", OpenEjbSystem.class);
         infoBuilder.addReference("ModuleBuilderExtensions", ModuleBuilderExtension.class, NameFactory.MODULE_BUILDER);
         infoBuilder.addReference("SecurityBuilders", NamespaceDrivenBuilder.class, NameFactory.MODULE_BUILDER);
@@ -776,6 +783,8 @@ public class EjbModuleBuilder implements ModuleBuilder {
 
         infoBuilder.setConstructor(new String[]{
                 "defaultEnvironment",
+                "defaultCmpJTADataSource",
+                "defaultCmpNonJTADataSource",
                 "OpenEjbSystem",
                 "ModuleBuilderExtensions",
                 "SecurityBuilders",
