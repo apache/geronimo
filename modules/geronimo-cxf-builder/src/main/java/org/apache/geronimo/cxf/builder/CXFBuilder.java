@@ -41,17 +41,21 @@ import org.apache.cxf.jaxws.javaee.PortComponentType;
 import org.apache.cxf.jaxws.javaee.ServiceImplBeanType;
 import org.apache.cxf.jaxws.javaee.WebserviceDescriptionType;
 import org.apache.cxf.jaxws.javaee.WebservicesType;
+import org.apache.cxf.jaxws.support.JaxWsImplementorInfo;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.cxf.client.CXFServiceReference;
 import org.apache.geronimo.cxf.pojo.POJOWebServiceContainerFactoryGBean;
+import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.j2ee.deployment.Module;
 import org.apache.geronimo.j2ee.deployment.WebServiceBuilder;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
+import org.apache.geronimo.jaxws.JAXWSUtils;
 import org.apache.geronimo.jaxws.PortInfo;
 import org.apache.geronimo.jaxws.builder.EndpointInfoBuilder;
 import org.apache.geronimo.jaxws.builder.JAXWSServiceBuilder;
+import org.apache.geronimo.jaxws.builder.WsdlGenerator;
 import org.apache.geronimo.jaxws.client.EndpointInfo;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.xbeans.geronimo.naming.GerServiceRefType;
@@ -157,7 +161,7 @@ public class CXFBuilder extends JAXWSServiceBuilder {
 
             return map;
         } catch (FileNotFoundException e) {
-            return Collections.EMPTY_MAP;
+            return Collections.emptyMap();
         } catch (IOException ex) {
             throw new DeploymentException("Unable to read " + wsDDUrl, ex);
         } catch (JAXBException ex) {
@@ -227,6 +231,47 @@ public class CXFBuilder extends JAXWSServiceBuilder {
         }
         return in;
     }
+    
+    /*
+    @Override
+    protected void initialize(GBeanData targetGBean, Class serviceClass, PortInfo portInfo, Module module) 
+        throws DeploymentException {
+        if (isWsdlSet(portInfo, serviceClass)) {
+            LOG.debug("Service " + portInfo.getServiceName() + " has WSDL.");
+            return;
+        }        
+        LOG.debug("Service " + portInfo.getServiceName() + " does not have WSDL. Generating WSDL...");
+
+        WsdlGenerator generator = new WsdlGenerator();
+        generator.setSunSAAJ();
+        
+        JaxWsImplementorInfo serviceInfo = new JaxWsImplementorInfo(serviceClass);
+        
+        // set wsdl service
+        if (portInfo.getWsdlService() == null) {
+            generator.setWsdlService(serviceInfo.getServiceName());
+        } else {
+            generator.setWsdlService(portInfo.getWsdlService());
+        }
+        
+        // set wsdl port
+        if (portInfo.getWsdlPort() == null) {
+            generator.setWsdlPort(serviceInfo.getEndpointName());
+        } else {
+            generator.setWsdlPort(portInfo.getWsdlPort());
+        }
+                        
+        String wsdlFile = generator.generateWsdl(module, serviceClass.getName(), module.getEarContext(), portInfo);
+        portInfo.setWsdlFile(wsdlFile);
+        
+        LOG.debug("Generated " + wsdlFile + " for service " + portInfo.getServiceName()); 
+    }   
+    
+    private boolean isWsdlSet(PortInfo portInfo, Class serviceClass) {
+        return (portInfo.getWsdlFile() != null && !portInfo.getWsdlFile().trim().equals(""))
+                || JAXWSUtils.containsWsdlLocation(serviceClass, serviceClass.getClassLoader());
+    }
+    */
     
     public static final GBeanInfo GBEAN_INFO;
 
