@@ -17,7 +17,6 @@
 
 package org.apache.geronimo.axis2;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
@@ -27,18 +26,19 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import javax.wsdl.Binding;
 import javax.wsdl.Definition;
 import javax.wsdl.Port;
 import javax.wsdl.Service;
 import javax.wsdl.WSDLException;
+import javax.wsdl.extensions.http.HTTPBinding;
+import javax.wsdl.extensions.soap.SOAPBinding;
+import javax.wsdl.extensions.soap12.SOAP12Binding;
 import javax.wsdl.factory.WSDLFactory;
 import javax.wsdl.xml.WSDLReader;
-import javax.wsdl.xml.WSDLWriter;
 import javax.xml.namespace.QName;
 import javax.xml.ws.WebServiceException;
 
-import org.apache.axiom.om.OMElement;
-import org.apache.axiom.om.OMNamespace;
 import org.apache.axis2.Constants;
 import org.apache.axis2.description.AxisOperation;
 import org.apache.axis2.description.AxisService;
@@ -48,6 +48,7 @@ import org.apache.axis2.description.WSDLToAxisServiceBuilder;
 import org.apache.axis2.jaxws.description.DescriptionFactory;
 import org.apache.axis2.jaxws.description.EndpointDescription;
 import org.apache.axis2.jaxws.description.ServiceDescription;
+import org.apache.axis2.jaxws.description.builder.BindingTypeAnnot;
 import org.apache.axis2.jaxws.description.builder.DescriptionBuilderComposite;
 import org.apache.axis2.jaxws.description.builder.MethodDescriptionComposite;
 import org.apache.axis2.jaxws.description.builder.WebServiceAnnot;
@@ -60,11 +61,6 @@ import org.apache.axis2.wsdl.WSDLUtil;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.jaxws.PortInfo;
-import org.apache.ws.commons.schema.XmlSchemaComplexType;
-import org.apache.ws.commons.schema.XmlSchemaElement;
-import org.apache.ws.commons.schema.XmlSchemaParticle;
-import org.apache.ws.commons.schema.XmlSchemaSequence;
-import org.apache.ws.commons.schema.XmlSchemaType;
 
 //TODO: Handle RPC Style Messaging
 
@@ -89,6 +85,32 @@ public class AxisServiceGenerator {
 
         Map<String, Port> portMap = wsdlService.getPorts();
         Port port = portMap.values().iterator().next();
+        Binding binding = port.getBinding();
+        List extElements = binding.getExtensibilityElements();
+        Iterator extElementsIterator =extElements.iterator();
+        String  bindingS = javax.xml.ws.soap.SOAPBinding.SOAP11HTTP_BINDING; //this is the default.
+        while (extElementsIterator.hasNext()) {
+            Object o = extElementsIterator.next();
+            if (o instanceof SOAPBinding) {
+                SOAPBinding sp = (SOAPBinding)o;
+                if (sp.getElementType().getNamespaceURI().equals("http://schemas.xmlsoap.org/wsdl/soap/")) {
+                    //todo:  how to we tell if it is MTOM or not.
+                    bindingS = javax.xml.ws.soap.SOAPBinding.SOAP11HTTP_BINDING;
+                } 
+            } else if (o instanceof SOAP12Binding) {
+                SOAP12Binding sp = (SOAP12Binding)o;
+                if (sp.getElementType().getNamespaceURI().equals("http://schemas.xmlsoap.org/wsdl/soap12/")) {
+                   //todo:  how to we tell if it is MTOM or not.
+                    bindingS = javax.xml.ws.soap.SOAPBinding.SOAP12HTTP_BINDING;
+                }
+            } else if (o instanceof HTTPBinding) {
+                HTTPBinding sp = (HTTPBinding)o;
+                if (sp.getElementType().getNamespaceURI().equals("http://www.w3.org/2004/08/wsdl/http")) {
+                    bindingS = javax.xml.ws.http.HTTPBinding.HTTP_BINDING;
+                }               
+            }
+        }
+        
         String portName = portInfo.getWsdlPort() == null ? port.getName() : portInfo.getWsdlPort().getLocalPart();
         QName serviceQName = portInfo.getWsdlService() == null ? wsdlService.getQName() : portInfo.getWsdlService();
 
@@ -99,7 +121,7 @@ public class AxisServiceGenerator {
         service.addParameter(new Parameter(Constants.SERVICE_CLASS, endpointClassName));
         service.setWsdlFound(true);
         service.setClassLoader(classLoader);
-
+        
         Class endPointClass = classLoader.loadClass(endpointClassName);
         JavaClassToDBCConverter converter = new JavaClassToDBCConverter(endPointClass);
         HashMap<String, DescriptionBuilderComposite> dbcMap = converter.produceDBC();
@@ -109,17 +131,25 @@ public class AxisServiceGenerator {
         dbc.setWsdlDefinition(wsdlDefinition);
         dbc.setClassName(endpointClassName);
         dbc.setCustomWsdlGenerator(new WSDLGeneratorImpl(wsdlDefinition));
+        
         if (dbc.getWebServiceAnnot() != null) { //information specified in .wsdl should overwrite annotation.
             WebServiceAnnot serviceAnnot = dbc.getWebServiceAnnot();
             serviceAnnot.setPortName(portName);
             serviceAnnot.setServiceName(service.getName());
             serviceAnnot.setTargetNamespace(service.getTargetNamespace());
+            if (dbc.getBindingTypeAnnot() !=null && bindingS != null && !bindingS.equals("")) {
+                BindingTypeAnnot bindingAnnot = dbc.getBindingTypeAnnot();
+                bindingAnnot.setValue(bindingS);
+            }
         } else if (dbc.getWebServiceProviderAnnot() != null) { 
-            //TODO: can webservice and webservice provider annot co-exist?
             WebServiceProviderAnnot serviceProviderAnnot = dbc.getWebServiceProviderAnnot(); 
             serviceProviderAnnot.setPortName(portName);
             serviceProviderAnnot.setServiceName(service.getName());
             serviceProviderAnnot.setTargetNamespace(service.getTargetNamespace());
+            if (dbc.getBindingTypeAnnot() !=null && bindingS != null && !bindingS.equals("")) {
+                BindingTypeAnnot bindingAnnot = dbc.getBindingTypeAnnot();
+                bindingAnnot.setValue(bindingS);
+            }
         }
 
         for(Iterator<AxisOperation> opIterator = service.getOperations() ; opIterator.hasNext() ;){
@@ -135,7 +165,7 @@ public class AxisServiceGenerator {
                 }
             }
         }
-
+        
         List<ServiceDescription> serviceDescList = DescriptionFactory.createServiceDescriptionFromDBCMap(dbcMap);
         if ((serviceDescList != null) && (serviceDescList.size() > 0)) {
             ServiceDescription sd = serviceDescList.get(0);
