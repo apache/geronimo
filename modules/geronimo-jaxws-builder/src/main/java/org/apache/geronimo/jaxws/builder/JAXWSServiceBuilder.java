@@ -306,7 +306,7 @@ public abstract class JAXWSServiceBuilder implements WebServiceBuilder {
     public boolean configurePOJO(GBeanData targetGBean,
                                  String servletName,
                                  Module module,
-                                 String seiClassName,
+                                 String servletClassName,
                                  DeploymentContext context)
             throws DeploymentException {
         Map sharedContext = ((WebModule) module).getSharedContext();
@@ -329,16 +329,16 @@ public abstract class JAXWSServiceBuilder implements WebServiceBuilder {
             LOG.warn("ModuleGBean not found. JNDI resource injection will not work.");
         }
 
-        LOG.info("Configuring POJO Web Service: " + servletName + " sei: " + seiClassName);
+        LOG.info("Configuring POJO Web Service: " + servletName + " sei: " + servletClassName);
 
         // verify that the class is loadable
         ClassLoader classLoader = context.getClassLoader();
-        loadClass(seiClassName, classLoader);
+        Class servletClass = loadClass(servletClassName, classLoader);
 
         AbstractName containerFactoryName = context.getNaming().createChildName(targetGBean.getAbstractName(), getContainerFactoryGBeanInfo().getName(), NameFactory.GERONIMO_SERVICE);
         GBeanData containerFactoryData = new GBeanData(containerFactoryName, getContainerFactoryGBeanInfo());
         containerFactoryData.setAttribute("portInfo", portInfo);
-        containerFactoryData.setAttribute("endpointClassName", seiClassName);
+        containerFactoryData.setAttribute("endpointClassName", servletClassName);
         containerFactoryData.setAttribute("componentContext", componentContext);
         try {
             context.addGBean(containerFactoryData);
@@ -355,6 +355,8 @@ public abstract class JAXWSServiceBuilder implements WebServiceBuilder {
                                                      ((EARContext)context).getTransactionManagerName());
         }
 
+        initialize(containerFactoryData, servletClass, portInfo, module);
+        
         return true;
     }
 
@@ -377,6 +379,10 @@ public abstract class JAXWSServiceBuilder implements WebServiceBuilder {
             return false;
         }
        
+        String beanClassName = (String)targetGBean.getAttribute("ejbClass");
+        // verify that the class is loadable
+        Class beanClass = loadClass(beanClassName, classLoader);
+        
         String location = portInfo.getLocation();
         if (location == null) {                   
             throw new DeploymentException("Endpoint URI for EJB WebService is missing");
@@ -386,7 +392,13 @@ public abstract class JAXWSServiceBuilder implements WebServiceBuilder {
         
         targetGBean.setAttribute("portInfo", portInfo);
         
+        initialize(targetGBean, beanClass, portInfo, module);
+        
         return true;
+    }
+    
+    protected void initialize(GBeanData targetGBean, Class wsClass, PortInfo info, Module module) 
+        throws DeploymentException {
     }
     
     Class<?> loadClass(String className, ClassLoader loader) throws DeploymentException {
