@@ -122,6 +122,19 @@
                                     <groupId>org.apache.yoko</groupId>
                                     <artifactId>yoko-rmi-spec</artifactId>
                                 </artifactItem>
+                                <!-- Added by G3180 to fix XML parsing issues in JRE 1.5_07 -> 1.5_11.  If problem is fixed, these 3 jars can be removed from lib/endorsed -->
+                                <artifactItem>
+                                    <groupId>xalan</groupId>
+                                    <artifactId>xalan</artifactId>
+                                </artifactItem>
+                                <artifactItem>
+                                    <groupId>xerces</groupId>
+                                    <artifactId>xercesImpl</artifactId>
+                                </artifactItem>
+                                <artifactItem>
+                                    <groupId>xml-apis</groupId>
+                                    <artifactId>xml-apis</artifactId>
+                                </artifactItem>
                             </artifactItems>
                             <outputDirectory>${project.build.directory}/classes/lib/endorsed</outputDirectory>
                         </configuration>
