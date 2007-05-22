@@ -220,6 +220,8 @@ public class XmlBeansUtil {
             }
         } catch (NullPointerException e) {
             //ignore
+        } catch (AssertionError e) {
+            //ignore.  Would be the NPE above if assertions were turned off
         }
 //        System.out.println("descriptor: " + dd.toString());
     }
