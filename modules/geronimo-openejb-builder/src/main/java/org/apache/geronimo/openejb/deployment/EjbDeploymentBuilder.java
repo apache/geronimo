@@ -207,11 +207,13 @@ public class EjbDeploymentBuilder {
                         EjbInterface.LOCAL_HOME.getJaccInterfaceName(),
                         remoteBean.getLocalHome(),
                         ejbModule.getClassLoader());
-                securityBuilder.addToPermissions(permissions,
+                if (remoteBean instanceof SessionBean) {
+                    securityBuilder.addToPermissions(permissions,
                         remoteBean.getEjbName(),
                         EjbInterface.SERVICE_ENDPOINT.getJaccInterfaceName(),
-                        remoteBean.getLocalHome(),
-                        ejbModule.getClassLoader());
+                            ((SessionBean)remoteBean).getServiceEndpoint(),
+                            ejbModule.getClassLoader());
+                }
                 if (remoteBean.getBusinessRemote() != null && !remoteBean.getBusinessRemote().isEmpty()) {
                     for (String businessRemote: remoteBean.getBusinessRemote()) {
                         securityBuilder.addToPermissions(permissions,
