@@ -144,7 +144,7 @@ public class TomcatEJBWebServiceContext extends StandardContext{
     public class EJBWebServiceValve extends ValveBase{
 
         public void invoke(Request req, Response res) throws IOException, ServletException {
-            req.setContentType("text/xml");
+            res.setContentType("text/xml");            
             RequestAdapter request = new RequestAdapter(req);
             ResponseAdapter response = new ResponseAdapter(res);
 

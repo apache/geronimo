@@ -126,16 +126,13 @@ public class JettyEJBWebServiceContext extends ContextHandler {
             throws IOException, ServletException
     {
         //TODO
-        //shouldn't set this on the request !
-        //req.setContentType("text/xml");
-
-        //TODO
         //do we need to check that this request should be handled by this handler?
         if (! target.startsWith(contextPath)) {
             return;
         }
         Request jettyRequest = (Request) req;
         Response jettyResponse = (Response) res;
+        res.setContentType("text/xml");
         RequestAdapter request = new RequestAdapter(jettyRequest);
         ResponseAdapter response = new ResponseAdapter(jettyResponse);
 
