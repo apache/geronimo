@@ -303,18 +303,11 @@ public class Axis2Builder extends JAXWSServiceBuilder {
         
         // set wsdl service
         if (portInfo.getWsdlService() == null) {
-            // TODO: get it from the class
+            generator.setWsdlService(new QName(JAXWSUtils.getServiceName(serviceClass)));
         } else {
             generator.setWsdlService(portInfo.getWsdlService());
         }
-        
-        // set wsdl port
-        if (portInfo.getWsdlPort() == null) {
-            // TODO: get it from the class
-        } else {
-            generator.setWsdlPort(portInfo.getWsdlPort());
-        }
-        
+                
         String wsdlFile = generator.generateWsdl(module, serviceClass.getName(), module.getEarContext(), portInfo);
         portInfo.setWsdlFile(wsdlFile);
         
