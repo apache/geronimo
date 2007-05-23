@@ -55,6 +55,7 @@ import org.apache.geronimo.naming.deployment.ResourceEnvironmentBuilder;
 import org.apache.geronimo.naming.deployment.ResourceEnvironmentSetter;
 import org.apache.geronimo.naming.reference.ORBReference;
 import org.apache.geronimo.naming.reference.ResourceReference;
+import org.apache.geronimo.naming.reference.URLReference;
 import org.apache.geronimo.xbeans.geronimo.naming.GerPatternType;
 import org.apache.geronimo.xbeans.geronimo.naming.GerResourceRefDocument;
 import org.apache.geronimo.xbeans.geronimo.naming.GerResourceRefType;
@@ -132,12 +133,16 @@ public class ResourceRefBuilder extends AbstractNamingBuilder implements Resourc
                 if (gerResourceRef == null || !gerResourceRef.isSetUrl()) {
                     throw new DeploymentException("No url supplied to resolve: " + name);
                 }
+                String url = gerResourceRef.getUrl().trim();
+                //TODO expose jsr-77 objects for these guys
                 try {
-                    //TODO expose jsr-77 objects for these guys
-                    getJndiContextMap(componentContext).put(ENV + name, new URL(gerResourceRef.getUrl()));
+                    //check for malformed URL
+                    new URL(url);
                 } catch (MalformedURLException e) {
-                    throw new DeploymentException("Could not convert " + gerResourceRef.getUrl() + " to URL", e);
+                    throw new DeploymentException("Could not convert " + url + " to URL", e);
                 }
+                getJndiContextMap(componentContext).put(ENV + name, new URLReference(url));
+
             } else if (ORB.class.isAssignableFrom(iface)) {
                 CorbaGBeanNameSource corbaGBeanNameSource = (CorbaGBeanNameSource) corbaGBeanNameSourceCollection.getElement();
                 if (corbaGBeanNameSource == null) {
