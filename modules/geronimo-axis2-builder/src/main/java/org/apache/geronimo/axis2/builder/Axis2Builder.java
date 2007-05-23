@@ -17,25 +17,18 @@
 
 package org.apache.geronimo.axis2.builder;
 
-import java.io.ByteArrayOutputStream;
-import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.io.StringWriter;
-import java.lang.reflect.Method;
-import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
-import java.net.URLClassLoader;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.jar.JarFile;
 
 import javax.xml.namespace.QName;
-import javax.xml.ws.soap.SOAPBinding;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -54,6 +47,7 @@ import org.apache.geronimo.jaxws.JAXWSUtils;
 import org.apache.geronimo.jaxws.PortInfo;
 import org.apache.geronimo.jaxws.builder.EndpointInfoBuilder;
 import org.apache.geronimo.jaxws.builder.JAXWSServiceBuilder;
+import org.apache.geronimo.jaxws.builder.WsdlGenerator;
 import org.apache.geronimo.jaxws.client.EndpointInfo;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.xbeans.geronimo.naming.GerServiceRefType;
@@ -175,7 +169,7 @@ public class Axis2Builder extends JAXWSServiceBuilder {
             
             return map;
         } catch (FileNotFoundException e) {
-            return Collections.EMPTY_MAP;
+            return Collections.emptyMap();
         } catch (IOException ex) {
             throw new DeploymentException("Unable to read " + wsDDUrl, ex);
         } catch (Exception ex) {
@@ -211,22 +205,6 @@ public class Axis2Builder extends JAXWSServiceBuilder {
         if(portInfoMap != null && portInfoMap.get(servletName) != null){
         	portInfo = (PortInfo) portInfoMap.get(servletName);
     		processURLPattern(contextRoot, portInfo);
-        
-            try {
-                //hookup the wsgen tool here
-                //check to see if we need to generate a wsdl file first
-                Class clazz = context.getClassLoader().loadClass(seiClassName);
-                if ((portInfo.getWsdlFile() == null || portInfo.getWsdlFile().equals(""))
-                    && !JAXWSUtils.containsWsdlLocation(clazz, context.getClassLoader())) {
-                    //let's use the wsgen tool to create a wsdl file
-                    //todo: pass the correct bindingtype, use the default binding for now
-                    String fileName = generateWsdl(module, seiClassName, SOAPBinding.SOAP11HTTP_BINDING, context, portInfo);
-                    //set the wsdlFile property on portInfo.
-                    portInfo.setWsdlFile(fileName);
-                }
-            } catch (ClassNotFoundException ex) {
-                log.warn("cannot load class " + seiClassName);
-            }
         }
         
 		return status;
@@ -310,55 +288,44 @@ public class Axis2Builder extends JAXWSServiceBuilder {
         } 
         portInfo.setLocation(oldup);
     }
-    
-    private String generateWsdl(Module module, 
-                                String sei, 
-                                String bindingType, 
-                                DeploymentContext context, 
-                                PortInfo portInfo) throws DeploymentException {
-        //call wsgen tool to generate the wsdl file based on the bindingtype.
-        //let's set the outputDir as the module base directory in server repository.
-        File moduleBaseDir = module.getEarContext().getBaseDir();
         
-        URL[] urls;
-        String classPath = "";
-        //let's figure out the classpath for wsgen tools
-        try {
-             urls = Axis2BuilderUtil.getWsgenClasspath(context);
-        } catch (MalformedURLException e) {
-            log.warn("unable to generate the wsdl file using wsgen. - unable to get the location of the required artifact(s).", e);
-            return "";
-        } 
-        //let's figure out the classpath string for the module and wsgen tools.
-        if (urls != null && urls.length > 0) {
-            for (int i = 0; i< urls.length; i++) {
-                classPath += Axis2BuilderUtil.toFile(urls[i]).getAbsolutePath() + ";";
-            }
-        }
-        classPath += Axis2BuilderUtil.getModuleClasspath(module, context);
+    @Override
+    protected void initialize(GBeanData targetGBean, Class serviceClass, PortInfo portInfo, Module module) 
+        throws DeploymentException {
+        if (isWsdlSet(portInfo, serviceClass)) {
+            log.debug("Service " + portInfo.getServiceName() + " has WSDL.");
+            return;
+        }        
+        log.debug("Service " + portInfo.getServiceName() + " does not have WSDL. Generating WSDL...");
 
-        //create arguments;
-        String[] arguments = Axis2BuilderUtil.buildArguments(classPath, sei, bindingType, moduleBaseDir, portInfo);
-        log.info("wsgen - Generating WSDL with SOAP 1.1 binding type, based on type " + bindingType);
+        WsdlGenerator generator = new WsdlGenerator();
+        generator.setAxis2SAAJ();
         
-        try {
-            URLClassLoader loader = new URLClassLoader(urls, ClassLoader.getSystemClassLoader());
-            Class clazz = loader.loadClass("com.sun.tools.ws.spi.WSToolsObjectFactory");
-            Method method = clazz.getMethod("newInstance");
-            Object factory = method.invoke(null);
-            Method method2 = clazz.getMethod("wsgen", OutputStream.class, String[].class);
-            OutputStream os = new ByteArrayOutputStream();
-            Boolean result = (Boolean) method2.invoke(factory, os, arguments);
-            os.close();
-            if (result) //check to see if the file is created.
-                return Axis2BuilderUtil.getWsdlFileLoc(moduleBaseDir, portInfo);
-            else //file isn't created.
-                return "";
-        } catch (Exception e) {
-            log.warn("unable to generate the wsdl file using wsgen.", e);
-            return "";
+        // set wsdl service
+        if (portInfo.getWsdlService() == null) {
+            // TODO: get it from the class
+        } else {
+            generator.setWsdlService(portInfo.getWsdlService());
         }
+        
+        // set wsdl port
+        if (portInfo.getWsdlPort() == null) {
+            // TODO: get it from the class
+        } else {
+            generator.setWsdlPort(portInfo.getWsdlPort());
+        }
+        
+        String wsdlFile = generator.generateWsdl(module, serviceClass.getName(), module.getEarContext(), portInfo);
+        portInfo.setWsdlFile(wsdlFile);
+        
+        log.debug("Generated " + wsdlFile + " for service " + portInfo.getServiceName());        
     }
+    
+    private boolean isWsdlSet(PortInfo portInfo, Class serviceClass) {
+        return (portInfo.getWsdlFile() != null && !portInfo.getWsdlFile().trim().equals(""))
+                || JAXWSUtils.containsWsdlLocation(serviceClass, serviceClass.getClassLoader());
+    }
+        
     public static final GBeanInfo GBEAN_INFO;
 
     static {
