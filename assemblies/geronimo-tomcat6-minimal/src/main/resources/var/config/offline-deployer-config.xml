@@ -21,10 +21,10 @@
 <attributes xmlns="http://geronimo.apache.org/xml/ns/attributes-1.1">
     <module name="org.apache.geronimo.configs/geronimo-gbean-deployer/${version}/car"/>
     <module name="org.apache.geronimo.configs/j2ee-deployer/${version}/car"/>
-    <module name="org.apache.geronimo.configs/unavailable-client-deployer/${version}/car"/>
+    <module name="org.apache.geronimo.configs/j2ee-system/${version}/car"/>
     <module name="org.apache.geronimo.configs/connector-deployer/${version}/car"/>
-    <module name="org.apache.geronimo.configs/tomcat6-deployer/${version}/car"/>
-    <module name="org.apache.geronimo.configs/persistence-jpa10-deployer/${version}/car"/>
     <module name="org.apache.geronimo.configs/unavailable-ejb-deployer/${version}/car"/>
     <module name="org.apache.geronimo.configs/unavailable-webservices-deployer/${version}/car"/>
+    <module name="org.apache.geronimo.configs/unavailable-client-deployer/${version}/car"/>
+    <module name="org.apache.geronimo.configs/tomcat6-deployer/${version}/car"/>
 </attributes>
