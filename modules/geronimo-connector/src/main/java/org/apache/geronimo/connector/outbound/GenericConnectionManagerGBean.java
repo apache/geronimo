@@ -16,40 +16,57 @@
  */
 package org.apache.geronimo.connector.outbound;
 
+import java.io.Externalizable;
+import java.io.IOException;
+import java.io.InvalidObjectException;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
+import java.io.ObjectStreamException;
+import java.io.Serializable;
+
 import javax.resource.spi.ConnectionManager;
 import javax.transaction.TransactionManager;
 
 import org.apache.geronimo.connector.outbound.connectionmanagerconfig.PoolingSupport;
 import org.apache.geronimo.connector.outbound.connectionmanagerconfig.TransactionSupport;
 import org.apache.geronimo.connector.outbound.connectiontracking.ConnectionTracker;
+import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
+import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.kernel.KernelRegistry;
 import org.apache.geronimo.kernel.proxy.ProxyManager;
 
 /**
  * @version $Revision$
  */
-public class GenericConnectionManagerGBean extends GenericConnectionManager implements GBeanLifecycle {
-    private final Kernel kernel;
+public class GenericConnectionManagerGBean extends GenericConnectionManager implements GBeanLifecycle, Serializable, Externalizable {
+    private Kernel kernel;
+    private AbstractName abstractName;
+    //externalizable format version
+    private static final int VERSION = 1;
 
     public GenericConnectionManagerGBean() {
         super();
         kernel = null;
+        abstractName = null;
     }
 
     public GenericConnectionManagerGBean(TransactionSupport transactionSupport,
-                                         PoolingSupport pooling,
-                                         boolean containerManagedSecurity,
-                                         ConnectionTracker connectionTracker,
-                                         TransactionManager transactionManager,
-                                         String objectName,
-                                         ClassLoader classLoader,
-                                         Kernel kernel) {
+            PoolingSupport pooling,
+            boolean containerManagedSecurity,
+            ConnectionTracker connectionTracker,
+            TransactionManager transactionManager,
+            String objectName,
+            AbstractName abstractName,
+            ClassLoader classLoader,
+            Kernel kernel) {
         super(transactionSupport, pooling, containerManagedSecurity, connectionTracker, transactionManager, objectName, classLoader);
         this.kernel = kernel;
+        this.abstractName = abstractName;
     }
 
     public ConnectionManager getConnectionManager() {
@@ -62,6 +79,36 @@ public class GenericConnectionManagerGBean extends GenericConnectionManager impl
         }
     }
 
+    private Object readResolve() throws ObjectStreamException {
+        try {
+            return kernel.getGBean(abstractName);
+        } catch (GBeanNotFoundException e) {
+            throw (ObjectStreamException)new InvalidObjectException("Could not locate connection manager gbean").initCause(e);
+        }
+    }
+
+    public void writeExternal(ObjectOutput out) throws IOException {
+        out.writeInt(VERSION);
+        out.writeObject(kernel.getKernelName());
+        out.writeObject(abstractName);
+    }
+
+    public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
+        int version = in.readInt();
+        if (version != VERSION) {
+            throw new IOException("Wrong version, expected " + VERSION + ", got: " + version);
+        }
+        String kernelName = (String) in.readObject();
+        kernel = KernelRegistry.getKernel(kernelName);
+        if (kernel == null) {
+            kernel = KernelRegistry.getSingleKernel();
+        }
+        if (kernel == null) {
+            throw new IOException("No kernel named: '" + kernelName + "' found");
+        }
+        abstractName = (AbstractName) in.readObject();
+    }
+
     public static final GBeanInfo GBEAN_INFO;
 
     static {
@@ -72,6 +119,7 @@ public class GenericConnectionManagerGBean extends GenericConnectionManager impl
         infoBuilder.addAttribute("containerManagedSecurity", Boolean.TYPE, true);
 
         infoBuilder.addAttribute("objectName", String.class, false);
+        infoBuilder.addAttribute("abstractName", AbstractName.class, false);
         infoBuilder.addAttribute("classLoader", ClassLoader.class, false);
         infoBuilder.addAttribute("kernel", Kernel.class, false);
 
@@ -86,6 +134,7 @@ public class GenericConnectionManagerGBean extends GenericConnectionManager impl
             "ConnectionTracker",
             "TransactionManager",
             "objectName",
+            "abstractName",
             "classLoader",
             "kernel"
         });

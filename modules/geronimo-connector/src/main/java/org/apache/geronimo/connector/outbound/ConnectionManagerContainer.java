@@ -37,8 +37,6 @@ public interface ConnectionManagerContainer {
 
     ReturnableXAResource getRecoveryXAResource(ManagedConnectionFactory managedConnectionFactory) throws ResourceException;
 
-    ConnectionManager getConnectionManager();
-
     public class ReturnableXAResource implements NamedXAResource {
         private final ConnectionInterceptor stack;
         private final ConnectionInfo connectionInfo;

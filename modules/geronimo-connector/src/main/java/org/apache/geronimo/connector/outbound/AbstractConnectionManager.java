@@ -45,7 +45,7 @@ public abstract class AbstractConnectionManager implements ConnectionManagerCont
         return mcf.createConnectionFactory(this);
     }
 
-    public ConnectionManager getConnectionManager() {
+    protected ConnectionManager getConnectionManager() {
         return this;
     }
     

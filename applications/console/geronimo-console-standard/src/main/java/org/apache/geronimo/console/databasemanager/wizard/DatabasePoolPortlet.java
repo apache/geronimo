@@ -49,13 +49,10 @@ import java.util.Properties;
 import java.util.SortedSet;
 import javax.enterprise.deploy.model.DDBean;
 import javax.enterprise.deploy.model.DDBeanRoot;
-import javax.enterprise.deploy.shared.StateType;
 import javax.enterprise.deploy.spi.DeploymentConfiguration;
 import javax.enterprise.deploy.spi.DeploymentManager;
 import javax.enterprise.deploy.spi.Target;
 import javax.enterprise.deploy.spi.TargetModuleID;
-import javax.enterprise.deploy.spi.status.ProgressEvent;
-import javax.enterprise.deploy.spi.status.ProgressListener;
 import javax.enterprise.deploy.spi.status.ProgressObject;
 import javax.portlet.ActionRequest;
 import javax.portlet.ActionResponse;
@@ -636,7 +633,7 @@ public class DatabasePoolPortlet extends BasePortlet {
             log.error("Unable to look up connection property", e);
         }
         //todo: push the lookup into ManagementHelper
-        PoolingAttributes pool = (PoolingAttributes) factory.getConnectionManager();
+        PoolingAttributes pool = (PoolingAttributes) factory.getConnectionManagerContainer();
         data.minSize = Integer.toString(pool.getPartitionMinSize());
         data.maxSize = Integer.toString(pool.getPartitionMaxSize());
         data.blockingTimeout = Integer.toString(pool.getBlockingTimeoutMilliseconds());
@@ -1020,7 +1017,7 @@ public class DatabasePoolPortlet extends BasePortlet {
                     }
                 }
                 //todo: push the lookup into ManagementHelper
-                PoolingAttributes pool = (PoolingAttributes) factory.getConnectionManager();
+                PoolingAttributes pool = (PoolingAttributes) factory.getConnectionManagerContainer();
                 pool.setPartitionMinSize(data.minSize == null || data.minSize.equals("") ? 0 : Integer.parseInt(data.minSize));
                 pool.setPartitionMaxSize(data.maxSize == null || data.maxSize.equals("") ? 10 : Integer.parseInt(data.maxSize));
                 pool.setBlockingTimeoutMilliseconds(data.blockingTimeout == null || data.blockingTimeout.equals("") ? 5000 : Integer.parseInt(data.blockingTimeout));

@@ -22,7 +22,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.LinkedHashSet;
 
-import javax.management.ObjectName;
 import javax.resource.ResourceException;
 import javax.resource.spi.ManagedConnectionFactory;
 import javax.resource.spi.ResourceAdapterAssociation;
@@ -174,12 +173,8 @@ public class ManagedConnectionFactoryWrapper implements GBeanLifecycle, DynamicG
         return resourceAdapterWrapper;
     }
 
-    public ConnectionManagerContainer getConnectionManagerFactory() {
+    public Object getConnectionManagerContainer() {
         return connectionManagerContainer;
-    }
-
-    public Object getConnectionManager() {
-        return connectionManagerContainer.getConnectionManager();
     }
 
     public void doStart() throws Exception {
@@ -255,11 +250,11 @@ public class ManagedConnectionFactoryWrapper implements GBeanLifecycle, DynamicG
     }
 
     public Object getConnectionFactory() throws ResourceException {
-        return $getResource();
+        return $getConnectionFactory();
     }
 
     public Object $getResource() throws ResourceException {
-        return connectionManagerContainer.createConnectionFactory(managedConnectionFactory);
+        return $getConnectionFactory();
     }
 
     public Object $getConnectionFactory() throws ResourceException {
