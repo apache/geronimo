@@ -19,29 +19,13 @@ package org.apache.geronimo.axis2;
 
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.net.URL;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 
 import javax.naming.Context;
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.wsdl.Definition;
-import javax.wsdl.Port;
-import javax.wsdl.Service;
-import javax.wsdl.extensions.ExtensibilityElement;
-import javax.wsdl.extensions.soap.SOAPAddress;
-import javax.wsdl.extensions.soap12.SOAP12Address;
-import javax.wsdl.factory.WSDLFactory;
-import javax.wsdl.xml.WSDLWriter;
-import javax.xml.namespace.QName;
-import javax.xml.ws.WebServiceException;
 
 import org.apache.axiom.om.util.UUIDGenerator;
 import org.apache.axis2.AxisFault;
@@ -53,14 +37,11 @@ import org.apache.axis2.context.MessageContext;
 import org.apache.axis2.context.OperationContext;
 import org.apache.axis2.context.ServiceGroupContext;
 import org.apache.axis2.description.AxisService;
-import org.apache.axis2.description.AxisServiceGroup;
 import org.apache.axis2.description.TransportInDescription;
 import org.apache.axis2.description.TransportOutDescription;
 import org.apache.axis2.engine.AxisEngine;
 import org.apache.axis2.engine.DependencyManager;
 import org.apache.axis2.engine.Handler.InvocationResponse;
-import org.apache.axis2.jaxws.description.builder.WsdlComposite;
-import org.apache.axis2.jaxws.description.builder.WsdlGenerator;
 import org.apache.axis2.jaxws.server.JAXWSMessageReceiver;
 import org.apache.axis2.transport.OutTransportInfo;
 import org.apache.axis2.transport.RequestResponseTransport;
@@ -77,7 +58,6 @@ import org.apache.geronimo.jaxws.PortInfo;
 import org.apache.geronimo.jaxws.ServerJNDIResolver;
 import org.apache.geronimo.webservices.WebServiceContainer;
 import org.apache.geronimo.webservices.saaj.SAAJUniverse;
-import org.apache.ws.commons.schema.XmlSchema;
 
 /**
  * @version $Rev$ $Date$
@@ -96,6 +76,7 @@ public abstract class Axis2WebServiceContainer implements WebServiceContainer {
     protected JNDIResolver jndiResolver;
     private AxisService service;
     private URL configurationBaseUrl;
+    private WSDLQueryHandler wsdlQueryHandler;
 
     public Axis2WebServiceContainer(PortInfo portInfo,
                                     String endpointClassName,
@@ -106,6 +87,8 @@ public abstract class Axis2WebServiceContainer implements WebServiceContainer {
         this.endpointClassName = endpointClassName;
         this.portInfo = portInfo;
         this.configurationBaseUrl = configurationBaseUrl;
+        
+        
         try {
             configurationContext = ConfigurationContextFactory.createDefaultConfigurationContext();
             
@@ -135,6 +118,8 @@ public abstract class Axis2WebServiceContainer implements WebServiceContainer {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
+        
+        this.wsdlQueryHandler = new WSDLQueryHandler(this.service);        
         jndiResolver = new ServerJNDIResolver(context);
     }  
 
@@ -370,137 +355,40 @@ public abstract class Axis2WebServiceContainer implements WebServiceContainer {
         }
     }
     
-    class WSDLGeneratorImpl implements WsdlGenerator {
-
-        private Definition def;
-        
-        public WSDLGeneratorImpl(Definition def) {
-            this.def = def;
-        }
-        
-        public WsdlComposite generateWsdl(String implClass, String bindingType) throws WebServiceException {
-            // Need WSDL generation code
-            WsdlComposite composite = new WsdlComposite();
-            composite.setWsdlFileName(implClass);
-            HashMap<String, Definition> testMap = new HashMap<String, Definition>();
-            testMap.put(composite.getWsdlFileName(), def);
-            composite.setWsdlDefinition(testMap);
-            return composite;
-        }
-    }
-
-    protected void processGetRequest(Request request, Response response, AxisService service, ConfigurationContext configurationContext, MessageContext msgContext) throws Exception{
-        String servicePath = configurationContext.getServiceContextPath();
-        //This is needed as some cases the servicePath contains two // at the beginning.
-        while (servicePath.startsWith("/")) {
-            servicePath = servicePath.substring(1);
-        }
-        final String contextPath = "/" + servicePath;
-
-        URI uri = request.getURI();
-        String path = uri.getPath();
-        String serviceName = service.getName();
-        
-        if (!path.startsWith(contextPath)) {
-            response.setStatusCode(301);
-            response.setHeader("Location", contextPath);
-            return;
-        }
-        if (uri.toString().indexOf("?") < 0) {
-            if (!path.endsWith(contextPath)) {
-                if (serviceName.indexOf("/") < 0) {
-                    String res = HTTPTransportReceiver.printServiceHTML(serviceName, configurationContext);
-                    PrintWriter pw = new PrintWriter(response.getOutputStream());
-                    pw.write(res);
-                    pw.flush();
-                    return;
-                }
-            }
-        }
-        
-        //TODO: Has to implement 
-        if (uri.getQuery().startsWith("wsdl2")) {
-            if (service != null) {
-                service.printWSDL2(response.getOutputStream());
-                return;
-            }
-        }
-        if (uri.getQuery().startsWith("wsdl")) {
-            if (portInfo.getWsdlFile() != null && !portInfo.getWsdlFile().equals("")) { //wsdl file has been provided
-                Definition wsdlDefinition = new AxisServiceGenerator().getWSDLDefinition(portInfo, configurationBaseUrl, classLoader);
-                if(wsdlDefinition != null){
-                    String portName = null;
-                    if(portInfo.getWsdlPort() != null) {
-                        portName = portInfo.getWsdlPort().getLocalPart();
-                    }
-                    QName qName = portInfo.getWsdlService();
-                    if (qName == null) {
-                        qName = new QName(service.getTargetNamespace(), service.getName());
-                    }
-                    if (portName == null) {
-                        portName = service.getEndpointName();
-                    }
-                    if(qName == null || portName == null) {
-                        log.info("Unable to call updateServices ["+ qName + "][" + portName +"]");                        
-                    } else {
-                        log.info("calling updateServices ["+ qName + "][" + portName +"]");                        
-                        updateServices(qName, portName, wsdlDefinition, request);
-                    }
-                    WSDLFactory factory = WSDLFactory.newInstance();
-                    WSDLWriter writer = factory.newWSDLWriter();                    
-                    writer.writeWSDL(wsdlDefinition, response.getOutputStream());
-                    return;
-                }
-            }else {
+    protected void processGetRequest(Request request, Response response, AxisService service, ConfigurationContext configurationContext, MessageContext msgContext) throws Exception{        
+        if (request.getURI().getQuery() != null &&
+            (request.getURI().getQuery().startsWith("wsdl") ||
+             request.getURI().getQuery().startsWith("xsd"))) {
+            // wsdl or xsd request
+            
+            if (portInfo.getWsdlFile() != null && !portInfo.getWsdlFile().equals("")) { 
+                URL wsdlURL = AxisServiceGenerator.getWsdlURL(portInfo.getWsdlFile(),
+                                                              configurationBaseUrl, 
+                                                              classLoader);
+                this.wsdlQueryHandler.writeResponse(request.getURI().toString(), 
+                                                    wsdlURL.toString(), 
+                                                    response.getOutputStream());
+            } else {
                 service.printWSDL(response.getOutputStream());
-                return;
+            }
+        } else {
+            // REST request
+            
+            msgContext.setProperty(MessageContext.TRANSPORT_OUT, response.getOutputStream());
+            msgContext.setProperty(Constants.OUT_TRANSPORT_INFO, new Axis2TransportInfo(response));
+
+            InvocationResponse processed = RESTUtil.processURLRequest(msgContext, 
+                                                                      response.getOutputStream(),
+                                                                      null);
+
+            if (!processed.equals(InvocationResponse.CONTINUE)) {
+                response.setStatusCode(200);
+                String s = HTTPTransportReceiver.getServicesHTML(configurationContext);
+                PrintWriter pw = new PrintWriter(response.getOutputStream());
+                pw.write(s);
+                pw.flush();
             }
         }
-        //TODO: Not working properly and do we need to have these requests ?
-        if (uri.getQuery().startsWith("xsd=")) {
-            String schemaName = uri.getQuery().substring(uri.getQuery().lastIndexOf("=") + 1);
-
-            if (service != null) {
-                //run the population logic just to be sure
-                service.populateSchemaMappings();
-                //write out the correct schema
-                Map schemaTable = service.getSchemaMappingTable();
-                final XmlSchema schema = (XmlSchema) schemaTable.get(schemaName);
-                //schema found - write it to the stream
-                if (schema != null) {
-                    schema.write(response.getOutputStream());
-                    return;
-                } else {
-                    // no schema available by that name  - send 404
-                    response.setStatusCode(404);
-                    return;
-                }
-            }                
-        }
-        //cater for named xsds - check for the xsd name
-        if (uri.getQuery().startsWith("xsd")) {
-            if (service != null) {
-                response.setContentType("text/xml");
-                response.setHeader("Transfer-Encoding", "chunked");
-                service.printSchema(response.getOutputStream());
-                response.getOutputStream().close();
-                return;
-            }
-        }
-
-        msgContext.setProperty(MessageContext.TRANSPORT_OUT, response.getOutputStream());
-        msgContext.setProperty(Constants.OUT_TRANSPORT_INFO, new Axis2TransportInfo(response));
-
-        InvocationResponse processed = RESTUtil.processURLRequest(msgContext, response.getOutputStream(), null);
-
-        if (!processed.equals(InvocationResponse.CONTINUE)) {
-            response.setStatusCode(200);
-            String s = HTTPTransportReceiver.getServicesHTML(configurationContext);
-            PrintWriter pw = new PrintWriter(response.getOutputStream());
-            pw.write(s);
-            pw.flush();
-        }
-
     }
     
     protected void setMsgContextProperties(MessageContext msgContext, AxisService service, Response response, Request request) {
@@ -549,70 +437,6 @@ public abstract class Axis2WebServiceContainer implements WebServiceContainer {
                 contentType,
                 soapAction,
                 request.getURI().getPath());
-    }
-
-    private void updateServices(QName serviceName, String portName, Definition def, Request request)
-        throws Exception {
-        boolean updated = false;
-        Map services = def.getServices();
-        if (services != null) {
-            Iterator serviceIterator = services.entrySet().iterator();
-            while (serviceIterator.hasNext()) {
-                Map.Entry serviceEntry = (Map.Entry) serviceIterator.next();
-                QName currServiceName = (QName) serviceEntry.getKey();
-                if (currServiceName.equals(serviceName)) {
-                    Service service = (Service) serviceEntry.getValue();
-                    updatePorts(portName, service, request);
-                    updated = true;
-                } else {
-                    def.removeService(currServiceName);
-                }
-            }
-        }
-        if (!updated) {
-            log.warn("WSDL '" + serviceName.getLocalPart() + "' service not found.");
-        }
-    }
-
-    private void updatePorts(String portName, Service service, Request request)
-        throws Exception {
-        boolean updated = false;
-        Map ports = service.getPorts();
-        if (ports != null) {
-            Iterator portIterator = ports.entrySet().iterator();
-            while (portIterator.hasNext()) {
-                Map.Entry portEntry = (Map.Entry) portIterator.next();
-                String currPortName = (String) portEntry.getKey();
-                if (currPortName.equals(portName)) {
-                    Port port = (Port) portEntry.getValue();
-                    updatePortLocation(request, port);
-                    updated = true;
-                } else {
-                    service.removePort(currPortName);
-                }
-            }
-        }
-        if (!updated) {
-            log.warn("WSDL '" + portName + "' port not found.");
-        }
-    }
-
-    private void updatePortLocation(Request request, Port port) throws URISyntaxException {
-        List<?> exts = port.getExtensibilityElements();
-        if (exts != null && exts.size() > 0) {
-            URI requestURI = request.getURI();
-            URI serviceURI = new URI(requestURI.getScheme(), null,
-                                     requestURI.getHost(), requestURI.getPort(),
-                                     requestURI.getPath(), null, null);
-            ExtensibilityElement el = (ExtensibilityElement) exts.get(0);
-            if(el instanceof SOAP12Address){
-                SOAP12Address add = (SOAP12Address)el;
-                add.setLocationURI(serviceURI.toString());
-            } else if (el instanceof SOAPAddress) {
-                SOAPAddress add = (SOAPAddress)el;
-                add.setLocationURI(serviceURI.toString());
-            }
-        }
     }
 
 }

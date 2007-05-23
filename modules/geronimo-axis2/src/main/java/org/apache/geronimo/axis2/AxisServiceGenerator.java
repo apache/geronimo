@@ -225,7 +225,7 @@ public class AxisServiceGenerator {
         }
     }
     
-    private URL getWsdlURL(String wsdlFile, URL configurationBaseUrl, ClassLoader classLoader) {
+    public static URL getWsdlURL(String wsdlFile, URL configurationBaseUrl, ClassLoader classLoader) {
         URL wsdlURL = null;
         if (wsdlFile != null) {
 
