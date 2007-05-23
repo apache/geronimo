@@ -54,24 +54,29 @@ public class POJOWebServiceContainer extends Axis2WebServiceContainer {
     private String contextRoot = null;
     
     public POJOWebServiceContainer(PortInfo portInfo,
-                                    String endpointClassName,
-                                    ClassLoader classLoader,
-                                    Context context,
-                                    URL configurationBaseUrl) {
+                                   String endpointClassName,
+                                   ClassLoader classLoader,
+                                   Context context,
+                                   URL configurationBaseUrl) {
         super(portInfo, endpointClassName, classLoader, context, configurationBaseUrl);
         configurationContext.setServicePath(portInfo.getLocation());
     }
     
-    protected void processPostRequest (Request request, Response response, AxisService service, ConfigurationContext configurationContext, MessageContext msgContext, String soapAction, JNDIResolver jndiResolver) throws Exception {        
-        String contenttype = request.getHeader(HTTPConstants.HEADER_CONTENT_TYPE);
-        msgContext.setAxisService(service);
+    @Override
+    protected void processPostRequest (Request request, Response response, AxisService service, ConfigurationContext configurationContext, MessageContext msgContext) throws Exception {
+        String contentType = request.getHeader(HTTPConstants.HEADER_CONTENT_TYPE);
+        String soapAction = request.getHeader(HTTPConstants.HEADER_SOAP_ACTION);
+        if (soapAction == null) {
+            soapAction = "\"\"";
+        }
+
         configurationContext.fillServiceContextAndServiceGroupContext(msgContext);
         ServiceGroupContext serviceGroupContext = msgContext.getServiceGroupContext();
         DependencyManager.initService(serviceGroupContext);
         endpointInstance = msgContext.getServiceContext().getProperty(ServiceContext.SERVICE_OBJECT);
         
         setMsgContextProperties(msgContext, service, response, request);
-        annotationProcessor = new JAXWSAnnotationProcessor(jndiResolver,
+        annotationProcessor = new JAXWSAnnotationProcessor(this.jndiResolver,
                 new POJOWebServiceContext(msgContext));
         init();
         try {
@@ -79,7 +84,7 @@ public class POJOWebServiceContainer extends Axis2WebServiceContainer {
                     msgContext,
                     request.getInputStream(),
                     response.getOutputStream(),
-                    contenttype,
+                    contentType,
                     soapAction,
                     request.getURI().getPath());
         } finally {
