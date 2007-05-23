@@ -33,10 +33,14 @@ public class CommandListTargets extends AbstractCommand {
 
     public void execute(PrintWriter out, ServerConnection connection, CommandArgs commandArgs) throws DeploymentException {
         Target[] list = connection.getDeploymentManager().getTargets();
-        out.println("Available Targets:");
-        for(int i = 0; i < list.length; i++) {
-            Target target = list[i];
-            out.println("  "+target.getName());
+        if ((list == null) || (list.length == 0)) {
+            out.println("No available targets.");
+        } else {
+            out.println("Available Targets:");
+            for (int i = 0; i < list.length; i++) {
+                Target target = list[i];
+                out.println("  "+target.getName());
+            }
         }
     }
 }

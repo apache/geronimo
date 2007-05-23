@@ -144,6 +144,11 @@ public abstract class JMXDeploymentManager implements DeploymentManager {
         if (kernel == null) {
             throw new IllegalStateException("Disconnected");
         }
+
+        if (targetList == null) {
+            return null;
+        }
+
         try {
             ArrayList<TargetModuleIDImpl> result = new ArrayList<TargetModuleIDImpl>();
             for (Target aTargetList : targetList) {

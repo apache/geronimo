@@ -299,7 +299,12 @@ public final class ConfigurationUtil {
             throw new IllegalStateException("A Configuration Manager could not be found in the kernel");
         }
         if (names.size() > 1) {
-            throw new IllegalStateException("More than one Configuration Manager was found in the kernel");
+            String error = "More than one Configuration Manager was found in the kernel: ";
+            for (Object name : names) {
+                AbstractName abName = (AbstractName)name;
+                error = error + "\"" + abName.toString() + "\" ";
+            }
+            throw new IllegalStateException(error);
         }
         return (AbstractName) names.iterator().next();
     }
