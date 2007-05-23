@@ -209,19 +209,6 @@ public class WsdlGenerator {
         arguments.add("-wsdl");
         arguments.add("-d");
         arguments.add(moduleBaseDir.getAbsolutePath());
-        
-        QName serviceName = getWsdlService();
-        if (serviceName != null) {
-            arguments.add("-servicename");
-            arguments.add(serviceName.toString());
-        }
-        
-        QName portName = getWsdlPort();
-        if (portName != null) {
-            arguments.add("-portname");
-            arguments.add(portName.toString());
-        }
-        
         arguments.add(sei);
         
         return arguments.toArray(new String[]{});
