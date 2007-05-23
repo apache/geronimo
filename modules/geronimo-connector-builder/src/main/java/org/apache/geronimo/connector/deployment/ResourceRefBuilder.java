@@ -138,7 +138,7 @@ public class ResourceRefBuilder extends AbstractNamingBuilder implements Resourc
                 } catch (MalformedURLException e) {
                     throw new DeploymentException("Could not convert " + gerResourceRef.getUrl() + " to URL", e);
                 }
-            } else if (iface == ORB.class) {
+            } else if (ORB.class.isAssignableFrom(iface)) {
                 CorbaGBeanNameSource corbaGBeanNameSource = (CorbaGBeanNameSource) corbaGBeanNameSourceCollection.getElement();
                 if (corbaGBeanNameSource == null) {
                     throw new DeploymentException("No orb setup but there is a orb reference");
@@ -285,13 +285,11 @@ public class ResourceRefBuilder extends AbstractNamingBuilder implements Resourc
             String resourceType = getResourceType(annotation, method, field);
 
             if (resourceType.equals("javax.sql.DataSource") ||
-                    resourceType.equals("javax.jms.ConnectionFactory") ||
-                    resourceType.equals("javax.jms.QueueConnectionFactory") ||
-                    resourceType.equals("javax.jms.TopicConnectionFactory") ||
                     resourceType.equals("javax.mail.Session") ||
                     resourceType.equals("java.net.URL") ||
-                    resourceType.equals("javax.resource.cci.ConnectionFactory") ||
+                    resourceType.equals("org.omg.CORBA.ORB") ||
                     resourceType.equals("org.omg.CORBA_2_3.ORB") ||
+                    resourceType.equals("org.omg.CORBA_2_4.ORB") ||
                     resourceType.endsWith("ConnectionFactory")) {
 
                 log.debug("processResource(): <resource-ref> found");
