@@ -191,8 +191,10 @@ public class WSDLQueryHandler {
                         //check to see if it's aleady in a URL format.  If so, leave it.
                         new URL(start);
                     } catch (MalformedURLException e) {
-                        doneSchemas.put(start, imp);
-                        updateSchemaImports(imp.getReferencedSchema(), doneSchemas, base);
+                        if (!doneSchemas.containsKey(start)) {
+                            doneSchemas.put(start, imp);
+                            updateSchemaImports(imp.getReferencedSchema(), doneSchemas, base);
+                        }
                     }
                 }
             }
@@ -205,8 +207,10 @@ public class WSDLQueryHandler {
                     //check to see if it's aleady in a URL format.  If so, leave it.
                     new URL(start);
                 } catch (MalformedURLException e) {
-                    doneSchemas.put(start, included);
-                    updateSchemaImports(included.getReferencedSchema(), doneSchemas, base);
+                    if (!doneSchemas.containsKey(start)) {
+                        doneSchemas.put(start, included);
+                        updateSchemaImports(included.getReferencedSchema(), doneSchemas, base);
+                    }
                 }
             }
         }
