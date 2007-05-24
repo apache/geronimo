@@ -95,7 +95,7 @@ public class EjbDaemonGBean implements NetworkConnector, GBeanLifecycle {
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoBuilder = GBeanInfoBuilder.createStatic(EjbDaemonGBean.class);
+        GBeanInfoBuilder infoBuilder = GBeanInfoBuilder.createStatic("OpenEJB Daemon", EjbDaemonGBean.class);
         infoBuilder.addAttribute("host", String.class, true);
         infoBuilder.addAttribute("port", int.class, true);
         infoBuilder.addAttribute("threads", int.class, true);
