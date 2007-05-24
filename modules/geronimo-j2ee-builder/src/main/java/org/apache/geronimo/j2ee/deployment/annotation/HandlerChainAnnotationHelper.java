@@ -221,6 +221,15 @@ public final class HandlerChainAnnotationHelper extends AnnotationHelper {
                             ServiceRefHandlerChainsType serviceRefHandlerChains = serviceRef.addNewHandlerChains();
                             for (HandlerChainType handlerChain : handlerChains.getHandlerChainArray()) {
                                 ServiceRefHandlerChainType serviceRefHandlerChain = serviceRefHandlerChains.addNewHandlerChain();
+                                if (handlerChain.getPortNamePattern() != null) {
+                                    serviceRefHandlerChain.setPortNamePattern(handlerChain.getPortNamePattern());
+                                }
+                                if (handlerChain.getServiceNamePattern() != null) {
+                                    serviceRefHandlerChain.setServiceNamePattern(handlerChain.getServiceNamePattern());
+                                }
+                                if (handlerChain.getProtocolBindings() != null) {
+                                    serviceRefHandlerChain.setProtocolBindings(handlerChain.getProtocolBindings());
+                                }
                                 for ( PortComponentHandlerType handler : handlerChain.getHandlerArray()) {
                                     ServiceRefHandlerType serviceRefHandler = serviceRefHandlerChain.addNewHandler();
                                     serviceRefHandler.setHandlerName(handler.getHandlerName());
