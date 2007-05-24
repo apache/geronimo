@@ -19,6 +19,7 @@ package org.apache.geronimo.jaxws;
 import java.lang.reflect.Modifier;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.StringTokenizer;
 
 import javax.jws.WebService;
 import javax.xml.namespace.QName;
@@ -48,7 +49,7 @@ public class JAXWSUtils {
                 localName = seiClass.getName();
             }
             String namespace = webService.targetNamespace();
-            return new QName(namespace, localName);
+            return new QName(getNamespace(seiClass, namespace), localName);
         }
         return null;
     }
@@ -82,18 +83,7 @@ public class JAXWSUtils {
     }
     
     public static String getServiceName(Class clazz) {
-        WebService webService = 
-            (WebService)clazz.getAnnotation(WebService.class);
-        if (webService == null) {
-            WebServiceProvider webServiceProvider = 
-                (WebServiceProvider)clazz.getAnnotation(WebServiceProvider.class);
-            if (webServiceProvider == null) {
-                throw new IllegalArgumentException("The " + clazz.getName() + " is not annotated");
-            }
-            return getServiceName(clazz, webServiceProvider.serviceName());
-        } else {
-            return getServiceName(clazz, webService.serviceName());
-        }
+        return getServiceQName(clazz).getLocalPart();
     }
     
     private static String getServiceName(Class clazz, String name) {
@@ -104,6 +94,95 @@ public class JAXWSUtils {
         }       
     }
     
+    private static String getPortName(Class clazz, String name, String portName) {
+        if (portName == null || portName.trim().length() == 0) {
+            if (name == null || name.trim().length() == 0) {
+                return clazz.getSimpleName() + "Port";
+            } else {
+                return name + "Port";
+            }
+        } else {
+            return portName.trim();
+        }
+    }
+    
+    private static String getNamespace(Class clazz, String namespace) {
+        if (namespace == null || namespace.trim().length() == 0) {
+            Package pkg = clazz.getPackage();
+            if (pkg == null) {
+                return null;
+            } else {
+                return getNamespace(pkg.getName());
+            }
+        } else {
+            return namespace.trim();
+        }
+    }
+    
+    private static String getNamespace(String packageName) {
+        if (packageName == null || packageName.length() == 0) {
+            return null;
+        }
+        StringTokenizer tokenizer = new StringTokenizer(packageName, ".");
+        String[] tokens;
+        if (tokenizer.countTokens() == 0) {
+            tokens = new String[0];
+        } else {
+            tokens = new String[tokenizer.countTokens()];
+            for (int i = tokenizer.countTokens() - 1; i >= 0; i--) {
+                tokens[i] = tokenizer.nextToken();
+            }
+        }
+        StringBuffer namespace = new StringBuffer("http://");
+        String dot = "";
+        for (int i = 0; i < tokens.length; i++) {
+            if (i == 1) {
+                dot = ".";
+            }
+            namespace.append(dot + tokens[i]);
+        }
+        namespace.append('/');
+        return namespace.toString();
+    }
+    
+    private static QName getServiceQName(Class clazz, String namespace, String name) {
+        return new QName(getNamespace(clazz, namespace), getServiceName(clazz, name));         
+    }
+    
+    public static QName getServiceQName(Class clazz) {
+        WebService webService = 
+            (WebService)clazz.getAnnotation(WebService.class);
+        if (webService == null) {
+            WebServiceProvider webServiceProvider = 
+                (WebServiceProvider)clazz.getAnnotation(WebServiceProvider.class);
+            if (webServiceProvider == null) {
+                throw new IllegalArgumentException("The " + clazz.getName() + " is not annotated");
+            }
+            return getServiceQName(clazz, webServiceProvider.targetNamespace(), webServiceProvider.serviceName());
+        } else {
+            return getServiceQName(clazz, webService.targetNamespace(), webService.serviceName());
+        }
+    }
+    
+    private static QName getPortQName(Class clazz, String namespace, String name, String portName) {
+        return new QName(getNamespace(clazz, namespace), getPortName(clazz, name, portName));         
+    }
+    
+    public static QName getPortQName(Class clazz) {
+        WebService webService = 
+            (WebService)clazz.getAnnotation(WebService.class);
+        if (webService == null) {
+            WebServiceProvider webServiceProvider = 
+                (WebServiceProvider)clazz.getAnnotation(WebServiceProvider.class);
+            if (webServiceProvider == null) {
+                throw new IllegalArgumentException("The " + clazz.getName() + " is not annotated");
+            }
+            return getPortQName(clazz, webServiceProvider.targetNamespace(), null, webServiceProvider.portName());
+        } else {
+            return getPortQName(clazz, webService.targetNamespace(), webService.name(), webService.serviceName());
+        }
+    }
+        
     public static String getName(Class clazz) {
         WebService webService = 
             (WebService)clazz.getAnnotation(WebService.class);
@@ -126,8 +205,7 @@ public class JAXWSUtils {
                     throw new RuntimeException("Unable to load SEI class: " + sei);
                 }
             }
-        }
-        
+        }        
     }
         
     private static String getNameFromSEI(Class seiClass) {
