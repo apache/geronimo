@@ -212,7 +212,7 @@ public class TransactionManagerImpl implements TransactionManager, UserTransacti
         if (tx == null) {
             throw new IllegalStateException("No tx on thread");
         }
-        if (tx.getStatus() != Status.STATUS_ACTIVE) {
+        if (tx.getStatus() != Status.STATUS_ACTIVE && tx.getStatus() != Status.STATUS_MARKED_ROLLBACK) {
             throw new IllegalStateException("Transaction " + tx + " is not active");
         }
         return tx;
