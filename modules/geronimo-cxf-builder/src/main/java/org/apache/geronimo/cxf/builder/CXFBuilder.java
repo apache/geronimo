@@ -61,6 +61,7 @@ import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.xbeans.geronimo.naming.GerServiceRefType;
 import org.apache.geronimo.xbeans.javaee.PortComponentRefType;
 import org.apache.geronimo.xbeans.javaee.ServiceRefHandlerChainsType;
+import org.apache.xmlbeans.XmlOptions;
 
 public class CXFBuilder extends JAXWSServiceBuilder {
     private static final Log LOG = LogFactory.getLog(CXFBuilder.class);
@@ -197,7 +198,7 @@ public class CXFBuilder extends JAXWSServiceBuilder {
 
         String handlerChainsXML = null;
         try {
-            handlerChainsXML = getHanderChainAsString(handlerChains);
+            handlerChainsXML = getHandlerChainAsString(handlerChains);
         } catch (IOException e) {
             // this should not happen
             LOG.warn("Failed to serialize handler chains", e);
@@ -209,14 +210,14 @@ public class CXFBuilder extends JAXWSServiceBuilder {
                 serviceQName, module.getModuleName(), handlerChainsXML, seiInfoMap);
     }
     
-    private static String getHanderChainAsString(ServiceRefHandlerChainsType handlerChains)
+    private static String getHandlerChainAsString(ServiceRefHandlerChainsType handlerChains)
             throws IOException {
         String xml = null;
         if (handlerChains != null) {
             StringWriter w = new StringWriter();
-            w.write("<handler-chains xmlns=\"http://java.sun.com/xml/ns/javaee\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">");
-            handlerChains.save(w);
-            w.write("</handler-chains>");
+            XmlOptions options = new XmlOptions();
+            options.setSaveSyntheticDocumentElement(new QName("http://java.sun.com/xml/ns/javaee", "handler-chains")); 
+            handlerChains.save(w, options);
             xml = w.toString();
         }
         return xml;
