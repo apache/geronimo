@@ -41,6 +41,7 @@
     <gbean name="DefaultStatefulContainer" class="org.apache.geronimo.openejb.EjbContainer">
         <attribute name="id">Default Stateful Container</attribute>
         <attribute name="type">STATEFUL</attribute>
+        <attribute name="properties">PoolSize=200</attribute>
         <reference name="OpenEjbSystem">
             <name>OpenEjbSystem</name>
         </reference>
