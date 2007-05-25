@@ -1262,7 +1262,7 @@
             <dependency>
                 <groupId>com.sun.xml.bind</groupId>
                 <artifactId>jaxb-impl</artifactId>
-                <version>2.0.3</version>
+                <version>2.0.5</version>
                 <exclusions>
                     <exclusion>
                         <groupId>javax.xml.bind</groupId>
@@ -1434,7 +1434,7 @@
            <dependency>
                <groupId>com.sun.xml.bind</groupId>
                <artifactId>jaxb-xjc</artifactId>
-               <version>2.0.3</version>
+               <version>2.0.5</version>
            </dependency>
 
             <dependency>
@@ -1845,6 +1845,18 @@
             <name>Tomcat M2 Repository</name>
             <url>http://tomcat.apache.org/dev/dist/m2-repository</url>
             <layout>default</layout>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+        </repository>
+
+        <repository>
+            <id>java.net</id>
+            <url>http://download.java.net/maven/1/</url>
+            <layout>legacy</layout>
             <snapshots>
                 <enabled>false</enabled>
             </snapshots>
