@@ -51,16 +51,19 @@ public class AnnotatedApplicationClient implements AnnotatedApp {
 
     // Private instance variables
     private static final Log log = LogFactory.getLog(AnnotatedApplicationClient.class);
-    private ApplicationClientType applicationClient;
+    private final ApplicationClientType applicationClient;
     private List<EjbRefType> ambiguousEjbRefs;
+    private final String componentType;
 
     /**
      * ApplicationClientType-qualified constructor
      *
      * @param applicationClient ApplicationClientType
+     * @param applicationClientClassName
      */
-    public AnnotatedApplicationClient(ApplicationClientType applicationClient) {
+    public AnnotatedApplicationClient(ApplicationClientType applicationClient, String applicationClientClassName) {
         this.applicationClient = applicationClient;
+        this.componentType = applicationClientClassName;
     }
 
 
@@ -195,6 +198,10 @@ public class AnnotatedApplicationClient implements AnnotatedApp {
 
     public PersistenceUnitRefType addNewPersistenceUnitRef() {
         return applicationClient.addNewPersistenceUnitRef();
+    }
+
+    public String getComponentType() {
+        return componentType;
     }
 
 }

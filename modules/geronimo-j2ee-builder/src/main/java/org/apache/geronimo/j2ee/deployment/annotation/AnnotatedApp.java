@@ -59,9 +59,6 @@ import org.apache.geronimo.xbeans.javaee.ServiceRefType;
  */
 public interface AnnotatedApp {
 
-    // Instance variables
-    List<EjbRefType> ambiguousEjbRefs = null;
-
     /**
      * XmlBeans methods used for the @EJB, @EJBs annotations
      */
@@ -130,4 +127,6 @@ public interface AnnotatedApp {
 
     PersistenceUnitRefType[] getPersistenceUnitRefArray();
     PersistenceUnitRefType addNewPersistenceUnitRef();
+
+    String getComponentType();
 }

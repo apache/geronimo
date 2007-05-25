@@ -167,6 +167,10 @@ public class AnnotatedEjbJar implements AnnotatedApp {
         return delegate.addNewPersistenceUnitRef();
     }
 
+    public String getComponentType() {
+        return null;
+    }
+
     /**
      * ejbJar getter
      *
@@ -323,6 +327,10 @@ public class AnnotatedEjbJar implements AnnotatedApp {
         public PersistenceUnitRefType addNewPersistenceUnitRef() {
             return bean.addNewPersistenceUnitRef();
         }
+
+        public String getComponentType() {
+            return bean.getEjbClass().getStringValue().trim();
+        }
     }
 
     public static class MessageDriveBean implements AnnotatedApp {
@@ -451,6 +459,10 @@ public class AnnotatedEjbJar implements AnnotatedApp {
         public PersistenceUnitRefType addNewPersistenceUnitRef() {
             return bean.addNewPersistenceUnitRef();
         }
+
+        public String getComponentType() {
+            return bean.getEjbClass().getStringValue().trim();
+        }
     }
 
     public static class SessionBean implements AnnotatedApp {
@@ -578,6 +590,10 @@ public class AnnotatedEjbJar implements AnnotatedApp {
 
         public PersistenceUnitRefType addNewPersistenceUnitRef() {
             return bean.addNewPersistenceUnitRef();
+        }
+
+        public String getComponentType() {
+            return bean.getEjbClass().getStringValue().trim();
         }
     }
 }

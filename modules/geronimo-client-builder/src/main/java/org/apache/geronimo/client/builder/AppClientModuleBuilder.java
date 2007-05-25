@@ -338,7 +338,7 @@ public class AppClientModuleBuilder implements ModuleBuilder, CorbaGBeanNameSour
         }
 
         // Create the AnnotatedApp interface for the AppClientModule
-        AnnotatedApplicationClient annotatedApplicationClient = new AnnotatedApplicationClient(appClient);
+        AnnotatedApplicationClient annotatedApplicationClient = new AnnotatedApplicationClient(appClient, mainClass);
 
         AppClientModule module = new AppClientModule(standAlone, moduleName, clientBaseName, serverEnvironment, clientEnvironment, moduleFile, targetPath, appClient, mainClass, gerAppClient, specDD, resourceModules, annotatedApplicationClient);
         for (ModuleBuilderExtension mbe : moduleBuilderExtensions) {

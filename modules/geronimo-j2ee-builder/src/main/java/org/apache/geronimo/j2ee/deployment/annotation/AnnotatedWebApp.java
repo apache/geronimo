@@ -197,4 +197,8 @@ public class AnnotatedWebApp implements AnnotatedApp {
     public PersistenceUnitRefType addNewPersistenceUnitRef() {
         return webApp.addNewPersistenceUnitRef();
     }
+
+    public String getComponentType() {
+        return null;
+    }
 }

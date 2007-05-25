@@ -75,7 +75,7 @@ public final class SecurityAnnotationHelper extends AnnotationHelper {
      * @throws DeploymentException if parsing or validation error
      */
     public static void processAnnotations(WebAppType webApp, ClassFinder classFinder) throws DeploymentException {
-        if (webApp != null) {
+        if (webApp != null && classFinder != null) {
             if (classFinder.isAnnotationPresent(DeclareRoles.class)) {
                 processDeclareRoles(webApp, classFinder);
             }
