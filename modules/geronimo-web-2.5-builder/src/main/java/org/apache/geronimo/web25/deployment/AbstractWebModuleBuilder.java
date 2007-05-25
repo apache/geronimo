@@ -750,11 +750,10 @@ public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
                 Class<?> clas;
                 try {
                     clas = classLoader.loadClass(cls.getStringValue());
-                }
-                catch (ClassNotFoundException e) {
+                } catch (ClassNotFoundException e) {
                     throw new DeploymentException("AbstractWebModuleBuilder: Could not load servlet class: " + cls.getStringValue());
                 }
-                classes.add(clas);
+                addClass(classes, clas);
             }
         }
 
@@ -765,11 +764,10 @@ public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
             Class<?> clas;
             try {
                 clas = classLoader.loadClass(cls.getStringValue());
-            }
-            catch (ClassNotFoundException e) {
+            } catch (ClassNotFoundException e) {
                 throw new DeploymentException("AbstractWebModuleBuilder: Could not load listener class: " + cls.getStringValue());
             }
-            classes.add(clas);
+            addClass(classes, clas);
         }
 
         // Get all the filters from the deployment descriptor
@@ -779,14 +777,20 @@ public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
             Class<?> clas;
             try {
                 clas = classLoader.loadClass(cls.getStringValue());
-            }
-            catch (ClassNotFoundException e) {
+            } catch (ClassNotFoundException e) {
                 throw new DeploymentException("AbstractWebModuleBuilder: Could not load filter class: " + cls.getStringValue());
             }
-            classes.add(clas);
+            addClass(classes, clas);
         }
 
         return new ClassFinder(classes);
+    }
+
+    private void addClass(List<Class> classes, Class<?> clas) {
+        while (clas != Object.class) {
+            classes.add(clas);
+            clas = clas.getSuperclass();
+        }
     }
 
     protected void configureBasicWebModuleAttributes(WebAppType webApp, XmlObject vendorPlan, EARContext moduleContext, EARContext earContext, WebModule webModule, GBeanData webModuleData) throws DeploymentException {

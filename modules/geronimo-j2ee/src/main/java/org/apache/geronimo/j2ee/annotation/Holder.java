@@ -107,9 +107,35 @@ public class Holder implements Serializable {
         ObjectRecipe objectRecipe = new ObjectRecipe(className);
         objectRecipe.allow(Option.FIELD_INJECTION);
         objectRecipe.allow(Option.PRIVATE_PROPERTIES);
+        Class clazz;
+        try {
+            clazz = classLoader.loadClass(className);
+        } catch (ClassNotFoundException e) {
+            throw new InstantiationException("Can't load class " + className + " in classloader: " + classLoader);
+        }
+        List<NamingException> problems = new ArrayList<NamingException>();
+        while (clazz != Object.class) {
+            addInjections(clazz.getName(), context, objectRecipe, problems);
+            clazz = clazz.getSuperclass();
+        }
+        if (!problems.isEmpty()) {
+            throw new InstantiationException("Some objects to be injected were not found in jndi: " + problems);
+        }
+        Object result = objectRecipe.create(classLoader);
+        if (getPostConstruct() != null) {
+            try {
+                apply(result, null, postConstruct);
+            } catch (InvocationTargetException e) {
+                Throwable cause = e.getCause();
+                throw (InstantiationException) new InstantiationException("Could not call postConstruct method").initCause(cause);
+            }
+        }
+        return result;
+    }
+
+    private void addInjections(String className, Context context, ObjectRecipe objectRecipe, List<NamingException> problems) {
         List<Injection> callbackHandlerinjections = getInjections(className);
         if (callbackHandlerinjections != null) {
-            List<NamingException> problems = new ArrayList<NamingException>();
             for (Injection injection : callbackHandlerinjections) {
                 try {
                     String jndiName = injection.getJndiName();
@@ -127,20 +153,7 @@ public class Holder implements Serializable {
                     problems.add(e);
                 }
             }
-            if (!problems.isEmpty()) {
-                throw new InstantiationException("Some objects to be injected were not found in jndi: " + problems);
-            }
         }
-        Object result = objectRecipe.create(classLoader);
-        if (getPostConstruct() != null) {
-            try {
-                apply(result, null, postConstruct);
-            } catch (InvocationTargetException e) {
-                Throwable cause = e.getCause();
-                throw (InstantiationException) new InstantiationException("Could not call postConstruct method").initCause(cause);
-            }
-        }
-        return result;
     }
 
     public void destroyInstance(Object o) throws Exception {
