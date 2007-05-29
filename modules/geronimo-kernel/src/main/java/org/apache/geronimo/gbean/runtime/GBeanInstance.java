@@ -449,6 +449,14 @@ public final class GBeanInstance implements StateManageable {
     }
 
     /**
+     * Sets the reason we are in the current state.
+     * @param reason  The reason we are in the current state
+     */
+    public void setStateReason(String reason) {
+        stateReason = reason;
+    }
+    
+    /**
      * The java type of the wrapped gbean instance
      *
      * @return the java type of the gbean

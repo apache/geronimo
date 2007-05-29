@@ -213,6 +213,7 @@ public class GBeanInstanceState {
                 return;
             }
         } catch (Throwable e) {
+            gbeanInstance.setStateReason(e.getMessage());
             log.warn("Problem in doFail", e);
         }
         setStateInstance(State.FAILED);
@@ -279,6 +280,7 @@ public class GBeanInstanceState {
 
             if (t instanceof Exception) {
                 // ignore - we only rethrow errors
+                gbeanInstance.setStateReason(t.getMessage());
                 return;
             } else if (t instanceof Error) {
                 throw (Error) t;
@@ -346,6 +348,7 @@ public class GBeanInstanceState {
 
             if (t instanceof Exception) {
                 // ignore - we only rethrow errors
+                gbeanInstance.setStateReason(t.getMessage());
                 return;
             } else if (t instanceof Error) {
                 throw (Error) t;
