@@ -29,6 +29,7 @@ import java.util.Map;
 import java.util.jar.JarFile;
 
 import javax.xml.namespace.QName;
+import javax.xml.ws.http.HTTPBinding;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -295,7 +296,13 @@ public class Axis2Builder extends JAXWSServiceBuilder {
         if (isWsdlSet(portInfo, serviceClass)) {
             log.debug("Service " + portInfo.getServiceName() + " has WSDL.");
             return;
-        }        
+        }
+        
+        if (isHTTPBinding(portInfo, serviceClass)) {
+            log.debug("Service " + portInfo.getServiceName() + " is HTTPBinding.  Only SOAP 1.1 or 1.2 is supported.");
+            return;
+        }
+        
         log.debug("Service " + portInfo.getServiceName() + " does not have WSDL. Generating WSDL...");
 
         WsdlGenerator generator = new WsdlGenerator();
@@ -324,6 +331,24 @@ public class Axis2Builder extends JAXWSServiceBuilder {
     private boolean isWsdlSet(PortInfo portInfo, Class serviceClass) {
         return (portInfo.getWsdlFile() != null && !portInfo.getWsdlFile().trim().equals(""))
                 || JAXWSUtils.containsWsdlLocation(serviceClass, serviceClass.getClassLoader());
+    }
+    
+    private boolean isHTTPBinding(PortInfo portInfo, Class serviceClass) {
+        String bindingURI = "";
+        String bindingURIFromAnnot;
+        
+        if (portInfo.getProtocolBinding() != null) {
+            bindingURI = JAXWSUtils.getBindingURI(portInfo.getProtocolBinding());
+        }        
+        bindingURIFromAnnot = JAXWSUtils.getBindingURIFromAnnot(serviceClass, serviceClass.getClassLoader());
+        
+        if (bindingURI != null && !bindingURI.trim().equals("")) {
+            return bindingURI.equals(HTTPBinding.HTTP_BINDING);
+        } else if (bindingURIFromAnnot != null && !bindingURIFromAnnot.trim().equals("")) {
+            return bindingURIFromAnnot.equals(HTTPBinding.HTTP_BINDING);
+        } 
+        
+        return false;  
     }
         
     public static final GBeanInfo GBEAN_INFO;

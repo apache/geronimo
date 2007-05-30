@@ -23,6 +23,7 @@ import java.util.StringTokenizer;
 
 import javax.jws.WebService;
 import javax.xml.namespace.QName;
+import javax.xml.ws.BindingType;
 import javax.xml.ws.WebServiceProvider;
 
 public class JAXWSUtils {
@@ -275,6 +276,15 @@ public class JAXWSUtils {
         if (wsdlLocSEIFromAnnotation != null && !wsdlLocSEIFromAnnotation.equals(""))
             return true;
         return false;
+    }
+    
+    public static String getBindingURIFromAnnot(Class clazz, ClassLoader loader) {
+        BindingType bindingType = (BindingType) clazz.getAnnotation(BindingType.class);
+        if (bindingType == null) {
+            return ""; 
+        } else {
+            return bindingType.value();
+        }
     }
     
 }
