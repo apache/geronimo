@@ -1,0 +1,24 @@
+td {
+        font-family : Verdana, Geneva, Arial, Helvetica, sans-serif;
+        font-size : 30;
+        color : red;
+        text-align: left;
+        background-color: black;
+}
+
+li {
+        font-family : Verdana, Geneva, Arial, Helvetica, sans-serif;
+        font-size : 24;
+        color : red;
+        text-align: left;
+        background-color: white;
+}
+
+.mainHead {
+        font-family : Verdana, Geneva, Arial, Helvetica, sans-serif;
+        font-size : 36;
+        font-weight : bold;
+        color : black;
+        text-align: center;
+        background-color: red;
+}

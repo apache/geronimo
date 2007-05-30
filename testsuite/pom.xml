@@ -58,11 +58,12 @@
     </dependencies>
     <modules>
         <module>console-testsuite</module>
+        <module>corba-testsuite</module>
         <module>deployment-testsuite</module>
         <module>enterprise-testsuite</module>
         <module>web-testsuite</module>
         <module>webservices-testsuite</module>
-    </modules>
+  </modules>
     <build>
         <resources>
             <resource>
@@ -260,7 +261,7 @@
             <build>
                 <pluginManagement>
                     <plugins>
-                        
+
                         <plugin>
                             <groupId>org.apache.geronimo.plugins</groupId>
                             <artifactId>geronimo-maven-plugin</artifactId>
