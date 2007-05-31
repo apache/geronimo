@@ -38,9 +38,9 @@ import org.apache.cxf.endpoint.ServerImpl;
 import org.apache.cxf.jaxws.JaxWsServerFactoryBean;
 import org.apache.cxf.jaxws.handler.PortInfoImpl;
 import org.apache.cxf.jaxws.javaee.HandlerChainsType;
-import org.apache.cxf.jaxws.support.AbstractJaxWsServiceFactoryBean;
 import org.apache.cxf.jaxws.support.JaxWsEndpointImpl;
 import org.apache.cxf.jaxws.support.JaxWsImplementorInfo;
+import org.apache.cxf.jaxws.support.JaxWsServiceFactoryBean;
 import org.apache.cxf.service.Service;
 import org.apache.geronimo.jaxws.PortInfo;
 import org.apache.geronimo.jaxws.annotations.AnnotationException;
@@ -58,7 +58,7 @@ public abstract class CXFEndpoint extends Endpoint {
 
     protected JaxWsImplementorInfo implInfo;
 
-    protected AbstractJaxWsServiceFactoryBean serviceFactory;
+    protected JaxWsServiceFactoryBean serviceFactory;
 
     protected PortInfo portInfo;
     
