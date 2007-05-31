@@ -84,7 +84,11 @@ public class AxisModuleBuilderExtension implements ModuleBuilderExtension {
            for (WebServiceBindingType bt : geronimoEjbJarType.getWebServiceBinding()) {
                String location = bt.getWebServiceAddress();
                if (location != null) {
-                   correctedPortLocations.put(bt.getEjbName(), location.trim());
+                   location = location.trim();
+                   if (!location.startsWith("/")) {
+                       location = "/" + location;
+                   }
+                   correctedPortLocations.put(bt.getEjbName(), location);
                }
            }
         }
