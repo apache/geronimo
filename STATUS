@@ -14,10 +14,10 @@ Upcoming Releases:
 
   Geronimo 1.2 -- geronimo/server/branches/1.2
     Release Manager: Dain Sundstrom and Alan Cabrera
-    Estimated Date: early April 2007
-    Status:  We have final releases from our dependent projects and will begin
-      the release process for OpenEJB and Geronimo shortly.
-
+    Estimated Date: June 2007
+    Status: The codebase is ready to ship, but there is one
+      bug the community has determined to be a blocker that
+      must be fixed before shipping. 
 
 RELEASE HISTORY:
   2007-03-04  Geronimo 2.0-M3
