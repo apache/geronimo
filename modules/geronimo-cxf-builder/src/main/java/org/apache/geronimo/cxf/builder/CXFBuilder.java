@@ -65,6 +65,14 @@ import org.apache.xmlbeans.XmlOptions;
 
 public class CXFBuilder extends JAXWSServiceBuilder {
     private static final Log LOG = LogFactory.getLog(CXFBuilder.class);
+    
+    /**
+     * This property if enabled will cause the Sun wsgen tool to be used to 
+     * generate the WSDL for servies without WSDL. By default CXF tooling
+     * will be used the generate the WSDL.
+     */
+    private static final String USE_WSGEN_PROPERTY = 
+        "org.apache.geronimo.cxf.use.wsgen";
 
     public CXFBuilder() {
         this(null);
@@ -232,10 +240,16 @@ public class CXFBuilder extends JAXWSServiceBuilder {
         }
         return in;
     }
-    
-    /*
+        
     @Override
     protected void initialize(GBeanData targetGBean, Class serviceClass, PortInfo portInfo, Module module) 
+        throws DeploymentException {  
+        if (Boolean.getBoolean(USE_WSGEN_PROPERTY)) {
+            generateWSDL(serviceClass, portInfo, module);
+        }
+    }
+    
+    private void generateWSDL(Class serviceClass, PortInfo portInfo, Module module) 
         throws DeploymentException {
         if (isWsdlSet(portInfo, serviceClass)) {
             LOG.debug("Service " + portInfo.getServiceName() + " has WSDL.");
@@ -256,9 +270,7 @@ public class CXFBuilder extends JAXWSServiceBuilder {
         }
         
         // set wsdl port
-        if (portInfo.getWsdlPort() == null) {
-            generator.setWsdlPort(serviceInfo.getEndpointName());
-        } else {
+        if (portInfo.getWsdlPort() != null) {
             generator.setWsdlPort(portInfo.getWsdlPort());
         }
                         
@@ -271,8 +283,7 @@ public class CXFBuilder extends JAXWSServiceBuilder {
     private boolean isWsdlSet(PortInfo portInfo, Class serviceClass) {
         return (portInfo.getWsdlFile() != null && !portInfo.getWsdlFile().trim().equals(""))
                 || JAXWSUtils.containsWsdlLocation(serviceClass, serviceClass.getClassLoader());
-    }
-    */
+    }    
     
     public static final GBeanInfo GBEAN_INFO;
 
