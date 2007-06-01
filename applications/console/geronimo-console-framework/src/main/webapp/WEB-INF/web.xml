@@ -33,12 +33,44 @@ limitations under the License.
         <display-name>Geronimo Console</display-name>
         <servlet-name>se-console</servlet-name>
         <servlet-class>org.apache.pluto.portalImpl.Servlet</servlet-class>
+        <init-param>
+            <param-name>charset</param-name>
+            <param-value>UTF-8</param-value>
+        </init-param>
+		<init-param>
+			<param-name>form-encoding</param-name>
+			<param-value>UTF-8</param-value>
+		</init-param>
+		<init-param>
+			<param-name>container-encoding</param-name>
+			<param-value>UTF-8</param-value>
+		</init-param>
+		<init-param>
+			<param-name>encoding</param-name>
+			<param-value>UTF-8</param-value>
+		</init-param>
     </servlet>
 
     <servlet>
         <display-name>Generic Context Forward Servlet</display-name>
         <servlet-name>context-forward</servlet-name>
         <servlet-class>org.apache.geronimo.console.servlet.GenericForwardServlet</servlet-class>
+        <init-param>
+            <param-name>charset</param-name>
+            <param-value>UTF-8</param-value>
+        </init-param>
+		<init-param>
+			<param-name>form-encoding</param-name>
+			<param-value>UTF-8</param-value>
+		</init-param>
+		<init-param>
+			<param-name>container-encoding</param-name>
+			<param-value>UTF-8</param-value>
+		</init-param>
+		<init-param>
+			<param-name>encoding</param-name>
+			<param-value>UTF-8</param-value>
+		</init-param>
     </servlet>
 
     <servlet>
@@ -53,6 +85,22 @@ limitations under the License.
            <param-name>servlet-path</param-name>
            <param-value>/dwr</param-value>
         </init-param>
+        <init-param>
+            <param-name>charset</param-name>
+            <param-value>UTF-8</param-value>
+        </init-param>
+		<init-param>
+			<param-name>form-encoding</param-name>
+			<param-value>UTF-8</param-value>
+		</init-param>
+		<init-param>
+			<param-name>container-encoding</param-name>
+			<param-value>UTF-8</param-value>
+		</init-param>
+		<init-param>
+			<param-name>encoding</param-name>
+			<param-value>UTF-8</param-value>
+		</init-param>
     </servlet>
 
     <!--

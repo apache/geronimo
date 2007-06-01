@@ -16,6 +16,8 @@ implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 --%>
+<%@ page language="java" %>
+<%@ page contentType="text/html; charset=UTF-8" %>
 <%@ page session="true" buffer="none" %>
 <%@ page import="java.util.Iterator" %>
 <%@ page import="org.apache.pluto.portalImpl.aggregation.Fragment" %>

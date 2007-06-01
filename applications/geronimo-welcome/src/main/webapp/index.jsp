@@ -16,10 +16,12 @@
 --%>
 <!-- $Rev$ $Date$ -->
 <!doctype html public "-//w3c//dtd html 4.0 transitional//en" "http://www.w3.org/TR/REC-html40/strict.dtd">
-<%@ page session="false" %>
+<%@ page language="java"
+         contentType="text/html; charset=UTF-8"
+         session="false" %>
 <html>
     <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <title>Apache Geronimo</title>
     <link rel="stylesheet" href="main.css" type="text/css"/>
 </head>
