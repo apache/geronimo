@@ -84,6 +84,19 @@ import org.apache.geronimo.xbeans.geronimo.web.tomcat.config.GerTomcatDocument;
 import org.apache.geronimo.xbeans.javaee.ServletType;
 import org.apache.geronimo.xbeans.javaee.WebAppDocument;
 import org.apache.geronimo.xbeans.javaee.WebAppType;
+import org.apache.geronimo.xbeans.javaee.EjbLocalRefType;
+import org.apache.geronimo.xbeans.javaee.EjbRefType;
+import org.apache.geronimo.xbeans.javaee.EnvEntryType;
+import org.apache.geronimo.xbeans.javaee.MessageDestinationType;
+import org.apache.geronimo.xbeans.javaee.MessageDestinationRefType;
+import org.apache.geronimo.xbeans.javaee.PersistenceContextRefType;
+import org.apache.geronimo.xbeans.javaee.PersistenceUnitRefType;
+import org.apache.geronimo.xbeans.javaee.LifecycleCallbackType;
+import org.apache.geronimo.xbeans.javaee.ResourceEnvRefType;
+import org.apache.geronimo.xbeans.javaee.ResourceRefType;
+import org.apache.geronimo.xbeans.javaee.ServiceRefType;
+import org.apache.geronimo.xbeans.javaee.SecurityConstraintType;
+import org.apache.geronimo.xbeans.javaee.SecurityRoleType;
 import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
@@ -477,6 +490,21 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder {
              */
 
             if ((Boolean)module.getSharedContext().get(IS_JAVAEE)) {
+                WebAppType shortWebApp = (WebAppType) webApp.copy();
+                shortWebApp.setEjbLocalRefArray(new EjbLocalRefType[0]);
+                shortWebApp.setEjbRefArray(new EjbRefType[0]);
+                shortWebApp.setEnvEntryArray(new EnvEntryType[0]);
+                shortWebApp.setMessageDestinationArray(new MessageDestinationType[0]);
+                shortWebApp.setMessageDestinationRefArray(new MessageDestinationRefType[0]);
+                shortWebApp.setPersistenceContextRefArray(new PersistenceContextRefType[0]);
+                shortWebApp.setPersistenceUnitRefArray(new PersistenceUnitRefType[0]);
+                shortWebApp.setPostConstructArray(new LifecycleCallbackType[0]);
+                shortWebApp.setPreDestroyArray(new LifecycleCallbackType[0]);
+                shortWebApp.setResourceEnvRefArray(new ResourceEnvRefType[0]);
+                shortWebApp.setResourceRefArray(new ResourceRefType[0]);
+                shortWebApp.setServiceRefArray(new ServiceRefType[0]);
+                shortWebApp.setSecurityConstraintArray(new SecurityConstraintType[0]);
+                shortWebApp.setSecurityRoleArray(new SecurityRoleType[0]);
                 File webXml = new File(moduleContext.getBaseDir(), "/WEB-INF/web.xml");
                 File inPlaceDir = moduleContext.getInPlaceConfigurationDir();
                 if (inPlaceDir != null) {
@@ -497,7 +525,7 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder {
     //                WebAppDocument doc = WebAppDocument.Factory.newInstance();
     //                doc.setWebApp(webApp);
 
-                    outFile.write(webApp.xmlText(opts));
+                    outFile.write(shortWebApp.xmlText(opts));
                     outFile.flush();
                     outFile.close();
                 } catch (Exception e) {
