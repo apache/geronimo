@@ -503,8 +503,10 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder {
                 shortWebApp.setResourceEnvRefArray(new ResourceEnvRefType[0]);
                 shortWebApp.setResourceRefArray(new ResourceRefType[0]);
                 shortWebApp.setServiceRefArray(new ServiceRefType[0]);
-                shortWebApp.setSecurityConstraintArray(new SecurityConstraintType[0]);
-                shortWebApp.setSecurityRoleArray(new SecurityRoleType[0]);
+                // TODO Tomcat will fail web services tck tests if the following security settings are set in shortWebApp
+                // need to figure out why...
+//                 shortWebApp.setSecurityConstraintArray(new SecurityConstraintType[0]);
+//                 shortWebApp.setSecurityRoleArray(new SecurityRoleType[0]);
                 File webXml = new File(moduleContext.getBaseDir(), "/WEB-INF/web.xml");
                 File inPlaceDir = moduleContext.getInPlaceConfigurationDir();
                 if (inPlaceDir != null) {
