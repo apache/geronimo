@@ -308,7 +308,7 @@ if [ "$1" = "debug" ] ; then
       -Dorg.apache.geronimo.base.dir="$GERONIMO_BASE" \
       -Djava.io.tmpdir="$GERONIMO_TMPDIR" \
       -classpath "$GERONIMO_HOME"/bin/server.jar \
-      org.apache.geronimo.kernel.util.MainConfigurationBootstrapper $LONG_OPT "$@"
+      org.apache.geronimo.cli.daemon.DaemonCLI $LONG_OPT "$@"
   fi
 
 elif [ "$1" = "run" ]; then
