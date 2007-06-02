@@ -16,16 +16,25 @@
  */
 package org.apache.geronimo.system.threads;
 
+import java.util.concurrent.TimeUnit;
+
 /**
  * Management interface for thread pools
  *
  * @version $Rev$ $Date$
  */
 public interface ThreadPool {
+
+    int getPoolSize();
+
     /**
      * Gets the maximum number of threads allowed for this thread pool
      */
-    int getPoolSize();
+    int getMaximumPoolSize();
+
+    int getActiveCount();
+
+    boolean awaitTermination(long timeout, TimeUnit unit) throws InterruptedException;
 
     /**
      * Executes work on behalf of a named client.  This helps the thread pool

@@ -58,11 +58,14 @@
         <attribute name="logTimeZone">GMT</attribute>
     </gbean>
 
-    <gbean name="JettyWebConnector" class="org.apache.geronimo.jetty6.connector.HTTPConnector">
+    <gbean name="JettyWebConnector" class="org.apache.geronimo.jetty6.connector.HTTPSelectChannelConnector">
         <attribute name="host">${PlanServerHostname}</attribute>
         <attribute name="port">${PlanHTTPPort}</attribute>
         <reference name="JettyContainer">
             <name>JettyWebContainer</name>
+        </reference>
+        <reference name="ThreadPool">
+            <name>DefaultThreadPool</name>
         </reference>
         <attribute name="maxThreads">50</attribute>
         <!--<attribute name="minThreads">25</attribute>-->
@@ -71,17 +74,21 @@
         <!--<attribute name="lowThreadsMaxIdleTimeMs">800</attribute>-->
     </gbean>
 
-    <!--<gbean name="JettyAJP13Connector" class="org.apache.geronimo.jetty.connector.AJP13Connector">-->
-        <!--<attribute name="host">${PlanServerHostname}</attribute>-->
-        <!--<attribute name="port">${PlanAJPPort2}</attribute>-->
-        <!--<reference name="JettyContainer">-->
-            <!--<name>JettyWebContainer</name>-->
-        <!--</reference>-->
-        <!--<attribute name="maxThreads">50</attribute>-->
+    <gbean name="JettyAJP13Connector" class="org.apache.geronimo.jetty6.connector.AJP13Connector">
+        <attribute name="host">${PlanServerHostname}</attribute>
+        <attribute name="port">${PlanAJPPort}</attribute>
+        <reference name="JettyContainer">
+            <name>JettyWebContainer</name>
+        </reference>
+        <reference name="ThreadPool">
+            <name>DefaultThreadPool</name>
+        </reference>
+        <attribute name="maxThreads">50</attribute>
         <!--<attribute name="minThreads">10</attribute>-->
-    <!--</gbean>-->
+    </gbean>
 
-    <gbean name="JettySSLConnector" class="org.apache.geronimo.jetty6.connector.HTTPSConnector">
+    <!-- DONT USE THIS ONE -->
+    <gbean name="JettySSLConnector" class="org.apache.geronimo.jetty6.connector.HTTPSSocketConnector">
         <attribute name="host">${PlanServerHostname}</attribute>
         <attribute name="port">${PlanHTTPSPort}</attribute>
         <attribute name="keyStore">geronimo-default</attribute>
@@ -91,13 +98,37 @@
         <attribute name="algorithm">Default</attribute>
         <attribute name="secureProtocol">TLS</attribute>
         <attribute name="maxThreads">50</attribute>
-        <!--<attribute name="minThreads">25</attribute>-->
         <reference name="JettyContainer">
             <name>JettyWebContainer</name>
+        </reference>
+        <reference name="ThreadPool">
+            <name>DefaultThreadPool</name>
         </reference>
         <reference name="KeystoreManager">
             <name>KeystoreManager</name>
         </reference>
     </gbean>
+<!-- USE THIS ONE
+    <gbean name="JettySSLConnector" class="org.apache.geronimo.jetty6.connector.HTTPSSelectChannelConnector">
+        <attribute name="host">${PlanServerHostname}</attribute>
+        <attribute name="port">${PlanHTTPSPort}</attribute>
+        <attribute name="keyStore">geronimo-default</attribute>
+        <attribute name="keyAlias">geronimo</attribute>
+        <attribute name="trustStore">geronimo-default</attribute>
+        <attribute name="clientAuthRequired">false</attribute>
+        <attribute name="algorithm">Default</attribute>
+        <attribute name="secureProtocol">TLS</attribute>
+        <attribute name="maxThreads">50</attribute>
+        <reference name="JettyContainer">
+            <name>JettyWebContainer</name>
+        </reference>
+        <reference name="ThreadPool">
+            <name>DefaultThreadPool</name>
+        </reference>
+        <reference name="KeystoreManager">
+            <name>KeystoreManager</name>
+        </reference>
+    </gbean>
+-->
 
 </module>

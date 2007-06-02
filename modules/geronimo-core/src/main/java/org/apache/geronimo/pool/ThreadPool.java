@@ -172,7 +172,19 @@ public class ThreadPool implements GeronimoExecutor, GBeanLifecycle, J2EEManaged
 
 
     public int getPoolSize() {
+        return executor.getPoolSize();
+    }
+
+    public int getMaximumPoolSize() {
         return executor.getMaximumPoolSize();
+    }
+
+    public int getActiveCount() {
+        return executor.getActiveCount();
+    }
+
+    public boolean awaitTermination(long timeout, TimeUnit unit) throws InterruptedException {
+        return executor.awaitTermination(timeout, unit);
     }
 
     public void execute(Runnable command) {
@@ -327,7 +339,7 @@ public class ThreadPool implements GeronimoExecutor, GBeanLifecycle, J2EEManaged
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic(ThreadPool.class);
+        GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic(ThreadPool.class, "GBean");
 
         infoFactory.addAttribute("poolSize", int.class, true);
         infoFactory.addAttribute("poolName", String.class, true);

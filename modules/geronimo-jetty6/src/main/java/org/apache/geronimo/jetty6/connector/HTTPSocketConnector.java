@@ -21,14 +21,15 @@ import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.jetty6.JettyContainer;
 import org.apache.geronimo.management.geronimo.WebManager;
+import org.apache.geronimo.system.threads.ThreadPool;
 import org.mortbay.jetty.bio.SocketConnector;
 
 /**
  * @version $Rev$ $Date$
  */
-public class HTTPConnector extends JettyConnector {
-    public HTTPConnector(JettyContainer container) {
-        super(container, new SocketConnector());
+public class HTTPSocketConnector extends JettyConnector {
+    public HTTPSocketConnector(JettyContainer container, ThreadPool threadPool) {
+        super(container, new SocketConnector(), threadPool, "HTTPSocketConnector");
     }
 
     public String getProtocol() {
@@ -39,11 +40,19 @@ public class HTTPConnector extends JettyConnector {
         return 80;
     }
 
+    public void setRedirectPort(int port) {
+        SocketConnector socketListener = (SocketConnector) listener;
+        socketListener.setConfidentialPort(port);
+        socketListener.setIntegralPort(port);
+        socketListener.setIntegralScheme("https");
+        socketListener.setConfidentialScheme("https");
+    }
+
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic("Jetty Connector HTTP", HTTPConnector.class, JettyConnector.GBEAN_INFO);
-        infoFactory.setConstructor(new String[]{"JettyContainer"});
+        GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic("Jetty BIO Connector HTTP", HTTPSocketConnector.class, JettyConnector.GBEAN_INFO);
+        infoFactory.setConstructor(new String[]{"JettyContainer", "ThreadPool"});
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
 

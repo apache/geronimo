@@ -25,6 +25,8 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.SortedSet;
 import java.util.TreeSet;
+import java.util.concurrent.TimeUnit;
+
 import junit.framework.TestCase;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.kernel.config.Configuration;
@@ -65,6 +67,18 @@ public class PluginInstallerTest extends TestCase {
                 new BasicServerInfo("."), new ThreadPool() {
             public int getPoolSize() {
                 return 0;
+            }
+
+            public int getMaximumPoolSize() {
+                return 0;
+            }
+
+            public int getActiveCount() {
+                return 0;
+            }
+
+            public boolean awaitTermination(long timeout, TimeUnit unit) throws InterruptedException {
+                return false;
             }
 
             public void execute(String consumerName, Runnable runnable) {

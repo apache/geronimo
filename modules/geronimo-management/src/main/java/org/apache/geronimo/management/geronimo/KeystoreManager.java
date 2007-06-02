@@ -18,6 +18,7 @@ package org.apache.geronimo.management.geronimo;
 
 import javax.net.ssl.SSLServerSocketFactory;
 import javax.net.ssl.SSLSocketFactory;
+import javax.net.ssl.SSLContext;
 
 /**
  * Management interface for working with keystores.  Mostly this is used to
@@ -130,4 +131,6 @@ public interface KeystoreManager {
      * keystore is unlocked and contains at least one trust certificate.
      */
     public KeystoreInstance[] getUnlockedTrustStores();
+
+    SSLContext createSSLContext(String provider, String protocol, String algorithm, String keyStore, String keyAlias, String trustStore, ClassLoader loader) throws KeystoreException;
 }

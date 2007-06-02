@@ -25,7 +25,7 @@ import junit.framework.TestCase;
  * @version $Rev$ $Date$
  */
 public class HTTPConnectorTest extends TestCase {
-    private HTTPConnector connector;
+    private HTTPSocketConnector connector;
 
     public void testAddress() throws UnknownHostException {
         connector.setHost("localhost");
@@ -35,6 +35,6 @@ public class HTTPConnectorTest extends TestCase {
 
     protected void setUp() throws Exception {
         super.setUp();
-        connector = new HTTPConnector(null);
+        connector = new HTTPSocketConnector(null, null);
     }
 }

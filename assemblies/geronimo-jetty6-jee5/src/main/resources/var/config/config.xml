@@ -117,15 +117,15 @@
             <attribute name="port">${PlanHTTPPortPrimary + portOffset}</attribute>
             <attribute name="redirectPort">${PlanHTTPSPortPrimary + portOffset}</attribute>
         </gbean>
+        <gbean name="JettyAJP13Connector" load="false">
+            <attribute name="host">${PlanServerHostname}</attribute>
+            <attribute name="port">${PlanAJPPortPrimary + portOffset}</attribute>
+            <attribute name="redirectPort">${PlanHTTPSPortPrimary + portOffset}</attribute>
+        </gbean>
         <gbean name="JettySSLConnector">
             <attribute name="host">${PlanServerHostname}</attribute>
             <attribute name="port">${PlanHTTPSPortPrimary + portOffset}</attribute>
         </gbean>
-<!--        <gbean name="JettyAJP13Connector">
-            <attribute name="host">0.0.0.0</attribute>
-            <attribute name="port">8009</attribute>
-        </gbean>
--->
     </module>
 
     <!--

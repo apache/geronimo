@@ -22,6 +22,14 @@
     </dep:dependency>
     <dep:dependency>
         <dep:groupId>org.mortbay.jetty</dep:groupId>
+        <dep:artifactId>jetty-ajp</dep:artifactId>
+    </dep:dependency>
+    <dep:dependency>
+        <dep:groupId>org.mortbay.jetty</dep:groupId>
+        <dep:artifactId>jetty-sslengine</dep:artifactId>
+    </dep:dependency>
+    <dep:dependency>
+        <dep:groupId>org.mortbay.jetty</dep:groupId>
         <dep:artifactId>jetty-util</dep:artifactId>
     </dep:dependency>
     <dep:dependency>

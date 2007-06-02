@@ -25,19 +25,21 @@ import org.apache.geronimo.jetty6.JettyContainer;
 import org.apache.geronimo.jetty6.JettySecureConnector;
 import org.apache.geronimo.management.geronimo.KeystoreManager;
 import org.apache.geronimo.management.geronimo.WebManager;
+import org.apache.geronimo.system.threads.ThreadPool;
+import org.mortbay.jetty.bio.SocketConnector;
 
 /**
  * Implementation of a HTTPS connector based on Jetty's SslConnector (which uses pure JSSE).
  *
  * @version $Rev$ $Date$
  */
-public class HTTPSConnector extends JettyConnector implements JettySecureConnector {
-    private final GeronimoSSLListener https;
+public class HTTPSSocketConnector extends JettyConnector implements JettySecureConnector {
+    private final GeronimoSocketSSLListener https;
     private String algorithm;
 
-    public HTTPSConnector(JettyContainer container, KeystoreManager keystoreManager) {
-        super(container, new GeronimoSSLListener(keystoreManager));
-        https = (GeronimoSSLListener) listener;
+    public HTTPSSocketConnector(JettyContainer container, ThreadPool threadPool, KeystoreManager keystoreManager) {
+        super(container, new GeronimoSocketSSLListener(keystoreManager), threadPool, "HTTPSSocketConnector");
+        https = (GeronimoSocketSSLListener) listener;
     }
 
     public int getDefaultPort() {
@@ -114,11 +116,20 @@ public class HTTPSConnector extends JettyConnector implements JettySecureConnect
     public String getKeyAlias() {
         return https.getKeyAlias();
     }
+    
+    //TODO does this make sense???
+    public void setRedirectPort(int port) {
+        SocketConnector socketListener = (SocketConnector) listener;
+        socketListener.setConfidentialPort(port);
+        socketListener.setIntegralPort(port);
+        socketListener.setIntegralScheme("https");
+        socketListener.setConfidentialScheme("https");
+    }
 
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic("Jetty Connector HTTPS", HTTPSConnector.class, JettyConnector.GBEAN_INFO);
+        GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic("Jetty Connector HTTPS", HTTPSSocketConnector.class, JettyConnector.GBEAN_INFO);
         infoFactory.addAttribute("algorithm", String.class, true, true);
         infoFactory.addAttribute("secureProtocol", String.class, true, true);
         infoFactory.addAttribute("keyStore", String.class, true, true);
@@ -128,7 +139,7 @@ public class HTTPSConnector extends JettyConnector implements JettySecureConnect
         infoFactory.addAttribute("clientAuthRequested", boolean.class, true, true);
         infoFactory.addReference("KeystoreManager", KeystoreManager.class, NameFactory.GERONIMO_SERVICE);
         infoFactory.addInterface(JettySecureConnector.class);
-        infoFactory.setConstructor(new String[]{"JettyContainer", "KeystoreManager"});
+        infoFactory.setConstructor(new String[]{"JettyContainer", "ThreadPool", "KeystoreManager"});
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
 

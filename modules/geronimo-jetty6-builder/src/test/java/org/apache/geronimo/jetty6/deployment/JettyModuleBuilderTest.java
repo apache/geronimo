@@ -51,7 +51,7 @@ import org.apache.geronimo.j2ee.deployment.ModuleBuilderExtension;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.j2ee.management.impl.J2EEServerImpl;
 import org.apache.geronimo.jetty6.JettyContainerImpl;
-import org.apache.geronimo.jetty6.connector.HTTPConnector;
+import org.apache.geronimo.jetty6.connector.HTTPSocketConnector;
 import org.apache.geronimo.kernel.Jsr77Naming;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.KernelFactory;
@@ -245,7 +245,7 @@ public class JettyModuleBuilderTest extends TestSupport {
         GBeanData containerData = bootstrap.addGBean("JettyContainer", JettyContainerImpl.GBEAN_INFO);
         AbstractName containerName = containerData.getAbstractName();
 
-        GBeanData connector = bootstrap.addGBean("JettyConnector", HTTPConnector.GBEAN_INFO);
+        GBeanData connector = bootstrap.addGBean("JettyConnector", HTTPSocketConnector.GBEAN_INFO);
         connector.setAttribute("port", new Integer(5678));
         connector.setAttribute("maxThreads", new Integer(50));
 //        connector.setAttribute("minThreads", new Integer(10));

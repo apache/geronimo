@@ -21,14 +21,15 @@ import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.jetty6.JettyContainer;
 import org.apache.geronimo.management.geronimo.WebManager;
+import org.apache.geronimo.system.threads.ThreadPool;
+import org.mortbay.jetty.ajp.Ajp13SocketConnector;
 
 /**
  * @version $Rev$ $Date$
  */
 public class AJP13Connector extends JettyConnector {
-    public AJP13Connector(JettyContainer container) {
-        //throw new UnsupportedOperationException("No AJP13Connector for jetty6
-        //TODO:there is no ajp13 connector, but just ignore this for now
+    public AJP13Connector(JettyContainer container, ThreadPool threadPool) {
+        super(container, new Ajp13SocketConnector(), threadPool, "AJP13Connector");
     }
 
     public String getProtocol() {
@@ -39,11 +40,19 @@ public class AJP13Connector extends JettyConnector {
         return -1;
     }
 
+    public void setRedirectPort(int port) {
+        Ajp13SocketConnector ajpListener = (Ajp13SocketConnector) listener;
+        ajpListener.setConfidentialPort(port);
+        ajpListener.setIntegralPort(port);
+        ajpListener.setIntegralScheme("https");
+        ajpListener.setConfidentialScheme("https");
+    }
+
     public static final GBeanInfo GBEAN_INFO;
 
     static {
         GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic("Jetty Connector AJP13", AJP13Connector.class, JettyConnector.GBEAN_INFO);
-        infoFactory.setConstructor(new String[]{"JettyContainer"});
+        infoFactory.setConstructor(new String[]{"JettyContainer", "ThreadPool"});
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
 

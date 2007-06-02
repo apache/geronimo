@@ -43,6 +43,9 @@ import java.util.List;
 import java.util.Vector;
 import javax.net.ssl.SSLServerSocketFactory;
 import javax.net.ssl.SSLSocketFactory;
+import javax.net.ssl.SSLEngine;
+import javax.net.ssl.SSLContext;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.gbean.AbstractName;
@@ -290,6 +293,40 @@ public class FileKeystoreManager implements KeystoreManager, GBeanLifecycle {
      *                     unlocked.
      */
     public SSLServerSocketFactory createSSLServerFactory(String provider, String protocol, String algorithm, String keyStore, String keyAlias, String trustStore, ClassLoader loader) throws KeystoreException {
+        SSLContext sslContext = createSSLContext(provider, protocol, algorithm, keyStore, keyAlias, trustStore, loader);
+        // OMG this hurts, but it causes ClassCastExceptions elsewhere unless done this way!
+        try {
+            Object result = sslContext.getClass().getMethod("getServerSocketFactory", new Class[0]).invoke(sslContext, new Object[0]);
+            return (SSLServerSocketFactory) result;
+        } catch (Exception e) {
+            throw new KeystoreException("Unable to create SSL Server Factory", e);
+        }
+    }
+
+    /**
+     * Gets a ServerSocketFactory using one Keystore to access the private key
+     * and another to provide the list of trusted certificate authorities.
+     * @param provider The SSL provider to use, or null for the default
+     * @param protocol The SSL protocol to use
+     * @param algorithm The SSL algorithm to use
+     * @param keyStore The key keystore name as provided by listKeystores.  The
+     *                 KeystoreInstance for this keystore must be unlocked.
+     * @param keyAlias The name of the private key in the keystore.  The
+     *                 KeystoreInstance for this keystore must have unlocked
+     *                 this key.
+     * @param trustStore The trust keystore name as provided by listKeystores.
+     *                   The KeystoreInstance for this keystore must have
+     *                   unlocked this key.
+     * @param loader     The class loader used to resolve factory classes.
+     *
+     * @return SSLContext using the security info provided
+     * @throws KeystoreIsLocked Occurs when the requested key keystore cannot
+     *                          be used because it has not been unlocked.
+     * @throws KeyIsLocked Occurs when the requested private key in the key
+     *                     keystore cannot be used because it has not been
+     *                     unlocked.
+     */
+    public SSLContext createSSLContext(String provider, String protocol, String algorithm, String keyStore, String keyAlias, String trustStore, ClassLoader loader) throws KeystoreException {
         KeystoreInstance keyInstance = getKeystore(keyStore);
         if(keyInstance.isKeystoreLocked()) {
             throw new KeystoreIsLocked("Keystore '"+keyStore+"' is locked; please use the keystore page in the admin console to unlock it");
@@ -312,10 +349,9 @@ public class FileKeystoreManager implements KeystoreManager, GBeanLifecycle {
             cls.getMethod("init", new Class[]{kmc, tmc, src}).invoke(ctx, new Object[]{keyInstance.getKeyManager(algorithm, keyAlias, null),
                                                                             trustInstance == null ? null : trustInstance.getTrustManager(algorithm, null),
                                                                             new java.security.SecureRandom()});
-            Object result = cls.getMethod("getServerSocketFactory", new Class[0]).invoke(ctx, new Object[0]);
-            return (SSLServerSocketFactory) result;
+            return (SSLContext) ctx;
         } catch (Exception e) {
-            throw new KeystoreException("Unable to create SSL Server Factory", e);
+            throw new KeystoreException("Unable to create SSL Context", e);
         }
     }
 

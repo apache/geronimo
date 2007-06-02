@@ -27,10 +27,8 @@ import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.jetty6.JettyContainer;
 import org.apache.geronimo.jetty6.JettyWebConnector;
+import org.apache.geronimo.system.threads.ThreadPool;
 import org.mortbay.jetty.AbstractConnector;
-import org.mortbay.jetty.Connector;
-import org.mortbay.jetty.bio.SocketConnector;
-import org.mortbay.jetty.nio.SelectChannelConnector;
 
 /**
  * Base class for GBeans for Jetty network connectors (HTTP, HTTPS, AJP, etc.).
@@ -40,7 +38,7 @@ import org.mortbay.jetty.nio.SelectChannelConnector;
 public abstract class JettyConnector implements GBeanLifecycle, JettyWebConnector {
     public final static String CONNECTOR_CONTAINER_REFERENCE = "JettyContainer";
     private final JettyContainer container;
-    protected final Connector listener;
+    protected final AbstractConnector listener;
     private String connectHost;
 
     /**
@@ -51,14 +49,18 @@ public abstract class JettyConnector implements GBeanLifecycle, JettyWebConnecto
         listener = null;
     }
 
-    public JettyConnector(JettyContainer container) {
+    public JettyConnector(JettyContainer container, ThreadPool threadPool) {
         this.container = container;
         this.listener = null;
     }
 
-    public JettyConnector(JettyContainer container, Connector listener) {
+    public JettyConnector(JettyContainer container, AbstractConnector listener, ThreadPool threadPool, String name) {
         this.container = container;
         this.listener = listener;
+        if (threadPool != null) {
+            JettyThreadPool jettyThreadPool = new JettyThreadPool(threadPool, name);
+            listener.setThreadPool(jettyThreadPool);
+        }
     }
 
     //TODO: support the jetty6 specific methods
@@ -108,11 +110,11 @@ public abstract class JettyConnector implements GBeanLifecycle, JettyWebConnecto
     }
 
     public int getMaxIdleTimeMs() {
-        return ((AbstractConnector) listener).getMaxIdleTime();
+        return listener.getMaxIdleTime();
     }
 
     public void setMaxIdleTimeMs(int idleTime) {
-        ((AbstractConnector) listener).setMaxIdleTime(idleTime);
+        listener.setMaxIdleTime(idleTime);
     }
 
     public int getBufferSizeBytes() {
@@ -126,11 +128,11 @@ public abstract class JettyConnector implements GBeanLifecycle, JettyWebConnecto
     }
 
     public int getAcceptQueueSize() {
-        return ((AbstractConnector) listener).getAcceptQueueSize();
+        return listener.getAcceptQueueSize();
     }
 
     public void setAcceptQueueSize(int size) {
-        ((AbstractConnector) listener).setAcceptQueueSize(size);
+        listener.setAcceptQueueSize(size);
     }
 
     public int getLingerMillis() {
@@ -138,7 +140,7 @@ public abstract class JettyConnector implements GBeanLifecycle, JettyWebConnecto
     }
 
     public void setLingerMillis(int millis) {
-        ((AbstractConnector) listener).setSoLingerTime(millis);
+        listener.setSoLingerTime(millis);
     }
 
     public boolean isTcpNoDelay() {
@@ -151,12 +153,12 @@ public abstract class JettyConnector implements GBeanLifecycle, JettyWebConnecto
 
     public void setMaxThreads(int maxThreads) {
         //TODO: in jetty6 connectors have a number of acceptor threads
-        ((AbstractConnector) listener).setAcceptors(maxThreads);
+        listener.setAcceptors(maxThreads);
     }
 
     public int getMaxThreads() {
         //TODO: confirm that this is reasonable
-        return ((AbstractConnector) listener).getAcceptors();
+        return listener.getAcceptors();
     }
 
     public int getRedirectPort() {
@@ -173,31 +175,7 @@ public abstract class JettyConnector implements GBeanLifecycle, JettyWebConnecto
 
 
     public void setRedirectPort(int port) {
-        if (listener instanceof SocketConnector) {
-            SocketConnector socketListener = (SocketConnector) listener;
-            socketListener.setConfidentialPort(port);
-            socketListener.setIntegralPort(port);
-            socketListener.setIntegralScheme("https");
-            socketListener.setConfidentialScheme("https");
-        } else if (listener instanceof SelectChannelConnector) {
-            SelectChannelConnector connector = (SelectChannelConnector) listener;
-            connector.setConfidentialPort(port);
-            connector.setIntegralPort(port);
-            connector.setIntegralScheme("https");
-            connector.setConfidentialScheme("https");
-        }
-        /*
-                 * don't have one of these yet
-                else if(listener instanceof AJP13Listener) {
-            AJP13Listener ajpListener = (AJP13Listener) listener;
-            ajpListener.setConfidentialPort(port);
-            ajpListener.setIntegralPort(port);
-            ajpListener.setIntegralScheme("https");
-            ajpListener.setConfidentialScheme("https");
-        */
-        else {
-            throw new UnsupportedOperationException(listener == null ? "No Listener" : listener.getClass().getName()); //todo: can this happen?
-        }
+        throw new UnsupportedOperationException("No redirect port on " + this.getClass().getName());
     }
 
     public abstract String getProtocol();
@@ -236,12 +214,13 @@ public abstract class JettyConnector implements GBeanLifecycle, JettyWebConnecto
     static {
         GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic("Jetty HTTP Connector", JettyConnector.class);
         infoFactory.addReference(CONNECTOR_CONTAINER_REFERENCE, JettyContainer.class, NameFactory.GERONIMO_SERVICE);
+        infoFactory.addReference("ThreadPool", ThreadPool.class, NameFactory.GERONIMO_SERVICE);
         // removed 'minThreads' from persistent and manageable String[]
         // removed 'tcpNoDelay' from persistent String[]
         // added 'protocol' to persistent and manageable String[]
         infoFactory.addInterface(JettyWebConnector.class, new String[]{"host", "port", "minThreads", "maxThreads", "bufferSizeBytes", "acceptQueueSize", "lingerMillis", "protocol", "redirectPort", "connectUrl", "maxIdleTimeMs"},
                 new String[]{"host", "port", "redirectPort", "maxThreads", "minThreads", "protocol"});
-        infoFactory.setConstructor(new String[]{"JettyContainer"});
+        infoFactory.setConstructor(new String[]{"JettyContainer", "ThreadPool"});
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
 }

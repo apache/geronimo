@@ -29,7 +29,7 @@ import javax.transaction.TransactionManager;
 
 import org.apache.geronimo.connector.outbound.connectiontracking.ConnectionTrackingCoordinator;
 import org.apache.geronimo.connector.outbound.connectiontracking.GeronimoTransactionListener;
-import org.apache.geronimo.jetty6.connector.HTTPConnector;
+import org.apache.geronimo.jetty6.connector.HTTPSelectChannelConnector;
 import org.apache.geronimo.security.SecurityServiceImpl;
 import org.apache.geronimo.security.deploy.DefaultPrincipal;
 import org.apache.geronimo.security.deploy.PrincipalInfo;
@@ -56,7 +56,7 @@ import org.mortbay.jetty.security.FormAuthenticator;
 public class AbstractWebModuleTest extends TestSupport {
     protected ClassLoader cl;
     protected final static String securityRealmName = "demo-properties-realm";
-    private HTTPConnector connector;
+    private HTTPSelectChannelConnector connector;
     protected JettyContainerImpl container;
     private TransactionManager transactionManager;
     private ConnectionTrackingCoordinator connectionTrackingCoordinator;
@@ -188,7 +188,7 @@ public class AbstractWebModuleTest extends TestSupport {
 
         container = new JettyContainerImpl("test:name=JettyContainer", null);
         container.doStart();
-        connector = new HTTPConnector(container);
+        connector = new HTTPSelectChannelConnector(container, null);
         connector.setPort(5678);
         connector.setMaxThreads(50);
 //        connector.setMinThreads(10);

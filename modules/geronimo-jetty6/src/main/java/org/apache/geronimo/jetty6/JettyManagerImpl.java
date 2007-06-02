@@ -31,8 +31,8 @@ import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.ReferencePatterns;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.jetty6.connector.AJP13Connector;
-import org.apache.geronimo.jetty6.connector.HTTPConnector;
-import org.apache.geronimo.jetty6.connector.HTTPSConnector;
+import org.apache.geronimo.jetty6.connector.HTTPSocketConnector;
+import org.apache.geronimo.jetty6.connector.HTTPSSocketConnector;
 import org.apache.geronimo.jetty6.connector.JettyConnector;
 import org.apache.geronimo.jetty6.requestlog.JettyLogManager;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
@@ -76,9 +76,9 @@ public class JettyManagerImpl implements WebManager {
         AbstractName name = kernel.getNaming().createSiblingName(containerName, uniqueName, NameFactory.GERONIMO_SERVICE);
         GBeanData connector;
         if (protocol.equals(PROTOCOL_HTTP)) {
-            connector = new GBeanData(name, HTTPConnector.GBEAN_INFO);
+            connector = new GBeanData(name, HTTPSocketConnector.GBEAN_INFO);
         } else if (protocol.equals(PROTOCOL_HTTPS)) {
-            connector = new GBeanData(name, HTTPSConnector.GBEAN_INFO);
+            connector = new GBeanData(name, HTTPSSocketConnector.GBEAN_INFO);
             AbstractNameQuery query = new AbstractNameQuery(KeystoreManager.class.getName());
             connector.setReferencePattern("KeystoreManager", query);
             //todo: default HTTPS settings

@@ -26,13 +26,13 @@ import javax.net.ssl.SSLServerSocketFactory;
  *
  * @version $Rev$ $Date$
  */
-public class GeronimoSSLListener extends SslSocketConnector {
+public class GeronimoSocketSSLListener extends SslSocketConnector {
     private KeystoreManager manager;
     private String keyStore;
     private String trustStore;
     private String keyAlias;
 
-    public GeronimoSSLListener(KeystoreManager manager) {
+    public GeronimoSocketSSLListener(KeystoreManager manager) {
         this.manager = manager;
     }
 
