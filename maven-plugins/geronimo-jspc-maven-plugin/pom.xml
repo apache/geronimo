@@ -95,7 +95,7 @@
                 <dependency>
                     <groupId>org.apache.tomcat</groupId>
                     <artifactId>jasper</artifactId>
-                    <version>6.0.13-Gxxxxxx</version>
+                    <version>6.0.13-G543818</version>
                 </dependency>
                 <dependency>
                     <groupId>org.apache.tomcat</groupId>
