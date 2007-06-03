@@ -58,7 +58,7 @@ public class TribesDispatcherHolder implements GBeanLifecycle, DispatcherHolder 
     }
 
     public void doStart() throws Exception {
-        dispatcher = new TribesDispatcher(clusterName, node.getName(), new URIEndPoint(endPointURI));
+        dispatcher = new TribesDispatcher(clusterName, node.getName(), new URIEndPoint(endPointURI), null);
         dispatcher.start();
     }
 
