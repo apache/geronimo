@@ -39,30 +39,26 @@ public class TribesDispatcherHolder implements GBeanLifecycle, DispatcherHolder 
     
     private final URI endPointURI;
     private final String clusterName;
-    private final long inactiveTime;
     private final Node node;
 
     private TribesDispatcher dispatcher;
 
 
-    public TribesDispatcherHolder(URI endPointURI, String clusterName, long inactiveTime, Node node) {
+    public TribesDispatcherHolder(URI endPointURI, String clusterName, Node node) {
         if (null == endPointURI) {
             throw new IllegalArgumentException("endPointURI is required");
         } else if (null == clusterName) {
             throw new IllegalArgumentException("clusterName is required");
-        } else if (0 > inactiveTime) {
-            throw new IllegalArgumentException("inactiveTime must be > 0");
         } else if (null == node) {
             throw new IllegalArgumentException("node is required");
         }
         this.endPointURI = endPointURI;
         this.clusterName = clusterName;
-        this.inactiveTime = inactiveTime;
         this.node = node;
     }
 
     public void doStart() throws Exception {
-        dispatcher = new TribesDispatcher(clusterName, node.getName(), new URIEndPoint(endPointURI), inactiveTime, null);
+        dispatcher = new TribesDispatcher(clusterName, node.getName(), new URIEndPoint(endPointURI));
         dispatcher.start();
     }
 
@@ -92,7 +88,6 @@ public class TribesDispatcherHolder implements GBeanLifecycle, DispatcherHolder 
     public static final String GBEAN_ATTR_END_POINT_URI = "endPointURI";
     public static final String GBEAN_ATTR_CLUSTER_NAME = "clusterName";
     public static final String GBEAN_ATTR_CLUSTER_URI = "clusterUri";
-    public static final String GBEAN_ATTR_INACTIVE_TIME = "inactiveTime";
 
     public static final String GBEAN_REF_NODE = "Node";
 
@@ -102,7 +97,6 @@ public class TribesDispatcherHolder implements GBeanLifecycle, DispatcherHolder 
         
         infoBuilder.addAttribute(GBEAN_ATTR_END_POINT_URI, URI.class, true);
         infoBuilder.addAttribute(GBEAN_ATTR_CLUSTER_NAME, String.class, true);
-        infoBuilder.addAttribute(GBEAN_ATTR_INACTIVE_TIME, long.class, true);
         
         infoBuilder.addReference(GBEAN_REF_NODE, Node.class, NameFactory.GERONIMO_SERVICE);
 
@@ -110,8 +104,7 @@ public class TribesDispatcherHolder implements GBeanLifecycle, DispatcherHolder 
         
         infoBuilder.setConstructor(new String[] {
                 GBEAN_ATTR_END_POINT_URI,
-                GBEAN_ATTR_CLUSTER_NAME, 
-                GBEAN_ATTR_INACTIVE_TIME, 
+                GBEAN_ATTR_CLUSTER_NAME,
                 GBEAN_REF_NODE });
         
         GBEAN_INFO = infoBuilder.getBeanInfo();
