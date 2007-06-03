@@ -97,7 +97,7 @@ public class JACCSecurityTest extends AbstractWebModuleTest {
                 defaultPrincipal, permissions);
 
         //Begin the test
-        HttpURLConnection connection = (HttpURLConnection) new URL("http://localhost:8181/test/protected/hello.txt").openConnection();
+        HttpURLConnection connection = (HttpURLConnection) new URL(connector.getConnectUrl() + "/test/protected/hello.txt").openConnection();
         connection.setInstanceFollowRedirects(false);
         assertEquals(HttpURLConnection.HTTP_OK, connection.getResponseCode());
 
@@ -108,16 +108,16 @@ public class JACCSecurityTest extends AbstractWebModuleTest {
 
         String cookie = connection.getHeaderField("Set-Cookie");
         cookie = cookie.substring(0, cookie.lastIndexOf(';'));
-        String location = "http://localhost:8181/test/protected/j_security_check?j_username=alan&j_password=starcraft";
+        String location = connector.getConnectUrl() + "/test/protected/j_security_check?j_username=alan&j_password=starcraft";
 
         connection = (HttpURLConnection) new URL(location).openConnection();
         connection.setRequestMethod("POST");
-        connection.setRequestProperty("Referer", "http://localhost:8181/test/auth/logon.html?param=test");
+        connection.setRequestProperty("Referer", connector.getConnectUrl() + "/test/auth/logon.html?param=test");
         connection.setRequestProperty("Cookie", cookie);
         connection.setInstanceFollowRedirects(false);
         assertEquals(HttpURLConnection.HTTP_MOVED_TEMP, connection.getResponseCode());
 
-        connection = (HttpURLConnection) new URL("http://localhost:8181/test/protected/hello.txt").openConnection();
+        connection = (HttpURLConnection) new URL(connector.getConnectUrl() + "/test/protected/hello.txt").openConnection();
         connection.setRequestProperty("Cookie", cookie);
         connection.setInstanceFollowRedirects(false);
         reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
@@ -127,7 +127,7 @@ public class JACCSecurityTest extends AbstractWebModuleTest {
         connection.disconnect();
 
         //Now lets try it with izumi
-        connection = (HttpURLConnection) new URL("http://localhost:8181/test/protected/hello.txt").openConnection();
+        connection = (HttpURLConnection) new URL(connector.getConnectUrl() + "/test/protected/hello.txt").openConnection();
         connection.setInstanceFollowRedirects(false);
         assertEquals(HttpURLConnection.HTTP_OK, connection.getResponseCode());
 
@@ -139,7 +139,7 @@ public class JACCSecurityTest extends AbstractWebModuleTest {
         assertEquals("<!-- Login Page -->", reader.readLine());
         reader.close();
 
-        location = "http://localhost:8181/test/protected/j_security_check?j_username=izumi&j_password=violin";
+        location = connector.getConnectUrl() + "/test/protected/j_security_check?j_username=izumi&j_password=violin";
 
         connection = (HttpURLConnection) new URL(location).openConnection();
         connection.setRequestMethod("POST");
@@ -148,7 +148,7 @@ public class JACCSecurityTest extends AbstractWebModuleTest {
         assertEquals(HttpURLConnection.HTTP_MOVED_TEMP, connection.getResponseCode());
 
         try {
-            connection = (HttpURLConnection) new URL("http://localhost:8181/test/protected/hello.txt").openConnection();
+            connection = (HttpURLConnection) new URL(connector.getConnectUrl() + "/test/protected/hello.txt").openConnection();
             connection.setRequestProperty("Cookie", cookie);
             connection.setInstanceFollowRedirects(false);
             reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));

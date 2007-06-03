@@ -38,7 +38,7 @@ public class StatTest extends AbstractWebModuleTest {
         webModule = setUpInsecureAppContext(new File(BASEDIR, "target/var/catalina/webapps/war1/").toURI(), new File(
                 BASEDIR, "target/var/catalina/webapps/war1/WEB-INF/web.xml").toURL(), null, null, null);
 
-            HttpURLConnection connection = (HttpURLConnection) new URL("http://localhost:8181/test/hello.txt")
+            HttpURLConnection connection = (HttpURLConnection) new URL(connector.getConnectUrl() + "/test/hello.txt")
                     .openConnection();
             BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
             assertEquals(HttpURLConnection.HTTP_OK, connection.getResponseCode());

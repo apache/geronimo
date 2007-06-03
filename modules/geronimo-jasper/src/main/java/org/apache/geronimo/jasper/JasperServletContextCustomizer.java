@@ -31,7 +31,7 @@ import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.j2ee.RuntimeCustomizer;
 import org.apache.geronimo.j2ee.annotation.Holder;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
-import org.apache.jasper.instanceManagement.InstanceManager;
+import org.apache.InstanceManager;
 
 /**
  * @version $Rev$ $Date$
@@ -63,7 +63,6 @@ public class JasperServletContextCustomizer implements RuntimeCustomizer {
         private final Holder holder;
         private final Context context;
 
-
         public JasperInstanceManager(Holder holder, Context context) {
             this.holder = holder;
             this.context = context;
@@ -80,7 +79,15 @@ public class JasperServletContextCustomizer implements RuntimeCustomizer {
                 throw new InvocationTargetException(e, "Attempted to destroy instance");
             }
         }
+        
+        public void newInstance(Object o) throws IllegalAccessException, InvocationTargetException, NamingException {
+	    throw new UnsupportedOperationException("separate instantiation and injection is not supported");
+	}
 
+	public Object newInstance(String fqcn) throws IllegalAccessException, InvocationTargetException, NamingException,
+		InstantiationException, ClassNotFoundException {
+	    throw new UnsupportedOperationException("separate instantiation and injection is not supported");
+	}
     }
 
     public static final GBeanInfo GBEAN_INFO;

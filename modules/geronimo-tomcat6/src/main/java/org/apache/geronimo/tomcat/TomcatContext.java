@@ -25,7 +25,7 @@ import javax.transaction.UserTransaction;
 import org.apache.catalina.Context;
 import org.apache.catalina.Manager;
 import org.apache.catalina.Realm;
-import org.apache.catalina.instanceManagement.InstanceManager;
+import org.apache.InstanceManager;
 import org.apache.catalina.ha.CatalinaCluster;
 import org.apache.geronimo.connector.outbound.connectiontracking.TrackedConnectionAssociator;
 import org.apache.geronimo.kernel.Kernel;

@@ -36,7 +36,7 @@ public class ApplicationTest extends AbstractWebModuleTest {
                 null,
                 null);
 
-        HttpURLConnection connection = (HttpURLConnection) new URL("http://localhost:8181/test/hello.txt").openConnection();
+        HttpURLConnection connection = (HttpURLConnection) new URL(connector.getConnectUrl() +  "/test/hello.txt").openConnection();
         BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
         assertEquals(HttpURLConnection.HTTP_OK, connection.getResponseCode());
         assertEquals("Hello World", reader.readLine());

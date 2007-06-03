@@ -26,7 +26,7 @@ import java.lang.reflect.InvocationTargetException;
 import javax.naming.Context;
 import javax.naming.NamingException;
 
-import org.apache.catalina.instanceManagement.InstanceManager;
+import org.apache.InstanceManager;
 import org.apache.geronimo.j2ee.annotation.Holder;
 
 /**
@@ -45,6 +45,10 @@ public class TomcatInstanceManager implements InstanceManager {
         this.context = context;
     }
 
+    public Object newInstance(String fqcn, ClassLoader classLoader) throws IllegalAccessException, InvocationTargetException, NamingException, InstantiationException, ClassNotFoundException {
+        return holder.newInstance(fqcn, classLoader, context);
+    }
+	
     public Object newInstance(String className) throws IllegalAccessException, InvocationTargetException, NamingException, InstantiationException, ClassNotFoundException {
         return holder.newInstance(className, classLoader, context);
     }
@@ -56,6 +60,8 @@ public class TomcatInstanceManager implements InstanceManager {
             throw new InvocationTargetException(e, "Attempted to destroy instance");
         }
     }
-
-
+    
+    public void newInstance(Object o) throws IllegalAccessException,  InvocationTargetException, NamingException {
+	throw new UnsupportedOperationException("separate instantiation and injection is not supported");
+    }
 }

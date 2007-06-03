@@ -71,7 +71,7 @@
         <!--
         HACK: Used by jsp and servlet example configs to point to the tomcat deployer
         -->
-        <tomcatVersion>6.0.10</tomcatVersion>
+        <tomcatVersion>6.0.13</tomcatVersion>
 
         <!--
         HACK: Used by uddi-jetty and uddi-tomcat config plans
@@ -928,7 +928,7 @@
             <dependency>
                 <groupId>org.apache.tomcat</groupId>
                 <artifactId>jasper</artifactId>
-                <version>6.0-G525637</version>
+                <version>6.0.13-G543818</version>
             </dependency>
 
             <dependency>
@@ -958,7 +958,7 @@
             <dependency>
                 <groupId>org.apache.tomcat</groupId>
                 <artifactId>catalina</artifactId>
-                <version>6.0-G525637</version>
+                <version>6.0.13-G543818</version>
             </dependency>
 
             <dependency>
@@ -1569,19 +1569,23 @@
                     </configuration>
                 </plugin>
 
+                <!-- 
+                     The jspc 1.4.7 plugin uses a version of jasper which is incompatible with our version of jasper. 
+                     We've incorporated a geronimo-specific version until this is resolved...
+                -->
                 <plugin>
-                    <groupId>org.codehaus.mojo</groupId>
-                    <artifactId>jspc-maven-plugin</artifactId>
-                    <version>1.4.7-SNAPSHOT</version>
+                    <groupId>org.apache.geronimo.plugins</groupId>
+                    <artifactId>geronimo-jspc-maven-plugin</artifactId>
+                    <version>2.0-SNAPSHOT</version>
                     <executions>
                         <execution>
                             <id>jspc</id>
                             <goals>
-                                <goal>compile</goal>
+                                 <goal>compile</goal> 
                             </goals>
                             <configuration>
                                 <warSourceDirectory>${pom.basedir}/src/main/webapp</warSourceDirectory>
-                                <inputWebXml>${pom.basedir}/src/main/webapp/WEB-INF/web.xml</inputWebXml>
+<!--                                 <inputWebXml>${pom.basedir}/src/main/webapp/WEB-INF/web.xml</inputWebXml> -->
                             </configuration>
                         </execution>
                     </executions>

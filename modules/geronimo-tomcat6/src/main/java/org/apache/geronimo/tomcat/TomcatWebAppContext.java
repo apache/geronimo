@@ -39,7 +39,7 @@ import org.apache.catalina.Context;
 import org.apache.catalina.Manager;
 import org.apache.catalina.Realm;
 import org.apache.catalina.Valve;
-import org.apache.catalina.instanceManagement.InstanceManager;
+import org.apache.InstanceManager;
 import org.apache.catalina.core.StandardContext;
 import org.apache.catalina.ha.CatalinaCluster;
 import org.apache.commons.logging.Log;

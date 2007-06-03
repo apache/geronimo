@@ -36,7 +36,7 @@ public class ContainerTest extends AbstractWebModuleTest {
         String contextPath = "/foo/webservice.ws";
         MockWebServiceContainer webServiceInvoker = new MockWebServiceContainer();
         container.addWebService(contextPath, null, webServiceInvoker, null, null, null,null, cl);
-        HttpURLConnection connection = (HttpURLConnection) new URL("http://localhost:8181" + contextPath).openConnection();
+        HttpURLConnection connection = (HttpURLConnection) new URL(connector.getConnectUrl() + contextPath).openConnection();
         try {
             BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
             assertEquals(HttpURLConnection.HTTP_OK, connection.getResponseCode());
@@ -45,7 +45,7 @@ public class ContainerTest extends AbstractWebModuleTest {
             connection.disconnect();
         }
         container.removeWebService(contextPath);
-        connection = (HttpURLConnection) new URL("http://localhost:8181" + contextPath).openConnection();
+        connection = (HttpURLConnection) new URL(connector.getConnectUrl() + contextPath).openConnection();
         try {
             connection.getInputStream();
             fail();
@@ -54,7 +54,6 @@ public class ContainerTest extends AbstractWebModuleTest {
             assertEquals(HttpURLConnection.HTTP_NOT_FOUND, connection.getResponseCode());
             connection.disconnect();
         }
-
     }
 
     public void testSecureWebServiceHandler() throws Exception {
@@ -66,7 +65,7 @@ public class ContainerTest extends AbstractWebModuleTest {
         container.addWebService(contextPath, null, webServiceInvoker, securityRealmName, securityRealmName, "NONE", "BASIC", cl);
 
         //Veryify its secured
-        HttpURLConnection connection = (HttpURLConnection) new URL("http://localhost:8181" + contextPath).openConnection();
+        HttpURLConnection connection = (HttpURLConnection) new URL(connector.getConnectUrl() + contextPath).openConnection();
         try {
             connection.getInputStream();
             fail();
@@ -77,7 +76,7 @@ public class ContainerTest extends AbstractWebModuleTest {
         }
 
         //Authenticate
-        connection = (HttpURLConnection) new URL("http://localhost:8181" + contextPath).openConnection();
+        connection = (HttpURLConnection) new URL(connector.getConnectUrl() + contextPath).openConnection();
         String authentication = new String(Base64.encode("alan:starcraft".getBytes()));
         connection.setRequestProperty("Authorization", "Basic " + authentication);
         try {
@@ -88,7 +87,7 @@ public class ContainerTest extends AbstractWebModuleTest {
             connection.disconnect();
         }
         container.removeWebService(contextPath);
-        connection = (HttpURLConnection) new URL("http://localhost:8181" + contextPath).openConnection();
+        connection = (HttpURLConnection) new URL(connector.getConnectUrl() + contextPath).openConnection();
         try {
             connection.getInputStream();
             fail();

@@ -56,6 +56,7 @@ public abstract class AbstractWebModuleTest extends TestSupport {
     protected final static String securityRealmName = "demo-properties-realm";
     protected ConnectorGBean connector;
     protected TomcatContainer container;
+    protected static int port = 8181;
     private TransactionManager transactionManager;
     private ConnectionTrackingCoordinator connectionTrackingCoordinator;
 
@@ -180,7 +181,7 @@ public abstract class AbstractWebModuleTest extends TestSupport {
         container = new TomcatContainer(cl, new File(BASEDIR, "target/var/catalina").toString(), null, engine, serverInfo, null, null);
         container.doStart();
 
-        connector = new ConnectorGBean("HTTP", null, "localhost", 8181, container);
+        connector = new ConnectorGBean("HTTP", null, "localhost", port++, container);
         connector.doStart();
 
         TransactionManagerImpl transactionManager = new TransactionManagerImpl();
