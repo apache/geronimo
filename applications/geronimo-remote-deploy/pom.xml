@@ -58,8 +58,8 @@
     <build>
         <plugins>
             <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>jspc-maven-plugin</artifactId>
+                <groupId>org.apache.geronimo.plugins</groupId>
+                <artifactId>geronimo-jspc-maven-plugin</artifactId>
             </plugin>
             
             <plugin>
