@@ -65,7 +65,6 @@
     
     <modules>
         <module>car-maven-plugin</module>
-        <module>geronimo-jspc-maven-plugin</module>
         <module>geronimo-maven-plugin</module>
         <module>testsuite-maven-plugin</module>
         <module>testsuite-archetype-plugin</module>
