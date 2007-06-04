@@ -81,7 +81,7 @@
         <!--
         HACK: Used by applications/geronimo-dojo
         -->
-        <dojoVersion>0.4.1</dojoVersion>
+        <dojoVersion>0.4.3</dojoVersion>
 
         <cxfVersion>2.0-incubator-SNAPSHOT</cxfVersion>
 
@@ -1507,7 +1507,7 @@
                 <groupId>org.dojotoolkit</groupId>
                 <artifactId>dojo</artifactId>
                 <version>${dojoVersion}</version>
-                <type>zip</type>
+                <type>tgz</type>
             </dependency>
         </dependencies>
     </dependencyManagement>

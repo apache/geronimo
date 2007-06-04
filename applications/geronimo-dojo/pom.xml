@@ -48,7 +48,7 @@
         </dependency>
     </dependencies>
 
-    <!-- this build process extracts certain files from dojo.zip into a webapp. -->
+    <!-- this build process extracts certain files from dojo.tgz into a webapp. -->
     <build>
         <plugins>
             <plugin>
@@ -65,7 +65,7 @@
                                 <artifactItem>
                                     <groupId>org.dojotoolkit</groupId>
                                     <artifactId>dojo</artifactId>
-                                    <type>zip</type>
+                                    <type>tgz</type>
                                     <outputDirectory>${project.build.directory}</outputDirectory>
                                 </artifactItem>
                             </artifactItems>

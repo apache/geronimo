@@ -53,7 +53,7 @@
         <dependency>
             <groupId>org.dojotoolkit</groupId>
             <artifactId>dojo</artifactId>
-            <type>zip</type>
+            <type>tgz</type>
         </dependency>
 
         <!-- See GERONIMO-3010  These artifacts are here temporarily while we discuss the proposed change in
