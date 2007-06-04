@@ -776,6 +776,20 @@
                 <groupId>org.apache.openejb</groupId>
                 <artifactId>openejb-core</artifactId>
                 <version>${openejbVersion}</version>
+                <exclusions>
+                    <exclusion>
+                         <groupId>org.apache.geronimo.modules</groupId>
+                         <artifactId>geronimo-transaction</artifactId>
+                    </exclusion>
+                    <exclusion>
+                         <groupId>org.apache.geronimo.modules</groupId>
+                         <artifactId>geronimo-transaction-jta11</artifactId>
+                    </exclusion>
+                    <exclusion>
+                         <groupId>org.apache.geronimo.javamail</groupId>
+                         <artifactId>geronimo-javamail_1.4_mail</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
 
             <dependency>
