@@ -117,7 +117,7 @@
             <attribute name="port">${PlanHTTPPortPrimary + portOffset}</attribute>
             <attribute name="redirectPort">${PlanHTTPSPortPrimary + portOffset}</attribute>
         </gbean>
-        <gbean name="JettyAJP13Connector" load="false">
+        <gbean name="JettyAJP13Connector">
             <attribute name="host">${PlanServerHostname}</attribute>
             <attribute name="port">${PlanAJPPortPrimary + portOffset}</attribute>
             <attribute name="redirectPort">${PlanHTTPSPortPrimary + portOffset}</attribute>

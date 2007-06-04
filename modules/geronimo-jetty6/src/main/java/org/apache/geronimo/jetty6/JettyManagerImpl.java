@@ -82,11 +82,9 @@ public class JettyManagerImpl implements WebManager {
             AbstractNameQuery query = new AbstractNameQuery(KeystoreManager.class.getName());
             connector.setReferencePattern("KeystoreManager", query);
             //todo: default HTTPS settings
+        } else if (protocol.equals(PROTOCOL_AJP)) {
+            connector = new GBeanData(name, AJP13Connector.GBEAN_INFO);
         }
-        // Note: AJP Connector is not yet supported by Jetty 
-        // else if (protocol.equals(PROTOCOL_AJP)) {
-        //    connector = new GBeanData(name, AJP13Connector.GBEAN_INFO);
-        //}
     	else {
             throw new IllegalArgumentException("Invalid protocol '" + protocol + "'");
         }
@@ -134,11 +132,7 @@ public class JettyManagerImpl implements WebManager {
      * connectors for).
      */
     public String[] getSupportedProtocols() {
-        return new String[]{PROTOCOL_HTTP, PROTOCOL_HTTPS};
-		//
-		// AJP Connector is not yet supported by Jetty
-		// so leave out 'PROTOCOL_AJP' for now
-		//
+        return new String[]{PROTOCOL_HTTP, PROTOCOL_HTTPS, PROTOCOL_AJP};
     }
 
     /**
