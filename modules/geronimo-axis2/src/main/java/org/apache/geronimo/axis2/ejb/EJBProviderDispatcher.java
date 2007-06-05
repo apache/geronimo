@@ -21,6 +21,7 @@ package org.apache.geronimo.axis2.ejb;
 import javax.interceptor.InvocationContext;
 import javax.xml.ws.Provider;
 
+import org.apache.axis2.jaxws.ExceptionFactory;
 import org.apache.axis2.jaxws.core.MessageContext;
 import org.apache.axis2.jaxws.server.dispatcher.ProviderDispatcher;
 
@@ -28,9 +29,18 @@ public class EJBProviderDispatcher extends ProviderDispatcher {
 
     private InvocationContext invContext;
 
-    public EJBProviderDispatcher(InvocationContext invContext) {
-        super(null, null); 
+    public EJBProviderDispatcher(Class serviceImplClass, InvocationContext invContext) {
+        super(serviceImplClass, getDummyInstance(serviceImplClass)); 
         this.invContext = invContext;
+    }
+    
+    //  TODO: change ProviderDispatcher so that instance is not required
+    private static Object getDummyInstance(Class serviceImplClass) {
+        try {
+            return serviceImplClass.newInstance();
+        } catch (Exception e) {
+            throw ExceptionFactory.makeWebServiceException("Failed to create provider instance");
+        }
     }
 
     @Override

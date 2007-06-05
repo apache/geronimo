@@ -18,6 +18,10 @@
 package org.apache.geronimo.axis2.ejb;
 
 import java.lang.reflect.Method;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
+
+import javax.xml.ws.Provider;
 
 import org.apache.axis2.AxisFault;
 import org.apache.axis2.description.AxisService;
@@ -53,11 +57,14 @@ public class EJBMessageReceiver implements MessageReceiver {
         // init some bits
         requestMsgCtx.setOperationName(requestMsgCtx.getAxisMessageContext().getAxisOperation().getName());
         requestMsgCtx.setEndpointDescription(getEndpointDescription(requestMsgCtx));
-        requestMsgCtx.setOperationDescription(getOperationDescription(requestMsgCtx));
         
-        // TODO: will need to handle Provider.invoke() method here
-        
-        Method method = getJavaMethod(requestMsgCtx, this.serviceImplClass);
+        Method method = null;
+        if (Provider.class.isAssignableFrom(this.serviceImplClass)) {
+            method = getProviderMethod();
+        } else {
+            requestMsgCtx.setOperationDescription(getOperationDescription(requestMsgCtx));
+            method = getServiceMethod(requestMsgCtx);
+        }
         
         if (LOG.isDebugEnabled()) {
             LOG.debug("Invoking '" + method.getName() + "' method.");
@@ -95,13 +102,13 @@ public class EJBMessageReceiver implements MessageReceiver {
         return method;
     }
     
-    private Method getJavaMethod(MessageContext mc, Class serviceImplClass) {
+    private Method getServiceMethod(MessageContext mc) {
         OperationDescription opDesc = mc.getOperationDescription();
         if (opDesc == null) {
             throw ExceptionFactory.makeWebServiceException("Operation Description was not set");
         }
 
-        Method returnMethod = opDesc.getMethodFromServiceImpl(serviceImplClass);
+        Method returnMethod = opDesc.getMethodFromServiceImpl(this.serviceImplClass);
         if (returnMethod == null) {
             throw ExceptionFactory
                     .makeWebServiceException(Messages.getMessage("JavaBeanDispatcherErr1"));
@@ -135,6 +142,39 @@ public class EJBMessageReceiver implements MessageReceiver {
 
         EndpointDescription ed = (EndpointDescription) param.getValue();
         return ed;
+    }
+    
+    private Method getProviderMethod() {
+        try {
+            return this.serviceImplClass.getMethod("invoke", getProviderType());
+        } catch (NoSuchMethodException e) {
+            throw ExceptionFactory.makeWebServiceException("Could not get Provider.invoke() method");
+        }
+    }
+    
+    private Class<?> getProviderType() {
+        Class providerType = null;
+
+        Type[] giTypes = this.serviceImplClass.getGenericInterfaces();
+        for (Type giType : giTypes) {
+            ParameterizedType paramType = null;
+            try {
+                paramType = (ParameterizedType)giType;
+            } catch (ClassCastException e) {
+                throw ExceptionFactory.makeWebServiceException(
+                        "Provider based SEI Class has to implement javax.xml.ws.Provider as javax.xml.ws.Provider<String>, javax.xml.ws.Provider<SOAPMessage>, javax.xml.ws.Provider<Source> or javax.xml.ws.Provider<JAXBContext>");
+            }
+            Class interfaceName = (Class)paramType.getRawType();
+
+            if (interfaceName == javax.xml.ws.Provider.class) {
+                if (paramType.getActualTypeArguments().length > 1) {
+                    throw ExceptionFactory.makeWebServiceException(
+                            "Provider cannot have more than one Generic Types defined as Per JAX-WS Specification");
+                }
+                providerType = (Class)paramType.getActualTypeArguments()[0];
+            }
+        }
+        return providerType;
     }
     
 }

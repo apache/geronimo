@@ -36,7 +36,7 @@ public class EJBEndpointController extends EndpointController {
     protected EndpointDispatcher getEndpointDispatcher(Class serviceImplClass, Object serviceInstance)
         throws Exception {    
         if (Provider.class.isAssignableFrom(serviceImplClass)) {
-            return new EJBProviderDispatcher(this.invContext);
+            return new EJBProviderDispatcher(serviceImplClass, this.invContext);
         } else {
             return new EJBServiceDispatcher(this.invContext);
         }
