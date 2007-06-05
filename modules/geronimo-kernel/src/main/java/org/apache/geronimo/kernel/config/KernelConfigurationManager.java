@@ -39,7 +39,6 @@ import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.ArtifactManager;
 import org.apache.geronimo.kernel.repository.ArtifactResolver;
 import org.apache.geronimo.kernel.repository.DefaultArtifactResolver;
-import org.apache.geronimo.kernel.repository.Repository;
 
 /**
  * The standard non-editable ConfigurationManager implementation.  That is,
@@ -247,6 +246,9 @@ public class KernelConfigurationManager extends SimpleConfigurationManager imple
     protected void unload(Configuration configuration) {
         Artifact configurationId = configuration.getId();
         unload(configurationId);
+        if (configurationList != null) {
+            configurationList.removeConfiguration( configurationId );
+        }
     }
 
     private void unload(Artifact configurationId) {

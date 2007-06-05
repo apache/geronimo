@@ -46,7 +46,6 @@ import org.apache.geronimo.kernel.config.ConfigurationUtil;
 import org.apache.geronimo.kernel.config.InvalidConfigException;
 import org.apache.geronimo.kernel.config.NoSuchConfigException;
 import org.apache.geronimo.kernel.config.IOUtil;
-import org.apache.geronimo.kernel.config.PersistentConfigurationList;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.FileWriteMonitor;
 import org.apache.geronimo.kernel.repository.WritableListableRepository;
@@ -360,14 +359,6 @@ public class RepositoryConfigurationStore implements ConfigurationStore {
                 // Directory is not empty.  No need to check any more parent directories
                 break;
             }
-        }
-
-        try {
-            // Is this the right way to get hold of PersistentConfigurationList?
-            PersistentConfigurationList configList = (PersistentConfigurationList) kernel.getGBean(PersistentConfigurationList.class);
-            if(!configList.hasGBeanAttributes(configId)) configList.removeConfiguration(configId);
-        } catch (Exception e) {
-            log.warn("Unable to remove configuration from persistent configurations. id = "+configId, e);
         }
 
         if (configurationInfo != null) {
