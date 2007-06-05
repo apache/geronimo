@@ -24,6 +24,42 @@
     <module name="org.apache.geronimo.configs/client-deployer/${version}/car"/>
     <module name="org.apache.geronimo.configs/connector-deployer/${version}/car"/>
     <module name="org.apache.geronimo.configs/jetty6-deployer/${version}/car"/>
-    <module name="org.apache.geronimo.configs/axis-deployer/${version}/car"/>
     <module name="org.apache.geronimo.configs/openejb-deployer/${version}/car"/>
+    <module name="org.apache.geronimo.configs/openejb-corba-deployer/${version}/car"/>
+    <module name="org.apache.geronimo.configs/persistence-jpa10-deployer/${version}/car"/>
+    <module name="org.apache.geronimo.configs/axis-deployer/${version}/car"/>
+    <module name="org.apache.geronimo.configs/axis2-deployer/${version}/car" 
+            condition="props['org.apache.geronimo.jaxws.provider'] == 'axis2'">
+        <gbean name="Axis2ModuleBuilderExtension">
+            <attribute name="listener">?name=JettyWebContainer</attribute>
+            <attribute name="defaultEnvironment">
+              <environment xmlns="http://geronimo.apache.org/xml/ns/deployment-1.2">
+                <dependencies>
+                    <dependency>
+                        <groupId>org.apache.geronimo.configs</groupId>
+                        <artifactId>jetty6</artifactId>
+                        <type>car</type>
+                    </dependency>
+                </dependencies>
+              </environment>
+             </attribute>
+        </gbean>
+    </module>
+    <module name="org.apache.geronimo.configs/cxf-deployer/${version}/car" 
+            condition="props.getProperty('org.apache.geronimo.jaxws.provider', 'cxf') == 'cxf'">
+        <gbean name="CXFModuleBuilderExtension">
+            <attribute name="listener">?name=JettyWebContainer</attribute>
+            <attribute name="defaultEnvironment">
+              <environment xmlns="http://geronimo.apache.org/xml/ns/deployment-1.2">
+                <dependencies>
+                    <dependency>
+                        <groupId>org.apache.geronimo.configs</groupId>
+                        <artifactId>jetty6</artifactId>
+                        <type>car</type>
+                    </dependency>
+                </dependencies>
+              </environment>
+            </attribute>
+        </gbean>
+    </module>
 </attributes>
