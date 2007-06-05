@@ -180,7 +180,7 @@ public class JAXWSUtils {
             }
             return getPortQName(clazz, webServiceProvider.targetNamespace(), null, webServiceProvider.portName());
         } else {
-            return getPortQName(clazz, webService.targetNamespace(), webService.name(), webService.serviceName());
+            return getPortQName(clazz, webService.targetNamespace(), webService.name(), webService.portName());
         }
     }
         
