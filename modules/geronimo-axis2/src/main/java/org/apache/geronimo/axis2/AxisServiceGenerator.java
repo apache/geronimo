@@ -57,10 +57,12 @@ import org.apache.axis2.jaxws.description.builder.WebServiceProviderAnnot;
 import org.apache.axis2.jaxws.description.builder.WsdlComposite;
 import org.apache.axis2.jaxws.description.builder.WsdlGenerator;
 import org.apache.axis2.jaxws.description.builder.converter.JavaClassToDBCConverter;
+import org.apache.axis2.jaxws.description.impl.URIResolverImpl;
 import org.apache.axis2.jaxws.server.JAXWSMessageReceiver;
 import org.apache.axis2.wsdl.WSDLUtil;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.geronimo.axis2.util.SimpleWSDLLocator;
 import org.apache.geronimo.jaxws.PortInfo;
 
 //TODO: Handle RPC Style Messaging
@@ -84,7 +86,11 @@ public class AxisServiceGenerator {
     }
    
     public AxisService getServiceFromWSDL(PortInfo portInfo, String endpointClassName, URL configurationBaseUrl, ClassLoader classLoader) throws Exception {
-        Definition wsdlDefinition = getWSDLDefinition(portInfo, configurationBaseUrl, classLoader);
+        String wsdlFile = portInfo.getWsdlFile();
+        if (wsdlFile == null || wsdlFile.equals("")) {
+            throw new Exception("WSDL file is required.");
+        }
+        Definition wsdlDefinition = readWSDL(wsdlFile, configurationBaseUrl, classLoader);
 
         Map<QName, Service> serviceMap = wsdlDefinition.getServices();
         Service wsdlService = serviceMap.values().iterator().next();
@@ -121,7 +127,8 @@ public class AxisServiceGenerator {
         QName serviceQName = portInfo.getWsdlService() == null ? wsdlService.getQName() : portInfo.getWsdlService();
 
         WSDLToAxisServiceBuilder wsdlBuilder = new WSDL11ToAxisServiceBuilder(wsdlDefinition, serviceQName , portName);
-
+        wsdlBuilder.setCustomResolver(new URIResolverImpl(classLoader));
+        
         //populate with axis2 objects
         AxisService service = wsdlBuilder.populateService();
         service.addParameter(new Parameter(Constants.SERVICE_CLASS, endpointClassName));
@@ -202,17 +209,12 @@ public class AxisServiceGenerator {
         }
     }
     
-    protected Definition getWSDLDefinition(PortInfo portInfo,
-                                           URL configurationBaseUrl,
-                                           ClassLoader classLoader) 
+    protected Definition readWSDL(String wsdlLocation, 
+                                  URL configurationBaseUrl, 
+                                  ClassLoader classLoader)
         throws IOException, WSDLException {
-        String wsdlFile = portInfo.getWsdlFile();
-        if (wsdlFile == null || wsdlFile.equals("")) {
-            throw new IOException("WSDL file was not supplied.");
-        }
-
         Definition wsdlDefinition = null;
-        URL wsdlURL = getWsdlURL(wsdlFile, configurationBaseUrl, classLoader);
+        URL wsdlURL = getWsdlURL(wsdlLocation, configurationBaseUrl, classLoader);
         InputStream wsdlStream = null;
         try {
             wsdlStream = wsdlURL.openStream();
@@ -220,16 +222,14 @@ public class AxisServiceGenerator {
             WSDLReader reader = factory.newWSDLReader();
             reader.setFeature("javax.wsdl.importDocuments", true);
             reader.setFeature("javax.wsdl.verbose", false);
-            wsdlDefinition = reader.readWSDL(wsdlURL.toString());
-        } catch (RuntimeException e) {
-            throw new RuntimeException("invalid WSDL provided " + wsdlURL);
+            SimpleWSDLLocator wsdlLocator = new SimpleWSDLLocator(wsdlURL.toString());
+            wsdlDefinition = reader.readWSDL(wsdlLocator);
         } finally {
             if (wsdlStream != null) {
                 wsdlStream.close();
             }
         }
         return wsdlDefinition;
-
     }
     
     public static URL getWsdlURL(String wsdlFile, URL configurationBaseUrl, ClassLoader classLoader) {
@@ -254,6 +254,5 @@ public class AxisServiceGenerator {
         }
         return wsdlURL;
     }
-    
-      
+          
 }
