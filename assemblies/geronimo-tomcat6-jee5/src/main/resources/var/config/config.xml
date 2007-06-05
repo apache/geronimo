@@ -202,7 +202,7 @@
     </module>
 
     <module name="org.apache.geronimo.configs/axis2-deployer/${version}/car"  
-            condition="props.getProperty('org.apache.geronimo.jaxws.provider', 'axis2') == 'axis2'">
+            condition="props['org.apache.geronimo.jaxws.provider'] == 'axis2'">
 
       <gbean name="Axis2ModuleBuilderExtension">
           <attribute name="listener">?name=TomcatWebContainer</attribute>
@@ -221,7 +221,7 @@
     </module>
 
     <module name="org.apache.geronimo.configs/cxf-deployer/${version}/car" 
-            condition="props['org.apache.geronimo.jaxws.provider'] == 'cxf'">
+            condition="props.getProperty('org.apache.geronimo.jaxws.provider', 'cxf') == 'cxf'">
 
         <gbean name="CXFModuleBuilderExtension">
             <attribute name="listener">?name=TomcatWebContainer</attribute>
