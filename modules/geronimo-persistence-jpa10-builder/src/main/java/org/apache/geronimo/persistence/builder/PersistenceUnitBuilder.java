@@ -181,7 +181,7 @@ public class PersistenceUnitBuilder implements ModuleBuilderExtension {
     }
 
     private void installPersistenceUnitGBean(PersistenceDocument.Persistence.PersistenceUnit persistenceUnit, Module module, String moduleType, String persistenceModulePath) throws DeploymentException {
-        EARContext moduleContext = module.getEarContext();
+        EARContext moduleContext = module.getRootEarContext() == null ? module.getEarContext() : module.getRootEarContext();
         String persistenceUnitName = persistenceUnit.getName().trim();
         if (persistenceUnitName.length() == 0) {
             persistenceUnitName = ANON_PU_NAME;
