@@ -63,6 +63,7 @@ import org.apache.axis2.wsdl.WSDLUtil;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.axis2.util.SimpleWSDLLocator;
+import org.apache.geronimo.jaxws.JAXWSUtils;
 import org.apache.geronimo.jaxws.PortInfo;
 
 //TODO: Handle RPC Style Messaging
@@ -85,18 +86,37 @@ public class AxisServiceGenerator {
         this.messageReceiver = messageReceiver;
     }
    
-    public AxisService getServiceFromWSDL(PortInfo portInfo, String endpointClassName, URL configurationBaseUrl, ClassLoader classLoader) throws Exception {
+    public AxisService getServiceFromWSDL(PortInfo portInfo, Class endpointClass, URL configurationBaseUrl) throws Exception {
         String wsdlFile = portInfo.getWsdlFile();
         if (wsdlFile == null || wsdlFile.equals("")) {
             throw new Exception("WSDL file is required.");
         }
+        
+        String endpointClassName = endpointClass.getName();
+        ClassLoader classLoader = endpointClass.getClassLoader();
+                        
+        QName serviceQName = portInfo.getWsdlService();
+        if (serviceQName == null) {
+            serviceQName = JAXWSUtils.getServiceQName(endpointClass);
+        }
+        
+        QName portQName = portInfo.getWsdlPort();
+        if (portQName == null) {
+            portQName = JAXWSUtils.getPortQName(endpointClass);
+        }
+                
         Definition wsdlDefinition = readWSDL(wsdlFile, configurationBaseUrl, classLoader);
-
-        Map<QName, Service> serviceMap = wsdlDefinition.getServices();
-        Service wsdlService = serviceMap.values().iterator().next();
-
-        Map<String, Port> portMap = wsdlService.getPorts();
-        Port port = portMap.values().iterator().next();
+        
+        Service wsdlService = wsdlDefinition.getService(serviceQName);
+        if (wsdlService == null) {
+            throw new Exception("Service '" + serviceQName + "' not found in WSDL");
+        }
+        
+        Port port = wsdlService.getPort(portQName.getLocalPart());
+        if (port == null) {
+            throw new Exception("Port '" + portQName.getLocalPart() + "' not found in WSDL");
+        }
+        
         Binding binding = port.getBinding();
         List extElements = binding.getExtensibilityElements();
         Iterator extElementsIterator =extElements.iterator();
@@ -122,11 +142,8 @@ public class AxisServiceGenerator {
                 }               
             }
         }
-        
-        String portName = portInfo.getWsdlPort() == null ? port.getName() : portInfo.getWsdlPort().getLocalPart();
-        QName serviceQName = portInfo.getWsdlService() == null ? wsdlService.getQName() : portInfo.getWsdlService();
-
-        WSDLToAxisServiceBuilder wsdlBuilder = new WSDL11ToAxisServiceBuilder(wsdlDefinition, serviceQName , portName);
+                
+        WSDLToAxisServiceBuilder wsdlBuilder = new WSDL11ToAxisServiceBuilder(wsdlDefinition, serviceQName , portQName.getLocalPart());
         wsdlBuilder.setCustomResolver(new URIResolverImpl(classLoader));
         
         //populate with axis2 objects
@@ -147,7 +164,7 @@ public class AxisServiceGenerator {
         
         if (dbc.getWebServiceAnnot() != null) { //information specified in .wsdl should overwrite annotation.
             WebServiceAnnot serviceAnnot = dbc.getWebServiceAnnot();
-            serviceAnnot.setPortName(portName);
+            serviceAnnot.setPortName(portQName.getLocalPart());
             serviceAnnot.setServiceName(service.getName());
             serviceAnnot.setTargetNamespace(service.getTargetNamespace());
             if (dbc.getBindingTypeAnnot() !=null && bindingS != null && !bindingS.equals("")) {
@@ -156,7 +173,7 @@ public class AxisServiceGenerator {
             }
         } else if (dbc.getWebServiceProviderAnnot() != null) { 
             WebServiceProviderAnnot serviceProviderAnnot = dbc.getWebServiceProviderAnnot(); 
-            serviceProviderAnnot.setPortName(portName);
+            serviceProviderAnnot.setPortName(portQName.getLocalPart());
             serviceProviderAnnot.setServiceName(service.getName());
             serviceProviderAnnot.setTargetNamespace(service.getTargetNamespace());
             if (dbc.getBindingTypeAnnot() !=null && bindingS != null && !bindingS.equals("")) {

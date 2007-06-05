@@ -110,7 +110,7 @@ public abstract class Axis2WebServiceContainer implements WebServiceContainer {
 
             if(portInfo.getWsdlFile() != null && !portInfo.getWsdlFile().equals("")){ //WSDL file Has been provided
                 AxisServiceGenerator serviceGen = createServiceGenerator();
-                service = serviceGen.getServiceFromWSDL(portInfo, endpointClassName, configurationBaseUrl, classLoader);
+                service = serviceGen.getServiceFromWSDL(portInfo, endpointClass, configurationBaseUrl);
                                             
             }else { //No WSDL, Axis2 will handle it. Is it ?
                 service = AxisService.createService(endpointClassName, configurationContext.getAxisConfiguration(), JAXWSMessageReceiver.class);

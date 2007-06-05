@@ -19,7 +19,9 @@ package org.apache.geronimo.axis2.testdata.doclitbare;
 import javax.jws.WebMethod;
 import javax.jws.WebService;
 
-@WebService(name="BareDocLitService", targetNamespace = "http://example.org")
+@WebService(serviceName="BareDocLitService", 
+            portName="BareDocLitPort", 
+            targetNamespace = "http://doclitbare.axis2.geronimo.apache.org")
 public class BareDocLitService {
 	
 	@WebMethod
