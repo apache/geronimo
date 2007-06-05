@@ -74,6 +74,7 @@ public abstract class Axis2WebServiceContainer implements WebServiceContainer {
     protected org.apache.geronimo.jaxws.PortInfo portInfo;
     protected ConfigurationContext configurationContext;
     protected JNDIResolver jndiResolver;
+    protected Class endpointClass;
     private AxisService service;
     private URL configurationBaseUrl;
     private WSDLQueryHandler wsdlQueryHandler;
@@ -87,23 +88,28 @@ public abstract class Axis2WebServiceContainer implements WebServiceContainer {
         this.endpointClassName = endpointClassName;
         this.portInfo = portInfo;
         this.configurationBaseUrl = configurationBaseUrl;
+        this.jndiResolver = new ServerJNDIResolver(context);
         
-        
+        init();  
+    }
+
+    public void init() {
         try {
+            this.endpointClass = classLoader.loadClass(this.endpointClassName);
             configurationContext = ConfigurationContextFactory.createDefaultConfigurationContext();
             
             //check to see if the wsdlLocation property is set in portInfo, 
             //if not checking if wsdlLocation exists in annotation
             //if already set, annotation should not overwrite it.
             if (portInfo.getWsdlFile() == null || portInfo.getWsdlFile().equals("")){
-                Class clazz = classLoader.loadClass(endpointClassName);
                 //getwsdllocation from annotation if it exists
-                if (JAXWSUtils.containsWsdlLocation(clazz, classLoader))
-                    portInfo.setWsdlFile(JAXWSUtils.getServiceWsdlLocation(clazz, classLoader));                
+                if (JAXWSUtils.containsWsdlLocation(this.endpointClass, classLoader)) {
+                    portInfo.setWsdlFile(JAXWSUtils.getServiceWsdlLocation(this.endpointClass, classLoader));
+                }
             }
 
             if(portInfo.getWsdlFile() != null && !portInfo.getWsdlFile().equals("")){ //WSDL file Has been provided
-                AxisServiceGenerator serviceGen = new AxisServiceGenerator();
+                AxisServiceGenerator serviceGen = createServiceGenerator();
                 service = serviceGen.getServiceFromWSDL(portInfo, endpointClassName, configurationBaseUrl, classLoader);
                                             
             }else { //No WSDL, Axis2 will handle it. Is it ?
@@ -119,9 +125,12 @@ public abstract class Axis2WebServiceContainer implements WebServiceContainer {
             throw new RuntimeException(e);
         }
         
-        this.wsdlQueryHandler = new WSDLQueryHandler(this.service);        
-        jndiResolver = new ServerJNDIResolver(context);
+        this.wsdlQueryHandler = new WSDLQueryHandler(this.service);
     }  
+
+    protected AxisServiceGenerator createServiceGenerator() {
+        return new AxisServiceGenerator();
+    }
 
     public void getWsdl(Request request, Response response) throws Exception {
         doService(request, response);

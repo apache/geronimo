@@ -17,7 +17,10 @@
 
 package org.apache.geronimo.axis2.ejb;
 
-import org.apache.geronimo.axis2.Axis2WebServiceContainer;
+import java.net.URL;
+
+import javax.naming.Context;
+
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
@@ -26,9 +29,7 @@ import org.apache.geronimo.jaxws.PortInfo;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.openejb.EjbDeployment;
 import org.apache.geronimo.webservices.SoapHandler;
-
-import javax.naming.Context;
-import java.net.URL;
+import org.apache.openejb.DeploymentInfo;
 
 /**
  * @version $Rev$ $Date$
@@ -37,6 +38,7 @@ public class EJBWebServiceGBean implements GBeanLifecycle {
 
     private SoapHandler soapHandler;
     private String location;
+    private EJBWebServiceContainer container;
 
     public EJBWebServiceGBean(EjbDeployment ejbDeploymentContext,
                               PortInfo portInfo,                              
@@ -52,24 +54,25 @@ public class EJBWebServiceGBean implements GBeanLifecycle {
             return;
         }
                 
+        this.soapHandler = soapHandler;
         this.location = portInfo.getLocation();
         
         assert this.location != null : "null location received";
                 
         String beanClassName = ejbDeploymentContext.getBeanClass().getName();    
-        Context context = ejbDeploymentContext.getComponentContext();
-        
+        Context context = ejbDeploymentContext.getComponentContext();        
         ClassLoader classLoader = ejbDeploymentContext.getClassLoader();
+        DeploymentInfo deploymnetInfo = ejbDeploymentContext.getDeploymentInfo();
         
-        //TODO: need to invoke the EJB container and forward the call to the EJB container.
-        
-        Axis2WebServiceContainer container = 
-            new EJBWebServiceContainer(portInfo, beanClassName, classLoader, context, configurationBaseUrl);
+        this.container = 
+            new EJBWebServiceContainer(portInfo, beanClassName, classLoader, 
+                                       context, configurationBaseUrl, deploymnetInfo);
+        this.container.init();
          
         if (soapHandler != null) {
             soapHandler.addWebService(this.location, 
                                       virtualHosts, 
-                                      container, 
+                                      this.container, 
                                       securityRealmName, 
                                       realmName, 
                                       transportGuarantee, 
@@ -85,7 +88,10 @@ public class EJBWebServiceGBean implements GBeanLifecycle {
     public void doStop() throws Exception {        
         if (this.soapHandler != null) {
             this.soapHandler.removeWebService(this.location);
-        }        
+        } 
+        if (this.container != null) {
+            this.container.destroy();
+        }
     }
 
     public void doFail() {

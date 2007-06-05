@@ -78,7 +78,7 @@ public class POJOWebServiceContainer extends Axis2WebServiceContainer {
         setMsgContextProperties(msgContext, service, response, request);
         annotationProcessor = new JAXWSAnnotationProcessor(this.jndiResolver,
                 new POJOWebServiceContext(msgContext));
-        init();
+        initHandlers();
         try {
             HTTPTransportUtils.processHTTPPostRequest(
                     msgContext,
@@ -88,7 +88,7 @@ public class POJOWebServiceContainer extends Axis2WebServiceContainer {
                     soapAction,
                     request.getURI().getPath());
         } finally {
-            stop();
+            stopHandlers();
         }        
     }
     
@@ -100,7 +100,7 @@ public class POJOWebServiceContainer extends Axis2WebServiceContainer {
         super.setMsgContextProperties(msgContext, service, response, request);
     }
     
-    protected void init() {
+    protected void initHandlers() {
         // configure and inject handlers
         try {
             configureHandlers();
@@ -134,7 +134,7 @@ public class POJOWebServiceContainer extends Axis2WebServiceContainer {
         chain = handlerResolver.getHandlerChain(null);
     }
 
-    public void stop() {
+    public void stopHandlers() {
         // call handlers preDestroy
         for (Handler handler : chain) {
             this.annotationProcessor.invokePreDestroy(handler);

@@ -45,6 +45,7 @@ import org.apache.axis2.description.AxisService;
 import org.apache.axis2.description.Parameter;
 import org.apache.axis2.description.WSDL11ToAxisServiceBuilder;
 import org.apache.axis2.description.WSDLToAxisServiceBuilder;
+import org.apache.axis2.engine.MessageReceiver;
 import org.apache.axis2.jaxws.description.DescriptionFactory;
 import org.apache.axis2.jaxws.description.EndpointDescription;
 import org.apache.axis2.jaxws.description.ServiceDescription;
@@ -72,11 +73,16 @@ public class AxisServiceGenerator {
     
     private static String WSDL_ENCODING = "UTF-8";
     
+    private MessageReceiver messageReceiver;
+    
     public AxisServiceGenerator(){
-        super();
+        this.messageReceiver = new JAXWSMessageReceiver();
     }
     
-
+    public void setMessageReceiver(MessageReceiver messageReceiver) {
+        this.messageReceiver = messageReceiver;
+    }
+   
     public AxisService getServiceFromWSDL(PortInfo portInfo, String endpointClassName, URL configurationBaseUrl, ClassLoader classLoader) throws Exception {
         Definition wsdlDefinition = getWSDLDefinition(portInfo, configurationBaseUrl, classLoader);
 
@@ -154,7 +160,7 @@ public class AxisServiceGenerator {
 
         for(Iterator<AxisOperation> opIterator = service.getOperations() ; opIterator.hasNext() ;){
             AxisOperation operation = opIterator.next();
-            operation.setMessageReceiver(JAXWSMessageReceiver.class.newInstance());
+            operation.setMessageReceiver(this.messageReceiver);
             String MEP = operation.getMessageExchangePattern();
             if (!WSDLUtil.isOutputPresentForMEP(MEP)) {
                 List<MethodDescriptionComposite> mdcList = dbc.getMethodDescriptionComposite(operation.getName().toString());
@@ -196,51 +202,50 @@ public class AxisServiceGenerator {
         }
     }
     
-    protected Definition getWSDLDefinition(PortInfo portInfo, URL configurationBaseUrl, ClassLoader classLoader) throws IOException, WSDLException {
+    protected Definition getWSDLDefinition(PortInfo portInfo,
+                                           URL configurationBaseUrl,
+                                           ClassLoader classLoader) 
+        throws IOException, WSDLException {
         String wsdlFile = portInfo.getWsdlFile();
-        Definition wsdlDefinition = null;
         if (wsdlFile == null || wsdlFile.equals("")) {
-            log.debug("A WSDL file was not supplied.");
-            return null;
-        } else {
-            URL wsdlURL = getWsdlURL(wsdlFile, configurationBaseUrl, classLoader);
-            InputStream wsdlStream;
-            try {
-                wsdlStream = wsdlURL.openStream();
-                if(wsdlStream == null){
-                    throw new IOException("unable to read descriptor " + wsdlURL);
-                }
-                else {
-                    WSDLFactory factory = WSDLFactory.newInstance();
-                    WSDLReader reader = factory.newWSDLReader();
-                    reader.setFeature("javax.wsdl.importDocuments", true);
-                    reader.setFeature("javax.wsdl.verbose", false);
-                    wsdlDefinition = reader.readWSDL(wsdlURL.toString());
-                    wsdlStream.close();                   
-                }
-            } catch (RuntimeException e) {
-                throw new RuntimeException("invalid WSDL provided " + wsdlURL);
-            } 
-            return wsdlDefinition;
+            throw new IOException("WSDL file was not supplied.");
         }
+
+        Definition wsdlDefinition = null;
+        URL wsdlURL = getWsdlURL(wsdlFile, configurationBaseUrl, classLoader);
+        InputStream wsdlStream = null;
+        try {
+            wsdlStream = wsdlURL.openStream();
+            WSDLFactory factory = WSDLFactory.newInstance();
+            WSDLReader reader = factory.newWSDLReader();
+            reader.setFeature("javax.wsdl.importDocuments", true);
+            reader.setFeature("javax.wsdl.verbose", false);
+            wsdlDefinition = reader.readWSDL(wsdlURL.toString());
+        } catch (RuntimeException e) {
+            throw new RuntimeException("invalid WSDL provided " + wsdlURL);
+        } finally {
+            if (wsdlStream != null) {
+                wsdlStream.close();
+            }
+        }
+        return wsdlDefinition;
+
     }
     
     public static URL getWsdlURL(String wsdlFile, URL configurationBaseUrl, ClassLoader classLoader) {
         URL wsdlURL = null;
         if (wsdlFile != null) {
-
             try {
                 wsdlURL = new URL(wsdlFile);
             } catch (MalformedURLException e) {
                 // Not a URL, try as a resource
-                wsdlURL = classLoader.getResource("/" + wsdlFile);
+                wsdlURL = classLoader.getResource(wsdlFile);
 
                 if (wsdlURL == null && configurationBaseUrl != null) {
                     // Cannot get it as a resource, try with
                     // configurationBaseUrl
                     try {
-                        wsdlURL = new URL(configurationBaseUrl.toString()
-                                + wsdlFile);
+                        wsdlURL = new URL(configurationBaseUrl, wsdlFile);
                     } catch (MalformedURLException ee) {
                         // ignore
                     }
@@ -249,4 +254,6 @@ public class AxisServiceGenerator {
         }
         return wsdlURL;
     }
+    
+      
 }

@@ -73,7 +73,9 @@ public class POJOWebServiceContainerFactoryGBean implements WebServiceContainerF
     }
 
     public WebServiceContainer getWebServiceContainer() {
-        return new POJOWebServiceContainer(portInfo, endpointClassName, classLoader, context, configurationBaseUrl);
+        POJOWebServiceContainer container = new POJOWebServiceContainer(portInfo, endpointClassName, classLoader, context, configurationBaseUrl);
+        container.init();
+        return container;
     }
 
     public static final GBeanInfo GBEAN_INFO;

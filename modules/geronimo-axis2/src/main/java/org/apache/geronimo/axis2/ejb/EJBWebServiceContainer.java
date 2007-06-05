@@ -19,7 +19,9 @@ package org.apache.geronimo.axis2.ejb;
 
 import org.apache.axis2.util.JavaUtils;
 import org.apache.geronimo.axis2.Axis2WebServiceContainer;
+import org.apache.geronimo.axis2.AxisServiceGenerator;
 import org.apache.geronimo.jaxws.PortInfo;
+import org.apache.openejb.DeploymentInfo;
 
 import javax.naming.Context;
 import java.net.URL;
@@ -30,15 +32,26 @@ import java.net.URL;
 public class EJBWebServiceContainer extends Axis2WebServiceContainer {
 
     private String contextRoot = null;
+    private DeploymentInfo deploymnetInfo;
     
     public EJBWebServiceContainer(PortInfo portInfo,
-                                    String endpointClassName,
-                                    ClassLoader classLoader,
-                                    Context context,
-                                    URL configurationBaseUrl) {
+                                  String endpointClassName,
+                                  ClassLoader classLoader,
+                                  Context context,
+                                  URL configurationBaseUrl,
+                                  DeploymentInfo deploymnetInfo) {
         super(portInfo, endpointClassName, classLoader, context, configurationBaseUrl);
+        this.deploymnetInfo = deploymnetInfo;
     }
     
+    @Override
+    protected AxisServiceGenerator createServiceGenerator() {
+        AxisServiceGenerator serviceGenerator = super.createServiceGenerator();
+        serviceGenerator.setMessageReceiver(new EJBMessageReceiver(this.endpointClass, this.deploymnetInfo));
+        return serviceGenerator;
+    }
+    
+    @Override
     protected void initContextRoot(Request request) {       
         String servicePath = portInfo.getLocation();
         
