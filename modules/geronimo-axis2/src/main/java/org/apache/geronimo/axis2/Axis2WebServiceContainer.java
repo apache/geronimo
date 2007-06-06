@@ -97,23 +97,28 @@ public abstract class Axis2WebServiceContainer implements WebServiceContainer {
         try {
             this.endpointClass = classLoader.loadClass(this.endpointClassName);
             configurationContext = ConfigurationContextFactory.createDefaultConfigurationContext();
-            
-            //check to see if the wsdlLocation property is set in portInfo, 
-            //if not checking if wsdlLocation exists in annotation
-            //if already set, annotation should not overwrite it.
-            if (portInfo.getWsdlFile() == null || portInfo.getWsdlFile().equals("")){
-                //getwsdllocation from annotation if it exists
+
+            // check to see if the wsdlLocation property is set in portInfo,
+            // if not checking if wsdlLocation exists in annotation
+            // if already set, annotation should not overwrite it.
+            if (portInfo.getWsdlFile() == null || portInfo.getWsdlFile().equals("")) {
+                // getwsdllocation from annotation if it exists
                 if (JAXWSUtils.containsWsdlLocation(this.endpointClass, classLoader)) {
                     portInfo.setWsdlFile(JAXWSUtils.getServiceWsdlLocation(this.endpointClass, classLoader));
                 }
             }
 
-            if(portInfo.getWsdlFile() != null && !portInfo.getWsdlFile().equals("")){ //WSDL file Has been provided
-                AxisServiceGenerator serviceGen = createServiceGenerator();
+            AxisServiceGenerator serviceGen = createServiceGenerator();            
+            if (portInfo.getWsdlFile() != null && !portInfo.getWsdlFile().equals("")) { 
+                // WSDL file has been provided 
                 service = serviceGen.getServiceFromWSDL(portInfo, endpointClass, configurationBaseUrl);
-                                            
-            }else { //No WSDL, Axis2 will handle it. Is it ?
-                service = AxisService.createService(endpointClassName, configurationContext.getAxisConfiguration(), JAXWSMessageReceiver.class);
+            } else {
+                // No WSDL, let Axis2 handle it.
+                
+                // FIXME: AxisServiceGenerator method should be used as it understands annotations
+                // but right now that method causes some problems when WSDL is requested.
+                service = AxisService.createService(endpointClassName, configurationContext.getAxisConfiguration(), JAXWSMessageReceiver.class);                
+                // service = serviceGen.getServiceFromClass(this.endpointClass);
             }
 
             service.setScope(Constants.SCOPE_APPLICATION);
@@ -124,7 +129,7 @@ public abstract class Axis2WebServiceContainer implements WebServiceContainer {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
-        
+
         this.wsdlQueryHandler = new WSDLQueryHandler(this.service);
     }  
 

@@ -24,7 +24,6 @@ import java.net.URL;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 
 import javax.wsdl.Binding;
 import javax.wsdl.Definition;
@@ -45,6 +44,7 @@ import org.apache.axis2.description.AxisService;
 import org.apache.axis2.description.Parameter;
 import org.apache.axis2.description.WSDL11ToAxisServiceBuilder;
 import org.apache.axis2.description.WSDLToAxisServiceBuilder;
+import org.apache.axis2.description.java2wsdl.Java2WSDLConstants;
 import org.apache.axis2.engine.MessageReceiver;
 import org.apache.axis2.jaxws.description.DescriptionFactory;
 import org.apache.axis2.jaxws.description.EndpointDescription;
@@ -65,6 +65,7 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.axis2.util.SimpleWSDLLocator;
 import org.apache.geronimo.jaxws.JAXWSUtils;
 import org.apache.geronimo.jaxws.PortInfo;
+import org.apache.ws.commons.schema.utils.NamespaceMap;
 
 //TODO: Handle RPC Style Messaging
 
@@ -86,6 +87,26 @@ public class AxisServiceGenerator {
         this.messageReceiver = messageReceiver;
     }
    
+    public AxisService getServiceFromClass(Class endpointClass) throws Exception {
+        AxisService service = DescriptionFactory.createAxisService(endpointClass);
+        
+        for(Iterator<AxisOperation> opIterator = service.getOperations() ; opIterator.hasNext() ;){
+            AxisOperation operation = opIterator.next();
+            operation.setMessageReceiver(this.messageReceiver);
+        }
+        
+        if (service.getNameSpacesMap() == null) {
+            NamespaceMap map = new NamespaceMap();
+            map.put(Java2WSDLConstants.AXIS2_NAMESPACE_PREFIX,
+                    Java2WSDLConstants.AXIS2_XSD);
+            map.put(Java2WSDLConstants.DEFAULT_SCHEMA_NAMESPACE_PREFIX,
+                    Java2WSDLConstants.URI_2001_SCHEMA_XSD);
+            service.setNameSpacesMap(map);
+        }
+        
+        return service;
+    }
+    
     public AxisService getServiceFromWSDL(PortInfo portInfo, Class endpointClass, URL configurationBaseUrl) throws Exception {
         String wsdlFile = portInfo.getWsdlFile();
         if (wsdlFile == null || wsdlFile.equals("")) {

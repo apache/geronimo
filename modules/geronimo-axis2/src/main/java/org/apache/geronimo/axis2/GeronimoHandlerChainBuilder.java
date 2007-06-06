@@ -53,7 +53,7 @@ public class GeronimoHandlerChainBuilder extends AnnotationHandlerChainBuilder {
                 && matchBinding(portInfo, hc.getProtocolBindings())) {
             return super.buildHandlerChain(hc, classLoader);
         } else {
-            return Collections.EMPTY_LIST;
+            return Collections.emptyList();
         }
     }
 
