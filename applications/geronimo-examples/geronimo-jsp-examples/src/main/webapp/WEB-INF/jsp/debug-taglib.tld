@@ -40,7 +40,7 @@
   <tag>
     <name>log</name>
     <tag-class>examples.LogTag</tag-class>
-    <body-content>TAGDEPENDENT</body-content>
+    <body-content>tagdependent</body-content>
     <description>
 	Perform a server side action; Log the message.
     </description>

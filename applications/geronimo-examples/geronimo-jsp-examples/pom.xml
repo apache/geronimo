@@ -58,13 +58,11 @@
     <build>
         <plugins>
             <plugin>
-                <groupId>org.codehaus.mojo.jspc</groupId>
-                <artifactId>jspc-maven-plugin</artifactId>
-            </plugin>
-            
-            <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-war-plugin</artifactId>
+                <configuration>
+                    <webXml>${pom.basedir}/src/main/webapp/WEB-INF/web.xml</webXml>
+                </configuration>
             </plugin>
         </plugins>
     </build>
