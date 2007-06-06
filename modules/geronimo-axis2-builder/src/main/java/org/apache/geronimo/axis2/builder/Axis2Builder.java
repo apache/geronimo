@@ -316,9 +316,7 @@ public class Axis2Builder extends JAXWSServiceBuilder {
         }
         
         // set wsdl port
-        if (portInfo.getWsdlPort() == null) {
-            generator.setWsdlPort(JAXWSUtils.getPortQName(serviceClass));
-        } else {
+        if (portInfo.getWsdlPort() != null) {
             generator.setWsdlPort(portInfo.getWsdlPort());
         }
                 
