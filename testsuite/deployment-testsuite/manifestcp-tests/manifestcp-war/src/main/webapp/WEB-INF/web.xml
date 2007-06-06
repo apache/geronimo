@@ -31,8 +31,6 @@ limitations under the License.
         <load-on-startup>0</load-on-startup>
     </servlet>
 
-    <!-- [INSERT FRAGMENT HERE] --> 
-
     <servlet-mapping>
         <servlet-name>servlet</servlet-name>
         <url-pattern>/servlet</url-pattern>

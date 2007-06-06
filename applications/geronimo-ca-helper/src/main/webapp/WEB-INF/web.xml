@@ -37,7 +37,7 @@
             org.apache.geronimo.ca.helper.DownloadCertificateServlet
         </servlet-class>
     </servlet>
-    <!-- [INSERT FRAGMENT HERE] --> 
+
     <servlet-mapping>
         <servlet-name>CertificateRequestServlet</servlet-name>
         <url-pattern>/CertificateRequestServlet</url-pattern>

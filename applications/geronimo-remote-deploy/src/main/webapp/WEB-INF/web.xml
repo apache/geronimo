@@ -40,8 +40,6 @@
         <servlet-class>org.apache.geronimo.deployment.remote.BarfServlet</servlet-class>
     </servlet>
 
-    <!-- [INSERT FRAGMENT HERE] --> 
-
     <servlet-mapping>
         <servlet-name>file-upload</servlet-name>
         <url-pattern>/upload</url-pattern>

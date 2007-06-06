@@ -124,8 +124,6 @@
         </servlet-class>
     </servlet>
     
-    <!-- [INSERT FRAGMENT HERE] -->
-    
     <servlet-mapping>
         <servlet-name>
             CompressionFilterTestServlet

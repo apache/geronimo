@@ -86,9 +86,6 @@
             <plugin>
                 <groupId>org.codehaus.mojo.jspc</groupId>
                 <artifactId>jspc-maven-plugin</artifactId>
-                <configuration>
-                    <injectString>&lt;!-- [INSERT FRAGMENT HERE] --&gt;</injectString>
-                </configuration>
             </plugin>
             
             <plugin>

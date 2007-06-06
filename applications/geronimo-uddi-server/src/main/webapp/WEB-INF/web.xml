@@ -59,8 +59,6 @@
         <servlet-class>org.apache.juddi.registry.PublishService</servlet-class>
     </servlet>
 
-    <!-- [INSERT FRAGMENT HERE] --> 
-
     <servlet-mapping>
         <servlet-name>jUDDIAdminService</servlet-name>
         <url-pattern>/admin</url-pattern>

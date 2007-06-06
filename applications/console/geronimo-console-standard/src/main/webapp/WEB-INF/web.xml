@@ -842,8 +842,6 @@ limitations under the License.
         </init-param>
     </servlet>
 
-<!-- [INSERT FRAGMENT HERE] -->
-
     <servlet-mapping>
         <servlet-name>LDAPViewer</servlet-name>
         <url-pattern>/LDAPViewer/*</url-pattern>
