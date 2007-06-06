@@ -28,6 +28,8 @@
     <module name="org.apache.geronimo.configs/openejb-corba-deployer/${version}/car"/>
     <module name="org.apache.geronimo.configs/persistence-jpa10-deployer/${version}/car"/>
     <module name="org.apache.geronimo.configs/axis-deployer/${version}/car"/>
+    <module name="org.apache.geronimo.configs/jasper-deployer/${version}/car"/>
+    <module name="org.apache.geronimo.configs/myfaces-deployer/${version}/car"/>
     <module name="org.apache.geronimo.configs/axis2-deployer/${version}/car" 
             condition="props['org.apache.geronimo.jaxws.provider'] == 'axis2'">
         <gbean name="Axis2ModuleBuilderExtension">
