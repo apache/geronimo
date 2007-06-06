@@ -123,8 +123,9 @@ public class WsdlGenerator {
     }
     
     private static String getModuleClasspath(Module module, DeploymentContext context) throws DeploymentException {
-        EARContext moduleContext = module.getEarContext();
-        String baseDir = moduleContext.getBaseDir().getAbsolutePath();
+        File moduleBase = module.getEarContext().getBaseDir();
+        File moduleBaseDir = (moduleBase.isFile()) ? moduleBase.getParentFile() : moduleBase;
+        String baseDir = moduleBaseDir.getAbsolutePath();
         List<String> moduleClassPath = context.getConfiguration().getClassPath();
         StringBuilder classpath = new StringBuilder();
         for (String s : moduleClassPath) {          
@@ -298,7 +299,8 @@ public class WsdlGenerator {
                                PortInfo portInfo) throws DeploymentException {
         //call wsgen tool to generate the wsdl file based on the bindingtype.
         //let's set the outputDir as the module base directory in server repository.
-        File moduleBaseDir = module.getEarContext().getBaseDir();
+        File moduleBase = module.getEarContext().getBaseDir();
+        File moduleBaseDir = (moduleBase.isFile()) ? moduleBase.getParentFile() : moduleBase;
         File baseDir;
         
         try {
@@ -349,7 +351,7 @@ public class WsdlGenerator {
                 if (wsdlFile == null) {
                     throw new DeploymentException("Unable to find the service wsdl file");
                 }
-                return getRelativeNameOrURL(moduleBaseDir, wsdlFile);
+                return getRelativeNameOrURL(moduleBase, wsdlFile);
             } else {
                 throw new DeploymentException("wsgen failed: " + wsgenOutput);
             }
