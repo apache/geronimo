@@ -207,7 +207,7 @@
                             <id>start-server</id>
                             <phase>pre-integration-test</phase>
                             <goals>
-                                <goal>start</goal>
+                                <goal>start-server</goal>
                             </goals>
                             <configuration>
                                 <logOutput>true</logOutput>
