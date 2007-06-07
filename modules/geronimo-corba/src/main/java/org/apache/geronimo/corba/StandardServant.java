@@ -100,8 +100,14 @@ public class StandardServant extends Servant implements InvokeHandler {
         Class type;
         if (InterfaceType.EJB_HOME == ejbInterfaceType) {
             type = ejbDeployment.getHomeInterface();
+            if (type == null) {
+                throw new IllegalArgumentException("EJB " + ejbDeployment.getEjbName() + " does not have a home interface");
+            }
         } else if (InterfaceType.EJB_OBJECT == ejbInterfaceType) {
             type = ejbDeployment.getRemoteInterface();
+            if (type == null) {
+                throw new IllegalArgumentException("EJB " + ejbDeployment.getEjbName() + " does not have a remote interface");
+            }
         } else {
             throw new IllegalArgumentException("Only home and remote interfaces are supported in this servant: " + ejbInterfaceType);
         }
