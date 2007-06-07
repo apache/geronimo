@@ -1566,7 +1566,7 @@ public class PluginInstallerGBean implements PluginInstaller {
     private PluginMetadata.Prerequisite processDependencyList(List real, PluginMetadata.Prerequisite prereq, List deps) {
         for (int i = 0; i < real.size(); i++) {
             Dependency dep = (Dependency) real.get(i);
-            if(dep.getArtifact().getGroupId().equals("geronimo")) {
+            if ((dep.getArtifact().getGroupId() != null) && (dep.getArtifact().getGroupId().equals("geronimo"))) {
                 if(dep.getArtifact().getArtifactId().indexOf("jetty") > -1) {
                     if(prereq == null) {
                         prereq = new PluginMetadata.Prerequisite(dep.getArtifact(), true, "Web Container", "This plugin works with the Geronimo/Jetty distribution.  It is not intended to run in the Geronimo/Tomcat distribution.  There is a separate version of this plugin that works with Tomcat.");
