@@ -78,4 +78,6 @@ public interface TomcatWebConnector extends WebConnector {
     public String getServer();
     public void setStrategy(String strategy);
     public String getStrategy();
+    public int getKeepAliveTimeout();
+    public void setKeepAliveTimeout(int keepAliveTimeout);
 }

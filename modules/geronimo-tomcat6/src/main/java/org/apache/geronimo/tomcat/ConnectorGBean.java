@@ -575,7 +575,15 @@ public class ConnectorGBean extends BaseGBean implements GBeanLifecycle, ObjectR
     public String getStrategy() {
         return (String) connector.getAttribute("strategy");
     }
+
+    public int getKeepAliveTimeout() {
+        Object value = connector.getAttribute("keepAliveTimeout");
+        return value == null ? getConnectionTimeoutMillis() :Integer.parseInt(value.toString());
+    }
     
+    public void setKeepAliveTimeout(int keepAliveTimeout) {
+        connector.setAttribute("keepAliveTimeout", keepAliveTimeout);
+    }
 //  JSR77 stuff
     public String getObjectName() {
         return name; // really an objectName
@@ -651,14 +659,45 @@ public class ConnectorGBean extends BaseGBean implements GBeanLifecycle, ObjectR
                         "restrictedUserAgents",
                         "threadPriority",
                         "server",
-                        "strategy"
+                        "strategy",
+                        "keepAliveTimeout"
                 },
 
                 new String[]{
                         "host",
                         "port",
+                        "bufferSizeBytes",
+                        "maxThreads",
+                        "acceptQueueSize",
+                        "lingerMillis",
+                        "tcpNoDelay",
                         "redirectPort",
-                        "maxThreads"});
+                        "minSpareThreads",
+                        "maxSpareThreads",
+                        "maxHttpHeaderSizeBytes",
+                        "hostLookupEnabled",
+                        "connectionTimeoutMillis",
+                        "uploadTimeoutEnabled",
+                        "maxPostSize",
+                        "maxSavePostSize",
+                        "emptySessionPath",
+                        "maxKeepAliveRequests",
+                        "socketBuffer",
+                        "useBodyEncodingForURI",
+                        "allowTrace",
+                        "proxyName",
+                        "proxyPort",
+                        "uriEncoding",
+                        "useIPVHosts",
+                        "xpoweredBy",
+                        "compressableMimeType",
+                        "compression",
+                        "noCompressionUserAgents",
+                        "restrictedUserAgents",
+                        "threadPriority",
+                        "server",
+                        "strategy",
+                        "keepAliveTimeout"});
         infoFactory.setConstructor(new String[] { "name", "protocol", "host", "port", "TomcatContainer"});
         GBEAN_INFO = infoFactory.getBeanInfo();
     }

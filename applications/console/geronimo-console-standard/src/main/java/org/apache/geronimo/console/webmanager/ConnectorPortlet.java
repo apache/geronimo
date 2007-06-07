@@ -64,6 +64,36 @@ public class ConnectorPortlet extends BasePortlet {
 
     protected PortletRequestDispatcher editHttpView;
     protected PortletRequestDispatcher editHttpsView;
+    
+    private final static HashMap<String, Object> TOMCAT_DEFAULTS;
+    static {
+        TOMCAT_DEFAULTS = new HashMap<String, Object>();
+        TOMCAT_DEFAULTS.put("allowTrace", Boolean.FALSE);
+        TOMCAT_DEFAULTS.put("emptySessionPath", Boolean.FALSE);
+        TOMCAT_DEFAULTS.put("enableLookups", Boolean.TRUE);
+        TOMCAT_DEFAULTS.put("maxPostSize", 2097152);
+        TOMCAT_DEFAULTS.put("maxSavePostSize", 4096);
+        TOMCAT_DEFAULTS.put("useBodyEncodingForURI", Boolean.FALSE);
+        TOMCAT_DEFAULTS.put("useIPVHosts", Boolean.FALSE);
+        TOMCAT_DEFAULTS.put("xpoweredBy", Boolean.FALSE);
+        TOMCAT_DEFAULTS.put("acceptCount", 10);
+        TOMCAT_DEFAULTS.put("bufferSize", 2048);
+        TOMCAT_DEFAULTS.put("compressableMimeType", "text/html,text/xml,text/plain");
+        TOMCAT_DEFAULTS.put("compression", "off");
+        TOMCAT_DEFAULTS.put("connectionLinger", -1);
+        TOMCAT_DEFAULTS.put("connectionTimeout", 60000);
+        TOMCAT_DEFAULTS.put("disableUploadTimeout", true);
+        TOMCAT_DEFAULTS.put("maxHttpHeaderSize", 4096);
+        TOMCAT_DEFAULTS.put("maxKeepAliveRequests", 100);
+        TOMCAT_DEFAULTS.put("maxSpareThreads", 50);
+        TOMCAT_DEFAULTS.put("minSpareThreads", 4);
+        TOMCAT_DEFAULTS.put("noCompressionUserAgents", "");
+        TOMCAT_DEFAULTS.put("restrictedUserAgents", "");
+        TOMCAT_DEFAULTS.put("socketBuffer", 9000);
+        TOMCAT_DEFAULTS.put("strategy", "lf");
+        TOMCAT_DEFAULTS.put("tcpNoDelay", true);
+        TOMCAT_DEFAULTS.put("threadPriority", Thread.NORM_PRIORITY);
+    }
 
     public void processAction(ActionRequest actionRequest,
                               ActionResponse actionResponse) throws PortletException, IOException {
@@ -105,6 +135,9 @@ public class ConnectorPortlet extends BasePortlet {
             // Create and configure the connector
             WebConnector connector = PortletManager.createWebConnector(actionRequest, new AbstractName(URI.create(managerURI)), new AbstractName(URI.create(containerURI)), displayName, protocol, host, port);
             connector.setMaxThreads(maxThreads);
+            if (server.equals(WEB_SERVER_TOMCAT)) {
+                setTomcatAttributes(actionRequest, connector);
+            }
             if(protocol.equals(WebManager.PROTOCOL_HTTPS)) {
                 String keystoreType = actionRequest.getParameter("keystoreType");
                 String keystoreFile = actionRequest.getParameter("keystoreFile");
@@ -115,9 +148,14 @@ public class ConnectorPortlet extends BasePortlet {
                 String truststoreType = actionRequest.getParameter("truststoreType");
                 String truststoreFile = actionRequest.getParameter("truststoreFile");
                 String truststorePass = actionRequest.getParameter("truststorePassword");
+                String ciphers = actionRequest.getParameter("ciphers");
                 boolean clientAuth = isValid(actionRequest.getParameter("clientAuth"));
                 SecureConnector secure = (SecureConnector) connector;
-                if(isValid(keystoreType)) {secure.setKeystoreType(keystoreType);}
+                if(isValid(keystoreType)) {
+                    secure.setKeystoreType(keystoreType);
+                } else {
+                    secure.setKeystoreType(null);
+                }
                 if(isValid(keystoreFile)) {secure.setKeystoreFileName(keystoreFile);}
                 if(isValid(keystorePass)) {secure.setKeystorePassword(keystorePass);}
                 if(isValid(secureProtocol)) {secure.setSecureProtocol(secureProtocol);}
@@ -152,6 +190,7 @@ public class ConnectorPortlet extends BasePortlet {
                     if(isValid(truststoreType)) {setProperty(secure, "truststoreType", truststoreType);}
                     if(isValid(truststoreFile)) {setProperty(secure, "truststoreFileName", truststoreFile);}
                     if(isValid(truststorePass)) {setProperty(secure, "truststorePassword", truststorePass);}
+                    setProperty(secure, "ciphers", isValid(ciphers) ? ciphers : "");
                 } else {
                     //todo:   Handle "should not occur" condition
                 }
@@ -176,6 +215,9 @@ public class ConnectorPortlet extends BasePortlet {
                 if(!connector.getHost().equals(host)) connector.setHost(host);
                 if(connector.getPort() != port) connector.setPort(port);
                 if(connector.getMaxThreads() != maxThreads) connector.setMaxThreads(maxThreads);
+                if (server.equals(WEB_SERVER_TOMCAT)) {
+                    setTomcatAttributes(actionRequest, connector);
+                }
                 if(connector instanceof SecureConnector) {
                     String keystoreType = actionRequest.getParameter("keystoreType");
                     String keystoreFile = actionRequest.getParameter("keystoreFile");
@@ -186,9 +228,16 @@ public class ConnectorPortlet extends BasePortlet {
                     String truststoreType = actionRequest.getParameter("truststoreType");
                     String truststoreFile = actionRequest.getParameter("truststoreFile");
                     String truststorePass = actionRequest.getParameter("truststorePassword");
+                    String ciphers = actionRequest.getParameter("ciphers");
                     boolean clientAuth = isValid(actionRequest.getParameter("clientAuth"));
                     SecureConnector secure = (SecureConnector) connector;
-                    if(isValid(keystoreType) && !keystoreType.equals(secure.getKeystoreType())) {secure.setKeystoreType(keystoreType);}
+                    String oldVal = secure.getKeystoreType();
+                    if(isValid(keystoreType)) {
+                        if(!keystoreType.equals(oldVal))
+                            secure.setKeystoreType(keystoreType);
+                    } else {
+                        if(oldVal != null) secure.setKeystoreType(null);
+                    }
                     if(isValid(keystoreFile) && !keystoreFile.equals(secure.getKeystoreFileName())) {secure.setKeystoreFileName(keystoreFile);}
                     if(isValid(keystorePass)) {secure.setKeystorePassword(keystorePass);}
                     if(isValid(secureProtocol) && !secureProtocol.equals(secure.getSecureProtocol())) {secure.setSecureProtocol(secureProtocol);}
@@ -224,6 +273,12 @@ public class ConnectorPortlet extends BasePortlet {
                         if(isValid(truststoreType) && !truststoreType.equals(getProperty(secure, "truststoreType"))) {setProperty(secure, "truststoreType", truststoreType);}
                         if(isValid(truststorePass)) {setProperty(secure, "truststorePassword", truststorePass);}
                         if(isValid(truststoreFile) && !truststoreFile.equals(getProperty(secure, "truststoreFileName"))) {setProperty(secure, "truststoreFileName", truststoreFile);}
+                        String prevVal = (String)getProperty(secure, "ciphers");
+                        if(isValid(ciphers)) {
+                            if(!ciphers.equals(prevVal)) setProperty(secure, "ciphers", ciphers);
+                        } else {
+                            if(prevVal != null) setProperty(secure, "ciphers", null);
+                        }
                     }
                     else {
                         //todo:   Handle "should not occur" condition
@@ -272,6 +327,248 @@ public class ConnectorPortlet extends BasePortlet {
             String connectorURI = actionRequest.getParameter("connectorURI");
             PortletManager.getWebManager(actionRequest, new AbstractName(URI.create(managerURI))).removeConnector(new AbstractName(URI.create(connectorURI)));
             actionResponse.setRenderParameter("mode", "list");
+        }
+    }
+
+    /**
+     * This method retrieves Tomcat Connector attributes from the action request and sets the attributes in the connector.
+     * @param actionRequest
+     * @param connector
+     */
+    private void setTomcatAttributes(ActionRequest actionRequest, WebConnector connector) {
+        boolean prevBoolVal;
+        int prevIntVal;
+        String prevVal;
+        
+        boolean allowTrace = isValid(actionRequest.getParameter("allowTrace"));
+        prevBoolVal = (Boolean)getProperty(connector, "allowTrace");
+        if(allowTrace != prevBoolVal) setProperty(connector, "allowTrace", allowTrace);
+
+        boolean emptySessionPath = isValid(actionRequest.getParameter("emptySessionPath"));
+        prevBoolVal = (Boolean)callOperation(connector, "isEmptySessionPath", null);
+        if(emptySessionPath != prevBoolVal) setProperty(connector, "emptySessionPath", emptySessionPath);
+
+        boolean enableLookups = isValid(actionRequest.getParameter("enableLookups"));
+        prevBoolVal = (Boolean)callOperation(connector, "isHostLookupEnabled", null);
+        if(enableLookups != prevBoolVal) setProperty(connector, "hostLookupEnabled", enableLookups);
+
+        String maxPostSize = actionRequest.getParameter("maxPostSize");
+        prevIntVal = (Integer)getProperty(connector, "maxPostSize");
+        if(isValid(maxPostSize)) {
+            int newVal = Integer.parseInt(maxPostSize);
+            if(newVal != prevIntVal) setProperty(connector, "maxPostSize", newVal);
+        } else {
+            if(prevIntVal != (Integer)TOMCAT_DEFAULTS.get("maxPostSize")) setProperty(connector, "maxPostSize", TOMCAT_DEFAULTS.get("maxPostSize"));
+        }
+
+        String maxSavePostSize = actionRequest.getParameter("maxSavePostSize");
+        prevIntVal = (Integer)getProperty(connector, "maxSavePostSize");
+        if(isValid(maxSavePostSize)) {
+            int newVal = Integer.parseInt(maxSavePostSize);
+            if(newVal != prevIntVal) setProperty(connector, "maxSavePostSize", newVal);
+        } else {
+            if(prevIntVal != (Integer)TOMCAT_DEFAULTS.get("maxSavePostSize")) setProperty(connector, "maxSavePostSize", TOMCAT_DEFAULTS.get("maxSavePostSize"));
+        }
+
+        String proxyName = actionRequest.getParameter("proxyName");
+        prevVal = (String)getProperty(connector, "proxyName");
+        if(isValid(proxyName)) {
+            if(!proxyName.equals(prevVal)) setProperty(connector, "proxyName", proxyName);
+        } else {
+            if(prevVal != null) setProperty(connector, "proxyName", null);
+        }
+
+        String proxyPort = actionRequest.getParameter("proxyPort");
+        prevIntVal = (Integer)getProperty(connector, "proxyPort");
+        if(isValid(proxyPort)) {
+            int newVal = Integer.parseInt(proxyPort);
+            if(newVal != prevIntVal) setProperty(connector, "proxyPort", newVal);
+        } else {
+            if(prevIntVal != 0) setProperty(connector, "proxyPort", 0);
+        }
+        
+        String redirectPort = actionRequest.getParameter("redirectPort");
+        prevIntVal = connector.getRedirectPort();
+        if(isValid(redirectPort)) {
+            int newVal = Integer.parseInt(redirectPort);
+            if(newVal != prevIntVal) connector.setRedirectPort(newVal);
+        } else {
+            if(prevIntVal != 0) connector.setRedirectPort(0);
+        }
+        
+        String URIEncoding = actionRequest.getParameter("URIEncoding");
+        prevVal = (String)getProperty(connector, "uriEncoding");
+        if(isValid(URIEncoding)) {
+            if(!URIEncoding.equals(prevVal)) setProperty(connector, "uriEncoding", URIEncoding);
+        } else {
+            if(prevVal != null) setProperty(connector, "uriEncoding", null);//FIXME
+        }
+        
+        boolean useBodyEncodingForURI = isValid(actionRequest.getParameter("useBodyEncodingForURI"));
+        prevBoolVal = (Boolean)getProperty(connector, "useBodyEncodingForURI");
+        if(useBodyEncodingForURI != prevBoolVal) setProperty(connector, "useBodyEncodingForURI", useBodyEncodingForURI);
+
+        boolean useIPVHosts = isValid(actionRequest.getParameter("useIPVHosts"));
+        prevBoolVal = (Boolean)getProperty(connector, "useIPVHosts");
+        if(useIPVHosts != prevBoolVal) setProperty(connector, "useIPVHosts", useIPVHosts);
+
+        boolean xpoweredBy = isValid(actionRequest.getParameter("xpoweredBy"));
+        prevBoolVal = (Boolean)getProperty(connector, "xpoweredBy");
+        if(xpoweredBy != prevBoolVal) setProperty(connector, "xpoweredBy", xpoweredBy);
+
+        String acceptCount = actionRequest.getParameter("acceptCount");
+        prevIntVal = connector.getAcceptQueueSize();
+        if(isValid(acceptCount)) {
+            int newVal = Integer.parseInt(acceptCount);
+            if(prevIntVal != newVal) connector.setAcceptQueueSize(newVal);
+        } else {
+            if(prevIntVal != (Integer)TOMCAT_DEFAULTS.get("acceptCount")) connector.setAcceptQueueSize((Integer)TOMCAT_DEFAULTS.get("acceptCount"));
+        }
+
+        String bufferSize = actionRequest.getParameter("bufferSize");
+        prevIntVal = connector.getBufferSizeBytes();
+        if(isValid(bufferSize)) {
+            int newVal = Integer.parseInt(bufferSize);
+            if(prevIntVal != newVal) connector.setBufferSizeBytes(newVal);
+        } else {
+            if(prevIntVal != (Integer)TOMCAT_DEFAULTS.get("bufferSize")) connector.setBufferSizeBytes((Integer)TOMCAT_DEFAULTS.get("bufferSize"));
+        }
+
+        String compressableMimeType = actionRequest.getParameter("compressableMimeType");
+        prevVal = (String)getProperty(connector, "compressableMimeType");
+        if(isValid(compressableMimeType)) {
+            if(!compressableMimeType.equals(prevVal)) setProperty(connector, "compressableMimeType", compressableMimeType);
+        } else {
+            if(!TOMCAT_DEFAULTS.get("compressableMimeType").equals(prevVal)) setProperty(connector, "compressableMimeType", TOMCAT_DEFAULTS.get("compressableMimeType"));
+        }
+
+        String compression = actionRequest.getParameter("compression");
+        prevVal = (String)getProperty(connector, "compression");
+        if(isValid(compression)) {
+            if(!compression.equals(prevVal)) setProperty(connector, "compression", compression);
+        } else {
+            if(!TOMCAT_DEFAULTS.get("compression").equals(prevVal)) setProperty(connector, "compression", TOMCAT_DEFAULTS.get("compression"));
+        }
+
+        String connectionLinger = actionRequest.getParameter("connectionLinger");
+        prevIntVal = connector.getLingerMillis();
+        if(isValid(connectionLinger)) {
+            int newVal = Integer.parseInt(connectionLinger);
+            if(prevIntVal != newVal) connector.setLingerMillis(newVal);
+        } else {
+            if(prevIntVal != (Integer)TOMCAT_DEFAULTS.get("connectionLinger")) connector.setLingerMillis((Integer)TOMCAT_DEFAULTS.get("connectionLinger"));
+        }
+
+        String connectionTimeout = actionRequest.getParameter("connectionTimeout");
+        prevIntVal = (Integer)getProperty(connector, "connectionTimeoutMillis");
+        if(isValid(connectionTimeout)) {
+            int newVal = Integer.parseInt(connectionTimeout);
+            if(prevIntVal != newVal) setProperty(connector, "connectionTimeoutMillis", newVal);
+        } else {
+            if(prevIntVal != (Integer)TOMCAT_DEFAULTS.get("connectionTimeout")) setProperty(connector, "connectionTimeoutMillis", (Integer)TOMCAT_DEFAULTS.get("connectionTimeout"));
+        }
+
+        String keepAliveTimeout = actionRequest.getParameter("keepAliveTimeout");
+        prevIntVal = (Integer)getProperty(connector, "keepAliveTimeout");
+        if(isValid(keepAliveTimeout)) {
+            int newVal = Integer.parseInt(keepAliveTimeout);
+            if(prevIntVal != newVal) setProperty(connector, "keepAliveTimeout", newVal);
+        } else {
+            if(prevIntVal != (Integer)getProperty(connector, "connectionTimeoutMillis")) setProperty(connector, "keepAliveTimeout", getProperty(connector, "connectionTimeoutMillis"));
+        }
+
+        boolean disableUploadTimeout = isValid(actionRequest.getParameter("disableUploadTimeout"));
+        prevBoolVal = !(Boolean)callOperation(connector, "isUploadTimeoutEnabled", null);
+        if(disableUploadTimeout != prevBoolVal) setProperty(connector, "uploadTimeoutEnabled", !disableUploadTimeout);
+
+        String maxHttpHeaderSize = actionRequest.getParameter("maxHttpHeaderSize");
+        prevIntVal = (Integer)getProperty(connector, "maxHttpHeaderSizeBytes");
+        if(isValid(maxHttpHeaderSize)) {
+            int newVal = Integer.parseInt(maxHttpHeaderSize);
+            if(newVal != prevIntVal) setProperty(connector, "maxHttpHeaderSizeBytes", newVal);
+        } else {
+            if(prevIntVal != (Integer)TOMCAT_DEFAULTS.get("maxHttpHeaderSize")) setProperty(connector, "maxHttpHeaderSizeBytes", TOMCAT_DEFAULTS.get("maxHttpHeaderSize"));
+        }
+        
+        String maxKeepAliveRequests = actionRequest.getParameter("maxKeepAliveRequests");
+        prevIntVal = (Integer)getProperty(connector, "maxKeepAliveRequests");
+        if(isValid(maxKeepAliveRequests)) {
+            int newVal = Integer.parseInt(maxKeepAliveRequests);
+            if(prevIntVal != newVal) setProperty(connector, "maxKeepAliveRequests", newVal);
+        } else {
+            if(prevIntVal != (Integer)TOMCAT_DEFAULTS.get("maxKeepAliveRequests")) setProperty(connector, "maxKeepAliveRequests", TOMCAT_DEFAULTS.get("maxKeepAliveRequests"));
+        }
+        
+        String maxSpareThreads = actionRequest.getParameter("maxSpareThreads");
+        prevIntVal = (Integer)getProperty(connector, "maxSpareThreads");
+        if(isValid(maxSpareThreads)) {
+            int newVal =  Integer.parseInt(maxSpareThreads);
+            if(prevIntVal != newVal) setProperty(connector, "maxSpareThreads", newVal);
+        } else {
+            if(prevIntVal != (Integer)TOMCAT_DEFAULTS.get("maxSpareThreads")) setProperty(connector, "maxSpareThreads", TOMCAT_DEFAULTS.get("maxSpareThreads"));
+        }
+        
+        String minSpareThreads = actionRequest.getParameter("minSpareThreads");
+        prevIntVal = (Integer)getProperty(connector, "minSpareThreads");
+        if(isValid(minSpareThreads)) {
+            int newVal = new Integer(minSpareThreads);
+            if(prevIntVal != newVal) setProperty(connector, "minSpareThreads", newVal);
+        } else {
+            if(prevIntVal != (Integer)TOMCAT_DEFAULTS.get("minSpareThreads")) setProperty(connector, "minSpareThreads", TOMCAT_DEFAULTS.get("minSpareThreads"));
+        }
+        
+        String noCompressionUserAgents = actionRequest.getParameter("noCompressionUserAgents");
+        prevVal = (String)getProperty(connector, "noCompressionUserAgents");
+        if(isValid(noCompressionUserAgents)) {
+            if(!noCompressionUserAgents.equals(prevVal)) setProperty(connector, "noCompressionUserAgents", noCompressionUserAgents);
+        } else {
+            if(prevVal != null) setProperty(connector, "noCompressionUserAgents", TOMCAT_DEFAULTS.get("noCompressionUserAgents"));
+        }
+
+        String restrictedUserAgents = actionRequest.getParameter("restrictedUserAgents");
+        prevVal = (String)getProperty(connector, "restrictedUserAgents");
+        if(isValid(restrictedUserAgents)) {
+            if(!restrictedUserAgents.equals(prevVal)) setProperty(connector, "restrictedUserAgents", restrictedUserAgents);
+        } else {
+            if(prevVal != null) setProperty(connector, "restrictedUserAgents", TOMCAT_DEFAULTS.get("restrictedUserAgents"));
+        }
+
+        String serverAttribute = actionRequest.getParameter("serverAttribute");
+        prevVal = (String)getProperty(connector, "server");
+        if(isValid(serverAttribute)) {
+            if(!serverAttribute.equals(prevVal)) setProperty(connector, "server", serverAttribute);
+        } else {
+            if(prevVal != null) setProperty(connector, "server", null);
+        }
+
+        String socketBuffer = actionRequest.getParameter("socketBuffer");
+        prevIntVal = (Integer)getProperty(connector, "socketBuffer");
+        if(isValid(socketBuffer)) {
+            int newVal = Integer.parseInt(socketBuffer);
+            if(prevIntVal != newVal) setProperty(connector, "socketBuffer", newVal);
+        } else {
+            if(prevIntVal != (Integer)TOMCAT_DEFAULTS.get("socketBuffer")) setProperty(connector, "socketBuffer", TOMCAT_DEFAULTS.get("socketBuffer"));
+        }
+
+        String strategy = actionRequest.getParameter("strategy");
+        prevVal = (String)getProperty(connector, "strategy");
+        if(isValid(strategy)) {
+            if(!strategy.equals(prevVal)) setProperty(connector, "strategy", strategy);
+        } else {
+            if(prevVal != null) setProperty(connector, "strategy", TOMCAT_DEFAULTS.get("strategy"));
+        }
+
+        boolean tcpNoDelay = isValid(actionRequest.getParameter("tcpNoDelay"));
+        prevBoolVal = connector.isTcpNoDelay();
+        if(tcpNoDelay != prevBoolVal) connector.setTcpNoDelay(tcpNoDelay);
+        
+        String threadPriority = actionRequest.getParameter("threadPriority");
+        prevIntVal = (Integer)getProperty(connector, "threadPriority");
+        if(isValid(threadPriority)) {
+            int newVal = Integer.parseInt(threadPriority);
+            if(prevIntVal != newVal) setProperty(connector, "threadPriority", newVal);
+        } else {
+            if(prevIntVal != (Integer)TOMCAT_DEFAULTS.get("threadPriority")) setProperty(connector, "threadPriority", TOMCAT_DEFAULTS.get("threadPriority"));
         }
     }
 
@@ -334,6 +631,13 @@ public class ConnectorPortlet extends BasePortlet {
                 }
                 else if (server.equals(WEB_SERVER_TOMCAT)) {
                     //todo:   Any Tomcat specific processing?
+                    for(String key:TOMCAT_DEFAULTS.keySet()) {
+                        Object val = TOMCAT_DEFAULTS.get(key);
+                        if(!(val instanceof Boolean))
+                            renderRequest.setAttribute(key, TOMCAT_DEFAULTS.get(key));
+                        else if((Boolean)val) // For boolean, set attribute only if it is true
+                            renderRequest.setAttribute(key, TOMCAT_DEFAULTS.get(key));
+                    }
                 }
                 else {
                     //todo:   Handle "should not occur" condition
@@ -384,6 +688,130 @@ public class ConnectorPortlet extends BasePortlet {
                     }
                     else if (server.equals(WEB_SERVER_TOMCAT)) {
                         //todo:   Any Tomcat specific processing?
+                        Boolean allowTrace = (Boolean)getProperty(connector, "allowTrace");
+                        if(allowTrace) {
+                            renderRequest.setAttribute("allowTrace", allowTrace);
+                        }
+
+                        Boolean emptySessionPath = (Boolean)callOperation(connector, "isEmptySessionPath", null);
+                        if(emptySessionPath) {
+                            renderRequest.setAttribute("emptySessionPath", emptySessionPath);
+                        }
+
+                        Boolean enableLookups = (Boolean)callOperation(connector, "isHostLookupEnabled", null);
+                        if(enableLookups) {
+                            renderRequest.setAttribute("enableLookups", enableLookups);
+                        }
+
+                        Integer maxPostSize = (Integer)getProperty(connector, "maxPostSize");
+                        renderRequest.setAttribute("maxPostSize", maxPostSize);
+
+                        Integer maxSavePostSize = (Integer)getProperty(connector, "maxSavePostSize");
+                        renderRequest.setAttribute("maxSavePostSize", maxSavePostSize);
+
+                        String proxyName = (String)getProperty(connector, "proxyName");
+                        if(isValid(proxyName)) {
+                            renderRequest.setAttribute("proxyName", proxyName);
+                        }
+
+                        Integer proxyPort = (Integer)getProperty(connector, "proxyPort");
+                        renderRequest.setAttribute("proxyPort", proxyPort);
+
+                        Integer redirectPort = connector.getRedirectPort();
+                        renderRequest.setAttribute("redirectPort", redirectPort);
+
+                        String URIEncoding = (String)getProperty(connector, "uriEncoding");
+                        if(isValid(URIEncoding)) {
+                            renderRequest.setAttribute("URIEncoding", URIEncoding);
+                        }
+
+                        Boolean useBodyEncodingForURI = (Boolean)getProperty(connector, "useBodyEncodingForURI");
+                        if(useBodyEncodingForURI) {
+                            renderRequest.setAttribute("useBodyEncodingForURI", useBodyEncodingForURI);
+                        }
+
+                        Boolean useIPVHosts = (Boolean)getProperty(connector, "useIPVHosts");
+                        if(useBodyEncodingForURI) {
+                            renderRequest.setAttribute("useIPVHosts", useIPVHosts);
+                        }
+
+                        Boolean xpoweredBy = (Boolean)getProperty(connector, "xpoweredBy");
+                        if(useBodyEncodingForURI) {
+                            renderRequest.setAttribute("xpoweredBy", xpoweredBy);
+                        }
+
+                        Integer acceptCount = connector.getAcceptQueueSize();
+                        renderRequest.setAttribute("acceptCount", acceptCount);
+
+                        Integer bufferSize = connector.getBufferSizeBytes();
+                        renderRequest.setAttribute("bufferSize", bufferSize);
+
+                        String compressableMimeType = (String)getProperty(connector, "compressableMimeType");
+                        if(isValid(compressableMimeType)) {
+                            renderRequest.setAttribute("compressableMimeType", compressableMimeType);
+                        }
+
+                        String compression = (String)getProperty(connector, "compression");
+                        if(isValid(compression)) {
+                            renderRequest.setAttribute("compression", compression);
+                        }
+
+                        Integer connectionLinger = connector.getLingerMillis();
+                        renderRequest.setAttribute("connectionLinger", connectionLinger);
+
+                        Integer connectionTimeout = (Integer)getProperty(connector, "connectionTimeoutMillis");
+                        renderRequest.setAttribute("connectionTimeout", connectionTimeout);
+
+                        Integer keepAliveTimeout = (Integer)getProperty(connector, "keepAliveTimeout");
+                        renderRequest.setAttribute("keepAliveTimeout", keepAliveTimeout);
+
+                        Boolean disableUploadTimeout = !(Boolean)callOperation(connector, "isUploadTimeoutEnabled", null);
+                        if(disableUploadTimeout) {
+                            renderRequest.setAttribute("disableUploadTimeout", disableUploadTimeout);
+                        }
+
+                        Integer maxHttpHeaderSize = (Integer)getProperty(connector, "maxHttpHeaderSizeBytes");
+                        renderRequest.setAttribute("maxHttpHeaderSize", maxHttpHeaderSize);
+
+                        Integer maxKeepAliveRequests = (Integer)getProperty(connector, "maxKeepAliveRequests");
+                        renderRequest.setAttribute("maxKeepAliveRequests", maxKeepAliveRequests);
+
+                        Integer maxSpareThreads = (Integer)getProperty(connector, "maxSpareThreads");
+                        renderRequest.setAttribute("maxSpareThreads", maxSpareThreads);
+
+                        Integer minSpareThreads = (Integer)getProperty(connector, "minSpareThreads");
+                        renderRequest.setAttribute("minSpareThreads", minSpareThreads);
+
+                        String noCompressionUserAgents = (String)getProperty(connector, "noCompressionUserAgents");
+                        if(isValid(noCompressionUserAgents)) {
+                            renderRequest.setAttribute("noCompressionUserAgents", noCompressionUserAgents);
+                        }
+
+                        String restrictedUserAgents = (String)getProperty(connector, "restrictedUserAgents");
+                        if(isValid(restrictedUserAgents)) {
+                            renderRequest.setAttribute("restrictedUserAgents", restrictedUserAgents);
+                        }
+                        
+                        String serverAttribute = (String)getProperty(connector, "server");
+                        if(isValid(serverAttribute)) {
+                            renderRequest.setAttribute("serverAttribute", serverAttribute);
+                        }
+
+                        Integer socketBuffer = (Integer)getProperty(connector, "socketBuffer");
+                        renderRequest.setAttribute("socketBuffer", socketBuffer);
+
+                        String strategy = (String)getProperty(connector, "strategy");
+                        if(isValid(strategy)) {
+                            renderRequest.setAttribute("strategy", strategy);
+                        }
+
+                        Boolean tcpNoDelay = connector.isTcpNoDelay();
+                        if(tcpNoDelay) {
+                            renderRequest.setAttribute("tcpNoDelay", tcpNoDelay);
+                        }
+
+                        Integer threadPriority = (Integer)getProperty(connector, "threadPriority");
+                        renderRequest.setAttribute("threadPriority", threadPriority);
                     }
                     else {
                         //todo:   Handle "should not occur" condition
@@ -407,8 +835,10 @@ public class ConnectorPortlet extends BasePortlet {
                         } else if(server.equals(WEB_SERVER_TOMCAT)) {
                             String truststoreFile = (String)getProperty(secure, "truststoreFileName");
                             String truststoreType = (String)getProperty(secure, "truststoreType");
+                            String ciphers = (String)getProperty(secure, "ciphers");
                             renderRequest.setAttribute("truststoreFile", truststoreFile);
                             renderRequest.setAttribute("truststoreType", truststoreType);
+                            renderRequest.setAttribute("ciphers", ciphers);
                         }
                     }
 
