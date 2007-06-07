@@ -28,14 +28,14 @@
             available at some external site (e.g., a Maven 2 repository). All
             the Geronimo plugin list document must specify the top level element
             as geronimo-plugin-list with namespace specified as
-            xmlns="http://geronimo.apache.org/xml/ns/j2ee/plugins-1.2". The
+            xmlns="http://geronimo.apache.org/xml/ns/plugins-1.1". The
             default location for this document is
-            http://geronimo.apache.org/schemas-1.2/plugins-1.2.xsd
+            http://geronimo.apache.org/schemas-1.1/plugins-1.1.xsd
         </xs:documentation>
     </xs:annotation>
 
     <xs:import namespace="http://geronimo.apache.org/xml/ns/attributes-1.1"
-        schemaLocation="attributes-1.1.xsd" />
+        schemaLocation="local-attributes-1.1.xsd" />
 
     <xs:annotation>
         <xs:documentation>

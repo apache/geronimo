@@ -16,13 +16,15 @@
    limitations under the License.
 -->
 
-<geronimo-plugin-list xmlns="http://geronimo.apache.org/xml/ns/plugins-1.1">
+<geronimo-plugin-list xmlns="http://geronimo.apache.org/xml/ns/plugins-1.2">
 <plugin>
 <name>DayTrader Performance Testing App (Jetty/Derby)</name>
 <module-id>geronimo/daytrader-derby-jetty/1.2-SNAPSHOT/car</module-id>
 <category>Examples</category>
 <description>Test Data</description>
-<geronimo-version>1.2-SNAPSHOT</geronimo-version>
+<geronimo-versions>
+	<version>1.2-SNAPSHOT</version>
+</geronimo-versions>
 <prerequisite><id>geronimo/jetty/*/car</id><description>
 		This is a web application or web-related module, configured for the Jetty web container.  It will not run on Tomcat versions of Geronimo.  If you need a Tomcat version of this application, you'll need to get it from another Tomcat Geronimo installation.
 </description></prerequisite>
@@ -35,7 +37,9 @@
 <module-id>geronimo/daytrader-derby-jetty-streamer-client/1.1-SNAPSHOT/car</module-id>
 <category>Examples</category>
 <description>Test Data</description>
-<geronimo-version>1.2-SNAPSHOT</geronimo-version>
+<geronimo-versions>
+	<version>1.2-SNAPSHOT</version>
+</geronimo-versions>
 <prerequisite><id>geronimo/jetty/*/car</id><description>
 		This is a web application or web-related module, configured for the Jetty web container.  It will not run on Tomcat versions of Geronimo.  If you need a Tomcat version of this application, you'll need to get it from another Tomcat Geronimo installation.
 </description></prerequisite>
@@ -47,7 +51,9 @@
 <module-id>geronimo/jsp-examples-jetty/1.2-SNAPSHOT/car</module-id>
 <category>Examples</category>
 <description>Test Data</description>
-<geronimo-version>1.2-SNAPSHOT</geronimo-version>
+<geronimo-versions>
+	<version>1.2-SNAPSHOT</version>
+</geronimo-versions>
 <prerequisite><id>geronimo/jetty/*/car</id><description>
 		This is a web application or web-related module, configured for the Jetty web container.  It will not run on Tomcat versions of Geronimo.  If you need a Tomcat version of this application, you'll need to get it from another Tomcat Geronimo installation.
 </description></prerequisite>
@@ -61,7 +67,9 @@
 <module-id>geronimo/ldap-demo-jetty/1.2-SNAPSHOT/car</module-id>
 <category>Examples</category>
 <description>Test Data</description>
-<geronimo-version>1.2-SNAPSHOT</geronimo-version>
+<geronimo-versions>
+	<version>1.2-SNAPSHOT</version>
+</geronimo-versions>
 <prerequisite><id>geronimo/jetty/*/car</id><description>
 		This is a web application or web-related module, configured for the Jetty web container.  It will not run on Tomcat versions of Geronimo.  If you need a Tomcat version of this application, you'll need to get it from another Tomcat Geronimo installation.
 </description></prerequisite>
@@ -75,7 +83,9 @@
 <module-id>geronimo/ldap-realm/1.2-SNAPSHOT/car</module-id>
 <category>Examples</category>
 <description>Test Data</description>
-<geronimo-version>1.2-SNAPSHOT</geronimo-version>
+<geronimo-versions>
+	<version>1.2-SNAPSHOT</version>
+</geronimo-versions>
 <jvm-version>1.5</jvm-version>
 <dependency>geronimo/j2ee-security/1.2-SNAPSHOT/car</dependency>
 </plugin>
@@ -85,7 +95,9 @@
 <module-id>geronimo/servlets-examples-jetty/1.2-SNAPSHOT/car</module-id>
 <category>Examples</category>
 <description>Test Data</description>
-<geronimo-version>1.2-SNAPSHOT</geronimo-version>
+<geronimo-versions>
+	<version>1.2-SNAPSHOT</version>
+</geronimo-versions>
 <prerequisite><id>geronimo/jetty/*/car</id><description>
 		This is a web application or web-related module, configured for the Jetty web container.  It will not run on Tomcat versions of Geronimo.  If you need a Tomcat version of this application, you'll need to get it from another Tomcat Geronimo installation.
 </description></prerequisite>
@@ -98,7 +110,9 @@
 <module-id>geronimo/uddi-jetty/1.2-SNAPSHOT/car</module-id>
 <category>Integration</category>
 <description>Test Data</description>
-<geronimo-version>1.2-SNAPSHOT</geronimo-version>
+<geronimo-versions>
+	<version>1.2-SNAPSHOT</version>
+</geronimo-versions>
 <prerequisite><id>geronimo/jetty/*/car</id><description>
 		This is a web application or web-related module, configured for the Jetty web container.  It will not run on Tomcat versions of Geronimo.  If you need a Tomcat version of this application, you'll need to get it from another Tomcat Geronimo installation.
 </description></prerequisite>
@@ -113,7 +127,9 @@
 <module-id>geronimo/webconsole-jetty/1.2-SNAPSHOT/car</module-id>
 <category>Core Geronimo</category>
 <description>Test Data</description>
-<geronimo-version>1.2-SNAPSHOT</geronimo-version>
+<geronimo-versions>
+	<version>1.2-SNAPSHOT</version>
+</geronimo-versions>
 <prerequisite><id>geronimo/jetty/*/car</id><description>
 		This is a web application or web-related module, configured for the Jetty web container.  It will not run on Tomcat versions of Geronimo.  If you need a Tomcat version of this application, you'll need to get it from another Tomcat Geronimo installation.
 </description></prerequisite>
@@ -146,7 +162,9 @@
 <module-id>geronimo/remote-deploy-jetty/1.2-SNAPSHOT/car</module-id>
 <category>Core Geronimo</category>
 <description>Test Data</description>
-<geronimo-version>1.2-SNAPSHOT</geronimo-version>
+<geronimo-versions>
+	<version>1.2-SNAPSHOT</version>
+</geronimo-versions>
 <prerequisite><id>geronimo/jetty/*/car</id><description>
 		This is a web application or web-related module, configured for the Jetty web container.  It will not run on Tomcat versions of Geronimo.  If you need a Tomcat version of this application, you'll need to get it from another Tomcat Geronimo installation.
 </description></prerequisite>
@@ -161,7 +179,9 @@
 <module-id>geronimo/jmxdebug-jetty/1.2-SNAPSHOT/car</module-id>
 <category>Core Geronimo</category>
 <description>Test Data</description>
-<geronimo-version>1.2-SNAPSHOT</geronimo-version>
+<geronimo-versions>
+	<version>1.2-SNAPSHOT</version>
+</geronimo-versions>
 <prerequisite><id>geronimo/jetty/*/car</id><description>
 		This is a web application or web-related module, configured for the Jetty web container.  It will not run on Tomcat versions of Geronimo.  If you need a Tomcat version of this application, you'll need to get it from another Tomcat Geronimo installation.
 </description></prerequisite>
@@ -175,7 +195,9 @@
 <module-id>geronimo/welcome-jetty/1.2-SNAPSHOT/car</module-id>
 <category>Core Geronimo</category>
 <description>Test Data</description>
-<geronimo-version>1.2-SNAPSHOT</geronimo-version>
+<geronimo-versions>
+	<version>1.2-SNAPSHOT</version>
+</geronimo-versions>
 <prerequisite><id>geronimo/jetty/*/car</id><description>
 		This is a web application or web-related module, configured for the Jetty web container.  It will not run on Tomcat versions of Geronimo.  If you need a Tomcat version of this application, you'll need to get it from another Tomcat Geronimo installation.
 </description></prerequisite>
@@ -188,7 +210,9 @@
 <module-id>geronimo/directory/1.2-SNAPSHOT/car</module-id>
 <category>Security</category>
 <description>Test Data</description>
-<geronimo-version>1.2-SNAPSHOT</geronimo-version>
+<geronimo-versions>
+	<version>1.2-SNAPSHOT</version>
+</geronimo-versions>
 <dependency>geronimo/j2ee-server/1.2-SNAPSHOT/car</dependency>
 <dependency>geronimo/geronimo-directory/1.2-SNAPSHOT/jar</dependency>
 </plugin>

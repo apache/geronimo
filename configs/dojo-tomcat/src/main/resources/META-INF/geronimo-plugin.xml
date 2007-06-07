@@ -18,7 +18,7 @@
 
 <!-- $Rev$ $Date$ -->
 
-<geronimo-plugin xmlns="http://geronimo.apache.org/xml/ns/plugins-1.1">
+<geronimo-plugin xmlns="http://geronimo.apache.org/xml/ns/plugins-1.2">
     <name>Geronimo Dojo App (Tomcat)</name>
     <module-id>${pom.groupId}/${pom.artifactId}/${version}/car</module-id>
     <category>Geronimo</category>
@@ -30,7 +30,9 @@
     <url>http://dojotoolkit.org/</url>
     <author>Dojo Foundation</author>
     <license osi-approved="true">BSD and Academic Free License v2.1</license>
-    <geronimo-version>${version}</geronimo-version>
+    <geronimo-versions>
+    	<version>${version}</version>
+    </geronimo-versions>
     <prerequisite>
         <id>org.apache.geronimo.configs/tomcat6//car</id>
         <resource-type>Web Container</resource-type>
@@ -42,6 +44,6 @@
         </description>
     </prerequisite>
     <dependency>org.apache.geronimo.configs/j2ee-server//car</dependency>
-    <source-repository>http://geronimo.apache.org/plugins/geronimo-1.2/repository/</source-repository>
+    <source-repository>http://geronimo.apache.org/plugins/geronimo-2.0/repository/</source-repository>
     <source-repository>http://www.ibiblio.org/maven2/</source-repository>
 </geronimo-plugin>

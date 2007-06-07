@@ -38,7 +38,7 @@ public class PluginMetadata implements Serializable, Comparable {
     private final String author;
     private License[] licenses = new License[0];
     private final Hash hash;
-    private String[] geronimoVersions = new String[0];
+    private geronimoVersions[] geronimoVersions = new geronimoVersions[0];
     private String[] jvmVersions = new String[0];
     private Prerequisite[] prerequisites = new Prerequisite[0];
     private String[] dependencies = new String[0];
@@ -154,7 +154,7 @@ public class PluginMetadata implements Serializable, Comparable {
         return forceStart;
     }
 
-    public String[] getGeronimoVersions() {
+    public geronimoVersions[] getGeronimoVersions() {
         return geronimoVersions;
     }
 
@@ -174,7 +174,7 @@ public class PluginMetadata implements Serializable, Comparable {
         return repositories;
     }
 
-    public void setGeronimoVersions(String[] geronimoVersions) {
+    public void setGeronimoVersions(geronimoVersions[] geronimoVersions) {
         this.geronimoVersions = geronimoVersions;
     }
 
@@ -412,5 +412,40 @@ public class PluginMetadata implements Serializable, Comparable {
             list.add(desc.substring(last).trim());
         }
         return (String[]) list.toArray(new String[list.size()]);
+    }
+
+    public static class geronimoVersions implements Serializable {
+    	
+    	private String version;
+    	private String moduleId;
+    	private String repository;
+    	private Prerequisite[] preReqs;
+    	
+    	public geronimoVersions( String version, String moduleId, String repository, Prerequisite[] preReqs) {
+    			this.version = version;
+    			this.moduleId = moduleId;
+    			this.repository = repository;
+    			this.preReqs = preReqs;
+    	}
+    	
+    	public String getVersion() {
+    		return version;
+    	}
+    	
+    	public void setVersion(String ver) {
+    		version = ver;
+    	}
+    	
+    	public String getModuleId() {
+    		return moduleId;
+    	}
+    	
+    	public String getRepository() {
+    		return repository;
+    	}
+    	
+    	public Prerequisite[] getPrerequisite() {
+    		return preReqs;
+    	}
     }
 }

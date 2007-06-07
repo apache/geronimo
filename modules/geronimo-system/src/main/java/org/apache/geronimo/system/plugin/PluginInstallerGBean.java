@@ -348,7 +348,7 @@ public class PluginInstallerGBean implements PluginInstaller {
      *                 Set this to null if no authentication is required.
      */
     public PluginList listPlugins(URL mavenRepository, String username, String password) throws IOException, FailedLoginException {
-        String repository = mavenRepository.toString();
+        String repository = mavenRepository.toString().trim();
         if(!repository.endsWith("/")) {
             repository = repository+"/";
         }
@@ -897,10 +897,10 @@ public class PluginInstallerGBean implements PluginInstaller {
      */
     private static URL getURL(Artifact configId, URL repository) throws MalformedURLException {
 	URL context;
-	if(repository.toString().endsWith("/")) {
+	if(repository.toString().trim().endsWith("/")) {
 	    context = repository;
 	} else {
-	    context = new URL(repository.toString()+"/");
+	    context = new URL(repository.toString().trim()+"/");
 	}
 
 	String qualifiedVersion = configId.getVersion().toString();
@@ -1074,7 +1074,7 @@ public class PluginInstallerGBean implements PluginInstaller {
         monitor.getResults().setCurrentMessage("Searching for "+query+" at "+url);
         String base = query.getGroupId().replace('.', '/') + "/" + query.getArtifactId();
         String path = base +"/maven-metadata.xml";
-        URL metaURL = new URL(url.toString().endsWith("/") ? url : new URL(url.toString()+"/"), path);
+        URL metaURL = new URL(url.toString().trim().endsWith("/") ? url : new URL(url.toString().trim()+"/"), path);
         InputStream in = connect(metaURL, username, password, monitor);
         if(in == null) {
             return null;
@@ -1201,7 +1201,7 @@ public class PluginInstallerGBean implements PluginInstaller {
                 null, // hash
                 true, // installed
                 false);
-        meta.setGeronimoVersions(new String[]{serverInfo.getVersion()});
+        meta.setGeronimoVersions(new PluginMetadata.geronimoVersions[]{new PluginMetadata.geronimoVersions(serverInfo.getVersion(), null, null, null)});
         meta.setJvmVersions(new String[0]);
         meta.setLicenses(new PluginMetadata.License[0]);
         meta.setObsoletes(new String[]{new Artifact(data.getId().getGroupId(), data.getId().getArtifactId(), (Version)null, data.getId().getType()).toString()});
@@ -1279,10 +1279,10 @@ public class PluginInstallerGBean implements PluginInstaller {
         String[] repos = getChildrenText(root, "default-repository");
         URL[] repoURLs = new URL[repos.length];
         for(int i = 0; i < repos.length; i++) {
-            if(repos[i].endsWith("/")) {
-                repoURLs[i] = new URL(repos[i]);
+            if(repos[i].trim().endsWith("/")) {
+                repoURLs[i] = new URL(repos[i].trim());
             } else {
-                repoURLs[i] = new URL(repos[i]+"/");
+                repoURLs[i] = new URL(repos[i].trim()+"/");
             }
         }
 
@@ -1305,6 +1305,7 @@ public class PluginInstallerGBean implements PluginInstaller {
                              new InputStream[]{
                                      PluginInstallerGBean.class.getResourceAsStream("/META-INF/schema/attributes-1.1.xsd"),
                                      PluginInstallerGBean.class.getResourceAsStream("/META-INF/schema/plugins-1.1.xsd"),
+                                     PluginInstallerGBean.class.getResourceAsStream("/META-INF/schema/plugins-1.2.xsd")
                              }
         );
         DocumentBuilder builder = factory.newDocumentBuilder();
@@ -1385,10 +1386,57 @@ public class PluginInstallerGBean implements PluginInstaller {
                 eligible = false;
             }
         }
-        String[] gerVersions = getChildrenText(plugin, "geronimo-version");
-        if(gerVersions.length > 0) {
-            boolean match = checkGeronimoVersions(gerVersions);
-            if(!match) eligible = false;
+        PluginMetadata.geronimoVersions[] gerVersions = null;
+        //  Process the old geronimo-version element.  Each needs to be converted to a new geronimo version element.
+        String[] gerVersion = getChildrenText(plugin, "geronimo-version");
+        if(gerVersion.length > 0) {
+            boolean match = checkGeronimoVersions(gerVersion);
+            if(!match) {
+            	eligible = false;
+            }
+            	gerVersions = new PluginMetadata.geronimoVersions[gerVersion.length];
+            	for(int i=0; i < gerVersion.length; i++) {
+            		gerVersions[i] = new PluginMetadata.geronimoVersions(gerVersion[i], null, null, null);
+            	}
+        }
+        //Process the new geronimo version elements.
+        NodeList gerNodes = plugin.getElementsByTagName("geronimo-versions");
+        if (gerNodes.getLength() > 0) {
+        	gerVersions = new PluginMetadata.geronimoVersions[gerNodes.getLength()];
+        	for ( int i = 0; i < gerNodes.getLength(); i++ ) {
+        		Element node = (Element) gerNodes.item(i);
+        		String version = getChildText(node, "version");
+        		if (version == null) {
+        			throw new SAXException("geronimo-versions requires <version> ");
+        		}
+        		String moduleID = getChildText(node, "module-id");
+        		String sourceRepo = getChildText(node, "source-repository");
+        		
+        		//Process the prerequisite elements
+                NodeList preReqNode = node.getElementsByTagName("prerequisite");
+                PluginMetadata.Prerequisite[] preReqs = new PluginMetadata.Prerequisite[preReqNode.getLength()];
+                for(int j=0; j < preReqNode.getLength(); j++) {
+                    Element preNode = (Element) preReqNode.item(j);
+                    String originalConfigId = getChildText(preNode, "id");
+                    if(originalConfigId == null) {
+                        throw new SAXException("Prerequisite requires <id>");
+                    }
+                    Artifact artifact = Artifact.create(originalConfigId.replaceAll("\\*", ""));
+                    boolean present = resolver.queryArtifacts(artifact).length > 0;
+                    preReqs[j] = new PluginMetadata.Prerequisite(artifact, present,
+                            getChildText(node, "resource-type"), getChildText(preNode, "description"));
+                    if(!present) {
+                        log.debug(moduleId+" is not eligible due to missing "+prereqs[j].getModuleId());
+                        eligible = false;
+                    }
+                }
+                gerVersions[i] = new PluginMetadata.geronimoVersions(version, moduleID, sourceRepo, preReqs);
+                
+        	}
+        	boolean match = checkGeronimoVersions(gerVersions);
+        	if (!match){
+        		eligible = false;
+        	}
         }
         String[] jvmVersions = getChildrenText(plugin, "jvm-version");
         if(jvmVersions.length > 0) {
@@ -1398,7 +1446,7 @@ public class PluginInstallerGBean implements PluginInstaller {
         String[] repoNames = getChildrenText(plugin, "source-repository");
         URL[] repos = new URL[repoNames.length];
         for (int i = 0; i < repos.length; i++) {
-            repos[i] = new URL(repoNames[i]);
+            repos[i] = new URL(repoNames[i].trim());
         }
         Artifact artifact = null;
         boolean installed = false;
@@ -1444,7 +1492,7 @@ public class PluginInstallerGBean implements PluginInstaller {
      * environment.
      *
      * @return true if the specified versions match the current
-     *              execution environment as defined by plugins-1.1.xsd
+     *              execution environment as defined by plugins-1.2.xsd
      */
     private boolean checkJVMVersions(String[] jvmVersions) {
         if(jvmVersions.length == 0) return true;
@@ -1468,23 +1516,67 @@ public class PluginInstallerGBean implements PluginInstaller {
      * environment.
      *
      * @return true if the specified versions match the current
-     *              execution environment as defined by plugins-1.1.xsd
+     *              execution environment as defined by plugins-1.2.xsd
      */
-    private boolean checkGeronimoVersions(String[] gerVersions) {
-        if(gerVersions.length == 0) return true;
-        String version = serverInfo.getVersion();
+    private boolean checkGeronimoVersions(PluginMetadata.geronimoVersions[] gerVersions) throws IllegalStateException {
+    	if ((gerVersions == null) || (gerVersions.length == 0)) {
+            return true;
+        }
+
         boolean match = false;
         for (int j = 0; j < gerVersions.length; j++) {
-            String gerVersion = gerVersions[j];
-            if(gerVersion == null || gerVersion.equals("")) {
-                throw new IllegalStateException("geronimo-version should not be empty!");
+            PluginMetadata.geronimoVersions gerVersion = gerVersions[j];
+            if(gerVersion == null) {
+            	throw new IllegalStateException("Geronimo version cannot be null");
             }
-            if(gerVersion.equals(version)) {
-                match = true;
+
+            match = checkGeronimoVersion(gerVersion.getVersion());
+            if (match) {
                 break;
             }
         }
         return match;
+    }
+    
+    /**
+     * Check whether the specified Geronimo versions match the current runtime
+     * environment.
+     *
+     * @return true if the specified versions match the current
+     *              execution environment as defined by plugins-1.2.xsd
+     */
+    private boolean checkGeronimoVersions(String[] gerVersions) throws IllegalStateException {
+    	if ((gerVersions == null) || (gerVersions.length == 0)) {
+            return true;
+        }
+
+    	boolean match = false;
+    	for ( int j = 0; j < gerVersions.length; j++ ) {
+            match = checkGeronimoVersion(gerVersions[j]);
+            if (match) {
+                break;
+            }
+    	}
+    	return match;
+    }
+
+    /**
+     * Check whether the specified Geronimo version matches the current runtime
+     * environment.
+     *
+     * @return true if the specified version matches the current
+     *              execution environment as defined by plugins-1.2.xsd
+     */
+    private boolean checkGeronimoVersion(String gerVersion) throws IllegalStateException {
+        String version = serverInfo.getVersion();
+
+        if ((gerVersion == null) || gerVersion.equals("")) {
+    	    throw new IllegalStateException("geronimo-version cannot be empty!");
+        } else if (gerVersion.equals(version)) {
+            return true;
+        } else {
+            return false;
+        }
     }
 
     /**
@@ -1579,8 +1671,8 @@ public class PluginInstallerGBean implements PluginInstaller {
                     continue;
                 }
             }
-            if(!deps.contains(dep.getArtifact().toString())) {
-                deps.add(dep.getArtifact().toString());
+            if(!deps.contains(dep.getArtifact().toString().trim())) {
+                deps.add(dep.getArtifact().toString().trim());
             }
         }
         return prereq;
@@ -1592,8 +1684,8 @@ public class PluginInstallerGBean implements PluginInstaller {
     private static Document writePluginMetadata(PluginMetadata data) throws ParserConfigurationException {
         DocumentBuilder builder = createDocumentBuilder();
         Document doc = builder.newDocument();
-        Element config = doc.createElementNS("http://geronimo.apache.org/xml/ns/plugins-1.1", "geronimo-plugin");
-        config.setAttribute("xmlns", "http://geronimo.apache.org/xml/ns/plugins-1.1");
+        Element config = doc.createElementNS("http://geronimo.apache.org/xml/ns/plugins-1.2", "geronimo-plugin");
+        config.setAttribute("xmlns", "http://geronimo.apache.org/xml/ns/plugins-1.2");
         doc.appendChild(config);
 
         addTextChild(doc, config, "name", data.getName());
@@ -1620,7 +1712,30 @@ public class PluginInstallerGBean implements PluginInstaller {
             config.appendChild(hash);
         }
         for (int i = 0; i < data.getGeronimoVersions().length; i++) {
-            addTextChild(doc, config, "geronimo-version", data.getGeronimoVersions()[i]);
+        	PluginMetadata.geronimoVersions gerVersions = data.getGeronimoVersions()[i];
+        	Element ger = doc.createElement("geronimo-versions");
+            addTextChild(doc, ger, "version", gerVersions.getVersion());
+            if (gerVersions.getModuleId() != null){
+            	addTextChild(doc, ger, "module-id", gerVersions.getModuleId());
+            }
+            if (gerVersions.getPrerequisite() != null){
+                for (int j = 0; j < gerVersions.getPrerequisite().length; j++) {
+                    PluginMetadata.Prerequisite prereq = gerVersions.getPrerequisite()[j];
+                    Element pre = doc.createElement("prerequisite");
+                    addTextChild(doc, pre, "id", prereq.getModuleId().toString());
+                    if(prereq.getResourceType() != null) {
+                        addTextChild(doc, pre, "resource-type", prereq.getResourceType());
+                    }
+                    if(prereq.getDescription() != null) {
+                        addTextChild(doc, pre, "description", prereq.getDescription());
+                    }
+                    ger.appendChild(pre);
+                }
+            }
+            if (gerVersions.getRepository() != null) {
+            	addTextChild(doc, ger, "repository", gerVersions.getRepository());
+            }
+            config.appendChild(ger);
         }
         for (int i = 0; i < data.getJvmVersions().length; i++) {
             addTextChild(doc, config, "jvm-version", data.getJvmVersions()[i]);
@@ -1645,7 +1760,7 @@ public class PluginInstallerGBean implements PluginInstaller {
         }
         for (int i = 0; i < data.getRepositories().length; i++) {
             URL url = data.getRepositories()[i];
-            addTextChild(doc, config, "source-repository", url.toString());
+            addTextChild(doc, config, "source-repository", url.toString().trim());
         }
         for (int i = 0; i < data.getFilesToCopy().length; i++) {
             PluginMetadata.CopyFile file = data.getFilesToCopy()[i];

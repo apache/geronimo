@@ -233,14 +233,14 @@ public class GeronimoAsMavenServlet extends HttpServlet {
                     config.appendChild(lic);
                 }
                 // Skip hash since the CAR will be re-exported anyway and the file will be different
-                String[] versions = data.getGeronimoVersions();
+                PluginMetadata.geronimoVersions[] versions = data.getGeronimoVersions();
                 for (int k = 0; k < versions.length; k++) {
-                    String ver = versions[k];
-                    createText(doc, config, "geronimo-version", ver);
+                    PluginMetadata.geronimoVersions ver = versions[k];
+                    writeGeronimoVersion(doc, config, ver);
                 }
-                versions = data.getJvmVersions();
+                String[] jvmVersions = data.getJvmVersions();
                 for (int k = 0; k < versions.length; k++) {
-                    String ver = versions[k];
+                    String ver = jvmVersions[k];
                     createText(doc, config, "jvm-version", ver);
                 }
                 for (int k = 0; k < data.getPrerequisites().length; k++) {
@@ -313,6 +313,28 @@ public class GeronimoAsMavenServlet extends HttpServlet {
         createText(doc, prereq, "id", req.getModuleId().toString());
         createText(doc, prereq, "resource-type", req.getResourceType());
         createText(doc, prereq, "description", req.getDescription());
+    }
+    
+    private void writeGeronimoVersion(Document doc, Element config, PluginMetadata.geronimoVersions ver){
+    	Element ger = doc.createElement("geronimo-versions");
+        createText(doc, ger, "version", ver.getVersion());
+        if (ver.getModuleId() != null){
+        	createText(doc, ger, "module-id", ver.getModuleId());
+        }
+        if (ver.getPrerequisite() != null){
+            for (int j = 0; j < ver.getPrerequisite().length; j++) {
+                PluginMetadata.Prerequisite prereq = ver.getPrerequisite()[j];
+                Element pre = doc.createElement("prerequisite");
+                createText(doc, pre, "id", prereq.getModuleId().toString());
+                if(prereq.getResourceType() != null) {
+                    createText(doc, pre, "resource-type", prereq.getResourceType());
+                }
+                if(prereq.getDescription() != null) {
+                    createText(doc, pre, "description", prereq.getDescription());
+                }
+                ger.appendChild(pre);
+            }
+        }
     }
 
     private void createText(Document doc, Element parent, String name, String text) {

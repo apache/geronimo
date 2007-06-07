@@ -59,12 +59,22 @@
         </td>
       </tr>
   </c:forEach>
-  <tr>
-    <th align="right" valign="top">Ger&nbsp;Versions:</th>
+    <tr>
+    <th align="right" valign="top">Geronimo-Versions:</th>
     <td>
-      ${fn:join(plugin.geronimoVersions, ", ")}
+      <c:choose>
+        <c:when test="${empty plugin.geronimoVersions}">
+          <i>None</i>
+        </c:when>
+        <c:otherwise>
+          <c:forEach var="gerVersions" items="${plugin.geronimoVersions}">
+            <b>${gerVersions.version}</b>
+          </c:forEach>
+        </c:otherwise>
+      </c:choose>
     </td>
   </tr>
+  <tr>
   <tr>
     <th align="right" valign="top">JVM Versions:</th>
     <td>
