@@ -18,6 +18,7 @@
  */
 package org.apache.geronimo.axis2.pojo;
 
+import org.apache.axis2.context.ServiceContext;
 import org.apache.axis2.jaxws.context.factory.MessageContextFactory;
 import org.apache.axis2.jaxws.context.utils.ContextUtils;
 import org.apache.axis2.jaxws.core.MessageContext;
@@ -43,8 +44,13 @@ public class POJOEndpointLifecycleManager implements EndpointLifecycleManager {
             // This is a special case, called at init time
             createServiceInstance(serviceClass);
         } else {
+            org.apache.axis2.context.MessageContext msgContext = context.getAxisMessageContext();
+            
+            ServiceContext serviceContext = msgContext.getServiceContext();
+            serviceContext.setProperty(ServiceContext.SERVICE_OBJECT, this.instance);
+            
             // associate JAX-WS MessageContext with the thread
-            POJOWebServiceContext.setMessageContext(createSOAPMessageContext(context));            
+            POJOWebServiceContext.setMessageContext(createSOAPMessageContext(context)); 
         }
         
         return this.instance;
