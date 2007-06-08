@@ -74,9 +74,7 @@ import org.apache.ws.commons.schema.utils.NamespaceMap;
  */
 public class AxisServiceGenerator {
     private static final Log log = LogFactory.getLog(AxisServiceGenerator.class);
-    
-    private static String WSDL_ENCODING = "UTF-8";
-    
+        
     private MessageReceiver messageReceiver;
     
     public AxisServiceGenerator(){
@@ -88,13 +86,11 @@ public class AxisServiceGenerator {
     }
    
     public AxisService getServiceFromClass(Class endpointClass) throws Exception {
-        AxisService service = DescriptionFactory.createAxisService(endpointClass);
-        
-        for(Iterator<AxisOperation> opIterator = service.getOperations() ; opIterator.hasNext() ;){
-            AxisOperation operation = opIterator.next();
-            operation.setMessageReceiver(this.messageReceiver);
-        }
-        
+        ServiceDescription serviceDescription = 
+            DescriptionFactory.createServiceDescription(endpointClass);        
+        EndpointDescription[] edArray = serviceDescription.getEndpointDescriptions();
+        AxisService service = edArray[0].getAxisService();
+                
         if (service.getNameSpacesMap() == null) {
             NamespaceMap map = new NamespaceMap();
             map.put(Java2WSDLConstants.AXIS2_NAMESPACE_PREFIX,
@@ -103,6 +99,15 @@ public class AxisServiceGenerator {
                     Java2WSDLConstants.URI_2001_SCHEMA_XSD);
             service.setNameSpacesMap(map);
         }
+        
+        for(Iterator<AxisOperation> opIterator = service.getOperations() ; opIterator.hasNext() ;){
+            AxisOperation operation = opIterator.next();
+            operation.setMessageReceiver(this.messageReceiver);
+        }
+        
+        Parameter serviceDescriptionParam = 
+            new Parameter(EndpointDescription.AXIS_SERVICE_PARAMETER, edArray[0]);
+        service.addParameter(serviceDescriptionParam);
         
         return service;
     }
@@ -219,9 +224,11 @@ public class AxisServiceGenerator {
         
         List<ServiceDescription> serviceDescList = DescriptionFactory.createServiceDescriptionFromDBCMap(dbcMap);
         if ((serviceDescList != null) && (serviceDescList.size() > 0)) {
-            ServiceDescription sd = serviceDescList.get(0);
-            Parameter serviceDescription = new Parameter(EndpointDescription.AXIS_SERVICE_PARAMETER, sd.getEndpointDescriptions()[0]);
-            service.addParameter(serviceDescription);
+            ServiceDescription serviceDescription = serviceDescList.get(0);
+            EndpointDescription[] edArray = serviceDescription.getEndpointDescriptions();
+            Parameter serviceDescriptionParam = 
+                new Parameter(EndpointDescription.AXIS_SERVICE_PARAMETER, edArray[0]);
+            service.addParameter(serviceDescriptionParam);
         } else {
             log.debug("No ServiceDescriptions found.");
         }
