@@ -71,6 +71,7 @@ public class Axis2WebServiceContainerTest extends Axis2AbstractTestCase {
         
         String endpointClassName = "org.apache.geronimo.axis2.testdata.simple.HelloWorld";
         POJOWebServiceContainer container = new POJOWebServiceContainer(portInfo, endpointClassName, cl, null, null);
+        container.init();
         container.invoke(req, res);
         out.flush();
 
@@ -142,6 +143,7 @@ public class Axis2WebServiceContainerTest extends Axis2AbstractTestCase {
                 Axis2Response res = new Axis2Response("text/xml; charset=utf-8", "127.0.0.1", null, null, 8080, out);
 
                 POJOWebServiceContainer container = new POJOWebServiceContainer(portInfo, endPointClassName, cl, null, null);
+                container.init();
                 container.invoke(req, res);
                 System.out.println("Response "+out);
                 out.flush();

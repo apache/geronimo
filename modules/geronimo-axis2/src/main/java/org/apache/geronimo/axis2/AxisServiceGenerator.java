@@ -67,8 +67,6 @@ import org.apache.geronimo.jaxws.JAXWSUtils;
 import org.apache.geronimo.jaxws.PortInfo;
 import org.apache.ws.commons.schema.utils.NamespaceMap;
 
-//TODO: Handle RPC Style Messaging
-
 /**
  * @version $Rev$ $Date$
  */

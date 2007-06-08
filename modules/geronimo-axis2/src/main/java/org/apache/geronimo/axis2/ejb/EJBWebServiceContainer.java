@@ -17,14 +17,15 @@
 
 package org.apache.geronimo.axis2.ejb;
 
+import java.net.URL;
+
+import javax.naming.Context;
+
 import org.apache.axis2.util.JavaUtils;
 import org.apache.geronimo.axis2.Axis2WebServiceContainer;
 import org.apache.geronimo.axis2.AxisServiceGenerator;
 import org.apache.geronimo.jaxws.PortInfo;
 import org.apache.openejb.DeploymentInfo;
-
-import javax.naming.Context;
-import java.net.URL;
 
 /**
  * @version $Rev$ $Date$

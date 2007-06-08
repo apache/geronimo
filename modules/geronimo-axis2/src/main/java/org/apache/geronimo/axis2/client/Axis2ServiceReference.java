@@ -17,6 +17,12 @@
 
 package org.apache.geronimo.axis2.client;
 
+import java.net.URI;
+import java.util.Map;
+
+import javax.xml.namespace.QName;
+import javax.xml.ws.handler.HandlerResolver;
+
 import org.apache.axis2.jaxws.context.WebServiceContextImpl;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -30,17 +36,12 @@ import org.apache.geronimo.xbeans.javaee.HandlerChainsDocument;
 import org.apache.geronimo.xbeans.javaee.HandlerChainsType;
 import org.apache.xmlbeans.XmlException;
 
-import javax.xml.namespace.QName;
-import javax.xml.ws.handler.HandlerResolver;
-import java.net.URI;
-import java.util.Map;
-
 /**
  * @version $Rev$ $Date$
  */
 public class Axis2ServiceReference extends JAXWSServiceReference {
 
-    private static final Log log = LogFactory.getLog(Axis2ServiceReference.class);
+    private static final Log LOG = LogFactory.getLog(Axis2ServiceReference.class);
 
     public Axis2ServiceReference(String serviceClassName,
                                  String referenceClassName,
@@ -63,7 +64,7 @@ public class Axis2ServiceReference extends JAXWSServiceReference {
                 }
             }
         } catch (Exception e) {
-            log.warn("Failed to deserialize handler chains", e);
+            LOG.warn("Failed to deserialize handler chains", e);
         }
         JAXWSAnnotationProcessor annotationProcessor =
                 new JAXWSAnnotationProcessor(new JNDIResolver(), new WebServiceContextImpl());

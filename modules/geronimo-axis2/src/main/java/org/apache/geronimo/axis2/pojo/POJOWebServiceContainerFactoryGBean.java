@@ -17,6 +17,13 @@
 
 package org.apache.geronimo.axis2.pojo;
 
+import java.net.URL;
+import java.util.Map;
+
+import javax.naming.Context;
+import javax.naming.NamingException;
+import javax.transaction.TransactionManager;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.gbean.GBeanInfo;
@@ -28,31 +35,27 @@ import org.apache.geronimo.transaction.GeronimoUserTransaction;
 import org.apache.geronimo.webservices.WebServiceContainer;
 import org.apache.geronimo.webservices.WebServiceContainerFactory;
 
-import javax.naming.Context;
-import javax.naming.NamingException;
-import javax.transaction.TransactionManager;
-import java.net.URL;
-import java.util.Map;
-
 /**
  * @version $Rev$ $Date$
  */
 public class POJOWebServiceContainerFactoryGBean implements WebServiceContainerFactory {
 
-    private static final Log log = LogFactory.getLog(POJOWebServiceContainerFactoryGBean.class);
+    private static final Log LOG = LogFactory.getLog(POJOWebServiceContainerFactoryGBean.class);
+    
     private final ClassLoader classLoader;
     private final org.apache.geronimo.jaxws.PortInfo portInfo;
     private final String endpointClassName;
     private URL configurationBaseUrl;
     private Context context;
 
-    public POJOWebServiceContainerFactoryGBean(org.apache.geronimo.jaxws.PortInfo portInfo, 
-            String endpointClassName, 
-            ClassLoader classLoader, 
-            Map componentContext,
-            Kernel kernel,
-            TransactionManager transactionManager,
-            URL configurationBaseUrl) throws InstantiationException, IllegalAccessException, ClassNotFoundException {
+    public POJOWebServiceContainerFactoryGBean(org.apache.geronimo.jaxws.PortInfo portInfo,
+                                               String endpointClassName,
+                                               ClassLoader classLoader,
+                                               Map componentContext,
+                                               Kernel kernel,
+                                               TransactionManager transactionManager,
+                                               URL configurationBaseUrl)
+        throws InstantiationException, IllegalAccessException, ClassNotFoundException {
         
         if (componentContext != null) {
             GeronimoUserTransaction userTransaction = new GeronimoUserTransaction(transactionManager);
@@ -62,7 +65,7 @@ public class POJOWebServiceContainerFactoryGBean implements WebServiceContainerF
                         kernel,
                         classLoader);
             } catch (NamingException e) {
-                log.warn("Failed to create naming context", e);
+                LOG.warn("Failed to create naming context", e);
             }
         }
 
@@ -74,7 +77,11 @@ public class POJOWebServiceContainerFactoryGBean implements WebServiceContainerF
 
     public WebServiceContainer getWebServiceContainer() {
         POJOWebServiceContainer container = new POJOWebServiceContainer(portInfo, endpointClassName, classLoader, context, configurationBaseUrl);
-        container.init();
+        try {
+            container.init();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
         return container;
     }
 

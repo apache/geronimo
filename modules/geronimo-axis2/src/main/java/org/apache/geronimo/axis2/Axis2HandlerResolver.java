@@ -17,16 +17,17 @@
 
 package org.apache.geronimo.axis2;
 
-import org.apache.geronimo.jaxws.annotations.AnnotationException;
-import org.apache.geronimo.jaxws.annotations.AnnotationProcessor;
-import org.apache.geronimo.xbeans.javaee.HandlerChainType;
-import org.apache.geronimo.xbeans.javaee.HandlerChainsType;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.xml.ws.WebServiceException;
 import javax.xml.ws.handler.Handler;
 import javax.xml.ws.handler.HandlerResolver;
-import java.util.ArrayList;
-import java.util.List;
+
+import org.apache.geronimo.jaxws.annotations.AnnotationException;
+import org.apache.geronimo.jaxws.annotations.AnnotationProcessor;
+import org.apache.geronimo.xbeans.javaee.HandlerChainType;
+import org.apache.geronimo.xbeans.javaee.HandlerChainsType;
 
 /**
  * @version $Rev$ $Date$

@@ -35,12 +35,10 @@ import org.apache.axis2.context.ConfigurationContext;
 import org.apache.axis2.context.ConfigurationContextFactory;
 import org.apache.axis2.context.MessageContext;
 import org.apache.axis2.context.OperationContext;
-import org.apache.axis2.context.ServiceGroupContext;
 import org.apache.axis2.description.AxisService;
 import org.apache.axis2.description.TransportInDescription;
 import org.apache.axis2.description.TransportOutDescription;
 import org.apache.axis2.engine.AxisEngine;
-import org.apache.axis2.engine.DependencyManager;
 import org.apache.axis2.engine.Handler.InvocationResponse;
 import org.apache.axis2.jaxws.server.JAXWSMessageReceiver;
 import org.apache.axis2.transport.OutTransportInfo;
@@ -64,7 +62,7 @@ import org.apache.geronimo.webservices.saaj.SAAJUniverse;
  */
 public abstract class Axis2WebServiceContainer implements WebServiceContainer {
 
-    private static final Log log = LogFactory.getLog(Axis2WebServiceContainer.class);
+    private static final Log LOG = LogFactory.getLog(Axis2WebServiceContainer.class);
 
     public static final String REQUEST = Axis2WebServiceContainer.class.getName() + "@Request";
     public static final String RESPONSE = Axis2WebServiceContainer.class.getName() + "@Response";
@@ -89,46 +87,39 @@ public abstract class Axis2WebServiceContainer implements WebServiceContainer {
         this.portInfo = portInfo;
         this.configurationBaseUrl = configurationBaseUrl;
         this.jndiResolver = new ServerJNDIResolver(context);
-        
-        init();  
     }
 
-    public void init() {
-        try {
-            this.endpointClass = classLoader.loadClass(this.endpointClassName);
-            configurationContext = ConfigurationContextFactory.createDefaultConfigurationContext();
+    public void init() throws Exception {
+        this.endpointClass = classLoader.loadClass(this.endpointClassName);
+        configurationContext = ConfigurationContextFactory.createDefaultConfigurationContext();
 
-            // check to see if the wsdlLocation property is set in portInfo,
-            // if not checking if wsdlLocation exists in annotation
-            // if already set, annotation should not overwrite it.
-            if (portInfo.getWsdlFile() == null || portInfo.getWsdlFile().equals("")) {
-                // getwsdllocation from annotation if it exists
-                if (JAXWSUtils.containsWsdlLocation(this.endpointClass, classLoader)) {
-                    portInfo.setWsdlFile(JAXWSUtils.getServiceWsdlLocation(this.endpointClass, classLoader));
-                }
+        // check to see if the wsdlLocation property is set in portInfo,
+        // if not checking if wsdlLocation exists in annotation
+        // if already set, annotation should not overwrite it.
+        if (portInfo.getWsdlFile() == null || portInfo.getWsdlFile().equals("")) {
+            // getwsdllocation from annotation if it exists
+            if (JAXWSUtils.containsWsdlLocation(this.endpointClass, classLoader)) {
+                portInfo.setWsdlFile(JAXWSUtils.getServiceWsdlLocation(this.endpointClass, classLoader));
             }
-
-            AxisServiceGenerator serviceGen = createServiceGenerator();            
-            if (portInfo.getWsdlFile() != null && !portInfo.getWsdlFile().equals("")) { 
-                // WSDL file has been provided 
-                service = serviceGen.getServiceFromWSDL(portInfo, endpointClass, configurationBaseUrl);
-            } else {
-                // No WSDL, let Axis2 handle it.
-                
-                // FIXME: AxisServiceGenerator method should be used as it understands annotations
-                // but right now that method causes some problems when WSDL is requested.
-                service = AxisService.createService(endpointClassName, configurationContext.getAxisConfiguration(), JAXWSMessageReceiver.class);                
-                // service = serviceGen.getServiceFromClass(this.endpointClass);
-            }
-
-            service.setScope(Constants.SCOPE_APPLICATION);
-            configurationContext.getAxisConfiguration().addService(service);
-
-        } catch (AxisFault af) {
-            throw new RuntimeException(af);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
         }
+
+        AxisServiceGenerator serviceGen = createServiceGenerator();
+        if (portInfo.getWsdlFile() != null && !portInfo.getWsdlFile().equals("")) {
+            // WSDL file has been provided
+            service = serviceGen.getServiceFromWSDL(portInfo, endpointClass, configurationBaseUrl);
+        } else {
+            // No WSDL, let Axis2 handle it.
+
+            // FIXME: AxisServiceGenerator method should be used as it understands annotations
+            // but right now that method causes some problems when WSDL is requested.
+            service = AxisService.createService(endpointClassName, 
+                                                configurationContext.getAxisConfiguration(), 
+                                                JAXWSMessageReceiver.class);
+            // service = serviceGen.getServiceFromClass(this.endpointClass);
+        }
+
+        service.setScope(Constants.SCOPE_APPLICATION);
+        configurationContext.getAxisConfiguration().addService(service);
 
         this.wsdlQueryHandler = new WSDLQueryHandler(this.service);
     }  
@@ -155,8 +146,8 @@ public abstract class Axis2WebServiceContainer implements WebServiceContainer {
             throws Exception {
         initContextRoot(request);
 
-        if (log.isDebugEnabled()) {
-            log.debug("Target URI: " + request.getURI());
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("Target URI: " + request.getURI());
         }
 
         MessageContext msgContext = new MessageContext();
@@ -200,7 +191,7 @@ public abstract class Axis2WebServiceContainer implements WebServiceContainer {
             doService2(request, response, msgContext);
         } catch (Throwable e) {
             String msg = "Exception occurred while trying to invoke service method doService()";
-            log.error(msg, e);
+            LOG.error(msg, e);
             try {
                 AxisEngine engine = new AxisEngine(this.configurationContext);
 
@@ -224,7 +215,7 @@ public abstract class Axis2WebServiceContainer implements WebServiceContainer {
                     PrintWriter pw = new PrintWriter(response.getOutputStream());
                     ex.printStackTrace(pw);
                     pw.flush();
-                    log.error(msg, ex);
+                    LOG.error(msg, ex);
                 }
             }
         }
@@ -262,9 +253,9 @@ public abstract class Axis2WebServiceContainer implements WebServiceContainer {
         
 
         if (request.getMethod() == Request.GET) {
-            processGetRequest(request, response, this.service, configurationContext, msgContext);
+            processGETRequest(request, response, this.service, configurationContext, msgContext);
         } else if (request.getMethod() == Request.POST) {
-            processPostRequest(request, response, this.service, configurationContext, msgContext);
+            processPOSTRequest(request, response, this.service, configurationContext, msgContext);
         } else {
             throw new UnsupportedOperationException("[" + request.getMethod() + " ] method not supported");
         }
@@ -277,7 +268,6 @@ public abstract class Axis2WebServiceContainer implements WebServiceContainer {
             contextWritten = operationContext.getProperty(Constants.RESPONSE_WRITTEN);
             isTwoChannel = operationContext.getProperty(Constants.DIFFERENT_EPR);
         }
-
 
         if ((contextWritten != null) && Constants.VALUE_TRUE.equals(contextWritten)) {
             if ((isTwoChannel != null) && Constants.VALUE_TRUE.equals(isTwoChannel)) {
@@ -293,7 +283,7 @@ public abstract class Axis2WebServiceContainer implements WebServiceContainer {
     public void destroy() {
     }
         
-    public class Axis2TransportInfo implements OutTransportInfo {
+    public static class Axis2TransportInfo implements OutTransportInfo {
         private Response response;
 
         public Axis2TransportInfo(Response response) {
@@ -305,27 +295,22 @@ public abstract class Axis2WebServiceContainer implements WebServiceContainer {
         }
     }
     
-    class Axis2RequestResponseTransport implements RequestResponseTransport {
+    static class Axis2RequestResponseTransport implements RequestResponseTransport {
         private Response response;
 
         private CountDownLatch responseReadySignal = new CountDownLatch(1);
 
-        RequestResponseTransportStatus status = RequestResponseTransportStatus.INITIAL;
+        private RequestResponseTransportStatus status = RequestResponseTransportStatus.INITIAL;
 
-        AxisFault faultToBeThrownOut = null;
+        private AxisFault faultToBeThrownOut = null;
 
         Axis2RequestResponseTransport(Response response) {
             this.response = response;
         }
 
         public void acknowledgeMessage(MessageContext msgContext) throws AxisFault {
-            if (log.isDebugEnabled()) {
-                log.debug("acknowledgeMessage");
-            }
-
-            if (log.isDebugEnabled()) {
-                log.debug("Acking one-way request");
-            }
+            LOG.debug("acknowledgeMessage");
+            LOG.debug("Acking one-way request");
 
             response.setContentType("text/xml; charset="
                                     + msgContext.getProperty("message.character-set-encoding"));
@@ -341,9 +326,7 @@ public abstract class Axis2WebServiceContainer implements WebServiceContainer {
         }
 
         public void awaitResponse() throws InterruptedException, AxisFault {
-            if (log.isDebugEnabled()) {
-                log.debug("Blocking servlet thread -- awaiting response");
-            }
+            LOG.debug("Blocking servlet thread -- awaiting response");
             status = RequestResponseTransportStatus.WAITING;
             responseReadySignal.await();
             if (faultToBeThrownOut != null) {
@@ -357,9 +340,7 @@ public abstract class Axis2WebServiceContainer implements WebServiceContainer {
         }
 
         public void signalResponseReady() {
-            if (log.isDebugEnabled()) {
-                log.debug("Signalling response available");
-            }
+            LOG.debug("Signalling response available");
             status = RequestResponseTransportStatus.SIGNALLED;
             responseReadySignal.countDown();
         }
@@ -369,7 +350,7 @@ public abstract class Axis2WebServiceContainer implements WebServiceContainer {
         }
     }
     
-    protected void processGetRequest(Request request, Response response, AxisService service, ConfigurationContext configurationContext, MessageContext msgContext) throws Exception{        
+    protected void processGETRequest(Request request, Response response, AxisService service, ConfigurationContext configurationContext, MessageContext msgContext) throws Exception{        
         if (request.getURI().getQuery() != null &&
             (request.getURI().getQuery().startsWith("wsdl") ||
              request.getURI().getQuery().startsWith("xsd"))) {
@@ -430,7 +411,7 @@ public abstract class Axis2WebServiceContainer implements WebServiceContainer {
         msgContext.setProperty(HTTPConstants.MC_HTTP_SERVLETCONTEXT, servletContext);        
     }
 
-    protected void processPostRequest (Request request, Response response, AxisService service, ConfigurationContext configurationContext, MessageContext msgContext) throws Exception {
+    protected void processPOSTRequest (Request request, Response response, AxisService service, ConfigurationContext configurationContext, MessageContext msgContext) throws Exception {
         String contentType = request.getHeader(HTTPConstants.HEADER_CONTENT_TYPE);
         String soapAction = request.getHeader(HTTPConstants.HEADER_SOAP_ACTION);
         if (soapAction == null) {
@@ -438,19 +419,15 @@ public abstract class Axis2WebServiceContainer implements WebServiceContainer {
         }
         
         configurationContext.fillServiceContextAndServiceGroupContext(msgContext);
-        ServiceGroupContext serviceGroupContext = msgContext.getServiceGroupContext();
-        DependencyManager.initService(serviceGroupContext);
-        //endpointInstance = msgContext.getServiceContext().getProperty(ServiceContext.SERVICE_OBJECT);
 
         setMsgContextProperties(msgContext, service, response, request);
 
-        HTTPTransportUtils.processHTTPPostRequest(
-                msgContext,
-                request.getInputStream(),
-                response.getOutputStream(),
-                contentType,
-                soapAction,
-                request.getURI().getPath());
+        HTTPTransportUtils.processHTTPPostRequest(msgContext,
+                                                  request.getInputStream(), 
+                                                  response.getOutputStream(), 
+                                                  contentType, 
+                                                  soapAction, 
+                                                  request.getURI().getPath());
     }
 
 }

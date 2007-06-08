@@ -17,20 +17,21 @@
 
 package org.apache.geronimo.axis2;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.apache.geronimo.xbeans.javaee.HandlerChainType;
-import org.apache.geronimo.xbeans.javaee.HandlerChainsType;
-import org.apache.geronimo.xbeans.javaee.PortComponentHandlerType;
-import org.apache.geronimo.xbeans.javaee.HandlerChainsDocument;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.jws.HandlerChain;
 import javax.xml.ws.WebServiceException;
 import javax.xml.ws.handler.Handler;
 import javax.xml.ws.handler.LogicalHandler;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.List;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.apache.geronimo.xbeans.javaee.HandlerChainType;
+import org.apache.geronimo.xbeans.javaee.HandlerChainsDocument;
+import org.apache.geronimo.xbeans.javaee.HandlerChainsType;
+import org.apache.geronimo.xbeans.javaee.PortComponentHandlerType;
 
 /**
  * @version $Rev$ $Date$

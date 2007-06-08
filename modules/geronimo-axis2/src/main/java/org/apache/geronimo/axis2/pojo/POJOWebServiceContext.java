@@ -17,13 +17,13 @@
 
 package org.apache.geronimo.axis2.pojo;
 
-import org.apache.axis2.jaxws.handler.LogicalMessageContext;
-import org.apache.axis2.transport.http.HTTPConstants;
+import java.security.Principal;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.xml.ws.WebServiceContext;
 import javax.xml.ws.handler.MessageContext;
-import java.security.Principal;
+
+import org.apache.axis2.transport.http.HTTPConstants;
 
 /**
  * Implementation of WebServiceContext for POJO WS to ensure that getUserPrincipal()
@@ -33,14 +33,13 @@ import java.security.Principal;
  */
 public class POJOWebServiceContext implements WebServiceContext {
 
-    private MessageContext ctx;
-
-    public POJOWebServiceContext(org.apache.axis2.context.MessageContext ctx) {
-        this.ctx = new LogicalMessageContext(new org.apache.axis2.jaxws.core.MessageContext(ctx));
-    }
+    private static ThreadLocal<MessageContext> context = new ThreadLocal<MessageContext>();
     
+    public POJOWebServiceContext() {        
+    }
+        
     public final MessageContext getMessageContext() {
-        return ctx;
+        return context.get();
     }
 
     private HttpServletRequest getHttpServletRequest() {
@@ -56,6 +55,14 @@ public class POJOWebServiceContext implements WebServiceContext {
     public final boolean isUserInRole(String user) {
         HttpServletRequest request = getHttpServletRequest();
         return (request != null) ? request.isUserInRole(user) : false;
+    }
+            
+    public static void setMessageContext(MessageContext ctx) {
+        context.set(ctx);
+    }
+
+    public static void clear() {
+        context.set(null);
     }
 
 }
