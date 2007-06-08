@@ -1076,9 +1076,15 @@ public class PluginInstallerGBean implements PluginInstaller {
         String path = base +"/maven-metadata.xml";
         URL metaURL = new URL(url.toString().trim().endsWith("/") ? url : new URL(url.toString().trim()+"/"), path);
         InputStream in = connect(metaURL, username, password, monitor);
+        if (in == null) {
+            path=base+"/maven-metadata-local.xml";
+            metaURL = new URL(url.toString().endsWith("/") ? url : new URL(url.toString()+"/"), path);
+            in = connect(metaURL, username, password, monitor);
+        }
         if(in == null) {
             return null;
         }
+
         // Don't use the validating parser that we normally do
         DocumentBuilder builder = XmlUtil.newDocumentBuilderFactory().newDocumentBuilder();
         Document doc = builder.parse(in);
@@ -1098,6 +1104,10 @@ public class PluginInstallerGBean implements PluginInstaller {
             URL metadataURL = new URL(url.toString()+base+"/"+version+"/maven-metadata.xml");
             InputStream metadataStream = connect(metadataURL, username, password, monitor);
             
+            if (metadataStream == null) {
+                metadataURL = new URL(url.toString()+base+"/"+version+"/maven-metadata-local.xml");
+                metadataStream = connect(metadataURL, username, password, monitor);
+            }            
             // check for a snapshot qualifier
             if (metadataStream != null) {
                 DocumentBuilder metadatabuilder = XmlUtil.newDocumentBuilderFactory().newDocumentBuilder();
