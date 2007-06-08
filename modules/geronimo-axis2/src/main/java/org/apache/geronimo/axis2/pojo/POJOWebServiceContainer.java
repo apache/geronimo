@@ -26,12 +26,11 @@ import javax.xml.ws.handler.Handler;
 
 import org.apache.axis2.context.ConfigurationContext;
 import org.apache.axis2.context.MessageContext;
+import org.apache.axis2.context.ServiceContext;
 import org.apache.axis2.description.AxisService;
 import org.apache.axis2.jaxws.binding.BindingImpl;
 import org.apache.axis2.jaxws.registry.FactoryRegistry;
 import org.apache.axis2.jaxws.server.JAXWSMessageReceiver;
-import org.apache.axis2.jaxws.server.endpoint.lifecycle.EndpointLifecycleException;
-import org.apache.axis2.jaxws.server.endpoint.lifecycle.EndpointLifecycleManager;
 import org.apache.axis2.jaxws.server.endpoint.lifecycle.factory.EndpointLifecycleManagerFactory;
 import org.apache.axis2.transport.http.HTTPConstants;
 import org.apache.axis2.transport.http.HTTPTransportUtils;
@@ -59,7 +58,6 @@ public class POJOWebServiceContainer extends Axis2WebServiceContainer {
     private Object endpointInstance;
     private List<Handler> chain;
     private String contextRoot = null;
-    private EndpointLifecycleManager lifecycleManager;
     
     public POJOWebServiceContainer(PortInfo portInfo,
                                    String endpointClassName,
@@ -71,17 +69,24 @@ public class POJOWebServiceContainer extends Axis2WebServiceContainer {
     
     @Override
     public void init() throws Exception {
+        // XXX: This is a global operation
+        FactoryRegistry.setFactory(EndpointLifecycleManagerFactory.class, 
+                                   new POJOEndpointLifecycleManagerFactory());
+        
         super.init();
+        
+        this.endpointInstance = this.endpointClass.newInstance();
         
         this.configurationContext.setServicePath(this.portInfo.getLocation());
         this.annotationProcessor = 
             new JAXWSAnnotationProcessor(this.jndiResolver, new POJOWebServiceContext());
-        POJOEndpointLifecycleManagerFactory factory = 
-            new POJOEndpointLifecycleManagerFactory(this.annotationProcessor);
-        this.lifecycleManager = factory.createEndpointLifecycleManager();
-        this.endpointInstance = this.lifecycleManager.createServiceInstance(null, this.endpointClass);
-        
-        FactoryRegistry.setFactory(EndpointLifecycleManagerFactory.class, factory);
+
+        // inject resources into service
+        try {
+            injectResources(this.endpointInstance);
+        } catch (AnnotationException e) {
+            throw new WebServiceException("Service resource injection failed", e);
+        }
     }
     
     @Override
@@ -97,6 +102,9 @@ public class POJOWebServiceContainer extends Axis2WebServiceContainer {
         
         setMsgContextProperties(msgContext, service, response, request);
 
+        ServiceContext serviceContext = msgContext.getServiceContext();
+        serviceContext.setProperty(ServiceContext.SERVICE_OBJECT, this.endpointInstance);
+        
         initHandlers();
         try {
             HTTPTransportUtils.processHTTPPostRequest(msgContext,
@@ -122,7 +130,7 @@ public class POJOWebServiceContainer extends Axis2WebServiceContainer {
         
         super.setMsgContextProperties(msgContext, service, response, request);
     }
-    
+        
     protected void initHandlers() {
         // configure and inject handlers
         try {
@@ -183,11 +191,9 @@ public class POJOWebServiceContainer extends Axis2WebServiceContainer {
     
     @Override
     public void destroy() {
-        // invoke @preDestroy methods
-        try {
-            this.lifecycleManager.invokePreDestroy();
-        } catch (EndpointLifecycleException e) {
-            LOG.warn("", e);
+        // call service preDestroy
+        if (this.endpointInstance != null) {
+            this.annotationProcessor.invokePreDestroy(this.endpointInstance);
         }
         
         super.destroy();

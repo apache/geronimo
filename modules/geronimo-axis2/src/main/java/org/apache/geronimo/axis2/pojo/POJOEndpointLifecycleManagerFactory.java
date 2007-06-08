@@ -21,14 +21,13 @@ package org.apache.geronimo.axis2.pojo;
 import org.apache.axis2.jaxws.server.endpoint.lifecycle.EndpointLifecycleException;
 import org.apache.axis2.jaxws.server.endpoint.lifecycle.EndpointLifecycleManager;
 import org.apache.axis2.jaxws.server.endpoint.lifecycle.factory.EndpointLifecycleManagerFactory;
-import org.apache.geronimo.jaxws.JAXWSAnnotationProcessor;
 
 public class POJOEndpointLifecycleManagerFactory extends EndpointLifecycleManagerFactory {
 
     private EndpointLifecycleManager lifecycleManager;
 
-    public POJOEndpointLifecycleManagerFactory(JAXWSAnnotationProcessor annotationProcessor) {
-        this.lifecycleManager = new POJOEndpointLifecycleManager(annotationProcessor);        
+    public POJOEndpointLifecycleManagerFactory() {
+        this.lifecycleManager = new POJOEndpointLifecycleManager();        
     }
 
     @Override

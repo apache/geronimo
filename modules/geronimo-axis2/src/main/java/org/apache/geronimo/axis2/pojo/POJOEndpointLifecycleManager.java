@@ -25,45 +25,22 @@ import org.apache.axis2.jaxws.core.MessageContext;
 import org.apache.axis2.jaxws.handler.SoapMessageContext;
 import org.apache.axis2.jaxws.server.endpoint.lifecycle.EndpointLifecycleException;
 import org.apache.axis2.jaxws.server.endpoint.lifecycle.EndpointLifecycleManager;
-import org.apache.geronimo.jaxws.JAXWSAnnotationProcessor;
 
 public class POJOEndpointLifecycleManager implements EndpointLifecycleManager {
-
-    private JAXWSAnnotationProcessor annotationProcessor;
-    private Object instance;
-    
-    public POJOEndpointLifecycleManager(JAXWSAnnotationProcessor annotationProcessor) {
-        this.annotationProcessor = annotationProcessor;        
-    }
-    
+        
     /* 
      * This method is called on each web service call.
      */
     public Object createServiceInstance(MessageContext context, Class serviceClass) throws EndpointLifecycleException {
-        if (context == null) {
-            // This is a special case, called at init time
-            createServiceInstance(serviceClass);
-        } else {
-            org.apache.axis2.context.MessageContext msgContext = context.getAxisMessageContext();
-            
-            ServiceContext serviceContext = msgContext.getServiceContext();
-            serviceContext.setProperty(ServiceContext.SERVICE_OBJECT, this.instance);
-            
-            // associate JAX-WS MessageContext with the thread
-            POJOWebServiceContext.setMessageContext(createSOAPMessageContext(context)); 
-        }
+        org.apache.axis2.context.MessageContext msgContext = context.getAxisMessageContext();
         
-        return this.instance;
-    }
-    
-    private void createServiceInstance(Class serviceClass) throws EndpointLifecycleException {
-        try {
-            this.instance = serviceClass.newInstance();
-            this.annotationProcessor.processAnnotations(instance);
-            this.annotationProcessor.invokePostConstruct(instance);
-        } catch (Exception e) {
-            throw new EndpointLifecycleException(e);
-        }
+        ServiceContext serviceContext = msgContext.getServiceContext();                
+        Object instance = serviceContext.getProperty(ServiceContext.SERVICE_OBJECT);
+        
+        // associate JAX-WS MessageContext with the thread
+        POJOWebServiceContext.setMessageContext(createSOAPMessageContext(context)); 
+        
+        return instance;
     }
     
     private javax.xml.ws.handler.MessageContext createSOAPMessageContext(MessageContext mc) {
@@ -77,9 +54,6 @@ public class POJOEndpointLifecycleManager implements EndpointLifecycleManager {
     }
 
     public void invokePreDestroy() throws EndpointLifecycleException {
-        if (this.instance != null) {
-            this.annotationProcessor.invokePreDestroy(this.instance);
-        }
     }
    
 }
