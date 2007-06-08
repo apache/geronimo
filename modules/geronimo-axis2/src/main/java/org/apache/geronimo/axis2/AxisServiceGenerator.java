@@ -98,6 +98,12 @@ public class AxisServiceGenerator {
             service.setNameSpacesMap(map);
         }
         
+        String endpointClassName = endpointClass.getName();
+        ClassLoader classLoader = endpointClass.getClassLoader();
+        
+        service.addParameter(new Parameter(Constants.SERVICE_CLASS, endpointClassName));
+        service.setClassLoader(classLoader);
+        
         for(Iterator<AxisOperation> opIterator = service.getOperations() ; opIterator.hasNext() ;){
             AxisOperation operation = opIterator.next();
             operation.setMessageReceiver(this.messageReceiver);
