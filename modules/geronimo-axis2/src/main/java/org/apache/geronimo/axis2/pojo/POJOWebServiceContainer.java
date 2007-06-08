@@ -26,9 +26,7 @@ import javax.xml.ws.handler.Handler;
 
 import org.apache.axis2.context.ConfigurationContext;
 import org.apache.axis2.context.MessageContext;
-import org.apache.axis2.context.ServiceGroupContext;
 import org.apache.axis2.description.AxisService;
-import org.apache.axis2.engine.DependencyManager;
 import org.apache.axis2.jaxws.binding.BindingImpl;
 import org.apache.axis2.jaxws.registry.FactoryRegistry;
 import org.apache.axis2.jaxws.server.JAXWSMessageReceiver;
@@ -87,13 +85,14 @@ public class POJOWebServiceContainer extends Axis2WebServiceContainer {
     }
     
     @Override
-    protected void processPOSTRequest(Request request, Response response, AxisService service, ConfigurationContext configurationContext, MessageContext msgContext) throws Exception {
+    protected void processPOSTRequest(Request request, Response response, AxisService service, MessageContext msgContext) throws Exception {
         String contentType = request.getHeader(HTTPConstants.HEADER_CONTENT_TYPE);
         String soapAction = request.getHeader(HTTPConstants.HEADER_SOAP_ACTION);
         if (soapAction == null) {
             soapAction = "\"\"";
         }
 
+        ConfigurationContext configurationContext = msgContext.getConfigurationContext();
         configurationContext.fillServiceContextAndServiceGroupContext(msgContext);
         
         setMsgContextProperties(msgContext, service, response, request);

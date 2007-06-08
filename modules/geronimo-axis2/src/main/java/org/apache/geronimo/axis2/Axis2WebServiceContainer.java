@@ -19,6 +19,7 @@ package org.apache.geronimo.axis2;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.concurrent.CountDownLatch;
 
@@ -201,16 +202,16 @@ public abstract class Axis2WebServiceContainer implements WebServiceContainer {
                 MessageContext faultContext = MessageContextBuilder.createFaultMessageContext(msgContext, e);
                 // If the fault is not going along the back channel we should be 202ing
                 if (AddressingHelper.isFaultRedirected(msgContext)) {
-                    response.setStatusCode(202);
+                    response.setStatusCode(HttpURLConnection.HTTP_ACCEPTED);
                 } else {
-                    response.setStatusCode(500);
+                    response.setStatusCode(HttpURLConnection.HTTP_INTERNAL_ERROR);
                 }
                 engine.sendFault(faultContext);
             } catch (Exception ex) {
                 if (AddressingHelper.isFaultRedirected(msgContext)) {
-                    response.setStatusCode(202);
+                    response.setStatusCode(HttpURLConnection.HTTP_ACCEPTED);
                 } else {
-                    response.setStatusCode(500);
+                    response.setStatusCode(HttpURLConnection.HTTP_INTERNAL_ERROR);
                     response.setHeader(HTTPConstants.HEADER_CONTENT_TYPE, "text/plain");
                     PrintWriter pw = new PrintWriter(response.getOutputStream());
                     ex.printStackTrace(pw);
@@ -227,35 +228,11 @@ public abstract class Axis2WebServiceContainer implements WebServiceContainer {
     public void doService2(Request request,
                            Response response,
                            MessageContext msgContext) throws Exception {
-
-        ConfigurationContext configurationContext = msgContext.getConfigurationContext();
                 
-        // TODO: Port this section
-//        // Adjust version and content chunking based on the config
-//        boolean chunked = false;
-//        TransportOutDescription transportOut = msgContext.getTransportOut();
-//        if (transportOut != null) {
-//            Parameter p = transportOut.getParameter(HTTPConstants.PROTOCOL_VERSION);
-//            if (p != null) {
-//                if (HTTPConstants.HEADER_PROTOCOL_10.equals(p.getValue())) {
-//                    ver = HttpVersion.HTTP_1_0;
-//                }
-//            }
-//            if (ver.greaterEquals(HttpVersion.HTTP_1_1)) {
-//                p = transportOut.getParameter(HTTPConstants.HEADER_TRANSFER_ENCODING);
-//                if (p != null) {
-//                    if (HTTPConstants.HEADER_TRANSFER_ENCODING_CHUNKED.equals(p.getValue())) {
-//                        chunked = true;
-//                    }
-//                }
-//            }
-//        }
-        
-
         if (request.getMethod() == Request.GET) {
-            processGETRequest(request, response, this.service, configurationContext, msgContext);
+            processGETRequest(request, response, this.service, msgContext);
         } else if (request.getMethod() == Request.POST) {
-            processPOSTRequest(request, response, this.service, configurationContext, msgContext);
+            processPOSTRequest(request, response, this.service, msgContext);
         } else {
             throw new UnsupportedOperationException("[" + request.getMethod() + " ] method not supported");
         }
@@ -271,12 +248,12 @@ public abstract class Axis2WebServiceContainer implements WebServiceContainer {
 
         if ((contextWritten != null) && Constants.VALUE_TRUE.equals(contextWritten)) {
             if ((isTwoChannel != null) && Constants.VALUE_TRUE.equals(isTwoChannel)) {
-                response.setStatusCode(202);
+                response.setStatusCode(HttpURLConnection.HTTP_ACCEPTED);
                 return;
             }
-            response.setStatusCode(200);
+            response.setStatusCode(HttpURLConnection.HTTP_OK);
         } else {
-            response.setStatusCode(202);
+            response.setStatusCode(HttpURLConnection.HTTP_ACCEPTED);
         }
     }
     
@@ -315,7 +292,7 @@ public abstract class Axis2WebServiceContainer implements WebServiceContainer {
             response.setContentType("text/xml; charset="
                                     + msgContext.getProperty("message.character-set-encoding"));
 
-            response.setStatusCode(202);
+            response.setStatusCode(HttpURLConnection.HTTP_ACCEPTED);
             try {
                 response.flushBuffer();
             } catch (IOException e) {
@@ -350,7 +327,7 @@ public abstract class Axis2WebServiceContainer implements WebServiceContainer {
         }
     }
     
-    protected void processGETRequest(Request request, Response response, AxisService service, ConfigurationContext configurationContext, MessageContext msgContext) throws Exception{        
+    protected void processGETRequest(Request request, Response response, AxisService service, MessageContext msgContext) throws Exception{        
         if (request.getURI().getQuery() != null &&
             (request.getURI().getQuery().startsWith("wsdl") ||
              request.getURI().getQuery().startsWith("xsd"))) {
@@ -377,7 +354,7 @@ public abstract class Axis2WebServiceContainer implements WebServiceContainer {
                                                                       null);
 
             if (!processed.equals(InvocationResponse.CONTINUE)) {
-                response.setStatusCode(200);
+                response.setStatusCode(HttpURLConnection.HTTP_OK);
                 String s = HTTPTransportReceiver.getServicesHTML(configurationContext);
                 PrintWriter pw = new PrintWriter(response.getOutputStream());
                 pw.write(s);
@@ -411,13 +388,14 @@ public abstract class Axis2WebServiceContainer implements WebServiceContainer {
         msgContext.setProperty(HTTPConstants.MC_HTTP_SERVLETCONTEXT, servletContext);        
     }
 
-    protected void processPOSTRequest (Request request, Response response, AxisService service, ConfigurationContext configurationContext, MessageContext msgContext) throws Exception {
+    protected void processPOSTRequest (Request request, Response response, AxisService service, MessageContext msgContext) throws Exception {
         String contentType = request.getHeader(HTTPConstants.HEADER_CONTENT_TYPE);
         String soapAction = request.getHeader(HTTPConstants.HEADER_SOAP_ACTION);
         if (soapAction == null) {
             soapAction = "\"\"";
         }
         
+        ConfigurationContext configurationContext = msgContext.getConfigurationContext();
         configurationContext.fillServiceContextAndServiceGroupContext(msgContext);
 
         setMsgContextProperties(msgContext, service, response, request);
