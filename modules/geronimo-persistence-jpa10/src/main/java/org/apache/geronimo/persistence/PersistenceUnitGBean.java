@@ -83,7 +83,7 @@ public class PersistenceUnitGBean implements GBeanLifecycle {
             ClassLoader classLoader) throws URISyntaxException, MalformedURLException, ResourceException {
         List<String> mappingFileNames = mappingFileNamesUntyped == null? new ArrayList<String>(): new ArrayList<String>(mappingFileNamesUntyped);
         this.persistenceUnitRoot = persistenceUnitRoot;
-        URI configurationBaseURI = configurationBaseURL.toURI();
+        URI configurationBaseURI = new File(configurationBaseURL.getFile()).toURI();
         URL rootURL = null;
         List<URL> jarFileUrls = null;
         if (!excludeUnlistedClassesValue) {
