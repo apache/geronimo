@@ -204,8 +204,8 @@ public class DirectoryHotDeployer implements HotDeployer, DeploymentWatcher, GBe
                 mgr.release();
                 mgr = null;
             }
-            return false;
         }
+        return false;
     }
 
     public boolean isServerRunning() {
