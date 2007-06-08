@@ -90,6 +90,13 @@
         </reference>
     </gbean>
 
+    <!-- System Properties -->
+    <gbean name="ServerSystemProperties" class="org.apache.geronimo.system.properties.SystemProperties">
+        <attribute name="systemProperties">
+             java.rmi.server.RMIClassLoaderSpi=org.apache.geronimo.kernel.rmi.RMIClassLoaderSpiImpl
+        </attribute>
+    </gbean>
+
     <!-- Logging service -->
     <gbean name="Logger" class="org.apache.geronimo.system.logging.log4j.Log4jService">
         <attribute name="configFileName">var/log/deployer-log4j.properties</attribute>
