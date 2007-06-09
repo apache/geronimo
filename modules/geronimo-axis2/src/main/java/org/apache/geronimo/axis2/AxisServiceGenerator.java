@@ -303,5 +303,10 @@ public class AxisServiceGenerator {
         }
         return wsdlURL;
     }
-          
+    
+    public static EndpointDescription getEndpointDescription(AxisService service) {
+        Parameter param = service.getParameter(EndpointDescription.AXIS_SERVICE_PARAMETER);
+        return (param == null) ? null : (EndpointDescription) param.getValue();
+    }
+         
 }

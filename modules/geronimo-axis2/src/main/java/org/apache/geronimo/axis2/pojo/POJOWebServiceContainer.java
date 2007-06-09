@@ -18,32 +18,25 @@
 package org.apache.geronimo.axis2.pojo;
 
 import java.net.URL;
-import java.util.List;
 
 import javax.naming.Context;
 import javax.xml.ws.WebServiceException;
-import javax.xml.ws.handler.Handler;
 
 import org.apache.axis2.context.ConfigurationContext;
 import org.apache.axis2.context.MessageContext;
 import org.apache.axis2.context.ServiceContext;
 import org.apache.axis2.description.AxisService;
-import org.apache.axis2.jaxws.binding.BindingImpl;
 import org.apache.axis2.jaxws.registry.FactoryRegistry;
-import org.apache.axis2.jaxws.server.JAXWSMessageReceiver;
 import org.apache.axis2.jaxws.server.endpoint.lifecycle.factory.EndpointLifecycleManagerFactory;
 import org.apache.axis2.transport.http.HTTPConstants;
 import org.apache.axis2.transport.http.HTTPTransportUtils;
 import org.apache.axis2.util.JavaUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.geronimo.axis2.Axis2HandlerResolver;
 import org.apache.geronimo.axis2.Axis2WebServiceContainer;
 import org.apache.geronimo.jaxws.JAXWSAnnotationProcessor;
 import org.apache.geronimo.jaxws.PortInfo;
 import org.apache.geronimo.jaxws.annotations.AnnotationException;
-import org.apache.geronimo.xbeans.javaee.HandlerChainsDocument;
-import org.apache.geronimo.xbeans.javaee.HandlerChainsType;
 
 // FIXME: improve handler support, handler injection, thread-safetly for handlers
 
@@ -54,10 +47,9 @@ public class POJOWebServiceContainer extends Axis2WebServiceContainer {
 
     private static final Log LOG = LogFactory.getLog(POJOWebServiceContainer.class);
     
-    private JAXWSAnnotationProcessor annotationProcessor;
     private Object endpointInstance;
-    private List<Handler> chain;
     private String contextRoot = null;
+
     
     public POJOWebServiceContainer(PortInfo portInfo,
                                    String endpointClassName,
@@ -81,6 +73,14 @@ public class POJOWebServiceContainer extends Axis2WebServiceContainer {
         this.annotationProcessor = 
             new JAXWSAnnotationProcessor(this.jndiResolver, new POJOWebServiceContext());
 
+        // configure and inject handlers
+        try {
+            configureHandlers();
+            injectHandlers();
+        } catch (Exception e) {
+            throw new WebServiceException("Error configuring handlers", e);
+        }
+        
         // inject resources into service
         try {
             injectResources(this.endpointInstance);
@@ -100,12 +100,11 @@ public class POJOWebServiceContainer extends Axis2WebServiceContainer {
         ConfigurationContext configurationContext = msgContext.getConfigurationContext();
         configurationContext.fillServiceContextAndServiceGroupContext(msgContext);
         
-        setMsgContextProperties(msgContext, service, response, request);
+        setMsgContextProperties(request, response, service, msgContext);
 
         ServiceContext serviceContext = msgContext.getServiceContext();
         serviceContext.setProperty(ServiceContext.SERVICE_OBJECT, this.endpointInstance);
-        
-        initHandlers();
+
         try {
             HTTPTransportUtils.processHTTPPostRequest(msgContext,
                                                       request.getInputStream(),
@@ -113,60 +112,11 @@ public class POJOWebServiceContainer extends Axis2WebServiceContainer {
                                                       contentType,
                                                       soapAction,
                                                       request.getURI().getPath());
-        } finally {            
-            stopHandlers();
-            
+        } finally {                        
             // de-associate JAX-WS MessageContext with the thread
             // (association happens in POJOEndpointLifecycleManager.createService() call)
             POJOWebServiceContext.clear();
         } 
-    }
-    
-    @Override
-    protected void setMsgContextProperties(MessageContext msgContext, AxisService service, Response response, Request request) {
-        BindingImpl binding = new BindingImpl("GeronimoBinding");
-        binding.setHandlerChain(chain);
-        msgContext.setProperty(JAXWSMessageReceiver.PARAM_BINDING, binding);
-        
-        super.setMsgContextProperties(msgContext, service, response, request);
-    }
-        
-    protected void initHandlers() {
-        // configure and inject handlers
-        try {
-            configureHandlers();
-        } catch (Exception e) {
-            throw new WebServiceException("Error configuring handlers", e);
-        }
-    }
-
-    /*
-     * Gets the right handlers for the port/service/bindings and
-     * performs injection.
-     */
-    protected void configureHandlers() throws Exception {
-        String xml = this.portInfo.getHandlersAsXML();
-        HandlerChainsType handlerChains = xml == null ? null : HandlerChainsDocument.Factory.parse(xml).getHandlerChains();
-        Axis2HandlerResolver handlerResolver =
-            new Axis2HandlerResolver(endpointInstance.getClass().getClassLoader(),
-                                     endpointInstance.getClass(),
-                                     handlerChains,
-                                     this.annotationProcessor);
-
-        // TODO: pass non-null PortInfo to get the right handlers
-        chain = handlerResolver.getHandlerChain(null);
-    }
-
-    public void stopHandlers() {
-        // call handlers preDestroy
-        for (Handler handler : chain) {
-            this.annotationProcessor.invokePreDestroy(handler);
-        }
-    }
-
-    private void injectResources(Object instance) throws AnnotationException {
-        this.annotationProcessor.processAnnotations(instance);
-        this.annotationProcessor.invokePostConstruct(instance);
     }
     
     protected void initContextRoot(Request request) {
@@ -191,6 +141,9 @@ public class POJOWebServiceContainer extends Axis2WebServiceContainer {
     
     @Override
     public void destroy() {
+        // call handler preDestroy
+        destroyHandlers();
+        
         // call service preDestroy
         if (this.endpointInstance != null) {
             this.annotationProcessor.invokePreDestroy(this.endpointInstance);

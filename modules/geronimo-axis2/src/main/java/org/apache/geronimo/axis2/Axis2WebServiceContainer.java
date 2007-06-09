@@ -17,19 +17,21 @@
 
 package org.apache.geronimo.axis2;
 
-import java.io.IOException;
+import java.io.ByteArrayInputStream;
 import java.io.PrintWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.concurrent.CountDownLatch;
+import java.util.List;
 
 import javax.naming.Context;
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.xml.ws.Binding;
+import javax.xml.ws.WebServiceException;
+import javax.xml.ws.handler.Handler;
 
 import org.apache.axiom.om.util.UUIDGenerator;
-import org.apache.axis2.AxisFault;
 import org.apache.axis2.Constants;
 import org.apache.axis2.addressing.AddressingHelper;
 import org.apache.axis2.context.ConfigurationContext;
@@ -41,6 +43,13 @@ import org.apache.axis2.description.TransportInDescription;
 import org.apache.axis2.description.TransportOutDescription;
 import org.apache.axis2.engine.AxisEngine;
 import org.apache.axis2.engine.Handler.InvocationResponse;
+import org.apache.axis2.jaxws.binding.BindingImpl;
+import org.apache.axis2.jaxws.binding.BindingUtils;
+import org.apache.axis2.jaxws.description.EndpointDescription;
+import org.apache.axis2.jaxws.description.impl.DescriptionUtils;
+import org.apache.axis2.jaxws.description.xml.handler.HandlerChainType;
+import org.apache.axis2.jaxws.description.xml.handler.HandlerChainsType;
+import org.apache.axis2.jaxws.description.xml.handler.HandlerType;
 import org.apache.axis2.jaxws.server.JAXWSMessageReceiver;
 import org.apache.axis2.transport.OutTransportInfo;
 import org.apache.axis2.transport.RequestResponseTransport;
@@ -51,10 +60,12 @@ import org.apache.axis2.transport.http.util.RESTUtil;
 import org.apache.axis2.util.MessageContextBuilder;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.geronimo.jaxws.JAXWSAnnotationProcessor;
 import org.apache.geronimo.jaxws.JAXWSUtils;
 import org.apache.geronimo.jaxws.JNDIResolver;
 import org.apache.geronimo.jaxws.PortInfo;
 import org.apache.geronimo.jaxws.ServerJNDIResolver;
+import org.apache.geronimo.jaxws.annotations.AnnotationException;
 import org.apache.geronimo.webservices.WebServiceContainer;
 import org.apache.geronimo.webservices.saaj.SAAJUniverse;
 
@@ -69,14 +80,17 @@ public abstract class Axis2WebServiceContainer implements WebServiceContainer {
     public static final String RESPONSE = Axis2WebServiceContainer.class.getName() + "@Response";
 
     private transient final ClassLoader classLoader;
-    private final String endpointClassName;
+    
+    protected String endpointClassName;
     protected org.apache.geronimo.jaxws.PortInfo portInfo;
     protected ConfigurationContext configurationContext;
     protected JNDIResolver jndiResolver;
     protected Class endpointClass;
-    private AxisService service;
-    private URL configurationBaseUrl;
-    private WSDLQueryHandler wsdlQueryHandler;
+    protected AxisService service;
+    protected URL configurationBaseUrl;
+    protected WSDLQueryHandler wsdlQueryHandler;
+    protected Binding binding;
+    protected JAXWSAnnotationProcessor annotationProcessor;
 
     public Axis2WebServiceContainer(PortInfo portInfo,
                                     String endpointClassName,
@@ -272,61 +286,6 @@ public abstract class Axis2WebServiceContainer implements WebServiceContainer {
         }
     }
     
-    static class Axis2RequestResponseTransport implements RequestResponseTransport {
-        private Response response;
-
-        private CountDownLatch responseReadySignal = new CountDownLatch(1);
-
-        private RequestResponseTransportStatus status = RequestResponseTransportStatus.INITIAL;
-
-        private AxisFault faultToBeThrownOut = null;
-
-        Axis2RequestResponseTransport(Response response) {
-            this.response = response;
-        }
-
-        public void acknowledgeMessage(MessageContext msgContext) throws AxisFault {
-            LOG.debug("acknowledgeMessage");
-            LOG.debug("Acking one-way request");
-
-            response.setContentType("text/xml; charset="
-                                    + msgContext.getProperty("message.character-set-encoding"));
-
-            response.setStatusCode(HttpURLConnection.HTTP_ACCEPTED);
-            try {
-                response.flushBuffer();
-            } catch (IOException e) {
-                throw new AxisFault("Error sending acknowledgement", e);
-            }
-
-            signalResponseReady();
-        }
-
-        public void awaitResponse() throws InterruptedException, AxisFault {
-            LOG.debug("Blocking servlet thread -- awaiting response");
-            status = RequestResponseTransportStatus.WAITING;
-            responseReadySignal.await();
-            if (faultToBeThrownOut != null) {
-                throw faultToBeThrownOut;
-            }
-        }
-
-        public void signalFaultReady(AxisFault fault) {
-            faultToBeThrownOut = fault;
-            signalResponseReady();
-        }
-
-        public void signalResponseReady() {
-            LOG.debug("Signalling response available");
-            status = RequestResponseTransportStatus.SIGNALLED;
-            responseReadySignal.countDown();
-        }
-
-        public RequestResponseTransportStatus getStatus() {
-            return status;
-        }
-    }
-    
     protected void processGETRequest(Request request, Response response, AxisService service, MessageContext msgContext) throws Exception{        
         if (request.getURI().getQuery() != null &&
             (request.getURI().getQuery().startsWith("wsdl") ||
@@ -363,11 +322,7 @@ public abstract class Axis2WebServiceContainer implements WebServiceContainer {
         }
     }
     
-    protected void setMsgContextProperties(MessageContext msgContext, AxisService service, Response response, Request request) {
-        //BindingImpl binding = new BindingImpl("GeronimoBinding");
-        //binding.setHandlerChain(chain);
-        //msgContext.setProperty(JAXWSMessageReceiver.PARAM_BINDING, binding);
-        // deal with POST request
+    protected void setMsgContextProperties(Request request, Response response, AxisService service, MessageContext msgContext) {
         msgContext.setProperty(MessageContext.TRANSPORT_OUT, response.getOutputStream());
         msgContext.setProperty(Constants.OUT_TRANSPORT_INFO, new Axis2TransportInfo(response));
         msgContext.setProperty(RequestResponseTransport.TRANSPORT_CONTROL,
@@ -385,10 +340,14 @@ public abstract class Axis2WebServiceContainer implements WebServiceContainer {
 
         ServletContext servletContext =
             (ServletContext)request.getAttribute(WebServiceContainer.SERVLET_CONTEXT);
-        msgContext.setProperty(HTTPConstants.MC_HTTP_SERVLETCONTEXT, servletContext);        
+        msgContext.setProperty(HTTPConstants.MC_HTTP_SERVLETCONTEXT, servletContext);    
+        
+        if (this.binding != null) {
+            msgContext.setProperty(JAXWSMessageReceiver.PARAM_BINDING, this.binding);  
+        }
     }
 
-    protected void processPOSTRequest (Request request, Response response, AxisService service, MessageContext msgContext) throws Exception {
+    protected void processPOSTRequest(Request request, Response response, AxisService service, MessageContext msgContext) throws Exception {
         String contentType = request.getHeader(HTTPConstants.HEADER_CONTENT_TYPE);
         String soapAction = request.getHeader(HTTPConstants.HEADER_SOAP_ACTION);
         if (soapAction == null) {
@@ -398,7 +357,7 @@ public abstract class Axis2WebServiceContainer implements WebServiceContainer {
         ConfigurationContext configurationContext = msgContext.getConfigurationContext();
         configurationContext.fillServiceContextAndServiceGroupContext(msgContext);
 
-        setMsgContextProperties(msgContext, service, response, request);
+        setMsgContextProperties(request, response, service, msgContext);
 
         HTTPTransportUtils.processHTTPPostRequest(msgContext,
                                                   request.getInputStream(), 
@@ -407,5 +366,74 @@ public abstract class Axis2WebServiceContainer implements WebServiceContainer {
                                                   soapAction, 
                                                   request.getURI().getPath());
     }
+    
+    /*
+     * Gets the right handlers for the port/service/bindings and performs injection.
+     */
+    protected void configureHandlers() throws Exception {
+        EndpointDescription desc = AxisServiceGenerator.getEndpointDescription(this.service);
+        if (desc == null) {
+            this.binding = new BindingImpl("");
+        } else {
+            String xml = this.portInfo.getHandlersAsXML();
+            HandlerChainsType handlerChains = null;
+            if (xml != null) {
+                ByteArrayInputStream in = new ByteArrayInputStream(xml.getBytes("UTF-8"));
+                handlerChains = DescriptionUtils.loadHandlerChains(in);
+                desc.setHandlerChain(handlerChains);
+            }
+            
+            if (LOG.isDebugEnabled()) {
+                logHandlers(desc.getHandlerChain());
+            }
+            
+            this.binding = BindingUtils.createBinding(desc);
+        }
+    }
 
+    private void logHandlers(HandlerChainsType handlerChains) {
+        if (handlerChains == null || handlerChains.getHandlerChain() == null
+            || handlerChains.getHandlerChain().isEmpty()) {
+            LOG.debug("No handlers");
+            return;
+        }
+
+        for (HandlerChainType chains : handlerChains.getHandlerChain()) {
+            LOG.debug("Handler chain: " + chains.getServiceNamePattern() + " " + 
+                      chains.getPortNamePattern() + " " + chains.getProtocolBindings());
+            if (chains.getHandler() != null) {
+                for (HandlerType chain : chains.getHandler()) {                    
+                    LOG.debug("  Handler: " + chain.getHandlerName().getValue() + " " + 
+                              chain.getHandlerClass().getValue());
+                }
+            }
+        }
+    }
+
+    protected void injectHandlers() {
+        List<Handler> handlers = this.binding.getHandlerChain();
+        try {
+            for (Handler handler : handlers) {
+                injectResources(handler);
+            }
+        } catch (AnnotationException e) {
+            throw new WebServiceException("Handler annotation failed", e);
+        }
+    }
+    
+    protected void destroyHandlers() {
+        if (this.annotationProcessor != null) {
+            // call handlers preDestroy
+            List<Handler> handlers = this.binding.getHandlerChain();
+            for (Handler handler : handlers) {
+                this.annotationProcessor.invokePreDestroy(handler);
+            }
+        }
+    }
+    
+    protected void injectResources(Object instance) throws AnnotationException {
+        this.annotationProcessor.processAnnotations(instance);
+        this.annotationProcessor.invokePostConstruct(instance);
+    }
+    
 }
