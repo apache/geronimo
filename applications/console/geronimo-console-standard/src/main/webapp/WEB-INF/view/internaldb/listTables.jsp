@@ -39,10 +39,14 @@
     <%-- Set select statement depending on the view table type --%>
     <c:choose>
       <c:when test="${viewTables == 'application'}">
-        select TABLENAME from SYS.SYSTABLES where TABLETYPE='T'
+        select s.schemaname, t.tablename from sys.sysschemas s join sys.systables t on s.schemaid = t.schemaid
+          where TABLETYPE='T'
+          order by s.schemaname, t.tablename
       </c:when>
       <c:when test="${viewTables == 'system'}">
-        select TABLENAME from SYS.SYSTABLES where TABLETYPE='S' and TABLENAME!='SYSDUMMY1'
+          select s.schemaname, t.tablename from sys.sysschemas s join sys.systables t on s.schemaid = t.schemaid
+            where s.schemaname='SYS'
+            order by s.schemaname, t.tablename
       </c:when>
     </c:choose>
   </sql:query>
@@ -51,7 +55,7 @@
 <center><b>DB: <c:out value="${db}" /></b></center>
 <table width="100%">
   <tr>
-    <td class="DarkBackground" colspan="2" align="center">Tables</td>
+    <td class="DarkBackground" colspan="3" align="center">Tables</td>
   </tr>
   <%-- Check if there are tables to display  --%>
   <c:choose>
@@ -74,26 +78,16 @@
       	    <c:set var="tdClass" scope="page" value="MediumBackground" />
       	  </c:otherwise>
       	</c:choose>
-        <c:forEach var="column" items="${row}">
-        <td class="<c:out value='${tdClass}' />"><c:out value="${column}" /></td>
-        <td class="<c:out value='${tdClass}' />" align="center">
-          <%-- Select table prefix --%>
-          <c:choose>
-            <c:when test="${viewTables == 'application'}">
-              <c:set var="tblPrefix" scope="page" value="" />
-            </c:when>
-            <c:when test="${viewTables == 'system'}">
-              <c:set var="tblPrefix" scope="page" value="SYS." />
-            </c:when>
-          </c:choose>
-          <a href="<portlet:actionURL portletMode="view">
-                     <portlet:param name="action" value="viewTableContents" />
-                     <portlet:param name="db" value="${db}" />
-                     <portlet:param name="tbl" value="${tblPrefix}${column}" />
-                     <portlet:param name="viewTables" value="${viewTables}" />
-                   </portlet:actionURL>">View Contents</a>
-        </td>
-        </c:forEach>
+            <td class="<c:out value='${tdClass}' />"><c:out value="${row[0]}" /></td>
+            <td class="<c:out value='${tdClass}' />"><c:out value="${row[1]}" /></td>
+            <td class="<c:out value='${tdClass}' />" align="center">
+              <a href="<portlet:actionURL portletMode="view">
+                         <portlet:param name="action" value="viewTableContents" />
+                         <portlet:param name="db" value="${db}" />
+                         <portlet:param name="tbl" value="${row[0]}.${row[1]}" />
+                         <portlet:param name="viewTables" value="${viewTables}" />
+                       </portlet:actionURL>">View Contents</a>
+            </td>
       </tr>
       </c:forEach>
     </c:otherwise>
