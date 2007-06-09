@@ -2,7 +2,7 @@
 <jws:handler-chains xmlns:jws="http://java.sun.com/xml/ns/javaee">
   <jws:handler-chain>
     <jws:handler>
-      <jws:handler-name>GreeterHandler</jws:handler-name>
+      <jws:handler-name>GreeterHandlerC</jws:handler-name>
       <jws:handler-class>org.apache.greeter_control.GreeterHandler</jws:handler-class>
     </jws:handler>
   </jws:handler-chain>

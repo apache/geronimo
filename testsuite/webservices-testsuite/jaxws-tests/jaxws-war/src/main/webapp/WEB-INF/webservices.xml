@@ -40,11 +40,11 @@
             <handler-chains>
                 <handler-chain>
                     <handler>
-                        <handler-name>GreeterHandler1</handler-name>
+                        <handler-name>GreeterHandlerA</handler-name>
                         <handler-class>org.apache.greeter_control.GreeterHandler</handler-class>
                     </handler>
                     <handler>
-                        <handler-name>GreeterHandler2</handler-name>
+                        <handler-name>GreeterHandlerB</handler-name>
                         <handler-class>org.apache.greeter_control.GreeterHandler</handler-class>
                     </handler>
                 </handler-chain>
