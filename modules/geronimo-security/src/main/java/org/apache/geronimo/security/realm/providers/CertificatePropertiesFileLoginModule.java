@@ -46,7 +46,7 @@ import org.apache.geronimo.system.serverinfo.ServerInfo;
 
 
 /**
- * An example LoginModule that reads a list of users and group from a file on disk.
+ * An example LoginModule that reads a list of credentials and group from a file on disk.
  * Authentication is provided by the SSL layer supplying the client certificate.
  * All we check is that it is present.  The
  * file should be formatted using standard Java properties syntax.  Expects

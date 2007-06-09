@@ -29,10 +29,10 @@ import javax.transaction.TransactionManager;
 
 import org.apache.geronimo.connector.outbound.connectiontracking.ConnectionTrackingCoordinator;
 import org.apache.geronimo.connector.outbound.connectiontracking.GeronimoTransactionListener;
-import org.apache.geronimo.jetty6.connector.HTTPSelectChannelConnector;
+import org.apache.geronimo.jetty6.connector.HTTPSocketConnector;
 import org.apache.geronimo.security.SecurityServiceImpl;
-import org.apache.geronimo.security.deploy.DefaultPrincipal;
 import org.apache.geronimo.security.deploy.PrincipalInfo;
+import org.apache.geronimo.security.deploy.SubjectInfo;
 import org.apache.geronimo.security.jaas.GeronimoLoginConfiguration;
 import org.apache.geronimo.security.jaas.JaasLoginModuleUse;
 import org.apache.geronimo.security.jaas.LoginModuleGBean;
@@ -41,6 +41,7 @@ import org.apache.geronimo.security.jacc.ApplicationPolicyConfigurationManager;
 import org.apache.geronimo.security.jacc.ApplicationPrincipalRoleConfigurationManager;
 import org.apache.geronimo.security.jacc.ComponentPermissions;
 import org.apache.geronimo.security.jacc.PrincipalRoleMapper;
+import org.apache.geronimo.security.jacc.RunAsSource;
 import org.apache.geronimo.security.realm.GenericSecurityRealm;
 import org.apache.geronimo.system.serverinfo.BasicServerInfo;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
@@ -56,7 +57,7 @@ import org.mortbay.jetty.security.FormAuthenticator;
 public class AbstractWebModuleTest extends TestSupport {
     protected ClassLoader cl;
     protected final static String securityRealmName = "demo-properties-realm";
-    private HTTPSelectChannelConnector connector;
+    private HTTPSocketConnector connector;
     protected JettyContainerImpl container;
     private TransactionManager transactionManager;
     private ConnectionTrackingCoordinator connectionTrackingCoordinator;
@@ -85,11 +86,11 @@ public class AbstractWebModuleTest extends TestSupport {
 
     }
 
-    protected JettyWebAppContext setUpAppContext(String realmName, String securityRealmName, Authenticator authenticator, String policyContextId, PermissionCollection excludedPermissions, DefaultPrincipal defaultPrincipal, PermissionCollection checkedPermissions, String uriString) throws Exception {
+    protected JettyWebAppContext setUpAppContext(String realmName, String securityRealmName, Authenticator authenticator, String policyContextId, PermissionCollection excludedPermissions, RunAsSource runAsSource, PermissionCollection checkedPermissions, String uriString) throws Exception {
 
         JettyWebAppContext app = new JettyWebAppContext(null,
                 null,
-                Collections.EMPTY_MAP,
+                Collections.<String, Object>emptyMap(),
                 cl,
                 new URL(configurationBaseURL, uriString),
                 null,
@@ -110,7 +111,7 @@ public class AbstractWebModuleTest extends TestSupport {
                 preHandlerFactory,
                 policyContextId,
                 securityRealmName,
-                defaultPrincipal,
+                runAsSource,
                 null,
                 null,
                 transactionManager,
@@ -125,24 +126,25 @@ public class AbstractWebModuleTest extends TestSupport {
         return app;
     }
 
-    protected JettyWebAppContext setUpSecureAppContext(Map roleDesignates, Map principalRoleMap, ComponentPermissions componentPermissions, DefaultPrincipal defaultPrincipal, PermissionCollection checked, Set securityRoles) throws Exception {
+    protected JettyWebAppContext setUpSecureAppContext(String securityRealmName, Map roleDesignates, Map principalRoleMap, ComponentPermissions componentPermissions, SubjectInfo defaultSubjectInfo, PermissionCollection checked, Set securityRoles) throws Exception {
         String policyContextId = "TEST";
         PrincipalRoleMapper roleMapper = new ApplicationPrincipalRoleConfigurationManager(principalRoleMap);
-        Map contextIDToPermissionsMap = new HashMap();
+        Map<String, ComponentPermissions> contextIDToPermissionsMap = new HashMap<String, ComponentPermissions>();
         contextIDToPermissionsMap.put(policyContextId, componentPermissions);
-        ApplicationPolicyConfigurationManager jacc = new ApplicationPolicyConfigurationManager(contextIDToPermissionsMap, roleDesignates, cl, roleMapper);
+        ApplicationPolicyConfigurationManager jacc = new ApplicationPolicyConfigurationManager(contextIDToPermissionsMap, null, roleDesignates, cl, null, roleMapper);
         jacc.doStart();
 
         FormAuthenticator formAuthenticator = new FormAuthenticator();
         formAuthenticator.setLoginPage("/auth/logon.html?param=test");
         formAuthenticator.setErrorPage("/auth/logonError.html?param=test");
         return setUpAppContext("Test JAAS Realm",
-                "demo-properties-realm",
+                securityRealmName,
                 formAuthenticator,
                 policyContextId,
                 componentPermissions.getExcludedPermissions(),
-                defaultPrincipal,
-                checked, "war3/");
+                jacc,
+                checked,
+                "war3/");
 
     }
 
@@ -166,8 +168,8 @@ public class AbstractWebModuleTest extends TestSupport {
         JaasLoginService loginService = new JaasLoginService("HmacSHA1", "secret", cl, null);
 
         PrincipalInfo.PrincipalEditor principalEditor = new PrincipalInfo.PrincipalEditor();
-        principalEditor.setAsText("metro,org.apache.geronimo.security.realm.providers.GeronimoUserPrincipal,false");
-        GenericSecurityRealm realm = new GenericSecurityRealm(domainName, loginModuleUse, true, true, (PrincipalInfo) principalEditor.getValue(), serverInfo,  cl, null, loginService);
+        principalEditor.setAsText("metro,org.apache.geronimo.security.realm.providers.GeronimoUserPrincipal");
+        GenericSecurityRealm realm = new GenericSecurityRealm(domainName, loginModuleUse, true, true, serverInfo,  cl, null, loginService);
 
         loginService.setRealms(Collections.singleton(realm));
         loginService.doStart();
@@ -188,7 +190,7 @@ public class AbstractWebModuleTest extends TestSupport {
 
         container = new JettyContainerImpl("test:name=JettyContainer", null);
         container.doStart();
-        connector = new HTTPSelectChannelConnector(container, null);
+        connector = new HTTPSocketConnector(container, null);
         connector.setPort(5678);
         connector.setMaxThreads(50);
 //        connector.setMinThreads(10);

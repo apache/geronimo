@@ -68,8 +68,6 @@ import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.naming.deployment.ENCConfigBuilder;
 import org.apache.geronimo.naming.deployment.GBeanResourceEnvironmentBuilder;
 import org.apache.geronimo.naming.deployment.ResourceEnvironmentSetter;
-import org.apache.geronimo.security.deploy.DefaultPrincipal;
-import org.apache.geronimo.security.deployment.SecurityConfiguration;
 import org.apache.geronimo.security.jacc.ComponentPermissions;
 import org.apache.geronimo.tomcat.ManagerGBean;
 import org.apache.geronimo.tomcat.RealmGBean;
@@ -81,22 +79,22 @@ import org.apache.geronimo.web25.deployment.AbstractWebModuleBuilder;
 import org.apache.geronimo.xbeans.geronimo.web.tomcat.TomcatWebAppDocument;
 import org.apache.geronimo.xbeans.geronimo.web.tomcat.TomcatWebAppType;
 import org.apache.geronimo.xbeans.geronimo.web.tomcat.config.GerTomcatDocument;
-import org.apache.geronimo.xbeans.javaee.ServletType;
-import org.apache.geronimo.xbeans.javaee.WebAppDocument;
-import org.apache.geronimo.xbeans.javaee.WebAppType;
 import org.apache.geronimo.xbeans.javaee.EjbLocalRefType;
 import org.apache.geronimo.xbeans.javaee.EjbRefType;
 import org.apache.geronimo.xbeans.javaee.EnvEntryType;
-import org.apache.geronimo.xbeans.javaee.MessageDestinationType;
+import org.apache.geronimo.xbeans.javaee.LifecycleCallbackType;
 import org.apache.geronimo.xbeans.javaee.MessageDestinationRefType;
+import org.apache.geronimo.xbeans.javaee.MessageDestinationType;
 import org.apache.geronimo.xbeans.javaee.PersistenceContextRefType;
 import org.apache.geronimo.xbeans.javaee.PersistenceUnitRefType;
-import org.apache.geronimo.xbeans.javaee.LifecycleCallbackType;
 import org.apache.geronimo.xbeans.javaee.ResourceEnvRefType;
 import org.apache.geronimo.xbeans.javaee.ResourceRefType;
-import org.apache.geronimo.xbeans.javaee.ServiceRefType;
 import org.apache.geronimo.xbeans.javaee.SecurityConstraintType;
 import org.apache.geronimo.xbeans.javaee.SecurityRoleType;
+import org.apache.geronimo.xbeans.javaee.ServiceRefType;
+import org.apache.geronimo.xbeans.javaee.ServletType;
+import org.apache.geronimo.xbeans.javaee.WebAppDocument;
+import org.apache.geronimo.xbeans.javaee.WebAppType;
 import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
@@ -430,7 +428,8 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder {
 
                 SecurityHolder securityHolder = new SecurityHolder();
                 securityHolder.setSecurityRealm(tomcatWebApp.getSecurityRealmName().trim());
-                securityHolder.setRoleDesignates(((SecurityConfiguration) earContext.getSecurityConfiguration()).getRoleDesignates());
+
+                webModuleData.setReferencePattern("RunAsSource", earContext.getJaccManagerName());
 
                 /**
                  * TODO - go back to commented version when possible.
@@ -450,18 +449,10 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder {
                 }
                 securityHolder.setChecked(checkedPermissions);
                 earContext.addSecurityContext(policyContextID, componentPermissions);
-                DefaultPrincipal defaultPrincipal = ((SecurityConfiguration) earContext.getSecurityConfiguration()).getDefaultPrincipal();
-                securityHolder.setDefaultPrincipal(defaultPrincipal);
-                if (defaultPrincipal != null) {
+                //TODO WTF is this for?
                     securityHolder.setSecurity(true);
-                }
 
                 webModuleData.setAttribute("securityHolder", securityHolder);
-            }
-
-            if (servletTypes.length > 0) {
-                // Process security annotations for servlets only (before MBEs run)
-                SecurityAnnotationHelper.processAnnotations(webApp, webModule.getClassFinder());
             }
 
             //listeners added directly to the StandardContext will get loaded by the tomcat classloader, not the app classloader!
@@ -485,7 +476,7 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder {
              * writing out a web.xml to the deployed location is the only way around this
              * until Tomcat fixes that bug.
              *
-             * For myfaces/jsf, the sped dd may have been updated with a listener.  So, we need to write it out again whether or not
+             * For myfaces/jsf, the spec dd may have been updated with a listener.  So, we need to write it out again whether or not
              * there originally was one. This might not work on windows due to file locking problems.
              */
 
@@ -505,6 +496,7 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder {
                 shortWebApp.setServiceRefArray(new ServiceRefType[0]);
                 // TODO Tomcat will fail web services tck tests if the following security settings are set in shortWebApp
                 // need to figure out why...
+                //One clue is that without this stuff tomcat does not install an authenticator.... so there's no security
 //                 shortWebApp.setSecurityConstraintArray(new SecurityConstraintType[0]);
 //                 shortWebApp.setSecurityRoleArray(new SecurityRoleType[0]);
                 File webXml = new File(moduleContext.getBaseDir(), "/WEB-INF/web.xml");

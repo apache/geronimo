@@ -18,10 +18,7 @@ package org.apache.geronimo.security.deploy;
 
 import java.io.Serializable;
 import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Map;
-import java.util.Set;
 
 
 /**
@@ -32,8 +29,9 @@ public class Security implements Serializable {
     private boolean doAsCurrentCaller;
     private boolean useContextHandler;
     private String defaultRole;
-    private DefaultPrincipal defaultPrincipal;
-    private Map roleMappings = new HashMap();
+    private SubjectInfo defaultSubjectInfo;
+    private Map<String, Role> roleMappings = new HashMap<String, Role>();
+    private Map<String, SubjectInfo> roleSubjectMappings = new HashMap<String, SubjectInfo>();
 
     public Security() {
     }
@@ -62,15 +60,19 @@ public class Security implements Serializable {
         this.defaultRole = defaultRole;
     }
 
-    public DefaultPrincipal getDefaultPrincipal() {
-        return defaultPrincipal;
-    }
-
-    public void setDefaultPrincipal(DefaultPrincipal defaultPrincipal) {
-        this.defaultPrincipal = defaultPrincipal;
-    }
-
-    public Map getRoleMappings() {
+    public Map<String, Role> getRoleMappings() {
         return roleMappings;
+    }
+
+    public SubjectInfo getDefaultSubjectInfo() {
+        return defaultSubjectInfo;
+    }
+
+    public void setDefaultSubjectInfo(SubjectInfo defaultSubjectInfo) {
+        this.defaultSubjectInfo = defaultSubjectInfo;
+    }
+
+    public Map<String, SubjectInfo> getRoleSubjectMappings() {
+        return roleSubjectMappings;
     }
 }

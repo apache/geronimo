@@ -29,6 +29,7 @@ import javax.management.ObjectName;
 
 import org.apache.geronimo.tomcat.util.SecurityHolder;
 import org.apache.geronimo.security.jacc.ComponentPermissions;
+import org.apache.geronimo.security.credentialstore.CredentialStore;
 
 /**
  * Tests the JAAS security for Tomcat
@@ -159,11 +160,13 @@ public class JAASSecurityTest extends AbstractWebModuleTest {
         //Force a new realm name and ignore the application name
         SecurityHolder securityHolder = new SecurityHolder();
         securityHolder.setSecurityRealm(securityRealmName);
+        CredentialStore credentialStore = null;
         setUpSecureAppContext(new HashMap(),
                 new HashMap(),
                 componentPermissions,
                 realm,
-                securityHolder);
+                securityHolder,
+                credentialStore);
     }
 
     protected void stopWebApp() throws Exception {

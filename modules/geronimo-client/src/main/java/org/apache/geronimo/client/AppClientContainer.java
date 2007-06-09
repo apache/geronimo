@@ -39,8 +39,8 @@ import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.security.Callers;
 import org.apache.geronimo.security.ContextManager;
-import org.apache.geronimo.security.deploy.DefaultPrincipal;
-import org.apache.geronimo.security.util.ConfigurationUtil;
+import org.apache.geronimo.security.credentialstore.CredentialStore;
+import org.apache.geronimo.security.deploy.SubjectInfo;
 import org.apache.xbean.recipe.ObjectRecipe;
 import org.apache.xbean.recipe.Option;
 import org.apache.xbean.recipe.StaticRecipe;
@@ -69,9 +69,10 @@ public final class AppClientContainer implements GBeanLifecycle {
             AbstractName appClientModuleName,
             String realmName,
             String callbackHandlerClassName,
-            DefaultPrincipal defaultPrincipal,
+            SubjectInfo defaultSubject,
             Holder holder,
             AppClientPlugin jndiContext,
+            CredentialStore credentialStore,
             ClassLoader classLoader,
             Kernel kernel
     ) throws Exception {
@@ -86,10 +87,10 @@ public final class AppClientContainer implements GBeanLifecycle {
         this.realmName = realmName;
         this.callbackHandlerClass = callbackHandlerClassName;
 
-        if (defaultPrincipal != null) {
-            defaultSubject = ConfigurationUtil.generateDefaultSubject(defaultPrincipal, classLoader);
+        if (defaultSubject != null) {
+            this.defaultSubject = credentialStore.getSubject(defaultSubject.getRealm(), defaultSubject.getId());
         } else {
-            defaultSubject = null;
+            this.defaultSubject = null;
         }
         this.holder = holder == null ? Holder.EMPTY : holder;
         this.classLoader = classLoader;
@@ -243,10 +244,11 @@ public final class AppClientContainer implements GBeanLifecycle {
         infoFactory.addAttribute("appClientModuleName", AbstractName.class, true);
         infoFactory.addAttribute("realmName", String.class, true);
         infoFactory.addAttribute("callbackHandlerClassName", String.class, true);
-        infoFactory.addAttribute("defaultPrincipal", DefaultPrincipal.class, true);
+        infoFactory.addAttribute("defaultSubject", SubjectInfo.class, true);
         infoFactory.addAttribute("holder", Holder.class, true);
 
         infoFactory.addReference("JNDIContext", AppClientPlugin.class, NameFactory.GERONIMO_SERVICE);
+        infoFactory.addReference("CredentialStore", CredentialStore.class, NameFactory.GERONIMO_SERVICE);
 
         infoFactory.addAttribute("classLoader", ClassLoader.class, false);
         infoFactory.addAttribute("kernel", Kernel.class, false);
@@ -256,9 +258,10 @@ public final class AppClientContainer implements GBeanLifecycle {
                 "appClientModuleName",
                 "realmName",
                 "callbackHandlerClassName",
-                "defaultPrincipal",
+                "defaultSubject",
                 "holder",
                 "JNDIContext",
+                "CredentialStore",
                 "classLoader",
                 "kernel"
         });

@@ -33,8 +33,8 @@ public class RealmPrincipalInfo extends LoginDomainPrincipalInfo {
 
     private final String realm;
 
-    public RealmPrincipalInfo(String realm, String domainName, String className, String principalName, boolean designatedRunAs) {
-        super(domainName, className, principalName, designatedRunAs);
+    public RealmPrincipalInfo(String realm, String domainName, String className, String principalName) {
+        super(domainName, className, principalName);
         this.realm = realm;
     }
 
@@ -47,10 +47,10 @@ public class RealmPrincipalInfo extends LoginDomainPrincipalInfo {
         public void setAsText(String text) {
             if (text != null) {
                 String[] parts = text.split(",");
-                if (parts.length != 5) {
-                    throw new PropertyEditorException("Principal should have the form 'realm,domain,class,name,run-as'");
+                if (parts.length != 4) {
+                    throw new PropertyEditorException("Principal should have the form 'realm,domain,class,name'");
                 }
-                RealmPrincipalInfo principal = new RealmPrincipalInfo(parts[0], parts[1], parts[2], parts[3], Boolean.valueOf(parts[4]).booleanValue());
+                RealmPrincipalInfo principal = new RealmPrincipalInfo(parts[0], parts[1], parts[2], parts[3]);
                 setValue(principal);
             } else {
                 setValue(null);
@@ -63,7 +63,7 @@ public class RealmPrincipalInfo extends LoginDomainPrincipalInfo {
                 return null;
             }
             // output from getAsText() should match with the input expected by setAsText()
-            return principal.getRealm() + "," + principal.getDomain() + "," + principal.getClassName() + "," + principal.getPrincipalName() + "," + principal.isDesignatedRunAs();
+            return principal.getRealm() + "," + principal.getDomain() + "," + principal.getClassName() + "," + principal.getPrincipalName();
         }
     }
 }

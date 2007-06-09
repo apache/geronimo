@@ -25,10 +25,12 @@ import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.security.Principal;
 import java.security.PrivilegedAction;
-import java.util.Hashtable;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.IdentityHashMap;
 import java.util.Map;
 import java.util.Set;
+
 import javax.crypto.Mac;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
@@ -42,10 +44,11 @@ import org.apache.geronimo.security.realm.providers.GeronimoCallerPrincipal;
  * @version $Rev$ $Date$
  */
 public class ContextManager {
-    private static ThreadLocal currentCallerId = new ThreadLocal();
-    private static final ThreadLocal callers = new ThreadLocal();
-    private static Map subjectContexts = new IdentityHashMap();
-    private static Map subjectIds = new Hashtable();
+
+    private static ThreadLocal<Serializable> currentCallerId = new ThreadLocal<Serializable>();
+    private static final ThreadLocal<Callers> callers = new ThreadLocal<Callers>();
+    private static Map<Subject, Context> subjectContexts = new IdentityHashMap<Subject, Context>();
+    private static Map<SubjectId, Subject> subjectIds =  Collections.synchronizedMap(new HashMap<SubjectId, Subject>());
     private static long nextSubjectId = System.currentTimeMillis();
 
     private static SecretKey key;
@@ -59,19 +62,27 @@ public class ContextManager {
         password = "secret";
         ContextManager.setAlgorithm("HmacSHA1");
     }
+    public final static Subject EMPTY = new Subject();
+    static {
+        EMPTY.setReadOnly();
+        registerSubject(EMPTY);
+    }
+
 
     /**
      * After a login, the client is left with a relatively empty Subject, while
      * the Subject used by the server has more important contents.  This method
      * lets a server-side component acting as an authentication client (such
      * as Tocmat/Jetty) access the fully populated server-side Subject.
+     * @param clientSideSubject client simplification of actual subject
+     * @return full server side subject
      */
     public static Subject getServerSideSubject(Subject clientSideSubject) {
-        Set set = clientSideSubject.getPrincipals(IdentificationPrincipal.class);
+        Set<IdentificationPrincipal> set = clientSideSubject.getPrincipals(IdentificationPrincipal.class);
         if(set == null || set.size() == 0) {
             return null;
         }
-        IdentificationPrincipal idp = (IdentificationPrincipal)set.iterator().next();
+        IdentificationPrincipal idp = set.iterator().next();
         return getRegisteredSubject(idp.getId());
     }
 
@@ -86,7 +97,7 @@ public class ContextManager {
         SecurityManager sm = System.getSecurityManager();
         if (sm != null) sm.checkPermission(GET_CONTEXT);
 
-        return (Serializable) currentCallerId.get();
+        return currentCallerId.get();
     }
 
     public static void setCallers(Subject currentCaller, Subject nextCaller) {
@@ -105,14 +116,14 @@ public class ContextManager {
     public static Callers getCallers() {
         SecurityManager sm = System.getSecurityManager();
         if (sm != null) sm.checkPermission(GET_CONTEXT);
-        return (Callers) callers.get();
+        return callers.get();
     }
 
     public static Callers setNextCaller(Subject nextCaller) {
         SecurityManager sm = System.getSecurityManager();
         if (sm != null) sm.checkPermission(SET_CONTEXT);
         assert nextCaller != null;
-        Callers oldCallers = (Callers) callers.get();
+        Callers oldCallers = callers.get();
         assert oldCallers != null;
         Callers newCallers = new Callers(oldCallers.getNextCaller(), nextCaller);
         callers.set(newCallers);
@@ -122,9 +133,9 @@ public class ContextManager {
     public static Callers pushNextCaller(Subject nextCaller) {
         SecurityManager sm = System.getSecurityManager();
         if (sm != null) sm.checkPermission(SET_CONTEXT);
-        Callers oldCallers = (Callers) callers.get();
+        Callers oldCallers = callers.get();
         Subject oldNextCaller = oldCallers == null? null: oldCallers.getNextCaller();
-        Subject newNextCaller = nextCaller == null? oldNextCaller : nextCaller;
+        Subject newNextCaller = (nextCaller == null || nextCaller == EMPTY)? oldNextCaller : nextCaller;
         Callers newCallers = new Callers(oldNextCaller, newNextCaller);
         callers.set(newCallers);
         return oldCallers;
@@ -140,7 +151,7 @@ public class ContextManager {
         SecurityManager sm = System.getSecurityManager();
         if (sm != null) sm.checkPermission(GET_CONTEXT);
 
-        Callers callers = (Callers) ContextManager.callers.get();
+        Callers callers = ContextManager.callers.get();
         return callers == null? null: callers.getCurrentCaller();
     }
 
@@ -148,7 +159,7 @@ public class ContextManager {
         SecurityManager sm = System.getSecurityManager();
         if (sm != null) sm.checkPermission(GET_CONTEXT);
 
-        Callers callers = (Callers) ContextManager.callers.get();
+        Callers callers = ContextManager.callers.get();
         return callers == null? null: callers.getNextCaller();
     }
 
@@ -156,11 +167,11 @@ public class ContextManager {
         SecurityManager sm = System.getSecurityManager();
         if (sm != null) sm.checkPermission(GET_CONTEXT);
 
-        Callers threadLocalCallers = (Callers) callers.get();
+        Callers threadLocalCallers = callers.get();
         assert threadLocalCallers != null : "No current callers";
         Subject currentSubject = threadLocalCallers.getCurrentCaller();
         assert currentSubject != null : "No current caller";
-        Context context = (Context) subjectContexts.get(currentSubject);
+        Context context = subjectContexts.get(currentSubject);
 
         assert context != null : "No registered context";
 
@@ -178,7 +189,7 @@ public class ContextManager {
                 }
             };
         }
-        Context context = (Context) subjectContexts.get(callerSubject);
+        Context context = subjectContexts.get(callerSubject);
 
         assert context != null : "No registered context";
 
@@ -189,11 +200,11 @@ public class ContextManager {
         SecurityManager sm = System.getSecurityManager();
         if (sm != null) sm.checkPermission(GET_CONTEXT);
 
-        Callers threadLocalCallers = (Callers) callers.get();
+        Callers threadLocalCallers = callers.get();
         assert threadLocalCallers != null : "No current callers";
         Subject currentSubject = threadLocalCallers.getCurrentCaller();
         assert currentSubject != null : "No current caller";
-        Context context = (Context) subjectContexts.get(currentSubject);
+        Context context = subjectContexts.get(currentSubject);
 
         assert context != null : "No registered context";
 
@@ -204,7 +215,7 @@ public class ContextManager {
         SecurityManager sm = System.getSecurityManager();
         if (sm != null) sm.checkPermission(GET_CONTEXT);
 
-        Context context = (Context) subjectContexts.get(subject);
+        Context context = subjectContexts.get(subject);
 
         return (context != null ? context.id : null);
     }
@@ -214,7 +225,7 @@ public class ContextManager {
         if (role == null) throw new IllegalArgumentException("Role must not be null");
 
         try {
-            Callers currentCallers = (Callers)callers.get();
+            Callers currentCallers = callers.get();
             if (currentCallers == null) {
                 return false;
             }
@@ -223,7 +234,7 @@ public class ContextManager {
                 return false;
             }
 
-            Context context = (Context) subjectContexts.get(currentSubject);
+            Context context = subjectContexts.get(currentSubject);
 
             assert context != null : "No registered context";
 
@@ -235,7 +246,7 @@ public class ContextManager {
     }
 
     public static Subject getRegisteredSubject(SubjectId id) {
-        return (Subject) subjectIds.get(id);
+        return subjectIds.get(id);
     }
 
     public static synchronized SubjectId registerSubject(Subject subject) {
@@ -253,17 +264,17 @@ public class ContextManager {
         Context context = new Context();
         context.subject = subject;
         context.context = acc;
-        Set principals = subject.getPrincipals((Class)GeronimoCallerPrincipal.class);
+        Set<? extends Principal> principals = subject.getPrincipals(GeronimoCallerPrincipal.class);
         if (!principals.isEmpty()) {
-            context.principal = (Principal) principals.iterator().next();
+            context.principal = principals.iterator().next();
         } else if (!(principals = subject.getPrincipals(PrimaryRealmPrincipal.class)).isEmpty()) {
-            context.principal = (PrimaryRealmPrincipal) principals.iterator().next();
+            context.principal = principals.iterator().next();
         } else if (!(principals = subject.getPrincipals(RealmPrincipal.class)).isEmpty()) {
-            context.principal = (RealmPrincipal) principals.iterator().next();
+            context.principal = principals.iterator().next();
         } else if (!(principals = subject.getPrincipals()).isEmpty()) {
-            context.principal = (Principal) principals.iterator().next();
+            context.principal = principals.iterator().next();
         }
-        Long id = new Long(nextSubjectId++);
+        Long id = nextSubjectId++;
         context.id = new SubjectId(id, hash(id));
 
         subjectIds.put(context.id, subject);
@@ -278,7 +289,7 @@ public class ContextManager {
 
         if (subject == null) throw new IllegalArgumentException("Subject must not be null");
 
-        Context context = (Context) subjectContexts.get(subject);
+        Context context = subjectContexts.get(subject);
         if (context == null) return;
 
         subjectIds.remove(context.id);
@@ -359,7 +370,7 @@ public class ContextManager {
     }
 
     private static byte[] hash(Long id) {
-        long n = id.longValue();
+        long n = id;
         byte[] bytes = new byte[8];
         for (int i = 7; i >= 0; i--) {
             bytes[i] = (byte) (n);
@@ -373,7 +384,9 @@ public class ContextManager {
 
             return mac.doFinal();
         } catch (NoSuchAlgorithmException e) {
+            //shouldn't happen
         } catch (InvalidKeyException e) {
+            //shouldn't happen
         }
         assert false : "Should never have reached here";
         return null;

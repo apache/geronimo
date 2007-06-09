@@ -32,7 +32,7 @@
     <xsd:complexType name="tssType">
         <xsd:sequence>
             <xsd:element name="description" type="tss:descriptionType" minOccurs="0" maxOccurs="unbounded"/>
-            <xsd:element name="default-principal" type="security:default-principalType" minOccurs="0"/>
+            <!--<xsd:element name="default-principal" type="security:default-principalType" minOccurs="0"/>-->
             <xsd:group ref="tss:transportMechGroup" minOccurs="0"/>
             <xsd:element name="compoundSecMechTypeList" minOccurs="0">
                 <xsd:complexType>

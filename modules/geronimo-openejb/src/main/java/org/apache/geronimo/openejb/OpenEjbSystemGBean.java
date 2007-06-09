@@ -18,32 +18,31 @@ package org.apache.geronimo.openejb;
 
 import java.io.IOException;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import java.util.TreeSet;
-import java.util.Iterator;
-import java.util.Collections;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 import javax.ejb.spi.HandleDelegate;
 import javax.management.ObjectName;
 import javax.naming.NamingException;
+import javax.persistence.EntityManagerFactory;
 import javax.resource.spi.ResourceAdapter;
 import javax.transaction.TransactionManager;
-import javax.persistence.EntityManagerFactory;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.connector.ResourceAdapterWrapper;
 import org.apache.geronimo.gbean.AbstractName;
+import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.ReferenceCollection;
 import org.apache.geronimo.gbean.ReferenceCollectionEvent;
 import org.apache.geronimo.gbean.ReferenceCollectionListener;
-import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.persistence.PersistenceUnitGBean;
@@ -57,11 +56,11 @@ import org.apache.openejb.assembler.classic.Assembler;
 import org.apache.openejb.assembler.classic.ClientInfo;
 import org.apache.openejb.assembler.classic.ContainerInfo;
 import org.apache.openejb.assembler.classic.EjbJarInfo;
+import org.apache.openejb.assembler.classic.LinkResolver;
 import org.apache.openejb.assembler.classic.MdbContainerInfo;
 import org.apache.openejb.assembler.classic.ProxyFactoryInfo;
 import org.apache.openejb.assembler.classic.SecurityServiceInfo;
 import org.apache.openejb.assembler.classic.TransactionServiceInfo;
-import org.apache.openejb.assembler.classic.LinkResolver;
 import org.apache.openejb.assembler.classic.UniqueDefaultLinkResolver;
 import org.apache.openejb.assembler.dynamic.PassthroughFactory;
 import org.apache.openejb.config.AppModule;
@@ -74,7 +73,6 @@ import org.apache.openejb.spi.ApplicationServer;
 import org.apache.openejb.spi.ContainerSystem;
 import org.apache.openejb.spi.SecurityService;
 import org.apache.openejb.util.proxy.Jdk13ProxyFactory;
-
 import org.omg.CORBA.ORB;
 
 /**
@@ -104,7 +102,6 @@ public class OpenEjbSystemGBean implements OpenEjbSystem {
         } else {
             this.persistenceUnitGBeans = persistenceUnitGBeans;
         }
-
         System.setProperty("duct tape","");
         System.setProperty("admin.disabled", "true");
         SystemInstance systemInstance = SystemInstance.get();

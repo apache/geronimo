@@ -32,10 +32,10 @@ import java.util.Set;
 import javax.security.jacc.WebResourcePermission;
 import javax.security.jacc.WebUserDataPermission;
 
-import org.apache.geronimo.security.deploy.DefaultPrincipal;
 import org.apache.geronimo.security.deploy.PrincipalInfo;
 import org.apache.geronimo.security.deploy.Role;
 import org.apache.geronimo.security.deploy.Security;
+import org.apache.geronimo.security.deploy.SubjectInfo;
 import org.apache.geronimo.security.deployment.GeronimoSecurityBuilderImpl;
 import org.apache.geronimo.security.jacc.ComponentPermissions;
 
@@ -46,6 +46,7 @@ import org.apache.geronimo.security.jacc.ComponentPermissions;
  * @version $Rev$ $Date$
  */
 public class SecurityTest extends AbstractWebModuleTest {
+
     /**
      * Test the explicit map feature.  Only Alan should be able to log in.
      *
@@ -55,15 +56,14 @@ public class SecurityTest extends AbstractWebModuleTest {
         Security securityConfig = new Security();
         securityConfig.setUseContextHandler(false);
 
-        DefaultPrincipal defaultPrincipal = new DefaultPrincipal();
-        PrincipalInfo principalInfo = new PrincipalInfo("org.apache.geronimo.security.realm.providers.GeronimoUserPrincipal", "izumi", false);
-        defaultPrincipal.setPrincipal(principalInfo);
-
-        securityConfig.setDefaultPrincipal(defaultPrincipal);
+        String securityRealmName = "demo-properties-realm";
+        String defaultPrincipalId = "izumi";
+        SubjectInfo defaultSubjectInfo = new SubjectInfo(securityRealmName, defaultPrincipalId);
+        securityConfig.setDefaultSubjectInfo(defaultSubjectInfo);
 
         Role role = new Role();
         role.setRoleName("content-administrator");
-        principalInfo = new PrincipalInfo("org.apache.geronimo.security.realm.providers.GeronimoGroupPrincipal", "it", false);
+        PrincipalInfo principalInfo = new PrincipalInfo("org.apache.geronimo.security.realm.providers.GeronimoGroupPrincipal", "it");
         role.getPrincipals().add(principalInfo);
 
         securityConfig.getRoleMappings().put(role.getRoleName(), role);
@@ -91,7 +91,7 @@ public class SecurityTest extends AbstractWebModuleTest {
 
         ComponentPermissions componentPermissions = new ComponentPermissions(excludedPermissions, uncheckedPermissions, rolePermissions);
 
-        startWebApp(roleDesignates, principalRoleMap, componentPermissions, defaultPrincipal, permissions, securityRoles);
+        startWebApp(roleDesignates, principalRoleMap, componentPermissions, defaultSubjectInfo, permissions, securityRoles);
 
         HttpURLConnection connection = (HttpURLConnection) new URL("http://localhost:5678/test/protected/hello.txt").openConnection();
         connection.setInstanceFollowRedirects(false);
@@ -158,8 +158,8 @@ public class SecurityTest extends AbstractWebModuleTest {
         stopWebApp();
     }
 
-    protected void startWebApp(Map roleDesignates, Map principalRoleMap, ComponentPermissions componentPermissions, DefaultPrincipal defaultPrincipal, PermissionCollection checked, Set securityRoles) throws Exception {
-        JettyWebAppContext app = setUpSecureAppContext(roleDesignates, principalRoleMap, componentPermissions, defaultPrincipal, checked, securityRoles);
+    protected void startWebApp(Map roleDesignates, Map principalRoleMap, ComponentPermissions componentPermissions, SubjectInfo defaultSubjectInfo, PermissionCollection checked, Set securityRoles) throws Exception {
+        JettyWebAppContext app = setUpSecureAppContext(securityRealmName, roleDesignates, principalRoleMap, componentPermissions, defaultSubjectInfo, checked, securityRoles);
         setUpStaticContentServlet(app);
 //        start(appName, app);
     }
@@ -181,7 +181,7 @@ public class SecurityTest extends AbstractWebModuleTest {
     //copied from SecurityBuilder
     public void buildPrincipalRoleMap(Security security, Map roleDesignates, Map principalRoleMap) {
         Map roleToPrincipalMap = new HashMap();
-        GeronimoSecurityBuilderImpl.buildRolePrincipalMap(security, roleDesignates, roleToPrincipalMap, getClass().getClassLoader());
+        GeronimoSecurityBuilderImpl.buildRolePrincipalMap(security, roleToPrincipalMap, getClass().getClassLoader());
         invertMap(roleToPrincipalMap, principalRoleMap);
     }
 

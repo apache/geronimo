@@ -31,8 +31,8 @@ public class LoginDomainPrincipalInfo extends PrincipalInfo {
         PropertyEditorManager.registerEditor(LoginDomainPrincipalInfo.class, LoginDomainPrincipalEditor.class);
     }
 
-    public LoginDomainPrincipalInfo(String domainName, String className, String principalName, boolean designatedRunAs) {
-        super(className, principalName, designatedRunAs);
+    public LoginDomainPrincipalInfo(String domainName, String className, String principalName) {
+        super(className, principalName);
         this.domainName = domainName;
     }
 
@@ -47,10 +47,10 @@ public class LoginDomainPrincipalInfo extends PrincipalInfo {
         public void setAsText(String text) {
             if (text != null) {
                 String[] parts = text.split(",");
-                if (parts.length != 4) {
-                    throw new PropertyEditorException("Principal should have the form 'domain,class,name,run-as'");
+                if (parts.length != 3) {
+                    throw new PropertyEditorException("Principal should have the form 'domain,class,name'");
                 }
-                LoginDomainPrincipalInfo principal = new LoginDomainPrincipalInfo(parts[0], parts[1], parts[2], Boolean.valueOf(parts[3]).booleanValue());
+                LoginDomainPrincipalInfo principal = new LoginDomainPrincipalInfo(parts[0], parts[1], parts[2]);
                 setValue(principal);
             } else {
                 setValue(null);
@@ -62,7 +62,7 @@ public class LoginDomainPrincipalInfo extends PrincipalInfo {
             if (principal == null) {
                 return null;
             }
-            return principal.getPrincipalName() + "," + principal.getClassName() + "," + principal.isDesignatedRunAs() + "," + principal.getDomain();
+            return principal.getPrincipalName() + "," + principal.getClassName() + "," + principal.getDomain();
         }
     }
 }

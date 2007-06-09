@@ -17,12 +17,11 @@
 package org.apache.geronimo.tomcat.listener;
 
 import javax.security.auth.Subject;
-import javax.servlet.Servlet;
-import javax.servlet.ServletConfig;
 
 import org.apache.catalina.Container;
 import org.apache.catalina.InstanceEvent;
 import org.apache.catalina.InstanceListener;
+import org.apache.catalina.Wrapper;
 import org.apache.geronimo.security.Callers;
 import org.apache.geronimo.security.ContextManager;
 import org.apache.geronimo.tomcat.GeronimoStandardContext;
@@ -37,10 +36,9 @@ public class RunAsInstanceListener implements InstanceListener {
             Container parent = event.getWrapper().getParent();
             if (parent instanceof GeronimoStandardContext) {
                 GeronimoStandardContext context = (GeronimoStandardContext)parent;
-                Servlet servlet = event.getServlet();
-                ServletConfig config = servlet.getServletConfig();
-                String servletName = config.getServletName();
-                Subject runAsSubject = context.getRoleDesignate(servletName);
+                Wrapper wrapper = event.getWrapper();
+                String runAsRole = wrapper.getRunAs();
+                Subject runAsSubject = context.getSubjectForRole(runAsRole);
                 if (runAsSubject != null) {
                     Callers oldCallers = ContextManager.getCallers();
                     ContextManager.registerSubject(runAsSubject);

@@ -39,9 +39,10 @@
 
     <security-realm-name>test</security-realm-name>
     <security>
-        <default-principal>
-            <principal class="org.apache.geronimo.security.realm.providers.GeronimoUserPrincipal" name="metro"/>
-        </default-principal>
+        <default-subject>
+            <realm>foo</realm>
+            <id>metro</id>
+        </default-subject>
     </security>
 
     <gbean name="TomcatRealm" class="org.apache.geronimo.tomcat.RealmGBean">

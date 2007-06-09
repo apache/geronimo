@@ -61,6 +61,7 @@ public class PlanParsingTest extends XmlBeansTestSupport {
     private Artifact baseId = new Artifact("test", "base", "1", "car");
     private AbstractName baseRootName = naming.createRootName(baseId, "root", NameFactory.SERVICE_MODULE);
     private AbstractNameQuery jettyContainerObjectName = new AbstractNameQuery(naming.createChildName(baseRootName, "jettyContainer", NameFactory.GERONIMO_SERVICE));
+    private AbstractNameQuery credentialStoreName = new AbstractNameQuery(naming.createChildName(baseRootName, "CredentialStore", NameFactory.GERONIMO_SERVICE));
     private AbstractName pojoWebServiceTemplate = null;
     private WebServiceBuilder webServiceBuilder = null;
     private Environment defaultEnvironment = new Environment();
@@ -80,7 +81,7 @@ public class PlanParsingTest extends XmlBeansTestSupport {
                 pojoWebServiceTemplate,
                 Collections.singleton(webServiceBuilder),
                 null,
-                Collections.singleton(new GeronimoSecurityBuilderImpl()),
+                Collections.singleton(new GeronimoSecurityBuilderImpl(null)),
                 Collections.singleton(new GBeanBuilder(null, null)),
                 new NamingBuilderCollection(null, null),
                 null,

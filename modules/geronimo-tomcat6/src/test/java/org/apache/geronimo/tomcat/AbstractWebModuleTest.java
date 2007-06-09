@@ -31,6 +31,7 @@ import org.apache.geronimo.testsupport.TestSupport;
 import org.apache.geronimo.connector.outbound.connectiontracking.ConnectionTrackingCoordinator;
 import org.apache.geronimo.connector.outbound.connectiontracking.GeronimoTransactionListener;
 import org.apache.geronimo.security.SecurityServiceImpl;
+import org.apache.geronimo.security.credentialstore.CredentialStore;
 import org.apache.geronimo.security.deploy.PrincipalInfo;
 import org.apache.geronimo.security.jaas.GeronimoLoginConfiguration;
 import org.apache.geronimo.security.jaas.JaasLoginModuleUse;
@@ -40,6 +41,7 @@ import org.apache.geronimo.security.jacc.ApplicationPolicyConfigurationManager;
 import org.apache.geronimo.security.jacc.ApplicationPrincipalRoleConfigurationManager;
 import org.apache.geronimo.security.jacc.ComponentPermissions;
 import org.apache.geronimo.security.jacc.PrincipalRoleMapper;
+import org.apache.geronimo.security.jacc.RunAsSource;
 import org.apache.geronimo.security.realm.GenericSecurityRealm;
 import org.apache.geronimo.system.serverinfo.BasicServerInfo;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
@@ -63,7 +65,7 @@ public abstract class AbstractWebModuleTest extends TestSupport {
     protected static final String POLICY_CONTEXT_ID = "securetest";
     private GeronimoLoginConfiguration loginConfiguration;
 
-    protected TomcatWebAppContext setUpInsecureAppContext(URI relativeWebAppRoot, URL configurationBaseURL, SecurityHolder securityHolder, ObjectRetriever tomcatRealm, ValveGBean valveChain) throws Exception {
+    protected TomcatWebAppContext setUpInsecureAppContext(URI relativeWebAppRoot, URL configurationBaseURL, SecurityHolder securityHolder, RunAsSource runAsSource, ObjectRetriever tomcatRealm, ValveGBean valveChain) throws Exception {
 
         TomcatWebAppContext app = new TomcatWebAppContext(cl,
                 null,
@@ -77,6 +79,7 @@ public abstract class AbstractWebModuleTest extends TestSupport {
                 transactionManager,
                 connectionTrackingCoordinator,
                 container,
+                runAsSource,
                 tomcatRealm,
                 valveChain,
                 null,
@@ -94,17 +97,18 @@ public abstract class AbstractWebModuleTest extends TestSupport {
         return app;
     }
 
-    protected TomcatWebAppContext setUpSecureAppContext(Map roleDesignates, Map principalRoleMap, ComponentPermissions componentPermissions, RealmGBean realm, SecurityHolder securityHolder) throws Exception {
+    protected TomcatWebAppContext setUpSecureAppContext(Map roleDesignates, Map principalRoleMap, ComponentPermissions componentPermissions, RealmGBean realm, SecurityHolder securityHolder, CredentialStore credentialStore) throws Exception {
         PrincipalRoleMapper roleMapper = new ApplicationPrincipalRoleConfigurationManager(principalRoleMap);
         Map contextIDToPermissionsMap = new HashMap();
         contextIDToPermissionsMap.put(POLICY_CONTEXT_ID, componentPermissions);
-        ApplicationPolicyConfigurationManager jacc = new ApplicationPolicyConfigurationManager(contextIDToPermissionsMap, roleDesignates, cl, roleMapper);
+        ApplicationPolicyConfigurationManager jacc = new ApplicationPolicyConfigurationManager(contextIDToPermissionsMap, null, roleDesignates, cl, credentialStore, roleMapper);
         jacc.doStart();
 
         URL configurationBaseURL = new File(BASEDIR, "target/var/catalina/webapps/war3/WEB-INF/web.xml").toURL();
         return setUpInsecureAppContext(new File(BASEDIR, "target/var/catalina/webapps/war3/").toURI(),
                 configurationBaseURL,
                 securityHolder,
+                jacc,
                 realm,
                 null);
     }
@@ -129,8 +133,8 @@ public abstract class AbstractWebModuleTest extends TestSupport {
         JaasLoginService loginService = new JaasLoginService("HmacSHA1", "secret", cl, null);
 
         PrincipalInfo.PrincipalEditor principalEditor = new PrincipalInfo.PrincipalEditor();
-        principalEditor.setAsText("metro,org.apache.geronimo.security.realm.providers.GeronimoUserPrincipal,false");
-        GenericSecurityRealm realm = new GenericSecurityRealm(domainName, loginModuleUse, true, true, (PrincipalInfo) principalEditor.getValue(), serverInfo, cl, null, loginService);
+        principalEditor.setAsText("metro,org.apache.geronimo.security.realm.providers.GeronimoUserPrincipal");
+        GenericSecurityRealm realm = new GenericSecurityRealm(domainName, loginModuleUse, true, true, serverInfo, cl, null, loginService);
 
         loginService.setRealms(Collections.singleton(realm));
         loginService.doStart();

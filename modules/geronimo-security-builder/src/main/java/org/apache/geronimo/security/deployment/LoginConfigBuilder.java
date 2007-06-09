@@ -23,12 +23,16 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
 import java.util.Set;
+import java.util.Map;
+import java.util.HashMap;
 
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.DeploymentContext;
 import org.apache.geronimo.deployment.service.SingleGBeanBuilder;
 import org.apache.geronimo.deployment.service.XmlReferenceBuilder;
+import org.apache.geronimo.deployment.service.XmlAttributeBuilder;
 import org.apache.geronimo.deployment.xbeans.PatternType;
+import org.apache.geronimo.deployment.xbeans.XmlAttributeType;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.gbean.GBeanData;
@@ -36,6 +40,7 @@ import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GReferenceInfo;
 import org.apache.geronimo.gbean.ReferencePatterns;
+import org.apache.geronimo.gbean.ReferenceMap;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.GBeanAlreadyExistsException;
 import org.apache.geronimo.kernel.Naming;
@@ -60,13 +65,25 @@ public class LoginConfigBuilder implements XmlReferenceBuilder {
     public static final String LOGIN_CONFIG_NAMESPACE = GerLoginConfigDocument.type.getDocumentElementName().getNamespaceURI();
 
     private final Naming naming;
+    private final Map xmlAttributeBuilderMap;
 
-    public LoginConfigBuilder(Kernel kernel) {
-        this.naming = kernel.getNaming();
+    public LoginConfigBuilder(Kernel kernel, Collection xmlAttributeBuilderMap) {
+        this(kernel.getNaming(), xmlAttributeBuilderMap);
     }
 
-    public LoginConfigBuilder(Naming naming) {
+    public LoginConfigBuilder(Naming naming, Collection xmlAttributeBuilders) {
         this.naming = naming;
+        if (xmlAttributeBuilders != null) {
+            ReferenceMap.Key key = new ReferenceMap.Key() {
+
+                public Object getKey(Object object) {
+                    return ((XmlAttributeBuilder) object).getNamespace();
+                }
+            };
+            xmlAttributeBuilderMap = new ReferenceMap(xmlAttributeBuilders, new HashMap(), key);
+        } else {
+            xmlAttributeBuilderMap = new HashMap();
+        }
     }
 
     public String getNamespace() {
@@ -140,6 +157,24 @@ public class LoginConfigBuilder implements XmlReferenceBuilder {
                         String value = trim(gerOptionType.getStringValue());
                         options.setProperty(key, value);
                     }
+                    XmlAttributeType[] xmlOptionArray = loginModule.getXmlOptionArray();
+                    if (xmlOptionArray != null) {
+                        for (int i = 0; i < xmlOptionArray.length; i++) {
+                            XmlAttributeType xmlOptionType = xmlOptionArray[i];
+                            String key = xmlOptionType.getName().trim();
+                            XmlObject[] anys = xmlOptionType.selectChildren(XmlAttributeType.type.qnameSetForWildcardElements());
+                            if (anys.length != 1) {
+                                throw new DeploymentException("Unexpected count of xs:any elements in xml-attribute " + anys.length + " qnameset: " + XmlAttributeType.type.qnameSetForWildcardElements());
+                            }
+                            String namespace = xmlObject.getDomNode().getNamespaceURI();
+                            XmlAttributeBuilder builder = (XmlAttributeBuilder) xmlAttributeBuilderMap.get(namespace);
+                            if (builder == null) {
+                                throw new DeploymentException("No attribute builder deployed for namespace: " + namespace);
+                            }
+                            Object value = builder.getValue(xmlObject, null, classLoader);
+                            options.put(key, value);
+                        }
+                    }
                     loginModuleName = naming.createChildName(parentName, name, NameFactory.LOGIN_MODULE);
                     loginModuleReferencePatterns = new ReferencePatterns(loginModuleName);
                     GBeanData loginModuleGBeanData = new GBeanData(loginModuleName, LoginModuleGBean.GBEAN_INFO);
@@ -187,7 +222,8 @@ public class LoginConfigBuilder implements XmlReferenceBuilder {
     static {
         GBeanInfoBuilder infoBuilder = GBeanInfoBuilder.createStatic(LoginConfigBuilder.class, "XmlReferenceBuilder");
         infoBuilder.addAttribute("kernel", Kernel.class, false, false);
-        infoBuilder.setConstructor(new String[] {"kernel"});
+        infoBuilder.addReference("xmlAttributeBuilders", XmlAttributeBuilder.class, "XmlAttributeBuilder");
+        infoBuilder.setConstructor(new String[] {"kernel", "xmlAttributeBuilders"});
         infoBuilder.addInterface(XmlReferenceBuilder.class);
         GBEAN_INFO = infoBuilder.getBeanInfo();
 

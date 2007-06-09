@@ -22,12 +22,13 @@
         <attribute name="transactionManagerObjectName">?name=TransactionManager</attribute>
         <attribute name="connectionTrackerObjectName">?name=ConnectionTracker</attribute>
         <attribute name="corbaGBeanObjectName">?name=Server</attribute>
+        <attribute name="credentialStoreName">?name=CredentialStore</attribute>
         <reference name="Repositories">
             <!--<gbean-name>*:name=Repository,*</gbean-name>-->
         </reference>
-        <reference name="SecurityBuilder">
-            <name>SecurityBuilder</name>
-        </reference>
+        <!--<reference name="SecurityBuilder">-->
+            <!--<name>SecurityBuilder</name>-->
+        <!--</reference>-->
         <reference name="ServiceBuilders">
             <name>GBeanBuilder</name>
         </reference>

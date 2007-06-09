@@ -389,16 +389,15 @@
     </module>
 
     <security xmlns="http://geronimo.apache.org/xml/ns/security-${geronimoSchemaVersion}">
-    	<default-principal>
-    		<principal
-    			class="org.apache.geronimo.security.realm.providers.GeronimoUserPrincipal"
-    			name="system" />
-    	</default-principal>
+        <!--<default-subject>-->
+            <!--<realm>geronimo-admin</realm>-->
+            <!--<id>system</id>-->
+        <!--</default-subject>-->
     	<role-mappings>
     		<role role-name="admin">
     				<principal
     					class="org.apache.geronimo.security.realm.providers.GeronimoGroupPrincipal"
-    					name="admin" designated-run-as="true" />
+    					name="admin"/>
     		</role>
     	</role-mappings>
     </security>

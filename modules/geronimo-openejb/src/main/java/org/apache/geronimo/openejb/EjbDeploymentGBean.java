@@ -19,16 +19,13 @@ package org.apache.geronimo.openejb;
 
 import java.util.Map;
 import java.util.Set;
-import javax.security.auth.Subject;
 
-import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.naming.enc.EnterpriseNamingContext;
-import org.apache.geronimo.security.deploy.DefaultPrincipal;
-import org.apache.geronimo.security.util.ConfigurationUtil;
+import org.apache.geronimo.security.jacc.RunAsSource;
 import org.apache.geronimo.transaction.manager.GeronimoTransactionManager;
 import org.apache.geronimo.connector.outbound.connectiontracking.TrackedConnectionAssociator;
 import org.apache.geronimo.kernel.Kernel;
@@ -45,8 +42,9 @@ public class EjbDeploymentGBean extends EjbDeployment implements GBeanLifecycle 
             String beanClassName,
             ClassLoader classLoader,
             boolean securityEnabled,
-            DefaultPrincipal defaultPrincipal,
-            Subject runAs,
+            String defaultRole,
+            String runAsRole,
+            RunAsSource runAsSource,
             Map componentContext,
             Set unshareableResources,
             Set applicationManagedSecurityResources,
@@ -65,21 +63,14 @@ public class EjbDeploymentGBean extends EjbDeployment implements GBeanLifecycle 
                 beanClassName,
                 classLoader,
                 securityEnabled,
-                generateDefaultSubject(defaultPrincipal, classLoader),
-                runAs,
+                defaultRole,
+                runAsRole,
+                runAsSource,
                 EnterpriseNamingContext.createEnterpriseNamingContext(componentContext, transactionManager, kernel, classLoader),
                 unshareableResources,
                 applicationManagedSecurityResources,
                 trackedConnectionAssociator,
                 openEjbSystem);
-    }
-
-    private static Subject generateDefaultSubject(DefaultPrincipal defaultPrincipal, ClassLoader classLoader) throws DeploymentException {
-        if (defaultPrincipal != null) {
-            return ConfigurationUtil.generateDefaultSubject(defaultPrincipal, classLoader);
-        } else {
-            return null;
-        }
     }
 
     public void doStart() throws Exception {
@@ -113,8 +104,9 @@ public class EjbDeploymentGBean extends EjbDeployment implements GBeanLifecycle 
         infoFactory.addAttribute("classLoader", ClassLoader.class, false);
 
         infoFactory.addAttribute("securityEnabled", boolean.class, true);
-        infoFactory.addAttribute("defaultPrincipal", DefaultPrincipal.class, true);
-        infoFactory.addAttribute("runAs", Subject.class, true);
+        infoFactory.addAttribute("defaultRole", String.class, true);
+        infoFactory.addAttribute("runAsRole", String.class, true);
+        infoFactory.addReference("RunAsSource", RunAsSource.class, NameFactory.JACC_MANAGER);
 
         infoFactory.addAttribute("componentContextMap", Map.class, true);
 
@@ -141,8 +133,9 @@ public class EjbDeploymentGBean extends EjbDeployment implements GBeanLifecycle 
                 "classLoader",
 
                 "securityEnabled",
-                "defaultPrincipal",
-                "runAs",
+                "defaultRole",
+                "runAsRole",
+                "RunAsSource",
 
                 "componentContextMap",
 

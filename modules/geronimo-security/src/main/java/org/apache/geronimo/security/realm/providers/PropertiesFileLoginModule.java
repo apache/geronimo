@@ -48,7 +48,7 @@ import java.util.Set;
 
 
 /**
- * A LoginModule that reads a list of users and group from files on disk.  The
+ * A LoginModule that reads a list of credentials and group from files on disk.  The
  * files should be formatted using standard Java properties syntax.  Expects
  * to be run by a GenericSecurityRealm (doesn't work on its own).
  *

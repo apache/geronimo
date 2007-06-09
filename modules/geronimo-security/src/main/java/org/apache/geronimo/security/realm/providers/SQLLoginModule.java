@@ -65,7 +65,7 @@ import org.apache.geronimo.util.encoders.HexTranslator;
  * The userSelect query should return 2 values, the username and the password in
  * that order.  It should include one PreparedStatement parameter (a ?) which
  * will be filled in with the username.  In other words, the query should look
- * like: <tt>SELECT user, password FROM users WHERE username=?</tt>
+ * like: <tt>SELECT user, password FROM credentials WHERE username=?</tt>
  * <p>
  * The groupSelect query should return 2 values, the username and the group name in
  * that order (but it may return multiple rows, one per group).  It should include

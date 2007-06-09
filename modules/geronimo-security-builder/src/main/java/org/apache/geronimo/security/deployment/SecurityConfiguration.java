@@ -18,7 +18,7 @@ package org.apache.geronimo.security.deployment;
 
 import java.util.Map;
 
-import org.apache.geronimo.security.deploy.DefaultPrincipal;
+import org.apache.geronimo.security.deploy.SubjectInfo;
 
 /**
  * @version $Rev$ $Date$
@@ -26,16 +26,16 @@ import org.apache.geronimo.security.deploy.DefaultPrincipal;
 public class SecurityConfiguration {
 
     private final Map principalRoleMap;
-    private final Map roleDesignates;
-    private final DefaultPrincipal defaultPrincipal;
+    private final Map<String, SubjectInfo> roleDesignates;
+    private final SubjectInfo defaultSubjectInfo;
     private final String defaultRole;
     private final boolean doAsCurrentCaller;
     private final boolean isUseContextHandler;
 
-    public SecurityConfiguration(Map principalRoleMap, Map roleDesignates, DefaultPrincipal defaultPrincipal, String defaultRole, boolean doAsCurrentCaller, boolean useContextHandler) {
+    public SecurityConfiguration(Map principalRoleMap, Map<String, SubjectInfo> roleDesignates, SubjectInfo defaultSubjectInfo, String defaultRole, boolean doAsCurrentCaller, boolean useContextHandler) {
         this.principalRoleMap = principalRoleMap;
         this.roleDesignates = roleDesignates;
-        this.defaultPrincipal = defaultPrincipal;
+        this.defaultSubjectInfo = defaultSubjectInfo;
         this.defaultRole = defaultRole;
         this.doAsCurrentCaller = doAsCurrentCaller;
         isUseContextHandler = useContextHandler;
@@ -45,12 +45,20 @@ public class SecurityConfiguration {
         return principalRoleMap;
     }
 
-    public Map getRoleDesignates() {
+    public Map<String, SubjectInfo> getRoleDesignates() {
         return roleDesignates;
     }
 
-    public DefaultPrincipal getDefaultPrincipal() {
-        return defaultPrincipal;
+    public SubjectInfo getDefaultSubjectInfo() {
+        return defaultSubjectInfo;
+    }
+
+    public String getDefaultSubjectRealm() {
+        return defaultSubjectInfo == null? null: defaultSubjectInfo.getRealm();
+    }
+
+    public String getDefaultSubjectId() {
+        return defaultSubjectInfo == null? null: defaultSubjectInfo.getId();
     }
 
     public String getDefaultRole() {

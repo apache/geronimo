@@ -35,7 +35,7 @@ import org.apache.commons.logging.LogFactory;
 
 
 /**
- * An example LoginModule that reads a list of users and group from a file on disk.
+ * An example LoginModule that reads a list of credentials and group from a file on disk.
  * Authentication is provided by the SSL layer supplying the client certificate.
  * All we check is that it is present.  The
  * file should be formatted using standard Java properties syntax.  Expects
@@ -62,7 +62,7 @@ public class CertificateChainLoginModule implements LoginModule {
 //        try {
 //            Kernel kernel = KernelRegistry.getKernel((String)options.get(JaasLoginModuleUse.KERNEL_LM_OPTION));
 //            ServerInfo serverInfo = (ServerInfo) options.get(JaasLoginModuleUse.SERVERINFO_LM_OPTION);
-//            URI usersURI = new URI((String)options.get(USERS_URI));
+//            URI usersURI = new URI((String)options.get(CREDENTIALS_URI));
 //            URI groupsURI = new URI((String)options.get(GROUPS_URI));
 //            loadProperties(kernel, serverInfo, usersURI, groupsURI);
 //        } catch (Exception e) {

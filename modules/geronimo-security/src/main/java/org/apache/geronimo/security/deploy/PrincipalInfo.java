@@ -34,12 +34,10 @@ public class PrincipalInfo implements Serializable {
 
     private final String className;
     private final String principalName;
-    private final boolean designatedRunAs;
 
-    public PrincipalInfo(String className, String principalName, boolean designatedRunAs) {
+    public PrincipalInfo(String className, String principalName) {
         this.className = className;
         this.principalName = principalName;
-        this.designatedRunAs = designatedRunAs;
     }
 
     public String getClassName() {
@@ -50,19 +48,15 @@ public class PrincipalInfo implements Serializable {
         return principalName;
     }
 
-    public boolean isDesignatedRunAs() {
-        return designatedRunAs;
-    }
-
     public static class PrincipalEditor extends TextPropertyEditorSupport {
 
         public void setAsText(String text) {
             if (text != null) {
                 String[] parts = text.split(",");
-                if (parts.length != 3) {
-                    throw new PropertyEditorException("Principal should have the form 'name,class,run-as'");
+                if (parts.length != 2) {
+                    throw new PropertyEditorException("Principal should have the form 'name,class'");
                 }
-                PrincipalInfo principalInfo = new PrincipalInfo(parts[0], parts[1], Boolean.valueOf(parts[2]).booleanValue());
+                PrincipalInfo principalInfo = new PrincipalInfo(parts[0], parts[1]);
                 setValue(principalInfo);
             } else {
                 setValue(null);
@@ -74,7 +68,7 @@ public class PrincipalInfo implements Serializable {
             if (principalInfo == null) {
                 return null;
             }
-            return principalInfo.getPrincipalName() + "," + principalInfo.getClassName() + "," + principalInfo.isDesignatedRunAs();
+            return principalInfo.getPrincipalName() + "," + principalInfo.getClassName();
         }
     }
 }

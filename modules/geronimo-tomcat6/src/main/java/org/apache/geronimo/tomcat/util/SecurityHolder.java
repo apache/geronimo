@@ -22,7 +22,8 @@ import java.util.Map;
 
 import javax.security.auth.Subject;
 
-import org.apache.geronimo.security.deploy.DefaultPrincipal;
+import org.apache.geronimo.security.deploy.SubjectInfo;
+import org.apache.geronimo.security.jacc.RunAsSource;
 
 public class SecurityHolder implements Serializable
 {
@@ -30,23 +31,12 @@ public class SecurityHolder implements Serializable
     private static final long serialVersionUID = 3761404231197734961L;
 
     private String policyContextID;
-    private DefaultPrincipal defaultPrincipal;
+    private Subject defaultSubject;
     private PermissionCollection checked;
     private PermissionCollection excluded;
     private String securityRealm;
     private boolean security;
-    private Map<String, Subject> roleDesignates;
-
-    public SecurityHolder()
-    {
-        policyContextID = null;
-        defaultPrincipal = null;
-        checked = null;
-        excluded = null;
-        securityRealm = null;
-        security = false;
-        roleDesignates = null;
-    }
+    private RunAsSource runAsSource;
 
     public String getSecurityRealm() {
         return securityRealm;
@@ -66,14 +56,14 @@ public class SecurityHolder implements Serializable
         this.checked = checked;
     }
 
-    public DefaultPrincipal getDefaultPrincipal()
+    public Subject getDefaultSubject()
     {
-        return defaultPrincipal;
+        return defaultSubject;
     }
 
-    public void setDefaultPrincipal(DefaultPrincipal defaultPrincipal)
+    public void setDefaultSubject(Subject defaultSubject)
     {
-        this.defaultPrincipal = defaultPrincipal;
+        this.defaultSubject = defaultSubject;
     }
 
     public PermissionCollection getExcluded()
@@ -104,12 +94,12 @@ public class SecurityHolder implements Serializable
         this.security = security;
     }
 
-    public Map<String, Subject> getRoleDesignates() {
-        return roleDesignates;
+    public RunAsSource getRunAsSource() {
+        return runAsSource;
     }
 
-    public void setRoleDesignates(Map<String, Subject> roleDesignates) {
-        this.roleDesignates = roleDesignates;
+    public void setRunAsSource(RunAsSource runAsSource) {
+        this.runAsSource = runAsSource;
     }
-    
+
 }

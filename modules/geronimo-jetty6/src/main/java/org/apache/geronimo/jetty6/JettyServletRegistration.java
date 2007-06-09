@@ -21,10 +21,13 @@ import java.util.Map;
 import java.lang.reflect.InvocationTargetException;
 
 import javax.naming.Context;
+import javax.security.auth.Subject;
+import javax.security.auth.login.LoginException;
 
 import org.mortbay.jetty.servlet.ServletHandler;
 import org.mortbay.jetty.servlet.ServletHolder;
 import org.apache.geronimo.jetty6.handler.AbstractImmutableHandler;
+import org.apache.geronimo.security.deploy.SubjectInfo;
 
 /**
  * @version $Rev$ $Date$
@@ -44,4 +47,6 @@ public interface JettyServletRegistration {
     Object newInstance(String className) throws InstantiationException, IllegalAccessException;
 
     void destroyInstance(Object o) throws Exception;
+
+    Subject getSubjectForRole(String role) throws LoginException;
 }

@@ -241,6 +241,7 @@
                             </xsd:documentation>
                         </xsd:annotation>
                     </xsd:element>
+                    <xsd:element name="xml-option" type="sys:xml-attributeType" minOccurs="0" maxOccurs="unbounded"/>
                 </xsd:sequence>
                 <xsd:attribute name="server-side" type="xsd:boolean"
                     use="required">

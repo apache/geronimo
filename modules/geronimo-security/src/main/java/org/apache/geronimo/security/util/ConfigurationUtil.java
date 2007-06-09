@@ -21,23 +21,18 @@ import java.lang.reflect.Constructor;
 import java.security.AccessController;
 import java.security.PrivilegedActionException;
 import java.security.PrivilegedExceptionAction;
-import java.util.Set;
-import javax.security.auth.Subject;
+
 import javax.security.auth.x500.X500Principal;
 import javax.security.jacc.PolicyContext;
 import javax.security.jacc.PolicyContextException;
 import javax.security.jacc.PolicyContextHandler;
 
 import org.apache.geronimo.common.DeploymentException;
-import org.apache.geronimo.common.GeronimoSecurityException;
 import org.apache.geronimo.security.DomainPrincipal;
 import org.apache.geronimo.security.PrimaryDomainPrincipal;
 import org.apache.geronimo.security.PrimaryPrincipal;
 import org.apache.geronimo.security.PrimaryRealmPrincipal;
 import org.apache.geronimo.security.RealmPrincipal;
-import org.apache.geronimo.security.deploy.DefaultDomainPrincipal;
-import org.apache.geronimo.security.deploy.DefaultPrincipal;
-import org.apache.geronimo.security.deploy.DefaultRealmPrincipal;
 import org.apache.geronimo.security.deploy.PrincipalInfo;
 
 
@@ -209,46 +204,6 @@ public class ConfigurationUtil {
             throw new DeploymentException("Unable to create principal", pae.getException());
         }
     }
-
-    /**
-     * Generate the default principal from the security config.
-     *
-     * @param defaultPrincipal
-     * @param classLoader
-     * @return the default principal
-     */
-    public static Subject generateDefaultSubject(DefaultPrincipal defaultPrincipal, ClassLoader classLoader) throws DeploymentException {
-        if (defaultPrincipal == null) {
-            throw new GeronimoSecurityException("No DefaultPrincipal configuration supplied");
-        }
-        Subject defaultSubject = new Subject();
-        java.security.Principal principal;
-        java.security.Principal primaryPrincipal;
-
-        if (defaultPrincipal instanceof DefaultRealmPrincipal) {
-            DefaultRealmPrincipal defaultRealmPrincipal = (DefaultRealmPrincipal) defaultPrincipal;
-            principal = generateRealmPrincipal(defaultRealmPrincipal.getRealm(), defaultRealmPrincipal.getDomain(), defaultRealmPrincipal.getPrincipal(), classLoader);
-            primaryPrincipal = generatePrimaryRealmPrincipal(defaultRealmPrincipal.getRealm(), defaultRealmPrincipal.getDomain(), defaultRealmPrincipal.getPrincipal(), classLoader);
-        } else if (defaultPrincipal instanceof DefaultDomainPrincipal) {
-            DefaultDomainPrincipal defaultDomainPrincipal = (DefaultDomainPrincipal) defaultPrincipal;
-            principal = generateDomainPrincipal(defaultDomainPrincipal.getDomain(), defaultDomainPrincipal.getPrincipal(), classLoader);
-            primaryPrincipal = generatePrimaryDomainPrincipal(defaultDomainPrincipal.getDomain(), defaultDomainPrincipal.getPrincipal(), classLoader);
-        } else {
-            principal = generatePrincipal(defaultPrincipal.getPrincipal(), classLoader);
-            primaryPrincipal = generatePrimaryPrincipal(defaultPrincipal.getPrincipal(), classLoader);
-
-        }
-        defaultSubject.getPrincipals().add(principal);
-        defaultSubject.getPrincipals().add(primaryPrincipal);
-
-        Set namedUserPasswordCredentials = defaultPrincipal.getNamedUserPasswordCredentials();
-        if (namedUserPasswordCredentials != null) {
-            defaultSubject.getPrivateCredentials().addAll(namedUserPasswordCredentials);
-        }
-
-        return defaultSubject;
-    }
-
 
     /**
      * A simple helper method to register PolicyContextHandlers

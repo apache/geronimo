@@ -61,42 +61,6 @@
         </reference>
     </gbean>
 
-
-    <!-- Default security realm using properties files -->
-    <gbean name="properties-login"
-        class="org.apache.geronimo.security.jaas.LoginModuleGBean">
-        <attribute name="loginModuleClass">org.apache.geronimo.security.realm.providers.PropertiesFileLoginModule</attribute>
-        <attribute name="serverSide">true</attribute>
-        <attribute name="options">
-            usersURI=var/security/users.properties
-            groupsURI=var/security/groups.properties
-        </attribute>
-        <attribute name="loginDomainName">geronimo-admin</attribute>
-    </gbean>
-
-    <gbean name="geronimo-admin"
-        class="org.apache.geronimo.security.realm.GenericSecurityRealm">
-        <attribute name="realmName">geronimo-admin</attribute>
-        <reference name="LoginModuleConfiguration">
-            <name>properties-login</name>
-        </reference>
-        <reference name="ServerInfo"><name>ServerInfo</name></reference>
-        <reference name="LoginService"><name>JaasLoginService</name></reference>
-    </gbean>
-
-    <gbean name="properties-login" class="org.apache.geronimo.security.jaas.JaasLoginModuleUse">
-         <attribute name="controlFlag">REQUIRED</attribute>
-         <reference name="LoginModule">
-             <name>properties-login</name>
-         </reference>
-     </gbean>
-
-    <gbean name="JMX" class="org.apache.geronimo.security.jaas.ServerRealmConfigurationEntry">
-        <attribute name="applicationConfigName">JMX</attribute>
-        <attribute name="realmName">geronimo-admin</attribute>
-        <reference name="LoginService"><name>JaasLoginService</name></reference>
-    </gbean>
-
     <gbean name="KeystoreManager" class="org.apache.geronimo.security.keystore.FileKeystoreManager">
         <attribute name="keystoreDir">var/security/keystores</attribute>
         <reference name="ServerInfo"><name>ServerInfo</name></reference>
@@ -105,14 +69,6 @@
             <type>Keystore</type>
           </pattern>
         </references>
-    </gbean>
-    
-    <gbean name="geronimo-default" class="org.apache.geronimo.security.keystore.FileKeystoreInstance">
-        <attribute name="keystoreName">geronimo-default</attribute>
-        <attribute name="keystorePath">var/security/keystores/geronimo-default</attribute>
-        <attribute name="keystorePassword">secret</attribute>
-        <attribute name="keyPasswords">geronimo=secret</attribute>
-        <reference name="ServerInfo"><name>ServerInfo</name></reference>
     </gbean>
     
 </module>

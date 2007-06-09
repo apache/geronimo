@@ -44,12 +44,13 @@
     </resource-ref>
     <security-realm-name>jetspeed-realm</security-realm-name>
     <security>
-        <default-principal>
-            <principal class="org.apache.jetspeed.security.impl.UserPrincipalImpl" name="guest"/>
-        </default-principal>
+        <default-subject>
+            <realm>foo</realm>
+            <id>guest</id>
+        </default-subject>
         <role-mappings>
             <role role-name="admin">
-                <principal class="org.apache.jetspeed.security.impl.RolePrincipalImpl" name="admin" designated-run-as="true"/>
+                <principal class="org.apache.jetspeed.security.impl.RolePrincipalImpl" name="admin"/>
             </role>
         </role-mappings>
     </security>

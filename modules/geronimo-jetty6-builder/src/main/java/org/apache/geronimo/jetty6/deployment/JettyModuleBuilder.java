@@ -82,7 +82,7 @@ import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.naming.deployment.ENCConfigBuilder;
 import org.apache.geronimo.naming.deployment.GBeanResourceEnvironmentBuilder;
 import org.apache.geronimo.naming.deployment.ResourceEnvironmentSetter;
-import org.apache.geronimo.security.deploy.DefaultPrincipal;
+import org.apache.geronimo.security.deploy.SubjectInfo;
 import org.apache.geronimo.security.deployment.SecurityConfiguration;
 import org.apache.geronimo.security.jacc.ComponentPermissions;
 import org.apache.geronimo.web.deployment.GenericToSpecificPlanConverter;
@@ -466,17 +466,11 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
             }
 
             //set up servlet gbeans.
-
             ServletType[] servletTypes = webApp.getServletArray();
             addServlets(moduleName, webModule, servletTypes, servletMappings, securityRoles, rolePermissions, moduleContext);
 
             if (jettyWebApp.isSetSecurityRealmName()) {
                 configureSecurityRealm(earContext, webApp, jettyWebApp, webModuleData, securityRoles, rolePermissions);
-            }
-
-            if (servletTypes.length > 0) {
-                // Process security annotations for servlets only (before MBEs run)
-                SecurityAnnotationHelper.processAnnotations(webApp, webModule.getClassFinder());
             }
 
             //TODO this may definitely not be the best place for this!
@@ -519,6 +513,7 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
         }
         String securityRealmName = jettyWebApp.getSecurityRealmName().trim();
         webModuleData.setAttribute("securityRealmName", securityRealmName);
+        webModuleData.setReferencePattern("RunAsSource", earContext.getJaccManagerName());
 
         /**
          * TODO - go back to commented version when possible.
@@ -530,8 +525,6 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
         ComponentPermissions componentPermissions = buildSpecSecurityConfig(webApp, securityRoles, rolePermissions);
 
         earContext.addSecurityContext(policyContextID, componentPermissions);
-        DefaultPrincipal defaultPrincipal = ((SecurityConfiguration) earContext.getSecurityConfiguration()).getDefaultPrincipal();
-        webModuleData.setAttribute("defaultPrincipal", defaultPrincipal);
     }
 
     private void addDefaultServletsGBeans(EARContext earContext, EARContext moduleContext, AbstractName moduleName, Set knownServletMappings) throws GBeanNotFoundException, GBeanAlreadyExistsException {
@@ -986,11 +979,7 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
         //run-as
         if (servletType.isSetRunAs()) {
             String runAsRole = servletType.getRunAs().getRoleName().getStringValue().trim();
-            //TODO implement role to id mapping
-            //Or go back to direct subject construction.
-            //See GERONIMO-2687
-            String runAsId = null;
-            servletData.setAttribute("runAsId", runAsId);
+            servletData.setAttribute("runAsRole", runAsRole);
         }
 
         processRoleRefPermissions(servletType, securityRoles, rolePermissions);

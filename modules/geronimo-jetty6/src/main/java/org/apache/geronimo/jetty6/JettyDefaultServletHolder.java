@@ -25,6 +25,7 @@ import javax.security.auth.Subject;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
+import org.apache.geronimo.security.deploy.SubjectInfo;
 import org.mortbay.jetty.servlet.ServletHolder;
 
 /**
@@ -35,8 +36,8 @@ public class JettyDefaultServletHolder extends JettyServletHolder {
     public JettyDefaultServletHolder() {
     }
 
-    public JettyDefaultServletHolder(String objectName, String servletName, String servletClassName, String jspFile, Map initParams, Integer loadOnStartup, Set servletMappings, String runAsId, JettyServletRegistration context) throws Exception {
-        super(objectName, servletName, servletClassName, jspFile, initParams, loadOnStartup, servletMappings, runAsId, context);
+    public JettyDefaultServletHolder(String objectName, String servletName, String servletClassName, String jspFile, Map initParams, Integer loadOnStartup, Set servletMappings, String runAsRole, JettyServletRegistration context) throws Exception {
+        super(objectName, servletName, servletClassName, jspFile, initParams, loadOnStartup, servletMappings, runAsRole, context);
     }
 
     public static final GBeanInfo GBEAN_INFO;

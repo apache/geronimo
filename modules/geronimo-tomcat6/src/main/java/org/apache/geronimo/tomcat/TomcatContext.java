@@ -30,6 +30,7 @@ import org.apache.catalina.ha.CatalinaCluster;
 import org.apache.geronimo.connector.outbound.connectiontracking.TrackedConnectionAssociator;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.tomcat.util.SecurityHolder;
+import org.apache.geronimo.security.credentialstore.CredentialStore;
 
 /**
  * @version $Rev$ $Date$

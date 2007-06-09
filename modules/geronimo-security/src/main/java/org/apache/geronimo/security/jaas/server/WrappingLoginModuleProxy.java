@@ -71,7 +71,7 @@ public class WrappingLoginModuleProxy implements LoginModule {
         }
         localSubject.getPrincipals().addAll(wrapped);
         subject.getPrincipals().addAll(localSubject.getPrincipals());
-
+        subject.getPrivateCredentials().addAll(localSubject.getPrivateCredentials());
         return result;
     }
 

@@ -387,13 +387,14 @@
     </module>
 
     <security>
-        <default-principal realm-name="geronimo-admin">
-            <principal class="org.apache.geronimo.security.realm.providers.GeronimoUserPrincipal" name="system"/>
-        </default-principal>
+        <default-subject>
+            <realm>geronimo-admin</realm>
+            <id>default</id>
+        </default-subject>
         <role-mappings>
             <role role-name="admin">
                 <realm realm-name="geronimo-admin">
-                    <principal class="org.apache.geronimo.security.realm.providers.GeronimoGroupPrincipal" name="admin" designated-run-as="true"/>
+                    <principal class="org.apache.geronimo.security.realm.providers.GeronimoGroupPrincipal" name="admin"/>
                 </realm>
             </role>
         </role-mappings>

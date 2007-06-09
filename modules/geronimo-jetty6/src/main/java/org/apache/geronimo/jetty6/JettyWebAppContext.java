@@ -19,7 +19,6 @@ package org.apache.geronimo.jetty6;
 
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.security.PermissionCollection;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.EventListener;
@@ -29,10 +28,11 @@ import java.util.Hashtable;
 import java.util.Map;
 import java.util.Set;
 
-//import javax.faces.FactoryFinder;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 import javax.naming.Context;
+import javax.security.auth.Subject;
+import javax.security.auth.login.LoginException;
 import javax.transaction.TransactionManager;
 
 import org.apache.commons.logging.Log;
@@ -61,7 +61,7 @@ import org.apache.geronimo.management.geronimo.WebConnector;
 import org.apache.geronimo.management.geronimo.WebContainer;
 import org.apache.geronimo.management.geronimo.WebModule;
 import org.apache.geronimo.naming.enc.EnterpriseNamingContext;
-import org.apache.geronimo.security.deploy.DefaultPrincipal;
+import org.apache.geronimo.security.jacc.RunAsSource;
 import org.apache.geronimo.transaction.GeronimoUserTransaction;
 import org.mortbay.jetty.MimeTypes;
 import org.mortbay.jetty.handler.AbstractHandler;
@@ -99,6 +99,7 @@ public class JettyWebAppContext implements GBeanLifecycle, JettyServletRegistrat
     private final AbstractImmutableHandler lifecycleChain;
     private final Context componentContext;
     private final Holder holder;
+    private final RunAsSource runAsSource;
 
     private final Set<String> servletNames = new HashSet<String>();
 
@@ -126,9 +127,8 @@ public class JettyWebAppContext implements GBeanLifecycle, JettyServletRegistrat
 
             String policyContextID,
             String securityRealmName,
-            DefaultPrincipal defaultPrincipal,
 
-            Holder holder,
+            RunAsSource runAsSource, Holder holder,
 
             Host host,
             TransactionManager transactionManager,
@@ -149,6 +149,8 @@ public class JettyWebAppContext implements GBeanLifecycle, JettyServletRegistrat
 
         this.holder = holder == null ? Holder.EMPTY : holder;
 
+        this.runAsSource = runAsSource == null? RunAsSource.NULL: runAsSource;
+
         SessionHandler sessionHandler;
         if (null != handlerFactory) {
             if (null == preHandlerFactory) {
@@ -164,7 +166,8 @@ public class JettyWebAppContext implements GBeanLifecycle, JettyServletRegistrat
             InternalJAASJettyRealm internalJAASJettyRealm = jettyContainer.addRealm(securityRealmName);
             //wrap jetty realm with something that knows the dumb realmName
             JAASJettyRealm realm = new JAASJettyRealm(realmName, internalJAASJettyRealm);
-            securityHandler = new JettySecurityHandler(authenticator, realm, policyContextID, defaultPrincipal, classLoader);
+            Subject defaultSubject =  this.runAsSource.getDefaultSubject();
+            securityHandler = new JettySecurityHandler(authenticator, realm, policyContextID, defaultSubject);
         }
 
         ServletHandler servletHandler = new ServletHandler();
@@ -325,6 +328,10 @@ public class JettyWebAppContext implements GBeanLifecycle, JettyServletRegistrat
 
     public AbstractImmutableHandler getLifecycleChain() {
         return lifecycleChain;
+    }
+
+    public Subject getSubjectForRole(String role) throws LoginException {
+        return runAsSource.getSubjectForRole(role);
     }
 
     public Object newInstance(String className) throws InstantiationException, IllegalAccessException {
@@ -591,7 +598,7 @@ public class JettyWebAppContext implements GBeanLifecycle, JettyServletRegistrat
 
         infoBuilder.addAttribute("policyContextID", String.class, true);
         infoBuilder.addAttribute("securityRealmName", String.class, true);
-        infoBuilder.addAttribute("defaultPrincipal", DefaultPrincipal.class, true);
+        infoBuilder.addReference("RunAsSource", RunAsSource.class, NameFactory.JACC_MANAGER);
 
         infoBuilder.addAttribute("holder", Holder.class, true);
 
@@ -632,7 +639,7 @@ public class JettyWebAppContext implements GBeanLifecycle, JettyServletRegistrat
 
                 "policyContextID",
                 "securityRealmName",
-                "defaultPrincipal",
+                "RunAsSource",
 
                 "holder",
 

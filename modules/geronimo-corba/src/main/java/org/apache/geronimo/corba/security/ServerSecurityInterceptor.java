@@ -122,11 +122,11 @@ final class ServerSecurityInterceptor extends LocalObject implements ServerReque
                     throw new INTERNAL("The CSIv2 TSS is not supposed to receive a CompleteEstablishContext message.");
 
                 case MTContextError.value:
-                    log.error("The CSIv2 TSS is not supposed to receive a CompleteEstablishContext message.");
+                    log.error("The CSIv2 TSS is not supposed to receive a ContextError message.");
                     throw new INTERNAL("The CSIv2 TSS is not supposed to receive a ContextError message.");
 
                 case MTMessageInContext.value:
-                    log.error("The CSIv2 TSS is not supposed to receive a CompleteEstablishContext message.");
+                    log.error("The CSIv2 TSS is not supposed to receive a MessageInContext message.");
 
                     contextId = contextBody.in_context_msg().client_context_id;
                     throw new SASNoContextException();

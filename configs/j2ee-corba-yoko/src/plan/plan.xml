@@ -67,9 +67,9 @@
         </reference>
         <xml-attribute name="tssConfig">
             <tss:tss xmlns:tss="http://www.openejb.org/xml/ns/corba-tss-config-2.0" xmlns:sec="http://geronimo.apache.org/xml/ns/security-${geronimoSchemaVersion}">
-                <tss:default-principal>
-                    <sec:principal class="org.apache.geronimo.security.realm.providers.GeronimoUserPrincipal" name="guest"/>
-                </tss:default-principal>
+                <!--<tss:default-principal>-->
+                    <!--<sec:principal class="org.apache.geronimo.security.realm.providers.GeronimoUserPrincipal" name="guest"/>-->
+                <!--</tss:default-principal>-->
                 <tss:SSL port="${PlanORBSSLPort}" hostname="${PlanORBSSLHost}">
                     <tss:supports>Integrity Confidentiality EstablishTrustInTarget</tss:supports>
                     <tss:requires>Integrity Confidentiality</tss:requires>
@@ -103,9 +103,9 @@
         </reference>
         <xml-attribute name="tssConfig">
             <tss:tss xmlns:tss="http://www.openejb.org/xml/ns/corba-tss-config-2.0" xmlns:sec="http://geronimo.apache.org/xml/ns/security-${geronimoSchemaVersion}">
-                <tss:default-principal>
-                    <sec:principal class="org.apache.geronimo.security.realm.providers.GeronimoUserPrincipal" name="guest"/>
-                </tss:default-principal>
+                <!--<tss:default-principal>-->
+                    <!--<sec:principal class="org.apache.geronimo.security.realm.providers.GeronimoUserPrincipal" name="guest"/>-->
+                <!--</tss:default-principal>-->
                 <tss:compoundSecMechTypeList>
                     <tss:compoundSecMech>
                         <tss:GSSUP required="true" targetName="default"/>

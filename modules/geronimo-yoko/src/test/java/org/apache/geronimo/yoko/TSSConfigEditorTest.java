@@ -51,9 +51,6 @@ public class TSSConfigEditorTest extends TestCase {
     }
 
     private static final String TEST_XML4 = "            <tss:tss xmlns:tss=\"http://openejb.apache.org/xml/ns/corba-tss-config-2.1\" xmlns:sec=\"http://geronimo.apache.org/xml/ns/security-1.2\">\n" +
-                                            "                <tss:default-principal>\n" +
-                                            "                    <sec:principal class=\"org.apache.geronimo.security.realm.providers.GeronimoUserPrincipal\" name=\"guest\"/>\n" +
-                                            "                </tss:default-principal>\n" +
                                             "                <tss:SSL port=\"6685\" hostname=\"localhost\">\n" +
                                             "                    <tss:supports>Integrity Confidentiality EstablishTrustInTarget EstablishTrustInClient</tss:supports>\n" +
                                             "                    <tss:requires>Integrity Confidentiality EstablishTrustInClient</tss:requires>\n" +

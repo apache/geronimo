@@ -23,14 +23,14 @@
     <context-root>/remote-deploy</context-root>
     <security-realm-name>geronimo-admin</security-realm-name>
     <sec:security>
-        <sec:default-principal>
-            <sec:principal class="org.apache.geronimo.security.realm.providers.GeronimoUserPrincipal"
-                           name="anonymous"/>
-        </sec:default-principal>
+        <!--<sec:default-subject>-->
+            <!--<sec:realm>geronimo-admin</sec:realm>-->
+            <!--<sec:id>anonymous</sec:id>-->
+        <!--</sec:default-subject>-->
         <sec:role-mappings>
             <sec:role role-name="admin">
                 <sec:principal class="org.apache.geronimo.security.realm.providers.GeronimoGroupPrincipal"
-                               name="admin" designated-run-as="true"/>
+                               name="admin"/>
             </sec:role>
         </sec:role-mappings>
     </sec:security>

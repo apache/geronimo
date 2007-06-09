@@ -41,10 +41,7 @@ import org.apache.catalina.valves.ValveBase;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.common.GeronimoSecurityException;
 import org.apache.geronimo.security.ContextManager;
-import org.apache.geronimo.security.IdentificationPrincipal;
-import org.apache.geronimo.security.SubjectId;
-import org.apache.geronimo.security.deploy.DefaultPrincipal;
-import org.apache.geronimo.security.util.ConfigurationUtil;
+import org.apache.geronimo.security.jacc.RunAsSource;
 import org.apache.geronimo.tomcat.interceptor.BeforeAfter;
 import org.apache.geronimo.tomcat.interceptor.ComponentContextBeforeAfter;
 import org.apache.geronimo.tomcat.interceptor.InstanceContextBeforeAfter;
@@ -64,6 +61,7 @@ public class GeronimoStandardContext extends StandardContext {
     private static final long serialVersionUID = 3834587716552831032L;
 
     private Subject defaultSubject = null;
+    private RunAsSource runAsSource = RunAsSource.NULL;
 
     private Map webServiceMap = null;
 
@@ -72,7 +70,6 @@ public class GeronimoStandardContext extends StandardContext {
     private BeforeAfter beforeAfter = null;
     private int contextCount = 0;
     
-    private Map<String,Subject> roleDesignates = null;
 
     public void setContextProperties(TomcatContext ctx) throws DeploymentException {
 
@@ -115,9 +112,9 @@ public class GeronimoStandardContext extends StandardContext {
         //Set a PolicyContext BeforeAfter
         SecurityHolder securityHolder = ctx.getSecurityHolder();
         if (securityHolder != null) {
-            
+
             // save the role designates for mapping servlets to their run-as roles
-            roleDesignates = securityHolder.getRoleDesignates();
+            runAsSource = securityHolder.getRunAsSource();
             
             if (securityHolder.getPolicyContextID() != null) {
 
@@ -126,15 +123,11 @@ public class GeronimoStandardContext extends StandardContext {
                 /**
                  * Register our default subject with the ContextManager
                  */
-                DefaultPrincipal defaultPrincipal = securityHolder.getDefaultPrincipal();
-                if (defaultPrincipal == null) {
-                    throw new GeronimoSecurityException("Unable to generate default principal");
-                }
+                defaultSubject = securityHolder.getDefaultSubject();
 
-                defaultSubject = ConfigurationUtil.generateDefaultSubject(defaultPrincipal, ctx.getClassLoader());
-                ContextManager.registerSubject(defaultSubject);
-                SubjectId id = ContextManager.getSubjectId(defaultSubject);
-                defaultSubject.getPrincipals().add(new IdentificationPrincipal(id));
+                if (defaultSubject == null) {
+                    defaultSubject = ContextManager.EMPTY;
+                }
 
                 interceptor = new PolicyContextBeforeAfter(interceptor, index++, index++, index++, securityHolder.getPolicyContextID(), defaultSubject);
 
@@ -182,7 +175,7 @@ public class GeronimoStandardContext extends StandardContext {
         this.addInstanceListener("org.apache.geronimo.tomcat.listener.DispatchListener");
         
         //Set the run-as listener. listeners must be added before start() is called
-        if (roleDesignates != null) {
+        if (runAsSource != null) {
             this.addInstanceListener(RunAsInstanceListener.class.getName());
         }
     }
@@ -200,8 +193,8 @@ public class GeronimoStandardContext extends StandardContext {
 
                 // if a servlet uses run-as then make sure role desgnates have been provided
                 if (hasRunAsServlet()) {
-                    if (roleDesignates == null) {
-                        throw new GeronimoSecurityException("web.xml or annotation specifies a run-as role but deployment descriptor does not provide a designated-run-as prinicpal for the role");
+                    if (runAsSource == null) {
+                        throw new GeronimoSecurityException("web.xml or annotation specifies a run-as role but no subject configuration supplied for run-as roles");
                     }
                 } else {
                     // optimization
@@ -386,16 +379,11 @@ public class GeronimoStandardContext extends StandardContext {
     }
     
     /**
-     * Get the Subject for the designated Principal of a servlet's run as role 
-     * @return Subject containing designated Prinicpal for the servlet's run-as role, if specified.  otherwise null. 
+     * Get the Subject for the servlet's run-as role
+     * @param runAsRole Name of run as role to get Subject for
+     * @return Subject for the servlet's run-as role, if specified.  otherwise null. 
      */
-    public Subject getRoleDesignate(String servletName) {
-        Subject roleDesignate = null;
-        Wrapper servlet = (Wrapper)findChild(servletName);
-        if (servlet!=null && roleDesignates!=null) {
-            String roleName = servlet.getRunAs();
-            roleDesignate = roleDesignates.get(roleName);
-        }
-        return roleDesignate;
+    public Subject getSubjectForRole(String runAsRole) {
+        return runAsSource.getSubjectForRole(runAsRole);
     }
 }

@@ -17,17 +17,15 @@
 package org.apache.geronimo.corba.security.config.tss;
 
 import java.io.Serializable;
+
 import javax.net.ssl.SSLSession;
 import javax.security.auth.Subject;
 
+import org.apache.geronimo.corba.security.SASException;
 import org.omg.CORBA.ORB;
 import org.omg.CSI.EstablishContext;
 import org.omg.IOP.Codec;
 import org.omg.IOP.TaggedComponent;
-
-import org.apache.geronimo.security.deploy.DefaultPrincipal;
-
-import org.apache.geronimo.corba.security.SASException;
 
 
 /**
@@ -36,7 +34,6 @@ import org.apache.geronimo.corba.security.SASException;
 public class TSSConfig implements Serializable {
 
     private boolean inherit;
-    private DefaultPrincipal defaultPrincipal;
     private TSSTransportMechConfig transport_mech;
     private final TSSCompoundSecMechListConfig mechListConfig = new TSSCompoundSecMechListConfig();
 
@@ -46,14 +43,6 @@ public class TSSConfig implements Serializable {
 
     public void setInherit(boolean inherit) {
         this.inherit = inherit;
-    }
-
-    public DefaultPrincipal getDefaultPrincipal() {
-        return defaultPrincipal;
-    }
-
-    public void setDefaultPrincipal(DefaultPrincipal defaultPrincipal) {
-        this.defaultPrincipal = defaultPrincipal;
     }
 
     public TSSTransportMechConfig getTransport_mech() {
@@ -91,11 +80,6 @@ public class TSSConfig implements Serializable {
     void toString(String spaces, StringBuffer buf) {
         String moreSpaces = spaces + "  ";
         buf.append(spaces).append("TSSConfig: [\n");
-        if (defaultPrincipal != null) {
-            buf.append(moreSpaces).append("defaultPrincipal: ").append(defaultPrincipal.toString()).append("\n");
-        } else {
-            buf.append(moreSpaces).append("defaultPrincipal null\n");
-        }
         if (transport_mech != null) {
             transport_mech.toString(moreSpaces, buf);
         } else {

@@ -25,9 +25,10 @@ import org.apache.xmlbeans.XmlCursor;
  */
 public class SecurityElementConverter implements ElementConverter {
 
-    public static final String GERONIMO_SECURITY_NAMESPACE = "http://geronimo.apache.org/xml/ns/security-1.2";
+    public static final String GERONIMO_SECURITY_NAMESPACE = "http://geronimo.apache.org/xml/ns/security-2.0";
     private static final QName PRINCIPAL_QNAME = new QName(GERONIMO_SECURITY_NAMESPACE, "principal");
     private static final QName REALM_NAME_QNAME = new QName("realm-name");
+    private static final QName DESIGNATED_RUN_AS = new QName("designated-run-as");
 
     public void convertElement(XmlCursor cursor, XmlCursor end) {
         cursor.push();
@@ -46,32 +47,40 @@ public class SecurityElementConverter implements ElementConverter {
         cursor.pop();
         XmlCursor source = null;
         try {
-        while (cursor.hasNextToken() && cursor.isLeftOf(end)) {
-            if (cursor.isStart()) {
-                String localPart = cursor.getName().getLocalPart();
-                if (localPart.equals("realm")) {
-                    if (source == null) {
-                        source = cursor.newCursor();
-                    } else {
-                        source.toCursor(cursor);
-                    }
-                    cursor.push();
-                    cursor.toEndToken();
-                    cursor.toNextToken();
+            while (cursor.hasNextToken() && cursor.isLeftOf(end)) {
+                if (cursor.isStart()) {
+                    String localPart = cursor.getName().getLocalPart();
+                    if (localPart.equals("realm")) {
+                        if (source == null) {
+                            source = cursor.newCursor();
+                        } else {
+                            source.toCursor(cursor);
+                        }
+                        cursor.push();
+                        cursor.toEndToken();
+                        cursor.toNextToken();
                         if (source.toChild(PRINCIPAL_QNAME)) {
                             do {
+                                source.removeAttribute(DESIGNATED_RUN_AS);
                                 source.copyXml(cursor);
                             } while (source.toNextSibling(PRINCIPAL_QNAME));
                         }
 
-                    cursor.pop();
-                    cursor.removeXml();
-                } else if (localPart.equals("default-principal")) {
-                    cursor.removeAttribute(REALM_NAME_QNAME);
+                        cursor.pop();
+                        cursor.removeXml();
+                    } else if (localPart.equals("default-subject")) {
+//                    cursor.removeAttribute(REALM_NAME_QNAME);
+                        cursor.toEndToken();
+                    } else if (localPart.equals("default-principal")) {
+                        cursor.removeXml();
+                    } else if (localPart.equals("principal")) {
+                        cursor.removeAttribute(DESIGNATED_RUN_AS);
+                    } else if (localPart.equals("run-as-subject")) {
+                        cursor.toEndToken();
+                    }
                 }
+                cursor.toNextToken();
             }
-            cursor.toNextToken();
-        }
         } finally {
             if (source != null) {
                 source.dispose();

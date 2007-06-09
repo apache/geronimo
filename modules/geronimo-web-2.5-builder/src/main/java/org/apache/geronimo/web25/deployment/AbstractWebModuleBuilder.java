@@ -66,6 +66,7 @@ import org.apache.geronimo.j2ee.deployment.ModuleBuilderExtension;
 import org.apache.geronimo.j2ee.deployment.NamingBuilder;
 import org.apache.geronimo.j2ee.deployment.WebModule;
 import org.apache.geronimo.j2ee.deployment.WebServiceBuilder;
+import org.apache.geronimo.j2ee.deployment.annotation.SecurityAnnotationHelper;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.Naming;
@@ -729,7 +730,6 @@ public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
         for (String roleName : unmappedRoles) {
             addPermissionToRole(roleName, new WebRoleRefPermission(servletName, roleName), rolePermissions);
         }
-//        servletData.setAttribute("webRoleRefPermissions", webRoleRefPermissions);
     }
 
     protected ClassFinder createWebAppClassFinder(WebAppType webApp, WebModule webModule) throws DeploymentException {
@@ -801,6 +801,7 @@ public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
             // Create a classfinder and populate it for the naming builder(s). The absence of a
             // classFinder in the module will convey whether metadata-complete is set (or not)
             webModule.setClassFinder(createWebAppClassFinder(webApp, webModule));
+            SecurityAnnotationHelper.processAnnotations(webApp, webModule.getClassFinder());
         }
         //N.B. we use the ear context which has all the gbeans we could possibly be looking up from this ear.
         //nope, persistence units can be in the war.

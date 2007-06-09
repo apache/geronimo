@@ -18,7 +18,6 @@ package org.apache.geronimo.jetty6;
 
 import java.util.Map;
 import java.util.Set;
-import java.util.List;
 
 import javax.security.auth.Subject;
 
@@ -26,7 +25,6 @@ import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
-import org.apache.geronimo.j2ee.annotation.Injection;
 import org.apache.geronimo.management.Servlet;
 import org.mortbay.jetty.servlet.ServletHolder;
 
@@ -61,11 +59,11 @@ public class JettyServletHolder implements Servlet, GBeanLifecycle {
             String jspFile,
             Map initParams,
             Integer loadOnStartup,
-            Set servletMappings,
-            String runAsId,
+            Set<String> servletMappings,
+            String runAsRole,
             JettyServletRegistration context) throws Exception {
         servletRegistration = context;
-        Subject runAsSubject = getSubjectFromId(runAsId);
+        Subject runAsSubject = context == null? null: context.getSubjectForRole(runAsRole);
         servletHolder = new InternalJettyServletHolder(context == null? null: context.getLifecycleChain(), runAsSubject, servletRegistration);
         servletHolder.setName(servletName);
         servletHolder.setClassName(servletClassName);
@@ -76,18 +74,12 @@ public class JettyServletHolder implements Servlet, GBeanLifecycle {
             servletHolder.setForcedPath(jspFile);
             if (loadOnStartup != null) {
                 //This has no effect on the actual start order, the gbean references "previous" control that.
-                servletHolder.setInitOrder(loadOnStartup.intValue());
+                servletHolder.setInitOrder(loadOnStartup);
             }
             //this now starts the servlet in the appropriate context
             context.registerServletHolder(servletHolder, servletName, servletMappings, objectName);
         }
         this.objectName = objectName;
-    }
-
-    private Subject getSubjectFromId(String runAsId) {
-        //TODO implement this.
-        //See GERONIMO-2687
-        return null;
     }
 
     public String getServletName() {
@@ -143,7 +135,7 @@ public class JettyServletHolder implements Servlet, GBeanLifecycle {
         infoBuilder.addAttribute("initParams", Map.class, true);
         infoBuilder.addAttribute("loadOnStartup", Integer.class, true);
         infoBuilder.addAttribute("servletMappings", Set.class, true);
-        infoBuilder.addAttribute("runAsId", String.class, true);
+        infoBuilder.addAttribute("runAsRole", String.class, true);
         infoBuilder.addAttribute("objectName", String.class, false);
         infoBuilder.addInterface(Servlet.class);
 
@@ -156,7 +148,7 @@ public class JettyServletHolder implements Servlet, GBeanLifecycle {
                 "initParams",
                 "loadOnStartup",
                 "servletMappings",
-                "runAsId",
+                "runAsRole",
                 "JettyServletRegistration"});
 
         GBEAN_INFO = infoBuilder.getBeanInfo();

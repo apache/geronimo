@@ -44,7 +44,7 @@
 
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
-            <artifactId>j2ee-security</artifactId>
+            <artifactId>server-security-config</artifactId>
             <version>${version}</version>
             <type>car</type>
         </dependency>

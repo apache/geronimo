@@ -16,10 +16,12 @@
  */
 package org.apache.geronimo.security.realm.providers;
 
+import java.security.Principal;
+
 /**
  * This is a marker interface used to indicate that a particular principal should be returned from getCallerPrincipal().
  *
  * @version $Rev$ $Date$
  */
-public interface GeronimoCallerPrincipal {
+public interface GeronimoCallerPrincipal extends Principal {
 }

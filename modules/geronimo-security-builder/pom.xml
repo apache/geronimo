@@ -55,7 +55,7 @@
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>xmlbeans-maven-plugin</artifactId>
                 <configuration>
-                    <sourceSchemas>geronimo-security-1.2.xsd,geronimo-login-config-1.2.xsd</sourceSchemas>
+                    <sourceSchemas>geronimo-subject-info-1.0.xsd,geronimo-security-2.0.xsd,geronimo-credential-store-1.0.xsd,geronimo-login-config-1.2.xsd</sourceSchemas>
                 </configuration>
             </plugin>
             

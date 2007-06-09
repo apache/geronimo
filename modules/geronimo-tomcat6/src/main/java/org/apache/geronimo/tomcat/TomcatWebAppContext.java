@@ -68,6 +68,8 @@ import org.apache.geronimo.tomcat.util.SecurityHolder;
 import org.apache.geronimo.transaction.GeronimoUserTransaction;
 import org.apache.geronimo.webservices.WebServiceContainer;
 import org.apache.geronimo.webservices.WebServiceContainerFactory;
+import org.apache.geronimo.security.credentialstore.CredentialStore;
+import org.apache.geronimo.security.jacc.RunAsSource;
 import org.apache.naming.resources.DirContextURLStreamHandler;
 
 /**
@@ -117,6 +119,8 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
 
     private final SecurityHolder securityHolder;
 
+    private final RunAsSource runAsSource;
+
     private final J2EEServer server;
 
     private final Map webServices;
@@ -140,7 +144,6 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
 //  statistics
     private ModuleStats statsProvider;
     private boolean reset = true;
-
     public TomcatWebAppContext(
             ClassLoader classLoader,
             String objectName,
@@ -154,6 +157,7 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
             TransactionManager transactionManager,
             TrackedConnectionAssociator trackedConnectionAssociator,
             TomcatContainer container,
+            RunAsSource runAsSource,
             ObjectRetriever tomcatRealm,
             ValveGBean tomcatValveChain,
             CatalinaClusterGBean cluster,
@@ -199,6 +203,12 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
         this.trackedConnectionAssociator = trackedConnectionAssociator;
 
         this.server = server;
+        this.runAsSource = runAsSource == null? RunAsSource.NULL: runAsSource;
+        if (securityHolder != null) {
+            securityHolder.setDefaultSubject(this.runAsSource.getDefaultSubject());
+            securityHolder.setRunAsSource(this.runAsSource);
+        }
+
 
         this.configurationBaseURL = configurationBaseUrl;
 
@@ -216,7 +226,7 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
 
         //Add the valve list
         if (tomcatValveChain != null){
-            ArrayList chain = new ArrayList();
+            ArrayList<Valve> chain = new ArrayList<Valve>();
             ValveGBean valveGBean = tomcatValveChain;
             while(valveGBean != null){
                 chain.add((Valve)valveGBean.getInternalObject());
@@ -571,6 +581,7 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
         infoBuilder.addReference("TrackedConnectionAssociator", TrackedConnectionAssociator.class, NameFactory.JCA_CONNECTION_TRACKER);
 
         infoBuilder.addReference("Container", TomcatContainer.class, NameFactory.GERONIMO_SERVICE);
+        infoBuilder.addReference("RunAsSource", RunAsSource.class, NameFactory.JACC_MANAGER);
         infoBuilder.addReference("TomcatRealm", ObjectRetriever.class);
         infoBuilder.addReference("TomcatValveChain", ValveGBean.class);
         infoBuilder.addReference("Cluster", CatalinaClusterGBean.class, CatalinaClusterGBean.J2EE_TYPE);
@@ -599,6 +610,7 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
                 "TransactionManager",
                 "TrackedConnectionAssociator",
                 "Container",
+                "RunAsSource",
                 "TomcatRealm",
                 "TomcatValveChain",
                 "Cluster",

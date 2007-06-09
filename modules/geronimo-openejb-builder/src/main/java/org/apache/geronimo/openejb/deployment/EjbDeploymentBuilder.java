@@ -17,16 +17,14 @@
  */
 package org.apache.geronimo.openejb.deployment;
 
-import java.security.Permissions;
 import java.security.PermissionCollection;
+import java.security.Permissions;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
-
-import javax.security.auth.Subject;
 
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.connector.outbound.connectiontracking.TrackedConnectionAssociator;
@@ -143,7 +141,7 @@ public class EjbDeploymentBuilder {
                     gbean.setAttribute(EjbInterface.LOCAL_HOME.getAttributeName(), localHomeInterfaceName);
                 }
 
-                if (enterpriseBean instanceof SessionBean && ((SessionBean)enterpriseBean).getSessionType() == SessionType.STATELESS ) {
+                if (enterpriseBean instanceof SessionBean && ((SessionBean) enterpriseBean).getSessionType() == SessionType.STATELESS) {
                     SessionBean statelessBean = (SessionBean) enterpriseBean;
                     gbean.setAttribute(EjbInterface.SERVICE_ENDPOINT.getAttributeName(), statelessBean.getServiceEndpoint());
                 }
@@ -170,7 +168,7 @@ public class EjbDeploymentBuilder {
     }
 
     public ComponentPermissions buildComponentPermissions() throws DeploymentException {
-        ComponentPermissions componentPermissions = new ComponentPermissions(new Permissions(), new Permissions(), new HashMap());
+        ComponentPermissions componentPermissions = new ComponentPermissions(new Permissions(), new Permissions(), new HashMap<String, PermissionCollection>());
         for (EnterpriseBean enterpriseBean : ejbModule.getEjbJar().getEnterpriseBeans()) {
             addSecurityData(enterpriseBean, componentPermissions);
         }
@@ -178,15 +176,15 @@ public class EjbDeploymentBuilder {
     }
 
     private void addSecurityData(EnterpriseBean enterpriseBean, ComponentPermissions componentPermissions) throws DeploymentException {
-        GBeanData gbean = getEjbGBean(enterpriseBean.getEjbName());
-        if (enterpriseBean instanceof RemoteBean) {
-            RemoteBean remoteBean = (RemoteBean) enterpriseBean;
+        SecurityConfiguration securityConfiguration = (SecurityConfiguration) earContext.getSecurityConfiguration();
+        if (securityConfiguration != null) {
+            GBeanData gbean = getEjbGBean(enterpriseBean.getEjbName());
+            if (enterpriseBean instanceof RemoteBean) {
+                RemoteBean remoteBean = (RemoteBean) enterpriseBean;
 
-            SecurityBuilder securityBuilder = new SecurityBuilder();
-            PermissionCollection permissions = new Permissions();
+                SecurityBuilder securityBuilder = new SecurityBuilder();
+                PermissionCollection permissions = new Permissions();
 
-            SecurityConfiguration securityConfiguration = (SecurityConfiguration) earContext.getSecurityConfiguration();
-            if (securityConfiguration != null) {
                 securityBuilder.addToPermissions(permissions,
                         remoteBean.getEjbName(),
                         EjbInterface.HOME.getJaccInterfaceName(),
@@ -209,18 +207,18 @@ public class EjbDeploymentBuilder {
                         ejbModule.getClassLoader());
                 if (remoteBean instanceof SessionBean) {
                     securityBuilder.addToPermissions(permissions,
-                        remoteBean.getEjbName(),
-                        EjbInterface.SERVICE_ENDPOINT.getJaccInterfaceName(),
-                            ((SessionBean)remoteBean).getServiceEndpoint(),
+                            remoteBean.getEjbName(),
+                            EjbInterface.SERVICE_ENDPOINT.getJaccInterfaceName(),
+                            ((SessionBean) remoteBean).getServiceEndpoint(),
                             ejbModule.getClassLoader());
                 }
                 if (remoteBean.getBusinessRemote() != null && !remoteBean.getBusinessRemote().isEmpty()) {
-                    for (String businessRemote: remoteBean.getBusinessRemote()) {
+                    for (String businessRemote : remoteBean.getBusinessRemote()) {
                         securityBuilder.addToPermissions(permissions,
-                            remoteBean.getEjbName(),
-                            EjbInterface.REMOTE.getJaccInterfaceName(),
-                            businessRemote,
-                            ejbModule.getClassLoader());
+                                remoteBean.getEjbName(),
+                                EjbInterface.REMOTE.getJaccInterfaceName(),
+                                businessRemote,
+                                ejbModule.getClassLoader());
                     }
                     securityBuilder.addToPermissions(componentPermissions.getUncheckedPermissions(),
                             remoteBean.getEjbName(),
@@ -229,12 +227,12 @@ public class EjbDeploymentBuilder {
                             ejbModule.getClassLoader());
                 }
                 if (remoteBean.getBusinessLocal() != null && !remoteBean.getBusinessLocal().isEmpty()) {
-                    for (String businessLocal: remoteBean.getBusinessLocal()) {
+                    for (String businessLocal : remoteBean.getBusinessLocal()) {
                         securityBuilder.addToPermissions(permissions,
-                            remoteBean.getEjbName(),
-                            EjbInterface.LOCAL.getJaccInterfaceName(),
-                            businessLocal,
-                            ejbModule.getClassLoader());
+                                remoteBean.getEjbName(),
+                                EjbInterface.LOCAL.getJaccInterfaceName(),
+                                businessLocal,
+                                ejbModule.getClassLoader());
                     }
                     securityBuilder.addToPermissions(componentPermissions.getUncheckedPermissions(),
                             remoteBean.getEjbName(),
@@ -251,23 +249,18 @@ public class EjbDeploymentBuilder {
                         remoteBean.getSecurityRoleRef(),
                         componentPermissions);
 
-                // RunAs subject
-                SecurityIdentity securityIdentity = remoteBean.getSecurityIdentity();
-                if (securityIdentity != null && securityIdentity.getRunAs() != null) {
-                    String runAsName = securityIdentity.getRunAs();
-                    if (runAsName != null) {
-                        Subject runAsSubject = (Subject) securityConfiguration.getRoleDesignates().get(runAsName);
-                        if (runAsSubject == null) {
-                            throw new DeploymentException("No role designate found for run-as name: " + runAsName);
-                        }
-                        gbean.setAttribute("runAs", runAsSubject);
-                    }
-                }
-
-                // Default principal
-                gbean.setAttribute("defaultPrincipal", securityConfiguration.getDefaultPrincipal());
-                gbean.setAttribute("securityEnabled", true);
             }
+            // RunAs subject
+            SecurityIdentity securityIdentity = enterpriseBean.getSecurityIdentity();
+            if (securityIdentity != null && securityIdentity.getRunAs() != null) {
+                String runAsName = securityIdentity.getRunAs();
+                if (runAsName != null) {
+                    gbean.setAttribute("runAsRole", runAsName);
+                }
+            }
+
+            gbean.setAttribute("securityEnabled", true);
+            gbean.setReferencePattern("RunAsSource", earContext.getJaccManagerName());
         }
     }
 

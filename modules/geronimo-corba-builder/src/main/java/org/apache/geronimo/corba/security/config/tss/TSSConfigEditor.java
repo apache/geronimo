@@ -25,9 +25,6 @@ import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.common.propertyeditor.PropertyEditorException;
 import org.apache.geronimo.deployment.service.XmlAttributeBuilder;
 import org.apache.geronimo.deployment.xmlbeans.XmlBeansUtil;
-import org.apache.geronimo.security.deploy.DefaultPrincipal;
-import org.apache.geronimo.security.deployment.GeronimoSecurityBuilderImpl;
-import org.apache.geronimo.xbeans.geronimo.security.GerDefaultPrincipalType;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.kernel.ClassLoading;
@@ -91,15 +88,6 @@ public class TSSConfigEditor implements XmlAttributeBuilder {
         TSSConfig tssConfig = new TSSConfig();
 
         tssConfig.setInherit(tss.getInherit());
-
-        if (tss.isSetDefaultPrincipal()) {
-            DefaultPrincipal defaultPrincipal = new DefaultPrincipal();
-            GerDefaultPrincipalType defaultPrincipalType = tss.getDefaultPrincipal();
-
-            defaultPrincipal.setPrincipal(new GeronimoSecurityBuilderImpl().buildPrincipal(defaultPrincipalType.getPrincipal()));
-
-            tssConfig.setDefaultPrincipal(defaultPrincipal);
-        }
 
         if (tss.isSetSSL()) {
             tssConfig.setTransport_mech(extractSSL(tss.getSSL()));

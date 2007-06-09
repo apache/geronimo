@@ -23,7 +23,7 @@
     targetNamespace="http://geronimo.apache.org/xml/ns/j2ee/application-client-1.2"
     xmlns:naming="http://geronimo.apache.org/xml/ns/naming-1.2"
     xmlns:connector="http://geronimo.apache.org/xml/ns/j2ee/connector-1.2"
-    xmlns:security="http://geronimo.apache.org/xml/ns/security-1.2"
+    xmlns:security="http://geronimo.apache.org/xml/ns/security-2.0"
     xmlns:sys="http://geronimo.apache.org/xml/ns/deployment-1.2"
     xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified"
     attributeFormDefault="unqualified" version="1.0">
@@ -56,7 +56,7 @@
             </xs:documentation>
         </xs:annotation>
     </xs:import>
-    <xs:import namespace="http://geronimo.apache.org/xml/ns/security-1.2"
+    <xs:import namespace="http://geronimo.apache.org/xml/ns/security-2.0"
         schemaLocation="geronimo-security-1.2.xsd">
         <xs:annotation>
             <xs:documentation>
@@ -175,11 +175,12 @@
                 </xs:annotation>
             </xs:element>
 
-            <xs:element ref="security:default-principal" minOccurs="0">
+            <xs:element ref="security:default-subject" minOccurs="0">
                 <xs:annotation>
                     <xs:documentation>
-                        Reference to default-principal element defined in
-                        imported "geronimo-security-1.2.xsd"
+                        Reference to default-subject element defined in
+                        imported "geronimo-security-2.0.xsd"
+                        This is the subject run under if you are not logged in.
                     </xs:documentation>
                 </xs:annotation>
             </xs:element>

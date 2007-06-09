@@ -19,7 +19,6 @@ package org.apache.geronimo.jetty6.handler;
 import java.io.IOException;
 import java.security.AccessControlContext;
 import java.security.AccessControlException;
-import java.security.PermissionCollection;
 import java.security.Principal;
 
 import javax.security.auth.Subject;
@@ -30,24 +29,18 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.common.GeronimoSecurityException;
 import org.apache.geronimo.jetty6.JAASJettyPrincipal;
 import org.apache.geronimo.jetty6.JAASJettyRealm;
 import org.apache.geronimo.jetty6.JettyContainer;
 import org.apache.geronimo.security.Callers;
 import org.apache.geronimo.security.ContextManager;
-import org.apache.geronimo.security.IdentificationPrincipal;
-import org.apache.geronimo.security.SubjectId;
-import org.apache.geronimo.security.deploy.DefaultPrincipal;
-import org.apache.geronimo.security.util.ConfigurationUtil;
 import org.mortbay.jetty.HttpException;
 import org.mortbay.jetty.Request;
 import org.mortbay.jetty.Response;
 import org.mortbay.jetty.security.Authenticator;
 import org.mortbay.jetty.security.FormAuthenticator;
 import org.mortbay.jetty.security.SecurityHandler;
-import org.mortbay.jetty.security.UserRealm;
 
 public class JettySecurityHandler extends SecurityHandler {
 
@@ -62,8 +55,7 @@ public class JettySecurityHandler extends SecurityHandler {
     public JettySecurityHandler(Authenticator authenticator,
             JAASJettyRealm userRealm,
             String policyContextID,
-            DefaultPrincipal defaultPrincipal,
-            ClassLoader classLoader) {
+            Subject defaultSubject) {
         setAuthenticator(authenticator);
         this.policyContextID = policyContextID;
 
@@ -80,12 +72,11 @@ public class JettySecurityHandler extends SecurityHandler {
         /**
          * Register our default principal with the ContextManager
          */
-        this.defaultPrincipal = generateDefaultPrincipal(defaultPrincipal, classLoader);
+        if (defaultSubject == null) {
+            defaultSubject = ContextManager.EMPTY;
+        }
+        this.defaultPrincipal = generateDefaultPrincipal(defaultSubject);
 
-        Subject defaultSubject = this.defaultPrincipal.getSubject();
-        ContextManager.registerSubject(defaultSubject);
-        SubjectId id = ContextManager.getSubjectId(defaultSubject);
-        defaultSubject.getPrincipals().add(new IdentificationPrincipal(id));
         setUserRealm(userRealm);
         this.realm = userRealm;
         assert realm != null;
@@ -100,8 +91,6 @@ public class JettySecurityHandler extends SecurityHandler {
             super.doStop();
         }
         finally {
-            Subject defaultSubject = this.defaultPrincipal.getSubject();
-            ContextManager.unregisterSubject(defaultSubject);
             jettyContainer.removeRealm(realm.getSecurityRealmName());
         }
     }
@@ -249,32 +238,24 @@ public class JettySecurityHandler extends SecurityHandler {
     /**
      * Generate the default principal from the security config.
      *
-     * @param defaultPrincipal The Geronimo security configuration.
-     * @param classLoader to load principals for the default subject
+     * @param defaultSubject The default subject.
      * @return the default principal
-     * @throws org.apache.geronimo.common.GeronimoSecurityException if the default principal cannot be constructed
+     * @throws org.apache.geronimo.common.GeronimoSecurityException
+     *          if the default principal cannot be constructed
      */
-    protected JAASJettyPrincipal generateDefaultPrincipal(
-            DefaultPrincipal defaultPrincipal, ClassLoader classLoader)
+    protected JAASJettyPrincipal generateDefaultPrincipal(Subject defaultSubject)
             throws GeronimoSecurityException {
 
-        if (defaultPrincipal == null) {
+        if (defaultSubject == null) {
             throw new GeronimoSecurityException(
                     "Unable to generate default principal");
         }
 
-        try {
-            JAASJettyPrincipal result = new JAASJettyPrincipal("default");
-            Subject defaultSubject = ConfigurationUtil.generateDefaultSubject(
-                    defaultPrincipal, classLoader);
+        JAASJettyPrincipal result = new JAASJettyPrincipal("default");
 
-            result.setSubject(defaultSubject);
+        result.setSubject(defaultSubject);
 
-            return result;
-        } catch (DeploymentException de) {
-            throw new GeronimoSecurityException(
-                    "Unable to generate default principal", de);
-        }
+        return result;
     }
 
 }

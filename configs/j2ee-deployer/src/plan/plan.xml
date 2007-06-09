@@ -89,10 +89,15 @@
         </references>
     </gbean>
 
-    <gbean name="SecurityBuilder" class="org.apache.geronimo.security.deployment.GeronimoSecurityBuilderImpl"/>
+    <gbean name="SecurityBuilder" class="org.apache.geronimo.security.deployment.GeronimoSecurityBuilderImpl">
+        <attribute name="credentialStoreName">?name=CredentialStore#</attribute>
+    </gbean>
 
     <gbean name="LoginConfigurationBuilder" class="org.apache.geronimo.security.deployment.LoginConfigBuilder"/>
 
+    <gbean name="CredentialStoreBuilder" class="org.apache.geronimo.security.deployment.CredentialStoreBuilder"/>
+
+    <!-- TODO remove or document why SecurityService is here -->
     <gbean name="SecurityService" class="org.apache.geronimo.security.SecurityServiceImpl">
         <attribute name="policyConfigurationFactory">
             org.apache.geronimo.security.jacc.GeronimoPolicyConfigurationFactory</attribute>

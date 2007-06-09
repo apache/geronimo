@@ -23,9 +23,10 @@
     <context-root>/jsp-examples</context-root>
     <security-realm-name>geronimo-admin</security-realm-name>
     <security>
-        <default-principal>
-            <principal name="anonymous" class="org.apache.geronimo.security.realm.providers.GeronimoUserPrincipal" />
-        </default-principal>
+        <default-subject>
+            <realm>geronimo-admin</realm>
+            <id>anonymous</id>
+        </default-subject>
         <role-mappings>
             <role role-name="tomcat">
                 <principal name="admin" class="org.apache.geronimo.security.realm.providers.GeronimoGroupPrincipal" />

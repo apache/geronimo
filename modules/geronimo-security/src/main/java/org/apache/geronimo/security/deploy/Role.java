@@ -20,6 +20,10 @@ import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.security.Principal;
+
+import org.apache.geronimo.security.RealmPrincipal;
+import org.apache.geronimo.security.DomainPrincipal;
 
 
 /**
@@ -28,10 +32,10 @@ import java.util.Set;
 public class Role implements Serializable {
 
     private String roleName;
-    private final Set realmPrincipals = new HashSet();
-    private final Set domainPrincipals = new HashSet();
-    private final Set principals = new HashSet();
-    private final Set distinguishedNames = new HashSet();
+    private final Set<RealmPrincipalInfo> realmPrincipals = new HashSet<RealmPrincipalInfo>();
+    private final Set<LoginDomainPrincipalInfo> domainPrincipals = new HashSet<LoginDomainPrincipalInfo>();
+    private final Set<PrincipalInfo> principals = new HashSet<PrincipalInfo>();
+    private final Set<DistinguishedName> distinguishedNames = new HashSet<DistinguishedName>();
 
     public String getRoleName() {
         return roleName;
@@ -41,19 +45,19 @@ public class Role implements Serializable {
         this.roleName = roleName;
     }
 
-    public Set getRealmPrincipals() {
+    public Set<RealmPrincipalInfo> getRealmPrincipals() {
         return realmPrincipals;
     }
 
-    public Set getLoginDomainPrincipals() {
+    public Set<LoginDomainPrincipalInfo> getLoginDomainPrincipals() {
         return domainPrincipals;
     }
 
-    public Set getPrincipals() {
+    public Set<PrincipalInfo> getPrincipals() {
         return principals;
     }
 
-    public Set getDistinguishedNames() {
+    public Set<DistinguishedName> getDistinguishedNames() {
         return distinguishedNames;
     }
 }

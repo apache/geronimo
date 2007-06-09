@@ -17,18 +17,20 @@
  */
 package org.apache.geronimo.openejb;
 
-import java.util.Set;
-import java.util.ArrayList;
 import java.lang.reflect.Method;
+import java.util.Set;
+
 import javax.ejb.EJBHome;
 import javax.ejb.EJBLocalHome;
 import javax.ejb.EJBObject;
 import javax.naming.Context;
 import javax.security.auth.Subject;
+import javax.security.auth.login.LoginException;
 
 import org.apache.geronimo.connector.outbound.connectiontracking.TrackedConnectionAssociator;
 import org.apache.geronimo.management.EJB;
 import org.apache.geronimo.security.ContextManager;
+import org.apache.geronimo.security.jacc.RunAsSource;
 import org.apache.openejb.BeanType;
 import org.apache.openejb.Container;
 import org.apache.openejb.InterfaceType;
@@ -65,29 +67,30 @@ public class EjbDeployment implements EJB {
 
     private Context javaCompSubContext;
 
-    public EjbDeployment() {
+    public EjbDeployment() throws LoginException {
         this(null, null, null, null, null, null, null, null, null, null,
-             false, null, null, null, null, null, null, null);
+             false, null, null, null, null, null, null, null, null);
     }
 
     public EjbDeployment(String objectName,
-                         String deploymentId,
-                         String ejbName,
-                         String homeInterfaceName,
-                         String remoteInterfaceName,
-                         String localHomeInterfaceName,
-                         String localInterfaceName,
-                         String serviceEndpointInterfaceName,
-                         String beanClassName,
-                         ClassLoader classLoader,
-                         boolean securityEnabled,
-                         Subject defaultSubject,
-                         Subject runAs,
-                         Context componentContext,
-                         Set unshareableResources,
-                         Set applicationManagedSecurityResources,
-                         TrackedConnectionAssociator trackedConnectionAssociator,
-                         OpenEjbSystem openEjbSystem) {
+            String deploymentId,
+            String ejbName,
+            String homeInterfaceName,
+            String remoteInterfaceName,
+            String localHomeInterfaceName,
+            String localInterfaceName,
+            String serviceEndpointInterfaceName,
+            String beanClassName,
+            ClassLoader classLoader,
+            boolean securityEnabled,
+            String defaultRole,
+            String runAsRole,
+            RunAsSource runAsSource,
+            Context componentContext,
+            Set unshareableResources,
+            Set applicationManagedSecurityResources,
+            TrackedConnectionAssociator trackedConnectionAssociator,
+            OpenEjbSystem openEjbSystem) throws LoginException {
         this.objectName = objectName;
         this.deploymentId = deploymentId;
         this.ejbName = ejbName;
@@ -99,8 +102,11 @@ public class EjbDeployment implements EJB {
         this.beanClassName = beanClassName;
         this.classLoader = classLoader;
         this.securityEnabled = securityEnabled;
-        this.defaultSubject = defaultSubject;
-        this.runAs = runAs;
+        if (runAsSource == null) {
+            runAsSource = RunAsSource.NULL;
+        }
+        this.defaultSubject = defaultRole == null? runAsSource.getDefaultSubject(): runAsSource.getSubjectForRole(defaultRole);
+        this.runAs = runAsSource.getSubjectForRole(runAsRole);
         this.componentContext = componentContext;
         this.unshareableResources = unshareableResources;
         this.applicationManagedSecurityResources = applicationManagedSecurityResources;

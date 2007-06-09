@@ -16,10 +16,7 @@
    limitations under the License.
 -->
 
-<security xmlns="http://geronimo.apache.org/xml/ns/security-1.2">
-    <default-principal>
-        <principal class="org.apache.geronimo.security.realm.providers.GeronimoUserPrincipal" name="supplier"/>
-    </default-principal>
+<security xmlns="http://geronimo.apache.org/xml/ns/security-2.0">
     <role-mappings>
         <role role-name="administrator">
             <principal class="org.apache.geronimo.security.realm.providers.GeronimoUserPrincipal" name="supplier"/>
@@ -28,6 +25,10 @@
             <principal class="org.apache.geronimo.security.realm.providers.GeronimoUserPrincipal" name="y"/>
         </role>
         <role role-name="user">
+            <run-as-subject>
+                <realm>foo-realm</realm>
+                <id>run-as-user</id>
+            </run-as-subject>
             <principal class="org.apache.geronimo.security.realm.providers.GeronimoUserPrincipal" name="supplier"/>
             <principal class="org.apache.geronimo.security.realm.providers.GeronimoUserPrincipal" name="buyer"/>
             <principal class="org.apache.geronimo.security.realm.providers.GeronimoUserPrincipal" name="x"/>

@@ -94,19 +94,19 @@ public class SecurityInitializer extends LocalObject implements ORBInitializer {
 
             Subject defaultSubject = null;
             String[] strings = info.arguments();
-            for (int i = 0; i < strings.length; i++) {
-                String arg = strings[i];
-                if (arg.startsWith(DEFAULT_REALM_PRINCIPAL)) {
-                    defaultSubject = generateDefaultRealmSubject(arg);
-                    break;
-                } else if (arg.startsWith(DEFAULT_DOMAIN_PRINCIPAL)) {
-                    defaultSubject = generateDefaultDomainSubject(arg);
-                    break;
-                } else if (arg.startsWith(DEFAULT_PRINCIPAL)) {
-                    defaultSubject = generateDefaultSubject(arg);
-                    break;
-                }
-            }
+//            for (int i = 0; i < strings.length; i++) {
+//                String arg = strings[i];
+//                if (arg.startsWith(DEFAULT_REALM_PRINCIPAL)) {
+//                    defaultSubject = generateDefaultRealmSubject(arg);
+//                    break;
+//                } else if (arg.startsWith(DEFAULT_DOMAIN_PRINCIPAL)) {
+//                    defaultSubject = generateDefaultDomainSubject(arg);
+//                    break;
+//                } else if (arg.startsWith(DEFAULT_PRINCIPAL)) {
+//                    defaultSubject = generateDefaultSubject(arg);
+//                    break;
+//                }
+//            }
 
             if (log.isDebugEnabled()) log.debug("Default subject: " + defaultSubject);
             

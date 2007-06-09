@@ -19,12 +19,16 @@ package org.apache.geronimo.tomcat.deployment;
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
+import java.net.URI;
 import java.net.URL;
 import java.security.PermissionCollection;
 import java.security.Permissions;
-import java.util.*;
-
-import org.apache.geronimo.testsupport.TestSupport;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.geronimo.common.DeploymentException;
@@ -39,9 +43,8 @@ import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.j2ee.deployment.EARContext;
 import org.apache.geronimo.j2ee.deployment.Module;
-import org.apache.geronimo.j2ee.deployment.WebServiceBuilder;
 import org.apache.geronimo.j2ee.deployment.NamingBuilderCollection;
-import org.apache.geronimo.j2ee.deployment.ModuleBuilderExtension;
+import org.apache.geronimo.j2ee.deployment.WebServiceBuilder;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.j2ee.management.impl.J2EEServerImpl;
 import org.apache.geronimo.kernel.Jsr77Naming;
@@ -68,10 +71,13 @@ import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.kernel.repository.ImportType;
 import org.apache.geronimo.kernel.repository.Repository;
 import org.apache.geronimo.security.SecurityServiceImpl;
+import org.apache.geronimo.security.realm.providers.GeronimoUserPrincipal;
+import org.apache.geronimo.security.credentialstore.DirectConfigurationCredentialStoreImpl;
 import org.apache.geronimo.security.deployment.GeronimoSecurityBuilderImpl;
 import org.apache.geronimo.security.jacc.ApplicationPolicyConfigurationManager;
 import org.apache.geronimo.security.jacc.ComponentPermissions;
 import org.apache.geronimo.system.serverinfo.BasicServerInfo;
+import org.apache.geronimo.testsupport.TestSupport;
 import org.apache.geronimo.tomcat.ConnectorGBean;
 import org.apache.geronimo.tomcat.EngineGBean;
 import org.apache.geronimo.tomcat.HostGBean;
@@ -308,6 +314,15 @@ public class TomcatModuleBuilderTest extends TestSupport {
         ctcName = ctc.getAbstractName();
         ctc.setReferencePattern("TransactionManager", tmName);
 
+        GBeanData cs = bootstrap.addGBean("CredentialStore", DirectConfigurationCredentialStoreImpl.GBEAN_INFO);
+        Map<String, Map<String, Map<String, String>>> csd = new HashMap<String, Map<String, Map<String, String>>>();
+        Map<String, Map<String, String>> r = new HashMap<String, Map<String, String>>();
+        csd.put("foo", r);
+        Map<String, String> creds = new HashMap<String, String>();
+        r.put("metro", creds);
+        creds.put(GeronimoUserPrincipal.class.getName(), "metro");
+        cs.setAttribute("credentialStore", csd);
+
         ConfigurationUtil.loadBootstrapConfiguration(kernel, bootstrap, getClass().getClassLoader());
 
         configurationManager = ConfigurationUtil.getEditableConfigurationManager(kernel);
@@ -316,8 +331,7 @@ public class TomcatModuleBuilderTest extends TestSupport {
 
         defaultEnvironment.addDependency(baseId, ImportType.ALL);
         defaultEnvironment.setConfigId(webModuleArtifact);
-        ArrayList naming = new ArrayList();
-        builder = new TomcatModuleBuilder(defaultEnvironment, new AbstractNameQuery(containerName), Collections.singleton(webServiceBuilder), Collections.singleton(new GeronimoSecurityBuilderImpl()), Collections.singleton(new GBeanBuilder(null, null)), new NamingBuilderCollection(null, null), null, new MockResourceEnvironmentSetter(), null);
+        builder = new TomcatModuleBuilder(defaultEnvironment, new AbstractNameQuery(containerName), Collections.singleton(webServiceBuilder), Collections.singleton(new GeronimoSecurityBuilderImpl(new AbstractNameQuery(URI.create("?name=CredentialStore")))), Collections.singleton(new GBeanBuilder(null, null)), new NamingBuilderCollection(null, null), null, new MockResourceEnvironmentSetter(), null);
     }
 
     protected void tearDown() throws Exception {

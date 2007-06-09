@@ -16,7 +16,7 @@
    limitations under the License.
 -->
 
-<xml-fragment xmlns:tom="http://geronimo.apache.org/xml/ns/j2ee/web/tomcat-1.2" xmlns:nam="http://geronimo.apache.org/xml/ns/naming-1.2" xmlns:sec="http://geronimo.apache.org/xml/ns/security-1.2" xmlns:dep="http://geronimo.apache.org/xml/ns/deployment-1.2">
+<xml-fragment xmlns:tom="http://geronimo.apache.org/xml/ns/j2ee/web/tomcat-1.2" xmlns:nam="http://geronimo.apache.org/xml/ns/naming-1.2" xmlns:sec="http://geronimo.apache.org/xml/ns/security-2.0" xmlns:dep="http://geronimo.apache.org/xml/ns/deployment-1.2">
     <dep:environment>
         <dep:moduleId>
             <dep:groupId>test</dep:groupId>
@@ -40,12 +40,13 @@
     </nam:resource-ref>
     <tom:security-realm-name>jetspeed-realm</tom:security-realm-name>
     <sec:security>
-        <sec:default-principal>
-            <sec:principal class="org.apache.jetspeed.security.impl.UserPrincipalImpl" name="guest"/>
-        </sec:default-principal>
+        <sec:default-subject>
+            <sec:realm>foo</sec:realm>
+            <sec:id>guest</sec:id>
+        </sec:default-subject>
         <sec:role-mappings>
             <sec:role role-name="admin">
-                <sec:principal class="org.apache.jetspeed.security.impl.RolePrincipalImpl" name="admin" designated-run-as="true"/>
+                <sec:principal class="org.apache.jetspeed.security.impl.RolePrincipalImpl" name="admin"/>
             </sec:role>
         </sec:role-mappings>
     </sec:security>

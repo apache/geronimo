@@ -19,7 +19,6 @@ package org.apache.geronimo.yoko;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Enumeration;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Properties;
 
@@ -34,11 +33,7 @@ import org.apache.geronimo.corba.security.config.ConfigException;
 import org.apache.geronimo.corba.security.config.tss.TSSConfig;
 import org.apache.geronimo.corba.security.config.tss.TSSSSLTransportConfig;
 import org.apache.geronimo.corba.security.config.tss.TSSTransportMechConfig;
-import org.apache.geronimo.corba.util.Util;
 import org.apache.geronimo.gbean.GBeanLifecycle;
-import org.apache.geronimo.security.deploy.DefaultDomainPrincipal;
-import org.apache.geronimo.security.deploy.DefaultPrincipal;
-import org.apache.geronimo.security.deploy.DefaultRealmPrincipal;
 import org.apache.yoko.orb.CosNaming.tnaming.TransientNameService;
 import org.apache.yoko.orb.CosNaming.tnaming.TransientServiceException;
 import org.apache.yoko.orb.OB.ZERO_PORT_POLICY_ID;
@@ -227,25 +222,26 @@ public class ORBConfigAdapter implements GBeanLifecycle, ConfigAdapter {
      */
     private String[] translateToArgs(CORBABean server) throws ConfigException {
         ArrayList<String> list = new ArrayList<String>();
-
-        TSSConfig config = server.getTssConfig();
+//TODO GERONIMO-2687, I don't think it makes sense to associate a default principal with  a tss config, but if we need it
+        //here's the disfunctional code.
+//        TSSConfig config = server.getTssConfig();
 
         // if the TSSConfig includes principal information, we need to add argument values
         // for this information.
-        DefaultPrincipal principal = config.getDefaultPrincipal();
-        if (principal != null) {
-            if (principal instanceof DefaultRealmPrincipal) {
-                DefaultRealmPrincipal realmPrincipal = (DefaultRealmPrincipal) principal;
-                list.add("default-realm-principal::" + realmPrincipal.getRealm() + ":" + realmPrincipal.getDomain() + ":"
-                         + realmPrincipal.getPrincipal().getClassName() + ":" + realmPrincipal.getPrincipal().getPrincipalName());
-            } else if (principal instanceof DefaultDomainPrincipal) {
-                DefaultDomainPrincipal domainPrincipal = (DefaultDomainPrincipal) principal;
-                list.add("default-domain-principal::" + domainPrincipal.getDomain() + ":"
-                         + domainPrincipal.getPrincipal().getClassName() + ":" + domainPrincipal.getPrincipal().getPrincipalName());
-            } else {
-                list.add("default-principal::" + principal.getPrincipal().getClassName() + ":" + principal.getPrincipal().getPrincipalName());
-            }
-        }
+//        DefaultPrincipal principal = config.getDefaultPrincipal();
+//        if (principal != null) {
+//            if (principal instanceof DefaultRealmPrincipal) {
+//                DefaultRealmPrincipal realmPrincipal = (DefaultRealmPrincipal) principal;
+//                list.add("default-realm-principal::" + realmPrincipal.getRealm() + ":" + realmPrincipal.getDomain() + ":"
+//                         + realmPrincipal.getPrincipal().getClassName() + ":" + realmPrincipal.getPrincipal().getPrincipalName());
+//            } else if (principal instanceof DefaultDomainPrincipal) {
+//                DefaultDomainPrincipal domainPrincipal = (DefaultDomainPrincipal) principal;
+//                list.add("default-domain-principal::" + domainPrincipal.getDomain() + ":"
+//                         + domainPrincipal.getPrincipal().getClassName() + ":" + domainPrincipal.getPrincipal().getPrincipalName());
+//            } else {
+//                list.add("default-principal::" + principal.getPrincipal().getClassName() + ":" + principal.getPrincipal().getPrincipalName());
+//            }
+//        }
 
         // enable the connection plugin
         enableSocketFactory(server.getURI(), list);
