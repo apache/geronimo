@@ -46,7 +46,7 @@ import org.apache.axis2.engine.Handler.InvocationResponse;
 import org.apache.axis2.jaxws.binding.BindingImpl;
 import org.apache.axis2.jaxws.binding.BindingUtils;
 import org.apache.axis2.jaxws.description.EndpointDescription;
-import org.apache.axis2.jaxws.description.impl.DescriptionUtils;
+//import org.apache.axis2.jaxws.description.impl.DescriptionUtils;
 import org.apache.axis2.jaxws.description.xml.handler.HandlerChainType;
 import org.apache.axis2.jaxws.description.xml.handler.HandlerChainsType;
 import org.apache.axis2.jaxws.description.xml.handler.HandlerType;
@@ -378,9 +378,11 @@ public abstract class Axis2WebServiceContainer implements WebServiceContainer {
             String xml = this.portInfo.getHandlersAsXML();
             HandlerChainsType handlerChains = null;
             if (xml != null) {
+                /* DISABLED FOR NOW
                 ByteArrayInputStream in = new ByteArrayInputStream(xml.getBytes("UTF-8"));
                 handlerChains = DescriptionUtils.loadHandlerChains(in);
                 desc.setHandlerChain(handlerChains);
+                */
             }
             
             if (LOG.isDebugEnabled()) {
