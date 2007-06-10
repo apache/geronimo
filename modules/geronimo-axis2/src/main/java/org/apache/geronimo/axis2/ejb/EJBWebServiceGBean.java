@@ -85,7 +85,7 @@ public class EJBWebServiceGBean implements GBeanLifecycle {
     public void doStart() throws Exception {
     }
 
-    public void doStop() throws Exception {        
+    public void doStop() throws Exception {
         if (this.soapHandler != null) {
             this.soapHandler.removeWebService(this.location);
         } 

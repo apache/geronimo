@@ -45,8 +45,10 @@ public class EJBMessageReceiver implements MessageReceiver {
     
     private DeploymentInfo deploymentInfo;
     private Class serviceImplClass;
+    private EJBWebServiceContainer container;
 
-    public EJBMessageReceiver(Class serviceImplClass, DeploymentInfo deploymentInfo) {
+    public EJBMessageReceiver(EJBWebServiceContainer container, Class serviceImplClass, DeploymentInfo deploymentInfo) {
+        this.container = container;
         this.serviceImplClass = serviceImplClass;
         this.deploymentInfo = deploymentInfo;
     }
@@ -70,7 +72,7 @@ public class EJBMessageReceiver implements MessageReceiver {
             LOG.debug("Invoking '" + method.getName() + "' method.");
         }
         
-        EJBInterceptor interceptor = new EJBInterceptor(requestMsgCtx);
+        EJBInterceptor interceptor = new EJBInterceptor(this.container, requestMsgCtx);
 
         ProtectedMessageContext jaxwsContext = new ProtectedMessageContext(requestMsgCtx);
         

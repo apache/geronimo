@@ -60,13 +60,13 @@ public class POJOWebServiceContainer extends Axis2WebServiceContainer {
     }
     
     @Override
-    public void init() throws Exception {
+    public void init() throws Exception { 
+        super.init();
+        
         // XXX: This is a global operation
         FactoryRegistry.setFactory(EndpointLifecycleManagerFactory.class, 
                                    new POJOEndpointLifecycleManagerFactory());
-        
-        super.init();
-        
+               
         this.endpointInstance = this.endpointClass.newInstance();
         
         this.configurationContext.setServicePath(this.portInfo.getLocation());

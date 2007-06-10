@@ -20,10 +20,16 @@ package org.apache.geronimo.axis2.ejb;
 import java.net.URL;
 
 import javax.naming.Context;
+import javax.naming.InitialContext;
+import javax.naming.NamingException;
+import javax.xml.ws.WebServiceContext;
+import javax.xml.ws.WebServiceException;
 
 import org.apache.axis2.util.JavaUtils;
 import org.apache.geronimo.axis2.Axis2WebServiceContainer;
 import org.apache.geronimo.axis2.AxisServiceGenerator;
+import org.apache.geronimo.jaxws.JAXWSAnnotationProcessor;
+import org.apache.geronimo.jaxws.JNDIResolver;
 import org.apache.geronimo.jaxws.PortInfo;
 import org.apache.openejb.DeploymentInfo;
 
@@ -46,9 +52,23 @@ public class EJBWebServiceContainer extends Axis2WebServiceContainer {
     }
     
     @Override
+    public void init() throws Exception { 
+        super.init();
+        
+        // configure handlers
+        try {
+            configureHandlers();
+        } catch (Exception e) {
+            throw new WebServiceException("Error configuring handlers", e);
+        }
+    }
+    
+    @Override
     protected AxisServiceGenerator createServiceGenerator() {
         AxisServiceGenerator serviceGenerator = super.createServiceGenerator();
-        serviceGenerator.setMessageReceiver(new EJBMessageReceiver(this.endpointClass, this.deploymnetInfo));
+        EJBMessageReceiver messageReceiver = 
+            new EJBMessageReceiver(this, this.endpointClass, this.deploymnetInfo);
+        serviceGenerator.setMessageReceiver(messageReceiver);
         return serviceGenerator;
     }
     
@@ -83,5 +103,31 @@ public class EJBWebServiceContainer extends Axis2WebServiceContainer {
             //when setContextRoot is called.
             configurationContext.setContextRoot(contextRoot);  
         } 
+    }
+    
+    public synchronized void injectHandlers() {
+        if (this.annotationProcessor != null) {
+            // assume injection was already done
+            return;
+        }
+        
+        WebServiceContext wsContext = null;
+        try {
+            InitialContext ctx = new InitialContext();
+            wsContext = (WebServiceContext) ctx.lookup("java:comp/WebServiceContext");
+        } catch (NamingException e) {
+            throw new WebServiceException("Failed to lookup WebServiceContext", e);
+        }
+        
+        this.annotationProcessor = new JAXWSAnnotationProcessor(new JNDIResolver(), wsContext);
+        super.injectHandlers();
+    }
+    
+    @Override
+    public void destroy() {
+        // call handler preDestroy
+        destroyHandlers();
+        
+        super.destroy();
     }
 }

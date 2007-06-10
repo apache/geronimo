@@ -42,14 +42,18 @@ public class EJBInterceptor {
     private static final Log LOG = LogFactory.getLog(EJBInterceptor.class);
 
     private MessageContext requestMsgCtx;
+    private EJBWebServiceContainer container;
 
-    public EJBInterceptor(MessageContext requestCtx) {
+    public EJBInterceptor(EJBWebServiceContainer container, MessageContext requestCtx) {
+        this.container = container;
         this.requestMsgCtx = requestCtx;
     }
 
     @AroundInvoke
     public Object intercept(javax.interceptor.InvocationContext invContext) throws Exception {
                 
+        this.container.injectHandlers();
+        
         AxisOperation operation = this.requestMsgCtx.getAxisMessageContext().getAxisOperation();
         String mep = operation.getMessageExchangePattern();
         
