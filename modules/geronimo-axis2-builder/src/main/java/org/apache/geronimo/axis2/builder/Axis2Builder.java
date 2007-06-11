@@ -61,20 +61,21 @@ import org.apache.geronimo.xbeans.javaee.WebservicesDocument;
 import org.apache.geronimo.xbeans.javaee.WebservicesType;
 import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlObject;
+import org.apache.xmlbeans.XmlOptions;
 
 /**
  * @version $Rev$ $Date$
  */
 public class Axis2Builder extends JAXWSServiceBuilder {
 
-	private static final Log log = LogFactory.getLog(Axis2Builder.class);
-	
+    private static final Log log = LogFactory.getLog(Axis2Builder.class);
+        
     public Axis2Builder(Environment defaultEnviroment) {
-    	super(defaultEnviroment);
+        super(defaultEnviroment);
     }
     
     public Axis2Builder(){
-    	super(null);
+        super(null);
     }
     
     protected GBeanInfo getContainerFactoryGBeanInfo() {
@@ -185,31 +186,31 @@ public class Axis2Builder extends JAXWSServiceBuilder {
         }
     }
 
-	public boolean configurePOJO(GBeanData targetGBean,
-            String servletName,
-            Module module,
-            String seiClassName,
-            DeploymentContext context)
-		throws DeploymentException {
-		
-		boolean status = super.configurePOJO(targetGBean, servletName, module, seiClassName, context);
+    public boolean configurePOJO(GBeanData targetGBean,
+                                 String servletName,
+                                 Module module,
+                                 String seiClassName,
+                                 DeploymentContext context)
+        throws DeploymentException {
+                
+        boolean status = super.configurePOJO(targetGBean, servletName, module, seiClassName, context);
         if(!status) {
             return false;
         }       
-		
-		//change the URL
-		Map sharedContext = ((WebModule) module).getSharedContext();
+                
+        //change the URL
+        Map sharedContext = ((WebModule) module).getSharedContext();
         String contextRoot = ((WebModule) module).getContextRoot();
         Map portInfoMap = (Map) sharedContext.get(getKey());
         PortInfo portInfo;
         
         if(portInfoMap != null && portInfoMap.get(servletName) != null){
-        	portInfo = (PortInfo) portInfoMap.get(servletName);
-    		processURLPattern(contextRoot, portInfo);
+            portInfo = (PortInfo) portInfoMap.get(servletName);
+            processURLPattern(contextRoot, portInfo);
         }
         
-		return status;
-	}
+        return status;
+    }
 
     public Object createService(Class serviceInterface,
                                 Class serviceReference,
@@ -231,7 +232,7 @@ public class Axis2Builder extends JAXWSServiceBuilder {
 
         String handlerChainsXML = null;
         try {
-            handlerChainsXML = getHanderChainAsString(handlerChains);
+            handlerChainsXML = getHandlerChainAsString(handlerChains);
         } catch (IOException e) {
             // this should not happen
             log.warn("Failed to serialize handler chains", e);
@@ -242,17 +243,19 @@ public class Axis2Builder extends JAXWSServiceBuilder {
                 serviceQName, module.getModuleName(), handlerChainsXML, seiInfoMap);
     }
 
-    private static String getHanderChainAsString(ServiceRefHandlerChainsType handlerChains)
-            throws IOException {
+    private static String getHandlerChainAsString(ServiceRefHandlerChainsType handlerChains)
+        throws IOException {
         String xml = null;
         if (handlerChains != null) {
             StringWriter w = new StringWriter();
-            handlerChains.save(w);
+            XmlOptions options = new XmlOptions();
+            options.setSaveSyntheticDocumentElement(new QName("http://java.sun.com/xml/ns/javaee", "handler-chains")); 
+            handlerChains.save(w, options);
             xml = w.toString();
         }
         return xml;
     }
-
+    
     private static String getString(String in) {
         if (in != null) {
             in = in.trim();
