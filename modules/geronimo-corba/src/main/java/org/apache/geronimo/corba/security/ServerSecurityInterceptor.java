@@ -58,16 +58,7 @@ final class ServerSecurityInterceptor extends LocalObject implements ServerReque
 
     private final Log log = LogFactory.getLog(ServerSecurityInterceptor.class);
 
-    private final int subjectSlot;
-    private final int replySlot;
-    private final Subject defaultSubject;
-
-    public ServerSecurityInterceptor(int subjectSlot, int replySlot, Subject defaultSubject) {
-        this.subjectSlot = subjectSlot;
-        this.replySlot = replySlot;
-        this.defaultSubject = defaultSubject;
-
-        if (defaultSubject != null) ContextManager.registerSubject(defaultSubject);
+    public ServerSecurityInterceptor() {
 
         if (log.isDebugEnabled()) log.debug("<init>");
     }
@@ -109,8 +100,6 @@ final class ServerSecurityInterceptor extends LocalObject implements ServerReque
 
                     if (identity != null) {
                         ContextManager.registerSubject(identity);
-                    } else {
-                        identity = defaultSubject;
                     }
 
                     SASReplyManager.setSASReply(ri.request_id(), generateContextEstablished(identity, contextId, false));
@@ -133,10 +122,8 @@ final class ServerSecurityInterceptor extends LocalObject implements ServerReque
             }
         } catch (BAD_PARAM e) {
             if (log.isDebugEnabled()) log.debug("No security service context found");
-            identity = defaultSubject;
         } catch (INV_POLICY e) {
             if (log.isDebugEnabled()) log.debug("INV_POLICY");
-            identity = defaultSubject;
         } catch (TypeMismatch tm) {
             log.error("TypeMismatch thrown", tm);
             throw new MARSHAL("TypeMismatch thrown: " + tm);
@@ -171,9 +158,11 @@ final class ServerSecurityInterceptor extends LocalObject implements ServerReque
 
         if (log.isDebugEnabled()) log.debug("   " + identity);
 
-        ContextManager.setCallers(identity, identity);
+        if (identity != null) {
+            ContextManager.setCallers(identity, identity);
 
-        SubjectManager.setSubject(ri.request_id(), identity);
+            SubjectManager.setSubject(ri.request_id(), identity);
+        }
     }
 
     public void receive_request_service_contexts(ServerRequestInfo ri) {
@@ -182,7 +171,7 @@ final class ServerSecurityInterceptor extends LocalObject implements ServerReque
 
     public void send_exception(ServerRequestInfo ri) {
         Subject identity = SubjectManager.clearSubject(ri.request_id());
-        if (identity != null && identity != defaultSubject) ContextManager.unregisterSubject(identity);
+        if (identity != null) ContextManager.unregisterSubject(identity);
 
         insertServiceContext(ri);
 
@@ -195,7 +184,7 @@ final class ServerSecurityInterceptor extends LocalObject implements ServerReque
 
     public void send_reply(ServerRequestInfo ri) {
         Subject identity = SubjectManager.clearSubject(ri.request_id());
-        if (identity != null && identity != defaultSubject) ContextManager.unregisterSubject(identity);
+        if (identity != null) ContextManager.unregisterSubject(identity);
 
         insertServiceContext(ri);
 
@@ -203,7 +192,6 @@ final class ServerSecurityInterceptor extends LocalObject implements ServerReque
     }
 
     public void destroy() {
-        if (defaultSubject != null) ContextManager.unregisterSubject(defaultSubject);
         if (log.isDebugEnabled()) log.debug("destroy()");
     }
 
