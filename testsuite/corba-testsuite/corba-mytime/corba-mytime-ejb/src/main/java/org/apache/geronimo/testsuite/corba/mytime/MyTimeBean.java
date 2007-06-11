@@ -15,13 +15,23 @@
  * limitations under the License.
  */
 
-package org.apache.geronimo.testsuite.corba.helloworld;
+package org.apache.geronimo.testsuite.corba.mytime;
 
-import java.rmi.RemoteException;
-import javax.ejb.EJBHome;
+import javax.ejb.SessionContext;
+import javax.ejb.SessionBean;
 
-public interface HelloWorldEJBHome extends EJBHome {
+public class MyTimeBean implements SessionBean {
 
-    HelloWorldEJBRemote create() throws javax.ejb.CreateException, java.rmi.RemoteException;
+    public void ejbCreate() {}
+    public void ejbActivate() {}
+    public void ejbPassivate() {}
+    public void setSessionContext(SessionContext ctx) {}
+    public void unsetSessionContext() {}
+    public void ejbRemove() {}
+
+    public String getTime() {
+        String s = new java.util.Date().toString();
+        return s;
+    }
 
 }

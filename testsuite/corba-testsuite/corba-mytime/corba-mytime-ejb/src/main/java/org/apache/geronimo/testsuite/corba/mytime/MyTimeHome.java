@@ -15,13 +15,14 @@
  * limitations under the License.
  */
 
-package org.apache.geronimo.testsuite.corba.helloworld;
+package org.apache.geronimo.testsuite.corba.mytime;
 
 import java.rmi.RemoteException;
+import java.util.ArrayList;
 import javax.ejb.EJBHome;
 
-public interface HelloWorldEJBHome extends EJBHome {
+public interface MyTimeHome extends EJBHome {
 
-    HelloWorldEJBRemote create() throws javax.ejb.CreateException, java.rmi.RemoteException;
+    MyTimeRemote create() throws javax.ejb.CreateException, java.rmi.RemoteException;
 
 }

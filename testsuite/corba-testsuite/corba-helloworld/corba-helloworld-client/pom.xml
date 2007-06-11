@@ -60,7 +60,6 @@
 
     <build>
         <plugins>
-
             <plugin>
                 <artifactId>maven-jar-plugin</artifactId>
                 <configuration>
@@ -73,14 +72,6 @@
                     </archive>
                 </configuration>
             </plugin>
-
-            <plugin>
-                <artifactId>maven-ejb-plugin</artifactId>
-                <configuration>
-                    <generateClient>true</generateClient>
-                </configuration>
-            </plugin>
-
         </plugins>
     </build>
 

@@ -24,35 +24,25 @@
 
     <parent>
         <groupId>org.apache.geronimo.testsuite</groupId>
-        <artifactId>corba-helloworld</artifactId>
+        <artifactId>corba-testsuite</artifactId>
         <version>2.0-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
-    <artifactId>corba-helloworld-war</artifactId>
-    <name>Geronimo TestSuite :: CORBA TestSuite :: Hello World WAR</name>
-    <packaging>war</packaging>
-    <description>Geronimo Hello World Enterprise Web Application</description>
+    <artifactId>corba-mytime</artifactId>
+    <name>Geronimo TestSuite :: CORBA TestSuite :: My Time</name>
+    <packaging>pom</packaging>
+    <description>Geronimo JEE5 CORBA My Time Tests</description>
 
-    <dependencies>
-        <dependency>
-            <groupId>${pom.groupId}</groupId>
-            <artifactId>corba-helloworld-ejb</artifactId>
-            <version>${version}</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.geronimo.specs</groupId>
-            <artifactId>geronimo-ejb_3.0_spec</artifactId>
-            <version>1.0</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.geronimo.specs</groupId>
-            <artifactId>geronimo-servlet_2.5_spec</artifactId>
-            <version>1.1-SNAPSHOT</version>
-            <scope>provided</scope>
-        </dependency>
-    </dependencies>
+    <profiles>
+        <profile>
+            <id>child</id>
+            <modules>
+                <module>corba-mytime-ejb</module>
+                <module>corba-mytime-war</module>
+                <module>corba-mytime-ear</module>
+            </modules>
+        </profile>
+    </profiles>
 
 </project>
