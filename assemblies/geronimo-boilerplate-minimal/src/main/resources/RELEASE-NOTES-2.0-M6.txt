@@ -1,0 +1,247 @@
+{scrollbar}
+{noformat:borderStyle=solid}
+Release Notes -- Apache Geronimo -- Version 2.0 - Milestone 6
+
+Geronimo URLs
+-------------
+Home Page:     http://geronimo.apache.org/
+Downloads:     http://geronimo.apache.org/downloads.html
+Documentation: http://geronimo.apache.org/documentation.html
+Mailing Lists: http://geronimo.apache.org/mailing.html
+Source Code:   http://geronimo.apache.org/svn.html
+Bug Tracking:  http://issues.apache.org/jira/browse/GERONIMO
+Wiki:          http://cwiki.apache.org/geronimo
+
+
+IMPORTANT
+---------
+This is a Milestone release, that means that is not the final version of
+Apache Geronimo v2.0 Take a look at "Known Issues and Limitations" section for
+further details.
+
+Updated Information
+-------------------
+Please see http://cwiki.apache.org/confluence/display/GMOxDOC20/RELEASE-NOTES-2.0-M6.TXT for the latest information
+on this release.
+
+System Requirements
+-------------------
+You need a platform that supports the Sun JDK 5.0+ (J2SE 1.5.0+).  Other Java VMs 
+should work as well.
+
+Most testing has been done on Linux, Mac OS X, and Windows.
+
+Significant Changes in the 2.0-M6 Release
+-----------------------------------------
+All function is complete and starting with 2.0-M6-r1 Geronimo has passed all CTS tests in the Java EE 5.0 
+Compatibility Test Suite.  Although we have some additiona lwork to do before we release the official Geronimo
+2.0 release this milestoone represents a complete and validated Java EE 5.0 platform.
+
+
+Supported features
+------------------
+All programming model elements of the Java EE 5.0 Specification are available.  Some of the non-specification related
+elements such as clustering are still being worked on.
+
+Installing & Starting Geronimo
+------------------------------
+To install, simply unpack the .zip (Windows) or tar.gz (Unix) file containing
+Geronimo.
+
+If you wish to modify the default ports that Geronimo will use, edit the file
+<geronimo_home>/var/config/config.xml
+
+Geronimo comes with batch and script files to control server start and stop
+functions.  To see usage examples simply type geronimo.bat or geronimo.sh
+command as appropriate for your platform.  It is necessary to set JAVA_HOME to
+the copy of your Sun 5 JDK/JRE prior to executing the command.
+
+Here is an example to set JAVA_HOME:
+
+export JAVA_HOME=<JDK/JRE_home>
+
+To see the available command options type:
+
+<geronimo_home>/bin/geronimo.sh
+or
+<geronimo_home>\bin\geronimo.bat
+
+The command will display help text instructing you as to how to start and stop
+the Geronimo server.
+
+If you prefer to start the server without a script file you can simply type:
+
+java -jar <geronimo_home>/bin/server.jar
+
+Once the server has started, you can access the Geronimo Administration Console
+at http://localhost:8080/console/ . The default user name is "system" and the
+default password is "manager".
+
+
+Administration Console Security Configuration
+---------------------------------------------
+The default administration user/password for the Geronimo Administration Console
+and command line deployment tool is system/manager.  You can change these defaults
+directly from the Geronimo Administration Console by accessing Security -> Console
+Realm and change the user name and password from the Console Realm Users portlet.
+
+As an alternative, you can make the same changes by editing the
+<geronimo_home>/var/security/users.properties and
+<geronimo_home>/var/security/groups.properties files.
+
+
+Deploying Applications
+----------------------
+Geronimo comes with deploy scripts and batch files to deploy J2EE modules or
+applications. You can use the scripts or simply invoke the executable jar by
+running the following command (note that you need to start Geronimo first):
+
+<geronimo_home>/bin/java -jar deployer.jar deploy my-web-app.war [deploy plan]
+
+You will need to use the username "system" and password "manager" unless you
+customized those as described above.  The deployment plan argument is
+optional -- you can pack a deployment plan into the application module, provide
+it on the command line, or in some cases omit it entirely.
+
+You can also use the "Login" command to avoid entering a user name and password
+every time you use the deploy tool
+
+For more information on the commands and options supported by the deploy tool,
+run from within the Geronimo directory <geronimo_home>/bin:
+
+java -jar deployer.jar help [command]
+
+You can also graphically deploy applications and resources via the Geronimo
+Administration Console available at http://localhost:8080/console/
+
+
+Other Deployment Options
+------------------------
+As an alternative to the command-line deployer, you can copy application
+modules into the <geronimo_home>/deploy/ directory and the
+hot deployer service will deploy them automatically.  The command-line deployer
+has some advantages, as it will output any
+deployment errors to its own console rather than just the server log.
+
+Additionally, Geronimo provides a Maven plugin that can deploy applications to
+Geronimo as part of a Maven build.
+
+
+Configuration
+-------------
+Most configuration attributes can be updated in the
+<geronimo_home>/var/config/config.xml file.  The attributes most likely to be
+changed are already included in the supplied config.xml file, while others may
+need to be added manually.
+
+
+Certification Status
+--------------------
+Apache Geronimo v2.0-M6 (Tomcat assembly with CXF for WebServices and 
+OpenJPA for persistence) have passed 100% SUN's Java Enterprise Edition 5.0 
+Certification Test Suite.
+
+We continue to strive towards certification on the other assemblies.
+
+
+Known Issues and Limitations
+----------------------------
+Release Notes - Geronimo - Version 2.0-M6
+
+** Sub-task
+    * [GERONIMO-2702] - Annotation changes
+    * [GERONIMO-2704] - Testcase changes
+    * [GERONIMO-2705] - Testcase changes
+    * [GERONIMO-2837] - @Resource/@Resources annotation support
+    * [GERONIMO-2901] - Annotation support for ResourceRefBuilder Naming Builder
+    * [GERONIMO-2934] - Support annotation processing for all Module/Naming builders
+    * [GERONIMO-2958] - MyFaces annotation support
+
+** Bug
+    * [GERONIMO-348] - Invalid module path or references in plan should result in failed deployment or warning
+    * [GERONIMO-1285] - Deployer does not list all modules that have been stopped
+    * [GERONIMO-1413] - Console needs to set JSP and Servlet contentType to UTF-8
+    * [GERONIMO-1767] - bad group for console has no error page that allows user logout/correction
+    * [GERONIMO-2598] - Deploy tool prints useless message if configuration start fails
+    * [GERONIMO-2655] - Jetty 6 assemblies do not include sample AJP Connectors
+    * [GERONIMO-2773] - cannot create a new jetty http connector from console
+    * [GERONIMO-2841] - Valve reports request method as GET even though POST request was made
+    * [GERONIMO-3038] - h.tld file not getting properly generated to conform to the latest web-jsptaglibrary_2_1.xsd schema
+    * [GERONIMO-3099] - Check if <web-service-address> for ejb starts with "/"
+    * [GERONIMO-3103] - GBeanOverride.writeXml parseException
+    * [GERONIMO-3114] - Update setup of java.endorsed.dirs to always have ours before the JVM
+    * [GERONIMO-3120] - Sample Java EE 5 applications fail to deploy without application.xml file
+    * [GERONIMO-3121] - JPA Queries created outside a tx need to know about and close their EntityManagers
+    * [GERONIMO-3124] - Reminder:  Switch Axis2 stack back to axis2-saaj from Sun SAAJ Impl
+    * [GERONIMO-3125] - AdminObjectRefBuilder does not handle UserTransaction resource-env-refs
+    * [GERONIMO-3127] - ERROR [DriverDownloader] Unable to download driver properties
+    * [GERONIMO-3128] - Error in Geronimo.bat blocks its usage for Minimal assemblies, due to no bin\jpa.jar
+    * [GERONIMO-3132] - jpa system needs the urls of the jars/dirs with  enhanceable classes.
+    * [GERONIMO-3133] - jpa system needs to be able to set default properties in deployed persistence units.
+    * [GERONIMO-3134] - jpa jndi references can refer to gbeans in the web module, not just in parent modules.  This needs to work.
+    * [GERONIMO-3135] - Allow enlisting into tx marked for rollback only
+    * [GERONIMO-3136] - App client needs jpa
+    * [GERONIMO-3137] - Servlets must rollback uncommitted transaction when the service method exits
+    * [GERONIMO-3138] - @Resource refs to ORBs doesn't seem to work
+    * [GERONIMO-3139] - Update Copyright year in Admin Console and Welcome app
+    * [GERONIMO-3141] - potential deadlock in TransformerCollection
+    * [GERONIMO-3142] - Geronimo / Jetty fails to startup under Sun Java 1.6 update 1
+    * [GERONIMO-3144] - Stand alone app clients are unlikely to deploy correctly
+    * [GERONIMO-3145] - Sample EJB 3.0 application deployment fails
+    * [GERONIMO-3146] - run-as support for tomcat servlets
+    * [GERONIMO-3147] - Unable to deploy anything from the command line (trunk)
+    * [GERONIMO-3151] - DeploymentUtil.recursiveDelete(File,Collection) is returning a collection of File objects, whereas most builders are expecting Strings
+    * [GERONIMO-3152] - Cannot redeploy or undeploy/deploy webconsole-tomcat car on geronimo-tomcat6-jee5
+    * [GERONIMO-3153] - Minimal assembly is missing corba spec classes
+    * [GERONIMO-3154] - Web authorization should only use jacc calls
+    * [GERONIMO-3155] - geronimo-tomcat6-minimal assembly has doubled in size from 17MB to 35MB in the past month
+    * [GERONIMO-3156] - Web security parsing can result in wrong unchecked WebResourcePermissions
+    * [GERONIMO-3163] - Class-Path in MANIFEST.MF causes DayTrader deployment failed
+    * [GERONIMO-3165] - Extended persistence contexts need to use some openejb facilities so they can get created when a stateful bean instance is created
+    * [GERONIMO-3167] - When JSF renders, fields are shifted
+    * [GERONIMO-3169] - Several configs are using a hardcoded schema version=1.1, instead of ${geronimoSchemaVersion}
+    * [GERONIMO-3170] - User supplied JPDA_OPTS are never used in the geronimo script for Windows
+    * [GERONIMO-3172] - remove obsolete JDB_OPTS reference from geronimo.bat
+    * [GERONIMO-3173] - port conflict with multiple server instances
+    * [GERONIMO-3174] - Can't start server with eclipse plugin
+    * [GERONIMO-3175] - jndi lookup of connection factories and urls is supposed to return a new instance each time
+    * [GERONIMO-3176] - ArrayIndexOutOfBound happens for WebServices 
+    * [GERONIMO-3177] - exclude-unlisted-classes needs to prevent adding any path info to the persistenceUnitInfo
+    * [GERONIMO-3179] - Allow specifying default datasources for legacy cmp
+    * [GERONIMO-3180] - Override xml parsing function in JRE
+    * [GERONIMO-3181] - service endpoint "all" permissions are computed from the local home, not the service endpoint interface
+    * [GERONIMO-3183] - fix offline deployment in minimal configurations
+    * [GERONIMO-3185] - PostConstruct/PreDeploy specified in xml can have class default to component's type.
+    * [GERONIMO-3188] - Annotation scanning needs to look at superclasses
+    * [GERONIMO-3189] - Add missing geronimo-web.xml for jsp-examples and servlet-examples
+    * [GERONIMO-3191] - Can not login the remote Geronimo server on Linux
+    * [GERONIMO-3195] - OpenJPA graduated from incubator, move to 1.0.0-SNAPSHOT
+    * [GERONIMO-3197] - Axis2: don't call wsgen tool if BindingType is HTTP_Binding
+    * [GERONIMO-3198] - Revert back to xalan 2.6.0 to correct a TCK issue
+    * [GERONIMO-3201] - Tomcat doesn't need to process the bits of web.xml for jndi and security, we handle that.
+    * [GERONIMO-3203] - Wrong Main Class fro "geronimo debug" 
+    * [GERONIMO-3205] - Fix JSP compiler errors during build
+    * [GERONIMO-3206] - Create and include a new patched version of Tomcat
+
+** Improvement
+    * [GERONIMO-1431] - Make deploy tool and hot deploy directory work better together
+    * [GERONIMO-3011] - Adjust port configuration for running multiple instances of geronimo
+    * [GERONIMO-3034] - Use jettys NIO based connectors by default.
+    * [GERONIMO-3123] - Create a template/var directory for creating additional instances of geronimo
+    * [GERONIMO-3126] - Upgrade to released OpenJPA 0.9.7 which passed JPA TCK
+    * [GERONIMO-3164] - Axis2: support bindingtype overwrite from wsdl to annotation
+    * [GERONIMO-3171] - java 1.6 compile fix for geronimo-naming mock DataSource class
+    * [GERONIMO-3186] - Show schema names along with table names in the db portlet
+
+** New Feature
+    * [GERONIMO-2735] - Add property substitution capability in the config.xml and plan files
+
+** Task
+    * [GERONIMO-2703] - JSR-252 Tasklist  (JSF 1.2)
+    * [GERONIMO-2710] - Annotations Support Tasklist
+    * [GERONIMO-3207] - Created 2.0-M6 Branch
+
+** Test
+    * [GERONIMO-3143] - Testcase changes for CORBA
+
+{noformat}
