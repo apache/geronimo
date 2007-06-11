@@ -321,6 +321,13 @@ public abstract class JAXWSServiceBuilder implements WebServiceBuilder {
             return false;
         }
 
+        // verify that the class is loadable and is a JAX-WS web service
+        ClassLoader classLoader = context.getClassLoader();
+        Class servletClass = loadClass(servletClassName, classLoader);
+        if (!JAXWSUtils.isWebService(servletClass)) {
+            return false;
+        }
+        
         Map componentContext = null;
         try {
             GBeanData moduleGBean = context.getGBeanInstance(context.getModuleName());
@@ -330,10 +337,6 @@ public abstract class JAXWSServiceBuilder implements WebServiceBuilder {
         }
 
         LOG.info("Configuring POJO Web Service: " + servletName + " sei: " + servletClassName);
-
-        // verify that the class is loadable
-        ClassLoader classLoader = context.getClassLoader();
-        Class servletClass = loadClass(servletClassName, classLoader);
 
         AbstractName containerFactoryName = context.getNaming().createChildName(targetGBean.getAbstractName(), getContainerFactoryGBeanInfo().getName(), NameFactory.GERONIMO_SERVICE);
         GBeanData containerFactoryData = new GBeanData(containerFactoryName, getContainerFactoryGBeanInfo());
@@ -380,8 +383,11 @@ public abstract class JAXWSServiceBuilder implements WebServiceBuilder {
         }
        
         String beanClassName = (String)targetGBean.getAttribute("ejbClass");
-        // verify that the class is loadable
+        // verify that the class is loadable and is a JAX-WS web service
         Class beanClass = loadClass(beanClassName, classLoader);
+        if (!JAXWSUtils.isWebService(beanClass)) {
+            return false;
+        }
         
         String location = portInfo.getLocation();
         if (location == null) {                   
