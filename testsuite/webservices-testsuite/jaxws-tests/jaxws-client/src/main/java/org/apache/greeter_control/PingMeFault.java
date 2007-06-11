@@ -20,7 +20,7 @@
 package org.apache.greeter_control;
 
 import javax.xml.ws.WebFault;
-import org.apache.greeter_control.types.FaultDetail;
+import org.apache.greeter_control.FaultDetail;
 
 
 @WebFault(name = "faultDetail", targetNamespace = "http://apache.org/greeter_control/types")
