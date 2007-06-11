@@ -293,6 +293,10 @@ public class EARConfigBuilder implements ConfigurationBuilder, CorbaGBeanNameSou
             return null;
         }
 
+        if (module instanceof ApplicationInfo) {
+            return module;
+        }
+        
         return new ApplicationInfo(module.getType(),
                 module.getEnvironment(),
                 module.getModuleName(),
