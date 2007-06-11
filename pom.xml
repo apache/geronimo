@@ -40,9 +40,9 @@
     </description>
 
     <scm>
-        <connection>scm:svn:http://svn.apache.org/repos/asf/geronimo/server/trunk</connection>
-        <developerConnection>scm:svn:https://svn.apache.org/repos/asf/geronimo/server/trunk</developerConnection>
-        <url>http://svn.apache.org/viewvc/geronimo/trunk</url>
+        <connection>scm:svn:http://svn.apache.org/repos/asf/geronimo/server/tags/2.0-M6</connection>
+        <developerConnection>scm:svn:https://svn.apache.org/repos/asf/geronimo/server/tags/2.0-M6</developerConnection>
+        <url>http://svn.apache.org/viewvc/geronimo/tags/2.0-M6</url>
     </scm>
 
     <properties>
