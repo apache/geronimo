@@ -61,21 +61,6 @@
             <version>${version}</version>
         </dependency>
 
-        <!-- Had to add due to the Axis2WebServiceContainerTest -->
-        <dependency>
-            <groupId>com.sun.xml.bind</groupId>
-            <artifactId>jaxb-xjc</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.sun.xml.bind</groupId>
-            <artifactId>jaxb-impl</artifactId>
-            <exclusions>
-                <exclusion>
-                    <artifactId>jsr173</artifactId>
-                    <groupId>javax.xml</groupId>
-                </exclusion>
-            </exclusions>
-        </dependency>
         <dependency>
             <groupId>org.apache.axis2</groupId>
             <artifactId>axis2-java2wsdl</artifactId>
@@ -172,66 +157,6 @@
             <artifactId>jaxb-api</artifactId>
         </dependency>
     </dependencies>
-    
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>build-helper-maven-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>add-test-source</id>
-                        <phase>generate-sources</phase>
-                        <goals>
-                            <goal>add-test-source</goal>
-                        </goals>
-                        <configuration>
-                            <sources>
-                                <source>${basedir}/target/schema/src</source>
-                            </sources>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-antrun-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>generate-test-sources</id>
-                        <phase>generate-test-sources</phase>
-                        <configuration>
-                            <tasks>
-                                <echo>Generating java from test_service_simple.wsdl</echo>
-                                <property name="schema.output.base.dir" location="target/schema"/>
-                                <property name="schema.generated.src.dir" location="${schema.output.base.dir}/src"/>
-                                <mkdir dir="${schema.generated.src.dir}"/>
-                                <java classname="com.sun.tools.xjc.Driver" fork="true">
-                                    <classpath refid="maven.runtime.classpath"/>
-                                    <classpath location="${compiled.classes.dir}"/>
-                                    <arg line="-d ${schema.generated.src.dir} -quiet -wsdl src/test/resources/test_service_simple.wsdl"/>
-                                </java>
-                                <echo>Generating java from test_service_doclitbare.wsdl</echo>
-                                <java classname="com.sun.tools.xjc.Driver" fork="true">
-                                    <classpath refid="maven.runtime.classpath"/>
-                                    <classpath location="${compiled.classes.dir}"/>
-                                    <arg line="-d ${schema.generated.src.dir} -quiet -wsdl src/test/resources/test_service_doclitbare.wsdl"/>
-                                </java>
-                                <echo>Generating java from test_service_rpclit.wsdl</echo>
-                                <java classname="com.sun.tools.xjc.Driver" fork="true">
-                                    <classpath refid="maven.runtime.classpath"/>
-                                    <classpath location="${compiled.classes.dir}"/>
-                                    <arg line="-d ${schema.generated.src.dir} -quiet -wsdl src/test/resources/test_service_rpclit.wsdl"/>
-                                </java>
-                            </tasks>
-                        </configuration>
-                        <goals>
-                            <goal>run</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-        </plugins>
-    </build>
+
 </project>
 
