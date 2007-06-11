@@ -38,8 +38,6 @@ import org.apache.geronimo.jaxws.JAXWSAnnotationProcessor;
 import org.apache.geronimo.jaxws.PortInfo;
 import org.apache.geronimo.jaxws.annotations.AnnotationException;
 
-// FIXME: improve handler support, handler injection, thread-safetly for handlers
-
 /**
  * @version $Rev$ $Date$
  */
@@ -49,7 +47,6 @@ public class POJOWebServiceContainer extends Axis2WebServiceContainer {
     
     private Object endpointInstance;
     private String contextRoot = null;
-
     
     public POJOWebServiceContainer(PortInfo portInfo,
                                    String endpointClassName,
