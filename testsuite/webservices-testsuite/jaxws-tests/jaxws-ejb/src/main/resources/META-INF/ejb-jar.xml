@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ejb-jar version="3.0" xmlns="http://java.sun.com/xml/ns/javaee" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/ejb-jar_3_0.xsd">
+  <display-name>JAXWSBean</display-name>
+  <enterprise-beans>
+    <session>
+      <display-name>JAXWSBean</display-name>
+      <ejb-name>JAXWSBean</ejb-name>
+      <service-endpoint>org.apache.geronimo.test.JAXWSGreeter</service-endpoint>
+      <ejb-class>org.apache.geronimo.test.JAXWSBean</ejb-class>
+      <session-type>Stateless</session-type>
+      <transaction-type>Container</transaction-type>
+
+      <env-entry>
+        <description>Welcome message</description>
+        <env-entry-name>greeting</env-entry-name>
+        <env-entry-type>java.lang.String</env-entry-type>
+        <env-entry-value>Hello</env-entry-value>
+      </env-entry>
+
+    </session>
+  </enterprise-beans>
+
+</ejb-jar>

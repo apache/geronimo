@@ -27,6 +27,7 @@ import javax.annotation.PreDestroy;
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 
+import java.util.Iterator;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.Map;
@@ -39,6 +40,9 @@ public class GreeterSOAPHandler implements SOAPHandler<SOAPMessageContext> {
 
     @Resource
     WebServiceContext context;
+
+    @Resource(name="greeting")
+    private String greeting;
 
     @PostConstruct
     public void init() {
@@ -63,7 +67,7 @@ public class GreeterSOAPHandler implements SOAPHandler<SOAPMessageContext> {
     }
 
     public boolean handleMessage(SOAPMessageContext context) {
-        System.out.println(this + " handleMessage: " + context.get(MessageContext.MESSAGE_OUTBOUND_PROPERTY));
+        System.out.println(this + " handleMessage: " + context.get(MessageContext.MESSAGE_OUTBOUND_PROPERTY) + " " + greeting);
         
         SOAPMessage message = context.getMessage();
         try {
@@ -72,7 +76,12 @@ public class GreeterSOAPHandler implements SOAPHandler<SOAPMessageContext> {
 
             } else {
                 // inbound
-                message.getSOAPBody().getElementsByTagNameNS("*", "arg0").item(0).getFirstChild().setNodeValue("foo bar");
+                SOAPElement element = findElement(message.getSOAPBody(), "arg0");
+                element.setValue("foo bar");
+
+                // XXX: this does not work with Axis2
+                //   message.getSOAPBody().getElementsByTagNameNS("*", "arg0").item(0).getFirstChild().setNodeValue("foo bar");
+
                 message.saveChanges();
             }
 
@@ -82,6 +91,22 @@ public class GreeterSOAPHandler implements SOAPHandler<SOAPMessageContext> {
         }
 
         return true;
+    }
+
+    private SOAPElement findElement(SOAPElement element, String name) {
+        Iterator iter = element.getChildElements();
+        while(iter.hasNext()) {
+            Node child = (Node)iter.next();
+            if (child instanceof SOAPElement) {
+                SOAPElement childEl = (SOAPElement)child;
+                if (name.equals(childEl.getElementName().getLocalName())) {
+                    return childEl;
+                } else {
+                    return findElement(childEl, name);
+                }
+            }
+        }
+        return null;
     }
 
     public Set<QName> getHeaders() {

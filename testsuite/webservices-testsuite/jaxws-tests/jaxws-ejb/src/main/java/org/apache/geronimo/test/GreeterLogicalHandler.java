@@ -38,8 +38,11 @@ public class GreeterLogicalHandler implements javax.xml.ws.handler.LogicalHandle
 
     @Resource WebServiceContext context;
 
+    @Resource(name="greeting")
+    private String greeting;
+
     public boolean handleMessage(LogicalMessageContext context) {
-        System.out.println(this + " HandleMessage: " + context.get(MessageContext.MESSAGE_OUTBOUND_PROPERTY));
+        System.out.println(this + " HandleMessage: " + context.get(MessageContext.MESSAGE_OUTBOUND_PROPERTY) + " " + greeting);
         System.out.println(context.getMessage().getPayload());
         return true;
     }
@@ -63,7 +66,7 @@ public class GreeterLogicalHandler implements javax.xml.ws.handler.LogicalHandle
     }
     
     public void close(MessageContext context) {
-        System.out.println(this + " cclose");
+        System.out.println(this + " close");
     }
 
 }
