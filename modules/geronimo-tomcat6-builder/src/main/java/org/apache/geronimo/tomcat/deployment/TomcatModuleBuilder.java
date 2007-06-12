@@ -22,13 +22,9 @@ import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.net.URL;
-import java.security.Permission;
 import java.security.PermissionCollection;
-import java.security.Permissions;
 import java.util.Collection;
-import java.util.Enumeration;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -59,7 +55,6 @@ import org.apache.geronimo.j2ee.deployment.NamingBuilder;
 import org.apache.geronimo.j2ee.deployment.WebModule;
 import org.apache.geronimo.j2ee.deployment.WebServiceBuilder;
 import org.apache.geronimo.j2ee.deployment.annotation.AnnotatedWebApp;
-import org.apache.geronimo.j2ee.deployment.annotation.SecurityAnnotationHelper;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.Naming;
@@ -89,8 +84,6 @@ import org.apache.geronimo.xbeans.javaee.PersistenceContextRefType;
 import org.apache.geronimo.xbeans.javaee.PersistenceUnitRefType;
 import org.apache.geronimo.xbeans.javaee.ResourceEnvRefType;
 import org.apache.geronimo.xbeans.javaee.ResourceRefType;
-import org.apache.geronimo.xbeans.javaee.SecurityConstraintType;
-import org.apache.geronimo.xbeans.javaee.SecurityRoleType;
 import org.apache.geronimo.xbeans.javaee.ServiceRefType;
 import org.apache.geronimo.xbeans.javaee.ServletType;
 import org.apache.geronimo.xbeans.javaee.WebAppDocument;
@@ -115,7 +108,7 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder {
 
     public TomcatModuleBuilder(Environment defaultEnvironment,
             AbstractNameQuery tomcatContainerName,
-            Collection webServiceBuilder,
+            Collection<WebServiceBuilder> webServiceBuilder,
             Collection securityBuilders,
             Collection serviceBuilders,
             NamingBuilder namingBuilders,
@@ -212,6 +205,7 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder {
                     warName = "$root-dir$";
                 }
             } catch (IOException e) {
+                //really?
             }
         }
         idBuilder.resolve(environment, warName, "war");
@@ -315,8 +309,8 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder {
         configureBasicWebModuleAttributes(webApp, tomcatWebApp, moduleContext, earContext, webModule, webModuleData);
         try {
             moduleContext.addGBean(webModuleData);
-            Set securityRoles = collectRoleNames(webApp);
-            Map rolePermissions = new HashMap();
+            Set<String> securityRoles = collectRoleNames(webApp);
+            Map<String, PermissionCollection> rolePermissions = new HashMap<String, PermissionCollection>();
             webModuleData.setAttribute("contextPath", webModule.getContextRoot());
             // unsharableResources, applicationManagedSecurityResources
             GBeanResourceEnvironmentBuilder rebuilder = new GBeanResourceEnvironmentBuilder(webModuleData);
@@ -362,20 +356,17 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder {
                 AbstractName managerName = earContext.getNaming().createChildName(moduleName, manager, ManagerGBean.J2EE_TYPE);
                 webModuleData.setReferencePattern("Manager", managerName);
             }
-            Map portMap = webModule.getSharedContext();
 
             //Handle the role permissions and webservices on the servlets.
             ServletType[] servletTypes = webApp.getServletArray();
-            Map webServices = new HashMap();
+            Map<String, AbstractName> webServices = new HashMap<String, AbstractName>();
             Class baseServletClass;
             try {
                 baseServletClass = webClassLoader.loadClass(Servlet.class.getName());
             } catch (ClassNotFoundException e) {
                 throw new DeploymentException("Could not load javax.servlet.Servlet in web classloader", e); // TODO identify web app in message
             }
-            for (int i = 0; i < servletTypes.length; i++) {
-                ServletType servletType = servletTypes[i];
-
+            for (ServletType servletType : servletTypes) {
                 //Handle the Role Ref Permissions
                 processRoleRefPermissions(servletType, securityRoles, rolePermissions);
 
@@ -396,8 +387,7 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder {
                         //let the web service builder deal with configuring the gbean with the web service stack
                         //Here we just extract the factory reference
                         boolean configured = false;
-                        for (Iterator iterator = webServiceBuilder.iterator(); iterator.hasNext();) {
-                            WebServiceBuilder serviceBuilder = (WebServiceBuilder) iterator.next();
+                        for (WebServiceBuilder serviceBuilder : webServiceBuilder) {
                             if (serviceBuilder.configurePOJO(servletData, servletName, module, servletClassName, moduleContext)) {
                                 configured = true;
                                 break;
@@ -438,19 +428,9 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder {
                 securityHolder.setPolicyContextID(policyContextID);
 
                 ComponentPermissions componentPermissions = buildSpecSecurityConfig(webApp, securityRoles, rolePermissions);
-                securityHolder.setExcluded(componentPermissions.getExcludedPermissions());
-                PermissionCollection checkedPermissions = new Permissions();
-                for (Iterator iterator = rolePermissions.values().iterator(); iterator.hasNext();) {
-                    PermissionCollection permissionsForRole = (PermissionCollection) iterator.next();
-                    for (Enumeration iterator2 = permissionsForRole.elements(); iterator2.hasMoreElements();) {
-                        Permission permission = (Permission) iterator2.nextElement();
-                        checkedPermissions.add(permission);
-                    }
-                }
-                securityHolder.setChecked(checkedPermissions);
                 earContext.addSecurityContext(policyContextID, componentPermissions);
                 //TODO WTF is this for?
-                    securityHolder.setSecurity(true);
+                securityHolder.setSecurity(true);
 
                 webModuleData.setAttribute("securityHolder", securityHolder);
             }

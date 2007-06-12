@@ -174,8 +174,6 @@ public class JACCSecurityTest extends AbstractWebModuleTest {
 
         SecurityHolder securityHolder = new SecurityHolder();
         securityHolder.setSecurity(true);
-        securityHolder.setChecked(checked);
-        securityHolder.setExcluded(componentPermissions.getExcludedPermissions());
         securityHolder.setPolicyContextID(POLICY_CONTEXT_ID);
 //        securityHolder.setDefaultSubject(defaultPrincipal);
         securityHolder.setSecurityRealm(securityRealmName);

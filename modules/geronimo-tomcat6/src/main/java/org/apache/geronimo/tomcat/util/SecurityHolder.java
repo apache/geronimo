@@ -17,12 +17,9 @@
 package org.apache.geronimo.tomcat.util;
 
 import java.io.Serializable;
-import java.security.PermissionCollection;
-import java.util.Map;
 
 import javax.security.auth.Subject;
 
-import org.apache.geronimo.security.deploy.SubjectInfo;
 import org.apache.geronimo.security.jacc.RunAsSource;
 
 public class SecurityHolder implements Serializable
@@ -32,8 +29,6 @@ public class SecurityHolder implements Serializable
 
     private String policyContextID;
     private Subject defaultSubject;
-    private PermissionCollection checked;
-    private PermissionCollection excluded;
     private String securityRealm;
     private boolean security;
     private RunAsSource runAsSource;
@@ -46,16 +41,6 @@ public class SecurityHolder implements Serializable
         this.securityRealm = securityRealm;
     }
 
-    public PermissionCollection getChecked()
-    {
-        return checked;
-    }
-
-    public void setChecked(PermissionCollection checked)
-    {
-        this.checked = checked;
-    }
-
     public Subject getDefaultSubject()
     {
         return defaultSubject;
@@ -64,16 +49,6 @@ public class SecurityHolder implements Serializable
     public void setDefaultSubject(Subject defaultSubject)
     {
         this.defaultSubject = defaultSubject;
-    }
-
-    public PermissionCollection getExcluded()
-    {
-        return excluded;
-    }
-
-    public void setExcluded(PermissionCollection excluded)
-    {
-        this.excluded = excluded;
     }
 
     public String getPolicyContextID()
