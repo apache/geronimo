@@ -19,24 +19,21 @@ package org.apache.geronimo.connector.outbound;
 
 import java.lang.reflect.Constructor;
 import java.util.HashMap;
-import java.util.Map;
 import java.util.LinkedHashSet;
+import java.util.Map;
 
 import javax.resource.ResourceException;
 import javax.resource.spi.ManagedConnectionFactory;
 import javax.resource.spi.ResourceAdapterAssociation;
 import javax.transaction.SystemException;
 
-import net.sf.cglib.proxy.Callback;
-import net.sf.cglib.proxy.Enhancer;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.geronimo.connector.ConnectorMethodInterceptor;
 import org.apache.geronimo.connector.ResourceAdapterWrapper;
+import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.DynamicGBean;
 import org.apache.geronimo.gbean.DynamicGBeanDelegate;
 import org.apache.geronimo.gbean.GBeanLifecycle;
-import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.management.geronimo.JCAManagedConnectionFactory;
 import org.apache.geronimo.transaction.manager.NamedXAResource;
@@ -56,25 +53,20 @@ public class ManagedConnectionFactoryWrapper implements GBeanLifecycle, DynamicG
     private final String connectionInterface;
     private final String connectionImplClass;
 
-    private final Class[] allImplementedInterfaces;
+    private final LinkedHashSet<Class> allImplementedInterfaces = new LinkedHashSet<Class>();
 
     private final ResourceAdapterWrapper resourceAdapterWrapper;
     private final ConnectionManagerContainer connectionManagerContainer;
 
     private ManagedConnectionFactory managedConnectionFactory;
 
-    private Object connectionFactory;
-
     private DynamicGBeanDelegate delegate;
 
 
     private boolean registered = false;
-    private Object proxy;
-    private ConnectorMethodInterceptor interceptor;
     private final Kernel kernel;
     private final AbstractName abstractName;
     private final String objectName;
-    private final boolean isProxyable;
     private final ClassLoader classLoader;
 
     //default constructor for enhancement proxy endpoint
@@ -88,8 +80,6 @@ public class ManagedConnectionFactoryWrapper implements GBeanLifecycle, DynamicG
         kernel = null;
         abstractName = null;
         objectName = null;
-        allImplementedInterfaces = null;
-        isProxyable = false;
         classLoader = null;
         resourceAdapterWrapper = null;
         connectionManagerContainer = null;
@@ -114,22 +104,10 @@ public class ManagedConnectionFactoryWrapper implements GBeanLifecycle, DynamicG
         this.connectionInterface = connectionInterface;
         this.connectionImplClass = connectionImplClass;
 
-        LinkedHashSet allInterfaceSet = new LinkedHashSet();
-        allInterfaceSet.add(cl.loadClass(connectionFactoryInterface));
-        for (int i = 0; i < implementedInterfaces.length; i++) {
-            allInterfaceSet.add(cl.loadClass(implementedInterfaces[i]));
+        allImplementedInterfaces.add(cl.loadClass(connectionFactoryInterface));
+        for (String interfaceName: implementedInterfaces) {
+            allImplementedInterfaces.add(cl.loadClass(interfaceName));
         }
-        allImplementedInterfaces = (Class[])allInterfaceSet.toArray(new Class[allInterfaceSet.size()]);
-        
-        boolean mightBeProxyable = true;
-        for (int i = 0; i < allImplementedInterfaces.length; i++) {
-            Class implementedInterface = allImplementedInterfaces[i];
-            if (!implementedInterface.isInterface()) {
-                mightBeProxyable = false;
-                break;
-            }
-        }
-        isProxyable = mightBeProxyable;
 
         this.resourceAdapterWrapper = resourceAdapterWrapper;
         this.connectionManagerContainer = connectionManagerContainer;
@@ -188,33 +166,9 @@ public class ManagedConnectionFactoryWrapper implements GBeanLifecycle, DynamicG
             log.debug("Registered managedConnectionFactory with ResourceAdapter " + resourceAdapterWrapper.toString());
         }
 
-        //create a new ConnectionFactory
-        connectionFactory = connectionManagerContainer.createConnectionFactory(managedConnectionFactory);
-
-        //build proxy
-        if (isProxyable) {
-            Enhancer enhancer = new Enhancer();
-            enhancer.setInterfaces(allImplementedInterfaces);
-            enhancer.setCallbackType(net.sf.cglib.proxy.MethodInterceptor.class);
-            enhancer.setUseFactory(false);//????
-            interceptor = new ConnectorMethodInterceptor(kernel.getKernelName(), abstractName);
-            enhancer.setCallbacks(new Callback[]{interceptor});
-            proxy = enhancer.create(new Class[0], new Object[0]);
-        } else {
-            proxy = connectionFactory;
-        }
-
-        //connect proxy
-        if (interceptor != null) {
-            interceptor.setInternalProxy(connectionFactory);
-        }
     }
 
     public void doStop() {
-        if (interceptor != null) {
-            interceptor.setInternalProxy(null);
-        }
-        connectionFactory = null;
     }
 
     public void doFail() {
@@ -258,8 +212,13 @@ public class ManagedConnectionFactoryWrapper implements GBeanLifecycle, DynamicG
     }
 
     public Object $getConnectionFactory() throws ResourceException {
-        return connectionManagerContainer.createConnectionFactory(managedConnectionFactory);
-
+        Object connectionFactory =  connectionManagerContainer.createConnectionFactory(managedConnectionFactory);
+        for (Class intf: allImplementedInterfaces) {
+            if (!intf.isAssignableFrom(connectionFactory.getClass())) {
+                throw new ResourceException("ConnectionFactory does not implement expected interface: " + intf.getName());
+            }
+        }
+        return connectionFactory;
     }
 
     public ManagedConnectionFactory $getManagedConnectionFactory() {
@@ -268,14 +227,13 @@ public class ManagedConnectionFactoryWrapper implements GBeanLifecycle, DynamicG
 
     /**
      * Gets the config properties in the form of a map where the key is the
-     * property name and the value is property type (as a String not a Class).
+     * property name and the value is property type (as a Class).
      */
-    public Map getConfigProperties() {
+    public Map<String, Class> getConfigProperties() {
         String[] props = delegate.getProperties();
-        Map map = new HashMap();
-        for (int i = 0; i < props.length; i++) {
-            String prop = props[i];
-            if(prop.equals("logWriter")) {
+        Map<String, Class> map = new HashMap<String, Class>();
+        for (String prop : props) {
+            if (prop.equals("logWriter")) {
                 continue;
             }
             map.put(prop, delegate.getPropertyType(prop));
