@@ -43,7 +43,7 @@ function <portlet:namespace/>validateForm(){
 <c:if test="${mode eq 'save'}">
   <input type="hidden" name="connectorURI" value="${connectorURI}">
 </c:if>
-<table width="100%%"  border="0">
+<table width="100%"  border="0">
 
 <!-- Current Task -->
 <c:choose>
@@ -105,6 +105,17 @@ function <portlet:namespace/>validateForm(){
   
 <%-- TOMCAT CONNECTOR SPECIFIC ATTRIBUTES: START --%>
 <c:if test="${server eq 'tomcat'}">
+  <tr>
+    <th align="right" width="175">Show&nbsp;all&nbsp;fields:</th>
+    <td><input type="checkbox" name="showAllFields" onClick="document.getElementById('<portlet:namespace/>propsDiv').style.display=this.checked ? 'block' : 'none';" CHECKED/></td>
+  </tr>
+  <tr>
+    <td><div align="right"></div></td>
+    <td>Check this box to view and configure all attributes.  Uncheck to hide. Note: Hiding will not remove the field values.</td>
+  </tr>
+</table>
+<div id="<portlet:namespace/>propsDiv" style="display: block">
+<table width="100%"  border="0">
 <%-- Common Connector Attributes --%>
 <!-- AllowTrace Field -->
   <tr>
@@ -450,6 +461,13 @@ function <portlet:namespace/>validateForm(){
     <td>The priority of the request processing threads within the JVM. The default value is java.lang.Thread#NORM_PRIORITY. See the JavaDoc for the java.lang.Thread class for more details on what this priority means.</td>
   </tr>
   
+</table>
+</div>
+<table width="100%"  border="0">
+  <tr>
+    <td width="175"><div align="right">&nbsp;</div></td>
+    <td></td>
+  </tr>
 </c:if>
 <%-- TOMCAT CONNECTOR SPECIFIC ATTRIBUTES: END --%>
 
