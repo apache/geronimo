@@ -63,9 +63,6 @@
                 </reference>
                 <xml-attribute name="tssConfig">
                     <tss:tss xmlns:tss="http://www.openejb.org/xml/ns/corba-tss-config-2.0" xmlns:sec="http://geronimo.apache.org/xml/ns/security-1.1">
-                        <tss:default-principal>
-                            <sec:principal class="org.apache.geronimo.security.realm.providers.GeronimoUserPrincipal" name="guest"/>
-                        </tss:default-principal>
                         <tss:compoundSecMechTypeList>
                             <tss:compoundSecMech>
                                 <tss:sasMech>
