@@ -805,6 +805,7 @@ callOnLoad(init);
          	    <div dojoType="TreeNode" title="JTAResource" widgetId="<J2EETYPE>JTAResource" isFolder="true" childIconSrc="<%= jmxIconURI %>" actionsDisabled="view"></div>
          	    <div dojoType="TreeNode" title="JVM" widgetId="<J2EETYPE>JVM" isFolder="true" childIconSrc="<%= jmxIconURI %>" actionsDisabled="view"></div>
          	    <div dojoType="TreeNode" title="MessageDrivenBean" widgetId="<J2EETYPE>MessageDrivenBean" isFolder="true" childIconSrc="<%= jmxIconURI %>" actionsDisabled="view"></div>
+              <div dojoType="TreeNode" title="PersistenceUnit" widgetId="<J2EETYPE>PersistenceUnit" isFolder="true" childIconSrc="<%= jmxIconURI %>" actionsDisabled="view"></div>
          	    <div dojoType="TreeNode" title="ResourceAdapter" widgetId="<J2EETYPE>ResourceAdapter" isFolder="true" childIconSrc="<%= jmxIconURI %>" actionsDisabled="view"></div>
          	    <div dojoType="TreeNode" title="ResourceAdapterModule" widgetId="<J2EETYPE>ResourceAdapterModule" isFolder="true" childIconSrc="<%= jmxIconURI %>" actionsDisabled="view"></div>
          	    <div dojoType="TreeNode" title="RMI_IIOPResource" widgetId="<J2EETYPE>RMI_IIOPResource" isFolder="true" childIconSrc="<%= jmxIconURI %>" actionsDisabled="view"></div>
