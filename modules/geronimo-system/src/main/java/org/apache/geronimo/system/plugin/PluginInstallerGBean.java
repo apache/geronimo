@@ -1098,7 +1098,12 @@ public class PluginInstallerGBean implements PluginInstaller {
         for (int i = 0; i < available.length; i++) {
             available[i] = new Version(getText(list.item(i)));
         }
-        Arrays.sort(available);
+        List availableList = Arrays.asList(available);
+        if(availableList.contains(query.getVersion())){
+            available = new Version[]{query.getVersion()};
+        } else {
+            Arrays.sort(available);
+        }
         for(int i=available.length-1; i>=0; i--) {
             Version version = available[i];
             URL metadataURL = new URL(url.toString()+base+"/"+version+"/maven-metadata.xml");
