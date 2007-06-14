@@ -315,7 +315,8 @@ public class MultiParentClassLoaderTest extends TestCase {
 
     private static File createJarFile(int i) throws IOException {
         File file = File.createTempFile("test-" + i + "-", ".jar");
-
+        file.deleteOnExit();
+        
         FileOutputStream out = new FileOutputStream(file);
         JarOutputStream jarOut = new JarOutputStream(out);
 
