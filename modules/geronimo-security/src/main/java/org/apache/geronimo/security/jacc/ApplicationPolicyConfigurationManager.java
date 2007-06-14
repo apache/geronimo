@@ -147,6 +147,9 @@ public class ApplicationPolicyConfigurationManager implements GBeanLifecycle, Ru
             Subject roleDesignate = entry.getValue();
             ContextManager.unregisterSubject(roleDesignate);
         }
+        if (defaultSubject != ContextManager.EMPTY) {
+            ContextManager.unregisterSubject(defaultSubject);
+        }
 
         if (principalRoleMapper != null) {
             principalRoleMapper.uninstall();
