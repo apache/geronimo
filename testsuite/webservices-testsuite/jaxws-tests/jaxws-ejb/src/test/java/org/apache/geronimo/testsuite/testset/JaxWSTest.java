@@ -176,17 +176,17 @@ public class JaxWSTest extends TestSupport {
         p.put("java.naming.factory.initial", 
               "org.apache.openejb.client.RemoteInitialContextFactory");
         p.put("java.naming.provider.url", 
-              "127.0.0.1:4201");
-        p.put("java.naming.security.principal", 
-              "myuser");
-        p.put("java.naming.security.credentials", 
-              "mypass");    
+              "127.0.0.1:4201");   
         
         InitialContext ctx = new InitialContext(p);
         
-        JAXWSGreeter greeter = (JAXWSGreeter)ctx.lookup("JAXWSBean");
+        JAXWSGreeter greeter = (JAXWSGreeter)ctx.lookup("JAXWSEJB/JAXWSBean/org.apache.geronimo.test.JAXWSGreeter");
         
-        System.out.println( greeter );
+        String response = greeter.greetMe("foo bar");
+        
+        System.out.println(response);
+        
+        assertEquals("Hello foo bar", response);
     }
 
 }

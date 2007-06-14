@@ -5,7 +5,6 @@
     <session>
       <display-name>JAXWSBean</display-name>
       <ejb-name>JAXWSBean</ejb-name>
-      <service-endpoint>org.apache.geronimo.test.JAXWSGreeter</service-endpoint>
       <ejb-class>org.apache.geronimo.test.JAXWSBean</ejb-class>
       <session-type>Stateless</session-type>
       <transaction-type>Container</transaction-type>

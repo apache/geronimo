@@ -18,6 +18,7 @@
  */
 package org.apache.geronimo.test;
 
+import javax.ejb.Remote;
 import javax.ejb.Stateless;
 import javax.jws.WebService;
 import javax.jws.HandlerChain;
@@ -25,6 +26,7 @@ import javax.jws.soap.SOAPBinding;
 
 @WebService
 @Stateless(mappedName="JAXWSBean")
+@Remote(JAXWSGreeter.class)
 @HandlerChain(file="handlers.xml")
 @SOAPBinding(style=SOAPBinding.Style.RPC, 
              use=SOAPBinding.Use.LITERAL,

@@ -18,9 +18,6 @@
  */
 package org.apache.geronimo.test;
 
-import javax.ejb.Remote;
-
-@Remote 
 public interface JAXWSGreeter { 
 
     public String greetMe(String me);
