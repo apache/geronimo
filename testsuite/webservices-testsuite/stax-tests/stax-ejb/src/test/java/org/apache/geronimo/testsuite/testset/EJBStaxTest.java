@@ -39,14 +39,10 @@ public class EJBStaxTest extends TestSupport {
               "org.apache.openejb.client.RemoteInitialContextFactory");
         p.put("java.naming.provider.url", 
               "127.0.0.1:4201");
-        p.put("java.naming.security.principal", 
-              "myuser");
-        p.put("java.naming.security.credentials", 
-              "mypass");    
         
         InitialContext ctx = new InitialContext(p);
         
-        Object obj = ctx.lookup("/Stax");
+        Object obj = ctx.lookup("StaxEJB/Stax/org.apache.geronimo.test.StaxObject");
         
         StaxHome ejbHome = 
             (StaxHome)PortableRemoteObject.narrow(obj, StaxHome.class);

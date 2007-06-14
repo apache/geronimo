@@ -39,14 +39,10 @@ public class EJBJAXRTest extends TestSupport {
               "org.apache.openejb.client.RemoteInitialContextFactory");
         p.put("java.naming.provider.url", 
               "127.0.0.1:4201");
-        p.put("java.naming.security.principal", 
-              "myuser");
-        p.put("java.naming.security.credentials", 
-              "mypass");    
         
         InitialContext ctx = new InitialContext(p);
         
-        Object obj = ctx.lookup("/JAXR");
+        Object obj = ctx.lookup("JAXREJB/JAXR/org.apache.geronimo.test.JAXRObject");
         
         JAXRHome ejbHome = 
             (JAXRHome)PortableRemoteObject.narrow(obj, JAXRHome.class);
