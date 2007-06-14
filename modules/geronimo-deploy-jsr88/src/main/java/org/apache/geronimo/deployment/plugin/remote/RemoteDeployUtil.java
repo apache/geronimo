@@ -78,6 +78,7 @@ public class RemoteDeployUtil {
                             while(total > next) next += threshold;
                         }
                     }
+                    in.close();
                 }
                 out.flush();
                 out.close();
