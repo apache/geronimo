@@ -177,14 +177,10 @@ public class JaxRPCTest extends TestSupport {
               "org.apache.openejb.client.RemoteInitialContextFactory");
         p.put("java.naming.provider.url", 
               "127.0.0.1:4201");
-        p.put("java.naming.security.principal", 
-              "myuser");
-        p.put("java.naming.security.credentials", 
-              "mypass");    
         
         InitialContext ctx = new InitialContext(p);
         
-        Object obj = ctx.lookup("/Greeter");
+        Object obj = ctx.lookup("JAXRPCEJB/Greeter/org.apache.hello_world_soap_http.GreeterObject");
         
         GreeterHome ejbHome = 
             (GreeterHome)PortableRemoteObject.narrow(obj, GreeterHome.class);
