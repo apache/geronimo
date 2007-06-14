@@ -74,7 +74,14 @@ public class StartServerMojo
      * @parameter expression="${maximumMemory}"
      */
     private String maximumMemory = null;
-
+    
+    /**
+     * The location of the Java Virtual Machine executable to launch the server with.
+     *
+     * @paramter
+     */
+    private File javaVirtualMachine;
+    
     /**
      * Enable quiet mode.
      *
@@ -162,6 +169,15 @@ public class StartServerMojo
         java.setFailonerror(true);
         java.setFork(true);
 
+        if (javaVirtualMachine != null) {
+            if (!javaVirtualMachine.exists()) {
+                throw new MojoExecutionException("Java virtual machine is not valid: " + javaVirtualMachine);
+            }
+            
+            log.info("Using Java virtual machine: " + javaVirtualMachine);
+            java.setJvm(javaVirtualMachine.getCanonicalPath());
+        }
+        
         if (timeout > 0) {
             java.setTimeout(new Long(timeout * 1000));
         }

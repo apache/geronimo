@@ -55,6 +55,13 @@ public class RunClientMojo extends ReportingMojoSupport
     private String maximumMemory = null;
 
     /**
+     * The location of the Java Virtual Machine executable to launch the client with.
+     *
+     * @paramter
+     */
+    private File javaVirtualMachine;
+    
+    /**
      * Time in seconds to wait before terminating the forked JVM.
      *
      * @parameter expression="${timeout}" default-value="-1"
@@ -95,6 +102,15 @@ public class RunClientMojo extends ReportingMojoSupport
         java.setFailonerror(true);
         java.setFork(true);
 
+        if (javaVirtualMachine != null) {
+            if (!javaVirtualMachine.exists()) {
+                throw new MojoExecutionException("Java virtual machine is not valid: " + javaVirtualMachine);
+            }
+            
+            log.info("Using Java virtual machine: " + javaVirtualMachine);
+            java.setJvm(javaVirtualMachine.getCanonicalPath());
+        }
+        
         if (timeout > 0) {
             java.setTimeout(new Long(timeout * 1000));
         }
