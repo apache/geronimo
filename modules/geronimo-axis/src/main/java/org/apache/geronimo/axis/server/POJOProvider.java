@@ -44,7 +44,7 @@ public class POJOProvider extends RPCProvider {
         try {
             pojoMethod = pojoClass.getMethod(interfaceMethod.getName(), interfaceMethod.getParameterTypes());
         } catch (NoSuchMethodException e) {
-            throw new NoSuchMethodException("The pojo class '"+pojoClass.getName()+"' does not have a method matching signature: "+interfaceMethod);
+            throw (NoSuchMethodException)new NoSuchMethodException("The pojo class '"+pojoClass.getName()+"' does not have a method matching signature: "+interfaceMethod).initCause(e);
         }
 
         return pojoMethod.invoke(pojo, arguments);

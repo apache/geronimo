@@ -161,7 +161,7 @@ public class PropertiesLoginModuleManager {
             store(users, serverInfo.resolveServer(getUsersURI()).toURL());
         } catch (Exception e) {
             throw new GeronimoSecurityException("Cannot add user principal: "
-                    + e.getMessage());
+                    + e.getMessage(), e);
         }
     }
 
@@ -173,7 +173,7 @@ public class PropertiesLoginModuleManager {
             store(users, serverInfo.resolveServer(getUsersURI()).toURL());
         } catch (Exception e) {
             throw new GeronimoSecurityException("Cannot remove user principal "
-                    + userPrincipal + ": " + e.getMessage());
+                    + userPrincipal + ": " + e.getMessage(), e);
         }
     }
 
@@ -192,7 +192,7 @@ public class PropertiesLoginModuleManager {
             store(users, serverInfo.resolveServer(getUsersURI()).toURL());
         } catch (Exception e) {
             throw new GeronimoSecurityException("Cannot add user principal: "
-                    + e.getMessage());
+                    + e.getMessage(), e);
         }
     }
 
@@ -209,7 +209,7 @@ public class PropertiesLoginModuleManager {
             store(groups, serverInfo.resolveServer(getGroupsURI()).toURL());
         } catch (Exception e) {
             throw new GeronimoSecurityException("Cannot add group principal: "
-                    + e.getMessage());
+                    + e.getMessage(), e);
         }
     }
 
@@ -221,7 +221,7 @@ public class PropertiesLoginModuleManager {
             store(groups, serverInfo.resolveServer(getGroupsURI()).toURL());
         } catch (Exception e) {
             throw new GeronimoSecurityException(
-                    "Cannot remove group principal: " + e.getMessage());
+                    "Cannot remove group principal: " + e.getMessage(), e);
         }
     }
 
@@ -235,7 +235,7 @@ public class PropertiesLoginModuleManager {
             store(groups, serverInfo.resolveServer(getGroupsURI()).toURL());
         } catch (Exception e) {
             throw new GeronimoSecurityException("Cannot add group principal: "
-                    + e.getMessage());
+                    + e.getMessage(), e);
         }
     }
 

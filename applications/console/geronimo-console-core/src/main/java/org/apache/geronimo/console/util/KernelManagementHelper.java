@@ -504,7 +504,7 @@ public class KernelManagementHelper implements ManagementHelper {
                 // we just got this list so this should not happen
                 // in the unlikely event it does, just continue
             } catch (InvalidConfigException e) {
-                throw new RuntimeException("Bad configID; should never happen");
+                throw new RuntimeException("Bad configID; should never happen", e);
             }
         }
         Collections.sort(results);
@@ -541,7 +541,7 @@ public class KernelManagementHelper implements ManagementHelper {
             }
             return (J2EEDeployedObject) kernel.getProxyManager().createProxy(result, getClass().getClassLoader());
         } catch (GBeanNotFoundException e) {
-            throw new IllegalStateException("Bad config ID: " + e.getMessage());
+            throw new IllegalStateException("Bad config ID: " + e.getMessage(), e);
         }
     }
 

@@ -101,7 +101,7 @@ public class TransportConnectorGBeanImpl implements GBeanLifecycle, ActiveMQConn
         try {
             return new URI(protocol, null, host, port, path, query, null).toString();
         } catch (URISyntaxException e) {
-            throw new IllegalStateException("Attributes don't form a valid URI: "+protocol+"://"+host+":"+port+"/"+path+"?"+query);
+            throw new IllegalStateException("Attributes don't form a valid URI: "+protocol+"://"+host+":"+port+"/"+path+"?"+query, e);
         }
     }
 

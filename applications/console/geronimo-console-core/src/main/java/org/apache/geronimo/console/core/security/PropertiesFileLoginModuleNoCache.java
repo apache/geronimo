@@ -104,13 +104,13 @@ public class PropertiesFileLoginModuleNoCache implements LoginModule {
                     MessageDigest.getInstance(digest);
                 } catch(NoSuchAlgorithmException e) {
                     log.error("Initialization failed. Digest algorithm "+digest+" is not available.", e);
-                    throw new IllegalArgumentException("Unable to configure properties file login module: "+e.getMessage());
+                    throw new IllegalArgumentException("Unable to configure properties file login module: "+e.getMessage(), e);
                 }
             }
         } catch (Exception e) {
             log.error(e);
             throw new IllegalArgumentException(
-                    "Unable to configure properties file login module: " + e);
+                    "Unable to configure properties file login module: " + e.getMessage(), e);
         }
     }
 
@@ -149,7 +149,7 @@ public class PropertiesFileLoginModuleNoCache implements LoginModule {
 
         } catch (Exception e) {
             log.error("Properties File Login Module - data load failed", e);
-            throw new GeronimoSecurityException(e);
+            throw new GeronimoSecurityException("Properties File Login Module - data load failed", e);
         }
     }
 

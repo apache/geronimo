@@ -59,7 +59,7 @@ public class AxisServiceReference extends SimpleReference implements ClassLoader
         try {
             serviceInterface = classLoader.loadClass(serviceInterfaceClassName);
         } catch (ClassNotFoundException e) {
-            throw new NamingException("Could not load service interface class " + serviceInterfaceClassName);
+            throw (NamingException)new NamingException("Could not load service interface class " + serviceInterfaceClassName).initCause(e);
         }
         Object serviceInstance = createServiceInterfaceProxy(serviceInterface, seiPortNameToFactoryMap, seiClassNameToFactoryMap, classLoader);
         for (Iterator iterator = seiPortNameToFactoryMap.values().iterator(); iterator.hasNext();) {
@@ -67,7 +67,7 @@ public class AxisServiceReference extends SimpleReference implements ClassLoader
             try {
                 seiFactory.initialize(serviceInstance, classLoader);
             } catch (ClassNotFoundException e) {
-                throw new NamingException("Could not load service interface class; " + e.getMessage());
+                throw (NamingException)new NamingException("Could not load service interface class; " + e.getMessage()).initCause(e);
             }
         }
 

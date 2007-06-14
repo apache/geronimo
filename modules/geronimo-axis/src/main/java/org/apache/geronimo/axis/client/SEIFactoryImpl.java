@@ -151,7 +151,7 @@ public class SEIFactoryImpl implements SEIFactory, Serializable {
             return (Remote) constructor.newInstance(new Object[]{serviceEndpoint});
         } catch (InvocationTargetException e) {
             e.getTargetException().printStackTrace();
-            throw new ServiceException("Could not construct service instance", e.getTargetException());
+            throw (ServiceException)new ServiceException("Could not construct service instance", e.getTargetException()).initCause(e);
         }
     }
 

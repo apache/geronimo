@@ -54,7 +54,7 @@ public class AbstractImageHandler implements DataContentHandler {
     public Object getContent(DataSource ds) throws IOException {
         Iterator i = ImageIO.getImageReadersByMIMEType(ds.getContentType());
         if (!i.hasNext()) {
-            throw new UnsupportedDataTypeException();
+            throw new UnsupportedDataTypeException("Unknown image type " + ds.getContentType());
         }
         ImageReader reader = (ImageReader) i.next();
         return reader.read(0);
@@ -63,7 +63,7 @@ public class AbstractImageHandler implements DataContentHandler {
     public void writeTo(Object obj, String mimeType, OutputStream os) throws IOException {
         Iterator i = ImageIO.getImageWritersByMIMEType(mimeType);
         if (!i.hasNext()) {
-            throw new UnsupportedDataTypeException();
+            throw new UnsupportedDataTypeException("Unknown image type " + mimeType);
         }
         ImageWriter writer = (ImageWriter) i.next();
         writer.setOutput(os);
@@ -80,7 +80,7 @@ public class AbstractImageHandler implements DataContentHandler {
             graphics.drawImage(image, 0, 0, null, null);
             writer.write(new IIOImage(buffered.getRaster(), null, null));
         } else {
-            throw new UnsupportedDataTypeException();
+            throw new UnsupportedDataTypeException("Unknown image type " + obj.getClass().getName());
         }
         os.flush();
     }
