@@ -22,7 +22,7 @@
 <html>
 <head>
 <title>Geronimo Console Login</title>
-<link href="<%=request.getContextPath()%>/main.css" rel="stylesheet" type="text/css">
+<link href="<%=request.getContextPath()%>/main.css" rel="stylesheet" type="text/css"/>
 <link rel="SHORTCUT ICON" href="<%=request.getContextPath()%>/favicon.ico" type="image/x-icon"/>
 </head>
 
@@ -75,7 +75,7 @@
                 <td width="25%" class="MediumBackground">&nbsp;</td>
               </tr>
               <tr>
-                <td class="MediumBackground" ROWSPAN=3 ALIGN="center" ><img border="0" align="center" src="<%=request.getContextPath()%>/images/login_lock_64x55.gif"></td> 
+                <td class="MediumBackground" ROWSPAN=3 ALIGN="center" ><img border="0" align="center" src="<%=request.getContextPath()%>/images/login_lock_64x55.gif"/></td> 
                 <td align="right" class="MediumBackground"><strong>Username</strong></td>
                 <td class="MediumBackground"><strong>:</strong></td>
                 <td width="1" class="MediumBackground">&nbsp;</td>

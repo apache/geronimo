@@ -72,7 +72,7 @@ function <portlet:namespace/>validateForm(){
       <tr>
         <th><div align="right">Driver JAR:</div></th>
         <td>
-          <select multiple name="jars" size="10">
+          <select multiple="true" name="jars" size="10">
               <c:forEach var="availableJar" items="${availableJars}">
                   <option value="${availableJar}" <c:forEach var="jar" items="${pool.jars}"><c:if test="${availableJar == jar}">selected</c:if></c:forEach>>
                       ${availableJar}
