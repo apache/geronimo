@@ -124,13 +124,7 @@ public abstract class Axis2WebServiceContainer implements WebServiceContainer {
             service = serviceGen.getServiceFromWSDL(portInfo, endpointClass, configurationBaseUrl);
         } else {
             // No WSDL, let Axis2 handle it.
-
-            // FIXME: AxisServiceGenerator method should be used as it understands annotations
-            // but right now that method causes some problems when WSDL is requested.
-            service = AxisService.createService(endpointClassName, 
-                                                configurationContext.getAxisConfiguration(), 
-                                                JAXWSMessageReceiver.class);
-            // service = serviceGen.getServiceFromClass(this.endpointClass);
+            service = serviceGen.getServiceFromClass(this.endpointClass);
         }
 
         service.setScope(Constants.SCOPE_APPLICATION);

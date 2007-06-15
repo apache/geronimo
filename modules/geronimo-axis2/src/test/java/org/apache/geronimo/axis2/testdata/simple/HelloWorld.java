@@ -19,7 +19,8 @@ package org.apache.geronimo.axis2.testdata.simple;
 import javax.jws.WebMethod;
 import javax.jws.WebService;
 
-@WebService(name="HelloWorld", targetNamespace = "http://example.org")
+@WebService(name="HelloWorld", targetNamespace = "http://simple.axis2.geronimo.apache.org", 
+            wsdlLocation="test_service_simple.wsdl", serviceName="HelloService", portName="HelloPort")
 public class HelloWorld {
 
     @WebMethod
