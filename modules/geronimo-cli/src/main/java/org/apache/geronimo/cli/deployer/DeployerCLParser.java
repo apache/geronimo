@@ -252,7 +252,7 @@ public class DeployerCLParser extends BaseCLParser {
         try {
             getPort();
         } catch (NumberFormatException e) {
-            throw new CLParserException("Port [" + commandLine.getOptionValue(ARGUMENT_PORT_SHORTFORM) + "] is not an integer.");
+            throw new CLParserException("Port [" + commandLine.getOptionValue(ARGUMENT_PORT_SHORTFORM) + "] is not an integer.", e);
         }
     }
 

@@ -323,7 +323,7 @@ public class AxisBuilder implements WebServiceBuilder {
         try {
             location = new URL(locationURIString);
         } catch (MalformedURLException e) {
-            throw new DeploymentException("Could not construct web service location URL from " + locationURIString);
+            throw new DeploymentException("Could not construct web service location URL from " + locationURIString, e);
         }
         return location;
     }
@@ -369,7 +369,7 @@ public class AxisBuilder implements WebServiceBuilder {
         try {
             location = new URL(locationURIString);
         } catch (MalformedURLException e) {
-            throw new DeploymentException("Could not construct web service location URL from " + locationURIString);
+            throw new DeploymentException("Could not construct web service location URL from " + locationURIString, e);
         }
         return location;
     }

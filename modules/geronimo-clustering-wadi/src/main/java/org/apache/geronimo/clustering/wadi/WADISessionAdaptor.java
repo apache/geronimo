@@ -39,7 +39,7 @@ public class WADISessionAdaptor implements Session {
         try {
             session.destroy();
         } catch (Exception e) {
-            throw new IllegalStateException("Cannot release session " + session);
+            throw new IllegalStateException("Cannot release session " + session, e);
         }
     }
 

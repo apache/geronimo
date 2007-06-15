@@ -428,7 +428,7 @@ public class HeavyweightTypeInfoBuilder implements TypeInfoBuilder {
                         Field field = javaClass.getField(fieldName);
                         javaType = field.getType();
                     } catch (NoSuchFieldException e) {
-                        throw new DeploymentException("field name " + fieldName + " not found in " + properties);
+                        throw new DeploymentException("field name " + fieldName + " not found in " + properties, e);
                     }
                 }
                 QName xmlName = new QName("", variableMapping.getXmlElementName().getStringValue().trim());

@@ -80,7 +80,7 @@ public class POJOWebServiceContainerFactoryGBean implements WebServiceContainerF
         try {
             container.init();
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException("Failure initializing web service containter", e);
         }
         return container;
     }

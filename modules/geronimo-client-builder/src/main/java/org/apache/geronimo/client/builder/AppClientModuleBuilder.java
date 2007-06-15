@@ -230,7 +230,7 @@ public class AppClientModuleBuilder implements ModuleBuilder, CorbaGBeanNameSour
                 throw new DeploymentException("Manifest class path entry is not allowed in a standalone jar (JAVAEE 5 Section 8.2)");
             }
         } catch (IOException e) {
-            throw new DeploymentException("Could not get manifest from app client module: " + moduleFile.getName());
+            throw new DeploymentException("Could not get manifest from app client module: " + moduleFile.getName(), e);
         }
 
         String specDD;
@@ -391,7 +391,7 @@ public class AppClientModuleBuilder implements ModuleBuilder, CorbaGBeanNameSour
                 gerAppClient = createDefaultPlan(path, appClient, standAlone, environment);
             }
         } catch (XmlException e) {
-            throw new DeploymentException(e);
+            throw new DeploymentException("Unable to parse application plan", e);
         }
         return gerAppClient;
     }
@@ -477,7 +477,7 @@ public class AppClientModuleBuilder implements ModuleBuilder, CorbaGBeanNameSour
         try {
             earContext.addIncludeAsPackedJar(URI.create(module.getTargetPath()), moduleFile);
         } catch (IOException e) {
-            throw new DeploymentException("Unable to copy app client module jar into configuration: " + moduleFile.getName());
+            throw new DeploymentException("Unable to copy app client module jar into configuration: " + moduleFile.getName(), e);
         }
         AppClientModule appClientModule = (AppClientModule) module;
         appClientModule.setEarFile(earFile);
@@ -493,7 +493,7 @@ public class AppClientModuleBuilder implements ModuleBuilder, CorbaGBeanNameSour
         try {
             appClientDir = targetConfigurationStore.createNewConfigurationDir(clientEnvironment.getConfigId());
         } catch (ConfigurationAlreadyExistsException e) {
-            throw new DeploymentException(e);
+            throw new DeploymentException("Unable to create configuration directory for " + clientEnvironment.getConfigId(), e);
         }
 
         // construct the app client deployment context... this is the same class used by the ear context
@@ -520,7 +520,7 @@ public class AppClientModuleBuilder implements ModuleBuilder, CorbaGBeanNameSour
             try {
                 appClientDeploymentContext.addIncludeAsPackedJar(URI.create(module.getTargetPath()), moduleFile);
             } catch (IOException e) {
-                throw new DeploymentException("Unable to copy app client module jar into configuration: " + moduleFile.getName());
+                throw new DeploymentException("Unable to copy app client module jar into configuration: " + moduleFile.getName(), e);
             }
             ClassPathList libClasspath = (ClassPathList) earContext.getGeneralData().get(ClassPathList.class);
             if (libClasspath != null) {
@@ -613,7 +613,7 @@ public class AppClientModuleBuilder implements ModuleBuilder, CorbaGBeanNameSour
                 try {
                     appClientDeploymentContext.addIncludeAsPackedJar(moduleBase, moduleFile);
                 } catch (IOException e) {
-                    throw new DeploymentException("Unable to copy app client module jar into configuration: " + moduleFile.getName());
+                    throw new DeploymentException("Unable to copy app client module jar into configuration: " + moduleFile.getName(), e);
                 }
 
                 // add manifest class path entries to the app client context
@@ -766,7 +766,7 @@ public class AppClientModuleBuilder implements ModuleBuilder, CorbaGBeanNameSour
             mainClas = classLoader.loadClass(mainClass);
         }
         catch (ClassNotFoundException e) {
-            throw new DeploymentException("AppClientModuleBuilder: Could not load main class: " + mainClass);
+            throw new DeploymentException("AppClientModuleBuilder: Could not load main class: " + mainClass, e);
         }
         while (mainClas != null && mainClas != Object.class) {
             classes.add(mainClas);
@@ -781,7 +781,7 @@ public class AppClientModuleBuilder implements ModuleBuilder, CorbaGBeanNameSour
                 clas = classLoader.loadClass(cls.getStringValue().trim());
             }
             catch (ClassNotFoundException e) {
-                throw new DeploymentException("AppClientModuleBuilder: Could not load callback-handler class: " + cls.getStringValue());
+                throw new DeploymentException("AppClientModuleBuilder: Could not load callback-handler class: " + cls.getStringValue(), e);
             }
             classes.add(clas);
         }
@@ -804,7 +804,7 @@ public class AppClientModuleBuilder implements ModuleBuilder, CorbaGBeanNameSour
         try {
             manifest = jarFile.getManifest();
         } catch (IOException e) {
-            throw new DeploymentException("Could not read manifest: " + jarFileLocation);
+            throw new DeploymentException("Could not read manifest: " + jarFileLocation, e);
         }
 
         if (manifest == null) {
@@ -822,7 +822,7 @@ public class AppClientModuleBuilder implements ModuleBuilder, CorbaGBeanNameSour
             try {
                 pathUri = new URI(path);
             } catch (URISyntaxException e) {
-                throw new DeploymentException("Invalid manifest classpath entry: jarFile=" + jarFileLocation + ", path=" + path);
+                throw new DeploymentException("Invalid manifest classpath entry: jarFile=" + jarFileLocation + ", path=" + path, e);
             }
 
             if (!pathUri.getPath().endsWith(".jar")) {

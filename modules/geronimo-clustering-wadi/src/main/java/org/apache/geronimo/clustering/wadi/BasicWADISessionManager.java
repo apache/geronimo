@@ -113,7 +113,7 @@ public class BasicWADISessionManager implements GBeanLifecycle, SessionManager, 
         try {
             session = manager.createWithName(sessionId);
         } catch (org.codehaus.wadi.core.manager.SessionAlreadyExistException e) {
-            throw new SessionAlreadyExistException(sessionId);
+            throw new SessionAlreadyExistException("Session " + sessionId + " already exists", e);
         }
         return new WADISessionAdaptor(session);
     }
