@@ -112,7 +112,7 @@ public abstract class InstallerMojoSupport
     
     protected InstallType installType;
 
-    private File discoverGeronimoHome(final File archive) throws MojoExecutionException {
+    private File discoverGeronimoHome(final File archive) throws IOException, MojoExecutionException {
         log.debug("Attempting to discover geronimoHome...");
 
         File dir = null;
@@ -140,45 +140,54 @@ public abstract class InstallerMojoSupport
             throw new MojoExecutionException("Archive does not contain a Geronimo assembly: " + archive);
         }
 
-        return dir;
+        return dir.getCanonicalFile();
     }
 
     protected void init() throws MojoExecutionException, MojoFailureException {
         super.init();
+        
+        try {
+            // First check if geronimoHome is set, if it is, then we can skip this
+            if (geronimoHome != null) {
+                geronimoHome = geronimoHome.getCanonicalFile();
+                
+                // Quick sanity check
+                File file = new File(geronimoHome, "bin/server.jar");
+                if (!file.exists()) {
+                    throw new MojoExecutionException("When geronimoHome is set, it must point to a directory that contains 'bin/server.jar'");
+                }
+                log.info("Using pre-installed assembly: " + geronimoHome);
 
-        // First check if geronimoHome is set, if it is, then we can skip this
-        if (geronimoHome != null) {
-            // Quick sanity check
-            File file = new File(geronimoHome, "bin/server.jar");
-            if (!file.exists()) {
-                throw new MojoExecutionException("When geronimoHome is set, it must point to a directory that contains 'bin/server.jar'");
-            }
-            log.info("Using pre-installed assembly: " + geronimoHome);
-
-            installType = InstallType.ALREADY_EXISTS;
-        }
-        else {
-            if (assemblyArchive != null) {
-                log.info("Using non-artifact based assembly archive: " + assemblyArchive);
-
-                installType = InstallType.FROM_FILE;
+                installType = InstallType.ALREADY_EXISTS;
             }
             else {
-                Artifact artifact = getAssemblyArtifact();
+                if (assemblyArchive != null) {
+                    assemblyArchive = assemblyArchive.getCanonicalFile();
+                    
+                    log.info("Using non-artifact based assembly archive: " + assemblyArchive);
 
-                if (!"zip".equals(artifact.getType())) {
-                    throw new MojoExecutionException("Assembly file does not look like a ZIP archive");
+                    installType = InstallType.FROM_FILE;
+                }
+                else {
+                    Artifact artifact = getAssemblyArtifact();
+
+                    if (!"zip".equals(artifact.getType())) {
+                        throw new MojoExecutionException("Assembly file does not look like a ZIP archive");
+                    }
+
+                    log.info("Using assembly artifact: " + artifact);
+
+                    assemblyArchive = artifact.getFile();
+
+                    installType = InstallType.FROM_ARTIFACT;
                 }
 
-                log.info("Using assembly artifact: " + artifact);
-
-                assemblyArchive = artifact.getFile();
-
-                installType = InstallType.FROM_ARTIFACT;
+                geronimoHome = discoverGeronimoHome(assemblyArchive);
+                log.info("Using geronimoHome: " + geronimoHome);
             }
-
-            geronimoHome = discoverGeronimoHome(assemblyArchive);
-            log.info("Using geronimoHome: " + geronimoHome);
+        }
+        catch (java.io.IOException e) {
+            throw new MojoExecutionException(e.getMessage(), e);
         }
     }
 

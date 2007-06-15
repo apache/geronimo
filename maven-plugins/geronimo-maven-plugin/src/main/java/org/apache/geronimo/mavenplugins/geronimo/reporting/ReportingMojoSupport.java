@@ -124,11 +124,16 @@ public abstract class ReportingMojoSupport
     }
 
     protected File getLogFile() {
-        if ( logFile == null ) {
+        if (logFile == null) {
             return new File(logOutputDirectory, getFullClassName() + ".log");
         }
-
-        return logFile;
+        
+        try {
+            return logFile.getCanonicalFile();
+        }
+        catch (java.io.IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     /**
