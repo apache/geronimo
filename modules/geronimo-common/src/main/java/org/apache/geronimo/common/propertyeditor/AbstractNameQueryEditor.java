@@ -34,7 +34,7 @@ public class AbstractNameQueryEditor extends TextPropertyEditorSupport {
         try {
             return new AbstractNameQuery(new URI(getAsText()));
         } catch (URISyntaxException e) {
-            throw new PropertyEditorException(e);
+            throw new PropertyEditorException(e.getMessage(), e);
         }
     }
 

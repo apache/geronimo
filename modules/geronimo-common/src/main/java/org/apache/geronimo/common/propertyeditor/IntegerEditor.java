@@ -31,7 +31,7 @@ public class IntegerEditor extends TextPropertyEditorSupport {
             return Integer.valueOf(text);
         }
         catch (Exception e) {
-            throw new PropertyEditorException(e);
+            throw new PropertyEditorException(e.getMessage(), e);
         }
     }
 }

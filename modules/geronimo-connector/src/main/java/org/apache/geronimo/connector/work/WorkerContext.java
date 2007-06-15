@@ -300,7 +300,7 @@ public class WorkerContext implements Work {
                 } catch (SystemException e) {
                     throw new WorkCompletedException("Transaction import failed for xid " + executionContext.getXid(), WorkCompletedException.TX_RECREATE_FAILED).initCause(e);
                 } catch (ImportedTransactionActiveException e) {
-                    throw new WorkCompletedException("Transaction already active for xid " + executionContext.getXid(), WorkCompletedException.TX_CONCURRENT_WORK_DISALLOWED);
+                    throw new WorkCompletedException("Transaction already active for xid " + executionContext.getXid(), WorkCompletedException.TX_CONCURRENT_WORK_DISALLOWED).initCause(e);
                 }
                 try {
                     adaptee.run();

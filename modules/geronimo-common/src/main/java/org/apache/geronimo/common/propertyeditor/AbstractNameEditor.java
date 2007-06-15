@@ -34,7 +34,7 @@ public class AbstractNameEditor extends TextPropertyEditorSupport {
         try {
             return new AbstractName(new URI(getAsText()));
         } catch (URISyntaxException e) {
-            throw new PropertyEditorException(e);
+            throw new PropertyEditorException(e.getMessage(), e);
         }
     }
 

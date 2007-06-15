@@ -82,7 +82,7 @@ public final class AdapterEntity extends Adapter {
             StandardServant servant = new StandardServant(orb, InterfaceType.EJB_OBJECT, tssLink.getDeployment());
             referenceInterface = servant._all_interfaces(null, null)[0];
         } catch (Exception e) {
-            throw new CORBAException(e);
+            throw new CORBAException("Error activating EJB as CORBA object", e);
         }
     }
 
@@ -108,7 +108,7 @@ public final class AdapterEntity extends Adapter {
             os.close();
         } catch (IOException e) {
             log.error("Could not serialize deployment info for " + deploymentId, e);
-            throw new CORBAException(e);
+            throw new CORBAException("Could not serialize deployment info for " + deploymentId, e);
         }
         return poa.create_reference_with_id(bytes, referenceInterface);
     }
@@ -128,7 +128,7 @@ public final class AdapterEntity extends Adapter {
                 return new StandardServant(getOrb(), InterfaceType.EJB_OBJECT, deployment, pk);
             } catch (IOException e) {
                 // if we can't deserialize, then this object can't exist in this process
-                throw new OBJECT_NOT_EXIST(0, org.omg.CORBA.CompletionStatus.COMPLETED_NO);
+                throw (OBJECT_NOT_EXIST)new OBJECT_NOT_EXIST(0, org.omg.CORBA.CompletionStatus.COMPLETED_NO).initCause(e);
             } catch (Exception e) {
                 log.error("Exception during dispatch to method " + operation + " in bean " + pk, e);
                 return null;

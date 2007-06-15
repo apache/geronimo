@@ -104,7 +104,7 @@ public class CSSSASITTPrincipalNameDynamic implements CSSSASIdentityToken {
             try {
                 encoding = Util.getCodec().encode_value(any);
             } catch (InvalidTypeForEncoding itfe) {
-                throw new IllegalStateException("Unable to encode principal name '" + principalName + "' " + itfe);
+                throw new IllegalStateException("Unable to encode principal name '" + principalName + "' " + itfe, itfe);
             }
 
             token = new IdentityToken();

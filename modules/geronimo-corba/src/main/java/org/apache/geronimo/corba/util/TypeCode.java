@@ -199,11 +199,11 @@ public class TypeCode    extends org.omg.CORBA.TypeCode
         }
         catch (org.omg.CORBA.TypeCodePackage.BadKind ex)
         {
-            throw new org.omg.CORBA.UNKNOWN(ex.toString());
+            throw (org.omg.CORBA.UNKNOWN)new org.omg.CORBA.UNKNOWN(ex.toString()).initCause(ex);
         }
         catch (org.omg.CORBA.TypeCodePackage.Bounds ex)
         {
-            throw new org.omg.CORBA.UNKNOWN(ex.toString());
+            throw (org.omg.CORBA.UNKNOWN)new org.omg.CORBA.UNKNOWN(ex.toString()).initCause(ex);
         }
     }
 

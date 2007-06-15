@@ -49,7 +49,7 @@ public class PropertiesEditor extends TextPropertyEditorSupport {
                 bundle.load(stream);
             } catch (IOException e) {
                 // any errors here are just a property exception
-                throw new PropertyEditorException(e);
+                throw new PropertyEditorException(e.getMessage(), e);
             }
             return bundle;
         }
@@ -72,7 +72,7 @@ public class PropertiesEditor extends TextPropertyEditorSupport {
                 ((Properties) value).store(baos, null);
             } catch (IOException e) {
                 // any errors here are just a property exception
-                throw new PropertyEditorException(e);
+                throw new PropertyEditorException(e.getMessage(), e);
             }
             return baos.toString();
         }

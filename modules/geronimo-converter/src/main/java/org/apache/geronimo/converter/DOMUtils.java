@@ -29,7 +29,7 @@ public class DOMUtils {
     public static String getChildText(Element parent, String childName) {
         NodeList list = parent.getElementsByTagName(childName);
         if(list.getLength() > 1) {
-            throw new IllegalStateException();
+            throw new IllegalStateException("Multiple child elements with name " + childName);
         } else if(list.getLength() == 0) {
             return null;
         }

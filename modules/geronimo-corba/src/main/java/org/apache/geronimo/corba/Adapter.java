@@ -39,13 +39,13 @@ import org.apache.geronimo.openejb.EjbDeployment;
  * @version $Revision: 497125 $ $Date: 2007-01-17 10:51:30 -0800 (Wed, 17 Jan 2007) $
  */
 public abstract class Adapter implements RefGenerator {
-    private final EjbDeployment deployment;
+    protected final EjbDeployment deployment;
     protected final POA homePOA;
     protected final ORB orb;
-    private final NamingContextExt initialContext;
-    private final byte[] home_id;
-    private final org.omg.CORBA.Object homeReference;
-    private final TSSLink tssLink; 
+    protected final NamingContextExt initialContext;
+    protected final byte[] home_id;
+    protected final org.omg.CORBA.Object homeReference;
+    protected final TSSLink tssLink; 
 
     protected Adapter(TSSLink tssLink, ORB orb, POA parentPOA, Policy securityPolicy) throws CORBAException {
         this.tssLink = tssLink; 
@@ -97,7 +97,7 @@ public abstract class Adapter implements RefGenerator {
                 currentContext.rebind(nc, homeReference);
             }
         } catch (Exception e) {
-            throw new CORBAException(e);
+            throw new CORBAException("Unable to activate EJB as CORBA object.", e);
         }
 
     }
@@ -140,7 +140,7 @@ public abstract class Adapter implements RefGenerator {
             homePOA.deactivate_object(home_id);
             homePOA.destroy(true, true);
         } catch (Exception e) {
-            throw new CORBAException(e);
+            throw new CORBAException("Error deactivating EJB as CORBA object", e);
         }
     }
 

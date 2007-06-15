@@ -55,7 +55,7 @@ public class CSSSASITTPrincipalNameStatic implements CSSSASIdentityToken {
             try {
                 encoding = Util.getCodec().encode_value(any);
             } catch (InvalidTypeForEncoding itfe) {
-                throw new IllegalStateException("Unable to encode principal name '" + name + "' " + itfe);
+                throw new IllegalStateException("Unable to encode principal name '" + name + "' " + itfe, itfe);
             }
 
             token = new IdentityToken();

@@ -125,7 +125,7 @@ public class StandardServant extends Servant implements InvokeHandler {
         try {
             enc = EnterpriseNamingContext.createEnterpriseNamingContext(componentContext);
         } catch (NamingException e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException("Error creating standard servant naming context", e);
         }
     }
 
@@ -213,7 +213,7 @@ public class StandardServant extends Servant implements InvokeHandler {
                                         throw new RemoteException("Handle does not hold a " + remoteInterface.getName());
                                     }
                                 } catch (ClassCastException e) {
-                                    throw new RemoteException("Handle does not hold a " + remoteInterface.getName());
+                                    throw new RemoteException("Handle does not hold a " + remoteInterface.getName(), e);
                                 }
                             } else {
                                 try {
@@ -264,38 +264,36 @@ public class StandardServant extends Servant implements InvokeHandler {
                 }
             } catch (TransactionRolledbackException e) {
                 log.debug("TransactionRolledbackException", e);
-                throw new TRANSACTION_ROLLEDBACK(e.toString());
+                throw (SystemException)new TRANSACTION_ROLLEDBACK(e.toString()).initCause(e);
             } catch (TransactionRequiredException e) {
                 log.debug("TransactionRequiredException", e);
-                throw new TRANSACTION_REQUIRED(e.toString());
+                throw (SystemException)new TRANSACTION_REQUIRED(e.toString()).initCause(e);
             } catch (InvalidTransactionException e) {
                 log.debug("InvalidTransactionException", e);
-                throw new INVALID_TRANSACTION(e.toString());
+                throw (SystemException)new INVALID_TRANSACTION(e.toString()).initCause(e);
             } catch (NoSuchObjectException e) {
                 log.debug("NoSuchObjectException", e);
-                throw new OBJECT_NOT_EXIST(e.toString());
+                throw (SystemException)new OBJECT_NOT_EXIST(e.toString()).initCause(e);
             } catch (AccessException e) {
                 log.debug("AccessException", e);
-                throw new NO_PERMISSION(e.toString());
+                throw (SystemException)new NO_PERMISSION(e.toString()).initCause(e);
             } catch (MarshalException e) {
                 log.debug("MarshalException", e);
-                throw new MARSHAL(e.toString());
+                throw (SystemException)new MARSHAL(e.toString()).initCause(e);
             } catch (RemoteException e) {
                 log.debug("RemoteException", e);
-                e.printStackTrace();
-                throw new UnknownException(e);
+                throw (SystemException)new UnknownException(e).initCause(e);
             } catch (RuntimeException e) {
                 log.debug("RuntimeException", e);
-                e.printStackTrace();
-                RemoteException remoteException = new RemoteException(e.getClass().getName() + " thrown from " + ejbDeployment.getDeploymentId() + ": " + e.getMessage());
+                RemoteException remoteException = new RemoteException(e.getClass().getName() + " thrown from " + ejbDeployment.getDeploymentId() + ": " + e.getMessage(), e);
                 throw new UnknownException(remoteException);
             } catch (Error e) {
                 log.debug("Error", e);
-                RemoteException remoteException = new RemoteException(e.getClass().getName() + " thrown from " + ejbDeployment.getDeploymentId() + ": " + e.getMessage());
+                RemoteException remoteException = new RemoteException(e.getClass().getName() + " thrown from " + ejbDeployment.getDeploymentId() + ": " + e.getMessage(), e);
                 throw new UnknownException(remoteException);
             } catch (Throwable e) {
                 log.warn("Unexpected throwable", e);
-                throw new UNKNOWN("Unknown exception type " + e.getClass().getName() + ": " + e.getMessage());
+                throw (SystemException)new UNKNOWN("Unknown exception type " + e.getClass().getName() + ": " + e.getMessage()).initCause(e);
             }
 
             // creat the output stream

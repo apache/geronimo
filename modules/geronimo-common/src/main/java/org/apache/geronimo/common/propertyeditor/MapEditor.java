@@ -47,7 +47,7 @@ public class MapEditor
             
             setValue((Map)p);
         } catch (IOException e) {
-            throw new PropertyEditorException(e);
+            throw new PropertyEditorException(e.getMessage(), e);
         }
     }
 

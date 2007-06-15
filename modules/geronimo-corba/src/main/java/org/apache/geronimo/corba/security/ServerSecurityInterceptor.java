@@ -126,10 +126,10 @@ final class ServerSecurityInterceptor extends LocalObject implements ServerReque
             if (log.isDebugEnabled()) log.debug("INV_POLICY");
         } catch (TypeMismatch tm) {
             log.error("TypeMismatch thrown", tm);
-            throw new MARSHAL("TypeMismatch thrown: " + tm);
+            throw (MARSHAL)new MARSHAL("TypeMismatch thrown: " + tm).initCause(tm);
         } catch (FormatMismatch fm) {
             log.error("FormatMismatch thrown", fm);
-            throw new MARSHAL("FormatMismatch thrown: " + fm);
+            throw (MARSHAL)new MARSHAL("FormatMismatch thrown: " + fm).initCause(fm);
         } catch (SASException e) {
             log.error("SASException", e);
             SASReplyManager.setSASReply(ri.request_id(), generateContextError(e, contextId));
@@ -237,7 +237,7 @@ final class ServerSecurityInterceptor extends LocalObject implements ServerReque
             }
         } catch (InvalidTypeForEncoding itfe) {
             log.error("InvalidTypeForEncoding thrown", itfe);
-            throw new INTERNAL("InvalidTypeForEncoding thrown: " + itfe);
+            throw (INTERNAL)new INTERNAL("InvalidTypeForEncoding thrown: " + itfe).initCause(itfe);
         }
     }
 }

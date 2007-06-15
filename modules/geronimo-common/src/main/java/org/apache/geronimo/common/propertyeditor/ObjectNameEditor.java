@@ -41,7 +41,7 @@ public class ObjectNameEditor
             return new ObjectName(getAsText());
         }
         catch (MalformedObjectNameException e) {
-            throw new PropertyEditorException(e);
+            throw new PropertyEditorException(e.getMessage(), e);
         }
     }
 }

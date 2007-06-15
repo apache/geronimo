@@ -153,7 +153,7 @@ public class TSSSSLTransportConfig extends TSSTransportMechConfig {
         } catch (SSLPeerUnverifiedException e) {
             if ((requires & EstablishTrustInClient.value) != 0) {
                 if (log.isDebugEnabled()) log.debug("Unverified peer, throwing exception");
-                throw new SASException(1);
+                throw new SASException(1, e);
             }
             if (log.isDebugEnabled()) log.debug("Unverified peer, returning null");
             return null;

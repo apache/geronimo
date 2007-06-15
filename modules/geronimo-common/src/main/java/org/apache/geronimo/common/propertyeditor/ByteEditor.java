@@ -31,7 +31,7 @@ public class ByteEditor extends TextPropertyEditorSupport {
             return Byte.valueOf(text);
         }
         catch (Exception e) {
-            throw new PropertyEditorException(e);
+            throw new PropertyEditorException(e.getMessage(), e);
         }
     }
 }

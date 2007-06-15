@@ -168,7 +168,7 @@ public class CSSBean implements GBeanLifecycle, ORBConfiguration {
             throw new InvalidConfigurationException("CORBA usage requires Yoko CORBA spec classes in java.endorsed.dirs classpath", e); 
         } catch (UserException ue) {
             log.error(description + " - Looking up home", ue);
-            throw new RuntimeException(ue);
+            throw new RuntimeException(description + " - Looking up home", ue);
         }
     }
 

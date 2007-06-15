@@ -32,7 +32,7 @@ public class URIEditor extends TextPropertyEditorSupport {
         try {
             return new URI(getAsText());
         } catch (URISyntaxException e) {
-            throw new PropertyEditorException(e);
+            throw new PropertyEditorException(e.getMessage(), e);
         }
     }
 

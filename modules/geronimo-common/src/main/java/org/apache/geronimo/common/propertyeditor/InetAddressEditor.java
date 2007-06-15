@@ -30,7 +30,7 @@ public class InetAddressEditor extends TextPropertyEditorSupport {
         try {
             return InetAddress.getByName(getAsText());
         } catch (UnknownHostException e) {
-            throw new PropertyEditorException(e);
+            throw new PropertyEditorException(e.getMessage(), e);
         }
     }
 }

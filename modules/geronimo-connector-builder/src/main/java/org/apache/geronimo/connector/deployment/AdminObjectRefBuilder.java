@@ -152,7 +152,7 @@ public class AdminObjectRefBuilder extends AbstractNamingBuilder {
                     getJndiContextMap(componentContext).put(ENV + name, ref);
                 }
             } catch (UnresolvedReferenceException e) {
-                throw new DeploymentException("Unable to resolve resource env reference '" + name + "' (" + (e.isMultiple() ? "found multiple matching resources" : "no matching resources found") + ")");
+                throw new DeploymentException("Unable to resolve resource env reference '" + name + "' (" + (e.isMultiple() ? "found multiple matching resources" : "no matching resources found") + ")", e);
             }
         }
         
@@ -255,7 +255,7 @@ public class AdminObjectRefBuilder extends AbstractNamingBuilder {
         try {
             localConfiguration.findGBean(containerId);
         } catch (GBeanNotFoundException e) {
-            throw new DeploymentException("Can not resolve admin object ref " + containerId + " in configuration " + localConfiguration.getId());
+            throw new DeploymentException("Can not resolve admin object ref " + containerId + " in configuration " + localConfiguration.getId(), e);
         }
         return new ResourceReference(module.getConfigId(), containerId, iface);
     }

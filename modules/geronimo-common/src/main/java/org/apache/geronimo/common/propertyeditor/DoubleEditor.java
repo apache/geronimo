@@ -31,7 +31,7 @@ public class DoubleEditor extends TextPropertyEditorSupport {
             return Double.valueOf(text);
         }
         catch (Exception e) {
-            throw new PropertyEditorException(e);
+            throw new PropertyEditorException(e.getMessage(), e);
         }
     }
 }

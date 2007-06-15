@@ -63,8 +63,7 @@ public final class AdapterStateless extends Adapter {
             poa.activate_object_with_id(object_id = tssLink.getContainerId().getBytes(), servant);
             objectReference = poa.servant_to_reference(servant);
         } catch (Exception e) {
-            e.printStackTrace();
-            throw new CORBAException(e);
+            throw new CORBAException("Unable to activate EJB "+ tssLink.getContainerId() +" as CORBA object", e);
         }
     }
 
@@ -74,9 +73,9 @@ public final class AdapterStateless extends Adapter {
             poa.destroy(true, true);
             super.stop();
         } catch (ObjectNotActive e) {
-            throw new CORBAException(e);
+            throw new CORBAException("Unable to activate EJB "+ tssLink.getContainerId() +" as CORBA object", e);
         } catch (WrongPolicy e) {
-            throw new CORBAException(e);
+            throw new CORBAException("Unable to activate EJB "+ tssLink.getContainerId() +" as CORBA object", e);
         }
     }
 

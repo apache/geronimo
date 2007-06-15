@@ -41,7 +41,7 @@ public class DateEditor extends TextPropertyEditorSupport {
             return formatter.parse(getAsText().trim());
         } catch (ParseException e) {
             // any format errors show up as a ParseException, which we turn into a PropertyEditorException.
-            throw new PropertyEditorException(e);
+            throw new PropertyEditorException(e.getMessage(), e);
         }
     }
 }

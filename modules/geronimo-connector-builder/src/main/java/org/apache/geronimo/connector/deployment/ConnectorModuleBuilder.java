@@ -242,7 +242,7 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ActivationSpecInfo
 
             XmlBeansUtil.validateDD(gerConnector);
         } catch (XmlException e) {
-            throw new DeploymentException(e);
+            throw new DeploymentException("Could not parse module descriptor", e);
         }
 
         EnvironmentType environmentType = gerConnector.getEnvironment();
@@ -902,7 +902,7 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ActivationSpecInfo
         try {
             instanceName = configuration.findGBean(resourceAdapterInstanceQuery);
         } catch (GBeanNotFoundException e) {
-            throw new DeploymentException("No resource adapter instance gbean found matching " + resourceAdapterInstanceQuery + " from configuration " + configuration.getId());
+            throw new DeploymentException("No resource adapter instance gbean found matching " + resourceAdapterInstanceQuery + " from configuration " + configuration.getId(), e);
         }
         String moduleName = (String) instanceName.getName().get(NameFactory.RESOURCE_ADAPTER_MODULE);
         Map moduleNameMap = new HashMap(instanceName.getName());
@@ -917,7 +917,7 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ActivationSpecInfo
         try {
             resourceModuleData = configuration.findGBeanData(nameQuery);
         } catch (GBeanNotFoundException e) {
-            throw new DeploymentException("No resource module gbean found matching " + nameQuery + " from configuration " + configuration.getId());
+            throw new DeploymentException("No resource module gbean found matching " + nameQuery + " from configuration " + configuration.getId(), e);
         }
         Map activationSpecInfos = (Map) resourceModuleData.getAttribute("activationSpecInfoMap");
         if (activationSpecInfos == null) {

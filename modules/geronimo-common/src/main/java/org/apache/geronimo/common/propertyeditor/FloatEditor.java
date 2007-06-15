@@ -31,7 +31,7 @@ public class FloatEditor extends TextPropertyEditorSupport {
             return Float.valueOf(text);
         }
         catch (Exception e) {
-            throw new PropertyEditorException(e);
+            throw new PropertyEditorException(e.getMessage(), e);
         }
     }
 }

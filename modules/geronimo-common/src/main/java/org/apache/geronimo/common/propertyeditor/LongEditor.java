@@ -31,7 +31,7 @@ public class LongEditor extends TextPropertyEditorSupport {
             return Long.valueOf(text);
         }
         catch (Exception e) {
-            throw new PropertyEditorException(e);
+            throw new PropertyEditorException(e.getMessage(), e);
         }
     }
 }

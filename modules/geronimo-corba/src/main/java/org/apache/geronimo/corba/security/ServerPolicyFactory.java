@@ -31,7 +31,9 @@ public class ServerPolicyFactory extends LocalObject implements PolicyFactory {
     public final static int POLICY_TYPE = 0x41534600;
 
     public Policy create_policy(int type, Any value) throws PolicyError {
-        if (type != POLICY_TYPE) throw new PolicyError();
+        if (type != POLICY_TYPE) {
+            throw new PolicyError(org.omg.CORBA.BAD_POLICY.value);
+        }
 
         return new ServerPolicy((ServerPolicy.Config) value.extract_Value());
     }

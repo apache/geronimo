@@ -47,7 +47,7 @@ public class URLEditor extends TextPropertyEditorSupport {
                 }
             } catch (Exception e) {
                 // any error here is returned as a property editor exception.
-                throw new PropertyEditorException(e);
+                throw new PropertyEditorException(e.getMessage(), e);
             }
 
             return url;
@@ -63,7 +63,7 @@ public class URLEditor extends TextPropertyEditorSupport {
             return new File(getAsText()).toURI().toURL();
         } catch (MalformedURLException e) {
             // any error here is returned as a property editor exception.
-            throw new PropertyEditorException(e);
+            throw new PropertyEditorException(e.getMessage(), e);
         }
     }
 }

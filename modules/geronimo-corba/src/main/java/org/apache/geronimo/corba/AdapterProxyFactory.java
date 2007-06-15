@@ -105,25 +105,25 @@ public class AdapterProxyFactory {
                 return methodProxy.invoke(delegate.getDelegate(), args);
             } catch (TransactionRolledbackException e) {
                 log.debug("TransactionRolledbackException", e);
-                throw new TRANSACTION_ROLLEDBACK(e.toString());
+                throw new TRANSACTION_ROLLEDBACK(e.toString()).initCause(e);
             } catch (TransactionRequiredException e) {
                 log.debug("TransactionRequiredException", e);
-                throw new TRANSACTION_REQUIRED(e.toString());
+                throw new TRANSACTION_REQUIRED(e.toString()).initCause(e);
             } catch (InvalidTransactionException e) {
                 log.debug("InvalidTransactionException", e);
-                throw new INVALID_TRANSACTION(e.toString());
+                throw new INVALID_TRANSACTION(e.toString()).initCause(e);
             } catch (NoSuchObjectException e) {
                 log.debug("NoSuchObjectException", e);
-                throw new OBJECT_NOT_EXIST(e.toString());
+                throw new OBJECT_NOT_EXIST(e.toString()).initCause(e);
             } catch (AccessException e) {
                 log.debug("AccessException", e);
-                throw new NO_PERMISSION(e.toString());
+                throw new NO_PERMISSION(e.toString()).initCause(e);
             } catch (MarshalException e) {
                 log.debug("MarshalException", e);
-                throw new MARSHAL(e.toString());
+                throw new MARSHAL(e.toString()).initCause(e);
             } catch (RemoteException e) {
                 log.debug("RemoteException", e);
-                throw new UNKNOWN(e.toString());
+                throw new UNKNOWN(e.toString()).initCause(e);
             } finally {
                 Thread.currentThread().setContextClassLoader(savedCL);
             }

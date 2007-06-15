@@ -69,7 +69,7 @@ public class LogXAResource implements NamedXAResource {
 
     public void rollback(Xid xid) throws XAException {
         if (this.xid == null || !this.xid.equals(xid)) {
-            throw new XAException();
+            throw new XAException("Invalid Xid");
         }
         try {
             localTransaction.rollback();

@@ -88,7 +88,7 @@ public abstract class AbstractSinglePoolConnectionInterceptor implements Connect
             }
 
         } catch (InterruptedException ie) {
-            throw new ResourceException("Interrupted while requesting permit!");
+            throw new ResourceException("Interrupted while requesting permit.", ie);
         } // end of try-catch
     }
 

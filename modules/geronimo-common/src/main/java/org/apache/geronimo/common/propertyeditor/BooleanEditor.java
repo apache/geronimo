@@ -31,7 +31,7 @@ public class BooleanEditor extends TextPropertyEditorSupport {
             return Boolean.valueOf(text);
         }
         catch (Exception e) {
-            throw new PropertyEditorException(e);
+            throw new PropertyEditorException(e.getMessage(), e);
         }
     }
 }

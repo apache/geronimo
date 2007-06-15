@@ -29,8 +29,8 @@ public class ClientTransactionPolicyFactory extends LocalObject implements Polic
     public final static int POLICY_TYPE = 0x41534603;
 
     public Policy create_policy(int type, Any value) throws PolicyError {
-        if (type != POLICY_TYPE){
-            throw new PolicyError();
+        if (type != POLICY_TYPE) {
+            throw new PolicyError(org.omg.CORBA.BAD_POLICY.value);
         }
         return new ClientTransactionPolicy(((ClientTransactionPolicyConfig)value.extract_Value()));
     }

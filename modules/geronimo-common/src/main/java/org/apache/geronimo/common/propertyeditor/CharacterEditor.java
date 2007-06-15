@@ -34,7 +34,7 @@ public class CharacterEditor extends TextPropertyEditorSupport {
             return new Character(text.toCharArray()[0]);
         }
         catch (Exception e) {
-            throw new PropertyEditorException(e);
+            throw new PropertyEditorException(e.getMessage(), e);
         }
     }
 }

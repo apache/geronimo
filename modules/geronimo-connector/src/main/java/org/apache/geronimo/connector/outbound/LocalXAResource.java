@@ -50,7 +50,7 @@ public class LocalXAResource implements NamedXAResource {
 
     public void commit(Xid xid, boolean flag) throws XAException {
         if (this.xid == null || !this.xid.equals(xid)) {
-            throw new XAException();
+            throw new XAException("Invalid Xid");
         }
         try {
             localTransaction.commit();
@@ -80,7 +80,7 @@ public class LocalXAResource implements NamedXAResource {
 
     public void rollback(Xid xid) throws XAException {
         if (this.xid == null || !this.xid.equals(xid)) {
-            throw new XAException();
+            throw new XAException("Invalid Xid");
         }
         try {
             localTransaction.rollback();
@@ -119,7 +119,7 @@ public class LocalXAResource implements NamedXAResource {
 
     public void end(Xid xid, int flag) throws XAException {
         if (xid != this.xid) {
-            throw new XAException();
+            throw new XAException("Invalid Xid");
         }
         //we could keep track of if the flag is TMSUCCESS...
     }

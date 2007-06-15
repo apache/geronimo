@@ -41,7 +41,7 @@ public class FileEditor
             return new File(getAsText()).getCanonicalFile();
         }
         catch (IOException e) {
-            throw new PropertyEditorException(e);
+            throw new PropertyEditorException(e.getMessage(), e);
         }
     }
 }

@@ -84,7 +84,7 @@ public class CORBAHomeHandle implements HomeHandle, Serializable {
             ORB orb = (ORB) context.lookup("java:comp/ORB");
             return orb;
         } catch (Throwable e) {
-            throw new org.omg.CORBA.MARSHAL("Could not find ORB in jndi at java:comp/ORB", 0, org.omg.CORBA.CompletionStatus.COMPLETED_YES);
+            throw (org.omg.CORBA.MARSHAL)new org.omg.CORBA.MARSHAL("Could not find ORB in jndi at java:comp/ORB", 0, org.omg.CORBA.CompletionStatus.COMPLETED_YES).initCause(e);
         }
     }
 
@@ -94,7 +94,7 @@ public class CORBAHomeHandle implements HomeHandle, Serializable {
             HandleDelegate handleDelegate = (HandleDelegate) context.lookup("java:comp/HandleDelegate");
             return handleDelegate;
         } catch (Throwable e) {
-            throw new org.omg.CORBA.MARSHAL("Could not find handle delegate in jndi at java:comp/HandleDelegate", 0, org.omg.CORBA.CompletionStatus.COMPLETED_YES);
+            throw (org.omg.CORBA.MARSHAL)new org.omg.CORBA.MARSHAL("Could not find handle delegate in jndi at java:comp/HandleDelegate", 0, org.omg.CORBA.CompletionStatus.COMPLETED_YES).initCause(e);
         }
     }
 }

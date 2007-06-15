@@ -35,7 +35,7 @@ public class BigDecimalEditor extends TextPropertyEditorSupport {
             return new BigDecimal(getAsText().trim());
         } catch (NumberFormatException e) {
             // any format errors show up as a NumberFormatException, which we turn into a PropertyEditorException.
-            throw new PropertyEditorException(e);
+            throw new PropertyEditorException(e.getMessage(), e);
         }
     }
 }

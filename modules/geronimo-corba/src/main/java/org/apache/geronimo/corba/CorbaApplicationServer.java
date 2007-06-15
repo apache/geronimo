@@ -42,7 +42,7 @@ public class CorbaApplicationServer implements ApplicationServer {
             EJBObject ejbObject = (EJBObject) PortableRemoteObject.narrow(object, EJBObject.class);
             return ejbObject;
         } catch (Throwable e) {
-            throw new org.omg.CORBA.MARSHAL(e.getClass().getName() + " thrown while marshaling the reply: " + e.getMessage(), 0, org.omg.CORBA.CompletionStatus.COMPLETED_YES);
+            throw (org.omg.CORBA.MARSHAL)new org.omg.CORBA.MARSHAL(e.getClass().getName() + " thrown while marshaling the reply: " + e.getMessage(), 0, org.omg.CORBA.CompletionStatus.COMPLETED_YES).initCause(e);
         }
     }
 
@@ -56,7 +56,7 @@ public class CorbaApplicationServer implements ApplicationServer {
             org.omg.CORBA.Object object = refGenerator.genObjectReference(proxyInfo.getPrimaryKey());
             return object;
         } catch (Throwable e) {
-            throw new org.omg.CORBA.MARSHAL(e.getClass().getName() + " thrown while marshaling the reply: " + e.getMessage(), 0, org.omg.CORBA.CompletionStatus.COMPLETED_YES);
+            throw (org.omg.CORBA.MARSHAL)new org.omg.CORBA.MARSHAL(e.getClass().getName() + " thrown while marshaling the reply: " + e.getMessage(), 0, org.omg.CORBA.CompletionStatus.COMPLETED_YES).initCause(e);
         }
     }
 
@@ -67,7 +67,7 @@ public class CorbaApplicationServer implements ApplicationServer {
             EJBHome ejbHome = (EJBHome) PortableRemoteObject.narrow(home, EJBHome.class);
             return ejbHome;
         } catch (Throwable e) {
-            throw new org.omg.CORBA.MARSHAL(e.getClass().getName() + " thrown while marshaling the reply: " + e.getMessage(), 0, org.omg.CORBA.CompletionStatus.COMPLETED_YES);
+            throw (org.omg.CORBA.MARSHAL)new org.omg.CORBA.MARSHAL(e.getClass().getName() + " thrown while marshaling the reply: " + e.getMessage(), 0, org.omg.CORBA.CompletionStatus.COMPLETED_YES).initCause(e);
         }
     }
 
@@ -116,7 +116,7 @@ public class CorbaApplicationServer implements ApplicationServer {
             ORB orb = (ORB) context.lookup("java:comp/ORB");
             return orb;
         } catch (Throwable e) {
-            throw new org.omg.CORBA.MARSHAL("Could not find ORB in jndi at java:comp/ORB", 0, org.omg.CORBA.CompletionStatus.COMPLETED_YES);
+            throw (org.omg.CORBA.MARSHAL)new org.omg.CORBA.MARSHAL("Could not find ORB in jndi at java:comp/ORB", 0, org.omg.CORBA.CompletionStatus.COMPLETED_YES).initCause(e);
         }
     }
 }

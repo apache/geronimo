@@ -134,13 +134,13 @@ public final class UtilDelegateImpl implements UtilDelegate {
                     }
                 } catch (CORBAException e) {
                     log.error("Encountered unknown local invocation handler of type " + servantType + ":" + deploymentId);
-                    throw new MARSHAL("Internal server error while marshaling the reply", 0, CompletionStatus.COMPLETED_YES);
+                    throw (MARSHAL)new MARSHAL("Internal server error while marshaling the reply", 0, CompletionStatus.COMPLETED_YES).initCause(e);
                 }
             }
             delegate.writeRemoteObject(out, obj);
         } catch (Throwable e) {
             log.error("Received unexpected exception while marshaling an object reference:", e);
-            throw new MARSHAL("Internal server error while marshaling the reply", 0, CompletionStatus.COMPLETED_YES);
+            throw (MARSHAL)new MARSHAL("Internal server error while marshaling the reply", 0, CompletionStatus.COMPLETED_YES).initCause(e);
         }
     }
 
@@ -258,10 +258,10 @@ public final class UtilDelegateImpl implements UtilDelegate {
             }
         } catch (CORBAException e) {
             log.error("Encountered unknown local invocation handler of type " + proxy.getClass().getSuperclass() + ":" + deploymentId);
-            throw new MARSHAL("Encountered unknown local invocation handler of type " + proxy.getClass().getSuperclass() + ":" + deploymentId, 0, CompletionStatus.COMPLETED_YES);
+            throw (MARSHAL)new MARSHAL("Encountered unknown local invocation handler of type " + proxy.getClass().getSuperclass() + ":" + deploymentId, 0, CompletionStatus.COMPLETED_YES).initCause(e);
         } catch (RemoteException e) {
             log.error("Unable to get primary key from bean from bean of type " + proxy.getClass().getSuperclass() + ":" + deploymentId);
-            throw new MARSHAL("Unable to get primary key from bean from bean of type " + proxy.getClass().getSuperclass() + ":" + deploymentId, 0, CompletionStatus.COMPLETED_YES);
+            throw (MARSHAL)new MARSHAL("Unable to get primary key from bean from bean of type " + proxy.getClass().getSuperclass() + ":" + deploymentId, 0, CompletionStatus.COMPLETED_YES).initCause(e);
         }
     }
 }
