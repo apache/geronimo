@@ -292,7 +292,7 @@ public abstract class InstallerMojoSupport
             
             Expand unzip = (Expand)createTask("unzip");
             unzip.setSrc(assemblyArchive);
-            unzip.setDest(installDirectory);
+            unzip.setDest(installDirectory.getCanonicalFile());
             unzip.execute();
 
             // Make scripts executable, since Java unzip ignores perms
