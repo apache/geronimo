@@ -22,7 +22,6 @@
     xmlns:tss="http://openejb.apache.org/xml/ns/corba-tss-config-2.1"
     targetNamespace="http://openejb.apache.org/xml/ns/corba-tss-config-2.1"
     xmlns:xsd="http://www.w3.org/2001/XMLSchema"
-    xmlns:security="http://geronimo.apache.org/xml/ns/security-1.2"
     elementFormDefault="qualified"
     attributeFormDefault="unqualified"
     version="1.0">

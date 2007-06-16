@@ -40,9 +40,6 @@
         </xs:documentation>
     </xs:annotation>
 
-    <!--xmlns:security="http://geronimo.apache.org/xml/ns/security-1.2"-->
-    <!--<xs:import namespace="http://geronimo.apache.org/xml/ns/security-1.2" schemaLocation="geronimo-security-1.2.xsd"/>-->
-
     <xs:import namespace="http://geronimo.apache.org/xml/ns/deployment-1.2"
         schemaLocation="geronimo-module-1.2.xsd">
         <xs:annotation>
@@ -107,10 +104,6 @@
                     </xs:documentation>
                 </xs:annotation>
             </xs:element>
-
-            <!--<xs:element ref="security:security" minOccurs="0"/>-->
-            <!--<xs:any namespace="http://geronimo.apache.org/xml/ns/security-1.2" processContents="lax" minOccurs="0"/>-->
-            <!--<xs:any namespace="##other" processContents="lax" minOccurs="0" maxOccurs="unbounded"/>-->
 
             <xs:element ref="geronimo:security" minOccurs="0">
                 <xs:annotation>
@@ -243,7 +236,7 @@
                 An abstract abstract-securityType used to indicate, all web and
                 EJB modules must make the appropriate access checks as outlined
                 in the JACC spec. This type will be extended and implemented by
-                geronimo-security-1.2.xsd file.
+                geronimo-security-2.0.xsd file.
             </xs:documentation>
         </xs:annotation>
         <xs:sequence></xs:sequence>

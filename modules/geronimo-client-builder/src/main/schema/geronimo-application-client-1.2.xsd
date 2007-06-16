@@ -57,7 +57,7 @@
         </xs:annotation>
     </xs:import>
     <xs:import namespace="http://geronimo.apache.org/xml/ns/security-2.0"
-        schemaLocation="geronimo-security-1.2.xsd">
+        schemaLocation="geronimo-security-2.0.xsd">
         <xs:annotation>
             <xs:documentation>
                 Import Geronimo security deployment plans. The imported plan

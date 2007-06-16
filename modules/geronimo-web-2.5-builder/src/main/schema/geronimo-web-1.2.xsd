@@ -31,7 +31,6 @@
     version="1.0">
 
     <xs:import namespace="http://geronimo.apache.org/xml/ns/naming-1.2" schemaLocation="geronimo-naming-1.2.xsd"/>
-    <!--<xs:import namespace="http://geronimo.apache.org/xml/ns/security-1.2" schemaLocation="geronimo-security-1.2.xsd"/>-->
     <xs:import namespace="http://geronimo.apache.org/xml/ns/j2ee/application-1.2" schemaLocation="geronimo-application-1.2.xsd"/>
     <xs:import namespace="http://geronimo.apache.org/xml/ns/deployment-1.2" schemaLocation="geronimo-module-1.2.xsd"/>
 
