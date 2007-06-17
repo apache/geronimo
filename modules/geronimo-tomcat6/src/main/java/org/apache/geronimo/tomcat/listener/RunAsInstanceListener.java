@@ -16,6 +16,9 @@
  */
 package org.apache.geronimo.tomcat.listener;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.security.auth.Subject;
 
 import org.apache.catalina.Container;
@@ -28,7 +31,11 @@ import org.apache.geronimo.tomcat.GeronimoStandardContext;
 
 public class RunAsInstanceListener implements InstanceListener {
 
-    private static final ThreadLocal<Callers> threadLocal = new ThreadLocal<Callers>();
+    private static final ThreadLocal<List<Callers>> threadLocal = new ThreadLocal<List<Callers>>() {
+        protected List<Callers> initialValue() {
+            return new ArrayList<Callers>(2);
+        }
+    };
     
     public void instanceEvent(InstanceEvent event) {
         
@@ -39,17 +46,19 @@ public class RunAsInstanceListener implements InstanceListener {
                 Wrapper wrapper = event.getWrapper();
                 String runAsRole = wrapper.getRunAs();
                 Subject runAsSubject = context.getSubjectForRole(runAsRole);
+                List<Callers> callersStack = threadLocal.get();
                 if (runAsSubject != null) {
-                    Callers oldCallers = ContextManager.getCallers();
-                    ContextManager.registerSubject(runAsSubject);
-                    ContextManager.pushNextCaller(runAsSubject);
-                    threadLocal.set(oldCallers);
+                    Callers oldCallers = ContextManager.pushNextCaller(runAsSubject);
+                    callersStack.add(oldCallers);
+                } else {
+                    callersStack.add(null);
                 }
             }
         }
 
         else if (event.getType().equals(InstanceEvent.AFTER_SERVICE_EVENT)) {
-            Callers oldCallers = threadLocal.get();
+            List<Callers> callersStack = threadLocal.get();
+            Callers oldCallers = callersStack.remove(callersStack.size() - 1);
             if (oldCallers!=null) {
                 ContextManager.popCallers(oldCallers);
             }

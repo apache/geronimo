@@ -213,15 +213,6 @@ public class GeronimoStandardContext extends StandardContext {
             super.start();
     }
 
-    public synchronized void stop() throws LifecycleException {
-        // Remove the defaultSubject
-        if (defaultSubject != null) {
-            ContextManager.unregisterSubject(defaultSubject);
-        }
-
-        super.stop();
-    }
-
     public void addChild(Container child) {
         Wrapper wrapper = (Wrapper) child;
 
