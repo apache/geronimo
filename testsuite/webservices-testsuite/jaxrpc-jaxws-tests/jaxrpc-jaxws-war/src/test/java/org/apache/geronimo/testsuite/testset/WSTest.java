@@ -39,7 +39,7 @@ import org.xml.sax.InputSource;
 public class WSTest extends TestSupport {
 
     private String baseURL = "http://localhost:8080/";
-
+    
     @Test
     public void testJAXRPCInvocation() throws Exception {
         testInvocation("servlet1", "/request1.xml");
@@ -81,7 +81,6 @@ public class WSTest extends TestSupport {
 
             boolean found = false;
 
-            // FIXME: Simple test is required for now, as CXF has problems
             BufferedReader in = 
                 new BufferedReader(new InputStreamReader(conn.getInputStream()));
             String inputLine;
@@ -96,26 +95,6 @@ public class WSTest extends TestSupport {
             in.close();
 
             assertTrue("Reply", found);
-
-            /* Better test, disabled for now
-            InputSource is = new InputSource(conn.getInputStream());
-
-            DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-            dbf.setNamespaceAware(true);
-            DocumentBuilder db = dbf.newDocumentBuilder();
-
-            Document doc = db.parse(is);
-            
-            NodeList nodes = doc.getElementsByTagNameNS("http://apache.org/hello_world_soap_http/types",
-                                                        "responseType");
-            assertEquals(1, nodes.getLength());
-
-            Element element = (Element)nodes.item(0);
-
-            assertTrue(element.getFirstChild() != null);
-
-            assertEquals("Hello foo bar", element.getFirstChild().getNodeValue());
-            */
 
         } finally {
             conn.disconnect();
@@ -167,7 +146,6 @@ public class WSTest extends TestSupport {
         } finally {
             conn.disconnect();
         }
-
     }
 
 }
