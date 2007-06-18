@@ -17,10 +17,14 @@
 package org.apache.geronimo.webservices.builder;
 
 import java.net.URI;
+import java.util.Map;
+import java.util.jar.JarFile;
+
 import javax.wsdl.Definition;
 import javax.wsdl.Port;
 import javax.xml.namespace.QName;
 
+import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.xbeans.j2ee.JavaWsdlMappingType;
 import org.apache.geronimo.xbeans.j2ee.PortComponentHandlerType;
 import org.apache.geronimo.xbeans.j2ee.ServiceEndpointInterfaceMappingType;
@@ -31,31 +35,28 @@ import org.apache.geronimo.xbeans.j2ee.ServiceEndpointInterfaceMappingType;
 public class PortInfo {
     private final String portComponentName;
     private final QName portQName;
-    private final SchemaInfoBuilder schemaInfoBuilder;
-    private final JavaWsdlMappingType javaWsdlMapping;
-    private final ServiceEndpointInterfaceMappingType seiMapping;
     private final String seInterfaceName;
     private final PortComponentHandlerType[] handlers;
-    private final Port port;
     private final URI contextURI;
+    private final SharedPortInfo sharedPortInfo;
+    
+    // set after initialize is called
+    private SchemaInfoBuilder schemaInfoBuilder;
+    private JavaWsdlMappingType javaWsdlMapping;
+    private Port port;
+    private ServiceEndpointInterfaceMappingType seiMapping;
 
-    private final String wsdlLocation;
-
-    public PortInfo(String portComponentName, QName portQName, SchemaInfoBuilder schemaInfoBuilder, JavaWsdlMappingType javaWsdlMapping, String seiInterfaceName, PortComponentHandlerType[] handlers, Port port, ServiceEndpointInterfaceMappingType seiMapping, String wsdlLocation, URI contextURI) {
+    public PortInfo(SharedPortInfo sharedPortInfo, String portComponentName, QName portQName, String seiInterfaceName, PortComponentHandlerType[] handlers, URI contextURI) {
+        this.sharedPortInfo = sharedPortInfo;
         this.portComponentName = portComponentName;
         this.portQName = portQName;
-        this.schemaInfoBuilder = schemaInfoBuilder;
-        this.javaWsdlMapping = javaWsdlMapping;
         this.seInterfaceName = seiInterfaceName;
         this.handlers = handlers;
-        this.port = port;
-        this.seiMapping = seiMapping;
-        this.wsdlLocation = wsdlLocation;
         this.contextURI = contextURI;
     }
 
     public String getWsdlLocation() {
-        return wsdlLocation;
+        return this.sharedPortInfo.getWsdlLocation();
     }
 
     public String getPortComponentName() {
@@ -65,15 +66,15 @@ public class PortInfo {
     public QName getPortQName() {
         return portQName;
     }
-
+    
     public Port getPort() {
         return port;
     }
-
+    
     public SchemaInfoBuilder getSchemaInfoBuilder() {
         return schemaInfoBuilder;
     }
-
+    
     public Definition getDefinition() {
         return schemaInfoBuilder.getDefinition();
     }
@@ -86,7 +87,6 @@ public class PortInfo {
         return seInterfaceName;
     }
 
-
     public ServiceEndpointInterfaceMappingType getServiceEndpointInterfaceMapping() {
         return seiMapping;
     }
@@ -97,5 +97,28 @@ public class PortInfo {
 
     public URI getContextURI() {
         return contextURI;
+    }
+    
+    public void initialize(JarFile moduleFile) throws DeploymentException {
+        this.sharedPortInfo.initialize(moduleFile);
+        
+        this.schemaInfoBuilder = this.sharedPortInfo.getSchemaInfoBuilder();
+        this.javaWsdlMapping = this.sharedPortInfo.getJavaWsdlMapping();
+                               
+        QName portQName = getPortQName();
+        URI contextURI = getContextURI();
+        String portComponentName = getPortComponentName();
+        String seiInterfaceName = getServiceEndpointInterfaceName();
+                              
+        Map wsdlPortMap = this.schemaInfoBuilder.getPortMap();        
+        Port wsdlPort = (Port) wsdlPortMap.get(portQName.getLocalPart());
+        if (wsdlPort == null) {
+            throw new DeploymentException("No WSDL Port definition for port-component " + portComponentName);
+        }
+        this.port = wsdlPort;
+                
+        this.seiMapping = this.sharedPortInfo.getSEIMappings().get(seiInterfaceName);
+        
+        this.schemaInfoBuilder.movePortLocation(portQName.getLocalPart(), contextURI.toString());
     }
 }

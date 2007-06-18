@@ -130,6 +130,9 @@ public class AxisModuleBuilderExtension implements ModuleBuilderExtension {
 
             GBeanData ejbWebServiceGBean = new GBeanData(ejbWebServiceName, EjbWebServiceGBean.GBEAN_INFO);
 
+            ejbWebServiceGBean.setAttribute("ejbName", ejbName);
+            ejbWebServiceGBean.setAttribute("ejbClass", bean.ejbClass);
+            
             WebServiceBindingType wsBinding = wsBindingMap.get(ejbName);
             if (wsBinding != null) {
                 List<String> ddVirtualHosts = wsBinding.getWebServiceVirtualHost();
@@ -169,6 +172,9 @@ public class AxisModuleBuilderExtension implements ModuleBuilderExtension {
                 ejbWebServiceGBean.setReferencePattern("EjbDeployment", sessionName);
             }
 
+            ejbWebServiceGBean.clearAttribute("ejbName");
+            ejbWebServiceGBean.clearAttribute("ejbClass");
+            
         }
     }
 

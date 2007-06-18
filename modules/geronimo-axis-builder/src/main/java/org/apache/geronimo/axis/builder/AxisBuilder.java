@@ -32,6 +32,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.jar.JarFile;
 
+import javax.jws.WebService;
 import javax.wsdl.Binding;
 import javax.wsdl.BindingOperation;
 import javax.wsdl.Definition;
@@ -42,6 +43,7 @@ import javax.wsdl.extensions.soap.SOAPAddress;
 import javax.wsdl.extensions.soap.SOAPBinding;
 import javax.xml.namespace.QName;
 import javax.xml.rpc.handler.HandlerInfo;
+import javax.xml.ws.WebServiceProvider;
 
 import org.apache.axis.constants.Style;
 import org.apache.axis.description.JavaServiceDesc;
@@ -124,8 +126,7 @@ public class AxisBuilder implements WebServiceBuilder {
         }
     }
 
-    public boolean configurePOJO(GBeanData targetGBean, String servletName, Module module, String seiClassName, DeploymentContext context) throws DeploymentException {
-        ClassLoader cl = context.getClassLoader();
+    public boolean configurePOJO(GBeanData targetGBean, String servletName, Module module, String servletClassName, DeploymentContext context) throws DeploymentException {
         Map sharedContext = ((WebModule) module).getSharedContext();
         Map portInfoMap = (Map) sharedContext.get(KEY);
         PortInfo portInfo = (PortInfo) portInfoMap.get(servletName);
@@ -133,15 +134,25 @@ public class AxisBuilder implements WebServiceBuilder {
             //not ours
             return false;
         }
+        
+        ClassLoader cl = context.getClassLoader();
+        Class serviceClass = loadClass(servletClassName, cl);        
+        if (isJAXWSWebService(serviceClass)) {
+            // This is a JAX-WS web service so ignore
+            return false;
+        }
+        
+        portInfo.initialize(module.getModuleFile());
+        
         ServiceInfo serviceInfo = AxisServiceBuilder.createServiceInfo(portInfo, cl);
         JavaServiceDesc serviceDesc = serviceInfo.getServiceDesc();
 
-        targetGBean.setAttribute("pojoClassName", seiClassName);
+        targetGBean.setAttribute("pojoClassName", servletClassName);
         RPCProvider provider = new POJOProvider();
 
         SOAPService service = new SOAPService(null, provider, null);
         service.setServiceDescription(serviceDesc);
-        service.setOption("className", seiClassName);
+        service.setOption("className", servletClassName);
 
         HandlerInfoChainFactory handlerInfoChainFactory = new HandlerInfoChainFactory(serviceInfo.getHandlerInfos());
         service.setOption(org.apache.axis.Constants.ATTR_HANDLERINFOCHAIN, handlerInfoChainFactory);
@@ -180,6 +191,16 @@ public class AxisBuilder implements WebServiceBuilder {
             //not ours
             return false;
         }
+        
+        String beanClassName = (String)targetGBean.getAttribute("ejbClass");
+        Class serviceClass = loadClass(beanClassName, classLoader);
+        if (isJAXWSWebService(serviceClass)) {
+            // This is a JAX-WS web service so ignore
+            return false;
+        }
+        
+        portInfo.initialize(module.getModuleFile());
+        
         ServiceInfo serviceInfo = AxisServiceBuilder.createServiceInfo(portInfo, classLoader);
         targetGBean.setAttribute("serviceInfo", serviceInfo);
         JavaServiceDesc serviceDesc = serviceInfo.getServiceDesc();
@@ -491,6 +512,19 @@ public class AxisBuilder implements WebServiceBuilder {
     }
 
 
+    Class<?> loadClass(String className, ClassLoader loader) throws DeploymentException {
+        try {
+            return loader.loadClass(className);
+        } catch (ClassNotFoundException ex) {
+            throw new DeploymentException("Unable to load Web Service class: " + className);
+        }
+    }
+    
+    static boolean isJAXWSWebService(Class clazz) {
+        return (clazz.isAnnotationPresent(WebService.class) || 
+                clazz.isAnnotationPresent(WebServiceProvider.class));
+    }
+    
     public static final GBeanInfo GBEAN_INFO;
 
     static {

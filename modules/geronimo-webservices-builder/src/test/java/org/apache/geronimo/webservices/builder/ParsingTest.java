@@ -121,7 +121,7 @@ public class ParsingTest
 
     public void testWebservicesJee5() throws Exception {
         URL url = getClass().getClassLoader().getResource("webservices-jee5.xml");
-        assertNull(WSDescriptorParser.getWebservicesType(url));
+        assertNotNull(WSDescriptorParser.getWebservicesType(url));
     }
 
 }
