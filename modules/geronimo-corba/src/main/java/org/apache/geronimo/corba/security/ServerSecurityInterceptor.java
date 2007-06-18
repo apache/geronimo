@@ -208,22 +208,25 @@ final class ServerSecurityInterceptor extends LocalObject implements ServerReque
     }
 
     protected SASContextBody generateContextEstablished(Subject identity, long contextId, boolean stateful) {
-        SASContextBody reply = new SASContextBody();
-
         byte[] finalContextToken = null;
-        Set credentials = identity.getPrivateCredentials(FinalContextToken.class);
-        if (!credentials.isEmpty()) {
-            try {
-                FinalContextToken token = (FinalContextToken) credentials.iterator().next();
-                finalContextToken = token.getToken();
-                token.destroy();
-            } catch (DestroyFailedException e) {
-                // do nothing
+        if (identity != null) {
+            Set credentials = identity.getPrivateCredentials(FinalContextToken.class);
+            if (!credentials.isEmpty()) {
+                try {
+                    FinalContextToken token = (FinalContextToken) credentials.iterator().next();
+                    finalContextToken = token.getToken();
+                    token.destroy();
+                } catch (DestroyFailedException e) {
+                    // do nothing
+                }
             }
         }
-        if (finalContextToken == null) finalContextToken = new byte[0];
-        reply.complete_msg(new CompleteEstablishContext(contextId, stateful, finalContextToken));
+        if (finalContextToken == null) {
+            finalContextToken = new byte[0];
+        }
 
+        SASContextBody reply = new SASContextBody();
+        reply.complete_msg(new CompleteEstablishContext(contextId, stateful, finalContextToken));
         return reply;
     }
 
