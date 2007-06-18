@@ -98,26 +98,6 @@ public class JaxRPCTest extends TestSupport {
 
             assertTrue("Reply", found);
 
-            /* Better test, disabled for now
-            InputSource is = new InputSource(conn.getInputStream());
-
-            DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-            dbf.setNamespaceAware(true);
-            DocumentBuilder db = dbf.newDocumentBuilder();
-
-            Document doc = db.parse(is);
-            
-            NodeList nodes = doc.getElementsByTagNameNS("http://apache.org/hello_world_soap_http/types",
-                                                        "responseType");
-            assertEquals(1, nodes.getLength());
-
-            Element element = (Element)nodes.item(0);
-
-            assertTrue(element.getFirstChild() != null);
-
-            assertEquals("Hello foo bar", element.getFirstChild().getNodeValue());
-            */
-
         } finally {
             conn.disconnect();
         }
