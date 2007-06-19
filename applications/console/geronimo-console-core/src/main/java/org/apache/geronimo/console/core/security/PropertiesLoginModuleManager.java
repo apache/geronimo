@@ -39,6 +39,7 @@ import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.security.jaas.LoginModuleSettings;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
+import org.apache.geronimo.util.encoders.Base64;
 import org.apache.geronimo.util.encoders.HexTranslator;
 
 /**
@@ -59,6 +60,8 @@ public class PropertiesLoginModuleManager {
     private static final String groupsKey = "groupsURI";
 
     private static final String digestKey = "digest";
+
+    private final static String encodingKey = "encoding";
 
     public PropertiesLoginModuleManager(ServerInfo serverInfo, LoginModuleSettings loginModule) {
         this.serverInfo = serverInfo;
@@ -155,7 +158,7 @@ public class PropertiesLoginModuleManager {
             String user = (String) properties.get("UserName");
             String password = (String) properties.get("Password");
             if(digest != null && !digest.equals("")) {
-                password = digestPassword(password, digest);
+                password = digestPassword(password, digest, getEncoding());
             }
             users.setProperty(user, password);
             store(users, serverInfo.resolveServer(getUsersURI()).toURL());
@@ -186,7 +189,7 @@ public class PropertiesLoginModuleManager {
             String user = (String) properties.get("UserName");
             String password = (String) properties.get("Password");
             if(digest != null && !digest.equals("")) {
-                password = digestPassword(password, digest);
+                password = digestPassword(password, digest, getEncoding());
             }
             users.setProperty(user, password);
             store(users, serverInfo.resolveServer(getUsersURI()).toURL());
@@ -284,6 +287,10 @@ public class PropertiesLoginModuleManager {
         return loginModule.getOptions().getProperty(digestKey);
     }
 
+    private String getEncoding() {
+        return loginModule.getOptions().getProperty(encodingKey);
+    }
+
     private void store(Properties props, URL url) throws Exception {
         OutputStream out = null;
         try {
@@ -314,17 +321,23 @@ public class PropertiesLoginModuleManager {
      * This method returns the message digest of a specified string.
      * @param password  The string that is to be digested
      * @param algorithm Name of the Message Digest algorithm
-     * @return Hex encoding of the digest bytes
+     * @param encoding  Encoding to be used for digest data.  Hex by default.
+     * @return encoded digest bytes
      * @throws NoSuchAlgorithmException if the Message Digest algorithm is not available
      */
-    private String digestPassword(String password, String algorithm) throws NoSuchAlgorithmException {
+    private String digestPassword(String password, String algorithm, String encoding) throws NoSuchAlgorithmException {
         MessageDigest md = MessageDigest.getInstance(algorithm);
         byte[] data = md.digest(password.getBytes());
-        // Convert bytes to hex digits
-        byte[] hexData = new byte[data.length * 2];
-        HexTranslator ht = new HexTranslator();
-        ht.encode(data, 0, data.length, hexData, 0);
-        return new String(hexData);
+        if(encoding == null || "hex".equalsIgnoreCase(encoding)) {
+            // Convert bytes to hex digits
+            byte[] hexData = new byte[data.length * 2];
+            HexTranslator ht = new HexTranslator();
+            ht.encode(data, 0, data.length, hexData, 0);
+            return new String(hexData);
+        } else if("base64".equalsIgnoreCase(encoding)) {
+            return new String(Base64.encode(data));
+        }
+        return "";
     }
 
     public static final GBeanInfo GBEAN_INFO;

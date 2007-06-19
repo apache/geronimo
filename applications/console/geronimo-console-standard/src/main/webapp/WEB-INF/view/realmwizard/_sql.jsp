@@ -73,6 +73,17 @@
       </tr>
 
       <tr>
+        <th><div align="right">Digest Encoding:</div></th>
+        <td><input name="option-encoding" type="text"
+                   size="10" value="${realm.options['encoding']}"></td>
+      </tr>
+      <tr>
+        <td></td>
+        <td>Encoding to use for digests (e.g. hex, base64).  This is used only if a Message Digest algorithm is specified.
+          If no encoding is specified, hex will be used.</td>
+      </tr>
+
+      <tr>
         <td></td>
         <td><i>A SQL security realm must either have a database pool or JDBC connectivity settings to
           connect to the database.  Please select EITHER the database pool, OR the rest of the JDBC

@@ -51,6 +51,7 @@ import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.KernelRegistry;
 import org.apache.geronimo.management.geronimo.JCAManagedConnectionFactory;
 import org.apache.geronimo.security.jaas.JaasLoginModuleUse;
+import org.apache.geronimo.util.encoders.Base64;
 import org.apache.geronimo.util.encoders.HexTranslator;
 
 
@@ -86,6 +87,7 @@ public class SQLLoginModule implements LoginModule {
     public final static String DATABASE_POOL_NAME = "dataSourceName";
     public final static String DATABASE_POOL_APP_NAME = "dataSourceApplication";
     public final static String DIGEST = "digest";
+    public final static String ENCODING = "encoding";
     private String connectionURL;
     private Properties properties;
     private Driver driver;
@@ -93,6 +95,7 @@ public class SQLLoginModule implements LoginModule {
     private String userSelect;
     private String groupSelect;
     private String digest;
+    private String encoding;    
 
     private Subject subject;
     private CallbackHandler handler;
@@ -107,6 +110,7 @@ public class SQLLoginModule implements LoginModule {
         groupSelect = (String) options.get(GROUP_SELECT);
 
         digest = (String) options.get(DIGEST);
+        encoding = (String) options.get(ENCODING);
         if(digest != null && !digest.equals("")) {
             // Check if the digest algorithm is available
             try {
@@ -114,6 +118,10 @@ public class SQLLoginModule implements LoginModule {
             } catch(NoSuchAlgorithmException e) {
                 log.error("Initialization failed. Digest algorithm "+digest+" is not available.", e);
                 throw new IllegalArgumentException("Unable to configure SQL login module: "+e.getMessage());
+            }
+            if(encoding != null && !"hex".equalsIgnoreCase(encoding) && !"base64".equalsIgnoreCase(encoding)) {
+                log.error("Initialization failed. Digest Encoding "+encoding+" is not supported.");
+                throw new IllegalArgumentException("Unable to configure SQL login module. Digest Encoding "+encoding+" not supported.");
             }
         }
 
@@ -311,12 +319,16 @@ public class SQLLoginModule implements LoginModule {
             // Digest the user provided password
             MessageDigest md = MessageDigest.getInstance(digest);
             byte[] data = md.digest(provided.getBytes());
-            // Convert bytes to hex digits
-            byte[] hexData = new byte[data.length * 2];
-            HexTranslator ht = new HexTranslator();
-            ht.encode(data, 0, data.length, hexData, 0);
-            // Compare the digested provided password with the actual one
-            return real.equalsIgnoreCase(new String(hexData));
+            if(encoding == null || "hex".equalsIgnoreCase(encoding)) {
+                // Convert bytes to hex digits
+                byte[] hexData = new byte[data.length * 2];
+                HexTranslator ht = new HexTranslator();
+                ht.encode(data, 0, data.length, hexData, 0);
+                // Compare the digested provided password with the actual one
+                return real.equalsIgnoreCase(new String(hexData));
+            } else if("base64".equalsIgnoreCase(encoding)) {
+                return real.equals(new String(Base64.encode(data)));
+            }
         } catch (NoSuchAlgorithmException e) {
             // Should not occur.  Availability of algorithm has been checked at initialization
             log.error("Should not occur.  Availability of algorithm has been checked at initialization.", e);
