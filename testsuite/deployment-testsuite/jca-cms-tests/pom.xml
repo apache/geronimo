@@ -31,8 +31,8 @@
         <profile>
             <id>child</id>
             <modules>
-                <module>manifestcp-war</module>
-                <module>manifestcp-ear</module>
+                <module>jca-cms-war</module>
+                <module>jca-cms-ear</module>
             </modules>
         </profile>
     </profiles>

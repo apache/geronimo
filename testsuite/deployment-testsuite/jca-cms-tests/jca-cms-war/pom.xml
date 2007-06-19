@@ -26,7 +26,7 @@
     </parent>
 
     <artifactId>jca-cms-war</artifactId>
-    <name>Geronimo TestSuite :: Deployment Testsuite :: j2ca cms WAR</name>
+    <name>Geronimo TestSuite :: Deployment Testsuite :: J2CA Container Managed Security WAR</name>
     <packaging>war</packaging>
 
     <build>
