@@ -88,7 +88,6 @@ public class CallerIdentityPasswordCredentialLoginModule implements LoginModule 
     }
 
     public boolean abort() throws LoginException {
-        subject = null;
         userName = null;
         password = null;
         return true;

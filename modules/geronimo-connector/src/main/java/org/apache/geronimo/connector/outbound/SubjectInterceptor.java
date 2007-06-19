@@ -24,7 +24,7 @@ import javax.security.auth.Subject;
 import org.apache.geronimo.security.ContextManager;
 
 /**
- * SubjectInterceptor.java
+ * SubjectInterceptor.java This is installed only when the plan includes a container-managed-security element.
  *
  *
  * Created: Mon Oct  6 14:31:56 2003
@@ -47,7 +47,9 @@ public class SubjectInterceptor implements ConnectionInterceptor {
             } catch (SecurityException e) {
                 throw new ResourceException("Can not obtain Subject for login", e);
             }
-            assert currentSubject != null;
+            if (currentSubject == null) {
+                throw new ResourceException("No subject for container managed security");
+            }
         }
         ManagedConnectionInfo originalManagedConnectionInfo = connectionInfo.getManagedConnectionInfo();
         //No existing managed connection, get an appropriate one and return.
@@ -79,11 +81,12 @@ public class SubjectInterceptor implements ConnectionInterceptor {
                     //process the removal of the handle from the previous mc
                     returnConnection(returningConnectionInfo, ConnectionReturnAction.RETURN_HANDLE);
                 }
+            } else {
+                //otherwise, the current ManagedConnection matches the security info, we keep it.
+                //set up the tx context
+                next.getConnection(connectionInfo);
             }
         }
-        //otherwise, the current ManagedConnection matches the security info, we keep it.
-        //set up the tx context
-        next.getConnection(connectionInfo);
     }
 
     public void returnConnection(

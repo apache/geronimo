@@ -159,9 +159,7 @@ public class AbstractWebModuleTest extends TestSupport {
         options.setProperty("usersURI", new File(BASEDIR, "src/test/resources/data/users.properties").toURI().toString());
         options.setProperty("groupsURI", new File(BASEDIR, "src/test/resources/data/groups.properties").toURI().toString());
 
-        LoginModuleGBean loginModule = new LoginModuleGBean("org.apache.geronimo.security.realm.providers.PropertiesFileLoginModule", null, true, true, cl);
-        loginModule.setLoginDomainName(domainName);
-        loginModule.setOptions(options);
+        LoginModuleGBean loginModule = new LoginModuleGBean("org.apache.geronimo.security.realm.providers.PropertiesFileLoginModule", null, true, true, options, domainName, cl);
 
         JaasLoginModuleUse loginModuleUse = new JaasLoginModuleUse(loginModule, null, "REQUIRED", null);
 

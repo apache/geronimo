@@ -30,11 +30,12 @@ public class PasswordCredentialLoginModuleWrapperGBean {
     private static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic(PasswordCredentialLoginModuleWrapper.class, LoginModuleGBean.GBEAN_INFO, NameFactory.LOGIN_MODULE);
+        GBeanInfoBuilder infoBuilder = GBeanInfoBuilder.createStatic(PasswordCredentialLoginModuleWrapper.class, LoginModuleGBean.GBEAN_INFO, NameFactory.LOGIN_MODULE);
 
-        infoFactory.addReference("ManagedConnectionFactoryWrapper", ManagedConnectionFactoryWrapper.class, NameFactory.JCA_MANAGED_CONNECTION_FACTORY);
+        infoBuilder.addReference("ManagedConnectionFactoryWrapper", ManagedConnectionFactoryWrapper.class, NameFactory.JCA_MANAGED_CONNECTION_FACTORY);
+        infoBuilder.setConstructor(new String[] {"loginModuleClass", "objectName", "serverSide", "wrapPrincipals", "options", "loginDomainName", "ManagedConnectionFactoryWrapper", "classLoader"});
 
-        GBEAN_INFO = infoFactory.getBeanInfo();
+        GBEAN_INFO = infoBuilder.getBeanInfo();
     }
 
     public static GBeanInfo getGBeanInfo() {

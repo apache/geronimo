@@ -18,6 +18,7 @@
 package org.apache.geronimo.connector.outbound.security;
 
 import java.security.Principal;
+import java.io.Serializable;
 
 /**
  *
@@ -25,15 +26,32 @@ import java.security.Principal;
  * @version $Rev$ $Date$
  *
  * */
-public class ResourcePrincipal implements Principal {
+public class ResourcePrincipal implements Principal, Serializable {
 
     private final String resourcePrincipal;
 
     public ResourcePrincipal(String resourcePrincipal) {
         this.resourcePrincipal = resourcePrincipal;
+        if (resourcePrincipal == null) {
+            throw new NullPointerException("No resource principal name supplied");
+        }
     }
 
     public String getName() {
         return resourcePrincipal;
+    }
+
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        ResourcePrincipal that = (ResourcePrincipal) o;
+
+        return resourcePrincipal.equals(that.resourcePrincipal);
+
+    }
+
+    public int hashCode() {
+        return resourcePrincipal.hashCode();
     }
 }

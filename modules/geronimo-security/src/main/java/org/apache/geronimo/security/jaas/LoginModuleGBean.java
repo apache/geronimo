@@ -41,11 +41,13 @@ public class LoginModuleGBean implements LoginModuleSettings {
     private boolean wrapPrincipals;
     private final ClassLoader classLoader;
 
-    public LoginModuleGBean(String loginModuleClass, String objectName, boolean serverSide, boolean wrapPrincipals, ClassLoader classLoader) {
+    public LoginModuleGBean(String loginModuleClass, String objectName, boolean serverSide, boolean wrapPrincipals, Properties options, String loginDomainName, ClassLoader classLoader) {
         this.loginModuleClass = loginModuleClass;
         this.objectName = objectName;
         this.serverSide = serverSide;
         this.wrapPrincipals = wrapPrincipals;
+        this.options = options == null? new Properties(): options;
+        this.loginDomainName = loginDomainName;
         this.classLoader = classLoader;
     }
 
@@ -104,7 +106,7 @@ public class LoginModuleGBean implements LoginModuleSettings {
         infoFactory.addAttribute("classLoader", ClassLoader.class, false);
         infoFactory.addInterface(LoginModuleSettings.class, new String[] {"options", "loginModuleClass", "serverSide", "loginDomainName", "wrapPrincipals"},
         		                 new String[] {"options", "loginModuleClass", "serverSide", "wrapPrincipals"} );
-        infoFactory.setConstructor(new String[]{"loginModuleClass", "objectName", "serverSide", "wrapPrincipals", "classLoader"});
+        infoFactory.setConstructor(new String[]{"loginModuleClass", "objectName", "serverSide", "wrapPrincipals", "options", "loginDomainName", "classLoader"});
 
         GBEAN_INFO = infoFactory.getBeanInfo();
     }

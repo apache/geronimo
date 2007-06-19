@@ -43,6 +43,13 @@
             <type>car</type>
         </dependency>
 
+        <dependency>
+            <groupId>org.apache.geronimo.configs</groupId>
+            <artifactId>client-security</artifactId>
+            <version>${version}</version>
+            <type>car</type>
+        </dependency>
+
         <!-- connector deploys jsr77 beans hence needs j2ee, mgmt -->
         <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
