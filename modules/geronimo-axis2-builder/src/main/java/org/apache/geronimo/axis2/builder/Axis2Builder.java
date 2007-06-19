@@ -141,8 +141,7 @@ public class Axis2Builder extends JAXWSServiceBuilder {
                             portInfo.setEnableMTOM(port.getEnableMtom().getBooleanValue());
                         }
 
-                        //TODO: There can be a better method than this :)
-                        if(port.getHandlerChains() != null){
+                        if (port.getHandlerChains() != null) {
                             StringBuffer chains = new StringBuffer("<handler-chains xmlns=\"http://java.sun.com/xml/ns/javaee\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">");
                             chains.append(port.getHandlerChains().xmlText());
                             chains.append("</handler-chains>");
