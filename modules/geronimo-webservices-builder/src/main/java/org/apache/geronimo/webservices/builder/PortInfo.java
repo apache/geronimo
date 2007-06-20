@@ -17,6 +17,7 @@
 package org.apache.geronimo.webservices.builder;
 
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.Map;
 import java.util.jar.JarFile;
 
@@ -37,7 +38,6 @@ public class PortInfo {
     private final QName portQName;
     private final String seInterfaceName;
     private final PortComponentHandlerType[] handlers;
-    private final URI contextURI;
     private final SharedPortInfo sharedPortInfo;
     
     // set after initialize is called
@@ -45,14 +45,16 @@ public class PortInfo {
     private JavaWsdlMappingType javaWsdlMapping;
     private Port port;
     private ServiceEndpointInterfaceMappingType seiMapping;
+    private URI contextURI;
+    private String location;
 
-    public PortInfo(SharedPortInfo sharedPortInfo, String portComponentName, QName portQName, String seiInterfaceName, PortComponentHandlerType[] handlers, URI contextURI) {
+    public PortInfo(SharedPortInfo sharedPortInfo, String portComponentName, QName portQName, String seiInterfaceName, PortComponentHandlerType[] handlers, String location) {
         this.sharedPortInfo = sharedPortInfo;
         this.portComponentName = portComponentName;
         this.portQName = portQName;
         this.seInterfaceName = seiInterfaceName;
         this.handlers = handlers;
-        this.contextURI = contextURI;
+        this.location = location;
     }
 
     public String getWsdlLocation() {
@@ -106,7 +108,6 @@ public class PortInfo {
         this.javaWsdlMapping = this.sharedPortInfo.getJavaWsdlMapping();
                                
         QName portQName = getPortQName();
-        URI contextURI = getContextURI();
         String portComponentName = getPortComponentName();
         String seiInterfaceName = getServiceEndpointInterfaceName();
                               
@@ -119,6 +120,12 @@ public class PortInfo {
                 
         this.seiMapping = this.sharedPortInfo.getSEIMappings().get(seiInterfaceName);
         
-        this.schemaInfoBuilder.movePortLocation(portQName.getLocalPart(), contextURI.toString());
+        this.location = this.schemaInfoBuilder.movePortLocation(portQName.getLocalPart(), this.location);
+        
+        try {
+            this.contextURI = new URI(this.location);
+        } catch (URISyntaxException e) {
+            throw new DeploymentException("Could not construct URI for web service location");
+        }
     }
 }

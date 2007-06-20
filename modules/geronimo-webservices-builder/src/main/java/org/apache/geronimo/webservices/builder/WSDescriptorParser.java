@@ -22,7 +22,6 @@ import java.lang.reflect.Method;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -326,14 +325,7 @@ public class WSDescriptorParser {
                 }
                 PortComponentHandlerType[] handlers = portComponent.getHandlerArray();
                 
-                URI contextURI;
-                try {
-                    contextURI = new URI(servletLocation);
-                } catch (URISyntaxException e) {
-                    throw new DeploymentException("Could not construct URI for web service location");
-                }
-
-                PortInfo portInfo = new PortInfo(sharedPortInfo, portComponentName, portQName, seiInterfaceName, handlers, contextURI);
+                PortInfo portInfo = new PortInfo(sharedPortInfo, portComponentName, portQName, seiInterfaceName, handlers, servletLocation);
 
                 if (portMap.put(linkName, portInfo) != null) {
                     throw new DeploymentException("Ambiguous description of port associated with j2ee component " + linkName);
@@ -394,14 +386,7 @@ public class WSDescriptorParser {
                     }
                 }
                 
-                URI contextURI;
-                try {
-                    contextURI = new URI(servletLocation);
-                } catch (URISyntaxException e) {
-                    throw new DeploymentException("Could not construct URI for web service location");
-                }
-
-                PortInfo portInfo = new PortInfo(sharedPortInfo, portComponentName, portQName, seiInterfaceName, handlers, contextURI);
+                PortInfo portInfo = new PortInfo(sharedPortInfo, portComponentName, portQName, seiInterfaceName, handlers, servletLocation);
 
                 if (portMap.put(linkName, portInfo) != null) {
                     throw new DeploymentException("Ambiguous description of port associated with j2ee component " + linkName);
