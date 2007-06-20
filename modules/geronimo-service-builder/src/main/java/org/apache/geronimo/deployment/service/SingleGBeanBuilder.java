@@ -157,6 +157,12 @@ public class SingleGBeanBuilder {
     }
 
     public static AbstractNameQuery buildAbstractNameQuery(PatternType pattern, GReferenceInfo referenceInfo) {
+        String nameTypeName = referenceInfo == null? null: referenceInfo.getNameTypeName();
+        Set interfaceTypes = referenceInfo == null? null: Collections.singleton(referenceInfo.getReferenceType());
+        return buildAbstractNameQuery(pattern, nameTypeName, interfaceTypes);
+    }
+
+    public static AbstractNameQuery buildAbstractNameQuery(PatternType pattern, String nameTypeName, Set interfaceTypes) {
         String groupId = pattern.isSetGroupId() ? pattern.getGroupId().trim() : null;
         String artifactid = pattern.isSetArtifactId() ? pattern.getArtifactId().trim() : null;
         String version = pattern.isSetVersion() ? pattern.getVersion().trim() : null;
@@ -166,8 +172,8 @@ public class SingleGBeanBuilder {
 
         Artifact artifact = artifactid != null? new Artifact(groupId, artifactid, version, "car"): null;
         //get the type from the gbean info if not supplied explicitly
-        if (type == null && referenceInfo != null) {
-            type = referenceInfo.getNameTypeName();
+        if (type == null) {
+            type = nameTypeName;
         }
         Map nameMap = new HashMap();
         if (name != null) {
@@ -179,7 +185,6 @@ public class SingleGBeanBuilder {
         if (module != null) {
             nameMap.put("J2EEModule", module);
         }
-        Set interfaceTypes = referenceInfo == null? null: Collections.singleton(referenceInfo.getReferenceType());
         return new AbstractNameQuery(artifact, nameMap, interfaceTypes);
     }
 
