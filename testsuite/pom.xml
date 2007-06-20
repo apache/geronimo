@@ -324,7 +324,7 @@
                         <executions>
                             <execution>
                                 <id>xvfb</id>
-                                <phase>pre-integration-test</phase>
+                                <phase>process-test-sources</phase>
                                 <goals>
                                     <goal>xvfb</goal>
                                 </goals>
