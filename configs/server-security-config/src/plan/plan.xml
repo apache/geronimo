@@ -23,6 +23,8 @@
     <gbean name="CredentialStore" class="org.apache.geronimo.security.credentialstore.SimpleCredentialStoreImpl">
         <xml-attribute name="credentialStore">
             <credential-store xmlns="http://geronimo.apache.org/xml/ns/credentialstore-1.0">
+                <!-- uncomment this and the default subject in the jettty console plan gives you admin console permissions -->
+<!--
                 <realm name="geronimo-admin">
                     <subject>
                         <id>default</id>
@@ -36,6 +38,7 @@
                         </credential>
                     </subject>
                 </realm>
+-->
             </credential-store>
         </xml-attribute>
     </gbean>

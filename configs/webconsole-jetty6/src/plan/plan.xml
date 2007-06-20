@@ -387,10 +387,10 @@
     </module>
 
     <security>
-        <default-subject>
-            <realm>geronimo-admin</realm>
-            <id>default</id>
-        </default-subject>
+        <!--<default-subject>-->
+            <!--<realm>geronimo-admin</realm>-->
+            <!--<id>default</id>-->
+        <!--</default-subject>-->
         <role-mappings>
             <role role-name="admin">
                 <realm realm-name="geronimo-admin">
