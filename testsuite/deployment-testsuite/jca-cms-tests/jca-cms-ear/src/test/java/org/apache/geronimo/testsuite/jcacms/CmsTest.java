@@ -17,7 +17,7 @@
  *  under the License.
  */
 
-package org.apache.geronimo.testsuite.jmc-cms;
+package org.apache.geronimo.testsuite.jcacms;
 
 import org.apache.geronimo.testsupport.SeleniumTestSupport;
 import org.testng.annotations.Test;
