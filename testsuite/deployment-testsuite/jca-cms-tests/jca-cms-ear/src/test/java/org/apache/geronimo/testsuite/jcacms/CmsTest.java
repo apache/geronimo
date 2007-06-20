@@ -33,8 +33,9 @@ public class CmsTest
 {
     @Test
     public void testPageContent() throws Exception {
-        selenium.open("/jca-cms/servlet");
+        selenium.open("http://system:manager@localhost:8080/jca-cms/servlet");
         selenium.waitForPageToLoad("30000");
+
         //TODO the line separators might well be wrong???
         assertEquals("Successfully got configured connection\n\nSuccessfully got container managed connection\n", selenium.getText("xpath=/html/body"));
     }
