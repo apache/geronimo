@@ -159,8 +159,15 @@ public abstract class CXFEndpoint extends Endpoint {
         // TODO Auto-generated method stub
     }
 
+    private static class GeronimoJaxWsServerFactoryBean extends JaxWsServerFactoryBean {
+        public GeronimoJaxWsServerFactoryBean() {
+            // disable CXF resource injection
+            doInit = false;
+        }
+    }
+    
     protected void doPublish(String address) {
-        JaxWsServerFactoryBean svrFactory = new JaxWsServerFactoryBean();
+        JaxWsServerFactoryBean svrFactory = new GeronimoJaxWsServerFactoryBean();
         svrFactory.setBus(bus);
         svrFactory.setAddress(address);
         svrFactory.setServiceFactory(serviceFactory);
