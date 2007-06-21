@@ -32,7 +32,7 @@ import org.apache.axis2.jaxws.core.MessageContext;
 import org.apache.axis2.jaxws.description.EndpointDescription;
 import org.apache.axis2.jaxws.description.EndpointInterfaceDescription;
 import org.apache.axis2.jaxws.description.OperationDescription;
-import org.apache.axis2.jaxws.handler.ProtectedMessageContext;
+import org.apache.axis2.jaxws.handler.BaseMessageContext;
 import org.apache.axis2.jaxws.i18n.Messages;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -74,8 +74,9 @@ public class EJBMessageReceiver implements MessageReceiver {
         
         EJBInterceptor interceptor = new EJBInterceptor(this.container, requestMsgCtx);
 
-        ProtectedMessageContext jaxwsContext = new ProtectedMessageContext(requestMsgCtx);
-        
+        //BaseMessageContext jaxwsContext = new BaseMessageContext(requestMsgCtx);
+        //uncomment out the above line till the constructor is changed to public.
+        BaseMessageContext jaxwsContext = null;
         Object[] arguments = { jaxwsContext, interceptor };
         
         RpcContainer container = (RpcContainer) this.deploymentInfo.getContainer();
