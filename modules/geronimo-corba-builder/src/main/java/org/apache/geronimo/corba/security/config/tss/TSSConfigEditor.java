@@ -82,7 +82,7 @@ public class TSSConfigEditor implements XmlAttributeBuilder {
         try {
             XmlBeansUtil.validateDD(tss);
         } catch (XmlException e) {
-            throw new DeploymentException(e);
+            throw new DeploymentException("Error parsing TSS configuration", e);
         }
 
         TSSConfig tssConfig = new TSSConfig();

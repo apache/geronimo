@@ -111,7 +111,7 @@ public class Holder implements Serializable {
         try {
             clazz = classLoader.loadClass(className);
         } catch (ClassNotFoundException e) {
-            throw new InstantiationException("Can't load class " + className + " in classloader: " + classLoader);
+            throw (InstantiationException)new InstantiationException("Can't load class " + className + " in classloader: " + classLoader).initCause(e);
         }
         List<NamingException> problems = new ArrayList<NamingException>();
         while (clazz != Object.class) {

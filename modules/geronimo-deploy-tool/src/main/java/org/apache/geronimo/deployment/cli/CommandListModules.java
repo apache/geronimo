@@ -68,7 +68,7 @@ public class CommandListModules extends AbstractCommand {
         } catch (TargetException e) {
             throw new DeploymentException("Unable to query modules", e);
         } catch (IllegalStateException e) {
-            throw new DeploymentSyntaxException(e.getMessage());
+            throw new DeploymentSyntaxException(e.getMessage(), e);
         }
         if(running == null) {
             running = new TargetModuleID[0];

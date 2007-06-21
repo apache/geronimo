@@ -73,7 +73,7 @@ public class ThreadPool implements GeronimoExecutor, GBeanLifecycle, J2EEManaged
         try {
             this.objectName = ObjectName.getInstance(objectName);
         } catch (MalformedObjectNameException e) {
-            throw new IllegalStateException("Bad object name injected: " + e.getMessage());
+            throw new IllegalStateException("Bad object name injected: " + e.getMessage(), e);
         }
 
         executor = p;

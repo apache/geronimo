@@ -224,9 +224,9 @@ public class ConfigIDExtractor {
             }
             return handler.configId;
         } catch (ParserConfigurationException e) {
-            throw new IOException("Unable to read plan: "+e.getMessage());
+            throw (IOException)new IOException("Unable to read plan: "+e.getMessage()).initCause(e);
         } catch (SAXException e) {
-            throw new IOException("Unable to read plan: "+e.getMessage());
+            throw (IOException)new IOException("Unable to read plan: "+e.getMessage()).initCause(e);
         } finally {
             plan.close();
         }
@@ -241,7 +241,7 @@ public class ConfigIDExtractor {
         try {
             return FileUtils.isZipFile(file);
         } catch (IOException e) {
-            throw new DeploymentException("Unable to read file "+file.getAbsolutePath());
+            throw new DeploymentException("Unable to read file "+file.getAbsolutePath(), e);
         }
     }
 

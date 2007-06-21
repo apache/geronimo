@@ -57,7 +57,7 @@ public class DeploymentFactoryWithKernel extends BaseDeploymentFactory {
                 ModuleConfigurer configurer = (ModuleConfigurer) kernel.getGBean(configurerName);
                 moduleConfigurers.add(configurer);
             } catch (GBeanNotFoundException e) {
-                throw new AssertionError("No gbean found for name returned in query : " + configurerName);
+                throw (AssertionError)new AssertionError("No gbean found for name returned in query : " + configurerName).initCause(e);
             }
         }
         return moduleConfigurers;

@@ -222,10 +222,10 @@ public class JspModuleBuilderExtension implements ModuleBuilderExtension {
                         }
                     }
                     catch (MalformedURLException mfe) {
-                        throw new DeploymentException("Could not locate TLD file specified in <taglib>: URI: " + uri + " Location: " + location + " " + mfe.getMessage());
+                        throw new DeploymentException("Could not locate TLD file specified in <taglib>: URI: " + uri + " Location: " + location + " " + mfe.getMessage(), mfe);
                     }
                     catch (URISyntaxException use) {
-                        throw new DeploymentException("Could not locate TLD file specified in <taglib>: URI: " + uri + " Location: " + location + " " + use.getMessage());
+                        throw new DeploymentException("Could not locate TLD file specified in <taglib>: URI: " + uri + " Location: " + location + " " + use.getMessage(), use);
                     }
                 }
             }
@@ -252,7 +252,7 @@ public class JspModuleBuilderExtension implements ModuleBuilderExtension {
             }
         }
         catch (IOException ioe) {
-            throw new DeploymentException("Could not locate TLD files located in META-INF(s) " + ioe.getMessage());
+            throw new DeploymentException("Could not locate TLD files located in META-INF(s) " + ioe.getMessage(), ioe);
         }
 
         log.debug("getTldFiles() Exit: URL[" + tldURLs.size() + "]: " + tldURLs.toString());
@@ -292,10 +292,10 @@ public class JspModuleBuilderExtension implements ModuleBuilderExtension {
             }
         }
         catch (IOException ioe) {
-            throw new DeploymentException("Could not scan module for TLD files: " + webModule.getName() + " " + ioe.getMessage());
+            throw new DeploymentException("Could not scan module for TLD files: " + webModule.getName() + " " + ioe.getMessage(), ioe);
         }
         catch (Exception e) {
-            throw new DeploymentException("Could not scan module for TLD files: " + webModule.getName() + " " + e.getMessage());
+            throw new DeploymentException("Could not scan module for TLD files: " + webModule.getName() + " " + e.getMessage(), e);
         }
 
         log.debug("scanModule() Exit: URL[" + modURLs.size() + "]: " + modURLs.toString());
@@ -335,10 +335,10 @@ public class JspModuleBuilderExtension implements ModuleBuilderExtension {
             }
         }
         catch (MalformedURLException mfe) {
-            throw new DeploymentException("Could not scan JAR file for TLD files: " + jarFile.getName() + " " + mfe.getMessage());
+            throw new DeploymentException("Could not scan JAR file for TLD files: " + jarFile.getName() + " " + mfe.getMessage(), mfe);
         }
         catch (Exception e) {
-            throw new DeploymentException("Could not scan JAR file for TLD files: " + jarFile.getName() + " " + e.getMessage());
+            throw new DeploymentException("Could not scan JAR file for TLD files: " + jarFile.getName() + " " + e.getMessage(), e);
         }
 
         log.debug("scanJAR() Exit: URL[" + jarURLs.size() + "]: " + jarURLs.toString());
@@ -378,7 +378,7 @@ public class JspModuleBuilderExtension implements ModuleBuilderExtension {
                     }
                 }
                 catch (Exception e) {
-                    throw new DeploymentException("Could not scan directory for TLD files: " + url.toString() + " " + e.getMessage());
+                    throw new DeploymentException("Could not scan directory for TLD files: " + url.toString() + " " + e.getMessage(), e);
                 }
             } else if (url.toString().startsWith("file:")) {
                 try {
@@ -396,7 +396,7 @@ public class JspModuleBuilderExtension implements ModuleBuilderExtension {
                     }
                 }
                 catch (Exception e) {
-                    throw new DeploymentException("Could not scan directory for TLD files: " + url.toString() + " " + e.getMessage());
+                    throw new DeploymentException("Could not scan directory for TLD files: " + url.toString() + " " + e.getMessage(), e);
                 }
             } else if (url.toString().startsWith("jar:")) {
                 log.warn("URL type not accounted for: " + url.toString());

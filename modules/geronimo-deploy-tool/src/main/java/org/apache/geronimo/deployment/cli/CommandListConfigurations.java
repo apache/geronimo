@@ -67,7 +67,7 @@ public class CommandListConfigurations extends AbstractCommand {
                 } catch (IOException e) {
                     throw new DeploymentException("Unable to list configurations", e);
                 } catch (FailedLoginException e) {
-                    throw new DeploymentException("Invalid login for Maven repository '"+repo+"'");
+                    throw new DeploymentException("Invalid login for Maven repository '"+repo+"'", e);
                 }
                 if (data == null) {
                     out.println();

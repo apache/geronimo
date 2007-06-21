@@ -214,12 +214,12 @@ public class RedeployCommand extends AbstractDeployCommand {
         } catch(InternalKernelException e) {
             Exception cause = (Exception)e.getCause();
             if(cause instanceof NoSuchConfigException) {
-                throw new IllegalStateException("Module "+configID+" is not installed!");
+                throw new IllegalStateException("Module "+configID+" is not installed!", cause);
             } else {
                 throw cause;
             }
         } catch (NoSuchConfigException e) {
-            throw new IllegalStateException("Module "+configID+" is not installed!");
+            throw new IllegalStateException("Module "+configID+" is not installed!", e);
         }
 
         doDeploy(target, false);

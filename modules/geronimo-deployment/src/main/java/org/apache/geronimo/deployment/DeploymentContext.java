@@ -264,7 +264,7 @@ public class DeploymentContext {
         try {
             manifest = moduleFile.getManifest();
         } catch (IOException e) {
-            throw new DeploymentException("Could not read manifest: " + moduleBaseUri);
+            throw new DeploymentException("Could not read manifest: " + moduleBaseUri, e);
         }
 
         if (manifest == null) {

@@ -72,7 +72,7 @@ public class CSSConfigEditor implements XmlAttributeBuilder {
         try {
             XmlBeansUtil.validateDD(css);
         } catch (XmlException e) {
-            throw new DeploymentException(e);
+            throw new DeploymentException("Error parsing CSS configuration", e);
         }
 
         CSSConfig cssConfig = new CSSConfig();
@@ -151,7 +151,7 @@ public class CSSConfigEditor implements XmlAttributeBuilder {
             try {
                 principalClass = ClassLoading.loadClass(principalClassName, cl);
             } catch (ClassNotFoundException e) {
-                throw new DeploymentException("Could not load principal class");
+                throw new DeploymentException("Could not load principal class", e);
             }
             String domainName = principal.getDomain();
             String realmName = null;

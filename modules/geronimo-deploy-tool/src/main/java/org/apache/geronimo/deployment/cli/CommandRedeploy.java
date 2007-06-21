@@ -113,7 +113,7 @@ public class CommandRedeploy extends AbstractCommand {
                     }
                 }
             } catch (IOException e) {
-                throw new DeploymentException("Unable to read input files: "+e.getMessage());
+                throw new DeploymentException("Unable to read input files: "+e.getMessage(), e);
             }
             if(moduleId != null) {
                 emit("Attempting to use ModuleID '"+moduleId+"'");

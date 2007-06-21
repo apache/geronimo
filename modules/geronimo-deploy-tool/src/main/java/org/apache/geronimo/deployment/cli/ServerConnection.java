@@ -188,7 +188,7 @@ public class ServerConnection {
                     throw new DeploymentException("Login Failed");
                 }
             } catch (DeploymentManagerCreationException e) {
-                throw new DeploymentException("Unable to connect to server at " + useURI + " -- " + e.getMessage());
+                throw new DeploymentException("Unable to connect to server at " + useURI + " -- " + e.getMessage(), e);
             }
         }
 

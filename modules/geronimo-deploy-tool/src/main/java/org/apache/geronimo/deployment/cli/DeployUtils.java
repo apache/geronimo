@@ -75,7 +75,7 @@ public class DeployUtils extends ConfigIDExtractor {
                 }
             }
         } catch (IOException e) {
-            throw new AssertionError("This should be impossible");
+            throw (AssertionError)new AssertionError("This should be impossible").initCause(e);
         }
         return buf.toString();
     }

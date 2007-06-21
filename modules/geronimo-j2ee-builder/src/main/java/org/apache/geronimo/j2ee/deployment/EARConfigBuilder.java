@@ -590,7 +590,7 @@ public class EARConfigBuilder implements ConfigurationBuilder, CorbaGBeanNameSou
                     }
                     gbeanData.setAttribute("deploymentDescriptor", originalSpecDD);
                 } catch (Exception e) {
-                    throw new DeploymentException("Error initializing J2EEApplication managed object");
+                    throw new DeploymentException("Error initializing J2EEApplication managed object", e);
                 }
                 gbeanData.setReferencePatterns("Server", new ReferencePatterns(new AbstractNameQuery(J2EEServer.class.getName())));
 

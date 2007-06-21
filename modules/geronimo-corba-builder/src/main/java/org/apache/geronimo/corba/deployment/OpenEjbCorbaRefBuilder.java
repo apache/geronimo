@@ -136,7 +136,7 @@ public class OpenEjbCorbaRefBuilder extends EjbRefBuilder {
                 try {
                     module.getEarContext().findGBean(cssBean);
                 } catch (GBeanNotFoundException e) {
-                    throw new DeploymentException("Could not find css bean matching " + cssBean + " from configuration " + module.getConfigId());
+                    throw new DeploymentException("Could not find css bean matching " + cssBean + " from configuration " + module.getConfigId(), e);
                 }
 
                 // create ref
@@ -152,12 +152,12 @@ public class OpenEjbCorbaRefBuilder extends EjbRefBuilder {
         try {
             assureInterface(remote, "javax.ejb.EJBObject", "Remote", cl);
         } catch (DeploymentException e) {
-            throw new DeploymentException("Error processing 'remote' element for EJB Reference '" + refName + "' for module '" + moduleURI + "': " + e.getMessage());
+            throw new DeploymentException("Error processing 'remote' element for EJB Reference '" + refName + "' for module '" + moduleURI + "': " + e.getMessage(), e);
         }
         try {
             assureInterface(home, "javax.ejb.EJBHome", "Home", cl);
         } catch (DeploymentException e) {
-            throw new DeploymentException("Error processing 'home' element for EJB Reference '" + refName + "' for module '" + moduleURI + "': " + e.getMessage());
+            throw new DeploymentException("Error processing 'home' element for EJB Reference '" + refName + "' for module '" + moduleURI + "': " + e.getMessage(), e);
         }
     }
 
