@@ -97,7 +97,6 @@ final class ServerSecurityInterceptor extends LocalObject implements ServerReque
                     contextId = contextBody.establish_msg().client_context_id;
 
                     identity = tssPolicy.check(SSLSessionManager.getSSLSession(ri.request_id()), contextBody.establish_msg());
-
                     if (identity != null) {
                         ContextManager.registerSubject(identity);
                     }
@@ -163,6 +162,15 @@ final class ServerSecurityInterceptor extends LocalObject implements ServerReque
 
             SubjectManager.setSubject(ri.request_id(), identity);
         }
+        else 
+        {
+            // if there's no identity given, make sure we clear this 
+            // to ensure that the default subject ends up getting used. 
+            ContextManager.clearCallers(); 
+            // and just to be on the safe side, make sure there's no 
+            // subject registered for this request. 
+            SubjectManager.clearSubject(ri.request_id());
+        }
     }
 
     public void receive_request_service_contexts(ServerRequestInfo ri) {
@@ -171,7 +179,10 @@ final class ServerSecurityInterceptor extends LocalObject implements ServerReque
 
     public void send_exception(ServerRequestInfo ri) {
         Subject identity = SubjectManager.clearSubject(ri.request_id());
-        if (identity != null) ContextManager.unregisterSubject(identity);
+        if (identity != null) {
+            ContextManager.unregisterSubject(identity);
+            ContextManager.clearCallers(); 
+        }
 
         insertServiceContext(ri);
 
@@ -184,7 +195,10 @@ final class ServerSecurityInterceptor extends LocalObject implements ServerReque
 
     public void send_reply(ServerRequestInfo ri) {
         Subject identity = SubjectManager.clearSubject(ri.request_id());
-        if (identity != null) ContextManager.unregisterSubject(identity);
+        if (identity != null) {
+            ContextManager.unregisterSubject(identity);
+            ContextManager.clearCallers(); 
+        }
 
         insertServiceContext(ri);
 
