@@ -144,7 +144,7 @@ public class InternalJAASJettyRealm {
         try {
             // JACC v1.0 secion B.19
             String servletName = InternalJettyServletHolder.getCurrentServletName();
-            if (servletName.equals("jsp")) {
+            if (servletName == null || servletName.equals("jsp")) {
                 servletName = "";
             }
             acc.checkPermission(new WebRoleRefPermission(servletName, role));
