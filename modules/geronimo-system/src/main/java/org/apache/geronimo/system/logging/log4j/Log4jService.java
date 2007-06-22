@@ -84,6 +84,7 @@ public class Log4jService implements GBeanLifecycle, SystemLog {
     // Pattern that matches a single line  (used to calculate line numbers and check for follow-on stack traces)
     private final static Pattern FULL_LINE_PATTERN = Pattern.compile("^.*", Pattern.MULTILINE);
 
+    private final static Log log = LogFactory.getLog(Log4jService.class);
 
     /**
      * The URL to the configuration file.
@@ -212,6 +213,7 @@ public class Log4jService implements GBeanLifecycle, SystemLog {
             throw new IllegalArgumentException("level is null");
         }
 
+        log.info("Setting logger level: logger=" + logger + ", level=" + level);
         Logger.getLogger(logger).setLevel(XLevel.toLevel(level));
     }
 
@@ -228,11 +230,11 @@ public class Log4jService implements GBeanLifecycle, SystemLog {
      * Set the refresh period.
      *
      * @param period the refresh period (in seconds)
-     * @throws IllegalArgumentException if refresh period is <= 0
+     * @throws IllegalArgumentException if refresh period is < 5
      */
     public synchronized void setRefreshPeriodSeconds(final int period) {
-        if (period < 1) {
-            throw new IllegalArgumentException("Refresh period must be > 0");
+        if (period < 5) {
+            throw new IllegalArgumentException("Refresh period must be at least 5 seconds");
         }
 
         if (this.refreshPeriod != period) {
@@ -256,6 +258,7 @@ public class Log4jService implements GBeanLifecycle, SystemLog {
      * @param configurationFile the logging configuration file
      */
     public synchronized void setConfigFileName(final String configurationFile) {
+        log.debug("setConfigFileName() called with configurationFile=" + configurationFile);
         if (configurationFile == null) {
             throw new IllegalArgumentException("configurationFile is null");
         }
@@ -264,6 +267,7 @@ public class Log4jService implements GBeanLifecycle, SystemLog {
         if (!this.configurationFile.equals(configurationFile)) {
             this.configurationFile = configurationFile;
             lastChanged = -1;
+            reconfigure();
         }
     }
 
@@ -331,6 +335,7 @@ public class Log4jService implements GBeanLifecycle, SystemLog {
         try {
             out = new FileOutputStream(file);
             out.write(configuration.getBytes());
+            log.info("Updated configuration file=" + file.toString());
         } finally {
             if (out != null) {
                 try {
@@ -361,7 +366,7 @@ public class Log4jService implements GBeanLifecycle, SystemLog {
             RandomAccessFile raf = new RandomAccessFile(file, "r");
             FileChannel fc = raf.getChannel();
             MappedByteBuffer bb = fc.map(FileChannel.MapMode.READ_ONLY, 0, fc.size());
-            CharBuffer cb = Charset.forName("US-ASCII").decode(bb); //todo: does Log4J use a different charset on a foreign PC?
+            CharBuffer cb = Charset.forName(System.getProperty("file.encoding")).decode(bb);
             Matcher target = null;
             Matcher any = null;
             Matcher lines = FULL_LINE_PATTERN.matcher(cb);
@@ -513,6 +518,7 @@ public class Log4jService implements GBeanLifecycle, SystemLog {
         if (file == null || !file.exists()) {
             return;
         } else {
+            log.debug("reconfigure() using configurationFile=" + configurationFile);
             lastChanged = file.lastModified();
         }
 

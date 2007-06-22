@@ -53,7 +53,7 @@ public class SharedLib {
                     }
                 }
                 if (!dir.isDirectory()) {
-                    throw new IllegalArgumentException("Classes dir is not a directory: " + dir);
+                    throw new IllegalArgumentException("Shared classes dir is not a directory: " + dir);
                 }
                 URL location = dir.toURL();
                 if (!currentUrls.contains(location)) {
@@ -72,7 +72,7 @@ public class SharedLib {
                     }
                 }
                 if (!dir.isDirectory()) {
-                    throw new IllegalArgumentException("Lib dir is not a directory: " + dir);
+                    throw new IllegalArgumentException("Shared lib dir is not a directory: " + dir);
                 }
 
                 File[] files = dir.listFiles();
