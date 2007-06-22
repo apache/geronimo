@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.util.Map;
 import java.util.Set;
 
+import javax.security.auth.Subject;
 import javax.security.jacc.PolicyContext;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
@@ -63,20 +64,22 @@ public class JettyPOJOWebServiceHolder implements GBeanLifecycle {
     }
 
     public JettyPOJOWebServiceHolder(String pojoClassName,
-            String servletName,
-            Map initParams,
-            Integer loadOnStartup,
-            Set servletMappings,
-            WebServiceContainerFactory webServiceContainerFactory,
-            JettyServletRegistration context) throws Exception {
-        servletHolder = new ServletHolder();
+                                     String servletName,
+                                     Map initParams,
+                                     Integer loadOnStartup,
+                                     Set servletMappings,
+                                     String runAsRole, 
+                                     WebServiceContainerFactory webServiceContainerFactory,
+                                     JettyServletRegistration context) throws Exception {
+        Subject runAsSubject = context == null? null: context.getSubjectForRole(runAsRole);
+        servletHolder = new InternalJettyServletHolder(context == null? null: context.getLifecycleChain(), runAsSubject, context);
         //context will be null only for use as "default servlet info holder" in deployer.
 
         this.pojoClassName = pojoClassName;
         this.context = context;
         this.webServiceContainer = webServiceContainerFactory == null? null: webServiceContainerFactory.getWebServiceContainer();
         this.servletMappings = servletMappings;
-        if (context != null) {
+        if (context != null) {            
             servletHolder.setName(servletName);
             servletHolder.setClassName(POJOWebServiceServlet.class.getName());
             servletHolder.setInitParameters(initParams);
@@ -162,6 +165,7 @@ public class JettyPOJOWebServiceHolder implements GBeanLifecycle {
         infoBuilder.addAttribute("initParams", Map.class, true);
         infoBuilder.addAttribute("loadOnStartup", Integer.class, true);
         infoBuilder.addAttribute("servletMappings", Set.class, true);
+        infoBuilder.addAttribute("runAsRole", String.class, true);
         infoBuilder.addReference("WebServiceContainerFactory", WebServiceContainerFactory.class);
         infoBuilder.addReference("JettyServletRegistration", JettyServletRegistration.class);
 
@@ -170,6 +174,7 @@ public class JettyPOJOWebServiceHolder implements GBeanLifecycle {
                 "initParams",
                 "loadOnStartup",
                 "servletMappings",
+                "runAsRole",
                 "WebServiceContainerFactory",
                 "JettyServletRegistration"});
 
