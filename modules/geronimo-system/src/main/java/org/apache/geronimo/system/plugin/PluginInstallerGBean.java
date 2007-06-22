@@ -38,6 +38,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.SortedSet;
+import java.util.Vector;
 import java.util.Enumeration;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
@@ -1291,17 +1292,51 @@ public class PluginInstallerGBean implements PluginInstaller {
             PluginMetadata data = processPlugin(config);
             results.add(data);
         }
-        String[] repos = getChildrenText(root, "default-repository");
-        URL[] repoURLs = new URL[repos.length];
-        for(int i = 0; i < repos.length; i++) {
-            if(repos[i].trim().endsWith("/")) {
-                repoURLs[i] = new URL(repos[i].trim());
-            } else {
-                repoURLs[i] = new URL(repos[i].trim()+"/");
-            }
-        }
-
         PluginMetadata[] data = (PluginMetadata[]) results.toArray(new PluginMetadata[results.size()]);
+        Vector<String> versionsRepos = new Vector<String>();
+        for (int i = 0; i < data.length; i++) {
+        	URL[] pluginRepos = data[i].getRepositories();
+        	for ( int j=0; j < pluginRepos.length; j++ ) {
+        		versionsRepos.add(pluginRepos[j].toString());
+        	}
+        }
+        String[] repos = getChildrenText(root, "default-repository");
+        URL[] repoURLs;
+        if ( versionsRepos.size() > 0 && repos.length > 0) { //If we have both the default repositories as well as the repositories from the plugins.
+        	repoURLs = new URL[repos.length + versionsRepos.size()];
+	        for ( int i = 0; i < versionsRepos.size(); i++ ) {
+	        	if(versionsRepos.elementAt(i).trim().endsWith("/")){
+	        		repoURLs[i] = new URL(versionsRepos.elementAt(i).trim());
+	        	} else {
+	        		repoURLs[i] = new URL(versionsRepos.elementAt(i).trim() + "/");
+	        	}
+	        }
+	        for ( int i = versionsRepos.size(); i < repoURLs.length; i++ ) {
+	            if(repos[i-versionsRepos.size()].trim().endsWith("/")) {
+	                repoURLs[i] = new URL(repos[i-versionsRepos.size()].trim());
+	            } else {
+	                repoURLs[i] = new URL(repos[i-versionsRepos.size()].trim()+"/");
+	            }
+	        }  
+        } else if (versionsRepos.size() > 0) { //If we only have versionsRepos elements
+        	repoURLs = new URL[versionsRepos.size()];
+        	for ( int i=0; i < repos.length; i++ ) {
+        		if( repos[i].trim().endsWith("/") ) {
+        			repoURLs[i] = new URL(versionsRepos.get(i).trim());
+        		} else {
+        			repoURLs[i] = new URL(versionsRepos.get(i).trim()+"/");
+        		}
+        	}
+        } else { //If we have either only the default repository or none at all
+        	repoURLs = new URL[repos.length];
+        	for ( int i=0; i < repos.length; i++ ) {
+        		if( repos[i].trim().endsWith("/") ) {
+        			repoURLs[i] = new URL(repos[i].trim());
+        		} else {
+        			repoURLs[i] = new URL(repos[i].trim()+"/");
+        		}
+        	}
+        }
         return new PluginList(repoURLs, data);
     }
 
@@ -1384,10 +1419,10 @@ public class PluginInstallerGBean implements PluginInstaller {
             }
         }
         boolean eligible = true;
-        NodeList preNodes = plugin.getElementsByTagName("prerequisite");
-        PluginMetadata.Prerequisite[] prereqs = new PluginMetadata.Prerequisite[preNodes.getLength()];
-        for(int j=0; j<preNodes.getLength(); j++) {
-            Element node = (Element) preNodes.item(j);
+        ArrayList preNodes = getChildren(plugin, "prerequisite");
+        PluginMetadata.Prerequisite[] prereqs = new PluginMetadata.Prerequisite[preNodes.size()];
+        for(int j=0; j<preNodes.size(); j++) {
+            Element node = (Element) preNodes.get(j);
             String originalConfigId = getChildText(node, "id");
             if(originalConfigId == null) {
                 throw new SAXException("Prerequisite requires <id>");
@@ -1409,49 +1444,56 @@ public class PluginInstallerGBean implements PluginInstaller {
             if(!match) {
             	eligible = false;
             }
-            	gerVersions = new PluginMetadata.geronimoVersions[gerVersion.length];
-            	for(int i=0; i < gerVersion.length; i++) {
-            		gerVersions[i] = new PluginMetadata.geronimoVersions(gerVersion[i], null, null, null);
-            	}
+            gerVersions = new PluginMetadata.geronimoVersions[gerVersion.length];
+            for(int i=0; i < gerVersion.length; i++) {
+            	gerVersions[i] = new PluginMetadata.geronimoVersions(gerVersion[i], null, null, null);
+            }
         }
         //Process the new geronimo version elements.
         NodeList gerNodes = plugin.getElementsByTagName("geronimo-versions");
+        String[] versionsRepos = null;
         if (gerNodes.getLength() > 0) {
         	gerVersions = new PluginMetadata.geronimoVersions[gerNodes.getLength()];
         	for ( int i = 0; i < gerNodes.getLength(); i++ ) {
         		Element node = (Element) gerNodes.item(i);
         		String version = getChildText(node, "version");
+        		boolean versionMatch = (version.trim().equals(serverInfo.getVersion().trim()))? true: false; //Is this the versions element for the instance version?
         		if (version == null) {
         			throw new SAXException("geronimo-versions requires <version> ");
         		}
         		String moduleID = getChildText(node, "module-id");
-        		String sourceRepo = getChildText(node, "source-repository");
-        		
+        		if ( versionMatch && (moduleID != null)) { //If this is the correct version and there's a new moduleID, overwrite the previous moduleId element
+        			moduleId = moduleID;
+        		}
+        		String[] sourceRepo = getChildrenText(node, "source-repository");
+        		if ( versionMatch ) {
+        			versionsRepos = sourceRepo;
+        		}
+        			
         		//Process the prerequisite elements
                 NodeList preReqNode = node.getElementsByTagName("prerequisite");
                 PluginMetadata.Prerequisite[] preReqs = new PluginMetadata.Prerequisite[preReqNode.getLength()];
-                for(int j=0; j < preReqNode.getLength(); j++) {
-                    Element preNode = (Element) preReqNode.item(j);
-                    String originalConfigId = getChildText(preNode, "id");
-                    if(originalConfigId == null) {
-                        throw new SAXException("Prerequisite requires <id>");
-                    }
-                    Artifact artifact = Artifact.create(originalConfigId.replaceAll("\\*", ""));
-                    boolean present = resolver.queryArtifacts(artifact).length > 0;
-                    preReqs[j] = new PluginMetadata.Prerequisite(artifact, present,
-                            getChildText(node, "resource-type"), getChildText(preNode, "description"));
-                    if(!present) {
-                        log.debug(moduleId+" is not eligible due to missing "+prereqs[j].getModuleId());
-                        eligible = false;
-                    }
-                }
-                gerVersions[i] = new PluginMetadata.geronimoVersions(version, moduleID, sourceRepo, preReqs);
-                
+	            for(int j=0; j < preReqNode.getLength(); j++) {
+	                Element preNode = (Element) preReqNode.item(j);
+	                String originalConfigId = getChildText(preNode, "id");
+	                if(originalConfigId == null) {
+	                    throw new SAXException("Prerequisite requires <id>");
+	                }
+	                Artifact artifact = Artifact.create(originalConfigId.replaceAll("\\*", ""));
+	                boolean present = resolver.queryArtifacts(artifact).length > 0;
+	                preReqs[j] = new PluginMetadata.Prerequisite(artifact, present,
+	                        getChildText(node, "resource-type"), getChildText(preNode, "description"));
+	                if(!present && versionMatch) { //We only care if the preReq is missing if this version element is for the instance version
+	                    log.debug(moduleId+" is not eligible due to missing "+prereqs[j].getModuleId());
+	                    eligible = false;
+	                }
+	            }
+	            gerVersions[i] = new PluginMetadata.geronimoVersions(version, moduleID, sourceRepo, preReqs);
         	}
-        	boolean match = checkGeronimoVersions(gerVersions);
-        	if (!match){
-        		eligible = false;
-        	}
+            boolean match = checkGeronimoVersions(gerVersions);
+            if (!match){
+            	eligible = false;
+            }
         }
         String[] jvmVersions = getChildrenText(plugin, "jvm-version");
         if(jvmVersions.length > 0) {
@@ -1459,9 +1501,25 @@ public class PluginInstallerGBean implements PluginInstaller {
             if(!match) eligible = false;
         }
         String[] repoNames = getChildrenText(plugin, "source-repository");
-        URL[] repos = new URL[repoNames.length];
-        for (int i = 0; i < repos.length; i++) {
-            repos[i] = new URL(repoNames[i].trim());
+        URL[] repos;
+        if ( versionsRepos != null && repoNames.length > 0 ) { //If we have repos in both the geronimo-versions element and for the plugin as a whole
+        	repos = new URL[repoNames.length + versionsRepos.length];
+	        for (int i = 0; i < repos.length; i++) {
+	            repos[i] = new URL(repoNames[i].trim());
+	        }
+	        for (int i = repoNames.length; i < repos.length; i++ ) {
+	        	repos[i] = new URL(versionsRepos[i-repoNames.length]);
+	        }
+        } else if (versionsRepos != null) { //If we only have repos defined in the geronimo-versions element
+        	repos = new URL[versionsRepos.length];
+        	for( int i=0; i < versionsRepos.length; i++ ) {
+        		repos[i] = new URL(versionsRepos[i].trim());
+        	}
+        } else {                            //If we only have repos defined for the plugin as a whole, or there are none defined
+	        repos = new URL[repoNames.length];
+	        for (int i = 0; i < repos.length; i++) {
+	            repos[i] = new URL(repoNames[i].trim());
+	        }
         }
         Artifact artifact = null;
         boolean installed = false;
@@ -1630,6 +1688,25 @@ public class PluginInstallerGBean implements PluginInstaller {
     }
 
     /**
+     *Gets all the children nodes of a certain type.  The result array has one
+     *element for each child of the specified DOM element that has the specified
+     *name.  This works similar to Element.getElementsByTagName(String) except that
+     *it only returns nodes that are the immediate child of the parent node instead of
+     *any elements with that tag name regardless of generation gap. 
+     */
+    private static ArrayList getChildren(Element root, String property) {
+    	NodeList children = root.getChildNodes();
+    	ArrayList results = new ArrayList();
+    	for ( int i=0; i < children.getLength(); i++ ) {
+    		Node check = children.item(i);
+    		if ( check.getNodeType() == Node.ELEMENT_NODE && check.getNodeName().equals(property) ) {
+    			results.add(check);
+    		}
+    	}
+    	return results;
+    }
+    
+    /**
      * Gets the text out of all the child nodes of a certain type.  The result
      * array has one element for each child of the specified DOM element that
      * has the specified name.
@@ -1733,9 +1810,9 @@ public class PluginInstallerGBean implements PluginInstaller {
             if (gerVersions.getModuleId() != null){
             	addTextChild(doc, ger, "module-id", gerVersions.getModuleId());
             }
-            if (gerVersions.getPrerequisite() != null){
-                for (int j = 0; j < gerVersions.getPrerequisite().length; j++) {
-                    PluginMetadata.Prerequisite prereq = gerVersions.getPrerequisite()[j];
+            if (gerVersions.getPreReqs() != null){
+                for (int j = 0; j < gerVersions.getPreReqs().length; j++) {
+                    PluginMetadata.Prerequisite prereq = gerVersions.getPreReqs()[j];
                     Element pre = doc.createElement("prerequisite");
                     addTextChild(doc, pre, "id", prereq.getModuleId().toString());
                     if(prereq.getResourceType() != null) {
@@ -1747,8 +1824,11 @@ public class PluginInstallerGBean implements PluginInstaller {
                     ger.appendChild(pre);
                 }
             }
-            if (gerVersions.getRepository() != null) {
-            	addTextChild(doc, ger, "repository", gerVersions.getRepository());
+            if (gerVersions.getRepository().length > 0) {
+            	String[] repos = gerVersions.getRepository();
+            	for ( int j=0; j < repos.length; j++) {
+            		addTextChild(doc, ger, "repository", repos[j]);
+            	}
             }
             config.appendChild(ger);
         }

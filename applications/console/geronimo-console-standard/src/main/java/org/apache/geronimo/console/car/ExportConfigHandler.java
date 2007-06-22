@@ -85,14 +85,19 @@ public class ExportConfigHandler extends BaseImportExportHandler {
                 if (ver.getModuleId() != null) {
                     request.setAttribute(prefix +"ModuleID", ver.getModuleId().toString());
                 }
-                if (ver.getRepository() != null) {
-                    request.setAttribute(prefix +"Repo", ver.getRepository());
+                String[] repos = ver.getRepository();
+                if (repos != null && repos.length > 0) {
+                	for ( int j=0; j < repos.length; j++ ) {
+                		String repo = repos[j];
+                		String prefixes = "repo" + (j+1);
+                		request.setAttribute(prefixes, repo);
+                	}
                 }
-                PluginMetadata.Prerequisite[] reqs = ver.getPrerequisite();
+                PluginMetadata.Prerequisite[] reqs = ver.getPreReqs();
                 if(reqs != null && reqs.length > 0) {
-                    for (int j = 0; i < reqs.length; i++) {
-                        PluginMetadata.Prerequisite req = reqs[i];
-                        String prefixes = "prereq" + (i+1);
+                    for (int j = 0; j < reqs.length; j++) {
+                        PluginMetadata.Prerequisite req = reqs[j];
+                        String prefixes = "prereq" + (j+1);
                         request.setAttribute(prefixes, req.getModuleId().toString());
                         if (req.getResourceType() != null) {
                             request.setAttribute(prefixes +"type", req.getResourceType());
@@ -161,11 +166,23 @@ public class ExportConfigHandler extends BaseImportExportHandler {
         	String version = request.getParameter(prefix+"Version");
         	String moduleId = request.getParameter(prefix+"ModuleID");
         	String repository = request.getParameter(prefix+"Repo");
+        	List repos = new ArrayList();
+        	int repoCounter = 1;
+        	while(true) {
+        		String prefixes = "repo" + repoCounter;
+        		++repoCounter;
+        		String versionRepo = request.getParameter(prefixes);
+        		if(versionRepo == null || versionRepo.trim().equals("")) {
+        			break;
+        		}
+        		repos.add(versionRepo);
+        	}
+        		
         	int preCounter = 1;
         	List prereqs = new ArrayList();
             while(true) {
                 String prefixes = "prereq" + preCounter;
-                ++counter;
+                ++preCounter;
                 String prereq = request.getParameter(prefixes);
                 if(prereq == null || prereq.trim().equals("")) {
                     break;
@@ -180,7 +197,7 @@ public class ExportConfigHandler extends BaseImportExportHandler {
                 }
                 prereqs.add(new PluginMetadata.Prerequisite(Artifact.create(id), false, type, desc));
             }
-            gerVersions.add(new PluginMetadata.geronimoVersions(version, moduleId, repository, (PluginMetadata.Prerequisite[])prereqs.toArray(new PluginMetadata.Prerequisite[prereqs.size()])));      	
+            gerVersions.add(new PluginMetadata.geronimoVersions(version, moduleId, (String[])repos.toArray(new String[repos.size()]), (PluginMetadata.Prerequisite[])prereqs.toArray(new PluginMetadata.Prerequisite[prereqs.size()])));      	
         }
         metadata.setGeronimoVersions((PluginMetadata.geronimoVersions[])gerVersions.toArray(new PluginMetadata.geronimoVersions[gerVersions.size()]));
         List prereqs = new ArrayList();

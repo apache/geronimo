@@ -321,9 +321,15 @@ public class GeronimoAsMavenServlet extends HttpServlet {
         if (ver.getModuleId() != null){
         	createText(doc, ger, "module-id", ver.getModuleId());
         }
-        if (ver.getPrerequisite() != null){
-            for (int j = 0; j < ver.getPrerequisite().length; j++) {
-                PluginMetadata.Prerequisite prereq = ver.getPrerequisite()[j];
+        if (ver.getRepository() != null) {
+        	String[] repos = ver.getRepository();
+        	for ( int i=0; i < repos.length; i++ ) {
+        		createText(doc, ger, "source-repository", repos[i]);
+        	}
+        }
+        if (ver.getPreReqs() != null){
+            for (int j = 0; j < ver.getPreReqs().length; j++) {
+                PluginMetadata.Prerequisite prereq = ver.getPreReqs()[j];
                 Element pre = doc.createElement("prerequisite");
                 createText(doc, pre, "id", prereq.getModuleId().toString());
                 if(prereq.getResourceType() != null) {

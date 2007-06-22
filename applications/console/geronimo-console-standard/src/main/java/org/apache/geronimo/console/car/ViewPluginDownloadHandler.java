@@ -84,6 +84,7 @@ public class ViewPluginDownloadHandler  extends BaseImportExportHandler {
         }
         request.setAttribute("configId", configId);
         request.setAttribute("plugin", config);
+        request.setAttribute("gerVersions",config.getGeronimoVersions());
         request.setAttribute("repository", repo);
         request.setAttribute("repouser", user);
         request.setAttribute("repopass", pass);

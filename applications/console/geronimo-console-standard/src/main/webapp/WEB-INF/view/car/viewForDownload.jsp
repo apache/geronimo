@@ -63,12 +63,12 @@
     <th align="right" valign="top">Geronimo-Versions:</th>
     <td>
       <c:choose>
-        <c:when test="${empty plugin.geronimoVersions}">
+        <c:when test="${empty gerVersions}">
           <i>None</i>
         </c:when>
         <c:otherwise>
-          <c:forEach var="gerVersions" items="${plugin.geronimoVersions}">
-            <b>${gerVersions.version}</b>
+          <c:forEach var="geronimoVersions" items="${gerVersions}">
+            <b>${geronimoVersions.version}</b>
           </c:forEach>
         </c:otherwise>
       </c:choose>
@@ -115,6 +115,35 @@
       </c:choose>
     </td>
   </tr>
+  <tr>
+	<th align="right" valign="top">Version Specific Prerequisites:</th>
+	<td>
+	  <c:choose>
+		<c:when test="${empty gerVersions}">
+		  <i>None</i>
+		</c:when>
+		<c:otherwise>
+		  <c:forEach var="version" items="${gerVersions}">
+		    Version: ${version.version}:<br/>
+			<c:choose>
+			  <c:when test="${empty version.preReqs}">
+			    <i>None</i><br/>
+			  </c:when>
+			  <c:otherwise>
+			    <c:forEach var="preReq" items="${version.preReqs}">
+				  <b>${preReq.moduleIdWithStars}</b> (${preReq.resourceType})<br/>
+				  ${preReq.description}
+				  <c:if test="${!preReq.present}">
+                    <br /><b><font color="red">NOT AVAILABLE</font></b>
+				  </c:if>
+			    </c:forEach>
+			  </c:otherwise>
+			</c:choose>
+		  </c:forEach>
+		</c:otherwise>
+	  </c:choose>
+	</td>
+  </tr>		
   <tr>
     <th align="right" valign="top">Obsoletes:</th>
     <td>

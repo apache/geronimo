@@ -418,10 +418,10 @@ public class PluginMetadata implements Serializable, Comparable {
     	
     	private String version;
     	private String moduleId;
-    	private String repository;
+    	private String[] repository;
     	private Prerequisite[] preReqs;
     	
-    	public geronimoVersions( String version, String moduleId, String repository, Prerequisite[] preReqs) {
+    	public geronimoVersions( String version, String moduleId, String[] repository, Prerequisite[] preReqs) {
     			this.version = version;
     			this.moduleId = moduleId;
     			this.repository = repository;
@@ -440,12 +440,16 @@ public class PluginMetadata implements Serializable, Comparable {
     		return moduleId;
     	}
     	
-    	public String getRepository() {
+    	public String[] getRepository() {
     		return repository;
     	}
     	
-    	public Prerequisite[] getPrerequisite() {
+    	public Prerequisite[] getPreReqs() {
     		return preReqs;
+    	}
+    	
+    	public void setPreReqs(Prerequisite[] prereqs) {
+    		preReqs = prereqs;
     	}
     }
 }
