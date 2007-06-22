@@ -34,7 +34,7 @@ public class ObjectNameUtil {
         try {
             return new ObjectName(name);
         } catch (MalformedObjectNameException e) {
-            throw new IllegalArgumentException("Malformed ObjectName: " + name);
+            throw new IllegalArgumentException("Malformed ObjectName: " + name, e);
         }
     }
 }

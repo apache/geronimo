@@ -74,7 +74,7 @@ public final class GBeanOperation implements Serializable {
             } catch (ClassNotFoundException e) {
                 throw new InvalidConfigurationException("Could not load operation parameter class:" +
                         " name=" + operationInfo.getName() +
-                        " class=" + type);
+                        " class=" + type, e);
             }
         }
 
@@ -102,7 +102,7 @@ public final class GBeanOperation implements Serializable {
                         " name=" + operationInfo.getName() +
                         " methodName=" + operationInfo.getMethodName() +
                         " returnType=" + operationInfo.getReturnType() +
-                        " targetClass=" + gbeanInstance.getType().getName());
+                        " targetClass=" + gbeanInstance.getType().getName(), e);
             }
         }
     }

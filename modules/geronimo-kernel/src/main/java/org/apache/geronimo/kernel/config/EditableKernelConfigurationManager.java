@@ -94,7 +94,7 @@ public class EditableKernelConfigurationManager extends KernelConfigurationManag
                 try {
                     kernel.startRecursiveGBean(gbean.getAbstractName());
                 } catch (GBeanNotFoundException e) {
-                    throw new InvalidConfigException("How could we not find a GBean that we just loaded ('" + gbean.getAbstractName() + "')?");
+                    throw new InvalidConfigException("How could we not find a GBean that we just loaded ('" + gbean.getAbstractName() + "')?", e);
                 }
             }
 

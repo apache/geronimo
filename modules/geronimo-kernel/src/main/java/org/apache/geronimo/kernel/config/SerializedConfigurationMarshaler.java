@@ -46,7 +46,7 @@ public class SerializedConfigurationMarshaler implements ConfigurationMarshaler 
             try {
                 marshaler = ConfigurationUtil.createConfigurationMarshaler("org.apache.geronimo.kernel.config.xstream.XStreamConfigurationMarshaler");
             } catch (Throwable ignored) {
-                throw new IOException("Input does not contain a Java Object Serialization stream");
+                throw (IOException)new IOException("Input does not contain a Java Object Serialization stream").initCause(ignored);
             }
             return marshaler.readConfigurationData(pushbackInputStream);
 

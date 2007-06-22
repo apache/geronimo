@@ -243,7 +243,7 @@ public class EndpointInfoBuilder {
                 return new URI(wsdlLocation.trim());
             } catch (URISyntaxException e) {
                 throw new DeploymentException(
-                        "Invalid wsdl location in annotation: " + wsdlLocation);
+                        "Invalid wsdl location in annotation: " + wsdlLocation, e);
             }
         }
 
@@ -282,7 +282,7 @@ public class EndpointInfoBuilder {
         } catch (MalformedURLException e) {
             throw new DeploymentException(
                     "Could not construct web service location URL from "
-                            + locationURIString);
+                            + locationURIString, e);
         }
     }
     

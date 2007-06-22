@@ -51,7 +51,7 @@ public class QNameConverter implements Converter {
             Object qname = method.invoke(null, new Object[] { qnameString });
             return qname;
         } catch (Exception e) {
-            throw new ConversionException("Unable to convert value to a qname: " + qnameString);
+            throw new ConversionException("Unable to convert value to a qname: " + qnameString, e);
         }
     }
 }

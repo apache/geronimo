@@ -230,7 +230,7 @@ public class JettyContainerImpl implements JettyContainer, SoapHandler, GBeanLif
         try {
             removeContext(webServiceContext);
         } catch (Exception e) {
-            throw new IllegalStateException(e.getMessage());
+            throw new IllegalStateException(e.getMessage(), e);
         }
     }
 

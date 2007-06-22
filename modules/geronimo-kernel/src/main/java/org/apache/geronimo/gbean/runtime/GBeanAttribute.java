@@ -207,7 +207,7 @@ public class GBeanAttribute {
         try {
             this.type = ClassLoading.loadClass(attributeInfo.getType(), gbeanInstance.getClassLoader());
         } catch (ClassNotFoundException e) {
-            throw new InvalidConfigurationException("Could not load attribute class: " + attributeInfo.getType());
+            throw new InvalidConfigurationException("Could not load attribute class: " + attributeInfo.getType(), e);
         }
         this.persistent = attributeInfo.isPersistent();
         this.manageable = attributeInfo.isManageable();
@@ -249,7 +249,7 @@ public class GBeanAttribute {
                         getInvoker = new FastMethodInvoker(getterMethod);
                     }
                 } catch (NoSuchMethodException e) {
-                    throw new InvalidConfigurationException("Getter method not found " + getDescription());
+                    throw new InvalidConfigurationException("Getter method not found " + getDescription(), e);
                 }
             } else {
                 getInvoker = null;
@@ -267,7 +267,7 @@ public class GBeanAttribute {
                         setInvoker = new FastMethodInvoker(setterMethod);
                     }
                 } catch (NoSuchMethodException e) {
-                    throw new InvalidConfigurationException("Setter method not found " + getDescription());
+                    throw new InvalidConfigurationException("Setter method not found " + getDescription(), e);
                 }
             } else {
                 setInvoker = null;

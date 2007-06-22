@@ -224,7 +224,7 @@ public class JettyEJBWebServiceContext extends ContextHandler {
                     //return new java.net.URI(uri.getScheme(),uri.getHost(),uri.getPath(),uri.);
                     uri = new java.net.URI(request.getScheme(), null, request.getServerName(), request.getServerPort(), request.getRequestURI(), request.getQueryString(), null);
                 } catch (URISyntaxException e) {
-                    throw new IllegalStateException(e.getMessage());
+                    throw new IllegalStateException(e.getMessage(), e);
                 }
             }
             return uri;
@@ -308,7 +308,7 @@ public class JettyEJBWebServiceContext extends ContextHandler {
             try {
                 return response.getOutputStream();
             } catch (IOException e) {
-                throw new IllegalStateException(e.getMessage());
+                throw new IllegalStateException(e.getMessage(), e);
             }
         }
 

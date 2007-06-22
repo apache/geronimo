@@ -169,7 +169,7 @@ public abstract class JettyConnector implements GBeanLifecycle, JettyWebConnecto
         try {
             return new InetSocketAddress(InetAddress.getByName(listener.getHost()), listener.getPort());
         } catch (UnknownHostException e) {
-            throw new IllegalStateException("InetSocketAddress cannot be determined for host=" + listener.getHost());
+            throw new IllegalStateException("InetSocketAddress cannot be determined for host=" + listener.getHost(), e);
         }
     }
 

@@ -195,7 +195,7 @@ public class ProxyMethodInterceptor implements MethodInterceptor {
         try {
             info = kernel.getGBeanInfo(abstractName);
         } catch (Exception e) {
-            throw new IllegalArgumentException("Could not get GBeanInfo for target object: " + abstractName);
+            throw new IllegalArgumentException("Could not get GBeanInfo for target object: " + abstractName, e);
         }
 
         // build attributeName->attributeInfo map

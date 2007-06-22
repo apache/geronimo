@@ -102,7 +102,7 @@ public class BasicProxyManager implements ProxyManager {
 
             return createProxyFactory((Class[]) types.toArray(new Class[types.size()]), classLoader).createProxy(target);
         } catch (GBeanNotFoundException e) {
-            throw new IllegalArgumentException("Could not get GBeanInfo for target object: " + target);
+            throw new IllegalArgumentException("Could not get GBeanInfo for target object: " + target, e);
         }
     }
 
@@ -115,7 +115,7 @@ public class BasicProxyManager implements ProxyManager {
             if (types == null) return null;
             return createProxyFactory((Class[]) types.toArray(new Class[types.size()]), classLoader).createProxy(target);
         } catch (GBeanNotFoundException e) {
-            throw new IllegalArgumentException("Could not get GBeanInfo for target object: " + target);
+            throw new IllegalArgumentException("Could not get GBeanInfo for target object: " + target, e);
         }
     }
 

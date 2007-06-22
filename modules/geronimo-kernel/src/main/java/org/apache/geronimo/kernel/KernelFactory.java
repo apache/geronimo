@@ -77,9 +77,9 @@ public abstract class KernelFactory {
         try {
             return (KernelFactory) classLoader.loadClass(className).newInstance();
         } catch (ClassCastException e) {
-            throw new KernelFactoryError("Kernel factory class does not implement KernelFactory: " + className);
+            throw new KernelFactoryError("Kernel factory class does not implement KernelFactory: " + className, e);
         } catch (ClassNotFoundException e) {
-            throw new KernelFactoryError("Kernel factory class not found: " + className);
+            throw new KernelFactoryError("Kernel factory class not found: " + className, e);
         } catch (Exception e) {
             throw new KernelFactoryError("Unable to instantiate kernel factory class: " + className, e);
         }

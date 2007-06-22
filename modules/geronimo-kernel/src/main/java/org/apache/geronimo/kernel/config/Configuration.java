@@ -508,7 +508,7 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
                 }
                 classPath.add(pattern);
             } catch (Exception e) {
-                throw new IOException("Unable to extend classpath with " + pattern);
+                throw (IOException)new IOException("Unable to extend classpath with " + pattern).initCause(e);
             }
         }
     }

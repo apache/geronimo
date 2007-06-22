@@ -203,7 +203,7 @@ public class JAXWSUtils {
                     Class seiClass = clazz.getClassLoader().loadClass(sei.trim());
                     return getNameFromSEI(seiClass);
                 } catch (ClassNotFoundException e) {
-                    throw new RuntimeException("Unable to load SEI class: " + sei);
+                    throw new RuntimeException("Unable to load SEI class: " + sei, e);
                 }
             }
         }        

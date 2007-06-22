@@ -98,7 +98,7 @@ public abstract class AbstractGBeanReference implements GBeanReference {
         try {
             this.referenceType = ClassLoading.loadClass(referenceInfo.getReferenceType(), gbeanInstance.getType().getClassLoader());
         } catch (ClassNotFoundException e) {
-            throw new InvalidConfigurationException("Could not load Reference Type: " + getDescription());
+            throw new InvalidConfigurationException("Could not load Reference Type: " + getDescription(), e);
         }
         if (Modifier.isFinal(referenceType.getModifiers())) {
             throw new IllegalArgumentException("Proxy interface cannot be a final class: " + referenceType.getName());
@@ -106,7 +106,7 @@ public abstract class AbstractGBeanReference implements GBeanReference {
         try {
             this.proxyType = ClassLoading.loadClass(referenceInfo.getProxyType(), gbeanInstance.getType().getClassLoader());
         } catch (ClassNotFoundException e) {
-            throw new InvalidConfigurationException("Could not load Proxy Type:" + getDescription());
+            throw new InvalidConfigurationException("Could not load Proxy Type:" + getDescription(), e);
         }
 
         if (referenceInfo.getSetterName() != null) {
@@ -119,7 +119,7 @@ public abstract class AbstractGBeanReference implements GBeanReference {
                     setInvoker = new FastMethodInvoker(setterMethod);
                 }
             } catch (NoSuchMethodException e) {
-                throw new InvalidConfigurationException("Setter method not found " + getDescription());
+                throw new InvalidConfigurationException("Setter method not found " + getDescription(), e);
             }
         } else {
             setInvoker = null;

@@ -230,7 +230,7 @@ public abstract class JAXWSServiceBuilder implements WebServiceBuilder {
                 urlList.add(jarFile.toURL());
             } catch (MalformedURLException e) {
                 // this should not happen
-                throw new DeploymentException();
+                throw new DeploymentException(e);
             }
         } else {
             /*
@@ -411,7 +411,7 @@ public abstract class JAXWSServiceBuilder implements WebServiceBuilder {
         try {
             return loader.loadClass(className);
         } catch (ClassNotFoundException ex) {
-            throw new DeploymentException("Unable to load Web Service class: " + className);
+            throw new DeploymentException("Unable to load Web Service class: " + className, ex);
         }
     }
 }
