@@ -23,6 +23,9 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
+import java.util.LinkedHashSet;
+import java.util.ArrayList;
+import java.util.Collection;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -83,7 +86,7 @@ public class BasicLifecycleMonitor implements LifecycleMonitor {
 
         // find all listeners interested in events from this source
         SourceInfo sourceInfo = new SourceInfo(interfaceTypes);
-        HashSet listeners = sourceInfo.getListeners();
+        Set listeners = sourceInfo.getListeners();
         for (Iterator listenerIterator = listenerPatterns.entrySet().iterator(); listenerIterator.hasNext();) {
             Map.Entry entry = (Map.Entry) listenerIterator.next();
             Set patterns = (Set) entry.getValue();
@@ -131,18 +134,18 @@ public class BasicLifecycleMonitor implements LifecycleMonitor {
         listenerPatterns.remove(listener);
     }
 
-    private synchronized Set getTargets(AbstractName source) {
+    private synchronized Collection getTargets(AbstractName source) {
         SourceInfo targets = (SourceInfo) boundListeners.get(source);
         if (targets == null) {
             // no one is interested in this event
             return Collections.EMPTY_SET;
         } else {
-            return new HashSet(targets.getListeners());
+            return new ArrayList<LifecycleListener>(targets.getListeners());
         }
     }
 
     private void fireLoadedEvent(AbstractName refInfoName) {
-        Set targets = getTargets(refInfoName);
+        Collection targets = getTargets(refInfoName);
         for (Iterator iterator = targets.iterator(); iterator.hasNext();) {
             LifecycleListener listener = (LifecycleListener) iterator.next();
             try {
@@ -154,7 +157,7 @@ public class BasicLifecycleMonitor implements LifecycleMonitor {
     }
 
     private void fireStartingEvent(AbstractName source) {
-        Set targets = getTargets(source);
+        Collection targets = getTargets(source);
         for (Iterator iterator = targets.iterator(); iterator.hasNext();) {
             LifecycleListener listener = (LifecycleListener) iterator.next();
             try {
@@ -166,7 +169,7 @@ public class BasicLifecycleMonitor implements LifecycleMonitor {
     }
 
     private void fireRunningEvent(AbstractName source) {
-        Set targets = getTargets(source);
+        Collection targets = getTargets(source);
         for (Iterator iterator = targets.iterator(); iterator.hasNext();) {
             LifecycleListener listener = (LifecycleListener) iterator.next();
             try {
@@ -178,7 +181,7 @@ public class BasicLifecycleMonitor implements LifecycleMonitor {
     }
 
     private void fireStoppingEvent(AbstractName source) {
-        Set targets = getTargets(source);
+        Collection targets = getTargets(source);
         for (Iterator iterator = targets.iterator(); iterator.hasNext();) {
             LifecycleListener listener = (LifecycleListener) iterator.next();
             try {
@@ -190,7 +193,7 @@ public class BasicLifecycleMonitor implements LifecycleMonitor {
     }
 
     private void fireStoppedEvent(AbstractName source) {
-        Set targets = getTargets(source);
+        Collection targets = getTargets(source);
         for (Iterator iterator = targets.iterator(); iterator.hasNext();) {
             LifecycleListener listener = (LifecycleListener) iterator.next();
             try {
@@ -202,7 +205,7 @@ public class BasicLifecycleMonitor implements LifecycleMonitor {
     }
 
     private void fireFailedEvent(AbstractName source) {
-        Set targets = getTargets(source);
+        Collection targets = getTargets(source);
         for (Iterator iterator = targets.iterator(); iterator.hasNext();) {
             LifecycleListener listener = (LifecycleListener) iterator.next();
             try {
@@ -214,7 +217,7 @@ public class BasicLifecycleMonitor implements LifecycleMonitor {
     }
 
     private void fireUnloadedEvent(AbstractName source) {
-        Set targets = getTargets(source);
+        Collection targets = getTargets(source);
         for (Iterator iterator = targets.iterator(); iterator.hasNext();) {
             LifecycleListener listener = (LifecycleListener) iterator.next();
             try {
@@ -271,7 +274,7 @@ public class BasicLifecycleMonitor implements LifecycleMonitor {
 
     private final class SourceInfo {
         private final Set interfaceTypes;
-        private final HashSet listeners = new HashSet();
+        private final HashSet listeners = new LinkedHashSet();
 
         public SourceInfo(Set interfaceTypes) {
             this.interfaceTypes = interfaceTypes;
@@ -281,7 +284,7 @@ public class BasicLifecycleMonitor implements LifecycleMonitor {
             return interfaceTypes;
         }
 
-        public HashSet getListeners() {
+        public Set getListeners() {
             return listeners;
         }
     }

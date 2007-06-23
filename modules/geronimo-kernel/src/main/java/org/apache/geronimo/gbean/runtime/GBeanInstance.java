@@ -375,11 +375,13 @@ public final class GBeanInstance implements StateManageable {
             throw new InvalidConfigurationException("Could not inject configuration data into the GBean " + abstractName, e);
         }
 
-        for (int i = 0; i < dependencies.length; i++) {
-            dependencies[i].online();
-        }
+        //Add the reference to all applicable reference collections before possibly starting the gbean having an
+        //explicit reference to the reference.
         for (int i = 0; i < references.length; i++) {
             references[i].online();
+        }
+        for (int i = 0; i < dependencies.length; i++) {
+            dependencies[i].online();
         }
     }
 
