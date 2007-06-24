@@ -32,15 +32,12 @@ import org.apache.geronimo.kernel.config.ConfigurationUtil;
 public class Daemon extends EmbeddedDaemon {
 
     private Daemon() {
-        super(null);
+        super(KernelFactory.newInstance().createKernel("geronimo"));
     }
 
     @Override
     protected int initializeKernel() throws Exception {
         ClassLoader classLoader = EmbeddedDaemon.class.getClassLoader();
-
-        // create the kernel
-        kernel = KernelFactory.newInstance().createKernel("geronimo");
 
         // boot the kernel
         try {

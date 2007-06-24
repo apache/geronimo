@@ -20,10 +20,11 @@ package org.apache.geronimo.system.main;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.cli.daemon.DaemonCLParser;
 import org.apache.geronimo.common.GeronimoEnvironment;
 import org.apache.geronimo.gbean.AbstractName;
@@ -33,6 +34,8 @@ import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.config.ConfigurationManager;
 import org.apache.geronimo.kernel.config.ConfigurationUtil;
+import org.apache.geronimo.kernel.config.DebugLoggingLifecycleMonitor;
+import org.apache.geronimo.kernel.config.LifecycleMonitor;
 import org.apache.geronimo.kernel.config.PersistentConfigurationList;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.util.Main;
@@ -43,9 +46,12 @@ import org.apache.geronimo.system.serverinfo.DirectoryUtils;
  * @version $Rev:385659 $ $Date: 2007-03-07 14:40:07 +1100 (Wed, 07 Mar 2007) $
  */
 public class EmbeddedDaemon implements Main {
-    protected Kernel kernel;
+    private static final Log log = LogFactory.getLog(EmbeddedDaemon.class);
+
+    protected final Kernel kernel;
     private StartupMonitor monitor;
-    private List configs = new ArrayList();
+    private LifecycleMonitor lifecycleMonitor;
+    private List<Artifact> configs = new ArrayList<Artifact>();
 
     public EmbeddedDaemon(Kernel kernel) {
         this.kernel = kernel;
@@ -74,8 +80,8 @@ public class EmbeddedDaemon implements Main {
     protected void initializeOverride(DaemonCLParser parser) {
         String[] override = parser.getOverride();
         if (null != override) {
-            for (int i = 0; i < override.length; i++) {
-                configs.add(Artifact.create(override[i]));
+            for (String anOverride : override) {
+                configs.add(Artifact.create(anOverride));
             }
         }
     }
@@ -90,6 +96,7 @@ public class EmbeddedDaemon implements Main {
                 monitor = new ProgressBarStartupMonitor();
             }
         }
+        lifecycleMonitor = new DebugLoggingLifecycleMonitor(log);
     }
     
     protected int doStartup() {
@@ -121,11 +128,10 @@ public class EmbeddedDaemon implements Main {
 
             if (configs.isEmpty()) {
                 // --override wasn't used (nothing explicit), see what was running before
-                Set configLists = kernel.listGBeans(query);
-                for (Iterator i = configLists.iterator(); i.hasNext();) {
-                    AbstractName configListName = (AbstractName) i.next();
+                Set<AbstractName> configLists = kernel.listGBeans(query);
+                for (AbstractName configListName : configLists) {
                     try {
-                        configs.addAll((List) kernel.invoke(configListName, "restore"));
+                        configs.addAll((List<Artifact>) kernel.invoke(configListName, "restore"));
                     } catch (IOException e) {
                         System.err.println("Unable to restore last known configurations");
                         e.printStackTrace();
@@ -135,19 +141,18 @@ public class EmbeddedDaemon implements Main {
                 }
             }
 
-            monitor.foundModules((Artifact[]) configs.toArray(new Artifact[configs.size()]));
+            monitor.foundModules(configs.toArray(new Artifact[configs.size()]));
 
             // load the rest of the configurations
             try {
                 ConfigurationManager configurationManager = ConfigurationUtil.getConfigurationManager(kernel);
                 try {
-                    for (Iterator i = configs.iterator(); i.hasNext();) {
-                        Artifact configID = (Artifact) i.next();
+                    for (Artifact configID : configs) {
                         monitor.moduleLoading(configID);
-                        configurationManager.loadConfiguration(configID);
+                        configurationManager.loadConfiguration(configID, lifecycleMonitor);
                         monitor.moduleLoaded(configID);
                         monitor.moduleStarting(configID);
-                        configurationManager.startConfiguration(configID);
+                        configurationManager.startConfiguration(configID, lifecycleMonitor);
                         monitor.moduleStarted(configID);
                     }
                 } finally {
@@ -161,9 +166,8 @@ public class EmbeddedDaemon implements Main {
             }
 
             // Tell every persistent configuration list that the kernel is now fully started
-            Set configLists = kernel.listGBeans(query);
-            for (Iterator i = configLists.iterator(); i.hasNext();) {
-                AbstractName configListName = (AbstractName) i.next();
+            Set<AbstractName> configLists = kernel.listGBeans(query);
+            for (AbstractName configListName : configLists) {
                 kernel.setAttribute(configListName, "kernelFullyStarted", Boolean.TRUE);
             }
 
