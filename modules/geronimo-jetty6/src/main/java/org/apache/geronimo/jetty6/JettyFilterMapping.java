@@ -16,17 +16,18 @@
  */
 package org.apache.geronimo.jetty6;
 
-import java.io.Serializable;
-import java.util.Set;
 import java.util.Collection;
-import java.util.Iterator;
+import java.util.Arrays;
 
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
-import org.apache.geronimo.gbean.GBeanLifecycle;
+import org.apache.geronimo.gbean.ReferenceCollection;
+import org.apache.geronimo.gbean.ReferenceCollectionEvent;
+import org.apache.geronimo.gbean.ReferenceCollectionListener;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
-import org.mortbay.jetty.servlet.FilterMapping;
 import org.mortbay.jetty.Handler;
+import org.mortbay.jetty.servlet.FilterMapping;
+import org.mortbay.jetty.servlet.ServletHandler;
 
 /**
  * @version $Rev$ $Date$
@@ -39,7 +40,7 @@ public class JettyFilterMapping extends FilterMapping {
     private final boolean includeDispatch;
     private final boolean errorDispatch;
     private final JettyFilterHolder jettyFilterHolder;
-    private final Collection jettyServletHolders;
+    private final Collection<JettyServletHolder> jettyServletHolders;
     private final JettyFilterMapping previous;
     private final JettyServletRegistration jettyServletRegistration;
 
@@ -57,15 +58,15 @@ public class JettyFilterMapping extends FilterMapping {
     }
 
     public JettyFilterMapping(String[] urlPatterns,
-                              boolean requestDispatch,
-                              boolean forwardDispatch,
-                              boolean includeDispatch,
-                              boolean errorDispatch,
-                              JettyFilterHolder jettyFilterHolder,
-                              Collection jettyServletHolders,
-                              JettyFilterMapping previous,
-                              JettyServletRegistration jettyServletRegistration) {
-       this.urlPatterns = urlPatterns;
+            boolean requestDispatch,
+            boolean forwardDispatch,
+            boolean includeDispatch,
+            boolean errorDispatch,
+            JettyFilterHolder jettyFilterHolder,
+            Collection<JettyServletHolder> jettyServletHolders,
+            JettyFilterMapping previous,
+            JettyServletRegistration jettyServletRegistration) {
+        this.urlPatterns = urlPatterns;
         this.requestDispatch = requestDispatch;
         this.forwardDispatch = forwardDispatch;
         this.includeDispatch = includeDispatch;
@@ -81,7 +82,7 @@ public class JettyFilterMapping extends FilterMapping {
             String filterName = jettyFilterHolder.getFilterName();
             int dispatches = 0;
             if (requestDispatch) {
-                dispatches |=  Handler.REQUEST;
+                dispatches |= Handler.REQUEST;
             }
             if (forwardDispatch) {
                 dispatches |= Handler.FORWARD;
@@ -98,17 +99,43 @@ public class JettyFilterMapping extends FilterMapping {
             setDispatches(dispatches);
             setPathSpecs(urlPatterns);
             if (jettyServletHolders != null) {
-                String[] servletNames = new String[jettyServletHolders.size()];
-                int i = 0;
-                for (Iterator iterator = jettyServletHolders.iterator(); iterator.hasNext();) {
-                    JettyServletHolder jettyServletHolder = (JettyServletHolder) iterator.next();
-                    servletNames[i++] = jettyServletHolder.getServletName();
+                resetServlets();
+                if (jettyServletHolders instanceof ReferenceCollection) {
+                    ((ReferenceCollection) jettyServletHolders).addReferenceCollectionListener(new ReferenceCollectionListener() {
+
+                        public void memberAdded(ReferenceCollectionEvent event) {
+                            resetServlets();
+                            resetJettyFilterMappings();
+                        }
+
+                        public void memberRemoved(ReferenceCollectionEvent event) {
+                            resetServlets();
+                            resetJettyFilterMappings();
+                        }
+                    });
                 }
-                setServletNames(servletNames);
             }
 
-            (jettyServletRegistration.getServletHandler()).addFilterMapping(this);
+            jettyServletRegistration.getServletHandler().addFilterMapping(this);
         }
+    }
+
+    private void resetJettyFilterMappings() {
+        //This causes jetty to recompute the filter to servlet mappings based on the
+        //current servlet names in the filter mappings.  Pretty inefficient.
+        ServletHandler servletHandler = jettyServletRegistration.getServletHandler();
+        FilterMapping[] filterMappings = servletHandler.getFilterMappings();
+        FilterMapping[] copy = filterMappings.clone();
+        servletHandler.setFilterMappings(copy);
+    }
+
+    private void resetServlets() {
+        String[] servletNames = new String[jettyServletHolders.size()];
+        int i = 0;
+        for (JettyServletHolder jettyServletHolder : jettyServletHolders) {
+            servletNames[i++] = jettyServletHolder.getServletName();
+        }
+        setServletNames(servletNames);
     }
 
     public String[] getUrlPatterns() {
@@ -135,7 +162,7 @@ public class JettyFilterMapping extends FilterMapping {
         return jettyFilterHolder;
     }
 
-    public Collection getServlets() {
+    public Collection<JettyServletHolder> getServlets() {
         return jettyServletHolders;
     }
 
@@ -163,14 +190,14 @@ public class JettyFilterMapping extends FilterMapping {
         infoBuilder.addReference("JettyServletRegistration", JettyServletRegistration.class, NameFactory.WEB_MODULE);
 
         infoBuilder.setConstructor(new String[]{"urlPatterns",
-                                                "requestDispatch",
-                                                "forwardDispatch",
-                                                "includeDispatch",
-                                                "errorDispatch",
-                                                "Filter",
-                                                "Servlets",
-                                                "Previous",
-                                                "JettyServletRegistration"});
+                "requestDispatch",
+                "forwardDispatch",
+                "includeDispatch",
+                "errorDispatch",
+                "Filter",
+                "Servlets",
+                "Previous",
+                "JettyServletRegistration"});
 
         GBEAN_INFO = infoBuilder.getBeanInfo();
     }
