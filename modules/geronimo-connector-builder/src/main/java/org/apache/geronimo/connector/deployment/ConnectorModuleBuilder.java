@@ -429,6 +429,7 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ActivationSpecInfo
                     String activationSpecClassName = activationspec.getActivationspecClass().getStringValue().trim();
                     messageListenerToActivationSpecMap.put(messageListenerInterface, activationSpecClassName);
                     resourceAdapterGBeanData.setAttribute("messageListenerToActivationSpecMap", messageListenerToActivationSpecMap);
+                    resourceAdapterGBeanData.setReferencePattern("TransactionManager", earContext.getTransactionManagerName());
                 }
             }
 

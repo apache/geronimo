@@ -17,13 +17,13 @@
 
 package org.apache.geronimo.connector.work;
 
+import java.util.concurrent.Executor;
+
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.transaction.manager.XAWork;
-
-import java.util.concurrent.Executor;
 
 /**
  * 

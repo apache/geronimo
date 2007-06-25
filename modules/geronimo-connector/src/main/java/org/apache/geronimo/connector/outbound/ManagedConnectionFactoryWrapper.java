@@ -25,7 +25,6 @@ import java.util.Map;
 import javax.resource.ResourceException;
 import javax.resource.spi.ManagedConnectionFactory;
 import javax.resource.spi.ResourceAdapterAssociation;
-import javax.transaction.SystemException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -36,13 +35,11 @@ import org.apache.geronimo.gbean.DynamicGBeanDelegate;
 import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.management.geronimo.JCAManagedConnectionFactory;
-import org.apache.geronimo.transaction.manager.NamedXAResource;
-import org.apache.geronimo.transaction.manager.ResourceManager;
 
 /**
  * @version $Rev$ $Date$
  */
-public class ManagedConnectionFactoryWrapper implements GBeanLifecycle, DynamicGBean, ResourceManager, JCAManagedConnectionFactory, ConnectionFactorySource {
+public class ManagedConnectionFactoryWrapper implements GBeanLifecycle, DynamicGBean, JCAManagedConnectionFactory, ConnectionFactorySource {
 
     private static final Log log = LogFactory.getLog(ManagedConnectionFactoryWrapper.class);
 
@@ -165,7 +162,7 @@ public class ManagedConnectionFactoryWrapper implements GBeanLifecycle, DynamicG
             registered = true;
             log.debug("Registered managedConnectionFactory with ResourceAdapter " + resourceAdapterWrapper.toString());
         }
-
+        connectionManagerContainer.doRecovery(managedConnectionFactory);
     }
 
     public void doStop() {
@@ -271,19 +268,6 @@ public class ManagedConnectionFactoryWrapper implements GBeanLifecycle, DynamicG
 
     public Object getConfigProperty(String property) throws Exception {
         return delegate.getAttribute(property);
-    }
-
-    //ResourceManager implementation
-    public NamedXAResource getRecoveryXAResources() throws SystemException {
-        try {
-            return connectionManagerContainer.getRecoveryXAResource(managedConnectionFactory);
-        } catch (ResourceException e) {
-            throw (SystemException) new SystemException("Could not obtain recovery XAResource for managedConnectionFactory " + objectName).initCause(e);
-        }
-    }
-
-    public void returnResource(NamedXAResource xaResource) {
-        ((ConnectionManagerContainer.ReturnableXAResource) xaResource).returnConnection();
     }
 
     public String getObjectName() {

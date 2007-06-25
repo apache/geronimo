@@ -19,12 +19,13 @@ package org.apache.geronimo.connector.outbound;
 
 import javax.transaction.TransactionManager;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.connector.outbound.connectionmanagerconfig.PartitionedPool;
 import org.apache.geronimo.connector.outbound.connectionmanagerconfig.PoolingSupport;
 import org.apache.geronimo.connector.outbound.connectionmanagerconfig.TransactionSupport;
 import org.apache.geronimo.connector.outbound.connectiontracking.ConnectionTracker;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.apache.geronimo.transaction.manager.RecoverableTransactionManager;
 
 /**
  * GenericConnectionManager sets up a connection manager stack according to the
@@ -44,10 +45,10 @@ public class GenericConnectionManager extends AbstractConnectionManager {
                                     PoolingSupport pooling,
                                     boolean containerManagedSecurity,
                                     ConnectionTracker connectionTracker,
-                                    TransactionManager transactionManager,
+                                    RecoverableTransactionManager transactionManager,
                                     String objectName,
                                     ClassLoader classLoader) {
-        super(new InterceptorsImpl(transactionSupport, pooling, containerManagedSecurity, objectName, connectionTracker, transactionManager, classLoader));
+        super(new InterceptorsImpl(transactionSupport, pooling, containerManagedSecurity, objectName, connectionTracker, transactionManager, classLoader), transactionManager);
     }
 
     private static class InterceptorsImpl implements AbstractConnectionManager.Interceptors {

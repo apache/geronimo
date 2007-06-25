@@ -20,8 +20,8 @@ package org.apache.geronimo.connector.outbound.security;
 import java.io.IOException;
 import java.util.Map;
 
-import javax.resource.spi.security.PasswordCredential;
 import javax.resource.spi.ManagedConnectionFactory;
+import javax.resource.spi.security.PasswordCredential;
 import javax.security.auth.Subject;
 import javax.security.auth.callback.Callback;
 import javax.security.auth.callback.CallbackHandler;

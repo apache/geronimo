@@ -21,15 +21,16 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
+
 import javax.resource.ResourceException;
+import javax.transaction.SystemException;
 import javax.transaction.Transaction;
 import javax.transaction.TransactionManager;
-import javax.transaction.SystemException;
 
-import org.apache.geronimo.connector.ConnectorTransactionContext;
-import org.apache.geronimo.connector.ConnectionReleaser;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.geronimo.connector.ConnectionReleaser;
+import org.apache.geronimo.connector.ConnectorTransactionContext;
 
 /**
  * TransactionCachingInterceptor.java

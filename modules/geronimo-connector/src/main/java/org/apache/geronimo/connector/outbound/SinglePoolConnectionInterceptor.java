@@ -18,8 +18,9 @@
 package org.apache.geronimo.connector.outbound;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Arrays;
+import java.util.Collections;
+
 import javax.resource.ResourceException;
 import javax.resource.spi.ManagedConnection;
 

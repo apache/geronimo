@@ -82,14 +82,6 @@
         <reference name="TransactionLog">
             <name>HOWLTransactionLog</name>
         </reference>
-        <references name="ResourceManagers">
-            <pattern>
-                <type>JCAManagedConnectionFactory</type>
-            </pattern>
-            <pattern>
-                <type>JCAActivationSpec</type>
-            </pattern>
-        </references>
     </gbean>
 
     <gbean name="TransactionManagerBinding" class="org.apache.geronimo.gjndi.binding.GBeanBinding">

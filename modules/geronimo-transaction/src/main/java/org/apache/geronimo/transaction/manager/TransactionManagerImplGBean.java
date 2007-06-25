@@ -39,37 +39,8 @@ public class TransactionManagerImplGBean extends TransactionManagerImpl {
     /**
      * TODO NOTE!!! this should be called in an unspecified transaction context, but we cannot enforce this restriction!
      */
-    public TransactionManagerImplGBean(int defaultTransactionTimeoutSeconds, XidFactory xidFactory, TransactionLog transactionLog, Collection resourceManagers) throws XAException {
-        super(defaultTransactionTimeoutSeconds, xidFactory, transactionLog, resourceManagers);
-    }
-
-
-    /**
-     * We can track as resources are added into the geronimo kernel.
-     *
-     * @param resourceManagers
-     * @return the original list of resources.
-     */
-    protected List watchResourceManagers(Collection resourceManagers) {
-        if( resourceManagers instanceof ReferenceCollection ) {
-            List copy;
-            synchronized (resourceManagers) {
-                copy = new ArrayList(resourceManagers);
-                    ((ReferenceCollection)resourceManagers).addReferenceCollectionListener(new ReferenceCollectionListener() {
-                    public void memberAdded(ReferenceCollectionEvent event) {
-                        ResourceManager resourceManager = (ResourceManager) event.getMember();
-                        recoverResourceManager(resourceManager);
-                    }
-
-                    public void memberRemoved(ReferenceCollectionEvent event) {
-                    }
-
-                });
-            }
-            return copy;
-        } else {
-            return super.watchResourceManagers(resourceManagers);
-        }
+    public TransactionManagerImplGBean(int defaultTransactionTimeoutSeconds, XidFactory xidFactory, TransactionLog transactionLog) throws XAException {
+        super(defaultTransactionTimeoutSeconds, xidFactory, transactionLog);
     }
 
     public static final GBeanInfo GBEAN_INFO;
@@ -80,13 +51,11 @@ public class TransactionManagerImplGBean extends TransactionManagerImpl {
         infoBuilder.addAttribute("defaultTransactionTimeoutSeconds", int.class, true);
         infoBuilder.addReference("XidFactory", XidFactory.class, NameFactory.XID_FACTORY);
         infoBuilder.addReference("TransactionLog", TransactionLog.class, NameFactory.TRANSACTION_LOG);
-        infoBuilder.addReference("ResourceManagers", ResourceManager.class);//two kinds of things, so specify the type in each pattern.
 
         infoBuilder.setConstructor(new String[]{
                 "defaultTransactionTimeoutSeconds",
                 "XidFactory",
-                "TransactionLog",
-                "ResourceManagers"});
+                "TransactionLog"});
 
         GBEAN_INFO = infoBuilder.getBeanInfo();
     }

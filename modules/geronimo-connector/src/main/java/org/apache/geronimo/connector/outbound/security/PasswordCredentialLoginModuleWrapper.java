@@ -17,10 +17,11 @@
 package org.apache.geronimo.connector.outbound.security;
 
 import java.util.Properties;
+
 import javax.resource.spi.ManagedConnectionFactory;
 
-import org.apache.geronimo.security.jaas.LoginModuleGBean;
 import org.apache.geronimo.connector.outbound.ManagedConnectionFactoryWrapper;
+import org.apache.geronimo.security.jaas.LoginModuleGBean;
 
 /**
  * @version $Rev$ $Date$

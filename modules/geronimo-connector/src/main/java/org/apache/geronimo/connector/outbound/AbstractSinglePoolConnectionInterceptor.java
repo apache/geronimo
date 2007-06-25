@@ -16,22 +16,22 @@
  */
 package org.apache.geronimo.connector.outbound;
 
-import java.util.TimerTask;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Timer;
+import java.util.TimerTask;
+import java.util.concurrent.Semaphore;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
-import javax.resource.spi.ManagedConnectionFactory;
-import javax.resource.spi.ConnectionRequestInfo;
 import javax.resource.ResourceException;
+import javax.resource.spi.ConnectionRequestInfo;
+import javax.resource.spi.ManagedConnectionFactory;
 import javax.security.auth.Subject;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import java.util.concurrent.locks.ReadWriteLock;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
-import java.util.concurrent.Semaphore;
-import java.util.concurrent.TimeUnit;
 
 /**
  * @version $Rev$ $Date$

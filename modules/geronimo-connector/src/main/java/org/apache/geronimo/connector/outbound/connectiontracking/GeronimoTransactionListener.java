@@ -16,12 +16,12 @@
  */
 package org.apache.geronimo.connector.outbound.connectiontracking;
 
-import javax.transaction.Transaction;
 import javax.resource.ResourceException;
+import javax.transaction.Transaction;
 
-import org.apache.geronimo.transaction.manager.TransactionManagerMonitor;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.geronimo.transaction.manager.TransactionManagerMonitor;
 
 /**
  * @version $Rev$ $Date$

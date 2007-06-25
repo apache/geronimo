@@ -16,8 +16,8 @@
  */
 package org.apache.geronimo.connector;
 
-import org.apache.geronimo.management.geronimo.ResourceAdapter;
 import org.apache.geronimo.management.geronimo.JCAResource;
+import org.apache.geronimo.management.geronimo.ResourceAdapter;
 
 /**
  * @version $Rev$ $Date$

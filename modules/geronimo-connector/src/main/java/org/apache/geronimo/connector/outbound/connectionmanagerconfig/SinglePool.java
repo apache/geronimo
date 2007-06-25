@@ -18,9 +18,9 @@
 package org.apache.geronimo.connector.outbound.connectionmanagerconfig;
 
 import org.apache.geronimo.connector.outbound.ConnectionInterceptor;
+import org.apache.geronimo.connector.outbound.PoolingAttributes;
 import org.apache.geronimo.connector.outbound.SinglePoolConnectionInterceptor;
 import org.apache.geronimo.connector.outbound.SinglePoolMatchAllConnectionInterceptor;
-import org.apache.geronimo.connector.outbound.PoolingAttributes;
 
 /**
  * @version $Rev$ $Date$

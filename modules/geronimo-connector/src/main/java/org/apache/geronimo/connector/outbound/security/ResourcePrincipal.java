@@ -17,8 +17,8 @@
 
 package org.apache.geronimo.connector.outbound.security;
 
-import java.security.Principal;
 import java.io.Serializable;
+import java.security.Principal;
 
 /**
  *

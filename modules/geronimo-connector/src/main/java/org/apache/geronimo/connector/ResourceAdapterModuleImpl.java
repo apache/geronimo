@@ -18,6 +18,7 @@ package org.apache.geronimo.connector;
 
 import java.util.Hashtable;
 import java.util.Map;
+
 import javax.management.ObjectName;
 
 import org.apache.geronimo.gbean.GBeanData;

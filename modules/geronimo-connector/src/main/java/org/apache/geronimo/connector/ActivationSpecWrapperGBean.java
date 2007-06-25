@@ -19,12 +19,11 @@ package org.apache.geronimo.connector;
 
 import javax.resource.spi.endpoint.MessageEndpointFactory;
 
-import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.DynamicGBean;
 import org.apache.geronimo.gbean.DynamicGBeanDelegate;
+import org.apache.geronimo.gbean.GBeanInfo;
+import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
-import org.apache.geronimo.transaction.manager.ResourceManager;
 
 /**
  * 
@@ -94,8 +93,6 @@ public class ActivationSpecWrapperGBean extends ActivationSpecWrapper implements
 
         infoBuilder.addOperation("activate", new Class[]{MessageEndpointFactory.class});
         infoBuilder.addOperation("deactivate", new Class[]{MessageEndpointFactory.class});
-
-        infoBuilder.addInterface(ResourceManager.class);
 
         infoBuilder.setConstructor(new String[]{
             "activationSpecClass",

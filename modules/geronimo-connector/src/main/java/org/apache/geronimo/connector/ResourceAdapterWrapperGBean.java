@@ -17,6 +17,13 @@
 
 package org.apache.geronimo.connector;
 
+import java.util.Map;
+
+import javax.resource.spi.ResourceAdapter;
+import javax.resource.spi.ResourceAdapterAssociation;
+import javax.resource.spi.XATerminator;
+import javax.resource.spi.work.WorkManager;
+
 import org.apache.geronimo.gbean.DynamicGBean;
 import org.apache.geronimo.gbean.DynamicGBeanDelegate;
 import org.apache.geronimo.gbean.GBeanInfo;
@@ -24,12 +31,7 @@ import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.management.geronimo.JCAResourceAdapter;
-
-import javax.resource.spi.ResourceAdapter;
-import javax.resource.spi.ResourceAdapterAssociation;
-import javax.resource.spi.XATerminator;
-import javax.resource.spi.work.WorkManager;
-import java.util.Map;
+import org.apache.geronimo.transaction.manager.RecoverableTransactionManager;
 
 /**
  * 
@@ -45,8 +47,8 @@ public class ResourceAdapterWrapperGBean extends ResourceAdapterWrapper implemen
         objectName = null;
     }
 
-    public ResourceAdapterWrapperGBean(String resourceAdapterClass, Map<String,String> messageListenerToActivationSpecMap, WorkManager workManager, XATerminator xaTerminator, ClassLoader cl, String objectName) throws InstantiationException, IllegalAccessException, ClassNotFoundException {
-        super(objectName, resourceAdapterClass, messageListenerToActivationSpecMap, new GeronimoBootstrapContext (workManager, xaTerminator), cl);
+    public ResourceAdapterWrapperGBean(String resourceAdapterClass, Map<String, String> messageListenerToActivationSpecMap, WorkManager workManager, XATerminator xaTerminator, RecoverableTransactionManager transactionManager, ClassLoader cl, String objectName) throws InstantiationException, IllegalAccessException, ClassNotFoundException {
+        super(objectName, resourceAdapterClass, messageListenerToActivationSpecMap, new GeronimoBootstrapContext (workManager, xaTerminator), transactionManager, cl);
         delegate = new DynamicGBeanDelegate();
         delegate.addAll(resourceAdapter);
         this.objectName = objectName;
@@ -92,13 +94,14 @@ public class ResourceAdapterWrapperGBean extends ResourceAdapterWrapper implemen
 
         infoBuilder.addReference("WorkManager", WorkManager.class, NameFactory.JCA_WORK_MANAGER);
         infoBuilder.addReference("XATerminator", XATerminator.class, NameFactory.JCA_WORK_MANAGER);
+        infoBuilder.addReference("TransactionManager", RecoverableTransactionManager.class, NameFactory.TRANSACTION_MANAGER);
 
         infoBuilder.addOperation("registerResourceAdapterAssociation", new Class[]{ResourceAdapterAssociation.class});
 
         infoBuilder.addInterface(ResourceAdapter.class);
         infoBuilder.addInterface(JCAResourceAdapter.class);
 
-        infoBuilder.setConstructor(new String[]{"resourceAdapterClass", "messageListenerToActivationSpecMap", "WorkManager", "XATerminator", "classLoader", "objectName"});
+        infoBuilder.setConstructor(new String[]{"resourceAdapterClass", "messageListenerToActivationSpecMap", "WorkManager", "XATerminator", "TransactionManager", "classLoader", "objectName"});
 
         GBEAN_INFO = infoBuilder.getBeanInfo();
     }

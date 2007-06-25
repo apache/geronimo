@@ -18,8 +18,8 @@
 package org.apache.geronimo.connector.outbound;
 
 import java.util.HashMap;
-import java.util.Map;
 import java.util.Iterator;
+import java.util.Map;
 
 import javax.resource.ResourceException;
 import javax.resource.spi.ConnectionRequestInfo;

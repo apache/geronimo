@@ -22,23 +22,28 @@ import javax.resource.spi.ConnectionManager;
 import javax.resource.spi.ConnectionRequestInfo;
 import javax.resource.spi.LazyAssociatableConnectionManager;
 import javax.resource.spi.ManagedConnectionFactory;
+import javax.transaction.SystemException;
 
 import org.apache.geronimo.connector.outbound.connectionmanagerconfig.PoolingSupport;
 import org.apache.geronimo.transaction.manager.NamedXAResource;
+import org.apache.geronimo.transaction.manager.RecoverableTransactionManager;
 
 /**
  * @version $Rev$ $Date$
  */
 public abstract class AbstractConnectionManager implements ConnectionManagerContainer, ConnectionManager, LazyAssociatableConnectionManager, PoolingAttributes {
     protected final Interceptors interceptors;
+    private final RecoverableTransactionManager transactionManager;
 
     //default constructor for use as endpoint
     public AbstractConnectionManager() {
         interceptors = null;
+        transactionManager = null;
     }
 
-    public AbstractConnectionManager(Interceptors interceptors) {
+    public AbstractConnectionManager(Interceptors interceptors, RecoverableTransactionManager transactionManager) {
         this.interceptors = interceptors;
+        this.transactionManager = transactionManager;
     }
 
     public Object createConnectionFactory(ManagedConnectionFactory mcf) throws ResourceException {
@@ -49,6 +54,27 @@ public abstract class AbstractConnectionManager implements ConnectionManagerCont
         return this;
     }
     
+    public void doRecovery(ManagedConnectionFactory managedConnectionFactory) {
+        try {
+            if (!getIsRecoverable()) {
+                return;
+            }
+            ManagedConnectionInfo mci = new ManagedConnectionInfo(managedConnectionFactory, null);
+
+            ConnectionInfo recoveryConnectionInfo = new ConnectionInfo(mci);
+            getRecoveryStack().getConnection(recoveryConnectionInfo);
+
+            // For pooled resources, we may now have a new MCI (not the one constructed above). Make sure we use the correct MCI
+            NamedXAResource xaResource = (NamedXAResource) recoveryConnectionInfo.getManagedConnectionInfo().getXAResource();
+            if (xaResource != null) {
+                transactionManager.recoverResourceManager(xaResource);
+                getRecoveryStack().returnConnection(recoveryConnectionInfo, ConnectionReturnAction.DESTROY);
+            }
+        } catch (ResourceException e) {
+            transactionManager.recoveryError((SystemException)new SystemException("Could not obtain recovery XAResource for managedConnectionFactory " + managedConnectionFactory).initCause(e));
+        }
+    }
+
     /**
      * in: mcf != null, is a deployed mcf
      * out: useable connection object.
@@ -83,23 +109,6 @@ public abstract class AbstractConnectionManager implements ConnectionManagerCont
 
     ConnectionInterceptor getConnectionInterceptor() {
         return getStack();
-    }
-
-
-    public ConnectionManagerContainer.ReturnableXAResource getRecoveryXAResource(ManagedConnectionFactory managedConnectionFactory) throws ResourceException {
-        ManagedConnectionInfo mci = new ManagedConnectionInfo(managedConnectionFactory, null);
-
-        // if we aren't recoverable, then there's nothing to do...
-        if (!getIsRecoverable()) {
-            return null;
-        }
-        
-        ConnectionInfo recoveryConnectionInfo = new ConnectionInfo(mci);
-        getRecoveryStack().getConnection(recoveryConnectionInfo);
-
-        // For pooled resources, we may now have a new MCI (not the one constructed above). Make sure we use the correct MCI
-        NamedXAResource namedXAResource = (NamedXAResource) recoveryConnectionInfo.getManagedConnectionInfo().getXAResource();
-        return new ConnectionManagerContainer.ReturnableXAResource(namedXAResource, getRecoveryStack(), recoveryConnectionInfo);
     }
 
     //statistics

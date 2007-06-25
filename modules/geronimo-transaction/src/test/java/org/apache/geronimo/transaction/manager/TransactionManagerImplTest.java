@@ -45,12 +45,11 @@ public class TransactionManagerImplTest extends TestCase {
 
     TransactionLog transactionLog = new MockLog();
 
-    ReferenceCollection resourceManagers = new TestReferenceCollection();
     TransactionManagerImpl tm;
 
     protected void setUp() throws Exception {
         tm = new TransactionManagerImplGBean(10,
-                new XidFactoryImpl("WHAT DO WE CALL IT?".getBytes()), transactionLog, resourceManagers);
+                new XidFactoryImpl("WHAT DO WE CALL IT?".getBytes()), transactionLog);
     }
 
     protected void tearDown() throws Exception {
@@ -260,10 +259,10 @@ public class TransactionManagerImplTest extends TestCase {
         tm.prepare(tx);
         //recover
         tm.recovery.recoverLog();
-        resourceManagers.add(rm1);
+        rm1.doRecovery(tm);
         assertTrue(r1_2.isCommitted());
         assertTrue(!r2_2.isCommitted());
-        resourceManagers.add(rm2);
+        rm2.doRecovery(tm);
         assertTrue(r2_2.isCommitted());
         assertTrue(tm.recovery.localRecoveryComplete());
     }
@@ -283,10 +282,10 @@ public class TransactionManagerImplTest extends TestCase {
         tm.prepare(tx);
         //recover
         tm.recovery.recoverLog();
-        resourceManagers.add(rm1);
+        rm1.doRecovery(tm);
         assertTrue(!r1_2.isCommitted());
         assertTrue(!r2_2.isCommitted());
-        resourceManagers.add(rm2);
+        rm2.doRecovery(tm);
         assertTrue(!r2_2.isCommitted());
         //there are no transactions started here, so local recovery is complete
         assertTrue(tm.recovery.localRecoveryComplete());
@@ -300,7 +299,7 @@ public class TransactionManagerImplTest extends TestCase {
           long timeout = tm.getTransactionTimeoutMilliseconds(0L);
           tm.setTransactionTimeout((int)timeout/4000);
           tm.begin();
-          System.out.println("Test to sleep for" + timeout + " secs");
+          System.out.println("Test to sleep for " + timeout + " millisecs");
           Thread.sleep(timeout);
           try
           {
@@ -313,49 +312,10 @@ public class TransactionManagerImplTest extends TestCase {
 
           // Now test if the default timeout is active
           tm.begin();
-          System.out.println("Test to sleep for" + (timeout/2) + " secs");
+          System.out.println("Test to sleep for " + (timeout/2) + " millisecs");
           Thread.sleep((timeout/2));
           tm.commit();
           // Its a failure if exception occurs.
       }
-
-    public void testResourceManagerContract() throws Exception {
-        resourceManagers.add(rm1);
-        assertTrue(rm1.areAllResourcesReturned());
-    }
-
-
-    private static class TestReferenceCollection extends ArrayList implements ReferenceCollection {
-
-        ReferenceCollectionListener referenceCollectionListener;
-
-        public void addReferenceCollectionListener(ReferenceCollectionListener listener) {
-            this.referenceCollectionListener = listener;
-        }
-
-        public void removeReferenceCollectionListener(ReferenceCollectionListener listener) {
-            this.referenceCollectionListener = null;
-        }
-
-        public boolean add(Object o) {
-            boolean result = super.add(o);
-            if (referenceCollectionListener != null) {
-                referenceCollectionListener.memberAdded(new ReferenceCollectionEvent(null, o));
-            }
-            return result;
-        }
-
-        public boolean remove(Object o) {
-            boolean result = super.remove(o);
-            if (referenceCollectionListener != null) {
-                referenceCollectionListener.memberRemoved(new ReferenceCollectionEvent(null, o));
-            }
-            return result;
-        }
-
-	public ObjectName[] getMemberObjectNames() {return new ObjectName[0];}
-
-    }
-
 
 }

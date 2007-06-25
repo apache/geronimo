@@ -16,20 +16,20 @@
  */
 package org.apache.geronimo.connector;
 
-import org.apache.geronimo.management.geronimo.JCAResource;
-import org.apache.geronimo.management.geronimo.JCAResourceAdapter;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Set;
+
+import org.apache.geronimo.j2ee.management.impl.Util;
+import org.apache.geronimo.management.geronimo.JCAAdminObject;
 import org.apache.geronimo.management.geronimo.JCAConnectionFactory;
 import org.apache.geronimo.management.geronimo.JCAManagedConnectionFactory;
-import org.apache.geronimo.management.geronimo.JCAAdminObject;
-import org.apache.geronimo.j2ee.management.impl.Util;
-
-import java.util.Collection;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.Set;
-import java.util.HashSet;
-import java.util.Arrays;
-import java.util.List;
+import org.apache.geronimo.management.geronimo.JCAResource;
+import org.apache.geronimo.management.geronimo.JCAResourceAdapter;
 
 /**
  * @version $Rev$ $Date$

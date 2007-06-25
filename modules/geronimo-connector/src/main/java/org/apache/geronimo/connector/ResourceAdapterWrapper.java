@@ -17,6 +17,8 @@
 
 package org.apache.geronimo.connector;
 
+import java.util.Map;
+
 import javax.resource.ResourceException;
 import javax.resource.spi.ActivationSpec;
 import javax.resource.spi.BootstrapContext;
@@ -24,8 +26,12 @@ import javax.resource.spi.ResourceAdapter;
 import javax.resource.spi.ResourceAdapterAssociation;
 import javax.resource.spi.ResourceAdapterInternalException;
 import javax.resource.spi.endpoint.MessageEndpointFactory;
+import javax.transaction.SystemException;
 import javax.transaction.xa.XAResource;
-import java.util.Map;
+
+import org.apache.geronimo.transaction.manager.NamedXAResource;
+import org.apache.geronimo.transaction.manager.RecoverableTransactionManager;
+import org.apache.geronimo.transaction.manager.WrapperNamedXAResource;
 
 /**
  * Dynamic GBean wrapper around a ResourceAdapter object, exposing the config-properties as
@@ -45,6 +51,8 @@ public class ResourceAdapterWrapper implements ResourceAdapter {
 
     private final Map<String,String> messageListenerToActivationSpecMap;
 
+    private final RecoverableTransactionManager transactionManager;
+
 
     /**
      *  default constructor for enhancement proxy endpoint
@@ -55,12 +63,14 @@ public class ResourceAdapterWrapper implements ResourceAdapter {
         this.bootstrapContext = null;
         this.resourceAdapter = null;
         this.messageListenerToActivationSpecMap = null;
+        this.transactionManager = null;
     }
 
     public ResourceAdapterWrapper(String name,
             String resourceAdapterClass,
-            Map<String,String> messageListenerToActivationSpecMap,
+            Map<String, String> messageListenerToActivationSpecMap,
             BootstrapContext bootstrapContext,
+            RecoverableTransactionManager transactionManager,
             ClassLoader cl) throws InstantiationException, IllegalAccessException, ClassNotFoundException {
         this.name = name;
         this.resourceAdapterClass = resourceAdapterClass;
@@ -68,14 +78,16 @@ public class ResourceAdapterWrapper implements ResourceAdapter {
         Class clazz = cl.loadClass(resourceAdapterClass);
         resourceAdapter = (ResourceAdapter) clazz.newInstance();
         this.messageListenerToActivationSpecMap = messageListenerToActivationSpecMap;
+        this.transactionManager = transactionManager;
     }
     
-    public ResourceAdapterWrapper(String name, ResourceAdapter resourceAdapter, Map<String,String> messageListenerToActivationSpecMap, BootstrapContext bootstrapContext) {
+    public ResourceAdapterWrapper(String name, ResourceAdapter resourceAdapter, Map<String, String> messageListenerToActivationSpecMap, BootstrapContext bootstrapContext, RecoverableTransactionManager transactionManager) {
         this.name = name;
         this.resourceAdapterClass = resourceAdapter.getClass().getName();
         this.bootstrapContext = bootstrapContext;
         this.resourceAdapter = resourceAdapter;
         this.messageListenerToActivationSpecMap = messageListenerToActivationSpecMap;
+        this.transactionManager = transactionManager;
     }
 
     public String getName() {
@@ -109,6 +121,20 @@ public class ResourceAdapterWrapper implements ResourceAdapter {
     //endpoint handling
     public void endpointActivation(final MessageEndpointFactory messageEndpointFactory, final ActivationSpec activationSpec) throws ResourceException {
         resourceAdapter.endpointActivation(messageEndpointFactory, activationSpec);
+    }
+
+    public void doRecovery(ActivationSpec activationSpec, String containerId) {
+        try {
+            XAResource[] xaResources = getXAResources(new ActivationSpec[]{activationSpec});
+            if (xaResources == null || xaResources.length == 0) {
+                return;
+            }
+            NamedXAResource xaResource = new WrapperNamedXAResource(xaResources[0], containerId);
+            transactionManager.recoverResourceManager(xaResource);
+        } catch (ResourceException e) {
+            transactionManager.recoveryError((SystemException) new SystemException("Could not get XAResource for recovery for mdb: " + containerId).initCause(e));
+        }
+
     }
 
     public void endpointDeactivation(final MessageEndpointFactory messageEndpointFactory, final ActivationSpec activationSpec) {

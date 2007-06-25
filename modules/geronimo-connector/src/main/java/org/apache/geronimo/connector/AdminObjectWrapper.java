@@ -17,15 +17,15 @@
 
 package org.apache.geronimo.connector;
 
+import java.lang.reflect.Constructor;
+import java.util.HashMap;
+import java.util.Map;
+
+import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.DynamicGBean;
 import org.apache.geronimo.gbean.DynamicGBeanDelegate;
-import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.management.geronimo.JCAAdminObject;
-
-import java.util.Map;
-import java.util.HashMap;
-import java.lang.reflect.Constructor;
 
 /**
  * Wrapper around AdminObject that exposes its config-properties as GBeanAttributes and

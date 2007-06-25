@@ -218,9 +218,5 @@
 
     <gbean name="TransactionManager" class="org.apache.geronimo.transaction.manager.GeronimoTransactionManagerGBean">
         <attribute name="defaultTransactionTimeoutSeconds">10</attribute>
-        <references name="ResourceManagers">
-            <pattern><name>JCAManagedConnectionFactory</name></pattern>
-            <pattern><name>MessageDrivenBean</name></pattern>
-        </references>
     </gbean>
 </application>

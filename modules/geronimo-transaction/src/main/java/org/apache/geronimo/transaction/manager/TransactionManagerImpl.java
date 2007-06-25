@@ -18,7 +18,6 @@
 package org.apache.geronimo.transaction.manager;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -49,7 +48,7 @@ import org.apache.geronimo.transaction.log.UnrecoverableLog;
  *
  * @version $Rev$ $Date$
  */
-public class TransactionManagerImpl implements TransactionManager, UserTransaction, XidImporter, MonitorableTransactionManager {
+public class TransactionManagerImpl implements TransactionManager, UserTransaction, XidImporter, MonitorableTransactionManager, RecoverableTransactionManager {
     private static final Log log = LogFactory.getLog(TransactionManagerImpl.class);
     protected static final int DEFAULT_TIMEOUT = 600;
     protected static final byte[] DEFAULT_TM_ID = new byte[] {71,84,77,73,68};
@@ -62,32 +61,31 @@ public class TransactionManagerImpl implements TransactionManager, UserTransacti
     private final ConcurrentHashMap associatedTransactions = new ConcurrentHashMap();
     private static final Log recoveryLog = LogFactory.getLog("RecoveryController");
     final Recovery recovery;
-    final Collection resourceManagers;
     private final CopyOnWriteArrayList transactionAssociationListeners = new CopyOnWriteArrayList();
     private List recoveryErrors = new ArrayList();
 
     public TransactionManagerImpl() throws XAException {
         this(DEFAULT_TIMEOUT,
                 null,
-                null,
-                null);
+                null
+        );
     }
 
     public TransactionManagerImpl(int defaultTransactionTimeoutSeconds) throws XAException {
         this(defaultTransactionTimeoutSeconds,
                 null,
-                null,
-                null);
+                null
+        );
     }
 
     public TransactionManagerImpl(int defaultTransactionTimeoutSeconds, TransactionLog transactionLog) throws XAException {
         this(defaultTransactionTimeoutSeconds,
                 null,
-                transactionLog,
-                null);
+                transactionLog
+        );
     }
 
-    public TransactionManagerImpl(int defaultTransactionTimeoutSeconds, XidFactory xidFactory, TransactionLog transactionLog, Collection resourceManagers) throws XAException {
+    public TransactionManagerImpl(int defaultTransactionTimeoutSeconds, XidFactory xidFactory, TransactionLog transactionLog) throws XAException {
         if (defaultTransactionTimeoutSeconds <= 0) {
             throw new IllegalArgumentException("defaultTransactionTimeoutSeconds must be positive: attempted value: " + defaultTransactionTimeoutSeconds);
         }
@@ -106,21 +104,7 @@ public class TransactionManagerImpl implements TransactionManager, UserTransacti
             this.xidFactory = new XidFactoryImpl(DEFAULT_TM_ID);
         }
 
-        this.resourceManagers = resourceManagers;
         recovery = new RecoveryImpl(this.transactionLog, this.xidFactory);
-
-        if (resourceManagers != null) {
-            recovery.recoverLog();
-            List copy = watchResourceManagers(resourceManagers);
-            for (Iterator iterator = copy.iterator(); iterator.hasNext();) {
-                ResourceManager resourceManager = (ResourceManager) iterator.next();
-                recoverResourceManager(resourceManager);
-            }
-        }
-    }
-
-    protected List watchResourceManagers(Collection resourceManagers) {
-        return new ArrayList(resourceManagers);
     }
 
     public Transaction getTransaction() {
@@ -347,27 +331,19 @@ public class TransactionManagerImpl implements TransactionManager, UserTransacti
         return defaultTransactionTimeoutMilliseconds;
     }
 
-    protected void recoverResourceManager(ResourceManager resourceManager) {
-        NamedXAResource namedXAResource;
-        try {
-            namedXAResource = resourceManager.getRecoveryXAResources();
-        } catch (SystemException e) {
-            recoveryLog.error(e);
-            recoveryErrors.add(e);
-            return;
-        }
-        if (namedXAResource != null) {
-            try {
-                recovery.recoverResourceManager(namedXAResource);
-            } catch (XAException e) {
-                recoveryLog.error(e);
-                recoveryErrors.add(e);
-            } finally {
-                resourceManager.returnResource(namedXAResource);
-            }
-        }
+    //Recovery
+    public void recoveryError(Exception e) {
+        recoveryLog.error(e);
+        recoveryErrors.add(e);
     }
 
+    public void recoverResourceManager(NamedXAResource xaResource) {
+        try {
+            recovery.recoverResourceManager(xaResource);
+        } catch (XAException e) {
+            recoveryError(e);
+        }
+    }
 
     public Map getExternalXids() {
         return new HashMap(recovery.getExternalXids());

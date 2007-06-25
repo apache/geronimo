@@ -16,13 +16,14 @@
  */
 package org.apache.geronimo.connector.outbound;
 
+import java.util.Hashtable;
+
+import javax.management.ObjectName;
+
 import org.apache.geronimo.j2ee.management.impl.InvalidObjectNameException;
 import org.apache.geronimo.kernel.ObjectNameUtil;
 import org.apache.geronimo.management.geronimo.JCAConnectionFactory;
 import org.apache.geronimo.management.geronimo.JCAManagedConnectionFactory;
-
-import javax.management.ObjectName;
-import java.util.Hashtable;
 
 /**
  * @version $Rev$ $Date$

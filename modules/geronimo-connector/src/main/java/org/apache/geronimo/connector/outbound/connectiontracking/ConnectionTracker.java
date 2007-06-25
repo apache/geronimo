@@ -17,11 +17,11 @@
 
 package org.apache.geronimo.connector.outbound.connectiontracking;
 
-import org.apache.geronimo.connector.outbound.ConnectionInfo;
-import org.apache.geronimo.connector.outbound.ConnectionTrackingInterceptor;
-import org.apache.geronimo.connector.outbound.ConnectionReturnAction;
-
 import javax.resource.ResourceException;
+
+import org.apache.geronimo.connector.outbound.ConnectionInfo;
+import org.apache.geronimo.connector.outbound.ConnectionReturnAction;
+import org.apache.geronimo.connector.outbound.ConnectionTrackingInterceptor;
 
 /**
  *

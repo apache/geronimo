@@ -39,6 +39,7 @@ import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.KernelRegistry;
 import org.apache.geronimo.kernel.proxy.ProxyManager;
+import org.apache.geronimo.transaction.manager.RecoverableTransactionManager;
 
 /**
  * @version $Revision$
@@ -59,7 +60,7 @@ public class GenericConnectionManagerGBean extends GenericConnectionManager impl
             PoolingSupport pooling,
             boolean containerManagedSecurity,
             ConnectionTracker connectionTracker,
-            TransactionManager transactionManager,
+            RecoverableTransactionManager transactionManager,
             String objectName,
             AbstractName abstractName,
             ClassLoader classLoader,
@@ -124,7 +125,7 @@ public class GenericConnectionManagerGBean extends GenericConnectionManager impl
         infoBuilder.addAttribute("kernel", Kernel.class, false);
 
         infoBuilder.addReference("ConnectionTracker", ConnectionTracker.class, NameFactory.JCA_CONNECTION_TRACKER);
-        infoBuilder.addReference("TransactionManager", TransactionManager.class, NameFactory.TRANSACTION_MANAGER);
+        infoBuilder.addReference("TransactionManager", RecoverableTransactionManager.class, NameFactory.TRANSACTION_MANAGER);
 
 
         infoBuilder.setConstructor(new String[]{

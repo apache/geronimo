@@ -16,10 +16,10 @@
  */
 package org.apache.geronimo.connector.outbound;
 
-import javax.transaction.Transaction;
-import javax.transaction.TransactionManager;
 import javax.transaction.Status;
 import javax.transaction.SystemException;
+import javax.transaction.Transaction;
+import javax.transaction.TransactionManager;
 
 /**
  * @version $Rev$ $Date$

@@ -47,8 +47,8 @@ public class GeronimoTransactionManager extends TransactionManagerImpl implement
         super(defaultTransactionTimeoutSeconds, transactionLog);
     }
 
-    public GeronimoTransactionManager(int defaultTransactionTimeoutSeconds, XidFactory xidFactory, TransactionLog transactionLog, Collection resourceManagers) throws XAException {
-        super(defaultTransactionTimeoutSeconds, xidFactory, transactionLog, resourceManagers);
+    public GeronimoTransactionManager(int defaultTransactionTimeoutSeconds, XidFactory xidFactory, TransactionLog transactionLog) throws XAException {
+        super(defaultTransactionTimeoutSeconds, xidFactory, transactionLog);
     }
 
     /**

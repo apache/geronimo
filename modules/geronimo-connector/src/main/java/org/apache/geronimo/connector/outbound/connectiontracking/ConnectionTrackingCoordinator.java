@@ -17,26 +17,27 @@
 
 package org.apache.geronimo.connector.outbound.connectiontracking;
 
+import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.lang.reflect.Proxy;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
-import java.lang.reflect.Proxy;
-import java.lang.reflect.InvocationHandler;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
+
 import javax.resource.ResourceException;
 import javax.resource.spi.DissociatableManagedConnection;
 
-import org.apache.geronimo.connector.outbound.ConnectionInfo;
-import org.apache.geronimo.connector.outbound.ConnectionTrackingInterceptor;
-import org.apache.geronimo.connector.outbound.ManagedConnectionInfo;
-import org.apache.geronimo.connector.outbound.ConnectionReturnAction;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import java.util.concurrent.ConcurrentMap;
-import java.util.concurrent.ConcurrentHashMap;
+import org.apache.geronimo.connector.outbound.ConnectionInfo;
+import org.apache.geronimo.connector.outbound.ConnectionReturnAction;
+import org.apache.geronimo.connector.outbound.ConnectionTrackingInterceptor;
+import org.apache.geronimo.connector.outbound.ManagedConnectionInfo;
 
 /**
  * ConnectionTrackingCoordinator tracks connections that are in use by

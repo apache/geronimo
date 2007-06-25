@@ -32,12 +32,11 @@ import javax.transaction.xa.Xid;
  *
  * @version $Rev$ $Date$
  */
-public class MockResourceManager implements ResourceManager {
+public class MockResourceManager {
     private boolean willCommit;
     private Map xids = new HashMap();
 
     private NamedXAResource resources;
-    private NamedXAResource returnedResources;
 
     public MockResourceManager(boolean willCommit) {
         this.willCommit = willCommit;
@@ -72,15 +71,8 @@ public class MockResourceManager implements ResourceManager {
         }
     }
 
-    public NamedXAResource getRecoveryXAResources() throws SystemException {
-        return resources;
+    public void doRecovery(RecoverableTransactionManager transactionManager) throws SystemException {
+        transactionManager.recoverResourceManager(resources);
     }
 
-    public void returnResource(NamedXAResource xaResource) {
-        returnedResources = xaResource;
-    }
-
-    public boolean areAllResourcesReturned() {
-        return returnedResources != null && returnedResources == resources;
-    }
 }

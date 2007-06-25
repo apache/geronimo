@@ -17,6 +17,8 @@
 
 package org.apache.geronimo.connector.work;
 
+import java.util.concurrent.CountDownLatch;
+
 import javax.resource.spi.work.ExecutionContext;
 import javax.resource.spi.work.Work;
 import javax.resource.spi.work.WorkAdapter;
@@ -26,16 +28,14 @@ import javax.resource.spi.work.WorkException;
 import javax.resource.spi.work.WorkListener;
 import javax.resource.spi.work.WorkManager;
 import javax.resource.spi.work.WorkRejectedException;
-import javax.transaction.xa.XAException;
 import javax.transaction.InvalidTransactionException;
 import javax.transaction.SystemException;
+import javax.transaction.xa.XAException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
 import org.apache.geronimo.transaction.manager.ImportedTransactionActiveException;
 import org.apache.geronimo.transaction.manager.XAWork;
-import java.util.concurrent.CountDownLatch;
 
 /**
  * Work wrapper providing an execution context to a Work instance.

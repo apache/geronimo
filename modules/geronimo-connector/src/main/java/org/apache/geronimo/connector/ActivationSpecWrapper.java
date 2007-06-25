@@ -21,12 +21,6 @@ import javax.resource.ResourceException;
 import javax.resource.spi.ActivationSpec;
 import javax.resource.spi.ResourceAdapter;
 import javax.resource.spi.endpoint.MessageEndpointFactory;
-import javax.transaction.SystemException;
-import javax.transaction.xa.XAResource;
-
-import org.apache.geronimo.transaction.manager.NamedXAResource;
-import org.apache.geronimo.transaction.manager.ResourceManager;
-import org.apache.geronimo.transaction.manager.WrapperNamedXAResource;
 
 /**
  * Wrapper for ActivationSpec instances.
@@ -35,7 +29,7 @@ import org.apache.geronimo.transaction.manager.WrapperNamedXAResource;
  *
  * @version $Rev$ $Date$
  */
-public class ActivationSpecWrapper implements ResourceManager {
+public class ActivationSpecWrapper {
 
     protected final ActivationSpec activationSpec;
 
@@ -101,6 +95,7 @@ public class ActivationSpecWrapper implements ResourceManager {
             resourceAdapterWrapper.registerResourceAdapterAssociation(activationSpec);
         }
         resourceAdapterWrapper.endpointActivation(messageEndpointFactory, activationSpec);
+        resourceAdapterWrapper.doRecovery(activationSpec, containerId);
     }
 
     public void deactivate(final MessageEndpointFactory messageEndpointFactory) {
@@ -111,26 +106,6 @@ public class ActivationSpecWrapper implements ResourceManager {
             //this should never happen, activation spec should have been registered with r.a.
             throw new IllegalStateException("ActivationSpec was never registered with ResourceAdapter");
         }
-    }
-
-    //Operations.
-    public NamedXAResource getRecoveryXAResources() throws SystemException {
-        if (resourceAdapterWrapper == null) {
-            throw new IllegalStateException("Attempting to use activation spec when it is not activated");
-        }
-        try {
-            XAResource[] xaResources = resourceAdapterWrapper.getXAResources(new ActivationSpec[]{activationSpec});
-            if (xaResources == null || xaResources.length == 0) {
-                return null;
-            }
-            return new WrapperNamedXAResource(xaResources[0], containerId);
-        } catch (ResourceException e) {
-            throw (SystemException) new SystemException("Could not get XAResource for recovery for mdb: " + containerId).initCause(e);
-        }
-    }
-
-    public void returnResource(NamedXAResource xaResource) {
-        //do nothing, no way to return anything.
     }
 
 }

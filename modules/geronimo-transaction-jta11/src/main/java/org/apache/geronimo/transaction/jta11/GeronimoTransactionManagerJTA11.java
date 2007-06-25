@@ -17,8 +17,6 @@
 
 package org.apache.geronimo.transaction.jta11;
 
-import java.util.Collection;
-
 import javax.transaction.TransactionSynchronizationRegistry;
 import javax.transaction.xa.XAException;
 
@@ -41,8 +39,8 @@ public class GeronimoTransactionManagerJTA11 extends GeronimoTransactionManager 
         super(defaultTransactionTimeoutSeconds, transactionLog);
     }
 
-    public GeronimoTransactionManagerJTA11(int defaultTransactionTimeoutSeconds, XidFactory xidFactory, TransactionLog transactionLog, Collection resourceManagers) throws XAException {
-        super(defaultTransactionTimeoutSeconds, xidFactory, transactionLog, resourceManagers);
+    public GeronimoTransactionManagerJTA11(int defaultTransactionTimeoutSeconds, XidFactory xidFactory, TransactionLog transactionLog) throws XAException {
+        super(defaultTransactionTimeoutSeconds, xidFactory, transactionLog);
     }
 
 }

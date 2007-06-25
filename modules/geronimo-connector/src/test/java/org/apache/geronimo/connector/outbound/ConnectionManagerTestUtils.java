@@ -19,27 +19,28 @@ package org.apache.geronimo.connector.outbound;
 
 import java.util.HashSet;
 import java.util.Set;
+
 import javax.security.auth.Subject;
-import javax.transaction.TransactionManager;
 import javax.transaction.UserTransaction;
 
+import org.apache.geronimo.connector.mock.ConnectionExtension;
 import org.apache.geronimo.connector.mock.MockConnectionFactory;
 import org.apache.geronimo.connector.mock.MockManagedConnection;
 import org.apache.geronimo.connector.mock.MockManagedConnectionFactory;
-import org.apache.geronimo.connector.mock.ConnectionExtension;
 import org.apache.geronimo.connector.outbound.connectionmanagerconfig.PartitionedPool;
 import org.apache.geronimo.connector.outbound.connectionmanagerconfig.PoolingSupport;
 import org.apache.geronimo.connector.outbound.connectionmanagerconfig.TransactionSupport;
 import org.apache.geronimo.connector.outbound.connectionmanagerconfig.XATransactions;
 import org.apache.geronimo.connector.outbound.connectiontracking.ConnectionTrackingCoordinator;
+import org.apache.geronimo.connector.outbound.connectiontracking.ConnectorInstanceContext;
+import org.apache.geronimo.connector.outbound.connectiontracking.ConnectorInstanceContextImpl;
 import org.apache.geronimo.connector.outbound.connectiontracking.DefaultComponentInterceptor;
 import org.apache.geronimo.connector.outbound.connectiontracking.DefaultInterceptor;
-import org.apache.geronimo.security.ContextManager;
-import org.apache.geronimo.connector.outbound.connectiontracking.ConnectorInstanceContextImpl;
-import org.apache.geronimo.connector.outbound.connectiontracking.ConnectorInstanceContext;
 import org.apache.geronimo.connector.outbound.connectiontracking.GeronimoTransactionListener;
-import org.apache.geronimo.transaction.manager.TransactionManagerImpl;
+import org.apache.geronimo.security.ContextManager;
 import org.apache.geronimo.testsupport.TestSupport;
+import org.apache.geronimo.transaction.manager.RecoverableTransactionManager;
+import org.apache.geronimo.transaction.manager.TransactionManagerImpl;
 
 /**
  * ???
@@ -63,7 +64,7 @@ public class ConnectionManagerTestUtils extends TestSupport implements DefaultIn
     protected String name = "testCF";
     //dependencies
     protected ConnectionTrackingCoordinator connectionTrackingCoordinator;
-    protected TransactionManager transactionManager;
+    protected RecoverableTransactionManager transactionManager;
     protected AbstractConnectionManager connectionManagerDeployment;
     protected MockConnectionFactory connectionFactory;
     protected MockManagedConnectionFactory mockManagedConnectionFactory;
