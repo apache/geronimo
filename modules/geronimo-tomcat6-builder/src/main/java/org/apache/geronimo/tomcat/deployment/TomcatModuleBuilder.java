@@ -27,7 +27,6 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.jar.JarFile;
 
 import javax.servlet.Servlet;
@@ -171,20 +170,9 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder {
             webApp = WebAppType.Factory.newInstance();
 
         // parse vendor dd
-        AtomicBoolean usedDefault = new AtomicBoolean(false);
-        TomcatWebAppType tomcatWebApp = getTomcatWebApp(plan, moduleFile, standAlone, targetPath, webApp, usedDefault);
+        TomcatWebAppType tomcatWebApp = getTomcatWebApp(plan, moduleFile, standAlone, targetPath, webApp);
+        contextRoot = getContextRoot(tomcatWebApp, contextRoot, webApp, standAlone, moduleFile, targetPath);
 
-        //If we have a context root, override everything
-        if (tomcatWebApp.isSetContextRoot() && !usedDefault.get()) {
-            contextRoot = tomcatWebApp.getContextRoot();
-        } else {
-            //Otherwise if no contextRoot was passed in from the ear, then make up a default
-            if (contextRoot == null || contextRoot.trim().equals("")) {
-                contextRoot = determineDefaultContextRoot(webApp, standAlone, moduleFile, targetPath);
-            }
-        }
-
-        contextRoot = contextRoot.trim();
 
         EnvironmentType environmentType = tomcatWebApp.getEnvironment();
         Environment environment = EnvironmentBuilder.buildEnvironment(environmentType, defaultEnvironment);
@@ -229,8 +217,24 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder {
         return module;
     }
 
+    private String getContextRoot(TomcatWebAppType tomcatWebApp, String contextRoot, WebAppType webApp, boolean standAlone, JarFile moduleFile, String targetPath) {
+        //If we have a context root, override everything
+        if (tomcatWebApp.isSetContextRoot()) {
+            contextRoot = tomcatWebApp.getContextRoot();
+        } else if (contextRoot == null || contextRoot.trim().equals("")) {
+            //Otherwise if no contextRoot was passed in from the ear, then make up a default
+            contextRoot = determineDefaultContextRoot(webApp, standAlone, moduleFile, targetPath);
+        }
+        contextRoot = contextRoot.trim();
+        if (!contextRoot.startsWith("/")) {
+            //I'm not sure if we should always fix up peculiar context roots.
+            contextRoot = "/" + contextRoot;
+        }
+        return contextRoot;
+    }
 
-    TomcatWebAppType getTomcatWebApp(Object plan, JarFile moduleFile, boolean standAlone, String targetPath, WebAppType webApp, AtomicBoolean usedDefault) throws DeploymentException {
+
+    TomcatWebAppType getTomcatWebApp(Object plan, JarFile moduleFile, boolean standAlone, String targetPath, WebAppType webApp) throws DeploymentException {
         XmlObject rawPlan = null;
         try {
             // load the geronimo-web.xml from either the supplied plan or from the earFile
@@ -265,9 +269,7 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder {
                 tomcatWebApp = (TomcatWebAppType) webPlan.changeType(TomcatWebAppType.type);
                 XmlBeansUtil.validateDD(tomcatWebApp);
             } else {
-                String defaultContextRoot = determineDefaultContextRoot(webApp, standAlone, moduleFile, targetPath);
-                tomcatWebApp = createDefaultPlan(defaultContextRoot);
-                usedDefault.set(true);
+                tomcatWebApp = createDefaultPlan();
             }
             return tomcatWebApp;
         } catch (XmlException e) {
@@ -275,14 +277,8 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder {
         }
     }
 
-    private TomcatWebAppType createDefaultPlan(String path) {
-        TomcatWebAppType tomcatWebApp = TomcatWebAppType.Factory.newInstance();
-        if (path != null && !path.startsWith("/")) {
-            tomcatWebApp.setContextRoot("/" + path);
-        } else {
-            tomcatWebApp.setContextRoot(path);
-        }
-        return tomcatWebApp;
+    private TomcatWebAppType createDefaultPlan() {
+        return TomcatWebAppType.Factory.newInstance();
     }
 
 

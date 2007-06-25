@@ -19,7 +19,6 @@ package org.apache.geronimo.tomcat.deployment;
 import java.io.File;
 import java.net.URL;
 import java.util.Collections;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 import junit.framework.TestCase;
 import org.apache.geronimo.deployment.xbeans.ArtifactType;
@@ -62,7 +61,7 @@ public class PlanParsingTest extends TestCase {
         URL resourceURL = classLoader.getResource("plans/plan1.xml");
         File resourcePlan = new File(resourceURL.getFile());
         assertTrue(resourcePlan.exists());
-        TomcatWebAppType tomcatWebApp = builder.getTomcatWebApp(resourcePlan, null, true, null, null, new AtomicBoolean(false));
+        TomcatWebAppType tomcatWebApp = builder.getTomcatWebApp(resourcePlan, null, true, null, null);
         assertEquals(1, tomcatWebApp.getResourceRefArray().length);
     }
 

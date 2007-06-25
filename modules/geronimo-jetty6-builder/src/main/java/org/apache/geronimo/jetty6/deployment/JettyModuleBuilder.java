@@ -35,7 +35,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.jar.JarFile;
 
 import javax.management.ObjectName;
@@ -64,7 +63,6 @@ import org.apache.geronimo.j2ee.deployment.NamingBuilder;
 import org.apache.geronimo.j2ee.deployment.WebModule;
 import org.apache.geronimo.j2ee.deployment.WebServiceBuilder;
 import org.apache.geronimo.j2ee.deployment.annotation.AnnotatedWebApp;
-import org.apache.geronimo.j2ee.deployment.annotation.SecurityAnnotationHelper;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.jetty6.Host;
 import org.apache.geronimo.jetty6.JettyDefaultServletHolder;
@@ -82,8 +80,6 @@ import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.naming.deployment.ENCConfigBuilder;
 import org.apache.geronimo.naming.deployment.GBeanResourceEnvironmentBuilder;
 import org.apache.geronimo.naming.deployment.ResourceEnvironmentSetter;
-import org.apache.geronimo.security.deploy.SubjectInfo;
-import org.apache.geronimo.security.deployment.SecurityConfiguration;
 import org.apache.geronimo.security.jacc.ComponentPermissions;
 import org.apache.geronimo.web.deployment.GenericToSpecificPlanConverter;
 import org.apache.geronimo.web25.deployment.AbstractWebModuleBuilder;
@@ -223,15 +219,8 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
         }
 
         // parse vendor dd
-        AtomicBoolean isDefault = new AtomicBoolean(false);
-        JettyWebAppType jettyWebApp = getJettyWebApp(plan, moduleFile, standAlone, targetPath, webApp, isDefault);
-        if (jettyWebApp.isSetContextRoot() && !isDefault.get()) {
-            contextRoot = jettyWebApp.getContextRoot();
-        } else if (contextRoot == null || contextRoot.trim().equals("")) {
-            contextRoot = determineDefaultContextRoot(webApp, standAlone, moduleFile, targetPath);
-        }
-
-        contextRoot = contextRoot.trim();
+        JettyWebAppType jettyWebApp = getJettyWebApp(plan, moduleFile, standAlone, targetPath, webApp);
+        contextRoot = getContextRoot(jettyWebApp, contextRoot, webApp, standAlone, moduleFile, targetPath);
 
         EnvironmentType environmentType = jettyWebApp.getEnvironment();
         Environment environment = EnvironmentBuilder.buildEnvironment(environmentType, defaultEnvironment);
@@ -267,7 +256,18 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
         return module;
     }
 
-    JettyWebAppType getJettyWebApp(Object plan, JarFile moduleFile, boolean standAlone, String targetPath, WebAppType webApp, AtomicBoolean isDefault) throws DeploymentException {
+    String getContextRoot(JettyWebAppType jettyWebApp, String contextRoot, WebAppType webApp, boolean standAlone, JarFile moduleFile, String targetPath) {
+        if (jettyWebApp.isSetContextRoot()) {
+            contextRoot = jettyWebApp.getContextRoot();
+        } else if (contextRoot == null || contextRoot.trim().equals("")) {
+            contextRoot = determineDefaultContextRoot(webApp, standAlone, moduleFile, targetPath);
+        }
+
+        contextRoot = contextRoot.trim();
+        return contextRoot;
+    }
+
+    JettyWebAppType getJettyWebApp(Object plan, JarFile moduleFile, boolean standAlone, String targetPath, WebAppType webApp) throws DeploymentException {
         XmlObject rawPlan = null;
         try {
             // load the geronimo-web.xml from either the supplied plan or from the earFile
@@ -302,9 +302,7 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
                 jettyWebApp = (JettyWebAppType) webPlan.changeType(JettyWebAppType.type);
                 XmlBeansUtil.validateDD(jettyWebApp);
             } else {
-                isDefault.set(true);
-                String defaultContextRoot = determineDefaultContextRoot(webApp, standAlone, moduleFile, targetPath);
-                jettyWebApp = createDefaultPlan(defaultContextRoot);
+                jettyWebApp = createDefaultPlan();
             }
             return jettyWebApp;
         } catch (XmlException e) {
@@ -312,10 +310,8 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
         }
     }
 
-    private JettyWebAppType createDefaultPlan(String contextRoot) {
-        JettyWebAppType jettyWebApp = JettyWebAppType.Factory.newInstance();
-        jettyWebApp.setContextRoot(contextRoot);
-        return jettyWebApp;
+    private JettyWebAppType createDefaultPlan() {
+        return JettyWebAppType.Factory.newInstance();
     }
 
     public void initContext(EARContext earContext, Module module, ClassLoader cl) throws DeploymentException {
@@ -351,8 +347,6 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
             // configure hosts and virtual-hosts
             configureHosts(earContext, jettyWebApp, webModuleData);
 
-            //classpath may have been augmented with enhanced classes
-//            webModuleData.setAttribute("webClassPath", webModule.getWebClasspath());
 
             String contextPath = webModule.getContextRoot();
             if (contextPath == null) {
