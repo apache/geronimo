@@ -119,7 +119,7 @@ public class X509CRLEntryObject extends X509CRLEntry
                 }
                 catch (Exception e)
                 {
-                    throw new RuntimeException("error encoding " + e.toString());
+                    throw new RuntimeException("error encoding " + e.getMessage(), e);
                 }
             }
         }
@@ -141,7 +141,7 @@ public class X509CRLEntryObject extends X509CRLEntry
         }
         catch (IOException e)
         {
-            throw new CRLException(e.toString());
+            throw (CRLException)new CRLException(e.getMessage()).initCause(e);
         }
     }
 

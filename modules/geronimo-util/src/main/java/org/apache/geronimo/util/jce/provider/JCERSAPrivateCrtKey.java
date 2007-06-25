@@ -154,7 +154,7 @@ public class JCERSAPrivateCrtKey
         }
         catch (IOException e)
         {
-            throw new RuntimeException("Error encoding RSA public key");
+            throw new RuntimeException("Error encoding RSA public key", e);
         }
 
         return bOut.toByteArray();

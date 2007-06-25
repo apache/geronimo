@@ -117,7 +117,7 @@ public final class MBeanGBeanBridge implements MBeanRegistration, DynamicMBean, 
         try {
             return kernel.getAttribute(abstractName, attributeName);
         } catch (NoSuchAttributeException e) {
-            throw new AttributeNotFoundException(attributeName);
+            throw (AttributeNotFoundException)new AttributeNotFoundException(attributeName).initCause(e);
         } catch (Exception e) {
             throw new ReflectionException(e);
         }
@@ -129,7 +129,7 @@ public final class MBeanGBeanBridge implements MBeanRegistration, DynamicMBean, 
         try {
             kernel.setAttribute(abstractName, attributeName, attributeValue);
         } catch (NoSuchAttributeException e) {
-            throw new AttributeNotFoundException(attributeName);
+            throw (AttributeNotFoundException)new AttributeNotFoundException(attributeName).initCause(e);
         } catch (Exception e) {
             throw new ReflectionException(e);
         }
@@ -167,7 +167,7 @@ public final class MBeanGBeanBridge implements MBeanRegistration, DynamicMBean, 
         try {
             return kernel.invoke(abstractName, operationName, arguments, types);
         } catch (NoSuchOperationException e) {
-            throw new ReflectionException(new NoSuchMethodException(new GOperationSignature(operationName, types).toString()));
+            throw new ReflectionException((NoSuchMethodException)new NoSuchMethodException(new GOperationSignature(operationName, types).toString()).initCause(e));
         } catch (Exception e) {
             throw new ReflectionException(e);
         }

@@ -95,7 +95,7 @@ public class PrivateKeyInfo
         }
         catch (IOException ex)
         {
-            throw new IllegalArgumentException("Error recoverying private key from sequence");
+            throw new IllegalArgumentException("Error recoverying private key from sequence", ex);
         }
 
         if (e.hasMoreElements())

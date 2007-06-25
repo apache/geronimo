@@ -83,7 +83,7 @@ public class JaasLoginCoordinator implements LoginModule {
             String s = (String) options.get(OPTION_SERVICENAME);
             serviceName = s != null ? new ObjectName(s) : null;
         } catch (MalformedObjectNameException e) {
-            throw new IllegalArgumentException("option " + OPTION_SERVICENAME + "is not a valid ObjectName: " + options.get(OPTION_SERVICENAME));
+            throw new IllegalArgumentException("option " + OPTION_SERVICENAME + "is not a valid ObjectName: " + options.get(OPTION_SERVICENAME), e);
         }
         if (port != null || kernelName != null) {
             service = connect();

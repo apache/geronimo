@@ -147,7 +147,7 @@ public class X509Principal
         }
         catch (IOException e)
         {
-            throw new RuntimeException(e.toString());
+            throw new RuntimeException(e.getMessage(), e);
         }
 
         return bOut.toByteArray();

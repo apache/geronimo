@@ -126,7 +126,7 @@ public class X509CertificateObject
         }
         catch (IOException e)
         {
-            throw new IllegalStateException("can't encode issuer DN");
+            throw new IllegalStateException("can't encode issuer DN", e);
         }
     }
 
@@ -148,7 +148,7 @@ public class X509CertificateObject
         }
         catch (IOException e)
         {
-            throw new IllegalStateException("can't encode issuer DN");
+            throw new IllegalStateException("can't encode issuer DN", e);
         }
     }
 
@@ -176,7 +176,7 @@ public class X509CertificateObject
         }
         catch (IOException e)
         {
-            throw new CertificateEncodingException(e.toString());
+            throw (CertificateEncodingException)new CertificateEncodingException(e.getMessage()).initCause(e);
         }
     }
 
@@ -233,7 +233,7 @@ public class X509CertificateObject
             }
             catch (Exception e)
             {
-                throw new RuntimeException("exception getting sig parameters " + e);
+                throw new RuntimeException("exception getting sig parameters " + e.getMessage(), e);
             }
 
             return bOut.toByteArray();
@@ -301,7 +301,7 @@ public class X509CertificateObject
             }
             catch (Exception e)
             {
-                throw new RuntimeException("error processing key usage extension");
+                throw new RuntimeException("error processing key usage extension", e);
             }
 
             boolean[]       keyUsage = new boolean[(length < 9) ? 9 : length];
@@ -340,7 +340,7 @@ public class X509CertificateObject
             }
             catch (Exception e)
             {
-                throw new CertificateParsingException("error processing extended key usage extension");
+                throw (CertificateParsingException)new CertificateParsingException("error processing extended key usage extension").initCause(e);
             }
         }
 
@@ -390,7 +390,7 @@ public class X509CertificateObject
             }
             catch (Exception e)
             {
-                throw new RuntimeException("error processing key usage extension");
+                throw new RuntimeException("error processing key usage extension", e);
             }
         }
 
@@ -463,7 +463,7 @@ public class X509CertificateObject
                 }
                 catch (Exception e)
                 {
-                    throw new RuntimeException("error encoding " + e.toString());
+                    throw new RuntimeException("error encoding " + e.getMessage(), e);
                 }
             }
         }
@@ -551,7 +551,7 @@ public class X509CertificateObject
         }
         catch (IOException e)
         {
-            throw new CertificateEncodingException(e.toString());
+            throw (CertificateEncodingException)new CertificateEncodingException(e.getMessage()).initCause(e);
         }
     }
 

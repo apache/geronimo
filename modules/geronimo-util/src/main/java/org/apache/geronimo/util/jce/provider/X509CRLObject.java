@@ -141,7 +141,7 @@ public class X509CRLObject
                 }
                 catch (Exception e)
                 {
-                    throw new RuntimeException("error encoding " + e.toString());
+                    throw new RuntimeException("error encoding " + e.getMessage(), e);
                 }
             }
         }
@@ -163,7 +163,7 @@ public class X509CRLObject
         }
         catch (IOException e)
         {
-            throw new CRLException(e.toString());
+            throw (CRLException)new CRLException(e.getMessage()).initCause(e);
         }
     }
 
@@ -218,7 +218,7 @@ public class X509CRLObject
         }
         catch (IOException e)
         {
-            throw new IllegalStateException("can't encode issuer DN");
+            throw new IllegalStateException("can't encode issuer DN", e);
         }
     }
 
@@ -287,7 +287,7 @@ public class X509CRLObject
         }
         catch (IOException e)
         {
-            throw new CRLException(e.toString());
+            throw (CRLException)new CRLException(e.getMessage()).initCause(e);
         }
     }
 
@@ -334,7 +334,7 @@ public class X509CRLObject
             }
             catch (Exception e)
             {
-                throw new RuntimeException("exception getting sig parameters " + e);
+                throw new RuntimeException("exception getting sig parameters " + e.getMessage(), e);
             }
 
             return bOut.toByteArray();

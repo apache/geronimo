@@ -54,7 +54,7 @@ public class Hex
         }
         catch (IOException e)
         {
-            throw new RuntimeException("exception encoding Hex string: " + e);
+            throw new RuntimeException("exception encoding Hex string: " + e.getMessage(), e);
         }
 
         return bOut.toByteArray();
@@ -104,7 +104,7 @@ public class Hex
         }
         catch (IOException e)
         {
-            throw new RuntimeException("exception decoding Hex string: " + e);
+            throw new RuntimeException("exception decoding Hex string: " + e.getMessage(), e);
         }
 
         return bOut.toByteArray();
@@ -126,7 +126,7 @@ public class Hex
         }
         catch (IOException e)
         {
-            throw new RuntimeException("exception decoding Hex string: " + e);
+            throw new RuntimeException("exception decoding Hex string: " + e.getMessage(), e);
         }
 
         return bOut.toByteArray();

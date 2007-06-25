@@ -53,7 +53,7 @@ public class X509DefaultEntryConverter
             }
             catch (IOException e)
             {
-                throw new RuntimeException("can't recode value for oid " + oid.getId());
+                throw new RuntimeException("can't recode value for oid " + oid.getId(), e);
             }
         }
         else if (oid.equals(X509Name.EmailAddress))

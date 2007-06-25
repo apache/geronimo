@@ -43,11 +43,11 @@ public class BERConstructedOctetString
             }
             catch (ClassCastException e)
             {
-                throw new IllegalArgumentException(octs.elementAt(i).getClass().getName() + " found in input should only contain DEROctetString");
+                throw new IllegalArgumentException(octs.elementAt(i).getClass().getName() + " found in input should only contain DEROctetString", e);
             }
             catch (IOException e)
             {
-                throw new IllegalArgumentException("exception converting octets " + e.toString());
+                throw new IllegalArgumentException("exception converting octets " + e.getMessage(), e);
             }
         }
 

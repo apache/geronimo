@@ -88,7 +88,7 @@ public class DERUniversalString
         }
         catch (IOException e)
         {
-           throw new RuntimeException("internal error encoding BitString");
+           throw new RuntimeException("internal error encoding BitString", e);
         }
 
         byte[]    string = bOut.toByteArray();

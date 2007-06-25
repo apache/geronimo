@@ -83,7 +83,7 @@ public class JCEDHPublicKey
         }
         catch (IOException e)
         {
-            throw new IllegalArgumentException("invalid info structure in DH public key");
+            throw new IllegalArgumentException("invalid info structure in DH public key", e);
         }
 
         this.y = derY.getValue();
@@ -120,7 +120,7 @@ public class JCEDHPublicKey
         }
         catch (IOException e)
         {
-            throw new RuntimeException("Error encoding DH public key");
+            throw new RuntimeException("Error encoding DH public key", e);
         }
 
         return bOut.toByteArray();

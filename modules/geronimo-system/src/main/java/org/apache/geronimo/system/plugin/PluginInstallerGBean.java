@@ -695,7 +695,7 @@ public class PluginInstallerGBean implements PluginInstaller {
                     try {
                         pluginData = loadCARFile(tempFile, false);
                     } catch (Exception e) {
-                        throw new IOException("Unable to read plugin metadata: "+e.getMessage());
+                        throw (IOException)new IOException("Unable to read plugin metadata: "+e.getMessage()).initCause(e);
                     }
                 }
                 if(pluginData != null) { // it's a plugin, not a plain JAR
@@ -757,9 +757,9 @@ public class PluginInstallerGBean implements PluginInstaller {
                 downloadArtifact(artifact, metadata, repos, username, password, monitor, soFar, true);
             }
         } catch (NoSuchConfigException e) {
-            throw new IllegalStateException("Installed configuration into repository but ConfigStore does not see it: "+e.getMessage());
+            throw new IllegalStateException("Installed configuration into repository but ConfigStore does not see it: "+e.getMessage(), e);
         } catch (InvalidConfigException e) {
-            throw new IllegalStateException("Installed configuration into repository but ConfigStore cannot load it: "+e.getMessage());
+            throw new IllegalStateException("Installed configuration into repository but ConfigStore cannot load it: "+e.getMessage(), e);
         }
         // Copy any files out of the artifact
         PluginMetadata currentPlugin = configManager.isConfiguration(configID) ? getPluginMetadata(configID) : null;
@@ -778,7 +778,7 @@ public class PluginInstallerGBean implements PluginInstaller {
             try {
                 set = configStore.resolve(configID, null, data.getSourceFile());
             } catch (NoSuchConfigException e) {
-                throw new IllegalStateException("Unable to identify module "+configID+" to copy files from");
+                throw new IllegalStateException("Unable to identify module "+configID+" to copy files from", e);
             }
             if(set.size() == 0) {
                 log.error("Installed configuration into repository but cannot locate file to copy "+data.getSourceFile());

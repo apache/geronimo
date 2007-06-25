@@ -157,7 +157,7 @@ public class FileKeystoreManager implements KeystoreManager, GBeanLifecycle {
             }
             data.setAttribute("keystorePath", new URI(path +name));
         } catch (URISyntaxException e) {
-            throw new IllegalStateException("Can't resolve keystore path: "+e.getMessage());
+            throw new IllegalStateException("Can't resolve keystore path: "+e.getMessage(), e);
         }
         data.setReferencePattern("ServerInfo", kernel.getAbstractNameFor(serverInfo));
         data.setAttribute("keystoreName", name);
@@ -168,7 +168,7 @@ public class FileKeystoreManager implements KeystoreManager, GBeanLifecycle {
                 return (KeystoreInstance) kernel.getProxyManager().createProxy(aName, KeystoreInstance.class);
             } catch (InvalidConfigException e) {
                 log.error("Should never happen", e);
-                throw new IllegalStateException("Unable to add Keystore GBean ("+e.getMessage()+")");
+                throw new IllegalStateException("Unable to add Keystore GBean ("+e.getMessage()+")", e);
             } finally {
                 ConfigurationUtil.releaseConfigurationManager(kernel, mgr);
             }

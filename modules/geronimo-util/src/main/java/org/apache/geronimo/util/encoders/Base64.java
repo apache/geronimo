@@ -41,7 +41,7 @@ public class Base64
         }
         catch (IOException e)
         {
-            throw new RuntimeException("exception encoding base64 string: " + e);
+            throw new RuntimeException("exception encoding base64 string: " + e.getMessage(), e);
         }
 
         return bOut.toByteArray();
@@ -91,7 +91,7 @@ public class Base64
         }
         catch (IOException e)
         {
-            throw new RuntimeException("exception decoding base64 string: " + e);
+            throw new RuntimeException("exception decoding base64 string: " + e.getMessage(), e);
         }
 
         return bOut.toByteArray();
@@ -113,7 +113,7 @@ public class Base64
         }
         catch (IOException e)
         {
-            throw new RuntimeException("exception decoding base64 string: " + e);
+            throw new RuntimeException("exception decoding base64 string: " + e.getMessage(), e);
         }
 
         return bOut.toByteArray();

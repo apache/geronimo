@@ -125,7 +125,7 @@ public class PortInfo {
         try {
             this.contextURI = new URI(this.location);
         } catch (URISyntaxException e) {
-            throw new DeploymentException("Could not construct URI for web service location");
+            throw new DeploymentException("Could not construct URI for web service location", e);
         }
     }
 }

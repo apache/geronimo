@@ -81,7 +81,7 @@ public class CertificatePropertiesFileLoginModule implements LoginModule {
             loadProperties(serverInfo, usersURI, groupsURI);
         } catch (Exception e) {
             log.error(e);
-            throw new IllegalArgumentException("Unable to configure properties file login module: "+e);
+            throw new IllegalArgumentException("Unable to configure properties file login module: "+e.getMessage(), e);
         }
     }
 

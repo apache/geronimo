@@ -873,9 +873,9 @@ public class KernelDelegate implements Kernel {
         } catch (Exception e) {
             Throwable cause = unwrapJMException(e);
             if (cause instanceof InstanceNotFoundException) {
-                throw new InternalKernelException("Kernel is not loaded");
+                throw new InternalKernelException("Kernel is not loaded", cause);
             } else if (cause instanceof AttributeNotFoundException) {
-                throw new InternalKernelException("KernelDelegate is out of synch with Kernel");
+                throw new InternalKernelException("KernelDelegate is out of synch with Kernel", cause);
             } else {
                 throw new InternalKernelException(cause);
             }
@@ -891,7 +891,7 @@ public class KernelDelegate implements Kernel {
         } catch (Exception e) {
             Throwable cause = unwrapJMException(e);
             if (cause instanceof InstanceNotFoundException) {
-                throw new InternalKernelException("Kernel is not loaded");
+                throw new InternalKernelException("Kernel is not loaded", cause);
             } else if (cause instanceof NoSuchMethodException) {
                 StringBuffer buf = new StringBuffer("KernelDelegate is out of synch with Kernel on ");
                 buf.append(methodName).append("(");

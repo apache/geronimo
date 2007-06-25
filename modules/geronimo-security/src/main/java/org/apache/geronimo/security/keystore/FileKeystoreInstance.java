@@ -292,13 +292,13 @@ public class FileKeystoreInstance implements KeystoreInstance, GBeanLifecycle {
             keystore.setKeyEntry(alias, keyPair.getPrivate(), keyPassword, new Certificate[] { cert });
             privateKeys.add(alias);
         } catch (KeyStoreException e) {
-            throw new KeystoreException("Unable to generate key pair in keystore '" + keystoreName + "'");
+            throw new KeystoreException("Unable to generate key pair in keystore '" + keystoreName + "'", e);
         } catch (InvalidKeyException e) {
-            throw new KeystoreException("Unable to generate key pair in keystore '" + keystoreName + "'");
+            throw new KeystoreException("Unable to generate key pair in keystore '" + keystoreName + "'", e);
         } catch (SignatureException e) {
-            throw new KeystoreException("Unable to generate key pair in keystore '" + keystoreName + "'");
+            throw new KeystoreException("Unable to generate key pair in keystore '" + keystoreName + "'", e);
         } catch (NoSuchAlgorithmException e) {
-            throw new KeystoreException("Unable to generate key pair in keystore '" + keystoreName + "'");
+            throw new KeystoreException("Unable to generate key pair in keystore '" + keystoreName + "'", e);
         }
         saveKeystore(storePassword);
     }
@@ -465,11 +465,11 @@ public class FileKeystoreInstance implements KeystoreInstance, GBeanLifecycle {
             }
             return keyFactory.getKeyManagers();
         } catch (KeyStoreException e) {
-            throw new KeystoreException("Unable to retrieve key manager in keystore '" + keystoreName + "' for alias '" + alias + "'");
+            throw new KeystoreException("Unable to retrieve key manager in keystore '" + keystoreName + "' for alias '" + alias + "'", e);
         } catch (NoSuchAlgorithmException e) {
-            throw new KeystoreException("Unable to retrieve key manager in keystore '" + keystoreName + "' for alias '" + alias + "'");
+            throw new KeystoreException("Unable to retrieve key manager in keystore '" + keystoreName + "' for alias '" + alias + "'", e);
         } catch (UnrecoverableKeyException e) {
-            throw new KeystoreException("Unable to retrieve key manager in keystore '" + keystoreName + "' for alias '" + alias + "'");
+            throw new KeystoreException("Unable to retrieve key manager in keystore '" + keystoreName + "' for alias '" + alias + "'", e);
         }
     }
 
@@ -480,9 +480,9 @@ public class FileKeystoreInstance implements KeystoreInstance, GBeanLifecycle {
             trustFactory.init(keystore);
             return trustFactory.getTrustManagers();
         } catch (KeyStoreException e) {
-            throw new KeystoreException("Unable to retrieve trust manager in keystore '" + keystoreName + "'");
+            throw new KeystoreException("Unable to retrieve trust manager in keystore '" + keystoreName + "'", e);
         } catch (NoSuchAlgorithmException e) {
-            throw new KeystoreException("Unable to retrieve trust manager in keystore '" + keystoreName + "'");
+            throw new KeystoreException("Unable to retrieve trust manager in keystore '" + keystoreName + "'", e);
         }
     }
 

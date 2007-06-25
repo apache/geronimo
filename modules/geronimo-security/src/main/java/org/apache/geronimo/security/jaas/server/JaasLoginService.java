@@ -238,7 +238,7 @@ public class JaasLoginService implements GBeanLifecycle, JaasLoginServiceMBean {
         try {
             session.getHandler().setClientResponse(results);
         } catch (IllegalArgumentException iae) {
-            throw new LoginException(iae.toString());
+            throw (LoginException)new LoginException(iae.getMessage()).initCause(iae);
         }
         return session.getLoginModule(loginModuleIndex).login();
     }

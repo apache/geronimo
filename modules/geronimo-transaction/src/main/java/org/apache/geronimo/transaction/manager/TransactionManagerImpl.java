@@ -177,7 +177,7 @@ public class TransactionManagerImpl implements TransactionManager, UserTransacti
             associate(tx);
         } catch (InvalidTransactionException e) {
             // should not be possible since we just created that transaction and no one has a reference yet
-            throw new SystemException("Internal error: associate threw an InvalidTransactionException for a newly created transaction");
+            throw (SystemException)new SystemException("Internal error: associate threw an InvalidTransactionException for a newly created transaction").initCause(e);
         }
         // Todo: Verify if this is correct thing to do. Use default timeout for next transaction.
         this.transactionTimeoutMilliseconds.set(null);

@@ -51,7 +51,7 @@ public class ConfigurationStoreUtil {
         try {
             actualChecksum = calculateChecksum(file, "SHA-1");
         } catch (NoSuchAlgorithmException e) {
-            throw new IOException("SHA-1 algorithm not available");
+            throw (IOException)new IOException("SHA-1 algorithm not available").initCause(e);
         }
 
         // write it
@@ -191,7 +191,7 @@ public class ConfigurationStoreUtil {
                 digester = MessageDigest.getInstance("SHA-1");
                 digester.reset();
             } catch (NoSuchAlgorithmException e) {
-                throw new IOException("SHA-1 algorithm not available");
+                throw (IOException)new IOException("SHA-1 algorithm not available").initCause(e);
             }
         }
 

@@ -121,11 +121,11 @@ public class KernelMBeanServer implements MBeanServer {
         try {
             return kernel.getAttribute(abstractName, attribute);
         } catch (NoSuchAttributeException e) {
-            throw new AttributeNotFoundException(attribute);
+            throw (AttributeNotFoundException)new AttributeNotFoundException(attribute).initCause(e);
         } catch (GBeanNotFoundException e) {
-            throw new InstanceNotFoundException(name.getCanonicalName());
+            throw (InstanceNotFoundException)new InstanceNotFoundException(name.getCanonicalName()).initCause(e);
         } catch (InternalKernelException e) {
-            throw new MBeanException(unwrapInternalKernelException(e));
+            throw (MBeanException)new MBeanException(unwrapInternalKernelException(e));
         } catch (Exception e) {
             throw new MBeanException(e);
         }
@@ -142,7 +142,7 @@ public class KernelMBeanServer implements MBeanServer {
             } catch (NoSuchAttributeException e) {
                 // ignored - caller will simply find no value
             } catch (GBeanNotFoundException e) {
-                throw new InstanceNotFoundException(name.getCanonicalName());
+                throw (InstanceNotFoundException)new InstanceNotFoundException(name.getCanonicalName()).initCause(e);
             } catch (InternalKernelException e) {
                 throw new ReflectionException(unwrapInternalKernelException(e));
             } catch (Exception e) {
@@ -166,7 +166,7 @@ public class KernelMBeanServer implements MBeanServer {
         try {
             gbeanInfo = kernel.getGBeanInfo(abstractName);
         } catch (GBeanNotFoundException e) {
-            throw new InstanceNotFoundException(name.getCanonicalName());
+            throw (InstanceNotFoundException)new InstanceNotFoundException(name.getCanonicalName()).initCause(e);
         } catch (InternalKernelException e) {
             throw new ReflectionException(unwrapInternalKernelException(e));
         }
@@ -178,10 +178,10 @@ public class KernelMBeanServer implements MBeanServer {
         try {
             return kernel.invoke(abstractName, operationName, params, signature);
         } catch (NoSuchOperationException e) {
-            throw new ReflectionException(new NoSuchMethodException(e.getMessage()));
+            throw new ReflectionException((NoSuchMethodException)new NoSuchMethodException(e.getMessage()).initCause(e));
         } catch (GBeanNotFoundException e) {
             if(name.equals(e.getGBeanName())) {
-                throw new InstanceNotFoundException(name.getCanonicalName());
+                throw (InstanceNotFoundException)new InstanceNotFoundException(name.getCanonicalName()).initCause(e);
             }
             throw new MBeanException(e);
         } catch (InternalKernelException e) {
@@ -259,9 +259,9 @@ public class KernelMBeanServer implements MBeanServer {
         try {
             kernel.setAttribute(abstractName, attributeName, attributeValue);
         } catch (NoSuchAttributeException e) {
-            throw new AttributeNotFoundException(attributeName);
+            throw (AttributeNotFoundException)new AttributeNotFoundException(attributeName).initCause(e);
         } catch (GBeanNotFoundException e) {
-            throw new InstanceNotFoundException(name.getCanonicalName());
+            throw (InstanceNotFoundException)new InstanceNotFoundException(name.getCanonicalName()).initCause(e);
         } catch (InternalKernelException e) {
             throw new MBeanException(unwrapInternalKernelException(e));
         } catch (Exception e) {
@@ -282,7 +282,7 @@ public class KernelMBeanServer implements MBeanServer {
             } catch (NoSuchAttributeException e) {
                 // ignored - caller will see value was not set because this attribute will not be in the attribute list
             } catch (GBeanNotFoundException e) {
-                throw new InstanceNotFoundException(name.getCanonicalName());
+                throw (InstanceNotFoundException)new InstanceNotFoundException(name.getCanonicalName()).initCause(e);
             } catch (InternalKernelException e) {
                 throw new ReflectionException(unwrapInternalKernelException(e));
             } catch (Exception e) {
@@ -308,7 +308,7 @@ public class KernelMBeanServer implements MBeanServer {
             GBeanInfo gbeanInfo = kernel.getGBeanInfo(abstractName);
             return new ObjectInstance(objectName, gbeanInfo.getClassName());
         } catch (GBeanNotFoundException e) {
-            throw new InstanceNotFoundException(objectName.getCanonicalName());
+            throw (InstanceNotFoundException)new InstanceNotFoundException(objectName.getCanonicalName()).initCause(e);
         }
     }
 
@@ -317,7 +317,7 @@ public class KernelMBeanServer implements MBeanServer {
         try {
             return kernel.getClassLoaderFor(abstractName);
         } catch (GBeanNotFoundException e) {
-            throw new InstanceNotFoundException(objectName.getCanonicalName());
+            throw (InstanceNotFoundException)new InstanceNotFoundException(objectName.getCanonicalName()).initCause(e);
         }
     }
 

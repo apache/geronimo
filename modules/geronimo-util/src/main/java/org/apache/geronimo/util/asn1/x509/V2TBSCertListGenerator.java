@@ -143,7 +143,7 @@ public class V2TBSCertListGenerator
             }
             catch (IOException e)
             {
-                throw new IllegalArgumentException("error encoding reason: " + e);
+                throw new IllegalArgumentException("error encoding reason: " + e.getMessage(), e);
             }
         }
 
@@ -156,7 +156,7 @@ public class V2TBSCertListGenerator
             }
             catch (IOException e)
             {
-                throw new IllegalArgumentException("error encoding invalidityDate: " + e);
+                throw new IllegalArgumentException("error encoding invalidityDate: " + e.getMessage(), e);
             }
         }
 

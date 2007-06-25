@@ -407,7 +407,7 @@ public class EjbModuleBuilder implements ModuleBuilder {
             // extract the ejbJar file into a standalone packed jar file and add the contents to the output
             earContext.addIncludeAsPackedJar(URI.create(module.getTargetPath()), moduleFile);
         } catch (IOException e) {
-            throw new DeploymentException("Unable to copy ejb module jar into configuration: " + moduleFile.getName());
+            throw new DeploymentException("Unable to copy ejb module jar into configuration: " + moduleFile.getName(), e);
         }
     }
 
@@ -511,7 +511,6 @@ public class EjbModuleBuilder implements ModuleBuilder {
             try {
                 appInfo = openEjbSystem.configureApplication(appModule);
             } catch (OpenEJBException e) {
-                e.printStackTrace();
                 throw new DeploymentException(e);
             }
 
@@ -686,7 +685,7 @@ public class EjbModuleBuilder implements ModuleBuilder {
             try {
                 resourceAdapterAbstractName = earContext.findGBean(resourceAdapterNameQuery);
             } catch (GBeanNotFoundException e) {
-                throw new DeploymentException("Resource Adapter for MDB '" + bean.getEjbName() + "'not found: " + resourceAdapterNameQuery);
+                throw new DeploymentException("Resource Adapter for MDB '" + bean.getEjbName() + "'not found: " + resourceAdapterNameQuery, e);
             }
 
             Map properties = resourceAdapterAbstractName.getName();

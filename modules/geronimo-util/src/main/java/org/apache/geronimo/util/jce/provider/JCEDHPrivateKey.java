@@ -128,7 +128,7 @@ public class JCEDHPrivateKey
         }
         catch (IOException e)
         {
-            throw new RuntimeException("Error encoding DH private key");
+            throw new RuntimeException("Error encoding DH private key", e);
         }
 
         return bOut.toByteArray();

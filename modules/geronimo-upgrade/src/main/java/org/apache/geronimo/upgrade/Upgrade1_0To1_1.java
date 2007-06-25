@@ -260,7 +260,7 @@ public class Upgrade1_0To1_1 {
         try {
             targetName = ObjectName.getInstance(targetNameString);
         } catch (MalformedObjectNameException e) {
-            throw new XmlException("Invalid object name: " + targetNameString);
+            throw (XmlException)new XmlException("Invalid object name: " + targetNameString).initCause(e);
         }
         return targetName;
     }

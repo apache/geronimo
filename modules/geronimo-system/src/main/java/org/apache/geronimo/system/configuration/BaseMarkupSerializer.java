@@ -355,7 +355,7 @@ public abstract class BaseMarkupSerializer
         try {
             prepare();
         } catch ( IOException except ) {
-            throw new SAXException( except.toString() );
+            throw (SAXException)new SAXException( except.toString() ).initCause(except);
         }
         // Nothing to do here. All the magic happens in startDocument(String)
     }

@@ -132,7 +132,7 @@ public class PKCS10CertificationRequest
         }
         catch (Exception e)
         {
-            throw new IllegalArgumentException("badly encoded request");
+            throw new IllegalArgumentException("badly encoded request", e);
         }
     }
 
@@ -176,7 +176,7 @@ public class PKCS10CertificationRequest
         }
         catch (IOException e)
         {
-            throw new IllegalArgumentException("can't convert name");
+            throw new IllegalArgumentException("can't convert name", e);
         }
     }
 
@@ -253,7 +253,7 @@ public class PKCS10CertificationRequest
         }
         catch (IOException e)
         {
-            throw new IllegalArgumentException("can't encode public key");
+            throw new IllegalArgumentException("can't encode public key", e);
         }
 
         Signature sig = null;
@@ -290,7 +290,7 @@ public class PKCS10CertificationRequest
         }
         catch (Exception e)
         {
-            throw new SecurityException("exception encoding TBS cert request - " + e);
+            throw new SecurityException("exception encoding TBS cert request - " + e.getMessage(), e);
         }
 
         this.sigBits = new DERBitString(sig.sign());
@@ -339,7 +339,7 @@ public class PKCS10CertificationRequest
         }
         catch (InvalidKeySpecException e)
         {
-            throw new InvalidKeyException("error decoding public key");
+            throw (InvalidKeyException)new InvalidKeyException("error decoding public key").initCause(e);
         }
     }
 
@@ -400,7 +400,7 @@ public class PKCS10CertificationRequest
         }
         catch (Exception e)
         {
-            throw new SecurityException("exception encoding TBS cert request - " + e);
+            throw (SecurityException)new SecurityException("exception encoding TBS cert request - " + e.getMessage()).initCause(e);
         }
 
         return sig.verify(sigBits.getBytes());
@@ -420,7 +420,7 @@ public class PKCS10CertificationRequest
         }
         catch (IOException e)
         {
-            throw new RuntimeException(e.toString());
+            throw new RuntimeException(e.getMessage(), e);
         }
 
         return bOut.toByteArray();

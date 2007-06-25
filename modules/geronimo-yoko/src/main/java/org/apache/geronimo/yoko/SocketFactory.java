@@ -377,7 +377,7 @@ public class SocketFactory implements ConnectionHelper {
                     socketFactory = sslConfig.createSSLFactory(Thread.currentThread().getContextClassLoader());
                 } catch (Exception e) {
                     log.error("Unable to create client SSL socket factory", e);
-                    throw new IOException("Unable to create client SSL socket factory: " + e.getMessage());
+                    throw (IOException)new IOException("Unable to create client SSL socket factory: " + e.getMessage()).initCause(e);
                 }
             }
         }
@@ -404,7 +404,7 @@ public class SocketFactory implements ConnectionHelper {
                     serverSocketFactory = sslConfig.createSSLServerFactory(Thread.currentThread().getContextClassLoader());
                 } catch (Exception e) {
                     log.error("Unable to create server SSL socket factory", e);
-                    throw new IOException("Unable to create server SSL socket factory: " + e.getMessage());
+                    throw (IOException)new IOException("Unable to create server SSL socket factory: " + e.getMessage()).initCause(e);
                 }
             }
             // we have a socket factory....now get our cipher suite set based on our requirements and what's

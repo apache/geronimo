@@ -250,7 +250,7 @@ abstract public class ASN1Set
         }
         catch (IOException e)
         {
-            throw new IllegalArgumentException("cannot encode object added to SET");
+            throw new IllegalArgumentException("cannot encode object added to SET", e);
         }
 
         return bOut.toByteArray();

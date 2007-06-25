@@ -102,7 +102,7 @@ public abstract class ASN1OctetString
         }
         catch (IOException e)
         {
-            throw new IllegalArgumentException("Error processing object : " + e.toString());
+            throw new IllegalArgumentException("Error processing object : " + e.getMessage(), e);
         }
     }
 

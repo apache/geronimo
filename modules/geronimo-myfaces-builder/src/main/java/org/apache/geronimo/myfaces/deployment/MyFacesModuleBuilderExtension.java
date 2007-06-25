@@ -225,7 +225,7 @@ public class MyFacesModuleBuilderExtension implements ModuleBuilderExtension {
             URL url = DeploymentUtil.createJarURL(webModule.getModuleFile(), "META-INF/faces-config.xml");
             parseConfigFile(url, classLoader, classes);
         } catch (MalformedURLException mfe) {
-            throw new DeploymentException("Could not locate META-INF/faces-config.xml" + mfe.getMessage());
+            throw new DeploymentException("Could not locate META-INF/faces-config.xml" + mfe.getMessage(), mfe);
         }
 
         // 2. WEB-INF/faces-config.xml
@@ -233,7 +233,7 @@ public class MyFacesModuleBuilderExtension implements ModuleBuilderExtension {
             URL url = DeploymentUtil.createJarURL(webModule.getModuleFile(), "WEB-INF/faces-config.xml");
             parseConfigFile(url, classLoader, classes);
         } catch (MalformedURLException mfe) {
-            throw new DeploymentException("Could not locate WEB-INF/faces-config.xml" + mfe.getMessage());
+            throw new DeploymentException("Could not locate WEB-INF/faces-config.xml" + mfe.getMessage(), mfe);
         }
 
         // 3. javax.faces.CONFIG_FILES
@@ -252,7 +252,7 @@ public class MyFacesModuleBuilderExtension implements ModuleBuilderExtension {
                             URL url = DeploymentUtil.createJarURL(webModule.getModuleFile(), configfile);
                             parseConfigFile(url, classLoader, classes);
                         } catch (MalformedURLException mfe) {
-                            throw new DeploymentException("Could not locate config file " + configfile + ", " + mfe.getMessage());
+                            throw new DeploymentException("Could not locate config file " + configfile + ", " + mfe.getMessage(), mfe);
                         }
                     }
                 }

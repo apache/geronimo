@@ -70,7 +70,7 @@ public class FileAuditLoginModule implements LoginModule {
         try {
             handler.handle(callbacks);
         } catch (Exception e) {
-            throw new LoginException("Unable to process callback: "+e);
+            throw (LoginException)new LoginException("Unable to process callback: "+e.getMessage()).initCause(e);
         }
         if(callbacks.length != 1) {
             throw new IllegalStateException("Number of callbacks changed by server!");

@@ -67,7 +67,7 @@ public class GeronimoTransactionManager extends TransactionManagerImpl implement
             int status = importedTransaction.getStatus();
             assert status == Status.STATUS_ACTIVE || status == Status.STATUS_PREPARED: "invalid status: " + status;
         } catch (SystemException e) {
-            throw new XAException();
+            throw (XAException)new XAException().initCause(e);
         }
         commit(importedTransaction, onePhase);
     }
@@ -108,7 +108,7 @@ public class GeronimoTransactionManager extends TransactionManagerImpl implement
             int status = importedTransaction.getStatus();
             assert status == Status.STATUS_ACTIVE;
         } catch (SystemException e) {
-            throw new XAException();
+            throw (XAException)new XAException().initCause(e);
         }
         return prepare(importedTransaction);
     }
@@ -162,7 +162,7 @@ public class GeronimoTransactionManager extends TransactionManagerImpl implement
             int status = importedTransaction.getStatus();
             assert status == Status.STATUS_ACTIVE || status == Status.STATUS_PREPARED;
         } catch (SystemException e) {
-            throw new XAException();
+            throw (XAException)new XAException().initCause(e);
         }
         rollback(importedTransaction);
     }
@@ -183,7 +183,7 @@ public class GeronimoTransactionManager extends TransactionManagerImpl implement
                 resume(importedTransaction);
             } catch (InvalidTransactionException e) {
                 // this occures if our transaciton is associated with another thread
-                throw new ImportedTransactionActiveException(xid);
+                throw (ImportedTransactionActiveException)new ImportedTransactionActiveException(xid).initCause(e);
             }
         }
     }

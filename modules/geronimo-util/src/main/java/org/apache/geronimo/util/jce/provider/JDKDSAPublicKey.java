@@ -81,7 +81,7 @@ public class JDKDSAPublicKey
         }
         catch (IOException e)
         {
-            throw new IllegalArgumentException("invalid info structure in DSA public key");
+            throw new IllegalArgumentException("invalid info structure in DSA public key", e);
         }
 
         this.y = derY.getValue();
@@ -111,7 +111,7 @@ public class JDKDSAPublicKey
         }
         catch (IOException e)
         {
-            throw new RuntimeException("Error encoding DSA public key");
+            throw new RuntimeException("Error encoding DSA public key", e);
         }
 
         return bOut.toByteArray();

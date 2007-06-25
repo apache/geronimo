@@ -88,7 +88,7 @@ public class PropertiesFileLoginModule implements LoginModule {
                     MessageDigest.getInstance(digest);
                 } catch(NoSuchAlgorithmException e) {
                     log.error("Initialization failed. Digest algorithm "+digest+" is not available.", e);
-                    throw new IllegalArgumentException("Unable to configure properties file login module: "+e.getMessage());
+                    throw new IllegalArgumentException("Unable to configure properties file login module: "+e.getMessage(), e);
                 }
                 if(encoding != null && !"hex".equalsIgnoreCase(encoding) && !"base64".equalsIgnoreCase(encoding)) {
                     log.error("Initialization failed. Digest Encoding "+encoding+" is not supported.");
@@ -103,7 +103,7 @@ public class PropertiesFileLoginModule implements LoginModule {
             loadProperties(serverInfo, usersURI, groupsURI);
         } catch (Exception e) {
             log.error("Initialization failed", e);
-            throw new IllegalArgumentException("Unable to configure properties file login module: "+e.getMessage());
+            throw new IllegalArgumentException("Unable to configure properties file login module: "+e.getMessage(), e);
         }
     }
 

@@ -499,7 +499,7 @@ public class Log4jService implements GBeanLifecycle, SystemLog {
         try {
             textPattern = text == null || text.equals("") ? null : Pattern.compile(text);
         } catch (PatternSyntaxException e) {
-            throw new IllegalArgumentException("Bad regular expression '"+text+"'");
+            throw new IllegalArgumentException("Bad regular expression '"+text+"'", e);
         }
         // Make sure we can find the log file
         File log = new File(substituteSystemProps(logFile));

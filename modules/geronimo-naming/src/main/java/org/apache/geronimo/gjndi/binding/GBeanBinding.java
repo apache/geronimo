@@ -134,7 +134,7 @@ public class GBeanBinding implements GBeanLifecycle {
         try {
             instance = kernel.getGBean(abstractName);
         } catch (GBeanNotFoundException e) {
-            throw new NamingException("GBean not found: " + abstractName);
+            throw (NamingException)new NamingException("GBean not found: " + abstractName).initCause(e);
         }
 
         // preprocess the instance

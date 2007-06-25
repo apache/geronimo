@@ -650,7 +650,7 @@ public class GBeanOverride implements Serializable {
             return attributeStringValue;
         } catch (ClassNotFoundException e) {
             //todo: use the Configuration's ClassLoader to load the attribute, if this ever becomes an issue
-            throw new InvalidAttributeException("Unable to store attribute type " + type);
+            throw (InvalidAttributeException)new InvalidAttributeException("Unable to store attribute type " + type).initCause(e);
         }
     }
 }

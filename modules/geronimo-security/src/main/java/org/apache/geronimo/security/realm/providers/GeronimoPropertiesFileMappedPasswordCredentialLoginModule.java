@@ -72,7 +72,7 @@ public class GeronimoPropertiesFileMappedPasswordCredentialLoginModule implement
             loadProperties(serverInfo, usersURI);
         } catch (Exception e) {
             log.error("Initialization failed", e);
-            throw new IllegalArgumentException("Unable to configure properties file login module: " + e.getMessage());
+            throw new IllegalArgumentException("Unable to configure properties file login module: " + e.getMessage(), e);
         }
     }
 

@@ -143,7 +143,7 @@ public class X509V1CertificateGenerator
         }
         catch (Exception e)
         {
-            throw new IllegalArgumentException("unable to process key - " + e.toString());
+            throw new IllegalArgumentException("unable to process key - " + e.getMessage(), e);
         }
     }
 
@@ -178,7 +178,7 @@ public class X509V1CertificateGenerator
         }
         catch (NoSuchProviderException e)
         {
-            throw new SecurityException("JCE provider not installed!");
+            throw (SecurityException)new SecurityException("JCE provider not installed!").initCause(e);
         }
     }
 
@@ -197,7 +197,7 @@ public class X509V1CertificateGenerator
         }
         catch (NoSuchProviderException e)
         {
-            throw new SecurityException("JCE provider not installed!");
+            throw (SecurityException)new SecurityException("JCE provider not installed!").initCause(e);
         }
     }
 
@@ -249,7 +249,7 @@ public class X509V1CertificateGenerator
             }
             catch (NoSuchAlgorithmException e)
             {
-                throw new SecurityException("exception creating signature: " + e.toString());
+                throw (SecurityException)new SecurityException("exception creating signature: " + e.getMessage()).initCause(e);
             }
         }
 
@@ -275,7 +275,7 @@ public class X509V1CertificateGenerator
         }
         catch (Exception e)
         {
-            throw new SecurityException("exception encoding TBS cert - " + e);
+            throw (SecurityException)new SecurityException("exception encoding TBS cert - " + e.getMessage()).initCause(e);
         }
 
         ASN1EncodableVector  v = new ASN1EncodableVector();

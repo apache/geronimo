@@ -273,7 +273,7 @@ public abstract class AbstractNamingBuilder implements NamingBuilder {
         try {
             clazz = cl.loadClass(interfaceName);
         } catch (ClassNotFoundException e) {
-            throw new DeploymentException(interfaceType + " interface class not found: " + interfaceName);
+            throw new DeploymentException(interfaceType + " interface class not found: " + interfaceName, e);
         }
         if (!clazz.isInterface()) {
             throw new DeploymentException(interfaceType + " interface is not an interface: " + interfaceName);
@@ -282,7 +282,7 @@ public abstract class AbstractNamingBuilder implements NamingBuilder {
         try {
             superInterface = cl.loadClass(superInterfaceName);
         } catch (ClassNotFoundException e) {
-            throw new DeploymentException("Class " + superInterfaceName + " could not be loaded");
+            throw new DeploymentException("Class " + superInterfaceName + " could not be loaded", e);
         }
         if (!superInterface.isAssignableFrom(clazz)) {
             throw new DeploymentException(interfaceType + " interface does not extend " + superInterfaceName + ": " + interfaceName);

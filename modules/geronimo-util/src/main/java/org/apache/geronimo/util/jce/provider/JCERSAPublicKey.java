@@ -71,7 +71,7 @@ public class JCERSAPublicKey
         }
         catch (IOException e)
         {
-            throw new IllegalArgumentException("invalid info structure in RSA public key");
+            throw new IllegalArgumentException("invalid info structure in RSA public key", e);
         }
     }
 
@@ -118,7 +118,7 @@ public class JCERSAPublicKey
         }
         catch (IOException e)
         {
-            throw new RuntimeException("Error encoding RSA public key");
+            throw new RuntimeException("Error encoding RSA public key", e);
         }
 
         return bOut.toByteArray();

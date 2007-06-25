@@ -193,7 +193,7 @@ public class DERBitString
         }
         catch (IOException e)
         {
-            throw new IllegalArgumentException("Error processing object : " + e.toString());
+            throw new IllegalArgumentException("Error processing object : " + e.getMessage(), e);
         }
     }
 
@@ -285,7 +285,7 @@ public class DERBitString
         }
         catch (IOException e)
         {
-           throw new RuntimeException("internal error encoding BitString");
+           throw new RuntimeException("internal error encoding BitString", e);
         }
 
         byte[]    string = bOut.toByteArray();

@@ -267,7 +267,7 @@ public abstract class JDKKeyFactory
                     }
                     catch (Exception ex)
                     {
-                        throw new InvalidKeySpecException(ex.toString());
+                        throw (InvalidKeySpecException)new InvalidKeySpecException(ex.getMessage()).initCause(ex);
                     }
                 }
             }
@@ -296,7 +296,7 @@ public abstract class JDKKeyFactory
                 }
                 catch (Exception e)
                 {
-                    throw new InvalidKeySpecException(e.toString());
+                    throw (InvalidKeySpecException)new InvalidKeySpecException(e.getMessage()).initCause(e);
                 }
             }
             else if (keySpec instanceof RSAPublicKeySpec)
@@ -328,7 +328,7 @@ public abstract class JDKKeyFactory
                 }
                 catch (Exception e)
                 {
-                    throw new InvalidKeySpecException(e.toString());
+                    throw (InvalidKeySpecException)new InvalidKeySpecException(e.getMessage()).initCause(e);
                 }
             }
             else if (keySpec instanceof DHPrivateKeySpec)
@@ -352,7 +352,7 @@ public abstract class JDKKeyFactory
                 }
                 catch (Exception e)
                 {
-                    throw new InvalidKeySpecException(e.toString());
+                    throw (InvalidKeySpecException)new InvalidKeySpecException(e.getMessage()).initCause(e);
                 }
             }
             else if (keySpec instanceof DHPublicKeySpec)
@@ -384,7 +384,7 @@ public abstract class JDKKeyFactory
                 }
                 catch (Exception e)
                 {
-                    throw new InvalidKeySpecException(e.toString());
+                    throw (InvalidKeySpecException)new InvalidKeySpecException(e.getMessage()).initCause(e);
                 }
             }
             else if (keySpec instanceof DSAPrivateKeySpec)
@@ -408,7 +408,7 @@ public abstract class JDKKeyFactory
                 }
                 catch (Exception e)
                 {
-                    throw new InvalidKeySpecException(e.toString());
+                    throw (InvalidKeySpecException)new InvalidKeySpecException(e.getMessage()).initCause(e);
                 }
             }
             else if (keySpec instanceof DSAPublicKeySpec)
@@ -450,7 +450,7 @@ public abstract class JDKKeyFactory
                 }
                 catch (Exception e)
                 {
-                    throw new InvalidKeySpecException(e.toString());
+                    throw (InvalidKeySpecException)new InvalidKeySpecException(e.getMessage()).initCause(e);
                 }
             }
 
@@ -470,7 +470,7 @@ public abstract class JDKKeyFactory
                 }
                 catch (Exception e)
                 {
-                    throw new InvalidKeySpecException(e.toString());
+                    throw (InvalidKeySpecException)new InvalidKeySpecException(e.getMessage()).initCause(e);
                 }
             }
 

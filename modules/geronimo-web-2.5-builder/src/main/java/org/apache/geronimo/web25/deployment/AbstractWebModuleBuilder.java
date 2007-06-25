@@ -751,7 +751,7 @@ public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
                 try {
                     clas = classLoader.loadClass(cls.getStringValue());
                 } catch (ClassNotFoundException e) {
-                    throw new DeploymentException("AbstractWebModuleBuilder: Could not load servlet class: " + cls.getStringValue());
+                    throw new DeploymentException("AbstractWebModuleBuilder: Could not load servlet class: " + cls.getStringValue(), e);
                 }
                 addClass(classes, clas);
             }
@@ -765,7 +765,7 @@ public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
             try {
                 clas = classLoader.loadClass(cls.getStringValue());
             } catch (ClassNotFoundException e) {
-                throw new DeploymentException("AbstractWebModuleBuilder: Could not load listener class: " + cls.getStringValue());
+                throw new DeploymentException("AbstractWebModuleBuilder: Could not load listener class: " + cls.getStringValue(), e);
             }
             addClass(classes, clas);
         }
@@ -778,7 +778,7 @@ public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
             try {
                 clas = classLoader.loadClass(cls.getStringValue());
             } catch (ClassNotFoundException e) {
-                throw new DeploymentException("AbstractWebModuleBuilder: Could not load filter class: " + cls.getStringValue());
+                throw new DeploymentException("AbstractWebModuleBuilder: Could not load filter class: " + cls.getStringValue(), e);
             }
             addClass(classes, clas);
         }

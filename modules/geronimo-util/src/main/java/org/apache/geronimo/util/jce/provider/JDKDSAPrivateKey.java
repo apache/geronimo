@@ -118,7 +118,7 @@ public class JDKDSAPrivateKey
         }
         catch (IOException e)
         {
-            throw new RuntimeException("Error encoding DSA private key");
+            throw new RuntimeException("Error encoding DSA private key", e);
         }
 
         return bOut.toByteArray();

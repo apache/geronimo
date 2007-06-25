@@ -64,7 +64,7 @@ public class SharedPortInfo {
                 jaxrpcMappingURI = new URI(this.jaxrpcMappingFile);
             } catch (URISyntaxException e) {
                 throw new DeploymentException("Could not construct jaxrpc mapping uri from "
-                                              + this.jaxrpcMappingFile);
+                                              + this.jaxrpcMappingFile, e);
             }
 
             this.javaWsdlMapping = WSDescriptorParser.readJaxrpcMapping(moduleFile, jaxrpcMappingURI);
@@ -76,7 +76,7 @@ public class SharedPortInfo {
                 wsdlURI = new URI(this.wsdlLocation);
             } catch (URISyntaxException e) {
                 throw new DeploymentException("could not construct wsdl uri from "
-                                              + this.wsdlLocation);
+                                              + this.wsdlLocation, e);
             }
 
             this.schemaInfoBuilder = new SchemaInfoBuilder(moduleFile, wsdlURI);

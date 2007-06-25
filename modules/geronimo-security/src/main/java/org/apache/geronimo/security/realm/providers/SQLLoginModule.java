@@ -117,7 +117,7 @@ public class SQLLoginModule implements LoginModule {
                 MessageDigest.getInstance(digest);
             } catch(NoSuchAlgorithmException e) {
                 log.error("Initialization failed. Digest algorithm "+digest+" is not available.", e);
-                throw new IllegalArgumentException("Unable to configure SQL login module: "+e.getMessage());
+                throw new IllegalArgumentException("Unable to configure SQL login module: "+e.getMessage(), e);
             }
             if(encoding != null && !"hex".equalsIgnoreCase(encoding) && !"base64".equalsIgnoreCase(encoding)) {
                 log.error("Initialization failed. Digest Encoding "+encoding+" is not supported.");
@@ -167,9 +167,9 @@ public class SQLLoginModule implements LoginModule {
             try {
                 driver = (Driver) cl.loadClass((String) options.get(DRIVER)).newInstance();
             } catch (ClassNotFoundException e) {
-                throw new IllegalArgumentException("Driver class " + options.get(DRIVER) + " is not available.  Perhaps you need to add it as a dependency in your deployment plan?");
+                throw new IllegalArgumentException("Driver class " + options.get(DRIVER) + " is not available.  Perhaps you need to add it as a dependency in your deployment plan?", e);
             } catch (Exception e) {
-                throw new IllegalArgumentException("Unable to load, instantiate, register driver " + options.get(DRIVER) + ": " + e.getMessage());
+                throw new IllegalArgumentException("Unable to load, instantiate, register driver " + options.get(DRIVER) + ": " + e.getMessage(), e);
             }
         }
     }
