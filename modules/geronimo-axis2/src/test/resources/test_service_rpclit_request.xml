@@ -26,8 +26,7 @@
             </testSimple>
         </soap:Body>
     </soap:Envelope>
-    <!-- There is a problem in Axis2 when parameter order comes -->
-    <!--
+
     <soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
        <soap:Body>
          <testSimple2 xmlns="http://org/apache/geronimo/axis2/rpclit">
@@ -36,5 +35,5 @@
          </testSimple2>
        </soap:Body>
     </soap:Envelope>
-    -->
+   
 </ServiceRequest>

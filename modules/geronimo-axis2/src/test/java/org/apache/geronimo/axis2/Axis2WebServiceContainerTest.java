@@ -16,12 +16,10 @@
  */
 package org.apache.geronimo.axis2;
 
-import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.StringReader;
 import java.net.URI;
 import java.util.HashMap;
 
@@ -35,9 +33,7 @@ import org.apache.tools.ant.filters.StringInputStream;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
-import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
-import org.xml.sax.InputSource;
 
 public class Axis2WebServiceContainerTest extends Axis2AbstractTestCase {
 	private final String RESOURCE_PATH = testDir+"/resources/";
@@ -45,11 +41,17 @@ public class Axis2WebServiceContainerTest extends Axis2AbstractTestCase {
         super(testName);
     }
 
-    public void testInvokeWithWSDL() throws Exception {
-        invokeWithWSDL("BareDocLitService", "org.apache.geronimo.axis2.testdata.doclitbare.BareDocLitService", "test_service_doclitbare.wsdl", "test_service_doclitbare_request.xml");
-//        invokeWithWSDL("RPCLitService", "org.apache.geronimo.axis2.testdata.rpclit.RPCLitService", "test_service_rpclit.wsdl", "test_service_rpclit_request.xml");
+    /*
+    public void testDocInvokeWithWSDL() throws Exception {
+        invokeWithWSDL("BareDocLitService", "org.apache.geronimo.axis2.testdata.doclitbare.BareDocLitService",
+                       "test_service_doclitbare.wsdl", "test_service_doclitbare_request.xml");
     }
-
+    */
+    
+    public void testRPCInvokeWithWSDL() throws Exception {
+        invokeWithWSDL("RPCLitService", "org.apache.geronimo.axis2.testdata.rpclit.RPCLitService",
+                       "test_service_rpclit.wsdl", "test_service_rpclit_request.xml");
+    }
     
     public void testGetWSDL() throws Exception {
         ClassLoader cl = Thread.currentThread().getContextClassLoader();
@@ -121,6 +123,8 @@ public class Axis2WebServiceContainerTest extends Axis2AbstractTestCase {
         		}
         	}
         	
+            System.out.println(envelope.toString());
+            
         	request = new StringInputStream(envelope.toString());
         	
             PortInfo portInfo = new PortInfo();

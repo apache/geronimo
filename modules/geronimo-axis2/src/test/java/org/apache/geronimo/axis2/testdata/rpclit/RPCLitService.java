@@ -19,7 +19,10 @@ package org.apache.geronimo.axis2.testdata.rpclit;
 import javax.jws.WebMethod;
 import javax.jws.WebService;
 
-@WebService(name="RPCLitService", targetNamespace = "http://example.org")
+@WebService(name="RPCLit",
+            portName="RPCLit",
+            serviceName="RPCLitService",
+            targetNamespace = "http://org/apache/geronimo/axis2/rpclit")
 public class RPCLitService {
 	
 	@WebMethod
