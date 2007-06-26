@@ -85,12 +85,12 @@
         <portlet:param name="name" value="${pool.name}" />
         <portlet:param name="abstractName" value="${pool.factoryAbstractName}" />
       </portlet:actionURL>">usage</a>
-           <%--<a href="<portlet:actionURL portletMode="view">
-                 <portlet:param name="mode" value="delete" />
-                 <portlet:param name="name" value="${info.objectName}" />
-                 <portlet:param name="managerObjectName" value="${container.managerObjectName}" />
-                 <portlet:param name="containerObjectName" value="${container.containerObjectName}" />
-               </portlet:actionURL>">delete</a>--%>
+	   <a href="<portlet:actionURL portletMode="view">
+		 <portlet:param name="mode" value="delete" />
+		 <portlet:param name="name" value="${info.objectName}" />
+         <portlet:param name="adapterAbstractName" value="${pool.adapterAbstractName}" />
+         <portlet:param name="abstractName" value="${pool.factoryAbstractName}" />
+	   </portlet:actionURL>">delete</a>
     </td>
   </tr>
 </c:forEach>

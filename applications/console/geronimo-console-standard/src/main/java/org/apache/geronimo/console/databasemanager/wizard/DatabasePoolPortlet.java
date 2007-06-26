@@ -49,6 +49,7 @@ import java.util.Properties;
 import java.util.SortedSet;
 import javax.enterprise.deploy.model.DDBean;
 import javax.enterprise.deploy.model.DDBeanRoot;
+import javax.enterprise.deploy.shared.ModuleType;
 import javax.enterprise.deploy.spi.DeploymentConfiguration;
 import javax.enterprise.deploy.spi.DeploymentManager;
 import javax.enterprise.deploy.spi.Target;
@@ -139,6 +140,7 @@ public class DatabasePoolPortlet extends BasePortlet {
     private static final String DOWNLOAD_MODE        = "download";
     private static final String DOWNLOAD_STATUS_MODE = "downloadStatus";
     private static final String EDIT_EXISTING_MODE   = "editExisting";
+    private static final String DELETE_MODE          = "delete";
     private static final String SAVE_MODE            = "save";
     private static final String IMPORT_START_MODE    = "startImport";
     private static final String IMPORT_UPLOAD_MODE   = "importUpload";
@@ -379,6 +381,10 @@ public class DatabasePoolPortlet extends BasePortlet {
             log.warn("  "+status.getPendingCount()+" not reviewed");
             log.warn("  "+status.getFinishedCount()+" deployed");
             actionRequest.getPortletSession().removeAttribute("ImportStatus");
+        } else if(mode.equals(DELETE_MODE)) {
+            String name = actionRequest.getParameter("adapterAbstractName");
+            loadConnectionFactory(actionRequest, name, data.getAbstractName(), data);
+            delete(actionRequest, actionResponse, data);
         } else {
             actionResponse.setRenderParameter(MODE_KEY, mode);
         }
@@ -607,15 +613,15 @@ public class DatabasePoolPortlet extends BasePortlet {
     }
 
     private void loadConnectionFactory(ActionRequest actionRequest, String adapterName, String factoryName, PoolData data) {
-    	AbstractName abstractAdapterName = new AbstractName(URI.create(adapterName));
-    	AbstractName abstractFactoryName = new AbstractName(URI.create(factoryName));
-    	
+        AbstractName abstractAdapterName = new AbstractName(URI.create(adapterName));
+        AbstractName abstractFactoryName = new AbstractName(URI.create(factoryName));
+
         ResourceAdapterModule adapter = (ResourceAdapterModule) PortletManager.getManagedBean(actionRequest,abstractAdapterName);  
         JCAManagedConnectionFactory factory = (JCAManagedConnectionFactory) PortletManager.getManagedBean(actionRequest, abstractFactoryName);
         data.adapterDisplayName = adapter.getDisplayName();
         data.adapterDescription = adapter.getDescription();
         try {
-        	data.name = (String)abstractFactoryName.getName().get("name");
+            data.name = (String)abstractFactoryName.getName().get("name");
             if(data.isGeneric()) {
                 data.url = (String) factory.getConfigProperty("ConnectionURL");
                 data.driverClass = (String) factory.getConfigProperty("Driver");
@@ -715,11 +721,11 @@ public class DatabasePoolPortlet extends BasePortlet {
         for (int i = 0; i < modules.length; i++) {
             ResourceAdapterModule module = modules[i];
             AbstractName moduleName = PortletManager.getManagementHelper(renderRequest).getNameFor(module);
-            
+
             JCAManagedConnectionFactory[] databases = PortletManager.getOutboundFactoriesForRA(renderRequest, module, "javax.sql.DataSource");
             for (int j = 0; j < databases.length; j++) {
                 JCAManagedConnectionFactory db = databases[j];
-              	AbstractName dbName =  PortletManager.getManagementHelper(renderRequest).getNameFor(db);
+                AbstractName dbName =  PortletManager.getManagementHelper(renderRequest).getNameFor(db);
                 list.add(new ConnectionPool(moduleName, dbName, (String)dbName.getName().get(NameFactory.J2EE_NAME), ((GeronimoManagedBean)db).getState()));
             }
         }
@@ -866,6 +872,46 @@ public class DatabasePoolPortlet extends BasePortlet {
         } else throw new SQLException("Driver "+data.getDriverClass()+" does not accept URL "+data.url);
     }
 
+    private void delete(PortletRequest request, ActionResponse response, PoolData data) {
+        // check to make sure the abstract name does not begin with 'org.apache.geronimo.configs'
+        // if it does not - then delete it -- otherwise it is a system database
+        if(data.getAbstractName() != null) {
+            boolean isSystemDatabasePool = (data.getAbstractName().indexOf("org.apache.geronimo.configs") == 0);
+
+            if(! isSystemDatabasePool) {
+                DeploymentManager mgr = PortletManager.getDeploymentManager(request);
+                try {
+                    // retrieve all running modules
+                    TargetModuleID[] runningIds = mgr.getRunningModules(ModuleType.RAR, mgr.getTargets());
+
+                    // index of module to keep
+                    int index = -1;
+
+                    // only keep module id that is associated with selected DB pool
+                    for(int i = 0; i < runningIds.length; i++) {
+                        if(data.getAbstractName().contains(runningIds[i].getModuleID())) {
+                            index = i;
+                            break;
+                        }
+                    }
+                    TargetModuleID[] ids = { runningIds[index] };
+
+                    // undeploy the db pool
+                    ProgressObject po = mgr.undeploy(ids);
+                    waitForProgress(po);
+
+                    if(po.getDeploymentStatus().isCompleted()) {
+                        log.info("Undeployment completed successfully!");
+                    }
+                } catch(Exception e) {
+                    log.error("Undeployment unsuccessful!");
+                } finally {
+                    if(mgr != null) mgr.release();
+                }
+            }
+        }
+    }
+
     private static String save(PortletRequest request, ActionResponse response, PoolData data, boolean planOnly) {
         ImportStatus status = getImportStatus(request);
         if(data.abstractName == null || data.abstractName.equals("")) { // we're creating a new pool
@@ -878,7 +924,7 @@ public class DatabasePoolPortlet extends BasePortlet {
                 final DDBeanRoot ddBeanRoot = deployable.getDDBeanRoot();
                 Connector15DCBRoot root = (Connector15DCBRoot) config.getDConfigBeanRoot(ddBeanRoot);
                 ConnectorDCB connector = (ConnectorDCB) root.getDConfigBean(ddBeanRoot.getChildBean(root.getXpaths()[0])[0]);
-                
+
                 EnvironmentData environment = new EnvironmentData();
                 connector.setEnvironment(environment);
                 org.apache.geronimo.deployment.service.jsr88.Artifact configId = new org.apache.geronimo.deployment.service.jsr88.Artifact();
@@ -897,7 +943,7 @@ public class DatabasePoolPortlet extends BasePortlet {
                 int length = jars[jars.length - 1].length() ==0? jars.length -1: jars.length;
                 org.apache.geronimo.deployment.service.jsr88.Artifact[] dependencies = new org.apache.geronimo.deployment.service.jsr88.Artifact[length];
                 for (int i=0; i<dependencies.length; i++) {
-                	dependencies[i] = new org.apache.geronimo.deployment.service.jsr88.Artifact();
+                    dependencies[i] = new org.apache.geronimo.deployment.service.jsr88.Artifact();
                 }
                 environment.setDependencies(dependencies);
                 for (int i=0; i<dependencies.length; i++) {
@@ -907,7 +953,7 @@ public class DatabasePoolPortlet extends BasePortlet {
                         dependencies[i].setVersion(tmp.getVersion().toString());
                         dependencies[i].setType(tmp.getType());
                 }
-               
+
                 ResourceAdapter adapter = connector.getResourceAdapter()[0];
                 ConnectionDefinition definition = new ConnectionDefinition();
                 adapter.setConnectionDefinition(new ConnectionDefinition[]{definition});
@@ -957,7 +1003,7 @@ public class DatabasePoolPortlet extends BasePortlet {
                 if(data.idleTimeout != null && !data.idleTimeout.equals("")) {
                     pool.setIdleTimeoutMinutes(new Integer(data.idleTimeout));
                 }
-                
+
                 if(planOnly) {
                     ByteArrayOutputStream out = new ByteArrayOutputStream();
                     config.save(out);
@@ -986,7 +1032,7 @@ public class DatabasePoolPortlet extends BasePortlet {
                                 status.getCurrentPool().setFinished(true);
                                 response.setRenderParameter(MODE_KEY, IMPORT_STATUS_MODE);
                             }
-                            
+
                             log.info("Deployment completed successfully!");
                         }
                     } else if(po.getDeploymentStatus().isFailed()) {
@@ -1140,7 +1186,6 @@ public class DatabasePoolPortlet extends BasePortlet {
         return url;
     }
 
-    
     private static DatabaseDriver[] getAllDrivers(PortletRequest request) {
         DatabaseDriver[] result = (DatabaseDriver[]) PortletManager.getGBeansImplementing(request, DatabaseDriver.class);
         Arrays.sort(result, new Comparator() {
@@ -1154,7 +1199,7 @@ public class DatabasePoolPortlet extends BasePortlet {
         });
         return result;
     }
-        
+
     private static DatabaseDriver getDatabaseInfo(PortletRequest request, PoolData data) {
         DatabaseDriver info = null;
         DatabaseDriver[] all = getAllDrivers(request);
@@ -1433,7 +1478,7 @@ public class DatabasePoolPortlet extends BasePortlet {
             abstractNameMap.put("version", name.getArtifact().getVersion().toString());
             return abstractNameMap;
         }
-        
+
         public String getDeployError() {
             return deployError;
         }
