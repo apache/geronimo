@@ -40,6 +40,8 @@ public class Axis2RequestResponseTransport implements RequestResponseTransport {
 
     private AxisFault faultToBeThrownOut = null;
 
+    private boolean responseWritten;
+
     Axis2RequestResponseTransport(Response response) {
         this.response = response;
     }
@@ -83,5 +85,13 @@ public class Axis2RequestResponseTransport implements RequestResponseTransport {
 
     public RequestResponseTransportStatus getStatus() {
         return status;
+    }
+
+    public boolean isResponseWritten() {
+        return responseWritten;
+    }
+    
+    public void setResponseWritten(boolean responseWritten) {
+        this.responseWritten = responseWritten;
     }
 }
