@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.jws.HandlerChain;
+import javax.jws.WebService;
 import javax.xml.ws.WebServiceException;
 import javax.xml.ws.handler.Handler;
 import javax.xml.ws.handler.LogicalHandler;
@@ -50,7 +51,7 @@ public class AnnotationHandlerChainBuilder {
      */
     public List<Handler> buildHandlerChainFromClass(Class<?> clz, List<Handler> existingHandlers) {
         log.debug("building handler chain");
-        HandlerChainAnnotation hcAnn = findHandlerChainAnnotation(clz);
+        HandlerChainAnnotation hcAnn = findHandlerChainAnnotation(clz, true);
         List<Handler> chain = null;
         if (hcAnn == null) {
             log.debug("no HandlerChain annotation on " + clz);
@@ -58,7 +59,6 @@ public class AnnotationHandlerChainBuilder {
         } else {
             hcAnn.validate();
 
-            HandlerChainType hc = null;
             try {
                 URL handlerFileURL = clz.getResource(hcAnn.getFileName());
                 HandlerChainsType handlerChainsType = HandlerChainsDocument.Factory.parse(handlerFileURL).getHandlerChains();
@@ -66,15 +66,17 @@ public class AnnotationHandlerChainBuilder {
                 if (null == handlerChainsType || handlerChainsType.getHandlerChainArray() == null) {
                     throw new WebServiceException("Chain not specified");
                 }
-                //We expect only one HandlerChainType here
-                hc = handlerChainsType.getHandlerChainArray()[0];
+                
+                chain = new ArrayList<Handler>();
+                for (HandlerChainType hc : handlerChainsType.getHandlerChainArray()) {
+                    chain.addAll(buildHandlerChain(hc, clz.getClassLoader()));
+                }
+
             } catch (Exception e) {
-                log.debug(e.getMessage(), e);
                 throw new WebServiceException("Chain not specified", e);
             }
-
-            chain = buildHandlerChain(hc, clz.getClassLoader());
         }
+        
         assert chain != null;
         if (existingHandlers != null) {
             chain.addAll(existingHandlers);
@@ -86,30 +88,53 @@ public class AnnotationHandlerChainBuilder {
         return buildHandlerChainFromClass(clz, null);
     }
 
-    private HandlerChainAnnotation findHandlerChainAnnotation(Class<?> clz) {
-
+    private HandlerChainAnnotation findHandlerChainAnnotation(Class<?> clz, boolean searchSEI) {        
+        if (log.isDebugEnabled()) {
+            log.debug("Checking for HandlerChain annotation on " + clz.getName());
+        }
+        HandlerChainAnnotation hcAnn = null;
         HandlerChain ann = clz.getAnnotation(HandlerChain.class);
-        Class<?> declaringClass = clz;
-
         if (ann == null) {
-            for (Class<?> iface : clz.getInterfaces()) {
-                if (log.isDebugEnabled()) {
-                    log.debug("checking for HandlerChain annotation on " + iface.getName());
-                }
-                ann = iface.getAnnotation(HandlerChain.class);
-                if (ann != null) {
-                    declaringClass = iface;
-                    break;
+            if (searchSEI) {
+                /* HandlerChain annotation can be specified on the SEI
+                 * but the implementation bean might not implement the SEI.          
+                 */
+                WebService ws = clz.getAnnotation(WebService.class);
+                if (ws != null 
+                    && ws.endpointInterface() != null 
+                    && ws.endpointInterface().trim().length() > 0) {
+                    String seiClassName = ws.endpointInterface().trim();
+                    Class seiClass = null;
+                    try {
+                        seiClass = clz.getClassLoader().loadClass(seiClassName);
+                    } catch (ClassNotFoundException e) {                       
+                        throw new WebServiceException("Failed to load SEI class: " + seiClassName, e);
+                    }
+
+                    // check SEI class and its interfaces for HandlerChain annotation
+                    hcAnn = findHandlerChainAnnotation(seiClass, false);
                 }
             }
-        }
-        if (ann != null) {
-            return new HandlerChainAnnotation(ann, declaringClass);
+            if (hcAnn == null) {
+                // check interfaces for HandlerChain annotation
+                for (Class<?> iface : clz.getInterfaces()) {
+                    if (log.isDebugEnabled()) {
+                        log.debug("Checking for HandlerChain annotation on " + iface.getName());
+                    }
+                    ann = iface.getAnnotation(HandlerChain.class);
+                    if (ann != null) {
+                        hcAnn = new HandlerChainAnnotation(ann, iface);
+                        break;
+                    }
+                }
+            }
         } else {
-            return null;
+            hcAnn = new HandlerChainAnnotation(ann, clz);
         }
+        
+        return hcAnn;
     }
-
+    
     protected List<Handler> buildHandlerChain(HandlerChainType hc, ClassLoader classLoader) {
         List<Handler> handlerChain = new ArrayList<Handler>();
         for (PortComponentHandlerType ht : hc.getHandlerArray()) {

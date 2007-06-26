@@ -88,7 +88,7 @@ public class Axis2HandlerResolverTest extends TestSupport {
         handlers = resolver.getHandlerChain(new TestPortInfo(null, null, null)); 
         assertEquals(0, handlers.size());
         
-        handlers = resolver.getHandlerChain(new TestPortInfo("##FOO_BAR", null, null)); 
+        handlers = resolver.getHandlerChain(new TestPortInfo("##SOAP12_HTTP", null, null)); 
         assertEquals(0, handlers.size());
         
         handlers = resolver.getHandlerChain(new TestPortInfo("##SOAP11_HTTP", null, null)); 

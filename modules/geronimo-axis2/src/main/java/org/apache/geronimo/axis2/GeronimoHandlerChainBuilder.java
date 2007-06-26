@@ -19,12 +19,14 @@ package org.apache.geronimo.axis2;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.geronimo.jaxws.JAXWSUtils;
 import org.apache.geronimo.xbeans.javaee.HandlerChainType;
 
 import javax.xml.namespace.QName;
 import javax.xml.ws.handler.Handler;
 import javax.xml.ws.handler.PortInfo;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -73,10 +75,23 @@ public class GeronimoHandlerChainBuilder extends AnnotationHandlerChainBuilder {
         if (binding == null) {
             return (bindings == null || bindings.isEmpty());
         } else {
-            return (bindings == null || bindings.isEmpty()) ? true : bindings.contains(binding);
+            if (bindings == null || bindings.isEmpty()) {
+                return true;
+            } else {
+                String actualBindingURI = JAXWSUtils.getBindingURI(binding);
+                Iterator iter = bindings.iterator();
+                while (iter.hasNext()) {
+                    String bindingToken = (String) iter.next();
+                    String bindingURI = JAXWSUtils.getBindingURI(bindingToken);
+                    if (actualBindingURI.equals(bindingURI)) {
+                        return true;
+                    }
+                }
+                return false;               
+            }
         }
     }
-
+    
     public List<Handler> buildHandlerChainFromConfiguration(HandlerChainType hc) {
         if (null == hc) {
             return null;
