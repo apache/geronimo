@@ -708,7 +708,8 @@ public class TransactionImpl implements Transaction {
             } else {
                 // if it isn't a named resource should we really stop all processing here!
                 // Maybe this would be better to handle else where and do we really want to prevent all processing of transactions?
-                new IllegalStateException("Cannot log transactions unles XAResources are named! " + committer).printStackTrace();
+                // new IllegalStateException("Cannot log transactions unles XAResources are named! " + committer).printStackTrace();
+                log.warn("Cannot log transactions as " + committer + " is not a NamedXAResource.");
                 return committer.toString();
             }
         }
