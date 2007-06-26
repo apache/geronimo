@@ -24,6 +24,7 @@ import javax.xml.ws.WebServiceException;
 
 import org.apache.cxf.Bus;
 import org.apache.cxf.jaxws.JAXWSMethodInvoker;
+import org.apache.cxf.jaxws.context.WebServiceContextImpl;
 import org.apache.cxf.jaxws.support.JaxWsServiceFactoryBean;
 import org.apache.geronimo.cxf.CXFEndpoint;
 import org.apache.geronimo.cxf.CXFServiceConfiguration;
@@ -65,7 +66,7 @@ public class POJOEndpoint extends CXFEndpoint {
         service.setInvoker(new JAXWSMethodInvoker(instance));       
 
         JNDIResolver jndiResolver = (JNDIResolver) bus.getExtension(JNDIResolver.class);
-        this.annotationProcessor = new JAXWSAnnotationProcessor(jndiResolver, new POJOWebServiceContext());
+        this.annotationProcessor = new JAXWSAnnotationProcessor(jndiResolver, new WebServiceContextImpl());
     }
     
     protected void init() {        

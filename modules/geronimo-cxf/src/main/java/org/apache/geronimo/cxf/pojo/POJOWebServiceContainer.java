@@ -28,6 +28,7 @@ public class POJOWebServiceContainer extends CXFWebServiceContainer {
                                    URL configurationBaseUrl,                                  
                                    Object target) {
         super(bus, configurationBaseUrl, target);
+        this.destination.setPassSecurityContext(true);
     }
 
     protected CXFEndpoint publishEndpoint(Object target) {

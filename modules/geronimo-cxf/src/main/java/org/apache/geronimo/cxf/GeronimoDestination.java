@@ -21,6 +21,7 @@ import java.io.OutputStream;
 import java.io.Serializable;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
+import java.security.Principal;
 import java.util.Iterator;
 import java.util.ArrayList;
 import java.util.List;
@@ -35,6 +36,7 @@ import javax.xml.ws.handler.MessageContext;
 import org.apache.cxf.Bus;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.message.MessageImpl;
+import org.apache.cxf.security.SecurityContext;
 import org.apache.cxf.service.model.EndpointInfo;
 import org.apache.cxf.transport.Conduit;
 import org.apache.cxf.transport.ConduitInitiator;
@@ -50,6 +52,7 @@ public class GeronimoDestination extends AbstractHTTPDestination
         implements Serializable {
 
     private MessageObserver messageObserver;
+    private boolean passSecurityContext = false;
 
     public GeronimoDestination(Bus bus, 
                                ConduitInitiator conduitInitiator, 
@@ -57,6 +60,14 @@ public class GeronimoDestination extends AbstractHTTPDestination
         super(bus, conduitInitiator, endpointInfo, true);
     }
 
+    public void setPassSecurityContext(boolean passSecurityContext) {
+        this.passSecurityContext = passSecurityContext;
+    }
+    
+    public boolean getPassSecurityContext() {
+        return this.passSecurityContext;
+    }
+    
     public EndpointInfo getEndpointInfo() {
         return this.endpointInfo;
     }
@@ -69,7 +80,7 @@ public class GeronimoDestination extends AbstractHTTPDestination
         message.put(Request.class, request);
         message.put(Response.class, response);
 
-        HttpServletRequest servletRequest = 
+        final HttpServletRequest servletRequest = 
             (HttpServletRequest)request.getAttribute(WebServiceContainer.SERVLET_REQUEST);
         message.put(MessageContext.SERVLET_REQUEST, servletRequest);
         
@@ -80,6 +91,17 @@ public class GeronimoDestination extends AbstractHTTPDestination
         ServletContext servletContext = 
             (ServletContext)request.getAttribute(WebServiceContainer.SERVLET_CONTEXT);
         message.put(MessageContext.SERVLET_CONTEXT, servletContext);
+        
+        if (this.passSecurityContext) {
+            message.put(SecurityContext.class, new SecurityContext() {
+                public Principal getUserPrincipal() {
+                    return servletRequest.getUserPrincipal();
+                }
+                public boolean isUserInRole(String role) {
+                    return servletRequest.isUserInRole(role);
+                }
+            });
+        }
         
         // this calls copyRequestHeaders()
         setHeaders(message);
