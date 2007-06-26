@@ -24,9 +24,9 @@
 
     <gbean name="ActiveMQ" class="org.apache.geronimo.activemq.BrokerServiceGBeanImpl">
         <!-- Instead of using the limited configuration syntax in this file,
-             you can set the brokerURI property to externally specify the configuration for 
-             the broker.
-        <attribute name="brokerURI">xbean:file:/path/to/activemq.xml</attribute>
+             you can set the brokerUri property to externally specify the
+             configuration for the broker.
+        <attribute name="brokerUri">xbean:file:/path/to/activemq.xml</attribute>
         -->
         <!--
         <attribute name="brokerName">possibly-unique-broker</attribute>
