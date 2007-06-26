@@ -18,10 +18,14 @@ package org.apache.geronimo.axis2.testdata.doclitbare;
 
 import javax.jws.WebMethod;
 import javax.jws.WebService;
+import javax.jws.soap.SOAPBinding;
 
 @WebService(serviceName="BareDocLitService", 
             portName="BareDocLitPort", 
             targetNamespace = "http://doclitbare.axis2.geronimo.apache.org")
+@SOAPBinding(style=SOAPBinding.Style.DOCUMENT, 
+             use=SOAPBinding.Use.LITERAL,
+             parameterStyle=SOAPBinding.ParameterStyle.BARE)
 public class BareDocLitService {
 	
 	@WebMethod

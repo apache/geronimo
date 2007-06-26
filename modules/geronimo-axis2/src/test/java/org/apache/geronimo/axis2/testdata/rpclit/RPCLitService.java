@@ -18,11 +18,14 @@ package org.apache.geronimo.axis2.testdata.rpclit;
 
 import javax.jws.WebMethod;
 import javax.jws.WebService;
+import javax.jws.soap.SOAPBinding;
 
 @WebService(name="RPCLit",
             portName="RPCLit",
             serviceName="RPCLitService",
             targetNamespace = "http://org/apache/geronimo/axis2/rpclit")
+@SOAPBinding(style=SOAPBinding.Style.RPC, 
+             use=SOAPBinding.Use.LITERAL)
 public class RPCLitService {
 	
 	@WebMethod

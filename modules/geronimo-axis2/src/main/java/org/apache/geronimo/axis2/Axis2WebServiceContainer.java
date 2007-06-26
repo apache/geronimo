@@ -139,11 +139,9 @@ public abstract class Axis2WebServiceContainer implements WebServiceContainer {
          * This should be ok as we do our own handler instance managment and injection.
          * Also, this does not affect service-ref clients, as we install our own
          * HandlerResolver.
-         */
-        /*
+         */        
         FactoryRegistry.setFactory(HandlerLifecycleManagerFactory.class, 
-                                   new GeronimoHandlerLifecycleManagerFactory());
-                                   */
+                                   new GeronimoHandlerLifecycleManagerFactory());                                   
     }  
 
     protected AxisServiceGenerator createServiceGenerator() {
