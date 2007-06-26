@@ -50,6 +50,8 @@ import org.apache.axis2.jaxws.description.impl.DescriptionUtils;
 import org.apache.axis2.jaxws.description.xml.handler.HandlerChainType;
 import org.apache.axis2.jaxws.description.xml.handler.HandlerChainsType;
 import org.apache.axis2.jaxws.description.xml.handler.HandlerType;
+import org.apache.axis2.jaxws.handler.lifecycle.factory.HandlerLifecycleManagerFactory;
+import org.apache.axis2.jaxws.registry.FactoryRegistry;
 import org.apache.axis2.jaxws.server.JAXWSMessageReceiver;
 import org.apache.axis2.transport.OutTransportInfo;
 import org.apache.axis2.transport.RequestResponseTransport;
@@ -131,6 +133,17 @@ public abstract class Axis2WebServiceContainer implements WebServiceContainer {
         configurationContext.getAxisConfiguration().addService(service);
 
         this.wsdlQueryHandler = new WSDLQueryHandler(this.service);
+        
+        /*
+         * This replaces HandlerLifecycleManagerFactory for all web services.
+         * This should be ok as we do our own handler instance managment and injection.
+         * Also, this does not affect service-ref clients, as we install our own
+         * HandlerResolver.
+         */
+        /*
+        FactoryRegistry.setFactory(HandlerLifecycleManagerFactory.class, 
+                                   new GeronimoHandlerLifecycleManagerFactory());
+                                   */
     }  
 
     protected AxisServiceGenerator createServiceGenerator() {

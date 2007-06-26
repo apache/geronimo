@@ -60,7 +60,10 @@ public class POJOWebServiceContainer extends Axis2WebServiceContainer {
     public void init() throws Exception { 
         super.init();
         
-        // XXX: This is a global operation
+        /*
+         * This replaces EndpointLifecycleManagerFactory for all web services.
+         * This should be ok as we do our own endpoint instance management and injection.       
+         */
         FactoryRegistry.setFactory(EndpointLifecycleManagerFactory.class, 
                                    new POJOEndpointLifecycleManagerFactory());
                
