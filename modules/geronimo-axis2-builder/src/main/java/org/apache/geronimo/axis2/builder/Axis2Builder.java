@@ -166,6 +166,8 @@ public class Axis2Builder extends JAXWSServiceBuilder {
                         map.put(serviceLink, portInfo);
                     }
                 }
+            } else {
+                log.debug("Descriptor ignored (not a Java EE 5 descriptor)");
             }
             
             return map;
