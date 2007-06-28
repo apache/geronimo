@@ -154,6 +154,10 @@
                         <artifactId>client-security</artifactId>
                         <type>car</type>
                     </dependency>
+                    <dependency>
+                        <groupId>backport-util-concurrent</groupId>
+                        <artifactId>backport-util-concurrent</artifactId>
+                    </dependency>
                 </dependencies>
             </environment>
         </xml-attribute>
