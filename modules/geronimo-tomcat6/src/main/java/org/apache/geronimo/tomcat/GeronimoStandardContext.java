@@ -29,6 +29,7 @@ import javax.servlet.ServletException;
 
 import org.apache.catalina.Container;
 import org.apache.catalina.LifecycleException;
+import org.apache.catalina.LifecycleListener;
 import org.apache.catalina.Loader;
 import org.apache.catalina.Manager;
 import org.apache.catalina.Valve;
@@ -153,6 +154,14 @@ public class GeronimoStandardContext extends StandardContext {
         if (valveChain != null) {
             for (Object valve : valveChain) {
                 addValve((Valve)valve);
+            }
+        }
+        
+        // Add User Defined Listeners
+        List listenerChain = ctx.getLifecycleListenerChain();
+        if (listenerChain != null) {
+            for (Object listener : listenerChain) {
+                addLifecycleListener((LifecycleListener)listener);
             }
         }
 

@@ -35,11 +35,12 @@ import javax.naming.directory.DirContext;
 import javax.transaction.TransactionManager;
 import javax.transaction.UserTransaction;
 
+import org.apache.InstanceManager;
 import org.apache.catalina.Context;
+import org.apache.catalina.LifecycleListener;
 import org.apache.catalina.Manager;
 import org.apache.catalina.Realm;
 import org.apache.catalina.Valve;
-import org.apache.InstanceManager;
 import org.apache.catalina.core.StandardContext;
 import org.apache.catalina.ha.CatalinaCluster;
 import org.apache.commons.logging.Log;
@@ -49,10 +50,10 @@ import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
+import org.apache.geronimo.j2ee.RuntimeCustomizer;
 import org.apache.geronimo.j2ee.annotation.Holder;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.j2ee.management.impl.InvalidObjectNameException;
-import org.apache.geronimo.j2ee.RuntimeCustomizer;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.ObjectNameUtil;
 import org.apache.geronimo.management.J2EEApplication;
@@ -62,14 +63,13 @@ import org.apache.geronimo.management.geronimo.WebConnector;
 import org.apache.geronimo.management.geronimo.WebContainer;
 import org.apache.geronimo.management.geronimo.WebModule;
 import org.apache.geronimo.naming.enc.EnterpriseNamingContext;
+import org.apache.geronimo.security.jacc.RunAsSource;
 import org.apache.geronimo.tomcat.cluster.CatalinaClusterGBean;
 import org.apache.geronimo.tomcat.stats.ModuleStats;
 import org.apache.geronimo.tomcat.util.SecurityHolder;
 import org.apache.geronimo.transaction.GeronimoUserTransaction;
 import org.apache.geronimo.webservices.WebServiceContainer;
 import org.apache.geronimo.webservices.WebServiceContainerFactory;
-import org.apache.geronimo.security.credentialstore.CredentialStore;
-import org.apache.geronimo.security.jacc.RunAsSource;
 import org.apache.naming.resources.DirContextURLStreamHandler;
 
 /**
@@ -96,6 +96,8 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
     private final Realm realm;
 
     private final List valveChain;
+    
+    private final List listenerChain;
 
     private final CatalinaCluster catalinaCluster;
 
@@ -160,6 +162,7 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
             RunAsSource runAsSource,
             ObjectRetriever tomcatRealm,
             ValveGBean tomcatValveChain,
+            LifecycleListenerGBean lifecycleListenerChain,
             CatalinaClusterGBean cluster,
             ManagerGBean manager,
             boolean crossContext,
@@ -235,6 +238,19 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
             valveChain = chain;
         } else {
             valveChain = null;
+        }
+        
+        //Add the Lifecycle Listener list
+        if (lifecycleListenerChain != null){
+            ArrayList<LifecycleListener> chain = new ArrayList<LifecycleListener>();
+            LifecycleListenerGBean listenerGBean = lifecycleListenerChain;
+            while(listenerGBean != null){
+                chain.add((LifecycleListener)listenerGBean.getInternalObject());
+                listenerGBean = listenerGBean.getNextListener();
+            }
+            listenerChain = chain;
+        } else {
+            listenerChain = null;
         }
 
         //Add the cluster
@@ -430,6 +446,10 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
         return valveChain;
     }
 
+    public List getLifecycleListenerChain() {
+        return listenerChain;
+    }
+
     public CatalinaCluster getCluster() {
         return catalinaCluster;
     }
@@ -584,6 +604,7 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
         infoBuilder.addReference("RunAsSource", RunAsSource.class, NameFactory.JACC_MANAGER);
         infoBuilder.addReference("TomcatRealm", ObjectRetriever.class);
         infoBuilder.addReference("TomcatValveChain", ValveGBean.class);
+        infoBuilder.addReference("LifecycleListenerChain", LifecycleListenerGBean.class, LifecycleListenerGBean.J2EE_TYPE);
         infoBuilder.addReference("Cluster", CatalinaClusterGBean.class, CatalinaClusterGBean.J2EE_TYPE);
         infoBuilder.addReference("Manager", ManagerGBean.class);
         infoBuilder.addAttribute("crossContext", boolean.class, true);
@@ -613,6 +634,7 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
                 "RunAsSource",
                 "TomcatRealm",
                 "TomcatValveChain",
+                "LifecycleListenerChain",
                 "Cluster",
                 "Manager",
                 "crossContext",

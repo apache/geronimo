@@ -66,6 +66,8 @@ public interface TomcatContext {
     public Realm getRealm();
 
     public List getValveChain();
+    
+    public List getLifecycleListenerChain();
 
     public CatalinaCluster getCluster();
 

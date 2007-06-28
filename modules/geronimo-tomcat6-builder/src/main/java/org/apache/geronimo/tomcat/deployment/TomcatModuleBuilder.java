@@ -63,6 +63,7 @@ import org.apache.geronimo.naming.deployment.ENCConfigBuilder;
 import org.apache.geronimo.naming.deployment.GBeanResourceEnvironmentBuilder;
 import org.apache.geronimo.naming.deployment.ResourceEnvironmentSetter;
 import org.apache.geronimo.security.jacc.ComponentPermissions;
+import org.apache.geronimo.tomcat.LifecycleListenerGBean;
 import org.apache.geronimo.tomcat.ManagerGBean;
 import org.apache.geronimo.tomcat.RealmGBean;
 import org.apache.geronimo.tomcat.TomcatWebAppContext;
@@ -339,6 +340,12 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder {
                 String valveChain = tomcatWebApp.getValveChain().trim();
                 AbstractName valveName = earContext.getNaming().createChildName(moduleName, valveChain, ValveGBean.J2EE_TYPE);
                 webModuleData.setReferencePattern("TomcatValveChain", valveName);
+            }
+            
+            if (tomcatWebApp.isSetListenerChain()) {
+                String listenerChain = tomcatWebApp.getListenerChain().trim();
+                AbstractName listenerName = earContext.getNaming().createChildName(moduleName, listenerChain, LifecycleListenerGBean.J2EE_TYPE);
+                webModuleData.setReferencePattern("LifecycleListenerChain", listenerName);
             }
 
 //            if (tomcatWebApp.isSetCluster()) {

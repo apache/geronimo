@@ -23,6 +23,7 @@ import java.util.Map;
 import org.apache.catalina.Cluster;
 import org.apache.catalina.Engine;
 import org.apache.catalina.Host;
+import org.apache.catalina.LifecycleListener;
 import org.apache.catalina.Manager;
 import org.apache.catalina.Realm;
 import org.apache.catalina.Valve;
@@ -56,6 +57,7 @@ public class EngineGBean extends BaseGBean implements GBeanLifecycle, ObjectRetr
             Collection hosts,
             ObjectRetriever realmGBean,
             ValveGBean tomcatValveChain,
+            LifecycleListenerGBean listenerChain,
             CatalinaClusterGBean clusterGBean,
             ManagerGBean manager) throws Exception {
         super(); // TODO: make it an attribute
@@ -102,7 +104,7 @@ public class EngineGBean extends BaseGBean implements GBeanLifecycle, ObjectRetr
         if (manager != null)
             engine.setManager((Manager)manager.getInternalObject());
 
-        //Add the valve list
+        //Add the valve and listener lists
         if (engine instanceof StandardEngine){
             if (tomcatValveChain != null){
                 ValveGBean valveGBean = tomcatValveChain;
@@ -111,8 +113,16 @@ public class EngineGBean extends BaseGBean implements GBeanLifecycle, ObjectRetr
                     valveGBean = valveGBean.getNextValve();
                 }
             }
+            
+            if (listenerChain != null){
+                LifecycleListenerGBean listenerGBean = listenerChain;
+                while(listenerGBean != null){
+                    ((StandardEngine)engine).addLifecycleListener((LifecycleListener)listenerGBean.getInternalObject());
+                    listenerGBean = listenerGBean.getNextListener();
+                }
+            }
         }
-
+        
         //Add the hosts
         if (hosts instanceof ReferenceCollection) {
             ReferenceCollection refs = (ReferenceCollection)hosts;
@@ -191,6 +201,7 @@ public class EngineGBean extends BaseGBean implements GBeanLifecycle, ObjectRetr
         infoFactory.addReference("Hosts", ObjectRetriever.class, HostGBean.J2EE_TYPE);
         infoFactory.addReference("RealmGBean", ObjectRetriever.class, NameFactory.GERONIMO_SERVICE);
         infoFactory.addReference("TomcatValveChain", ValveGBean.class, ValveGBean.J2EE_TYPE);
+        infoFactory.addReference("LifecycleListenerChain", LifecycleListenerGBean.class, LifecycleListenerGBean.J2EE_TYPE);
         infoFactory.addReference("CatalinaCluster", CatalinaClusterGBean.class, CatalinaClusterGBean.J2EE_TYPE);
         infoFactory.addReference("Manager", ManagerGBean.class, ManagerGBean.J2EE_TYPE);
         infoFactory.addOperation("getInternalObject");
@@ -201,6 +212,7 @@ public class EngineGBean extends BaseGBean implements GBeanLifecycle, ObjectRetr
                 "Hosts", 
                 "RealmGBean", 
                 "TomcatValveChain",
+                "LifecycleListenerChain",
                 "CatalinaCluster",
                 "Manager"});
         GBEAN_INFO = infoFactory.getBeanInfo();

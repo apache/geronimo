@@ -160,6 +160,14 @@
                     </xs:documentation>
                 </xs:annotation>
             </xs:element>
+            <xs:element name="listener-chain" type="xs:string" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>
+                        The listener-chain provides the list of first element
+                        tomcat lifecycle listener chain for this web application.
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
             <xs:element name="tomcat-realm" type="xs:string" minOccurs="0">
                 <xs:annotation>
                     <xs:documentation>
