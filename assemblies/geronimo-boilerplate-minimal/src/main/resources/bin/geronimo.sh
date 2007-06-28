@@ -284,9 +284,10 @@ if [ "$1" = "jpda" ] ; then
 fi
 
 # Setup the Java programming language agent
+# For proper CMP behavior, we currently must specify operation-order
 JAVA_AGENT_JAR="$GERONIMO_BASE/bin/jpa.jar"
 if [ -f "$JAVA_AGENT_JAR" ]; then
-    JAVA_AGENT_OPTS="-javaagent:$JAVA_AGENT_JAR"
+    JAVA_AGENT_OPTS="-javaagent:$JAVA_AGENT_JAR -Dopenjpa.jdbc.UpdateManager=operation-order"
 else
     JAVA_AGENT_OPTS=""
 fi
