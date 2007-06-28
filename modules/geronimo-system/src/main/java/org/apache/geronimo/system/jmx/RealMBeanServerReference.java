@@ -28,16 +28,38 @@ import org.apache.geronimo.gbean.GBeanInfoBuilder;
  * @version $Rev$ $Date$
  */
 public class RealMBeanServerReference implements MBeanServerReference {
+    private static final String GERONIMO_DEFAULT_DOMAIN = "geronimo";
+    
     private MBeanServer mbeanServer;
 
     public RealMBeanServerReference(String mbeanServerId) throws MBeanServerNotFound {
         ArrayList servers = MBeanServerFactory.findMBeanServer(mbeanServerId);
         if (servers.size() == 0) {
-            mbeanServer = MBeanServerFactory.createMBeanServer("geronimo");
+            mbeanServer = MBeanServerFactory.createMBeanServer(GERONIMO_DEFAULT_DOMAIN);
         } else if (servers.size() > 1) {
             throw new MBeanServerNotFound(servers.size() + " MBeanServers were found with the agent id " + mbeanServerId);
         } else {
             mbeanServer = (MBeanServer) servers.get(0);
+        }
+    }
+    
+    /**
+     * Finds an existing MBeanServer with default domain GERONIMO_DEFAULT_DOMAIN
+     * or creates a new one if there isn't any.
+     */
+    public RealMBeanServerReference() {
+        // Find all MBeanServers
+        ArrayList<MBeanServer> servers = MBeanServerFactory.findMBeanServer(null);
+        for(MBeanServer server: servers) {
+            // Look for one with default domain GERONIMO_DEFAULT_DOMAIN
+            if (GERONIMO_DEFAULT_DOMAIN.equals(server.getDefaultDomain())) {
+                mbeanServer = server;
+                break;
+            }
+        }
+        if(mbeanServer == null) {
+            // No MBeanServer with default domain GERONIMO_DEFAULT_DOMAIN exists. Create one.
+            mbeanServer = MBeanServerFactory.createMBeanServer(GERONIMO_DEFAULT_DOMAIN);
         }
     }
 
@@ -50,7 +72,7 @@ public class RealMBeanServerReference implements MBeanServerReference {
     static {
         GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic(RealMBeanServerReference.class);
         infoFactory.addAttribute("mbeanServerId", String.class, true);
-        infoFactory.setConstructor(new String[]{"mbeanServerId"});
+        //infoFactory.setConstructor(new String[]{"mbeanServerId"});
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
 
