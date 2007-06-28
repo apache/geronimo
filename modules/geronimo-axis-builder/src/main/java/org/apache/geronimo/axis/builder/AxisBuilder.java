@@ -51,6 +51,8 @@ import org.apache.axis.handlers.HandlerInfoChainFactory;
 import org.apache.axis.handlers.soap.SOAPService;
 import org.apache.axis.providers.java.RPCProvider;
 import org.apache.axis.soap.SOAPConstants;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.axis.client.AxisServiceReference;
 import org.apache.geronimo.axis.client.OperationInfo;
 import org.apache.geronimo.axis.client.SEIFactory;
@@ -91,6 +93,8 @@ import org.apache.geronimo.kernel.repository.Environment;
  */
 public class AxisBuilder implements WebServiceBuilder {
 
+    private static final Log LOG = LogFactory.getLog(AxisBuilder.class);
+    
     private static final SOAPConstants SOAP_VERSION = SOAPConstants.SOAP11_CONSTANTS;
 
     private final Environment defaultEnvironment;
@@ -143,6 +147,9 @@ public class AxisBuilder implements WebServiceBuilder {
         }
         
         portInfo.initialize(module.getModuleFile());
+        
+        LOG.debug("Publishing JAX-RPC '" + portInfo.getPortComponentName() 
+                  + "' service at " + portInfo.getContextURI());
         
         ServiceInfo serviceInfo = AxisServiceBuilder.createServiceInfo(portInfo, cl);
         JavaServiceDesc serviceDesc = serviceInfo.getServiceDesc();
@@ -200,6 +207,9 @@ public class AxisBuilder implements WebServiceBuilder {
         }
         
         portInfo.initialize(module.getModuleFile());
+        
+        LOG.debug("Publishing EJB JAX-RPC '" + portInfo.getPortComponentName() 
+                  + "' service at " + portInfo.getContextURI());
         
         ServiceInfo serviceInfo = AxisServiceBuilder.createServiceInfo(portInfo, classLoader);
         targetGBean.setAttribute("serviceInfo", serviceInfo);
