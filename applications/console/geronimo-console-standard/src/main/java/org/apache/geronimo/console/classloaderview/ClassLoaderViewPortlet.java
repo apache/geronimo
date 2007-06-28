@@ -50,10 +50,19 @@ public class ClassLoaderViewPortlet extends BasePortlet {
     private PortletRequestDispatcher maximizedView;
 
     private PortletRequestDispatcher helpView;
+    
+    private boolean inverse;
 
     public void processAction(ActionRequest actionRequest,
             ActionResponse actionResponse) throws PortletException, IOException {
+    	// set selectedNode
         actionRequest.getPortletSession().setAttribute("selectedNode", actionRequest.getParameter("snNode"));
+        // toggle between inverse and non-inverse each time the form is processed
+        inverse = actionRequest.getParameter("inverse").equalsIgnoreCase("true")? true : false;
+        // toggle
+        inverse = (!inverse);
+        // store inverse variable for the jsp
+        actionRequest.getPortletSession().setAttribute("invert", inverse );
     }
 
     protected void doView(RenderRequest renderRequest,
@@ -62,6 +71,8 @@ public class ClassLoaderViewPortlet extends BasePortlet {
             return;
         }
         renderRequest.getPortletSession().setAttribute("classloaderTree", this);
+        renderRequest.setAttribute("inverse", inverse);
+        renderRequest.getPortletSession().setAttribute("inverse", inverse);
 
         if (WindowState.NORMAL.equals(renderRequest.getWindowState())) {
             normalView.include(renderRequest, renderResponse);
@@ -83,7 +94,7 @@ public class ClassLoaderViewPortlet extends BasePortlet {
                 MAXIMIZEDVIEW_JSP);
         helpView = portletConfig.getPortletContext().getRequestDispatcher(
                 HELPVIEW_JSP);
-
+        inverse = false;
     }
 
     public void destroy() {

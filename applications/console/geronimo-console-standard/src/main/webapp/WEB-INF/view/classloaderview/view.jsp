@@ -21,17 +21,13 @@
 <portlet:defineObjects />
 
 <%
-    boolean inverse = false;
-    if(renderRequest.getPortletSession().getAttribute("inverse") != null){
-        inverse = ((Boolean)renderRequest.getPortletSession().getAttribute("inverse")).booleanValue();        
-    }
-    renderRequest.getPortletSession().setAttribute("inverse",new Boolean(!inverse));
-    String selectedNode = (String)renderRequest.getPortletSession().getAttribute("selectedNode");
-    if(selectedNode != null){
-        renderRequest.getPortletSession().removeAttribute("selectedNode");
-    }
-
-
+	// retrieve and set attributes
+	boolean inverse = ((Boolean)renderRequest.getPortletSession().getAttribute("inverse")).booleanValue();
+	
+	String selectedNode = (String)renderRequest.getPortletSession().getAttribute("selectedNode");
+	if(selectedNode != null){
+	    renderRequest.getPortletSession().removeAttribute("selectedNode");
+	}
     ClassLoaderViewPortlet cp = (ClassLoaderViewPortlet) renderRequest.getPortletSession().getAttribute("classloaderTree");
     renderRequest.getPortletSession().removeAttribute("classloaderTree");
     String childs = cp.getJSONTrees(inverse);
@@ -78,8 +74,6 @@
     %>
     
         });
-
-
 
 var lastFound = '';
 var doCheck = false;
@@ -160,7 +154,7 @@ function load(node)
                 else curr=curr+"."+nodes[nod];
                 if(dojo.widget.byId(curr).state != "LOADED" && dojo.widget.byId(curr).children.length != 0)
                     dojo.widget.byId(curr).setChildren(dojo.widget.byId(curr).children);
-        }        
+        }
 }
 
 function select(node)
@@ -256,13 +250,14 @@ function searchContinue() {
         findInSelected(lastSearchOn);
         document.body.style.cursor = '';
 }
-function getAction(){
+function getAction() {
     var nodes= dojo.widget.manager.getWidgetById('selector').selectedNodes[0];
-    if(nodes != undefined){
-        if(nodes.title == 'Classes' || nodes.title == 'Interfaces')
+    if(nodes != undefined) {
+        if(nodes.title == 'Classes' || nodes.title == 'Interfaces') {
             document.clform.snNode.value = nodes.parent.title;
-        else
+        } else {
             document.clform.snNode.value = nodes.title;
+        }
     }
     document.clform.action = '<portlet:actionURL><portlet:param name="action" value="invert"/></portlet:actionURL>'
     return true;
@@ -277,6 +272,7 @@ function getAction(){
 %>
 <form name="clform" onSubmit="return getAction()">
 <input type="hidden" name="snNode" value=""/>
+<input type="hidden" name="inverse" value="${inverse}"/>
 <TABLE cellpadding="1" cellspacing="1" border="1">
  <tr>
   <td><b>Search Text:</b> <input type="text" name="searchText" id="searchText"
