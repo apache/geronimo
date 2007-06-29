@@ -17,6 +17,9 @@
 
 package org.apache.geronimo.transaction.manager;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.io.Writer;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.IdentityHashMap;
@@ -709,7 +712,10 @@ public class TransactionImpl implements Transaction {
                 // if it isn't a named resource should we really stop all processing here!
                 // Maybe this would be better to handle else where and do we really want to prevent all processing of transactions?
                 Throwable throwable = new IllegalStateException("Cannot log transactions as " + committer + " is not a NamedXAResource.");
-                log.error(throwable.printStackTrace());
+                Writer w = new StringWriter();
+                PrintWriter pw = new PrintWriter(w);
+                throwable.printStackTrace(pw);
+                log.error(w.toString());
                 return committer.toString();
             }
         }
