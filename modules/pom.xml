@@ -112,7 +112,6 @@
         <module>geronimo-jetty6-clustering-wadi</module>
         <module>geronimo-myfaces</module>
         <module>geronimo-myfaces-builder</module>
-        <module>geronimo-transaction-jta11</module>
         <module>geronimo-web-2.5-builder</module>
     </modules>
     

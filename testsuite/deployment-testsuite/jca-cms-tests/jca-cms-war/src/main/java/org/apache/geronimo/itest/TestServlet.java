@@ -20,6 +20,9 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.sql.DatabaseMetaData;
+import java.sql.ResultSet;
+import java.security.Principal;
 
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -27,6 +30,10 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.ServletException;
 import javax.sql.DataSource;
 import javax.annotation.Resource;
+import javax.security.auth.Subject;
+
+import org.apache.geronimo.security.Callers;
+import org.apache.geronimo.security.ContextManager;
 
 
 /**
@@ -44,7 +51,12 @@ public class TestServlet extends HttpServlet {
     }
 
     protected void service(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        Callers callers = ContextManager.getCallers();
+        Subject current = callers.getCurrentCaller();
+        Subject next = callers.getNextCaller();
         PrintWriter out = response.getWriter();
+        out.println("Current subject: " + current);
+        out.println("Next subject:    " + next);
         //this should create the database
         if (csds == null) {
             out.println("No configured datasource found");
@@ -65,6 +77,18 @@ public class TestServlet extends HttpServlet {
         }
         try {
             Connection con = cmsds.getConnection();
+            DatabaseMetaData md = con.getMetaData();
+            ResultSet rs = md.getSchemas();
+            while (rs.next()) {
+                String schema = rs.getString(1);
+                for (Principal p: next.getPrincipals()) {
+                    String user = p.getName();
+                    if (schema.equals(user)) {
+                        out.println("expected schema: " + user);
+                    }
+                }
+            }
+            rs.close();
             con.close();
             out.println("Successfully got container managed connection");
         } catch (SQLException e) {

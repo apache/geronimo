@@ -74,7 +74,7 @@
         <attribute name="tmId">71,84,77,73,68</attribute>
     </gbean>
 
-    <gbean name="TransactionManager" class="org.apache.geronimo.transaction.jta11.GeronimoTransactionManagerJTA11GBean">
+    <gbean name="TransactionManager" class="org.apache.geronimo.transaction.manager.GeronimoTransactionManagerGBean">
         <attribute name="defaultTransactionTimeoutSeconds">600</attribute>
         <reference name="XidFactory">
             <name>XidFactory</name>

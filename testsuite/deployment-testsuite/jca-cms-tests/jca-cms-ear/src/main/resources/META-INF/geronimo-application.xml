@@ -120,13 +120,58 @@
         <web>web.war</web>
         <web-app xmlns="http://geronimo.apache.org/xml/ns/j2ee/web-1.2">
             <security-realm-name>test-cms-realm</security-realm-name>
+            <security xmlns="http://geronimo.apache.org/xml/ns/security-2.0">
+                <credential-store>
+                    <pattern>
+                        <name xmlns="http://geronimo.apache.org/xml/ns/deployment-1.2">test-credential-store</name>
+                    </pattern>
+                </credential-store>
+                <default-subject>
+                    <realm>test-cms-realm</realm>
+                    <id>test</id>
+                </default-subject>
+                <role-mappings>
+                    <role role-name="test">
+                        <principal class="org.apache.geronimo.connector.outbound.security.ResourcePrincipal" name="system"/>
+                    </role>
+                    <role role-name="fail">
+                        <run-as-subject>
+                            <realm>test-cms-realm</realm>
+                            <id>fail</id>
+                        </run-as-subject>
+                    </role>
+                </role-mappings>
+            </security>
+            <gbean name="test-credential-store" class="org.apache.geronimo.security.credentialstore.SimpleCredentialStoreImpl">
+                <xml-attribute name="credentialStore">
+                    <credential-store xmlns="http://geronimo.apache.org/xml/ns/credentialstore-1.0">
+                        <realm name="test-cms-realm">
+                            <subject>
+                                <id>test</id>
+                                <credential>
+                                    <type>org.apache.geronimo.security.credentialstore.NameCallbackHandler</type>
+                                    <value>system</value>
+                                </credential>
+                                <credential>
+                                    <type>org.apache.geronimo.security.credentialstore.PasswordCallbackHandler</type>
+                                    <value>manager</value>
+                                </credential>
+                            </subject>
+                            <subject>
+                                <id>fail</id>
+                                <credential>
+                                    <type>org.apache.geronimo.security.credentialstore.NameCallbackHandler</type>
+                                    <value>unauthorized</value>
+                                </credential>
+                                <credential>
+                                    <type>org.apache.geronimo.security.credentialstore.PasswordCallbackHandler</type>
+                                    <value>nope</value>
+                                </credential>
+                            </subject>
+                        </realm>
+                    </credential-store>
+                </xml-attribute>
+            </gbean>
         </web-app>
     </module>
-    <security>
-        <role-mappings>
-            <role role-name="test">
-                <principal class="org.apache.geronimo.connector.outbound.security.ResourcePrincipal" name="system"/>
-            </role>
-        </role-mappings>
-    </security>
 </application>

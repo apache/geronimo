@@ -30,10 +30,29 @@ limitations under the License.
         <servlet-class>org.apache.geronimo.itest.TestServlet</servlet-class>
         <load-on-startup>0</load-on-startup>
     </servlet>
+    <servlet>
+        <display-name>J2CA container managed security itest servlet with run-as</display-name>
+        <servlet-name>run-as-servlet</servlet-name>
+        <servlet-class>org.apache.geronimo.itest.TestServlet</servlet-class>
+        <load-on-startup>1</load-on-startup>
+        <run-as>
+            <role-name>fail</role-name>
+        </run-as>
+    </servlet>
 
     <servlet-mapping>
         <servlet-name>servlet</servlet-name>
-        <url-pattern>/servlet</url-pattern>
+        <url-pattern>/default-subject-servlet</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>servlet</servlet-name>
+        <url-pattern>/secured-servlet</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>run-as-servlet</servlet-name>
+        <url-pattern>/run-as-servlet</url-pattern>
     </servlet-mapping>
 
     <login-config>
@@ -44,11 +63,14 @@ limitations under the License.
     <security-role>
         <role-name>test</role-name>
     </security-role>
+    <security-role>
+        <role-name>fail</role-name>
+    </security-role>
 
     <security-constraint>
         <web-resource-collection>
             <web-resource-name>All</web-resource-name>
-            <url-pattern>/servlet</url-pattern>
+            <url-pattern>/secured-servlet</url-pattern>
         </web-resource-collection>
         <auth-constraint>
             <role-name>test</role-name>

@@ -39,7 +39,6 @@ import javax.transaction.Transaction;
 import javax.transaction.xa.XAException;
 import javax.transaction.xa.XAResource;
 import javax.transaction.xa.Xid;
-import javax.ejb.EJBException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -65,7 +64,6 @@ public class TransactionImpl implements Transaction {
     private Object logMark;
 
     private final Map resources = new HashMap();
-    private final Map entityManagers = new HashMap();
 
     TransactionImpl(XidFactory xidFactory, TransactionLog txnLog, long transactionTimeoutMilliseconds) throws SystemException {
         this(xidFactory.createXid(), xidFactory, txnLog, transactionTimeoutMilliseconds);
@@ -527,10 +525,6 @@ public class TransactionImpl implements Transaction {
         // this does not synchronize because nothing can modify our state at this time
         afterCompletion(interposedSyncList);
         afterCompletion(syncList);
-        for (Iterator i = entityManagers.values().iterator(); i.hasNext();) {
-            Closeable entityManager = (Closeable) i.next();
-            entityManager.close();
-        }
     }
 
     private void afterCompletion(List syncs) {
@@ -677,17 +671,6 @@ public class TransactionImpl implements Transaction {
         return manager;
     }
 
-    public Object getEntityManager(String persistenceUnit) {
-        return entityManagers.get(persistenceUnit);
-    }
-
-    public void setEntityManager(String persistenceUnit, Object entityManager) {
-        Object oldEntityManager = entityManagers.put(persistenceUnit, entityManager);
-        if (oldEntityManager != null) {
-            throw new EJBException("EntityManager " + oldEntityManager + " for persistenceUnit " + persistenceUnit + " already associated with this transaction " + xid);
-        }
-    }
-
     private static class TransactionBranch implements TransactionBranchInfo {
         private final XAResource committer;
         private final Xid branchId;
@@ -711,11 +694,7 @@ public class TransactionImpl implements Transaction {
             } else {
                 // if it isn't a named resource should we really stop all processing here!
                 // Maybe this would be better to handle else where and do we really want to prevent all processing of transactions?
-                Throwable throwable = new IllegalStateException("Cannot log transactions as " + committer + " is not a NamedXAResource.");
-                Writer w = new StringWriter();
-                PrintWriter pw = new PrintWriter(w);
-                throwable.printStackTrace(pw);
-                log.error(w.toString());
+                log.error("Please correct the integration and supply a NamedXAResource", new IllegalStateException("Cannot log transactions as " + committer + " is not a NamedXAResource."));
                 return committer.toString();
             }
         }

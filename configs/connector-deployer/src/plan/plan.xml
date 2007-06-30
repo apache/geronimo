@@ -35,7 +35,7 @@
                 <dependencies>
                     <dependency>
                         <groupId>${pom.groupId}</groupId>
-                        <artifactId>transaction-jta11</artifactId>
+                        <artifactId>transaction</artifactId>
                         <type>car</type>
                     </dependency>
                     <dependency>

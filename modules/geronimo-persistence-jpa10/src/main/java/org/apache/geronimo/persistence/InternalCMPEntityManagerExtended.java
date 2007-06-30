@@ -19,13 +19,8 @@ package org.apache.geronimo.persistence;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
-import javax.persistence.EntityManager;
-import javax.persistence.EntityTransaction;
-import javax.persistence.FlushModeType;
-import javax.persistence.LockModeType;
-import javax.persistence.Query;
-
-import org.apache.geronimo.transaction.manager.TransactionImpl;
+import javax.ejb.EJBException;
+import javax.persistence.*;
 import org.apache.geronimo.transaction.manager.TransactionManagerImpl;
 
 /**
@@ -56,7 +51,7 @@ public class InternalCMPEntityManagerExtended implements EntityManager, EntityMa
     }
 
     void beanRemoved() {
-        if (count.decrementAndGet() ==0 ) {
+        if (count.decrementAndGet() == 0) {
             entityManager.close();
             EntityManagerExtendedRegistry.clearEntityManager(persistenceUnit);
         }
@@ -71,7 +66,7 @@ public class InternalCMPEntityManagerExtended implements EntityManager, EntityMa
         entityManager.persist(o);
     }
 
-    public <T>T merge(T t) {
+    public <T> T merge(T t) {
         return entityManager.merge(t);
     }
 
@@ -79,11 +74,11 @@ public class InternalCMPEntityManagerExtended implements EntityManager, EntityMa
         entityManager.remove(o);
     }
 
-    public <T>T find(Class<T> aClass, Object o) {
+    public <T> T find(Class<T> aClass, Object o) {
         return entityManager.find(aClass, o);
     }
 
-    public <T>T getReference(Class<T> aClass, Object o) {
+    public <T> T getReference(Class<T> aClass, Object o) {
         return entityManager.getReference(aClass, o);
     }
 
@@ -148,9 +143,11 @@ public class InternalCMPEntityManagerExtended implements EntityManager, EntityMa
     }
 
     public void joinTransaction() {
-            TransactionImpl transaction = (TransactionImpl) transactionManager.getTransaction();
-            //This checks section 5.6.3.1, throwing an EJBException if there is already a PersistenceContext.
-            transaction.setEntityManager(persistenceUnit, this);
+        //This checks section 5.6.3.1, throwing an EJBException if there is already a PersistenceContext.
+        if (transactionManager.getResource(persistenceUnit) != null) {
+            throw new EJBException("EntityManager " + transactionManager.getResource(persistenceUnit) + " for persistenceUnit " + persistenceUnit + " already associated with this transaction " + transactionManager.getTransactionKey());
+        }
+        transactionManager.putResource(persistenceUnit, this);
         entityManager.joinTransaction();
     }
 
@@ -158,4 +155,10 @@ public class InternalCMPEntityManagerExtended implements EntityManager, EntityMa
         return entityManager.getDelegate();
     }
 
+    public void beforeCompletion() {
+    }
+
+    public void afterCompletion(int i) {
+        //close is a no-op
+    }
 }

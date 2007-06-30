@@ -18,13 +18,14 @@
 package org.apache.geronimo.persistence;
 
 import javax.persistence.EntityManager;
+import javax.transaction.Synchronization;
 
 import org.apache.geronimo.transaction.manager.Closeable;
 
 /**
  * @version $Rev$ $Date$
  */
-public interface EntityManagerWrapper extends Closeable {
+public interface EntityManagerWrapper extends Synchronization {
 
     EntityManager getEntityManager();
     

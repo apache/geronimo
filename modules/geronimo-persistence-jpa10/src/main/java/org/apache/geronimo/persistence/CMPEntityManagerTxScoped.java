@@ -19,17 +19,11 @@ package org.apache.geronimo.persistence;
 
 import java.util.Map;
 
-import javax.persistence.EntityManager;
-import javax.persistence.FlushModeType;
-import javax.persistence.LockModeType;
-import javax.persistence.Query;
-import javax.persistence.EntityTransaction;
-import javax.persistence.EntityManagerFactory;
+import javax.persistence.*;
 import javax.persistence.TransactionRequiredException;
-import javax.transaction.Status;
-
-import org.apache.geronimo.transaction.manager.TransactionManagerImpl;
+import javax.transaction.*;
 import org.apache.geronimo.transaction.manager.TransactionImpl;
+import org.apache.geronimo.transaction.manager.TransactionManagerImpl;
 
 /**
  * @version $Rev$ $Date$
@@ -56,11 +50,18 @@ public class CMPEntityManagerTxScoped implements EntityManager {
         if (transaction == null) {
             return null;
         }
-        EntityManagerWrapper entityManagerWrapper = (EntityManagerWrapper) transaction.getEntityManager(persistenceUnit);
+        EntityManagerWrapper entityManagerWrapper = (EntityManagerWrapper) transactionManager.getResource(persistenceUnit);
         if (entityManagerWrapper == null) {
             EntityManager entityManager = createEntityManager();
             entityManagerWrapper = new EntityManagerWrapperTxScoped(entityManager);
-            transaction.setEntityManager(persistenceUnit, entityManagerWrapper);
+            transactionManager.putResource(persistenceUnit, entityManagerWrapper);
+            try {
+                transaction.registerSynchronization(entityManagerWrapper);
+            } catch (javax.transaction.RollbackException e) {
+                throw (TransactionRequiredException) new TransactionRequiredException("No active transaction").initCause(e);
+            } catch (SystemException e) {
+                throw (TransactionRequiredException) new TransactionRequiredException("No active transaction").initCause(e);
+            }
         }
         return entityManagerWrapper.getEntityManager();
     }
@@ -90,7 +91,7 @@ public class CMPEntityManagerTxScoped implements EntityManager {
         }
     }
 
-    public <T>T merge(T t) {
+    public <T> T merge(T t) {
         EntityManager entityManager = getEntityManager(true);
         if (entityManager != null) {
             return entityManager.merge(t);
@@ -118,7 +119,7 @@ public class CMPEntityManagerTxScoped implements EntityManager {
         }
     }
 
-    public <T>T find(Class<T> aClass, Object o) {
+    public <T> T find(Class<T> aClass, Object o) {
         EntityManager entityManager = getEntityManager(false);
         if (entityManager != null) {
             return entityManager.find(aClass, o);
@@ -132,7 +133,7 @@ public class CMPEntityManagerTxScoped implements EntityManager {
         }
     }
 
-    public <T>T getReference(Class<T> aClass, Object o) {
+    public <T> T getReference(Class<T> aClass, Object o) {
         EntityManager entityManager = getEntityManager(false);
         if (entityManager != null) {
             return entityManager.getReference(aClass, o);
@@ -163,11 +164,11 @@ public class CMPEntityManagerTxScoped implements EntityManager {
     public void setFlushMode(FlushModeType flushModeType) {
         EntityManager entityManager = getEntityManager(false);
         if (entityManager != null) {
-             entityManager.setFlushMode(flushModeType);
+            entityManager.setFlushMode(flushModeType);
         } else {
             entityManager = createEntityManager();
             try {
-                 entityManager.setFlushMode(flushModeType);
+                entityManager.setFlushMode(flushModeType);
             } finally {
                 entityManager.close();
             }
@@ -191,11 +192,11 @@ public class CMPEntityManagerTxScoped implements EntityManager {
     public void lock(Object o, LockModeType lockModeType) {
         EntityManager entityManager = getEntityManager(false);
         if (entityManager != null) {
-             entityManager.lock(o, lockModeType);
+            entityManager.lock(o, lockModeType);
         } else {
             entityManager = createEntityManager();
             try {
-                 entityManager.lock(o, lockModeType);
+                entityManager.lock(o, lockModeType);
             } finally {
                 entityManager.close();
             }
@@ -205,11 +206,11 @@ public class CMPEntityManagerTxScoped implements EntityManager {
     public void refresh(Object o) {
         EntityManager entityManager = getEntityManager(true);
         if (entityManager != null) {
-             entityManager.refresh(o);
+            entityManager.refresh(o);
         } else {
             entityManager = createEntityManager();
             try {
-                 entityManager.refresh(o);
+                entityManager.refresh(o);
             } finally {
                 entityManager.close();
             }
@@ -219,11 +220,11 @@ public class CMPEntityManagerTxScoped implements EntityManager {
     public void clear() {
         EntityManager entityManager = getEntityManager(false);
         if (entityManager != null) {
-             entityManager.clear();
+            entityManager.clear();
         } else {
             entityManager = createEntityManager();
             try {
-                 entityManager.clear();
+                entityManager.clear();
             } finally {
                 entityManager.close();
             }
@@ -324,7 +325,7 @@ public class CMPEntityManagerTxScoped implements EntityManager {
         }
     }
 
-    private static class EntityManagerWrapperTxScoped implements EntityManagerWrapper {
+    private static class EntityManagerWrapperTxScoped implements EntityManagerWrapper, Synchronization {
         private final EntityManager entityManager;
 
         public EntityManagerWrapperTxScoped(EntityManager entityManager) {
@@ -335,11 +336,18 @@ public class CMPEntityManagerTxScoped implements EntityManager {
         }
 
         public void close() {
-                entityManager.close();
+            entityManager.close();
         }
 
         public EntityManager getEntityManager() {
             return entityManager;
+        }
+
+        public void beforeCompletion() {
+        }
+
+        public void afterCompletion(int i) {
+            close();
         }
     }
 }

@@ -29,8 +29,8 @@
         <relativePath>../pom.xml</relativePath>
     </parent>
 
-    <artifactId>transaction-jta11</artifactId>
-    <name>Geronimo Configs :: Transaction Manager JTA11</name>
+    <artifactId>transaction</artifactId>
+    <name>Geronimo Configs :: Transaction Manager (JTA11)</name>
     <packaging>car</packaging>
     
     <dependencies>
@@ -70,7 +70,7 @@
 
         <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
-            <artifactId>geronimo-transaction-jta11</artifactId>
+            <artifactId>geronimo-transaction</artifactId>
             <version>${version}</version>
         </dependency>
 

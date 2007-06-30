@@ -15,7 +15,7 @@
  *  limitations under the License.
  */
 
-package org.apache.geronimo.transaction.jta11;
+package org.apache.geronimo.transaction.manager;
 
 import javax.transaction.Synchronization;
 import javax.transaction.HeuristicMixedException;
@@ -36,13 +36,13 @@ public class TransactionSynchronizationRegistryTest extends TestCase {
 
 
 
-    private GeronimoTransactionManagerJTA11 tm;
+    private GeronimoTransactionManager tm;
 
     private CountingSync interposedSync;
     private CountingSync normalSync;
 
     protected void setUp() throws Exception {
-        tm  = new GeronimoTransactionManagerJTA11();
+        tm  = new GeronimoTransactionManager();
     }
 
     private void setUpInterposedSync() throws NotSupportedException, SystemException {

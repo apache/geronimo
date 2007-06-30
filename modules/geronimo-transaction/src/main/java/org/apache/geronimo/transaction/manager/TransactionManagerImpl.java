@@ -23,17 +23,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import javax.transaction.HeuristicMixedException;
-import javax.transaction.HeuristicRollbackException;
-import javax.transaction.InvalidTransactionException;
-import javax.transaction.NotSupportedException;
-import javax.transaction.RollbackException;
-import javax.transaction.Status;
-import javax.transaction.Synchronization;
-import javax.transaction.SystemException;
-import javax.transaction.Transaction;
-import javax.transaction.TransactionManager;
-import javax.transaction.UserTransaction;
+import javax.transaction.*;
 import javax.transaction.xa.XAException;
 import javax.transaction.xa.Xid;
 
@@ -48,7 +38,7 @@ import org.apache.geronimo.transaction.log.UnrecoverableLog;
  *
  * @version $Rev$ $Date$
  */
-public class TransactionManagerImpl implements TransactionManager, UserTransaction, XidImporter, MonitorableTransactionManager, RecoverableTransactionManager {
+public class TransactionManagerImpl implements TransactionManager, UserTransaction, TransactionSynchronizationRegistry, XidImporter, MonitorableTransactionManager, RecoverableTransactionManager {
     private static final Log log = LogFactory.getLog(TransactionManagerImpl.class);
     protected static final int DEFAULT_TIMEOUT = 600;
     protected static final byte[] DEFAULT_TM_ID = new byte[] {71,84,77,73,68};

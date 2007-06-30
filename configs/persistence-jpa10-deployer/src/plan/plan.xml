@@ -42,7 +42,7 @@
             </environment>
         </xml-attribute>
     </gbean>
-    <!-- TODO possibly the ref builders only need a dependency on transaction-jta11 -->
+    <!-- TODO possibly the ref builders only need a dependency on transaction -->
     <gbean name="PersistenceContextRefBuilder" class="org.apache.geronimo.persistence.builder.PersistenceContextRefBuilder">
         <xml-attribute name="defaultEnvironment">
             <environment xmlns="http://geronimo.apache.org/xml/ns/deployment-1.1">
