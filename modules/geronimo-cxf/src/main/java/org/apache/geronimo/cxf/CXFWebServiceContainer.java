@@ -100,7 +100,7 @@ public abstract class CXFWebServiceContainer implements WebServiceContainer {
     
     protected void processPOST(Request request, Response response) throws Exception {
         SAAJUniverse universe = new SAAJUniverse();
-        universe.set(SAAJUniverse.SUN);
+        universe.set(SAAJUniverse.DEFAULT);
         try {
             destination.invoke(request, response);
         } finally {

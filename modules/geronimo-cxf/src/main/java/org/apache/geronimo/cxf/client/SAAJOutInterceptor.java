@@ -29,7 +29,7 @@ public class SAAJOutInterceptor extends SAAJInterceptor {
     }
     
     public void handleMessage(Message msg) throws Fault {
-        this.universe.set(SAAJUniverse.SUN);
+        this.universe.set(SAAJUniverse.DEFAULT);
     }
     
     public void handleFault(Message msg) {
