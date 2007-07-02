@@ -311,10 +311,9 @@ goto setArgs
 :doneSetArgs
 
 @REM Setup the Java programming language agent
-@REM For proper CMP behavior, we currently must specify operation-order
 set JAVA_AGENT_JAR=%GERONIMO_BASE%\bin\jpa.jar
 set JAVA_AGENT_OPTS=
-if exist "%JAVA_AGENT_JAR%" set JAVA_AGENT_OPTS=-javaagent:"%JAVA_AGENT_JAR%" -Dopenjpa.jdbc.UpdateManager=operation-order
+if exist "%JAVA_AGENT_JAR%" set JAVA_AGENT_OPTS=-javaagent:"%JAVA_AGENT_JAR%"
 
 @REM Execute Java with the applicable properties
 if not "%JDB%" == "" goto doJDB

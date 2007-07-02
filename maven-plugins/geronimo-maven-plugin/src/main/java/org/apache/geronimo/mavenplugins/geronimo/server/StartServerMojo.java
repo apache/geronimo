@@ -187,11 +187,9 @@ public class StartServerMojo
         }
 
         // Load the Java programming language agent for JPA
-        // set operation-order is required for compliant behavior from OpenJPA
         File javaAgentJar = new File(geronimoHome, "bin/jpa.jar");
         if (javaAgentJar.exists()) {
             java.createJvmarg().setValue("-javaagent:" + javaAgentJar.getCanonicalPath());
-            setSystemProperty(java, "openjpa.jdbc.UpdateManager", "operation-order");
         }
 
         // Propagate some properties from Maven to the server if enabled
