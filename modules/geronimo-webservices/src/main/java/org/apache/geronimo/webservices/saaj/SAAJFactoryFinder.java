@@ -21,10 +21,20 @@ import java.util.Map;
 
 import javax.xml.soap.SOAPException;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 class SAAJFactoryFinder {
     
+    private static final Log LOG = LogFactory.getLog(SAAJFactoryFinder.class);
+    
+    private static final String SAAJ_PROVIDER_PROPERTY = 
+        "org.apache.geronimo.saaj.provider";
+       
     private static final Map<String, Map<String,String>> SAAJ_FACTORIES = 
         new HashMap<String, Map<String, String>>();
+    
+    private static SAAJUniverse.Type DEFAULT_SAAJ_UNIVERSE = null;
                                                      
     static {
         SAAJ_FACTORIES.put(SAAJUniverse.Type.AXIS1.toString(), 
@@ -41,7 +51,26 @@ class SAAJFactoryFinder {
                            createSAAJInfo("com.sun.xml.messaging.saaj.soap.ver1_1.SOAPMessageFactory1_1Impl", 
                                           "com.sun.xml.messaging.saaj.soap.ver1_1.SOAPFactory1_1Impl",
                                           "com.sun.xml.messaging.saaj.client.p2p.HttpSOAPConnectionFactory", 
-                                          "com.sun.xml.messaging.saaj.soap.SAAJMetaFactoryImpl"));       
+                                          "com.sun.xml.messaging.saaj.soap.SAAJMetaFactoryImpl"));
+        
+        initDefaultSAAJProvider();      
+    }
+    
+    private static void initDefaultSAAJProvider() {
+        String provider = System.getProperty(SAAJ_PROVIDER_PROPERTY);
+        if (provider != null) {
+            if (provider.equalsIgnoreCase("axis2")) {
+                DEFAULT_SAAJ_UNIVERSE = SAAJUniverse.Type.AXIS2;
+            } else if (provider.equalsIgnoreCase("sun")) {
+                DEFAULT_SAAJ_UNIVERSE = SAAJUniverse.Type.SUN;
+            } else {
+                throw new RuntimeException("Invalid SAAJ universe specified: " + provider);
+            }
+            
+            LOG.info("Default SAAJ universe: " + DEFAULT_SAAJ_UNIVERSE);
+        } else {
+            LOG.info("Default SAAJ universe not set");
+        }
     }
     
     private static Map<String, String> createSAAJInfo(String messageFactory,
@@ -69,16 +98,22 @@ class SAAJFactoryFinder {
     
     private static String getFactoryClass(String factoryName) {
         SAAJUniverse.Type universe = SAAJUniverse.getCurrentUniverse();
-        if (universe == null || universe == SAAJUniverse.Type.DEFAULT) {
-            // by default prefer Axis2 SAAJ if it is in class loader, otherwise use Sun's
-            if (isAxis2InClassLoader()) {
-                return SAAJ_FACTORIES.get(SAAJUniverse.Type.AXIS2.toString()).get(factoryName);
+        if (universe == null || universe == SAAJUniverse.Type.DEFAULT) {            
+            if (DEFAULT_SAAJ_UNIVERSE == null) {
+                // Default SAAJ universe not set. 
+                // Prefer Axis2 SAAJ if it is in class loader, otherwise use Sun's
+                if (isAxis2InClassLoader()) {
+                    universe = SAAJUniverse.Type.AXIS2;
+                } else {
+                    universe = SAAJUniverse.Type.SUN;
+                }
             } else {
-                return SAAJ_FACTORIES.get(SAAJUniverse.Type.SUN.toString()).get(factoryName);
+                // Use default SAAJ universe
+                universe = DEFAULT_SAAJ_UNIVERSE;
             }
-        } else {
-            return SAAJ_FACTORIES.get(universe.toString()).get(factoryName);
         }
+        
+        return SAAJ_FACTORIES.get(universe.toString()).get(factoryName);
     }
     
     private static boolean isAxis2InClassLoader() {
