@@ -336,7 +336,8 @@ public abstract class JAXWSServiceBuilder implements WebServiceBuilder {
             LOG.warn("ModuleGBean not found. JNDI resource injection will not work.");
         }
 
-        LOG.info("Configuring POJO Web Service: " + servletName + " sei: " + servletClassName);
+        String location = portInfo.getLocation();
+        LOG.info("Configuring JAX-WS Web Service: " + servletName + " at " + location);
 
         AbstractName containerFactoryName = context.getNaming().createChildName(targetGBean.getAbstractName(), getContainerFactoryGBeanInfo().getName(), NameFactory.GERONIMO_SERVICE);
         GBeanData containerFactoryData = new GBeanData(containerFactoryName, getContainerFactoryGBeanInfo());
@@ -394,7 +395,7 @@ public abstract class JAXWSServiceBuilder implements WebServiceBuilder {
             throw new DeploymentException("Endpoint URI for EJB WebService is missing");
         }
 
-        LOG.info("Configuring EJB Web Service: " + ejbName + " at " + location);
+        LOG.info("Configuring EJB JAX-WS Web Service: " + ejbName + " at " + location);
         
         targetGBean.setAttribute("portInfo", portInfo);
         
