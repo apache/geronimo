@@ -17,6 +17,7 @@
 package org.apache.geronimo.clustering.wadi;
 
 import java.net.URI;
+import java.util.Collections;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -26,7 +27,10 @@ import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.codehaus.wadi.group.Dispatcher;
+import org.codehaus.wadi.group.DispatcherRegistry;
 import org.codehaus.wadi.group.MessageExchangeException;
+import org.codehaus.wadi.group.StaticDispatcherRegistry;
+import org.codehaus.wadi.servicespace.admin.AdminServiceSpace;
 import org.codehaus.wadi.tribes.TribesDispatcher;
 import org.codehaus.wadi.web.impl.URIEndPoint;
 
@@ -40,9 +44,10 @@ public class TribesDispatcherHolder implements GBeanLifecycle, DispatcherHolder 
     private final URI endPointURI;
     private final String clusterName;
     private final Node node;
+    private final DispatcherRegistry dispatcherRegistry;
 
     private TribesDispatcher dispatcher;
-
+    private AdminServiceSpace adminServiceSpace;
 
     public TribesDispatcherHolder(URI endPointURI, String clusterName, Node node) {
         if (null == endPointURI) {
@@ -55,22 +60,46 @@ public class TribesDispatcherHolder implements GBeanLifecycle, DispatcherHolder 
         this.endPointURI = endPointURI;
         this.clusterName = clusterName;
         this.node = node;
+        
+        dispatcherRegistry = new StaticDispatcherRegistry();
     }
 
     public void doStart() throws Exception {
-        dispatcher = new TribesDispatcher(clusterName, node.getName(), new URIEndPoint(endPointURI), null);
+        dispatcher = new TribesDispatcher(clusterName,
+            node.getName(),
+            new URIEndPoint(endPointURI),
+            Collections.EMPTY_SET);
         dispatcher.start();
+        
+        adminServiceSpace = new AdminServiceSpace(dispatcher);
+        adminServiceSpace.start();
+        
+        dispatcherRegistry.register(dispatcher);
     }
 
     public void doStop() throws Exception {
+        if (null != adminServiceSpace) {
+            adminServiceSpace.stop();
+        }
+        
+        dispatcherRegistry.unregister(dispatcher);
         dispatcher.stop();
     }
 
     public void doFail() {
+        if (null != adminServiceSpace) {
+            try {
+                adminServiceSpace.stop();
+            } catch (Exception e) {
+                log.error("see nested", e);
+            }
+        }
+        
+        dispatcherRegistry.unregister(dispatcher);
         try {
             dispatcher.stop();
         } catch (MessageExchangeException e) {
-            log.error(e);
+            log.error("see nested", e);
         }
     }
     
