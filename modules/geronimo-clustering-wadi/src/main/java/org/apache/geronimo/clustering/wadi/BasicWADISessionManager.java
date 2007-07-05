@@ -16,10 +16,13 @@
  */
 package org.apache.geronimo.clustering.wadi;
 
+import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.geronimo.clustering.BasicNode;
 import org.apache.geronimo.clustering.Node;
 import org.apache.geronimo.clustering.Session;
 import org.apache.geronimo.clustering.SessionAlreadyExistException;
@@ -33,6 +36,7 @@ import org.codehaus.wadi.core.assembler.StackContext;
 import org.codehaus.wadi.core.manager.Manager;
 import org.codehaus.wadi.core.manager.SessionMonitor;
 import org.codehaus.wadi.group.Dispatcher;
+import org.codehaus.wadi.group.Peer;
 import org.codehaus.wadi.replication.manager.ReplicationManagerFactory;
 import org.codehaus.wadi.replication.storage.ReplicaStorageFactory;
 import org.codehaus.wadi.replication.strategy.BackingStrategyFactory;
@@ -126,6 +130,15 @@ public class BasicWADISessionManager implements GBeanLifecycle, SessionManager, 
         return dispatcherHolder.getNode();
     }
 
+    public Set<Node> getRemoteNodes() {
+        Set<Node> nodes = new HashSet<Node>();
+        Set<Peer> peers = serviceSpace.getHostingPeers();
+        for (Peer peer : peers) {
+            nodes.add(new BasicNode(peer.getName()));
+        }
+        return nodes;
+    }
+
     public void registerListener(SessionListener listener) {
         listeners.add(listener);
     }
@@ -212,4 +225,5 @@ public class BasicWADISessionManager implements GBeanLifecycle, SessionManager, 
     public static GBeanInfo getGBeanInfo() {
         return GBEAN_INFO;
     }
+
 }

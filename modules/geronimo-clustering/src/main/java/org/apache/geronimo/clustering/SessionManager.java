@@ -16,6 +16,8 @@
  */
 package org.apache.geronimo.clustering;
 
+import java.util.Set;
+
 /**
  * Represents a local SessionManager.
  * <p>
@@ -58,4 +60,10 @@ public interface SessionManager {
      */
     Node getNode();
 
+    /**
+     * Gets the remote Nodes hosting the corresponding remote SessionManagers.
+     * 
+     * @return Hosting Node.
+     */
+    Set<Node> getRemoteNodes();
 }
