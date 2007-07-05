@@ -1363,8 +1363,8 @@
 
             <dependency>
                 <groupId>org.apache.httpcomponents</groupId>
-                <artifactId>jakarta-httpcore</artifactId>
-                <version>4.0-alpha4</version>
+                <artifactId>httpcore</artifactId>
+                <version>4.0-alpha5</version>
             </dependency>
 
             <dependency>
