@@ -28,11 +28,28 @@ public class BasicNode implements Node {
     private final String name;
     
     public BasicNode(String name) {
+        if (null == name) {
+            throw new IllegalArgumentException("name is required");
+        }
         this.name = name;
     }
 
     public String getName() {
         return name;
+    }
+    
+    @Override
+    public boolean equals(Object obj) {
+        if (!(obj instanceof BasicNode)) {
+            return false;
+        }
+        BasicNode other = (BasicNode) obj;
+        return name.equals(other.name);
+    }
+    
+    @Override
+    public int hashCode() {
+        return name.hashCode();
     }
     
     public static final GBeanInfo GBEAN_INFO;
