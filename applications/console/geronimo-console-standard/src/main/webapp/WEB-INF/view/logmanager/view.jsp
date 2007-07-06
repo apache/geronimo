@@ -52,9 +52,9 @@ function <portlet:namespace/>validateForm(){
 <table width="680">
 <tr>
 <!--
-		renderRequest.setAttribute("configuration", LogHelper.getConfiguration());
-		renderRequest.setAttribute("logLevel", LogHelper.getLogLevel());
-		renderRequest.setAttribute("refreshPeriod", LogHelper.getRefreshPeriod());
+        renderRequest.setAttribute("configuration", LogHelper.getConfiguration());
+        renderRequest.setAttribute("logLevel", LogHelper.getLogLevel());
+        renderRequest.setAttribute("refreshPeriod", LogHelper.getRefreshPeriod());
 
 -->
     <td nowrap>Config File</td>

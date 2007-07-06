@@ -19,9 +19,9 @@
 <portlet:defineObjects/>
 <table width="100%">
     ${message}
- 	<tr>
-		<td><a href="<portlet:actionURL portletMode="view"><portlet:param name="action" value="new"/></portlet:actionURL>">Create New Group</a> </td><td colspan="2">&nbsp;</td>
-	</tr>
+     <tr>
+        <td><a href="<portlet:actionURL portletMode="view"><portlet:param name="action" value="new"/></portlet:actionURL>">Create New Group</a> </td><td colspan="2">&nbsp;</td>
+    </tr>
         <tr>
             <td width="100">Group Name</td>
             <td width="150">Description</td>

@@ -67,12 +67,12 @@
               <td class="LightBackground"><c:out value="${column}" /></td>
             </c:forEach>
           </c:when>
-      	  <c:otherwise>
+            <c:otherwise>
             <c:forEach var="column" items="${row}">
               <td class="MediumBackground"><c:out value="${column}" /></td>
             </c:forEach>
-      	  </c:otherwise>
-      	</c:choose>
+            </c:otherwise>
+          </c:choose>
         </tr>
       </c:forEach>
     </c:otherwise>

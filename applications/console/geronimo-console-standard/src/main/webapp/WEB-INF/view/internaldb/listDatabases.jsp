@@ -40,10 +40,10 @@
           <c:when test="<%= status.getCount() % 2 == 1 %>">
             <c:set var="tdClass" scope="page" value="LightBackground" />
           </c:when>
-      	  <c:otherwise>
-      	    <c:set var="tdClass" scope="page" value="MediumBackground" />
-      	  </c:otherwise>
-      	</c:choose>
+            <c:otherwise>
+              <c:set var="tdClass" scope="page" value="MediumBackground" />
+            </c:otherwise>
+          </c:choose>
         <td class="<c:out value='${tdClass}' />"><c:out value="${db}" /></td>
         <td class="<c:out value='${tdClass}' />" align="center">
           <a href="<portlet:actionURL portletMode="view">

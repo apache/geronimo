@@ -107,8 +107,8 @@ function <portlet:namespace/>validate() {
     <table border="0">
     <c:if test="${!(empty pool.deployError)}">
       <tr>
-      	<th><div align="right"><font color="red">Error Deploying:</font></div></th>
-      	<td><font color="red">${pool.deployError} - see the log for details</font></td>
+          <th><div align="right"><font color="red">Error Deploying:</font></div></th>
+          <td><font color="red">${pool.deployError} - see the log for details</font></td>
       </tr>
     </c:if>
     <!-- ENTRY FIELD: NAME -->

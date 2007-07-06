@@ -62,15 +62,15 @@ function <portlet:namespace/>selectAll(formName, objName){
     <tr>
       <td colspan="2" align="left" class="formHeader">
        <c:choose>
-	   <c:when test="${add}"> 
-       		<b>ADD GROUP</b>
-      		<c:set var="GroupName" value=""/>
-      		<c:set var="Submit" value="Add"/>
+       <c:when test="${add}"> 
+               <b>ADD GROUP</b>
+              <c:set var="GroupName" value=""/>
+              <c:set var="Submit" value="Add"/>
        </c:when>
        <c:otherwise>
-			<b>UPDATE GROUP</b>
-      		<c:set var="GroupName" value="${group}"/>
-      		<c:set var="Submit" value="Update"/>
+            <b>UPDATE GROUP</b>
+              <c:set var="GroupName" value="${group}"/>
+              <c:set var="Submit" value="Update"/>
        </c:otherwise>
        </c:choose>
         </td>
@@ -79,12 +79,12 @@ function <portlet:namespace/>selectAll(formName, objName){
         <td width="200" class="formLabel">Group Name</td>
         <td class="formElement">
        <c:choose>
-	   <c:when test="${add}"> 
-	    <input type="hidden" name="action" value="add">
-	    <input type="text" name="group" value="">
+       <c:when test="${add}"> 
+        <input type="hidden" name="action" value="add">
+        <input type="text" name="group" value="">
        </c:when>
        <c:otherwise>
-	    <input type="hidden" name="action" value="update">
+        <input type="hidden" name="action" value="update">
         <input type="hidden" name="group" value="${GroupName}">
         ${GroupName}
        </c:otherwise>

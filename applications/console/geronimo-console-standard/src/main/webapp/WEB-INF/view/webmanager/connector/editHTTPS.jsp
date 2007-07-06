@@ -94,7 +94,7 @@ function <portlet:namespace/>validateForm(){
     <td><div align="right">Port: </div></td>
     <td>
       <input name="port" type="text" size="5" value="${port}">
-	</td>
+    </td>
   </tr>
   <tr>
     <td><div align="right"></div></td>
@@ -105,7 +105,7 @@ function <portlet:namespace/>validateForm(){
     <td><div align="right">Max Threads: </div></td>
     <td>
       <input name="maxThreads" type="text" size="3" value="${maxThreads}">
-	</td>
+    </td>
   </tr>
   <tr>
     <td><div align="right"></div></td>
@@ -528,7 +528,7 @@ function <portlet:namespace/>validateForm(){
     <td width="175"><div align="right">Keystore File: </div></td>
     <td>
       <input name="keystoreFile" type="text" size="30" value="${keystoreFile}">
-	</td>
+    </td>
   </tr>
   <tr>
     <td><div align="right"></div></td>
@@ -543,7 +543,7 @@ function <portlet:namespace/>validateForm(){
     <td><div align="right"><c:if test="${mode eq 'save'}">Change </c:if>Keystore Password: </div></td>
     <td>
       <input name="keystorePassword" type="password" size="10">
-	</td>
+    </td>
   </tr>
   <tr>
     <td><div align="right">Confirm Password: </div></td>
@@ -646,7 +646,7 @@ function <portlet:namespace/>validateForm(){
         <option value="SunX509"<c:if test="${algorithm eq 'SunX509'}"> selected</c:if>>Sun</option>
         <option value="IbmX509"<c:if test="${algorithm eq 'IbmX509'}"> selected</c:if>>IBM</option>
       </select>
-	</td>
+    </td>
   </tr>
   <tr>
     <td><div align="right"></div></td>
@@ -662,7 +662,7 @@ function <portlet:namespace/>validateForm(){
         <option<c:if test="${secureProtocol eq 'TLS' || secureProtocol eq ''}"> selected</c:if>>TLS</option>
         <option<c:if test="${secureProtocol eq 'SSL'}"> selected</c:if>>SSL</option>
       </select>
-	</td>
+    </td>
   </tr>
   <tr>
     <td><div align="right"></div></td>
@@ -676,7 +676,7 @@ function <portlet:namespace/>validateForm(){
     <td><div align="right">Client Auth Required: </div></td>
     <td>
       <input type="checkbox" name="clientAuth" <c:if test="${!empty clientAuth}">CHECKED </c:if>/>
-	</td>
+    </td>
   </tr>
   <tr>
     <td><div align="right"></div></td>

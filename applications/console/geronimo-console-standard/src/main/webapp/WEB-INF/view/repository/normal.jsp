@@ -24,14 +24,14 @@
 <c:set var="reslist" value="${requestScope['org.apache.geronimo.console.repo.list']}"/>
 
 <style type="text/css">  
-	div.Hidden {
-	display: none;
-	}
-	
-	div.Shown {
-	display: block;
-	font-size: 10px;
-	}
+    div.Hidden {
+    display: none;
+    }
+    
+    div.Shown {
+    display: block;
+    font-size: 10px;
+    }
 </style>  
 
 <script language="JavaScript">

@@ -19,8 +19,8 @@
 <portlet:defineObjects/>
 <script language="javascript">
 <!--
-	function doCheck(){
-		var poolMax = <portlet:namespace/>.poolMaxSize.value;
+    function doCheck(){
+        var poolMax = <portlet:namespace/>.poolMaxSize.value;
         var block = <portlet:namespace/>.blocking.value;
         
         if(isNaN(parseFloat(poolMax))){
@@ -32,7 +32,7 @@
             return false;
         }
         return true;
-	}
+    }
 //-->
 </script>
 

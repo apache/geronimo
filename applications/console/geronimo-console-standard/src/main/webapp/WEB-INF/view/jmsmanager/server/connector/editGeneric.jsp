@@ -86,7 +86,7 @@ function <portlet:namespace/>validateForm(){
     <td><div align="right">Port: </div></td>
     <td>
       <input name="port" type="text" size="5" value="${port}">
-	</td>
+    </td>
   </tr>
   <tr>
     <td><div align="right"></div></td>

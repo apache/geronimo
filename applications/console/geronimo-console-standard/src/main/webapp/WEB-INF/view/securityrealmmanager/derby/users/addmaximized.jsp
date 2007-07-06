@@ -39,29 +39,29 @@ function <portlet:namespace/>passwordMatch(){
     <tr>
       <td colspan="2" align="left" class="formHeader">
        <c:choose>
-	   <c:when test="${add}"> 
-       		<b>ADD USER</b>
-      		<c:set var="UserName" value=""/>
-      		<c:set var="Password" value=""/>
-      		<c:set var="Password2" value=""/>
-      		<c:set var="FirstName" value=""/>
-      		<c:set var="MiddleInit" value=""/>
-      		<c:set var="LastName" value=""/>
-      		<c:set var="Department" value=""/>
-      		<c:set var="Email" value=""/>
-      		<c:set var="Submit" value="Add"/>
+       <c:when test="${add}"> 
+               <b>ADD USER</b>
+              <c:set var="UserName" value=""/>
+              <c:set var="Password" value=""/>
+              <c:set var="Password2" value=""/>
+              <c:set var="FirstName" value=""/>
+              <c:set var="MiddleInit" value=""/>
+              <c:set var="LastName" value=""/>
+              <c:set var="Department" value=""/>
+              <c:set var="Email" value=""/>
+              <c:set var="Submit" value="Add"/>
        </c:when>
        <c:otherwise>
-			<b>UPDATE USER</b>
-      		<c:set var="UserName" value="${user['UserName']}"/>
-      		<c:set var="Password" value="xxxxxxxx"/>
-      		<c:set var="Password2" value="yyyyyyyy"/>      		
-      		<c:set var="FirstName" value="${user['FirstName']}"/>
-      		<c:set var="MiddleInit" value="${user['MiddleInit']}"/>
-      		<c:set var="LastName" value="${user['LastName']}"/>
-      		<c:set var="Department" value="${user['Department']}"/>
-      		<c:set var="Email" value="${user['Email']}"/>
-      		<c:set var="Submit" value="Update"/>
+            <b>UPDATE USER</b>
+              <c:set var="UserName" value="${user['UserName']}"/>
+              <c:set var="Password" value="xxxxxxxx"/>
+              <c:set var="Password2" value="yyyyyyyy"/>              
+              <c:set var="FirstName" value="${user['FirstName']}"/>
+              <c:set var="MiddleInit" value="${user['MiddleInit']}"/>
+              <c:set var="LastName" value="${user['LastName']}"/>
+              <c:set var="Department" value="${user['Department']}"/>
+              <c:set var="Email" value="${user['Email']}"/>
+              <c:set var="Submit" value="Update"/>
        </c:otherwise>
        </c:choose>
         </td>
@@ -70,12 +70,12 @@ function <portlet:namespace/>passwordMatch(){
         <td width="200" class="formLabel">User Name</td>
         <td class="formElement">
        <c:choose>
-	   <c:when test="${add}"> 
-	    <input type="hidden" name="action" value="add">
-	    <input type="text" name="UserName" value="" maxlength="30">
+       <c:when test="${add}"> 
+        <input type="hidden" name="action" value="add">
+        <input type="text" name="UserName" value="" maxlength="30">
        </c:when>
        <c:otherwise>
-	    <input type="hidden" name="action" value="update">
+        <input type="hidden" name="action" value="update">
         <input type="hidden" name="UserName" value="${UserName}">
         ${UserName}
        </c:otherwise>

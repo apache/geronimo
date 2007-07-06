@@ -48,17 +48,17 @@
             <c:when test='${info.state == 4}'>Failed</c:when>
         </c:choose></td>
         <td class="${backgroundClass}">
-        		<c:if test="${!info.working}">
-        			<a href='<portlet:renderURL>
-        					<portlet:param name="name" value="${info.objectName}"/>
-        					<portlet:param name="mode" value="list"/>
-        					<portlet:param name="check" value="true"/></portlet:renderURL>'>
-        					test connection
-        			</a>
-        		</c:if>
-        		<c:if test="${info.working}">
-        			${info.message}
-        		</c:if>
+                <c:if test="${!info.working}">
+                    <a href='<portlet:renderURL>
+                            <portlet:param name="name" value="${info.objectName}"/>
+                            <portlet:param name="mode" value="list"/>
+                            <portlet:param name="check" value="true"/></portlet:renderURL>'>
+                            test connection
+                    </a>
+                </c:if>
+                <c:if test="${info.working}">
+                    ${info.message}
+                </c:if>
         </td>
     </tr></c:forEach>
 </table>

@@ -80,25 +80,25 @@
             <c:out value="${destination.moduleName}"/>
       </td>
       <td class="${backgroundClass}" align=CENTER>
-		<table border="0">
-		<tr>
+        <table border="0">
+        <tr>
          <td>
-		<c:if test="${destination.removable}">
+        <c:if test="${destination.removable}">
          <a href="<portlet:actionURL portletMode="view"><portlet:param name="processaction" value="removeDestination"/><portlet:param name="destinationConfigURI" value="${destination.configURI}"/><portlet:param name="destinationType" value="${destination.type}"/></portlet:actionURL>">remove </a>
          </c:if>
          </td>
          <!--a href="<portlet:actionURL portletMode="view"><portlet:param name="processaction" value="statistics"/><portlet:param name="destinationName" value="${destination.name}"/><portlet:param name="destinationType" value="${destination.type}"/></portlet:actionURL>">statistics</a-->
          <td>
-		<c:if test="${destination.viewable}">
+        <c:if test="${destination.viewable}">
          <a href="<portlet:renderURL portletMode="view"><portlet:param name="processAction" value="viewMessages"/><portlet:param name="destinationName" value="${destination.name}"/><portlet:param name="destinationApplicationName" value="${destination.applicationName}"/><portlet:param name="destinationModuleName" value="${destination.moduleName}"/><portlet:param name="destinationType" value="${destination.type}"/></portlet:renderURL>">view messages</a>
          </c:if>
          </td>
          <td>
-		<c:if test="${destination.viewable}">
+        <c:if test="${destination.viewable}">
          <a href="<portlet:renderURL portletMode="view"><portlet:param name="processAction" value="viewDLQ"/><portlet:param name="destinationName" value="${destination.name}"/><portlet:param name="destinationApplicationName" value="${destination.applicationName}"/><portlet:param name="destinationModuleName" value="${destination.moduleName}"/><portlet:param name="destinationType" value="${destination.type}"/></portlet:renderURL>">view DLQ</a></td>
          </c:if>
-		</tr>		
-		</table>
+        </tr>        
+        </table>
 
       </td>
 

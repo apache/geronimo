@@ -19,10 +19,10 @@
 <portlet:defineObjects/>
 <table width="50%" cellspacing="5">
     ${message}
-	<tr>
+    <tr>
         <td><a href="<portlet:actionURL portletMode="view"><portlet:param name="action" value="new"/></portlet:actionURL>">Create New Group</a></td>
         <td></td>
-	</tr>
+    </tr>
     <tr class="DarkBackground">
         <th>Group Name</th>
         <th>Actions</th>

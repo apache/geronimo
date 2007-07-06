@@ -72,7 +72,7 @@
                 <tr>
                     <td bgcolor="#FFFFFF" nowrap>
                         &nbsp;<br />
-	                    <% String consoleServletPath = PortletManager.getConsoleFrameworkServletPath(request); %>
+                        <% String consoleServletPath = PortletManager.getConsoleFrameworkServletPath(request); %>
                         <img src="<%=consoleServletPath%>/../images/ico_db_16x16.gif" /><a href="<%=consoleServletPath%>/services/services_jdbc">Database Pools</a><br />
                         <img src="<%=consoleServletPath%>/../images/ico_lock_16x16.gif" /><a href="<%=consoleServletPath%>/Security/Security_realms">Security Realms</a><br />
                         <img src="<%=consoleServletPath%>/../images/ico_beanjar_16x16.gif" /><a href="<%=consoleServletPath%>/services/services_jms">JMS Resources</a><br />

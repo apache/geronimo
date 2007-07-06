@@ -57,17 +57,17 @@ function <portlet:namespace/>selectAll(formName, objName){
     <tr>
       <td colspan="2" align="left" class="formHeader">
        <c:choose>
-	   <c:when test="${add}"> 
-       		<b>ADD GROUP</b>
-      		<c:set var="GroupName" value=""/>
-      		<c:set var="Description" value=""/>
-      		<c:set var="Submit" value="Add"/>
+       <c:when test="${add}"> 
+               <b>ADD GROUP</b>
+              <c:set var="GroupName" value=""/>
+              <c:set var="Description" value=""/>
+              <c:set var="Submit" value="Add"/>
        </c:when>
        <c:otherwise>
-			<b>UPDATE GROUP</b>
-      		<c:set var="GroupName" value="${group['GroupName']}"/>
-      		<c:set var="Description" value="${group['Description']}"/>
-      		<c:set var="Submit" value="Update"/>
+            <b>UPDATE GROUP</b>
+              <c:set var="GroupName" value="${group['GroupName']}"/>
+              <c:set var="Description" value="${group['Description']}"/>
+              <c:set var="Submit" value="Update"/>
        </c:otherwise>
        </c:choose>
         </td>
@@ -76,12 +76,12 @@ function <portlet:namespace/>selectAll(formName, objName){
         <td width="200" class="formLabel">Group Name</td>
         <td class="formElement">
        <c:choose>
-	   <c:when test="${add}"> 
-	    <input type="hidden" name="action" value="add">
-	    <input type="text" name="GroupName" value="">
+       <c:when test="${add}"> 
+        <input type="hidden" name="action" value="add">
+        <input type="text" name="GroupName" value="">
        </c:when>
        <c:otherwise>
-	    <input type="hidden" name="action" value="update">
+        <input type="hidden" name="action" value="update">
         <input type="hidden" name="GroupName" value="${GroupName}">
         ${GroupName}
        </c:otherwise>
@@ -102,9 +102,9 @@ function <portlet:namespace/>selectAll(formName, objName){
             <tr>
                 <td>
                     <select name="usersToRemove" size="4" multiple>
-            	    <c:forEach var="user" items="${otherUsers}">
-                	    <option value="${user}">${user}</option>
-                	</c:forEach>    
+                    <c:forEach var="user" items="${otherUsers}">
+                        <option value="${user}">${user}</option>
+                    </c:forEach>    
                     </select> 
                 </td>
                 <td align="center" valign="middle">

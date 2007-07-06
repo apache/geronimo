@@ -42,16 +42,16 @@ function <portlet:namespace/>passwordMatch(){
         <td colspan="2" align="left">
         <c:choose>
         <c:when test="${add}"> 
-       		<b>ADD USER</b>
-      		<c:set var="UserName" value=""/>
-      		<c:set var="Action" value="add"/>      		
-      		<c:set var="Submit" value="Add"/>
+               <b>ADD USER</b>
+              <c:set var="UserName" value=""/>
+              <c:set var="Action" value="add"/>              
+              <c:set var="Submit" value="Add"/>
        </c:when>
        <c:otherwise>
-			<b>UPDATE USER</b>
-      		<c:set var="UserName" value="${userID}"/>
-      		<c:set var="Action" value="update"/>      		
-      		<c:set var="Submit" value="Update"/>
+            <b>UPDATE USER</b>
+              <c:set var="UserName" value="${userID}"/>
+              <c:set var="Action" value="update"/>              
+              <c:set var="Submit" value="Update"/>
        </c:otherwise>
        </c:choose>
         </td>

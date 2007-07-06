@@ -45,10 +45,10 @@ function <portlet:namespace/>updateProgress(progressInfo)
 
     // set the bean values in the HTML document
     if (mainMessage != null) {
-	    document.getElementById('<portlet:namespace/>progressMeterMainMessage').innerHTML = mainMessage;
+        document.getElementById('<portlet:namespace/>progressMeterMainMessage').innerHTML = mainMessage;
     }
     if (subMessage != null) {
-	    document.getElementById('<portlet:namespace/>progressMeterSubMessage').innerHTML = subMessage;
+        document.getElementById('<portlet:namespace/>progressMeterSubMessage').innerHTML = subMessage;
     }
     if (progressPercent > -1) {
        document.getElementById('<portlet:namespace/>progressMeterShell').style.display = 'block';

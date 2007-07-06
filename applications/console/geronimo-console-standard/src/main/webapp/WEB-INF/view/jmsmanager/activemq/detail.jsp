@@ -32,18 +32,18 @@
             <td>${entry.value}</td>
         </tr>
     </c:forEach>
-    		<tr>
-    			<td colspan="2">
-    				<table width="100%">
-    					<tr>
-    						<td width="10%">&nbsp</td>
-    						<td>
-    							<input type="submit" name="btnBack" value="Back to JMS Connection Factories">
-								</td>
-							</tr>
-						</table>
-					</td>
-				</tr>	
+            <tr>
+                <td colspan="2">
+                    <table width="100%">
+                        <tr>
+                            <td width="10%">&nbsp</td>
+                            <td>
+                                <input type="submit" name="btnBack" value="Back to JMS Connection Factories">
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>    
 </table>
 <input type="hidden" name="name" value="back">
 </form>

@@ -19,19 +19,19 @@
 <portlet:defineObjects/>
 <script language="javascript">
 <!--
-	function doSave(){
-		document.datasource_form.action="<portlet:actionURL portletMode="view"/>";
-		document.datasource_form.mode.value="save";
-		return true;
-	}
-	function doCancel(){
-		document.datasource_form.action="<portlet:actionURL portletMode="view"/>";
-		document.datasource_form.mode.value="detail";
-		return true;
-	}
+    function doSave(){
+        document.datasource_form.action="<portlet:actionURL portletMode="view"/>";
+        document.datasource_form.mode.value="save";
+        return true;
+    }
+    function doCancel(){
+        document.datasource_form.action="<portlet:actionURL portletMode="view"/>";
+        document.datasource_form.mode.value="detail";
+        return true;
+    }
 //-->
 </script>
-	
+    
 <form name="datasource_form">
 <input type="hidden" name="name" value="${ds.objectName}" />
 <input type="hidden" name="mode" value="detail" />

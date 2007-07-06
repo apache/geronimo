@@ -45,10 +45,10 @@ function isEmptyString(value){
 </script>
 <table width="50%" cellspacing="5">
     ${message}
-	<tr>
-		<td><a href="<portlet:actionURL portletMode="view"><portlet:param name="action" value="new"/></portlet:actionURL>">Create New User</a> </td>
-		<td></td>
-	</tr>
+    <tr>
+        <td><a href="<portlet:actionURL portletMode="view"><portlet:param name="action" value="new"/></portlet:actionURL>">Create New User</a> </td>
+        <td></td>
+    </tr>
     <tr class="DarkBackground">
         <th>Username</th>
         <th>Actions</th>

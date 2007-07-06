@@ -85,7 +85,7 @@ function <portlet:namespace/>validateForm(){
     <td><div align="right">Port: </div></td>
     <td>
       <input name="port" type="text" size="5" value="${port}">
-	</td>
+    </td>
   </tr>
   <tr>
     <td><div align="right"></div></td>
@@ -96,7 +96,7 @@ function <portlet:namespace/>validateForm(){
     <td><div align="right">Max Threads: </div></td>
     <td>
       <input name="maxThreads" type="text" size="3" value="${maxThreads}">
-	</td>
+    </td>
   </tr>
   <tr>
     <td><div align="right"></div></td>

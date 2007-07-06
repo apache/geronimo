@@ -17,13 +17,13 @@
        <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
        <%@ taglib uri="http://java.sun.com/portlet" prefix="portlet"%>
        <portlet:defineObjects/>
-		<script language="JavaScript">
-		var <portlet:namespace/>formName = "<portlet:namespace/>createDestinationForm";
-		var <portlet:namespace/>requiredFields = new Array("destinationMessageDestinationName","destinationPhysicalName");
-		function <portlet:namespace/>validateForm(){
-		    return (textElementsNotEmpty(<portlet:namespace/>formName,<portlet:namespace/>requiredFields));
-		}
-		</script>
+        <script language="JavaScript">
+        var <portlet:namespace/>formName = "<portlet:namespace/>createDestinationForm";
+        var <portlet:namespace/>requiredFields = new Array("destinationMessageDestinationName","destinationPhysicalName");
+        function <portlet:namespace/>validateForm(){
+            return (textElementsNotEmpty(<portlet:namespace/>formName,<portlet:namespace/>requiredFields));
+        }
+        </script>
 
        <script>
 
@@ -95,10 +95,10 @@
          </tr>
          <tr>
                 <td colspan="2" align="center" class="formElement">
-    			<input type="submit" value="Submit" 
-	                onclick="return <portlet:namespace/>validateForm()">
- 				<input type="reset" value="Clear"> 
-				<input type="submit" value="Back"  onClick="<portlet:namespace/>backToDestinationList();">
+                <input type="submit" value="Submit" 
+                    onclick="return <portlet:namespace/>validateForm()">
+                 <input type="reset" value="Clear"> 
+                <input type="submit" value="Back"  onClick="<portlet:namespace/>backToDestinationList();">
                 </td>
          </tr>
         </table>

@@ -76,83 +76,83 @@ dojo.addOnLoad(
             'beforeTreeClick'
         );
 
-		/* Tree node title click event handler */
-		var tree = dojo.widget.manager.getWidgetById('ldapTree');
-		dojo.event.topic.subscribe(
-			tree.eventNames.titleClick,
-			function(message) {
-			    var dn = message.source.widgetId;
-			    LDAPHelper.getAttributes(<portlet:namespace/>updateAttributesTable, dn);
-			}
-		);
+        /* Tree node title click event handler */
+        var tree = dojo.widget.manager.getWidgetById('ldapTree');
+        dojo.event.topic.subscribe(
+            tree.eventNames.titleClick,
+            function(message) {
+                var dn = message.source.widgetId;
+                LDAPHelper.getAttributes(<portlet:namespace/>updateAttributesTable, dn);
+            }
+        );
 
         /* Tree context menu event handler: 'Refresh' */
-		dojo.event.topic.subscribe(
-		    'treeContextMenuRefresh/engage',
-			function (menuItem) {
-			    var selectedNode = getSelectedNode();
+        dojo.event.topic.subscribe(
+            'treeContextMenuRefresh/engage',
+            function (menuItem) {
+                var selectedNode = getSelectedNode();
                 if (selectedNode == null) {
                     alert('Please select a tree node.');
                     return;
                 }
-			    if ((selectedNode.state == 'UNCHECKED') && (selectedNode.isExpanded == false)) {
-			        // Unchecked tree node, do nothing
+                if ((selectedNode.state == 'UNCHECKED') && (selectedNode.isExpanded == false)) {
+                    // Unchecked tree node, do nothing
                 } else {
                     // Remove children
                     var treeController = dojo.widget.byId('treeController');
-    			    var children = selectedNode.children;
-    			    while (children.length > 0) {
-    			        var node = children[0];
-    			        treeController.removeNode(node);
+                    var children = selectedNode.children;
+                    while (children.length > 0) {
+                        var node = children[0];
+                        treeController.removeNode(node);
                         node.destroy();
-    			    }
-    			    // Add children
-    			    _selectedNode = selectedNode;
-    			    LDAPHelper.list(<portlet:namespace/>updateLDAPTree, _selectedNode.widgetId);
-    	        }
+                    }
+                    // Add children
+                    _selectedNode = selectedNode;
+                    LDAPHelper.list(<portlet:namespace/>updateLDAPTree, _selectedNode.widgetId);
+                }
             }
-		);
+        );
 
         /* Tree context menu event handler: 'Search...' */
-		dojo.event.topic.subscribe(
-		    'treeContextMenuSearch/engage',
-			function (menuItem) {
-			    var selectedNode = getSelectedNode();
+        dojo.event.topic.subscribe(
+            'treeContextMenuSearch/engage',
+            function (menuItem) {
+                var selectedNode = getSelectedNode();
                 if (selectedNode == null) {
                     alert('Please select a tree node.');
                     return;
                 }
-			    selectTab('searchTab');
-			    // Set Search DN
-			    document.LDAPSearchForm.searchDN.value = selectedNode.widgetId;
-			}
-		);
+                selectTab('searchTab');
+                // Set Search DN
+                document.LDAPSearchForm.searchDN.value = selectedNode.widgetId;
+            }
+        );
 
         /* Tree context menu event handler: 'View Entry' */
-		dojo.event.topic.subscribe(
-		    'treeContextMenuViewEntry/engage',
-			function (menuItem) {
-			    var selectedNode = getSelectedNode();
+        dojo.event.topic.subscribe(
+            'treeContextMenuViewEntry/engage',
+            function (menuItem) {
+                var selectedNode = getSelectedNode();
                 if (selectedNode == null) {
                     alert('Please select a tree node.');
                     return;
                 }
-			    selectTab('attributesTab');
+                selectTab('attributesTab');
             }
-		);
+        );
 
         /* Tree context menu event handler: 'Connect Info' */
-		dojo.event.topic.subscribe(
-		    'treeContextMenuConnectInfo/engage',
-			function (menuItem) {
-			    var selectedNode = getSelectedNode();
+        dojo.event.topic.subscribe(
+            'treeContextMenuConnectInfo/engage',
+            function (menuItem) {
+                var selectedNode = getSelectedNode();
                 if (selectedNode == null) {
                     alert('Please select a tree node.');
                     return;
                 }
-			    selectTab('connectInfoTab');
+                selectTab('connectInfoTab');
             }
-		);
+        );
     }
 );
 
@@ -267,18 +267,18 @@ function clearResultBtnClicked() {
 
 <style>
 body .dojoHtmlSplitterPanePanel {
-	background: white;
-	overflow: auto;
+    background: white;
+    overflow: auto;
 }
 
 span.invalid, span.missing, span.range {
-	display: inline;
-	margin-left: 1em;
-	font-weight: bold;
-	font-style: italic;
-	font-family: Arial, Verdana, sans-serif;
-	color: #f66;
-	font-size: 0.9em;
+    display: inline;
+    margin-left: 1em;
+    font-weight: bold;
+    font-style: italic;
+    font-family: Arial, Verdana, sans-serif;
+    color: #f66;
+    font-size: 0.9em;
 }
 </style>
 
@@ -359,7 +359,7 @@ function <portlet:namespace/>updateLDAPTree(entries) {
             'TreeNode', 
             {title: entry[0], widgetId: entry[1], isFolder: true, childIconSrc:'<%= ldapIconURI %>'}
         );
-		_selectedNode.addChild(newNode);
+        _selectedNode.addChild(newNode);
     }
     _selectedNode.state = 'LOADED';
 }
@@ -368,11 +368,11 @@ function <portlet:namespace/>updateLDAPTree(entries) {
 function <portlet:namespace/>initLDAPTree(baseDN) {
     _baseDN = baseDN;
     var tree = dojo.widget.byId('ldapTree');
-	var rootNode = dojo.widget.createWidget(
-	    'TreeNode', 
-	    {title: baseDN, widgetId: baseDN, isFolder: true, childIconSrc:'<%= ldapIconURI %>'}
-	);
-	tree.addChild(rootNode);
+    var rootNode = dojo.widget.createWidget(
+        'TreeNode', 
+        {title: baseDN, widgetId: baseDN, isFolder: true, childIconSrc:'<%= ldapIconURI %>'}
+    );
+    tree.addChild(rootNode);
     var controller = dojo.widget.byId('treeController');
     controller.expand(rootNode);
     _selectedNode = rootNode;
@@ -390,10 +390,10 @@ function <portlet:namespace/>initLDAPTree(baseDN) {
     
     // Update attributes table
     var dn = rootNode.widgetId;
-	LDAPHelper.getAttributes(<portlet:namespace/>updateAttributesTable, dn);
-	
-	// Update Search tab's 'Search DN' field
-	document.LDAPSearchForm.searchDN.value = baseDN;
+    LDAPHelper.getAttributes(<portlet:namespace/>updateAttributesTable, dn);
+    
+    // Update Search tab's 'Search DN' field
+    document.LDAPSearchForm.searchDN.value = baseDN;
 }
 
 /* Init LDAP connection info tab */
@@ -445,10 +445,10 @@ callOnLoad(init);
 </script>
 
 <div dojoType="TreeContextMenu" toggle="explode" contextMenuForWindow="false" widgetId="treeContextMenu">
-	<div dojoType="TreeMenuItem" treeActions="refreshNode" widgetId="treeContextMenuRefresh" caption="Refresh" ></div>
-	<div dojoType="TreeMenuItem" treeActions="searchNode" widgetId="treeContextMenuSearch" caption="Search..."></div>
-	<div dojoType="TreeMenuItem" treeActions="viewEntry" widgetId="treeContextMenuViewEntry" caption="View Entry"></div>
-	<div dojoType="TreeMenuItem" treeActions="viewConnectInfo" widgetId="treeContextMenuConnectInfo" caption="Connect Info"></div>
+    <div dojoType="TreeMenuItem" treeActions="refreshNode" widgetId="treeContextMenuRefresh" caption="Refresh" ></div>
+    <div dojoType="TreeMenuItem" treeActions="searchNode" widgetId="treeContextMenuSearch" caption="Search..."></div>
+    <div dojoType="TreeMenuItem" treeActions="viewEntry" widgetId="treeContextMenuViewEntry" caption="View Entry"></div>
+    <div dojoType="TreeMenuItem" treeActions="viewConnectInfo" widgetId="treeContextMenuConnectInfo" caption="Connect Info"></div>
 </div>
 
 <div dojoType="TreeSelector" widgetId="treeSelector"></div>
@@ -456,23 +456,23 @@ callOnLoad(init);
 
 <!-- Main layout container -->
 <div dojoType="LayoutContainer"
-	layoutChildPriority='left-right'
-	id="mainLayout"
-	style="height: 500px;">
+    layoutChildPriority='left-right'
+    id="mainLayout"
+    style="height: 500px;">
 
     <!-- Horizontal split container -->
-	<div dojoType="SplitContainer"
-		orientation="horizontal"
-		sizerWidth="5"
-		activeSizing="1"
-		layoutAlign="client">
-		
-		<!-- LDAP tree -->
+    <div dojoType="SplitContainer"
+        orientation="horizontal"
+        sizerWidth="5"
+        activeSizing="1"
+        layoutAlign="client">
+        
+        <!-- LDAP tree -->
         <div dojoType="Tree"
             toggle="fade"
             layoutAlign="flood"
-			sizeMin="60"
-			sizeShare="40"
+            sizeMin="60"
+            sizeShare="40"
             widgetId="ldapTree"
             selector="treeSelector"
             controller="treeController"
@@ -483,14 +483,14 @@ callOnLoad(init);
         </div>
 
         <!-- Main tab container -->
-    	<div id="mainTabContainer" 
-    	    dojoType="TabContainer" 
-    	    selectedTab="attributesTab" 
-    	    style="overflow: hidden" 
-    	    sizeShare="60">
+        <div id="mainTabContainer" 
+            dojoType="TabContainer" 
+            selectedTab="attributesTab" 
+            style="overflow: hidden" 
+            sizeShare="60">
             
             <!-- Attributes tab -->
-    		<div id="attributesTab" dojoType="ContentPane" title="LDAP Entry Attributes" label="Attributes" style="overflow: auto">
+            <div id="attributesTab" dojoType="ContentPane" title="LDAP Entry Attributes" label="Attributes" style="overflow: auto">
                 <br>
                 <table width="100%">
                     <tr>
@@ -500,13 +500,13 @@ callOnLoad(init);
                     <tbody id="attributesTableBody">
                     </tbody>
                 </table>
-    		</div> <!-- Attributes tab -->
+            </div> <!-- Attributes tab -->
 
             <!-- Search tab -->
-    		<div id="searchTab" dojoType="ContentPane" title = "" label="Search" style="overflow: auto">
-    		    <br>
+            <div id="searchTab" dojoType="ContentPane" title = "" label="Search" style="overflow: auto">
+                <br>
                 <form NAME="LDAPSearchForm">
-        	        <table>
+                    <table>
                         <tr>
                             <td nowrap align="right">Search DN:</td>
                             <td><input type="text" name="searchDN" value="" size="45"/></td>
@@ -545,35 +545,35 @@ callOnLoad(init);
             </div> <!-- Search tab -->
 
             <!-- Connection Info tab -->
-    		<div id="connectInfoTab" dojoType="ContentPane" title = "" label="Connect Info" style="overflow: auto">
-    		    <br>
+            <div id="connectInfoTab" dojoType="ContentPane" title = "" label="Connect Info" style="overflow: auto">
+                <br>
                 <form NAME="LDAPConnectForm">
-        	        <table>
+                    <table>
                         <tr>
                             <td nowrap align="right">Host:</td>
                             <td>
                                 <input type="text" name="host" value="localhost" size="40"
-                					dojoType="ValidationTextbox"
-                					required="true"
-                					trim="true"
-                                	uppercase: false,
-                                	lowercase: false,
-                                	ucFirst: false,
-                                	digit: false,
-                					missingMessage="<br>* Host is required." />
+                                    dojoType="ValidationTextbox"
+                                    required="true"
+                                    trim="true"
+                                    uppercase: false,
+                                    lowercase: false,
+                                    ucFirst: false,
+                                    digit: false,
+                                    missingMessage="<br>* Host is required." />
                             </td>
                         </tr>
                         <tr>
                             <td nowrap align="right">Port:</td>
                             <td>
                                 <input type="text" name="port" value="1389" size="40"
-                					dojoType="IntegerTextbox"
-                					required="true"
-                					trim="true"
-                					digit="true"
-                					min="0"
-                					max="65535"
-                					missingMessage="<br>* Port is required." 
+                                    dojoType="IntegerTextbox"
+                                    required="true"
+                                    trim="true"
+                                    digit="true"
+                                    min="0"
+                                    max="65535"
+                                    missingMessage="<br>* Port is required." 
                                     invalidMessage="<br>* The value entered is not valid."
                                     rangeMessage="<br>* This value is out of range use 0 - 65535." />
                             </td>
@@ -589,10 +589,10 @@ callOnLoad(init);
                             <td nowrap align="right">Base DN:</td>
                             <td>
                                 <input type="text" name="baseDN" value="ou=system" size="40"
-                					dojoType="ValidationTextbox"
-                					required="true"
-                					trim="true"
-                					missingMessage="<br>* Base DN is required." />
+                                    dojoType="ValidationTextbox"
+                                    required="true"
+                                    trim="true"
+                                    missingMessage="<br>* Base DN is required." />
                             </td>
                         </tr>
                         <tr>
@@ -607,10 +607,10 @@ callOnLoad(init);
                             <td nowrap align="right">User DN:</td>
                             <td>
                                 <input type="text" name="userDN" value="uid=admin, ou=system" size="40"
-                					dojoType="ValidationTextbox"
-                					required="true"
-                					trim="true"
-                					missingMessage="<br>* User DN is required." />
+                                    dojoType="ValidationTextbox"
+                                    required="true"
+                                    trim="true"
+                                    missingMessage="<br>* User DN is required." />
                             </td>
                         </tr>
                         <tr>
@@ -628,8 +628,8 @@ callOnLoad(init);
             </div> <!-- Connection Info tab -->
 
             <!-- Help tab -->
-    		<!--
-    		<div id="helpTab" dojoType="ContentPane" title="Help Information" label="Help" style="overflow: auto">
+            <!--
+            <div id="helpTab" dojoType="ContentPane" title="Help Information" label="Help" style="overflow: auto">
                 <br>
                 <p>The LDAP viewer portlet can be used to do the following:
                 <ul>
@@ -640,10 +640,10 @@ callOnLoad(init);
                     <li>View the LDAP connection environment data
                 </ul>
                 <p>Note: Right-click to any tree node to view the context menu for performing different actions.
-    		</div>
-    		--> 
-    		<!-- Help tab -->
+            </div>
+            --> 
+            <!-- Help tab -->
 
         </div> <!-- Main tab container -->
-	</div>  <!-- Horizontal split container -->
+    </div>  <!-- Horizontal split container -->
 </div> <!-- Main layout container -->
