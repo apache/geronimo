@@ -18,15 +18,21 @@
 
 <!-- $Rev$ $Date$ -->
 
-<web-app xmlns="http://geronimo.apache.org/xml/ns/j2ee/web-1.0"
-         xmlns:sec="http://geronimo.apache.org/xml/ns/security-1.1"
-         xmlns:cfg="http://geronimo.apache.org/xml/ns/deployment-1.0"
-         configId="geronimo/remote-deploy/1.0/car">
-    <cfg:dependency>
-        <cfg:groupId>geronimo</cfg:groupId>
-        <cfg:artifactId>geronimo-remote-deploy-lib</cfg:artifactId>
-        <cfg:version>1.0</cfg:version>
-    </cfg:dependency>
+<web-app xmlns="http://geronimo.apache.org/xml/ns/j2ee/web-1.2"
+         xmlns:sec="http://geronimo.apache.org/xml/ns/security-1.2"
+         xmlns:cfg="http://geronimo.apache.org/xml/ns/deployment-1.2">
+
+    <dep:environment>
+      <dep:moduleId>
+        <dep:groupId>org.apache.geronimo.applications</dep:groupId>
+        <dep:artifactId>geronimo-remote-deploy</dep:artifactId>
+        <dep:version>2.0-SNAPSHOT</dep:version>
+      </dep:moduleId>
+      <dep:dependencies/>
+      <dep:hidden-classes/>
+      <dep:non-overridable-classes/>
+    </dep:environment>
+
     <context-root>/remote-deploy</context-root>
     <context-priority-classloader>true</context-priority-classloader>
     <security-realm-name>geronimo-admin</security-realm-name>

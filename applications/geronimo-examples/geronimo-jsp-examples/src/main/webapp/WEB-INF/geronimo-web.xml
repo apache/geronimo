@@ -17,15 +17,15 @@
 
 <!-- $Rev: 525563 $ $Date: 2007-04-04 13:37:08 -0400 (Wed, 04 Apr 2007) $ -->
 
-<web-app xmlns="http://geronimo.apache.org/xml/ns/j2ee/web/tomcat-1.2"
+<web-app xmlns="http://geronimo.apache.org/xml/ns/j2ee/web-1.2"
+         xmlns:sec="http://geronimo.apache.org/xml/ns/security-1.2"
          xmlns:dep="http://geronimo.apache.org/xml/ns/deployment-1.2">
 
-  <dep:environment >
+  <dep:environment>
     <dep:moduleId>
       <dep:groupId>org.apache.geronimo.applications.examples</dep:groupId>
       <dep:artifactId>geronimo-jsp-examples</dep:artifactId>
       <dep:version>2.0-SNAPSHOT</dep:version>
-      <dep:type>war</dep:type>
     </dep:moduleId>
     <dep:dependencies/>
     <dep:hidden-classes/>
@@ -34,16 +34,17 @@
   
   <context-root>/jsp-examples</context-root>
   <!--<context-priority-classloader>false</context-priority-classloader>-->
-  <security-realm-name>geronimo-properties-realm</security-realm-name>
-  <security>
-      <default-principal>
-          <principal name="anonymous" class="org.apache.geronimo.security.realm.providers.GeronimoUserPrincipal"/>
-      </default-principal>
-      <role-mappings>
-          <role role-name="tomcat">
-              <principal name="admin" class="org.apache.geronimo.security.realm.providers.GeronimoGroupPrincipal"/>
-          </role>
-      </role-mappings>
-  </security>
-
+  <security-realm-name>geronimo-admin</security-realm-name>
+  <sec:security>
+      <sec:default-principal>
+          <sec:principal class="org.apache.geronimo.security.realm.providers.GeronimoUserPrincipal"
+                         name="anonymous"/>
+      </sec:default-principal>
+      <sec:role-mappings>
+          <sec:role role-name="tomcat">
+              <sec:principal class="org.apache.geronimo.security.realm.providers.GeronimoGroupPrincipal"
+                             name="admin"/>
+          </sec:role>
+      </sec:role-mappings>
+  </sec:security>
 </web-app>
