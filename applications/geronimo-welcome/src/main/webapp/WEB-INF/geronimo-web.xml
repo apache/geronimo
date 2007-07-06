@@ -17,8 +17,7 @@
 
 <!-- $Rev: 525563 $ $Date: 2007-04-04 13:37:08 -0400 (Wed, 04 Apr 2007) $ -->
 
-<?xml version="1.0" encoding="UTF-8"?>
-<web-app xmlns="http://geronimo.apache.org/xml/ns/j2ee/web-1.0"
+<web-app xmlns="http://geronimo.apache.org/xml/ns/j2ee/web-1.2"
          xmlns:dep="http://geronimo.apache.org/xml/ns/deployment-1.2">
 
   <dep:environment>
@@ -26,7 +25,6 @@
       <dep:groupId>org.apache.geronimo.applications</dep:groupId>
       <dep:artifactId>welcome</dep:artifactId>
       <dep:version>2.0-SNAPSHOT</dep:version>
-      <dep:type>war</dep:type>
     </dep:moduleId>
     <dep:dependencies/>
     <dep:hidden-classes/>
