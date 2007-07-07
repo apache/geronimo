@@ -46,8 +46,8 @@ public class GeronimoPasswordCredentialLoginModule implements LoginModule {
 
     public boolean login() throws LoginException {
         Callback[] callbacks = new Callback[2];
-        callbacks[0] = new NameCallback("");
-        callbacks[1] = new PasswordCallback("", false);
+        callbacks[0] = new NameCallback("name");
+        callbacks[1] = new PasswordCallback("password", false);
         try {
             callbackHandler.handle(callbacks);
         } catch (java.io.IOException e) {
