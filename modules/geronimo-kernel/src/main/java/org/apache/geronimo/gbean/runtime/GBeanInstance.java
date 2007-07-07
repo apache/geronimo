@@ -882,7 +882,7 @@ public final class GBeanInstance implements StateManageable {
             } else if (instanceState == DESTROYING) {
                 // this should never ever happen... this method is protected by the GBeanState class which should
                 // prevent stuff like this happening, but check anyway
-                stateReason = "an internal error has occurred.  An was made to start an instance that was still stopping which is an illegal state transition.";
+                stateReason = "an internal error has occurred.  An attempt was made to start an instance that was still stopping which is an illegal state transition.";
                 throw new IllegalStateException("A stopping instance can not be started until fully stopped");
             }
             assert instanceState == DESTROYED;

@@ -20,6 +20,7 @@ package org.apache.geronimo.system.main;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
@@ -154,6 +155,16 @@ public class EmbeddedDaemon implements Main {
                         monitor.moduleStarting(configID);
                         configurationManager.startConfiguration(configID, lifecycleMonitor);
                         monitor.moduleStarted(configID);
+                    }
+                    // the server has finished loading the persistent configuration so inform the gbean
+                    AbstractNameQuery startedQuery = new AbstractNameQuery(ServerStatus.class.getName());
+                    Set statusBeans = kernel.listGBeans(startedQuery);
+                    for(Iterator itr = statusBeans.iterator();itr.hasNext();) {
+                        AbstractName statusName = (AbstractName)itr.next();
+                        ServerStatus status = (ServerStatus)kernel.getGBean(statusName);
+                        if(status != null) {
+                            status.setServerStarted(true);
+                        }
                     }
                 } finally {
                     ConfigurationUtil.releaseConfigurationManager(kernel, configurationManager);
