@@ -17,6 +17,18 @@
  */
 package org.apache.geronimo.openejb;
 
+import java.lang.reflect.Method;
+import java.security.AccessControlContext;
+import java.security.AccessControlException;
+import java.security.Permission;
+import java.security.Principal;
+import java.util.Properties;
+
+import javax.security.auth.Subject;
+import javax.security.auth.login.LoginContext;
+import javax.security.auth.login.LoginException;
+import javax.security.jacc.EJBMethodPermission;
+
 import org.apache.geronimo.security.ContextManager;
 import org.apache.geronimo.security.SubjectId;
 import org.apache.openejb.InterfaceType;
@@ -24,17 +36,6 @@ import org.apache.openejb.core.CoreDeploymentInfo;
 import org.apache.openejb.core.ThreadContext;
 import org.apache.openejb.core.security.jaas.UsernamePasswordCallbackHandler;
 import org.apache.openejb.spi.SecurityService;
-
-import javax.security.auth.Subject;
-import javax.security.auth.login.LoginContext;
-import javax.security.auth.login.LoginException;
-import javax.security.jacc.EJBMethodPermission;
-import java.lang.reflect.Method;
-import java.security.AccessControlContext;
-import java.security.AccessControlException;
-import java.security.Permission;
-import java.security.Principal;
-import java.util.Properties;
 
 /**
  * @version $Rev$ $Date$
@@ -44,7 +45,11 @@ public class GeronimoSecurityService implements SecurityService {
     }
 
     public Object login(String user, String pass) throws LoginException {
-        LoginContext context = new LoginContext("OpenEJB", new UsernamePasswordCallbackHandler(user, pass));
+        return login("OpenEJB", user, pass);
+    }
+
+    public Object login(String securityRealm, String user, String pass) throws LoginException {
+        LoginContext context = new LoginContext(securityRealm, new UsernamePasswordCallbackHandler(user, pass));
         context.login();
 
         Subject subject = context.getSubject();
@@ -90,7 +95,7 @@ public class GeronimoSecurityService implements SecurityService {
 
             InterfaceType type = deploymentInfo.getInterfaceType(method.getDeclaringClass());
 
-            String name = (type == null)? null: type.getSpecName();
+            String name = (type == null) ? null : type.getSpecName();
 
             Permission permission = new EJBMethodPermission(ejbName, name, method);
 

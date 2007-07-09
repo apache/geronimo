@@ -35,12 +35,11 @@ public class GeronimoIdentityResolver implements IdentityResolver {
             return null;
         }
 
-        Set<IdentificationPrincipal> identificationPrincipals = subject.getPrincipals(IdentificationPrincipal.class);
-        if (identificationPrincipals.isEmpty()) {
+        Set<ServerIdentityToken> ids = subject.getPrivateCredentials(ServerIdentityToken.class);
+        if (ids.isEmpty()) {
             return null;
         }
-
-        IdentificationPrincipal principal = identificationPrincipals.iterator().next();
-        return principal.getId();
+        ServerIdentityToken id = ids.iterator().next();
+        return id.getId();
     }
 }
