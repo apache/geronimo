@@ -542,18 +542,6 @@
             </dependency>
 
             <dependency>
-                <groupId>xfire</groupId>
-                <artifactId>xfire</artifactId>
-                <version>20050202</version>
-            </dependency>
-
-            <dependency>
-                <groupId>xfire</groupId>
-                <artifactId>xfire-java</artifactId>
-                <version>20050202</version>
-            </dependency>
-
-            <dependency>
                 <groupId>xmlbeans</groupId>
                 <artifactId>xbean</artifactId>
                 <version>2.2.0</version>
