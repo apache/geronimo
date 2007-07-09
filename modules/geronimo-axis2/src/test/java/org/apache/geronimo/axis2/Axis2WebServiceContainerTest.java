@@ -16,6 +16,7 @@
  */
 package org.apache.geronimo.axis2;
 
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
@@ -29,7 +30,6 @@ import org.apache.geronimo.axis2.pojo.POJOWebServiceContainer;
 import org.apache.geronimo.jaxws.PortInfo;
 import org.apache.geronimo.kernel.util.XmlUtil;
 import org.apache.geronimo.webservices.WebServiceContainer.Request;
-import org.apache.tools.ant.filters.StringInputStream;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
@@ -90,7 +90,7 @@ public class Axis2WebServiceContainerTest extends Axis2AbstractTestCase {
         Element root = doc.getDocumentElement();
         NodeList nodeList = root.getElementsByTagName("soap:Envelope");
         
-        StringInputStream request;
+        InputStream request;
         
         for(int i = 0; i < nodeList.getLength(); i++){
         	StringBuffer envelope = new StringBuffer("<soap:Envelope");
@@ -125,7 +125,7 @@ public class Axis2WebServiceContainerTest extends Axis2AbstractTestCase {
         	
             System.out.println(envelope.toString());
             
-        	request = new StringInputStream(envelope.toString());
+            request = new ByteArrayInputStream(envelope.toString().getBytes("UTF-8"));
         	
             PortInfo portInfo = new PortInfo();
             portInfo.setLocation(serviceName);
