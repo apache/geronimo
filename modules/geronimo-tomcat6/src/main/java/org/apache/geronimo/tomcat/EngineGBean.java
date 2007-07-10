@@ -37,7 +37,9 @@ import org.apache.geronimo.gbean.ReferenceCollection;
 import org.apache.geronimo.gbean.ReferenceCollectionEvent;
 import org.apache.geronimo.gbean.ReferenceCollectionListener;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
+import org.apache.geronimo.system.jmx.MBeanServerReference;
 import org.apache.geronimo.tomcat.cluster.CatalinaClusterGBean;
+import org.apache.tomcat.util.modeler.Registry;
 
 /**
  * @version $Rev$ $Date$
@@ -59,7 +61,8 @@ public class EngineGBean extends BaseGBean implements GBeanLifecycle, ObjectRetr
             ValveGBean tomcatValveChain,
             LifecycleListenerGBean listenerChain,
             CatalinaClusterGBean clusterGBean,
-            ManagerGBean manager) throws Exception {
+            ManagerGBean manager,
+            MBeanServerReference mbeanServerReference) throws Exception {
         super(); // TODO: make it an attribute
 
         if (className == null){
@@ -121,6 +124,10 @@ public class EngineGBean extends BaseGBean implements GBeanLifecycle, ObjectRetr
                     listenerGBean = listenerGBean.getNextListener();
                 }
             }
+        }
+
+        if(mbeanServerReference != null) {
+            Registry.setServer(mbeanServerReference.getMBeanServer());
         }
         
         //Add the hosts
@@ -204,6 +211,7 @@ public class EngineGBean extends BaseGBean implements GBeanLifecycle, ObjectRetr
         infoFactory.addReference("LifecycleListenerChain", LifecycleListenerGBean.class, LifecycleListenerGBean.J2EE_TYPE);
         infoFactory.addReference("CatalinaCluster", CatalinaClusterGBean.class, CatalinaClusterGBean.J2EE_TYPE);
         infoFactory.addReference("Manager", ManagerGBean.class, ManagerGBean.J2EE_TYPE);
+        infoFactory.addReference("MBeanServerReference", MBeanServerReference.class);
         infoFactory.addOperation("getInternalObject");
         infoFactory.setConstructor(new String[] { 
                 "className", 
@@ -214,7 +222,8 @@ public class EngineGBean extends BaseGBean implements GBeanLifecycle, ObjectRetr
                 "TomcatValveChain",
                 "LifecycleListenerChain",
                 "CatalinaCluster",
-                "Manager"});
+                "Manager",
+                "MBeanServerReference"});
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
 

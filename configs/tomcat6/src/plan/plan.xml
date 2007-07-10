@@ -134,6 +134,9 @@
         <reference name="TomcatValveChain">
             <name>FirstValve</name>
         </reference>
+        <reference name="MBeanServerReference">
+            <name>MBeanServerReference</name>
+        </reference>
         <dependency>
             <name>TomcatResources</name>
         </dependency>
