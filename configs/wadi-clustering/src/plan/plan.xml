@@ -38,4 +38,9 @@
         </reference>
     </gbean>
 
+    <gbean name="DefaultCluster" class="org.apache.geronimo.clustering.wadi.BasicWADICluster">
+        <reference name="Node"><name>Node</name></reference>
+        <reference name="DispatcherHolder"><name>DefaultDispatcherHolder</name></reference>
+    </gbean>
+
 </module>

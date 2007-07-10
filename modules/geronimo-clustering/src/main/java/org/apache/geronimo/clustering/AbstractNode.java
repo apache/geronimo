@@ -16,18 +16,22 @@
  */
 package org.apache.geronimo.clustering;
 
-import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.gbean.GBeanInfoBuilder;
-import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
+
+import javax.management.remote.JMXConnector;
+import javax.management.remote.JMXConnectorFactory;
+import javax.management.remote.JMXServiceURL;
 
 /**
  *
  * @version $Rev$ $Date$
  */
-public class BasicNode implements Node {
+public abstract class AbstractNode implements Node {
     private final String name;
     
-    public BasicNode(String name) {
+    public AbstractNode(String name) {
         if (null == name) {
             throw new IllegalArgumentException("name is required");
         }
@@ -38,12 +42,23 @@ public class BasicNode implements Node {
         return name;
     }
     
+    public JMXConnector getJMXConnector() throws IOException {
+        Map<String, Object> environment = new HashMap<String, Object>();
+        environment.put(JMXConnectorFactory.DEFAULT_CLASS_LOADER, AbstractNode.class.getClassLoader());
+        JMXServiceURL address = new JMXServiceURL("service:jmx:rmi:///jndi/rmi://" + getHost() + ":" + getPort() + "/JMXConnector");
+        return JMXConnectorFactory.connect(address, environment);
+    }
+    
+    protected abstract String getHost();
+    
+    protected abstract int getPort();
+
     @Override
     public boolean equals(Object obj) {
-        if (!(obj instanceof BasicNode)) {
+        if (!(obj instanceof AbstractNode)) {
             return false;
         }
-        BasicNode other = (BasicNode) obj;
+        AbstractNode other = (AbstractNode) obj;
         return name.equals(other.name);
     }
     
@@ -52,23 +67,4 @@ public class BasicNode implements Node {
         return name.hashCode();
     }
     
-    public static final GBeanInfo GBEAN_INFO;
-    
-    public static final String GBEAN_ATTR_NODE_NAME = "nodeName";
-    
-    static {
-        GBeanInfoBuilder infoBuilder = GBeanInfoBuilder.createStatic(BasicNode.class, NameFactory.GERONIMO_SERVICE);
-        
-        infoBuilder.addAttribute(GBEAN_ATTR_NODE_NAME, String.class, true);
-        
-        infoBuilder.addInterface(Node.class);
-        
-        infoBuilder.setConstructor(new String[] {GBEAN_ATTR_NODE_NAME});
-        
-        GBEAN_INFO = infoBuilder.getBeanInfo();
-    }
-
-    public static GBeanInfo getGBeanInfo() {
-        return GBEAN_INFO;
-    }
 }

@@ -64,7 +64,7 @@ public class WADIJettyClusteringBuilder implements NamespaceDrivenBuilder {
     private final AbstractNameQuery defaultRepManagerFactoryName;
     private final AbstractNameQuery defaultRepStorageFactoryName;
     private final AbstractNameQuery defaultBackingStrategyFactoryName;
-    private final AbstractNameQuery defaultDispatcherHolderName;
+    private final AbstractNameQuery defaultClusterName;
     private final Environment defaultEnvironment;
 
     public WADIJettyClusteringBuilder(int defaultSweepInterval,
@@ -72,16 +72,19 @@ public class WADIJettyClusteringBuilder implements NamespaceDrivenBuilder {
             AbstractNameQuery defaultRepManagerFactoryName,
             AbstractNameQuery defaultRepStorageFactoryName,
             AbstractNameQuery defaultBackingStrategyFactoryName,
-            AbstractNameQuery defaultDispatcherHolderName,
+            AbstractNameQuery defaultClusterName,
             Environment defaultEnvironment) {
         this.defaultSweepInterval = defaultSweepInterval;
         this.defaultNumPartitions = defaultNumPartitions;
         this.defaultRepManagerFactoryName = defaultRepManagerFactoryName;
         this.defaultRepStorageFactoryName = defaultRepStorageFactoryName;
         this.defaultBackingStrategyFactoryName = defaultBackingStrategyFactoryName;
-        this.defaultDispatcherHolderName = defaultDispatcherHolderName;
+        this.defaultClusterName = defaultClusterName;
         this.defaultEnvironment = defaultEnvironment;
-        SchemaConversionUtils.registerNamespaceConversions(Collections.singletonMap(CLUSTERING_WADI_QNAME.getLocalPart(), new NamespaceElementConverter(CLUSTERING_WADI_QNAME.getNamespaceURI())));
+        
+        SchemaConversionUtils.registerNamespaceConversions(
+            Collections.singletonMap(CLUSTERING_WADI_QNAME.getLocalPart(),
+            new NamespaceElementConverter(CLUSTERING_WADI_QNAME.getNamespaceURI())));
     }
 
     public void buildEnvironment(XmlObject container, Environment environment) throws DeploymentException {
@@ -133,7 +136,8 @@ public class WADIJettyClusteringBuilder implements NamespaceDrivenBuilder {
         return null;
     }
 
-    private AbstractName addSessionManager(GerClusteringWadiType clustering, GBeanData webModuleData,
+    private AbstractName addSessionManager(GerClusteringWadiType clustering,
+            GBeanData webModuleData,
             DeploymentContext moduleContext) throws GBeanAlreadyExistsException {
         AbstractName name = moduleContext.getNaming().createChildName(moduleContext.getModuleName(),
                 "WADISessionManager", NameFactory.GERONIMO_SERVICE);
@@ -141,10 +145,10 @@ public class WADIJettyClusteringBuilder implements NamespaceDrivenBuilder {
         GBeanData beanData = new GBeanData(name, BasicWADISessionManager.GBEAN_INFO);
 
         setConfigInfo(clustering, webModuleData, beanData);
+        setCluster(clustering, beanData);
         setReplicationManagerFactory(clustering, beanData);
         setReplicaStorageFactory(clustering, beanData);
         setBackingStrategyFactory(clustering, beanData);
-        setDispatcher(clustering, beanData);
 
         moduleContext.addGBean(beanData);
 
@@ -173,14 +177,14 @@ public class WADIJettyClusteringBuilder implements NamespaceDrivenBuilder {
         beanData.setAttribute(BasicWADISessionManager.GBEAN_ATTR_WADI_CONFIG_INFO, configInfo);
     }
 
-    private void setDispatcher(GerClusteringWadiType clustering, GBeanData beanData) {
+    private void setCluster(GerClusteringWadiType clustering, GBeanData beanData) {
         Set patterns = new HashSet();
-        if (clustering.isSetDispatcher()) {
-            addAbstractNameQueries(patterns, clustering.getDispatcher().getPatternArray());
+        if (clustering.isSetCluster()) {
+            addAbstractNameQueries(patterns, clustering.getCluster().getPatternArray());
         } else {
-            patterns.add(defaultDispatcherHolderName);
+            patterns.add(defaultClusterName);
         }
-        beanData.setReferencePatterns(BasicWADISessionManager.GBEAN_REF_DISPATCHER_HOLDER, patterns);
+        beanData.setReferencePatterns(BasicWADISessionManager.GBEAN_REF_CLUSTER, patterns);
     }
 
     private void setBackingStrategyFactory(GerClusteringWadiType clustering, GBeanData beanData) {
@@ -257,7 +261,7 @@ public class WADIJettyClusteringBuilder implements NamespaceDrivenBuilder {
     public static final String GBEAN_ATTR_DFT_REP_MANAGER_FACTORY_NAME = "defaultReplicationManagerFactoryName";
     public static final String GBEAN_ATTR_DFT_REP_STORAGE_FACTORY_NAME = "defaultReplicaStorageFactoryName";
     public static final String GBEAN_ATTR_DFT_BACKING_STRATEGY_FACTORY_NAME = "defaultBackingStrategyFactoryName";
-    public static final String GBEAN_ATTR_DFT_DISPATCHER_HOLDER_NAME = "defaultDispatcherHolderName";
+    public static final String GBEAN_ATTR_DFT_CLUSTER_NAME = "defaultClusterName";
     public static final String GBEAN_ATTR_DFT_ENVIRONMENT = "defaultEnvironment";
 
     static {
@@ -270,7 +274,7 @@ public class WADIJettyClusteringBuilder implements NamespaceDrivenBuilder {
         infoBuilder.addAttribute(GBEAN_ATTR_DFT_REP_MANAGER_FACTORY_NAME, AbstractNameQuery.class, true);
         infoBuilder.addAttribute(GBEAN_ATTR_DFT_REP_STORAGE_FACTORY_NAME, AbstractNameQuery.class, true);
         infoBuilder.addAttribute(GBEAN_ATTR_DFT_BACKING_STRATEGY_FACTORY_NAME, AbstractNameQuery.class, true);
-        infoBuilder.addAttribute(GBEAN_ATTR_DFT_DISPATCHER_HOLDER_NAME, AbstractNameQuery.class, true);
+        infoBuilder.addAttribute(GBEAN_ATTR_DFT_CLUSTER_NAME, AbstractNameQuery.class, true);
         infoBuilder.addAttribute(GBEAN_ATTR_DFT_ENVIRONMENT, Environment.class, true);
 
         infoBuilder.setConstructor(new String[]{GBEAN_ATTR_DFT_SWEEP_INTERVAL,
@@ -278,7 +282,7 @@ public class WADIJettyClusteringBuilder implements NamespaceDrivenBuilder {
                 GBEAN_ATTR_DFT_REP_MANAGER_FACTORY_NAME,
                 GBEAN_ATTR_DFT_REP_STORAGE_FACTORY_NAME,
                 GBEAN_ATTR_DFT_BACKING_STRATEGY_FACTORY_NAME,
-                GBEAN_ATTR_DFT_DISPATCHER_HOLDER_NAME,
+                GBEAN_ATTR_DFT_CLUSTER_NAME,
                 GBEAN_ATTR_DFT_ENVIRONMENT});
 
         GBEAN_INFO = infoBuilder.getBeanInfo();

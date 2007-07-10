@@ -16,13 +16,22 @@
  */
 package org.apache.geronimo.clustering.wadi;
 
-import org.apache.geronimo.clustering.Cluster;
+import org.apache.geronimo.clustering.Node;
+import org.codehaus.wadi.group.Cluster;
+import org.codehaus.wadi.group.Peer;
+
+
 
 /**
- * 
+ *
  * @version $Rev$ $Date$
  */
-public interface WADICluster extends Cluster {
-    org.codehaus.wadi.group.Cluster getCluster();
+public class NodeProxyFactory implements NodeFactory {
+
+    public Node newNode(Cluster cluster, Peer peer) {
+        NodeServiceHelper serviceHelper = new NodeServiceHelper(cluster.getDispatcher());
+        NodeService nodeService = serviceHelper.getNodeServiceProxy(peer);
+        return new RemoteNode(peer, nodeService);
+    }
     
 }

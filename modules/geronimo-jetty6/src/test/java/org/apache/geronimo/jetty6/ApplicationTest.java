@@ -29,7 +29,6 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.geronimo.clustering.BasicNode;
 import org.apache.geronimo.clustering.Node;
 import org.apache.geronimo.clustering.Session;
 import org.apache.geronimo.clustering.SessionAlreadyExistException;
@@ -71,7 +70,17 @@ public class ApplicationTest extends AbstractWebModuleTest {
 
     private static class MockSessionManager implements SessionManager {
 
-        Node node = new BasicNode("testNode");
+        Node node = new Node() {
+
+            public javax.management.remote.JMXConnector getJMXConnector() throws IOException {
+                throw new UnsupportedOperationException();
+            }
+
+            public String getName() {
+                return "name";
+            }
+
+        };
 
         public Session createSession(String string) throws SessionAlreadyExistException {
             return null;

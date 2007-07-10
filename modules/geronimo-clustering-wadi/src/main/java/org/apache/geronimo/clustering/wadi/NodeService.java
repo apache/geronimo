@@ -16,13 +16,16 @@
  */
 package org.apache.geronimo.clustering.wadi;
 
-import org.apache.geronimo.clustering.Cluster;
+import org.codehaus.wadi.core.Lifecycle;
+import org.codehaus.wadi.servicespace.ServiceName;
+
 
 /**
- * 
+ *
  * @version $Rev$ $Date$
  */
-public interface WADICluster extends Cluster {
-    org.codehaus.wadi.group.Cluster getCluster();
+public interface NodeService extends Lifecycle {
+    ServiceName SERVICE_NAME = new ServiceName("NodeService");
     
+    NodeConnectionInfo getConnectionInfo();
 }

@@ -16,6 +16,11 @@
  */
 package org.apache.geronimo.clustering;
 
+import java.io.IOException;
+
+import javax.management.remote.JMXConnector;
+
+
 /**
  * Represents a node.
  *
@@ -30,4 +35,5 @@ public interface Node {
      */
     String getName();
 
+    JMXConnector getJMXConnector()  throws IOException;
 }

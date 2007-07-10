@@ -16,13 +16,34 @@
  */
 package org.apache.geronimo.clustering.wadi;
 
-import org.apache.geronimo.clustering.Cluster;
+import org.apache.geronimo.clustering.LocalNode;
+import org.apache.geronimo.jmxremoting.JMXConnectorInfo;
+
+
 
 /**
- * 
+ *
  * @version $Rev$ $Date$
  */
-public interface WADICluster extends Cluster {
-    org.codehaus.wadi.group.Cluster getCluster();
+public class BasicNodeService implements NodeService {
+
+    private final LocalNode localNode;
     
+    public BasicNodeService(LocalNode node) {
+        if (null == node) {
+            throw new IllegalArgumentException("node is required");
+        }
+        this.localNode = node;
+    }
+
+    public NodeConnectionInfo getConnectionInfo() {
+        JMXConnectorInfo connectorInfo = localNode.getJMXConnectorInfo();
+        return new NodeConnectionInfo(connectorInfo.getHost(), connectorInfo.getPort());
+    }
+    
+    public void start() throws Exception {
+    }
+
+    public void stop() throws Exception {
+    }
 }

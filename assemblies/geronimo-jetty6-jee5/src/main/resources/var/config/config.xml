@@ -284,4 +284,10 @@
 
     <module name="org.apache.geronimo.configs/ca-helper-jetty/${version}/car" load="false"/>
     
+    <module name="org.apache.geronimo.configs/clustering/${version}/car">
+        <gbean name="Node">
+            <attribute name="nodeName">${PlanNodeName}</attribute>
+        </gbean>
+    </module>
+    
 </attributes>

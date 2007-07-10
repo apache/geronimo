@@ -14,15 +14,14 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.apache.geronimo.clustering.wadi;
+package org.apache.geronimo.clustering;
 
-import org.apache.geronimo.clustering.Cluster;
+import org.apache.geronimo.jmxremoting.JMXConnectorInfo;
 
 /**
- * 
+ *
  * @version $Rev$ $Date$
  */
-public interface WADICluster extends Cluster {
-    org.codehaus.wadi.group.Cluster getCluster();
-    
+public interface LocalNode extends Node {
+    JMXConnectorInfo getJMXConnectorInfo();
 }

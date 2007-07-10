@@ -19,15 +19,14 @@ package org.apache.geronimo.clustering.wadi;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.geronimo.clustering.BasicNode;
 import org.apache.geronimo.clustering.ClusterListener;
+import org.apache.geronimo.clustering.LocalNode;
 import org.apache.geronimo.clustering.Node;
 import org.codehaus.wadi.group.Address;
-import org.codehaus.wadi.group.LocalPeer;
+import org.codehaus.wadi.group.Dispatcher;
 import org.codehaus.wadi.group.Peer;
 
 import com.agical.rmock.core.Action;
@@ -40,27 +39,31 @@ import com.agical.rmock.extension.junit.RMockTestCase;
  * 
  * @version $Rev$ $Date$
  */
-public class WADIClusterTest extends RMockTestCase {
+public class BasicWADIClusterTest extends RMockTestCase {
 
+    private Dispatcher dispatcher;
     private org.codehaus.wadi.group.Cluster wadiCluster;
-    private LocalPeer localPeer;
+    private LocalNode localNode;
     private Peer peer1;
     private Peer peer2;
-    private WADICluster cluster;
+    private BasicWADICluster cluster;
     private ClusterListener listener;
+    private NodeFactory nodeFactory;
+    private Node nodePeer1;
+    private Node nodePeer2;
     
     @Override
     protected void setUp() throws Exception {
         DispatcherHolder dispatcherHolder = (DispatcherHolder) mock(DispatcherHolder.class);
 
-        wadiCluster = dispatcherHolder.getDispatcher().getCluster();
+        dispatcher = dispatcherHolder.getDispatcher();
+        
+        wadiCluster = dispatcher.getCluster();
         wadiCluster.getClusterName();
         modify().multiplicity(expect.from(0)).returnValue("name");
 
-        localPeer = wadiCluster.getLocalPeer();
-        modify().multiplicity(expect.from(0));
-        localPeer.getName();
-        modify().multiplicity(expect.from(0)).returnValue("localPeerName");
+        wadiCluster.getDispatcher();
+        modify().multiplicity(expect.from(0)).returnValue(dispatcher);
         
         Map<Address, Peer> remotePeers = new HashMap<Address, Peer>();
         peer1 = addPeer("peer1", remotePeers);
@@ -69,7 +72,15 @@ public class WADIClusterTest extends RMockTestCase {
         wadiCluster.getRemotePeers();
         modify().multiplicity(expect.from(0)).returnValue(remotePeers);
         
-        cluster = new WADICluster(dispatcherHolder);
+        localNode = (LocalNode) mock(LocalNode.class);
+
+        nodeFactory = (NodeFactory) mock(NodeFactory.class);
+        nodePeer1 = nodeFactory.newNode(wadiCluster, peer1);
+        modify().multiplicity(expect.from(0));
+        nodePeer2 = nodeFactory.newNode(wadiCluster, peer2);
+        modify().multiplicity(expect.from(0));
+        
+        cluster = new BasicWADICluster(localNode, dispatcherHolder, nodeFactory);
         listener = (ClusterListener) mock(ClusterListener.class);
     }
 
@@ -87,27 +98,24 @@ public class WADIClusterTest extends RMockTestCase {
     }
     
     public void testGetName() throws Exception {
-        startVerification();
-        cluster.doStart();
+        startVerificationAndInitWADICluster();
         
         assertEquals(wadiCluster.getClusterName(), cluster.getName());
     }
     
     public void testGetLocalNode() throws Exception {
-        startVerification();
-        cluster.doStart();
+        startVerificationAndInitWADICluster();
         
-        assertEquals(localPeer.getName(), cluster.getLocalNode().getName());
+        assertEquals(localNode, cluster.getLocalNode());
     }
     
     public void testGetRemotePeers() throws Exception {
-        startVerification();
-        cluster.doStart();
-
+        startVerificationAndInitWADICluster();
+        
         Set<Node> remoteNodes = cluster.getRemoteNodes();
         assertEquals(2, remoteNodes.size());
-        assertTrue(remoteNodes.contains(new BasicNode(peer1.getName())));
-        assertTrue(remoteNodes.contains(new BasicNode(peer2.getName())));
+        assertTrue(remoteNodes.contains(nodePeer1));
+        assertTrue(remoteNodes.contains(nodePeer2));
     }
     
     public void testAddClusterListener() throws Exception {
@@ -124,15 +132,13 @@ public class WADIClusterTest extends RMockTestCase {
             
         });
         
-        startVerification();
-        cluster.doStart();
+        startVerificationAndInitWADICluster();
         
         cluster.addClusterListener(listener);
     }
     
     public void testAddNullClusterListenerThrowsException() throws Exception {
-        startVerification();
-        cluster.doStart();
+        startVerificationAndInitWADICluster();
         
         try {
             cluster.addClusterListener(null);
@@ -148,16 +154,14 @@ public class WADIClusterTest extends RMockTestCase {
         wadiCluster.removeClusterListener(null);
         modify().args(assertSame);
         
-        startVerification();
-        cluster.doStart();
+        startVerificationAndInitWADICluster();
 
         cluster.addClusterListener(listener);
         cluster.removeClusterListener(listener);
     }
     
     public void testRemoveUndefinedClusterListenerThrowsException() throws Exception {
-        startVerification();
-        cluster.doStart();
+        startVerificationAndInitWADICluster();
 
         try {
             cluster.removeClusterListener(listener);
@@ -167,10 +171,6 @@ public class WADIClusterTest extends RMockTestCase {
     }
     
     public void testClusterListenerRegistrationCallback() throws Exception {
-        Set<Node> existing = new HashSet<Node>();
-        existing.add(new BasicNode("peer1"));
-        listener.onListenerRegistration(cluster, existing);
-        
         wadiCluster.addClusterListener(null);
         modify().args(is.ANYTHING).perform(new Action() {
 
@@ -182,19 +182,14 @@ public class WADIClusterTest extends RMockTestCase {
             
         });
 
-        startVerification();
-        cluster.doStart();
+        listener.onListenerRegistration(cluster, Collections.singleton(nodePeer1));
+        
+        startVerificationAndInitWADICluster();
         
         cluster.addClusterListener(listener);
     }
     
     public void testClusterListenerMembershipChangeCallback() throws Exception {
-        Set<Node> joiners = new HashSet<Node>();
-        joiners.add(new BasicNode("peer1"));
-        Set<Node> leavers = new HashSet<Node>();
-        leavers.add(new BasicNode("peer2"));
-        listener.onMembershipChanged(cluster, joiners, leavers);
-        
         wadiCluster.addClusterListener(null);
         modify().args(is.ANYTHING).perform(new Action() {
 
@@ -206,8 +201,9 @@ public class WADIClusterTest extends RMockTestCase {
             
         });
 
-        startVerification();
-        cluster.doStart();
+        listener.onMembershipChanged(cluster, Collections.singleton(nodePeer1), Collections.singleton(nodePeer2));
+
+        startVerificationAndInitWADICluster();
         
         cluster.addClusterListener(listener);
     }
@@ -219,19 +215,24 @@ public class WADIClusterTest extends RMockTestCase {
         wadiCluster.removeClusterListener(null);
         modify().args(assertSame);
         
-        startVerification();
-        cluster.doStart();
+        startVerificationAndInitWADICluster();
         
         cluster.addClusterListener(listener);
         cluster.doStop();
     }
+
+    private void startVerificationAndInitWADICluster() throws Exception {
+        startVerification();
+        cluster.doStart();
+        cluster.getRemoteNodes();
+    }
     
     private final class AssertSameWADIListener extends AbstractExpression {
         private org.codehaus.wadi.group.ClusterListener wadiListener;
-
+        
         public void describeWith(ExpressionDescriber arg0) throws IOException {
         }
-
+        
         public boolean passes(Object arg0) {
             if (null == wadiListener) {
                 wadiListener = (org.codehaus.wadi.group.ClusterListener) arg0;
@@ -241,5 +242,5 @@ public class WADIClusterTest extends RMockTestCase {
             return true;
         }
     }
-
+    
 }

@@ -44,6 +44,12 @@
             <artifactId>geronimo-j2ee</artifactId>
             <version>${version}</version>
         </dependency>
+
+        <dependency>
+            <groupId>${pom.groupId}</groupId>
+            <artifactId>geronimo-jmx-remoting</artifactId>
+            <version>${version}</version>
+        </dependency>
     </dependencies>
     
 </project>

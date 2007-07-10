@@ -16,13 +16,32 @@
  */
 package org.apache.geronimo.clustering.wadi;
 
-import org.apache.geronimo.clustering.Cluster;
+import java.io.Serializable;
+
 
 /**
- * 
+ *
  * @version $Rev$ $Date$
  */
-public interface WADICluster extends Cluster {
-    org.codehaus.wadi.group.Cluster getCluster();
+public class NodeConnectionInfo implements Serializable {
+    private final String host;
+    private final int port;
     
+    public NodeConnectionInfo(String host, int port) {
+        if (null == host) {
+            throw new IllegalArgumentException("host is required");
+        } else if (port < 1) {
+            throw new IllegalArgumentException("port must be greater than 0");
+        }
+        this.host = host;
+        this.port = port;
+    }
+
+    public String getHost() {
+        return host;
+    }
+
+    public int getPort() {
+        return port;
+    }
 }

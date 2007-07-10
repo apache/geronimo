@@ -14,15 +14,30 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.apache.geronimo.clustering.wadi;
+package org.apache.geronimo.jmxremoting;
 
-import org.apache.geronimo.clustering.Cluster;
+import java.net.InetSocketAddress;
 
 /**
- * 
- * @version $Rev$ $Date$
+ *
+ * @version $Rev: 476049 $ $Date: 2006-11-17 15:35:17 +1100 (Fri, 17 Nov 2006) $
  */
-public interface WADICluster extends Cluster {
-    org.codehaus.wadi.group.Cluster getCluster();
-    
+public interface JMXConnectorInfo {
+    InetSocketAddress getListenAddress();
+
+    String getProtocol();
+
+    void setProtocol(String protocol);
+
+    String getHost();
+
+    void setHost(String host);
+
+    int getPort();
+
+    void setPort(int port);
+
+    String getUrlPath();
+
+    void setUrlPath(String urlPath);
 }

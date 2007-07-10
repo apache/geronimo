@@ -16,13 +16,16 @@
  */
 package org.apache.geronimo.clustering.wadi;
 
-import org.apache.geronimo.clustering.Cluster;
+import org.apache.geronimo.clustering.Node;
+import org.codehaus.wadi.group.Cluster;
+import org.codehaus.wadi.group.Peer;
+
+
 
 /**
- * 
+ *
  * @version $Rev$ $Date$
  */
-public interface WADICluster extends Cluster {
-    org.codehaus.wadi.group.Cluster getCluster();
-    
+public interface NodeFactory {
+    Node newNode(Cluster cluster, Peer peer);
 }

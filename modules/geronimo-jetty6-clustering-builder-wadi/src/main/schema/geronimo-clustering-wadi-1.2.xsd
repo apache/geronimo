@@ -36,14 +36,14 @@
     <xs:complexType name="clustering-wadiType">
         <xs:complexContent>
             <xs:extension base="app:abstract-clusteringType">
-        <xs:sequence>
-            <xs:element name="sweepInterval" type="xs:integer" minOccurs="0"/>
-            <xs:element name="numPartitions" type="xs:integer" minOccurs="0"/>
-            <xs:element name="dispatcher" type="naming:gbean-refType" minOccurs="0"/>
-            <xs:element name="replication-manager-factory" type="naming:gbean-refType" minOccurs="0"/>
-            <xs:element name="replica-storage-factory" type="naming:gbean-refType" minOccurs="0"/>
-            <xs:element name="backing-strategy-factory" type="naming:gbean-refType" minOccurs="0"/>
-        </xs:sequence>
+            <xs:sequence>
+                <xs:element name="sweepInterval" type="xs:integer" minOccurs="0"/>
+                <xs:element name="numPartitions" type="xs:integer" minOccurs="0"/>
+                <xs:element name="cluster" type="naming:gbean-refType" minOccurs="0"/>
+                <xs:element name="replication-manager-factory" type="naming:gbean-refType" minOccurs="0"/>
+                <xs:element name="replica-storage-factory" type="naming:gbean-refType" minOccurs="0"/>
+                <xs:element name="backing-strategy-factory" type="naming:gbean-refType" minOccurs="0"/>
+            </xs:sequence>
         </xs:extension>
         </xs:complexContent>
     </xs:complexType>

@@ -26,7 +26,7 @@
         <attribute name="defaultReplicationManagerFactoryName">?name=DefaultReplicationManagerFactory</attribute>
         <attribute name="defaultReplicaStorageFactoryName">?name=DefaultReplicaStorageFactory</attribute>
         <attribute name="defaultBackingStrategyFactoryName">?name=DefaultBackingStrategyFactory</attribute>
-        <attribute name="defaultDispatcherHolderName">?name=DefaultDispatcherHolder</attribute>
+        <attribute name="defaultClusterName">?name=DefaultCluster</attribute>
         <xml-attribute name="defaultEnvironment">
             <environment xmlns="http://geronimo.apache.org/xml/ns/deployment-1.1">
                 <dependencies>

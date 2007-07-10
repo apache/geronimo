@@ -19,12 +19,13 @@ package org.apache.geronimo.jmxremoting;
 import java.net.InetSocketAddress;
 import java.util.HashMap;
 import java.util.Map;
+
+import javax.management.MBeanServer;
+import javax.management.NotificationFilterSupport;
+import javax.management.remote.JMXConnectionNotification;
 import javax.management.remote.JMXConnectorServer;
 import javax.management.remote.JMXConnectorServerFactory;
 import javax.management.remote.JMXServiceURL;
-import javax.management.remote.JMXConnectionNotification;
-import javax.management.MBeanServer;
-import javax.management.NotificationFilterSupport;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -38,7 +39,7 @@ import org.apache.geronimo.system.jmx.MBeanServerReference;
  *
  * @version $Rev$ $Date$
  */
-public class JMXConnector implements GBeanLifecycle {
+public class JMXConnector implements JMXConnectorInfo, GBeanLifecycle {
     private final MBeanServer mbeanServer;
     private final Log log;
     private final ClassLoader classLoader;
@@ -229,6 +230,8 @@ public class JMXConnector implements GBeanLifecycle {
         infoFactory.addAttribute("urlPath", String.class, true, true);
         infoFactory.addAttribute("applicationConfigName", String.class, true, true);
 
+        infoFactory.addInterface(JMXConnectorInfo.class);
+        
         infoFactory.setConstructor(new String[]{"MBeanServerReference", "objectName", "classLoader"});
         GBEAN_INFO = infoFactory.getBeanInfo();
     }

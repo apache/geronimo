@@ -21,6 +21,7 @@ import java.util.Collections;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.geronimo.clustering.LocalNode;
 import org.apache.geronimo.clustering.Node;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
@@ -43,13 +44,13 @@ public class TribesDispatcherHolder implements GBeanLifecycle, DispatcherHolder 
     
     private final URI endPointURI;
     private final String clusterName;
-    private final Node node;
+    private final LocalNode node;
     private final DispatcherRegistry dispatcherRegistry;
 
     private TribesDispatcher dispatcher;
     private AdminServiceSpace adminServiceSpace;
 
-    public TribesDispatcherHolder(URI endPointURI, String clusterName, Node node) {
+    public TribesDispatcherHolder(URI endPointURI, String clusterName, LocalNode node) {
         if (null == endPointURI) {
             throw new IllegalArgumentException("endPointURI is required");
         } else if (null == clusterName) {
@@ -72,16 +73,16 @@ public class TribesDispatcherHolder implements GBeanLifecycle, DispatcherHolder 
         dispatcher.start();
         
         adminServiceSpace = new AdminServiceSpace(dispatcher);
+        
+        registerCustomAdminServices();
+        
         adminServiceSpace.start();
         
         dispatcherRegistry.register(dispatcher);
     }
 
     public void doStop() throws Exception {
-        if (null != adminServiceSpace) {
-            adminServiceSpace.stop();
-        }
-        
+        adminServiceSpace.stop();
         dispatcherRegistry.unregister(dispatcher);
         dispatcher.stop();
     }
@@ -95,11 +96,13 @@ public class TribesDispatcherHolder implements GBeanLifecycle, DispatcherHolder 
             }
         }
         
-        dispatcherRegistry.unregister(dispatcher);
-        try {
-            dispatcher.stop();
-        } catch (MessageExchangeException e) {
-            log.error("see nested", e);
+        if (null != dispatcher) {
+            dispatcherRegistry.unregister(dispatcher);
+            try {
+                dispatcher.stop();
+            } catch (MessageExchangeException e) {
+                log.error("see nested", e);
+            }
         }
     }
     
@@ -111,6 +114,10 @@ public class TribesDispatcherHolder implements GBeanLifecycle, DispatcherHolder 
         return node;
     }
     
+    protected void registerCustomAdminServices() {
+        NodeServiceHelper nodeServiceHelper = new NodeServiceHelper(adminServiceSpace);
+        nodeServiceHelper.registerNodeService(new BasicNodeService(node));
+    }
     
     public static final GBeanInfo GBEAN_INFO;
     
@@ -127,7 +134,7 @@ public class TribesDispatcherHolder implements GBeanLifecycle, DispatcherHolder 
         infoBuilder.addAttribute(GBEAN_ATTR_END_POINT_URI, URI.class, true);
         infoBuilder.addAttribute(GBEAN_ATTR_CLUSTER_NAME, String.class, true);
         
-        infoBuilder.addReference(GBEAN_REF_NODE, Node.class, NameFactory.GERONIMO_SERVICE);
+        infoBuilder.addReference(GBEAN_REF_NODE, LocalNode.class, NameFactory.GERONIMO_SERVICE);
 
         infoBuilder.addInterface(DispatcherHolder.class);
         
