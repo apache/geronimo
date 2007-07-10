@@ -17,17 +17,17 @@
 
 package org.apache.geronimo.security.jaas;
 
-import org.apache.geronimo.gbean.AbstractName;
-import org.apache.geronimo.gbean.GBeanData;
-import org.apache.geronimo.gbean.AbstractNameQuery;
-import org.apache.geronimo.security.AbstractTest;
-import org.apache.geronimo.security.ContextManager;
-import org.apache.geronimo.security.RealmPrincipal;
+import java.util.Properties;
 
 import javax.security.auth.Subject;
 import javax.security.auth.login.LoginContext;
 import javax.security.auth.login.LoginException;
-import java.util.Properties;
+
+import org.apache.geronimo.gbean.AbstractName;
+import org.apache.geronimo.gbean.GBeanData;
+import org.apache.geronimo.security.AbstractTest;
+import org.apache.geronimo.security.ContextManager;
+import org.apache.geronimo.security.RealmPrincipal;
 
 
 /**
@@ -59,7 +59,6 @@ public class LoginKerberosNonGeronimoTest extends AbstractTest {
         gbean = buildGBeanData("name", "KerberosLoginModule", LoginModuleGBean.getGBeanInfo());
         kerberosLM = gbean.getAbstractName();
         gbean.setAttribute("loginModuleClass", "com.sun.security.auth.module.Krb5LoginModule");
-        gbean.setAttribute("serverSide", Boolean.TRUE); // normally not, but in this case, it's treated as server-side
         Properties props = new Properties();
         props.put("debug", "true");
         props.put("useTicketCache", "true");

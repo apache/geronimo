@@ -16,10 +16,11 @@
  */
 package org.apache.geronimo.security.jaas;
 
+import javax.security.auth.login.AppConfigurationEntry;
+
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
-import org.apache.geronimo.security.jaas.server.JaasLoginModuleConfiguration;
 
 
 /**
@@ -51,8 +52,8 @@ public class DirectConfigurationEntry implements ConfigurationEntryFactory {
         return applicationConfigName;
     }
 
-    public JaasLoginModuleConfiguration generateConfiguration() {
-        return new JaasLoginModuleConfiguration(module.getLoginModuleClass(), controlFlag, module.getOptions(), module.isServerSide(), applicationConfigName, false, module.getClassLoader());
+    public AppConfigurationEntry[] getAppConfigurationEntries() {
+        return new AppConfigurationEntry[] {new AppConfigurationEntry(module.getLoginModuleClass(), controlFlag.getFlag(), module.getOptions())};
     }
 
     public static final GBeanInfo GBEAN_INFO;

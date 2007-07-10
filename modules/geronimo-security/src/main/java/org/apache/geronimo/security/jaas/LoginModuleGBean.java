@@ -16,7 +16,8 @@
  */
 package org.apache.geronimo.security.jaas;
 
-import java.util.Properties;
+import java.util.Collections;
+import java.util.Map;
 
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
@@ -35,18 +36,16 @@ import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 public class LoginModuleGBean implements LoginModuleSettings {
     private String loginDomainName;
     private String loginModuleClass;
-    private Properties options;
+    private Map<String, Object> options;
     private final String objectName;
-    private boolean serverSide;
     private boolean wrapPrincipals;
     private final ClassLoader classLoader;
 
-    public LoginModuleGBean(String loginModuleClass, String objectName, boolean serverSide, boolean wrapPrincipals, Properties options, String loginDomainName, ClassLoader classLoader) {
+    public LoginModuleGBean(String loginModuleClass, String objectName, boolean wrapPrincipals, Map<String, Object> options, String loginDomainName, ClassLoader classLoader) {
         this.loginModuleClass = loginModuleClass;
         this.objectName = objectName;
-        this.serverSide = serverSide;
         this.wrapPrincipals = wrapPrincipals;
-        this.options = options == null? new Properties(): options;
+        this.options = options == null? Collections.<String, Object>emptyMap(): options;
         this.loginDomainName = loginDomainName;
         this.classLoader = classLoader;
     }
@@ -59,11 +58,11 @@ public class LoginModuleGBean implements LoginModuleSettings {
         this.loginDomainName = loginDomainName;
     }
 
-    public Properties getOptions() {
+    public Map<String, Object> getOptions() {
         return options;
     }
 
-    public void setOptions(Properties options) {
+    public void setOptions(Map<String, Object> options) {
         this.options = options;
     }
 
@@ -77,14 +76,6 @@ public class LoginModuleGBean implements LoginModuleSettings {
 
     public String getObjectName() {
         return objectName;
-    }
-
-    public boolean isServerSide() {
-        return serverSide;
-    }
-
-    public void setServerSide(boolean serverSide) {
-        this.serverSide = serverSide;
     }
 
     public boolean isWrapPrincipals() {
@@ -104,9 +95,9 @@ public class LoginModuleGBean implements LoginModuleSettings {
     static {
         GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic(LoginModuleGBean.class, NameFactory.LOGIN_MODULE);
         infoFactory.addAttribute("classLoader", ClassLoader.class, false);
-        infoFactory.addInterface(LoginModuleSettings.class, new String[] {"options", "loginModuleClass", "serverSide", "loginDomainName", "wrapPrincipals"},
-        		                 new String[] {"options", "loginModuleClass", "serverSide", "wrapPrincipals"} );
-        infoFactory.setConstructor(new String[]{"loginModuleClass", "objectName", "serverSide", "wrapPrincipals", "options", "loginDomainName", "classLoader"});
+        infoFactory.addInterface(LoginModuleSettings.class, new String[] {"options", "loginModuleClass", "loginDomainName", "wrapPrincipals"},
+        		                 new String[] {"options", "loginModuleClass", "wrapPrincipals"} );
+        infoFactory.setConstructor(new String[]{"loginModuleClass", "objectName", "wrapPrincipals", "options", "loginDomainName", "classLoader"});
 
         GBEAN_INFO = infoFactory.getBeanInfo();
     }

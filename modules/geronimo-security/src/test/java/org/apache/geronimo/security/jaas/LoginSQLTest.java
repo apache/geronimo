@@ -17,6 +17,17 @@
 
 package org.apache.geronimo.security.jaas;
 
+import java.io.File;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
+import java.util.HashMap;
+import java.util.Map;
+
+import javax.security.auth.Subject;
+import javax.security.auth.login.LoginContext;
+import javax.security.auth.login.LoginException;
+
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.security.AbstractTest;
@@ -25,15 +36,6 @@ import org.apache.geronimo.security.DomainPrincipal;
 import org.apache.geronimo.security.IdentificationPrincipal;
 import org.apache.geronimo.security.RealmPrincipal;
 import org.apache.geronimo.security.realm.GenericSecurityRealm;
-
-import javax.security.auth.Subject;
-import javax.security.auth.login.LoginContext;
-import javax.security.auth.login.LoginException;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
-import java.util.Properties;
-import java.io.File;
 
 
 /**
@@ -86,8 +88,7 @@ public class LoginSQLTest extends AbstractTest {
         GBeanData gbean = buildGBeanData("name", "SQLLoginModule", LoginModuleGBean.getGBeanInfo());
         sqlModule = gbean.getAbstractName();
         gbean.setAttribute("loginModuleClass", "org.apache.geronimo.security.realm.providers.SQLLoginModule");
-        gbean.setAttribute("serverSide", new Boolean(true));
-        Properties props = new Properties();
+        Map<String, Object> props = new HashMap<String, Object>();
         props.put("jdbcURL", hsqldbURL);
         props.put("jdbcDriver", "org.hsqldb.jdbcDriver");
         props.put("jdbcUser", "loginmodule");
@@ -102,7 +103,7 @@ public class LoginSQLTest extends AbstractTest {
 
         gbean = buildGBeanData("name", "SQLLoginModuleUse", JaasLoginModuleUse.getGBeanInfo());
         AbstractName testUseName = gbean.getAbstractName();
-        gbean.setAttribute("controlFlag", "REQUIRED");
+        gbean.setAttribute("controlFlag", LoginModuleControlFlag.REQUIRED);
         gbean.setReferencePattern("LoginModule", sqlModule);
         kernel.loadGBean(gbean, JaasLoginModuleUse.class.getClassLoader());
         kernel.startGBean(testUseName);
@@ -111,7 +112,6 @@ public class LoginSQLTest extends AbstractTest {
         sqlRealm = gbean.getAbstractName();
         gbean.setAttribute("realmName", "sql-realm");
         gbean.setReferencePattern("LoginModuleConfiguration", testUseName);
-        gbean.setReferencePattern("LoginService", loginService);
         kernel.loadGBean(gbean, GenericSecurityRealm.class.getClassLoader());
         kernel.startGBean(sqlRealm);
 
@@ -139,7 +139,7 @@ public class LoginSQLTest extends AbstractTest {
     }
 
     public void testLogin() throws Exception {
-        LoginContext context = new LoginContext("sql", new UsernamePasswordCallback("alan", "starcraft"));
+        LoginContext context = new LoginContext("sql-realm", new UsernamePasswordCallback("alan", "starcraft"));
 
         context.login();
         Subject subject = context.getSubject();
@@ -151,14 +151,14 @@ public class LoginSQLTest extends AbstractTest {
         assertEquals("server-side subject should have two realm principals", 2, subject.getPrincipals(RealmPrincipal.class).size());
         assertEquals("server-side subject should have two domain principals", 2, subject.getPrincipals(DomainPrincipal.class).size());
         assertEquals("server-side subject should have one remote principal", 1, subject.getPrincipals(IdentificationPrincipal.class).size());
-        IdentificationPrincipal principal = (IdentificationPrincipal) subject.getPrincipals(IdentificationPrincipal.class).iterator().next();
-        assertTrue("id of principal should be non-zero", principal.getId().getSubjectId().longValue() != 0);
+        IdentificationPrincipal principal = subject.getPrincipals(IdentificationPrincipal.class).iterator().next();
+        assertTrue("id of principal should be non-zero", principal.getId().getSubjectId() != 0);
 
         context.logout();
     }
 
     public void testNullUserLogin() throws Exception {
-        LoginContext context = new LoginContext("sql", new UsernamePasswordCallback(null, "starcraft"));
+        LoginContext context = new LoginContext("sql-realm", new UsernamePasswordCallback(null, "starcraft"));
 
         try {
             context.login();
@@ -168,7 +168,7 @@ public class LoginSQLTest extends AbstractTest {
     }
 
     public void testNullPasswordLogin() throws Exception {
-        LoginContext context = new LoginContext("sql", new UsernamePasswordCallback("alan", null));
+        LoginContext context = new LoginContext("sql-realm", new UsernamePasswordCallback("alan", null));
 
         try {
             context.login();

@@ -48,7 +48,6 @@
     <gbean name="properties-login"
         class="org.apache.geronimo.security.jaas.LoginModuleGBean">
         <attribute name="loginModuleClass">org.apache.geronimo.security.realm.providers.PropertiesFileLoginModule</attribute>
-        <attribute name="serverSide">true</attribute>
         <attribute name="options">
             usersURI=var/security/users.properties
             groupsURI=var/security/groups.properties
@@ -63,7 +62,6 @@
             <name>properties-login</name>
         </reference>
         <reference name="ServerInfo"><name>ServerInfo</name></reference>
-        <reference name="LoginService"><name>JaasLoginService</name></reference>
     </gbean>
 
     <gbean name="properties-login" class="org.apache.geronimo.security.jaas.JaasLoginModuleUse">
@@ -72,12 +70,6 @@
              <name>properties-login</name>
          </reference>
      </gbean>
-
-    <gbean name="JMX" class="org.apache.geronimo.security.jaas.ServerRealmConfigurationEntry">
-        <attribute name="applicationConfigName">JMX</attribute>
-        <attribute name="realmName">geronimo-admin</attribute>
-        <reference name="LoginService"><name>JaasLoginService</name></reference>
-    </gbean>
 
     <gbean name="geronimo-default" class="org.apache.geronimo.security.keystore.FileKeystoreInstance">
         <attribute name="keystoreName">geronimo-default</attribute>

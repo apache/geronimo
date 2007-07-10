@@ -23,7 +23,6 @@
    <gbean name="ldap-login"
         class="org.apache.geronimo.security.jaas.LoginModuleGBean">
         <attribute name="loginModuleClass">org.apache.geronimo.security.realm.providers.LDAPLoginModule</attribute>
-        <attribute name="serverSide">true</attribute>
         <attribute name="options">
 		initialContextFactory=com.sun.jndi.ldap.LdapCtxFactory
 		connectionURL=ldap://localhost:1389
@@ -51,10 +50,6 @@
         <reference name="ServerInfo">
             <name>ServerInfo</name>
         </reference>
-        <!-- Add -->
-        <reference name="LoginService">
-            <name>JaasLoginService</name>
-         </reference>
     </gbean>
 
     <gbean name="ldap-login" class="org.apache.geronimo.security.jaas.JaasLoginModuleUse">
@@ -62,15 +57,6 @@
         <reference name="LoginModule">
             <name>ldap-login</name>
         </reference>
-    </gbean>
-    
-     <gbean name="ldaptest"
-        class="org.apache.geronimo.security.jaas.ServerRealmConfigurationEntry">
-        <attribute name="applicationConfigName">ldaptest</attribute>
-        <attribute name="realmName">ldap-realm</attribute>
-        <reference name="LoginService">
-            <name>JaasLoginService</name>
-         </reference>
     </gbean>
 
 </module>

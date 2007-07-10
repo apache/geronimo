@@ -18,19 +18,17 @@ package org.apache.geronimo.security.deployment;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Properties;
-import java.util.Set;
-import java.util.Map;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.DeploymentContext;
 import org.apache.geronimo.deployment.service.SingleGBeanBuilder;
-import org.apache.geronimo.deployment.service.XmlReferenceBuilder;
 import org.apache.geronimo.deployment.service.XmlAttributeBuilder;
+import org.apache.geronimo.deployment.service.XmlReferenceBuilder;
 import org.apache.geronimo.deployment.xbeans.PatternType;
 import org.apache.geronimo.deployment.xbeans.XmlAttributeType;
 import org.apache.geronimo.gbean.AbstractName;
@@ -39,20 +37,22 @@ import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GReferenceInfo;
-import org.apache.geronimo.gbean.ReferencePatterns;
 import org.apache.geronimo.gbean.ReferenceMap;
+import org.apache.geronimo.gbean.ReferencePatterns;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.GBeanAlreadyExistsException;
-import org.apache.geronimo.kernel.Naming;
 import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.kernel.Naming;
 import org.apache.geronimo.security.jaas.JaasLoginModuleUse;
+import org.apache.geronimo.security.jaas.LoginModuleControlFlag;
+import org.apache.geronimo.security.jaas.LoginModuleControlFlagEditor;
 import org.apache.geronimo.security.jaas.LoginModuleGBean;
 import org.apache.geronimo.xbeans.geronimo.loginconfig.GerAbstractLoginModuleType;
+import org.apache.geronimo.xbeans.geronimo.loginconfig.GerLoginConfigDocument;
 import org.apache.geronimo.xbeans.geronimo.loginconfig.GerLoginConfigType;
 import org.apache.geronimo.xbeans.geronimo.loginconfig.GerLoginModuleRefType;
 import org.apache.geronimo.xbeans.geronimo.loginconfig.GerLoginModuleType;
 import org.apache.geronimo.xbeans.geronimo.loginconfig.GerOptionType;
-import org.apache.geronimo.xbeans.geronimo.loginconfig.GerLoginConfigDocument;
 import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlOptions;
@@ -100,8 +100,8 @@ public class LoginConfigBuilder implements XmlReferenceBuilder {
             throw new DeploymentException("Invalid login configuration:\n" + errors + "\nDescriptor: " + loginConfig.toString());
         }
         XmlCursor xmlCursor = loginConfig.newCursor();
-        List uses = new ArrayList();
-        Set loginModuleNames = new HashSet();
+        List<GBeanData> uses = new ArrayList<GBeanData>();
+        Set<String> loginModuleNames = new HashSet<String>();
         try {
             boolean atStart = true;
             while ((atStart && xmlCursor.toFirstChild()) || (!atStart && xmlCursor.toNextSibling())) {
@@ -148,19 +148,16 @@ public class LoginConfigBuilder implements XmlReferenceBuilder {
                         throw new DeploymentException("Security realm contains two login domains called '" + name + "'");
                     }
                     String className = trim(loginModule.getLoginModuleClass());
-                    boolean serverSide = loginModule.getServerSide();
-                    Properties options = new Properties();
+                    Map<String, Object> options = new HashMap<String, Object>();
                     GerOptionType[] optionArray = loginModule.getOptionArray();
-                    for (int j = 0; j < optionArray.length; j++) {
-                        GerOptionType gerOptionType = optionArray[j];
+                    for (GerOptionType gerOptionType : optionArray) {
                         String key = gerOptionType.getName();
                         String value = trim(gerOptionType.getStringValue());
-                        options.setProperty(key, value);
+                        options.put(key, value);
                     }
                     XmlAttributeType[] xmlOptionArray = loginModule.getXmlOptionArray();
                     if (xmlOptionArray != null) {
-                        for (int i = 0; i < xmlOptionArray.length; i++) {
-                            XmlAttributeType xmlOptionType = xmlOptionArray[i];
+                        for (XmlAttributeType xmlOptionType : xmlOptionArray) {
                             String key = xmlOptionType.getName().trim();
                             XmlObject[] anys = xmlOptionType.selectChildren(XmlAttributeType.type.qnameSetForWildcardElements());
                             if (anys.length != 1) {
@@ -181,8 +178,7 @@ public class LoginConfigBuilder implements XmlReferenceBuilder {
                     loginModuleGBeanData.setAttribute("loginDomainName", name);
                     loginModuleGBeanData.setAttribute("loginModuleClass", className);
                     loginModuleGBeanData.setAttribute("options", options);
-                    loginModuleGBeanData.setAttribute("serverSide", Boolean.valueOf(serverSide));
-                    loginModuleGBeanData.setAttribute("wrapPrincipals", Boolean.valueOf(wrapPrincipals));
+                    loginModuleGBeanData.setAttribute("wrapPrincipals", wrapPrincipals);
 
                     context.addGBean(loginModuleGBeanData);
                 } else {
@@ -191,14 +187,14 @@ public class LoginConfigBuilder implements XmlReferenceBuilder {
                 AbstractName thisName;
                 thisName = naming.createChildName(parentName, name, "LoginModuleUse");
                 GBeanData loginModuleUseGBeanData = new GBeanData(thisName, JaasLoginModuleUse.GBEAN_INFO);
-                loginModuleUseGBeanData.setAttribute("controlFlag", controlFlag);
+                loginModuleUseGBeanData.setAttribute("controlFlag", getControlFlag(controlFlag));
                 loginModuleUseGBeanData.setReferencePatterns("LoginModule", loginModuleReferencePatterns);
                 uses.add(loginModuleUseGBeanData);
             }
             for (int i = uses.size() - 1; i >= 0; i--) {
-                GBeanData data = (GBeanData) uses.get(i);
+                GBeanData data = uses.get(i);
                 if (i > 0) {
-                    ((GBeanData) uses.get(i - 1)).setReferencePattern("Next", data.getAbstractName());
+                    uses.get(i - 1).setReferencePattern("Next", data.getAbstractName());
                 }
                 context.addGBean(data);
             }
@@ -208,7 +204,13 @@ public class LoginConfigBuilder implements XmlReferenceBuilder {
         } finally {
             xmlCursor.dispose();
         }
-        return uses.size() == 0 ? null : new ReferencePatterns(((GBeanData) uses.get(0)).getAbstractName());
+        return uses.size() == 0 ? null : new ReferencePatterns(uses.get(0).getAbstractName());
+    }
+
+    private LoginModuleControlFlag getControlFlag(String controlFlag) {
+        LoginModuleControlFlagEditor editor = new LoginModuleControlFlagEditor();
+        editor.setAsText(controlFlag);
+        return (LoginModuleControlFlag) editor.getValue();
     }
 
     private String trim(String string) {
@@ -227,10 +229,9 @@ public class LoginConfigBuilder implements XmlReferenceBuilder {
         infoBuilder.addInterface(XmlReferenceBuilder.class);
         GBEAN_INFO = infoBuilder.getBeanInfo();
 
-        Set referenceInfos = JaasLoginModuleUse.GBEAN_INFO.getReferences();
+        Set<GReferenceInfo> referenceInfos = JaasLoginModuleUse.GBEAN_INFO.getReferences();
         GReferenceInfo found = null;
-        for (Iterator iterator = referenceInfos.iterator(); iterator.hasNext();) {
-            GReferenceInfo testReferenceInfo = (GReferenceInfo) iterator.next();
+        for (GReferenceInfo testReferenceInfo : referenceInfos) {
             String testRefName = testReferenceInfo.getName();
             if (testRefName.equals("LoginModule")) {
                 found = testReferenceInfo;

@@ -276,19 +276,19 @@ public class PropertiesLoginModuleManager {
     }
 
     private String getUsersURI() {
-        return loginModule.getOptions().getProperty(usersKey);
+        return (String) loginModule.getOptions().get(usersKey);
     }
 
     private String getGroupsURI() {
-        return loginModule.getOptions().getProperty(groupsKey);
+        return (String) loginModule.getOptions().get(groupsKey);
     }
 
     private String getDigest() {
-        return loginModule.getOptions().getProperty(digestKey);
+        return (String) loginModule.getOptions().get(digestKey);
     }
 
     private String getEncoding() {
-        return loginModule.getOptions().getProperty(encodingKey);
+        return (String) loginModule.getOptions().get(encodingKey);
     }
 
     private void store(Properties props, URL url) throws Exception {

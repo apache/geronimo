@@ -20,8 +20,8 @@ package org.apache.geronimo.security.jaas;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Hashtable;
-import java.util.Iterator;
 import java.util.Map;
+
 import javax.security.auth.login.AppConfigurationEntry;
 import javax.security.auth.login.Configuration;
 
@@ -34,7 +34,6 @@ import org.apache.geronimo.gbean.ReferenceCollection;
 import org.apache.geronimo.gbean.ReferenceCollectionEvent;
 import org.apache.geronimo.gbean.ReferenceCollectionListener;
 import org.apache.geronimo.security.SecurityServiceImpl;
-import org.apache.geronimo.security.jaas.server.JaasLoginModuleConfiguration;
 
 
 /**
@@ -49,9 +48,9 @@ import org.apache.geronimo.security.jaas.server.JaasLoginModuleConfiguration;
 public class GeronimoLoginConfiguration extends Configuration implements GBeanLifecycle, ReferenceCollectionListener {
 
     private final Log log = LogFactory.getLog(GeronimoLoginConfiguration.class);
-    private static Map entries = new Hashtable();
+    private static Map<String, AppConfigurationEntry[]> entries = new Hashtable<String, AppConfigurationEntry[]>();
     private Configuration oldConfiguration;
-    private Collection configurations = Collections.EMPTY_SET;
+    private Collection<ConfigurationEntryFactory> configurations = Collections.emptySet();
 
 
     public Collection getConfigurations() {
@@ -61,7 +60,7 @@ public class GeronimoLoginConfiguration extends Configuration implements GBeanLi
         return configurations;
     }
 
-    public void setConfigurations(Collection configurations) {
+    public void setConfigurations(Collection<ConfigurationEntryFactory> configurations) {
         SecurityManager sm = System.getSecurityManager();
         if (sm != null) sm.checkPermission(SecurityServiceImpl.CONFIGURE);
 
@@ -72,17 +71,13 @@ public class GeronimoLoginConfiguration extends Configuration implements GBeanLi
 
         this.configurations = configurations;
 
-        for (Iterator iter = configurations.iterator(); iter.hasNext();) {
-            addConfiguration((ConfigurationEntryFactory) iter.next());
+        for (ConfigurationEntryFactory configuration : configurations) {
+            addConfiguration(configuration);
         }
     }
 
     public AppConfigurationEntry[] getAppConfigurationEntry(String name) {
-        AppConfigurationEntry entry = (AppConfigurationEntry) entries.get(name);
-
-        if (entry == null) return null;
-
-        return new AppConfigurationEntry[]{entry};
+        return entries.get(name);
     }
 
     public void refresh() {
@@ -106,16 +101,11 @@ public class GeronimoLoginConfiguration extends Configuration implements GBeanLi
         log.debug("Removed Application Configuration Entry " + factory.getConfigurationName());
     }
 
-    private final void addConfiguration(ConfigurationEntryFactory factory) {
-        JaasLoginModuleConfiguration config = factory.generateConfiguration();
-        if(config.getLoginDomainName() == null) {
-            throw new IllegalArgumentException("A login module to be registered standalone must have a domain name!");
-        }
+    private void addConfiguration(ConfigurationEntryFactory factory) {
         if (entries.containsKey(factory.getConfigurationName())) {
             throw new java.lang.IllegalArgumentException("ConfigurationEntry already registered");
         }
-        AppConfigurationEntry ace = new AppConfigurationEntry(config.getLoginModuleClassName(), config.getFlag().getFlag(), config.getOptions());
-
+        AppConfigurationEntry[] ace = factory.getAppConfigurationEntries();
         entries.put(factory.getConfigurationName(), ace);
         log.debug("Added Application Configuration Entry " + factory.getConfigurationName());
     }
@@ -133,8 +123,8 @@ public class GeronimoLoginConfiguration extends Configuration implements GBeanLi
     public void doStop() throws Exception {
         Configuration.setConfiguration(oldConfiguration);
 
-        for (Iterator iter = entries.keySet().iterator(); iter.hasNext();){
-            log.debug("Removed Application Configuration Entry " + iter.next());
+        for (String s : entries.keySet()) {
+            log.debug("Removed Application Configuration Entry " + s);
         }
         entries.clear();
 

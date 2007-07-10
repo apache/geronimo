@@ -54,7 +54,6 @@
         <PlanORBSunSSLPort>2001</PlanORBSunSSLPort>
         <PlanActiveMQPort>61616</PlanActiveMQPort>
         <PlanDerbyPort>1527</PlanDerbyPort>
-        <PlanRemoteLoginPort>4242</PlanRemoteLoginPort>
         <PlanLdapPort>1389</PlanLdapPort>
         <PlanHTTPPortPrimary>8080</PlanHTTPPortPrimary>
         <PlanHTTPSPortPrimary>8443</PlanHTTPSPortPrimary>

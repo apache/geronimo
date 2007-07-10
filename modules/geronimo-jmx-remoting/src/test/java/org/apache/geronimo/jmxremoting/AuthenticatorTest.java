@@ -41,7 +41,6 @@ import junit.framework.TestCase;
 public class AuthenticatorTest extends TestCase {
     private static final String CONFIG_NAME = "testConfig";
     private Configuration oldConfiguration;
-    private Configuration loginConfig;
     private String[] credentials;
     private Authenticator authenticator;
 
@@ -63,7 +62,7 @@ public class AuthenticatorTest extends TestCase {
         } catch (SecurityException e) {
             oldConfiguration = null;
         }
-        loginConfig = new MockConfiguration();
+        Configuration loginConfig = new MockConfiguration();
         Configuration.setConfiguration(loginConfig);
 
         credentials = new String[]{"username", "password"};
@@ -77,10 +76,10 @@ public class AuthenticatorTest extends TestCase {
 
     private class MockConfiguration extends Configuration {
         public AppConfigurationEntry[] getAppConfigurationEntry(String applicationName) {
-            if (CONFIG_NAME.equals(applicationName) == false) {
+            if (!CONFIG_NAME.equals(applicationName)) {
                 fail();
             }
-            Map map = new HashMap();
+            Map<String, Object> map = new HashMap<String, Object>();
             map.put("username", "password");
             AppConfigurationEntry entry = new AppConfigurationEntry(MockModule.class.getName(), AppConfigurationEntry.LoginModuleControlFlag.REQUIRED, map);
             return new AppConfigurationEntry[] {entry};

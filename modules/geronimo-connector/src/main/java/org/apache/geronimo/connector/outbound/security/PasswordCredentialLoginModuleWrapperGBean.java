@@ -33,7 +33,7 @@ public class PasswordCredentialLoginModuleWrapperGBean {
         GBeanInfoBuilder infoBuilder = GBeanInfoBuilder.createStatic(PasswordCredentialLoginModuleWrapper.class, LoginModuleGBean.GBEAN_INFO, NameFactory.LOGIN_MODULE);
 
         infoBuilder.addReference("ManagedConnectionFactoryWrapper", ManagedConnectionFactoryWrapper.class, NameFactory.JCA_MANAGED_CONNECTION_FACTORY);
-        infoBuilder.setConstructor(new String[] {"loginModuleClass", "objectName", "serverSide", "wrapPrincipals", "options", "loginDomainName", "ManagedConnectionFactoryWrapper", "classLoader"});
+        infoBuilder.setConstructor(new String[] {"loginModuleClass", "objectName", "wrapPrincipals", "options", "loginDomainName", "ManagedConnectionFactoryWrapper", "classLoader"});
 
         GBEAN_INFO = infoBuilder.getBeanInfo();
     }

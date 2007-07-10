@@ -20,26 +20,23 @@
 
 package org.apache.geronimo.security.credentialstore;
 
-import java.util.Properties;
-import java.util.Map;
-import java.util.HashMap;
 import java.io.File;
+import java.util.HashMap;
+import java.util.Map;
 
-import javax.security.auth.callback.NameCallback;
-import javax.security.auth.callback.PasswordCallback;
 import javax.security.auth.Subject;
 
-import org.apache.geronimo.security.AbstractTest;
-import org.apache.geronimo.security.realm.GenericSecurityRealm;
-import org.apache.geronimo.security.jaas.LoginModuleGBean;
-import org.apache.geronimo.security.jaas.DirectConfigurationEntry;
-import org.apache.geronimo.security.jaas.LoginModuleControlFlag;
-import org.apache.geronimo.security.jaas.JaasLoginModuleUse;
-import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.AbstractName;
+import org.apache.geronimo.gbean.GBeanData;
+import org.apache.geronimo.security.AbstractTest;
+import org.apache.geronimo.security.jaas.DirectConfigurationEntry;
+import org.apache.geronimo.security.jaas.JaasLoginModuleUse;
+import org.apache.geronimo.security.jaas.LoginModuleGBean;
+import org.apache.geronimo.security.jaas.LoginModuleControlFlag;
+import org.apache.geronimo.security.realm.GenericSecurityRealm;
 
 /**
- * @version $Rev:$ $Date:$
+ * @version $Rev$ $Date$
  */
 public class SimpleCredentialStoreImplTest extends AbstractTest {
     protected AbstractName clientLM;
@@ -57,8 +54,7 @@ public class SimpleCredentialStoreImplTest extends AbstractTest {
         gbean = buildGBeanData("name", "ClientPropertiesLoginModule", LoginModuleGBean.getGBeanInfo());
         clientLM = gbean.getAbstractName();
         gbean.setAttribute("loginModuleClass", "org.apache.geronimo.security.jaas.client.JaasLoginCoordinator");
-        gbean.setAttribute("serverSide", Boolean.TRUE);
-        Properties props = new Properties();
+        Map<String, Object> props = new HashMap<String, Object>();
         props.put("host", "localhost");
         props.put("port", "4242");
         props.put("realm", "properties-realm");
@@ -75,8 +71,7 @@ public class SimpleCredentialStoreImplTest extends AbstractTest {
         gbean = buildGBeanData("name", "PropertiesLoginModule", LoginModuleGBean.getGBeanInfo());
         testCE = gbean.getAbstractName();
         gbean.setAttribute("loginModuleClass", "org.apache.geronimo.security.realm.providers.PropertiesFileLoginModule");
-        gbean.setAttribute("serverSide", Boolean.TRUE);
-        props = new Properties();
+        props = new HashMap<String, Object>();
         props.put("usersURI", new File(BASEDIR, "src/test/data/data/users.properties").toURI().toString());
         props.put("groupsURI", new File(BASEDIR, "src/test/data/data/groups.properties").toURI().toString());
         gbean.setAttribute("options", props);
@@ -86,7 +81,7 @@ public class SimpleCredentialStoreImplTest extends AbstractTest {
 
         gbean = buildGBeanData("name", "PropertiesLoginModuleUse", JaasLoginModuleUse.getGBeanInfo());
         AbstractName testUseName = gbean.getAbstractName();
-        gbean.setAttribute("controlFlag", "REQUIRED");
+        gbean.setAttribute("controlFlag", LoginModuleControlFlag.REQUIRED);
         gbean.setReferencePattern("LoginModule", testCE);
         kernel.loadGBean(gbean, JaasLoginModuleUse.class.getClassLoader());
 
@@ -95,7 +90,6 @@ public class SimpleCredentialStoreImplTest extends AbstractTest {
         gbean.setAttribute("realmName", "properties-realm");
         gbean.setReferencePattern("LoginModuleConfiguration", testUseName);
         gbean.setReferencePattern("ServerInfo", serverInfo);
-        gbean.setReferencePattern("LoginService", loginService);
         kernel.loadGBean(gbean, GenericSecurityRealm.class.getClassLoader());
 
         kernel.startGBean(loginConfiguration);

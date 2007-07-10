@@ -16,33 +16,32 @@
  */
 package org.apache.geronimo.security.jaas;
 
-import org.apache.geronimo.security.jaas.server.JaasLoginModuleConfiguration;
+import javax.security.auth.login.AppConfigurationEntry;
 
 
 /**
  * A factory interface used by <code>GeronimoLoginConfiguration</code> to obtain
- * <code>JaasLoginModuleConfiguration</code>s from GBean configuration entries.
+ * <code>AppConfigurationEntry[]</code>s from GBean configuration entries.
  *
  * @version $Rev$ $Date$
  * @see GeronimoLoginConfiguration
  * @see DirectConfigurationEntry
- * @see ServerRealmConfigurationEntry
  */
 public interface ConfigurationEntryFactory {
 
     /**
      * Used to obtain the configuration name to be associated with the generated
-     * <code>JaasLoginModuleConfiguration</code>.
+     * <code>AppConfigurationEntry</code> array.
      *
      * @return the configuration name
      */
     public String getConfigurationName();
 
     /**
-     * Generate a <code>JaasLoginModuleConfiguration</code>
+     * Generate the <code>AppConfigurationEntry</code> array for the login modules in this configuration.
      *
-     * @return a <code>JaasLoginModuleConfiguration</code>
+     * @return a <code>AppConfigurationEntry[]</code>
      */
-    public JaasLoginModuleConfiguration generateConfiguration();
+    AppConfigurationEntry[] getAppConfigurationEntries();
 
 }

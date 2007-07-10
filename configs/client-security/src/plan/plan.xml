@@ -45,26 +45,6 @@
         </references>
     </gbean>
 
-    <!-- use for app client: logs into server remotely -->
-    <gbean name="ServerLoginStubDCE" class="org.apache.geronimo.security.jaas.DirectConfigurationEntry">
-        <attribute name="applicationConfigName">server-login</attribute>
-        <attribute name="controlFlag">REQUIRED</attribute>
-        <reference name="Module">
-            <name>ServerLoginCoordinator</name>
-        </reference>
-    </gbean>
-
-    <gbean name="ServerLoginCoordinator" class="org.apache.geronimo.security.jaas.LoginModuleGBean">
-        <attribute name="loginModuleClass">org.apache.geronimo.security.jaas.client.JaasLoginCoordinator</attribute>
-        <attribute name="serverSide">false</attribute>
-        <attribute name="options">
-            host=localhost
-            port=4242
-            realm=geronimo-admin
-        </attribute>
-        <attribute name="loginDomainName">geronimo-admin</attribute>
-    </gbean>
-
     <!-- useful for corba: logs into a local realm, and server must reauthenticate each call -->
     <gbean name="client-properties-realm"
         class="org.apache.geronimo.security.realm.GenericSecurityRealm">
@@ -87,18 +67,6 @@
         <reference name="ServerInfo">
             <name>ServerInfo</name>
         </reference>
-        <reference name="LoginService">
-            <name>JaasLoginService</name>
-        </reference>
-    </gbean>
-    <!-- this is really a server-side only gbean but its needed to make the client side GenericSecurityRealm work -->
-    <gbean name="JaasLoginService" class="org.apache.geronimo.security.jaas.server.JaasLoginService">
-        <reference name="Realms">
-            <name>client-properties-realm</name>
-        </reference>
-        <!--        <attribute name="reclaimPeriod">100000</attribute>-->
-        <attribute name="algorithm">HmacSHA1</attribute>
-        <attribute name="password">secret</attribute>
     </gbean>
 
     <gbean name="KeystoreManager" class="org.apache.geronimo.security.keystore.FileKeystoreManager">

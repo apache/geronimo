@@ -17,6 +17,13 @@
 
 package org.apache.geronimo.security.jaas;
 
+import java.util.Properties;
+
+import javax.security.auth.Subject;
+import javax.security.auth.kerberos.KerberosPrincipal;
+import javax.security.auth.login.LoginContext;
+import javax.security.auth.login.LoginException;
+
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.security.AbstractTest;
@@ -24,12 +31,6 @@ import org.apache.geronimo.security.ContextManager;
 import org.apache.geronimo.security.IdentificationPrincipal;
 import org.apache.geronimo.security.RealmPrincipal;
 import org.apache.geronimo.security.realm.GenericSecurityRealm;
-
-import javax.security.auth.Subject;
-import javax.security.auth.kerberos.KerberosPrincipal;
-import javax.security.auth.login.LoginContext;
-import javax.security.auth.login.LoginException;
-import java.util.Properties;
 
 
 /**
@@ -46,7 +47,6 @@ public class LoginKerberosTest extends AbstractTest {
         GBeanData gbean = buildGBeanData("name", "KerberosLoginModule", LoginModuleGBean.getGBeanInfo());
         kerberosLM = gbean.getAbstractName();
         gbean.setAttribute("loginModuleClass", "com.sun.security.auth.module.Krb5LoginModule");
-        gbean.setAttribute("serverSide", Boolean.TRUE); // normally not, but in this case, it's treated as server-side
         Properties props = new Properties();
         props.put("debug", "true");
         props.put("useTicketCache", "true");
@@ -56,7 +56,7 @@ public class LoginKerberosTest extends AbstractTest {
 
         gbean = buildGBeanData("name", "KerberosLoginModuleUse", JaasLoginModuleUse.getGBeanInfo());
         AbstractName testUseName = gbean.getAbstractName();
-        gbean.setAttribute("controlFlag", "REQUIRED");
+        gbean.setAttribute("controlFlag", LoginModuleControlFlag.REQUIRED);
         gbean.setReferencePattern("LoginModule", kerberosLM);
         kernel.loadGBean(gbean, JaasLoginModuleUse.class.getClassLoader());
 
@@ -81,7 +81,7 @@ public class LoginKerberosTest extends AbstractTest {
 
     public void testLogin() throws Exception {
         try {
-            LoginContext context = new LoginContext("kerberos-local");
+            LoginContext context = new LoginContext("TOOLAZYDOGS.COM");
 
             context.login();
             Subject subject = context.getSubject();

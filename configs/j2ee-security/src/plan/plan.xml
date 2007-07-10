@@ -35,27 +35,13 @@
         </references>
     </gbean>
 
-    <gbean name="JaasLoginService" class="org.apache.geronimo.security.jaas.server.JaasLoginService">
-        <reference name="Realms"></reference>
-        <!--        <attribute name="reclaimPeriod">100000</attribute>-->
-        <attribute name="algorithm">HmacSHA1</attribute>
-        <attribute name="password">secret</attribute>
-    </gbean>
-
-    <gbean name="JaasLoginServiceRemotingServer" class="org.apache.geronimo.security.remoting.jmx.JaasLoginServiceRemotingServer">
-        <attribute name="protocol">tcp</attribute>
-        <attribute name="host">${PlanServerHostname}</attribute>
-        <attribute name="port">${PlanRemoteLoginPort}</attribute>
-        <reference name="LoginService"><name>JaasLoginService</name></reference>
-    </gbean>
-
     <!-- JMX Remoting -->
     <gbean name="JMXService" class="org.apache.geronimo.jmxremoting.JMXConnector">
         <attribute name="protocol">rmi</attribute>
         <attribute name="host">${PlanServerHostname}</attribute>
         <attribute name="port">${PlanJMXPort}</attribute>
         <attribute name="urlPath">/jndi/rmi://${PlanServerHostname}:${PlanNamingPort}/JMXConnector</attribute>
-        <attribute name="applicationConfigName">JMX</attribute>
+        <attribute name="applicationConfigName">geronimo-admin</attribute>
         <reference name="MBeanServerReference">
             <name>MBeanServerReference</name>
         </reference>

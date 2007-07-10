@@ -16,18 +16,23 @@
  */
 package org.apache.geronimo.security.jaas;
 
+import java.io.IOException;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+
 import javax.security.auth.Subject;
+import javax.security.auth.callback.Callback;
 import javax.security.auth.callback.CallbackHandler;
+import javax.security.auth.callback.UnsupportedCallbackException;
+import javax.security.auth.login.Configuration;
+import javax.security.auth.login.LoginContext;
 import javax.security.auth.login.LoginException;
 import javax.security.auth.spi.LoginModule;
 
 import junit.framework.TestCase;
-
+import org.apache.geronimo.security.realm.GenericSecurityRealm;
 import org.apache.geronimo.security.realm.providers.GeronimoGroupPrincipal;
-import org.apache.geronimo.security.jaas.server.JaasSecuritySession;
-import org.apache.geronimo.security.jaas.server.JaasLoginModuleConfiguration;
 
 
 /**
@@ -36,17 +41,35 @@ import org.apache.geronimo.security.jaas.server.JaasLoginModuleConfiguration;
 public class NoLoginModuleReuseTest extends TestCase {
 
     public void testNoLoginModuleReuse() throws Exception {
-        JaasLoginModuleConfiguration m1 = new JaasLoginModuleConfiguration(MockLoginModule.class.getName(), LoginModuleControlFlag.REQUIRED, new HashMap(), true, "D1", true, MockLoginModule.class.getClassLoader());
-        doSecurityContextLogin(m1);
-        doSecurityContextLogin(m1);
+        doTest(true, "realm1");
+        doTest(false, "realm2");
     }
 
-    private void doSecurityContextLogin(JaasLoginModuleConfiguration m1) throws LoginException {
-        JaasSecuritySession c = new JaasSecuritySession("realm", new JaasLoginModuleConfiguration[] {m1}, new HashMap(), this.getClass().getClassLoader());
-        Subject s = c.getSubject();
-        c.getLoginModule(0).initialize(s, null, null, null);
-        c.getLoginModule(0).login();
-        c.getLoginModule(0).commit();
+    private void doTest(boolean wrapPrincipals, String realmName) throws ClassNotFoundException, LoginException {
+        LoginModuleGBean module = new LoginModuleGBean(MockLoginModule.class.getName(), "foo", true, new HashMap<String, Object>(), "domain", getClass().getClassLoader());
+        JaasLoginModuleUse loginModuleUse = new JaasLoginModuleUse(module, null, LoginModuleControlFlag.REQUIRED);
+        GenericSecurityRealm realm = new GenericSecurityRealm(realmName,
+                loginModuleUse,
+                wrapPrincipals,
+                null,
+                getClass().getClassLoader(),
+                null);
+        GeronimoLoginConfiguration loginConfig = new GeronimoLoginConfiguration();
+        loginConfig.setConfigurations(Collections.<ConfigurationEntryFactory>singleton(realm));
+        doLogin(loginConfig, realmName);
+        doLogin(loginConfig, realmName);
+    }
+
+    private void doLogin(Configuration config, String realm) throws LoginException {
+        LoginContext lc = new LoginContext(realm,
+                new Subject(),
+                new CallbackHandler() {
+
+                    public void handle(Callback[] callbacks) throws IOException, UnsupportedCallbackException {
+                    }
+                },
+                config);
+        lc.login();
     }
 
     public static class MockLoginModule implements LoginModule {

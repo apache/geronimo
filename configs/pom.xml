@@ -59,7 +59,6 @@
         <PlanHTTPSPort>8443</PlanHTTPSPort>
         <PlanAJPPort>8019</PlanAJPPort>
         <PlanOpenEJBPort>4201</PlanOpenEJBPort>
-        <PlanRemoteLoginPort>4242</PlanRemoteLoginPort>
         <PlanNamingPort>1099</PlanNamingPort>
         <PlanActiveMQPort>61616</PlanActiveMQPort>
         <PlanCOSNamingHost>localhost</PlanCOSNamingHost>

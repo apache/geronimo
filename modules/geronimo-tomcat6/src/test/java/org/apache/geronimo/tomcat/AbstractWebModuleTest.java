@@ -22,21 +22,19 @@ import java.net.URL;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Properties;
 
 import javax.transaction.TransactionManager;
-
-import org.apache.geronimo.testsupport.TestSupport;
 
 import org.apache.geronimo.connector.outbound.connectiontracking.ConnectionTrackingCoordinator;
 import org.apache.geronimo.connector.outbound.connectiontracking.GeronimoTransactionListener;
 import org.apache.geronimo.security.SecurityServiceImpl;
 import org.apache.geronimo.security.credentialstore.CredentialStore;
 import org.apache.geronimo.security.deploy.PrincipalInfo;
+import org.apache.geronimo.security.jaas.ConfigurationEntryFactory;
 import org.apache.geronimo.security.jaas.GeronimoLoginConfiguration;
 import org.apache.geronimo.security.jaas.JaasLoginModuleUse;
+import org.apache.geronimo.security.jaas.LoginModuleControlFlag;
 import org.apache.geronimo.security.jaas.LoginModuleGBean;
-import org.apache.geronimo.security.jaas.server.JaasLoginService;
 import org.apache.geronimo.security.jacc.ApplicationPolicyConfigurationManager;
 import org.apache.geronimo.security.jacc.ApplicationPrincipalRoleConfigurationManager;
 import org.apache.geronimo.security.jacc.ComponentPermissions;
@@ -45,6 +43,7 @@ import org.apache.geronimo.security.jacc.RunAsSource;
 import org.apache.geronimo.security.realm.GenericSecurityRealm;
 import org.apache.geronimo.system.serverinfo.BasicServerInfo;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
+import org.apache.geronimo.testsupport.TestSupport;
 import org.apache.geronimo.tomcat.util.SecurityHolder;
 import org.apache.geronimo.transaction.manager.TransactionManagerImpl;
 
@@ -121,25 +120,20 @@ public abstract class AbstractWebModuleTest extends TestSupport {
 
         new SecurityServiceImpl(cl, serverInfo, "org.apache.geronimo.security.jacc.GeronimoPolicyConfigurationFactory", "org.apache.geronimo.security.jacc.GeronimoPolicy", null, null, null, null);
 
-        Properties options = new Properties();
-        options.setProperty("usersURI", new File(BASEDIR, "src/test/resources/data/users.properties").toURI().toString());
-        options.setProperty("groupsURI", new File(BASEDIR, "src/test/resources/data/groups.properties").toURI().toString());
+        Map<String, Object> options = new HashMap<String, Object>();
+        options.put("usersURI", new File(BASEDIR, "src/test/resources/data/users.properties").toURI().toString());
+        options.put("groupsURI", new File(BASEDIR, "src/test/resources/data/groups.properties").toURI().toString());
 
-        LoginModuleGBean loginModule = new LoginModuleGBean("org.apache.geronimo.security.realm.providers.PropertiesFileLoginModule", null, true, true, options, domainName, cl);
+        LoginModuleGBean loginModule = new LoginModuleGBean("org.apache.geronimo.security.realm.providers.PropertiesFileLoginModule", null, true, options, domainName, cl);
 
-        JaasLoginModuleUse loginModuleUse = new JaasLoginModuleUse(loginModule, null, "REQUIRED", null);
-
-        JaasLoginService loginService = new JaasLoginService("HmacSHA1", "secret", cl, null);
+        JaasLoginModuleUse loginModuleUse = new JaasLoginModuleUse(loginModule, null, LoginModuleControlFlag.REQUIRED);
 
         PrincipalInfo.PrincipalEditor principalEditor = new PrincipalInfo.PrincipalEditor();
         principalEditor.setAsText("metro,org.apache.geronimo.security.realm.providers.GeronimoUserPrincipal");
-        GenericSecurityRealm realm = new GenericSecurityRealm(domainName, loginModuleUse, true, true, serverInfo, cl, null, loginService);
-
-        loginService.setRealms(Collections.singleton(realm));
-        loginService.doStart();
+        GenericSecurityRealm realm = new GenericSecurityRealm(domainName, loginModuleUse, true, serverInfo, cl, null);
 
         loginConfiguration = new GeronimoLoginConfiguration();
-        loginConfiguration.setConfigurations(Collections.singleton(realm));
+        loginConfiguration.setConfigurations(Collections.<ConfigurationEntryFactory>singleton(realm));
         loginConfiguration.doStart();
 
     }

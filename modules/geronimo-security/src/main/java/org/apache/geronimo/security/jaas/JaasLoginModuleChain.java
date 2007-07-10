@@ -16,6 +16,8 @@
  */
 package org.apache.geronimo.security.jaas;
 
+import javax.security.auth.login.AppConfigurationEntry;
+
 /**
  * @version $Rev$ $Date$
  */
@@ -39,12 +41,12 @@ public interface JaasLoginModuleChain {
      * The String form of the control flag for the login module at this
      * position in the chain.
      */
-    public String getControlFlag();
+    public LoginModuleControlFlag getControlFlag();
 
     /**
      * The String form of the control flag for the login module at this
      * position in the chain.
      */
-    public void setControlFlag(String controlFlag);
+    public void setControlFlag(LoginModuleControlFlag controlFlag);
 
 }

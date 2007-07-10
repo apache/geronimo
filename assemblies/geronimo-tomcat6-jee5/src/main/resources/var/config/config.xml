@@ -45,10 +45,6 @@
     <module name="org.apache.geronimo.configs/transaction/${version}/car"/>
 
     <module name="org.apache.geronimo.configs/j2ee-security/${version}/car">
-        <gbean name="JaasLoginServiceRemotingServer">
-            <attribute name="host">${PlanServerHostname}</attribute>
-            <attribute name="port">${PlanRemoteLoginPort + portOffset}</attribute>
-        </gbean>
         <gbean name="JMXService">
             <attribute name="protocol">rmi</attribute>
             <attribute name="host">${PlanServerHostname}</attribute>

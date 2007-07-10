@@ -16,7 +16,7 @@
  */
 package org.apache.geronimo.security.jaas;
 
-import java.util.Properties;
+import java.util.Map;
 
 /**
  * @version $Rev$ $Date$
@@ -26,17 +26,13 @@ public interface LoginModuleSettings {
 
     void setLoginDomainName(String loginDomainName);
 
-    Properties getOptions();
+    Map<String, Object> getOptions();
 
-    void setOptions(Properties options);
+    void setOptions(Map<String, Object> options);
 
     String getLoginModuleClass();
 
     void setLoginModuleClass(String loginModuleClass);
-
-    boolean isServerSide();
-
-    void setServerSide(boolean serverSide);
 
     boolean isWrapPrincipals();
 

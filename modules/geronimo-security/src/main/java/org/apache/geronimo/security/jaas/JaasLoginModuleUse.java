@@ -21,12 +21,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import javax.security.auth.login.AppConfigurationEntry;
+
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
-import org.apache.geronimo.security.jaas.server.JaasLoginModuleConfiguration;
 
 
 /**
@@ -44,23 +45,18 @@ public class JaasLoginModuleUse implements JaasLoginModuleChain {
     private final LoginModuleSettings loginModule;
     private final JaasLoginModuleUse next;
     private LoginModuleControlFlag controlFlag;
-    private final Kernel kernel;
 
     //for reference.
     public JaasLoginModuleUse() {
         loginModule = null;
         next = null;
         controlFlag = null;
-        kernel = null;
     }
 
-    public JaasLoginModuleUse(LoginModuleSettings loginModule, JaasLoginModuleUse next, String controlFlag, Kernel kernel) {
+    public JaasLoginModuleUse(LoginModuleSettings loginModule, JaasLoginModuleUse next, LoginModuleControlFlag controlFlag) {
         this.loginModule = loginModule;
         this.next = next;
-        LoginModuleControlFlagEditor editor = new LoginModuleControlFlagEditor();
-        editor.setAsText(controlFlag);
-        this.controlFlag = (LoginModuleControlFlag) editor.getValue();
-        this.kernel = kernel;
+        this.controlFlag = controlFlag;
     }
 
     public LoginModuleSettings getLoginModule() {
@@ -71,37 +67,21 @@ public class JaasLoginModuleUse implements JaasLoginModuleChain {
         return next;
     }
 
-    public String getLoginModuleName() {
-        //TODO configId which is correct?
-//        return kernel.getAbstractNameFor(loginModule).getObjectName().getCanonicalName();
-        return kernel.getAbstractNameFor(loginModule).toURI().toString();
+    public LoginModuleControlFlag getControlFlag() {
+        return controlFlag;
     }
 
-    public String getNextName() {
-        if(next == null) {
-            return null;
-        }
-        //TODO configId which is correct?
-//        return kernel.getAbstractNameFor(next).getObjectName().getCanonicalName();
-        return kernel.getAbstractNameFor(next).toURI().toString();
+    public void setControlFlag(LoginModuleControlFlag controlFlag) {
+        this.controlFlag = controlFlag;
     }
 
-    public String getControlFlag() {
-        return controlFlag.toString();
-    }
-
-    public void setControlFlag(String controlFlag) {
-        LoginModuleControlFlagEditor ed = new LoginModuleControlFlagEditor();
-        ed.setAsText(controlFlag);
-        this.controlFlag = (LoginModuleControlFlag) ed.getValue();
-    }
-
-    public void configure(Set domainNames, List loginModuleConfigurations, Kernel kernel, ServerInfo serverInfo, ClassLoader classLoader) {
-        Map options = loginModule.getOptions();
-        if (options != null) {
-            options = new HashMap(options);
+    public void configure(Set<String> domainNames, List<AppConfigurationEntry> loginModuleConfigurations, String realmName, Kernel kernel, ServerInfo serverInfo, ClassLoader classLoader) throws ClassNotFoundException {
+        Map<String, ?> suppliedOptions = loginModule.getOptions();
+        Map<String, Object> options;
+        if (suppliedOptions != null) {
+            options = new HashMap<String, Object>(suppliedOptions);
         } else {
-            options = new HashMap();
+            options = new HashMap<String, Object>();
         }
         if (kernel != null && !options.containsKey(KERNEL_NAME_LM_OPTION)) {
             options.put(KERNEL_NAME_LM_OPTION, kernel.getKernelName());
@@ -109,8 +89,19 @@ public class JaasLoginModuleUse implements JaasLoginModuleChain {
         if (serverInfo != null && !options.containsKey(SERVERINFO_LM_OPTION)) {
             options.put(SERVERINFO_LM_OPTION, serverInfo);
         }
-        if (classLoader != null && !options.containsKey(CLASSLOADER_LM_OPTION)) {
+        if (!options.containsKey(CLASSLOADER_LM_OPTION)) {
             options.put(CLASSLOADER_LM_OPTION, classLoader);
+        }
+        AppConfigurationEntry entry;
+        if (loginModule.isWrapPrincipals()) {
+            Class loginModuleClass;
+            loginModuleClass = classLoader.loadClass(loginModule.getLoginModuleClass());
+            options.put(WrappingLoginModule.CLASS_OPTION, loginModuleClass);
+            options.put(WrappingLoginModule.DOMAIN_OPTION, loginModule.getLoginDomainName());
+            options.put(WrappingLoginModule.REALM_OPTION, realmName);
+            entry = new AppConfigurationEntry(WrappingLoginModule.class.getName(), controlFlag.getFlag(), options);
+        } else {
+            entry = new AppConfigurationEntry(loginModule.getLoginModuleClass(), controlFlag.getFlag(), options);
         }
         if (loginModule.getLoginDomainName() != null) {
             if (domainNames.contains(loginModule.getLoginDomainName())) {
@@ -119,11 +110,10 @@ public class JaasLoginModuleUse implements JaasLoginModuleChain {
                 domainNames.add(loginModule.getLoginDomainName());
             }
         }
-        JaasLoginModuleConfiguration config = new JaasLoginModuleConfiguration(loginModule.getLoginModuleClass(), controlFlag, options, loginModule.isServerSide(), loginModule.getLoginDomainName(), loginModule.isWrapPrincipals(), loginModule.getClassLoader());
-        loginModuleConfigurations.add(config);
+        loginModuleConfigurations.add(entry);
 
         if (next != null) {
-            next.configure(domainNames, loginModuleConfigurations, kernel, serverInfo, classLoader);
+            next.configure(domainNames, loginModuleConfigurations, realmName, kernel, serverInfo, classLoader);
         }
     }
 
@@ -131,14 +121,12 @@ public class JaasLoginModuleUse implements JaasLoginModuleChain {
 
     static {
         GBeanInfoBuilder infoBuilder = GBeanInfoBuilder.createStatic(JaasLoginModuleUse.class, "LoginModuleUse");
-        infoBuilder.addAttribute("controlFlag", String.class, true);
-        infoBuilder.addAttribute("kernel", Kernel.class, false, false);
+        infoBuilder.addAttribute("controlFlag", LoginModuleControlFlag.class, true);
         infoBuilder.addReference("LoginModule", LoginModuleSettings.class, NameFactory.LOGIN_MODULE);
         infoBuilder.addReference("Next", JaasLoginModuleUse.class);
 
-        infoBuilder.addOperation("configure", new Class[]{Set.class, List.class, Kernel.class, ServerInfo.class, ClassLoader.class});
         infoBuilder.addInterface(JaasLoginModuleChain.class);
-        infoBuilder.setConstructor(new String[]{"LoginModule", "Next", "controlFlag", "kernel"});
+        infoBuilder.setConstructor(new String[]{"LoginModule", "Next", "controlFlag"});
         GBEAN_INFO = infoBuilder.getBeanInfo();
     }
 

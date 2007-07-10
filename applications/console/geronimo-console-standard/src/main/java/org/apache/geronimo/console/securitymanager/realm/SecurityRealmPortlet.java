@@ -16,21 +16,67 @@
  */
 package org.apache.geronimo.console.securitymanager.realm;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.Serializable;
+import java.io.StringReader;
+import java.io.StringWriter;
+import java.io.Writer;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URL;
+import java.net.URLClassLoader;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.SortedSet;
+
+import javax.enterprise.deploy.spi.DeploymentManager;
+import javax.enterprise.deploy.spi.Target;
+import javax.enterprise.deploy.spi.TargetModuleID;
+import javax.enterprise.deploy.spi.status.ProgressObject;
+import javax.management.MalformedObjectNameException;
+import javax.management.ObjectName;
+import javax.portlet.ActionRequest;
+import javax.portlet.ActionResponse;
+import javax.portlet.PortletConfig;
+import javax.portlet.PortletException;
+import javax.portlet.PortletRequest;
+import javax.portlet.PortletRequestDispatcher;
+import javax.portlet.PortletSession;
+import javax.portlet.RenderRequest;
+import javax.portlet.RenderResponse;
+import javax.portlet.WindowState;
+import javax.security.auth.Subject;
+import javax.security.auth.login.AppConfigurationEntry;
+import javax.security.auth.spi.LoginModule;
+import javax.xml.namespace.QName;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.console.BasePortlet;
 import org.apache.geronimo.console.util.PortletManager;
+import org.apache.geronimo.deployment.xbeans.AbstractServiceType;
 import org.apache.geronimo.deployment.xbeans.ArtifactType;
 import org.apache.geronimo.deployment.xbeans.AttributeType;
-import org.apache.geronimo.deployment.xbeans.ModuleDocument;
-import org.apache.geronimo.deployment.xbeans.ModuleType;
 import org.apache.geronimo.deployment.xbeans.DependenciesType;
 import org.apache.geronimo.deployment.xbeans.EnvironmentType;
 import org.apache.geronimo.deployment.xbeans.GbeanType;
+import org.apache.geronimo.deployment.xbeans.ModuleDocument;
+import org.apache.geronimo.deployment.xbeans.ModuleType;
 import org.apache.geronimo.deployment.xbeans.ReferenceType;
-import org.apache.geronimo.deployment.xbeans.XmlAttributeType;
-import org.apache.geronimo.deployment.xbeans.AbstractServiceType;
 import org.apache.geronimo.deployment.xbeans.ServiceDocument;
+import org.apache.geronimo.deployment.xbeans.XmlAttributeType;
+import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.KernelRegistry;
@@ -44,67 +90,23 @@ import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.ListableRepository;
 import org.apache.geronimo.management.geronimo.JCAManagedConnectionFactory;
 import org.apache.geronimo.security.jaas.JaasLoginModuleChain;
-import org.apache.geronimo.security.jaas.LoginModuleSettings;
 import org.apache.geronimo.security.jaas.JaasLoginModuleUse;
+import org.apache.geronimo.security.jaas.LoginModuleSettings;
 import org.apache.geronimo.security.jaas.NamedUPCredentialLoginModule;
+import org.apache.geronimo.security.jaas.LoginModuleControlFlag;
+import org.apache.geronimo.security.jaas.LoginModuleControlFlagEditor;
+import org.apache.geronimo.security.realm.SecurityRealm;
 import org.apache.geronimo.security.realm.providers.FileAuditLoginModule;
 import org.apache.geronimo.security.realm.providers.GeronimoPasswordCredentialLoginModule;
 import org.apache.geronimo.security.realm.providers.RepeatedFailureLockoutLoginModule;
-import org.apache.geronimo.security.realm.SecurityRealm;
 import org.apache.geronimo.xbeans.geronimo.loginconfig.GerControlFlagType;
 import org.apache.geronimo.xbeans.geronimo.loginconfig.GerLoginConfigDocument;
 import org.apache.geronimo.xbeans.geronimo.loginconfig.GerLoginConfigType;
 import org.apache.geronimo.xbeans.geronimo.loginconfig.GerLoginModuleType;
 import org.apache.geronimo.xbeans.geronimo.loginconfig.GerOptionType;
-import org.apache.geronimo.gbean.AbstractName;
 import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlOptions;
-
-import javax.enterprise.deploy.spi.DeploymentManager;
-import javax.enterprise.deploy.spi.Target;
-import javax.enterprise.deploy.spi.TargetModuleID;
-import javax.enterprise.deploy.spi.status.ProgressObject;
-import javax.portlet.ActionRequest;
-import javax.portlet.ActionResponse;
-import javax.portlet.PortletConfig;
-import javax.portlet.PortletException;
-import javax.portlet.PortletRequest;
-import javax.portlet.PortletRequestDispatcher;
-import javax.portlet.PortletSession;
-import javax.portlet.RenderRequest;
-import javax.portlet.RenderResponse;
-import javax.portlet.WindowState;
-import javax.security.auth.Subject;
-import javax.security.auth.spi.LoginModule;
-import javax.management.ObjectName;
-import javax.management.MalformedObjectNameException;
-import javax.xml.namespace.QName;
-
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.io.Serializable;
-import java.io.StringReader;
-import java.io.StringWriter;
-import java.io.Writer;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.net.URLClassLoader;
-import java.net.URI;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-import java.util.Set;
-import java.util.SortedSet;
 
 /**
  * A portlet that lists, creates, and edits security realms.
@@ -400,7 +402,6 @@ public class SecurityRealmPortlet extends BasePortlet {
                             details.getControlFlag().equals("REQUISITE") ? GerControlFlagType.REQUISITE :
                                     details.getControlFlag().equals("SUFFICIENT") ? GerControlFlagType.SUFFICIENT :
                                             GerControlFlagType.OPTIONAL);
-            module.setServerSide(details.isServerSide());
             module.setLoginDomainName(details.getLoginDomainName());
             module.setLoginModuleClass(details.getClassName());
             module.setWrapPrincipals(details.isWrapPrincipals());
@@ -480,7 +481,6 @@ public class SecurityRealmPortlet extends BasePortlet {
             LoginModuleSettings module = node.getLoginModule();
             details.setLoginDomainName(module.getLoginDomainName());
             details.setClassName(module.getLoginModuleClass());
-            details.setServerSide(module.isServerSide());
             details.setWrapPrincipals(module.isWrapPrincipals());
             details.setOptions(module.getOptions());
             list.add(details);
@@ -540,7 +540,6 @@ public class SecurityRealmPortlet extends BasePortlet {
                 node.setControlFlag(details.getControlFlag());
                 LoginModuleSettings module = node.getLoginModule();
                 module.setOptions(details.getOptions());
-                module.setServerSide(details.isServerSide());
                 module.setWrapPrincipals(details.isWrapPrincipals());
                 module.setLoginModuleClass(details.getClassName());
             }
@@ -740,53 +739,48 @@ public class SecurityRealmPortlet extends BasePortlet {
         if (data.modules == null) {
             LoginModuleDetails module = new LoginModuleDetails();
             module.setClassName(getSelectedModule(data).getClassName());
-            module.setControlFlag("REQUIRED");
+            module.setControlFlag(LoginModuleControlFlag.REQUIRED);
             module.setLoginDomainName(data.getName());
-            module.setServerSide(data.getRealmType().indexOf("erberos") < 0);
-            Properties props = module.getOptions();
+            Map<String, Object> props = module.getOptions();
             for (Iterator it = data.getOptions().entrySet().iterator(); it.hasNext();) {
                 Map.Entry entry = (Map.Entry) it.next();
-                props.setProperty((String) entry.getKey(), (String) entry.getValue());
+                props.put((String) entry.getKey(), (String) entry.getValue());
             }
             list.add(module);
             if (data.isStorePassword()) {
                 module = new LoginModuleDetails();
                 module.setClassName(GeronimoPasswordCredentialLoginModule.class.getName());
-                module.setControlFlag("OPTIONAL");
+                module.setControlFlag(LoginModuleControlFlag.OPTIONAL);
                 module.setLoginDomainName(data.getName() + "-Password");
-                module.setServerSide(true);
                 list.add(module);
             }
             if (data.getAuditPath() != null) {
                 module = new LoginModuleDetails();
                 module.setClassName(FileAuditLoginModule.class.getName());
-                module.setControlFlag("OPTIONAL");
+                module.setControlFlag(LoginModuleControlFlag.OPTIONAL);
                 module.setLoginDomainName(data.getName() + "-Audit");
-                module.setServerSide(true);
                 props = module.getOptions();
-                props.setProperty("file", data.getAuditPath());
+                props.put("file", data.getAuditPath());
                 list.add(module);
             }
             if (data.isLockoutEnabled()) {
                 module = new LoginModuleDetails();
                 module.setClassName(RepeatedFailureLockoutLoginModule.class.getName());
-                module.setControlFlag("REQUISITE");
+                module.setControlFlag(LoginModuleControlFlag.REQUISITE);
                 module.setLoginDomainName(data.getName() + "-Lockout");
-                module.setServerSide(true);
                 props = module.getOptions();
-                props.setProperty("failureCount", data.getLockoutCount());
-                props.setProperty("failurePeriodSecs", data.getLockoutWindow());
-                props.setProperty("lockoutDurationSecs", data.getLockoutDuration());
+                props.put("failureCount", data.getLockoutCount());
+                props.put("failurePeriodSecs", data.getLockoutWindow());
+                props.put("lockoutDurationSecs", data.getLockoutDuration());
                 list.add(module);
             }
             if (data.getCredentialName() != null) {
                 module = new LoginModuleDetails();
                 module.setClassName(NamedUPCredentialLoginModule.class.getName());
-                module.setControlFlag("OPTIONAL");
+                module.setControlFlag(LoginModuleControlFlag.OPTIONAL);
                 module.setLoginDomainName(data.getName() + "-NamedUPC");
-                module.setServerSide(true);
                 props = module.getOptions();
-                props.setProperty(NamedUPCredentialLoginModule.CREDENTIAL_NAME, data.getCredentialName());
+                props.put(NamedUPCredentialLoginModule.CREDENTIAL_NAME, data.getCredentialName());
                 list.add(module);
             }
         } else {
@@ -871,13 +865,10 @@ public class SecurityRealmPortlet extends BasePortlet {
                 details.setClassName(cls);
                 String flag = request.getParameter("module-control-" + index);
                 if (flag == null || flag.equals("")) continue;
-                details.setControlFlag(flag);
+                details.setControlFlag(toFlag(flag));
                 String wrap = request.getParameter("module-wrap-" + index);
                 if (wrap == null || wrap.equals("")) continue;
                 details.setWrapPrincipals(Boolean.valueOf(wrap).booleanValue());
-                String server = request.getParameter("module-server-" + index);
-                if (server == null || server.equals("")) continue;
-                details.setServerSide(Boolean.valueOf(server).booleanValue());
                 String options = request.getParameter("module-options-" + index);
                 if (options != null && !options.equals("")) {
                     BufferedReader in = new BufferedReader(new StringReader(options));
@@ -889,7 +880,7 @@ public class SecurityRealmPortlet extends BasePortlet {
                             }
                             int pos = line.indexOf('=');
                             if (pos > -1) {
-                                details.getOptions().setProperty(line.substring(0, pos), line.substring(pos + 1));
+                                details.getOptions().put(line.substring(0, pos), line.substring(pos + 1));
                             }
                         }
                     } catch (IOException e) {
@@ -901,6 +892,12 @@ public class SecurityRealmPortlet extends BasePortlet {
             if (list.size() > 0) {
                 modules = (LoginModuleDetails[]) list.toArray(new LoginModuleDetails[list.size()]);
             }
+        }
+
+        private LoginModuleControlFlag toFlag(String flag) {
+            LoginModuleControlFlagEditor editor = new LoginModuleControlFlagEditor();
+            editor.setAsText(flag);
+            return (LoginModuleControlFlag) editor.getValue();
         }
 
         public void reorderOptions(MasterLoginModuleInfo.OptionInfo[] info) {
@@ -942,9 +939,8 @@ public class SecurityRealmPortlet extends BasePortlet {
                     if (module.getClassName() != null)
                         response.setRenderParameter("module-class-" + i, module.getClassName());
                     if (module.getControlFlag() != null)
-                        response.setRenderParameter("module-control-" + i, module.getControlFlag());
+                        response.setRenderParameter("module-control-" + i,module.getControlFlag().toString());
                     response.setRenderParameter("module-wrap-" + i, Boolean.toString(module.isWrapPrincipals()));
-                    response.setRenderParameter("module-server-" + i, Boolean.toString(module.isServerSide()));
                     if (module.getOptions().size() > 0)
                         response.setRenderParameter("module-options-" + i, module.getOptionString());
                 }
@@ -1015,10 +1011,9 @@ public class SecurityRealmPortlet extends BasePortlet {
     public static class LoginModuleDetails implements Serializable {
         private String loginDomainName;
         private String className;
-        private String controlFlag;
-        private boolean serverSide = true;
+        private LoginModuleControlFlag controlFlag;
         private boolean wrapPrincipals = false;
-        private Properties options = new Properties();
+        private Map<String, Object> options = new HashMap<String, Object>();
 
         public String getLoginDomainName() {
             return loginDomainName;
@@ -1036,27 +1031,19 @@ public class SecurityRealmPortlet extends BasePortlet {
             this.className = className;
         }
 
-        public String getControlFlag() {
+        public LoginModuleControlFlag getControlFlag() {
             return controlFlag;
         }
 
-        public void setControlFlag(String controlFlag) {
+        public void setControlFlag(LoginModuleControlFlag controlFlag) {
             this.controlFlag = controlFlag;
         }
 
-        public boolean isServerSide() {
-            return serverSide;
-        }
-
-        public void setServerSide(boolean serverSide) {
-            this.serverSide = serverSide;
-        }
-
-        public Properties getOptions() {
+        public Map<String, Object> getOptions() {
             return options;
         }
 
-        public void setOptions(Properties options) {
+        public void setOptions(Map<String, Object> options) {
             this.options = options;
         }
 
@@ -1072,7 +1059,7 @@ public class SecurityRealmPortlet extends BasePortlet {
             StringBuffer buf = new StringBuffer();
             for (Iterator it = options.keySet().iterator(); it.hasNext();) {
                 String key = (String) it.next();
-                buf.append(key).append("=").append(options.getProperty(key)).append("\n");
+                buf.append(key).append("=").append(options.get(key)).append("\n");
             }
             return buf.toString();
         }

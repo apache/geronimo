@@ -16,7 +16,7 @@
  */
 package org.apache.geronimo.connector.outbound.security;
 
-import java.util.Properties;
+import java.util.Map;
 
 import javax.resource.spi.ManagedConnectionFactory;
 
@@ -29,8 +29,8 @@ import org.apache.geronimo.security.jaas.LoginModuleGBean;
 public class PasswordCredentialLoginModuleWrapper extends LoginModuleGBean {
     public static final String MANAGED_CONNECTION_FACTORY_OPTION = "geronimo.managedconnectionfactory.option";
 
-    public PasswordCredentialLoginModuleWrapper(String loginModuleClass, String objectName, boolean serverSide, boolean wrapPrincipals, Properties options, String loginDomainName, ManagedConnectionFactoryWrapper managedConnectionFactoryWrapper, ClassLoader classLoader) {
-        super(loginModuleClass, objectName, serverSide, wrapPrincipals, options, loginDomainName, classLoader);
+    public PasswordCredentialLoginModuleWrapper(String loginModuleClass, String objectName, boolean wrapPrincipals, Map<String, Object> options, String loginDomainName, ManagedConnectionFactoryWrapper managedConnectionFactoryWrapper, ClassLoader classLoader) {
+        super(loginModuleClass, objectName, wrapPrincipals, options, loginDomainName, classLoader);
         ManagedConnectionFactory managedConnectionFactory = managedConnectionFactoryWrapper.$getManagedConnectionFactory();
         getOptions().put(MANAGED_CONNECTION_FACTORY_OPTION, managedConnectionFactory);
     }
