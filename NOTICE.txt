@@ -144,14 +144,14 @@ reserved.
 This product includes software developed by
 The Apache Software Foundation (http://www.apache.org/).
 
-This product also includes schemas and specification developed by:
-   - the W3C consortium (http://www.w3c.org) ,
+This product also includes schemas and specification developed 
+by the W3C consortium (http://www.w3c.org)
 
 This product also includes software developed by Spring Framework
 Project (http://www.springframework.org)
 
-This product also includes XMLSchema developed at the apache 
-software foundation. The original software is available from
+This product also includes XMLSchema developed at the Apache 
+Software Foundation. The original software is available from
 (http://www.apache.org/dyn/closer.cgi/ws/commons/XmlSchema)
 
 This product also includes Wsdl4j (The Web Services Description 
@@ -161,7 +161,7 @@ software is available from (http://sourceforge.net/projects/wsdl4j)
 This product also inclues SAAJ (The SOAP with Attachments API for Java)
 The original software is availabe from (http://saaj.dev.java.net/)
 
-This product also includes JavaMail api developed by Sun MicroSystems, Inc.
+This product also includes JavaMail API developed by Sun Microsystems, Inc.
 The original software is avaiable from (http://glassfish.dev.java.net/)
 
 This product also includes JSR 181 API developed by Java Community Process.
@@ -171,18 +171,18 @@ This product also includes JSR 250 API developed by Java Community Process.
 The original software is available from (http://glassfish.dev.java.net/)
 
 This product also includes Java API for XML Web Service developed by
-Java Community Process and Sun MicroSystems, Inc. The original software
+Java Community Process and Sun Microsystems, Inc. The original software
 is available from (http://glassfish.dev.java.net/)
 
-This product also includes Java Architecture for XML Binding developed by Java
-Community Process and Sun MicroSystems, Inc. The original software is
+This product also includes Java Architecture for XML Binding developed by 
+Java Community Process and Sun Microsystems, Inc. The original software is
 available from (http://jaxb.dev.java.net)
 
 This product also includes JavaBeans Activation Framework developed by
-Java Community Process and Sun MicroSystems, Inc. The original software is 
-available from (http://jcp.org/aboutJava/communityprocess/mrel/jsr925/index.html
+Java Community Process and Sun Microsystems, Inc. The original software is 
+available from (http://jcp.org/aboutJava/communityprocess/mrel/jsr925/index.html)
 
-This product also includes software developed by Mort Bay Consulting
+This product also includes software developed by MortBay Consulting
 Pty (http://jetty.mortbay.org)
 
 This product also includes software developed by Codehause
