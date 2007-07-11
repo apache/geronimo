@@ -259,7 +259,7 @@ public class DeploymentContext {
      * Used only in PersistenceUnitBuilder to figure out if a persistence.xml relates to the starting module.  Having a classloader for
      * each ejb module would eliminate the need for this and be more elegant.
      */
-    public void getCompleteManifestClassPath(JarFile moduleFile, URI moduleBaseUri, ClassPathList classpath, ModuleList exclusions) throws DeploymentException {
+    public void getCompleteManifestClassPath(JarFile moduleFile, URI moduleBaseUri, URI resolutionUri, ClassPathList classpath, ModuleList exclusions) throws DeploymentException {
         Manifest manifest;
         try {
             manifest = moduleFile.getManifest();
@@ -297,15 +297,17 @@ public class DeploymentContext {
                 throw new DeploymentException("target path must not end with a '/' character: " + targetUri);
             }
             String classpathEntry = targetUri.toString();
-            //don't get caught in circular references
-            if (classpath.contains(classpathEntry)) {
-                continue;
-            }
             if (exclusions.contains(classpathEntry)) {
                 continue;
             }
-            classpath.add(classpathEntry);
-            File targetFile = getTargetFile(targetUri);
+            URI resolvedUri = resolutionUri.resolve(pathUri);
+            String resolvedEntry = resolvedUri.toString();
+            //don't get caught in circular references
+            if (classpath.contains(resolvedEntry)) {
+                continue;
+            }
+            classpath.add(resolvedEntry);
+            File targetFile = getTargetFile(resolvedUri);
             JarFile classPathJarFile;
             try {
                 classPathJarFile = new JarFile(targetFile);
@@ -313,7 +315,7 @@ public class DeploymentContext {
                 throw new DeploymentException("Manifest class path entries must be a valid jar file (JAVAEE 5 Section 8.2): jarFile=" + targetFile + ", path=" + path, e);
             }
 
-            getCompleteManifestClassPath(classPathJarFile, targetUri, classpath, exclusions);
+            getCompleteManifestClassPath(classPathJarFile, targetUri, resolutionUri, classpath, exclusions);
         }
     }
 

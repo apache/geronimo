@@ -327,7 +327,8 @@ public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
         EARContext moduleContext = module.getEarContext();
         ClassPathList manifestcp = (ClassPathList) moduleContext.getGeneralData().get(ClassPathList.class);
         ModuleList moduleLocations = (ModuleList) module.getRootEarContext().getGeneralData().get(ModuleList.class);
-        moduleContext.getCompleteManifestClassPath(module.getModuleFile(), URI.create(module.getTargetPath()).resolve(RELATIVE_MODULE_BASE_URI), manifestcp, moduleLocations);
+        URI baseUri = URI.create(module.getTargetPath());
+        moduleContext.getCompleteManifestClassPath(module.getModuleFile(), baseUri, baseUri.resolve(RELATIVE_MODULE_BASE_URI), manifestcp, moduleLocations);
 
 
         WebAppType webApp = (WebAppType) module.getSpecDD();

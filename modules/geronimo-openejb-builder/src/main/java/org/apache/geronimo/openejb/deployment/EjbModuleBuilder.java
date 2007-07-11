@@ -20,7 +20,6 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URL;
-import java.net.MalformedURLException;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -477,7 +476,8 @@ public class EjbModuleBuilder implements ModuleBuilder {
         manifestcp.add(module.getTargetPath());
         EARContext moduleContext = module.getEarContext();
         ModuleList moduleLocations = (ModuleList) module.getRootEarContext().getGeneralData().get(ModuleList.class);
-        moduleContext.getCompleteManifestClassPath(module.getModuleFile(), URI.create(module.getTargetPath()), manifestcp, moduleLocations);
+        URI baseUri = URI.create(module.getTargetPath());
+        moduleContext.getCompleteManifestClassPath(module.getModuleFile(), baseUri, baseUri, manifestcp, moduleLocations);
         moduleContext.getGeneralData().put(ClassPathList.class, manifestcp);
 
         for (ModuleBuilderExtension builder : moduleBuilderExtensions) {
