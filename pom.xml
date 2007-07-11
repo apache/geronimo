@@ -83,7 +83,7 @@
         -->
         <dojoVersion>0.4.3</dojoVersion>
 
-        <cxfVersion>2.0-incubator-SNAPSHOT</cxfVersion>
+        <cxfVersion>2.0-incubator</cxfVersion>
 
         <axis2Version>SNAPSHOT</axis2Version>
     </properties>
@@ -1278,19 +1278,19 @@
             <dependency>
                 <groupId>org.springframework</groupId>
                 <artifactId>spring-core</artifactId>
-                <version>2.0</version>
+                <version>2.0.4</version>
             </dependency>
 
             <dependency>
                 <groupId>org.springframework</groupId>
                 <artifactId>spring-beans</artifactId>
-                <version>2.0</version>
+                <version>2.0.4</version>
             </dependency>
 
             <dependency>
                 <groupId>org.springframework</groupId>
                 <artifactId>spring-context</artifactId>
-                <version>2.0</version>
+                <version>2.0.4</version>
             </dependency>
 
             <!--JSF 1.2 JARs from Apache MyFaces -->
