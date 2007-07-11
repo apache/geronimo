@@ -58,6 +58,7 @@ import org.apache.axis2.transport.RequestResponseTransport;
 import org.apache.axis2.transport.http.HTTPConstants;
 import org.apache.axis2.transport.http.HTTPTransportReceiver;
 import org.apache.axis2.transport.http.HTTPTransportUtils;
+import org.apache.axis2.transport.http.TransportHeaders;
 import org.apache.axis2.transport.http.util.RESTUtil;
 import org.apache.axis2.util.MessageContextBuilder;
 import org.apache.commons.logging.Log;
@@ -173,15 +174,12 @@ public abstract class Axis2WebServiceContainer implements WebServiceContainer {
         MessageContext msgContext = new MessageContext();
         msgContext.setIncomingTransportName(Constants.TRANSPORT_HTTP);
         msgContext.setProperty(MessageContext.REMOTE_ADDR, request.getRemoteAddr());
-        
 
         try {
             TransportOutDescription transportOut = this.configurationContext.getAxisConfiguration()
                     .getTransportOut(Constants.TRANSPORT_HTTP);
             TransportInDescription transportIn = this.configurationContext.getAxisConfiguration()
                     .getTransportIn(Constants.TRANSPORT_HTTP);
-            
-            
 
             msgContext.setConfigurationContext(this.configurationContext);
 
@@ -197,17 +195,6 @@ public abstract class Axis2WebServiceContainer implements WebServiceContainer {
             msgContext.setServerSide(true);
             msgContext.setAxisService(this.service);
             
-
-//            // set the transport Headers
-//            HashMap headerMap = new HashMap();
-//            for (Iterator it = request.headerIterator(); it.hasNext();) {
-//                Header header = (Header) it.next();
-//                headerMap.put(header.getName(), header.getValue());
-//            }
-//            msgContext.setProperty(MessageContext.TRANSPORT_HEADERS, headerMap);
-//
-//            this.httpcontext.setAttribute(AxisParams.MESSAGE_CONTEXT, msgContext);
-
             doService2(request, response, msgContext);
         } catch (Throwable e) {
             String msg = "Exception occurred while trying to invoke service method doService()";
@@ -346,6 +333,11 @@ public abstract class Axis2WebServiceContainer implements WebServiceContainer {
         ServletContext servletContext =
             (ServletContext)request.getAttribute(WebServiceContainer.SERVLET_CONTEXT);
         msgContext.setProperty(HTTPConstants.MC_HTTP_SERVLETCONTEXT, servletContext);    
+        
+        if (servletRequest != null) {
+            msgContext.setProperty(MessageContext.TRANSPORT_HEADERS, 
+                                   new TransportHeaders(servletRequest));
+        }
         
         if (this.binding != null) {
             msgContext.setProperty(JAXWSMessageReceiver.PARAM_BINDING, this.binding);  
