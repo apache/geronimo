@@ -100,11 +100,6 @@ public interface J2EEServer extends org.apache.geronimo.management.J2EEServer {
     public ServerInfo getServerInfo();
 
     /**
-     * Gets the LoginService associated with this J2EEServer.
-     */
-    public LoginService getLoginService();
-
-    /**
      * Gets the KeystoreManager associated with this J2EEServer.
      */
     public KeystoreManager getKeystoreManager();

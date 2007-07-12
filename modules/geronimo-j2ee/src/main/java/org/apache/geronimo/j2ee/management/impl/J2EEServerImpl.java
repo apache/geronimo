@@ -39,7 +39,6 @@ import org.apache.geronimo.management.geronimo.J2EEServer;
 import org.apache.geronimo.management.geronimo.JMSManager;
 import org.apache.geronimo.management.geronimo.JVM;
 import org.apache.geronimo.management.geronimo.KeystoreManager;
-import org.apache.geronimo.management.geronimo.LoginService;
 import org.apache.geronimo.management.geronimo.ResourceAdapterModule;
 import org.apache.geronimo.management.geronimo.SecurityRealm;
 import org.apache.geronimo.management.geronimo.WebManager;
@@ -71,7 +70,6 @@ public class J2EEServerImpl implements J2EEServer {
     private final Collection pluginRepoLists;
     private final Collection writableRepos;
     private final Collection securityRealms;
-    private final Collection loginServices;
     private final Collection keystoreManagers;
     private final Collection pluginInstallers;
     private final ConfigurationManager configurationManager;
@@ -92,7 +90,6 @@ public class J2EEServerImpl implements J2EEServer {
                           Collection repositories,
                           Collection writableRepos,
                           Collection securityRealms,
-                          Collection loginServices,
                           Collection keystoreManagers,
                           Collection configurationInstallers,
                           ConfigurationManager configurationManager,
@@ -120,7 +117,6 @@ public class J2EEServerImpl implements J2EEServer {
         this.repositories = repositories;
         this.writableRepos = writableRepos;
         this.securityRealms = securityRealms;
-        this.loginServices = loginServices;
         this.keystoreManagers = keystoreManagers;
         this.pluginInstallers = configurationInstallers;
         this.configurationManager = configurationManager;
@@ -279,11 +275,6 @@ public class J2EEServerImpl implements J2EEServer {
         return serverInfo;
     }
 
-    public LoginService getLoginService() {
-        if (loginServices == null) return null;
-        return (LoginService) loginServices.iterator().next();
-    }
-
     public KeystoreManager getKeystoreManager() {
         if (keystoreManagers == null) return null;
         return (KeystoreManager) keystoreManagers.iterator().next();
@@ -328,7 +319,6 @@ public class J2EEServerImpl implements J2EEServer {
         infoFactory.addReference("Repositories", ListableRepository.class);
         infoFactory.addReference("WritableRepos", WritableListableRepository.class);
         infoFactory.addReference("SecurityRealms", SecurityRealm.class);
-        infoFactory.addReference("LoginServices", LoginService.class);
         infoFactory.addReference("KeystoreManagers", KeystoreManager.class);
         infoFactory.addReference("PluginInstaller", PluginInstaller.class);
         infoFactory.addReference("PluginRepoLists", PluginRepositoryList.class);
@@ -351,7 +341,6 @@ public class J2EEServerImpl implements J2EEServer {
                 "Repositories",
                 "WritableRepos",
                 "SecurityRealms",
-                "LoginServices",
                 "KeystoreManagers",
                 "PluginInstaller",
                 "ConfigurationManager",

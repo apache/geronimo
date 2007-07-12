@@ -89,7 +89,6 @@
         <reference name="ThreadPools"/>
         <reference name="Repositories"/>
         <reference name="SecurityRealms"/>
-        <reference name="LoginServices"/>
         <reference name="KeystoreManagers"/>
         <reference name="ConfigurationManager">
             <name>ConfigurationManager</name>

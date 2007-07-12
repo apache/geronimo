@@ -68,7 +68,6 @@
         <reference name="Repositories"/>
         <reference name="WritableRepos"/>
         <reference name="SecurityRealms"/>
-        <reference name="LoginServices"/>
         <reference name="KeystoreManagers"/>
         <reference name="PluginRepoLists"/>
         <reference name="PluginInstaller">
