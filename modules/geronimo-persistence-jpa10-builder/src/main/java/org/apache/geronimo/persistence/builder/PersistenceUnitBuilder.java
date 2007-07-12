@@ -23,6 +23,7 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -70,10 +71,10 @@ public class PersistenceUnitBuilder implements ModuleBuilderExtension {
     private static final String ANON_PU_NAME = "AnonymousPersistenceUnit";
 
     public PersistenceUnitBuilder(Environment defaultEnvironment,
-            String defaultPersistenceProviderClassName,
-            String defaultJtaDataSourceName,
-            String defaultNonJtaDataSourceName,
-            AbstractNameQuery extendedEntityManagerRegistryName, Properties defaultPersistenceUnitProperties) throws URISyntaxException {
+                                  String defaultPersistenceProviderClassName,
+                                  String defaultJtaDataSourceName,
+                                  String defaultNonJtaDataSourceName,
+                                  AbstractNameQuery extendedEntityManagerRegistryName, Properties defaultPersistenceUnitProperties) throws URISyntaxException {
         this.defaultEnvironment = defaultEnvironment;
         this.defaultPersistenceProviderClassName = defaultPersistenceProviderClassName;
         this.defaultJtaDataSourceName = defaultJtaDataSourceName == null ? null : getAbstractNameQuery(defaultJtaDataSourceName);
@@ -92,12 +93,16 @@ public class PersistenceUnitBuilder implements ModuleBuilderExtension {
         XmlObject container = module.getVendorDD();
         EARContext moduleContext = module.getEarContext();
         XmlObject[] raws = container.selectChildren(PERSISTENCE_QNAME);
+
+        Map<String, PersistenceDocument.Persistence.PersistenceUnit> overrides = new HashMap<String, PersistenceDocument.Persistence.PersistenceUnit>();
         for (XmlObject raw : raws) {
             PersistenceDocument.Persistence persistence = (PersistenceDocument.Persistence) raw.copy().changeType(PersistenceDocument.Persistence.type);
-            buildPersistenceUnits(persistence, module, module.getTargetPath());
+            for (PersistenceDocument.Persistence.PersistenceUnit unit : persistence.getPersistenceUnitArray()) {
+                overrides.put(unit.getName().trim(), unit);
+            }
+//            buildPersistenceUnits(persistence, module, module.getTargetPath());
         }
         try {
-            //TODO the code that figures out the persistence unit name is incomplete
             File rootBaseFile = module.getRootEarContext().getConfiguration().getConfigurationDir();
             String rootBase = rootBaseFile.toURI().normalize().toString();
             URI moduleBaseURI = moduleContext.getBaseDir().toURI();
@@ -109,7 +114,7 @@ public class PersistenceUnitBuilder implements ModuleBuilderExtension {
             }
             URL[] urls = new URL[manifestcp.size()];
             int i = 0;
-            for (String path: manifestcp) {
+            for (String path : manifestcp) {
                 URL url = moduleBaseURI.resolve(path).toURL();
                 urls[i++] = url;
             }
@@ -156,7 +161,7 @@ public class PersistenceUnitBuilder implements ModuleBuilderExtension {
                         throw new DeploymentException("Could not parse persistence.xml file: " + persistenceUrl, e);
                     }
                     PersistenceDocument.Persistence persistence = persistenceDocument.getPersistence();
-                    buildPersistenceUnits(persistence, module, relative);
+                    buildPersistenceUnits(persistence, overrides, module, relative);
                     knownPersistenceUrls.add(persistenceUrl);
                 } else {
                     throw new DeploymentException("Could not find persistence.xml file: " + persistenceUrl);
@@ -165,19 +170,29 @@ public class PersistenceUnitBuilder implements ModuleBuilderExtension {
         } catch (IOException e) {
             throw new DeploymentException("Could not look for META-INF/persistence.xml files", e);
         }
+
+        for (PersistenceDocument.Persistence.PersistenceUnit persistenceUnit : overrides.values()) {
+            GBeanData data = installPersistenceUnitGBean(persistenceUnit, module, module.getTargetPath());
+            respectExcludeUnlistedClasses(data);
+        }
     }
 
     public void addGBeans(EARContext earContext, Module module, ClassLoader cl, Collection repository) throws DeploymentException {
     }
 
-    private void buildPersistenceUnits(PersistenceDocument.Persistence persistence, Module module, String persistenceModulePath) throws DeploymentException {
+    private void buildPersistenceUnits(PersistenceDocument.Persistence persistence, Map<String, PersistenceDocument.Persistence.PersistenceUnit> overrides, Module module, String persistenceModulePath) throws DeploymentException {
         PersistenceDocument.Persistence.PersistenceUnit[] persistenceUnits = persistence.getPersistenceUnitArray();
         for (PersistenceDocument.Persistence.PersistenceUnit persistenceUnit : persistenceUnits) {
-            installPersistenceUnitGBean(persistenceUnit, module, persistenceModulePath);
+            GBeanData data = installPersistenceUnitGBean(persistenceUnit, module, persistenceModulePath);
+            String unitName = persistenceUnit.getName().trim();
+            if (overrides.get(unitName) != null) {
+                setOverrideableProperties(overrides.remove(unitName), data);
+            }
+            respectExcludeUnlistedClasses(data);
         }
     }
 
-    private void installPersistenceUnitGBean(PersistenceDocument.Persistence.PersistenceUnit persistenceUnit, Module module, String persistenceModulePath) throws DeploymentException {
+    private GBeanData installPersistenceUnitGBean(PersistenceDocument.Persistence.PersistenceUnit persistenceUnit, Module module, String persistenceModulePath) throws DeploymentException {
         EARContext moduleContext = module.getEarContext();
         String persistenceUnitName = persistenceUnit.getName().trim();
         if (persistenceUnitName.length() == 0) {
@@ -197,16 +212,40 @@ public class PersistenceUnitBuilder implements ModuleBuilderExtension {
             throw new DeploymentException("Duplicate persistenceUnit name " + persistenceUnitName, e);
         }
         gbeanData.setAttribute("persistenceUnitName", persistenceUnitName);
+        gbeanData.setAttribute("persistenceUnitRoot", persistenceModulePath);
+
+        //set defaults:
+        gbeanData.setAttribute("persistenceProviderClassName", defaultPersistenceProviderClassName);
+        //spec 6.2.1.2 the default is JTA
+        gbeanData.setAttribute("persistenceUnitTransactionType", "JTA");
+        if (defaultJtaDataSourceName != null) {
+            gbeanData.setReferencePattern("JtaDataSourceWrapper", defaultJtaDataSourceName);
+        }
+        if (defaultNonJtaDataSourceName != null) {
+            gbeanData.setReferencePattern("NonJtaDataSourceWrapper", defaultNonJtaDataSourceName);
+        }
+
+        gbeanData.setAttribute("mappingFileNames", new ArrayList<String>());
+        gbeanData.setAttribute("excludeUnlistedClasses", false);
+        gbeanData.setAttribute("managedClassNames", new ArrayList<String>());
+        gbeanData.setAttribute("jarFileUrls", new ArrayList<String>());
+        Properties properties = new Properties();
+        gbeanData.setAttribute("properties", properties);
+        properties.putAll(defaultPersistenceUnitProperties);
+        AbstractNameQuery transactionManagerName = moduleContext.getTransactionManagerName();
+        gbeanData.setReferencePattern("TransactionManager", transactionManagerName);
+        gbeanData.setReferencePattern("EntityManagerRegistry", extendedEntityManagerRegistryName);
+
+        setOverrideableProperties(persistenceUnit, gbeanData);
+        return gbeanData;
+    }
+
+    private void setOverrideableProperties(PersistenceDocument.Persistence.PersistenceUnit persistenceUnit, GBeanData gbeanData) throws DeploymentException {
         if (persistenceUnit.isSetProvider()) {
             gbeanData.setAttribute("persistenceProviderClassName", persistenceUnit.getProvider().trim());
-        } else {
-            gbeanData.setAttribute("persistenceProviderClassName", defaultPersistenceProviderClassName);
         }
         if (persistenceUnit.isSetTransactionType()) {
             gbeanData.setAttribute("persistenceUnitTransactionType", persistenceUnit.getTransactionType().toString());
-        } else {
-            //spec 6.2.1.2 the default is JTA
-            gbeanData.setAttribute("persistenceUnitTransactionType", "JTA");
         }
         if (persistenceUnit.isSetJtaDataSource()) {
             String jtaDataSourceString = persistenceUnit.getJtaDataSource().trim();
@@ -216,8 +255,6 @@ public class PersistenceUnitBuilder implements ModuleBuilderExtension {
             } catch (URISyntaxException e) {
                 throw new DeploymentException("Could not create jta-data-source AbstractNameQuery from string: " + jtaDataSourceString, e);
             }
-        } else if (defaultJtaDataSourceName != null) {
-            gbeanData.setReferencePattern("JtaDataSourceWrapper", defaultJtaDataSourceName);
         }
 
         if (persistenceUnit.isSetNonJtaDataSource()) {
@@ -228,43 +265,32 @@ public class PersistenceUnitBuilder implements ModuleBuilderExtension {
             } catch (URISyntaxException e) {
                 throw new DeploymentException("Could not create non-jta-data-source AbstractNameQuery from string: " + nonJtaDataSourceString, e);
             }
-        } else if (defaultNonJtaDataSourceName != null) {
-            gbeanData.setReferencePattern("NonJtaDataSourceWrapper", defaultNonJtaDataSourceName);
         }
 
-        List<String> mappingFileNames = new ArrayList<String>();
+        List<String> mappingFileNames = (List<String>) gbeanData.getAttribute("mappingFileNames");
         String[] mappingFileNameStrings = persistenceUnit.getMappingFileArray();
         for (String mappingFileNameString : mappingFileNameStrings) {
             mappingFileNames.add(mappingFileNameString.trim());
         }
-        gbeanData.setAttribute("mappingFileNames", mappingFileNames);
 
-        boolean excludeUnlistedClasses = persistenceUnit.isSetExcludeUnlistedClasses() && persistenceUnit.getExcludeUnlistedClasses();
-        gbeanData.setAttribute("excludeUnlistedClasses", excludeUnlistedClasses);
+        if (persistenceUnit.isSetExcludeUnlistedClasses()) {
+            gbeanData.setAttribute("excludeUnlistedClasses", persistenceUnit.getExcludeUnlistedClasses());
+        }
 
-
-        gbeanData.setAttribute("persistenceUnitRoot", persistenceModulePath);
-
-        if (excludeUnlistedClasses) {
             String[] managedClassNameStrings = persistenceUnit.getClass1Array();
-            List<String> managedClassNames = new ArrayList<String>();
+            List<String> managedClassNames = (List<String>) gbeanData.getAttribute("managedClassNames");
             for (String managedClassNameString : managedClassNameStrings) {
                 managedClassNames.add(managedClassNameString.trim());
             }
-            gbeanData.setAttribute("managedClassNames", managedClassNames);
-        } else {
-            List<String> jarFileUrls = new ArrayList<String>();
+            List<String> jarFileUrls = (List<String>) gbeanData.getAttribute("jarFileUrls");
             //add the specified locations in the ear
             String[] jarFileUrlStrings = persistenceUnit.getJarFileArray();
             for (String jarFileUrlString : jarFileUrlStrings) {
                 jarFileUrls.add(jarFileUrlString.trim());
             }
-            gbeanData.setAttribute("jarFileUrls", jarFileUrls);
-        }
 
-        Properties properties = new Properties();
-        properties.putAll(defaultPersistenceUnitProperties);
         if (persistenceUnit.isSetProperties()) {
+            Properties properties = (Properties) gbeanData.getAttribute("properties");
             PersistenceDocument.Persistence.PersistenceUnit.Properties.Property[] propertyObjects = persistenceUnit.getProperties().getPropertyArray();
             for (PersistenceDocument.Persistence.PersistenceUnit.Properties.Property propertyObject : propertyObjects) {
                 String key = propertyObject.getName().trim();
@@ -273,10 +299,16 @@ public class PersistenceUnitBuilder implements ModuleBuilderExtension {
             }
         }
 
-        gbeanData.setAttribute("properties", properties);
-        AbstractNameQuery transactionManagerName = moduleContext.getTransactionManagerName();
-        gbeanData.setReferencePattern("TransactionManager", transactionManagerName);
-        gbeanData.setReferencePattern("EntityManagerRegistry", extendedEntityManagerRegistryName);
+    }
+
+    private void respectExcludeUnlistedClasses(GBeanData gbeanData) {
+        boolean excludeUnlistedClasses = (Boolean) gbeanData.getAttribute("excludeUnlistedClasses");
+
+        if (excludeUnlistedClasses) {
+            gbeanData.clearAttribute("jarFileUrls");
+        } else {
+            gbeanData.clearAttribute("managedClassNames");
+        }
     }
 
     private AbstractNameQuery getAbstractNameQuery(String dataSourceString) throws URISyntaxException {
