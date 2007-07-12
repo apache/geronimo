@@ -14,6 +14,9 @@
    See the License for the specific language governing permissions and
    limitations under the License.
 --%>
+
+<%-- $Rev$ $Date$ --%>
+
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
 <%@ taglib uri="http://java.sun.com/portlet" prefix="portlet"%>
@@ -144,21 +147,6 @@ just leave the extra ones blank.</p>
         <td>The control flag for the login module, which controls what happens to the overall login processing if this
           login module succeeds or fails.  For more information see
           <a href="http://java.sun.com/j2se/1.4.2/docs/api/javax/security/auth/login/Configuration.html">javax.security.auth.login.Configuration</a>.</td>
-      </tr>
-      <tr>
-        <th><div align="right">Server-Side:</div></th>
-        <td>
-          <select name="module-server-${status.index}">
-            <option value="true"<c:if test="${module.serverSide}"> selected</c:if>>Server Side</option>
-            <option value="false"<c:if test="${!module.serverSide}"> selected</c:if>>Client Side</option>
-          </select>
-        </td>
-      </tr>
-      <tr>
-        <td></td>
-        <td>Server-side login modules are executed within the application server (this is normally correct).  Client-side
-          login modules are executed in the client's environment, for example, in order to use single sign-on features
-          of the client OS.</td>
       </tr>
       <tr>
         <th><div align="right">Support Advanced Mapping:</div></th>
