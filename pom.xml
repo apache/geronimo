@@ -1848,19 +1848,6 @@
         </repository>
 
         <repository>
-            <id>tomcat-m2-repo</id>
-            <name>Tomcat M2 Repository</name>
-            <url>http://tomcat.apache.org/dev/dist/m2-repository</url>
-            <layout>default</layout>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-            <releases>
-                <enabled>true</enabled>
-            </releases>
-        </repository>
-
-        <repository>
             <id>java.net</id>
             <url>http://download.java.net/maven/1/</url>
             <layout>legacy</layout>
