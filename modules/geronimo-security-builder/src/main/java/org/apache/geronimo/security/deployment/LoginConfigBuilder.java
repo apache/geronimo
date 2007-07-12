@@ -24,6 +24,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import javax.xml.namespace.QName;
+
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.DeploymentContext;
 import org.apache.geronimo.deployment.service.SingleGBeanBuilder;
@@ -63,6 +65,8 @@ import org.apache.xmlbeans.XmlOptions;
  */
 public class LoginConfigBuilder implements XmlReferenceBuilder {
     public static final String LOGIN_CONFIG_NAMESPACE = GerLoginConfigDocument.type.getDocumentElementName().getNamespaceURI();
+    private static final QName LOGIN_MODULE_QNAME = new QName(LOGIN_CONFIG_NAMESPACE, "login-module");
+    private static final QName SERVER_SIDE_QNAME = new QName(null, "server-side");
 
     private final Naming naming;
     private final Map xmlAttributeBuilderMap;
@@ -91,18 +95,28 @@ public class LoginConfigBuilder implements XmlReferenceBuilder {
     }
 
     public ReferencePatterns getReferences(XmlObject xmlObject, DeploymentContext context, AbstractName parentName, ClassLoader classLoader) throws DeploymentException {
-        GerLoginConfigType loginConfig = (GerLoginConfigType) xmlObject.copy().changeType(GerLoginConfigType.type);
-        XmlOptions xmlOptions = new XmlOptions();
-        xmlOptions.setLoadLineNumbers();
-        Collection errors = new ArrayList();
-        xmlOptions.setErrorListener(errors);
-        if (!loginConfig.validate(xmlOptions)) {
-            throw new DeploymentException("Invalid login configuration:\n" + errors + "\nDescriptor: " + loginConfig.toString());
-        }
-        XmlCursor xmlCursor = loginConfig.newCursor();
         List<GBeanData> uses = new ArrayList<GBeanData>();
-        Set<String> loginModuleNames = new HashSet<String>();
+        GerLoginConfigType loginConfig = (GerLoginConfigType) xmlObject.copy().changeType(GerLoginConfigType.type);
+        XmlCursor xmlCursor = loginConfig.newCursor();
+        xmlCursor.push();
         try {
+            //munge xml
+            if (xmlCursor.toChild(LOGIN_MODULE_QNAME)) {
+                do {
+                    xmlCursor.removeAttribute(SERVER_SIDE_QNAME);
+                } while (xmlCursor.toNextSibling(LOGIN_MODULE_QNAME));
+            }
+            xmlCursor.pop();
+            //validate
+            XmlOptions xmlOptions = new XmlOptions();
+            xmlOptions.setLoadLineNumbers();
+            Collection errors = new ArrayList();
+            xmlOptions.setErrorListener(errors);
+            if (!loginConfig.validate(xmlOptions)) {
+                throw new DeploymentException("Invalid login configuration:\n" + errors + "\nDescriptor: " + loginConfig.toString());
+            }
+            //find the login modules
+            Set<String> loginModuleNames = new HashSet<String>();
             boolean atStart = true;
             while ((atStart && xmlCursor.toFirstChild()) || (!atStart && xmlCursor.toNextSibling())) {
                 atStart = false;
@@ -198,8 +212,7 @@ public class LoginConfigBuilder implements XmlReferenceBuilder {
                 }
                 context.addGBean(data);
             }
-        }
-        catch (GBeanAlreadyExistsException e) {
+        } catch (GBeanAlreadyExistsException e) {
             throw new DeploymentException(e);
         } finally {
             xmlCursor.dispose();
@@ -225,7 +238,7 @@ public class LoginConfigBuilder implements XmlReferenceBuilder {
         GBeanInfoBuilder infoBuilder = GBeanInfoBuilder.createStatic(LoginConfigBuilder.class, "XmlReferenceBuilder");
         infoBuilder.addAttribute("kernel", Kernel.class, false, false);
         infoBuilder.addReference("xmlAttributeBuilders", XmlAttributeBuilder.class, "XmlAttributeBuilder");
-        infoBuilder.setConstructor(new String[] {"kernel", "xmlAttributeBuilders"});
+        infoBuilder.setConstructor(new String[]{"kernel", "xmlAttributeBuilders"});
         infoBuilder.addInterface(XmlReferenceBuilder.class);
         GBEAN_INFO = infoBuilder.getBeanInfo();
 

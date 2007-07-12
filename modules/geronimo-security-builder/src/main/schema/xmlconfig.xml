@@ -31,7 +31,7 @@
         <xb:prefix>Ger</xb:prefix>
     </xb:namespace>
 
-    <xb:namespace uri="http://geronimo.apache.org/xml/ns/loginconfig-1.2">
+    <xb:namespace uri="http://geronimo.apache.org/xml/ns/loginconfig-2.0">
         <xb:package>org.apache.geronimo.xbeans.geronimo.loginconfig</xb:package>
         <xb:prefix>Ger</xb:prefix>
     </xb:namespace>

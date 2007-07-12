@@ -76,6 +76,9 @@ public class Jsr77Naming extends Naming {
 
         String parentType = (String) nameMap.remove(J2EE_TYPE);
         String parentName = (String) nameMap.remove(J2EE_NAME);
+        if (parentType == null) {
+            throw new IllegalArgumentException("parent name must have a j2eeType name component");
+        }
         if (INVALID_GENERIC_PARENT_TYPE.equals(parentType)) {
             throw new IllegalArgumentException("You can't create a child of a generic typed gbean");
         }
