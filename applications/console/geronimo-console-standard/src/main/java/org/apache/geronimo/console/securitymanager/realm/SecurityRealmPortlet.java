@@ -394,10 +394,10 @@ public class SecurityRealmPortlet extends BasePortlet {
                 continue;
             }
             GerLoginModuleType module = login.addNewLoginModule();
-            module.setControlFlag(details.getControlFlag().equals("OPTIONAL") ? GerControlFlagType.OPTIONAL :
-                    details.getControlFlag().equals("REQUIRED") ? GerControlFlagType.REQUIRED :
-                            details.getControlFlag().equals("REQUISITE") ? GerControlFlagType.REQUISITE :
-                                    details.getControlFlag().equals("SUFFICIENT") ? GerControlFlagType.SUFFICIENT :
+            module.setControlFlag(details.getControlFlag().equals(LoginModuleControlFlag.OPTIONAL) ? GerControlFlagType.OPTIONAL :
+                    details.getControlFlag().equals(LoginModuleControlFlag.REQUIRED) ? GerControlFlagType.REQUIRED :
+                            details.getControlFlag().equals(LoginModuleControlFlag.REQUISITE) ? GerControlFlagType.REQUISITE :
+                                    details.getControlFlag().equals(LoginModuleControlFlag.SUFFICIENT) ? GerControlFlagType.SUFFICIENT :
                                             GerControlFlagType.OPTIONAL);
             module.setLoginDomainName(details.getLoginDomainName());
             module.setLoginModuleClass(details.getClassName());
