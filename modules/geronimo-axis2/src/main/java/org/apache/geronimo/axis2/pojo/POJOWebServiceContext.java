@@ -23,8 +23,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.xml.ws.WebServiceContext;
 import javax.xml.ws.handler.MessageContext;
 
-import org.apache.axis2.transport.http.HTTPConstants;
-
 /**
  * Implementation of WebServiceContext for POJO WS to ensure that getUserPrincipal()
  * and isUserInRole() are properly handled.
@@ -44,7 +42,7 @@ public class POJOWebServiceContext implements WebServiceContext {
 
     private HttpServletRequest getHttpServletRequest() {
         MessageContext ctx = getMessageContext();
-        return (ctx != null) ? (HttpServletRequest)ctx.get(HTTPConstants.MC_HTTP_SERVLETREQUEST) : null;
+        return (ctx != null) ? (HttpServletRequest)ctx.get(MessageContext.SERVLET_REQUEST) : null;
     }
 
     public final Principal getUserPrincipal() {
