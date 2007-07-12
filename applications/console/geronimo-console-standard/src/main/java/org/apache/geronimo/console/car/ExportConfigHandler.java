@@ -75,39 +75,10 @@ public class ExportConfigHandler extends BaseImportExportHandler {
                 log.warn("Unable to edit plugin metadata containing more than one license!  Additional license data will not be editable.");
             }
         }
-        //request.setAttribute("gerVersions", combine(data.getGeronimoVersions()));
+        //Choose the first geronimo-versions element and set the config version element to that version number.
         PluginMetadata.geronimoVersions[] gerVers = data.getGeronimoVersions();
         if(gerVers != null && gerVers.length > 0) {
-        	for (int i = 0; i < gerVers.length; i++) {
-        		PluginMetadata.geronimoVersions ver = gerVers[i];
-        		String prefix = "geronimo-versions" + (i+1);
-        		request.setAttribute(prefix +"Version", ver.getVersion());
-                if (ver.getModuleId() != null) {
-                    request.setAttribute(prefix +"ModuleID", ver.getModuleId().toString());
-                }
-                String[] repos = ver.getRepository();
-                if (repos != null && repos.length > 0) {
-                	for ( int j=0; j < repos.length; j++ ) {
-                		String repo = repos[j];
-                		String prefixes = "repo" + (j+1);
-                		request.setAttribute(prefixes, repo);
-                	}
-                }
-                PluginMetadata.Prerequisite[] reqs = ver.getPreReqs();
-                if(reqs != null && reqs.length > 0) {
-                    for (int j = 0; j < reqs.length; j++) {
-                        PluginMetadata.Prerequisite req = reqs[j];
-                        String prefixes = "prereq" + (j+1);
-                        request.setAttribute(prefixes, req.getModuleId().toString());
-                        if (req.getResourceType() != null) {
-                            request.setAttribute(prefixes +"type", req.getResourceType());
-                        }
-                        if (req.getDescription() != null) {
-                            request.setAttribute(prefixes +"desc", req.getDescription());
-                        }
-                    }
-                }
-        	}
+            request.setAttribute("geronimoVersion",gerVers[0].getVersion());
         }
         request.setAttribute("jvmVersions", combine(data.getJvmVersions()));
         request.setAttribute("dependencies", combine(data.getDependencies()));
@@ -154,54 +125,14 @@ public class ExportConfigHandler extends BaseImportExportHandler {
             licenses.add(data.getLicenses()[i]);
         }
         metadata.setLicenses((PluginMetadata.License[]) licenses.toArray(new PluginMetadata.License[licenses.size()]));
+        //Take the geronimo version and throw it into a geronimo-versions element and then add it to the metadata object.
+        PluginMetadata.geronimoVersions geronimoVersion = null;
+        String version = request.getParameter("geronimoVersion");
         List gerVersions = new ArrayList();
-        int counter = 1;
-        while(true) {
-        	String prefix = "geronimo-versions" + counter;
-        	++counter;
-        	String id = request.getParameter(prefix);
-        	if (id == null || id.trim() == "") {
-        		break;
-        	}
-        	String version = request.getParameter(prefix+"Version");
-        	String moduleId = request.getParameter(prefix+"ModuleID");
-        	String repository = request.getParameter(prefix+"Repo");
-        	List repos = new ArrayList();
-        	int repoCounter = 1;
-        	while(true) {
-        		String prefixes = "repo" + repoCounter;
-        		++repoCounter;
-        		String versionRepo = request.getParameter(prefixes);
-        		if(versionRepo == null || versionRepo.trim().equals("")) {
-        			break;
-        		}
-        		repos.add(versionRepo);
-        	}
-        		
-        	int preCounter = 1;
-        	List prereqs = new ArrayList();
-            while(true) {
-                String prefixes = "prereq" + preCounter;
-                ++preCounter;
-                String prereq = request.getParameter(prefixes);
-                if(prereq == null || prereq.trim().equals("")) {
-                    break;
-                }
-                String type = request.getParameter(prefixes+"type");
-                String desc = request.getParameter(prefixes+"desc");
-                if(type != null && type.trim().equals("")) {
-                    type = null;
-                }
-                if(desc != null && desc.trim().equals("")) {
-                    desc = null;
-                }
-                prereqs.add(new PluginMetadata.Prerequisite(Artifact.create(id), false, type, desc));
-            }
-            gerVersions.add(new PluginMetadata.geronimoVersions(version, moduleId, (String[])repos.toArray(new String[repos.size()]), (PluginMetadata.Prerequisite[])prereqs.toArray(new PluginMetadata.Prerequisite[prereqs.size()])));      	
-        }
+        gerVersions.add(new PluginMetadata.geronimoVersions(version,null,null,null));
         metadata.setGeronimoVersions((PluginMetadata.geronimoVersions[])gerVersions.toArray(new PluginMetadata.geronimoVersions[gerVersions.size()]));
         List prereqs = new ArrayList();
-        counter = 1;
+        int counter = 1;
         while(true) {
             String prefix = "prereq" + counter;
             ++counter;

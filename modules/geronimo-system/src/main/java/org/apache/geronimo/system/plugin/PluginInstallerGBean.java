@@ -1869,6 +1869,12 @@ public class PluginInstallerGBean implements PluginInstaller {
             if (gerVersions.getModuleId() != null){
             	addTextChild(doc, ger, "module-id", gerVersions.getModuleId());
             }
+            if (gerVersions.getRepository() != null) {
+                String[] repos = gerVersions.getRepository();
+                for ( int j=0; j < repos.length; j++) {
+                        addTextChild(doc, ger, "source-repository", repos[j]);
+                }
+            }
             if (gerVersions.getPreReqs() != null){
                 for (int j = 0; j < gerVersions.getPreReqs().length; j++) {
                     PluginMetadata.Prerequisite prereq = gerVersions.getPreReqs()[j];
@@ -1882,12 +1888,6 @@ public class PluginInstallerGBean implements PluginInstaller {
                     }
                     ger.appendChild(pre);
                 }
-            }
-            if (gerVersions.getRepository().length > 0) {
-            	String[] repos = gerVersions.getRepository();
-            	for ( int j=0; j < repos.length; j++) {
-            		addTextChild(doc, ger, "repository", repos[j]);
-            	}
             }
             config.appendChild(ger);
         }

@@ -145,18 +145,15 @@
           </tr>
         <!-- ENTRY FIELD: Geronimo Versions -->
           <tr>
-            <th style="min-width: 140px"><div align="right">Geronimo Versions:</div></th>
-            <td><textarea rows="5" cols="60" name="gerVersions">${gerVersions}</textarea></td>
+            <th style="min-width: 140px"><div align="right">Geronimo Version:</div></th>
+            <td><input type="text" cols="30" name="geronimoVersion" value="${geronimoVersion}"/></td>
           </tr>
           <tr>
             <td></td>
             <td>
-              An optional list of Geronimo versions supported by this plugin.  If no values
-              are listed, the plugin can be installed in any version of Geronimo.  Otherwise,
-              list one acceptable Geronimo version per line, like
-              "1.1&nbsp;\n&nbsp;1.1.1&nbsp;\n&nbsp;1.1.2&nbsp;\n&nbsp;..."
-              (ideally, of course, this means you've actually tested the plugin with each
-              Geronimo version listed here).
+              The Geronimo Version element is the version of geronimo that this plugin will
+              be running on.  It is a required element and take on values such as 2.0-SNAPSHOT
+              and 2.0-M2
             </td>
           </tr>
         <!-- ENTRY FIELD: JVM Versions -->
