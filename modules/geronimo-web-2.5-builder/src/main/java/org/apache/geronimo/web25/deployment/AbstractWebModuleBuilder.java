@@ -328,7 +328,8 @@ public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
         ClassPathList manifestcp = (ClassPathList) moduleContext.getGeneralData().get(ClassPathList.class);
         ModuleList moduleLocations = (ModuleList) module.getRootEarContext().getGeneralData().get(ModuleList.class);
         URI baseUri = URI.create(module.getTargetPath());
-        moduleContext.getCompleteManifestClassPath(module.getModuleFile(), baseUri, baseUri.resolve(RELATIVE_MODULE_BASE_URI), manifestcp, moduleLocations);
+        URI resolutionUri = invertURI(baseUri);
+        moduleContext.getCompleteManifestClassPath(module.getModuleFile(), baseUri, resolutionUri, manifestcp, moduleLocations);
 
 
         WebAppType webApp = (WebAppType) module.getSpecDD();
@@ -354,6 +355,14 @@ public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
         }
         securityBuilders.build(gerWebApp, earContext, module.getEarContext());
         serviceBuilders.build(gerWebApp, earContext, module.getEarContext());
+    }
+
+    static URI invertURI(URI baseUri) {
+        URI resolutionUri = URI.create(".");
+        for (URI test = baseUri; !test.equals(RELATIVE_MODULE_BASE_URI); test = test.resolve(RELATIVE_MODULE_BASE_URI)) {
+            resolutionUri = resolutionUri.resolve(RELATIVE_MODULE_BASE_URI);
+        }
+        return resolutionUri;
     }
 
     protected WebAppDocument convertToServletSchema(XmlObject xmlObject) throws XmlException {
