@@ -36,6 +36,7 @@ import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.management.geronimo.JMSManager;
 import org.apache.geronimo.management.geronimo.NetworkConnector;
+import org.apache.geronimo.system.jmx.MBeanServerReference;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
 
 /**
@@ -57,12 +58,17 @@ public class BrokerServiceGBeanImpl implements GBeanLifecycle, BrokerServiceGBea
     private String objectName;
     private JMSManager manager;
     private boolean useShutdownHook;
+    private MBeanServerReference mbeanServerReference;
 
     public BrokerServiceGBeanImpl() {
     }
 
     public synchronized BrokerService getBrokerContainer() {
         return brokerService;
+    }
+    
+    public void setMbeanServerReference(MBeanServerReference mbeanServerReference) {
+        this.mbeanServerReference = mbeanServerReference;
     }
 
     public synchronized void doStart() throws Exception {
@@ -86,7 +92,7 @@ public class BrokerServiceGBeanImpl implements GBeanLifecycle, BrokerServiceGBea
             }
             
             // Do not allow creation of another ConnectorServer
-            ManagementContext mgmtctx = new ManagementContext();
+            ManagementContext mgmtctx = new ManagementContext(mbeanServerReference != null ? mbeanServerReference.getMBeanServer() : null);
             mgmtctx.setCreateConnector(false);
             brokerService.setManagementContext(mgmtctx);
 
@@ -142,6 +148,7 @@ public class BrokerServiceGBeanImpl implements GBeanLifecycle, BrokerServiceGBea
     static {
         GBeanInfoBuilder infoBuilder = new GBeanInfoBuilder("ActiveMQ Message Broker", BrokerServiceGBeanImpl.class, "JMSServer");
         infoBuilder.addReference("serverInfo", ServerInfo.class);
+        infoBuilder.addReference("mbeanServerReference", MBeanServerReference.class);
         infoBuilder.addAttribute("classLoader", ClassLoader.class, false);
         infoBuilder.addAttribute("brokerName", String.class, true);
         infoBuilder.addAttribute("brokerUri", String.class, true);

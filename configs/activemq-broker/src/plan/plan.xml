@@ -42,6 +42,9 @@
         <reference name="serverInfo">
             <name>ServerInfo</name>
         </reference>
+        <reference name="mbeanServerReference">
+            <name>MBeanServerReference</name>
+        </reference>
     </gbean>
 
     <gbean name="ActiveMQ.tcp.default" class="org.apache.geronimo.activemq.TransportConnectorGBeanImpl">
