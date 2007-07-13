@@ -477,7 +477,7 @@ public class EjbModuleBuilder implements ModuleBuilder {
         EARContext moduleContext = module.getEarContext();
         ModuleList moduleLocations = (ModuleList) module.getRootEarContext().getGeneralData().get(ModuleList.class);
         URI baseUri = URI.create(module.getTargetPath());
-        moduleContext.getCompleteManifestClassPath(module.getModuleFile(), baseUri, baseUri, manifestcp, moduleLocations);
+        moduleContext.getCompleteManifestClassPath(module.getModuleFile(), baseUri, URI.create("."), manifestcp, moduleLocations);
         moduleContext.getGeneralData().put(ClassPathList.class, manifestcp);
 
         for (ModuleBuilderExtension builder : moduleBuilderExtensions) {

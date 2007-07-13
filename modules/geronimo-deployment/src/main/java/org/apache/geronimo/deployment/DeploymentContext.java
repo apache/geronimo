@@ -254,23 +254,57 @@ public class DeploymentContext {
         resourceContext.addInclude(targetPath, source);
     }
 
+    interface JarFileFactory {
+        JarFile newJarFile(URI relativeURI) throws IOException;
+        String getManifestClassPath(JarFile jarFile) throws IOException;
+    }
+
+    private class DefaultJarFileFactory implements JarFileFactory {
+
+        public JarFile newJarFile(URI relativeURI) throws IOException {
+            File targetFile = getTargetFile(relativeURI);
+            return new JarFile(targetFile);
+        }
+
+        public String getManifestClassPath(JarFile jarFile) throws IOException {
+            Manifest manifest = jarFile.getManifest();
+            if (manifest == null) {
+            return null;
+            }
+            return manifest.getMainAttributes().getValue(Attributes.Name.CLASS_PATH);
+        }
+    }
+
+    public void getCompleteManifestClassPath(JarFile moduleFile, URI moduleBaseUri, URI resolutionUri, ClassPathList classpath, ModuleList exclusions) throws DeploymentException {
+         getCompleteManifestClassPath(moduleFile,  moduleBaseUri, resolutionUri, classpath, exclusions, new DefaultJarFileFactory());
+    }
+
     /**
      * Recursively construct the complete set of paths in the ear for the manifest classpath of the supplied modulefile.
      * Used only in PersistenceUnitBuilder to figure out if a persistence.xml relates to the starting module.  Having a classloader for
      * each ejb module would eliminate the need for this and be more elegant.
+     *
+     * @param moduleFile the module that we start looking at classpaths at, in the car.
+     *
+     * @param moduleBaseUri where the moduleFile is inside the car file.  For an (unpacked) war this ends with / which means we also need:
+     *
+     * @param resolutionUri the uri to resolve against.  For a (packed) jar module this is the same as moduleBaseUri.  For a war it removes the last segment.
+     *
+     * @param classpath the classpath list we are constructing.
+     *
+     * @param exclusions the paths to not investigate.  These are typically the other modules in the ear/car file: they will have their contents processed for themselves.
+     *
+     * @param factory
+     * @throws org.apache.geronimo.common.DeploymentException if something goes wrong.
      */
-    public void getCompleteManifestClassPath(JarFile moduleFile, URI moduleBaseUri, URI resolutionUri, ClassPathList classpath, ModuleList exclusions) throws DeploymentException {
-        Manifest manifest;
+    public void getCompleteManifestClassPath(JarFile moduleFile, URI moduleBaseUri, URI resolutionUri, ClassPathList classpath, ModuleList exclusions, JarFileFactory factory) throws DeploymentException {
+        String manifestClassPath;
         try {
-            manifest = moduleFile.getManifest();
+            manifestClassPath = factory.getManifestClassPath(moduleFile);
         } catch (IOException e) {
             throw new DeploymentException("Could not read manifest: " + moduleBaseUri, e);
         }
 
-        if (manifest == null) {
-            return;
-        }
-        String manifestClassPath = manifest.getMainAttributes().getValue(Attributes.Name.CLASS_PATH);
         if (manifestClassPath == null) {
             return;
         }
@@ -296,26 +330,26 @@ public class DeploymentContext {
             if (targetUri.getPath().endsWith("/")) {
                 throw new DeploymentException("target path must not end with a '/' character: " + targetUri);
             }
-            String classpathEntry = targetUri.toString();
-            if (exclusions.contains(classpathEntry)) {
+            String targetEntry = targetUri.toString();
+            if (exclusions.contains(targetEntry)) {
                 continue;
             }
-            URI resolvedUri = resolutionUri.resolve(pathUri);
-            String resolvedEntry = resolvedUri.toString();
+            URI resolvedUri = resolutionUri.resolve(targetUri);
+            String classpathEntry = resolvedUri.toString();
             //don't get caught in circular references
-            if (classpath.contains(resolvedEntry)) {
+            if (classpath.contains(classpathEntry)) {
                 continue;
             }
-            classpath.add(resolvedEntry);
-            File targetFile = getTargetFile(resolvedUri);
+            classpath.add(classpathEntry);
+
             JarFile classPathJarFile;
             try {
-                classPathJarFile = new JarFile(targetFile);
+                classPathJarFile = factory.newJarFile(targetUri);
             } catch (IOException e) {
-                throw new DeploymentException("Manifest class path entries must be a valid jar file (JAVAEE 5 Section 8.2): jarFile=" + targetFile + ", path=" + path, e);
+                throw new DeploymentException("Manifest class path entries must be a valid jar file (JAVAEE 5 Section 8.2): jarFile=" + resolvedUri + ", path=" + path, e);
             }
 
-            getCompleteManifestClassPath(classPathJarFile, targetUri, resolutionUri, classpath, exclusions);
+            getCompleteManifestClassPath(classPathJarFile, targetUri, resolutionUri, classpath, exclusions, factory);
         }
     }
 

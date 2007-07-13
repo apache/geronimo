@@ -17,10 +17,15 @@
 package org.apache.geronimo.deployment;
 
 import java.io.File;
+import java.io.IOException;
 import java.net.URI;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.Collections;
+import java.util.Map;
+import java.util.HashMap;
+import java.util.List;
+import java.util.jar.JarFile;
 
 import javax.sql.DataSource;
 
@@ -31,12 +36,24 @@ import net.sf.cglib.proxy.MethodInterceptor;
 import org.apache.geronimo.kernel.Jsr77Naming;
 import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 import org.apache.geronimo.kernel.config.SimpleConfigurationManager;
+import org.apache.geronimo.kernel.config.ConfigurationManager;
+import org.apache.geronimo.kernel.config.ConfigurationStore;
+import org.apache.geronimo.kernel.config.NoSuchStoreException;
+import org.apache.geronimo.kernel.config.Configuration;
+import org.apache.geronimo.kernel.config.LifecycleResults;
+import org.apache.geronimo.kernel.config.NoSuchConfigException;
+import org.apache.geronimo.kernel.config.LifecycleException;
+import org.apache.geronimo.kernel.config.ConfigurationData;
+import org.apache.geronimo.kernel.config.LifecycleMonitor;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.kernel.repository.ArtifactManager;
 import org.apache.geronimo.kernel.repository.DefaultArtifactManager;
 import org.apache.geronimo.kernel.repository.ArtifactResolver;
 import org.apache.geronimo.kernel.repository.DefaultArtifactResolver;
+import org.apache.geronimo.kernel.repository.Version;
+import org.apache.geronimo.deployment.util.DeploymentUtil;
+import org.apache.geronimo.gbean.AbstractName;
 
 /**
  * @version $Rev$ $Date$
@@ -88,4 +105,300 @@ public class DeploymentContextTest extends TestCase {
         }
         file.delete();
     }
+
+
+    //test the getCompleteManifestClassPath method
+
+    private static class MockJarFile extends JarFile {
+        private final String manifestClasspath;
+
+
+        public MockJarFile(String manifestClasspath) throws IOException {
+            super(DeploymentUtil.DUMMY_JAR_FILE);
+            this.manifestClasspath = manifestClasspath;
+        }
+
+
+        public String getManifestClasspath() {
+            return manifestClasspath;
+        }
+    }
+
+    static class MockJarFileFactory implements DeploymentContext.JarFileFactory {
+
+        private final Map<URI, String> data;
+
+        public MockJarFileFactory(Map<URI, String> data) {
+            this.data = data;
+        }
+
+        public JarFile newJarFile(URI relativeURI) throws IOException {
+            String manifestcp = data.get(relativeURI);
+            return new MockJarFile(manifestcp);
+        }
+
+        public String getManifestClassPath(JarFile jarFile) throws IOException {
+            return ((MockJarFile)jarFile).getManifestClasspath();
+        }
+    }
+    
+    public void testManifestClassPath1() throws Exception {
+        //remember, the constructor takes the manifest classpath, not the location
+        JarFile start = new MockJarFile("lib1.jar");
+        URI moduleBaseURI = URI.create("ejb.jar");
+        URI resolutionURI = URI.create(".");
+        ModuleList exclusions = new ModuleList();
+        Map<URI, String> data = new HashMap<URI, String>();
+        data.put(URI.create("lib1.jar"), "lib1.jar lib2.jar");
+
+        DeploymentContext.JarFileFactory factory = new MockJarFileFactory(data);
+        DeploymentContext context = new DeploymentContext(new File("."), null, new Environment(Artifact.create("test/foo/1/ear")), new AbstractName(URI.create("test/foo/1/ear?name=test")), ConfigurationModuleType.EAR, new Jsr77Naming(), new MockConfigurationManager());
+        ClassPathList classPathList = new ClassPathList();
+        context.getCompleteManifestClassPath(start, moduleBaseURI, resolutionURI, classPathList, exclusions, factory);
+        assertEquals(2, classPathList.size());
+    }
+
+    public void testManifestClassPath2() throws Exception {
+        JarFile start = new MockJarFile("../../lib1/lib1/lib1.jar");
+        URI moduleBaseURI = URI.create("ejb1/ejb1/ejb1.jar");
+        URI resolutionURI = URI.create(".");
+        ModuleList exclusions = new ModuleList();
+        Map<URI, String> data = new HashMap<URI, String>();
+        data.put(URI.create("lib1/lib1/lib1.jar"), "../../lib2/lib2.jar");
+        data.put(URI.create("lib2/lib2.jar"), "lib2a.jar");
+        data.put(URI.create("lib2/lib2a.jar"), "../lib3.jar ../lib1/lib1/lib1.jar");
+
+        DeploymentContext.JarFileFactory factory = new MockJarFileFactory(data);
+        DeploymentContext context = new DeploymentContext(new File("."), null, new Environment(Artifact.create("test/foo/1/ear")), new AbstractName(URI.create("test/foo/1/ear?name=test")), ConfigurationModuleType.EAR, new Jsr77Naming(), new MockConfigurationManager());
+        ClassPathList classPathList = new ClassPathList();
+        context.getCompleteManifestClassPath(start, moduleBaseURI, resolutionURI, classPathList, exclusions, factory);
+        assertEquals(4, classPathList.size());
+        assertEquals("lib1/lib1/lib1.jar", classPathList.get(0));
+        assertEquals("lib2/lib2.jar", classPathList.get(1));
+        assertEquals("lib2/lib2a.jar", classPathList.get(2));
+        assertEquals("lib3.jar", classPathList.get(3));
+    }
+
+    public void testManifestClassPathWar1() throws Exception {
+        JarFile start = new MockJarFile("lib1.jar");
+        URI moduleBaseURI = URI.create("war1.war");
+        URI resolutionURI = URI.create("../");
+        ModuleList exclusions = new ModuleList();
+        Map<URI, String> data = new HashMap<URI, String>();
+        data.put(URI.create("lib1.jar"), "lib1.jar lib2.jar");
+
+        DeploymentContext.JarFileFactory factory = new MockJarFileFactory(data);
+        DeploymentContext context = new DeploymentContext(new File("."), null, new Environment(Artifact.create("test/foo/1/ear")), new AbstractName(URI.create("test/foo/1/ear?name=test")), ConfigurationModuleType.EAR, new Jsr77Naming(), new MockConfigurationManager());
+        ClassPathList classPathList = new ClassPathList();
+        context.getCompleteManifestClassPath(start, moduleBaseURI, resolutionURI, classPathList, exclusions, factory);
+        assertEquals(2, classPathList.size());
+        assertEquals("../lib1.jar", classPathList.get(0));
+        assertEquals("../lib2.jar", classPathList.get(1));
+        //should contain ../lib1.jar ../lib2.jar
+    }
+
+    public void testManifestClassPathWar2() throws Exception {
+        JarFile start = new MockJarFile("../../lib1/lib1/lib1.jar");
+        URI moduleBaseURI = URI.create("war1/war1/war1.war");
+        URI resolutionURI = URI.create("../../../");
+        ModuleList exclusions = new ModuleList();
+        Map<URI, String> data = new HashMap<URI, String>();
+        data.put(URI.create("lib1/lib1/lib1.jar"), "../../lib2/lib2/lib2.jar");
+        data.put(URI.create("lib2/lib2/lib2.jar"), "../lib2a/lib2a.jar");
+        data.put(URI.create("lib2/lib2a/lib2a.jar"), "../../lib3/lib3/lib3.jar ../../lib1/lib1/lib1.jar");
+
+        DeploymentContext.JarFileFactory factory = new MockJarFileFactory(data);
+        DeploymentContext context = new DeploymentContext(new File("."), null, new Environment(Artifact.create("test/foo/1/ear")), new AbstractName(URI.create("test/foo/1/ear?name=test")), ConfigurationModuleType.EAR, new Jsr77Naming(), new MockConfigurationManager());
+        ClassPathList classPathList = new ClassPathList();
+        context.getCompleteManifestClassPath(start, moduleBaseURI, resolutionURI, classPathList, exclusions, factory);
+        assertEquals(4, classPathList.size());
+        assertEquals("../../../lib1/lib1/lib1.jar", classPathList.get(0));
+        assertEquals("../../../lib2/lib2/lib2.jar", classPathList.get(1));
+        assertEquals("../../../lib2/lib2a/lib2a.jar", classPathList.get(2));
+        assertEquals("../../../lib3/lib3/lib3.jar", classPathList.get(3));
+    }
+
+    public void testManifestClassPathWar3() throws Exception {
+        JarFile start = new MockJarFile("../../lib1/lib1/lib1.jar");
+        URI moduleBaseURI = URI.create("war1/war1/war1.war");
+        URI resolutionURI = URI.create("../../../");
+        ModuleList exclusions = new ModuleList();
+        Map<URI, String> data = new HashMap<URI, String>();
+        data.put(URI.create("lib1/lib1/lib1.jar"), "../../lib2/lib2.jar");
+        data.put(URI.create("lib2/lib2.jar"), "lib2a.jar");
+        data.put(URI.create("lib2/lib2a.jar"), "../lib3.jar ../lib1/lib1/lib1.jar");
+
+        DeploymentContext.JarFileFactory factory = new MockJarFileFactory(data);
+        DeploymentContext context = new DeploymentContext(new File("."), null, new Environment(Artifact.create("test/foo/1/ear")), new AbstractName(URI.create("test/foo/1/ear?name=test")), ConfigurationModuleType.EAR, new Jsr77Naming(), new MockConfigurationManager());
+        ClassPathList classPathList = new ClassPathList();
+        context.getCompleteManifestClassPath(start, moduleBaseURI, resolutionURI, classPathList, exclusions, factory);
+        assertEquals(4, classPathList.size());
+        assertEquals("../../../lib1/lib1/lib1.jar", classPathList.get(0));
+        assertEquals("../../../lib2/lib2.jar", classPathList.get(1));
+        assertEquals("../../../lib2/lib2a.jar", classPathList.get(2));
+        assertEquals("../../../lib3.jar", classPathList.get(3));
+    }
+
+    public void testManifestClassPathExcludeModules1() throws Exception {
+        JarFile start = new MockJarFile("lib1.jar");
+        URI moduleBaseURI = URI.create("ejb1.jar");
+        URI resolutionURI = URI.create(".");
+        ModuleList exclusions = new ModuleList();
+        exclusions.add("ejb1.jar");
+        exclusions.add("ejb2.jar");
+        Map<URI, String> data = new HashMap<URI, String>();
+        data.put(URI.create("lib1.jar"), "ejb2.jar lib2.jar");
+        data.put(URI.create("lib2.jar"), "ejb2.jar lib1.jar");
+        data.put(URI.create("ejb2.jar"), "lib3.jar lib4.jar");
+
+        DeploymentContext.JarFileFactory factory = new MockJarFileFactory(data);
+        DeploymentContext context = new DeploymentContext(new File("."), null, new Environment(Artifact.create("test/foo/1/ear")), new AbstractName(URI.create("test/foo/1/ear?name=test")), ConfigurationModuleType.EAR, new Jsr77Naming(), new MockConfigurationManager());
+        ClassPathList classPathList = new ClassPathList();
+        context.getCompleteManifestClassPath(start, moduleBaseURI, resolutionURI, classPathList, exclusions, factory);
+        assertEquals(2, classPathList.size());
+    }
+
+
+    static class MockConfigurationManager implements ConfigurationManager {
+
+        public boolean isInstalled(Artifact configurationId) {
+            return false;
+        }
+
+        public boolean isLoaded(Artifact configurationId) {
+            return false;
+        }
+
+        public boolean isRunning(Artifact configurationId) {
+            return false;
+        }
+
+        public Artifact[] getInstalled(Artifact query) {
+            return new Artifact[0];
+        }
+
+        public Artifact[] getLoaded(Artifact query) {
+            return new Artifact[0];
+        }
+
+        public Artifact[] getRunning(Artifact query) {
+            return new Artifact[0];
+        }
+
+        public List listConfigurations() {
+            return null;
+        }
+
+        public List listStores() {
+            return null;
+        }
+
+        public ConfigurationStore[] getStores() {
+            return new ConfigurationStore[0];
+        }
+
+        public ConfigurationStore getStoreForConfiguration(Artifact configuration) {
+            return null;
+        }
+
+        public List listConfigurations(AbstractName store) throws NoSuchStoreException {
+            return null;
+        }
+
+        public boolean isConfiguration(Artifact artifact) {
+            return false;
+        }
+
+        public Configuration getConfiguration(Artifact configurationId) {
+            return null;
+        }
+
+        public LifecycleResults loadConfiguration(Artifact configurationId) throws NoSuchConfigException, LifecycleException {
+            return null;
+        }
+
+        public LifecycleResults loadConfiguration(ConfigurationData configurationData) throws NoSuchConfigException, LifecycleException {
+            return null;
+        }
+
+        public LifecycleResults loadConfiguration(Artifact configurationId, LifecycleMonitor monitor) throws NoSuchConfigException, LifecycleException {
+            return null;
+        }
+
+        public LifecycleResults loadConfiguration(ConfigurationData configurationData, LifecycleMonitor monitor) throws NoSuchConfigException, LifecycleException {
+            return null;
+        }
+
+        public LifecycleResults unloadConfiguration(Artifact configurationId) throws NoSuchConfigException {
+            return null;
+        }
+
+        public LifecycleResults unloadConfiguration(Artifact configurationId, LifecycleMonitor monitor) throws NoSuchConfigException {
+            return null;
+        }
+
+        public LifecycleResults startConfiguration(Artifact configurationId) throws NoSuchConfigException, LifecycleException {
+            return null;
+        }
+
+        public LifecycleResults startConfiguration(Artifact configurationId, LifecycleMonitor monitor) throws NoSuchConfigException, LifecycleException {
+            return null;
+        }
+
+        public LifecycleResults stopConfiguration(Artifact configurationId) throws NoSuchConfigException {
+            return null;
+        }
+
+        public LifecycleResults stopConfiguration(Artifact configurationId, LifecycleMonitor monitor) throws NoSuchConfigException {
+            return null;
+        }
+
+        public LifecycleResults restartConfiguration(Artifact configurationId) throws NoSuchConfigException, LifecycleException {
+            return null;
+        }
+
+        public LifecycleResults restartConfiguration(Artifact configurationId, LifecycleMonitor monitor) throws NoSuchConfigException, LifecycleException {
+            return null;
+        }
+
+        public LifecycleResults reloadConfiguration(Artifact configurationId) throws NoSuchConfigException, LifecycleException {
+            return null;
+        }
+
+        public LifecycleResults reloadConfiguration(Artifact configurationId, LifecycleMonitor monitor) throws NoSuchConfigException, LifecycleException {
+            return null;
+        }
+
+        public LifecycleResults reloadConfiguration(Artifact configurationId, Version version) throws NoSuchConfigException, LifecycleException {
+            return null;
+        }
+
+        public LifecycleResults reloadConfiguration(Artifact configurationId, Version version, LifecycleMonitor monitor) throws NoSuchConfigException, LifecycleException {
+            return null;
+        }
+
+        public LifecycleResults reloadConfiguration(ConfigurationData configurationData) throws NoSuchConfigException, LifecycleException {
+            return null;
+        }
+
+        public LifecycleResults reloadConfiguration(ConfigurationData configurationData, LifecycleMonitor monitor) throws NoSuchConfigException, LifecycleException {
+            return null;
+        }
+
+        public void uninstallConfiguration(Artifact configurationId) throws IOException, NoSuchConfigException {
+        }
+
+        public ArtifactResolver getArtifactResolver() {
+            return null;
+        }
+
+        public boolean isOnline() {
+            return false;
+        }
+
+        public void setOnline(boolean online) {
+        }
+    }
+
+
 }
