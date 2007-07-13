@@ -67,7 +67,7 @@ public class LocalAttributeManagerTest extends TestCase {
         // declare an attribute value so this configuration will exist in the store
         String attributeValue = "attribute value";
         localAttributeManager.addConfiguration(configurationName);
-        localAttributeManager.setValue(configurationName, gbeanName, attributeInfo, attributeValue);
+        localAttributeManager.setValue(configurationName, gbeanName, attributeInfo, attributeValue, getClass().getClassLoader());
 
         // should still load
         newDatas = new HashSet(localAttributeManager.applyOverrides(configurationName, originalDatas, getClass().getClassLoader()));
@@ -102,7 +102,7 @@ public class LocalAttributeManagerTest extends TestCase {
         // declare an attribute value so this configuration will exist in the store
         String attributeValue = "attribute value";
         localAttributeManager.addConfiguration(configurationName);
-        localAttributeManager.setValue(configurationName, gbeanName, attributeInfo, attributeValue);
+        localAttributeManager.setValue(configurationName, gbeanName, attributeInfo, attributeValue, getClass().getClassLoader());
 
         // should still load
         newDatas = new HashSet(localAttributeManager.applyOverrides(configurationName, originalDatas, getClass().getClassLoader()));
@@ -122,7 +122,7 @@ public class LocalAttributeManagerTest extends TestCase {
 
     public void testSetAttribute() throws Exception {
         String attributeValue = "attribute value";
-        localAttributeManager.setValue(configurationName, gbeanName, attributeInfo, attributeValue);
+        localAttributeManager.setValue(configurationName, gbeanName, attributeInfo, attributeValue, getClass().getClassLoader());
         Collection gbeanDatas = new ArrayList();
         GBeanData gbeanData = new GBeanData(gbeanName, GBEAN_INFO);
         gbeanDatas.add(gbeanData);
@@ -164,7 +164,7 @@ public class LocalAttributeManagerTest extends TestCase {
         gbeanData.setAttribute(attributeInfo.getName(), attributeValue);
         gbeanData.setReferencePattern(referenceInfo.getName(), referencePattern);
         localAttributeManager.addConfiguration(configurationName);
-        localAttributeManager.addGBean(configurationName, gbeanData);
+        localAttributeManager.addGBean(configurationName, gbeanData, getClass().getClassLoader());
 
 
         Collection gbeanDatas = new ArrayList();
@@ -182,7 +182,7 @@ public class LocalAttributeManagerTest extends TestCase {
     public void testBadGBeanSpec() throws Exception {
         String attributeValue = "attribute value";
         localAttributeManager.addConfiguration(configurationName);
-        localAttributeManager.setValue(configurationName, gbeanName, attributeInfo, attributeValue);
+        localAttributeManager.setValue(configurationName, gbeanName, attributeInfo, attributeValue, getClass().getClassLoader());
         try {
             localAttributeManager.applyOverrides(configurationName, Collections.EMPTY_SET, getClass().getClassLoader());
             fail("no gbeans were specified in the 'plan' so overrides should fail");
@@ -196,7 +196,7 @@ public class LocalAttributeManagerTest extends TestCase {
         AbstractNameQuery referencePattern = new AbstractNameQuery(LocalAttributeManagerTest.class.getName());
 
         localAttributeManager.addConfiguration(configurationName);
-        localAttributeManager.setValue(configurationName, gbeanName, attributeInfo, attributeValue);
+        localAttributeManager.setValue(configurationName, gbeanName, attributeInfo, attributeValue, getClass().getClassLoader());
 
         Collection gbeanDatas = new ArrayList();
         GBeanData gbeanData = new GBeanData(gbeanName, GBEAN_INFO);

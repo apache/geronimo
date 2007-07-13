@@ -775,7 +775,7 @@ public final class GBeanInstance implements StateManageable {
         }
         Artifact configName = abstractName.getArtifact();
         if (configName != null) {
-            manageableStore.setValue(configName, abstractName, attribute.getAttributeInfo(), value);
+            manageableStore.setValue(configName, abstractName, attribute.getAttributeInfo(), value, classLoader);
         } else {
             log.error("Unable to identify Configuration for GBean " + abstractName + ".  Manageable attribute " + attribute.getName() + " was not updated in persistent store.");
         }

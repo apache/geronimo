@@ -125,7 +125,7 @@ public class EditableKernelConfigurationManager extends KernelConfigurationManag
         }
 
         if (attributeStore != null) {
-            attributeStore.addGBean(configuration.getId(), gbean);
+            attributeStore.addGBean(configuration.getId(), gbean, configurationClassLoader);
         }
     }
 

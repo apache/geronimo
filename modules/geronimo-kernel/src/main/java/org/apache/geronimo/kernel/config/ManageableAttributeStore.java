@@ -66,8 +66,9 @@ public interface ManageableAttributeStore {
      * @param gbean The ObjectName of the GBean in question
      * @param attribute The attribute in question
      * @param value The value to save, or null if no value should be saved
+     * @param classLoader The configuration's classLoader
      */
-    public void setValue(Artifact configurationName, AbstractName gbean, GAttributeInfo attribute, Object value);
+    public void setValue(Artifact configurationName, AbstractName gbean, GAttributeInfo attribute, Object value, ClassLoader classLoader);
 
     /**
      * Sets the pattern for a GBean reference. The reference is
@@ -100,8 +101,9 @@ public interface ManageableAttributeStore {
      * Adds a GBean to the configuration.
      * @param configurationName the configuration that the GBean belongs to
      * @param gbeanData the GBean to add
+     * @param classLoader The configuration classLoader
      */
-    public void addGBean(Artifact configurationName, GBeanData gbeanData);
+    public void addGBean(Artifact configurationName, GBeanData gbeanData, ClassLoader classLoader);
 
     /**
      * Saves the current values to persistent storage.  This should be called

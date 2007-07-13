@@ -125,7 +125,7 @@ public class GBeanOverride implements Serializable {
         return buf.toString();
     }
 
-    public GBeanOverride(GBeanData gbeanData, JexlExpressionParser expressionParser) throws InvalidAttributeException {
+    public GBeanOverride(GBeanData gbeanData, JexlExpressionParser expressionParser, ClassLoader classLoader) throws InvalidAttributeException {
         GBeanInfo gbeanInfo = gbeanData.getGBeanInfo();
         this.gbeanInfo = gbeanInfo.getSourceClass();
         if (this.gbeanInfo == null) {
@@ -143,7 +143,7 @@ public class GBeanOverride implements Serializable {
                 throw new InvalidAttributeException("No attribute: " + attributeName + " for gbean: " + gbeanData.getAbstractName());
             }
             Object attributeValue = entry.getValue();
-            setAttribute(attributeName, attributeValue, attributeInfo.getType());
+            setAttribute(attributeName, attributeValue, attributeInfo.getType(), classLoader);
         }
 
         // references can be coppied in blind
@@ -353,8 +353,8 @@ public class GBeanOverride implements Serializable {
             clearReferences.add(referenceName);
     }
 
-    public void setAttribute(String attributeName, Object attributeValue, String attributeType) throws InvalidAttributeException {
-        String stringValue = getAsText(attributeValue, attributeType);
+    public void setAttribute(String attributeName, Object attributeValue, String attributeType, ClassLoader classLoader) throws InvalidAttributeException {
+        String stringValue = getAsText(attributeValue, attributeType, classLoader);
         setAttribute(attributeName, stringValue);
     }
 
@@ -636,11 +636,11 @@ public class GBeanOverride implements Serializable {
         return gbean;
     }
 
-    public static String getAsText(Object value, String type) throws InvalidAttributeException {
+    public static String getAsText(Object value, String type, ClassLoader classLoader) throws InvalidAttributeException {
         try {
             String attributeStringValue = null;
             if (value != null) {
-                PropertyEditor editor = PropertyEditors.findEditor(type, GBeanOverride.class.getClassLoader());
+                PropertyEditor editor = PropertyEditors.findEditor(type, classLoader);
                 if (editor == null) {
                     throw new InvalidAttributeException("Unable to format attribute of type " + type + "; no editor found");
                 }

@@ -47,7 +47,7 @@ public class MavenAttributeStore
         return datas;
     }
 
-    public void setValue(Artifact configurationName, AbstractName gbean, GAttributeInfo attribute, Object value) {
+    public void setValue(Artifact configurationName, AbstractName gbean, GAttributeInfo attribute, Object value, ClassLoader classLoader) {
     }
 
     public void setReferencePatterns(Artifact configurationName, AbstractName gbean, GReferenceInfo reference, ReferencePatterns patterns) {
@@ -56,7 +56,7 @@ public class MavenAttributeStore
     public void setShouldLoad(Artifact configurationName, AbstractName gbean, boolean load) {
     }
 
-    public void addGBean(Artifact configurationName, GBeanData gbeanData) {
+    public void addGBean(Artifact configurationName, GBeanData gbeanData, ClassLoader classLoader) {
     }
 
     public void save() throws IOException {

@@ -208,7 +208,7 @@ public class LocalAttributeManager implements PluginAttributeStore, PersistentCo
         attributeChanged();
     }
 
-    public synchronized void setValue(Artifact configurationName, AbstractName gbeanName, GAttributeInfo attribute, Object value) {
+    public synchronized void setValue(Artifact configurationName, AbstractName gbeanName, GAttributeInfo attribute, Object value, ClassLoader classLoader) {
         if (readOnly) {
             return;
         }
@@ -223,7 +223,7 @@ public class LocalAttributeManager implements PluginAttributeStore, PersistentCo
         }
 
         try {
-            gbean.setAttribute(attribute.getName(), value, attribute.getType());
+            gbean.setAttribute(attribute.getName(), value, attribute.getType(), classLoader);
             attributeChanged();
         } catch (InvalidAttributeException e) {
             // attribute can not be represented as a string
@@ -270,7 +270,7 @@ public class LocalAttributeManager implements PluginAttributeStore, PersistentCo
         attributeChanged();
     }
 
-    public void addGBean(Artifact configurationName, GBeanData gbeanData) {
+    public void addGBean(Artifact configurationName, GBeanData gbeanData, ClassLoader classLoader) {
         if (readOnly) {
             return;
         }
@@ -280,7 +280,7 @@ public class LocalAttributeManager implements PluginAttributeStore, PersistentCo
             return;
         }
         try {
-            GBeanOverride gbean = new GBeanOverride(gbeanData, expressionParser);
+            GBeanOverride gbean = new GBeanOverride(gbeanData, expressionParser, classLoader);
             configuration.addGBean(gbean);
             attributeChanged();
         } catch (InvalidAttributeException e) {
