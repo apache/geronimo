@@ -109,7 +109,7 @@ public abstract class Axis2WebServiceContainer implements WebServiceContainer {
 
     public void init() throws Exception {
         this.endpointClass = classLoader.loadClass(this.endpointClassName);
-        configurationContext = ConfigurationContextFactory.createDefaultConfigurationContext();
+        configurationContext = ConfigurationContextFactory.createBasicConfigurationContext("META-INF/geronimo-axis2.xml");
 
         // check to see if the wsdlLocation property is set in portInfo,
         // if not checking if wsdlLocation exists in annotation
