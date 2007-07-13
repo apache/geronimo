@@ -25,6 +25,7 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.HashMap;
 import java.util.List;
+import java.util.ArrayList;
 import java.util.jar.JarFile;
 
 import javax.sql.DataSource;
@@ -54,6 +55,7 @@ import org.apache.geronimo.kernel.repository.DefaultArtifactResolver;
 import org.apache.geronimo.kernel.repository.Version;
 import org.apache.geronimo.deployment.util.DeploymentUtil;
 import org.apache.geronimo.gbean.AbstractName;
+import org.apache.geronimo.common.DeploymentException;
 
 /**
  * @version $Rev$ $Date$
@@ -99,8 +101,8 @@ public class DeploymentContextTest extends TestCase {
     private void recursiveDelete(File file) {
         if (file.isDirectory()) {
             File[] files = file.listFiles();
-            for (int i = 0; i < files.length; i++) {
-                recursiveDelete(files[i]);
+            for (File file1 : files) {
+                recursiveDelete(file1);
             }
         }
         file.delete();
@@ -154,7 +156,7 @@ public class DeploymentContextTest extends TestCase {
         DeploymentContext.JarFileFactory factory = new MockJarFileFactory(data);
         DeploymentContext context = new DeploymentContext(new File("."), null, new Environment(Artifact.create("test/foo/1/ear")), new AbstractName(URI.create("test/foo/1/ear?name=test")), ConfigurationModuleType.EAR, new Jsr77Naming(), new MockConfigurationManager());
         ClassPathList classPathList = new ClassPathList();
-        context.getCompleteManifestClassPath(start, moduleBaseURI, resolutionURI, classPathList, exclusions, factory);
+        context.getCompleteManifestClassPath(start, moduleBaseURI, resolutionURI, classPathList, exclusions, factory, new ArrayList<DeploymentException>());
         assertEquals(2, classPathList.size());
     }
 
@@ -171,7 +173,7 @@ public class DeploymentContextTest extends TestCase {
         DeploymentContext.JarFileFactory factory = new MockJarFileFactory(data);
         DeploymentContext context = new DeploymentContext(new File("."), null, new Environment(Artifact.create("test/foo/1/ear")), new AbstractName(URI.create("test/foo/1/ear?name=test")), ConfigurationModuleType.EAR, new Jsr77Naming(), new MockConfigurationManager());
         ClassPathList classPathList = new ClassPathList();
-        context.getCompleteManifestClassPath(start, moduleBaseURI, resolutionURI, classPathList, exclusions, factory);
+        context.getCompleteManifestClassPath(start, moduleBaseURI, resolutionURI, classPathList, exclusions, factory, new ArrayList<DeploymentException>());
         assertEquals(4, classPathList.size());
         assertEquals("lib1/lib1/lib1.jar", classPathList.get(0));
         assertEquals("lib2/lib2.jar", classPathList.get(1));
@@ -190,7 +192,7 @@ public class DeploymentContextTest extends TestCase {
         DeploymentContext.JarFileFactory factory = new MockJarFileFactory(data);
         DeploymentContext context = new DeploymentContext(new File("."), null, new Environment(Artifact.create("test/foo/1/ear")), new AbstractName(URI.create("test/foo/1/ear?name=test")), ConfigurationModuleType.EAR, new Jsr77Naming(), new MockConfigurationManager());
         ClassPathList classPathList = new ClassPathList();
-        context.getCompleteManifestClassPath(start, moduleBaseURI, resolutionURI, classPathList, exclusions, factory);
+        context.getCompleteManifestClassPath(start, moduleBaseURI, resolutionURI, classPathList, exclusions, factory, new ArrayList<DeploymentException>());
         assertEquals(2, classPathList.size());
         assertEquals("../lib1.jar", classPathList.get(0));
         assertEquals("../lib2.jar", classPathList.get(1));
@@ -210,7 +212,7 @@ public class DeploymentContextTest extends TestCase {
         DeploymentContext.JarFileFactory factory = new MockJarFileFactory(data);
         DeploymentContext context = new DeploymentContext(new File("."), null, new Environment(Artifact.create("test/foo/1/ear")), new AbstractName(URI.create("test/foo/1/ear?name=test")), ConfigurationModuleType.EAR, new Jsr77Naming(), new MockConfigurationManager());
         ClassPathList classPathList = new ClassPathList();
-        context.getCompleteManifestClassPath(start, moduleBaseURI, resolutionURI, classPathList, exclusions, factory);
+        context.getCompleteManifestClassPath(start, moduleBaseURI, resolutionURI, classPathList, exclusions, factory, new ArrayList<DeploymentException>());
         assertEquals(4, classPathList.size());
         assertEquals("../../../lib1/lib1/lib1.jar", classPathList.get(0));
         assertEquals("../../../lib2/lib2/lib2.jar", classPathList.get(1));
@@ -231,7 +233,7 @@ public class DeploymentContextTest extends TestCase {
         DeploymentContext.JarFileFactory factory = new MockJarFileFactory(data);
         DeploymentContext context = new DeploymentContext(new File("."), null, new Environment(Artifact.create("test/foo/1/ear")), new AbstractName(URI.create("test/foo/1/ear?name=test")), ConfigurationModuleType.EAR, new Jsr77Naming(), new MockConfigurationManager());
         ClassPathList classPathList = new ClassPathList();
-        context.getCompleteManifestClassPath(start, moduleBaseURI, resolutionURI, classPathList, exclusions, factory);
+        context.getCompleteManifestClassPath(start, moduleBaseURI, resolutionURI, classPathList, exclusions, factory, new ArrayList<DeploymentException>());
         assertEquals(4, classPathList.size());
         assertEquals("../../../lib1/lib1/lib1.jar", classPathList.get(0));
         assertEquals("../../../lib2/lib2.jar", classPathList.get(1));
@@ -254,7 +256,7 @@ public class DeploymentContextTest extends TestCase {
         DeploymentContext.JarFileFactory factory = new MockJarFileFactory(data);
         DeploymentContext context = new DeploymentContext(new File("."), null, new Environment(Artifact.create("test/foo/1/ear")), new AbstractName(URI.create("test/foo/1/ear?name=test")), ConfigurationModuleType.EAR, new Jsr77Naming(), new MockConfigurationManager());
         ClassPathList classPathList = new ClassPathList();
-        context.getCompleteManifestClassPath(start, moduleBaseURI, resolutionURI, classPathList, exclusions, factory);
+        context.getCompleteManifestClassPath(start, moduleBaseURI, resolutionURI, classPathList, exclusions, factory, new ArrayList<DeploymentException>());
         assertEquals(2, classPathList.size());
     }
 

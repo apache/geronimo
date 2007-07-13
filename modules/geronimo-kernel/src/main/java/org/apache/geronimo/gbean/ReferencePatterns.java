@@ -19,7 +19,6 @@ package org.apache.geronimo.gbean;
 
 import java.io.Serializable;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
@@ -29,13 +28,12 @@ import java.util.Set;
 public class ReferencePatterns implements Serializable {
     private static final long serialVersionUID = 1888371271299507818L;
 
-    private final Set patterns;
+    private final Set<AbstractNameQuery> patterns;
     private final AbstractName abstractName;
 
-    public ReferencePatterns(Set patterns) {
-        this.patterns = new LinkedHashSet();
-        for (Iterator iterator = patterns.iterator(); iterator.hasNext();) {
-            Object pattern = iterator.next();
+    public ReferencePatterns(Set<? extends Object> patterns) {
+        this.patterns = new LinkedHashSet<AbstractNameQuery>();
+        for (Object pattern : patterns) {
             if (pattern instanceof AbstractName) {
                 AbstractName name = (AbstractName) pattern;
                 this.patterns.add(new AbstractNameQuery(name));
@@ -62,7 +60,7 @@ public class ReferencePatterns implements Serializable {
         this.patterns = null;
     }
 
-    public Set getPatterns() {
+    public Set<AbstractNameQuery> getPatterns() {
         if (patterns == null) {
             throw new IllegalStateException("This is resolved to: " + abstractName);
         }

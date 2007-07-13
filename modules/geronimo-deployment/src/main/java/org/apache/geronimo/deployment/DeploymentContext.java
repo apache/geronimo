@@ -30,7 +30,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -167,6 +166,8 @@ public class DeploymentContext {
 
     /**
      * @deprecated use findGBeans(pattern)
+     * @param pattern Search for gbeans whose name matches pattern.
+     * @return the set of gbeans whose name matches the pattern.
      */
     public Set<AbstractName> listGBeans(AbstractNameQuery pattern) {
         return findGBeans(pattern);
@@ -256,6 +257,7 @@ public class DeploymentContext {
 
     interface JarFileFactory {
         JarFile newJarFile(URI relativeURI) throws IOException;
+
         String getManifestClassPath(JarFile jarFile) throws IOException;
     }
 
@@ -269,14 +271,21 @@ public class DeploymentContext {
         public String getManifestClassPath(JarFile jarFile) throws IOException {
             Manifest manifest = jarFile.getManifest();
             if (manifest == null) {
-            return null;
+                return null;
             }
             return manifest.getMainAttributes().getValue(Attributes.Name.CLASS_PATH);
         }
     }
 
     public void getCompleteManifestClassPath(JarFile moduleFile, URI moduleBaseUri, URI resolutionUri, ClassPathList classpath, ModuleList exclusions) throws DeploymentException {
-         getCompleteManifestClassPath(moduleFile,  moduleBaseUri, resolutionUri, classpath, exclusions, new DefaultJarFileFactory());
+        List<DeploymentException> problems = new ArrayList<DeploymentException>();
+        getCompleteManifestClassPath(moduleFile, moduleBaseUri, resolutionUri, classpath, exclusions, new DefaultJarFileFactory(), problems);
+        if (!problems.isEmpty()) {
+            if (problems.size() == 1) {
+                throw problems.get(0);
+            }
+            throw new DeploymentException("Determining complete manifest classpath unsuccessful:", problems);
+        }
     }
 
     /**
@@ -284,25 +293,26 @@ public class DeploymentContext {
      * Used only in PersistenceUnitBuilder to figure out if a persistence.xml relates to the starting module.  Having a classloader for
      * each ejb module would eliminate the need for this and be more elegant.
      *
-     * @param moduleFile the module that we start looking at classpaths at, in the car.
-     *
+     * @param moduleFile    the module that we start looking at classpaths at, in the car.
      * @param moduleBaseUri where the moduleFile is inside the car file.  For an (unpacked) war this ends with / which means we also need:
-     *
-     * @param resolutionUri the uri to resolve against.  For a (packed) jar module this is the same as moduleBaseUri.  For a war it removes the last segment.
-     *
-     * @param classpath the classpath list we are constructing.
-     *
-     * @param exclusions the paths to not investigate.  These are typically the other modules in the ear/car file: they will have their contents processed for themselves.
-     *
-     * @param factory
-     * @throws org.apache.geronimo.common.DeploymentException if something goes wrong.
+     * @param resolutionUri the uri to resolve all entries against. For a module such as an ejb jar that is part of the
+     *                      root ear car it is ".".  For a sub-configuration such as a war it is the "reverse" of the path to the war file in the car.
+     *                      For instance, if the war file is foo/bar/myweb.war, the resolutionUri is "../../..".
+     * @param classpath     the classpath list we are constructing.
+     * @param exclusions    the paths to not investigate.  These are typically the other modules in the ear/car file: they will have their contents processed for themselves.
+     * @param factory       the factory for constructing JarFiles and the way to extract the manifest classpath from a JarFile. Introduced to make
+     *                      testing plausible, but may be useful for in-IDE deployment.
+     * @param problems      List to save all the problems we encounter.
+     * @throws org.apache.geronimo.common.DeploymentException
+     *          if something goes wrong.
      */
-    public void getCompleteManifestClassPath(JarFile moduleFile, URI moduleBaseUri, URI resolutionUri, ClassPathList classpath, ModuleList exclusions, JarFileFactory factory) throws DeploymentException {
+    public void getCompleteManifestClassPath(JarFile moduleFile, URI moduleBaseUri, URI resolutionUri, ClassPathList classpath, ModuleList exclusions, JarFileFactory factory, List<DeploymentException> problems) throws DeploymentException {
         String manifestClassPath;
         try {
             manifestClassPath = factory.getManifestClassPath(moduleFile);
         } catch (IOException e) {
-            throw new DeploymentException("Could not read manifest: " + moduleBaseUri, e);
+            problems.add(new DeploymentException(printInfo("Could not read manifest: " + moduleBaseUri, moduleBaseUri, classpath, exclusions), e));
+            return;
         }
 
         if (manifestClassPath == null) {
@@ -316,19 +326,23 @@ public class DeploymentContext {
             try {
                 pathUri = new URI(path);
             } catch (URISyntaxException e) {
-                throw new DeploymentException("Invalid manifest classpath entry: module=" + moduleBaseUri + ", path=" + path);
+                problems.add(new DeploymentException(printInfo("Invalid manifest classpath entry, path=" + path, moduleBaseUri, classpath, exclusions)));
+                return;
             }
 
             if (!pathUri.getPath().endsWith(".jar")) {
-                throw new DeploymentException("Manifest class path entries must end with the .jar extension (J2EE 1.4 Section 8.2): module=" + moduleBaseUri);
+                problems.add(new DeploymentException(printInfo("Manifest class path entries must end with the .jar extension (J2EE 1.4 Section 8.2): path=" + path, moduleBaseUri, classpath, exclusions)));
+                return;
             }
             if (pathUri.isAbsolute()) {
-                throw new DeploymentException("Manifest class path entries must be relative (J2EE 1.4 Section 8.2): moduel=" + moduleBaseUri);
+                problems.add(new DeploymentException(printInfo("Manifest class path entries must be relative (J2EE 1.4 Section 8.2): path=" + path, moduleBaseUri, classpath, exclusions)));
+                return;
             }
 
             URI targetUri = moduleBaseUri.resolve(pathUri);
             if (targetUri.getPath().endsWith("/")) {
-                throw new DeploymentException("target path must not end with a '/' character: " + targetUri);
+                problems.add(new DeploymentException(printInfo("target path must not end with a '/' character: path=" + path + ", resolved to targetURI=" + targetUri, moduleBaseUri, classpath, exclusions)));
+                return;
             }
             String targetEntry = targetUri.toString();
             if (exclusions.contains(targetEntry)) {
@@ -346,11 +360,20 @@ public class DeploymentContext {
             try {
                 classPathJarFile = factory.newJarFile(targetUri);
             } catch (IOException e) {
-                throw new DeploymentException("Manifest class path entries must be a valid jar file (JAVAEE 5 Section 8.2): jarFile=" + resolvedUri + ", path=" + path, e);
+                problems.add(new DeploymentException(printInfo("Manifest class path entries must be a valid jar file (JAVAEE 5 Section 8.2): path=" + path + ", resolved to targetURI=" + targetUri, moduleBaseUri, classpath, exclusions), e));
+                return;
             }
 
-            getCompleteManifestClassPath(classPathJarFile, targetUri, resolutionUri, classpath, exclusions, factory);
+            getCompleteManifestClassPath(classPathJarFile, targetUri, resolutionUri, classpath, exclusions, factory, problems);
         }
+    }
+
+    private String printInfo(String message, URI moduleBaseUri, ClassPathList classpath, ModuleList exclusions) {
+        StringBuffer buf = new StringBuffer(message).append("\n");
+        buf.append("    looking at: ").append(moduleBaseUri);
+        buf.append("    current classpath: ").append(classpath);
+        buf.append("    ignoring modules: ").append(exclusions);
+        return buf.toString();
     }
 
     /**
@@ -500,8 +523,7 @@ public class DeploymentContext {
                 inPlaceConfigurationDir,
                 naming);
 
-        for (Iterator iterator = additionalDeployment.iterator(); iterator.hasNext();) {
-            ConfigurationData ownedConfiguration = (ConfigurationData) iterator.next();
+        for (ConfigurationData ownedConfiguration : additionalDeployment) {
             configurationData.addOwnedConfigurations(ownedConfiguration.getId());
         }
 
@@ -522,15 +544,13 @@ public class DeploymentContext {
 
     public List<String> verify(Configuration configuration) throws DeploymentException {
         List<String> failures = new ArrayList<String>();
-        for (Iterator iterator = this.configuration.getGBeans().entrySet().iterator(); iterator.hasNext();) {
-            Map.Entry entry = (Map.Entry) iterator.next();
-            AbstractName name = (AbstractName) entry.getKey();
-            GBeanData gbean = (GBeanData) entry.getValue();
+        for (Map.Entry<AbstractName, GBeanData> entry : this.configuration.getGBeans().entrySet()) {
+            AbstractName name = entry.getKey();
+            GBeanData gbean = entry.getValue();
 
-            for (Iterator iterator1 = gbean.getReferences().entrySet().iterator(); iterator1.hasNext();) {
-                Map.Entry referenceEntry = (Map.Entry) iterator1.next();
-                String referenceName = (String) referenceEntry.getKey();
-                ReferencePatterns referencePatterns = (ReferencePatterns) referenceEntry.getValue();
+            for (Map.Entry<String, ReferencePatterns> referenceEntry : gbean.getReferences().entrySet()) {
+                String referenceName = referenceEntry.getKey();
+                ReferencePatterns referencePatterns = referenceEntry.getValue();
 
                 String failure = verifyReference(gbean, referenceName, referencePatterns, configuration);
                 if (failure != null) {
@@ -538,8 +558,7 @@ public class DeploymentContext {
                 }
             }
 
-            for (Iterator iterator1 = gbean.getDependencies().iterator(); iterator1.hasNext();) {
-                ReferencePatterns referencePatterns = (ReferencePatterns) iterator1.next();
+            for (ReferencePatterns referencePatterns : gbean.getDependencies()) {
                 String failure = verifyDependency(name, referencePatterns, configuration);
                 if (failure != null) {
                     failures.add(failure);

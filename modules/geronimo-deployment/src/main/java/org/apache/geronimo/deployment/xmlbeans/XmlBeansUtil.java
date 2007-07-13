@@ -16,35 +16,34 @@
  */
 package org.apache.geronimo.deployment.xmlbeans;
 
-import java.util.Map;
-import java.util.HashMap;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.List;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
 import javax.xml.namespace.QName;
 
-import org.w3c.dom.Element;
-import org.apache.xmlbeans.XmlOptions;
+import org.apache.xmlbeans.QNameSet;
+import org.apache.xmlbeans.SchemaType;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
-import org.apache.xmlbeans.SchemaTypeLoader;
-import org.apache.xmlbeans.SchemaType;
-import org.apache.xmlbeans.QNameSet;
+import org.apache.xmlbeans.XmlOptions;
 import org.apache.xmlbeans.XmlValidationError;
+import org.w3c.dom.Element;
 
 /**
  * @version $Rev$ $Date$
  */
 public class XmlBeansUtil {
-    private static final Map NAMESPACE_UPDATES = new HashMap();
+    private static final Map<String, String> NAMESPACE_UPDATES = new HashMap<String, String>();
     //TODO thread safe? conncurrentReaderMap?
-    private static final Map substitutionGroups = new HashMap();
+    private static final Map<QName, QNameSet> substitutionGroups = new HashMap<QName, QNameSet>();
     private static final XmlObject[] NO_ELEMENTS = new XmlObject[]{};
 
     static {
@@ -151,7 +150,7 @@ public class XmlBeansUtil {
     }
 
     public static void registerSubstitutionGroupElements(QName substitutionGroup, QNameSet substitutions) {
-        QNameSet oldSubstitutions = (QNameSet) substitutionGroups.get(substitutionGroup);
+        QNameSet oldSubstitutions = substitutionGroups.get(substitutionGroup);
         if (oldSubstitutions != null) {
             substitutions = oldSubstitutions.union(substitutions);
         }
@@ -159,7 +158,7 @@ public class XmlBeansUtil {
     }
 
     public static void unregisterSubstitutionGroupElements(QName substitutionGroup, QNameSet substitutions) {
-        QNameSet oldSubstitutions = (QNameSet) substitutionGroups.get(substitutionGroup);
+        QNameSet oldSubstitutions = substitutionGroups.get(substitutionGroup);
         if (oldSubstitutions != null && substitutions != null) {
             QNameSet difference = oldSubstitutions.intersect(substitutions.inverse());
             substitutionGroups.put(substitutionGroup, difference);
@@ -167,7 +166,7 @@ public class XmlBeansUtil {
     }
 
     public static QNameSet getQNameSetForSubstitutionGroup(QName substitutionGroup) {
-        return (QNameSet) substitutionGroups.get(substitutionGroup);
+        return substitutionGroups.get(substitutionGroup);
     }
 
     public static XmlObject[] selectSubstitutionGroupElements(QName substitutionGroup, XmlObject container) {
@@ -196,11 +195,10 @@ public class XmlBeansUtil {
                     Object o = iterator.next();
                     if (o instanceof XmlValidationError) {
                         XmlValidationError validationError = (XmlValidationError) o;
-                        List expected = validationError.getExpectedQNames();
+                        List<QName> expected = validationError.getExpectedQNames();
                         QName actual = validationError.getOffendingQName();
                         if (expected != null) {
-                            for (Iterator iterator1 = expected.iterator(); iterator1.hasNext();) {
-                                QName expectedQName = (QName) iterator1.next();
+                            for (QName expectedQName : expected) {
                                 QNameSet substitutions = getQNameSetForSubstitutionGroup(expectedQName);
                                 if (substitutions != null && substitutions.contains(actual)) {
                                     iterator.remove();

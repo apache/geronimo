@@ -24,7 +24,6 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
@@ -34,22 +33,22 @@ import java.util.Set;
 public class GBeanData implements Externalizable {
     private static final long serialVersionUID = -1012491431781444074L;
 
-    private Externalizable backwardExternalizables[] = new Externalizable[] {
+    private Externalizable backwardExternalizables[] = new Externalizable[]{
             new V0Externalizable(),
             new V1Externalizable()
     };
 
     private GBeanInfo gbeanInfo;
-    private final Map attributes;
-    private final Map references;
-    private final Set dependencies;
+    private final Map<String, Object> attributes;
+    private final Map<String, ReferencePatterns> references;
+    private final Set<ReferencePatterns> dependencies;
     private AbstractName abstractName;
     private int priority;
 
     public GBeanData() {
-        attributes = new HashMap();
-        references = new HashMap();
-        dependencies = new HashSet();
+        attributes = new HashMap<String, Object>();
+        references = new HashMap<String, ReferencePatterns>();
+        dependencies = new HashSet<ReferencePatterns>();
     }
 
     public GBeanData(GBeanInfo gbeanInfo) {
@@ -65,9 +64,9 @@ public class GBeanData implements Externalizable {
 
     public GBeanData(GBeanData gbeanData) {
         setGBeanInfo(gbeanData.gbeanInfo);
-        attributes = new HashMap(gbeanData.attributes);
-        references = new HashMap(gbeanData.references);
-        dependencies = new HashSet(gbeanData.dependencies);
+        attributes = new HashMap<String, Object>(gbeanData.attributes);
+        references = new HashMap<String, ReferencePatterns>(gbeanData.references);
+        dependencies = new HashSet<ReferencePatterns>(gbeanData.dependencies);
         abstractName = gbeanData.abstractName;
     }
 
@@ -100,12 +99,12 @@ public class GBeanData implements Externalizable {
         }
     }
 
-    public Map getAttributes() {
-        return new HashMap(attributes);
+    public Map<String, Object> getAttributes() {
+        return new HashMap<String, Object>(attributes);
     }
 
-    public Set getAttributeNames() {
-        return new HashSet(attributes.keySet());
+    public Set<String> getAttributeNames() {
+        return new HashSet<String>(attributes.keySet());
     }
 
     public Object getAttribute(String name) {
@@ -116,16 +115,16 @@ public class GBeanData implements Externalizable {
         attributes.put(name, value);
     }
 
-    public Map getReferences() {
-        return new HashMap(references);
+    public Map<String, ReferencePatterns> getReferences() {
+        return new HashMap<String, ReferencePatterns>(references);
     }
 
-    public Set getReferencesNames() {
-        return new HashSet(references.keySet());
+    public Set<String> getReferencesNames() {
+        return new HashSet<String>(references.keySet());
     }
 
     public ReferencePatterns getReferencePatterns(String name) {
-        return (ReferencePatterns) references.get(name);
+        return references.get(name);
     }
 
     public void setReferencePattern(String name, AbstractNameQuery pattern) {
@@ -144,18 +143,17 @@ public class GBeanData implements Externalizable {
         references.put(name, patterns);
     }
 
-    public Set getDependencies() {
-        return new HashSet(dependencies);
+    public Set<ReferencePatterns> getDependencies() {
+        return new HashSet<ReferencePatterns>(dependencies);
     }
 
-    public void setDependencies(Set dependencies) {
+    public void setDependencies(Set<ReferencePatterns> dependencies) {
         this.dependencies.clear();
         addDependencies(dependencies);
     }
 
-    public void addDependencies(Set dependencies) {
-        for (Iterator iterator = dependencies.iterator(); iterator.hasNext();) {
-            Object dependency = iterator.next();
+    public void addDependencies(Set<? extends Object> dependencies) {
+        for (Object dependency : dependencies) {
             if (dependency instanceof AbstractName) {
                 AbstractName name = (AbstractName) dependency;
                 addDependency(name);
@@ -193,7 +191,7 @@ public class GBeanData implements Externalizable {
 
     public void writeExternal(ObjectOutput out) throws IOException {
         // write version index
-        out.writeObject(new Integer(backwardExternalizables.length -1));
+        out.writeObject(backwardExternalizables.length - 1);
 
         // write the gbean info
         out.writeObject(gbeanInfo);
@@ -206,9 +204,8 @@ public class GBeanData implements Externalizable {
 
         // write the attributes
         out.writeInt(attributes.size());
-        for (Iterator iterator = attributes.entrySet().iterator(); iterator.hasNext();) {
-            Map.Entry entry = (Map.Entry) iterator.next();
-            String name = (String) entry.getKey();
+        for (Map.Entry<String, Object> entry : attributes.entrySet()) {
+            String name = entry.getKey();
             Object value = entry.getValue();
             try {
                 out.writeObject(name);
@@ -222,10 +219,9 @@ public class GBeanData implements Externalizable {
 
         // write the references
         out.writeInt(references.size());
-        for (Iterator iterator = references.entrySet().iterator(); iterator.hasNext();) {
-            Map.Entry entry = (Map.Entry) iterator.next();
-            String name = (String) entry.getKey();
-            ReferencePatterns value = (ReferencePatterns) entry.getValue();
+        for (Map.Entry<String, ReferencePatterns> entry : references.entrySet()) {
+            String name = entry.getKey();
+            ReferencePatterns value = entry.getValue();
             try {
                 out.writeObject(name);
                 out.writeObject(value);
@@ -235,8 +231,7 @@ public class GBeanData implements Externalizable {
         }
         //write the dependencies
         out.writeInt(dependencies.size());
-        for (Iterator iterator = dependencies.iterator(); iterator.hasNext();) {
-            ReferencePatterns referencePatterns = (ReferencePatterns) iterator.next();
+        for (ReferencePatterns referencePatterns : dependencies) {
             try {
                 out.writeObject(referencePatterns);
             } catch (IOException e) {
@@ -249,7 +244,7 @@ public class GBeanData implements Externalizable {
     public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
         Object opaque = in.readObject();
         if (opaque instanceof Integer) {
-            backwardExternalizables[((Integer) opaque).intValue()].readExternal(in);
+            backwardExternalizables[((Integer) opaque)].readExternal(in);
         } else {
             gbeanInfo = (GBeanInfo) opaque;
             backwardExternalizables[0].readExternal(in);
@@ -260,13 +255,10 @@ public class GBeanData implements Externalizable {
      * Note: this comparator
      * imposes orderings that are inconsistent with equals.
      */
-    public static class PriorityComparator implements Comparator {
+    public static class PriorityComparator implements Comparator<GBeanData> {
 
-        public int compare(Object o1, Object o2) {
-            if (o1 instanceof GBeanData && o2 instanceof GBeanData) {
-                return ((GBeanData)o1).priority - ((GBeanData)o2).priority;
-            }
-            return 0;
+        public int compare(GBeanData o1, GBeanData o2) {
+            return o1.priority - o2.priority;
         }
     }
 
@@ -348,7 +340,7 @@ public class GBeanData implements Externalizable {
             throw new UnsupportedOperationException();
         }
 
-        protected void readGBeanInfo(ObjectInput in)  throws IOException, ClassNotFoundException {
+        protected void readGBeanInfo(ObjectInput in) throws IOException, ClassNotFoundException {
             gbeanInfo = (GBeanInfo) in.readObject();
         }
 
