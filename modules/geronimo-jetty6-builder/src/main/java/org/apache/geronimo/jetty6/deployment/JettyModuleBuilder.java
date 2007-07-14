@@ -71,6 +71,7 @@ import org.apache.geronimo.jetty6.JettyFilterMapping;
 import org.apache.geronimo.jetty6.JettyServletHolder;
 import org.apache.geronimo.jetty6.JettyWebAppContext;
 import org.apache.geronimo.jetty6.NonAuthenticator;
+import org.apache.geronimo.jetty6.JettyJspServletHolder;
 import org.apache.geronimo.kernel.GBeanAlreadyExistsException;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.kernel.Kernel;
@@ -106,6 +107,7 @@ import org.apache.geronimo.xbeans.javaee.UrlPatternType;
 import org.apache.geronimo.xbeans.javaee.WebAppDocument;
 import org.apache.geronimo.xbeans.javaee.WebAppType;
 import org.apache.geronimo.xbeans.javaee.WelcomeFileListType;
+import org.apache.geronimo.xbeans.javaee.JspPropertyGroupType;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
 import org.mortbay.jetty.security.BasicAuthenticator;
@@ -121,6 +123,7 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
     private final static Log log = LogFactory.getLog(JettyModuleBuilder.class);
     private final Environment defaultEnvironment;
     private final AbstractNameQuery jettyContainerObjectName;
+    private final JettyJspServletHolder jspServlet;
     private final Collection defaultServlets;
     private final Collection defaultFilters;
     private final Collection defaultFilterMappings;
@@ -134,32 +137,31 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
     private final Map<String, String> defaultMimeTypeMappings;
 
     private static final String JETTY_NAMESPACE = JettyWebAppDocument.type.getDocumentElementName().getNamespaceURI();
-    private String jspServletClassName;
 
     public JettyModuleBuilder(Environment defaultEnvironment,
-            Integer defaultSessionTimeoutSeconds,
-            List<String> defaultWelcomeFiles,
-            AbstractNameQuery jettyContainerName,
-            String jspServletClassName,
-            Collection defaultServlets,
-            Collection defaultFilters,
-            Collection defaultFilterMappings,
-            Map<String, String> defaultLocaleEncodingMappings,
-            Map<String, String> defaultMimeTypeMappings,
-            Object pojoWebServiceTemplate,
-            Collection<WebServiceBuilder> webServiceBuilder,
-            Collection clusteringBuilders,
-            Collection securityBuilders,
-            Collection serviceBuilders,
-            NamingBuilder namingBuilders,
-            Collection<ModuleBuilderExtension> moduleBuilderExtensions,
-            ResourceEnvironmentSetter resourceEnvironmentSetter,
-            Kernel kernel) throws GBeanNotFoundException {
+                              Integer defaultSessionTimeoutSeconds,
+                              List<String> defaultWelcomeFiles,
+                              AbstractNameQuery jettyContainerName,
+                              JettyJspServletHolder jspServlet,
+                              Collection defaultServlets,
+                              Collection defaultFilters,
+                              Collection defaultFilterMappings,
+                              Map<String, String> defaultLocaleEncodingMappings,
+                              Map<String, String> defaultMimeTypeMappings,
+                              Object pojoWebServiceTemplate,
+                              Collection<WebServiceBuilder> webServiceBuilder,
+                              Collection clusteringBuilders,
+                              Collection securityBuilders,
+                              Collection serviceBuilders,
+                              NamingBuilder namingBuilders,
+                              Collection<ModuleBuilderExtension> moduleBuilderExtensions,
+                              ResourceEnvironmentSetter resourceEnvironmentSetter,
+                              Kernel kernel) throws GBeanNotFoundException {
         super(kernel, securityBuilders, serviceBuilders, namingBuilders, resourceEnvironmentSetter, webServiceBuilder, moduleBuilderExtensions);
         this.defaultEnvironment = defaultEnvironment;
         this.defaultSessionTimeoutSeconds = (defaultSessionTimeoutSeconds == null) ? 30 * 60 : defaultSessionTimeoutSeconds;
         this.jettyContainerObjectName = jettyContainerName;
-        this.jspServletClassName = jspServletClassName;
+        this.jspServlet = jspServlet;
         this.defaultServlets = defaultServlets;
         this.defaultFilters = defaultFilters;
         this.defaultFilterMappings = defaultFilterMappings;
@@ -404,14 +406,18 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
             configureErrorPages(webApp, webModuleData);
 
             // configure tag libs.
-            configureTagLibs(module, webApp, webModuleData);
+            Set<String> knownServletMappings = new HashSet<String>();
+            Map<String, Set<String>> servletMappings = new HashMap<String, Set<String>>();
+            if (jspServlet != null) {
+                configureTagLibs(module, webApp, webModuleData, servletMappings, knownServletMappings, jspServlet.getServletName());
+                GBeanData jspServletData = configureDefaultServlet(jspServlet, earContext, moduleName, knownServletMappings, moduleContext);
+                jspServletData.setAttribute("servletMappings", new HashSet<String>(knownServletMappings));
+            }
 
             // configure login configs.
             configureLoginConfigs(module, webApp, jettyWebApp, webModuleData);
 
             // Make sure that servlet mappings point to available servlets and never add a duplicate pattern.
-            Set<String> knownServletMappings = new HashSet<String>();
-            Map<String, Set<String>> servletMappings = new HashMap<String, Set<String>>();
 
             buildServletMappings(module, webApp, servletMappings, knownServletMappings);
 
@@ -523,15 +529,20 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
 
     private void addDefaultServletsGBeans(EARContext earContext, EARContext moduleContext, AbstractName moduleName, Set knownServletMappings) throws GBeanNotFoundException, GBeanAlreadyExistsException {
         for (Object defaultServlet : defaultServlets) {
-            GBeanData servletGBeanData = getGBeanData(kernel, defaultServlet);
-            AbstractName defaultServletObjectName = earContext.getNaming().createChildName(moduleName, (String) servletGBeanData.getAttribute("servletName"), NameFactory.SERVLET);
-            servletGBeanData.setAbstractName(defaultServletObjectName);
-            servletGBeanData.setReferencePattern("JettyServletRegistration", moduleName);
-            Set<String> defaultServletMappings = new HashSet<String>((Collection<String>) servletGBeanData.getAttribute("servletMappings"));
-            defaultServletMappings.removeAll(knownServletMappings);
-            servletGBeanData.setAttribute("servletMappings", defaultServletMappings);
-            moduleContext.addGBean(servletGBeanData);
+            configureDefaultServlet(defaultServlet, earContext, moduleName, knownServletMappings, moduleContext);
         }
+    }
+
+    private GBeanData configureDefaultServlet(Object defaultServlet, EARContext earContext, AbstractName moduleName, Set knownServletMappings, EARContext moduleContext) throws GBeanNotFoundException, GBeanAlreadyExistsException {
+        GBeanData servletGBeanData = getGBeanData(kernel, defaultServlet);
+        AbstractName defaultServletObjectName = earContext.getNaming().createChildName(moduleName, (String) servletGBeanData.getAttribute("servletName"), NameFactory.SERVLET);
+        servletGBeanData.setAbstractName(defaultServletObjectName);
+        servletGBeanData.setReferencePattern("JettyServletRegistration", moduleName);
+        Set<String> defaultServletMappings = new HashSet<String>((Collection<String>) servletGBeanData.getAttribute("servletMappings"));
+        defaultServletMappings.removeAll(knownServletMappings);
+        servletGBeanData.setAttribute("servletMappings", defaultServletMappings);
+        moduleContext.addGBean(servletGBeanData);
+        return servletGBeanData;
     }
 
     private void addFiltersGBeans(EARContext earContext, EARContext moduleContext, AbstractName moduleName, WebAppType webApp) throws GBeanAlreadyExistsException {
@@ -663,25 +674,29 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
                         "' but no such servlet was found!");
             }
             UrlPatternType[] urlPatterns = servletMappingType.getUrlPatternArray();
-            for (UrlPatternType patternType : urlPatterns) {
-                String urlPattern = patternType.getStringValue().trim();
-                if (!urlPattern.startsWith("*") && !urlPattern.startsWith("/")) {
-                    urlPattern = "/" + urlPattern;
-                }
-                if (!knownServletMappings.contains(urlPattern)) {
-                    knownServletMappings.add(urlPattern);
-                    checkString(urlPattern);
-                    Set<String> urlsForServlet = servletMappings.get(servletName);
-                    if (urlsForServlet == null) {
-                        urlsForServlet = new HashSet<String>();
-                        servletMappings.put(servletName, urlsForServlet);
-                    }
-                    urlsForServlet.add(urlPattern);
-                }
-            }
+            addMappingsForServlet(servletName, urlPatterns, knownServletMappings, servletMappings);
         }
 
         return servletMappings;
+    }
+
+    private void addMappingsForServlet(String servletName, UrlPatternType[] urlPatterns, Set<String> knownServletMappings, Map<String, Set<String>> servletMappings) throws DeploymentException {
+        for (UrlPatternType patternType : urlPatterns) {
+            String urlPattern = patternType.getStringValue().trim();
+            if (!urlPattern.startsWith("*") && !urlPattern.startsWith("/")) {
+                urlPattern = "/" + urlPattern;
+            }
+            if (!knownServletMappings.contains(urlPattern)) {
+                knownServletMappings.add(urlPattern);
+                checkString(urlPattern);
+                Set<String> urlsForServlet = servletMappings.get(servletName);
+                if (urlsForServlet == null) {
+                    urlsForServlet = new HashSet<String>();
+                    servletMappings.put(servletName, urlsForServlet);
+                }
+                urlsForServlet.add(urlPattern);
+            }
+        }
     }
 
     private void configureLoginConfigs(Module module, WebAppType webApp, JettyWebAppType jettyWebApp, GBeanData webModuleData) throws DeploymentException {
@@ -719,7 +734,7 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
         }
     }
 
-    private void configureTagLibs(Module module, WebAppType webApp, GBeanData webModuleData) throws DeploymentException {
+    private void configureTagLibs(Module module, WebAppType webApp, GBeanData webModuleData, Map<String, Set<String>> servletMappings, Set<String> knownServletMappings, String jspServletName) throws DeploymentException {
         JspConfigType[] jspConfigArray = webApp.getJspConfigArray();
         if (jspConfigArray.length > 1) {
             throw new DeploymentException("Web app " + module.getName() + " cannot have more than one jsp-config element.  Currently has " + jspConfigArray.length + " jsp-config elements.");
@@ -729,6 +744,10 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
             TaglibType[] tagLibArray = aJspConfigArray.getTaglibArray();
             for (TaglibType taglib : tagLibArray) {
                 tagLibMap.put(taglib.getTaglibUri().getStringValue().trim(), taglib.getTaglibLocation().getStringValue().trim());
+            }
+            for (JspPropertyGroupType propertyGroup: aJspConfigArray.getJspPropertyGroupArray()) {
+                UrlPatternType[] urlPatterns = propertyGroup.getUrlPatternArray();
+                addMappingsForServlet(jspServletName, urlPatterns, knownServletMappings, servletMappings);
             }
         }
         webModuleData.setAttribute("tagLibMap", tagLibMap);
@@ -940,8 +959,7 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
         } else if (servletType.isSetJspFile()) {
             servletData = new GBeanData(servletAbstractName, JettyServletHolder.GBEAN_INFO);
             servletData.setAttribute("jspFile", servletType.getJspFile().getStringValue().trim());
-            //TODO MAKE THIS CONFIGURABLE!!! Jetty uses the servlet mapping set up from the default-web.xml
-            servletData.setAttribute("servletClass", jspServletClassName);
+            servletData.setAttribute("servletClass", jspServlet.getServletClassName());
             initParams.put("development", "false");
         } else {
             throw new DeploymentException("Neither servlet class nor jsp file is set for " + servletName); // TODO identify web app in message
@@ -996,7 +1014,7 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
         infoBuilder.addAttribute("defaultLocaleEncodingMappings", Map.class, true, true);
         infoBuilder.addAttribute("defaultMimeTypeMappings", Map.class, true, true);
         infoBuilder.addAttribute("jettyContainerObjectName", AbstractNameQuery.class, true, true);
-        infoBuilder.addAttribute("jspServletClassName", String.class, true, true);
+        infoBuilder.addReference("JspServlet", JettyJspServletHolder.class, NameFactory.SERVLET_TEMPLATE);
         infoBuilder.addReference("DefaultServlets", JettyDefaultServletHolder.class, NameFactory.SERVLET_TEMPLATE);
         infoBuilder.addReference("DefaultFilters", Object.class);
         infoBuilder.addReference("DefaultFilterMappings", Object.class);
@@ -1016,7 +1034,7 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
                 "defaultSessionTimeoutSeconds",
                 "defaultWelcomeFiles",
                 "jettyContainerObjectName",
-                "jspServletClassName",
+                "JspServlet",
                 "DefaultServlets",
                 "DefaultFilters",
                 "DefaultFilterMappings",

@@ -36,7 +36,7 @@ public class JettyDefaultServletHolder extends JettyServletHolder {
     public JettyDefaultServletHolder() {
     }
 
-    public JettyDefaultServletHolder(String objectName, String servletName, String servletClassName, String jspFile, Map initParams, Integer loadOnStartup, Set servletMappings, String runAsRole, JettyServletRegistration context) throws Exception {
+    public JettyDefaultServletHolder(String objectName, String servletName, String servletClassName, String jspFile, Map initParams, Integer loadOnStartup, Set<String> servletMappings, String runAsRole, JettyServletRegistration context) throws Exception {
         super(objectName, servletName, servletClassName, jspFile, initParams, loadOnStartup, servletMappings, runAsRole, context);
     }
 

@@ -24,7 +24,6 @@
         <attribute name="defaultSessionTimeoutSeconds">1800</attribute>
         <attribute name="defaultWelcomeFiles">index.html,index.htm,index.jsp</attribute>
         <attribute name="jettyContainerObjectName">?name=JettyWebContainer</attribute>
-        <attribute name="jspServletClassName">org.apache.jasper.servlet.JspServlet</attribute>
         <attribute name="defaultLocaleEncodingMappings">
 ar=ISO-8859-6
 be=ISO-8859-5
@@ -73,10 +72,10 @@ wsdl=text/xml
             <pattern>
                 <name>StaticContent</name>
             </pattern>
-            <pattern>
-                <name>JSPServlet</name>
-            </pattern>
         </references>
+        <reference name="JspServlet">
+            <name>JSPServlet</name>
+        </reference>
         <reference name="PojoWebServiceTemplate">
             <name>POJOTemplate</name>
         </reference>
@@ -161,7 +160,7 @@ wsdl=text/xml
         <attribute name="servletMappings">/</attribute>
     </gbean>
 
-    <gbean name="JSPServlet" class="org.apache.geronimo.jetty6.JettyDefaultServletHolder">
+    <gbean name="JSPServlet" class="org.apache.geronimo.jetty6.JettyJspServletHolder">
         <attribute name="servletName">jsp</attribute>
         <attribute name="servletClass">org.apache.jasper.servlet.JspServlet</attribute>
         <attribute name="loadOnStartup">0</attribute>

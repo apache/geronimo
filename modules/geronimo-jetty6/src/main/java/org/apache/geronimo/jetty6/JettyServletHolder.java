@@ -86,6 +86,10 @@ public class JettyServletHolder implements Servlet, GBeanLifecycle {
         return servletHolder.getName();
     }
 
+    public String getServletClassName() {
+        return servletHolder.getClassName();
+    }
+
     public String getObjectName() {
         return objectName;
     }
