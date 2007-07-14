@@ -411,7 +411,9 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
             if (jspServlet != null) {
                 configureTagLibs(module, webApp, webModuleData, servletMappings, knownServletMappings, jspServlet.getServletName());
                 GBeanData jspServletData = configureDefaultServlet(jspServlet, earContext, moduleName, knownServletMappings, moduleContext);
-                jspServletData.setAttribute("servletMappings", new HashSet<String>(knownServletMappings));
+                Set<String> jspMappings = (Set<String>) jspServletData.getAttribute("servletMappings");
+                jspMappings.addAll(knownServletMappings);
+                jspServletData.setAttribute("servletMappings", jspMappings);
             }
 
             // configure login configs.
