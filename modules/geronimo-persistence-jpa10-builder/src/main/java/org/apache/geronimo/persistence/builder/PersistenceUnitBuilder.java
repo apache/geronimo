@@ -23,6 +23,7 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -46,6 +47,7 @@ import org.apache.geronimo.j2ee.deployment.Module;
 import org.apache.geronimo.j2ee.deployment.ModuleBuilderExtension;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.GBeanAlreadyExistsException;
+import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.kernel.Naming;
 import org.apache.geronimo.kernel.config.ConfigurationStore;
 import org.apache.geronimo.kernel.repository.Environment;
@@ -178,6 +180,15 @@ public class PersistenceUnitBuilder implements ModuleBuilderExtension {
     }
 
     public void addGBeans(EARContext earContext, Module module, ClassLoader cl, Collection repository) throws DeploymentException {
+        try {
+            //make sure the PersistenceUnitGBean is started before the Module GBean
+            if (earContext.findGBeans(new AbstractNameQuery(earContext.getConfigID(), Collections.EMPTY_MAP, PersistenceUnitGBean.class.getName())).size() > 0) {
+                GBeanData moduleGBeanData = earContext.getGBeanInstance(module.getModuleName());
+                moduleGBeanData.addDependency(new AbstractNameQuery(earContext.getConfigID(), Collections.EMPTY_MAP, PersistenceUnitGBean.class.getName()));
+            }
+        } catch (GBeanNotFoundException e) {
+            //Module GBean not found, do nothing
+        }
     }
 
     private void buildPersistenceUnits(PersistenceDocument.Persistence persistence, Map<String, PersistenceDocument.Persistence.PersistenceUnit> overrides, Module module, String persistenceModulePath) throws DeploymentException {
