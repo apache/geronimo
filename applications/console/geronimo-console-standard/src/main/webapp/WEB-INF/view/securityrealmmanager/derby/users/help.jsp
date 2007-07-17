@@ -43,11 +43,11 @@
     <td class="LightBackground" style="padding: 10px 5px 10px 10px" valign="top">The user's email address.</td>
   </tr>
   <tr>
-    <td width="150" align="right" valign="top" class="MediumBackground" style="padding: 10px 10px 10px 5px;"><img src="/console/images/add.gif" /></td>
-    <td class="LightBackground" style="padding: 10px 5px 10px 10px" valign="top">To add the new user click the &quot;Add&quot; button.</td>
+    <td width="150" align="right" valign="top" class="MediumBackground" style="padding: 10px 10px 10px 5px;"><img src="/console/images/add.gif" alt="Add"/></td>
+    <td class="LightBackground" style="padding: 10px 5px 10px 10px" valign="top">Add a new user.</td>
   </tr>
   <tr>
-    <td width="150" align="right" valign="top" class="MediumBackground" style="padding: 10px 10px 10px 5px;"><img src="/console/images/cancel.gif" /></td>
-    <td class="LightBackground" style="padding: 10px 5px 10px 10px" valign="top">To cancel an add this button must be clicked before the &quot;Add&quot; button. It will return the previous page to the browser.</td>
+    <td width="150" align="right" valign="top" class="MediumBackground" style="padding: 10px 10px 10px 5px;"><img src="/console/images/cancel.gif" alt="Cancel"/></td>
+    <td class="LightBackground" style="padding: 10px 5px 10px 10px" valign="top">Cancel the current operation.</td>
   </tr>
 </table>

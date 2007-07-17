@@ -41,12 +41,12 @@ the refresh period.</td>
 drop-down menu. </td>
   </tr>
   <tr>
-    <td width="150" align="right" class="MediumBackground" style="padding: 10px 10px 5px 10px; font-weight: bold;"><img src="/console/images/update.gif" width="65" height="20"></td>
-    <td class="LightBackground" style="padding: 10px 5px 10px 10px;">Make changes take effect.</td>
+    <td width="150" align="right" class="MediumBackground" style="padding: 10px 10px 5px 10px; font-weight: bold;"><img src="/console/images/update.gif" width="65" height="20" alt="Update"></td>
+    <td class="LightBackground" style="padding: 10px 5px 10px 10px;">Apply the changes with the Update button.</td>
   </tr>
   <tr>
-    <td width="150" align="right" class="MediumBackground" style="padding: 10px 10px 5px 10px; font-weight: bold;"><img src="/console/images/reset.gif" width="56" height="20"></td>
-    <td class="LightBackground" style="padding: 10px 5px 10px 10px;">Resets the &quot;Config File&quot;, &quot;Refresh Period&quot; and 
+    <td width="150" align="right" class="MediumBackground" style="padding: 10px 10px 5px 10px; font-weight: bold;"><img src="/console/images/reset.gif" width="56" height="20" alt="Reset"></td>
+    <td class="LightBackground" style="padding: 10px 5px 10px 10px;">Use the Reset button to reset the &quot;Config File&quot;, &quot;Refresh Period&quot; and 
 &quot;Log Level&quot; to their settings at the last &quot;Update.&quot;
 It does not reset to the Geronimo Server defaults.</td>
   </tr>

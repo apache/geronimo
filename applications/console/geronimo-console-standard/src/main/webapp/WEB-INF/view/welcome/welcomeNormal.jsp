@@ -73,12 +73,12 @@
                     <td bgcolor="#FFFFFF" nowrap>
                         &nbsp;<br />
                         <% String consoleServletPath = PortletManager.getConsoleFrameworkServletPath(request); %>
-                        <img src="<%=consoleServletPath%>/../images/ico_db_16x16.gif" /><a href="<%=consoleServletPath%>/services/services_jdbc">Database Pools</a><br />
-                        <img src="<%=consoleServletPath%>/../images/ico_lock_16x16.gif" /><a href="<%=consoleServletPath%>/Security/Security_realms">Security Realms</a><br />
-                        <img src="<%=consoleServletPath%>/../images/ico_beanjar_16x16.gif" /><a href="<%=consoleServletPath%>/services/services_jms">JMS Resources</a><br />
-                        <img src="<%=consoleServletPath%>/../images/ico_list_16x16.gif" /><a href="<%=consoleServletPath%>/apps/apps_all">Deploy Applications</a><br />
-                        <img src="<%=consoleServletPath%>/../images/ico_servcomp_16x16.gif" /><a href="<%=consoleServletPath%>/server/server_web">Web Server Ports</a><br />
-                        <img src="<%=consoleServletPath%>/../images/ico_look_16x16.gif" /><a href="<%=consoleServletPath%>/server/server_info">Memory &amp; Uptime</a><br />
+                        <img src="<%=consoleServletPath%>/../images/ico_db_16x16.gif" alt=""/><a href="<%=consoleServletPath%>/services/services_jdbc">Database Pools</a><br />
+                        <img src="<%=consoleServletPath%>/../images/ico_lock_16x16.gif" alt=""/><a href="<%=consoleServletPath%>/Security/Security_realms">Security Realms</a><br />
+                        <img src="<%=consoleServletPath%>/../images/ico_beanjar_16x16.gif" alt=""/><a href="<%=consoleServletPath%>/services/services_jms">JMS Resources</a><br />
+                        <img src="<%=consoleServletPath%>/../images/ico_list_16x16.gif" alt=""/><a href="<%=consoleServletPath%>/apps/apps_all">Deploy Applications</a><br />
+                        <img src="<%=consoleServletPath%>/../images/ico_servcomp_16x16.gif" alt=""/><a href="<%=consoleServletPath%>/server/server_web">Web Server Ports</a><br />
+                        <img src="<%=consoleServletPath%>/../images/ico_look_16x16.gif" alt=""/><a href="<%=consoleServletPath%>/server/server_info">Memory &amp; Uptime</a><br />
                         &nbsp;<br />
                     </td>
                 </tr>
@@ -131,7 +131,7 @@
             <br />
 
             <p align="right"><font size=-1>
-            <img src="/console/images/powered_by_100x30.gif"/>
+            <img src="/console/images/powered_by_100x30.gif" alt="Powered by Apache Geronimo"/>
             </font><br />
             &nbsp;
             <font size=-1>Copyright &copy; 1999-2007 Apache Software Foundation</font><br />

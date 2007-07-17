@@ -40,16 +40,16 @@
     <td class="LightBackground" style="padding: 10px 5px 10px 10px" valign="top">If the module is deployed stand-alone this field is the &quot;configID&quot; in the geronimo-web.xml file. If it is deployed in an application (ear) this field should be the path of the module inside the ear, such as, myResourceAdapter.rar. By default this field contains &quot;defaultJMS.&quot;</td>
   </tr>
   <tr>
-    <td width="150" align="right" valign="top" class="MediumBackground" style="padding: 10px 10px 5px 10px"><img src="/console/images/submit.gif" /></td>
-    <td class="LightBackground" style="padding: 10px 5px 10px 10px" valign="top">Creates new queue or topic and returns the user to the JMS Destination Manager main page.</td>
+    <td width="150" align="right" valign="top" class="MediumBackground" style="padding: 10px 10px 5px 10px"><img src="/console/images/submit.gif" alt="Submit"/></td>
+    <td class="LightBackground" style="padding: 10px 5px 10px 10px" valign="top">The Submit button creates a new queue or topic and returns the user to the JMS Destination Manager main page.</td>
   </tr>
   <tr>
-    <td width="150" align="right" valign="top" class="MediumBackground" style="padding: 10px 10px 5px 10px"><img src="/console/images/clear.gif" /></td>
-    <td class="LightBackground" style="padding: 10px 5px 10px 10px" valign="top">Clears all fields and resets them to the defaults.</td>
+    <td width="150" align="right" valign="top" class="MediumBackground" style="padding: 10px 10px 5px 10px"><img src="/console/images/clear.gif" alt="Clear"/></td>
+    <td class="LightBackground" style="padding: 10px 5px 10px 10px" valign="top">The Clear button resets all input fields to the default values.</td>
   </tr>
   <tr>
-    <td width="150" align="right" valign="top" class="MediumBackground" style="padding: 10px 10px 5px 10px"><img src="/console/images/back.gif" /></td>
-    <td class="LightBackground" style="padding: 10px 5px 10px 10px" valign="top">Returns the user to the &quot;JMS Destination Manager&quot; main page without adding a queue or a topic.</td>
+    <td width="150" align="right" valign="top" class="MediumBackground" style="padding: 10px 10px 5px 10px"><img src="/console/images/back.gif" alt="Back"/></td>
+    <td class="LightBackground" style="padding: 10px 5px 10px 10px" valign="top">The Back button returns the user to the &quot;JMS Destination Manager&quot; main page without adding a queue or a topic.</td>
   </tr>
 </table>
 <p>On the main JMS Destination Manager pane, there is an &quot;Actions&quot; column that provides three actions which can be performed on a queue or topic. To remove a queue or topic, click on the &quot;remove&quot; link to the right of the queue/topic to be removed. To view a message, click on the &quot;view messages&quot; link to the right of the queue/topic. To view the dead letter queue, click on the &quot;view DLQ&quot; link.</p>

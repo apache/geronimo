@@ -32,12 +32,12 @@
     <td class="LightBackground" style="padding: 10px 5px 10px 10px" valign="top">Re-enter the new user's password.</td>
   </tr>
   <tr>
-    <td width="150" align="right" valign="top" class="MediumBackground" style="padding: 10px 10px 10px 5px;"><img src="/console/images/add.gif" /></td>
-    <td class="LightBackground" style="padding: 10px 5px 10px 10px" valign="top">Click on this button to create the new user and return to the main &quot;Console Realm Users&quot; 
+    <td width="150" align="right" valign="top" class="MediumBackground" style="padding: 10px 10px 10px 5px;"><img src="/console/images/add.gif" alt="Add"/></td>
+    <td class="LightBackground" style="padding: 10px 5px 10px 10px" valign="top">Create a new user and return to the main &quot;Console Realm Users&quot; 
 page. The new user will be listed there.</td>
   </tr>
   <tr>
-    <td width="150" align="right" valign="top" class="MediumBackground" style="padding: 10px 10px 10px 5px;"><img src="/console/images/cancel.gif" /></td>
-    <td class="LightBackground" style="padding: 10px 5px 10px 10px" valign="top">To cancel an add this button must be clicked before the &quot;Add&quot; button.</td>
+    <td width="150" align="right" valign="top" class="MediumBackground" style="padding: 10px 10px 10px 5px;"><img src="/console/images/cancel.gif" alt="Cancel"/></td>
+    <td class="LightBackground" style="padding: 10px 5px 10px 10px" valign="top">Cancel the current operation.</td>
   </tr>
 </table>

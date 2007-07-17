@@ -37,11 +37,11 @@
     <td class="LightBackground" style="padding: 10px 5px 10px 10px" valign="top">The box on the left lists all the current user accounts. Selecting a user and then clicking the &quot;Add&gt;&gt;&quot; button will put the user in the group. Selecting a user in the list to the right and clicking on the &quot;&lt;&lt;Remove&quot; button will delete the user from the group.</td>
   </tr>
   <tr>
-    <td width="150" align="right" valign="top" class="MediumBackground" style="padding: 10px 10px 10px 5px;"><img src="/console/images/add.gif" /></td>
-    <td class="LightBackground" style="padding: 10px 5px 10px 10px" valign="top">Clicking this button will create the new group. If users had been put in the new group, clicking &quot;Add&quot; will create the new group with the selected users in it.</td>
+    <td width="150" align="right" valign="top" class="MediumBackground" style="padding: 10px 10px 10px 5px;"><img src="/console/images/add.gif" alt="Add"/></td>
+    <td class="LightBackground" style="padding: 10px 5px 10px 10px" valign="top">Add a new group. If users have been placed in the new group, then clicking &quot;Add&quot; will create the new group with the selected users in it.</td>
   </tr>
   <tr>
-    <td width="150" align="right" valign="top" class="MediumBackground" style="padding: 10px 10px 10px 5px;"><img src="/console/images/cancel.gif" /></td>
-    <td class="LightBackground" style="padding: 10px 5px 10px 10px" valign="top">Will cancel the creation of the new group and return the previous page to the browser.</td>
+    <td width="150" align="right" valign="top" class="MediumBackground" style="padding: 10px 10px 10px 5px;"><img src="/console/images/cancel.gif" alt="Cancel"/></td>
+    <td class="LightBackground" style="padding: 10px 5px 10px 10px" valign="top">Cancel the current operation.</td>
   </tr>
 </table>

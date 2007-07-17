@@ -31,7 +31,7 @@
     <td class="LightBackground" style="padding: 10px 5px 10px 10px">Check this to automatically start the application when it is installed. Otherwise, the user can start the application by clicking on the associated &quot;Start&quot; toggle in the&quot;Installed Applications&quot; window. By default this checkbox is checked and newly installed applications will automatically be started.</td>
   </tr>
   <tr>
-    <td width="150" align="right" valign="top" class="MediumBackground" style="padding: 10px 10px 5px 10px"><img src="/console/images/install.gif" /></td>
-    <td class="LightBackground" style="padding: 10px 5px 10px 10px">Click on Install to install the application in the Geronimo server.</td>
+    <td width="150" align="right" valign="top" class="MediumBackground" style="padding: 10px 10px 5px 10px"><img src="/console/images/install.gif" alt="Install"/></td>
+    <td class="LightBackground" style="padding: 10px 5px 10px 10px">Install the application in the Geronimo server.</td>
   </tr>
 </table>
