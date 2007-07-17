@@ -246,9 +246,6 @@ public class KernelConfigurationManager extends SimpleConfigurationManager imple
     protected void unload(Configuration configuration) {
         Artifact configurationId = configuration.getId();
         unload(configurationId);
-        if (configurationList != null) {
-            configurationList.removeConfiguration( configurationId );
-        }
     }
 
     private void unload(Artifact configurationId) {
@@ -281,6 +278,12 @@ public class KernelConfigurationManager extends SimpleConfigurationManager imple
         }
     }
 
+    protected void uninstall(Artifact configurationId) {
+        if (configurationList != null) {
+            configurationList.removeConfiguration( configurationId );
+        }
+    }
+    
     public void doStart() {
         kernel.registerShutdownHook(shutdownHook);
     }

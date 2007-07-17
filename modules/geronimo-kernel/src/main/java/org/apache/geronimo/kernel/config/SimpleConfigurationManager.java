@@ -1242,6 +1242,7 @@ public class SimpleConfigurationManager implements ConfigurationManager {
             }
         }
 
+        uninstall(configurationId);
         List storeSnapshot = getStoreList();
         for (int i = 0; i < storeSnapshot.size(); i++) {
             ConfigurationStore store = (ConfigurationStore) storeSnapshot.get(i);
@@ -1252,6 +1253,10 @@ public class SimpleConfigurationManager implements ConfigurationManager {
 
         removeConfigurationFromModel(configurationId);
         notifyWatchers(configurationId);
+    }
+
+    protected void uninstall(Artifact configurationId) {
+        //child class can override this method
     }
 
     private void notifyWatchers(Artifact id) {
