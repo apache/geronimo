@@ -27,10 +27,10 @@ limitations under the License.
   				 <tr><td CLASS="ReallyDarkBackground"><STRONG>&nbsp;Console Navigation</strong></TD></TR>
   				 <tr><td><div class="Selection"><table width="100%" border="0" cellpadding="0" cellspacing="0">
               <tr>
-							  <td class="CollapsedLeft"><img src="<%=request.getContextPath()%>/images/spacer.gif" width="1" height="1"/></td>
-								<td class="Indent"><img src="<%=request.getContextPath()%>/images/spacer.gif" width="1" height="1"/></td>
-							  <td class="TopMiddle"><img src="<%=request.getContextPath()%>/images/spacer.gif" width="1" height="1"/></td>
-                <td class="CollapsedRight"><img src="<%=request.getContextPath()%>/images/spacer.gif" width="1" height="1"/></td> 
+							  <td class="CollapsedLeft"><img src="<%=request.getContextPath()%>/images/spacer.gif" width="1" height="1" alt=""/></td>
+								<td class="Indent"><img src="<%=request.getContextPath()%>/images/spacer.gif" width="1" height="1" alt=""/></td>
+							  <td class="TopMiddle"><img src="<%=request.getContextPath()%>/images/spacer.gif" width="1" height="1" alt=""/></td>
+                <td class="CollapsedRight"><img src="<%=request.getContextPath()%>/images/spacer.gif" width="1" height="1" alt=""/></td> 
               </tr>
 						</table></div></td></tr>
 <%
@@ -92,7 +92,7 @@ limitations under the License.
 <%
               }
 %>
-             <a href="<%=new PortalURL(request, nav.getLinkedFragment()).toString()%>"><img border="0" src="<%=request.getContextPath()%>/images/<%=imageName%>"/>&nbsp;<%=nav.getTitle()%></a>
+             <a href="<%=new PortalURL(request, nav.getLinkedFragment()).toString()%>"><img border="0" src="<%=request.getContextPath()%>/images/<%=imageName%>" alt=""/>&nbsp;<%=nav.getTitle()%></a>
 
                   </td> 
                   <td class="Right">&nbsp;</td> 
@@ -112,12 +112,12 @@ limitations under the License.
 <%
 							  if (!partOfNav)
 								{
-%>                  <a href="<%=new PortalURL(request, nav.getLinkedFragment()).toString()%>"><img border="0" src="<%=request.getContextPath()%>/images/<%=imageName%>"/>&nbsp;<%=nav.getTitle()%></a>
+%>                  <a href="<%=new PortalURL(request, nav.getLinkedFragment()).toString()%>"><img border="0" src="<%=request.getContextPath()%>/images/<%=imageName%>" alt=""/>&nbsp;<%=nav.getTitle()%></a>
 <%
 								}
 								else
 								{
-%>                  <img border="0" src="<%=request.getContextPath()%>/images/<%=imageName%>"/>&nbsp;<%=nav.getTitle()%>
+%>                  <img border="0" src="<%=request.getContextPath()%>/images/<%=imageName%>" alt=""/>&nbsp;<%=nav.getTitle()%>
 <%
 								}
 %>
@@ -132,10 +132,10 @@ limitations under the License.
 %>
   				 <tr><td><div class="Selection"><table width="100%" border="0" cellpadding="0" cellspacing="0">
               <tr>
-							  <td class="CollapsedLeft"><img src="<%=request.getContextPath()%>/images/spacer.gif" width="1" height="1"/></td>
-								<td class="Indent"><img src="<%=request.getContextPath()%>/images/spacer.gif" width="1" height="1"/></td>
-							  <td class="TopMiddle"><img src="<%=request.getContextPath()%>/images/spacer.gif" width="1" height="1"/></td>
-                <td class="CollapsedRight"><img src="<%=request.getContextPath()%>/images/spacer.gif" width="1" height="1"/></td> 
+							  <td class="CollapsedLeft"><img src="<%=request.getContextPath()%>/images/spacer.gif" width="1" height="1" alt=""/></td>
+								<td class="Indent"><img src="<%=request.getContextPath()%>/images/spacer.gif" width="1" height="1" alt=""/></td>
+							  <td class="TopMiddle"><img src="<%=request.getContextPath()%>/images/spacer.gif" width="1" height="1" alt=""/></td>
+                <td class="CollapsedRight"><img src="<%=request.getContextPath()%>/images/spacer.gif" width="1" height="1" alt=""/></td> 
               </tr>
 						</table></div></td></tr>
   </table>

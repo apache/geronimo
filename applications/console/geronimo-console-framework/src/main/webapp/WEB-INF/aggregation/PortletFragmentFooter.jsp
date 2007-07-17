@@ -21,9 +21,9 @@ limitations under the License.
 													<td class="Right">&nbsp;</td>
 											  </tr>
 											  <tr>
-												  <td class="Left"><img src="<%=request.getContextPath()%>/images/spacer.gif" width="1" height="5px"></td>
-												  <td class="Body"><img src="<%=request.getContextPath()%>/images/spacer.gif" width="1" height="1"></td>
-													<td class="Right"><img src="<%=request.getContextPath()%>/images/spacer.gif" width="1" height="1"></td>
+												  <td class="Left"><img src="<%=request.getContextPath()%>/images/spacer.gif" width="1" height="5px" alt=""></td>
+												  <td class="Body"><img src="<%=request.getContextPath()%>/images/spacer.gif" width="1" height="1" alt=""></td>
+													<td class="Right"><img src="<%=request.getContextPath()%>/images/spacer.gif" width="1" height="1" alt=""></td>
 											  </tr>
 											</table>
 										</div>

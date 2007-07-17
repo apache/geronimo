@@ -24,7 +24,7 @@ limitations under the License.
 								  <div class="Content"> 
                     <table width="100%"  border="0" cellspacing="0" cellpadding="0"> 
                       <tr> 
-                        <td class="TopLeft"><img src="<%=request.getContextPath()%>/images/spacer.gif" width="1" height="1"></td> 
+                        <td class="TopLeft"><img src="<%=request.getContextPath()%>/images/spacer.gif" width="1" height="1" alt=""></td> 
                         <td>
 												  <table width="100%"  border="0" cellspacing="0" cellpadding="0"> 
                             <tr> 
@@ -58,7 +58,7 @@ limitations under the License.
                             </tr> 
                           </table>
 													</td> 
-                        <td class="TopRight"><img src="<%=request.getContextPath()%>/images/spacer.gif" width="1" height="1"></td> 
+                        <td class="TopRight"><img src="<%=request.getContextPath()%>/images/spacer.gif" width="1" height="1" alt=""></td> 
                       </tr> 
                     </table> 
 								    </div> 
@@ -69,9 +69,9 @@ limitations under the License.
 									  <div class="Content">
                       <table width="100%"  border="0" cellspacing="0" cellpadding="0"> 
 											  <tr>
-												  <td class="Left"><img src="<%=request.getContextPath()%>/images/spacer.gif" width="1" height="5px"></td>
-												  <td class="Body"><img src="<%=request.getContextPath()%>/images/spacer.gif" width="1" height="1"></td>
-													<td class="Right"><img src="<%=request.getContextPath()%>/images/spacer.gif" width="1" height="1"></td>
+												  <td class="Left"><img src="<%=request.getContextPath()%>/images/spacer.gif" width="1" height="5px" alt=""></td>
+												  <td class="Body"><img src="<%=request.getContextPath()%>/images/spacer.gif" width="1" height="1" alt=""></td>
+													<td class="Right"><img src="<%=request.getContextPath()%>/images/spacer.gif" width="1" height="1" alt=""></td>
 											  </tr>
                         <tr> 
                           <td class="Left">&nbsp;</td> 
