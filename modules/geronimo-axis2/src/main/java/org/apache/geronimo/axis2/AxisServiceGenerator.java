@@ -42,8 +42,6 @@ import org.apache.axis2.Constants;
 import org.apache.axis2.description.AxisOperation;
 import org.apache.axis2.description.AxisService;
 import org.apache.axis2.description.Parameter;
-import org.apache.axis2.description.WSDL11ToAxisServiceBuilder;
-import org.apache.axis2.description.WSDLToAxisServiceBuilder;
 import org.apache.axis2.description.java2wsdl.Java2WSDLConstants;
 import org.apache.axis2.engine.MessageReceiver;
 import org.apache.axis2.jaxws.description.DescriptionFactory;
@@ -57,7 +55,6 @@ import org.apache.axis2.jaxws.description.builder.WebServiceProviderAnnot;
 import org.apache.axis2.jaxws.description.builder.WsdlComposite;
 import org.apache.axis2.jaxws.description.builder.WsdlGenerator;
 import org.apache.axis2.jaxws.description.builder.converter.JavaClassToDBCConverter;
-import org.apache.axis2.jaxws.description.impl.URIResolverImpl;
 import org.apache.axis2.jaxws.server.JAXWSMessageReceiver;
 import org.apache.axis2.wsdl.WSDLUtil;
 import org.apache.commons.logging.Log;
@@ -172,20 +169,11 @@ public class AxisServiceGenerator {
                 }               
             }
         }
-                
-        WSDLToAxisServiceBuilder wsdlBuilder = new WSDL11ToAxisServiceBuilder(wsdlDefinition, serviceQName , portQName.getLocalPart());
-        wsdlBuilder.setCustomResolver(new URIResolverImpl(classLoader));
-        
-        //populate with axis2 objects
-        AxisService service = wsdlBuilder.populateService();
-        service.addParameter(new Parameter(Constants.SERVICE_CLASS, endpointClassName));
-        service.setWsdlFound(true);
-        service.setClassLoader(classLoader);
         
         Class endPointClass = classLoader.loadClass(endpointClassName);
         JavaClassToDBCConverter converter = new JavaClassToDBCConverter(endPointClass);
         HashMap<String, DescriptionBuilderComposite> dbcMap = converter.produceDBC();
-
+       
         DescriptionBuilderComposite dbc = dbcMap.get(endpointClassName);
         dbc.setClassLoader(classLoader);
         dbc.setWsdlDefinition(wsdlDefinition);
@@ -195,8 +183,8 @@ public class AxisServiceGenerator {
         if (dbc.getWebServiceAnnot() != null) { //information specified in .wsdl should overwrite annotation.
             WebServiceAnnot serviceAnnot = dbc.getWebServiceAnnot();
             serviceAnnot.setPortName(portQName.getLocalPart());
-            serviceAnnot.setServiceName(service.getName());
-            serviceAnnot.setTargetNamespace(service.getTargetNamespace());
+            serviceAnnot.setServiceName(serviceQName.getLocalPart());
+            serviceAnnot.setTargetNamespace(serviceQName.getNamespaceURI());
             if (dbc.getBindingTypeAnnot() !=null && bindingS != null && !bindingS.equals("")) {
                 BindingTypeAnnot bindingAnnot = dbc.getBindingTypeAnnot();
                 bindingAnnot.setValue(bindingS);
@@ -204,14 +192,19 @@ public class AxisServiceGenerator {
         } else if (dbc.getWebServiceProviderAnnot() != null) { 
             WebServiceProviderAnnot serviceProviderAnnot = dbc.getWebServiceProviderAnnot(); 
             serviceProviderAnnot.setPortName(portQName.getLocalPart());
-            serviceProviderAnnot.setServiceName(service.getName());
-            serviceProviderAnnot.setTargetNamespace(service.getTargetNamespace());
+            serviceProviderAnnot.setServiceName(serviceQName.getLocalPart());
+            serviceProviderAnnot.setTargetNamespace(serviceQName.getNamespaceURI());
             if (dbc.getBindingTypeAnnot() !=null && bindingS != null && !bindingS.equals("")) {
                 BindingTypeAnnot bindingAnnot = dbc.getBindingTypeAnnot();
                 bindingAnnot.setValue(bindingS);
             }
         }
 
+        AxisService service = getService(dbcMap);       
+        
+        service.setName(serviceQName.getLocalPart());
+        service.setEndpointName(portQName.getLocalPart());
+        
         for(Iterator<AxisOperation> opIterator = service.getOperations() ; opIterator.hasNext() ;){
             AxisOperation operation = opIterator.next();
             operation.setMessageReceiver(this.messageReceiver);
@@ -225,19 +218,25 @@ public class AxisServiceGenerator {
                 }
             }
         }
-        
-        List<ServiceDescription> serviceDescList = DescriptionFactory.createServiceDescriptionFromDBCMap(dbcMap);
-        if ((serviceDescList != null) && (serviceDescList.size() > 0)) {
-            ServiceDescription serviceDescription = serviceDescList.get(0);
-            EndpointDescription[] edArray = serviceDescription.getEndpointDescriptions();
-            Parameter serviceDescriptionParam = 
-                new Parameter(EndpointDescription.AXIS_SERVICE_PARAMETER, edArray[0]);
-            service.addParameter(serviceDescriptionParam);
-        } else {
-            log.debug("No ServiceDescriptions found.");
-        }
 
         return service;
+    }
+
+    private AxisService getService(HashMap<String, DescriptionBuilderComposite> dbcMap) {
+        return getEndpointDescription(dbcMap).getAxisService();
+    }
+        
+    private EndpointDescription getEndpointDescription(HashMap<String, DescriptionBuilderComposite> dbcMap) {
+        List<ServiceDescription> serviceDescList = DescriptionFactory.createServiceDescriptionFromDBCMap(dbcMap);
+        if (serviceDescList == null || serviceDescList.isEmpty()) {
+            throw new RuntimeException("No service");
+        }
+        ServiceDescription serviceDescription = serviceDescList.get(0);
+        EndpointDescription[] edArray = serviceDescription.getEndpointDescriptions();  
+        if (edArray == null || edArray.length == 0) {
+            throw new RuntimeException("No endpoint");
+        }
+        return edArray[0];
     }
 
     private class WSDLGeneratorImpl implements WsdlGenerator {
