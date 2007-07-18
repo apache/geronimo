@@ -57,14 +57,4 @@
       <groupId>asm</groupId>
       <artifactId>asm-commons</artifactId>
     </dependency>
-    <!-- castor -->
-    <dependency>
-      <groupId>org.codehaus.castor</groupId>
-      <artifactId>castor</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>oro</groupId>
-      <artifactId>oro</artifactId>
-    </dependency>
-    <!-- end castor -->
 </service>

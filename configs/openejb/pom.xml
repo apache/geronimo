@@ -139,12 +139,6 @@
              <artifactId>xbean-finder</artifactId>
         </dependency>
 
-        <!-- required for castor -->
-        <dependency>
-             <groupId>xerces</groupId>
-             <artifactId>xercesImpl</artifactId>
-        </dependency>
-
     </dependencies>
 
 </project>
