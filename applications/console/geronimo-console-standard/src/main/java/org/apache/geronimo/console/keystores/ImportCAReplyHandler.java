@@ -59,6 +59,9 @@ public class ImportCAReplyHandler extends BaseKeystoreHandler {
     	if("Cancel".equals(request.getParameter("submit")))
     		return CERTIFICATE_DETAILS+BEFORE_ACTION;
         String pkcs7cert = request.getParameter("pkcs7cert");
+        if(pkcs7cert != null) {
+            pkcs7cert = pkcs7cert.trim();
+        }
         KeystoreData data = ((KeystoreData) request.getPortletSession(true).getAttribute(KEYSTORE_DATA_PREFIX + id));
         try {
             data.importPKCS7Certificate(alias, pkcs7cert);
