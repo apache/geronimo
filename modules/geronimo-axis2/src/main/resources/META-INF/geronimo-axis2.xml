@@ -216,6 +216,11 @@
                      class="org.apache.axis2.jaxws.dispatchers.GenericProviderDispatcher">
                 <order phase="Dispatch"/>
             </handler>
+
+            <handler name="MustUnderstandValidationDispatcher"
+                     class="org.apache.axis2.jaxws.dispatchers.MustUnderstandValidationDispatcher">
+                <order phase="Dispatch"/>
+            </handler>
         </phase>
         <phase name="RMPhase"/>
         <!--  System pre defined phases       -->
@@ -271,6 +276,11 @@
 
             <handler name="GenericProviderDispatcher"
                      class="org.apache.axis2.jaxws.dispatchers.GenericProviderDispatcher">
+                <order phase="Dispatch"/>
+            </handler>
+
+            <handler name="MustUnderstandValidationDispatcher"
+                     class="org.apache.axis2.jaxws.dispatchers.MustUnderstandValidationDispatcher">
                 <order phase="Dispatch"/>
             </handler>
         </phase>
