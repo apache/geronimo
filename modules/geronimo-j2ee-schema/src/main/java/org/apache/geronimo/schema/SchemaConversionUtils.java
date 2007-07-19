@@ -44,8 +44,9 @@ public class SchemaConversionUtils {
     static final String GERONIMO_NAMING_NAMESPACE = "http://geronimo.apache.org/xml/ns/naming-1.2";
     private static final String GERONIMO_SECURITY_NAMESPACE = "http://geronimo.apache.org/xml/ns/security-2.0";
     private static final String GERONIMO_SERVICE_NAMESPACE = "http://geronimo.apache.org/xml/ns/deployment-1.2";
+    private static final String JPA_PERSISTENCE_NAMESPACE = "http://java.sun.com/xml/ns/persistence";
 
-    private static final Map GERONIMO_SCHEMA_CONVERSIONS = new HashMap();
+    private static final Map<String, ElementConverter> GERONIMO_SCHEMA_CONVERSIONS = new HashMap<String, ElementConverter>();
 
     static {
 
@@ -68,6 +69,7 @@ public class SchemaConversionUtils {
         GERONIMO_SCHEMA_CONVERSIONS.put("environment", new NamespaceElementConverter(GERONIMO_SERVICE_NAMESPACE));
         GERONIMO_SCHEMA_CONVERSIONS.put("client-environment", new NamespaceElementConverter(GERONIMO_SERVICE_NAMESPACE));
         GERONIMO_SCHEMA_CONVERSIONS.put("server-environment", new NamespaceElementConverter(GERONIMO_SERVICE_NAMESPACE));
+        GERONIMO_SCHEMA_CONVERSIONS.put("persistence", new NamespaceElementConverter(JPA_PERSISTENCE_NAMESPACE));
     }
 
     private SchemaConversionUtils() {
