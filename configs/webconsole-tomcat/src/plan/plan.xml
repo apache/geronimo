@@ -30,6 +30,12 @@
                     <artifactId>castor</artifactId>
                     <type>jar</type>
                 </dependency>
+                <!-- Required for Castor -->
+                <dependency>
+                    <groupId>xerces</groupId>
+                    <artifactId>xercesImpl</artifactId>
+                    <type>jar</type>
+                </dependency>
                 <dependency>
                     <groupId>org.apache.pluto</groupId>
                     <artifactId>pluto-descriptors</artifactId>

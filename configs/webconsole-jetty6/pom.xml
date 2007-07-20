@@ -173,6 +173,12 @@
             <artifactId>castor</artifactId>
         </dependency>
 
+        <!-- required for castor -->
+        <dependency>
+            <groupId>xerces</groupId>
+            <artifactId>xercesImpl</artifactId>
+        </dependency>
+
         <dependency>
             <groupId>commons-digester</groupId>
             <artifactId>commons-digester</artifactId>
