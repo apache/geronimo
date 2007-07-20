@@ -385,6 +385,8 @@ public abstract class Axis2WebServiceContainer implements WebServiceContainer {
             }
             
             this.binding = BindingUtils.createBinding(desc);
+            
+            DescriptionUtils.registerHandlerHeaders(desc.getAxisService(), this.binding.getHandlerChain());            
         }
     }
 
