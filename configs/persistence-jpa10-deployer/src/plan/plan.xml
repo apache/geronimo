@@ -26,7 +26,7 @@
         <attribute name="defaultPersistenceUnitProperties">
             openjpa.Log=commons
             openjpa.jdbc.DBDictionary=org.apache.openjpa.jdbc.sql.DerbyDictionary
-            openjpa.jdbc.SynchronizeMappings=buildSchema(ForeignKeys=true,SchemaAction='add,deleteTableContents')
+            openjpa.jdbc.SynchronizeMappings=buildSchema(ForeignKeys=true)
             openjpa.jdbc.UpdateManager=operation-order
             openjpa.Sequence=table(Table=OPENJPASEQ, Increment=100)
         </attribute>
