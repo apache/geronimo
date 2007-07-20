@@ -144,8 +144,12 @@ public abstract class JAXWSServiceReference extends SimpleReference implements C
 
     protected abstract HandlerResolver getHandlerResolver(Class serviceClass);
 
+    protected PortMethodInterceptor getPortMethodInterceptor() {
+        return new PortMethodInterceptor(this.seiInfoMap);
+    }
+    
     private Service createServiceProxy(Class superClass, ClassLoader classLoader, QName serviceName, URL wsdlLocation) throws NamingException {
-        Callback callback = new PortMethodInterceptor(this.seiInfoMap);
+        Callback callback = getPortMethodInterceptor();
         Callback[] methodInterceptors = new Callback[]{NoOp.INSTANCE, callback};
 
         Enhancer enhancer = new Enhancer();
