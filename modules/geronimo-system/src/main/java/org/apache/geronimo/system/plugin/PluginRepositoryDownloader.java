@@ -16,19 +16,23 @@
  */
 package org.apache.geronimo.system.plugin;
 
-import java.net.URL;
-import java.net.MalformedURLException;
-import java.util.List;
-import java.util.ArrayList;
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URL;
+import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.List;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
+import org.apache.geronimo.kernel.Kernel;
 
 /**
  * An implementation of PluginRepositoryList that downloads plugins from
@@ -38,15 +42,15 @@ import org.apache.geronimo.gbean.GBeanInfoBuilder;
  */
 public class PluginRepositoryDownloader implements PluginRepositoryList {
     private final static Log log = LogFactory.getLog(PluginRepositoryDownloader.class);
-    private List downloadRepositories = new ArrayList();
-    private List userRepositories = new ArrayList();
+    private List<String> downloadRepositories = new ArrayList<String>();
+    private List<String> userRepositories = new ArrayList<String>();
     private Kernel kernel;
     private AbstractName name;
     private URL repositoryList;
 
-    public PluginRepositoryDownloader(List downloadRepositories, List userRepositories, URL repositoryList, Kernel kernel, AbstractName name) {
-        if(downloadRepositories != null) this.downloadRepositories = downloadRepositories;
-        if(userRepositories != null) this.userRepositories = userRepositories;
+    public PluginRepositoryDownloader(List<String> downloadRepositories, List<String> userRepositories, URL repositoryList, Kernel kernel, AbstractName name) {
+        if (downloadRepositories != null) this.downloadRepositories = downloadRepositories;
+        if (userRepositories != null) this.userRepositories = userRepositories;
         this.repositoryList = repositoryList;
         this.kernel = kernel;
         this.name = name;
@@ -55,41 +59,56 @@ public class PluginRepositoryDownloader implements PluginRepositoryList {
     /**
      * The list of repositories that were downloaded from central.
      */
-    public void setDownloadRepositories(List downloadRepositories) {
+    public void setDownloadRepositories(List<String> downloadRepositories) {
         this.downloadRepositories = downloadRepositories;
-        if(this.downloadRepositories == null) this.downloadRepositories = new ArrayList();
+        if (this.downloadRepositories == null) this.downloadRepositories = new ArrayList<String>();
     }
 
     /**
      * Any repositories that the user added manually
      */
-    public void setUserRepositories(List userRepositories) {
+    public void setUserRepositories(List<String> userRepositories) {
         this.userRepositories = userRepositories;
-        if(this.userRepositories == null) this.userRepositories = new ArrayList();
+        if (this.userRepositories == null) this.userRepositories = new ArrayList<String>();
     }
 
     /**
      * Gets the union of centrally-listed repositories and user-added repositories.
      */
     public URL[] getRepositories() {
-        List list = new ArrayList();
-        for (int i = 0; i < downloadRepositories.size(); i++) {
-            String url = (String) downloadRepositories.get(i);
+        List<URL> list = new ArrayList<URL>();
+        for (String url : downloadRepositories) {
             try {
                 list.add(new URL(url.trim()));
             } catch (MalformedURLException e) {
-                log.error("Unable to format plugin repository URL "+url, e);
+                log.error("Unable to format plugin repository URL " + url, e);
             }
         }
-        for (int i = 0; i < userRepositories.size(); i++) {
-            String url = (String) userRepositories.get(i);
+        for (String userRepository : userRepositories) {
+            userRepository = userRepository.trim();
             try {
-                list.add(new URL(url.trim()));
+                URI uri = new URI(userRepository);
+                if (uri.getScheme() == null) {
+                    if (uri.isAbsolute()) {
+                        URL url = new URI("file", userRepository, null).toURL();
+                        list.add(url);
+                    } else if (userRepository.startsWith("~")) {
+                        userRepository = userRepository.substring(2);
+                        URI fullUri = new URI("file", System.getProperty("user.home") + "/", null).resolve(userRepository);
+                        list.add(fullUri.toURL());
+                    } else {
+                        log.error("Can't interpret path: " + userRepository);
+                    }
+                } else {
+                    list.add(uri.toURL());
+                }
             } catch (MalformedURLException e) {
-                log.error("Unable to format plugin repository URL "+url, e);
+                log.error("Unable to format plugin repository URL " + userRepository, e);
+            } catch (URISyntaxException e) {
+                log.error("Unable to format plugin repository URL " + userRepository, e);
             }
         }
-        return (URL[]) list.toArray(new URL[list.size()]);
+        return list.toArray(new URL[list.size()]);
     }
 
     /**
@@ -100,15 +119,16 @@ public class PluginRepositoryDownloader implements PluginRepositoryList {
         try {
             in = new BufferedReader(new InputStreamReader(repositoryList.openStream()));
             String line;
-            List list = new ArrayList();
-            while((line = in.readLine()) != null) {
+            List<String> list = new ArrayList<String>();
+            while ((line = in.readLine()) != null) {
                 line = line.trim();
-                if(!line.equals("") && !line.startsWith("#")) {
+                if (!line.equals("") && !line.startsWith("#")) {
                     list.add(line);
                 }
             }
             in.close();
             in = null;
+            //this saves the new value in config.xml
             kernel.setAttribute(name, "downloadRepositories", list);
         } catch (Exception e) {
             log.error("Unable to save download repositories", e);
@@ -116,7 +136,8 @@ public class PluginRepositoryDownloader implements PluginRepositoryList {
             if (in != null) {
                 try {
                     in.close();
-                } catch (IOException ignored) {}
+                } catch (IOException ignored) {
+                }
             }
         }
     }
@@ -144,7 +165,7 @@ public class PluginRepositoryDownloader implements PluginRepositoryList {
         infoFactory.addAttribute("kernel", Kernel.class, false);
         infoFactory.addAttribute("abstractName", AbstractName.class, false);
         infoFactory.addInterface(PluginRepositoryList.class);
-        infoFactory.setConstructor(new String[]{"downloadRepositories","userRepositories","repositoryList","kernel","abstractName"});
+        infoFactory.setConstructor(new String[]{"downloadRepositories", "userRepositories", "repositoryList", "kernel", "abstractName"});
 
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
