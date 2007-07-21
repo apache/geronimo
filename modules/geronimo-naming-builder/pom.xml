@@ -56,9 +56,6 @@
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>xmlbeans-maven-plugin</artifactId>
-                <configuration>
-                    <sourceSchemas>geronimo-naming-1.2.xsd</sourceSchemas>
-                </configuration>
             </plugin>
             
             <!--

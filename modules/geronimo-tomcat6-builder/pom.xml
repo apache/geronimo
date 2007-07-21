@@ -114,9 +114,6 @@
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>xmlbeans-maven-plugin</artifactId>
-                <configuration>
-                    <sourceSchemas>geronimo-tomcat-1.2.xsd,geronimo-tomcat-config-1.0.xsd</sourceSchemas>
-                </configuration>
             </plugin>
 
             <plugin>

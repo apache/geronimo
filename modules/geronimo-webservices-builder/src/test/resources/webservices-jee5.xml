@@ -30,7 +30,7 @@
         <wsdl-file>WEB-INF/wsdl/greeter_control.wsdl</wsdl-file>
         <port-component>
             <port-component-name>cxfPojoName</port-component-name>
-            <wsdl-service></wsdl-service>
+            <wsdl-service>webservices</wsdl-service>
             <enable-mtom>false</enable-mtom>
             <service-endpoint-interface>org.apache.greeter_control.Greeter</service-endpoint-interface>
             <service-impl-bean>

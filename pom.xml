@@ -542,9 +542,9 @@
             </dependency>
 
             <dependency>
-                <groupId>xmlbeans</groupId>
-                <artifactId>xbean</artifactId>
-                <version>2.2.0</version>
+                <groupId>org.apache.xmlbeans</groupId>
+                <artifactId>xmlbeans</artifactId>
+                <version>2.3.0</version>
             </dependency>
 
             <dependency>
@@ -1525,7 +1525,7 @@
                 <plugin>
                     <groupId>org.codehaus.mojo</groupId>
                     <artifactId>xmlbeans-maven-plugin</artifactId>
-                    <version>2.0.1-20070122.162531-10</version>
+                    <version>2.3.1-20070720.222301-1</version>
 
                     <executions>
                         <execution>
@@ -1536,14 +1536,11 @@
                     </executions>
 
                     <configuration>
-                        <schemaDirectory>${pom.basedir}/src/main/schema</schemaDirectory>
-                        <xmlConfigs>
-                            <xmlConfig implementation="java.io.File">${pom.basedir}/src/main/schema/xmlconfig.xml</xmlConfig>
-                        </xmlConfigs>
                         <download>true</download>
                         <quiet>false</quiet>
                     </configuration>
                 </plugin>
+
 
                 <plugin>
                     <groupId>org.codehaus.mojo.jspc</groupId>

@@ -74,9 +74,6 @@
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>xmlbeans-maven-plugin</artifactId>
-                <configuration>
-                    <sourceSchemas>wsdl.xsd</sourceSchemas>
-                </configuration>
             </plugin>
             
             <!--
