@@ -135,19 +135,23 @@
             <type>car</type>
         </dependency>
 
+<!--
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
             <artifactId>directory</artifactId>
             <version>${version}</version>
             <type>car</type>
         </dependency>
+-->
 
+<!--
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
             <artifactId>ldap-realm</artifactId>
             <version>${version}</version>
             <type>car</type>
         </dependency>
+-->
 
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>

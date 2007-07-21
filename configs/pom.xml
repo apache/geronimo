@@ -120,7 +120,7 @@
         <module>client-transaction</module>
         <module>connector-deployer</module>
         <module>clustering</module>
-        <module>directory</module>
+        <!--<module>directory</module>-->
         <module>xmlbeans</module>
         <module>geronimo-gbean-deployer</module>
         <module>hot-deployer</module>
@@ -140,9 +140,9 @@
         <module>jsr88-rar-configurer</module>
         <module>jsr88-war-configurer</module>
         <module>jsr88-ear-configurer</module>
-        <module>ldap-demo-jetty</module>
-        <module>ldap-demo-tomcat</module>
-        <module>ldap-realm</module>
+        <!--<module>ldap-demo-jetty</module>-->
+        <!--<module>ldap-demo-tomcat</module>-->
+        <!--<module>ldap-realm</module>-->
         <module>offline-deployer</module>
         <module>online-deployer</module>
         <module>openejb</module>

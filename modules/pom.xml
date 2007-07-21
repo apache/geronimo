@@ -64,7 +64,7 @@
         <module>geronimo-deploy-tool</module>
         <module>geronimo-deployment</module>
         <module>geronimo-derby</module>
-        <module>geronimo-directory</module>
+        <!--<module>geronimo-directory</module>-->
         <module>geronimo-hot-deploy</module>
         <module>geronimo-interceptor</module>
         <module>geronimo-j2ee</module>
