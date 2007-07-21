@@ -23,8 +23,6 @@
     <gbean name="JettyClusteringBuilder" class="org.apache.geronimo.jetty6.cluster.wadi.builder.WADIJettyClusteringBuilder">
         <attribute name="defaultSweepInterval">${PlanDefaultSweepInterval}</attribute>
         <attribute name="defaultNumPartitions">${PlanDefaultNumPartitions}</attribute>
-        <attribute name="defaultReplicationManagerFactoryName">?name=DefaultReplicationManagerFactory</attribute>
-        <attribute name="defaultReplicaStorageFactoryName">?name=DefaultReplicaStorageFactory</attribute>
         <attribute name="defaultBackingStrategyFactoryName">?name=DefaultBackingStrategyFactory</attribute>
         <attribute name="defaultClusterName">?name=DefaultCluster</attribute>
         <xml-attribute name="defaultEnvironment">

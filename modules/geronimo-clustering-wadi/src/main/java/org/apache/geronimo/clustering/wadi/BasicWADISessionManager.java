@@ -39,8 +39,6 @@ import org.codehaus.wadi.core.manager.Manager;
 import org.codehaus.wadi.core.manager.SessionMonitor;
 import org.codehaus.wadi.group.Dispatcher;
 import org.codehaus.wadi.group.Peer;
-import org.codehaus.wadi.replication.manager.ReplicationManagerFactory;
-import org.codehaus.wadi.replication.storage.ReplicaStorageFactory;
 import org.codehaus.wadi.replication.strategy.BackingStrategyFactory;
 import org.codehaus.wadi.servicespace.ServiceSpace;
 import org.codehaus.wadi.servicespace.ServiceSpaceName;
@@ -52,10 +50,9 @@ import org.codehaus.wadi.servicespace.ServiceSpaceName;
 public class BasicWADISessionManager implements GBeanLifecycle, SessionManager, WADISessionManager {
     private static final Log log = LogFactory.getLog(BasicWADISessionManager.class);
 
+    private final ClassLoader cl;
     private final WADICluster cluster;
     private final WADISessionManagerConfigInfo configInfo;
-    private final ReplicationManagerFactory repManagerFactory;
-    private final ReplicaStorageFactory repStorageFactory;
     private final BackingStrategyFactory backingStrategyFactory;
     private final CopyOnWriteArrayList<SessionListener> listeners;
 
@@ -63,15 +60,14 @@ public class BasicWADISessionManager implements GBeanLifecycle, SessionManager, 
     private SessionMonitor sessionMonitor;
     private ServiceSpace serviceSpace;
 
-    public BasicWADISessionManager(WADISessionManagerConfigInfo configInfo,
+
+    public BasicWADISessionManager(ClassLoader cl,
+            WADISessionManagerConfigInfo configInfo,
             WADICluster cluster,
-            ReplicationManagerFactory repManagerFactory,
-            ReplicaStorageFactory repStorageFactory,
             BackingStrategyFactory backingStrategyFactory) {
+        this.cl = cl;
         this.configInfo = configInfo;
         this.cluster = cluster;
-        this.repManagerFactory = repManagerFactory;
-        this.repStorageFactory = repStorageFactory;
         this.backingStrategyFactory = backingStrategyFactory;
 
         listeners = new CopyOnWriteArrayList<SessionListener>();
@@ -81,13 +77,12 @@ public class BasicWADISessionManager implements GBeanLifecycle, SessionManager, 
         Dispatcher underlyingDisp = cluster.getCluster().getDispatcher();
         
         ServiceSpaceName serviceSpaceName = new ServiceSpaceName(configInfo.getServiceSpaceURI());
-        StackContext stackContext = new StackContext(serviceSpaceName,
+        StackContext stackContext = new StackContext(cl,
+                serviceSpaceName,
                 underlyingDisp,
                 configInfo.getSessionTimeoutSeconds(),
                 configInfo.getNumPartitions(),
                 configInfo.getSweepInterval(),
-                repManagerFactory,
-                repStorageFactory,
                 backingStrategyFactory);
         stackContext.build();
 
@@ -200,31 +195,25 @@ public class BasicWADISessionManager implements GBeanLifecycle, SessionManager, 
     public static final String GBEAN_ATTR_WADI_CONFIG_INFO = "wadiConfigInfo";
 
     public static final String GBEAN_REF_CLUSTER = "Cluster";
-    public static final String GBEAN_REF_REPLICATION_MANAGER_FACTORY = "ReplicationManagerFactory";
-    public static final String GBEAN_REF_REPLICA_STORAGE_FACTORY = "ReplicaStorageFactory";
     public static final String GBEAN_REF_BACKING_STRATEGY_FACTORY = "BackingStrategyFactory";
 
     static {
         GBeanInfoBuilder infoBuilder = GBeanInfoBuilder.createStatic("WADI Session Manager",
                 BasicWADISessionManager.class, NameFactory.GERONIMO_SERVICE);
 
+        infoBuilder.addAttribute("classLoader", ClassLoader.class, false);
         infoBuilder.addAttribute(GBEAN_ATTR_WADI_CONFIG_INFO, WADISessionManagerConfigInfo.class, true);
 
         infoBuilder.addReference(GBEAN_REF_CLUSTER, WADICluster.class, NameFactory.GERONIMO_SERVICE);
-        infoBuilder.addReference(GBEAN_REF_REPLICATION_MANAGER_FACTORY, ReplicationManagerFactory.class,
-            NameFactory.GERONIMO_SERVICE);
-        infoBuilder.addReference(GBEAN_REF_REPLICA_STORAGE_FACTORY, ReplicaStorageFactory.class,
-                NameFactory.GERONIMO_SERVICE);
         infoBuilder.addReference(GBEAN_REF_BACKING_STRATEGY_FACTORY, BackingStrategyFactory.class,
                 NameFactory.GERONIMO_SERVICE);
 
         infoBuilder.addInterface(SessionManager.class);
         infoBuilder.addInterface(WADISessionManager.class);
 
-        infoBuilder.setConstructor(new String[] { GBEAN_ATTR_WADI_CONFIG_INFO,
+        infoBuilder.setConstructor(new String[] { "classLoader", 
+                GBEAN_ATTR_WADI_CONFIG_INFO,
                 GBEAN_REF_CLUSTER, 
-                GBEAN_REF_REPLICATION_MANAGER_FACTORY, 
-                GBEAN_REF_REPLICA_STORAGE_FACTORY,
                 GBEAN_REF_BACKING_STRATEGY_FACTORY });
 
         GBEAN_INFO = infoBuilder.getBeanInfo();

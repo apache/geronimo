@@ -57,7 +57,7 @@ public class WADIClusteredPreHandler extends AbstractClusteredPreHandler {
         }
 
         public void invoke() throws ClusteredInvocationException {
-            WebInvocation invocation = new WebInvocation();
+            WebInvocation invocation = new WebInvocation(5000);
             FilterChain chainAdapter = new FilterChain() {
                 public void doFilter(ServletRequest request, ServletResponse response) throws IOException, ServletException {
                     try {

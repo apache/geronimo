@@ -40,8 +40,6 @@
                 <xs:element name="sweepInterval" type="xs:integer" minOccurs="0"/>
                 <xs:element name="numPartitions" type="xs:integer" minOccurs="0"/>
                 <xs:element name="cluster" type="naming:gbean-refType" minOccurs="0"/>
-                <xs:element name="replication-manager-factory" type="naming:gbean-refType" minOccurs="0"/>
-                <xs:element name="replica-storage-factory" type="naming:gbean-refType" minOccurs="0"/>
                 <xs:element name="backing-strategy-factory" type="naming:gbean-refType" minOccurs="0"/>
             </xs:sequence>
         </xs:extension>
