@@ -403,8 +403,10 @@ public class GBeanInfoBuilder {
     
     /**
      * @deprecated
-     */ 
+     */
     public void addOperation(String name) {
+        // FIXME : This is needed because the getters/setters are not being added as operation
+        // i.e. kerenl.invoke("getX") fails.
         addOperation(new GOperationInfo(name, NO_ARGS, ""));
     }
 
@@ -412,13 +414,14 @@ public class GBeanInfoBuilder {
      * @deprecated
      */
     public void addOperation(String name, Class[] paramTypes) {
-        addOperation(new GOperationInfo(name, paramTypes, ""));
+        //addOperation(new GOperationInfo(name, paramTypes, ""));
     }
-    
+   
     public void addOperation(String name, String returnType) {
         addOperation(new GOperationInfo(name, NO_ARGS, returnType));
     }
 
+    // This is redundant because these operations are added automatically; it can be made private
     public void addOperation(String name, Class[] paramTypes, String returnType) {
         addOperation(new GOperationInfo(name, paramTypes, returnType));
     }

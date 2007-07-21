@@ -38,7 +38,7 @@ public class GOperationInfo implements Serializable {
     /**
      * The return type of this method.
      */
-    private final String type;
+    private final String returnType;
     
     /**
      * Parameters of this method.
@@ -54,9 +54,9 @@ public class GOperationInfo implements Serializable {
         this(name, name, Collections.EMPTY_LIST, type);
     }
 
-    public GOperationInfo(String name, Class[] paramTypes, String type) {
+    public GOperationInfo(String name, Class[] paramTypes, String returnType) {
         this.name = this.methodName = name;
-        this.type = type;
+        this.returnType = returnType;
         String[] args = new String[paramTypes.length];
         for (int i = 0; i < args.length; i++) {
             args[i] = paramTypes[i].getName();
@@ -64,17 +64,17 @@ public class GOperationInfo implements Serializable {
         this.parameters = Collections.unmodifiableList(Arrays.asList(args));
     }
 
-    public GOperationInfo(String name, String[] paramTypes, String type) {
-        this(name, name, Arrays.asList(paramTypes), type);
+    public GOperationInfo(String name, String[] paramTypes, String returnType) {
+        this(name, name, Arrays.asList(paramTypes), returnType);
     }
     
-    public GOperationInfo(String name, List parameters, String type) {
-        this(name, name, parameters, type);
+    public GOperationInfo(String name, List parameters, String returnType) {
+        this(name, name, parameters, returnType);
     }
     
-    public GOperationInfo(String name, String methodName, List parameters, String type) {
+    public GOperationInfo(String name, String methodName, List parameters, String returnType) {
         this.name = name;
-        this.type = type;
+        this.returnType = returnType;
         this.methodName = methodName;
         this.parameters = Collections.unmodifiableList(new ArrayList(parameters));
     }
@@ -84,7 +84,7 @@ public class GOperationInfo implements Serializable {
     }
     
     public String getReturnType() {
-        return type;
+        return returnType;
     }
 
     public String getMethodName() {
@@ -96,6 +96,6 @@ public class GOperationInfo implements Serializable {
     }
 
     public String toString() {
-        return "[GOperationInfo: name=" + name + " parameters=" + parameters + " type =" + type + "]";
+        return "[GOperationInfo: name=" + name + " parameters=" + parameters + " returnType =" + returnType + "]";
     }
 }

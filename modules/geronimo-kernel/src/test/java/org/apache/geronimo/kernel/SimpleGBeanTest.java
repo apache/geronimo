@@ -59,7 +59,9 @@ public class SimpleGBeanTest extends TestCase {
         // invoke GBean by short name
         assertEquals("1234", kernel.getAttribute("MyBean", "value"));
         assertEquals("1234", kernel.invoke("MyBean", "fetchValue"));
-
+        // this does not work without addOperation
+        assertEquals("1234", kernel.invoke("MyBean", "getValue"));
+        
         // invoke GBean by type
         assertEquals("1234", kernel.getAttribute(TestGBean.class, "value"));
         assertEquals("1234", kernel.invoke(TestGBean.class, "fetchValue"));
@@ -96,6 +98,8 @@ public class SimpleGBeanTest extends TestCase {
         static {
             GBeanInfoBuilder infoBuilder = GBeanInfoBuilder.createStatic(TestGBean.class);
             infoBuilder.setConstructor(new String[] {"value"});
+            // FIXME : The getters/setters should have been added as an operation
+            infoBuilder.addOperation("getValue");
             GBEAN_INFO = infoBuilder.getBeanInfo();
         }
         public static GBeanInfo getGBeanInfo() {
