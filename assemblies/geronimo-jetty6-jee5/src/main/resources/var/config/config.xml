@@ -175,7 +175,29 @@
         </gbean>
     </module>
 
-    <module name="org.apache.geronimo.configs/persistence-jpa10-deployer/${version}/car"/>
+    <module name="org.apache.geronimo.configs/persistence-jpa10-deployer/${version}/car">
+        <gbean name="PersistenceUnitBuilder">
+            <attribute name="defaultPersistenceProviderClassName">org.apache.openjpa.persistence.PersistenceProviderImpl</attribute>
+            <attribute name="defaultPersistenceUnitProperties">
+                openjpa.Log=commons
+#                openjpa.jdbc.DBDictionary=org.apache.openjpa.jdbc.sql.DerbyDictionary
+                openjpa.jdbc.SynchronizeMappings=buildSchema(ForeignKeys=true)
+                openjpa.jdbc.UpdateManager=operation-order
+                openjpa.Sequence=table(Table=OPENJPASEQ, Increment=100)
+            </attribute>
+            <attribute name="defaultEnvironment">
+                <environment xmlns="http://geronimo.apache.org/xml/ns/deployment-1.2">
+                    <dependencies>
+                        <dependency>
+                            <groupId>org.apache.geronimo.configs</groupId>
+                            <artifactId>openjpa</artifactId>
+                            <type>car</type>
+                        </dependency>
+                    </dependencies>
+                </environment>
+            </attribute>
+        </gbean>
+    </module>
 
     <module name="org.apache.geronimo.configs/openejb-deployer/${version}/car">
         <gbean name="EjbRefBuilder">
