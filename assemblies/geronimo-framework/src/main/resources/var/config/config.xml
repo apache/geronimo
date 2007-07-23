@@ -26,11 +26,11 @@
     
     <module name="org.apache.geronimo.configs/rmi-naming/${version}/car">
         <gbean name="RMIRegistry">
-            <attribute name="port">${PlanNamingPort}</attribute>
+            <attribute name="port">${NamingPort}</attribute>
         </gbean>
         <gbean name="NamingProperties">
             <!-- Check whether this really works if host name is 0.0.0.0 -->
-            <attribute name="namingProviderUrl">rmi://${PlanServerHostname}:${PlanNamingPort}</attribute>
+            <attribute name="namingProviderUrl">rmi://${ServerHostname}:${NamingPort}</attribute>
         </gbean>
         <gbean name="DownloadedPluginRepos">
           <attribute name="repositoryList">http://geronimo.apache.org/plugins/plugin-repository-list-2.0.txt</attribute>
@@ -41,9 +41,9 @@
     <module name="org.apache.geronimo.configs/j2ee-security/${version}/car">
         <gbean name="JMXService">
             <attribute name="protocol">rmi</attribute>
-            <attribute name="host">${PlanServerHostname}</attribute>
-            <attribute name="port">${PlanJMXPort}</attribute>
-            <attribute name="urlPath">/jndi/rmi://${PlanServerHostname}:${PlanNamingPort}/JMXConnector</attribute>
+            <attribute name="host">${ServerHostname}</attribute>
+            <attribute name="port">${JMXPort}</attribute>
+            <attribute name="urlPath">/jndi/rmi://${ServerHostname}:${NamingPort}/JMXConnector</attribute>
         </gbean>
     </module>
 
