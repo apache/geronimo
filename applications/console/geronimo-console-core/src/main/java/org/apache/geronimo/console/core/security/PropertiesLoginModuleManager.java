@@ -28,24 +28,31 @@ import java.net.UnknownServiceException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
+import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Properties;
 import java.util.Set;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.common.GeronimoSecurityException;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
+import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
+import org.apache.geronimo.security.jaas.LoginModuleGBean;
 import org.apache.geronimo.security.jaas.LoginModuleSettings;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
 import org.apache.geronimo.util.encoders.Base64;
 import org.apache.geronimo.util.encoders.HexTranslator;
+import org.apache.geronimo.util.SimpleEncryption;
 
 /**
  * @version $Rev$ $Date$
  */
-public class PropertiesLoginModuleManager {
+public class PropertiesLoginModuleManager implements GBeanLifecycle {
+    private static Log log = LogFactory.getLog(PropertiesLoginModuleManager.class);
 
     private ServerInfo serverInfo;
 
@@ -68,7 +75,7 @@ public class PropertiesLoginModuleManager {
         this.loginModule = loginModule;
     }
 
-    private void refreshUsers() {
+    private void refreshUsers() throws GeronimoSecurityException {
         users.clear();
         InputStream in = null;
         try {
@@ -106,61 +113,48 @@ public class PropertiesLoginModuleManager {
         }
     }
 
-    public String[] getUsers() throws GeronimoSecurityException {
+    private void clearAll() {
         users.clear();
-        InputStream in = null;
-        try {
-            in = serverInfo.resolveServer(getUsersURI()).toURL().openStream();
-            users.load(in);
-        } catch (Exception e) {
-            throw new GeronimoSecurityException(e);
-        } finally {
-            if (in != null) {
-                try {
-                    in.close();
-                } catch (IOException ignored) {
-                    // ignored
-                }
-            }
-        }
+        groups.clear();
+    }
+
+    public void refreshAll() throws GeronimoSecurityException {
+        refreshGroups();
+        refreshUsers();
+    }
+
+    public String[] getUsers() throws GeronimoSecurityException {
+        refreshUsers();
         return (String[]) users.keySet().toArray(new String[0]);
     }
 
     public String[] getGroups() throws GeronimoSecurityException {
-        groups.clear();
-        InputStream in = null;
-        try {
-            in = serverInfo.resolveServer(getGroupsURI()).toURL().openStream();
-            groups.load(in);
-        } catch (Exception e) {
-            throw new GeronimoSecurityException(e);
-        } finally {
-            if (in != null) {
-                try {
-                    in.close();
-                } catch (IOException ignored) {
-                    // ignored
-                }
-            }
-        }
+        refreshGroups();
         return (String[]) groups.keySet().toArray(new String[0]);
     }
 
     public void addUserPrincipal(Hashtable properties)
             throws GeronimoSecurityException {
-        if (users.getProperty((String) properties.get("UserName")) != null) {
-            throw new GeronimoSecurityException("User principal "
-                    + properties.get("UserName") + " already exists.");
+
+        refreshUsers();
+        String name = (String) properties.get("UserName");
+        if (users.getProperty(name) != null) {
+            log.warn("addUserPrincipal() UserName="+name+" already exists.");
+            throw new GeronimoSecurityException("User principal="+name+" already exists.");
         }
         try {
-            refreshUsers();
-            String digest = getDigest();
-            String user = (String) properties.get("UserName");
-            String password = (String) properties.get("Password");
-            if(digest != null && !digest.equals("")) {
-                password = digestPassword(password, digest, getEncoding());
+            String realPassword = (String) properties.get("Password");
+            if (realPassword != null) {
+                String digest = getDigest();
+                if(digest != null && !digest.equals("")) {
+                    realPassword = digestPassword(realPassword, digest, getEncoding());
+                }
+                if (!(realPassword.startsWith("{Standard}"))) {
+                    // update the password
+                    realPassword = "{Standard}"+SimpleEncryption.encrypt(realPassword);
+                }
             }
-            users.setProperty(user, password);
+            users.setProperty(name, realPassword);
             store(users, serverInfo.resolveServer(getUsersURI()).toURL());
         } catch (Exception e) {
             throw new GeronimoSecurityException("Cannot add user principal: "
@@ -170,8 +164,8 @@ public class PropertiesLoginModuleManager {
 
     public void removeUserPrincipal(String userPrincipal)
             throws GeronimoSecurityException {
+        refreshUsers();
         try {
-            refreshUsers();
             users.remove(userPrincipal);
             store(users, serverInfo.resolveServer(getUsersURI()).toURL());
         } catch (Exception e) {
@@ -182,19 +176,28 @@ public class PropertiesLoginModuleManager {
 
     public void updateUserPrincipal(Hashtable properties)
             throws GeronimoSecurityException {
-        //same as add principal overriding the property
+        refreshUsers();
+        String name = (String) properties.get("UserName");
+        if (users.getProperty(name) == null) {
+            log.warn("updateUserPrincipal() UserName="+name+" does not exist.");
+            throw new GeronimoSecurityException("User principal="+name+" does not exist.");
+        }
         try {
-            refreshUsers();
-            String digest = getDigest();
-            String user = (String) properties.get("UserName");
-            String password = (String) properties.get("Password");
-            if(digest != null && !digest.equals("")) {
-                password = digestPassword(password, digest, getEncoding());
+            String realPassword = (String) properties.get("Password");
+            if (realPassword != null) {
+                String digest = getDigest();
+                if(digest != null && !digest.equals("")) {
+                    realPassword = digestPassword(realPassword, digest, getEncoding());
+                }
+                if (!(realPassword.startsWith("{Standard}"))) {
+                    // update the password
+                    realPassword = "{Standard}"+SimpleEncryption.encrypt(realPassword);
+                }
             }
-            users.setProperty(user, password);
+            users.setProperty(name, realPassword);
             store(users, serverInfo.resolveServer(getUsersURI()).toURL());
         } catch (Exception e) {
-            throw new GeronimoSecurityException("Cannot add user principal: "
+            throw new GeronimoSecurityException("Cannot update user principal: "
                     + e.getMessage(), e);
         }
     }
@@ -202,13 +205,13 @@ public class PropertiesLoginModuleManager {
     public void addGroupPrincipal(Hashtable properties)
             throws GeronimoSecurityException {
         refreshGroups();
-        if (groups.getProperty((String) properties.get("GroupName")) != null) {
-            throw new GeronimoSecurityException("Group "
-                    + properties.get("GroupName") + " already exists.");
+        String group = (String) properties.get("GroupName");
+        if (groups.getProperty(group) != null) {
+            log.warn("addGroupPrincipal() GroupName="+group+" already exists.");
+            throw new GeronimoSecurityException("Group principal="+group+" already exists.");
         }
         try {
-            groups.setProperty((String) properties.get("GroupName"),
-                    (String) properties.get("Members"));
+            groups.setProperty(group, (String) properties.get("Members"));
             store(groups, serverInfo.resolveServer(getGroupsURI()).toURL());
         } catch (Exception e) {
             throw new GeronimoSecurityException("Cannot add group principal: "
@@ -232,12 +235,16 @@ public class PropertiesLoginModuleManager {
             throws GeronimoSecurityException {
         //same as add group principal
         refreshGroups();
+        String group = (String) properties.get("GroupName");
+        if (groups.getProperty(group) == null) {
+            log.warn("updateGroupPrincipal() GroupName="+group+" does not exist.");
+            throw new GeronimoSecurityException("Group principal="+group+" does not exist.");
+        }
         try {
-            groups.setProperty((String) properties.get("GroupName"),
-                    (String) properties.get("Members"));
+            groups.setProperty(group, (String) properties.get("Members"));
             store(groups, serverInfo.resolveServer(getGroupsURI()).toURL());
         } catch (Exception e) {
-            throw new GeronimoSecurityException("Cannot add group principal: "
+            throw new GeronimoSecurityException("Cannot update group principal: "
                     + e.getMessage(), e);
         }
     }
@@ -257,19 +264,29 @@ public class PropertiesLoginModuleManager {
     public String getPassword(String userPrincipal)
             throws GeronimoSecurityException {
         refreshUsers();
-        return users.getProperty(userPrincipal);
+        if (users.getProperty(userPrincipal) == null) {
+            log.warn("getPassword() User="+userPrincipal+" does not exist.");
+            throw new GeronimoSecurityException("User principal="+userPrincipal+" does not exist.");
+        }
+        String realPassword = users.getProperty(userPrincipal);
+        if (realPassword != null) {
+            if (realPassword.startsWith("{Standard}")) {
+                // decrypt the password
+                realPassword = (String) SimpleEncryption.decrypt(realPassword.substring(10));
+            }
+        }
+        return realPassword;
     }
 
     public Set getGroupMembers(String groupPrincipal)
             throws GeronimoSecurityException {
         Set memberSet = new HashSet();
-        groups.clear();
         refreshGroups();
         if (groups.getProperty(groupPrincipal) == null) {
+            log.warn("getGroupMembers() Group="+groupPrincipal+" does not exist.");
             return memberSet;
         }
-        String[] members = groups.getProperty(groupPrincipal)
-                .split(",");
+        String[] members = ((String)groups.getProperty(groupPrincipal)).split(",");
 
         memberSet.addAll(Arrays.asList(members));
         return memberSet;
@@ -291,8 +308,46 @@ public class PropertiesLoginModuleManager {
         return (String) loginModule.getOptions().get(encodingKey);
     }
 
+    /**
+     * Allows the GBean at startup to request that all unencrypted passwords
+     * be updated.
+     */
+    private void encryptAllPasswords() throws GeronimoSecurityException {
+        log.debug("Checking passwords to see if any need encrypting");
+        refreshAll();
+        try {
+            String name;
+            boolean bUpdates=false;
+
+            for (Enumeration e=users.keys(); e.hasMoreElements(); ) {
+                name=(String)e.nextElement();
+                String realPassword = users.getProperty(name);
+                // Encrypt the password if needed, so we can compare it with the supplied one
+                if (realPassword != null) {
+                    if (!(realPassword.startsWith("{Standard}"))) {
+                        // update the password in Properties to be encrypted
+                        users.setProperty(name, "{Standard}"+SimpleEncryption.encrypt(realPassword));
+                        // we have an updated password to save back to the file
+                        bUpdates = true;
+                    }
+                }
+            }
+
+            // rewrite the users.properties file if we had passwords to encrypt
+            if (bUpdates)
+            {
+                log.debug("Found password(s) that needed encrypting");
+                store(users, serverInfo.resolveServer(getUsersURI()).toURL());
+            }
+        } catch (Exception e) {
+            log.error("encryptAllPasswords failed", e);
+            throw new GeronimoSecurityException(e);
+        }
+    }
+
     private void store(Properties props, URL url) throws Exception {
         OutputStream out = null;
+        log.debug("Updating properties file="+url.toExternalForm());
         try {
             try {
                 URLConnection con = url.openConnection();
@@ -340,6 +395,22 @@ public class PropertiesLoginModuleManager {
         return "";
     }
 
+    public void doFail() {
+        log.warn("Failed");
+    }
+
+    public void doStart() throws Exception {
+        log.debug("Starting gbean");
+        encryptAllPasswords();
+        log.debug("Started gbean");
+    }
+
+    public void doStop() throws Exception {
+        log.debug("Stopping gbean");
+        clearAll();
+        log.debug("Stopped gbean");
+    }
+
     public static final GBeanInfo GBEAN_INFO;
 
     static {
@@ -350,6 +421,7 @@ public class PropertiesLoginModuleManager {
         infoFactory.addOperation("updateUserPrincipal", new Class[]{Hashtable.class});
         infoFactory.addOperation("getGroups");
         infoFactory.addOperation("getUsers");
+        infoFactory.addOperation("refreshAll");
 
         infoFactory.addOperation("updateUserPrincipal", new Class[]{Hashtable.class});
 

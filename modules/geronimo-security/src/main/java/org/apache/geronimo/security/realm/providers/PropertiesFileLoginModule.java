@@ -24,6 +24,8 @@ import org.apache.geronimo.security.jaas.JaasLoginModuleUse;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
 import org.apache.geronimo.util.encoders.Base64;
 import org.apache.geronimo.util.encoders.HexTranslator;
+import org.apache.geronimo.util.SimpleEncryption;
+
 
 import javax.security.auth.Subject;
 import javax.security.auth.callback.Callback;
@@ -112,6 +114,7 @@ public class PropertiesFileLoginModule implements LoginModule {
             URI userFile = serverInfo.resolveServer(userURI);
             URI groupFile = serverInfo.resolveServer(groupURI);
             InputStream stream = userFile.toURL().openStream();
+            users.clear();
             users.load(stream);
             stream.close();
 
@@ -161,6 +164,12 @@ public class PropertiesFileLoginModule implements LoginModule {
             return false;
         }
         String realPassword = users.getProperty(username);
+        // Decrypt the password if needed, so we can compare it with the supplied one
+        if (realPassword != null) {
+            if (realPassword.startsWith("{Standard}")) {
+                realPassword = (String) SimpleEncryption.decrypt(realPassword.substring(10));
+            }
+        }
         char[] entered = ((PasswordCallback) callbacks[1]).getPassword();
         password = entered == null ? null : new String(entered);
         boolean result = (realPassword == null && password == null) ||
