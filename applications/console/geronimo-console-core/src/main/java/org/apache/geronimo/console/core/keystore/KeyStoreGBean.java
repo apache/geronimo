@@ -22,15 +22,18 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.math.BigInteger;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.cert.Certificate;
+import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
@@ -78,7 +81,6 @@ public class KeyStoreGBean implements GBeanLifecycle {
     private ServerInfo serverInfo;
 
     public KeyStoreGBean() {
-        keyPassword = new String("");
     }
 
     public void doStart() throws WaitingException, Exception {
@@ -157,6 +159,14 @@ public class KeyStoreGBean implements GBeanLifecycle {
         return this.keyStorePassword;
     }
 
+    public void setKeyPassword(String keyPassword) {
+        this.keyPassword = keyPassword;
+    }
+
+    public String getKeyPassword() {
+        return this.keyPassword;
+    }
+
     public int getKeyStoreSize() throws KeyStoreException {
         return this.keystore.size();
     }
@@ -217,8 +227,7 @@ public class KeyStoreGBean implements GBeanLifecycle {
         X509Certificate cert = (X509Certificate) keystore.getCertificate(alias);
 
         // find private key by alias
-        PrivateKey key = (PrivateKey) keystore.getKey(alias, new String("")
-                .toCharArray());
+        PrivateKey key = (PrivateKey) keystore.getKey(alias, keyPassword.toCharArray());
 
         // generate csr
         String csr = generateCSR(cert, key);
@@ -285,8 +294,7 @@ public class KeyStoreGBean implements GBeanLifecycle {
         X509Certificate cert = generateCert(keyPair.getPublic(), keyPair
                 .getPrivate(), sigalg, validity.intValue(), cn, ou, o, l, st, c);
 
-        keystore.setKeyEntry(alias, keyPair.getPrivate(), new String()
-                .toCharArray(), new Certificate[] { cert });
+        keystore.setKeyEntry(alias, keyPair.getPrivate(), keyPassword.toCharArray(), new Certificate[] { cert });
 
         saveKeyStore();
     }
@@ -390,11 +398,20 @@ public class KeyStoreGBean implements GBeanLifecycle {
         InputStream is = null;
 
         try {
-            CertificateFactory cf = CertificateFactory.getInstance("X.509",
-                    keyStoreProvider);
+            if (keyStoreProvider.equalsIgnoreCase("Default"))
+            {
+                keyStoreProvider = new String(System.getProperty("java.security.Provider"));
+            }
+            CertificateFactory cf = CertificateFactory.getInstance("X.509", keyStoreProvider);
 
             is = new FileInputStream(certfile);
             Certificate cert = cf.generateCertificate(is);
+
+            if(alias == null || alias.equals("")) {
+                // Generate an alias for this certificate
+                X509Certificate xcert = (X509Certificate)cert;
+                alias = xcert.getIssuerDN().toString()+":"+xcert.getSerialNumber();
+            }
 
             keystore.setCertificateEntry(alias, cert);
 
@@ -438,8 +455,11 @@ public class KeyStoreGBean implements GBeanLifecycle {
             java.security.NoSuchAlgorithmException,
             java.security.UnrecoverableKeyException, java.io.IOException {
 
-        CertificateFactory cf = CertificateFactory.getInstance("X.509",
-                keyStoreProvider);
+        if (keyStoreProvider.equalsIgnoreCase("Default"))
+        {
+            keyStoreProvider = new String(System.getProperty("java.security.Provider"));
+        }
+        CertificateFactory cf = CertificateFactory.getInstance("X.509",keyStoreProvider);
         Collection certcoll = cf.generateCertificates(is);
 
         Certificate[] chain = new Certificate[certcoll.size()];
@@ -456,6 +476,16 @@ public class KeyStoreGBean implements GBeanLifecycle {
         saveKeyStore();
     }
 
+    public void deleteEntry(String alias)
+            throws KeyStoreException,
+            CertificateException,
+            NoSuchAlgorithmException, IOException {
+
+        keystore.deleteEntry(alias);
+
+        saveKeyStore();
+    }
+
 
     public static final GBeanInfo GBEAN_INFO;
 
@@ -466,6 +496,7 @@ public class KeyStoreGBean implements GBeanLifecycle {
         infoFactory.addAttribute("keyStoreProvider", String.class, true);
         infoFactory.addAttribute("keyStoreLocation", String.class, true);
         infoFactory.addAttribute("keyStorePassword", String.class, true);
+        infoFactory.addAttribute("keyPassword", String.class, true);
 
         infoFactory.addReference("serverInfo", ServerInfo.class, NameFactory.GERONIMO_SERVICE);
 
@@ -486,6 +517,7 @@ public class KeyStoreGBean implements GBeanLifecycle {
                 String.class, String.class });
         infoFactory.addOperation("importPKCS7Certificate", new Class[] {
                 String.class, String.class });
+        infoFactory.addOperation("deleteEntry", new Class[] {String.class });
 
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
