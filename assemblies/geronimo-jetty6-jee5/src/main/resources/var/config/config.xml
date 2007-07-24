@@ -35,7 +35,7 @@
             <attribute name="namingProviderUrl">rmi://${ServerHostname}:${NamingPort + PortOffset}</attribute>
         </gbean>
         <gbean name="DownloadedPluginRepos">
-          <attribute name="repositoryList">http://geronimo.apache.org/plugins/plugin-repository-list-2.0.txt</attribute>
+          <attribute name="repositoryList">http://geronimo.apache.org/plugins/plugin-repository-list-2.1.txt</attribute>
           <attribute name="userRepositories">~/.m2/repository</attribute>
         </gbean>
     </module>
