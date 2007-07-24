@@ -632,11 +632,13 @@ public class LocalAttributeManager implements PluginAttributeStore, PersistentCo
     }
 
     private static void addGeronimoSubstitutions(Map<String, String> vars, Map props, String prefix) {
-        int start = prefix.length();
-        for (Object o: props.entrySet()) {
-            Map.Entry entry = (Map.Entry) o;
-            if (((String)entry.getKey()).startsWith(prefix)) {
-                vars.put(((String)entry.getKey()).substring(start), (String)entry.getValue());
+        if (prefix != null) {
+            int start = prefix.length();
+            for (Object o: props.entrySet()) {
+                Map.Entry entry = (Map.Entry) o;
+                if (((String)entry.getKey()).startsWith(prefix)) {
+                    vars.put(((String)entry.getKey()).substring(start), (String)entry.getValue());
+                }
             }
         }
     }
