@@ -265,7 +265,11 @@ public class DeploymentContext {
 
         public JarFile newJarFile(URI relativeURI) throws IOException {
             File targetFile = getTargetFile(relativeURI);
-            return new JarFile(targetFile);
+            try {
+                return new JarFile(targetFile);
+            } catch (IOException e) {
+                throw (IOException)new IOException("Could not create JarFile for file: " + targetFile).initCause(e);
+            }
         }
 
         public String getManifestClassPath(JarFile jarFile) throws IOException {

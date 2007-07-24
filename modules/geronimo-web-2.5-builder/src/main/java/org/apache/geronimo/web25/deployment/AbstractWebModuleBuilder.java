@@ -329,11 +329,10 @@ public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
         ModuleList moduleLocations = (ModuleList) module.getRootEarContext().getGeneralData().get(ModuleList.class);
         URI baseUri = URI.create(module.getTargetPath());
         URI resolutionUri = invertURI(baseUri);
-        moduleContext.getCompleteManifestClassPath(module.getModuleFile(), baseUri, resolutionUri, manifestcp, moduleLocations);
+        earContext.getCompleteManifestClassPath(module.getModuleFile(), baseUri, resolutionUri, manifestcp, moduleLocations);
 
 
         WebAppType webApp = (WebAppType) module.getSpecDD();
-//      makeMetadataComplete(webApp, module);
         if ((webApp.getSecurityConstraintArray().length > 0 || webApp.getSecurityRoleArray().length > 0) &&
                 !hasSecurityRealmName) {
             throw new DeploymentException("web.xml for web app " + module.getName() + " includes security elements but Geronimo deployment plan is not provided or does not contain <security-realm-name> element necessary to configure security accordingly.");
@@ -817,8 +816,6 @@ public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
         //N.B. we use the ear context which has all the gbeans we could possibly be looking up from this ear.
         //nope, persistence units can be in the war.
         //This means that you cannot use the default environment of the web builder to add configs that will be searched.
-        Configuration earConfiguration = earContext.getConfiguration();
-        Configuration localConfiguration = moduleContext.getConfiguration();
         getNamingBuilders().buildNaming(webApp, vendorPlan, webModule, buildingContext);
 
         Map compContext = NamingBuilder.JNDI_KEY.get(buildingContext);
