@@ -81,7 +81,7 @@
 
     <gbean name="DownloadedPluginRepos" class="org.apache.geronimo.system.plugin.PluginRepositoryDownloader">
         <attribute name="repositoryList">http://geronimo.apache.org/plugins/plugin-repository-list-2.0.txt</attribute>
-        <attribute name="userRepositories">~/.m2/repository</attribute>
+        <attribute name="userRepositories">file://~/.m2/repository</attribute>
     </gbean>
     
 </module>
