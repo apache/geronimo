@@ -20,12 +20,21 @@ package org.apache.geronimo.tomcat.connector;
 
 import java.net.InetAddress;
 
+import javax.management.j2ee.statistics.Stats;
+
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
 import org.apache.geronimo.tomcat.TomcatContainer;
+import org.apache.geronimo.tomcat.stats.ConnectorStats;
 
 public class AJP13ConnectorGBean extends ConnectorGBean implements Ajp13Protocol{
+    
+    // JSR77 stats
+    private ConnectorStats connStatsProvider = new ConnectorStats();
+
+    private boolean reset = true;
+
 
     public AJP13ConnectorGBean(String name, String address, int port, TomcatContainer container, ServerInfo serverInfo) throws Exception {
         super(name, "AJP/1.3", container, serverInfo);
@@ -136,6 +145,21 @@ public class AJP13ConnectorGBean extends ConnectorGBean implements Ajp13Protocol
 
     public void setTomcatAuthentication(boolean tomcatAuthentication) {
         connector.setAttribute("tomcatAuthentication", new Boolean(tomcatAuthentication));
+    }
+    
+    // Statistics Provider
+
+    public Stats getStats() {
+        String port = String.valueOf(getPort());
+        if (reset) {
+            reset = false;
+            return connStatsProvider.getStats(port);
+        } else
+            return connStatsProvider.updateStats(port);
+    }
+
+    public void resetStats() {
+        reset = true;
     }
     
     public static final GBeanInfo GBEAN_INFO;
