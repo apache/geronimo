@@ -55,7 +55,7 @@ Starting
  The main server class is also packed in an executable jar,
  bin/server.jar, and can be ran in a way similar to the deploy tool.
 
-   C:\geronimo> java -jar bin\server.jar
+   C:\geronimo> java -Djava.endorsed.dirs=lib\endorsed -javaagent:bin\jpa.jar -jar bin\server.jar
 
  Once the server has started, you can access the welcome page by
  pointing your browser to:
