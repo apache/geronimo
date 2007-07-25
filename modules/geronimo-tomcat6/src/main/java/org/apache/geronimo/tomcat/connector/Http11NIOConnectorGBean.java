@@ -18,6 +18,8 @@
  */
 package org.apache.geronimo.tomcat.connector;
 
+import java.util.Map;
+
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
@@ -25,8 +27,8 @@ import org.apache.geronimo.tomcat.TomcatContainer;
 
 public class Http11NIOConnectorGBean extends BaseHttp11ConnectorGBean implements Http11NIOProtocol{
 
-    public Http11NIOConnectorGBean(String name, String address, int port, TomcatContainer container, ServerInfo serverInfo) throws Exception {
-        super(name, "org.apache.coyote.http11.Http11NioProtocol", address, port, container, serverInfo);
+    public Http11NIOConnectorGBean(String name,  Map initParams, String address, int port, TomcatContainer container, ServerInfo serverInfo) throws Exception {
+        super(name, initParams, "org.apache.coyote.http11.Http11NioProtocol", address, port, container, serverInfo);
     }
 
     public int getAcceptorThreadCount() {
@@ -411,7 +413,7 @@ public class Http11NIOConnectorGBean extends BaseHttp11ConnectorGBean implements
 
                 }
         );
-        infoFactory.setConstructor(new String[] { "name", "address", "port", "TomcatContainer", "ServerInfo"});
+        infoFactory.setConstructor(new String[] { "name", "initParams", "address", "port", "TomcatContainer", "ServerInfo"});
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
     

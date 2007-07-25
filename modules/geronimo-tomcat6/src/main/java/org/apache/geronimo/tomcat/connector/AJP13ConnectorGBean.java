@@ -19,6 +19,7 @@
 package org.apache.geronimo.tomcat.connector;
 
 import java.net.InetAddress;
+import java.util.Map;
 
 import javax.management.j2ee.statistics.Stats;
 
@@ -36,8 +37,8 @@ public class AJP13ConnectorGBean extends ConnectorGBean implements Ajp13Protocol
     private boolean reset = true;
 
 
-    public AJP13ConnectorGBean(String name, String address, int port, TomcatContainer container, ServerInfo serverInfo) throws Exception {
-        super(name, "AJP/1.3", container, serverInfo);
+    public AJP13ConnectorGBean(String name, Map initParams, String address, int port, TomcatContainer container, ServerInfo serverInfo) throws Exception {
+        super(name, initParams, "AJP/1.3", container, serverInfo);
         
         // Default the host to listen on all address is one was not specified
         if (address == null) {
@@ -192,7 +193,7 @@ public class AJP13ConnectorGBean extends ConnectorGBean implements Ajp13Protocol
                     "tomcatAuthentication", 
                 }
         );
-        infoFactory.setConstructor(new String[] { "name", "address", "port", "TomcatContainer", "ServerInfo"});
+        infoFactory.setConstructor(new String[] { "name", "initParams", "address", "port", "TomcatContainer", "ServerInfo"});
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
     

@@ -18,6 +18,9 @@
  */
 package org.apache.geronimo.tomcat.connector;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.apache.catalina.LifecycleException;
 import org.apache.catalina.connector.Connector;
 import org.apache.commons.logging.Log;
@@ -46,8 +49,12 @@ public class ConnectorGBean extends BaseGBean implements GBeanLifecycle, ObjectR
 
     private String name;
 
-    public ConnectorGBean(String name, String protocol, TomcatContainer container, ServerInfo serverInfo) throws Exception {
-        super();
+    public ConnectorGBean(String name, Map initParams, String protocol, TomcatContainer container, ServerInfo serverInfo) throws Exception {
+        
+        //Relief for new Tomcat-only parameters that may come in the future
+        if (initParams == null){
+            initParams = new HashMap();
+        }
 
         // Do we really need this?? For Tomcat I don't think so...
         // validateProtocol(protocol);
@@ -72,6 +79,8 @@ public class ConnectorGBean extends BaseGBean implements GBeanLifecycle, ObjectR
 
         // Create the Connector object
         connector = new Connector(protocol);
+        
+        setParameters(connector, initParams);
 
     }
 
@@ -247,6 +256,7 @@ public class ConnectorGBean extends BaseGBean implements GBeanLifecycle, ObjectR
         GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic("Tomcat Connector", ConnectorGBean.class);
 
         infoFactory.addAttribute("name", String.class, true);
+        infoFactory.addAttribute("initParams", Map.class, true);
         infoFactory.addAttribute("protocol", String.class, true);
         infoFactory.addReference(CONNECTOR_CONTAINER_REFERENCE, TomcatContainer.class, NameFactory.GERONIMO_SERVICE);
         infoFactory.addReference("ServerInfo", ServerInfo.class, "GBean");
@@ -291,7 +301,7 @@ public class ConnectorGBean extends BaseGBean implements GBeanLifecycle, ObjectR
                         "xpoweredBy"
                 }
         );
-        infoFactory.setConstructor(new String[] { "name", "protocol", "TomcatContainer", "ServerInfo" });
+        infoFactory.setConstructor(new String[] { "name", "initParams", "protocol", "TomcatContainer", "ServerInfo" });
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
 

@@ -18,6 +18,8 @@
  */
 package org.apache.geronimo.tomcat.connector;
 
+import java.util.Map;
+
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
@@ -25,8 +27,8 @@ import org.apache.geronimo.tomcat.TomcatContainer;
 
 public class Https11ConnectorGBean extends Http11ConnectorGBean {
 
-    public Https11ConnectorGBean(String name, String address, int port, TomcatContainer container, ServerInfo serverInfo) throws Exception {
-        super(name, address, port, container, serverInfo);
+    public Https11ConnectorGBean(String name, Map initParams, String address, int port, TomcatContainer container, ServerInfo serverInfo) throws Exception {
+        super(name, initParams, address, port, container, serverInfo);
         setSslEnabled(true);
         setScheme("https");
         setSecure(true);
@@ -36,7 +38,7 @@ public class Https11ConnectorGBean extends Http11ConnectorGBean {
 
     static {
         GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic("Tomcat Connector", Https11ConnectorGBean.class, Http11ConnectorGBean.GBEAN_INFO);
-        infoFactory.setConstructor(new String[] { "name", "address", "port", "TomcatContainer", "ServerInfo"});
+        infoFactory.setConstructor(new String[] { "name", "initParams", "address", "port", "TomcatContainer", "ServerInfo"});
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
     

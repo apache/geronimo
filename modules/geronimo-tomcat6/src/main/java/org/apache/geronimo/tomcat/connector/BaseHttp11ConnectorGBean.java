@@ -19,6 +19,7 @@
 package org.apache.geronimo.tomcat.connector;
 
 import java.net.InetAddress;
+import java.util.Map;
 
 import javax.management.j2ee.statistics.Stats;
 import javax.net.ssl.KeyManagerFactory;
@@ -43,8 +44,8 @@ public class BaseHttp11ConnectorGBean extends ConnectorGBean implements Http11Pr
 
     private boolean reset = true;
 
-    public BaseHttp11ConnectorGBean(String name, String protocol, String address, int port, TomcatContainer container, ServerInfo serverInfo) throws Exception {
-        super(name, protocol, container, serverInfo);
+    public BaseHttp11ConnectorGBean(String name, Map initParams, String protocol, String address, int port, TomcatContainer container, ServerInfo serverInfo) throws Exception {
+        super(name, initParams, protocol, container, serverInfo);
 
         // Default the host to listen on all address is one was not specified
         if (address == null) {
@@ -420,7 +421,7 @@ public class BaseHttp11ConnectorGBean extends ConnectorGBean implements Http11Pr
                     "truststoreType"
                 }
         );
-        infoFactory.setConstructor(new String[] { "name", "protocol", "address", "port", "TomcatContainer", "ServerInfo"});
+        infoFactory.setConstructor(new String[] { "name", "initParams", "protocol", "address", "port", "TomcatContainer", "ServerInfo"});
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
     

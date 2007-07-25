@@ -18,6 +18,8 @@
  */
 package org.apache.geronimo.tomcat.connector;
 
+import java.util.Map;
+
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
@@ -25,15 +27,15 @@ import org.apache.geronimo.tomcat.TomcatContainer;
 
 public class Http11ConnectorGBean extends BaseHttp11ConnectorGBean {
 
-    public Http11ConnectorGBean(String name, String address, int port, TomcatContainer container, ServerInfo serverInfo) throws Exception {
-        super(name, "HTTP/1.1", address, port, container, serverInfo);
+    public Http11ConnectorGBean(String name, Map initParams, String address, int port, TomcatContainer container, ServerInfo serverInfo) throws Exception {
+        super(name, initParams, "HTTP/1.1", address, port, container, serverInfo);
     }
 
     public static final GBeanInfo GBEAN_INFO;
 
     static {
         GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic("Tomcat Connector", Http11ConnectorGBean.class, BaseHttp11ConnectorGBean.GBEAN_INFO);
-        infoFactory.setConstructor(new String[] { "name", "address", "port", "TomcatContainer", "ServerInfo"});
+        infoFactory.setConstructor(new String[] { "name", "initParams", "address", "port", "TomcatContainer", "ServerInfo"});
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
     
