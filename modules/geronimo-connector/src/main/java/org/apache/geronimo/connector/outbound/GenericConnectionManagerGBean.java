@@ -25,7 +25,7 @@ import java.io.ObjectStreamException;
 import java.io.Serializable;
 
 import javax.resource.spi.ConnectionManager;
-import javax.transaction.TransactionManager;
+import javax.security.auth.Subject;
 
 import org.apache.geronimo.connector.outbound.connectionmanagerconfig.PoolingSupport;
 import org.apache.geronimo.connector.outbound.connectionmanagerconfig.TransactionSupport;
@@ -39,6 +39,7 @@ import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.KernelRegistry;
 import org.apache.geronimo.kernel.proxy.ProxyManager;
+import org.apache.geronimo.security.ContextManager;
 import org.apache.geronimo.transaction.manager.RecoverableTransactionManager;
 
 /**
@@ -57,15 +58,15 @@ public class GenericConnectionManagerGBean extends GenericConnectionManager impl
     }
 
     public GenericConnectionManagerGBean(TransactionSupport transactionSupport,
-            PoolingSupport pooling,
-            boolean containerManagedSecurity,
-            ConnectionTracker connectionTracker,
-            RecoverableTransactionManager transactionManager,
-            String objectName,
-            AbstractName abstractName,
-            ClassLoader classLoader,
-            Kernel kernel) {
-        super(transactionSupport, pooling, containerManagedSecurity, connectionTracker, transactionManager, objectName, classLoader);
+                                         PoolingSupport pooling,
+                                         boolean containerManagedSecurity,
+                                         ConnectionTracker connectionTracker,
+                                         RecoverableTransactionManager transactionManager,
+                                         String objectName,
+                                         AbstractName abstractName,
+                                         ClassLoader classLoader,
+                                         Kernel kernel) {
+        super(transactionSupport, pooling, getSubjectSource(containerManagedSecurity), connectionTracker, transactionManager, objectName, classLoader);
         this.kernel = kernel;
         this.abstractName = abstractName;
     }
@@ -73,10 +74,22 @@ public class GenericConnectionManagerGBean extends GenericConnectionManager impl
     public ConnectionManager getConnectionManager() {
         ConnectionManager unproxied = super.getConnectionManager();
         ProxyManager pm = kernel.getProxyManager();
-        if(pm.isProxy(unproxied)) {
+        if (pm.isProxy(unproxied)) {
             return unproxied;
         } else {
             return (ConnectionManager) pm.createProxy(kernel.getAbstractNameFor(unproxied), unproxied.getClass().getClassLoader());
+        }
+    }
+
+    private static SubjectSource getSubjectSource(boolean containerManagedSecurity) {
+        if (containerManagedSecurity) {
+            return new SubjectSource() {
+                public Subject getSubject() {
+                    return ContextManager.getNextCaller();
+                }
+            };
+        } else {
+            return null;
         }
     }
 
@@ -84,7 +97,7 @@ public class GenericConnectionManagerGBean extends GenericConnectionManager impl
         try {
             return kernel.getGBean(abstractName);
         } catch (GBeanNotFoundException e) {
-            throw (ObjectStreamException)new InvalidObjectException("Could not locate connection manager gbean").initCause(e);
+            throw (ObjectStreamException) new InvalidObjectException("Could not locate connection manager gbean").initCause(e);
         }
     }
 
@@ -129,15 +142,15 @@ public class GenericConnectionManagerGBean extends GenericConnectionManager impl
 
 
         infoBuilder.setConstructor(new String[]{
-            "transactionSupport",
-            "pooling",
-            "containerManagedSecurity",
-            "ConnectionTracker",
-            "TransactionManager",
-            "objectName",
-            "abstractName",
-            "classLoader",
-            "kernel"
+                "transactionSupport",
+                "pooling",
+                "containerManagedSecurity",
+                "ConnectionTracker",
+                "TransactionManager",
+                "objectName",
+                "abstractName",
+                "classLoader",
+                "kernel"
         });
 
         GBEAN_INFO = infoBuilder.getBeanInfo();

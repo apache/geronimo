@@ -56,17 +56,23 @@
             <artifactId>geronimo-connector</artifactId>
             <version>${version}</version>
         </dependency>
-        
+
+        <dependency>
+            <groupId>org.apache.geronimo.components</groupId>
+            <artifactId>geronimo-connector</artifactId>
+            <version>2.0-SNAPSHOT</version>
+        </dependency>
+
         <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
             <artifactId>geronimo-transaction</artifactId>
             <version>${version}</version>
         </dependency>
-        
+
         <dependency>
-            <groupId>org.apache.geronimo.modules</groupId>
+            <groupId>org.apache.geronimo.components</groupId>
             <artifactId>geronimo-transaction</artifactId>
-            <version>${version}</version>
+            <version>2.0-SNAPSHOT</version>
         </dependency>
 
         <dependency>
