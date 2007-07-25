@@ -44,6 +44,10 @@ public class AxisServiceReference extends SimpleReference implements ClassLoader
     private Map seiClassNameToFactoryMap;
     private ClassLoader classLoader;
 
+    private FastConstructor serviceConstructor;
+    private Callback[] methodInterceptors;
+    private Class enhancedServiceClass;
+
     public AxisServiceReference(String serviceInterfaceClassName, Map seiPortNameToFactoryMap, Map seiClassNameToFactoryMap) {
         this.serviceInterfaceClassName = serviceInterfaceClassName;
         this.seiPortNameToFactoryMap = seiPortNameToFactoryMap;
@@ -75,24 +79,35 @@ public class AxisServiceReference extends SimpleReference implements ClassLoader
     }
 
     private Object createServiceInterfaceProxy(Class serviceInterface, Map seiPortNameToFactoryMap, Map seiClassNameToFactoryMap, ClassLoader classLoader) throws NamingException {
+        if (this.serviceConstructor == null) {
+            // create method interceptors
+            Callback callback = new ServiceMethodInterceptor(seiPortNameToFactoryMap);
+            this.methodInterceptors = new Callback[]{SerializableNoOp.INSTANCE, callback};
 
-        Callback callback = new ServiceMethodInterceptor(seiPortNameToFactoryMap);
-        Callback[] methodInterceptors = new Callback[]{SerializableNoOp.INSTANCE, callback};
+            // create service class
+            Enhancer enhancer = new Enhancer();
+            enhancer.setClassLoader(classLoader);
+            enhancer.setSuperclass(ServiceImpl.class);
+            enhancer.setInterfaces(new Class[]{serviceInterface});
+            enhancer.setCallbackFilter(new NoOverrideCallbackFilter(Service.class));
+            enhancer.setCallbackTypes(new Class[]{NoOp.class, MethodInterceptor.class});
+            enhancer.setUseFactory(false);
+            enhancer.setUseCache(false);
+            this.enhancedServiceClass = enhancer.createClass();
 
-        Enhancer enhancer = new Enhancer();
-        enhancer.setClassLoader(classLoader);
-        enhancer.setSuperclass(ServiceImpl.class);
-        enhancer.setInterfaces(new Class[]{serviceInterface});
-        enhancer.setCallbackFilter(new NoOverrideCallbackFilter(Service.class));
-        enhancer.setCallbackTypes(new Class[]{NoOp.class, MethodInterceptor.class});
-        enhancer.setUseFactory(false);
-        enhancer.setUseCache(false);
-        Class serviceClass = enhancer.createClass();
-
-        Enhancer.registerCallbacks(serviceClass, methodInterceptors);
-        FastConstructor constructor = FastClass.create(serviceClass).getConstructor(SERVICE_CONSTRUCTOR_TYPES);
+            // get constructor
+            this.serviceConstructor = 
+                FastClass.create(this.enhancedServiceClass).getConstructor(SERVICE_CONSTRUCTOR_TYPES);
+        }
+        
+        // associate the method interceptors with the generated service class on the current thread
+        Enhancer.registerCallbacks(this.enhancedServiceClass, this.methodInterceptors);
+        
+        Object[] arguments =
+            new Object[] {seiPortNameToFactoryMap, seiClassNameToFactoryMap};
+        
         try {
-            return constructor.newInstance(new Object[]{seiPortNameToFactoryMap, seiClassNameToFactoryMap});
+            return this.serviceConstructor.newInstance(arguments);
         } catch (InvocationTargetException e) {
             throw (NamingException)new NamingException("Could not construct service instance").initCause(e.getTargetException());
         }
