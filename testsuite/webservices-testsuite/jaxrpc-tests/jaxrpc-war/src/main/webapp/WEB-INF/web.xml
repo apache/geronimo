@@ -33,4 +33,11 @@ limitations under the License.
         <url-pattern>/servlet</url-pattern>
     </servlet-mapping>
 
+   <service-ref>
+       <service-ref-name>services/Greeter</service-ref-name>
+       <service-interface>javax.xml.rpc.Service</service-interface>
+       <wsdl-file>WEB-INF/wsdl/greeter.wsdl</wsdl-file>
+       <jaxrpc-mapping-file>WEB-INF/jaxrpcmapping.xml</jaxrpc-mapping-file>
+   </service-ref>
+
 </web-app>

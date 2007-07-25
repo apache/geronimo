@@ -26,4 +26,16 @@
       <dep:type>car</dep:type>
     </dep:moduleId>
   </dep:environment>
+
+ <service-ref>
+   <service-ref-name>services/Greeter</service-ref-name>
+   <port>
+      <port-name>GreeterPort</port-name>
+      <protocol>http</protocol>
+      <host>localhost</host>
+      <port>8080</port>
+      <uri>/jaxrpc-war-2.1-SNAPSHOT/servlet</uri>
+   </port>
+ </service-ref>
+
 </web-app>
