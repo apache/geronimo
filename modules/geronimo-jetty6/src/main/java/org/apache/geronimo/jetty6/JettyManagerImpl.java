@@ -20,6 +20,9 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+import java.util.Arrays;
+import java.util.Map;
+import java.util.HashMap;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -34,6 +37,9 @@ import org.apache.geronimo.jetty6.connector.AJP13Connector;
 import org.apache.geronimo.jetty6.connector.HTTPSocketConnector;
 import org.apache.geronimo.jetty6.connector.HTTPSSocketConnector;
 import org.apache.geronimo.jetty6.connector.JettyConnector;
+import org.apache.geronimo.jetty6.connector.HTTPSelectChannelConnector;
+import org.apache.geronimo.jetty6.connector.HTTPSSelectChannelConnector;
+import org.apache.geronimo.jetty6.connector.HTTPBlockingConnector;
 import org.apache.geronimo.jetty6.requestlog.JettyLogManager;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.kernel.Kernel;
@@ -56,6 +62,49 @@ import org.apache.geronimo.management.geronimo.WebManager;
  */
 public class JettyManagerImpl implements WebManager {
     private final static Log log = LogFactory.getLog(JettyManagerImpl.class);
+
+    private static final ConnectorType HTTP_NIO = new ConnectorType("Jetty NIO HTTP Connector");
+    private static final ConnectorType HTTPS_NIO = new ConnectorType("Jetty NIO HTTPS Connector");
+    private static final ConnectorType HTTP_BLOCKING_NIO = new ConnectorType("Jetty Blocking HTTP Connector using NIO");
+    private static final ConnectorType HTTP_BIO = new ConnectorType("Jetty BIO HTTP Connector");
+    private static final ConnectorType HTTPS_BIO = new ConnectorType("Jetty BIO HTTPS Connector");
+    private static final ConnectorType AJP_NIO = new ConnectorType("Jetty NIO AJP Connector");
+    private static List<ConnectorType> CONNECTOR_TYPES = Arrays.asList(
+            HTTP_NIO,
+            HTTPS_NIO,
+            HTTP_BLOCKING_NIO,
+            HTTP_BIO,
+            HTTPS_BIO,
+            AJP_NIO
+    );
+
+    private static Map<ConnectorType, List<ConnectorAttribute>> CONNECTOR_ATTRIBUTES = new HashMap<ConnectorType, List<ConnectorAttribute>>();
+    //"host", "port", "minThreads", "maxThreads", "bufferSizeBytes", "acceptQueueSize", "lingerMillis", "protocol", "redirectPort", "connectUrl", "maxIdleTimeMs"
+    static {
+        CONNECTOR_ATTRIBUTES.put(HTTP_NIO, Arrays.asList(
+                new ConnectorAttribute("host", "0.0.0.0", "Host"),
+                new ConnectorAttribute("port", "8080", "Port"),
+//                new ConnectorAttribute("minThreads", "0.0.0.0", "Host"),
+                new ConnectorAttribute("maxThreads", "10", "Maximum number of acceptors"),
+                new ConnectorAttribute("bufferSizeBytes", "8096", "Buffer size"),
+                new ConnectorAttribute("acceptQueueSize", "10", "acceptQueueSize"),
+                new ConnectorAttribute("lingerMillis", "30000", "lingerMillis"),
+                new ConnectorAttribute("redirectPort", "8443", "redirectPort"),
+                new ConnectorAttribute("maxIdleTimeMs", "30000", "maxIdleTimeMs")
+//                new ConnectorAttribute("connectURL", "0.0.0.0", "connectURL")
+        ));
+    }
+
+    private static Map<ConnectorType, GBeanInfo> CONNECTOR_GBEAN_INFOS = new HashMap<ConnectorType, GBeanInfo>();
+    static {
+        CONNECTOR_GBEAN_INFOS.put(HTTP_NIO, HTTPSelectChannelConnector.GBEAN_INFO);
+        CONNECTOR_GBEAN_INFOS.put(HTTPS_NIO, HTTPSSelectChannelConnector.GBEAN_INFO);
+        CONNECTOR_GBEAN_INFOS.put(HTTP_BLOCKING_NIO, HTTPBlockingConnector.GBEAN_INFO);
+        CONNECTOR_GBEAN_INFOS.put(HTTP_BIO, HTTPSocketConnector.GBEAN_INFO);
+        CONNECTOR_GBEAN_INFOS.put(HTTPS_BIO, HTTPSSocketConnector.GBEAN_INFO);
+        CONNECTOR_GBEAN_INFOS.put(AJP_NIO, AJP13Connector.GBEAN_INFO);
+    }
+
     private final Kernel kernel;
 
     public JettyManagerImpl(Kernel kernel) {
@@ -210,6 +259,40 @@ public class JettyManagerImpl implements WebManager {
             throw new IllegalStateException("Should not be more than one Jetty access log manager");
         }
         return (WebAccessLog) kernel.getProxyManager().createProxy((AbstractName)names.iterator().next(), JettyLogManager.class.getClassLoader());
+    }
+
+    public List<ConnectorType> getConnectorTypes() {
+        return CONNECTOR_TYPES;
+    }
+
+    public List<ConnectorAttribute> getConnectorAttributes(ConnectorType connectorType) {
+        return ConnectorAttribute.copy(CONNECTOR_ATTRIBUTES.get(connectorType));
+    }
+
+    public AbstractName getConnectorConfiguration(ConnectorType connectorType, List<ConnectorAttribute> connectorAttributes, WebContainer container, String uniqueName) {
+        GBeanInfo gbeanInfo = CONNECTOR_GBEAN_INFOS.get(connectorType);
+        AbstractName containerName = kernel.getAbstractNameFor(container);
+        AbstractName name = kernel.getNaming().createSiblingName(containerName, uniqueName, NameFactory.GERONIMO_SERVICE);
+        GBeanData gbeanData = new GBeanData(name, gbeanInfo);
+        gbeanData.setReferencePattern(JettyConnector.CONNECTOR_CONTAINER_REFERENCE, containerName);
+        for (ConnectorAttribute connectorAttribute: connectorAttributes) {
+            gbeanData.setAttribute(connectorAttribute.getAttributeName(), connectorAttribute.getStringValue());
+        }
+        EditableConfigurationManager mgr = ConfigurationUtil.getEditableConfigurationManager(kernel);
+        if(mgr != null) {
+            try {
+                mgr.addGBeanToConfiguration(containerName.getArtifact(), gbeanData, false);
+            } catch (InvalidConfigException e) {
+                log.error("Unable to add GBean", e);
+                return null;
+            } finally {
+                ConfigurationUtil.releaseConfigurationManager(kernel, mgr);
+            }
+        } else {
+            log.warn("The ConfigurationManager in the kernel does not allow editing");
+            return null;
+        }
+        return name;
     }
 
     /**

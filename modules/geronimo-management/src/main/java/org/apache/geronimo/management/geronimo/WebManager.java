@@ -16,7 +16,10 @@
  */
 package org.apache.geronimo.management.geronimo;
 
-import java.util.Map;
+import java.util.List;
+import java.util.ArrayList;
+
+import org.apache.geronimo.gbean.AbstractName;
 
 /**
  * Specialization of NetworkManager for web containers.
@@ -41,6 +44,7 @@ public interface WebManager extends NetworkManager {
      * @param port         The port that the connector should listen on
      *
      * @return The ObjectName of the new connector.
+     * @deprecated
      */
     public WebConnector addConnector(WebContainer container, String uniqueName, String protocol, String host, int port);
 
@@ -52,4 +56,67 @@ public interface WebManager extends NetworkManager {
      *
      */
     public WebAccessLog getAccessLog(WebContainer container);
+
+    List<ConnectorType> getConnectorTypes();
+
+    List<ConnectorAttribute> getConnectorAttributes(ConnectorType connectorType);
+
+    AbstractName getConnectorConfiguration(ConnectorType connectorType, List<ConnectorAttribute> connectorAttributes, WebContainer container, String uniqueName);
+
+    public class ConnectorType {
+        private final String description;
+
+
+        public ConnectorType(String description) {
+            this.description = description;
+        }
+
+
+        public String getDescription() {
+            return description;
+        }
+    }
+
+    public class ConnectorAttribute<T> {
+        private final String attributeName;
+        private String stringValue;
+        private final String description;
+
+        public ConnectorAttribute(String attributeName, String value, String description) {
+            this.attributeName = attributeName;
+            this.stringValue = value;
+            this.description = description;
+        }
+
+        public ConnectorAttribute(ConnectorAttribute connectorAttribute) {
+            this.attributeName = connectorAttribute.attributeName;
+            this.stringValue = connectorAttribute.stringValue;
+            this.description = connectorAttribute.description;
+        }
+
+
+        public String getAttributeName() {
+            return attributeName;
+        }
+
+        public String getStringValue() {
+            return stringValue;
+        }
+
+        public void setStringValue(String stringValue) {
+            this.stringValue = stringValue;
+        }
+
+        public String getDescription() {
+            return description;
+        }
+
+        public static List<ConnectorAttribute> copy(List<ConnectorAttribute> source) {
+            List<ConnectorAttribute> copy = new ArrayList<ConnectorAttribute>(source.size());
+            for (ConnectorAttribute connectorAttribute: source) {
+                copy.add(new ConnectorAttribute(connectorAttribute));
+            }
+            return copy;
+        }
+    }
 }

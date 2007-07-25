@@ -211,6 +211,18 @@ public class TomcatManagerImpl implements WebManager {
         return (WebAccessLog) kernel.getProxyManager().createProxy((AbstractName)names.iterator().next(), TomcatLogManager.class.getClassLoader());
     }
 
+    public List<ConnectorType> getConnectorTypes() {
+        return null;
+    }
+
+    public List<ConnectorAttribute> getConnectorAttributes(ConnectorType connectorType) {
+        return null;
+    }
+
+    public AbstractName getConnectorConfiguration(ConnectorType connectorType, List<ConnectorAttribute> connectorAttributes, WebContainer container, String uniqueName) {
+        return null;
+    }
+
     /**
      * Gets the ObjectNames of any existing connectors associated with this network technology.
      */
