@@ -85,7 +85,7 @@
 
         <cxfVersion>2.0-incubator</cxfVersion>
 
-        <axis2Version>SNAPSHOT</axis2Version>
+        <axis2Version>1.3-SNAPSHOT</axis2Version>
     </properties>
 
     <dependencyManagement>
