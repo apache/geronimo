@@ -281,6 +281,10 @@ public class PropertiesLoginModuleManager implements GBeanLifecycle {
     public Set getGroupMembers(String groupPrincipal)
             throws GeronimoSecurityException {
         Set memberSet = new HashSet();
+        // return nothing when the groupPrincipal is null or empty
+        if (groupPrincipal == null || groupPrincipal.equals("")) {
+            return memberSet;
+        }
         refreshGroups();
         if (groups.getProperty(groupPrincipal) == null) {
             log.warn("getGroupMembers() Group="+groupPrincipal+" does not exist.");
