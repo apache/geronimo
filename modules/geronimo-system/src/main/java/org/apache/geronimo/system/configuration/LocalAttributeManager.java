@@ -583,7 +583,10 @@ public class LocalAttributeManager implements PluginAttributeStore, PersistentCo
                 throw new IOException("Unable to create directory for list:" + parent);
             }
         }
-        if (!parent.canRead() || !parent.canWrite()) {
+        if (!parent.canRead()) {
+            throw new IOException("Unable to read manageable attribute files in directory " + parent.getAbsolutePath());
+        }
+        if (!readOnly && !parent.canWrite()) {
             throw new IOException("Unable to write manageable attribute files to directory " + parent.getAbsolutePath());
         }
     }
