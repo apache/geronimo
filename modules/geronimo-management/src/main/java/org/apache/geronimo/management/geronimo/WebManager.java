@@ -18,8 +18,10 @@ package org.apache.geronimo.management.geronimo;
 
 import java.util.List;
 import java.util.ArrayList;
+import java.beans.PropertyEditor;
 
 import org.apache.geronimo.gbean.AbstractName;
+import org.apache.geronimo.common.propertyeditor.PropertyEditors;
 
 /**
  * Specialization of NetworkManager for web containers.
@@ -80,31 +82,47 @@ public interface WebManager extends NetworkManager {
     public class ConnectorAttribute<T> {
         private final String attributeName;
         private String stringValue;
+        private final Class<T> clazz;
+        private T value;
         private final String description;
 
-        public ConnectorAttribute(String attributeName, String value, String description) {
+        public ConnectorAttribute(String attributeName, T value, String description, Class<T> clazz) {
             this.attributeName = attributeName;
-            this.stringValue = value;
+            this.value = value;
             this.description = description;
+            this.clazz = clazz;
         }
 
-        public ConnectorAttribute(ConnectorAttribute connectorAttribute) {
+        public ConnectorAttribute(ConnectorAttribute<T> connectorAttribute) {
             this.attributeName = connectorAttribute.attributeName;
             this.stringValue = connectorAttribute.stringValue;
             this.description = connectorAttribute.description;
+            this.clazz = connectorAttribute.clazz;
         }
-
 
         public String getAttributeName() {
             return attributeName;
         }
 
         public String getStringValue() {
-            return stringValue;
+//            Class<T> clazz = getClass().getTypeParameters();
+            PropertyEditor propertyEditor = PropertyEditors.getEditor(clazz);
+            propertyEditor.setValue(value);
+            return propertyEditor.getAsText();
         }
 
         public void setStringValue(String stringValue) {
-            this.stringValue = stringValue;
+            PropertyEditor propertyEditor = PropertyEditors.getEditor(clazz);
+            propertyEditor.setAsText(stringValue);
+            this.value = (T) propertyEditor.getValue();
+        }
+
+        public T getValue() {
+            return value;
+        }
+
+        public void setValue(T value) {
+            this.value = value;
         }
 
         public String getDescription() {

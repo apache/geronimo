@@ -17,12 +17,12 @@
 package org.apache.geronimo.jetty6;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Set;
-import java.util.Arrays;
 import java.util.Map;
-import java.util.HashMap;
+import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -34,12 +34,12 @@ import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.ReferencePatterns;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.jetty6.connector.AJP13Connector;
-import org.apache.geronimo.jetty6.connector.HTTPSocketConnector;
-import org.apache.geronimo.jetty6.connector.HTTPSSocketConnector;
-import org.apache.geronimo.jetty6.connector.JettyConnector;
-import org.apache.geronimo.jetty6.connector.HTTPSelectChannelConnector;
-import org.apache.geronimo.jetty6.connector.HTTPSSelectChannelConnector;
 import org.apache.geronimo.jetty6.connector.HTTPBlockingConnector;
+import org.apache.geronimo.jetty6.connector.HTTPSSelectChannelConnector;
+import org.apache.geronimo.jetty6.connector.HTTPSSocketConnector;
+import org.apache.geronimo.jetty6.connector.HTTPSelectChannelConnector;
+import org.apache.geronimo.jetty6.connector.HTTPSocketConnector;
+import org.apache.geronimo.jetty6.connector.JettyConnector;
 import org.apache.geronimo.jetty6.requestlog.JettyLogManager;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.kernel.Kernel;
@@ -79,23 +79,79 @@ public class JettyManagerImpl implements WebManager {
     );
 
     private static Map<ConnectorType, List<ConnectorAttribute>> CONNECTOR_ATTRIBUTES = new HashMap<ConnectorType, List<ConnectorAttribute>>();
+
     //"host", "port", "minThreads", "maxThreads", "bufferSizeBytes", "acceptQueueSize", "lingerMillis", "protocol", "redirectPort", "connectUrl", "maxIdleTimeMs"
     static {
-        CONNECTOR_ATTRIBUTES.put(HTTP_NIO, Arrays.asList(
-                new ConnectorAttribute("host", "0.0.0.0", "Host"),
-                new ConnectorAttribute("port", "8080", "Port"),
-//                new ConnectorAttribute("minThreads", "0.0.0.0", "Host"),
-                new ConnectorAttribute("maxThreads", "10", "Maximum number of acceptors"),
-                new ConnectorAttribute("bufferSizeBytes", "8096", "Buffer size"),
-                new ConnectorAttribute("acceptQueueSize", "10", "acceptQueueSize"),
-                new ConnectorAttribute("lingerMillis", "30000", "lingerMillis"),
-                new ConnectorAttribute("redirectPort", "8443", "redirectPort"),
-                new ConnectorAttribute("maxIdleTimeMs", "30000", "maxIdleTimeMs")
-//                new ConnectorAttribute("connectURL", "0.0.0.0", "connectURL")
-        ));
+        List<ConnectorAttribute> connectorAttributes = new ArrayList<ConnectorAttribute>();
+        connectorAttributes.add(new ConnectorAttribute<String>("host", "0.0.0.0", "Host", String.class));
+        connectorAttributes.add(new ConnectorAttribute<Integer>("port", 8080, "Port", Integer.class));
+        connectorAttributes.add(new ConnectorAttribute<Integer>("maxThreads", 10, "Maximum number of acceptors", Integer.class));
+        connectorAttributes.add(new ConnectorAttribute<Integer>("bufferSizeBytes", 8096, "Buffer size", Integer.class));
+        connectorAttributes.add(new ConnectorAttribute<Integer>("acceptQueueSize", 10, "acceptQueueSize", Integer.class));
+        connectorAttributes.add(new ConnectorAttribute<Integer>("lingerMillis", 30000, "lingerMillis", Integer.class));
+        connectorAttributes.add(new ConnectorAttribute<Integer>("redirectPort", 8443, "redirectPort", Integer.class));
+        connectorAttributes.add(new ConnectorAttribute<Integer>("maxIdleTimeMs", 30000, "maxIdleTimeMs", Integer.class));
+        CONNECTOR_ATTRIBUTES.put(HTTP_NIO, connectorAttributes);
+
+        connectorAttributes = new ArrayList<ConnectorAttribute>();
+        connectorAttributes.add(new ConnectorAttribute<String>("host", "0.0.0.0", "Host", String.class));
+        connectorAttributes.add(new ConnectorAttribute<Integer>("port", 8443, "Port", Integer.class));
+        connectorAttributes.add(new ConnectorAttribute<Integer>("maxThreads", 10, "Maximum number of acceptors", Integer.class));
+        connectorAttributes.add(new ConnectorAttribute<Integer>("bufferSizeBytes", 8096, "Buffer size", Integer.class));
+        connectorAttributes.add(new ConnectorAttribute<Integer>("acceptQueueSize", 10, "acceptQueueSize", Integer.class));
+        connectorAttributes.add(new ConnectorAttribute<Integer>("lingerMillis", 30000, "lingerMillis", Integer.class));
+        connectorAttributes.add(new ConnectorAttribute<Integer>("redirectPort", 8443, "redirectPort", Integer.class));
+        connectorAttributes.add(new ConnectorAttribute<Integer>("maxIdleTimeMs", 30000, "maxIdleTimeMs", Integer.class));
+        CONNECTOR_ATTRIBUTES.put(HTTPS_NIO, connectorAttributes);
+
+        connectorAttributes = new ArrayList<ConnectorAttribute>();
+        connectorAttributes.add(new ConnectorAttribute<String>("host", "0.0.0.0", "Host", String.class));
+        connectorAttributes.add(new ConnectorAttribute<Integer>("port", 8080, "Port", Integer.class));
+        connectorAttributes.add(new ConnectorAttribute<Integer>("maxThreads", 10, "Maximum number of acceptors", Integer.class));
+        connectorAttributes.add(new ConnectorAttribute<Integer>("bufferSizeBytes", 8096, "Buffer size", Integer.class));
+        connectorAttributes.add(new ConnectorAttribute<Integer>("acceptQueueSize", 10, "acceptQueueSize", Integer.class));
+        connectorAttributes.add(new ConnectorAttribute<Integer>("lingerMillis", 30000, "lingerMillis", Integer.class));
+        connectorAttributes.add(new ConnectorAttribute<Integer>("redirectPort", 8443, "redirectPort", Integer.class));
+        connectorAttributes.add(new ConnectorAttribute<Integer>("maxIdleTimeMs", 30000, "maxIdleTimeMs", Integer.class));
+        CONNECTOR_ATTRIBUTES.put(HTTP_BIO, connectorAttributes);
+
+        connectorAttributes = new ArrayList<ConnectorAttribute>();
+        connectorAttributes.add(new ConnectorAttribute<String>("host", "0.0.0.0", "Host", String.class));
+        connectorAttributes.add(new ConnectorAttribute<Integer>("port", 8443, "Port", Integer.class));
+        connectorAttributes.add(new ConnectorAttribute<Integer>("maxThreads", 10, "Maximum number of acceptors", Integer.class));
+        connectorAttributes.add(new ConnectorAttribute<Integer>("bufferSizeBytes", 8096, "Buffer size", Integer.class));
+        connectorAttributes.add(new ConnectorAttribute<Integer>("acceptQueueSize", 10, "acceptQueueSize", Integer.class));
+        connectorAttributes.add(new ConnectorAttribute<Integer>("lingerMillis", 30000, "lingerMillis", Integer.class));
+        connectorAttributes.add(new ConnectorAttribute<Integer>("redirectPort", 8443, "redirectPort", Integer.class));
+        connectorAttributes.add(new ConnectorAttribute<Integer>("maxIdleTimeMs", 30000, "maxIdleTimeMs", Integer.class));
+        CONNECTOR_ATTRIBUTES.put(HTTPS_BIO, connectorAttributes);
+
+        connectorAttributes = new ArrayList<ConnectorAttribute>();
+        connectorAttributes.add(new ConnectorAttribute<String>("host", "0.0.0.0", "Host", String.class));
+        connectorAttributes.add(new ConnectorAttribute<Integer>("port", 8080, "Port", Integer.class));
+        connectorAttributes.add(new ConnectorAttribute<Integer>("maxThreads", 10, "Maximum number of acceptors", Integer.class));
+        connectorAttributes.add(new ConnectorAttribute<Integer>("bufferSizeBytes", 8096, "Buffer size", Integer.class));
+        connectorAttributes.add(new ConnectorAttribute<Integer>("acceptQueueSize", 10, "acceptQueueSize", Integer.class));
+        connectorAttributes.add(new ConnectorAttribute<Integer>("lingerMillis", 30000, "lingerMillis", Integer.class));
+        connectorAttributes.add(new ConnectorAttribute<Integer>("redirectPort", 8443, "redirectPort", Integer.class));
+        connectorAttributes.add(new ConnectorAttribute<Integer>("maxIdleTimeMs", 30000, "maxIdleTimeMs", Integer.class));
+        CONNECTOR_ATTRIBUTES.put(HTTP_BLOCKING_NIO, connectorAttributes);
+
+        connectorAttributes = new ArrayList<ConnectorAttribute>();
+        connectorAttributes.add(new ConnectorAttribute<String>("host", "0.0.0.0", "Host", String.class));
+        connectorAttributes.add(new ConnectorAttribute<Integer>("port", 8009, "Port", Integer.class));
+        connectorAttributes.add(new ConnectorAttribute<Integer>("maxThreads", 10, "Maximum number of acceptors", Integer.class));
+        connectorAttributes.add(new ConnectorAttribute<Integer>("bufferSizeBytes", 8096, "Buffer size", Integer.class));
+        connectorAttributes.add(new ConnectorAttribute<Integer>("acceptQueueSize", 10, "acceptQueueSize", Integer.class));
+        connectorAttributes.add(new ConnectorAttribute<Integer>("lingerMillis", 30000, "lingerMillis", Integer.class));
+//        connectorAttributes.add(new ConnectorAttribute<Integer>("redirectPort", 8443, "redirectPort", Integer.class));
+        connectorAttributes.add(new ConnectorAttribute<Integer>("maxIdleTimeMs", 30000, "maxIdleTimeMs", Integer.class));
+        CONNECTOR_ATTRIBUTES.put(AJP_NIO, connectorAttributes);
+
     }
 
     private static Map<ConnectorType, GBeanInfo> CONNECTOR_GBEAN_INFOS = new HashMap<ConnectorType, GBeanInfo>();
+
     static {
         CONNECTOR_GBEAN_INFOS.put(HTTP_NIO, HTTPSelectChannelConnector.GBEAN_INFO);
         CONNECTOR_GBEAN_INFOS.put(HTTPS_NIO, HTTPSSelectChannelConnector.GBEAN_INFO);
@@ -133,8 +189,7 @@ public class JettyManagerImpl implements WebManager {
             //todo: default HTTPS settings
         } else if (protocol.equals(PROTOCOL_AJP)) {
             connector = new GBeanData(name, AJP13Connector.GBEAN_INFO);
-        }
-    	else {
+        } else {
             throw new IllegalArgumentException("Invalid protocol '" + protocol + "'");
         }
         connector.setAttribute("host", host);
@@ -144,7 +199,7 @@ public class JettyManagerImpl implements WebManager {
         connector.setAttribute("maxThreads", new Integer(50));
         connector.setReferencePattern(JettyConnector.CONNECTOR_CONTAINER_REFERENCE, containerName);
         EditableConfigurationManager mgr = ConfigurationUtil.getEditableConfigurationManager(kernel);
-        if(mgr != null) {
+        if (mgr != null) {
             try {
                 mgr.addGBeanToConfiguration(containerName.getArtifact(), connector, false);
                 return (WebConnector) kernel.getProxyManager().createProxy(name, JettyWebConnector.class.getClassLoader());
@@ -168,7 +223,7 @@ public class JettyManagerImpl implements WebManager {
         AbstractNameQuery query = new AbstractNameQuery(JettyContainer.class.getName());
         Set names = kernel.listGBeans(query);
         JettyContainer[] results = new JettyContainer[names.size()];
-        int i=0;
+        int i = 0;
         for (Iterator it = names.iterator(); it.hasNext(); i++) {
             AbstractName name = (AbstractName) it.next();
             results[i] = (JettyContainer) proxyManager.createProxy(name, JettyContainer.class.getClassLoader());
@@ -188,6 +243,7 @@ public class JettyManagerImpl implements WebManager {
      * Removes a connector.  This shuts it down if necessary, and removes it
      * from the server environment.  It must be a connector that this container
      * is responsible for.
+     *
      * @param connectorName
      */
     public void removeConnector(AbstractName connectorName) {
@@ -205,7 +261,7 @@ public class JettyManagerImpl implements WebManager {
                 throw new GBeanNotFoundException(connectorName);
             }
             EditableConfigurationManager mgr = ConfigurationUtil.getEditableConfigurationManager(kernel);
-            if(mgr != null) {
+            if (mgr != null) {
                 try {
                     mgr.removeGBeanFromConfiguration(connectorName.getArtifact(), connectorName);
                 } catch (InvalidConfigException e) {
@@ -230,7 +286,7 @@ public class JettyManagerImpl implements WebManager {
      * @param protocol A protocol as returned by getSupportedProtocols
      */
     public NetworkConnector[] getConnectors(String protocol) {
-        if(protocol == null) {
+        if (protocol == null) {
             return getConnectors();
         }
         List result = new ArrayList();
@@ -253,12 +309,12 @@ public class JettyManagerImpl implements WebManager {
     public WebAccessLog getAccessLog(WebContainer container) {
         AbstractNameQuery query = new AbstractNameQuery(JettyLogManager.class.getName());
         Set names = kernel.listGBeans(query);
-        if(names.size() == 0) {
+        if (names.size() == 0) {
             return null;
-        } else if(names.size() > 1) {
+        } else if (names.size() > 1) {
             throw new IllegalStateException("Should not be more than one Jetty access log manager");
         }
-        return (WebAccessLog) kernel.getProxyManager().createProxy((AbstractName)names.iterator().next(), JettyLogManager.class.getClassLoader());
+        return (WebAccessLog) kernel.getProxyManager().createProxy((AbstractName) names.iterator().next(), JettyLogManager.class.getClassLoader());
     }
 
     public List<ConnectorType> getConnectorTypes() {
@@ -275,11 +331,11 @@ public class JettyManagerImpl implements WebManager {
         AbstractName name = kernel.getNaming().createSiblingName(containerName, uniqueName, NameFactory.GERONIMO_SERVICE);
         GBeanData gbeanData = new GBeanData(name, gbeanInfo);
         gbeanData.setReferencePattern(JettyConnector.CONNECTOR_CONTAINER_REFERENCE, containerName);
-        for (ConnectorAttribute connectorAttribute: connectorAttributes) {
+        for (ConnectorAttribute connectorAttribute : connectorAttributes) {
             gbeanData.setAttribute(connectorAttribute.getAttributeName(), connectorAttribute.getStringValue());
         }
         EditableConfigurationManager mgr = ConfigurationUtil.getEditableConfigurationManager(kernel);
-        if(mgr != null) {
+        if (mgr != null) {
             try {
                 mgr.addGBeanToConfiguration(containerName.getArtifact(), gbeanData, false);
             } catch (InvalidConfigException e) {
@@ -303,7 +359,7 @@ public class JettyManagerImpl implements WebManager {
         AbstractNameQuery query = new AbstractNameQuery(JettyWebConnector.class.getName());
         Set names = kernel.listGBeans(query);
         JettyWebConnector[] results = new JettyWebConnector[names.size()];
-        int i=0;
+        int i = 0;
         for (Iterator it = names.iterator(); it.hasNext(); i++) {
             AbstractName name = (AbstractName) it.next();
             results[i] = (JettyWebConnector) proxyManager.createProxy(name, JettyWebConnector.class.getClassLoader());
@@ -312,7 +368,7 @@ public class JettyManagerImpl implements WebManager {
     }
 
     public NetworkConnector[] getConnectorsForContainer(Object container, String protocol) {
-        if(protocol == null) {
+        if (protocol == null) {
             return getConnectorsForContainer(container);
         }
         AbstractName containerName = kernel.getAbstractNameFor(container);
@@ -325,21 +381,21 @@ public class JettyManagerImpl implements WebManager {
                 AbstractName name = (AbstractName) it.next(); // a single Jetty connector
                 GBeanData data = kernel.getGBeanData(name);
                 ReferencePatterns refs = data.getReferencePatterns(JettyConnector.CONNECTOR_CONTAINER_REFERENCE);
-                if(containerName.equals(refs.getAbstractName())) {
+                if (containerName.equals(refs.getAbstractName())) {
                     try {
                         String testProtocol = (String) kernel.getAttribute(name, "protocol");
-                        if(testProtocol != null && testProtocol.equals(protocol)) {
+                        if (testProtocol != null && testProtocol.equals(protocol)) {
                             results.add(mgr.createProxy(name, JettyWebConnector.class.getClassLoader()));
                         }
                     } catch (Exception e) {
-                        log.error("Unable to look up protocol for connector '"+name+"'",e);
+                        log.error("Unable to look up protocol for connector '" + name + "'", e);
                     }
                     break;
                 }
             }
             return (JettyWebConnector[]) results.toArray(new JettyWebConnector[results.size()]);
         } catch (Exception e) {
-            throw (IllegalArgumentException)new IllegalArgumentException("Unable to look up connectors for Jetty container '"+containerName +"': ").initCause(e);
+            throw (IllegalArgumentException) new IllegalArgumentException("Unable to look up connectors for Jetty container '" + containerName + "': ").initCause(e);
         }
     }
 
@@ -360,7 +416,7 @@ public class JettyManagerImpl implements WebManager {
             }
             return (JettyWebConnector[]) results.toArray(new JettyWebConnector[results.size()]);
         } catch (Exception e) {
-            throw (IllegalArgumentException) new IllegalArgumentException("Unable to look up connectors for Jetty container '"+containerName+"'").initCause(e);
+            throw (IllegalArgumentException) new IllegalArgumentException("Unable to look up connectors for Jetty container '" + containerName + "'").initCause(e);
         }
     }
 
@@ -370,7 +426,7 @@ public class JettyManagerImpl implements WebManager {
         GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic("Jetty Web Manager", JettyManagerImpl.class);
         infoFactory.addAttribute("kernel", Kernel.class, false);
         infoFactory.addInterface(WebManager.class);
-        infoFactory.setConstructor(new String[] {"kernel"});
+        infoFactory.setConstructor(new String[]{"kernel"});
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
 
