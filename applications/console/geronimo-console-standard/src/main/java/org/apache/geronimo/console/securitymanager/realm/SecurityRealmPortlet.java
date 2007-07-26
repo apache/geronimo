@@ -189,10 +189,15 @@ public class SecurityRealmPortlet extends BasePortlet {
         } else if (mode.equals("process-" + SELECT_TYPE_MODE)) {
             if (data.getName() != null && !data.getName().trim().equals("")) {
                 // Config properties have to be set in render since they have values of null
-                if (data.getRealmType().equals("Other")) {
-                    actionResponse.setRenderParameter(MODE_KEY, CUSTOM_MODE);
+                if( doesRealmExist(actionRequest, data.getName())) {
+                    actionResponse.setRenderParameter("SecurityRealmNamingError", "Please provide a unique Security Realm Name, " + data.getName() + " is already in use");
+                    actionResponse.setRenderParameter(MODE_KEY, SELECT_TYPE_MODE);
                 } else {
-                    actionResponse.setRenderParameter(MODE_KEY, CONFIGURE_MODE);
+                    if (data.getRealmType().equals("Other")) {
+                        actionResponse.setRenderParameter(MODE_KEY, CUSTOM_MODE);
+                    } else {
+                        actionResponse.setRenderParameter(MODE_KEY, CONFIGURE_MODE);
+                    }
                 }
             } else {
                 actionResponse.setRenderParameter(MODE_KEY, SELECT_TYPE_MODE);
@@ -584,6 +589,9 @@ public class SecurityRealmPortlet extends BasePortlet {
 
     private void renderSelectType(RenderRequest request, RenderResponse response) throws IOException, PortletException {
         request.setAttribute("moduleTypes", MasterLoginModuleInfo.getAllModules());
+        if (request.getParameter("SecurityRealmNamingError") != null) {
+            request.setAttribute("SecurityRealmNamingError", request.getParameter("SecurityRealmNamingError"));
+        }
         selectTypeView.include(request, response);
     }
 
@@ -1149,4 +1157,27 @@ public class SecurityRealmPortlet extends BasePortlet {
             }
         }
     }
+
+    /**
+     * When adding a new security determine if the realm name is already registered.
+     *
+     * @param request - the request associated with the current user
+     * @param realmName -  the realm name to check and see if it already exists
+     *
+     * @return boolean - if the relam name already exists.
+     */
+    private boolean doesRealmExist(PortletRequest request, String realmName) {
+        org.apache.geronimo.management.geronimo.SecurityRealm[] realms = PortletManager.getCurrentServer(request).getSecurityRealms();
+        boolean exist = false;
+        for (int i = 0; i < realms.length; i++) {
+            org.apache.geronimo.management.geronimo.SecurityRealm result = realms[i];
+
+            if( result.getRealmName().equalsIgnoreCase(realmName)){
+                exist = true;
+                break;
+            }
+        }
+        return exist;
+    }
 }
+
