@@ -89,6 +89,7 @@ public class JettyManagerImpl implements WebManager {
         connectorAttributes.add(new ConnectorAttribute<Integer>("bufferSizeBytes", 8096, "Buffer size", Integer.class));
         connectorAttributes.add(new ConnectorAttribute<Integer>("acceptQueueSize", 10, "acceptQueueSize", Integer.class));
         connectorAttributes.add(new ConnectorAttribute<Integer>("lingerMillis", 30000, "lingerMillis", Integer.class));
+        connectorAttributes.add(new ConnectorAttribute<Boolean>("tcpNoDelay", false, "tcpNoDelay", Boolean.class));
         connectorAttributes.add(new ConnectorAttribute<Integer>("redirectPort", 8443, "redirectPort", Integer.class));
         connectorAttributes.add(new ConnectorAttribute<Integer>("maxIdleTimeMs", 30000, "maxIdleTimeMs", Integer.class));
         CONNECTOR_ATTRIBUTES.put(HTTP_NIO, connectorAttributes);
@@ -100,8 +101,15 @@ public class JettyManagerImpl implements WebManager {
         connectorAttributes.add(new ConnectorAttribute<Integer>("bufferSizeBytes", 8096, "Buffer size", Integer.class));
         connectorAttributes.add(new ConnectorAttribute<Integer>("acceptQueueSize", 10, "acceptQueueSize", Integer.class));
         connectorAttributes.add(new ConnectorAttribute<Integer>("lingerMillis", 30000, "lingerMillis", Integer.class));
+        connectorAttributes.add(new ConnectorAttribute<Boolean>("tcpNoDelay", false, "tcpNoDelay", Boolean.class));
         connectorAttributes.add(new ConnectorAttribute<Integer>("redirectPort", 8443, "redirectPort", Integer.class));
         connectorAttributes.add(new ConnectorAttribute<Integer>("maxIdleTimeMs", 30000, "maxIdleTimeMs", Integer.class));
+        connectorAttributes.add(new ConnectorAttribute<Boolean>("clientAuthRequested", false, "clientAuthRequested", Boolean.class));
+        connectorAttributes.add(new ConnectorAttribute<Boolean>("clientAuthRequired", false, "clientAuthRequired", Boolean.class));
+        connectorAttributes.add(new ConnectorAttribute<String>("keyStore", "", "keyStore", String.class));
+        connectorAttributes.add(new ConnectorAttribute<String>("trustStore", "", "trustStore", String.class));
+        connectorAttributes.add(new ConnectorAttribute<String>("keyAlias", "", "keyAlias", String.class));
+        connectorAttributes.add(new ConnectorAttribute<String>("secureProtocol", "", "secureProtocol", String.class));
         CONNECTOR_ATTRIBUTES.put(HTTPS_NIO, connectorAttributes);
 
         connectorAttributes = new ArrayList<ConnectorAttribute>();
@@ -111,6 +119,7 @@ public class JettyManagerImpl implements WebManager {
         connectorAttributes.add(new ConnectorAttribute<Integer>("bufferSizeBytes", 8096, "Buffer size", Integer.class));
         connectorAttributes.add(new ConnectorAttribute<Integer>("acceptQueueSize", 10, "acceptQueueSize", Integer.class));
         connectorAttributes.add(new ConnectorAttribute<Integer>("lingerMillis", 30000, "lingerMillis", Integer.class));
+        connectorAttributes.add(new ConnectorAttribute<Boolean>("tcpNoDelay", false, "tcpNoDelay", Boolean.class));
         connectorAttributes.add(new ConnectorAttribute<Integer>("redirectPort", 8443, "redirectPort", Integer.class));
         connectorAttributes.add(new ConnectorAttribute<Integer>("maxIdleTimeMs", 30000, "maxIdleTimeMs", Integer.class));
         CONNECTOR_ATTRIBUTES.put(HTTP_BIO, connectorAttributes);
@@ -122,8 +131,15 @@ public class JettyManagerImpl implements WebManager {
         connectorAttributes.add(new ConnectorAttribute<Integer>("bufferSizeBytes", 8096, "Buffer size", Integer.class));
         connectorAttributes.add(new ConnectorAttribute<Integer>("acceptQueueSize", 10, "acceptQueueSize", Integer.class));
         connectorAttributes.add(new ConnectorAttribute<Integer>("lingerMillis", 30000, "lingerMillis", Integer.class));
+        connectorAttributes.add(new ConnectorAttribute<Boolean>("tcpNoDelay", false, "tcpNoDelay", Boolean.class));
         connectorAttributes.add(new ConnectorAttribute<Integer>("redirectPort", 8443, "redirectPort", Integer.class));
         connectorAttributes.add(new ConnectorAttribute<Integer>("maxIdleTimeMs", 30000, "maxIdleTimeMs", Integer.class));
+        connectorAttributes.add(new ConnectorAttribute<Boolean>("clientAuthRequested", false, "clientAuthRequested", Boolean.class));
+        connectorAttributes.add(new ConnectorAttribute<Boolean>("clientAuthRequired", false, "clientAuthRequired", Boolean.class));
+        connectorAttributes.add(new ConnectorAttribute<String>("keyStore", "", "keyStore", String.class));
+        connectorAttributes.add(new ConnectorAttribute<String>("trustStore", "", "trustStore", String.class));
+        connectorAttributes.add(new ConnectorAttribute<String>("keyAlias", "", "keyAlias", String.class));
+        connectorAttributes.add(new ConnectorAttribute<String>("secureProtocol", "", "secureProtocol", String.class));
         CONNECTOR_ATTRIBUTES.put(HTTPS_BIO, connectorAttributes);
 
         connectorAttributes = new ArrayList<ConnectorAttribute>();
@@ -133,6 +149,7 @@ public class JettyManagerImpl implements WebManager {
         connectorAttributes.add(new ConnectorAttribute<Integer>("bufferSizeBytes", 8096, "Buffer size", Integer.class));
         connectorAttributes.add(new ConnectorAttribute<Integer>("acceptQueueSize", 10, "acceptQueueSize", Integer.class));
         connectorAttributes.add(new ConnectorAttribute<Integer>("lingerMillis", 30000, "lingerMillis", Integer.class));
+        connectorAttributes.add(new ConnectorAttribute<Boolean>("tcpNoDelay", false, "tcpNoDelay", Boolean.class));
         connectorAttributes.add(new ConnectorAttribute<Integer>("redirectPort", 8443, "redirectPort", Integer.class));
         connectorAttributes.add(new ConnectorAttribute<Integer>("maxIdleTimeMs", 30000, "maxIdleTimeMs", Integer.class));
         CONNECTOR_ATTRIBUTES.put(HTTP_BLOCKING_NIO, connectorAttributes);
@@ -144,7 +161,8 @@ public class JettyManagerImpl implements WebManager {
         connectorAttributes.add(new ConnectorAttribute<Integer>("bufferSizeBytes", 8096, "Buffer size", Integer.class));
         connectorAttributes.add(new ConnectorAttribute<Integer>("acceptQueueSize", 10, "acceptQueueSize", Integer.class));
         connectorAttributes.add(new ConnectorAttribute<Integer>("lingerMillis", 30000, "lingerMillis", Integer.class));
-//        connectorAttributes.add(new ConnectorAttribute<Integer>("redirectPort", 8443, "redirectPort", Integer.class));
+        connectorAttributes.add(new ConnectorAttribute<Boolean>("tcpNoDelay", false, "tcpNoDelay", Boolean.class));
+        connectorAttributes.add(new ConnectorAttribute<Integer>("redirectPort", 8443, "redirectPort", Integer.class));
         connectorAttributes.add(new ConnectorAttribute<Integer>("maxIdleTimeMs", 30000, "maxIdleTimeMs", Integer.class));
         CONNECTOR_ATTRIBUTES.put(AJP_NIO, connectorAttributes);
 
