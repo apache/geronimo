@@ -390,40 +390,6 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
         this.context = context;
     }
 
-    public URL getURLFor() {
-        //BAD BAD BAD! This is a nasty hack.  The web application should NOT know its connection url since
-        //connector != web application.  This should be changed to only return a String context and not a URL
-        try {
-            return new URL("http://localhost" + getContextPath());
-        } catch (MalformedURLException e) {
-            log.error("Bad URL to connect to web app", e);
-            return null;
-        }
-        /**
-        TomcatWebConnector[] connectors = (TomcatWebConnector[]) container.getConnectors();
-        Map map = new HashMap();
-        for (int i = 0; i < connectors.length; i++) {
-            TomcatWebConnector connector = connectors[i];
-            map.put(connector.getProtocol(), connector.getConnectUrl());
-        }
-        String urlPrefix;
-        if((urlPrefix = (String) map.get("HTTP")) == null) {
-            if((urlPrefix = (String) map.get("HTTPS")) == null) {
-                urlPrefix = (String) map.get("AJP");
-            }
-        }
-        if(urlPrefix == null) {
-            return null;
-        }
-        try {
-            return new URL(urlPrefix + getContextPath());
-        } catch (MalformedURLException e) {
-            log.error("Bad URL to connect to web app", e);
-            return null;
-        }
-        **/
-    }
-
     public String getContextPath() {
         return path;
     }

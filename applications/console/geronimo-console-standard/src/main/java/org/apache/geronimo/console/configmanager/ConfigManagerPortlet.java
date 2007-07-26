@@ -282,7 +282,6 @@ public class ConfigManagerPortlet extends BasePortlet {
                     WebModule webModule = (WebModule) PortletManager.getModule(renderRequest, info.getConfigID());
                     if (webModule != null) {
                         details.setContextPath(webModule.getContextPath());
-                        details.setUrlFor(webModule.getURLFor());
                     }
                 }
                 try {
@@ -384,7 +383,6 @@ public class ConfigManagerPortlet extends BasePortlet {
         private final Artifact configId;
         private final ConfigurationModuleType type;
         private final State state;
-        private URL urlFor;             // only relevant for webapps
         private String contextPath;     // only relevant for webapps
         private List parents = new ArrayList();
         private List children = new ArrayList();
@@ -419,16 +417,8 @@ public class ConfigManagerPortlet extends BasePortlet {
             return state;
         }
 
-        public URL getUrlFor() {
-            return urlFor;
-        }
-
         public String getContextPath() {
             return contextPath;
-        }
-
-        public void setUrlFor(URL urlFor) {
-            this.urlFor = urlFor;
         }
 
         public void setContextPath(String contextPath) {
