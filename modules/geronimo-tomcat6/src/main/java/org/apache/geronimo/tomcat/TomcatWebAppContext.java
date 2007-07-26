@@ -65,6 +65,7 @@ import org.apache.geronimo.management.geronimo.WebModule;
 import org.apache.geronimo.naming.enc.EnterpriseNamingContext;
 import org.apache.geronimo.security.jacc.RunAsSource;
 import org.apache.geronimo.tomcat.cluster.CatalinaClusterGBean;
+import org.apache.geronimo.tomcat.connector.TomcatWebConnector;
 import org.apache.geronimo.tomcat.stats.ModuleStats;
 import org.apache.geronimo.tomcat.util.SecurityHolder;
 import org.apache.geronimo.transaction.GeronimoUserTransaction;
@@ -390,10 +391,19 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
     }
 
     public URL getURLFor() {
-        WebConnector[] connectors = (WebConnector[]) container.getConnectors();
+        //BAD BAD BAD! This is a nasty hack.  The web application should NOT know its connection url since
+        //connector != web application.  This should be changed to only return a String context and not a URL
+        try {
+            return new URL("http://localhost" + getContextPath());
+        } catch (MalformedURLException e) {
+            log.error("Bad URL to connect to web app", e);
+            return null;
+        }
+        /**
+        TomcatWebConnector[] connectors = (TomcatWebConnector[]) container.getConnectors();
         Map map = new HashMap();
         for (int i = 0; i < connectors.length; i++) {
-            WebConnector connector = connectors[i];
+            TomcatWebConnector connector = connectors[i];
             map.put(connector.getProtocol(), connector.getConnectUrl());
         }
         String urlPrefix;
@@ -411,6 +421,7 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
             log.error("Bad URL to connect to web app", e);
             return null;
         }
+        **/
     }
 
     public String getContextPath() {

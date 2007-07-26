@@ -22,6 +22,7 @@ import java.util.Map;
 
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
+import org.apache.geronimo.management.geronimo.WebManager;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
 import org.apache.geronimo.tomcat.TomcatContainer;
 
@@ -32,6 +33,14 @@ public class Https11NIOConnectorGBean extends Http11NIOConnectorGBean {
         setSslEnabled(true);
         setScheme("https");
         setSecure(true);
+    }
+    
+    public int getDefaultPort() {
+        return 443; 
+    }  
+    
+    public String getGeronimoProtocol(){
+        return WebManager.PROTOCOL_HTTPS;
     }
     
     public static final GBeanInfo GBEAN_INFO;

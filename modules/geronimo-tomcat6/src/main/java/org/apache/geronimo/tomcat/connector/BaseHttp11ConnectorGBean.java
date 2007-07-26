@@ -19,6 +19,8 @@
 package org.apache.geronimo.tomcat.connector;
 
 import java.net.InetAddress;
+import java.net.InetSocketAddress;
+import java.net.UnknownHostException;
 import java.util.Map;
 
 import javax.management.j2ee.statistics.Stats;
@@ -31,7 +33,7 @@ import org.apache.geronimo.system.serverinfo.ServerInfo;
 import org.apache.geronimo.tomcat.TomcatContainer;
 import org.apache.geronimo.tomcat.stats.ConnectorStats;
 
-public class BaseHttp11ConnectorGBean extends ConnectorGBean implements Http11Protocol, StatisticsProvider {
+public abstract class BaseHttp11ConnectorGBean extends ConnectorGBean implements Http11Protocol, StatisticsProvider {
 
     private String keystoreFileName;
 
@@ -39,13 +41,15 @@ public class BaseHttp11ConnectorGBean extends ConnectorGBean implements Http11Pr
 
     private String algorithm;
 
+    protected String connectHost;
+    
     // JSR77 stats
     private ConnectorStats connStatsProvider = new ConnectorStats();
 
     private boolean reset = true;
 
-    public BaseHttp11ConnectorGBean(String name, Map initParams, String protocol, String address, int port, TomcatContainer container, ServerInfo serverInfo) throws Exception {
-        super(name, initParams, protocol, container, serverInfo);
+    public BaseHttp11ConnectorGBean(String name, Map initParams, String tomcatProtocol, String address, int port, TomcatContainer container, ServerInfo serverInfo) throws Exception {
+        super(name, initParams, tomcatProtocol, container, serverInfo);
 
         // Default the host to listen on all address is one was not specified
         if (address == null) {
@@ -58,10 +62,40 @@ public class BaseHttp11ConnectorGBean extends ConnectorGBean implements Http11Pr
         }
 
         connector.setAttribute("address", address);
-        connector.setAttribute("port", port);
+        connector.setPort(port);
 
     }
+    
     protected void initProtocol() {}
+    
+    public String getConnectUrl() {
+        if(connectHost == null) {
+            String host = getAddress();
+            if(host == null || host.equals("0.0.0.0") || host.equals("0:0:0:0:0:0:0:1")) {
+                InetAddress address = null;
+                try {
+                    address = InetAddress.getLocalHost();
+                } catch (UnknownHostException e) {
+                    host = "unknown-host";
+                }
+                if(address != null) {
+                    host = address.getCanonicalHostName();
+                    if(host == null || host.equals("")) {
+                        host = address.getHostAddress();
+                    }
+                }
+            }
+            // this host address could be in IPv6 format, 
+            // which means we need to wrap it in brackets
+            if (host.indexOf(":") >= 0) {
+                host = "[" + host + "]"; 
+            }
+            connectHost = host;
+        }
+        return getScheme().toLowerCase()+"://"+connectHost+(getPort() == getDefaultPort() ? "" : ":"+getPort());
+    }
+    
+    public abstract int getDefaultPort();
 
     // Generic SSL
     public String getAlgorithm() {
@@ -113,7 +147,7 @@ public class BaseHttp11ConnectorGBean extends ConnectorGBean implements Http11Pr
         connector.setAttribute("ciphers", ciphers);
     }
 
-    public void setClientAuth(String clientAuth) {
+    public void setClientAuth(boolean clientAuth) {
         connector.setAttribute("clientAuth", new Boolean(clientAuth));
     }
 
@@ -198,6 +232,14 @@ public class BaseHttp11ConnectorGBean extends ConnectorGBean implements Http11Pr
     public String getExecutor() {
         return (String) connector.getAttribute("Executor");
     }
+    
+    public String getHost() {
+        return getAddress();
+    }
+    
+    public InetSocketAddress getListenAddress() {
+        return new InetSocketAddress(getHost(), getPort());
+    }
 
     public int getKeepAliveTimeout() {
         Object value = connector.getAttribute("keepAliveTimeout");
@@ -217,6 +259,16 @@ public class BaseHttp11ConnectorGBean extends ConnectorGBean implements Http11Pr
     public int getMaxThreads() {
         Object value = connector.getAttribute("maxThreads");
         return value == null ? 200 : Integer.parseInt(value.toString());
+    }
+    
+    public int getMaxSpareThreads() {
+        Object value = connector.getAttribute("maxSpareThreads");
+        return value == null ? 100 : Integer.parseInt(value.toString());
+    }
+    
+    public int getMinSpareThreads() {
+        Object value = connector.getAttribute("minSpareThreads");
+        return value == null ? 10 : Integer.parseInt(value.toString());
     }
 
     public String getNoCompressionUserAgents() {
@@ -262,7 +314,7 @@ public class BaseHttp11ConnectorGBean extends ConnectorGBean implements Http11Pr
         connector.setAttribute("bufferSize", new Integer(bufferSize));
     }
 
-    public void setCompressableMimeType(int compressableMimeType) {
+    public void setCompressableMimeType(String compressableMimeType) {
         connector.setAttribute("compressableMimeType", compressableMimeType);
     }
 
@@ -285,6 +337,10 @@ public class BaseHttp11ConnectorGBean extends ConnectorGBean implements Http11Pr
     public void setExecutor(String executor) {
         connector.setAttribute("executor", executor);
     }
+    
+    public void setHost(String host) {
+        setAddress(host);
+    }
 
     public void setKeepAliveTimeout(int keepAliveTimeout) {
         connector.setAttribute("keepAliveTimeout", keepAliveTimeout);
@@ -300,6 +356,14 @@ public class BaseHttp11ConnectorGBean extends ConnectorGBean implements Http11Pr
 
     public void setMaxThreads(int maxThreads) {
         connector.setAttribute("maxThreads", new Integer(maxThreads));
+    }
+    
+    public void setMaxSpareThreads(int maxSpareThreads) {
+        connector.setAttribute("maxSpareThreads", new Integer(maxSpareThreads));
+    }
+    
+    public void setMinSpareThreads(int minSpareThreads) {
+        connector.setAttribute("minSpareThreads", new Integer(minSpareThreads));
     }
 
     public void setNoCompressionUserAgents(String noCompressionUserAgents) {
@@ -360,11 +424,14 @@ public class BaseHttp11ConnectorGBean extends ConnectorGBean implements Http11Pr
                     "connectionLinger", 
                     "connectionTimeout", 
                     "executor", 
+                    "host",
                     "keepAliveTimeout", 
                     "disableUploadTimeout", 
                     "maxHttpHeaderSize", 
                     "maxKeepAliveRequests", 
                     "maxThreads", 
+                    "maxSpareThreads",
+                    "minSpareThreads",
                     "noCompressionUserAgents", 
                     "port", 
                     "restrictedUserAgents", 
@@ -395,11 +462,14 @@ public class BaseHttp11ConnectorGBean extends ConnectorGBean implements Http11Pr
                     "connectionLinger", 
                     "connectionTimeout", 
                     "executor", 
+                    "host",
                     "keepAliveTimeout", 
                     "disableUploadTimeout", 
                     "maxHttpHeaderSize", 
                     "maxKeepAliveRequests", 
                     "maxThreads", 
+                    "maxSpareThreads",
+                    "minSpareThreads",
                     "noCompressionUserAgents", 
                     "port", 
                     "restrictedUserAgents", 

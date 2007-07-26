@@ -27,7 +27,7 @@ public interface BaseHttp11Protocol {
     public int getBufferSize();
     public void setBufferSize(int bufferSize);
     public String getCompressableMimeType();
-    public void setCompressableMimeType(int compressableMimeType);
+    public void setCompressableMimeType(String compressableMimeType);
     public String getCompression();
     public void setCompression(String compression);
     public int getConnectionLinger();
@@ -36,6 +36,8 @@ public interface BaseHttp11Protocol {
     public void setConnectionTimeout(int connectionTimeout);
     public String getExecutor();
     public void setExecutor(String executor);
+    public String getHost();
+    public void setHost(String host);
     public int getKeepAliveTimeout();
     public void setKeepAliveTimeout(int keepAliveTimeout);
     public boolean getDisableUploadTimeout();
@@ -46,6 +48,10 @@ public interface BaseHttp11Protocol {
     public void setMaxKeepAliveRequests(int maxKeepAliveRequests);
     public int getMaxThreads();
     public void setMaxThreads(int maxThreads);
+    public int getMaxSpareThreads();
+    public void setMaxSpareThreads(int maxSpareThreads);
+    public int getMinSpareThreads();
+    public void setMinSpareThreads(int minSpareThreads);
     public String getNoCompressionUserAgents();
     public void setNoCompressionUserAgents(String noCompressionUserAgents);
     public int getPort();

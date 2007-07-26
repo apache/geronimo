@@ -30,6 +30,7 @@ public interface CommonProtocol {
     public int getMaxSavePostSize();
     public void setMaxSavePostSize(int maxPostSize);
     public String getProtocol();
+    public String getTomcatProtocol();
     public String getProxyName();
     public void setProxyName(String proxyName);
     public int getProxyPort();

@@ -21,6 +21,8 @@ package org.apache.geronimo.tomcat.connector;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.management.j2ee.statistics.Stats;
+
 import org.apache.catalina.LifecycleException;
 import org.apache.catalina.connector.Connector;
 import org.apache.commons.logging.Log;
@@ -29,13 +31,13 @@ import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
-import org.apache.geronimo.management.geronimo.WebManager;
+import org.apache.geronimo.management.geronimo.NetworkConnector;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
 import org.apache.geronimo.tomcat.BaseGBean;
 import org.apache.geronimo.tomcat.ObjectRetriever;
 import org.apache.geronimo.tomcat.TomcatContainer;
 
-public class ConnectorGBean extends BaseGBean implements GBeanLifecycle, ObjectRetriever, CommonProtocol {
+public abstract class ConnectorGBean extends BaseGBean implements GBeanLifecycle, ObjectRetriever, TomcatWebConnector {
 
     private static final Log log = LogFactory.getLog(ConnectorGBean.class);
 
@@ -49,7 +51,7 @@ public class ConnectorGBean extends BaseGBean implements GBeanLifecycle, ObjectR
 
     private String name;
 
-    public ConnectorGBean(String name, Map initParams, String protocol, TomcatContainer container, ServerInfo serverInfo) throws Exception {
+    public ConnectorGBean(String name, Map initParams, String tomcatProtocol, TomcatContainer container, ServerInfo serverInfo) throws Exception {
         
         //Relief for new Tomcat-only parameters that may come in the future
         if (initParams == null){
@@ -78,7 +80,7 @@ public class ConnectorGBean extends BaseGBean implements GBeanLifecycle, ObjectR
         this.serverInfo = serverInfo;
 
         // Create the Connector object
-        connector = new Connector(protocol);
+        connector = new Connector(tomcatProtocol);
         
         setParameters(connector, initParams);
 
@@ -115,6 +117,14 @@ public class ConnectorGBean extends BaseGBean implements GBeanLifecycle, ObjectR
      */
     protected void initProtocol() {}
     
+    public abstract int getDefaultPort();
+    
+    public abstract String getGeronimoProtocol();
+    
+    public abstract Stats getStats();
+    
+    public abstract void resetStats();
+    
     public Object getInternalObject() {
         return connector;
     }
@@ -149,6 +159,13 @@ public class ConnectorGBean extends BaseGBean implements GBeanLifecycle, ObjectR
     }
 
     public String getProtocol() {
+        //This is totally wrong on the Geronimo side and needs to be re-thought out.
+        //This was done to shoe horn in gerneric Geronimo protocols which should have no relation
+        //to the container's scheme.  This whole idea needs rework.
+        return getGeronimoProtocol();
+    }
+    
+    public String getTomcatProtocol() {
         return connector.getProtocol();
     }
 
@@ -261,6 +278,7 @@ public class ConnectorGBean extends BaseGBean implements GBeanLifecycle, ObjectR
         infoFactory.addReference(CONNECTOR_CONTAINER_REFERENCE, TomcatContainer.class, NameFactory.GERONIMO_SERVICE);
         infoFactory.addReference("ServerInfo", ServerInfo.class, "GBean");
         infoFactory.addInterface(ObjectRetriever.class);
+        infoFactory.addInterface(TomcatWebConnector.class);
         infoFactory.addInterface(CommonProtocol.class,
                 
                 new String[]{
@@ -270,6 +288,7 @@ public class ConnectorGBean extends BaseGBean implements GBeanLifecycle, ObjectR
                         "maxPostSize",
                         "maxSavePostSize",
                         "protocol",
+                        "tomcatProtocol",
                         "proxyName",
                         "proxyPort",
                         "redirectPort",
@@ -289,6 +308,7 @@ public class ConnectorGBean extends BaseGBean implements GBeanLifecycle, ObjectR
                         "maxPostSize",
                         "maxSavePostSize",
                         "protocol",
+                        "tomcatProtocol",
                         "proxyName",
                         "proxyPort",
                         "redirectPort",

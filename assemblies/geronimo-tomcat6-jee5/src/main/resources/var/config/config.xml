@@ -116,17 +116,17 @@
         -->
         <gbean name="TomcatResources"/>
         <gbean name="TomcatWebConnector">
-            <attribute name="host">${ServerHostname}</attribute>
+            <attribute name="address">${ServerHostname}</attribute>
             <attribute name="port">${HTTPPortPrimary + PortOffset}</attribute>
             <attribute name="redirectPort">${HTTPSPortPrimary + PortOffset}</attribute>
         </gbean>
         <gbean name="TomcatAJPConnector">
-            <attribute name="host">${ServerHostname}</attribute>
+            <attribute name="address">${ServerHostname}</attribute>
             <attribute name="port">${AJPPortPrimary + PortOffset}</attribute>
             <attribute name="redirectPort">${HTTPSPortPrimary + PortOffset}</attribute>
         </gbean>
         <gbean name="TomcatWebSSLConnector">
-            <attribute name="host">${ServerHostname}</attribute>
+            <attribute name="address">${ServerHostname}</attribute>
             <attribute name="port">${HTTPSPortPrimary + PortOffset}</attribute>
         </gbean>
     </module>

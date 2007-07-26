@@ -22,6 +22,7 @@ import java.util.Map;
 
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
+import org.apache.geronimo.management.geronimo.WebManager;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
 import org.apache.geronimo.tomcat.TomcatContainer;
 
@@ -31,6 +32,14 @@ public class Http11ConnectorGBean extends BaseHttp11ConnectorGBean {
         super(name, initParams, "HTTP/1.1", address, port, container, serverInfo);
     }
 
+    public int getDefaultPort() {
+        return 80; 
+    }  
+    
+    public String getGeronimoProtocol(){
+        return WebManager.PROTOCOL_HTTP;
+    }
+    
     public static final GBeanInfo GBEAN_INFO;
 
     static {

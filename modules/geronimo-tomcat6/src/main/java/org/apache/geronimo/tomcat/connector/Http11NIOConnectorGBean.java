@@ -22,6 +22,7 @@ import java.util.Map;
 
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
+import org.apache.geronimo.management.geronimo.WebManager;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
 import org.apache.geronimo.tomcat.TomcatContainer;
 
@@ -29,6 +30,14 @@ public class Http11NIOConnectorGBean extends BaseHttp11ConnectorGBean implements
 
     public Http11NIOConnectorGBean(String name,  Map initParams, String address, int port, TomcatContainer container, ServerInfo serverInfo) throws Exception {
         super(name, initParams, "org.apache.coyote.http11.Http11NioProtocol", address, port, container, serverInfo);
+    }
+    
+    public int getDefaultPort() {
+        return 80; 
+    }  
+    
+    public String getGeronimoProtocol(){
+        return WebManager.PROTOCOL_HTTP;
     }
 
     public int getAcceptorThreadCount() {

@@ -19,12 +19,15 @@
 package org.apache.geronimo.tomcat.connector;
 
 import java.net.InetAddress;
+import java.net.InetSocketAddress;
+import java.net.UnknownHostException;
 import java.util.Map;
 
 import javax.management.j2ee.statistics.Stats;
 
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
+import org.apache.geronimo.management.geronimo.WebManager;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
 import org.apache.geronimo.tomcat.TomcatContainer;
 import org.apache.geronimo.tomcat.stats.ConnectorStats;
@@ -36,6 +39,7 @@ public class AJP13ConnectorGBean extends ConnectorGBean implements Ajp13Protocol
 
     private boolean reset = true;
 
+    protected String connectHost;
 
     public AJP13ConnectorGBean(String name, Map initParams, String address, int port, TomcatContainer container, ServerInfo serverInfo) throws Exception {
         super(name, initParams, "AJP/1.3", container, serverInfo);
@@ -54,7 +58,46 @@ public class AJP13ConnectorGBean extends ConnectorGBean implements Ajp13Protocol
         connector.setAttribute("port", port);
 
     }
-
+    
+    public String getGeronimoProtocol(){
+        return WebManager.PROTOCOL_AJP;
+    }
+    
+    public String getConnectUrl() {
+        if(connectHost == null) {
+            String host = getAddress();
+            if(host == null || host.equals("0.0.0.0") || host.equals("0:0:0:0:0:0:0:1")) {
+                InetAddress address = null;
+                try {
+                    address = InetAddress.getLocalHost();
+                } catch (UnknownHostException e) {
+                    host = "unknown-host";
+                }
+                if(address != null) {
+                    host = address.getCanonicalHostName();
+                    if(host == null || host.equals("")) {
+                        host = address.getHostAddress();
+                    }
+                }
+            }
+            // this host address could be in IPv6 format, 
+            // which means we need to wrap it in brackets
+            if (host.indexOf(":") >= 0) {
+                host = "[" + host + "]"; 
+            }
+            connectHost = host;
+        }
+        return getScheme().toLowerCase()+"://"+connectHost+(getPort() == getDefaultPort() ? "" : ":"+getPort());
+    }
+    
+    public int getDefaultPort() {
+        return -1; 
+    }  
+    
+    public InetSocketAddress getListenAddress() {
+        return new InetSocketAddress(getHost(), getPort());
+    }
+    
     public String getAddress() {
         Object value = connector.getAttribute("address");
         if (value == null) {
@@ -83,6 +126,10 @@ public class AJP13ConnectorGBean extends ConnectorGBean implements Ajp13Protocol
     public String getExecutor() {
         return (String) connector.getAttribute("Executor");
     }
+    
+    public String getHost() {
+        return getAddress();
+    }
 
     public int getKeepAliveTimeout() {
         Object value = connector.getAttribute("keepAliveTimeout");
@@ -93,7 +140,17 @@ public class AJP13ConnectorGBean extends ConnectorGBean implements Ajp13Protocol
         Object value = connector.getAttribute("maxThreads");
         return value == null ? 200 : Integer.parseInt(value.toString());
     }
-
+    
+    public int getMaxSpareThreads() {
+        Object value = connector.getAttribute("maxSpareThreads");
+        return value == null ? 100 : Integer.parseInt(value.toString());
+    }
+    
+    public int getMinSpareThreads() {
+        Object value = connector.getAttribute("minSpareThreads");
+        return value == null ? 10 : Integer.parseInt(value.toString());
+    }
+    
     public int getPort() {
         return connector.getPort();
     }
@@ -127,6 +184,10 @@ public class AJP13ConnectorGBean extends ConnectorGBean implements Ajp13Protocol
     public void setExecutor(String executor) {
         connector.setAttribute("executor", executor);
     }
+    
+    public void setHost(String host) {
+        setAddress(host);
+    }
 
     public void setKeepAliveTimeout(int keepAliveTimeout) {
         connector.setAttribute("keepAliveTimeout", keepAliveTimeout);        
@@ -134,6 +195,18 @@ public class AJP13ConnectorGBean extends ConnectorGBean implements Ajp13Protocol
 
     public void setMaxThreads(int maxThreads) {
         connector.setAttribute("maxThreads", maxThreads);        
+    }
+    
+    public void setMaxSpareThreads(int maxSpareThreads) {
+        connector.setAttribute("maxSpareThreads", new Integer(maxSpareThreads));
+    }
+    
+    public void setMinSpareThreads(int minSpareThreads) {
+        connector.setAttribute("minSpareThreads", new Integer(minSpareThreads));
+    }
+
+    public void setNoCompressionUserAgents(String noCompressionUserAgents) {
+        connector.setAttribute("noCompressionUserAgents", noCompressionUserAgents);
     }
 
     public void setPort(int port) {
@@ -167,7 +240,7 @@ public class AJP13ConnectorGBean extends ConnectorGBean implements Ajp13Protocol
 
     static {
         GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic("Tomcat Connector", AJP13ConnectorGBean.class, ConnectorGBean.GBEAN_INFO);
-        infoFactory.addInterface(Http11Protocol.class, 
+        infoFactory.addInterface(Ajp13Protocol.class, 
                 new String[] {
                     //AJP Attributes
                     "address", 
@@ -176,6 +249,9 @@ public class AJP13ConnectorGBean extends ConnectorGBean implements Ajp13Protocol
                     "connectionTimeout", 
                     "executor", 
                     "keepAliveTimeout", 
+                    "maxThreads",
+                    "maxSpareThreads",
+                    "minSpareThreads",
                     "port", 
                     "tcpNoDelay", 
                     "tomcatAuthentication", 
@@ -188,6 +264,9 @@ public class AJP13ConnectorGBean extends ConnectorGBean implements Ajp13Protocol
                     "connectionTimeout", 
                     "executor", 
                     "keepAliveTimeout", 
+                    "maxThreads",
+                    "maxSpareThreads",
+                    "minSpareThreads",
                     "port", 
                     "tcpNoDelay", 
                     "tomcatAuthentication", 

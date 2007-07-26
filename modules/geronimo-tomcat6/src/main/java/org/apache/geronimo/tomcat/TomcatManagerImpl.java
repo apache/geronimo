@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.gbean.AbstractName;
@@ -41,6 +42,12 @@ import org.apache.geronimo.management.geronimo.WebConnector;
 import org.apache.geronimo.management.geronimo.WebContainer;
 import org.apache.geronimo.management.geronimo.WebManager;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
+import org.apache.geronimo.tomcat.connector.AJP13ConnectorGBean;
+import org.apache.geronimo.tomcat.connector.CommonProtocol;
+import org.apache.geronimo.tomcat.connector.ConnectorGBean;
+import org.apache.geronimo.tomcat.connector.Http11ConnectorGBean;
+import org.apache.geronimo.tomcat.connector.Https11ConnectorGBean;
+import org.apache.geronimo.tomcat.connector.TomcatWebConnector;
 
 /**
  * Tomcat implementation of the WebManager management API.  Knows how to
@@ -75,25 +82,29 @@ public class TomcatManagerImpl implements WebManager {
     public WebConnector addConnector(WebContainer container, String uniqueName, String protocol, String host, int port) {
         AbstractName containerName = kernel.getAbstractNameFor(container);
         AbstractName name = kernel.getNaming().createSiblingName(containerName, uniqueName, NameFactory.GERONIMO_SERVICE);
+        //Get the server info
+        AbstractNameQuery query = new AbstractNameQuery(ServerInfo.class.getName());
+        Set set = kernel.listGBeans(query);
+        AbstractName serverInfo = (AbstractName)set.iterator().next();
         GBeanData connector;
         if(protocol.equals(PROTOCOL_HTTP)) {
-            connector = new GBeanData(name, ConnectorGBean.GBEAN_INFO);
+            connector = new GBeanData(name, Http11ConnectorGBean.GBEAN_INFO);
+            connector.setReferencePattern("ServerInfo", serverInfo);
         } else if(protocol.equals(PROTOCOL_HTTPS)) {
-            connector = new GBeanData(name, HttpsConnectorGBean.GBEAN_INFO);
-            AbstractNameQuery query = new AbstractNameQuery(ServerInfo.class.getName());
-            Set set = kernel.listGBeans(query);
-            connector.setReferencePattern("ServerInfo", (AbstractName)set.iterator().next());
+            connector = new GBeanData(name, Https11ConnectorGBean.GBEAN_INFO);
+            connector.setReferencePattern("ServerInfo", serverInfo);
             //todo: default HTTPS settings
         } else if(protocol.equals(PROTOCOL_AJP)) {
-            connector = new GBeanData(name, ConnectorGBean.GBEAN_INFO);
+            connector = new GBeanData(name, AJP13ConnectorGBean.GBEAN_INFO);
+            connector.setReferencePattern("ServerInfo", serverInfo);
         } else {
             throw new IllegalArgumentException("Invalid protocol '"+protocol+"'");
         }
-        connector.setAttribute("protocol", protocol);
+//        connector.setAttribute("protocol", protocol);
         connector.setAttribute("host", host);
         connector.setAttribute("port", new Integer(port));
         connector.setAttribute("maxThreads", new Integer(50));
-        connector.setAttribute("acceptQueueSize", new Integer(100));
+        connector.setAttribute("acceptCount", new Integer(100));
         connector.setReferencePattern(ConnectorGBean.CONNECTOR_CONTAINER_REFERENCE, containerName);
         connector.setAttribute("name", uniqueName);
         EditableConfigurationManager mgr = ConfigurationUtil.getEditableConfigurationManager(kernel);

@@ -34,6 +34,10 @@ public interface Ajp13Protocol {
     public void setKeepAliveTimeout(int keepAliveTimeout);
     public int getMaxThreads();
     public void setMaxThreads(int maxThreads);
+    public int getMaxSpareThreads();
+    public void setMaxSpareThreads(int maxSpareThreads);
+    public int getMinSpareThreads();
+    public void setMinSpareThreads(int minSpareThreads);
     public int getPort();
     public void setPort(int port);
     public boolean getTcpNoDelay();
