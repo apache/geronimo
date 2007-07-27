@@ -35,6 +35,17 @@
     <dependencies>
         
         <dependency>
+            <groupId>org.apache.geronimo.components</groupId>
+            <artifactId>geronimo-connector</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.geronimo.components</groupId>
+            <artifactId>geronimo-connector</artifactId>
+            <classifier>tests</classifier>
+        </dependency>
+
+        <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
             <artifactId>geronimo-naming</artifactId>
             <version>${version}</version>
