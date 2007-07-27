@@ -77,7 +77,20 @@ public final class GBeanInfo implements Serializable {
                 throw new InvalidConfigurationException("Class does not have a getGBeanInfo() method: " + className);
             }
         } catch (NoClassDefFoundError e) {
-            throw new InvalidConfigurationException("Could not find getGBeanInfo method on " + className, e);
+            String message = e.getMessage();
+            StringBuffer buf = new StringBuffer("Could not load gbean class ").append(className).append(" due to NoClassDefFoundError\n");
+            if (message != null) {
+                message = message.replace('/', '.');
+                buf.append("    problematic class ").append(message);
+                try {
+                    Class hardToLoad = classLoader.loadClass(message);
+                    buf.append(" can be loaded in supplied classloader ").append(classLoader).append("\n");
+                    buf.append("    and is found in ").append(hardToLoad.getClassLoader());
+                } catch (ClassNotFoundException e1) {
+                    buf.append(" cannot be loaded in supplied classloader ").append(classLoader).append("\n");
+                }
+            }
+            throw new InvalidConfigurationException(buf.toString(), e);
         }
         try {
             return (GBeanInfo) method.invoke(null, new Object[]{});

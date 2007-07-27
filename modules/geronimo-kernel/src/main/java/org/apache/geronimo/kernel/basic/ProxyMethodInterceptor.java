@@ -84,13 +84,13 @@ public class ProxyMethodInterceptor implements MethodInterceptor {
         int interfaceIndex = proxy.getSuperIndex();
         synchronized (this) {
             if (gbeanInvokers == null) {
-                throw new DeadProxyException("Proxy is no longer valid");
+                throw new DeadProxyException("Proxy is no longer valid to gbean: " + abstractName);
             }
             gbeanInvoker = gbeanInvokers[interfaceIndex];
         }
 
         if (gbeanInvoker == null) {
-            throw new UnsupportedOperationException("No implementation method: objectName=" + abstractName + ", method=" + method);
+            throw new UnsupportedOperationException("No implementation method: abstractName=" + abstractName + ", method=" + method);
         }
 
         return gbeanInvoker.invoke(abstractName, args);
