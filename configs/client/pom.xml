@@ -122,24 +122,6 @@
             <artifactId>xbean-reflect</artifactId>
         </dependency>
 
-        <!-- geronimo-spec-corba, geronimo-j2ee_1.4_spec -->
-        <!-- openejb-core, tranql, asm, activemq,
-             concurrent, jdom -->
-
-        <!-- used by openejb -->
-        <dependency>
-            <groupId>activeio</groupId>
-            <artifactId>activeio</artifactId>
-        </dependency>
-
-        <!--
-        NOTE: Used by dependencies... :-(
-        -->
-        <dependency>
-            <groupId>concurrent</groupId>
-            <artifactId>concurrent</artifactId>
-        </dependency>
-
     </dependencies>
 
 </project>

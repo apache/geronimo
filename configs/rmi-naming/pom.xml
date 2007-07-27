@@ -80,17 +80,6 @@
             <version>${version}</version>
         </dependency>
 
-        <!-- remote login -->
-        <dependency>
-            <groupId>activeio</groupId>
-            <artifactId>activeio</artifactId>
-        </dependency>
-        
-        <dependency>
-            <groupId>concurrent</groupId>
-            <artifactId>concurrent</artifactId>
-        </dependency>
-
     </dependencies>
     
 </project>

@@ -59,20 +59,6 @@
         </dependency>
         
         <dependency>
-            <groupId>activeio</groupId>
-            <artifactId>activeio</artifactId>
-        </dependency>
-        
-        <!--
-        Required by activeio:activeio
-        -->
-        <dependency>
-            <groupId>concurrent</groupId>
-            <artifactId>concurrent</artifactId>
-            <scope>test</scope>
-        </dependency>
-        
-        <dependency>
             <groupId>regexp</groupId>
             <artifactId>regexp</artifactId>
         </dependency>

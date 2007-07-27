@@ -333,30 +333,12 @@
                 <version>2.2</version>
             </dependency>
             
-            <!--
-            NOTE: activeio and concurrent deps below are used for remote login
-                  support and eventually need to be removed.
-                  
-                  https://issues.apache.org/jira/browse/GERONIMO-2944
-            -->
-            <dependency>
-                <groupId>activeio</groupId>
-                <artifactId>activeio</artifactId>
-                <version>2.0-r118</version>
-            </dependency>
-            
             <dependency>
                 <groupId>com.agical.rmock</groupId>
                 <artifactId>rmock</artifactId>
                 <version>2.0.0-rc-6</version>
             </dependency>
 
-            <dependency>
-                <groupId>concurrent</groupId>
-                <artifactId>concurrent</artifactId>
-                <version>1.3.4</version>
-            </dependency>
-            
             <dependency>
                 <groupId>org.codehaus.castor</groupId>
                 <artifactId>castor</artifactId>
