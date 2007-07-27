@@ -29,7 +29,7 @@ import org.apache.geronimo.tomcat.TomcatContainer;
 public class Http11ConnectorGBean extends BaseHttp11ConnectorGBean {
 
     public Http11ConnectorGBean(String name, Map initParams, String address, int port, TomcatContainer container, ServerInfo serverInfo) throws Exception {
-        super(name, initParams, "HTTP/1.1", address, port, container, serverInfo);
+        super(name, initParams, "org.apache.coyote.http11.Http11Protocol", address, port, container, serverInfo);
     }
 
     public int getDefaultPort() {

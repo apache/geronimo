@@ -27,12 +27,13 @@ import javax.management.j2ee.statistics.Stats;
 
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
+import org.apache.geronimo.management.StatisticsProvider;
 import org.apache.geronimo.management.geronimo.WebManager;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
 import org.apache.geronimo.tomcat.TomcatContainer;
 import org.apache.geronimo.tomcat.stats.ConnectorStats;
 
-public class AJP13ConnectorGBean extends ConnectorGBean implements Ajp13Protocol{
+public class AJP13ConnectorGBean extends ConnectorGBean implements Ajp13Protocol, StatisticsProvider {
     
     // JSR77 stats
     private ConnectorStats connStatsProvider = new ConnectorStats();
@@ -55,7 +56,7 @@ public class AJP13ConnectorGBean extends ConnectorGBean implements Ajp13Protocol
         }
 
         connector.setAttribute("address", address);
-        connector.setAttribute("port", port);
+        connector.setPort(port);
 
     }
     
@@ -248,6 +249,7 @@ public class AJP13ConnectorGBean extends ConnectorGBean implements Ajp13Protocol
                     "bufferSize", 
                     "connectionTimeout", 
                     "executor", 
+                    "host",
                     "keepAliveTimeout", 
                     "maxThreads",
                     "maxSpareThreads",
@@ -263,6 +265,7 @@ public class AJP13ConnectorGBean extends ConnectorGBean implements Ajp13Protocol
                     "bufferSize", 
                     "connectionTimeout", 
                     "executor", 
+                    "host",
                     "keepAliveTimeout", 
                     "maxThreads",
                     "maxSpareThreads",

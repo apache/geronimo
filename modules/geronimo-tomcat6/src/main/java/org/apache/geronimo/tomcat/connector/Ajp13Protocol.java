@@ -30,6 +30,8 @@ public interface Ajp13Protocol {
     public void setConnectionTimeout(int connectionTimeout);
     public String getExecutor();
     public void setExecutor(String executor);
+    public String getHost();
+    public void setHost(String address);
     public int getKeepAliveTimeout();
     public void setKeepAliveTimeout(int keepAliveTimeout);
     public int getMaxThreads();
