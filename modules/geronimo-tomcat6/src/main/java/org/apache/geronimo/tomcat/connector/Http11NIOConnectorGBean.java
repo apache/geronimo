@@ -26,7 +26,7 @@ import org.apache.geronimo.management.geronimo.WebManager;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
 import org.apache.geronimo.tomcat.TomcatContainer;
 
-public class Http11NIOConnectorGBean extends BaseHttp11ConnectorGBean implements Http11NIOProtocol{
+public class Http11NIOConnectorGBean extends AbstractHttp11ConnectorGBean implements Http11NIOProtocol{
 
     public Http11NIOConnectorGBean(String name,  Map initParams, String address, int port, TomcatContainer container, ServerInfo serverInfo) throws Exception {
         super(name, initParams, "org.apache.coyote.http11.Http11NioProtocol", address, port, container, serverInfo);
@@ -348,8 +348,8 @@ public class Http11NIOConnectorGBean extends BaseHttp11ConnectorGBean implements
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic("Tomcat Connector", Http11NIOConnectorGBean.class, BaseHttp11ConnectorGBean.GBEAN_INFO);
-        infoFactory.addInterface(Http11Protocol.class, 
+        GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic("Tomcat Connector", Http11NIOConnectorGBean.class, AbstractHttp11ConnectorGBean.GBEAN_INFO);
+        infoFactory.addInterface(Http11NIOProtocol.class, 
                 new String[] {
                     "useSendfile", 
                     "useExecutor", 

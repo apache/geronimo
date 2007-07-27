@@ -33,13 +33,7 @@ import org.apache.geronimo.system.serverinfo.ServerInfo;
 import org.apache.geronimo.tomcat.TomcatContainer;
 import org.apache.geronimo.tomcat.stats.ConnectorStats;
 
-public abstract class BaseHttp11ConnectorGBean extends ConnectorGBean implements Http11Protocol, StatisticsProvider {
-
-    private String keystoreFileName;
-
-    private String truststoreFileName;
-
-    private String algorithm;
+public abstract class BaseHttp11ConnectorGBean extends ConnectorGBean implements BaseHttp11Protocol, StatisticsProvider {
 
     protected String connectHost;
     
@@ -97,93 +91,6 @@ public abstract class BaseHttp11ConnectorGBean extends ConnectorGBean implements
     
     public abstract int getDefaultPort();
 
-    // Generic SSL
-    public String getAlgorithm() {
-        return algorithm;
-    }
-
-    public String getCiphers() {
-        return (String) connector.getAttribute("ciphers");
-    }
-
-    public boolean getClientAuth() {
-        Object value = connector.getAttribute("clientAuth");
-        return value == null ? false : new Boolean(value.toString()).booleanValue();
-    }
-
-    public String getKeyAlias() {
-        return (String) connector.getAttribute("keyAlias");
-    }
-
-    public String getKeystoreFile() {
-        return keystoreFileName;
-    }
-
-    public String getKeystoreType() {
-        return (String) connector.getAttribute("keystoreType");
-    }
-
-    public String getSslProtocol() {
-        return (String) connector.getAttribute("sslProtocol");
-    }
-
-    public String getTruststoreFile() {
-        return truststoreFileName;
-    }
-
-    public String getTruststoreType() {
-        return (String) connector.getAttribute("truststoreType");
-    }
-
-    public void setAlgorithm(String algorithm) {
-        this.algorithm = algorithm;
-        if ("default".equalsIgnoreCase(algorithm)) {
-            algorithm = KeyManagerFactory.getDefaultAlgorithm();
-        }
-        connector.setAttribute("algorithm", algorithm);
-    }
-
-    public void setCiphers(String ciphers) {
-        connector.setAttribute("ciphers", ciphers);
-    }
-
-    public void setClientAuth(boolean clientAuth) {
-        connector.setAttribute("clientAuth", new Boolean(clientAuth));
-    }
-
-    public void setKeyAlias(String keyAlias) {
-        connector.setAttribute("keyAlias", keyAlias);
-    }
-
-    public void setKeystoreFile(String keystoreFile) {
-        keystoreFileName = keystoreFile;
-        connector.setAttribute("keystoreFile", serverInfo.resolveServerPath(keystoreFileName));
-    }
-
-    public void setKeystorePass(String keystorePass) {
-        connector.setAttribute("keystorePass", keystorePass);
-    }
-
-    public void setKeystoreType(String keystoreType) {
-        connector.setAttribute("keystoreType", keystoreType);
-    }
-
-    public void setSslProtocol(String sslProtocol) {
-        connector.setAttribute("sslProtocol", sslProtocol);
-    }
-
-    public void setTruststoreFile(String truststoreFile) {
-        truststoreFileName = truststoreFile;
-        connector.setAttribute("truststoreFile", serverInfo.resolveServerPath(truststoreFileName));
-    }
-
-    public void setTruststorePass(String truststorePass) {
-        connector.setAttribute("truststorePass", truststorePass);
-    }
-
-    public void setTruststoreType(String truststoreType) {
-        connector.setAttribute("truststoreType", truststoreType);
-    }
 
     // Generic HTTP
     public int getAcceptCount() {

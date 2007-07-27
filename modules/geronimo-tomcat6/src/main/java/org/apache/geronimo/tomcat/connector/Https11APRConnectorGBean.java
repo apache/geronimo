@@ -22,30 +22,36 @@ import java.util.Map;
 
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
+import org.apache.geronimo.management.geronimo.WebManager;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
 import org.apache.geronimo.tomcat.TomcatContainer;
 
-public class Http11ConnectorGBean extends AbstractHttp11ConnectorGBean {
-    
-    public Http11ConnectorGBean(String name, Map initParams,  String address, int port, TomcatContainer container, ServerInfo serverInfo) throws Exception {
-        super(name, initParams, "org.apache.coyote.http11.Http11Protocol", address, port, container, serverInfo);
+public class Https11APRConnectorGBean extends Http11APRConnectorGBean {
+
+    public Https11APRConnectorGBean(String name, Map initParams, String address, int port, TomcatContainer container, ServerInfo serverInfo) throws Exception {
+        super(name, initParams, address, port, container, serverInfo);
+        setSslEnabled(true);
+        setScheme("https");
+        setSecure(true);
     }
     
     public int getDefaultPort() {
-        return 80; 
+        return 443; 
     }  
     
-    public static GBeanInfo getGBeanInfo() {
-        return GBEAN_INFO;
+    public String getGeronimoProtocol(){
+        return WebManager.PROTOCOL_HTTPS;
     }
     
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic("Tomcat Connector", Http11ConnectorGBean.class, AbstractHttp11ConnectorGBean.GBEAN_INFO);
+        GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic("Tomcat Connector", Https11APRConnectorGBean.class, Http11APRConnectorGBean.GBEAN_INFO);
         infoFactory.setConstructor(new String[] { "name", "initParams", "address", "port", "TomcatContainer", "ServerInfo"});
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
     
-    
+    public static GBeanInfo getGBeanInfo() {
+        return GBEAN_INFO;
+    }    
 }

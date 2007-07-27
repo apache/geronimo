@@ -18,7 +18,7 @@
  */
 package org.apache.geronimo.tomcat.connector;
 
-public interface Http11Protocol extends BaseHttp11Protocol {
+public interface Http11Protocol {
 
     //Https
     public String getAlgorithm();

@@ -73,7 +73,7 @@ public abstract class ConnectorGBean extends BaseGBean implements GBeanLifecycle
             throw new IllegalArgumentException("serverInfo cannot be null.");
         }
         
-        initProtocol();
+        tomcatProtocol = validateProtocol(tomcatProtocol);
 
         this.name = name;
         this.container = container;
@@ -115,7 +115,7 @@ public abstract class ConnectorGBean extends BaseGBean implements GBeanLifecycle
      * Ensures that this implementation can handle the requested protocol.
      * @param protocol
      */
-    protected void initProtocol() {}
+    protected String validateProtocol(String tomcatProtocol) { return tomcatProtocol;}
     
     public abstract int getDefaultPort();
     
