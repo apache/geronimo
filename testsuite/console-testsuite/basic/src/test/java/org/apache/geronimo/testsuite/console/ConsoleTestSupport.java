@@ -50,7 +50,7 @@ public abstract class ConsoleTestSupport
         selenium.waitForPageToLoad("30000");
         assertEquals("Geronimo Console Login", selenium.getTitle());
         
-        selenium.removeCookie("JSESSIONID", "/");
+        //selenium.removeCookie("JSESSIONID", "/");
     }
 }
 
