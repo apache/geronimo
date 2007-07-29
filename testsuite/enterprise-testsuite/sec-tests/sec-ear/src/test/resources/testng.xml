@@ -23,9 +23,9 @@
 <!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd">
 
 <suite name="Suite1" verbose="1">
-    <test name="jpa-testsuite.jpa">
+    <test name="sec-testsuite.security">
         <packages>
-            <package name="org.apache.geronimo.testsuite.jpa"/>
+            <package name="org.apache.geronimo.testsuite.security"/>
         </packages>
     </test>
 </suite>

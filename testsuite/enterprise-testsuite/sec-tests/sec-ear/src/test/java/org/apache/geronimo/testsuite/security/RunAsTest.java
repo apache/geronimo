@@ -17,7 +17,7 @@
  *  under the License.
  */
 
-package org.apache.geronimo.testsuite.jpa;
+package org.apache.geronimo.testsuite.security;
 
 import org.testng.annotations.Test;
 import org.testng.annotations.BeforeSuite;
@@ -29,8 +29,8 @@ import org.apache.geronimo.testsupport.SeleniumTestSupport;
  * @version $Rev$ $Date$
  */
 @Test
-public class JPATest
-    extends SeleniumTestSupport
+public class RunAsTest
+        extends SeleniumTestSupport
 {
 
 
