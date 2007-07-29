@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+Copyright 2006 The Apache Software Foundation
+Licensed  under the  Apache License,  Version 2.0  (the "License");
+you may not use  this file  except in  compliance with the License.
+You may obtain a copy of the License at
+
+http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed  under the  License is distributed on an "AS IS" BASIS,
+WITHOUT  WARRANTIES OR CONDITIONS  OF ANY KIND, either  express  or
+implied.
+
+See the License for the specific language governing permissions and
+limitations under the License.
+-->
+<openejb-jar xmlns="http://www.openejb.org/xml/ns/openejb-jar-2.1">
+    <environment>
+        <moduleId>
+            <groupId>default</groupId>
+            <artifactId>sec-ejb</artifactId>
+            <version>2.1-SNAPSHOT</version>
+            <type>car</type>
+        </moduleId>
+        <dependencies>
+
+        </dependencies>
+    </environment>
+    <enterprise-beans>
+        <session>
+            <ejb-name>TestSession</ejb-name>
+        </session>
+    </enterprise-beans>
+    <security xmlns="http://geronimo.apache.org/xml/ns/security-2.0">
+        <credential-store>
+            <name xmlns="http://geronimo.apache.org/xml/ns/deployment-1.2">TestCredentialStore</name>
+        </credential-store>
+        <role-mappings>
+            <role role-name="foo">
+                <run-as-subject>
+                    <realm>test-realm</realm>
+                    <id>foo-subject</id>
+                </run-as-subject>
+                <principal class="org.apache.geronimo.security.realm.providers.GeronimoUserPrincipal" name="foo"/>
+            </role>
+            <role role-name="bar">
+                <run-as-subject>
+                    <realm>test-realm</realm>
+                    <id>bar-subject</id>
+                </run-as-subject>
+                <principal class="org.apache.geronimo.security.realm.providers.GeronimoUserPrincipal" name="bar"/>
+            </role>
+        </role-mappings>
+    </security>
+    <gbean name="TestCredentialStore" class="org.apache.geronimo.security.credentialstore.SimpleCredentialStoreImpl">
+        <xml-attribute name="credentialStore">
+            <credential-store xmlns="http://geronimo.apache.org/xml/ns/credentialstore-1.0">
+                <realm name="test-realm">
+                    <subject>
+                        <id>foo-subject</id>
+                        <credential>
+                            <type>org.apache.geronimo.security.credentialstore.NameCallbackHandler</type>
+                            <value>foo</value>
+                        </credential>
+                        <credential>
+                            <type>org.apache.geronimo.security.credentialstore.PasswordCallbackHandler</type>
+                            <value>foo</value>
+                        </credential>
+                    </subject>
+                    <subject>
+                        <id>bar-subject</id>
+                        <credential>
+                            <type>org.apache.geronimo.security.credentialstore.NameCallbackHandler</type>
+                            <value>bar</value>
+                        </credential>
+                        <credential>
+                            <type>org.apache.geronimo.security.credentialstore.PasswordCallbackHandler</type>
+                            <value>bar</value>
+                        </credential>
+                    </subject>
+                </realm>
+            </credential-store>
+        </xml-attribute>
+    </gbean>
+    <gbean name="test-realm"
+           class="org.apache.geronimo.security.realm.GenericSecurityRealm">
+        <attribute name="realmName">test-realm</attribute>
+        <xml-reference name="LoginModuleConfiguration">
+            <lc:login-config xmlns:lc="http://geronimo.apache.org/xml/ns/loginconfig-${geronimoSchemaVersion}">
+                <lc:login-module control-flag="REQUIRED" wrap-principals="false">
+                    <lc:login-domain-name>test-realm</lc:login-domain-name>
+                    <lc:login-module-class>org.apache.geronimo.itest.TestLoginModule</lc:login-module-class>
+                    <lc:option name="users">foo,bar</lc:option>
+                </lc:login-module>
+            </lc:login-config>
+        </xml-reference>
+        <reference name="ServerInfo">
+            <name>ServerInfo</name>
+        </reference>
+    </gbean>
+</openejb-jar>
+
