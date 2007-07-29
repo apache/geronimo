@@ -39,7 +39,7 @@ import javax.security.auth.callback.UnsupportedCallbackException;
 import org.apache.geronimo.security.realm.providers.GeronimoUserPrincipal;
 
 /**
- * @version $Rev:$ $Date:$
+ * @version $Rev$ $Date$
  */
 public class TestLoginModule implements LoginModule {
     private Subject subject;

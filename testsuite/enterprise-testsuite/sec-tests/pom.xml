@@ -33,9 +33,9 @@
         <profile>
             <id>child</id>
             <modules>
-                <module>jpa-ejb</module>
-                <module>jpa-war</module>
-                <module>jpa-ear</module>
+                <module>sec-ejb</module>
+                <module>sec-war</module>
+                <module>sec-ear</module>
             </modules>
         </profile>
     </profiles>
