@@ -35,7 +35,7 @@
     <xsd:import namespace="http://geronimo.apache.org/xml/ns/deployment-1.2"  schemaLocation="geronimo-module-1.2.xsd"/>
 
     <xsd:element name="security" type="geronimo:securityType" substitutionGroup="app:security"/>
-    <xsd:element name="credential-store" type="geronimo:credential-storeType"/>
+    <xsd:element name="credential-store" type="sys:patternType"/>
     <xsd:element name="default-subject" type="geronimo:subject-infoType"/>
 
     <xsd:complexType name="securityType">
@@ -53,7 +53,7 @@
                 <xsd:sequence>
                     <xsd:element name="description" type="geronimo:descriptionType" minOccurs="0"
                                  maxOccurs="unbounded"/>
-                    <xsd:element name="credential-store" type="geronimo:credential-storeType" minOccurs="0"/>
+                    <xsd:element name="credential-store-ref" type="sys:patternType" minOccurs="0"/>
                     <xsd:element name="default-subject" type="geronimo:subject-infoType" minOccurs="0"/>
                     <xsd:element name="role-mappings" type="geronimo:role-mappingsType" minOccurs="0"/>
                 </xsd:sequence>
@@ -163,19 +163,19 @@
         </xsd:sequence>
     </xsd:complexType>
 
-    <xsd:complexType name="credential-storeType">
-        <xsd:sequence>
-            <xsd:element name="pattern" type="sys:patternType">
-                <xsd:annotation>
-                    <xsd:documentation>
-                        The pattern element defines a components of the
-                        abstract name of GBean referred. It (optionally) includes
-                        the groupId, artifactId, version,
-                        module, type, and name of the GBean module.
-                    </xsd:documentation>
-                </xsd:annotation>
-            </xsd:element>
-        </xsd:sequence>
-    </xsd:complexType>
+    <!--<xsd:complexType name="credential-storeType">-->
+        <!--<xsd:sequence>-->
+            <!--<xsd:element name="pattern" type="sys:patternType">-->
+                <!--<xsd:annotation>-->
+                    <!--<xsd:documentation>-->
+                        <!--The pattern element defines a components of the-->
+                        <!--abstract name of GBean referred. It (optionally) includes-->
+                        <!--the groupId, artifactId, version,-->
+                        <!--module, type, and name of the GBean module.-->
+                    <!--</xsd:documentation>-->
+                <!--</xsd:annotation>-->
+            <!--</xsd:element>-->
+        <!--</xsd:sequence>-->
+    <!--</xsd:complexType>-->
 
 </xsd:schema>
