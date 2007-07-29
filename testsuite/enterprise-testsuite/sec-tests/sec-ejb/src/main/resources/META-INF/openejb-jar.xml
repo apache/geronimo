@@ -33,9 +33,9 @@ limitations under the License.
         </session>
     </enterprise-beans>
     <security xmlns="http://geronimo.apache.org/xml/ns/security-2.0">
-        <credential-store>
+        <credential-store-ref>
             <name xmlns="http://geronimo.apache.org/xml/ns/deployment-1.2">TestCredentialStore</name>
-        </credential-store>
+        </credential-store-ref>
         <role-mappings>
             <role role-name="foo">
                 <run-as-subject>
