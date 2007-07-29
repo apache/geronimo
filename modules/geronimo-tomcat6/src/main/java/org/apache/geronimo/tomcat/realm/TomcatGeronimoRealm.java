@@ -393,7 +393,7 @@ public class TomcatGeronimoRealm extends JAASRealm {
 
         // Perform normal superclass initialization
         super.start();
-
+        setUseContextClassLoader(false);
     }
 
     /**
