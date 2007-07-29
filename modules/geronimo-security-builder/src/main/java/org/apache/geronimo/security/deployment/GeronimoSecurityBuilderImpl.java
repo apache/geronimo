@@ -60,7 +60,6 @@ import org.apache.geronimo.xbeans.geronimo.security.GerRoleType;
 import org.apache.geronimo.xbeans.geronimo.security.GerSecurityDocument;
 import org.apache.geronimo.xbeans.geronimo.security.GerSecurityType;
 import org.apache.geronimo.xbeans.geronimo.security.GerSubjectInfoType;
-import org.apache.geronimo.xbeans.geronimo.security.GerCredentialStoreType;
 import org.apache.xmlbeans.QNameSet;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
@@ -106,10 +105,9 @@ public class GeronimoSecurityBuilderImpl implements NamespaceDrivenBuilder {
                 throw new DeploymentException("Role mapper gbean already present", e);
             }
             AbstractNameQuery credentialStoreName;
-            if (securityType.isSetCredentialStore()) {
-                GerCredentialStoreType credentialStoreType = securityType.getCredentialStore();
-                PatternType patternType = credentialStoreType.getPattern();
-                credentialStoreName = SingleGBeanBuilder.buildAbstractNameQuery(patternType, NameFactory.GERONIMO_SERVICE, Collections.singleton(CredentialStore.class.getName()));
+            if (securityType.isSetCredentialStoreRef()) {
+                PatternType credentialStoreType = securityType.getCredentialStoreRef();
+                credentialStoreName = SingleGBeanBuilder.buildAbstractNameQuery(credentialStoreType, NameFactory.GERONIMO_SERVICE, Collections.singleton(CredentialStore.class.getName()));
             } else {
                 credentialStoreName = this.credentialStoreName;
             }
