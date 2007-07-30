@@ -17,6 +17,10 @@
 
 package org.apache.geronimo.j2ee.management.impl;
 
+import java.lang.management.ManagementFactory;
+import java.lang.management.MemoryMXBean;
+import java.lang.management.MemoryUsage;
+import java.lang.management.RuntimeMXBean;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.Date;
@@ -34,6 +38,7 @@ import org.apache.geronimo.kernel.ObjectNameUtil;
 import org.apache.geronimo.management.StatisticsProvider;
 import org.apache.geronimo.management.geronimo.JVM;
 import org.apache.geronimo.management.stats.BoundedRangeStatisticImpl;
+import org.apache.geronimo.management.stats.CountStatisticImpl;
 import org.apache.geronimo.management.stats.JVMStatsImpl;
 import org.apache.geronimo.system.logging.SystemLog;
 
@@ -151,26 +156,38 @@ public class JVMImpl implements JVM, StatisticsProvider {
     }
 
     public Stats getStats() {
-        BoundedRangeStatisticImpl heap;
-        if(stats == null) {
+        RuntimeMXBean runmxbean = ManagementFactory.getRuntimeMXBean();
+        MemoryMXBean memmxbean = ManagementFactory.getMemoryMXBean();
+        MemoryUsage memUsage = memmxbean.getHeapMemoryUsage();
+        CountStatisticImpl upTime;
+        BoundedRangeStatisticImpl heapSize;
+        
+        if (stats == null) {
             stats = new JVMStatsImpl();
-            long start = kernel.getBootTime().getTime();
-            stats.getUpTimeImpl().setCount(start);
-            stats.getUpTimeImpl().setStartTime(start);
-            heap = stats.getHeapSizeImpl();
-            heap.setStartTime(start);
-            heap.setBounds(0, runtime.totalMemory());
-            heap.setCurrent(heap.getUpperBound() - runtime.freeMemory());
-            heap.setLowWaterMark(heap.getCurrent());
-            heap.setHighWaterMark(heap.getCurrent());
+            // setup UpTime CountStatistic
+            upTime = stats.getUpTimeImpl();
+            upTime.setStartTime(runmxbean.getStartTime());
+            upTime.setCount(runmxbean.getUptime());
+            // setup Heap BoundedRangeStatistic
+            heapSize = stats.getHeapSizeImpl();
+            heapSize.setStartTime(runmxbean.getStartTime());
+            heapSize.setBounds(0, memUsage.getMax());
+            heapSize.setCurrent(memUsage.getUsed());
+            heapSize.setLowWaterMark(memUsage.getUsed());
+            heapSize.setHighWaterMark(memUsage.getUsed());
         } else {
-            heap = stats.getHeapSizeImpl();
-            heap.setBounds(0, runtime.totalMemory());
-            heap.setCurrent(heap.getUpperBound() - runtime.freeMemory());
+            // update UpTime CountStatistic
+            upTime = stats.getUpTimeImpl();
+            upTime.setCount(runmxbean.getUptime());
+            // update Heap BoundedRangeStatistic
+            heapSize = stats.getHeapSizeImpl();
+            heapSize.setBounds(0, memUsage.getMax());
+            heapSize.setCurrent(memUsage.getUsed());
         }
-        long now = System.currentTimeMillis();
-        stats.getUpTimeImpl().setLastSampleTime(now);
-        heap.setLastSampleTime(now);
+        long now = upTime.getStartTime() + upTime.getCount();
+        upTime.setLastSampleTime(now);
+        heapSize.setLastSampleTime(now);
+
         return stats;
     }
 
