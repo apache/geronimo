@@ -320,7 +320,7 @@ public abstract class BaseHttp11ConnectorGBean extends ConnectorGBean implements
 
     static {
         GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic("Tomcat Connector", BaseHttp11ConnectorGBean.class, ConnectorGBean.GBEAN_INFO);
-        infoFactory.addInterface(Http11Protocol.class, 
+        infoFactory.addInterface(BaseHttp11Protocol.class, 
                 new String[] {
                     //HTTP Attributes
                     "acceptCount", 

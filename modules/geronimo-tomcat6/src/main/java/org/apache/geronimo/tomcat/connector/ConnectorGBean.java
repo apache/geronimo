@@ -37,7 +37,7 @@ import org.apache.geronimo.tomcat.BaseGBean;
 import org.apache.geronimo.tomcat.ObjectRetriever;
 import org.apache.geronimo.tomcat.TomcatContainer;
 
-public abstract class ConnectorGBean extends BaseGBean implements GBeanLifecycle, ObjectRetriever, TomcatWebConnector {
+public abstract class ConnectorGBean extends BaseGBean implements CommonProtocol, GBeanLifecycle, ObjectRetriever, TomcatWebConnector {
 
     private static final Log log = LogFactory.getLog(ConnectorGBean.class);
 
