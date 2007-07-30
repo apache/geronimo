@@ -23,6 +23,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.Map.Entry;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -83,87 +84,87 @@ public class JettyManagerImpl implements WebManager {
     //"host", "port", "minThreads", "maxThreads", "bufferSizeBytes", "acceptQueueSize", "lingerMillis", "protocol", "redirectPort", "connectUrl", "maxIdleTimeMs"
     static {
         List<ConnectorAttribute> connectorAttributes = new ArrayList<ConnectorAttribute>();
-        connectorAttributes.add(new ConnectorAttribute<String>("host", "0.0.0.0", "Host", String.class));
-        connectorAttributes.add(new ConnectorAttribute<Integer>("port", 8080, "Port", Integer.class));
+        connectorAttributes.add(new ConnectorAttribute<String>("host", "0.0.0.0", "Host", String.class, true));
+        connectorAttributes.add(new ConnectorAttribute<Integer>("port", 8080, "Port", Integer.class, true));
         connectorAttributes.add(new ConnectorAttribute<Integer>("maxThreads", 10, "Maximum number of acceptors", Integer.class));
         connectorAttributes.add(new ConnectorAttribute<Integer>("bufferSizeBytes", 8096, "Buffer size", Integer.class));
         connectorAttributes.add(new ConnectorAttribute<Integer>("acceptQueueSize", 10, "acceptQueueSize", Integer.class));
         connectorAttributes.add(new ConnectorAttribute<Integer>("lingerMillis", 30000, "lingerMillis", Integer.class));
-        connectorAttributes.add(new ConnectorAttribute<Boolean>("tcpNoDelay", false, "tcpNoDelay", Boolean.class));
+        //connectorAttributes.add(new ConnectorAttribute<Boolean>("tcpNoDelay", false, "tcpNoDelay", Boolean.class));
         connectorAttributes.add(new ConnectorAttribute<Integer>("redirectPort", 8443, "redirectPort", Integer.class));
-        connectorAttributes.add(new ConnectorAttribute<Integer>("maxIdleTimeMs", 30000, "maxIdleTimeMs", Integer.class));
+        //connectorAttributes.add(new ConnectorAttribute<Integer>("maxIdleTimeMs", 30000, "maxIdleTimeMs", Integer.class));
         CONNECTOR_ATTRIBUTES.put(HTTP_NIO, connectorAttributes);
 
         connectorAttributes = new ArrayList<ConnectorAttribute>();
-        connectorAttributes.add(new ConnectorAttribute<String>("host", "0.0.0.0", "Host", String.class));
-        connectorAttributes.add(new ConnectorAttribute<Integer>("port", 8443, "Port", Integer.class));
+        connectorAttributes.add(new ConnectorAttribute<String>("host", "0.0.0.0", "Host", String.class, true));
+        connectorAttributes.add(new ConnectorAttribute<Integer>("port", 8443, "Port", Integer.class, true));
         connectorAttributes.add(new ConnectorAttribute<Integer>("maxThreads", 10, "Maximum number of acceptors", Integer.class));
         connectorAttributes.add(new ConnectorAttribute<Integer>("bufferSizeBytes", 8096, "Buffer size", Integer.class));
         connectorAttributes.add(new ConnectorAttribute<Integer>("acceptQueueSize", 10, "acceptQueueSize", Integer.class));
         connectorAttributes.add(new ConnectorAttribute<Integer>("lingerMillis", 30000, "lingerMillis", Integer.class));
-        connectorAttributes.add(new ConnectorAttribute<Boolean>("tcpNoDelay", false, "tcpNoDelay", Boolean.class));
+        //connectorAttributes.add(new ConnectorAttribute<Boolean>("tcpNoDelay", false, "tcpNoDelay", Boolean.class));
         connectorAttributes.add(new ConnectorAttribute<Integer>("redirectPort", 8443, "redirectPort", Integer.class));
-        connectorAttributes.add(new ConnectorAttribute<Integer>("maxIdleTimeMs", 30000, "maxIdleTimeMs", Integer.class));
+        //connectorAttributes.add(new ConnectorAttribute<Integer>("maxIdleTimeMs", 30000, "maxIdleTimeMs", Integer.class));
         connectorAttributes.add(new ConnectorAttribute<Boolean>("clientAuthRequested", false, "clientAuthRequested", Boolean.class));
         connectorAttributes.add(new ConnectorAttribute<Boolean>("clientAuthRequired", false, "clientAuthRequired", Boolean.class));
-        connectorAttributes.add(new ConnectorAttribute<String>("keyStore", "", "keyStore", String.class));
-        connectorAttributes.add(new ConnectorAttribute<String>("trustStore", "", "trustStore", String.class));
-        connectorAttributes.add(new ConnectorAttribute<String>("keyAlias", "", "keyAlias", String.class));
+        connectorAttributes.add(new ConnectorAttribute<String>("keyStore", "", "keyStore", String.class, true));
+        connectorAttributes.add(new ConnectorAttribute<String>("trustStore", "", "trustStore", String.class, true));
+        connectorAttributes.add(new ConnectorAttribute<String>("keyAlias", "", "keyAlias", String.class, true));
         connectorAttributes.add(new ConnectorAttribute<String>("secureProtocol", "", "secureProtocol", String.class));
         CONNECTOR_ATTRIBUTES.put(HTTPS_NIO, connectorAttributes);
 
         connectorAttributes = new ArrayList<ConnectorAttribute>();
-        connectorAttributes.add(new ConnectorAttribute<String>("host", "0.0.0.0", "Host", String.class));
-        connectorAttributes.add(new ConnectorAttribute<Integer>("port", 8080, "Port", Integer.class));
+        connectorAttributes.add(new ConnectorAttribute<String>("host", "0.0.0.0", "Host", String.class, true));
+        connectorAttributes.add(new ConnectorAttribute<Integer>("port", 8080, "Port", Integer.class, true));
         connectorAttributes.add(new ConnectorAttribute<Integer>("maxThreads", 10, "Maximum number of acceptors", Integer.class));
         connectorAttributes.add(new ConnectorAttribute<Integer>("bufferSizeBytes", 8096, "Buffer size", Integer.class));
         connectorAttributes.add(new ConnectorAttribute<Integer>("acceptQueueSize", 10, "acceptQueueSize", Integer.class));
         connectorAttributes.add(new ConnectorAttribute<Integer>("lingerMillis", 30000, "lingerMillis", Integer.class));
-        connectorAttributes.add(new ConnectorAttribute<Boolean>("tcpNoDelay", false, "tcpNoDelay", Boolean.class));
+        //connectorAttributes.add(new ConnectorAttribute<Boolean>("tcpNoDelay", false, "tcpNoDelay", Boolean.class));
         connectorAttributes.add(new ConnectorAttribute<Integer>("redirectPort", 8443, "redirectPort", Integer.class));
-        connectorAttributes.add(new ConnectorAttribute<Integer>("maxIdleTimeMs", 30000, "maxIdleTimeMs", Integer.class));
+        //connectorAttributes.add(new ConnectorAttribute<Integer>("maxIdleTimeMs", 30000, "maxIdleTimeMs", Integer.class));
         CONNECTOR_ATTRIBUTES.put(HTTP_BIO, connectorAttributes);
 
         connectorAttributes = new ArrayList<ConnectorAttribute>();
-        connectorAttributes.add(new ConnectorAttribute<String>("host", "0.0.0.0", "Host", String.class));
-        connectorAttributes.add(new ConnectorAttribute<Integer>("port", 8443, "Port", Integer.class));
+        connectorAttributes.add(new ConnectorAttribute<String>("host", "0.0.0.0", "Host", String.class, true));
+        connectorAttributes.add(new ConnectorAttribute<Integer>("port", 8443, "Port", Integer.class, true));
         connectorAttributes.add(new ConnectorAttribute<Integer>("maxThreads", 10, "Maximum number of acceptors", Integer.class));
         connectorAttributes.add(new ConnectorAttribute<Integer>("bufferSizeBytes", 8096, "Buffer size", Integer.class));
         connectorAttributes.add(new ConnectorAttribute<Integer>("acceptQueueSize", 10, "acceptQueueSize", Integer.class));
         connectorAttributes.add(new ConnectorAttribute<Integer>("lingerMillis", 30000, "lingerMillis", Integer.class));
-        connectorAttributes.add(new ConnectorAttribute<Boolean>("tcpNoDelay", false, "tcpNoDelay", Boolean.class));
+        //connectorAttributes.add(new ConnectorAttribute<Boolean>("tcpNoDelay", false, "tcpNoDelay", Boolean.class));
         connectorAttributes.add(new ConnectorAttribute<Integer>("redirectPort", 8443, "redirectPort", Integer.class));
-        connectorAttributes.add(new ConnectorAttribute<Integer>("maxIdleTimeMs", 30000, "maxIdleTimeMs", Integer.class));
+        //connectorAttributes.add(new ConnectorAttribute<Integer>("maxIdleTimeMs", 30000, "maxIdleTimeMs", Integer.class));
         connectorAttributes.add(new ConnectorAttribute<Boolean>("clientAuthRequested", false, "clientAuthRequested", Boolean.class));
         connectorAttributes.add(new ConnectorAttribute<Boolean>("clientAuthRequired", false, "clientAuthRequired", Boolean.class));
-        connectorAttributes.add(new ConnectorAttribute<String>("keyStore", "", "keyStore", String.class));
-        connectorAttributes.add(new ConnectorAttribute<String>("trustStore", "", "trustStore", String.class));
-        connectorAttributes.add(new ConnectorAttribute<String>("keyAlias", "", "keyAlias", String.class));
+        connectorAttributes.add(new ConnectorAttribute<String>("keyStore", "", "keyStore", String.class, true));
+        connectorAttributes.add(new ConnectorAttribute<String>("trustStore", "", "trustStore", String.class, true));
+        connectorAttributes.add(new ConnectorAttribute<String>("keyAlias", "", "keyAlias", String.class, true));
         connectorAttributes.add(new ConnectorAttribute<String>("secureProtocol", "", "secureProtocol", String.class));
         CONNECTOR_ATTRIBUTES.put(HTTPS_BIO, connectorAttributes);
 
         connectorAttributes = new ArrayList<ConnectorAttribute>();
-        connectorAttributes.add(new ConnectorAttribute<String>("host", "0.0.0.0", "Host", String.class));
-        connectorAttributes.add(new ConnectorAttribute<Integer>("port", 8080, "Port", Integer.class));
+        connectorAttributes.add(new ConnectorAttribute<String>("host", "0.0.0.0", "Host", String.class, true));
+        connectorAttributes.add(new ConnectorAttribute<Integer>("port", 8080, "Port", Integer.class, true));
         connectorAttributes.add(new ConnectorAttribute<Integer>("maxThreads", 10, "Maximum number of acceptors", Integer.class));
         connectorAttributes.add(new ConnectorAttribute<Integer>("bufferSizeBytes", 8096, "Buffer size", Integer.class));
         connectorAttributes.add(new ConnectorAttribute<Integer>("acceptQueueSize", 10, "acceptQueueSize", Integer.class));
         connectorAttributes.add(new ConnectorAttribute<Integer>("lingerMillis", 30000, "lingerMillis", Integer.class));
-        connectorAttributes.add(new ConnectorAttribute<Boolean>("tcpNoDelay", false, "tcpNoDelay", Boolean.class));
+        //connectorAttributes.add(new ConnectorAttribute<Boolean>("tcpNoDelay", false, "tcpNoDelay", Boolean.class));
         connectorAttributes.add(new ConnectorAttribute<Integer>("redirectPort", 8443, "redirectPort", Integer.class));
-        connectorAttributes.add(new ConnectorAttribute<Integer>("maxIdleTimeMs", 30000, "maxIdleTimeMs", Integer.class));
+        //connectorAttributes.add(new ConnectorAttribute<Integer>("maxIdleTimeMs", 30000, "maxIdleTimeMs", Integer.class));
         CONNECTOR_ATTRIBUTES.put(HTTP_BLOCKING_NIO, connectorAttributes);
 
         connectorAttributes = new ArrayList<ConnectorAttribute>();
-        connectorAttributes.add(new ConnectorAttribute<String>("host", "0.0.0.0", "Host", String.class));
-        connectorAttributes.add(new ConnectorAttribute<Integer>("port", 8009, "Port", Integer.class));
+        connectorAttributes.add(new ConnectorAttribute<String>("host", "0.0.0.0", "Host", String.class, true));
+        connectorAttributes.add(new ConnectorAttribute<Integer>("port", 8009, "Port", Integer.class, true));
         connectorAttributes.add(new ConnectorAttribute<Integer>("maxThreads", 10, "Maximum number of acceptors", Integer.class));
         connectorAttributes.add(new ConnectorAttribute<Integer>("bufferSizeBytes", 8096, "Buffer size", Integer.class));
         connectorAttributes.add(new ConnectorAttribute<Integer>("acceptQueueSize", 10, "acceptQueueSize", Integer.class));
         connectorAttributes.add(new ConnectorAttribute<Integer>("lingerMillis", 30000, "lingerMillis", Integer.class));
-        connectorAttributes.add(new ConnectorAttribute<Boolean>("tcpNoDelay", false, "tcpNoDelay", Boolean.class));
+        //connectorAttributes.add(new ConnectorAttribute<Boolean>("tcpNoDelay", false, "tcpNoDelay", Boolean.class));
         connectorAttributes.add(new ConnectorAttribute<Integer>("redirectPort", 8443, "redirectPort", Integer.class));
-        connectorAttributes.add(new ConnectorAttribute<Integer>("maxIdleTimeMs", 30000, "maxIdleTimeMs", Integer.class));
+        //connectorAttributes.add(new ConnectorAttribute<Integer>("maxIdleTimeMs", 30000, "maxIdleTimeMs", Integer.class));
         CONNECTOR_ATTRIBUTES.put(AJP_NIO, connectorAttributes);
 
     }
@@ -350,7 +351,10 @@ public class JettyManagerImpl implements WebManager {
         GBeanData gbeanData = new GBeanData(name, gbeanInfo);
         gbeanData.setReferencePattern(JettyConnector.CONNECTOR_CONTAINER_REFERENCE, containerName);
         for (ConnectorAttribute connectorAttribute : connectorAttributes) {
-            gbeanData.setAttribute(connectorAttribute.getAttributeName(), connectorAttribute.getStringValue());
+            Object value = connectorAttribute.getValue();
+            if (value != null) {
+                gbeanData.setAttribute(connectorAttribute.getAttributeName(), connectorAttribute.getValue());
+            }
         }
         EditableConfigurationManager mgr = ConfigurationUtil.getEditableConfigurationManager(kernel);
         if (mgr != null) {
@@ -367,6 +371,37 @@ public class JettyManagerImpl implements WebManager {
             return null;
         }
         return name;
+    }
+    
+    public ConnectorType getConnectorType(AbstractName connectorName) {
+        ConnectorType connectorType = null; 
+        try {
+            GBeanInfo info = kernel.getGBeanInfo(connectorName);
+            boolean found = false;
+            Set intfs = info.getInterfaces();
+            for (Iterator it = intfs.iterator(); it.hasNext() && !found;) {
+                String intf = (String) it.next();
+                if (intf.equals(JettyWebConnector.class.getName())) {
+                    found = true;
+                }
+            }
+            if (!found) {
+                throw new GBeanNotFoundException(connectorName);
+            }
+            String searchingFor = info.getName();
+            for (Entry<ConnectorType, GBeanInfo> entry : CONNECTOR_GBEAN_INFOS.entrySet() ) {
+                String candidate = entry.getValue().getName();
+                if (candidate.equals(searchingFor)) {
+                    return entry.getKey();
+                }
+            }
+        } catch (GBeanNotFoundException e) {
+            log.warn("No such GBean '" + connectorName + "'");
+        } catch (Exception e) {
+            log.error(e);
+        }
+            
+        return connectorType;
     }
 
     /**

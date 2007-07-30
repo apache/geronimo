@@ -324,4 +324,9 @@ public class TomcatManagerImpl implements WebManager {
     public static GBeanInfo getGBeanInfo() {
         return GBEAN_INFO;
     }
+
+    public ConnectorType getConnectorType(AbstractName connectorName) {
+        // TODO Auto-generated method stub
+        return null;
+    }
 }

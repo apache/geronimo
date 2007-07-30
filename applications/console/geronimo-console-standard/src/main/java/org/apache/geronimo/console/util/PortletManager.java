@@ -55,6 +55,7 @@ import org.apache.geronimo.management.geronimo.JMSBroker;
 import org.apache.geronimo.management.geronimo.JMSConnector;
 import org.apache.geronimo.management.geronimo.JMSManager;
 import org.apache.geronimo.management.geronimo.JVM;
+import org.apache.geronimo.management.geronimo.NetworkConnector;
 import org.apache.geronimo.management.geronimo.ResourceAdapter;
 import org.apache.geronimo.management.geronimo.ResourceAdapterModule;
 import org.apache.geronimo.management.geronimo.WebAccessLog;
@@ -254,27 +255,27 @@ public class PortletManager {
         return manager.addConnector((WebContainer) helper.getObject(containerName), name, protocol, host, port);
     }
 
-    public static WebConnector[] getWebConnectors(PortletRequest request, AbstractName managerName) {
+    public static NetworkConnector[] getNetworkConnectors(PortletRequest request, AbstractName managerName) {
         ManagementHelper helper = getManagementHelper(request);
         WebManager manager = (WebManager) helper.getObject(managerName);
-        return (WebConnector[]) manager.getConnectors();
+        return manager.getConnectors();
     }
 
-    public static WebConnector[] getWebConnectors(PortletRequest request, AbstractName managerName, String protocol) {
+    public static NetworkConnector[] getNetworkConnectors(PortletRequest request, AbstractName managerName, String protocol) {
         ManagementHelper helper = getManagementHelper(request);
         WebManager manager = (WebManager) helper.getObject(managerName);
-        return (WebConnector[]) manager.getConnectors(protocol);
+        return manager.getConnectors(protocol);
     }
 
-    public static WebConnector getWebConnector(PortletRequest request, AbstractName connectorName) {
+    public static NetworkConnector getNetworkConnector(PortletRequest request, AbstractName connectorName) {
         ManagementHelper helper = getManagementHelper(request);
-        return (WebConnector) helper.getObject(connectorName);
+        return (NetworkConnector) helper.getObject(connectorName);
     }
 
-    public static WebConnector[] getWebConnectorsForContainer(PortletRequest request, AbstractName managerName, AbstractName containerName, String protocol) {
+    public static NetworkConnector[] getNetworkConnectorsForContainer(PortletRequest request, AbstractName managerName, AbstractName containerName, String protocol) {
         ManagementHelper helper = getManagementHelper(request);
         WebManager manager = (WebManager) helper.getObject(managerName);
-        return (WebConnector[]) manager.getConnectorsForContainer(containerName, protocol);
+        return manager.getConnectorsForContainer(containerName, protocol);
     }
 
     public static JMSBroker getJMSBroker(PortletRequest request, AbstractName brokerName) {

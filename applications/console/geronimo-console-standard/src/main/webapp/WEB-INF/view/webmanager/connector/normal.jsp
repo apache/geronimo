@@ -93,18 +93,19 @@
           </c:otherwise>
         </c:choose>
 
-
+<P><HR><P>
 <!-- Links to add new connectors -->
-<c:forEach var="protocol" items="${container.protocols}">
-<br />
-<a href="<portlet:actionURL portletMode="view">
+Add new:
+<ul>
+<c:forEach var="connectorType" items="${container.connectorTypes}">
+<li><a href="<portlet:actionURL portletMode="view">
            <portlet:param name="mode" value="new" />
-           <portlet:param name="protocol" value="${protocol}" />
+           <portlet:param name="connectorType" value="${connectorType.description}" />
            <portlet:param name="managerURI" value="${container.managerURI}" />
            <portlet:param name="containerURI" value="${container.containerURI}" />
-           <portlet:param name="containerDisplayName" value="${container.name}" />
-         </portlet:actionURL>">Add new ${protocol} listener for ${container.name}</a>
+         </portlet:actionURL>">${connectorType.description}</a>
 </c:forEach>
+</ul>
 
     </c:forEach>
   </c:otherwise>

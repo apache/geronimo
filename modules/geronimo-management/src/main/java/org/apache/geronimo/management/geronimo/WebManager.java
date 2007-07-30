@@ -65,6 +65,8 @@ public interface WebManager extends NetworkManager {
 
     AbstractName getConnectorConfiguration(ConnectorType connectorType, List<ConnectorAttribute> connectorAttributes, WebContainer container, String uniqueName);
 
+    ConnectorType getConnectorType(AbstractName connectorName);
+
     public class ConnectorType {
         private final String description;
 
@@ -77,6 +79,33 @@ public interface WebManager extends NetworkManager {
         public String getDescription() {
             return description;
         }
+
+
+        @Override
+        public int hashCode() {
+            final int PRIME = 31;
+            int result = 1;
+            result = PRIME * result + ((description == null) ? 0 : description.hashCode());
+            return result;
+        }
+
+
+        @Override
+        public boolean equals(Object obj) {
+            if (this == obj)
+                return true;
+            if (obj == null)
+                return false;
+            if (getClass() != obj.getClass())
+                return false;
+            final ConnectorType other = (ConnectorType) obj;
+            if (description == null) {
+                if (other.description != null)
+                    return false;
+            } else if (!description.equals(other.description))
+                return false;
+            return true;
+        }
     }
 
     public class ConnectorAttribute<T> {
@@ -85,19 +114,26 @@ public interface WebManager extends NetworkManager {
         private final Class<T> clazz;
         private T value;
         private final String description;
+        private boolean required;
 
-        public ConnectorAttribute(String attributeName, T value, String description, Class<T> clazz) {
+        public ConnectorAttribute(String attributeName, T value, String description, Class<T> clazz, boolean required) {
             this.attributeName = attributeName;
             this.value = value;
             this.description = description;
             this.clazz = clazz;
+            this.required = required;
+        }
+        
+        public ConnectorAttribute(String attributeName, T value, String description, Class<T> clazz) {
+            this(attributeName, value, description, clazz, false);
         }
 
         public ConnectorAttribute(ConnectorAttribute<T> connectorAttribute) {
             this.attributeName = connectorAttribute.attributeName;
-            this.stringValue = connectorAttribute.stringValue;
+            this.value = connectorAttribute.value;
             this.description = connectorAttribute.description;
             this.clazz = connectorAttribute.clazz;
+            this.required = connectorAttribute.required;
         }
 
         public String getAttributeName() {
@@ -106,6 +142,7 @@ public interface WebManager extends NetworkManager {
 
         public String getStringValue() {
 //            Class<T> clazz = getClass().getTypeParameters();
+            if (value == null) return null;
             PropertyEditor propertyEditor = PropertyEditors.getEditor(clazz);
             propertyEditor.setValue(value);
             return propertyEditor.getAsText();
@@ -136,5 +173,18 @@ public interface WebManager extends NetworkManager {
             }
             return copy;
         }
+
+        public Class<T> getAttributeClass() {
+            return clazz;
+        }
+        
+        public boolean isRequired() {
+            return required;
+        }
+
+        public void setRequired(boolean required) {
+            this.required = required;
+        }
+
     }
 }
