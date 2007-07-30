@@ -303,6 +303,10 @@ public abstract class BaseHttp11ConnectorGBean extends ConnectorGBean implements
 
     // Statistics Provider
 
+    public boolean isStatisticsProvider() {
+        return true;
+    }
+
     public Stats getStats() {
         String port = String.valueOf(getPort());
         if (reset) {
