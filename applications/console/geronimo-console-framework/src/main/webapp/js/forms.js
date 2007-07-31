@@ -44,6 +44,10 @@ function checkIntegral(formName, elementName){
 }
 
 function isIntegral(value){
+    // trim off the negative sign if present
+    if(value.length>1 && value.charAt(0) == "-") {
+        value = value.substring(1);
+    }
     if(value.length < 1) return false;
     var ints = "1234567890";
     for(i = 0; i < value.length; i++){
