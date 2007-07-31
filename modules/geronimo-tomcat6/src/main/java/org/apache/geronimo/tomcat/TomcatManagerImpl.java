@@ -108,7 +108,6 @@ public class TomcatManagerImpl implements WebManager {
         connectorAttributes.add(new ConnectorAttribute<Integer>("maxKeepAliveRequests", 100, "Maximum keep alive requests", Integer.class));
         connectorAttributes.add(new ConnectorAttribute<String>("noCompressionUserAgents", "", "Comma separated list of regular expressions matching user-agents for which compression should not be used", String.class));
         connectorAttributes.add(new ConnectorAttribute<String>("restrictedUserAgents", "", "Comma separated list of regular expressions matching user-agents for which which HTTP/1.1 or HTTP/1.0 keep alive should not be used", String.class));
-        connectorAttributes.add(new ConnectorAttribute<String>("restrictedUserAgents", "", "Comma separated list of regular expressions matching user-agents for which which HTTP/1.1 or HTTP/1.0 keep alive should not be used", String.class));
         connectorAttributes.add(new ConnectorAttribute<String>("server", "", "The Server header for the http response.", String.class));
         connectorAttributes.add(new ConnectorAttribute<Integer>("socketBuffer", 9000, "The size (in bytes) of the buffer to be provided for socket output buffering", Integer.class));
         connectorAttributes.add(new ConnectorAttribute<Integer>("threadPriority", Thread.NORM_PRIORITY, "The priority of the request processing threads within the JVM", Integer.class));
@@ -135,7 +134,7 @@ public class TomcatManagerImpl implements WebManager {
         connectorAttributes.add(new ConnectorAttribute<Integer>("port", 8443, "Port", Integer.class, true));
         connectorAttributes.add(new ConnectorAttribute<String>("algorithm", KeyManagerFactory.getDefaultAlgorithm(), "Algorithm", String.class));
         connectorAttributes.add(new ConnectorAttribute<Boolean>("clientAuth", false, "clientAuth", Boolean.class));
-        connectorAttributes.add(new ConnectorAttribute<String>("keystoreFile", "", "keystoreFile", String.class));
+        connectorAttributes.add(new ConnectorAttribute<String>("keystoreFile", "", "keystoreFile", String.class, true));
         connectorAttributes.add(new ConnectorAttribute<String>("keystorePass", "", "keystorePass", String.class));
         connectorAttributes.add(new ConnectorAttribute<String>("keystoreType", "JKS", "keystoreType", String.class));
         connectorAttributes.add(new ConnectorAttribute<String>("sslProtocol", "TLS", "sslProtocol", String.class));
@@ -182,9 +181,93 @@ public class TomcatManagerImpl implements WebManager {
         CONNECTOR_ATTRIBUTES.put(HTTPS_BIO, connectorAttributes);
         
         connectorAttributes = new ArrayList<ConnectorAttribute>();
+        //HTTP Attributes
+        connectorAttributes.add(new ConnectorAttribute<String>("host", "0.0.0.0", "Host", String.class, true));
+        connectorAttributes.add(new ConnectorAttribute<Integer>("port", 8080, "Port", Integer.class, true));
+        connectorAttributes.add(new ConnectorAttribute<Integer>("maxThreads", 40, "Maximum number of threads", Integer.class));
+        connectorAttributes.add(new ConnectorAttribute<Integer>("minSpareThreads", 10, "Minimum spare threads", Integer.class));
+        connectorAttributes.add(new ConnectorAttribute<Integer>("maxSpareThreads", 100, "Maximum spare threads", Integer.class));
+        connectorAttributes.add(new ConnectorAttribute<Integer>("bufferSize", 2048, "Buffer size", Integer.class));
+        connectorAttributes.add(new ConnectorAttribute<Integer>("acceptCount", 10, "acceptCount", Integer.class));
+        connectorAttributes.add(new ConnectorAttribute<Integer>("connectionLinger", -1, "connectionLinger", Integer.class));
+        connectorAttributes.add(new ConnectorAttribute<Boolean>("tcpNoDelay", true, "tcpNoDelay", Boolean.class));
+        connectorAttributes.add(new ConnectorAttribute<String>("compressableMimeType", "text/html,text/xml,text/plain", "compressableMimeType", String.class));
+        connectorAttributes.add(new ConnectorAttribute<String>("compression", "off", "compression", String.class));
+        connectorAttributes.add(new ConnectorAttribute<Integer>("connectionTimeout", 60000, "Connection timeout in milliseconds", Integer.class));
+        connectorAttributes.add(new ConnectorAttribute<Integer>("keepAliveTimeout", 60000, "Keep alive timeout in milliseconds", Integer.class));
+        connectorAttributes.add(new ConnectorAttribute<Boolean>("disableUploadTimeout", true, "disableUploadTimeout", Boolean.class));
+        connectorAttributes.add(new ConnectorAttribute<Integer>("maxHttpHeaderSize", 4096, "Maximum HTTP header size in bytes", Integer.class));
+        connectorAttributes.add(new ConnectorAttribute<Integer>("maxKeepAliveRequests", 100, "Maximum keep alive requests", Integer.class));
+        connectorAttributes.add(new ConnectorAttribute<String>("noCompressionUserAgents", "", "Comma separated list of regular expressions matching user-agents for which compression should not be used", String.class));
+        connectorAttributes.add(new ConnectorAttribute<String>("restrictedUserAgents", "", "Comma separated list of regular expressions matching user-agents for which which HTTP/1.1 or HTTP/1.0 keep alive should not be used", String.class));
+        connectorAttributes.add(new ConnectorAttribute<String>("restrictedUserAgents", "", "Comma separated list of regular expressions matching user-agents for which which HTTP/1.1 or HTTP/1.0 keep alive should not be used", String.class));
+        connectorAttributes.add(new ConnectorAttribute<String>("server", "", "The Server header for the http response.", String.class));
+        connectorAttributes.add(new ConnectorAttribute<Integer>("socketBuffer", 9000, "The size (in bytes) of the buffer to be provided for socket output buffering", Integer.class));
+        connectorAttributes.add(new ConnectorAttribute<Integer>("threadPriority", Thread.NORM_PRIORITY, "The priority of the request processing threads within the JVM", Integer.class));
+        //Common attributes
+        connectorAttributes.add(new ConnectorAttribute<Boolean>("allowTrace", false, "Used to enable or disable the TRACE HTTP method.", Boolean.class));
+        connectorAttributes.add(new ConnectorAttribute<Boolean>("emptySessionPath", false, "emptySessionPath", Boolean.class));
+        connectorAttributes.add(new ConnectorAttribute<Boolean>("enableLookups", true, "enableLookups", Boolean.class));
+        connectorAttributes.add(new ConnectorAttribute<Integer>("maxPostSize", 2097152, "maxPostSize", Integer.class));
+        connectorAttributes.add(new ConnectorAttribute<Integer>("maxSavePostSize", 4096, "maxSavePostSize", Integer.class));
+        connectorAttributes.add(new ConnectorAttribute<String>("proxyName", "", "proxyName", String.class));
+        connectorAttributes.add(new ConnectorAttribute<Integer>("proxyPort", 0, "proxyPort", Integer.class));
+        connectorAttributes.add(new ConnectorAttribute<Integer>("redirectPort", 8443, "redirectPort", Integer.class));
+        connectorAttributes.add(new ConnectorAttribute<String>("uriEncoding", "ISO-8859-1", "uriEncoding", String.class));
+        connectorAttributes.add(new ConnectorAttribute<Boolean>("useBodyEncodingForURI", false, "useBodyEncodingForURI", Boolean.class));
+        connectorAttributes.add(new ConnectorAttribute<Boolean>("useIPVHosts", false, "useIPVHosts", Boolean.class));
+        connectorAttributes.add(new ConnectorAttribute<Boolean>("xpoweredBy", false, "xpoweredBy", Boolean.class));
         CONNECTOR_ATTRIBUTES.put(HTTP_NIO, connectorAttributes);
         
         connectorAttributes = new ArrayList<ConnectorAttribute>();
+        //HTTP Attributes
+        connectorAttributes.add(new ConnectorAttribute<String>("host", "0.0.0.0", "Host", String.class, true));
+        connectorAttributes.add(new ConnectorAttribute<Integer>("port", 8443, "Port", Integer.class, true));
+        connectorAttributes.add(new ConnectorAttribute<String>("algorithm", KeyManagerFactory.getDefaultAlgorithm(), "Algorithm", String.class));
+        connectorAttributes.add(new ConnectorAttribute<Boolean>("clientAuth", false, "clientAuth", Boolean.class));
+        connectorAttributes.add(new ConnectorAttribute<String>("keystoreFile", "", "keystoreFile", String.class, true));
+        connectorAttributes.add(new ConnectorAttribute<String>("keystorePass", "", "keystorePass", String.class));
+        connectorAttributes.add(new ConnectorAttribute<String>("keystoreType", "JKS", "keystoreType", String.class));
+        connectorAttributes.add(new ConnectorAttribute<String>("sslProtocol", "TLS", "sslProtocol", String.class));
+        connectorAttributes.add(new ConnectorAttribute<String>("ciphers", "", "Ciphers", String.class));
+        connectorAttributes.add(new ConnectorAttribute<String>("keyAlias", "", "keyAlias", String.class));
+        connectorAttributes.add(new ConnectorAttribute<String>("truststoreFile", "", "truststoreFile", String.class));
+        connectorAttributes.add(new ConnectorAttribute<String>("truststorePass", "", "truststorePass", String.class));
+        connectorAttributes.add(new ConnectorAttribute<String>("truststoreType", "", "truststoreType", String.class));
+
+        connectorAttributes.add(new ConnectorAttribute<Integer>("maxThreads", 40, "Maximum number of threads", Integer.class));
+        connectorAttributes.add(new ConnectorAttribute<Integer>("minSpareThreads", 10, "Minimum spare threads", Integer.class));
+        connectorAttributes.add(new ConnectorAttribute<Integer>("maxSpareThreads", 100, "Maximum spare threads", Integer.class));
+        connectorAttributes.add(new ConnectorAttribute<Integer>("bufferSize", 2048, "Buffer size", Integer.class));
+        connectorAttributes.add(new ConnectorAttribute<Integer>("acceptCount", 10, "acceptCount", Integer.class));
+        connectorAttributes.add(new ConnectorAttribute<Integer>("connectionLinger", -1, "connectionLinger", Integer.class));
+        connectorAttributes.add(new ConnectorAttribute<Boolean>("tcpNoDelay", true, "tcpNoDelay", Boolean.class));
+        connectorAttributes.add(new ConnectorAttribute<String>("compressableMimeType", "text/html,text/xml,text/plain", "compressableMimeType", String.class));
+        connectorAttributes.add(new ConnectorAttribute<String>("compression", "off", "compression", String.class));
+        connectorAttributes.add(new ConnectorAttribute<Integer>("connectionTimeout", 60000, "Connection timeout in milliseconds", Integer.class));
+        connectorAttributes.add(new ConnectorAttribute<Integer>("keepAliveTimeout", 60000, "Keep alive timeout in milliseconds", Integer.class));
+        connectorAttributes.add(new ConnectorAttribute<Boolean>("disableUploadTimeout", true, "disableUploadTimeout", Boolean.class));
+        connectorAttributes.add(new ConnectorAttribute<Integer>("maxHttpHeaderSize", 4096, "Maximum HTTP header size in bytes", Integer.class));
+        connectorAttributes.add(new ConnectorAttribute<Integer>("maxKeepAliveRequests", 100, "Maximum keep alive requests", Integer.class));
+        connectorAttributes.add(new ConnectorAttribute<String>("noCompressionUserAgents", "", "Comma separated list of regular expressions matching user-agents for which compression should not be used", String.class));
+        connectorAttributes.add(new ConnectorAttribute<String>("restrictedUserAgents", "", "Comma separated list of regular expressions matching user-agents for which which HTTP/1.1 or HTTP/1.0 keep alive should not be used", String.class));
+        connectorAttributes.add(new ConnectorAttribute<String>("restrictedUserAgents", "", "Comma separated list of regular expressions matching user-agents for which which HTTP/1.1 or HTTP/1.0 keep alive should not be used", String.class));
+        connectorAttributes.add(new ConnectorAttribute<String>("server", "", "The Server header for the http response.", String.class));
+        connectorAttributes.add(new ConnectorAttribute<Integer>("socketBuffer", 9000, "The size (in bytes) of the buffer to be provided for socket output buffering", Integer.class));
+        connectorAttributes.add(new ConnectorAttribute<Integer>("threadPriority", Thread.NORM_PRIORITY, "The priority of the request processing threads within the JVM", Integer.class));
+        //Common attributes
+        connectorAttributes.add(new ConnectorAttribute<Boolean>("allowTrace", false, "Used to enable or disable the TRACE HTTP method.", Boolean.class));
+        connectorAttributes.add(new ConnectorAttribute<Boolean>("emptySessionPath", false, "emptySessionPath", Boolean.class));
+        connectorAttributes.add(new ConnectorAttribute<Boolean>("enableLookups", true, "enableLookups", Boolean.class));
+        connectorAttributes.add(new ConnectorAttribute<Integer>("maxPostSize", 2097152, "maxPostSize", Integer.class));
+        connectorAttributes.add(new ConnectorAttribute<Integer>("maxSavePostSize", 4096, "maxSavePostSize", Integer.class));
+        connectorAttributes.add(new ConnectorAttribute<String>("proxyName", "", "proxyName", String.class));
+        connectorAttributes.add(new ConnectorAttribute<Integer>("proxyPort", 0, "proxyPort", Integer.class));
+        connectorAttributes.add(new ConnectorAttribute<Integer>("redirectPort", 8443, "redirectPort", Integer.class));
+        connectorAttributes.add(new ConnectorAttribute<String>("uriEncoding", "ISO-8859-1", "uriEncoding", String.class));
+        connectorAttributes.add(new ConnectorAttribute<Boolean>("useBodyEncodingForURI", false, "useBodyEncodingForURI", Boolean.class));
+        connectorAttributes.add(new ConnectorAttribute<Boolean>("useIPVHosts", false, "useIPVHosts", Boolean.class));
+        connectorAttributes.add(new ConnectorAttribute<Boolean>("xpoweredBy", false, "xpoweredBy", Boolean.class));
         CONNECTOR_ATTRIBUTES.put(HTTPS_NIO, connectorAttributes);
         
         connectorAttributes = new ArrayList<ConnectorAttribute>();
