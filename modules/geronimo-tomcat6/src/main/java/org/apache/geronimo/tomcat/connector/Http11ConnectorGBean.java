@@ -27,8 +27,8 @@ import org.apache.geronimo.tomcat.TomcatContainer;
 
 public class Http11ConnectorGBean extends AbstractHttp11ConnectorGBean {
     
-    public Http11ConnectorGBean(String name, Map initParams,  String address, int port, TomcatContainer container, ServerInfo serverInfo) throws Exception {
-        super(name, initParams, "org.apache.coyote.http11.Http11Protocol", address, port, container, serverInfo);
+    public Http11ConnectorGBean(String name, Map initParams,  String host, int port, TomcatContainer container, ServerInfo serverInfo) throws Exception {
+        super(name, initParams, "org.apache.coyote.http11.Http11Protocol", host, port, container, serverInfo);
     }
     
     public int getDefaultPort() {
@@ -43,7 +43,7 @@ public class Http11ConnectorGBean extends AbstractHttp11ConnectorGBean {
 
     static {
         GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic("Tomcat Connector", Http11ConnectorGBean.class, AbstractHttp11ConnectorGBean.GBEAN_INFO);
-        infoFactory.setConstructor(new String[] { "name", "initParams", "address", "port", "TomcatContainer", "ServerInfo"});
+        infoFactory.setConstructor(new String[] { "name", "initParams", "host", "port", "TomcatContainer", "ServerInfo"});
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
     

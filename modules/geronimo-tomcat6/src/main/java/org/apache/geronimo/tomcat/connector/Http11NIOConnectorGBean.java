@@ -28,8 +28,8 @@ import org.apache.geronimo.tomcat.TomcatContainer;
 
 public class Http11NIOConnectorGBean extends AbstractHttp11ConnectorGBean implements Http11NIOProtocol{
 
-    public Http11NIOConnectorGBean(String name,  Map initParams, String address, int port, TomcatContainer container, ServerInfo serverInfo) throws Exception {
-        super(name, initParams, "org.apache.coyote.http11.Http11NioProtocol", address, port, container, serverInfo);
+    public Http11NIOConnectorGBean(String name,  Map initParams, String host, int port, TomcatContainer container, ServerInfo serverInfo) throws Exception {
+        super(name, initParams, "org.apache.coyote.http11.Http11NioProtocol", host, port, container, serverInfo);
     }
     
     public int getDefaultPort() {
@@ -422,7 +422,7 @@ public class Http11NIOConnectorGBean extends AbstractHttp11ConnectorGBean implem
 
                 }
         );
-        infoFactory.setConstructor(new String[] { "name", "initParams", "address", "port", "TomcatContainer", "ServerInfo"});
+        infoFactory.setConstructor(new String[] { "name", "initParams", "host", "port", "TomcatContainer", "ServerInfo"});
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
     

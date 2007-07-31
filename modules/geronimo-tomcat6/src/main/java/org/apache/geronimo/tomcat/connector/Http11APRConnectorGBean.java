@@ -28,8 +28,8 @@ import org.apache.geronimo.tomcat.TomcatContainer;
 
 public class Http11APRConnectorGBean extends BaseHttp11ConnectorGBean implements Http11APRProtocol {
 
-    public Http11APRConnectorGBean(String name, Map initParams, String address, int port, TomcatContainer container, ServerInfo serverInfo) throws Exception {
-        super(name, initParams, "org.apache.coyote.http11.Http11AprProtocol", address, port, container, serverInfo);
+    public Http11APRConnectorGBean(String name, Map initParams, String host, int port, TomcatContainer container, ServerInfo serverInfo) throws Exception {
+        super(name, initParams, "org.apache.coyote.http11.Http11AprProtocol", host, port, container, serverInfo);
     }
 
     @Override
@@ -217,7 +217,7 @@ public class Http11APRConnectorGBean extends BaseHttp11ConnectorGBean implements
                     "sslCARevocationPath"
                 }
         );
-        infoFactory.setConstructor(new String[] { "name", "initParams", "address", "port", "TomcatContainer", "ServerInfo"});
+        infoFactory.setConstructor(new String[] { "name", "initParams", "host", "port", "TomcatContainer", "ServerInfo"});
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
     

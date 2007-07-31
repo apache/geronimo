@@ -59,7 +59,7 @@
 
     <gbean name="TomcatWebConnector" class="org.apache.geronimo.tomcat.connector.Http11ConnectorGBean">
         <attribute name="name">HTTP</attribute>
-        <attribute name="address">${PlanServerHostname}</attribute>
+        <attribute name="host">${PlanServerHostname}</attribute>
         <attribute name="port">${PlanHTTPPort}</attribute>
         <attribute name="maxHttpHeaderSize">8192</attribute>
         <attribute name="maxThreads">150</attribute>
@@ -80,7 +80,7 @@
 
     <gbean name="TomcatAJPConnector" class="org.apache.geronimo.tomcat.connector.AJP13ConnectorGBean">
         <attribute name="name">AJP</attribute>
-        <attribute name="address">${PlanServerHostname}</attribute>
+        <attribute name="host">${PlanServerHostname}</attribute>
         <attribute name="port">${PlanAJPPort}</attribute>
         <attribute name="minSpareThreads">25</attribute>
         <attribute name="maxSpareThreads">75</attribute>
@@ -99,7 +99,7 @@
     -->
     <gbean name="TomcatWebSSLConnector" class="org.apache.geronimo.tomcat.connector.Https11ConnectorGBean">
         <attribute name="name">HTTPS</attribute>
-        <attribute name="address">${PlanServerHostname}</attribute>
+        <attribute name="host">${PlanServerHostname}</attribute>
         <attribute name="port">${PlanHTTPSPort}</attribute>
         <attribute name="maxHttpHeaderSize">8192</attribute>
         <attribute name="maxThreads">150</attribute>

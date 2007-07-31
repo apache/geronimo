@@ -42,12 +42,12 @@ public abstract class BaseHttp11ConnectorGBean extends ConnectorGBean implements
 
     private boolean reset = true;
 
-    public BaseHttp11ConnectorGBean(String name, Map initParams, String tomcatProtocol, String address, int port, TomcatContainer container, ServerInfo serverInfo) throws Exception {
+    public BaseHttp11ConnectorGBean(String name, Map initParams, String tomcatProtocol, String host, int port, TomcatContainer container, ServerInfo serverInfo) throws Exception {
         super(name, initParams, tomcatProtocol, container, serverInfo);
 
         // Default the host to listen on all address is one was not specified
-        if (address == null) {
-            address = "0.0.0.0";
+        if (host == null) {
+            host = "0.0.0.0";
         }
 
         // Must have a port
@@ -55,7 +55,7 @@ public abstract class BaseHttp11ConnectorGBean extends ConnectorGBean implements
             throw new IllegalArgumentException("Must declare a port.");
         }
 
-        connector.setAttribute("address", address);
+        connector.setAttribute("host", host);
         connector.setPort(port);
 
     }
@@ -402,7 +402,7 @@ public abstract class BaseHttp11ConnectorGBean extends ConnectorGBean implements
                     "truststoreType"
                 }
         );
-        infoFactory.setConstructor(new String[] { "name", "initParams", "protocol", "address", "port", "TomcatContainer", "ServerInfo"});
+        infoFactory.setConstructor(new String[] { "name", "initParams", "protocol", "host", "port", "TomcatContainer", "ServerInfo"});
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
     

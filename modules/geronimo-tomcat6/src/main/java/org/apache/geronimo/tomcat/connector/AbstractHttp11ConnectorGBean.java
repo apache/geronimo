@@ -35,8 +35,8 @@ public abstract class AbstractHttp11ConnectorGBean extends BaseHttp11ConnectorGB
 
     private String algorithm;
     
-    public AbstractHttp11ConnectorGBean(String name, Map initParams, String tomcatProtocol, String address, int port, TomcatContainer container, ServerInfo serverInfo) throws Exception {
-        super(name, initParams, tomcatProtocol, address, port, container, serverInfo);
+    public AbstractHttp11ConnectorGBean(String name, Map initParams, String tomcatProtocol, String host, int port, TomcatContainer container, ServerInfo serverInfo) throws Exception {
+        super(name, initParams, tomcatProtocol, host, port, container, serverInfo);
     }
 
     @Override
@@ -171,7 +171,7 @@ public abstract class AbstractHttp11ConnectorGBean extends BaseHttp11ConnectorGB
                     "truststoreType"
                 }
         );
-        infoFactory.setConstructor(new String[] { "name", "initParams", "tomcatProtocol", "address", "port", "TomcatContainer", "ServerInfo"});
+        infoFactory.setConstructor(new String[] { "name", "initParams", "tomcatProtocol", "host", "port", "TomcatContainer", "ServerInfo"});
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
     

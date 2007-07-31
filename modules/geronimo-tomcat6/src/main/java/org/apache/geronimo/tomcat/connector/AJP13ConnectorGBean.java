@@ -42,12 +42,12 @@ public class AJP13ConnectorGBean extends ConnectorGBean implements Ajp13Protocol
 
     protected String connectHost;
 
-    public AJP13ConnectorGBean(String name, Map initParams, String address, int port, TomcatContainer container, ServerInfo serverInfo) throws Exception {
+    public AJP13ConnectorGBean(String name, Map initParams, String host, int port, TomcatContainer container, ServerInfo serverInfo) throws Exception {
         super(name, initParams, "AJP/1.3", container, serverInfo);
         
         // Default the host to listen on all address is one was not specified
-        if (address == null) {
-            address = "0.0.0.0";
+        if (host == null) {
+            host = "0.0.0.0";
         }
 
         // Must have a port
@@ -55,7 +55,7 @@ public class AJP13ConnectorGBean extends ConnectorGBean implements Ajp13Protocol
             throw new IllegalArgumentException("Must declare a port.");
         }
 
-        connector.setAttribute("address", address);
+        connector.setAttribute("host", host);
         connector.setPort(port);
 
     }
@@ -275,7 +275,7 @@ public class AJP13ConnectorGBean extends ConnectorGBean implements Ajp13Protocol
                     "tomcatAuthentication", 
                 }
         );
-        infoFactory.setConstructor(new String[] { "name", "initParams", "address", "port", "TomcatContainer", "ServerInfo"});
+        infoFactory.setConstructor(new String[] { "name", "initParams", "host", "port", "TomcatContainer", "ServerInfo"});
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
     
