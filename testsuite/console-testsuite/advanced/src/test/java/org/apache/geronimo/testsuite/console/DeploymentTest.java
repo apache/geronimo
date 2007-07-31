@@ -22,25 +22,18 @@ package org.apache.geronimo.testsuite.console;
 import org.testng.annotations.Test;
 import org.apache.geronimo.testsupport.console.ConsoleTestSupport;
 
-/**
- * Configuration manager (Web applications) portlet tests
- *
- * @version $Rev$ $Date$
- */
 @Test
-public class ConfigManagerPortletWARTest
-    extends ConsoleTestSupport
-{
+public class DeploymentTest extends ConsoleTestSupport {
     @Test
-    public void testConfigManagerWARLink() throws Exception {
+    public void testEmptyDeployment() throws Exception {
         login();
-        
-        selenium.click("link=Web App WARs");
+
+        selenium.click("link=Deploy New");
         selenium.waitForPageToLoad("30000");
-        assertEquals("Geronimo Console", selenium.getTitle());
-        assertEquals("Installed Web Applications", selenium.getText(
-            "xpath=/html/body/table[@id='rootfragment']/tbody/tr[2]/td/table/tbody/tr[2]/td[4]/table/tbody/tr[1]/td/table/tbody/tr[1]/td/div/table/tbody/tr/td[2]/table/tbody/tr/td[1]/strong"));
-        
+        selenium.click("//input[@value='Install']");
+        selenium.waitForPageToLoad("30000");
+        assertTrue(selenium.isTextPresent("Deployment failed:"));
+
         logout();
     }
 }

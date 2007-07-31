@@ -17,7 +17,7 @@
  *  under the License.
  */
 
-package org.apache.geronimo.testsuite.console;
+package org.apache.geronimo.testsupport.console;
 
 import org.apache.geronimo.testsupport.SeleniumTestSupport;
 
