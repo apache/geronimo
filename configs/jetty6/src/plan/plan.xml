@@ -88,6 +88,7 @@
     </gbean>
 
     <!-- DONT USE THIS ONE -->
+<!--
     <gbean name="JettySSLConnector" class="org.apache.geronimo.jetty6.connector.HTTPSSocketConnector">
         <attribute name="host">${PlanServerHostname}</attribute>
         <attribute name="port">${PlanHTTPSPort}</attribute>
@@ -108,7 +109,8 @@
             <name>KeystoreManager</name>
         </reference>
     </gbean>
-<!-- USE THIS ONE
+-->
+<!-- USE THIS ONE -->
     <gbean name="JettySSLConnector" class="org.apache.geronimo.jetty6.connector.HTTPSSelectChannelConnector">
         <attribute name="host">${PlanServerHostname}</attribute>
         <attribute name="port">${PlanHTTPSPort}</attribute>
@@ -129,6 +131,5 @@
             <name>KeystoreManager</name>
         </reference>
     </gbean>
--->
 
 </module>

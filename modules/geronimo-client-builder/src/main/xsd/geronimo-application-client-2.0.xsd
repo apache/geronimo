@@ -19,8 +19,8 @@
 <!-- @version $Rev$ $Date$ -->
 
 <xs:schema
-    xmlns:geronimo="http://geronimo.apache.org/xml/ns/j2ee/application-client-1.2"
-    targetNamespace="http://geronimo.apache.org/xml/ns/j2ee/application-client-1.2"
+    xmlns:geronimo="http://geronimo.apache.org/xml/ns/j2ee/application-client-2.0"
+    targetNamespace="http://geronimo.apache.org/xml/ns/j2ee/application-client-2.0"
     xmlns:naming="http://geronimo.apache.org/xml/ns/naming-1.2"
     xmlns:connector="http://geronimo.apache.org/xml/ns/j2ee/connector-1.2"
     xmlns:security="http://geronimo.apache.org/xml/ns/security-2.0"
@@ -39,9 +39,9 @@
             deploy tool. All the Java application client deployment plan must
             specify the top level element as application-client with namespace
             specified as
-            xmlns="http://geronimo.apache.org/xml/ns/j2ee/application-client-1.2".
+            xmlns="http://geronimo.apache.org/xml/ns/j2ee/application-client-2.0".
             The default location for this document is
-            http://geronimo.apache.org/schemas-1.2/geronimo-application-client-1.2.xsd
+            http://geronimo.apache.org/schemas-1.2/geronimo-application-client-2.0.xsd
         </xs:documentation>
     </xs:annotation>
 
@@ -237,7 +237,7 @@
     <xs:complexType name="resourceType">
         <xs:sequence>
             <xs:choice>
-                <xs:element name="external-rar" type="xs:string">
+                <xs:element name="external-rar" type="sys:patternType">
                     <xs:annotation>
                         <xs:documentation>
                             The external-rar is a Module ID of the resource

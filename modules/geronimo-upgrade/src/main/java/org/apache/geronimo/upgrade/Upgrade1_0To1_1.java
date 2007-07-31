@@ -46,12 +46,12 @@ public class Upgrade1_0To1_1 {
     private static final Map NAMESPACE_UPDATES = new HashMap();
 
     static {
-        NAMESPACE_UPDATES.put("http://geronimo.apache.org/xml/ns/j2ee/application-client", "http://geronimo.apache.org/xml/ns/j2ee/application-client-1.2");
-        NAMESPACE_UPDATES.put("http://geronimo.apache.org/xml/ns/j2ee/application-client-1.0", "http://geronimo.apache.org/xml/ns/j2ee/application-client-1.2");
-        NAMESPACE_UPDATES.put("http://geronimo.apache.org/xml/ns/j2ee/application-client-1.1", "http://geronimo.apache.org/xml/ns/j2ee/application-client-1.2");
-        NAMESPACE_UPDATES.put("http://geronimo.apache.org/xml/ns/j2ee/application", "http://geronimo.apache.org/xml/ns/j2ee/application-1.2");
-        NAMESPACE_UPDATES.put("http://geronimo.apache.org/xml/ns/j2ee/application-1.0", "http://geronimo.apache.org/xml/ns/j2ee/application-1.2");
-        NAMESPACE_UPDATES.put("http://geronimo.apache.org/xml/ns/j2ee/application-1.1", "http://geronimo.apache.org/xml/ns/j2ee/application-1.2");
+        NAMESPACE_UPDATES.put("http://geronimo.apache.org/xml/ns/j2ee/application-client", "http://geronimo.apache.org/xml/ns/j2ee/application-client-2.0");
+        NAMESPACE_UPDATES.put("http://geronimo.apache.org/xml/ns/j2ee/application-client-1.1", "http://geronimo.apache.org/xml/ns/j2ee/application-client-2.0");
+        NAMESPACE_UPDATES.put("http://geronimo.apache.org/xml/ns/j2ee/application-client-1.2", "http://geronimo.apache.org/xml/ns/j2ee/application-client-2.0");
+        NAMESPACE_UPDATES.put("http://geronimo.apache.org/xml/ns/j2ee/application", "http://geronimo.apache.org/xml/ns/j2ee/application-2.0");
+        NAMESPACE_UPDATES.put("http://geronimo.apache.org/xml/ns/j2ee/application-1.1", "http://geronimo.apache.org/xml/ns/j2ee/application-2.0");
+        NAMESPACE_UPDATES.put("http://geronimo.apache.org/xml/ns/j2ee/application-1.2", "http://geronimo.apache.org/xml/ns/j2ee/application-2.0");
         NAMESPACE_UPDATES.put("http://geronimo.apache.org/xml/ns/deployment", "http://geronimo.apache.org/xml/ns/deployment-1.2");
         NAMESPACE_UPDATES.put("http://geronimo.apache.org/xml/ns/deployment-1.0", "http://geronimo.apache.org/xml/ns/deployment-1.2");
         NAMESPACE_UPDATES.put("http://geronimo.apache.org/xml/ns/deployment-1.1", "http://geronimo.apache.org/xml/ns/deployment-1.2");

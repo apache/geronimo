@@ -63,6 +63,9 @@
                 <name>UnavailableAppClientBuilder</name>
             </pattern>
         </references>
+        <reference name="ArtifactResolvers">
+            <name>ArtifactResolver</name>
+        </reference>
         <xml-attribute name="defaultEnvironment">
             <environment xmlns="http://geronimo.apache.org/xml/ns/deployment-${geronimoSchemaVersion}">
                 <dependencies>

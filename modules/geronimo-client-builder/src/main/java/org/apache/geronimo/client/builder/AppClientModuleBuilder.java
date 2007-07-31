@@ -51,6 +51,7 @@ import org.apache.geronimo.deployment.service.GBeanBuilder;
 import org.apache.geronimo.deployment.util.DeploymentUtil;
 import org.apache.geronimo.deployment.util.NestedJarFile;
 import org.apache.geronimo.deployment.xbeans.EnvironmentType;
+import org.apache.geronimo.deployment.xbeans.PatternType;
 import org.apache.geronimo.deployment.xmlbeans.XmlBeansUtil;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.AbstractNameQuery;
@@ -80,6 +81,8 @@ import org.apache.geronimo.kernel.config.ConfigurationStore;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.kernel.repository.Repository;
+import org.apache.geronimo.kernel.repository.ArtifactResolver;
+import org.apache.geronimo.kernel.repository.MissingDependencyException;
 import org.apache.geronimo.schema.SchemaConversionUtils;
 import org.apache.geronimo.security.deploy.SubjectInfo;
 import org.apache.geronimo.security.deployment.SecurityConfiguration;
@@ -103,6 +106,7 @@ import org.apache.xmlbeans.XmlObject;
 public class AppClientModuleBuilder implements ModuleBuilder, CorbaGBeanNameSource {
     private static final Log log = LogFactory.getLog(AppClientModuleBuilder.class);
     private static final String LINE_SEP = System.getProperty("line.separator");
+    private static final String GERAPPCLIENT_NAMESPACE = GerApplicationClientDocument.type.getDocumentElementName().getNamespaceURI();
 
     private final Environment defaultClientEnvironment;
     private final Environment defaultServerEnvironment;
@@ -118,39 +122,44 @@ public class AppClientModuleBuilder implements ModuleBuilder, CorbaGBeanNameSour
 
     private final Collection<Repository> repositories;
 
-    private static final String GERAPPCLIENT_NAMESPACE = GerApplicationClientDocument.type.getDocumentElementName().getNamespaceURI();
+    private final ArtifactResolver clientArtifactResolver;
 
     public AppClientModuleBuilder(Environment defaultClientEnvironment,
-            Environment defaultServerEnvironment,
-            AbstractNameQuery transactionManagerObjectName,
-            AbstractNameQuery connectionTrackerObjectName,
-            AbstractNameQuery corbaGBeanObjectName,
-            AbstractNameQuery credentialStoreName, Collection<Repository> repositories,
-            ModuleBuilder connectorModuleBuilder,
-            NamespaceDrivenBuilder serviceBuilder,
-            Collection<NamingBuilder> namingBuilders,
-            Collection<ModuleBuilderExtension> moduleBuilderExtensions) {
+                                  Environment defaultServerEnvironment,
+                                  AbstractNameQuery transactionManagerObjectName,
+                                  AbstractNameQuery connectionTrackerObjectName,
+                                  AbstractNameQuery corbaGBeanObjectName,
+                                  AbstractNameQuery credentialStoreName,
+                                  Collection<Repository> repositories,
+                                  ModuleBuilder connectorModuleBuilder,
+                                  NamespaceDrivenBuilder serviceBuilder,
+                                  Collection<NamingBuilder> namingBuilders,
+                                  Collection<ModuleBuilderExtension> moduleBuilderExtensions,
+                                  ArtifactResolver clientArtifactResolver) {
         this(defaultClientEnvironment,
                 defaultServerEnvironment,
                 transactionManagerObjectName,
                 connectionTrackerObjectName,
                 corbaGBeanObjectName,
-                credentialStoreName, repositories, new SingleElementCollection(connectorModuleBuilder),
+                credentialStoreName, repositories, new SingleElementCollection<ModuleBuilder>(connectorModuleBuilder),
                 serviceBuilder == null ? Collections.EMPTY_SET : Collections.singleton(serviceBuilder),
                 namingBuilders == null ? Collections.EMPTY_SET : namingBuilders,
-                moduleBuilderExtensions);
+                moduleBuilderExtensions,
+                clientArtifactResolver);
     }
 
     public AppClientModuleBuilder(AbstractNameQuery transactionManagerObjectName,
-            AbstractNameQuery connectionTrackerObjectName,
-            AbstractNameQuery corbaGBeanObjectName,
-            AbstractNameQuery credentialStoreName, Collection<Repository> repositories,
-            Collection connectorModuleBuilder,
-            Collection<NamespaceDrivenBuilder> serviceBuilder,
-            Collection<NamingBuilder> namingBuilders,
-            Collection<ModuleBuilderExtension> moduleBuilderExtensions,
-            Environment defaultClientEnvironment,
-            Environment defaultServerEnvironment
+                                  AbstractNameQuery connectionTrackerObjectName,
+                                  AbstractNameQuery corbaGBeanObjectName,
+                                  AbstractNameQuery credentialStoreName,
+                                  Collection<Repository> repositories,
+                                  Collection<ModuleBuilder> connectorModuleBuilder,
+                                  Collection<NamespaceDrivenBuilder> serviceBuilder,
+                                  Collection<NamingBuilder> namingBuilders,
+                                  Collection<ModuleBuilderExtension> moduleBuilderExtensions,
+                                  ArtifactResolver clientArtifactResolver,
+                                  Environment defaultClientEnvironment,
+                                  Environment defaultServerEnvironment
     ) {
         this(defaultClientEnvironment,
                 defaultServerEnvironment,
@@ -158,23 +167,25 @@ public class AppClientModuleBuilder implements ModuleBuilder, CorbaGBeanNameSour
                 connectionTrackerObjectName,
                 corbaGBeanObjectName,
                 credentialStoreName, repositories,
-                new SingleElementCollection(connectorModuleBuilder),
+                new SingleElementCollection<ModuleBuilder>(connectorModuleBuilder),
                 serviceBuilder,
                 namingBuilders,
-                moduleBuilderExtensions);
+                moduleBuilderExtensions,
+                clientArtifactResolver);
     }
 
     private AppClientModuleBuilder(Environment defaultClientEnvironment,
-            Environment defaultServerEnvironment,
-            AbstractNameQuery transactionManagerObjectName,
-            AbstractNameQuery connectionTrackerObjectName,
-            AbstractNameQuery corbaGBeanObjectName,
-            AbstractNameQuery credentialStoreName,
-            Collection<Repository> repositories,
-            SingleElementCollection connectorModuleBuilder,
-            Collection<NamespaceDrivenBuilder> serviceBuilder,
-            Collection<NamingBuilder> namingBuilders,
-            Collection<ModuleBuilderExtension> moduleBuilderExtensions) {
+                                   Environment defaultServerEnvironment,
+                                   AbstractNameQuery transactionManagerObjectName,
+                                   AbstractNameQuery connectionTrackerObjectName,
+                                   AbstractNameQuery corbaGBeanObjectName,
+                                   AbstractNameQuery credentialStoreName,
+                                   Collection<Repository> repositories,
+                                   SingleElementCollection<ModuleBuilder> connectorModuleBuilder,
+                                   Collection<NamespaceDrivenBuilder> serviceBuilder,
+                                   Collection<NamingBuilder> namingBuilders,
+                                   Collection<ModuleBuilderExtension> moduleBuilderExtensions,
+                                   ArtifactResolver clientArtifactResolver) {
         this.defaultClientEnvironment = defaultClientEnvironment;
         this.defaultServerEnvironment = defaultServerEnvironment;
         this.corbaGBeanObjectName = corbaGBeanObjectName;
@@ -186,6 +197,7 @@ public class AppClientModuleBuilder implements ModuleBuilder, CorbaGBeanNameSour
         this.serviceBuilder = new NamespaceDrivenBuilderCollection(serviceBuilder, GBeanBuilder.SERVICE_QNAME);
         this.namingBuilders = new NamingBuilderCollection(namingBuilders, GerAbstractNamingEntryDocument.type.getDocumentElementName());
         this.moduleBuilderExtensions = moduleBuilderExtensions;
+        this.clientArtifactResolver = clientArtifactResolver;
     }
 
 
@@ -303,8 +315,17 @@ public class AppClientModuleBuilder implements ModuleBuilder, CorbaGBeanNameSour
             String path;
             JarFile connectorFile;
             if (resource.isSetExternalRar()) {
-                path = resource.getExternalRar().trim();
-                Artifact artifact = Artifact.create(path);
+                PatternType externalRar = resource.getExternalRar();
+                String groupId = trim(externalRar.getGroupId());
+                String artifactId = trim(externalRar.getArtifactId());
+                String version = trim(externalRar.getVersion());
+                String type = trim(externalRar.getType());
+                Artifact artifact = new Artifact(groupId, artifactId, version, type);
+                try {
+                    artifact = clientArtifactResolver.resolveInClassLoader(artifact);
+                } catch (MissingDependencyException e) {
+                    throw new DeploymentException("Could not resolve external rar location in repository: " + artifact, e);
+                }
                 File file = null;
                 for (Repository repository : repositories) {
                     if (repository.contains(artifact)) {
@@ -313,13 +334,14 @@ public class AppClientModuleBuilder implements ModuleBuilder, CorbaGBeanNameSour
                     }
                 }
                 if (file == null) {
-                    throw new DeploymentException("Missing rar in repositories: " + path);
+                    throw new DeploymentException("Missing external rar in repositories: " + artifact);
                 }
                 try {
                     connectorFile = new JarFile(file);
                 } catch (IOException e) {
-                    throw new DeploymentException("Could not access rar contents", e);
+                    throw new DeploymentException("Could not access external rar contents for artifact: " + artifact, e);
                 }
+                path = artifact.toString();
             } else {
                 path = resource.getInternalRar();
                 try {
@@ -354,6 +376,13 @@ public class AppClientModuleBuilder implements ModuleBuilder, CorbaGBeanNameSour
         } else {
             return module;
         }
+    }
+
+    private String trim(String s) {
+        if (s == null) {
+            return null;
+        }
+        return s.trim();
     }
 
     GerApplicationClientType getGeronimoAppClient(Object plan, JarFile moduleFile, boolean standAlone, String targetPath, ApplicationClientType appClient, Environment environment) throws DeploymentException {
@@ -895,6 +924,7 @@ public class AppClientModuleBuilder implements ModuleBuilder, CorbaGBeanNameSour
         infoBuilder.addReference("ServiceBuilders", NamespaceDrivenBuilder.class, NameFactory.MODULE_BUILDER);
         infoBuilder.addReference("NamingBuilders", NamingBuilder.class, NameFactory.MODULE_BUILDER);
         infoBuilder.addReference("ModuleBuilderExtensions", ModuleBuilderExtension.class, NameFactory.MODULE_BUILDER);
+        infoBuilder.addReference("ClientArtifactResolver", ArtifactResolver.class, "ArtifactResolver");
 
         infoBuilder.addInterface(ModuleBuilder.class);
 
@@ -907,6 +937,7 @@ public class AppClientModuleBuilder implements ModuleBuilder, CorbaGBeanNameSour
                 "ServiceBuilders",
                 "NamingBuilders",
                 "ModuleBuilderExtensions",
+                "ClientArtifactResolver",
                 "defaultClientEnvironment",
                 "defaultServerEnvironment",
         });

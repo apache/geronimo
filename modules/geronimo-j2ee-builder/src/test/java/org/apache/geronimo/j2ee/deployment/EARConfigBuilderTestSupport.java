@@ -18,6 +18,7 @@ package org.apache.geronimo.j2ee.deployment;
 
 import java.util.Collections;
 import java.util.Map;
+import java.util.Collection;
 import java.util.jar.JarFile;
 
 import org.apache.geronimo.common.DeploymentException;
@@ -115,6 +116,8 @@ public abstract class EARConfigBuilderTestSupport
     
     protected final AbstractNameQuery corbaGBeanAbstractNameQuery = new AbstractNameQuery(serverName, null);
 
+    protected Collection<ArtifactResolver> artifactResolvers = null;
+
     protected void setUp() throws Exception {
         super.setUp();
         
@@ -142,7 +145,7 @@ public abstract class EARConfigBuilderTestSupport
                     securityBuilder,
                     serviceBuilder,
                     persistenceUnitBuilder,
-                    naming);
+                    naming, artifactResolvers);
 
             Object plan = configBuilder.getDeploymentPlan(null, earFile, idBuilder);
             context = configBuilder.buildConfiguration(false, configBuilder.getConfigurationID(plan, earFile, idBuilder), plan, earFile, Collections.singleton(configStore), artifactResolver, configStore);
@@ -174,7 +177,7 @@ public abstract class EARConfigBuilderTestSupport
                 securityBuilder,
                 serviceBuilder,
                 persistenceUnitBuilder,
-                naming);
+                naming, artifactResolvers);
 
         ConfigurationData configurationData = null;
         DeploymentContext context = null;
@@ -212,7 +215,7 @@ public abstract class EARConfigBuilderTestSupport
                 securityBuilder,
                 serviceBuilder,
                 persistenceUnitBuilder,
-                naming);
+                naming, artifactResolvers);
 
         ConfigurationData configurationData = null;
         DeploymentContext context = null;
@@ -250,7 +253,7 @@ public abstract class EARConfigBuilderTestSupport
                 securityBuilder,
                 serviceBuilder,
                 persistenceUnitBuilder,
-                naming);
+                naming, artifactResolvers);
 
         ConfigurationData configurationData = null;
         DeploymentContext context = null;
@@ -288,7 +291,7 @@ public abstract class EARConfigBuilderTestSupport
                 securityBuilder,
                 serviceBuilder,
                 persistenceUnitBuilder,
-                naming);
+                naming, artifactResolvers);
 
         ConfigurationData configurationData = null;
         DeploymentContext context = null;
@@ -326,7 +329,7 @@ public abstract class EARConfigBuilderTestSupport
                 securityBuilder,
                 serviceBuilder,
                 persistenceUnitBuilder,
-                naming);
+                naming, artifactResolvers);
 
 
         ConfigurationData configurationData = null;
@@ -365,7 +368,7 @@ public abstract class EARConfigBuilderTestSupport
                 securityBuilder,
                 serviceBuilder,
                 persistenceUnitBuilder,
-                naming);
+                naming, artifactResolvers);
 
         ConfigurationData configurationData = null;
         DeploymentContext context = null;
@@ -403,7 +406,7 @@ public abstract class EARConfigBuilderTestSupport
                 securityBuilder,
                 serviceBuilder,
                 persistenceUnitBuilder,
-                naming);
+                naming, artifactResolvers);
 
         ConfigurationData configurationData = null;
         DeploymentContext context = null;
