@@ -90,8 +90,8 @@ public class TomcatManagerImpl implements WebManager {
     static {
         List<ConnectorAttribute> connectorAttributes = new ArrayList<ConnectorAttribute>();
         //HTTP Attributes
-        connectorAttributes.add(new ConnectorAttribute<String>("host", "0.0.0.0", "Host", String.class), true);
-        connectorAttributes.add(new ConnectorAttribute<Integer>("port", 8080, "Port", Integer.class), true);
+        connectorAttributes.add(new ConnectorAttribute<String>("host", "0.0.0.0", "Host", String.class, true));
+        connectorAttributes.add(new ConnectorAttribute<Integer>("port", 8080, "Port", Integer.class, true));
         connectorAttributes.add(new ConnectorAttribute<Integer>("maxThreads", 40, "Maximum number of threads", Integer.class));
         connectorAttributes.add(new ConnectorAttribute<Integer>("minSpareThreads", 10, "Minimum spare threads", Integer.class));
         connectorAttributes.add(new ConnectorAttribute<Integer>("maxSpareThreads", 100, "Maximum spare threads", Integer.class));
@@ -130,6 +130,9 @@ public class TomcatManagerImpl implements WebManager {
         
         connectorAttributes = new ArrayList<ConnectorAttribute>();
         
+        //HTTP Attributes
+        connectorAttributes.add(new ConnectorAttribute<String>("host", "0.0.0.0", "Host", String.class, true));
+        connectorAttributes.add(new ConnectorAttribute<Integer>("port", 8443, "Port", Integer.class, true));
         connectorAttributes.add(new ConnectorAttribute<String>("algorithm", KeyManagerFactory.getDefaultAlgorithm(), "Algorithm", String.class));
         connectorAttributes.add(new ConnectorAttribute<Boolean>("clientAuth", false, "clientAuth", Boolean.class));
         connectorAttributes.add(new ConnectorAttribute<String>("keystoreFile", "", "keystoreFile", String.class));
@@ -141,9 +144,7 @@ public class TomcatManagerImpl implements WebManager {
         connectorAttributes.add(new ConnectorAttribute<String>("truststoreFile", "", "truststoreFile", String.class));
         connectorAttributes.add(new ConnectorAttribute<String>("truststorePass", "", "truststorePass", String.class));
         connectorAttributes.add(new ConnectorAttribute<String>("truststoreType", "", "truststoreType", String.class));
-        //HTTP Attributes
-        connectorAttributes.add(new ConnectorAttribute<String>("host", "0.0.0.0", "Host", String.class), true);
-        connectorAttributes.add(new ConnectorAttribute<Integer>("port", 8443, "Port", Integer.class), true);
+
         connectorAttributes.add(new ConnectorAttribute<Integer>("maxThreads", 40, "Maximum number of threads", Integer.class));
         connectorAttributes.add(new ConnectorAttribute<Integer>("minSpareThreads", 10, "Minimum spare threads", Integer.class));
         connectorAttributes.add(new ConnectorAttribute<Integer>("maxSpareThreads", 100, "Maximum spare threads", Integer.class));
@@ -372,7 +373,7 @@ public class TomcatManagerImpl implements WebManager {
     }
 
     public List<ConnectorType> getConnectorTypes() {
-        return null;
+        return CONNECTOR_TYPES;
     }
 
     public List<ConnectorAttribute> getConnectorAttributes(ConnectorType connectorType) {
