@@ -106,46 +106,48 @@ tbody.scrollContent tr.selected:hover td {
 </style>
 
 <script>
-/**
- * Global vars 
- */
-var _selectedNode = null;  // Selected tree node
-var _attribValueID = null; // ID of the attribute to update in the Attributes table
-var _attribValue = null;   // Value of the attribute to update in the Attributes tabl
+    /**
+     * Global vars 
+     */
+    var _selectedNode = null;  // Selected tree node
+    var _attribValueID = null; // ID of the attribute to update in the Attributes table
+    var _attribValue = null;   // Value of the attribute to update in the Attributes tabl
 
-/**
- * Get selected node 
- */
-function getSelectedNode() {
-    var tree = dojo.widget.byId('jmxTree');
-    var selectedNode = tree.selector.selectedNode;
-    return selectedNode;
-}
+    /**
+     * Get selected node 
+     */
+    function getSelectedNode() {
+        var tree = dojo.widget.byId('jmxTree');
+        var selectedNode = tree.selector.selectedNode;
 
-/**
- * Set the mouse pointer (NOT USED)
- */
-function setPointer(cursor) {
-    if (document.all) {
-        // Solution 1
-        // for (var i = 0; i < document.all.length; i++) {
-        //     document.all(i).style.cursor = cursor;
-        // }
-        
-        // Solution 2
-        // document.all('mainLayout').style.cursor = cursor;
-        // document.getElementById('mainLayout').style.cursor = cursor;
-
-        $('mainLayout').style.cursor = cursor;
-        $('rootfragment').style.cursor = cursor;
+        return selectedNode;
     }
-}
 
-/**
- * Dojo init stuff 
- */
-dojo.addOnLoad(
-    function() {
+    /**
+    * Set the mouse pointer (NOT USED)
+    */
+    function setPointer(cursor) {
+       if (document.all) {
+            // Solution 1
+            // for (var i = 0; i < document.all.length; i++) {
+            //     document.all(i).style.cursor = cursor;
+            // }
+        
+            // Solution 2
+            // document.all('mainLayout').style.cursor = cursor;
+            // document.getElementById('mainLayout').style.cursor = cursor;
+
+            // $('mainLayout').style.cursor = cursor;
+            // $('rootfragment').style.cursor = cursor;
+            dojo.byId("mainLayout").style.cursor = cursor;
+            dojo.byId("rootfragment").style.cursor = cursor;
+        }
+    }
+
+    /**
+     * Dojo init stuff 
+     */
+    dojo.addOnLoad (function() {
         var treeController = dojo.widget.byId('treeController');
 
         /**
@@ -158,15 +160,19 @@ dojo.addOnLoad(
             {
                 beforeTreeClick: function(evt) {
                     var selectedNode = evt.source;
+
                     if ((selectedNode.state == 'UNCHECKED') && (selectedNode.isExpanded == false)) {
                         _selectedNode = selectedNode;
+
                         // Check if it's 'searchMBeans'
                         if ((selectedNode.widgetId == 'searchMBeans') && (selectedNode.children.length == 0)) {
                             // skip DWR call
                             selectedNode.state = 'LOADED';
+
                             return;
                         } else {
                             var id = selectedNode.widgetId;
+
                             if (id.indexOf('<PATTERN>') != -1) {
                                 // Remove pattern marker
                                 var pattern = id.substring(id.indexOf('<PATTERN>') + '<PATTERN>'.length);  
@@ -196,10 +202,12 @@ dojo.addOnLoad(
          * Tree node title click event handler 
          */
         var tree = dojo.widget.byId('jmxTree');
+
         dojo.event.topic.subscribe(
             tree.eventNames.titleClick,
             function(message) {
                 var abstractName = message.source.widgetId;
+
                 if (abstractName.indexOf('::') == -1) {
                     // No marker means not an abstract name, clear tables
                     DWRUtil.removeAllRows('basicInfoTableBody');
@@ -223,10 +231,12 @@ dojo.addOnLoad(
             'treeContextMenuRefresh/engage',
             function (menuItem) {
                 var selectedNode = getSelectedNode();
+
                 if (selectedNode == null) {
                     alert('Please select a tree node.');
                     return;
                 }
+
                 if ((selectedNode.state == 'UNCHECKED') && (selectedNode.isExpanded == false)) {
                     // Unchecked tree node, do nothing
                 } else {
@@ -238,6 +248,7 @@ dojo.addOnLoad(
                         treeController.removeNode(node);
                         node.destroy();
                     }
+
                     // Add children
                     _selectedNode = selectedNode;
                     // TODO: Insert add tree node children code here
@@ -252,12 +263,15 @@ dojo.addOnLoad(
             'treeContextMenuSearch/engage',
             function (menuItem) {
                 var selectedNode = getSelectedNode();
+
                 if (selectedNode == null) {
                     alert('Please select a tree node.');
                     return;
                 }
+
                 var mainTabContainer = dojo.widget.byId('mainTabContainer');
                 var searchTab = dojo.widget.byId('searchTab');
+
                 mainTabContainer.selectTab(searchTab);
             }
         );
@@ -269,12 +283,15 @@ dojo.addOnLoad(
             'treeContextMenuViewAttribs/engage',
             function (menuItem) {
                 var selectedNode = getSelectedNode();
+
                 if (selectedNode == null) {
                     alert('Please select a tree node.');
                     return;
                 }
+
                 var mainTabContainer = dojo.widget.byId('mainTabContainer');
                 var attributesTab = dojo.widget.byId('attributesTab');
+
                 mainTabContainer.selectTab(attributesTab);
             }
         );
@@ -286,12 +303,15 @@ dojo.addOnLoad(
             'treeContextMenuViewOps/engage',
             function (menuItem) {
                 var selectedNode = getSelectedNode();
+
                 if (selectedNode == null) {
                     alert('Please select a tree node.');
                     return;
                 }
+
                 var mainTabContainer = dojo.widget.byId('mainTabContainer');
                 var operationsTab = dojo.widget.byId('operationsTab');
+
                 mainTabContainer.selectTab(operationsTab);
             }
         );
@@ -303,12 +323,15 @@ dojo.addOnLoad(
             'treeContextMenuViewInfo/engage',
             function (menuItem) {
                 var selectedNode = getSelectedNode();
+
                 if (selectedNode == null) {
                     alert('Please select a tree node.');
                     return;
                 }
+
                 var mainTabContainer = dojo.widget.byId('mainTabContainer');
                 var infoTab = dojo.widget.byId('infoTab');
+
                 mainTabContainer.selectTab(infoTab);
             }
         );
@@ -320,12 +343,15 @@ dojo.addOnLoad(
             'treeContextMenuViewStats/engage',
             function (menuItem) {
                 var selectedNode = getSelectedNode();
+
                 if (selectedNode == null) {
                     alert('Please select a tree node.');
                     return;
                 }
+
                 var mainTabContainer = dojo.widget.byId('mainTabContainer');
                 var statsTab = dojo.widget.byId('statsTab');
+
                 mainTabContainer.selectTab(statsTab);
             }
         );
@@ -340,13 +366,14 @@ function searchBtnClicked() {
     JMXHelper.listByPattern(<portlet:namespace/>updateSearchMBeansTreeNode, jmxQuery);
 }
 
-/**
- * Refresh managed object stats button clicked event handler 
- */
-function refreshStatsBtnClicked() {
-    var abstractName = $('abstractName').value;
-    JMXHelper.getMBeanStats(<portlet:namespace/>updateStatsTable, abstractName);
-}
+    /**
+     * Refresh managed object stats button clicked event handler 
+     */
+    function refreshStatsBtnClicked() {
+        var abstractName = $('abstractName').value;
+
+        JMXHelper.getMBeanStats(<portlet:namespace/>updateStatsTable, abstractName);
+    }
 </script>
 
 <!----------------------->
