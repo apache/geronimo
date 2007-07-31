@@ -87,6 +87,9 @@ import org.apache.openejb.config.DeploymentLoader;
 import org.apache.openejb.config.ReadDescriptors;
 import org.apache.openejb.config.UnknownModuleTypeException;
 import org.apache.openejb.config.UnsupportedModuleTypeException;
+import org.apache.openejb.config.ValidationFailedException;
+import org.apache.openejb.config.ValidationError;
+import org.apache.openejb.config.ValidationFailure;
 import org.apache.openejb.jee.EjbJar;
 import org.apache.openejb.jee.EnterpriseBean;
 import org.apache.openejb.jee.MessageDestinationRef;
@@ -510,6 +513,19 @@ public class EjbModuleBuilder implements ModuleBuilder {
             AppInfo appInfo;
             try {
                 appInfo = openEjbSystem.configureApplication(appModule);
+            } catch (ValidationFailedException set) {
+                StringBuilder sb = new StringBuilder();
+                sb.append("Jar failed validation: "+appModule.getModuleId());
+
+                for (ValidationError e : set.getErrors()) {
+                    sb.append(e.getPrefix() + " ... " + e.getComponentName() + ":\t" + e.getMessage(2));
+                }
+
+                for (ValidationFailure e : set.getFailures()) {
+                    sb.append(e.getPrefix() + " ... " + e.getComponentName() + ":\t" + e.getMessage(2));
+                }
+
+                throw new DeploymentException(sb.toString());
             } catch (OpenEJBException e) {
                 throw new DeploymentException(e);
             }
