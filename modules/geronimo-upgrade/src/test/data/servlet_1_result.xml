@@ -14,7 +14,7 @@
    See the License for the specific language governing permissions and
    limitations under the License.
 -->
-<application xmlns="http://geronimo.apache.org/xml/ns/j2ee/application-1.2">
+<application xmlns="http://geronimo.apache.org/xml/ns/j2ee/application-2.0">
   <dep:environment xmlns:dep="http://geronimo.apache.org/xml/ns/deployment-1.2">
     <dep:moduleId>
       <dep:groupId>default</dep:groupId>

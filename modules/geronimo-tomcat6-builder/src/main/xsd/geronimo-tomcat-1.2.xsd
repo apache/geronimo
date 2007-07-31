@@ -19,7 +19,7 @@
 <xs:schema xmlns:tomcat="http://geronimo.apache.org/xml/ns/j2ee/web/tomcat-1.2"
     targetNamespace="http://geronimo.apache.org/xml/ns/j2ee/web/tomcat-1.2"
     xmlns:naming="http://geronimo.apache.org/xml/ns/naming-1.2"
-    xmlns:app="http://geronimo.apache.org/xml/ns/j2ee/application-1.2"
+    xmlns:app="http://geronimo.apache.org/xml/ns/j2ee/application-2.0"
     xmlns:sys="http://geronimo.apache.org/xml/ns/deployment-1.2"
     xmlns:ee="http://java.sun.com/xml/ns/persistence"
     xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified"
@@ -54,8 +54,8 @@
         </xs:annotation>
     </xs:import>
     <xs:import
-        namespace="http://geronimo.apache.org/xml/ns/j2ee/application-1.2"
-        schemaLocation="geronimo-application-1.2.xsd">
+        namespace="http://geronimo.apache.org/xml/ns/j2ee/application-2.0"
+        schemaLocation="geronimo-application-2.0.xsd">
         <xs:annotation>
             <xs:documentation>
                 Import Geronimo application deployment plans. The imported plan

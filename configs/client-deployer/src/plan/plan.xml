@@ -72,6 +72,9 @@
         <reference name="ConnectorModuleBuilder">
             <name>ClientConnectorBuilder</name>
         </reference>
+        <reference name="ClientArtifactResolver">
+            <name>ClientArtifactResolver</name>
+        </reference>
         <xml-attribute name="defaultServerEnvironment">
             <environment xmlns="http://geronimo.apache.org/xml/ns/deployment-${geronimoSchemaVersion}">
                 <dependencies>
@@ -105,6 +108,20 @@
                 </dependencies>
             </environment>
         </xml-attribute>
+    </gbean>
+
+    <gbean name="ClientArtifactResolver" class="org.apache.geronimo.client.builder.OptionalExplicitDefaultArtifactResolver">
+        <reference name="ArtifactManager">
+            <name>ArtifactManager</name>
+        </reference>
+        <reference name="Repositories"></reference>
+        <attribute name="versionMapLocation">var/config/client_artifact_aliases.properties</attribute>
+        <reference name="ServerInfo">
+            <name>ServerInfo</name>
+        </reference>
+        <reference name="FallbackArtifactResolver">
+            <name>ArtifactResolver</name>
+        </reference>
     </gbean>
 
     <gbean name="SwitchingClientServiceRefBuilder" class="org.apache.geronimo.naming.deployment.SwitchingServiceRefBuilder">

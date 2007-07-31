@@ -57,6 +57,7 @@ import org.apache.geronimo.deployment.util.DeploymentUtil;
 import org.apache.geronimo.deployment.util.NestedJarFile;
 import org.apache.geronimo.deployment.xbeans.ArtifactType;
 import org.apache.geronimo.deployment.xbeans.EnvironmentType;
+import org.apache.geronimo.deployment.xbeans.PatternType;
 import org.apache.geronimo.deployment.xmlbeans.XmlBeansUtil;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.AbstractNameQuery;
@@ -82,6 +83,7 @@ import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.ArtifactResolver;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.kernel.repository.Repository;
+import org.apache.geronimo.kernel.repository.MissingDependencyException;
 import org.apache.geronimo.management.J2EEResource;
 import org.apache.geronimo.management.J2EEServer;
 import org.apache.geronimo.schema.SchemaConversionUtils;
@@ -126,6 +128,7 @@ public class EARConfigBuilder implements ConfigurationBuilder, CorbaGBeanNameSou
     private final AbstractNameQuery nonTransactionalTimerObjectName;
     private final AbstractNameQuery corbaGBeanObjectName;
     private final Naming naming;
+    private final Collection<ArtifactResolver> artifactResolvers;
 
     public EARConfigBuilder(Environment defaultEnvironment,
             AbstractNameQuery transactionManagerAbstractName,
@@ -143,6 +146,7 @@ public class EARConfigBuilder implements ConfigurationBuilder, CorbaGBeanNameSou
             Collection securityBuilders,
             Collection serviceBuilders,
             Collection<ModuleBuilderExtension> persistenceUnitBuilders,
+            Collection<ArtifactResolver> artifactResolvers,
             Kernel kernel) {
         this(defaultEnvironment,
                 transactionManagerAbstractName,
@@ -161,7 +165,7 @@ public class EARConfigBuilder implements ConfigurationBuilder, CorbaGBeanNameSou
                 securityBuilders,
                 serviceBuilders,
                 persistenceUnitBuilders,
-                kernel.getNaming());
+                kernel.getNaming(), artifactResolvers);
     }
 
     public EARConfigBuilder(Environment defaultEnvironment,
@@ -180,7 +184,8 @@ public class EARConfigBuilder implements ConfigurationBuilder, CorbaGBeanNameSou
             NamespaceDrivenBuilder securityBuilder,
             NamespaceDrivenBuilder serviceBuilder,
             ModuleBuilderExtension persistenceUnitBuilder,
-            Naming naming) {
+            Naming naming,
+            Collection<ArtifactResolver> artifactResolvers) {
         this(defaultEnvironment,
                 transactionManagerAbstractName,
                 connectionTrackerAbstractName,
@@ -198,27 +203,29 @@ public class EARConfigBuilder implements ConfigurationBuilder, CorbaGBeanNameSou
                 securityBuilder == null ? Collections.EMPTY_SET : Collections.singleton(securityBuilder),
                 serviceBuilder == null ? Collections.EMPTY_SET : Collections.singleton(serviceBuilder),
                 persistenceUnitBuilder == null ? Collections.EMPTY_SET : Collections.singleton(persistenceUnitBuilder),
-                naming);
+                naming,
+                artifactResolvers);
     }
 
     private EARConfigBuilder(Environment defaultEnvironment,
-            AbstractNameQuery transactionManagerAbstractName,
-            AbstractNameQuery connectionTrackerAbstractName,
-            AbstractNameQuery transactionalTimerAbstractName,
-            AbstractNameQuery nonTransactionalTimerAbstractName,
-            AbstractNameQuery corbaGBeanAbstractName,
-            AbstractNameQuery serverName,
-            ConfigurationManager configurationManager,
-            Collection<Repository> repositories,
-            SingleElementCollection ejbConfigBuilder,
-            SingleElementCollection webConfigBuilder,
-            SingleElementCollection connectorConfigBuilder,
-            SingleElementCollection resourceReferenceBuilder,
-            SingleElementCollection appClientConfigBuilder,
-            Collection securityBuilders,
-            Collection serviceBuilders,
-            Collection<ModuleBuilderExtension> persistenceUnitBuilders,
-            Naming naming) {
+             AbstractNameQuery transactionManagerAbstractName,
+             AbstractNameQuery connectionTrackerAbstractName,
+             AbstractNameQuery transactionalTimerAbstractName,
+             AbstractNameQuery nonTransactionalTimerAbstractName,
+             AbstractNameQuery corbaGBeanAbstractName,
+             AbstractNameQuery serverName,
+             ConfigurationManager configurationManager,
+             Collection<Repository> repositories,
+             SingleElementCollection ejbConfigBuilder,
+             SingleElementCollection webConfigBuilder,
+             SingleElementCollection connectorConfigBuilder,
+             SingleElementCollection resourceReferenceBuilder,
+             SingleElementCollection appClientConfigBuilder,
+             Collection securityBuilders,
+             Collection serviceBuilders,
+             Collection<ModuleBuilderExtension> persistenceUnitBuilders,
+             Naming naming,
+             Collection<ArtifactResolver> artifactResolvers) {
         this.configurationManager = configurationManager;
         this.repositories = repositories;
         this.defaultEnvironment = defaultEnvironment;
@@ -239,6 +246,7 @@ public class EARConfigBuilder implements ConfigurationBuilder, CorbaGBeanNameSou
         this.corbaGBeanObjectName = corbaGBeanAbstractName;
         this.serverName = serverName;
         this.naming = naming;
+        this.artifactResolvers = artifactResolvers;
     }
 
 
@@ -921,8 +929,17 @@ public class EARConfigBuilder implements ConfigurationBuilder, CorbaGBeanNameSou
                         throw new DeploymentException("Invalid moduleFile: " + modulePath, e);
                     }
                 } else {
-                    String path = gerExtModule.getExternalPath().trim();
-                    Artifact artifact = Artifact.create(path);
+                    PatternType patternType = gerExtModule.getExternalPath();
+                    String groupId = trim(patternType.getGroupId());
+                    String artifactId = trim(patternType.getArtifactId());
+                    String version = trim(patternType.getVersion());
+                    String type = trim(patternType.getType());
+                    Artifact artifact = new Artifact(groupId, artifactId, version, type);
+                    try {
+                        artifact = getArtifactResolver().resolveInClassLoader(artifact);
+                    } catch (MissingDependencyException e) {
+                        throw new DeploymentException("Could not resolve external rar location in repository: " + artifact, e);
+                    }
                     File location = null;
                     for (Repository repository : repositories) {
                         if (repository.contains(artifact)) {
@@ -931,7 +948,7 @@ public class EARConfigBuilder implements ConfigurationBuilder, CorbaGBeanNameSou
                         }
                     }
                     if (location == null) {
-                        throw new DeploymentException(moduleTypeName + " is missing in repositories: " + path);
+                        throw new DeploymentException(moduleTypeName + " is missing in repositories: " + artifact);
                     }
                     try {
                         moduleFile = new JarFile(location);
@@ -964,6 +981,20 @@ public class EARConfigBuilder implements ConfigurationBuilder, CorbaGBeanNameSou
                 }
             }
         }
+    }
+
+    private ArtifactResolver getArtifactResolver() throws DeploymentException {
+        if (artifactResolvers == null || artifactResolvers.isEmpty()) {
+            throw new DeploymentException("No artifact resolver supplied to resolve external module");
+        }
+        return artifactResolvers.iterator().next();
+    }
+
+    private String trim(String s) {
+        if (s == null) {
+            return null;
+        }
+        return s.trim();
     }
 
     private boolean isLibraryEntry(ApplicationType application, ZipEntry entry) {
@@ -1066,6 +1097,7 @@ public class EARConfigBuilder implements ConfigurationBuilder, CorbaGBeanNameSou
         infoBuilder.addReference("SecurityBuilders", NamespaceDrivenBuilder.class, NameFactory.MODULE_BUILDER);
         infoBuilder.addReference("ServiceBuilders", NamespaceDrivenBuilder.class, NameFactory.MODULE_BUILDER);
         infoBuilder.addReference("PersistenceUnitBuilders", ModuleBuilderExtension.class, NameFactory.MODULE_BUILDER);
+        infoBuilder.addReference("ArtifactResolvers", ArtifactResolver.class, "ArtifactResolver");
 
         infoBuilder.addAttribute("kernel", Kernel.class, false);
 
@@ -1086,6 +1118,7 @@ public class EARConfigBuilder implements ConfigurationBuilder, CorbaGBeanNameSou
                 "SecurityBuilders",
                 "ServiceBuilders",
                 "PersistenceUnitBuilders",
+                "ArtifactResolvers",
                 "kernel"
         });
 
