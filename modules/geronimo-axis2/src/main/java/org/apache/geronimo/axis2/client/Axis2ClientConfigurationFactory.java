@@ -80,13 +80,19 @@ public class Axis2ClientConfigurationFactory extends ClientConfigurationFactory 
         this.contextCache.clear();
     }
     
-    public void clearCache(ClassLoader cl) {
-        synchronized(cl) {
-            ConfigurationContext context = removeConfigurationContext(cl);
-            if (LOG.isDebugEnabled()) {                
+    public ConfigurationContext clearCache(ClassLoader cl) {
+        ConfigurationContext context = null;
+        if (cl != null) {
+            synchronized (cl) {
+                context = removeConfigurationContext(cl);
+            }
+            
+            if (LOG.isDebugEnabled()) {
                 LOG.debug("Removed configuration context " + context + " for " + cl);
             }
         }
+
+        return context;
     }
     
     private ConfigurationContext createConfigurationContext() {
