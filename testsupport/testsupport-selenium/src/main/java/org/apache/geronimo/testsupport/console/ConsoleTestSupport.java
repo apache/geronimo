@@ -17,30 +17,40 @@
  *  under the License.
  */
 
-package org.apache.geronimo.testsuite.console;
+package org.apache.geronimo.testsupport.console;
 
-import org.testng.annotations.Test;
-import org.apache.geronimo.testsupport.console.ConsoleTestSupport;
+import org.apache.geronimo.testsupport.SeleniumTestSupport;
 
 /**
- * Configuration manager (Web applications) portlet tests
+ * ???
  *
  * @version $Rev$ $Date$
  */
-@Test
-public class ConfigManagerPortletWARTest
-    extends ConsoleTestSupport
+public abstract class ConsoleTestSupport
+    extends SeleniumTestSupport
 {
-    @Test
-    public void testConfigManagerWARLink() throws Exception {
-        login();
+    protected void login() throws Exception {
+        selenium.open("/");
+        selenium.waitForPageToLoad("30000");
+        assertEquals("Apache Geronimo", selenium.getTitle());
         
-        selenium.click("link=Web App WARs");
+        selenium.click("link=Console");
+        selenium.waitForPageToLoad("30000");
+        assertEquals("Geronimo Console Login", selenium.getTitle());
+        
+        selenium.type("j_username", "system");
+        selenium.type("j_password", "manager");
+        selenium.click("submit");
         selenium.waitForPageToLoad("30000");
         assertEquals("Geronimo Console", selenium.getTitle());
-        assertEquals("Installed Web Applications", selenium.getText(
-            "xpath=/html/body/table[@id='rootfragment']/tbody/tr[2]/td/table/tbody/tr[2]/td[4]/table/tbody/tr[1]/td/table/tbody/tr[1]/td/div/table/tbody/tr/td[2]/table/tbody/tr/td[1]/strong"));
+    }
+    
+    protected void logout() throws Exception {
+        selenium.click("//a[contains(@href, '/console/logout.jsp')]");
+        selenium.waitForPageToLoad("30000");
+        assertEquals("Geronimo Console Login", selenium.getTitle());
         
-        logout();
+        //selenium.removeCookie("JSESSIONID", "/");
     }
 }
+
