@@ -22,7 +22,7 @@
 <!-- any comments added to this file will be lost.            -->
 <!-- ======================================================== -->
 
-<attributes xmlns="http://geronimo.apache.org/xml/ns/attributes-1.1">
+<attributes xmlns="http://geronimo.apache.org/xml/ns/attributes-1.2">
     
     <module name="org.apache.geronimo.configs/rmi-naming/${version}/car">
         <gbean name="RMIRegistry">

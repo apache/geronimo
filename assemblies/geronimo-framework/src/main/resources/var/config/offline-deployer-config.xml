@@ -18,6 +18,6 @@
 
 <!-- $Rev$ $Date$ -->
 
-<attributes xmlns="http://geronimo.apache.org/xml/ns/attributes-1.1">
+<attributes xmlns="http://geronimo.apache.org/xml/ns/attributes-1.2">
     <module name="org.apache.geronimo.configs/geronimo-gbean-deployer/${version}/car"/>
 </attributes>
