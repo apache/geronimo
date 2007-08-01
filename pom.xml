@@ -278,13 +278,13 @@
             <dependency>
                 <groupId>org.apache.xbean</groupId>
                 <artifactId>xbean-finder</artifactId>
-                <version>3.0-SNAPSHOT</version>
+                <version>3.0.1</version>
             </dependency>
 
             <dependency>
                 <groupId>org.apache.xbean</groupId>
                 <artifactId>xbean-naming</artifactId>
-                <version>3.0-SNAPSHOT</version>
+                <version>3.0.1</version>
             </dependency>
 
             <dependency>
