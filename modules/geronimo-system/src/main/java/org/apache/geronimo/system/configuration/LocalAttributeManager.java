@@ -306,7 +306,7 @@ public class LocalAttributeManager implements PluginAttributeStore, PersistentCo
                     "http://www.w3.org/2001/XMLSchema");
 
             dFactory.setAttribute("http://java.sun.com/xml/jaxp/properties/schemaSource",
-                    LocalAttributeManager.class.getResourceAsStream("/META-INF/schema/attributes-1.1.xsd"));
+                    LocalAttributeManager.class.getResourceAsStream("/META-INF/schema/attributes-1.2.xsd"));
 
             DocumentBuilder builder = dFactory.newDocumentBuilder();
             builder.setErrorHandler(new ErrorHandler() {
@@ -408,7 +408,7 @@ public class LocalAttributeManager implements PluginAttributeStore, PersistentCo
         dFactory.setAttribute("http://java.sun.com/xml/jaxp/properties/schemaLanguage",
                 "http://www.w3.org/2001/XMLSchema");
         dFactory.setAttribute("http://java.sun.com/xml/jaxp/properties/schemaSource",
-                LocalAttributeManager.class.getResourceAsStream("/META-INF/schema/attributes-1.1.xsd"));
+                LocalAttributeManager.class.getResourceAsStream("/META-INF/schema/attributes-1.2.xsd"));
 
         OutputStream output = null;
         try {

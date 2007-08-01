@@ -29,6 +29,7 @@ import org.apache.geronimo.system.configuration.condition.JexlExpressionParser;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
+import org.w3c.dom.Node;
 
 /**
  * @version $Rev$ $Date$
@@ -37,11 +38,12 @@ class ConfigurationOverride {
     private final Artifact name;
     private boolean load;
     private String condition;
+    private String comment;
     private final Map<Object, GBeanOverride> gbeans = new LinkedHashMap<Object, GBeanOverride>();
 
     /**
      * Cached condition parser; lazy init on the first call to {@link #parseCondition()}
-     * whne {@link #condition} is non-null.
+     * when {@link #condition} is non-null.
      */
     private static ConditionParser parser;
 
@@ -59,6 +61,8 @@ class ConfigurationOverride {
         this.name = name;
         this.load = base.load;
         this.condition = base.condition;
+        this.comment = base.comment;
+
         for (GBeanOverride gbean : base.gbeans.values()) {
             GBeanOverride replacement = new GBeanOverride(gbean, base.name.toString(), name.toString());
             gbeans.put(replacement.getName(), replacement);
@@ -67,11 +71,12 @@ class ConfigurationOverride {
 
     public ConfigurationOverride(Element element, JexlExpressionParser expressionParser) throws InvalidGBeanException {
         name = Artifact.create(element.getAttribute("name"));
-        
+
         condition = element.getAttribute("condition");
+        comment = getCommentText(element);
         
         String loadConfigString = element.getAttribute("load");
-        load = !"false".equals(loadConfigString);
+        load = ! "false".equals(loadConfigString);
 
         NodeList gbeans = element.getElementsByTagName("gbean");
         for (int g = 0; g < gbeans.getLength(); g++) {
@@ -91,6 +96,34 @@ class ConfigurationOverride {
     
     public void setCondition(final String condition) {
         this.condition = condition;
+    }
+
+    public String getComment() {
+        return comment;
+    }
+
+    public void setComment(String comment) {
+        this.comment = comment;
+    }
+
+    private String getCommentText(Element element) {
+        String commentText = "";
+
+        NodeList children = element.getChildNodes();
+        Element child = null;
+
+        for (int nodePos = 0; nodePos < children.getLength(); nodePos++) {
+            if (children.item(nodePos) instanceof Element) {
+                child = (Element) children.item(nodePos);
+
+                if (child.getTagName().equals("comment")) {
+                    commentText = child.getTextContent();
+                    break;
+                }
+            }
+        }
+
+        return commentText;
     }
 
     private boolean parseCondition() {
@@ -143,11 +176,20 @@ class ConfigurationOverride {
         Element module = doc.createElement("module");
         root.appendChild(module);
         module.setAttribute("name", name.toString());
-        if (!load) {
+
+        if (! load) {
             module.setAttribute("load", "false");
         }
+
         if (condition != null && condition.trim().length() != 0) {
             module.setAttribute("condition", condition);
+        }
+
+        if (comment != null && comment.trim().length() > 0) {
+            Element eleComment = doc.createElement("comment");
+            eleComment.setTextContent(comment);
+
+            module.appendChild(eleComment);
         }
 
         // GBeans

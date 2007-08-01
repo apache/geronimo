@@ -213,6 +213,25 @@ public class ServerOverrideTest extends TestCase {
         assertCopyIdentical(restaurant);
     }
 
+    private static final String REFERENCE_COMMENT_XML =
+            "<module name=\"org.apache.geronimo.config/commentTest/2.0/car\">\n" +
+            "    <comment>This comment should get properly parsed</comment>\n" +
+            "    <gbean name=\"CommentBean\">\n" +
+            "        <attribute name=\"value\">someValue</attribute>\n" +
+            "    </gbean>\n" +
+            "</module>";
+
+    public void testCommentXml() throws Exception {
+        String comment = "This comment should get properly parsed";
+
+        InputStream in = new ByteArrayInputStream(REFERENCE_COMMENT_XML.getBytes());
+        Element module = parseXml(in, "module");
+        ConfigurationOverride commentConfig = new ConfigurationOverride(module, expressionParser);
+
+        assertNotNull(commentConfig);
+        assertEquals(commentConfig.getComment(), comment);
+    }
+
     private static final String REFERENCE_XML =
             "        <gbean name=\"EJBBuilder\">\n" +
                     "            <attribute name=\"listener\">?name=JettyWebContainer</attribute>\n" +

@@ -18,7 +18,7 @@
 
 <xs:schema targetNamespace="http://geronimo.apache.org/xml/ns/plugins-1.1"
     xmlns:list="http://geronimo.apache.org/xml/ns/plugins-1.1"
-    xmlns:atts="http://geronimo.apache.org/xml/ns/attributes-1.1"
+    xmlns:atts="http://geronimo.apache.org/xml/ns/attributes-1.2"
     xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified"
     attributeFormDefault="unqualified">
 
@@ -34,8 +34,8 @@
         </xs:documentation>
     </xs:annotation>
 
-    <xs:import namespace="http://geronimo.apache.org/xml/ns/attributes-1.1"
-        schemaLocation="local-attributes-1.1.xsd" />
+    <xs:import namespace="http://geronimo.apache.org/xml/ns/attributes-1.2"
+        schemaLocation="attributes-1.2.xsd" />
 
     <xs:annotation>
         <xs:documentation>

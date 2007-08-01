@@ -1403,7 +1403,7 @@ public class PluginInstallerGBean implements PluginInstaller {
                              "http://www.w3.org/2001/XMLSchema");
         factory.setAttribute("http://java.sun.com/xml/jaxp/properties/schemaSource",
                              new InputStream[]{
-                                     PluginInstallerGBean.class.getResourceAsStream("/META-INF/schema/attributes-1.1.xsd"),
+                                     PluginInstallerGBean.class.getResourceAsStream("/META-INF/schema/attributes-1.2.xsd"),
                                      PluginInstallerGBean.class.getResourceAsStream("/META-INF/schema/plugins-1.1.xsd"),
                                      PluginInstallerGBean.class.getResourceAsStream("/META-INF/schema/plugins-1.2.xsd")
                              }
@@ -1929,7 +1929,7 @@ public class PluginInstallerGBean implements PluginInstaller {
             for (int i = 0; i < data.getConfigXmls().length; i++) {
                 GBeanOverride override = data.getConfigXmls()[i];
                 Element gbean = override.writeXml(doc, content);
-                gbean.setAttribute("xmlns", "http://geronimo.apache.org/xml/ns/attributes-1.1");
+                gbean.setAttribute("xmlns", "http://geronimo.apache.org/xml/ns/attributes-1.2");
             }
             config.appendChild(content);
         }
