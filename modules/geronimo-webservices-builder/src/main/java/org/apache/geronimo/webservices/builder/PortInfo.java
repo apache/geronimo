@@ -57,6 +57,10 @@ public class PortInfo {
         this.location = location;
     }
 
+    public DescriptorVersion getDescriptorVersion() {
+        return this.sharedPortInfo.getDescriptorVersion();
+    }
+    
     public String getWsdlLocation() {
         return this.sharedPortInfo.getWsdlLocation();
     }

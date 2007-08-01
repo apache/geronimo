@@ -82,6 +82,7 @@ import org.apache.geronimo.deployment.util.DeploymentUtil;
 import org.apache.geronimo.deployment.DeploymentContext;
 import org.apache.geronimo.deployment.service.EnvironmentBuilder;
 import org.apache.geronimo.webservices.SerializableWebServiceContainerFactoryGBean;
+import org.apache.geronimo.webservices.builder.DescriptorVersion;
 import org.apache.geronimo.webservices.builder.PortInfo;
 import org.apache.geronimo.webservices.builder.SchemaInfoBuilder;
 import org.apache.geronimo.webservices.builder.WSDescriptorParser;
@@ -142,8 +143,14 @@ public class AxisBuilder implements WebServiceBuilder {
         ClassLoader cl = context.getClassLoader();
         Class serviceClass = loadClass(servletClassName, cl);        
         if (isJAXWSWebService(serviceClass)) {
-            // This is a JAX-WS web service so ignore
-            return false;
+            if (DescriptorVersion.J2EE.equals(portInfo.getDescriptorVersion())) {
+                // This is a JAX-WS web service in J2EE descriptor so throw an exception
+                throw new DeploymentException("JAX-WS web service '" + portInfo.getPortComponentName() 
+                                              + "' cannot be specified in J2EE webservices.xml descriptor.");
+            } else {
+                // This is a JAX-WS web service in JAVAEE descriptor so ignore
+                return false;
+            }
         }
         
         portInfo.initialize(module.getModuleFile());
@@ -202,8 +209,14 @@ public class AxisBuilder implements WebServiceBuilder {
         String beanClassName = (String)targetGBean.getAttribute("ejbClass");
         Class serviceClass = loadClass(beanClassName, classLoader);
         if (isJAXWSWebService(serviceClass)) {
-            // This is a JAX-WS web service so ignore
-            return false;
+            if (DescriptorVersion.J2EE.equals(portInfo.getDescriptorVersion())) {
+                // This is a JAX-WS web service in J2EE descriptor so throw an exception
+                throw new DeploymentException("JAX-WS web service '" + portInfo.getPortComponentName() 
+                                              + "' cannot be specified in J2EE webservices.xml descriptor.");
+            } else {
+                // This is a JAX-WS web service in JAVAEE descriptor so ignore
+                return false;
+            }
         }
         
         portInfo.initialize(module.getModuleFile());
