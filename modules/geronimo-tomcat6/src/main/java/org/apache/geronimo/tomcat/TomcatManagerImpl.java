@@ -91,9 +91,9 @@ public class TomcatManagerImpl implements WebManager {
         //******************* HTTP - BIO CONNECTOR
         List<ConnectorAttribute> connectorAttributes = new ArrayList<ConnectorAttribute>();
         //HTTP Attributes
-        connectorAttributes.add(new ConnectorAttribute<String>("host", "0.0.0.0", "Host", String.class, true));
-        connectorAttributes.add(new ConnectorAttribute<Integer>("port", 8080, "Port", Integer.class, true));
-        connectorAttributes.add(new ConnectorAttribute<Integer>("maxThreads", 40, "Maximum number of threads", Integer.class));
+        connectorAttributes.add(new ConnectorAttribute<String>("host", "0.0.0.0", "The host name or IP to bind to. The normal values are 0.0.0.0 (all interfaces) or localhost (local connections only)", String.class, true));
+        connectorAttributes.add(new ConnectorAttribute<Integer>("port", 8080, "The network port to bind to.", Integer.class, true));
+        connectorAttributes.add(new ConnectorAttribute<Integer>("maxThreads", 40, "The maximum number of threads this connector should use to handle incoming requests", Integer.class));
         connectorAttributes.add(new ConnectorAttribute<Integer>("minSpareThreads", 10, "Minimum spare threads", Integer.class));
         connectorAttributes.add(new ConnectorAttribute<Integer>("maxSpareThreads", 100, "Maximum spare threads", Integer.class));
         connectorAttributes.add(new ConnectorAttribute<Integer>("bufferSize", 2048, "Buffer size", Integer.class));
@@ -132,22 +132,22 @@ public class TomcatManagerImpl implements WebManager {
         connectorAttributes = new ArrayList<ConnectorAttribute>();
         
         //HTTP Attributes
-        connectorAttributes.add(new ConnectorAttribute<String>("host", "0.0.0.0", "Host", String.class, true));
-        connectorAttributes.add(new ConnectorAttribute<Integer>("port", 8443, "Port", Integer.class, true));
+        connectorAttributes.add(new ConnectorAttribute<String>("host", "0.0.0.0", "The host name or IP to bind to. The normal values are 0.0.0.0 (all interfaces) or localhost (local connections only)", String.class, true));
+        connectorAttributes.add(new ConnectorAttribute<Integer>("port", 8443, "The network port to bind to.", Integer.class, true));
         //SSL
-        connectorAttributes.add(new ConnectorAttribute<String>("keystoreFile", "", "keystoreFile", String.class, true));
-        connectorAttributes.add(new ConnectorAttribute<String>("keystorePass", null, "keystorePass", String.class));
-        connectorAttributes.add(new ConnectorAttribute<String>("keystoreType", "JKS", "keystoreType", String.class));
-        connectorAttributes.add(new ConnectorAttribute<String>("algorithm", KeyManagerFactory.getDefaultAlgorithm(), "Algorithm", String.class));
+        connectorAttributes.add(new ConnectorAttribute<String>("keystoreFile", "", "The file that holds the keystore (relative to the Geronimo install dir)", String.class, true));
+        connectorAttributes.add(new ConnectorAttribute<String>("keystorePass", null, "Set the password used to access the keystore file. This is also the password used to access the server private key within the keystore (so the two passwords must be set to be the same on the keystore).", String.class));
+        connectorAttributes.add(new ConnectorAttribute<String>("keystoreType", "JKS", "Set the keystore type. There is normally no reason not to use the default (JKS).", String.class));
+        connectorAttributes.add(new ConnectorAttribute<String>("algorithm", KeyManagerFactory.getDefaultAlgorithm(), "Set the HTTPS algorithm. This should normally be set to match the JVM vendor.", String.class));
         connectorAttributes.add(new ConnectorAttribute<Boolean>("clientAuth", false, "clientAuth", Boolean.class));
-        connectorAttributes.add(new ConnectorAttribute<String>("sslProtocol", "TLS", "sslProtocol", String.class));
+        connectorAttributes.add(new ConnectorAttribute<String>("sslProtocol", "TLS", "Set the HTTPS protocol. This should normally be set to TLS, though some (IBM) JVMs don't work properly with popular browsers unless it is changed to SSL.", String.class));
         connectorAttributes.add(new ConnectorAttribute<String>("ciphers", "", "Ciphers", String.class));
         connectorAttributes.add(new ConnectorAttribute<String>("keyAlias", null, "keyAlias", String.class));
-        connectorAttributes.add(new ConnectorAttribute<String>("truststoreFile", null, "truststoreFile", String.class));
+        connectorAttributes.add(new ConnectorAttribute<String>("truststoreFile", null, "The file that holds the truststore (relative to the Geronimo install dir)", String.class));
         connectorAttributes.add(new ConnectorAttribute<String>("truststorePass", null, "truststorePass", String.class));
-        connectorAttributes.add(new ConnectorAttribute<String>("truststoreType", null, "truststoreType", String.class));
+        connectorAttributes.add(new ConnectorAttribute<String>("truststoreType", null, "Set the truststore type. There is normally no reason not to use the default (JKS).", String.class));
         //HTTP
-        connectorAttributes.add(new ConnectorAttribute<Integer>("maxThreads", 40, "Maximum number of threads", Integer.class));
+        connectorAttributes.add(new ConnectorAttribute<Integer>("maxThreads", 40, "The maximum number of threads this connector should use to handle incoming requests", Integer.class));
         connectorAttributes.add(new ConnectorAttribute<Integer>("minSpareThreads", 10, "Minimum spare threads", Integer.class));
         connectorAttributes.add(new ConnectorAttribute<Integer>("maxSpareThreads", 100, "Maximum spare threads", Integer.class));
         connectorAttributes.add(new ConnectorAttribute<Integer>("bufferSize", 2048, "Buffer size", Integer.class));
@@ -185,9 +185,9 @@ public class TomcatManagerImpl implements WebManager {
         //******************* HTTP - NIO CONNECTOR
         connectorAttributes = new ArrayList<ConnectorAttribute>();
         //HTTP Attributes
-        connectorAttributes.add(new ConnectorAttribute<String>("host", "0.0.0.0", "Host", String.class, true));
-        connectorAttributes.add(new ConnectorAttribute<Integer>("port", 8080, "Port", Integer.class, true));
-        connectorAttributes.add(new ConnectorAttribute<Integer>("maxThreads", 40, "Maximum number of threads", Integer.class));
+        connectorAttributes.add(new ConnectorAttribute<String>("host", "0.0.0.0", "The host name or IP to bind to. The normal values are 0.0.0.0 (all interfaces) or localhost (local connections only)", String.class, true));
+        connectorAttributes.add(new ConnectorAttribute<Integer>("port", 8080, "The network port to bind to.", Integer.class, true));
+        connectorAttributes.add(new ConnectorAttribute<Integer>("maxThreads", 40, "The maximum number of threads this connector should use to handle incoming requests", Integer.class));
         connectorAttributes.add(new ConnectorAttribute<Integer>("minSpareThreads", 10, "Minimum spare threads", Integer.class));
         connectorAttributes.add(new ConnectorAttribute<Integer>("maxSpareThreads", 100, "Maximum spare threads", Integer.class));
         connectorAttributes.add(new ConnectorAttribute<Integer>("bufferSize", 2048, "Buffer size", Integer.class));
@@ -259,22 +259,22 @@ public class TomcatManagerImpl implements WebManager {
         //******************* HTTPS - NIO CONNECTOR
         connectorAttributes = new ArrayList<ConnectorAttribute>();
         //HTTP Attributes
-        connectorAttributes.add(new ConnectorAttribute<String>("host", "0.0.0.0", "Host", String.class, true));
-        connectorAttributes.add(new ConnectorAttribute<Integer>("port", 8443, "Port", Integer.class, true));
+        connectorAttributes.add(new ConnectorAttribute<String>("host", "0.0.0.0", "The host name or IP to bind to. The normal values are 0.0.0.0 (all interfaces) or localhost (local connections only)", String.class, true));
+        connectorAttributes.add(new ConnectorAttribute<Integer>("port", 8443, "The network port to bind to.", Integer.class, true));
         //SSL
-        connectorAttributes.add(new ConnectorAttribute<String>("keystoreFile", "", "keystoreFile", String.class, true));
-        connectorAttributes.add(new ConnectorAttribute<String>("keystorePass", null, "keystorePass", String.class));
-        connectorAttributes.add(new ConnectorAttribute<String>("keystoreType", "JKS", "keystoreType", String.class));
-        connectorAttributes.add(new ConnectorAttribute<String>("algorithm", KeyManagerFactory.getDefaultAlgorithm(), "Algorithm", String.class));
+        connectorAttributes.add(new ConnectorAttribute<String>("keystoreFile", "", "The file that holds the keystore (relative to the Geronimo install dir)", String.class, true));
+        connectorAttributes.add(new ConnectorAttribute<String>("keystorePass", null, "Set the password used to access the keystore file. This is also the password used to access the server private key within the keystore (so the two passwords must be set to be the same on the keystore).", String.class));
+        connectorAttributes.add(new ConnectorAttribute<String>("keystoreType", "JKS", "Set the keystore type. There is normally no reason not to use the default (JKS).", String.class));
+        connectorAttributes.add(new ConnectorAttribute<String>("algorithm", KeyManagerFactory.getDefaultAlgorithm(), "Set the HTTPS algorithm. This should normally be set to match the JVM vendor.", String.class));
         connectorAttributes.add(new ConnectorAttribute<Boolean>("clientAuth", false, "clientAuth", Boolean.class));
-        connectorAttributes.add(new ConnectorAttribute<String>("sslProtocol", "TLS", "sslProtocol", String.class));
+        connectorAttributes.add(new ConnectorAttribute<String>("sslProtocol", "TLS", "Set the HTTPS protocol. This should normally be set to TLS, though some (IBM) JVMs don't work properly with popular browsers unless it is changed to SSL.", String.class));
         connectorAttributes.add(new ConnectorAttribute<String>("ciphers", "", "Ciphers", String.class));
         connectorAttributes.add(new ConnectorAttribute<String>("keyAlias", null, "keyAlias", String.class));
-        connectorAttributes.add(new ConnectorAttribute<String>("truststoreFile", null, "truststoreFile", String.class));
+        connectorAttributes.add(new ConnectorAttribute<String>("truststoreFile", null, "The file that holds the truststore (relative to the Geronimo install dir)", String.class));
         connectorAttributes.add(new ConnectorAttribute<String>("truststorePass", null, "truststorePass", String.class));
-        connectorAttributes.add(new ConnectorAttribute<String>("truststoreType", null, "truststoreType", String.class));
+        connectorAttributes.add(new ConnectorAttribute<String>("truststoreType", null, "Set the truststore type. There is normally no reason not to use the default (JKS).", String.class));
 
-        connectorAttributes.add(new ConnectorAttribute<Integer>("maxThreads", 40, "Maximum number of threads", Integer.class));
+        connectorAttributes.add(new ConnectorAttribute<Integer>("maxThreads", 40, "The maximum number of threads this connector should use to handle incoming requests", Integer.class));
         connectorAttributes.add(new ConnectorAttribute<Integer>("minSpareThreads", 10, "Minimum spare threads", Integer.class));
         connectorAttributes.add(new ConnectorAttribute<Integer>("maxSpareThreads", 100, "Maximum spare threads", Integer.class));
         connectorAttributes.add(new ConnectorAttribute<Integer>("bufferSize", 2048, "Buffer size", Integer.class));
@@ -345,15 +345,15 @@ public class TomcatManagerImpl implements WebManager {
         
         //******************* HTTP - APR CONNECTOR
         connectorAttributes = new ArrayList<ConnectorAttribute>();        
-        connectorAttributes.add(new ConnectorAttribute<String>("host", "0.0.0.0", "Host", String.class, true));
-        connectorAttributes.add(new ConnectorAttribute<Integer>("port", 8080, "Port", Integer.class, true));
+        connectorAttributes.add(new ConnectorAttribute<String>("host", "0.0.0.0", "The host name or IP to bind to. The normal values are 0.0.0.0 (all interfaces) or localhost (local connections only)", String.class, true));
+        connectorAttributes.add(new ConnectorAttribute<Integer>("port", 8080, "The network port to bind to.", Integer.class, true));
         //APR Attributes
         connectorAttributes.add(new ConnectorAttribute<Integer>("pollTime", 2000, "Duration of a poll call. Lowering this value will slightly decrease latency of connections being kept alive in some cases, but will use more CPU as more poll calls are being made.", Integer.class, true));
         connectorAttributes.add(new ConnectorAttribute<Integer>("pollerSize", 8192, "Amount of sockets that the poller responsible for polling kept alive connections can hold at a given time.", Integer.class, true));
         connectorAttributes.add(new ConnectorAttribute<Boolean>("useSendfile", true, "Use kernel level sendfile for certain static files.", Boolean.class, true));
         connectorAttributes.add(new ConnectorAttribute<Integer>("sendfileSize", 1024, "Amount of sockets that the poller responsible for sending static files asynchronously can hold at a given time.", Integer.class, true));
         //HTTP
-        connectorAttributes.add(new ConnectorAttribute<Integer>("maxThreads", 40, "Maximum number of threads", Integer.class));
+        connectorAttributes.add(new ConnectorAttribute<Integer>("maxThreads", 40, "The maximum number of threads this connector should use to handle incoming requests", Integer.class));
         connectorAttributes.add(new ConnectorAttribute<Integer>("minSpareThreads", 10, "Minimum spare threads", Integer.class));
         connectorAttributes.add(new ConnectorAttribute<Integer>("maxSpareThreads", 100, "Maximum spare threads", Integer.class));
         connectorAttributes.add(new ConnectorAttribute<Integer>("bufferSize", 2048, "Buffer size", Integer.class));
@@ -390,15 +390,15 @@ public class TomcatManagerImpl implements WebManager {
         
         //******************* HTTPS - APR CONNECTOR
         connectorAttributes = new ArrayList<ConnectorAttribute>();
-        connectorAttributes.add(new ConnectorAttribute<String>("host", "0.0.0.0", "Host", String.class, true));
-        connectorAttributes.add(new ConnectorAttribute<Integer>("port", 8443, "Port", Integer.class, true));
+        connectorAttributes.add(new ConnectorAttribute<String>("host", "0.0.0.0", "The host name or IP to bind to. The normal values are 0.0.0.0 (all interfaces) or localhost (local connections only)", String.class, true));
+        connectorAttributes.add(new ConnectorAttribute<Integer>("port", 8443, "The network port to bind to.", Integer.class, true));
         //APR Attributes
         connectorAttributes.add(new ConnectorAttribute<Integer>("pollTime", 2000, "Duration of a poll call. Lowering this value will slightly decrease latency of connections being kept alive in some cases, but will use more CPU as more poll calls are being made.", Integer.class, true));
         connectorAttributes.add(new ConnectorAttribute<Integer>("pollerSize", 8192, "Amount of sockets that the poller responsible for polling kept alive connections can hold at a given time.", Integer.class, true));
         connectorAttributes.add(new ConnectorAttribute<Boolean>("useSendfile", true, "Use kernel level sendfile for certain static files.", Boolean.class, true));
         connectorAttributes.add(new ConnectorAttribute<Integer>("sendfileSize", 1024, "Amount of sockets that the poller responsible for sending static files asynchronously can hold at a given time.", Integer.class, true));
         //HTTP
-        connectorAttributes.add(new ConnectorAttribute<Integer>("maxThreads", 40, "Maximum number of threads", Integer.class));
+        connectorAttributes.add(new ConnectorAttribute<Integer>("maxThreads", 40, "The maximum number of threads this connector should use to handle incoming requests", Integer.class));
         connectorAttributes.add(new ConnectorAttribute<Integer>("minSpareThreads", 10, "Minimum spare threads", Integer.class));
         connectorAttributes.add(new ConnectorAttribute<Integer>("maxSpareThreads", 100, "Maximum spare threads", Integer.class));
         connectorAttributes.add(new ConnectorAttribute<Integer>("bufferSize", 2048, "Buffer size", Integer.class));
@@ -449,13 +449,13 @@ public class TomcatManagerImpl implements WebManager {
         //******************* AJP CONNECTOR
         connectorAttributes = new ArrayList<ConnectorAttribute>();
         //APR Attributes
-        connectorAttributes.add(new ConnectorAttribute<String>("host", "0.0.0.0", "Host", String.class, true));
-        connectorAttributes.add(new ConnectorAttribute<Integer>("port", 8009, "Port", Integer.class, true));
+        connectorAttributes.add(new ConnectorAttribute<String>("host", "0.0.0.0", "The host name or IP to bind to. The normal values are 0.0.0.0 (all interfaces) or localhost (local connections only)", String.class, true));
+        connectorAttributes.add(new ConnectorAttribute<Integer>("port", 8009, "The network port to bind to.", Integer.class, true));
         connectorAttributes.add(new ConnectorAttribute<Integer>("backlog", 10, "The maximum queue length for incoming connection requests when all possible request processing threads are in use.", Integer.class));
         connectorAttributes.add(new ConnectorAttribute<Integer>("bufferSize", 2048, "Buffer size", Integer.class));
         connectorAttributes.add(new ConnectorAttribute<Integer>("connectionTimeout", org.apache.coyote.ajp.Constants.DEFAULT_CONNECTION_TIMEOUT, "Connection timeout in milliseconds", Integer.class));
         connectorAttributes.add(new ConnectorAttribute<Integer>("keepAliveTimeout", org.apache.coyote.ajp.Constants.DEFAULT_CONNECTION_TIMEOUT, "Keep alive timeout in milliseconds", Integer.class));
-        connectorAttributes.add(new ConnectorAttribute<Integer>("maxThreads", 40, "Maximum number of threads", Integer.class));
+        connectorAttributes.add(new ConnectorAttribute<Integer>("maxThreads", 40, "The maximum number of threads this connector should use to handle incoming requests", Integer.class));
         connectorAttributes.add(new ConnectorAttribute<Integer>("minSpareThreads", 10, "Minimum spare threads", Integer.class));
         connectorAttributes.add(new ConnectorAttribute<Integer>("maxSpareThreads", 100, "Maximum spare threads", Integer.class));
         connectorAttributes.add(new ConnectorAttribute<Boolean>("tcpNoDelay", true, "If set to true, the TCP_NO_DELAY option will be set on the server socket, which improves performance under most circumstances.", Boolean.class));

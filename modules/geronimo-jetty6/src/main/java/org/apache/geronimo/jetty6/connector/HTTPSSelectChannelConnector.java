@@ -30,7 +30,7 @@ import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.system.threads.ThreadPool;
-import org.mortbay.jetty.bio.SocketConnector;
+import org.mortbay.jetty.nio.SelectChannelConnector;
 
 /**
  * Implementation of a HTTPS connector based on Jetty's SslConnector (which uses pure JSSE).
@@ -123,7 +123,7 @@ public class HTTPSSelectChannelConnector extends JettyConnector implements Jetty
 
     //TODO does this make sense???
     public void setRedirectPort(int port) {
-        SocketConnector socketListener = (SocketConnector) listener;
+        SelectChannelConnector socketListener = (SelectChannelConnector) listener;
         socketListener.setConfidentialPort(port);
         socketListener.setIntegralPort(port);
         socketListener.setIntegralScheme("https");

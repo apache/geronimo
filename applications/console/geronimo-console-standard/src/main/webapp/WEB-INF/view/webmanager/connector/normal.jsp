@@ -48,7 +48,7 @@
           </c:otherwise>
       </c:choose>
           <tr>
-            <td class="${backgroundClass}">${info.displayName}</td>
+            <td class="${backgroundClass}">${info.uniqueName}</td>
             <td class="${backgroundClass}">${info.protocol}</td>
             <td class="${backgroundClass}">${info.port}</td>
             <td class="${backgroundClass}">${info.stateName}</td>
@@ -61,7 +61,7 @@
                  <portlet:param name="managerURI" value="${container.managerURI}" />
                  <portlet:param name="containerURI" value="${container.containerURI}" />
                </portlet:actionURL>"
-                 <c:if test="${info.port eq serverPort}"> onClick="return confirm('Console application will not be available if ${info.displayName} is stopped.  Stop ${info.displayName}?');"</c:if>>
+                 <c:if test="${info.port eq serverPort}"> onClick="return confirm('Console application will not be available if ${info.uniqueName} is stopped.  Stop ${info.uniqueName}?');"</c:if>>
                  stop</a>
                </c:when>
                <c:otherwise>
@@ -84,7 +84,7 @@
                  <portlet:param name="connectorURI" value="${info.connectorURI}" />
                  <portlet:param name="managerURI" value="${container.managerURI}" />
                  <portlet:param name="containerURI" value="${container.containerURI}" />
-               </portlet:actionURL>" onClick="return confirm('Are you sure you want to delete ${info.displayName}?');">delete</a>
+               </portlet:actionURL>" onClick="return confirm('Are you sure you want to delete ${info.uniqueName}?');">delete</a>
             </td>
             <td class="${backgroundClass}">${info.description}</td>
           </tr>

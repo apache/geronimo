@@ -26,16 +26,16 @@ function <portlet:namespace/>validateForm(){
     var attributeName;
     var element;
 
-    element = document.forms['<portlet:namespace/>Form'].elements['displayName'];
+    element = document.forms['<portlet:namespace/>Form'].elements['uniqueName'];
     if(element.value.length < 1){
-        alert("displayName must not be empty.");
+        alert("uniqueName must not be empty.");
         return false;
     }
     
 <c:forEach var="connectorAttribute" items="${connectorAttributes}">
     attributeName = '${connectorAttribute.attributeName}';
     element = document.forms['<portlet:namespace/>Form'].elements[attributeName];
-    <c:if test="${connectorAttribute.required}">
+    <c:if test="${connectorAttribute.required && connectorAttribute.attributeClass.simpleName ne 'Boolean'}">
     //validate the required attribute has a value
     if(element.value.length < 1){
         alert(attributeName + " must not be empty.");
@@ -69,7 +69,7 @@ function <portlet:namespace/>validateForm(){
     Add a new ${connectorType}
   </c:when>
   <c:otherwise>
-    Edit connector ${displayName}
+    Edit connector ${uniqueName}
   </c:otherwise>
 </c:choose>
 <p>
@@ -82,18 +82,19 @@ function <portlet:namespace/>validateForm(){
   <th class="DarkBackground">Description</th>
 </tr>
 <tr>
-  <td class="LightBackground"><strong>*displayName</strong></td>
+  <td class="LightBackground"><strong>*uniqueName</strong></td>
   <td>String</td>
   <td><c:choose>
         <c:when test="${empty connectorURI}">
-            <input name="displayName" type="text" size="30">
+            <input name="uniqueName" type="text" size="30">
         </c:when>
         <c:otherwise>
-            <c:out escapeXml="true" value="${displayName}"/>
+            <input name="uniqueName" type="hidden" value='<c:out escapeXml="true" value="${uniqueName}"/>'>
+            <c:out escapeXml="true" value="${uniqueName}"/>
         </c:otherwise>
       </c:choose>
   </td>
-  <td>A unique name for this connector</td>
+  <td>A name that is different than the name for any other web connectors in the server (no spaces in the name please)</td>
 </tr>
 <c:forEach var="connectorAttribute" items="${connectorAttributes}" varStatus="status">
   <c:set var="style" value="${status.index % 2 == 0 ? 'MediumBackground' : 'LightBackground'}"/>
@@ -109,10 +110,17 @@ function <portlet:namespace/>validateForm(){
         <c:when test="${enumValues != null}">
     	    <td class="${style}">
     	    <select name="${connectorAttribute.attributeName}">
-                <c:forEach var="enumValue" items="${enumValues}">
-                    <option <c:if test="${connectorAttribute.value eq enumValue}"> selected</c:if>>
-                      <c:out escapeXml="true" value="${enumValue}"/>
+                <c:if test="${fn:length(connectorAttribute.value) > 0}">
+                    <option selected>
+                      <c:out escapeXml="true" value="${connectorAttribute.value}"/>
                     </option>
+                </c:if>
+                <c:forEach var="enumValue" items="${enumValues}">
+                    <c:if test="${connectorAttribute.value ne enumValue}">
+                        <option>
+                          <c:out escapeXml="true" value="${enumValue}"/>
+                        </option>
+                    </c:if>
                 </c:forEach>
     	    </select>
     	     </td>

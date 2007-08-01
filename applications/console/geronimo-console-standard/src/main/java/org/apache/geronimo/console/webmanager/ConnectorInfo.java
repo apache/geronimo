@@ -23,7 +23,7 @@ import org.apache.geronimo.kernel.management.State;
 
 public class ConnectorInfo implements Serializable {
     private String description;
-    private String displayName;
+    private String uniqueName;
     private String connectorURI;
     private String protocol;
     private int port;
@@ -49,16 +49,16 @@ public class ConnectorInfo implements Serializable {
         return connectorURI;
     }
 
-    public String getDisplayName() {
-        return displayName;
+    public String getUniqueName() {
+        return uniqueName;
     }
 
     public void setConnectorURI(String connectorURI) {
         this.connectorURI = connectorURI;
     }
 
-    public void setDisplayName(String displayName) {
-        this.displayName = displayName;
+    public void setUniqueName(String uniqueName) {
+        this.uniqueName = uniqueName;
     }
 
     public int getPort() {

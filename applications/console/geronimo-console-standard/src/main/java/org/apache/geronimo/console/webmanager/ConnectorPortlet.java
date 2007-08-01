@@ -22,7 +22,6 @@ import java.net.URI;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import javax.portlet.ActionRequest;
 import javax.portlet.ActionResponse;
@@ -67,44 +66,13 @@ public class ConnectorPortlet extends BasePortlet {
     public static final String PARM_MODE = "mode";
     public static final String PARM_CONNECTOR_TYPE = "connectorType";
     public static final String PARM_CONNECTOR_ATTRIBUTES = "connectorAttributes";
-    public static final String PARM_DISPLAY_NAME = "displayName";
+    public static final String PARM_DISPLAY_NAME = "uniqueName";
     public static final String PARM_SERVER = "server";
 
     private PortletRequestDispatcher normalView;
     private PortletRequestDispatcher maximizedView;
     private PortletRequestDispatcher helpView;
     private PortletRequestDispatcher editConnectorView;
-
-    // TODO: move these attributes to the ConnectorAttribute for tomcat's WebManager
-//    private final static HashMap<String, Object> TOMCAT_DEFAULTS;
-//    static {
-//        TOMCAT_DEFAULTS = new HashMap<String, Object>();
-//        TOMCAT_DEFAULTS.put("allowTrace", Boolean.FALSE);
-//        TOMCAT_DEFAULTS.put("emptySessionPath", Boolean.FALSE);
-//        TOMCAT_DEFAULTS.put("enableLookups", Boolean.TRUE);
-//        TOMCAT_DEFAULTS.put("maxPostSize", 2097152);
-//        TOMCAT_DEFAULTS.put("maxSavePostSize", 4096);
-//        TOMCAT_DEFAULTS.put("useBodyEncodingForURI", Boolean.FALSE);
-//        TOMCAT_DEFAULTS.put("useIPVHosts", Boolean.FALSE);
-//        TOMCAT_DEFAULTS.put("xpoweredBy", Boolean.FALSE);
-//        TOMCAT_DEFAULTS.put("acceptCount", 10);
-//        TOMCAT_DEFAULTS.put("bufferSize", 2048);
-//        TOMCAT_DEFAULTS.put("compressableMimeType", "text/html,text/xml,text/plain");
-//        TOMCAT_DEFAULTS.put("compression", "off");
-//        TOMCAT_DEFAULTS.put("connectionLinger", -1);
-//        TOMCAT_DEFAULTS.put("connectionTimeout", 60000);
-//        TOMCAT_DEFAULTS.put("disableUploadTimeout", true);
-//        TOMCAT_DEFAULTS.put("maxHttpHeaderSize", 4096);
-//        TOMCAT_DEFAULTS.put("maxKeepAliveRequests", 100);
-//        TOMCAT_DEFAULTS.put("maxSpareThreads", 50);
-//        TOMCAT_DEFAULTS.put("minSpareThreads", 4);
-//        TOMCAT_DEFAULTS.put("noCompressionUserAgents", "");
-//        TOMCAT_DEFAULTS.put("restrictedUserAgents", "");
-//        TOMCAT_DEFAULTS.put("socketBuffer", 9000);
-//        TOMCAT_DEFAULTS.put("strategy", "lf");
-//        TOMCAT_DEFAULTS.put("tcpNoDelay", true);
-//        TOMCAT_DEFAULTS.put("threadPriority", Thread.NORM_PRIORITY);
-//    }
 
     public void processAction(ActionRequest actionRequest,
                               ActionResponse actionResponse) throws PortletException, IOException {
@@ -139,24 +107,35 @@ public class ConnectorPortlet extends BasePortlet {
             WebManager manager = PortletManager.getWebManager(actionRequest, new AbstractName(URI.create(managerURI)));
             ConnectorType connectorType = new ConnectorType(actionRequest.getParameter(PARM_CONNECTOR_TYPE));
             
-            String displayName = actionRequest.getParameter(PARM_DISPLAY_NAME);
-            actionResponse.setRenderParameter(PARM_DISPLAY_NAME, displayName);
+            String uniqueName = actionRequest.getParameter(PARM_DISPLAY_NAME);
+            actionResponse.setRenderParameter(PARM_DISPLAY_NAME, uniqueName);
             // set the connector attributes from the form post
             List<ConnectorAttribute> connectorAttributes = manager.getConnectorAttributes(connectorType);
             for (ConnectorAttribute attribute : connectorAttributes) {
                 String name = attribute.getAttributeName();
                 String value = actionRequest.getParameter(name);
-                if (value != null && value.trim().length() > 0) {
-                    // browser sends value of checked checkbox as "on"
-                    if (attribute.getAttributeClass().equals(Boolean.class)) {
-                        if ("on".equals(value)) {
-                            value=Boolean.toString(true);
-                        }
+                
+                // handle booelan type special
+                if (attribute.getAttributeClass().equals(Boolean.class)) {
+                    // browser sends value of checked checkbox as "on" or "checked"
+                    if ("on".equalsIgnoreCase(value) || "checked".equalsIgnoreCase(value)) {
+                        value=Boolean.toString(true);
+                    } else {
+                        value=Boolean.toString(false);
                     }
+                }
+                // set the string form of the attribute's value as submitted by the browser
+                if (value == null || value.trim().length()<1) {
+                    // special case for KeystoreManager gbean
+                    if ("trustStore".equals(attribute.getAttributeName())) {
+                        attribute.setValue(null);
+                    }
+                } else {
                     attribute.setStringValue(value.trim());
                 }
             }
-            AbstractName newConnectorName = manager.getConnectorConfiguration( connectorType, connectorAttributes, webContainer, displayName);
+            // create the connector gbean based on the configuration data
+            AbstractName newConnectorName = manager.getConnectorConfiguration(connectorType, connectorAttributes, webContainer, uniqueName);
             
             // set the keystore properties if its a secure connector
             setKeystoreProperties(actionRequest, newConnectorName);
@@ -184,13 +163,23 @@ public class ConnectorPortlet extends BasePortlet {
                 for (ConnectorAttribute attribute : manager.getConnectorAttributes(connectorType)) {
                     String name = attribute.getAttributeName();
                     String value = actionRequest.getParameter(name);
-                    if (value != null && value.trim().length() > 0) {
-                        // browser sends value of checked checkbox as "on"
-                        if (attribute.getAttributeClass().equals(Boolean.class)) {
-                            if ("on".equals(value)) {
-                                value=Boolean.toString(true);
-                            }
+                    
+                    // handle booelan type special
+                    if (attribute.getAttributeClass().equals(Boolean.class)) {
+                        // browser sends value of checked checkbox as "on" or "checked"
+                        if ("on".equalsIgnoreCase(value) || "checked".equalsIgnoreCase(value)) {
+                            value=Boolean.toString(true);
+                        } else {
+                            value=Boolean.toString(false);
                         }
+                    }
+                    // set the string form of the attribute's value as submitted by the browser
+                    if (value == null || value.trim().length()<1) {
+                        // special case for KeystoreManager gbean
+                        if ("trustStore".equals(attribute.getAttributeName())) {
+                            setProperty(connector,name,null);
+                        }
+                    } else {
                         // set the string value on the ConnectorAttribute so 
                         // it can handle type conversion via getValue()
                         try {
@@ -289,8 +278,8 @@ public class ConnectorPortlet extends BasePortlet {
                     doList(renderRequest, renderResponse);
                 } else {
                     AbstractName connectorName = new AbstractName(URI.create(connectorURI));
-                    String displayName = connectorName.getName().get("name").toString();
-                    renderRequest.setAttribute(PARM_DISPLAY_NAME, displayName);
+                    String uniqueName = connectorName.getName().get("name").toString();
+                    renderRequest.setAttribute(PARM_DISPLAY_NAME, uniqueName);
                     WebManager webManager = PortletManager.getWebManager(renderRequest, new AbstractName(URI.create(managerURI)));
                     ConnectorType connectorType = webManager.getConnectorType(connectorName);
                     List<ConnectorAttribute> connectorAttributes = webManager.getConnectorAttributes(connectorType);
@@ -344,7 +333,7 @@ public class ConnectorPortlet extends BasePortlet {
                     AbstractName connectorName = PortletManager.getNameFor(renderRequest, connector);
                     info.setConnectorURI(connectorName.toString());
                     info.setDescription(PortletManager.getGBeanDescription(renderRequest, connectorName));
-                    info.setDisplayName((String)connectorName.getName().get(NameFactory.J2EE_NAME));
+                    info.setUniqueName((String)connectorName.getName().get(NameFactory.J2EE_NAME));
                     info.setState(((GeronimoManagedBean)connector).getState());
                     info.setPort(connector.getPort());
                     try {
@@ -486,9 +475,12 @@ public class ConnectorPortlet extends BasePortlet {
             return;
         }
         
-        SecureConnector secure = (SecureConnector) connector;
+        // right now only jetty supports the KeystoreManager
         if (server.equals(WEB_SERVER_JETTY)) {
             String keyStore = request.getParameter("keyStore");
+            
+            // get the unlocked keystore object from the keystore managaer
+            // gbean and set its keyalias directly on the connector 
             try {
                 KeystoreInstance[] keystores = PortletManager.getCurrentServer(request)
                         .getKeystoreManager().getKeystores();
@@ -501,7 +493,7 @@ public class ConnectorPortlet extends BasePortlet {
                     }
                 }
                 if (keys != null && keys.length == 1) {
-                    setProperty(secure, "keyAlias", keys[0]);
+                    setProperty(connector, "keyAlias", keys[0]);
                 } else {
                     throw new PortletException("Cannot handle keystores with anything but 1 unlocked private key");
                 }
@@ -509,6 +501,5 @@ public class ConnectorPortlet extends BasePortlet {
                 throw new PortletException(e);
             }
         }
-        // TODO: what about Tomcat?
     }
 }
