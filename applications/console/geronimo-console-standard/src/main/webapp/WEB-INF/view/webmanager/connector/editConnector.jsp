@@ -97,6 +97,7 @@ function <portlet:namespace/>validateForm(){
 </tr>
 <c:forEach var="connectorAttribute" items="${connectorAttributes}" varStatus="status">
   <c:set var="style" value="${status.index % 2 == 0 ? 'MediumBackground' : 'LightBackground'}"/>
+  <c:set var="enumValues" value="${geronimoConsoleEnumValues[connectorAttribute.attributeName]}"/>
   <tr>
     <td class="${style}">
     <c:if test="${connectorAttribute.required}"><strong>*</c:if>
@@ -105,14 +106,26 @@ function <portlet:namespace/>validateForm(){
     </td>
     <td class="${style}">${connectorAttribute.attributeClass.simpleName}</td>
     <c:choose>
+        <c:when test="${enumValues != null}">
+    	    <td class="${style}">
+    	    <select name="${connectorAttribute.attributeName}">
+                <c:forEach var="enumValue" items="${enumValues}">
+                    <option <c:if test="${connectorAttribute.value eq enumValue}"> selected</c:if>>
+                      <c:out escapeXml="true" value="${enumValue}"/>
+                    </option>
+                </c:forEach>
+    	    </select>
+    	     </td>
+        </c:when>
         <c:when test="${connectorAttribute.attributeClass.simpleName eq 'Integer'}">
     	    <td class="${style}"><input name="${connectorAttribute.attributeName}" type="text" size="5" 
     	     value="<c:out escapeXml="true" value="${connectorAttribute.stringValue}"/>"></td>
         </c:when>
         <c:when test="${connectorAttribute.attributeClass.simpleName eq 'Boolean'}">
-		    <td class="${style}"><input name="${connectorAttribute.attributeName}" type="checkbox" ${connectorAttribute.value ? 'checked' : ''}></td>
+		    <td class="${style}"><input name="${connectorAttribute.attributeName}" type="checkbox" 
+		    <c:if test="${connectorAttribute.value}">checked</c:if>></td>
         </c:when>
-        <c:when test="${fn:containsIgnoreCase(connectorAttribute.attributeName, 'password')}">
+        <c:when test="${fn:containsIgnoreCase(connectorAttribute.attributeName, 'pass')}">
 		    <td class="${style}"><input name="${connectorAttribute.attributeName}" type="password" size="30"
     	     value="<c:out escapeXml="true" value="${connectorAttribute.stringValue}"/>"></td>
         </c:when>

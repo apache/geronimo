@@ -159,7 +159,7 @@ public class ConnectorPortlet extends BasePortlet {
             AbstractName newConnectorName = manager.getConnectorConfiguration( connectorType, connectorAttributes, webContainer, displayName);
             
             // set the keystore properties if its a secure connector
-//            setKeystoreProperties(actionRequest, newConnectorName);
+            setKeystoreProperties(actionRequest, newConnectorName);
             
             // Start the connector
             try {
@@ -203,7 +203,7 @@ public class ConnectorPortlet extends BasePortlet {
                 }
                 
                 // set the keystore properties if its a secure connector
-//                setKeystoreProperties(actionRequest, connectorName);
+                setKeystoreProperties(actionRequest, connectorName);
             }
             actionResponse.setRenderParameter(PARM_MODE, "list");
         } else if(mode.equals("start")) {
@@ -280,10 +280,7 @@ public class ConnectorPortlet extends BasePortlet {
                 renderRequest.setAttribute(PARM_CONNECTOR_ATTRIBUTES, connectorAttributes);
                 renderRequest.setAttribute(PARM_CONNECTOR_TYPE, connectorType);
                 renderRequest.setAttribute(PARM_MODE, "add");
-                // add the special keystore properties to the render request
-                if (WEB_SERVER_JETTY.equals(server)) {
-//                    addKeystoreProperties(renderRequest);
-                }
+                populateEnumAttributes(renderRequest);
                 editConnectorView.include(renderRequest, renderResponse);
             } else if(mode.equals("edit")) {
                 String connectorURI = renderRequest.getParameter(PARM_CONNECTOR_URI);
@@ -310,9 +307,10 @@ public class ConnectorPortlet extends BasePortlet {
                     
                     renderRequest.setAttribute(PARM_CONNECTOR_ATTRIBUTES, connectorAttributes);
                     renderRequest.setAttribute(PARM_CONNECTOR_URI, connectorURI);
-                    if (WEB_SERVER_JETTY.equals(server)) {
-//                        addKeystoreProperties(renderRequest);
-                    }
+                    // populate any enum type values.  the browser will render them in a
+                    // <SELECT> input for the attribute
+                    populateEnumAttributes(renderRequest);
+                    
                     renderRequest.setAttribute(PARM_MODE, "save");
                     editConnectorView.include(renderRequest, renderResponse);
                 }
@@ -439,29 +437,40 @@ public class ConnectorPortlet extends BasePortlet {
         return s != null && !s.equals("");
     }
     
-    // add the special keystore properties to the request
-    // TODO: need a more generic way to handle this
-    private void addKeystoreProperties(PortletRequest request) {
+    // stash any 'enum' type values for attributes.  right now this is
+    // hardcoded, need to promote these to the ConnectorAttribute apis
+    private void populateEnumAttributes(PortletRequest request) {
+        HashMap<String,String[]> enumValues = new HashMap<String,String[]>();
+        
+        // provide the two possible values for secure protocol - TLS and SSL
+        enumValues.put("secureProtocol", new String[] { "TLS", "SSL" }); //jetty
+        enumValues.put("sslProtocol", new String[] { "TLS", "SSL" }); //tomcat
+        
+        // keystore and truststore types for tomcat
+        enumValues.put("keystoreType", new String[] { "JKS", "PKCS12" });
+        enumValues.put("truststoreType", new String[] { "JKS", "PKCS12" });
+
+        // provide the three possible values for secure algorithm - Default, SunX509, and IbmX509 
+        enumValues.put("algorithm", new String[] { "Default", "SunX509", "IbmX509" });
+        
+        // provide the possible values for the keystore name
         KeystoreManager mgr = PortletManager.getCurrentServer(request).getKeystoreManager();
         KeystoreInstance[] stores = mgr.getUnlockedKeyStores();
         String[] storeNames = new String[stores.length];
         for (int i = 0; i < storeNames.length; i++) {
             storeNames[i] = stores[i].getKeystoreName();
         }
-        request.setAttribute("keyStores", storeNames);
+        enumValues.put("keyStore", storeNames);
+        
+        // provide the possible values for the trust store name
         KeystoreInstance[] trusts = mgr.getUnlockedTrustStores();
         String[] trustNames = new String[trusts.length];
         for (int i = 0; i < trustNames.length; i++) {
             trustNames[i] = trusts[i].getKeystoreName();
         }
-        request.setAttribute("trustStores", trustNames);
-        Map<String,String[]> aliases = new HashMap<String,String[]>();
-        for (int i = 0; i < stores.length; i++) {
-            try {
-                aliases.put(stores[i].getKeystoreName(), stores[i].getUnlockedKeys(null));
-            } catch (KeystoreException e) {}
-        }
-        request.setAttribute("unlockedKeys", aliases);
+        enumValues.put("trustStore", trustNames);
+        
+        request.setAttribute("geronimoConsoleEnumValues", enumValues);
     }
     
     // get the special keystore properties from the request and set them on the connector
@@ -479,8 +488,7 @@ public class ConnectorPortlet extends BasePortlet {
         
         SecureConnector secure = (SecureConnector) connector;
         if (server.equals(WEB_SERVER_JETTY)) {
-            String keyStore = request.getParameter("unlockKeyStore");
-            setProperty(secure, "keyStore", keyStore);
+            String keyStore = request.getParameter("keyStore");
             try {
                 KeystoreInstance[] keystores = PortletManager.getCurrentServer(request)
                         .getKeystoreManager().getKeystores();
@@ -500,10 +508,6 @@ public class ConnectorPortlet extends BasePortlet {
             } catch (KeystoreException e) {
                 throw new PortletException(e);
             }
-            String trustStore = request.getParameter("unlockTrustStore");
-            // "" is a valid trustStore value, which means the parameter
-            // should be cleared
-            setProperty(secure, "trustStore", isValid(trustStore) ? trustStore : null);
         }
         // TODO: what about Tomcat?
     }

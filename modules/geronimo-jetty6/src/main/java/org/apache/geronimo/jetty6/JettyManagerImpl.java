@@ -106,11 +106,12 @@ public class JettyManagerImpl implements WebManager {
         connectorAttributes.add(new ConnectorAttribute<Integer>("redirectPort", 8443, "redirectPort", Integer.class));
         //connectorAttributes.add(new ConnectorAttribute<Integer>("maxIdleTimeMs", 30000, "maxIdleTimeMs", Integer.class));
         connectorAttributes.add(new ConnectorAttribute<Boolean>("clientAuthRequested", false, "clientAuthRequested", Boolean.class));
-        connectorAttributes.add(new ConnectorAttribute<Boolean>("clientAuthRequired", false, "clientAuthRequired", Boolean.class));
-        connectorAttributes.add(new ConnectorAttribute<String>("keyStore", "", "keyStore", String.class, true));
-        connectorAttributes.add(new ConnectorAttribute<String>("trustStore", "", "trustStore", String.class, true));
-        connectorAttributes.add(new ConnectorAttribute<String>("keyAlias", "", "keyAlias", String.class, true));
-        connectorAttributes.add(new ConnectorAttribute<String>("secureProtocol", "", "secureProtocol", String.class));
+        connectorAttributes.add(new ConnectorAttribute<Boolean>("clientAuthRequired", false, "If set, then clients connecting through this connector must supply a valid client certificate.", Boolean.class));
+        connectorAttributes.add(new ConnectorAttribute<String>("keyStore", "", "The keystore to use for accessing the server's private key", String.class, true));
+        connectorAttributes.add(new ConnectorAttribute<String>("trustStore", "", "The keystore containing the trusted certificate entries, including Certification Authority (CA) certificates", String.class));
+        //connectorAttributes.add(new ConnectorAttribute<String>("keyAlias", "", "keyAlias", String.class, true));
+        connectorAttributes.add(new ConnectorAttribute<String>("secureProtocol", "", "This should normally be set to TLS, though some (IBM) JVMs don't work properly with popular browsers unless it is changed to SSL.", String.class));
+        connectorAttributes.add(new ConnectorAttribute<String>("algorithm", "Default", "This should normally be set to match the JVM vendor.", String.class));
         CONNECTOR_ATTRIBUTES.put(HTTPS_NIO, connectorAttributes);
 
         connectorAttributes = new ArrayList<ConnectorAttribute>();
@@ -136,11 +137,12 @@ public class JettyManagerImpl implements WebManager {
         connectorAttributes.add(new ConnectorAttribute<Integer>("redirectPort", 8443, "redirectPort", Integer.class));
         //connectorAttributes.add(new ConnectorAttribute<Integer>("maxIdleTimeMs", 30000, "maxIdleTimeMs", Integer.class));
         connectorAttributes.add(new ConnectorAttribute<Boolean>("clientAuthRequested", false, "clientAuthRequested", Boolean.class));
-        connectorAttributes.add(new ConnectorAttribute<Boolean>("clientAuthRequired", false, "clientAuthRequired", Boolean.class));
-        connectorAttributes.add(new ConnectorAttribute<String>("keyStore", "", "keyStore", String.class, true));
-        connectorAttributes.add(new ConnectorAttribute<String>("trustStore", "", "trustStore", String.class, true));
-        connectorAttributes.add(new ConnectorAttribute<String>("keyAlias", "", "keyAlias", String.class, true));
-        connectorAttributes.add(new ConnectorAttribute<String>("secureProtocol", "", "secureProtocol", String.class));
+        connectorAttributes.add(new ConnectorAttribute<Boolean>("clientAuthRequired", false, "If set, then clients connecting through this connector must supply a valid client certificate.", Boolean.class));
+        connectorAttributes.add(new ConnectorAttribute<String>("keyStore", "", "The keystore to use for accessing the server's private key", String.class, true));
+        connectorAttributes.add(new ConnectorAttribute<String>("trustStore", "", "The keystore containing the trusted certificate entries, including Certification Authority (CA) certificates", String.class));
+        //connectorAttributes.add(new ConnectorAttribute<String>("keyAlias", "", "keyAlias", String.class, true));
+        connectorAttributes.add(new ConnectorAttribute<String>("secureProtocol", "", "This should normally be set to TLS, though some (IBM) JVMs don't work properly with popular browsers unless it is changed to SSL.", String.class));
+        connectorAttributes.add(new ConnectorAttribute<String>("algorithm", "Default", "This should normally be set to match the JVM vendor.", String.class));
         CONNECTOR_ATTRIBUTES.put(HTTPS_BIO, connectorAttributes);
 
         connectorAttributes = new ArrayList<ConnectorAttribute>();

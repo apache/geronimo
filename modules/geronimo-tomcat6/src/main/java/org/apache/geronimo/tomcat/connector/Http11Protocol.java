@@ -27,6 +27,7 @@ public interface Http11Protocol {
     public void setClientAuth(boolean clientAuth);
     public String getKeystoreFile();
     public void setKeystoreFile(String keystoreFile);
+    public String getKeystorePass();
     public void setKeystorePass(String keystorePass);
     public String getKeystoreType();
     public void setKeystoreType(String keystoreType);
@@ -38,6 +39,7 @@ public interface Http11Protocol {
     public void setKeyAlias(String keyAlias);
     public String getTruststoreFile();
     public void setTruststoreFile(String truststoreFile);
+    public String getTruststorePass();
     public void setTruststorePass(String truststorePass);
     public String getTruststoreType();
     public void setTruststoreType(String truststoreType);

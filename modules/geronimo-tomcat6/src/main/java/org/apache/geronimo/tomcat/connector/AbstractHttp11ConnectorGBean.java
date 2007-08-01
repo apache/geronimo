@@ -87,6 +87,14 @@ public abstract class AbstractHttp11ConnectorGBean extends BaseHttp11ConnectorGB
         return (String) connector.getAttribute("truststoreType");
     }
 
+    public String getTruststorePass() {
+        return (String) connector.getAttribute("truststorePass");
+    }
+    
+    public String getKeystorePass() {
+        return (String) connector.getAttribute("keystorePass");
+    }
+    
     public void setAlgorithm(String algorithm) {
         this.algorithm = algorithm;
         if ("default".equalsIgnoreCase(algorithm)) {
