@@ -137,7 +137,14 @@ public abstract class BaseHttp11ConnectorGBean extends ConnectorGBean implements
     }
 
     public String getExecutor() {
-        return (String) connector.getAttribute("Executor");
+        Object value = connector.getAttribute("executor");
+        if (value == null)
+            return null;
+        
+        if (value instanceof String)
+            return (String)value;
+        
+        return (String) value.getClass().getName();
     }
     
     public String getHost() {
@@ -286,6 +293,8 @@ public abstract class BaseHttp11ConnectorGBean extends ConnectorGBean implements
     }
 
     public void setServer(String server) {
+        if (server.equals(""))
+            server = null;
         connector.setAttribute("server", server);
     }
 

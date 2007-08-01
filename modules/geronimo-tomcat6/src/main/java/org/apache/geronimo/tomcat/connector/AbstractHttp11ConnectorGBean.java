@@ -104,36 +104,58 @@ public abstract class AbstractHttp11ConnectorGBean extends BaseHttp11ConnectorGB
     }
 
     public void setKeyAlias(String keyAlias) {
+        if (keyAlias.equals(""))
+            keyAlias = null;
         connector.setAttribute("keyAlias", keyAlias);
     }
 
     public void setKeystoreFile(String keystoreFile) {
+        if (keystoreFile!= null && keystoreFile.equals("")) 
+            keystoreFile = null;
         keystoreFileName = keystoreFile;
-        connector.setAttribute("keystoreFile", serverInfo.resolveServerPath(keystoreFileName));
+        if (keystoreFileName == null)
+            connector.setAttribute("keystoreFile", null);
+        else
+            connector.setAttribute("keystoreFile", serverInfo.resolveServerPath(keystoreFileName));
     }
 
     public void setKeystorePass(String keystorePass) {
+        if (keystorePass!= null && keystorePass.equals("")) 
+            keystorePass = null;
         connector.setAttribute("keystorePass", keystorePass);
     }
 
     public void setKeystoreType(String keystoreType) {
+        if (keystoreType!= null && keystoreType.equals("")) 
+            keystoreType = null;
         connector.setAttribute("keystoreType", keystoreType);
     }
 
     public void setSslProtocol(String sslProtocol) {
+        if (sslProtocol!= null && sslProtocol.equals("")) 
+            sslProtocol = null;
         connector.setAttribute("sslProtocol", sslProtocol);
     }
 
     public void setTruststoreFile(String truststoreFile) {
+        if (truststoreFile!= null && truststoreFile.equals("")) 
+            truststoreFile = null;
         truststoreFileName = truststoreFile;
-        connector.setAttribute("truststoreFile", serverInfo.resolveServerPath(truststoreFileName));
+        if (truststoreFileName == null)
+            connector.setAttribute("truststoreFile", null);
+        else
+            connector.setAttribute("truststoreFile", serverInfo.resolveServerPath(truststoreFileName));
     }
 
     public void setTruststorePass(String truststorePass) {
+        if (truststorePass!= null && truststorePass.equals("")) 
+            truststorePass = null;
         connector.setAttribute("truststorePass", truststorePass);
     }
 
     public void setTruststoreType(String truststoreType) {
+        if (truststoreType!= null && truststoreType.equals("")) 
+            truststoreType = null;
         connector.setAttribute("truststoreType", truststoreType);
     }
 

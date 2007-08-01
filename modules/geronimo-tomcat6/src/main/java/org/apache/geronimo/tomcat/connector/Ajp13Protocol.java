@@ -22,8 +22,8 @@ public interface Ajp13Protocol {
     //AJP
     public String getAddress();
     public void setAddress(String address);
-    public int getBackLog();
-    public void setBackLog(int backLog);
+    public int getBacklog();
+    public void setBacklog(int backlog);
     public int getBufferSize();
     public void setBufferSize(int bufferSize);
     public int getConnectionTimeout();

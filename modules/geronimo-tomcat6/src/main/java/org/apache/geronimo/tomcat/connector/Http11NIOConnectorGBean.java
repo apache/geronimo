@@ -180,9 +180,9 @@ public class Http11NIOConnectorGBean extends AbstractHttp11ConnectorGBean implem
         return value == null ? 5000 : Integer.parseInt(value.toString());
     }
 
-    public byte getSocket_soTrafficClass() {
+    public int getSocket_soTrafficClass() {
         Object value = connector.getAttribute("socket.soTrafficClass");
-        return value == null ? (0x04 | 0x08 | 0x010) : new Byte(value.toString()).byteValue();
+        return value == null ? (0x04 | 0x08 | 0x010) : new Integer(value.toString()).intValue();
     }
 
     public boolean getSocket_tcpNoDelay() {
@@ -205,8 +205,8 @@ public class Http11NIOConnectorGBean extends AbstractHttp11ConnectorGBean implem
         return value == null ? true : new Boolean(value.toString()).booleanValue();
     }
 
-    public boolean getUseSendFile() {
-        Object value = connector.getAttribute("useSendFile");
+    public boolean getUseSendfile() {
+        Object value = connector.getAttribute("useSendfile");
         return value == null ? true : new Boolean(value.toString()).booleanValue();
     }
 
@@ -322,8 +322,8 @@ public class Http11NIOConnectorGBean extends AbstractHttp11ConnectorGBean implem
         connector.setAttribute("socket.soTimeout", new Integer(socket_soTimeout));
     }
 
-    public void setSocket_soTrafficClass(byte socket_soTrafficClass) {
-        connector.setAttribute("socket.soTrafficClass", new Byte(socket_soTrafficClass));
+    public void setSocket_soTrafficClass(int socket_soTrafficClass) {
+        connector.setAttribute("socket.soTrafficClass", new Integer(socket_soTrafficClass));
     }
 
     public void setSocket_tcpNoDelay(boolean socket_tcpNoDelay) {
@@ -342,8 +342,8 @@ public class Http11NIOConnectorGBean extends AbstractHttp11ConnectorGBean implem
         connector.setAttribute("useExecutor", new Boolean(useExecutor));
     }
 
-    public void setUseSendFile(boolean useSendFile) {
-        connector.setAttribute("useSendFile", new Boolean(useSendFile));
+    public void setUseSendfile(boolean useSendfile) {
+        connector.setAttribute("useSendfile", new Boolean(useSendfile));
     }
     public static final GBeanInfo GBEAN_INFO;
 

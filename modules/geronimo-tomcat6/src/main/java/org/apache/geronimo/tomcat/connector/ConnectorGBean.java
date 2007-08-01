@@ -206,6 +206,8 @@ public abstract class ConnectorGBean extends BaseGBean implements CommonProtocol
     }
 
     public void setProxyName(String proxyName) {
+        if (proxyName.equals(""))
+            proxyName = null;
         connector.setProxyName(proxyName);
     }
 

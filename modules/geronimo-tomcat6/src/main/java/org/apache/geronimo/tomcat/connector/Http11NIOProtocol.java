@@ -20,8 +20,8 @@ package org.apache.geronimo.tomcat.connector;
 
 public interface Http11NIOProtocol {
 
-    public boolean getUseSendFile();
-    public void setUseSendFile(boolean useSendFile);
+    public boolean getUseSendfile();
+    public void setUseSendfile(boolean useSendfile);
     public boolean getUseExecutor();
     public void setUseExecutor(boolean useExecutor);
     public int getAcceptorThreadCount();
@@ -72,8 +72,8 @@ public interface Http11NIOProtocol {
     public void setSocket_soLingerTime(int socket_soLingerTime);
     public int getSocket_soTimeout();
     public void setSocket_soTimeout(int socket_soTimeout);
-    public byte getSocket_soTrafficClass();
-    public void setSocket_soTrafficClass(byte socket_soTrafficClass);
+    public int getSocket_soTrafficClass();
+    public void setSocket_soTrafficClass(int socket_soTrafficClass);
     public int getSocket_performanceConnectionTime();
     public void setSocket_performanceConnectionTime(int socket_performanceConnectionTime);
     public int getSocket_performanceLatency();

@@ -41,7 +41,7 @@ public class AJP13ConnectorGBean extends ConnectorGBean implements Ajp13Protocol
     private boolean reset = true;
 
     protected String connectHost;
-
+    
     public AJP13ConnectorGBean(String name, Map initParams, String host, int port, TomcatContainer container, ServerInfo serverInfo) throws Exception {
         super(name, initParams, "AJP/1.3", container, serverInfo);
         
@@ -109,8 +109,8 @@ public class AJP13ConnectorGBean extends ConnectorGBean implements Ajp13Protocol
             return value.toString();
     } 
 
-    public int getBackLog() {
-        Object value = connector.getAttribute("backLog");
+    public int getBacklog() {
+        Object value = connector.getAttribute("backlog");
         return value == null ? 10 : Integer.parseInt(value.toString());
     }
 
@@ -170,8 +170,8 @@ public class AJP13ConnectorGBean extends ConnectorGBean implements Ajp13Protocol
         connector.setAttribute("address", address);
     }
 
-    public void setBackLog(int backLog) {
-        connector.setAttribute("backLog", new Integer(backLog));
+    public void setBacklog(int backlog) {
+        connector.setAttribute("backlog", new Integer(backlog));
     }
 
     public void setBufferSize(int bufferSize) {

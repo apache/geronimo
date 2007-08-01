@@ -28,6 +28,14 @@ import org.apache.geronimo.tomcat.TomcatContainer;
 
 public class Http11APRConnectorGBean extends BaseHttp11ConnectorGBean implements Http11APRProtocol {
 
+    private String certificateFile;
+    private String certificateKeyFile;
+    private String caCertificateFile;
+    private String caCertificatePath;
+    private String certificateChainFile;
+    private String revocationPath;
+    private String revocationFile;
+    
     public Http11APRConnectorGBean(String name, Map initParams, String host, int port, TomcatContainer container, ServerInfo serverInfo) throws Exception {
         super(name, initParams, "org.apache.coyote.http11.Http11AprProtocol", host, port, container, serverInfo);
     }
@@ -58,23 +66,23 @@ public class Http11APRConnectorGBean extends BaseHttp11ConnectorGBean implements
     }
 
     public String getSslCACertificateFile() {
-        return (String) connector.getAttribute("SSLCACertificateFile");
+        return caCertificateFile;
     }
 
     public String getSslCACertificatePath() {
-        return (String) connector.getAttribute("SSLCACertificatePath");
+        return caCertificatePath;
     }
 
     public String getSslCertificateChainFile() {
-        return (String) connector.getAttribute("SSLCertificateChainFile");
+        return certificateChainFile; 
     }
 
     public String getSslCertificateFile() {
-        return (String) connector.getAttribute("SSLCertificateFile");
+        return certificateFile; 
     }
 
     public String getSslCertificateKeyFile() {
-        return (String) connector.getAttribute("SSLCertificateKeyFile");
+        return certificateKeyFile; 
     }
 
     public String getSslCipherSuite() {
@@ -86,11 +94,11 @@ public class Http11APRConnectorGBean extends BaseHttp11ConnectorGBean implements
     }
 
     public String getSslCARevocationFile() {
-        return (String) connector.getAttribute("SSLCARevocationFile");
+        return revocationFile;
     }
 
     public String getSslCARevocationPath() {
-        return (String) connector.getAttribute("SSLCARevocationPath");
+        return revocationPath;
     }
 
     public String getSslVerifyClient() {
@@ -120,23 +128,53 @@ public class Http11APRConnectorGBean extends BaseHttp11ConnectorGBean implements
     }
 
     public void setSslCACertificateFile(String sslCACertificateFile) {
-        connector.setAttribute("SSLCACertificateFile", sslCACertificateFile);
+        if (sslCACertificateFile != null && sslCACertificateFile.equals(""))
+            sslCACertificateFile = null;
+        caCertificateFile = sslCACertificateFile;
+        if (caCertificateFile == null)
+            connector.setAttribute("SSLCACertificateFile", null);
+        else
+            connector.setAttribute("SSLCACertificateFile", serverInfo.resolveServerPath(caCertificateFile));
     }
 
     public void setSslCACertificatePath(String sslCACertificatePath) {
-        connector.setAttribute("SSLCACertificatePath", sslCACertificatePath);
+        if (sslCACertificatePath != null && sslCACertificatePath.equals(""))
+            sslCACertificatePath = null;
+        caCertificatePath = sslCACertificatePath;
+        if (caCertificatePath == null)
+            connector.setAttribute("SSLCACertificatePath", null);
+        else
+            connector.setAttribute("SSLCACertificatePath", serverInfo.resolveServerPath(caCertificatePath));
     }
 
     public void setSslCertificateChainFile(String sslCertificateChainFile) {
-        connector.setAttribute("SSLCertificateChainFile", sslCertificateChainFile);
+        if (sslCertificateChainFile != null && sslCertificateChainFile.equals(""))
+            sslCertificateChainFile = null;
+        certificateChainFile = sslCertificateChainFile;
+        if (certificateChainFile == null)
+            connector.setAttribute("SSLCertificateChainFile", null);
+        else
+            connector.setAttribute("SSLCertificateChainFile", serverInfo.resolveServerPath(certificateChainFile));
     }
 
     public void setSslCertificateFile(String sslCertificateFile) {
-        connector.setAttribute("SSLCertificateFile", sslCertificateFile);
+        if (sslCertificateFile != null && sslCertificateFile.equals(""))
+            sslCertificateFile = null;
+        certificateFile = sslCertificateFile;
+        if (certificateFile == null)
+            connector.setAttribute("SSLCertificateFile", null);
+        else
+            connector.setAttribute("SSLCertificateFile", serverInfo.resolveServerPath(certificateFile));
     }
 
     public void setSslCertificateKeyFile(String sslCertificateKeyFile) {
-        connector.setAttribute("SSLCertificateKeyFile", sslCertificateKeyFile);
+        if (sslCertificateKeyFile != null && sslCertificateKeyFile.equals(""))
+            sslCertificateKeyFile = null;
+        certificateKeyFile = sslCertificateKeyFile;
+        if (certificateKeyFile == null)
+            connector.setAttribute("SSLCertificateKeyFile", null);
+        else
+            connector.setAttribute("SSLCertificateKeyFile", serverInfo.resolveServerPath(certificateKeyFile));
     }
 
     public void setSslCipherSuite(String sslCipherSuite) {
@@ -144,6 +182,8 @@ public class Http11APRConnectorGBean extends BaseHttp11ConnectorGBean implements
     }
 
     public void setSslPassword(String sslPassword) {
+        if (sslPassword != null && sslPassword.equals(""))
+            sslPassword = null;
         connector.setAttribute("SSLPassword", sslPassword);
     }
     
@@ -152,11 +192,24 @@ public class Http11APRConnectorGBean extends BaseHttp11ConnectorGBean implements
     }
 
     public void setSslCARevocationFile(String sslCARevocationFile) {
-        connector.setAttribute("SSLCARevocationFile", sslCARevocationFile);
+        if (sslCARevocationFile!= null && sslCARevocationFile.equals("")) 
+            sslCARevocationFile = null;
+        revocationFile = sslCARevocationFile;
+        if (revocationFile == null)
+            connector.setAttribute("SSLCARevocationFile", null);
+        else
+            connector.setAttribute("SSLCARevocationFile", serverInfo.resolveServerPath(revocationFile));
     }
 
     public void setSslCARevocationPath(String sslCARevocationPath) {
-        connector.setAttribute("SSLCARevocationPath", sslCARevocationPath);
+        if (sslCARevocationPath!= null && sslCARevocationPath.equals("")) 
+            sslCARevocationPath = null;
+        revocationPath = sslCARevocationPath;
+        if (revocationPath == null)
+            connector.setAttribute("SSLCARevocationPath", null);
+        else
+            connector.setAttribute("SSLCARevocationPath", serverInfo.resolveServerPath(revocationPath));
+
     }
 
     public void setSslVerifyClient(String sslVerifyClient) {
