@@ -16,6 +16,7 @@
  */
 package org.apache.geronimo.cxf;
 
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -64,6 +65,8 @@ public class GeronimoQueryHandler extends WSDLQueryHandler {
         boolean updated = false;
         Map services = def.getServices();
         if (services != null) {
+            ArrayList<QName> servicesToRemove = new ArrayList<QName>();
+            
             Iterator serviceIterator = services.entrySet().iterator();
             while (serviceIterator.hasNext()) {
                 Map.Entry serviceEntry = (Map.Entry) serviceIterator.next();
@@ -73,8 +76,12 @@ public class GeronimoQueryHandler extends WSDLQueryHandler {
                     updatePorts(portName, service, baseUri);
                     updated = true;
                 } else {
-                    def.removeService(currServiceName);
+                    servicesToRemove.add(currServiceName);
                 }
+            }
+            
+            for (QName serviceToRemove : servicesToRemove) {
+                def.removeService(serviceToRemove);                
             }
         }
         if (!updated) {
@@ -88,6 +95,8 @@ public class GeronimoQueryHandler extends WSDLQueryHandler {
         boolean updated = false;
         Map ports = service.getPorts();
         if (ports != null) {
+            ArrayList<String> portsToRemove = new ArrayList<String>();
+            
             Iterator portIterator = ports.entrySet().iterator();
             while (portIterator.hasNext()) {
                 Map.Entry portEntry = (Map.Entry) portIterator.next();
@@ -97,8 +106,12 @@ public class GeronimoQueryHandler extends WSDLQueryHandler {
                     updatePortLocation(port, baseUri);
                     updated = true;
                 } else {
-                    service.removePort(currPortName);
+                    portsToRemove.add(currPortName);
                 }
+            }
+            
+            for (String portToRemove : portsToRemove) {
+                service.removePort(portToRemove);               
             }
         }
         if (!updated) {
