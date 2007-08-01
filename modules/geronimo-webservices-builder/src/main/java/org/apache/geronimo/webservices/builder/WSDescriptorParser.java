@@ -95,7 +95,7 @@ public class WSDescriptorParser {
         try {
             ZipEntry zipEntry = moduleFile.getEntry(jaxrpcMappingPath);
             if (zipEntry == null) {
-                throw new DeploymentException("The JAX-RPC mapping file " + jaxrpcMappingPath + " specified in webservices.xml for the ejb module could not be found.");
+                throw new DeploymentException("The JAX-RPC mapping file " + jaxrpcMappingPath + " specified in webservices.xml could not be found.");
             }
             jaxrpcInputStream = moduleFile.getInputStream(zipEntry);
         } catch (IOException e) {
