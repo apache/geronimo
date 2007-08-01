@@ -300,7 +300,9 @@ public class WSDescriptorParser {
             String wsdlLocation = webserviceDescription.getWsdlFile().getStringValue().trim();
             String jaxrpcMappingFile = webserviceDescription.getJaxrpcMappingFile().getStringValue().trim();
             
-            sharedPortInfo = new SharedPortInfo(wsdlLocation, jaxrpcMappingFile);
+            sharedPortInfo = new SharedPortInfo(wsdlLocation, 
+                                                jaxrpcMappingFile,
+                                                DescriptorVersion.J2EE);
             
             PortComponentType[] portComponents = webserviceDescription.getPortComponentArray();
             for (PortComponentType portComponent : portComponents) {
@@ -349,7 +351,9 @@ public class WSDescriptorParser {
                 jaxrpcMappingFile = webserviceDescription.getJaxrpcMappingFile().getStringValue().trim();
             }
             
-            sharedPortInfo = new SharedPortInfo(wsdlLocation, jaxrpcMappingFile);
+            sharedPortInfo = new SharedPortInfo(wsdlLocation, 
+                                                jaxrpcMappingFile, 
+                                                DescriptorVersion.JAVAEE);
             
             org.apache.geronimo.xbeans.javaee.PortComponentType[] portComponents = webserviceDescription.getPortComponentArray();
             for (org.apache.geronimo.xbeans.javaee.PortComponentType portComponent : portComponents) {

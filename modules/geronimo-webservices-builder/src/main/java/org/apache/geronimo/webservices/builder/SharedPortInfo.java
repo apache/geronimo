@@ -31,17 +31,27 @@ import org.apache.geronimo.xbeans.j2ee.ServiceEndpointInterfaceMappingType;
  * @version $Rev: 476049 $ $Date: 2006-11-16 23:35:17 -0500 (Thu, 16 Nov 2006) $
  */
 public class SharedPortInfo {
-
+    
     private String jaxrpcMappingFile;
     private String wsdlLocation;
     private JavaWsdlMappingType javaWsdlMapping;
     private SchemaInfoBuilder schemaInfoBuilder;
+    private DescriptorVersion ddVersion;
 
     public SharedPortInfo(String wsdlLocation, String jaxrpcMappingFile) {
+        this(wsdlLocation, jaxrpcMappingFile, DescriptorVersion.UNKNOWN);
+    }
+    
+    public SharedPortInfo(String wsdlLocation, String jaxrpcMappingFile, DescriptorVersion ddVersion) {
         this.wsdlLocation = wsdlLocation;
         this.jaxrpcMappingFile = jaxrpcMappingFile;
+        this.ddVersion = ddVersion;
     }
 
+    public DescriptorVersion getDescriptorVersion() {
+        return this.ddVersion;
+    }
+    
     public String getWsdlLocation() {
         return this.wsdlLocation;
     }
