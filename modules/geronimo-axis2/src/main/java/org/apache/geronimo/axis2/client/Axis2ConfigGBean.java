@@ -18,7 +18,9 @@ package org.apache.geronimo.axis2.client;
 
 import java.net.URL;
 
+import org.apache.axis2.context.ConfigurationContext;
 import org.apache.axis2.jaxws.ClientConfigurationFactory;
+import org.apache.axis2.jaxws.description.impl.DescriptionFactoryImpl;
 import org.apache.axis2.metadata.registry.MetadataFactoryRegistry;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -62,7 +64,9 @@ public class Axis2ConfigGBean implements GBeanLifecycle {
     }
     
     public void doStop() throws Exception {             
-        registerClientConfigurationFactory().clearCache(this.classLoder);
+        ConfigurationContext configContext =
+            registerClientConfigurationFactory().clearCache(this.classLoder);
+        DescriptionFactoryImpl.clearServiceDescriptionCache(configContext);
     }
 
     public void doFail() {
