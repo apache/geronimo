@@ -348,7 +348,7 @@ public class Http11NIOConnectorGBean extends AbstractHttp11ConnectorGBean implem
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic("Tomcat Connector", Http11NIOConnectorGBean.class, AbstractHttp11ConnectorGBean.GBEAN_INFO);
+        GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic("Tomcat Connector HTTP NIO", Http11NIOConnectorGBean.class, AbstractHttp11ConnectorGBean.GBEAN_INFO);
         infoFactory.addInterface(Http11NIOProtocol.class, 
                 new String[] {
                     "useSendfile", 

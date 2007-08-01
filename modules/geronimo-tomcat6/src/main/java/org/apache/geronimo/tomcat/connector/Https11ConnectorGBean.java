@@ -46,7 +46,7 @@ public class Https11ConnectorGBean extends Http11ConnectorGBean {
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic("Tomcat Connector", Https11ConnectorGBean.class, Http11ConnectorGBean.GBEAN_INFO);
+        GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic("Tomcat Connector HTTPS BIO", Https11ConnectorGBean.class, Http11ConnectorGBean.GBEAN_INFO);
         infoFactory.setConstructor(new String[] { "name", "initParams", "host", "port", "TomcatContainer", "ServerInfo"});
         GBEAN_INFO = infoFactory.getBeanInfo();
     }

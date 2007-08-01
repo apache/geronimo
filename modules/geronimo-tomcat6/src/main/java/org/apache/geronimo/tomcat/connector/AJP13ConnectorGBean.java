@@ -240,7 +240,7 @@ public class AJP13ConnectorGBean extends ConnectorGBean implements Ajp13Protocol
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic("Tomcat Connector", AJP13ConnectorGBean.class, ConnectorGBean.GBEAN_INFO);
+        GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic("Tomcat Connector AJP", AJP13ConnectorGBean.class, ConnectorGBean.GBEAN_INFO);
         infoFactory.addInterface(Ajp13Protocol.class, 
                 new String[] {
                     //AJP Attributes

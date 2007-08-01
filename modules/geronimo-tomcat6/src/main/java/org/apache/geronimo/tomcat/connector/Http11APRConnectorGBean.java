@@ -227,7 +227,7 @@ public class Http11APRConnectorGBean extends BaseHttp11ConnectorGBean implements
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic("Tomcat Connector", Http11APRConnectorGBean.class, BaseHttp11ConnectorGBean.GBEAN_INFO);
+        GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic("Tomcat Connector HTTP APR", Http11APRConnectorGBean.class, BaseHttp11ConnectorGBean.GBEAN_INFO);
         infoFactory.addInterface(Http11APRProtocol.class, 
                 new String[] {
                     //APR Attributes

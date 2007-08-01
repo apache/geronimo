@@ -46,7 +46,7 @@ public class Https11NIOConnectorGBean extends Http11NIOConnectorGBean {
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic("Tomcat Connector", Https11NIOConnectorGBean.class, Http11NIOConnectorGBean.GBEAN_INFO);
+        GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic("Tomcat Connector HTTPS NIO", Https11NIOConnectorGBean.class, Http11NIOConnectorGBean.GBEAN_INFO);
         infoFactory.setConstructor(new String[] { "name", "initParams", "host", "port", "TomcatContainer", "ServerInfo"});
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
