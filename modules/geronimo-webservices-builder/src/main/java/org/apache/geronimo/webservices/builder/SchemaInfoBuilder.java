@@ -648,7 +648,7 @@ public class SchemaInfoBuilder {
             InputStream wsdlInputStream;
             ZipEntry entry = moduleFile.getEntry(wsdlURI.toString());
             if(entry == null){
-                throw new RuntimeException("The webservices.xml file for the EJB JAR points to a non-existant WSDL file "+wsdlURI.toString());
+                throw new RuntimeException("The webservices.xml file points to a non-existant WSDL file "+wsdlURI.toString());
             }
             try {
                 wsdlInputStream = moduleFile.getInputStream(entry);
