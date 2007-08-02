@@ -262,11 +262,16 @@
                 <version>2.0-SNAPSHOT</version>
             </dependency>
 
-
             <dependency>
                 <groupId>org.apache.openjpa</groupId>
                 <artifactId>openjpa</artifactId>
-                <version>1.0.0-SNAPSHOT</version>
+                <version>1.0.0-r561970</version>
+            </dependency>
+            <!-- The following is only used in testsuite -->
+            <dependency>
+                <groupId>org.apache.openjpa</groupId>
+                <artifactId>openjpa-persistence-jdbc</artifactId>
+                <version>1.0.0-r561970</version>
             </dependency>
 
             <dependency>

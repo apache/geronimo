@@ -101,6 +101,17 @@
         </dependency>
         <!--end add for wsgen-->
 
+        <!-- See GERONIMO-3370 for OpenJPA snapshot details -->
+        <dependency>
+            <groupId>org.apache.openjpa</groupId>
+            <artifactId>openjpa</artifactId>
+        </dependency>
+        <dependency>
+            <!-- This one is only used by testsuite -->
+            <groupId>org.apache.openjpa</groupId>
+            <artifactId>openjpa-persistence-jdbc</artifactId>
+        </dependency>
+
     </dependencies>
 
     <repositories>
