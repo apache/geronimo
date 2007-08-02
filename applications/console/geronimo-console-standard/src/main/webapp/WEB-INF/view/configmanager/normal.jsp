@@ -42,7 +42,7 @@
     <tr>
         <td class="${backgroundClass}">&nbsp;${moduleDetails.configId}</td>
         <c:if test="${showWebInfo}">
-            <td class="${backgroundClass}">&nbsp;<c:if test="${moduleDetails.state.running}"><a href="${moduleDetails.urlFor}">${moduleDetails.contextPath}</a></c:if></td>
+            <td class="${backgroundClass}">&nbsp;<c:if test="${moduleDetails.state.running}"><a href="${moduleDetails.contextPath}">${moduleDetails.contextPath}</a></c:if></td>
         </c:if>
         <td width="100" class="${backgroundClass}">&nbsp;${moduleDetails.state}</td>
         <td width="75" class="${backgroundClass}">

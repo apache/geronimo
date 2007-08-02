@@ -71,18 +71,18 @@ import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.kernel.repository.ImportType;
 import org.apache.geronimo.kernel.repository.Repository;
 import org.apache.geronimo.security.SecurityServiceImpl;
-import org.apache.geronimo.security.realm.providers.GeronimoUserPrincipal;
 import org.apache.geronimo.security.credentialstore.DirectConfigurationCredentialStoreImpl;
 import org.apache.geronimo.security.deployment.GeronimoSecurityBuilderImpl;
 import org.apache.geronimo.security.jacc.ApplicationPolicyConfigurationManager;
 import org.apache.geronimo.security.jacc.ComponentPermissions;
+import org.apache.geronimo.security.realm.providers.GeronimoUserPrincipal;
 import org.apache.geronimo.system.serverinfo.BasicServerInfo;
 import org.apache.geronimo.testsupport.TestSupport;
-import org.apache.geronimo.tomcat.ConnectorGBean;
 import org.apache.geronimo.tomcat.EngineGBean;
 import org.apache.geronimo.tomcat.HostGBean;
 import org.apache.geronimo.tomcat.RealmGBean;
 import org.apache.geronimo.tomcat.TomcatContainer;
+import org.apache.geronimo.tomcat.connector.Http11ConnectorGBean;
 import org.apache.geronimo.transaction.manager.GeronimoTransactionManagerGBean;
 
 /**
@@ -301,10 +301,11 @@ public class TomcatModuleBuilderTest extends TestSupport {
         containerData.setReferencePattern("ServerInfo", serverInfo.getAbstractName());
         AbstractName containerName = containerData.getAbstractName();
 
-        GBeanData connector = bootstrap.addGBean("TomcatConnector", ConnectorGBean.GBEAN_INFO);
+        GBeanData connector = bootstrap.addGBean("TomcatConnector", Http11ConnectorGBean.GBEAN_INFO);
         connector.setAttribute("name", "HTTP");
         connector.setAttribute("port", new Integer(8181));
         connector.setReferencePattern("TomcatContainer", containerName);
+        connector.setReferencePattern("ServerInfo", serverInfo.getAbstractName());
 
         GBeanData tm = bootstrap.addGBean("TransactionManager", GeronimoTransactionManagerGBean.GBEAN_INFO);
         tmName = tm.getAbstractName();

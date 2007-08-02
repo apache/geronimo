@@ -44,6 +44,8 @@ import org.apache.geronimo.security.realm.GenericSecurityRealm;
 import org.apache.geronimo.system.serverinfo.BasicServerInfo;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
 import org.apache.geronimo.testsupport.TestSupport;
+import org.apache.geronimo.tomcat.connector.ConnectorGBean;
+import org.apache.geronimo.tomcat.connector.Http11ConnectorGBean;
 import org.apache.geronimo.tomcat.util.SecurityHolder;
 import org.apache.geronimo.transaction.manager.TransactionManagerImpl;
 
@@ -180,7 +182,7 @@ public abstract class AbstractWebModuleTest extends TestSupport {
         container = new TomcatContainer(cl, new File(BASEDIR, "target/var/catalina").toString(), null, engine, null, serverInfo, null, null);
         container.doStart();
 
-        connector = new ConnectorGBean("HTTP", null, "localhost", port++, container);
+        connector = new Http11ConnectorGBean("HTTP", null, "localhost", port++, container, serverInfo);
         connector.doStart();
 
         TransactionManagerImpl transactionManager = new TransactionManagerImpl();

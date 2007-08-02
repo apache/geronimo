@@ -65,6 +65,7 @@ import org.apache.geronimo.management.geronimo.WebModule;
 import org.apache.geronimo.naming.enc.EnterpriseNamingContext;
 import org.apache.geronimo.security.jacc.RunAsSource;
 import org.apache.geronimo.tomcat.cluster.CatalinaClusterGBean;
+import org.apache.geronimo.tomcat.connector.TomcatWebConnector;
 import org.apache.geronimo.tomcat.stats.ModuleStats;
 import org.apache.geronimo.tomcat.util.SecurityHolder;
 import org.apache.geronimo.transaction.GeronimoUserTransaction;
@@ -387,30 +388,6 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
 
     public void setContext(Context context) {
         this.context = context;
-    }
-
-    public URL getURLFor() {
-        WebConnector[] connectors = (WebConnector[]) container.getConnectors();
-        Map map = new HashMap();
-        for (int i = 0; i < connectors.length; i++) {
-            WebConnector connector = connectors[i];
-            map.put(connector.getProtocol(), connector.getConnectUrl());
-        }
-        String urlPrefix;
-        if((urlPrefix = (String) map.get("HTTP")) == null) {
-            if((urlPrefix = (String) map.get("HTTPS")) == null) {
-                urlPrefix = (String) map.get("AJP");
-            }
-        }
-        if(urlPrefix == null) {
-            return null;
-        }
-        try {
-            return new URL(urlPrefix + getContextPath());
-        } catch (MalformedURLException e) {
-            log.error("Bad URL to connect to web app", e);
-            return null;
-        }
     }
 
     public String getContextPath() {

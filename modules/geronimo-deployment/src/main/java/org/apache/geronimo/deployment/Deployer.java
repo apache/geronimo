@@ -67,14 +67,15 @@ public class Deployer {
     private final int REAPER_INTERVAL = 60 * 1000;
     private final Properties pendingDeletionIndex = new Properties();
     private DeployerReaper reaper;
+    private final String remoteDeployAddress;
     private final Collection builders;
     private final Collection stores;
     private final Collection watchers;
     private final ArtifactResolver artifactResolver;
     private final Kernel kernel;
 
-    public Deployer(Collection builders, Collection stores, Collection watchers, Kernel kernel) {
-        this(builders, stores, watchers, getArtifactResolver(kernel), kernel);
+    public Deployer(String remoteDeployAddress, Collection builders, Collection stores, Collection watchers, Kernel kernel) {
+        this(remoteDeployAddress, builders, stores, watchers, getArtifactResolver(kernel), kernel);
     }
 
     private static ArtifactResolver getArtifactResolver(Kernel kernel) {
@@ -82,7 +83,8 @@ public class Deployer {
         return configurationManager.getArtifactResolver();
     }
 
-    public Deployer(Collection builders, Collection stores, Collection watchers, ArtifactResolver artifactResolver, Kernel kernel) {
+    public Deployer(String remoteDeployAddress, Collection builders, Collection stores, Collection watchers, ArtifactResolver artifactResolver, Kernel kernel) {
+        this.remoteDeployAddress = remoteDeployAddress;
         this.builders = builders;
         this.stores = stores;
         this.watchers = watchers;
@@ -177,7 +179,7 @@ public class Deployer {
                 return null;
             }
             AbstractName module = (AbstractName) names.iterator().next();
-            return kernel.getAttribute(module, "URLFor") + "/upload";
+            return remoteDeployAddress + "/" + kernel.getAttribute(module, "contextPath") + "/upload";
         } catch (Exception e) {
             log.error("Unable to look up remote deploy upload URL", e);
             return null;
@@ -473,6 +475,7 @@ public class Deployer {
         GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic(Deployer.class, DEPLOYER);
 
         infoFactory.addAttribute("kernel", Kernel.class, false);
+        infoFactory.addAttribute("remoteDeployAddress", String.class, true, true);
         infoFactory.addAttribute("remoteDeployUploadURL", String.class, false);
         infoFactory.addOperation("deploy", new Class[]{boolean.class, File.class, File.class});
         infoFactory.addOperation("deploy", new Class[]{boolean.class, File.class, File.class, String.class});
@@ -482,7 +485,7 @@ public class Deployer {
         infoFactory.addReference("Store", ConfigurationStore.class, "ConfigurationStore");
         infoFactory.addReference("Watchers", DeploymentWatcher.class);
 
-        infoFactory.setConstructor(new String[]{"Builders", "Store", "Watchers", "kernel"});
+        infoFactory.setConstructor(new String[]{"remoteDeployAddress", "Builders", "Store", "Watchers", "kernel"});
 
         GBEAN_INFO = infoFactory.getBeanInfo();
     }

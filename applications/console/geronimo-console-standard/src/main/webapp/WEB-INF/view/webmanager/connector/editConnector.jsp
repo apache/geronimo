@@ -1,0 +1,158 @@
+<%--
+   Licensed to the Apache Software Foundation (ASF) under one or more
+   contributor license agreements.  See the NOTICE file distributed with
+   this work for additional information regarding copyright ownership.
+   The ASF licenses this file to You under the Apache License, Version 2.0
+   (the "License"); you may not use this file except in compliance with
+   the License.  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.
+--%>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
+
+<%@ taglib prefix="portlet" uri="http://java.sun.com/portlet" %>
+<portlet:defineObjects/>
+
+<script language="JavaScript">
+// validate the form submission
+function <portlet:namespace/>validateForm(){
+    var attributeName;
+    var element;
+
+    element = document.forms['<portlet:namespace/>Form'].elements['uniqueName'];
+    if(element.value.length < 1){
+        alert("uniqueName must not be empty.");
+        return false;
+    }
+    
+<c:forEach var="connectorAttribute" items="${connectorAttributes}">
+    attributeName = '${connectorAttribute.attributeName}';
+    element = document.forms['<portlet:namespace/>Form'].elements[attributeName];
+    <c:if test="${connectorAttribute.required && connectorAttribute.attributeClass.simpleName ne 'Boolean'}">
+    //validate the required attribute has a value
+    if(element.value.length < 1){
+        alert(attributeName + " must not be empty.");
+        return false;
+    }
+    </c:if>
+    <c:if test="${connectorAttribute.attributeClass.simpleName eq 'Integer'}">
+    //validate the Integer attribute has a numeric value
+    if(element.value.length > 0 && !checkIntegral('<portlet:namespace/>Form', attributeName)) {
+        return false;
+    }
+    </c:if>
+</c:forEach>
+
+    return true;
+}
+</script>
+
+<form name="<portlet:namespace/>Form" action="<portlet:actionURL/>">
+<input type="hidden" name="mode" value="${mode}">
+<input type="hidden" name="connectorType" value="${connectorType}">
+<input type="hidden" name="containerURI" value="${containerURI}">
+<input type="hidden" name="managerURI" value="${managerURI}">
+<c:if test="${mode eq 'save'}">
+  <input type="hidden" name="connectorURI" value="${connectorURI}">
+</c:if>
+
+<!-- Current Task -->
+<c:choose>
+  <c:when test="${mode eq 'add'}">
+    Add a new ${connectorType}
+  </c:when>
+  <c:otherwise>
+    Edit connector ${uniqueName}
+  </c:otherwise>
+</c:choose>
+<p>
+(<strong>*</strong> denotes a required attribute)
+<table border="0" cellpadding="3">
+<tr>
+  <th class="DarkBackground">Attribute</th>
+  <th class="DarkBackground">Type</th>
+  <th class="DarkBackground">Value</th>
+  <th class="DarkBackground">Description</th>
+</tr>
+<tr>
+  <td class="LightBackground"><strong>*uniqueName</strong></td>
+  <td>String</td>
+  <td><c:choose>
+        <c:when test="${empty connectorURI}">
+            <input name="uniqueName" type="text" size="30">
+        </c:when>
+        <c:otherwise>
+            <input name="uniqueName" type="hidden" value='<c:out escapeXml="true" value="${uniqueName}"/>'>
+            <c:out escapeXml="true" value="${uniqueName}"/>
+        </c:otherwise>
+      </c:choose>
+  </td>
+  <td>A name that is different than the name for any other web connectors in the server (no spaces in the name please)</td>
+</tr>
+<c:forEach var="connectorAttribute" items="${connectorAttributes}" varStatus="status">
+  <c:set var="style" value="${status.index % 2 == 0 ? 'MediumBackground' : 'LightBackground'}"/>
+  <c:set var="enumValues" value="${geronimoConsoleEnumValues[connectorAttribute.attributeName]}"/>
+  <tr>
+    <td class="${style}">
+    <c:if test="${connectorAttribute.required}"><strong>*</c:if>
+    ${connectorAttribute.attributeName}
+    <c:if test="${connectorAttribute.required}"></strong></c:if>
+    </td>
+    <td class="${style}">${connectorAttribute.attributeClass.simpleName}</td>
+    <c:choose>
+        <c:when test="${enumValues != null}">
+    	    <td class="${style}">
+    	    <select name="${connectorAttribute.attributeName}">
+                <c:if test="${fn:length(connectorAttribute.value) > 0}">
+                    <option selected>
+                      <c:out escapeXml="true" value="${connectorAttribute.value}"/>
+                    </option>
+                </c:if>
+                <c:forEach var="enumValue" items="${enumValues}">
+                    <c:if test="${connectorAttribute.value ne enumValue}">
+                        <option>
+                          <c:out escapeXml="true" value="${enumValue}"/>
+                        </option>
+                    </c:if>
+                </c:forEach>
+    	    </select>
+    	     </td>
+        </c:when>
+        <c:when test="${connectorAttribute.attributeClass.simpleName eq 'Integer'}">
+    	    <td class="${style}"><input name="${connectorAttribute.attributeName}" type="text" size="5" 
+    	     value="<c:out escapeXml="true" value="${connectorAttribute.stringValue}"/>"></td>
+        </c:when>
+        <c:when test="${connectorAttribute.attributeClass.simpleName eq 'Boolean'}">
+		    <td class="${style}"><input name="${connectorAttribute.attributeName}" type="checkbox" 
+		    <c:if test="${connectorAttribute.value}">checked</c:if>></td>
+        </c:when>
+        <c:when test="${fn:containsIgnoreCase(connectorAttribute.attributeName, 'pass')}">
+		    <td class="${style}"><input name="${connectorAttribute.attributeName}" type="password" size="30"
+    	     value="<c:out escapeXml="true" value="${connectorAttribute.stringValue}"/>"></td>
+        </c:when>
+        <c:otherwise>
+		    <td class="${style}"><input name="${connectorAttribute.attributeName}" type="text" size="30"
+    	     value="<c:out escapeXml="true" value="${connectorAttribute.stringValue}"/>"></td>
+        </c:otherwise>
+    </c:choose>
+    <td class="${style}">${connectorAttribute.description}</td>
+  </tr>
+</c:forEach>
+</table>
+<P>
+<!-- Submit Button -->
+<input name="submit" type="submit" value="Save" onClick="return <portlet:namespace/>validateForm()">
+<input name="reset" type="reset" value="Reset">
+<input name="submit" type="submit" value="Cancel">
+</form>
+<P>
+<a href='<portlet:actionURL portletMode="view">
+           <portlet:param name="mode" value="list" />
+         </portlet:actionURL>'>List connectors</a>
