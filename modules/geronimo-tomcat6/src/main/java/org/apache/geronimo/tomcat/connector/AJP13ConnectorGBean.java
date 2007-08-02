@@ -224,6 +224,10 @@ public class AJP13ConnectorGBean extends ConnectorGBean implements Ajp13Protocol
     
     // Statistics Provider
 
+    public boolean isStatisticsProvider() {
+        return true;
+    }
+
     public Stats getStats() {
         String port = String.valueOf(getPort());
         if (reset) {
