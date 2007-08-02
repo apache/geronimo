@@ -16,7 +16,7 @@
    limitations under the License.
 -->
 
-<xml-fragment xmlns:tom="http://geronimo.apache.org/xml/ns/j2ee/web/tomcat-1.2" xmlns:nam="http://geronimo.apache.org/xml/ns/naming-1.2" xmlns:sec="http://geronimo.apache.org/xml/ns/security-2.0" xmlns:dep="http://geronimo.apache.org/xml/ns/deployment-1.2">
+<xml-fragment xmlns:tom="http://geronimo.apache.org/xml/ns/j2ee/web/tomcat-2.0" xmlns:nam="http://geronimo.apache.org/xml/ns/naming-1.2" xmlns:sec="http://geronimo.apache.org/xml/ns/security-2.0" xmlns:dep="http://geronimo.apache.org/xml/ns/deployment-1.2">
     <dep:environment>
         <dep:moduleId>
             <dep:groupId>test</dep:groupId>

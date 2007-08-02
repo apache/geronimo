@@ -15,7 +15,7 @@
   See the License for the specific language governing permissions and
   limitations under the License.
 -->
-<web-app xmlns="http://geronimo.apache.org/xml/ns/j2ee/web/jetty-1.2"
+<web-app xmlns="http://geronimo.apache.org/xml/ns/j2ee/web/jetty-2.0"
          xmlns:dep="http://geronimo.apache.org/xml/ns/deployment-1.2">
 
     <dep:environment>

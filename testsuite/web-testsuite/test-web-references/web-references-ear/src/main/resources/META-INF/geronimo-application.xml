@@ -40,7 +40,7 @@
     </dep:environment>
     <module>
         <web>web-references-war.war</web>
-        <web-app xmlns="http://geronimo.apache.org/xml/ns/j2ee/web-1.2">
+        <web-app xmlns="http://geronimo.apache.org/xml/ns/j2ee/web-2.0">
             <context-root>/webref</context-root>
             <ejb-ref>
                 <ref-name>ejb/TestBean</ref-name>
