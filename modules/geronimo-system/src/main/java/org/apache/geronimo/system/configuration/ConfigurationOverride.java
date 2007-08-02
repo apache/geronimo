@@ -143,11 +143,11 @@ class ConfigurationOverride {
         Element module = doc.createElement("module");
         root.appendChild(module);
         module.setAttribute("name", name.toString());
-        if (!load) {
-            module.setAttribute("load", "false");
-        }
+
         if (condition != null && condition.trim().length() != 0) {
             module.setAttribute("condition", condition);
+        } else if (!load) {
+            module.setAttribute("load", "false");
         }
 
         // GBeans
