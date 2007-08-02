@@ -63,6 +63,7 @@ import org.apache.geronimo.naming.deployment.ENCConfigBuilder;
 import org.apache.geronimo.naming.deployment.GBeanResourceEnvironmentBuilder;
 import org.apache.geronimo.naming.deployment.ResourceEnvironmentSetter;
 import org.apache.geronimo.security.jacc.ComponentPermissions;
+import org.apache.geronimo.tomcat.cluster.CatalinaClusterGBean;
 import org.apache.geronimo.tomcat.LifecycleListenerGBean;
 import org.apache.geronimo.tomcat.ManagerGBean;
 import org.apache.geronimo.tomcat.RealmGBean;
@@ -348,11 +349,11 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder {
                 webModuleData.setReferencePattern("LifecycleListenerChain", listenerName);
             }
 
-//            if (tomcatWebApp.isSetCluster()) {
-//                String cluster = tomcatWebApp.getCluster().trim();
-//                AbstractName clusterName = earContext.getNaming().createChildName(moduleName, cluster, CatalinaClusterGBean.J2EE_TYPE);
-//                webModuleData.setReferencePattern("Cluster", clusterName);
-//            }
+            if (tomcatWebApp.isSetCluster()) {
+                String cluster = tomcatWebApp.getCluster().trim();
+                AbstractName clusterName = earContext.getNaming().createChildName(moduleName, cluster, CatalinaClusterGBean.J2EE_TYPE);
+                webModuleData.setReferencePattern("Cluster", clusterName);
+            }
 
             if (tomcatWebApp.isSetManager()) {
                 String manager = tomcatWebApp.getManager().trim();
