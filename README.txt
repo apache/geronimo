@@ -1,13 +1,13 @@
 ======================================================
-Apache Geronimo milestone build M4  (August 10, 2005)
+Apache Geronimo v2.0  (August 7, 2007)
 
 http://geronimo.apache.org/
 ------------------------------------------------------
 
 
-___________________
+______________________
 Documentation
-===================
+======================
  
  This README serves as five minute overview of Geronimo, but better
  documentation can be found here:
@@ -15,85 +15,103 @@ Documentation
    -  http://geronimo.apache.org/documentation.html
 
 
-___________________
+______________________
 Release Notes
-===================
+======================
 
- Please read the RELEASE_NOTES for a complete list of things that are
- not yet functional.  We wrote those up to save you time trying to get
- things to work we know are not implemented.
-
+ Please read the RELEASE NOTES for a complete list of features that are
+ available in this release, as well as improvements and bug fixes. 
  
-___________________
+  
+______________________
 Installation
-===================
+======================
 
  If you've downloaded and unpacked a binary distribution of Geronimo,
- then you are finished with installation.  You can also use the
- installer JAR to customize things like network ports and the
- administrative login during installation.
+ then you are finished with installation.
 
- 
-___________________
-Geronimo Home
-===================
- 
- The GERONIMO_HOME directory, is the directory where the Geronimo
- binary was unpacked or the it is the 'target' directory created by
- Maven from a source distribution.
- 
- If you unpacked the binary into the directory C:\geronimo,
- for example, than this directory is your GERONIMO_HOME directory.
- The GERONIMO_HOME directory is referred to in various parts of the
- documentation, so it's good to remember where it is.
+ If you wish to modify the default ports that Geronimo will use, edit the file
+ <geronimo_home>/var/config/config-substitutions.properties
 
 
-___________________
-Starting
-===================
+______________________
+Starting and Stopping
+======================
 
- The main server class is also packed in an executable jar,
- bin/server.jar, and can be run in a way similar to the deploy tool.
+ Geronimo comes with batch and script files to control server start and stop
+ functions.  To see usage examples simply type geronimo.bat or geronimo.sh
+ command as appropriate for your platform.  It is necessary to set JAVA_HOME 
+ to the copy of your Sun 5 JDK/JRE prior to executing the command.
 
-   C:\geronimo> java -Djava.endorsed.dirs=lib\endorsed -javaagent:bin\jpa.jar -jar bin\server.jar
+ To see the available command options type:
 
- Once the server has started, you can access the welcome page by
+ <geronimo_home>/bin/geronimo.sh
+ or
+ <geronimo_home>\bin\geronimo.bat
+
+ The command will display help text instructing you as to how to start and stop
+ the Geronimo server.
+
+ If you prefer to start the server without a script file you can simply type
+ the following command from <geronimo_home> directory:
+
+ java -Djava.endorsed.dirs=lib/endorsed -javaagent:bin/jpa.jar -jar bin/server.jar
+
+ Once the server has started, you can access the welcome application by
  pointing your browser to:
 
    http://localhost:8080/
+ 
+ 
+ To access the Geronimo Administration Console point your browser to:
+
+   http://localhost:8080/console/ 
+ 
+ The default user name is "system" and the default password is "manager".
+ 
    
- You can also visit the web management console at:
+______________________
+Deploying
+======================
+
+ Geronimo comes with deploy scripts and batch files to deploy JEE modules or
+ applications. You can either use the scripts or simply invoke the executable
+ jar by running the following command:
+ 
+ <geronimo_home>/bin/java -jar deployer.jar deploy my-web-app.war [deploy plan]
+
+ If you use the scripts provided then the command would be as follows:
+
+ <geronimo_home>/bin/deploy deploy my-web-app.war [deploy plan]
+
+ You will need to use the username "system" and password "manager" unless you
+ changed the defaults.  
+
+ The deployment plan argument is optional -- you can pack a deployment plan 
+ into the application module, provide it on the command line, or in some cases
+ omit it entirely.
+
+ For more information on the commands and options supported by the deploy tool,
+ run from within the Geronimo directory <geronimo_home>/bin:
+
+ java -jar deployer.jar help [command]
+
+ As an alternative to the command-line deployer, you can copy application  
+ modules into the <geronimo_home>/deploy/ directory and the hot deployer 
+ service will deploy them automatically.
+ 
+ The command-line deployer has some advantages, as it will output any
+ deployment errors to its own console rather than just the server log.
+
+ Additionally you can also graphically deploy applications and resources via 
+ the Geronimo Administration Console available at:
  
    http://localhost:8080/console/
-   
- To access the console, use the administrative account, which is
- username "system" and password "manager" by default.
-   
-
-___________________
-Deploying
-===================
-
- The Geronimo deployment tool is packaged in the executable jar
- bin/deployer.jar under the GERONIMO_HOME and can be executed like
- this (assuming the server is already running):
-
-   C:\geronimo> java -jar bin\deployer.jar deploy myDataSource.rar
-   C:\geronimo> java -jar bin\deployer.jar deploy myEJB.jar
-   C:\geronimo> java -jar bin\deployer.jar deploy myWebapp.war
-   C:\geronimo> java -jar bin\deployer.jar deploy myApp.ear
-
- Notice that the deployer.jar is capable of handling a number of
- different archive types; rar, war, ejb jar, and EAR.
-
- The deployer will prompt you for a username and password; the
- default administrative account has username "system" and password
- "manager".
 
 
-___________________
+______________________
 Support
-===================
+======================
  
  Any problems with this release can be reported to the Geronimo
  mailing list or Jira issue tracker.
