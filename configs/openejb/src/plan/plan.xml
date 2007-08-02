@@ -29,6 +29,9 @@
     </gbean>
 
     <gbean name="ExtendedEntityManagerRegistry" class="org.apache.geronimo.openejb.EntityManagerRegistryImpl">
+    	<dependency>
+    		<name>OpenEjbSystem</name>
+    	</dependency>
     </gbean>
 
     <gbean name="DefaultStatelessContainer" class="org.apache.geronimo.openejb.EjbContainer">
