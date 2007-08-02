@@ -59,7 +59,7 @@ public class GenericToSpecificPlanConverterTest extends TestCase {
         
         XmlObject expected = XmlObject.Factory.parse(expectedOutputXml);
         XmlObject webPlan = new GenericToSpecificPlanConverter("http://geronimo.apache.org/xml/ns/web/tomcat/config-1.0",
-                "http://geronimo.apache.org/xml/ns/j2ee/web/tomcat-1.2", "tomcat").convertToSpecificPlan(rawPlan);
+                "http://geronimo.apache.org/xml/ns/j2ee/web/tomcat-2.0", "tomcat").convertToSpecificPlan(rawPlan);
 
         log.debug("PROCESSED: " + webPlan.toString());
         log.debug("EXPECTED: " + expected.toString());

@@ -74,7 +74,7 @@
     
     <module name="org.apache.geronimo.configs/j2ee-deployer/${version}/car">
         <gbean name="WebBuilder">
-            <attribute name="defaultNamespace">http://geronimo.apache.org/xml/ns/j2ee/web/jetty-1.2</attribute>
+            <attribute name="defaultNamespace">http://geronimo.apache.org/xml/ns/j2ee/web/jetty-2.0</attribute>
         </gbean>
     </module>
 

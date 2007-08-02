@@ -17,7 +17,7 @@
 
 <!-- $Rev: 525563 $ $Date: 2007-04-04 13:37:08 -0400 (Wed, 04 Apr 2007) $ -->
 
-<web-app xmlns="http://geronimo.apache.org/xml/ns/j2ee/web-1.2"
+<web-app xmlns="http://geronimo.apache.org/xml/ns/j2ee/web-2.0"
          xmlns:sec="http://geronimo.apache.org/xml/ns/security-1.2"
          xmlns:dep="http://geronimo.apache.org/xml/ns/deployment-1.2">
 
