@@ -22,8 +22,8 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -51,7 +51,6 @@ import org.apache.geronimo.kernel.proxy.ProxyManager;
 import org.apache.geronimo.management.geronimo.KeystoreManager;
 import org.apache.geronimo.management.geronimo.NetworkConnector;
 import org.apache.geronimo.management.geronimo.WebAccessLog;
-import org.apache.geronimo.management.geronimo.WebConnector;
 import org.apache.geronimo.management.geronimo.WebContainer;
 import org.apache.geronimo.management.geronimo.WebManager;
 
@@ -81,7 +80,6 @@ public class JettyManagerImpl implements WebManager {
 
     private static Map<ConnectorType, List<ConnectorAttribute>> CONNECTOR_ATTRIBUTES = new HashMap<ConnectorType, List<ConnectorAttribute>>();
 
-    //"host", "port", "minThreads", "maxThreads", "bufferSizeBytes", "acceptQueueSize", "lingerMillis", "protocol", "redirectPort", "connectUrl", "maxIdleTimeMs"
     static {
         List<ConnectorAttribute> connectorAttributes = new ArrayList<ConnectorAttribute>();
         connectorAttributes.add(new ConnectorAttribute<String>("host", "0.0.0.0", "The host name or IP to bind to. The normal values are 0.0.0.0 (all interfaces) or localhost (local connections only)", String.class, true));
@@ -190,50 +188,6 @@ public class JettyManagerImpl implements WebManager {
 
     public String getProductName() {
         return "Jetty";
-    }
-
-    /**
-     * Creates a new connector, and returns the ObjectName for it.  Note that
-     * the connector may well require further customization before being fully
-     * functional (e.g. SSL settings for an HTTPS connector).
-     */
-    public WebConnector addConnector(WebContainer container, String uniqueName, String protocol, String host, int port) {
-        AbstractName containerName = kernel.getAbstractNameFor(container);
-        AbstractName name = kernel.getNaming().createSiblingName(containerName, uniqueName, NameFactory.GERONIMO_SERVICE);
-        GBeanData connector;
-        if (protocol.equals(PROTOCOL_HTTP)) {
-            connector = new GBeanData(name, HTTPSocketConnector.GBEAN_INFO);
-        } else if (protocol.equals(PROTOCOL_HTTPS)) {
-            connector = new GBeanData(name, HTTPSSocketConnector.GBEAN_INFO);
-            AbstractNameQuery query = new AbstractNameQuery(KeystoreManager.class.getName());
-            connector.setReferencePattern("KeystoreManager", query);
-            //todo: default HTTPS settings
-        } else if (protocol.equals(PROTOCOL_AJP)) {
-            connector = new GBeanData(name, AJP13Connector.GBEAN_INFO);
-        } else {
-            throw new IllegalArgumentException("Invalid protocol '" + protocol + "'");
-        }
-        connector.setAttribute("host", host);
-        connector.setAttribute("port", new Integer(port));
-        //connector.setAttribute("minThreads", new Integer(10));        
-        connector.setAttribute("protocol", protocol);
-        connector.setAttribute("maxThreads", new Integer(50));
-        connector.setReferencePattern(JettyConnector.CONNECTOR_CONTAINER_REFERENCE, containerName);
-        EditableConfigurationManager mgr = ConfigurationUtil.getEditableConfigurationManager(kernel);
-        if (mgr != null) {
-            try {
-                mgr.addGBeanToConfiguration(containerName.getArtifact(), connector, false);
-                return (WebConnector) kernel.getProxyManager().createProxy(name, JettyWebConnector.class.getClassLoader());
-            } catch (InvalidConfigException e) {
-                log.error("Unable to add GBean", e);
-                return null;
-            } finally {
-                ConfigurationUtil.releaseConfigurationManager(kernel, mgr);
-            }
-        } else {
-            log.warn("The ConfigurationManager in the kernel does not allow editing");
-            return null;
-        }
     }
 
     /**

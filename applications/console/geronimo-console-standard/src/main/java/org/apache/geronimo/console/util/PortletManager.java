@@ -249,12 +249,6 @@ public class PortletManager {
         return (WebContainer) helper.getObject(containerName);
     }
 
-    public static WebConnector createWebConnector(PortletRequest request, AbstractName managerName, AbstractName containerName, String name, String protocol, String host, int port) {
-        ManagementHelper helper = getManagementHelper(request);
-        WebManager manager = (WebManager) helper.getObject(managerName);
-        return manager.addConnector((WebContainer) helper.getObject(containerName), name, protocol, host, port);
-    }
-
     public static NetworkConnector[] getNetworkConnectors(PortletRequest request, AbstractName managerName) {
         ManagementHelper helper = getManagementHelper(request);
         WebManager manager = (WebManager) helper.getObject(managerName);

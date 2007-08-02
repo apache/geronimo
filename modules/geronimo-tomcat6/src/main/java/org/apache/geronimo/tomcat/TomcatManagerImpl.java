@@ -22,8 +22,8 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import javax.net.ssl.KeyManagerFactory;
 
@@ -44,7 +44,6 @@ import org.apache.geronimo.kernel.config.InvalidConfigException;
 import org.apache.geronimo.kernel.proxy.ProxyManager;
 import org.apache.geronimo.management.geronimo.NetworkConnector;
 import org.apache.geronimo.management.geronimo.WebAccessLog;
-import org.apache.geronimo.management.geronimo.WebConnector;
 import org.apache.geronimo.management.geronimo.WebContainer;
 import org.apache.geronimo.management.geronimo.WebManager;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
@@ -495,63 +494,6 @@ public class TomcatManagerImpl implements WebManager {
 
     public String getProductName() {
         return "Tomcat";
-    }
-
-    /**
-     * Creates and returns a new connector.  Note that the connector may well
-     * require further customization before being fully functional (e.g. SSL
-     * settings for a secure connector).  This may need to be done before
-     * starting the resulting connector.
-     *
-     * @param container    The container to add the connector to
-     * @param uniqueName   A name fragment that's unique to this connector
-     * @param protocol     The protocol that the connector should use
-     * @param host         The host name or IP that the connector should listen on
-     * @param port         The port that the connector should listen on
-     */
-    public WebConnector addConnector(WebContainer container, String uniqueName, String protocol, String host, int port) {
-        AbstractName containerName = kernel.getAbstractNameFor(container);
-        AbstractName name = kernel.getNaming().createSiblingName(containerName, uniqueName, NameFactory.GERONIMO_SERVICE);
-        //Get the server info
-        AbstractNameQuery query = new AbstractNameQuery(ServerInfo.class.getName());
-        Set set = kernel.listGBeans(query);
-        AbstractName serverInfo = (AbstractName)set.iterator().next();
-        GBeanData connector;
-        if(protocol.equals(PROTOCOL_HTTP)) {
-            connector = new GBeanData(name, Http11ConnectorGBean.GBEAN_INFO);
-            connector.setReferencePattern("ServerInfo", serverInfo);
-        } else if(protocol.equals(PROTOCOL_HTTPS)) {
-            connector = new GBeanData(name, Https11ConnectorGBean.GBEAN_INFO);
-            connector.setReferencePattern("ServerInfo", serverInfo);
-            //todo: default HTTPS settings
-        } else if(protocol.equals(PROTOCOL_AJP)) {
-            connector = new GBeanData(name, AJP13ConnectorGBean.GBEAN_INFO);
-            connector.setReferencePattern("ServerInfo", serverInfo);
-        } else {
-            throw new IllegalArgumentException("Invalid protocol '"+protocol+"'");
-        }
-//        connector.setAttribute("protocol", protocol);
-        connector.setAttribute("host", host);
-        connector.setAttribute("port", new Integer(port));
-        connector.setAttribute("maxThreads", new Integer(50));
-        connector.setAttribute("acceptCount", new Integer(100));
-        connector.setReferencePattern(ConnectorGBean.CONNECTOR_CONTAINER_REFERENCE, containerName);
-        connector.setAttribute("name", uniqueName);
-        EditableConfigurationManager mgr = ConfigurationUtil.getEditableConfigurationManager(kernel);
-        if(mgr != null) {
-            try {
-                mgr.addGBeanToConfiguration(containerName.getArtifact(), connector, false);
-                return (WebConnector) kernel.getProxyManager().createProxy(name, TomcatWebConnector.class.getClassLoader());
-            } catch (InvalidConfigException e) {
-                log.error("Unable to add GBean", e);
-                return null;
-            } finally {
-                ConfigurationUtil.releaseConfigurationManager(kernel, mgr);
-            }
-        } else {
-            log.warn("The ConfigurationManager in the kernel does not allow editing");
-            return null;
-        }
     }
 
     /**
