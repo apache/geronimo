@@ -46,7 +46,7 @@ public class Axis2ConfigGBean implements GBeanLifecycle {
         this.classLoder = classLoader;
     }
 
-    private synchronized static Axis2ClientConfigurationFactory registerClientConfigurationFactory() {
+    public synchronized static Axis2ClientConfigurationFactory registerClientConfigurationFactory() {
         ClientConfigurationFactory factory =
             (ClientConfigurationFactory)MetadataFactoryRegistry.getFactory(ClientConfigurationFactory.class);
         if (factory instanceof Axis2ClientConfigurationFactory) {
@@ -55,6 +55,10 @@ public class Axis2ConfigGBean implements GBeanLifecycle {
             factory = new Axis2ClientConfigurationFactory(false);
             MetadataFactoryRegistry.setFactory(ClientConfigurationFactory.class, factory);
             LOG.debug("Registered client configuration factory: " + factory);
+            // ensure that the factory was installed at the right time
+            if (factory != DescriptionFactoryImpl.getClientConfigurationFactory()) {
+                throw new RuntimeException("Client configuration factory was registered too late");           
+            }
             return (Axis2ClientConfigurationFactory)factory;
         }
     }

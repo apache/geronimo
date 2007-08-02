@@ -63,6 +63,7 @@ import org.apache.axis2.transport.http.util.RESTUtil;
 import org.apache.axis2.util.MessageContextBuilder;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.geronimo.axis2.client.Axis2ConfigGBean;
 import org.apache.geronimo.jaxws.JAXWSAnnotationProcessor;
 import org.apache.geronimo.jaxws.JAXWSUtils;
 import org.apache.geronimo.jaxws.JNDIResolver;
@@ -109,6 +110,9 @@ public abstract class Axis2WebServiceContainer implements WebServiceContainer {
 
     public void init() throws Exception {
         this.endpointClass = classLoader.loadClass(this.endpointClassName);
+        
+        Axis2ConfigGBean.registerClientConfigurationFactory();
+        
         configurationContext = ConfigurationContextFactory.createBasicConfigurationContext("META-INF/geronimo-axis2.xml");
 
         // check to see if the wsdlLocation property is set in portInfo,
