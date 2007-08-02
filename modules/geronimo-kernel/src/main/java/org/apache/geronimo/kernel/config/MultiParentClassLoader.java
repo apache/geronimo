@@ -586,51 +586,6 @@ public class MultiParentClassLoader extends URLClassLoader {
         recursiveFind(knownClassloaders, enumerations, name);
 
         return new UnionEnumeration<URL>(enumerations);
-        /*
-             List<URL> resources = new ArrayList<URL>();
-             Set<URL> found = new HashSet<URL>();
-
-             //
-             // if we are using inverse class loading, add the resources from local urls first
-             //
-             if (inverseClassLoading && !isDestroyed()) {
-                 for (Enumeration myResources = super.findResources(name); myResources.hasMoreElements();) {
-                     URL url = (URL) myResources.nextElement();
-                     if (!found.contains(url)) {
-                         found.add(url);
-                         resources.add(url);
-                     }
-                 }
-             }
-
-             //
-             // Add parent resources
-             //
-             for (ClassLoader parent : parents) {
-                 for (Enumeration parentResources = parent.getResources(name); parentResources.hasMoreElements();) {
-                     URL url = (URL) parentResources.nextElement();
-                     if (!found.contains(url)) {
-                         found.add(url);
-                         resources.add(url);
-                     }
-                 }
-             }
-
-             //
-             // if we are not using inverse class loading, add the resources from local urls now
-             //
-             if (!inverseClassLoading && !isDestroyed()) {
-                 for (Enumeration myResources = super.findResources(name); myResources.hasMoreElements();) {
-                     URL url = (URL) myResources.nextElement();
-                     if (!found.contains(url)) {
-                         found.add(url);
-                         resources.add(url);
-                     }
-                 }
-             }
-
-             return Collections.enumeration(resources);
-        */
     }
 
     protected void recursiveFind(Set<ClassLoader> knownClassloaders, List<Enumeration<URL>> enumerations, String name) throws IOException {
@@ -638,16 +593,18 @@ public class MultiParentClassLoader extends URLClassLoader {
             return;
         }
         knownClassloaders.add(this);
-        if (inverseClassLoading) {
+        if (inverseClassLoading && !isNonOverridableResource(name)) {
             enumerations.add(internalfindResources(name));
         }
-        for (ClassLoader parent : parents) {
-            if (parent instanceof MultiParentClassLoader) {
-                ((MultiParentClassLoader) parent).recursiveFind(knownClassloaders, enumerations, name);
-            } else {
-                if (!knownClassloaders.contains(parent)) {
-                    enumerations.add(parent.getResources(name));
-                    knownClassloaders.add(parent);
+        if (!isHiddenResource(name)) {
+            for (ClassLoader parent : parents) {
+                if (parent instanceof MultiParentClassLoader) {
+                    ((MultiParentClassLoader) parent).recursiveFind(knownClassloaders, enumerations, name);
+                } else {
+                    if (!knownClassloaders.contains(parent)) {
+                        enumerations.add(parent.getResources(name));
+                        knownClassloaders.add(parent);
+                    }
                 }
             }
         }
