@@ -267,6 +267,11 @@
                 <artifactId>openjpa</artifactId>
                 <version>1.0.0-r561970</version>
             </dependency>
+            <dependency>
+                <groupId>org.apache.openjpa</groupId>
+                <artifactId>openjpa-persistence-jdbc</artifactId>
+                <version>1.0.0-r561970</version>
+            </dependency>
 
             <dependency>
                 <groupId>net.sourceforge.serp</groupId>
