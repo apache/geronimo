@@ -68,14 +68,14 @@ http://www.ANTLR.org  and http://www.jGuru.com
 ==  Apache ActiveMQ Notice                                             ==
 =========================================================================
 
-Copyright 2005-2006 The Apache Software Foundation
+Copyright 2005-2007 The Apache Software Foundation
 
 This product includes software developed by
 The Apache Software Foundation (http://www.apache.org/).
 
 
 =========================================================================
-==  Apache Commons BeanUtils                                           ==
+==  Apache Commons BeanUtils Notice                                    ==
 =========================================================================
 
 This product includes software developed by
@@ -141,68 +141,114 @@ reserved.
 ==  Apache CXF                                                         ==
 =========================================================================
 
-This product includes software developed by
-The Apache Software Foundation (http://www.apache.org/).
+Apache CXF
+Copyright 2006-2007 Apache Software Foundation
 
-This product also includes schemas and specification developed by:
-   - the W3C consortium (http://www.w3c.org) ,
+This product includes software developed at
+Apache Software Foundation (http://www.apache.org/).
 
-This product also includes software developed by Spring Framework
-Project (http://www.springframework.org)
+This product includes/uses software, Web Services Metadata 2.0
+(http://geronimo.apache.org/specs/geronimo-ws-metadata_2.0_spec),
+developed by Apache Software Foundation (http://www.apache.org)
+License: The Apache Software License, Version 2.0
+(http://www.apache.org/licenses/LICENSE-2.0.txt)
 
-This product also includes XMLSchema developed at the apache 
-software foundation. The original software is available from
-(http://www.apache.org/dyn/closer.cgi/ws/commons/XmlSchema)
+This product includes/uses software, AOP alliance
+(http://aopalliance.sourceforge.net) License: Public Domain
 
-This product also includes Wsdl4j (The Web Services Description 
-Language for Java Toolkit) developed at Sourceforge. The original 
-software is available from (http://sourceforge.net/projects/wsdl4j)
+This product includes/uses software, Apache CXF Common Schemas
+(http://cwiki.apache.org/CXF/cxf-common-schemas), developed by Apache
+Software Foundation (http://www.apache.org/) License: The Apache
+Software License, Version 2.0
+(http://www.apache.org/licenses/LICENSE-2.0.txt)
 
-This product also inclues SAAJ (The SOAP with Attachments API for Java)
-The original software is availabe from (http://saaj.dev.java.net/)
+This product includes/uses software, Logging
+(http://jakarta.apache.org/commons/${pom.artifactId.substring(8)}/),
+developed by The Apache Software Foundation
+(http://jakarta.apache.org) License: The Apache Software License,
+Version 2.0 (/LICENSE.txt)
 
-This product also includes JavaMail api developed by Sun MicroSystems, Inc.
-The original software is avaiable from (http://glassfish.dev.java.net/)
+This product includes/uses software, Sun JAXB Reference Implementation
+Runtime, developed by Sun Microsystems (http://www.sun.com/) License:
+COMMON DEVELOPMENT AND DISTRIBUTION LICENSE (CDDL) Version 1.0
+(http://www.sun.com/cddl/cddl.html)
 
-This product also includes JSR 181 API developed by Java Community Process.
-The original software is avaliable from (http://glassfish.dev.java.net/)
+This product includes/uses software, Activation 1.1
+(http://geronimo.apache.org/specs/geronimo-activation_1.1_spec),
+developed by Apache Software Foundation (http://www.apache.org)
+License: The Apache Software License, Version 2.0
+(http://www.apache.org/licenses/LICENSE-2.0.txt)
 
-This product also includes JSR 250 API developed by Java Community Process.
-The original software is available from (http://glassfish.dev.java.net/)
+This product includes/uses software, Woodstox
+(http://woodstox.codehaus.org), developed by Codehaus
+(http://www.codehaus.org/) License: The Apache Software License,
+Version 2.0 (http://www.apache.org/licenses/LICENSE-2.0.txt)
 
-This product also includes Java API for XML Web Service developed by
-Java Community Process and Sun MicroSystems, Inc. The original software
-is available from (http://glassfish.dev.java.net/)
+This product includes/uses software, Spring Framework: Core
+(http://www.springframework.org), developed by Spring Framework
+(http://www.springframework.org/) License: The Apache Software
+License, Version 2.0 (http://www.apache.org/licenses/LICENSE-2.0.txt)
 
-This product also includes Java Architecture for XML Binding developed by Java
-Community Process and Sun MicroSystems, Inc. The original software is
-available from (http://jaxb.dev.java.net)
+This product includes/uses software, Apache CXF API
+(http://cwiki.apache.org/CXF), developed by Apache Software Foundation
+(http://www.apache.org/) License: The Apache Software License, Version
+2.0 (http://www.apache.org/licenses/LICENSE-2.0.txt)
 
-This product also includes JavaBeans Activation Framework developed by
-Java Community Process and Sun MicroSystems, Inc. The original software is 
-available from (http://jcp.org/aboutJava/communityprocess/mrel/jsr925/index.html
+This product includes/uses software, StAX API
+(http://stax.codehaus.org/) License: The Apache Software License,
+Version 2.0 (http://www.apache.org/licenses/LICENSE-2.0.txt)
 
-This product also includes software developed by Mort Bay Consulting
-Pty (http://jetty.mortbay.org)
+This product includes/uses software, JavaMail 1.4
+(http://geronimo.apache.org/specs/geronimo-javamail_1.4_spec),
+developed by Apache Software Foundation (http://www.apache.org)
+License: The Apache Software License, Version 2.0
+(http://www.apache.org/licenses/LICENSE-2.0.txt)
 
-This product also includes software developed by Codehause
-(http://woodstox.codehaus.org/)
+This product includes/uses software, WSDL4J
+(http://sf.net/projects/wsdl4j) License: CPL
+(http://www.opensource.org/licenses/cpl1.0.txt)
 
-This product also includes WS-* schemas developed by International
-Business Machines Corporation, Microsoft Corporation, BEA Systems, 
-TIBCO Software, SAP AG, Sonic Software, and VeriSign
-(http://schemas.xmlsoap.org/wsdl/2003-02-11.xsd)
-(http://schemas.xmlsoap.org/ws/2004/08/addressing/)
-(http://schemas.xmlsoap.org/ws/2005/02/rm/wsrm.xsd)
-(http://schemas.xmlsoap.org/ws/2004/09/policy/ws-policy.xsd)
-   
-This Product also includes schemas developed by OASIS
-(http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd)
-(http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd) 
+This product includes/uses software, Neethi
+(http://ws.apache.org/commons/neethi/), developed by Apache Software
+Foundation (http://www.apache.org/) License: The Apache Software
+License, Version 2.0 (http://www.apache.org/licenses/LICENSE-2.0.txt)
 
-Java classes (source and binary) under org.apache.cxf.jaxws.javaee
-are generated from schema available here:
-(http://java.sun.com/xml/ns/javaee/javaee_5.xsd)
+This product includes/uses software, Java Architecture for XML Binding
+(JAXB API), developed by Sun Microsystems (http://www.sun.com/)
+License: COMMON DEVELOPMENT AND DISTRIBUTION LICENSE (CDDL) Version
+1.0 (http://www.sun.com/cddl/cddl.html)
+
+This product includes/uses software, XmlSchema
+(http://ws.apache.org/commons/XmlSchema), developed by Apache Software
+Foundation (http://www.apache.org/) License: The Apache Software
+License, Version 2.0 (http://www.apache.org/licenses/LICENSE-2.0.txt)
+
+This product includes/uses software, XML Commons Resolver Component
+(http://xml.apache.org/commons/components/resolver/), developed by
+Apache Software Foundation (http://www.apache.org/) License: The
+Apache Software License, Version 2.0
+(http://www.apache.org/licenses/LICENSE-2.0.txt)
+
+This product includes/uses software, Apache CXF Common Utilities
+(http://cwiki.apache.org/CXF), developed by Apache Software Foundation
+(http://www.apache.org/) License: The Apache Software License, Version
+2.0 (http://www.apache.org/licenses/LICENSE-2.0.txt)
+
+This product includes/uses software, Spring Framework: Beans
+(http://www.springframework.org), developed by Spring Framework
+(http://www.springframework.org/) License: The Apache Software
+License, Version 2.0 (http://www.apache.org/licenses/LICENSE-2.0.txt)
+
+This product includes/uses software, Annotation 1.0
+(http://geronimo.apache.org/specs/geronimo-annotation_1.0_spec),
+developed by Apache Software Foundation (http://www.apache.org)
+License: The Apache Software License, Version 2.0
+(http://www.apache.org/licenses/LICENSE-2.0.txt)
+
+This product includes/uses software, Spring Framework: Context
+(http://www.springframework.org), developed by Spring Framework
+(http://www.springframework.org/) License: The Apache Software
+License, Version 2.0 (http://www.apache.org/licenses/LICENSE-2.0.txt)
 
 
 =========================================================================
@@ -260,10 +306,17 @@ This software includes Sun's web-facesconfig.dtd files
 ==  Apache OpenJPA Notice                                              ==
 =========================================================================
 
-OpenJPA includes two files (orm-xsd.rsrc and persistence-xsd.rsrc) from 
-the JPA specification, by Sun Microsystems and licensed under the 
-CDDL 1.0 license. The source code is available at: 
-https://glassfish.dev.java.net/source/browse/glassfish/
+   This product includes software developed by
+   The Apache Software Foundation (http://www.apache.org/).
+
+COPYRIGHT NOTICES
+
+* OpenJPA includes software developed by the SERP project
+    Copyright (c) 2002-2006, A. Abram White. All rights reserved.
+
+* OpenJPA is bundled with the binaries from the JPA specification, by
+    Sun Microsystems and licensed under the CDDL 1.0. The source code is
+    available at: https://glassfish.dev.java.net/source/browse/glassfish/
 
 
 =========================================================================
@@ -284,6 +337,15 @@ Java compilation software for JSP pages is provided by Eclipse,
 which is open source software.  The orginal software and 
 related infomation is available at
 http://www.eclipse.org.
+
+
+=========================================================================
+==  Apache WS Commons Notice                                           ==
+=========================================================================
+
+This product includes software developed by
+The Apache Software Foundation (http://www.apache.org/).
+Portions Copyright 2006 International Business Machines Corp.
 
 
 =========================================================================
@@ -376,14 +438,7 @@ Copyright 2004-2005 Werner Guttmann
 This product includes software developed by the Exolab project.
 ((http://www.exolab.org/)
 
-Copyright 1999-2004 (C) Intalio Inc., and others. All Rights Reserved.
-
-
-=========================================================================
-==  CUP Parser Generator Notice (included in xalan jar)                ==
-=========================================================================
-
-Copyright 1996-1999 by Scott Hudson, Frank Flannery, C. Scott Ananian 
+Copyright 1999-2004 (C) Intalio Inc., and others. All Rights Reserved..
 
 
 =========================================================================
@@ -487,13 +542,6 @@ All rights reserved.
 
 This product includes software developed for the JAXB Reference 
 Implementation project. (https://jaxb.dev.java.net/)
-
-=========================================================================
-==  SAAJ Notice                                                        ==
-=========================================================================
-
-This product includes software developed for the SAAJ Standard 
-Implementation project. (https://saaj.dev.java.net/)
 
 =========================================================================
 ==  JAF Notice                                                         ==
@@ -634,7 +682,7 @@ http://sourceforge.net/projects/wsdl4j
 
 
 =========================================================================
-==  wstx Notice                                                        ==
+==  Woodstox Notice                                                    ==
 =========================================================================
 
 This product currently only contains code developed by authors
