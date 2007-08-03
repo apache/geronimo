@@ -138,6 +138,9 @@
                 &nbsp;&nbsp;&#149;&nbsp; Web server and servlet engine (Tomcat)<br/>
                 &nbsp;&nbsp;&#149;&nbsp; Web server and servlet engine (Jetty)<br/>
                 &nbsp;&nbsp;&#149;&nbsp; JSP compiler (Jasper)<br/>
+                &nbsp;&nbsp;&#149;&nbsp; JAX-RPC Web Services engine (Apache Axis)<br/>
+                &nbsp;&nbsp;&#149;&nbsp; JAX-WS Web Services engine (Apache Axis2)<br/>
+                &nbsp;&nbsp;&#149;&nbsp; JAX-WS Web Services engine (Apache CXF)<br/>
                 &nbsp;&nbsp;&#149;&nbsp; Relational database (Apache Derby)<br/>
                 &nbsp;&nbsp;&#149;&nbsp; Messaging (ActiveMQ)<br/>
                 &nbsp;&nbsp;&#149;&nbsp; User management services<br/>
