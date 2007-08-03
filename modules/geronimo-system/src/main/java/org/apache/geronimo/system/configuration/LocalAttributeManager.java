@@ -16,7 +16,6 @@
  */
 package org.apache.geronimo.system.configuration;
 
-import java.beans.PropertyEditor;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.File;
@@ -48,7 +47,6 @@ import javax.xml.transform.stream.StreamResult;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.geronimo.common.propertyeditor.PropertyEditors;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.GAttributeInfo;
 import org.apache.geronimo.gbean.GBeanData;
@@ -83,6 +81,7 @@ public class LocalAttributeManager implements PluginAttributeStore, PersistentCo
 
     private static final String CONFIG_FILE_PROPERTY = "org.apache.geronimo.config.file";
     private final static String SUBSTITUTIONS_FILE_PROPERTY = "org.apache.geronimo.config.substitutions.file";
+    private final static String SUBSTITUTION_PREFIX_PREFIX = "org.apache.geronimo.config.substitution.prefix";
 
     private static final String BACKUP_EXTENSION = ".bak";
     private static final String TEMP_EXTENSION = ".working";
@@ -103,10 +102,11 @@ public class LocalAttributeManager implements PluginAttributeStore, PersistentCo
 
     private boolean kernelFullyStarted;
 
-    public LocalAttributeManager(String configFile, String configSubstitutionsFile, boolean readOnly, ServerInfo serverInfo) {
+    public LocalAttributeManager(String configFile, String configSubstitutionsFile, String configSubstitutionsPrefix, boolean readOnly, ServerInfo serverInfo) {
         this.configFile = System.getProperty(CONFIG_FILE_PROPERTY, configFile);
         String resolvedPropertiesFile = System.getProperty(SUBSTITUTIONS_FILE_PROPERTY, configSubstitutionsFile);
-        expressionParser = loadProperties(resolvedPropertiesFile, serverInfo);
+        String prefix = System.getProperty(SUBSTITUTION_PREFIX_PREFIX, configSubstitutionsPrefix);
+        expressionParser = loadProperties(resolvedPropertiesFile, serverInfo, prefix);
         this.readOnly = readOnly;
         this.serverInfo = serverInfo;
         serverOverride = new ServerOverride();
@@ -583,7 +583,10 @@ public class LocalAttributeManager implements PluginAttributeStore, PersistentCo
                 throw new IOException("Unable to create directory for list:" + parent);
             }
         }
-        if (!parent.canRead() || !parent.canWrite()) {
+        if (!parent.canRead()) {
+            throw new IOException("Unable to read manageable attribute files in directory " + parent.getAbsolutePath());
+        }
+        if (!readOnly && !parent.canWrite()) {
             throw new IOException("Unable to write manageable attribute files to directory " + parent.getAbsolutePath());
         }
     }
@@ -609,8 +612,8 @@ public class LocalAttributeManager implements PluginAttributeStore, PersistentCo
         }
     }
 
-    private static JexlExpressionParser loadProperties(String propertiesFile, ServerInfo serverInfo) {
-        Map<Object, Object> vars = new HashMap<Object, Object>();
+    private static JexlExpressionParser loadProperties(String propertiesFile, ServerInfo serverInfo, String prefix) {
+        Map<String, String> vars = new HashMap<String, String>();
         //properties file is least significant
         if (propertiesFile != null) {
             Properties properties = new Properties();
@@ -622,13 +625,25 @@ public class LocalAttributeManager implements PluginAttributeStore, PersistentCo
                 log.error("Caught exception " + e
                         + " trying to open properties file " + thePropertiesFile.getAbsolutePath());
             }
-            vars.putAll(properties);
+            addGeronimoSubstitutions(vars, properties, "");
         }
         //environment variables are next
-        vars.putAll(System.getenv());
+        addGeronimoSubstitutions(vars, System.getenv(), prefix);
         //most significant are the command line system properties
-        vars.putAll(System.getProperties());
+        addGeronimoSubstitutions(vars, System.getProperties(), prefix);
         return new JexlExpressionParser(vars);
+    }
+
+    private static void addGeronimoSubstitutions(Map<String, String> vars, Map props, String prefix) {
+        if (prefix != null) {
+            int start = prefix.length();
+            for (Object o: props.entrySet()) {
+                Map.Entry entry = (Map.Entry) o;
+                if (((String)entry.getKey()).startsWith(prefix)) {
+                    vars.put(((String)entry.getKey()).substring(start), (String)entry.getValue());
+                }
+            }
+        }
     }
 
     public static final GBeanInfo GBEAN_INFO;
@@ -639,10 +654,11 @@ public class LocalAttributeManager implements PluginAttributeStore, PersistentCo
         infoFactory.addAttribute("configFile", String.class, true);
         infoFactory.addAttribute("readOnly", boolean.class, true);
         infoFactory.addAttribute("substitutionsFile", String.class, true);
+        infoFactory.addAttribute("substitutionPrefix", String.class, true);
         infoFactory.addInterface(ManageableAttributeStore.class);
         infoFactory.addInterface(PersistentConfigurationList.class);
 
-        infoFactory.setConstructor(new String[]{"configFile", "substitutionsFile", "readOnly", "ServerInfo"});
+        infoFactory.setConstructor(new String[]{"configFile", "substitutionsFile", "substitutionPrefix", "readOnly", "ServerInfo"});
 
         GBEAN_INFO = infoFactory.getBeanInfo();
     }

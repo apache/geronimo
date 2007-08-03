@@ -160,17 +160,21 @@ public abstract class BaseApacheHandler extends MultiPageAbstractHandler {
         private String logFilePath;
         private String workersPath;
         private List webApps = new ArrayList();
+        // list of encodings for special chars
+        private String[][] ENCODINGS = {{":", "0x0"},{"\\", "0x1"}};
 
         public ApacheModel(PortletRequest request) {
             Map map = request.getParameterMap();
             os = request.getParameter("os");
-            logFilePath = request.getParameter("logFilePath");
+            // logFilePath and workersPath need to be encoded before saving
+            // and decoded after fetching
+            logFilePath = encodePath(request.getParameter("logFilePath"));
             if(logFilePath == null) {
-                logFilePath = PortletManager.getCurrentServer(request).getServerInfo().resolve("var/log/apache_mod_jk.log").getPath();
+                logFilePath = encodePath(PortletManager.getCurrentServer(request).getServerInfo().resolve("var/log/apache_mod_jk.log").getPath());
             }
-            workersPath = request.getParameter("workersPath");
+            workersPath = encodePath(request.getParameter("workersPath"));
             if(workersPath == null) {
-                workersPath = PortletManager.getCurrentServer(request).getServerInfo().resolve("var/config/workers.properties").getPath();
+                workersPath = encodePath(PortletManager.getCurrentServer(request).getServerInfo().resolve("var/config/workers.properties").getPath());
             }
             String ajp = request.getParameter("addAjpPort");
             if(!isEmpty(ajp)) addAjpPort = new Integer(ajp);
@@ -203,6 +207,30 @@ public abstract class BaseApacheHandler extends MultiPageAbstractHandler {
             }
         }
 
+        private String encodePath(String value) {
+            if(value == null) {
+                return value;
+            }
+            for(int i = 0; i < ENCODINGS.length; i++) {
+                if(value.contains(ENCODINGS[i][0])) {
+                    value = value.replace(ENCODINGS[i][0], ENCODINGS[i][1]);
+                }
+            }
+            return value;
+        }
+        
+        private String decodePath(String value) {
+            if(value == null) {
+                return value;
+            }
+            for(int i = 0; i < ENCODINGS.length; i++) {
+                if(value.contains(ENCODINGS[i][1])) {
+                    value = value.replace(ENCODINGS[i][1], ENCODINGS[i][0]);
+                }
+            }
+            return value;
+        }
+        
         public String getOs() {
             return os;
         }
@@ -220,7 +248,7 @@ public abstract class BaseApacheHandler extends MultiPageAbstractHandler {
         }
 
         public String getLogFilePath() {
-            return logFilePath;
+            return decodePath(logFilePath);
         }
 
         public void setLogFilePath(String logFilePath) {
@@ -228,7 +256,7 @@ public abstract class BaseApacheHandler extends MultiPageAbstractHandler {
         }
 
         public String getWorkersPath() {
-            return workersPath;
+            return decodePath(workersPath);
         }
 
         public void setWorkersPath(String workersPath) {

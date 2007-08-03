@@ -76,10 +76,13 @@ public class BasePortlet extends GenericPortlet {
     public final static Object getProperty(Object target, String name) {
         Class cls = target.getClass();
         String getter = "get"+Character.toUpperCase(name.charAt(0))+name.substring(1);
+        String booleanGetter = "is"+Character.toUpperCase(name.charAt(0))+name.substring(1);
         Method[] list = cls.getMethods();
         for (int i = 0; i < list.length; i++) {
             Method method = list[i];
-            if(method.getName().equals(getter) && method.getParameterTypes().length == 0 && Modifier.isPublic(method.getModifiers()) &&
+            String methodName = method.getName();
+            if( (methodName.equals(getter) || methodName.equals(booleanGetter))
+                && method.getParameterTypes().length == 0 && Modifier.isPublic(method.getModifiers()) &&
                     !Modifier.isStatic(method.getModifiers())) {
                 try {
                     return method.invoke(target, new Object[0]);

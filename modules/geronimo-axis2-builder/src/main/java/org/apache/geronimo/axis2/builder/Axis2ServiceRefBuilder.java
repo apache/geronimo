@@ -18,13 +18,19 @@
 package org.apache.geronimo.axis2.builder;
 
 import org.apache.geronimo.jaxws.builder.JAXWSServiceRefBuilder;
+import org.apache.geronimo.kernel.GBeanAlreadyExistsException;
+import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.xbeans.javaee.PortComponentRefType;
 import org.apache.geronimo.xbeans.javaee.ServiceRefType;
 import org.apache.geronimo.xbeans.geronimo.naming.GerServiceRefType;
+import org.apache.geronimo.j2ee.deployment.EARContext;
 import org.apache.geronimo.j2ee.deployment.Module;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
+import org.apache.geronimo.axis2.client.Axis2ConfigGBean;
 import org.apache.geronimo.common.DeploymentException;
+import org.apache.geronimo.gbean.AbstractName;
+import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.naming.deployment.ServiceRefBuilder;
@@ -48,11 +54,32 @@ public class Axis2ServiceRefBuilder extends JAXWSServiceRefBuilder {
                                 Module module, ClassLoader cl, Class serviceInterfaceClass,
                                 QName serviceQName, URI wsdlURI, Class serviceReferenceType,
                                 Map<Class, PortComponentRefType> portComponentRefMap) throws DeploymentException {
+        registerConfigGBean(module);
         return this.axis2Builder.createService(serviceInterfaceClass, serviceReferenceType, wsdlURI,
                                              serviceQName, portComponentRefMap, serviceRef.getHandlerChains(),
                                              gerServiceRef, module, cl);
     }
 
+    private void registerConfigGBean(Module module) throws DeploymentException {
+        EARContext context = module.getEarContext();
+        AbstractName containerFactoryName = context.getNaming().createChildName(
+                module.getModuleName(), Axis2ConfigGBean.GBEAN_INFO.getName(),
+                NameFactory.GERONIMO_SERVICE);
+
+        try {
+            context.getGBeanInstance(containerFactoryName);
+        } catch (GBeanNotFoundException e1) {
+            GBeanData configGBeanData = new GBeanData(containerFactoryName, Axis2ConfigGBean.GBEAN_INFO);
+            configGBeanData.setAttribute("moduleName", module.getModuleName());
+            
+            try {
+                context.addGBean(configGBeanData);
+            } catch (GBeanAlreadyExistsException e) {
+                throw new DeploymentException("Could not add config gbean", e);
+            }
+        }
+    }
+    
     public static final GBeanInfo GBEAN_INFO;
 
     static {

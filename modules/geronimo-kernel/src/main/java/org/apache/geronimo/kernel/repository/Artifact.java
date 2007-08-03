@@ -36,7 +36,7 @@ public class Artifact implements Comparable, Serializable {
     }
 
     public Artifact(String groupId, String artifactId, Version version, String type) {
-        if (artifactId == null) throw new NullPointerException("artifactId is null");
+        if (artifactId == null) throw new NullPointerException("artifactId is null: groupId: " + groupId + ", version: " + version + ", type: " + type);
         this.groupId = groupId;
         this.artifactId = artifactId;
         this.version = version;

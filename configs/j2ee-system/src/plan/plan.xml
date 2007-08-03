@@ -60,6 +60,7 @@ specific services - those should be provided by children.
         </reference>
         <attribute name="configFile">var/config/config.xml</attribute>
         <attribute name="substitutionsFile">var/config/config-substitutions.properties</attribute>
+        <attribute name="substitutionPrefix">org.apache.geronimo.config.substitution.</attribute>
     </gbean>
 
     <!-- ArtifactManager -->

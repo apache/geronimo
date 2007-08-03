@@ -20,7 +20,7 @@
 
 <!-- $Rev$ $Date$ -->
 
-<web-app xmlns="http://geronimo.apache.org/xml/ns/j2ee/web-1.2">
+<web-app xmlns="http://geronimo.apache.org/xml/ns/j2ee/web-2.0">
     <environment xmlns="http://geronimo.apache.org/xml/ns/deployment-1.2">
         <moduleId>
             <groupId>${pom.groupId}</groupId>

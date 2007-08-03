@@ -25,18 +25,22 @@ import org.apache.geronimo.xbeans.geronimo.client.GerApplicationClientDocument;
 import org.apache.geronimo.xbeans.geronimo.client.GerApplicationClientType;
 import org.apache.geronimo.xbeans.geronimo.naming.GerResourceRefType;
 import org.apache.geronimo.kernel.repository.Environment;
+import org.apache.geronimo.kernel.repository.ArtifactResolver;
+import org.apache.geronimo.kernel.repository.Repository;
 import org.apache.geronimo.deployment.xbeans.EnvironmentType;
 import org.apache.geronimo.deployment.xbeans.ArtifactType;
 import org.apache.geronimo.deployment.xmlbeans.XmlBeansUtil;
+import org.apache.geronimo.j2ee.deployment.ModuleBuilderExtension;
 
 /**
  */
 public class PlanParsingTest extends TestSupport {
 
+    private ArtifactResolver clientArtifactResolver = null;
     private AppClientModuleBuilder builder;
 
     protected void setUp() throws Exception {
-        builder = new AppClientModuleBuilder(new Environment(), null, null, null, null, null, Collections.EMPTY_LIST, null, null, null, Collections.EMPTY_LIST);
+        builder = new AppClientModuleBuilder(new Environment(), null, null, null, null, null, Collections.<Repository>emptyList(), null, null, null, Collections.<ModuleBuilderExtension>emptyList(), clientArtifactResolver);
     }
 
     public void testResourceRef() throws Exception {

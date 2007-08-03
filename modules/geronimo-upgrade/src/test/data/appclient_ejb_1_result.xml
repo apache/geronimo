@@ -14,7 +14,7 @@
    See the License for the specific language governing permissions and
    limitations under the License.
 -->
-<application xmlns="http://geronimo.apache.org/xml/ns/j2ee/application-1.2">
+<application xmlns="http://geronimo.apache.org/xml/ns/j2ee/application-2.0">
   <dep:environment xmlns:dep="http://geronimo.apache.org/xml/ns/deployment-1.2">
     <dep:moduleId>
       <dep:groupId>default</dep:groupId>
@@ -72,7 +72,7 @@
   </module>
   <module>
     <java>appclient_ejb_1_client.jar</java>
-    <application-client xmlns="http://geronimo.apache.org/xml/ns/j2ee/application-client-1.2">
+    <application-client xmlns="http://geronimo.apache.org/xml/ns/j2ee/application-client-2.0">
       <dep:client-environment xmlns:dep="http://geronimo.apache.org/xml/ns/deployment-1.2">
         <dep:moduleId>
           <dep:groupId>default</dep:groupId>

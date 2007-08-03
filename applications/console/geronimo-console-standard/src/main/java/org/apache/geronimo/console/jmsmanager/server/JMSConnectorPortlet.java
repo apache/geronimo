@@ -17,6 +17,7 @@
 package org.apache.geronimo.console.jmsmanager.server;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.List;
 import java.util.ArrayList;
 import java.net.URI;
@@ -196,7 +197,10 @@ public class JMSConnectorPortlet extends BaseJMSPortlet {
         }
         renderRequest.setAttribute("brokers", getBrokerList(renderRequest, manager));
         renderRequest.setAttribute("connectors", beans);
-        renderRequest.setAttribute("protocols", manager.getSupportedProtocols());
+        ArrayList protocols = new ArrayList(Arrays.asList(manager.getSupportedProtocols()));
+        protocols.remove("peer"); // add operation not supported for peer protocol
+        protocols.remove("failover"); // add operation not supported for failover protocol
+        renderRequest.setAttribute("protocols", protocols);
 
         if (WindowState.NORMAL.equals(renderRequest.getWindowState())) {
             normalView.include(renderRequest, renderResponse);

@@ -24,6 +24,7 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
@@ -96,9 +97,9 @@ public class WSDLQueryHandler {
             reader.setFeature("javax.wsdl.importDocuments", true);
             reader.setFeature("javax.wsdl.verbose", false);
             Definition def = reader.readWSDL(wsdlUri);
-            mp.put("", def);
             updateDefinition(def, mp, smp, base);
             updateServices(this.service.getName(), this.service.getEndpointName(), def, base);
+            mp.put("", def);
         }
 
         Element rootElement;
@@ -241,6 +242,8 @@ public class WSDLQueryHandler {
         boolean updated = false;
         Map services = def.getServices();
         if (services != null) {
+            ArrayList<QName> servicesToRemove = new ArrayList<QName>();
+            
             Iterator serviceIterator = services.entrySet().iterator();
             while (serviceIterator.hasNext()) {
                 Map.Entry serviceEntry = (Map.Entry) serviceIterator.next();
@@ -250,8 +253,12 @@ public class WSDLQueryHandler {
                     updatePorts(portName, service, baseUri);
                     updated = true;
                 } else {
-                    def.removeService(currServiceName);
+                    servicesToRemove.add(currServiceName);
                 }
+            }
+            
+            for (QName serviceToRemove : servicesToRemove) {
+                def.removeService(serviceToRemove);                
             }
         }
         if (!updated) {
@@ -263,6 +270,8 @@ public class WSDLQueryHandler {
         boolean updated = false;
         Map ports = service.getPorts();
         if (ports != null) {
+            ArrayList<String> portsToRemove = new ArrayList<String>();
+            
             Iterator portIterator = ports.entrySet().iterator();
             while (portIterator.hasNext()) {
                 Map.Entry portEntry = (Map.Entry) portIterator.next();
@@ -272,8 +281,12 @@ public class WSDLQueryHandler {
                     updatePortLocation(port, baseUri);
                     updated = true;
                 } else {
-                    service.removePort(currPortName);
+                    portsToRemove.add(currPortName);
                 }
+            }
+            
+            for (String portToRemove : portsToRemove) {
+                service.removePort(portToRemove);               
             }
         }
         if (!updated) {

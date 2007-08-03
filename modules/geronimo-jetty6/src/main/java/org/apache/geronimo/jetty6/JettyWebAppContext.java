@@ -282,35 +282,6 @@ public class JettyWebAppContext implements GBeanLifecycle, JettyServletRegistrat
         return jettyContainer;
     }
 
-    public URL getURLFor() {
-        WebConnector[] connectors = (WebConnector[]) jettyContainer.getConnectors();
-        Map<String, String> map = new HashMap<String, String>();
-        for (WebConnector connector : connectors) {
-            map.put(connector.getProtocol(), connector.getConnectUrl());
-        }
-        String urlPrefix;
-        if ((urlPrefix = map.get("HTTP")) == null) {
-            if ((urlPrefix = map.get("HTTPS")) == null) {
-                urlPrefix = map.get("AJP");
-            }
-        }
-        if (urlPrefix == null) {
-            return null;
-        }
-        StringBuffer buf = new StringBuffer(urlPrefix);
-        String contextPath = getContextPath();
-        if (!contextPath.startsWith("/")) {
-            buf.append("/");
-        }
-        buf.append(contextPath);
-        try {
-            return new URL(buf.toString());
-        } catch (MalformedURLException e) {
-            log.error("Bad URL to connect to web app", e);
-            return null;
-        }
-    }
-
     public void setContextPath(String path) {
         if (path == null || !path.startsWith("/")) {
             throw new IllegalArgumentException("context path must be non-null and start with '/', not " + path);

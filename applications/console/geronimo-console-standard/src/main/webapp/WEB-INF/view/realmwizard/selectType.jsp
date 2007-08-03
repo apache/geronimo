@@ -30,6 +30,7 @@ function <portlet:namespace/>validateForm(){
 </script>
 
 <p><b>Create Security Realm</b> -- Step 1: Select Name and Type</p>
+<c:if test="${!(empty SecurityRealmNamingError)}"><p><font color="red"><b>Naming Error: ${SecurityRealmNamingError}</b></font></p></c:if>
 
 <!--   FORM TO COLLECT DATA FOR THIS PAGE   -->
 <form name="<portlet:namespace/>RealmForm" action="<portlet:actionURL/>">

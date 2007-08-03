@@ -46,6 +46,7 @@ public abstract class JAXWSServiceReference extends SimpleReference implements C
     private static final Log LOG = LogFactory.getLog(JAXWSServiceReference.class);
     private static final Class[] URL_SERVICE_NAME_CONSTRUCTOR =
         new Class[] { URL.class, QName.class };
+    
     protected String serviceClassName;
     protected ClassLoader classLoader;
     protected AbstractName moduleName;
@@ -55,17 +56,21 @@ public abstract class JAXWSServiceReference extends SimpleReference implements C
     protected String handlerChainsXML;
     protected Map<Object, EndpointInfo> seiInfoMap;
     protected String referenceClassName;
+    
+    protected Class enhancedServiceClass;
+    protected Callback[] methodInterceptors;
+    protected FastConstructor serviceConstructor;
 
     public JAXWSServiceReference(String handlerChainsXML, Map<Object, EndpointInfo> seiInfoMap, AbstractName name, QName serviceQName, URI wsdlURI, String referenceClassName, String serviceClassName) {
         this.handlerChainsXML = handlerChainsXML;
         this.seiInfoMap = seiInfoMap;
-        moduleName = name;
+        this.moduleName = name;
         this.serviceQName = serviceQName;
         this.wsdlURI = wsdlURI;
         this.referenceClassName = referenceClassName;
         this.serviceClassName = serviceClassName;
     }
-
+    
     public void setClassLoader(ClassLoader classLoader) {
         this.classLoader = classLoader;
     }
@@ -149,29 +154,35 @@ public abstract class JAXWSServiceReference extends SimpleReference implements C
     }
     
     private Service createServiceProxy(Class superClass, ClassLoader classLoader, QName serviceName, URL wsdlLocation) throws NamingException {
-        Callback callback = getPortMethodInterceptor();
-        Callback[] methodInterceptors = new Callback[]{NoOp.INSTANCE, callback};
+        if (this.serviceConstructor == null) {            
+            // create method interceptors
+            Callback callback = getPortMethodInterceptor();
+            this.methodInterceptors = new Callback[] {NoOp.INSTANCE, callback};
 
-        Enhancer enhancer = new Enhancer();
-        enhancer.setClassLoader(classLoader);
-        enhancer.setSuperclass(superClass);
-        enhancer.setCallbackFilter(new PortMethodFilter());
-        enhancer.setCallbackTypes(new Class[]{NoOp.class, MethodInterceptor.class});
-        enhancer.setUseFactory(false);
-        enhancer.setUseCache(false);
-        Class serviceClass = enhancer.createClass();
+            // create service class
+            Enhancer enhancer = new Enhancer();
+            enhancer.setClassLoader(classLoader);
+            enhancer.setSuperclass(superClass);
+            enhancer.setCallbackFilter(new PortMethodFilter());
+            enhancer.setCallbackTypes(new Class[] { NoOp.class, MethodInterceptor.class });
+            enhancer.setUseFactory(false);
+            enhancer.setUseCache(false);
+            this.enhancedServiceClass = enhancer.createClass(); 
 
-        Enhancer.registerCallbacks(serviceClass, methodInterceptors);
-
-        FastConstructor constructor =
-            FastClass.create(serviceClass).getConstructor(URL_SERVICE_NAME_CONSTRUCTOR);
-        Object[] arguments =
-            new Object[]{wsdlLocation, serviceName};
-
+            // get constructor
+            this.serviceConstructor = 
+                FastClass.create(this.enhancedServiceClass).getConstructor(URL_SERVICE_NAME_CONSTRUCTOR);
+        }
+        
         LOG.debug("Initializing service with: " + wsdlLocation + " " + serviceName);
 
+        // associate the method interceptors with the generated service class on the current thread
+        Enhancer.registerCallbacks(this.enhancedServiceClass, this.methodInterceptors);
+        
+        Object[] arguments = new Object[] {wsdlLocation, serviceName};
+        
         try {
-            return (Service)constructor.newInstance(arguments);
+            return (Service)this.serviceConstructor.newInstance(arguments);
         } catch (InvocationTargetException e) {
             NamingException exception = new NamingException("Could not construct service proxy");
             exception.initCause(e.getTargetException());

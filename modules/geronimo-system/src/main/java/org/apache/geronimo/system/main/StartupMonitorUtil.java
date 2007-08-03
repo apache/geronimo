@@ -57,7 +57,7 @@ public class StartupMonitorUtil {
                     apps.add("    " + decodeModule(name.getNameProperty("j2eeType")) + ": " + name.getNameProperty("name"));
                 }
                 if (isWebModule(name)) {
-                    webs.add(kernel.getAttribute(name, "URLFor").toString());
+                    webs.add(kernel.getAttribute(name, "contextPath").toString());
                 }
 
                 int stateValue = kernel.getGBeanState(name);

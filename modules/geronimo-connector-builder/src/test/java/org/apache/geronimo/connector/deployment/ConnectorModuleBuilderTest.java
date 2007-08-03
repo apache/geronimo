@@ -154,7 +154,8 @@ public class ConnectorModuleBuilderTest extends TestSupport {
                     null,
                     serviceBuilder,
                     null,
-                    kernel.getNaming());
+                    kernel.getNaming(),
+                    null);
             ConfigurationData configData = null;
             DeploymentContext context = null;
             ArtifactManager artifactManager = new DefaultArtifactManager();

@@ -16,12 +16,18 @@
  */
 package org.apache.geronimo.console.apache.jk;
 
+import java.io.IOException;
+
+import org.apache.geronimo.console.MultiPageAbstractHandler;
 import org.apache.geronimo.console.MultiPagePortlet;
-import org.apache.geronimo.console.MultiPageModel;
+import org.apache.geronimo.console.apache.jk.BaseApacheHandler.ApacheModel;
 
 import javax.portlet.PortletConfig;
 import javax.portlet.PortletException;
 import javax.portlet.PortletRequest;
+import javax.portlet.RenderRequest;
+import javax.portlet.RenderResponse;
+import javax.portlet.WindowState;
 
 /**
  * Portlet that helps you configure Geronimo for Apache 2 with mod_jk
@@ -38,11 +44,37 @@ public class ApacheConfigPortlet extends MultiPagePortlet {
         addHelper(new ResultsHandler(), config);
     }
 
+    public void doView(RenderRequest renderRequest, RenderResponse renderResponse) throws IOException, PortletException {
+        if(WindowState.MINIMIZED.equals(renderRequest.getWindowState())) {
+            return;
+        }
+        String mode = renderRequest.getParameter(MODE_KEY);
+        ApacheModel model = (ApacheModel)getModel(renderRequest);
+        if(mode == null || mode.equals("")) {
+            mode = getDefaultMode();
+        }
+        MultiPageAbstractHandler handler = (MultiPageAbstractHandler)helpers.get(mode);
+        try {
+            if(handler != null) {
+                handler.renderView(renderRequest, renderResponse, model);
+            }
+        } catch (Throwable e) {
+            
+        }
+        // decode the paths in model object
+        model.setLogFilePath(model.getLogFilePath());
+        model.setWorkersPath(model.getWorkersPath());
+        renderRequest.setAttribute(getModelJSPVariableName(), model);
+        if(handler != null) {
+            handler.getView().include(renderRequest, renderResponse);
+        }
+    }
+
     protected String getModelJSPVariableName() {
         return "model";
     }
 
-    protected MultiPageModel getModel(PortletRequest request) {
+    protected ApacheModel getModel(PortletRequest request) {
         return new BaseApacheHandler.ApacheModel(request);
     }
 }

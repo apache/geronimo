@@ -20,6 +20,7 @@
 package org.apache.geronimo.testsuite.console;
 
 import org.testng.annotations.Test;
+import org.apache.geronimo.testsupport.console.ConsoleTestSupport;
 
 /**
  * Apache mod_jk configuration portlet tests

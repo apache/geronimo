@@ -95,7 +95,7 @@ public class WSDescriptorParser {
         try {
             ZipEntry zipEntry = moduleFile.getEntry(jaxrpcMappingPath);
             if (zipEntry == null) {
-                throw new DeploymentException("The JAX-RPC mapping file " + jaxrpcMappingPath + " specified in webservices.xml for the ejb module could not be found.");
+                throw new DeploymentException("The JAX-RPC mapping file " + jaxrpcMappingPath + " specified in webservices.xml could not be found.");
             }
             jaxrpcInputStream = moduleFile.getInputStream(zipEntry);
         } catch (IOException e) {
@@ -300,7 +300,9 @@ public class WSDescriptorParser {
             String wsdlLocation = webserviceDescription.getWsdlFile().getStringValue().trim();
             String jaxrpcMappingFile = webserviceDescription.getJaxrpcMappingFile().getStringValue().trim();
             
-            sharedPortInfo = new SharedPortInfo(wsdlLocation, jaxrpcMappingFile);
+            sharedPortInfo = new SharedPortInfo(wsdlLocation, 
+                                                jaxrpcMappingFile,
+                                                DescriptorVersion.J2EE);
             
             PortComponentType[] portComponents = webserviceDescription.getPortComponentArray();
             for (PortComponentType portComponent : portComponents) {
@@ -349,7 +351,9 @@ public class WSDescriptorParser {
                 jaxrpcMappingFile = webserviceDescription.getJaxrpcMappingFile().getStringValue().trim();
             }
             
-            sharedPortInfo = new SharedPortInfo(wsdlLocation, jaxrpcMappingFile);
+            sharedPortInfo = new SharedPortInfo(wsdlLocation, 
+                                                jaxrpcMappingFile, 
+                                                DescriptorVersion.JAVAEE);
             
             org.apache.geronimo.xbeans.javaee.PortComponentType[] portComponents = webserviceDescription.getPortComponentArray();
             for (org.apache.geronimo.xbeans.javaee.PortComponentType portComponent : portComponents) {

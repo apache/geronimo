@@ -4,8 +4,11 @@
    ==  in this case for the Apache OpenEJB distribution.                  ==
    =========================================================================
 
+   Apache Geronimo 
+   Copyright 2003-2007 The Apache Software Foundation
+
    Apache OpenEJB Project
-   Copyright 1999-2006 The Apache Software Foundation
+   Copyright 1999-2007 The Apache Software Foundation
 
    This product includes software developed by
    The Apache Software Foundation (http://www.apache.org/).

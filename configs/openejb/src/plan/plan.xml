@@ -29,6 +29,9 @@
     </gbean>
 
     <gbean name="ExtendedEntityManagerRegistry" class="org.apache.geronimo.openejb.EntityManagerRegistryImpl">
+    	<dependency>
+    		<name>OpenEjbSystem</name>
+    	</dependency>
     </gbean>
 
     <gbean name="DefaultStatelessContainer" class="org.apache.geronimo.openejb.EjbContainer">
@@ -83,139 +86,5 @@
             <name>DefaultStatelessContainer</name>
         </reference>
     </gbean>
-
-<!--
-    <gbean name="StatelessEjbContainer" class="org.apache.openejb.slsb.DefaultStatelessEjbContainerGBean">
-        <reference name="TransactionManager">
-            <name>TransactionManager</name>
-        </reference>
-        <reference name="TrackedConnectionAssociator">
-            <name>ConnectionTracker</name>
-        </reference>
-        <reference name="TransactedTimer">
-            <name>TransactionalThreadPooledTimer</name>
-        </reference>
-        <reference name="NontransactedTimer">
-            <name>NonTransactionalThreadPooledTimer</name>
-        </reference>
-        <attribute name="securityEnabled">true</attribute>
-        <attribute name="doAsCurrentCaller">true</attribute>
-        <attribute name="useContextHandler">true</attribute>
-    </gbean>
-
-    <gbean name="StatefulEjbContainer" class="org.apache.openejb.sfsb.DefaultStatefulEjbContainerGBean">
-        <reference name="TransactionManager">
-            <name>TransactionManager</name>
-        </reference>
-        <reference name="TrackedConnectionAssociator">
-            <name>ConnectionTracker</name>
-        </reference>
-        <attribute name="securityEnabled">true</attribute>
-        <attribute name="doAsCurrentCaller">true</attribute>
-        <attribute name="useContextHandler">true</attribute>
-    </gbean>
-
-    <gbean name="BmpEjbContainer" class="org.apache.openejb.entity.bmp.DefaultBmpEjbContainerGBean">
-        <reference name="TransactionManager">
-            <name>TransactionManager</name>
-        </reference>
-        <reference name="TrackedConnectionAssociator">
-            <name>ConnectionTracker</name>
-        </reference>
-        <reference name="TransactedTimer">
-            <name>TransactionalThreadPooledTimer</name>
-        </reference>
-        <reference name="NontransactedTimer">
-            <name>NonTransactionalThreadPooledTimer</name>
-        </reference>
-        <attribute name="securityEnabled">true</attribute>
-        <attribute name="doAsCurrentCaller">true</attribute>
-        <attribute name="useContextHandler">true</attribute>
-    </gbean>
-
-    <gbean name="CmpEjbContainer" class="org.apache.openejb.entity.cmp.DefaultCmpEjbContainerGBean">
-        <reference name="TransactionManager">
-            <name>TransactionManager</name>
-        </reference>
-        <reference name="TrackedConnectionAssociator">
-            <name>ConnectionTracker</name>
-        </reference>
-        <reference name="TransactedTimer">
-            <name>TransactionalThreadPooledTimer</name>
-        </reference>
-        <reference name="NontransactedTimer">
-            <name>NonTransactionalThreadPooledTimer</name>
-        </reference>
-        <attribute name="securityEnabled">true</attribute>
-        <attribute name="doAsCurrentCaller">true</attribute>
-        <attribute name="useContextHandler">true</attribute>
-    </gbean>
-
-    <gbean name="MdbEjbContainer" class="org.apache.openejb.mdb.DefaultMdbContainerGBean">
-        <reference name="TransactionManager">
-            <name>TransactionManager</name>
-        </reference>
-        <reference name="TrackedConnectionAssociator">
-            <name>ConnectionTracker</name>
-        </reference>
-        <reference name="TransactedTimer">
-            <name>TransactionalThreadPooledTimer</name>
-        </reference>
-        <reference name="NontransactedTimer">
-            <name>NonTransactionalThreadPooledTimer</name>
-        </reference>
-        <attribute name="doAsCurrentCaller">true</attribute>
-    </gbean>
-
-    <gbean name="DefaultThreadPoolExecutorAdapter" class="org.apache.openejb.util.BackportExecutorAdapter">
-        <reference name="TargetExecutor">
-            <name>DefaultThreadPool</name>
-        </reference>
-    </gbean>
-
-    <gbean name="EJBNetworkService" class="org.activeio.xnet.StandardServiceStackGBean">
-        <attribute name="name">EJB</attribute>
-        <attribute name="port">${PlanOpenEJBPort}</attribute>
-        <attribute name="host">${PlanServerHostname}</attribute>
-        <attribute name="allowHosts">${PlanClientAddresses}</attribute>
-        <attribute name="logOnSuccess">HOST,NAME,THREADID,USERID</attribute>
-        <attribute name="logOnFailure">HOST,NAME</attribute>
-        <reference name="Executor">
-            <name>DefaultThreadPoolExecutorAdapter</name>
-        </reference>
-        <reference name="Server">
-            <name>EJBServer</name>
-        </reference>
-    </gbean>
-
-    <gbean name="EJBServer" class="org.apache.openejb.server.ejbd.EjbServerGBean">
-        <reference name="DeploymentIndex">
-            <name>DeploymentIndex</name>
-        </reference>
-        <reference name="ORBRefs">
-            <name>Server</name>
-        </reference>
-    </gbean>
-
-    <gbean name="DeploymentIndex" class="org.apache.openejb.DeploymentIndexGBean">
-        <references name="EjbDeployments">
-            <pattern>
-                <type>StatelessSessionBean</type>
-            </pattern>
-            <pattern>
-                <type>StatefulSessionBean</type>
-            </pattern>
-            <pattern>
-                <type>EntityBean</type>
-            </pattern>
-        </references>
-    </gbean>
-
-    <gbean name="ejb/mgmt/MEJB" class="org.apache.openejb.mejb.MEJBGBean">
-        <reference name="MBeanServerReference">
-            <name>MBeanServerReference</name>
-        </reference>
-    </gbean>
--->
     
 </module>

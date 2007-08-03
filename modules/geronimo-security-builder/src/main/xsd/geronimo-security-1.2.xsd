@@ -22,7 +22,7 @@
     xmlns:j2ee="http://java.sun.com/xml/ns/j2ee"
     xmlns:geronimo="http://geronimo.apache.org/xml/ns/security-1.2"
     targetNamespace="http://geronimo.apache.org/xml/ns/security-1.2"
-    xmlns:app="http://geronimo.apache.org/xml/ns/j2ee/application-1.2"
+    xmlns:app="http://geronimo.apache.org/xml/ns/j2ee/application-2.0"
     elementFormDefault="qualified" attributeFormDefault="unqualified"
     version="1.0">
 
@@ -30,9 +30,9 @@
         <xsd:documentation>
             This is a partial XML Schema Definition for common security
             elements. This schema will never be used directly but its elements
-            are used in geronimo-application-client-1.2.xsd,
-            geronimo-connector-1.2.xsd, geronimo-web-1.2.xsd,
-            geronimo-tomcat-1.2.xsd, and geronimo-jetty-1.2.xsd. All the schemas
+            are used in geronimo-application-client-2.0.xsd,
+            geronimo-connector-1.2.xsd, geronimo-web-2.0.xsd,
+            geronimo-tomcat-2.0.xsd, and geronimo-jetty-1.2.xsd. All the schemas
             or plans using elements of this schema must specify the top level
             element with one of the namespace specified as
             "http://geronimo.apache.org/xml/ns/j2ee/security-1.2". The default
@@ -44,8 +44,8 @@
     <xsd:import namespace="http://www.w3.org/XML/1998/namespace"
         schemaLocation="http://www.w3.org/2001/xml.xsd" />
     <xsd:import
-        namespace="http://geronimo.apache.org/xml/ns/j2ee/application-1.2"
-        schemaLocation="geronimo-application-1.2.xsd">
+        namespace="http://geronimo.apache.org/xml/ns/j2ee/application-2.0"
+        schemaLocation="geronimo-application-2.0.xsd">
         <xsd:annotation>
             <xsd:documentation>
                 Import Geronimo enterprise application deployment plans. The
@@ -91,7 +91,7 @@
                 <xsd:annotation>
                     <xsd:documentation>
                         Extension of abstract-securityType element defined in
-                        geronimo-application-1.2.xsd.
+                        geronimo-application-2.0.xsd.
                     </xsd:documentation>
                 </xsd:annotation>
 

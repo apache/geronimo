@@ -174,7 +174,7 @@ public abstract class JMXDeploymentManager implements DeploymentManager {
                     }
                 }
             }
-            CommandSupport.addWebURLs(kernel, result);
+            CommandSupport.addWebContextPaths(kernel, result);
             return result.size() == 0 ? null : result.toArray(new TargetModuleID[result.size()]);
         } catch (Exception e) {
             throw (TargetException) new TargetException(e.getMessage()).initCause(e);

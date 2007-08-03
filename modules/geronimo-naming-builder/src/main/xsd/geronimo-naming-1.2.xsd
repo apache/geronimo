@@ -27,9 +27,9 @@
             This is a partial XML Schema Definition for common naming elements
             for resolving EJB, Web, services, or resource references. This
             schema will never be used directly but its elements are used in
-            geronimo-application-client-1.2.xsd, geronimo-connector-1.2.xsd,
-            geronimo-web-1.2.xsd, geronimo-tomcat-1.2.xsd, and
-            geronimo-jetty-1.2.xsd. All the schema's or plans using elements of
+            geronimo-application-client-2.0.xsd, geronimo-connector-1.2.xsd,
+            geronimo-web-2.0.xsd, geronimo-tomcat-2.0.xsd, and
+            geronimo-jetty-2.0.xsd. All the schema's or plans using elements of
             this schema must specify the top level element with one of the
             namespace specified as
             "http://geronimo.apache.org/xml/ns/j2ee/naming-1.2". The default
