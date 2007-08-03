@@ -33,6 +33,11 @@ public class ManagerGBean extends BaseGBean implements GBeanLifecycle, ObjectRet
     
     protected final Manager manager;
 
+    // no-arg constructor required for gbean refs
+    public ManagerGBean(){
+        manager = null;
+    }
+    
     protected ManagerGBean(String className) throws Exception{
        super();     
        manager = (Manager)Class.forName(className).newInstance();
