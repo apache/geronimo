@@ -33,11 +33,25 @@ public class CmsTest
 {
     @Test
     public void testPageContent() throws Exception {
-        selenium.open("http://system:manager@localhost:8080/jca-cms/servlet");
+        selenium.open("http://system:manager@localhost:8080/jca-cms/default-subject-servlet");
         selenium.waitForPageToLoad("30000");
 
-        //TODO the line separators might well be wrong???
-        assertEquals("Successfully got configured connection\n\nSuccessfully got container managed connection\n", selenium.getText("xpath=/html/body"));
+        assertTrue(selenium.getText("xpath=/html/body").endsWith(
+//                "Current subject: Subject:\n" +
+//                "\tPrincipal: org.apache.geronimo.connector.outbound.security.ResourcePrincipal@cb1c722f\n" +
+//                "\tPrincipal: org.apache.geronimo.security.IdentificationPrincipal[[1186174499145:0x607c7eb7837eabcd6b759e6f9d29e7eee72622d6]]\n" +
+//                "\tPrincipal: org.apache.geronimo.security.IdentificationPrincipal[[1186174499146:0x7622e0831ed59a4cd6c277a53491de74f1489311]]\n" +
+//                "\tPrivate Credential: javax.resource.spi.security.PasswordCredential@23f33e5c\n" +
+//                "\n" +
+//                "Next subject:    Subject:\n" +
+//                "\tPrincipal: org.apache.geronimo.connector.outbound.security.ResourcePrincipal@cb1c722f\n" +
+//                "\tPrincipal: org.apache.geronimo.security.IdentificationPrincipal[[1186174499145:0x607c7eb7837eabcd6b759e6f9d29e7eee72622d6]]\n" +
+//                "\tPrincipal: org.apache.geronimo.security.IdentificationPrincipal[[1186174499146:0x7622e0831ed59a4cd6c277a53491de74f1489311]]\n" +
+//                "\tPrivate Credential: javax.resource.spi.security.PasswordCredential@23f33e5c\n" +
+//                "\n" +
+                "Successfully got configured connection\n" +
+                "\n" +
+                "Successfully got container managed connection"));
     }
 }
 

@@ -83,8 +83,7 @@
                     </connection-definition>
                 </outbound-resourceadapter>
             </resourceadapter>
-            <gbean name="test-cms-realm"
-                   class="org.apache.geronimo.security.realm.GenericSecurityRealm">
+            <gbean name="test-cms-realm" class="org.apache.geronimo.security.realm.GenericSecurityRealm">
                 <attribute name="realmName">test-cms-realm</attribute>
                 <xml-reference name="LoginModuleConfiguration">
                     <lc:login-config xmlns:lc="http://geronimo.apache.org/xml/ns/loginconfig-1.1">
@@ -99,16 +98,12 @@
                 <reference name="ServerInfo">
                     <name>ServerInfo</name>
                 </reference>
-                <reference name="LoginService">
-                    <name>JaasLoginService</name>
-                </reference>
             </gbean>
             <gbean name="test-cms-credentials"
                    class="org.apache.geronimo.connector.outbound.security.PasswordCredentialLoginModuleWrapperGBean">
                 <attribute name="loginModuleClass">
                     org.apache.geronimo.connector.outbound.security.CallerIdentityPasswordCredentialLoginModule
                 </attribute>
-                <attribute name="serverSide">true</attribute>
                 <reference name="ManagedConnectionFactoryWrapper">
                     <name>cmsds</name>
                 </reference>
@@ -121,11 +116,9 @@
         <web-app xmlns="http://geronimo.apache.org/xml/ns/j2ee/web-2.0">
             <security-realm-name>test-cms-realm</security-realm-name>
             <security xmlns="http://geronimo.apache.org/xml/ns/security-2.0">
-                <credential-store>
-                    <pattern>
-                        <name xmlns="http://geronimo.apache.org/xml/ns/deployment-1.2">test-credential-store</name>
-                    </pattern>
-                </credential-store>
+                <credential-store-ref>
+                    <name xmlns="http://geronimo.apache.org/xml/ns/deployment-1.2">test-credential-store</name>
+                </credential-store-ref>
                 <default-subject>
                     <realm>test-cms-realm</realm>
                     <id>test</id>
@@ -142,6 +135,8 @@
                     </role>
                 </role-mappings>
             </security>
+        </web-app>
+    </module>
             <gbean name="test-credential-store" class="org.apache.geronimo.security.credentialstore.SimpleCredentialStoreImpl">
                 <xml-attribute name="credentialStore">
                     <credential-store xmlns="http://geronimo.apache.org/xml/ns/credentialstore-1.0">
@@ -171,7 +166,8 @@
                         </realm>
                     </credential-store>
                 </xml-attribute>
+                <dependency>
+                    <name>test-cms-realm</name>
+		</dependency>
             </gbean>
-        </web-app>
-    </module>
 </application>
