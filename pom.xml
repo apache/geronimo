@@ -1534,7 +1534,7 @@
                 <plugin>
                     <groupId>org.codehaus.mojo</groupId>
                     <artifactId>xmlbeans-maven-plugin</artifactId>
-                    <version>2.3.1-20070720.222301-1</version>
+                    <version>2.3.1</version>
 
                     <executions>
                         <execution>
