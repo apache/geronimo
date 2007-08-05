@@ -70,8 +70,9 @@ public class BaseDeploymentFactory implements DeploymentFactory {
 
     private ConnectParams parseURI(String uri) {
         uri = uri.trim();
-        if (log.isDebugEnabled())
+        if (log.isDebugEnabled()) {
             log.debug("Parsing URI=" + uri);
+        }
         if(!uri.startsWith(URI_PREFIX)) {
             return null;
         }
@@ -127,8 +128,9 @@ public class BaseDeploymentFactory implements DeploymentFactory {
         if (params == null) {
             return null;
         }
-        if (log.isDebugEnabled())
+        if (log.isDebugEnabled()) {
             log.debug("Using protocol=" + params.getProtocol() + ", host=" + params.getHost() + ", port=" + params.getPort());
+        }
 
         try {
             if (params.getProtocol().equals("jmx")) {
