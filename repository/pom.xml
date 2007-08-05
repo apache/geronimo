@@ -153,6 +153,47 @@
             <artifactId>axis2-saaj-api</artifactId>
         </dependency>
 
+        <!-- See revision number 562824 for OpenEJB snapshot details -->
+<!--         <dependency> -->
+<!--             <groupId>org.apache.openejb</groupId> -->
+<!--             <artifactId>openejb-axis</artifactId> -->
+<!--         </dependency> -->
+
+        <dependency>
+            <groupId>org.apache.openejb</groupId>
+            <artifactId>openejb-core</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.openejb</groupId>
+            <artifactId>openejb-client</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.openejb</groupId>
+            <artifactId>openejb-server</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.openejb</groupId>
+            <artifactId>openejb-server</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.openejb</groupId>
+            <artifactId>openejb-loader</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.openejb</groupId>
+            <artifactId>openejb-jee</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.openejb</groupId>
+            <artifactId>openejb-ejbd</artifactId>
+        </dependency>
+
     </dependencies>
 
     <repositories>
