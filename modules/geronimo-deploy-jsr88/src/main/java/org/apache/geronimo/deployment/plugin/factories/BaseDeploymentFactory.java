@@ -70,6 +70,9 @@ public class BaseDeploymentFactory implements DeploymentFactory {
 
     private ConnectParams parseURI(String uri) {
         uri = uri.trim();
+        if (log.isDebugEnabled()) {
+            log.debug("Parsing URI=" + uri);
+        }
         if(!uri.startsWith(URI_PREFIX)) {
             return null;
         }
@@ -125,6 +128,9 @@ public class BaseDeploymentFactory implements DeploymentFactory {
         if (params == null) {
             return null;
         }
+        if (log.isDebugEnabled()) {
+            log.debug("Using protocol=" + params.getProtocol() + ", host=" + params.getHost() + ", port=" + params.getPort());
+        }
 
         try {
             if (params.getProtocol().equals("jmx")) {
@@ -155,6 +161,9 @@ public class BaseDeploymentFactory implements DeploymentFactory {
         environment.put(JMXConnector.CREDENTIALS, credentials);
         environment.put(JMXConnectorFactory.DEFAULT_CLASS_LOADER, BaseDeploymentFactory.class.getClassLoader());
         try {
+            if (log.isDebugEnabled()) {
+                log.debug("Using JMXServiceURL with host=" + params.getHost() + ", port=" + params.getPort());
+            }
             JMXServiceURL address = new JMXServiceURL("service:jmx:rmi:///jndi/rmi://"+params.getHost()+":"+params.getPort()+"/JMXConnector");
             JMXConnector jmxConnector = JMXConnectorFactory.connect(address, environment);
             RemoteDeploymentManager manager = getRemoteDeploymentManager();
@@ -164,9 +173,17 @@ public class BaseDeploymentFactory implements DeploymentFactory {
             }
             return manager;
         } catch (IOException e) {
-            throw (DeploymentManagerCreationException)new DeploymentManagerCreationException(e.getMessage()).initCause(e);
+            log.fatal("caught " + e.getMessage(), e);
+            DeploymentManagerCreationException deploymentManagerCreationException = 
+                    (DeploymentManagerCreationException) new DeploymentManagerCreationException(e.getMessage()).initCause(e);
+            log.fatal("throwing " + deploymentManagerCreationException.getMessage(), deploymentManagerCreationException);
+            throw deploymentManagerCreationException;
         } catch (SecurityException e) {
-            throw (AuthenticationFailedException) new AuthenticationFailedException("Invalid login.").initCause(e);
+            log.fatal("caught " + e.getMessage(), e);
+            AuthenticationFailedException authenticationFailedException = 
+                    (AuthenticationFailedException) new AuthenticationFailedException("Invalid login.").initCause(e);
+            log.fatal("throwing " + authenticationFailedException.getMessage(), authenticationFailedException);
+            throw authenticationFailedException;
         }
     }
 
