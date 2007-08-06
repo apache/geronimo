@@ -139,6 +139,10 @@
              <artifactId>xbean-finder</artifactId>
         </dependency>
 
+        <dependency>
+            <groupId>org.codehaus.swizzle</groupId>
+            <artifactId>swizzle-stream</artifactId>
+        </dependency>
     </dependencies>
 
 </project>
