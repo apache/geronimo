@@ -161,7 +161,7 @@
 
         <dependency>
             <groupId>org.apache.openejb</groupId>
-            <artifactId>openejb-core</artifactId>
+            <artifactId>openejb-axis</artifactId>
         </dependency>
 
         <dependency>
@@ -171,17 +171,12 @@
 
         <dependency>
             <groupId>org.apache.openejb</groupId>
-            <artifactId>openejb-server</artifactId>
+            <artifactId>openejb-core</artifactId>
         </dependency>
 
         <dependency>
             <groupId>org.apache.openejb</groupId>
-            <artifactId>openejb-server</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.openejb</groupId>
-            <artifactId>openejb-loader</artifactId>
+            <artifactId>openejb-ejbd</artifactId>
         </dependency>
 
         <dependency>
@@ -191,7 +186,17 @@
 
         <dependency>
             <groupId>org.apache.openejb</groupId>
-            <artifactId>openejb-ejbd</artifactId>
+            <artifactId>openejb-javaagent</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.openejb</groupId>
+            <artifactId>openejb-loader</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.openejb</groupId>
+            <artifactId>openejb-server</artifactId>
         </dependency>
 
     </dependencies>
