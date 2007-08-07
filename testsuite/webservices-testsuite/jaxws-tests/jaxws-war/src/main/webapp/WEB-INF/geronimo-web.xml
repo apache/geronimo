@@ -25,6 +25,8 @@
     </dep:moduleId>
   </dep:environment>
 
+ <context-root>/jaxws-war</context-root> 
+
  <service-ref>
    <service-ref-name>services/Greeter</service-ref-name>
    <port>
@@ -32,7 +34,7 @@
       <protocol>http</protocol>
       <host>localhost</host>
       <port>8080</port>
-      <uri>/jaxws-war-2.0-SNAPSHOT/servlet1</uri>
+      <uri>/jaxws-war/servlet1</uri>
    </port>
  </service-ref>
 
