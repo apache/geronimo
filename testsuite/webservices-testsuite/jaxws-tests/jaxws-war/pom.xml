@@ -88,7 +88,7 @@
                     <systemProperties>
                         <property>
                             <name>webAppName</name>
-                            <value>${artifactId}-${version}</value>
+                            <value>${artifactId}</value>
                         </property>
                     </systemProperties>
                 </configuration>
