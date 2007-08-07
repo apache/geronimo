@@ -1,0 +1,234 @@
+Release Notes -- Apache Geronimo -- Version 2.0
+
+Geronimo URLs
+-------------
+Home Page:     http://geronimo.apache.org/
+Downloads:     http://geronimo.apache.org/downloads.html
+Documentation: http://geronimo.apache.org/documentation.html
+Mailing Lists: http://geronimo.apache.org/mailing.html
+Source Code:   http://geronimo.apache.org/svn.html
+Bug Tracking:  http://issues.apache.org/jira/browse/GERONIMO
+Wiki:          http://cwiki.apache.org/geronimo
+
+
+Updated Information
+-------------------
+Please see http://cwiki.apache.org/GMOxDOC20/release-notes-20txt.html for the 
+latest information on this release.
+
+
+System Requirements
+-------------------
+You need a platform that supports the Sun JDK 5.0+ (J2SE 1.5.0+).  Other Java VMs 
+should work as well.
+
+Most testing has been done on Linux, Mac OS X, and Windows.
+
+
+Significant Changes in the 2.0 Release
+--------------------------------------
+
+o Implements the Java Enterprise Edition 5.0 (Java EE 5) specification
+  o JAX-WS Web Services
+     - Two JAX-WS engines integrated: Apache Axis2 and Apache CXF
+     - Users can configure which JAX-WS engine to use.
+
+
+Certification Status
+--------------------
+Apache Geronimo v2.0 have passed 100% SUN's Java Enterprise Edition 5.0 
+Certification Test Suite. See "Distributions" for further details.
+
+
+Distributions
+-------------
+Apache Geronimo v2.0 is available in five distributions so you can pick the 
+one that better fits your environment.
+
+The available distributions are as follows:
+
+Certified distributions:
+- Apache Geronimo with Tomcat web container, AXIS2 for Web Services and OpenJPA
+  for persistence.
+- Apache Geronimo with Jetty web container, CXF for Web Services and OpenJPA 
+  for persistence.
+
+Non-Certified distributions:
+- Little-G with Tomcat web container, minimal configuration.
+- Little-G with Jetty web container, minimal configuration.
+- Micro-G, stripped down Geronimo pluggable framework.
+
+Note: Non-Certified distributions do not contain a complete JavaEE5 stack and so 
+cannot be certified.  Certified distributions can be reconfigured by the user 
+(such as Tomcat web container with CXF for Web Services). 
+
+Supported features
+------------------
+All programming model elements of the Java EE 5.0 Specification are available.  
+Some of the non-specification related elements such as clustering are still 
+being worked on.
+
+Installing & Starting Geronimo
+------------------------------
+To install, simply unpack the .zip (Windows) or tar.gz (Unix) file containing
+Geronimo.
+
+If you wish to modify the default ports that Geronimo will use, edit the file
+<geronimo_home>/var/config/config-substitutions.properties
+
+Geronimo comes with batch and script files to control server start and stop
+functions.  To see usage examples simply type geronimo.bat or geronimo.sh
+command as appropriate for your platform.  It is necessary to set JAVA_HOME to
+the copy of your Sun 5 JDK/JRE prior to executing the command.
+
+Here is an example to set JAVA_HOME:
+
+export JAVA_HOME=<JDK/JRE_home>
+
+To see the available command options type:
+
+<geronimo_home>/bin/geronimo.sh
+or
+<geronimo_home>\bin\geronimo.bat
+
+The command will display help text instructing you as to how to start and stop
+the Geronimo server.
+
+If you prefer to start the server without a script file you can simply type the 
+following command from <geronimo_home> directory:
+
+java -Djava.endorsed.dirs=lib/endorsed -javaagent:bin/jpa.jar -jar bin/server.jar
+
+Once the server has started, you can access the Geronimo Administration Console
+at http://localhost:8080/console/ . The default user name is "system" and the
+default password is "manager".
+
+
+Administration Console Security Configuration
+---------------------------------------------
+The default administration user/password for the Geronimo Administration Console
+and command line deployment tool is system/manager.  You can change these defaults
+directly from the Geronimo Administration Console by accessing Security -> Console
+Realm and change the user name and password from the Console Realm Users portlet.
+
+As an alternative, you can make the same changes by editing the
+<geronimo_home>/var/security/users.properties and
+<geronimo_home>/var/security/groups.properties files.
+
+
+Deploying Applications
+----------------------
+Geronimo comes with deploy scripts and batch files to deploy J2EE modules or
+applications. You can use the scripts or simply invoke the executable jar by
+running the following command (note that you need to start Geronimo first):
+
+<geronimo_home>/bin/java -jar deployer.jar deploy my-web-app.war [deploy plan]
+
+You will need to use the username "system" and password "manager" unless you
+customized those as described above.  The deployment plan argument is
+optional -- you can pack a deployment plan into the application module, provide
+it on the command line, or in some cases omit it entirely.
+
+You can also use the "Login" command to avoid entering a user name and password
+every time you use the deploy tool
+
+For more information on the commands and options supported by the deploy tool,
+run from within the Geronimo directory <geronimo_home>/bin:
+
+java -jar deployer.jar help [command]
+
+You can also graphically deploy applications and resources via the Geronimo
+Administration Console available at http://localhost:8080/console/
+
+
+Other Deployment Options
+------------------------
+As an alternative to the command-line deployer, you can copy application
+modules into the <geronimo_home>/deploy/ directory and the
+hot deployer service will deploy them automatically.  The command-line deployer
+has some advantages, as it will output any
+deployment errors to its own console rather than just the server log.
+
+Additionally, Geronimo provides a Maven plugin that can deploy applications to
+Geronimo as part of a Maven build.
+
+
+Configuration
+-------------
+Most configuration attributes can be updated in the
+<geronimo_home>/var/config/config.xml file.  The attributes most likely to be
+changed are already included in the supplied config.xml file, while others may
+need to be added manually.
+
+
+Known Issues and Limitations
+----------------------------
+
+o If Geronimo is configured with CXF as its JAX-WS engine, some Web Services
+  might not work correctly on non-Sun JDKs. That is because CXF uses Glassfish
+  SAAJ implementation which has dependencies on Sun proprietary classes 
+  available only on Sun JDKs.
+  To workaround this issue and if Sun JDK is not available on your platform 
+  configure Geronimo to use Axis2 as its JAX-WS engine.
+
+
+Release Notes - Geronimo - Version 2.0
+
+** Sub-task
+    * [GERONIMO-3040] - Implement process to ensure all annotations are discovered and processed
+
+** Bug
+    * [GERONIMO-807] - Better handling for system log viewer portlet render requests
+    * [GERONIMO-1786] - JMS Listeners for protocols activeio, peer and openwire fail to start
+    * [GERONIMO-2286] - app client plan still uses Strings for dependency Module IDs
+    * [GERONIMO-2534] - Security realms portlet should validate the realm-name for duplicate name
+    * [GERONIMO-2699] - Module was not a war
+    * [GERONIMO-2771] - GlassFish specs are being included in 2.0-M2 builds
+    * [GERONIMO-2878] - JVM stats exposed through JMX are incorrect and missing init/max heap size
+    * [GERONIMO-2885] - JSF is leaking application ClassLoaders
+    * [GERONIMO-2950] - Build test failure in geronimo-naming
+    * [GERONIMO-3196] - ConcurrentModificationException in ?wsdl processing
+    * [GERONIMO-3270] - Avoid CMP foreign key violations 
+    * [GERONIMO-3305] - Out Of Memory Error when Running DayTrader in WebServices Mode
+    * [GERONIMO-3322] - web apps with login config still object to server-side attribute.
+    * [GERONIMO-3332] - POJO Web-services under Geronimo fail with arrays as method call arguments
+    * [GERONIMO-3337] - Deploy of servlet-examples-tomcat-2.0-SNAPSHOT.car fails due to existing config.ser
+    * [GERONIMO-3341] - Slim down geronimo by removing unneeded jars from apps and repository
+    * [GERONIMO-3343] - Out Of Memory Error when deploying and undeploying applications
+    * [GERONIMO-3346] - Unable to render Plugins portlet in Jetty
+    * [GERONIMO-3349] - broken link in console when on the  Apache HTTP page
+    * [GERONIMO-3350] - Console needs to administer all the web connectors.  Needs WebManager change.
+    * [GERONIMO-3355] - unnecessary warning message when trying to create a new group in console realms
+    * [GERONIMO-3357] - <run-as> role is ignored in web.xml
+    * [GERONIMO-3358] - LocalAttributeManager needs write permissions even if readOnly is true
+    * [GERONIMO-3361] - Tomcat is using the wrong classloader to create LoginContext/LoginModules
+    * [GERONIMO-3362] - Enable Tomcat context level cluster
+    * [GERONIMO-3365] - config.xml condition vs. load attribute issues
+    * [GERONIMO-3366] - Dependency needed in openejb config to start OpenEjbSystem before the EntityManagerRegistry
+    * [GERONIMO-3368] - Axis2ClientConfigurationFactory not always being used in certain platforms
+    * [GERONIMO-3369] - MultiParentClassLoader does not check for hidden resources in recursiveFind() 
+    * [GERONIMO-3370] - Create local build of OpenJPA in our local repo
+    * [GERONIMO-3375] - Upgrade to released xmlbeans-maven-plugin
+
+** Improvement
+    * [GERONIMO-1874] - synthetic ears should allow use of modules outside the g repository
+    * [GERONIMO-2438] - adding CRAM-MD5 and DIGEST-MD5 authentication to POP3
+    * [GERONIMO-2498] - Geronimo should use the full javamail uber jar instead of just the spec jar + provider jar.
+    * [GERONIMO-2607] - GoperationInfo should include the return type for the operation
+    * [GERONIMO-2944] - Replace ancient ActiveIO usage in geronimo-security module
+    * [GERONIMO-3059] - CLIs refactoring - options and arguments parsing should be done prior the boot of a Kernel to provide a quicker feedback to users if they are invalid
+    * [GERONIMO-3194] - Upgrading documentation for deployment plan-geronimo-application.xml
+    * [GERONIMO-3344] - Split out non-kernel-dependent transaction and connector classes for use by openejb, jencks, etc etc.
+    * [GERONIMO-3352] - Upgrade to Jetty 6.1.5 (just released) for Geronimo 2.0
+
+** New Feature
+    * [GERONIMO-1638] - Multiple servers sharing the same repo and config store
+
+
+
+** Task
+    * [GERONIMO-2581] - Update Version Numbers of Dependent Projects for Geronimo Version 2.0
+    * [GERONIMO-2700] - JSR-88 1.2 Tasklist (JEE5 Deployment)
+    * [GERONIMO-3353] - Adjust server log4j files to use a default logging level of error instead of info before releasing.
+    * [GERONIMO-3364] - Finalize License/Notice files for 2.0 release
+    * [GERONIMO-3371] - Create local build of Axis2 in our local repo
