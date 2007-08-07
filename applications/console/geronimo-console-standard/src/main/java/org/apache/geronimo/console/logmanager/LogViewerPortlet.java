@@ -59,10 +59,11 @@ public class LogViewerPortlet extends BasePortlet {
         for (int i = 0; i < files.length; i++) {
             files[i] = new LogFile(logFiles[i]);
         }
-        Criteria criteria;
-        if ("refresh".equals(action)) {
-            criteria = (Criteria) renderRequest.getPortletSession(true).getAttribute(CRITERIA_KEY, PortletSession.PORTLET_SCOPE);
-        } else {
+        Criteria criteria = (Criteria) renderRequest.getPortletSession(true).getAttribute(CRITERIA_KEY, PortletSession.PORTLET_SCOPE);
+        
+        if (criteria == null || (action != null && !"refresh".equals(action))) {
+            if(criteria == null)
+                criteria = new Criteria();
             String startPos = renderRequest.getParameter("startPos");
             String endPos = renderRequest.getParameter("endPos");
             String maxRows = renderRequest.getParameter("maxRows");
@@ -73,19 +74,26 @@ public class LogViewerPortlet extends BasePortlet {
             if(logFile == null || logFile.equals("")) {
                 logFile = logFiles[0];
             }
-            if(logLevel == null || logLevel.equals("")) {
-                logLevel = "WARN";
+            
+            criteria.level = logLevel == null || logLevel.equals("") ? criteria.level : logLevel;
+            try{
+                criteria.max = maxRows == null || maxRows.equals("") ? criteria.max : Integer.parseInt(maxRows);
+            }catch(NumberFormatException e){
+                //ignore
             }
-            if(maxRows == null || maxRows.equals("")) {
-                maxRows = "10";
+            try{
+                criteria.start = startPos == null || startPos.equals("") ? null : new Integer(startPos);
+            }catch(NumberFormatException e){
+            //ignore
             }
-            criteria = new Criteria();
-            criteria.max = Integer.parseInt(maxRows);
-            criteria.start = startPos == null || startPos.equals("") ? null : new Integer(startPos);
-            criteria.stop = endPos == null || endPos.equals("") ? null : new Integer(endPos);
+            try{
+                criteria.stop = endPos == null || endPos.equals("") ? null : new Integer(endPos);
+            }catch(NumberFormatException e){
+                //ignore
+                }
             criteria.logFile = logFile;
             criteria.stackTraces = stackTraces != null && !stackTraces.equals("");
-            criteria.level = logLevel;
+            
             criteria.text = searchString == null || searchString.equals("") ? null : searchString;
             renderRequest.getPortletSession(true).setAttribute(CRITERIA_KEY, criteria, PortletSession.PORTLET_SCOPE);
         }
@@ -121,11 +129,11 @@ public class LogViewerPortlet extends BasePortlet {
     }
 
     private static class Criteria implements Serializable {
-        int max;
+        int max = 10;
         Integer start;
         Integer stop;
         String text;
-        String level;
+        String level = "WARN";
         String logFile;
         boolean stackTraces;
     }
