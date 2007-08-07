@@ -802,17 +802,20 @@ public class PluginInstallerGBean implements PluginInstaller {
             monitor.getResults().setCurrentFile(data.getSourceFile());
             monitor.getResults().setCurrentMessage("Copying "+data.getSourceFile()+" from plugin to Geronimo installation");
             Set set;
+            String sourceFile = data.getSourceFile().trim();
             try {
-                set = configStore.resolve(configID, null, data.getSourceFile());
+                set = configStore.resolve(configID, null, sourceFile);
             } catch (NoSuchConfigException e) {
                 log.error("Unable to identify module "+configID+" to copy files from");
                 throw new IllegalStateException("Unable to identify module "+configID+" to copy files from", e);
             }
             if(set.size() == 0) {
-                log.error("Installed configuration into repository but cannot locate file to copy "+data.getSourceFile());
+                log.error("Installed configuration into repository but cannot locate file to copy "+sourceFile);
                 continue;
             }
-            File targetDir = data.isRelativeToVar() ? serverInfo.resolveServer("var/"+data.getDestDir()) : serverInfo.resolve(data.getDestDir());
+            File targetDir = data.isRelativeToServer() ? serverInfo.resolveServer(data.getDestDir()) : serverInfo.resolve(data.getDestDir());
+
+            createDirectory(targetDir);
             if(!targetDir.isDirectory()) {
                 log.error("Plugin install cannot write file "+data.getSourceFile()+" to "+data.getDestDir()+" because "+targetDir.getAbsolutePath()+" is not a directory");
                 continue;
@@ -839,6 +842,15 @@ public class PluginInstallerGBean implements PluginInstaller {
                     continue;
                 }
                 copyFile(url.openStream(), new FileOutputStream(target));
+            }
+        }
+    }
+
+    private static void createDirectory(File dir) throws IOException {
+        if (dir != null && !dir.exists()) {
+            boolean success = dir.mkdirs();
+            if (!success) {
+                throw new IOException("Cannot create directory " + dir.getAbsolutePath());
             }
         }
     }
@@ -1919,7 +1931,7 @@ public class PluginInstallerGBean implements PluginInstaller {
         for (int i = 0; i < data.getFilesToCopy().length; i++) {
             PluginMetadata.CopyFile file = data.getFilesToCopy()[i];
             Element copy = doc.createElement("copy-file");
-            copy.setAttribute("relative-to", file.isRelativeToVar() ? "server" : "geronimo");
+            copy.setAttribute("relative-to", file.isRelativeToServer() ? "server" : "geronimo");
             copy.setAttribute("dest-dir", file.getDestDir());
             copy.appendChild(doc.createTextNode(file.getSourceFile()));
             config.appendChild(copy);
