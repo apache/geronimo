@@ -41,21 +41,18 @@ function <portlet:namespace/>validateForm(){
     return true;
 }
 
-function <portlet:namespace/>refresh(){
-    document.<portlet:namespace/>searchForm.action="<portlet:renderURL><portlet:param name="action" value="refresh"/></portlet:renderURL>";
-    document.<portlet:namespace/>searchForm.submit();
-}
 </script>
 <table>
 <tr>
 <td>
-<a href="javascript:<portlet:namespace/>refresh()">Refresh</a>
+<a href="<portlet:renderURL><portlet:param name="action" value="refresh"/></portlet:renderURL>">Refresh</a>
 </td>     
 </tr>
 <tr>
     <td>
     <form action="<portlet:renderURL/>" name="<portlet:namespace/>searchForm" method="post" onSubmit="return <portlet:namespace/>validateForm();">
     <b>Filter results:</b>
+    <input type="hidden" value="search" name="action"/>    
     <table width="680">
     <c:choose>
       <c:when test="${fn:length(webContainers) > 1}">
@@ -149,10 +146,12 @@ function <portlet:namespace/>refresh(){
         </tr>
         <tr>
             <td>Start Result:</td>
-            <td><input type="text" name="startResult" value="${startResult}"/></td>
+            <td><input type="text" name="startResult" value="${startResult}"/>
+            </td>
             <td>Max Results:</td>
-            <td><input type="text" name="maxResult" value="${maxResult}"/></td>
-        </tr>
+            <td><input type="text" name="maxResult" value="${maxResult}"/>
+            </td>
+        </tr>        
         <tr>
             <td colspan="4" align="left">
                 <input type="submit" value="Go"/>

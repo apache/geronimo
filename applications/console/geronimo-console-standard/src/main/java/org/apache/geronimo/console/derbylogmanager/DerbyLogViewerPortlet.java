@@ -58,19 +58,17 @@ public class DerbyLogViewerPortlet extends BasePortlet {
         String action = renderRequest.getParameter("action");
 
         DerbyLog log = (DerbyLog) PortletManager.getManagedBeans(renderRequest, DerbyLog.class)[0];//todo: what if it's not there?
-        Criteria criteria;
-        if ("refresh".equals(action)) {
-            criteria = (Criteria) renderRequest.getPortletSession(true).getAttribute(CRITERIA_KEY, PortletSession.PORTLET_SCOPE);
-        } else {
+        Criteria criteria = (Criteria) renderRequest.getPortletSession(true).getAttribute(CRITERIA_KEY, PortletSession.PORTLET_SCOPE);
+        
+        if (criteria == null || (action != null && !"refresh".equals(action))) {
+            if(criteria == null)
+                criteria = new Criteria();
             String startPos = renderRequest.getParameter("startPos");
             String endPos = renderRequest.getParameter("endPos");
             String maxRows = renderRequest.getParameter("maxRows");
-            String searchString = renderRequest.getParameter("searchString");
-            if(maxRows == null || maxRows.equals("")) {
-                maxRows = "10";
-            }
-            criteria = new Criteria();
-            criteria.max = new Integer(maxRows);
+            String searchString = renderRequest.getParameter("searchString");           
+            
+            criteria.max = maxRows == null || maxRows.equals("") ? criteria.max : Integer.parseInt(maxRows);
             criteria.start = startPos == null || startPos.equals("") ? null : new Integer(startPos);
             criteria.stop = endPos == null || endPos.equals("") ? null : new Integer(endPos);
             criteria.text = searchString == null || searchString.equals("") ? null : searchString;
@@ -93,7 +91,7 @@ public class DerbyLogViewerPortlet extends BasePortlet {
     }
 
     private static class Criteria implements Serializable {
-        Integer max;
+        Integer max = 10;
         Integer start;
         Integer stop;
         String text;
