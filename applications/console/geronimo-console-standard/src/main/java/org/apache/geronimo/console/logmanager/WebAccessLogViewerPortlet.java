@@ -33,10 +33,12 @@ import javax.portlet.PortletConfig;
 import javax.portlet.PortletContext;
 import javax.portlet.PortletException;
 import javax.portlet.PortletRequestDispatcher;
+import javax.portlet.PortletSession;
 import javax.portlet.RenderRequest;
 import javax.portlet.RenderResponse;
 import javax.portlet.WindowState;
 import java.io.IOException;
+import java.io.Serializable;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -49,6 +51,7 @@ import java.util.Map;
  * @version $Rev$ $Date$
  */
 public class WebAccessLogViewerPortlet extends BasePortlet {
+    private final static String CRITERIA_KEY = "org.apache.geronimo.console.web.log.CRITERIA";
     private final static Log log = LogFactory.getLog(WebAccessLogViewerPortlet.class);
     private static final int DEFAULT_MAX_RESULTS = 10;
 
@@ -68,7 +71,10 @@ public class WebAccessLogViewerPortlet extends BasePortlet {
         }
 
         WebManager[] managers = PortletManager.getCurrentServer(renderRequest).getWebManagers();
-
+        
+        Criteria criteria = (Criteria) renderRequest.getPortletSession(true).getAttribute(CRITERIA_KEY, PortletSession.PORTLET_SCOPE);
+        
+        
         //todo: new
         Map products = new LinkedHashMap();
         String chosen = renderRequest.getParameter("selectedContainer");
@@ -125,12 +131,37 @@ public class WebAccessLogViewerPortlet extends BasePortlet {
         }
 
         String action = renderRequest.getParameter("action");
-        if ("refresh".equals(action)) {
-            //todo: currently refreshes on every request; that's pretty slow.
+        if (criteria == null || (action != null && !"refresh".equals(action))) {
+            if(criteria == null)
+                criteria = new Criteria();
+            
+            String fromDate = renderRequest.getParameter("fromDate");
+            String toDate = renderRequest.getParameter("toDate");
+            String requestHost = renderRequest.getParameter("requestHost");
+            String authUser = renderRequest.getParameter("authUser");
+            String method = renderRequest.getParameter("requestMethod");
+            String uri = renderRequest.getParameter("requestedURI");
+            String result = renderRequest.getParameter("startResult");
+            Integer max = criteria.maxResult;
+            try{
+                max = Integer.parseInt(renderRequest.getParameter("maxResult"));
+            }catch(NumberFormatException e){
+            //ignore
+            }
+            String ignoreDates = renderRequest.getParameter("ignoreDates");
+            
+            criteria.fromDate = fromDate == null || fromDate.equals("") ? null : fromDate;
+            criteria.toDate = toDate == null || toDate.equals("") ? null : toDate;
+            criteria.requestHost = requestHost == null || requestHost.equals("") ? null : requestHost;
+            criteria.authUser = authUser == null || authUser.equals("") ? null : authUser;
+            criteria.requestMethod = method == null || method.equals("") ? null : method;
+            criteria.requestedURI = uri == null || uri.equals("") ? null : uri;
+            criteria.startResult = result == null || result.equals("") ? null : result;
+            criteria.maxResult = max;
+            criteria.ignoreDates = ignoreDates != null && !ignoreDates.equals("");  
         }
-
-        String fromDateStr = (String) renderRequest.getParameter("fromDate");
-        String toDateStr = (String) renderRequest.getParameter("toDate");
+        String fromDateStr = criteria.fromDate;
+        String toDateStr = criteria.toDate;
 
         Calendar cal1 = Calendar.getInstance(), cal2 = Calendar.getInstance();
         // If not all dates were passed we assume than no fields were passed and just
@@ -148,32 +179,28 @@ public class WebAccessLogViewerPortlet extends BasePortlet {
             cal2.set(Calendar.MILLISECOND, cal2.getMaximum(Calendar.MILLISECOND));
 
             WebAccessLog.SearchResults matchingItems = chosenLog.getMatchingItems(logToSearch,
-                                        null, null, null, null, cal1.getTime(), cal2.getTime(), null, Integer.valueOf(DEFAULT_MAX_RESULTS - 1));
+                                        null, null, null, null, cal1.getTime(), cal2.getTime(), null, Integer.valueOf(criteria.maxResult.intValue()-1));
             renderRequest.setAttribute("logs", matchingItems.getResults());
             renderRequest.setAttribute("logLength", new Integer(matchingItems.getLineCount()));
-            renderRequest.setAttribute("maxResult", Integer.valueOf(DEFAULT_MAX_RESULTS));
+            renderRequest.setAttribute("maxResult", criteria.maxResult);
+            renderRequest.setAttribute("ignoreDates", Boolean.valueOf(criteria.ignoreDates));
+            
         } else {
             // Get other search criteria
-            String requestHost = (String) renderRequest.getParameter("requestHost");
-            String authUser = (String) renderRequest.getParameter("authUser");
-            String requestMethod = (String) renderRequest.getParameter("requestMethod");
-            String requestedURI = (String) renderRequest.getParameter("requestedURI");
-            String startResult = (String) renderRequest.getParameter("startResult");
-            String maxResult = (String) renderRequest.getParameter("maxResult");
+            String requestHost = criteria.requestHost;
+            String authUser = criteria.authUser;
+            String requestMethod = criteria.requestMethod;
+            String requestedURI = criteria.requestedURI;
+            String startResult = criteria.startResult;
             Integer iStartResult = null;
-            Integer iMaxResult = Integer.valueOf(DEFAULT_MAX_RESULTS);
+            Integer iMaxResult = criteria.maxResult;
             try{
                 iStartResult = Integer.valueOf(startResult);
             }catch(NumberFormatException e){
                 //ignore
             }
-            try{
-                iMaxResult = Integer.valueOf(maxResult);
-            }catch(NumberFormatException e){
-                //ignore
-            }
             
-            boolean ignoreDates = renderRequest.getParameter("ignoreDates") != null;
+            boolean ignoreDates = criteria.ignoreDates;
             if (ignoreDates) {
                 WebAccessLog.SearchResults matchingItems = chosenLog.getMatchingItems(logToSearch,
                                                 requestHost, authUser, requestMethod, requestedURI, null, null, iStartResult, Integer.valueOf(iMaxResult.intValue()-1));
@@ -227,7 +254,7 @@ public class WebAccessLogViewerPortlet extends BasePortlet {
                 renderRequest.setAttribute("logs", matchingItems.getResults());
                 renderRequest.setAttribute("logLength", new Integer(matchingItems.getLineCount()));
             }
-            if (ignoreDates) renderRequest.setAttribute("ignoreDates", new Boolean(ignoreDates));
+            renderRequest.setAttribute("ignoreDates", new Boolean(ignoreDates));
             renderRequest.setAttribute("requestHost", requestHost);
             renderRequest.setAttribute("authUser", authUser);
             renderRequest.setAttribute("requestMethod", requestMethod);
@@ -237,6 +264,7 @@ public class WebAccessLogViewerPortlet extends BasePortlet {
         }
         renderRequest.setAttribute("toDate", toDateStr);
         renderRequest.setAttribute("fromDate", fromDateStr);
+        renderRequest.getPortletSession(true).setAttribute(CRITERIA_KEY, criteria, PortletSession.PORTLET_SCOPE);
         searchView.include(renderRequest, renderRespose);
     }
 
@@ -250,6 +278,17 @@ public class WebAccessLogViewerPortlet extends BasePortlet {
     public void processAction(ActionRequest actionRequest,
             ActionResponse actionResponse) throws PortletException, IOException {
         //todo: according to portlet spec, all forms should submit to Action not Render
+    }
+    private static class Criteria implements Serializable {
+        Integer maxResult = new Integer(DEFAULT_MAX_RESULTS);
+        String fromDate = null;
+        String toDate = null;
+        boolean ignoreDates = false;
+        String requestHost = null;
+        String authUser = null;
+        String requestMethod = "ANY";
+        String requestedURI = null;
+        String startResult = null;
     }
 
 }

@@ -53,7 +53,11 @@ public class LogManagerPortlet extends BasePortlet {
         renderRequest.setAttribute("configFile", log.getConfigFileName());
 //        renderRequest.setAttribute("configuration", LogHelper.getConfiguration());
         renderRequest.setAttribute("logLevel", log.getRootLoggerLevel());
-        renderRequest.setAttribute("refreshPeriod", new Integer(log.getRefreshPeriodSeconds()));
+        try{
+            renderRequest.setAttribute("refreshPeriod", new Integer(log.getRefreshPeriodSeconds()));
+        }catch(NumberFormatException e){
+            //ignore
+        }
 
         normalView.include(renderRequest, renderRespose);
     }
@@ -78,7 +82,12 @@ public class LogManagerPortlet extends BasePortlet {
 
         if ("update".equals(action)) {
             if (refreshPeriod != null) {
-                int refreshPeriodInt = Integer.parseInt(refreshPeriod);
+                int refreshPeriodInt = 0;
+                try{
+                    refreshPeriodInt = Integer.parseInt(refreshPeriod);
+                }catch(NumberFormatException e){
+                    //ignore
+                }
                 if (refreshPeriodInt != log.getRefreshPeriodSeconds()) {
                     log.setRefreshPeriodSeconds(refreshPeriodInt);
                 }
