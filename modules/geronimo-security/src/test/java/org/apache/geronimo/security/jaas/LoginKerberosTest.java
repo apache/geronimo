@@ -80,6 +80,7 @@ public class LoginKerberosTest extends AbstractTest {
     }
 
     public void testLogin() throws Exception {
+        //GERONIMO-3388 consider turning on principal wrapping and expecting a RealmPrincipal and DomainPrincipal.
         try {
             LoginContext context = new LoginContext("TOOLAZYDOGS.COM");
 
@@ -91,16 +92,15 @@ public class LoginKerberosTest extends AbstractTest {
 
             assertTrue("expected non-null server-side subject", subject != null);
             assertTrue("id of server-side subject should be non-null", ContextManager.getSubjectId(subject) != null);
-            assertEquals("server-side subject should have three principals", 3, subject.getPrincipals().size());
-            assertEquals("server-side subject should have one realm principal", 1, subject.getPrincipals(RealmPrincipal.class).size());
+            assertEquals("server-side subject should have two principals", 2, subject.getPrincipals().size());
             assertEquals("server-side subject should have one identification principal", 1, subject.getPrincipals(IdentificationPrincipal.class).size());
             assertEquals("server-side subject should have one kerberos principal", 1, subject.getPrincipals(KerberosPrincipal.class).size());
-            RealmPrincipal principal = (RealmPrincipal) subject.getPrincipals(RealmPrincipal.class).iterator().next();
 
             context.logout();
 
             assertTrue("id of subject should be null", ContextManager.getSubjectId(subject) == null);
         } catch (LoginException e) {
+            //See GERONIMO-3388.  This seems to be the normal code path.
             e.printStackTrace();
             // May not have kerberos
         }
