@@ -316,4 +316,58 @@ public final class GBeanInfo implements Serializable {
         result.append("]");
         return result.toString();
     }
+    
+    public String toXML(AbstractName abstractName) {
+        String xml = "";
+        
+        xml += "<gBeanInfo ";
+        xml += "id='" + super.toString() + "' ";
+        xml += "sourceClass='" + sourceClass + "' ";
+        xml += "name='" + name + "' ";
+        xml += "className='" + className + "' ";
+        xml += "type='" + j2eeType + "' ";
+        xml += "priority='" + priority + "' ";
+        xml += ">";
+        
+        xml += "<attributes>";
+        
+        for (Iterator loop = attributes.iterator(); loop.hasNext(); ) {
+            xml += ((GAttributeInfo) loop.next()).toXML(abstractName);
+        }
+        
+        xml += "</attributes>";
+        
+        xml += constructor.toXML();
+        
+        xml += "<operations>";
+        
+        for (Iterator loop = operations.iterator(); loop.hasNext(); ) {
+            xml += ((GOperationInfo) loop.next()).toXML();
+        }
+        
+        xml += "</operations>";
+        
+        xml += "<notifications>";
+        
+        // I had expected this to be a set of GNotification Objects
+        // but it was just strings
+        for (Iterator loop = notifications.iterator(); loop.hasNext(); ) {
+            Object note = loop.next();
+            xml += "<notification>" + note + "</notification>";
+        }
+        
+        xml += "</notifications>";
+        
+        xml += "<references>";
+        
+        for (Iterator loop = references.iterator(); loop.hasNext(); ) {
+            xml += ((GReferenceInfo) loop.next()).toXML();
+        }
+        
+        xml += "</references>";
+        
+        xml += "</gBeanInfo>";
+        
+        return xml;
+    }
 }

@@ -19,6 +19,7 @@ package org.apache.geronimo.gbean;
 
 import java.io.Serializable;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.Set;
 
 /**
@@ -45,8 +46,24 @@ public final class GNotificationInfo implements Serializable {
 
     public String toString() {
         return "[GNotificationInfo:" +
-                " name=" + name +
-                " notificationTypes=" + notificationTypes +
-                "]";
+                 " name=" + name +
+                 " notificationTypes=" + notificationTypes +
+                 "]";
+    }
+
+    public String toXML() {
+        String xml = "";
+
+        xml += "<gNotificationInfo ";
+        xml += "name='" + name + "' ";
+        xml += ">";
+
+        for (Iterator loop = notificationTypes.iterator(); loop.hasNext(); ) {
+            xml += "<notificationType>" + loop.next().toString() + "</notificationType>";
+        }
+
+        xml += "</gNotificationInfo>";
+
+        return xml;
     }
 }

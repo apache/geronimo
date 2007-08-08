@@ -85,4 +85,18 @@ public class GReferenceInfo implements Serializable {
                 " naming system type name= " + nameTypeName +
                 "]";
     }
+    
+    public String toXML() {
+        String xml = "";
+        
+        xml += "<gReferenceInfo ";
+        xml += "name='" + name + "' ";
+        xml += "referenceType='" + referenceType + "' ";
+        xml += "proxyType='" + proxyType + "' ";
+        xml += "setterName='" + setterName + "' ";
+        xml += "namingSystem='" + nameTypeName + "' ";
+        xml += "/>";
+        
+        return xml;
+    }
 }

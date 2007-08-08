@@ -18,6 +18,9 @@
 package org.apache.geronimo.gbean;
 
 import java.io.Serializable;
+import java.util.Arrays;
+
+import org.apache.geronimo.kernel.KernelRegistry;
 
 /**
  * Describes an attibute of a GBean.
@@ -117,13 +120,49 @@ public class GAttributeInfo implements Serializable {
 
     public String toString() {
         return "[GAttributeInfo: name=" + name +
-                " type=" + type +
-                " persistent=" + persistent +
-                " manageable=" + manageable +
-                " readable=" + readable +
-                " writable=" + writable +
-                " getterName=" + getterName +
-                " setterName=" + setterName +
-                "]";
+                 " type=" + type +
+                 " persistent=" + persistent +
+                 " manageable=" + manageable +
+                 " readable=" + readable +
+                 " writable=" + writable +
+                 " getterName=" + getterName +
+                 " setterName=" + setterName +
+                 "]";
+    }
+
+    public String toXML(AbstractName abstractName) {
+        String xml = "";
+        
+        xml += "<gAttributeInfo ";
+        xml += "name='" + name + "' ";
+        xml += "type='" + type + "' ";
+        xml += "persistent='" + persistent + "' ";
+        xml += "manageable='" + manageable + "' ";
+        xml += "readable='" + readable + "' ";
+        xml += "writable='" + writable + "' ";
+        xml += ">";
+        
+        xml += "<getterName>" + getterName + "</getterName>";
+        xml += "<setterName>" + setterName + "</setterName>";
+
+        if (readable) {
+            try {
+                Object value = KernelRegistry.getSingleKernel().getAttribute(abstractName, name);
+                if (value != null) {
+                    if (value instanceof String[]) {
+                        for (String valueString : Arrays.asList((String[]) value))
+                            xml += "<value>" + valueString + "</value>";            
+                    } else {
+                        xml += "<value>" + value + "</value>";
+                    }
+                }
+            } catch (Exception e) {
+                
+            }
+        }
+        
+        xml += "</gAttributeInfo>";
+
+        return xml;
     }
 }

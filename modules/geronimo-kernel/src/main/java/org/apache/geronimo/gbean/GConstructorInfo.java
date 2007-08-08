@@ -20,6 +20,7 @@ package org.apache.geronimo.gbean;
 import java.io.Serializable;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -46,5 +47,23 @@ public class GConstructorInfo implements Serializable {
 
     public String toString() {
         return "[GConstructorInfo: attributeNames=" + attributeNames + "]";
+    }
+    
+    public String toXML() {
+    	String xml = "";
+    	
+    	xml += "<gConstructorInfo>";
+    	
+    	xml += "<attributes>";
+    	
+    	for (Iterator loop = attributeNames.iterator(); loop.hasNext(); ) {
+    		xml += "<name>" + loop.next().toString() + "</name>";
+    	}
+    	
+    	xml += "</attributes>";
+    	
+    	xml += "</gConstructorInfo>";
+    	
+    	return xml;
     }
 }

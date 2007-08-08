@@ -21,6 +21,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -97,5 +98,26 @@ public class GOperationInfo implements Serializable {
 
     public String toString() {
         return "[GOperationInfo: name=" + name + " parameters=" + parameters + " returnType =" + returnType + "]";
+    }
+    
+    public String toXML() {
+    	String xml = "";
+    	
+    	xml += "<gOperationInfo ";
+    	xml += "name='" + name + "' ";
+    	xml += "returnType='" + returnType + "' ";
+    	xml += ">";
+    	
+    	xml += "<parameters>";
+    	
+    	for (Iterator loop = parameters.iterator(); loop.hasNext(); ) {
+    		xml += "<parameterType>" + loop.next().toString() + "</parameterType>";
+    	}
+    	
+    	xml += "</parameters>";
+    	
+    	xml += "</gOperationInfo>";
+    	
+    	return xml;
     }
 }
