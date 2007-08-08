@@ -689,6 +689,20 @@ public class PluginInstallerGBean implements PluginInstaller {
             monitor.getResults().setCurrentMessage("Downloading " + configID);
             monitor.getResults().setCurrentFilePercent(-1);
             OpenResult result = openStream(configID, repos, username, password, monitor);
+            // Check if the result is already in server's repository
+            if(configManager.getArtifactResolver().queryArtifacts(result.getConfigID()).length > 0) {
+                String msg = "Not downloading "+configID+". Query for "+configID+" resulted in "+result.getConfigID()
+                             +" which is already available in server's repository.";
+                monitor.getResults().setCurrentMessage(msg);
+                log.info(msg);
+                if(result.getStream() != null) {
+                    try {
+                        result.getStream().close();
+                    } catch(IOException ignored) {
+                    }
+                }
+                return;
+            }
             try {
                 File tempFile = downloadFile(result, monitor);
                 if (tempFile == null) {
