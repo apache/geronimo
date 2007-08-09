@@ -133,7 +133,7 @@ public class HTTPSSelectChannelConnector extends JettyConnector implements Jetty
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic("Jetty Select Channel Connector HTTPS", HTTPSSelectChannelConnector.class, JettyConnector.GBEAN_INFO);
+        GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic("Jetty SelectChannel Connector HTTPS", HTTPSSelectChannelConnector.class, JettyConnector.GBEAN_INFO);
         infoFactory.addAttribute("algorithm", String.class, true, true);
         infoFactory.addAttribute("secureProtocol", String.class, true, true);
         infoFactory.addAttribute("keyStore", String.class, true, true);
