@@ -28,6 +28,8 @@ import java.util.Set;
  * @version $Rev$ $Date$
  */
 public final class GNotificationInfo implements Serializable {
+    private static final long serialVersionUID = 2241808021653786721L;
+
     private final String name;
     private final Set notificationTypes;
 

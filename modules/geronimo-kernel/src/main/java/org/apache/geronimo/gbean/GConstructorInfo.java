@@ -27,6 +27,8 @@ import java.util.List;
  * @version $Rev$ $Date$
  */
 public class GConstructorInfo implements Serializable {
+    private static final long serialVersionUID = -769958715671913257L;
+
     private final List attributeNames;
 
     public GConstructorInfo() {

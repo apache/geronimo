@@ -24,6 +24,8 @@ import java.io.Serializable;
  * @version $Rev$ $Date$
  */
 public class GReferenceInfo implements Serializable {
+    private static final long serialVersionUID = 8817036672214905192L;
+
     /**
      * Name of this reference.
      */

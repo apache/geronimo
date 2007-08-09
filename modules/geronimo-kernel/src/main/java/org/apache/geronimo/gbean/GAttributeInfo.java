@@ -28,6 +28,8 @@ import org.apache.geronimo.kernel.KernelRegistry;
  * @version $Rev$ $Date$
  */
 public class GAttributeInfo implements Serializable {
+    private static final long serialVersionUID = 2805493042418685048L;
+
     /**
      * Name of this attribute.
      */
