@@ -99,25 +99,25 @@ public class GOperationInfo implements Serializable {
     public String toString() {
         return "[GOperationInfo: name=" + name + " parameters=" + parameters + " returnType =" + returnType + "]";
     }
-    
+
     public String toXML() {
-    	String xml = "";
-    	
-    	xml += "<gOperationInfo ";
-    	xml += "name='" + name + "' ";
-    	xml += "returnType='" + returnType + "' ";
-    	xml += ">";
-    	
-    	xml += "<parameters>";
-    	
-    	for (Iterator loop = parameters.iterator(); loop.hasNext(); ) {
-    		xml += "<parameterType>" + loop.next().toString() + "</parameterType>";
-    	}
-    	
-    	xml += "</parameters>";
-    	
-    	xml += "</gOperationInfo>";
-    	
-    	return xml;
+        StringBuilder xml = new StringBuilder();
+
+        xml.append("<gOperationInfo ");
+        xml.append("name='" + name + "' ");
+        xml.append("returnType='" + returnType + "' ");
+        xml.append(">");
+
+        xml.append("<parameters>");
+
+        for (Iterator loop = parameters.iterator(); loop.hasNext(); ) {
+            xml.append("<parameterType>" + loop.next().toString() + "</parameterType>");
+        }
+
+        xml.append("</parameters>");
+
+        xml.append("</gOperationInfo>");
+
+        return xml.toString();
     }
 }

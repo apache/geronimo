@@ -295,7 +295,7 @@ public final class GBeanInfo implements Serializable {
         priority = GBeanInfo.PRIORITY_NORMAL;
         in.defaultReadObject();
     }
-    
+
     public String toString() {
         StringBuffer result = new StringBuffer("[GBeanInfo:");
         result.append(" id=").append(super.toString());
@@ -316,58 +316,59 @@ public final class GBeanInfo implements Serializable {
         result.append("]");
         return result.toString();
     }
-    
+
     public String toXML(AbstractName abstractName) {
-        String xml = "";
-        
-        xml += "<gBeanInfo ";
-        xml += "id='" + super.toString() + "' ";
-        xml += "sourceClass='" + sourceClass + "' ";
-        xml += "name='" + name + "' ";
-        xml += "className='" + className + "' ";
-        xml += "type='" + j2eeType + "' ";
-        xml += "priority='" + priority + "' ";
-        xml += ">";
-        
-        xml += "<attributes>";
-        
+        StringBuilder xml = new StringBuilder();
+
+        xml.append("<gBeanInfo ");
+        xml.append("id='" + super.toString() + "' ");
+        xml.append("sourceClass='" + sourceClass + "' ");
+        xml.append("name='" + name + "' ");
+        xml.append("className='" + className + "' ");
+        xml.append("type='" + j2eeType + "' ");
+        xml.append("priority='" + priority + "' ");
+        xml.append(">");
+
+        xml.append("<attributes>");
+
         for (Iterator loop = attributes.iterator(); loop.hasNext(); ) {
-            xml += ((GAttributeInfo) loop.next()).toXML(abstractName);
+            xml.append(((GAttributeInfo) loop.next()).toXML(abstractName));
         }
-        
-        xml += "</attributes>";
-        
-        xml += constructor.toXML();
-        
-        xml += "<operations>";
-        
+
+        xml.append("</attributes>");
+
+        xml.append(constructor.toXML());
+
+        xml.append("<operations>");
+
         for (Iterator loop = operations.iterator(); loop.hasNext(); ) {
-            xml += ((GOperationInfo) loop.next()).toXML();
+            xml.append(((GOperationInfo) loop.next()).toXML());
         }
-        
-        xml += "</operations>";
-        
-        xml += "<notifications>";
-        
+
+        xml.append("</operations>");
+
+        xml.append("<notifications>");
+
         // I had expected this to be a set of GNotification Objects
         // but it was just strings
         for (Iterator loop = notifications.iterator(); loop.hasNext(); ) {
             Object note = loop.next();
-            xml += "<notification>" + note + "</notification>";
+
+            xml.append("<notification>" + note + "</notification>");
         }
-        
-        xml += "</notifications>";
-        
-        xml += "<references>";
-        
+
+        xml.append("</notifications>");
+
+        xml.append("<references>");
+
         for (Iterator loop = references.iterator(); loop.hasNext(); ) {
-            xml += ((GReferenceInfo) loop.next()).toXML();
+            xml.append(((GReferenceInfo) loop.next()).toXML());
         }
-        
-        xml += "</references>";
-        
-        xml += "</gBeanInfo>";
-        
-        return xml;
+
+        xml.append("</references>");
+
+        xml.append("</gBeanInfo>");
+
+        return xml.toString();
     }
 }

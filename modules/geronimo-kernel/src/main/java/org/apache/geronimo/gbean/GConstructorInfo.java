@@ -52,20 +52,18 @@ public class GConstructorInfo implements Serializable {
     }
     
     public String toXML() {
-    	String xml = "";
+    	StringBuilder xml = new StringBuilder();
     	
-    	xml += "<gConstructorInfo>";
-    	
-    	xml += "<attributes>";
-    	
+    	xml.append("<gConstructorInfo>");
+    	xml.append("<attributes>");
+
     	for (Iterator loop = attributeNames.iterator(); loop.hasNext(); ) {
-    		xml += "<name>" + loop.next().toString() + "</name>";
+    		xml.append("<name>" + loop.next().toString() + "</name>");
     	}
     	
-    	xml += "</attributes>";
+    	xml.append("</attributes>");
+    	xml.append("</gConstructorInfo>");
     	
-    	xml += "</gConstructorInfo>";
-    	
-    	return xml;
+    	return xml.toString();
     }
 }

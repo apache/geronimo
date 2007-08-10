@@ -89,16 +89,16 @@ public class GReferenceInfo implements Serializable {
     }
     
     public String toXML() {
-        String xml = "";
+        StringBuilder xml = new StringBuilder();
         
-        xml += "<gReferenceInfo ";
-        xml += "name='" + name + "' ";
-        xml += "referenceType='" + referenceType + "' ";
-        xml += "proxyType='" + proxyType + "' ";
-        xml += "setterName='" + setterName + "' ";
-        xml += "namingSystem='" + nameTypeName + "' ";
-        xml += "/>";
+        xml.append("<gReferenceInfo ");
+        xml.append("name='" + name + "' ");
+        xml.append("referenceType='" + referenceType + "' ");
+        xml.append("proxyType='" + proxyType + "' ");
+        xml.append("setterName='" + setterName + "' ");
+        xml.append("namingSystem='" + nameTypeName + "' ");
+        xml.append("/>");
         
-        return xml;
+        return xml.toString();
     }
 }

@@ -133,19 +133,19 @@ public class GAttributeInfo implements Serializable {
     }
 
     public String toXML(AbstractName abstractName) {
-        String xml = "";
-        
-        xml += "<gAttributeInfo ";
-        xml += "name='" + name + "' ";
-        xml += "type='" + type + "' ";
-        xml += "persistent='" + persistent + "' ";
-        xml += "manageable='" + manageable + "' ";
-        xml += "readable='" + readable + "' ";
-        xml += "writable='" + writable + "' ";
-        xml += ">";
-        
-        xml += "<getterName>" + getterName + "</getterName>";
-        xml += "<setterName>" + setterName + "</setterName>";
+        StringBuilder xml = new StringBuilder();
+
+        xml.append("<gAttributeInfo ");
+        xml.append("name='" + name + "' ");
+        xml.append("type='" + type + "' ");
+        xml.append("persistent='" + persistent + "' ");
+        xml.append("manageable='" + manageable + "' ");
+        xml.append("readable='" + readable + "' ");
+        xml.append("writable='" + writable + "' ");
+        xml.append(">");
+
+        xml.append("<getterName>" + getterName + "</getterName>");
+        xml.append("<setterName>" + setterName + "</setterName>");
 
         if (readable) {
             try {
@@ -153,18 +153,18 @@ public class GAttributeInfo implements Serializable {
                 if (value != null) {
                     if (value instanceof String[]) {
                         for (String valueString : Arrays.asList((String[]) value))
-                            xml += "<value>" + valueString + "</value>";            
+                            xml.append("<value>" + valueString + "</value>");
                     } else {
-                        xml += "<value>" + value + "</value>";
+                        xml.append("<value>" + value + "</value>");
                     }
                 }
             } catch (Exception e) {
-                
+
             }
         }
-        
-        xml += "</gAttributeInfo>";
 
-        return xml;
+        xml.append("</gAttributeInfo>");
+
+        return xml.toString();
     }
 }
