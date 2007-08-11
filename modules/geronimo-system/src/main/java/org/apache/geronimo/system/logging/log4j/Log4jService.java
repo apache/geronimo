@@ -131,6 +131,7 @@ public class Log4jService implements GBeanLifecycle, SystemLog {
         this.refreshPeriod = refreshPeriod;
         this.configurationFile = configurationFile;
         this.serverInfo = serverInfo;
+        Logger.getLogger(this.getClass().getName()).setLevel(Level.INFO);
     }
 
     /**
