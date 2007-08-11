@@ -78,7 +78,7 @@ public class StartServerMojo
     /**
      * The location of the Java Virtual Machine executable to launch the server with.
      *
-     * @paramter
+     * @parameter
      */
     private File javaVirtualMachine;
     
