@@ -1181,11 +1181,11 @@ public class PluginInstallerGBean implements PluginInstaller {
         }
         for(int i=available.length-1; i>=0; i--) {
             Version version = available[i];
-            URL metadataURL = new URL(url.toString()+base+"/"+version+"/maven-metadata.xml");
+            URL metadataURL = new URL(url.toString().trim().endsWith("/") ? url : new URL(url.toString().trim()+"/"), base+"/"+version+"/maven-metadata.xml");
             InputStream metadataStream = connect(metadataURL, username, password, monitor);
             
             if (metadataStream == null) {
-                metadataURL = new URL(url.toString()+base+"/"+version+"/maven-metadata-local.xml");
+                metadataURL = new URL(url.toString().trim().endsWith("/") ? url : new URL(url.toString().trim()+"/"), base+"/"+version+"/maven-metadata-local.xml");
                 metadataStream = connect(metadataURL, username, password, monitor);
             }            
             // check for a snapshot qualifier
