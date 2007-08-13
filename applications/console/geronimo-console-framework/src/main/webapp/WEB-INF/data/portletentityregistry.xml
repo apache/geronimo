@@ -171,5 +171,8 @@ limitations under the License.
         <portlet id="81">
             <definition-id>console-standard.CertificationAuthority</definition-id>
         </portlet>
+        <portlet id="82">
+            <definition-id>console-standard.CreatePlan</definition-id>
+        </portlet>
     </application>
 </portlet-entity-registry>

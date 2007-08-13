@@ -135,6 +135,14 @@
             <scope>provided</scope>
         </dependency>
         
+        <!-- Required by Create Plan Portlet-->
+        <dependency>
+            <groupId>org.apache.geronimo.modules</groupId>
+            <artifactId>geronimo-web-2.5-builder</artifactId>
+            <version>${version}</version>
+            <scope>provided</scope>
+        </dependency>
+        
     </dependencies>
     
     <build>

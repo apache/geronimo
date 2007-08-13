@@ -489,7 +489,7 @@ public abstract class AbstractHandler extends MultiPageAbstractHandler {
                     if(artifact.getGroupId() != null) {
                         dep.setGroupId(artifact.getGroupId());
                     }
-                    if(artifact.getGroupId() != null) {
+                    if(artifact.getType() != null) {
                         dep.setType(artifact.getType());
                     }
                     if(artifact.getVersion() != null) {
@@ -643,4 +643,5 @@ public abstract class AbstractHandler extends MultiPageAbstractHandler {
         return null;
     }
 }
+
 

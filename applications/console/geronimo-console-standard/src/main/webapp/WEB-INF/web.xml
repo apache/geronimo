@@ -281,6 +281,20 @@ limitations under the License.
     </servlet>
     <servlet>
         <description>Automated generated Portlet Wrapper</description>
+        <display-name>Pluto Wrapper for Create Plan Portlet</display-name>
+        <servlet-name>CreatePlan</servlet-name>
+        <servlet-class>org.apache.pluto.core.PortletServlet</servlet-class>
+        <init-param>
+            <param-name>portlet-class</param-name>
+            <param-value>org.apache.geronimo.console.configcreator.CreatePlanPortlet</param-value>
+        </init-param>
+        <init-param>
+            <param-name>portlet-guid</param-name>
+            <param-value>console-standard.CreatePlan</param-value>
+        </init-param>
+    </servlet>
+    <servlet>
+        <description>Automated generated Portlet Wrapper</description>
         <display-name>Pluto Wrapper for Database Wizard Portlet</display-name>
         <servlet-name>DBWizard</servlet-name>
         <servlet-class>org.apache.pluto.core.PortletServlet</servlet-class>
@@ -955,6 +969,10 @@ limitations under the License.
     <servlet-mapping>
         <servlet-name>Deployment</servlet-name>
         <url-pattern>/Deployment/*</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>CreatePlan</servlet-name>
+        <url-pattern>/CreatePlan/*</url-pattern>
     </servlet-mapping>
     <servlet-mapping>
         <servlet-name>DBWizard</servlet-name>

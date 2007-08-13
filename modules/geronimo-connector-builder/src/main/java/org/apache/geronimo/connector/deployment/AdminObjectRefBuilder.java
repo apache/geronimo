@@ -300,6 +300,8 @@ public class AdminObjectRefBuilder extends AbstractNamingBuilder {
     }
 
     public static class AdminObjectRefProcessor extends ResourceAnnotationHelper.ResourceProcessor {
+        public static final AdminObjectRefProcessor INSTANCE = new AdminObjectRefProcessor(null, null, null);
+
         private final EARContext earContext;
         private final Map<String, GerResourceEnvRefType> refMap;
         private final Map<String, Map<String, GerMessageDestinationType>> messageDestinations;
@@ -345,25 +347,40 @@ public class AdminObjectRefBuilder extends AbstractNamingBuilder {
             }
 
             //if it maps to a message-destination in the geronimo plan, it's a message-destination.
-            GerMessageDestinationType gerMessageDestinationType = getMessageDestination(resourceName, messageDestinations);
+            GerMessageDestinationType gerMessageDestinationType = null;
+            if (messageDestinations != null) {
+                gerMessageDestinationType = getMessageDestination(resourceName, messageDestinations);
+            }
             if (gerMessageDestinationType != null) {
                 addMethodDestinationRef(annotatedApp, resourceName, resourceType, method, field, annotation);
                 return true;
             } else {
                 //if it maps to a resource-env-ref in the geronimo plan, it's a resource-ref
-                GerResourceEnvRefType resourceEnvRefType = refMap.get(resourceName);
+                GerResourceEnvRefType resourceEnvRefType = null;
+                if (refMap != null) {
+                    resourceEnvRefType = refMap.get(resourceName);
+                }
                 if (resourceEnvRefType != null || resourceType.equals("javax.transaction.UserTransaction")) {
                     //mapped resource-env-ref
                     addResourceEnvRef(annotatedApp, resourceName, resourceType, method, field, annotation);
                     return true;
                 } else {
-                    //look for an JCAAdminObject gbean with the right name
-                    AbstractNameQuery containerId = buildAbstractNameQuery(null, null, resourceName, NameFactory.JCA_ADMIN_OBJECT, NameFactory.RESOURCE_ADAPTER_MODULE);
-                    try {
-                        earContext.findGBean(containerId);
-                    } catch (GBeanNotFoundException e) {
-                        //not identifiable as an admin object ref
-                        return false;
+                    if (earContext != null) {
+                        // look for an JCAAdminObject gbean with the right name
+                        AbstractNameQuery containerId = buildAbstractNameQuery(null, null, resourceName,
+                                NameFactory.JCA_ADMIN_OBJECT, NameFactory.RESOURCE_ADAPTER_MODULE);
+                        try {
+                            earContext.findGBean(containerId);
+                        } catch (GBeanNotFoundException e) {
+                            // not identifiable as an admin object ref
+                            return false;
+                        }
+                    } else {
+                        if (!("javax.jms.Queue".equals(resourceType) || "javax.jms.Topic".equals(resourceType) 
+                                || "javax.jms.Destination".equals(resourceType))) {
+                            // not identifiable as an admin object ref
+                            return false;
+                        }
                     }
                     addResourceEnvRef(annotatedApp, resourceName, resourceType, method, field, annotation);
                     return true;

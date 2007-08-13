@@ -25,6 +25,8 @@ import java.util.List;
 import javax.enterprise.deploy.model.exceptions.DDBeanCreateException;
 import javax.enterprise.deploy.shared.ModuleType;
 
+import org.apache.geronimo.kernel.config.MultiParentClassLoader;
+
 /**
  *
  *
@@ -33,7 +35,11 @@ import javax.enterprise.deploy.shared.ModuleType;
 public class WebDeployable extends AbstractDeployable {
     private final ClassLoader webLoader;
 
-    public WebDeployable(URL moduleURL) throws DDBeanCreateException {
+    public WebDeployable(URL moduleURL) throws DDBeanCreateException{
+        this(moduleURL, null);
+    }
+    
+    public WebDeployable(URL moduleURL, List parentClassLoaders) throws DDBeanCreateException {
         super(ModuleType.WAR, moduleURL, "WEB-INF/web.xml");
         ClassLoader parent = super.getModuleLoader();
         List path = new ArrayList();
@@ -48,10 +54,17 @@ public class WebDeployable extends AbstractDeployable {
                 }
             }
         }
-        webLoader = new URLClassLoader((URL[]) path.toArray(new URL[path.size()]), parent);
+        URL[] urls = (URL[]) path.toArray(new URL[path.size()]);
+        if (parentClassLoaders != null) {
+            parentClassLoaders.add(parent);
+            ClassLoader[] parents = (ClassLoader[]) parentClassLoaders.toArray(new ClassLoader[parentClassLoaders.size()]);
+            webLoader = new MultiParentClassLoader(null, urls, parents);
+        } else {
+            webLoader = new URLClassLoader(urls, parent);
+        }
     }
 
-    protected ClassLoader getModuleLoader() {
+    public ClassLoader getModuleLoader() {
         return webLoader;
     }
 }

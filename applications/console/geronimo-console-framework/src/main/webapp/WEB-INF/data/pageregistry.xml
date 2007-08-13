@@ -374,6 +374,21 @@ limitations under the License.
             </fragment>
         </fragment>
 
+        <fragment name="create" type="page">
+            <navigation>
+                <title>Create Plan</title>
+                <description>ico_list_16x16.gif Create Geronimo deployment plan for your Application</description>
+            </navigation>
+
+            <fragment name="row1" type="row">
+                <fragment name="col1" type="column">
+                    <fragment name="p1" type="portlet">
+                        <property name="portlet" value="5.82"/>
+                    </fragment>
+                </fragment>
+            </fragment>
+        </fragment>
+
         <fragment name="ear" type="page">
             <navigation>
                 <title>Application EARs</title>

@@ -743,14 +743,16 @@ public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
     }
 
     protected ClassFinder createWebAppClassFinder(WebAppType webApp, WebModule webModule) throws DeploymentException {
+        // Get the classloader from the module's EARContext
+        ClassLoader classLoader = webModule.getEarContext().getClassLoader();
+        return createWebAppClassFinder(webApp, classLoader);
+    }
 
+    public static ClassFinder createWebAppClassFinder(WebAppType webApp, ClassLoader classLoader) throws DeploymentException {
         //------------------------------------------------------------------------------------
         // Find the list of classes from the web.xml we want to search for annotations in
         //------------------------------------------------------------------------------------
         List<Class> classes = new ArrayList<Class>();
-
-        // Get the classloader from the module's EARContext
-        ClassLoader classLoader = webModule.getEarContext().getClassLoader();
 
         // Get all the servlets from the deployment descriptor
         ServletType[] servlets = webApp.getServletArray();
@@ -796,7 +798,7 @@ public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
         return new ClassFinder(classes);
     }
 
-    private void addClass(List<Class> classes, Class<?> clas) {
+    private static void addClass(List<Class> classes, Class<?> clas) {
         while (clas != Object.class) {
             classes.add(clas);
             clas = clas.getSuperclass();

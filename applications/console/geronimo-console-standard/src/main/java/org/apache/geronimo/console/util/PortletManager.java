@@ -41,7 +41,9 @@ import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.KernelRegistry;
+import org.apache.geronimo.kernel.config.ConfigurationManager;
 import org.apache.geronimo.kernel.config.ConfigurationModuleType;
+import org.apache.geronimo.kernel.config.ConfigurationUtil;
 import org.apache.geronimo.kernel.proxy.GeronimoManagedBean;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.Repository;
@@ -107,6 +109,10 @@ public class PortletManager {
             log.error(e.getMessage(), e);
             return null;
         }
+    }
+
+    public static ConfigurationManager getConfigurationManager() {
+        return ConfigurationUtil.getConfigurationManager(getKernel());
     }
 
     public static ManagementHelper getManagementHelper(PortletRequest request) {

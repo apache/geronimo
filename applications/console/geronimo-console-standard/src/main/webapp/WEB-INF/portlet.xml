@@ -772,6 +772,29 @@ limitations under the License.
     </portlet>
 
     <portlet>
+        <description>Portlet for creating Geronimo Deployment Plan</description>
+        <portlet-name>CreatePlan</portlet-name>
+        <display-name>Create Deployment Plan Portlet</display-name>
+
+        <portlet-class>org.apache.geronimo.console.configcreator.CreatePlanPortlet</portlet-class>
+
+        <expiration-cache>-1</expiration-cache>
+
+        <supports>
+            <mime-type>text/html</mime-type>
+            <portlet-mode>VIEW</portlet-mode>
+        </supports>
+
+        <supported-locale>en</supported-locale>
+
+        <portlet-info>
+            <title>Create Geronimo Deployment Plan</title>
+            <short-title>Create Deployment Plan</short-title>
+            <keywords>Create Deployment Plan</keywords>
+        </portlet-info>
+    </portlet>
+
+    <portlet>
         <description>Portlet for displaying EAR modules</description>
         <portlet-name>EARModules</portlet-name>
         <display-name>EAR Modules Portlet</display-name>
