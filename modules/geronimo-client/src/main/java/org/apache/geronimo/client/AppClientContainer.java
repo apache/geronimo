@@ -130,13 +130,7 @@ public final class AppClientContainer implements GBeanLifecycle {
 
             if (callbackHandlerClass != null) {
                 callbackHandler = (CallbackHandler) holder.newInstance(callbackHandlerClass, classLoader, componentContext);
-                loginContext = new LoginContext(realmName, callbackHandler);
-                try {
-                    loginContext.login();
-                } catch (LoginException e) {
-                    loginContext = null;
-                    throw e;
-                }
+                loginContext = ContextManager.login(realmName, callbackHandler);
                 clientSubject = loginContext.getSubject();
             }
             ContextManager.setCallers(clientSubject, clientSubject);
@@ -220,7 +214,7 @@ public final class AppClientContainer implements GBeanLifecycle {
             holder.destroyInstance(callbackHandler);
         }
         if (loginContext != null) {
-            loginContext.logout();
+            ContextManager.logout(loginContext);
         }
         jndiContext.stopClient(appClientModuleName);
     }

@@ -17,7 +17,6 @@
 package org.apache.geronimo.security.realm;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Properties;
@@ -32,7 +31,6 @@ import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.security.jaas.ConfigurationEntryFactory;
 import org.apache.geronimo.security.jaas.JaasLoginModuleChain;
 import org.apache.geronimo.security.jaas.JaasLoginModuleUse;
-import org.apache.geronimo.security.jaas.SubjectRegistrationLoginModule;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
 
 
@@ -81,7 +79,6 @@ public class GenericSecurityRealm implements SecurityRealm, ConfigurationEntryFa
 
         if (loginModuleUse != null) {
             loginModuleUse.configure(domainNames, loginModuleConfigurations, realmName, kernel, serverInfo, classLoader);
-            loginModuleConfigurations.add(new AppConfigurationEntry(SubjectRegistrationLoginModule.class.getName(), AppConfigurationEntry.LoginModuleControlFlag.REQUIRED, Collections.<String, Object>emptyMap()));
         }
 
         domains = domainNames.toArray(new String[domainNames.size()]);

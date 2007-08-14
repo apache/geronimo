@@ -99,14 +99,11 @@ public class TimeoutTest extends AbstractTest {
         kernel.shutdown();
     }
 
-    public void testNothing() {
-    }
 
     public void testTimeout() throws Exception {
 
-        LoginContext context = new LoginContext("properties-realm", new AbstractTest.UsernamePasswordCallback("alan", "starcraft"));
+        LoginContext context = ContextManager.login("properties-realm", new AbstractTest.UsernamePasswordCallback("alan", "starcraft"));
 
-        context.login();
         Subject subject = context.getSubject();
         assertTrue("expected non-null client subject", subject != null);
         Set set = subject.getPrincipals(IdentificationPrincipal.class);
@@ -124,11 +121,11 @@ public class TimeoutTest extends AbstractTest {
 
         assertTrue("id of server subject should be non-null", ContextManager.getSubjectId(subject) != null);
 
-        Thread.sleep(3000); // wait for timeout to kick in
+//        Thread.sleep(3000); // wait for timeout to kick in
+//
+//        assertTrue("id of server subject should be non-null", ContextManager.getSubjectId(subject) != null);
 
-        assertTrue("id of server subject should be non-null", ContextManager.getSubjectId(subject) != null);
-
-        Thread.sleep(7000); // wait for timeout to kick in
+//        Thread.sleep(7000); // wait for timeout to kick in
         //TODO figure out if we can time out logins!
 //        assertTrue("id of server subject should be null", ContextManager.getSubjectId(subject) == null);
     }

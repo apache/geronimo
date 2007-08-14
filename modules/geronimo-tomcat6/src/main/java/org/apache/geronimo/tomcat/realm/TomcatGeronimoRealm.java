@@ -16,6 +16,25 @@
  */
 package org.apache.geronimo.tomcat.realm;
 
+import java.io.IOException;
+import java.security.AccessControlContext;
+import java.security.AccessControlException;
+import java.security.Principal;
+import java.security.cert.X509Certificate;
+
+import javax.security.auth.Subject;
+import javax.security.auth.callback.CallbackHandler;
+import javax.security.auth.login.AccountExpiredException;
+import javax.security.auth.login.CredentialExpiredException;
+import javax.security.auth.login.FailedLoginException;
+import javax.security.auth.login.LoginContext;
+import javax.security.auth.login.LoginException;
+import javax.security.jacc.PolicyContext;
+import javax.security.jacc.PolicyContextException;
+import javax.security.jacc.WebResourcePermission;
+import javax.security.jacc.WebRoleRefPermission;
+import javax.security.jacc.WebUserDataPermission;
+
 import org.apache.catalina.Context;
 import org.apache.catalina.LifecycleException;
 import org.apache.catalina.connector.Request;
@@ -32,31 +51,12 @@ import org.apache.geronimo.security.realm.providers.PasswordCallbackHandler;
 import org.apache.geronimo.tomcat.JAASTomcatPrincipal;
 import org.apache.geronimo.tomcat.interceptor.PolicyContextBeforeAfter;
 
-import javax.security.auth.Subject;
-import javax.security.auth.callback.CallbackHandler;
-import javax.security.auth.login.AccountExpiredException;
-import javax.security.auth.login.CredentialExpiredException;
-import javax.security.auth.login.FailedLoginException;
-import javax.security.auth.login.LoginContext;
-import javax.security.auth.login.LoginException;
-import javax.security.jacc.PolicyContext;
-import javax.security.jacc.PolicyContextException;
-import javax.security.jacc.WebResourcePermission;
-import javax.security.jacc.WebRoleRefPermission;
-import javax.security.jacc.WebUserDataPermission;
-
-import java.io.IOException;
-import java.security.AccessControlContext;
-import java.security.AccessControlException;
-import java.security.Principal;
-import java.security.cert.X509Certificate;
-
 
 public class TomcatGeronimoRealm extends JAASRealm {
 
     private static final Log log = LogFactory.getLog(TomcatGeronimoRealm.class);
 
-    private static ThreadLocal currentRequestWrapperName = new ThreadLocal();
+    private static ThreadLocal<String> currentRequestWrapperName = new ThreadLocal<String>();
 
     /**
      * Descriptive information about this <code>Realm</code> implementation.
@@ -70,10 +70,10 @@ public class TomcatGeronimoRealm extends JAASRealm {
 
     public TomcatGeronimoRealm() {
 
-     }
+    }
 
     public static String setRequestWrapperName(String requestWrapperName) {
-        String old = (String) currentRequestWrapperName.get();
+        String old = currentRequestWrapperName.get();
         currentRequestWrapperName.set(requestWrapperName);
         return old;
     }
@@ -136,10 +136,10 @@ public class TomcatGeronimoRealm extends JAASRealm {
      * Return <code>true</code> if this constraint is satisfied and processing
      * should continue, or <code>false</code> otherwise.
      *
-     * @param request    Request we are processing
-     * @param response   Response we are creating
+     * @param request     Request we are processing
+     * @param response    Response we are creating
      * @param constraints Security constraints we are enforcing
-     * @param context    The Context to which client of this class is attached.
+     * @param context     The Context to which client of this class is attached.
      * @throws java.io.IOException if an input/output error occurs
      */
     public boolean hasResourcePermission(Request request,
@@ -152,7 +152,7 @@ public class TomcatGeronimoRealm extends JAASRealm {
         // and the "j_security_check" action
         LoginConfig config = context.getLoginConfig();
         if ((config != null) &&
-            (org.apache.catalina.realm.Constants.FORM_METHOD.equals(config.getAuthMethod()))) {
+                (org.apache.catalina.realm.Constants.FORM_METHOD.equals(config.getAuthMethod()))) {
             String requestURI = request.getDecodedRequestURI();
             String loginPage = context.getPath() + config.getLoginPage();
             if (loginPage.equals(requestURI)) {
@@ -172,7 +172,7 @@ public class TomcatGeronimoRealm extends JAASRealm {
                 return (true);
             }
         }
-        
+
         //Set the current wrapper name (Servlet mapping)
         currentRequestWrapperName.set(request.getWrapper().getName());
 
@@ -181,7 +181,7 @@ public class TomcatGeronimoRealm extends JAASRealm {
 
         //If we have no principal, then we should use the default.
         if (principal == null) {
-            Subject defaultSubject = (Subject)request.getAttribute(PolicyContextBeforeAfter.DEFAULT_SUBJECT);
+            Subject defaultSubject = (Subject) request.getAttribute(PolicyContextBeforeAfter.DEFAULT_SUBJECT);
             ContextManager.setCallers(defaultSubject, defaultSubject);
         } else {
             Subject currentCaller = ((JAASTomcatPrincipal) principal).getSubject();
@@ -191,7 +191,6 @@ public class TomcatGeronimoRealm extends JAASRealm {
         try {
 
             AccessControlContext acc = ContextManager.getCurrentContext();
-
 
             /**
              * JACC v1.0 section 4.1.2
@@ -221,7 +220,7 @@ public class TomcatGeronimoRealm extends JAASRealm {
             return false;
         }
 
-        String name = (String)currentRequestWrapperName.get();
+        String name = currentRequestWrapperName.get();
 
         /**
          * JACC v1.0 secion B.19
@@ -264,7 +263,7 @@ public class TomcatGeronimoRealm extends JAASRealm {
      */
     public Principal authenticate(String username, String credentials) {
 
-        char[] cred = credentials == null? null: credentials.toCharArray();
+        char[] cred = credentials == null ? null : credentials.toCharArray();
         CallbackHandler callbackHandler = new PasswordCallbackHandler(username, cred);
         return authenticate(callbackHandler, username);
     }
@@ -283,95 +282,64 @@ public class TomcatGeronimoRealm extends JAASRealm {
         // Establish a LoginContext to use for authentication
         try {
 
-            if ( (principalName!=null) && (!principalName.equals("")) ) {
-              LoginContext loginContext = null;
-              if (appName == null)
-                  appName = "Tomcat";
+            if ((principalName != null) && (!principalName.equals(""))) {
+                LoginContext loginContext = null;
+                if (appName == null)
+                    appName = "Tomcat";
 
-              if (log.isDebugEnabled())
-                  log.debug(sm.getString("jaasRealm.beginLogin", principalName, appName));
+                if (log.isDebugEnabled())
+                    log.debug(sm.getString("jaasRealm.beginLogin", principalName, appName));
 
-              // What if the LoginModule is in the container class loader ?
-              ClassLoader ocl = null;
+                // What if the LoginModule is in the container class loader ?
+                ClassLoader ocl = null;
 
-              if (isUseContextClassLoader()) {
-                  ocl = Thread.currentThread().getContextClassLoader();
-                  Thread.currentThread().setContextClassLoader(this.getClass().getClassLoader());
-              }
+                if (isUseContextClassLoader()) {
+                    ocl = Thread.currentThread().getContextClassLoader();
+                    Thread.currentThread().setContextClassLoader(this.getClass().getClassLoader());
+                }
 
-              try {
-                  loginContext = new LoginContext(appName, callbackHandler);
-              } catch (Throwable e) {
-                  log.error(sm.getString("jaasRealm.unexpectedError"), e);
-                  return (null);
-              } finally {
-                  if (isUseContextClassLoader()) {
-                      Thread.currentThread().setContextClassLoader(ocl);
-                  }
-              }
+                try {
+                    loginContext = ContextManager.login(appName, callbackHandler);
+                } catch (AccountExpiredException e) {
+                    if (log.isDebugEnabled())
+                        log.debug(sm.getString("jaasRealm.accountExpired", principalName));
+                    return (null);
+                } catch (CredentialExpiredException e) {
+                    if (log.isDebugEnabled())
+                        log.debug(sm.getString("jaasRealm.credentialExpired", principalName));
+                    return (null);
+                } catch (FailedLoginException e) {
+                    if (log.isDebugEnabled())
+                        log.debug(sm.getString("jaasRealm.failedLogin", principalName));
+                    return (null);
+                } catch (LoginException e) {
+                    log.warn(sm.getString("jaasRealm.loginException", principalName), e);
+                    return (null);
+                } catch (Throwable e) {
+                    log.error(sm.getString("jaasRealm.unexpectedError"), e);
+                    return (null);
+                } finally {
+                    if (isUseContextClassLoader()) {
+                        Thread.currentThread().setContextClassLoader(ocl);
+                    }
+                }
 
-              if (log.isDebugEnabled())
-                  log.debug("Login context created " + principalName);
+                if (log.isDebugEnabled())
+                    log.debug("Login context created " + principalName);
 
-              // Negotiate a login via this LoginContext
-              Subject subject;
-              try {
-                  loginContext.login();
-                  Subject tempSubject = loginContext.getSubject();
-                  if (tempSubject == null) {
-                      if (log.isDebugEnabled())
-                          log.debug(sm.getString("jaasRealm.failedLogin", principalName));
-                      return (null);
-                  }
+                // Negotiate a login via this LoginContext
+                Subject subject = loginContext.getSubject();
+                ContextManager.setCallers(subject, subject);
 
-                  subject = ContextManager.getServerSideSubject(tempSubject);
-                  if (subject == null) {
-                      if (log.isDebugEnabled())
-                          log.debug(sm.getString("jaasRealm.failedLogin", principalName));
-                      return (null);
-                  }
+                if (log.isDebugEnabled())
+                    log.debug(sm.getString("jaasRealm.loginContextCreated", principalName));
 
-                  ContextManager.setCallers(subject, subject);
+                // Return the appropriate Principal for this authenticated Subject
+                JAASTomcatPrincipal jaasPrincipal = new JAASTomcatPrincipal(principalName);
+                jaasPrincipal.setSubject(subject);
 
-              } catch (AccountExpiredException e) {
-                  if (log.isDebugEnabled())
-                      log.debug(sm.getString("jaasRealm.accountExpired", principalName));
-                  return (null);
-              } catch (CredentialExpiredException e) {
-                  if (log.isDebugEnabled())
-                      log.debug(sm.getString("jaasRealm.credentialExpired", principalName));
-                  return (null);
-              } catch (FailedLoginException e) {
-                  if (log.isDebugEnabled())
-                      log.debug(sm.getString("jaasRealm.failedLogin", principalName));
-                  return (null);
-              } catch (LoginException e) {
-                  log.warn(sm.getString("jaasRealm.loginException", principalName), e);
-                  return (null);
-              } catch (Throwable e) {
-                  log.error(sm.getString("jaasRealm.unexpectedError"), e);
-                  return (null);
-              }
-
-              if (log.isDebugEnabled())
-                  log.debug(sm.getString("jaasRealm.loginContextCreated", principalName));
-
-              // Return the appropriate Principal for this authenticated Subject
-  /*            Principal principal = createPrincipal(username, subject);
-              if (principal == null) {
-                  log.debug(sm.getString("jaasRealm.authenticateFailure", username));
-                  return (null);
-              }
-              if (log.isDebugEnabled()) {
-                  log.debug(sm.getString("jaasRealm.authenticateSuccess", username));
-              }
-  */
-              JAASTomcatPrincipal jaasPrincipal = new JAASTomcatPrincipal(principalName);
-              jaasPrincipal.setSubject(subject);
-
-              return (jaasPrincipal);
-            }
-            else {
+                return (jaasPrincipal);
+            } else {
                 if (log.isDebugEnabled())
                     log.debug("Login Failed - null userID");
                 return null;
@@ -382,6 +350,7 @@ public class TomcatGeronimoRealm extends JAASRealm {
             return null;
         }
     }
+
     /**
      * Prepare for active use of the public methods of this <code>Component</code>.
      *

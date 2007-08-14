@@ -26,6 +26,7 @@ import javax.security.auth.Subject;
 import javax.security.auth.callback.Callback;
 import javax.security.auth.callback.CallbackHandler;
 import javax.security.auth.callback.UnsupportedCallbackException;
+import javax.security.auth.login.FailedLoginException;
 import javax.security.auth.login.LoginException;
 import javax.security.auth.spi.LoginModule;
 import javax.security.auth.x500.X500Principal;
@@ -47,31 +48,21 @@ import org.apache.commons.logging.LogFactory;
  * The groupsURI property file should have lines of the form group=token1,token2,...
  * where the tokens were associated to the certificate names in the usersURI properties file.
  *
+ * This login module checks security credentials so the lifecycle methods must return true to indicate success
+ * or throw LoginException to indicate failure.
+ *
  * @version $Rev$ $Date$
  */
 public class CertificateChainLoginModule implements LoginModule {
-    private static Log log = LogFactory.getLog(CertificateChainLoginModule.class);
 
-    Subject subject;
-    CallbackHandler handler;
-    X500Principal principal;
+    private Subject subject;
+    private CallbackHandler handler;
+    private X500Principal principal;
 
     public void initialize(Subject subject, CallbackHandler callbackHandler, Map sharedState, Map options) {
         this.subject = subject;
         this.handler = callbackHandler;
-//        try {
-//            Kernel kernel = KernelRegistry.getKernel((String)options.get(JaasLoginModuleUse.KERNEL_LM_OPTION));
-//            ServerInfo serverInfo = (ServerInfo) options.get(JaasLoginModuleUse.SERVERINFO_LM_OPTION);
-//            URI usersURI = new URI((String)options.get(CREDENTIALS_URI));
-//            URI groupsURI = new URI((String)options.get(GROUPS_URI));
-//            loadProperties(kernel, serverInfo, usersURI, groupsURI);
-//        } catch (Exception e) {
-//            log.error(e);
-//            throw new IllegalArgumentException("Unable to configure properties file login module: "+e);
-//        }
     }
-
-
 
     public boolean login() throws LoginException {
         Callback[] callbacks = new Callback[1];
@@ -87,10 +78,10 @@ public class CertificateChainLoginModule implements LoginModule {
         assert callbacks.length == 1;
         Certificate[] certificateChain = ((CertificateChainCallback)callbacks[0]).getCertificateChain();
         if (certificateChain == null || certificateChain.length == 0) {
-            return false;
+            throw new FailedLoginException();
         }
         if (!(certificateChain[0] instanceof X509Certificate)) {
-            return false;
+            throw new FailedLoginException();
         }
         //TODO actually validate chain
         principal = ((X509Certificate)certificateChain[0]).getSubjectX500Principal();
@@ -117,14 +108,6 @@ public class CertificateChainLoginModule implements LoginModule {
         principal = null;
 
         return true;
-    }
-
-    /**
-     * Gets the names of all principal classes that may be populated into
-     * a Subject.
-     */
-    public String[] getPrincipalClassNames() {
-        return new String[]{GeronimoUserPrincipal.class.getName()};
     }
 
 }

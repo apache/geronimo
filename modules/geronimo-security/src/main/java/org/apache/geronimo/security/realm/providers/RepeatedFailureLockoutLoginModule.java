@@ -53,13 +53,16 @@ import javax.security.auth.spi.LoginModule;
  *                                    failurePeriodSecs.</li>
  * </ul>
  *
+ * This login module does not check credentials so it should never be able to cause a login to succeed.
+ * Therefore the lifecycle methods must return false to indicate success or throw a LoginException to indicate failure.
+ *
  * @version $Rev$ $Date$
  */
 public class RepeatedFailureLockoutLoginModule implements LoginModule {
     public static final String FAILURE_COUNT_OPTION = "failureCount";
     public static final String FAILURE_PERIOD_OPTION = "failurePeriodSecs";
     public static final String LOCKOUT_DURATION_OPTION = "lockoutDurationSecs";
-    private static final HashMap userData = new HashMap();
+    private static final HashMap<String, LoginHistory> userData = new HashMap<String, LoginHistory>();
     private CallbackHandler handler;
     private String username;
     private int failureCount = 5;
@@ -114,23 +117,21 @@ public class RepeatedFailureLockoutLoginModule implements LoginModule {
         if(username != null) {
             LoginHistory history;
             synchronized (userData) {
-                history = (LoginHistory) userData.get(username);
+                history = userData.get(username);
             }
             if(history != null && !history.isLoginAllowed(lockoutDuration, failurePeriod, failureCount)) {
                 username = null;
                 throw new FailedLoginException("Maximum login failures exceeded; try again later");
             }
-        } else {
-            return false; // it's a fake login, ignore this module
         }
-        return true;
+        return false;
     }
 
     /**
      * This module does nothing if a login succeeds.
      */
     public boolean commit() throws LoginException {
-        return username != null;
+        return false;
     }
 
     /**
@@ -141,7 +142,7 @@ public class RepeatedFailureLockoutLoginModule implements LoginModule {
         if(username != null) { //work around initial "fake" login
             LoginHistory history;
             synchronized (userData) {
-                history = (LoginHistory) userData.get(username);
+                history = userData.get(username);
                 if(history == null) {
                     history = new LoginHistory(username);
                     userData.put(username, history);
@@ -149,11 +150,9 @@ public class RepeatedFailureLockoutLoginModule implements LoginModule {
             }
             history.addFailure();
             username = null;
-            return true;
-        } else {
-            return false;
         }
-    }
+        return false;
+     }
 
     /**
      * This module does nothing on a logout.
@@ -161,7 +160,7 @@ public class RepeatedFailureLockoutLoginModule implements LoginModule {
     public boolean logout() throws LoginException {
         username = null;
         handler = null;
-        return true;
+        return false;
     }
 
     /**
@@ -169,8 +168,10 @@ public class RepeatedFailureLockoutLoginModule implements LoginModule {
      * status and expiry, etc.
      */
     private static class LoginHistory implements Serializable {
+        private static final long serialVersionUID = 7792298296084531182L;
+
         private String user;
-        private LinkedList data = new LinkedList();
+        private LinkedList<Long> data = new LinkedList<Long>();
         private long lockExpires = -1;
 
         public LoginHistory(String user) {
@@ -192,7 +193,7 @@ public class RepeatedFailureLockoutLoginModule implements LoginModule {
                 return false;
             }
             if(data.size() >= maxFailures) {
-                lockExpires = ((Long)data.getLast()).longValue() + lockoutLengthMillis;
+                lockExpires = data.getLast() + lockoutLengthMillis;
                 if(lockExpires > now) {
                     return false;
                 }
@@ -204,7 +205,7 @@ public class RepeatedFailureLockoutLoginModule implements LoginModule {
          * Notes that a failure occured.
          */
         public synchronized void addFailure() {
-            data.add(new Long(System.currentTimeMillis()));
+            data.add(System.currentTimeMillis());
         }
 
         /**
@@ -214,7 +215,7 @@ public class RepeatedFailureLockoutLoginModule implements LoginModule {
         public synchronized void cleanup(long ignoreOlderThan) {
             for (Iterator it = data.iterator(); it.hasNext();) {
                 Long time = (Long) it.next();
-                if(time.longValue() < ignoreOlderThan) {
+                if(time < ignoreOlderThan) {
                     it.remove();
                 } else {
                     break;

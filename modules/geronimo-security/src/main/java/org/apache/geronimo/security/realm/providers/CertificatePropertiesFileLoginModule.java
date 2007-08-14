@@ -58,18 +58,22 @@ import org.apache.geronimo.system.serverinfo.ServerInfo;
  * The groupsURI property file should have lines of the form group=token1,token2,...
  * where the tokens were associated to the certificate names in the usersURI properties file.
  *
+ * This login module checks security credentials so the lifecycle methods must return true to indicate success
+ * or throw LoginException to indicate failure.
+ *
  * @version $Rev$ $Date$
  */
 public class CertificatePropertiesFileLoginModule implements LoginModule {
+    private static Log log = LogFactory.getLog(CertificatePropertiesFileLoginModule.class);
     public final static String USERS_URI = "usersURI";
     public final static String GROUPS_URI = "groupsURI";
-    private static Log log = LogFactory.getLog(CertificatePropertiesFileLoginModule.class);
+
     private final Map users = new HashMap();
     final Map groups = new HashMap();
 
-    Subject subject;
-    CallbackHandler handler;
-    X500Principal principal;
+    private Subject subject;
+    private CallbackHandler handler;
+    private X500Principal principal;
 
     public void initialize(Subject subject, CallbackHandler callbackHandler, Map sharedState, Map options) {
         this.subject = subject;
@@ -142,7 +146,7 @@ public class CertificatePropertiesFileLoginModule implements LoginModule {
         assert callbacks.length == 1;
         X509Certificate certificate = ((CertificateCallback)callbacks[0]).getCertificate();
         if (certificate == null) {
-            return false;
+            throw new FailedLoginException();
         }
         principal = certificate.getSubjectX500Principal();
 
@@ -188,29 +192,4 @@ public class CertificatePropertiesFileLoginModule implements LoginModule {
         return true;
     }
 
-    /**
-     * Gets the names of all principal classes that may be populated into
-     * a Subject.
-     */
-    public String[] getPrincipalClassNames() {
-        return new String[]{GeronimoUserPrincipal.class.getName(), GeronimoGroupPrincipal.class.getName()};
-    }
-
-    /**
-     * Gets a list of all the principals of a particular type (identified by
-     * the principal class).  These are available for manual role mapping.
-     */
-    public String[] getPrincipalsOfClass(String className) {
-        Collection s;
-        if(className.equals(GeronimoGroupPrincipal.class.getName())) {
-            s = groups.keySet();
-        } else if(className.equals(GeronimoUserPrincipal.class.getName())) {
-            s = users.values();
-        } else if(className.equals(X500Principal.class.getName())) {
-            s = users.keySet();
-        } else {
-            throw new IllegalArgumentException("No such principal class "+className);
-        }
-        return (String[]) s.toArray(new String[s.size()]);
-    }
 }

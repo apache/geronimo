@@ -86,20 +86,13 @@ public class LoginKerberosTest extends AbstractTest {
             context.login();
             Subject subject = context.getSubject();
 
-            assertTrue("expected non-null client-side subject", subject != null);
-            subject = ContextManager.getServerSideSubject(subject);
-
-            assertTrue("expected non-null server-side subject", subject != null);
-            assertTrue("id of server-side subject should be non-null", ContextManager.getSubjectId(subject) != null);
-            assertEquals("server-side subject should have three principals", 3, subject.getPrincipals().size());
-            assertEquals("server-side subject should have one realm principal", 1, subject.getPrincipals(RealmPrincipal.class).size());
-            assertEquals("server-side subject should have one identification principal", 1, subject.getPrincipals(IdentificationPrincipal.class).size());
+            assertTrue("expected non-null subject", subject != null);
+            assertEquals("server-side subject should have two principals", 1, subject.getPrincipals().size());
             assertEquals("server-side subject should have one kerberos principal", 1, subject.getPrincipals(KerberosPrincipal.class).size());
             RealmPrincipal principal = (RealmPrincipal) subject.getPrincipals(RealmPrincipal.class).iterator().next();
 
             context.logout();
 
-            assertTrue("id of subject should be null", ContextManager.getSubjectId(subject) == null);
         } catch (LoginException e) {
             e.printStackTrace();
             // May not have kerberos
