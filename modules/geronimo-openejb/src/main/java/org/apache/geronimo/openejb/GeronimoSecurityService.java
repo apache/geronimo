@@ -49,18 +49,16 @@ public class GeronimoSecurityService implements SecurityService {
     }
 
     public Object login(String securityRealm, String user, String pass) throws LoginException {
-        LoginContext context = new LoginContext(securityRealm, new UsernamePasswordCallbackHandler(user, pass));
-        context.login();
+        LoginContext context = ContextManager.login(securityRealm, new UsernamePasswordCallbackHandler(user, pass));
 
         Subject subject = context.getSubject();
-        SubjectId subjectId = ContextManager.registerSubject(subject);
-        return subjectId;
+        return ContextManager.getSubjectId(subject);
     }
 
-    public void logout(Object securityIdentity) {
-        Subject subject = ContextManager.getRegisteredSubject((SubjectId) securityIdentity);
-        ContextManager.unregisterSubject(subject);
-    }
+//    public void logout(Object securityIdentity) {
+//        Subject subject = ContextManager.getRegisteredSubject((SubjectId) securityIdentity);
+//        ContextManager.unregisterSubject(subject);
+//    }
 
     public void associate(Object securityIdentity) throws LoginException {
         if (securityIdentity == null) {

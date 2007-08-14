@@ -36,6 +36,9 @@ import javax.security.auth.spi.LoginModule;
  * If either the username or password is not passed in the callback handler,
  * then the credential is not placed into the Subject.
  *
+ * This login module does not check credentials so it should never be able to cause a login to succeed.
+ * Therefore the lifecycle methods must return false to indicate success or throw a LoginException to indicate failure.
+ *
  * @version $Revision$ $Date$
  */
 public class NamedUPCredentialLoginModule implements LoginModule {
@@ -47,23 +50,11 @@ public class NamedUPCredentialLoginModule implements LoginModule {
     private CallbackHandler callbackHandler;
     private NamedUsernamePasswordCredential nupCredential;
 
-    public boolean abort() throws LoginException {
+    public void initialize(Subject subject, CallbackHandler callbackHandler, Map sharedState, Map options) {
 
-        return logout();
-    }
-
-    public boolean commit() throws LoginException {
-
-        if (subject.isReadOnly()) {
-            throw new LoginException("Subject is ReadOnly");
-        }
-
-        Set pvtCreds = subject.getPrivateCredentials();
-        if (nupCredential != null && !pvtCreds.contains(nupCredential)) {
-            pvtCreds.add(nupCredential);
-        }
-
-        return true;
+        this.subject = subject;
+        this.callbackHandler = callbackHandler;
+        this.name = (String) options.get(CREDENTIAL_NAME);
     }
 
     public boolean login() throws LoginException {
@@ -83,16 +74,35 @@ public class NamedUPCredentialLoginModule implements LoginModule {
         String username = ((NameCallback) callbacks[0]).getName();
         char[] password = ((PasswordCallback) callbacks[1]).getPassword();
 
-        if (username == null || password == null) return true;
+        if (username == null || password == null) return false;
 
         nupCredential = new NamedUsernamePasswordCredential(username, password, name);
 
-        return true;
+        return false;
+    }
+
+    public boolean commit() throws LoginException {
+
+        if (subject.isReadOnly()) {
+            throw new LoginException("Subject is ReadOnly");
+        }
+
+        Set pvtCreds = subject.getPrivateCredentials();
+        if (nupCredential != null && !pvtCreds.contains(nupCredential)) {
+            pvtCreds.add(nupCredential);
+        }
+
+        return false;
+    }
+
+    public boolean abort() throws LoginException {
+
+        return logout();
     }
 
     public boolean logout() throws LoginException {
 
-        if (nupCredential == null) return true;
+        if (nupCredential == null) return false;
 
         Set pvtCreds = subject.getPrivateCredentials(NamedUsernamePasswordCredential.class);
         if (pvtCreds.contains(nupCredential)) {
@@ -106,13 +116,7 @@ public class NamedUPCredentialLoginModule implements LoginModule {
         }
         nupCredential = null;
 
-        return true;
+        return false;
     }
 
-    public void initialize(Subject subject, CallbackHandler callbackHandler, Map sharedState, Map options) {
-
-        this.subject = subject;
-        this.callbackHandler = callbackHandler;
-        this.name = (String) options.get(CREDENTIAL_NAME);
-    }
 }

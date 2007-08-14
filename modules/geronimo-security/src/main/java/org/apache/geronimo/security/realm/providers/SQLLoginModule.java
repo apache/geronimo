@@ -20,16 +20,17 @@ package org.apache.geronimo.security.realm.providers;
 import java.io.IOException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.security.Principal;
 import java.sql.Connection;
 import java.sql.Driver;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
+
 import javax.security.auth.Subject;
 import javax.security.auth.callback.Callback;
 import javax.security.auth.callback.CallbackHandler;
@@ -58,21 +59,24 @@ import org.apache.geronimo.util.encoders.HexTranslator;
 /**
  * A login module that loads security information from a SQL database.  Expects
  * to be run by a GenericSecurityRealm (doesn't work on its own).
- * <p>
+ * <p/>
  * This requires database connectivity information (either 1: a dataSourceName and
  * optional dataSourceApplication or 2: a JDBC driver, URL, username, and password)
  * and 2 SQL queries.
- * <p>
+ * <p/>
  * The userSelect query should return 2 values, the username and the password in
  * that order.  It should include one PreparedStatement parameter (a ?) which
  * will be filled in with the username.  In other words, the query should look
  * like: <tt>SELECT user, password FROM credentials WHERE username=?</tt>
- * <p>
+ * <p/>
  * The groupSelect query should return 2 values, the username and the group name in
  * that order (but it may return multiple rows, one per group).  It should include
  * one PreparedStatement parameter (a ?) which will be filled in with the username.
  * In other words, the query should look like:
  * <tt>SELECT user, role FROM user_roles WHERE username=?</tt>
+ * <p/>
+ * This login module checks security credentials so the lifecycle methods must return true to indicate success
+ * or throw LoginException to indicate failure.
  *
  * @version $Rev$ $Date$
  */
@@ -95,13 +99,13 @@ public class SQLLoginModule implements LoginModule {
     private String userSelect;
     private String groupSelect;
     private String digest;
-    private String encoding;    
+    private String encoding;
 
     private Subject subject;
     private CallbackHandler handler;
     private String cbUsername;
     private String cbPassword;
-    private final Set groups = new HashSet();
+    private final Set<Principal> groups = new HashSet<Principal>();
 
     public void initialize(Subject subject, CallbackHandler callbackHandler, Map sharedState, Map options) {
         this.subject = subject;
@@ -111,41 +115,41 @@ public class SQLLoginModule implements LoginModule {
 
         digest = (String) options.get(DIGEST);
         encoding = (String) options.get(ENCODING);
-        if(digest != null && !digest.equals("")) {
+        if (digest != null && !digest.equals("")) {
             // Check if the digest algorithm is available
             try {
                 MessageDigest.getInstance(digest);
-            } catch(NoSuchAlgorithmException e) {
-                log.error("Initialization failed. Digest algorithm "+digest+" is not available.", e);
-                throw new IllegalArgumentException("Unable to configure SQL login module: "+e.getMessage(), e);
+            } catch (NoSuchAlgorithmException e) {
+                log.error("Initialization failed. Digest algorithm " + digest + " is not available.", e);
+                throw new IllegalArgumentException("Unable to configure SQL login module: " + e.getMessage(), e);
             }
-            if(encoding != null && !"hex".equalsIgnoreCase(encoding) && !"base64".equalsIgnoreCase(encoding)) {
-                log.error("Initialization failed. Digest Encoding "+encoding+" is not supported.");
-                throw new IllegalArgumentException("Unable to configure SQL login module. Digest Encoding "+encoding+" not supported.");
+            if (encoding != null && !"hex".equalsIgnoreCase(encoding) && !"base64".equalsIgnoreCase(encoding)) {
+                log.error("Initialization failed. Digest Encoding " + encoding + " is not supported.");
+                throw new IllegalArgumentException(
+                        "Unable to configure SQL login module. Digest Encoding " + encoding + " not supported.");
             }
         }
 
         String dataSourceName = (String) options.get(DATABASE_POOL_NAME);
-        if(dataSourceName != null) {
+        if (dataSourceName != null) {
             dataSourceName = dataSourceName.trim();
             String dataSourceAppName = (String) options.get(DATABASE_POOL_APP_NAME);
-            if(dataSourceAppName == null || dataSourceAppName.trim().equals("")) {
+            if (dataSourceAppName == null || dataSourceAppName.trim().equals("")) {
                 dataSourceAppName = "null";
             } else {
                 dataSourceAppName = dataSourceAppName.trim();
             }
             String kernelName = (String) options.get(JaasLoginModuleUse.KERNEL_NAME_LM_OPTION);
             Kernel kernel = KernelRegistry.getKernel(kernelName);
-            Set set = kernel.listGBeans(new AbstractNameQuery(JCAManagedConnectionFactory.class.getName()));
+            Set<AbstractName> set = kernel.listGBeans(new AbstractNameQuery(JCAManagedConnectionFactory.class.getName()));
             JCAManagedConnectionFactory factory;
-            for (Iterator it = set.iterator(); it.hasNext();) {
-                AbstractName name = (AbstractName) it.next();
-                if(name.getName().get(NameFactory.J2EE_APPLICATION).equals(dataSourceAppName) &&
-                    name.getName().get(NameFactory.J2EE_NAME).equals(dataSourceName)) {
+            for (AbstractName name : set) {
+                if (name.getName().get(NameFactory.J2EE_APPLICATION).equals(dataSourceAppName) &&
+                        name.getName().get(NameFactory.J2EE_NAME).equals(dataSourceName)) {
                     try {
                         factory = (JCAManagedConnectionFactory) kernel.getGBean(name);
                         String type = factory.getConnectionFactoryInterface();
-                        if(type.equals(DataSource.class.getName())) {
+                        if (type.equals(DataSource.class.getName())) {
                             this.factory = factory;
                             break;
                         }
@@ -157,19 +161,23 @@ public class SQLLoginModule implements LoginModule {
         } else {
             connectionURL = (String) options.get(CONNECTION_URL);
             properties = new Properties();
-            if(options.get(USER) != null) {
+            if (options.get(USER) != null) {
                 properties.put("user", options.get(USER));
             }
-            if(options.get(PASSWORD) != null) {
+            if (options.get(PASSWORD) != null) {
                 properties.put("password", options.get(PASSWORD));
             }
             ClassLoader cl = (ClassLoader) options.get(JaasLoginModuleUse.CLASSLOADER_LM_OPTION);
             try {
                 driver = (Driver) cl.loadClass((String) options.get(DRIVER)).newInstance();
             } catch (ClassNotFoundException e) {
-                throw new IllegalArgumentException("Driver class " + options.get(DRIVER) + " is not available.  Perhaps you need to add it as a dependency in your deployment plan?", e);
+                throw new IllegalArgumentException("Driver class " + options.get(
+                        DRIVER) + " is not available.  Perhaps you need to add it as a dependency in your deployment plan?",
+                        e);
             } catch (Exception e) {
-                throw new IllegalArgumentException("Unable to load, instantiate, register driver " + options.get(DRIVER) + ": " + e.getMessage(), e);
+                throw new IllegalArgumentException(
+                        "Unable to load, instantiate, register driver " + options.get(DRIVER) + ": " + e.getMessage(),
+                        e);
             }
         }
     }
@@ -189,15 +197,14 @@ public class SQLLoginModule implements LoginModule {
         assert callbacks.length == 2;
         cbUsername = ((NameCallback) callbacks[0]).getName();
         if (cbUsername == null || cbUsername.equals("")) {
-            return false;
+            throw new FailedLoginException();
         }
         char[] provided = ((PasswordCallback) callbacks[1]).getPassword();
         cbPassword = provided == null ? null : new String(provided);
 
-        boolean found = false;
         try {
             Connection conn;
-            if(factory != null) {
+            if (factory != null) {
                 DataSource ds = (DataSource) factory.getConnectionFactory();
                 conn = ds.getConnection();
             } else {
@@ -208,8 +215,8 @@ public class SQLLoginModule implements LoginModule {
                 PreparedStatement statement = conn.prepareStatement(userSelect);
                 try {
                     int count = countParameters(userSelect);
-                    for(int i=0; i<count; i++) {
-                        statement.setObject(i+1, cbUsername);
+                    for (int i = 0; i < count; i++) {
+                        statement.setObject(i + 1, cbUsername);
                     }
                     ResultSet result = statement.executeQuery();
 
@@ -219,8 +226,9 @@ public class SQLLoginModule implements LoginModule {
                             String userPassword = result.getString(2);
 
                             if (cbUsername.equals(userName)) {
-                                found = (cbPassword == null && userPassword == null) ||
-                                        (cbPassword != null && userPassword != null && checkPassword(userPassword, cbPassword));
+                                if (!checkPassword(userPassword, cbPassword)) {
+                                    throw new FailedLoginException();
+                                }
                                 break;
                             }
                         }
@@ -231,15 +239,11 @@ public class SQLLoginModule implements LoginModule {
                     statement.close();
                 }
 
-                if (!found) {
-                    throw new FailedLoginException();
-                }
-
                 statement = conn.prepareStatement(groupSelect);
                 try {
                     int count = countParameters(groupSelect);
-                    for(int i=0; i<count; i++) {
-                        statement.setObject(i+1, cbUsername);
+                    for (int i = 0; i < count; i++) {
+                        statement.setObject(i + 1, cbUsername);
                     }
                     ResultSet result = statement.executeQuery();
 
@@ -271,12 +275,9 @@ public class SQLLoginModule implements LoginModule {
     }
 
     public boolean commit() throws LoginException {
-        Set principals = subject.getPrincipals();
+        Set<Principal> principals = subject.getPrincipals();
         principals.add(new GeronimoUserPrincipal(cbUsername));
-        Iterator iter = groups.iterator();
-        while (iter.hasNext()) {
-            principals.add(iter.next());
-        }
+        principals.addAll(groups);
 
         return true;
     }
@@ -298,7 +299,7 @@ public class SQLLoginModule implements LoginModule {
     private static int countParameters(String sql) {
         int count = 0;
         int pos = -1;
-        while((pos = sql.indexOf('?', pos+1)) != -1) {
+        while ((pos = sql.indexOf('?', pos + 1)) != -1) {
             ++count;
         }
         return count;
@@ -306,12 +307,21 @@ public class SQLLoginModule implements LoginModule {
 
     /**
      * This method checks if the provided password is correct.  The original password may have been digested.
-     * @param real      Original password in digested form if applicable
-     * @param provided  User provided password in clear text
+     *
+     * @param real     Original password in digested form if applicable
+     * @param provided User provided password in clear text
      * @return true     If the password is correct
      */
-    private boolean checkPassword(String real, String provided){
-        if(digest == null || digest.equals("")) {
+    private boolean checkPassword(String real, String provided) {
+        if (real == null && provided == null) {
+            return true;
+        }
+        if (real == null || provided == null) {
+            return false;
+        }
+
+        //both are non-null
+        if (digest == null || digest.equals("")) {
             // No digest algorithm is used
             return real.equals(provided);
         }
@@ -319,14 +329,14 @@ public class SQLLoginModule implements LoginModule {
             // Digest the user provided password
             MessageDigest md = MessageDigest.getInstance(digest);
             byte[] data = md.digest(provided.getBytes());
-            if(encoding == null || "hex".equalsIgnoreCase(encoding)) {
+            if (encoding == null || "hex".equalsIgnoreCase(encoding)) {
                 // Convert bytes to hex digits
                 byte[] hexData = new byte[data.length * 2];
                 HexTranslator ht = new HexTranslator();
                 ht.encode(data, 0, data.length, hexData, 0);
                 // Compare the digested provided password with the actual one
                 return real.equalsIgnoreCase(new String(hexData));
-            } else if("base64".equalsIgnoreCase(encoding)) {
+            } else if ("base64".equalsIgnoreCase(encoding)) {
                 return real.equals(new String(Base64.encode(data)));
             }
         } catch (NoSuchAlgorithmException e) {

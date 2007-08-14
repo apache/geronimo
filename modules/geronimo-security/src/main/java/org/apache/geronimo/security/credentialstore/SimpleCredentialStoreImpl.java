@@ -36,7 +36,7 @@ import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.security.ContextManager;
 
 /**
- * @version $Rev:$ $Date:$
+ * @version $Rev$ $Date$
  */
 public class SimpleCredentialStoreImpl implements CredentialStore {
 
@@ -78,8 +78,7 @@ public class SimpleCredentialStoreImpl implements CredentialStore {
         if (callbackInfos == null) {
             throw new LoginException("Unknown id: " + id + " in realm: " + realm);
         }
-        Subject subject = new Subject();
-        LoginContext loginContext = new LoginContext(realm, subject, new CallbackHandler() {
+        LoginContext loginContext = ContextManager.login(realm, new CallbackHandler() {
 
             public void handle(Callback[] callbacks) throws UnsupportedCallbackException {
                 for (Callback callback: callbacks) {
@@ -91,8 +90,7 @@ public class SimpleCredentialStoreImpl implements CredentialStore {
                 }
             }
         });
-        loginContext.login();
-        return ContextManager.getServerSideSubject(subject);
+        return loginContext.getSubject();
     }
 
     public void addEntry(String realm, String id, Map<String, SingleCallbackHandler> callbackInfos) {

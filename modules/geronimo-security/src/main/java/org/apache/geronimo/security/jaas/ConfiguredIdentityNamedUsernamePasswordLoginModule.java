@@ -25,6 +25,18 @@ import javax.security.auth.login.LoginException;
 import javax.security.auth.callback.CallbackHandler;
 
 /**
+ * ConfiguredIdentityNamedUsernamePasswordLoginModule adds a geronimo-specific NamedUsernamePasswordCredential
+ * to the subject constructed from the configured username, password, and credential name.  This is useful in
+ * supplying fixed credentials to e.g. web service calls.
+ *
+ * Note that this places passwords to external services in configuration information.  It may be more appropriate
+ * to use the GeronimoPropertiesFileMappedPasswordCredentialLoginModule or a run-as subject with a
+ * NamedUPCredentialLoginModule although the latter solution may put a credential in a
+ * credential store configuration.
+ *
+ * This login module does not check credentials so it should never be able to cause a login to succeed.
+ * Therefore the lifecycle methods must return false to indicate success or throw a LoginException to indicate failure.
+ *
  * @version $Rev$ $Date$
  */
 public class ConfiguredIdentityNamedUsernamePasswordLoginModule implements LoginModule {
@@ -44,7 +56,7 @@ public class ConfiguredIdentityNamedUsernamePasswordLoginModule implements Login
     }
 
     public boolean login() throws LoginException {
-        return true;
+        return false;
     }
 
     public boolean commit() throws LoginException {
@@ -56,7 +68,7 @@ public class ConfiguredIdentityNamedUsernamePasswordLoginModule implements Login
         if (namedUsernamePasswordCredential != null && !pvtCreds.contains(namedUsernamePasswordCredential)) {
             pvtCreds.add(namedUsernamePasswordCredential);
         }
-        return true;
+        return false;
     }
 
     public boolean abort() throws LoginException {
@@ -65,7 +77,7 @@ public class ConfiguredIdentityNamedUsernamePasswordLoginModule implements Login
 
     public boolean logout() throws LoginException {
         if (namedUsernamePasswordCredential == null) {
-            return true;
+            return false;
         }
 
         Set pvtCreds = subject.getPrivateCredentials(UsernamePasswordCredential.class);
@@ -80,6 +92,6 @@ public class ConfiguredIdentityNamedUsernamePasswordLoginModule implements Login
         }
         namedUsernamePasswordCredential = null;
 
-        return true;
+        return false;
     }
 }

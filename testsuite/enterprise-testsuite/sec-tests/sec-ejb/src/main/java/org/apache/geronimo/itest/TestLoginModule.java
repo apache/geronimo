@@ -69,7 +69,10 @@ public class TestLoginModule implements LoginModule {
         }
         user = ((NameCallback)callbacks[0]).getName();
         String password = new String(((PasswordCallback)callbacks[1]).getPassword());
-        return user.equals(password) && users.contains(user);
+        if (user.equals(password) && users.contains(user)) {
+            return true;
+        }
+        throw new LoginException();
     }
 
     public boolean commit() throws LoginException {

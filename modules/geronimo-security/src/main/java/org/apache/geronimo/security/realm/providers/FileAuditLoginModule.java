@@ -47,6 +47,9 @@ import org.apache.geronimo.system.serverinfo.ServerInfo;
  * To enable this login module, set your primary login module to REQUIRED or
  * OPTIONAL, and list this module after it (with any setting).
  *
+ * This login module does not check credentials so it should never be able to cause a login to succeed.
+ * Therefore the lifecycle methods must return false to indicate success or throw a LoginException to indicate failure.
+ *
  * @version $Rev$ $Date$
  */
 public class FileAuditLoginModule implements LoginModule {
@@ -79,7 +82,7 @@ public class FileAuditLoginModule implements LoginModule {
         username = user.getName();
         writeToFile("Authentication attempt");
 
-        return true;
+        return false;
     }
 
     private synchronized void writeToFile(String action) {
@@ -102,7 +105,7 @@ public class FileAuditLoginModule implements LoginModule {
 
     public boolean commit() throws LoginException {
         writeToFile("Authentication succeeded");
-        return true;
+        return false;
     }
 
     public boolean abort() throws LoginException {
@@ -110,12 +113,12 @@ public class FileAuditLoginModule implements LoginModule {
             writeToFile("Authentication failed");
             username = null;
         }
-        return true;
+        return false;
     }
 
     public boolean logout() throws LoginException {
         writeToFile("Explicit logout");
         username = null;
-        return true;
+        return false;
     }
 }

@@ -29,6 +29,7 @@ import javax.security.auth.callback.UnsupportedCallbackException;
 import javax.security.auth.login.AppConfigurationEntry;
 import javax.security.auth.login.Configuration;
 import javax.security.auth.login.LoginException;
+import javax.security.auth.login.FailedLoginException;
 import javax.security.auth.spi.LoginModule;
 
 import junit.framework.TestCase;
@@ -109,13 +110,16 @@ public class AuthenticatorTest extends TestCase {
                 username = nameCallback.getName();
                 String password = (String) options.get(username);
                 if (password == null) {
-                    return false;
+                    throw new FailedLoginException();
                 }
-                return password.equals(new String(passwordCallback.getPassword()));
+                if (password.equals(new String(passwordCallback.getPassword()))) {
+                    return true;
+                }
+                throw new FailedLoginException();
             } catch (java.io.IOException e) {
-                return false;
+                throw new FailedLoginException();
             } catch (UnsupportedCallbackException e) {
-                return false;
+                throw new FailedLoginException();
             }
         }
 
@@ -125,7 +129,7 @@ public class AuthenticatorTest extends TestCase {
         }
 
         public boolean logout() throws LoginException {
-            return false;
+            return true;
         }
 
         public boolean abort() throws LoginException {

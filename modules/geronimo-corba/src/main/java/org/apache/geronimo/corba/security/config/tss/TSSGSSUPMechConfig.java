@@ -105,11 +105,10 @@ public class TSSGSSUPMechConfig extends TSSASMechConfig {
                 if (!targetName.equals(tokenTargetName)) throw new SASException(2);
                 String userName = Util.extractUserNameFromScopedName(token.username);
 
-                LoginContext context = new LoginContext(tokenTargetName,
+                LoginContext context = ContextManager.login(tokenTargetName,
                         new UsernamePasswordCallback(userName,
                                 new String(token.password, "UTF8").toCharArray()));
-                context.login();
-                result = ContextManager.getServerSideSubject(context.getSubject());
+                result = context.getSubject();
             }
         } catch (UnsupportedEncodingException e) {
             throw new SASException(1, e);
