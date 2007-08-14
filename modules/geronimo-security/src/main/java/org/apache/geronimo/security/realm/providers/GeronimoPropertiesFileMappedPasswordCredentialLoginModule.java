@@ -45,6 +45,22 @@ import org.apache.geronimo.security.jaas.NamedUsernamePasswordCredential;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
 
 /**
+ * GeronimoPropertiesFileMappedPasswordCredentialLoginModule adds NamedUsernamePasswordCredentials to the Subject.
+ * The NamedUsernamePasswordCredential are specified in a properties file specified in the options. Each line of the
+ * properties file is of the form:
+ *
+ * username=credentials
+ *
+ * where credentials is a comma-separated list of credentials and a credential is of the form
+ * name:username=password
+ *
+ * Thus a typical line would be:
+ *
+ * whee=foo:bar=baz,foo2:bar2=baz2
+ *
+ * This login module does not check credentials so it should never be able to cause a login to succeed.
+ * Therefore the lifecycle methods must return false to indicate success or throw a LoginException to indicate failure.
+ *
  * @version $Rev$ $Date$
  */
 public class GeronimoPropertiesFileMappedPasswordCredentialLoginModule implements LoginModule {
@@ -103,7 +119,7 @@ public class GeronimoPropertiesFileMappedPasswordCredentialLoginModule implement
         if (unparsedCredentials != null) {
             parseCredentials(unparsedCredentials, passwordCredentials);
         }
-        return true;
+        return false;
     }
 
     void parseCredentials(String unparsedCredentials, Set<NamedUsernamePasswordCredential> passwordCredentials) {
@@ -119,16 +135,16 @@ public class GeronimoPropertiesFileMappedPasswordCredentialLoginModule implement
 
     public boolean commit() throws LoginException {
         subject.getPrivateCredentials().addAll(passwordCredentials);
-        return true;
+        return false;
     }
 
     public boolean abort() throws LoginException {
         passwordCredentials.clear();
-        return true;
+        return false;
     }
 
     public boolean logout() throws LoginException {
         passwordCredentials.clear();
-        return true;
+        return false;
     }
 }

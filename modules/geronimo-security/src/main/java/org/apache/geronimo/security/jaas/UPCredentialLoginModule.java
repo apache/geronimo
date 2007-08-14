@@ -31,10 +31,15 @@ import javax.security.auth.spi.LoginModule;
 
 
 /**
+ *
+ *
  * Inserts Username/Password credential into private credentials of Subject.
  * <p/>
  * If either the username or password is not passed in the callback handler,
  * then the credential is not placed into the Subject.
+ *
+ * This login module does not check credentials so it should never be able to cause a login to succeed.
+ * Therefore the lifecycle methods must return false to indicate success or throw a LoginException to indicate failure.
  *
  * @version $Revision$ $Date$
  */
@@ -44,23 +49,10 @@ public class UPCredentialLoginModule implements LoginModule {
     private CallbackHandler callbackHandler;
     private UsernamePasswordCredential upCredential;
 
-    public boolean abort() throws LoginException {
+    public void initialize(Subject subject, CallbackHandler callbackHandler, Map sharedState, Map options) {
 
-        return logout();
-    }
-
-    public boolean commit() throws LoginException {
-
-        if (subject.isReadOnly()) {
-            throw new LoginException("Subject is ReadOnly");
-        }
-
-        Set pvtCreds = subject.getPrivateCredentials();
-        if (upCredential != null && !pvtCreds.contains(upCredential)) {
-            pvtCreds.add(upCredential);
-        }
-
-        return true;
+        this.subject = subject;
+        this.callbackHandler = callbackHandler;
     }
 
     public boolean login() throws LoginException {
@@ -84,7 +76,26 @@ public class UPCredentialLoginModule implements LoginModule {
 
         upCredential = new UsernamePasswordCredential(username, password);
 
-        return true;
+        return false;
+    }
+
+    public boolean commit() throws LoginException {
+
+        if (subject.isReadOnly()) {
+            throw new LoginException("Subject is ReadOnly");
+        }
+
+        Set pvtCreds = subject.getPrivateCredentials();
+        if (upCredential != null && !pvtCreds.contains(upCredential)) {
+            pvtCreds.add(upCredential);
+        }
+
+        return false;
+    }
+
+    public boolean abort() throws LoginException {
+
+        return logout();
     }
 
     public boolean logout() throws LoginException {
@@ -103,12 +114,7 @@ public class UPCredentialLoginModule implements LoginModule {
         }
         upCredential = null;
 
-        return true;
+        return false;
     }
 
-    public void initialize(Subject subject, CallbackHandler callbackHandler, Map sharedState, Map options) {
-
-        this.subject = subject;
-        this.callbackHandler = callbackHandler;
-    }
 }

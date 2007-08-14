@@ -29,6 +29,13 @@ import javax.security.auth.spi.LoginModule;
 
 
 /**
+ * GeronimoPasswordCredentialLoginModule stores the user name and password in a GeronimoPasswordCredential.
+ * This allows an application to  retrieve the subject through jacc or the geronimo specific ContextManager and
+ * find out what the password was.  I can't think of any other reason to use it right now.
+ *
+ * This login module does not check credentials so it should never be able to cause a login to succeed.
+ * Therefore the lifecycle methods must return false to indicate success or throw a LoginException to indicate failure.
+ *
  * @version $Rev$ $Date$
  */
 public class GeronimoPasswordCredentialLoginModule implements LoginModule {
@@ -51,26 +58,27 @@ public class GeronimoPasswordCredentialLoginModule implements LoginModule {
         try {
             callbackHandler.handle(callbacks);
         } catch (java.io.IOException e) {
+            throw (LoginException) new LoginException("Could not determine username and password").initCause(e);
         } catch (UnsupportedCallbackException e) {
             throw (LoginException) new LoginException("Unlikely UnsupportedCallbackException").initCause(e);
         }
         geronimoPasswordCredential = new GeronimoPasswordCredential(((NameCallback) callbacks[0]).getName(),
                                                                     ((PasswordCallback) callbacks[1]).getPassword());
-        return true;
+        return false;
     }
 
     public boolean commit() throws LoginException {
         subject.getPrivateCredentials().add(geronimoPasswordCredential);
-        return true;
+        return false;
     }
 
     public boolean abort() throws LoginException {
         geronimoPasswordCredential = null;
-        return true;
+        return false;
     }
 
     public boolean logout() throws LoginException {
         geronimoPasswordCredential = null;
-        return true;
+        return false;
     }
 }

@@ -32,7 +32,12 @@ import javax.security.auth.login.LoginException;
 import javax.security.auth.spi.LoginModule;
 
 /**
+ * CallerIdentityPasswordCredentialLoginModule uses the username and password from the CallbackHandler
+ * and a ManagedConnectionFactory from the Options to construct a j2ca PasswordCredential that can be
+ * used for j2ca container managed security.
  *
+ * This login module does not check credentials so it should never be able to cause a login to succeed.
+ * Therefore the lifecycle methods must return false to indicate success or throw a LoginException to indicate failure.
  *
  * @version $Rev$ $Date$
  *
@@ -84,19 +89,19 @@ public class CallerIdentityPasswordCredentialLoginModule implements LoginModule 
         PasswordCredential passwordCredential = new PasswordCredential(userName, password);
         passwordCredential.setManagedConnectionFactory(managedConnectionFactory);
         subject.getPrivateCredentials().add(passwordCredential);
-        return true;
+        return false;
     }
 
     public boolean abort() throws LoginException {
         userName = null;
         password = null;
-        return true;
+        return false;
     }
 
     public boolean logout() throws LoginException {
         subject = null;
         userName = null;
         password = null;
-        return true;
+        return false;
     }
 }

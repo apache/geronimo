@@ -18,16 +18,16 @@
 package org.apache.geronimo.security.realm.providers;
 
 import java.io.IOException;
+import java.security.Principal;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Hashtable;
-import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import javax.naming.AuthenticationException;
+import javax.naming.CommunicationException;
 import javax.naming.Context;
 import javax.naming.Name;
 import javax.naming.NameParser;
@@ -37,7 +37,6 @@ import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.InitialDirContext;
-import javax.naming.CommunicationException;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 import javax.security.auth.Subject;
@@ -46,18 +45,20 @@ import javax.security.auth.callback.CallbackHandler;
 import javax.security.auth.callback.NameCallback;
 import javax.security.auth.callback.PasswordCallback;
 import javax.security.auth.callback.UnsupportedCallbackException;
-import javax.security.auth.login.LoginException;
 import javax.security.auth.login.FailedLoginException;
+import javax.security.auth.login.LoginException;
 import javax.security.auth.spi.LoginModule;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import org.apache.geronimo.security.realm.providers.GeronimoGroupPrincipal;
-import org.apache.geronimo.security.realm.providers.GeronimoUserPrincipal;
-
 
 /**
+ * LDAPLoginModule is a login module using ldap as an authentication store.
+ * <p/>
+ * This login module checks security credentials so the lifecycle methods must return true to indicate success
+ * or throw LoginException to indicate failure.
+ *
  * @version $Rev$ $Date$
  */
 public class LDAPLoginModule implements LoginModule {
@@ -89,13 +90,8 @@ public class LDAPLoginModule implements LoginModule {
     private String connectionProtocol;
     private String authentication;
     private String userBase;
-    private String userSearchMatching;
-    private String userPassword;
     private String roleBase;
     private String roleName;
-    private String roleSearchMatching;
-    private String userSearchSubtree;
-    private String roleSearchSubtree;
     private String userRoleName;
 
     private String cbUsername;
@@ -109,7 +105,7 @@ public class LDAPLoginModule implements LoginModule {
     private boolean userSearchSubtreeBool = false;
     private boolean roleSearchSubtreeBool = false;
 
-    Set groups = new HashSet();
+    Set<Principal> groups = new HashSet<Principal>();
 
     public void initialize(Subject subject, CallbackHandler callbackHandler, Map sharedState, Map options) {
         this.subject = subject;
@@ -121,17 +117,17 @@ public class LDAPLoginModule implements LoginModule {
         connectionProtocol = (String) options.get(CONNECTION_PROTOCOL);
         authentication = (String) options.get(AUTHENTICATION);
         userBase = (String) options.get(USER_BASE);
-        userSearchMatching = (String) options.get(USER_SEARCH_MATCHING);
-        userSearchSubtree = (String) options.get(USER_SEARCH_SUBTREE);
+        String userSearchMatching = (String) options.get(USER_SEARCH_MATCHING);
+        String userSearchSubtree = (String) options.get(USER_SEARCH_SUBTREE);
         roleBase = (String) options.get(ROLE_BASE);
         roleName = (String) options.get(ROLE_NAME);
-        roleSearchMatching = (String) options.get(ROLE_SEARCH_MATCHING);
-        roleSearchSubtree = (String) options.get(ROLE_SEARCH_SUBTREE);
+        String roleSearchMatching = (String) options.get(ROLE_SEARCH_MATCHING);
+        String roleSearchSubtree = (String) options.get(ROLE_SEARCH_SUBTREE);
         userRoleName = (String) options.get(USER_ROLE_NAME);
         userSearchMatchingFormat = new MessageFormat(userSearchMatching);
         roleSearchMatchingFormat = new MessageFormat(roleSearchMatching);
-        userSearchSubtreeBool = new Boolean(userSearchSubtree).booleanValue();
-        roleSearchSubtreeBool = new Boolean(roleSearchSubtree).booleanValue();
+        userSearchSubtreeBool = Boolean.valueOf(userSearchSubtree);
+        roleSearchSubtreeBool = Boolean.valueOf(roleSearchSubtree);
     }
 
     public boolean login() throws LoginException {
@@ -150,13 +146,13 @@ public class LDAPLoginModule implements LoginModule {
         cbPassword = new String(((PasswordCallback) callbacks[1]).getPassword());
 
         if (cbUsername == null || "".equals(cbUsername)
-            || cbPassword == null || "".equals(cbPassword)) {
-            return false;
+                || cbPassword == null || "".equals(cbPassword)) {
+            throw new FailedLoginException();
         }
 
         try {
             boolean result = authenticate(cbUsername, cbPassword);
-            if(!result) {
+            if (!result) {
                 throw new FailedLoginException();
             } else {
                 return true;
@@ -166,26 +162,23 @@ public class LDAPLoginModule implements LoginModule {
         }
     }
 
-    public boolean logout() throws LoginException {
-        cbUsername = null;
-        cbPassword = null;
-        //todo: should remove principals added by commit
-        return true;
-    }
-
     public boolean commit() throws LoginException {
-        Set principals = subject.getPrincipals();
+        Set<Principal> principals = subject.getPrincipals();
         principals.add(new GeronimoUserPrincipal(cbUsername));
-        Iterator iter = groups.iterator();
-        while (iter.hasNext()) {
-            principals.add(iter.next());
-        }
+        principals.addAll(groups);
         return true;
     }
 
     public boolean abort() throws LoginException {
         cbUsername = null;
         cbPassword = null;
+        return true;
+    }
+
+    public boolean logout() throws LoginException {
+        cbUsername = null;
+        cbPassword = null;
+        //todo: should remove principals added by commit
         return true;
     }
 
@@ -199,8 +192,7 @@ public class LDAPLoginModule implements LoginModule {
 
     protected boolean authenticate(String username, String password) throws Exception {
 
-        DirContext context = null;
-        context = open();
+        DirContext context = open();
 
         try {
 
@@ -213,12 +205,12 @@ public class LDAPLoginModule implements LoginModule {
             }
 
             //setup attributes
-            ArrayList list = new ArrayList();
-            if (userRoleName != null) {
-                list.add(userRoleName);
+            String[] attribs;
+            if (userRoleName == null) {
+                attribs = new String[]{};
+            } else {
+                attribs = new String[]{userRoleName};
             }
-            String[] attribs = new String[list.size()];
-            list.toArray(attribs);
             constraints.setReturningAttributes(attribs);
 
 
@@ -245,38 +237,33 @@ public class LDAPLoginModule implements LoginModule {
             if (attrs == null) {
                 return false;
             }
-            ArrayList roles = null;
+            ArrayList<String> roles = null;
             if (userRoleName != null) {
                 roles = addAttributeValues(userRoleName, attrs, roles);
             }
 
             //check the credentials by binding to server
-            if (bindUser(context, dn, password)) {
-                //if authenticated add more roles
-                roles = getRoles(context, dn, username, roles);
-                for (int i = 0; i < roles.size(); i++) {
-                    groups.add(new GeronimoGroupPrincipal((String) roles.get(i)));
-                }
-            } else {
-                return false;
+            bindUser(context, dn, password);
+            //if authenticated add more roles
+            roles = getRoles(context, dn, username, roles);
+            for (String role : roles) {
+                groups.add(new GeronimoGroupPrincipal(role));
             }
         } catch (CommunicationException e) {
-
+            close(context);
+            throw (LoginException) new FailedLoginException().initCause(e);
         } catch (NamingException e) {
-            if (context != null) {
-                close(context);
-            }
-            return false;
+            close(context);
+            throw (LoginException) new FailedLoginException().initCause(e);
         }
 
 
         return true;
     }
 
-    protected ArrayList getRoles(DirContext context, String dn, String username, ArrayList currentRoles) throws NamingException {
-        ArrayList list = currentRoles;
+    protected ArrayList<String> getRoles(DirContext context, String dn, String username, ArrayList<String> list) throws NamingException {
         if (list == null) {
-            list = new ArrayList();
+            list = new ArrayList<String>();
         }
         if (roleName == null || "".equals(roleName)) {
             return list;
@@ -309,19 +296,19 @@ public class LDAPLoginModule implements LoginModule {
         for (int i = 0; i < inputString.length(); i++) {
             char c = inputString.charAt(i);
             switch (c) {
-                case '\\':
+                case'\\':
                     buf.append("\\5c");
                     break;
-                case '*':
+                case'*':
                     buf.append("\\2a");
                     break;
-                case '(':
+                case'(':
                     buf.append("\\28");
                     break;
-                case ')':
+                case')':
                     buf.append("\\29");
                     break;
-                case '\0':
+                case'\0':
                     buf.append("\\00");
                     break;
                 default:
@@ -332,69 +319,41 @@ public class LDAPLoginModule implements LoginModule {
         return buf.toString();
     }
 
-    protected boolean bindUser(DirContext context, String dn, String password) throws NamingException {
-        boolean isValid = false;
-        Attributes attr;
+    protected void bindUser(DirContext context, String dn, String password) throws NamingException, FailedLoginException {
 
         context.addToEnvironment(Context.SECURITY_PRINCIPAL, dn);
         context.addToEnvironment(Context.SECURITY_CREDENTIALS, password);
         try {
-            attr = context.getAttributes("", null);
-            isValid = true;
+            context.getAttributes("", null);
         } catch (AuthenticationException e) {
-            isValid = false;
             log.debug("Authentication failed for dn=" + dn);
-        }
+            throw new FailedLoginException();
+        } finally {
 
-        if (connectionUsername != null) {
-            context.addToEnvironment(Context.SECURITY_PRINCIPAL,
-                                     connectionUsername);
-        } else {
-            context.removeFromEnvironment(Context.SECURITY_PRINCIPAL);
-        }
+            if (connectionUsername != null) {
+                context.addToEnvironment(Context.SECURITY_PRINCIPAL,
+                        connectionUsername);
+            } else {
+                context.removeFromEnvironment(Context.SECURITY_PRINCIPAL);
+            }
 
-        if (connectionPassword != null) {
-            context.addToEnvironment(Context.SECURITY_CREDENTIALS,
-                                     connectionPassword);
-        } else {
-            context.removeFromEnvironment(Context.SECURITY_CREDENTIALS);
+            if (connectionPassword != null) {
+                context.addToEnvironment(Context.SECURITY_CREDENTIALS,
+                        connectionPassword);
+            } else {
+                context.removeFromEnvironment(Context.SECURITY_CREDENTIALS);
+            }
         }
-
-        return isValid;
     }
 
-    private String getAttributeValue(String attrId, Attributes attrs)
-            throws NamingException {
-
-        if (attrId == null || attrs == null) {
-            return null;
-        }
-
-        Attribute attr = attrs.get(attrId);
-        if (attr == null) {
-            return (null);
-        }
-        Object value = attr.get();
-        if (value == null) {
-            return (null);
-        }
-        String valueString = null;
-        if (value instanceof byte[]) {
-            valueString = new String((byte[]) value);
-        } else {
-            valueString = value.toString();
-        }
-        return valueString;
-    }
-
-    private ArrayList addAttributeValues(String attrId, Attributes attrs, ArrayList values)
+    private ArrayList<String> addAttributeValues(String attrId, Attributes attrs, ArrayList<String> values)
             throws NamingException {
 
         if (attrId == null || attrs == null) {
             return values;
         }
         if (values == null) {
-            values = new ArrayList();
+            values = new ArrayList<String>();
         }
         Attribute attr = attrs.get(attrId);
         if (attr == null) {
@@ -414,7 +373,7 @@ public class LDAPLoginModule implements LoginModule {
         }
 
         try {
-            Hashtable env = new Hashtable();
+            Hashtable<String, String> env = new Hashtable<String, String>();
             env.put(Context.INITIAL_CONTEXT_FACTORY, initialContextFactory);
             if (connectionUsername != null || !"".equals(connectionUsername)) {
                 env.put(Context.SECURITY_PRINCIPAL, connectionUsername);
