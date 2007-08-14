@@ -176,13 +176,17 @@ public class BaseDeploymentFactory implements DeploymentFactory {
             log.fatal("caught ", e);
             DeploymentManagerCreationException deploymentManagerCreationException = 
                     (DeploymentManagerCreationException) new DeploymentManagerCreationException(e.getMessage()).initCause(e);
-            log.fatal("throwing " + deploymentManagerCreationException.getMessage(), deploymentManagerCreationException);
+            log.fatal("throwing ", deploymentManagerCreationException);
             throw deploymentManagerCreationException;
         } catch (SecurityException e) {
-            log.fatal("caught ", e);
+            if (log.isDebugEnabled()) {
+                log.debug("caught ", e);
+            }
             AuthenticationFailedException authenticationFailedException = 
                     (AuthenticationFailedException) new AuthenticationFailedException("Invalid login.").initCause(e);
-            log.fatal("throwing ", authenticationFailedException);
+            if (log.isDebugEnabled()) {
+                log.debug("throwing ", authenticationFailedException);
+            }
             throw authenticationFailedException;
         }
     }
