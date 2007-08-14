@@ -67,9 +67,8 @@ public class ConfigurationEntryTest extends TestSupport {
         assertEquals("Audit file wasn't cleared", 0, auditlog.length());
 
         // First try with explicit configuration entry
-        LoginContext context = new LoginContext("properties-realm", new AbstractTest.UsernamePasswordCallback("alan", "starcraft"));
+        LoginContext context = ContextManager.login("properties-realm", new AbstractTest.UsernamePasswordCallback("alan", "starcraft"));
 
-        context.login();
         Subject subject = context.getSubject();
         Subject clientSubject = subject;
         assertTrue("expected non-null client subject", subject != null);
@@ -87,7 +86,7 @@ public class ConfigurationEntryTest extends TestSupport {
         assertTrue("server subject should have seven principals (" + subject.getPrincipals().size() + ")", subject.getPrincipals().size() == 7);
         assertTrue("server subject should have one private credential (" + subject.getPrivateCredentials().size() + ")", subject.getPrivateCredentials().size() == 1);
 
-        context.logout();
+        ContextManager.logout(context);
 
         assertNull(ContextManager.getRegisteredSubject(idp.getId()));
         assertNull(ContextManager.getServerSideSubject(clientSubject));
@@ -95,9 +94,8 @@ public class ConfigurationEntryTest extends TestSupport {
         assertTrue("id of subject should be null", ContextManager.getSubjectId(subject) == null);
 
         // next try the automatic configuration entry
-        context = new LoginContext("properties-realm", new AbstractTest.UsernamePasswordCallback("alan", "starcraft"));
+        context = ContextManager.login("properties-realm", new AbstractTest.UsernamePasswordCallback("alan", "starcraft"));
 
-        context.login();
         subject = context.getSubject();
         assertTrue("expected non-null client subject", subject != null);
         set = subject.getPrincipals(IdentificationPrincipal.class);
@@ -105,17 +103,14 @@ public class ConfigurationEntryTest extends TestSupport {
         IdentificationPrincipal idp2 = (IdentificationPrincipal) set.iterator().next();
         assertNotSame(idp.getId(), idp2.getId());
         assertEquals(idp2.getId(), idp2.getId());
-        subject = ContextManager.getServerSideSubject(subject);
-
-        assertTrue("expected non-null server subject", subject != null);
         assertTrue("server subject should have one remote principal", subject.getPrincipals(IdentificationPrincipal.class).size() == 1);
-        remote = (IdentificationPrincipal) subject.getPrincipals(IdentificationPrincipal.class).iterator().next();
+        remote = subject.getPrincipals(IdentificationPrincipal.class).iterator().next();
         assertTrue("server subject should be associated with remote id", ContextManager.getRegisteredSubject(remote.getId()) != null);
         assertTrue("server subject should have two realm principals (" + subject.getPrincipals(RealmPrincipal.class).size() + ")", subject.getPrincipals(RealmPrincipal.class).size() == 2);
         assertTrue("server subject should have seven principals (" + subject.getPrincipals().size() + ")", subject.getPrincipals().size() == 7);
         assertTrue("server subject should have one private credential (" + subject.getPrivateCredentials().size() + ")", subject.getPrivateCredentials().size() == 1);
 
-        context.logout();
+        ContextManager.logout(context);
 
         assertTrue("id of subject should be null", ContextManager.getSubjectId(subject) == null);
 

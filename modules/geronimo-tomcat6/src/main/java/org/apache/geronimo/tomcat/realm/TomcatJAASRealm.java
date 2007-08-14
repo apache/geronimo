@@ -88,37 +88,7 @@ public class TomcatJAASRealm extends JAASRealm implements Cloneable {
             }
 
             try {
-                loginContext = new LoginContext(appName, new JAASCallbackHandler(this, username, credentials));
-            } catch (Throwable e) {
-                log.error(sm.getString("jaasRealm.unexpectedError"), e);
-                return (null);
-            } finally {
-                if (isUseContextClassLoader()) {
-                    Thread.currentThread().setContextClassLoader(ocl);
-                }
-            }
-
-            if (log.isDebugEnabled())
-                log.debug("Login context created " + username);
-
-            // Negotiate a login via this LoginContext
-            Subject subject = null;
-            try {
-                loginContext.login();
-                Subject tempSubject = loginContext.getSubject();
-                if (tempSubject == null) {
-                    if (log.isDebugEnabled())
-                        log.debug(sm.getString("jaasRealm.failedLogin", username));
-                    return (null);
-                }
-
-                subject = ContextManager.getServerSideSubject(tempSubject);
-                if (subject == null) {
-                    if (log.isDebugEnabled())
-                        log.debug(sm.getString("jaasRealm.failedLogin", username));
-                    return (null);
-                }
-
+                loginContext = ContextManager.login(appName, new JAASCallbackHandler(this, username, credentials));
             } catch (AccountExpiredException e) {
                 if (log.isDebugEnabled())
                     log.debug(sm.getString("jaasRealm.accountExpired", username));
@@ -137,8 +107,18 @@ public class TomcatJAASRealm extends JAASRealm implements Cloneable {
             } catch (Throwable e) {
                 log.error(sm.getString("jaasRealm.unexpectedError"), e);
                 return (null);
+            } finally {
+                if (isUseContextClassLoader()) {
+                    Thread.currentThread().setContextClassLoader(ocl);
+                }
             }
 
+            if (log.isDebugEnabled())
+                log.debug("Login context created " + username);
+
+            // Negotiate a login via this LoginContext
+            Subject subject = loginContext.getSubject();
+            ContextManager.setCallers(subject, subject);
             if (log.isDebugEnabled())
                 log.debug(sm.getString("jaasRealm.loginContextCreated", username));
 

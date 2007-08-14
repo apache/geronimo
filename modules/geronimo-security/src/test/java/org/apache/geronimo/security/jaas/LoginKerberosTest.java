@@ -87,18 +87,12 @@ public class LoginKerberosTest extends AbstractTest {
             context.login();
             Subject subject = context.getSubject();
 
-            assertTrue("expected non-null client-side subject", subject != null);
-            subject = ContextManager.getServerSideSubject(subject);
-
-            assertTrue("expected non-null server-side subject", subject != null);
-            assertTrue("id of server-side subject should be non-null", ContextManager.getSubjectId(subject) != null);
-            assertEquals("server-side subject should have two principals", 2, subject.getPrincipals().size());
-            assertEquals("server-side subject should have one identification principal", 1, subject.getPrincipals(IdentificationPrincipal.class).size());
+            assertTrue("expected non-null subject", subject != null);
+            assertEquals("server-side subject should have two principals", 1, subject.getPrincipals().size());
             assertEquals("server-side subject should have one kerberos principal", 1, subject.getPrincipals(KerberosPrincipal.class).size());
 
             context.logout();
 
-            assertTrue("id of subject should be null", ContextManager.getSubjectId(subject) == null);
         } catch (LoginException e) {
             //See GERONIMO-3388.  This seems to be the normal code path.
             e.printStackTrace();

@@ -143,16 +143,10 @@ public class LoginSQLTest extends AbstractTest {
 
         context.login();
         Subject subject = context.getSubject();
-        assertTrue("expected non-null client-side subject", subject != null);
-        subject = ContextManager.getServerSideSubject(subject);
-
-        assertTrue("expected non-null server-side subject", subject != null);
-        assertEquals("server-side subject should have seven principal", 7, subject.getPrincipals().size());
+        assertTrue("expected non-null subject", subject != null);
+        assertEquals("server-side subject should have 6 principal", 6, subject.getPrincipals().size());
         assertEquals("server-side subject should have two realm principals", 2, subject.getPrincipals(RealmPrincipal.class).size());
         assertEquals("server-side subject should have two domain principals", 2, subject.getPrincipals(DomainPrincipal.class).size());
-        assertEquals("server-side subject should have one remote principal", 1, subject.getPrincipals(IdentificationPrincipal.class).size());
-        IdentificationPrincipal principal = subject.getPrincipals(IdentificationPrincipal.class).iterator().next();
-        assertTrue("id of principal should be non-zero", principal.getId().getSubjectId() != 0);
 
         context.logout();
     }

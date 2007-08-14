@@ -88,12 +88,10 @@ public class InternalJAASJettyRealm {
                 }
 
                 //set up the login context
-                LoginContext loginContext = new LoginContext(securityRealmName, callbackHandler);
-                loginContext.login();
+                LoginContext loginContext = ContextManager.login(securityRealmName, callbackHandler);
                 callbackHandler.clear();
 
                 Subject subject = ContextManager.getServerSideSubject(loginContext.getSubject());
-                //TODO use the run-as subject as nextCaller
                 ContextManager.setCallers(subject, subject);
 
                 //login success

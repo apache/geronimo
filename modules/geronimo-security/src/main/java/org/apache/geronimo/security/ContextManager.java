@@ -35,6 +35,9 @@ import javax.crypto.Mac;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 import javax.security.auth.Subject;
+import javax.security.auth.callback.CallbackHandler;
+import javax.security.auth.login.LoginContext;
+import javax.security.auth.login.LoginException;
 import javax.security.jacc.EJBRoleRefPermission;
 
 import org.apache.geronimo.security.realm.providers.GeronimoCallerPrincipal;
@@ -66,6 +69,22 @@ public class ContextManager {
     static {
         EMPTY.setReadOnly();
         registerSubject(EMPTY);
+    }
+
+    public static LoginContext login(String realm, CallbackHandler callbackHandler) throws LoginException {
+        Subject subject = new Subject();
+        LoginContext loginContext = new LoginContext(realm, subject, callbackHandler);
+        loginContext.login();
+        SubjectId id = ContextManager.registerSubject(subject);
+        IdentificationPrincipal principal = new IdentificationPrincipal(id);
+        subject.getPrincipals().add(principal);
+        return loginContext;
+    }
+
+    public static void logout(LoginContext loginContext) throws LoginException {
+        Subject subject = loginContext.getSubject();
+        ContextManager.unregisterSubject(subject);
+        loginContext.logout();
     }
 
 

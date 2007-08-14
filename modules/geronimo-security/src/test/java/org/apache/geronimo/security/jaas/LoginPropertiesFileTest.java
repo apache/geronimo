@@ -103,20 +103,8 @@ public class LoginPropertiesFileTest extends AbstractTest {
         Subject subject = context.getSubject();
 
         assertTrue("expected non-null subject", subject != null);
-        assertTrue("subject should have one remote principal", subject.getPrincipals(IdentificationPrincipal.class).size() == 1);
-        IdentificationPrincipal remote = subject.getPrincipals(IdentificationPrincipal.class).iterator().next();
-        assertTrue("subject should be associated with remote id", ContextManager.getRegisteredSubject(remote.getId()) != null);
-        assertEquals("subject should have seven principals (" + subject.getPrincipals().size() + ")", 7, subject.getPrincipals().size());
-        assertEquals("subject should have 2 realm principals (" + subject.getPrincipals(RealmPrincipal.class).size() + ")", 2, subject.getPrincipals(RealmPrincipal.class).size());
-        assertEquals("subject should have 2 domain principals (" + subject.getPrincipals(DomainPrincipal.class).size() + ")", 2, subject.getPrincipals(DomainPrincipal.class).size());
-
-        subject = ContextManager.getServerSideSubject(subject);
-
-        assertTrue("expected non-null subject", subject != null);
-        assertTrue("subject should have one remote principal", subject.getPrincipals(IdentificationPrincipal.class).size() == 1);
-        remote = subject.getPrincipals(IdentificationPrincipal.class).iterator().next();
-        assertTrue("subject should be associated with remote id", ContextManager.getRegisteredSubject(remote.getId()) != null);
-        assertEquals("subject should have seven principals (" + subject.getPrincipals().size() + ")", 7, subject.getPrincipals().size());
+        assertTrue("subject should have no remote principal", subject.getPrincipals(IdentificationPrincipal.class).size() == 0);
+        assertEquals("subject should have 6 principals (" + subject.getPrincipals().size() + ")", 6, subject.getPrincipals().size());
         assertEquals("subject should have 2 realm principals (" + subject.getPrincipals(RealmPrincipal.class).size() + ")", 2, subject.getPrincipals(RealmPrincipal.class).size());
         assertEquals("subject should have 2 domain principals (" + subject.getPrincipals(DomainPrincipal.class).size() + ")", 2, subject.getPrincipals(DomainPrincipal.class).size());
 

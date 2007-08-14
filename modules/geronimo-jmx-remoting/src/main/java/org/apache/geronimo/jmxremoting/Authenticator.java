@@ -35,12 +35,13 @@ import javax.security.auth.login.LoginException;
 public class Authenticator implements JMXAuthenticator, NotificationListener {
     private final String configName;
     private final ClassLoader cl;
-    private ThreadLocal threadContext = new ThreadLocal();
-    private Map contextMap = Collections.synchronizedMap(new HashMap());
+    private ThreadLocal<LoginContext> threadContext = new ThreadLocal<LoginContext>();
+    private Map<String, LoginContext> contextMap = Collections.synchronizedMap(new HashMap<String, LoginContext>());
 
     /**
      * Constructor indicating which JAAS Application Configuration Entry to use.
      * @param configName the JAAS config name
+     * @param cl classloader to use as TCCL for operations
      */
     public Authenticator(String configName, ClassLoader cl) {
         this.configName = configName;
@@ -48,7 +49,7 @@ public class Authenticator implements JMXAuthenticator, NotificationListener {
     }
 
     public Subject authenticate(Object o) throws SecurityException {
-        if (o instanceof String[] == false) {
+        if (!(o instanceof String[])) {
             throw new IllegalArgumentException("Expected String[2], got " + o == null ? null : o.getClass().getName());
         }
         String[] params = (String[]) o;
@@ -61,6 +62,8 @@ public class Authenticator implements JMXAuthenticator, NotificationListener {
         Credentials credentials = new Credentials(params[0], params[1]);
         try {
             thread.setContextClassLoader(cl);
+            //TODO consider using ContextManager for login and checking a permission against the ACC
+            //to do e.g. deployments.
             LoginContext context = new LoginContext(configName, credentials);
             context.login();
             threadContext.set(context);
@@ -80,11 +83,11 @@ public class Authenticator implements JMXAuthenticator, NotificationListener {
             String type = cxNotification.getType();
             String connectionId = cxNotification.getConnectionId();
             if (JMXConnectionNotification.OPENED.equals(type)) {
-                LoginContext context = (LoginContext) threadContext.get();
+                LoginContext context = threadContext.get();
                 threadContext.set(null);
                 contextMap.put(connectionId, context);
             } else {
-                LoginContext context = (LoginContext) contextMap.remove(connectionId);
+                LoginContext context = contextMap.remove(connectionId);
                 if (context != null) {
                     try {
                         context.logout();
