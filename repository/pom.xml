@@ -101,6 +101,12 @@
         </dependency>
         <!--end add for wsgen-->
 
+        <!-- See GERONIMO-3410 -->
+        <dependency>
+            <groupId>org.codehaus.mojo.jspc</groupId>
+            <artifactId>jspc-maven-plugin</artifactId>
+        </dependency>
+
     </dependencies>
 
     <repositories>
