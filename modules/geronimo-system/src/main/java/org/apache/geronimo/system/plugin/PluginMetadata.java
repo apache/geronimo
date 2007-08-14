@@ -278,18 +278,18 @@ public class PluginMetadata implements Serializable, Comparable {
     }
 
     public static class CopyFile implements Serializable {
-        private final boolean relativeToVar;  // if not, relative to the Geronimo install directory
+        private final boolean relativeToServer;  // if not, relative to the Geronimo install directory
         private final String sourceFile;
         private final String destDir;
 
-        public CopyFile(boolean relativeToVar, String sourceFile, String destDir) {
-            this.relativeToVar = relativeToVar;
+        public CopyFile(boolean relativeToServer, String sourceFile, String destDir) {
+            this.relativeToServer = relativeToServer;
             this.sourceFile = sourceFile;
             this.destDir = destDir;
         }
 
-        public boolean isRelativeToVar() {
-            return relativeToVar;
+        public boolean isRelativeToServer() {
+            return relativeToServer;
         }
 
         public String getSourceFile() {
