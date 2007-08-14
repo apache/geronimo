@@ -55,6 +55,7 @@
 
         <!-- Common plan properties -->
         <PlanServerHostname>0.0.0.0</PlanServerHostname>
+        <PlanRemoteDeployHostname>127.0.0.1</PlanRemoteDeployHostname>
         <PlanClientAddresses>127.0.0.1</PlanClientAddresses>
         <PlanHTTPPort>8080</PlanHTTPPort>
         <PlanHTTPSPort>8443</PlanHTTPSPort>
