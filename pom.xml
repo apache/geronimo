@@ -40,9 +40,9 @@
     </description>
 
     <scm>
-        <connection>scm:svn:http://svn.apache.org/repos/asf/geronimo/server/trunk</connection>
-        <developerConnection>scm:svn:https://svn.apache.org/repos/asf/geronimo/server/trunk</developerConnection>
-        <url>http://svn.apache.org/viewvc/geronimo/trunk</url>
+        <connection>scm:svn:http://svn.apache.org/repos/asf/geronimo/server/branches/2.0</connection>
+        <developerConnection>scm:svn:https://svn.apache.org/repos/asf/geronimo/server/branches/2.0</developerConnection>
+        <url>http://svn.apache.org/viewvc/geronimo/branches/2.0</url>
     </scm>
 
     <properties>
@@ -245,13 +245,13 @@
             <dependency>
                 <groupId>org.apache.geronimo.components</groupId>
                 <artifactId>geronimo-connector</artifactId>
-                <version>2.0-SNAPSHOT</version>
+                <version>2.0.1</version>
             </dependency>
 
             <dependency>
                 <groupId>org.apache.geronimo.components</groupId>
                 <artifactId>geronimo-connector</artifactId>
-                <version>2.0-SNAPSHOT</version>
+                <version>2.0.1</version>
                 <classifier>tests</classifier>
                 <scope>test</scope>
             </dependency>
@@ -259,7 +259,7 @@
             <dependency>
                 <groupId>org.apache.geronimo.components</groupId>
                 <artifactId>geronimo-transaction</artifactId>
-                <version>2.0-SNAPSHOT</version>
+                <version>2.0.1</version>
             </dependency>
 
             <dependency>
@@ -294,7 +294,7 @@
             <dependency>
                 <groupId>org.apache.xbean</groupId>
                 <artifactId>xbean-reflect</artifactId>
-                <version>3.1-SNAPSHOT</version>
+                <version>3.1</version>
             </dependency>
 
             <dependency>
@@ -341,6 +341,12 @@
                 <groupId>com.agical.rmock</groupId>
                 <artifactId>rmock</artifactId>
                 <version>2.0.0-rc-6</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.codehaus.swizzle</groupId>
+                <artifactId>swizzle-stream</artifactId>
+                <version>1.0.1</version>
             </dependency>
 
             <dependency>
@@ -782,6 +788,29 @@
             <dependency>
                 <groupId>org.apache.openejb</groupId>
                 <artifactId>openejb-axis</artifactId>
+                <version>${openejbVersion}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.openejb</groupId>
+                <artifactId>openejb-server</artifactId>
+                <version>${openejbVersion}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.openejb</groupId>
+                <artifactId>openejb-loader</artifactId>
+                <version>${openejbVersion}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.openejb</groupId>
+                <artifactId>openejb-jee</artifactId>
+                <version>${openejbVersion}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.openejb</groupId>
+                <artifactId>openejb-javaagent</artifactId>
                 <version>${openejbVersion}</version>
             </dependency>
 

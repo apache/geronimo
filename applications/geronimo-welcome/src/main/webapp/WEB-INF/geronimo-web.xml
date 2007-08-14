@@ -24,7 +24,7 @@
     <dep:moduleId>
       <dep:groupId>org.apache.geronimo.applications</dep:groupId>
       <dep:artifactId>welcome</dep:artifactId>
-      <dep:version>2.0-SNAPSHOT</dep:version>
+      <dep:version>2.0.2-SNAPSHOT</dep:version>
     </dep:moduleId>
     <dep:dependencies/>
     <dep:hidden-classes/>
