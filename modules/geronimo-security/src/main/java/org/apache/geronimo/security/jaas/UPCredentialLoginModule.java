@@ -72,7 +72,7 @@ public class UPCredentialLoginModule implements LoginModule {
         String username = ((NameCallback) callbacks[0]).getName();
         char[] password = ((PasswordCallback) callbacks[1]).getPassword();
 
-        if (username == null || password == null) return true;
+        if (username == null || password == null) return false;
 
         upCredential = new UsernamePasswordCredential(username, password);
 
