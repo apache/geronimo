@@ -27,6 +27,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Random;
@@ -39,7 +40,6 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.DeploymentConfigurationManager;
 import org.apache.geronimo.deployment.DeploymentContext;
-import org.apache.geronimo.j2ee.deployment.EARContext;
 import org.apache.geronimo.j2ee.deployment.Module;
 import org.apache.geronimo.jaxws.PortInfo;
 import org.apache.geronimo.kernel.repository.Artifact;
@@ -49,6 +49,8 @@ import org.apache.geronimo.kernel.repository.Version;
 public class WsdlGenerator {
 
     private static final Log LOG = LogFactory.getLog(WsdlGenerator.class);
+    
+    private final static String FORK_WSGEN_PROPERTY = "org.apache.geronimo.jaxws.wsgen.fork";
     
     private final static Artifact AXIS2_JAXWS_API_ARTIFACT = new Artifact("org.apache.axis2","axis2-jaxws-api", (Version)null, "jar");
     private final static Artifact AXIS2_SAAJ_API_ARTIFACT = new Artifact("org.apache.axis2","axis2-saaj-api", (Version)null, "jar");
@@ -68,7 +70,23 @@ public class WsdlGenerator {
     private Artifact saajImpl;
     private QName wsdlService;
     private QName wsdlPort;
+    private boolean forkWsgen = getForkWsgen();
         
+    private static boolean getForkWsgen() {
+        String value = System.getProperty(FORK_WSGEN_PROPERTY);
+        if (value != null) {
+            return Boolean.valueOf(value).booleanValue();
+        } else {
+            String osName = System.getProperty("os.name");
+            if (osName == null) {
+                return false;
+            }
+            osName = osName.toLowerCase();
+            // Fork on Windows only
+            return (osName.indexOf("windows") != -1);            
+        }
+    }
+    
     public WsdlGenerator() {
     }
     
@@ -329,20 +347,12 @@ public class WsdlGenerator {
         String[] arguments = buildArguments(serviceClass, classPath.toString(), baseDir, portInfo);
         
         try {
-            URLClassLoader loader = new URLClassLoader(urls, ClassLoader.getSystemClassLoader());
-            Class clazz = loader.loadClass("com.sun.tools.ws.spi.WSToolsObjectFactory");
-            Method method = clazz.getMethod("newInstance");
-            Object factory = method.invoke(null);
-            Method method2 = clazz.getMethod("wsgen", OutputStream.class, String[].class);
-            ByteArrayOutputStream os = new ByteArrayOutputStream();
-            Boolean result = (Boolean) method2.invoke(factory, os, arguments);
-            os.close();
+            boolean result = false;
             
-            byte [] arr = os.toByteArray();
-            String wsgenOutput = new String(arr, 0, arr.length);
-            
-            if (LOG.isDebugEnabled()) {
-                LOG.debug("wsgen output: " + wsgenOutput);
+            if (this.forkWsgen) {
+                result = forkWsgen(classPath, arguments);
+            } else {
+                result = invokeWsgen(urls, arguments);
             }
             
             if (result) {
@@ -353,12 +363,65 @@ public class WsdlGenerator {
                 }
                 return getRelativeNameOrURL(moduleBase, wsdlFile);
             } else {
-                throw new DeploymentException("wsgen failed: " + wsgenOutput);
-            }
+                throw new DeploymentException("wsgen failed");
+            }            
+                                 
         } catch (DeploymentException e) {
             throw e;
         } catch (Exception e) {
             throw new DeploymentException("Unable to generate the wsdl file using wsgen.", e);
+        }
+    }
+
+    private boolean invokeWsgen(URL[] urls, String[] arguments) throws Exception {
+        URLClassLoader loader = new URLClassLoader(urls, ClassLoader.getSystemClassLoader());
+        Class clazz = loader.loadClass("com.sun.tools.ws.spi.WSToolsObjectFactory");
+        Method method = clazz.getMethod("newInstance");
+        Object factory = method.invoke(null);
+        Method method2 = clazz.getMethod("wsgen", OutputStream.class, String[].class);
+        ByteArrayOutputStream os = new ByteArrayOutputStream();
+        
+        LOG.debug("Invoking wsgen");
+        
+        Boolean result = (Boolean) method2.invoke(factory, os, arguments);
+        os.close();
+        
+        byte [] arr = os.toByteArray();
+        String wsgenOutput = new String(arr, 0, arr.length);
+        
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("wsgen output: " + wsgenOutput);
+        }
+        
+        return result;
+    }
+    
+    private boolean forkWsgen(StringBuilder classPath, String[] arguments) throws Exception {           
+        List<String> cmd = new ArrayList<String>();
+        String javaHome = System.getProperty("java.home");                       
+        String java = javaHome + File.separator + "bin" + File.separator + "java";
+        cmd.add(java);
+        cmd.add("-classpath");
+        cmd.add(classPath.toString());
+        cmd.add("com.sun.tools.ws.WsGen");
+        cmd.addAll(Arrays.asList(arguments));
+        
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("Executing wsgen: " + cmd);
+        }
+                
+        String [] cmdArray = (String[]) cmd.toArray(new String[] {});
+        
+        Process process = Runtime.getRuntime().exec(cmdArray);
+        int errorCode = process.waitFor();
+        
+        if (errorCode == 0) {
+            return true;
+        } else {
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("wsgen error code: " + errorCode);
+            }
+            return false;
         }
     }
 }
