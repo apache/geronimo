@@ -112,10 +112,7 @@ public class AuthenticatorTest extends TestCase {
                 if (password == null) {
                     throw new FailedLoginException();
                 }
-                if (password.equals(new String(passwordCallback.getPassword()))) {
-                    return true;
-                }
-                throw new FailedLoginException();
+                return password.equals(new String(passwordCallback.getPassword()));
             } catch (java.io.IOException e) {
                 throw new FailedLoginException();
             } catch (UnsupportedCallbackException e) {

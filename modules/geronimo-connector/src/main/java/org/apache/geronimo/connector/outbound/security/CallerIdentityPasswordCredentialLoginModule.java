@@ -81,13 +81,10 @@ public class CallerIdentityPasswordCredentialLoginModule implements LoginModule 
         resourcePrincipalName = ((NameCallback) callbacks[0]).getName();
         userName = ((NameCallback) callbacks[0]).getName();
         password = ((PasswordCallback) callbacks[1]).getPassword();
-        return false;
+        return resourcePrincipalName != null && userName != null && password != null;
     }
 
     public boolean commit() throws LoginException {
-        if (resourcePrincipalName == null || userName == null || password == null) {
-            return false;
-        }
         subject.getPrincipals().add(new ResourcePrincipal(resourcePrincipalName));
         PasswordCredential passwordCredential = new PasswordCredential(userName, password);
         passwordCredential.setManagedConnectionFactory(managedConnectionFactory);
