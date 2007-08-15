@@ -50,8 +50,24 @@ public class Holder implements Serializable {
     public Holder() {
     }
 
-
-    public void addInjection(String className, Injection injection) {
+    public Holder(Holder source) {
+        if (source.getInjectionMap() != null) {
+            this.injectionMap = new HashMap<String, List<Injection>>();
+            addInjectionMap(source.getInjectionMap());
+        }
+        
+        if (source.getPostConstruct() != null) {
+            this.postConstruct = new HashMap<String, LifecycleMethod>();
+            addPostConstructs(source.getPostConstruct());
+        }
+        
+        if (source.getPreDestroy() != null) {
+            this.preDestroy = new HashMap<String, LifecycleMethod>();
+            addPreDestroys(source.getPreDestroy());
+        }
+    }
+    
+    private List<Injection> getInjectionList(String className) {
         if (injectionMap == null) {
             injectionMap = new HashMap<String, List<Injection>>();
         }
@@ -60,7 +76,19 @@ public class Holder implements Serializable {
             injections = new ArrayList<Injection>();
             injectionMap.put(className, injections);
         }
-        injections.add(injection);
+        return injections;
+    }
+    
+    public void addInjection(String className, Injection newInjection) {
+        List<Injection> injections = getInjectionList(className);
+        injections.add(newInjection);
+    }
+    
+    public void addInjections(String className, List<Injection> newInjections) {
+        List<Injection> injections = getInjectionList(className);        
+        for (Injection injection : newInjections) {
+            injections.add(injection);
+        }
     }
 
     public void addPostConstructs(Map<String, LifecycleMethod> newPostConstructs) {
@@ -82,6 +110,17 @@ public class Holder implements Serializable {
         return old;
     }
 
+    public void addInjectionMap(Map<String, List<Injection>> injectionMap) {
+        if (injectionMap == null) {
+            return;
+        }
+        for (Map.Entry<String, List<Injection>> entry : injectionMap.entrySet()) {
+            String className = entry.getKey();
+            List<Injection> injections = entry.getValue();
+            addInjections(className, injections);            
+        }
+    }
+    
     public List<Injection> getInjections(String className) {
         if (injectionMap == null) {
             return null;
@@ -89,6 +128,10 @@ public class Holder implements Serializable {
         return injectionMap.get(className);
     }
 
+    public Map<String, List<Injection>> getInjectionMap() {
+        return injectionMap;
+    }
+    
     public Map<String, LifecycleMethod> getPostConstruct() {
         return postConstruct;
     }
