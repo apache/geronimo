@@ -249,7 +249,6 @@
         </site>
     </distributionManagement>
     
-
     <reporting>
         <plugins>
             <plugin>
@@ -302,12 +301,11 @@
                                     </goals>
                                 </execution>
                                 -->
-
                             </executions>
                         </plugin>
                     </plugins>
                 </pluginManagement>
-                
+
                 <plugins>
                     <plugin>
                         <groupId>org.apache.geronimo.plugins</groupId>
@@ -326,25 +324,45 @@
                 </plugins>
             </build>
         </profile>
-        
+
         <profile>
             <id>headless</id>
             <build>
-                <plugins>
-                    <plugin>
-                        <groupId>org.codehaus.mojo</groupId>
-                        <artifactId>selenium-maven-plugin</artifactId>
-                        <executions>
-                            <execution>
-                                <id>xvfb</id>
-                                <phase>process-test-sources</phase>
-                                <goals>
-                                    <goal>xvfb</goal>
-                                </goals>
-                            </execution>
-                        </executions>
-                    </plugin>
-                </plugins>
+                <pluginManagement>
+                    <plugins>
+                        <plugin>
+                            <groupId>org.codehaus.mojo</groupId>
+                            <artifactId>selenium-maven-plugin</artifactId>
+                            <executions>
+                                <execution>
+                                    <id>xvfb</id>
+                                    <phase>process-test-sources</phase>
+                                    <goals>
+                                        <goal>xvfb</goal>
+                                    </goals>
+                                </execution>
+                            </executions>
+                        </plugin>
+
+                        <plugin>
+                            <groupId>org.apache.geronimo.plugins</groupId>
+                            <artifactId>geronimo-maven-plugin</artifactId>
+                            <executions>
+                                <execution>
+                                    <id>start-server</id>
+                                    <phase>pre-integration-test</phase>
+                                    <goals>
+                                        <goal>start-server</goal>
+                                    </goals>
+                                    <configuration>
+                                        <logOutput>true</logOutput>
+                                        <background>true</background>
+                                    </configuration>
+                                </execution>
+                            </executions>
+                        </plugin>
+                    </plugins>
+                </pluginManagement>
             </build>
         </profile>
         
@@ -353,7 +371,7 @@
         </profile>
     </profiles>
 
-     <repositories>
+    <repositories>
         <!--
         NOTE: This is useful to run the testsuite on any machine, independent of the Geronimo build.
         scm location svn co https://svn.apache.org/repos/asf/geronimo/server/trunk/testsuite
@@ -372,5 +390,5 @@
                 <enabled>false</enabled>
             </releases>
         </repository>
-     </repositories>
+    </repositories>
 </project>
