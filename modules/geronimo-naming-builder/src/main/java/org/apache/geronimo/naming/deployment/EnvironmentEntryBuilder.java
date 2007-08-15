@@ -148,6 +148,12 @@ public class EnvironmentEntryBuilder extends AbstractNamingBuilder {
                 for (EnvEntryType envEntry : envEntries) {
                     if (getStringValue(envEntry.getEnvEntryName()).equals(resourceName)) {
                         exists = true;
+                        if (method != null || field != null) {
+                            InjectionTargetType[] targets = envEntry.getInjectionTargetArray();
+                            if (!hasTarget(method, field, targets)) {
+                                configureInjectionTarget(envEntry.addNewInjectionTarget(), method, field);
+                            }
+                        }
                         break;
                     }
                 }
