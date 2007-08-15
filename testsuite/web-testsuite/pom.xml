@@ -76,6 +76,25 @@
             -->
             <build>
                 <plugins>
+                  <plugin>
+                        <!--
+                          One of the pom that this invokes using m-m-p has packaging set to "pom".
+                          That expects it's parent (this pom) to be installed already.
+                          So installing it ahead before we invoke it in the integration-test phase
+                        -->
+                        <artifactId>maven-install-plugin</artifactId>
+                        <inherited>false</inherited>
+                        <executions>
+                            <execution>
+                                <id>install-ahead</id>
+                                <phase>pre-integration-test</phase>
+                                <goals>
+                                    <goal>install</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+
                     <plugin>
                         <groupId>org.codehaus.mojo</groupId>
                         <artifactId>selenium-maven-plugin</artifactId>
