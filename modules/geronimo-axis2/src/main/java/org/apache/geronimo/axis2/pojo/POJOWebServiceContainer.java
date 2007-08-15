@@ -36,7 +36,7 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.axis2.Axis2WebServiceContainer;
 import org.apache.geronimo.jaxws.JAXWSAnnotationProcessor;
 import org.apache.geronimo.jaxws.PortInfo;
-import org.apache.geronimo.jaxws.annotations.AnnotationException;
+import org.apache.geronimo.jaxws.annotations.AnnotationHolder;
 
 /**
  * @version $Rev$ $Date$
@@ -47,13 +47,16 @@ public class POJOWebServiceContainer extends Axis2WebServiceContainer {
     
     private Object endpointInstance;
     private String contextRoot = null;
+    private AnnotationHolder holder;
     
     public POJOWebServiceContainer(PortInfo portInfo,
                                    String endpointClassName,
                                    ClassLoader classLoader,
                                    Context context,
-                                   URL configurationBaseUrl) {
-        super(portInfo, endpointClassName, classLoader, context, configurationBaseUrl);        
+                                   URL configurationBaseUrl,
+                                   AnnotationHolder holder) {
+        super(portInfo, endpointClassName, classLoader, context, configurationBaseUrl);
+        this.holder = holder;
     }
     
     @Override
@@ -66,10 +69,18 @@ public class POJOWebServiceContainer extends Axis2WebServiceContainer {
          */
         FactoryRegistry.setFactory(EndpointLifecycleManagerFactory.class, 
                                    new POJOEndpointLifecycleManagerFactory());
-               
-        this.endpointInstance = this.endpointClass.newInstance();
-        
+                       
         this.configurationContext.setServicePath(this.portInfo.getLocation());
+        
+        // instantiate and inject resources into service
+        try {
+            this.endpointInstance = this.holder.newInstance(this.endpointClass.getName(), 
+                                                            this.endpointClass.getClassLoader(), 
+                                                            this.context);
+        } catch (Exception e) {
+            throw new WebServiceException("Service resource injection failed", e);
+        }
+        
         this.annotationProcessor = 
             new JAXWSAnnotationProcessor(this.jndiResolver, new POJOWebServiceContext());
 
@@ -81,12 +92,6 @@ public class POJOWebServiceContainer extends Axis2WebServiceContainer {
             throw new WebServiceException("Error configuring handlers", e);
         }
         
-        // inject resources into service
-        try {
-            injectResources(this.endpointInstance);
-        } catch (AnnotationException e) {
-            throw new WebServiceException("Service resource injection failed", e);
-        }
     }
     
     @Override
@@ -146,7 +151,11 @@ public class POJOWebServiceContainer extends Axis2WebServiceContainer {
         
         // call service preDestroy
         if (this.endpointInstance != null) {
-            this.annotationProcessor.invokePreDestroy(this.endpointInstance);
+            try {
+                this.holder.destroyInstance(this.endpointInstance);
+            } catch (Exception e) {
+                LOG.warn("Error calling @PreDestroy method", e); 
+            }
         }
         
         super.destroy();

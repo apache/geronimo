@@ -26,7 +26,7 @@ public class POJOWebServiceContainer extends CXFWebServiceContainer {
     
     public POJOWebServiceContainer(Bus bus,
                                    URL configurationBaseUrl,                                  
-                                   Object target) {
+                                   Class target) {
         super(bus, configurationBaseUrl, target);
         this.destination.setPassSecurityContext(true);
     }
@@ -34,7 +34,7 @@ public class POJOWebServiceContainer extends CXFWebServiceContainer {
     protected CXFEndpoint publishEndpoint(Object target) {
         assert target != null : "null target received";
 
-        POJOEndpoint ep = new POJOEndpoint(bus, configurationBaseUrl, target);
+        POJOEndpoint ep = new POJOEndpoint(bus, configurationBaseUrl, (Class)target);
         ep.publish("http://nopath");
         return ep;
     }
