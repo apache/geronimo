@@ -73,12 +73,15 @@
                                 </goals>
                                 <configuration>
                                     <modules>
-                                        <module>
-                                            <groupId>org.apache.geronimo.testsupport</groupId>
-                                            <artifactId>test-ear-j2ee_1.3</artifactId>
-                                            <version>${version}</version>
-                                            <type>ear</type>
-                                        </module>
+                                      <!-- Deploy only 1 module until https://issues.apache.org/jira/browse/GERONIMO-3199 is fixed. -->
+<!--
+                                           <module>
+                                               <groupId>org.apache.geronimo.testsupport</groupId>
+                                               <artifactId>test-ear-j2ee_1.3</artifactId>
+                                               <version>${version}</version>
+                                               <type>ear</type>
+                                           </module>
+  -->
                                         
                                         <module>
                                             <groupId>org.apache.geronimo.testsupport</groupId>
@@ -90,23 +93,26 @@
                                 </configuration>
                             </execution>
                             
-                            <execution>
-                                <id>undeploy-ear-as-module</id>
-                                <phase>post-integration-test</phase>
-                                <goals>
-                                    <goal>undeploy-module</goal>
-                                </goals>
-                                <configuration>
-                                    <modules>
-                                        <module>
-                                            <groupId>org.apache.geronimo.testsupport</groupId>
-                                            <artifactId>test-ear-j2ee_1.3</artifactId>
-                                            <version>${version}</version>
-                                            <type>ear</type>
-                                        </module>
-                                    </modules>
-                                </configuration>
-                            </execution>
+                                      <!-- Comment the following block until https://issues.apache.org/jira/browse/GERONIMO-3199 is fixed. -->
+<!--
+                               <execution>
+                                   <id>undeploy-ear-as-module</id>
+                                   <phase>post-integration-test</phase>
+                                   <goals>
+                                       <goal>undeploy-module</goal>
+                                   </goals>
+                                   <configuration>
+                                       <modules>
+                                           <module>
+                                               <groupId>org.apache.geronimo.testsupport</groupId>
+                                               <artifactId>test-ear-j2ee_1.3</artifactId>
+                                               <version>${version}</version>
+                                               <type>ear</type>
+                                           </module>
+                                       </modules>
+                                   </configuration>
+                               </execution>
+  -->
                             
                             <execution>
                                 <id>undeploy-ear-as-moduleId</id>
