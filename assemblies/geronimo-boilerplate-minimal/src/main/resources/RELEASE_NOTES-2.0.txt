@@ -1,4 +1,4 @@
-Release Notes -- Apache Geronimo -- Version 2.0
+Release Notes -- Apache Geronimo -- Version 2.0.1
 
 Geronimo URLs
 -------------
@@ -10,6 +10,15 @@ Source Code:   http://geronimo.apache.org/svn.html
 Bug Tracking:  http://issues.apache.org/jira/browse/GERONIMO
 Wiki:          http://cwiki.apache.org/geronimo
 
+Note
+----
+Why is 2.0.1 out when I never saw a 2.0?
+
+During the release of Geronimo 2.0 we discovered a security related issue that exposed a running server to unauthorized 
+users being able to conduct a remote deploy on a running server.  The problem was discovered during the release process 
+and the project decided to not continue the release.  Given that we were far enough into the release process it was not
+appropriate to re-use the 2.0 version number despite the fact that we had not "officially" completed the release.  For 
+this reason 2.0.1 is the first 2.0 version number to be released.
 
 Updated Information
 -------------------
@@ -28,10 +37,10 @@ Most testing has been done on Linux, Mac OS X, and Windows.
 Significant Changes in the 2.0 Release
 --------------------------------------
 
-o Implements the Java Enterprise Edition 5.0 (Java EE 5) specification
-  o JAX-WS Web Services
-     - Two JAX-WS engines integrated: Apache Axis2 and Apache CXF
-     - Users can configure which JAX-WS engine to use.
+- Implements the Java Enterprise Edition 5.0 (Java EE 5) specification
+- JAX-WS Web Services
+  - Two JAX-WS engines integrated: Apache Axis2 and Apache CXF
+  - Users can configure which JAX-WS engine to use.
 
 
 Certification Status
@@ -164,7 +173,7 @@ need to be added manually.
 Known Issues and Limitations
 ----------------------------
 
-o If Geronimo is configured with CXF as its JAX-WS engine, some Web Services
+- If Geronimo is configured with CXF as its JAX-WS engine, some Web Services
   might not work correctly on non-Sun JDKs. That is because CXF uses Glassfish
   SAAJ implementation which has dependencies on Sun proprietary classes 
   available only on Sun JDKs.
@@ -209,6 +218,8 @@ Release Notes - Geronimo - Version 2.0
     * [GERONIMO-3369] - MultiParentClassLoader does not check for hidden resources in recursiveFind() 
     * [GERONIMO-3370] - Create local build of OpenJPA in our local repo
     * [GERONIMO-3375] - Upgrade to released xmlbeans-maven-plugin
+    * [GERONIMO-3387] - Unable to deploy an ear file (that contains a war file) if web.xml isn't supplied in the war file.
+    * [GERONIMO-3411] - Injection target entries are not added to existing env-entry entries.
 
 ** Improvement
     * [GERONIMO-1874] - synthetic ears should allow use of modules outside the g repository
