@@ -17,7 +17,6 @@
 
 package org.apache.geronimo.security;
 
-import java.io.Serializable;
 import java.security.AccessControlContext;
 import java.security.AccessControlException;
 import java.security.AccessController;
@@ -48,7 +47,6 @@ import org.apache.geronimo.security.realm.providers.GeronimoCallerPrincipal;
  */
 public class ContextManager {
 
-    private static ThreadLocal<Serializable> currentCallerId = new ThreadLocal<Serializable>();
     private static final ThreadLocal<Callers> callers = new ThreadLocal<Callers>();
     private static Map<Subject, Context> subjectContexts = new IdentityHashMap<Subject, Context>();
     private static Map<SubjectId, Subject> subjectIds =  Collections.synchronizedMap(new HashMap<SubjectId, Subject>());
@@ -85,38 +83,6 @@ public class ContextManager {
         Subject subject = loginContext.getSubject();
         ContextManager.unregisterSubject(subject);
         loginContext.logout();
-    }
-
-
-    /**
-     * After a login, the client is left with a relatively empty Subject, while
-     * the Subject used by the server has more important contents.  This method
-     * lets a server-side component acting as an authentication client (such
-     * as Tocmat/Jetty) access the fully populated server-side Subject.
-     * @param clientSideSubject client simplification of actual subject
-     * @return full server side subject
-     */
-    public static Subject getServerSideSubject(Subject clientSideSubject) {
-        Set<IdentificationPrincipal> set = clientSideSubject.getPrincipals(IdentificationPrincipal.class);
-        if(set == null || set.size() == 0) {
-            return null;
-        }
-        IdentificationPrincipal idp = set.iterator().next();
-        return getRegisteredSubject(idp.getId());
-    }
-
-    public static void setCurrentCallerId(Serializable id) {
-        SecurityManager sm = System.getSecurityManager();
-        if (sm != null) sm.checkPermission(SET_CONTEXT);
-
-        currentCallerId.set(id);
-    }
-
-    public static Serializable getCurrentCallerId() {
-        SecurityManager sm = System.getSecurityManager();
-        if (sm != null) sm.checkPermission(GET_CONTEXT);
-
-        return currentCallerId.get();
     }
 
     public static void setCallers(Subject currentCaller, Subject nextCaller) {

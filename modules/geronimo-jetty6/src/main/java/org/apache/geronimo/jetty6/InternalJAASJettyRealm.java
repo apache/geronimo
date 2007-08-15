@@ -91,7 +91,7 @@ public class InternalJAASJettyRealm {
                 LoginContext loginContext = ContextManager.login(securityRealmName, callbackHandler);
                 callbackHandler.clear();
 
-                Subject subject = ContextManager.getServerSideSubject(loginContext.getSubject());
+                Subject subject = loginContext.getSubject();
                 ContextManager.setCallers(subject, subject);
 
                 //login success

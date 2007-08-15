@@ -89,7 +89,6 @@ public class ConfigurationEntryTest extends TestSupport {
         ContextManager.logout(context);
 
         assertNull(ContextManager.getRegisteredSubject(idp.getId()));
-        assertNull(ContextManager.getServerSideSubject(clientSubject));
 
         assertTrue("id of subject should be null", ContextManager.getSubjectId(subject) == null);
 
