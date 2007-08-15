@@ -70,6 +70,15 @@ public final class DeploymentUtil {
         tempFile.deleteOnExit();
         return tempFile;
     }
+    
+    // be careful to clean up the temp file... we tell the vm to delete this on exit
+    // but VMs can't be trusted to acutally delete the file
+    private static File createTempFile(String extension) throws IOException {
+        File tempFile = File.createTempFile("geronimo-deploymentUtil", extension == null? ".tmpdir": extension);
+        tempFile.deleteOnExit();
+        return tempFile;
+    }
+
 
     public static void copyFile(File source, File destination) throws IOException {
         File destinationDir = destination.getParentFile();
@@ -107,7 +116,13 @@ public final class DeploymentUtil {
         try {
             in = url.openStream();
 
-            File tempFile = createTempFile();
+            int index = url.getPath().lastIndexOf(".");
+            String extension = null;
+            if (index > 0) {
+                extension = url.getPath().substring(index);
+            }
+            File tempFile = createTempFile(extension);
+
             out = new FileOutputStream(tempFile);
 
             writeAll(in, out);
