@@ -80,28 +80,13 @@
             HACK: Copy XmlBeans generated schemas.
             -->
             <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>groovy-maven-plugin</artifactId>
+                <groupId>org.apache.geronimo.buildsupport</groupId>
+                <artifactId>buildsupport-maven-plugin</artifactId>
                 <executions>
                     <execution>
-                        <phase>generate-resources</phase>
                         <goals>
-                            <goal>execute</goal>
+                            <goal>copy-xmlbeans-schemas</goal>
                         </goals>
-                        <configuration>
-                            <classpath>
-                                <element>
-                                    <groupId>org.apache.geronimo.buildsupport</groupId>
-                                    <artifactId>groovy-build-library</artifactId>
-                                    <version>${version}</version>
-                                </element>
-                            </classpath>
-                            <source>
-                                <body>
-                                    org.apache.geronimo.buildsupport.CopyXmlBeansSchemas.execute(this)
-                                </body>
-                            </source>
-                        </configuration>
                     </execution>
                 </executions>
             </plugin>

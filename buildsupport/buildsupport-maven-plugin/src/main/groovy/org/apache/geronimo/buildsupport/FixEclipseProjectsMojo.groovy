@@ -24,13 +24,14 @@ import org.codehaus.mojo.groovy.GroovyMojoSupport
 import org.apache.maven.project.MavenProject
 
 /**
- * Helper to copy XmlBeans schemas.
+ * Helper to fix generate Eclipse project files.
  *
- * @goal copy-xmlbeans-schemas
+ * @goal fix-eclipse-projects
+ * @phase validate
  *
  * @version $Rev$ $Date$
  */
-class CopyXmlBeansSchemas
+class FixEclipseProjectsMojo
     extends GroovyMojoSupport
 {
     /**
@@ -41,15 +42,21 @@ class CopyXmlBeansSchemas
     MavenProject project
     
     void execute() {
+        def file = new File(project.basedir, '.classpath')
+        def dir = new File(project.basedir, 'target/generated-sources/xmlbeans')
+        
         //
         // FIXME: Change this to reflect its a hack for xmlbeans not clover
         //
-        def dir = new File(project.basedir, 'target/clover/classes')
-        ant.mkdir(dir: dir)
+        def targetPath = 'target/clover/classes'
         
-        ant.copy(todir: dir) {
-            fileset(dir: project.build.outputDirectory) {
-                include(name: 'schemaorg_apache_xmlbeans/**')
+        if (file.exists() && dir.exists()) {
+            def classpath = new XmlParser().parse(file)
+            if (!classpath.classpathentry.findAll { it.'@path' == targetPath }) {
+                log.info('Updating Eclipse .classpath for XMLBeans muck...')
+                
+                def node = new Node(classpath, 'classpathentry', [ kind: 'lib', path: targetPath ])
+                new XmlNodePrinter(file.newPrintWriter()).print(classpath)
             }
         }
     }

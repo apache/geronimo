@@ -19,30 +19,38 @@
 
 package org.apache.geronimo.buildsupport
 
+import org.codehaus.mojo.groovy.GroovyMojoSupport
+
+import org.apache.maven.project.MavenProject
+
 /**
- * Helper to fix generate Eclipse project files.
+ * Helper to copy XmlBeans schemas.
+ *
+ * @goal copy-xmlbeans-schemas
+ * @phase generate-resources
  *
  * @version $Rev$ $Date$
  */
-class FixEclipseProjects
+class CopyXmlBeansSchemasMojo
+    extends GroovyMojoSupport
 {
-    static void execute(source) {
-        def project = source.project
-        def file = new File(project.basedir, '.classpath')
-        def dir = new File(project.basedir, 'target/generated-sources/xmlbeans')
-        
+    /**
+     * @parameter expression="${project}"
+     * @required
+     * @readonly
+     */
+    MavenProject project
+    
+    void execute() {
         //
         // FIXME: Change this to reflect its a hack for xmlbeans not clover
         //
-        def targetPath = 'target/clover/classes'
+        def dir = new File(project.basedir, 'target/clover/classes')
+        ant.mkdir(dir: dir)
         
-        if (file.exists() && dir.exists()) {
-            def classpath = new XmlParser().parse(file)
-            if (!classpath.classpathentry.findAll { it.'@path' == targetPath }) {
-                println 'Updating Eclipse .classpath for XMLBeans muck...'
-                
-                def node = new Node(classpath, 'classpathentry', [ kind: 'lib', path: targetPath ])
-                new XmlNodePrinter(file.newPrintWriter()).print(classpath)
+        ant.copy(todir: dir) {
+            fileset(dir: project.build.outputDirectory) {
+                include(name: 'schemaorg_apache_xmlbeans/**')
             }
         }
     }
