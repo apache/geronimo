@@ -42,6 +42,7 @@ import org.apache.geronimo.deployment.util.DeploymentUtil;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
+import org.apache.geronimo.j2ee.annotation.Holder;
 import org.apache.geronimo.j2ee.deployment.EARContext;
 import org.apache.geronimo.j2ee.deployment.Module;
 import org.apache.geronimo.j2ee.deployment.WebModule;
@@ -49,6 +50,7 @@ import org.apache.geronimo.j2ee.deployment.WebServiceBuilder;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.jaxws.JAXWSUtils;
 import org.apache.geronimo.jaxws.PortInfo;
+import org.apache.geronimo.jaxws.annotations.AnnotationHolder;
 import org.apache.geronimo.kernel.GBeanAlreadyExistsException;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.kernel.classloader.JarFileClassLoader;
@@ -329,13 +331,23 @@ public abstract class JAXWSServiceBuilder implements WebServiceBuilder {
         }
         
         Map componentContext = null;
+        Holder moduleHolder = null;
         try {
             GBeanData moduleGBean = context.getGBeanInstance(context.getModuleName());
             componentContext = (Map)moduleGBean.getAttribute("componentContext");
+            moduleHolder = (Holder)moduleGBean.getAttribute("holder");
         } catch (GBeanNotFoundException e) {
             LOG.warn("ModuleGBean not found. JNDI resource injection will not work.");
         }
 
+        AnnotationHolder serviceHolder = 
+            (AnnotationHolder)sharedContext.get(WebServiceContextAnnotationHelper.class.getName());
+        if (serviceHolder == null) {
+            serviceHolder = new AnnotationHolder(moduleHolder);
+            WebServiceContextAnnotationHelper.addWebServiceContextInjections(serviceHolder, module.getClassFinder());
+            sharedContext.put(WebServiceContextAnnotationHelper.class.getName(), serviceHolder);
+        }
+        
         String location = portInfo.getLocation();
         LOG.info("Configuring JAX-WS Web Service: " + servletName + " at " + location);
 
@@ -344,6 +356,7 @@ public abstract class JAXWSServiceBuilder implements WebServiceBuilder {
         containerFactoryData.setAttribute("portInfo", portInfo);
         containerFactoryData.setAttribute("endpointClassName", servletClassName);
         containerFactoryData.setAttribute("componentContext", componentContext);
+        containerFactoryData.setAttribute("holder", serviceHolder);
         try {
             context.addGBean(containerFactoryData);
         } catch (GBeanAlreadyExistsException e) {
@@ -358,12 +371,12 @@ public abstract class JAXWSServiceBuilder implements WebServiceBuilder {
             containerFactoryData.setReferencePattern("TransactionManager",
                                                      ((EARContext)context).getTransactionManagerName());
         }
-
+        
         initialize(containerFactoryData, servletClass, portInfo, module);
         
         return true;
     }
-
+        
     protected abstract GBeanInfo getContainerFactoryGBeanInfo();
 
     public boolean configureEJB(GBeanData targetGBean,

@@ -95,6 +95,7 @@ public abstract class Axis2WebServiceContainer implements WebServiceContainer {
     protected WSDLQueryHandler wsdlQueryHandler;
     protected Binding binding;
     protected JAXWSAnnotationProcessor annotationProcessor;
+    protected Context context;
 
     public Axis2WebServiceContainer(PortInfo portInfo,
                                     String endpointClassName,
@@ -105,6 +106,7 @@ public abstract class Axis2WebServiceContainer implements WebServiceContainer {
         this.endpointClassName = endpointClassName;
         this.portInfo = portInfo;
         this.configurationBaseUrl = configurationBaseUrl;
+        this.context = context;
         this.jndiResolver = new ServerJNDIResolver(context);
     }
 
@@ -168,7 +170,7 @@ public abstract class Axis2WebServiceContainer implements WebServiceContainer {
     }
 
     protected void doService(final Request request, final Response response)
-            throws Exception {
+            throws Exception {        
         initContextRoot(request);
 
         if (LOG.isDebugEnabled()) {

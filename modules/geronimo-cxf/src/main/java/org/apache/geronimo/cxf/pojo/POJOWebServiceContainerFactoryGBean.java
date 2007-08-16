@@ -27,6 +27,7 @@ import javax.transaction.TransactionManager;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.cxf.Bus;
+import org.apache.cxf.jaxws.context.WebServiceContextImpl;
 import org.apache.geronimo.cxf.CXFCatalogUtils;
 import org.apache.geronimo.cxf.CXFWebServiceContainer;
 import org.apache.geronimo.gbean.GBeanInfo;
@@ -35,8 +36,10 @@ import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.jaxws.JNDIResolver;
 import org.apache.geronimo.jaxws.PortInfo;
 import org.apache.geronimo.jaxws.ServerJNDIResolver;
+import org.apache.geronimo.jaxws.annotations.AnnotationHolder;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.naming.enc.EnterpriseNamingContext;
+import org.apache.geronimo.naming.reference.SimpleReference;
 import org.apache.geronimo.transaction.GeronimoUserTransaction;
 import org.apache.geronimo.webservices.WebServiceContainer;
 import org.apache.geronimo.webservices.WebServiceContainerFactory;
@@ -49,7 +52,7 @@ public class POJOWebServiceContainerFactoryGBean implements WebServiceContainerF
     private static final Log LOG = LogFactory.getLog(POJOWebServiceContainerFactoryGBean.class);
 
     private final Bus bus;
-    private final Object endpointInstance;
+    private final Class servletClass;
     private final URL configurationBaseUrl;
 
     public POJOWebServiceContainerFactoryGBean(PortInfo portInfo,
@@ -58,7 +61,8 @@ public class POJOWebServiceContainerFactoryGBean implements WebServiceContainerF
                                                Map componentContext,
                                                Kernel kernel,
                                                TransactionManager transactionManager,
-                                               URL configurationBaseUrl)
+                                               URL configurationBaseUrl,
+                                               AnnotationHolder holder)
             throws ClassNotFoundException, 
                    IllegalAccessException,
                    InstantiationException {
@@ -66,6 +70,10 @@ public class POJOWebServiceContainerFactoryGBean implements WebServiceContainerF
         Context context = null;
         
         if (componentContext != null) {
+            
+            // The name should match WebServiceContextAnnotationHelper.RELATIVE_JNDI_NAME
+            componentContext.put("env/WebServiceContext", new WebServiceContextReference());
+            
             GeronimoUserTransaction userTransaction = new GeronimoUserTransaction(transactionManager);
             try {
                 context = EnterpriseNamingContext.createEnterpriseNamingContext(componentContext,
@@ -80,11 +88,12 @@ public class POJOWebServiceContainerFactoryGBean implements WebServiceContainerF
         this.bus = CXFWebServiceContainer.getBus();     
         this.configurationBaseUrl = configurationBaseUrl;
         
-        Class endpointClass = classLoader.loadClass(endpointClassName);
-        this.endpointInstance = endpointClass.newInstance();
+        this.servletClass = classLoader.loadClass(endpointClassName);
         
         this.bus.setExtension(new ServerJNDIResolver(context), JNDIResolver.class);
-        this.bus.setExtension(portInfo, PortInfo.class);   
+        this.bus.setExtension(portInfo, PortInfo.class); 
+        this.bus.setExtension(context, Context.class);
+        this.bus.setExtension(holder, AnnotationHolder.class);
         
         CXFCatalogUtils.loadOASISCatalog(this.bus, 
                                          this.configurationBaseUrl, 
@@ -92,9 +101,15 @@ public class POJOWebServiceContainerFactoryGBean implements WebServiceContainerF
     }
     
     public WebServiceContainer getWebServiceContainer() {
-        return new POJOWebServiceContainer(bus, configurationBaseUrl, endpointInstance);
+        return new POJOWebServiceContainer(bus, configurationBaseUrl, servletClass);
     }
 
+    private static class WebServiceContextReference extends SimpleReference {
+        public Object getContent() throws NamingException {
+            return new WebServiceContextImpl();
+        }
+    }
+    
     public static final GBeanInfo GBEAN_INFO;
 
     static {
@@ -106,6 +121,7 @@ public class POJOWebServiceContainerFactoryGBean implements WebServiceContainerF
         infoBuilder.addAttribute("kernel", Kernel.class, false);
         infoBuilder.addReference("TransactionManager", TransactionManager.class, NameFactory.TRANSACTION_MANAGER);
         infoBuilder.addAttribute("configurationBaseUrl", URL.class, true);
+        infoBuilder.addAttribute("holder", AnnotationHolder.class, true);
 
         infoBuilder.setConstructor(new String[]{
                 "portInfo", 
@@ -114,7 +130,8 @@ public class POJOWebServiceContainerFactoryGBean implements WebServiceContainerF
                 "componentContext", 
                 "kernel", 
                 "TransactionManager", 
-                "configurationBaseUrl"
+                "configurationBaseUrl",
+                "holder"
         });
         
         GBEAN_INFO = infoBuilder.getBeanInfo();

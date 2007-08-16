@@ -29,8 +29,10 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
+import org.apache.geronimo.jaxws.annotations.AnnotationHolder;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.naming.enc.EnterpriseNamingContext;
+import org.apache.geronimo.naming.reference.SimpleReference;
 import org.apache.geronimo.transaction.GeronimoUserTransaction;
 import org.apache.geronimo.webservices.WebServiceContainer;
 import org.apache.geronimo.webservices.WebServiceContainerFactory;
@@ -47,6 +49,7 @@ public class POJOWebServiceContainerFactoryGBean implements WebServiceContainerF
     private final String endpointClassName;
     private URL configurationBaseUrl;
     private Context context;
+    private AnnotationHolder holder;
 
     public POJOWebServiceContainerFactoryGBean(org.apache.geronimo.jaxws.PortInfo portInfo,
                                                String endpointClassName,
@@ -54,10 +57,15 @@ public class POJOWebServiceContainerFactoryGBean implements WebServiceContainerF
                                                Map componentContext,
                                                Kernel kernel,
                                                TransactionManager transactionManager,
-                                               URL configurationBaseUrl)
+                                               URL configurationBaseUrl,
+                                               AnnotationHolder holder)
         throws InstantiationException, IllegalAccessException, ClassNotFoundException {
         
         if (componentContext != null) {
+            
+            // The name should match WebServiceContextAnnotationHelper.RELATIVE_JNDI_NAME
+            componentContext.put("env/WebServiceContext", new WebServiceContextReference());
+            
             GeronimoUserTransaction userTransaction = new GeronimoUserTransaction(transactionManager);
             try {
                 this.context = EnterpriseNamingContext.createEnterpriseNamingContext(componentContext,
@@ -72,11 +80,12 @@ public class POJOWebServiceContainerFactoryGBean implements WebServiceContainerF
         this.portInfo = portInfo;
         this.classLoader = classLoader;
         this.endpointClassName = endpointClassName;
-        this.configurationBaseUrl = configurationBaseUrl;
+        this.configurationBaseUrl = configurationBaseUrl;   
+        this.holder = holder;
     }
 
     public WebServiceContainer getWebServiceContainer() {
-        POJOWebServiceContainer container = new POJOWebServiceContainer(portInfo, endpointClassName, classLoader, context, configurationBaseUrl);
+        POJOWebServiceContainer container = new POJOWebServiceContainer(portInfo, endpointClassName, classLoader, context, configurationBaseUrl, holder);
         try {
             container.init();
         } catch (Exception e) {
@@ -85,6 +94,12 @@ public class POJOWebServiceContainerFactoryGBean implements WebServiceContainerF
         return container;
     }
 
+    private static class WebServiceContextReference extends SimpleReference {
+        public Object getContent() throws NamingException {
+            return new POJOWebServiceContext();
+        }        
+    }
+    
     public static final GBeanInfo GBEAN_INFO;
 
     static {
@@ -96,9 +111,10 @@ public class POJOWebServiceContainerFactoryGBean implements WebServiceContainerF
         infoBuilder.addAttribute("kernel", Kernel.class, false);
         infoBuilder.addReference("TransactionManager", TransactionManager.class, NameFactory.TRANSACTION_MANAGER);
         infoBuilder.addAttribute("configurationBaseUrl", URL.class, true);
+        infoBuilder.addAttribute("holder", AnnotationHolder.class, true);
 
         infoBuilder.setConstructor(new String[]{"portInfo", "endpointClassName", "classLoader",
-                "componentContext", "kernel", "TransactionManager", "configurationBaseUrl"});
+                "componentContext", "kernel", "TransactionManager", "configurationBaseUrl", "holder"});
         GBEAN_INFO = infoBuilder.getBeanInfo();
     }
 
