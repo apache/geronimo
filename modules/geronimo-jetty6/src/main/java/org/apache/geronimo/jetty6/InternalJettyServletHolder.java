@@ -83,6 +83,7 @@ public class InternalJettyServletHolder extends ServletHolder {
 
     public void destroyInstance(Object o) throws Exception {
         if (!stopped) {
+            super.destroyInstance(o);
             servletRegistration.destroyInstance(o);
         }
     }
