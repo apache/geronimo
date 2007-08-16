@@ -33,6 +33,13 @@ Installation
  If you wish to modify the default ports that Geronimo will use, edit the file
  <geronimo_home>/var/config/config-substitutions.properties
 
+ Note for Windows platform:
+ ==========================
+ Windows users keep in mind the directory path length limitation of 255 characters.
+ Defaulting installation to predefined directories such as "My Documents" or 
+ "Program Files" may cause the installation or the server start up to fail. Try a 
+ <geronimo_home> at a root level instead.
+
 
 ______________________
 Starting and Stopping
