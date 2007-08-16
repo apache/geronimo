@@ -115,6 +115,7 @@ public class PersistenceUnitBuilder implements ModuleBuilderExtension {
             URL[] urls = new URL[manifestcp.size()];
             int i = 0;
             for (String path : manifestcp) {
+                path = path.replaceAll(" ", "%20");
                 URL url = moduleBaseURI.resolve(path).toURL();
                 urls[i++] = url;
             }
