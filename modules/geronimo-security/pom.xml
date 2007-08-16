@@ -57,10 +57,10 @@
             <groupId>org.apache.geronimo.specs</groupId>
             <artifactId>geronimo-jacc_1.1_spec</artifactId>
         </dependency>
-        
+
         <dependency>
-            <groupId>regexp</groupId>
-            <artifactId>regexp</artifactId>
+            <groupId>org.apache.geronimo.specs</groupId>
+            <artifactId>geronimo-jaspi_1.0_spec</artifactId>
         </dependency>
         
         <dependency>
