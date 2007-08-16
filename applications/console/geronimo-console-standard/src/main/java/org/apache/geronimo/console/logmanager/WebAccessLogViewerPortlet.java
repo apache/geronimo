@@ -164,9 +164,10 @@ public class WebAccessLogViewerPortlet extends BasePortlet {
         String toDateStr = criteria.toDate;
 
         Calendar cal1 = Calendar.getInstance(), cal2 = Calendar.getInstance();
-        // If not all dates were passed we assume than no fields were passed and just
-        // filter on the current date.
-        if(fromDateStr == null || toDateStr == null) {
+        // If not all dates were passed and ignoreDates is not enabled, filter on the current date.
+        // Note: This happens only when the portlet is loaded for the first time. Subsequent invocation (other than
+        // using "Refresh") will have either ignoreDates enabled or both the dates non null.
+        if((fromDateStr == null || toDateStr == null) && !criteria.ignoreDates) {
             // just keep the month date and year
             cal1.set(Calendar.MILLISECOND, 0);
             cal1.set(Calendar.MINUTE, 0);
