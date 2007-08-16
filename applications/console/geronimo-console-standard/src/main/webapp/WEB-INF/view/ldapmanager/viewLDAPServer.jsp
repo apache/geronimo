@@ -366,7 +366,12 @@ function <portlet:namespace/>updateLDAPTree(entries) {
 
 /* Init LDAP tree */
 function <portlet:namespace/>initLDAPTree(baseDN) {
+    if (baseDN == null) {
+        selectTab('connectInfoTab');
+        return;
+    }
     _baseDN = baseDN;
+
     var tree = dojo.widget.byId('ldapTree');
     var rootNode = dojo.widget.createWidget(
         'TreeNode', 
