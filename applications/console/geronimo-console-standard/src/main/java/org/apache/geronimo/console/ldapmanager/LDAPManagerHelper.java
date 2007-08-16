@@ -102,17 +102,7 @@ public class LDAPManagerHelper {
      */
     public LDAPManagerHelper() throws Exception {
         dirContext = (DirContext) getSessionAttribute(DIR_CONTEXT_KEY);
-        if (dirContext == null) {
-            // TODO: Get the default values from configuration / GBean
-            String result = connect(INITIAL_CONTEXT_FACTORY_DEFAULT,
-                    HOST_DEFAULT, PORT_DEFAULT, BASE_DN_DEFAULT,
-                    LDAP_VERSION_DEFAULT, SECURITY_PROTOCOL_DEFAULT,
-                    SECURITY_AUTHENTICATION_DEFAULT,
-                    SECURITY_PRINCIPAL_DEFAULT, SECURITY_CREDENTIALS_DEFAULT);
-            if (!SUCCESS_RESULT.equalsIgnoreCase(result)) {
-                throw new Exception(result);
-            }
-        } else {
+        if (dirContext != null) {
             dirEnv = (Hashtable) getSessionAttribute(DIR_ENV_KEY);
             host = (String) getSessionAttribute(HOST_KEY);
             port = (String) getSessionAttribute(PORT_KEY);
@@ -224,6 +214,10 @@ public class LDAPManagerHelper {
     public Collection list(String name) throws Exception {
         ArrayList result = new ArrayList();
 
+        if (dirContext == null) {
+            return result;
+        }
+
         try {
             NamingEnumeration list = dirContext.list(name); // can't be ""
 
@@ -292,6 +286,11 @@ public class LDAPManagerHelper {
      */
     public Collection getAttributes(String name) throws Exception {
         ArrayList result = new ArrayList();
+        
+        if (dirContext == null) {
+            return result;
+        }
+
         try {
             Attributes attribs = dirContext.getAttributes(name);
             NamingEnumeration attributes = attribs.getAll();
@@ -318,6 +317,11 @@ public class LDAPManagerHelper {
     public Collection search(String searchDN, String filter, String searchScope)
             throws Exception {
         ArrayList result = new ArrayList();
+
+        if (dirContext == null) {
+            return result;
+        }
+
         try {
             String ldapURL = createLDAPURL(host, port, searchDN);
             SearchControls sc = new SearchControls();
@@ -356,11 +360,14 @@ public class LDAPManagerHelper {
      * Close directory context
      */
     public void close() throws Exception {
-        try {
-            dirContext.close();
-        } catch (NamingException e) {
-            throw new Exception("Problem closing directory context: "
-                    + e.getMessage());
+        if (dirContext != null) {
+            try {
+                dirContext.close();
+                dirContext = null;
+            } catch (NamingException e) {
+                throw new Exception("Problem closing directory context: "
+                                    + e.getMessage());
+            }
         }
     }
 
