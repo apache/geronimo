@@ -216,7 +216,7 @@ public class JspModuleBuilderExtension implements ModuleBuilderExtension {
                         location = location.substring(1);
                     }
                     try {
-                        File targetFile = webModule.getEarContext().getTargetFile(new URI(location));
+                        File targetFile = webModule.getEarContext().getTargetFile(createURI(location));
                         if (targetFile!=null) {
                             tldURLs.add(targetFile.toURL());
                         }
@@ -277,13 +277,13 @@ public class JspModuleBuilderExtension implements ModuleBuilderExtension {
             while (entries.hasMoreElements()) {
                 JarEntry jarEntry = entries.nextElement();
                 if (jarEntry.getName().startsWith("WEB-INF/") && jarEntry.getName().endsWith(".tld")) {
-                    File targetFile = webModule.getEarContext().getTargetFile(new URI(jarEntry.getName()));
+                    File targetFile = webModule.getEarContext().getTargetFile(createURI(jarEntry.getName()));
                     if (targetFile!=null) {
                         modURLs.add(targetFile.toURL());
                     }
                 }
                 if (jarEntry.getName().startsWith("WEB-INF/lib/") && jarEntry.getName().endsWith(".jar")) {
-                    File targetFile = webModule.getEarContext().getTargetFile(new URI(jarEntry.getName()));
+                    File targetFile = webModule.getEarContext().getTargetFile(createURI(jarEntry.getName()));
                     List<URL> jarUrls = scanJAR(new JarFile(targetFile), null);
                     for (URL jarURL : jarUrls) {
                         modURLs.add(jarURL);
@@ -363,7 +363,7 @@ public class JspModuleBuilderExtension implements ModuleBuilderExtension {
                 try {
                     JarURLConnection jarConnection = (JarURLConnection) url.openConnection();
                     URL urlJC = jarConnection.getJarFileURL();
-                    URI baseURI = new URI(urlJC.toString().replaceAll(" ", "%20"));
+                    URI baseURI = createURI(urlJC.toString());
                     directory = new File(baseURI);
                     if (directory.isDirectory()) {
                         if (directory.canRead()) {
@@ -382,7 +382,7 @@ public class JspModuleBuilderExtension implements ModuleBuilderExtension {
                 }
             } else if (url.toString().startsWith("file:")) {
                 try {
-                    URI baseURI = new URI(url.toString().replaceAll(" ", "%20"));
+                    URI baseURI = createURI(url.toString());
                     directory = new File(baseURI);
                     if (directory.isDirectory() && directory.canRead()) {
                         File[] children = directory.listFiles();
@@ -688,6 +688,11 @@ public class JspModuleBuilderExtension implements ModuleBuilderExtension {
         return (TaglibDocument) xmlObject;
     }
 
+
+    private URI createURI(String path) throws URISyntaxException {
+        path = path.replaceAll(" ", "%20");
+        return new URI(path);
+    }
 
     public static final GBeanInfo GBEAN_INFO;
 
