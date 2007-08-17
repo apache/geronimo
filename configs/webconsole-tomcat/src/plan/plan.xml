@@ -145,18 +145,18 @@
             </gbean>
             <gbean name="Database4" class="org.apache.geronimo.console.databasemanager.wizard.DatabaseDriverGBean" xmlns="http://geronimo.apache.org/xml/ns/deployment-${geronimoSchemaVersion}">
                 <attribute name="name">Derby embedded</attribute>
-                <attribute name="URLPrototype">jdbc:derby:{Database}</attribute>
-                <attribute name="driverClassName">org.apache.derby.jdbc.EmbeddedDriver</attribute>
+                <attribute name="URLPrototype">null</attribute>
+                <attribute name="driverClassName">null</attribute>
                 <attribute name="defaultPort">0</attribute>
-                <attribute name="specific">false</attribute>
+                <attribute name="specific">true</attribute>
                 <attribute name="RARName">org.tranql/tranql-connector-derby-embed-local//rar</attribute>
             </gbean>
             <gbean name="Database5" class="org.apache.geronimo.console.databasemanager.wizard.DatabaseDriverGBean" xmlns="http://geronimo.apache.org/xml/ns/deployment-${geronimoSchemaVersion}">
                 <attribute name="name">Derby network</attribute>
-                <attribute name="URLPrototype">jdbc:derby://{Host}:{Port}/{Database}</attribute>
-                <attribute name="driverClassName">org.apache.derby.jdbc.ClientDriver</attribute>
-                <attribute name="defaultPort">1527</attribute>
-                <attribute name="specific">false</attribute>
+                <attribute name="URLPrototype">null</attribute>
+                <attribute name="driverClassName">null</attribute>
+                <attribute name="defaultPort">0</attribute>
+                <attribute name="specific">true</attribute>
                 <attribute name="RARName">org.tranql/tranql-connector-derby-client-local//rar</attribute>
             </gbean>
             <gbean name="Database6" class="org.apache.geronimo.console.databasemanager.wizard.DatabaseDriverGBean" xmlns="http://geronimo.apache.org/xml/ns/deployment-${geronimoSchemaVersion}">
