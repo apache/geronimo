@@ -116,7 +116,7 @@
                 <attribute name="URLPrototype">jdbc:daffodilDB_embedded:{Database}</attribute>
                 <attribute name="driverClassName">in.co.daffodil.db.jdbc.DaffodilDBDriver</attribute>
                 <attribute name="defaultPort">0</attribute>
-                <attribute name="XA">false</attribute>
+                <attribute name="specific">false</attribute>
                 <attribute name="RARName">org.tranql/tranql-connector-ra//rar</attribute>
             </gbean>
             <gbean name="Database1" class="org.apache.geronimo.console.databasemanager.wizard.DatabaseDriverGBean" xmlns="http://geronimo.apache.org/xml/ns/deployment-${geronimoSchemaVersion}">
@@ -124,7 +124,7 @@
                 <attribute name="URLPrototype">jdbc:daffodilDB://{Host}:{Port}/{Database}</attribute>
                 <attribute name="driverClassName">in.co.daffodil.db.rmi.RmiDaffodilDBDriver</attribute>
                 <attribute name="defaultPort">3456</attribute>
-                <attribute name="XA">false</attribute>
+                <attribute name="specific">false</attribute>
                 <attribute name="RARName">org.tranql/tranql-connector-ra//rar</attribute>
             </gbean>
             <gbean name="Database2" class="org.apache.geronimo.console.databasemanager.wizard.DatabaseDriverGBean" xmlns="http://geronimo.apache.org/xml/ns/deployment-${geronimoSchemaVersion}">
@@ -132,7 +132,7 @@
                 <attribute name="URLPrototype">jdbc:db2://{Host}:{Port}/{Database}</attribute>
                 <attribute name="driverClassName">com.ibm.db2.jcc.DB2Driver</attribute>
                 <attribute name="defaultPort">50000</attribute>
-                <attribute name="XA">false</attribute>
+                <attribute name="specific">false</attribute>
                 <attribute name="RARName">org.tranql/tranql-connector-ra//rar</attribute>
             </gbean>
             <gbean name="Database3" class="org.apache.geronimo.console.databasemanager.wizard.DatabaseDriverGBean" xmlns="http://geronimo.apache.org/xml/ns/deployment-${geronimoSchemaVersion}">
@@ -140,7 +140,7 @@
                 <attribute name="URLPrototype">jdbc:datadirect:db2://{Host}:{Port};DatabaseName={Database}</attribute>
                 <attribute name="driverClassName">com.ddtek.jdbc.db2.DB2Driver</attribute>
                 <attribute name="defaultPort">50000</attribute>
-                <attribute name="XA">false</attribute>
+                <attribute name="specific">false</attribute>
                 <attribute name="RARName">org.tranql/tranql-connector-ra//rar</attribute>
             </gbean>
             <gbean name="Database4" class="org.apache.geronimo.console.databasemanager.wizard.DatabaseDriverGBean" xmlns="http://geronimo.apache.org/xml/ns/deployment-${geronimoSchemaVersion}">
@@ -148,7 +148,7 @@
                 <attribute name="URLPrototype">jdbc:derby:{Database}</attribute>
                 <attribute name="driverClassName">org.apache.derby.jdbc.EmbeddedDriver</attribute>
                 <attribute name="defaultPort">0</attribute>
-                <attribute name="XA">false</attribute>
+                <attribute name="specific">false</attribute>
                 <attribute name="RARName">org.tranql/tranql-connector-derby-embed-local//rar</attribute>
             </gbean>
             <gbean name="Database5" class="org.apache.geronimo.console.databasemanager.wizard.DatabaseDriverGBean" xmlns="http://geronimo.apache.org/xml/ns/deployment-${geronimoSchemaVersion}">
@@ -156,7 +156,7 @@
                 <attribute name="URLPrototype">jdbc:derby://{Host}:{Port}/{Database}</attribute>
                 <attribute name="driverClassName">org.apache.derby.jdbc.ClientDriver</attribute>
                 <attribute name="defaultPort">1527</attribute>
-                <attribute name="XA">false</attribute>
+                <attribute name="specific">false</attribute>
                 <attribute name="RARName">org.tranql/tranql-connector-derby-client-local//rar</attribute>
             </gbean>
             <gbean name="Database6" class="org.apache.geronimo.console.databasemanager.wizard.DatabaseDriverGBean" xmlns="http://geronimo.apache.org/xml/ns/deployment-${geronimoSchemaVersion}">
@@ -164,7 +164,7 @@
                 <attribute name="URLPrototype">null</attribute>
                 <attribute name="driverClassName">null</attribute>
                 <attribute name="defaultPort">0</attribute>
-                <attribute name="XA">true</attribute>
+                <attribute name="specific">true</attribute>
                 <attribute name="RARName">org.tranql/tranql-connector-derby-embed-xa//rar</attribute>
             </gbean>
             <gbean name="Database7" class="org.apache.geronimo.console.databasemanager.wizard.DatabaseDriverGBean" xmlns="http://geronimo.apache.org/xml/ns/deployment-${geronimoSchemaVersion}">
@@ -172,7 +172,7 @@
                 <attribute name="URLPrototype">null</attribute>
                 <attribute name="driverClassName">null</attribute>
                 <attribute name="defaultPort">0</attribute>
-                <attribute name="XA">true</attribute>
+                <attribute name="specific">true</attribute>
                 <attribute name="RARName">org.tranql/tranql-connector-derby-client-xa//rar</attribute>
             </gbean>
             <gbean name="Database8" class="org.apache.geronimo.console.databasemanager.wizard.DatabaseDriverGBean" xmlns="http://geronimo.apache.org/xml/ns/deployment-${geronimoSchemaVersion}">
@@ -180,7 +180,7 @@
                 <attribute name="URLPrototype">jdbc:FrontBase://{Host}:{Port}/{Database}</attribute>
                 <attribute name="driverClassName">com.frontbase.jdbc.FBJDriver</attribute>
                 <attribute name="defaultPort">0</attribute>
-                <attribute name="XA">false</attribute>
+                <attribute name="specific">false</attribute>
                 <attribute name="RARName">org.tranql/tranql-connector-ra//rar</attribute>
             </gbean>
             <gbean name="Database9" class="org.apache.geronimo.console.databasemanager.wizard.DatabaseDriverGBean" xmlns="http://geronimo.apache.org/xml/ns/deployment-${geronimoSchemaVersion}">
@@ -188,7 +188,7 @@
                 <attribute name="URLPrototype">jdbc:hsqldb:{Database}</attribute>
                 <attribute name="driverClassName">org.hsqldb.jdbcDriver</attribute>
                 <attribute name="defaultPort">0</attribute>
-                <attribute name="XA">false</attribute>
+                <attribute name="specific">false</attribute>
                 <attribute name="RARName">org.tranql/tranql-connector-ra//rar</attribute>
             </gbean>
             <gbean name="Database10" class="org.apache.geronimo.console.databasemanager.wizard.DatabaseDriverGBean" xmlns="http://geronimo.apache.org/xml/ns/deployment-${geronimoSchemaVersion}">
@@ -196,7 +196,7 @@
                 <attribute name="URLPrototype">jdbc:hsqldb:hsql://{Host}:{Port}/{Database}</attribute>
                 <attribute name="driverClassName">org.hsqldb.jdbcDriver</attribute>
                 <attribute name="defaultPort">0</attribute>
-                <attribute name="XA">false</attribute>
+                <attribute name="specific">false</attribute>
                 <attribute name="RARName">org.tranql/tranql-connector-ra//rar</attribute>
             </gbean>
             <gbean name="Database11" class="org.apache.geronimo.console.databasemanager.wizard.DatabaseDriverGBean" xmlns="http://geronimo.apache.org/xml/ns/deployment-${geronimoSchemaVersion}">
@@ -204,7 +204,7 @@
                 <attribute name="URLPrototype">jdbc:informix-sqli://{Host}:{Port}/{Database}:informixserver={dbservername}</attribute>
                 <attribute name="driverClassName">com.informix.jdbc.IfxDriver</attribute>
                 <attribute name="defaultPort">0</attribute>
-                <attribute name="XA">false</attribute>
+                <attribute name="specific">false</attribute>
                 <attribute name="RARName">org.tranql/tranql-connector-ra//rar</attribute>
             </gbean>
             <gbean name="Database12" class="org.apache.geronimo.console.databasemanager.wizard.DatabaseDriverGBean" xmlns="http://geronimo.apache.org/xml/ns/deployment-${geronimoSchemaVersion}">
@@ -212,7 +212,7 @@
                 <attribute name="URLPrototype">jdbc:datadirect:informix://{Host}:{Port};informixServer={dbservername};DatabaseName={Database}</attribute>
                 <attribute name="driverClassName">com.ddtek.jdbc.informix.InformixDriver</attribute>
                 <attribute name="defaultPort">0</attribute>
-                <attribute name="XA">false</attribute>
+                <attribute name="specific">false</attribute>
                 <attribute name="RARName">org.tranql/tranql-connector-ra//rar</attribute>
             </gbean>
             <gbean name="Database13" class="org.apache.geronimo.console.databasemanager.wizard.DatabaseDriverGBean" xmlns="http://geronimo.apache.org/xml/ns/deployment-${geronimoSchemaVersion}">
@@ -220,7 +220,7 @@
                 <attribute name="URLPrototype">jdbc:Cache://{Host}:{Port}/{namespace}</attribute>
                 <attribute name="driverClassName">com.intersys.jdbc.CacheDriver</attribute>
                 <attribute name="defaultPort">0</attribute>
-                <attribute name="XA">false</attribute>
+                <attribute name="specific">false</attribute>
                 <attribute name="RARName">org.tranql/tranql-connector-ra//rar</attribute>
             </gbean>
             <gbean name="Database14" class="org.apache.geronimo.console.databasemanager.wizard.DatabaseDriverGBean" xmlns="http://geronimo.apache.org/xml/ns/deployment-${geronimoSchemaVersion}">
@@ -228,7 +228,7 @@
                 <attribute name="URLPrototype">jdbc:borland:dslocal:{file}</attribute>
                 <attribute name="driverClassName">com.borland.datastore.jdbc.DataStoreDriver</attribute>
                 <attribute name="defaultPort">0</attribute>
-                <attribute name="XA">false</attribute>
+                <attribute name="specific">false</attribute>
                 <attribute name="RARName">org.tranql/tranql-connector-ra//rar</attribute>
             </gbean>
             <gbean name="Database15" class="org.apache.geronimo.console.databasemanager.wizard.DatabaseDriverGBean" xmlns="http://geronimo.apache.org/xml/ns/deployment-${geronimoSchemaVersion}">
@@ -236,7 +236,7 @@
                 <attribute name="URLPrototype">jdbc:odbc:{datasource}</attribute>
                 <attribute name="driverClassName">sun.jdbc.odbc.JdbcOdbcDriver</attribute>
                 <attribute name="defaultPort">0</attribute>
-                <attribute name="XA">false</attribute>
+                <attribute name="specific">false</attribute>
                 <attribute name="RARName">org.tranql/tranql-connector-ra//rar</attribute>
             </gbean>
             <gbean name="Database16" class="org.apache.geronimo.console.databasemanager.wizard.DatabaseDriverGBean" xmlns="http://geronimo.apache.org/xml/ns/deployment-${geronimoSchemaVersion}">
@@ -244,7 +244,7 @@
                 <attribute name="URLPrototype">jdbc:mckoi:local://{ConfigPath}/{Schema}/</attribute>
                 <attribute name="driverClassName">com.mckoi.JDBCDriver</attribute>
                 <attribute name="defaultPort">0</attribute>
-                <attribute name="XA">false</attribute>
+                <attribute name="specific">false</attribute>
                 <attribute name="RARName">org.tranql/tranql-connector-ra//rar</attribute>
             </gbean>
             <gbean name="Database17" class="org.apache.geronimo.console.databasemanager.wizard.DatabaseDriverGBean" xmlns="http://geronimo.apache.org/xml/ns/deployment-${geronimoSchemaVersion}">
@@ -252,7 +252,7 @@
                 <attribute name="URLPrototype">jdbc:mckoi://{Host}:{Port}/{Schema}/</attribute>
                 <attribute name="driverClassName">com.mckoi.JDBCDriver</attribute>
                 <attribute name="defaultPort">0</attribute>
-                <attribute name="XA">false</attribute>
+                <attribute name="specific">false</attribute>
                 <attribute name="RARName">org.tranql/tranql-connector-ra//rar</attribute>
             </gbean>
             <gbean name="Database18" class="org.apache.geronimo.console.databasemanager.wizard.DatabaseDriverGBean" xmlns="http://geronimo.apache.org/xml/ns/deployment-${geronimoSchemaVersion}">
@@ -260,7 +260,7 @@
                 <attribute name="URLPrototype">jdbc:mimer://{Host}:{Port}/{Database}</attribute>
                 <attribute name="driverClassName">com.mimer.jdbc.Driver</attribute>
                 <attribute name="defaultPort">0</attribute>
-                <attribute name="XA">false</attribute>
+                <attribute name="specific">false</attribute>
                 <attribute name="RARName">org.tranql/tranql-connector-ra//rar</attribute>
             </gbean>
             <gbean name="Database19" class="org.apache.geronimo.console.databasemanager.wizard.DatabaseDriverGBean" xmlns="http://geronimo.apache.org/xml/ns/deployment-${geronimoSchemaVersion}">
@@ -268,7 +268,7 @@
                 <attribute name="URLPrototype">jdbc:mysql://{Host}:{Port}/{Database}</attribute>
                 <attribute name="driverClassName">com.mysql.jdbc.Driver</attribute>
                 <attribute name="defaultPort">3306</attribute>
-                <attribute name="XA">false</attribute>
+                <attribute name="specific">false</attribute>
                 <attribute name="RARName">org.tranql/tranql-connector-ra//rar</attribute>
             </gbean>
             <gbean name="Database20" class="org.apache.geronimo.console.databasemanager.wizard.DatabaseDriverGBean" xmlns="http://geronimo.apache.org/xml/ns/deployment-${geronimoSchemaVersion}">
@@ -276,7 +276,7 @@
                 <attribute name="URLPrototype">jdbc:oracle:thin:@{Host}:{Port}:{SID}</attribute>
                 <attribute name="driverClassName">oracle.jdbc.OracleDriver</attribute>
                 <attribute name="defaultPort">1521</attribute>
-                <attribute name="XA">false</attribute>
+                <attribute name="specific">false</attribute>
                 <attribute name="RARName">org.tranql/tranql-connector-ra//rar</attribute>
             </gbean>
             <gbean name="Database21" class="org.apache.geronimo.console.databasemanager.wizard.DatabaseDriverGBean" xmlns="http://geronimo.apache.org/xml/ns/deployment-${geronimoSchemaVersion}">
@@ -284,7 +284,7 @@
                 <attribute name="URLPrototype">jdbc:oracle:oci:@{Host}:{Port}:{SID}</attribute>
                 <attribute name="driverClassName">oracle.jdbc.OracleDriver</attribute>
                 <attribute name="defaultPort">1521</attribute>
-                <attribute name="XA">false</attribute>
+                <attribute name="specific">false</attribute>
                 <attribute name="RARName">org.tranql/tranql-connector-ra//rar</attribute>
             </gbean>
             <gbean name="Database22" class="org.apache.geronimo.console.databasemanager.wizard.DatabaseDriverGBean" xmlns="http://geronimo.apache.org/xml/ns/deployment-${geronimoSchemaVersion}">
@@ -292,7 +292,7 @@
                 <attribute name="URLPrototype">jdbc:datadirect:oracle://{Host}:{Port};ServiceName={SID}</attribute>
                 <attribute name="driverClassName">com.ddtek.jdbc.oracle.OracleDriver</attribute>
                 <attribute name="defaultPort">1521</attribute>
-                <attribute name="XA">false</attribute>
+                <attribute name="specific">false</attribute>
                 <attribute name="RARName">org.tranql/tranql-connector-ra//rar</attribute>
             </gbean>
             <gbean name="Database23" class="org.apache.geronimo.console.databasemanager.wizard.DatabaseDriverGBean" xmlns="http://geronimo.apache.org/xml/ns/deployment-${geronimoSchemaVersion}">
@@ -300,7 +300,7 @@
                 <attribute name="URLPrototype">jdbc:pervasive://{Host}:{Port}/{Database}</attribute>
                 <attribute name="driverClassName">com.pervasive.jdbc.v2.Driver</attribute>
                 <attribute name="defaultPort">0</attribute>
-                <attribute name="XA">false</attribute>
+                <attribute name="specific">false</attribute>
                 <attribute name="RARName">org.tranql/tranql-connector-ra//rar</attribute>
             </gbean>
             <gbean name="Database24" class="org.apache.geronimo.console.databasemanager.wizard.DatabaseDriverGBean" xmlns="http://geronimo.apache.org/xml/ns/deployment-${geronimoSchemaVersion}">
@@ -308,7 +308,7 @@
                 <attribute name="URLPrototype">jdbc:pointbase:server://{Host}:{Port}/{Database}</attribute>
                 <attribute name="driverClassName">com.pointbase.jdbc.jdbcUniversalDriver</attribute>
                 <attribute name="defaultPort">0</attribute>
-                <attribute name="XA">false</attribute>
+                <attribute name="specific">false</attribute>
                 <attribute name="RARName">org.tranql/tranql-connector-ra//rar</attribute>
             </gbean>
             <gbean name="Database25" class="org.apache.geronimo.console.databasemanager.wizard.DatabaseDriverGBean" xmlns="http://geronimo.apache.org/xml/ns/deployment-${geronimoSchemaVersion}">
@@ -316,7 +316,7 @@
                 <attribute name="URLPrototype">jdbc:postgresql://{Host}:{Port}/{Database}</attribute>
                 <attribute name="driverClassName">org.postgresql.Driver</attribute>
                 <attribute name="defaultPort">5432</attribute>
-                <attribute name="XA">false</attribute>
+                <attribute name="specific">false</attribute>
                 <attribute name="RARName">org.tranql/tranql-connector-ra//rar</attribute>
             </gbean>
             <gbean name="Database26" class="org.apache.geronimo.console.databasemanager.wizard.DatabaseDriverGBean" xmlns="http://geronimo.apache.org/xml/ns/deployment-${geronimoSchemaVersion}">
@@ -324,7 +324,7 @@
                 <attribute name="URLPrototype">jdbc:jdbcProgress:T:{Host}:{Port}:{Database}</attribute>
                 <attribute name="driverClassName">com.progress.sql.jdbc.JdbcProgressDriver</attribute>
                 <attribute name="defaultPort">0</attribute>
-                <attribute name="XA">false</attribute>
+                <attribute name="specific">false</attribute>
                 <attribute name="RARName">org.tranql/tranql-connector-ra//rar</attribute>
             </gbean>
             <gbean name="Database27" class="org.apache.geronimo.console.databasemanager.wizard.DatabaseDriverGBean" xmlns="http://geronimo.apache.org/xml/ns/deployment-${geronimoSchemaVersion}">
@@ -332,7 +332,7 @@
                 <attribute name="URLPrototype">jdbc:sapdb://{Host}:{Port}/{Database}</attribute>
                 <attribute name="driverClassName">com.sap.dbtech.jdbc.DriverSapDB</attribute>
                 <attribute name="defaultPort">0</attribute>
-                <attribute name="XA">false</attribute>
+                <attribute name="specific">false</attribute>
                 <attribute name="RARName">org.tranql/tranql-connector-ra//rar</attribute>
             </gbean>
             <gbean name="Database28" class="org.apache.geronimo.console.databasemanager.wizard.DatabaseDriverGBean" xmlns="http://geronimo.apache.org/xml/ns/deployment-${geronimoSchemaVersion}">
@@ -340,7 +340,7 @@
                 <attribute name="URLPrototype">jdbc:microsoft:sqlserver://{Host}:{Port};DatabaseName={Database}</attribute>
                 <attribute name="driverClassName">com.microsoft.jdbc.sqlserver.SQLServerDriver</attribute>
                 <attribute name="defaultPort">1433</attribute>
-                <attribute name="XA">false</attribute>
+                <attribute name="specific">false</attribute>
                 <attribute name="RARName">org.tranql/tranql-connector-ra//rar</attribute>
             </gbean>
             <gbean name="Database29" class="org.apache.geronimo.console.databasemanager.wizard.DatabaseDriverGBean" xmlns="http://geronimo.apache.org/xml/ns/deployment-${geronimoSchemaVersion}">
@@ -348,7 +348,7 @@
                 <attribute name="URLPrototype">jdbc:jtds:sqlserver://{Host}:{Port};DatabaseName={Database}</attribute>
                 <attribute name="driverClassName">net.sourceforge.jtds.jdbc.Driver</attribute>
                 <attribute name="defaultPort">1433</attribute>
-                <attribute name="XA">false</attribute>
+                <attribute name="specific">false</attribute>
                 <attribute name="RARName">org.tranql/tranql-connector-ra//rar</attribute>
             </gbean>
             <gbean name="Database30" class="org.apache.geronimo.console.databasemanager.wizard.DatabaseDriverGBean" xmlns="http://geronimo.apache.org/xml/ns/deployment-${geronimoSchemaVersion}">
@@ -356,7 +356,7 @@
                 <attribute name="URLPrototype">jdbc:datadirect:sqlserver://{Host}:{Port};DatabaseName={Database}</attribute>
                 <attribute name="driverClassName">com.ddtek.jdbc.sqlserver.SQLServerDriver</attribute>
                 <attribute name="defaultPort">1433</attribute>
-                <attribute name="XA">false</attribute>
+                <attribute name="specific">false</attribute>
                 <attribute name="RARName">org.tranql/tranql-connector-ra//rar</attribute>
             </gbean>
             <gbean name="Database31" class="org.apache.geronimo.console.databasemanager.wizard.DatabaseDriverGBean" xmlns="http://geronimo.apache.org/xml/ns/deployment-${geronimoSchemaVersion}">
@@ -364,7 +364,7 @@
                 <attribute name="URLPrototype">jdbc:sybase:Tds:{Host}:{Port}/{Database}</attribute>
                 <attribute name="driverClassName">com.sybase.jdbc3.jdbc.SybDriver</attribute>
                 <attribute name="defaultPort">2048</attribute>
-                <attribute name="XA">false</attribute>
+                <attribute name="specific">false</attribute>
                 <attribute name="RARName">org.tranql/tranql-connector-ra//rar</attribute>
             </gbean>
             <gbean name="Database32" class="org.apache.geronimo.console.databasemanager.wizard.DatabaseDriverGBean" xmlns="http://geronimo.apache.org/xml/ns/deployment-${geronimoSchemaVersion}">
@@ -372,7 +372,7 @@
                 <attribute name="URLPrototype">jdbc:sybase:Tds:{Host}:{Port}/{Database}</attribute>
                 <attribute name="driverClassName">com.sybase.jdbc3.jdbc.SybDriver</attribute>
                 <attribute name="defaultPort">2638</attribute>
-                <attribute name="XA">false</attribute>
+                <attribute name="specific">false</attribute>
                 <attribute name="RARName">org.tranql/tranql-connector-ra//rar</attribute>
             </gbean>
             <gbean name="Database33" class="org.apache.geronimo.console.databasemanager.wizard.DatabaseDriverGBean" xmlns="http://geronimo.apache.org/xml/ns/deployment-${geronimoSchemaVersion}">
@@ -380,7 +380,7 @@
                 <attribute name="URLPrototype">jdbc:datadirect:sybase://{Host}:{Port};DatabaseName={Database}</attribute>
                 <attribute name="driverClassName">com.ddtek.jdbc.sybase.SybaseDriver</attribute>
                 <attribute name="defaultPort">0</attribute>
-                <attribute name="XA">false</attribute>
+                <attribute name="specific">false</attribute>
                 <attribute name="RARName">org.tranql/tranql-connector-ra//rar</attribute>
             </gbean>
             <gbean name="Database34" class="org.apache.geronimo.console.databasemanager.wizard.DatabaseDriverGBean" xmlns="http://geronimo.apache.org/xml/ns/deployment-${geronimoSchemaVersion}">
@@ -388,7 +388,7 @@
                 <attribute name="URLPrototype"></attribute>
                 <attribute name="driverClassName"></attribute>
                 <attribute name="defaultPort">0</attribute>
-                <attribute name="XA">false</attribute>
+                <attribute name="specific">false</attribute>
                 <attribute name="RARName">org.tranql/tranql-connector-ra//rar</attribute>
             </gbean>
         </web-app>

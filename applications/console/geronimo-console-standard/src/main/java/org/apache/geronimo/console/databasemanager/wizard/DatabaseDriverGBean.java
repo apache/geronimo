@@ -38,7 +38,7 @@ public class DatabaseDriverGBean implements DatabaseDriver {
     private String URLPrototype;
     private String driverClassName;
     private int defaultPort;
-    private boolean XA;
+    private boolean specific;
     private Artifact RAR;
 
     public String getName() {
@@ -73,12 +73,12 @@ public class DatabaseDriverGBean implements DatabaseDriver {
         this.defaultPort = defaultPort;
     }
 
-    public boolean isXA() {
-        return XA;
+    public boolean isSpecific() {
+        return specific;
     }
 
-    public void setXA(boolean XA) {
-        this.XA = XA;
+    public void setSpecific(boolean specific) {
+        this.specific = specific;
     }
 
     public Artifact getRAR() {
@@ -106,7 +106,7 @@ public class DatabaseDriverGBean implements DatabaseDriver {
         infoFactory.addAttribute("URLPrototype", String.class, true, true);
         infoFactory.addAttribute("driverClassName", String.class, true, true);
         infoFactory.addAttribute("defaultPort", int.class, true, true);
-        infoFactory.addAttribute("XA", boolean.class, true, true);
+        infoFactory.addAttribute("specific", boolean.class, true, true);
         infoFactory.addAttribute("RARName", String.class, true, true);
         infoFactory.addInterface(DatabaseDriver.class);
 
