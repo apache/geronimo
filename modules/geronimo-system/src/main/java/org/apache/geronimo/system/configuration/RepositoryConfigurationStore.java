@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -182,7 +183,7 @@ public class RepositoryConfigurationStore implements ConfigurationStore {
         return location;
     }
 
-    public Set resolve(Artifact configId, String moduleName, String path) throws NoSuchConfigException, MalformedURLException {
+    public Set<URL> resolve(Artifact configId, String moduleName, String path) throws NoSuchConfigException, MalformedURLException {
         if(!configId.isResolved()) {
             throw new IllegalArgumentException("Artifact "+configId+" is not fully resolved");
         }
@@ -381,7 +382,7 @@ public class RepositoryConfigurationStore implements ConfigurationStore {
         }
     }
 
-    public List listConfigurations() {
+    public List<ConfigurationInfo> listConfigurations() {
         SortedSet artifacts = repository.list();
 
         List configs;

@@ -29,14 +29,17 @@ public interface ListableRepository extends Repository {
     /**
      * Gets a set (with entries of type Artifact) of all the items available
      * in the repository.
+     * @return sorted list of artifacts in the repository
      */
-    public SortedSet list();
+    public SortedSet<Artifact> list();
 
     /**
      * Gets a set (with entries of type Artifact) of all the available items
      * matching the specified artifact, which is normally not fully resolved
      * (so the results all match whatever fields are specified on the argument
      * Artifact).
+     * @param query match for repository
+     * @return sorted list of artifacts in the repository that match the query.
      */
-    public SortedSet list(Artifact query);
+    public SortedSet<Artifact> list(Artifact query);
 }

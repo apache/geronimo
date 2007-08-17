@@ -21,6 +21,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.List;
 import java.util.Set;
 
@@ -116,7 +117,7 @@ public interface ConfigurationStore {
      * @return a List (with entries of type ConfigurationInfo) of all the
      *         configurations contained in this configuration store
      */
-    List listConfigurations();
+    List<ConfigurationInfo> listConfigurations();
 
     /**
      * Creates an empty directory for a new configuration with the specified configId
@@ -144,7 +145,7 @@ public interface ConfigurationStore {
      *
      * @return a Set (with entries of type URL) of the matching locations
      */
-    Set resolve(Artifact configId, String moduleName, String path) throws NoSuchConfigException, MalformedURLException;
+    Set<URL> resolve(Artifact configId, String moduleName, String path) throws NoSuchConfigException, MalformedURLException;
 
     /**
      * Exports a configuration as a ZIP file.

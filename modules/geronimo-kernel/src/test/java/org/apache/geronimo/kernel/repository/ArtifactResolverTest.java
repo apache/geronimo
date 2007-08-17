@@ -16,27 +16,18 @@
  */
 package org.apache.geronimo.kernel.repository;
 
-import java.io.File;
-import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Set;
-import java.util.SortedSet;
-import java.util.TreeSet;
+
 import junit.framework.TestCase;
-import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.kernel.Jsr77Naming;
 import org.apache.geronimo.kernel.config.Configuration;
 import org.apache.geronimo.kernel.config.ConfigurationData;
 import org.apache.geronimo.kernel.config.ConfigurationResolver;
-import org.apache.geronimo.kernel.config.ConfigurationStore;
-import org.apache.geronimo.kernel.config.InvalidConfigException;
-import org.apache.geronimo.kernel.config.NoSuchConfigException;
-import org.apache.geronimo.kernel.config.NullConfigurationStore;
+import org.apache.geronimo.kernel.mock.MockConfigStore;
+import org.apache.geronimo.kernel.mock.MockRepository;
 
 /**
  * @version $Rev$ $Date$
@@ -49,7 +40,7 @@ public class ArtifactResolverTest extends TestCase {
 
     public void testSelectHighestFromRepo() throws Exception {
         ArtifactManager artifactManager = new DefaultArtifactManager();
-        MockRepository mockRepository = new MockRepository();
+        MockRepository mockRepository = getRepo();
         ArtifactResolver artifactResolver = new DefaultArtifactResolver(artifactManager, mockRepository);
 
         Artifact unresolvedArtifact = new Artifact("version", "version", (Version) null, "jar");
@@ -57,11 +48,19 @@ public class ArtifactResolverTest extends TestCase {
         assertEquals(version3, artifact);
     }
 
+    private MockRepository getRepo() {
+        Set<Artifact> repo = new HashSet<Artifact>();
+        repo.add(version1);
+        repo.add(version2);
+        repo.add(version3);
+        return new MockRepository(repo);
+    }
+
     public void testAlreadyLoaded() throws Exception {
         ArtifactManager artifactManager = new DefaultArtifactManager();
         artifactManager.loadArtifacts(loader, Collections.singleton(version2));
 
-        MockRepository mockRepository = new MockRepository();
+        MockRepository mockRepository = getRepo();
         ArtifactResolver artifactResolver = new DefaultArtifactResolver(artifactManager, mockRepository);
 
         Artifact unresolvedArtifact = new Artifact("version", "version", (Version) null, "jar");
@@ -71,12 +70,12 @@ public class ArtifactResolverTest extends TestCase {
 
     public void testMultipleSelected() throws Exception {
         ArtifactManager artifactManager = new DefaultArtifactManager();
-        Set loaded = new HashSet();
+        Set<Artifact> loaded = new HashSet<Artifact>();
         loaded.add(version1);
         loaded.add(version2);
         artifactManager.loadArtifacts(loader, loaded);
 
-        MockRepository mockRepository = new MockRepository();
+        MockRepository mockRepository = getRepo();
         ArtifactResolver artifactResolver = new DefaultArtifactResolver(artifactManager, mockRepository);
 
         Artifact unresolvedArtifact = new Artifact("version", "version", (Version) null, "jar");
@@ -85,10 +84,10 @@ public class ArtifactResolverTest extends TestCase {
     }
 
     public void testParentLoaded() throws Exception {
-        MockRepository mockRepository = new MockRepository();
+        MockRepository mockRepository = getRepo();
 
         ArtifactManager artifactManager = new DefaultArtifactManager();
-        Set loaded = new HashSet();
+        Set<Artifact> loaded = new HashSet<Artifact>();
         loaded.add(version1);
         loaded.add(version2);
         artifactManager.loadArtifacts(loader, loaded);
@@ -101,7 +100,7 @@ public class ArtifactResolverTest extends TestCase {
         environment.addDependency(version1, ImportType.CLASSES);
 
         ConfigurationData parentConfigurationData = new ConfigurationData(environment, new Jsr77Naming());
-        parentConfigurationData.setConfigurationStore(new MockConfigStore(new File("foo").toURL()));
+        parentConfigurationData.setConfigurationStore(new MockConfigStore());
 
         ConfigurationResolver configurationResolver = new ConfigurationResolver(parentConfigurationData,
                 Collections.singleton(mockRepository),
@@ -112,7 +111,7 @@ public class ArtifactResolverTest extends TestCase {
                 configurationResolver,
                 null);
 
-        LinkedHashSet parents = new LinkedHashSet();
+        LinkedHashSet<Configuration> parents = new LinkedHashSet<Configuration>();
         parents.add(parent);
 
         Artifact unresolvedArtifact = new Artifact("version", "version", (Version) null, "jar");
@@ -120,62 +119,4 @@ public class ArtifactResolverTest extends TestCase {
         assertEquals(version1, artifact);
     }
 
-    private class MockRepository implements ListableRepository {
-        public SortedSet list() {
-            throw new UnsupportedOperationException();
-        }
-
-        public SortedSet list(Artifact query) {
-            TreeSet set = new TreeSet();
-            set.add(version1);
-            set.add(version2);
-            set.add(version3);
-            return set;
-        }
-
-        public boolean contains(Artifact artifact) {
-            return true;
-        }
-
-        public File getLocation(Artifact artifact) {
-            return new File(".");
-        }
-
-        public LinkedHashSet getDependencies(Artifact artifact) {
-            return new LinkedHashSet();
-        }
-    }
-
-    public static class MockConfigStore extends NullConfigurationStore {
-        URL baseURL;
-
-        public MockConfigStore() {
-        }
-
-        public MockConfigStore(URL baseURL) {
-            this.baseURL = baseURL;
-        }
-
-        public ConfigurationData loadConfiguration(Artifact configId) throws NoSuchConfigException, IOException, InvalidConfigException {
-            ConfigurationData configurationData = new ConfigurationData(configId, new Jsr77Naming());
-            configurationData.setConfigurationStore(this);
-            return configurationData;
-        }
-
-        public boolean containsConfiguration(Artifact configID) {
-            return true;
-        }
-
-        public Set resolve(Artifact configId, String moduleName, String pattern) throws NoSuchConfigException, MalformedURLException {
-            return Collections.singleton(baseURL);
-        }
-
-        public final static GBeanInfo GBEAN_INFO;
-
-        static {
-            GBeanInfoBuilder infoBuilder = GBeanInfoBuilder.createStatic(MockConfigStore.class, "ConfigurationStore");
-            infoBuilder.addInterface(ConfigurationStore.class);
-            GBEAN_INFO = infoBuilder.getBeanInfo();
-        }
-    }
 }

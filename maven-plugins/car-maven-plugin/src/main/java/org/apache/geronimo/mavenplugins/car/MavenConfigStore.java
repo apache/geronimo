@@ -28,6 +28,7 @@ import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.kernel.config.ConfigurationData;
 import org.apache.geronimo.kernel.config.InvalidConfigException;
 import org.apache.geronimo.kernel.config.NoSuchConfigException;
+import org.apache.geronimo.kernel.config.ConfigurationInfo;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.WritableListableRepository;
 import org.apache.geronimo.kernel.Kernel;
@@ -87,7 +88,7 @@ public class MavenConfigStore
         targetFile.delete();
     }
 
-    public List listConfigurations() {
+    public List<ConfigurationInfo> listConfigurations() {
         throw new UnsupportedOperationException();
     }
 

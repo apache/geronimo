@@ -20,10 +20,8 @@ import java.io.File;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.LinkedHashSet;
 import java.util.Set;
-import java.util.SortedSet;
-import java.util.TreeSet;
+import java.util.HashSet;
 import java.util.jar.JarFile;
 
 import javax.management.ObjectName;
@@ -44,13 +42,14 @@ import org.apache.geronimo.kernel.Naming;
 import org.apache.geronimo.kernel.config.ConfigurationManager;
 import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 import org.apache.geronimo.kernel.config.SimpleConfigurationManager;
-import org.apache.geronimo.kernel.repository.Artifact;
+import org.apache.geronimo.kernel.mock.MockRepository;
 import org.apache.geronimo.kernel.repository.ArtifactManager;
 import org.apache.geronimo.kernel.repository.ArtifactResolver;
 import org.apache.geronimo.kernel.repository.DefaultArtifactManager;
 import org.apache.geronimo.kernel.repository.DefaultArtifactResolver;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.kernel.repository.ListableRepository;
+import org.apache.geronimo.kernel.repository.Artifact;
 
 /**
  * @version $Rev$ $Date$
@@ -89,7 +88,12 @@ public class ServiceConfigBuilderTest extends TestCase {
         try {
 
             Environment environment = EnvironmentBuilder.buildEnvironment(plan.getEnvironment());
-            MockRepository mockRepository = new MockRepository();
+            Set<Artifact> repo = new HashSet<Artifact>();
+            repo.add(Artifact.create("geronimo/foo1/DEV/car"));
+            repo.add(Artifact.create("geronimo/foo2/DEV/car"));
+            repo.add(Artifact.create("geronimo/foo3/DEV/car"));
+            repo.add(Artifact.create("geronimo/foo4/DEV/car"));
+            ListableRepository mockRepository = new MockRepository(repo);
             ArtifactManager artifactManager = new DefaultArtifactManager();
             ArtifactResolver artifactResolver = new DefaultArtifactResolver(artifactManager, Collections.singleton(mockRepository), null);
             ConfigurationManager configurationManager = new SimpleConfigurationManager(Collections.EMPTY_SET, artifactResolver, Collections.EMPTY_SET);
@@ -129,31 +133,6 @@ public class ServiceConfigBuilderTest extends TestCase {
         file.delete();
     }
 
-    private static class MockRepository implements ListableRepository {
-        public boolean contains(Artifact artifact) {
-            return true;
-        }
-
-        public File getLocation(Artifact artifact) {
-            return new File(".");
-        }
-
-        public LinkedHashSet getDependencies(Artifact artifact) {
-            return new LinkedHashSet();
-        }
-
-        public SortedSet list() {
-            return new TreeSet();
-        }
-
-        public SortedSet list(Artifact query) {
-            SortedSet set = new TreeSet();
-            if(query.getGroupId() != null && query.getArtifactId() != null && query.getVersion() != null && query.getType() == null) {
-                set.add(new Artifact(query.getGroupId(), query.getArtifactId(), query.getVersion(), "jar"));
-            }
-            return set;
-        }
-    }
     private static class MockReferenceCollection extends ArrayList implements ReferenceCollection {
 
         public void addReferenceCollectionListener(ReferenceCollectionListener listener) {

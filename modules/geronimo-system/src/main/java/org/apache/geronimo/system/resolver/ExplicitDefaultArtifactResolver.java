@@ -63,9 +63,8 @@ public class ExplicitDefaultArtifactResolver extends DefaultArtifactResolver {
     }
 
     private static Map propertiesToArtifactMap(Properties properties) {
-        Map explicitResolution = new HashMap();
-        for (Iterator iterator = properties.entrySet().iterator(); iterator.hasNext();) {
-            Map.Entry entry = (Map.Entry) iterator.next();
+        Map<Artifact, Artifact> explicitResolution = new HashMap<Artifact, Artifact>();
+        for (Map.Entry<Object, Object> entry : properties.entrySet()) {
             String key = (String) entry.getKey();
             String resolvedString = (String) entry.getValue();
             //split the string ourselves since we wish to allow blank artifactIds.
@@ -73,9 +72,9 @@ public class ExplicitDefaultArtifactResolver extends DefaultArtifactResolver {
             if (parts.length != 4) {
                 throw new IllegalArgumentException("Invalid id: " + key);
             }
-            Artifact source = new Artifact(parts[0], parts[1], (String)null, parts[3]);
+            Artifact source = new Artifact(parts[0], parts[1], (String) null, parts[3]);
             Artifact resolved = Artifact.create(resolvedString);
-            explicitResolution.put(source,resolved);
+            explicitResolution.put(source, resolved);
         }
         return explicitResolution;
     }

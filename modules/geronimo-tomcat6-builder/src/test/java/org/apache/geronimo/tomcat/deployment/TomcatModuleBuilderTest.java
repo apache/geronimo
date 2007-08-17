@@ -51,6 +51,7 @@ import org.apache.geronimo.kernel.Jsr77Naming;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.KernelFactory;
 import org.apache.geronimo.kernel.Naming;
+import org.apache.geronimo.kernel.mock.MockConfigStore;
 import org.apache.geronimo.kernel.config.Configuration;
 import org.apache.geronimo.kernel.config.ConfigurationData;
 import org.apache.geronimo.kernel.config.ConfigurationManager;
@@ -338,55 +339,6 @@ public class TomcatModuleBuilderTest extends TestSupport {
     protected void tearDown() throws Exception {
         kernel.shutdown();
         super.tearDown();
-    }
-
-    public static class MockConfigStore extends NullConfigurationStore {
-        private Map configs = new HashMap();
-
-        URL baseURL;
-
-        public MockConfigStore() {
-        }
-
-        public MockConfigStore(URL baseURL) {
-            this.baseURL = baseURL;
-        }
-
-        public void install(ConfigurationData configurationData) throws IOException, InvalidConfigException {
-            configs.put(configurationData.getId(), configurationData);
-        }
-
-        public void uninstall(Artifact configID) throws NoSuchConfigException, IOException {
-            configs.remove(configID);
-        }
-
-        public ConfigurationData loadConfiguration(Artifact configId) throws NoSuchConfigException, IOException, InvalidConfigException {
-            if (configs.containsKey(configId)) {
-                ConfigurationData configurationData = (ConfigurationData) configs.get(configId);
-                configurationData.setConfigurationStore(this);
-                return configurationData;
-            } else {
-                ConfigurationData configurationData = new ConfigurationData(configId, naming);
-                configurationData.setConfigurationStore(this);
-                return configurationData;
-            }
-        }
-
-        public boolean containsConfiguration(Artifact configID) {
-            return true;
-        }
-
-        public Set resolve(Artifact configId, String moduleName, String pattern) throws NoSuchConfigException, MalformedURLException {
-            return Collections.singleton(baseURL);
-        }
-
-        public final static GBeanInfo GBEAN_INFO;
-
-        static {
-            GBeanInfoBuilder infoBuilder = GBeanInfoBuilder.createStatic(MockConfigStore.class, NameFactory.CONFIGURATION_STORE);
-            infoBuilder.addInterface(ConfigurationStore.class);
-            GBEAN_INFO = infoBuilder.getBeanInfo();
-        }
     }
 
     private static class WebModuleInfo {

@@ -16,15 +16,10 @@
  */
 package org.apache.geronimo.system.plugin;
 
-import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.URL;
 import java.util.Collections;
-import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.SortedSet;
-import java.util.TreeSet;
 import java.util.concurrent.TimeUnit;
 
 import junit.framework.TestCase;
@@ -33,15 +28,14 @@ import org.apache.geronimo.kernel.config.Configuration;
 import org.apache.geronimo.kernel.config.ConfigurationData;
 import org.apache.geronimo.kernel.config.ConfigurationManager;
 import org.apache.geronimo.kernel.config.ConfigurationStore;
-import org.apache.geronimo.kernel.config.NoSuchConfigException;
-import org.apache.geronimo.kernel.config.NoSuchStoreException;
-import org.apache.geronimo.kernel.config.NullConfigurationStore;
-import org.apache.geronimo.kernel.config.LifecycleResults;
 import org.apache.geronimo.kernel.config.LifecycleException;
 import org.apache.geronimo.kernel.config.LifecycleMonitor;
+import org.apache.geronimo.kernel.config.LifecycleResults;
+import org.apache.geronimo.kernel.config.NoSuchConfigException;
+import org.apache.geronimo.kernel.config.NoSuchStoreException;
+import org.apache.geronimo.kernel.mock.MockConfigStore;
+import org.apache.geronimo.kernel.mock.MockWritableListableRepository;
 import org.apache.geronimo.kernel.repository.Artifact;
-import org.apache.geronimo.kernel.repository.FileWriteMonitor;
-import org.apache.geronimo.kernel.repository.WritableListableRepository;
 import org.apache.geronimo.kernel.repository.ArtifactResolver;
 import org.apache.geronimo.kernel.repository.Version;
 import org.apache.geronimo.system.serverinfo.BasicServerInfo;
@@ -63,7 +57,7 @@ public class PluginInstallerTest extends TestCase {
         String url = getClass().getResource("/geronimo-plugins.xml").toString();
         int pos = url.lastIndexOf("/");
         testRepo = new URL(url.substring(0, pos));
-        installer = new PluginInstallerGBean(new MockConfigManager(), new MockRepository(), new MockConfigStore(),
+        installer = new PluginInstallerGBean(new MockConfigManager(), new MockWritableListableRepository(), new MockConfigStore(),
                 new BasicServerInfo("."), new ThreadPool() {
             public int getPoolSize() {
                 return 0;
@@ -103,38 +97,6 @@ public class PluginInstallerTest extends TestCase {
             }
         }
         assertTrue(prereqCount > 0);
-    }
-
-    private static class MockConfigStore extends NullConfigurationStore {
-
-    }
-
-    private static class MockRepository implements WritableListableRepository {
-        public void copyToRepository(File source, Artifact destination, FileWriteMonitor monitor) throws IOException {
-        }
-
-        public void copyToRepository(InputStream source, int size, Artifact destination, FileWriteMonitor monitor) throws IOException {
-        }
-
-        public boolean contains(Artifact artifact) {
-            return false;
-        }
-
-        public File getLocation(Artifact artifact) {
-            return null;
-        }
-
-        public LinkedHashSet getDependencies(Artifact artifact) {
-            return new LinkedHashSet();
-        }
-
-        public SortedSet list() {
-            return new TreeSet();
-        }
-
-        public SortedSet list(Artifact query) {
-            return new TreeSet();
-        }
     }
 
     private static class MockConfigManager implements ConfigurationManager {

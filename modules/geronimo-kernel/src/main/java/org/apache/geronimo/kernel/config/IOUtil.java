@@ -184,24 +184,23 @@ public class IOUtil {
         }
     }
 
-    public static Set search(File root, String pattern) throws MalformedURLException {
+    public static Set<URL> search(File root, String pattern) throws MalformedURLException {
         if (root.isDirectory()) {
             if (!SelectorUtils.hasWildcards(pattern)) {
                 File match = new File(root, pattern);
                 if (match.exists() && match.canRead()) {
                     return Collections.singleton( new URL( "file:" + match.toURI().normalize().getPath() ) );
                 } else {
-                    return Collections.EMPTY_SET;
+                    return Collections.emptySet();
                 }
             } else {
-                Set matches = new LinkedHashSet();
-                Map files = listAllFileNames(root);
-                for (Iterator iterator = files.entrySet().iterator(); iterator.hasNext();) {
-                    Map.Entry entry = (Map.Entry) iterator.next();
-                    String fileName = (String) entry.getKey();
+                Set<URL> matches = new LinkedHashSet<URL>();
+                Map<String, File> files = listAllFileNames(root);
+                for (Map.Entry<String, File> entry : files.entrySet()) {
+                    String fileName = entry.getKey();
                     if (SelectorUtils.matchPath(pattern, fileName)) {
-                        File file = (File) entry.getValue();
-                        matches.add( new URL( "file:" + file.toURI().normalize().getPath() ) );
+                        File file = entry.getValue();
+                        matches.add(new URL("file:" + file.toURI().normalize().getPath()));
                     }
                 }
                 return matches;
@@ -217,10 +216,10 @@ public class IOUtil {
                         URL match = new URL(baseURL, entry.getName());
                         return Collections.singleton(match);
                     } else {
-                        return Collections.EMPTY_SET;
+                        return Collections.emptySet();
                     }
                 } else {
-                    Set matches = new LinkedHashSet();
+                    Set<URL> matches = new LinkedHashSet<URL>();
                     Enumeration entries = jarFile.entries();
                     while (entries.hasMoreElements()) {
                         ZipEntry entry = (ZipEntry) entries.nextElement();
@@ -235,25 +234,24 @@ public class IOUtil {
             } catch (MalformedURLException e) {
                 throw e;
             } catch (IOException e) {
-                return Collections.EMPTY_SET;
+                return Collections.emptySet();
             } finally {
                 close(jarFile);
             }
         }
     }
 
-    public static Map listAllFileNames(File base) {
+    public static Map<String, File> listAllFileNames(File base) {
         return listAllFileNames(base, "");
     }
 
-    private static Map listAllFileNames(File base, String prefix) {
+    private static Map<String, File> listAllFileNames(File base, String prefix) {
         if (!base.canRead() || !base.isDirectory()) {
             throw new IllegalArgumentException(base.getAbsolutePath());
         }
-        Map map = new LinkedHashMap();
+        Map<String, File> map = new LinkedHashMap<String, File>();
         File[] hits = base.listFiles();
-        for (int i = 0; i < hits.length; i++) {
-            File hit = hits[i];
+        for (File hit : hits) {
             if (hit.canRead()) {
                 if (hit.isDirectory()) {
                     map.putAll(listAllFileNames(hit, prefix.equals("") ? hit.getName() : prefix + "/" + hit.getName()));

@@ -16,9 +16,11 @@
  */
 package org.apache.geronimo.j2ee.deployment;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
-import java.util.Collection;
+import java.util.Set;
+import java.util.HashSet;
 import java.util.jar.JarFile;
 
 import org.apache.geronimo.common.DeploymentException;
@@ -33,6 +35,8 @@ import org.apache.geronimo.j2ee.management.impl.J2EEServerImpl;
 import org.apache.geronimo.kernel.Jsr77Naming;
 import org.apache.geronimo.kernel.Naming;
 import org.apache.geronimo.kernel.config.ConfigurationData;
+import org.apache.geronimo.kernel.mock.MockConfigStore;
+import org.apache.geronimo.kernel.mock.MockRepository;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.ArtifactManager;
 import org.apache.geronimo.kernel.repository.ArtifactResolver;
@@ -40,6 +44,7 @@ import org.apache.geronimo.kernel.repository.DefaultArtifactManager;
 import org.apache.geronimo.kernel.repository.DefaultArtifactResolver;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.kernel.repository.ImportType;
+import org.apache.geronimo.kernel.repository.ListableRepository;
 import org.apache.geronimo.testsupport.TestSupport;
 
 /**
@@ -57,8 +62,6 @@ public abstract class EARConfigBuilderTestSupport
     protected static MockConfigStore configStore = new MockConfigStore();
     
     protected static ArtifactManager artifactManager = new DefaultArtifactManager();
-    
-    protected static ArtifactResolver artifactResolver = new DefaultArtifactResolver(artifactManager, Collections.EMPTY_SET, null);
     
     protected static MockEJBConfigBuilder ejbConfigBuilder = new MockEJBConfigBuilder();
     
@@ -116,11 +119,15 @@ public abstract class EARConfigBuilderTestSupport
     
     protected final AbstractNameQuery corbaGBeanAbstractNameQuery = new AbstractNameQuery(serverName, null);
 
-    protected Collection<ArtifactResolver> artifactResolvers = null;
+    private ListableRepository repository;
+    protected ArtifactResolver artifactResolver = new DefaultArtifactResolver(artifactManager, Collections.singleton(repository), null);
+    protected Collection<? extends ArtifactResolver> artifactResolvers = Collections.singleton(new DefaultArtifactResolver(artifactManager, repository));
 
     protected void setUp() throws Exception {
         super.setUp();
-        
+        Set<Artifact> repo = new HashSet<Artifact>();
+        repo.add(Artifact.create("org.apache.geronimo.tests/test/1/car"));
+        repository = new MockRepository(repo);
         defaultParentId = new Environment();
         defaultParentId.addDependency(new Artifact("org.apache.geronimo.tests", "test", "1", "car"), ImportType.ALL);
     }
@@ -136,7 +143,7 @@ public abstract class EARConfigBuilderTestSupport
                     nonTransactionalTimerAbstractNameQuery,
                     corbaGBeanAbstractNameQuery,
                     null,
-                    null,
+                    Collections.singleton(repository),
                     ejbConfigBuilder,
                     webConfigBuilder,
                     connectorConfigBuilder,
@@ -439,4 +446,5 @@ public abstract class EARConfigBuilderTestSupport
             module.close();
         }
     }
+
 }

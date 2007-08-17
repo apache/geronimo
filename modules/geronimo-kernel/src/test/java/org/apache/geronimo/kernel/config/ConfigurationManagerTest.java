@@ -16,19 +16,12 @@
  */
 package org.apache.geronimo.kernel.config;
 
-import java.io.File;
-import java.io.IOException;
-import java.net.MalformedURLException;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedHashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.SortedSet;
-import java.util.TreeSet;
+
 import junit.framework.TestCase;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.AbstractNameQuery;
@@ -39,6 +32,8 @@ import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.KernelFactory;
 import org.apache.geronimo.kernel.management.State;
+import org.apache.geronimo.kernel.mock.MockConfigStore;
+import org.apache.geronimo.kernel.mock.MockRepository;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.ArtifactManager;
 import org.apache.geronimo.kernel.repository.DefaultArtifactManager;
@@ -57,13 +52,13 @@ public class ConfigurationManagerTest extends TestCase {
     private Artifact artifact2;
     private Artifact artifact3;
     private Artifact artifact3NoVersion;
-    private Map configurations = new HashMap();
+    private Map<Artifact, ConfigurationData> configurations = new HashMap<Artifact, ConfigurationData>();
     private ConfigurationManager configurationManager;
     private AbstractName gbean1;
     private AbstractName gbean2;
     private AbstractName gbean3;
     private AbstractName gbean3newer;
-    private TestConfigStore configStore;
+    private ConfigurationStore configStore = new MockConfigStore();
 
     public void testLoad() throws Exception {
         configurationManager.loadConfiguration(artifact3);
@@ -445,10 +440,8 @@ public class ConfigurationManagerTest extends TestCase {
         Configuration configuration2 = configurationManager.getConfiguration(artifact2);
         Configuration configuration3 = configurationManager.getConfiguration(artifact3);
 
-        Environment environment = new Environment();
-        environment.setConfigId(artifact1);
-        ConfigurationData configurationData1 = new ConfigurationData(environment, kernel.getNaming());
-        configurationData1.setConfigurationStore(configStore);
+        ConfigurationData configurationData1 = new ConfigurationData(artifact1, kernel.getNaming());
+        configStore.install(configurationData1);
         GBeanData gbeanData = configurationData1.addGBean("gbean1", TestBean.getGBeanInfo());
         gbeanData.setReferencePattern("nonExistantReference", new AbstractNameQuery("some.non.existant.Clazz"));
         configurations.put(artifact1, configurationData1);
@@ -657,7 +650,7 @@ public class ConfigurationManagerTest extends TestCase {
         assertEquals(State.RUNNING_INDEX, kernel.getGBeanState(gbean3newer)) ;
     }
 
-    private static final Set shouldFail = new HashSet();
+    private static final Set<String> shouldFail = new HashSet<String>();
     private static void checkFail(String objectName) {
         if (shouldFail.contains(objectName)) {
             throw new RuntimeException("FAILING");
@@ -678,8 +671,7 @@ public class ConfigurationManagerTest extends TestCase {
         assertEquals(State.RUNNING_INDEX, kernel.getGBeanState(artifactManagerData.getAbstractName()));
         ArtifactManager artifactManager = (ArtifactManager) kernel.getGBean(artifactManagerData.getAbstractName());
 
-        configStore = new TestConfigStore();
-        TestRepository testRepository = new TestRepository();
+        ListableRepository testRepository = new MockRepository(configurations.keySet());
         DefaultArtifactResolver artifactResolver = new DefaultArtifactResolver(artifactManager, testRepository);
 
         artifact1 = new Artifact("test", "1", "1.1", "bar");
@@ -688,10 +680,7 @@ public class ConfigurationManagerTest extends TestCase {
         // As if it was deployed with no version, now its version is a timestamp
         artifact3NoVersion = new Artifact(artifact3.getGroupId(), artifact3.getArtifactId(), new Version(Long.toString(System.currentTimeMillis())), artifact3.getType());
 
-        Environment e1 = new Environment();
-        e1.setConfigId(artifact1);
-        ConfigurationData configurationData1 = new ConfigurationData(e1, kernel.getNaming());
-        configurationData1.setConfigurationStore(configStore);
+        ConfigurationData configurationData1 = configStore.loadConfiguration(artifact1);
         gbean1 = configurationData1.addGBean("gbean1", TestBean.getGBeanInfo()).getAbstractName();
         configurations.put(artifact1, configurationData1);
 
@@ -700,7 +689,7 @@ public class ConfigurationManagerTest extends TestCase {
         e2.addDependency(new Artifact("test", "1", (Version) null, "bar"), ImportType.ALL);
         ConfigurationData configurationData2 = new ConfigurationData(e2, kernel.getNaming());
         gbean2 = configurationData2.addGBean("gbean2", TestBean.getGBeanInfo()).getAbstractName();
-        configurationData2.setConfigurationStore(configStore);
+        configStore.install(configurationData2);
         configurations.put(artifact2, configurationData2);
 
         { // Make it obvious if these temp variables are reused
@@ -709,7 +698,7 @@ public class ConfigurationManagerTest extends TestCase {
             e3.addDependency(new Artifact("test", "2", (Version) null, "bar"), ImportType.ALL);
             ConfigurationData configurationData3 = new ConfigurationData(e3, kernel.getNaming());
             gbean3 = configurationData3.addGBean("gbean3", TestBean.getGBeanInfo()).getAbstractName();
-            configurationData3.setConfigurationStore(configStore);
+            configStore.install(configurationData3);
             configurations.put(artifact3, configurationData3);
         }
 
@@ -719,7 +708,7 @@ public class ConfigurationManagerTest extends TestCase {
             e3newer.addDependency(new Artifact("test", "2", (Version) null, "bar"), ImportType.ALL);
             ConfigurationData configurationData3newer = new ConfigurationData(e3newer, kernel.getNaming());
             gbean3newer = configurationData3newer.addGBean("gbean3", TestBean.getGBeanInfo()).getAbstractName();
-            configurationData3newer.setConfigurationStore(configStore);
+            configStore.install(configurationData3newer);
             configurations.put(artifact3NoVersion, configurationData3newer);
         }
 
@@ -740,68 +729,10 @@ public class ConfigurationManagerTest extends TestCase {
         super.tearDown();
     }
 
-    private class TestConfigStore extends NullConfigurationStore {
-        public ConfigurationData loadConfiguration(Artifact configId) throws IOException, InvalidConfigException, NoSuchConfigException {
-            return (ConfigurationData) configurations.get(configId);
-        }
-
-        public boolean containsConfiguration(Artifact configId) {
-            return configurations.containsKey(configId);
-        }
-
-        public String getObjectName() {
-            throw new UnsupportedOperationException();
-        }
-
-        public AbstractName getAbstractName() {
-            throw new UnsupportedOperationException();
-        }
-
-        public List listConfigurations() {
-            throw new UnsupportedOperationException();
-        }
-
-        public File createNewConfigurationDir(Artifact configId) throws ConfigurationAlreadyExistsException {
-            throw new UnsupportedOperationException();
-        }
-
-        public Set resolve(Artifact configId, String moduleName, String pattern) throws NoSuchConfigException, MalformedURLException {
-            throw new UnsupportedOperationException();
-        }
-    }
 
     private GBeanData buildGBeanData(String key, String value, GBeanInfo info) {
         AbstractName abstractName = kernel.getNaming().createRootName(new Artifact("test", "foo", "1", "car"), value, key);
         return new GBeanData(abstractName, info);
-    }
-
-    private class TestRepository implements ListableRepository {
-        public SortedSet list() {
-            return new TreeSet(configurations.keySet());
-        }
-
-        public SortedSet list(Artifact query) {
-            TreeSet artifacts = new TreeSet();
-            for (Iterator iterator = configurations.keySet().iterator(); iterator.hasNext();) {
-                Artifact artifact = (Artifact) iterator.next();
-                if (query.matches(artifact)) {
-                    artifacts.add(artifact);
-                }
-            }
-            return artifacts;
-        }
-
-        public boolean contains(Artifact artifact) {
-            return configurations.containsKey(artifact);
-        }
-
-        public File getLocation(Artifact artifact) {
-            throw new UnsupportedOperationException();
-        }
-
-        public LinkedHashSet getDependencies(Artifact artifact) {
-            return new LinkedHashSet();
-        }
     }
 
     public static class TestBean {

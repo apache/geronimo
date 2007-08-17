@@ -18,16 +18,13 @@
 package org.apache.geronimo.connector.deployment;
 
 import java.io.File;
-import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.sql.Connection;
 import java.sql.Statement;
 import java.util.Collections;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedHashSet;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -45,7 +42,6 @@ import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.j2ee.deployment.ActivationSpecInfoLocator;
 import org.apache.geronimo.j2ee.deployment.EARConfigBuilder;
 import org.apache.geronimo.j2ee.deployment.EARContext;
@@ -63,10 +59,9 @@ import org.apache.geronimo.kernel.config.ConfigurationStore;
 import org.apache.geronimo.kernel.config.ConfigurationUtil;
 import org.apache.geronimo.kernel.config.EditableConfigurationManager;
 import org.apache.geronimo.kernel.config.EditableKernelConfigurationManager;
-import org.apache.geronimo.kernel.config.InvalidConfigException;
-import org.apache.geronimo.kernel.config.NoSuchConfigException;
-import org.apache.geronimo.kernel.config.NullConfigurationStore;
 import org.apache.geronimo.kernel.management.State;
+import org.apache.geronimo.kernel.mock.MockConfigStore;
+import org.apache.geronimo.kernel.mock.MockRepository;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.ArtifactManager;
 import org.apache.geronimo.kernel.repository.ArtifactResolver;
@@ -74,11 +69,10 @@ import org.apache.geronimo.kernel.repository.DefaultArtifactManager;
 import org.apache.geronimo.kernel.repository.DefaultArtifactResolver;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.kernel.repository.ImportType;
-import org.apache.geronimo.kernel.repository.Repository;
+import org.apache.geronimo.kernel.repository.ListableRepository;
 import org.apache.geronimo.system.serverinfo.BasicServerInfo;
 import org.apache.geronimo.testsupport.TestSupport;
 import org.apache.geronimo.transaction.manager.GeronimoTransactionManagerGBean;
-import org.tranql.sql.jdbc.JDBCUtil;
 
 /**
  * @version $Rev:385232 $ $Date$
@@ -93,19 +87,7 @@ public class ConnectorModuleBuilderTest extends TestSupport {
     private int defaultidleTimeoutMinutes = 15;
     private Environment defaultEnvironment;
     private ConfigurationStore configurationStore = new MockConfigStore();
-    private Repository repository = new Repository() {
-        public boolean contains(Artifact artifact) {
-            return false;
-        }
-
-        public File getLocation(Artifact artifact) {
-            return null;
-        }
-
-        public LinkedHashSet getDependencies(Artifact artifact) {
-            return new LinkedHashSet();
-        }
-    };
+    private MockRepository repository;
 
     private ActivationSpecInfoLocator activationSpecInfoLocator = new ActivationSpecInfoLocator() {
 
@@ -145,7 +127,7 @@ public class ConnectorModuleBuilderTest extends TestSupport {
                     null,
                     null,
                     new AbstractNameQuery(serverName, J2EEServerImpl.GBEAN_INFO.getInterfaces()),
-                    null,
+                    Collections.singleton(repository),
                     null,
                     null,
                     new ConnectorModuleBuilder(defaultEnvironment, defaultMaxSize, defaultMinSize, defaultBlockingTimeoutMilliseconds, defaultidleTimeoutMinutes, defaultXATransactionCaching, defaultXAThreadCaching, Collections.singleton(serviceBuilder)),
@@ -159,7 +141,7 @@ public class ConnectorModuleBuilderTest extends TestSupport {
             ConfigurationData configData = null;
             DeploymentContext context = null;
             ArtifactManager artifactManager = new DefaultArtifactManager();
-            ArtifactResolver artifactResolver = new DefaultArtifactResolver(artifactManager, Collections.EMPTY_SET, null);
+            ArtifactResolver artifactResolver = new DefaultArtifactResolver(artifactManager, Collections.singleton(repository), null);
 
             try {
                 File planFile = new File(BASEDIR, "src/test/data/data/external-application-plan.xml");
@@ -393,9 +375,8 @@ public class ConnectorModuleBuilderTest extends TestSupport {
             configurationManager.loadConfiguration(configurationData);
             Configuration configuration = configurationManager.getConfiguration(configurationId);
             configurationManager.startConfiguration(configurationId);
-            Set gb = configuration.getGBeans().keySet();
-            for (Iterator iterator = gb.iterator(); iterator.hasNext();) {
-                AbstractName name = (AbstractName) iterator.next();
+            Set<AbstractName> gb = configuration.getGBeans().keySet();
+            for (AbstractName name : gb) {
                 if (State.RUNNING_INDEX != kernel.getGBeanState(name)) {
                     log.debug("Not running: " + name);
                 }
@@ -491,15 +472,16 @@ public class ConnectorModuleBuilderTest extends TestSupport {
             configurationManager.unloadConfiguration(configurationId);
         } finally {
             if (ds != null) {
-                Connection connection = null;
-                Statement statement = null;
+                Connection connection =  ds.getConnection();
                 try {
-                    connection = ds.getConnection();
-                    statement = connection.createStatement();
-                    statement.execute("SHUTDOWN");
+                    Statement statement = connection.createStatement();
+                    try {
+                        statement.execute("SHUTDOWN");
+                    } finally {
+                        statement.close();
+                    }
                 } finally {
-                    JDBCUtil.close(statement);
-                    JDBCUtil.close(connection);
+                    connection.close();
                 }
             }
 
@@ -537,6 +519,8 @@ public class ConnectorModuleBuilderTest extends TestSupport {
 //        bootstrap.addGBean(configurationManagerData);
         bootstrap.addGBean("ServerInfo", BasicServerInfo.GBEAN_INFO).setAttribute("baseDirectory", ".");
 
+        AbstractName repositoryName = bootstrap.addGBean("Repository", MockRepository.GBEAN_INFO).getAbstractName();
+
         AbstractName configStoreName = bootstrap.addGBean("MockConfigurationStore", MockConfigStore.GBEAN_INFO).getAbstractName();
 
         GBeanData artifactManagerData = bootstrap.addGBean("ArtifactManager", DefaultArtifactManager.GBEAN_INFO);
@@ -548,6 +532,7 @@ public class ConnectorModuleBuilderTest extends TestSupport {
         configurationManagerData.setReferencePattern("ArtifactManager", artifactManagerData.getAbstractName());
         configurationManagerData.setReferencePattern("ArtifactResolver", artifactResolverData.getAbstractName());
         configurationManagerData.setReferencePattern("Stores", configStoreName);
+        configurationManagerData.setReferencePattern("Repositories", repositoryName);
         bootstrap.addGBean(configurationManagerData);
 
         GBeanData serverData = bootstrap.addGBean("geronimo", J2EEServerImpl.GBEAN_INFO);
@@ -557,9 +542,15 @@ public class ConnectorModuleBuilderTest extends TestSupport {
 
         // add fake TransactionManager so refs will resolve
         GBeanData tm = bootstrap.addGBean("TransactionManager", GeronimoTransactionManagerGBean.GBEAN_INFO);
-        tm.setAttribute("defaultTransactionTimeoutSeconds", new Integer(10));
+        tm.setAttribute("defaultTransactionTimeoutSeconds", 10);
 
         ConfigurationUtil.loadBootstrapConfiguration(kernel, bootstrap, getClass().getClassLoader());
+
+        repository = (MockRepository) kernel.getGBean(repositoryName);
+        Set<Artifact> repo = repository.getRepo();
+        repo.add(Artifact.create("org.apache.geronimo.tests/test/1/car"));
+        repo.add(bootId);
+
 
         configurationManager = ConfigurationUtil.getEditableConfigurationManager(kernel);
 //        configurationManager.getConfiguration(bootstrap.getId());
@@ -592,60 +583,4 @@ public class ConnectorModuleBuilderTest extends TestSupport {
         }
     }
 
-    public static class MockConfigStore extends NullConfigurationStore {
-        private Map configs = new HashMap();
-
-        URL baseURL;
-
-        public MockConfigStore() {
-        }
-
-        public MockConfigStore(URL baseURL) {
-            this.baseURL = baseURL;
-        }
-
-        public void install(ConfigurationData configurationData) throws IOException, InvalidConfigException {
-            configs.put(configurationData.getId(), configurationData);
-        }
-
-        public void uninstall(Artifact configID) throws NoSuchConfigException, IOException {
-            configs.remove(configID);
-        }
-
-        public ConfigurationData loadConfiguration(Artifact configId) throws NoSuchConfigException, IOException, InvalidConfigException {
-            if (configs.containsKey(configId)) {
-                ConfigurationData configurationData = (ConfigurationData) configs.get(configId);
-                configurationData.setConfigurationStore(this);
-                return configurationData;
-            } else {
-                ConfigurationData configurationData = new ConfigurationData(configId, naming);
-                configurationData.setConfigurationStore(this);
-                return configurationData;
-            }
-        }
-
-        public boolean containsConfiguration(Artifact configID) {
-            return true;
-        }
-
-        public File createNewConfigurationDir(Artifact configId) {
-            try {
-                return DeploymentUtil.createTempDir();
-            } catch (IOException e) {
-                return null;
-            }
-        }
-
-        public Set resolve(Artifact configId, String moduleName, String pattern) throws NoSuchConfigException, MalformedURLException {
-            return Collections.singleton(baseURL);
-        }
-
-        public final static GBeanInfo GBEAN_INFO;
-
-        static {
-            GBeanInfoBuilder infoBuilder = GBeanInfoBuilder.createStatic(MockConfigStore.class, NameFactory.CONFIGURATION_STORE);
-            infoBuilder.addInterface(ConfigurationStore.class);
-            GBEAN_INFO = infoBuilder.getBeanInfo();
-        }
-    }
 }

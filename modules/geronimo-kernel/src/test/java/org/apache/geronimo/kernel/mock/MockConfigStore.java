@@ -14,9 +14,8 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.apache.geronimo.j2ee.deployment;
+package org.apache.geronimo.kernel.mock;
 
-import org.apache.geronimo.deployment.util.DeploymentUtil;
 import org.apache.geronimo.kernel.Jsr77Naming;
 import org.apache.geronimo.kernel.Naming;
 import org.apache.geronimo.kernel.config.ConfigurationData;
@@ -24,11 +23,15 @@ import org.apache.geronimo.kernel.config.IOUtil;
 import org.apache.geronimo.kernel.config.InvalidConfigException;
 import org.apache.geronimo.kernel.config.NoSuchConfigException;
 import org.apache.geronimo.kernel.config.NullConfigurationStore;
+import org.apache.geronimo.kernel.config.ConfigurationStore;
 import org.apache.geronimo.kernel.repository.Artifact;
+import org.apache.geronimo.gbean.GBeanInfo;
+import org.apache.geronimo.gbean.GBeanInfoBuilder;
 
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -43,21 +46,35 @@ public class MockConfigStore
 {
     protected static final Naming naming = new Jsr77Naming();
     
-    protected final Map locations = new HashMap();
+    protected final Map<Artifact, File> locations = new HashMap<Artifact, File>();
+    private Map<Artifact, ConfigurationData> configs = new HashMap<Artifact, ConfigurationData>();
+
+    public void install(ConfigurationData configurationData) throws IOException, InvalidConfigException {
+        configs.put(configurationData.getId(), configurationData);
+        configurationData.setConfigurationStore(this);
+    }
+
+    public void uninstall(Artifact configID) throws NoSuchConfigException, IOException {
+        configs.remove(configID);
+    }
 
     public ConfigurationData loadConfiguration(Artifact configId) throws NoSuchConfigException, IOException, InvalidConfigException {
-        ConfigurationData configurationData = new ConfigurationData(configId, naming);
-        configurationData.setConfigurationStore(this);
-        return configurationData;
+        if (configs.containsKey(configId)) {
+            return configs.get(configId);
+        } else {
+            ConfigurationData configurationData = new ConfigurationData(configId, naming);
+            install(configurationData);
+            return configurationData;
+        }
     }
 
     public boolean containsConfiguration(Artifact configID) {
-        return true;
+        return configs.containsKey(configID);
     }
 
     public File createNewConfigurationDir(Artifact configId) {
         try {
-            File file = DeploymentUtil.createTempDir();
+            File file = createTempDir();
             locations.put(configId, file);
             return file;
         } catch (IOException e) {
@@ -65,12 +82,26 @@ public class MockConfigStore
         }
     }
 
-    public Set resolve(Artifact configId, String moduleName, String pattern) throws NoSuchConfigException, MalformedURLException {
-        File file = (File) locations.get(configId);
+    public Set<URL> resolve(Artifact configId, String moduleName, String pattern) throws NoSuchConfigException, MalformedURLException {
+        File file = locations.get(configId);
         if (file == null) {
             throw new NoSuchConfigException(configId);
         }
-        Set matches = IOUtil.search(file, pattern);
-        return matches;
+        return IOUtil.search(file, pattern);
+    }
+
+    private static File createTempDir() throws IOException {
+        File tempDir = File.createTempFile("geronimo-deploymentUtil", ".tmpdir");
+        tempDir.delete();
+        tempDir.mkdirs();
+        return tempDir;
+    }
+
+    public final static GBeanInfo GBEAN_INFO;
+
+    static {
+        GBeanInfoBuilder infoBuilder = GBeanInfoBuilder.createStatic(MockConfigStore.class, "ConfigurationStore");
+        infoBuilder.addInterface(ConfigurationStore.class);
+        GBEAN_INFO = infoBuilder.getBeanInfo();
     }
 }

@@ -110,7 +110,7 @@ public class EARConfigBuilder implements ConfigurationBuilder, CorbaGBeanNameSou
     private final static QName APPLICATION_QNAME = GerApplicationDocument.type.getDocumentElementName();
 
     private final ConfigurationManager configurationManager;
-    private final Collection<Repository> repositories;
+    private final Collection<? extends Repository> repositories;
     private final SingleElementCollection ejbConfigBuilder;
     private final SingleElementCollection webConfigBuilder;
     private final SingleElementCollection connectorConfigBuilder;
@@ -128,7 +128,7 @@ public class EARConfigBuilder implements ConfigurationBuilder, CorbaGBeanNameSou
     private final AbstractNameQuery nonTransactionalTimerObjectName;
     private final AbstractNameQuery corbaGBeanObjectName;
     private final Naming naming;
-    private final Collection<ArtifactResolver> artifactResolvers;
+    private final Collection<? extends ArtifactResolver> artifactResolvers;
 
     public EARConfigBuilder(Environment defaultEnvironment,
             AbstractNameQuery transactionManagerAbstractName,
@@ -137,7 +137,7 @@ public class EARConfigBuilder implements ConfigurationBuilder, CorbaGBeanNameSou
             AbstractNameQuery nonTransactionalTimerAbstractName,
             AbstractNameQuery corbaGBeanAbstractName,
             AbstractNameQuery serverName,
-            Collection<Repository> repositories,
+            Collection<? extends Repository> repositories,
             Collection ejbConfigBuilder,
             Collection webConfigBuilder,
             Collection connectorConfigBuilder,
@@ -146,7 +146,7 @@ public class EARConfigBuilder implements ConfigurationBuilder, CorbaGBeanNameSou
             Collection securityBuilders,
             Collection serviceBuilders,
             Collection<ModuleBuilderExtension> persistenceUnitBuilders,
-            Collection<ArtifactResolver> artifactResolvers,
+            Collection<? extends ArtifactResolver> artifactResolvers,
             Kernel kernel) {
         this(defaultEnvironment,
                 transactionManagerAbstractName,
@@ -175,7 +175,7 @@ public class EARConfigBuilder implements ConfigurationBuilder, CorbaGBeanNameSou
             AbstractNameQuery nonTransactionalTimerAbstractName,
             AbstractNameQuery corbaGBeanAbstractName,
             AbstractNameQuery serverName,
-            Collection<Repository> repositories,
+            Collection<? extends Repository> repositories,
             ModuleBuilder ejbConfigBuilder,
             ModuleBuilder webConfigBuilder,
             ModuleBuilder connectorConfigBuilder,
@@ -185,7 +185,7 @@ public class EARConfigBuilder implements ConfigurationBuilder, CorbaGBeanNameSou
             NamespaceDrivenBuilder serviceBuilder,
             ModuleBuilderExtension persistenceUnitBuilder,
             Naming naming,
-            Collection<ArtifactResolver> artifactResolvers) {
+            Collection<? extends ArtifactResolver> artifactResolvers) {
         this(defaultEnvironment,
                 transactionManagerAbstractName,
                 connectionTrackerAbstractName,
@@ -215,7 +215,7 @@ public class EARConfigBuilder implements ConfigurationBuilder, CorbaGBeanNameSou
              AbstractNameQuery corbaGBeanAbstractName,
              AbstractNameQuery serverName,
              ConfigurationManager configurationManager,
-             Collection<Repository> repositories,
+             Collection<? extends Repository> repositories,
              SingleElementCollection ejbConfigBuilder,
              SingleElementCollection webConfigBuilder,
              SingleElementCollection connectorConfigBuilder,
@@ -225,7 +225,7 @@ public class EARConfigBuilder implements ConfigurationBuilder, CorbaGBeanNameSou
              Collection serviceBuilders,
              Collection<ModuleBuilderExtension> persistenceUnitBuilders,
              Naming naming,
-             Collection<ArtifactResolver> artifactResolvers) {
+             Collection<? extends ArtifactResolver> artifactResolvers) {
         this.configurationManager = configurationManager;
         this.repositories = repositories;
         this.defaultEnvironment = defaultEnvironment;

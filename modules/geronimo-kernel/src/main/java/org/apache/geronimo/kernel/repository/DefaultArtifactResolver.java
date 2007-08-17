@@ -18,11 +18,10 @@ package org.apache.geronimo.kernel.repository;
 
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.LinkedHashSet;
+import java.util.Map;
 import java.util.SortedSet;
 import java.util.TreeSet;
-import java.util.Map;
 
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
@@ -33,25 +32,25 @@ import org.apache.geronimo.kernel.config.Configuration;
  */
 public class DefaultArtifactResolver implements ArtifactResolver {
     private final ArtifactManager artifactManager;
-    private final Collection repositories;
-    private final Map explicitResolution;
+    private final Collection<? extends ListableRepository> repositories;
+    private final Map<Artifact, Artifact> explicitResolution;
 
     public DefaultArtifactResolver(ArtifactManager artifactManager, ListableRepository repository) {
         this.artifactManager = artifactManager;
         this.repositories = Collections.singleton(repository);
-        this.explicitResolution = Collections.EMPTY_MAP;
+        this.explicitResolution = Collections.emptyMap();
     }
 
-    public DefaultArtifactResolver(ArtifactManager artifactManager, Collection repositories, Map explicitResolution) {
+    public DefaultArtifactResolver(ArtifactManager artifactManager, Collection<? extends ListableRepository> repositories, Map<Artifact, Artifact> explicitResolution) {
         this.artifactManager = artifactManager;
         this.repositories = repositories;
-        this.explicitResolution = explicitResolution == null? Collections.EMPTY_MAP: explicitResolution;
+        this.explicitResolution = explicitResolution == null? Collections.<Artifact, Artifact>emptyMap(): explicitResolution;
     }
 
 
     public Artifact generateArtifact(Artifact source, String defaultType) {
         if(source.isResolved()) {
-            Artifact deAliased = (Artifact) explicitResolution.get(source);
+            Artifact deAliased = explicitResolution.get(source);
             if (deAliased !=  null) {
                 return deAliased;
             }
@@ -74,22 +73,20 @@ public class DefaultArtifactResolver implements ArtifactResolver {
     }
 
     public Artifact[] queryArtifacts(Artifact artifact) {
-        LinkedHashSet set = new LinkedHashSet();
-        for (Iterator iterator = repositories.iterator(); iterator.hasNext();) {
-            ListableRepository repository = (ListableRepository) iterator.next();
+        LinkedHashSet<Artifact> set = new LinkedHashSet<Artifact>();
+        for (ListableRepository repository : repositories) {
             set.addAll(repository.list(artifact));
         }
-        return (Artifact[]) set.toArray(new Artifact[set.size()]);
+        return set.toArray(new Artifact[set.size()]);
     }
 
-    public LinkedHashSet resolveInClassLoader(Collection artifacts) throws MissingDependencyException {
-        return resolveInClassLoader(artifacts, Collections.EMPTY_SET);
+    public LinkedHashSet<Artifact> resolveInClassLoader(Collection<Artifact> artifacts) throws MissingDependencyException {
+        return resolveInClassLoader(artifacts, Collections.<Configuration>emptySet());
     }
 
-    public LinkedHashSet resolveInClassLoader(Collection artifacts, Collection parentConfigurations) throws MissingDependencyException {
-        LinkedHashSet resolvedArtifacts = new LinkedHashSet();
-        for (Iterator iterator = artifacts.iterator(); iterator.hasNext();) {
-            Artifact artifact = (Artifact) iterator.next();
+    public LinkedHashSet<Artifact> resolveInClassLoader(Collection<Artifact> artifacts, Collection<Configuration> parentConfigurations) throws MissingDependencyException {
+        LinkedHashSet<Artifact> resolvedArtifacts = new LinkedHashSet<Artifact>();
+        for (Artifact artifact : artifacts) {
             if (!artifact.isResolved()) {
                 artifact = resolveInClassLoader(artifact, parentConfigurations);
             }
@@ -99,14 +96,14 @@ public class DefaultArtifactResolver implements ArtifactResolver {
     }
 
     public Artifact resolveInClassLoader(Artifact source) throws MissingDependencyException {
-        return resolveInClassLoader(source, Collections.EMPTY_SET);
+        return resolveInClassLoader(source, Collections.<Configuration>emptySet());
     }
 
-    public Artifact resolveInClassLoader(Artifact source, Collection parentConfigurations) throws MissingDependencyException {
+    public Artifact resolveInClassLoader(Artifact source, Collection<Configuration> parentConfigurations) throws MissingDependencyException {
         // Some tests break if we acntually try to search for fully-resolved artifacts
-        if(source.isResolved()) {
-            return source;
-        }
+//        if(source.isResolved()) {
+//            return source;
+//        }
 //        if (artifact.getType() == null) {
 //            throw new IllegalArgumentException("Type not set " + artifact);
 //        }
@@ -126,11 +123,14 @@ public class DefaultArtifactResolver implements ArtifactResolver {
         return working;
     }
 
-    private Artifact resolveVersion(Collection parentConfigurations, Artifact working) {
+    private Artifact resolveVersion(Collection<Configuration> parentConfigurations, Artifact working) {
         //see if there is an explicit resolution for this artifact.
-        Artifact deAliased = (Artifact) explicitResolution.get(working);
+        Artifact deAliased = explicitResolution.get(working);
         if (deAliased != null) {
             working = deAliased;
+        }
+        if (working.isResolved()) {
+            return working;
         }
         SortedSet existingArtifacts;
         if (artifactManager != null) {
@@ -147,9 +147,8 @@ public class DefaultArtifactResolver implements ArtifactResolver {
 
         // if we have no existing loaded artifacts grab the highest version from the repository
         if (existingArtifacts.size() == 0) {
-            SortedSet list = new TreeSet();
-            for (Iterator iterator = repositories.iterator(); iterator.hasNext();) {
-                ListableRepository repository = (ListableRepository) iterator.next();
+            SortedSet<Artifact> list = new TreeSet<Artifact>();
+            for (ListableRepository repository : repositories) {
                 list.addAll(repository.list(working));
             }
 
@@ -160,7 +159,7 @@ public class DefaultArtifactResolver implements ArtifactResolver {
                     return null;
                 }
             }
-            return (Artifact) list.last();
+            return list.last();
         }
 
         // more than one version of the artifact was loaded...
@@ -175,9 +174,8 @@ public class DefaultArtifactResolver implements ArtifactResolver {
         return (Artifact) existingArtifacts.last();
     }
 
-    private Artifact searchParents(Collection parentConfigurations, Artifact working) {
-        for (Iterator iterator = parentConfigurations.iterator(); iterator.hasNext();) {
-            Configuration configuration = (Configuration) iterator.next();
+    private Artifact searchParents(Collection<Configuration> parentConfigurations, Artifact working) {
+        for (Configuration configuration : parentConfigurations) {
 
             // check if this parent matches the groupId, artifactId, and type
             if (matches(configuration.getId(), working)) {
@@ -215,9 +213,8 @@ public class DefaultArtifactResolver implements ArtifactResolver {
         return null;
     }
 
-    private Artifact getArtifactVersion(Collection artifacts, Artifact query) {
-        for (Iterator iterator = artifacts.iterator(); iterator.hasNext();) {
-            Artifact artifact = (Artifact) iterator.next();
+    private Artifact getArtifactVersion(Collection<Artifact> artifacts, Artifact query) {
+        for (Artifact artifact : artifacts) {
             if (matches(artifact, query)) {
                 return artifact;
             }

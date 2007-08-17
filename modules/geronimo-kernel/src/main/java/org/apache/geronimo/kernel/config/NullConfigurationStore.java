@@ -25,6 +25,7 @@ import java.io.OutputStream;
 import java.util.List;
 import java.util.Set;
 import java.net.MalformedURLException;
+import java.net.URL;
 
 /**
  * A non-functional configuration store that can be extended to be useful.
@@ -58,7 +59,7 @@ public class NullConfigurationStore implements ConfigurationStore {
         return null;
     }
 
-    public List listConfigurations() {
+    public List<ConfigurationInfo> listConfigurations() {
         return null;
     }
 
@@ -66,7 +67,7 @@ public class NullConfigurationStore implements ConfigurationStore {
         return null;
     }
 
-    public Set resolve(Artifact configId, String moduleName, String path) throws NoSuchConfigException, MalformedURLException {
+    public Set<URL> resolve(Artifact configId, String moduleName, String path) throws NoSuchConfigException, MalformedURLException {
         return null;
     }
 
