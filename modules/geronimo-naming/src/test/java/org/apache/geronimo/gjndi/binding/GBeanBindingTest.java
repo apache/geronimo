@@ -57,22 +57,21 @@ public class GBeanBindingTest extends AbstractContextTest {
         InitialContext ctx = new InitialContext(contextEnv);
         assertEq(globalBindings, ctx);
 
+        
         //
-        // stop ds1
+        // stop ds2
         //
-        kernel.stopGBean(ds1Name);
-        DataSource ds2 = (DataSource) kernel.getGBean(ds2Name);
-        globalBindings.put("writable/ds", ds2);
-        globalBindings.remove("writable/ds1");
+        kernel.stopGBean(ds2Name);
+        globalBindings.remove("writable/ds2");
         assertEq(globalBindings, ctx);
 
         //
-        // restart ds1
+        // restart ds2
         //
-        kernel.startGBean(ds1Name);
-        DataSource ds1 = (DataSource) kernel.getGBean(ds1Name);
-        globalBindings.put("writable/ds1", ds1);
-        assertEq(globalBindings, ctx);
+        kernel.startGBean(ds2Name);
+        DataSource ds2 = (DataSource) kernel.getGBean(ds2Name);
+        globalBindings.put("writable/ds2", ds2);
+        assertEq(globalBindings, ctx);        
     }
 
     protected Map getNestedBindings(Map globalBindings, String nestedPath) {
@@ -132,8 +131,10 @@ public class GBeanBindingTest extends AbstractContextTest {
         GBeanData dsBinding = configurationData.addGBean("dsBinding", GBeanBinding.GBEAN_INFO);
         dsBinding.setReferencePattern("Context", writableName);
         dsBinding.setAttribute("name", "ds");
-        dsBinding.setAttribute("abstractNameQuery", new AbstractNameQuery(null, Collections.EMPTY_MAP, DataSource.class.getName()));
-
+        dsBinding.setAttribute("abstractNameQuery", new AbstractNameQuery(null,
+                Collections.singletonMap("name", "ds1"),
+                DataSource.class.getName()));
+        
         GBeanData ds1Binding = configurationData.addGBean("ds1Binding", GBeanBinding.GBEAN_INFO);
         ds1Binding.setReferencePattern("Context", writableName);
         ds1Binding.setAttribute("name", "ds1");
