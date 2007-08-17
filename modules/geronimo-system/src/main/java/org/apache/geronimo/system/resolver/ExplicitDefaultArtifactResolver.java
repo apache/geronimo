@@ -72,7 +72,10 @@ public class ExplicitDefaultArtifactResolver extends DefaultArtifactResolver {
             if (parts.length != 4) {
                 throw new IllegalArgumentException("Invalid id: " + key);
             }
-            Artifact source = new Artifact(parts[0], parts[1], (String) null, parts[3]);
+            if ("".equals(parts[2])) {
+                parts[2] = null;
+            }
+            Artifact source = new Artifact(parts[0], parts[1], parts[2], parts[3]);
             Artifact resolved = Artifact.create(resolvedString);
             explicitResolution.put(source, resolved);
         }
