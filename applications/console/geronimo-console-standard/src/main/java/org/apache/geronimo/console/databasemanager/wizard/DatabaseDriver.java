@@ -31,6 +31,6 @@ public interface DatabaseDriver {
     String[] getURLParameters();
     String getDriverClassName();
     int getDefaultPort();
-    boolean isXA();
+    boolean isSpecific();
     Artifact getRAR();
 }
