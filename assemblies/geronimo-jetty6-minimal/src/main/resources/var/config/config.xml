@@ -72,7 +72,7 @@
     
     <module name="org.apache.geronimo.configs/geronimo-gbean-deployer/${version}/car">
         <gbean name="Deployer">
-            <attribute name="remoteDeployAddress">${RemoteDeployHostname}:${HTTPPortPrimary + PortOffset}</attribute>
+            <attribute name="remoteDeployAddress">http://${RemoteDeployHostname}:${HTTPPortPrimary + PortOffset}</attribute>
         </gbean>
     </module>
     

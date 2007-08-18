@@ -20,7 +20,7 @@
     
     <!-- Deployer used to process modules and plans -->
     <gbean name="Deployer" class="org.apache.geronimo.deployment.Deployer">
-        <attribute name="remoteDeployAddress">${PlanRemoteDeployHostname}:${PlanHTTPPort}</attribute>
+        <attribute name="remoteDeployAddress">localhost:8080</attribute>
         <reference name="Store">
             <!--<pattern><gbean-name>*:j2eeType=ConfigurationStore,*</gbean-name></pattern>-->
          </reference>
