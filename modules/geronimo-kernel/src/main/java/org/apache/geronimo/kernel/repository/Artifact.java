@@ -32,11 +32,15 @@ public class Artifact implements Comparable, Serializable {
     private final String type;
 
     public Artifact(String groupId, String artifactId, String version, String type) {
-        this(groupId, artifactId, version == null ? null : new Version(version), type);
+        this(groupId, artifactId, version == null ? null : new Version(version), type, true);
     }
 
     public Artifact(String groupId, String artifactId, Version version, String type) {
-        if (artifactId == null) throw new NullPointerException("artifactId is null: groupId: " + groupId + ", version: " + version + ", type: " + type);
+        this(groupId, artifactId, version, type, true);
+    }
+
+    private Artifact(String groupId, String artifactId, Version version, String type, boolean requireArtifactId) {
+        if (requireArtifactId && artifactId == null) throw new NullPointerException("artifactId is null: groupId: " + groupId + ", version: " + version + ", type: " + type);
         this.groupId = groupId;
         this.artifactId = artifactId;
         this.version = version;
@@ -44,6 +48,14 @@ public class Artifact implements Comparable, Serializable {
     }
 
     public static Artifact create(String id) {
+        return create(id, true);
+    }
+
+    public static Artifact createPartial(String id) {
+        return create(id, false);
+    }
+
+    private static Artifact create(String id, boolean requireArtifactId) {
         String[] parts = id.split("/", -1);
         if (parts.length != 4) {
             throw new IllegalArgumentException("Invalid id: " + id);
@@ -53,7 +65,7 @@ public class Artifact implements Comparable, Serializable {
                 parts[i] = null;
             }
         }
-        return new Artifact(parts[0], parts[1], parts[2], parts[3]);
+        return new Artifact(parts[0], parts[1], parts[2] == null ? null : new Version(parts[2]), parts[3], requireArtifactId);
     }
 
     public String getGroupId() {
@@ -95,7 +107,7 @@ public class Artifact implements Comparable, Serializable {
     private static int GREATER = 1;
     private static int LESS = -1;
 
-    private static int safeCompare(Comparable left, Comparable right) {
+    private static <T extends Comparable<T>> int safeCompare(T left, T right) {
         if (left == null) {
             if (right != null) return LESS;
             return 0;
@@ -110,7 +122,7 @@ public class Artifact implements Comparable, Serializable {
 
         final Artifact artifact = (Artifact) o;
 
-        if (!artifactId.equals(artifact.artifactId)) {
+        if (artifactId != null? !artifactId.equals(artifact.artifactId) : artifact.artifactId != null) {
             return false;
         }
 
@@ -129,7 +141,7 @@ public class Artifact implements Comparable, Serializable {
     public int hashCode() {
         int result;
         result = (groupId != null ? groupId.hashCode() : 0);
-        result = 29 * result + artifactId.hashCode();
+        result = 29 * result + (artifactId != null? artifactId.hashCode() : 0);
         result = 29 * result + (version != null ? version.hashCode() : 0);
         result = 29 * result + (type != null ? type.hashCode() : 0);
         return result;
@@ -143,7 +155,9 @@ public class Artifact implements Comparable, Serializable {
         }
         buffer.append("/");
 
-        buffer.append(artifactId);
+        if (artifactId != null) {
+            buffer.append(artifactId);
+        }
         buffer.append("/");
 
         if (version != null) {

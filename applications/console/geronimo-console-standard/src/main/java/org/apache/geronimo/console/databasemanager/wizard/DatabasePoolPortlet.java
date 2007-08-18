@@ -763,7 +763,8 @@ public class DatabasePoolPortlet extends BasePortlet {
 
     private void renderEdit(RenderRequest renderRequest, RenderResponse renderResponse, PoolData data) throws IOException, PortletException {
         if (data.abstractName == null || data.abstractName.equals("")) {
-            loadDriverJARList(renderRequest);
+            DatabaseDriver info = getDatabaseInfo(renderRequest, data);
+            loadDriverJARList(renderRequest, info);
         }
         if (!data.isGeneric()) {
             ResourceAdapterParams params = getRARConfiguration(renderRequest, data.getRarPath(),
@@ -803,12 +804,11 @@ public class DatabasePoolPortlet extends BasePortlet {
     }
 
     private void renderBasicParams(RenderRequest renderRequest, RenderResponse renderResponse, PoolData data) throws IOException, PortletException {
-        loadDriverJARList(renderRequest);
-        // Make sure all properties available for the DB are listed
         DatabaseDriver info = getDatabaseInfo(renderRequest, data);
+        loadDriverJARList(renderRequest, info);
+        // Make sure all properties available for the DB are listed
         if (info != null) {
-            String[] params = info.getURLParameters();
-            for (String param : params) {
+            for (String param : info.getURLParameters()) {
                 final String key = "urlproperty-" + param;
                 if (!data.getUrlProperties().containsKey(key)) {
                     data.getUrlProperties().put(key,
@@ -822,14 +822,22 @@ public class DatabasePoolPortlet extends BasePortlet {
         basicParamsView.include(renderRequest, renderResponse);
     }
 
-    private void loadDriverJARList(RenderRequest renderRequest) {
+    private void loadDriverJARList(RenderRequest renderRequest, DatabaseDriver info) {
         // List the available JARs
         List<String> list = new ArrayList<String>();
         ListableRepository[] repos = PortletManager.getCurrentServer(renderRequest).getRepositories();
+        Set<Artifact> dependencyFilters = info == null? null : info.getDependencyFilters();
         for (ListableRepository repo : repos) {
             SortedSet<Artifact> artifacts = repo.list();
             for (Artifact artifact : artifacts) {
-                if (INCLUDE_ARTIFACTIDS.contains(artifact.getArtifactId())
+                if (dependencyFilters != null) {
+                    for (Artifact filter: dependencyFilters) {
+                        if (filter.matches(artifact)) {
+                            list.add(artifact.toString());
+                        }
+                    }
+
+                } else if (INCLUDE_ARTIFACTIDS.contains(artifact.getArtifactId())
                         || !EXCLUDE_GROUPIDS.contains(artifact.getGroupId())) {
                     list.add(artifact.toString());
                 }
@@ -1003,7 +1011,7 @@ public class DatabasePoolPortlet extends BasePortlet {
                     }
                 } else { // it's an XA driver or non-TranQL RA
                     for (ConfigPropertySetting setting : settings) {
-                        String value = (String) data.properties.get("property-" + setting.getName());
+                        String value = data.properties.get("property-" + setting.getName());
                         setting.setValue(value == null ? "" : value);
                     }
                 }
@@ -1184,7 +1192,7 @@ public class DatabasePoolPortlet extends BasePortlet {
         }
     }
 
-    private static String populateURL(String url, String[] keys, Map properties) {
+    private static String populateURL(String url, List<String> keys, Map properties) {
         for (String key : keys) {
             String value = (String) properties.get("urlproperty-" + key);
             if (value == null || value.equals("")) {
@@ -1208,11 +1216,11 @@ public class DatabasePoolPortlet extends BasePortlet {
                     // value contains backslash or dollar sign and needs preprocessing for replaceAll to work properly
                     StringBuffer temp = new StringBuffer();
                     char[] valueChars = value.toCharArray();
-                    for (int j = 0; j < valueChars.length; ++j) {
-                        if (valueChars[j] == '\\' || valueChars[j] == '$') {
+                    for (char valueChar : valueChars) {
+                        if (valueChar == '\\' || valueChar == '$') {
                             temp.append('\\');
                         }
-                        temp.append(valueChars[j]);
+                        temp.append(valueChar);
                     }
                     value = temp.toString();
                 }
@@ -1403,12 +1411,12 @@ public class DatabasePoolPortlet extends BasePortlet {
             if (rarPath != null) response.setRenderParameter("rarPath", rarPath);
             for (Map.Entry<String, Object> entry : urlProperties.entrySet()) {
                 if (entry.getValue() != null) {
-                    response.setRenderParameter((String) entry.getKey(), (String) entry.getValue());
+                    response.setRenderParameter(entry.getKey(), entry.getValue().toString());
                 }
             }
             for (Map.Entry<String, String> entry : properties.entrySet()) {
                 if (entry.getValue() != null) {
-                    response.setRenderParameter((String) entry.getKey(), (String) entry.getValue());
+                    response.setRenderParameter(entry.getKey(), entry.getValue());
                 }
             }
             if (deployError != null) response.setRenderParameter("deployError", deployError);

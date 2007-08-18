@@ -25,6 +25,8 @@ import java.util.regex.Pattern;
 import java.util.regex.Matcher;
 import java.util.List;
 import java.util.ArrayList;
+import java.util.Set;
+import java.util.HashSet;
 
 /**
  * Implementation of DatabaseDriver that contains database driver information
@@ -40,6 +42,7 @@ public class DatabaseDriverGBean implements DatabaseDriver {
     private int defaultPort;
     private boolean specific;
     private Artifact RAR;
+    private Set<Artifact> dependencyFilters;
 
     public String getName() {
         return name;
@@ -85,17 +88,29 @@ public class DatabaseDriverGBean implements DatabaseDriver {
         return RAR;
     }
 
+    public void setDependencyFilterStrings(List<String> filterStrings) {
+        dependencyFilters = new HashSet<Artifact>();
+        for (String filterString: filterStrings) {
+            Artifact filter = Artifact.createPartial(filterString);
+            dependencyFilters.add(filter);
+        }
+    }
+
+    public Set<Artifact> getDependencyFilters() {
+        return dependencyFilters != null && !dependencyFilters.isEmpty()? dependencyFilters : null;
+    }
+
     public void setRARName(String name) {
         RAR = Artifact.create(name);
     }
 
-    public String[] getURLParameters() {
+    public List<String> getURLParameters() {
         Matcher m = PARAM_PATTERN.matcher(URLPrototype);
-        List list = new ArrayList();
+        List<String> list = new ArrayList<String>();
         while(m.find()) {
             list.add(URLPrototype.substring(m.start()+1, m.end()-1));
         }
-        return (String[]) list.toArray(new String[list.size()]);
+        return list;
     }
 
     public static final GBeanInfo GBEAN_INFO;
@@ -108,9 +123,9 @@ public class DatabaseDriverGBean implements DatabaseDriver {
         infoFactory.addAttribute("defaultPort", int.class, true, true);
         infoFactory.addAttribute("specific", boolean.class, true, true);
         infoFactory.addAttribute("RARName", String.class, true, true);
+        infoFactory.addAttribute("dependencyFilterStrings", List.class, true, true);
+        infoFactory.addAttribute("dependencyFilters", Set.class, false, false);
         infoFactory.addInterface(DatabaseDriver.class);
-
-        infoFactory.setConstructor(new String[0]);
 
         GBEAN_INFO = infoFactory.getBeanInfo();
     }

@@ -22,7 +22,6 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.Properties;
 
@@ -42,12 +41,12 @@ public class ExplicitDefaultArtifactResolver extends DefaultArtifactResolver {
 
     public ExplicitDefaultArtifactResolver(String versionMapLocation,
             ArtifactManager artifactManager,
-            Collection repositories,
+            Collection<? extends ListableRepository> repositories,
             ServerInfo serverInfo ) throws IOException {
         super(artifactManager, repositories, buildExplicitResolution(versionMapLocation, serverInfo));
     }
 
-    private static Map buildExplicitResolution(String versionMapLocation, ServerInfo serverInfo) throws IOException {
+    private static Map<Artifact, Artifact> buildExplicitResolution(String versionMapLocation, ServerInfo serverInfo) throws IOException {
         if (versionMapLocation == null) {
             return null;
         }
@@ -62,20 +61,12 @@ public class ExplicitDefaultArtifactResolver extends DefaultArtifactResolver {
         return propertiesToArtifactMap(properties);
     }
 
-    private static Map propertiesToArtifactMap(Properties properties) {
+    private static Map<Artifact, Artifact> propertiesToArtifactMap(Properties properties) {
         Map<Artifact, Artifact> explicitResolution = new HashMap<Artifact, Artifact>();
         for (Map.Entry<Object, Object> entry : properties.entrySet()) {
             String key = (String) entry.getKey();
             String resolvedString = (String) entry.getValue();
-            //split the string ourselves since we wish to allow blank artifactIds.
-            String[] parts = key.split("/", -1);
-            if (parts.length != 4) {
-                throw new IllegalArgumentException("Invalid id: " + key);
-            }
-            if ("".equals(parts[2])) {
-                parts[2] = null;
-            }
-            Artifact source = new Artifact(parts[0], parts[1], parts[2], parts[3]);
+            Artifact source = Artifact.createPartial(key);
             Artifact resolved = Artifact.create(resolvedString);
             explicitResolution.put(source, resolved);
         }

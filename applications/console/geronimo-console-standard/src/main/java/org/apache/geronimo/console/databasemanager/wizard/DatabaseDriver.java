@@ -17,6 +17,9 @@
  */
 package org.apache.geronimo.console.databasemanager.wizard;
 
+import java.util.Set;
+import java.util.List;
+
 import org.apache.geronimo.kernel.repository.Artifact;
 
 /**
@@ -28,9 +31,10 @@ import org.apache.geronimo.kernel.repository.Artifact;
 public interface DatabaseDriver {
     String getName();
     String getURLPrototype();
-    String[] getURLParameters();
+    List<String> getURLParameters();
     String getDriverClassName();
     int getDefaultPort();
     boolean isSpecific();
     Artifact getRAR();
+    Set<Artifact> getDependencyFilters();
 }
