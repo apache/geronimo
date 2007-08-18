@@ -54,7 +54,7 @@ function <portlet:namespace/>validateForm(){
 }
 </script>
 
-<form name="<portlet:namespace/>Form" action="<portlet:actionURL/>">
+<form method="POST" name="<portlet:namespace/>Form" action="<portlet:actionURL/>">
 <input type="hidden" name="mode" value="${mode}">
 <input type="hidden" name="connectorType" value="${connectorType}">
 <input type="hidden" name="containerURI" value="${containerURI}">
