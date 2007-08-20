@@ -105,6 +105,14 @@
                     <plugin>
                         <groupId>org.apache.geronimo.genesis.plugins</groupId>
                         <artifactId>maven-maven-plugin</artifactId>
+                        <!--  https://issues.apache.org/jira/browse/GERONIMO-3360 -->
+                        <configuration>
+                            <fileset>
+                                <excludes>
+                                    <exclude>corba-marshal/pom.xml</exclude>
+                                </excludes>
+                            </fileset>
+                        </configuration>
                     </plugin>
                 </plugins>
             </build>
