@@ -108,7 +108,7 @@ public class ServerProxy
         return mbeanConnection;
     }
 
-    public boolean isFullyStarted() {
+        public boolean isFullyStarted() {
         boolean fullyStarted = true;
 
         try {
@@ -125,12 +125,26 @@ public class ServerProxy
             }
         }
         catch (IOException e) {
-            log.debug("Connection failure; ignoring", e);
+            String msg = "Connection failure; ignoring";
+            if (log.isTraceEnabled()) {
+                log.trace(msg, e);
+            }
+            else if (log.isDebugEnabled()) {
+                log.debug(msg + ": " + e);
+            }
+            
             fullyStarted = false;
             lastError = e;
         }
         catch (Exception e) {
-            log.debug("Unable to determine if the server is fully started", e);
+            String msg = "Unable to determine if the server is fully started; ignoring";
+            if (log.isTraceEnabled()) {
+                log.trace(msg, e);
+            }
+            else if (log.isDebugEnabled()) {
+                log.debug(msg + ": " + e);
+            }
+            
             fullyStarted = false;
             lastError = e;
         }
@@ -145,19 +159,34 @@ public class ServerProxy
             ObjectName systemInfoQuery = new ObjectName("*:name=ServerInfo,j2eeType=GBean,*");
 
             getConnection();
-           
-            Set set = this.mbeanConnection.queryNames(systemInfoQuery, null);
+
+            Set set = mbeanConnection.queryNames(systemInfoQuery, null);
 
             if (set.size() > 0) {
                 ObjectName found = (ObjectName)set.iterator().next();
-                home = (String)this.mbeanConnection.getAttribute(found, "currentBaseDirectory");
-            } 
-
-        } catch (IOException e) {
-            log.debug("Connection failure; ignoring", e);
+                home = (String)mbeanConnection.getAttribute(found, "currentBaseDirectory");
+            }
+        }
+        catch (IOException e) {
+            String msg = "Connection failure; ignoring";
+            if (log.isTraceEnabled()) {
+                log.trace(msg, e);
+            }
+            else if (log.isDebugEnabled()) {
+                log.debug(msg + ": " + e);
+            }
+            
             lastError = e;
-        } catch (Exception e) {
-            log.debug("Unable to determine if the server home directory", e);
+        }
+        catch (Exception e) {
+            String msg = "Unable to determine if the server is fully started; ignoring";
+            if (log.isTraceEnabled()) {
+                log.trace(msg, e);
+            }
+            else if (log.isDebugEnabled()) {
+                log.debug(msg + ": " + e);
+            }
+            
             lastError = e;
         }
         
