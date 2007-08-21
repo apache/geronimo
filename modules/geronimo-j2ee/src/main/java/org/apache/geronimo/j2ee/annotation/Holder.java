@@ -85,7 +85,6 @@ public class Holder implements Serializable {
     public void addInjection(String className, Injection newInjection) {
         Set<Injection> injections = getInjectionList(className);
         injections.add(newInjection);
-        System.out.println("add: " + this + " " + injections);
     }
     
     public void addInjections(String className, Collection<Injection> newInjections) {
