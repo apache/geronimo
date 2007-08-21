@@ -84,7 +84,7 @@ public class FileUploadServlet extends HttpServlet {
          */
         DataInputStream in = null;
         try {
-            String fileName, fileExt;
+            String fileName;
             in = new DataInputStream(request.getInputStream());
             // 0) an int, the version of this datastream format - REMOTE_DEPLOY_REQUEST_VER
             int reqVer = in.readInt();
@@ -100,20 +100,14 @@ public class FileUploadServlet extends HttpServlet {
                 for(int i=0; i<fileCount; i++) {
                     // 2.0) a UTF String, the filename of the file being uploaded
                     fileName = in.readUTF();
-                    if (fileName != null) {
-                        int fileSep = fileName.lastIndexOf('.');
-                        if (fileSep != -1) {
-                            fileExt = fileName.substring(fileSep);
-                        } else {
-                            fileExt = "";
-                        }
-                    } else {
-                        fileExt = "";
-                    }
                     // 2.1) a long, the length of the file in bytes
                     long length = in.readLong();
                     // create the local temp file
-                    File temp = File.createTempFile("remote-deploy", fileExt);
+                    //File temp = File.createTempFile("remote-deploy", "");
+                    // Note: Doing this because WAR files have to be their original names to
+                    // handle the case where no web.xml or context root was provided
+                    File temp = new File(System.getProperty("java.io.tmpdir"), fileName.trim());
+                    temp.createNewFile();
                     temp.deleteOnExit();
                     names[i] = temp.getAbsolutePath();
                     // 2.2) raw bytes, equal to the number above for the file
