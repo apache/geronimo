@@ -287,7 +287,6 @@
                                         <background>true</background>
                                     </configuration>
                                 </execution>
-                                <!-- Stopping server and restarting it after every testsuite seems to be an overkill.
                                 <execution>
                                     <id>stop-server</id>
                                     <phase>install</phase>
@@ -295,8 +294,6 @@
                                         <goal>stop-server</goal>
                                     </goals>
                                 </execution>
-                                -->
-
                             </executions>
                         </plugin>
                     </plugins>
@@ -339,7 +336,17 @@
                                 </execution>
                             </executions>
                         </plugin>
+                    </plugins>
+                </pluginManagement>
+            </build>
+        </profile>
+        
 
+        <profile>
+            <id>common</id>
+            <build>
+                <pluginManagement>
+                    <plugins>
                         <plugin>
                             <groupId>org.apache.geronimo.plugins</groupId>
                             <artifactId>geronimo-maven-plugin</artifactId>
@@ -353,6 +360,7 @@
                                     <configuration>
                                         <logOutput>true</logOutput>
                                         <background>true</background>
+                                        <installDirectory>${basedir}/../server</installDirectory>
                                     </configuration>
                                 </execution>
                             </executions>
