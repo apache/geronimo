@@ -43,13 +43,13 @@ import org.apache.geronimo.gbean.GBeanInfoBuilder;
  * (the car-maven-plugin starts a configuration that isn't a parent of anything.  We might be able to fix that by a
  * use of artifact_aliases.properties itself, but that might be for later).
  *
- * @version $Rev:$ $Date:$
+ * @version $Rev$ $Date$
  */
 public class OptionalExplicitDefaultArtifactResolver implements ArtifactResolver {
 
     private final ArtifactResolver delegate;
 
-    public OptionalExplicitDefaultArtifactResolver(String versionMapLocation, Collection<ArtifactManager> artifactManagers, Collection<Repository> repositories, Collection<ServerInfo> serverInfos, Collection<ArtifactResolver> fallbackResolver) throws IOException {
+    public OptionalExplicitDefaultArtifactResolver(String versionMapLocation, Collection<ArtifactManager> artifactManagers, Collection<ListableRepository> repositories, Collection<ServerInfo> serverInfos, Collection<ArtifactResolver> fallbackResolver) throws IOException {
         ServerInfo serverInfo = getServerInfo(serverInfos);
         if (serverInfo != null) {
             delegate = new ExplicitDefaultArtifactResolver(versionMapLocation, getArtifactManager(artifactManagers), repositories, serverInfo);
