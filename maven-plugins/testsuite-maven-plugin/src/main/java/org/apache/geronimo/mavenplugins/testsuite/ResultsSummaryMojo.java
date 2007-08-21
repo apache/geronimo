@@ -445,7 +445,7 @@ public class ResultsSummaryMojo
         int failuresNum = Integer.parseInt(failures);
         int skippedNum = Integer.parseInt(skipped);
 
-        String pcent = computePercentage(testsNum, errorsNum, failuresNum, skippedNum);
+        String pcent = tests + "/" + errors + "/" + failures + " (" + computePercentage(testsNum, errorsNum, failuresNum, skippedNum) + "%)";
         return pcent;
     }
 
@@ -502,7 +502,7 @@ public class ResultsSummaryMojo
 
             Element anchor = document.createElement("a");
             anchor.setAttribute("href", "./" + buildNumber + "/" + suiteName + "/surefire-report.html");
-            Text text = document.createTextNode(pcent + "%");
+            Text text = document.createTextNode(pcent);
             anchor.appendChild(text);
 
             td.appendChild(anchor);
