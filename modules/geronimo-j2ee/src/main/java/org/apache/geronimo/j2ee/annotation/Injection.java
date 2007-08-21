@@ -23,7 +23,7 @@ package org.apache.geronimo.j2ee.annotation;
 import java.io.Serializable;
 
 /**
- * @version $Rev:$ $Date:$
+ * @version $Rev$ $Date$
  */
 public class Injection implements Serializable {
 
@@ -49,6 +49,59 @@ public class Injection implements Serializable {
 
     public String getJndiName() {
         return jndiName;
+    }
+    
+    public String toString() {
+        StringBuffer buf = new StringBuffer();
+        buf.append(targetClassName).append(" ");
+        buf.append(targetName).append(" ");
+        buf.append(jndiName);
+        return buf.toString();
+    }
+
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + ((jndiName == null) ? 0 : jndiName.hashCode());
+        result = prime * result + ((targetClassName == null) ? 0 : targetClassName.hashCode());
+        result = prime * result + ((targetName == null) ? 0 : targetName.hashCode());
+        return result;
+    }
+
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final Injection other = (Injection) obj;        
+        if (jndiName == null) {
+            if (other.jndiName != null) {
+                return false;
+            }
+        } else if (!jndiName.equals(other.jndiName)) {
+            return false;
+        }        
+        if (targetClassName == null) {
+            if (other.targetClassName != null) { 
+                return false;
+            }
+        } else if (!targetClassName.equals(other.targetClassName)) {
+            return false;
+        }        
+        if (targetName == null) {
+            if (other.targetName != null) {
+                return false;
+            }
+        } else if (!targetName.equals(other.targetName)) {
+            return false;
+        }
+        
+        return true;
     }
     
 }
