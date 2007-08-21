@@ -161,13 +161,18 @@ public class BaseDeploymentFactory implements DeploymentFactory {
         environment.put(JMXConnector.CREDENTIALS, credentials);
         environment.put(JMXConnectorFactory.DEFAULT_CLASS_LOADER, BaseDeploymentFactory.class.getClassLoader());
         try {
-            if (log.isDebugEnabled()) {
-                log.debug("Using JMXServiceURL with host=" + params.getHost() + ", port=" + params.getPort());
+            // if ipv6 numeric address wrap with "[" "]"
+            String host = params.getHost();
+            if (host.indexOf(":") >= 0) {
+                host = "[" + host + "]";
             }
-            JMXServiceURL address = new JMXServiceURL("service:jmx:rmi:///jndi/rmi://"+params.getHost()+":"+params.getPort()+"/JMXConnector");
+            if (log.isDebugEnabled()) {
+                log.debug("Using JMXServiceURL with host=" + host + ", port=" + params.getPort());
+            }
+            JMXServiceURL address = new JMXServiceURL("service:jmx:rmi:///jndi/rmi://"+ host +":"+params.getPort()+"/JMXConnector");
             JMXConnector jmxConnector = JMXConnectorFactory.connect(address, environment);
             RemoteDeploymentManager manager = getRemoteDeploymentManager();
-            manager.init(jmxConnector, params.getHost());
+            manager.init(jmxConnector, host);
             if(!manager.isSameMachine()) {
                 manager.setAuthentication(username, password);
             }
