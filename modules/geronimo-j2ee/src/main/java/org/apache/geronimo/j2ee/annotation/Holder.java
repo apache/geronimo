@@ -23,9 +23,12 @@ package org.apache.geronimo.j2ee.annotation;
 import java.io.Serializable;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.naming.Context;
 import javax.naming.NamingException;
@@ -42,7 +45,7 @@ public class Holder implements Serializable {
     public static final Holder EMPTY = new Holder() {
     };
 
-    private Map<String, List<Injection>> injectionMap;
+    private Map<String, Set<Injection>> injectionMap;
     private Map<String, LifecycleMethod> postConstruct;
     private Map<String, LifecycleMethod> preDestroy;
 
@@ -52,7 +55,7 @@ public class Holder implements Serializable {
 
     public Holder(Holder source) {
         if (source.getInjectionMap() != null) {
-            this.injectionMap = new HashMap<String, List<Injection>>();
+            this.injectionMap = new HashMap<String, Set<Injection>>();
             addInjectionMap(source.getInjectionMap());
         }
         
@@ -67,25 +70,26 @@ public class Holder implements Serializable {
         }
     }
     
-    private List<Injection> getInjectionList(String className) {
+    private Set<Injection> getInjectionList(String className) {
         if (injectionMap == null) {
-            injectionMap = new HashMap<String, List<Injection>>();
+            injectionMap = new HashMap<String, Set<Injection>>();
         }
-        List<Injection> injections = injectionMap.get(className);
+        Set<Injection> injections = injectionMap.get(className);
         if (injections == null) {
-            injections = new ArrayList<Injection>();
+            injections = new HashSet<Injection>();
             injectionMap.put(className, injections);
         }
         return injections;
     }
     
     public void addInjection(String className, Injection newInjection) {
-        List<Injection> injections = getInjectionList(className);
+        Set<Injection> injections = getInjectionList(className);
         injections.add(newInjection);
+        System.out.println("add: " + this + " " + injections);
     }
     
-    public void addInjections(String className, List<Injection> newInjections) {
-        List<Injection> injections = getInjectionList(className);        
+    public void addInjections(String className, Collection<Injection> newInjections) {
+        Set<Injection> injections = getInjectionList(className);        
         for (Injection injection : newInjections) {
             injections.add(injection);
         }
@@ -110,25 +114,28 @@ public class Holder implements Serializable {
         return old;
     }
 
-    public void addInjectionMap(Map<String, List<Injection>> injectionMap) {
+    public void addInjectionMap(Map<String, Set<Injection>> injectionMap) {
         if (injectionMap == null) {
             return;
         }
-        for (Map.Entry<String, List<Injection>> entry : injectionMap.entrySet()) {
+        for (Map.Entry<String, Set<Injection>> entry : injectionMap.entrySet()) {
             String className = entry.getKey();
-            List<Injection> injections = entry.getValue();
+            Set<Injection> injections = entry.getValue();
             addInjections(className, injections);            
         }
     }
     
     public List<Injection> getInjections(String className) {
-        if (injectionMap == null) {
-            return null;
+        if (injectionMap != null) {                  
+            Set<Injection> injections = injectionMap.get(className);
+            if (injections != null) {
+                return new ArrayList<Injection>(injections);
+            }
         }
-        return injectionMap.get(className);
+        return null;
     }
 
-    public Map<String, List<Injection>> getInjectionMap() {
+    public Map<String, Set<Injection>> getInjectionMap() {
         return injectionMap;
     }
     

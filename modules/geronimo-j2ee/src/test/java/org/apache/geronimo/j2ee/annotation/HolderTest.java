@@ -19,11 +19,25 @@ package org.apache.geronimo.j2ee.annotation;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import junit.framework.TestCase;
 
 public class HolderTest extends TestCase {
 
+    public void testDuplicates() throws Exception {
+        Holder holder = new Holder();
+        holder.addInjection("a1", new Injection("a1", "1", "2"));
+        holder.addInjection("a1", new Injection("a1", "1", "2"));
+        
+        holder.addInjection("a1", new Injection("a1", "1", "X"));
+        holder.addInjection("a1", new Injection("a1", "X", "2"));
+        
+        List<Injection> injections = holder.getInjections("a1");
+        assertEquals(3, injections.size());        
+    }
+    
+    
     public void testCopy() throws Exception {
         Holder source = new Holder();
         source.addInjection("a1", new Injection("a1", "1", "2"));
@@ -50,29 +64,29 @@ public class HolderTest extends TestCase {
         compareLifecycleMethod(source.getPreDestroy(), copy.getPreDestroy());
     }
     
-    private void compareInjection(Map<String, List<Injection>> expected, Map<String, List<Injection>> actual) {
+    private void compareInjection(Map<String, Set<Injection>> expected, Map<String, Set<Injection>> actual) {
         assertNotNull(expected);
         assertNotNull(actual);
         assertTrue(expected != actual);
         assertEquals(expected.size(), actual.size());
         
-        for (Map.Entry<String, List<Injection>> entry : expected.entrySet()) {
+        for (Map.Entry<String, Set<Injection>> entry : expected.entrySet()) {
             String className = entry.getKey();
-            List<Injection> expectedInjections = entry.getValue();
+            Set<Injection> expectedInjections = entry.getValue();
             
-            List<Injection> actualInjections = actual.get(className);
+            Set<Injection> actualInjections = actual.get(className);
             compare(expectedInjections, actualInjections);
         }                            
     }
     
-    private void compare(List<Injection> expected, List<Injection> actual) {
+    private void compare(Set<Injection> expected, Set<Injection> actual) {
         assertNotNull(expected);
         assertNotNull(actual);
         assertTrue(expected != actual);
         assertEquals(expected.size(), actual.size());
         
-        for (int i = 0; i < expected.size(); i++) {
-            assertEquals(expected.get(i), actual.get(i));
+        for (Injection injection : expected) {
+            assertTrue(actual.contains(injection));
         }
     }
     
