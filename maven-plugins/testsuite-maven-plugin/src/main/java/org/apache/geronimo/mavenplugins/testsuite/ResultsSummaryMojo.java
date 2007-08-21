@@ -61,6 +61,7 @@ import org.apache.tools.ant.Project;
 import org.apache.tools.ant.taskdefs.Property;
 import org.apache.tools.ant.taskdefs.XmlProperty;
 import org.apache.tools.ant.taskdefs.optional.ssh.Scp;
+import org.apache.tools.ant.taskdefs.optional.ssh.SSHExec;
 
 /**
  * Download the ResultsSummary.html file from the site url.
@@ -72,8 +73,7 @@ import org.apache.tools.ant.taskdefs.optional.ssh.Scp;
  * @version $Rev$ $Date$
  */
 public class ResultsSummaryMojo
-    extends MojoSupport
-{
+extends MojoSupport {
     /**
      * @component
      */
@@ -154,6 +154,7 @@ public class ResultsSummaryMojo
     private Server server = null;
 
     private Scp scp;
+    private SSHExec ssh;
 
     protected MavenProject getProject()
     {
@@ -165,45 +166,50 @@ public class ResultsSummaryMojo
 
         ant.setProject(getProject());
 
-        scp = (Scp)ant.createTask("scp");
-
         String siteId = project.getDistributionManagement().getSite().getId();
         server = settings.getServer(siteId);
 
+        scp = (Scp)ant.createTask("scp");
         scp.setKeyfile(getKeyFile());
-
         scp.setPassword(getPassword());
         scp.setPassphrase(getPassphrase());
         scp.setTrust(true);
+
+        ssh = (SSHExec)ant.createTask("sshexec");
+        ssh.setKeyfile(getKeyFile());
+        ssh.setPassword(getPassword());
+        ssh.setPassphrase(getPassphrase());
+        ssh.setTrust(true);
+
     }
 
     private String getKeyFile() {
-        if (keyFile != null) {
+        if ( keyFile != null ) {
             return keyFile;
         }
-        else if (server != null && server.getPrivateKey() != null) {
+        else if ( server != null && server.getPrivateKey() != null ) {
             return server.getPrivateKey();
         }
-        
+
         return "/home/" + getUsername() + "/.ssh/id_dsa";
     }
 
     private String getUsername() {
-        if (username != null) {
+        if ( username != null ) {
             return username;
         }
-        else if (server != null && server.getUsername() != null) {
+        else if ( server != null && server.getUsername() != null ) {
             return server.getUsername();
         }
-        
+
         return System.getProperty("user.name");
     }
 
     private String getPassword() {
-        if (password != null) {
+        if ( password != null ) {
             return password;
         }
-        else if (server != null && server.getPassword() != null) {
+        else if ( server != null && server.getPassword() != null ) {
             return server.getPassword();
         }
 
@@ -211,10 +217,10 @@ public class ResultsSummaryMojo
     }
 
     private String getPassphrase() {
-        if (passphrase != null) {
+        if ( passphrase != null ) {
             return passphrase;
         }
-        else if (server != null && server.getPassphrase() != null) {
+        else if ( server != null && server.getPassphrase() != null ) {
             return server.getPassphrase();
         }
 
@@ -225,13 +231,13 @@ public class ResultsSummaryMojo
      * called by execute from super
      */
     protected void doExecute() throws Exception {
-        if (buildNumber == null) {
+        if ( buildNumber == null ) {
             log.warn("No build number specified; returning");
             return;
         }
 
         File currentSiteDirectory = new File(targetDirectory, "/site");
-        if (!currentSiteDirectory.exists()) {
+        if ( !currentSiteDirectory.exists() ) {
             log.warn("No site directory here; returning");
             return;
         }
@@ -242,7 +248,7 @@ public class ResultsSummaryMojo
             downloadHTML();
             resultsFile = new File(targetDirectory, resultsFileName);            
         }
-        catch (Exception e) {
+        catch ( Exception e ) {
             log.warn("Download failed. " + e.getMessage());
         }
 
@@ -350,7 +356,6 @@ public class ResultsSummaryMojo
 
         scp.setFile(remoteUri);
         scp.setTodir(targetDirectory.getAbsolutePath());
-
         scp.execute();
     }
 
@@ -361,11 +366,22 @@ public class ResultsSummaryMojo
     private void uploadHTML(File resultsFile)
     {
         String remoteUri = getRemoteUri();
-
         scp.setFile( resultsFile.getAbsolutePath() );
         scp.setTodir(remoteUri);
-
         scp.execute();
+
+        // Use the following block to set 664 perms on the uploaded html file; else synch will fail.
+        // ssh is setting the right perms but blocking. setTimeout doesn't seem to work.
+        /*
+        remoteUri = remoteUri + "/" + resultsFileName;
+        int atindex = remoteUri.lastIndexOf("@");
+        int index = remoteUri.lastIndexOf(":");
+        ssh.setHost(remoteUri.substring(atindex+1, index));
+        ssh.setUsername(getUsername());
+        ssh.setCommand("chmod 664 " + remoteUri.substring(index+1));
+        ssh.setTimeout(30 * 1000);
+        ssh.execute();
+        */
     }
 
 
@@ -375,8 +391,7 @@ public class ResultsSummaryMojo
     private Document insertNewColumn(Document document)
     {
         Element table = getElementById(document.getDocumentElement(), "table", "mainTable");
-        if ( table == null )
-        {
+        if ( table == null ) {
             log.info("table is null");
             return null;
         }
@@ -400,8 +415,7 @@ public class ResultsSummaryMojo
 
         // check for number of columns to be shown. 
         // Don't take the suite names column into count.
-        if ( cols > (numberShown + 1) )
-        {
+        if ( cols > (numberShown + 1) ) {
             cols = cleanup(table);
         }
 
@@ -456,8 +470,7 @@ public class ResultsSummaryMojo
     {
         XmlProperty xmlProperty = (XmlProperty)ant.createTask("xmlproperty");
         xmlProperty.setFile(src);
-        if ( prefix != null )
-        {
+        if ( prefix != null ) {
             xmlProperty.setPrefix(prefix);
         }
         xmlProperty.setCollapseAttributes(true);
@@ -471,12 +484,10 @@ public class ResultsSummaryMojo
     public String computePercentage( int tests, int errors, int failures, int skipped )
     {
         float percentage;
-        if ( tests == 0 )
-        {
+        if ( tests == 0 ) {
             percentage = 0;
         }
-        else
-        {
+        else {
             percentage = ( (float) ( tests - errors - failures - skipped ) / (float) tests ) * PCENT;
         }
 
@@ -495,8 +506,7 @@ public class ResultsSummaryMojo
 
         Element tr = getElementById(table, "tr", suiteName);
 
-        if ( tr != null )
-        {
+        if ( tr != null ) {
             Element td = document.createElement("TD");
             td.setAttribute("class", "cell");
 
@@ -508,8 +518,7 @@ public class ResultsSummaryMojo
             td.appendChild(anchor);
             tr.appendChild(td);
         }
-        else
-        {
+        else {
             log.debug("Creating a new row for a new suite");
             tr = document.createElement("TR");
             tr.setAttribute("id", suiteName);
@@ -521,8 +530,7 @@ public class ResultsSummaryMojo
             tr.appendChild(td);
 
             // creating empty cells in the cols for the previous builds.
-            for ( int i=1; i<cols; i++ )
-            {
+            for ( int i=1; i<cols; i++ ) {
                 td = document.createElement("TD");
                 td.setAttribute("class", "cell");                
                 tr.appendChild(td);
@@ -553,16 +561,13 @@ public class ResultsSummaryMojo
 
         NodeList nodeList = element.getElementsByTagName(tagName);
 
-        for ( int i=0; i<nodeList.getLength(); i++ )
-        {
+        for ( int i=0; i<nodeList.getLength(); i++ ) {
             foundElement = (Element) nodeList.item(i);
             log.debug("Element is " + foundElement.getTagName() + " " + foundElement.getAttribute("id") );
-            if ( id.trim().equals(foundElement.getAttribute("id").trim()) )
-            {
+            if ( id.trim().equals(foundElement.getAttribute("id").trim()) ) {
                 break;
             }
-            else
-            {
+            else {
                 foundElement = null;
             }
         }
@@ -580,22 +585,19 @@ public class ResultsSummaryMojo
         NodeList nodeList = table.getElementsByTagName("tr");
 
         int new_cols = 0;
-        for ( int i=0; i<nodeList.getLength(); i++ )
-        {
+        for ( int i=0; i<nodeList.getLength(); i++ ) {
             Element tr = (Element) nodeList.item(i);
             Element suiteColumn = (Element) tr.getFirstChild();
             Element removeMe = (Element) suiteColumn.getNextSibling();
             tr.removeChild(removeMe);
 
             // get the count from just the header row since only the header has been added yet
-            if ( i==0 )
-            {
+            if ( i==0 ) {
                 new_cols = tr.getChildNodes().getLength();
             }
         }
 
-        if ( new_cols > (numberShown + 1) )
-        {
+        if ( new_cols > (numberShown + 1) ) {
             new_cols = cleanup(table);
         }
 
