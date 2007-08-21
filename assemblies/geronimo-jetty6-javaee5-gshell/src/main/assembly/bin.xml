@@ -159,10 +159,8 @@
                 <include>org.apache.geronimo.gshell:gshell-api</include>
                 <include>org.apache.geronimo.gshell:gshell-cli</include>
                 <include>org.apache.geronimo.gshell:gshell-core</include>
-                <include>commons-cli:commons-cli</include>
                 <include>commons-lang:commons-lang</include>
                 <include>commons-jexl:commons-jexl</include>
-                <include>log4j:log4j</include>
                 <include>commons-logging:commons-logging-api</include>
                 <include>commons-logging:commons-logging-adapters</include>
                 <include>jline:jline</include>
@@ -171,8 +169,14 @@
                 <include>org.codehaus.groovy:groovy-all</include>
                 <include>org.apache.ant:ant</include>
                 <include>org.apache.ant:ant-launcher</include>
-                <include>org.apache.geronimo.modules:geronimo-kernel</include>
                 <include>org.apache.geronimo.modules:geronimo-commands</include>
+                <!--
+                HACK: For now pick these up from the normal lib/*
+                
+                <include>org.apache.geronimo.modules:geronimo-kernel</include>
+                <include>log4j:log4j</include>
+                <include>commons-cli:commons-cli</include>
+                -->
             </includes>
         </dependencySet>
 
