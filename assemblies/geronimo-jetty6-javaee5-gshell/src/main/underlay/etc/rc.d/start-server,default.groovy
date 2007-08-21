@@ -17,7 +17,9 @@
  * under the License.
  */
 
-println 'Adding custom flags to the JVM'
+//
+// $Rev$ $Date$
+//
 
 command.javaFlags << '-Xmx512m'
 
