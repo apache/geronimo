@@ -200,25 +200,29 @@ class StartServerCommand
             javaAgent = line.getOptionValue('H')
         }
         
+        def addProperty = { namevalue, prefix ->
+            def name, value
+            int i = namevalue.indexOf('=')
+            
+            if (i == -1) {
+                name = namevalue
+                value = true
+            }
+            else {
+                name = namevalue.substring(0, i)
+                value = namevalue.substring(i + 1, namevalue.size())
+            }
+            name = name.trim()
+            
+            if (prefix) {
+                name = "${prefix}.$name"
+            }
+            
+            properties[name] = value
+        }
+        
         if (line.hasOption('D')) {
             def values = line.getOptionValues('D')
-            
-            def addProperty = { namevalue ->
-                def name, value
-                int i = namevalue.indexOf('=')
-                
-                if (i == -1) {
-                    name = namevalue
-                    value = true
-                }
-                else {
-                    name = namevalue.substring(0, i)
-                    value = namevalue.substring(i + 1, namevalue.size())
-                }
-                name = name.trim()
-                
-                properties[name] = value
-            }
             
             values.each {
                 addProperty(it)
@@ -228,25 +232,8 @@ class StartServerCommand
         if (line.hasOption('G')) {
             def values = line.getOptionValues('G')
             
-            def addProperty = { namevalue ->
-                def name, value
-                int i = namevalue.indexOf('=')
-                
-                if (i == -1) {
-                    name = namevalue
-                    value = true
-                }
-                else {
-                    name = namevalue.substring(0, i)
-                    value = namevalue.substring(i + 1, namevalue.size())
-                }
-                name = name.trim()
-                
-                properties["org.apache.geronimo.$name"] = value
-            }
-            
             values.each {
-                addProperty(it)
+                addProperty(it, 'org.apache.geronimo')
             }
         }
         
