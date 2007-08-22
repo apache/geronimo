@@ -538,7 +538,7 @@ extends MojoSupport {
 
             Element anchor = document.createElement("a");
             anchor.setAttribute("href", "./" + buildNumber + "/" + suiteName + "/surefire-report.html");
-            text = document.createTextNode(pcent + "%");
+            text = document.createTextNode(pcent);
             anchor.appendChild(text);
             td.appendChild(anchor);
 
