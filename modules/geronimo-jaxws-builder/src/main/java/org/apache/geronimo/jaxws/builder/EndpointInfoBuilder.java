@@ -100,17 +100,27 @@ public class EndpointInfoBuilder {
     
     public void build() throws DeploymentException {
         if (this.wsdlURI == null) {
-            // wsdl explitely not specified, try to get it from 
-            // the service class annotation
-            WebServiceClient webServiceClient = 
-                (WebServiceClient) this.serviceClass.getAnnotation(WebServiceClient.class);
-            if (webServiceClient != null) {
-                this.wsdlURI = getWSDLLocation(webServiceClient);               
-                this.serviceQName = getServiceQName(webServiceClient);
-            }
-           
-            if (this.wsdlURI == null) {                
+            // wsdl was not explicitly specified            
+            if (javax.xml.ws.Service.class.equals(this.serviceClass)) {
+                // Generic Service class specified. 
+                // Service API requires a service qname so create a dummy one
+                this.serviceQName = new QName("http://noservice", "noservice");
                 return;
+            } else {
+                // Generated Service class specified.
+                // Get the wsdl and service qname from the WebServiceClient annotation 
+                // of the generated Service class
+                WebServiceClient webServiceClient = 
+                    (WebServiceClient) this.serviceClass.getAnnotation(WebServiceClient.class);
+                if (webServiceClient != null) {
+                    this.wsdlURI = getWSDLLocation(webServiceClient);
+                    this.serviceQName = getServiceQName(webServiceClient);
+                }
+
+                // wsdl really shouldn't be null at this point
+                if (this.wsdlURI == null) {
+                    return;
+                }
             }
         }
         
