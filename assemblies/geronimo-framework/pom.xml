@@ -40,6 +40,12 @@
     <dependencies>
         
         <dependency>
+            <groupId>org.apache.geronimo.assemblies</groupId>
+            <artifactId>geronimo-boilerplate-minimal</artifactId>
+            <version>${version}</version>
+        </dependency>
+
+        <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
             <artifactId>j2ee-system</artifactId>
             <version>${version}</version>
