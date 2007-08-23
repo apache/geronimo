@@ -29,8 +29,8 @@ public class EJBServiceDispatcher extends JavaBeanDispatcher {
 
     private InvocationContext invContext;
 
-    public EJBServiceDispatcher(InvocationContext invContext) {
-        super(null, null); 
+    public EJBServiceDispatcher(Class serviceImplClass, InvocationContext invContext) {
+        super(serviceImplClass, null); 
         this.invContext = invContext;
     }
 
