@@ -21,17 +21,12 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.IOException;
-import java.io.OutputStream;
-import java.lang.reflect.Method;
-import java.net.MalformedURLException;
 import java.net.URL;
-import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Random;
-import java.util.SortedSet;
 
 import javax.xml.namespace.QName;
 
@@ -42,35 +37,25 @@ import org.apache.geronimo.deployment.DeploymentConfigurationManager;
 import org.apache.geronimo.deployment.DeploymentContext;
 import org.apache.geronimo.j2ee.deployment.Module;
 import org.apache.geronimo.jaxws.PortInfo;
-import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.ListableRepository;
-import org.apache.geronimo.kernel.repository.Version;
 
 public class WsdlGenerator {
 
     private static final Log LOG = LogFactory.getLog(WsdlGenerator.class);
     
-    private final static String FORK_WSGEN_PROPERTY = "org.apache.geronimo.jaxws.wsgen.fork";
+    private final static String FORK_WSGEN_PROPERTY = 
+        "org.apache.geronimo.jaxws.wsgen.fork";
     
-    private final static Artifact AXIS2_JAXWS_API_ARTIFACT = new Artifact("org.apache.axis2","axis2-jaxws-api", (Version)null, "jar");
-    private final static Artifact AXIS2_SAAJ_API_ARTIFACT = new Artifact("org.apache.axis2","axis2-saaj-api", (Version)null, "jar");
-    private final static Artifact AXIS2_SAAJ_IMPL_ARTIFACT = new Artifact("org.apache.axis2","axis2-saaj", (Version)null, "jar");
-    private final static Artifact JAXB_API_ARTIFACT = new Artifact("javax.xml.bind","jaxb-api", (Version)null, "jar");
-    private final static Artifact JAXB_IMPL_ARTIFACT = new Artifact("com.sun.xml.bind","jaxb-impl", (Version)null, "jar");
-    private final static Artifact JAXB_XJC_ARTIFACT = new Artifact("com.sun.xml.bind","jaxb-xjc", (Version)null, "jar");    
-    private final static Artifact JAXWS_TOOLS_ARTIFACT = new Artifact("com.sun.xml.ws","jaxws-tools", (Version)null, "jar");
-    private final static Artifact JAXWS_RT_ARTIFACT = new Artifact("com.sun.xml.ws","jaxws-rt", (Version)null, "jar");
-    private final static Artifact GERONIMO_ACTIVATION_SPEC_ARTIFACT = new Artifact("org.apache.geronimo.specs","geronimo-activation_1.1_spec", (Version)null, "jar");    
-    private final static Artifact GERONIMO_ANNOTATION_ARTIFACT = new Artifact("org.apache.geronimo.specs","geronimo-annotation_1.0_spec", (Version)null, "jar");     
-    private final static Artifact GERONIMO_WS_METADATA_ARTIFACT = new Artifact("org.apache.geronimo.specs","geronimo-ws-metadata_2.0_spec", (Version)null, "jar");  
-    private final static Artifact GERONIMO_EJB_SPEC_ARTIFACT = new Artifact("org.apache.geronimo.specs","geronimo-ejb_3.0_spec", (Version)null, "jar");
-    private final static Artifact SUN_SAAJ_IMPL_ARTIFACT = new Artifact("com.sun.xml.messaging.saaj","saaj-impl", (Version)null, "jar");
-    private final static String TOOLS = "tools.jar";
-
-    private Artifact saajImpl;
+    private final static String FORK_TIMEOUT_WSGEN_PROPERTY = 
+        "org.apache.geronimo.jaxws.wsgen.fork.timeout";
+    
+    private final static long FORK_POLL_FREQUENCY = 1000 * 2; // 2 seconds
+    
     private QName wsdlService;
     private QName wsdlPort;
     private boolean forkWsgen = getForkWsgen();
+    private long forkTimeout = getForTimeout();
+    private JAXWSTools jaxwsTools;
         
     private static boolean getForkWsgen() {
         String value = System.getProperty(FORK_WSGEN_PROPERTY);
@@ -87,15 +72,25 @@ public class WsdlGenerator {
         }
     }
     
+    private static long getForTimeout() {
+        String value = System.getProperty(FORK_TIMEOUT_WSGEN_PROPERTY);
+        if (value != null) {
+            return Long.parseLong(value);
+        } else {
+            return 1000 * 60; // 60 seconds
+        }
+    }
+    
     public WsdlGenerator() {
+        this.jaxwsTools = new JAXWSTools();
     }
     
     public void setSunSAAJ() {
-        this.saajImpl = SUN_SAAJ_IMPL_ARTIFACT;
+        this.jaxwsTools.setUseSunSAAJ();
     }
     
     public void setAxis2SAAJ() {
-        this.saajImpl = AXIS2_SAAJ_IMPL_ARTIFACT;
+        this.jaxwsTools.setUseAxis2SAAJ();
     }
     
     public void setWsdlService(QName name) {
@@ -114,30 +109,11 @@ public class WsdlGenerator {
         return this.wsdlPort;
     }
     
-    private URL[] getWsgenClasspath(DeploymentContext context) 
-        throws DeploymentException, MalformedURLException {
-        ArrayList<URL> jars = new ArrayList<URL>();
-        
+    private URL[] getWsgenClasspath(DeploymentContext context) throws Exception {               
         DeploymentConfigurationManager cm = (DeploymentConfigurationManager)context.getConfigurationManager();
-        Collection<ListableRepository> repositories = cm.getRepositories();
-
-        jars.add(getLocation(repositories, JAXB_API_ARTIFACT));
-        jars.add(getLocation(repositories, JAXB_IMPL_ARTIFACT));
-        jars.add(getLocation(repositories, JAXB_XJC_ARTIFACT));
-        jars.add(getLocation(repositories, JAXWS_TOOLS_ARTIFACT));
-        jars.add(getLocation(repositories, JAXWS_RT_ARTIFACT));
-        jars.add(getLocation(repositories, AXIS2_JAXWS_API_ARTIFACT));
-        jars.add(getLocation(repositories, AXIS2_SAAJ_API_ARTIFACT));
-        jars.add(getLocation(repositories, GERONIMO_ACTIVATION_SPEC_ARTIFACT));
-        jars.add(getLocation(repositories, GERONIMO_ANNOTATION_ARTIFACT));
-        jars.add(getLocation(repositories, GERONIMO_WS_METADATA_ARTIFACT));
-        jars.add(getLocation(repositories, GERONIMO_EJB_SPEC_ARTIFACT));
-        if (this.saajImpl != null) {
-            jars.add(getLocation(repositories, this.saajImpl));
-        }
-        jars.add(new File(getToolsJarLoc()).toURL());
-         
-        return jars.toArray(new URL[jars.size()]);        
+        Collection<ListableRepository> repositories = cm.getRepositories();        
+        File[] jars = this.jaxwsTools.getClasspath(repositories);
+        return JAXWSTools.toURL(jars);
     }
     
     private static String getModuleClasspath(Module module, DeploymentContext context) throws DeploymentException {
@@ -156,52 +132,7 @@ public class WsdlGenerator {
         }
         return classpath.toString();
     }
-    
-    private static URL getLocation(Collection<ListableRepository> repositories, Artifact artifactQuery) throws DeploymentException, MalformedURLException {
-        File file = null;
         
-        for (ListableRepository repository : repositories) {
-            SortedSet artifactSet = repository.list(artifactQuery);
-            // if we have exactly one artifact found
-            if (artifactSet.size() == 1) {
-                file = repository.getLocation((Artifact) artifactSet.first());
-                return file.getAbsoluteFile().toURL();
-            } else if (artifactSet.size() > 1) {// if we have more than 1 artifacts found use the latest one.
-                file = repository.getLocation((Artifact) artifactSet.last());
-                return file.getAbsoluteFile().toURL();
-            } 
-        }
-        if (file == null) {
-            throw new DeploymentException("Missing artifact in repositories: " + artifactQuery.toString());
-        }
-        return null;
-    }
-    
-    private static String getToolsJarLoc() throws DeploymentException {
-        //create a new File then check exists()
-        String jreHomePath = System.getProperty("java.home");
-        String javaHomePath = "";
-        int jreHomePathLength = jreHomePath.length();
-        if (jreHomePathLength > 0) {
-            int i = jreHomePath.substring(0, jreHomePathLength -1).lastIndexOf(java.io.File.separator);
-            javaHomePath = jreHomePath.substring(0, i);
-        }
-        File jdkhomelib = new File(javaHomePath + java.io.File.separator + "lib");
-        if (!jdkhomelib.exists()) {
-            throw new DeploymentException("Missing " + jdkhomelib.getAbsolutePath() 
-                    + ". This is required for wsgen to run. ");
-        }
-        else {
-            File tools = new File(jdkhomelib + java.io.File.separator + TOOLS);
-            if (!tools.exists()) {
-                throw new DeploymentException("Missing tools.jar in" + jdkhomelib.getAbsolutePath() 
-                        + ". This is required for wsgen to run. ");                
-            } else {
-                return tools.getAbsolutePath();
-            }               
-        }
-    }
-    
     private static File toFile(URL url) {
         if (url == null || !url.getProtocol().equals("file")) {
             return null;
@@ -332,8 +263,8 @@ public class WsdlGenerator {
         //let's figure out the classpath for wsgen tools
         try {
              urls = getWsgenClasspath(context);
-        } catch (MalformedURLException e) {
-            throw new DeploymentException("unable to generate the wsdl file using wsgen. - unable to get the location of the required artifact(s).", e);
+        } catch (Exception e) {
+            throw new DeploymentException("Failed to generate the wsdl file using wsgen: unable to get the location of the required artifact(s).", e);
         } 
         //let's figure out the classpath string for the module and wsgen tools.
         if (urls != null && urls.length > 0) {
@@ -373,27 +304,18 @@ public class WsdlGenerator {
         }
     }
 
-    private boolean invokeWsgen(URL[] urls, String[] arguments) throws Exception {
-        URLClassLoader loader = new URLClassLoader(urls, ClassLoader.getSystemClassLoader());
-        Class clazz = loader.loadClass("com.sun.tools.ws.spi.WSToolsObjectFactory");
-        Method method = clazz.getMethod("newInstance");
-        Object factory = method.invoke(null);
-        Method method2 = clazz.getMethod("wsgen", OutputStream.class, String[].class);
+    private boolean invokeWsgen(URL[] jars, String[] arguments) throws Exception {
         ByteArrayOutputStream os = new ByteArrayOutputStream();
-        
-        LOG.debug("Invoking wsgen");
-        
-        Boolean result = (Boolean) method2.invoke(factory, os, arguments);
+        boolean rs = this.jaxwsTools.invokeWsgen(jars, os, arguments);
         os.close();
         
-        byte [] arr = os.toByteArray();
-        String wsgenOutput = new String(arr, 0, arr.length);
-        
         if (LOG.isDebugEnabled()) {
+            byte [] arr = os.toByteArray();
+            String wsgenOutput = new String(arr, 0, arr.length);
             LOG.debug("wsgen output: " + wsgenOutput);
         }
         
-        return result;
+        return rs;
     }
     
     private boolean forkWsgen(StringBuilder classPath, String[] arguments) throws Exception {           
@@ -413,8 +335,8 @@ public class WsdlGenerator {
         String [] cmdArray = (String[]) cmd.toArray(new String[] {});
         
         Process process = Runtime.getRuntime().exec(cmdArray);
-        int errorCode = process.waitFor();
-        
+        int errorCode = waitFor(process);
+                
         if (errorCode == 0) {
             return true;
         } else {
@@ -423,5 +345,28 @@ public class WsdlGenerator {
             }
             return false;
         }
+    }
+    
+    private int waitFor(Process process) throws DeploymentException {
+        long sleepTime = 0;        
+        while(sleepTime < this.forkTimeout) {            
+            try {
+                return process.exitValue();
+            } catch (IllegalThreadStateException e) {
+                // still running
+                try {
+                    Thread.sleep(FORK_POLL_FREQUENCY);
+                } catch (InterruptedException ee) {
+                    // interrupted
+                    process.destroy();
+                    throw new DeploymentException("wsgen interrupted");
+                }
+                sleepTime += FORK_POLL_FREQUENCY;
+            }
+        }
+        
+        // timeout;
+        process.destroy();      
+        throw new DeploymentException("wsgen timed out");
     }
 }
