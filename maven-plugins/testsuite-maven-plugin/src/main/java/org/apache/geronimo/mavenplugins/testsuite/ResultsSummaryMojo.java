@@ -459,7 +459,8 @@ extends MojoSupport {
         int failuresNum = Integer.parseInt(failures);
         int skippedNum = Integer.parseInt(skipped);
 
-        String pcent = tests + "/" + errors + "/" + failures + " (" + computePercentage(testsNum, errorsNum, failuresNum, skippedNum) + "%)";
+        //String pcent = tests + "/" + errors + "/" + failures + " (" + computePercentage(testsNum, errorsNum, failuresNum, skippedNum) + "%)";
+        String pcent = tests + "/" + errors + "/" + failures;
         return pcent;
     }
 
