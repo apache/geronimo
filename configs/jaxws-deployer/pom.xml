@@ -70,4 +70,53 @@
         
     </dependencies>
     
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.geronimo.plugins</groupId>
+                <artifactId>car-maven-plugin</artifactId>
+                <configuration>
+                    <archive>
+                        <manifestEntries>
+                            <Endorsed-Dirs>lib/endorsed</Endorsed-Dirs>
+                            <Extension-Dirs>lib/ext</Extension-Dirs>
+                        </manifestEntries>
+                        <manifest>
+                            <mainClass>org.apache.geronimo.jaxws.builder.JAXWSToolsCLI</mainClass>
+                        </manifest>
+                    </archive>
+                    
+                    <!--
+                    NOTE: This list of dependencies is non-transitive.
+                    -->
+                    <classpath>
+                        <element>
+                            <groupId>org.apache.geronimo.modules</groupId>
+                            <artifactId>geronimo-kernel</artifactId>
+                            <version>${version}</version>
+                        </element>
+                        <element>
+                            <groupId>org.apache.geronimo.modules</groupId>
+                            <artifactId>geronimo-jaxws-builder</artifactId>
+                            <version>${version}</version>
+                        </element>
+                        <element>
+                            <groupId>commons-logging</groupId>
+                            <artifactId>commons-logging</artifactId>
+                        </element>
+                        <element>
+                            <groupId>cglib</groupId>
+                            <artifactId>cglib-nodep</artifactId>
+                        </element>
+                        <element>
+                            <groupId>log4j</groupId>
+                            <artifactId>log4j</artifactId>
+                        </element>
+                    </classpath>
+                    <classpathPrefix>../lib</classpathPrefix>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
 </project>
