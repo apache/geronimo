@@ -472,6 +472,25 @@
                             <outputDirectory>${project.build.directory}/scratch/schema</outputDirectory>
                         </configuration>
                     </execution>
+
+                    <execution>
+                        <id>install-lib</id>
+                        <phase>compile</phase>
+                        <goals>
+                            <goal>copy</goal>
+                        </goals>
+                        <configuration>
+                            <artifactItems>
+                                <artifactItem>
+                                    <groupId>org.apache.geronimo.modules</groupId>
+                                    <artifactId>geronimo-jaxws-builder</artifactId>
+                                    <version>${version}</version>
+                                </artifactItem>
+                            </artifactItems>
+                            <outputDirectory>${project.build.directory}/classes/lib</outputDirectory>
+                        </configuration>
+                    </execution>
+
                 </executions>
             </plugin>
 
