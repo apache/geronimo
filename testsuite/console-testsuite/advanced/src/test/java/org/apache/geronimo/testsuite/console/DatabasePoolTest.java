@@ -37,11 +37,7 @@ public class DatabasePoolTest extends ConsoleTestSupport {
         selenium.click("//input[@value='Next']");
         selenium.waitForPageToLoad("30000");
         selenium.addSelection("jars", "label=org.apache.derby/derby/10.2.2.0/jar");
-        selenium.type("urlproperty-Database", "SystemDatabase");
-        selenium.click("//input[@value='Next']");
-        selenium.waitForPageToLoad("30000");
-        selenium.click("//input[@value='Test Connection']");
-        selenium.waitForPageToLoad("30000");
+        selenium.type("property-DatabaseName", "SystemDatabase");
         selenium.click("//input[@value='Deploy']");
         selenium.waitForPageToLoad("30000");
         assertTrue(selenium.isTextPresent("UniquePool"));
@@ -51,6 +47,8 @@ public class DatabasePoolTest extends ConsoleTestSupport {
         
         logout();
     }
+    /*
+    // cannot test yet. jetty is having problems rending the page
     
     @Test
     public void testDatabasePoolEdit() throws Exception {
@@ -73,6 +71,7 @@ public class DatabasePoolTest extends ConsoleTestSupport {
         selenium.click("link=edit");
         selenium.waitForPageToLoad("30000");
         assertEquals("100", selenium.getValue("maxSize"));
+        
         logout();
-    }
+    }*/
 }

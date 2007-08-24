@@ -25,7 +25,7 @@ import org.apache.geronimo.testsupport.console.ConsoleTestSupport;
 @Test
 public class JMSServerTest extends ConsoleTestSupport {
     @Test
-    public void testNewListerner() throws Exception {
+    public void testNewListener() throws Exception {
         login();
         
         selenium.click("link=JMS Server");
@@ -71,16 +71,16 @@ public class JMSServerTest extends ConsoleTestSupport {
         assertTrue(selenium.isTextPresent("61613"));
         selenium.click("link=edit");
         selenium.waitForPageToLoad("30000");
-        selenium.type("port", "61611");
+        selenium.type("port", "6161");
         selenium.click("submit");
         selenium.waitForPageToLoad("30000");
-        assertTrue(selenium.isTextPresent("61611"));
+        assertTrue(selenium.isTextPresent("6161"));
         selenium.click("link=edit");
         selenium.waitForPageToLoad("30000");
-        selenium.type("port", "61613");
+        selenium.type("port", "61612");
         selenium.click("submit");
         selenium.waitForPageToLoad("30000");
-        assertTrue(selenium.isTextPresent("61613"));
+        assertTrue(selenium.isTextPresent("61612"));
         
         logout();
     }
