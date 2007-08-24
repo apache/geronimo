@@ -460,7 +460,7 @@ extends MojoSupport {
         int skippedNum = Integer.parseInt(skipped);
 
         //String pcent = tests + "/" + errors + "/" + failures + " (" + computePercentage(testsNum, errorsNum, failuresNum, skippedNum) + "%)";
-        String pcent = tests + "/" + errors + "/" + failures;
+        String pcent = tests + "/" + errors + "/" + failures; 
         return pcent;
     }
 
@@ -508,7 +508,16 @@ extends MojoSupport {
         Element tr = getElementById(table, "tr", suiteName);
 
         if ( tr != null ) {
-            Element td = document.createElement("TD");
+            // creating empty cells in the cols for the previous failed builds.
+            NodeList nodeList = tr.getElementsByTagName("td");
+            Element td;
+            for ( int i=nodeList.getLength()+1; i<cols; i++ ) {
+                td = document.createElement("TD");
+                td.setAttribute("class", "cell");                
+                tr.appendChild(td);
+            }
+
+            td = document.createElement("TD");
             td.setAttribute("class", "cell");
 
             Element anchor = document.createElement("a");
