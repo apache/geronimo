@@ -793,7 +793,17 @@ public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
             addClass(classes, clas);
         }
 
-        return new ClassFinder(classes);
+        // see https://issues.apache.org/jira/browse/GERONIMO-3421 .
+        // if the user has botched her classloader config (perhaps by
+        // not including a jar that her app needs) then ClassFinder
+        // will throw NoClassDefFoundError.  we want to indicate that
+        // it's the user's error and provide a little context to help
+        // her fix it.
+        try {
+            return new ClassFinder(classes);
+        } catch (NoClassDefFoundError e) {
+            throw new DeploymentException(webModule.getName() + " classloader can't find " + e.getMessage(), e);
+        }
     }
 
     private void addClass(List<Class> classes, Class<?> clas) {
