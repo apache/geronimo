@@ -804,7 +804,7 @@ public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
         try {
             return new ClassFinder(classes);
         } catch (NoClassDefFoundError e) {
-            throw new DeploymentException(webModule.getName() + " classloader can't find " + e.getMessage(), e);
+            throw new DeploymentException("Classloader for " + webApp.getId() + "can't find " + e.getMessage(), e);
         }
     }
 
