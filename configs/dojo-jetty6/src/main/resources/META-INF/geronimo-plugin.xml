@@ -34,7 +34,7 @@
     	<version>${version}</version>
     </geronimo-versions>
     <prerequisite>
-        <id>geronimo/jetty//car</id>
+        <id>org.apache.geronimo.configs/jetty6//car</id>
         <resource-type>Web Container</resource-type>
         <description>
             This version of the Welcome application works with the Geronimo/Jetty distribution.
