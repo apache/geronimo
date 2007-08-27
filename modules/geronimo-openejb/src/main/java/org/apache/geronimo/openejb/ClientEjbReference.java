@@ -37,6 +37,7 @@ public class ClientEjbReference extends SimpleReference {
         Properties p = new Properties();
         p.put("java.naming.factory.initial", "org.apache.openejb.client.RemoteInitialContextFactory");
         p.put("java.naming.provider.url", url);
+        p.put("openejb.client.moduleId", "openejb/Deployment");
 
         try {
             InitialContext ctx = new InitialContext(p);

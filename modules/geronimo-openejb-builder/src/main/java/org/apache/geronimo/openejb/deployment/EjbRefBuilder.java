@@ -176,6 +176,8 @@ public class EjbRefBuilder extends AbstractNamingBuilder {
         if (value instanceof IntraVmJndiReference) {
             IntraVmJndiReference intraVmJndiReference = (IntraVmJndiReference) value;
             String deploymentId = intraVmJndiReference.getJndiName();
+            // Temporary debug statement
+            log.error("EjbRefBuilder: deploymentId: "+deploymentId);
             if (deploymentId.startsWith("java:openejb/ejb/")) {
                 deploymentId = deploymentId.substring("java:openejb/ejb/".length());
             }
