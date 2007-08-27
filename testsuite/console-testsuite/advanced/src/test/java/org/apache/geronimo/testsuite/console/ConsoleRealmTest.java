@@ -26,45 +26,53 @@ import org.apache.geronimo.testsupport.console.ConsoleTestSupport;
 public class ConsoleRealmTest extends ConsoleTestSupport {
     @Test
     public void testNewUser() throws Exception {
-        login();
+        try {
+            login();
 
-        selenium.click("link=Console Realm");
-        selenium.waitForPageToLoad("30000");
-        selenium.click("link=Create New User");
-        selenium.waitForPageToLoad("30000");
-        selenium.type("userId", "myuser");
-        selenium.type("password", "myuser");
-        selenium.type("confirmpassword", "myuser");
-        selenium.click("//input[@value='Add']");
-        selenium.waitForPageToLoad("30000");
-        assertTrue(selenium.isTextPresent("myuser"));
-        selenium.click("link=Delete");
-        selenium.waitForPageToLoad("30000");
-        assertTrue(selenium.getConfirmation().matches("^Confirm Delete user myuser[\\s\\S]$"));
-        selenium.waitForPageToLoad("30000");
-        assertFalse(selenium.isTextPresent("myuser"));
-
-        logout();
+            selenium.click("link=Console Realm");
+            selenium.waitForPageToLoad("30000");
+            selenium.click("link=Create New User");
+            selenium.waitForPageToLoad("30000");
+            selenium.type("userId", "myuser");
+            selenium.type("password", "myuser");
+            selenium.type("confirmpassword", "myuser");
+            selenium.click("//input[@value='Add']");
+            selenium.waitForPageToLoad("30000");
+            assertTrue(selenium.isTextPresent("myuser"));
+            selenium.click("link=Delete");
+            selenium.waitForPageToLoad("30000");
+            assertTrue(selenium.getConfirmation().matches("^Confirm Delete user myuser[\\s\\S]$"));
+            selenium.waitForPageToLoad("30000");
+            assertFalse(selenium.isTextPresent("myuser"));
+        } catch(Exception e) {
+        
+        } finally {
+            logout();
+        }
     }
 
     @Test
     public void testNewGroup() throws Exception {
-        login();
+        try {
+            login();
+            
+            selenium.click("link=Console Realm");
+            selenium.waitForPageToLoad("30000");
+            selenium.click("link=Create New Group");
+            selenium.waitForPageToLoad("30000");
+            selenium.type("group", "mygroup");
+            selenium.click("//input[@value='Add']");
+            selenium.waitForPageToLoad("30000");
+            assertTrue(selenium.isTextPresent("mygroup"));
+            selenium.click("//a[@onclick=\"return confirm('Confirm Delete group mygroup?');\"]");
+            selenium.waitForPageToLoad("30000");
+            assertTrue(selenium.getConfirmation().matches("^Confirm Delete group mygroup[\\s\\S]$"));
+            selenium.waitForPageToLoad("30000");
+            assertFalse(selenium.isTextPresent("mygroup"));
+        } catch(Exception e) {
         
-        selenium.click("link=Console Realm");
-        selenium.waitForPageToLoad("30000");
-        selenium.click("link=Create New Group");
-        selenium.waitForPageToLoad("30000");
-        selenium.type("group", "mygroup");
-        selenium.click("//input[@value='Add']");
-        selenium.waitForPageToLoad("30000");
-        assertTrue(selenium.isTextPresent("mygroup"));
-        selenium.click("//a[@onclick=\"return confirm('Confirm Delete group mygroup?');\"]");
-        selenium.waitForPageToLoad("30000");
-        assertTrue(selenium.getConfirmation().matches("^Confirm Delete group mygroup[\\s\\S]$"));
-        selenium.waitForPageToLoad("30000");
-        assertFalse(selenium.isTextPresent("mygroup"));
-        
-        logout();
+        } finally {
+            logout();
+        }
     }
 }
