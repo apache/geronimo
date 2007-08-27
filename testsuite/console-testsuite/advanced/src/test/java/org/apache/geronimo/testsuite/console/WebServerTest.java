@@ -26,71 +26,99 @@ import org.apache.geronimo.testsupport.console.ConsoleTestSupport;
 public class WebServerTest extends ConsoleTestSupport {
     @Test
     public void testNewConnector() throws Exception {
-        login();
+        try {
+            login();
 
-        String TOMCAT = "Tomcat";
-        String JETTY = "Jetty";
+            String TOMCAT = "Tomcat";
+            String JETTY = "Jetty";
+            
+            selenium.click("link=Web Server");
+            selenium.waitForPageToLoad("30000");
+            String container = JETTY;
+            if(selenium.isTextPresent(TOMCAT)) {
+                container = TOMCAT;
+            }
+            
+            selenium.click("link=Web Server");
+            selenium.waitForPageToLoad("30000");
+            selenium.click("link=" + container + " BIO HTTP Connector");
+            selenium.waitForPageToLoad("30000");
+            selenium.type("uniqueName", "uniquename");
+            selenium.type("port", "8081");
+            selenium.click("submit");
+            selenium.waitForPageToLoad("30000");
+            assertTrue(selenium.isTextPresent("uniquename"));
+            selenium.click("//a[@onclick=\"return confirm('Are you sure you want to delete uniquename?');\"]");
+            selenium.waitForPageToLoad("30000");
+            assertTrue(selenium.getConfirmation().matches("^Are you sure you want to delete uniquename[\\s\\S]$"));
+        } catch(Exception e) {
         
-        selenium.click("link=Web Server");
-        selenium.waitForPageToLoad("30000");
-        String container = JETTY;
-        if(selenium.isTextPresent(TOMCAT)) {
-            container = TOMCAT;
+        } finally {
+            logout();
         }
-        selenium.click("link=Add new HTTP listener for " + container);
-        selenium.waitForPageToLoad("30000");
-        selenium.type("displayName", "uniquename");
-        selenium.type("host", "0.0.0.0");
-        selenium.type("port", "9405");
-        selenium.click("submit");
-        selenium.waitForPageToLoad("30000");
-        assertTrue(selenium.isTextPresent("uniquename"));
-        selenium.click("//a[@onclick=\"return confirm('Are you sure you want to delete uniquename?');\"]");
-        selenium.waitForPageToLoad("20000");
-        assertTrue(selenium.getConfirmation().matches("^Are you sure you want to delete uniquename[\\s\\S]$"));
-        selenium.waitForPageToLoad("30000");
-        assertFalse(selenium.isTextPresent("uniquename"));
-        
-        logout();
     }
     
     @Test
     public void testEditConnector() throws Exception{
-        login();
+        try {
+            login();
+            
+            selenium.click("link=Web Server");
+            selenium.waitForPageToLoad("30000");
+            
+            String TOMCAT = "Tomcat";
+            String JETTY = "Jetty";
+            
+            selenium.click("link=Web Server");
+            selenium.waitForPageToLoad("30000");
+            String container = JETTY;
+            if(selenium.isTextPresent(TOMCAT)) {
+                container = TOMCAT;
+            }
+            
+            // assuming there are at least three connectors
+            selenium.click("//tr[2]/td[2]/table//tr[4]/td[5]/a[2]");        
+            
+            selenium.waitForPageToLoad("30000");
+            selenium.type("port", "8008");
+            selenium.click("submit");
+            selenium.waitForPageToLoad("30000");
+            assertTrue(selenium.isTextPresent("8008"));
+            
+            // assuming there are at least three connectors
+            selenium.click("//tr[2]/td[2]/table//tr[4]/td[5]/a[2]");
+            
+            selenium.waitForPageToLoad("30000");
+            selenium.type("port", "8009");
+            selenium.click("submit");
+            selenium.waitForPageToLoad("30000");
+            assertTrue(selenium.isTextPresent("8009"));
+        } catch(Exception e) {
         
-        selenium.click("link=Web Server");
-        selenium.waitForPageToLoad("30000");
-        selenium.click("link=edit");
-        selenium.waitForPageToLoad("30000");
-        selenium.type("port", "8008");
-        selenium.click("submit");
-        selenium.waitForPageToLoad("30000");
-        assertTrue(selenium.isTextPresent("8008"));
-        selenium.click("link=edit");
-        selenium.waitForPageToLoad("30000");
-        selenium.type("port", "8009");
-        selenium.click("submit");
-        selenium.waitForPageToLoad("30000");
-        assertTrue(selenium.isTextPresent("8009"));
-        
-        logout();
+        } finally {
+            logout();
+        }
     }
     
     @Test
     public void testStartStopConnector() throws Exception {
-        login();
+        try {
+            login();
         
-        selenium.click("link=Web Server");
-        selenium.waitForPageToLoad("30000");
-        assertTrue(selenium.isTextPresent("running"));
-        selenium.click("link=stop");
-        selenium.waitForPageToLoad("30000");
-        assertTrue(selenium.isTextPresent("stopped"));
-        selenium.click("link=start");
-        selenium.waitForPageToLoad("30000");
-        assertTrue(selenium.isTextPresent("running"));
-        
-        logout();
+            selenium.click("link=Web Server");
+            selenium.waitForPageToLoad("30000");
+            assertEquals("running", selenium.getText("//td[2]/table/tbody/tr[2]/td[4]"));
+            selenium.click("//td[2]/table/tbody/tr[2]/td[5]/a[1]");
+            selenium.waitForPageToLoad("30000");
+            assertEquals("stopped", selenium.getText("//td[2]/table/tbody/tr[2]/td[4]"));
+            selenium.click("//td[2]/table/tbody/tr[2]/td[5]/a[1]");
+            selenium.waitForPageToLoad("30000");
+            assertEquals("running", selenium.getText("//td[2]/table/tbody/tr[2]/td[4]"));
+        } catch(Exception e) {
+            
+        } finally {
+            logout();
+        }
     }
 }
 
