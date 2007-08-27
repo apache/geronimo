@@ -43,7 +43,6 @@
             <dependency>
                 <groupId>org.codehaus.mojo.groovy</groupId>
                 <artifactId>groovy-mojo-support</artifactId>
-                <version>1.0-beta-1</version>
             </dependency>
             
             <dependency>
