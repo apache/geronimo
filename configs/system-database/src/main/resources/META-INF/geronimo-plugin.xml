@@ -45,13 +45,6 @@
            Connector deployer configuration for Geronimo.
         </description>
     </prerequisite>
-    <prerequisite>
-        <id>org.apache.geronimo.configs/connector-deployer//car</id>
-        <resource-type>Deployment</resource-type>
-        <description>
-           Connector deployer configuration for Geronimo.
-        </description>
-    </prerequisite>
     <dependency>org.apache.geronimo.modules/geronimo-derby//jar</dependency>
     <dependency>org.apache.geronimo.modules/geronimo-timer//jar</dependency>
     <dependency>org.apache.derby/derby//jar</dependency>
