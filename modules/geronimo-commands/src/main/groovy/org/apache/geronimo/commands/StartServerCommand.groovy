@@ -162,6 +162,7 @@ class StartServerCommand
         
         def args = line.args
         def messages = messageSource
+        def io = getIO()
         
         if (args.length > 0) {
             io.err.println(messages.getMessage("info.unexpected_args", args.join(' ')))
