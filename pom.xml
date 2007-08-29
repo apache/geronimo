@@ -306,7 +306,7 @@
             <dependency>
                 <groupId>jline</groupId>
                 <artifactId>jline</artifactId>
-                <version>0.9.9</version>
+                <version>0.9.91</version>
             </dependency>
 
             <dependency>
@@ -470,7 +470,13 @@
                 <artifactId>slf4j-log4j12</artifactId>
                 <version>1.4.3</version>
             </dependency>
-
+            
+            <dependency>
+                <groupId>org.slf4j</groupId>
+                <artifactId>jcl104-over-slf4j</artifactId>
+                <version>1.4.3</version>
+            </dependency>
+            
             <dependency>
                 <groupId>mockobjects</groupId>
                 <artifactId>mockobjects-jdk1.4-j2ee1.3</artifactId>

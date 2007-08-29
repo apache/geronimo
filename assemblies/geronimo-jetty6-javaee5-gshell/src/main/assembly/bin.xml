@@ -158,6 +158,7 @@
             <includes>
                 <include>org.slf4j:slf4j-api</include>
                 <include>org.slf4j:slf4j-log4j12</include>
+                <include>org.slf4j:jcl104-over-slf4j</include>
                 <include>org.apache.geronimo.gshell:gshell-api</include>
                 <include>org.apache.geronimo.gshell:gshell-cli</include>
                 <include>org.apache.geronimo.gshell:gshell-core</include>

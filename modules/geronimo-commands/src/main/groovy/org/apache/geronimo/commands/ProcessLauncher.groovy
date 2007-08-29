@@ -23,8 +23,8 @@ import java.util.Timer
 
 import org.apache.commons.lang.time.StopWatch
 
-import org.apache.commons.logging.Log
-import org.apache.commons.logging.LogFactory
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 
 import org.apache.geronimo.gshell.console.IO
 
@@ -35,7 +35,7 @@ import org.apache.geronimo.gshell.console.IO
  */
 class ProcessLauncher
 {
-    private Log log = LogFactory.getLog(this.class)
+    private Logger log = LoggerFactory.getLogger(this.class)
     
     IO io
     

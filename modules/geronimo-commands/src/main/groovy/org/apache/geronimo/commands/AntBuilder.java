@@ -25,7 +25,7 @@ import org.apache.tools.ant.Project;
 import org.apache.tools.ant.BuildLogger;
 import org.apache.tools.ant.DefaultLogger;
 
-import org.apache.commons.logging.Log;
+import org.slf4j.Logger;
 
 import org.apache.geronimo.gshell.console.IO;
 
@@ -37,11 +37,11 @@ import org.apache.geronimo.gshell.console.IO;
 public class AntBuilder
     extends groovy.util.AntBuilder
 {
-    public AntBuilder(final Log log, final IO io) {
+    public AntBuilder(final Logger log, final IO io) {
         super(createProject(log, io));
     }
 
-    protected static Project createProject(final Log log, final IO io) {
+    protected static Project createProject(final Logger log, final IO io) {
         Project project = new Project();
         project.addBuildListener(new OutputAdapter(log, io));
         project.init();
@@ -53,11 +53,11 @@ public class AntBuilder
     private static class OutputAdapter
         extends DefaultLogger
     {
-        private Log log;
+        private Logger log;
         
         private IO io;
 
-        public OutputAdapter(final Log log, final IO io) {
+        public OutputAdapter(final Logger log, final IO io) {
             assert log != null;
             assert io != null;
             
