@@ -85,14 +85,18 @@ public class NestedJarFile extends JarFile {
         if (isClosed) {
             throw new IllegalStateException("NestedJarFile is closed");
         }
-        return basePath.length() > 0;
+
+        return ( basePath.length() > 0 ) ||
+               ( ( baseJar != null ) && ( baseJar instanceof UnpackedJarFile ) );
     }
 
     public boolean isPacked() {
         if (isClosed) {
             throw new IllegalStateException("NestedJarFile is closed");
         }
-        return basePath.length() == 0;
+
+        return ( basePath.length() == 0 ) &&
+               ( ( baseJar == null ) || !( baseJar instanceof UnpackedJarFile ) );
     }
 
     public JarFile getBaseJar() {
