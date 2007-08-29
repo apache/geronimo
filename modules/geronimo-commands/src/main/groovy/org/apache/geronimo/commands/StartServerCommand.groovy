@@ -23,9 +23,7 @@ import org.apache.geronimo.gshell.command.Command
 import org.apache.geronimo.gshell.command.CommandSupport
 import org.apache.geronimo.gshell.command.CommandException
 
-import org.apache.commons.cli.CommandLine
-import org.apache.commons.cli.OptionBuilder
-import org.apache.commons.cli.Options
+import org.apache.geronimo.gshell.clp.Option
 
 import org.apache.tools.ant.ExitStatusException
 
@@ -42,20 +40,28 @@ class StartServerCommand
 {
     private AntBuilder ant
     
+    @Option(name='-H', aliases=['--home'], description='Use a specific Geronimo home directory')
     File geronimoHome
-
+    
+    @Option(name='-j', aliases=['--jvm'], description='Use a specific Java Virtual Machine for server process')
     File javaVirtualMachine
     
+    @Option(name='-A', aliases=['--javaagent'], description='Use a specific Java Agent, set to \'none\' to disable')
     String javaAgent
     
+    @Option(name='-l', aliases=['--logfile'], description='Capture console output to file')
     File logFile
     
+    @Option(name='-b', aliases=['--background'], description='Run the server process in the background')
     boolean background = false
     
+    @Option(name='-q', aliases=['--quiet'], description='Suppress informative and warning messages')
     boolean quiet = false
-
+    
+    @Option(name='-v', aliases=['--verbose'], description='Enable verbose output; specify multipule times to increase verbosity')
     int verbose = 0
     
+    @Option(name='-t', aliases=['--timeout'], description='Specify the timeout for the server process in seconds')
     int timeout = -1
     
     final Map properties = [:]
@@ -76,40 +82,8 @@ class StartServerCommand
         super('start-server')
     }
     
+    /*
     protected Options getOptions() {
-        //
-        // NOTE: Have to use super.getOptions() here, as it seems that super.options
-        //       will cause Groovy to spin out of control in recursion
-        //
-        def options = super.getOptions()
-        def messages = messageSource
-
-        options.addOption(OptionBuilder.withLongOpt('verbose')
-            .withDescription(messages.getMessage('cli.option.verbose'))
-            .create('v'))
-
-        options.addOption(OptionBuilder.withLongOpt('quiet')
-            .withDescription(messages.getMessage('cli.option.quiet'))
-            .create('q'))
-        
-        options.addOption(OptionBuilder.withLongOpt('logfile')
-            .withDescription(messages.getMessage('cli.option.logfile'))
-            .hasArg()
-            .withArgName('file')
-            .create('l'))
-        
-        options.addOption(OptionBuilder.withLongOpt('timeout')
-            .withDescription(messages.getMessage('cli.option.timeout'))
-            .hasArg()
-            .withArgName('seconds')
-            .create('t'))
-        
-        options.addOption(OptionBuilder.withLongOpt('jvm')
-            .withDescription(messages.getMessage('cli.option.jvm'))
-            .hasArg()
-            .withArgName('dir')
-            .create('j'))
-        
         options.addOption(OptionBuilder.withLongOpt('property')
             .withDescription(messages.getMessage('cli.option.property'))
             .hasArg()
@@ -128,27 +102,11 @@ class StartServerCommand
             .withArgName('option')
             .create('J'))
         
-        options.addOption(OptionBuilder.withLongOpt('home')
-            .withDescription(messages.getMessage('cli.option.home'))
-            .hasArg()
-            .withArgName('dir')
-            .create('H'))
-        
-        options.addOption(OptionBuilder.withLongOpt('javaagent')
-            .withDescription(messages.getMessage('cli.option.javaagent'))
-            .hasArg()
-            .withArgName('jar')
-            .create('A'))
-        
         options.addOption(OptionBuilder.withLongOpt('module')
             .withDescription(messages.getMessage('cli.option.module'))
             .hasArg()
             .withArgName('name')
             .create('m'))
-        
-        options.addOption(OptionBuilder.withLongOpt('background')
-            .withDescription(messages.getMessage('cli.option.background'))
-            .create('b'))
         
         //
         // TODO: Expose URL, username/password for validation auth
@@ -156,49 +114,16 @@ class StartServerCommand
         
         return options
     }
+    */
     
+    /*
     protected boolean processCommandLine(final CommandLine line) throws CommandException {
-        assert line
-        
-        def args = line.args
-        def messages = messageSource
-        def io = getIO()
-        
-        if (args.length > 0) {
-            io.err.println(messages.getMessage("info.unexpected_args", args.join(' ')))
-            return true
-        }
-        
         if (line.hasOption('v')) {
             line.options.each {
                 if (it.opt == 'v') {
                     verbose++
                 }
             }
-        }
-        
-        if (line.hasOption('q')) {
-            quiet = true
-        }
-        
-        if (line.hasOption('l')) {
-            logFile = new File(line.getOptionValue('l')).canonicalFile
-        }
-        
-        if (line.hasOption('t')) {
-            timeout = Integer.parseInt(line.getOptionValue('t'))
-        }
-        
-        if (line.hasOption('j')) {
-            javaVirtualMachine = new File(line.getOptionValue('j')).canonicalFile
-        }
-        
-        if (line.hasOption('H')) {
-            geronimoHome = new File(line.getOptionValue('H')).canonicalFile
-        }
-        
-        if (line.hasOption('H')) {
-            javaAgent = line.getOptionValue('H')
         }
         
         def addProperty = { namevalue, prefix ->
@@ -254,12 +179,9 @@ class StartServerCommand
             }
         }
         
-        if (line.hasOption('b')) {
-            background = true
-        }
-        
         return false
     }
+    */
     
     private File getJavaAgentJar() {
         def file = new File(geronimoHome, 'bin/jpa.jar')
@@ -280,9 +202,7 @@ class StartServerCommand
         return file
     }
     
-    protected Object doExecute(Object[] args) throws Exception {
-        assert args != null
-        
+    protected Object doExecute() throws Exception {
         def io = getIO()
         ant = new AntBuilder(log, io)
         
