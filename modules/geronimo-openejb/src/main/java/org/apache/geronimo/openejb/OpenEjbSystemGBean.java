@@ -104,15 +104,10 @@ public class OpenEjbSystemGBean implements OpenEjbSystem {
         }
         System.setProperty("duct tape","");
         System.setProperty("admin.disabled", "true");
-        SystemInstance systemInstance = SystemInstance.get();
 
-        String format = systemInstance.getProperty("openejb.deploymentId.format");
-        if (format == null){
-            systemInstance.setProperty("openejb.deploymentId.format", "{moduleId}/{ejbName}");
-        }
-
-        systemInstance.setProperty("openejb.jndiname.strategy.class", "org.apache.openejb.assembler.classic.JndiBuilder$TemplatedStrategy");
-        systemInstance.setProperty("openejb.jndiname.format", "{deploymentId}/{interfaceClass}");
+        setDefaultProperty("openejb.deploymentId.format", "{moduleId}/{ejbName}");
+        setDefaultProperty("openejb.jndiname.strategy.class", "org.apache.openejb.assembler.classic.JndiBuilder$TemplatedStrategy");
+        setDefaultProperty("openejb.jndiname.format", "{deploymentId}/{interfaceClass}");
 
         System.setProperty("openejb.naming", "xbean");
         if (transactionManager == null) {
@@ -156,6 +151,16 @@ public class OpenEjbSystemGBean implements OpenEjbSystem {
 
         // process all resource adapters
         processResourceAdapterWrappers(resourceAdapters);
+    }
+
+    private void setDefaultProperty(String key, String value) {
+        SystemInstance systemInstance = SystemInstance.get();
+
+
+        String format = systemInstance.getProperty(key);
+        if (format == null){
+            systemInstance.setProperty(key, value);
+        }
     }
 
     @SuppressWarnings({"unchecked"})
