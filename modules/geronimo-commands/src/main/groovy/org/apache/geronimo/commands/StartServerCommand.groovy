@@ -61,7 +61,7 @@ class StartServerCommand
     int verbose = 0
     
     @Option(name='-v', aliases=['--verbose'], description='Enable verbose output; specify multipule times to increase verbosity')
-    private void setVerbosity(boolean flag) {
+    private void increaseVerbosity(boolean flag) {
         if (flag) {
             verbose++
         }
