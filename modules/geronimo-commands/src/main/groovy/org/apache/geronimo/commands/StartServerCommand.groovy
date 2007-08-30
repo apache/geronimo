@@ -40,13 +40,13 @@ class StartServerCommand
 {
     private AntBuilder ant
     
-    @Option(name='-H', aliases=['--home'], description='Use a specific Geronimo home directory')
+    @Option(name='-H', aliases=['--home'], metaVar='DIR', description='Use a specific Geronimo home directory')
     File geronimoHome
     
-    @Option(name='-j', aliases=['--jvm'], description='Use a specific Java Virtual Machine for server process')
+    @Option(name='-j', aliases=['--jvm'], metaVar='DIR', description='Use a specific Java Virtual Machine for server process')
     File javaVirtualMachine
     
-    @Option(name='-A', aliases=['--javaagent'], description='Use a specific Java Agent, set to \'none\' to disable')
+    @Option(name='-A', aliases=['--javaagent'], metaVar='JAR', description='Use a specific Java Agent, set to \'none\' to disable')
     String javaAgent
     
     @Option(name='-l', aliases=['--logfile'], description='Capture console output to file')
@@ -58,17 +58,65 @@ class StartServerCommand
     @Option(name='-q', aliases=['--quiet'], description='Suppress informative and warning messages')
     boolean quiet = false
     
-    @Option(name='-v', aliases=['--verbose'], description='Enable verbose output; specify multipule times to increase verbosity')
     int verbose = 0
+    
+    @Option(name='-v', aliases=['--verbose'], description='Enable verbose output; specify multipule times to increase verbosity')
+    private void setVerbosity(boolean flag) {
+        if (flag) {
+            verbose++
+        }
+        else {
+            verbose--
+        }
+    }
     
     @Option(name='-t', aliases=['--timeout'], description='Specify the timeout for the server process in seconds')
     int timeout = -1
     
-    final Map properties = [:]
+    Map properties = [:]
     
-    final List javaFlags = []
+    private void addPropertyFrom(final String nameValue, final String prefix) {
+        assert nameValue
+
+        String name, value
+        int i = nameValue.indexOf('=')
+
+        if (i == -1) {
+            name = nameValue
+            value = Boolean.TRUE.toString()
+        }
+        else {
+            name = nameValue.substring(0, i)
+            value = nameValue.substring(i + 1, nameValue.length())
+        }
+        name = name.trim()
+        
+        if (prefix) {
+            name = "${prefix}.$name"
+        }
+        
+        properties[name] = value
+    }
     
-    final List startModules = []
+    @Option(name='-D', aliases=['--property'], metaVar='NAME=VALUE', description='Define system properties')
+    private void setPropertyFrom(final String nameValue) {
+        addPropertyFrom(nameValue, null)
+    }
+    
+    @Option(name='-G', aliases=['--gproperty'], metaVar='NAME=VALUE', description='Define an org.apache.geronimo property')
+    private void setGeronimoPropertyFrom(final String nameValue) {
+        addPropertyFrom(nameValue, 'org.apache.geronimo')
+    }
+    
+    @Option(name='-J', aliases=['--javaopt'], metaVar='FLAG', description='Set a JVM flag')
+    List<String> javaFlags = []
+    
+    @Option(name='-m', aliases=['--module'], metaVar='NAME', description='Start up a specific module by name')
+    List<String> startModules = []
+    
+    //
+    // TODO: Expose as options, maybe expose a single URI-ish thingy?
+    //
     
     String hostname = 'localhost'
     
@@ -81,107 +129,6 @@ class StartServerCommand
     StartServerCommand() {
         super('start-server')
     }
-    
-    /*
-    protected Options getOptions() {
-        options.addOption(OptionBuilder.withLongOpt('property')
-            .withDescription(messages.getMessage('cli.option.property'))
-            .hasArg()
-            .withArgName('name=value')
-            .create('D'))
-        
-        options.addOption(OptionBuilder.withLongOpt('gproperty')
-            .withDescription(messages.getMessage('cli.option.gproperty'))
-            .hasArg()
-            .withArgName('name=value')
-            .create('G'))
-
-        options.addOption(OptionBuilder.withLongOpt('javaopt')
-            .withDescription(messages.getMessage('cli.option.javaopt'))
-            .hasArg()
-            .withArgName('option')
-            .create('J'))
-        
-        options.addOption(OptionBuilder.withLongOpt('module')
-            .withDescription(messages.getMessage('cli.option.module'))
-            .hasArg()
-            .withArgName('name')
-            .create('m'))
-        
-        //
-        // TODO: Expose URL, username/password for validation auth
-        //
-        
-        return options
-    }
-    */
-    
-    /*
-    protected boolean processCommandLine(final CommandLine line) throws CommandException {
-        if (line.hasOption('v')) {
-            line.options.each {
-                if (it.opt == 'v') {
-                    verbose++
-                }
-            }
-        }
-        
-        def addProperty = { namevalue, prefix ->
-            def name, value
-            int i = namevalue.indexOf('=')
-            
-            if (i == -1) {
-                name = namevalue
-                value = true
-            }
-            else {
-                name = namevalue.substring(0, i)
-                value = namevalue.substring(i + 1, namevalue.size())
-            }
-            name = name.trim()
-            
-            if (prefix) {
-                name = "${prefix}.$name"
-            }
-            
-            properties[name] = value
-        }
-        
-        if (line.hasOption('D')) {
-            def values = line.getOptionValues('D')
-            
-            values.each {
-                addProperty(it)
-            }
-        }
-        
-        if (line.hasOption('G')) {
-            def values = line.getOptionValues('G')
-            
-            values.each {
-                addProperty(it, 'org.apache.geronimo')
-            }
-        }
-        
-        if (line.hasOption('J')) {
-            def values = line.getOptionValues('J')
-            
-            values.each {
-                javaFlags << it
-            }
-        }
-        
-        if (line.hasOption('m')) {
-            def values = line.getOptionValues('m')
-            
-            values.each {
-                startModules << it
-            }
-        }
-        
-        return false
-    }
-    */
     
     private File getJavaAgentJar() {
         def file = new File(geronimoHome, 'bin/jpa.jar')
