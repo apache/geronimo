@@ -164,10 +164,11 @@
                 <include>org.apache.geronimo.gshell:gshell-core</include>
                 <include>org.apache.geronimo.gshell:gshell-clp</include>
                 <include>org.apache.geronimo.gshell:gshell-prefs</include>
+                <include>org.apache.geronimo.gshell:gshell-i18n</include>
                 <include>org.apache.geronimo.gshell:gshell-common</include>
-                <include>org.apache.geronimo.gshell:gshell-diet-commons-lang</include>
                 <include>org.apache.geronimo.gshell:gshell-diet-log4j</include>
-                <include>org.apache.geronimo.gshell:gshell-diet-plexus-utils</include>
+                <include>org.apache.geronimo.gshell.commands:gshell-builtins</include>
+                <include>org.codehaus.plexus:plexus-utils</include>
                 <include>org.codehaus.plexus:plexus-component-api</include>
                 <include>org.codehaus.plexus:plexus-container-default</include>
                 <include>org.codehaus.plexus:plexus-expression-evaluator</include>

@@ -66,6 +66,11 @@
         <!-- Command impl modules -->
         
         <dependency>
+            <groupId>org.apache.geronimo.gshell.commands</groupId>
+            <artifactId>gshell-builtins</artifactId>
+        </dependency>
+        
+        <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
             <artifactId>geronimo-commands</artifactId>
             <version>${version}</version>

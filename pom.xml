@@ -1484,6 +1484,12 @@
             </dependency>
             
             <dependency>
+                <groupId>org.apache.geronimo.gshell.commands</groupId>
+                <artifactId>gshell-builtins</artifactId>
+                <version>1.0-alpha-1-SNAPSHOT</version>
+            </dependency>
+            
+            <dependency>
                 <groupId>org.codehaus.groovy</groupId>
                 <artifactId>groovy-all</artifactId>
                 <version>1.1-beta-2</version>
