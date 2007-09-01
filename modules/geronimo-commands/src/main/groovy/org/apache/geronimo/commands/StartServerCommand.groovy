@@ -19,7 +19,6 @@
 
 package org.apache.geronimo.commands
 
-import org.apache.geronimo.gshell.command.Command
 import org.apache.geronimo.gshell.command.CommandSupport
 import org.apache.geronimo.gshell.command.CommandException
 
@@ -264,7 +263,7 @@ class StartServerCommand
         
         launcher.launch()
         
-        return Command.SUCCESS
+        return SUCCESS
     }
     
     /**

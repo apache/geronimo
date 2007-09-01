@@ -21,7 +21,7 @@ package org.apache.geronimo.commands
 
 import java.util.Timer
 
-import org.apache.commons.lang.time.StopWatch
+import org.apache.geronimo.gshell.common.StopWatch
 
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
