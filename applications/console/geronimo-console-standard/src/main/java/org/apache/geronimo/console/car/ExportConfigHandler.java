@@ -16,24 +16,32 @@
  */
 package org.apache.geronimo.console.car;
 
-import java.io.IOException;
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.StringReader;
-import java.util.List;
 import java.util.ArrayList;
-import java.net.URL;
-import java.net.MalformedURLException;
+import java.util.List;
+
 import javax.portlet.ActionRequest;
 import javax.portlet.ActionResponse;
 import javax.portlet.PortletException;
 import javax.portlet.RenderRequest;
 import javax.portlet.RenderResponse;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.console.MultiPageModel;
 import org.apache.geronimo.console.util.PortletManager;
 import org.apache.geronimo.kernel.repository.Artifact;
-import org.apache.geronimo.system.plugin.PluginMetadata;
+import org.apache.geronimo.kernel.repository.Dependency;
+import org.apache.geronimo.kernel.repository.ImportType;
+import org.apache.geronimo.system.plugin.PluginInstallerGBean;
+import org.apache.geronimo.system.plugin.model.ArtifactType;
+import org.apache.geronimo.system.plugin.model.DependencyType;
+import org.apache.geronimo.system.plugin.model.LicenseType;
+import org.apache.geronimo.system.plugin.model.PluginArtifactType;
+import org.apache.geronimo.system.plugin.model.PluginType;
+import org.apache.geronimo.system.plugin.model.PrerequisiteType;
 
 /**
  * Handler for the screen where you configure plugin data before exporting
@@ -49,7 +57,7 @@ public class ExportConfigHandler extends BaseImportExportHandler {
 
     public String actionBeforeView(ActionRequest request, ActionResponse response, MultiPageModel model) throws PortletException, IOException {
         String configId = request.getParameter("configId");
-        if(configId != null) {
+        if (configId != null) {
             response.setRenderParameter("configId", configId);
         }
         return getMode();
@@ -57,178 +65,198 @@ public class ExportConfigHandler extends BaseImportExportHandler {
 
     public void renderView(RenderRequest request, RenderResponse response, MultiPageModel model) throws PortletException, IOException {
         String configId = request.getParameter("configId");
-        PluginMetadata data = PortletManager.getCurrentServer(request).getPluginInstaller().getPluginMetadata(Artifact.create(configId));
-        request.setAttribute("configId", data.getModuleId());
+        PluginType data = PortletManager.getCurrentServer(request).getPluginInstaller().getPluginMetadata(
+                Artifact.create(configId));
+        PluginArtifactType instance = data.getPluginArtifact().get(0);
+        request.setAttribute("configId", PluginInstallerGBean.toArtifact(instance.getModuleId()).toString());
         request.setAttribute("name", data.getName());
-        request.setAttribute("repository", combine(data.getRepositories()));
+        request.setAttribute("repository", combine(instance.getSourceRepository()));
         request.setAttribute("category", data.getCategory());
-        request.setAttribute("url", data.getPluginURL());
+        request.setAttribute("url", data.getUrl());
         request.setAttribute("author", data.getAuthor());
         request.setAttribute("description", data.getDescription());
-        PluginMetadata.License[] licenses = data.getLicenses();
-        if(licenses != null && licenses.length > 0) {
-            request.setAttribute("license", licenses[0].getName());
-            if(licenses[0].isOsiApproved()) {
+        List<LicenseType> licenses = data.getLicense();
+        if (licenses != null && licenses.size() > 0) {
+            request.setAttribute("license", licenses.get(0).getValue());
+            if (licenses.get(0).isOsiApproved()) {
                 request.setAttribute("licenseOSI", "true");
             }
-            if(licenses.length > 1) {
-                log.warn("Unable to edit plugin metadata containing more than one license!  Additional license data will not be editable.");
+            if (licenses.size() > 1) {
+                log.warn(
+                        "Unable to edit plugin metadata containing more than one license!  Additional license data will not be editable.");
             }
         }
         //Choose the first geronimo-versions element and set the config version element to that version number.
-        PluginMetadata.geronimoVersions[] gerVers = data.getGeronimoVersions();
-        if(gerVers != null && gerVers.length > 0) {
-            request.setAttribute("geronimoVersion",gerVers[0].getVersion());
+        List<String> gerVers = instance.getGeronimoVersion();
+        if (gerVers != null && gerVers.size() > 0) {
+            request.setAttribute("geronimoVersion", gerVers.get(0));
         }
-        request.setAttribute("jvmVersions", combine(data.getJvmVersions()));
-        request.setAttribute("dependencies", combine(data.getDependencies()));
-        request.setAttribute("obsoletes", combine(data.getObsoletes()));
-        PluginMetadata.Prerequisite[] reqs = data.getPrerequisites();
-        if(reqs != null && reqs.length > 0) {
-            for (int i = 0; i < reqs.length; i++) {
-                PluginMetadata.Prerequisite req = reqs[i];
-                String prefix = "prereq" + (i+1);
-                request.setAttribute(prefix, req.getModuleId().toString());
-                request.setAttribute(prefix +"type", req.getResourceType());
-                request.setAttribute(prefix +"desc", req.getDescription());
+        request.setAttribute("jvmVersions", combine(instance.getJvmVersion()));
+        request.setAttribute("dependencies", toString(instance.getDependency()));
+        request.setAttribute("obsoletes", toString(instance.getObsoletes()));
+        List<PrerequisiteType> reqs = instance.getPrerequisite();
+        if (reqs != null && reqs.size() > 0) {
+            int i = 1;
+            for (PrerequisiteType prereq: reqs) {
+                String prefix = "prereq" + i;
+                request.setAttribute(prefix, PluginInstallerGBean.toArtifact(prereq.getId()).toString());
+                request.setAttribute(prefix + "type", prereq.getResourceType());
+                request.setAttribute(prefix + "desc", prereq.getDescription());
             }
-            if(reqs.length > 3) {
-                log.warn("Unable to edit plugin metadata containing more than three prerequisites!  Additional prereqs will not be editable.");
+            if (reqs.size() > 3) {
+                log.warn(
+                        "Unable to edit plugin metadata containing more than three prerequisites!  Additional prereqs will not be editable.");
             }
         }
     }
 
     public String actionAfterView(ActionRequest request, ActionResponse response, MultiPageModel model) throws PortletException, IOException {
         String configId = request.getParameter("configId");
+        PluginType metadata = PortletManager.getCurrentServer(request).getPluginInstaller().getPluginMetadata(Artifact.create(configId));
+        PluginArtifactType instance = metadata.getPluginArtifact().get(0);
+
         String name = request.getParameter("name");
-        String repo = request.getParameter("repository");
-        String category = request.getParameter("category");
-        String url = request.getParameter("url");
-        String author = request.getParameter("author");
-        String description = request.getParameter("description");
-        String license = request.getParameter("license");
+        metadata.setName(name);
+        metadata.setCategory(request.getParameter("category"));
+        metadata.setUrl(request.getParameter("url"));
+        metadata.setAuthor(request.getParameter("author"));
+        metadata.setDescription(request.getParameter("description"));
+        String licenseString = request.getParameter("license");
         String osi = request.getParameter("licenseOSI");
-        String jvms = request.getParameter("jvmVersions");
+        List<LicenseType> licenses = metadata.getLicense();
+        if (!licenses.isEmpty()) {
+            licenses.remove(0);
+        }
+        if (licenseString != null && !licenseString.trim().equals("")) {
+            LicenseType license = new LicenseType();
+            license.setValue(licenseString.trim());
+            license.setOsiApproved(osi != null && !osi.equals(""));
+            licenses.add(0, license);
+        }
+
+        String jvmsString = request.getParameter("jvmVersions");
+        split(jvmsString, instance.getJvmVersion());
+
         String deps = request.getParameter("dependencies");
+        toDependencies(split(deps), instance.getDependency());
+
         String obsoletes = request.getParameter("obsoletes");
-        PluginMetadata data = PortletManager.getCurrentServer(request).getPluginInstaller().getPluginMetadata(Artifact.create(configId));
-        PluginMetadata metadata = new PluginMetadata(name, data.getModuleId(),
-                category, description, url, author, null, true, false);
-        metadata.setDependencies(split(deps));
-        metadata.setJvmVersions(split(jvms));
-        metadata.setObsoletes(split(obsoletes));
-        List licenses = new ArrayList();
-        if(license != null && !license.trim().equals("")) {
-            licenses.add(new PluginMetadata.License(license.trim(), osi != null && !osi.equals("")));
-        }
-        for (int i = 1; i < data.getLicenses().length; i++) {
-            licenses.add(data.getLicenses()[i]);
-        }
-        metadata.setLicenses((PluginMetadata.License[]) licenses.toArray(new PluginMetadata.License[licenses.size()]));
-        //Take the geronimo version and throw it into a geronimo-versions element and then add it to the metadata object.
-        PluginMetadata.geronimoVersions geronimoVersion = null;
+        toArtifacts(split(obsoletes), instance.getObsoletes());
+
+        String repo = request.getParameter("repository");
+        split(repo, instance.getSourceRepository());
+
+        //TODO this is wrong, we are only supplying one version to the UI
         String version = request.getParameter("geronimoVersion");
-        List gerVersions = new ArrayList();
-        gerVersions.add(new PluginMetadata.geronimoVersions(version,null,null,null));
-        metadata.setGeronimoVersions((PluginMetadata.geronimoVersions[])gerVersions.toArray(new PluginMetadata.geronimoVersions[gerVersions.size()]));
-        List prereqs = new ArrayList();
+        split(version, instance.getGeronimoVersion());
+
+        List<PrerequisiteType> prereqs = instance.getPrerequisite();
+        //TODO this is probably wrong if # of prereqs is changed.
+        for (int i = 0; i < 3 && !prereqs.isEmpty(); i++) {
+            prereqs.remove(0);
+        }
         int counter = 1;
-        while(true) {
+        while (true) {
             String prefix = "prereq" + counter;
             ++counter;
             String id = request.getParameter(prefix);
-            if(id == null || id.trim().equals("")) {
+            if (id == null || id.trim().equals("")) {
                 break;
             }
-            String type = request.getParameter(prefix+"type");
-            String desc = request.getParameter(prefix+"desc");
-            if(type != null && type.trim().equals("")) {
+            String type = request.getParameter(prefix + "type");
+            String desc = request.getParameter(prefix + "desc");
+            if (type != null && type.trim().equals("")) {
                 type = null;
             }
-            if(desc != null && desc.trim().equals("")) {
+            if (desc != null && desc.trim().equals("")) {
                 desc = null;
             }
-            prereqs.add(new PluginMetadata.Prerequisite(Artifact.create(id), false, type, desc));
+            PrerequisiteType prereq = new PrerequisiteType();
+            prereq.setResourceType(type);
+            prereq.setDescription(desc);
+            prereq.setId(PluginInstallerGBean.toArtifactType(Artifact.create(id)));
+            prereqs.add(counter - 1, prereq);
         }
-        for (int i = 3; i < data.getPrerequisites().length; i++) {
-            PluginMetadata.Prerequisite req = data.getPrerequisites()[i];
-            prereqs.add(req);
-        }
-        metadata.setPrerequisites((PluginMetadata.Prerequisite[]) prereqs.toArray(new PluginMetadata.Prerequisite[prereqs.size()]));
-        URL[] backupURLs = splitURLs(repo);
-        metadata.setRepositories(backupURLs);
 
-        // TODO: Fields not yet handled by the UI
-        metadata.setForceStart(data.getForceStart());
-        metadata.setFilesToCopy(data.getFilesToCopy());
-        metadata.setConfigXmls(data.getConfigXmls());
         // Save updated metadata
         PortletManager.getCurrentServer(request).getPluginInstaller().updatePluginMetadata(metadata);
 
         response.setRenderParameter("configId", configId);
         response.setRenderParameter("name", name);
 
-        return CONFIRM_EXPORT_MODE+BEFORE_ACTION;
+        return CONFIRM_EXPORT_MODE + BEFORE_ACTION;
     }
 
-    private URL[] splitURLs(String backups) throws MalformedURLException {
-        String[] strings = split(backups);
-        URL[] result = new URL[strings.length];
-        for (int i = 0; i < result.length; i++) {
-            result[i] = new URL(strings[i]);
+    private List<String> split(String deps) {
+        List<String> split = new ArrayList<String>();
+        if (deps != null && !deps.equals("")) {
+            split(deps, split);
         }
-        return result;
+        return split;
     }
 
-
-    private String[] split(String deps) {
-        if(deps == null || deps.equals("")) {
-            return new String[0];
-        }
-        List list = new ArrayList();
+    private void split(String deps, List<String> split) {
+        split.clear();
         BufferedReader in = new BufferedReader(new StringReader(deps));
         String line;
         try {
-            while((line = in.readLine()) != null) {
+            while ((line = in.readLine()) != null) {
                 line = line.trim();
-                if(!line.equals("")) {
-                    list.add(line);
+                if (!line.equals("")) {
+                    split.add(line);
                 }
             }
             in.close();
         } catch (IOException e) {
             log.error("Unable to parse request arguments", e);
         }
-        return (String[]) list.toArray(new String[list.size()]);
     }
 
-    private String combine(String[] strings) {
-        if(strings == null || strings.length == 0) {
+    private String combine(List<String> strings) {
+        if (strings == null || strings.size() == 0) {
             return null;
         }
         StringBuffer buf = new StringBuffer();
-        for (int i = 0; i < strings.length; i++) {
-            String string = strings[i];
-            if(i > 0) {
+        boolean first = true;
+        for (String string : strings) {
+            if (!first) {
                 buf.append("\n");
             }
+            first = false;
             buf.append(string);
         }
         return buf.toString();
     }
 
-    private String combine(URL[] urls) {
-        if(urls == null || urls.length == 0) {
+    private void toArtifacts(List<String> artifacts, List<ArtifactType> result) {
+        result.clear();
+        for (String artifact : artifacts) {
+            result.add(PluginInstallerGBean.toArtifactType(Artifact.create(artifact)));
+        }
+    }
+    private void toDependencies(List<String> artifacts, List<DependencyType> result) {
+        result.clear();
+        for (String artifact : artifacts) {
+            //TODO this is wrong.... need to encode import type as well
+            result.add(PluginInstallerGBean.toDependencyType(new Dependency(Artifact.create(artifact), ImportType.ALL)));
+        }
+    }
+
+    private String toString(List<? extends ArtifactType> artifacts) {
+        if (artifacts == null || artifacts.size() == 0) {
             return null;
         }
         StringBuffer buf = new StringBuffer();
-        for (int i = 0; i < urls.length; i++) {
-            URL url = urls[i];
-            if(i > 0) {
+        boolean first = true;
+        for (ArtifactType artifactType : artifacts) {
+            if (!first) {
                 buf.append("\n");
             }
-            buf.append(url.toString());
+            first = false;
+            buf.append(PluginInstallerGBean.toArtifact(artifactType).toString());
         }
         return buf.toString();
-    }
+     }
+
+
 }

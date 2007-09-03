@@ -32,6 +32,11 @@
     <artifactId>jsp-examples-tomcat</artifactId>
     <name>Geronimo Configs :: JSP Examples Tomcat</name>
     <packaging>car</packaging>
+    <description>
+        The JSP examples originally developed for Tomcat.  Can be found
+        via HTTP at /jsp-examples/ after installation.  These examples give
+        a basic introduction to JSP development along with sample code.
+    </description>
     
     <dependencies>
         
@@ -89,6 +94,32 @@
                         <version>${version}</version>
                         <type>war</type>
                     </module>
+                    <category>Example</category>
+                    <dependencies>
+                        <dependency>
+                            <groupId>org.apache.geronimo.configs</groupId>
+                            <artifactId>jasper</artifactId>
+                            <type>car</type>
+                        </dependency>
+                    </dependencies>
+                    <prerequisites>
+                        <prerequisite>
+                            <id>
+                                <groupId>org.apache.geronimo.configs</groupId>
+                                <artifactId>tomcat</artifactId>
+                            </id>
+                            <resource-type>Web Container</resource-type>
+                            <description>The Tomcat web container</description>
+                        </prerequisite>
+                        <prerequisite>
+                            <id>
+                                <groupId>org.apache.geronimo.configs</groupId>
+                                <artifactId>jasper</artifactId>
+                            </id>
+                            <resource-type>Web Container</resource-type>
+                            <description>The Jasper subsystem</description>
+                        </prerequisite>
+                    </prerequisites>
                 </configuration>
             </plugin>
         </plugins>

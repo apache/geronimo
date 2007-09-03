@@ -30,8 +30,16 @@
     </parent>
 
     <artifactId>webconsole-jetty6</artifactId>
-    <name>Geronimo Configs :: WebConsole Jetty6</name>
+    <name>Geronimo Admin Console (Jetty)</name>
     <packaging>car</packaging>
+    <description>
+        The web-based administration console for Geronimo.  You can
+        reach it via HTTP at /console and use it to configure the Geronimo
+        installation as well as services like JDBC connection pools, JMS resources,
+        security realms, keystores, etc.  It provides simple statistics on the
+        running Geronimo server, as well as letting you review and deploy applications
+        and plugins.
+    </description>
 
     <dependencies>
 
@@ -226,6 +234,190 @@
                         <version>${version}</version>
                         <type>ear</type>
                     </module>
+
+                    <category>Core Geronimo</category>
+                    <dependencies>
+                      <dependency>
+                        <groupId>org.apache.pluto</groupId>
+                        <artifactId>pluto-descriptors</artifactId>
+                        <version>1.0.1</version>
+                        <type>jar</type>
+                        <import>classes</import>
+                      </dependency>
+                      <dependency>
+                        <groupId>org.apache.geronimo.configs</groupId>
+                        <artifactId>connector-deployer</artifactId>
+                        <type>car</type>
+                      </dependency>
+                      <dependency>
+                        <groupId>commons-io</groupId>
+                        <artifactId>commons-io</artifactId>
+                        <version>1.1</version>
+                        <type>jar</type>
+                        <import>classes</import>
+                      </dependency>
+                      <dependency>
+                        <groupId>org.apache.geronimo.configs</groupId>
+                        <artifactId>j2ee-corba-yoko</artifactId>
+                        <type>car</type>
+                      </dependency>
+                      <dependency>
+                        <groupId>org.apache.geronimo.configs</groupId>
+                        <artifactId>jetty6-deployer</artifactId>
+                        <type>car</type>
+                      </dependency>
+                      <dependency>
+                        <groupId>org.apache.geronimo.modules</groupId>
+                        <artifactId>geronimo-upgrade</artifactId>
+                        <version>2.1-SNAPSHOT</version>
+                        <type>jar</type>
+                        <import>classes</import>
+                      </dependency>
+                      <dependency>
+                        <groupId>commons-digester</groupId>
+                        <artifactId>commons-digester</artifactId>
+                        <version>1.8</version>
+                        <type>jar</type>
+                        <import>classes</import>
+                      </dependency>
+                      <dependency>
+                        <groupId>portlet-api</groupId>
+                        <artifactId>portlet-api</artifactId>
+                        <version>1.0</version>
+                        <type>jar</type>
+                        <import>classes</import>
+                      </dependency>
+                      <dependency>
+                        <groupId>org.apache.geronimo.modules</groupId>
+                        <artifactId>geronimo-management</artifactId>
+                        <version>2.1-SNAPSHOT</version>
+                        <type>jar</type>
+                        <import>classes</import>
+                      </dependency>
+                      <dependency>
+                        <groupId>org.apache.geronimo.configs</groupId>
+                        <artifactId>jasper</artifactId>
+                        <type>car</type>
+                      </dependency>
+                      <dependency>
+                        <groupId>org.apache.geronimo.modules</groupId>
+                        <artifactId>geronimo-activemq-management</artifactId>
+                        <version>2.1-SNAPSHOT</version>
+                        <type>jar</type>
+                        <import>classes</import>
+                      </dependency>
+                      <dependency>
+                        <groupId>commons-fileupload</groupId>
+                        <artifactId>commons-fileupload</artifactId>
+                        <version>1.1.1</version>
+                        <type>jar</type>
+                        <import>classes</import>
+                      </dependency>
+                      <dependency>
+                        <groupId>jdom</groupId>
+                        <artifactId>jdom</artifactId>
+                        <version>1.0</version>
+                        <type>jar</type>
+                        <import>classes</import>
+                      </dependency>
+                      <dependency>
+                        <groupId>org.apache.geronimo.modules</groupId>
+                        <artifactId>geronimo-deploy-jsr88</artifactId>
+                        <version>2.1-SNAPSHOT</version>
+                        <type>jar</type>
+                        <import>classes</import>
+                      </dependency>
+                      <dependency>
+                        <groupId>org.apache.geronimo.modules</groupId>
+                        <artifactId>geronimo-converter</artifactId>
+                        <version>2.1-SNAPSHOT</version>
+                        <type>jar</type>
+                        <import>classes</import>
+                      </dependency>
+                      <dependency>
+                        <groupId>org.apache.geronimo.modules</groupId>
+                        <artifactId>geronimo-activemq</artifactId>
+                        <version>2.1-SNAPSHOT</version>
+                        <type>jar</type>
+                        <import>classes</import>
+                      </dependency>
+                      <dependency>
+                        <groupId>org.apache.pluto</groupId>
+                        <artifactId>pluto-portal</artifactId>
+                        <version>1.0.1</version>
+                        <type>jar</type>
+                        <import>classes</import>
+                      </dependency>
+                      <dependency>
+                        <groupId>org.apache.geronimo.configs</groupId>
+                        <artifactId>dojo-jetty6</artifactId>
+                        <type>car</type>
+                      </dependency>
+                      <dependency>
+                        <groupId>org.apache.geronimo.configs</groupId>
+                        <artifactId>j2ee-server</artifactId>
+                        <type>car</type>
+                      </dependency>
+                      <dependency>
+                        <groupId>org.apache.geronimo.configs</groupId>
+                        <artifactId>system-database</artifactId>
+                        <type>car</type>
+                      </dependency>
+                      <dependency>
+                        <groupId>org.codehaus.castor</groupId>
+                        <artifactId>castor</artifactId>
+                        <version>1.0.5</version>
+                        <type>jar</type>
+                        <import>classes</import>
+                      </dependency>
+                      <dependency>
+                        <groupId>org.apache.geronimo.applications.console</groupId>
+                        <artifactId>geronimo-console-core</artifactId>
+                        <version>2.1-SNAPSHOT</version>
+                        <type>jar</type>
+                        <import>classes</import>
+                      </dependency>
+                      <dependency>
+                        <groupId>xerces</groupId>
+                        <artifactId>xercesImpl</artifactId>
+                        <version>2.8.1</version>
+                        <type>jar</type>
+                        <import>classes</import>
+                      </dependency>
+                      <dependency>
+                        <groupId>dwr</groupId>
+                        <artifactId>dwr</artifactId>
+                        <version>1.1.3</version>
+                        <type>jar</type>
+                        <import>classes</import>
+                      </dependency>
+                      <dependency>
+                        <groupId>org.apache.pluto</groupId>
+                        <artifactId>pluto</artifactId>
+                        <version>1.0.1</version>
+                        <type>jar</type>
+                        <import>classes</import>
+                      </dependency>
+                    </dependencies>
+                    <prerequisites>
+                        <prerequisite>
+                            <id>
+                                <groupId>org.apache.geronimo.configs</groupId>
+                                <artifactId>jetty6</artifactId>
+                            </id>
+                            <resource-type>Web Container</resource-type>
+                            <description>The Jetty web container</description>
+                        </prerequisite>
+                        <prerequisite>
+                            <id>
+                                <groupId>org.apache.geronimo.configs</groupId>
+                                <artifactId>jasper</artifactId>
+                            </id>
+                            <resource-type>Web Container</resource-type>
+                            <description>The Jasper subsystem</description>
+                        </prerequisite>
+                    </prerequisites>
+                    
                 </configuration>
             </plugin>
         </plugins>

@@ -175,7 +175,7 @@ public class PackageMojo
     /**
      * The plan file for the CAR.
      *
-     * @parameter expression="${project.build.directory}/plan/plan.xml"
+     * @parameter expression="${project.build.directory}/resources/META-INF/plan.xml"
      * @required
      */
     private File planFile = null;
@@ -231,6 +231,10 @@ public class PackageMojo
      */
     private boolean bootstrap = false;
 
+    /**
+     * @parameter expression="${project.build.directory}/resources"
+     */
+    private File resourcesDir;
     /**
      * Holds a local repo lookup instance so that we can use the current project to resolve.
      * This is required since the Kernel used to deploy is cached.
@@ -355,6 +359,10 @@ public class PackageMojo
             // Include the optional classes.resources
             if (classesDirectory.isDirectory()) {
                 archiver.getArchiver().addDirectory(classesDirectory);
+            }
+
+            if (resourcesDir.isDirectory()) {
+                archiver.getArchiver().addDirectory(resourcesDir);
             }
             
             //

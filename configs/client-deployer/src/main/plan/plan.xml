@@ -1,0 +1,180 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--Licensed to the Apache Software Foundation (ASF) under one or more
+    contributor license agreements.  See the NOTICE file distributed with
+    this work for additional information regarding copyright ownership.
+    The ASF licenses this file to You under the Apache License, Version 2.0
+    (the "License"); you may not use this file except in compliance with
+    the License.  You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.-->
+<module xmlns="http://geronimo.apache.org/xml/ns/deployment-1.2">
+  <environment>
+    <moduleId>
+      <groupId>org.apache.geronimo.configs</groupId>
+      <artifactId>client-deployer</artifactId>
+      <version>2.1-SNAPSHOT</version>
+      <type>car</type>
+    </moduleId>
+    <dependencies>
+      <dependency>
+        <groupId>org.apache.geronimo.modules</groupId>
+        <artifactId>geronimo-connector-builder</artifactId>
+        <version>2.1-SNAPSHOT</version>
+        <type>jar</type>
+        <import>classes</import>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.geronimo.configs</groupId>
+        <artifactId>client</artifactId>
+        <type>car</type>
+        <import>classes</import>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.geronimo.modules</groupId>
+        <artifactId>geronimo-client-builder</artifactId>
+        <version>2.1-SNAPSHOT</version>
+        <type>jar</type>
+        <import>classes</import>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.geronimo.configs</groupId>
+        <artifactId>client-transaction</artifactId>
+        <type>car</type>
+        <import>classes</import>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.geronimo.configs</groupId>
+        <artifactId>j2ee-deployer</artifactId>
+        <type>car</type>
+      </dependency>
+    </dependencies>
+    <hidden-classes/>
+    <non-overridable-classes/>
+  </environment>
+  <gbean name="AppClientBuilder" class="org.apache.geronimo.client.builder.AppClientModuleBuilder">
+    <attribute name="transactionManagerObjectName">?name=TransactionManager</attribute>
+    <attribute name="connectionTrackerObjectName">?name=ConnectionTracker</attribute>
+    <attribute name="corbaGBeanObjectName">?name=Server</attribute>
+    <attribute name="credentialStoreName">?name=CredentialStore</attribute>
+    <reference name="Repositories">
+      <!--<gbean-name>*:name=Repository,*</gbean-name>-->
+    </reference>
+    <!--<reference name="SecurityBuilder">-->
+    <!--<name>SecurityBuilder</name>-->
+    <!--</reference>-->
+    <reference name="ServiceBuilders">
+      <name>GBeanBuilder</name>
+    </reference>
+    <references name="ModuleBuilderExtensions">
+      <pattern>
+        <name>PersistenceUnitBuilder</name>
+      </pattern>
+    </references>
+    <references name="NamingBuilders">
+      <pattern>
+        <name>GBeanRefBuilder</name>
+      </pattern>
+      <pattern>
+        <name>PersistenceUnitRefBuilder</name>
+      </pattern>
+      <pattern>
+        <name>ClientResourceRefBuilder</name>
+      </pattern>
+      <pattern>
+        <name>ClientAdminObjectRefBuilder</name>
+      </pattern>
+      <pattern>
+        <name>EnvironmentEntryBuilder</name>
+      </pattern>
+      <pattern>
+        <name>SwitchingClientServiceRefBuilder</name>
+      </pattern>
+      <pattern>
+        <name>ClientEjbRefBuilder</name>
+      </pattern>
+      <pattern>
+        <name>OpenEjbClientCorbaRefBuilder</name>
+      </pattern>
+      <pattern>
+        <name>ClientCorbaRefBuilder</name>
+      </pattern>
+      <pattern>
+        <name>LifecycleMethodBuilder</name>
+      </pattern>
+    </references>
+    <reference name="ConnectorModuleBuilder">
+      <name>ClientConnectorBuilder</name>
+    </reference>
+    <reference name="ClientArtifactResolver">
+      <name>ClientArtifactResolver</name>
+    </reference>
+    <xml-attribute name="defaultServerEnvironment">
+      <environment>
+        <dependencies>
+          <dependency>
+            <groupId>org.apache.geronimo.configs</groupId>
+            <artifactId>j2ee-server</artifactId>
+            <type>car</type>
+          </dependency>
+        </dependencies>
+      </environment>
+    </xml-attribute>
+    <xml-attribute name="defaultClientEnvironment">
+      <environment>
+        <dependencies>
+          <dependency>
+            <groupId>org.apache.geronimo.configs</groupId>
+            <artifactId>client</artifactId>
+            <type>car</type>
+          </dependency>
+          <dependency>
+            <groupId>org.apache.geronimo.configs</groupId>
+            <artifactId>webservices-common</artifactId>
+            <type>car</type>
+          </dependency>
+          <dependency>
+            <groupId>org.apache.geronimo.configs</groupId>
+            <artifactId>axis</artifactId>
+            <type>car</type>
+            <import>classes</import>
+          </dependency>
+        </dependencies>
+      </environment>
+    </xml-attribute>
+  </gbean>
+  <gbean name="ClientArtifactResolver" class="org.apache.geronimo.client.builder.OptionalExplicitDefaultArtifactResolver">
+    <reference name="ArtifactManager">
+      <name>ArtifactManager</name>
+    </reference>
+    <reference name="Repositories"/>
+    <attribute name="versionMapLocation">var/config/client_artifact_aliases.properties</attribute>
+    <reference name="ServerInfo">
+      <name>ServerInfo</name>
+    </reference>
+    <reference name="FallbackArtifactResolver">
+      <name>ArtifactResolver</name>
+    </reference>
+  </gbean>
+  <gbean name="SwitchingClientServiceRefBuilder" class="org.apache.geronimo.naming.deployment.SwitchingServiceRefBuilder">
+    <attribute name="eeNamespaces">http://java.sun.com/xml/ns/j2ee,http://java.sun.com/xml/ns/javaee</attribute>
+    <references name="JAXRPCBuilder">
+      <pattern>
+        <name>AxisClientServiceRefBuilder</name>
+      </pattern>
+    </references>
+    <references name="JAXWSBuilder">
+      <pattern>
+        <name>CXFClientServiceRefBuilder</name>
+      </pattern>
+      <pattern>
+        <name>Axis2ClientServiceRefBuilder</name>
+      </pattern>
+    </references>
+  </gbean>
+</module>

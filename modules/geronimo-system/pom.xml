@@ -31,7 +31,7 @@
 
     <artifactId>geronimo-system</artifactId>
     <name>Geronimo :: System</name>
-    
+
     <dependencies>
         <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
@@ -69,13 +69,33 @@
             <groupId>commons-jexl</groupId>
             <artifactId>commons-jexl</artifactId>
         </dependency>
-        
+
         <dependency>
             <groupId>ognl</groupId>
             <artifactId>ognl</artifactId>
         </dependency>
+
+        <!-- plugin management -->
+        <dependency>
+            <groupId>javax.xml.bind</groupId>
+            <artifactId>jaxb-api</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.sun.xml.bind</groupId>
+            <artifactId>jaxb-impl</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.geronimo.specs</groupId>
+            <artifactId>geronimo-stax-api_1.0_spec</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>woodstox</groupId>
+            <artifactId>wstx-asl</artifactId>
+        </dependency>
+
     </dependencies>
-    
+
     <build>
         <plugins>
             <plugin>
@@ -93,13 +113,13 @@
                                 <tstamp>
                                     <format property="build.year" pattern="yyyy"/>
                                 </tstamp>
-                                
+
                                 <mkdir dir="${project.build.outputDirectory}/org/apache/geronimo/system/serverinfo"/>
-                                
+
                                 <propertyfile
-                                    file="${project.build.outputDirectory}/org/apache/geronimo/system/serverinfo/geronimo-version.properties"
-                                    comment="Geronimo version information (generated, do not modify)">
-                                    
+                                        file="${project.build.outputDirectory}/org/apache/geronimo/system/serverinfo/geronimo-version.properties"
+                                        comment="Geronimo version information (generated, do not modify)">
+
                                     <entry key="version" value="${version}"/>
                                     <entry key="build.date" type="date" value="now" pattern="yyyy.MM.dd"/>
                                     <entry key="build.time" type="date" value="now" pattern="HH:mm:ss.SSSZ"/>
@@ -109,7 +129,7 @@
                         </configuration>
                     </execution>
                 </executions>
-                
+
                 <dependencies>
                     <dependency>
                         <groupId>ant</groupId>
@@ -118,8 +138,23 @@
                     </dependency>
                 </dependencies>
             </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>jaxb2-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>xjc</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <packageName>org.apache.geronimo.system.plugin.model</packageName>
+                    <extension>true</extension>
+                </configuration>
+            </plugin>
         </plugins>
     </build>
-    
+
 </project>
 

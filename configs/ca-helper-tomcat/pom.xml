@@ -32,7 +32,11 @@
     <artifactId>ca-helper-tomcat</artifactId>
     <name>Geronimo Configs :: CA Helper app - Tomcat</name>
     <packaging>car</packaging>
-    
+    <description>
+        This is a helper application for CA to enable receiving CSR's through
+        and uploading certificates to web browsers.
+    </description>
+
     <dependencies>
 
         <dependency>
@@ -91,6 +95,32 @@
                         <version>${version}</version>
                         <type>war</type>
                     </module>
+                    <category>Security</category>
+                    <dependencies>
+                        <dependency>
+                            <groupId>org.apache.geronimo.configs</groupId>
+                            <artifactId>jasper</artifactId>
+                            <type>car</type>
+                        </dependency>
+                    </dependencies>
+                    <prerequisites>
+                        <prerequisite>
+                            <id>
+                                <groupId>org.apache.geronimo.configs</groupId>
+                                <artifactId>tomcat</artifactId>
+                            </id>
+                            <resource-type>Web Container</resource-type>
+                            <description>The Tomcat web container</description>
+                        </prerequisite>
+                        <prerequisite>
+                            <id>
+                                <groupId>org.apache.geronimo.configs</groupId>
+                                <artifactId>jasper</artifactId>
+                            </id>
+                            <resource-type>Web Container</resource-type>
+                            <description>The Jasper subsystem</description>
+                        </prerequisite>
+                    </prerequisites>
                 </configuration>
             </plugin>
         </plugins>

@@ -45,12 +45,13 @@ the administrator username and password in the optional authentication fields.</
     <c:if test="${!empty repositories}"><br /></c:if>
     <i>(<a href="<portlet:actionURL portletMode="view"><portlet:param name="mode" value="updateList-before" /><portlet:param name="repository" value="${repository}" /></portlet:actionURL>">Update Repository List</a>
      or <a href="<portlet:actionURL portletMode="view"><portlet:param name="mode" value="addRepository-before" /><portlet:param name="repository" value="${repository}" /></portlet:actionURL>">Add Repository</a>)</i>
+    <br/>
     <%--<input type="text" name="repository" value="${repository}" size="30" maxlength="200" />--%>
     <c:if test="${!empty repositories}">
-      <input type="submit" value="Search for Plugins" />
-      <br /><b>Optional Authentication:</b>
-         User: <input type="text" name="username" value="${repouser}" size="12" maxlength="200" />
-         Password: <input type="password" name="password" value="${repopass}" size="12" maxlength="200" />
+      <input type="submit" value="Show Plugins in selected repository" />
+      <br /><b>Optional Authentication:</b><br/>
+         User: <input type="text" name="username" value="${repouser}" size="12" maxlength="200" /><br/>
+         Password: <input type="password" name="password" value="${repopass}" size="12" maxlength="200" /><br/>
     </c:if>
 </form>
 

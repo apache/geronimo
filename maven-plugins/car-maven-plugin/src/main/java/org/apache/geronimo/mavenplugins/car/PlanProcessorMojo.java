@@ -21,8 +21,7 @@ package org.apache.geronimo.mavenplugins.car;
 
 import java.io.File;
 import java.io.StringWriter;
-
-import java.util.Iterator;
+import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Properties;
@@ -32,17 +31,12 @@ import javax.xml.namespace.QName;
 import org.apache.geronimo.deployment.service.EnvironmentBuilder;
 import org.apache.geronimo.deployment.xbeans.ArtifactType;
 import org.apache.geronimo.deployment.xbeans.EnvironmentType;
-import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.kernel.repository.Artifact;
-import org.apache.geronimo.kernel.repository.ImportType;
-
-import org.apache.maven.model.Dependency;
-
+import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.velocity.Template;
 import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.Velocity;
 import org.apache.velocity.app.VelocityEngine;
-
 import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlOptions;
@@ -66,13 +60,13 @@ public class PlanProcessorMojo
     private static final QName ENVIRONMENT_QNAME = new QName("http://geronimo.apache.org/xml/ns/deployment-1.2", "environment");
 
     /**
-     * @parameter expression="${basedir}/src/plan"
+     * @parameter expression="${basedir}/src/main/plan"
      * @required
      */
     protected File sourceDir = null;
 
     /**
-     * @parameter expression="${project.build.directory}/plan"
+     * @parameter expression="${project.build.directory}/resources/META-INF"
      * @required
      */
     protected File targetDir = null;
@@ -84,18 +78,23 @@ public class PlanProcessorMojo
     protected String planFileName = null;
 
     /**
-     * @parameter expression="${project.build.directory}/plan/plan.xml"
+     * @parameter expression="${project.build.directory}/resources/META-INF/plan.xml"
      * @required
      */
     protected File targetFile = null;
+
+    /**
+     * @parameter
+     */
+    private List<Dependency> dependencies = Collections.emptyList();
 
     private VelocityContext createContext() {
         VelocityContext context = new VelocityContext();
 
         // Load properties, It inherits them all!
         Properties props = project.getProperties();
-        for (Iterator iter = props.keySet().iterator(); iter.hasNext();) {
-            String key = (String) iter.next();
+        for (Object o : props.keySet()) {
+            String key = (String) o;
             String value = props.getProperty(key);
 
             log.debug("Setting " + key + "=" + value);
@@ -136,7 +135,7 @@ public class PlanProcessorMojo
 
         XmlObject doc = XmlObject.Factory.parse(plan);
         XmlCursor xmlCursor = doc.newCursor();
-        LinkedHashSet dependencies = toDependencies();
+        LinkedHashSet<org.apache.geronimo.kernel.repository.Dependency> dependencies = toDependencies();
         Artifact configId = new Artifact(project.getGroupId(), project.getArtifactId(), project.getVersion(), "car");
 
         try {
@@ -162,7 +161,7 @@ public class PlanProcessorMojo
         }
     }
 
-    void mergeEnvironment(final XmlCursor xmlCursor, final Artifact configId, final LinkedHashSet dependencies) {
+    void mergeEnvironment(final XmlCursor xmlCursor, final Artifact configId, final LinkedHashSet<org.apache.geronimo.kernel.repository.Dependency> dependencies) {
         moveToFirstStartElement(xmlCursor);
 
         boolean atLeastOneChild = xmlCursor.toFirstChild();
@@ -239,72 +238,15 @@ public class PlanProcessorMojo
         }
     }
 
-    private LinkedHashSet toDependencies() {
-        List artifacts = project.getDependencies();
-        LinkedHashSet dependencies = new LinkedHashSet();
+    private LinkedHashSet<org.apache.geronimo.kernel.repository.Dependency> toDependencies() {
+        LinkedHashSet<org.apache.geronimo.kernel.repository.Dependency> dependencies = new LinkedHashSet<org.apache.geronimo.kernel.repository.Dependency>();
 
-        Iterator iter = artifacts.iterator();
-        while (iter.hasNext()) {
-            Dependency dependency = (Dependency) iter.next();
-
-            //
-            // HACK: Does not appear that we can get the "extention" status of a dependency,
-            //       so specifically exclude the ones that we know about, like genesis
-            //
-
-            if (dependency.getGroupId().startsWith("org.apache.geronimo.genesis")) {
-                continue;
-            }
-
-            org.apache.geronimo.kernel.repository.Dependency gdep = toGeronimoDependency(dependency);
-            if (gdep != null) {
+        for (Dependency dependency : this.dependencies) {
+            org.apache.geronimo.kernel.repository.Dependency gdep = dependency.toDependency();
                 dependencies.add(gdep);
-            }
         }
 
         return dependencies;
-    }
-
-    private static org.apache.geronimo.kernel.repository.Dependency toGeronimoDependency(final Dependency dependency) {
-        Artifact artifact = toGeronimoArtifact(dependency);
-        String type = dependency.getType();
-        String scope = dependency.getScope();
-        String groupId = dependency.getGroupId();
-
-        //!"org.apache.geronimo.specs".equals(groupId) jacc spec needed in plan.xml
-        if ("jar".equalsIgnoreCase(type) && !"junit".equals(groupId) && (scope == null || !scope.equals("provided"))) {
-            if (dependency.getVersion() != null) {
-                artifact = new Artifact(
-                    artifact.getGroupId(),
-                    artifact.getArtifactId(),
-                    dependency.getVersion(),
-                    artifact.getType());
-            }
-            return new org.apache.geronimo.kernel.repository.Dependency(artifact, ImportType.CLASSES);
-        }
-        else if ("car".equalsIgnoreCase(type) && "runtime".equalsIgnoreCase(scope)) {
-            return new org.apache.geronimo.kernel.repository.Dependency(artifact, ImportType.CLASSES);
-        }
-        //doesn't work
-//        else if ("car".equalsIgnoreCase(type) && "provided".equalsIgnoreCase(scope)) {
-//            return new org.apache.geronimo.kernel.repository.Dependency(artifact, ImportType.CLASSES);
-//        }
-        else if ("car".equalsIgnoreCase(type) && (scope == null || "compile".equalsIgnoreCase(scope))) { //parent
-            return new org.apache.geronimo.kernel.repository.Dependency(artifact, ImportType.ALL);
-        }
-        else {
-            // not one of ours
-            return null;
-        }
-    }
-
-    private static Artifact toGeronimoArtifact(final Dependency dependency) {
-        String groupId = dependency.getGroupId();
-        String artifactId = dependency.getArtifactId();
-        String version = null;
-        String type = dependency.getType();
-
-        return new Artifact(groupId, artifactId, version, type);
     }
 
     interface Inserter {

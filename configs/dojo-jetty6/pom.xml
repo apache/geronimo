@@ -32,6 +32,11 @@
     <artifactId>dojo-jetty6</artifactId>
     <name>Geronimo Configs :: Dojo app - Jetty6</name>
     <packaging>car</packaging>
+    <description>
+        The Dojo AJAX library for Geronimo. This binds to /dojo so that
+        applications needing to add dojo support can simply include a
+        reference to /dojo/dojo.js to enable Dojo support.
+    </description>
 
     <dependencies>
 
@@ -41,7 +46,7 @@
             <version>${version}</version>
             <type>war</type>
         </dependency>
-        
+
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
             <artifactId>jasper</artifactId>
@@ -58,7 +63,7 @@
         </dependency>
 
     </dependencies>
-    
+
     <build>
         <resources>
             <resource>
@@ -66,7 +71,7 @@
                 <filtering>true</filtering>
             </resource>
         </resources>
-        
+
         <plugins>
             <plugin>
                 <groupId>org.apache.geronimo.plugins</groupId>
@@ -83,9 +88,36 @@
                         <version>${version}</version>
                         <type>war</type>
                     </module>
+
+                    <category>Web Framework</category>
+                    <dependencies>
+                        <dependency>
+                            <groupId>org.apache.geronimo.configs</groupId>
+                            <artifactId>jasper</artifactId>
+                            <type>car</type>
+                        </dependency>
+                    </dependencies>
+                    <prerequisites>
+                        <prerequisite>
+                            <id>
+                                <groupId>org.apache.geronimo.configs</groupId>
+                                <artifactId>jetty6</artifactId>
+                            </id>
+                            <resource-type>Web Container</resource-type>
+                            <description>The Jetty web container</description>
+                        </prerequisite>
+                        <prerequisite>
+                            <id>
+                                <groupId>org.apache.geronimo.configs</groupId>
+                                <artifactId>jasper</artifactId>
+                            </id>
+                            <resource-type>Web Container</resource-type>
+                            <description>The Jasper subsystem</description>
+                        </prerequisite>
+                    </prerequisites>
                 </configuration>
             </plugin>
         </plugins>
     </build>
-    
+
 </project>

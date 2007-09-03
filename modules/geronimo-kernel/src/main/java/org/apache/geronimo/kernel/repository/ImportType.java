@@ -33,8 +33,8 @@ public class ImportType implements Serializable {
     public static final ImportType CLASSES = new ImportType("CLASSES");
     public static final ImportType SERVICES = new ImportType("SERVICES");
 
-    public static Object getByName(String name) {
-        ImportType type = (ImportType) typesByName.get(name);
+    public static ImportType getByName(String name) {
+        ImportType type = (ImportType) typesByName.get(name.toUpperCase());
         if (type == null) throw new IllegalStateException("Unknown import type: " + name);
         return type;
     }

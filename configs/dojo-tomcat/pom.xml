@@ -32,7 +32,12 @@
     <artifactId>dojo-tomcat</artifactId>
     <name>Geronimo Configs :: Dojo app - Tomcat</name>
     <packaging>car</packaging>
-    
+    <description>
+        The Dojo AJAX library for Geronimo. This binds to /dojo so that
+        applications needing to add dojo support can simply include a
+        reference to /dojo/dojo.js to enable Dojo support.
+    </description>
+
     <dependencies>
 
         <dependency>
@@ -82,6 +87,33 @@
                         <version>${version}</version>
                         <type>war</type>
                     </module>
+
+                    <category>Web Framework</category>
+                    <dependencies>
+                        <dependency>
+                            <groupId>org.apache.geronimo.configs</groupId>
+                            <artifactId>jasper</artifactId>
+                            <type>car</type>
+                        </dependency>
+                    </dependencies>
+                    <prerequisites>
+                        <prerequisite>
+                            <id>
+                                <groupId>org.apache.geronimo.configs</groupId>
+                                <artifactId>tomcat</artifactId>
+                            </id>
+                            <resource-type>Web Container</resource-type>
+                            <description>The Tomcat web container</description>
+                        </prerequisite>
+                        <prerequisite>
+                            <id>
+                                <groupId>org.apache.geronimo.configs</groupId>
+                                <artifactId>jasper</artifactId>
+                            </id>
+                            <resource-type>Web Container</resource-type>
+                            <description>The Jasper subsystem</description>
+                        </prerequisite>
+                    </prerequisites>
                 </configuration>
             </plugin>
         </plugins>

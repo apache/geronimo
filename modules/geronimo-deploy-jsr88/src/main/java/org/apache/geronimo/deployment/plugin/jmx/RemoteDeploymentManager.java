@@ -53,14 +53,16 @@ import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
+import org.apache.geronimo.kernel.config.ConfigurationManager;
+import org.apache.geronimo.kernel.config.NoSuchStoreException;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.system.jmx.KernelDelegate;
 import org.apache.geronimo.system.plugin.DownloadPoller;
 import org.apache.geronimo.system.plugin.DownloadResults;
 import org.apache.geronimo.system.plugin.PluginInstaller;
-import org.apache.geronimo.system.plugin.PluginList;
-import org.apache.geronimo.system.plugin.PluginMetadata;
 import org.apache.geronimo.system.plugin.PluginRepositoryList;
+import org.apache.geronimo.system.plugin.model.PluginListType;
+import org.apache.geronimo.system.plugin.model.PluginType;
 
 /**
  * Connects to a Kernel in a remote VM (may or many not be on the same machine).
@@ -83,32 +85,34 @@ public class RemoteDeploymentManager extends JMXDeploymentManager implements Ger
         initialize(new KernelDelegate(mbServerConnection));
         checkSameMachine(hostname);
     }
-    
+
     public boolean isSameMachine() {
         return isSameMachine;
     }
 
     private void checkSameMachine(String hostname) {
         isSameMachine = false;
-        if(hostname.equals("localhost") || hostname.equals("127.0.0.1")) {
+        if (hostname.equals("localhost") || hostname.equals("127.0.0.1")) {
             isSameMachine = true;
             return;
         }
         try {
             InetAddress dest = InetAddress.getByName(hostname);
             Enumeration en = NetworkInterface.getNetworkInterfaces();
-            while(en.hasMoreElements()) {
+            while (en.hasMoreElements()) {
                 NetworkInterface iface = (NetworkInterface) en.nextElement();
                 Enumeration ine = iface.getInetAddresses();
                 while (ine.hasMoreElements()) {
                     InetAddress address = (InetAddress) ine.nextElement();
-                    if(address.equals(dest)) {
+                    if (address.equals(dest)) {
                         isSameMachine = true;
                     }
                 }
             }
         } catch (Exception e) {
-            log.error("Unable to look up host name '"+hostname+"'; assuming it is a different machine, but this may not get very far.", e);
+            log.error(
+                    "Unable to look up host name '" + hostname + "'; assuming it is a different machine, but this may not get very far.",
+                    e);
         }
     }
 
@@ -123,88 +127,82 @@ public class RemoteDeploymentManager extends JMXDeploymentManager implements Ger
     }
 
     protected DistributeCommand createDistributeCommand(Target[] targetList, File moduleArchive, File deploymentPlan) {
-        if(isSameMachine) {
+        if (isSameMachine) {
             return super.createDistributeCommand(targetList, moduleArchive, deploymentPlan);
         } else {
-            return new org.apache.geronimo.deployment.plugin.remote.DistributeCommand(kernel, targetList, moduleArchive, deploymentPlan);
+            return new org.apache.geronimo.deployment.plugin.remote.DistributeCommand(kernel, targetList, moduleArchive,
+                    deploymentPlan);
         }
     }
 
     protected DistributeCommand createDistributeCommand(Target[] targetList, ModuleType moduleType, InputStream moduleArchive, InputStream deploymentPlan) {
-        if(isSameMachine) {
+        if (isSameMachine) {
             return super.createDistributeCommand(targetList, moduleType, moduleArchive, deploymentPlan);
         } else {
-            return new org.apache.geronimo.deployment.plugin.remote.DistributeCommand(kernel, targetList, moduleType, moduleArchive, deploymentPlan);
+            return new org.apache.geronimo.deployment.plugin.remote.DistributeCommand(kernel, targetList, moduleType,
+                    moduleArchive, deploymentPlan);
         }
     }
 
     protected RedeployCommand createRedeployCommand(TargetModuleID[] moduleIDList, File moduleArchive, File deploymentPlan) {
-        if(isSameMachine) {
+        if (isSameMachine) {
             return super.createRedeployCommand(moduleIDList, moduleArchive, deploymentPlan);
         } else {
-            return new org.apache.geronimo.deployment.plugin.remote.RedeployCommand(kernel, moduleIDList, moduleArchive, deploymentPlan);
+            return new org.apache.geronimo.deployment.plugin.remote.RedeployCommand(kernel, moduleIDList, moduleArchive,
+                    deploymentPlan);
         }
     }
 
     protected RedeployCommand createRedeployCommand(TargetModuleID[] moduleIDList, InputStream moduleArchive, InputStream deploymentPlan) {
-        if(isSameMachine) {
+        if (isSameMachine) {
             return super.createRedeployCommand(moduleIDList, moduleArchive, deploymentPlan);
         } else {
-            return new org.apache.geronimo.deployment.plugin.remote.RedeployCommand(kernel, moduleIDList, moduleArchive, deploymentPlan);
+            return new org.apache.geronimo.deployment.plugin.remote.RedeployCommand(kernel, moduleIDList, moduleArchive,
+                    deploymentPlan);
         }
     }
 
-    public PluginList listPlugins(URL mavenRepository, String username, String password) throws FailedLoginException, IOException {
-        Set set = kernel.listGBeans(new AbstractNameQuery(PluginInstaller.class.getName()));
-        for (Iterator it = set.iterator(); it.hasNext();) {
-            AbstractName name = (AbstractName) it.next();
-            PluginInstaller installer = (PluginInstaller) kernel.getProxyManager().createProxy(name, PluginInstaller.class);
-            PluginList results = installer.listPlugins(mavenRepository, username, password);
+    public PluginListType listPlugins(URL mavenRepository, String username, String password) throws FailedLoginException, IOException {
+        PluginInstaller installer = getPluginInstaller();
+        try {
+            return installer.listPlugins(mavenRepository, username, password);
+        } finally {
             kernel.getProxyManager().destroyProxy(installer);
-            return results;
         }
-        return null;
     }
 
-    public DownloadResults install(PluginList installList, String username, String password) {
-        Set set = kernel.listGBeans(new AbstractNameQuery(PluginInstaller.class.getName()));
-        for (Iterator it = set.iterator(); it.hasNext();) {
-            AbstractName name = (AbstractName) it.next();
-            PluginInstaller installer = (PluginInstaller) kernel.getProxyManager().createProxy(name, PluginInstaller.class);
-            DownloadResults results = installer.install(installList, username, password);
+    public DownloadResults install(PluginListType configsToInstall, String username, String password) {
+        PluginInstaller installer = getPluginInstaller();
+        try {
+            return installer.install(configsToInstall, username, password);
+        } finally {
             kernel.getProxyManager().destroyProxy(installer);
-            return results;
         }
-        return null;
     }
 
-    public void install(PluginList configsToInstall, String username, String password, DownloadPoller poller) {
-        Set set = kernel.listGBeans(new AbstractNameQuery(PluginInstaller.class.getName()));
-        for (Iterator it = set.iterator(); it.hasNext();) {
-            AbstractName name = (AbstractName) it.next();
-            PluginInstaller installer = (PluginInstaller) kernel.getProxyManager().createProxy(name, PluginInstaller.class);
+    public void install(PluginListType configsToInstall, String username, String password, DownloadPoller poller) {
+        PluginInstaller installer = getPluginInstaller();
+        try {
             installer.install(configsToInstall, username, password, poller);
+        } finally {
             kernel.getProxyManager().destroyProxy(installer);
-            return;
         }
     }
 
-    public Object startInstall(PluginList configsToInstall, String username, String password) {
-        Set set = kernel.listGBeans(new AbstractNameQuery(PluginInstaller.class.getName()));
-        for (Iterator it = set.iterator(); it.hasNext();) {
-            AbstractName name = (AbstractName) it.next();
-            PluginInstaller installer = (PluginInstaller) kernel.getProxyManager().createProxy(name, PluginInstaller.class);
-            Object result = installer.startInstall(configsToInstall, username, password);
+    public Object startInstall(PluginListType configsToInstall, String username, String password) {
+        PluginInstaller installer = getPluginInstaller();
+        try {
+            return installer.startInstall(configsToInstall, username, password);
+        } finally {
             kernel.getProxyManager().destroyProxy(installer);
-            return result;
         }
-        return null;
     }
 
     public Object startInstall(File carFile, String username, String password) {
         File[] args = new File[]{carFile};
-        if(!isSameMachine) {
-            AbstractDeployCommand progress = new AbstractDeployCommand(CommandType.DISTRIBUTE, kernel, null, null, null, null, null, false) {
+        if (!isSameMachine) {
+            AbstractDeployCommand progress = new AbstractDeployCommand(CommandType.DISTRIBUTE, kernel, null, null, null,
+                    null, null, false) {
                 public void run() {
                 }
             };
@@ -215,86 +213,92 @@ public class RemoteDeploymentManager extends JMXDeploymentManager implements Ger
             });
             RemoteDeployUtil.uploadFilesToServer(args, progress);
         }
-        Set set = kernel.listGBeans(new AbstractNameQuery(PluginInstaller.class.getName()));
-        for (Iterator it = set.iterator(); it.hasNext();) {
-            AbstractName name = (AbstractName) it.next();
-            PluginInstaller installer = (PluginInstaller) kernel.getProxyManager().createProxy(name, PluginInstaller.class);
-            Object result = installer.startInstall(carFile, username, password);
+        PluginInstaller installer = getPluginInstaller();
+        try {
+            return installer.startInstall(carFile, username, password);
+        } finally {
             kernel.getProxyManager().destroyProxy(installer);
-            return result;
         }
-        return null;
     }
 
     public DownloadResults checkOnInstall(Object key) {
-        Set set = kernel.listGBeans(new AbstractNameQuery(PluginInstaller.class.getName()));
-        for (Iterator it = set.iterator(); it.hasNext();) {
-            AbstractName name = (AbstractName) it.next();
-            PluginInstaller installer = (PluginInstaller) kernel.getProxyManager().createProxy(name, PluginInstaller.class);
-            DownloadResults result = installer.checkOnInstall(key);
+        PluginInstaller installer = getPluginInstaller();
+        try {
+            return installer.checkOnInstall(key);
+        } finally {
             kernel.getProxyManager().destroyProxy(installer);
-            return result;
         }
-        return null;
+    }
+
+    private PluginInstaller getPluginInstaller() {
+        Set<AbstractName> set = kernel.listGBeans(new AbstractNameQuery(PluginInstaller.class.getName()));
+        for (AbstractName name : set) {
+            return (PluginInstaller) kernel.getProxyManager().createProxy(name, PluginInstaller.class);
+        }
+        throw new IllegalStateException("No plugin installer found");
+
+    }
+
+    //not likely to be useful remotely
+    public PluginListType createPluginListForRepositories(ConfigurationManager mgr, String repo) throws NoSuchStoreException {
+        PluginInstaller installer = getPluginInstaller();
+        try {
+            return installer.createPluginListForRepositories(mgr, repo);
+        } finally {
+            kernel.getProxyManager().destroyProxy(installer);
+        }
     }
 
     public Map getInstalledPlugins() {
-        Set set = kernel.listGBeans(new AbstractNameQuery(PluginInstaller.class.getName()));
-        for (Iterator it = set.iterator(); it.hasNext();) {
-            AbstractName name = (AbstractName) it.next();
-            PluginInstaller installer = (PluginInstaller) kernel.getProxyManager().createProxy(name, PluginInstaller.class);
-            Map result = installer.getInstalledPlugins();
+        PluginInstaller installer = getPluginInstaller();
+        try {
+            return installer.getInstalledPlugins();
+        } finally {
             kernel.getProxyManager().destroyProxy(installer);
-            return result;
         }
-        return null;
     }
 
-    public PluginMetadata getPluginMetadata(Artifact configId) {
-        Set set = kernel.listGBeans(new AbstractNameQuery(PluginInstaller.class.getName()));
-        for (Iterator it = set.iterator(); it.hasNext();) {
-            AbstractName name = (AbstractName) it.next();
-            PluginInstaller installer = (PluginInstaller) kernel.getProxyManager().createProxy(name, PluginInstaller.class);
-            PluginMetadata result = installer.getPluginMetadata(configId);
+    public PluginType getPluginMetadata(Artifact configId) {
+        PluginInstaller installer = getPluginInstaller();
+        try {
+            return installer.getPluginMetadata(configId);
+        } finally {
             kernel.getProxyManager().destroyProxy(installer);
-            return result;
         }
-        return null;
     }
 
-    public void updatePluginMetadata(PluginMetadata metadata) {
-        Set set = kernel.listGBeans(new AbstractNameQuery(PluginInstaller.class.getName()));
-        for (Iterator it = set.iterator(); it.hasNext();) {
-            AbstractName name = (AbstractName) it.next();
-            PluginInstaller installer = (PluginInstaller) kernel.getProxyManager().createProxy(name, PluginInstaller.class);
+    public void updatePluginMetadata(PluginType metadata) {
+        PluginInstaller installer = getPluginInstaller();
+        try {
             installer.updatePluginMetadata(metadata);
+        } finally {
             kernel.getProxyManager().destroyProxy(installer);
-            return;
         }
     }
 
     public URL[] getRepositories() {
-        List list = new ArrayList();
-        Set set = kernel.listGBeans(new AbstractNameQuery(PluginRepositoryList.class.getName()));
-        for (Iterator it = set.iterator(); it.hasNext();) {
-            AbstractName name = (AbstractName) it.next();
-            PluginRepositoryList repo = (PluginRepositoryList) kernel.getProxyManager().createProxy(name, PluginRepositoryList.class);
+        List<URL> list = new ArrayList<URL>();
+        Set<AbstractName> set = kernel.listGBeans(new AbstractNameQuery(PluginRepositoryList.class.getName()));
+        for (AbstractName name : set) {
+            PluginRepositoryList repo = (PluginRepositoryList) kernel.getProxyManager().createProxy(name,
+                    PluginRepositoryList.class);
             list.addAll(Arrays.asList(repo.getRepositories()));
             kernel.getProxyManager().destroyProxy(repo);
         }
-        return (URL[]) list.toArray(new URL[list.size()]);
+        return list.toArray(new URL[list.size()]);
     }
-    
+
     public static final GBeanInfo GBEAN_INFO;
     public static final String GBEAN_REF_MODULE_CONFIGURERS = "ModuleConfigurers";
-    
+
     static {
-        GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic(RemoteDeploymentManager.class, "RemoteDeploymentManager");
+        GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic(RemoteDeploymentManager.class,
+                "RemoteDeploymentManager");
         infoFactory.addInterface(GeronimoDeploymentManager.class);
         infoFactory.addReference(GBEAN_REF_MODULE_CONFIGURERS, ModuleConfigurer.class);
 
-        infoFactory.setConstructor(new String[] {GBEAN_REF_MODULE_CONFIGURERS});
-        
+        infoFactory.setConstructor(new String[]{GBEAN_REF_MODULE_CONFIGURERS});
+
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
 

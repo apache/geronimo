@@ -21,9 +21,9 @@
 <!-- $Rev$ $Date$ -->
 
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-    
+
     <modelVersion>4.0.0</modelVersion>
-    
+
     <parent>
         <groupId>org.apache.geronimo.assemblies</groupId>
         <artifactId>assemblies</artifactId>
@@ -34,11 +34,11 @@
     <artifactId>geronimo-boilerplate-minimal</artifactId>
     <name>Geronimo Assemblies :: Boilerplate Minimal</name>
     <packaging>resource-bundle</packaging>
-    
+
     <description>
         Provides boilerplate files for all Geronimo minimal server (Little-G) assemblies.
     </description>
-    
+
     <build>
         <plugins>
             <plugin>
@@ -100,6 +100,27 @@
                                     <artifactId>geronimo-deploy-jsr88-bootstrapper</artifactId>
                                     <version>${version}</version>
                                 </artifactItem>
+                                <!-- TODO bad idea for plugins -->
+                                <artifactItem>
+                                    <groupId>javax.xml.bind</groupId>
+                                    <artifactId>jaxb-api</artifactId>
+                                </artifactItem>
+                                <artifactItem>
+                                    <groupId>com.sun.xml.bind</groupId>
+                                    <artifactId>jaxb-impl</artifactId>
+                                </artifactItem>
+                                <artifactItem>
+                                    <groupId>org.apache.geronimo.specs</groupId>
+                                    <artifactId>geronimo-stax-api_1.0_spec</artifactId>
+                                </artifactItem>
+                                <artifactItem>
+                                    <groupId>woodstox</groupId>
+                                    <artifactId>wstx-asl</artifactId>
+                                </artifactItem>
+                                <artifactItem>
+                                    <groupId>org.apache.geronimo.specs</groupId>
+                                    <artifactId>geronimo-activation_1.1_spec</artifactId>
+                                </artifactItem>
                             </artifactItems>
                             <outputDirectory>${project.build.directory}/classes/lib</outputDirectory>
                         </configuration>
@@ -126,7 +147,7 @@
                             <outputDirectory>${project.build.directory}/classes/lib/endorsed</outputDirectory>
                         </configuration>
                     </execution>
-                    
+
                     <execution>
                         <id>unpack-schemas</id>
                         <phase>compile</phase>
@@ -191,7 +212,7 @@
                     </execution>
                 </executions>
             </plugin>
-            
+
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-antrun-plugin</artifactId>
@@ -219,5 +240,5 @@
             </plugin>
         </plugins>
     </build>
-    
+
 </project>

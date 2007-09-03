@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--Licensed to the Apache Software Foundation (ASF) under one or more
+    contributor license agreements.  See the NOTICE file distributed with
+    this work for additional information regarding copyright ownership.
+    The ASF licenses this file to You under the Apache License, Version 2.0
+    (the "License"); you may not use this file except in compliance with
+    the License.  You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.-->
+<!--$Rev$ $Date$-->
+<module xmlns="http://geronimo.apache.org/xml/ns/deployment-1.2">
+  <environment>
+    <moduleId>
+      <groupId>org.apache.geronimo.configs</groupId>
+      <artifactId>hot-deployer</artifactId>
+      <version>2.1-SNAPSHOT</version>
+      <type>car</type>
+    </moduleId>
+    <dependencies>
+      <dependency>
+        <groupId>org.apache.geronimo.modules</groupId>
+        <artifactId>geronimo-deploy-tool</artifactId>
+        <version>2.1-SNAPSHOT</version>
+        <type>jar</type>
+        <import>classes</import>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.geronimo.modules</groupId>
+        <artifactId>geronimo-deploy-jsr88</artifactId>
+        <version>2.1-SNAPSHOT</version>
+        <type>jar</type>
+        <import>classes</import>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.geronimo.configs</groupId>
+        <artifactId>rmi-naming</artifactId>
+        <type>car</type>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.geronimo.configs</groupId>
+        <artifactId>j2ee-deployer</artifactId>
+        <type>car</type>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.geronimo.modules</groupId>
+        <artifactId>geronimo-hot-deploy</artifactId>
+        <version>2.1-SNAPSHOT</version>
+        <type>jar</type>
+        <import>classes</import>
+      </dependency>
+    </dependencies>
+    <hidden-classes/>
+    <non-overridable-classes/>
+  </environment>
+  <gbean name="HotDeployer" class="org.apache.geronimo.deployment.hot.DirectoryHotDeployer">
+    <reference name="ServerInfo">
+      <name>ServerInfo</name>
+    </reference>
+    <reference name="ConfigManager">
+      <name>ConfigurationManager</name>
+    </reference>
+    <attribute name="path">deploy/</attribute>
+    <attribute name="pollIntervalMillis">2000</attribute>
+    <dependency>
+      <name>EARBuilder</name>
+    </dependency>
+  </gbean>
+</module>

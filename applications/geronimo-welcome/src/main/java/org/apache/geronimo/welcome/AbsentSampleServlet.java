@@ -19,26 +19,31 @@ package org.apache.geronimo.welcome;
 import java.io.IOException;
 import java.net.URL;
 import java.util.Set;
-import javax.security.auth.login.FailedLoginException;
+
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.KernelRegistry;
-import org.apache.geronimo.kernel.config.ConfigurationUtil;
 import org.apache.geronimo.kernel.config.ConfigurationManager;
-import org.apache.geronimo.kernel.config.NoSuchConfigException;
+import org.apache.geronimo.kernel.config.ConfigurationUtil;
 import org.apache.geronimo.kernel.config.LifecycleException;
+import org.apache.geronimo.kernel.config.NoSuchConfigException;
 import org.apache.geronimo.kernel.repository.Artifact;
-import org.apache.geronimo.system.plugin.PluginInstaller;
-import org.apache.geronimo.system.plugin.PluginList;
-import org.apache.geronimo.system.plugin.PluginMetadata;
-import org.apache.geronimo.system.plugin.PluginRepositoryList;
+import org.apache.geronimo.kernel.repository.Dependency;
+import org.apache.geronimo.kernel.repository.ImportType;
 import org.apache.geronimo.system.plugin.DownloadResults;
+import org.apache.geronimo.system.plugin.PluginInstaller;
+import org.apache.geronimo.system.plugin.PluginInstallerGBean;
+import org.apache.geronimo.system.plugin.PluginRepositoryList;
+import org.apache.geronimo.system.plugin.model.PluginArtifactType;
+import org.apache.geronimo.system.plugin.model.PluginListType;
+import org.apache.geronimo.system.plugin.model.PluginType;
 
 /**
  * Stands in for servlets that are not yet installed, offering to install them.
@@ -66,11 +71,18 @@ public class AbsentSampleServlet extends HttpServlet {
         String moduleIdName = getInitParameter("moduleId");
         moduleIdName = moduleIdName.replaceAll("SERVER", getServerType());
         URL repo = getFirstPluginRepository(kernel);
-        PluginMetadata target = new PluginMetadata("Sample Application", null, "Samples", "A sample application",
-                                                   null, null, null, false, true);
-        target.setDependencies(new String[]{moduleIdName});
-        DownloadResults results = installer.install(new PluginList(new URL[]{repo, new URL("http://www.ibiblio.org/maven2/")},
-                                                    new PluginMetadata[]{target}), null, null);
+        PluginType target = new PluginType();
+        target.setName("Sample Application");
+        target.setCategory("Samples");
+        target.setDescription("A sample application");
+        PluginArtifactType instance = new PluginArtifactType();
+        target.getPluginArtifact().add(instance);
+        instance.getDependency().add(PluginInstallerGBean.toDependencyType(new Dependency(Artifact.create(moduleIdName), ImportType.ALL)));
+        PluginListType list = new PluginListType();
+        list.getPlugin().add(target);
+        list.getDefaultRepository().add(repo.toString());
+        list.getDefaultRepository().add("http://www.ibiblio.org/maven2/");
+        DownloadResults results = installer.install(list, null, null);
         if(results.isFailed()) {
             throw new ServletException("Unable to install sample application", results.getFailure());
         }

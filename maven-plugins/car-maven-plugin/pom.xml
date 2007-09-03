@@ -109,6 +109,23 @@
             <version>2.0.4</version>
         </dependency>
         
+        <dependency>
+            <groupId>javax.xml.bind</groupId>
+            <artifactId>jaxb-api</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.sun.xml.bind</groupId>
+            <artifactId>jaxb-impl</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.geronimo.specs</groupId>
+            <artifactId>geronimo-stax-api_1.0_spec</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>woodstox</groupId>
+            <artifactId>wstx-asl</artifactId>
+        </dependency>
     </dependencies>
     
     <build>
@@ -118,6 +135,30 @@
                 <configuration>
                     <goalPrefix>car</goalPrefix>
                 </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>shitty-maven-plugin</artifactId>
+                <version>1.0-alpha-1-SNAPSHOT</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>clean</goal>
+                            <goal>install</goal>
+                            <goal>test</goal>
+                        </goals>
+                        <configuration>
+                            <projects>
+                                <fileset>
+                                    <directory>src/it</directory>
+                                    <includes>
+                                        <include>*/pom.xml</include>
+                                    </includes>
+                                </fileset>
+                            </projects>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>

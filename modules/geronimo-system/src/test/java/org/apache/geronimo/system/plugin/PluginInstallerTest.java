@@ -38,6 +38,9 @@ import org.apache.geronimo.kernel.mock.MockWritableListableRepository;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.ArtifactResolver;
 import org.apache.geronimo.kernel.repository.Version;
+import org.apache.geronimo.system.plugin.model.PluginArtifactType;
+import org.apache.geronimo.system.plugin.model.PluginListType;
+import org.apache.geronimo.system.plugin.model.PluginType;
 import org.apache.geronimo.system.serverinfo.BasicServerInfo;
 import org.apache.geronimo.system.threads.ThreadPool;
 
@@ -47,16 +50,16 @@ import org.apache.geronimo.system.threads.ThreadPool;
  * @version $Rev$ $Date$
  */
 public class PluginInstallerTest extends TestCase {
-    private URL fakeRepo;
-    private URL testRepo;
+    private String fakeRepo;
+    private String testRepo;
     private PluginInstaller installer;
 
     protected void setUp() throws Exception {
         super.setUp();
-        fakeRepo = new URL("http://nowhere.com/");
+        fakeRepo = "http://nowhere.com/";
         String url = getClass().getResource("/geronimo-plugins.xml").toString();
         int pos = url.lastIndexOf("/");
-        testRepo = new URL(url.substring(0, pos));
+        testRepo = url.substring(0, pos);
         installer = new PluginInstallerGBean(new MockConfigManager(), new MockWritableListableRepository(), new MockConfigStore(),
                 new BasicServerInfo("."), new ThreadPool() {
             public int getPoolSize() {
@@ -82,19 +85,18 @@ public class PluginInstallerTest extends TestCase {
     }
 
     public void testParsing() throws Exception {
-        PluginList list = installer.listPlugins(testRepo, null, null);
+        PluginListType list = installer.listPlugins(new URL(testRepo), null, null);
         assertNotNull(list);
-        assertEquals(1, list.getRepositories().length);
-        assertEquals(fakeRepo, list.getRepositories()[0]);
-        assertTrue(list.getPlugins().length > 0);
+        assertEquals(1, list.getDefaultRepository().size());
+        assertEquals(fakeRepo, list.getDefaultRepository().get(0));
+        assertTrue(list.getPlugin().size() > 0);
         int prereqCount = 0;
-        for (int i = 0; i < list.getPlugins().length; i++) {
-            PluginMetadata metadata = list.getPlugins()[i];
-            prereqCount += metadata.getPrerequisites().length;
-            for (int j = 0; j < metadata.getPrerequisites().length; j++) {
-                PluginMetadata.Prerequisite prerequisite = metadata.getPrerequisites()[j];
-                assertFalse(prerequisite.isPresent());
-            }
+        for (PluginType metadata: list.getPlugin()) {
+            PluginArtifactType instance = metadata.getPluginArtifact().get(0);
+            prereqCount += instance.getPrerequisite().size();
+//            for (PrerequisiteType prerequisite: instance.getPrerequisite()) {
+//                assertFalse(prerequisite.getId());
+//            }
         }
         assertTrue(prereqCount > 0);
     }

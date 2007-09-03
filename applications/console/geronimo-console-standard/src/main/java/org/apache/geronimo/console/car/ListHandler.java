@@ -19,24 +19,24 @@ package org.apache.geronimo.console.car;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
 import javax.portlet.ActionRequest;
 import javax.portlet.ActionResponse;
 import javax.portlet.PortletException;
 import javax.portlet.RenderRequest;
 import javax.portlet.RenderResponse;
 import javax.security.auth.login.FailedLoginException;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+
 import org.apache.geronimo.console.MultiPageModel;
 import org.apache.geronimo.console.util.PortletManager;
-import org.apache.geronimo.system.plugin.PluginList;
-import org.apache.geronimo.system.plugin.PluginMetadata;
-import java.util.Collections;
-import java.util.Collection;
-import java.util.Iterator;
+import org.apache.geronimo.system.plugin.model.PluginListType;
+import org.apache.geronimo.system.plugin.model.PluginType;
 
 /**
  * Handler for the import export list screen.
@@ -44,7 +44,6 @@ import java.util.Iterator;
  * @version $Rev$ $Date$
  */
 public class ListHandler extends BaseImportExportHandler {
-    private final static Log log = LogFactory.getLog(ListHandler.class);
 
     public ListHandler() {
         super(LIST_MODE, "/WEB-INF/view/car/list.jsp");
@@ -80,29 +79,32 @@ public class ListHandler extends BaseImportExportHandler {
     }
 
     private boolean loadFromRepository(RenderRequest request, String repository, String username, String password) throws IOException, PortletException {
-        PluginList data;
+        PluginListType data;
         try {
             data = PortletManager.getCurrentServer(request).getPluginInstaller().listPlugins(new URL(repository), username, password);
         } catch (FailedLoginException e) {
             throw new PortletException("Invalid login for Maven repository '"+repository+"'", e);
         }
-        Map results = new HashMap();
-        if(data == null || data.getPlugins() == null) {
+        Map<String, List<PluginType>> results = new HashMap<String, List<PluginType>>();
+        if(data == null || data.getPlugin() == null) {
             return false;
         }
-        for (int i = 0; i < data.getPlugins().length; i++) {
-            PluginMetadata metadata = data.getPlugins()[i];
-            List values = (List) results.get(metadata.getCategory());
+        for (PluginType metadata: data.getPlugin()) {
+            List<PluginType> values = results.get(metadata.getCategory());
             if(values == null) {
-                values = new ArrayList();
+                values = new ArrayList<PluginType>();
                 results.put(metadata.getCategory(), values);
             }
             values.add(metadata);
         }
-        Collection values = results.values();
-        for (Iterator it = values.iterator(); it.hasNext();) {
-            List list = (List) it.next();
-            Collections.sort(list);
+        Collection<List<PluginType>> values = results.values();
+        for (List<PluginType> value : values) {
+            Collections.sort(value, new Comparator<PluginType>() {
+
+                public int compare(PluginType o1, PluginType o2) {
+                    return o1.getName().compareTo(o2.getName());
+                }
+            });
         }
         request.setAttribute("categories", results);
         request.getPortletSession(true).setAttribute(CONFIG_LIST_SESSION_KEY, data);

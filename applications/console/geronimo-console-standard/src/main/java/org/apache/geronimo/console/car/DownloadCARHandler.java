@@ -18,6 +18,7 @@ package org.apache.geronimo.console.car;
 
 import java.io.IOException;
 import java.net.URL;
+
 import javax.portlet.ActionRequest;
 import javax.portlet.ActionResponse;
 import javax.portlet.PortletException;
@@ -25,16 +26,19 @@ import javax.portlet.PortletSession;
 import javax.portlet.RenderRequest;
 import javax.portlet.RenderResponse;
 import javax.security.auth.login.FailedLoginException;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.console.MultiPageModel;
 import org.apache.geronimo.console.ajax.ProgressInfo;
 import org.apache.geronimo.console.util.PortletManager;
 import org.apache.geronimo.kernel.repository.Artifact;
-import org.apache.geronimo.system.plugin.PluginList;
-import org.apache.geronimo.system.plugin.PluginMetadata;
-import org.apache.geronimo.system.plugin.PluginInstaller;
 import org.apache.geronimo.system.plugin.DownloadResults;
+import org.apache.geronimo.system.plugin.PluginInstaller;
+import org.apache.geronimo.system.plugin.PluginInstallerGBean;
+import org.apache.geronimo.system.plugin.model.PluginArtifactType;
+import org.apache.geronimo.system.plugin.model.PluginListType;
+import org.apache.geronimo.system.plugin.model.PluginType;
 
 /**
  * Handler for the initial download screen.
@@ -55,8 +59,8 @@ public class DownloadCARHandler extends BaseImportExportHandler {
         String pass = request.getParameter("repo-pass");
         response.setRenderParameter("configId", configId);
         response.setRenderParameter("repository", repo);
-        if(!isEmpty(user)) response.setRenderParameter("repo-user", user);
-        if(!isEmpty(pass)) response.setRenderParameter("repo-pass", pass);
+        if (!isEmpty(user)) response.setRenderParameter("repo-user", user);
+        if (!isEmpty(pass)) response.setRenderParameter("repo-pass", pass);
 
         return getMode();
     }
@@ -66,28 +70,28 @@ public class DownloadCARHandler extends BaseImportExportHandler {
         String repo = request.getParameter("repository");
         String user = request.getParameter("repo-user");
         String pass = request.getParameter("repo-pass");
-        PluginMetadata config = null;
+        PluginType config = null;
         try {
-            PluginList list = (PluginList) request.getPortletSession(true).getAttribute(CONFIG_LIST_SESSION_KEY);
-            if(list == null) {
+            PluginListType list = (PluginListType) request.getPortletSession(true).getAttribute(CONFIG_LIST_SESSION_KEY);
+            if (list == null) {
                 list = PortletManager.getCurrentServer(request).getPluginInstaller().listPlugins(new URL(repo), user, pass);
                 request.getPortletSession(true).setAttribute(CONFIG_LIST_SESSION_KEY, list);
             }
-            for (int i = 0; i < list.getPlugins().length; i++) {
-                PluginMetadata metadata = list.getPlugins()[i];
-                if(metadata.getModuleId().toString().equals(configId)) {
-                    config = metadata;
-                    break;
-                }
+            for (PluginType metadata : list.getPlugin()) {
+                for (PluginArtifactType instance : metadata.getPluginArtifact())
+                    if (PluginInstallerGBean.toArtifact(instance.getModuleId()).toString().equals(configId)) {
+                        config = metadata;
+                        request.setAttribute("dependencies", instance.getDependency());
+                        break;
+                    }
             }
         } catch (FailedLoginException e) {
-            throw new PortletException("Invalid login for Maven repository '"+repo+"'", e);
+            throw new PortletException("Invalid login for Maven repository '" + repo + "'", e);
         }
-        if(config == null) {
-            throw new PortletException("No configuration found for '"+configId+"'");
+        if (config == null) {
+            throw new PortletException("No configuration found for '" + configId + "'");
         }
         request.setAttribute("configId", configId);
-        request.setAttribute("dependencies", config.getDependencies());
         request.setAttribute("repository", repo);
         request.setAttribute("repouser", user);
         request.setAttribute("repopass", pass);
@@ -97,24 +101,37 @@ public class DownloadCARHandler extends BaseImportExportHandler {
         String repo = request.getParameter("repository");
         String user = request.getParameter("repo-user");
         String pass = request.getParameter("repo-pass");
-        boolean proceed = Boolean.valueOf(request.getParameter("proceed")).booleanValue();
-        if(proceed) {
+        boolean proceed = Boolean.valueOf(request.getParameter("proceed"));
+        if (proceed) {
             String configId = request.getParameter("configId");
 
-            PluginList installList;
+            PluginType plugin = null;
+            PluginArtifactType instance = null;
             try {
-                PluginList list = (PluginList) request.getPortletSession(true).getAttribute(CONFIG_LIST_SESSION_KEY);
+                PluginListType list = (PluginListType) request.getPortletSession(true).getAttribute(CONFIG_LIST_SESSION_KEY);
                 if(list == null) {
                     list = PortletManager.getCurrentServer(request).getPluginInstaller().listPlugins(new URL(repo), user, pass);
                     request.getPortletSession(true).setAttribute(CONFIG_LIST_SESSION_KEY, list);
                 }
-                installList = PluginList.createInstallList(list, Artifact.create(configId));
+                for (PluginType metadata: list.getPlugin()) {
+                    for (PluginArtifactType testInstance: metadata.getPluginArtifact()) {
+                    if(PluginInstallerGBean.toArtifact(testInstance.getModuleId()).toString().equals(configId)) {
+                        plugin = metadata;
+                        instance = testInstance;
+                        break;
+                    }
+                    }
+                }
             } catch (FailedLoginException e) {
                 throw new PortletException("Invalid login for Maven repository '"+repo+"'", e);
             }
-            if(installList == null) {
-                throw new PortletException("No configuration found for '"+configId+"'");
+            if (plugin == null) {
+                throw new PortletException("No configuration found for '" + configId + "'");
             }
+            PluginType copy = PluginInstallerGBean.copy(plugin, instance);
+            PluginListType installList = new PluginListType();
+            installList.getPlugin().add(copy);
+            installList.getDefaultRepository().add(repo);
 
             PluginInstaller configInstaller = PortletManager.getCurrentServer(request).getPluginInstaller();
             Object downloadKey = configInstaller.startInstall(installList, user, pass);
@@ -125,10 +142,10 @@ public class DownloadCARHandler extends BaseImportExportHandler {
 
             response.setRenderParameter("configId", configId);
             response.setRenderParameter("repository", repo);
-            if(!isEmpty(user)) response.setRenderParameter("repo-user", user);
-            if(!isEmpty(pass)) response.setRenderParameter("repo-pass", pass);
+            if (!isEmpty(user)) response.setRenderParameter("repo-user", user);
+            if (!isEmpty(pass)) response.setRenderParameter("repo-pass", pass);
         }
-        return DOWNLOAD_STATUS_MODE+BEFORE_ACTION;
+        return DOWNLOAD_STATUS_MODE + BEFORE_ACTION;
     }
 
     public static class Installer implements Runnable {
@@ -158,7 +175,9 @@ public class DownloadCARHandler extends BaseImportExportHandler {
                     session.setAttribute(DOWNLOAD_RESULTS_SESSION_KEY, results);
                     break;
                 } else {
-                    try { Thread.sleep(1000); } catch (InterruptedException e) {
+                    try {
+                        Thread.sleep(1000);
+                    } catch (InterruptedException e) {
                         log.error("Download monitor thread interrupted", e);
                     }
                 }

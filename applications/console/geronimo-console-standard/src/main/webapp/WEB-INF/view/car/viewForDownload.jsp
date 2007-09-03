@@ -30,7 +30,7 @@
   </tr>
   <tr>
     <th align="right" valign="top">Module ID:</th>
-    <td>${plugin.moduleId}</td>
+    <td>${pluginArtifact.moduleId.groupId}/${pluginArtifact.moduleId.artifactId}/${pluginArtifact.moduleId.version}/${pluginArtifact.moduleId.type}</td>
   </tr>
   <tr>
     <th align="right" valign="top">Group:</th>
@@ -38,7 +38,7 @@
   </tr>
   <tr>
     <th align="right" valign="top">Description:</th>
-    <td>${plugin.HTMLDescription}</td>
+    <td>${plugin.description}</td>
   </tr>
   <tr>
     <th align="right" valign="top">Author:</th>
@@ -46,12 +46,12 @@
   </tr>
   <tr>
     <th align="right" valign="top">Web Site:</th>
-    <td><a href="${plugin.pluginURL}">${plugin.pluginURL}</a></td>
+    <td><a href="${plugin.url}">${plugin.url}</a></td>
   </tr>
-  <c:forEach var="license" items="${plugin.licenses}">
+  <c:forEach var="license" items="${plugin.license}">
       <tr>
         <th align="right" valign="top">License:</th>
-        <td>${license.name}
+        <td>${license.value}
           <c:choose>
               <c:when test="${license.osiApproved}">(Open Source)</c:when>
               <c:otherwise>(Proprietary)</c:otherwise>
@@ -63,12 +63,12 @@
     <th align="right" valign="top">Geronimo-Versions:</th>
     <td>
       <c:choose>
-        <c:when test="${empty gerVersions}">
+        <c:when test="${empty pluginArtifact.geronimoVersion}">
           <i>None</i>
         </c:when>
         <c:otherwise>
-          <c:forEach var="geronimoVersions" items="${gerVersions}">
-            <b>${geronimoVersions.version}</b>
+          <c:forEach var="geronimoVersion" items="${pluginArtifact.geronimoVersion}">
+            <b>${geronimoVersion}</b>
           </c:forEach>
         </c:otherwise>
       </c:choose>
@@ -79,11 +79,11 @@
     <th align="right" valign="top">JVM Versions:</th>
     <td>
       <c:choose>
-          <c:when test="${empty plugin.jvmVersions}">
+          <c:when test="${empty pluginArtifact.jvmVersion}">
             <i>Any</i>
           </c:when>
           <c:otherwise>
-            ${fn:join(plugin.jvmVersions, ", ")}
+            ${fn:join(pluginArtifact.jvmVersion, ", ")}
           </c:otherwise>
       </c:choose>
     </td>
@@ -91,8 +91,8 @@
   <tr>
     <th align="right" valign="top">Dependencies:</th>
     <td>
-      <c:forEach var="dependency" items="${plugin.dependencies}">
-        ${fn:replace(dependency, "//", "/*/")}<br />
+      <c:forEach var="dependency" items="${pluginArtifact.dependency}">
+        ${dependency.groupId}/${dependency.artifactId}/${dependency.version}/${dependency.type}<br />
       </c:forEach>
     </td>
   </tr>
@@ -100,60 +100,33 @@
     <th align="right" valign="top">Prerequisites:</th>
     <td>
       <c:choose>
-        <c:when test="${empty plugin.prerequisites}">
+        <c:when test="${empty pluginArtifact.prerequisite}">
           <i>None</i>
         </c:when>
         <c:otherwise>
-          <c:forEach var="prereq" items="${plugin.prerequisites}">
-            <b>${prereq.moduleIdWithStars}</b> (${prereq.resourceType})<br/>
+          <c:forEach var="prereq" items="${pluginArtifact.prerequisite}">
+            <b>${prereq.id.groupId}/${prereq.id.artifactId}/${prereq.id.version}/${prereq.id.type}</b> (${prereq.resourceType})<br/>
             ${prereq.description}
+<%--
             <c:if test="${!prereq.present}">
                 <br /><b><font color="red">NOT AVAILABLE</font></b>
             </c:if>
+--%>
           </c:forEach>
         </c:otherwise>
       </c:choose>
     </td>
   </tr>
   <tr>
-    <th align="right" valign="top">Version Specific Prerequisites:</th>
-    <td>
-      <c:choose>
-        <c:when test="${empty gerVersions}">
-          <i>None</i>
-        </c:when>
-        <c:otherwise>
-          <c:forEach var="version" items="${gerVersions}">
-            Version: ${version.version}:<br/>
-            <c:choose>
-              <c:when test="${empty version.preReqs}">
-                <i>None</i><br/>
-              </c:when>
-              <c:otherwise>
-                <c:forEach var="preReq" items="${version.preReqs}">
-                  <b>${preReq.moduleIdWithStars}</b> (${preReq.resourceType})<br/>
-                  ${preReq.description}
-                  <c:if test="${!preReq.present}">
-                    <br /><b><font color="red">NOT AVAILABLE</font></b>
-                  </c:if>
-                </c:forEach>
-              </c:otherwise>
-            </c:choose>
-          </c:forEach>
-        </c:otherwise>
-      </c:choose>
-    </td>
-  </tr>        
-  <tr>
     <th align="right" valign="top">Obsoletes:</th>
     <td>
       <c:choose>
-        <c:when test="${empty plugin.obsoletes}">
+        <c:when test="${empty pluginArtifact.obsoletes}">
           <i>None</i>
         </c:when>
         <c:otherwise>
-          <c:forEach var="module" items="${plugin.obsoletes}">
-            ${fn:replace(module, "//", "/*/")}<br />
+          <c:forEach var="module" items="${pluginArtifact.obsoletes}">
+            ${module.groupId}/${module.artifactId}/${module.version}/${module.type}<br />
           </c:forEach>
         </c:otherwise>
       </c:choose>
@@ -162,7 +135,7 @@
 
 </table>
 
-<c:if test="${plugin.eligible}">
+<%--<c:if test="${plugin.eligible}">--%>
 <form name="<portlet:namespace/>PluginForm" action="<portlet:actionURL/>">
     <input type="hidden" name="configId" value="${configId}" />
     <input type="hidden" name="mode" value="viewForDownload-after" />
@@ -171,6 +144,6 @@
     <input type="hidden" name="repo-pass" value="${repopass}" />
     <input type="submit" value="Continue" />
 </form>
-</c:if>
+<%--</c:if>--%>
 
 <p><a href="<portlet:actionURL portletMode="view"><portlet:param name="mode" value="index-before" /></portlet:actionURL>">Cancel</a></p>

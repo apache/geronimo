@@ -22,6 +22,10 @@ import java.net.URL;
 import java.util.Map;
 import javax.security.auth.login.FailedLoginException;
 import org.apache.geronimo.kernel.repository.Artifact;
+import org.apache.geronimo.kernel.config.ConfigurationManager;
+import org.apache.geronimo.kernel.config.NoSuchStoreException;
+import org.apache.geronimo.system.plugin.model.PluginListType;
+import org.apache.geronimo.system.plugin.model.PluginType;
 
 /**
  * Knows how to import and export configurations
@@ -39,7 +43,7 @@ public interface PluginInstaller {
      * @param password Optional password, if the maven repo uses HTTP Basic authentication.
      *                 Set this to null if no authentication is required.
      */
-    public PluginList listPlugins(URL mavenRepository, String username, String password) throws IOException, FailedLoginException;
+    public PluginListType listPlugins(URL mavenRepository, String username, String password) throws IOException, FailedLoginException;
 
     /**
      * Lists the plugins installed in the local Geronimo server, by name and
@@ -59,7 +63,7 @@ public interface PluginInstaller {
      *                 configuration currently installed in the local server.
      *                 The configId must be fully resolved (isResolved() == true)
      */
-    public PluginMetadata getPluginMetadata(Artifact moduleId);
+    public PluginType getPluginMetadata(Artifact moduleId);
 
     /**
      * Saves a ConfigurationMetadata for a particular plugin, if the server is
@@ -71,7 +75,7 @@ public interface PluginInstaller {
      *                 be fully resolved) identifies the configuration to save
      *                 this for.
      */
-    public void updatePluginMetadata(PluginMetadata metadata);
+    public void updatePluginMetadata(PluginType metadata);
 
     /**
      * Installs a configuration from a remote repository into the local Geronimo server,
@@ -85,7 +89,7 @@ public interface PluginInstaller {
      *                         Set this to null if no authentication is required.
      * @param pluginsToInstall The list of configurations to install
      */
-    public DownloadResults install(PluginList pluginsToInstall, String username, String password);
+    public DownloadResults install(PluginListType pluginsToInstall, String username, String password);
 
     /**
      * Installs a configuration from a remote repository into the local Geronimo server,
@@ -103,7 +107,7 @@ public interface PluginInstaller {
      *                         Set this to null if no authentication is required.
      * @param poller           Will be notified with status updates as the download proceeds
      */
-    public void install(PluginList pluginsToInstall, String username, String password, DownloadPoller poller);
+    public void install(PluginListType pluginsToInstall, String username, String password, DownloadPoller poller);
 
     /**
      * Installs a configuration from a remote repository into the local Geronimo server,
@@ -120,7 +124,7 @@ public interface PluginInstaller {
      *
      * @return A key that can be passed to checkOnInstall
      */
-    public Object startInstall(PluginList pluginsToInstall, String username, String password);
+    public Object startInstall(PluginListType pluginsToInstall, String username, String password);
 
     /**
      * Installs a configuration downloaded from a remote repository into the local Geronimo
@@ -153,4 +157,6 @@ public interface PluginInstaller {
      * @param key Identifies the operation to check on
      */
     public DownloadResults checkOnInstall(Object key);
+
+    PluginListType createPluginListForRepositories(ConfigurationManager mgr, String repo) throws NoSuchStoreException;
 }

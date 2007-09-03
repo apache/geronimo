@@ -1,0 +1,243 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--Licensed to the Apache Software Foundation (ASF) under one or more
+    contributor license agreements.  See the NOTICE file distributed with
+    this work for additional information regarding copyright ownership.
+    The ASF licenses this file to You under the Apache License, Version 2.0
+    (the "License"); you may not use this file except in compliance with
+    the License.  You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.-->
+<!--$Rev$ $Date$-->
+<module xmlns="http://geronimo.apache.org/xml/ns/deployment-1.2">
+  <environment>
+    <moduleId>
+      <groupId>org.apache.geronimo.configs</groupId>
+      <artifactId>j2ee-deployer</artifactId>
+      <version>2.1-SNAPSHOT</version>
+      <type>car</type>
+    </moduleId>
+    <dependencies>
+      <dependency>
+        <groupId>org.apache.geronimo.modules</groupId>
+        <artifactId>geronimo-j2ee-schema</artifactId>
+        <version>2.1-SNAPSHOT</version>
+        <type>jar</type>
+        <import>classes</import>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.geronimo.configs</groupId>
+        <artifactId>j2ee-server</artifactId>
+        <type>car</type>
+        <import>classes</import>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.geronimo.modules</groupId>
+        <artifactId>geronimo-test-ddbean</artifactId>
+        <version>2.1-SNAPSHOT</version>
+        <type>jar</type>
+        <import>classes</import>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.geronimo.modules</groupId>
+        <artifactId>geronimo-naming-builder</artifactId>
+        <version>2.1-SNAPSHOT</version>
+        <type>jar</type>
+        <import>classes</import>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.geronimo.modules</groupId>
+        <artifactId>geronimo-security-builder</artifactId>
+        <version>2.1-SNAPSHOT</version>
+        <type>jar</type>
+        <import>classes</import>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.geronimo.configs</groupId>
+        <artifactId>j2ee-security</artifactId>
+        <type>car</type>
+        <import>classes</import>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.geronimo.modules</groupId>
+        <artifactId>geronimo-j2ee-builder</artifactId>
+        <version>2.1-SNAPSHOT</version>
+        <type>jar</type>
+        <import>classes</import>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.geronimo.configs</groupId>
+        <artifactId>geronimo-gbean-deployer</artifactId>
+        <type>car</type>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.geronimo.modules</groupId>
+        <artifactId>geronimo-client</artifactId>
+        <version>2.1-SNAPSHOT</version>
+        <type>jar</type>
+        <import>classes</import>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.xbean</groupId>
+        <artifactId>xbean-finder</artifactId>
+        <version>3.0.1</version>
+        <type>jar</type>
+        <import>classes</import>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.geronimo.modules</groupId>
+        <artifactId>geronimo-web-2.5-builder</artifactId>
+        <version>2.1-SNAPSHOT</version>
+        <type>jar</type>
+        <import>classes</import>
+      </dependency>
+    </dependencies>
+    <hidden-classes/>
+    <non-overridable-classes/>
+  </environment>
+  <gbean name="EARBuilder" class="org.apache.geronimo.j2ee.deployment.EARConfigBuilder">
+    <attribute name="transactionManagerAbstractName">?name=TransactionManager</attribute>
+    <attribute name="connectionTrackerAbstractName">?name=ConnectionTracker</attribute>
+    <attribute name="transactionalTimerAbstractName">?name=TransactionalThreadPooledTimer</attribute>
+    <attribute name="nonTransactionalTimerAbstractName">?name=NonTransactionalThreadPooledTimer</attribute>
+    <attribute name="corbaGBeanAbstractName">?name=Server</attribute>
+    <attribute name="serverName">?j2eeType=J2EEServer#org.apache.geronimo.management.geronimo.J2EEServer</attribute>
+    <reference name="Repositories">
+      <!--<gbean-name>*:name=Repository,*</gbean-name>-->
+    </reference>
+    <reference name="WebConfigBuilder">
+      <name>WebBuilder</name>
+    </reference>
+    <reference name="SecurityBuilders">
+      <name>SecurityBuilder</name>
+    </reference>
+    <reference name="ServiceBuilders">
+      <name>GBeanBuilder</name>
+    </reference>
+    <references name="PersistenceUnitBuilders">
+      <pattern>
+        <name>PersistenceUnitBuilder</name>
+      </pattern>
+    </references>
+    <references name="EJBConfigBuilder">
+      <pattern>
+        <name>EJBBuilder</name>
+      </pattern>
+      <pattern>
+        <name>UnavailableEJBBuilder</name>
+      </pattern>
+    </references>
+    <reference name="ConnectorConfigBuilder">
+      <name>ConnectorBuilder</name>
+    </reference>
+    <references name="AppClientConfigBuilder">
+      <pattern>
+        <name>AppClientBuilder</name>
+      </pattern>
+      <pattern>
+        <name>UnavailableAppClientBuilder</name>
+      </pattern>
+    </references>
+    <reference name="ArtifactResolvers">
+      <name>ArtifactResolver</name>
+    </reference>
+    <xml-attribute name="defaultEnvironment">
+      <environment>
+        <dependencies>
+          <dependency>
+            <groupId>org.apache.geronimo.configs</groupId>
+            <artifactId>j2ee-server</artifactId>
+            <type>car</type>
+          </dependency>
+        </dependencies>
+      </environment>
+    </xml-attribute>
+  </gbean>
+  <!--web switching builder-->
+  <gbean name="WebBuilder" class="org.apache.geronimo.j2ee.deployment.SwitchingModuleBuilder">
+    <attribute name="defaultNamespace">http://geronimo.apache.org/xml/ns/j2ee/web/tomcat-1.2</attribute>
+    <references name="ModuleBuilders">
+      <pattern>
+        <name>JettyWebBuilder</name>
+      </pattern>
+      <pattern>
+        <name>TomcatWebBuilder</name>
+      </pattern>
+    </references>
+  </gbean>
+  <gbean name="SecurityBuilder" class="org.apache.geronimo.security.deployment.GeronimoSecurityBuilderImpl">
+    <attribute name="credentialStoreName">?name=CredentialStore#</attribute>
+  </gbean>
+  <gbean name="LoginConfigurationBuilder" class="org.apache.geronimo.security.deployment.LoginConfigBuilder"/>
+  <gbean name="CredentialStoreBuilder" class="org.apache.geronimo.security.deployment.CredentialStoreBuilder"/>
+  <!--TODO remove or document why SecurityService is here-->
+  <gbean name="SecurityService" class="org.apache.geronimo.security.SecurityServiceImpl">
+    <attribute name="policyConfigurationFactory">org.apache.geronimo.security.jacc.GeronimoPolicyConfigurationFactory</attribute>
+    <attribute name="policyProvider">org.apache.geronimo.security.jacc.GeronimoPolicy</attribute>
+  </gbean>
+  <gbean name="NamingBuilders" class="org.apache.geronimo.j2ee.deployment.NamingBuilderCollectionGBean">
+    <attribute name="baseElementQNameNamespaceURI">http://geronimo.apache.org/xml/ns/naming-1.2</attribute>
+    <attribute name="baseElementQNameLocalPart">abstract-naming-entry</attribute>
+    <references name="NamingBuilders">
+      <pattern>
+        <name>GBeanRefBuilder</name>
+      </pattern>
+      <pattern>
+        <name>PersistenceContextRefBuilder</name>
+      </pattern>
+      <pattern>
+        <name>PersistenceUnitRefBuilder</name>
+      </pattern>
+      <pattern>
+        <name>ResourceRefBuilder</name>
+      </pattern>
+      <pattern>
+        <name>AdminObjectRefBuilder</name>
+      </pattern>
+      <pattern>
+        <name>EnvironmentEntryBuilder</name>
+      </pattern>
+      <pattern>
+        <name>SwitchingServiceRefBuilder</name>
+      </pattern>
+      <pattern>
+        <name>EjbRefBuilder</name>
+      </pattern>
+      <pattern>
+        <name>OpenEjbCorbaRefBuilder</name>
+      </pattern>
+      <pattern>
+        <name>CorbaRefBuilder</name>
+      </pattern>
+      <pattern>
+        <name>LifecycleMethodBuilder</name>
+      </pattern>
+    </references>
+  </gbean>
+  <gbean name="GBeanRefBuilder" class="org.apache.geronimo.naming.deployment.GBeanRefBuilder"/>
+  <gbean name="EnvironmentEntryBuilder" class="org.apache.geronimo.naming.deployment.EnvironmentEntryBuilder">
+    <attribute name="eeNamespaces">http://java.sun.com/xml/ns/j2ee,http://java.sun.com/xml/ns/javaee</attribute>
+  </gbean>
+  <gbean name="SwitchingServiceRefBuilder" class="org.apache.geronimo.naming.deployment.SwitchingServiceRefBuilder">
+    <attribute name="eeNamespaces">http://java.sun.com/xml/ns/j2ee,http://java.sun.com/xml/ns/javaee</attribute>
+    <references name="JAXRPCBuilder">
+      <pattern>
+        <name>AxisServiceRefBuilder</name>
+      </pattern>
+    </references>
+    <references name="JAXWSBuilder">
+      <pattern>
+        <name>CXFServiceRefBuilder</name>
+      </pattern>
+      <pattern>
+        <name>Axis2ServiceRefBuilder</name>
+      </pattern>
+    </references>
+  </gbean>
+  <gbean name="LifecycleMethodBuilder" class="org.apache.geronimo.naming.deployment.LifecycleMethodBuilder"/>
+</module>

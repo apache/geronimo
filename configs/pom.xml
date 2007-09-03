@@ -102,6 +102,17 @@
                         <!-- Do not include META-INF/maven to avoid long file problems on windows -->
                         <addMavenDescriptor>false</addMavenDescriptor>
                     </archive>
+                    <osiApproved>true</osiApproved>
+                    <geronimoVersions>
+                        <value>${geronimoVersion}</value>
+                    </geronimoVersions>
+                    <jvmVersions>
+                        <value>1.5</value>
+                    </jvmVersions>
+                    <sourceRepositories>
+                        <value>http://www.geronimoplugins.com/repository/geronimo-1.1</value>
+                        <value>http://repo1.maven.org/maven2/</value>
+                    </sourceRepositories>
                 </configuration>
             </plugin>
         </plugins>

@@ -18,18 +18,22 @@ package org.apache.geronimo.console.car;
 
 import java.io.IOException;
 import java.net.URL;
+
 import javax.portlet.ActionRequest;
 import javax.portlet.ActionResponse;
 import javax.portlet.PortletException;
 import javax.portlet.RenderRequest;
 import javax.portlet.RenderResponse;
 import javax.security.auth.login.FailedLoginException;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.console.MultiPageModel;
 import org.apache.geronimo.console.util.PortletManager;
-import org.apache.geronimo.system.plugin.PluginMetadata;
-import org.apache.geronimo.system.plugin.PluginList;
+import org.apache.geronimo.system.plugin.PluginInstallerGBean;
+import org.apache.geronimo.system.plugin.model.PluginArtifactType;
+import org.apache.geronimo.system.plugin.model.PluginListType;
+import org.apache.geronimo.system.plugin.model.PluginType;
 
 /**
  * Handler for the screen that shows you plugin details before you go on and
@@ -62,18 +66,21 @@ public class ViewPluginDownloadHandler  extends BaseImportExportHandler {
         String repo = request.getParameter("repository");
         String user = request.getParameter("repo-user");
         String pass = request.getParameter("repo-pass");
-        PluginMetadata config = null;
+        PluginType config = null;
+        PluginArtifactType instance = null;
         try {
-            PluginList list = (PluginList) request.getPortletSession(true).getAttribute(CONFIG_LIST_SESSION_KEY);
+            PluginListType list = (PluginListType) request.getPortletSession(true).getAttribute(CONFIG_LIST_SESSION_KEY);
             if(list == null) {
                 list = PortletManager.getCurrentServer(request).getPluginInstaller().listPlugins(new URL(repo), user, pass);
                 request.getPortletSession(true).setAttribute(CONFIG_LIST_SESSION_KEY, list);
             }
-            for (int i = 0; i < list.getPlugins().length; i++) {
-                PluginMetadata metadata = list.getPlugins()[i];
-                if(metadata.getModuleId().toString().equals(configId)) {
+            for (PluginType metadata: list.getPlugin()) {
+                for (PluginArtifactType testInstance: metadata.getPluginArtifact()) {
+                if(PluginInstallerGBean.toArtifact(testInstance.getModuleId()).toString().equals(configId)) {
                     config = metadata;
+                    instance = testInstance;
                     break;
+                }
                 }
             }
         } catch (FailedLoginException e) {
@@ -84,7 +91,9 @@ public class ViewPluginDownloadHandler  extends BaseImportExportHandler {
         }
         request.setAttribute("configId", configId);
         request.setAttribute("plugin", config);
-        request.setAttribute("gerVersions",config.getGeronimoVersions());
+        request.setAttribute("pluginArtifact", instance);
+//        request.setAttribute("gerVersions", instance.getGeronimoVersion());
+//        request.setAttribute("jvmVersions", instance.getJvmVersion());
         request.setAttribute("repository", repo);
         request.setAttribute("repouser", user);
         request.setAttribute("repopass", pass);
