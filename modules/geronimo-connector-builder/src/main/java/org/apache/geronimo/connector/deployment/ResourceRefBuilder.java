@@ -116,7 +116,8 @@ public class ResourceRefBuilder extends AbstractNamingBuilder implements Resourc
         XmlObject[] gerResourceRefsUntyped = plan == null ? NO_REFS : plan.selectChildren(GER_RESOURCE_REF_QNAME_SET);
         Map refMap = mapResourceRefs(gerResourceRefsUntyped);
         ClassLoader cl = module.getEarContext().getClassLoader();
-
+        int initialGerRefSize = refMap.size();
+        int unresolvedRefSize = resourceRefsUntyped.size();
         for (ResourceRefType resourceRef : resourceRefsUntyped) {
             String name = resourceRef.getResRefName().getStringValue().trim();
             addInjections(name, resourceRef.getInjectionTargetArray(), componentContext);
@@ -204,7 +205,7 @@ public class ResourceRefBuilder extends AbstractNamingBuilder implements Resourc
             }
         }
 
-        if (refMap.size() > 0) {
+        if ((initialGerRefSize - unresolvedRefSize) != refMap.size()) {
             log.warn("Failed to build reference to resource reference "+refMap.keySet()+" defined in plan file, reason - corresponding entry in deployment descriptor missing.");
         }
     }
