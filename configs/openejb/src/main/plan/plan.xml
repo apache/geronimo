@@ -75,7 +75,7 @@
       <dependency>
         <groupId>org.apache.yoko</groupId>
         <artifactId>yoko-spec-corba</artifactId>
-        <version>1.0-incubating-r557035</version>
+        <version>1.0-incubating-SNAPSHOT</version>
         <type>jar</type>
         <import>classes</import>
       </dependency>
