@@ -113,6 +113,7 @@ public class AdminObjectRefBuilder extends AbstractNamingBuilder {
     public void buildNaming(XmlObject specDD, XmlObject plan, Module module, Map componentContext) throws DeploymentException {
         XmlObject[] gerResourceEnvRefsUntyped = plan == null ? NO_REFS : plan.selectChildren(GER_ADMIN_OBJECT_REF_QNAME_SET);
         Map<String, GerResourceEnvRefType> refMap = mapResourceEnvRefs(gerResourceEnvRefsUntyped);
+        int initialGerRefSize = refMap.size();
         Map<String, Map<String, GerMessageDestinationType>> messageDestinations = module.getRootEarContext().getMessageDestinations();
 
         // Discover and process any @Resource annotations (if !metadata-complete)
@@ -128,6 +129,7 @@ public class AdminObjectRefBuilder extends AbstractNamingBuilder {
         }
 
         List<ResourceEnvRefType> resourceEnvRefsUntyped = convert(specDD.selectChildren(adminOjbectRefQNameSet), JEE_CONVERTER, ResourceEnvRefType.class, ResourceEnvRefType.type);
+        int unresolvedRefSize = resourceEnvRefsUntyped.size();
         ClassLoader cl = module.getEarContext().getClassLoader();
         for (ResourceEnvRefType resourceEnvRef : resourceEnvRefsUntyped) {
             String name = resourceEnvRef.getResourceEnvRefName().getStringValue().trim();
@@ -156,7 +158,7 @@ public class AdminObjectRefBuilder extends AbstractNamingBuilder {
             }
         }
         
-        if (refMap.size() > 0) {
+        if ((initialGerRefSize - unresolvedRefSize) != refMap.size()) {
             log.warn("Failed to build reference to Admin object reference "+refMap.keySet()+" defined in plan file, reason - corresponding entry in deployment descriptor missing.");
         }
         
