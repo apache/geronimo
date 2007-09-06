@@ -214,14 +214,6 @@
                     <category>Geronimo Core</category>
                     <osiApproved>true</osiApproved>
                     <geronimoVersion>2.1-SNAPSHOT</geronimoVersion>
-<!--
-                    <geronimoVersions>
-                        <value>2.1-SNAPSHOT</value>
-                    </geronimoVersions>
--->
-                    <jvmVersions>
-                        <value>1.5</value>
-                    </jvmVersions>
                     <dependencies>
                         <dependency>
                           <groupId>com.sun.xml.bind</groupId>
@@ -322,10 +314,6 @@
                           <import>classes</import>
                         </dependency>
                     </dependencies>
-                    <sourceRepositories>
-                        <value>http://foo.com</value>
-                        <value>http://bar.com</value>
-                    </sourceRepositories>
 
                 </configuration>
             </plugin>
