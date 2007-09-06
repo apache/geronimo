@@ -20,43 +20,16 @@
 
 package org.apache.geronimo.mavenplugins.car;
 
-import org.apache.geronimo.system.plugin.model.AttributeType;
+import junit.framework.TestCase;
 
 /**
  * @version $Rev$ $Date$
  */
-public class Attribute {
+public class PluginMetadataTest extends TestCase {
 
-    /**
-     * @parameter
-     */
-    private String name;
-    /**
-     * @parameter
-     */
-    private String value;
-
-
-    public Attribute() {
-    }
-
-    public Attribute(String name, String value) {
-        this.name = name;
-        this.value = value;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public String getValue() {
-        return value == null? null: value.replace("#{", "${");
-    }
-
-    public AttributeType toAttributeType() {
-        AttributeType attributeType = new AttributeType();
-        attributeType.setName(name);
-        attributeType.getContent().add(getValue());
-        return attributeType;
+    public void testAttributeEscape() throws Exception {
+        Attribute attr = new Attribute("foo", "#{bar}");
+        assertEquals("${bar}", attr.getValue());
+        assertEquals("${bar}", "#{bar}".replace("#{", "${"));
     }
 }

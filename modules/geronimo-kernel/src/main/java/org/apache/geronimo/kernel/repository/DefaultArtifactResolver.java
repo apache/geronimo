@@ -22,6 +22,7 @@ import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.SortedSet;
 import java.util.TreeSet;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
@@ -33,20 +34,24 @@ import org.apache.geronimo.kernel.config.Configuration;
 public class DefaultArtifactResolver implements ArtifactResolver {
     private final ArtifactManager artifactManager;
     private final Collection<? extends ListableRepository> repositories;
-    private final Map<Artifact, Artifact> explicitResolution;
+    private final Map<Artifact, Artifact> explicitResolution = new ConcurrentHashMap<Artifact, Artifact>();
 
     public DefaultArtifactResolver(ArtifactManager artifactManager, ListableRepository repository) {
         this.artifactManager = artifactManager;
         this.repositories = Collections.singleton(repository);
-        this.explicitResolution = Collections.emptyMap();
     }
 
     public DefaultArtifactResolver(ArtifactManager artifactManager, Collection<? extends ListableRepository> repositories, Map<Artifact, Artifact> explicitResolution) {
         this.artifactManager = artifactManager;
         this.repositories = repositories;
-        this.explicitResolution = explicitResolution == null? Collections.<Artifact, Artifact>emptyMap(): explicitResolution;
+        if (explicitResolution != null) {
+            this.explicitResolution.putAll(explicitResolution);
+        }
     }
 
+    protected Map<Artifact, Artifact> getExplicitResolution() {
+        return explicitResolution;
+    }
 
     public Artifact generateArtifact(Artifact source, String defaultType) {
         if(source.isResolved()) {
@@ -100,21 +105,6 @@ public class DefaultArtifactResolver implements ArtifactResolver {
     }
 
     public Artifact resolveInClassLoader(Artifact source, Collection<Configuration> parentConfigurations) throws MissingDependencyException {
-        // Some tests break if we acntually try to search for fully-resolved artifacts
-//        if(source.isResolved()) {
-//            return source;
-//        }
-//        if (artifact.getType() == null) {
-//            throw new IllegalArgumentException("Type not set " + artifact);
-//        }
-//
-//        String groupId = source.getGroupId();
-//        if (groupId == null) {
-//            groupId = Artifact.DEFAULT_GROUP_ID;
-//        }
-
-//        Version version = source.getVersion();
-
         Artifact working = resolveVersion(parentConfigurations, source);
         if (working == null || !working.isResolved()) {
             throw new MissingDependencyException("Unable to resolve dependency " + source);

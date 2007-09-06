@@ -17,6 +17,8 @@
 
 package org.apache.geronimo.gbean;
 
+import java.util.Properties;
+
 
 /**
  * An optional interface for a GBean.  When a GBean implements this interface, the implementation

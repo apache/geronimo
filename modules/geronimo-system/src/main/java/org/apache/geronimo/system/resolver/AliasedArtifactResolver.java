@@ -18,45 +18,16 @@
  */
 
 
-package org.apache.geronimo.mavenplugins.car;
+package org.apache.geronimo.system.resolver;
 
-import org.apache.geronimo.system.plugin.model.AttributeType;
+import java.util.Properties;
+import java.io.IOException;
+
+import org.apache.geronimo.kernel.repository.ArtifactResolver;
 
 /**
  * @version $Rev$ $Date$
  */
-public class Attribute {
-
-    /**
-     * @parameter
-     */
-    private String name;
-    /**
-     * @parameter
-     */
-    private String value;
-
-
-    public Attribute() {
-    }
-
-    public Attribute(String name, String value) {
-        this.name = name;
-        this.value = value;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public String getValue() {
-        return value == null? null: value.replace("#{", "${");
-    }
-
-    public AttributeType toAttributeType() {
-        AttributeType attributeType = new AttributeType();
-        attributeType.setName(name);
-        attributeType.getContent().add(getValue());
-        return attributeType;
-    }
+public interface AliasedArtifactResolver extends ArtifactResolver {
+    void addAliases(Properties properties) throws IOException;
 }

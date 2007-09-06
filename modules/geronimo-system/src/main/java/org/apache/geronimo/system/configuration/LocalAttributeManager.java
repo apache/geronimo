@@ -63,6 +63,7 @@ import org.apache.geronimo.kernel.config.PersistentConfigurationList;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.util.XmlUtil;
 import org.apache.geronimo.system.configuration.condition.JexlExpressionParser;
+import org.apache.geronimo.system.plugin.model.GbeanType;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -102,11 +103,18 @@ public class LocalAttributeManager implements PluginAttributeStore, PersistentCo
 
     private boolean kernelFullyStarted;
 
-    public LocalAttributeManager(String configFile, String configSubstitutionsFile, String configSubstitutionsPrefix, boolean readOnly, ServerInfo serverInfo) {
+    private String prefix;
+    private File configSubstitutionsFile;
+    private Properties localConfigSubstitutions;
+
+    public LocalAttributeManager(String configFile, String configSubstitutionsFileName, String configSubstitutionsPrefix, boolean readOnly, ServerInfo serverInfo) {
         this.configFile = System.getProperty(CONFIG_FILE_PROPERTY, configFile);
-        String resolvedPropertiesFile = System.getProperty(SUBSTITUTIONS_FILE_PROPERTY, configSubstitutionsFile);
-        String prefix = System.getProperty(SUBSTITUTION_PREFIX_PREFIX, configSubstitutionsPrefix);
-        expressionParser = loadProperties(resolvedPropertiesFile, serverInfo, prefix);
+        String resolvedPropertiesFile = System.getProperty(SUBSTITUTIONS_FILE_PROPERTY, configSubstitutionsFileName);
+        configSubstitutionsFile = resolvedPropertiesFile == null? null: serverInfo.resolveServer(resolvedPropertiesFile);
+        localConfigSubstitutions = loadConfigSubstitutions(configSubstitutionsFile);
+        prefix = System.getProperty(SUBSTITUTION_PREFIX_PREFIX, configSubstitutionsPrefix);
+        Map<String, String> configSubstitutions = loadAllConfigSubstitutions(localConfigSubstitutions, prefix);
+        expressionParser = new JexlExpressionParser(configSubstitutions);
         this.readOnly = readOnly;
         this.serverInfo = serverInfo;
         serverOverride = new ServerOverride();
@@ -174,13 +182,13 @@ public class LocalAttributeManager implements PluginAttributeStore, PersistentCo
     /**
      * Set the attributes from the attribute store on a single gbean, and return whether or not to load the gbean.
      *
-     * @param data GBeanData we are going to override attributes on
+     * @param data          GBeanData we are going to override attributes on
      * @param configuration the module override the gbean relates to
-     * @param configName name of the module (why can't this be determined from the configuration?)
-     * @param classLoader ClassLoader to use for property objects/PropertyEditors
+     * @param configName    name of the module (why can't this be determined from the configuration?)
+     * @param classLoader   ClassLoader to use for property objects/PropertyEditors
      * @return true if the gbean should be loaded, false otherwise.
-     * @throws org.apache.geronimo.kernel.config.InvalidConfigException if we cannot update the gbeanData
-     *
+     * @throws org.apache.geronimo.kernel.config.InvalidConfigException
+     *          if we cannot update the gbeanData
      */
     private synchronized boolean setAttributes(GBeanData data, ConfigurationOverride configuration, Artifact configName, ClassLoader classLoader) throws InvalidConfigException {
         AbstractName gbeanName = data.getAbstractName();
@@ -197,15 +205,23 @@ public class LocalAttributeManager implements PluginAttributeStore, PersistentCo
         return gbean.applyOverrides(data, configName, gbeanName, classLoader);
     }
 
-    public void setModuleGBeans(Artifact moduleName, GBeanOverride[] gbeans) {
+    public void setModuleGBeans(Artifact moduleName, List<GbeanType> gbeans) throws InvalidGBeanException {
         if (readOnly) {
             return;
         }
         ConfigurationOverride configuration = serverOverride.getConfiguration(moduleName, true);
-        for (GBeanOverride gbean : gbeans) {
-            configuration.addGBean(gbean);
+        for (GbeanType gbean : gbeans) {
+            GBeanOverride override = new GBeanOverride(gbean, expressionParser);
+            configuration.addGBean(override);
         }
         attributeChanged();
+    }
+
+    public void addConfigSubstitutions(Properties properties) {
+        localConfigSubstitutions.putAll(properties);
+        Map<String, String> configSubstutions = loadAllConfigSubstitutions(localConfigSubstitutions, prefix);
+        storeConfigSubstitutions(configSubstitutionsFile, localConfigSubstitutions);
+        expressionParser.setVariables(configSubstutions);
     }
 
     public synchronized void setValue(Artifact configurationName, AbstractName gbeanName, GAttributeInfo attribute, Object value, ClassLoader classLoader) {
@@ -397,7 +413,8 @@ public class LocalAttributeManager implements PluginAttributeStore, PersistentCo
 
         // rename the temp file the the configuration file
         if (!tempFile.renameTo(attributeFile)) {
-            throw new IOException("EXTREMELY CRITICAL!  Unable to move manageable attributes working file to proper file name!  Configuration will revert to defaults unless this is manually corrected!  (could not rename " + tempFile.getAbsolutePath() + " to " + attributeFile.getAbsolutePath() + ")");
+            throw new IOException(
+                    "EXTREMELY CRITICAL!  Unable to move manageable attributes working file to proper file name!  Configuration will revert to defaults unless this is manually corrected!  (could not rename " + tempFile.getAbsolutePath() + " to " + attributeFile.getAbsolutePath() + ")");
         }
     }
 
@@ -612,35 +629,63 @@ public class LocalAttributeManager implements PluginAttributeStore, PersistentCo
         }
     }
 
-    private static JexlExpressionParser loadProperties(String propertiesFile, ServerInfo serverInfo, String prefix) {
+    private static Map<String, String> loadAllConfigSubstitutions(Properties configSubstitutions, String prefix) {
         Map<String, String> vars = new HashMap<String, String>();
-        //properties file is least significant
-        if (propertiesFile != null) {
-            Properties properties = new Properties();
-            File thePropertiesFile = serverInfo.resolveServer(propertiesFile);
-            log.debug("Loading properties file " + thePropertiesFile.getAbsolutePath());
-            try {
-                properties.load(new FileInputStream(thePropertiesFile));
-            } catch (Exception e) {
-                log.error("Caught exception " + e
-                        + " trying to open properties file " + thePropertiesFile.getAbsolutePath());
-            }
-            addGeronimoSubstitutions(vars, properties, "");
-        }
-        //environment variables are next
-        addGeronimoSubstitutions(vars, System.getenv(), prefix);
         //most significant are the command line system properties
         addGeronimoSubstitutions(vars, System.getProperties(), prefix);
-        return new JexlExpressionParser(vars);
+        //environment variables are next
+        addGeronimoSubstitutions(vars, System.getenv(), prefix);
+        //properties file is least significant
+        if (configSubstitutions != null) {
+            addGeronimoSubstitutions(vars, configSubstitutions, "");
+        }
+        return vars;
+    }
+
+    private static Properties loadConfigSubstitutions(File configSubstitutionsFile) {
+        Properties properties = new Properties();
+        if (configSubstitutionsFile != null) {
+            try {
+                FileInputStream in = new FileInputStream(configSubstitutionsFile);
+                try {
+                    properties.load(in);
+                } finally {
+                    in.close();
+                }
+            } catch (Exception e) {
+                log.error("Caught exception " + e
+                        + " trying to open properties file " + configSubstitutionsFile.getAbsolutePath());
+            }
+        }
+        return properties;
+    }
+
+    private static void storeConfigSubstitutions(File configSubstitutionsFile, Properties properties) {
+        if (configSubstitutionsFile != null) {
+            try {
+                FileOutputStream out = new FileOutputStream(configSubstitutionsFile);
+                try {
+                    properties.store(out, null);
+                } finally {
+                    out.close();
+                }
+            } catch (Exception e) {
+                log.error("Caught exception " + e
+                        + " trying to open properties file " + configSubstitutionsFile.getAbsolutePath());
+            }
+        }
     }
 
     private static void addGeronimoSubstitutions(Map<String, String> vars, Map props, String prefix) {
         if (prefix != null) {
             int start = prefix.length();
-            for (Object o: props.entrySet()) {
+            for (Object o : props.entrySet()) {
                 Map.Entry entry = (Map.Entry) o;
-                if (((String)entry.getKey()).startsWith(prefix)) {
-                    vars.put(((String)entry.getKey()).substring(start), (String)entry.getValue());
+                if (((String) entry.getKey()).startsWith(prefix)) {
+                    String key = ((String) entry.getKey()).substring(start);
+                    if (!vars.containsKey(key)) {
+                        vars.put(key, (String) entry.getValue());
+                    }
                 }
             }
         }

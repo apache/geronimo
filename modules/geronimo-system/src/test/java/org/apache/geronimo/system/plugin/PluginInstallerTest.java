@@ -81,7 +81,7 @@ public class PluginInstallerTest extends TestCase {
             public void execute(String consumerName, Runnable runnable) {
                 new Thread(runnable).start();
             }
-        }, null);
+        }, null, null);
     }
 
     public void testParsing() throws Exception {

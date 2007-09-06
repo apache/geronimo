@@ -361,7 +361,29 @@
                     </xs:sequence>
                 </xs:complexType>
             </xs:element>
+            <xs:element name="artifact-alias" type="list:propertyType" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element name="config-substitution" type="list:propertyType" minOccurs="0" maxOccurs="unbounded"/>
         </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="propertyType">
+        <xs:annotation>
+            <xs:documentation>
+                holds key-value pair.  key is in 'key' attribute, value is in content
+            </xs:documentation>
+        </xs:annotation>
+
+        <xs:simpleContent>
+            <xs:extension base="xs:string">
+                <xs:attribute name="key" use="required" type="xs:string">
+                    <xs:annotation>
+                        <xs:documentation>
+                            key for key-value pair.
+                        </xs:documentation>
+                    </xs:annotation>
+                </xs:attribute>
+            </xs:extension>
+        </xs:simpleContent>
     </xs:complexType>
 
     <xs:complexType name="licenseType">

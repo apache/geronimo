@@ -26,9 +26,10 @@ import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.Iterator;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -43,14 +44,17 @@ import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.gbean.GAttributeInfo;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.gbean.ReferencePatterns;
 import org.apache.geronimo.gbean.GReferenceInfo;
+import org.apache.geronimo.gbean.ReferencePatterns;
 import org.apache.geronimo.kernel.InvalidGBeanException;
 import org.apache.geronimo.kernel.config.InvalidConfigException;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.util.XmlUtil;
-import org.apache.geronimo.util.EncryptionManager;
 import org.apache.geronimo.system.configuration.condition.JexlExpressionParser;
+import org.apache.geronimo.system.plugin.model.AttributeType;
+import org.apache.geronimo.system.plugin.model.GbeanType;
+import org.apache.geronimo.system.plugin.model.ReferenceType;
+import org.apache.geronimo.util.EncryptionManager;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -148,6 +152,85 @@ public class GBeanOverride implements Serializable {
 
         // references can be coppied in blind
         references.putAll(gbeanData.getReferences());
+        this.expressionParser = expressionParser;
+    }
+
+    public GBeanOverride(GbeanType gbean, JexlExpressionParser expressionParser) throws InvalidGBeanException {
+        String nameString = gbean.getName();
+        if (nameString.indexOf('?') > -1) {
+            name = new AbstractName(URI.create(nameString));
+        } else {
+            name = nameString;
+        }
+
+        String gbeanInfoString = gbean.getGbeanInfo();
+        if ( gbeanInfoString != null && gbeanInfoString.length() > 0) {
+            gbeanInfo = gbeanInfoString;
+        } else {
+            gbeanInfo = null;
+        }
+        if (gbeanInfo != null && !(name instanceof AbstractName)) {
+            throw new InvalidGBeanException("A gbean element using the gbeanInfo attribute must be specified using a full AbstractName: name=" + nameString);
+        }
+
+        load = gbean.isLoad();
+
+        // attributes
+        for (Object o : gbean.getAttributeOrReference()) {
+            if (o instanceof AttributeType) {
+                AttributeType attr = (AttributeType) o;
+                if (attr.isNull()) {
+                    getNullAttributes().add(attr.getName());
+                } else {
+                    List<Object> content = attr.getContent();
+                    StringBuffer buf = new StringBuffer();
+                    for (Object o2 : content) {
+                        if (o2 instanceof String) {
+                            buf.append((String) o2);
+                        } else if (o2 instanceof Node) {
+                            buf.append(getContentsAsText((Node)o2));
+                        } else {
+                            buf.append("===============").append(o2.getClass()).append("===========");
+                            buf.append(o2);
+                        }
+                    }
+                    String value = buf.toString();
+                    if (value.length() == 0) {
+                        setClearAttribute(attr.getName());
+                    } else {
+                        String truevalue = (String) EncryptionManager.decrypt(value);
+                        getAttributes().put(attr.getName(), truevalue);
+                    }
+                }
+            } else if (o instanceof ReferenceType) {
+                ReferenceType ref = (ReferenceType) o;
+                Set<AbstractNameQuery> patternSet = new HashSet<AbstractNameQuery>();
+                for (ReferenceType.Pattern pattern : ref.getPattern()) {
+                    String groupId = pattern.getGroupId();
+                    String artifactId = pattern.getArtifactId();
+                    String version = pattern.getVersion();
+                    String type = pattern.getType();
+                    String module = pattern.getModule();
+                    String name = pattern.getName();
+
+                    Artifact referenceArtifact = null;
+                    if (artifactId != null) {
+                        referenceArtifact = new Artifact(groupId, artifactId, version, type);
+                    }
+                    Map<String, String> nameMap = new HashMap<String, String>();
+                    if (module != null) {
+                        nameMap.put("module", module);
+                    }
+                    if (name != null) {
+                        nameMap.put("name", name);
+                    }
+                    AbstractNameQuery abstractNameQuery = new AbstractNameQuery(referenceArtifact, nameMap, Collections.EMPTY_SET);
+                    patternSet.add(abstractNameQuery);
+                }
+                ReferencePatterns patterns = new ReferencePatterns(patternSet);
+                getReferences().put(ref.getName(), patterns);
+            }
+        }
         this.expressionParser = expressionParser;
     }
 
@@ -262,10 +345,10 @@ public class GBeanOverride implements Serializable {
         if (children.getLength() > 1) {
             throw new InvalidGBeanException("invalid name, too many parts named: " + name);
         }
-        return getContentsAsText((Element) children.item(0));
+        return getContentsAsText(children.item(0));
     }
 
-    private static String getContentsAsText(Element element) throws InvalidGBeanException {
+    private static String getContentsAsText(Node element) throws InvalidGBeanException {
         String value = "";
         NodeList text = element.getChildNodes();
         for (int t = 0; t < text.getLength(); t++) {
@@ -462,7 +545,8 @@ public class GBeanOverride implements Serializable {
      * Creates a new child of the supplied parent with the data for this
      * GBeanOverride, adds it to the parent, and then returns the new
      * child element.
-     * @param doc document containing the module, hence also the element returned from this method.
+     *
+     * @param doc    document containing the module, hence also the element returned from this method.
      * @param parent module element this override will be inserted into
      * @return newly created element for this override
      */
@@ -650,7 +734,7 @@ public class GBeanOverride implements Serializable {
             return attributeStringValue;
         } catch (ClassNotFoundException e) {
             //todo: use the Configuration's ClassLoader to load the attribute, if this ever becomes an issue
-            throw (InvalidAttributeException)new InvalidAttributeException("Unable to store attribute type " + type).initCause(e);
+            throw (InvalidAttributeException) new InvalidAttributeException("Unable to store attribute type " + type).initCause(e);
         }
     }
 }

@@ -16,8 +16,13 @@
  */
 package org.apache.geronimo.system.configuration;
 
+import java.util.List;
+import java.util.Properties;
+
 import org.apache.geronimo.kernel.config.ManageableAttributeStore;
 import org.apache.geronimo.kernel.repository.Artifact;
+import org.apache.geronimo.kernel.InvalidGBeanException;
+import org.apache.geronimo.system.plugin.model.GbeanType;
 
 /**
  * Extension to the ManageableAttributeStore that supports the plugin
@@ -31,5 +36,7 @@ public interface PluginAttributeStore extends ManageableAttributeStore {
      * Adds a group of settings to the attribute store.  This is used by e.g.
      * the plugin installer to add the settings needed for a new plugin.
      */
-    public void setModuleGBeans(Artifact moduleName, GBeanOverride[] gbeans);
+    public void setModuleGBeans(Artifact moduleName, List<GbeanType> gbeans) throws InvalidGBeanException;
+
+    void addConfigSubstitutions(Properties properties);
 }

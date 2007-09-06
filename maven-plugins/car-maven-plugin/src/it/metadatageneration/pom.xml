@@ -110,10 +110,14 @@
                 <configuration>
                     <category>Test</category>
                     <osiApproved>true</osiApproved>
+                        <geronimoVersion>2.0.1</geronimoVersion>
+                        <geronimoVersion>2.1-SNAPSHOT</geronimoVersion>
+<!--
                     <geronimoVersions>
                         <value>2.0.1</value>
                         <value>2.1-SNAPSHOT</value>
                     </geronimoVersions>
+-->
                     <jvmVersions>
                         <value>1.5</value>
                         <value>1.5.2</value>
@@ -174,6 +178,13 @@
                             </attributes>
                         </gbean>
                     </gbeans>
+                    <configSubstitutions>
+                        key1=value1
+                        key2=value2
+                    </configSubstitutions>
+                    <artifactAliases>
+                        org.apache.geronimo.test/foo//car=org.apache.geronimo.test/bar/1.0/car
+                    </artifactAliases>
                 </configuration>
             </plugin>
         </plugins>

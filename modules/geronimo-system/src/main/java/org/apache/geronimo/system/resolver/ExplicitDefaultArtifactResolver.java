@@ -20,6 +20,7 @@ package org.apache.geronimo.system.resolver;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.FileOutputStream;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -37,13 +38,23 @@ import org.apache.geronimo.system.serverinfo.ServerInfo;
 /**
  * @version $Rev$ $Date$
  */
-public class ExplicitDefaultArtifactResolver extends DefaultArtifactResolver {
+public class ExplicitDefaultArtifactResolver extends DefaultArtifactResolver implements AliasedArtifactResolver {
+    private static final String COMMENT = "#You can use this file to indicate that you want to substitute one module for another.\n" +
+            "#format is oldartifactid=newartifactId e.g.\n" +
+            "#org.apache.geronimo.configs/transaction//car=org.apache.geronimo.configs/transaction-jta11/1.2-SNAPSHOT/car\n" +
+            "#versions can be ommitted on the left side but not the right.\n" +
+            "#This can also specify explicit versions in the same format.";
+
+    private final String versionMapLocation;
+    private final ServerInfo serverInfo;
 
     public ExplicitDefaultArtifactResolver(String versionMapLocation,
             ArtifactManager artifactManager,
             Collection<? extends ListableRepository> repositories,
             ServerInfo serverInfo ) throws IOException {
         super(artifactManager, repositories, buildExplicitResolution(versionMapLocation, serverInfo));
+        this.versionMapLocation = versionMapLocation;
+        this.serverInfo = serverInfo;
     }
 
     private static Map<Artifact, Artifact> buildExplicitResolution(String versionMapLocation, ServerInfo serverInfo) throws IOException {
@@ -71,6 +82,40 @@ public class ExplicitDefaultArtifactResolver extends DefaultArtifactResolver {
             explicitResolution.put(source, resolved);
         }
         return explicitResolution;
+    }
+
+    private static void saveExplicitResolution(Map<Artifact, Artifact> artifactMap, String versionMapLocation, ServerInfo serverInfo) throws IOException {
+        if (versionMapLocation == null) {
+            return;
+        }
+        File location = serverInfo == null? new File(versionMapLocation): serverInfo.resolveServer(versionMapLocation);
+        FileOutputStream in = new FileOutputStream(location);
+        Properties properties = artifactMapToProperties(artifactMap);
+        try {
+            properties.store(in, COMMENT);
+        } finally {
+            in.close();
+        }
+    }
+
+    private static Properties artifactMapToProperties(Map<Artifact, Artifact> artifactMap) {
+        Properties properties = new Properties();
+        for (Map.Entry<Artifact, Artifact> entry: artifactMap.entrySet()) {
+            properties.setProperty(entry.getKey().toString(), entry.getValue().toString());
+        }
+        return properties;
+    }
+
+    /**
+     * Add some more artifact aliases.  The plugin installer calls this
+     * TODO when a plugin is uninstalled, remove the aliases?
+     * @param properties Properties object containing the new aliases
+     * @throws IOException if the modified aliases map cannot be saved.                                            
+     */
+    public synchronized void addAliases(Properties properties) throws IOException {
+        Map<Artifact, Artifact> explicitResolutions = propertiesToArtifactMap(properties);
+        getExplicitResolution().putAll(explicitResolutions);
+        saveExplicitResolution(getExplicitResolution(), versionMapLocation, serverInfo);
     }
 
     public static final GBeanInfo GBEAN_INFO;

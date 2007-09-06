@@ -24,13 +24,17 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.util.Collections;
 import java.util.List;
+import java.util.Properties;
+import java.util.Map;
+import java.util.HashMap;
 
-import org.apache.geronimo.deployment.xbeans.EnvironmentType;
 import org.apache.geronimo.system.plugin.PluginInstallerGBean;
 import org.apache.geronimo.system.plugin.model.ArtifactType;
 import org.apache.geronimo.system.plugin.model.LicenseType;
 import org.apache.geronimo.system.plugin.model.PluginArtifactType;
 import org.apache.geronimo.system.plugin.model.PluginType;
+import org.apache.geronimo.system.plugin.model.PropertyType;
+import org.apache.geronimo.common.propertyeditor.PropertiesEditor;
 import org.apache.maven.model.License;
 
 /**
@@ -111,6 +115,15 @@ public class PluginMetadataGeneratorMojo
      */
     private List<Gbean> gbeans;
 
+    /**
+     * @parameter
+     */
+    private String configSubstitutions;
+    /**
+     * @parameter
+     */
+    private String artifactAliases;
+
     protected void doExecute() throws Exception {
 
         PluginType metadata = new PluginType();
@@ -162,6 +175,19 @@ public class PluginMetadataGeneratorMojo
             instance.setConfigXmlContent(configXmlContent);
         }
 
+        for (Map.Entry<Object, Object> entry: toProperties(configSubstitutions).entrySet()) {
+            PropertyType property = new PropertyType();
+            property.setKey((String) entry.getKey());
+            property.setValue((String) entry.getValue());
+            instance.getConfigSubstitution().add(property);
+        }
+        for (Map.Entry<Object, Object> entry: toProperties(artifactAliases).entrySet()) {
+            PropertyType property = new PropertyType();
+            property.setKey((String) entry.getKey());
+            property.setValue((String) entry.getValue());
+            instance.getArtifactAlias().add(property);
+        }
+
         targetDir.mkdirs();
         FileOutputStream out = new FileOutputStream(targetFile);
         try {
@@ -170,6 +196,15 @@ public class PluginMetadataGeneratorMojo
             out.close();
         }
         getProject().getResources().add(targetFile);
+    }
+
+    private Properties toProperties(String text) {
+        if (text == null) {
+            return new Properties();
+        }
+        PropertiesEditor editor = new PropertiesEditor();
+        editor.setAsText(text);
+        return (Properties) editor.getValue();
     }
 
 }

@@ -213,9 +213,12 @@
 
                     <category>Geronimo Core</category>
                     <osiApproved>true</osiApproved>
+                    <geronimoVersion>2.1-SNAPSHOT</geronimoVersion>
+<!--
                     <geronimoVersions>
                         <value>2.1-SNAPSHOT</value>
                     </geronimoVersions>
+-->
                     <jvmVersions>
                         <value>1.5</value>
                     </jvmVersions>

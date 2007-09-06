@@ -94,7 +94,7 @@ public class PluginRepositoryDownloader implements PluginRepositoryList {
                         list.add(url);
                     } else if (userRepository.startsWith("~")) {
                         userRepository = userRepository.substring(2);
-                        URI fullUri = new URI("file", System.getProperty("user.home") + "/", null).resolve(userRepository);
+                        URI fullUri = new File(System.getProperty("user.home")).getAbsoluteFile().toURI().resolve(userRepository);
                         list.add(fullUri.toURL());
                     } else {
                         log.error("Can't interpret path: " + userRepository);

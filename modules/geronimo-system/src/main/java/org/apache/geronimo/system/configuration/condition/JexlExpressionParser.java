@@ -89,6 +89,13 @@ public class JexlExpressionParser {
         getVariables().putAll(map);
     }
 
+    public void setVariables(final Map map) {
+        if (map == null) {
+            throw new IllegalArgumentException("map");
+        }
+        context.setVars(map);
+    }
+
     private FlatResolver resolver = new FlatResolver(true);
 
     protected Expression createExpression(final String expression) throws Exception {

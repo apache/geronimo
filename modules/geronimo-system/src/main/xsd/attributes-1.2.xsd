@@ -168,7 +168,7 @@
                         </xsd:documentation>
                     </xsd:annotation>
                 </xsd:attribute>
-                <xsd:attribute name="null" use="optional">
+                <xsd:attribute name="null" use="optional" type="xsd:boolean" default="false">
                     <xsd:annotation>
                         <xsd:documentation>
                             The null attribute defines if this atribute is null
