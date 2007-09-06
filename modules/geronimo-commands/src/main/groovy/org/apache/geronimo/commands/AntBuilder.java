@@ -27,7 +27,7 @@ import org.apache.tools.ant.DefaultLogger;
 
 import org.slf4j.Logger;
 
-import org.apache.geronimo.gshell.console.IO;
+import org.apache.geronimo.gshell.command.IO;
 
 /**
  * Custom Ant builder to setup the desired output formatting.

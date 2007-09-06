@@ -26,7 +26,7 @@ import org.apache.geronimo.gshell.common.StopWatch
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
-import org.apache.geronimo.gshell.console.IO
+import org.apache.geronimo.gshell.command.IO
 
 /**
  * Helper to execute a process and perform some verification logic to determine if the process is up or not.

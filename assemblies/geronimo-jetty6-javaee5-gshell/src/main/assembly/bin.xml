@@ -159,13 +159,15 @@
                 <include>org.slf4j:slf4j-api</include>
                 <include>org.slf4j:slf4j-log4j12</include>
                 <include>org.slf4j:jcl104-over-slf4j</include>
-                <include>org.apache.geronimo.gshell:gshell-api</include>
+                <include>org.apache.geronimo.gshell:gshell-command-api</include>
                 <include>org.apache.geronimo.gshell:gshell-cli</include>
                 <include>org.apache.geronimo.gshell:gshell-core</include>
-                <include>org.apache.geronimo.gshell:gshell-clp</include>
-                <include>org.apache.geronimo.gshell:gshell-prefs</include>
-                <include>org.apache.geronimo.gshell:gshell-i18n</include>
-                <include>org.apache.geronimo.gshell:gshell-common</include>
+                <include>org.apache.geronimo.gshell:gshell-parser</include>
+                <include>org.apache.geronimo.gshell.support:gshell-ansi</include>
+                <include>org.apache.geronimo.gshell.support:gshell-clp</include>
+                <include>org.apache.geronimo.gshell.support:gshell-prefs</include>
+                <include>org.apache.geronimo.gshell.support:gshell-i18n</include>
+                <include>org.apache.geronimo.gshell.support:gshell-common</include>
                 <include>org.apache.geronimo.gshell:gshell-diet-log4j</include>
                 <include>org.apache.geronimo.gshell.commands:gshell-builtins</include>
                 <include>org.codehaus.plexus:plexus-utils</include>
@@ -173,7 +175,7 @@
                 <include>org.codehaus.plexus:plexus-container-default</include>
                 <include>org.codehaus.plexus:plexus-expression-evaluator</include>
                 <include>jline:jline</include>
-                <include>org.apache.xbean:xbean-finder</include>
+                <include>com.thoughtworks.xstream:xstream</include>
                 <include>org.codehaus.groovy:groovy-all</include>
                 <include>org.apache.ant:ant</include>
                 <include>org.apache.ant:ant-launcher</include>

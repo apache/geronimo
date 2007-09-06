@@ -21,6 +21,7 @@ package org.apache.geronimo.commands
 
 import org.apache.geronimo.gshell.command.CommandSupport
 import org.apache.geronimo.gshell.command.CommandException
+import org.apache.geronimo.gshell.command.annotation.CommandComponent
 
 import org.apache.geronimo.gshell.clp.Option
 
@@ -34,6 +35,7 @@ import org.apache.geronimo.commands.AntBuilder
  *
  * @version $Id$
  */
+@CommandComponent(id='start-server')
 class StartServerCommand
     extends CommandSupport
 {
@@ -125,10 +127,6 @@ class StartServerCommand
     
     String password = 'manager'
     
-    StartServerCommand() {
-        super('start-server')
-    }
-    
     private File getJavaAgentJar() {
         def file = new File(geronimoHome, 'bin/jpa.jar')
         
@@ -149,7 +147,6 @@ class StartServerCommand
     }
     
     protected Object doExecute() throws Exception {
-        def io = getIO()
         ant = new AntBuilder(log, io)
         
         if (!geronimoHome) {
@@ -280,13 +277,15 @@ class StartServerCommand
             return
         }
         
+        def name = context.commandDescriptor.id
+        
         def scanner = ant.fileScanner {
             fileset(dir: basedir) {
-                include(name: "${this.name},*.groovy")
+                include(name: "${name},*.groovy")
             }
         }
         
-        def binding = new Binding([command: this, log: log, io: getIO()])
+        def binding = new Binding([command: this, log: log, io: io])
         def shell = new GroovyShell(binding)
         
         for (file in scanner) {

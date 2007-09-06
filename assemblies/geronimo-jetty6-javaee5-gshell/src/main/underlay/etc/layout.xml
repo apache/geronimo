@@ -20,14 +20,28 @@
 
 <!-- $Rev$ $Date$ -->
 
-<component-set>
-    <components>
-        <component>
-            <role>org.apache.geronimo.gshell.command.Command</role>
-            <role-hint>start-server</role-hint>
-            <implementation>org.apache.geronimo.commands.StartServerCommand</implementation>
-            <instantiation-strategy>singleton</instantiation-strategy>
-            <lifecycle-handler>plexus</lifecycle-handler>
-        </component>
-    </components>
-</component-set>
+<layout>
+    <name>/</name>
+
+    <nodes>
+        <command>
+            <name>help</name>
+            <id>org.apache.geronimo.gshell.commands.buildins.HelpCommand</id>
+        </command>
+        
+        <alias>
+            <name>?</name>
+            <command>help</command>
+        </alias>
+        
+        <command>
+            <name>start-server</name>
+            <id>org.apache.geronimo.commands.StartServerCommand</id>
+        </command>
+        
+        <alias>
+            <name>start</name>
+            <command>start-server</command>
+        </alias>
+    </nodes>
+</layout>
