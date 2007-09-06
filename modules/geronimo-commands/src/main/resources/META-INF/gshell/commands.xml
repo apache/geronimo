@@ -21,6 +21,8 @@
 <!-- $Rev$ $Date$ -->
 
 <command-set>
+    <id>geronimo-commands</id>
+    
     <commands>
         <command>
             <id>start-server</id>
