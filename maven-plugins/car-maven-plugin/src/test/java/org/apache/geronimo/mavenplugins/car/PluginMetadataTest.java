@@ -20,7 +20,12 @@
 
 package org.apache.geronimo.mavenplugins.car;
 
+import java.io.StringReader;
+import java.io.ByteArrayInputStream;
+
 import junit.framework.TestCase;
+import org.apache.geronimo.system.plugin.PluginInstallerGBean;
+import org.apache.geronimo.system.plugin.model.PluginArtifactType;
 
 /**
  * @version $Rev$ $Date$
@@ -31,5 +36,34 @@ public class PluginMetadataTest extends TestCase {
         Attribute attr = new Attribute("foo", "#{bar}");
         assertEquals("${bar}", attr.getValue());
         assertEquals("${bar}", "#{bar}".replace("#{", "${"));
+    }
+
+    private static final String PROLOGUE = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n";
+    private static final String INSTANCE1="<plugin-artifact>\n" +
+            " <jvm-version>1.5</jvm-version>\n" +
+            " <jvm-version>1.5.2</jvm-version>\n" +
+            " <prerequisite>\n" +
+            "  <id>\n" +
+            "   <groupId>commons-logging</groupId>\n" +
+            "   <artifactId>commons-logging</artifactId>\n" +
+            "  </id>\n" +
+            "  <resource-type>joke</resource-type>\n" +
+            "  <description>this is an explanation</description>\n" +
+            " </prerequisite>\n" +
+            " <obsoletes>\n" +
+            "  <groupId>commons-logging</groupId>\n" +
+            "  <artifactId>commons-logging</artifactId>\n" +
+            " </obsoletes>\n" +
+            " <source-repository>http://foo.com</source-repository>\n" +
+            " <source-repository>http://bar.com</source-repository>\n" +
+            " <copy-file dest-dir=\"bar\" relative-to=\"WEB-INF\">META-INF/foo.xml</copy-file>\n" +
+            " <artifact-alias key=\"org.apache.geronimo.test/foo//car\">org.apache.geronimo.test/bar/1.0/car</artifact-alias>\n" +
+            " <config-substitution key=\"key2\">value2</config-substitution>\n" +
+            " <config-substitution key=\"key1\">value1</config-substitution>\n" +
+            "</plugin-artifact>";
+
+    public void testReadInstance() throws Exception {
+        PluginArtifactType instance = PluginInstallerGBean.loadPluginArtifactMetadata(new StringReader(PROLOGUE + INSTANCE1));
+//        assertEquals(2, instance.getConfigSubstitution().size());
     }
 }

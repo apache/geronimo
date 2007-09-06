@@ -103,16 +103,14 @@
                         <addMavenDescriptor>false</addMavenDescriptor>
                     </archive>
                     <osiApproved>true</osiApproved>
-                    <geronimoVersions>
-                        <value>${geronimoVersion}</value>
-                    </geronimoVersions>
-                    <jvmVersions>
-                        <value>1.5</value>
-                    </jvmVersions>
-                    <sourceRepositories>
-                        <value>http://www.geronimoplugins.com/repository/geronimo-1.1</value>
-                        <value>http://repo1.maven.org/maven2/</value>
-                    </sourceRepositories>
+                    <commonInstance>
+                        <plugin-artifact>
+                            <geronimo-version>${geronimoVersion}</geronimo-version>
+                            <jvm-version>1.5</jvm-version>
+                            <source-repository>http://www.geronimoplugins.com/repository/geronimo-1.1</source-repository>
+                            <source-repository>http://repo1.maven.org/maven2/</source-repository>
+                        </plugin-artifact>
+                    </commonInstance>
                 </configuration>
             </plugin>
         </plugins>

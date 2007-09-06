@@ -24,6 +24,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.Reader;
 import java.io.Writer;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
@@ -62,6 +63,7 @@ import javax.xml.parsers.SAXParserFactory;
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
+import javax.xml.transform.sax.SAXSource;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -106,8 +108,11 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.Attributes;
+import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
+import org.xml.sax.XMLReader;
 import org.xml.sax.helpers.DefaultHandler;
+import org.xml.sax.helpers.XMLFilterImpl;
 
 /**
  * A GBean that knows how to download configurations from a Maven repository.
@@ -117,14 +122,16 @@ import org.xml.sax.helpers.DefaultHandler;
 public class PluginInstallerGBean implements PluginInstaller {
     private final static Log log = LogFactory.getLog(PluginInstallerGBean.class);
 
-    private static final XMLInputFactory XMLINPUT_FACTORY = XMLInputFactory.newInstance();
+    public static final XMLInputFactory XMLINPUT_FACTORY = XMLInputFactory.newInstance();
     private static final JAXBContext PLUGIN_CONTEXT;
     private static final JAXBContext PLUGIN_LIST_CONTEXT;
+    private static final JAXBContext PLUGIN_ARTIFACT_CONTEXT;
 
     static {
         try {
             PLUGIN_CONTEXT = JAXBContext.newInstance(PluginType.class);
             PLUGIN_LIST_CONTEXT = JAXBContext.newInstance(PluginListType.class);
+            PLUGIN_ARTIFACT_CONTEXT = JAXBContext.newInstance(PluginArtifactType.class);
         } catch (JAXBException e) {
             throw new RuntimeException("Could not create jaxb contexts for plugin types");
         }
@@ -1435,6 +1442,63 @@ public class PluginInstallerGBean implements PluginInstaller {
         return plugin;
     }
 
+    public static PluginArtifactType loadPluginArtifactMetadata(Reader in) throws SAXException, MalformedURLException, JAXBException, XMLStreamException, ParserConfigurationException {
+        InputSource inputSource = new InputSource(in);
+
+        SAXParserFactory factory = SAXParserFactory.newInstance();
+        factory.setNamespaceAware(true);
+        factory.setValidating(false);
+        SAXParser parser = factory.newSAXParser();
+
+        Unmarshaller unmarshaller = PLUGIN_ARTIFACT_CONTEXT.createUnmarshaller();
+//        unmarshaller.setEventHandler(new ValidationEventHandler(){
+//            public boolean handleEvent(ValidationEvent validationEvent) {
+//                System.out.println(validationEvent);
+//                return false;
+//            }
+//        });
+
+
+        NamespaceFilter xmlFilter = new NamespaceFilter(parser.getXMLReader());
+        xmlFilter.setContentHandler(unmarshaller.getUnmarshallerHandler());
+
+        SAXSource source = new SAXSource(xmlFilter, inputSource);
+//        XMLStreamReader xmlStream = XMLINPUT_FACTORY.createXMLStreamReader(in);
+        JAXBElement<PluginArtifactType> element = unmarshaller.unmarshal(source, PluginArtifactType.class);
+        PluginArtifactType plugin = element.getValue();
+        return plugin;
+    }
+
+    public static class NamespaceFilter extends XMLFilterImpl {
+        private static String PLUGIN_NS = "http://geronimo.apache.org/xml/ns/plugins-1.2";
+        private static String GBEAN_NS = "http://geronimo.apache.org/xml/ns/attributes-1.2";
+
+        private String namespace;
+
+        public NamespaceFilter(XMLReader xmlReader) {
+            super(xmlReader);
+        }
+
+        @Override
+        public void startElement(String uri, String localName, String qname, Attributes atts) throws SAXException {
+            if ("plugin-artifact".equals(localName)) {
+                namespace = PLUGIN_NS;
+            } else if ("gbean".equals(localName)) {
+                namespace = GBEAN_NS;
+            }
+            super.startElement(namespace, localName, qname, atts);
+        }
+
+        @Override
+        public void endElement(String uri, String localName, String qName) throws SAXException {
+            super.endElement(namespace, localName, qName);
+            if ("plugin-artifact".equals(localName)) {
+                namespace = null;
+            } else if ("gbean".equals(localName)) {
+                namespace = PLUGIN_NS;
+            }
+        }
+    }
     /**
      * Loads the list of all available plugins from the specified stream
      * (representing geronimo-plugins.xml at the specified repository).

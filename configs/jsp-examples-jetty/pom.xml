@@ -33,19 +33,19 @@
     <name>Geronimo Configs :: JSP Examples Jetty</name>
     <packaging>car</packaging>
     <description>
-        The JSP examples originally developed for Tomcat.  Can be found
-        via HTTP at /jsp-examples/ after installation.  These examples give
+        The JSP examples originally developed for Tomcat. Can be found
+        via HTTP at /jsp-examples/ after installation. These examples give
         a basic introduction to JSP development along with sample code.
     </description>
 
     <dependencies>
-        
+
         <!--<dependency>-->
-            <!--<groupId>org.apache.geronimo.configs</groupId>-->
-            <!--<artifactId>jetty-deployer</artifactId>-->
-            <!--<version>${version}</version>-->
-            <!--<type>car</type>-->
-            <!--<scope>test</scope>-->
+        <!--<groupId>org.apache.geronimo.configs</groupId>-->
+        <!--<artifactId>jetty-deployer</artifactId>-->
+        <!--<version>${version}</version>-->
+        <!--<type>car</type>-->
+        <!--<scope>test</scope>-->
         <!--</dependency>-->
 
         <dependency>
@@ -54,7 +54,7 @@
             <version>${version}</version>
             <type>war</type>
         </dependency>
-        
+
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
             <artifactId>jetty6-deployer</artifactId>
@@ -76,7 +76,7 @@
             <type>car</type>
         </dependency>
     </dependencies>
-    
+
     <build>
         <resources>
             <resource>
@@ -84,7 +84,7 @@
                 <filtering>true</filtering>
             </resource>
         </resources>
-        
+
         <plugins>
             <plugin>
                 <groupId>org.apache.geronimo.plugins</groupId>
@@ -102,7 +102,7 @@
                         <version>${version}</version>
                         <type>war</type>
                     </module>
-                    
+
                     <category>Example</category>
                     <dependencies>
                         <dependency>
@@ -111,27 +111,29 @@
                             <type>car</type>
                         </dependency>
                     </dependencies>
-                    <prerequisites>
-                        <prerequisite>
-                            <id>
-                                <groupId>org.apache.geronimo.configs</groupId>
-                                <artifactId>jetty6</artifactId>
-                            </id>
-                            <resource-type>Web Container</resource-type>
-                            <description>The Jetty web container</description>
-                        </prerequisite>
-                        <prerequisite>
-                            <id>
-                                <groupId>org.apache.geronimo.configs</groupId>
-                                <artifactId>jasper</artifactId>
-                            </id>
-                            <resource-type>Web Container</resource-type>
-                            <description>The Jasper subsystem</description>
-                        </prerequisite>
-                    </prerequisites>
+                    <instance>
+                        <plugin-artifact>
+                            <prerequisite>
+                                <id>
+                                    <groupId>org.apache.geronimo.configs</groupId>
+                                    <artifactId>jetty6</artifactId>
+                                </id>
+                                <resource-type>Web Container</resource-type>
+                                <description>The Jetty web container</description>
+                            </prerequisite>
+                            <prerequisite>
+                                <id>
+                                    <groupId>org.apache.geronimo.configs</groupId>
+                                    <artifactId>jasper</artifactId>
+                                </id>
+                                <resource-type>Web Container</resource-type>
+                                <description>The Jasper subsystem</description>
+                            </prerequisite>
+                        </plugin-artifact>
+                    </instance>
                 </configuration>
             </plugin>
         </plugins>
     </build>
-    
+
 </project>

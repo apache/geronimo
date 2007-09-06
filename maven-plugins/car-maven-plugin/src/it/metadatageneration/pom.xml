@@ -110,14 +110,14 @@
                 <configuration>
                     <category>Test</category>
                     <osiApproved>true</osiApproved>
-                        <geronimoVersion>2.0.1</geronimoVersion>
-                        <geronimoVersion>2.1-SNAPSHOT</geronimoVersion>
-<!--
-                    <geronimoVersions>
-                        <value>2.0.1</value>
-                        <value>2.1-SNAPSHOT</value>
-                    </geronimoVersions>
--->
+                    <geronimoVersion>2.0.1</geronimoVersion>
+                    <geronimoVersion>2.1-SNAPSHOT</geronimoVersion>
+                    <!--
+                                        <geronimoVersions>
+                                            <value>2.0.1</value>
+                                            <value>2.1-SNAPSHOT</value>
+                                        </geronimoVersions>
+                    -->
                     <jvmVersions>
                         <value>1.5</value>
                         <value>1.5.2</value>
@@ -185,6 +185,30 @@
                     <artifactAliases>
                         org.apache.geronimo.test/foo//car=org.apache.geronimo.test/bar/1.0/car
                     </artifactAliases>
+                    <instance>
+                        <plugin-artifact xmlns="http://geronimo.apache.org/xml/ns/plugins-1.2" xmlns:ns2="http://geronimo.apache.org/xml/ns/attributes-1.2">
+                            <jvm-version>1.5</jvm-version>
+                            <jvm-version>1.5.2</jvm-version>
+                            <prerequisite>
+                                <id>
+                                    <groupId>commons-logging</groupId>
+                                    <artifactId>commons-logging</artifactId>
+                                </id>
+                                <resource-type>joke</resource-type>
+                                <description>this is an explanation</description>
+                            </prerequisite>
+                            <obsoletes>
+                                <groupId>commons-logging</groupId>
+                                <artifactId>commons-logging</artifactId>
+                            </obsoletes>
+                            <source-repository>http://foo.com</source-repository>
+                            <source-repository>http://bar.com</source-repository>
+                            <copy-file relative-to="WEB-INF" dest-dir="bar">META-INF/foo.xml</copy-file>
+                            <artifact-alias key="org.apache.geronimo.test/foo//car">org.apache.geronimo.test/bar/1.0/car</artifact-alias>
+                            <config-substitution key="key2">value2</config-substitution>
+                            <config-substitution key="key1">value1</config-substitution>
+                        </plugin-artifact>
+                    </instance>
                 </configuration>
             </plugin>
         </plugins>
