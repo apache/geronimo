@@ -70,7 +70,6 @@ import org.apache.geronimo.corba.CorbaApplicationServer;
 import org.apache.openejb.ProxyInfo;
 import org.apache.openejb.spi.ApplicationServer;
 import org.apache.openejb.core.ServerFederation;
-import org.apache.openejb.util.ObjectInputStreamExt;
 
 /**
  * Various utility functions.
