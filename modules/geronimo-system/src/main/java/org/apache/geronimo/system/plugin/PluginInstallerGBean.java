@@ -1434,7 +1434,7 @@ public class PluginInstallerGBean implements PluginInstaller {
     /**
      * Read a set of plugin metadata from a DOM document.
      */
-    static PluginType loadPluginMetadata(InputStream in) throws SAXException, MalformedURLException, JAXBException, XMLStreamException {
+    public static PluginType loadPluginMetadata(InputStream in) throws SAXException, MalformedURLException, JAXBException, XMLStreamException {
         XMLStreamReader xmlStream = XMLINPUT_FACTORY.createXMLStreamReader(in);
         Unmarshaller unmarshaller = PLUGIN_CONTEXT.createUnmarshaller();
         JAXBElement<PluginType> element = unmarshaller.unmarshal(xmlStream, PluginType.class);
