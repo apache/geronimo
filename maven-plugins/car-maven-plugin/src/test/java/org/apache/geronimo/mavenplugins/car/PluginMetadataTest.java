@@ -32,13 +32,8 @@ import org.apache.geronimo.system.plugin.model.PluginArtifactType;
  */
 public class PluginMetadataTest extends TestCase {
 
-    public void testAttributeEscape() throws Exception {
-        Attribute attr = new Attribute("foo", "#{bar}");
-        assertEquals("${bar}", attr.getValue());
-        assertEquals("${bar}", "#{bar}".replace("#{", "${"));
-    }
 
-    private static final String PROLOGUE = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n";
+//    private static final String PROLOGUE = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n";
     private static final String INSTANCE1="<plugin-artifact>\n" +
             " <jvm-version>1.5</jvm-version>\n" +
             " <jvm-version>1.5.2</jvm-version>\n" +
@@ -62,8 +57,9 @@ public class PluginMetadataTest extends TestCase {
             " <config-substitution key=\"key1\">value1</config-substitution>\n" +
             "</plugin-artifact>";
 
+    //TODO test #{ to ${ replacement
     public void testReadInstance() throws Exception {
-        PluginArtifactType instance = PluginInstallerGBean.loadPluginArtifactMetadata(new StringReader(PROLOGUE + INSTANCE1));
-//        assertEquals(2, instance.getConfigSubstitution().size());
+        PluginArtifactType instance = PluginInstallerGBean.loadPluginArtifactMetadata(new StringReader(INSTANCE1));
+        assertEquals(2, instance.getConfigSubstitution().size());
     }
 }

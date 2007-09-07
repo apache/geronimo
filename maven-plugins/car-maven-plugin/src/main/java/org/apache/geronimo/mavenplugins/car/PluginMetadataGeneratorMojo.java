@@ -122,10 +122,10 @@ public class PluginMetadataGeneratorMojo
         if (this.instance == null || this.instance.getChild("plugin-artifact") == null) {
             instance = new PluginArtifactType();
         } else {
-            instance = PluginInstallerGBean.loadPluginArtifactMetadata(new StringReader(this.instance.getChild("plugin-artifact").toString()));
+            instance = PluginInstallerGBean.loadPluginArtifactMetadata(new StringReader(this.instance.getChild("plugin-artifact").toString().replace("#{", "${")));
         }
         if (this.commonInstance != null && this.commonInstance.getChild("plugin-artifact") != null) {
-            PluginArtifactType commonInstance = PluginInstallerGBean.loadPluginArtifactMetadata(new StringReader(this.commonInstance.getChild("plugin-artifact").toString()));
+            PluginArtifactType commonInstance = PluginInstallerGBean.loadPluginArtifactMetadata(new StringReader(this.commonInstance.getChild("plugin-artifact").toString().replace("#{", "${")));
             //merge
             if (instance.getArtifactAlias().isEmpty()) {
                 instance.getArtifactAlias().addAll(commonInstance.getArtifactAlias());

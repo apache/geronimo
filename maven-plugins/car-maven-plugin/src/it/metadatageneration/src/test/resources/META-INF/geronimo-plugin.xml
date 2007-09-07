@@ -44,7 +44,7 @@
         <config-xml-content>
             <ns2:gbean>
                 <ns2:attribute name="repositoryList">http://geronimo.apache.org/plugins/plugin-repository-list-2.1.txt</ns2:attribute>
-                <ns2:attribute name="userRepositories">~/.m2/repository</ns2:attribute>
+                <ns2:attribute name="userRepositories">~/.m2/repository,${key1}</ns2:attribute>
             </ns2:gbean>
         </config-xml-content>
         <artifact-alias key="org.apache.geronimo.test/foo//car">org.apache.geronimo.test/bar/1.0/car</artifact-alias>
