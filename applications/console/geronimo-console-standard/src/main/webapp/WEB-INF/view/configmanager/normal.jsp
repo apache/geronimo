@@ -18,7 +18,6 @@
 <%@ taglib uri="http://java.sun.com/portlet" prefix="portlet"%>
 <portlet:defineObjects/>
 
-
 <script>
 // Check to see if a component is "safe" to stop within a running server.
 // Service components with names that begin with "org.apache.geronimo.configs/", for example,
@@ -26,29 +25,29 @@
 // that depend on them (like the console itself) from functioning properly.
 // If the component is not safe to stop then prompt to make sure that
 // the user really intends to stop the component prior to any action.
-function promptIfUnsafeToStop(configId,type) {
-    // if the component is a Geronimo service provide a stern warning
-    if ((type == 'SERVICE') && configId.indexOf("org.apache.geronimo.configs/") == 0) {
-            return confirm( configId + " is an Apache Geronimo service. " +
-                           "Stopping this component may prevent the server or the "+
-                           "administration console from functioning properly. " +
-                           "All dependent components and subsequent dependencies will also be stopped. " +
-                           "Reference the 'Child Components' list in the view for directly affected components. " +
-                           "Proceed with this action?");
+function promptIfUnsafeToStop(configId,expertConfig, type) {
+    // if the component is a Geronimo "expert" service then provide a stern warning
+    if ((type == 'SERVICE') && expertConfig) {
+        return confirm( configId + " is an Apache Geronimo service.\r\n \r\n" +
+                       "Stopping this component may prevent the server or the "+
+                       "administration console from functioning properly. " +
+                       "All dependent components and subsequent dependencies will also be stopped. " +
+                       "Reference the 'Child Components' list in the view for directly affected components.\r\n \r\n" +
+                       "Proceed with this action?");
     }
     // if the component is the web console provide an appropriate warning
     if (configId.indexOf("org.apache.geronimo.configs/webconsole-") == 0) {
-            return confirm( configId + " provides the administration console interface " +
-                           "that you are currently viewing.  Stopping it will cause the interface " +
-                           "to become unavailable and manual action will be required to restore the function. " +
-                           "Proceed with this action?");
+        return confirm( configId + " provides the administration console interface " +
+                       "that you are currently viewing.\r\n \r\n Stopping it will cause the interface " +
+                       "to become unavailable and manual action will be required to restore the function.\r\n \r\n" +
+                       "Proceed with this action?");
     }
-    // if the component is any other Geronimo provided component provide an appropriate warning
-    if (configId.indexOf("org.apache.geronimo.configs/") == 0) {
-            return confirm( configId + " is provided by Apache Geronimo and may be required by other " +
-                           "modules (reference the 'Child Components' listed in the view). " +
-                           "All dependent components and subsequent dependencies will also be stopped. " +
-                           "Proceed with this action?");
+    // if the component is any other Geronimo "expert" component provide an appropriate warning
+    if (expertConfig) {
+        return confirm( configId + " is provided by Apache Geronimo and may be required by other " +
+                       "modules (reference the 'Child Components' listed in the view).\r\n \r\n " +
+                       "All dependent components and subsequent dependencies will also be stopped. \r\n \r\n" +
+                       "Proceed with this action?");
     }
     // otherwise don't challenge the stop operation
     return true;
@@ -61,32 +60,32 @@ function promptIfUnsafeToStop(configId,type) {
 // that depend on them (like the console itself) from functioning properly.
 // If the component is not safe to stop then prompt to make sure that
 // the user really intends to stop the component prior to any action.
-function promptIfUnsafeToRestart(configId,type) {
-    // if the component is a Geronimo service provide a stern warning
-    if ((type == 'SERVICE') && configId.indexOf("org.apache.geronimo.configs/") == 0) {
-            return confirm( configId + " is an Apache Geronimo service. " +
-                           "Restarting this component may prevent the server or the "+
-                           "administration console from functioning properly. " +
-                           "As part of the stop action, all dependent components and subsequent dependencies will also be stopped. " +
-                           "Only this component will be restarted. " +
-                           "Reference the 'Child Components' list in the view for directly affected components. " +
-                           "Proceed with this action?");
+function promptIfUnsafeToRestart(configId,expertConfig, type) {
+    // if the component is a Geronimo "expert" service then provide a stern warning
+    if ((type == 'SERVICE') && expertConfig) {
+        return confirm( configId + " is an Apache Geronimo service.\r\n \r\n " +
+                       "Restarting this component may prevent the server or the "+
+                       "administration console from functioning properly. " +
+                       "As part of the stop action, all dependent components and subsequent dependencies will also be stopped. " +
+                       "Only this component will be restarted. " +
+                       "Reference the 'Child Components' list in the view for directly affected components.\r\n \r\n " +
+                       "Proceed with this action?");
     }
     // if the component is the web console provide an appropriate warning
     if (configId.indexOf("org.apache.geronimo.configs/webconsole-") == 0) {
-            return confirm( configId + " provides the administration console interface " +
-                           "that you are currently viewing.  Restarting it will cause the interface " +
-                           "to become unavailable and manual action may be necessary to restore the console function. " +
-                           "Proceed with this action?");
+        return confirm( configId + " provides the administration console interface " +
+                       "that you are currently viewing.\r\n \r\n  Restarting it will cause the interface " +
+                       "to become unavailable and manual action may be necessary to restore the console function.\r\n \r\n" +
+                       "Proceed with this action?");
     }
-    // if the component is any other Geronimo provided component provide an appropriate warning
-    if (configId.indexOf("org.apache.geronimo.configs/") == 0) {
-            return confirm( configId + " is provided by Apache Geronimo and may be required by other " +
-                           "modules (reference the 'Child Components' listed in the view). " +
-                           "As part of the stop action, all dependent components and subsequent dependencies will also be stopped. " +
-                           "Proceed with this action?");
+    // if the component is a Geronimo "expert" component then provide an appropriate warning
+    if (expertConfig) {
+        return confirm( configId + " is provided by Apache Geronimo and may be required by other " +
+                       "modules (reference the 'Child Components' listed in the view).\r\n \r\n " +
+                       "As part of the stop action, all dependent components and subsequent dependencies will also be stopped. \r\n \r\n" +
+                       "Proceed with this action?");
     }
-    // otherwise don't challenge the stop operation
+    // otherwise don't challenge the restart operation
     return true;
 }
 
@@ -97,36 +96,65 @@ function promptIfUnsafeToRestart(configId,type) {
 // dependencies of the web console or dependencies of other core server 
 // modules.  In such cases. it may leave the server in a state where it 
 // cannot be restarted.  These situations require more stringent warnings.
-function uninstallPrompt(configId,type) {
-    // if the component is a geronimo service always provide the most stern warning
-    if ((type == 'SERVICE') && configId.indexOf("org.apache.geronimo.configs/") == 0) {
-            return confirm( configId + " is an Apache Geronimo service. " +
-                           "Uninstalling this component may have unexpected results "+
-                           "such as rendering the administration web console or even the "+
-                           "server itself unstable.  Reference the 'Child Components' view " + 
-                           "for directly affected components. " +
-                           "Are you certain you wish to proceed with this uninstall?");
+function uninstallPrompt(configId,expertConfig, type) {
+    // if the component is a geronimo "expert" service always provide the most stern warning
+    if ((type == 'SERVICE') && expertConfig) {
+        return confirm( configId + " is an Apache Geronimo service.\r\n \r\n" +
+                       "Uninstalling this component may have unexpected results "+
+                       "such as rendering the administration web console or even the "+
+                       "server itself unstable.  Reference the 'Child Components' view " + 
+                       "for directly affected components. \r\n \r\n" +
+                       "Are you certain you wish to proceed with this uninstall?");
     }
-    // if the component is a the web console itself provide an appropriate warning
+    // if the component is a the web console itself then provide an appropriate warning
     if (configId.indexOf("org.apache.geronimo.configs/webconsole-") == 0) {
-            return confirm( configId + " provides the administration console user interface " +
-                           "that you are currently viewing.  Uninstalling it will cause the interface " +
-                           "to become unavailable and manual action will be required to restore the function. " +
-                           "Are you certain you wish to proceed with this uninstall?");
+        return confirm( configId + " provides the administration console user interface " +
+                       "that you are currently viewing.\r\n \r\n  Uninstalling it will cause the interface " +
+                       "to become unavailable and manual action will be required to restore the function.\r\n \r\n " +
+                       "Are you certain you wish to proceed with this uninstall?");
     }
-    // if the component is any other Apache Geronimo provided component than provide an appropriate warning
-    if (configId.indexOf("org.apache.geronimo.configs/") == 0) {
-            return confirm( configId + " is provided by Apache Geronimo and may be required by other " +
-                           "modules (reference the 'Child Components' listed in the view). " +
-                           "Are you certain you wish to proceed with this uninstall?");
+    // if the component is any other Apache Geronimo "expert" component then provide an appropriate warning
+    if (expertConfig) {
+        return confirm( configId + " is provided by Apache Geronimo and may be required by other " +
+                       "modules (reference the 'Child Components' listed in the view). \r\n \r\n" +
+                       "Are you certain you wish to proceed with this uninstall?");
     }
     // if the component is none of the above provide a standard warning
     return confirm("Are you certain you wish to uninstall " + configId + " ?");
+}
+
+
+
+// Toggle expert mode on and off with onClick
+function toggleExpertMode() {
+    if (document.checkExpert.expertUser.checked) {
+        var expertActions = document.getElementsByName('expert');
+        for( var i = 0; i < expertActions.length; ++i ) {
+            expertActions[i].style.display='block' ;
+        }
+        var nonexpertActions = document.getElementsByName('nonexpert');
+        for( var i = 0; i < nonexpertActions.length; ++i ) {
+            nonexpertActions[i].style.display='none' ;
+        }
+    }
+    else {
+        var expertActions = document.getElementsByName('expert');
+        for( var i = 0; i < expertActions.length; ++i ) {
+            expertActions[i].style.display='none' ;
+        }
+        var nonexpertActions = document.getElementsByName('nonexpert');
+        for( var i = 0; i < nonexpertActions.length; ++i ) {
+            nonexpertActions[i].style.display='block' ;
+        }
+    }
 }
 </script>
 
 
 <br />
+<form name="checkExpert">
+<input type="checkbox" name="expertUser" onClick="toggleExpertMode();"/>&nbsp;Expert User (enable all actions on Geronimo Provided Components)   
+</form>
 <br />
 <table width="100%">
     <tr class="DarkBackground">
@@ -139,36 +167,79 @@ function uninstallPrompt(configId,type) {
     </tr>
   <c:set var="backgroundClass" value='MediumBackground'/>
   <c:forEach var="moduleDetails" items="${configurations}">
-        <c:choose>
-            <c:when test="${backgroundClass == 'MediumBackground'}" >
-                <c:set var="backgroundClass" value='LightBackground'/>
-            </c:when>
-            <c:otherwise>
-                <c:set var="backgroundClass" value='MediumBackground'/>
-            </c:otherwise>
-        </c:choose>
+      <c:choose>
+          <c:when test="${backgroundClass == 'MediumBackground'}" >
+              <c:set var="backgroundClass" value='LightBackground'/>
+          </c:when>
+          <c:otherwise>
+              <c:set var="backgroundClass" value='MediumBackground'/>
+          </c:otherwise>
+      </c:choose>
     <tr>
-        <td class="${backgroundClass}">&nbsp;${moduleDetails.configId}</td>
+        <!-- module id -->
+        <td class="${backgroundClass}">&nbsp;${moduleDetails.configId}&nbsp;
+
+        <!-- context path -->
         <c:if test="${showWebInfo}">
             <td class="${backgroundClass}">&nbsp;<c:if test="${moduleDetails.state.running}"><a href="${moduleDetails.contextPath}">${moduleDetails.contextPath}</a></c:if></td>
         </c:if>
+
+        <!-- state -->
         <td width="100" class="${backgroundClass}">&nbsp;${moduleDetails.state}</td>
+
+        <!-- Start/Stop actions -->
         <td width="75" class="${backgroundClass}">
-            <c:if test="${moduleDetails.state.running}">&nbsp;<a href="<portlet:actionURL><portlet:param name="configId" value="${moduleDetails.configId}"/><portlet:param name="action" value="stop"/></portlet:actionURL>" onClick="return promptIfUnsafeToStop('${moduleDetails.configId}','${moduleDetails.type.name}');");">Stop</a></c:if>
-            <c:if test="${moduleDetails.state.stopped && (moduleDetails.type.name ne 'CAR')}">&nbsp;<a href="<portlet:actionURL><portlet:param name="configId" value="${moduleDetails.configId}"/><portlet:param name="action" value="start"/></portlet:actionURL>">Start</a></c:if>
-            <c:if test="${moduleDetails.state.failed}">&nbsp;<a href="<portlet:actionURL><portlet:param name="configId" value="${moduleDetails.configId}"/><portlet:param name="action" value="stop"/></portlet:actionURL>" onClick="return promptIfUnsafeToStop('${moduleDetails.configId}','${moduleDetails.type.name}');");">Stop</a></c:if>
+            <c:if test="${moduleDetails.state.running || moduleDetails.state.failed}">
+                <span <c:if test="${moduleDetails.expertConfig}"> name=expert </c:if>> 
+                    &nbsp;<a href="<portlet:actionURL><portlet:param name="configId" value="${moduleDetails.configId}"/><portlet:param name="action" value="stop"/></portlet:actionURL>" onClick="return promptIfUnsafeToStop('${moduleDetails.configId}','${moduleDetails.expertConfig}','${moduleDetails.type.name}');">Stop</a>
+                </span>
+            </c:if>
+            <c:if test="${moduleDetails.expertConfig && (moduleDetails.state.running || moduleDetails.state.failed)}">
+                <span name=nonexpert> 
+                    &nbsp;<a>Stop</a>
+                </span>
+            </c:if>
+            <c:if test="${moduleDetails.state.stopped && (moduleDetails.type.name ne 'CAR')}">
+                &nbsp;<a href="<portlet:actionURL><portlet:param name="configId" value="${moduleDetails.configId}"/><portlet:param name="action" value="start"/></portlet:actionURL>">Start</a>
+            </c:if>
         </td>
+
+        <!-- Restart action -->
         <td width="75" class="${backgroundClass}">
-            <c:if test="${moduleDetails.state.running}">&nbsp;<a href="<portlet:actionURL><portlet:param name="configId" value="${moduleDetails.configId}"/><portlet:param name="action" value="restart"/></portlet:actionURL>" onClick="return promptIfUnsafeToRestart('${moduleDetails.configId}','${moduleDetails.type.name}');");">Restart</a></c:if>
+            <c:if test="${moduleDetails.state.running}">
+                <span <c:if test="${moduleDetails.expertConfig}"> name=expert </c:if>> 
+                    &nbsp;<a href="<portlet:actionURL><portlet:param name="configId" value="${moduleDetails.configId}"/><portlet:param name="action" value="restart"/></portlet:actionURL>" onClick="return promptIfUnsafeToRestart('${moduleDetails.configId}','${moduleDetails.expertConfig}','${moduleDetails.type.name}');">Restart</a>
+                </span>
+            </c:if>
+            <c:if test="${moduleDetails.expertConfig && moduleDetails.state.running}">
+                <span name=nonexpert> 
+                    &nbsp;<a>Restart</a>
+                </span>
+            </c:if>
+            <!-- <c:if test="${moduleDetails.state.running}">&nbsp;<a <c:if test="${moduleDetails.expertConfig}"> name=expert </c:if>href="<portlet:actionURL><portlet:param name="configId" value="${moduleDetails.configId}"/><portlet:param name="action" value="restart"/></portlet:actionURL>" onClick="return promptIfUnsafeToRestart('${moduleDetails.configId}','${moduleDetails.expertConfig}','${moduleDetails.type.name}');">Restart</a></c:if> -->
+            <!-- <c:if test="${moduleDetails.expertConfig}">&nbsp;<a name=nonexpert /> Restart</a> </c:if>  -->
         </td>
+
+        <!-- Uninstall action -->
         <td width="75" class="${backgroundClass}">
-            <a href="<portlet:actionURL><portlet:param name="configId" value="${moduleDetails.configId}"/><portlet:param name="action" value="uninstall"/></portlet:actionURL>" onClick="return uninstallPrompt('${moduleDetails.configId}','${moduleDetails.type.name}');");">Uninstall</a>
+            <span <c:if test="${moduleDetails.expertConfig}"> name=expert </c:if>> 
+                &nbsp;<a href="<portlet:actionURL><portlet:param name="configId" value="${moduleDetails.configId}"/><portlet:param name="action" value="uninstall"/></portlet:actionURL>" onClick="return uninstallPrompt('${moduleDetails.configId}','${moduleDetails.expertConfig}','${moduleDetails.type.name}');">Uninstall</a>
+            </span>
+            <c:if test="${moduleDetails.expertConfig}">
+                <span name=nonexpert> 
+                    &nbsp;<a>Uninstall</a>
+                </span>
+            </c:if>
         </td>
+
+        <!-- Parents -->
         <td class="${backgroundClass}">
             <c:forEach var="parent" items="${moduleDetails.parents}">
                 ${parent} <br>
             </c:forEach>
         </td>
+
+        <!-- Children -->
         <td class="${backgroundClass}">
         <c:forEach var="child" items="${moduleDetails.children}">
             ${child} <br>
@@ -178,4 +249,11 @@ function uninstallPrompt(configId,type) {
   </c:forEach>
 </table>
 
+<br />
 <p>${messageInstalled} ${messageStatus}</p>
+
+
+<script>
+// Call to set initial expert mode actions correctly 
+toggleExpertMode();
+</script>

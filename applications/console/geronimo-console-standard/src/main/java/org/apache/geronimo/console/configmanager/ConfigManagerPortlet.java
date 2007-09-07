@@ -386,17 +386,19 @@ public class ConfigManagerPortlet extends BasePortlet {
         private String contextPath;     // only relevant for webapps
         private List parents = new ArrayList();
         private List children = new ArrayList();
+        private boolean expertConfig = false;   // used to mark this config as one that should only be managed (stop/uninstall) by expert users.
 
         public ModuleDetails(Artifact configId, ConfigurationModuleType type, State state) {
             this.configId = configId;
             this.type = type;
             this.state = state;
+            if (configId.toString().indexOf("org.apache.geronimo.configs/") == 0) {
+                this.expertConfig = true;
+            }
         }
 
         public ModuleDetails(Artifact configId, ConfigurationModuleType type, State state, List parents, List children) {
-            this.configId = configId;
-            this.type = type;
-            this.state = state;
+            this(configId, type, state);
             this.parents = parents;
             this.children = children;
         }
@@ -427,6 +429,10 @@ public class ConfigManagerPortlet extends BasePortlet {
 
         public ConfigurationModuleType getType() {
             return type;
+        }
+
+        public boolean getExpertConfig() {
+            return expertConfig;
         }
 
         public List getParents() {
