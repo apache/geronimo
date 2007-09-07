@@ -235,10 +235,8 @@ if $cygwin; then
   GERONIMO_HOME=`cygpath --absolute --windows "$GERONIMO_HOME"`
   GERONIMO_BASE=`cygpath --absolute --windows "$GERONIMO_BASE"`
   GERONIMO_TMPDIR=`cygpath --absolute --windows "$GERONIMO_TMPDIR"`
-  EXT_DIRS="$GERONIMO_BASE/lib/ext;$JRE_HOME/lib/ext"
   ENDORSED_DIRS="$GERONIMO_BASE/lib/endorsed;$JRE_HOME/lib/endorsed"
 else
-  EXT_DIRS="$GERONIMO_BASE/lib/ext:$JRE_HOME/lib/ext"
   ENDORSED_DIRS="$GERONIMO_BASE/lib/endorsed:$JRE_HOME/lib/endorsed"
 fi
 
@@ -304,7 +302,6 @@ if [ "$1" = "debug" ] ; then
     exec "$_RUNJDB" $JAVA_OPTS $GERONIMO_OPTS \
       -sourcepath "$JDB_SRCPATH" \
       -Djava.endorsed.dirs="$ENDORSED_DIRS" \
-      -Djava.ext.dirs="$EXT_DIRS" \
       -Dorg.apache.geronimo.base.dir="$GERONIMO_BASE" \
       -Djava.io.tmpdir="$GERONIMO_TMPDIR" \
       -classpath "$GERONIMO_HOME"/bin/server.jar \
@@ -317,7 +314,6 @@ elif [ "$1" = "run" ]; then
     $JAVA_AGENT_OPTS \
     -Dorg.apache.geronimo.base.dir="$GERONIMO_BASE" \
     -Djava.endorsed.dirs="$ENDORSED_DIRS" \
-    -Djava.ext.dirs="$EXT_DIRS" \
     -Djava.io.tmpdir="$GERONIMO_TMPDIR" \
     -jar "$GERONIMO_HOME"/bin/server.jar $LONG_OPT "$@"
 
@@ -328,7 +324,6 @@ elif [ "$1" = "start" ] ; then
     $JAVA_AGENT_OPTS \
     -Dorg.apache.geronimo.base.dir="$GERONIMO_BASE" \
     -Djava.endorsed.dirs="$ENDORSED_DIRS" \
-    -Djava.ext.dirs="$EXT_DIRS" \
     -Djava.io.tmpdir="$GERONIMO_TMPDIR" \
     -jar "$GERONIMO_HOME"/bin/server.jar $LONG_OPT "$@" \
     >> $GERONIMO_OUT 2>&1 &
@@ -351,7 +346,6 @@ elif [ "$1" = "stop" ] ; then
   "$_RUNJAVA" $JAVA_OPTS $GERONIMO_OPTS \
     -Dorg.apache.geronimo.base.dir="$GERONIMO_BASE" \
     -Djava.endorsed.dirs="$ENDORSED_DIRS" \
-    -Djava.ext.dirs="$EXT_DIRS" \
     -Djava.io.tmpdir="$GERONIMO_TMPDIR" \
     -jar "$GERONIMO_HOME"/bin/shutdown.jar "$@"
 
