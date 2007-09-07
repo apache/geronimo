@@ -33,6 +33,7 @@ import org.apache.geronimo.deployment.xbeans.ArtifactType;
 import org.apache.geronimo.deployment.xbeans.EnvironmentType;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.Environment;
+import org.apache.geronimo.kernel.repository.ImportType;
 import org.apache.velocity.Template;
 import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.Velocity;
@@ -47,14 +48,12 @@ import org.apache.xmlbeans.XmlOptions;
 
 /**
  * Add dependencies to a plan and process with velocity
- * 
- * @goal prepare-plan
  *
  * @version $Rev$ $Date$
+ * @goal prepare-plan
  */
 public class PlanProcessorMojo
-    extends AbstractCarMojo
-{
+        extends AbstractCarMojo {
     private static final String ENVIRONMENT_LOCAL_NAME = "environment";
 
     private static final QName ENVIRONMENT_QNAME = new QName("http://geronimo.apache.org/xml/ns/deployment-1.2", "environment");
@@ -88,6 +87,11 @@ public class PlanProcessorMojo
      */
     private List<Dependency> dependencies = Collections.emptyList();
 
+    /**
+     * @parameter
+     */
+    private UseMavenDependencies useMavenDependencies;
+
     private VelocityContext createContext() {
         VelocityContext context = new VelocityContext();
 
@@ -117,12 +121,12 @@ public class PlanProcessorMojo
         //
         //        Might be better of just hand rolling something...
         //
-        
+
         VelocityContext context = createContext();
 
         VelocityEngine velocity = new VelocityEngine();
         velocity.setProperty(Velocity.FILE_RESOURCE_LOADER_PATH, sourceDir.getAbsolutePath());
-        
+
         // Don't spit out any logs
         velocity.setProperty(Velocity.RUNTIME_LOG_LOGSYSTEM_CLASS, "org.apache.velocity.runtime.log.NullLogSystem");
         velocity.init();
@@ -140,20 +144,19 @@ public class PlanProcessorMojo
 
         try {
             mergeEnvironment(xmlCursor, configId, dependencies);
-            
+
             if (targetDir.exists()) {
                 if (!targetDir.isDirectory()) {
                     throw new RuntimeException("TargetDir: " + this.targetDir + " exists and is not a directory");
                 }
-            }
-            else {
+            } else {
                 targetDir.mkdirs();
             }
 
             XmlOptions xmlOptions = new XmlOptions();
             xmlOptions.setSavePrettyPrint();
             doc.save(targetFile, xmlOptions);
-            
+
             log.info("Generated: " + targetFile);
         }
         finally {
@@ -171,7 +174,7 @@ public class PlanProcessorMojo
         }
         QName childName = xmlCursor.getName();
         Environment oldEnvironment;
-        
+
         if (childName != null && childName.getLocalPart().equals(ENVIRONMENT_LOCAL_NAME)) {
             convertElement(xmlCursor, ENVIRONMENT_QNAME.getNamespaceURI());
             XmlObject xmlObject = xmlCursor.getObject();
@@ -203,11 +206,11 @@ public class PlanProcessorMojo
     private void moveToFirstStartElement(XmlCursor xmlCursor) throws AssertionError {
         xmlCursor.toStartDoc();
         xmlCursor.toFirstChild();
-        while (!xmlCursor.currentTokenType().isStart()) {            
+        while (!xmlCursor.currentTokenType().isStart()) {
             if (!xmlCursor.toNextSibling()) {
                 break;
             }
-        } 
+        }
         if (!xmlCursor.currentTokenType().isStart()) {
             throw new AssertionError("Cannot find first start element");
         }
@@ -241,13 +244,41 @@ public class PlanProcessorMojo
     private LinkedHashSet<org.apache.geronimo.kernel.repository.Dependency> toDependencies() {
         LinkedHashSet<org.apache.geronimo.kernel.repository.Dependency> dependencies = new LinkedHashSet<org.apache.geronimo.kernel.repository.Dependency>();
 
-        for (Dependency dependency : this.dependencies) {
-            org.apache.geronimo.kernel.repository.Dependency gdep = dependency.toDependency();
+        if (useMavenDependencies == null || !useMavenDependencies.isValue()) {
+            for (Dependency dependency : this.dependencies) {
+                org.apache.geronimo.kernel.repository.Dependency gdep = dependency.toDependency();
                 dependencies.add(gdep);
+            }
+        } else {
+            List<org.apache.maven.model.Dependency> includedDependencies = project.getOriginalModel().getDependencies();
+            List<org.apache.maven.model.Dependency> artifacts = project.getDependencies();
+            for (org.apache.maven.model.Dependency dependency : includedDependencies) {
+                dependency = resolveDependency(dependency, artifacts);
+                if (includeDependency(dependency)) {
+                    org.apache.geronimo.kernel.repository.Dependency gdep = toGeronimoDependency(dependency, useMavenDependencies.isIncludeVersion());
+                    dependencies.add(gdep);
+                }
+            }
         }
 
         return dependencies;
     }
+
+
+    private static org.apache.geronimo.kernel.repository.Dependency toGeronimoDependency(final org.apache.maven.model.Dependency dependency, boolean includeVersion) {
+        Artifact artifact = toGeronimoArtifact(dependency, includeVersion);
+        return new org.apache.geronimo.kernel.repository.Dependency(artifact, ImportType.ALL);
+    }
+
+    private static Artifact toGeronimoArtifact(final org.apache.maven.model.Dependency dependency, boolean includeVersion) {
+        String groupId = dependency.getGroupId();
+        String artifactId = dependency.getArtifactId();
+        String version = includeVersion ? dependency.getVersion() : null;
+        String type = dependency.getType();
+
+        return new Artifact(groupId, artifactId, version, type);
+    }
+
 
     interface Inserter {
         ArtifactType insert(EnvironmentType environmentType);

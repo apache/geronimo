@@ -27,6 +27,7 @@ import java.io.BufferedOutputStream;
 import java.util.Iterator;
 import java.util.Properties;
 import java.util.Map;
+import java.util.List;
 
 import org.codehaus.mojo.pluginsupport.MojoSupport;
 import org.codehaus.mojo.pluginsupport.util.ArtifactItem;
@@ -40,6 +41,7 @@ import org.apache.maven.project.MavenProject;
 import org.apache.maven.project.MavenProjectHelper;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.repository.ArtifactRepository;
+import org.apache.maven.model.*;
 
 /**
  * Support for <em>packaging</em> Mojos.
@@ -209,6 +211,36 @@ public abstract class AbstractCarMojo
         assert artifact != null;
 
         return "car".equals(artifact.getType());
+    }
+
+    protected boolean includeDependency(org.apache.maven.model.Dependency dependency) {
+        if (dependency.getGroupId().startsWith("org.apache.geronimo.genesis")) {
+            return false;
+        }
+        String scope = dependency.getScope();
+        return scope == null || "runtime".equalsIgnoreCase(scope) || "compile".equalsIgnoreCase(scope);
+    }
+
+    protected org.apache.maven.model.Dependency resolveDependency(org.apache.maven.model.Dependency dependency, List<org.apache.maven.model.Dependency> artifacts) {
+        for (org.apache.maven.model.Dependency match: artifacts) {
+            if (matches(dependency, match)) {
+                return match;
+            }
+        }
+        throw new IllegalStateException("Dependency " + dependency + " is not resolved in project");
+    }
+
+    private boolean matches(org.apache.maven.model.Dependency dependency, org.apache.maven.model.Dependency match) {
+        if (dependency.getGroupId() != null && !dependency.getGroupId().equals(match.getGroupId())) {
+            return false;
+        }
+        if (dependency.getArtifactId() != null && !dependency.getArtifactId().equals(match.getArtifactId())) {
+            return false;
+        }
+        if (dependency.getType() != null && !dependency.getType().equals(match.getType())) {
+            return false;
+        }
+        return true;
     }
 
     protected class ArtifactLookupImpl

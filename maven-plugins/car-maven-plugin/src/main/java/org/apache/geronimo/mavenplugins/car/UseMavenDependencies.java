@@ -18,12 +18,29 @@
  */
 
 
-def expected1 = new File(basedir, "src/test/resources/META-INF/geronimo-plugin.xml").text
-def found1 = new File(basedir, "target/resources/META-INF/geronimo-plugin.xml").text
+package org.apache.geronimo.mavenplugins.car;
 
-assert expected1 == found1
+/**
+ * @version $Rev:$ $Date:$
+ */
+public class UseMavenDependencies {
 
-def expected2 = new File(basedir, "src/test/resources/META-INF/plan.xml").text
-def found2 = new File(basedir, "target/resources/META-INF/plan.xml").text
+    /**
+     * @parameter
+     */
+    private boolean value = true;
 
-assert expected2 == found2
+    /**
+     * @parameter
+     */
+    private boolean includeVersion;
+
+
+    public boolean isValue() {
+        return value;
+    }
+
+    public boolean isIncludeVersion() {
+        return includeVersion;
+    }
+}

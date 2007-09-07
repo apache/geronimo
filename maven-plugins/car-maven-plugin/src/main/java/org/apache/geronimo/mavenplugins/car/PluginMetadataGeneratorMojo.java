@@ -28,6 +28,7 @@ import java.util.List;
 
 import org.apache.geronimo.system.plugin.PluginInstallerGBean;
 import org.apache.geronimo.system.plugin.model.ArtifactType;
+import org.apache.geronimo.system.plugin.model.DependencyType;
 import org.apache.geronimo.system.plugin.model.LicenseType;
 import org.apache.geronimo.system.plugin.model.PluginArtifactType;
 import org.apache.geronimo.system.plugin.model.PluginType;
@@ -86,6 +87,11 @@ public class PluginMetadataGeneratorMojo
      * @parameter
      */
     private List<Dependency> dependencies = Collections.emptyList();
+
+    /**
+     * @parameter
+     */
+    private UseMavenDependencies useMavenDependencies;
 
     /**
      * shared configuration from parent that we merge since maven is incompetent at it.
@@ -168,9 +174,7 @@ public class PluginMetadataGeneratorMojo
         artifactType.setVersion(project.getVersion());
         artifactType.setType(project.getArtifact().getType());
         instance.setModuleId(artifactType);
-        for (Dependency dependency : dependencies) {
-            instance.getDependency().add(dependency.toDependencyType());
-        }
+        addDependencies(instance);
         targetDir.mkdirs();
         FileOutputStream out = new FileOutputStream(targetFile);
         try {
@@ -181,4 +185,34 @@ public class PluginMetadataGeneratorMojo
         getProject().getResources().add(targetFile);
     }
 
+    private void addDependencies(PluginArtifactType instance) {
+        if (useMavenDependencies == null || !useMavenDependencies.isValue()) {
+            for (Dependency dependency : dependencies) {
+                instance.getDependency().add(dependency.toDependencyType());
+            }
+        } else {
+            List<org.apache.maven.model.Dependency> includedDependencies = project.getOriginalModel().getDependencies();
+            List<org.apache.maven.model.Dependency> artifacts = project.getDependencies();
+            for (org.apache.maven.model.Dependency dependency : includedDependencies) {
+                dependency = resolveDependency(dependency, artifacts);
+                if (includeDependency(dependency)) {
+                    DependencyType gdep = toGeronimoDependency(dependency, useMavenDependencies.isIncludeVersion());
+                    instance.getDependency().add(gdep);
+                }
+            }
+
+        }
+    }
+
+    private static DependencyType toGeronimoDependency(final org.apache.maven.model.Dependency dependency, boolean includeVersion) {
+        DependencyType dependencyType = new DependencyType();
+        dependencyType.setGroupId(dependency.getGroupId());
+        dependencyType.setArtifactId(dependency.getArtifactId());
+        if (includeVersion) {
+            dependencyType.setVersion(dependency.getVersion());
+        }
+        dependencyType.setType(dependency.getType());
+        dependencyType.setStart(true);
+        return dependencyType;
+    }
 }

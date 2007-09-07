@@ -18,12 +18,7 @@
  */
 
 
-def expected1 = new File(basedir, "src/test/resources/META-INF/geronimo-plugin.xml").text
-def found1 = new File(basedir, "target/resources/META-INF/geronimo-plugin.xml").text
+def expected = new File(basedir, "src/test/resources/META-INF/geronimo-plugin.xml").text
+def found = new File(basedir, "target/resources/META-INF/geronimo-plugin.xml").text
 
-assert expected1 == found1
-
-def expected2 = new File(basedir, "src/test/resources/META-INF/plan.xml").text
-def found2 = new File(basedir, "target/resources/META-INF/plan.xml").text
-
-assert expected2 == found2
+assert expected == found
