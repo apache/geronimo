@@ -99,6 +99,7 @@ import org.apache.geronimo.system.plugin.model.PluginListType;
 import org.apache.geronimo.system.plugin.model.PluginType;
 import org.apache.geronimo.system.plugin.model.PrerequisiteType;
 import org.apache.geronimo.system.plugin.model.PropertyType;
+import org.apache.geronimo.system.plugin.model.LicenseType;
 import org.apache.geronimo.system.resolver.AliasedArtifactResolver;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
 import org.apache.geronimo.system.threads.ThreadPool;
@@ -1503,7 +1504,7 @@ public class PluginInstallerGBean implements PluginInstaller {
      * Loads the list of all available plugins from the specified stream
      * (representing geronimo-plugins.xml at the specified repository).
      */
-    private static PluginListType loadPluginList(InputStream in) throws ParserConfigurationException, IOException, SAXException, JAXBException, XMLStreamException {
+    public static PluginListType loadPluginList(InputStream in) throws ParserConfigurationException, IOException, SAXException, JAXBException, XMLStreamException {
         Unmarshaller unmarshaller = PLUGIN_LIST_CONTEXT.createUnmarshaller();
         XMLStreamReader xmlStream = XMLINPUT_FACTORY.createXMLStreamReader(in);
         JAXBElement<PluginListType> element = unmarshaller.unmarshal(xmlStream, PluginListType.class);
@@ -1686,6 +1687,51 @@ public class PluginInstallerGBean implements PluginInstaller {
         return copy;
     }
 
+    public static PluginType toKey(PluginType metadata) {
+        PluginType copy = new PluginKey();
+        copy.setAuthor(metadata.getAuthor());
+        copy.setCategory(metadata.getCategory());
+        copy.setName(metadata.getName());
+        copy.setUrl(metadata.getUrl());
+        copy.getLicense().addAll(metadata.getLicense());
+        return copy;
+    }
+
+    private static class PluginKey extends PluginType {
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+
+            PluginKey that = (PluginKey) o;
+
+            if (author != null ? !author.equals(that.author) : that.author != null) return false;
+            if (category != null ? !category.equals(that.category) : that.category != null) return false;
+            if (name != null ? !name.equals(that.name) : that.name != null) return false;
+            if (url != null ? !url.equals(that.url) : that.url != null) return false;
+            if ((license == null) != (that.license == null)) return false;
+            if (license != null) {
+                if (license.size() != that.license.size()) return false;
+                int i = 0;
+                for (LicenseType licenseType: license) {
+                    LicenseType otherLicense = that.license.get(i++);
+                    if (licenseType.isOsiApproved() != otherLicense.isOsiApproved()) return false;
+                    if (licenseType.getValue() != null? !licenseType.getValue().equals(otherLicense.getValue()) : otherLicense.getValue() != null) return false;
+                }
+            }
+
+            return true;
+        }
+
+        public int hashCode() {
+            int result;
+            result = (name != null ? name.hashCode() : 0);
+            result = 31 * result + (category != null ? category.hashCode() : 0);
+            result = 31 * result + (url != null ? url.hashCode() : 0);
+            result = 31 * result + (author != null ? author.hashCode() : 0);
+            return result;
+        }
+    }
+
     public PluginListType createPluginListForRepositories(ConfigurationManager mgr, String repo) throws NoSuchStoreException {
         Map<PluginType, PluginType> pluginMap = new HashMap<PluginType, PluginType>();
         List<AbstractName> stores = mgr.listStores();
@@ -1694,7 +1740,7 @@ public class PluginInstallerGBean implements PluginInstaller {
             for (ConfigurationInfo info : configs) {
                 PluginType data = getPluginMetadata(info.getConfigID());
 
-                PluginType key = PluginInstallerGBean.copy(data, null);
+                PluginType key = PluginInstallerGBean.toKey(data);
                 PluginType existing = pluginMap.get(key);
                 if (existing == null) {
                     pluginMap.put(key, data);

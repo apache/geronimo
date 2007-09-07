@@ -45,7 +45,7 @@ import org.apache.geronimo.system.plugin.model.PluginType;
 import org.xml.sax.SAXException;
 
 /**
- * @version $Rev:$ $Date:$
+ * @version $Rev$ $Date$
  * @goal create-pluginlist
  */
 public class CreatePluginListMojo extends AbstractCarMojo {
@@ -72,7 +72,7 @@ public class CreatePluginListMojo extends AbstractCarMojo {
             PluginType data = getPluginMetadata(repository, configId);
 
             if (data != null) {
-                PluginType key = PluginInstallerGBean.copy(data, null);
+                PluginType key = PluginInstallerGBean.toKey(data);
                 PluginType existing = pluginMap.get(key);
                 if (existing == null) {
                     pluginMap.put(key, data);

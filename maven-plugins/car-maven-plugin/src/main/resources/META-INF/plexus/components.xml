@@ -40,7 +40,8 @@
                             org.apache.geronimo.plugins:car-maven-plugin:prepare-plan,
                             org.apache.geronimo.plugins:car-maven-plugin:prepare-metadata</compile>
                             <package>org.apache.geronimo.plugins:car-maven-plugin:package</package>
-                            <install>org.apache.maven.plugins:maven-install-plugin:install</install>
+                            <install>org.apache.maven.plugins:maven-install-plugin:install,
+                            org.apache.geronimo.plugins:car-maven-plugin:update-pluginlist</install>
                             <deploy>org.apache.maven.plugins:maven-deploy-plugin:deploy</deploy>
                         </phases>
                     </lifecycle>
