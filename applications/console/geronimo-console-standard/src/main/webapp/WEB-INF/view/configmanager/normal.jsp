@@ -27,7 +27,7 @@
 // the user really intends to stop the component prior to any action.
 function promptIfUnsafeToStop(configId,expertConfig, type) {
     // if the component is a Geronimo "expert" service then provide a stern warning
-    if ((type == 'SERVICE') && expertConfig) {
+    if ((type == 'SERVICE') && (expertConfig == 'true')) {
         return confirm( configId + " is an Apache Geronimo service.\r\n \r\n" +
                        "Stopping this component may prevent the server or the "+
                        "administration console from functioning properly. " +
@@ -43,7 +43,7 @@ function promptIfUnsafeToStop(configId,expertConfig, type) {
                        "Proceed with this action?");
     }
     // if the component is any other Geronimo "expert" component provide an appropriate warning
-    if (expertConfig) {
+    if (expertConfig == 'true') {
         return confirm( configId + " is provided by Apache Geronimo and may be required by other " +
                        "modules (reference the 'Child Components' listed in the view).\r\n \r\n " +
                        "All dependent components and subsequent dependencies will also be stopped. \r\n \r\n" +
@@ -62,7 +62,7 @@ function promptIfUnsafeToStop(configId,expertConfig, type) {
 // the user really intends to stop the component prior to any action.
 function promptIfUnsafeToRestart(configId,expertConfig, type) {
     // if the component is a Geronimo "expert" service then provide a stern warning
-    if ((type == 'SERVICE') && expertConfig) {
+    if ((type == 'SERVICE') && (expertConfig == 'true')) {
         return confirm( configId + " is an Apache Geronimo service.\r\n \r\n " +
                        "Restarting this component may prevent the server or the "+
                        "administration console from functioning properly. " +
@@ -79,7 +79,7 @@ function promptIfUnsafeToRestart(configId,expertConfig, type) {
                        "Proceed with this action?");
     }
     // if the component is a Geronimo "expert" component then provide an appropriate warning
-    if (expertConfig) {
+    if (expertConfig == 'true') {
         return confirm( configId + " is provided by Apache Geronimo and may be required by other " +
                        "modules (reference the 'Child Components' listed in the view).\r\n \r\n " +
                        "As part of the stop action, all dependent components and subsequent dependencies will also be stopped. \r\n \r\n" +
@@ -98,7 +98,7 @@ function promptIfUnsafeToRestart(configId,expertConfig, type) {
 // cannot be restarted.  These situations require more stringent warnings.
 function uninstallPrompt(configId,expertConfig, type) {
     // if the component is a geronimo "expert" service always provide the most stern warning
-    if ((type == 'SERVICE') && expertConfig) {
+    if ((type == 'SERVICE') && (expertConfig == 'true')) {
         return confirm( configId + " is an Apache Geronimo service.\r\n \r\n" +
                        "Uninstalling this component may have unexpected results "+
                        "such as rendering the administration web console or even the "+
@@ -114,7 +114,7 @@ function uninstallPrompt(configId,expertConfig, type) {
                        "Are you certain you wish to proceed with this uninstall?");
     }
     // if the component is any other Apache Geronimo "expert" component then provide an appropriate warning
-    if (expertConfig) {
+    if (expertConfig == 'true') {
         return confirm( configId + " is provided by Apache Geronimo and may be required by other " +
                        "modules (reference the 'Child Components' listed in the view). \r\n \r\n" +
                        "Are you certain you wish to proceed with this uninstall?");
@@ -123,30 +123,43 @@ function uninstallPrompt(configId,expertConfig, type) {
     return confirm("Are you certain you wish to uninstall " + configId + " ?");
 }
 
-
-
 // Toggle expert mode on and off with onClick
 function toggleExpertMode() {
     if (document.checkExpert.expertUser.checked) {
-        var expertActions = document.getElementsByName('expert');
+        var expertActions = getSpanElementsByName('expert');
         for( var i = 0; i < expertActions.length; ++i ) {
             expertActions[i].style.display='block' ;
         }
-        var nonexpertActions = document.getElementsByName('nonexpert');
+        var nonexpertActions = getSpanElementsByName('nonexpert');
         for( var i = 0; i < nonexpertActions.length; ++i ) {
             nonexpertActions[i].style.display='none' ;
         }
     }
     else {
-        var expertActions = document.getElementsByName('expert');
+        var expertActions = getSpanElementsByName('expert');
         for( var i = 0; i < expertActions.length; ++i ) {
             expertActions[i].style.display='none' ;
         }
-        var nonexpertActions = document.getElementsByName('nonexpert');
+        var nonexpertActions = getSpanElementsByName('nonexpert');
         for( var i = 0; i < nonexpertActions.length; ++i ) {
             nonexpertActions[i].style.display='block' ;
         }
     }
+}
+
+
+// work around since IE doesn't support document.getElementsByName
+function getSpanElementsByName(name) {
+    var results = new Array();
+    var spans = document.getElementsByTagName("span");
+    for(i = 0,j = 0; i < spans.length; i++) {
+        nameValue = spans[i].getAttribute("name");
+        if(nameValue == name) {
+          results[j] = spans[i];
+          j++;
+        }
+    }
+    return results;
 }
 </script>
 
