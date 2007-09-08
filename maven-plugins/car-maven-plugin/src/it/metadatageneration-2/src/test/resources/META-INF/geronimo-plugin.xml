@@ -2,7 +2,7 @@
 <geronimo-plugin xmlns="http://geronimo.apache.org/xml/ns/plugins-1.3" xmlns:ns2="http://geronimo.apache.org/xml/ns/attributes-1.2">
     <name>Geronimo Maven2 Plugins :: CAR</name>
     <category>Test</category>
-    <description>Apache Geronimo, the J2EE server project of the Apache Software Foundation.</description>
+    <description>Apache Geronimo, the JavaEE server project of the Apache Software Foundation.</description>
     <url>http://geronimo.apache.org/</url>
     <author>The Apache Geronimo development community</author>
     <license osi-approved="true">The Apache Software License, Version 2.0</license>
