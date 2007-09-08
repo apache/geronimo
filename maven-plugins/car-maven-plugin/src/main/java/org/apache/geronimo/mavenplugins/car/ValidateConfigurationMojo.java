@@ -26,6 +26,8 @@ import java.util.Collections;
 
 
 /**
+ * Check that all dependencies mentioned explicitly in the car-maven-plugin configuration are present as maven dependencies.
+ *
  * @goal validate-configuration
 
  * @version $Rev$ $Date$
@@ -33,6 +35,8 @@ import java.util.Collections;
 public class ValidateConfigurationMojo extends AbstractCarMojo {
 
     /**
+     * Dependencies explicitly listed in the car-maven-plugin configuration
+     *
      * @parameter
      */
     private List<Dependency> dependencies = Collections.emptyList();

@@ -36,12 +36,16 @@ import org.apache.geronimo.system.plugin.model.PluginType;
 import org.apache.geronimo.system.plugin.model.PluginArtifactType;
 
 /**
+ * Maintain the geronimo-plugins.xml catalog in the local maven repository by merging in the geronimo-plugin.xml from the current project.
+ *
  * @version $Rev$ $Date$
  * @goal update-pluginlist
  */
 public class UpdatePluginListMojo extends AbstractCarMojo {
 
     /**
+     * Location of the (just generated) plugin metadata file to merge into the geronimo-plugins.xml catalog in the local maven repository.
+     *
      * @parameter expression="${project.build.directory}/resources/META-INF/geronimo-plugin.xml"
      * @required
      */

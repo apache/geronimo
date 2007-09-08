@@ -79,6 +79,8 @@ public abstract class AbstractCarMojo
     protected MavenProjectHelper projectHelper;
     
     /**
+     * dependency resolution for the maven repository
+     *
      * @component
      */
     protected DependencyHelper dependencyHelper = null;

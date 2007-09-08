@@ -36,7 +36,7 @@ import org.apache.maven.model.License;
 import org.codehaus.plexus.configuration.PlexusConfiguration;
 
 /**
- * Add dependencies to a plan and process with velocity
+ * Generate a geronimo-plugin.xml file based on configuration in the pom and car-maven-plugin configuration.
  *
  * @version $Rev$ $Date$
  * @goal prepare-metadata
@@ -46,62 +46,70 @@ public class PluginMetadataGeneratorMojo
 
 
     /**
+     * Directory for generated plugin metadata file.
+     *
      * @parameter expression="${project.build.directory}/resources/META-INF"
      * @required
      */
     protected File targetDir = null;
 
     /**
+     * Name of generated plugin metadata file.
+     *
      * @parameter default-value="geronimo-plugin.xml"
      * @required
      */
     protected String pluginMetadataFileName = null;
 
     /**
+     * Full path of generated plugin metadata file.
+     *
      * @parameter expression="${project.build.directory}/resources/META-INF/geronimo-plugin.xml"
      * @required
      */
     protected File targetFile = null;
 
     /**
+     * Whether licenses (copied from maven licence elements) are OSI approved.
+     *
      * @parameter default-value="false"
      */
     private boolean osiApproved;
 
     /**
-     * @parameter
-     */
-    private List<String> geronimoVersions = Collections.emptyList();
-
-    /**
-     * @parameter
-     */
-    private List<String> jvmVersions = Collections.emptyList();
-
-    /**
+     * Category of the geronimo plugin.
+     *
      * @parameter
      */
     private String category;
 
     /**
+     * Dependencies explicitly listed in the car-maven-plugin configuration
+     *
      * @parameter
      */
     private List<Dependency> dependencies = Collections.emptyList();
 
     /**
+     * Configuration of use of maven dependencies.  If missing or if value element is false, use the explicit list in the car-maven-plugin configuration.
+     * If present and true, use the maven dependencies in the current pom file of scope null, runtime, or compile.  In addition, the version of the maven
+     * dependency can be included or not depending on the includeVersion element.
+     *
      * @parameter
      */
     private UseMavenDependencies useMavenDependencies;
 
     /**
-     * shared configuration from parent that we merge since maven is incompetent at it.
+     * Shared configuration from parent that we merge since maven is incompetent at it.  This is a plugin-artifactType element without moduleId or dependencies.
+     * Do not attempt to include more than one of these in the parent poms since maven will not merge them correctly.
      *
      * @parameter
      */
     private PlexusConfiguration commonInstance;
 
     /**
-     * configuration for this instance itself
+     * Configuration for this instance itself.  This is a plugin-artifactType element without moduleId or dependencies. Do not include more than one of these in the parent poms
+     * since maven will not merge them correctly.
      *
      * @parameter
      */

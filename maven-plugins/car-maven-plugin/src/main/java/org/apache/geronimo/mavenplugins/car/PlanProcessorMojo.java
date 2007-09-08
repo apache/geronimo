@@ -47,7 +47,7 @@ import org.apache.xmlbeans.XmlOptions;
 //
 
 /**
- * Add dependencies to a plan and process with velocity
+ * Add module id and dependencies to a plan and process with velocity
  *
  * @version $Rev$ $Date$
  * @goal prepare-plan
@@ -59,35 +59,49 @@ public class PlanProcessorMojo
     private static final QName ENVIRONMENT_QNAME = new QName("http://geronimo.apache.org/xml/ns/deployment-1.2", "environment");
 
     /**
+     * Location of unproccesed plan, normally missing moduleId and dependencies.
+     *
      * @parameter expression="${basedir}/src/main/plan"
      * @required
      */
     protected File sourceDir = null;
 
     /**
+     * Directory to put the processed plan in.
+     *
      * @parameter expression="${project.build.directory}/resources/META-INF"
      * @required
      */
     protected File targetDir = null;
 
     /**
+     * Name of the unprocessed source and processed target plan file.
+     *
      * @parameter default-value="plan.xml"
      * @required
      */
     protected String planFileName = null;
 
     /**
+     * XXX
+     *
      * @parameter expression="${project.build.directory}/resources/META-INF/plan.xml"
      * @required
      */
     protected File targetFile = null;
 
     /**
+     * Dependencies explicitly listed in the car-maven-plugin configuration
+     *
      * @parameter
      */
     private List<Dependency> dependencies = Collections.emptyList();
 
     /**
+     * Configuration of use of maven dependencies.  If missing or if value element is false, use the explicit list in the car-maven-plugin configuration.
+     * If present and true, use the maven dependencies in the current pom file of scope null, runtime, or compile.  In addition, the version of the maven
+     * dependency can be included or not depending on the includeVersion element.
+     *
      * @parameter
      */
     private UseMavenDependencies useMavenDependencies;

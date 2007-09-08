@@ -32,6 +32,7 @@
             <item name="Overview" href="index.html"/>
             <item name="Usage" href="usage.html"/>
             <item name="Configuration" href="plugin-info.html"/>
+            <item name="FAQ" href="faq.html"/>
         </menu>
         
         ${reports}

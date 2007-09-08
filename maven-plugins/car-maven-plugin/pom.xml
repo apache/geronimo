@@ -34,7 +34,15 @@
     <artifactId>car-maven-plugin</artifactId>
     <name>Geronimo Maven2 Plugins :: CAR</name>
     <packaging>maven-plugin</packaging>
+
+    <description>The car-maven-plugin handles all aspects of "predeploying" a module into a Geronimo car file and installing car files into a Geronimo server.
+    As part of this it processes plan files to include the module Id and dependencies, and generates geronimo-plugin.xml metadata files and
+    manages a geronimo-plugins.xml catalog in the local maven repository.</description>
     
+    <prerequisites>
+        <maven>2.0.5</maven>
+    </prerequisites>
+
     <dependencies>
         <dependency>
             <groupId>javax.xml.bind</groupId>

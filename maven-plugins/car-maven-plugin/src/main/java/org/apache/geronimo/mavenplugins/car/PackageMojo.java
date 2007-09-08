@@ -232,9 +232,12 @@ public class PackageMojo
     private boolean bootstrap = false;
 
     /**
+     * Location of resources directory for additional content to include in the car.
+     *
      * @parameter expression="${project.build.directory}/resources"
      */
     private File resourcesDir;
+
     /**
      * Holds a local repo lookup instance so that we can use the current project to resolve.
      * This is required since the Kernel used to deploy is cached.

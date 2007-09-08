@@ -45,6 +45,11 @@ import org.apache.geronimo.system.plugin.model.PluginType;
 import org.xml.sax.SAXException;
 
 /**
+ * Creates or replaces a geronimo-plugins.xml catalog of geronimo plugins in the local maven repository.  Although geronimo-plugins.xml is
+ * maintained automatically when you build geronimo plugins locally, this is useful if you have downloaded plugins from elsewhere or
+ * corrupted the geronimo-plugins.xml file.  This must be run explcitly using the command line
+ * mvn org.apache.geronimo.plugins:car-maven-plugin:create-pluginlist
+ *
  * @version $Rev$ $Date$
  * @goal create-pluginlist
  */
