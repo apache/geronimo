@@ -87,6 +87,9 @@ public class CommandListConfigurations extends AbstractCommand {
                 List<PluginType> available = new ArrayList<PluginType>();
                 for (Map.Entry<String, List<PluginType>> entry : categories.entrySet()) {
                     String category = entry.getKey();
+                    if (category == null) {
+                        category = "<no category>";
+                    }
                     List<PluginType> items = entry.getValue();
                     out.println();
                     out.print(DeployUtils.reformat(category, 4, 72));
