@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<geronimo-plugin xmlns="http://geronimo.apache.org/xml/ns/plugins-1.2" xmlns:ns2="http://geronimo.apache.org/xml/ns/attributes-1.2">
+<geronimo-plugin xmlns="http://geronimo.apache.org/xml/ns/plugins-1.3" xmlns:ns2="http://geronimo.apache.org/xml/ns/attributes-1.2">
     <name>Geronimo Configs :: J2EE System</name>
     <category>Geronimo Core</category>
     <description>Apache Geronimo, the J2EE server project of the Apache Software Foundation.</description>

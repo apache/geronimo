@@ -1471,7 +1471,7 @@ public class PluginInstallerGBean implements PluginInstaller {
     }
 
     public static class NamespaceFilter extends XMLFilterImpl {
-        private static String PLUGIN_NS = "http://geronimo.apache.org/xml/ns/plugins-1.2";
+        private static String PLUGIN_NS = "http://geronimo.apache.org/xml/ns/plugins-1.3";
         private static String GBEAN_NS = "http://geronimo.apache.org/xml/ns/attributes-1.2";
 
         private String namespace;

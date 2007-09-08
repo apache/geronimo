@@ -16,8 +16,8 @@
     limitations under the License.
 -->
 
-<xs:schema targetNamespace="http://geronimo.apache.org/xml/ns/plugins-1.2"
-    xmlns:list="http://geronimo.apache.org/xml/ns/plugins-1.2"
+<xs:schema targetNamespace="http://geronimo.apache.org/xml/ns/plugins-1.3"
+    xmlns:list="http://geronimo.apache.org/xml/ns/plugins-1.3"
     xmlns:atts="http://geronimo.apache.org/xml/ns/attributes-1.2"
         xmlns:jaxb="http://java.sun.com/xml/ns/jaxb"
         xmlns:xjc="http://java.sun.com/xml/ns/jaxb/xjc"

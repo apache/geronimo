@@ -51,9 +51,9 @@ Basic Usage
 </project>
 +----------+
 
-* Define Dependency as Extention
+* Define Dependency as Extension
 
- Install as extention to allow 'car' packaging to be used.
+ Install as extension to allow 'car' packaging to be used.  Normally you do this in pluginManagement of a parent pom.
 
 +----------+
 <project>

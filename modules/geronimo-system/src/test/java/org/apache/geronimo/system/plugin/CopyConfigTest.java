@@ -36,7 +36,7 @@ import org.apache.geronimo.system.configuration.condition.JexlExpressionParser;
 public class CopyConfigTest extends TestCase {
 
     private final static String CONFIG = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n" +
-            "<geronimo-plugin xmlns=\"http://geronimo.apache.org/xml/ns/plugins-1.2\" xmlns:ns2=\"http://geronimo.apache.org/xml/ns/attributes-1.2\">\n" +
+            "<geronimo-plugin xmlns=\"http://geronimo.apache.org/xml/ns/plugins-1.3\" xmlns:ns2=\"http://geronimo.apache.org/xml/ns/attributes-1.2\">\n" +
             "    <name>Geronimo Configs :: J2EE Deployer</name>\n" +
             "    <description>Apache Geronimo, the J2EE server project of the Apache Software Foundation.</description>\n" +
             "    <url>http://geronimo.apache.org/</url>\n" +

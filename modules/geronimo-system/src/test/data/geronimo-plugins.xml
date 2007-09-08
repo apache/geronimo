@@ -16,7 +16,7 @@
    limitations under the License.
 -->
 
-<geronimo-plugin-list xmlns="http://geronimo.apache.org/xml/ns/plugins-1.2">
+<geronimo-plugin-list xmlns="http://geronimo.apache.org/xml/ns/plugins-1.3">
     <plugin>
         <name>DayTrader Performance Testing App (Jetty/Derby)</name>
         <category>Examples</category>

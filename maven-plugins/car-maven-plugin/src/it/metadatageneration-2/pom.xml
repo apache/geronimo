@@ -76,7 +76,7 @@
                         <includeVersion>true</includeVersion>
                     </useMavenDependencies>
                     <instance>
-                        <plugin-artifact xmlns="http://geronimo.apache.org/xml/ns/plugins-1.2" xmlns:ns2="http://geronimo.apache.org/xml/ns/attributes-1.2">
+                        <plugin-artifact xmlns="http://geronimo.apache.org/xml/ns/plugins-1.3" xmlns:ns2="http://geronimo.apache.org/xml/ns/attributes-1.2">
                             <jvm-version>1.5</jvm-version>
                             <jvm-version>1.5.2</jvm-version>
                             <prerequisite>
