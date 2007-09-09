@@ -33,6 +33,8 @@
     <name>Geronimo Configs :: JavaEE Specs</name>
     <packaging>car</packaging>
 
+    <description>The JavaEE spec jars in a single classloader.</description>
+
     <dependencies>
         <!-- geronimo-javaee-deployment_1.1MR3_spec is intentionally missing, it must be available earlier in the classpath
         Hopefully we can eliminate this restriction in the future. -->
@@ -186,6 +188,11 @@
                         <deploymentConfig>${gbeanDeployerBootstrap}</deploymentConfig>
                     </deploymentConfigs>
                     <deployerName>org.apache.geronimo.configs/geronimo-gbean-deployer-bootstrap/${geronimoVersion}/car?j2eeType=Deployer,name=Deployer</deployerName>
+                    <useMavenDependencies>
+                        <value>true</value>
+                        <includeVersion>true</includeVersion>
+                    </useMavenDependencies>
+                    <category>JavaEE</category>
                 </configuration>
             </plugin>
         </plugins>

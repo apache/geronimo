@@ -33,6 +33,8 @@
     <name>Geronimo Configs :: Jasper</name>
     <packaging>car</packaging>
 
+    <description>Geronimo Jasper jsp integration including injection support.</description>
+
     <dependencies>
 
         <dependency>
@@ -87,42 +89,22 @@
             <artifactId>juli</artifactId>
         </dependency>
 
-        <!-- start myfaces dependencies -->
-
-        <!--<dependency>-->
-            <!--<groupId>org.apache.myfaces.core</groupId>-->
-            <!--<artifactId>myfaces-impl</artifactId>-->
-        <!--</dependency>-->
-
-<!--
-        <dependency>
-            <groupId>commons-collections</groupId>
-            <artifactId>commons-collections</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>commons-digester</groupId>
-            <artifactId>commons-digester</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>commons-beanutils</groupId>
-            <artifactId>commons-beanutils</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>commons-codec</groupId>
-            <artifactId>commons-codec</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>commons-discovery</groupId>
-            <artifactId>commons-discovery</artifactId>
-        </dependency>
-
--->
-        <!-- end myfaces dependencies -->
-
     </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.geronimo.plugins</groupId>
+                <artifactId>car-maven-plugin</artifactId>
+                <configuration>
+                    <useMavenDependencies>
+                        <value>true</value>
+                        <includeVersion>true</includeVersion>
+                    </useMavenDependencies>
+                    <category>Web Framework</category>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 
 </project>

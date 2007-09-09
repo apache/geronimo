@@ -32,6 +32,8 @@
     <artifactId>javamail</artifactId>
     <name>Geronimo Configs :: JavaMail</name>
     <packaging>car</packaging>
+
+    <description>Geronimo JavaMail support</description>
     
     <dependencies>
         
@@ -55,4 +57,32 @@
         
     </dependencies>
     
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.geronimo.plugins</groupId>
+                <artifactId>car-maven-plugin</artifactId>
+                <configuration>
+                    <useMavenDependencies>
+                        <value>true</value>
+                        <includeVersion>true</includeVersion>
+                    </useMavenDependencies>
+                    <category>JavaEE</category>
+                    <instance>
+                        <plugin-artifact>
+                            <config-xml-content>
+                                <gbean name="SMTPTransport">
+                                    <attribute name="host">#{mailHost}</attribute>
+                                    <attribute name="port">#{mailPort}</attribute>
+                                </gbean>
+                             </config-xml-content>
+                            <config-substitution key="mailHost">localhost</config-substitution>
+                            <config-substitution key="mailPort">25</config-substitution>
+                        </plugin-artifact>
+                    </instance>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
 </project>

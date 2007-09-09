@@ -32,6 +32,8 @@
     <artifactId>j2ee-server</artifactId>
     <name>Geronimo Configs :: J2EE Server</name>
     <packaging>car</packaging>
+
+    <description>Basic geronimo JavaEE support components including the transaction manager and connector framework.</description>
     
     <dependencies>
         
@@ -90,4 +92,19 @@
         </dependency>
     </dependencies>
     
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.geronimo.plugins</groupId>
+                <artifactId>car-maven-plugin</artifactId>
+                <configuration>
+                    <useMavenDependencies>
+                        <value>true</value>
+                        <includeVersion>true</includeVersion>
+                    </useMavenDependencies>
+                    <category>JavaEE</category>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 </project>

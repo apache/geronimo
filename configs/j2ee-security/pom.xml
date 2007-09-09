@@ -33,7 +33,9 @@
     <artifactId>j2ee-security</artifactId>
     <name>Geronimo Configs :: J2EE Security</name>
     <packaging>car</packaging>
-    
+
+    <description>Basic Geronimo server security infrastructure</description>
+
     <dependencies>
         
         <!-- parent -->
@@ -58,20 +60,33 @@
         
     </dependencies>
     
-<!--
     <build>
         <plugins>
             <plugin>
                 <groupId>org.apache.geronimo.plugins</groupId>
                 <artifactId>car-maven-plugin</artifactId>
                 <configuration>
-                    <deploymentConfigs>
-                        <deploymentConfig>${gbeanDeployer}</deploymentConfig>
-                    </deploymentConfigs>
+                    <useMavenDependencies>
+                        <value>true</value>
+                        <includeVersion>true</includeVersion>
+                    </useMavenDependencies>
+                    <category>Security</category>
+                    <instance>
+                        <plugin-artifact>
+                            <config-xml-content>
+                                <gbean name="JMXService">
+                                    <attribute name="protocol">rmi</attribute>
+                                    <attribute name="host">#{ServerHostname}</attribute>
+                                    <attribute name="port">#{JMXPort + PortOffset}</attribute>
+                                    <attribute name="urlPath">/jndi/rmi://#{ServerHostname}:#{NamingPort + PortOffset}/JMXConnector</attribute>
+                                </gbean>
+                             </config-xml-content>
+                            <config-substitution key="JMXPort">9999</config-substitution>
+                        </plugin-artifact>
+                    </instance>
                 </configuration>
             </plugin>
         </plugins>
     </build>
--->
 
 </project>

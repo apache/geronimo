@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!--Licensed to the Apache Software Foundation (ASF) under one or more
+<!--
+    Licensed to the Apache Software Foundation (ASF) under one or more
     contributor license agreements.  See the NOTICE file distributed with
     this work for additional information regarding copyright ownership.
     The ASF licenses this file to You under the Apache License, Version 2.0
@@ -12,174 +13,126 @@
     distributed under the License is distributed on an "AS IS" BASIS,
     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
     See the License for the specific language governing permissions and
-    limitations under the License.-->
-<!--$Rev$ $Date$-->
-<module xmlns="http://geronimo.apache.org/xml/ns/deployment-1.2">
-  <!--CORBA-->
-  <environment>
-    <moduleId>
-      <groupId>org.apache.geronimo.configs</groupId>
-      <artifactId>j2ee-corba-yoko</artifactId>
-      <version>2.1-SNAPSHOT</version>
-      <type>car</type>
-    </moduleId>
-    <dependencies>
-      <dependency>
-        <groupId>org.apache.geronimo.modules</groupId>
-        <artifactId>geronimo-yoko</artifactId>
-        <version>2.1-SNAPSHOT</version>
-        <type>jar</type>
-        <import>classes</import>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.bcel</groupId>
-        <artifactId>bcel</artifactId>
-        <version>5.2</version>
-        <type>jar</type>
-        <import>classes</import>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.yoko</groupId>
-        <artifactId>yoko-rmi-impl</artifactId>
-        <version>1.0-incubating-SNAPSHOT</version>
-        <type>jar</type>
-        <import>classes</import>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.yoko</groupId>
-        <artifactId>yoko-spec-corba</artifactId>
-        <version>1.0-incubating-SNAPSHOT</version>
-        <type>jar</type>
-        <import>classes</import>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.yoko</groupId>
-        <artifactId>yoko-core</artifactId>
-        <version>1.0-incubating-SNAPSHOT</version>
-        <type>jar</type>
-        <import>classes</import>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.geronimo.modules</groupId>
-        <artifactId>geronimo-corba</artifactId>
-        <version>2.1-SNAPSHOT</version>
-        <type>jar</type>
-        <import>classes</import>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.geronimo.configs</groupId>
-        <artifactId>openejb</artifactId>
-        <type>car</type>
-      </dependency>
-    </dependencies>
-    <hidden-classes/>
-    <non-overridable-classes/>
-  </environment>
-  <gbean name="DynamicORBStubClassLoader" class="org.apache.geronimo.corba.util.DynamicStubClassLoaderGBean">
-    <dependency>
-      <name>ORBConfigAdapter</name>
-    </dependency>
-  </gbean>
-  <gbean name="ORBConfigAdapter" class="org.apache.geronimo.yoko.ORBConfigAdapterGBean"/>
-  <gbean name="NameServer" class="org.apache.geronimo.corba.NameServiceGBean">
-    <reference name="ServerInfo">
-      <name>ServerInfo</name>
-    </reference>
-    <reference name="ConfigAdapter">
-      <name>ORBConfigAdapter</name>
-    </reference>
-    <attribute name="port">1050</attribute>
-    <attribute name="host">localhost</attribute>
-  </gbean>
-  <gbean name="CORBASSLConfig" class="org.apache.geronimo.corba.security.config.ssl.SSLConfigGBean">
-    <attribute name="keyStore">geronimo-default</attribute>
-    <attribute name="keyAlias">geronimo</attribute>
-    <attribute name="trustStore">geronimo-default</attribute>
-    <attribute name="algorithm">Default</attribute>
-    <attribute name="protocol">SSL</attribute>
-    <reference name="KeystoreManager">
-      <name>KeystoreManager</name>
-    </reference>
-  </gbean>
-  <!--connections require SSL, no client cert, client logs in with password, no identity token-->
-  <gbean name="Server" class="org.apache.geronimo.corba.CORBABeanGBean">
-    <attribute name="host">localhost</attribute>
-    <attribute name="port">2001</attribute>
-    <reference name="ConfigAdapter">
-      <name>ORBConfigAdapter</name>
-    </reference>
-    <reference name="NameService">
-      <name>NameServer</name>
-    </reference>
-    <reference name="OpenEjbSystem"/>
-    <reference name="SSLConfig">
-      <name>CORBASSLConfig</name>
-    </reference>
-    <xml-attribute name="tssConfig">
-      <tss:tss xmlns:tss="http://www.openejb.org/xml/ns/corba-tss-config-2.0" xmlns:sec="http://geronimo.apache.org/xml/ns/security-1.2">
-        <!--<tss:default-principal>-->
-        <!--<sec:principal class="org.apache.geronimo.security.realm.providers.GeronimoUserPrincipal" name="guest"/>-->
-        <!--</tss:default-principal>-->
-        <tss:SSL port="2001" hostname="localhost">
-          <tss:supports>Integrity Confidentiality EstablishTrustInTarget</tss:supports>
-          <tss:requires>Integrity Confidentiality</tss:requires>
-        </tss:SSL>
-        <tss:compoundSecMechTypeList>
-          <tss:compoundSecMech>
-            <tss:GSSUP required="true" targetName="default"/>
-            <tss:sasMech>
-              <tss:identityTokenTypes>
-                <tss:ITTAbsent/>
-              </tss:identityTokenTypes>
-            </tss:sasMech>
-          </tss:compoundSecMech>
-        </tss:compoundSecMechTypeList>
-      </tss:tss>
-    </xml-attribute>
-  </gbean>
-  <!--orb with no security whatsoever-->
-  <gbean name="UnprotectedServer" class="org.apache.geronimo.corba.CORBABeanGBean">
-    <attribute name="host">localhost</attribute>
-    <attribute name="port">6882</attribute>
-    <reference name="ConfigAdapter">
-      <name>ORBConfigAdapter</name>
-    </reference>
-    <reference name="NameService">
-      <name>NameServer</name>
-    </reference>
-    <reference name="SSLConfig">
-      <name>CORBASSLConfig</name>
-    </reference>
-    <xml-attribute name="tssConfig">
-      <tss:tss xmlns:tss="http://www.openejb.org/xml/ns/corba-tss-config-2.0" xmlns:sec="http://geronimo.apache.org/xml/ns/security-1.2">
-        <!--<tss:default-principal>-->
-        <!--<sec:principal class="org.apache.geronimo.security.realm.providers.GeronimoUserPrincipal" name="guest"/>-->
-        <!--</tss:default-principal>-->
-        <tss:compoundSecMechTypeList>
-          <tss:compoundSecMech>
-            <tss:GSSUP required="true" targetName="default"/>
-            <tss:sasMech>
-              <tss:identityTokenTypes>
-                <tss:ITTAbsent/>
-              </tss:identityTokenTypes>
-            </tss:sasMech>
-          </tss:compoundSecMech>
-        </tss:compoundSecMechTypeList>
-      </tss:tss>
-    </xml-attribute>
-  </gbean>
-  <!--tss bean examples, specify requirements for connection to orb.  Provide a ref in an ejb-->
-  <!--<gbean name="SSLClientCert" class="org.apache.geronimo.corba.TSSBeanGBean">
+    limitations under the License.
+-->
+
+<!-- $Rev$ $Date$ -->
+
+<module xmlns="http://geronimo.apache.org/xml/ns/deployment-${geronimoSchemaVersion}">
+
+    <!-- CORBA -->
+    <gbean name="DynamicORBStubClassLoader" class="org.apache.geronimo.corba.util.DynamicStubClassLoaderGBean">
+        <dependency>
+            <name>ORBConfigAdapter</name>
+        </dependency>
+    </gbean>
+
+    <gbean name="ORBConfigAdapter" class="org.apache.geronimo.yoko.ORBConfigAdapterGBean"/>
+
+    <gbean name="NameServer" class="org.apache.geronimo.corba.NameServiceGBean">
+        <reference name="ServerInfo">
+            <name>ServerInfo</name>
+        </reference>
+        <reference name="ConfigAdapter">
+            <name>ORBConfigAdapter</name>
+        </reference>
+        <attribute name="port">${PlanCOSNamingPort}</attribute>
+        <attribute name="host">${PlanCOSNamingHost}</attribute>
+    </gbean>
+
+    <gbean name="CORBASSLConfig" class="org.apache.geronimo.corba.security.config.ssl.SSLConfigGBean">
+        <attribute name="keyStore">geronimo-default</attribute>
+        <attribute name="keyAlias">geronimo</attribute>
+        <attribute name="trustStore">geronimo-default</attribute>
+        <attribute name="algorithm">Default</attribute>
+        <attribute name="protocol">SSL</attribute>
+        <reference name="KeystoreManager">
+            <name>KeystoreManager</name>
+        </reference>
+    </gbean>
+
+    <!-- connections require SSL, no client cert, client logs in with password, no identity token -->
+    <gbean name="Server" class="org.apache.geronimo.corba.CORBABeanGBean">
+        <attribute name="host">${PlanORBSSLHost}</attribute>
+        <attribute name="port">${PlanORBSSLPort}</attribute>
+        <reference name="ConfigAdapter">
+            <name>ORBConfigAdapter</name>
+        </reference>
+        <reference name="NameService">
+            <name>NameServer</name>
+        </reference>
+        <reference name="OpenEjbSystem"/>
+        <reference name="SSLConfig">
+            <name>CORBASSLConfig</name>
+        </reference>
+        <xml-attribute name="tssConfig">
+            <tss:tss xmlns:tss="http://www.openejb.org/xml/ns/corba-tss-config-2.0" xmlns:sec="http://geronimo.apache.org/xml/ns/security-${geronimoSchemaVersion}">
+                <!--<tss:default-principal>-->
+                    <!--<sec:principal class="org.apache.geronimo.security.realm.providers.GeronimoUserPrincipal" name="guest"/>-->
+                <!--</tss:default-principal>-->
+                <tss:SSL port="${PlanORBSSLPort}" hostname="${PlanORBSSLHost}">
+                    <tss:supports>Integrity Confidentiality EstablishTrustInTarget</tss:supports>
+                    <tss:requires>Integrity Confidentiality</tss:requires>
+                </tss:SSL>
+                <tss:compoundSecMechTypeList>
+                    <tss:compoundSecMech>
+                        <tss:GSSUP required="true" targetName="default"/>
+                        <tss:sasMech>
+                            <tss:identityTokenTypes>
+                                <tss:ITTAbsent/>
+                            </tss:identityTokenTypes>
+                        </tss:sasMech>
+                    </tss:compoundSecMech>
+                </tss:compoundSecMechTypeList>
+            </tss:tss>
+        </xml-attribute>
+    </gbean>
+
+    <!-- orb with no security whatsoever -->
+    <gbean name="UnprotectedServer" class="org.apache.geronimo.corba.CORBABeanGBean">
+        <attribute name="host">${PlanORBHost}</attribute>
+        <attribute name="port">${PlanORBPort}</attribute>
+        <reference name="ConfigAdapter">
+            <name>ORBConfigAdapter</name>
+        </reference>
+        <reference name="NameService">
+            <name>NameServer</name>
+        </reference>
+        <reference name="SSLConfig">
+            <name>CORBASSLConfig</name>
+        </reference>
+        <xml-attribute name="tssConfig">
+            <tss:tss xmlns:tss="http://www.openejb.org/xml/ns/corba-tss-config-2.0" xmlns:sec="http://geronimo.apache.org/xml/ns/security-${geronimoSchemaVersion}">
+                <!--<tss:default-principal>-->
+                    <!--<sec:principal class="org.apache.geronimo.security.realm.providers.GeronimoUserPrincipal" name="guest"/>-->
+                <!--</tss:default-principal>-->
+                <tss:compoundSecMechTypeList>
+                    <tss:compoundSecMech>
+                        <tss:GSSUP required="true" targetName="default"/>
+                        <tss:sasMech>
+                            <tss:identityTokenTypes>
+                                <tss:ITTAbsent/>
+                            </tss:identityTokenTypes>
+                        </tss:sasMech>
+                    </tss:compoundSecMech>
+                </tss:compoundSecMechTypeList>
+            </tss:tss>
+        </xml-attribute>
+    </gbean>
+
+<!-- tss bean examples, specify requirements for connection to orb.  Provide a ref in an ejb -->
+    <!--
+    <gbean name="SSLClientCert" class="org.apache.geronimo.corba.TSSBeanGBean">
         <attribute name="POAName">SSLClientCert</attribute>
         <reference name="Server">
             <name>Server</name>
         </reference>
         <xml-attribute name="tssConfig">
-            <tss:tss xmlns:tss="http://www.openejb.org/xml/ns/corba-tss-config-2.0" xmlns:sec="http://geronimo.apache.org/xml/ns/security-1.2">
+            <tss:tss xmlns:tss="http://www.openejb.org/xml/ns/corba-tss-config-2.0" xmlns:sec="http://geronimo.apache.org/xml/ns/security-${geronimoSchemaVersion}">
                 <tss:default-principal>
                     <sec:principal class="org.apache.geronimo.security.realm.providers.GeronimoUserPrincipal" name="guest"/>
                 </tss:default-principal>
-                <tss:SSL port="2001" hostname="localhost">
+                <tss:SSL port="${PlanORBSSLPort}" hostname="${PlanORBSSLHost}">
                     <tss:supports>Integrity Confidentiality EstablishTrustInTarget EstablishTrustInClient</tss:supports>
                     <tss:requires>Integrity Confidentiality EstablishTrustInClient</tss:requires>
                 </tss:SSL>
@@ -202,11 +155,11 @@
             <name>Server</name>
         </reference>
         <xml-attribute name="tssConfig">
-            <tss:tss xmlns:tss="http://www.openejb.org/xml/ns/corba-tss-config-2.0" xmlns:sec="http://geronimo.apache.org/xml/ns/security-1.2">
+            <tss:tss xmlns:tss="http://www.openejb.org/xml/ns/corba-tss-config-2.0" xmlns:sec="http://geronimo.apache.org/xml/ns/security-${geronimoSchemaVersion}">
                 <tss:default-principal>
                     <sec:principal class="org.apache.geronimo.security.realm.providers.GeronimoUserPrincipal" name="guest"/>
                 </tss:default-principal>
-                <tss:SSL port="2001" hostname="localhost">
+                <tss:SSL port="${PlanORBSSLPort}" hostname="${PlanORBSSLHost}">
                     <tss:supports>Integrity Confidentiality EstablishTrustInTarget</tss:supports>
                     <tss:requires>Integrity Confidentiality</tss:requires>
                 </tss:SSL>
@@ -230,11 +183,11 @@
             <name>Server</name>
         </reference>
         <xml-attribute name="tssConfig">
-            <tss:tss xmlns:tss="http://www.openejb.org/xml/ns/corba-tss-config-2.0" xmlns:sec="http://geronimo.apache.org/xml/ns/security-1.2">
+            <tss:tss xmlns:tss="http://www.openejb.org/xml/ns/corba-tss-config-2.0" xmlns:sec="http://geronimo.apache.org/xml/ns/security-${geronimoSchemaVersion}">
                 <tss:default-principal>
                     <sec:principal class="org.apache.geronimo.security.realm.providers.GeronimoUserPrincipal" name="guest"/>
                 </tss:default-principal>
-                <tss:SSL port="2001" hostname="localhost">
+                <tss:SSL port="${PlanORBSSLPort}" hostname="${PlanORBSSLHost}">
                     <tss:supports>Integrity Confidentiality EstablishTrustInTarget</tss:supports>
                     <tss:requires>Integrity Confidentiality</tss:requires>
                 </tss:SSL>
@@ -260,7 +213,7 @@
             <name>UnprotectedServer</name>
         </reference>
         <xml-attribute name="tssConfig">
-            <tss:tss xmlns:tss="http://www.openejb.org/xml/ns/corba-tss-config-2.0" xmlns:sec="http://geronimo.apache.org/xml/ns/security-1.2">
+            <tss:tss xmlns:tss="http://www.openejb.org/xml/ns/corba-tss-config-2.0" xmlns:sec="http://geronimo.apache.org/xml/ns/security-${geronimoSchemaVersion}">
                 <tss:default-principal>
                     <sec:principal class="org.apache.geronimo.security.realm.providers.GeronimoUserPrincipal" name="guest"/>
                 </tss:default-principal>
@@ -286,11 +239,11 @@
             <name>Server</name>
         </reference>
         <xml-attribute name="tssConfig">
-            <tss:tss xmlns:tss="http://www.openejb.org/xml/ns/corba-tss-config-2.0" xmlns:sec="http://geronimo.apache.org/xml/ns/security-1.2">
+            <tss:tss xmlns:tss="http://www.openejb.org/xml/ns/corba-tss-config-2.0" xmlns:sec="http://geronimo.apache.org/xml/ns/security-${geronimoSchemaVersion}">
                 <tss:default-principal>
                     <sec:principal class="org.apache.geronimo.security.realm.providers.GeronimoUserPrincipal" name="guest"/>
                 </tss:default-principal>
-                <tss:SSL port="2001" hostname="localhost">
+                <tss:SSL port="${PlanORBSSLPort}" hostname="${PlanORBSSLHost}">
                     <tss:supports>Integrity Confidentiality EstablishTrustInTarget EstablishTrustInClient</tss:supports>
                     <tss:requires>Integrity Confidentiality EstablishTrustInClient</tss:requires>
                 </tss:SSL>
@@ -308,9 +261,11 @@
                 </tss:compoundSecMechTypeList>
             </tss:tss>
         </xml-attribute>
-    </gbean>-->
-  <!--CSS beans for client security.  These specify what the client is willing to provide-->
-  <!--<gbean name="SSLClientCert" class="org.apache.geronimo.corba.CSSBeanGBean">
+    </gbean>
+-->
+    <!--CSS beans for client security.  These specify what the client is willing to provide -->
+    <!--
+    <gbean name="SSLClientCert" class="org.apache.geronimo.corba.CSSBeanGBean">
         <reference name="TransactionManager">
             <name>TransactionManager</name>
         </reference>
@@ -495,5 +450,6 @@
                 </css:compoundSecMechTypeList>
             </css:css>
         </xml-attribute>
-    </gbean>-->
+    </gbean>
+-->
 </module>

@@ -32,14 +32,10 @@
     <artifactId>wadi-clustering</artifactId>
     <name>Geronimo Configs :: Clustering over WADI</name>
     <packaging>car</packaging>
-    
-    <properties>
-        <PlanDefaultSweepInterval>36000</PlanDefaultSweepInterval>
-        <PlanDefaultNumPartitions>24</PlanDefaultNumPartitions>
-        <PlanNbReplica>2</PlanNbReplica>
-        <EndPointURI>http://localhost:8080</EndPointURI>
-        <PlanClusterName>DEFAULT_CLUSTER</PlanClusterName>
-    </properties>
+
+    <description>
+        Geronimo WADI integration.
+    </description>
 
     <dependencies>
        <dependency>
@@ -80,5 +76,50 @@
             <artifactId>juli</artifactId>
         </dependency>
     </dependencies>
-    
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.geronimo.plugins</groupId>
+                <artifactId>car-maven-plugin</artifactId>
+                <configuration>
+                    <useMavenDependencies>
+                        <value>true</value>
+                        <includeVersion>true</includeVersion>
+                    </useMavenDependencies>
+                    <category>Clustering</category>
+                    <instance>
+                        <plugin-artifact>
+                            <config-xml-content>
+                                <gbean name="DefaultBackingStrategyFactory">
+                                    <attribute name="nbReplica">#{ReplicaCount}</attribute>
+                                </gbean>
+
+                                <gbean name="DefaultDispatcherHolder">
+                                    <attribute name="endPointURI">#{EndPointURI}</attribute>
+                                    <attribute name="clusterName">#{ClusterName}</attribute>
+                                    <reference name="Node">
+                                        <name>Node</name>
+                                    </reference>
+                                </gbean>
+
+                                <gbean name="DefaultCluster">
+                                    <reference name="Node">
+                                        <name>Node</name>
+                                    </reference>
+                                    <reference name="DispatcherHolder">
+                                        <name>DefaultDispatcherHolder</name>
+                                    </reference>
+                                </gbean>
+                            </config-xml-content>
+                            <config-substitution key="ReplicaCount">2</config-substitution>
+                            <config-substitution key="EndPointURI">http://localhost:8080</config-substitution>
+                            <config-substitution key="ClusterName">DEFAULT_CLUSTER</config-substitution>
+                        </plugin-artifact>
+                    </instance>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
 </project>

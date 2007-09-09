@@ -33,6 +33,8 @@
     <name>Geronimo Configs :: Jetty 6</name>
     <packaging>car</packaging>
 
+    <description>Geronimo Jetty Web Server integration.</description>
+
     <dependencies>
 
         <dependency>
@@ -96,4 +98,46 @@
 
     </dependencies>
 
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.geronimo.plugins</groupId>
+                <artifactId>car-maven-plugin</artifactId>
+                <configuration>
+                    <useMavenDependencies>
+                        <value>true</value>
+                        <includeVersion>true</includeVersion>
+                    </useMavenDependencies>
+                    <category>Jetty</category>
+                    <instance>
+                        <plugin-artifact>
+                            <config-xml-content>
+                                <gbean name="JettyWebConnector">
+                                    <attribute name="host">#{ServerHostname}</attribute>
+                                    <attribute name="port">#{HTTPPort + PortOffset}</attribute>
+                                    <attribute name="redirectPort">#{HTTPSPortPrimary + PortOffset}</attribute>
+                                </gbean>
+                                <gbean name="JettyAJP13Connector">
+                                    <attribute name="host">#{ServerHostname}</attribute>
+                                    <attribute name="port">#{AJPPort + PortOffset}</attribute>
+                                    <attribute name="redirectPort">#{HTTPSPortPrimary + PortOffset}</attribute>
+                                </gbean>
+                                <gbean name="JettySSLConnector">
+                                    <attribute name="host">#{ServerHostname}</attribute>
+                                    <attribute name="port">#{HTTPSPort + PortOffset}</attribute>
+                                </gbean>
+                             </config-xml-content>
+                            <config-substitution key="HTTPPort">8080</config-substitution>
+                            <config-substitution key="AJPPort">8009</config-substitution>
+                            <config-substitution key="HTTPSPort">8443</config-substitution>
+                            <config-substitution key="ServerHostname">0.0.0.0</config-substitution>
+                            <config-substitution key="webcontainer">JettyWebContainer</config-substitution>
+                            <config-substitution key="webcontainerName">jetty6</config-substitution>
+                        </plugin-artifact>
+                    </instance>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+    
 </project>

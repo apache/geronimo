@@ -33,11 +33,7 @@
     <name>Geronimo Configs :: Jetty 6 :: Clustering Builder for WADI</name>
     <packaging>car</packaging>
 
-    <properties>
-        <PlanDefaultSweepInterval>36000</PlanDefaultSweepInterval>
-        <PlanDefaultNumPartitions>24</PlanDefaultNumPartitions>
-    </properties>
-    
+    <description>Deployment for WADI clustering on Jetty 6.</description>
     <dependencies>
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
@@ -52,6 +48,7 @@
             <version>${version}</version>
         </dependency>
 
+<!--
         <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
             <artifactId>geronimo-clustering</artifactId>
@@ -63,13 +60,16 @@
             <artifactId>geronimo-clustering-wadi</artifactId>
             <version>${version}</version>
         </dependency>
+-->
 
         <dependency>
-            <groupId>org.apache.geronimo.modules</groupId>
-            <artifactId>geronimo-jetty6-clustering-wadi</artifactId>
+            <groupId>org.apache.geronimo.configs</groupId>
+            <artifactId>jetty6-clustering-wadi</artifactId>
             <version>${version}</version>
+            <type>car</type>
         </dependency>
 
+<!--
         <dependency>
             <groupId>org.codehaus.wadi</groupId>
             <artifactId>wadi-core</artifactId>
@@ -89,6 +89,70 @@
             <groupId>org.apache.tomcat</groupId>
             <artifactId>tribes</artifactId>
         </dependency>
+-->
     </dependencies>
     
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.geronimo.plugins</groupId>
+                <artifactId>car-maven-plugin</artifactId>
+                <configuration>
+                    <useMavenDependencies>
+                        <value>false</value>
+                    </useMavenDependencies>
+                    <category>Jetty</category>
+                    <dependencies>
+                        <dependency>
+                            <groupId>org.apache.geronimo.configs</groupId>
+                            <artifactId>jetty6-deployer</artifactId>
+                            <version>${version}</version>
+                            <type>car</type>
+                        </dependency>
+
+                        <dependency>
+                            <groupId>org.apache.geronimo.modules</groupId>
+                            <artifactId>geronimo-jetty6-clustering-builder-wadi</artifactId>
+                            <version>${version}</version>
+                        </dependency>
+
+                        <dependency>
+                            <groupId>org.apache.geronimo.configs</groupId>
+                            <artifactId>jetty6-clustering-wadi</artifactId>
+                            <version>${version}</version>
+                            <type>car</type>
+                            <import>classes</import>
+                        </dependency>
+
+                    </dependencies>
+                    <instance>
+                        <plugin-artifact>
+                            <config-xml-content>
+                                <gbean name="JettyClusteringBuilder">
+                                    <attribute name="defaultSweepInterval">${DefaultWadiSweepInterval}</attribute>
+                                    <attribute name="defaultNumPartitions">${DefaultWadiNumPartitions}</attribute>
+                                    <!--<attribute name="defaultBackingStrategyFactoryName">?name=DefaultBackingStrategyFactory</attribute>-->
+                                    <!--<attribute name="defaultClusterName">?name=DefaultCluster</attribute>-->
+                                    <!--<xml-attribute name="defaultEnvironment">-->
+                                        <!--<environment xmlns="http://geronimo.apache.org/xml/ns/deployment-1.1">-->
+                                            <!--<dependencies>-->
+                                                <!--<dependency>-->
+                                                    <!--<groupId>${pom.groupId}</groupId>-->
+                                                    <!--<artifactId>jetty6-clustering-wadi</artifactId>-->
+                                                    <!--<type>car</type>-->
+                                                <!--</dependency>-->
+                                            <!--</dependencies>-->
+                                        <!--</environment>-->
+                                    <!--</xml-attribute>-->
+                                </gbean>
+                             </config-xml-content>
+                            <config-substitution key="DefaultWadiSweepInterval">36000</config-substitution>
+                            <config-substitution key="DefaultWadiNumPartitions">24</config-substitution>
+                        </plugin-artifact>
+                    </instance>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
 </project>

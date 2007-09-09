@@ -33,6 +33,8 @@
     <name>Geronimo Configs :: J2EE Corba Yoko ORB</name>
     <packaging>car</packaging>
 
+    <description>Yoko Orb server setup with naming service, protected orb, and unprotected orb.</description>
+
     <dependencies>
 
         <!--<dependency>-->
@@ -110,6 +112,35 @@
                         <!--<deploymentConfig>${openejbDeployer}</deploymentConfig>-->
                         <deploymentConfig>${openejbcorbaDeployer}</deploymentConfig>
                     </deploymentConfigs>
+                    <useMavenDependencies>
+                        <value>true</value>
+                        <includeVersion>true</includeVersion>
+                    </useMavenDependencies>
+                    <category>EJB</category>
+                    <instance>
+                        <plugin-artifact>
+                            <config-xml-content>
+                                <gbean name="NameServer">
+                                    <attribute name="port">#{COSNamingPort + PortOffset}</attribute>
+                                    <attribute name="host">#{COSNamingHost}</attribute>
+                                </gbean>
+                                <gbean name="Server">
+                                    <attribute name="port">#{ORBSSLPort + PortOffset}</attribute>
+                                    <attribute name="host">#{ORBSSLHost}</attribute>
+                                </gbean>
+                                <gbean name="UnprotectedServer">
+                                    <attribute name="port">#{ORBPort + PortOffset}</attribute>
+                                    <attribute name="host">#{ORBHost}</attribute>
+                                </gbean>
+                             </config-xml-content>
+                            <config-substitution key="COSNamingHost">localhost</config-substitution>
+                            <config-substitution key="COSNamingPort">1050</config-substitution>
+                            <config-substitution key="ORBSSLHost">localhost</config-substitution>
+                            <config-substitution key="ORBSSLPort">2001</config-substitution>
+                            <config-substitution key="ORBHost">localhost</config-substitution>
+                            <config-substitution key="ORBPort">6882</config-substitution>
+                        </plugin-artifact>
+                    </instance>
                 </configuration>
             </plugin>
         </plugins>

@@ -32,6 +32,8 @@
     <artifactId>jaxws-deployer</artifactId>
     <name>Geronimo Configs :: JAXWS Deployer</name>
     <packaging>car</packaging>
+
+    <description>Command line access to jaxws deployment tools.</description>
     
     <dependencies>
         
@@ -114,6 +116,14 @@
                         </element>
                     </classpath>
                     <classpathPrefix>../lib</classpathPrefix>
+
+
+                    <useMavenDependencies>
+                        <value>true</value>
+                        <includeVersion>true</includeVersion>
+                    </useMavenDependencies>
+                    <category>Web Services</category>
+
                 </configuration>
             </plugin>
         </plugins>

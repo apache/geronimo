@@ -32,6 +32,8 @@
     <artifactId>jetty6-clustering-wadi</artifactId>
     <name>Geronimo Configs :: Jetty 6 Clustering over WADI</name>
     <packaging>car</packaging>
+
+    <description>WADI clustering for Jetty.</description>
     
     <dependencies>
         <dependency>
@@ -55,4 +57,20 @@
         </dependency>
     </dependencies>
     
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.geronimo.plugins</groupId>
+                <artifactId>car-maven-plugin</artifactId>
+                <configuration>
+                    <useMavenDependencies>
+                        <value>true</value>
+                        <includeVersion>true</includeVersion>
+                    </useMavenDependencies>
+                    <category>Jetty</category>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
 </project>
