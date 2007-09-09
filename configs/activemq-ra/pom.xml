@@ -32,6 +32,8 @@
     <artifactId>activemq-ra</artifactId>
     <name>Geronimo Configs :: ActiveMQ Resource Adapter</name>
     <packaging>car</packaging>
+
+    <description>Geronimo ActiveMQ integration: ActiveMQ resource adapter connecting to (embedded) activemq broker.</description>
     
     <dependencies>
         
@@ -78,6 +80,21 @@
                         <version>${version}</version>
                         <type>rar</type>
                     </module>
+                    <useMavenDependencies>
+                        <value>true</value>
+                        <includeVersion>true</includeVersion>
+                    </useMavenDependencies>
+                    <category>JMS</category>
+                    <instance>
+                        <plugin-artifact>
+                            <config-xml-content>
+                                <gbean name="ActiveMQ RA">
+                                        <attribute name="ServerUrl">tcp://${ServerHostname}:${ActiveMQPort + PortOffset}</attribute>
+                                </gbean>
+                             </config-xml-content>
+                            <config-substitution key="ActiveMQPort">61616</config-substitution>
+                        </plugin-artifact>
+                    </instance>
                 </configuration>
             </plugin>
         </plugins>

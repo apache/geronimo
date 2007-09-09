@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!--Licensed to the Apache Software Foundation (ASF) under one or more
+<!--
+    Licensed to the Apache Software Foundation (ASF) under one or more
     contributor license agreements.  See the NOTICE file distributed with
     this work for additional information regarding copyright ownership.
     The ASF licenses this file to You under the Apache License, Version 2.0
@@ -12,97 +13,56 @@
     distributed under the License is distributed on an "AS IS" BASIS,
     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
     See the License for the specific language governing permissions and
-    limitations under the License.-->
-<!--$Rev$ $Date$-->
-<module xmlns="http://geronimo.apache.org/xml/ns/deployment-1.2">
-  <environment>
-    <moduleId>
-      <groupId>org.apache.geronimo.configs</groupId>
-      <artifactId>activemq-broker</artifactId>
-      <version>2.1-SNAPSHOT</version>
-      <type>car</type>
-    </moduleId>
-    <dependencies>
-      <dependency>
-        <groupId>org.apache.geronimo.modules</groupId>
-        <artifactId>geronimo-activemq</artifactId>
-        <version>2.1-SNAPSHOT</version>
-        <type>jar</type>
-        <import>classes</import>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.geronimo.modules</groupId>
-        <artifactId>geronimo-activemq-management</artifactId>
-        <version>2.1-SNAPSHOT</version>
-        <type>jar</type>
-        <import>classes</import>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.activemq</groupId>
-        <artifactId>activeio-core</artifactId>
-        <version>3.0.0-incubator</version>
-        <type>jar</type>
-        <import>classes</import>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.geronimo.configs</groupId>
-        <artifactId>system-database</artifactId>
-        <type>car</type>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.activemq</groupId>
-        <artifactId>activemq-core</artifactId>
-        <version>4.1.1</version>
-        <type>jar</type>
-        <import>classes</import>
-      </dependency>
-      <dependency>
-        <groupId>backport-util-concurrent</groupId>
-        <artifactId>backport-util-concurrent</artifactId>
-        <version>2.2</version>
-        <type>jar</type>
-        <import>classes</import>
-      </dependency>
-    </dependencies>
-    <hidden-classes/>
-    <non-overridable-classes/>
-  </environment>
-  <gbean name="ActiveMQManager" class="org.apache.geronimo.activemq.management.ActiveMQManagerGBean"/>
-  <gbean name="ActiveMQ" class="org.apache.geronimo.activemq.BrokerServiceGBeanImpl">
-    <!--Instead of using the limited configuration syntax in this file,
+    limitations under the License.
+-->
+
+<!-- $Rev$ $Date$ -->
+
+<module xmlns="http://geronimo.apache.org/xml/ns/deployment-${geronimoSchemaVersion}">
+
+    <gbean name="ActiveMQManager" class="org.apache.geronimo.activemq.management.ActiveMQManagerGBean"/>
+
+    <gbean name="ActiveMQ" class="org.apache.geronimo.activemq.BrokerServiceGBeanImpl">
+        <!-- Instead of using the limited configuration syntax in this file,
              you can set the brokerUri property to externally specify the
              configuration for the broker.
-        <attribute name="brokerUri">xbean:file:/path/to/activemq.xml</attribute>-->
-    <!--<attribute name="brokerName">possibly-unique-broker</attribute>-->
-    <attribute name="useShutdownHook">false</attribute>
-    <attribute name="dataDirectory">var/activemq</attribute>
-    <reference name="dataSource">
-      <name>SystemDatasource</name>
-    </reference>
-    <reference name="manager">
-      <name>ActiveMQManager</name>
-    </reference>
-    <reference name="serverInfo">
-      <name>ServerInfo</name>
-    </reference>
-    <reference name="mbeanServerReference">
-      <name>MBeanServerReference</name>
-    </reference>
-  </gbean>
-  <gbean name="ActiveMQ.tcp.default" class="org.apache.geronimo.activemq.TransportConnectorGBeanImpl">
-    <attribute name="protocol">tcp</attribute>
-    <attribute name="host">localhost</attribute>
-    <attribute name="port">61616</attribute>
-    <reference name="brokerService">
-      <name>ActiveMQ</name>
-    </reference>
-  </gbean>
-  <gbean name="ActiveMQ.stomp.default" class="org.apache.geronimo.activemq.TransportConnectorGBeanImpl">
-    <attribute name="protocol">stomp</attribute>
-    <attribute name="host">localhost</attribute>
-    <attribute name="port">61613</attribute>
-    <reference name="brokerService">
-      <name>ActiveMQ</name>
-    </reference>
-  </gbean>
+        <attribute name="brokerUri">xbean:file:/path/to/activemq.xml</attribute>
+        -->
+        <!--
+        <attribute name="brokerName">possibly-unique-broker</attribute>
+        -->
+        <attribute name="useShutdownHook">false</attribute>
+        <attribute name="dataDirectory">var/activemq</attribute>
+        <reference name="dataSource">
+            <name>SystemDatasource</name>
+        </reference>
+        <reference name="manager">
+            <name>ActiveMQManager</name>
+        </reference>
+        <reference name="serverInfo">
+            <name>ServerInfo</name>
+        </reference>
+        <reference name="mbeanServerReference">
+            <name>MBeanServerReference</name>
+        </reference>
+    </gbean>
+
+    <gbean name="ActiveMQ.tcp.default" class="org.apache.geronimo.activemq.TransportConnectorGBeanImpl">
+        <attribute name="protocol">tcp</attribute>
+        <attribute name="host">localhost</attribute>
+        <attribute name="port">61616</attribute>
+        <reference name="brokerService">
+            <name>ActiveMQ</name>
+        </reference>
+    </gbean>
+
+    <gbean name="ActiveMQ.stomp.default" class="org.apache.geronimo.activemq.TransportConnectorGBeanImpl">
+        <attribute name="protocol">stomp</attribute>
+        <attribute name="host">localhost</attribute>
+        <attribute name="port">61613</attribute>
+        <reference name="brokerService">
+            <name>ActiveMQ</name>
+        </reference>
+    </gbean>
+
 </module>

@@ -103,11 +103,17 @@
                         <addMavenDescriptor>false</addMavenDescriptor>
                     </archive>
                     <osiApproved>true</osiApproved>
+<!--
+                    <useMavenDependencies>
+                        <value>true</value>
+                        <includeVersion>true</includeVersion>
+                    </useMavenDependencies>
+-->
                     <commonInstance>
                         <plugin-artifact>
                             <geronimo-version>${geronimoVersion}</geronimo-version>
                             <jvm-version>1.5</jvm-version>
-                            <source-repository>http://www.geronimoplugins.com/repository/geronimo-1.1</source-repository>
+                            <source-repository>http://www.geronimoplugins.com/repository/geronimo-2.1</source-repository>
                             <source-repository>http://repo1.maven.org/maven2/</source-repository>
                         </plugin-artifact>
                     </commonInstance>

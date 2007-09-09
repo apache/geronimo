@@ -33,6 +33,10 @@
     <name>Geronimo Configs :: CXF</name>
     <packaging>car</packaging>
 
+    <description>
+        Geronimo Web Services Apache CSF integration
+    </description>
+
     <dependencies>
 
         <dependency>
@@ -142,5 +146,21 @@
             <artifactId>neethi</artifactId>
         </dependency>
     </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.geronimo.plugins</groupId>
+                <artifactId>car-maven-plugin</artifactId>
+                <configuration>
+                    <useMavenDependencies>
+                        <value>true</value>
+                        <includeVersion>true</includeVersion>
+                    </useMavenDependencies>
+                    <category>Web Services</category>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 
 </project>

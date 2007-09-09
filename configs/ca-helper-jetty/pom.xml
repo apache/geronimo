@@ -96,13 +96,10 @@
                         <type>war</type>
                     </module>
                     <category>Security</category>
-                    <dependencies>
-                        <dependency>
-                            <groupId>org.apache.geronimo.configs</groupId>
-                            <artifactId>jasper</artifactId>
-                            <type>car</type>
-                        </dependency>
-                    </dependencies>
+                    <useMavenDependencies>
+                        <value>true</value>
+                        <includeVersion>true</includeVersion>
+                    </useMavenDependencies>
                     <instance>
                         <plugin-artifact>
                             <prerequisite>

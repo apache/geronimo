@@ -32,6 +32,10 @@
     <artifactId>connector-deployer</artifactId>
     <name>Geronimo Configs :: Connector Deployer</name>
     <packaging>car</packaging>
+
+    <description>
+        Deployer for J2CA connectors
+    </description>
     
     <dependencies>
     
@@ -58,4 +62,77 @@
 
     </dependencies>
     
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.geronimo.plugins</groupId>
+                <artifactId>car-maven-plugin</artifactId>
+                <configuration>
+                    <useMavenDependencies>
+                        <value>false</value>
+                    </useMavenDependencies>
+                    <category>Connector</category>
+                    <dependencies>
+                      <dependency>
+                        <groupId>org.apache.geronimo.modules</groupId>
+                        <artifactId>geronimo-connector-builder</artifactId>
+                        <version>2.1-SNAPSHOT</version>
+                        <type>jar</type>
+                        <import>classes</import>
+                      </dependency>
+                      <dependency>
+                        <groupId>org.apache.geronimo.configs</groupId>
+                        <artifactId>transaction</artifactId>
+                        <type>car</type>
+                        <import>classes</import>
+                      </dependency>
+                      <dependency>
+                        <groupId>org.apache.geronimo.configs</groupId>
+                        <artifactId>j2ee-deployer</artifactId>
+                        <type>car</type>
+                      </dependency>
+                    </dependencies>
+                    <instance>
+                        <plugin-artifact>
+                            <config-xml-content>
+                                <gbean name="ResourceRefBuilder">
+                                    <attribute name="eeNamespaces">http://java.sun.com/xml/ns/j2ee,http://java.sun.com/xml/ns/javaee</attribute>
+                                    <attribute name="defaultEnvironment">
+                                        <environment xmlns="http://geronimo.apache.org/xml/ns/deployment-1.2">
+                                            <dependencies>
+                                                <dependency>
+                                                    <groupId>org.apache.geronimo.configs</groupId>
+                                                    <artifactId>j2ee-corba-yoko</artifactId>
+                                                    <type>car</type>
+                                                </dependency>
+                                            </dependencies>
+                                        </environment>
+                                    </attribute>
+                                </gbean>
+
+                                <gbean name="AdminObjectRefBuilder">
+                                    <attribute name="eeNamespaces">http://java.sun.com/xml/ns/j2ee,http://java.sun.com/xml/ns/javaee</attribute>
+                                </gbean>
+
+                                <gbean name="ClientResourceRefBuilder">
+                                    <attribute name="eeNamespaces">http://java.sun.com/xml/ns/j2ee,http://java.sun.com/xml/ns/javaee</attribute>
+                                    <attribute name="defaultEnvironment">
+                                        <environment xmlns="http://geronimo.apache.org/xml/ns/deployment-1.2">
+                                            <dependencies>
+                                                <dependency>
+                                                    <groupId>org.apache.geronimo.configs</groupId>
+                                                    <artifactId>client-corba-yoko</artifactId>
+                                                    <type>car</type>
+                                                </dependency>
+                                            </dependencies>
+                                        </environment>
+                                    </attribute>
+                                </gbean>
+                            </config-xml-content>
+                        </plugin-artifact>
+                    </instance>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 </project>

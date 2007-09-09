@@ -45,6 +45,7 @@
             <artifactId>geronimo-dojo</artifactId>
             <version>${version}</version>
             <type>war</type>
+            <scope>provided</scope>
         </dependency>
 
         <dependency>
@@ -89,13 +90,10 @@
                     </module>
 
                     <category>Web Framework</category>
-                    <dependencies>
-                        <dependency>
-                            <groupId>org.apache.geronimo.configs</groupId>
-                            <artifactId>jasper</artifactId>
-                            <type>car</type>
-                        </dependency>
-                    </dependencies>
+                    <useMavenDependencies>
+                        <value>true</value>
+                        <includeVersion>true</includeVersion>
+                    </useMavenDependencies>
                     <instance>
                         <plugin-artifact>
                             <prerequisite>

@@ -1473,6 +1473,7 @@ public class PluginInstallerGBean implements PluginInstaller {
     public static class NamespaceFilter extends XMLFilterImpl {
         private static String PLUGIN_NS = "http://geronimo.apache.org/xml/ns/plugins-1.3";
         private static String GBEAN_NS = "http://geronimo.apache.org/xml/ns/attributes-1.2";
+        private static String ENVIRONMENT_NS = "http://geronimo.apache.org/xml/ns/deployment-1.2";
 
         private String namespace;
 
@@ -1486,6 +1487,8 @@ public class PluginInstallerGBean implements PluginInstaller {
                 namespace = PLUGIN_NS;
             } else if ("gbean".equals(localName)) {
                 namespace = GBEAN_NS;
+            } else if ("environment".equals(localName)) {
+                namespace = ENVIRONMENT_NS;
             }
             super.startElement(namespace, localName, qname, atts);
         }
@@ -1497,6 +1500,8 @@ public class PluginInstallerGBean implements PluginInstaller {
                 namespace = null;
             } else if ("gbean".equals(localName)) {
                 namespace = PLUGIN_NS;
+            } else if ("environment".equals(localName)) {
+                namespace = GBEAN_NS;
             }
         }
     }

@@ -32,20 +32,19 @@
     <artifactId>clustering</artifactId>
     <name>Geronimo Configs :: Clustering</name>
     <packaging>car</packaging>
-    
-    <properties>
-        <PlanNodeName>NODE</PlanNodeName>
-    </properties>
 
+    <description>
+        Basic clustering support in use with WADI
+    </description>
     <dependencies>
-       <dependency>
+        <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
             <artifactId>j2ee-server</artifactId>
             <version>${version}</version>
             <type>car</type>
         </dependency>
 
-       <dependency>
+        <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
             <artifactId>j2ee-security</artifactId>
             <version>${version}</version>
@@ -58,5 +57,31 @@
             <version>${version}</version>
         </dependency>
     </dependencies>
-    
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.geronimo.plugins</groupId>
+                <artifactId>car-maven-plugin</artifactId>
+                <configuration>
+                    <useMavenDependencies>
+                        <value>true</value>
+                        <includeVersion>true</includeVersion>
+                    </useMavenDependencies>
+                    <category>Clustering</category>
+                    <instance>
+                        <plugin-artifact>
+                            <config-xml-content>
+                                <gbean name="Node">
+                                    <attribute name="nodeName">#{clusterNodeName}</attribute>
+                                </gbean>
+                            </config-xml-content>
+                            <config-substitution key="clusterNodeName">NODE</config-substitution>
+                        </plugin-artifact>
+                    </instance>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
 </project>

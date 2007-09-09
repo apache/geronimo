@@ -32,6 +32,8 @@
     <artifactId>axis</artifactId>
     <name>Geronimo Configs :: Axis</name>
     <packaging>car</packaging>
+
+    <description>Apache Axis 1 integration.</description>
     
     <dependencies>
         <!-- parent -->
@@ -70,5 +72,50 @@
         </dependency>
 
     </dependencies>
-    
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.geronimo.plugins</groupId>
+                <artifactId>car-maven-plugin</artifactId>
+                <configuration>
+                    <useMavenDependencies>
+                        <value>false</value>
+                    </useMavenDependencies>
+                    <category>Web Services</category>
+                    <dependencies>
+                      <dependency>
+                        <groupId>org.apache.geronimo.configs</groupId>
+                        <artifactId>server-security-config</artifactId>
+                        <type>car</type>
+                      </dependency>
+                      <dependency>
+                        <groupId>org.apache.geronimo.configs</groupId>
+                        <artifactId>webservices-common</artifactId>
+                        <type>car</type>
+                      </dependency>
+                      <dependency>
+                        <groupId>org.apache.geronimo.modules</groupId>
+                        <artifactId>geronimo-axis</artifactId>
+                        <version>2.1-SNAPSHOT</version>
+                        <type>jar</type>
+                      </dependency>
+                      <dependency>
+                        <groupId>org.apache.ws.scout</groupId>
+                        <artifactId>scout</artifactId>
+                        <version>1.0rc1</version>
+                        <type>jar</type>
+                      </dependency>
+                      <dependency>
+                        <groupId>org.apache.geronimo.configs</groupId>
+                        <artifactId>openejb</artifactId>
+                        <type>car</type>
+                        <import>classes</import>
+                      </dependency>
+                    </dependencies>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
 </project>
