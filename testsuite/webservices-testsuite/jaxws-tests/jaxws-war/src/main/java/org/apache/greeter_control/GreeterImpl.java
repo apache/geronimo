@@ -30,8 +30,13 @@ import javax.annotation.PostConstruct;
 
 import javax.jws.WebService;
 import javax.jws.HandlerChain;
+import javax.xml.namespace.QName;
+import javax.xml.soap.SOAPException;
+import javax.xml.soap.SOAPFactory;
+import javax.xml.soap.SOAPFault;
 import javax.xml.ws.WebServiceContext;
 import javax.xml.ws.handler.MessageContext;
+import javax.xml.ws.soap.SOAPFaultException;
 
 /* serviceName, portName specified in webservices.xml */
 @WebService(serviceName = "SOAPService",
@@ -82,11 +87,6 @@ public class GreeterImpl implements Greeter {
 			values.add("BAR");
 			responseHeaders.put("foo", values);
         }
-        /*
-        // make return code 201
-        ctx.put(MessageContext.HTTP_RESPONSE_CODE,
-                new Integer(201));
-        */
 
         return greeting + " " + me;
     }
@@ -103,7 +103,18 @@ public class GreeterImpl implements Greeter {
 
     public String sayHi() {
         LOG.info("Invoking sayHi ");
-		return "Hi";
+        
+        SOAPFault fault = null;
+        try {
+            fault = SOAPFactory.newInstance().createFault();
+            fault.setFaultCode(new QName("http://foo", "MyFaultCode"));
+            fault.setFaultString("my error");
+            fault.setFaultActor("my actor");
+        } catch (SOAPException ex) {
+            throw new RuntimeException(ex);
+        }
+
+        throw new SOAPFaultException(fault);
     }
 
     public void greetMeOneWay(String me){
