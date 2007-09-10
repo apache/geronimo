@@ -23,6 +23,11 @@ import javax.ejb.Stateless;
 import javax.jws.WebService;
 import javax.jws.HandlerChain;
 import javax.jws.soap.SOAPBinding;
+import javax.xml.namespace.QName;
+import javax.xml.soap.SOAPException;
+import javax.xml.soap.SOAPFactory;
+import javax.xml.soap.SOAPFault;
+import javax.xml.ws.soap.SOAPFaultException;
 
 @WebService
 @Stateless(mappedName="JAXWSBean")
@@ -40,6 +45,21 @@ public class JAXWSBean implements JAXWSGreeter {
             throw new RuntimeException("Wrong parameter");
         }
         return "Hello " + me;
+    }
+    
+    public void greetMeFault(String me) {
+        System.out.println("generate SOAP fault");
+        SOAPFault fault = null;
+        try {
+            fault = SOAPFactory.newInstance().createFault();
+            fault.setFaultCode(new QName("http://foo", "MyFaultCode"));
+            fault.setFaultString("my error");
+            fault.setFaultActor("my actor");
+        } catch (SOAPException ex) {
+            throw new RuntimeException(ex);
+        }
+
+        throw new SOAPFaultException(fault);
     }
     
 }
