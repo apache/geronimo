@@ -36,6 +36,7 @@ import org.apache.axis2.jaxws.handler.SoapMessageContext;
 import org.apache.axis2.jaxws.i18n.Messages;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.openejb.ApplicationException;
 import org.apache.openejb.DeploymentInfo;
 import org.apache.openejb.RpcContainer;
 
@@ -86,6 +87,12 @@ public class EJBMessageReceiver implements MessageReceiver {
         try {
             Object res = container.invoke(this.deploymentInfo.getDeploymentID(), callInterface, method, arguments, null);
             // TODO: update response message with new response value?
+        } catch (ApplicationException e) {
+            if (e.getCause() instanceof AxisFault) {
+                throw (AxisFault)e.getCause();
+            } else {
+                throw AxisFault.makeFault(e);
+            }
         } catch (Exception e) {
             throw AxisFault.makeFault(e);
         }
