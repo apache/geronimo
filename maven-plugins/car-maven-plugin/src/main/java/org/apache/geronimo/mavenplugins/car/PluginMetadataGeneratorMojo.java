@@ -34,6 +34,7 @@ import org.apache.geronimo.system.plugin.model.PluginArtifactType;
 import org.apache.geronimo.system.plugin.model.PluginType;
 import org.apache.maven.model.License;
 import org.codehaus.plexus.configuration.PlexusConfiguration;
+import org.codehaus.plexus.util.xml.Xpp3Dom;
 
 /**
  * Generate a geronimo-plugin.xml file based on configuration in the pom and car-maven-plugin configuration.
@@ -109,11 +110,10 @@ public class PluginMetadataGeneratorMojo
 
     /**
      * Configuration for this instance itself.  This is a plugin-artifactType element without moduleId or dependencies. Do not include more than one of these in the parent poms
-     * since maven will not merge them correctly.
+     * since maven will not merge them correctly.  Actually we have to fish this out of the model since maven mangles the xml for us.
      *
-     * @parameter
      */
-    private PlexusConfiguration instance;
+//    private PlexusConfiguration instance;
 
     protected void doExecute() throws Exception {
 
@@ -133,10 +133,14 @@ public class PluginMetadataGeneratorMojo
         }
 
         PluginArtifactType instance;
-        if (this.instance == null || this.instance.getChild("plugin-artifact") == null) {
+        Xpp3Dom dom = (Xpp3Dom) ((org.apache.maven.model.Plugin)project.getModel().getBuild().getPluginsAsMap().get( "org.apache.geronimo.plugins:car-maven-plugin")).getConfiguration();
+        Xpp3Dom instanceDom = dom.getChild("instance");
+
+        if (instanceDom == null || instanceDom.getChild("plugin-artifact") == null) {
             instance = new PluginArtifactType();
         } else {
-            instance = PluginInstallerGBean.loadPluginArtifactMetadata(new StringReader(this.instance.getChild("plugin-artifact").toString().replace("#{", "${")));
+            String instanceString = instanceDom.getChild("plugin-artifact").toString();
+            instance = PluginInstallerGBean.loadPluginArtifactMetadata(new StringReader(instanceString.replace("#{", "${")));
         }
         if (this.commonInstance != null && this.commonInstance.getChild("plugin-artifact") != null) {
             PluginArtifactType commonInstance = PluginInstallerGBean.loadPluginArtifactMetadata(new StringReader(this.commonInstance.getChild("plugin-artifact").toString().replace("#{", "${")));

@@ -42,7 +42,7 @@
         <source-repository>http://bar.com</source-repository>
         <copy-file relative-to="WEB-INF" dest-dir="bar">META-INF/foo.xml</copy-file>
         <config-xml-content>
-            <ns2:gbean>
+            <ns2:gbean name="DownloadedPluginRepos">
                 <ns2:attribute name="repositoryList">http://geronimo.apache.org/plugins/plugin-repository-list-2.1.txt</ns2:attribute>
                 <ns2:attribute name="userRepositories">~/.m2/repository,${key1}</ns2:attribute>
             </ns2:gbean>
