@@ -30,6 +30,7 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.cxf.jaxws.context.WebServiceContextImpl;
 import org.apache.cxf.jaxws.javaee.HandlerChainsType;
 import org.apache.geronimo.cxf.CXFHandlerResolver;
+import org.apache.geronimo.cxf.CXFWebServiceContainer;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.jaxws.HandlerChainsUtils;
 import org.apache.geronimo.jaxws.JAXWSAnnotationProcessor;
@@ -52,6 +53,7 @@ public class CXFServiceReference extends JAXWSServiceReference {
     }
        
     public Object getContent() throws NamingException {
+        CXFWebServiceContainer.getDefaultBus();
         Object reference = super.getContent();   
         SAAJInterceptor.registerInterceptors();        
         return reference;

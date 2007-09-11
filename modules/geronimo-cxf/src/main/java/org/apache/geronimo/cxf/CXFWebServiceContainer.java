@@ -132,8 +132,22 @@ public abstract class CXFWebServiceContainer implements WebServiceContainer {
      * be (re)used in other places.
      */
     public static Bus getBus() {        
-        BusFactory.getDefaultBus();
+        getDefaultBus();
         return new ExtensionManagerBus();
     }
-
+    
+    /*
+     * Ensure the Spring bus is initialized with the CXF module classloader
+     * instead of the application classloader. 
+     */
+    public static Bus getDefaultBus() {
+        ClassLoader cl = Thread.currentThread().getContextClassLoader();
+        Thread.currentThread().setContextClassLoader(CXFEndpoint.class.getClassLoader());
+        try {
+            return BusFactory.getDefaultBus();
+        } finally {
+            Thread.currentThread().setContextClassLoader(cl);
+        }
+    }
+    
 }
