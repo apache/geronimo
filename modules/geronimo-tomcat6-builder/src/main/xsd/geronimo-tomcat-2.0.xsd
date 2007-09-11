@@ -75,7 +75,7 @@
         </xs:annotation>
     </xs:import>
 
-    <xs:import namespace="http://java.sun.com/xml/ns/persistence" schemaLocation="persistence-1.0.xsd"/>
+    <xs:import namespace="http://java.sun.com/xml/ns/persistence" schemaLocation="http://java.sun.com/xml/ns/persistence/persistence_1_0.xsd"/>
 
     <xs:element name="web-app" type="tomcat:web-appType">
         <xs:annotation>
