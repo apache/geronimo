@@ -33,6 +33,8 @@
     <name>Geronimo Configs :: Remote Deploy Tomcat</name>
     <packaging>car</packaging>
     
+    <description>Geronimo remote deploy upload servlet (Tomcat)</description>
+
     <dependencies>
     
         <dependency>
@@ -85,6 +87,23 @@
                         <version>${version}</version>
                         <type>war</type>
                     </module>
+                    <category>Deployment</category>
+                    <useMavenDependencies>
+                        <value>true</value>
+                        <includeVersion>true</includeVersion>
+                    </useMavenDependencies>
+                    <instance>
+                        <plugin-artifact>
+                            <prerequisite>
+                                <id>
+                                    <groupId>org.apache.geronimo.configs</groupId>
+                                    <artifactId>tomcat</artifactId>
+                                </id>
+                                <resource-type>Web Container</resource-type>
+                                <description>The Tomcat web container</description>
+                            </prerequisite>
+                        </plugin-artifact>
+                    </instance>
                 </configuration>
             </plugin>
         </plugins>

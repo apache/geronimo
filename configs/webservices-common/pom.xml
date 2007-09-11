@@ -32,6 +32,8 @@
     <artifactId>webservices-common</artifactId>
     <name>Geronimo Configs :: WebServices Common</name>
     <packaging>car</packaging>
+
+    <description>Common classes for all web services provider integrations.</description>
     
     <dependencies>
 
@@ -92,5 +94,21 @@
         </dependency>
 
     </dependencies>
-    
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.geronimo.plugins</groupId>
+                <artifactId>car-maven-plugin</artifactId>
+                <configuration>
+                    <useMavenDependencies>
+                        <value>true</value>
+                        <includeVersion>true</includeVersion>
+                    </useMavenDependencies>
+                    <category>Web Services</category>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
 </project>

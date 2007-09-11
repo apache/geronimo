@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!--Licensed to the Apache Software Foundation (ASF) under one or more
+<!--
+    Licensed to the Apache Software Foundation (ASF) under one or more
     contributor license agreements.  See the NOTICE file distributed with
     this work for additional information regarding copyright ownership.
     The ASF licenses this file to You under the Apache License, Version 2.0
@@ -12,120 +13,78 @@
     distributed under the License is distributed on an "AS IS" BASIS,
     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
     See the License for the specific language governing permissions and
-    limitations under the License.-->
-<!--$Rev$ $Date$-->
-<module xmlns="http://geronimo.apache.org/xml/ns/deployment-1.2">
-  <environment>
-    <moduleId>
-      <groupId>org.apache.geronimo.configs</groupId>
-      <artifactId>rmi-naming</artifactId>
-      <version>2.1-SNAPSHOT</version>
-      <type>car</type>
-    </moduleId>
-    <dependencies>
-      <dependency>
-        <groupId>org.apache.geronimo.modules</groupId>
-        <artifactId>geronimo-interceptor</artifactId>
-        <version>2.1-SNAPSHOT</version>
-        <type>jar</type>
-        <import>classes</import>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.geronimo.configs</groupId>
-        <artifactId>jee-specs</artifactId>
-        <type>car</type>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.geronimo.modules</groupId>
-        <artifactId>geronimo-management</artifactId>
-        <version>2.1-SNAPSHOT</version>
-        <type>jar</type>
-        <import>classes</import>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.geronimo.configs</groupId>
-        <artifactId>j2ee-system</artifactId>
-        <type>car</type>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.geronimo.modules</groupId>
-        <artifactId>geronimo-util</artifactId>
-        <version>2.1-SNAPSHOT</version>
-        <type>jar</type>
-        <import>classes</import>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.geronimo.modules</groupId>
-        <artifactId>geronimo-core</artifactId>
-        <version>2.1-SNAPSHOT</version>
-        <type>jar</type>
-        <import>classes</import>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.geronimo.modules</groupId>
-        <artifactId>geronimo-naming</artifactId>
-        <version>2.1-SNAPSHOT</version>
-        <type>jar</type>
-        <import>classes</import>
-      </dependency>
-    </dependencies>
-    <hidden-classes/>
-    <non-overridable-classes/>
-  </environment>
-  <gbean name="RMIRegistry" class="org.apache.geronimo.kernel.rmi.RMIRegistryService">
-    <attribute name="port">1099</attribute>
-  </gbean>
-  <gbean name="NamingProperties" class="org.apache.geronimo.system.properties.NamingProperties">
-    <attribute name="namingFactoryInitial">org.apache.xbean.naming.global.GlobalContextManager</attribute>
-    <attribute name="namingFactoryUrlPkgs">org.apache.xbean.naming</attribute>
-    <attribute name="namingProviderUrl">rmi://0.0.0.0:1099</attribute>
-  </gbean>
-  <gbean name="GlobalContext" class="org.apache.geronimo.gjndi.GlobalContextGBean"/>
-  <gbean name="JavaCompContext" class="org.apache.geronimo.gjndi.JavaCompContextGBean"/>
-  <gbean name="JavaContext" class="org.apache.geronimo.gjndi.WritableContextGBean">
-    <attribute name="nameInNamespace">java:</attribute>
-  </gbean>
-  <gbean name="GeronimoContext" class="org.apache.geronimo.gjndi.WritableContextGBean">
-    <attribute name="nameInNamespace">ger:</attribute>
-  </gbean>
-  <gbean name="MBeanServerReference" class="org.apache.geronimo.system.jmx.RealMBeanServerReference"/>
-  <!--MBean server service-->
-  <gbean name="MBeanServerKernelBridge" class="org.apache.geronimo.system.jmx.MBeanServerKernelBridge">
-    <reference name="MBeanServerReference">
-      <name>MBeanServerReference</name>
-    </reference>
-  </gbean>
-  <gbean name="DefaultThreadPool" class="org.apache.geronimo.pool.ThreadPool">
-    <attribute name="keepAliveTime">5000</attribute>
-    <attribute name="poolSize">500</attribute>
-    <attribute name="poolName">DefaultThreadPool</attribute>
-  </gbean>
-  <!--Configuration Installer-->
-  <gbean name="PluginInstaller" class="org.apache.geronimo.system.plugin.PluginInstallerGBean">
-    <reference name="Repository">
-      <name>Repository</name>
-    </reference>
-    <reference name="ConfigStore">
-      <name>Local</name>
-    </reference>
-    <reference name="ConfigManager">
-      <name>ConfigurationManager</name>
-    </reference>
-    <reference name="ServerInfo">
-      <name>ServerInfo</name>
-    </reference>
-    <reference name="ThreadPool">
-      <name>DefaultThreadPool</name>
-    </reference>
-    <reference name="PluginAttributeStore">
-      <name>AttributeManager</name>
-    </reference>
-    <reference name="ArtifactResolver">
-      <name>ArtifactResolver</name>
-    </reference>
-  </gbean>
-  <gbean name="DownloadedPluginRepos" class="org.apache.geronimo.system.plugin.PluginRepositoryDownloader">
-    <attribute name="repositoryList">http://geronimo.apache.org/plugins/plugin-repository-list-2.0.txt</attribute>
-    <attribute name="userRepositories">~/.m2/repository</attribute>
-  </gbean>
+    limitations under the License.
+-->
+
+<!-- $Rev$ $Date$ -->
+
+<module xmlns="http://geronimo.apache.org/xml/ns/deployment-${geronimoSchemaVersion}">
+
+    <gbean name="RMIRegistry" class="org.apache.geronimo.kernel.rmi.RMIRegistryService">
+        <attribute name="port">${PlanNamingPort}</attribute>
+    </gbean>
+
+    <gbean name="NamingProperties" class="org.apache.geronimo.system.properties.NamingProperties">
+        <attribute name="namingFactoryInitial">org.apache.xbean.naming.global.GlobalContextManager</attribute>
+        <attribute name="namingFactoryUrlPkgs">org.apache.xbean.naming</attribute>
+        <attribute name="namingProviderUrl">rmi://localhost:1099</attribute>
+    </gbean>
+
+    <gbean name="GlobalContext" class="org.apache.geronimo.gjndi.GlobalContextGBean"/>
+
+    <gbean name="JavaCompContext" class="org.apache.geronimo.gjndi.JavaCompContextGBean"/>
+
+    <gbean name="JavaContext" class="org.apache.geronimo.gjndi.WritableContextGBean">
+        <attribute name="nameInNamespace">java:</attribute>
+    </gbean>
+
+    <gbean name="GeronimoContext" class="org.apache.geronimo.gjndi.WritableContextGBean">
+        <attribute name="nameInNamespace">ger:</attribute>
+    </gbean>
+
+    <gbean name="MBeanServerReference" class="org.apache.geronimo.system.jmx.RealMBeanServerReference"/>
+
+    <!-- MBean server service -->
+    <gbean name="MBeanServerKernelBridge" class="org.apache.geronimo.system.jmx.MBeanServerKernelBridge">
+        <reference name="MBeanServerReference">
+            <name>MBeanServerReference</name>
+        </reference>
+    </gbean>
+
+    <gbean name="DefaultThreadPool" class="org.apache.geronimo.pool.ThreadPool">
+        <attribute name="keepAliveTime">5000</attribute>
+        <attribute name="poolSize">500</attribute>
+        <attribute name="poolName">DefaultThreadPool</attribute>
+    </gbean>
+
+    <!-- Configuration Installer -->
+    <gbean name="PluginInstaller" class="org.apache.geronimo.system.plugin.PluginInstallerGBean">
+        <reference name="Repository">
+            <name>Repository</name>
+        </reference>
+        <reference name="ConfigStore">
+            <name>Local</name>
+        </reference>
+        <reference name="ConfigManager">
+            <name>ConfigurationManager</name>
+        </reference>
+        <reference name="ServerInfo">
+            <name>ServerInfo</name>
+        </reference>
+        <reference name="ThreadPool">
+            <name>DefaultThreadPool</name>
+        </reference>
+        <reference name="PluginAttributeStore">
+            <name>AttributeManager</name>
+        </reference>
+        <reference name="ArtifactResolver">
+          <name>ArtifactResolver</name>
+        </reference>
+    </gbean>
+
+    <gbean name="DownloadedPluginRepos" class="org.apache.geronimo.system.plugin.PluginRepositoryDownloader">
+        <attribute name="repositoryList">http://geronimo.apache.org/plugins/plugin-repository-list-2.1.txt</attribute>
+        <attribute name="userRepositories">~/.m2/repository</attribute>
+    </gbean>
+
 </module>

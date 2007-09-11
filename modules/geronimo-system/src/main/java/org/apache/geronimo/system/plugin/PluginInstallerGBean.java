@@ -30,6 +30,7 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -1108,7 +1109,12 @@ public class PluginInstallerGBean implements PluginInstaller {
             if (monitor != null) {
                 monitor.setTotalBytes(-1); // Just to be sure
             }
-            URL repository = new URL(list.removeFirst());
+            String repo = list.removeFirst();
+            URL repository = PluginRepositoryDownloader.resolveRepository(repo);
+            if (repository == null) {
+                log.info("Failed to resolve repository: " + repo);
+                continue;
+            }
             URL url = artifact == null ? repository : getURL(artifact, repository);
             if (artifact != null)
                 log.info("Attempting to download " + artifact + " from " + url);
@@ -1212,7 +1218,12 @@ public class PluginInstallerGBean implements PluginInstaller {
         Artifact result = null;
         for (String repo : repos) {
             try {
-                result = findArtifact(query, new URL(repo), username, password, monitor);
+                URL repoUrl = PluginRepositoryDownloader.resolveRepository(repo);
+                if (repoUrl != null) {
+                    result = findArtifact(query, repoUrl, username, password, monitor);
+                } else {
+                    log.warn("could not resolve repo: " + repo);
+                }
             } catch (Exception e) {
                 log.warn("Unable to read from " + repo, e);
             }

@@ -19,29 +19,6 @@
     <web>framework.war</web>
     <web-app xmlns="http://geronimo.apache.org/xml/ns/j2ee/web/jetty-1.2">
       <environment xmlns="http://geronimo.apache.org/xml/ns/deployment-1.2">
-        <dependencies>
-          <dependency>
-            <groupId>org.codehaus.castor</groupId>
-            <artifactId>castor</artifactId>
-            <type>jar</type>
-          </dependency>
-          <!--required for castor-->
-          <dependency>
-            <groupId>xerces</groupId>
-            <artifactId>xercesImpl</artifactId>
-            <type>jar</type>
-          </dependency>
-          <dependency>
-            <groupId>org.apache.pluto</groupId>
-            <artifactId>pluto-descriptors</artifactId>
-            <type>jar</type>
-          </dependency>
-          <dependency>
-            <groupId>org.apache.pluto</groupId>
-            <artifactId>pluto-portal</artifactId>
-            <type>jar</type>
-          </dependency>
-        </dependencies>
         <inverse-classloading/>
       </environment>
       <context-root>console</context-root>

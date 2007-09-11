@@ -22,11 +22,14 @@ package org.apache.geronimo.system.plugin;
 
 import java.io.InputStream;
 import java.io.ByteArrayInputStream;
+import java.io.Reader;
+import java.io.StringReader;
 import java.util.List;
 
 import junit.framework.TestCase;
 import org.apache.geronimo.system.plugin.model.PluginType;
 import org.apache.geronimo.system.plugin.model.GbeanType;
+import org.apache.geronimo.system.plugin.model.PluginArtifactType;
 import org.apache.geronimo.system.configuration.GBeanOverride;
 import org.apache.geronimo.system.configuration.condition.JexlExpressionParser;
 
@@ -123,5 +126,23 @@ public class CopyConfigTest extends TestCase {
         String attributeValue = override.getAttribute("defaultEnvironment");
         assertEquals(ATTRIBUTE_VALUE, attributeValue);
 
+    }
+
+    private static final String INSTANCE = "                        <plugin-artifact>\n" +
+            "                            <copy-file relative-to=\"server\" dest-dir=\"var/directory\">META-INF/server.xml</copy-file>\n" +
+            "                            <config-xml-content>\n" +
+            "                                <gbean name=\"DirectoryService\">\n" +
+            "                                    <attribute name=\"configFile\">var/directory/server.xml</attribute>\n" +
+            "                                    <attribute name=\"workingDir\">var/directory</attribute>\n" +
+            "                                    <attribute name=\"providerURL\">#{providerURL}</attribute>\n" +
+            "                                </gbean>\n" +
+            "                            </config-xml-content>\n" +
+            "                            <config-substitution key=\"providerURL\">ou=system</config-substitution>\n" +
+            "                        </plugin-artifact>";
+    
+    public void testReadNoNS() throws Exception {
+        Reader in = new StringReader(INSTANCE);
+        PluginArtifactType instance = PluginInstallerGBean.loadPluginArtifactMetadata(in);
+        assertEquals("DirectoryService", instance.getConfigXmlContent().getGbean().get(0).getName());
     }
 }

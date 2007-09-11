@@ -33,6 +33,8 @@
     <name>Geronimo Configs :: OpenEJB</name>
     <packaging>car</packaging>
 
+    <description>Geronimo integration of the OpenEJB  ejb container.</description>
+
     <dependencies>
 
         <dependency>
@@ -140,5 +142,21 @@
         </dependency>
 
     </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.geronimo.plugins</groupId>
+                <artifactId>car-maven-plugin</artifactId>
+                <configuration>
+                    <useMavenDependencies>
+                        <value>true</value>
+                        <includeVersion>true</includeVersion>
+                    </useMavenDependencies>
+                    <category>EJB Container</category>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 
 </project>

@@ -33,6 +33,8 @@
     <name>Geronimo Configs :: WebConsole Tomcat</name>
     <packaging>car</packaging>
 
+    <description>Geronimo Administration Console for tomcat.</description>
+
     <dependencies>
 
         <dependency>
@@ -227,6 +229,33 @@
                         <version>${version}</version>
                         <type>ear</type>
                     </module>
+                    <category>Administration</category>
+                    <useMavenDependencies>
+                        <value>true</value>
+                        <includeVersion>true</includeVersion>
+                    </useMavenDependencies>
+                    <instance>
+                        <plugin-artifact>
+                            <prerequisite>
+                                <id>
+                                    <groupId>org.apache.geronimo.configs</groupId>
+                                    <artifactId>tomcat</artifactId>
+                                </id>
+                                <resource-type>Web Container</resource-type>
+                                <description>The Tomcat web container</description>
+                            </prerequisite>
+                            <prerequisite>
+                                <id>
+                                    <groupId>org.apache.geronimo.configs</groupId>
+                                    <artifactId>jasper</artifactId>
+                                </id>
+                                <resource-type>Web Container</resource-type>
+                                <description>The Jasper subsystem</description>
+                            </prerequisite>
+                        </plugin-artifact>
+                    </instance>
+
+
                 </configuration>
             </plugin>
         </plugins>

@@ -71,22 +71,22 @@
             <version>${version}</version>
             <type>car</type>
         </dependency>
-        
+
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
         </dependency>
-        
+
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-jcl</artifactId>
         </dependency>
-        
+
         <!--<dependency>-->
-            <!--<groupId>org.apache.geronimo.configs</groupId>-->
-            <!--<artifactId>jasper</artifactId>-->
-            <!--<type>car</type>-->
-            <!--<version>${version}</version>-->
+        <!--<groupId>org.apache.geronimo.configs</groupId>-->
+        <!--<artifactId>jasper</artifactId>-->
+        <!--<type>car</type>-->
+        <!--<version>${version}</version>-->
         <!--</dependency>-->
 
         <dependency>
@@ -126,7 +126,7 @@
                                     <attribute name="host">#{ServerHostname}</attribute>
                                     <attribute name="port">#{HTTPSPort + PortOffset}</attribute>
                                 </gbean>
-                             </config-xml-content>
+                            </config-xml-content>
                             <config-substitution key="HTTPPort">8080</config-substitution>
                             <config-substitution key="AJPPort">8009</config-substitution>
                             <config-substitution key="HTTPSPort">8443</config-substitution>
@@ -139,5 +139,5 @@
             </plugin>
         </plugins>
     </build>
-    
+
 </project>

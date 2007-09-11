@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!--Licensed to the Apache Software Foundation (ASF) under one or more
+<!--
+  Licensed to the Apache Software Foundation (ASF) under one or more
   contributor license agreements.  See the NOTICE file distributed with
   this work for additional information regarding copyright ownership.
   The ASF licenses this file to You under the Apache License, Version 2.0
@@ -12,75 +13,8 @@
   distributed under the License is distributed on an "AS IS" BASIS,
   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
   See the License for the specific language governing permissions and
-  limitations under the License.-->
+  limitations under the License.
+-->
 <module xmlns="http://geronimo.apache.org/xml/ns/deployment-1.1">
-  <dep:environment xmlns:dep="http://geronimo.apache.org/xml/ns/deployment-1.2">
-    <dep:moduleId>
-      <dep:groupId>org.apache.geronimo.configs</dep:groupId>
-      <dep:artifactId>webservices-common</dep:artifactId>
-      <dep:version>2.1-SNAPSHOT</dep:version>
-      <dep:type>car</dep:type>
-    </dep:moduleId>
-    <dep:dependencies>
-      <dep:dependency>
-        <dep:groupId>woodstox</dep:groupId>
-        <dep:artifactId>wstx-asl</dep:artifactId>
-        <dep:version>3.2.1</dep:version>
-        <dep:type>jar</dep:type>
-        <dep:import>classes</dep:import>
-      </dep:dependency>
-      <dep:dependency>
-        <dep:groupId>org.apache.geronimo.modules</dep:groupId>
-        <dep:artifactId>geronimo-jaxws</dep:artifactId>
-        <dep:version>2.1-SNAPSHOT</dep:version>
-        <dep:type>jar</dep:type>
-        <dep:import>classes</dep:import>
-      </dep:dependency>
-      <dep:dependency>
-        <dep:groupId>wsdl4j</dep:groupId>
-        <dep:artifactId>wsdl4j</dep:artifactId>
-        <dep:version>1.6.1</dep:version>
-        <dep:type>jar</dep:type>
-        <dep:import>classes</dep:import>
-      </dep:dependency>
-      <dep:dependency>
-        <dep:groupId>org.apache.geronimo.configs</dep:groupId>
-        <dep:artifactId>xmlbeans</dep:artifactId>
-        <dep:type>car</dep:type>
-      </dep:dependency>
-      <dep:dependency>
-        <dep:groupId>org.apache.geronimo.configs</dep:groupId>
-        <dep:artifactId>j2ee-server</dep:artifactId>
-        <dep:type>car</dep:type>
-      </dep:dependency>
-      <dep:dependency>
-        <dep:groupId>com.sun.xml.bind</dep:groupId>
-        <dep:artifactId>jaxb-impl</dep:artifactId>
-        <dep:version>2.0.5</dep:version>
-        <dep:type>jar</dep:type>
-        <dep:import>classes</dep:import>
-      </dep:dependency>
-      <dep:dependency>
-        <dep:groupId>com.sun.xml.messaging.saaj</dep:groupId>
-        <dep:artifactId>saaj-impl</dep:artifactId>
-        <dep:version>1.3</dep:version>
-        <dep:type>jar</dep:type>
-        <dep:import>classes</dep:import>
-      </dep:dependency>
-      <dep:dependency>
-        <dep:groupId>org.apache.geronimo.configs</dep:groupId>
-        <dep:artifactId>j2ee-security</dep:artifactId>
-        <dep:type>car</dep:type>
-      </dep:dependency>
-      <dep:dependency>
-        <dep:groupId>org.apache.geronimo.modules</dep:groupId>
-        <dep:artifactId>geronimo-webservices</dep:artifactId>
-        <dep:version>2.1-SNAPSHOT</dep:version>
-        <dep:type>jar</dep:type>
-        <dep:import>classes</dep:import>
-      </dep:dependency>
-    </dep:dependencies>
-    <dep:hidden-classes/>
-    <dep:non-overridable-classes/>
-  </dep:environment>
+
 </module>

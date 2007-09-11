@@ -32,6 +32,8 @@
     <artifactId>transaction</artifactId>
     <name>Geronimo Configs :: Transaction Manager (JTA11)</name>
     <packaging>car</packaging>
+
+    <description>Geronimo transaction manager module.</description>
     
     <dependencies>
         
@@ -96,5 +98,21 @@
         </dependency>
 
     </dependencies>
-    
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.geronimo.plugins</groupId>
+                <artifactId>car-maven-plugin</artifactId>
+                <configuration>
+                    <category>Geronimo Core</category>
+                    <useMavenDependencies>
+                        <value>true</value>
+                        <includeVersion>true</includeVersion>
+                    </useMavenDependencies>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
 </project>

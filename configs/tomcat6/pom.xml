@@ -33,6 +33,8 @@
     <name>Geronimo Configs :: Tomcat</name>
     <packaging>car</packaging>
 
+    <description>Geronimo Tomcat web server integration.</description>
+
     <dependencies>
 
         <dependency>
@@ -96,20 +98,52 @@
                 <filtering>true</filtering>
             </resource>
         </resources>
-
-<!--
         <plugins>
             <plugin>
                 <groupId>org.apache.geronimo.plugins</groupId>
                 <artifactId>car-maven-plugin</artifactId>
                 <configuration>
-                    <deploymentConfigs>
-                        <deploymentConfig>${gbeanDeployer}</deploymentConfig>
-                    </deploymentConfigs>
+                    <useMavenDependencies>
+                        <value>true</value>
+                        <includeVersion>true</includeVersion>
+                    </useMavenDependencies>
+                    <category>Tomcat</category>
+                    <instance>
+                        <plugin-artifact>
+                            <config-xml-content>
+                                <!-- To disable accesslogging uncomment the following lines
+                                <gbean name="TomcatEngine">
+                                    <reference name="TomcatValveChain" />
+                                </gbean>
+                                <gbean name="FirstValve" load="false"></gbean>
+                                -->
+                                <gbean name="TomcatResources"/>
+                                <gbean name="TomcatWebConnector">
+                                    <attribute name="host">${ServerHostname}</attribute>
+                                    <attribute name="port">${HTTPPort + PortOffset}</attribute>
+                                    <attribute name="redirectPort">${HTTPSPort + PortOffset}</attribute>
+                                </gbean>
+                                <gbean name="TomcatAJPConnector">
+                                    <attribute name="host">${ServerHostname}</attribute>
+                                    <attribute name="port">${AJPPort + PortOffset}</attribute>
+                                    <attribute name="redirectPort">${HTTPSPort + PortOffset}</attribute>
+                                </gbean>
+                                <gbean name="TomcatWebSSLConnector">
+                                    <attribute name="host">${ServerHostname}</attribute>
+                                    <attribute name="port">${HTTPSPort + PortOffset}</attribute>
+                                </gbean>
+                            </config-xml-content>
+                            <config-substitution key="HTTPPort">8080</config-substitution>
+                            <config-substitution key="AJPPort">8009</config-substitution>
+                            <config-substitution key="HTTPSPort">8443</config-substitution>
+                            <config-substitution key="ServerHostname">0.0.0.0</config-substitution>
+                            <config-substitution key="webcontainer">TomcatWebContainer</config-substitution>
+                            <config-substitution key="webcontainerName">tomcat6</config-substitution>
+                        </plugin-artifact>
+                    </instance>
                 </configuration>
             </plugin>
         </plugins>
--->
     </build>
 
 

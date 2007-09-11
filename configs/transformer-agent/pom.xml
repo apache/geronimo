@@ -32,6 +32,8 @@
     <artifactId>transformer-agent</artifactId>
     <name>Geronimo Configs :: Transformer Agent</name>
     <packaging>car</packaging>
+
+    <description>Geronimo class transformer registry agent.</description>
     
     <build>
         <plugins>
@@ -58,6 +60,13 @@
                         </element>
                     </classpath>
                     <classpathPrefix>../lib</classpathPrefix>
+
+                    <category>Geronimo Core</category>
+                    <useMavenDependencies>
+                        <value>true</value>
+                        <includeVersion>true</includeVersion>
+                    </useMavenDependencies>
+                    
                 </configuration>
             </plugin>
         </plugins>

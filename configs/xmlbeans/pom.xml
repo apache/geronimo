@@ -32,6 +32,8 @@
     <artifactId>xmlbeans</artifactId>
     <name>Geronimo Configs :: XMLBeans</name>
     <packaging>car</packaging>
+
+    <description>Geronimo module that supplies the xmlbeans framework in a single classloader.</description>
     
     <dependencies>
 
@@ -68,6 +70,11 @@
                         <deploymentConfig>${gbeanDeployerBootstrap}</deploymentConfig>
                     </deploymentConfigs>
                     <deployerName>org.apache.geronimo.configs/geronimo-gbean-deployer-bootstrap/${geronimoVersion}/car?j2eeType=Deployer,name=Deployer</deployerName>
+                    <useMavenDependencies>
+                        <value>true</value>
+                        <includeVersion>true</includeVersion>
+                    </useMavenDependencies>
+                    <category>Geronimo Core</category>
                 </configuration>
             </plugin>
         </plugins>

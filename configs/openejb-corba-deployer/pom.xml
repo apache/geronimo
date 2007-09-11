@@ -21,20 +21,22 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
     <modelVersion>4.0.0</modelVersion>
-    
+
     <parent>
         <groupId>org.apache.geronimo.configs</groupId>
         <artifactId>configs</artifactId>
         <version>2.1-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
-    
+
     <artifactId>openejb-corba-deployer</artifactId>
     <name>Geronimo Configs :: Geronimo CORBA Deployer</name>
     <packaging>car</packaging>
-    
+
+    <description>Geronimo deployer for corba security configurations for openejb.</description>
+
     <dependencies>
-    
+
         <!-- ideally we wouldn't need this -->
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
@@ -66,5 +68,45 @@
         </dependency>
 
     </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.geronimo.plugins</groupId>
+                <artifactId>car-maven-plugin</artifactId>
+                <configuration>
+                    <useMavenDependencies>
+                        <value>false</value>
+                    </useMavenDependencies>
+                    <category>EJB Container</category>
+                    <dependencies>
+                        <dependency>
+                            <groupId>org.apache.geronimo.configs</groupId>
+                            <artifactId>openejb-deployer</artifactId>
+                            <type>car</type>
+                            <import>classes</import>
+                        </dependency>
+                        <dependency>
+                            <groupId>org.apache.geronimo.modules</groupId>
+                            <artifactId>geronimo-corba-builder</artifactId>
+                            <version>2.1-SNAPSHOT</version>
+                            <type>jar</type>
+                        </dependency>
+                        <dependency>
+                            <groupId>org.apache.geronimo.configs</groupId>
+                            <artifactId>j2ee-deployer</artifactId>
+                            <type>car</type>
+                        </dependency>
+                        <dependency>
+                            <groupId>org.apache.geronimo.modules</groupId>
+                            <artifactId>geronimo-corba</artifactId>
+                            <version>2.1-SNAPSHOT</version>
+                            <type>jar</type>
+                        </dependency>
+                    </dependencies>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
     
 </project>

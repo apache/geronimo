@@ -32,6 +32,8 @@
     <artifactId>myfaces</artifactId>
     <name>Geronimo Configs :: MyFaces</name>
     <packaging>car</packaging>
+
+    <description>Geronimo MyFaces jsf integration</description>
     
     <dependencies>
         <!-- parent -->
@@ -78,4 +80,21 @@
         </dependency>
 
     </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.geronimo.plugins</groupId>
+                <artifactId>car-maven-plugin</artifactId>
+                <configuration>
+                    <useMavenDependencies>
+                        <value>true</value>
+                        <includeVersion>true</includeVersion>
+                    </useMavenDependencies>
+                    <category>Web Framework</category>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+    
 </project>
