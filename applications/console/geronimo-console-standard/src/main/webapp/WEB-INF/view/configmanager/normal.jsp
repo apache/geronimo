@@ -19,6 +19,8 @@
 <portlet:defineObjects/>
 
 <script>
+var EXPERT_COOKIE = "org.apache.geronimo.configmanager.expertmode";
+
 // Check to see if a component is "safe" to stop within a running server.
 // Service components with names that begin with "org.apache.geronimo.configs/", for example,
 // may not be safe to stop because doing so might prevent other components
@@ -125,7 +127,9 @@ function uninstallPrompt(configId,expertConfig, type) {
 
 // Toggle expert mode on and off with onClick
 function toggleExpertMode() {
-    if (document.checkExpert.expertUser.checked) {
+    if (document.checkExpert.expertMode.checked) {
+        //  Set attribute/parameter to indicated expertMode is checked
+        document.cookie=EXPERT_COOKIE+"=true";
         var expertActions = getSpanElementsByName('expert');
         for( var i = 0; i < expertActions.length; ++i ) {
             expertActions[i].style.display='block' ;
@@ -136,6 +140,8 @@ function toggleExpertMode() {
         }
     }
     else {
+        //  Set attribute/parameter to indicated expertMode is not checked
+        document.cookie=EXPERT_COOKIE+"=false";
         var expertActions = getSpanElementsByName('expert');
         for( var i = 0; i < expertActions.length; ++i ) {
             expertActions[i].style.display='none' ;
@@ -161,12 +167,39 @@ function getSpanElementsByName(name) {
     }
     return results;
 }
+
+// get cookie utility routine
+function getCookie(name) {
+    var result = "";
+    var key = name + "=";
+    if (document.cookie.length > 0) {
+        start = document.cookie.indexOf(key);
+        if (start != -1) { 
+            start += key.length;
+            end = document.cookie.indexOf(";", start);
+            if (end == -1) end = document.cookie.length;
+            result=document.cookie.substring(start, end);
+        }
+    }
+    return result;
+}
+
+// initialization routine to set the initial display state for expert mode correctly
+function init() {
+    if (getCookie(EXPERT_COOKIE) == 'true') {
+        document.checkExpert.expertMode.checked = true;
+    }
+    else {
+        document.checkExpert.expertMode.checked = false;
+    }
+    toggleExpertMode();
+}
 </script>
 
 
 <br />
 <form name="checkExpert">
-<input type="checkbox" name="expertUser" onClick="toggleExpertMode();"/>&nbsp;Expert User (enable all actions on Geronimo Provided Components)   
+<input type="checkbox" name="expertMode" onClick="toggleExpertMode();" />&nbsp;Expert User (enable all actions on Geronimo Provided Components)   
 </form>
 <br />
 <table width="100%">
@@ -204,7 +237,7 @@ function getSpanElementsByName(name) {
         <td width="75" class="${backgroundClass}">
             <c:if test="${moduleDetails.state.running || moduleDetails.state.failed}">
                 <span <c:if test="${moduleDetails.expertConfig}"> name=expert </c:if>> 
-                    &nbsp;<a href="<portlet:actionURL><portlet:param name="configId" value="${moduleDetails.configId}"/><portlet:param name="action" value="stop"/></portlet:actionURL>" onClick="return promptIfUnsafeToStop('${moduleDetails.configId}','${moduleDetails.expertConfig}','${moduleDetails.type.name}');">Stop</a>
+                    &nbsp;<a href="<portlet:actionURL><portlet:param name='configId' value='${moduleDetails.configId}'/><portlet:param name='action' value='stop'/></portlet:actionURL>" onClick="return promptIfUnsafeToStop('${moduleDetails.configId}','${moduleDetails.expertConfig}','${moduleDetails.type.name}');">Stop</a>
                 </span>
             </c:if>
             <c:if test="${moduleDetails.expertConfig && (moduleDetails.state.running || moduleDetails.state.failed)}">
@@ -213,7 +246,7 @@ function getSpanElementsByName(name) {
                 </span>
             </c:if>
             <c:if test="${moduleDetails.state.stopped && (moduleDetails.type.name ne 'CAR')}">
-                &nbsp;<a href="<portlet:actionURL><portlet:param name="configId" value="${moduleDetails.configId}"/><portlet:param name="action" value="start"/></portlet:actionURL>">Start</a>
+                &nbsp;<a href="<portlet:actionURL><portlet:param name='configId' value='${moduleDetails.configId}'/><portlet:param name='action' value='start'/></portlet:actionURL>">Start</a>
             </c:if>
         </td>
 
@@ -221,7 +254,7 @@ function getSpanElementsByName(name) {
         <td width="75" class="${backgroundClass}">
             <c:if test="${moduleDetails.state.running}">
                 <span <c:if test="${moduleDetails.expertConfig}"> name=expert </c:if>> 
-                    &nbsp;<a href="<portlet:actionURL><portlet:param name="configId" value="${moduleDetails.configId}"/><portlet:param name="action" value="restart"/></portlet:actionURL>" onClick="return promptIfUnsafeToRestart('${moduleDetails.configId}','${moduleDetails.expertConfig}','${moduleDetails.type.name}');">Restart</a>
+                    &nbsp;<a href="<portlet:actionURL><portlet:param name='configId' value='${moduleDetails.configId}'/><portlet:param name='action' value='restart'/></portlet:actionURL>" onClick="return promptIfUnsafeToRestart('${moduleDetails.configId}','${moduleDetails.expertConfig}','${moduleDetails.type.name}');">Restart</a>
                 </span>
             </c:if>
             <c:if test="${moduleDetails.expertConfig && moduleDetails.state.running}">
@@ -229,14 +262,12 @@ function getSpanElementsByName(name) {
                     &nbsp;<a>Restart</a>
                 </span>
             </c:if>
-            <!-- <c:if test="${moduleDetails.state.running}">&nbsp;<a <c:if test="${moduleDetails.expertConfig}"> name=expert </c:if>href="<portlet:actionURL><portlet:param name="configId" value="${moduleDetails.configId}"/><portlet:param name="action" value="restart"/></portlet:actionURL>" onClick="return promptIfUnsafeToRestart('${moduleDetails.configId}','${moduleDetails.expertConfig}','${moduleDetails.type.name}');">Restart</a></c:if> -->
-            <!-- <c:if test="${moduleDetails.expertConfig}">&nbsp;<a name=nonexpert /> Restart</a> </c:if>  -->
         </td>
 
         <!-- Uninstall action -->
         <td width="75" class="${backgroundClass}">
             <span <c:if test="${moduleDetails.expertConfig}"> name=expert </c:if>> 
-                &nbsp;<a href="<portlet:actionURL><portlet:param name="configId" value="${moduleDetails.configId}"/><portlet:param name="action" value="uninstall"/></portlet:actionURL>" onClick="return uninstallPrompt('${moduleDetails.configId}','${moduleDetails.expertConfig}','${moduleDetails.type.name}');">Uninstall</a>
+                &nbsp;<a href="<portlet:actionURL><portlet:param name='configId' value='${moduleDetails.configId}'/><portlet:param name='action' value='uninstall'/></portlet:actionURL>" onClick="return uninstallPrompt('${moduleDetails.configId}','${moduleDetails.expertConfig}','${moduleDetails.type.name}');">Uninstall</a>
             </span>
             <c:if test="${moduleDetails.expertConfig}">
                 <span name=nonexpert> 
@@ -268,5 +299,5 @@ function getSpanElementsByName(name) {
 
 <script>
 // Call to set initial expert mode actions correctly 
-toggleExpertMode();
+init();
 </script>
