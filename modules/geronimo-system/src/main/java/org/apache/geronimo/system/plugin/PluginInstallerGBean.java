@@ -30,7 +30,6 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
-import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -94,13 +93,13 @@ import org.apache.geronimo.system.plugin.model.ArtifactType;
 import org.apache.geronimo.system.plugin.model.CopyFileType;
 import org.apache.geronimo.system.plugin.model.DependencyType;
 import org.apache.geronimo.system.plugin.model.HashType;
+import org.apache.geronimo.system.plugin.model.LicenseType;
 import org.apache.geronimo.system.plugin.model.ObjectFactory;
 import org.apache.geronimo.system.plugin.model.PluginArtifactType;
 import org.apache.geronimo.system.plugin.model.PluginListType;
 import org.apache.geronimo.system.plugin.model.PluginType;
 import org.apache.geronimo.system.plugin.model.PrerequisiteType;
 import org.apache.geronimo.system.plugin.model.PropertyType;
-import org.apache.geronimo.system.plugin.model.LicenseType;
 import org.apache.geronimo.system.resolver.AliasedArtifactResolver;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
 import org.apache.geronimo.system.threads.ThreadPool;
@@ -1215,20 +1214,19 @@ public class PluginInstallerGBean implements PluginInstaller {
             throw new MissingDependencyException(
                     "No support yet for dependencies missing more than a version: " + query);
         }
-        Artifact result = null;
         for (String repo : repos) {
             try {
                 URL repoUrl = PluginRepositoryDownloader.resolveRepository(repo);
                 if (repoUrl != null) {
-                    result = findArtifact(query, repoUrl, username, password, monitor);
+                    Artifact result = findArtifact(query, repoUrl, username, password, monitor);
+                    if (result != null) {
+                        return result;
+                    }
                 } else {
                     log.warn("could not resolve repo: " + repo);
                 }
             } catch (Exception e) {
                 log.warn("Unable to read from " + repo, e);
-            }
-            if (result != null) {
-                return result;
             }
         }
         log.error("No repository has a valid artifact for " + query);
@@ -1240,6 +1238,9 @@ public class PluginInstallerGBean implements PluginInstaller {
      * have wildcards in the ID.
      */
     private static Artifact findArtifact(Artifact query, URL url, String username, String password, ResultsFileWriteMonitor monitor) throws IOException, FailedLoginException, ParserConfigurationException, SAXException {
+        if (query.isResolved() && testArtifact(query, url, username, password, monitor)) {
+            return query;
+        }
         monitor.getResults().setCurrentMessage("Searching for " + query + " at " + url);
         String base = query.getGroupId().replace('.', '/') + "/" + query.getArtifactId();
         String path = base + "/maven-metadata.xml";
@@ -1313,19 +1314,25 @@ public class PluginInstallerGBean implements PluginInstaller {
             // look for the artifact in the maven repo
             Artifact verifiedArtifact = new Artifact(query.getGroupId(), query.getArtifactId(), version,
                     query.getType());
-            URL test = getURL(verifiedArtifact, url);
-            InputStream testStream = connect(test, username, password, monitor, "HEAD");
-            if (testStream == null) {
-                log.debug(
-                        "Maven repository " + url + " listed artifact " + query + " version " + version + " but I couldn't find it at " + test);
+            if (!testArtifact(verifiedArtifact, url, username, password, monitor)) {
+                log.debug("Maven repository " + url + " listed artifact " + query + " version " + version + " but I couldn't find it at " + getURL(verifiedArtifact, url));
                 continue;
             }
-            testStream.close();
-            log.debug("Found artifact at " + test);
+            log.debug("Found artifact at " + getURL(verifiedArtifact, url));
             return verifiedArtifact;
         }
         log.error("Could not find an acceptable version of artifact=" + query + " from Maven repository=" + url);
         return null;
+    }
+
+    private static boolean testArtifact(Artifact artifact, URL repo, String username, String password, ResultsFileWriteMonitor monitor) throws IOException, FailedLoginException {
+        URL test = getURL(artifact, repo);
+        InputStream testStream = connect(test, username, password, monitor, "HEAD");
+        if (testStream != null) {
+            testStream.close();
+        }
+        return testStream != null;
+
     }
 
     /**
@@ -1516,6 +1523,7 @@ public class PluginInstallerGBean implements PluginInstaller {
             }
         }
     }
+
     /**
      * Loads the list of all available plugins from the specified stream
      * (representing geronimo-plugins.xml at the specified repository).
@@ -1728,10 +1736,10 @@ public class PluginInstallerGBean implements PluginInstaller {
             if (license != null) {
                 if (license.size() != that.license.size()) return false;
                 int i = 0;
-                for (LicenseType licenseType: license) {
+                for (LicenseType licenseType : license) {
                     LicenseType otherLicense = that.license.get(i++);
                     if (licenseType.isOsiApproved() != otherLicense.isOsiApproved()) return false;
-                    if (licenseType.getValue() != null? !licenseType.getValue().equals(otherLicense.getValue()) : otherLicense.getValue() != null) return false;
+                    if (licenseType.getValue() != null ? !licenseType.getValue().equals(otherLicense.getValue()) : otherLicense.getValue() != null) return false;
                 }
             }
 
