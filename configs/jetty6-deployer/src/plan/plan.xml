@@ -130,7 +130,10 @@ wsdl=text/xml
                         <type>car</type>
                     </dependency>
                 </dependencies>
-                <hidden-classes/>
+                <hidden-classes>
+                    <filter>org.springframework.</filter>
+                    <filter>META-INF/spring</filter>
+                </hidden-classes>
                 <non-overridable-classes>
                     <filter>java.</filter>
                     <filter>javax.</filter>
