@@ -110,10 +110,15 @@
     <module name="org.apache.geronimo.configs/myfaces/${version}/car"/>
 
     <module name="org.apache.geronimo.configs/tomcat6/${version}/car">
-        <!-- To disable accesslogging uncomment the following lines
         <gbean name="TomcatEngine">
+            <attribute name="initParams">
+                name=Geronimo
+            </attribute>
+            <!-- To disable accesslogging uncomment the following line
             <reference name="TomcatValveChain" />
+            -->
         </gbean>
+        <!-- To disable accesslogging uncomment the following line
         <gbean name="FirstValve" load="false"></gbean>
         -->
         <gbean name="TomcatResources"/>
