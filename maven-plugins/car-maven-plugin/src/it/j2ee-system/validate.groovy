@@ -17,6 +17,9 @@
  * under the License.
  */
 
+/**
+ * Loads text from a file an normalizes its EOL-style for platform-safe validation.
+ */
 def loadText = { filename ->
     def file = new File(basedir, "$filename")
     
@@ -32,6 +35,9 @@ def loadText = { filename ->
     return text
 }
 
+/**
+ * Asserts that the text of both files are the same in a platform-safe fasion.
+ */
 def assertSame = { file1, file2 ->
     def expect = loadText(file1)
     def found = loadText(file2)
