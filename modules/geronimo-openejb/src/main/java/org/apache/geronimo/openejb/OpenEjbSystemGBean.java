@@ -128,7 +128,7 @@ public class OpenEjbSystemGBean implements OpenEjbSystem {
         TransactionServiceInfo transactionServiceInfo = new TransactionServiceInfo();
         PassthroughFactory.add(transactionServiceInfo, transactionManager);
         transactionServiceInfo.id = "Default Transaction Manager";
-        transactionServiceInfo.serviceType = "TransactionManager";
+        transactionServiceInfo.service = "TransactionManager";
         assembler.createTransactionManager(transactionServiceInfo);
 
         // install security service
@@ -136,13 +136,13 @@ public class OpenEjbSystemGBean implements OpenEjbSystem {
         SecurityServiceInfo securityServiceInfo = new SecurityServiceInfo();
         PassthroughFactory.add(securityServiceInfo, securityService);
         securityServiceInfo.id = "Default Security Service";
-        securityServiceInfo.serviceType = "SecurityService";
+        securityServiceInfo.service = "SecurityService";
         assembler.createSecurityService(securityServiceInfo);
 
         // install proxy factory
         ProxyFactoryInfo proxyFactoryInfo = new ProxyFactoryInfo();
         proxyFactoryInfo.id = "Default JDK 1.3 ProxyFactory";
-        proxyFactoryInfo.serviceType = "ProxyFactory";
+        proxyFactoryInfo.service = "ProxyFactory";
         proxyFactoryInfo.className = Jdk13ProxyFactory.class.getName();
         proxyFactoryInfo.properties = new Properties();
         assembler.createProxyFactory(proxyFactoryInfo);
