@@ -21,7 +21,7 @@
 package org.apache.geronimo.mavenplugins.car;
 
 /**
- * @version $Rev:$ $Date:$
+ * @version $Rev$ $Date$
  */
 public class UseMavenDependencies {
 

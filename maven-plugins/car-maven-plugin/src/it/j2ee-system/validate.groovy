@@ -17,7 +17,6 @@
  * under the License.
  */
 
-
 def expected1 = new File(basedir, "src/test/resources/META-INF/geronimo-plugin.xml").text
 def found1 = new File(basedir, "target/resources/META-INF/geronimo-plugin.xml").text
 
