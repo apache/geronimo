@@ -42,7 +42,7 @@
     <dependencies>
         <dependency>
             <groupId>org.apache.geronimo.assemblies</groupId>
-            <artifactId>geronimo-boilerplate-javaee5</artifactId>
+            <artifactId>geronimo-boilerplate-minimal</artifactId>
             <version>${version}</version>
             <scope>provided</scope>
         </dependency>
