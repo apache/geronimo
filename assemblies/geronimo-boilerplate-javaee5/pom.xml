@@ -39,15 +39,55 @@
         Provides boilerplate files for all Geronimo JavaEE server assemblies.
     </description>
     
+    <dependencies>
+        <dependency>
+            <groupId>org.apache.geronimo.assemblies</groupId>
+            <artifactId>geronimo-boilerplate-javaee5</artifactId>
+            <version>${version}</version>
+            <scope>provided</scope>
+        </dependency>
+        
+        <dependency>
+            <groupId>org.apache.geronimo.modules</groupId>
+            <artifactId>geronimo-transformer</artifactId>
+            <version>${version}</version>
+        </dependency>
+    </dependencies>
+    
     <build>
         <resources>
             <resource>
-                <directory>${pom.basedir}/src/main/resources</directory>
+                <directory>${pom.basedir}/src/main/underlay</directory>
                 <filtering>true</filtering>
             </resource>
         </resources>
 
         <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>unpack-boilerplate</id>
+                        <phase>generate-resources</phase>
+                        <goals>
+                            <goal>unpack</goal>
+                        </goals>
+                        <configuration>
+                            <artifactItems>
+                                <artifactItem>
+                                    <groupId>org.apache.geronimo.assemblies</groupId>
+                                    <artifactId>geronimo-boilerplate-minimal</artifactId>
+                                    <version>${version}</version>
+                                    <type>jar</type>
+                                </artifactItem>
+                            </artifactItems>
+                            <outputDirectory>${project.build.directory}/boilerplate</outputDirectory>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            
             <plugin>
                 <groupId>org.apache.geronimo.plugins</groupId>
                 <artifactId>car-maven-plugin</artifactId>
@@ -63,7 +103,7 @@
                             <goal>install-artifacts</goal>
                         </goals>
                         <configuration>
-                            <repositoryDirectory>${project.build.outputDirectory}/repository</repositoryDirectory>
+                            <repositoryDirectory>${project.build.directory}/repository</repositoryDirectory>
                             <artifacts>
                                 <artifact>
                                     <groupId>org.apache.geronimo.modules</groupId>
@@ -119,63 +159,20 @@
             
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-dependency-plugin</artifactId>
+                <artifactId>maven-assembly-plugin</artifactId>
                 <executions>
                     <execution>
-                        <id>unpack-boilerplate</id>
-                        <phase>generate-resources</phase>
-                        <goals>
-                            <goal>unpack</goal>
-                        </goals>
-                        <configuration>
-                            <artifactItems>
-                                <artifactItem>
-                                    <groupId>org.apache.geronimo.assemblies</groupId>
-                                    <artifactId>geronimo-boilerplate-minimal</artifactId>
-                                    <version>${version}</version>
-                                    <type>jar</type>
-                                </artifactItem>
-                            </artifactItems>
-                            <outputDirectory>${project.build.directory}/boilerplate</outputDirectory>
-                        </configuration>
-                    </execution>
-                    
-                    <execution>
-                        <id>install-lib-endorsed</id>
+                        <id>boilerplate</id>
                         <phase>compile</phase>
                         <goals>
-                            <goal>copy</goal>
+                            <goal>directory-inline</goal>
                         </goals>
                         <configuration>
-                            <artifactItems>
-                                <artifactItem>
-                                    <groupId>org.apache.yoko</groupId>
-                                    <artifactId>yoko-spec-corba</artifactId>
-                                </artifactItem>
-                                <artifactItem>
-                                    <groupId>org.apache.yoko</groupId>
-                                    <artifactId>yoko-rmi-spec</artifactId>
-                                </artifactItem>
-                            </artifactItems>
-                            <outputDirectory>${project.build.directory}/classes/lib/endorsed</outputDirectory>
-                        </configuration>
-                    </execution>
-
-                    <execution>
-                        <id>install-lib</id>
-                        <phase>compile</phase>
-                        <goals>
-                            <goal>copy</goal>
-                        </goals>
-                        <configuration>
-                            <artifactItems>
-                                <artifactItem>
-                                    <groupId>org.apache.geronimo.modules</groupId>
-                                    <artifactId>geronimo-transformer</artifactId>
-                                    <version>${version}</version>
-                                </artifactItem>
-                            </artifactItems>
-                            <outputDirectory>${project.build.directory}/classes/lib</outputDirectory>
+                            <outputDirectory>${project.build.directory}</outputDirectory>
+                            <appendAssemblyId>false</appendAssemblyId>
+                            <descriptors>
+                                <descriptor>${pom.basedir}/src/main/assembly/boilerplate.xml</descriptor>
+                            </descriptors>
                         </configuration>
                     </execution>
                 </executions>
@@ -186,17 +183,17 @@
                 <artifactId>maven-antrun-plugin</artifactId>
                 <executions>
                     <execution>
-                        <id>extend-boilerplate</id>
-                        <phase>generate-resources</phase>
+                        <id>install-underlay</id>
+                        <phase>process-classes</phase>
                         <goals>
                             <goal>run</goal>
                         </goals>
                         <configuration>
                             <tasks>
+                                <mkdir dir="${project.build.directory}/classes"/>
                                 <copy todir="${project.build.directory}/classes">
-                                    <fileset dir="${project.build.directory}/boilerplate">
+                                    <fileset dir="${project.build.directory}/${project.build.finalName}/${project.build.finalName}">
                                         <include name="**"/>
-                                        <exclude name="META-INF/**"/>
                                     </fileset>
                                 </copy>
                             </tasks>
