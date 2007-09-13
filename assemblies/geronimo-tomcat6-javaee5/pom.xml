@@ -38,7 +38,13 @@
     </description>
 
     <dependencies>
-
+        <dependency>
+            <groupId>org.apache.geronimo.assemblies</groupId>
+            <artifactId>geronimo-boilerplate-javaee5</artifactId>
+            <version>${version}</version>
+            <scope>provided</scope>
+        </dependency>
+        
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
             <artifactId>transformer-agent</artifactId>
@@ -52,7 +58,21 @@
             <version>${version}</version>
             <type>car</type>
         </dependency>
-
+        
+        <dependency>
+            <groupId>org.apache.geronimo.configs</groupId>
+            <artifactId>client-system</artifactId>
+            <version>${version}</version>
+            <type>car</type>
+        </dependency>
+        
+        <dependency>
+            <groupId>org.apache.geronimo.configs</groupId>
+            <artifactId>upgrade-cli</artifactId>
+            <version>${version}</version>
+            <type>car</type>
+        </dependency>
+        
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
             <artifactId>rmi-naming</artifactId>
@@ -120,20 +140,6 @@
             <version>${version}</version>
             <type>car</type>
         </dependency>
-
-        <!--<dependency>-->
-            <!--<groupId>org.apache.geronimo.configs</groupId>-->
-            <!--<artifactId>directory</artifactId>-->
-            <!--<version>${version}</version>-->
-            <!--<type>car</type>-->
-        <!--</dependency>-->
-
-        <!--<dependency>-->
-            <!--<groupId>org.apache.geronimo.configs</groupId>-->
-            <!--<artifactId>ldap-realm</artifactId>-->
-            <!--<version>${version}</version>-->
-            <!--<type>car</type>-->
-        <!--</dependency>-->
 
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
@@ -421,7 +427,6 @@
             <version>${version}</version>
             <type>car</type>
         </dependency>
-
     </dependencies>
 
     <build>
@@ -447,7 +452,7 @@
                             <artifactItems>
                                 <artifactItem>
                                     <groupId>org.apache.geronimo.assemblies</groupId>
-                                    <artifactId>geronimo-boilerplate-jee5</artifactId>
+                                    <artifactId>geronimo-boilerplate-javaee5</artifactId>
                                     <version>${version}</version>
                                 </artifactItem>
                             </artifactItems>
@@ -472,25 +477,6 @@
                             <outputDirectory>${project.build.directory}/scratch/schema</outputDirectory>
                         </configuration>
                     </execution>
-
-                    <execution>
-                        <id>install-lib</id>
-                        <phase>compile</phase>
-                        <goals>
-                            <goal>copy</goal>
-                        </goals>
-                        <configuration>
-                            <artifactItems>
-                                <artifactItem>
-                                    <groupId>org.apache.geronimo.modules</groupId>
-                                    <artifactId>geronimo-jaxws-builder</artifactId>
-                                    <version>${version}</version>
-                                </artifactItem>
-                            </artifactItems>
-                            <outputDirectory>${project.build.directory}/classes/lib</outputDirectory>
-                        </configuration>
-                    </execution>
-
                 </executions>
             </plugin>
 

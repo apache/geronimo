@@ -29,6 +29,7 @@
     <includeBaseDirectory>true</includeBaseDirectory>
 
     <dependencySets>
+        <!--
         <dependencySet>
             <outputDirectory>bin</outputDirectory>
             <outputFileNameMapping>server.jar</outputFileNameMapping>
@@ -36,10 +37,12 @@
                 <include>org.apache.geronimo.configs:j2ee-system</include>
             </includes>
         </dependencySet>
+        -->
         
         <dependencySet>
             <outputDirectory>bin</outputDirectory>
             <outputFileNameMapping>client.jar</outputFileNameMapping>
+            <useStrictFiltering>true</useStrictFiltering>
             <includes>
                 <include>org.apache.geronimo.configs:client-system</include>
             </includes>
@@ -48,6 +51,7 @@
         <dependencySet>
             <outputDirectory>bin</outputDirectory>
             <outputFileNameMapping>deployer.jar</outputFileNameMapping>
+            <useStrictFiltering>true</useStrictFiltering>
             <includes>
                 <include>org.apache.geronimo.configs:online-deployer</include>
             </includes>
@@ -56,11 +60,13 @@
         <dependencySet>
             <outputDirectory>lib</outputDirectory>
             <outputFileNameMapping>jsr88-deploymentfactory.jar</outputFileNameMapping>
+            <useStrictFiltering>true</useStrictFiltering>
             <includes>
                 <include>org.apache.geronimo.configs:jsr88-deploymentfactory</include>
             </includes>
         </dependencySet>
 
+        <!--
         <dependencySet>
             <outputDirectory>bin</outputDirectory>
             <outputFileNameMapping>shutdown.jar</outputFileNameMapping>
@@ -68,10 +74,12 @@
                 <include>org.apache.geronimo.configs:shutdown</include>
             </includes>
         </dependencySet>
+        -->
         
         <dependencySet>
             <outputDirectory>bin</outputDirectory>
             <outputFileNameMapping>upgrade.jar</outputFileNameMapping>
+            <useStrictFiltering>true</useStrictFiltering>
             <includes>
                 <include>org.apache.geronimo.configs:upgrade-cli</include>
             </includes>

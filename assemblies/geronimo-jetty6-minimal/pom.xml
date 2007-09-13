@@ -38,10 +38,30 @@
     </description>
     
     <dependencies>
+        <dependency>
+            <groupId>org.apache.geronimo.assemblies</groupId>
+            <artifactId>geronimo-boilerplate-minimal</artifactId>
+            <version>${version}</version>
+            <scope>provided</scope>
+        </dependency>
         
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
             <artifactId>j2ee-system</artifactId>
+            <version>${version}</version>
+            <type>car</type>
+        </dependency>
+        
+        <dependency>
+            <groupId>org.apache.geronimo.configs</groupId>
+            <artifactId>client-system</artifactId>
+            <version>${version}</version>
+            <type>car</type>
+        </dependency>
+        
+        <dependency>
+            <groupId>org.apache.geronimo.configs</groupId>
+            <artifactId>upgrade-cli</artifactId>
             <version>${version}</version>
             <type>car</type>
         </dependency>
@@ -206,7 +226,6 @@
             <version>${version}</version>
             <type>car</type>
         </dependency>
-        
     </dependencies>
     
     <build>

@@ -24,45 +24,43 @@
     <formats>
         <format>zip</format>
         <format>tar.gz</format>
-        
-        <!--
-        
-        HACK: Turn off bz2 for now, it takes too long to generate.
-        
-        <format>tar.bz2</format>
-        -->
     </formats>
 
     <includeBaseDirectory>true</includeBaseDirectory>
 
     <dependencySets>
-        <!--
-        NOTE: lib/ is picked up from boilerplate.
-        -->
-        
-        <!--
-        NOTE: lib/endorsed/ is picked up from boilerplate.
-        -->
+        <dependencySet>
+            <outputDirectory>lib</outputDirectory>
+            <useStrictFiltering>true</useStrictFiltering>
+            <includes>
+                <include>org.apache.geronimo.modules:geronimo-jaxws-builder</include>
+            </includes>
+        </dependencySet>
         
         <dependencySet>
             <outputDirectory>bin</outputDirectory>
             <outputFileNameMapping>jpa.jar</outputFileNameMapping>
+            <useStrictFiltering>true</useStrictFiltering>
             <includes>
                 <include>org.apache.geronimo.configs:transformer-agent</include>
             </includes>
         </dependencySet>
-
+        
+        <!--
         <dependencySet>
             <outputDirectory>bin</outputDirectory>
             <outputFileNameMapping>server.jar</outputFileNameMapping>
+            <useStrictFiltering>true</useStrictFiltering>
             <includes>
                 <include>org.apache.geronimo.configs:j2ee-system</include>
             </includes>
         </dependencySet>
-
+        -->
+        
         <dependencySet>
             <outputDirectory>bin</outputDirectory>
             <outputFileNameMapping>client.jar</outputFileNameMapping>
+            <useStrictFiltering>true</useStrictFiltering>
             <includes>
                 <include>org.apache.geronimo.configs:client-system</include>
             </includes>
@@ -71,6 +69,7 @@
         <dependencySet>
             <outputDirectory>bin</outputDirectory>
             <outputFileNameMapping>deployer.jar</outputFileNameMapping>
+            <useStrictFiltering>true</useStrictFiltering>
             <includes>
                 <include>org.apache.geronimo.configs:online-deployer</include>
             </includes>
@@ -79,22 +78,27 @@
         <dependencySet>
             <outputDirectory>lib</outputDirectory>
             <outputFileNameMapping>jsr88-deploymentfactory.jar</outputFileNameMapping>
+            <useStrictFiltering>true</useStrictFiltering>
             <includes>
                 <include>org.apache.geronimo.configs:jsr88-deploymentfactory</include>
             </includes>
         </dependencySet>
         
+        <!--
         <dependencySet>
             <outputDirectory>bin</outputDirectory>
             <outputFileNameMapping>shutdown.jar</outputFileNameMapping>
+            <useStrictFiltering>true</useStrictFiltering>
             <includes>
                 <include>org.apache.geronimo.configs:shutdown</include>
             </includes>
         </dependencySet>
+        -->
         
         <dependencySet>
             <outputDirectory>bin</outputDirectory>
             <outputFileNameMapping>upgrade.jar</outputFileNameMapping>
+            <useStrictFiltering>true</useStrictFiltering>
             <includes>
                 <include>org.apache.geronimo.configs:upgrade-cli</include>
             </includes>
@@ -103,6 +107,7 @@
         <dependencySet>
             <outputDirectory>bin</outputDirectory>
             <outputFileNameMapping>jaxws-tools.jar</outputFileNameMapping>
+            <useStrictFiltering>true</useStrictFiltering>
             <includes>
                 <include>org.apache.geronimo.configs:jaxws-deployer</include>
             </includes>
@@ -138,8 +143,13 @@
             <directory>target/boilerplate/bin</directory>
             <outputDirectory>bin</outputDirectory>
             <includes>
-                <include>*.sh</include>
+                <include>*</include>
             </includes>
+            <excludes>
+                <exclude>*.bat</exclude>
+                <exclude>*.cmd</exclude>
+                <exclude>*.txt</exclude>
+            </excludes>
             <lineEnding>unix</lineEnding>
             <fileMode>0755</fileMode>
         </fileSet>
@@ -149,6 +159,33 @@
             <outputDirectory>bin</outputDirectory>
             <includes>
                 <include>*.bat</include>
+                <include>*.cmd</include>
+                <include>*.txt</include>
+            </includes>
+            <lineEnding>dos</lineEnding>
+        </fileSet>
+        
+        <fileSet>
+            <directory>src/main/resources/bin</directory>
+            <outputDirectory>bin</outputDirectory>
+            <includes>
+                <include>*</include>
+            </includes>
+            <excludes>
+                <exclude>*.bat</exclude>
+                <exclude>*.cmd</exclude>
+                <exclude>*.txt</exclude>
+            </excludes>
+            <lineEnding>unix</lineEnding>
+            <fileMode>0755</fileMode>
+        </fileSet>
+        
+        <fileSet>
+            <directory>src/main/resources/bin</directory>
+            <outputDirectory>bin</outputDirectory>
+            <includes>
+                <include>*.bat</include>
+                <include>*.cmd</include>
                 <include>*.txt</include>
             </includes>
             <lineEnding>dos</lineEnding>
@@ -173,34 +210,6 @@
             <includes>
                 <include>var/config/config.xml</include>
             </includes>
-        </fileSet>
-
-        <fileSet>
-            <directory>target/classes/lib</directory>
-            <outputDirectory>lib</outputDirectory>
-            <includes>
-                <include>*.jar</include>
-            </includes>
-        </fileSet>
-
-        <fileSet>
-            <directory>src/main/resources/bin</directory>
-            <outputDirectory>bin</outputDirectory>
-            <includes>
-                <include>*.sh</include>
-            </includes>
-            <lineEnding>unix</lineEnding>
-            <fileMode>0755</fileMode>
-        </fileSet>
-        
-        <fileSet>
-            <directory>src/main/resources/bin</directory>
-            <outputDirectory>bin</outputDirectory>
-            <includes>
-                <include>*.bat</include>
-                <include>*.txt</include>
-            </includes>
-            <lineEnding>dos</lineEnding>
         </fileSet>
     </fileSets>
 

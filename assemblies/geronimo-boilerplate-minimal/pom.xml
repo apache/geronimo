@@ -56,12 +56,12 @@
         
         <dependency>
             <groupId>org.apache.geronimo.gshell</groupId>
-            <artifactId>gshell-core</artifactId>
+            <artifactId>gshell-cli</artifactId>
         </dependency>
         
         <dependency>
             <groupId>org.apache.geronimo.gshell</groupId>
-            <artifactId>gshell-cli</artifactId>
+            <artifactId>gshell-embeddable</artifactId>
         </dependency>
         
         <dependency>
@@ -72,11 +72,6 @@
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>jcl104-over-slf4j</artifactId>
-        </dependency>
-        
-        <dependency>
-            <groupId>org.apache.geronimo.gshell.commands</groupId>
-            <artifactId>gshell-builtins</artifactId>
         </dependency>
         
         <!-- lib Dependencies -->
@@ -178,6 +173,23 @@
             <groupId>org.apache.yoko</groupId>
             <artifactId>yoko-rmi-spec</artifactId>
         </dependency>
+        
+        <!-- bin Dependencies (executable jars) -->
+        
+        <dependency>
+            <groupId>org.apache.geronimo.configs</groupId>
+            <artifactId>j2ee-system</artifactId>
+            <version>${version}</version>
+            <type>car</type>
+        </dependency>
+        
+        <dependency>
+            <groupId>org.apache.geronimo.configs</groupId>
+            <artifactId>shutdown</artifactId>
+            <version>${version}</version>
+            <type>car</type>
+        </dependency>
+        
     </dependencies>
     
     <build>
