@@ -29,12 +29,12 @@
         <relativePath>../pom.xml</relativePath>
     </parent>
 
-    <artifactId>geronimo-tomcat6-jee5</artifactId>
-    <name>Geronimo Assemblies :: JEE5 + Tomcat</name>
+    <artifactId>geronimo-tomcat6-javaee5</artifactId>
+    <name>Geronimo Assemblies :: JavaEE 5 + Tomcat</name>
     <packaging>application-assembly</packaging>
 
     <description>
-        An assembly of Geronimo into a JavaEE5 Server using Tomcat as the web container.
+        An assembly of Geronimo into a JavaEE 5 Server using Tomcat as the web container.
     </description>
 
     <dependencies>
