@@ -1719,7 +1719,7 @@
                             <assembly>
                                 <id>jetty</id>
                                 <groupId>org.apache.geronimo.assemblies</groupId>
-                                <artifactId>geronimo-jetty6-jee5</artifactId>
+                                <artifactId>geronimo-jetty6-javaee5</artifactId>
                                 <version>${version}</version>
                                 <classifier>bin</classifier>
                                 <type>zip</type>
@@ -1737,7 +1737,7 @@
                             <assembly>
                                 <id>tomcat</id>
                                 <groupId>org.apache.geronimo.assemblies</groupId>
-                                <artifactId>geronimo-tomcat6-jee5</artifactId>
+                                <artifactId>geronimo-tomcat6-javaee5</artifactId>
                                 <version>${version}</version>
                                 <classifier>bin</classifier>
                                 <type>zip</type>
