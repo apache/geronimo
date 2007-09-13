@@ -102,6 +102,15 @@
                 <include>org.apache.geronimo.configs:shutdown</include>
             </includes>
         </dependencySet>
+
+        <dependencySet>
+            <outputDirectory>lib/endorsed</outputDirectory>
+            <includes>
+                <include>org.apache.yoko:yoko-spec-corba</include>
+                <include>org.apache.yoko:yoko-rmi-spec</include>
+            </includes>
+        </dependencySet>
+
     </dependencySets>
 
 </assembly>
