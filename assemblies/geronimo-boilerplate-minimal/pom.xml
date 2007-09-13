@@ -40,13 +40,14 @@
     </description>
 
     <dependencies>
+        
         <!-- lib/gshell Dependencies -->
         
         <dependency>
             <groupId>org.apache.geronimo.gshell</groupId>
             <artifactId>gshell-bootstrap</artifactId>
         </dependency>
-
+        
         <dependency>
             <groupId>org.apache.geronimo.gshell</groupId>
             <artifactId>gshell-core</artifactId>

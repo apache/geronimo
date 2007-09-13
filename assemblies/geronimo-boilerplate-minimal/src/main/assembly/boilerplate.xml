@@ -26,34 +26,6 @@
             <directory>src/main/underlay</directory>
             <outputDirectory>/</outputDirectory>
         </fileSet>
-        
-        <!--
-        <fileSet>
-            <directory>src/main/underlay/bin</directory>
-            <outputDirectory>bin</outputDirectory>
-            <includes>
-                <include>gsh</include>
-                <include>startup</include>
-            </includes>
-            <lineEnding>unix</lineEnding>
-            <fileMode>0755</fileMode>
-        </fileSet>
-        
-        <fileSet>
-            <directory>src/main/underlay/bin</directory>
-            <outputDirectory>bin</outputDirectory>
-            <includes>
-                <include>gsh.bat</include>
-                <include>startup.bat</include>
-            </includes>
-            <lineEnding>dos</lineEnding>
-        </fileSet>
-        
-        <fileSet>
-            <directory>src/main/underlay/etc</directory>
-            <outputDirectory>etc</outputDirectory>
-        </fileSet>
-        -->
     </fileSets>
     
     <dependencySets>
@@ -95,9 +67,7 @@
         
         <dependencySet>
             <outputDirectory>lib/boot</outputDirectory>
-            <!--
-            Strip off the version number to keep platform scripts simpler.
-            -->
+            <!-- Strip off the version number to keep platform scripts simpler. -->
             <outputFileNameMapping>gshell-bootstrap.jar</outputFileNameMapping>
             <includes>
                 <include>org.apache.geronimo.gshell:gshell-bootstrap</include>
@@ -125,14 +95,9 @@
             </includes>
         </dependencySet>
         
-        <dependencySet>
-            <outputDirectory>lib/endorsed</outputDirectory>
-            <includes>
-                <include>org.apache.yoko:yoko-spec-corba</include>
-                <include>org.apache.yoko:yoko-rmi-spec</include>
-            </includes>
-        </dependencySet>
-        
+        <!--
+        FIXME: Should probably include the basic executable bin/*.jar files here
+        -->
     </dependencySets>
 
 </assembly>
