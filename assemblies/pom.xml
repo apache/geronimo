@@ -44,11 +44,6 @@
         <module>geronimo-boilerplate-javaee5</module>
         <module>geronimo-jetty6-jee5</module>
         <module>geronimo-tomcat6-jee5</module>
-        <!--
-        NOTE: Don't enable by default for now...
-        
-        <module>geronimo-jetty6-javaee5-gshell</module>
-        -->
         <module>geronimo-framework</module>
         <module>geronimo-jetty6-minimal</module>
         <module>geronimo-tomcat6-minimal</module>
