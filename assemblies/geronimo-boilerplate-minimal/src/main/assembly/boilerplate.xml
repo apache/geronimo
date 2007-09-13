@@ -31,35 +31,25 @@
     <dependencySets>
         <dependencySet>
             <outputDirectory>lib/gshell</outputDirectory>
+            <useTransitiveFiltering>true</useTransitiveFiltering>
+            <useStrictFiltering>true</useStrictFiltering>
             <includes>
-                <include>org.slf4j:slf4j-api</include>
-                <include>org.slf4j:slf4j-log4j12</include>
-                <include>org.slf4j:jcl104-over-slf4j</include>
                 <include>org.apache.geronimo.gshell:gshell-command-api</include>
-                <include>org.apache.geronimo.gshell:gshell-cli</include>
                 <include>org.apache.geronimo.gshell:gshell-core</include>
-                <include>org.apache.geronimo.gshell:gshell-parser</include>
-                <include>org.apache.geronimo.gshell.support:gshell-ansi</include>
-                <include>org.apache.geronimo.gshell.support:gshell-clp</include>
-                <include>org.apache.geronimo.gshell.support:gshell-prefs</include>
-                <include>org.apache.geronimo.gshell.support:gshell-i18n</include>
-                <include>org.apache.geronimo.gshell.support:gshell-common</include>
-                <include>org.apache.geronimo.gshell:gshell-diet-log4j</include>
+                <include>org.apache.geronimo.gshell:gshell-cli</include>
                 <include>org.apache.geronimo.gshell.commands:gshell-builtins</include>
-                <include>org.codehaus.plexus:plexus-utils</include>
-                <include>org.codehaus.plexus:plexus-component-api</include>
-                <include>org.codehaus.plexus:plexus-container-default</include>
-                <include>org.codehaus.plexus:plexus-expression-evaluator</include>
-                <include>jline:jline</include>
-                <include>com.thoughtworks.xstream:xstream</include>
                 <include>org.codehaus.groovy:groovy-all</include>
                 <include>org.apache.ant:ant</include>
                 <include>org.apache.ant:ant-launcher</include>
+                <include>org.slf4j:slf4j-log4j12</include>
+                <include>org.slf4j:jcl104-over-slf4j</include>
+                <include>org.apache.geronimo.modules:geronimo-commands</include>
             </includes>
         </dependencySet>
 
         <dependencySet>
             <outputDirectory>lib/boot</outputDirectory>
+            <useStrictFiltering>true</useStrictFiltering>
             <includes>
                 <include>org.codehaus.plexus:plexus-classworlds</include>
             </includes>
@@ -67,6 +57,7 @@
         
         <dependencySet>
             <outputDirectory>lib/boot</outputDirectory>
+            <useStrictFiltering>true</useStrictFiltering>
             <!-- Strip off the version number to keep platform scripts simpler. -->
             <outputFileNameMapping>gshell-bootstrap.jar</outputFileNameMapping>
             <includes>
@@ -76,17 +67,19 @@
         
         <dependencySet>
             <outputDirectory>lib</outputDirectory>
+            <useStrictFiltering>true</useStrictFiltering>
             <includes>
                 <include>asm:asm</include>
                 <include>asm:asm-commons</include>
                 <include>cglib:cglib-nodep</include>
                 <include>commons-cli:commons-cli</include>
+                <include>commons-logging:commons-logging</include>
                 <include>log4j:log4j</include>
                 <include>xpp3:xpp3</include>
                 <include>xstream:xstream</include>
                 <include>javax.xml.bind:jaxb-api</include>
                 <include>com.sun.xml.bind:jaxb-impl</include>
-                <include>woodstox:xstx-asl</include>
+                <include>woodstox:wstx-asl</include>
                 <include>org.apache.geronimo.modules:geronimo-cli</include>
                 <include>org.apache.geronimo.modules:geronimo-kernel</include>
                 <include>org.apache.geronimo.modules:geronimo-deploy-jsr88-bootstrapper</include>

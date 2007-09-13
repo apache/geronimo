@@ -30,7 +30,7 @@
     </parent>
 
     <artifactId>geronimo-framework</artifactId>
-    <name>Geronimo Assemblies :: Minimal Framework</name>
+    <name>Geronimo Assemblies :: Framework</name>
     <packaging>application-assembly</packaging>
     
     <description>
@@ -43,6 +43,7 @@
             <groupId>org.apache.geronimo.assemblies</groupId>
             <artifactId>geronimo-boilerplate-minimal</artifactId>
             <version>${version}</version>
+            <scope>provided</scope>
         </dependency>
 
         <dependency>
@@ -73,20 +74,6 @@
             <type>car</type>
         </dependency>
 
-        <!--<dependency>-->
-            <!--<groupId>org.apache.geronimo.configs</groupId>-->
-            <!--<artifactId>geronimo-gbean-deployer</artifactId>-->
-            <!--<version>${version}</version>-->
-            <!--<type>car</type>-->
-        <!--</dependency>-->
-        <!---->
-        <!--<dependency>-->
-            <!--<groupId>org.apache.geronimo.configs</groupId>-->
-            <!--<artifactId>connector-deployer</artifactId>-->
-            <!--<version>${version}</version>-->
-            <!--<type>car</type>-->
-        <!--</dependency>-->
-        
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
             <artifactId>shutdown</artifactId>
@@ -121,28 +108,6 @@
             <version>${version}</version>
             <type>car</type>
         </dependency>
- 
-        <!--<dependency>-->
-            <!--<groupId>org.apache.geronimo.configs</groupId>-->
-            <!--<artifactId>unavailable-client-deployer</artifactId>-->
-            <!--<version>${version}</version>-->
-            <!--<type>car</type>-->
-        <!--</dependency>-->
-        <!---->
-        <!--<dependency>-->
-            <!--<groupId>org.apache.geronimo.configs</groupId>-->
-            <!--<artifactId>unavailable-webservices-deployer</artifactId>-->
-            <!--<version>${version}</version>-->
-            <!--<type>car</type>-->
-        <!--</dependency>-->
-        <!---->
-        <!--<dependency>-->
-            <!--<groupId>org.apache.geronimo.configs</groupId>-->
-            <!--<artifactId>unavailable-ejb-deployer</artifactId>-->
-            <!--<version>${version}</version>-->
-            <!--<type>car</type>-->
-        <!--</dependency>-->
-        <!---->
     </dependencies>
     
     <build>
@@ -160,7 +125,7 @@
                 <executions>
                     <execution>
                         <id>unpack-boilerplate</id>
-                        <phase>package</phase>
+                        <phase>generate-resources</phase>
                         <goals>
                             <goal>unpack</goal>
                         </goals>
@@ -178,7 +143,7 @@
                     
                     <execution>
                         <id>unpack-schemas</id>
-                        <phase>package</phase>
+                        <phase>generate-resources</phase>
                         <goals>
                             <goal>unpack</goal>
                         </goals>
@@ -195,7 +160,7 @@
                                     <version>${version}</version>
                                 </artifactItem>
                             </artifactItems>
-                            <outputDirectory>${project.build.directory}/scratch/schema</outputDirectory>
+                            <outputDirectory>${project.build.directory}/schema</outputDirectory>
                         </configuration>
                     </execution>
                 </executions>
@@ -206,31 +171,21 @@
                 <artifactId>maven-antrun-plugin</artifactId>
                 <executions>
                     <execution>
-                        <id>pre-assembly</id>
-                        <phase>package</phase>
+                        <id>flatten-schemas</id>
+                        <phase>process-resources</phase>
                         <goals>
                             <goal>run</goal>
                         </goals>
                         <configuration>
                             <tasks>
-                                <!-- Flatten all schemas -->
-                                <mkdir dir="${project.build.directory}/schema"/>
-                                <copy todir="${project.build.directory}/schema">
-                                    <fileset dir="${project.build.directory}/scratch/schema">
+                                <mkdir dir="${project.build.directory}/classes/schema"/>
+                                <copy todir="${project.build.directory}/classes/schema">
+                                    <fileset dir="${project.build.directory}/schema">
                                         <include name="**/*.xsd"/>
                                         <include name="**/*.dtd"/>
                                     </fileset>
                                     <mapper type="flatten"/>
                                 </copy>
-                                
-                                <!-- Move filtered files -->
-                                <move todir="${project.build.directory}/scratch">
-                                    <fileset dir="${project.build.directory}/classes">
-                                        <include name="config.xml"/>
-                                        <include name="offline-deployer-config.xml"/>
-                                        <include name="jsr88-configurer-config.xml"/>
-                                    </fileset>
-                                </move>
                             </tasks>
                         </configuration>
                     </execution>
@@ -242,7 +197,7 @@
                 <artifactId>car-maven-plugin</artifactId>
                 <executions>
                     <execution>
-                        <phase>package</phase>
+                        <phase>compile</phase>
                         <goals>
                             <goal>install-modules</goal>
                         </goals>

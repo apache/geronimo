@@ -44,6 +44,12 @@
         <!-- lib/gshell Dependencies -->
         
         <dependency>
+            <groupId>org.apache.geronimo.modules</groupId>
+            <artifactId>geronimo-commands</artifactId>
+            <version>${version}</version>
+        </dependency>
+        
+        <dependency>
             <groupId>org.apache.geronimo.gshell</groupId>
             <artifactId>gshell-bootstrap</artifactId>
         </dependency>
@@ -280,7 +286,7 @@
                             <tasks>
                                 <mkdir dir="${project.build.directory}/classes"/>
                                 <copy todir="${project.build.directory}/classes">
-                                    <fileset dir="${project.build.directory}/${project.build.finalName}/${project.build.finalName}">
+                                    <fileset dir="${project.build.directory}/${project.build.finalName}.dir/${project.build.finalName}">
                                         <include name="**"/>
                                     </fileset>
                                 </copy>
@@ -293,6 +299,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-assembly-plugin</artifactId>
+                <version>2.2-beta-1</version>
                 <executions>
                     <execution>
                         <id>boilerplate</id>
