@@ -24,5 +24,5 @@
 
 DIRNAME=`dirname "$0"`
 
-exec "$DIRNAME/gsh" start-server "$@"
+exec "$DIRNAME/gsh" --quiet start-server "$@"
 

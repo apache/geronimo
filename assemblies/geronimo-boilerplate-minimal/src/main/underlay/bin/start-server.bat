@@ -29,7 +29,7 @@ if "%OS%"=="Windows_NT" setlocal
 set DIRNAME=%~dp0
 if "%DIRNAME%" == "" set DIRNAME=.\
 
-"%DIRNAME%\gsh.bat" start-server %*
+"%DIRNAME%\gsh.bat" --quiet start-server %*
 
 :end
 
