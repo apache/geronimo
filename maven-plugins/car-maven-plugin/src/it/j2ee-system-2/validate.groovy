@@ -17,13 +17,34 @@
  * under the License.
  */
 
+/**
+ * Loads text from a file an normalizes its EOL-style for platform-safe validation.
+ */
+def loadText = { filename ->
+    def file = new File(basedir, "$filename")
+    
+    def tmp = File.createTempFile('validate', null)
+    tmp.deleteOnExit()
+    
+    ant.copy(file: file, tofile: tmp)
+    ant.fixcrlf(eol: 'unix', file: tmp)
+    
+    def text = tmp.text
+    tmp.delete()
+    
+    return text
+}
 
-def expected1 = new File(basedir, "src/test/resources/META-INF/geronimo-plugin.xml").text
-def found1 = new File(basedir, "target/resources/META-INF/geronimo-plugin.xml").text
+/**
+ * Asserts that the text of both files are the same in a platform-safe fasion.
+ */
+def assertSame = { file1, file2 ->
+    def expect = loadText(file1)
+    def found = loadText(file2)
+    
+    assert expect == found
+}
 
-assert expected1 == found1
+assertSame('src/test/resources/META-INF/geronimo-plugin.xml', 'target/resources/META-INF/geronimo-plugin.xml')
 
-def expected2 = new File(basedir, "src/test/resources/META-INF/plan.xml").text
-def found2 = new File(basedir, "target/resources/META-INF/plan.xml").text
-
-assert expected2 == found2
+assertSame('src/test/resources/META-INF/plan.xml', 'target/resources/META-INF/plan.xml')
