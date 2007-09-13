@@ -40,6 +40,7 @@ import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.ListableRepository;
 import org.apache.geronimo.kernel.repository.Maven2Repository;
 import org.apache.geronimo.system.plugin.PluginInstallerGBean;
+import org.apache.geronimo.system.plugin.PluginXmlUtil;
 import org.apache.geronimo.system.plugin.model.PluginListType;
 import org.apache.geronimo.system.plugin.model.PluginType;
 import org.xml.sax.SAXException;
@@ -64,7 +65,7 @@ public class CreatePluginListMojo extends AbstractCarMojo {
         File outFile = new File(baseDir, "geronimo-plugins.xml");
         Writer out = new FileWriter(outFile, false);
         try {
-            PluginInstallerGBean.writePluginList(pluginList, out);
+            PluginXmlUtil.writePluginList(pluginList, out);
         } finally {
             out.close();
         }
@@ -110,7 +111,7 @@ public class CreatePluginListMojo extends AbstractCarMojo {
                 }
                 InputStream in = jar.getInputStream(entry);
                 try {
-                    PluginType pluginType = PluginInstallerGBean.loadPluginMetadata(in);
+                    PluginType pluginType = PluginXmlUtil.loadPluginMetadata(in);
                     if (pluginType.getPluginArtifact().isEmpty()) {
                         return null;
                     }

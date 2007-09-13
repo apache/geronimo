@@ -26,7 +26,7 @@ import java.io.StringReader;
 import java.util.Collections;
 import java.util.List;
 
-import org.apache.geronimo.system.plugin.PluginInstallerGBean;
+import org.apache.geronimo.system.plugin.PluginXmlUtil;
 import org.apache.geronimo.system.plugin.model.ArtifactType;
 import org.apache.geronimo.system.plugin.model.DependencyType;
 import org.apache.geronimo.system.plugin.model.LicenseType;
@@ -140,10 +140,10 @@ public class PluginMetadataGeneratorMojo
             instance = new PluginArtifactType();
         } else {
             String instanceString = instanceDom.getChild("plugin-artifact").toString();
-            instance = PluginInstallerGBean.loadPluginArtifactMetadata(new StringReader(instanceString.replace("#{", "${")));
+            instance = PluginXmlUtil.loadPluginArtifactMetadata(new StringReader(instanceString.replace("#{", "${")));
         }
         if (this.commonInstance != null && this.commonInstance.getChild("plugin-artifact") != null) {
-            PluginArtifactType commonInstance = PluginInstallerGBean.loadPluginArtifactMetadata(new StringReader(this.commonInstance.getChild("plugin-artifact").toString().replace("#{", "${")));
+            PluginArtifactType commonInstance = PluginXmlUtil.loadPluginArtifactMetadata(new StringReader(this.commonInstance.getChild("plugin-artifact").toString().replace("#{", "${")));
             //merge
             if (instance.getArtifactAlias().isEmpty()) {
                 instance.getArtifactAlias().addAll(commonInstance.getArtifactAlias());
@@ -190,7 +190,7 @@ public class PluginMetadataGeneratorMojo
         targetDir.mkdirs();
         FileOutputStream out = new FileOutputStream(targetFile);
         try {
-            PluginInstallerGBean.writePluginMetadata(metadata, out);
+            PluginXmlUtil.writePluginMetadata(metadata, out);
         } finally {
             out.close();
         }

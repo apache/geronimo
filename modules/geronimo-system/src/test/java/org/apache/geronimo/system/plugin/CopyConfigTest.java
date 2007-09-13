@@ -24,12 +24,15 @@ import java.io.InputStream;
 import java.io.ByteArrayInputStream;
 import java.io.Reader;
 import java.io.StringReader;
+import java.io.StringWriter;
+import java.io.Serializable;
 import java.util.List;
 
 import junit.framework.TestCase;
 import org.apache.geronimo.system.plugin.model.PluginType;
 import org.apache.geronimo.system.plugin.model.GbeanType;
 import org.apache.geronimo.system.plugin.model.PluginArtifactType;
+import org.apache.geronimo.system.plugin.model.AttributeType;
 import org.apache.geronimo.system.configuration.GBeanOverride;
 import org.apache.geronimo.system.configuration.condition.JexlExpressionParser;
 
@@ -114,12 +117,51 @@ public class CopyConfigTest extends TestCase {
             "        </config-xml-content>\n" +
             "    </plugin-artifact>\n" +
             "</geronimo-plugin>";
-    private static final String ATTRIBUTE_VALUE = "<dependencies><dependency><groupId>org.apache.geronimo.cts</groupId><artifactId>server-security</artifactId><version>${version}</version><type>car</type>                         </dependency><dependency><groupId>org.apache.geronimo.cts</groupId><artifactId>database</artifactId><version>${version}</version><type>car</type>                         </dependency><dependency><groupId>org.apache.geronimo.cts</groupId><artifactId>jms</artifactId><version>${version}</version><type>car</type>                         </dependency><dependency><groupId>org.apache.geronimo.configs</groupId><artifactId>j2ee-server</artifactId><version>${geronimo.version}</version><type>car</type>                         </dependency><dependency><groupId>org.apache.geronimo.cts</groupId><artifactId>server-ior</artifactId><version>${version}</version><type>car</type>                         </dependency><dependency><groupId>org.apache.geronimo.configs</groupId><artifactId>uddi-jetty6</artifactId><version>${geronimo.version}</version><type>car</type>                         </dependency>                     </dependencies>\n" +
-            "            ";
+    private static final String ATTRIBUTE_VALUE =
+            "<environment:environment xmlns:environment=\"http://geronimo.apache.org/xml/ns/deployment-1.2\">\n" +
+            "        <environment:dependencies>\n" +
+            "            <environment:dependency>\n" +
+            "                <environment:groupId>org.apache.geronimo.cts</environment:groupId>\n" +
+            "                <environment:artifactId>server-security</environment:artifactId>\n" +
+            "                <environment:version>${version}</environment:version>\n" +
+            "                <environment:type>car</environment:type>\n" +
+            "                        </environment:dependency>\n" +
+            "            <environment:dependency>\n" +
+            "                <environment:groupId>org.apache.geronimo.cts</environment:groupId>\n" +
+            "                <environment:artifactId>database</environment:artifactId>\n" +
+            "                <environment:version>${version}</environment:version>\n" +
+            "                <environment:type>car</environment:type>\n" +
+            "                        </environment:dependency>\n" +
+            "            <environment:dependency>\n" +
+            "                <environment:groupId>org.apache.geronimo.cts</environment:groupId>\n" +
+            "                <environment:artifactId>jms</environment:artifactId>\n" +
+            "                <environment:version>${version}</environment:version>\n" +
+            "                <environment:type>car</environment:type>\n" +
+            "                        </environment:dependency>\n" +
+            "            <environment:dependency>\n" +
+            "                <environment:groupId>org.apache.geronimo.configs</environment:groupId>\n" +
+            "                <environment:artifactId>j2ee-server</environment:artifactId>\n" +
+            "                <environment:version>${geronimo.version}</environment:version>\n" +
+            "                <environment:type>car</environment:type>\n" +
+            "                        </environment:dependency>\n" +
+            "            <environment:dependency>\n" +
+            "                <environment:groupId>org.apache.geronimo.cts</environment:groupId>\n" +
+            "                <environment:artifactId>server-ior</environment:artifactId>\n" +
+            "                <environment:version>${version}</environment:version>\n" +
+            "                <environment:type>car</environment:type>\n" +
+            "                        </environment:dependency>\n" +
+            "            <environment:dependency>\n" +
+            "                <environment:groupId>org.apache.geronimo.configs</environment:groupId>\n" +
+            "                <environment:artifactId>uddi-jetty6</environment:artifactId>\n" +
+            "                <environment:version>${geronimo.version}</environment:version>\n" +
+            "                <environment:type>car</environment:type>\n" +
+            "                        </environment:dependency>\n" +
+            "                    </environment:dependencies>\n" +
+            "                </environment:environment>";
 
     public void testCopyConfig() throws Exception {
         InputStream in = new ByteArrayInputStream(CONFIG.getBytes());
-        PluginType pluginType = PluginInstallerGBean.loadPluginMetadata(in);
+        PluginType pluginType = PluginXmlUtil.loadPluginMetadata(in);
         List<GbeanType> gbeans = pluginType.getPluginArtifact().get(0).getConfigXmlContent().getGbean();
         assertEquals(2, gbeans.size());
         GBeanOverride override = new GBeanOverride(gbeans.get(0), new JexlExpressionParser());
@@ -142,7 +184,81 @@ public class CopyConfigTest extends TestCase {
     
     public void testReadNoNS() throws Exception {
         Reader in = new StringReader(INSTANCE);
-        PluginArtifactType instance = PluginInstallerGBean.loadPluginArtifactMetadata(in);
+        PluginArtifactType instance = PluginXmlUtil.loadPluginArtifactMetadata(in);
         assertEquals("DirectoryService", instance.getConfigXmlContent().getGbean().get(0).getName());
+    }
+
+    private static final String INSTANCE2 = "                        <plugin-artifact>\n" +
+            "                            <config-xml-content>\n" +
+            "                                <gbean name=\"ResourceRefBuilder\">\n" +
+            "                                    <attribute name=\"eeNamespaces\">http://java.sun.com/xml/ns/j2ee,http://java.sun.com/xml/ns/javaee</attribute>\n" +
+            "                                    <attribute name=\"defaultEnvironment\">\n" +
+            "                                        <environment xmlns=\"http://geronimo.apache.org/xml/ns/deployment-1.2\">\n" +
+            "                                            <dependencies>\n" +
+            "                                                <dependency>\n" +
+            "                                                    <groupId>org.apache.geronimo.configs</groupId>\n" +
+            "                                                    <artifactId>j2ee-corba-yoko</artifactId>\n" +
+            "                                                    <type>car</type>\n" +
+            "                                                </dependency>\n" +
+            "                                            </dependencies>\n" +
+            "                                        </environment>\n" +
+            "                                    </attribute>\n" +
+            "                                </gbean>\n" +
+            "\n" +
+            "                                <gbean name=\"AdminObjectRefBuilder\">\n" +
+            "                                    <attribute name=\"eeNamespaces\">http://java.sun.com/xml/ns/j2ee,http://java.sun.com/xml/ns/javaee</attribute>\n" +
+            "                                </gbean>\n" +
+            "\n" +
+            "                                <gbean name=\"ClientResourceRefBuilder\">\n" +
+            "                                    <attribute name=\"eeNamespaces\">http://java.sun.com/xml/ns/j2ee,http://java.sun.com/xml/ns/javaee</attribute>\n" +
+            "                                    <attribute name=\"defaultEnvironment\">\n" +
+            "                                        <environment xmlns=\"http://geronimo.apache.org/xml/ns/deployment-1.2\">\n" +
+            "                                            <dependencies>\n" +
+            "                                                <dependency>\n" +
+            "                                                    <groupId>org.apache.geronimo.configs</groupId>\n" +
+            "                                                    <artifactId>client-corba-yoko</artifactId>\n" +
+            "                                                    <type>car</type>\n" +
+            "                                                </dependency>\n" +
+            "                                            </dependencies>\n" +
+            "                                        </environment>\n" +
+            "                                    </attribute>\n" +
+            "                                </gbean>\n" +
+            "                            </config-xml-content>\n" +
+            "                        </plugin-artifact>";
+
+    private static final String ATTR = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n" +
+            "<ns2:attribute name=\"defaultEnvironment\" xmlns:ns2=\"http://geronimo.apache.org/xml/ns/attributes-1.2\" xmlns=\"http://geronimo.apache.org/xml/ns/plugins-1.3\">\n" +
+            "    <environment:environment xmlns:environment=\"http://geronimo.apache.org/xml/ns/deployment-1.2\">\n" +
+            "        <environment:dependencies>\n" +
+            "            <environment:dependency>\n" +
+            "                <environment:groupId>org.apache.geronimo.configs</environment:groupId>\n" +
+            "                <environment:artifactId>j2ee-corba-yoko</environment:artifactId>\n" +
+            "                <environment:type>car</environment:type>\n" +
+            "                                                </environment:dependency>\n" +
+            "                                            </environment:dependencies>\n" +
+            "                                        </environment:environment>\n" +
+            "                                    </ns2:attribute>";
+
+    private static final String VALUE =
+            "<environment:environment xmlns:environment=\"http://geronimo.apache.org/xml/ns/deployment-1.2\">\n" +
+            "        <environment:dependencies>\n" +
+            "            <environment:dependency>\n" +
+            "                <environment:groupId>org.apache.geronimo.configs</environment:groupId>\n" +
+            "                <environment:artifactId>j2ee-corba-yoko</environment:artifactId>\n" +
+            "                <environment:type>car</environment:type>\n" +
+            "                                                </environment:dependency>\n" +
+            "                                            </environment:dependencies>\n" +
+            "                                        </environment:environment>";
+    
+    public void testXmlAttribute() throws Exception {
+        Reader in = new StringReader(INSTANCE2);
+        PluginArtifactType instance = PluginXmlUtil.loadPluginArtifactMetadata(in);
+        List<GbeanType> gbeans = instance.getConfigXmlContent().getGbean();
+        assertEquals(3, gbeans.size());
+        List<Object> contents = gbeans.get(0).getAttributeOrReference();
+        assertEquals(2, contents.size());
+        AttributeType attr = (AttributeType) contents.get(1);
+        String value = PluginXmlUtil.extractAttributeValue(attr);
+        assertEquals(VALUE, value);
     }
 }

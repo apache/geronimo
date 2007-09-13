@@ -30,10 +30,10 @@ import java.util.Iterator;
 import org.apache.geronimo.kernel.config.NoSuchStoreException;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.system.plugin.PluginInstallerGBean;
-import org.apache.geronimo.system.plugin.model.ArtifactType;
+import org.apache.geronimo.system.plugin.PluginXmlUtil;
+import org.apache.geronimo.system.plugin.model.PluginArtifactType;
 import org.apache.geronimo.system.plugin.model.PluginListType;
 import org.apache.geronimo.system.plugin.model.PluginType;
-import org.apache.geronimo.system.plugin.model.PluginArtifactType;
 
 /**
  * Maintain the geronimo-plugins.xml catalog in the local maven repository by merging in the geronimo-plugin.xml from the current project.
@@ -56,7 +56,7 @@ public class UpdatePluginListMojo extends AbstractCarMojo {
         InputStream min = new FileInputStream(targetFile);
         PluginType plugin;
         try {
-            plugin = PluginInstallerGBean.loadPluginMetadata(min);
+            plugin = PluginXmlUtil.loadPluginMetadata(min);
         } finally {
             min.close();
         }
@@ -69,7 +69,7 @@ public class UpdatePluginListMojo extends AbstractCarMojo {
         if (outFile.exists()) {
             InputStream in = new FileInputStream(outFile);
             try {
-                pluginList = PluginInstallerGBean.loadPluginList(in);
+                pluginList = PluginXmlUtil.loadPluginList(in);
             } finally {
                 in.close();
             }
@@ -81,7 +81,7 @@ public class UpdatePluginListMojo extends AbstractCarMojo {
         updatePluginList(plugin, pluginList);
         Writer out = new FileWriter(outFile, false);
         try {
-            PluginInstallerGBean.writePluginList(pluginList, out);
+            PluginXmlUtil.writePluginList(pluginList, out);
         } finally {
             out.close();
         }

@@ -21,10 +21,9 @@
 package org.apache.geronimo.mavenplugins.car;
 
 import java.io.StringReader;
-import java.io.ByteArrayInputStream;
 
 import junit.framework.TestCase;
-import org.apache.geronimo.system.plugin.PluginInstallerGBean;
+import org.apache.geronimo.system.plugin.PluginXmlUtil;
 import org.apache.geronimo.system.plugin.model.PluginArtifactType;
 
 /**
@@ -59,7 +58,7 @@ public class PluginMetadataTest extends TestCase {
 
     //TODO test #{ to ${ replacement
     public void testReadInstance() throws Exception {
-        PluginArtifactType instance = PluginInstallerGBean.loadPluginArtifactMetadata(new StringReader(INSTANCE1));
+        PluginArtifactType instance = PluginXmlUtil.loadPluginArtifactMetadata(new StringReader(INSTANCE1));
         assertEquals(2, instance.getConfigSubstitution().size());
     }
 }

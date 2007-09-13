@@ -29,12 +29,13 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import javax.xml.bind.JAXBException;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.stream.XMLStreamException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -51,6 +52,7 @@ import org.apache.geronimo.kernel.config.InvalidConfigException;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.util.XmlUtil;
 import org.apache.geronimo.system.configuration.condition.JexlExpressionParser;
+import org.apache.geronimo.system.plugin.PluginXmlUtil;
 import org.apache.geronimo.system.plugin.model.AttributeType;
 import org.apache.geronimo.system.plugin.model.GbeanType;
 import org.apache.geronimo.system.plugin.model.ReferenceType;
@@ -182,19 +184,14 @@ public class GBeanOverride implements Serializable {
                 if (attr.isNull()) {
                     getNullAttributes().add(attr.getName());
                 } else {
-                    List<Object> content = attr.getContent();
-                    StringBuffer buf = new StringBuffer();
-                    for (Object o2 : content) {
-                        if (o2 instanceof String) {
-                            buf.append((String) o2);
-                        } else if (o2 instanceof Node) {
-                            buf.append(getContentsAsText((Node)o2));
-                        } else {
-                            buf.append("===============").append(o2.getClass()).append("===========");
-                            buf.append(o2);
-                        }
+                    String value;
+                    try {
+                        value = PluginXmlUtil.extractAttributeValue(attr);
+                    } catch (JAXBException e) {
+                        throw new InvalidGBeanException("Could not extract attribute value from gbean override", e);
+                    } catch (XMLStreamException e) {
+                        throw new InvalidGBeanException("Could not extract attribute value from gbean override", e);
                     }
-                    String value = buf.toString();
                     if (value.length() == 0) {
                         setClearAttribute(attr.getName());
                     } else {

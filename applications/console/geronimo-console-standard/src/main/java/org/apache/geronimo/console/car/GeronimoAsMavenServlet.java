@@ -58,7 +58,7 @@ import org.apache.geronimo.kernel.repository.Repository;
 import org.apache.geronimo.kernel.repository.Version;
 import org.apache.geronimo.kernel.util.XmlUtil;
 import org.apache.geronimo.system.plugin.PluginInstaller;
-import org.apache.geronimo.system.plugin.PluginInstallerGBean;
+import org.apache.geronimo.system.plugin.PluginXmlUtil;
 import org.apache.geronimo.system.plugin.model.PluginListType;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -204,7 +204,7 @@ public class GeronimoAsMavenServlet extends HttpServlet {
         ConfigurationManager mgr = ConfigurationUtil.getConfigurationManager(kernel);
         PluginInstaller installer = getInstaller(kernel);
         PluginListType pluginList = installer.createPluginListForRepositories(mgr, repo);
-        PluginInstallerGBean.writePluginList(pluginList, out);
+        PluginXmlUtil.writePluginList(pluginList, out);
     }
 
 

@@ -71,6 +71,13 @@
             </xsd:documentation>
         </xsd:annotation>
     </xsd:element>
+    <xsd:element name="attribute" type="atts:attributeType">
+        <xsd:annotation>
+            <xsd:documentation>
+                gbean attribute as an element for ease in jaxb serialization to string.
+            </xsd:documentation>
+        </xsd:annotation>
+    </xsd:element>
 
     <xsd:complexType name="attributesType">
         <xsd:sequence>
@@ -116,7 +123,7 @@
             <xsd:element name="comment" type="xsd:string" minOccurs="0"
                 maxOccurs="1" />
             <xsd:choice minOccurs="0" maxOccurs="unbounded">
-                <xsd:element name="attribute" type="atts:attributeType" />
+                <xsd:element ref="atts:attribute" />
                 <xsd:element name="reference" type="atts:referenceType" />
             </xsd:choice>
         </xsd:sequence>

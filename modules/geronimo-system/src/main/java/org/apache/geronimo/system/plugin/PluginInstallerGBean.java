@@ -23,9 +23,6 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.Reader;
-import java.io.Writer;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -52,18 +49,12 @@ import java.util.zip.ZipEntry;
 
 import javax.security.auth.login.FailedLoginException;
 import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;
-import javax.xml.bind.Marshaller;
-import javax.xml.bind.Unmarshaller;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
-import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamException;
-import javax.xml.stream.XMLStreamReader;
-import javax.xml.transform.sax.SAXSource;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -94,7 +85,6 @@ import org.apache.geronimo.system.plugin.model.CopyFileType;
 import org.apache.geronimo.system.plugin.model.DependencyType;
 import org.apache.geronimo.system.plugin.model.HashType;
 import org.apache.geronimo.system.plugin.model.LicenseType;
-import org.apache.geronimo.system.plugin.model.ObjectFactory;
 import org.apache.geronimo.system.plugin.model.PluginArtifactType;
 import org.apache.geronimo.system.plugin.model.PluginListType;
 import org.apache.geronimo.system.plugin.model.PluginType;
@@ -109,11 +99,8 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.Attributes;
-import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
-import org.xml.sax.XMLReader;
 import org.xml.sax.helpers.DefaultHandler;
-import org.xml.sax.helpers.XMLFilterImpl;
 
 /**
  * A GBean that knows how to download configurations from a Maven repository.
@@ -123,20 +110,6 @@ import org.xml.sax.helpers.XMLFilterImpl;
 public class PluginInstallerGBean implements PluginInstaller {
     private final static Log log = LogFactory.getLog(PluginInstallerGBean.class);
 
-    public static final XMLInputFactory XMLINPUT_FACTORY = XMLInputFactory.newInstance();
-    private static final JAXBContext PLUGIN_CONTEXT;
-    private static final JAXBContext PLUGIN_LIST_CONTEXT;
-    private static final JAXBContext PLUGIN_ARTIFACT_CONTEXT;
-
-    static {
-        try {
-            PLUGIN_CONTEXT = JAXBContext.newInstance(PluginType.class);
-            PLUGIN_LIST_CONTEXT = JAXBContext.newInstance(PluginListType.class);
-            PLUGIN_ARTIFACT_CONTEXT = JAXBContext.newInstance(PluginArtifactType.class);
-        } catch (JAXBException e) {
-            throw new RuntimeException("Could not create jaxb contexts for plugin types");
-        }
-    }
 
     private static int counter;
     private final ConfigurationManager configManager;
@@ -263,7 +236,7 @@ public class PluginInstallerGBean implements PluginInstaller {
             }
             PluginType result;
             try {
-                result = loadPluginMetadata(in);
+                result = PluginXmlUtil.loadPluginMetadata(in);
             } finally {
                 in.close();
             }
@@ -313,7 +286,7 @@ public class PluginInstallerGBean implements PluginInstaller {
                     if (entry.getName().equals("META-INF/geronimo-plugin.xml")) {
                         entry = new JarEntry(entry.getName());
                         out.putNextEntry(entry);
-                        writePluginMetadata(metadata, out);
+                        PluginXmlUtil.writePluginMetadata(metadata, out);
                     } else if (entry.getName().equals("META-INF/MANIFEST.MF")) {
                         // do nothing, already passed in a manifest
                     } else {
@@ -358,7 +331,7 @@ public class PluginInstallerGBean implements PluginInstaller {
                     }
                 }
                 fos = new FileOutputStream(xml);
-                writePluginMetadata(metadata, fos);
+                PluginXmlUtil.writePluginMetadata(metadata, fos);
             } catch (Exception e) {
                 log.error("Unable to save plugin metadata for " + artifact, e);
             } finally {
@@ -371,20 +344,6 @@ public class PluginInstallerGBean implements PluginInstaller {
                 }
             }
         }
-    }
-
-    public static void writePluginMetadata(PluginType metadata, OutputStream out) throws XMLStreamException, JAXBException {
-        Marshaller marshaller = PLUGIN_CONTEXT.createMarshaller();
-        marshaller.setProperty("jaxb.formatted.output", true);
-        JAXBElement<PluginType> element = new ObjectFactory().createGeronimoPlugin(metadata);
-        marshaller.marshal(element, out);
-    }
-
-    public static void writePluginList(PluginListType metadata, Writer out) throws XMLStreamException, JAXBException {
-        Marshaller marshaller = PLUGIN_LIST_CONTEXT.createMarshaller();
-        marshaller.setProperty("jaxb.formatted.output", true);
-        JAXBElement<PluginListType> element = new ObjectFactory().createGeronimoPluginList(metadata);
-        marshaller.marshal(element, out);
     }
 
     /**
@@ -407,7 +366,7 @@ public class PluginInstallerGBean implements PluginInstaller {
         try {
             //todo: use a progress monitor
             InputStream in = openStream(null, Collections.singletonList(url), username, password, null).getStream();
-            return loadPluginList(in);
+            return PluginXmlUtil.loadPluginList(in);
         } catch (MissingDependencyException e) {
             log.error("Cannot find plugin index at site " + url);
             return null;
@@ -1441,99 +1400,13 @@ public class PluginInstallerGBean implements PluginInstaller {
             }
             InputStream in = jar.getInputStream(entry);
             try {
-                return loadPluginMetadata(in);
+                return PluginXmlUtil.loadPluginMetadata(in);
             } finally {
                 in.close();
             }
         } finally {
             jar.close();
         }
-    }
-
-    /**
-     * Read a set of plugin metadata from a DOM document.
-     */
-    public static PluginType loadPluginMetadata(InputStream in) throws SAXException, MalformedURLException, JAXBException, XMLStreamException {
-        XMLStreamReader xmlStream = XMLINPUT_FACTORY.createXMLStreamReader(in);
-        Unmarshaller unmarshaller = PLUGIN_CONTEXT.createUnmarshaller();
-        JAXBElement<PluginType> element = unmarshaller.unmarshal(xmlStream, PluginType.class);
-        PluginType plugin = element.getValue();
-        return plugin;
-    }
-
-    public static PluginArtifactType loadPluginArtifactMetadata(Reader in) throws SAXException, MalformedURLException, JAXBException, XMLStreamException, ParserConfigurationException {
-        InputSource inputSource = new InputSource(in);
-
-        SAXParserFactory factory = SAXParserFactory.newInstance();
-        factory.setNamespaceAware(true);
-        factory.setValidating(false);
-        SAXParser parser = factory.newSAXParser();
-
-        Unmarshaller unmarshaller = PLUGIN_ARTIFACT_CONTEXT.createUnmarshaller();
-//        unmarshaller.setEventHandler(new ValidationEventHandler(){
-//            public boolean handleEvent(ValidationEvent validationEvent) {
-//                System.out.println(validationEvent);
-//                return false;
-//            }
-//        });
-
-
-        NamespaceFilter xmlFilter = new NamespaceFilter(parser.getXMLReader());
-        xmlFilter.setContentHandler(unmarshaller.getUnmarshallerHandler());
-
-        SAXSource source = new SAXSource(xmlFilter, inputSource);
-//        XMLStreamReader xmlStream = XMLINPUT_FACTORY.createXMLStreamReader(in);
-        JAXBElement<PluginArtifactType> element = unmarshaller.unmarshal(source, PluginArtifactType.class);
-        PluginArtifactType plugin = element.getValue();
-        return plugin;
-    }
-
-    public static class NamespaceFilter extends XMLFilterImpl {
-        private static String PLUGIN_NS = "http://geronimo.apache.org/xml/ns/plugins-1.3";
-        private static String GBEAN_NS = "http://geronimo.apache.org/xml/ns/attributes-1.2";
-        private static String ENVIRONMENT_NS = "http://geronimo.apache.org/xml/ns/deployment-1.2";
-
-        private String namespace;
-
-        public NamespaceFilter(XMLReader xmlReader) {
-            super(xmlReader);
-        }
-
-        @Override
-        public void startElement(String uri, String localName, String qname, Attributes atts) throws SAXException {
-            if ("plugin-artifact".equals(localName)) {
-                namespace = PLUGIN_NS;
-            } else if ("gbean".equals(localName)) {
-                namespace = GBEAN_NS;
-            } else if ("environment".equals(localName)) {
-                namespace = ENVIRONMENT_NS;
-            }
-            super.startElement(namespace, localName, qname, atts);
-        }
-
-        @Override
-        public void endElement(String uri, String localName, String qName) throws SAXException {
-            super.endElement(namespace, localName, qName);
-            if ("plugin-artifact".equals(localName)) {
-                namespace = null;
-            } else if ("gbean".equals(localName)) {
-                namespace = PLUGIN_NS;
-            } else if ("environment".equals(localName)) {
-                namespace = GBEAN_NS;
-            }
-        }
-    }
-
-    /**
-     * Loads the list of all available plugins from the specified stream
-     * (representing geronimo-plugins.xml at the specified repository).
-     */
-    public static PluginListType loadPluginList(InputStream in) throws ParserConfigurationException, IOException, SAXException, JAXBException, XMLStreamException {
-        Unmarshaller unmarshaller = PLUGIN_LIST_CONTEXT.createUnmarshaller();
-        XMLStreamReader xmlStream = XMLINPUT_FACTORY.createXMLStreamReader(in);
-        JAXBElement<PluginListType> element = unmarshaller.unmarshal(xmlStream, PluginListType.class);
-        PluginListType pluginList = element.getValue();
-        return pluginList;
     }
 
     /**
