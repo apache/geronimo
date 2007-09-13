@@ -41,7 +41,7 @@
 
     <modules>
         <module>geronimo-boilerplate-minimal</module>
-        <module>geronimo-boilerplate-jee5</module>
+        <module>geronimo-boilerplate-javaee5</module>
         <module>geronimo-jetty6-jee5</module>
         <module>geronimo-tomcat6-jee5</module>
         <!--

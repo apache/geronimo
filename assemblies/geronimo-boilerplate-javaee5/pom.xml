@@ -31,12 +31,12 @@
         <relativePath>../pom.xml</relativePath>
     </parent>
 
-    <artifactId>geronimo-boilerplate-jee5</artifactId>
-    <name>Geronimo Assemblies :: Boilerplate JEE5</name>
+    <artifactId>geronimo-boilerplate-javaee5</artifactId>
+    <name>Geronimo Assemblies :: Boilerplate JavaEE 5</name>
     <packaging>resource-bundle</packaging>
     
     <description>
-        Provides boilerplate files for all Geronimo J2EE server assemblies.
+        Provides boilerplate files for all Geronimo JavaEE server assemblies.
     </description>
     
     <build>
