@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Licensed to the Apache Software Foundation (ASF) under one or more
+  contributor license agreements.  See the NOTICE file distributed with
+  this work for additional information regarding copyright ownership.
+  The ASF licenses this file to You under the Apache License, Version 2.0
+  (the "License"); you may not use this file except in compliance with
+  the License.  You may obtain a copy of the License at
+    
+     http://www.apache.org/licenses/LICENSE-2.0
+    
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+
+<!-- $Rev$ $Date$ -->
+
+<assembly>
+    <id>boilerplate</id>
+    
+    <fileSets>
+        <fileSet>
+            <directory>src/main/underlay</directory>
+            <outputDirectory>/</outputDirectory>
+        </fileSet>
+        
+        <!--
+        <fileSet>
+            <directory>src/main/underlay/bin</directory>
+            <outputDirectory>bin</outputDirectory>
+            <includes>
+                <include>gsh</include>
+                <include>startup</include>
+            </includes>
+            <lineEnding>unix</lineEnding>
+            <fileMode>0755</fileMode>
+        </fileSet>
+        
+        <fileSet>
+            <directory>src/main/underlay/bin</directory>
+            <outputDirectory>bin</outputDirectory>
+            <includes>
+                <include>gsh.bat</include>
+                <include>startup.bat</include>
+            </includes>
+            <lineEnding>dos</lineEnding>
+        </fileSet>
+        
+        <fileSet>
+            <directory>src/main/underlay/etc</directory>
+            <outputDirectory>etc</outputDirectory>
+        </fileSet>
+        -->
+    </fileSets>
+    
+    <dependencySets>
+        <dependencySet>
+            <outputDirectory>lib/gshell</outputDirectory>
+            <includes>
+                <include>org.slf4j:slf4j-api</include>
+                <include>org.slf4j:slf4j-log4j12</include>
+                <include>org.slf4j:jcl104-over-slf4j</include>
+                <include>org.apache.geronimo.gshell:gshell-command-api</include>
+                <include>org.apache.geronimo.gshell:gshell-cli</include>
+                <include>org.apache.geronimo.gshell:gshell-core</include>
+                <include>org.apache.geronimo.gshell:gshell-parser</include>
+                <include>org.apache.geronimo.gshell.support:gshell-ansi</include>
+                <include>org.apache.geronimo.gshell.support:gshell-clp</include>
+                <include>org.apache.geronimo.gshell.support:gshell-prefs</include>
+                <include>org.apache.geronimo.gshell.support:gshell-i18n</include>
+                <include>org.apache.geronimo.gshell.support:gshell-common</include>
+                <include>org.apache.geronimo.gshell:gshell-diet-log4j</include>
+                <include>org.apache.geronimo.gshell.commands:gshell-builtins</include>
+                <include>org.codehaus.plexus:plexus-utils</include>
+                <include>org.codehaus.plexus:plexus-component-api</include>
+                <include>org.codehaus.plexus:plexus-container-default</include>
+                <include>org.codehaus.plexus:plexus-expression-evaluator</include>
+                <include>jline:jline</include>
+                <include>com.thoughtworks.xstream:xstream</include>
+                <include>org.codehaus.groovy:groovy-all</include>
+                <include>org.apache.ant:ant</include>
+                <include>org.apache.ant:ant-launcher</include>
+            </includes>
+        </dependencySet>
+
+        <dependencySet>
+            <outputDirectory>lib/boot</outputDirectory>
+            <includes>
+                <include>org.codehaus.plexus:plexus-classworlds</include>
+            </includes>
+        </dependencySet>
+        
+        <dependencySet>
+            <outputDirectory>lib/boot</outputDirectory>
+            <!--
+            Strip off the version number to keep platform scripts simpler.
+            -->
+            <outputFileNameMapping>gshell-bootstrap.jar</outputFileNameMapping>
+            <includes>
+                <include>org.apache.geronimo.gshell:gshell-bootstrap</include>
+            </includes>
+        </dependencySet>
+        
+        <dependencySet>
+            <outputDirectory>lib</outputDirectory>
+            <includes>
+                <include>asm:asm</include>
+                <include>asm:asm-commons</include>
+                <include>cglib:cglib-nodep</include>
+                <include>commons-cli:commons-cli</include>
+                <include>log4j:log4j</include>
+                <include>xpp3:xpp3</include>
+                <include>xstream:xstream</include>
+                <include>javax.xml.bind:jaxb-api</include>
+                <include>com.sun.xml.bind:jaxb-impl</include>
+                <include>woodstox:xstx-asl</include>
+                <include>org.apache.geronimo.modules:geronimo-cli</include>
+                <include>org.apache.geronimo.modules:geronimo-kernel</include>
+                <include>org.apache.geronimo.modules:geronimo-deploy-jsr88-bootstrapper</include>
+                <include>org.apache.geronimo.specs:geronimo-stax-api_1.0_spec</include>
+                <include>org.apache.geronimo.specs:geronimo-activation_1.1_spec</include>
+            </includes>
+        </dependencySet>
+        
+        <dependencySet>
+            <outputDirectory>lib/endorsed</outputDirectory>
+            <includes>
+                <include>org.apache.yoko:yoko-spec-corba</include>
+                <include>org.apache.yoko:yoko-rmi-spec</include>
+            </includes>
+        </dependencySet>
+        
+    </dependencySets>
+
+</assembly>

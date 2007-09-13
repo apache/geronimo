@@ -39,6 +39,140 @@
         Provides boilerplate files for all Geronimo minimal server (Little-G) assemblies.
     </description>
 
+    <dependencies>
+        <!-- lib/gshell Dependencies -->
+        
+        <dependency>
+            <groupId>org.apache.geronimo.gshell</groupId>
+            <artifactId>gshell-bootstrap</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.geronimo.gshell</groupId>
+            <artifactId>gshell-core</artifactId>
+        </dependency>
+        
+        <dependency>
+            <groupId>org.apache.geronimo.gshell</groupId>
+            <artifactId>gshell-cli</artifactId>
+        </dependency>
+        
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-log4j12</artifactId>
+        </dependency>
+        
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>jcl104-over-slf4j</artifactId>
+        </dependency>
+        
+        <dependency>
+            <groupId>org.apache.geronimo.gshell.commands</groupId>
+            <artifactId>gshell-builtins</artifactId>
+        </dependency>
+        
+        <!-- lib Dependencies -->
+        
+        <dependency>
+            <groupId>asm</groupId>
+            <artifactId>asm</artifactId>
+        </dependency>
+        
+        <dependency>
+            <groupId>asm</groupId>
+            <artifactId>asm-commons</artifactId>
+        </dependency>
+        
+        <dependency>
+            <groupId>cglib</groupId>
+            <artifactId>cglib-nodep</artifactId>
+        </dependency>
+        
+        <dependency>
+            <groupId>commons-cli</groupId>
+            <artifactId>commons-cli</artifactId>
+        </dependency>
+        
+        <dependency>
+            <groupId>commons-logging</groupId>
+            <artifactId>commons-logging</artifactId>
+        </dependency>
+        
+        <dependency>
+            <groupId>log4j</groupId>
+            <artifactId>log4j</artifactId>
+        </dependency>
+        
+        <dependency>
+            <groupId>xpp3</groupId>
+            <artifactId>xpp3</artifactId>
+        </dependency>
+        
+        <dependency>
+            <groupId>xstream</groupId>
+            <artifactId>xstream</artifactId>
+        </dependency>
+        
+        <dependency>
+            <groupId>org.apache.geronimo.modules</groupId>
+            <artifactId>geronimo-cli</artifactId>
+            <version>${version}</version>
+        </dependency>
+        
+        <dependency>
+            <groupId>org.apache.geronimo.modules</groupId>
+            <artifactId>geronimo-kernel</artifactId>
+            <version>${version}</version>
+        </dependency>
+        
+        <dependency>
+            <groupId>org.apache.geronimo.modules</groupId>
+            <artifactId>geronimo-deploy-jsr88-bootstrapper</artifactId>
+            <version>${version}</version>
+        </dependency>
+        
+        <!--
+        FIXME: Bad idea for plugins
+        -->
+        <dependency>
+            <groupId>javax.xml.bind</groupId>
+            <artifactId>jaxb-api</artifactId>
+        </dependency>
+        
+        <dependency>
+            <groupId>com.sun.xml.bind</groupId>
+            <artifactId>jaxb-impl</artifactId>
+        </dependency>
+        
+        <dependency>
+            <groupId>org.apache.geronimo.specs</groupId>
+            <artifactId>geronimo-stax-api_1.0_spec</artifactId>
+        </dependency>
+        
+        <dependency>
+            <groupId>woodstox</groupId>
+            <artifactId>wstx-asl</artifactId>
+        </dependency>
+        
+        <dependency>
+            <groupId>org.apache.geronimo.specs</groupId>
+            <artifactId>geronimo-activation_1.1_spec</artifactId>
+        </dependency>
+        
+        <!-- lib/endorsed Dependencies -->
+        
+        <dependency>
+            <groupId>org.apache.yoko</groupId>
+            <artifactId>yoko-spec-corba</artifactId>
+        </dependency>
+        
+        <dependency>
+            <groupId>org.apache.yoko</groupId>
+            <artifactId>yoko-rmi-spec</artifactId>
+        </dependency>
+    </dependencies>
+    
     <build>
         <plugins>
             <plugin>
@@ -46,115 +180,14 @@
                 <artifactId>maven-dependency-plugin</artifactId>
                 <executions>
                     <execution>
-                        <id>install-lib</id>
-                        <phase>compile</phase>
-                        <goals>
-                            <goal>copy</goal>
-                        </goals>
-                        <configuration>
-                            <artifactItems>
-                                <artifactItem>
-                                    <groupId>asm</groupId>
-                                    <artifactId>asm</artifactId>
-                                </artifactItem>
-                                <artifactItem>
-                                    <groupId>asm</groupId>
-                                    <artifactId>asm-commons</artifactId>
-                                </artifactItem>
-                                <artifactItem>
-                                    <groupId>cglib</groupId>
-                                    <artifactId>cglib-nodep</artifactId>
-                                </artifactItem>
-                                <artifactItem>
-                                    <groupId>commons-cli</groupId>
-                                    <artifactId>commons-cli</artifactId>
-                                </artifactItem>
-                                <artifactItem>
-                                    <groupId>commons-logging</groupId>
-                                    <artifactId>commons-logging</artifactId>
-                                </artifactItem>
-                                <artifactItem>
-                                    <groupId>log4j</groupId>
-                                    <artifactId>log4j</artifactId>
-                                </artifactItem>
-                                <artifactItem>
-                                    <groupId>xpp3</groupId>
-                                    <artifactId>xpp3</artifactId>
-                                </artifactItem>
-                                <artifactItem>
-                                    <groupId>xstream</groupId>
-                                    <artifactId>xstream</artifactId>
-                                </artifactItem>
-                                <artifactItem>
-                                    <groupId>org.apache.geronimo.modules</groupId>
-                                    <artifactId>geronimo-cli</artifactId>
-                                    <version>${version}</version>
-                                </artifactItem>
-                                <artifactItem>
-                                    <groupId>org.apache.geronimo.modules</groupId>
-                                    <artifactId>geronimo-kernel</artifactId>
-                                    <version>${version}</version>
-                                </artifactItem>
-                                <artifactItem>
-                                    <groupId>org.apache.geronimo.modules</groupId>
-                                    <artifactId>geronimo-deploy-jsr88-bootstrapper</artifactId>
-                                    <version>${version}</version>
-                                </artifactItem>
-                                <!-- TODO bad idea for plugins -->
-                                <artifactItem>
-                                    <groupId>javax.xml.bind</groupId>
-                                    <artifactId>jaxb-api</artifactId>
-                                </artifactItem>
-                                <artifactItem>
-                                    <groupId>com.sun.xml.bind</groupId>
-                                    <artifactId>jaxb-impl</artifactId>
-                                </artifactItem>
-                                <artifactItem>
-                                    <groupId>org.apache.geronimo.specs</groupId>
-                                    <artifactId>geronimo-stax-api_1.0_spec</artifactId>
-                                </artifactItem>
-                                <artifactItem>
-                                    <groupId>woodstox</groupId>
-                                    <artifactId>wstx-asl</artifactId>
-                                </artifactItem>
-                                <artifactItem>
-                                    <groupId>org.apache.geronimo.specs</groupId>
-                                    <artifactId>geronimo-activation_1.1_spec</artifactId>
-                                </artifactItem>
-                            </artifactItems>
-                            <outputDirectory>${project.build.directory}/classes/lib</outputDirectory>
-                        </configuration>
-                    </execution>
-
-                    <!-- HACK - Added by G3153 to get minimal assemblies working again.  Needs to be removed as part of G3155 -->
-                    <execution>
-                        <id>install-lib-endorsed</id>
-                        <phase>compile</phase>
-                        <goals>
-                            <goal>copy</goal>
-                        </goals>
-                        <configuration>
-                            <artifactItems>
-                                <artifactItem>
-                                    <groupId>org.apache.yoko</groupId>
-                                    <artifactId>yoko-spec-corba</artifactId>
-                                </artifactItem>
-                                <artifactItem>
-                                    <groupId>org.apache.yoko</groupId>
-                                    <artifactId>yoko-rmi-spec</artifactId>
-                                </artifactItem>
-                            </artifactItems>
-                            <outputDirectory>${project.build.directory}/classes/lib/endorsed</outputDirectory>
-                        </configuration>
-                    </execution>
-
-                    <execution>
                         <id>unpack-schemas</id>
-                        <phase>compile</phase>
+                        <phase>generate-resources</phase>
                         <goals>
                             <goal>unpack</goal>
                         </goals>
                         <configuration>
+                            <outputDirectory>${project.build.directory}/schema</outputDirectory>
+                            
                             <artifactItems>
                                 <artifactItem>
                                     <groupId>org.apache.geronimo.modules</groupId>
@@ -207,19 +240,18 @@
                                     <version>${version}</version>
                                 </artifactItem>
                             </artifactItems>
-                            <outputDirectory>${project.build.directory}/scratch/schema</outputDirectory>
                         </configuration>
                     </execution>
                 </executions>
             </plugin>
-
+            
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-antrun-plugin</artifactId>
                 <executions>
                     <execution>
                         <id>flatten-schemas</id>
-                        <phase>compile</phase>
+                        <phase>process-resources</phase>
                         <goals>
                             <goal>run</goal>
                         </goals>
@@ -227,13 +259,52 @@
                             <tasks>
                                 <mkdir dir="${project.build.directory}/classes/schema"/>
                                 <copy todir="${project.build.directory}/classes/schema">
-                                    <fileset dir="${project.build.directory}/scratch/schema">
+                                    <fileset dir="${project.build.directory}/schema">
                                         <include name="**/*.xsd"/>
                                         <include name="**/*.dtd"/>
                                     </fileset>
                                     <mapper type="flatten"/>
                                 </copy>
                             </tasks>
+                        </configuration>
+                    </execution>
+                    
+                    <execution>
+                        <id>install-underlay</id>
+                        <phase>process-classes</phase>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                        <configuration>
+                            <tasks>
+                                <mkdir dir="${project.build.directory}/classes"/>
+                                <copy todir="${project.build.directory}/classes">
+                                    <fileset dir="${project.build.directory}/${project.build.finalName}/${project.build.finalName}">
+                                        <include name="**"/>
+                                    </fileset>
+                                </copy>
+                            </tasks>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-assembly-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>boilerplate</id>
+                        <phase>compile</phase>
+                        <goals>
+                            <goal>directory-inline</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>${project.build.directory}</outputDirectory>
+                            <appendAssemblyId>false</appendAssemblyId>
+                            <descriptors>
+                                <descriptor>${pom.basedir}/src/main/assembly/boilerplate.xml</descriptor>
+                            </descriptors>
                         </configuration>
                     </execution>
                 </executions>

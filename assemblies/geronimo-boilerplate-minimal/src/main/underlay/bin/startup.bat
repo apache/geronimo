@@ -1,37 +1,99 @@
-@if "%DEBUG%" == "" @echo off
-rem 
-rem Licensed to the Apache Software Foundation (ASF) under one
-rem or more contributor license agreements.  See the NOTICE file
-rem distributed with this work for additional information
-rem regarding copyright ownership.  The ASF licenses this file
-rem to you under the Apache License, Version 2.0 (the
-rem "License"); you may not use this file except in compliance
-rem with the License.  You may obtain a copy of the License at
-rem 
-rem  http://www.apache.org/licenses/LICENSE-2.0
-rem 
-rem Unless required by applicable law or agreed to in writing,
-rem software distributed under the License is distributed on an
-rem "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-rem KIND, either express or implied.  See the License for the
-rem specific language governing permissions and limitations
-rem under the License.
-rem 
+@REM
+@REM  Licensed to the Apache Software Foundation (ASF) under one or more
+@REM  contributor license agreements.  See the NOTICE file distributed with
+@REM  this work for additional information regarding copyright ownership.
+@REM  The ASF licenses this file to You under the Apache License, Version 2.0
+@REM  (the "License"); you may not use this file except in compliance with
+@REM  the License.  You may obtain a copy of the License at
+@REM
+@REM      http://www.apache.org/licenses/LICENSE-2.0
+@REM
+@REM  Unless required by applicable law or agreed to in writing, software
+@REM  distributed under the License is distributed on an "AS IS" BASIS,
+@REM  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+@REM  See the License for the specific language governing permissions and
+@REM  limitations under the License.
+@REM
+@REM --------------------------------------------------------------------
+@REM $Rev$ $Date$
+@REM --------------------------------------------------------------------
 
-rem 
-rem $Rev$ $Date$
-rem 
+@REM --------------------------------------------------------------------
+@REM Startup batch file for Geronimo that starts Geronimo in a new window.
+@REM
+@REM This batch file calls the geronimo.bat script passing "start" as the
+@REM first argument followed by the arguments supplied by the caller.
+@REM
+@REM This batch file is based upon Tomcat's startup.bat file to enable
+@REM those familiar with Tomcat to quickly get started with Geronimo.
+@REM
+@REM Alternatively you can use the more comprehensive geronimo.bat file
+@REM directly.
+@REM
+@REM Invocation Syntax:
+@REM
+@REM   startup [geronimo_args ...]
+@REM
+@REM Environment Variable Prequisites:
+@REM
+@REM   Refer to the documentation in the geronimo.bat file for information
+@REM   on environment variables etc.
+@REM
+@REM --------------------------------------------------------------------
 
-if "%OS%"=="Windows_NT" setlocal
+@if "%GERONIMO_BATCH_ECHO%" == "on"  echo on
+@if not "%GERONIMO_BATCH_ECHO%" == "on"  echo off
 
-:begin
+if "%OS%" == "Windows_NT" goto okOsCheck
+echo Cannot process Geronimo command - you are running an unsupported operating system.
+set ERRORLEVEL=1
+goto end
 
-set DIRNAME=%~dp0
-if "%DIRNAME%" == "" set DIRNAME=.\
+:okOsCheck
+@setlocal enableextensions
+@set ERRORLEVEL=0
 
-"%DIRNAME%\gsh.bat" %*
+if not "%GERONIMO_HOME%" == "" goto resolveHome
+@REM %~dp0 is expanded pathname of the current script
+set GERONIMO_HOME=%~dp0..
+
+@REM resolve .. and remove any trailing slashes
+:resolveHome
+set CURRENT_DIR=%cd%
+cd /d %GERONIMO_HOME%
+set GERONIMO_HOME=%cd%
+cd /d %CURRENT_DIR%
+
+:gotHome
+if exist "%GERONIMO_HOME%\bin\geronimo.bat" goto okHome
+echo The GERONIMO_HOME environment variable is not defined correctly
+echo This environment variable is needed to run this program
+set ERRORLEVEL=1
+goto end
+:okHome
+
+set EXECUTABLE=%GERONIMO_HOME%\bin\geronimo.bat
+
+@REM Check that target executable exists
+if exist "%EXECUTABLE%" goto okExec
+echo Cannot find %EXECUTABLE%
+echo This file is needed to run this program
+set ERRORLEVEL=1
+goto end
+:okExec
+
+@REM Get remaining unshifted command line arguments and save them in the
+set CMD_LINE_ARGS=
+:setArgs
+if ""%1""=="""" goto doneSetArgs
+set CMD_LINE_ARGS=%CMD_LINE_ARGS% %1
+shift
+goto setArgs
+:doneSetArgs
+
+call "%EXECUTABLE%" start %CMD_LINE_ARGS%
 
 :end
-
-if "%OS%"=="Windows_NT" endlocal
-
+@REM pause the batch file if GERONIMO_BATCH_PAUSE is set to 'on'
+if "%GERONIMO_BATCH_PAUSE%" == "on" pause
+@endlocal
