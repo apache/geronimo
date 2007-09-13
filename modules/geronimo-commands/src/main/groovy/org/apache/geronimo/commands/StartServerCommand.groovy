@@ -138,7 +138,8 @@ class StartServerCommand
                 file = new File(javaAgent)
                 
                 if (!file.exists()) {
-                    log.warn("Missing Java Agent jar: $file")
+                    log.warn("Disabling Java Agent support; missing jar: $file")
+                    file = null
                 }
             }
         }
