@@ -30,7 +30,7 @@ public abstract class SAAJInterceptor extends AbstractPhaseInterceptor<Message> 
     protected SAAJUniverse universe;
 
     public SAAJInterceptor(String phase, SAAJUniverse universe) {
-        setPhase(phase);
+        super(phase);
         this.universe = universe;
     }
     
