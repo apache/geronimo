@@ -190,27 +190,6 @@
                             <groupId>xstream</groupId>
                             <artifactId>xstream</artifactId>
                         </element>
-                        <!-- TODO bad idea... temp, for plugins -->
-                        <element>
-                            <groupId>javax.xml.bind</groupId>
-                            <artifactId>jaxb-api</artifactId>
-                        </element>
-                        <element>
-                            <groupId>com.sun.xml.bind</groupId>
-                            <artifactId>jaxb-impl</artifactId>
-                        </element>
-                        <element>
-                            <groupId>org.apache.geronimo.specs</groupId>
-                            <artifactId>geronimo-stax-api_1.0_spec</artifactId>
-                        </element>
-                        <element>
-                            <groupId>woodstox</groupId>
-                            <artifactId>wstx-asl</artifactId>
-                        </element>
-                        <element>
-                            <groupId>org.apache.geronimo.specs</groupId>
-                            <artifactId>geronimo-activation_1.1_spec</artifactId>
-                        </element>
                     </classpath>
                     <classpathPrefix>../lib</classpathPrefix>
 
