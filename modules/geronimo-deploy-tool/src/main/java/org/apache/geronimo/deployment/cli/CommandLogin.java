@@ -31,6 +31,7 @@ import java.util.Properties;
 import org.apache.geronimo.cli.deployer.CommandArgs;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.util.SimpleEncryption;
+import org.apache.geronimo.util.EncryptionManager;
 
 /**
  * The CLI deployer logic to start.
@@ -54,7 +55,7 @@ public class CommandLogin extends AbstractCommand {
             InputStream in = new BufferedInputStream(new FileInputStream(authFile));
             props.load(in);
             in.close();
-            props.setProperty("login."+connection.getServerURI(), "{Standard}"+SimpleEncryption.encrypt(connection.getAuthentication()));
+            props.setProperty("login."+connection.getServerURI(), EncryptionManager.encrypt(connection.getAuthentication()));
             OutputStream save = new BufferedOutputStream(new FileOutputStream(authFile));
             props.store(save, "Saved authentication information to connect to Geronimo servers");
             save.flush();

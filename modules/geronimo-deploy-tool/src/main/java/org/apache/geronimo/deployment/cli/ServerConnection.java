@@ -39,7 +39,7 @@ import org.apache.geronimo.deployment.plugin.factories.AuthenticationFailedExcep
 import org.apache.geronimo.deployment.plugin.jmx.JMXDeploymentManager;
 import org.apache.geronimo.deployment.plugin.jmx.LocalDeploymentManager;
 import org.apache.geronimo.kernel.Kernel;
-import org.apache.geronimo.util.SimpleEncryption;
+import org.apache.geronimo.util.EncryptionManager;
 
 /**
  * Supports online connections to the server, via JSR-88, valid only
@@ -52,7 +52,7 @@ public class ServerConnection {
     private final static String DEFAULT_URI = "deployer:geronimo:jmx";
 
     private final DeploymentFactory geronimoDeploymentFactory;
-    
+
     private DeploymentManager manager;
     private PrintWriter out;
     private InputStream in;
@@ -69,7 +69,7 @@ public class ServerConnection {
         this.out = out;
         this.in = in;
         boolean offline = false;
-        
+
         String uri = parser.getURI();
         String driver = parser.getDriver();
         String user = parser.getUser();
@@ -144,20 +144,24 @@ public class ServerConnection {
                 try {
                     Properties props = new Properties();
                     props.load(in);
-                    String encryped = props.getProperty("login." + useURI);
-                    if (encryped != null) {
-                        if (encryped.startsWith("{Standard}")) {
-                            SavedAuthentication auth = (SavedAuthentication) SimpleEncryption.decrypt(encryped.substring(10));
-                            if (auth.uri.equals(useURI)) {
-                                user = auth.user;
-                                password = new String(auth.password);
-                            }
-                        } else if (encryped.startsWith("{Plain}")) {
-                            int pos = encryped.indexOf("/");
-                            user = encryped.substring(7, pos);
-                            password = encryped.substring(pos + 1);
+                    String encrypted = props.getProperty("login." + useURI);
+                    if (encrypted != null) {
+
+                        if (encrypted.startsWith("{Plain}")) {
+                            int pos = encrypted.indexOf("/");
+                            user = encrypted.substring(7, pos);
+                            password = encrypted.substring(pos + 1);
                         } else {
-                            System.out.print(DeployUtils.reformat("Unknown encryption used in saved login file", 4, 72));
+                            Object o = EncryptionManager.decrypt(encrypted);
+                            if (o == encrypted) {
+                                System.out.print(DeployUtils.reformat("Unknown encryption used in saved login file", 4, 72));
+                            } else {
+                                SavedAuthentication auth = (SavedAuthentication) o;
+                                if (auth.uri.equals(useURI)) {
+                                    user = auth.user;
+                                    password = new String(auth.password);
+                                }
+                            }
                         }
                     }
                 } catch (IOException e) {

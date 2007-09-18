@@ -47,6 +47,7 @@ import org.apache.geronimo.system.serverinfo.ServerInfo;
 import org.apache.geronimo.util.encoders.Base64;
 import org.apache.geronimo.util.encoders.HexTranslator;
 import org.apache.geronimo.util.SimpleEncryption;
+import org.apache.geronimo.util.EncryptionManager;
 
 /**
  * @version $Rev$ $Date$
@@ -149,10 +150,7 @@ public class PropertiesLoginModuleManager implements GBeanLifecycle {
                 if(digest != null && !digest.equals("")) {
                     realPassword = digestPassword(realPassword, digest, getEncoding());
                 }
-                if (!(realPassword.startsWith("{Standard}"))) {
-                    // update the password
-                    realPassword = "{Standard}"+SimpleEncryption.encrypt(realPassword);
-                }
+                realPassword = EncryptionManager.encrypt(realPassword);
             }
             users.setProperty(name, realPassword);
             store(users, serverInfo.resolveServer(getUsersURI()).toURL());
@@ -189,10 +187,7 @@ public class PropertiesLoginModuleManager implements GBeanLifecycle {
                 if(digest != null && !digest.equals("")) {
                     realPassword = digestPassword(realPassword, digest, getEncoding());
                 }
-                if (!(realPassword.startsWith("{Standard}"))) {
-                    // update the password
-                    realPassword = "{Standard}"+SimpleEncryption.encrypt(realPassword);
-                }
+                realPassword = EncryptionManager.encrypt(realPassword);
             }
             users.setProperty(name, realPassword);
             store(users, serverInfo.resolveServer(getUsersURI()).toURL());
@@ -270,10 +265,7 @@ public class PropertiesLoginModuleManager implements GBeanLifecycle {
         }
         String realPassword = users.getProperty(userPrincipal);
         if (realPassword != null) {
-            if (realPassword.startsWith("{Standard}")) {
-                // decrypt the password
-                realPassword = (String) SimpleEncryption.decrypt(realPassword.substring(10));
-            }
+            realPassword = (String) EncryptionManager.decrypt(realPassword);
         }
         return realPassword;
     }
@@ -328,10 +320,9 @@ public class PropertiesLoginModuleManager implements GBeanLifecycle {
                 String realPassword = users.getProperty(name);
                 // Encrypt the password if needed, so we can compare it with the supplied one
                 if (realPassword != null) {
-                    if (!(realPassword.startsWith("{Standard}"))) {
-                        // update the password in Properties to be encrypted
-                        users.setProperty(name, "{Standard}"+SimpleEncryption.encrypt(realPassword));
-                        // we have an updated password to save back to the file
+                    String pw = EncryptionManager.encrypt(realPassword);
+                    if (!realPassword.equals(pw)) {
+                        users.setProperty(name, pw);
                         bUpdates = true;
                     }
                 }

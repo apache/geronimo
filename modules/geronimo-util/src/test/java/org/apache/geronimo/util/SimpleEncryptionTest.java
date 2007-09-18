@@ -24,8 +24,8 @@ import org.apache.geronimo.testsupport.TestSupport;
 public class SimpleEncryptionTest extends TestSupport {
     public void testSimpleEncryption() {
         Object[] source = new Object[]{"This is a test", new Integer(14)};
-        String text = SimpleEncryption.encrypt(source);
-        Object[] result = (Object[]) SimpleEncryption.decrypt(text);
+        String text = SimpleEncryption.INSTANCE.encrypt(source);
+        Object[] result = (Object[]) SimpleEncryption.INSTANCE.decrypt(text);
         assertEquals(2, result.length);
         assertEquals("This is a test", result[0]);
         assertEquals(new Integer(14), result[1]);

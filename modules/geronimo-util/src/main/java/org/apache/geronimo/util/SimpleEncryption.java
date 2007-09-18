@@ -41,48 +41,16 @@ import org.apache.commons.logging.LogFactory;
  *
  * @version $Rev$ $Date$
  */
-public class SimpleEncryption {
-    private final static Log log = LogFactory.getLog(SimpleEncryption.class);
+public final class SimpleEncryption extends AbstractEncryption {
+
+    public final static SimpleEncryption INSTANCE = new SimpleEncryption();
     private final static SecretKeySpec SECRET_KEY = new SecretKeySpec(new byte[]{(byte)-45,(byte)-15,(byte)100,(byte)-34,(byte)70,(byte)83,(byte)75,(byte)-100,(byte)-75,(byte)61,(byte)26,(byte)114,(byte)-20,(byte)-58,(byte)114,(byte)77}, "AES");
 
 
-    /**
-     * Gets a String which contains the Base64-encoded form of the source,
-     * encrypted with the known key.
-     */
-    public static String encrypt(Serializable source) {
-        try {
-            Cipher c = Cipher.getInstance("AES");
-            c.init(Cipher.ENCRYPT_MODE, SECRET_KEY);
-            SealedObject so = new SealedObject(source, c);
-            ByteArrayOutputStream store = new ByteArrayOutputStream();
-            ObjectOutputStream out = new ObjectOutputStream(store);
-            out.writeObject(so);
-            out.close();
-            byte[] data = store.toByteArray();
-            byte[] textData = Base64.encode(data);
-            return new String(textData, "US-ASCII");
-        } catch (Exception e) {
-            log.error("Unable to encrypt", e);
-            return null;
-        }
+    private SimpleEncryption() {
     }
 
-    /**
-     * Given a String which is the Base64-encoded encrypted data, retrieve
-     * the original Object.
-     */
-    public static Object decrypt(String source) {
-        try {
-            byte[] data = Base64.decode(source);
-            Cipher c = Cipher.getInstance("AES");
-            c.init(Cipher.DECRYPT_MODE, SECRET_KEY);
-            ObjectInputStream in = new ObjectInputStream(new ByteArrayInputStream(data));
-            SealedObject so = (SealedObject) in.readObject();
-            return so.getObject(c);
-        } catch (Exception e) {
-            log.error("Unable to decrypt", e);
-            return null;
-        }
+    protected SecretKeySpec getSecretKeySpec() {
+        return SECRET_KEY;
     }
 }
