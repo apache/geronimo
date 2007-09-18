@@ -258,6 +258,11 @@
                                     <artifactId>geronimo-j2ee-builder</artifactId>
                                     <version>${version}</version>
                                 </artifactItem>
+                                <artifactItem>
+                                    <groupId>org.apache.geronimo.modules</groupId>
+                                    <artifactId>geronimo-openejb-builder</artifactId>
+                                    <version>${version}</version>
+                                </artifactItem>
                             </artifactItems>
                         </configuration>
                     </execution>
