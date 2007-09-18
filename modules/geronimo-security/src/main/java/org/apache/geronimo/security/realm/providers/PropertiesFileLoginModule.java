@@ -46,6 +46,7 @@ import org.apache.geronimo.common.GeronimoSecurityException;
 import org.apache.geronimo.security.jaas.JaasLoginModuleUse;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
 import org.apache.geronimo.util.SimpleEncryption;
+import org.apache.geronimo.util.EncryptionManager;
 import org.apache.geronimo.util.encoders.Base64;
 import org.apache.geronimo.util.encoders.HexTranslator;
 
@@ -171,9 +172,7 @@ public class PropertiesFileLoginModule implements LoginModule {
         String realPassword = users.getProperty(username);
         // Decrypt the password if needed, so we can compare it with the supplied one
         if (realPassword != null) {
-            if (realPassword.startsWith("{Standard}")) {
-                realPassword = (String) SimpleEncryption.decrypt(realPassword.substring(10));
-            }
+            realPassword = (String) EncryptionManager.decrypt(realPassword);
         }
         char[] entered = ((PasswordCallback) callbacks[1]).getPassword();
         password = entered == null ? null : new String(entered);
