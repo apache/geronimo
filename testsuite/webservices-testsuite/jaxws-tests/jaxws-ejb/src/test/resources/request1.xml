@@ -19,8 +19,8 @@
 -->
 <soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
    <soap:Body>
-      <greetMe xmlns="http://test.geronimo.apache.org/">
+      <x:greetMe xmlns:x="http://test.geronimo.apache.org/">
         <arg0>changeme</arg0>
-      </greetMe>
+      </x:greetMe>
    </soap:Body>
 </soap:Envelope>
