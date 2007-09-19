@@ -56,20 +56,19 @@ public class JaxWSTest extends TestSupport {
     
     @Test
     public void testInvocation1() throws Exception {
-        testInvocation("/servlet1");
+        testInvocation("/servlet1", "/request1.xml");
     }
 
     @Test
     public void testInvocation2() throws Exception {
-        testInvocation("/servlet2");
+        testInvocation("/servlet2", "/request2.xml");
     }
 
-    @Test
-    private void testInvocation(String servlet) throws Exception {
+    private void testInvocation(String servlet, String requestFile) throws Exception {
         String warName = System.getProperty("webAppName");
         assertNotNull("Web application name not specified", warName);
         
-        InputStream requestInput = JaxWSTest.class.getResourceAsStream("/request1.xml");
+        InputStream requestInput = JaxWSTest.class.getResourceAsStream(requestFile);
         assertNotNull("SOAP request not specified", requestInput);
                 
         URL url = new URL(baseURL + warName + servlet);
