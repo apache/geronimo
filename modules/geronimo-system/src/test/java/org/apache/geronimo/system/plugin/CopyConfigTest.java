@@ -255,7 +255,7 @@ public class CopyConfigTest extends TestCase {
         PluginArtifactType instance = PluginXmlUtil.loadPluginArtifactMetadata(in);
         List<GbeanType> gbeans = instance.getConfigXmlContent().getGbean();
         assertEquals(3, gbeans.size());
-        List<Object> contents = gbeans.get(0).getAttributeOrReference();
+        List contents = gbeans.get(0).getAttributeOrReference();
         assertEquals(2, contents.size());
         AttributeType attr = (AttributeType) contents.get(1);
         String value = PluginXmlUtil.extractAttributeValue(attr);
