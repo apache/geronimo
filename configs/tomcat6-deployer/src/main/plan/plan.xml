@@ -70,10 +70,7 @@
                         <type>car</type>
                     </dependency>
                 </dependencies>
-                <hidden-classes>
-                    <filter>org.springframework.</filter>
-                    <filter>META-INF/spring</filter>
-                </hidden-classes>
+                <hidden-classes/>
                 <non-overridable-classes>
                     <filter>java.</filter>
                     <filter>javax.</filter>
