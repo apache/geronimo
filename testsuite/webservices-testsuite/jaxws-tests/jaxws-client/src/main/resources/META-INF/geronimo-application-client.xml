@@ -44,7 +44,7 @@
       <protocol>http</protocol>
       <host>localhost</host>
       <port>8080</port>
-      <uri>/jaxws-war/servlet1</uri>
+      <uri>/jaxws-war/servlet2</uri>
    </port>
  </service-ref>
 
