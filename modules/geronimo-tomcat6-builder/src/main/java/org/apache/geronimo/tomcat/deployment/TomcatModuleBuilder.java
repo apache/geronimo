@@ -329,6 +329,10 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder {
             if (tomcatWebApp.isSetCrossContext()) {
                 webModuleData.setAttribute("crossContext", Boolean.TRUE);
             }
+            if (tomcatWebApp.isSetWorkDir()) {
+                String workDir = tomcatWebApp.getWorkDir();
+                webModuleData.setAttribute("workDir", workDir);
+            }
             if (tomcatWebApp.isSetDisableCookies()) {
                 webModuleData.setAttribute("disableCookies", Boolean.TRUE);
             }

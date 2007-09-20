@@ -29,6 +29,7 @@
     </environment>
 
     <jetty:context-root>/test</jetty:context-root>
+    <jetty:work-dir>myworkdir</jetty:work-dir>
     <!--
         <jetty:security>
             <sec:default-principal>

@@ -17,6 +17,7 @@
 
 package org.apache.geronimo.jetty6;
 
+import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -28,6 +29,7 @@ import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.management.StatisticsProvider;
 import org.apache.geronimo.management.geronimo.NetworkConnector;
 import org.apache.geronimo.management.geronimo.WebManager;
+import org.apache.geronimo.system.serverinfo.ServerInfo;
 import org.apache.geronimo.webservices.SoapHandler;
 import org.apache.geronimo.webservices.WebServiceContainer;
 import org.mortbay.jetty.Connector;
@@ -45,10 +47,18 @@ import org.mortbay.jetty.handler.AbstractHandlerContainer;
  * @version $Rev$ $Date$
  */
 public class JettyContainerImpl implements JettyContainer, SoapHandler, GBeanLifecycle, StatisticsProvider {
+    /**
+     * The default value of JETTY_HOME variable
+     */
+    private static final String DEFAULT_JETTY_HOME = "var/jetty";
+
     private final Server server;
     private final Map webServices = new HashMap();
     private final String objectName;
     private final WebManager manager;
+    private final String jettyHome;
+    private final ServerInfo serverInfo;
+    private File jettyHomeDir;
     private JettyWebContainerStatsImpl stats;
     private final Map realms = new HashMap();
     private HandlerCollection handlerCollection = new HandlerCollection();
@@ -56,8 +66,11 @@ public class JettyContainerImpl implements JettyContainer, SoapHandler, GBeanLif
     private DefaultHandler defaultHandler = new DefaultHandler();
     private RequestLogHandler requestLogHandler = new RequestLogHandler();
 
-    public JettyContainerImpl(String objectName, WebManager manager) {
+    public JettyContainerImpl(String objectName, WebManager manager, String jettyHome, ServerInfo serverInfo) {
         this.objectName = objectName;
+        this.jettyHome = jettyHome;
+        this.serverInfo = serverInfo;
+
         server = new JettyServer();
 
         //set up the new jetty6 handler structure which is to have a HandlerCollection,
@@ -238,12 +251,22 @@ public class JettyContainerImpl implements JettyContainer, SoapHandler, GBeanLif
         this.requestLogHandler.setRequestLog(log);
     }
 
+    public File resolveToJettyHome(String workDir) {
+        if(workDir == null) {
+            return null;
+        }
+        return new File(jettyHomeDir, workDir);
+    }
     /* ------------------------------------------------------------ */
     public RequestLog getRequestLog() {
         return this.requestLogHandler.getRequestLog();
     }
 
     public void doStart() throws Exception {
+        jettyHomeDir = new File(serverInfo.resolveServerPath(jettyHome != null ? jettyHome : DEFAULT_JETTY_HOME));
+        if(!jettyHomeDir.exists()) {
+            jettyHomeDir.mkdirs();
+        }
         server.start();
     }
 
@@ -282,10 +305,13 @@ public class JettyContainerImpl implements JettyContainer, SoapHandler, GBeanLif
         infoBuilder.addAttribute("objectName", String.class, false);
         infoBuilder.addReference("WebManager", WebManager.class);
 
+        infoBuilder.addAttribute("jettyHome", String.class, true);
+        infoBuilder.addReference("ServerInfo", ServerInfo.class, "GBean");
+
         infoBuilder.addInterface(SoapHandler.class);
         infoBuilder.addInterface(JettyContainer.class);
         infoBuilder.addInterface(StatisticsProvider.class);
-        infoBuilder.setConstructor(new String[]{"objectName", "WebManager"});
+        infoBuilder.setConstructor(new String[]{"objectName", "WebManager", "jettyHome", "ServerInfo"});
 
         GBEAN_INFO = infoBuilder.getBeanInfo();
     }

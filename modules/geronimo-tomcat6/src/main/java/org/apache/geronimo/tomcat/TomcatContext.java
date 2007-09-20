@@ -75,6 +75,8 @@ public interface TomcatContext {
 
     public boolean isCrossContext();
 
+    public String getWorkDir();
+
     public boolean isDisableCookies();
 
     public Map getWebServices();

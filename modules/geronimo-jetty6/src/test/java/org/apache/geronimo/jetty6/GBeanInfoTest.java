@@ -20,6 +20,8 @@ package org.apache.geronimo.jetty6;
 
 import junit.framework.TestCase;
 import org.apache.geronimo.gbean.GBeanInfo;
+import org.apache.geronimo.system.serverinfo.BasicServerInfo;
+import org.apache.geronimo.system.serverinfo.ServerInfo;
 
 /**
  * @version $Rev$ $Date$
@@ -33,6 +35,7 @@ public class GBeanInfoTest extends TestCase {
 
     public void testJettyContainerImpl() throws Exception {
         JettyContainerImpl.getGBeanInfo();
-        new JettyContainerImpl(null, null);
+        ServerInfo serverInfo = new BasicServerInfo(".");
+        new JettyContainerImpl(null, null, null, serverInfo);
     }
 }
