@@ -20,8 +20,8 @@
 <!-- $Rev$ $Date$ -->
 
 <xs:schema
-    xmlns:web="http://geronimo.apache.org/xml/ns/j2ee/web-2.0"
-    targetNamespace="http://geronimo.apache.org/xml/ns/j2ee/web-2.0"
+    xmlns:web="http://geronimo.apache.org/xml/ns/j2ee/web-2.0.1"
+    targetNamespace="http://geronimo.apache.org/xml/ns/j2ee/web-2.0.1"
     xmlns:naming="http://geronimo.apache.org/xml/ns/naming-1.2"
     xmlns:app="http://geronimo.apache.org/xml/ns/j2ee/application-2.0"
     xmlns:sys="http://geronimo.apache.org/xml/ns/deployment-1.2"

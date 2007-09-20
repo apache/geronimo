@@ -20,7 +20,7 @@
 
 <!-- $Rev$ $Date$ -->
 
-<tomcat:web-app xmlns:tomcat="http://geronimo.apache.org/xml/ns/j2ee/web-2.0" xmlns:naming="http://geronimo.apache.org/xml/ns/naming-1.2" xmlns:sys="http://geronimo.apache.org/xml/ns/deployment-1.2">
+<tomcat:web-app xmlns:tomcat="http://geronimo.apache.org/xml/ns/j2ee/web-2.0.1" xmlns:naming="http://geronimo.apache.org/xml/ns/naming-1.2" xmlns:sys="http://geronimo.apache.org/xml/ns/deployment-1.2">
 
     <naming:resource-ref>
         <naming:ref-name>ejb/SimpleStatelessSession</naming:ref-name>
