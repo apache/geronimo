@@ -178,6 +178,8 @@ public class GeronimoStandardContext extends StandardContext {
 
         this.setCrossContext(ctx.isCrossContext());
 
+        this.setWorkDir(ctx.getWorkDir());
+
         this.setCookies(!ctx.isDisableCookies());
 
         //Set the Dispatch listener

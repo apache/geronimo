@@ -218,7 +218,8 @@ public class JettyModuleBuilderTest extends TestSupport {
 
         ConfigurationData bootstrap = new ConfigurationData(baseId, naming);
 
-        bootstrap.addGBean("ServerInfo", BasicServerInfo.GBEAN_INFO).setAttribute("baseDirectory", ".");
+        GBeanData serverInfo = bootstrap.addGBean("ServerInfo", BasicServerInfo.GBEAN_INFO);
+        serverInfo.setAttribute("baseDirectory", ".");
 
         AbstractName configStoreName = bootstrap.addGBean("MockConfigurationStore", MockConfigStore.GBEAN_INFO).getAbstractName();
 
@@ -244,6 +245,8 @@ public class JettyModuleBuilderTest extends TestSupport {
 
         GBeanData containerData = bootstrap.addGBean("JettyContainer", JettyContainerImpl.GBEAN_INFO);
         AbstractName containerName = containerData.getAbstractName();
+        containerData.setAttribute("jettyHome", new File(BASEDIR, "target/var/jetty").toString());
+        containerData.setReferencePattern("ServerInfo", serverInfo.getAbstractName());
 
         GBeanData connector = bootstrap.addGBean("JettyConnector", HTTPSocketConnector.GBEAN_INFO);
         connector.setAttribute("port", new Integer(5678));

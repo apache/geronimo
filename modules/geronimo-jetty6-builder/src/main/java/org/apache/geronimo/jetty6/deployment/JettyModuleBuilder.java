@@ -359,6 +359,11 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
             }
             webModuleData.setAttribute("contextPath", contextPath);
 
+            if (jettyWebApp.isSetWorkDir()) {
+                String workDir = jettyWebApp.getWorkDir();
+                webModuleData.setAttribute("workDir", workDir);
+            }
+
             if (jettyWebApp.isSetWebContainer()) {
                 AbstractNameQuery webContainerName = ENCConfigBuilder.getGBeanQuery(NameFactory.GERONIMO_SERVICE, jettyWebApp.getWebContainer());
                 webModuleData.setReferencePattern("JettyContainer", webContainerName);

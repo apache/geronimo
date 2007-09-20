@@ -68,6 +68,16 @@
             </xs:element>
 
             <xs:element name="context-root" type="xs:string" minOccurs="0"/>
+            <xs:element name="work-dir" type="xs:string" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>
+                        This is the work directory that will be used by this application.
+                        For Jetty this will be relative to jetty home which is var/jetty
+                        by default.
+                        For Tomcat this will be relative to "catalina.home".
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
             <!--<xs:element name="context-priority-classloader" type="xs:boolean" minOccurs="0"/>-->
             <xs:element ref="naming:web-container" minOccurs="0"/>
             <xs:element name="container-config" type="web:container-configType" minOccurs="0">

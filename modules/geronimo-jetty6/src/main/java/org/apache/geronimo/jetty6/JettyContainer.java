@@ -17,6 +17,8 @@
 
 package org.apache.geronimo.jetty6;
 
+import java.io.File;
+
 import org.apache.geronimo.management.geronimo.WebContainer;
 import org.mortbay.jetty.Connector;
 import org.mortbay.jetty.RequestLog;
@@ -50,4 +52,5 @@ public interface JettyContainer extends WebContainer {
 
     RequestLog getRequestLog();
 
+    File resolveToJettyHome(String workDir);
 }

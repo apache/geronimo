@@ -17,6 +17,7 @@
 
 package org.apache.geronimo.jetty6;
 
+import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -293,6 +294,13 @@ public class JettyWebAppContext implements GBeanLifecycle, JettyServletRegistrat
         return this.webAppContext.getContextPath();
     }
 
+    public void setWorkDir(String workDir) {
+        if(workDir == null) {
+            return;
+        }
+        this.webAppContext.setTempDirectory(jettyContainer.resolveToJettyHome(workDir));
+    }
+    
     public ClassLoader getWebClassLoader() {
         return webClassLoader;
     }
@@ -559,6 +567,7 @@ public class JettyWebAppContext implements GBeanLifecycle, JettyServletRegistrat
 
         infoBuilder.addAttribute("contextPath", String.class, true);
 
+        infoBuilder.addAttribute("workDir", String.class, true);
         infoBuilder.addReference("Host", Host.class, "Host");
         infoBuilder.addReference("TransactionManager", TransactionManager.class, NameFactory.TRANSACTION_MANAGER);
         infoBuilder.addReference("TrackedConnectionAssociator", TrackedConnectionAssociator.class, NameFactory.JCA_CONNECTION_TRACKER);

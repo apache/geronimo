@@ -87,6 +87,7 @@ public abstract class AbstractWebModuleTest extends TestSupport {
                 null,
                 null,
                 false,
+                null,
                 false,
                 null,
                 null,

@@ -181,7 +181,8 @@ public class AbstractWebModuleTest extends TestSupport {
 
         configurationBaseURL = cl.getResource("deployables/");
 
-        container = new JettyContainerImpl("test:name=JettyContainer", null);
+        ServerInfo serverInfo = new BasicServerInfo(".");
+        container = new JettyContainerImpl("test:name=JettyContainer", null, new File(BASEDIR, "target/var/jetty").toString(), serverInfo);
         container.doStart();
         connector = new HTTPSocketConnector(container, null);
         connector.setPort(5678);

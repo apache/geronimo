@@ -105,6 +105,8 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
     private final Manager manager;
 
     private final boolean crossContext;
+    
+    private final String workDir;
 
     private final boolean disableCookies;
 
@@ -167,6 +169,7 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
             CatalinaClusterGBean cluster,
             ManagerGBean manager,
             boolean crossContext,
+            String workDir,
             boolean disableCookies,
             Map webServices,
             Holder holder,
@@ -269,6 +272,8 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
         }
 
         this.crossContext = crossContext;
+        
+        this.workDir = workDir;
 
         this.disableCookies = disableCookies;
 
@@ -439,6 +444,10 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
         return crossContext;
     }
 
+    public String getWorkDir() {
+        return workDir;
+    }
+    
     public Map getWebServices(){
         return webServices;
     }
@@ -585,6 +594,7 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
         infoBuilder.addReference("Cluster", CatalinaClusterGBean.class, CatalinaClusterGBean.J2EE_TYPE);
         infoBuilder.addReference("Manager", ManagerGBean.class);
         infoBuilder.addAttribute("crossContext", boolean.class, true);
+        infoBuilder.addAttribute("workDir", String.class, true);
         infoBuilder.addAttribute("disableCookies", boolean.class, true);
         infoBuilder.addAttribute("webServices", Map.class, true);
         infoBuilder.addAttribute("holder", Holder.class, true);
@@ -615,6 +625,7 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
                 "Cluster",
                 "Manager",
                 "crossContext",
+                "workDir",
                 "disableCookies",
                 "webServices",
                 "holder",

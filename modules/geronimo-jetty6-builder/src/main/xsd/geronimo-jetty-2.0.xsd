@@ -119,6 +119,19 @@
                     </xs:documentation>
                 </xs:annotation>
             </xs:element>
+
+            <xs:element name="work-dir" type="xs:string" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>
+                        This is the work directory that will be used by this
+                        application.  The directory location will be relative
+                        to jetty home, which is var/jetty by default.  Note
+                        that this is different from "jetty.home" system
+                        property.
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+
             <xs:element ref="app:clustering" minOccurs="0">
                 <xs:annotation>
                     <xs:documentation>
