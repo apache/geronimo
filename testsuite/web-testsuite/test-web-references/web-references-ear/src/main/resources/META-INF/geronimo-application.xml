@@ -32,7 +32,7 @@
             </dep:dependency>
             <dep:dependency>
                 <dep:groupId>org.apache.geronimo.configs</dep:groupId>
-                <dep:artifactId>activemq</dep:artifactId>
+                <dep:artifactId>activemq-ra</dep:artifactId>
             </dep:dependency>
         </dep:dependencies>
     </dep:environment>
@@ -42,9 +42,12 @@
             <context-root>/webref</context-root>
             <ejb-ref>
                 <ref-name>ejb/TestBean</ref-name>
+                <ejb-link>TestBean</ejb-link>
+<!--
                 <pattern>
                     <name>TestBean</name>
                 </pattern>
+-->
             </ejb-ref>
             <resource-ref>
                 <ref-name>jdbc/MyDataSource</ref-name>

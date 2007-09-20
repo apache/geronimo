@@ -17,7 +17,7 @@
  *  under the License.
  */
 
-package org.apache.geronimo.testsuite.deployment;
+package org.apache.geronimo.testsuite.web.references;
 
 import org.apache.geronimo.testsupport.SeleniumTestSupport;
 import org.testng.annotations.Test;
@@ -36,7 +36,8 @@ public class WebReferencesTest
         selenium.open("/webref/TomcatTestServlet");
         selenium.waitForPageToLoad("30000");
         assertEquals("Sample application to check references", selenium.getTitle());
-        assertEquals(" Check EJB Reference : Call to bean method returned ->bean Test", selenium.getText("xpath=/html/body/font"));
+        System.out.println(selenium.getText("xpath=/html/body/font"));
+        assertEquals("Check EJB Reference : Call to bean method returned ->bean Test", selenium.getText("xpath=/html/body/font"));
     }
 }
 
