@@ -19,4 +19,5 @@
 <!-- $Rev$ $Date$ -->
 
 <module xmlns="http://geronimo.apache.org/xml/ns/deployment-1.1">
+    <gbean name="OpenJPAConfigurationMonitor" class="org.apache.geronimo.openjpa.ConfigurationMonitorGBean"/>
 </module>

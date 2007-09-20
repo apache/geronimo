@@ -44,6 +44,12 @@
         </dependency>
 
         <dependency>
+            <groupId>org.apache.geronimo.modules</groupId>
+            <artifactId>geronimo-openjpa</artifactId>
+            <version>${version}</version>
+        </dependency>
+
+        <dependency>
             <groupId>net.sourceforge.serp</groupId>
             <artifactId>serp</artifactId>
         </dependency>

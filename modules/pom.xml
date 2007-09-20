@@ -81,6 +81,7 @@
         <module>geronimo-naming-builder</module>
         <module>geronimo-openejb</module>
         <module>geronimo-openejb-builder</module>
+        <module>geronimo-openjpa</module>
         <module>geronimo-security</module>
         <module>geronimo-security-builder</module>
         <module>geronimo-service-builder</module>
