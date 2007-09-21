@@ -32,7 +32,7 @@ public class TestJsps extends SeleniumTestSupport
         selenium.waitForPageToLoad("30000");
         
         //throw new Exception(selenium.getText("xpath=/html/body"));
-        assertEquals("One Two", selenium.getText("xpath=/html/body"));
+        assertEquals("OneTwo", selenium.getText("xpath=/html/body"));
     }
 
     @Test
