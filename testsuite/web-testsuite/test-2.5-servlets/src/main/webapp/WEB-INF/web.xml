@@ -46,9 +46,7 @@
 	</servlet-mapping>
 	<filter-mapping>
 	   <filter-name>Sample Filter</filter-name>
-        <servlet-name>*</servlet-name>
- 		<!-- servlet-name>SampleServlet</servlet-name>
- 		<servlet-name>SampleServlet2</servlet-name  -->
+           <url-pattern>/*</url-pattern>
     </filter-mapping> 
 	<welcome-file-list>
 		<welcome-file>index.html</welcome-file>
