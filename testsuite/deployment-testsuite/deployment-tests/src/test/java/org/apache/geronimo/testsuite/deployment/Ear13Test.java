@@ -33,10 +33,16 @@ public class Ear13Test
 {
     @Test
     public void testIndexContent() throws Exception {
+        /*
+         * Disabled until https://issues.apache.org/jira/browse/GERONIMO-3199 is fixed
+         * since the module is not deployed, see pom.xml.
+         */
+        /*
         selenium.open("/test-1_3/");
         selenium.waitForPageToLoad("30000");
         assertEquals("Hello J2EE 1.3", selenium.getTitle());
         assertEquals("Hello J2EE 1.3", selenium.getText("xpath=/html/body"));
+        */
     }
 }
 
