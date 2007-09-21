@@ -59,7 +59,8 @@ public class JMSResourcesTest extends ConsoleTestSupport {
             selenium.waitForPageToLoad("30000");
             selenium.click("link=Uninstall");
             selenium.waitForPageToLoad("30000");
-            assertTrue(selenium.getConfirmation().matches("^Are you sure you want to uninstall console\\.jms/UniqueName/1\\.0/rar[\\s\\S]$"));
+            System.out.println(selenium.getConfirmation());
+            assertTrue(selenium.getConfirmation().matches("^Are you certain you wish to uninstall console\\.jms/UniqueName/1\\.0/rar[\\s\\S]?$"));
             selenium.click("link=JMS Resources");
             selenium.waitForPageToLoad("30000");
             assertFalse(selenium.isTextPresent("UniqueName (console.jms/UniqueName/1.0/rar)"));
