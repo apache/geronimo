@@ -267,8 +267,8 @@ public class PluginInstallerGBean implements PluginInstaller {
         Artifact artifact = toArtifact(instance.getModuleId());
         File dir = writeableRepo.getLocation(artifact);
         if (dir == null) {
-            log.error(artifact + " is not installed!");
-            throw new IllegalArgumentException(artifact + " is not installed!");
+            log.error(artifact + " is not installed.");
+            throw new IllegalArgumentException(artifact + " is not installed.");
         }
         if (!dir.isDirectory()) { // must be a packed (JAR-formatted) plugin
             try {
@@ -318,8 +318,8 @@ public class PluginInstallerGBean implements PluginInstaller {
         } else {
             File meta = new File(dir, "META-INF");
             if (!meta.isDirectory() || !meta.canRead()) {
-                log.error(artifact + " is not a plugin!");
-                throw new IllegalArgumentException(artifact + " is not a plugin!");
+                log.error(artifact + " is not a plugin.");
+                throw new IllegalArgumentException(artifact + " is not a plugin.");
             }
             File xml = new File(meta, "geronimo-plugin.xml");
             FileOutputStream fos = null;
@@ -485,6 +485,7 @@ public class PluginInstallerGBean implements PluginInstaller {
                 }
             }
         } catch (Exception e) {
+            log.error("Unable to install plugin. ", e);
             poller.setFailure(e);
         } finally {
             poller.setFinished();
@@ -629,7 +630,7 @@ public class PluginInstallerGBean implements PluginInstaller {
      * @throws org.apache.geronimo.kernel.repository.MissingDependencyException
      *          if plugin requires a dependency that is not present
      */
-    private void validatePlugin(PluginType plugin) throws MissingDependencyException {
+    public void validatePlugin(PluginType plugin) throws MissingDependencyException {
         if (plugin.getPluginArtifact().size() != 1) {
             throw new IllegalArgumentException("A plugin configuration must include one plugin artifact, not " + plugin.getPluginArtifact().size());
         }
@@ -647,9 +648,9 @@ public class PluginInstallerGBean implements PluginInstaller {
                     }
                 }
                 if (!upgrade) {
-                    log.error("Configuration " + artifact + " is already running!");
+                    log.info("Configuration " + artifact + " is already running.");
                     throw new IllegalArgumentException(
-                            "Configuration " + artifact + " is already running!");
+                            "Configuration " + artifact + " is already running.");
                 }
             }
         }
@@ -657,19 +658,19 @@ public class PluginInstallerGBean implements PluginInstaller {
         List<PrerequisiteType> prereqs = metadata.getPrerequisite();
         for (PrerequisiteType prereq : prereqs) {
             if (artifactResolver.queryArtifacts(toArtifact(prereq.getId())).length == 0) {
-                log.error("Required configuration '" + prereq.getId() + "' is not installed.");
+                log.info("Required configuration '" + prereq.getId() + "' is not installed.");
                 throw new MissingDependencyException(
                         "Required configuration '" + prereq.getId() + "' is not installed.");
             }
         }
         // 3. Check that we meet the Geronimo, JVM versions
         if (metadata.getGeronimoVersion().size() > 0 && !checkGeronimoVersions(metadata.getGeronimoVersion())) {
-            log.error("Cannot install plugin " + metadata.getModuleId() + " on Geronimo " + serverInfo.getVersion());
+            log.info("Cannot install plugin " + metadata.getModuleId() + " on Geronimo " + serverInfo.getVersion());
             throw new MissingDependencyException(
                     "Cannot install plugin " + metadata.getModuleId() + " on Geronimo " + serverInfo.getVersion());
         }
         if (metadata.getJvmVersion().size() > 0 && !checkJVMVersions(metadata.getJvmVersion())) {
-            log.error("Cannot install plugin " + metadata.getModuleId() + " on JVM " + System.getProperty(
+            log.info("Cannot install plugin " + metadata.getModuleId() + " on JVM " + System.getProperty(
                     "java.version"));
             throw new MissingDependencyException(
                     "Cannot install plugin " + metadata.getModuleId() + " on JVM " + System.getProperty(
@@ -1422,8 +1423,8 @@ public class PluginInstallerGBean implements PluginInstaller {
         boolean match = false;
         for (String jvmVersion : jvmVersions) {
             if (jvmVersion == null || jvmVersion.equals("")) {
-                log.error("jvm-version should not be empty!");
-                throw new IllegalStateException("jvm-version should not be empty!");
+                log.error("jvm-version should not be empty.");
+                throw new IllegalStateException("jvm-version should not be empty.");
             }
             if (version.startsWith(jvmVersion)) {
                 match = true;
@@ -1466,8 +1467,8 @@ public class PluginInstallerGBean implements PluginInstaller {
         String version = serverInfo.getVersion();
 
         if ((gerVersion == null) || gerVersion.equals("")) {
-            log.error("geronimo-version cannot be empty!");
-            throw new IllegalStateException("geronimo-version cannot be empty!");
+            log.error("geronimo-version cannot be empty.");
+            throw new IllegalStateException("geronimo-version cannot be empty.");
         } else if (gerVersion.equals(version)) {
             return true;
         } else {

@@ -26,7 +26,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Enumeration;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -56,6 +55,7 @@ import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.kernel.config.ConfigurationManager;
 import org.apache.geronimo.kernel.config.NoSuchStoreException;
 import org.apache.geronimo.kernel.repository.Artifact;
+import org.apache.geronimo.kernel.repository.MissingDependencyException;
 import org.apache.geronimo.system.jmx.KernelDelegate;
 import org.apache.geronimo.system.plugin.DownloadPoller;
 import org.apache.geronimo.system.plugin.DownloadResults;
@@ -166,6 +166,15 @@ public class RemoteDeploymentManager extends JMXDeploymentManager implements Ger
         PluginInstaller installer = getPluginInstaller();
         try {
             return installer.listPlugins(mavenRepository, username, password);
+        } finally {
+            kernel.getProxyManager().destroyProxy(installer);
+        }
+    }
+    
+    public void validatePlugin(PluginType plugin) throws MissingDependencyException {
+        PluginInstaller installer = getPluginInstaller();
+        try {
+            installer.validatePlugin(plugin);
         } finally {
             kernel.getProxyManager().destroyProxy(installer);
         }
