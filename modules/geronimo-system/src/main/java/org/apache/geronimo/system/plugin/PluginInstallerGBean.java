@@ -658,22 +658,24 @@ public class PluginInstallerGBean implements PluginInstaller {
         List<PrerequisiteType> prereqs = metadata.getPrerequisite();
         for (PrerequisiteType prereq : prereqs) {
             if (artifactResolver.queryArtifacts(toArtifact(prereq.getId())).length == 0) {
-                log.info("Required configuration '" + prereq.getId() + "' is not installed.");
+                Artifact prereqId = toArtifact(prereq.getId());
+                log.info("Required configuration '" + prereqId + "' is not installed.");
                 throw new MissingDependencyException(
-                        "Required configuration '" + prereq.getId() + "' is not installed.");
+                        "Required configuration '" + prereqId + "' is not installed.");
             }
         }
+        Artifact moduleId = toArtifact(metadata.getModuleId());
         // 3. Check that we meet the Geronimo, JVM versions
         if (metadata.getGeronimoVersion().size() > 0 && !checkGeronimoVersions(metadata.getGeronimoVersion())) {
-            log.info("Cannot install plugin " + metadata.getModuleId() + " on Geronimo " + serverInfo.getVersion());
+            log.info("Cannot install plugin " + moduleId + " on Geronimo " + serverInfo.getVersion());
             throw new MissingDependencyException(
-                    "Cannot install plugin " + metadata.getModuleId() + " on Geronimo " + serverInfo.getVersion());
+                    "Cannot install plugin " + moduleId + " on Geronimo " + serverInfo.getVersion());
         }
         if (metadata.getJvmVersion().size() > 0 && !checkJVMVersions(metadata.getJvmVersion())) {
-            log.info("Cannot install plugin " + metadata.getModuleId() + " on JVM " + System.getProperty(
+            log.info("Cannot install plugin " + moduleId + " on JVM " + System.getProperty(
                     "java.version"));
             throw new MissingDependencyException(
-                    "Cannot install plugin " + metadata.getModuleId() + " on JVM " + System.getProperty(
+                    "Cannot install plugin " + moduleId+ " on JVM " + System.getProperty(
                             "java.version"));
         }
     }
