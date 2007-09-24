@@ -41,9 +41,12 @@
 
     <!-- default WAR container using Jetty -->
     <gbean name="JettyWebContainer" class="org.apache.geronimo.jetty6.JettyContainerImpl">
-      <reference name="WebManager">
-        <name>JettyWebManager</name>
-      </reference>
+        <reference name="WebManager">
+            <name>JettyWebManager</name>
+        </reference>
+        <reference name="ServerInfo">
+            <name>ServerInfo</name>
+        </reference>
     </gbean>
 
     <gbean name="JettyRequestLog" class="org.apache.geronimo.jetty6.requestlog.NCSARequestLog">
@@ -88,29 +91,29 @@
     </gbean>
 
     <!-- DONT USE THIS ONE -->
-<!--
-    <gbean name="JettySSLConnector" class="org.apache.geronimo.jetty6.connector.HTTPSSocketConnector">
-        <attribute name="host">${PlanServerHostname}</attribute>
-        <attribute name="port">${PlanHTTPSPort}</attribute>
-        <attribute name="keyStore">geronimo-default</attribute>
-        <attribute name="keyAlias">geronimo</attribute>
-        <attribute name="trustStore">geronimo-default</attribute>
-        <attribute name="clientAuthRequired">false</attribute>
-        <attribute name="algorithm">Default</attribute>
-        <attribute name="secureProtocol">TLS</attribute>
-        <attribute name="maxThreads">50</attribute>
-        <reference name="JettyContainer">
-            <name>JettyWebContainer</name>
-        </reference>
-        <reference name="ThreadPool">
-            <name>DefaultThreadPool</name>
-        </reference>
-        <reference name="KeystoreManager">
-            <name>KeystoreManager</name>
-        </reference>
-    </gbean>
--->
-<!-- USE THIS ONE -->
+    <!--
+        <gbean name="JettySSLConnector" class="org.apache.geronimo.jetty6.connector.HTTPSSocketConnector">
+            <attribute name="host">${PlanServerHostname}</attribute>
+            <attribute name="port">${PlanHTTPSPort}</attribute>
+            <attribute name="keyStore">geronimo-default</attribute>
+            <attribute name="keyAlias">geronimo</attribute>
+            <attribute name="trustStore">geronimo-default</attribute>
+            <attribute name="clientAuthRequired">false</attribute>
+            <attribute name="algorithm">Default</attribute>
+            <attribute name="secureProtocol">TLS</attribute>
+            <attribute name="maxThreads">50</attribute>
+            <reference name="JettyContainer">
+                <name>JettyWebContainer</name>
+            </reference>
+            <reference name="ThreadPool">
+                <name>DefaultThreadPool</name>
+            </reference>
+            <reference name="KeystoreManager">
+                <name>KeystoreManager</name>
+            </reference>
+        </gbean>
+    -->
+    <!-- USE THIS ONE -->
     <gbean name="JettySSLConnector" class="org.apache.geronimo.jetty6.connector.HTTPSSelectChannelConnector">
         <attribute name="host">${PlanServerHostname}</attribute>
         <attribute name="port">${PlanHTTPSPort}</attribute>
