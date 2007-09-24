@@ -95,21 +95,25 @@
                         <value>true</value>
                         <includeVersion>true</includeVersion>
                     </useMavenDependencies>
-                    <config-xml-content>
-                        <gbean name="RMIRegistry">
-                            <attribute name="port">${NamingPort + PortOffset}</attribute>
-                        </gbean>
-                        <gbean name="NamingProperties">
-                            <!-- Check whether this really works if host name is 0.0.0.0 -->
-                            <attribute name="namingProviderUrl">rmi://${ServerHostname}:${NamingPort + PortOffset}</attribute>
-                        </gbean>
-                        <gbean name="DownloadedPluginRepos">
-                            <attribute name="repositoryList">http://geronimo.apache.org/plugins/plugin-repository-list-2.1.txt</attribute>
-                            <attribute name="userRepositories">~/.m2/repository</attribute>
-                        </gbean>
-                    </config-xml-content>
-                    <config-substitution key="ServerHostname">localhost</config-substitution>
-                    <config-substitution key="NamingPort">1099</config-substitution>
+                    <instance>
+                        <plugin-artifact>
+                            <config-xml-content>
+                                <gbean name="RMIRegistry">
+                                    <attribute name="port">${NamingPort + PortOffset}</attribute>
+                                </gbean>
+                                <gbean name="NamingProperties">
+                                    <!-- Check whether this really works if host name is 0.0.0.0 -->
+                                    <attribute name="namingProviderUrl">rmi://${ServerHostname}:${NamingPort + PortOffset}</attribute>
+                                </gbean>
+                                <gbean name="DownloadedPluginRepos">
+                                    <attribute name="repositoryList">http://geronimo.apache.org/plugins/plugin-repository-list-2.1.txt</attribute>
+                                    <attribute name="userRepositories">~/.m2/repository</attribute>
+                                </gbean>
+                            </config-xml-content>
+                            <config-substitution key="ServerHostname">localhost</config-substitution>
+                            <config-substitution key="NamingPort">1099</config-substitution>
+                        </plugin-artifact>
+                    </instance>
                 </configuration>
             </plugin>
         </plugins>
