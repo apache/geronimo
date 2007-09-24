@@ -200,6 +200,7 @@ public class EjbModuleBuilder implements ModuleBuilder {
 
         // add the ejb-jar.xml altDD plan
         if (specDDUrl != null) {
+            ejbModule.setEjbJar(null);
             ejbModule.getAltDDs().put("ejb-jar.xml", specDDUrl);
         }
 
@@ -501,7 +502,7 @@ public class EjbModuleBuilder implements ModuleBuilder {
             TemporaryClassLoader temporaryClassLoader = new TemporaryClassLoader(new URL[0], classLoader);
 
             // create an openejb app module for the ear containing all ejb modules
-            AppModule appModule = new AppModule(classLoader, ejbModule.getEjbModule().getModuleId());
+            AppModule appModule = new AppModule(classLoader, earContext.getConfigID().toString());
             for (EjbModule module : earData.getEjbModuels()) {
                 module.setClassLoader(temporaryClassLoader);
                 appModule.getEjbModules().add(module.getEjbModule());
