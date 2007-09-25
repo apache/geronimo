@@ -34,7 +34,7 @@
     <packaging>car</packaging>
 
     <description>
-        Geronimo Web Services Apache CSF integration
+        Geronimo Web Services Apache CXF integration
     </description>
 
     <dependencies>
