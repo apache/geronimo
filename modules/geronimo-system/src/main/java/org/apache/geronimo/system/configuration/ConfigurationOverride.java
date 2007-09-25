@@ -81,7 +81,12 @@ class ConfigurationOverride {
         NodeList gbeans = element.getElementsByTagName("gbean");
         for (int g = 0; g < gbeans.getLength(); g++) {
             Element gbeanElement = (Element) gbeans.item(g);
-            GBeanOverride gbean = new GBeanOverride(gbeanElement, expressionParser);
+            GBeanOverride gbean = null;
+            try {
+                gbean = new GBeanOverride(gbeanElement, expressionParser);
+            } catch (NoClassDefFoundError e) {
+                throw new RuntimeException("NCDFE: geronimo-system classloader: " + getClass().getClassLoader(), e);
+            }
             addGBean(gbean);
         }
     }
