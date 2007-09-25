@@ -24,22 +24,27 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.jar.JarFile;
 
 import javax.ejb.EntityContext;
-import javax.ejb.SessionContext;
 import javax.ejb.MessageDrivenContext;
+import javax.ejb.SessionContext;
 import javax.xml.namespace.QName;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.common.DeploymentException;
+import org.apache.geronimo.connector.ResourceAdapterWrapperGBean;
+import org.apache.geronimo.deployment.ClassPathList;
 import org.apache.geronimo.deployment.ModuleIDBuilder;
+import org.apache.geronimo.deployment.ModuleList;
 import org.apache.geronimo.deployment.NamespaceDrivenBuilder;
 import org.apache.geronimo.deployment.NamespaceDrivenBuilderCollection;
 import org.apache.geronimo.deployment.service.EnvironmentBuilder;
@@ -57,18 +62,18 @@ import org.apache.geronimo.j2ee.deployment.Module;
 import org.apache.geronimo.j2ee.deployment.ModuleBuilder;
 import org.apache.geronimo.j2ee.deployment.ModuleBuilderExtension;
 import org.apache.geronimo.j2ee.deployment.NamingBuilder;
-import org.apache.geronimo.deployment.ModuleList;
-import org.apache.geronimo.deployment.ClassPathList;
 import org.apache.geronimo.j2ee.deployment.annotation.AnnotatedEjbJar;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
-import org.apache.geronimo.kernel.classloader.TemporaryClassLoader;
-import org.apache.geronimo.kernel.Naming;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
+import org.apache.geronimo.kernel.Naming;
+import org.apache.geronimo.kernel.classloader.TemporaryClassLoader;
+import org.apache.geronimo.kernel.config.Configuration;
 import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 import org.apache.geronimo.kernel.config.ConfigurationStore;
-import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.kernel.repository.Artifact;
+import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.naming.deployment.ResourceEnvironmentSetter;
+import org.apache.geronimo.openejb.EjbContainer;
 import org.apache.geronimo.openejb.EjbDeployment;
 import org.apache.geronimo.openejb.EjbModuleImplGBean;
 import org.apache.geronimo.openejb.OpenEjbSystem;
@@ -79,18 +84,25 @@ import org.apache.geronimo.xbeans.javaee.EjbJarType;
 import org.apache.openejb.OpenEJBException;
 import org.apache.openejb.assembler.classic.AppInfo;
 import org.apache.openejb.assembler.classic.CmpJarBuilder;
+import org.apache.openejb.assembler.classic.ContainerInfo;
+import org.apache.openejb.assembler.classic.ContainerSystemInfo;
 import org.apache.openejb.assembler.classic.EjbJarInfo;
 import org.apache.openejb.assembler.classic.EnterpriseBeanInfo;
+import org.apache.openejb.assembler.classic.FacilitiesInfo;
+import org.apache.openejb.assembler.classic.MdbContainerInfo;
 import org.apache.openejb.assembler.classic.MessageDrivenBeanInfo;
+import org.apache.openejb.assembler.classic.OpenEjbConfiguration;
 import org.apache.openejb.config.AppModule;
+import org.apache.openejb.config.ConfigurationFactory;
 import org.apache.openejb.config.DeploymentLoader;
 import org.apache.openejb.config.ReadDescriptors;
 import org.apache.openejb.config.UnknownModuleTypeException;
 import org.apache.openejb.config.UnsupportedModuleTypeException;
-import org.apache.openejb.config.ValidationFailedException;
 import org.apache.openejb.config.ValidationError;
+import org.apache.openejb.config.ValidationFailedException;
 import org.apache.openejb.config.ValidationFailure;
 import org.apache.openejb.jee.EjbJar;
+import org.apache.openejb.jee.EjbRef;
 import org.apache.openejb.jee.EnterpriseBean;
 import org.apache.openejb.jee.MessageDestinationRef;
 import org.apache.openejb.jee.PersistenceContextRef;
@@ -98,16 +110,16 @@ import org.apache.openejb.jee.PersistenceUnitRef;
 import org.apache.openejb.jee.ResourceEnvRef;
 import org.apache.openejb.jee.ResourceRef;
 import org.apache.openejb.jee.ServiceRef;
-import org.apache.openejb.jee.EjbRef;
 import org.apache.openejb.jee.jpa.unit.Persistence;
 import org.apache.openejb.jee.jpa.unit.PersistenceUnit;
 import org.apache.openejb.jee.jpa.unit.TransactionType;
-import org.apache.openejb.jee.oejb2.GeronimoEjbJarType;
-import org.apache.openejb.jee.oejb2.ResourceLocatorType;
-import org.apache.openejb.jee.oejb2.PatternType;
-import org.apache.openejb.jee.oejb2.OpenejbJarType;
-import org.apache.openejb.jee.oejb2.MessageDrivenBeanType;
 import org.apache.openejb.jee.oejb2.EjbRefType;
+import org.apache.openejb.jee.oejb2.GeronimoEjbJarType;
+import org.apache.openejb.jee.oejb2.MessageDrivenBeanType;
+import org.apache.openejb.jee.oejb2.OpenejbJarType;
+import org.apache.openejb.jee.oejb2.PatternType;
+import org.apache.openejb.jee.oejb2.ResourceLocatorType;
+import org.apache.openejb.loader.SystemInstance;
 import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlObject;
 
@@ -129,19 +141,17 @@ public class EjbModuleBuilder implements ModuleBuilder {
     private final NamespaceDrivenBuilderCollection serviceBuilders;
     private final NamingBuilder namingBuilder;
     private final ResourceEnvironmentSetter resourceEnvironmentSetter;
-    private final OpenEjbSystem openEjbSystem;
     private final Collection<ModuleBuilderExtension> moduleBuilderExtensions;
 
     public EjbModuleBuilder(Environment defaultEnvironment,
 
-            String defaultCmpJTADataSource, String defaultCmpNonJTADataSource, OpenEjbSystem openEjbSystem,
-            Collection<ModuleBuilderExtension> moduleBuilderExtensions,
-            Collection securityBuilders,
-            Collection serviceBuilders,
-            NamingBuilder namingBuilders,
-            ResourceEnvironmentSetter resourceEnvironmentSetter) {
+                            String defaultCmpJTADataSource, String defaultCmpNonJTADataSource,
+                            Collection<ModuleBuilderExtension> moduleBuilderExtensions,
+                            Collection securityBuilders,
+                            Collection serviceBuilders,
+                            NamingBuilder namingBuilders,
+                            ResourceEnvironmentSetter resourceEnvironmentSetter) {
 
-        this.openEjbSystem = openEjbSystem;
         this.defaultEnvironment = defaultEnvironment;
         this.defaultCmpJTADataSource = defaultCmpJTADataSource;
         this.defaultCmpNonJTADataSource = defaultCmpNonJTADataSource;
@@ -154,7 +164,28 @@ public class EjbModuleBuilder implements ModuleBuilder {
             moduleBuilderExtensions = Collections.emptyList();
         }
         this.moduleBuilderExtensions = moduleBuilderExtensions;
+
+        //duplicate of stuff in OpenEjbSystemGBean, may not be essential
+        System.setProperty("duct tape", "");
+        System.setProperty("admin.disabled", "true");
+        System.setProperty("openejb.logger.external", "true");
+
+        setDefaultProperty("openejb.deploymentId.format", "{moduleId}/{ejbName}");
+        setDefaultProperty("openejb.jndiname.strategy.class", "org.apache.openejb.assembler.classic.JndiBuilder$TemplatedStrategy");
+        setDefaultProperty("openejb.jndiname.format", "{deploymentId}/{interfaceClass}");
+
+        System.setProperty("openejb.naming", "xbean");
+
     }
+
+    private void setDefaultProperty(String key, String value) {
+        SystemInstance systemInstance = SystemInstance.get();
+        String format = systemInstance.getProperty(key);
+        if (format == null) {
+            systemInstance.setProperty(key, value);
+        }
+    }
+
 
     public String getSchemaNamespace() {
         return EjbModuleBuilder.OPENEJBJAR_NAMESPACE;
@@ -175,12 +206,12 @@ public class EjbModuleBuilder implements ModuleBuilder {
 
         // Load the module file
         DeploymentLoader loader = new DeploymentLoader();
-        AppModule appModule = null;
+        AppModule appModule;
         try {
             appModule = loader.load(new File(moduleFile.getName()));
-        } catch (UnknownModuleTypeException e){
+        } catch (UnknownModuleTypeException e) {
             return null;
-        } catch (UnsupportedModuleTypeException e){
+        } catch (UnsupportedModuleTypeException e) {
             return null;
         } catch (OpenEJBException e) {
             Throwable t = e.getCause();
@@ -226,8 +257,7 @@ public class EjbModuleBuilder implements ModuleBuilder {
             }
             if (qname.getLocalPart().equals("openejb-jar")) {
                 ejbModule.getAltDDs().put("openejb-jar.xml", xmlCursor.xmlText());
-            } else
-            if (qname.getLocalPart().equals("ejb-jar") && qname.getNamespaceURI().equals("http://geronimo.apache.org/xml/ns/j2ee/ejb/openejb-2.0")) {
+            } else if (qname.getLocalPart().equals("ejb-jar") && qname.getNamespaceURI().equals("http://geronimo.apache.org/xml/ns/j2ee/ejb/openejb-2.0")) {
                 ejbModule.getAltDDs().put("geronimo-openejb.xml", xmlCursor.xmlText());
             }
         }
@@ -306,14 +336,14 @@ public class EjbModuleBuilder implements ModuleBuilder {
 
             for (Iterator<EjbRef> iterator = enterpriseBean.getEjbRef().iterator(); iterator.hasNext();) {
                 EjbRef ref = iterator.next();
-                 if (!corbaEjbRefs.contains(ref.getEjbRefName())) {
-                     // remove all non corba refs to avoid overwriting normal ejb refs
-                     iterator.remove();
-                 } else {
-                     // clear mapped named data from corba refs
+                if (!corbaEjbRefs.contains(ref.getEjbRefName())) {
+                    // remove all non corba refs to avoid overwriting normal ejb refs
+                    iterator.remove();
+                } else {
+                    // clear mapped named data from corba refs
                     ref.setMappedName(null);
                     ref.getInjectionTarget().clear();
-                 }
+                }
             }
 
             for (MessageDestinationRef ref : enterpriseBean.getMessageDestinationRef()) {
@@ -332,8 +362,7 @@ public class EjbModuleBuilder implements ModuleBuilder {
                 ref.setMappedName(null);
                 ref.getInjectionTarget().clear();
             }
-            for (Iterator<ResourceEnvRef> iterator = enterpriseBean.getResourceEnvRef().iterator(); iterator.hasNext();)
-            {
+            for (Iterator<ResourceEnvRef> iterator = enterpriseBean.getResourceEnvRef().iterator(); iterator.hasNext();) {
                 ResourceEnvRef ref = iterator.next();
                 if (ref.getType().equals(SessionContext.class.getName())) {
                     iterator.remove();
@@ -384,7 +413,7 @@ public class EjbModuleBuilder implements ModuleBuilder {
         }
         module.setEarContext(moduleContext);
         module.setRootEarContext(earContext);
-        if (((EjbModule)module).getEjbJar().getAssemblyDescriptor() != null) {
+        if (((EjbModule) module).getEjbJar().getAssemblyDescriptor() != null) {
             namingBuilder.buildEnvironment(null, null, module.getEnvironment());
         }
         for (ModuleBuilderExtension builder : moduleBuilderExtensions) {
@@ -433,7 +462,6 @@ public class EjbModuleBuilder implements ModuleBuilder {
 
     public void initContext(EARContext earContext, Module module, ClassLoader classLoader) throws DeploymentException {
         EjbModule ejbModule = (EjbModule) module;
-        EarData earData = (EarData) earContext.getGeneralData().get(EarData.class);
 
         EjbJarInfo ejbJarInfo = getEjbJarInfo(earContext, ejbModule, classLoader);
 
@@ -513,17 +541,17 @@ public class EjbModuleBuilder implements ModuleBuilder {
             // (metadata complete) and it run the openejb verifier
             AppInfo appInfo;
             try {
-                appInfo = openEjbSystem.configureApplication(appModule);
+                appInfo = configureApplication(appModule, earContext.getConfiguration());
             } catch (ValidationFailedException set) {
                 StringBuilder sb = new StringBuilder();
-                sb.append("Jar failed validation: "+appModule.getModuleId());
+                sb.append("Jar failed validation: ").append(appModule.getModuleId());
 
                 for (ValidationError e : set.getErrors()) {
-                    sb.append(e.getPrefix() + " ... " + e.getComponentName() + ":\t" + e.getMessage(2));
+                    sb.append(e.getPrefix()).append(" ... ").append(e.getComponentName()).append(":\t").append(e.getMessage(2));
                 }
 
                 for (ValidationFailure e : set.getFailures()) {
-                    sb.append(e.getPrefix() + " ... " + e.getComponentName() + ":\t" + e.getMessage(2));
+                    sb.append(e.getPrefix()).append(" ... ").append(e.getComponentName()).append(":\t").append(e.getMessage(2));
                 }
 
                 throw new DeploymentException(sb.toString());
@@ -562,6 +590,80 @@ public class EjbModuleBuilder implements ModuleBuilder {
         EjbJarInfo ejbJarInfo = earData.getEjbJar(ejbModule.getEjbModule().getModuleId());
         return ejbJarInfo;
     }
+
+    private AppInfo configureApplication(AppModule appModule, Configuration configuration) throws OpenEJBException {
+        OpenEjbConfiguration openEjbConfiguration = new OpenEjbConfiguration();
+        openEjbConfiguration.containerSystem = new ContainerSystemInfo();
+        openEjbConfiguration.facilities = new FacilitiesInfo();
+        boolean offline = true;
+        ConfigurationFactory configurationFactory = new ConfigurationFactory(offline, openEjbConfiguration);
+        ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
+        Thread.currentThread().setContextClassLoader(appModule.getClassLoader());
+        try {
+            addContainerInfos(configuration, openEjbConfiguration.containerSystem, configurationFactory);
+            addResourceAdapterMDBInfos(configuration, openEjbConfiguration.containerSystem, configurationFactory);
+            //process resource adapters
+
+            return configurationFactory.configureApplication(appModule);
+        } finally {
+            Thread.currentThread().setContextClassLoader(oldClassLoader);
+        }
+    }
+
+    private void addContainerInfos(Configuration configuration, ContainerSystemInfo containerSystem, ConfigurationFactory configurationFactory) throws OpenEJBException {
+        LinkedHashSet<GBeanData> containerDatas = configuration.findGBeanDatas(Collections.singleton(new AbstractNameQuery(EjbContainer.class.getName())));
+        for (GBeanData containerData : containerDatas) {
+            Class<? extends ContainerInfo> infoClass = (Class<? extends ContainerInfo>) containerData.getAttribute("infoType");
+            if (infoClass == null) {
+                String type = (String) containerData.getAttribute("type");
+                infoClass = EjbContainer.getInfoType(type);
+            }
+            String serviceId = (String) containerData.getAttribute("id");
+            Properties declaredProperties = (Properties) containerData.getAttribute("properties");
+            String providerId = (String) containerData.getAttribute("provider");
+            ContainerInfo containerInfo = configurationFactory.configureService(infoClass, serviceId, declaredProperties, providerId, "Container");
+            containerSystem.containers.add(containerInfo);
+        }
+    }
+
+    private void addResourceAdapterMDBInfos(Configuration configuration, ContainerSystemInfo containerSystem, ConfigurationFactory configurationFactory) throws OpenEJBException {
+        LinkedHashSet<GBeanData> resourceAdapterWrappers = configuration.findGBeanDatas(Collections.singleton(new AbstractNameQuery(ResourceAdapterWrapperGBean.class.getName())));
+        for (GBeanData resourceAdapterWrapperData : resourceAdapterWrappers) {
+            String resourceAdapterId = getResourceAdapterId(resourceAdapterWrapperData.getAbstractName());
+            Map<String, String> messageListenerToActivationSpecMap = (Map<String, String>) resourceAdapterWrapperData.getAttribute("messageListenerToActivationSpecMap");
+            for (Map.Entry<String, String> entry : messageListenerToActivationSpecMap.entrySet()) {
+                String messageListenerInterface = entry.getKey();
+                String activationSpecClass = entry.getValue();
+
+                // only process RA if not previously processed
+                String containerName = resourceAdapterId + "-" + messageListenerInterface;
+                // get default mdb config
+                ContainerInfo containerInfo = configurationFactory.configureService(MdbContainerInfo.class);
+                containerInfo.id = containerName;
+                containerInfo.displayName = containerName;
+
+                // set ra specific properties
+
+                try {
+                    containerInfo.properties.put("MessageListenerInterface",
+                        configuration.getConfigurationClassLoader().loadClass(messageListenerInterface));
+                } catch (ClassNotFoundException e) {
+                    throw new OpenEJBException("Could not load MessageListenerInterface " + messageListenerInterface + " in classloader: " + configuration.getConfigurationClassLoader(), e);
+                }
+                try {
+                    containerInfo.properties.put("ActivationSpecClass",
+                        configuration.getConfigurationClassLoader().loadClass(activationSpecClass));
+                } catch (ClassNotFoundException e) {
+                    throw new OpenEJBException("Could not load ActivationSpecClass " + activationSpecClass + " in classloader: " + configuration.getConfigurationClassLoader(), e);
+                }
+                //TODO is this necessary????
+//                containerInfo.properties.put("ResourceAdapter", resourceAdapter);
+
+                containerSystem.containers.add(containerInfo);
+            }
+        }
+    }
+
 
     private void addGeronimmoOpenEJBPersistenceUnit(EjbModule ejbModule) {
         GeronimoEjbJarType geronimoEjbJarType = (GeronimoEjbJarType) ejbModule.getEjbModule().getAltDDs().get("geronimo-openejb.xml");
@@ -673,7 +775,7 @@ public class EjbModuleBuilder implements ModuleBuilder {
         OpenejbJarType openejbJarType = (OpenejbJarType) altDD;
         EjbJarInfo ejbJarInfo = ejbModule.getEjbJarInfo();
 
-        Map<String, MessageDrivenBeanInfo> mdbs =  new TreeMap<String, MessageDrivenBeanInfo>();
+        Map<String, MessageDrivenBeanInfo> mdbs = new TreeMap<String, MessageDrivenBeanInfo>();
         for (EnterpriseBeanInfo enterpriseBean : ejbJarInfo.enterpriseBeans) {
             if (enterpriseBean instanceof MessageDrivenBeanInfo) {
                 mdbs.put(enterpriseBean.ejbName, (MessageDrivenBeanInfo) enterpriseBean);
@@ -694,29 +796,34 @@ public class EjbModuleBuilder implements ModuleBuilder {
             }
 
             if (bean.getResourceAdapter() == null) {
-                throw new DeploymentException("Resource Adapter defined for MDB '" + bean.getEjbName() + "'");
+                throw new DeploymentException("No Resource Adapter defined for MDB '" + bean.getEjbName() + "'");
             }
 
             AbstractNameQuery resourceAdapterNameQuery = getResourceAdapterNameQuery(bean.getResourceAdapter());
-            AbstractName resourceAdapterAbstractName = null;
+            AbstractName resourceAdapterAbstractName;
             try {
                 resourceAdapterAbstractName = earContext.findGBean(resourceAdapterNameQuery);
             } catch (GBeanNotFoundException e) {
                 throw new DeploymentException("Resource Adapter for MDB '" + bean.getEjbName() + "'not found: " + resourceAdapterNameQuery, e);
             }
 
-            Map properties = resourceAdapterAbstractName.getName();
-            String shortName = (String) properties.get("name");
-            String moduleName = (String) properties.get("ResourceAdapterModule");
-            if (shortName != null && moduleName != null) {
-                messageDrivenBeanInfo.containerId = moduleName + "." + shortName + "-" + messageDrivenBeanInfo.mdbInterface;
-            } else {
-                messageDrivenBeanInfo.containerId = resourceAdapterAbstractName.getObjectName().toString() + "-" + messageDrivenBeanInfo.mdbInterface;
-            }
+            String resourceAdapterId = getResourceAdapterId(resourceAdapterAbstractName);
+            messageDrivenBeanInfo.containerId = resourceAdapterId + "-" + messageDrivenBeanInfo.mdbInterface;
 
             // add a dependency from the module to the ra so we can be assured the mdb
             // container exists when this app is started
             ejbModuleGBeanData.addDependency(resourceAdapterAbstractName);
+        }
+    }
+
+    private String getResourceAdapterId(AbstractName resourceAdapterAbstractName) {
+        Map properties = resourceAdapterAbstractName.getName();
+        String shortName = (String) properties.get("name");
+        String moduleName = (String) properties.get("ResourceAdapterModule");
+        if (shortName != null && moduleName != null) {
+            return moduleName + "." + shortName;
+        } else {
+            return resourceAdapterAbstractName.getObjectName().toString();
         }
     }
 
@@ -741,7 +848,7 @@ public class EjbModuleBuilder implements ModuleBuilder {
         if (pattern.getModule() != null) {
             nameMap.put(NameFactory.RESOURCE_ADAPTER_MODULE, pattern.getModule());
         }
-        return new AbstractNameQuery(artifact, nameMap, (Set)null);
+        return new AbstractNameQuery(artifact, nameMap, (Set) null);
     }
 
     public static class EarData {
@@ -790,7 +897,6 @@ public class EjbModuleBuilder implements ModuleBuilder {
         infoBuilder.addAttribute("defaultEnvironment", Environment.class, true);
         infoBuilder.addAttribute("defaultCmpJTADataSource", String.class, true);
         infoBuilder.addAttribute("defaultCmpNonJTADataSource", String.class, true);
-        infoBuilder.addReference("OpenEjbSystem", OpenEjbSystem.class);
         infoBuilder.addReference("ModuleBuilderExtensions", ModuleBuilderExtension.class, NameFactory.MODULE_BUILDER);
         infoBuilder.addReference("SecurityBuilders", NamespaceDrivenBuilder.class, NameFactory.MODULE_BUILDER);
         infoBuilder.addReference("ServiceBuilders", NamespaceDrivenBuilder.class, NameFactory.MODULE_BUILDER);
@@ -801,7 +907,6 @@ public class EjbModuleBuilder implements ModuleBuilder {
                 "defaultEnvironment",
                 "defaultCmpJTADataSource",
                 "defaultCmpNonJTADataSource",
-                "OpenEjbSystem",
                 "ModuleBuilderExtensions",
                 "SecurityBuilders",
                 "ServiceBuilders",
