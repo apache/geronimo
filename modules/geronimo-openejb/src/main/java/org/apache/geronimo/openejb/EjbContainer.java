@@ -79,7 +79,7 @@ public class EjbContainer implements GBeanLifecycle {
         this.type = type;
     }
 
-    private Class<? extends ContainerInfo> getInfoType(String type) {
+    public static Class<? extends ContainerInfo> getInfoType(String type) {
         if ("STATELESS".equalsIgnoreCase(type)) return StatelessSessionContainerInfo.class;
         if ("STATEFUL".equalsIgnoreCase(type)) return StatefulSessionContainerInfo.class;
         if ("BMP_ENTITY".equalsIgnoreCase(type)) return BmpEntityContainerInfo.class;

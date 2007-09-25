@@ -67,7 +67,7 @@
         
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
-            <artifactId>activemq-ra</artifactId>
+            <artifactId>activemq-broker</artifactId>
             <version>${version}</version>
             <type>car</type>
         </dependency>

@@ -120,6 +120,7 @@
                             <groupId>org.apache.geronimo.configs</groupId>
                             <artifactId>openejb</artifactId>
                             <type>car</type>
+                            <import>classes</import>
                         </dependency>
                     </dependencies>
                     <instance>
