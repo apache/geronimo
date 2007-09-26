@@ -40,7 +40,6 @@
     </dependencies>
     
     <modules>
-        <module>geronimo-activation</module>
         <module>geronimo-activemq-ra</module>
         <module>geronimo-activemq</module>
         <module>geronimo-activemq-management</module>

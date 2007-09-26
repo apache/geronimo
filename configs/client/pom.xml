@@ -58,12 +58,6 @@
 
         <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
-            <artifactId>geronimo-activation</artifactId>
-            <version>${version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.geronimo.modules</groupId>
             <artifactId>geronimo-interceptor</artifactId>
             <version>${version}</version>
         </dependency>
