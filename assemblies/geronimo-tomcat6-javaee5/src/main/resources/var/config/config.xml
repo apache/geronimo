@@ -313,6 +313,8 @@
 
     <module name="org.apache.geronimo.configs/hot-deployer/${version}/car"/>
 
+    <module name="org.apache.geronimo.configs/mejb/${version}/car"/>
+
     <module name="org.apache.geronimo.configs/jsr88-rar-configurer/${version}/car"/>
 
     <module name="org.apache.geronimo.configs/ca-helper-tomcat/${version}/car" load="false"/>
