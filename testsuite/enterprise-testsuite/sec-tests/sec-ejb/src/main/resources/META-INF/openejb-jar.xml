@@ -53,6 +53,22 @@ limitations under the License.
             </role>
         </role-mappings>
     </security>
+    <gbean name="test-realm"
+           class="org.apache.geronimo.security.realm.GenericSecurityRealm">
+        <attribute name="realmName">test-realm</attribute>
+        <xml-reference name="LoginModuleConfiguration">
+            <lc:login-config xmlns:lc="http://geronimo.apache.org/xml/ns/loginconfig-${geronimoSchemaVersion}">
+                <lc:login-module control-flag="REQUIRED" wrap-principals="false">
+                    <lc:login-domain-name>test-realm</lc:login-domain-name>
+                    <lc:login-module-class>org.apache.geronimo.itest.TestLoginModule</lc:login-module-class>
+                    <lc:option name="users">foo,bar</lc:option>
+                </lc:login-module>
+            </lc:login-config>
+        </xml-reference>
+        <reference name="ServerInfo">
+            <name>ServerInfo</name>
+        </reference>
+    </gbean>
     <gbean name="TestCredentialStore" class="org.apache.geronimo.security.credentialstore.SimpleCredentialStoreImpl">
         <xml-attribute name="credentialStore">
             <credential-store xmlns="http://geronimo.apache.org/xml/ns/credentialstore-1.0">
@@ -82,22 +98,6 @@ limitations under the License.
                 </realm>
             </credential-store>
         </xml-attribute>
-    </gbean>
-    <gbean name="test-realm"
-           class="org.apache.geronimo.security.realm.GenericSecurityRealm">
-        <attribute name="realmName">test-realm</attribute>
-        <xml-reference name="LoginModuleConfiguration">
-            <lc:login-config xmlns:lc="http://geronimo.apache.org/xml/ns/loginconfig-${geronimoSchemaVersion}">
-                <lc:login-module control-flag="REQUIRED" wrap-principals="false">
-                    <lc:login-domain-name>test-realm</lc:login-domain-name>
-                    <lc:login-module-class>org.apache.geronimo.itest.TestLoginModule</lc:login-module-class>
-                    <lc:option name="users">foo,bar</lc:option>
-                </lc:login-module>
-            </lc:login-config>
-        </xml-reference>
-        <reference name="ServerInfo">
-            <name>ServerInfo</name>
-        </reference>
     </gbean>
 </openejb-jar>
 

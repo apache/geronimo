@@ -18,12 +18,13 @@
 <%@ page import="javax.naming.InitialContext" %>
 <%@ page import="org.apache.geronimo.itest.TestSessionHome" %>
 <%@ page import="javax.naming.NamingException" %>
+<%@ page import="java.io.PrintWriter" %>
 <%@ page import="java.rmi.AccessException" %>
 <%@ page import="java.rmi.RemoteException" %>
 <%@ page import="javax.ejb.CreateException" %>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%
-    ServletOutputStream myout = response.getOutputStream();
+    PrintWriter myout = response.getWriter();
     myout.println("TestServlet principal: " + request.getUserPrincipal().getName());
     try {
         InitialContext ctx = new InitialContext();
@@ -48,5 +49,5 @@
     } catch (CreateException e) {
         e.printStackTrace();
     }
-    myout.flush();
+    out.flush();
 %>

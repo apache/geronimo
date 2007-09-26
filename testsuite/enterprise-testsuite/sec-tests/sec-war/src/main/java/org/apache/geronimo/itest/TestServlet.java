@@ -17,6 +17,7 @@
 package org.apache.geronimo.itest;
 
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.rmi.AccessException;
 import java.rmi.RemoteException;
 
@@ -40,7 +41,7 @@ public class TestServlet extends HttpServlet {
     }
 
     protected void service(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) throws ServletException, IOException {
-        ServletOutputStream out = httpServletResponse.getOutputStream();
+        PrintWriter out = httpServletResponse.getWriter();
         out.println("TestServlet principal: " + httpServletRequest.getUserPrincipal().getName());
         try {
             InitialContext ctx = new InitialContext();
@@ -65,7 +66,7 @@ public class TestServlet extends HttpServlet {
         } catch (CreateException e) {
             e.printStackTrace();
         }
-        httpServletResponse.flushBuffer();
+        out.flush();
     }
 
 
