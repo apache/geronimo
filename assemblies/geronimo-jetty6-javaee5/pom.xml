@@ -436,10 +436,12 @@
         </dependency>
         
         <dependency>
-            <groupId>org.apache.geronimo.modules</groupId>
-            <artifactId>geronimo-jaxws-builder</artifactId>
+            <groupId>org.apache.geronimo.configs</groupId>
+            <artifactId>mejb</artifactId>
             <version>${version}</version>
+            <type>car</type>
         </dependency>
+
     </dependencies>
 
     <build>
