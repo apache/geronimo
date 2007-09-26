@@ -71,7 +71,15 @@ public final class XmlUtil {
                 type = element.getValue().getClass();
             }
 
-            JAXBContext ctx = JAXBContext.newInstance(type);
+            JAXBContext ctx;
+            Thread currentThread = Thread.currentThread();
+            ClassLoader cl = currentThread.getContextClassLoader();
+            currentThread.setContextClassLoader(type.getClassLoader());
+            try {
+                ctx = JAXBContext.newInstance(type);
+            } finally {
+                currentThread.setContextClassLoader(cl);
+            }
             Marshaller marshaller = ctx.createMarshaller();
 
             ByteArrayOutputStream baos = new ByteArrayOutputStream();

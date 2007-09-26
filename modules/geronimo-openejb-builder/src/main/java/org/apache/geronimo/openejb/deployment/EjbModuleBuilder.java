@@ -265,7 +265,14 @@ public class EjbModuleBuilder implements ModuleBuilder {
         // Read in the deploument desiptor files
         ReadDescriptors readDescriptors = new ReadDescriptors();
         try {
-            readDescriptors.deploy(appModule);
+            Thread currentThread = Thread.currentThread();
+            ClassLoader cl = currentThread.getContextClassLoader();
+            currentThread.setContextClassLoader(getClass().getClassLoader());
+            try {
+                readDescriptors.deploy(appModule);
+            } finally {
+                currentThread.setContextClassLoader(cl);
+            }
         } catch (OpenEJBException e) {
             throw new DeploymentException("Failed parsing descriptors for module: " + moduleFile.getName(), e);
         }
