@@ -86,6 +86,8 @@ public class Log4jService implements GBeanLifecycle, SystemLog {
 
     private final static Log log = LogFactory.getLog(Log4jService.class);
 
+    private static final String LOG4JSERVICE_CONFIG_PROPERTY = "org.apache.geronimo.log4jservice.configuration";
+
     /**
      * The URL to the configuration file.
      */
@@ -570,6 +572,14 @@ public class Log4jService implements GBeanLifecycle, SystemLog {
                 if (!(geronimoLogFactory.getLogFactory() instanceof CachingLog4jLogFactory)) {
                     geronimoLogFactory.setLogFactory(new CachingLog4jLogFactory());
                 }
+            }
+
+            // Allow users to override the configurationFile which is hardcoded
+            // in config.ser and cannot be updated by config.xml, as the
+            // AttrbiuteManager comes up after this GBean
+            String cfgFile = System.getProperty(LOG4JSERVICE_CONFIG_PROPERTY);
+            if ((cfgFile != null) && (!cfgFile.equals(""))) {
+                this.configurationFile = cfgFile;
             }
 
             synchronized (this) {
