@@ -109,6 +109,13 @@
                     <plugin>
                         <groupId>org.apache.geronimo.genesis.plugins</groupId>
                         <artifactId>maven-maven-plugin</artifactId>
+                        <configuration>
+                          <fileset>
+                            <excludes>
+                              <exclude>ejbcontainer-tests/pom.xml</exclude>
+                            </excludes>
+                          </fileset>
+                        </configuration>
                     </plugin>
                 </plugins>
             </build>
