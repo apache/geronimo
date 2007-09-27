@@ -160,14 +160,19 @@ public abstract class AbstractRepository implements WriteableRepository {
             throw new IllegalArgumentException("Cannot read source file at " + source.getAbsolutePath());
         }
         int size = 0;
+        ZipFile zip = null;
         try {
-            ZipFile zip = new ZipFile(source);
+            zip = new ZipFile(source);
             for (Enumeration entries=zip.entries(); entries.hasMoreElements();) {
             	ZipEntry entry = (ZipEntry)entries.nextElement();
             	size += entry.getSize();
             }
         } catch (ZipException ze) {
-        	size = (int)source.length();
+            size = (int)source.length();
+        } finally {
+            if (zip != null) {
+                zip.close();
+            }
         }
         FileInputStream is = new FileInputStream(source);
         try {
