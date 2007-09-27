@@ -100,14 +100,14 @@
                         <dependency>
                             <groupId>org.apache.geronimo.modules</groupId>
                             <artifactId>geronimo-webservices-builder</artifactId>
-                            <version>2.1-SNAPSHOT</version>
+                            <version>${version}</version>
                             <type>jar</type>
                             <import>classes</import>
                         </dependency>
                         <dependency>
                             <groupId>org.apache.geronimo.modules</groupId>
                             <artifactId>geronimo-openejb-builder</artifactId>
-                            <version>2.1-SNAPSHOT</version>
+                            <version>${version}</version>
                             <type>jar</type>
                             <import>classes</import>
                         </dependency>
