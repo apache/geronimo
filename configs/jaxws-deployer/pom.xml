@@ -47,6 +47,7 @@
             <artifactId>webservices-common</artifactId>
             <type>car</type>
             <version>${version}</version>
+            <scope>runtime</scope>
         </dependency>
 
         <dependency>

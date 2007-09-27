@@ -70,7 +70,7 @@ public class OfflineDeployerStarter {
             startOfflineConfiguration(offlineDeployerArtifact);
             startPersistentOfflineConfigurations(offlineDeployerArtifact);
             stopOfflineConfigurationManager();
-            stopOnlineConfigStores();
+            //stopOnlineConfigStores(); // If we stop the stores here, we are left with no stores to work with!!
             enablePersistentConfigurationTracking();
         } catch (Exception e) {
             throw new DeploymentException("Unexpected error. Cannot start offline-deployer", e);
