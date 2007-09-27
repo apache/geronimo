@@ -32,63 +32,66 @@ import org.apache.geronimo.management.stats.TimeStatisticImpl;
  * @version $Revision: 1.0$
  */
 public class JettyWebContainerStatsImpl extends StatsImpl implements JettyWebContainerStats {
-    private CountStatisticImpl totalConnectionCount;
-    private RangeStatisticImpl openConnectionCount;
-    private RangeStatisticImpl connectionRequestCount;
-    private TimeStatisticImpl connectionDuration;
-    private CountStatisticImpl totalErrorCount;
     private CountStatisticImpl totalRequestCount;
     private RangeStatisticImpl activeRequestCount;
     private TimeStatisticImpl requestDuration;
+    private CountStatisticImpl requestDurationAvg;
+    private CountStatisticImpl response1xx;
+    private CountStatisticImpl response2xx;
+    private CountStatisticImpl response3xx;
+    private CountStatisticImpl response4xx;
+    private CountStatisticImpl response5xx;
+    private TimeStatisticImpl statsOnMs;               // time elapsed since the stats collection
+
     private boolean statsOn=false;
 
     public JettyWebContainerStatsImpl() {
-        totalConnectionCount = new CountStatisticImpl("Total Connections", StatisticImpl.UNIT_COUNT,
-                "The total number of connections since last reset");
-        openConnectionCount = new RangeStatisticImpl("Open Connections", StatisticImpl.UNIT_COUNT,
-                "The number of connections open at present");
-        connectionRequestCount = new RangeStatisticImpl("Connection Request Count", StatisticImpl.UNIT_COUNT,
-                "The number of requests handled by a particular connection");
-        connectionDuration = new TimeStatisticImpl("Connection Duration", StatisticImpl.UNIT_TIME_MILLISECOND,
-                "The legnth of time that individual connections have been open");
-        totalErrorCount = new CountStatisticImpl("Error Count", StatisticImpl.UNIT_COUNT,
-                "The number of reponses that were errors since statistics gathering started");
         totalRequestCount = new CountStatisticImpl("Request Count", StatisticImpl.UNIT_COUNT,
                 "The number of requests that were handled since statistics gathering started");
         activeRequestCount = new RangeStatisticImpl("Active Request Count", StatisticImpl.UNIT_COUNT,
                 "The number of requests being processed concurrently");
         requestDuration = new TimeStatisticImpl("Request Duration", StatisticImpl.UNIT_TIME_MILLISECOND,
                 "The length of time that it's taken to handle individual requests");
+        requestDurationAvg = new CountStatisticImpl("Request Duration Average", StatisticImpl.UNIT_COUNT,
+                "The average length of time that it's taken to handle individual requests");
+        response1xx = new CountStatisticImpl("Response 1xx", StatisticImpl.UNIT_COUNT,
+                "The number of 1xx responses");
+        response2xx = new CountStatisticImpl("Response 2xx", StatisticImpl.UNIT_COUNT,
+                "The number of 2xx responses");
+        response3xx = new CountStatisticImpl("Response 3xx", StatisticImpl.UNIT_COUNT,
+                "The number of 3xx responses");
+        response4xx = new CountStatisticImpl("Response 4xx", StatisticImpl.UNIT_COUNT,
+                "The number of 4xx responses");
+        response5xx = new CountStatisticImpl("Response 5xx", StatisticImpl.UNIT_COUNT,
+                "The number of 5xx responses");
+        statsOnMs = new TimeStatisticImpl("Stats Duration", StatisticImpl.UNIT_TIME_MILLISECOND,
+                "The length of time that statistics have been collected.");
 
-        addStat("TotalConnectionCount", totalConnectionCount);
-        addStat("OpenConnectionCount", openConnectionCount);
-        addStat("ConnectionRequestCount", connectionRequestCount);
-        addStat("ConnectionDuration", connectionDuration);
-        addStat("TotalErrorCount", totalErrorCount);
         addStat("TotalRequestCount", totalRequestCount);
         addStat("ActiveRequestCount", activeRequestCount);
         addStat("RequestDuration", requestDuration);
+        addStat("RequestDurationAvg", requestDurationAvg);
+        addStat("Response1xx", response1xx);
+        addStat("Response2xx", response2xx);
+        addStat("Response3xx", response3xx);
+        addStat("Response4xx", response4xx);
+        addStat("Response5xx", response5xx);
+        addStat("StatsDuration", statsOnMs);
     }
 
-    public CountStatistic getTotalConnectionCount() {
-        return totalConnectionCount;
+    public boolean isStatsOn() {
+        return statsOn;
     }
 
-    public RangeStatistic getOpenConnectionCount() {
-        return openConnectionCount;
+    public void setStatsOn(boolean on) {
+        statsOn = on;
     }
 
-    public RangeStatistic getConnectionRequestCount() {
-        return connectionRequestCount;
-    }
-
-    public TimeStatistic getConnectionDuration() {
-        return connectionDuration;
-    }
-
-    public CountStatistic getTotalErrorCount() {
-        return totalErrorCount;
-    }
+/**
+ * Public methods to return the interfaces for statistics.
+ * These are used by the objets (such as the web console) that
+ * retreive the stats for presentation purposes.
+ */
 
     public CountStatistic getTotalRequestCount() {
         return totalRequestCount;
@@ -102,33 +105,61 @@ public class JettyWebContainerStatsImpl extends StatsImpl implements JettyWebCon
         return requestDuration;
     }
 
-    public boolean isStatsOn() {
-        return statsOn;
+    public CountStatistic getRequestDurationAvg() {
+        return requestDurationAvg;
     }
 
-    public void setStatsOn(boolean on) {
-        statsOn = on;
+    /**
+     * @return Gets the number of 1xx status returned by this
+     * context since last call of stats reset.
+     */
+    public CountStatistic getResponses1xx() {
+        return response1xx;
     }
 
-    public CountStatisticImpl getTotalConnectionCountImpl() {
-        return totalConnectionCount;
+    /**
+     * @return Gets the number of 2xx status returned by this
+     * context since last call of stats reset.
+     */
+    public CountStatistic getResponses2xx() {
+        return response2xx;
+    }
+    
+    /**
+     * @return Gets the number of 3xx status returned by this
+     * context since last call of stats reset.
+     */
+    public CountStatistic getResponses3xx() {
+        return response3xx;
+    }
+    
+    /**
+     * @return Gets the number of 4xx status returned by this
+     * context since last call of stats reset.
+     */
+    public CountStatistic getResponses4xx() {
+        return response4xx;
+    }
+    
+    /**
+     * @return Gets the number of 5xx status returned by this
+     * context since last call of stats reset.
+     */
+    public CountStatistic getResponses5xx() {
+        return response5xx;
+    }
+    
+    /**
+     * @return Time in millis since statistics collection was started.
+     */
+    public TimeStatistic getStatsOnMs() {
+        return statsOnMs;
     }
 
-    public RangeStatisticImpl getOpenConnectionCountImpl() {
-        return openConnectionCount;
-    }
-
-    public RangeStatisticImpl getConnectionRequestCountImpl() {
-        return connectionRequestCount;
-    }
-
-    public TimeStatisticImpl getConnectionDurationImpl() {
-        return connectionDuration;
-    }
-
-    public CountStatisticImpl getTotalErrorCountImpl() {
-        return totalErrorCount;
-    }
+/**
+ * Public methods to return the implementations for statistics.
+ * These are used by the JettyContainerImpl to set the values.
+ */
 
     public CountStatisticImpl getTotalRequestCountImpl() {
         return totalRequestCount;
@@ -140,5 +171,56 @@ public class JettyWebContainerStatsImpl extends StatsImpl implements JettyWebCon
 
     public TimeStatisticImpl getRequestDurationImpl() {
         return requestDuration;
+    }
+
+    public CountStatisticImpl getRequestDurationAvgImpl() {
+        return requestDurationAvg;
+    }
+
+    /**
+     * @return Gets the number of 1xx status returned by this
+     * context since last call of stats reset.
+     */
+    public CountStatisticImpl getResponses1xxImpl() {
+        return response1xx;
+    }
+
+    /**
+     * @return Gets the number of 2xx status returned by this
+     * context since last call of stats reset.
+     */
+    public CountStatisticImpl getResponses2xxImpl() {
+        return response2xx;
+    }
+    
+    /**
+     * @return Gets the number of 3xx status returned by this
+     * context since last call of stats reset.
+     */
+    public CountStatisticImpl getResponses3xxImpl() {
+        return response3xx;
+    }
+    
+    /**
+     * @return Gets the number of 4xx status returned by this
+     * context since last call of stats reset.
+     */
+    public CountStatisticImpl getResponses4xxImpl() {
+        return response4xx;
+    }
+    
+    /**
+     * @return Gets the number of 5xx status returned by this
+     * context since last call of stats reset.
+     */
+    public CountStatisticImpl getResponses5xxImpl() {
+        return response5xx;
+    }
+    
+    /**
+     * @return Time in millis since statistics collection was started.
+     */
+    public TimeStatisticImpl getStatsOnMsImpl() {
+        return statsOnMs;
     }
 }

@@ -14,14 +14,19 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.apache.geronimo.console.webmanager;
 
-import javax.portlet.RenderRequest;
-import org.apache.geronimo.management.geronimo.WebContainer;
+package org.apache.geronimo.console.util;
 
-/**
- * @version $Revision: 1.0$
- */
-public interface StatisticsHelper {
-    public void gatherStatistics(WebContainer container, RenderRequest renderRequest);
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.TimeZone;
+
+public abstract class TimeUtils {
+
+    public static String formatDuration(long duration) {
+        SimpleDateFormat format = new SimpleDateFormat("HH:mm:ss:SSS");
+        format.setTimeZone(TimeZone.getTimeZone("GMT"));
+        return format.format(new Date(duration));
+    }
+
 }
