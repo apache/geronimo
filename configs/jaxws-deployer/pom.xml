@@ -119,11 +119,33 @@
 
 
                     <useMavenDependencies>
-                        <value>true</value>
-                        <includeVersion>true</includeVersion>
+                        <value>false</value>
                     </useMavenDependencies>
                     <category>Web Services</category>
-
+                    <dependencies>
+                        <dependency>
+                            <groupId>org.apache.geronimo.configs</groupId>
+                            <artifactId>j2ee-deployer</artifactId>
+                            <type>car</type>
+                        </dependency>
+                        <dependency>
+                            <groupId>org.apache.geronimo.configs</groupId>
+                            <artifactId>webservices-common</artifactId>
+                            <type>car</type>
+                            <import>classes</import>
+                        </dependency>
+                        <dependency>
+                            <groupId>org.apache.geronimo.configs</groupId>
+                            <artifactId>openejb-deployer</artifactId>
+                            <type>car</type>
+                        </dependency>
+                        <dependency>
+                            <groupId>org.apache.geronimo.modules</groupId>
+                            <artifactId>geronimo-jaxws-builder</artifactId>
+                            <version>${version}</version>
+                            <import>classes</import>
+                        </dependency>
+                    </dependencies>
                 </configuration>
             </plugin>
         </plugins>
