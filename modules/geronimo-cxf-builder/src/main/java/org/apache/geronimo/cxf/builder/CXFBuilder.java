@@ -19,8 +19,6 @@ package org.apache.geronimo.cxf.builder;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.StringWriter;
-import java.net.URI;
 import java.net.URL;
 import java.util.Collections;
 import java.util.HashMap;
@@ -31,7 +29,6 @@ import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
-import javax.xml.namespace.QName;
 import javax.xml.transform.stream.StreamSource;
 
 import org.apache.commons.logging.Log;
@@ -43,7 +40,6 @@ import org.apache.cxf.jaxws.javaee.WebserviceDescriptionType;
 import org.apache.cxf.jaxws.javaee.WebservicesType;
 import org.apache.cxf.jaxws.support.JaxWsImplementorInfo;
 import org.apache.geronimo.common.DeploymentException;
-import org.apache.geronimo.cxf.client.CXFServiceReference;
 import org.apache.geronimo.cxf.pojo.POJOWebServiceContainerFactoryGBean;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
@@ -53,15 +49,10 @@ import org.apache.geronimo.j2ee.deployment.WebServiceBuilder;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.jaxws.JAXWSUtils;
 import org.apache.geronimo.jaxws.PortInfo;
-import org.apache.geronimo.jaxws.builder.EndpointInfoBuilder;
 import org.apache.geronimo.jaxws.builder.JAXWSServiceBuilder;
+import org.apache.geronimo.jaxws.builder.WARWebServiceFinder;
 import org.apache.geronimo.jaxws.builder.WsdlGenerator;
-import org.apache.geronimo.jaxws.client.EndpointInfo;
 import org.apache.geronimo.kernel.repository.Environment;
-import org.apache.geronimo.xbeans.geronimo.naming.GerServiceRefType;
-import org.apache.geronimo.xbeans.javaee.PortComponentRefType;
-import org.apache.geronimo.xbeans.javaee.ServiceRefHandlerChainsType;
-import org.apache.xmlbeans.XmlOptions;
 
 public class CXFBuilder extends JAXWSServiceBuilder {
     private static final Log LOG = LogFactory.getLog(CXFBuilder.class);
@@ -75,11 +66,12 @@ public class CXFBuilder extends JAXWSServiceBuilder {
         "org.apache.geronimo.cxf.use.wsgen";
 
     public CXFBuilder() {
-        this(null);
+        super(null);
     }
 
     public CXFBuilder(Environment defaultEnvironment) {
         super(defaultEnvironment);
+        this.webServiceFinder = new WARWebServiceFinder();
     }
 
     protected GBeanInfo getContainerFactoryGBeanInfo() {
@@ -185,52 +177,7 @@ public class CXFBuilder extends JAXWSServiceBuilder {
             }
         }
     }
-
-    public Object createService(Class serviceInterface,
-                                Class serviceReference,
-                                URI wsdlURI,
-                                QName serviceQName,
-                                Map<Class, PortComponentRefType> portComponentRefMap,
-                                ServiceRefHandlerChainsType handlerChains,
-                                GerServiceRefType serviceRefType,
-                                Module module,
-                                ClassLoader cl) throws DeploymentException {     
-        EndpointInfoBuilder builder = new EndpointInfoBuilder(serviceInterface,
-                serviceRefType, portComponentRefMap, module.getModuleFile(),
-                wsdlURI, serviceQName);
-        builder.build();
-
-        wsdlURI = builder.getWsdlURI();
-        serviceQName = builder.getServiceQName();
-        Map<Object, EndpointInfo> seiInfoMap = builder.getEndpointInfo();
-
-        String handlerChainsXML = null;
-        try {
-            handlerChainsXML = getHandlerChainAsString(handlerChains);
-        } catch (IOException e) {
-            // this should not happen
-            LOG.warn("Failed to serialize handler chains", e);
-        }
-
-        String serviceReferenceName = (serviceReference == null) ? null : serviceReference.getName();
         
-        return new CXFServiceReference(serviceInterface.getName(), serviceReferenceName,  wsdlURI,
-                serviceQName, module.getModuleName(), handlerChainsXML, seiInfoMap);
-    }
-    
-    private static String getHandlerChainAsString(ServiceRefHandlerChainsType handlerChains)
-            throws IOException {
-        String xml = null;
-        if (handlerChains != null) {
-            StringWriter w = new StringWriter();
-            XmlOptions options = new XmlOptions();
-            options.setSaveSyntheticDocumentElement(new QName("http://java.sun.com/xml/ns/javaee", "handler-chains")); 
-            handlerChains.save(w, options);
-            xml = w.toString();
-        }
-        return xml;
-    }
-    
     private static String getString(String in) {
         if (in != null) {
             in = in.trim();

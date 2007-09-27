@@ -33,7 +33,7 @@
     <name>Geronimo Configs :: CXF Deployer</name>
     <packaging>car</packaging>
 
-    <description>Geronimo web services deployer for Apache CXF</description>
+    <description>Geronimo JAX-WS deployer for Apache CXF</description>
 
     <dependencies>
         
@@ -57,6 +57,7 @@
             <version>${version}</version>
             <scope>runtime</scope>
        </dependency>
+
     </dependencies>
     
     <build>
@@ -89,26 +90,6 @@
                         <import>classes</import>
                       </dependency>
                     </dependencies>
-                    <instance>
-                        <plugin-artifact>
-                            <config-xml-content>
-                                <gbean name="CXFModuleBuilderExtension">
-                                    <attribute name="listener">?name=#{webcontainer}</attribute>
-                                    <attribute name="defaultEnvironment">
-                                      <environment xmlns="http://geronimo.apache.org/xml/ns/deployment-1.2">
-                                        <dependencies>
-                                            <dependency>
-                                                <groupId>org.apache.geronimo.configs</groupId>
-                                                <artifactId>#{webcontainerName}</artifactId>
-                                                <type>car</type>
-                                            </dependency>
-                                        </dependencies>
-                                      </environment>
-                                    </attribute>
-                                </gbean>
-                            </config-xml-content>
-                        </plugin-artifact>
-                    </instance>
                 </configuration>
             </plugin>
         </plugins>

@@ -33,7 +33,7 @@
     <name>Geronimo Configs :: JAXWS Deployer</name>
     <packaging>car</packaging>
 
-    <description>Command line access to jaxws deployment tools.</description>
+    <description>Base configuration for JAX-WS Web services.</description>
     
     <dependencies>
         
@@ -52,23 +52,10 @@
         </dependency>
 
         <dependency>
-            <groupId>org.apache.geronimo.configs</groupId>
-            <artifactId>openejb-deployer</artifactId>
-            <version>${version}</version>
-            <type>car</type>
-        </dependency>
-
-        <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
             <artifactId>geronimo-jaxws-builder</artifactId>
             <version>${version}</version>
         </dependency>
-
-        <!--<dependency>-->
-            <!--<groupId>org.apache.xbean</groupId>-->
-            <!--<artifactId>xbean-finder</artifactId>-->
-            <!--<scope>runtime</scope>-->
-        <!--</dependency>-->
         
     </dependencies>
     
@@ -117,7 +104,6 @@
                     </classpath>
                     <classpathPrefix>../lib</classpathPrefix>
 
-
                     <useMavenDependencies>
                         <value>false</value>
                     </useMavenDependencies>
@@ -135,14 +121,10 @@
                             <import>classes</import>
                         </dependency>
                         <dependency>
-                            <groupId>org.apache.geronimo.configs</groupId>
-                            <artifactId>openejb-deployer</artifactId>
-                            <type>car</type>
-                        </dependency>
-                        <dependency>
                             <groupId>org.apache.geronimo.modules</groupId>
                             <artifactId>geronimo-jaxws-builder</artifactId>
                             <version>${version}</version>
+                            <type>jar</type>
                             <import>classes</import>
                         </dependency>
                     </dependencies>

@@ -47,9 +47,6 @@
                 </dependencies>
             </environment>
         </xml-attribute>
-        <reference name="CXFBuilder">
-            <name>CXFBuilder</name>
-        </reference>
     </gbean>
 
     <gbean name="CXFClientServiceRefBuilder" class="org.apache.geronimo.cxf.builder.CXFServiceRefBuilder">
@@ -58,125 +55,13 @@
             <environment xmlns="http://geronimo.apache.org/xml/ns/deployment-${geronimoSchemaVersion}">
                 <dependencies>
                     <dependency>
-                        <groupId>org.apache.geronimo.modules</groupId>
-                        <artifactId>geronimo-cxf</artifactId>
-                        <type>jar</type>
-                    </dependency>
-                    <dependency>
-                        <groupId>org.apache.geronimo.modules</groupId>
-                        <artifactId>geronimo-jaxws</artifactId>
-                        <version>${version}</version>
-                    </dependency>
-                    <dependency>
-                        <groupId>org.apache.cxf</groupId>
-                        <artifactId>cxf-api</artifactId>
-                        <type>jar</type>
-                    </dependency>
-                    <dependency>
-                        <groupId>org.apache.cxf</groupId>
-                        <artifactId>cxf-common-utilities</artifactId>
-                        <type>jar</type>
-                    </dependency>
-                    <dependency>
-                        <groupId>org.apache.cxf</groupId>
-                        <artifactId>cxf-rt-bindings-soap</artifactId>
-                        <type>jar</type>
-                    </dependency>
-                    <dependency>
-                        <groupId>org.apache.cxf</groupId>
-                        <artifactId>cxf-rt-bindings-xml</artifactId>
-                        <type>jar</type>
-                    </dependency>
-                    <dependency>
-                        <groupId>org.apache.cxf</groupId>
-                        <artifactId>cxf-rt-core</artifactId>
-                        <type>jar</type>
-                    </dependency>
-                    <dependency>
-                        <groupId>org.apache.cxf</groupId>
-                        <artifactId>cxf-rt-databinding-jaxb</artifactId>
-                        <type>jar</type>
-                    </dependency>
-                    <dependency>
-                        <groupId>org.apache.cxf</groupId>
-                        <artifactId>cxf-rt-frontend-jaxws</artifactId>
-                        <type>jar</type>
-                    </dependency>
-                    <dependency>
-                        <groupId>org.apache.cxf</groupId>
-                        <artifactId>cxf-rt-frontend-simple</artifactId>
-                        <type>jar</type>
-                    </dependency>
-                    <dependency>
-                        <groupId>org.apache.cxf</groupId>
-                        <artifactId>cxf-rt-transports-http</artifactId>
-                        <type>jar</type>
-                    </dependency>
-                    <dependency>
-                        <groupId>org.apache.cxf</groupId>
-                        <artifactId>cxf-tools-common</artifactId>
-                        <type>jar</type>
-                    </dependency>
-                    <dependency>
-                        <groupId>org.apache.ws.commons.schema</groupId>
-                        <artifactId>XmlSchema</artifactId>
-                        <version>1.2</version>
-                        <type>jar</type>
-                    </dependency>
-                    <dependency>
-                        <groupId>org.springframework</groupId>
-                        <artifactId>spring-core</artifactId>
-                        <type>jar</type>
-                    </dependency>
-                    <dependency>
-                        <groupId>org.springframework</groupId>
-                        <artifactId>spring-beans</artifactId>
-                        <type>jar</type>
-                    </dependency>
-                    <dependency>
-                        <groupId>org.springframework</groupId>
-                        <artifactId>spring-context</artifactId>
-                        <type>jar</type>
-                    </dependency>
-                    <dependency>
-                        <groupId>wsdl4j</groupId>
-                        <artifactId>wsdl4j</artifactId>
-                        <type>jar</type>
-                    </dependency>
-                    <dependency>
-                        <groupId>xml-resolver</groupId>
-                        <artifactId>xml-resolver</artifactId>
-                        <type>jar</type>
-                    </dependency>
-                    <dependency>
-                        <groupId>org.apache.neethi</groupId>
-                        <artifactId>neethi</artifactId>
-                    </dependency>
-                    <dependency>
                         <groupId>org.apache.geronimo.configs</groupId>
-                        <artifactId>client-security</artifactId>
+                        <artifactId>cxf</artifactId>
                         <type>car</type>
                     </dependency>
                 </dependencies>
             </environment>
         </xml-attribute>
-        <reference name="CXFBuilder">
-            <name>CXFBuilder</name>
-        </reference>
     </gbean>
-
-    <gbean name="CXFModuleBuilderExtension" class="org.apache.geronimo.jaxws.builder.JAXWSEJBModuleBuilderExtension">
-        <!-- This attribute and the environment must be updated appropriately in the config.xml file -->
-        <attribute name="listener">?name=WebContainer</attribute>
-
-        <reference name="WebServiceBuilder">
-            <name>CXFBuilder</name>
-        </reference>
-        <reference name="WebServiceLinkTemplate">
-            <name>CXFWebServiceEJBLinkTemplate</name>
-        </reference>
-    </gbean>
-
-    <gbean name="CXFWebServiceEJBLinkTemplate" class="org.apache.geronimo.cxf.ejb.EJBWebServiceGBean"/>
 
 </module>

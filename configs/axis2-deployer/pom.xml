@@ -38,7 +38,7 @@
     <dependencies>
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
-             <artifactId>jaxws-deployer</artifactId>
+             <artifactId>jaxws-ejb-deployer</artifactId>
             <version>${version}</version>
             <type>car</type>
         </dependency>
@@ -71,7 +71,7 @@
                     <dependencies>
                       <dependency>
                         <groupId>org.apache.geronimo.configs</groupId>
-                        <artifactId>jaxws-deployer</artifactId>
+                        <artifactId>jaxws-ejb-deployer</artifactId>
                         <type>car</type>
                       </dependency>
                       <dependency>

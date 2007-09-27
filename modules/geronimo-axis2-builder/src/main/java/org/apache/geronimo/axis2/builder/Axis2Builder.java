@@ -48,6 +48,7 @@ import org.apache.geronimo.jaxws.JAXWSUtils;
 import org.apache.geronimo.jaxws.PortInfo;
 import org.apache.geronimo.jaxws.builder.EndpointInfoBuilder;
 import org.apache.geronimo.jaxws.builder.JAXWSServiceBuilder;
+import org.apache.geronimo.jaxws.builder.WARWebServiceFinder;
 import org.apache.geronimo.jaxws.builder.WsdlGenerator;
 import org.apache.geronimo.jaxws.client.EndpointInfo;
 import org.apache.geronimo.kernel.repository.Environment;
@@ -72,6 +73,7 @@ public class Axis2Builder extends JAXWSServiceBuilder {
         
     public Axis2Builder(Environment defaultEnviroment) {
         super(defaultEnviroment);
+        this.webServiceFinder = new WARWebServiceFinder();
     }
     
     public Axis2Builder(){

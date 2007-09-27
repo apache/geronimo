@@ -197,8 +197,11 @@
         <module>axis2</module>
         <module>axis2-deployer</module>
         <module>cxf</module>
+        <module>cxf-ejb</module>
         <module>cxf-deployer</module>
+        <module>cxf-ejb-deployer</module>
         <module>jaxws-deployer</module>
+        <module>jaxws-ejb-deployer</module>
         <module>dojo-jetty6</module>
         <module>jetty6</module>
         <module>jetty6-clustering-builder-wadi</module>

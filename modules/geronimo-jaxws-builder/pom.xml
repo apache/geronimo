@@ -40,10 +40,9 @@
             <version>${version}</version>
         </dependency>
 
-        <!-- g-namimg-builder comes from this -->
         <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
-            <artifactId>geronimo-openejb-builder</artifactId>
+            <artifactId>geronimo-naming-builder</artifactId>
             <version>${version}</version>
         </dependency>
 

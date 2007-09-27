@@ -40,7 +40,7 @@
         </dependency>
         <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
-            <artifactId>geronimo-jaxws-builder</artifactId>
+            <artifactId>geronimo-jaxws-ejb-builder</artifactId>
             <version>${version}</version>
         </dependency>
         
