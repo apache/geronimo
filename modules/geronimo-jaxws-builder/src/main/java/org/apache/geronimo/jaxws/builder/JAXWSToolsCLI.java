@@ -19,6 +19,8 @@ package org.apache.geronimo.jaxws.builder;
 
 import java.io.File;
 import java.lang.reflect.InvocationTargetException;
+import java.net.JarURLConnection;
+import java.net.URI;
 import java.net.URL;
 import java.util.ArrayList;
 
@@ -39,7 +41,7 @@ public class JAXWSToolsCLI {
             System.exit(1);
         }
 
-        String geroninoHome = System.getProperty("org.apache.geronimo.home.dir", "..");
+        String geroninoHome = getGeronimoHome();
         String repository = System.getProperty("Xorg.apache.geronimo.repository.boot.path", "repository");
         Maven2Repository mavenRepository = new Maven2Repository((new File(geroninoHome, repository)).getCanonicalFile());
         ArrayList<ListableRepository> repositories = new ArrayList<ListableRepository>(1);
@@ -79,6 +81,31 @@ public class JAXWSToolsCLI {
         String [] cmdArgs = new String[args.length - 1];
         System.arraycopy(args, 1, cmdArgs, 0, args.length - 1);
         return cmdArgs;
+    }
+    
+    private static String getGeronimoHome() {
+        String geronimoHome = System.getProperty("org.apache.geronimo.home.dir");
+        if (geronimoHome != null) {
+            return geronimoHome;
+        }
+        
+        // guess from the location of the jar
+        URL url = JAXWSToolsCLI.class.getClassLoader().getResource("META-INF/startup-jar");
+        if (url != null) {
+            try {
+                JarURLConnection jarConnection = (JarURLConnection) url.openConnection();
+                url = jarConnection.getJarFileURL();
+
+                URI baseURI = new URI(url.toString()).resolve("..");
+                File dir = new File(baseURI);                
+                return dir.getAbsolutePath();
+            } catch (Exception ignored) {
+                // ignore
+            }
+        }
+        
+        // cannot determine the directory, return parent directory
+        return "..";        
     }
 
 }
