@@ -239,7 +239,7 @@ public class AxisServiceGenerator {
         return edArray[0];
     }
 
-    private class WSDLGeneratorImpl implements WsdlGenerator {
+    private static class WSDLGeneratorImpl implements WsdlGenerator {
         private Definition def;
 
         public WSDLGeneratorImpl(Definition def) {

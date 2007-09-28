@@ -59,7 +59,6 @@ public class JAXWSEJBModuleBuilderExtension implements ModuleBuilderExtension {
     protected Environment defaultEnvironment;
 
     public JAXWSEJBModuleBuilderExtension() throws Exception {
-        this(null, null, null, null, null);
     }
 
     public JAXWSEJBModuleBuilderExtension(WebServiceBuilder wsBuilder,
