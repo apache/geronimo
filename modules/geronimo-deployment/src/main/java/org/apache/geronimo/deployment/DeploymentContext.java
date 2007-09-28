@@ -583,8 +583,8 @@ public class DeploymentContext {
 
         String message = isVerifyReference(referencePatterns, configuration);
         if (message != null) {
-            return "Unable to resolve reference \"" + referenceName + "\" in gbean " +
-                    gbean.getAbstractName() + " to a gbean matching the pattern " + referencePatterns.getPatterns() + "due to: " + message;
+            return "Unable to resolve reference \"" + referenceName + "\"\n" +
+                   "    in gbean " + gbean.getAbstractName() + "\n    to a gbean matching the pattern " + referencePatterns.getPatterns() + "\n    due to: " + message;
         }
         return null;
     }
@@ -593,7 +593,7 @@ public class DeploymentContext {
         String message = isVerifyReference(referencePatterns, configuration);
         if (message != null) {
             return "Unable to resolve dependency in gbean " + name +
-                    " to a gbean matching the pattern " + referencePatterns.getPatterns() + "due to: " + message;
+                    "\n    to a gbean matching the pattern " + referencePatterns.getPatterns() + "\n    due to: " + message;
         }
 
         return null;
