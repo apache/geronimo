@@ -40,7 +40,7 @@ public interface JettyContainer extends WebContainer {
 
     void removeRealm(String realmName);
 
-    void resetStatistics();
+    void resetStats();
 
     void setCollectStatistics(boolean on);
 

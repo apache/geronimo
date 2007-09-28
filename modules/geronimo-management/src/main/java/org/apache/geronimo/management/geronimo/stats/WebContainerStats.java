@@ -30,34 +30,6 @@ import javax.management.j2ee.statistics.CountStatistic;
  * @version $Revision: 1.0$
  */
 public interface WebContainerStats extends Stats {
-    /**
-     * Gets the total number of connections thus far
-     */
-    CountStatistic getTotalConnectionCount();
- 
-    /**
-     * Gets the number of connections currently open (as well as the min and
-     * max since statistics gathering started).
-     */
-    RangeStatistic getOpenConnectionCount();
-
-    /**
-     * Gets the number of requests handled by a particular connection (as well
-     * as the min and max since statistics gathering started).
-     */
-    RangeStatistic getConnectionRequestCount();
-
-    /**
-     * Gets the legnth of time that connections have been open (includes
-     * figures across all connections open at present)
-     */
-    TimeStatistic getConnectionDuration();
-
-    /**
-     * Gets the number of errors that have been returned since statistics
-     * gathering started.
-     */
-    CountStatistic getTotalErrorCount();
 
     /**
      * Gets the number of requests that have been processed since statistics
@@ -72,13 +44,49 @@ public interface WebContainerStats extends Stats {
     RangeStatistic getActiveRequestCount();
 
     /**
-     * Gets the legnth of time taken to process a request (includes
+     * Gets the length of time taken to process a request (includes
      * figures across all requests since statistics gathering started)
      */
     TimeStatistic getRequestDuration();
 
     /**
+     * Gets the average time to process a request
+     */
+    CountStatistic getRequestDurationAvg();
+
+    /**
+     * Gets the count of 1xx responses
+     */
+    CountStatistic getResponses1xx();
+
+    /**
+     * Gets the count of 2xx responses
+     */
+    CountStatistic getResponses2xx();
+
+    /**
+     * Gets the count of 3xx responses
+     */
+    CountStatistic getResponses3xx();
+
+    /**
+     * Gets the count of 4xx responses
+     */
+    CountStatistic getResponses4xx();
+
+    /**
+     * Gets the count of 5xx responses
+     */
+    CountStatistic getResponses5xx();
+
+    /**
+     * Gets the time duration that stats have been active.
+     */
+    TimeStatistic getStatsOnMs();
+
+    /**
      * Gets the current state of statistics collection (on or off)
      */
     boolean isStatsOn();
+
 }
