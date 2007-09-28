@@ -180,8 +180,10 @@ public class Axis2Builder extends JAXWSServiceBuilder {
         } catch (Exception ex) {
             throw new DeploymentException("Unknown deployment error", ex);
         } finally {
-            try {
+            if (cursor != null) {
                 cursor.dispose();
+            }
+            try {
                 in.close();
             } catch (IOException e) {
                 // ignore

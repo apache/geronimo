@@ -230,7 +230,7 @@ public final class WebServiceRefAnnotationHelper extends AnnotationHelper {
         //------------------------------------------------------------------------------------------
         Class webServiceRefType = annotation.type();
         Class webServiceRefValue = annotation.value();
-        if (webServiceRefType.equals("") || webServiceRefType.equals(Object.class)) {
+        if (webServiceRefType == null || webServiceRefType.equals(Object.class)) {
             if (method != null) {
                 webServiceRefType = method.getParameterTypes()[0];
             } else if (field != null) {
