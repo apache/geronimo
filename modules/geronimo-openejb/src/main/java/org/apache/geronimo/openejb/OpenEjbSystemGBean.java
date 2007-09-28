@@ -30,6 +30,7 @@ import javax.ejb.spi.HandleDelegate;
 import javax.management.ObjectName;
 import javax.naming.NamingException;
 import javax.naming.Context;
+import javax.naming.NameAlreadyBoundException;
 import javax.persistence.EntityManagerFactory;
 import javax.resource.spi.ResourceAdapter;
 import javax.transaction.TransactionManager;
@@ -120,10 +121,13 @@ public class OpenEjbSystemGBean implements OpenEjbSystem {
         configurationFactory = new ConfigurationFactory(offline);
         assembler = new Assembler();
         Context rootContext = assembler.getContainerSystem().getJNDIContext();
-        // Temporary bug fix
-        rootContext.bind("openejb/ejb/.", "");
-        rootContext.bind("openejb/client/.", "");
-        rootContext.bind("openejb/Deployment/.", "");
+        try {
+            // Temporary bug fix
+            rootContext.bind("openejb/ejb/.", "");
+            rootContext.bind("openejb/client/.", "");
+            rootContext.bind("openejb/Deployment/.", "");
+        } catch (NameAlreadyBoundException workaroundAlreadyApplied) {
+        }
 
         // install application server
         ApplicationServer applicationServer = new ServerFederation();
