@@ -55,10 +55,10 @@ public class GeronimoSecurityService implements SecurityService {
         return ContextManager.getSubjectId(subject);
     }
 
-//    public void logout(Object securityIdentity) {
-//        Subject subject = ContextManager.getRegisteredSubject((SubjectId) securityIdentity);
-//        ContextManager.unregisterSubject(subject);
-//    }
+    public void logout(Object securityIdentity) {
+        Subject subject = ContextManager.getRegisteredSubject((SubjectId) securityIdentity);
+        ContextManager.unregisterSubject(subject);
+    }
 
     public void associate(Object securityIdentity) throws LoginException {
         if (securityIdentity == null) {
@@ -72,9 +72,10 @@ public class GeronimoSecurityService implements SecurityService {
         ContextManager.setCallers(subject, subject);
     }
 
-    public void unassociate(Object securityIdentity) {
+    public Object disassociate() {
         // this is only called before the thread is put back in the pool so it should be ok
         ContextManager.popCallers(null);
+        return null;
     }
 
     public boolean isCallerAuthorized(Method method, InterfaceType typee) {
