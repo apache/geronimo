@@ -40,7 +40,8 @@ public class DBManagerTest extends ConsoleTestSupport {
             selenium.select("useDB", "label=MyUniqueDB");
             selenium.click("document.Pluto_internalDB_DBManager_row2_col1_p1_DBForm.action[2]");
             selenium.waitForPageToLoad("30000");
-            selenium.click("link=Application");
+            //selenium.click("link=Application");
+            selenium.click("//a[contains(@href, 'db=MyUniqueDB')]");
             selenium.waitForPageToLoad("30000");
             assertTrue(selenium.isTextPresent("MYTABLE"));
             selenium.select("deleteDB", "label=SystemDatabase");
