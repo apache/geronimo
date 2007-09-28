@@ -78,13 +78,12 @@ import org.apache.geronimo.kernel.repository.Repository;
 import org.apache.geronimo.system.serverinfo.BasicServerInfo;
 import org.apache.geronimo.testsupport.TestSupport;
 import org.apache.geronimo.transaction.manager.GeronimoTransactionManagerGBean;
-import org.tranql.sql.jdbc.JDBCUtil;
 
 /**
  * @version $Rev:385232 $ $Date$
  */
 public class ConnectorModuleBuilderTest extends TestSupport {
-    
+
     private boolean defaultXATransactionCaching = true;
     private boolean defaultXAThreadCaching = false;
     private int defaultMaxSize = 10;
@@ -148,7 +147,8 @@ public class ConnectorModuleBuilderTest extends TestSupport {
                     null,
                     null,
                     null,
-                    new ConnectorModuleBuilder(defaultEnvironment, defaultMaxSize, defaultMinSize, defaultBlockingTimeoutMilliseconds, defaultidleTimeoutMinutes, defaultXATransactionCaching, defaultXAThreadCaching, Collections.singleton(serviceBuilder)),
+                    new ConnectorModuleBuilder(defaultEnvironment, defaultMaxSize, defaultMinSize, defaultBlockingTimeoutMilliseconds, defaultidleTimeoutMinutes, defaultXATransactionCaching, defaultXAThreadCaching,
+                            Collections.singleton(serviceBuilder)),
                     activationSpecInfoLocator,
                     null,
                     null,
@@ -288,7 +288,7 @@ public class ConnectorModuleBuilderTest extends TestSupport {
         };
         executeTestBuildModule(action, true);
     }
-    
+
     public void testBuildPackedModule15LocalTx() throws Exception {
         InstallAction action = new InstallAction() {
             private File rarFile = new File(BASEDIR, "target/test-rar-15-localtx.rar");
@@ -328,7 +328,8 @@ public class ConnectorModuleBuilderTest extends TestSupport {
         String resourceAdapterName = "testRA";
 
         try {
-            ConnectorModuleBuilder moduleBuilder = new ConnectorModuleBuilder(defaultEnvironment, defaultMaxSize, defaultMinSize, defaultBlockingTimeoutMilliseconds, defaultidleTimeoutMinutes, defaultXATransactionCaching, defaultXAThreadCaching, Collections.singleton(new GBeanBuilder(null, null)));
+            ConnectorModuleBuilder moduleBuilder = new ConnectorModuleBuilder(defaultEnvironment, defaultMaxSize, defaultMinSize, defaultBlockingTimeoutMilliseconds, defaultidleTimeoutMinutes, defaultXATransactionCaching,
+                    defaultXAThreadCaching, Collections.singleton(new GBeanBuilder(null, null)));
             File rarFile = action.getRARFile();
 
             ClassLoader oldCl = Thread.currentThread().getContextClassLoader();
@@ -491,15 +492,16 @@ public class ConnectorModuleBuilderTest extends TestSupport {
             configurationManager.unloadConfiguration(configurationId);
         } finally {
             if (ds != null) {
-                Connection connection = null;
-                Statement statement = null;
+                Connection connection = ds.getConnection();
                 try {
-                    connection = ds.getConnection();
-                    statement = connection.createStatement();
-                    statement.execute("SHUTDOWN");
+                    Statement statement = connection.createStatement();
+                    try {
+                        statement.execute("SHUTDOWN");
+                    } finally {
+                        statement.close();
+                    }
                 } finally {
-                    JDBCUtil.close(statement);
-                    JDBCUtil.close(connection);
+                    connection.close();
                 }
             }
 
@@ -553,7 +555,6 @@ public class ConnectorModuleBuilderTest extends TestSupport {
         GBeanData serverData = bootstrap.addGBean("geronimo", J2EEServerImpl.GBEAN_INFO);
         serverName = serverData.getAbstractName();
         bootstrap.addGBean(serverData);
-
 
         // add fake TransactionManager so refs will resolve
         GBeanData tm = bootstrap.addGBean("TransactionManager", GeronimoTransactionManagerGBean.GBEAN_INFO);

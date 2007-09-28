@@ -76,18 +76,6 @@
             <artifactId>geronimo-j2ee-connector_1.5_spec</artifactId>
         </dependency>
 
-        <dependency>
-            <groupId>org.tranql</groupId>
-            <artifactId>tranql</artifactId>
-            <scope>test</scope>
-            <exclusions>
-                <exclusion>
-                    <groupId>commons-logging</groupId>
-                    <artifactId>commons-logging</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-
         <!-- needed for passwordcredential realm-->
         <dependency>
             <groupId>regexp</groupId>
