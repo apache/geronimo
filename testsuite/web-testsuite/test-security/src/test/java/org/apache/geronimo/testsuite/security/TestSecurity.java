@@ -28,11 +28,11 @@ public class TestSecurity extends SeleniumTestSupport
     @Test
     public void testSecurity() throws Exception {
         selenium.open("/demo/protect/hello.html");
-        selenium.type("j_username", "system");
-		selenium.type("j_password", "manager");
-		selenium.click("submit");
-		selenium.waitForPageToLoad("30000");
-		assertEquals("hello world.", selenium.getText("xpath=/html"));
+        selenium.type("j_username", "george");
+        selenium.type("j_password", "bone");
+        selenium.click("submit");
+        selenium.waitForPageToLoad("30000");
+        assertEquals("hello world.", selenium.getText("xpath=/html"));
     }
 
 

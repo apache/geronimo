@@ -23,9 +23,6 @@
 <c:set var="var2" value="value2" scope="request"/>
 <c:set var="var3" value="value3" scope="session"/>
 <c:set var="var4" value="value4" scope="application"/>
-<c:out value='${pageScope.var1}' />
-<c:out value='${requestScope.var2}' />
-<c:out value='${sessionScope.var3}' />
-<c:out value='${applicationScope.var4}' />
+<c:out value='${pageScope.var1} ${requestScope.var2} ${sessionScope.var3} ${applicationScope.var4}' />
 </body>
 </html>

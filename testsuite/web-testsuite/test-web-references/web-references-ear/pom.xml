@@ -56,6 +56,11 @@
     <build>
         <plugins>
             <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>selenium-maven-plugin</artifactId>
+            </plugin>
+
+            <plugin>
                 <artifactId>maven-ear-plugin</artifactId>
                 <configuration>
                     <modules>
@@ -83,6 +88,30 @@
                 </configuration>
             </plugin>
                     
+            <!-- "ear" packaging doesn't compile test classes -->
+            <plugin>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>testCompile</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <!-- "ear" packaging doesn't process test resources -->
+            <plugin>
+                <artifactId>maven-resources-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>testResources</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
             <plugin>
                 <groupId>org.apache.geronimo.plugins</groupId>
                 <artifactId>geronimo-maven-plugin</artifactId>
