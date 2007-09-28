@@ -111,6 +111,42 @@
                                     <groupId>org.apache.derby</groupId>
                                     <artifactId>derbytools</artifactId>
                                 </artifact>
+
+                                <artifact>
+                                    <groupId>org.tranql</groupId>
+                                    <artifactId>tranql-connector-db2-xa</artifactId>
+                                    <type>rar</type>
+                                </artifact>
+                                <artifact>
+                                    <groupId>org.tranql</groupId>
+                                    <artifactId>tranql-connector-mysql-local</artifactId>
+                                    <type>rar</type>
+                                </artifact>
+                                <artifact>
+                                    <groupId>org.tranql</groupId>
+                                    <artifactId>tranql-connector-mysql-xa</artifactId>
+                                    <type>rar</type>
+                                </artifact>
+                                <artifact>
+                                    <groupId>org.tranql</groupId>
+                                    <artifactId>tranql-connector-oracle-local</artifactId>
+                                    <type>rar</type>
+                                </artifact>
+                                <artifact>
+                                    <groupId>org.tranql</groupId>
+                                    <artifactId>tranql-connector-oracle-xa</artifactId>
+                                    <type>rar</type>
+                                </artifact>
+                                <artifact>
+                                    <groupId>org.tranql</groupId>
+                                    <artifactId>tranql-connector-postgresql-local</artifactId>
+                                    <type>rar</type>
+                                </artifact>
+                                <artifact>
+                                    <groupId>org.tranql</groupId>
+                                    <artifactId>tranql-connector-postgresql-xa</artifactId>
+                                    <type>rar</type>
+                                </artifact>
                             </artifacts>
                         </configuration>
                     </execution>
