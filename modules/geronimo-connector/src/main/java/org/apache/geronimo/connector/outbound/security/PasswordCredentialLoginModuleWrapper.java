@@ -17,6 +17,7 @@
 package org.apache.geronimo.connector.outbound.security;
 
 import java.util.Map;
+import java.util.HashMap;
 
 import javax.resource.spi.ManagedConnectionFactory;
 
@@ -30,9 +31,16 @@ public class PasswordCredentialLoginModuleWrapper extends LoginModuleGBean {
     public static final String MANAGED_CONNECTION_FACTORY_OPTION = "geronimo.managedconnectionfactory.option";
 
     public PasswordCredentialLoginModuleWrapper(String loginModuleClass, String objectName, boolean wrapPrincipals, Map<String, Object> options, String loginDomainName, ManagedConnectionFactoryWrapper managedConnectionFactoryWrapper, ClassLoader classLoader) {
-        super(loginModuleClass, objectName, wrapPrincipals, options, loginDomainName, classLoader);
+        super(loginModuleClass, objectName, wrapPrincipals, getOptions(options, managedConnectionFactoryWrapper), loginDomainName, classLoader);
+    }
+
+    private static Map<String, Object> getOptions(Map<String, Object> options, ManagedConnectionFactoryWrapper managedConnectionFactoryWrapper) {
+        if (options == null) {
+            options = new HashMap<String, Object>();
+        }
         ManagedConnectionFactory managedConnectionFactory = managedConnectionFactoryWrapper.$getManagedConnectionFactory();
-        getOptions().put(MANAGED_CONNECTION_FACTORY_OPTION, managedConnectionFactory);
+        options.put(MANAGED_CONNECTION_FACTORY_OPTION, managedConnectionFactory);
+        return options;
     }
 
 }
