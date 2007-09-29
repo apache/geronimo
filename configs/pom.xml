@@ -143,6 +143,7 @@
         <!--<module>ldap-demo-jetty</module>-->
         <!--<module>ldap-demo-tomcat</module>-->
         <!--<module>ldap-realm</module>-->
+        <module>mejb</module>
         <module>offline-deployer</module>
         <module>online-deployer</module>
         <module>openejb</module>
