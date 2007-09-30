@@ -42,7 +42,7 @@ public class EJBJAXRTest extends TestSupport {
         
         InitialContext ctx = new InitialContext(p);
         
-        Object obj = ctx.lookup("JAXREJB/JAXR/org.apache.geronimo.test.JAXRObject");
+        Object obj = ctx.lookup("JAXREJB/JAXR/org.apache.geronimo.test.JAXRHome");
         
         JAXRHome ejbHome = 
             (JAXRHome)PortableRemoteObject.narrow(obj, JAXRHome.class);

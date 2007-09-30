@@ -42,7 +42,7 @@ public class EJBJAXBTest extends TestSupport {
         
         InitialContext ctx = new InitialContext(p);
         
-        Object obj = ctx.lookup("JAXBEJB/JAXB/org.apache.geronimo.test.JAXBObject");
+        Object obj = ctx.lookup("JAXBEJB/JAXB/org.apache.geronimo.test.JAXBHome");
 
         JAXBHome ejbHome = 
             (JAXBHome)PortableRemoteObject.narrow(obj, JAXBHome.class);

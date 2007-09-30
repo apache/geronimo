@@ -160,7 +160,7 @@ public class JaxRPCTest extends TestSupport {
         
         InitialContext ctx = new InitialContext(p);
         
-        Object obj = ctx.lookup("JAXRPCEJB/Greeter/org.apache.hello_world_soap_http.GreeterObject");
+        Object obj = ctx.lookup("JAXRPCEJB/Greeter/org.apache.hello_world_soap_http.GreeterHome");
         
         GreeterHome ejbHome = 
             (GreeterHome)PortableRemoteObject.narrow(obj, GreeterHome.class);
