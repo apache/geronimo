@@ -61,6 +61,6 @@ public class TestMyTime extends SeleniumTestSupport {
                    selenium.getBodyText().contains("Dec"));
 
         // Ensure year found
-        assertTrue(selenium.getBodyText().contains(Integer.toString(Calendar.YEAR)));
+        assertTrue(selenium.getBodyText().contains(Integer.toString(Calendar.getInstance().get(Calendar.YEAR))));
     }
 }
