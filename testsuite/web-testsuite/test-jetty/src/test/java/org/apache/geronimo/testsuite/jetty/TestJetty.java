@@ -60,7 +60,9 @@ public class TestJetty extends TestSupport
         }
     }
 
-    private String doGET(HttpURLConnection conn, String host) throws IOException {        
+    private String doGET(HttpURLConnection conn, String host) throws IOException { 
+        conn.setConnectTimeout(1000 * 30);
+        conn.setReadTimeout(1000 * 30);
         conn.setDoOutput(true);
         conn.setUseCaches(false);
         if (host != null) {
