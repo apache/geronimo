@@ -19,18 +19,72 @@
 
 package org.apache.geronimo.testsuite.jetty;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
 
-import org.apache.geronimo.testsupport.SeleniumTestSupport;
+import org.apache.geronimo.testsupport.TestSupport;
 import org.testng.annotations.Test;
 
-public class TestJetty extends SeleniumTestSupport
+public class TestJetty extends TestSupport
 {
     @Test
-    public void testJetty() throws Exception {
-        selenium.open("http://testhost.com:8080/JettyWeb/");
-        selenium.waitForPageToLoad("30000");
-        assertEquals("Testing Jetty.", selenium.getText("xpath=/html/body"));
+    public void testJettyHost() throws Exception {
+        URL url = new URL("http://localhost:8080/JettyWeb/");
+        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+        try {
+            String reply = doGET(conn, "testhost.com");
+
+            assertEquals("responseCode", 200, conn.getResponseCode());
+
+            assertTrue( reply.indexOf("Testing Jetty.") != -1 );
+        } finally {
+            conn.disconnect();
+        }
     }
 
+    @Test
+    public void testJettyNoHost() throws Exception {
+        URL url = new URL("http://localhost:8080/JettyWeb/");
+        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+        try {
+            String reply = doGET(conn, null);
+
+            assertEquals("responseCode", 404, conn.getResponseCode());
+        } finally {
+            conn.disconnect();
+        }
+    }
+
+    private String doGET(HttpURLConnection conn, String host) throws IOException {        
+        conn.setDoOutput(true);
+        conn.setUseCaches(false);
+        if (host != null) {
+            conn.setRequestProperty("Host", host);
+        }
+
+        InputStream is = null;
+        
+        try {
+            is = conn.getInputStream();
+        } catch (IOException e) {
+            is = conn.getErrorStream();
+        }
+        
+        StringBuffer buf = new StringBuffer();
+        BufferedReader in = new BufferedReader(new InputStreamReader(is));
+        String inputLine;
+        while ((inputLine = in.readLine()) != null) {
+            System.out.println(inputLine);
+            buf.append(inputLine);
+        }
+        in.close();
+        
+        return buf.toString();
+    }
 
 }
