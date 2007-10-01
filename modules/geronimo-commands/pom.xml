@@ -91,11 +91,14 @@
             <plugins>
                 <plugin>
                     <groupId>org.codehaus.plexus</groupId>
-                    <artifactId>plexus-java5-maven-plugin</artifactId>
-                    <version>1.0-SNAPSHOT</version>
-                    <configuration>
-                        <outputDirectory>${project.build.outputDirectory}</outputDirectory>
-                    </configuration>
+                    <artifactId>plexus-maven-plugin</artifactId>
+                    <version>1.3.6-SNAPSHOT</version>
+                </plugin>
+
+                <plugin>
+                    <groupId>org.apache.geronimo.gshell</groupId>
+                    <artifactId>gshell-maven-plugin</artifactId>
+                    <version>1.0-alpha-1-SNAPSHOT</version>
                 </plugin>
             </plugins>
         </pluginManagement>
@@ -115,12 +118,38 @@
             
             <plugin>
                 <groupId>org.codehaus.plexus</groupId>
-                <artifactId>plexus-java5-maven-plugin</artifactId>
+                <artifactId>plexus-maven-plugin</artifactId>
                 <executions>
                     <execution>
                         <phase>process-classes</phase>
                         <goals>
                             <goal>descriptor</goal>
+                        </goals>
+                        <configuration>
+                            <extractors>
+                                <classComponentDescriptorExtractor>
+                                    <gleaner implementation="org.codehaus.plexus.cdc.gleaner.AnnotationComponentGleaner"/>
+                                </classComponentDescriptorExtractor>
+                            </extractors>
+                        </configuration>
+                    </execution>
+                </executions>
+                <dependencies>
+                    <dependency>
+                        <groupId>org.codehaus.plexus</groupId>
+                        <artifactId>plexus-cdc-anno</artifactId>
+                        <version>1.0-alpha-1-SNAPSHOT</version>
+                    </dependency>
+                </dependencies>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.geronimo.gshell</groupId>
+                <artifactId>gshell-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>commands-descriptor</goal>
                         </goals>
                     </execution>
                 </executions>
