@@ -29,6 +29,8 @@ import org.apache.tools.ant.ExitStatusException
 
 // Make sure we use our custom builder
 import org.apache.geronimo.commands.AntBuilder
+import org.codehaus.plexus.component.annotations.Requirement
+import org.apache.geronimo.gshell.shell.ShellInfo
 
 /**
  * Starts a new Geronimo server instance.
@@ -40,6 +42,9 @@ class StartServerCommand
     extends CommandSupport
 {
     private AntBuilder ant
+
+    @Requirement
+    ShellInfo shellInfo
     
     @Option(name='-H', aliases=['--home'], metaVar='DIR', description='Use a specific Geronimo home directory')
     File geronimoHome
@@ -151,8 +156,9 @@ class StartServerCommand
         ant = new AntBuilder(log, io)
         
         if (!geronimoHome) {
-            geronimoHome = new File(System.properties['gshell.home'])
+            geronimoHome = shellInfo.homeDir
         }
+        
         log.debug("Geronimo home: $geronimoHome")
         
         // Setup default java flags
