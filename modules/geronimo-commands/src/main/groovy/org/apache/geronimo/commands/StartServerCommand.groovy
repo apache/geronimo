@@ -33,7 +33,7 @@ import org.apache.geronimo.commands.AntBuilder
 /**
  * Starts a new Geronimo server instance.
  *
- * @version $Id$
+ * @version $Rev$ $Date$
  */
 @CommandComponent(id='start-server')
 class StartServerCommand
