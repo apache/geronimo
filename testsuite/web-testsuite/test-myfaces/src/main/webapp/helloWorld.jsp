@@ -25,14 +25,12 @@
     <body>
         <f:view>
             <h:form id="form">
-              <h:panelGrid id="grid" columns="2">
                 <h:outputText id="output1" value="#{helloWorldBacking.testDouble} Please enter your name"/>
                 <h:inputText id="input1" value="#{helloWorldBacking.name}" required="true"/>
                 <h:outputText value="#{helloWorldBacking.greeting}"/>
                 <h:commandButton id="button1" value="press me" action="#{helloWorldBacking.send}"/>
                 <h:commandLink value="Update greeting" actionListener="#{helloWorldBacking.updateGreeting}"/>
                 <h:message id="message1" for="input1"/>
-              </h:panelGrid>
             </h:form>
         </f:view>
     </body>
