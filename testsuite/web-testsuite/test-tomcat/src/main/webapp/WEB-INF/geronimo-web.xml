@@ -17,6 +17,8 @@
 -->
 
 <!-- $Rev$ $Date$ -->
+
+
 <web-app xmlns="http://geronimo.apache.org/xml/ns/j2ee/web-1.2"
     xmlns:sys="http://geronimo.apache.org/xml/ns/deployment-1.2">
     <sys:environment>
@@ -32,7 +34,7 @@
         <gbean-link>TomcatWebContainer</gbean-link>
     </web-container>
     <container-config>
-        <tomcat>
+        <tomcat xmlns="http://geronimo.apache.org/xml/ns/web/tomcat/config-1.0">
             <host>testhost.com</host>
             <valve-chain>FirstValve</valve-chain>
             <tomcat-realm>TomcatRealm</tomcat-realm>
