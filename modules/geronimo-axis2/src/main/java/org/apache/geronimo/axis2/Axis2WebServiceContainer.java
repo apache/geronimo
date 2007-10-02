@@ -34,6 +34,7 @@ import javax.xml.ws.handler.Handler;
 import org.apache.axiom.om.util.UUIDGenerator;
 import org.apache.axis2.Constants;
 import org.apache.axis2.addressing.AddressingHelper;
+import org.apache.axis2.addressing.EndpointReference;
 import org.apache.axis2.context.ConfigurationContext;
 import org.apache.axis2.context.ConfigurationContextFactory;
 import org.apache.axis2.context.MessageContext;
@@ -300,15 +301,27 @@ public abstract class Axis2WebServiceContainer implements WebServiceContainer {
             } else {
                 service.printWSDL(response.getOutputStream());
             }
-        } else {
+        } else if (AxisServiceGenerator.isSOAP11(service)) {
+            response.setContentType("text/html");
+            PrintWriter pw = new PrintWriter(response.getOutputStream());
+            pw.write("<html><title>Web Service</title><body>");
+            pw.write("Hi, this is '" + service.getName() + "' web service.");
+            pw.write("</body></html>");
+            pw.flush();
+        } else {            
             // REST request
+            setMsgContextProperties(request, response, service, msgContext);
+            
+            String contentType = request.getHeader(HTTPConstants.HEADER_CONTENT_TYPE);
+            
+            msgContext.setTo(new EndpointReference(request.getURI().toString()));
             
             msgContext.setProperty(MessageContext.TRANSPORT_OUT, response.getOutputStream());
             msgContext.setProperty(Constants.OUT_TRANSPORT_INFO, new Axis2TransportInfo(response));
 
             InvocationResponse processed = RESTUtil.processURLRequest(msgContext, 
                                                                       response.getOutputStream(),
-                                                                      null);
+                                                                      contentType);
 
             if (!processed.equals(InvocationResponse.CONTINUE)) {
                 response.setStatusCode(HttpURLConnection.HTTP_OK);
@@ -316,7 +329,7 @@ public abstract class Axis2WebServiceContainer implements WebServiceContainer {
                 PrintWriter pw = new PrintWriter(response.getOutputStream());
                 pw.write(s);
                 pw.flush();
-            }
+            }            
         }
     }
     
