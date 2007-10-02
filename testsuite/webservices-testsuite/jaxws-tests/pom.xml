@@ -38,6 +38,7 @@
                 <module>jaxws-war</module>
                 <module>jaxws-client</module>
                 <module>jaxws-ejb</module>
+                <module>jaxws-rest-war</module>
             </modules>
         </profile>
     </profiles>
