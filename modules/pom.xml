@@ -101,7 +101,9 @@
         <module>geronimo-persistence-jpa10</module>
         <module>geronimo-persistence-jpa10-builder</module>
         <module>geronimo-axis2</module>
+        <module>geronimo-axis2-ejb</module>
         <module>geronimo-axis2-builder</module>
+        <module>geronimo-axis2-ejb-builder</module>
         <module>geronimo-cxf</module>
         <module>geronimo-cxf-ejb</module>
         <module>geronimo-cxf-builder</module>

@@ -29,57 +29,23 @@
         <relativePath>../pom.xml</relativePath>
     </parent>
 
-    <artifactId>geronimo-axis2-builder</artifactId>
-    <name>Geronimo :: Axis2 :: Builder</name>
+    <artifactId>geronimo-axis2-ejb-builder</artifactId>
+    <name>Geronimo :: Axis2 :: EJB Builder</name>
 
     <dependencies>
+
         <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
-            <artifactId>geronimo-jaxws-builder</artifactId>
+            <artifactId>geronimo-axis2-builder</artifactId>
+            <version>${version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.geronimo.modules</groupId>
+            <artifactId>geronimo-jaxws-ejb-builder</artifactId>
             <version>${version}</version>
         </dependency>
         
-        <!-- xbean-finder, g-service-builder comes transitively from this -->
-        <dependency>
-            <groupId>org.apache.geronimo.modules</groupId>
-            <artifactId>geronimo-j2ee-builder</artifactId>
-            <version>${version}</version>
-        </dependency>
-        
-        <dependency>
-            <groupId>org.apache.geronimo.modules</groupId>
-            <artifactId>geronimo-naming-builder</artifactId>
-            <version>${version}</version>
-        </dependency>
-
-       <dependency>
-            <groupId>org.apache.geronimo.modules</groupId>
-            <artifactId>geronimo-axis2</artifactId>
-            <version>${version}</version>
-        </dependency>
-
-       <dependency>
-            <groupId>org.apache.geronimo.specs</groupId>
-            <artifactId>geronimo-ws-metadata_2.0_spec</artifactId>
-       </dependency>
-
-        <!-- add the following for wsgen -->
-        <dependency>
-            <groupId>com.sun.xml.ws</groupId>
-            <artifactId>jaxws-tools</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>com.sun.xml.ws</groupId>
-            <artifactId>jaxws-rt</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>com.sun.xml.bind</groupId>
-            <artifactId>jaxb-xjc</artifactId>
-        </dependency>
-        <!--end add for wsgen-->
-
     </dependencies>
 
 </project>

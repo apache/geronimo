@@ -20,20 +20,16 @@ package org.apache.geronimo.axis2.builder;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.StringWriter;
-import java.net.URI;
 import java.net.URL;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.jar.JarFile;
 
-import javax.xml.namespace.QName;
 import javax.xml.ws.http.HTTPBinding;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.geronimo.axis2.client.Axis2ServiceReference;
 import org.apache.geronimo.axis2.pojo.POJOWebServiceContainerFactoryGBean;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.DeploymentContext;
@@ -46,23 +42,17 @@ import org.apache.geronimo.j2ee.deployment.WebServiceBuilder;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.jaxws.JAXWSUtils;
 import org.apache.geronimo.jaxws.PortInfo;
-import org.apache.geronimo.jaxws.builder.EndpointInfoBuilder;
 import org.apache.geronimo.jaxws.builder.JAXWSServiceBuilder;
 import org.apache.geronimo.jaxws.builder.WARWebServiceFinder;
 import org.apache.geronimo.jaxws.builder.WsdlGenerator;
-import org.apache.geronimo.jaxws.client.EndpointInfo;
 import org.apache.geronimo.kernel.repository.Environment;
-import org.apache.geronimo.xbeans.geronimo.naming.GerServiceRefType;
-import org.apache.geronimo.xbeans.javaee.PortComponentRefType;
 import org.apache.geronimo.xbeans.javaee.PortComponentType;
 import org.apache.geronimo.xbeans.javaee.ServiceImplBeanType;
-import org.apache.geronimo.xbeans.javaee.ServiceRefHandlerChainsType;
 import org.apache.geronimo.xbeans.javaee.WebserviceDescriptionType;
 import org.apache.geronimo.xbeans.javaee.WebservicesDocument;
 import org.apache.geronimo.xbeans.javaee.WebservicesType;
 import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlObject;
-import org.apache.xmlbeans.XmlOptions;
 
 /**
  * @version $Rev$ $Date$
@@ -217,50 +207,6 @@ public class Axis2Builder extends JAXWSServiceBuilder {
         return status;
     }
 
-    public Object createService(Class serviceInterface,
-                                Class serviceReference,
-                                URI wsdlURI,
-                                QName serviceQName,
-                                Map<Class, PortComponentRefType> portComponentRefMap,
-                                ServiceRefHandlerChainsType handlerChains,
-                                GerServiceRefType serviceRefType,
-                                Module module,
-                                ClassLoader cl) throws DeploymentException {
-        EndpointInfoBuilder builder = new EndpointInfoBuilder(serviceInterface,
-                serviceRefType, portComponentRefMap, module.getModuleFile(),
-                wsdlURI, serviceQName);
-        builder.build();
-
-        wsdlURI = builder.getWsdlURI();
-        serviceQName = builder.getServiceQName();
-        Map<Object, EndpointInfo> seiInfoMap = builder.getEndpointInfo();
-
-        String handlerChainsXML = null;
-        try {
-            handlerChainsXML = getHandlerChainAsString(handlerChains);
-        } catch (IOException e) {
-            // this should not happen
-            log.warn("Failed to serialize handler chains", e);
-        }
-
-        String serviceReferenceName = (serviceReference == null) ? null : serviceReference.getName();
-        return new Axis2ServiceReference(serviceInterface.getName(), serviceReferenceName,  wsdlURI,
-                serviceQName, module.getModuleName(), handlerChainsXML, seiInfoMap);
-    }
-
-    private static String getHandlerChainAsString(ServiceRefHandlerChainsType handlerChains)
-        throws IOException {
-        String xml = null;
-        if (handlerChains != null) {
-            StringWriter w = new StringWriter();
-            XmlOptions options = new XmlOptions();
-            options.setSaveSyntheticDocumentElement(new QName("http://java.sun.com/xml/ns/javaee", "handler-chains")); 
-            handlerChains.save(w, options);
-            xml = w.toString();
-        }
-        return xml;
-    }
-    
     private static String getString(String in) {
         if (in != null) {
             in = in.trim();

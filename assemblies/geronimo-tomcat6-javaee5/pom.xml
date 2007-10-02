@@ -124,6 +124,13 @@
 
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
+            <artifactId>axis2-ejb</artifactId>
+            <version>${version}</version>
+            <type>car</type>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.geronimo.configs</groupId>
             <artifactId>cxf</artifactId>
             <version>${version}</version>
             <type>car</type>
@@ -307,6 +314,13 @@
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
             <artifactId>axis2-deployer</artifactId>
+            <version>${version}</version>
+            <type>car</type>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.geronimo.configs</groupId>
+            <artifactId>axis2-ejb-deployer</artifactId>
             <version>${version}</version>
             <type>car</type>
         </dependency>

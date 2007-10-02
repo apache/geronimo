@@ -55,6 +55,7 @@
 
     <module name="org.apache.geronimo.configs/axis/${version}/car" load="false"/>
     <module name="org.apache.geronimo.configs/axis2/${version}/car" load="false"/>
+    <module name="org.apache.geronimo.configs/axis2-ejb/${version}/car" load="false"/>
     <module name="org.apache.geronimo.configs/cxf/${version}/car" load="false"/>
     <module name="org.apache.geronimo.configs/cxf-ejb/${version}/car" load="false"/>
 
@@ -225,6 +226,9 @@
     </module>
 
     <module name="org.apache.geronimo.configs/axis2-deployer/${version}/car"  
+            condition="props.getProperty('org.apache.geronimo.jaxws.provider', 'axis2') == 'axis2'"/>
+
+    <module name="org.apache.geronimo.configs/axis2-ejb-deployer/${version}/car"  
             condition="props.getProperty('org.apache.geronimo.jaxws.provider', 'axis2') == 'axis2'">
 
       <gbean name="Axis2ModuleBuilderExtension">

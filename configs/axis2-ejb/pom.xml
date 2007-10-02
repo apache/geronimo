@@ -16,70 +16,64 @@
     limitations under the License.
 -->
 
-<!-- $Rev: 482336 $ $Date: 2006-12-04 15:12:19 -0500 (Mon, 04 Dec 2006) $ -->
+<!-- $Rev: 573957 $ $Date: 2007-09-09 04:14:57 -0400 (Sun, 09 Sep 2007) $ -->
 
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>org.apache.geronimo.modules</groupId>
-        <artifactId>modules</artifactId>
+        <groupId>org.apache.geronimo.configs</groupId>
+        <artifactId>configs</artifactId>
         <version>2.1-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
-    <artifactId>geronimo-axis2-builder</artifactId>
-    <name>Geronimo :: Axis2 :: Builder</name>
+    <artifactId>axis2-ejb</artifactId>
+    <name>Geronimo Configs :: Axis2 EJB</name>
+    <packaging>car</packaging>
+
+    <description>
+       Geronimo Web Services Apache Axis2 EJB integration
+   </description>
 
     <dependencies>
+
         <dependency>
-            <groupId>org.apache.geronimo.modules</groupId>
-            <artifactId>geronimo-jaxws-builder</artifactId>
-            <version>${version}</version>
-        </dependency>
-        
-        <!-- xbean-finder, g-service-builder comes transitively from this -->
-        <dependency>
-            <groupId>org.apache.geronimo.modules</groupId>
-            <artifactId>geronimo-j2ee-builder</artifactId>
-            <version>${version}</version>
-        </dependency>
-        
-        <dependency>
-            <groupId>org.apache.geronimo.modules</groupId>
-            <artifactId>geronimo-naming-builder</artifactId>
+            <groupId>org.apache.geronimo.configs</groupId>
+            <artifactId>axis2</artifactId>
+            <type>car</type>
             <version>${version}</version>
         </dependency>
 
-       <dependency>
+        <dependency>
+            <groupId>org.apache.geronimo.configs</groupId>
+            <artifactId>openejb</artifactId>
+            <version>${version}</version>
+            <type>car</type>
+        </dependency>
+
+        <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
-            <artifactId>geronimo-axis2</artifactId>
+            <artifactId>geronimo-axis2-ejb</artifactId>
             <version>${version}</version>
         </dependency>
-
-       <dependency>
-            <groupId>org.apache.geronimo.specs</groupId>
-            <artifactId>geronimo-ws-metadata_2.0_spec</artifactId>
-       </dependency>
-
-        <!-- add the following for wsgen -->
-        <dependency>
-            <groupId>com.sun.xml.ws</groupId>
-            <artifactId>jaxws-tools</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>com.sun.xml.ws</groupId>
-            <artifactId>jaxws-rt</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>com.sun.xml.bind</groupId>
-            <artifactId>jaxb-xjc</artifactId>
-        </dependency>
-        <!--end add for wsgen-->
 
     </dependencies>
 
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.geronimo.plugins</groupId>
+                <artifactId>car-maven-plugin</artifactId>
+                <configuration>
+                    <useMavenDependencies>
+                        <value>true</value>
+                        <includeVersion>true</includeVersion>
+                    </useMavenDependencies>
+                    <category>Web Services</category>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 </project>

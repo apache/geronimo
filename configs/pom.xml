@@ -195,7 +195,9 @@
         <module>persistence-jpa10-deployer</module>
         <module>openjpa</module>
         <module>axis2</module>
+        <module>axis2-ejb</module>
         <module>axis2-deployer</module>
+        <module>axis2-ejb-deployer</module>
         <module>cxf</module>
         <module>cxf-ejb</module>
         <module>cxf-deployer</module>

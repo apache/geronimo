@@ -33,7 +33,9 @@
     <name>Geronimo Configs :: Axis2</name>
     <packaging>car</packaging>
 
-    <description>Geronimo Axis 2 integration</description>
+    <description>
+        Geronimo Web Services Apache Axis2 integration
+    </description>
 
     <dependencies>
 
@@ -56,13 +58,6 @@
             <artifactId>webservices-common</artifactId>
             <type>car</type>
             <version>${version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.geronimo.configs</groupId>
-            <artifactId>openejb</artifactId>
-            <version>${version}</version>
-            <type>car</type>
         </dependency>
 
         <dependency>

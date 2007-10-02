@@ -17,37 +17,45 @@
 
 package org.apache.geronimo.axis2.builder;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.apache.geronimo.jaxws.builder.EndpointInfoBuilder;
 import org.apache.geronimo.jaxws.builder.JAXWSServiceRefBuilder;
+import org.apache.geronimo.jaxws.client.EndpointInfo;
 import org.apache.geronimo.kernel.GBeanAlreadyExistsException;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.xbeans.javaee.PortComponentRefType;
+import org.apache.geronimo.xbeans.javaee.ServiceRefHandlerChainsType;
 import org.apache.geronimo.xbeans.javaee.ServiceRefType;
 import org.apache.geronimo.xbeans.geronimo.naming.GerServiceRefType;
 import org.apache.geronimo.j2ee.deployment.EARContext;
 import org.apache.geronimo.j2ee.deployment.Module;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.axis2.client.Axis2ConfigGBean;
+import org.apache.geronimo.axis2.client.Axis2ServiceReference;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.naming.deployment.ServiceRefBuilder;
+import org.apache.xmlbeans.XmlOptions;
 
 import javax.xml.namespace.QName;
+
+import java.io.IOException;
+import java.io.StringWriter;
 import java.net.URI;
 import java.util.Map;
 
 public class Axis2ServiceRefBuilder extends JAXWSServiceRefBuilder {
 
-    private final Axis2Builder axis2Builder;
-
+    private static final Log log = LogFactory.getLog(Axis2ServiceRefBuilder.class);
+    
     public Axis2ServiceRefBuilder(Environment defaultEnvironment,
-                                String[] eeNamespaces,
-                                Axis2Builder axis2Builder) {
+                                 String[] eeNamespaces) {
         super(defaultEnvironment, eeNamespaces);
-        this.axis2Builder = axis2Builder;
     }
 
     public Object createService(ServiceRefType serviceRef, GerServiceRefType gerServiceRef,
@@ -55,11 +63,42 @@ public class Axis2ServiceRefBuilder extends JAXWSServiceRefBuilder {
                                 QName serviceQName, URI wsdlURI, Class serviceReferenceType,
                                 Map<Class, PortComponentRefType> portComponentRefMap) throws DeploymentException {
         registerConfigGBean(module);
-        return this.axis2Builder.createService(serviceInterfaceClass, serviceReferenceType, wsdlURI,
-                                             serviceQName, portComponentRefMap, serviceRef.getHandlerChains(),
-                                             gerServiceRef, module, cl);
+        EndpointInfoBuilder builder = new EndpointInfoBuilder(serviceInterfaceClass,
+                gerServiceRef, portComponentRefMap, module.getModuleFile(),                
+                wsdlURI, serviceQName);
+        builder.build();
+
+        wsdlURI = builder.getWsdlURI();
+        serviceQName = builder.getServiceQName();
+        Map<Object, EndpointInfo> seiInfoMap = builder.getEndpointInfo();
+
+        String handlerChainsXML = null;
+        try {
+            handlerChainsXML = getHandlerChainAsString(serviceRef.getHandlerChains());
+        } catch (IOException e) {
+            // this should not happen
+            log.warn("Failed to serialize handler chains", e);
+        }
+
+        String serviceReferenceName = (serviceReferenceType == null) ? null : serviceReferenceType.getName();
+        return new Axis2ServiceReference(serviceInterfaceClass.getName(), serviceReferenceName,  wsdlURI,
+                serviceQName, module.getModuleName(), handlerChainsXML, seiInfoMap);
     }
 
+    private static String getHandlerChainAsString(ServiceRefHandlerChainsType handlerChains)
+            throws IOException {
+        String xml = null;
+        if (handlerChains != null) {
+            StringWriter w = new StringWriter();
+            XmlOptions options = new XmlOptions();
+            options.setSaveSyntheticDocumentElement(new QName("http://java.sun.com/xml/ns/javaee",
+                                                              "handler-chains"));
+            handlerChains.save(w, options);
+            xml = w.toString();
+        }
+        return xml;
+    }
+    
     private void registerConfigGBean(Module module) throws DeploymentException {
         EARContext context = module.getEarContext();
         AbstractName containerFactoryName = context.getNaming().createChildName(
@@ -89,11 +128,9 @@ public class Axis2ServiceRefBuilder extends JAXWSServiceRefBuilder {
         infoBuilder.addAttribute("defaultEnvironment", Environment.class, true,
                 true);
         infoBuilder.addAttribute("eeNamespaces", String[].class, true, true);
-        infoBuilder.addReference("Axis2Builder", Axis2Builder.class,
-                NameFactory.MODULE_BUILDER);
 
         infoBuilder.setConstructor(new String[] { "defaultEnvironment",
-                "eeNamespaces", "Axis2Builder" });
+                                                  "eeNamespaces" });
 
         GBEAN_INFO = infoBuilder.getBeanInfo();
     }
