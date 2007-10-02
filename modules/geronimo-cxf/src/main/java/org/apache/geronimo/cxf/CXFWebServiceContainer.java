@@ -87,7 +87,7 @@ public abstract class CXFWebServiceContainer implements WebServiceContainer {
     protected void processGET(Request request, Response response) throws Exception {
         if (request.getParameter("xsd") != null || request.getParameter("XSD") != null) {
             getWsdl(request, response);
-        } else {
+        } else if (endpoint.isSOAP11()) {
             EndpointInfo ei = this.destination.getEndpointInfo();
             response.setContentType("text/html");
             PrintWriter pw = new PrintWriter(response.getOutputStream());
@@ -95,6 +95,8 @@ public abstract class CXFWebServiceContainer implements WebServiceContainer {
             pw.write("Hi, this is '" + ei.getService().getName().getLocalPart() + "' web service.");
             pw.write("</body></html>");
             pw.flush();
+        } else {
+            processPOST(request, response);
         }
     }
     

@@ -307,5 +307,11 @@ public class AxisServiceGenerator {
         Parameter param = service.getParameter(EndpointDescription.AXIS_SERVICE_PARAMETER);
         return (param == null) ? null : (EndpointDescription) param.getValue();
     }
+    
+    public static boolean isSOAP11(AxisService service) {
+        EndpointDescription desc = AxisServiceGenerator.getEndpointDescription(service);
+        return javax.xml.ws.soap.SOAPBinding.SOAP11HTTP_BINDING.equals(desc.getBindingType()) ||
+               javax.xml.ws.soap.SOAPBinding.SOAP11HTTP_MTOM_BINDING.equals(desc.getBindingType());
+    }
          
 }

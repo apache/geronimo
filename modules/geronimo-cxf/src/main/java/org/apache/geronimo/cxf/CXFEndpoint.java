@@ -102,6 +102,11 @@ public abstract class CXFEndpoint extends Endpoint {
         return ((ServerImpl) getServer()).getEndpoint();
     }
 
+    public boolean isSOAP11() {
+       return SOAPBinding.SOAP11HTTP_BINDING.equals(implInfo.getBindingType()) ||
+              SOAPBinding.SOAP11HTTP_MTOM_BINDING.equals(implInfo.getBindingType());
+    }
+    
     public ServerImpl getServer() {
         return (ServerImpl) server;
     }
