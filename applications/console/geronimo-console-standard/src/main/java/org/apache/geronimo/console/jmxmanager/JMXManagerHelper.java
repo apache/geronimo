@@ -40,6 +40,7 @@ import javax.management.j2ee.statistics.Statistic;
 import javax.management.j2ee.statistics.Stats;
 import javax.management.j2ee.statistics.TimeStatistic;
 
+import org.apache.geronimo.console.util.TimeUtils;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.gbean.GAttributeInfo;
@@ -405,12 +406,12 @@ public class JMXManagerHelper {
                         long count = tStat.getCount();
                         mbeanStat.add(new String[] { "Count",
                                 Long.toString(count) });
-                        Date maxTime = new Date(tStat.getMaxTime());
+                        String maxTime = TimeUtils.formatDuration(tStat.getMaxTime());
                         mbeanStat.add(new String[] { "Max Time",
-                                maxTime.toString() });
-                        Date minTime = new Date(tStat.getMinTime());
+                                maxTime });
+                        String minTime = TimeUtils.formatDuration(tStat.getMinTime());
                         mbeanStat.add(new String[] { "Min Time",
-                                minTime.toString() });
+                                minTime });
                         long totalTime = tStat.getTotalTime();
                         mbeanStat.add(new String[] { "Total Time",
                                 Long.toString(totalTime) });
