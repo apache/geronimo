@@ -107,10 +107,11 @@ public class OpenEjbSystemGBean implements OpenEjbSystem {
         System.setProperty("duct tape","");
         System.setProperty("admin.disabled", "true");
         System.setProperty("openejb.logger.external", "true");
-        
-        setDefaultProperty("openejb.deploymentId.format", "{moduleId}/{ejbName}");
+        System.setProperty("openejb.jndiname.failoncollision", "false");
+
+        setDefaultProperty("openejb.deploymentId.format", "{appId}/{moduleId}/{ejbName}");
         setDefaultProperty("openejb.jndiname.strategy.class", "org.apache.openejb.assembler.classic.JndiBuilder$TemplatedStrategy");
-        setDefaultProperty("openejb.jndiname.format", "{deploymentId}/{interfaceClass}");
+        setDefaultProperty("openejb.jndiname.format", "{ejbName}{interfaceType.annotationName}");
 
         System.setProperty("openejb.naming", "xbean");
         if (transactionManager == null) {
