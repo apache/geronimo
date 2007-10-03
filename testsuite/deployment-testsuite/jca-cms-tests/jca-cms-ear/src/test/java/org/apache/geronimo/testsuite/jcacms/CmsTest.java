@@ -32,11 +32,13 @@ public class CmsTest
     extends SeleniumTestSupport
 {
     @Test
-    public void testPageContent() throws Exception {
-        selenium.open("http://system:manager@localhost:8080/jca-cms/default-subject-servlet");
+    public void testPageContent1() throws Exception {
+        selenium.open("http://localhost:8080/jca-cms/default-subject-servlet");
         selenium.waitForPageToLoad("30000");
 
-        assertTrue(selenium.getText("xpath=/html/body").endsWith(
+        String body = selenium.getText("xpath=/html/body");
+
+        assertTrue(body.endsWith(
 //                "Current subject: Subject:\n" +
 //                "\tPrincipal: org.apache.geronimo.connector.outbound.security.ResourcePrincipal@cb1c722f\n" +
 //                "\tPrincipal: org.apache.geronimo.security.IdentificationPrincipal[[1186174499145:0x607c7eb7837eabcd6b759e6f9d29e7eee72622d6]]\n" +
@@ -52,6 +54,31 @@ public class CmsTest
                 "Successfully got configured connection\n" +
                 "\n" +
                 "Successfully got container managed connection"));
+
+        String expectedPrincipal = "Principal: george";
+        int pos1 = body.indexOf(expectedPrincipal);
+        assertTrue("Expected current subject principal", pos1 > 0);
+        int pos2 = body.indexOf(expectedPrincipal, pos1 + expectedPrincipal.length());
+        assertTrue("Expected next subject principal", pos2 > 0);
+    }
+
+    @Test
+    public void testPageContent2() throws Exception {
+        selenium.open("http://localhost:8080/jca-cms/run-as-servlet");
+        selenium.waitForPageToLoad("30000");
+
+        String body = selenium.getText("xpath=/html/body");
+
+        assertTrue(body.endsWith(
+                "Successfully got configured connection\n" +
+                "\n" +
+                "Successfully got container managed connection"));
+
+        String expectedPrincipal = "Principal: george";
+        int pos1 = body.indexOf(expectedPrincipal);
+        assertTrue("Expected current subject principal", pos1 > 0);
+        int pos2 = body.indexOf("Principal: gracie", pos1 + expectedPrincipal.length());
+        assertTrue("Expected next subject principal", pos2 > 0);
     }
 }
 

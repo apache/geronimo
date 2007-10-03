@@ -85,14 +85,20 @@
             </resourceadapter>
             <gbean name="test-cms-realm" class="org.apache.geronimo.security.realm.GenericSecurityRealm">
                 <attribute name="realmName">test-cms-realm</attribute>
-                <xml-reference name="LoginModuleConfiguration">
-                    <lc:login-config xmlns:lc="http://geronimo.apache.org/xml/ns/loginconfig-1.1">
+                <xml-reference name="LoginModuleConfiguration" xmlns:lc="http://geronimo.apache.org/xml/ns/loginconfig-1.1">
+                    <lc:login-config>
                         <lc:login-module-ref control-flag="REQUIRED">
                             <lc:pattern>
                                 <name xmlns="http://geronimo.apache.org/xml/ns/deployment-1.2">test-cms-credentials
                                 </name>
                             </lc:pattern>
                         </lc:login-module-ref>
+                        <lc:login-module control-flag="REQUIRED" wrap-principals="false">
+                            <lc:login-domain-name>test-app-credentials</lc:login-domain-name>
+                            <lc:login-module-class>org.apache.geronimo.security.realm.providers.PropertiesFileLoginModule</lc:login-module-class>
+                            <lc:option name="usersURI">var/security/demo_users.properties</lc:option>
+                            <lc:option name="groupsURI">var/security/demo_groups.properties</lc:option>
+                        </lc:login-module>
                     </lc:login-config>
                 </xml-reference>
                 <reference name="ServerInfo">
@@ -125,7 +131,7 @@
                 </default-subject>
                 <role-mappings>
                     <role role-name="test">
-                        <principal class="org.apache.geronimo.connector.outbound.security.ResourcePrincipal" name="system"/>
+                        <principal class="org.apache.geronimo.connector.outbound.security.ResourcePrincipal" name="george"/>
                     </role>
                     <role role-name="fail">
                         <run-as-subject>
@@ -145,22 +151,22 @@
                                 <id>test</id>
                                 <credential>
                                     <type>org.apache.geronimo.security.credentialstore.NameCallbackHandler</type>
-                                    <value>system</value>
+                                    <value>george</value>
                                 </credential>
                                 <credential>
                                     <type>org.apache.geronimo.security.credentialstore.PasswordCallbackHandler</type>
-                                    <value>manager</value>
+                                    <value>bone</value>
                                 </credential>
                             </subject>
                             <subject>
                                 <id>fail</id>
                                 <credential>
                                     <type>org.apache.geronimo.security.credentialstore.NameCallbackHandler</type>
-                                    <value>unauthorized</value>
+                                    <value>gracie</value>
                                 </credential>
                                 <credential>
                                     <type>org.apache.geronimo.security.credentialstore.PasswordCallbackHandler</type>
-                                    <value>nope</value>
+                                    <value>biscuit</value>
                                 </credential>
                             </subject>
                         </realm>
