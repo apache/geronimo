@@ -17,22 +17,85 @@
 
 package org.apache.geronimo.kernel.repository;
 
+import java.util.Stack;
+
+import org.apache.geronimo.gbean.AbstractNameQuery;
+
 /**
  * @version $Rev$ $Date$
  */
 public class MissingDependencyException extends Exception {
-    public MissingDependencyException() {
+    private Artifact query;
+    private Stack<Artifact> stack;
+
+
+    public MissingDependencyException(Artifact query) {
+        super();
+        this.query = query;
     }
 
-    public MissingDependencyException(Throwable cause) {
-        super(cause);
+    public MissingDependencyException(Artifact query, Stack<Artifact> stack) {
+        super();
+        this.query = query;
+        this.stack = stack;
     }
 
-    public MissingDependencyException(String message) {
+    public MissingDependencyException(Artifact query, Artifact parent) {
+        super();
+        this.query = query;
+        this.stack = new Stack<Artifact>();
+        if (parent != null) {
+            this.stack.add(parent);
+        }
+    }
+    public MissingDependencyException(String message, Artifact query, Stack<Artifact> stack) {
         super(message);
+        this.query = query;
+        this.stack = stack;
     }
 
-    public MissingDependencyException(String message, Throwable cause) {
-        super(message, cause);
+    public MissingDependencyException(String message, Artifact query, Artifact parent) {
+        super(message);
+        this.query = query;
+        this.stack = new Stack<Artifact>();
+        if (parent != null) {
+            this.stack.add(parent);
+        }
+    }
+
+    public String getMessage() {
+        String s = super.getMessage();
+        StringBuffer sb = new StringBuffer();
+        if (s != null) {
+            sb.append(s).append("\n");
+        }
+        if (query != null) {
+            sb.append("Missing dependency: ").append(query);
+        }
+        if (stack != null && !stack.isEmpty()) {
+            sb.append("\nParent stack:\n");
+            for (Artifact parent: stack) {
+                sb.append("    ").append(parent).append("\n");
+            }
+
+        }
+        return sb.toString();
+    }
+
+
+    public Artifact getQuery() {
+        return query;
+    }
+
+    public void setQuery(Artifact query) {
+        this.query = query;
+    }
+
+    public Stack<Artifact> getStack() {
+        return stack;
+    }
+
+    public void setStack(Stack<Artifact> stack) {
+        this.stack = stack;
     }
 }

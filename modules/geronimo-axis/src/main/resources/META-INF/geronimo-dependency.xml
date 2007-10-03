@@ -20,6 +20,7 @@
   <dep:dependency>
     <dep:groupId>axis</dep:groupId>
     <dep:artifactId>axis</dep:artifactId>
+      <dep:version>1.4</dep:version>
   </dep:dependency>
   <dep:dependency>
     <dep:groupId>commons-discovery</dep:groupId>

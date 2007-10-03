@@ -41,6 +41,7 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import java.util.SortedSet;
+import java.util.Stack;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.jar.JarOutputStream;
@@ -48,7 +49,6 @@ import java.util.jar.Manifest;
 import java.util.zip.ZipEntry;
 
 import javax.security.auth.login.FailedLoginException;
-import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.ParserConfigurationException;
@@ -365,7 +365,7 @@ public class PluginInstallerGBean implements PluginInstaller {
         String url = repository + "geronimo-plugins.xml";
         try {
             //todo: use a progress monitor
-            InputStream in = openStream(null, Collections.singletonList(url), username, password, null).getStream();
+            InputStream in = openStream(null, Collections.singletonList(url), username, password, null, null).getStream();
             return PluginXmlUtil.loadPluginList(in);
         } catch (MissingDependencyException e) {
             log.error("Cannot find plugin index at site " + url);
@@ -443,13 +443,14 @@ public class PluginInstallerGBean implements PluginInstaller {
                 }
                 // 3. Download the artifact if necessary, and its dependencies
                 Set<Artifact> working = new HashSet<Artifact>();
+                Stack<Artifact> parentStack = new Stack<Artifact>();
                 if (instance.getModuleId() != null) {
                     List<String> repos = pluginsToInstall.getDefaultRepository();
                     if (!instance.getSourceRepository().isEmpty()) {
                         repos = instance.getSourceRepository();
                     }
                     downloadArtifact(toArtifact(instance.getModuleId()), metaMap, repos,
-                            username, password, new ResultsFileWriteMonitor(poller), working, false);
+                            username, password, new ResultsFileWriteMonitor(poller), working, parentStack, false);
                 } else {
                     List<DependencyType> deps = instance.getDependency();
                     for (DependencyType dep : deps) {
@@ -459,7 +460,7 @@ public class PluginInstallerGBean implements PluginInstaller {
                             repos = instance.getSourceRepository();
                         }
                         downloadArtifact(entry, metaMap, repos,
-                                username, password, new ResultsFileWriteMonitor(poller), working, false);
+                                username, password, new ResultsFileWriteMonitor(poller), working, parentStack, false);
                     }
                 }
                 // 4. Uninstall obsolete configurations
@@ -655,28 +656,28 @@ public class PluginInstallerGBean implements PluginInstaller {
             }
         }
         // 2. Check that we meet the prerequisites
+/*
         List<PrerequisiteType> prereqs = metadata.getPrerequisite();
         for (PrerequisiteType prereq : prereqs) {
-            if (artifactResolver.queryArtifacts(toArtifact(prereq.getId())).length == 0) {
-                Artifact prereqId = toArtifact(prereq.getId());
-                log.info("Required configuration '" + prereqId + "' is not installed.");
+            Artifact artifact = toArtifact(prereq.getId());
+            if (artifactResolver.queryArtifacts(artifact).length == 0) {
+                log.error("Configuration '" + artifact + "' required for plugin '" + toArtifact(metadata.getModuleId()) + "' is not installed.");
                 throw new MissingDependencyException(
-                        "Required configuration '" + prereqId + "' is not installed.");
+                        "Configuration '" + artifact + "' required for plugin '" + toArtifact(metadata.getModuleId()) + "' is not installed.");
             }
         }
-        Artifact moduleId = toArtifact(metadata.getModuleId());
+*/
         // 3. Check that we meet the Geronimo, JVM versions
         if (metadata.getGeronimoVersion().size() > 0 && !checkGeronimoVersions(metadata.getGeronimoVersion())) {
-            log.info("Cannot install plugin " + moduleId + " on Geronimo " + serverInfo.getVersion());
+            log.error("Cannot install plugin " + toArtifact(metadata.getModuleId()) + " on Geronimo " + serverInfo.getVersion());
             throw new MissingDependencyException(
-                    "Cannot install plugin " + moduleId + " on Geronimo " + serverInfo.getVersion());
+                    "Cannot install plugin on Geronimo " + serverInfo.getVersion(), toArtifact(metadata.getModuleId()), (Stack<Artifact>) null);
         }
         if (metadata.getJvmVersion().size() > 0 && !checkJVMVersions(metadata.getJvmVersion())) {
-            log.info("Cannot install plugin " + moduleId + " on JVM " + System.getProperty(
+            log.error("Cannot install plugin " + toArtifact(metadata.getModuleId()) + " on JVM " + System.getProperty(
                     "java.version"));
             throw new MissingDependencyException(
-                    "Cannot install plugin " + moduleId+ " on JVM " + System.getProperty(
-                            "java.version"));
+                    "Cannot install plugin on JVM " + System.getProperty("java.version"), toArtifact(metadata.getModuleId()), (Stack<Artifact>) null);
         }
     }
 
@@ -685,21 +686,21 @@ public class PluginInstallerGBean implements PluginInstaller {
      * be just a JAR.  For each artifact processed, all its dependencies will be
      * processed as well.
      *
-     * @param configID   Identifies the artifact to install
-     * @param metadata   name to plugin map
-     * @param repos      The URLs to contact the repositories (in order of preference)
-     * @param username   The username used for repositories secured with HTTP Basic authentication
-     * @param password   The password used for repositories secured with HTTP Basic authentication
-     * @param monitor    The ongoing results of the download operations, with some monitoring logic
-     * @param soFar      The set of dependencies already downloaded.
-     * @param dependency Is this a dependency or the original artifact?
-     * @throws IOException                When there's a problem reading or writing data
+     * @param configID    Identifies the artifact to install
+     * @param metadata    name to plugin map
+     * @param repos       The URLs to contact the repositories (in order of preference)
+     * @param username    The username used for repositories secured with HTTP Basic authentication
+     * @param password    The password used for repositories secured with HTTP Basic authentication
+     * @param monitor     The ongoing results of the download operations, with some monitoring logic
+     * @param soFar       The set of dependencies already downloaded.
+     * @param parentStack
+     * @param dependency  Is this a dependency or the original artifact? @throws IOException                When there's a problem reading or writing data
      * @throws FailedLoginException       When a repository requires authentication and either no username
      *                                    and password are supplied or the username and password supplied
      *                                    are not accepted
      * @throws MissingDependencyException When a dependency cannot be located in any of the listed repositories
      */
-    private void downloadArtifact(Artifact configID, Map<Artifact, PluginType> metadata, List<String> repos, String username, String password, ResultsFileWriteMonitor monitor, Set<Artifact> soFar, boolean dependency) throws IOException, FailedLoginException, MissingDependencyException {
+    private void downloadArtifact(Artifact configID, Map<Artifact, PluginType> metadata, List<String> repos, String username, String password, ResultsFileWriteMonitor monitor, Set<Artifact> soFar, Stack<Artifact> parentStack, boolean dependency) throws IOException, FailedLoginException, MissingDependencyException {
         if (soFar.contains(configID)) {
             return; // Avoid endless work due to circular dependencies
         } else {
@@ -712,7 +713,7 @@ public class PluginInstallerGBean implements PluginInstaller {
             // not present, needs to be downloaded
             monitor.getResults().setCurrentMessage("Downloading " + configID);
             monitor.getResults().setCurrentFilePercent(-1);
-            OpenResult result = openStream(configID, repos, username, password, monitor);
+            OpenResult result = openStream(configID, repos, username, password, monitor, parentStack);
             // Check if the result is already in server's repository
             if (configManager.getArtifactResolver().queryArtifacts(result.getConfigID()).length > 0) {
                 String msg = "Not downloading " + configID + ". Query for " + configID + " resulted in " + result.getConfigID()
@@ -828,11 +829,13 @@ public class PluginInstallerGBean implements PluginInstaller {
             }
             Dependency[] dependencies = data == null ? getDependencies(writeableRepo, configID) : getDependencies(data);
             // Download the dependencies
+            parentStack.push(configID);
             for (Dependency dep : dependencies) {
                 Artifact artifact = dep.getArtifact();
                 log.debug("Attempting to download dependency=" + artifact + " for configuration=" + configID);
-                downloadArtifact(artifact, metadata, repos, username, password, monitor, soFar, true);
+                downloadArtifact(artifact, metadata, repos, username, password, monitor, soFar, parentStack, true);
             }
+            parentStack.pop();
         } catch (NoSuchConfigException e) {
             log.error("Installed configuration into repository but ConfigStore does not see it: " + e.getMessage());
             throw new IllegalStateException(
@@ -1036,11 +1039,12 @@ public class PluginInstallerGBean implements PluginInstaller {
      * The username and password provided are only used if one of the repositories
      * returns an HTTP authentication failure on the first try.
      *
-     * @param artifact The artifact we're looking for, or null to just connect to the base repo URL
-     * @param repos    The base URLs to the repositories to search for the artifact
-     * @param username A username if one of the repositories might require authentication
-     * @param password A password if one of the repositories might require authentication
-     * @param monitor  Callback for progress on the connection operation
+     * @param artifact    The artifact we're looking for, or null to just connect to the base repo URL
+     * @param repos       The base URLs to the repositories to search for the artifact
+     * @param username    A username if one of the repositories might require authentication
+     * @param password    A password if one of the repositories might require authentication
+     * @param monitor     Callback for progress on the connection operation
+     * @param parentStack
      * @throws IOException                Occurs when the IO with the repository failed
      * @throws FailedLoginException       Occurs when a repository requires authentication and either
      *                                    no username and password were provided or they weren't
@@ -1048,10 +1052,10 @@ public class PluginInstallerGBean implements PluginInstaller {
      * @throws MissingDependencyException Occurs when none of the repositories has the artifact
      *                                    in question
      */
-    private static OpenResult openStream(Artifact artifact, List<String> repos, String username, String password, ResultsFileWriteMonitor monitor) throws IOException, FailedLoginException, MissingDependencyException {
+    private static OpenResult openStream(Artifact artifact, List<String> repos, String username, String password, ResultsFileWriteMonitor monitor, Stack<Artifact> parentStack) throws IOException, FailedLoginException, MissingDependencyException {
         if (artifact != null) {
             if (!artifact.isResolved() || artifact.getVersion().toString().indexOf("SNAPSHOT") >= 0) {
-                artifact = findArtifact(artifact, repos, username, password, monitor);
+                artifact = findArtifact(artifact, repos, username, password, monitor, parentStack);
             }
         }
         if (monitor != null) {
@@ -1065,7 +1069,7 @@ public class PluginInstallerGBean implements PluginInstaller {
         while (true) {
             if (list.isEmpty()) {
                 log.error("Unable to download dependency artifact=" + artifact);
-                throw new MissingDependencyException("Unable to download dependency " + artifact);
+                throw new MissingDependencyException("Unable to download dependency from repos " + repos, artifact, parentStack);
             }
             if (monitor != null) {
                 monitor.setTotalBytes(-1); // Just to be sure
@@ -1170,11 +1174,14 @@ public class PluginInstallerGBean implements PluginInstaller {
      * Searches for an artifact in the listed repositories, where the artifact
      * may have wildcards in the ID.
      */
-    private static Artifact findArtifact(Artifact query, List<String> repos, String username, String password, ResultsFileWriteMonitor monitor) throws MissingDependencyException {
-        if (query.getGroupId() == null || query.getArtifactId() == null || query.getType() == null) {
+    private static Artifact findArtifact(Artifact query, List<String> repos, String username, String password, ResultsFileWriteMonitor monitor, Stack<Artifact> parentStack) throws MissingDependencyException {
+        if (query.getGroupId() == null || query.getArtifactId() == null) {
             log.error("No support yet for dependencies missing more than a version: " + query);
             throw new MissingDependencyException(
-                    "No support yet for dependencies missing more than a version: " + query);
+                    "No support yet for dependencies missing more than a version: ", query, parentStack);
+        }
+        if (query.getType() == null) {
+            query = new Artifact(query.getGroupId(), query.getArtifactId(), query.getVersion(), "jar");
         }
         for (String repo : repos) {
             try {
@@ -1192,26 +1199,26 @@ public class PluginInstallerGBean implements PluginInstaller {
             }
         }
         log.error("No repository has a valid artifact for " + query);
-        throw new MissingDependencyException("No repository has a valid artifact for " + query);
+        throw new MissingDependencyException("Missing artifact in repositories: " + repos, query, parentStack);
     }
 
     /**
      * Checks for an artifact in a specific repository, where the artifact may
      * have wildcards in the ID.
      */
-    private static Artifact findArtifact(Artifact query, URL url, String username, String password, ResultsFileWriteMonitor monitor) throws IOException, FailedLoginException, ParserConfigurationException, SAXException {
-        if (query.isResolved() && testArtifact(query, url, username, password, monitor)) {
+    private static Artifact findArtifact(Artifact query, URL repo, String username, String password, ResultsFileWriteMonitor monitor) throws IOException, FailedLoginException, ParserConfigurationException, SAXException {
+        if (query.isResolved() && testArtifact(query, repo, username, password, monitor)) {
             return query;
         }
-        monitor.getResults().setCurrentMessage("Searching for " + query + " at " + url);
+        monitor.getResults().setCurrentMessage("Searching for " + query + " at " + repo);
         String base = query.getGroupId().replace('.', '/') + "/" + query.getArtifactId();
         String path = base + "/maven-metadata.xml";
-        URL metaURL = new URL(url.toString().trim().endsWith("/") ? url : new URL(url.toString().trim() + "/"), path);
+        URL metaURL = new URL(repo.toString().trim().endsWith("/") ? repo : new URL(repo.toString().trim() + "/"), path);
         InputStream in = connect(metaURL, username, password, monitor);
         if (in == null) {
             log.error("No meta-data file was found at " + metaURL.toString());
             path = base + "/maven-metadata-local.xml";
-            metaURL = new URL(url.toString().endsWith("/") ? url : new URL(url.toString() + "/"), path);
+            metaURL = new URL(repo.toString().endsWith("/") ? repo : new URL(repo.toString() + "/"), path);
             in = connect(metaURL, username, password, monitor);
         }
         if (in == null) {
@@ -1241,12 +1248,12 @@ public class PluginInstallerGBean implements PluginInstaller {
         }
         for (int i = available.length - 1; i >= 0; i--) {
             Version version = available[i];
-            URL metadataURL = new URL(url.toString().trim().endsWith("/") ? url : new URL(url.toString().trim() + "/"),
+            URL metadataURL = new URL(repo.toString().trim().endsWith("/") ? repo : new URL(repo.toString().trim() + "/"),
                     base + "/" + version + "/maven-metadata.xml");
             InputStream metadataStream = connect(metadataURL, username, password, monitor);
 
             if (metadataStream == null) {
-                metadataURL = new URL(url.toString().trim().endsWith("/") ? url : new URL(url.toString().trim() + "/"),
+                metadataURL = new URL(repo.toString().trim().endsWith("/") ? repo : new URL(repo.toString().trim() + "/"),
                         base + "/" + version + "/maven-metadata-local.xml");
                 metadataStream = connect(metadataURL, username, password, monitor);
             }
@@ -1276,14 +1283,14 @@ public class PluginInstallerGBean implements PluginInstaller {
             // look for the artifact in the maven repo
             Artifact verifiedArtifact = new Artifact(query.getGroupId(), query.getArtifactId(), version,
                     query.getType());
-            if (!testArtifact(verifiedArtifact, url, username, password, monitor)) {
-                log.debug("Maven repository " + url + " listed artifact " + query + " version " + version + " but I couldn't find it at " + getURL(verifiedArtifact, url));
+            if (!testArtifact(verifiedArtifact, repo, username, password, monitor)) {
+                log.debug("Maven repository " + repo + " listed artifact " + query + " version " + version + " but I couldn't find it at " + getURL(verifiedArtifact, repo));
                 continue;
             }
-            log.debug("Found artifact at " + getURL(verifiedArtifact, url));
+            log.debug("Found artifact at " + getURL(verifiedArtifact, repo));
             return verifiedArtifact;
         }
-        log.error("Could not find an acceptable version of artifact=" + query + " from Maven repository=" + url);
+        log.error("Could not find an acceptable version of artifact=" + query + " from Maven repository=" + repo);
         return null;
     }
 
@@ -1661,9 +1668,12 @@ public class PluginInstallerGBean implements PluginInstaller {
      * store.
      */
     private void installConfigXMLData(Artifact configID, PluginArtifactType pluginData) throws InvalidGBeanException, IOException {
-        if (configManager.isConfiguration(configID) && attributeStore != null
-                && pluginData != null && pluginData.getConfigXmlContent() != null) {
-            attributeStore.setModuleGBeans(configID, pluginData.getConfigXmlContent().getGbean());
+        if (configManager.isConfiguration(configID) && attributeStore != null) {
+            if (pluginData != null && pluginData.getConfigXmlContent() != null) {
+                attributeStore.setModuleGBeans(configID, pluginData.getConfigXmlContent().getGbean(), pluginData.getConfigXmlContent().isLoad());
+            } else {
+                attributeStore.setModuleGBeans(configID, null, true);
+            }
         }
         if (!pluginData.getConfigSubstitution().isEmpty() && attributeStore != null) {
             attributeStore.addConfigSubstitutions(toProperties(pluginData.getConfigSubstitution()));

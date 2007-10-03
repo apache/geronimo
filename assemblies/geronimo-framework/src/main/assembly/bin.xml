@@ -96,8 +96,8 @@
         </fileSet>
         
         <fileSet>
-            <directory>target/repository</directory>
-            <outputDirectory>repository</outputDirectory>
+            <directory>target/assembly</directory>
+            <outputDirectory>/</outputDirectory>
         </fileSet>
 
         <fileSet>
@@ -145,6 +145,7 @@
         NOTE: config.xml must be marked as writable or the server will complain when booting.
         -->
         
+<!--
         <fileSet>
             <directory>target/classes</directory>
             <outputDirectory>/</outputDirectory>
@@ -153,6 +154,13 @@
                 <include>var/config/config.xml</include>
             </includes>
         </fileSet>
+-->
+<!--
+        <fileSet>
+            <directory>target/var</directory>
+            <outputDirectory>/var</outputDirectory>
+        </fileSet>
+-->
     </fileSets>
 
 </assembly>

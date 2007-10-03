@@ -110,7 +110,7 @@ public class ConfigurationResolver {
                 return file;
             }
         }
-        throw new MissingDependencyException("Unable to resolve dependency " + artifact);
+        throw new MissingDependencyException(artifact);
     }
 
     public Set<URL> resolve(String pattern) throws MalformedURLException, NoSuchConfigException {
@@ -126,11 +126,11 @@ public class ConfigurationResolver {
     }
 
     public List<Dependency> resolveTransitiveDependencies(Collection<Configuration> parents, List<Dependency> dependencies) throws MissingDependencyException {
-        Stack<Dependency> parentStack = new Stack<Dependency>();
+        Stack<Artifact> parentStack = new Stack<Artifact>();
         return internalResolveTransitiveDependencies(parents, dependencies, parentStack);
     }
 
-    private List<Dependency> internalResolveTransitiveDependencies(Collection<Configuration> parents, List<Dependency> dependencies, Stack<Dependency> parentStack) throws MissingDependencyException {
+    private List<Dependency> internalResolveTransitiveDependencies(Collection<Configuration> parents, List<Dependency> dependencies, Stack<Artifact> parentStack) throws MissingDependencyException {
         List<Dependency> resolvedDependencies = new ArrayList<Dependency>();
         for (Dependency dependency1 : dependencies) {
             Dependency dependency = resolveDependency(parents, dependency1, parentStack);
@@ -140,7 +140,7 @@ public class ConfigurationResolver {
 
                 List<Dependency> childDependencies = getChildDependencies(dependency);
                 if (!childDependencies.isEmpty()) {
-                    parentStack.push(dependency);
+                    parentStack.push(dependency.getArtifact());
                     childDependencies = internalResolveTransitiveDependencies(parents, childDependencies, parentStack);
                     parentStack.pop();
                     resolvedDependencies.addAll(childDependencies);
@@ -150,7 +150,7 @@ public class ConfigurationResolver {
         return resolvedDependencies;
     }
 
-    private Dependency resolveDependency(Collection<Configuration> parents, Dependency dependency, Stack<Dependency> parentStack) throws MissingDependencyException {
+    private Dependency resolveDependency(Collection<Configuration> parents, Dependency dependency, Stack<Artifact> parentStack) throws MissingDependencyException {
         Artifact artifact = dependency.getArtifact();
 
         // we might need an artifact resolver at this point
@@ -159,23 +159,16 @@ public class ConfigurationResolver {
             if (artifact.isResolved()) {
                 return dependency;
             }
-            throw new MissingDependencyException("Artifact is not resolved and there no artifact resolver available: " + artifact);
+            throw new MissingDependencyException("Artifact is not resolved and there no artifact resolver available: ", artifact, parentStack);
         }
         
         // resolve the artifact
         try {
             artifact = artifactResolver.resolveInClassLoader(artifact, parents);
         } catch (MissingDependencyException e) {
-            // I'm throwing away the original error as the new message is lost on the stack as
-            // most folks will drill down to the message on the bottom of the stack.
-            StringBuffer sb = new StringBuffer();
-            sb.append(e.getMessage().trim()).append("\n"+"  Parent stack:\n");
-            boolean first = true;
-            for (Dependency d  : parentStack) {
-                sb.append("         ").append(d.getArtifact().toString().trim()).append((first?" (top)":"")).append("\n");
-                first = false;
-            }
-            throw new MissingDependencyException(sb.toString());
+            e.setQuery(artifact);
+            e.setStack(parentStack);
+            throw e;
         }
 
         // build a new dependency object to contain the resolved artifact

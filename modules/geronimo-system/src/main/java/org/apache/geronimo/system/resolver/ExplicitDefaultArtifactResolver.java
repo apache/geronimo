@@ -61,13 +61,15 @@ public class ExplicitDefaultArtifactResolver extends DefaultArtifactResolver imp
         if (versionMapLocation == null) {
             return null;
         }
-        File location = serverInfo == null? new File(versionMapLocation): serverInfo.resolveServer(versionMapLocation);
-        FileInputStream in = new FileInputStream(location);
         Properties properties = new Properties();
-        try {
-            properties.load(in);
-        } finally {
-            in.close();
+        File location = serverInfo == null? new File(versionMapLocation): serverInfo.resolveServer(versionMapLocation);
+        if (location.exists()) {
+            FileInputStream in = new FileInputStream(location);
+            try {
+                properties.load(in);
+            } finally {
+                in.close();
+            }
         }
         return propertiesToArtifactMap(properties);
     }
@@ -89,6 +91,12 @@ public class ExplicitDefaultArtifactResolver extends DefaultArtifactResolver imp
             return;
         }
         File location = serverInfo == null? new File(versionMapLocation): serverInfo.resolveServer(versionMapLocation);
+        if (!location.exists()) {
+            File parent = location.getParentFile();
+            if (!parent.mkdirs()) {
+                throw new IOException("Could not create directory for artifact aliases at " + location);
+            }
+        }
         FileOutputStream in = new FileOutputStream(location);
         Properties properties = artifactMapToProperties(artifactMap);
         try {

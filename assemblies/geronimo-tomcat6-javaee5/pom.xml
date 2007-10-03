@@ -40,11 +40,13 @@
     <dependencies>
         <dependency>
             <groupId>org.apache.geronimo.assemblies</groupId>
-            <artifactId>geronimo-boilerplate-javaee5</artifactId>
+            <artifactId>geronimo-framework</artifactId>
             <version>${version}</version>
+            <type>zip</type>
+            <classifier>bin</classifier>
             <scope>provided</scope>
         </dependency>
-        
+
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
             <artifactId>transformer-agent</artifactId>
@@ -58,21 +60,7 @@
             <version>${version}</version>
             <type>car</type>
         </dependency>
-        
-        <dependency>
-            <groupId>org.apache.geronimo.configs</groupId>
-            <artifactId>client-system</artifactId>
-            <version>${version}</version>
-            <type>car</type>
-        </dependency>
-        
-        <dependency>
-            <groupId>org.apache.geronimo.configs</groupId>
-            <artifactId>upgrade-cli</artifactId>
-            <version>${version}</version>
-            <type>car</type>
-        </dependency>
-        
+
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
             <artifactId>rmi-naming</artifactId>
@@ -219,7 +207,7 @@
             <version>${version}</version>
             <type>car</type>
         </dependency>
-        
+
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
             <artifactId>jasper-deployer</artifactId>
@@ -310,7 +298,7 @@
             <version>${version}</version>
             <type>car</type>
         </dependency>
-        
+
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
             <artifactId>axis2-deployer</artifactId>
@@ -324,7 +312,7 @@
             <version>${version}</version>
             <type>car</type>
         </dependency>
-        
+
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
             <artifactId>cxf-deployer</artifactId>
@@ -398,6 +386,13 @@
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
             <artifactId>shutdown</artifactId>
+            <version>${version}</version>
+            <type>car</type>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.geronimo.configs</groupId>
+            <artifactId>upgrade-cli</artifactId>
             <version>${version}</version>
             <type>car</type>
         </dependency>
@@ -490,11 +485,13 @@
                             <artifactItems>
                                 <artifactItem>
                                     <groupId>org.apache.geronimo.assemblies</groupId>
-                                    <artifactId>geronimo-boilerplate-javaee5</artifactId>
+                                    <artifactId>geronimo-framework</artifactId>
                                     <version>${version}</version>
+                                    <type>tar.gz</type>
+                                    <classifier>bin</classifier>
                                 </artifactItem>
                             </artifactItems>
-                            <outputDirectory>${project.build.directory}/boilerplate</outputDirectory>
+                            <outputDirectory>${project.build.directory}/unpack</outputDirectory>
                         </configuration>
                     </execution>
 
@@ -522,6 +519,23 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-antrun-plugin</artifactId>
                 <executions>
+                    <execution>
+                        <id>copy-</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                        <configuration>
+                            <tasks>
+                                <!-- remove geronimo-framework-${version} prefix -->
+                                <mkdir dir="${project.build.directory}/assembly"/>
+                                <copy todir="${project.build.directory}/assembly">
+                                    <fileset dir="${project.build.directory}/unpack/geronimo-framework-${version}">
+                                    </fileset>
+                                </copy>
+                            </tasks>
+                        </configuration>
+                    </execution>
                     <execution>
                         <id>pre-assembly</id>
                         <phase>package</phase>

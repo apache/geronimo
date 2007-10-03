@@ -43,8 +43,8 @@
                 <configuration>
                     <archive>
                         <manifestEntries>
-                            <Endorsed-Dirs>lib/endorsed</Endorsed-Dirs>
-                            <Extension-Dirs>lib/ext</Extension-Dirs>
+                            <Endorsed-Dirs>../lib/endorsed</Endorsed-Dirs>
+                            <Extension-Dirs>../lib/ext</Extension-Dirs>
                             <Premain-Class>org.apache.geronimo.transformer.TransformerAgent</Premain-Class>
                         </manifestEntries>
                     </archive>

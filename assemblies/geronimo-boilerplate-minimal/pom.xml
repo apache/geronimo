@@ -134,9 +134,16 @@
             <version>${version}</version>
         </dependency>
         
+        <dependency>
+            <groupId>org.apache.geronimo.modules</groupId>
+            <artifactId>geronimo-transformer</artifactId>
+            <version>${version}</version>
+        </dependency>
+
         <!--
         FIXME: Bad idea for plugins
         -->
+<!--
         <dependency>
             <groupId>javax.xml.bind</groupId>
             <artifactId>jaxb-api</artifactId>
@@ -161,7 +168,8 @@
             <groupId>org.apache.geronimo.specs</groupId>
             <artifactId>geronimo-activation_1.1_spec</artifactId>
         </dependency>
-        
+-->
+
         <!-- lib/endorsed Dependencies -->
         
         <dependency>
@@ -189,7 +197,14 @@
             <version>${version}</version>
             <type>car</type>
         </dependency>
-        
+
+        <dependency>
+            <groupId>org.apache.geronimo.configs</groupId>
+            <artifactId>transformer-agent</artifactId>
+            <version>${version}</version>
+            <type>car</type>
+        </dependency>
+
     </dependencies>
     
     <build>

@@ -107,7 +107,8 @@ public class DefaultArtifactResolver implements ArtifactResolver {
     public Artifact resolveInClassLoader(Artifact source, Collection<Configuration> parentConfigurations) throws MissingDependencyException {
         Artifact working = resolveVersion(parentConfigurations, source);
         if (working == null || !working.isResolved()) {
-            throw new MissingDependencyException("Unable to resolve dependency " + source);
+            //todo can parentConfigurations be included?
+            throw new MissingDependencyException(source);
         }
 
         return working;

@@ -114,6 +114,7 @@
                             <groupId>org.apache.geronimo.modules</groupId>
                             <artifactId>geronimo-jetty6-clustering-builder-wadi</artifactId>
                             <version>${version}</version>
+                            <type>jar</type>
                         </dependency>
 
                         <dependency>

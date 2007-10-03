@@ -74,14 +74,15 @@
                 <include>log4j:log4j</include>
                 <include>xpp3:xpp3</include>
                 <include>xstream:xstream</include>
-                <include>javax.xml.bind:jaxb-api</include>
-                <include>com.sun.xml.bind:jaxb-impl</include>
-                <include>woodstox:wstx-asl</include>
+                <!--<include>javax.xml.bind:jaxb-api</include>-->
+                <!--<include>com.sun.xml.bind:jaxb-impl</include>-->
+                <!--<include>woodstox:wstx-asl</include>-->
                 <include>org.apache.geronimo.modules:geronimo-cli</include>
                 <include>org.apache.geronimo.modules:geronimo-kernel</include>
                 <include>org.apache.geronimo.modules:geronimo-deploy-jsr88-bootstrapper</include>
-                <include>org.apache.geronimo.specs:geronimo-stax-api_1.0_spec</include>
-                <include>org.apache.geronimo.specs:geronimo-activation_1.1_spec</include>
+                <include>org.apache.geronimo.modules:geronimo-transformer</include>
+                <!--<include>org.apache.geronimo.specs:geronimo-stax-api_1.0_spec</include>-->
+                <!--<include>org.apache.geronimo.specs:geronimo-activation_1.1_spec</include>-->
             </includes>
         </dependencySet>
         
@@ -100,6 +101,15 @@
             <useStrictFiltering>true</useStrictFiltering>
             <includes>
                 <include>org.apache.geronimo.configs:shutdown</include>
+            </includes>
+        </dependencySet>
+
+        <dependencySet>
+            <outputDirectory>bin</outputDirectory>
+            <outputFileNameMapping>jpa.jar</outputFileNameMapping>
+            <useStrictFiltering>true</useStrictFiltering>
+            <includes>
+                <include>org.apache.geronimo.configs:transformer-agent</include>
             </includes>
         </dependencySet>
 

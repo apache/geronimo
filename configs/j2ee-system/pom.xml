@@ -204,7 +204,8 @@
                         <value>true</value>
                         <includeVersion>true</includeVersion>
                     </useMavenDependencies>
-
+                    <config-xml-content load = "false"/>
+                         
                 </configuration>
             </plugin>
         </plugins>

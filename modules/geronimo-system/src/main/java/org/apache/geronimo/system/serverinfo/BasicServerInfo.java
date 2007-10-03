@@ -48,10 +48,14 @@ public class BasicServerInfo implements ServerInfo {
         baseServerURI = null;
     }
     public BasicServerInfo(String defaultBaseDirectory) throws Exception {
+        this(defaultBaseDirectory, true);
+    }
+
+    public BasicServerInfo(String defaultBaseDirectory, boolean useSystemProperties) throws Exception {
         // Before we try the persistent value, we always check the
         // system properties first.  This lets an admin override this
         // on the command line.
-        this.baseDirectory = System.getProperty(HOME_DIR_SYS_PROP, defaultBaseDirectory);
+        this.baseDirectory = useSystemProperties? System.getProperty(HOME_DIR_SYS_PROP, defaultBaseDirectory): defaultBaseDirectory;
 
         // force load of server constants
         ServerConstants.getVersion();
@@ -70,11 +74,12 @@ public class BasicServerInfo implements ServerInfo {
         }
 
         baseURI = base.toURI();
-        System.setProperty(HOME_DIR_SYS_PROP, base.getAbsolutePath());
-
         baseServer = deriveBaseServer();
         baseServerURI = baseServer.toURI();
-        System.setProperty(SERVER_DIR_SYS_PROP, baseServer.getAbsolutePath());
+        if (useSystemProperties) {
+            System.setProperty(HOME_DIR_SYS_PROP, base.getAbsolutePath());
+            System.setProperty(SERVER_DIR_SYS_PROP, baseServer.getAbsolutePath());
+        }
         String tmpDir = resolveServerPath(System.getProperty("java.io.tmpdir"));       
         System.setProperty("java.io.tmpdir", tmpDir);
     }
@@ -173,7 +178,7 @@ public class BasicServerInfo implements ServerInfo {
             }
         } else {
             baseServerDir = new File(baseServerDirPath);
-            if (false == baseServerDir.isAbsolute()) {
+            if (!baseServerDir.isAbsolute()) {
                 baseServerDir = new File(base, baseServerDirPath);
             }
         }

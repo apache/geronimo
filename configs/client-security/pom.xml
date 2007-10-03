@@ -69,6 +69,16 @@
                         <deploymentConfig>${gbeanDeployer}</deploymentConfig>
                         <deploymentConfig>${j2eeDeployer}</deploymentConfig>
                     </deploymentConfigs>
+                    <category>Geronimo Core</category>
+                    <useMavenDependencies>
+                        <value>true</value>
+                        <includeVersion>true</includeVersion>
+                    </useMavenDependencies>
+                    <instance>
+                        <plugin-artifact>
+                            <config-xml-content load="false"/>
+                        </plugin-artifact>
+                    </instance>
                 </configuration>
             </plugin>
         </plugins>

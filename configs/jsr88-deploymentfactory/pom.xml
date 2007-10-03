@@ -128,6 +128,17 @@
                         </element>
                     </classpath>
                     <classpathPrefix>../lib</classpathPrefix>
+
+                    <useMavenDependencies>
+                        <value>true</value>
+                        <includeVersion>true</includeVersion>
+                    </useMavenDependencies>
+                    <category>Deployment</category>
+                    <instance>
+                        <plugin-artifact>
+                            <config-xml-content load="false"/>
+                        </plugin-artifact>
+                    </instance>
                 </configuration>
             </plugin>
         </plugins>

@@ -21,6 +21,7 @@
         <dep:dependency>
             <dep:groupId>org.apache.tomcat</dep:groupId>
             <dep:artifactId>catalina</dep:artifactId>
+            <dep:version>6.0.13-G543818</dep:version>
         </dep:dependency>
 
         <!--<dep:dependency>-->
@@ -46,16 +47,19 @@
         <dep:dependency>
             <dep:groupId>org.apache.tomcat</dep:groupId>
             <dep:artifactId>coyote</dep:artifactId>
+            <dep:version>6.0.13</dep:version>
         </dep:dependency>
         
         <dep:dependency>
             <dep:groupId>org.apache.tomcat.extras</dep:groupId>
             <dep:artifactId>juli</dep:artifactId>
+            <dep:version>6.0.13</dep:version>
         </dep:dependency>
 
         <dep:dependency>
             <dep:groupId>org.apache.tomcat.extras</dep:groupId>
             <dep:artifactId>juli-adapters</dep:artifactId>
+            <dep:version>6.0.13</dep:version>
         </dep:dependency>
         
 </dep:service>

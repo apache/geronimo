@@ -28,11 +28,11 @@ import org.apache.geronimo.kernel.repository.Artifact;
  * @version $Rev$ $Date$
  */
 public class DownloadResults implements Serializable, DownloadPoller {
-    private List removedConfigIDs = new ArrayList();
-    private List restartedConfigIDs = new ArrayList();
-    private List installedConfigIDs = new ArrayList();
-    private List dependenciesPresent = new ArrayList();
-    private List dependenciesInstalled = new ArrayList();
+    private List<Artifact> removedConfigIDs = new ArrayList<Artifact>();
+    private List<Artifact> restartedConfigIDs = new ArrayList<Artifact>();
+    private List<Artifact> installedConfigIDs = new ArrayList<Artifact>();
+    private List<Artifact> dependenciesPresent = new ArrayList<Artifact>();
+    private List<Artifact> dependenciesInstalled = new ArrayList<Artifact>();
     private String currentFile;
     private String currentMessage;
     private int currentFileProgress = -1;
@@ -131,7 +131,7 @@ public class DownloadResults implements Serializable, DownloadPoller {
      * line and the caller doesn't know what the Config IDs are.
      */
     public Artifact[] getInstalledConfigIDs() {
-        return (Artifact[]) installedConfigIDs.toArray(new Artifact[installedConfigIDs.size()]);
+        return installedConfigIDs.toArray(new Artifact[installedConfigIDs.size()]);
     }
 
     public Artifact[] getRemovedConfigIDs() {

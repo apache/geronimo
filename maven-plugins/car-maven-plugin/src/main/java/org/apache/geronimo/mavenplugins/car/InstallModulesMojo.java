@@ -19,44 +19,55 @@
 
 package org.apache.geronimo.mavenplugins.car;
 
-import org.apache.geronimo.kernel.config.InvalidConfigException;
-import org.apache.geronimo.kernel.config.NoSuchConfigException;
-import org.apache.geronimo.kernel.config.ConfigurationData;
-import org.apache.geronimo.kernel.repository.Artifact;
-import org.apache.geronimo.kernel.repository.ArtifactManager;
-import org.apache.geronimo.kernel.repository.ArtifactResolver;
-import org.apache.geronimo.kernel.repository.DefaultArtifactManager;
-import org.apache.geronimo.kernel.repository.Environment;
-import org.apache.geronimo.kernel.repository.FileWriteMonitor;
-import org.apache.geronimo.kernel.repository.Dependency;
-import org.apache.geronimo.kernel.repository.WritableListableRepository;
-import org.apache.geronimo.kernel.repository.Repository;
-import org.apache.geronimo.system.repository.Maven2Repository;
-import org.apache.geronimo.system.configuration.RepositoryConfigurationStore;
-import org.apache.geronimo.system.resolver.ExplicitDefaultArtifactResolver;
-
-import org.codehaus.mojo.pluginsupport.dependency.DependencyTree;
-
-import org.apache.maven.artifact.repository.ArtifactRepository;
-
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileReader;
+import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
-
-import java.util.Iterator;
-import java.util.HashSet;
-import java.util.LinkedHashSet;
-import java.util.Set;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.zip.ZipEntry;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Set;
 import java.util.jar.JarFile;
+import java.util.zip.ZipEntry;
 
+import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.kernel.basic.BasicKernel;
+import org.apache.geronimo.kernel.config.ConfigurationData;
+import org.apache.geronimo.kernel.config.ConfigurationManager;
+import org.apache.geronimo.kernel.config.InvalidConfigException;
+import org.apache.geronimo.kernel.config.KernelConfigurationManager;
+import org.apache.geronimo.kernel.config.NoSuchConfigException;
+import org.apache.geronimo.kernel.repository.Artifact;
+import org.apache.geronimo.kernel.repository.ArtifactManager;
+import org.apache.geronimo.kernel.repository.DefaultArtifactManager;
+import org.apache.geronimo.kernel.repository.Dependency;
+import org.apache.geronimo.kernel.repository.Environment;
+import org.apache.geronimo.kernel.repository.FileWriteMonitor;
+import org.apache.geronimo.kernel.repository.Repository;
+import org.apache.geronimo.kernel.repository.WritableListableRepository;
+import org.apache.geronimo.system.configuration.LocalAttributeManager;
+import org.apache.geronimo.system.configuration.RepositoryConfigurationStore;
+import org.apache.geronimo.system.plugin.DownloadResults;
+import org.apache.geronimo.system.plugin.PluginInstallerGBean;
+import org.apache.geronimo.system.plugin.model.ArtifactType;
+import org.apache.geronimo.system.plugin.model.PluginArtifactType;
+import org.apache.geronimo.system.plugin.model.PluginListType;
+import org.apache.geronimo.system.plugin.model.PluginType;
+import org.apache.geronimo.system.repository.Maven2Repository;
+import org.apache.geronimo.system.resolver.AliasedArtifactResolver;
+import org.apache.geronimo.system.resolver.ExplicitDefaultArtifactResolver;
+import org.apache.geronimo.system.serverinfo.BasicServerInfo;
+import org.apache.geronimo.system.serverinfo.ServerInfo;
+import org.apache.geronimo.system.threads.ThreadPool;
+import org.apache.maven.artifact.repository.ArtifactRepository;
+import org.codehaus.mojo.pluginsupport.dependency.DependencyTree;
 import org.codehaus.plexus.util.FileUtils;
 
 /**
@@ -69,12 +80,36 @@ public class InstallModulesMojo
     extends AbstractCarMojo
 {
     /**
-     * The location of the target repository.
+     * The location of the server repository.
      *
-     * @parameter expression="${project.build.directory}/repository"
+     * @parameter expression="${project.build.directory}/assembly"
      * @required
      */
+    private File targetServerDirectory = null;
+
+    /**
+     * The location of the target repository.
+     *
+     * @parameter expression="repository"
+     * @required
+     */
+    private String targetRepositoryPath = null;
     private File targetRepositoryDirectory = null;
+
+    /**
+     * The location of the target config files.
+     *
+     * @parameter expression="var/config"
+     * @required
+     */
+    private String targetConfigPath = null;
+    private File targetConfigDirectory = null;
+
+    //TODO configure these in geronimo-plugin.xml
+    private String configFile = "var/config/config.xml";
+    private String configSubstitutionsFileName = "var/config/config-substitutions.properties";
+    private String configSubstitutionsPrefix = "org.apache.geronimo.configSubstitution";
+    private String artifactAliasesFileName = "var/config/artifact_aliases.properties";
 
     /**
      * Configuration to be installed specified as groupId/artifactId/version/type
@@ -109,7 +144,7 @@ public class InstallModulesMojo
      * injects the Maven resolver into the base-class.
      * </p>
      */
-    private ArtifactResolver geronimoArtifactResolver;
+    private AliasedArtifactResolver geronimoArtifactResolver;
 
     private WritableListableRepository targetRepo;
 
@@ -125,8 +160,10 @@ public class InstallModulesMojo
     private Set installedArtifacts = new HashSet();
 
     protected void doExecute() throws Exception {
+        targetRepositoryDirectory = new File(targetServerDirectory, targetRepositoryPath);
+        targetConfigDirectory = new File(targetServerDirectory, targetConfigPath);
         DependencyTree dependencies = dependencyHelper.getDependencies(project);
-        generateExplicitVersionProperties(explicitResolutionProperties, dependencies);
+//        generateExplicitVersionProperties(explicitResolutionProperties, dependencies);
 
         //
         // TODO: Check if we need to use the Maven2RepositoryAdapter here or not...
@@ -138,50 +175,99 @@ public class InstallModulesMojo
         sourceStore = new RepositoryConfigurationStore(sourceRepo);
 
         FileUtils.forceMkdir(targetRepositoryDirectory);
+        FileUtils.forceMkdir(targetConfigDirectory);
 
         targetRepo = new Maven2Repository(targetRepositoryDirectory);
         targetStore = new RepositoryConfigurationStore(targetRepo);
 
         ArtifactManager artifactManager = new DefaultArtifactManager();
+
+        Kernel kernel = new BasicKernel("assembly");
+        ServerInfo serverInfo = new BasicServerInfo(targetServerDirectory.getAbsolutePath(), false);
         geronimoArtifactResolver = new ExplicitDefaultArtifactResolver(
-                explicitResolutionProperties.getPath(),
+                artifactAliasesFileName,
                 artifactManager,
-                Collections.singleton(sourceRepo),
-                null);
+                Collections.singleton(targetRepo),
+                serverInfo);
+        ThreadPool threadPool = null;
+        LocalAttributeManager attributeStore = new LocalAttributeManager(configFile, configSubstitutionsFileName, configSubstitutionsPrefix, false, serverInfo);
+        ConfigurationManager configurationManager = new KernelConfigurationManager(kernel,
+                Collections.singleton(targetStore),
+                attributeStore,
+                attributeStore,
+                artifactManager,
+                geronimoArtifactResolver,
+                Collections.singleton(targetRepo),
+                null,
+                getClass().getClassLoader());
+//
+        PluginInstallerGBean installer = new PluginInstallerGBean(configurationManager,
+                targetRepo,
+                targetStore,
+                serverInfo,
+                threadPool,
+                attributeStore,
+                geronimoArtifactResolver);
+        DownloadResults downloadPoller = new DownloadResults();
+
+        PluginListType pluginList = new PluginListType();
+        pluginList.getDefaultRepository().add(sourceRepository.getUrl());
+        for (org.apache.maven.model.Repository repository: (List<org.apache.maven.model.Repository>)project.getRepositories()) {
+            pluginList.getDefaultRepository().add(repository.getUrl());
+        }
 
         if (artifact != null) {
-            install(Artifact.create(artifact));
+            pluginList.getPlugin().add(toPluginType(Artifact.create(artifact)));
         } else {
-            Iterator iter = getDependencies().iterator();
-            while (iter.hasNext()) {
-
-                Artifact artifact = mavenToGeronimoArtifact((org.apache.maven.artifact.Artifact) iter.next());
-                if (isModuleArtifact(artifact)) {
-                    install(artifact);
-                }
-            }
+            addDependencies(pluginList);
         }
+
+        installer.install(pluginList, null, null, downloadPoller);
+        //ensure config.xml is saved.
+        attributeStore.save();
+        log.info("Installed plugins: ");
+        for (Artifact artifact: downloadPoller.getInstalledConfigIDs()) {
+            log.info("   " + artifact);
+        }
+        log.info("Installed dependencies: ");
+        for (Artifact artifact: downloadPoller.getDependenciesInstalled()) {
+            log.info("    " + artifact);
+        }
+        if (downloadPoller.isFailed()) {
+            throw downloadPoller.getFailure();
+        }
+    }
+
+    private PluginType toPluginType(Artifact artifact) {
+        PluginType plugin = new PluginType();
+        PluginArtifactType instance = new PluginArtifactType();
+        ArtifactType artifactType = PluginInstallerGBean.toArtifactType(artifact);
+        instance.setModuleId(artifactType);
+        plugin.getPluginArtifact().add(instance);
+        return plugin;
     }
 
     /**
      * Retrieves all artifact dependencies.
      *
-     * @return A HashSet of artifacts
+     * @param pluginList PluginListType to add dependencies to as PluginType instances.
      */
-    protected Set getDependencies() {
-        Set dependenciesSet = new HashSet();
+    protected void addDependencies(PluginListType pluginList) {
 
         org.apache.maven.artifact.Artifact artifact = project.getArtifact();
-        if (artifact != null && artifact.getFile() != null) {
-            dependenciesSet.add(artifact);
+        if (artifact != null && ("car".equals(artifact.getType()) || "jar".equals(artifact.getType())) && artifact.getFile() != null) {
+            pluginList.getPlugin().add(toPluginType(mavenToGeronimoArtifact(artifact)));
         }
 
-        Set projectArtifacts = project.getArtifacts();
+        List<org.apache.maven.model.Dependency> projectArtifacts = project.getModel().getDependencies();
         if (projectArtifacts != null) {
-            dependenciesSet.addAll(projectArtifacts);
+            for (org.apache.maven.model.Dependency dependency: projectArtifacts) {
+                if (dependency.getScope() == null || "compile".equals(dependency.getScope())) {
+                    pluginList.getPlugin().add(toPluginType(mavenToGeronimoArtifact(dependency)));
+                }
+            }
         }
 
-        return dependenciesSet;
     }
 
     /**

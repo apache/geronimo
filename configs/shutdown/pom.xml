@@ -21,7 +21,7 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
     <modelVersion>4.0.0</modelVersion>
-    
+
     <parent>
         <groupId>org.apache.geronimo.configs</groupId>
         <artifactId>configs</artifactId>
@@ -69,7 +69,7 @@
             <artifactId>jline</artifactId>
         </dependency>
     </dependencies>
-    
+
     <build>
         <plugins>
             <plugin>
@@ -85,7 +85,7 @@
                             <mainClass>org.apache.geronimo.kernel.util.MainBootstrapper</mainClass>
                         </manifest>
                     </archive>
-                    
+
                     <!--
                     NOTE: This list of dependencies is non-transitive.
                     -->
@@ -109,6 +109,16 @@
                         </element>
                     </classpath>
                     <classpathPrefix>../lib</classpathPrefix>
+                    <category>Geronimo Core</category>
+                    <useMavenDependencies>
+                        <value>true</value>
+                        <includeVersion>true</includeVersion>
+                    </useMavenDependencies>
+                    <instance>
+                        <plugin-artifact>
+                            <config-xml-content load="false"/>
+                        </plugin-artifact>
+                    </instance>
                 </configuration>
             </plugin>
         </plugins>

@@ -75,6 +75,11 @@
             <groupId>org.apache.tomcat</groupId>
             <artifactId>juli</artifactId>
         </dependency>
+        <dependency>
+            <groupId>concurrent</groupId>
+            <artifactId>concurrent</artifactId>
+            <version>1.3.4</version>
+        </dependency>
     </dependencies>
 
     <build>
@@ -98,19 +103,8 @@
                                 <gbean name="DefaultDispatcherHolder">
                                     <attribute name="endPointURI">#{EndPointURI}</attribute>
                                     <attribute name="clusterName">#{ClusterName}</attribute>
-                                    <reference name="Node">
-                                        <name>Node</name>
-                                    </reference>
                                 </gbean>
 
-                                <gbean name="DefaultCluster">
-                                    <reference name="Node">
-                                        <name>Node</name>
-                                    </reference>
-                                    <reference name="DispatcherHolder">
-                                        <name>DefaultDispatcherHolder</name>
-                                    </reference>
-                                </gbean>
                             </config-xml-content>
                             <config-substitution key="ReplicaCount">2</config-substitution>
                             <config-substitution key="EndPointURI">http://localhost:8080</config-substitution>

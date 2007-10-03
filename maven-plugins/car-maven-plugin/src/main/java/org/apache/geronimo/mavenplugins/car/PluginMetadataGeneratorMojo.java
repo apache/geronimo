@@ -32,6 +32,7 @@ import org.apache.geronimo.system.plugin.model.DependencyType;
 import org.apache.geronimo.system.plugin.model.LicenseType;
 import org.apache.geronimo.system.plugin.model.PluginArtifactType;
 import org.apache.geronimo.system.plugin.model.PluginType;
+import org.apache.geronimo.system.plugin.model.ConfigXmlContentType;
 import org.apache.maven.model.License;
 import org.codehaus.plexus.configuration.PlexusConfiguration;
 import org.codehaus.plexus.util.xml.Xpp3Dom;
@@ -153,7 +154,7 @@ public class PluginMetadataGeneratorMojo
             }
             if ((instance.getConfigXmlContent() == null || instance.getConfigXmlContent().getGbean().isEmpty())
                     && (commonInstance.getConfigXmlContent() != null && !commonInstance.getConfigXmlContent().getGbean().isEmpty())) {
-                instance.setConfigXmlContent(new PluginArtifactType.ConfigXmlContent());
+                instance.setConfigXmlContent(new ConfigXmlContentType());
                 instance.getConfigXmlContent().getGbean().addAll(commonInstance.getConfigXmlContent().getGbean());
             }
             if (instance.getCopyFile().isEmpty()) {

@@ -205,15 +205,19 @@ public class LocalAttributeManager implements PluginAttributeStore, PersistentCo
         return gbean.applyOverrides(data, configName, gbeanName, classLoader);
     }
 
-    public void setModuleGBeans(Artifact moduleName, List<GbeanType> gbeans) throws InvalidGBeanException {
+    public void setModuleGBeans(Artifact moduleName, List<GbeanType> gbeans, boolean load) throws InvalidGBeanException {
         if (readOnly) {
             return;
         }
         ConfigurationOverride configuration = serverOverride.getConfiguration(moduleName, true);
-        for (GbeanType gbean : gbeans) {
-            GBeanOverride override = new GBeanOverride(gbean, expressionParser);
-            configuration.addGBean(override);
+        if (gbeans != null) {
+            for (GbeanType gbean : gbeans) {
+                GBeanOverride override = new GBeanOverride(gbean, expressionParser);
+                configuration.addGBean(override);
+            }
         }
+        configuration.setLoad(load);
+        log.info("Added gbeans for module: " + moduleName + " load: " + load);
         attributeChanged();
     }
 
