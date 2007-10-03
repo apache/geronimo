@@ -41,6 +41,7 @@
 
     <!-- default WAR container using Jetty -->
     <gbean name="JettyWebContainer" class="org.apache.geronimo.jetty6.JettyContainerImpl">
+        <attribute name="jettyHome">var/jetty</attribute>
         <reference name="WebManager">
             <name>JettyWebManager</name>
         </reference>
