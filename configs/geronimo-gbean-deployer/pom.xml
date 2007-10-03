@@ -32,6 +32,10 @@
     <artifactId>geronimo-gbean-deployer</artifactId>
     <name>Geronimo Configs :: GBean Deployer</name>
     <packaging>car</packaging>
+
+    <description>
+        The GBean Deployer
+    </description>
     
     <dependencies>
 
@@ -95,6 +99,21 @@
                         <deploymentConfig>${gbeanDeployerBootstrap}</deploymentConfig>
                     </deploymentConfigs>
                     <deployerName>org.apache.geronimo.configs/geronimo-gbean-deployer-bootstrap/${geronimoVersion}/car?j2eeType=Deployer,name=Deployer</deployerName>
+
+                    <category>Geronimo Core</category>
+                    <useMavenDependencies>
+                        <value>true</value>
+                        <includeVersion>true</includeVersion>
+                    </useMavenDependencies>
+                    <instance>
+                        <plugin-artifact>
+                            <config-xml-content>
+                                <gbean name="Deployer">
+                                    <attribute name="remoteDeployAddress">http://#{RemoteDeployHostname}:#{HTTPPortPrimary + PortOffset}</attribute>
+                                </gbean>
+                            </config-xml-content>
+                        </plugin-artifact>
+                    </instance>
                 </configuration>
             </plugin>
         </plugins>
