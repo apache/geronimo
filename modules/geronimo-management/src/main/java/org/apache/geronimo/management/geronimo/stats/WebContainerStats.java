@@ -82,7 +82,7 @@ public interface WebContainerStats extends Stats {
     /**
      * Gets the time duration that stats have been active.
      */
-    TimeStatistic getStatsOnMs();
+    CountStatistic getStatsOnMs();
 
     /**
      * Gets the current state of statistics collection (on or off)

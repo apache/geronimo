@@ -41,7 +41,7 @@ public class JettyWebContainerStatsImpl extends StatsImpl implements JettyWebCon
     private CountStatisticImpl response3xx;
     private CountStatisticImpl response4xx;
     private CountStatisticImpl response5xx;
-    private TimeStatisticImpl statsOnMs;               // time elapsed since the stats collection
+    private CountStatisticImpl statsOnMs;               // time elapsed since the stats collection
 
     private boolean statsOn=false;
 
@@ -52,7 +52,7 @@ public class JettyWebContainerStatsImpl extends StatsImpl implements JettyWebCon
                 "The number of requests being processed concurrently");
         requestDuration = new TimeStatisticImpl("Request Duration", StatisticImpl.UNIT_TIME_MILLISECOND,
                 "The length of time that it's taken to handle individual requests");
-        requestDurationAvg = new CountStatisticImpl("Request Duration Average", StatisticImpl.UNIT_COUNT,
+        requestDurationAvg = new CountStatisticImpl("Request Duration Average", StatisticImpl.UNIT_TIME_MILLISECOND,
                 "The average length of time that it's taken to handle individual requests");
         response1xx = new CountStatisticImpl("Response 1xx", StatisticImpl.UNIT_COUNT,
                 "The number of 1xx responses");
@@ -64,7 +64,7 @@ public class JettyWebContainerStatsImpl extends StatsImpl implements JettyWebCon
                 "The number of 4xx responses");
         response5xx = new CountStatisticImpl("Response 5xx", StatisticImpl.UNIT_COUNT,
                 "The number of 5xx responses");
-        statsOnMs = new TimeStatisticImpl("Stats Duration", StatisticImpl.UNIT_TIME_MILLISECOND,
+        statsOnMs = new CountStatisticImpl("Stats Duration", StatisticImpl.UNIT_TIME_MILLISECOND,
                 "The length of time that statistics have been collected.");
 
         addStat("TotalRequestCount", totalRequestCount);
@@ -152,7 +152,7 @@ public class JettyWebContainerStatsImpl extends StatsImpl implements JettyWebCon
     /**
      * @return Time in millis since statistics collection was started.
      */
-    public TimeStatistic getStatsOnMs() {
+    public CountStatistic getStatsOnMs() {
         return statsOnMs;
     }
 
@@ -220,7 +220,7 @@ public class JettyWebContainerStatsImpl extends StatsImpl implements JettyWebCon
     /**
      * @return Time in millis since statistics collection was started.
      */
-    public TimeStatisticImpl getStatsOnMsImpl() {
+    public CountStatisticImpl getStatsOnMsImpl() {
         return statsOnMs;
     }
 }
