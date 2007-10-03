@@ -32,6 +32,10 @@
     <artifactId>system-database</artifactId>
     <name>Geronimo Configs :: System Database</name>
     <packaging>car</packaging>
+
+    <description>
+        System database plugin for geronimo.  This provides system databse together with its dependencies as one dependency.
+    </description>
     
     <dependencies>
                 
@@ -42,6 +46,7 @@
             <type>car</type>
             <scope>test</scope>
         </dependency>
+
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
             <artifactId>transaction</artifactId>
@@ -113,6 +118,41 @@
                         <artifactId>tranql-connector-derby-embed-xa</artifactId>
                         <type>rar</type>
                     </module>
+                    <useMavenDependencies>
+                        <value>true</value>
+                        <includeVersion>true</includeVersion>
+                    </useMavenDependencies>
+                    <category>Geronimo Core</category>
+                     <instance>
+                        <plugin-artifact>
+                           <config-xml-content>
+                               <gbean name="DerbyNetwork">
+                                   <attribute name="host">#{ServerHostname}</attribute>
+                                   <attribute name="port">#{DerbyPort + PortOffset}</attribute>
+                               </gbean>
+                           </config-xml-content>
+                           <prerequisite>
+                               <id>
+                                   <groupId>org.apache.geronimo.configs</groupId>
+                                   <artifactId>transaction</artifactId>
+                               </id>
+                               <resource-type>Transaction</resource-type>
+                               <description>
+                                  Transaction configuration for Geronimo.
+                               </description>
+                            </prerequisite>
+                           <prerequisite>
+                             <id>
+                                 <groupId>org.apache.geronimo.configs</groupId>
+                                 <artifactId>connector-deployer</artifactId>
+                             </id>
+                               <resource-type>Deployment</resource-type>
+                               <description>
+                                  Connector deployer configuration for Geronimo.
+                               </description>
+                           </prerequisite>
+                        </plugin-artifact>
+                     </instance>
                 </configuration>
             </plugin>
         </plugins>

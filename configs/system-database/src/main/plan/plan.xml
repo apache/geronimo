@@ -15,58 +15,6 @@
     limitations under the License.-->
 <!--$Rev$ $Date$-->
 <connector xmlns="http://geronimo.apache.org/xml/ns/j2ee/connector-1.2">
-  <dep:environment xmlns:dep="http://geronimo.apache.org/xml/ns/deployment-1.2">
-    <dep:moduleId>
-      <dep:groupId>org.apache.geronimo.configs</dep:groupId>
-      <dep:artifactId>system-database</dep:artifactId>
-      <dep:version>2.1-SNAPSHOT</dep:version>
-      <dep:type>car</dep:type>
-    </dep:moduleId>
-    <dep:dependencies>
-      <dep:dependency>
-        <dep:groupId>org.apache.derby</dep:groupId>
-        <dep:artifactId>derby</dep:artifactId>
-        <dep:version>10.2.2.0</dep:version>
-        <dep:type>jar</dep:type>
-        <dep:import>classes</dep:import>
-      </dep:dependency>
-      <dep:dependency>
-        <dep:groupId>org.apache.geronimo.configs</dep:groupId>
-        <dep:artifactId>transaction</dep:artifactId>
-        <dep:type>car</dep:type>
-      </dep:dependency>
-      <dep:dependency>
-        <dep:groupId>org.apache.geronimo.modules</dep:groupId>
-        <dep:artifactId>geronimo-derby</dep:artifactId>
-        <dep:version>2.1-SNAPSHOT</dep:version>
-        <dep:type>jar</dep:type>
-        <dep:import>classes</dep:import>
-      </dep:dependency>
-      <dep:dependency>
-        <dep:groupId>org.apache.geronimo.modules</dep:groupId>
-        <dep:artifactId>geronimo-timer</dep:artifactId>
-        <dep:version>2.1-SNAPSHOT</dep:version>
-        <dep:type>jar</dep:type>
-        <dep:import>classes</dep:import>
-      </dep:dependency>
-      <dep:dependency>
-        <dep:groupId>org.apache.derby</dep:groupId>
-        <dep:artifactId>derbyclient</dep:artifactId>
-        <dep:version>10.2.2.0</dep:version>
-        <dep:type>jar</dep:type>
-        <dep:import>classes</dep:import>
-      </dep:dependency>
-      <dep:dependency>
-        <dep:groupId>org.apache.derby</dep:groupId>
-        <dep:artifactId>derbynet</dep:artifactId>
-        <dep:version>10.2.2.0</dep:version>
-        <dep:type>jar</dep:type>
-        <dep:import>classes</dep:import>
-      </dep:dependency>
-    </dep:dependencies>
-    <dep:hidden-classes/>
-    <dep:non-overridable-classes/>
-  </dep:environment>
   <resourceadapter>
     <outbound-resourceadapter>
       <connection-definition>
