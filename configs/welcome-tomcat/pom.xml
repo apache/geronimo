@@ -32,6 +32,13 @@
     <artifactId>welcome-tomcat</artifactId>
     <name>Geronimo Configs :: Welcome app Tomcat</name>
     <packaging>car</packaging>
+
+     <description>
+       The welcome application for Geronimo. 
+       This binds to / so it handles all requests that nothing else is bound to. 
+       The main purpose is to greet users who are exploring Geronimo for the first time. 
+       It should typically be removed or replaced for production applications.
+   </description> 
     
     <dependencies>
         
@@ -40,8 +47,8 @@
             <artifactId>geronimo-welcome</artifactId>
             <version>${version}</version>
             <type>war</type>
+            <scope>provided</scope>
         </dependency>
-        
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
             <artifactId>tomcat6-deployer</artifactId>
@@ -90,6 +97,28 @@
                         <version>${version}</version>
                         <type>war</type>
                     </module>
+                    <useMavenDependencies>
+                        <value>true</value>
+                        <includeVersion>true</includeVersion>
+                    </useMavenDependencies>
+                    <category>Administration</category>
+                    <instance>
+                        <plugin-artifact>
+                            <prerequisite>
+                                <id>
+                                    <groupId>org.apache.geronimo.configs</groupId>
+                                    <artifactId>tomcat</artifactId>
+                                </id>
+                                <resource-type>Web Container</resource-type>
+                                <description>
+                                    This version of the Welcome application works with the Geronimo/Tomcat distribution. 
+                                    It is not intended to run in the Geronimo/Jetty distribution. 
+                                    There is a separate version of the Welcome application that works with Jetty. 
+                                    Please install the version appropriate to your Geronimo distribution.
+                                </description> 
+                            </prerequisite>
+                        </plugin-artifact>
+                    </instance>
                 </configuration>
             </plugin>
         </plugins>

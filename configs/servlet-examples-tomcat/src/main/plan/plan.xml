@@ -15,23 +15,6 @@
     limitations under the License.-->
 <!--$Rev$ $Date$-->
 <web-app xmlns="http://geronimo.apache.org/xml/ns/j2ee/web/tomcat-1.2">
-  <dep:environment xmlns:dep="http://geronimo.apache.org/xml/ns/deployment-1.2">
-    <dep:moduleId>
-      <dep:groupId>org.apache.geronimo.configs</dep:groupId>
-      <dep:artifactId>servlet-examples-tomcat</dep:artifactId>
-      <dep:version>2.1-SNAPSHOT</dep:version>
-      <dep:type>car</dep:type>
-    </dep:moduleId>
-    <dep:dependencies>
-      <dep:dependency>
-        <dep:groupId>org.apache.geronimo.configs</dep:groupId>
-        <dep:artifactId>jasper</dep:artifactId>
-        <dep:type>car</dep:type>
-      </dep:dependency>
-    </dep:dependencies>
-    <dep:hidden-classes/>
-    <dep:non-overridable-classes/>
-  </dep:environment>
   <context-root>/servlets-examples</context-root>
   <security-realm-name>geronimo-admin</security-realm-name>
   <security>
