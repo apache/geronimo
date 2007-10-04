@@ -211,7 +211,12 @@ public class InstallModulesMojo
         DownloadResults downloadPoller = new DownloadResults();
 
         PluginListType pluginList = new PluginListType();
-        pluginList.getDefaultRepository().add(sourceRepository.getUrl());
+        String localRepo = sourceRepository.getUrl();
+        if ("file".equals(sourceRepository.getProtocol())) {
+            File localRepoDir = new File(sourceRepository.getBasedir());
+            localRepo = localRepoDir.toURI().toString();
+        }
+        pluginList.getDefaultRepository().add(localRepo);
         for (org.apache.maven.model.Repository repository: (List<org.apache.maven.model.Repository>)project.getRepositories()) {
             pluginList.getDefaultRepository().add(repository.getUrl());
         }
