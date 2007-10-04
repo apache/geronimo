@@ -40,7 +40,7 @@ public class ProgressBarStartupMonitor implements StartupMonitor {
     private final static char STATUS_LOADED = '>';
     private final static char STATUS_STARTED = '*';
     private final static char STATUS_FAILED = 'x';
-    private final static int MAX_WIDTH = 70;
+    private final static int MAX_WIDTH = 79;
     private PrintStream out;
     private String currentOperation;
     private Artifact[] modules;
@@ -175,12 +175,13 @@ public class ProgressBarStartupMonitor implements StartupMonitor {
         }
         buf.append(time).append("s ");
         if (currentOperation.length() > operationLimit) {
-            int space = currentOperation.indexOf(' ', 5);
-            buf.append(currentOperation.substring(0, space + 1));
+            buf.append(currentOperation.substring(0, operationLimit - 3)).append("...");
+            // int space = currentOperation.indexOf(' ', 5);
+            // buf.append(currentOperation.substring(0, space + 1));
             // "Foo BarBarBar" limit 9 = "Foo ...ar" = 13 - 9 + 3 + 1 + 3
             // buf.append("...").append(currentOperation.substring(currentOperation.length()-operationLimit+space+4));
             // "FooBar BarBarBar" limit 12 = "FooBar Ba..." = (7, 12-3)
-            buf.append(currentOperation.substring(space + 1, operationLimit - 3)).append("...");
+            // buf.append(currentOperation.substring(space + 1, operationLimit - 3)).append("...");
         } else {
             buf.append(currentOperation);
             for (int i = currentOperation.length(); i < operationLimit; i++) {
