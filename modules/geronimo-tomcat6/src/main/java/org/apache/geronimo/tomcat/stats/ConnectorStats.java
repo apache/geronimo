@@ -24,11 +24,11 @@ import javax.management.MBeanServer;
 import javax.management.ObjectInstance;
 import javax.management.ObjectName;
 import javax.management.j2ee.statistics.Stats;
+import org.apache.geronimo.management.geronimo.stats.TomcatWebConnectorStatsImpl;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.tomcat.util.modeler.Registry;
-import org.apache.geronimo.management.stats.WebConnectorStatsImpl;
 
 /**
  * This will query MBeanServer and provide jsr77 Stats for connectors.
@@ -45,7 +45,7 @@ public class ConnectorStats {
 
     private ObjectName tpName;
 
-    private WebConnectorStatsImpl stats = new WebConnectorStatsImpl();
+    private TomcatWebConnectorStatsImpl stats = new TomcatWebConnectorStatsImpl();
 
     public ConnectorStats() {
         // Retrieve the MBean server
@@ -72,7 +72,7 @@ public class ConnectorStats {
 
     }
 
-    private void updateStats(WebConnectorStatsImpl stats, String port) {
+    private void updateStats(TomcatWebConnectorStatsImpl stats, String port) {
         Iterator iterator;
         Set set;
         ObjectName objectName;

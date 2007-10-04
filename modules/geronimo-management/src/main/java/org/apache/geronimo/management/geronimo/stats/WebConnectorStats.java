@@ -17,10 +17,8 @@
 
 package org.apache.geronimo.management.geronimo.stats;
 
-import javax.management.j2ee.statistics.Stats;
 import javax.management.j2ee.statistics.RangeStatistic;
-import javax.management.j2ee.statistics.TimeStatistic;
-import javax.management.j2ee.statistics.CountStatistic;
+import javax.management.j2ee.statistics.Stats;
 
 /**
  * Statistics exposed by a Tomcat web connector (http, https)
@@ -29,52 +27,10 @@ import javax.management.j2ee.statistics.CountStatistic;
  */
 public interface WebConnectorStats extends Stats {
 
-    /**
-     * Gets the Time statistics (count, total, Max, Min) for requests (includes
-     * figures across all requests since statistics gathering started)
-     */
-    TimeStatistic getRequestTime();
-
-    /**
-     * Gets the number of errors that have been returned since statistics
-     * gathering started.
-     */
-    CountStatistic getErrorCount();
-
-    /**
-     * Gets the number of requests being processed concurrently (as well as the
-     * min and max since statistics gathering started).
-     */
-    RangeStatistic getActiveRequestCount();
-    
+    // TODO - check if some other stats can be merged
     /**
      * Gets the number of connections currently open (as well as the min and max
      * since statistics gathering started).
      */
     RangeStatistic getOpenConnectionCount();
-    
-    /**
-     * Gets the number of threads currently available (as well as min and max 
-     * since statistics gathering started.
-     * current - The number of threads currently in the pool (currentThreadCount)
-     *         - the number of threads currently serving requests (currentThreadBusy)
-     *  HiMark    - The maximum number of unused threads that will be allowed to exist 
-     *              until the thread pool starts stopping the unnecessary threads(maxSpareThread)
-     * UpperBound - The max number of threads created by the connector (maxThreads)
-     * LowerBound - The number of threads created by the connector in the begining (minSpareThread)
-     */        
-    // This could be a container statistics
-    RangeStatistic getSpareThreadCount();
-    
-    /**
-     * Gets the number of requests handled by a particular connection (as well
-     * as the min(?) and max since statistics gathering started).
-     */
-    // RangeStatistic getConnectionRequestCount();
-
-    /**
-     * Gets the legnth of time that connections have been open (includes figures
-     * across all connections open at present)
-     */
-    // TimeStatistic getConnectionDuration();
 }

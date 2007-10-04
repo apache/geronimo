@@ -57,7 +57,7 @@ import org.mortbay.jetty.security.FormAuthenticator;
 public class AbstractWebModuleTest extends TestSupport {
     protected ClassLoader cl;
     protected final static String securityRealmName = "demo-properties-realm";
-    private HTTPSocketConnector connector;
+    protected HTTPSocketConnector connector;
     protected JettyContainerImpl container;
     private TransactionManager transactionManager;
     private ConnectionTrackingCoordinator connectionTrackingCoordinator;

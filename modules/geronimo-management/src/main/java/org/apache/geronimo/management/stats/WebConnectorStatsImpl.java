@@ -17,9 +17,7 @@
 
 package org.apache.geronimo.management.stats;
 
-import javax.management.j2ee.statistics.CountStatistic;
 import javax.management.j2ee.statistics.RangeStatistic;
-import javax.management.j2ee.statistics.TimeStatistic;
 
 import org.apache.geronimo.management.geronimo.stats.WebConnectorStats;
 
@@ -31,104 +29,19 @@ import org.apache.geronimo.management.geronimo.stats.WebConnectorStats;
  * @version $Revision$ $Date$
  */
 
-public class WebConnectorStatsImpl extends StatsImpl implements WebConnectorStats {
-    private TimeStatisticImpl requestTime; // total, max, count
-
-    private CountStatisticImpl activeRequestCount;
-
-    private CountStatisticImpl errorCount;
-
-    private CountStatisticImpl bytesSentCount;
-
-    private CountStatisticImpl bytesReceivedCount;
-    
+public class WebConnectorStatsImpl extends StatsImpl implements WebConnectorStats { 
     // these come from ThreadPool
     private RangeStatisticImpl openConnectionCount; 
     
-    private CountStatistic busyThreadCount;
-    
-    // TODO - change the name to BoundedRangeStatisticsImpl
-    private BoundedRangeStatisticImpl busyThreads;
-    // TODO - spareThreads metrics = current - busy, maxSpareThreads, minSpareThreads 
-
     public WebConnectorStatsImpl() {
-        requestTime = new TimeStatisticImpl("Request Time", StatisticImpl.UNIT_TIME_MILLISECOND,
-                "The time to process all requests");
-        activeRequestCount = new CountStatisticImpl("Active Request Count", StatisticImpl.UNIT_COUNT,
-                "currently active requests ", 0);
-        errorCount = new CountStatisticImpl("Error Count", StatisticImpl.UNIT_COUNT,
-                "The numbet of Errors during the observed period", 0);
-        bytesSentCount = new CountStatisticImpl("Bytes Sent", StatisticImpl.UNIT_COUNT,
-                "The number of bytes sent during the observerd period", 0);
-        bytesReceivedCount = new CountStatisticImpl("Bytes Received", StatisticImpl.UNIT_COUNT,
-                "The number of bytes received during the observerd period", 0);
         openConnectionCount = new RangeStatisticImpl("" + "Open Connections", StatisticImpl.UNIT_COUNT,
                 "Range for connections opened during the observed period", 0); // all 0's
-        busyThreads = new BoundedRangeStatisticImpl("Busy Threads", StatisticImpl.UNIT_COUNT,
-                "BoundedRange for Threads currently busy serving requests", 0, 0, 0);
-        addStat("RequestTime", requestTime); // better name
-        addStat("activeRequestCount", activeRequestCount);
-        addStat("errorCount", errorCount);
-        addStat("bytesSent", bytesSentCount);
-        addStat("bytesReceived", bytesReceivedCount);
-        addStat("openConnectionCount", openConnectionCount);
-        addStat("busyThreads", busyThreads);
+        addStat("OpenConnectionCount", openConnectionCount);
     }
 
-    public RangeStatistic getActiveRequestCount() {
-        // TODO 
-        return null;
-    }
-
-    public TimeStatistic getRequestTime() {
-        return requestTime;
-    }
-
-    public CountStatistic getErrorCount() {
-        return errorCount;
-    }
-
-    public CountStatistic getBytesSentCount() {
-        return bytesSentCount;
-    }
-
-    public CountStatistic getBytesReceivedCount() {
-        return bytesReceivedCount;
-    }
    
     public RangeStatistic getOpenConnectionCount() {
         return openConnectionCount;
-    }
-    
-    // TODO - Move this to container statistics
-    public RangeStatistic getSpareThreadCount() {
-        return null;
-    }
-    
-    /**
-     * These setters are used by native implementation
-     */
-    public void setBytesReceivedCount(long bytesReceived) {
-        this.bytesReceivedCount.setCount(bytesReceived);
-    }
-
-    public void setBytesSentCount(long bytesSent) {
-        this.bytesSentCount.setCount(bytesSent);
-    }
-
-    public void setActiveRequestCount(int activeRequestCount) {
-        this.activeRequestCount.setCount(activeRequestCount);
-    }
-
-    public void setErrorCount(int errorCount) {
-        this.errorCount.setCount(errorCount);
-    }
-
-    public void setRequestTime(int count, long minTime, long maxTime, long totalTime) {
-        this.requestTime.setCount(count);
-        this.requestTime.setMinTime(minTime);
-        this.requestTime.setMaxTime(maxTime);
-        this.requestTime.setTotalTime(totalTime);
     }
  
     public void setOpenConnection(long current, long highMark, long lowMark) {
@@ -137,33 +50,11 @@ public class WebConnectorStatsImpl extends StatsImpl implements WebConnectorStat
         openConnectionCount.setLowWaterMark(lowMark);
     }
     
-    public void setBusyThreads(long current, long highWaterMark, long lowWaterMark,
-            long upperBound, long lowerBound) {
-        busyThreads.setCurrent(current);
-        busyThreads.setHighWaterMark(highWaterMark);
-        busyThreads.setLowWaterMark(lowWaterMark); //0?
-        busyThreads.setLowerBound(lowerBound); //0?
-        busyThreads.setUpperBound(upperBound);  // always maxThreads
-    }
-    
     /**
      * Used to access the native implementation in order to call setters
      * TODO implement these if needed by console
      */
-    public RangeStatisticImpl getActiveRequestCountImpl() {
-        return null;
+    public RangeStatisticImpl getOpenConnectionCountImpl() {
+        return openConnectionCount;
     }
-
-    public TimeStatisticImpl getRequestDurationImpl() {
-        return null;
-    }
-
-    public CountStatisticImpl getTotalErrorCountImpl() {
-        return null;
-    }
-
-    public CountStatistic getTotalRequestCountImpl() {
-        return null;
-    }
-
 }

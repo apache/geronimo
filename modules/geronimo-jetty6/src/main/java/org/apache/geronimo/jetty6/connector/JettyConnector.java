@@ -21,12 +21,16 @@ import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.UnknownHostException;
 
+import javax.management.j2ee.statistics.Stats;
+
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.jetty6.JettyContainer;
 import org.apache.geronimo.jetty6.JettyWebConnector;
+import org.apache.geronimo.jetty6.JettyWebConnectorStatsImpl;
+import org.apache.geronimo.management.StatisticsProvider;
 import org.apache.geronimo.system.threads.ThreadPool;
 import org.mortbay.jetty.AbstractConnector;
 
@@ -35,10 +39,11 @@ import org.mortbay.jetty.AbstractConnector;
  *
  * @version $Rev$ $Date$
  */
-public abstract class JettyConnector implements GBeanLifecycle, JettyWebConnector {
+public abstract class JettyConnector implements GBeanLifecycle, JettyWebConnector, StatisticsProvider {
     public final static String CONNECTOR_CONTAINER_REFERENCE = "JettyContainer";
     private final JettyContainer container;
     protected final AbstractConnector listener;
+    private JettyWebConnectorStatsImpl stats;           // data structure for jsr77 stats
     private String connectHost;
 
     /**
@@ -61,6 +66,7 @@ public abstract class JettyConnector implements GBeanLifecycle, JettyWebConnecto
             JettyThreadPool jettyThreadPool = new JettyThreadPool(threadPool, name);
             listener.setThreadPool(jettyThreadPool);
         }
+        stats = new JettyWebConnectorStatsImpl();
     }
 
     //TODO: support the jetty6 specific methods
@@ -173,7 +179,6 @@ public abstract class JettyConnector implements GBeanLifecycle, JettyWebConnecto
         }
     }
 
-
     public void setRedirectPort(int port) {
         throw new UnsupportedOperationException("No redirect port on " + this.getClass().getName());
     }
@@ -208,6 +213,58 @@ public abstract class JettyConnector implements GBeanLifecycle, JettyWebConnecto
             }
         }
     }
+    
+    public void statsOn(Boolean on) {
+        listener.setStatsOn(on);
+        if (on) stats.setStartTime();
+    }
+    
+    /**
+     * Gets the statistics collected for this class. 
+     * The first call to this method initializes the startTime for
+     * all statistics. 
+     *
+     * @return gets collected for this class
+     */
+    public Stats getStats() {
+        if(listener.getStatsOn()) {
+            stats.setLastSampleTime();
+            // connections open
+            stats.getOpenConnectionCountImpl().setCurrent(listener.getConnectionsOpen());
+            stats.getOpenConnectionCountImpl().setHighWaterMark(listener.getConnectionsOpenMax());
+            stats.getOpenConnectionCountImpl().setLowWaterMark(listener.getConnectionsOpenMin());
+            // connections count
+            stats.getConnectionsCountImpl().setCount(listener.getConnections());
+            // request count
+            stats.getRequestCountImpl().setCount(listener.getRequests());
+            // connections durations
+            stats.getConnectionsDurationImpl().setCount(listener.getConnectionsDurationAve());
+            stats.getConnectionsDurationImpl().setMaxTime(listener.getConnectionsDurationMax());
+            stats.getConnectionsDurationImpl().setMinTime(listener.getConnectionsDurationMin());
+            stats.getConnectionsDurationImpl().setTotalTime(listener.getConnectionsDurationTotal());
+            // requests per connection (connection requests)
+            stats.getConnectionsRequestImpl().setCurrent(listener.getConnectionsRequestsAve());
+            stats.getConnectionsRequestImpl().setHighWaterMark(listener.getConnectionsRequestsMax());
+            stats.getConnectionsRequestImpl().setLowWaterMark(listener.getConnectionsRequestsMin());
+        }
+        return stats;
+    }
+    
+    /**
+     * Reset the startTime for all statistics
+     */
+    public void resetStats() {
+        listener.statsReset();
+        stats.setStartTime(); // sets atartTime for all stats to Now
+    }
+    
+    public boolean isStateManageable() {
+        return true;
+    }
+
+    public boolean isStatisticsProvider() {
+        return listener.getStatsOn();
+    }
 
     public static final GBeanInfo GBEAN_INFO;
 
@@ -215,6 +272,7 @@ public abstract class JettyConnector implements GBeanLifecycle, JettyWebConnecto
         GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic("Jetty HTTP Connector", JettyConnector.class);
         infoFactory.addReference(CONNECTOR_CONTAINER_REFERENCE, JettyContainer.class, NameFactory.GERONIMO_SERVICE);
         infoFactory.addReference("ThreadPool", ThreadPool.class, NameFactory.GERONIMO_SERVICE);
+        // infoFactory.addOperation("statsOn", new Class[] { Boolean.class }, "void");
         // removed 'minThreads' from persistent and manageable String[]
         // removed 'tcpNoDelay' from persistent String[]
         // added 'protocol' to persistent and manageable String[]

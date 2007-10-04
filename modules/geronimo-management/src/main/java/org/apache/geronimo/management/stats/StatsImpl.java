@@ -26,10 +26,11 @@ import javax.management.j2ee.statistics.Stats;
  * Geronimo implementation of the JSR-77 Stats interface.  Dynamically tracks
  * available statistics for its subclasses, to make it easy to iterate
  * available statistics without knowing exactly what kind of class you're
- * looking at.  Not sure when you'd want to do that, but hey.
+ * looking at.
  *
  * @version $Rev$ $Date$
  */
+
 public class StatsImpl implements Stats, Serializable {
     private final Map <String,StatisticImpl> stats = new HashMap<String,StatisticImpl>();
 
@@ -50,6 +51,9 @@ public class StatsImpl implements Stats, Serializable {
         stats.remove(name);
     }
 
+    /**
+     * Set the startTime for all statistics to System.currentTimeMillis()
+     */
     public void setStartTime() {
         long now = System.currentTimeMillis();
         for (StatisticImpl item : stats.values()) {
@@ -57,6 +61,19 @@ public class StatsImpl implements Stats, Serializable {
         }            
     }
     
+    /**
+     * Set the startTime for all statistics to the given value
+     * @param time
+     */
+    public void setStartTime(long time) {
+        for (StatisticImpl item : stats.values()) {
+            item.setStartTime(time);
+        }            
+    }
+    
+    /**
+     * Set the lastSampleTime for all statistics to System.currentTimeMillis()
+     */
     public void setLastSampleTime() {
         long now = System.currentTimeMillis();
         for (StatisticImpl item : stats.values()) {
@@ -64,14 +81,26 @@ public class StatsImpl implements Stats, Serializable {
         }            
     }
 
+    /* 
+     * Gets a Statistic by name
+     * @see javax.management.j2ee.statistics.Stats#getStatistic(java.lang.String)
+     */
     public Statistic getStatistic(String statisticName) {
         return (Statistic)stats.get(statisticName);
     }
 
+    /*
+     * Returns a list of names of statistics
+     * @see javax.management.j2ee.statistics.Stats#getStatisticNames()
+     */
     public String[] getStatisticNames() {
         return (String[]) stats.keySet().toArray(new String[stats.size()]);
     }
 
+    /* 
+     * Returns a list of all the Statistic objects supported by this Stats object
+     * @see javax.management.j2ee.statistics.Stats#getStatistics()
+     */
     public Statistic[] getStatistics() {
         String[] names = getStatisticNames();
         Statistic[] result = new Statistic[names.length];
