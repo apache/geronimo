@@ -173,9 +173,31 @@ public class RepositoryConfigurationStore implements ConfigurationStore {
         }
         File location = repository.getLocation(configId);
         if (location.exists()) {
-            throw new ConfigurationAlreadyExistsException("Configuration already exists: " + configId);
+            boolean isEmptyDirectory = false;
+            if (location.isDirectory()) {
+                File[] files = location.listFiles();
+                isEmptyDirectory = files.length < 1;
+                if (!isEmptyDirectory && log.isDebugEnabled()) {
+                    log.debug(location.getPath() + " has " + files.length + " files:");
+                    for (File file : files) {
+                        log.debug(file.getPath());
+                    }
+                }
+            }
+            if (isEmptyDirectory) {
+                if (log.isDebugEnabled()) {
+                    log.debug(location.getPath() + " is empty");
+                }
+            } else {
+                log.error(location.getPath() + " is not an empty directory");
+                throw new ConfigurationAlreadyExistsException("Configuration already exists: " + configId);
+            }
+        } else {
+            if (log.isDebugEnabled()) {
+                log.debug("Creating configuration directory: " + location.getPath());
+            }
+            location.mkdirs();
         }
-        location.mkdirs();
         if (!location.exists()) {
             throw new ConfigurationAlreadyExistsException("Could not create configuration directory: " + location);
         }

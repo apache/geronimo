@@ -36,10 +36,14 @@ import java.util.Set;
 import java.util.jar.JarFile;
 import java.util.zip.ZipEntry;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 /**
  * @version $Rev$ $Date$
  */
 public class IOUtil {
+    private final static Log log = LogFactory.getLog(IOUtil.class);
     public static void recursiveCopy(File srcDir, File destDir) throws IOException {
         if (srcDir == null)  throw new NullPointerException("sourceDir is null");
         if (destDir == null)  throw new NullPointerException("destDir is null");
@@ -99,6 +103,57 @@ public class IOUtil {
         }
         out.flush();
     }
+    
+    private static void listFiles(File directory) {
+        if (!log.isDebugEnabled() || !directory.isDirectory()) {
+            return;
+        }
+        File[] files = directory.listFiles();
+        log.debug(directory.getPath() + " has " + files.length + " files:");
+        for (File file : files) {
+            log.debug(file.getPath());
+        }
+    }
+
+    private static boolean deleteFile(File file) {
+        boolean fileDeleted = file.delete();
+        if (fileDeleted) {
+            return true;
+        }
+
+        // special retry code to handle occasional Windows JDK and Unix NFS timing failures
+        int retryLimit = 5;
+        int retries;
+        int interruptions = 0;
+        for (retries = 1; !fileDeleted && retries <= retryLimit; retries++) {
+            if (log.isDebugEnabled()) {
+                listFiles(file);
+            }
+            System.runFinalization();
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException ie) {
+                interruptions++;
+            }
+            System.gc();
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException ie) {
+                interruptions++;
+            }
+            fileDeleted = file.delete();
+        }
+        if (fileDeleted) {
+            if (log.isDebugEnabled()) {
+                log.debug(file.getPath() + " deleted after " + retries
+                         + " retries, with " + interruptions + " interruptions.");
+            }
+        } else {
+            log.warn(file.getPath() + " not deleted after " + retryLimit
+                    + " retries, with " + interruptions + " interruptions.");
+        }
+        return fileDeleted;
+    }
 
     public static boolean recursiveDelete(File root) {
         if (root == null) {
@@ -113,12 +168,12 @@ public class IOUtil {
                     if (file.isDirectory()) {
                         recursiveDelete(file);
                     } else {
-                        file.delete();
+                        deleteFile(file);
                     }
                 }
             }
         }
-        return root.delete();
+        return deleteFile(root);
     }
 
     public static void flush(OutputStream thing) {
