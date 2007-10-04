@@ -126,6 +126,7 @@
             <attribute name="host">${ServerHostname}</attribute>
             <attribute name="port">${HTTPPortPrimary + PortOffset}</attribute>
             <attribute name="redirectPort">${HTTPSPortPrimary + PortOffset}</attribute>
+            <attribute name="connectionTimeout">${WebConnectorConTimeout}</attribute>
         </gbean>
         <gbean name="TomcatAJPConnector">
             <attribute name="host">${ServerHostname}</attribute>
