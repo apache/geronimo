@@ -149,7 +149,7 @@
                 <executions>
                     <execution>
                         <goals>
-                            <goal>commands-descriptor</goal>
+                            <goal>descriptor</goal>
                         </goals>
                     </execution>
                 </executions>
