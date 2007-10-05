@@ -178,10 +178,15 @@ public class SurefireXMLGeneratorMojo
             int skippedNum = Integer.parseInt(parent_skipped) + Integer.parseInt(skipped);
             int errorsNum = Integer.parseInt(parent_errors) + Integer.parseInt(errors);
             int failuresNum = Integer.parseInt(parent_failures) + Integer.parseInt(failures);
-            float timeNum = Float.parseFloat(parent_time) + Float.parseFloat(time);
+            float timeNum = getTime(parent_time) + getTime(time);
 
             writeParentXML(testsNum,skippedNum,errorsNum,failuresNum,timeNum,artifactName,parentSurefireXMLFile);
         }
+    }
+
+    private float getTime(String time) {
+        time = time.replaceAll(",","");
+        return Float.parseFloat(time);
     }
 
     /**
