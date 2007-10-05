@@ -63,11 +63,10 @@
             <attribute name="host">${ServerHostname}</attribute>
             <attribute name="port">${HTTPSPortPrimary + PortOffset}</attribute>
         </gbean>
-<!--        <gbean name="JettyAJP13Connector">
-            <attribute name="host">0.0.0.0</attribute>
-            <attribute name="port">8009</attribute>
+        <gbean name="JettyAJP13Connector">
+            <attribute name="host">${ServerHostname}</attribute>
+            <attribute name="port">${AJPPortPrimary + PortOffset}</attribute>
         </gbean>
--->
     </module>
     
     <module name="org.apache.geronimo.configs/geronimo-gbean-deployer/${version}/car">
