@@ -111,6 +111,7 @@
                 <exclude>*.bat</exclude>
                 <exclude>*.cmd</exclude>
                 <exclude>*.txt</exclude>
+                <exclude>*.jar</exclude>
             </excludes>
             <lineEnding>unix</lineEnding>
             <fileMode>0755</fileMode>
@@ -137,6 +138,7 @@
                 <exclude>*.bat</exclude>
                 <exclude>*.cmd</exclude>
                 <exclude>*.txt</exclude>
+                <exclude>*.jar</exclude>
             </excludes>
             <lineEnding>unix</lineEnding>
             <fileMode>0755</fileMode>
