@@ -58,21 +58,54 @@
     <module name="org.apache.geronimo.configs/jasper/${version}/car" load="false"/>
 
     <module name="org.apache.geronimo.configs/tomcat6/${version}/car">
+        <gbean name="TomcatEngine">
+            <attribute name="initParams">
+                name=Geronimo
+            </attribute>
+            <!-- To disable accesslogging uncomment the following line
+            <reference name="TomcatValveChain" />
+            -->
+        </gbean>
+        <!-- To disable accesslogging uncomment the following line
+        <gbean name="FirstValve" load="false"></gbean>
+        -->
         <gbean name="TomcatResources"/>
         <gbean name="TomcatWebConnector">
             <attribute name="host">${ServerHostname}</attribute>
             <attribute name="port">${HTTPPortPrimary + PortOffset}</attribute>
             <attribute name="redirectPort">${HTTPSPortPrimary + PortOffset}</attribute>
+            <attribute name="maxHttpHeaderSize">8192</attribute>
+            <attribute name="maxThreads">150</attribute>
+            <attribute name="minSpareThreads">25</attribute>
+            <attribute name="maxSpareThreads">75</attribute>
+            <attribute name="enableLookups">false</attribute>
+            <attribute name="acceptCount">100</attribute>
             <attribute name="connectionTimeout">${WebConnectorConTimeout}</attribute>
+            <attribute name="disableUploadTimeout">true</attribute>
         </gbean>
         <gbean name="TomcatAJPConnector">
             <attribute name="host">${ServerHostname}</attribute>
             <attribute name="port">${AJPPortPrimary + PortOffset}</attribute>
             <attribute name="redirectPort">${HTTPSPortPrimary + PortOffset}</attribute>
+            <attribute name="minSpareThreads">25</attribute>
+            <attribute name="maxSpareThreads">75</attribute>
+            <attribute name="enableLookups">false</attribute>
         </gbean>
         <gbean name="TomcatWebSSLConnector">
             <attribute name="host">${ServerHostname}</attribute>
             <attribute name="port">${HTTPSPortPrimary + PortOffset}</attribute>
+            <attribute name="maxHttpHeaderSize">8192</attribute>
+            <attribute name="maxThreads">150</attribute>
+            <attribute name="minSpareThreads">25</attribute>
+            <attribute name="maxSpareThreads">75</attribute>
+            <attribute name="enableLookups">false</attribute>
+            <attribute name="acceptCount">100</attribute>
+            <attribute name="disableUploadTimeout">false</attribute>
+            <attribute name="clientAuth">false</attribute>
+            <attribute name="algorithm">Default</attribute>
+            <attribute name="sslProtocol">TLS</attribute>
+            <attribute name="keystoreFile">var/security/keystores/geronimo-default</attribute>
+            <attribute name="keystorePass">secret</attribute>
         </gbean>
     </module>
     
