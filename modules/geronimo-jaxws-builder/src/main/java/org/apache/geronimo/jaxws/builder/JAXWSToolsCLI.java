@@ -48,7 +48,7 @@ public class JAXWSToolsCLI {
         repositories.add(mavenRepository);
 
         JAXWSTools tools = new JAXWSTools();
-        tools.setUseAxis2SAAJ();
+        tools.setUseSunSAAJ();
         tools.setOverrideContextClassLoader(true);
         
         File [] jars = tools.getClasspath(repositories);
