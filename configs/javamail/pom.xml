@@ -72,12 +72,12 @@
                         <plugin-artifact>
                             <config-xml-content>
                                 <gbean name="SMTPTransport">
-                                    <attribute name="host">#{mailHost}</attribute>
-                                    <attribute name="port">#{mailPort}</attribute>
+                                    <attribute name="host">#{SMTPHost}</attribute>
+                                    <attribute name="port">#{SMTPPort}</attribute>
                                 </gbean>
                              </config-xml-content>
-                            <config-substitution key="mailHost">localhost</config-substitution>
-                            <config-substitution key="mailPort">25</config-substitution>
+                            <config-substitution key="SMTPHost">localhost</config-substitution>
+                            <config-substitution key="SMTPPort">25</config-substitution>
                         </plugin-artifact>
                     </instance>
                 </configuration>
