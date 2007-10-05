@@ -288,6 +288,112 @@
             -->
         </config-property>
 
+        <config-property>
+            <description>
+                Boolean to configure if outbound connections should reuse the inbound connection's 
+                session for sending messages.
+                
+                Default: false
+            </description>
+            <config-property-name>UseInboundSession</config-property-name>
+            <config-property-type>java.lang.Boolean</config-property-type>
+            <config-property-value>false</config-property-value>
+        </config-property>
+
+        <config-property>
+            <description>
+                The maximum number of messages sent to a consumer on a durable topic until 
+                acknowledgments are received.
+                
+                Default: 100
+            </description>
+            <config-property-name>DurableTopicPrefetch</config-property-name>
+            <config-property-type>java.lang.Integer</config-property-type>
+            <config-property-value>100</config-property-value>
+        </config-property>
+
+        <config-property>
+            <description>
+                The maximum number of messages sent to a consumer on a queue until 
+                acknowledgments are received.
+                
+                Default: 1000
+            </description>
+            <config-property-name>QueuePrefetch</config-property-name>
+            <config-property-type>java.lang.Integer</config-property-type>
+            <config-property-value>1000</config-property-value>
+        </config-property>
+
+        <config-property>
+            <description>
+                The maximum number of messages sent to a consumer on a JMS stream
+                until acknowledgments are received.
+                
+                Default: 100
+            </description>
+            <config-property-name>InputStreamPrefetch</config-property-name>
+            <config-property-type>java.lang.Integer</config-property-type>
+            <config-property-value>100</config-property-value>
+        </config-property>
+
+        <config-property>
+            <description>
+                The maximum number of messages sent to a consumer on a non-durable
+                topic until acknowledgments are received.
+                
+                Default: 32766
+            </description>
+            <config-property-name>TopicPrefetch</config-property-name>
+            <config-property-type>java.lang.Integer</config-property-type>
+            <config-property-value>32766</config-property-value>
+        </config-property>
+
+        <config-property>
+            <description>
+                The delay before redeliveries start.
+                
+                Default: 1000
+            </description>
+            <config-property-name>InitialRedeliveryDelay</config-property-name>
+            <config-property-type>java.lang.Long</config-property-type>
+            <config-property-value>1000</config-property-value>
+        </config-property>
+
+        <config-property>
+            <description>
+                The maximum number of redeliveries or -1 for no maximum.
+            
+                Default: 5
+            </description>
+            <config-property-name>MaximumRedeliveries</config-property-name>
+            <config-property-type>java.lang.Integer</config-property-type>
+            <config-property-value>5</config-property-value>
+        </config-property>
+
+        <config-property>
+            <description>
+                The multiplier to use if exponential back off is enabled.
+                
+                Default: 5
+            </description>
+            <config-property-name>RedeliveryBackOffMultiplier</config-property-name>
+            <config-property-type>java.lang.Short</config-property-type>
+            <config-property-value>5</config-property-value>
+        </config-property>
+        
+        <config-property>
+            <description>
+                To enable exponential backoff.
+                 	 
+                Default: false 	 
+            </description>
+            <config-property-name>RedeliveryUseExponentialBackOff</config-property-name>
+            <config-property-type>java.lang.Boolean</config-property-type>
+            <config-property-value>false</config-property-value>
+        </config-property>
+
+ 
+
         <outbound-resourceadapter>
             <connection-definition>
                 <managedconnectionfactory-class>org.apache.activemq.ra.ActiveMQManagedConnectionFactory</managedconnectionfactory-class>
