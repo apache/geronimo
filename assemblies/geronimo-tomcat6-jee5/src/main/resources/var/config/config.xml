@@ -34,6 +34,10 @@
             <!-- Check whether this really works if host name is 0.0.0.0 -->
             <attribute name="namingProviderUrl">rmi://${ServerHostname}:${NamingPort + PortOffset}</attribute>
         </gbean>
+        <gbean name="DefaultThreadPool">
+            <attribute name="keepAliveTime">5000</attribute>
+            <attribute name="poolSize">${ThreadPoolSize}</attribute>
+        </gbean>
         <gbean name="DownloadedPluginRepos">
           <attribute name="repositoryList">http://geronimo.apache.org/plugins/plugin-repository-list-2.0.txt</attribute>
           <attribute name="userRepositories">[]</attribute>
@@ -292,7 +296,7 @@
     <module name="org.apache.geronimo.configs/javamail/${version}/car">
         <gbean name="SMTPTransport">
             <attribute name="host">localhost</attribute>
-            <attribute name="port">25</attribute>
+            <attribute name="port">${SMTPPort + PortOffset}</attribute>
         </gbean>
     </module>
 
