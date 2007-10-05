@@ -239,7 +239,7 @@ public class JaxWSTest extends TestSupport {
         
         InitialContext ctx = new InitialContext(p);
         
-        JAXWSGreeter greeter = (JAXWSGreeter)ctx.lookup("JAXWSEJB/JAXWSBean/org.apache.geronimo.test.JAXWSGreeter");
+        JAXWSGreeter greeter = (JAXWSGreeter)ctx.lookup("/JAXWSBeanRemote");
         
         String response = greeter.greetMe("foo bar");
         
