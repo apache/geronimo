@@ -66,8 +66,6 @@
             <attribute name="port">${OpenEJBPort + PortOffset}</attribute>
             <attribute name="host">${ServerHostname}</attribute>
         </gbean>
-        <!-- See GERONIMO-3461 for why this is disabled by default -->
-        <gbean load="false" name="ejb/mgmt/MEJB"/>
     </module>
 
     <module name="org.apache.geronimo.configs/j2ee-corba-yoko/${version}/car" load="false">
