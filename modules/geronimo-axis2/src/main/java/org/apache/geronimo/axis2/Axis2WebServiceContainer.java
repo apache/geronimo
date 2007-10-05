@@ -172,7 +172,6 @@ public abstract class Axis2WebServiceContainer implements WebServiceContainer {
 
     protected void doService(final Request request, final Response response)
             throws Exception {        
-        initContextRoot(request);
 
         if (LOG.isDebugEnabled()) {
             LOG.debug("Target URI: " + request.getURI());
@@ -236,8 +235,26 @@ public abstract class Axis2WebServiceContainer implements WebServiceContainer {
 
     }
 
-    protected abstract void initContextRoot(Request request);
-
+    protected String getServicePath(String contextRoot) {
+        String location = this.portInfo.getLocation();
+        if (location != null && location.startsWith(contextRoot)) {
+            return location.substring(contextRoot.length());
+        }
+        return null;
+    }
+    
+    public static String trimContext(String contextPath) {
+        if (contextPath != null) {
+            if (contextPath.startsWith("/")) {
+                contextPath = contextPath.substring(1);
+            }
+            if (contextPath.endsWith("/")) {
+                contextPath = contextPath.substring(0, contextPath.length() - 1);
+            }
+        }
+        return contextPath;
+    }
+    
     public void doService2(Request request,
                            Response response,
                            MessageContext msgContext) throws Exception {

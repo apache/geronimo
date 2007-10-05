@@ -32,12 +32,10 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.axis2.pojo.POJOWebServiceContainerFactoryGBean;
 import org.apache.geronimo.common.DeploymentException;
-import org.apache.geronimo.deployment.DeploymentContext;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.j2ee.deployment.Module;
-import org.apache.geronimo.j2ee.deployment.WebModule;
 import org.apache.geronimo.j2ee.deployment.WebServiceBuilder;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.jaxws.JAXWSUtils;
@@ -181,32 +179,6 @@ public class Axis2Builder extends JAXWSServiceBuilder {
         }
     }
 
-    public boolean configurePOJO(GBeanData targetGBean,
-                                 String servletName,
-                                 Module module,
-                                 String seiClassName,
-                                 DeploymentContext context)
-        throws DeploymentException {
-                
-        boolean status = super.configurePOJO(targetGBean, servletName, module, seiClassName, context);
-        if(!status) {
-            return false;
-        }       
-                
-        //change the URL
-        Map sharedContext = ((WebModule) module).getSharedContext();
-        String contextRoot = ((WebModule) module).getContextRoot();
-        Map portInfoMap = (Map) sharedContext.get(getKey());
-        PortInfo portInfo;
-        
-        if(portInfoMap != null && portInfoMap.get(servletName) != null){
-            portInfo = (PortInfo) portInfoMap.get(servletName);
-            processURLPattern(contextRoot, portInfo);
-        }
-        
-        return status;
-    }
-
     private static String getString(String in) {
         if (in != null) {
             in = in.trim();
@@ -216,34 +188,7 @@ public class Axis2Builder extends JAXWSServiceBuilder {
         }
         return in;
     }
-
-    private void processURLPattern(String contextRoot, PortInfo portInfo) throws DeploymentException {
-        //if the user specifies a url-pattern, set it here. 
-        String oldup = portInfo.getLocation();
-        if (oldup == null || oldup.length() == 0) { 
-            //if we cannot grab a valid urlpattern, default it to the port-component-name.
-            oldup = portInfo.getPortName();   
-        } else {
-            int i = oldup.indexOf(contextRoot);
-            oldup = oldup.substring(i + contextRoot.length() + 1);
-            oldup = oldup.trim();
-            if (oldup.indexOf("*") > 0) {
-                //uncomment this before we fix this issue.  workarond by assuming * is at the end.
-                //throw new DeploymentException("Per JSR 109, the url-pattern should not contain an asterisk.");
-                oldup = oldup.substring(0, oldup.length() - 1);
-            } 
-            //trim the forward slashes at the beginning or end.
-            if (oldup.substring(0, 1).equalsIgnoreCase("/")) {
-                oldup = oldup.substring(1);
-            } 
-            if (oldup.substring(oldup.length()-1).equalsIgnoreCase("/")) {
-                oldup = oldup.substring(0, oldup.length() - 1);
-            }
-        
-        } 
-        portInfo.setLocation(oldup);
-    }
-        
+   
     @Override
     protected void initialize(GBeanData targetGBean, Class serviceClass, PortInfo portInfo, Module module) 
         throws DeploymentException {

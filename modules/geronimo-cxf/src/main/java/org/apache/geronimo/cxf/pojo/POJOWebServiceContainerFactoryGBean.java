@@ -62,7 +62,8 @@ public class POJOWebServiceContainerFactoryGBean implements WebServiceContainerF
                                                Kernel kernel,
                                                TransactionManager transactionManager,
                                                URL configurationBaseUrl,
-                                               AnnotationHolder holder)
+                                               AnnotationHolder holder,
+                                               String contextRoot)
             throws ClassNotFoundException, 
                    IllegalAccessException,
                    InstantiationException {
@@ -122,6 +123,7 @@ public class POJOWebServiceContainerFactoryGBean implements WebServiceContainerF
         infoBuilder.addReference("TransactionManager", TransactionManager.class, NameFactory.TRANSACTION_MANAGER);
         infoBuilder.addAttribute("configurationBaseUrl", URL.class, true);
         infoBuilder.addAttribute("holder", AnnotationHolder.class, true);
+        infoBuilder.addAttribute("contextRoot", String.class, true, true);
 
         infoBuilder.setConstructor(new String[]{
                 "portInfo", 
@@ -131,7 +133,8 @@ public class POJOWebServiceContainerFactoryGBean implements WebServiceContainerF
                 "kernel", 
                 "TransactionManager", 
                 "configurationBaseUrl",
-                "holder"
+                "holder",
+                "contextRoot"
         });
         
         GBEAN_INFO = infoBuilder.getBeanInfo();

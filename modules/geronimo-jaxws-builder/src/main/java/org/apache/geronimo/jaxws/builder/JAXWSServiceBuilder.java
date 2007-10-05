@@ -156,6 +156,7 @@ public abstract class JAXWSServiceBuilder implements WebServiceBuilder {
         containerFactoryData.setAttribute("endpointClassName", servletClassName);
         containerFactoryData.setAttribute("componentContext", componentContext);
         containerFactoryData.setAttribute("holder", serviceHolder);
+        containerFactoryData.setAttribute("contextRoot", ((WebModule) module).getContextRoot());
         try {
             context.addGBean(containerFactoryData);
         } catch (GBeanAlreadyExistsException e) {

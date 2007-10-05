@@ -58,7 +58,7 @@ public class Axis2WebServiceContainerTest extends Axis2AbstractTestCase {
         ClassLoader cl = Thread.currentThread().getContextClassLoader();
 
         PortInfo portInfo = new PortInfo();
-        portInfo.setLocation("HelloWorld");
+        portInfo.setLocation("/axis2/HelloWorld");
         portInfo.setServiceEndpointInterfaceName("org.apache.geronimo.axis2.testdata.simple.HelloWorld");
 
         Axis2Request req = new Axis2Request(504,
@@ -73,7 +73,7 @@ public class Axis2WebServiceContainerTest extends Axis2AbstractTestCase {
         Axis2Response res = new Axis2Response("text/xml; charset=utf-8", "127.0.0.1", null, null, 8080, out);
         
         String endpointClassName = "org.apache.geronimo.axis2.testdata.simple.HelloWorld";
-        POJOWebServiceContainer container = new POJOWebServiceContainer(portInfo, endpointClassName, cl, null, null, AnnotationHolder.EMPTY);
+        POJOWebServiceContainer container = new POJOWebServiceContainer(portInfo, endpointClassName, cl, null, null, AnnotationHolder.EMPTY, "/axis2");
         container.init();
         container.invoke(req, res);
         out.flush();
@@ -129,7 +129,7 @@ public class Axis2WebServiceContainerTest extends Axis2AbstractTestCase {
             request = new ByteArrayInputStream(envelope.toString().getBytes("UTF-8"));
         	
             PortInfo portInfo = new PortInfo();
-            portInfo.setLocation(serviceName);
+            portInfo.setLocation("/axis2/" + serviceName);
             
             File wsdlFile = new File(RESOURCE_PATH + wsdl);
             portInfo.setWsdlFile(wsdlFile.toURL().toString());
@@ -147,7 +147,7 @@ public class Axis2WebServiceContainerTest extends Axis2AbstractTestCase {
                 ByteArrayOutputStream out = new ByteArrayOutputStream();
                 Axis2Response res = new Axis2Response("text/xml; charset=utf-8", "127.0.0.1", null, null, 8080, out);
 
-                POJOWebServiceContainer container = new POJOWebServiceContainer(portInfo, endPointClassName, cl, null, null, AnnotationHolder.EMPTY);
+                POJOWebServiceContainer container = new POJOWebServiceContainer(portInfo, endPointClassName, cl, null, null, AnnotationHolder.EMPTY, "/axis2");
                 container.init();
                 container.invoke(req, res);
                 System.out.println("Response "+out);
