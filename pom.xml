@@ -858,13 +858,13 @@
             <dependency>
                 <groupId>org.tranql</groupId>
                 <artifactId>tranql-connector-mysql-local</artifactId>
-                <version>1.1-SNAPSHOT</version>
+                <version>1.1</version>
                 <type>rar</type>
             </dependency>
             <dependency>
                 <groupId>org.tranql</groupId>
                 <artifactId>tranql-connector-mysql-xa</artifactId>
-                <version>1.1-SNAPSHOT</version>
+                <version>1.1</version>
                 <type>rar</type>
             </dependency>
             <dependency>
@@ -882,13 +882,13 @@
             <dependency>
                 <groupId>org.tranql</groupId>
                 <artifactId>tranql-connector-postgresql-local</artifactId>
-                <version>1.1-SNAPSHOT</version>
+                <version>1.1</version>
                 <type>rar</type>
             </dependency>
             <dependency>
                 <groupId>org.tranql</groupId>
                 <artifactId>tranql-connector-postgresql-xa</artifactId>
-                <version>1.1-SNAPSHOT</version>
+                <version>1.1</version>
                 <type>rar</type>
             </dependency>
             <dependency>
