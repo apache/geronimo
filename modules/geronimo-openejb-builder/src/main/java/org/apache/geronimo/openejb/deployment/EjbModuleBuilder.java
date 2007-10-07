@@ -638,6 +638,9 @@ public class EjbModuleBuilder implements ModuleBuilder {
         for (GBeanData resourceAdapterWrapperData : resourceAdapterWrappers) {
             String resourceAdapterId = getResourceAdapterId(resourceAdapterWrapperData.getAbstractName());
             Map<String, String> messageListenerToActivationSpecMap = (Map<String, String>) resourceAdapterWrapperData.getAttribute("messageListenerToActivationSpecMap");
+            if (messageListenerToActivationSpecMap == null) {
+                continue;
+            }
             for (Map.Entry<String, String> entry : messageListenerToActivationSpecMap.entrySet()) {
                 String messageListenerInterface = entry.getKey();
                 String activationSpecClass = entry.getValue();
