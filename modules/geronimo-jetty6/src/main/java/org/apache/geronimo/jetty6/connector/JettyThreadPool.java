@@ -28,7 +28,7 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.system.threads.ThreadPool;
 
 /**
- * @version $Rev:$ $Date:$
+ * @version $Rev$ $Date$
  */
 public class JettyThreadPool implements org.mortbay.thread.ThreadPool {
 
@@ -47,10 +47,10 @@ public class JettyThreadPool implements org.mortbay.thread.ThreadPool {
             executor.execute(name, runnable);
             return true;
         } catch (RejectedExecutionException e) {
-            log.warn(e);
+            log.warn("Unable to execute task", e);
             return false;
         } catch (InterruptedException e) {
-            log.warn(e);
+            log.warn("Thread interrupted", e);
             return false;
         }
     }
