@@ -68,6 +68,13 @@
         </dependency>
 
         <dependency>
+            <groupId>org.apache.geronimo.configs</groupId>
+            <artifactId>spring</artifactId>
+            <version>${version}</version>
+            <type>car</type>
+        </dependency>
+
+        <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
             <artifactId>geronimo-cxf</artifactId>
             <version>${version}</version>
@@ -117,18 +124,6 @@
             <groupId>org.apache.ws.commons.schema</groupId>
             <artifactId>XmlSchema</artifactId>
             <version>1.2</version>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-core</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-beans</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-context</artifactId>
         </dependency>
         <dependency>
             <groupId>xml-resolver</groupId>
