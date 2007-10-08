@@ -1,0 +1,198 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Licensed to the Apache Software Foundation (ASF) under one or more
+    contributor license agreements.  See the NOTICE file distributed with
+    this work for additional information regarding copyright ownership.
+    The ASF licenses this file to You under the Apache License, Version 2.0
+    (the "License"); you may not use this file except in compliance with
+    the License.  You may obtain a copy of the License at
+    
+    http://www.apache.org/licenses/LICENSE-2.0
+    
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+-->
+
+<!-- $Rev$ $Date$ -->
+
+<application xmlns="http://geronimo.apache.org/xml/ns/j2ee/application-1.2">
+
+    <module>
+        <web>portal-driver.war</web>
+        <web-app xmlns="http://geronimo.apache.org/xml/ns/j2ee/web/tomcat-1.2" xmlns:dep="http://geronimo.apache.org/xml/ns/deployment-1.2">
+            <dep:environment>
+                <dep:moduleId>
+                    <dep:groupId>org.apache.geronimo.plugins</dep:groupId>
+                    <dep:artifactId>console-portal-driver</dep:artifactId>
+                    <dep:version>1.0-SNAPSHOT</dep:version>
+                    <dep:type>war</dep:type>
+                </dep:moduleId>
+                <dep:dependencies/> <!-- deps are declared in pom.xml -->
+                <dep:hidden-classes />
+                <dep:non-overridable-classes />
+            </dep:environment>
+            <context-root>/console</context-root>
+            <cross-context />
+            <security-realm-name>geronimo-admin</security-realm-name>
+            <gbean name="CARExportForward" class="org.apache.geronimo.console.gbean.ContextForwardGBean" xmlns="http://geronimo.apache.org/xml/ns/deployment-1.2">
+                <attribute name="portalPathPrefix">/car-export</attribute>
+                <attribute name="portletContextPath">/console-base</attribute>
+                <attribute name="portletServletPath">/car-export</attribute>
+            </gbean>
+            <gbean name="SVGForward" class="org.apache.geronimo.console.gbean.ContextForwardGBean" xmlns="http://geronimo.apache.org/xml/ns/deployment-1.2">
+                <attribute name="portalPathPrefix">/graphs</attribute>
+                <attribute name="portletContextPath">/console-base</attribute>
+                <attribute name="portletServletPath">/graphs</attribute>
+            </gbean>
+            <gbean name="PlanExportForward" class="org.apache.geronimo.console.gbean.ContextForwardGBean" xmlns="http://geronimo.apache.org/xml/ns/deployment-1.2">
+                <attribute name="portalPathPrefix">/plan-export</attribute>
+                <attribute name="portletContextPath">/console-base</attribute>
+                <attribute name="portletServletPath">/plan-export</attribute>
+            </gbean>
+        </web-app>
+    </module>
+
+    <module>
+        <web>base-portlets.war</web>
+        <web-app xmlns="http://geronimo.apache.org/xml/ns/j2ee/web/tomcat-1.2" xmlns:dep="http://geronimo.apache.org/xml/ns/deployment-1.2">
+            <dep:environment>
+                <dep:moduleId>
+                    <dep:groupId>org.apache.geronimo.plugins</dep:groupId>
+                    <dep:artifactId>console-base-portlets</dep:artifactId>
+                    <dep:version>1.0-SNAPSHOT</dep:version>
+                    <dep:type>war</dep:type>
+                </dep:moduleId>
+                <dep:dependencies/> <!-- deps are declared in pom.xml -->
+                <dep:hidden-classes>
+                    <filter>org.apache.commons.digester</filter>
+                </dep:hidden-classes>
+                <dep:non-overridable-classes />
+            </dep:environment>
+
+            <context-root>/console-base</context-root>
+            <cross-context />
+            <security-realm-name>geronimo-admin</security-realm-name>
+
+            <gbean name="PropertiesLoginManager" class="org.apache.geronimo.console.core.security.PropertiesLoginModuleManager">
+                <reference name="ServerInfo">
+                    <name>ServerInfo</name>
+                </reference>
+                <reference name="LoginModule">
+                    <name>properties-login</name>
+                </reference>
+            </gbean>
+
+<!-- TODO: can't start these gbeans here because the ContainerServicesGBean hasn't been
+           initialized by spring yet.  since they can't be defined here they are instead
+           defined in the renderConfig section of pluto's pluto-portal-driver-config.xml,
+           which is not ideal.  maybe the deps can be moved around so that this section
+           can be reenabled and the pages removed from the driver config xml.
+           <gbean name="Welcome" class="org.apache.geronimo.pluto.ACEGBean">
+               <attribute name="pageTitle">Welcome</attribute>
+               <attribute name="portletContext">/console-base</attribute>
+               <attribute name="portletList">[Welcome]</attribute>
+           </gbean>
+
+           <gbean name="ServerInfo" class="org.apache.geronimo.pluto.ACEGBean">
+               <attribute name="pageTitle">Server/Information</attribute>
+               <attribute name="portletContext">/console-base</attribute>
+               <attribute name="portletList">[ServerInfo]</attribute>
+           </gbean>
+           <gbean name="JavaSysInfo" class="org.apache.geronimo.pluto.ACEGBean">
+               <attribute name="pageTitle">Server/Java System Info</attribute>
+               <attribute name="portletContext">/console-base</attribute>
+               <attribute name="portletList">[JavaSysInfo]</attribute>
+           </gbean>
+           <gbean name="Logs" class="org.apache.geronimo.pluto.ACEGBean">
+               <attribute name="pageTitle">Server/Server Logs</attribute>
+               <attribute name="portletContext">/console-base</attribute>
+               <attribute name="portletList">[LogManager, LogViewer, WebAccessLogViewer]</attribute>
+           </gbean>
+           <gbean name="Shutdown" class="org.apache.geronimo.pluto.ACEGBean">
+               <attribute name="pageTitle">Server/Shutdown</attribute>
+               <attribute name="portletContext">/console-base</attribute>
+               <attribute name="portletList">[ServerManager]</attribute>
+           </gbean>
+           <gbean name="WebServer" class="org.apache.geronimo.pluto.ACEGBean">
+               <attribute name="pageTitle">Server/Web Server</attribute>
+               <attribute name="portletContext">/console-base</attribute>
+               <attribute name="portletList">[WebServerManager, ConnectorManager]</attribute>
+           </gbean>
+           <gbean name="ThreadPool" class="org.apache.geronimo.pluto.ACEGBean">
+               <attribute name="pageTitle">Server/Thread Pools</attribute>
+               <attribute name="portletContext">/console-base</attribute>
+               <attribute name="portletList">[ThreadPool]</attribute>
+           </gbean>
+           <gbean name="ApacheJK" class="org.apache.geronimo.pluto.ACEGBean">
+               <attribute name="pageTitle">Server/Apache HTTP</attribute>
+               <attribute name="portletContext">/console-base</attribute>
+               <attribute name="portletList">[ApacheJK]</attribute>
+           </gbean>
+
+           <gbean name="RepositoryViewer" class="org.apache.geronimo.pluto.ACEGBean">
+               <attribute name="pageTitle">Services/Repository</attribute>
+               <attribute name="portletContext">/console-base</attribute>
+               <attribute name="portletList">[RepositoryViewer]</attribute>
+           </gbean>
+
+           <gbean name="Deployment" class="org.apache.geronimo.pluto.ACEGBean">
+               <attribute name="pageTitle">Applications/Deploy New</attribute>
+               <attribute name="portletContext">/console-base</attribute>
+               <attribute name="portletList">[Deployment]</attribute>
+           </gbean>
+           <gbean name="WARModules" class="org.apache.geronimo.pluto.ACEGBean">
+               <attribute name="pageTitle">Applications/Web Apps</attribute>
+               <attribute name="portletContext">/console-base</attribute>
+               <attribute name="portletList">[WARModules]</attribute>
+           </gbean>
+           <gbean name="SystemModules" class="org.apache.geronimo.pluto.ACEGBean">
+               <attribute name="pageTitle">Applications/System Modules</attribute>
+               <attribute name="portletContext">/console-base</attribute>
+               <attribute name="portletList">[SystemModules]</attribute>
+           </gbean>
+           <gbean name="ImportExport" class="org.apache.geronimo.pluto.ACEGBean">
+               <attribute name="pageTitle">Applications/Plugins</attribute>
+               <attribute name="portletContext">/console-base</attribute>
+               <attribute name="portletList">[ImportExport]</attribute>
+           </gbean>
+
+           <gbean name="UsersGroups" class="org.apache.geronimo.pluto.ACEGBean">
+               <attribute name="pageTitle">Security/Users and Groups</attribute>
+               <attribute name="portletContext">/console-base</attribute>
+               <attribute name="portletList">[SEUsers, SEGroups]</attribute>
+           </gbean>
+           <gbean name="RealmWizard" class="org.apache.geronimo.pluto.ACEGBean">
+               <attribute name="pageTitle">Security/Security Realms</attribute>
+               <attribute name="portletContext">/console-base</attribute>
+               <attribute name="portletList">[RealmWizard]</attribute>
+           </gbean>
+           <gbean name="Keystores" class="org.apache.geronimo.pluto.ACEGBean">
+               <attribute name="pageTitle">Security/Keystores</attribute>
+               <attribute name="portletContext">/console-base</attribute>
+               <attribute name="portletList">[Keystores]</attribute>
+           </gbean>
+           <gbean name="CertificationAuthority" class="org.apache.geronimo.pluto.ACEGBean">
+               <attribute name="pageTitle">Security/Certificate Authority</attribute>
+               <attribute name="portletContext">/console-base</attribute>
+               <attribute name="portletList">[CertificationAuthority]</attribute>
+           </gbean>
+-->
+
+        </web-app>
+    </module>
+
+    <security xmlns="http://geronimo.apache.org/xml/ns/security-1.2">
+        <role-mappings>
+            <role role-name="admin">
+                <principal class="org.apache.geronimo.security.realm.providers.GeronimoGroupPrincipal" name="admin" />
+            </role>
+        </role-mappings>
+    </security>
+
+    <!-- TODO: what is this? -->
+    <gbean name="DeploymentFactory" class="org.apache.geronimo.deployment.plugin.factories.DeploymentFactoryWithKernel" />
+
+</application>

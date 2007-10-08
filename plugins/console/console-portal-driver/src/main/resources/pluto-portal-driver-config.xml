@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+Licensed to the Apache Software Foundation (ASF) under one or more
+contributor license agreements.  See the NOTICE file distributed with
+this work for additional information regarding copyright ownership.
+The ASF licenses this file to You under the Apache License, Version 2.0
+(the "License"); you may not use this file except in compliance with
+the License.  You may obtain a copy of the License at
+
+http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed  under the  License is distributed on an "AS IS" BASIS,
+WITHOUT  WARRANTIES OR CONDITIONS  OF ANY KIND, either  express  or
+implied.
+
+See the License for the specific language governing permissions and
+limitations under the License.
+-->
+
+<pluto-portal-driver version="1.1">
+
+  <portal-name>pluto-portal-driver</portal-name>
+  <portal-version>1.2.0-SNAPSHOT</portal-version>
+  <container-name>Pluto Portal Driver</container-name>
+
+  <supports>
+    <portlet-mode>view</portlet-mode>
+    <portlet-mode>edit</portlet-mode>
+    <portlet-mode>help</portlet-mode>
+    <portlet-mode>config</portlet-mode>
+
+    <window-state>normal</window-state>
+    <window-state>maximized</window-state>
+    <window-state>minimized</window-state>
+  </supports>
+
+
+  <!-- Render configuration which defines the portal pages. -->
+  <render-config default="Welcome">
+    <page name="Welcome" uri="/WEB-INF/themes/default-theme.jsp">
+      <portlet context="/console-base" name="Welcome"/>
+    </page>
+
+<!-- SERVER -->
+    <page name="Server/Information" uri="/WEB-INF/themes/default-theme.jsp">
+      <portlet context="/console-base" name="ServerInfo"/>
+    </page>
+
+    <page name="Server/Java System Info" uri="/WEB-INF/themes/default-theme.jsp">
+      <portlet context="/console-base" name="JavaSysInfo"/>
+    </page>
+
+    <page name="Server/Server Logs" uri="/WEB-INF/themes/default-theme.jsp">
+      <portlet context="/console-base" name="LogManager"/>
+      <portlet context="/console-base" name="LogViewer"/>
+      <portlet context="/console-base" name="WebAccessLogViewer"/>
+    </page>
+
+    <page name="Server/Shutdown" uri="/WEB-INF/themes/default-theme.jsp">
+      <portlet context="/console-base" name="ServerManager"/>
+    </page>
+
+    <page name="Server/Web Server" uri="/WEB-INF/themes/default-theme.jsp">
+      <portlet context="/console-base" name="WebServerManager"/>
+      <portlet context="/console-base" name="ConnectorManager"/>
+    </page>
+
+    <page name="Server/Thread Pools" uri="/WEB-INF/themes/default-theme.jsp">
+      <portlet context="/console-base" name="ThreadPool"/>
+    </page>
+
+    <page name="Server/Apache HTTP" uri="/WEB-INF/themes/default-theme.jsp">
+      <portlet context="/console-base" name="ApacheJK"/>
+    </page>
+
+<!-- SERVICES -->
+    <page name="Services/Repository" uri="/WEB-INF/themes/default-theme.jsp">
+      <portlet context="/console-base" name="RepositoryViewer"/>
+    </page>
+
+<!-- APPLICATIONS -->
+    <page name="Applications/Deploy New" uri="/WEB-INF/themes/default-theme.jsp">
+      <portlet context="/console-base" name="Deployment"/>
+    </page>
+
+    <page name="Applications/Web App WARs" uri="/WEB-INF/themes/default-theme.jsp">
+      <portlet context="/console-base" name="WARModules"/>
+    </page>
+
+    <page name="Applications/System Modules" uri="/WEB-INF/themes/default-theme.jsp">
+      <portlet context="/console-base" name="SystemModules"/>
+    </page>
+
+    <page name="Applications/Application EARs" uri="/WEB-INF/themes/default-theme.jsp">
+      <portlet context="/console-base" name="EARModules"/>
+    </page>
+
+    <page name="Applications/EJB JARs" uri="/WEB-INF/themes/default-theme.jsp">
+      <portlet context="/console-base" name="EJBModules"/>
+    </page>
+
+    <page name="Applications/J2EE Connectors" uri="/WEB-INF/themes/default-theme.jsp">
+      <portlet context="/console-base" name="RARModules"/>
+    </page>
+
+    <page name="Applications/App Clients" uri="/WEB-INF/themes/default-theme.jsp">
+      <portlet context="/console-base" name="ClientModules"/>
+    </page>
+
+    <page name="Applications/Plugins" uri="/WEB-INF/themes/default-theme.jsp">
+      <portlet context="/console-base" name="ImportExport"/>
+    </page>
+
+<!-- SECURITY -->
+    <page name="Security/Users and Groups" uri="/WEB-INF/themes/default-theme.jsp">
+      <portlet context="/console-base" name="SEUsers"/>
+      <portlet context="/console-base" name="SEGroups"/>
+    </page>
+
+    <page name="Security/Security Realms" uri="/WEB-INF/themes/default-theme.jsp">
+      <portlet context="/console-base" name="RealmWizard"/>
+    </page>
+
+    <page name="Security/Keystores" uri="/WEB-INF/themes/default-theme.jsp">
+      <portlet context="/console-base" name="Keystores"/>
+    </page>
+
+    <page name="Security/Certificate Authority" uri="/WEB-INF/themes/default-theme.jsp">
+      <portlet context="/console-base" name="CertificationAuthority"/>
+    </page>
+
+<!-- OTHER -->
+
+  </render-config>
+  
+</pluto-portal-driver>
