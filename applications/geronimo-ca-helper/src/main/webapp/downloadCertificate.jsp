@@ -14,6 +14,9 @@
    See the License for the specific language governing permissions and
    limitations under the License.
 --%>
+
+<%-- $Rev$ $Date$ --%>
+
 <%@ page language="java" contentType="text/html; charset=ISO-8859-1"
     pageEncoding="ISO-8859-1"%>
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
@@ -34,11 +37,11 @@
 </script>
 </head>
 <body>
-<h2>Download Certificate</h2>
-<p>This page enables you to download and install certificate issued to you by the CA.  Before installing your certificate,
-install the CA's certificate in your web browser by clicking on the <a href="DownloadCertificateServlet?type=ca"> this link</a>.</p>
+<h2>Download Personal Certificate</h2>
+<p>This page enables you to download and install a certificate issued to you by the CA.  Before installing your personal certificate,
+install the CA's certificate in your web browser by visiting <a href="downloadCACertificate.jsp">this link</a>.</p>
 
-<form action="DownloadCertificateServlet" method="post">
+<form action="installPersonalCertificate.jsp" method="post">
     <table border="0">
         <tr>
             <th align="right">CSR Id:</th>

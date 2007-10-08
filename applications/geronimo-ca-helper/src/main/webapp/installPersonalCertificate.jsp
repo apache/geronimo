@@ -19,31 +19,45 @@
 
 <%@ page language="java" contentType="text/html; charset=ISO-8859-1"
     pageEncoding="ISO-8859-1"%>
-<%@ page import="java.security.cert.X509Certificate" %>
+<%@ page import="java.security.cert.Certificate" %>
 <%@ page import="org.apache.geronimo.ca.helper.util.CAHelperUtils"%>
 <%@ page import="org.apache.geronimo.util.CaUtils"%>
 <%@ page import="org.apache.geronimo.util.CertificateUtil"%>
+<%@ page import="org.apache.geronimo.management.geronimo.*"%>
+<%@ page import="java.math.BigInteger"%>
 <%
-    X509Certificate cert = (X509Certificate) CAHelperUtils.getCertificateStore().getCACertificate();
-    request.setAttribute("cert", cert);
-    String base64Cert = CaUtils.base64Certificate(cert);
-    String fpSHA1 = CertificateUtil.generateFingerprint(cert, "SHA1");
-    String fpMD5 = CertificateUtil.generateFingerprint(cert, "MD5");
+    String csrId = request.getParameter("csrId");
+    CertificateRequestStore certReqStore = CAHelperUtils.getCertificateRequestStore();
+    BigInteger sNo = certReqStore.getSerialNumberForRequest(csrId);
+    String base64Cert = null;
+    String fpSHA1 = null;
+    String fpMD5 = null;
+    if(sNo != null) {
+        CertificateStore certStore = CAHelperUtils.getCertificateStore();
+        Certificate cert = certStore.getCertificate(sNo);
+        request.setAttribute("cert", cert);
+        base64Cert = CaUtils.base64Certificate(cert);
+        fpSHA1 = CertificateUtil.generateFingerprint(cert, "SHA1");
+        fpMD5 = CertificateUtil.generateFingerprint(cert, "MD5");
+    }
 %>
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
-<title>Download CA's Certificate</title>
+<title>Install Personal Certificate</title>
 </head>
 <body>
-<h2>Download CA's Certificate</h2>
-<p>This page enables you to download and install CA's certificate into your web browser.</p>
+<h2>Install Personal Certificate</h2>
+<p>This page enables you to download and install a personal certificate into your web browser.</p>
 
+<%if(sNo == null) {%>
+ERROR: Either the CSR is yet to be fulfilled or the csrId <%=csrId%> is invalid.
+<%} else {%>
 <SCRIPT LANGUAGE="VBScript">
 <!--
 Sub Install_Onclick
-    certificate = document.installForm.caCert.value
+    certificate = document.installForm.cert.value
     On Error Resume Next
     Dim Enroll
 
@@ -55,27 +69,27 @@ Sub Install_Onclick
     if Err.Number <> 0 then
         MsgBox("Error in creating CEnroll object.  error:" & Hex(err))
     Else
-        Call Enroll.installPKCS7(certificate)
+        Call Enroll.acceptPKCS7(certificate)
         If err.Number <> 0 then
             MsgBox("Certificate installation failed.  error: "& Hex(err))
         Else
-            MsgBox("CA Certificate installed sucessfully")
+            MsgBox("Certificate installed sucessfully")
         End if
     End If
 End sub
 -->
 </SCRIPT>
 
-To install CA's certificate into Internet Explorer, click on the <i>Install CA's Certificate</i> button below.
-For other web browsers, click on <a href="DownloadCertificateServlet?type=ca">this link</a>.
+To install your certificate into Internet Explorer, click on the <i>Install Certificate</i> button below.
+For other web browsers, click on <a href="DownloadCertificateServlet?csrId=<%=csrId%>">this link</a>.
 <form>
-    <input type="button" value="Install CA's Certificate" onClick="Install_Onclick()"/>
+    <input type="button" value="Install Certificate" onClick="Install_Onclick()"/>
 </form>
 
 <br><b>Base64 encoded Certificate Text</b>
 <br>
 <form name="installForm">
-    <textarea name="cacert" rows="10" cols="80" READONLY><%=base64Cert%></textarea>
+    <textarea name="cert" rows="10" cols="80" READONLY><%=base64Cert%></textarea>
 </form>
 
     <table border="0">
@@ -123,7 +137,7 @@ For other web browsers, click on <a href="DownloadCertificateServlet?type=ca">th
             <td><pre>${cert}</pre></td>
         </tr>
     </table>
-
+<%}%>
 <br><a href="<%=request.getContextPath()%>">Back to CA Helper home</a>
 
 </body>
