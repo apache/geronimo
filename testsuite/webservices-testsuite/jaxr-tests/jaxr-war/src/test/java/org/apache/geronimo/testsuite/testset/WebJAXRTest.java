@@ -47,6 +47,8 @@ public class WebJAXRTest extends TestSupport {
         assertNotNull(warName);
         URL url = new URL(baseURL + warName + address);
         HttpURLConnection connection = (HttpURLConnection)url.openConnection();
+        connection.setConnectTimeout(30 * 1000);
+        connection.setReadTimeout(30 * 1000);
         try {
             BufferedReader reader = 
                 new BufferedReader(new InputStreamReader(connection.getInputStream()));

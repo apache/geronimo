@@ -174,6 +174,8 @@ public class JaxWSTest extends TestSupport {
     }
     
     private String call(InputStream requestInput, HttpURLConnection conn) throws IOException {        
+        conn.setConnectTimeout(30 * 1000);
+        conn.setReadTimeout(30 * 1000);
         conn.setDoOutput(true);
         conn.setDoInput(true);
         conn.setUseCaches(false);
@@ -231,6 +233,8 @@ public class JaxWSTest extends TestSupport {
         
         URL url = new URL(baseURL + warName + servlet + "?wsdl");
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+        conn.setConnectTimeout(30 * 1000);
+        conn.setReadTimeout(30 * 1000);
         try {
             conn.setUseCaches(false);
 
@@ -271,6 +275,8 @@ public class JaxWSTest extends TestSupport {
         assertNotNull(warName);
         URL url = new URL(baseURL + warName + "/JAXWSClient.jsp?name=Tester");
         HttpURLConnection connection = (HttpURLConnection)url.openConnection();
+        connection.setConnectTimeout(30 * 1000);
+        connection.setReadTimeout(30 * 1000);
         try {
             BufferedReader reader = 
                 new BufferedReader(new InputStreamReader(connection.getInputStream()));

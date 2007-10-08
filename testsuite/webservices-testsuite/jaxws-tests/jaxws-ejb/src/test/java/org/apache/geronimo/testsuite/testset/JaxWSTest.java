@@ -152,6 +152,8 @@ public class JaxWSTest extends TestSupport {
     }
     
     private String call(InputStream requestInput, HttpURLConnection conn) throws IOException {        
+        conn.setConnectTimeout(30 * 1000);
+        conn.setReadTimeout(30 * 1000);
         conn.setDoOutput(true);
         conn.setDoInput(true);
         conn.setUseCaches(false);
@@ -196,6 +198,8 @@ public class JaxWSTest extends TestSupport {
     public void testWSDL() throws Exception {
         URL url = new URL(baseURL + "JAXWSBeanService/JAXWSBean?wsdl");
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+        conn.setConnectTimeout(30 * 1000);
+        conn.setReadTimeout(30 * 1000);
         try {
             conn.setUseCaches(false);
 
