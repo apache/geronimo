@@ -223,6 +223,10 @@ public class FileCertificateRequestStore implements CertificateRequestStore, GBe
      */
     public BigInteger getSerialNumberForRequest(String id) {
         BigInteger sNo = null;
+        if(requestStatus.getProperty(id) == null) {
+            // No such request
+            return null;
+        }
         try {
             sNo = new BigInteger(requestStatus.getProperty(id));
         } catch(NumberFormatException e) {
