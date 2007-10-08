@@ -69,6 +69,7 @@ public class CaUtils {
     public static final String CERT_HEADER = "-----BEGIN CERTIFICATE-----";
     public static final String CERT_FOOTER = "-----END CERTIFICATE-----";
     public static final String CERT_REQ_HEADER = "-----BEGIN CERTIFICATE REQUEST-----";
+    public static final String CERT_REQ_FOOTER = "-----END CERTIFICATE REQUEST-----";
     public static final int B64_LINE_SIZE = 76;
     public static final String CERT_REQ_SUBJECT = "subject";
     public static final String CERT_REQ_PUBLICKEY = "publickey";
