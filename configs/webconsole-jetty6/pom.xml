@@ -30,7 +30,7 @@
     </parent>
 
     <artifactId>webconsole-jetty6</artifactId>
-    <name>Geronimo Admin Console (Jetty)</name>
+    <name>Geronimo Configs :: WebConsole Jetty</name>
     <packaging>car</packaging>
     <description>
         The web-based administration console for Geronimo. You can

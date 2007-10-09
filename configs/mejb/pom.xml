@@ -79,6 +79,7 @@
                         <deploymentConfig>${gbeanDeployer}</deploymentConfig>
                         <deploymentConfig>${openejbDeployer}</deploymentConfig>
                     </deploymentConfigs>
+                    <category>EJB</category>
                     <module>
                         <groupId>org.apache.geronimo.applications</groupId>
                         <artifactId>geronimo-mejb</artifactId>
