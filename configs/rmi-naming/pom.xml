@@ -116,7 +116,7 @@
                             </config-xml-content>
                             <config-substitution key="ServerHostname">localhost</config-substitution>
                             <config-substitution key="NamingPort">1099</config-substitution>
-                            <config-substitution key="ThreadPoolSize">150</config-substitution>
+                            <config-substitution key="ThreadPoolSize">500</config-substitution>
                         </plugin-artifact>
                     </instance>
                 </configuration>
