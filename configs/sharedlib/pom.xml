@@ -21,7 +21,6 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
     <modelVersion>4.0.0</modelVersion>
-    
     <parent>
         <groupId>org.apache.geronimo.configs</groupId>
         <artifactId>configs</artifactId>
@@ -32,16 +31,31 @@
     <artifactId>sharedlib</artifactId>
     <name>Geronimo Configs :: Shared Library</name>
     <packaging>car</packaging>
+    <description>Shared Library GBean</description>
     
     <dependencies>
-        
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
             <artifactId>rmi-naming</artifactId>
             <version>${version}</version>
             <type>car</type>
         </dependency>
-        
     </dependencies>
-    
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.geronimo.plugins</groupId>
+                <artifactId>car-maven-plugin</artifactId>
+                <configuration>
+                    <category>Example</category>
+                    <useMavenDependencies>
+                        <value>true</value>
+                        <includeVersion>true</includeVersion>
+                    </useMavenDependencies>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
 </project>
