@@ -50,6 +50,7 @@ public class POJOWebServiceContainerFactoryGBean implements WebServiceContainerF
     private URL configurationBaseUrl;
     private Context context;
     private AnnotationHolder holder;
+    private String contextRoot;
 
     public POJOWebServiceContainerFactoryGBean(org.apache.geronimo.jaxws.PortInfo portInfo,
                                                String endpointClassName,
@@ -58,7 +59,8 @@ public class POJOWebServiceContainerFactoryGBean implements WebServiceContainerF
                                                Kernel kernel,
                                                TransactionManager transactionManager,
                                                URL configurationBaseUrl,
-                                               AnnotationHolder holder)
+                                               AnnotationHolder holder,
+                                               String contextRoot)
         throws InstantiationException, IllegalAccessException, ClassNotFoundException {
         
         if (componentContext != null) {
@@ -82,10 +84,11 @@ public class POJOWebServiceContainerFactoryGBean implements WebServiceContainerF
         this.endpointClassName = endpointClassName;
         this.configurationBaseUrl = configurationBaseUrl;   
         this.holder = holder;
+        this.contextRoot = contextRoot;
     }
 
     public WebServiceContainer getWebServiceContainer() {
-        POJOWebServiceContainer container = new POJOWebServiceContainer(portInfo, endpointClassName, classLoader, context, configurationBaseUrl, holder);
+        POJOWebServiceContainer container = new POJOWebServiceContainer(portInfo, endpointClassName, classLoader, context, configurationBaseUrl, holder, contextRoot);
         try {
             container.init();
         } catch (Exception e) {
@@ -112,9 +115,20 @@ public class POJOWebServiceContainerFactoryGBean implements WebServiceContainerF
         infoBuilder.addReference("TransactionManager", TransactionManager.class, NameFactory.TRANSACTION_MANAGER);
         infoBuilder.addAttribute("configurationBaseUrl", URL.class, true);
         infoBuilder.addAttribute("holder", AnnotationHolder.class, true);
+        infoBuilder.addAttribute("contextRoot", String.class, true, true);
 
-        infoBuilder.setConstructor(new String[]{"portInfo", "endpointClassName", "classLoader",
-                "componentContext", "kernel", "TransactionManager", "configurationBaseUrl", "holder"});
+        infoBuilder.setConstructor(new String[]{
+            "portInfo",
+            "endpointClassName",
+            "classLoader",
+            "componentContext",
+            "kernel",
+            "TransactionManager", 
+            "configurationBaseUrl",
+            "holder",
+            "contextRoot"
+        });
+        
         GBEAN_INFO = infoBuilder.getBeanInfo();
     }
 

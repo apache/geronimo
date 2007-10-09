@@ -30,7 +30,6 @@ import org.apache.axis2.jaxws.registry.FactoryRegistry;
 import org.apache.axis2.jaxws.server.endpoint.lifecycle.factory.EndpointLifecycleManagerFactory;
 import org.apache.axis2.transport.http.HTTPConstants;
 import org.apache.axis2.transport.http.HTTPTransportUtils;
-import org.apache.axis2.util.JavaUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.axis2.Axis2WebServiceContainer;
@@ -46,7 +45,7 @@ public class POJOWebServiceContainer extends Axis2WebServiceContainer {
     private static final Log LOG = LogFactory.getLog(POJOWebServiceContainer.class);
     
     private Object endpointInstance;
-    private String contextRoot = null;
+    private String contextRoot;
     private AnnotationHolder holder;
     
     public POJOWebServiceContainer(PortInfo portInfo,
@@ -54,9 +53,11 @@ public class POJOWebServiceContainer extends Axis2WebServiceContainer {
                                    ClassLoader classLoader,
                                    Context context,
                                    URL configurationBaseUrl,
-                                   AnnotationHolder holder) {
+                                   AnnotationHolder holder,
+                                   String contextRoot) {
         super(portInfo, endpointClassName, classLoader, context, configurationBaseUrl);
         this.holder = holder;
+        this.contextRoot = contextRoot;
     }
     
     @Override
@@ -70,7 +71,12 @@ public class POJOWebServiceContainer extends Axis2WebServiceContainer {
         FactoryRegistry.setFactory(EndpointLifecycleManagerFactory.class, 
                                    new POJOEndpointLifecycleManagerFactory());
                        
-        this.configurationContext.setServicePath(this.portInfo.getLocation());
+        String servicePath = trimContext(getServicePath(this.contextRoot));
+        this.configurationContext.setServicePath(servicePath);
+        //need to setContextRoot after servicePath as cachedServicePath is only built 
+        //when setContextRoot is called.
+        String rootContext = trimContext(this.contextRoot);
+        this.configurationContext.setContextRoot(rootContext); 
         
         // instantiate and inject resources into service
         try {
@@ -123,27 +129,7 @@ public class POJOWebServiceContainer extends Axis2WebServiceContainer {
             POJOWebServiceContext.clear();
         } 
     }
-    
-    protected void initContextRoot(Request request) {
-        if (contextRoot == null || "".equals(contextRoot)) {
-            String[] parts = JavaUtils.split(request.getContextPath(), '/');
-            if (parts != null) {
-                for (int i = 0; i < parts.length; i++) {
-                    if (parts[i].length() > 0) {
-                        contextRoot = parts[i];
-                        break;
-                    }
-                }
-            }
-            if (contextRoot == null || request.getContextPath().equals("/")) {
-                contextRoot = "/";
-            }
-            //need to setContextRoot after servicePath as cachedServicePath is only built 
-            //when setContextRoot is called.
-            configurationContext.setContextRoot(contextRoot);  
-        }
-    }     
-    
+        
     @Override
     public void destroy() {
         // call handler preDestroy

@@ -38,7 +38,6 @@ import org.apache.openejb.DeploymentInfo;
  */
 public class EJBWebServiceContainer extends Axis2WebServiceContainer {
 
-    private String contextRoot = null;
     private DeploymentInfo deploymnetInfo;
     
     public EJBWebServiceContainer(PortInfo portInfo,
@@ -55,6 +54,23 @@ public class EJBWebServiceContainer extends Axis2WebServiceContainer {
     public void init() throws Exception { 
         super.init();
         
+        String rootContext = null;
+        String servicePath = null;
+        String location = trimContext(this.portInfo.getLocation());
+        int pos = location.indexOf('/');     
+        if (pos > 0) {
+            rootContext = location.substring(0, pos);
+            servicePath = location.substring(pos + 1);
+        } else {
+            rootContext = "/";
+            servicePath = location;
+        }
+        
+        this.configurationContext.setServicePath(servicePath);
+        //need to setContextRoot after servicePath as cachedServicePath is only built 
+        //when setContextRoot is called.
+        this.configurationContext.setContextRoot(rootContext); 
+
         // configure handlers
         try {
             configureHandlers();
@@ -70,39 +86,6 @@ public class EJBWebServiceContainer extends Axis2WebServiceContainer {
             new EJBMessageReceiver(this, this.endpointClass, this.deploymnetInfo);
         serviceGenerator.setMessageReceiver(messageReceiver);
         return serviceGenerator;
-    }
-    
-    @Override
-    protected void initContextRoot(Request request) {       
-        String servicePath = portInfo.getLocation();
-        
-        if (contextRoot == null || "".equals(contextRoot)) {
-            String[] parts = JavaUtils.split(request.getContextPath(), '/');
-            if (parts != null) {
-                for (int i = 0; i < parts.length; i++) {
-                    if (parts[i].length() > 0) {
-                        contextRoot = parts[i];
-                        break;
-                    }
-                }
-            }
-            if (contextRoot == null || request.getContextPath().equals("/")) {
-                contextRoot = "/";
-            } else { //when contextRoot is not "/"
-                //set the servicePath here for EJB.
-                //check if portInfo.getLocation() contains contextRoot, if so, strip it.
-                int i = servicePath.indexOf(contextRoot);
-                if (i > -1) {
-                    servicePath = servicePath.substring(i + contextRoot.length() + 1);
-                    servicePath.trim();
-                }
-            }
-            configurationContext.setServicePath(servicePath);
-            
-            //need to setContextRoot after servicePath as cachedServicePath is only built 
-            //when setContextRoot is called.
-            configurationContext.setContextRoot(contextRoot);  
-        } 
     }
     
     public synchronized void injectHandlers() {
