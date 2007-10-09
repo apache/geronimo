@@ -43,8 +43,6 @@ public class JMSServerTest extends ConsoleTestSupport {
             selenium.click("//a[@onclick=\"return confirm('Are you sure you want to delete uniquename?');\"]");
             selenium.waitForPageToLoad("30000");
             assertTrue(selenium.getConfirmation().matches("^Are you sure you want to delete uniquename[\\s\\S]$"));
-        } catch(Exception e) {
-        
         } finally {
             logout();
         }
@@ -63,8 +61,6 @@ public class JMSServerTest extends ConsoleTestSupport {
             selenium.click("//tr[4]/td[6]/a[1]");
             selenium.waitForPageToLoad("30000");
             assertEquals("running", selenium.getText("//tr[4]/td[5]"));
-        } catch(Exception e) {
-        
         } finally {
             logout();
         }
@@ -90,7 +86,6 @@ public class JMSServerTest extends ConsoleTestSupport {
             selenium.click("submit");
             selenium.waitForPageToLoad("30000");
             assertTrue(selenium.isTextPresent("61612"));
-        } catch(Exception e) {
         } finally {
             logout();
         }
