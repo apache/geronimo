@@ -60,6 +60,8 @@ public class JaxRPCTest extends TestSupport {
                 
         URL url = new URL(baseURL + warName + "/servlet");
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+        conn.setConnectTimeout(30 * 1000);
+        conn.setReadTimeout(30 * 1000);
         try {
             conn.setDoOutput(true);
             conn.setDoInput(true);
@@ -110,6 +112,8 @@ public class JaxRPCTest extends TestSupport {
         
         URL url = new URL(baseURL + warName + "/servlet?wsdl");
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+        conn.setConnectTimeout(30 * 1000);
+        conn.setReadTimeout(30 * 1000);
         try {
             conn.setUseCaches(false);
 
