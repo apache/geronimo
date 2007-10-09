@@ -63,8 +63,6 @@ public class JMSResourcesTest extends ConsoleTestSupport {
             selenium.click("link=JMS Resources");
             selenium.waitForPageToLoad("30000");
             assertFalse(selenium.isTextPresent("UniqueName (console.jms/UniqueName/1.0/rar)"));
-        } catch(Exception e) {
-        
         } finally {
             logout();
         }

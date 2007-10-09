@@ -34,8 +34,6 @@ public class DeploymentTest extends ConsoleTestSupport {
             selenium.click("//input[@value='Install']");
             selenium.waitForPageToLoad("30000");
             assertTrue(selenium.isTextPresent("Deployment failed:"));
-        } catch(Exception e) {
-        
         } finally {
             logout();
         }

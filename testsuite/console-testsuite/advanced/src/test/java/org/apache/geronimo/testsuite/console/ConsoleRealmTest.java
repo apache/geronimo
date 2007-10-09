@@ -44,8 +44,6 @@ public class ConsoleRealmTest extends ConsoleTestSupport {
             assertTrue(selenium.getConfirmation().matches("^Confirm Delete user myuser[\\s\\S]$"));
             selenium.waitForPageToLoad("30000");
             assertFalse(selenium.isTextPresent("myuser"));
-        } catch(Exception e) {
-        
         } finally {
             logout();
         }
@@ -69,8 +67,6 @@ public class ConsoleRealmTest extends ConsoleTestSupport {
             assertTrue(selenium.getConfirmation().matches("^Confirm Delete group mygroup[\\s\\S]$"));
             selenium.waitForPageToLoad("30000");
             assertFalse(selenium.isTextPresent("mygroup"));
-        } catch(Exception e) {
-        
         } finally {
             logout();
         }

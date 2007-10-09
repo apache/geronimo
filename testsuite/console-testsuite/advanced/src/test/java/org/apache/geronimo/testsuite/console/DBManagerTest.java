@@ -51,8 +51,6 @@ public class DBManagerTest extends ConsoleTestSupport {
             assertTrue(selenium.getConfirmation().matches("^Are you sure you want to delete this database[\\s\\S]$"));
             selenium.waitForPageToLoad("30000");
             assertTrue(selenium.isTextPresent("Database deleted: MyUniqueDB"));
-        } catch(Exception e) {
-        
         } finally {
             logout();
         }
