@@ -109,11 +109,11 @@
                     <plugin>
                         <groupId>org.apache.geronimo.genesis.plugins</groupId>
                         <artifactId>maven-maven-plugin</artifactId>
-                        <!-- Skipping tomcat tests  for now  till we figure out how to switch it dynamically -->
+                        <!-- Skipping jetty tests  for now  till we figure out how to switch it dynamically -->
                         <configuration>
                           <fileset>
                             <excludes>
-                              <exclude>test-tomcat/pom.xml</exclude>
+                              <exclude>test-jetty/pom.xml</exclude>
                             </excludes>
                           </fileset>
                         </configuration>
