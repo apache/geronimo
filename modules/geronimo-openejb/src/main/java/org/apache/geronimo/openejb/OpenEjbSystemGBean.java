@@ -30,6 +30,7 @@ import javax.ejb.spi.HandleDelegate;
 import javax.management.ObjectName;
 import javax.naming.NamingException;
 import javax.naming.Context;
+import javax.naming.LinkRef;
 import javax.naming.NameAlreadyBoundException;
 import javax.persistence.EntityManagerFactory;
 import javax.resource.spi.ResourceAdapter;
@@ -127,6 +128,10 @@ public class OpenEjbSystemGBean implements OpenEjbSystem {
             rootContext.bind("openejb/ejb/.", "");
             rootContext.bind("openejb/client/.", "");
             rootContext.bind("openejb/Deployment/.", "");
+            // temporary hack to map old MEJBGBean jndi name (specified in o.a.openejb.config.GeronimoMappedName
+            // and shipped in openejb-3.0-beta-1) to new mejb jndi name.
+            LinkRef linkRef = new LinkRef("openejb/Deployment/mejb/ejb/mgmt/MEJB/javax.management.j2ee.Management");
+            rootContext.bind("openejb/Deployment/MEJBGBean/MEJB/javax.management.j2ee.Management", linkRef);
         } catch (NameAlreadyBoundException workaroundAlreadyApplied) {
         }
 
