@@ -285,6 +285,14 @@
                                     <configuration>
                                         <logOutput>true</logOutput>
                                         <background>true</background>
+                                        <optionSets>
+                                            <optionSet>
+                                                <id>default</id>
+                                                <options>
+                                                   <option>-XX:MaxPermSize=128m</option>
+                                                </options>
+                                            </optionSet>
+                                        </optionSets>
                                     </configuration>
                                 </execution>
                                 <execution>
