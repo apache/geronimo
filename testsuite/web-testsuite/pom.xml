@@ -45,6 +45,10 @@
          - JSTL
     </description>
 
+    <properties>
+      <excludeTest>test-tomcat</excludeTest>
+    </properties>
+
     <build>
         <plugins>
             <plugin>
@@ -109,11 +113,11 @@
                     <plugin>
                         <groupId>org.apache.geronimo.genesis.plugins</groupId>
                         <artifactId>maven-maven-plugin</artifactId>
-                        <!-- Skipping jetty tests  for now  till we figure out how to switch it dynamically -->
+                        <!-- Skip tomcat (or jetty) tests for now till we figure out how to switch it dynamically -->
                         <configuration>
                           <fileset>
                             <excludes>
-                              <exclude>test-jetty/pom.xml</exclude>
+                              <exclude>${excludeTest}/pom.xml</exclude>
                             </excludes>
                           </fileset>
                         </configuration>
