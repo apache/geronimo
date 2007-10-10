@@ -61,7 +61,9 @@ function validateForm(){
 <h2>Request Certificate: Enter Name Details</h2>
 <p>This is  step 1 of 2 in requesting your certificate.  Please enter your identity details below.
 The optional <i>Challenge Phrase</i> can be used later on if you ever need to revoke your certificate.
-The next screen will let you review these details before submitting the certificate request.</p>
+The next screen will let you review these details before submitting the certificate request.
+If you do not want the browser to generate a CSR and would like to enter the CSR text directly,
+use the <a href="submitCSR.jsp">CSR submission page</a> instead.</p>
 
 <form action="confirmRequest.jsp" method="post" name="CertReqForm">
     <table border="0">
