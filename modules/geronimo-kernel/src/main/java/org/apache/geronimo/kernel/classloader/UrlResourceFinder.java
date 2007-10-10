@@ -34,12 +34,16 @@ import java.util.StringTokenizer;
 import java.util.jar.Attributes;
 import java.util.jar.Manifest;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 /**
  * @version $Rev$ $Date$
  */
 public class UrlResourceFinder implements ResourceFinder {
     private final Object lock = new Object();
 
+    private static final Log log = LogFactory.getLog(UrlResourceFinder.class);
     private final LinkedHashSet<URL> urls = new LinkedHashSet<URL>();
     private final LinkedHashMap<URL,ResourceLocation> classPath = new LinkedHashMap<URL,ResourceLocation>();
     private final LinkedHashSet<File> watchedFiles = new LinkedHashSet<File>();
@@ -196,6 +200,11 @@ public class UrlResourceFinder implements ResourceFinder {
                         // so don't keep a watch out for it because that would require lots of checking
                         // Dain: We may want to review this decision later
                         continue;
+                    } catch (UnsupportedOperationException ex) {
+                        // the protocol for the JAR file's URL is not supported.  This can occur when
+                        // the jar file is embedded in an EAR or CAR file.  Proceed but log the message.
+                        log.error(ex);
+                        continue;
                     }
                 }
 
@@ -219,7 +228,7 @@ public class UrlResourceFinder implements ResourceFinder {
     protected File cacheUrl(URL url) throws IOException {
         if (!"file".equals(url.getProtocol())) {
             // download the jar
-            throw new Error("Only local file jars are supported " + url);
+            throw new UnsupportedOperationException("Only local file jars are supported " + url);
         }
 
         File file = new File(url.getPath());

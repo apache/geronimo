@@ -2027,7 +2027,7 @@
                 <module>maven-plugins</module>
                 <module>applications</module>
                 <module>configs</module>
-                <!-- <module>plugins</module> -->
+                <module>plugins</module>
                 <module>assemblies</module>
             </modules>
         </profile>
@@ -2103,7 +2103,7 @@
             <modules>
                 <module>applications</module>
                 <module>configs</module>
-                <!-- <module>plugins</module> -->
+                <module>plugins</module>
                 <module>assemblies</module>
             </modules>
         </profile>
@@ -2126,7 +2126,7 @@
                 <module>maven-plugins</module>
                 <module>applications</module>
                 <module>configs</module>
-                <!-- <module>plugins</module> -->
+                <module>plugins</module>
             </modules>
         </profile>
 
