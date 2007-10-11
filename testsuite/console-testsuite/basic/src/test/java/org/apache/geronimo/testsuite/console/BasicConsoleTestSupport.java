@@ -19,8 +19,9 @@
 
 package org.apache.geronimo.testsuite.console;
 
-import org.testng.annotations.*;
 import org.apache.geronimo.testsupport.console.ConsoleTestSupport;
+import org.testng.annotations.AfterMethod;
+import org.testng.annotations.BeforeMethod;
 
 public class BasicConsoleTestSupport extends ConsoleTestSupport {
 
