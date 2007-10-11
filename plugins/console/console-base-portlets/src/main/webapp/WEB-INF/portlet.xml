@@ -474,7 +474,7 @@ limitations under the License.
         </supports>
         <supported-locale>en</supported-locale>
         <portlet-info>
-            <title>EARModules</title>
+            <title>Installed Application EARs</title>
             <short-title>EARModules</short-title>
             <keywords></keywords>
         </portlet-info>
@@ -496,7 +496,7 @@ limitations under the License.
         </supports>
         <supported-locale>en</supported-locale>
         <portlet-info>
-            <title>EJBModules</title>
+            <title>Installed EJB JARs</title>
             <short-title>EJBModules</short-title>
             <keywords></keywords>
         </portlet-info>
@@ -518,7 +518,7 @@ limitations under the License.
         </supports>
         <supported-locale>en</supported-locale>
         <portlet-info>
-            <title>RARModules</title>
+            <title>Installed J2EE Connectors</title>
             <short-title>RARModules</short-title>
             <keywords></keywords>
         </portlet-info>
@@ -540,7 +540,7 @@ limitations under the License.
         </supports>
         <supported-locale>en</supported-locale>
         <portlet-info>
-            <title>ClientModules</title>
+            <title>Installed Application Clients</title>
             <short-title>ClientModules</short-title>
             <keywords></keywords>
         </portlet-info>
