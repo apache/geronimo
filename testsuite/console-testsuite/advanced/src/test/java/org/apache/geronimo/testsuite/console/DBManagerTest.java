@@ -38,7 +38,7 @@ public class DBManagerTest extends ConsoleTestSupport {
             selenium.type("sqlStmts", "create table myTable ( id int primary key );");
             selenium.select("useDB", "label=SystemDatabase");
             selenium.select("useDB", "label=MyUniqueDB");
-            selenium.click("document.Pluto_internalDB_DBManager_row2_col1_p1_DBForm.action[2]");
+            selenium.click("//input[@value = 'Run SQL']");
             selenium.waitForPageToLoad("30000");
             //selenium.click("link=Application");
             selenium.click("//a[contains(@href, 'db=MyUniqueDB')]");
@@ -46,7 +46,7 @@ public class DBManagerTest extends ConsoleTestSupport {
             assertTrue(selenium.isTextPresent("MYTABLE"));
             selenium.select("deleteDB", "label=SystemDatabase");
             selenium.select("deleteDB", "label=MyUniqueDB");
-            selenium.click("document.Pluto_internalDB_DBManager_row2_col1_p1_DBForm.action[1]");
+            selenium.click("//input[@value = 'Delete']");
             selenium.waitForPageToLoad("30000");
             assertTrue(selenium.getConfirmation().matches("^Are you sure you want to delete this database[\\s\\S]$"));
             selenium.waitForPageToLoad("30000");

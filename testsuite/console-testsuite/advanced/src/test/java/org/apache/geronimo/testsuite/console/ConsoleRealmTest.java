@@ -29,7 +29,7 @@ public class ConsoleRealmTest extends ConsoleTestSupport {
         try {
             login();
 
-            selenium.click("link=Console Realm");
+            selenium.click("link=Users and Groups");
             selenium.waitForPageToLoad("30000");
             selenium.click("link=Create New User");
             selenium.waitForPageToLoad("30000");
@@ -54,7 +54,7 @@ public class ConsoleRealmTest extends ConsoleTestSupport {
         try {
             login();
             
-            selenium.click("link=Console Realm");
+            selenium.click("link=Users and Groups");
             selenium.waitForPageToLoad("30000");
             selenium.click("link=Create New Group");
             selenium.waitForPageToLoad("30000");

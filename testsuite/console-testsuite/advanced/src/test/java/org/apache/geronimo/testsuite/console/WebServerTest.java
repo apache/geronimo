@@ -50,7 +50,7 @@ public class WebServerTest extends ConsoleTestSupport {
             String name = "uniquename2";
             addConnector(name, 8082);
 
-            String connectorSelector = "//tr[2]/td[2]/table//tr[td[1] = \"" + name + "\"]";
+            String connectorSelector = "//tr[td[1] = \"" + name + "\"]";
             
             selenium.click(connectorSelector + "/td[5]/a[2]");        
             selenium.waitForPageToLoad("30000");
@@ -82,7 +82,7 @@ public class WebServerTest extends ConsoleTestSupport {
             String name = "uniquename3";
             addConnector(name, 8083);
 
-            String connectorSelector = "//tr[2]/td[2]/table//tr[td[1] = \"" + name + "\"]";
+            String connectorSelector = "//tr[td[1] = \"" + name + "\"]";
 
             assertEquals("running", selenium.getText(connectorSelector + "/td[4]"));
             selenium.click(connectorSelector + "/td[5]/a[1]");
