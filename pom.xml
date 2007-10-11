@@ -771,47 +771,192 @@
                 <groupId>org.apache.openejb</groupId>
                 <artifactId>openejb-core</artifactId>
                 <version>${openejbVersion}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.apache.xbean</groupId>
+                        <artifactId>xbean-finder</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.apache.xbean</groupId>
+                        <artifactId>xbean-naming</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.apache.xbean</groupId>
+                        <artifactId>xbean-reflect</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>commons-dbcp</groupId>
+                        <artifactId>commons-dbcp</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
 
             <dependency>
                 <groupId>org.apache.openejb</groupId>
                 <artifactId>openejb-client</artifactId>
                 <version>${openejbVersion}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.apache.xbean</groupId>
+                        <artifactId>xbean-finder</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.apache.xbean</groupId>
+                        <artifactId>xbean-naming</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.apache.xbean</groupId>
+                        <artifactId>xbean-reflect</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>commons-dbcp</groupId>
+                        <artifactId>commons-dbcp</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
 
             <dependency>
                 <groupId>org.apache.openejb</groupId>
                 <artifactId>openejb-ejbd</artifactId>
                 <version>${openejbVersion}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.apache.xbean</groupId>
+                        <artifactId>xbean-finder</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.apache.xbean</groupId>
+                        <artifactId>xbean-naming</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.apache.xbean</groupId>
+                        <artifactId>xbean-reflect</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>commons-dbcp</groupId>
+                        <artifactId>commons-dbcp</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
 
             <dependency>
                 <groupId>org.apache.openejb</groupId>
                 <artifactId>openejb-axis</artifactId>
                 <version>${openejbVersion}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.apache.xbean</groupId>
+                        <artifactId>xbean-finder</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.apache.xbean</groupId>
+                        <artifactId>xbean-naming</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.apache.xbean</groupId>
+                        <artifactId>xbean-reflect</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>commons-dbcp</groupId>
+                        <artifactId>commons-dbcp</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
 
             <dependency>
                 <groupId>org.apache.openejb</groupId>
                 <artifactId>openejb-server</artifactId>
                 <version>${openejbVersion}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.apache.xbean</groupId>
+                        <artifactId>xbean-finder</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.apache.xbean</groupId>
+                        <artifactId>xbean-naming</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.apache.xbean</groupId>
+                        <artifactId>xbean-reflect</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>commons-dbcp</groupId>
+                        <artifactId>commons-dbcp</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
 
             <dependency>
                 <groupId>org.apache.openejb</groupId>
                 <artifactId>openejb-loader</artifactId>
                 <version>${openejbVersion}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.apache.xbean</groupId>
+                        <artifactId>xbean-finder</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.apache.xbean</groupId>
+                        <artifactId>xbean-naming</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.apache.xbean</groupId>
+                        <artifactId>xbean-reflect</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>commons-dbcp</groupId>
+                        <artifactId>commons-dbcp</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
 
             <dependency>
                 <groupId>org.apache.openejb</groupId>
                 <artifactId>openejb-jee</artifactId>
                 <version>${openejbVersion}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.apache.xbean</groupId>
+                        <artifactId>xbean-finder</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.apache.xbean</groupId>
+                        <artifactId>xbean-naming</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.apache.xbean</groupId>
+                        <artifactId>xbean-reflect</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>commons-dbcp</groupId>
+                        <artifactId>commons-dbcp</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
+
             <dependency>
                 <groupId>org.apache.openejb</groupId>
                 <artifactId>openejb-javaagent</artifactId>
                 <version>${openejbVersion}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.apache.xbean</groupId>
+                        <artifactId>xbean-finder</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.apache.xbean</groupId>
+                        <artifactId>xbean-naming</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.apache.xbean</groupId>
+                        <artifactId>xbean-reflect</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>commons-dbcp</groupId>
+                        <artifactId>commons-dbcp</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
 
             <dependency>
