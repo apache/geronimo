@@ -37,6 +37,7 @@ import javax.management.ObjectName;
 import javax.portlet.PortletException;
 import javax.portlet.PortletRequest;
 
+import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.connector.deployment.AdminObjectRefBuilder.AdminObjectRefProcessor;
 import org.apache.geronimo.connector.deployment.ResourceRefBuilder.ResourceRefProcessor;
 import org.apache.geronimo.console.configcreator.AbstractHandler.ReferenceData;
@@ -141,7 +142,7 @@ public class JSR88_Util {
         try {
             classFinder = AbstractWebModuleBuilder.createWebAppClassFinder(webApp, classLoader);
             // classFinder = new ClassFinder(classLoader);
-        } catch (NoClassDefFoundError e1) {
+        } catch (DeploymentException e1) {
             // Some of the class types referred in the WAR cannot be resolved.
             // A typical case would be references to EJBs already deployed into the system, and
             // hence not packaged inside WEB-INF/lib directory of WAR.
@@ -151,7 +152,7 @@ public class JSR88_Util {
             classLoader = new WebDeployable(warUrl, getEjbClassLoaders(request)).getModuleLoader();
             try {
                 classFinder = AbstractWebModuleBuilder.createWebAppClassFinder(webApp, classLoader);
-            } catch (NoClassDefFoundError e2) {
+            } catch (DeploymentException e2) {
                 return;
             }
         }
