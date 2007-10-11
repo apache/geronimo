@@ -185,7 +185,6 @@
         <module>upgrade</module>
         <module>upgrade-cli</module>
         <module>wadi-clustering</module>
-        <module>webconsole-tomcat</module>
         <module>welcome-jetty</module>
         <module>welcome-tomcat</module>
         <module>dojo-tomcat</module>
@@ -214,7 +213,6 @@
         <module>myfaces-deployer</module>
         <module>transaction</module>
         <module>uddi-jetty6</module>
-        <module>webconsole-jetty6</module>
         <module>webservices-common</module>
         <module>jasper</module>
         <module>jasper-deployer</module>

@@ -356,8 +356,36 @@
         </dependency>
 
         <dependency>
-            <groupId>org.apache.geronimo.configs</groupId>
-            <artifactId>webconsole-tomcat</artifactId>
+            <groupId>org.apache.geronimo.plugins</groupId>
+            <artifactId>console-tomcat</artifactId>
+            <version>${version}</version>
+            <type>car</type>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.geronimo.plugins</groupId>
+            <artifactId>debugviews-tomcat</artifactId>
+            <version>${version}</version>
+            <type>car</type>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.geronimo.plugins</groupId>
+            <artifactId>system-database-tomcat</artifactId>
+            <version>${version}</version>
+            <type>car</type>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.geronimo.plugins</groupId>
+            <artifactId>activemq-tomcat</artifactId>
+            <version>${version}</version>
+            <type>car</type>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.geronimo.plugins</groupId>
+            <artifactId>plancreator-tomcat</artifactId>
             <version>${version}</version>
             <type>car</type>
         </dependency>

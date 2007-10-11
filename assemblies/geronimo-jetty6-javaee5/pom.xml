@@ -370,8 +370,36 @@
         </dependency>
 
         <dependency>
-            <groupId>org.apache.geronimo.configs</groupId>
-            <artifactId>webconsole-jetty6</artifactId>
+            <groupId>org.apache.geronimo.plugins</groupId>
+            <artifactId>console-jetty</artifactId>
+            <version>${version}</version>
+            <type>car</type>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.geronimo.plugins</groupId>
+            <artifactId>debugviews-jetty</artifactId>
+            <version>${version}</version>
+            <type>car</type>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.geronimo.plugins</groupId>
+            <artifactId>system-database-jetty</artifactId>
+            <version>${version}</version>
+            <type>car</type>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.geronimo.plugins</groupId>
+            <artifactId>activemq-jetty</artifactId>
+            <version>${version}</version>
+            <type>car</type>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.geronimo.plugins</groupId>
+            <artifactId>plancreator-jetty</artifactId>
             <version>${version}</version>
             <type>car</type>
         </dependency>

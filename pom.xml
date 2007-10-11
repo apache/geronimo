@@ -634,24 +634,6 @@
             </dependency>
 
             <dependency>
-                <groupId>org.apache.pluto</groupId>
-                <artifactId>pluto</artifactId>
-                <version>1.0.1</version>
-            </dependency>
-
-            <dependency>
-                <groupId>org.apache.pluto</groupId>
-                <artifactId>pluto-portal</artifactId>
-                <version>1.0.1</version>
-            </dependency>
-
-            <dependency>
-                <groupId>org.apache.pluto</groupId>
-                <artifactId>pluto-descriptors</artifactId>
-                <version>1.0.1</version>
-            </dependency>
-
-            <dependency>
                 <groupId>org.apache.activemq</groupId>
                 <artifactId>activemq-core</artifactId>
                 <version>4.1.1</version>
@@ -1538,6 +1520,131 @@
                 <artifactId>groovy-mojo-support</artifactId>
                 <version>1.0-beta-2</version>
             </dependency>
+
+            <dependency>
+                <groupId>org.apache.pluto</groupId>
+                <artifactId>pluto-portal-driver</artifactId>
+                <version>${plutoVersion}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>javax.servlet</groupId>
+                        <artifactId>jstl</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>taglibs</groupId>
+                        <artifactId>standard</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>javax.servlet</groupId>
+                        <artifactId>jsp-api</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>javax.servlet</groupId>
+                        <artifactId>servlet-api</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>xml-apis</groupId>
+                        <artifactId>xml-apis</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>junit</groupId>
+                        <artifactId>junit</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>junit</groupId>
+                        <artifactId>junit</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.springframework</groupId>
+                        <artifactId>spring-beans</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.springframework</groupId>
+                        <artifactId>spring-context</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.springframework</groupId>
+                        <artifactId>spring-core</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.springframework</groupId>
+                        <artifactId>spring-web</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.pluto</groupId>
+                <artifactId>pluto-portal-driver-impl</artifactId>
+                <version>${plutoVersion}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>javax.servlet</groupId>
+                        <artifactId>jstl</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>taglibs</groupId>
+                        <artifactId>standard</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>javax.servlet</groupId>
+                        <artifactId>jsp-api</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>javax.servlet</groupId>
+                        <artifactId>servlet-api</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>xml-apis</groupId>
+                        <artifactId>xml-apis</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>junit</groupId>
+                        <artifactId>junit</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.springframework</groupId>
+                        <artifactId>spring-beans</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.springframework</groupId>
+                        <artifactId>spring-context</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.springframework</groupId>
+                        <artifactId>spring-core</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.springframework</groupId>
+                        <artifactId>spring-web</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.pluto</groupId>
+                <artifactId>pluto-container</artifactId>
+                <version>${plutoVersion}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.pluto</groupId>
+                <artifactId>pluto-taglib</artifactId>
+                <version>${plutoVersion}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.pluto</groupId>
+                <artifactId>pluto-descriptor-impl</artifactId>
+                <version>${plutoVersion}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.pluto</groupId>
+                <artifactId>pluto-descriptor-api</artifactId>
+                <version>${plutoVersion}</version>
+            </dependency>
+
         </dependencies>
     </dependencyManagement>
 
