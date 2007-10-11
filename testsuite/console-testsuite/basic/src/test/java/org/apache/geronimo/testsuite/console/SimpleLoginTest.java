@@ -46,21 +46,23 @@ public class SimpleLoginTest
     
     @Test
     public void testClickSomeLinks() throws Exception {
-        login();
-        
-        selenium.click("link=Information");
-        selenium.waitForPageToLoad("30000");
-        assertEquals("Geronimo Console", selenium.getTitle());
-        
-        selenium.click("link=JVM");
-        selenium.waitForPageToLoad("30000");
-        assertEquals("Geronimo Console", selenium.getTitle());
-        
-        selenium.click("link=DB Info");
-        selenium.waitForPageToLoad("30000");
-        assertEquals("Geronimo Console", selenium.getTitle());
-        
-        logout();
+        try {
+            login();
+            
+            selenium.click("link=Information");
+            selenium.waitForPageToLoad("30000");
+            assertEquals("Geronimo Console", selenium.getTitle());
+            
+            selenium.click("link=Java System Info");
+            selenium.waitForPageToLoad("30000");
+            assertEquals("Geronimo Console", selenium.getTitle());
+            
+            selenium.click("link=DB Info");
+            selenium.waitForPageToLoad("30000");
+            assertEquals("Geronimo Console", selenium.getTitle());
+        } finally {
+            logout();
+        }
     }
 }
 

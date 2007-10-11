@@ -29,22 +29,18 @@ import org.apache.geronimo.testsupport.console.ConsoleTestSupport;
  */
 @Test
 public class SEGroupsPortletTest
-    extends ConsoleTestSupport
+    extends BasicConsoleTestSupport
 {
     @Test
     public void testSEGroupsLink() throws Exception {
-        login();
-        
-        selenium.click("link=Console Realm");
+        selenium.click("link=Users and Groups");
         selenium.waitForPageToLoad("30000");
         assertEquals("Geronimo Console", selenium.getTitle());
-        assertEquals("Console Realm Groups", selenium.getText(
-            "xpath=/html/body/table[@id='rootfragment']/tbody/tr[2]/td/table/tbody/tr[2]/td[4]/table/tbody/tr[3]/td/table/tbody/tr[1]/td/div/table/tbody/tr/td[2]/table/tbody/tr/td[1]/strong"));
+        assertEquals("Console Realm Groups", 
+                     selenium.getText(getPortletTitleLocation(2))); 
         // Test help link
-        selenium.click("//tr[3]/td/table/tbody/tr[1]/td/div/table/tbody/tr/td[2]/table/tbody/tr/td[2]/a[1]");
+        selenium.click(getPortletHelpLocation(2));
         selenium.waitForPageToLoad("30000");
         selenium.isTextPresent("This portlet lists all the Console Realm groups");
-       
-        logout();
     }
 }

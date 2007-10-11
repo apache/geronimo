@@ -29,22 +29,18 @@ import org.apache.geronimo.testsupport.console.ConsoleTestSupport;
  */
 @Test
 public class DeploymentPortletTest
-    extends ConsoleTestSupport
+    extends BasicConsoleTestSupport
 {
     @Test
     public void testDeploymentLink() throws Exception {
-        login();
-        
         selenium.click("link=Deploy New");
         selenium.waitForPageToLoad("30000");
         assertEquals("Geronimo Console", selenium.getTitle());
-        assertEquals("Install New Applications", selenium.getText(
-            "xpath=/html/body/table[@id='rootfragment']/tbody/tr[2]/td/table/tbody/tr[2]/td[4]/table/tbody/tr[1]/td/table/tbody/tr[1]/td/div/table/tbody/tr/td[2]/table/tbody/tr/td[1]/strong"));
+        assertEquals("Install New Applications", 
+                     selenium.getText(getPortletTitleLocation()));
         // Test help link
-        selenium.click("link=help");
+        selenium.click(getPortletHelpLocation());
         selenium.waitForPageToLoad("30000");
         selenium.isTextPresent("This portlet allows the user to deploy new applications on Geronimo.");
-        
-        logout();
     }
 }

@@ -19,28 +19,35 @@
 
 package org.apache.geronimo.testsuite.console;
 
-import org.testng.annotations.Test;
+import org.testng.annotations.*;
 import org.apache.geronimo.testsupport.console.ConsoleTestSupport;
 
-/**
- * JMS broker portlet tests
- *
- * @version $Rev$ $Date$
- */
-@Test
-public class JMSBrokerPortletTest
-    extends BasicConsoleTestSupport
-{
-    @Test
-    public void testJMSBrokerLink() throws Exception {
-        selenium.click("link=JMS Server");
-        selenium.waitForPageToLoad("30000");
-        assertEquals("Geronimo Console", selenium.getTitle());
-        assertEquals("JMS Server Manager", 
-                     selenium.getText(getPortletTitleLocation())); 
-        // Test help link
-        selenium.click(getPortletHelpLocation());
-        selenium.waitForPageToLoad("30000");
-        selenium.isTextPresent("Shows the available JMS brokers");
+public class BasicConsoleTestSupport extends ConsoleTestSupport {
+
+    @BeforeMethod
+    public void signIn() throws Exception {
+        login();
     }
+
+    @AfterMethod
+    public void singOut() throws Exception {
+        logout();
+    }
+    
+    protected String getPortletTitleLocation() {
+        return getPortletTitleLocation(1);
+    }
+    
+    protected String getPortletTitleLocation(int index) {
+        return "xpath=//div[@class = 'portlet'][" + index + "]/div/h2";
+    }
+    
+    protected String getPortletHelpLocation() {
+        return getPortletHelpLocation(1);
+    }
+    
+    protected String getPortletHelpLocation(int index) {
+        return "xpath=//div[@class = 'portlet'][" + index + "]/div/a[contains(@title, 'Help')]";
+    }
+
 }

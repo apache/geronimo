@@ -29,22 +29,18 @@ import org.apache.geronimo.testsupport.console.ConsoleTestSupport;
  */
 @Test
 public class DBViewerPortletTest
-    extends ConsoleTestSupport
+    extends BasicConsoleTestSupport
 {
     @Test
     public void testDBViewerLink() throws Exception {
-        login();
-        
         selenium.click("link=DB Manager");
         selenium.waitForPageToLoad("30000");
         assertEquals("Geronimo Console", selenium.getTitle());
-        assertEquals("DB Viewer", selenium.getText(
-            "xpath=/html/body/table[@id='rootfragment']/tbody/tr[2]/td/table/tbody/tr[2]/td[4]/table/tbody/tr[1]/td/table/tbody/tr[1]/td/div/table/tbody/tr/td[2]/table/tbody/tr/td[1]/strong"));
+        assertEquals("DB Viewer", 
+                     selenium.getText(getPortletTitleLocation()));
         // Test help link
-        selenium.click("//td[2]/table/tbody/tr/td[2]/a[1]");
+        selenium.click(getPortletHelpLocation());
         selenium.waitForPageToLoad("30000");
         selenium.isTextPresent("Displays all the available databases and their tables");
-
-        logout();
     }
 }

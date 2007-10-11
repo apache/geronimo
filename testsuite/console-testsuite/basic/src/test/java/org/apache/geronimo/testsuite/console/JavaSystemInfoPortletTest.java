@@ -29,22 +29,18 @@ import org.apache.geronimo.testsupport.console.ConsoleTestSupport;
  */
 @Test
 public class JavaSystemInfoPortletTest
-    extends ConsoleTestSupport
+    extends BasicConsoleTestSupport
 {
     @Test
     public void testJavaSystemInfoLink() throws Exception {
-        login();
-        
-        selenium.click("link=JVM");
+        selenium.click("link=Java System Info");
         selenium.waitForPageToLoad("30000");
         assertEquals("Geronimo Console", selenium.getTitle());
-        assertEquals("System Property values for the Server JVM", selenium.getText(
-            "xpath=/html/body/table[@id='rootfragment']/tbody/tr[2]/td/table/tbody/tr[2]/td[4]/table/tbody/tr[1]/td/table/tbody/tr[1]/td/div/table/tbody/tr/td[2]/table/tbody/tr/td[1]/strong"));
+        assertEquals("System Property values for the Server JVM", 
+                     selenium.getText(getPortletTitleLocation())); 
         // Test help link
-        selenium.click("link=help");
+        selenium.click(getPortletHelpLocation());
         selenium.waitForPageToLoad("30000");
         selenium.isTextPresent("This page displays the values of the system properties available to the server process.");
-        
-        logout();
     }
 }

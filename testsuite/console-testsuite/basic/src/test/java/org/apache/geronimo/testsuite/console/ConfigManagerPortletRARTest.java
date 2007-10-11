@@ -29,18 +29,14 @@ import org.apache.geronimo.testsupport.console.ConsoleTestSupport;
  */
 @Test
 public class ConfigManagerPortletRARTest
-    extends ConsoleTestSupport
+    extends BasicConsoleTestSupport
 {
     @Test
     public void testConfigManagerRARLink() throws Exception {
-        login();
-        
         selenium.click("link=J2EE Connectors");
         selenium.waitForPageToLoad("30000");
         assertEquals("Geronimo Console", selenium.getTitle());
-        assertEquals("Installed J2EE Connectors", selenium.getText(
-            "xpath=/html/body/table[@id='rootfragment']/tbody/tr[2]/td/table/tbody/tr[2]/td[4]/table/tbody/tr[1]/td/table/tbody/tr[1]/td/div/table/tbody/tr/td[2]/table/tbody/tr/td[1]/strong"));
-        
-        logout();
+        assertEquals("Installed J2EE Connectors", 
+                     selenium.getText(getPortletTitleLocation()));                
     }
 }

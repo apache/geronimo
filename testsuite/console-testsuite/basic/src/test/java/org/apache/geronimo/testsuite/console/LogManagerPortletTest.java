@@ -29,22 +29,18 @@ import org.apache.geronimo.testsupport.console.ConsoleTestSupport;
  */
 @Test
 public class LogManagerPortletTest
-    extends ConsoleTestSupport
+    extends BasicConsoleTestSupport
 {
     @Test
     public void testLogManagerLink() throws Exception {
-        login();
-        
         selenium.click("link=Server Logs");
         selenium.waitForPageToLoad("30000");
         assertEquals("Geronimo Console", selenium.getTitle());
-        assertEquals("Log Manager", selenium.getText(
-            "xpath=/html/body/table[@id='rootfragment']/tbody/tr[2]/td/table/tbody/tr[2]/td[4]/table/tbody/tr[1]/td/table/tbody/tr[1]/td/div/table/tbody/tr/td[2]/table/tbody/tr/td[1]/strong"));
+        assertEquals("Log Manager", 
+                     selenium.getText(getPortletTitleLocation())); 
         // Test help link
-        selenium.click("//td[2]/table/tbody/tr/td[2]/a[1]");
+        selenium.click(getPortletHelpLocation());
         selenium.waitForPageToLoad("30000");
         selenium.isTextPresent("This portlet allows the user to select a configuration file for logging");
-
-        logout();
     }
 }

@@ -29,18 +29,14 @@ import org.apache.geronimo.testsupport.console.ConsoleTestSupport;
  */
 @Test
 public class ApacheConfigPortletTest
-    extends ConsoleTestSupport
+    extends BasicConsoleTestSupport
 {
     @Test
     public void testApacheConfigLink() throws Exception {
-        login();
-        
         selenium.click("link=Apache HTTP");
         selenium.waitForPageToLoad("30000");
         assertEquals("Geronimo Console", selenium.getTitle());
-        assertEquals("Apache mod_jk Configuration", selenium.getText(
-            "xpath=/html/body/table[@id='rootfragment']/tbody/tr[2]/td/table/tbody/tr[2]/td[4]/table/tbody/tr[1]/td/table/tbody/tr[1]/td/div/table/tbody/tr/td[2]/table/tbody/tr/td[1]/strong"));
-        
-        logout();
+        assertEquals("Apache mod_jk Configuration", 
+                     selenium.getText(getPortletTitleLocation()));               
     }
 }

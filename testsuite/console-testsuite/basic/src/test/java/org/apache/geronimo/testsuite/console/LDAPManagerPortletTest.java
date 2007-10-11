@@ -29,12 +29,10 @@ import org.apache.geronimo.testsupport.console.ConsoleTestSupport;
  */
 @Test
 public class LDAPManagerPortletTest
-    extends ConsoleTestSupport
+    extends BasicConsoleTestSupport
 {
     @Test
     public void testLDAPManagerLink() throws Exception {
-        login();
-        
         // TODO: Add a way to close problem connecting to server alert message.
         
         // selenium.click("link=LDAP Viewer");
@@ -46,7 +44,5 @@ public class LDAPManagerPortletTest
         // selenium.click("link=help");
         // selenium.waitForPageToLoad("30000");
         // selenium.isTextPresent("The LDAP viewer portlet can be used to do the following");
-        
-        logout();
     }
 }

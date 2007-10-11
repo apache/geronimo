@@ -29,18 +29,14 @@ import org.apache.geronimo.testsupport.console.ConsoleTestSupport;
  */
 @Test
 public class ThreadPoolPortletTest
-    extends ConsoleTestSupport
+    extends BasicConsoleTestSupport
 {
     @Test
     public void testThreadPoolLink() throws Exception {
-        login();
-        
         selenium.click("link=Thread Pools");
         selenium.waitForPageToLoad("30000");
         assertEquals("Geronimo Console", selenium.getTitle());
-        assertEquals("Thread Pool Configuration", selenium.getText(
-            "xpath=/html/body/table[@id='rootfragment']/tbody/tr[2]/td/table/tbody/tr[2]/td[4]/table/tbody/tr[1]/td/table/tbody/tr[1]/td/div/table/tbody/tr/td[2]/table/tbody/tr/td[1]/strong"));
-        
-        logout();
+        assertEquals("Thread Pool Configuration", 
+                     selenium.getText(getPortletTitleLocation())); 
     }
 }

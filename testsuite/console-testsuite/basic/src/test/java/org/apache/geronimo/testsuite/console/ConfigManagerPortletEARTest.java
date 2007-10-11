@@ -29,18 +29,14 @@ import org.apache.geronimo.testsupport.console.ConsoleTestSupport;
  */
 @Test
 public class ConfigManagerPortletEARTest
-    extends ConsoleTestSupport
+    extends BasicConsoleTestSupport
 {
     @Test
     public void testConfigManagerEARLink() throws Exception {
-        login();
-        
         selenium.click("link=Application EARs");
         selenium.waitForPageToLoad("30000");
         assertEquals("Geronimo Console", selenium.getTitle());
-        assertEquals("Installed Application EARs", selenium.getText(
-            "xpath=/html/body/table[@id='rootfragment']/tbody/tr[2]/td/table/tbody/tr[2]/td[4]/table/tbody/tr[1]/td/table/tbody/tr[1]/td/div/table/tbody/tr/td[2]/table/tbody/tr/td[1]/strong"));
-        
-        logout();
+        assertEquals("Installed Application EARs", 
+                     selenium.getText(getPortletTitleLocation())); 
     }
 }

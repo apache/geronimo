@@ -29,22 +29,18 @@ import org.apache.geronimo.testsupport.console.ConsoleTestSupport;
  */
 @Test
 public class JMSConnectorPortletTest
-    extends ConsoleTestSupport
+    extends BasicConsoleTestSupport
 {
     @Test
     public void testJMSConnectorLink() throws Exception {
-        login();
-        
         selenium.click("link=JMS Server");
         selenium.waitForPageToLoad("30000");
         assertEquals("Geronimo Console", selenium.getTitle());
-        assertEquals("JMS Network Listeners", selenium.getText(
-            "xpath=/html/body/table[@id='rootfragment']/tbody/tr[2]/td/table/tbody/tr[2]/td[4]/table/tbody/tr[3]/td/table/tbody/tr[1]/td/div/table/tbody/tr/td[2]/table/tbody/tr/td[1]/strong"));
+        assertEquals("JMS Network Listeners", 
+                     selenium.getText(getPortletTitleLocation(2))); 
         // Test help link
-        selenium.click("//tr[3]/td/table/tbody/tr[1]/td/div/table/tbody/tr/td[2]/table/tbody/tr/td[2]/a[1]");
+        selenium.click(getPortletHelpLocation(2));
         selenium.waitForPageToLoad("30000");
         selenium.isTextPresent("Shows all the network connectors configured for the currently available JMS brokers.");
-        
-        logout();
     }
 }

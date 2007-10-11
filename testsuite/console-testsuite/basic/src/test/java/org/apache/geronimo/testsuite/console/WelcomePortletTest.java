@@ -29,24 +29,19 @@ import org.apache.geronimo.testsupport.console.ConsoleTestSupport;
  */
 @Test
 public class WelcomePortletTest
-    extends ConsoleTestSupport
+    extends BasicConsoleTestSupport
 {
     @Test
     public void testWelcomeLink() throws Exception {
-        login();
-        
-        selenium.click("link=JVM");
+        selenium.click("link=Java System Info");
         selenium.waitForPageToLoad("30000");
         selenium.click("link=Welcome");
         selenium.waitForPageToLoad("30000");
         assertEquals("Geronimo Console", selenium.getTitle());
-        assertEquals("Welcome", selenium.getText(
-            "xpath=/html/body/table[@id='rootfragment']/tbody/tr[2]/td/table/tbody/tr[2]/td[4]/table/tbody/tr[1]/td/table/tbody/tr[1]/td/div/table/tbody/tr/td[2]/table/tbody/tr/td[1]/strong"));
+        assertEquals("Welcome", selenium.getText(getPortletTitleLocation()));
         // Test help link
-        selenium.click("link=help");
+        selenium.click(getPortletHelpLocation());
         selenium.waitForPageToLoad("30000");
         selenium.isTextPresent("This is the help for the Geronimo Administration Console Welcome.");
-        
-        logout();
     }
 }
