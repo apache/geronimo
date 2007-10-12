@@ -29,6 +29,8 @@ public class DatabasePoolTest extends ConsoleTestSupport {
         try {
             login();
             
+            String geronimoVersion = System.getProperty("geronimoVersion");
+
             selenium.click("link=Database Pools");
             selenium.waitForPageToLoad("30000");
             selenium.click("link=Using the Geronimo database pool wizard");
@@ -37,12 +39,12 @@ public class DatabasePoolTest extends ConsoleTestSupport {
             selenium.select("dbtype", "label=Derby embedded");
             selenium.click("//input[@value='Next']");
             selenium.waitForPageToLoad("30000");
-            selenium.addSelection("jars", "label=org.apache.derby/derby/10.2.2.0/jar");
+            selenium.addSelection("jars", "label=org.apache.geronimo.configs/system-database/" + geronimoVersion + "/car");
             selenium.type("property-DatabaseName", "SystemDatabase");
             selenium.click("//input[@value='Deploy']");
             selenium.waitForPageToLoad("30000");
             assertTrue(selenium.isTextPresent("UniquePool"));
-            selenium.click("//a[contains(@href, '/console/portal/services/services_jdbc/_pm_services_jdbc_row1_col1_p1/view/_ps_services_jdbc_row1_col1_p1/normal/_pid/services_jdbc_row1_col1_p1/_ac_services_jdbc_row1_col1_p1/AC/_st_services_jdbc_row1_col1_p1/normal/_md_services_jdbc_row1_col1_p1/view?mode=delete&abstractName=console.dbpool%2FUniquePool%2F1.0%2Frar%3FJ2EEApplication%3Dnull%2CJCAConnectionFactory%3DUniquePool%2CJCAResource%3Dconsole.dbpool%2FUniquePool%2F1.0%2Frar%2CResourceAdapter%3Dconsole.dbpool%2FUniquePool%2F1.0%2Frar%2CResourceAdapterModule%3Dconsole.dbpool%2FUniquePool%2F1.0%2Frar%2Cj2eeType%3DJCAManagedConnectionFactory%2Cname%3DUniquePool&adapterAbstractName=console.dbpool%2FUniquePool%2F1.0%2Frar%3FJ2EEApplication%3Dnull%2Cj2eeType%3DResourceAdapterModule%2Cname%3Dconsole.dbpool%2FUniquePool%2F1.0%2Frar&name=')]");
+            selenium.click("//tr[td[1] = 'UniquePool']/td[4]/a[3]");
             selenium.waitForPageToLoad("30000");
             assertFalse(selenium.isTextPresent("UniquePool"));
         } finally {
