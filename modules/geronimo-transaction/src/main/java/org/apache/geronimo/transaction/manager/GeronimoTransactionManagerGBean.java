@@ -24,7 +24,8 @@ import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 
 /**
- * Used to provide the GBean metadata for the GeronimoTransactionManager class
+ * Used to provide the GBean metadata for the GeronimoTransactionManager class.  This adds XATerminator and XAWork
+ * functionality to the basic transaction manager.
  *
  * @version $Rev$ $Date$
  */

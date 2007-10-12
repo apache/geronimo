@@ -30,7 +30,8 @@ import org.apache.geronimo.gbean.ReferenceCollectionListener;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 
 /**
- * Simple implementation of a transaction manager.
+ * Simple implementation of a transaction manager.  This does not include XATerminator or XAWork functionality:
+ * use GeronimoTransactionManagerGBean if you need to import transactions.
  *
  * @version $Rev$ $Date$
  */
