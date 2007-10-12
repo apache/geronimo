@@ -63,4 +63,8 @@
       <groupId>asm</groupId>
       <artifactId>asm-commons</artifactId>
     </dependency>
+    <dependency>
+      <groupId>commons-dbcp</groupId>
+      <artifactId>commons-dbcp</artifactId>
+    </dependency>
 </service>
