@@ -655,19 +655,8 @@ public class PluginInstallerGBean implements PluginInstaller {
                 }
             }
         }
-        // 2. Check that we meet the prerequisites
-/*
-        List<PrerequisiteType> prereqs = metadata.getPrerequisite();
-        for (PrerequisiteType prereq : prereqs) {
-            Artifact artifact = toArtifact(prereq.getId());
-            if (artifactResolver.queryArtifacts(artifact).length == 0) {
-                log.error("Configuration '" + artifact + "' required for plugin '" + toArtifact(metadata.getModuleId()) + "' is not installed.");
-                throw new MissingDependencyException(
-                        "Configuration '" + artifact + "' required for plugin '" + toArtifact(metadata.getModuleId()) + "' is not installed.");
-            }
-        }
-*/
-        // 3. Check that we meet the Geronimo, JVM versions
+        
+        // 2. Check that we meet the Geronimo, JVM versions
         if (metadata.getGeronimoVersion().size() > 0 && !checkGeronimoVersions(metadata.getGeronimoVersion())) {
             log.error("Cannot install plugin " + toArtifact(metadata.getModuleId()) + " on Geronimo " + serverInfo.getVersion());
             throw new MissingDependencyException(
@@ -679,6 +668,31 @@ public class PluginInstallerGBean implements PluginInstaller {
             throw new MissingDependencyException(
                     "Cannot install plugin on JVM " + System.getProperty("java.version"), toArtifact(metadata.getModuleId()), (Stack<Artifact>) null);
         }
+    }
+
+
+    /**
+     * Ensures that a plugin's prerequisites are installed
+     *
+     * @param plugin plugin artifact to check
+     * @return array of missing depedencies
+     */
+    public Dependency[] checkPrerequisites(PluginType plugin) {
+        if (plugin.getPluginArtifact().size() != 1) {
+            throw new IllegalArgumentException("A plugin configuration must include one plugin artifact, not " + plugin.getPluginArtifact().size());
+        }
+        
+        PluginArtifactType metadata = plugin.getPluginArtifact().get(0);
+        List<PrerequisiteType> prereqs = metadata.getPrerequisite();
+        
+        ArrayList<Dependency> missingPrereqs = new ArrayList<Dependency>();
+        for (PrerequisiteType prereq : prereqs) {
+            Artifact artifact = toArtifact(prereq.getId());
+            if (artifactResolver.queryArtifacts(artifact).length == 0) {
+                missingPrereqs.add(new Dependency(artifact,ImportType.ALL));
+            }
+        }
+        return missingPrereqs.toArray(new Dependency[missingPrereqs.size()]);
     }
 
     /**

@@ -30,6 +30,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.console.MultiPageModel;
 import org.apache.geronimo.console.util.PortletManager;
+import org.apache.geronimo.kernel.repository.Dependency;
 import org.apache.geronimo.system.plugin.PluginInstaller;
 import org.apache.geronimo.system.plugin.PluginInstallerGBean;
 import org.apache.geronimo.system.plugin.model.PluginArtifactType;
@@ -92,17 +93,28 @@ public class ViewPluginDownloadHandler  extends BaseImportExportHandler {
         }
         
         // see if the plugin is installable.  if not then provide the details
-        String validation = "All requirements for this plugin have been met.";
+        String validationOk = "All requirements for this plugin have been met.";
+        StringBuffer validationNotOk = new StringBuffer();
         PluginInstaller pluginInstaller = PortletManager.getCurrentServer(request).getPluginInstaller();
         PluginType holder = PluginInstallerGBean.copy(plugin.getPlugin(), plugin.getPluginArtifact());
         try {
             pluginInstaller.validatePlugin(holder);
         } catch (Exception e) {
             plugin.setInstallable(false);
-            validation = e.getMessage();
+            validationNotOk.append(e.getMessage());
+            validationNotOk.append("<BR>\n");
+        }
+        Dependency[] missingPrereqs = pluginInstaller.checkPrerequisites(holder);
+        if (missingPrereqs.length > 0) {
+            plugin.setInstallable(false);
+            for (Dependency dep : missingPrereqs) {
+                validationNotOk.append(" Missing prerequisite ");
+                validationNotOk.append(dep.getArtifact().toString());
+                validationNotOk.append("<BR>\n");
+            }
         }
         
-        request.setAttribute("validation", validation);
+        request.setAttribute("validation", plugin.isInstallable() ? validationOk : validationNotOk.toString());
         request.setAttribute("configId", configId);
         request.setAttribute("plugin", plugin);
         request.setAttribute("repository", repo);

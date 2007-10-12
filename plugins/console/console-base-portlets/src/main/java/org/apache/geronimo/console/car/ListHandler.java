@@ -32,6 +32,7 @@ import javax.security.auth.login.FailedLoginException;
 
 import org.apache.geronimo.console.MultiPageModel;
 import org.apache.geronimo.console.util.PortletManager;
+import org.apache.geronimo.kernel.repository.Dependency;
 import org.apache.geronimo.system.plugin.PluginInstaller;
 import org.apache.geronimo.system.plugin.PluginInstallerGBean;
 import org.apache.geronimo.system.plugin.model.PluginArtifactType;
@@ -119,10 +120,14 @@ public class ListHandler extends BaseImportExportHandler {
                 plugin.setPluginArtifact(artifact);
                 
                 // determine if the plugin is installable
+                PluginType holder = PluginInstallerGBean.copy(metadata, artifact);
                 try {
-                    PluginType holder = PluginInstallerGBean.copy(metadata, artifact);
                     pluginInstaller.validatePlugin(holder);
                 } catch (Exception e) {
+                    plugin.setInstallable(false);
+                }
+                Dependency[] missingPrereqs = pluginInstaller.checkPrerequisites(holder);
+                if (missingPrereqs.length > 0) {
                     plugin.setInstallable(false);
                 }
                 plugins.add(plugin);

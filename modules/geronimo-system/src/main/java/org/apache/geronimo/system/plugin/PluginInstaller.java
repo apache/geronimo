@@ -22,6 +22,7 @@ import java.net.URL;
 import java.util.Map;
 import javax.security.auth.login.FailedLoginException;
 import org.apache.geronimo.kernel.repository.Artifact;
+import org.apache.geronimo.kernel.repository.Dependency;
 import org.apache.geronimo.kernel.repository.MissingDependencyException;
 import org.apache.geronimo.kernel.config.ConfigurationManager;
 import org.apache.geronimo.kernel.config.NoSuchStoreException;
@@ -160,13 +161,22 @@ public interface PluginInstaller {
     public DownloadResults checkOnInstall(Object key);
 
     /**
-     * Ensures that a plugin artifact is installable.
+     * Ensures that a plugin artifact is installable. Checks the Geronimo version,
+     * JVM version, and whether or not the plugin is already installed.
      *
      * @param plugin plugin artifact to check
      * @throws org.apache.geronimo.kernel.repository.MissingDependencyException
-     *          if plugin requires a dependency that is not present
+     *          if a dependency is not satisfied
      */
     public void validatePlugin(PluginType plugin) throws MissingDependencyException;
+
+    /**
+     * Ensures that a plugin's prerequisites are installed
+     *
+     * @param plugin plugin artifact to check
+     * @return array of missing depedencies
+     */
+    public Dependency[] checkPrerequisites(PluginType plugin);
 
     PluginListType createPluginListForRepositories(ConfigurationManager mgr, String repo) throws NoSuchStoreException;
 }

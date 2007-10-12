@@ -128,7 +128,7 @@
   <tr>
     <th align="right" valign="top">Installable:</th>
     <td>
-    ${plugin.installable ? "<img alt='check' src='/console/images/checkmark._16_green.png' />" : "<strong><font color='red'>X</font></strong>"}
+    ${plugin.installable ? "<img alt='check' src='/console/images/checkmark._16_green.png' /> " : "<strong><font color='red'>X</font></strong> "}
     ${validation}
     </td>
   </tr>

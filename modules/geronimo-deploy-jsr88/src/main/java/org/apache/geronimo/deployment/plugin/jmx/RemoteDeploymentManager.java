@@ -55,6 +55,7 @@ import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.kernel.config.ConfigurationManager;
 import org.apache.geronimo.kernel.config.NoSuchStoreException;
 import org.apache.geronimo.kernel.repository.Artifact;
+import org.apache.geronimo.kernel.repository.Dependency;
 import org.apache.geronimo.kernel.repository.MissingDependencyException;
 import org.apache.geronimo.system.jmx.KernelDelegate;
 import org.apache.geronimo.system.plugin.DownloadPoller;
@@ -179,6 +180,16 @@ public class RemoteDeploymentManager extends JMXDeploymentManager implements Ger
             kernel.getProxyManager().destroyProxy(installer);
         }
     }
+
+    public Dependency[] checkPrerequisites(PluginType plugin) {
+        PluginInstaller installer = getPluginInstaller();
+        try {
+            return installer.checkPrerequisites(plugin);
+        } finally {
+            kernel.getProxyManager().destroyProxy(installer);
+        }
+    }
+
 
     public DownloadResults install(PluginListType configsToInstall, String username, String password) {
         PluginInstaller installer = getPluginInstaller();
