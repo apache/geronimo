@@ -58,7 +58,7 @@ public class JDBCStoreThreadPooledTransactionalTimer extends ThreadPooledTimer {
         infoFactory.addInterface(PersistentTimer.class);
 
         infoFactory.addAttribute("repeatCount", int.class, true);
-        infoFactory.addReference("TransactionManager", TransactionManager.class, NameFactory.TRANSACTION_MANAGER);
+        infoFactory.addReference("TransactionManager", TransactionManager.class, NameFactory.JTA_RESOURCE);
         infoFactory.addReference("ManagedConnectionFactoryWrapper", ConnectionFactorySource.class, NameFactory.JCA_MANAGED_CONNECTION_FACTORY);
         infoFactory.addReference("ThreadPool", Executor.class, NameFactory.GERONIMO_SERVICE);
         infoFactory.addAttribute("kernel", Kernel.class, false);

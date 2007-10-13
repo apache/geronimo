@@ -47,7 +47,7 @@ public class TransactionManagerImplGBean extends TransactionManagerImpl {
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoBuilder = GBeanInfoBuilder.createStatic(TransactionManagerImplGBean.class, NameFactory.TRANSACTION_MANAGER);
+        GBeanInfoBuilder infoBuilder = GBeanInfoBuilder.createStatic(TransactionManagerImplGBean.class, NameFactory.JTA_RESOURCE);
 
         infoBuilder.addAttribute("defaultTransactionTimeoutSeconds", int.class, true);
         infoBuilder.addReference("XidFactory", XidFactory.class, NameFactory.XID_FACTORY);

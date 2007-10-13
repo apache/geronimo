@@ -48,7 +48,7 @@ public class GeronimoTransactionManagerGBean extends GeronimoTransactionManager 
     static {
         GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic(GeronimoTransactionManagerGBean.class,
                 TransactionManagerImplGBean.GBEAN_INFO,
-                NameFactory.TRANSACTION_MANAGER);
+                NameFactory.JTA_RESOURCE);
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
 

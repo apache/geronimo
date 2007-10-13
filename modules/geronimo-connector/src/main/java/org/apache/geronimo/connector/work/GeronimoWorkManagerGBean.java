@@ -48,7 +48,7 @@ public class GeronimoWorkManagerGBean extends GeronimoWorkManager implements GBe
         infoFactory.addReference("StartPool", Executor.class, NameFactory.GERONIMO_SERVICE);
         infoFactory.addReference("ScheduledPool", Executor.class, NameFactory.GERONIMO_SERVICE);
 
-        infoFactory.addReference("TransactionManager", XAWork.class, NameFactory.TRANSACTION_MANAGER);
+        infoFactory.addReference("TransactionManager", XAWork.class, NameFactory.JTA_RESOURCE);
 
         infoFactory.setConstructor(new String[]{
             "SyncPool",

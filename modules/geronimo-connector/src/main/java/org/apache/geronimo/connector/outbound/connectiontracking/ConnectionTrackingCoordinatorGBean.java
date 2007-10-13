@@ -54,7 +54,7 @@ public class ConnectionTrackingCoordinatorGBean extends ConnectionTrackingCoordi
     static {
         GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic(ConnectionTrackingCoordinatorGBean.class, NameFactory.JCA_CONNECTION_TRACKER);
 
-        infoFactory.addReference("TransactionManager", MonitorableTransactionManager.class, NameFactory.TRANSACTION_MANAGER);
+        infoFactory.addReference("TransactionManager", MonitorableTransactionManager.class, NameFactory.JTA_RESOURCE);
         infoFactory.addAttribute("lazyConnect", boolean.class, true);
 
         infoFactory.addInterface(TrackedConnectionAssociator.class);
