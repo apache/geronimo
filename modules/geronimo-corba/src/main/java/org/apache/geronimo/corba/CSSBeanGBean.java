@@ -44,7 +44,7 @@ public final class CSSBeanGBean {
         infoFactory.addAttribute("ORB", ORB.class, false);
         infoFactory.addOperation("getHome", new Class[]{URI.class, String.class});
 
-        infoFactory.addReference("TransactionManager", TransactionManager.class, NameFactory.TRANSACTION_MANAGER);
+        infoFactory.addReference("TransactionManager", TransactionManager.class, NameFactory.JTA_RESOURCE);
         infoFactory.addReference("SSLConfig", SSLConfig.class, NameFactory.CORBA_SSL);
         infoFactory.addReference("ConfigAdapter", ConfigAdapter.class, NameFactory.ORB_CONFIG);
         infoFactory.addAttribute("abstractName", AbstractName.class, false);
