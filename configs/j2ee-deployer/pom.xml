@@ -69,6 +69,16 @@
         </dependency>
 
         <dependency>
+            <groupId>org.apache.geronimo.schema</groupId>
+            <artifactId>geronimo-schema-jee_5</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.geronimo.schema</groupId>
+            <artifactId>geronimo-schema-j2ee_1.4</artifactId>
+        </dependency>
+
+        <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
             <artifactId>geronimo-client</artifactId>
             <version>${version}</version>
@@ -128,6 +138,20 @@
                             <groupId>org.apache.geronimo.modules</groupId>
                             <artifactId>geronimo-j2ee-schema</artifactId>
                             <version>2.1-SNAPSHOT</version>
+                            <type>jar</type>
+                            <import>classes</import>
+                        </dependency>
+                        <dependency>
+                            <groupId>org.apache.geronimo.schema</groupId>
+                            <artifactId>geronimo-schema-jee_5</artifactId>
+                            <version>1.1</version>
+                            <type>jar</type>
+                            <import>classes</import>
+                        </dependency>
+                        <dependency>
+                            <groupId>org.apache.geronimo.schema</groupId>
+                            <artifactId>geronimo-schema-j2ee_1.4</artifactId>
+                            <version>1.2</version>
                             <type>jar</type>
                             <import>classes</import>
                         </dependency>
