@@ -94,7 +94,7 @@ public class ResourceAdapterWrapperGBean extends ResourceAdapterWrapper implemen
 
         infoBuilder.addReference("WorkManager", WorkManager.class, NameFactory.JCA_WORK_MANAGER);
         infoBuilder.addReference("XATerminator", XATerminator.class, NameFactory.JCA_WORK_MANAGER);
-        infoBuilder.addReference("TransactionManager", RecoverableTransactionManager.class, NameFactory.TRANSACTION_MANAGER);
+        infoBuilder.addReference("TransactionManager", RecoverableTransactionManager.class, NameFactory.JTA_RESOURCE);
 
         infoBuilder.addOperation("registerResourceAdapterAssociation", new Class[]{ResourceAdapterAssociation.class});
 

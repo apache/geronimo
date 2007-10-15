@@ -138,7 +138,7 @@ public class GenericConnectionManagerGBean extends GenericConnectionManager impl
         infoBuilder.addAttribute("kernel", Kernel.class, false);
 
         infoBuilder.addReference("ConnectionTracker", ConnectionTracker.class, NameFactory.JCA_CONNECTION_TRACKER);
-        infoBuilder.addReference("TransactionManager", RecoverableTransactionManager.class, NameFactory.TRANSACTION_MANAGER);
+        infoBuilder.addReference("TransactionManager", RecoverableTransactionManager.class, NameFactory.JTA_RESOURCE);
 
 
         infoBuilder.setConstructor(new String[]{
