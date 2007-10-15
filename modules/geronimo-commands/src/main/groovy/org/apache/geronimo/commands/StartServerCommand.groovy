@@ -22,6 +22,7 @@ package org.apache.geronimo.commands
 import org.apache.geronimo.gshell.command.CommandSupport
 import org.apache.geronimo.gshell.command.CommandException
 import org.apache.geronimo.gshell.command.annotation.CommandComponent
+import org.apache.geronimo.gshell.command.annotation.Requirement
 
 import org.apache.geronimo.gshell.clp.Option
 
@@ -29,7 +30,6 @@ import org.apache.tools.ant.ExitStatusException
 
 // Make sure we use our custom builder
 import org.apache.geronimo.commands.AntBuilder
-import org.codehaus.plexus.component.annotations.Requirement
 import org.apache.geronimo.gshell.shell.ShellInfo
 
 /**
@@ -284,7 +284,7 @@ class StartServerCommand
             return
         }
         
-        def name = context.commandDescriptor.id
+        def name = id
         
         def scanner = ant.fileScanner {
             fileset(dir: basedir) {
