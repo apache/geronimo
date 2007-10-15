@@ -82,6 +82,11 @@
             <version>${version}</version>
         </dependency>
 
+        <dependency>
+            <groupId>org.apache.xbean</groupId>
+            <artifactId>xbean-naming</artifactId>
+        </dependency>
+
     </dependencies>
 
     <build>
