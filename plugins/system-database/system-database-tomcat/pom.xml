@@ -126,6 +126,66 @@
         </dependency>
 
         <dependency>
+            <groupId>org.tranql</groupId>
+            <artifactId>tranql-connector-ra</artifactId>
+            <type>rar</type>
+        </dependency>
+
+        <dependency>
+            <groupId>org.tranql</groupId>
+            <artifactId>tranql-connector-derby-client-local</artifactId>
+            <type>rar</type>
+        </dependency>
+
+        <dependency>
+            <groupId>org.tranql</groupId>
+            <artifactId>tranql-connector-derby-client-xa</artifactId>
+            <type>rar</type>
+        </dependency>
+
+        <dependency>
+            <groupId>org.tranql</groupId>
+            <artifactId>tranql-connector-db2-xa</artifactId>
+            <type>rar</type>
+        </dependency>
+
+        <dependency>
+            <groupId>org.tranql</groupId>
+            <artifactId>tranql-connector-mysql-local</artifactId>
+            <type>rar</type>
+        </dependency>
+
+        <dependency>
+            <groupId>org.tranql</groupId>
+            <artifactId>tranql-connector-mysql-xa</artifactId>
+            <type>rar</type>
+        </dependency>
+
+        <dependency>
+            <groupId>org.tranql</groupId>
+            <artifactId>tranql-connector-oracle-local</artifactId>
+            <type>rar</type>
+        </dependency>
+
+        <dependency>
+            <groupId>org.tranql</groupId>
+            <artifactId>tranql-connector-oracle-xa</artifactId>
+            <type>rar</type>
+        </dependency>
+
+        <dependency>
+            <groupId>org.tranql</groupId>
+            <artifactId>tranql-connector-postgresql-local</artifactId>
+            <type>rar</type>
+        </dependency>
+
+        <dependency>
+            <groupId>org.tranql</groupId>
+            <artifactId>tranql-connector-postgresql-xa</artifactId>
+            <type>rar</type>
+        </dependency>
+
+        <dependency>
             <groupId>commons-io</groupId>
             <artifactId>commons-io</artifactId>
         </dependency>
