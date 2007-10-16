@@ -76,14 +76,10 @@
             <environment xmlns="http://geronimo.apache.org/xml/ns/deployment-${geronimoSchemaVersion}">
                 <dependencies>
                     <dependency>
-                        <groupId>org.apache.openejb</groupId>
-                        <artifactId>openejb-core</artifactId>
-                        <type>jar</type>
-                    </dependency>
-                    <dependency>
-                        <groupId>org.apache.geronimo.modules</groupId>
-                        <artifactId>geronimo-openejb</artifactId>
-                        <type>jar</type>
+                        <groupId>${pom.groupId}</groupId>
+                        <artifactId>openejb</artifactId>
+                        <type>car</type>
+                        <import>classes</import>
                     </dependency>
                 </dependencies>
             </environment>
@@ -98,14 +94,10 @@
             <environment xmlns="http://geronimo.apache.org/xml/ns/deployment-${geronimoSchemaVersion}">
                 <dependencies>
                     <dependency>
-                        <groupId>org.apache.openejb</groupId>
-                        <artifactId>openejb-core</artifactId>
-                        <type>jar</type>
-                    </dependency>
-                    <dependency>
-                        <groupId>org.apache.geronimo.modules</groupId>
-                        <artifactId>geronimo-openejb</artifactId>
-                        <type>jar</type>
+                        <groupId>${pom.groupId}</groupId>
+                        <artifactId>openejb</artifactId>
+                        <type>car</type>
+                        <import>classes</import>
                     </dependency>
                 </dependencies>
             </environment>

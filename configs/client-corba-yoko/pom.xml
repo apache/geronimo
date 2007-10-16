@@ -44,12 +44,6 @@
         </dependency>
             
         <dependency>
-            <groupId>org.apache.geronimo.modules</groupId>
-            <artifactId>geronimo-openejb</artifactId>
-            <version>${version}</version>
-        </dependency>
-
-        <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
             <artifactId>client-security</artifactId>
             <version>${version}</version>
