@@ -539,7 +539,8 @@ public class KernelManagementHelper implements ManagementHelper {
             } else {
                 return null;
             }
-            return (J2EEDeployedObject) kernel.getProxyManager().createProxy(result, getClass().getClassLoader());
+            ClassLoader classLoader = kernel.getClassLoaderFor(result);
+            return (J2EEDeployedObject) kernel.getProxyManager().createProxy(result, classLoader);
         } catch (GBeanNotFoundException e) {
             throw new IllegalStateException("Bad config ID: " + e.getMessage(), e);
         }
