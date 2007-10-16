@@ -37,6 +37,7 @@ import javax.enterprise.deploy.model.exceptions.DDBeanCreateException;
 import javax.enterprise.deploy.shared.ModuleType;
 
 import org.apache.geronimo.deployment.tools.DDBeanRootImpl;
+import org.apache.geronimo.kernel.config.MultiParentClassLoader;
 
 /**
  * 
@@ -53,7 +54,9 @@ public abstract class AbstractDeployable implements DeployableObject {
     protected AbstractDeployable(ModuleType type, URL moduleURL, String rootDD) throws DDBeanCreateException {
         this.type = type;
         this.moduleURL = moduleURL;
-        rootCL = new URLClassLoader(new URL[] {moduleURL}, Thread.currentThread().getContextClassLoader());
+        /* Setup classloader with inverse class loading so that resources are first checked in the 
+         * current classloader instead of the parent classloader. */                  
+        rootCL = new MultiParentClassLoader(null, new URL[] {moduleURL}, Thread.currentThread().getContextClassLoader(), true, new String [] {}, new String [] {});
         root = new DDBeanRootImpl(this, rootCL.getResource(rootDD));
 
         // @todo make this work with unpacked
