@@ -25,6 +25,7 @@ import java.net.URL;
 import javax.management.ObjectName;
 import javax.management.j2ee.statistics.Statistic;
 import javax.management.j2ee.statistics.Stats;
+import org.apache.geronimo.management.LazyStatisticsProvider;
 
 /**
  * @version $Rev$ $Date$
@@ -40,10 +41,11 @@ public class StatTest extends AbstractWebModuleTest {
         setUpStaticContentServlet(app);
         
         // start statistics collection
-        assertTrue("Stats should be off initially", !connector.isStatisticsProvider());
-        connector.statsOn(true);
+        if (connector instanceof LazyStatisticsProvider) {
+        assertTrue("Stats should be off initially", !connector.isStatsOn());
+        connector.setStatsOn(true);
+        }
         container.setCollectStatistics(true);
-        
         int n = 4; // no of connections
         for (int k = 0; k < n; k++) {
             HttpURLConnection connection = (HttpURLConnection) new URL(connector.getConnectUrl() + "/test/hello.txt")

@@ -30,7 +30,7 @@ import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.jetty6.JettyContainer;
 import org.apache.geronimo.jetty6.JettyWebConnector;
 import org.apache.geronimo.jetty6.JettyWebConnectorStatsImpl;
-import org.apache.geronimo.management.StatisticsProvider;
+import org.apache.geronimo.management.LazyStatisticsProvider;
 import org.apache.geronimo.system.threads.ThreadPool;
 import org.mortbay.jetty.AbstractConnector;
 
@@ -39,7 +39,7 @@ import org.mortbay.jetty.AbstractConnector;
  *
  * @version $Rev$ $Date$
  */
-public abstract class JettyConnector implements GBeanLifecycle, JettyWebConnector, StatisticsProvider {
+public abstract class JettyConnector implements GBeanLifecycle, JettyWebConnector, LazyStatisticsProvider {
     public final static String CONNECTOR_CONTAINER_REFERENCE = "JettyContainer";
     private final JettyContainer container;
     protected final AbstractConnector listener;
@@ -214,7 +214,11 @@ public abstract class JettyConnector implements GBeanLifecycle, JettyWebConnecto
         }
     }
     
-    public void statsOn(Boolean on) {
+    public boolean isStatsOn() {
+	return listener.getStatsOn();
+    }
+    
+    public void setStatsOn(boolean on) {
         listener.setStatsOn(on);
         if (on) stats.setStartTime();
     }
@@ -227,7 +231,7 @@ public abstract class JettyConnector implements GBeanLifecycle, JettyWebConnecto
      * @return gets collected for this class
      */
     public Stats getStats() {
-        if(listener.getStatsOn()) {
+        if(isStatsOn()) {
             stats.setLastSampleTime();
             // connections open
             stats.getOpenConnectionCountImpl().setCurrent(listener.getConnectionsOpen());
@@ -263,7 +267,7 @@ public abstract class JettyConnector implements GBeanLifecycle, JettyWebConnecto
     }
 
     public boolean isStatisticsProvider() {
-        return listener.getStatsOn();
+        return true;
     }
 
     public static final GBeanInfo GBEAN_INFO;
@@ -272,7 +276,8 @@ public abstract class JettyConnector implements GBeanLifecycle, JettyWebConnecto
         GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic("Jetty HTTP Connector", JettyConnector.class);
         infoFactory.addReference(CONNECTOR_CONTAINER_REFERENCE, JettyContainer.class, NameFactory.GERONIMO_SERVICE);
         infoFactory.addReference("ThreadPool", ThreadPool.class, NameFactory.GERONIMO_SERVICE);
-        // infoFactory.addOperation("statsOn", new Class[] { Boolean.class }, "void");
+        // this is needed because the getters/setters are not added automatically
+        infoFactory.addOperation("setStatsOn", new Class[] { boolean.class }, "void");
         // removed 'minThreads' from persistent and manageable String[]
         // removed 'tcpNoDelay' from persistent String[]
         // added 'protocol' to persistent and manageable String[]
