@@ -84,9 +84,4 @@ public interface WebContainerStats extends Stats {
      */
     CountStatistic getStatsOnMs();
 
-    /**
-     * Gets the current state of statistics collection (on or off)
-     */
-    boolean isStatsOn();
-
 }

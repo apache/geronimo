@@ -24,6 +24,7 @@ import org.apache.geronimo.management.geronimo.WebContainer;
 import org.apache.geronimo.management.geronimo.WebManager;
 import org.apache.geronimo.management.geronimo.stats.WebContainerStats;
 import org.apache.geronimo.management.StatisticsProvider;
+import org.apache.geronimo.management.LazyStatisticsProvider;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -64,7 +65,7 @@ public class WebManagerPortlet extends BasePortlet {
                     if (actionRequest.getParameter("stats") != null) {
                         Boolean stats = actionRequest.getParameter("stats").equals("true") ? Boolean.TRUE : Boolean.FALSE;
                         if(server.equals(WEB_SERVER_JETTY)) {
-                            setProperty(container, "collectStatistics", stats);
+                            setProperty(container, "statsOn", stats);
                         }
                         else if (server.equals(WEB_SERVER_TOMCAT)) {
                             //todo:   Any Tomcat specific processing?
@@ -110,9 +111,28 @@ public class WebManagerPortlet extends BasePortlet {
                 if (containers != null) {
                     WebContainer container = containers[0];  //todo: handle multiple
                     if(container.isStatisticsProvider()) {
-                        WebContainerStats webStats = (WebContainerStats) ((StatisticsProvider)container).getStats();
-                        if (webStats.isStatsOn()) {
-                            renderRequest.setAttribute("statsOn", Boolean.TRUE);
+                        boolean populateStats = false;
+                        renderRequest.setAttribute("statsSupported", Boolean.TRUE);  // indicate that statistics are supported for this container
+
+                        if (container instanceof LazyStatisticsProvider) {
+                            renderRequest.setAttribute("statsLazy", Boolean.TRUE);   // indicate that enable/disable should be shown for this container
+
+                            if (((LazyStatisticsProvider)container).isStatsOn()) {
+                                renderRequest.setAttribute("statsOn", Boolean.TRUE); // indicate that stats are to be displayed
+                                populateStats = true;      // this is a Lazy provider and stats are enabled so populate the stats
+                            } else {
+                                renderRequest.setAttribute("statsOn", Boolean.FALSE);  // indicate that stats are currently disabled
+                                renderRequest.setAttribute("statsMessage", "Statistics are not currently being collected.");
+                            }
+                        } else {
+                            renderRequest.setAttribute("statsLazy", Boolean.FALSE);  // indicate that enable/disable should not be shown for this container
+                            renderRequest.setAttribute("statsOn", Boolean.TRUE);     // indicate that stats are to be displayed
+                            populateStats=true;     // this is not a lazy provider so just populate the stats
+                        }
+
+                        if (populateStats) {
+                            // get the detailed stats
+                            WebContainerStats webStats = (WebContainerStats) ((StatisticsProvider)container).getStats();
                             renderRequest.setAttribute("totalRequestCount", new Long(webStats.getTotalRequestCount().getCount()));
                             renderRequest.setAttribute("activeRequestCountCurrent", new Long(webStats.getActiveRequestCount().getCurrent()));
                             renderRequest.setAttribute("activeRequestCountLow", new Long(webStats.getActiveRequestCount().getLowWaterMark()));
@@ -127,12 +147,9 @@ public class WebManagerPortlet extends BasePortlet {
                             renderRequest.setAttribute("response4xx", new Long(webStats.getResponses4xx().getCount()));
                             renderRequest.setAttribute("response5xx", new Long(webStats.getResponses5xx().getCount()));
                             renderRequest.setAttribute("elapsedTime", TimeUtils.formatDuration(webStats.getStatsOnMs().getCount()));
-                        } else {
-                            renderRequest.setAttribute("statsSupported", Boolean.TRUE);
-                            renderRequest.setAttribute("statsMessage", "Statistics are not currently being collected.");
                         }
                     } else {
-                        renderRequest.setAttribute("statsSupported", Boolean.FALSE);
+                        renderRequest.setAttribute("statsSupported", Boolean.FALSE);   // indicate that statistics are not supported for this container
                         renderRequest.setAttribute("statsMessage", "Web statistics are not supported for the current web container.");
                     }
                 } else {

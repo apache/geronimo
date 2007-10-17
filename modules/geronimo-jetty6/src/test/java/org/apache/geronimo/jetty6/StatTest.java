@@ -45,7 +45,6 @@ public class StatTest extends AbstractWebModuleTest {
         assertTrue("Stats should be off initially", !connector.isStatsOn());
         connector.setStatsOn(true);
         }
-        container.setCollectStatistics(true);
         int n = 4; // no of connections
         for (int k = 0; k < n; k++) {
             HttpURLConnection connection = (HttpURLConnection) new URL(connector.getConnectUrl() + "/test/hello.txt")

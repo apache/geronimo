@@ -42,9 +42,9 @@ public interface JettyContainer extends WebContainer {
 
     void resetStats();
 
-    void setCollectStatistics(boolean on);
+    void setStatsOn(boolean on);
 
-    boolean getCollectStatistics();
+    public boolean isStatsOn();
 
     long getCollectStatisticsStarted();
 

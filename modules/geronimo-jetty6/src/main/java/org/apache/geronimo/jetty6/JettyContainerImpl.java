@@ -26,7 +26,7 @@ import javax.management.j2ee.statistics.Stats;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
-import org.apache.geronimo.management.StatisticsProvider;
+import org.apache.geronimo.management.LazyStatisticsProvider;
 import org.apache.geronimo.management.geronimo.NetworkConnector;
 import org.apache.geronimo.management.geronimo.WebManager;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
@@ -47,7 +47,7 @@ import org.mortbay.jetty.handler.AbstractHandlerContainer;
 /**
  * @version $Rev$ $Date$
  */
-public class JettyContainerImpl implements JettyContainer, SoapHandler, GBeanLifecycle, StatisticsProvider {
+public class JettyContainerImpl implements JettyContainer, SoapHandler, GBeanLifecycle, LazyStatisticsProvider {
     /**
      * The default value of JETTY_HOME variable
      */
@@ -69,6 +69,7 @@ public class JettyContainerImpl implements JettyContainer, SoapHandler, GBeanLif
     private DefaultHandler defaultHandler = new DefaultHandler();
     private RequestLogHandler requestLogHandler = new RequestLogHandler();
     private boolean statsHandlerInPlace = false;
+    private boolean statsOn=false;
 
     public JettyContainerImpl(String objectName, WebManager manager, String jettyHome, ServerInfo serverInfo) {
         this.objectName = objectName;
@@ -125,21 +126,18 @@ public class JettyContainerImpl implements JettyContainer, SoapHandler, GBeanLif
 
     public void resetStats() {
         statsHandler.statsReset();
-        // Set the start time for each statistic
-        long startTime = System.currentTimeMillis();
-        stats.getTotalRequestCountImpl().setStartTime(startTime);
-        stats.getActiveRequestCountImpl().setStartTime(startTime);
-        stats.getRequestDurationAvgImpl().setStartTime(startTime);
-        stats.getRequestDurationImpl().setStartTime(startTime);
-        stats.getResponses1xxImpl().setStartTime(startTime);
-        stats.getResponses2xxImpl().setStartTime(startTime);
-        stats.getResponses3xxImpl().setStartTime(startTime);
-        stats.getResponses4xxImpl().setStartTime(startTime);
-        stats.getResponses5xxImpl().setStartTime(startTime);
-        stats.getStatsOnMsImpl().setStartTime(startTime);
+        stats.setStartTime();
     }
 
-    public void setCollectStatistics(boolean on) {
+    public long getCollectStatisticsStarted() {
+        return statsHandler.getStatsOnMs();
+    }
+
+    public boolean isStatsOn() {
+        return statsOn;
+    }
+    
+    public void setStatsOn(boolean on) {
         try {
             if (on) {
                 // set the statistics handler if not already done so
@@ -147,7 +145,7 @@ public class JettyContainerImpl implements JettyContainer, SoapHandler, GBeanLif
                     handlerCollection.addHandler(statsHandler);
                     statsHandlerInPlace = true;
                 }
-                // clear previous data and set start times
+                // clear previous data and set start time
                 resetStats();
                 // start the handler
                 statsHandler.start();
@@ -159,64 +157,41 @@ public class JettyContainerImpl implements JettyContainer, SoapHandler, GBeanLif
                     statsHandlerInPlace=false;
                 }
             }
-            stats.setStatsOn(on);
+            statsOn = on;
         } catch(Exception e) {
             e.printStackTrace();
         }
     }
 
-    public boolean getCollectStatistics() {
-        return statsHandler.isRunning();
-    }
-
-    public long getCollectStatisticsStarted() {
-        return statsHandler.getStatsOnMs();
-    }
-
     public Stats getStats() {
-        if (getCollectStatistics()) {
-            long currentTime = System.currentTimeMillis();
+        if (isStatsOn()) {
+            stats.setLastSampleTime();
             /* set active request count */
             stats.getTotalRequestCountImpl().setCount((long)statsHandler.getRequests());
-            stats.getTotalRequestCountImpl().setLastSampleTime(currentTime);
-            
     
             /* set active request range values */
             stats.getActiveRequestCountImpl().setCurrent((long)statsHandler.getRequestsActive());
             stats.getActiveRequestCountImpl().setLowWaterMark((long)statsHandler.getRequestsActiveMin());
             stats.getActiveRequestCountImpl().setHighWaterMark((long)statsHandler.getRequestsActiveMax());
-            stats.getActiveRequestCountImpl().setLastSampleTime(currentTime);
     
             /* set request duration average time */
             stats.getRequestDurationAvgImpl().setCount((long)statsHandler.getRequestsDurationAve());     // Normally this would be calculated
-            stats.getRequestDurationAvgImpl().setLastSampleTime(currentTime);
     
             /* set request duration time values */
 //            stats.getRequestDurationImpl().setCount((long)statsHandler.getRequestsDurationCount());    Not yet supported by Jetty
             stats.getRequestDurationImpl().setMaxTime((long)statsHandler.getRequestsDurationMax());
             stats.getRequestDurationImpl().setMinTime((long)statsHandler.getRequestsDurationMin());
             stats.getRequestDurationImpl().setTotalTime((long)statsHandler.getRequestsDurationTotal());
-            stats.getRequestDurationImpl().setLastSampleTime(currentTime);
     
             /* set request count values*/
             stats.getResponses1xxImpl().setCount((long)statsHandler.getResponses1xx());
-            stats.getResponses1xxImpl().setLastSampleTime(currentTime);
-            
             stats.getResponses2xxImpl().setCount((long)statsHandler.getResponses2xx());
-            stats.getResponses2xxImpl().setLastSampleTime(currentTime);
-            
             stats.getResponses3xxImpl().setCount((long)statsHandler.getResponses3xx());
-            stats.getResponses3xxImpl().setLastSampleTime(currentTime);
-            
             stats.getResponses4xxImpl().setCount((long)statsHandler.getResponses4xx());
-            stats.getResponses4xxImpl().setLastSampleTime(currentTime);
-            
             stats.getResponses5xxImpl().setCount((long)statsHandler.getResponses5xx());
-            stats.getResponses5xxImpl().setLastSampleTime(currentTime);
     
             /* set elapsed time for stats collection */
             stats.getStatsOnMsImpl().setCount((long)statsHandler.getStatsOnMs());
-            stats.getStatsOnMsImpl().setLastSampleTime(currentTime);
         }
         return stats;
     }
@@ -322,7 +297,7 @@ public class JettyContainerImpl implements JettyContainer, SoapHandler, GBeanLif
 
     static {
         GBeanInfoBuilder infoBuilder = GBeanInfoBuilder.createStatic("Jetty Web Container", JettyContainerImpl.class);
-        infoBuilder.addAttribute("collectStatistics", Boolean.TYPE, true);
+        infoBuilder.addAttribute("statsOn", Boolean.TYPE, true);
         infoBuilder.addAttribute("collectStatisticsStarted", Long.TYPE, false);
         infoBuilder.addOperation("resetStats");
 
@@ -334,7 +309,7 @@ public class JettyContainerImpl implements JettyContainer, SoapHandler, GBeanLif
 
         infoBuilder.addInterface(SoapHandler.class);
         infoBuilder.addInterface(JettyContainer.class);
-        infoBuilder.addInterface(StatisticsProvider.class);
+        infoBuilder.addInterface(LazyStatisticsProvider.class);
         infoBuilder.setConstructor(new String[]{"objectName", "WebManager", "jettyHome", "ServerInfo"});
 
         GBEAN_INFO = infoBuilder.getBeanInfo();

@@ -43,8 +43,6 @@ public class JettyWebContainerStatsImpl extends StatsImpl implements JettyWebCon
     private CountStatisticImpl response5xx;
     private CountStatisticImpl statsOnMs;               // time elapsed since the stats collection
 
-    private boolean statsOn=false;
-
     public JettyWebContainerStatsImpl() {
         totalRequestCount = new CountStatisticImpl("Request Count", StatisticImpl.UNIT_COUNT,
                 "The number of requests that were handled since statistics gathering started");
@@ -77,14 +75,6 @@ public class JettyWebContainerStatsImpl extends StatsImpl implements JettyWebCon
         addStat("Response4xx", response4xx);
         addStat("Response5xx", response5xx);
         addStat("StatsDuration", statsOnMs);
-    }
-
-    public boolean isStatsOn() {
-        return statsOn;
-    }
-
-    public void setStatsOn(boolean on) {
-        statsOn = on;
     }
 
 /**

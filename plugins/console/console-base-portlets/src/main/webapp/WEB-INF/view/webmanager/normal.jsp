@@ -84,7 +84,9 @@
   <tr><td colspan="5" align="left">&nbsp;</td></tr>
   <tr>
     <td colspan="5" align="left"> 
-      <a href="<portlet:actionURL><portlet:param name="stats" value="false"/></portlet:actionURL>">disable</a>&nbsp; 
+      <c:if test="${statsLazy}">
+        <a href="<portlet:actionURL><portlet:param name="stats" value="false"/></portlet:actionURL>">disable</a>&nbsp; 
+      </c:if>
       <a href="<portlet:renderURL/>">refresh</a>&nbsp; 
       <a href="<portlet:actionURL><portlet:param name="resetStats" value="true"/></portlet:actionURL>">reset</a> 
     </td>
@@ -93,7 +95,7 @@
 </c:if>
 <c:if test="${!statsOn}">
   ${statsMessage}<br/><br/>
-  <c:if test="${statsSupported}">
+  <c:if test="${statsLazy}">
     <a href="<portlet:actionURL><portlet:param name="stats" value="true"/></portlet:actionURL>">enable</a>
   </c:if>
 </c:if>
