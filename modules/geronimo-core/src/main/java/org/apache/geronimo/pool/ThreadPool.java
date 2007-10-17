@@ -78,6 +78,9 @@ public class ThreadPool implements GeronimoExecutor, GBeanLifecycle, J2EEManaged
 
         executor = p;
         this.classLoader = classLoader;
+
+        // set pool stats start time
+        stats.setStartTime();
     }
 
     public String getName() {
@@ -118,11 +121,21 @@ public class ThreadPool implements GeronimoExecutor, GBeanLifecycle, J2EEManaged
         } else {
             stats.prepareConsumers(Collections.EMPTY_MAP);
         }
+        // set last sapmle time
+        stats.setLastSampleTime();
         return stats;
     }
 
+    /**
+     * Reset all statistics in PoolStatsImpl object
+     */
     public void resetStats() {
-        // TODO
+        stats.threadsInUse.setLowerBound(0);
+        stats.threadsInUse.setUpperBound(0);
+        stats.threadsInUse.setCurrent(0);
+        stats.threadsInUse.setLowWaterMark(0);
+        stats.threadsInUse.setHighWaterMark(0);
+        stats.setStartTime();
     }
 
     public static class PoolStatsImpl extends StatsImpl implements ThreadPoolStats {

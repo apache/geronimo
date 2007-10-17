@@ -54,4 +54,16 @@ public class JTAStatsImpl extends StatsImpl implements JTAStats {
     public CountStatistic getRolledbackCount() {
         return rolledbackCount;
     }
+
+    public CountStatisticImpl getActiveCountImpl() {
+        return activeCount;
+    }
+
+    public CountStatisticImpl getCommittedCountImpl() {
+        return committedCount;
+    }
+
+    public CountStatisticImpl getRolledbackCountImpl() {
+        return rolledbackCount;
+    }
 }

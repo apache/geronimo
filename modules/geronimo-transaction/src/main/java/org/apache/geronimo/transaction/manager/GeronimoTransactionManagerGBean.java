@@ -17,19 +17,23 @@
 
 package org.apache.geronimo.transaction.manager;
 
+import javax.management.j2ee.statistics.Stats;
 import javax.transaction.xa.XAException;
+import org.apache.geronimo.management.stats.JTAStatsImpl;
+import org.apache.geronimo.management.StatisticsProvider;
 
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 
 /**
- * Used to provide the GBean metadata for the GeronimoTransactionManager class.  This adds XATerminator and XAWork
- * functionality to the basic transaction manager.
+ * Used to provide the GBean metadata for the GeronimoTransactionManager class
  *
  * @version $Rev$ $Date$
  */
-public class GeronimoTransactionManagerGBean extends GeronimoTransactionManager {
+public class GeronimoTransactionManagerGBean extends GeronimoTransactionManager implements StatisticsProvider {
+
+    JTAStatsImpl stats = new JTAStatsImpl();
 
     /**
      * TODO NOTE!!! this should be called in an unspecified transaction context, but we cannot enforce this restriction!
@@ -42,6 +46,34 @@ public class GeronimoTransactionManagerGBean extends GeronimoTransactionManager 
     }
 
 
+    public void resetStats() {
+        stats.setStartTime();
+        super.resetStatistics();
+    }
+
+    public Stats getStats() {
+        try {
+            stats.getActiveCountImpl().setCount(super.getActiveCount());
+        } catch(Exception e) {
+
+        }
+        stats.getCommittedCountImpl().setCount(super.getTotalCommits());
+        stats.getRolledbackCountImpl().setCount(super.getTotalRollbacks());
+        stats.setLastSampleTime();
+        return stats;
+    }
+
+    public boolean isStateManageable() {
+        return false;
+    }
+
+    public boolean isStatisticsProvider() {
+        return true;
+    }
+
+    public boolean isEventProvider() {
+        return false;
+    }
 
     public static final GBeanInfo GBEAN_INFO;
 
