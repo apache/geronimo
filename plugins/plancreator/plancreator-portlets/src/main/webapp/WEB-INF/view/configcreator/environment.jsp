@@ -23,7 +23,7 @@
 
 <p><b>WAR - Environment</b> -- Configure Web Application Identity and Class Path</p>
 
-<p>Enter description about the configuration elements being created in this page</p>
+<p>Defaults in this page should suffice for typical scenarios.</p>
 
 <!--   FORM TO COLLECT DATA FOR THIS PAGE   -->
 <form name="<portlet:namespace/>EnvironmentForm" action="<portlet:actionURL/>" method="POST">
@@ -32,98 +32,103 @@
 <table border="0">
   <!-- ENTRY FIELD: Context Root -->
   <tr>
-    <th>
-    <div align="right">Web Context Root:</div>
-    </th>
-    <td><input name="contextRoot" type="text" size="20" value="${data.contextRoot}" /></td>
+    <th><div align="right">Web Context Root:</div></th>
+    <td><input name="contextRoot" type="text" size="25" value="${data.contextRoot}" /></td>
   </tr>
   <tr>
     <td></td>
-    <td>Enter description about context-root here</td>
+    <td>This is the first part of the URL used to access the Web application by the client.
+    For example, if the context-root is entered as "HelloWorld", then a typical URL to the application would 
+    start with "http://host:port/HelloWorld/".</td>
   </tr>
+
   <!-- ENTRY FIELD: Module Id -->
   <tr>
     <th colspan="2">Web Application Identity</th>
   </tr>
   <tr>
-    <th>
-    <div align="right">GroupId:</div>
-    </th>
-    <td><input name="groupId" type="text" size="20" value="${data.groupId}" /></td>
+    <td></td>
+    <td>Every module in Geronimo is uniquely identified by it's ModuleID which consists of four components: 
+    groupId/artifactId/version/type. Example: "org.apache.geronimo.plugins/plancreator-tomcat/2.1/car".</td>
+  </tr>
+  <tr>
+    <th><div align="right">Group Id:</div></th>
+    <td><input name="groupId" type="text" size="25" value="${data.groupId}" /></td>
   </tr>
   <tr>
     <td></td>
-    <td>Enter description about groupId here</td>
+    <td>A name identifying a group of related modules. This may be a project name, a company name, etc. 
+    The important thing is that each artifactID should be unique within the group.</td>
   </tr>
   <tr>
-    <th>
-    <div align="right">ArtifactId:</div>
-    </th>
-    <td><input name="artifactId" type="text" size="20" value="${data.artifactId}" /></td>
-  </tr>
-  <tr>
-    <td></td>
-    <td>Enter description about artifactId here</td>
-  </tr>
-  <tr>
-    <th>
-    <div align="right">Version:</div>
-    </th>
-    <td><input name="version" type="text" size="20" value="${data.version}" /></td>
+    <th><div align="right">Artifact Id:</div></th>
+    <td><input name="artifactId" type="text" size="25" value="${data.artifactId}" /></td>
   </tr>
   <tr>
     <td></td>
-    <td>Enter description about version here</td>
+    <td>A name identifying the specific module within the group.</td>
   </tr>
   <tr>
-    <th>
-    <div align="right">Type:</div>
-    </th>
-    <td><input name="type" type="text" size="20" value="${data.type}" /></td>
+    <th><div align="right">Version:</div></th>
+    <td><input name="version" type="text" size="25" value="${data.version}" /></td>
   </tr>
   <tr>
     <td></td>
-    <td>Enter description about type here</td>
+    <td>Version number for the module.</td>
   </tr>
+  <tr>
+    <th><div align="right">Type:</div></th>
+    <td><input name="type" type="text" size="25" value="${data.type}" /></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>A module's type is normally either CAR (for a system module) or the file extension for an application 
+    module (ear,war,jar,etc).</td>
+  </tr>
+
   <!-- ENTRY FIELD: Hidden Classes, Non Overridable Classes and Inverse Class Loading -->
   <tr>
     <th colspan="2">Class Path Settings</th>
   </tr>
   <tr>
-    <th>
-    <div align="right">HiddenClasses:</div>
-    </th>
-    <td><input name="hiddenClasses" type="text" size="20" value="${data.hiddenClasses}" /></td>
+    <th><div align="right">Hidden Classes:</div></th>
+    <td><input name="hiddenClasses" type="text" size="25" value="${data.hiddenClasses}" /></td>
   </tr>
   <tr>
     <td></td>
-    <td>Enter description about HiddenClasses here. Separate multiple entries with a semicolon(;)</td>
+    <td>List packages or classes that may be in a parent class loader, but should not be exposed from there to 
+    the Web application. This is typically used when the Web application wants to use a different version of a 
+    library than that of it's parent configuration (or Geronimo itself) uses.
+    Separate multiple package/class names with a semicolon ';'</td>
   </tr>
   <tr>
-    <th>
-    <div align="right">NonOverridableClasses:</div>
-    </th>
-    <td><input name="nonOverridableClasses" type="text" size="20" value="${data.nonOverridableClasses}" /></td>
-  </tr>
-  <tr>
-    <td></td>
-    <td>Enter description about nonOverridableClasses here. Separate multiple entries with a semicolon(;)</td>
-  </tr>
-  <tr>
-    <th>
-    <div align="right">InverseClassLoading:</div>
-    </th>
-    <td><input name="inverseClassLoading" type="checkbox" value="true" <c:if test="${data.inverseClassLoading}">CHECKED </c:if> /></td>
+    <th><div align="right">Non Overridable Classes:</div></th>
+    <td><input name="nonOverridableClasses" type="text" size="25" value="${data.nonOverridableClasses}" /></td>
   </tr>
   <tr>
     <td></td>
-    <td>Enter description about inverseClassLoading here</td>
+    <td>List packages or classes that the Web application should always load from a parent class loader, and 
+    never load from WEB-INF/lib or WEB-INF/classes. This might be used to force a Web application to share the 
+    same instance of a common library with other Web applications, even if they each include it in their own WAR. 
+    Separate multiple package/class names with a semicolon ';'</td>
   </tr>
+  <tr>
+    <th><div align="right">Inverse Class Loading:</div></th>
+    <td><input name="inverseClassLoading" type="checkbox" value="true" 
+      <c:if test="${data.inverseClassLoading}">CHECKED </c:if> /></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>Normally (if this element is not checked), the module's class loader will work normally - classes will be 
+    loaded from the parent class loader if available before checking the current class loader. If this element is 
+    checked, that behavior is reversed and the current class loader will always be checked first before looking 
+    in the parent class loader. This is often enabled to give the JARs in WEB-INF/lib precedence over anything 
+    that might be in a parent class loader. </td>
+  </tr>
+
   <!-- SUBMIT BUTTON -->
   <tr>
-    <th>
-    <div align="right"></div>
-    </th>
+    <td></td>
     <td><input type="submit" value="Next" /></td>
   </tr>
 </table>
