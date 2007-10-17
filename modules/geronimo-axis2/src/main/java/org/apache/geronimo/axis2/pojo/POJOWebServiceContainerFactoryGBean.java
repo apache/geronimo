@@ -113,7 +113,7 @@ public class POJOWebServiceContainerFactoryGBean implements WebServiceContainerF
         infoBuilder.addAttribute("classLoader", ClassLoader.class, false);
         infoBuilder.addAttribute("componentContext", Map.class, true, true);
         infoBuilder.addAttribute("kernel", Kernel.class, false);
-        infoBuilder.addReference("TransactionManager", TransactionManager.class, NameFactory.TRANSACTION_MANAGER);
+        infoBuilder.addReference("TransactionManager", TransactionManager.class, NameFactory.JTA_RESOURCE);
         infoBuilder.addAttribute("configurationBaseUrl", URL.class, true);
         infoBuilder.addAttribute("holder", AnnotationHolder.class, true);
         infoBuilder.addAttribute("contextRoot", String.class, true, true);
