@@ -21,14 +21,22 @@
 <%@ taglib uri="http://java.sun.com/portlet" prefix="portlet"%>
 <portlet:defineObjects />
 
-<p><b>Created Plan</b> -- Show Deployment Plan</p>
+<p><b>Created Plan</b> -- Copy/Edit Deployment Plan</p>
 
-<p>Description goes here ...</p>
+<p>The generated Geronimo Deployment Plan is shown below in an edit box. If you would like to make any changes 
+(default should be enough in most scenarios), do it now and then press "Deploy WAR" to deploy the Web application.</p>
 
 <!--   FORM TO COLLECT DATA FOR THIS PAGE   -->
 <form name="<portlet:namespace/>DisplayPlan" action="<portlet:actionURL/>" method="POST">
     <input type="hidden" name="mode" value="displayPlan-after" />
     <table border="0">
+    <!-- SUBMIT BUTTON -->
+      <tr>
+        <td></td>
+        <td>
+            <input type="submit" value="Deploy WAR" />
+        </td>
+      </tr>
     <!-- STATUS FIELD: Deployment Plan -->
       <tr>
         <th valign="top" style="min-width: 140px"><div align="right">Deployment Plan:</div></th>

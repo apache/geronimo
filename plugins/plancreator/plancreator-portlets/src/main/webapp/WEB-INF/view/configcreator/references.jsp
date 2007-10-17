@@ -22,9 +22,13 @@
 <%@ taglib uri="http://java.sun.com/portlet" prefix="portlet"%>
 <portlet:defineObjects />
 
-<p><b>WAR - References</b> -- Resolve following objects referred in the WAR</p>
+<p><b>WAR - References</b> -- Resolve EJB, EJB Local, JDBC Connection Pool, JMS Connection Factory and 
+JMS Destination references</p>
 
-<p>Description goes here ...</p>
+<p>Map the references declared in your Web application to specific items available in the server environment. 
+References declared in your web-app (ex. EJB, EJB Local, JDBC Connection Pool, JMS Connection Factory and 
+JMS Destination references) are shown below to the left and the resources (available in the server environment) 
+to which they can be linked are shown to the right.</p>
 
 <!-- References not resolved -->
 <c:if test="${data.referenceNotResolved}">
@@ -35,135 +39,210 @@
 <form name="<portlet:namespace/>ReferencesForm" action="<portlet:actionURL/>" method="POST">
 <input type="hidden" name="mode" value="references-after" />
 
-<table border="0">
-  <!-- ENTRY FIELD: EJB References -->
-  <c:if test="${!empty(data.ejbRefs)}">
+<!-- ENTRY FIELD: EJB References -->
+<c:if test="${!empty(data.ejbRefs)}">
+  <p><b>EJB References:</b></p>
+  <table border="0" width="100%">
     <tr>
-      <th colspan="2" align="left">
-      <div>EJB References</div>
-      </th>
+      <th class="DarkBackground" align="center">EJB Ref</th>
+      <th class="DarkBackground" align="center">EJBs Deployed</th>
     </tr>
+    <c:set var="backgroundClass" value='MediumBackground'/>
     <c:forEach var="refData" items="${data.ejbRefs}" varStatus="status">
+      <c:choose>
+        <c:when test="${backgroundClass == 'MediumBackground'}" >
+          <c:set var="backgroundClass" value='LightBackground'/>
+        </c:when>
+        <c:otherwise>
+          <c:set var="backgroundClass" value='MediumBackground'/>
+        </c:otherwise>
+      </c:choose>
       <input type="hidden" name="ejbRef.${status.index}.refName" value="${refData.refName}" />
       <tr>
-        <td>
-        <div align="right">${refData.refName}</div>
+        <td class="${backgroundClass}">
+          <div align="right">${refData.refName}</div>
         </td>
-        <td><select name="ejbRef.${status.index}.refLink">
-          <c:forEach var="ejb" items="${deployedEjbs}">
-            <option value="${ejb.patternName}">${ejb.displayName}</option>
-          </c:forEach>
-        </select></td>
+        <td class="${backgroundClass}">
+          <select name="ejbRef.${status.index}.refLink">
+            <c:forEach var="ejb" items="${deployedEjbs}">
+              <option value="${ejb.patternName}">${ejb.displayName}</option>
+            </c:forEach>
+          </select>
+        </td>
       </tr>
     </c:forEach>
-  </c:if>
+  </table>
+</c:if>
 
-  <!-- ENTRY FIELD: EJB Local References -->
-  <c:if test="${!empty(data.ejbLocalRefs)}">
+<!-- ENTRY FIELD: EJB Local References -->
+<c:if test="${!empty(data.ejbLocalRefs)}">
+  <p><b>EJB Local References:</b></p>
+  <table border="0" width="100%">
     <tr>
-      <th colspan="2" align="left">
-      <div>EJB Local References</div>
-      </th>
+      <th class="DarkBackground" align="center">EJB Local Ref</th>
+      <th class="DarkBackground" align="center">EJBs Deployed</th>
     </tr>
+    <c:set var="backgroundClass" value='MediumBackground'/>
     <c:forEach var="refData" items="${data.ejbLocalRefs}" varStatus="status">
+      <c:choose>
+        <c:when test="${backgroundClass == 'MediumBackground'}" >
+          <c:set var="backgroundClass" value='LightBackground'/>
+        </c:when>
+        <c:otherwise>
+          <c:set var="backgroundClass" value='MediumBackground'/>
+        </c:otherwise>
+      </c:choose>
       <input type="hidden" name="ejbLocalRef.${status.index}.refName" value="${refData.refName}" />
       <tr>
-        <td>
-        <div align="right">${refData.refName}</div>
+        <td class="${backgroundClass}">
+          <div align="right">${refData.refName}</div>
         </td>
-        <td><select name="ejbLocalRef.${status.index}.refLink">
-          <c:forEach var="ejb" items="${deployedEjbs}">
-            <option value="${ejb.patternName}">${ejb.displayName}</option>
-          </c:forEach>
-        </select></td>
+        <td class="${backgroundClass}">
+          <select name="ejbLocalRef.${status.index}.refLink">
+            <c:forEach var="ejb" items="${deployedEjbs}">
+              <option value="${ejb.patternName}">${ejb.displayName}</option>
+            </c:forEach>
+          </select>
+        </td>
       </tr>
     </c:forEach>
-  </c:if>
+  </table>
+</c:if>
 
-  <!-- ENTRY FIELD: JDBC Connection Pool References -->
-  <c:if test="${!empty(data.jdbcPoolRefs)}">
+<!-- ENTRY FIELD: JDBC Connection Pool References -->
+<c:if test="${!empty(data.jdbcPoolRefs)}">
+  <p><b>JDBC Pool References:</b></p>
+  <table border="0" width="100%">
     <tr>
-      <th colspan="2" align="left">
-      <div>JDBC Pool References</div>
-      </th>
+      <th class="DarkBackground" align="center">JDBC Ref</th>
+      <th class="DarkBackground" align="center">JDBC Pools</th>
     </tr>
+    <c:set var="backgroundClass" value='MediumBackground'/>
     <c:forEach var="refData" items="${data.jdbcPoolRefs}" varStatus="status">
+      <c:choose>
+        <c:when test="${backgroundClass == 'MediumBackground'}" >
+          <c:set var="backgroundClass" value='LightBackground'/>
+        </c:when>
+        <c:otherwise>
+          <c:set var="backgroundClass" value='MediumBackground'/>
+        </c:otherwise>
+      </c:choose>
       <input type="hidden" name="jdbcPoolRef.${status.index}.refName" value="${refData.refName}" />
       <tr>
-        <td>
-        <div align="right">${refData.refName}</div>
+        <td class="${backgroundClass}">
+          <div align="right">${refData.refName}</div>
         </td>
-        <td><select name="jdbcPoolRef.${status.index}.refLink">
+        <td class="${backgroundClass}">
+          <select name="jdbcPoolRef.${status.index}.refLink">
           <c:forEach var="jdbcPool" items="${deployedJdbcConnectionPools}">
             <option value="${jdbcPool.patternName}">${jdbcPool.displayName}</option>
           </c:forEach>
-        </select></td>
+          </select>
+        </td>
       </tr>
     </c:forEach>
-  </c:if>
+  </table>
+</c:if>
 
-  <!-- ENTRY FIELD: JMS Connection Factory References -->
-  <c:if test="${!empty(data.jmsConnectionFactoryRefs)}">
+<!-- ENTRY FIELD: JMS Connection Factory References -->
+<c:if test="${!empty(data.jmsConnectionFactoryRefs)}">
+  <p><b>JMS Connection Factory References:</b></p>
+  <table border="0" width="100%">
     <tr>
-      <th colspan="2" align="left">
-      <div>JMS Connection Factory References</div>
-      </th>
+      <th class="DarkBackground" align="center">JMS Ref</th>
+      <th class="DarkBackground" align="center">JMS Factories</th>
     </tr>
+    <c:set var="backgroundClass" value='MediumBackground'/>
     <c:forEach var="refData" items="${data.jmsConnectionFactoryRefs}" varStatus="status">
+      <c:choose>
+        <c:when test="${backgroundClass == 'MediumBackground'}" >
+          <c:set var="backgroundClass" value='LightBackground'/>
+        </c:when>
+        <c:otherwise>
+          <c:set var="backgroundClass" value='MediumBackground'/>
+        </c:otherwise>
+      </c:choose>
       <input type="hidden" name="jmsConnectionFactoryRef.${status.index}.refName" value="${refData.refName}" />
       <tr>
-        <td>
-        <div align="right">${refData.refName}</div>
+        <td class="${backgroundClass}">
+          <div align="right">${refData.refName}</div>
         </td>
-        <td><select name="jmsConnectionFactoryRef.${status.index}.refLink">
-          <c:forEach var="jmsFactory" items="${deployedJmsConnectionFactories}">
-            <option value="${jmsFactory.patternName}">${jmsFactory.displayName}</option>
-          </c:forEach>
-        </select></td>
+        <td class="${backgroundClass}">
+          <select name="jmsConnectionFactoryRef.${status.index}.refLink">
+            <c:forEach var="jmsFactory" items="${deployedJmsConnectionFactories}">
+              <option value="${jmsFactory.patternName}">${jmsFactory.displayName}</option>
+            </c:forEach>
+          </select>
+        </td>
       </tr>
     </c:forEach>
-  </c:if>
+  </table>
+</c:if>
 
-  <!-- ENTRY FIELD: JMS Destination References -->
-  <c:if test="${!empty(data.jmsDestinationRefs) || !empty(data.messageDestinations)}">
+<!-- ENTRY FIELD: JMS Destination References -->
+<c:if test="${!empty(data.jmsDestinationRefs) || !empty(data.messageDestinations)}">
+  <p><b>JMS Destination References:</b></p>
+  <table border="0" width="100%">
     <tr>
-      <th colspan="2" align="left">
-      <div>JMS Destination References</div>
-      </th>
+      <th class="DarkBackground" align="center">JMS Ref</th>
+      <th class="DarkBackground" align="center">JMS Destinations</th>
     </tr>
+    <c:set var="backgroundClass" value='MediumBackground'/>
     <c:forEach var="refData" items="${data.jmsDestinationRefs}" varStatus="status">
+      <c:choose>
+        <c:when test="${backgroundClass == 'MediumBackground'}" >
+          <c:set var="backgroundClass" value='LightBackground'/>
+        </c:when>
+        <c:otherwise>
+          <c:set var="backgroundClass" value='MediumBackground'/>
+        </c:otherwise>
+      </c:choose>
       <input type="hidden" name="jmsDestinationRef.${status.index}.refName" value="${refData.refName}" />
       <tr>
-        <td>
-        <div align="right">${refData.refName}</div>
+        <td class="${backgroundClass}">
+          <div align="right">${refData.refName}</div>
         </td>
-        <td><select name="jmsDestinationRef.${status.index}.refLink">
-          <c:forEach var="jmsDestination" items="${deployedJmsDestinations}">
-            <option value="${jmsDestination.patternName}" 
-              <c:if test="${fn:startsWith(jmsDestination.displayName, refData.refLink)}"> selected="selected"</c:if>
-            >${jmsDestination.displayName}</option>
-          </c:forEach>
-        </select></td>
+        <td class="${backgroundClass}">
+          <select name="jmsDestinationRef.${status.index}.refLink">
+            <c:forEach var="jmsDestination" items="${deployedJmsDestinations}">
+              <option value="${jmsDestination.patternName}" 
+                <c:if test="${fn:startsWith(jmsDestination.displayName, refData.refLink)}"> selected="selected"</c:if>
+              >${jmsDestination.displayName}</option>
+            </c:forEach>
+          </select>
+        </td>
       </tr>
     </c:forEach>
     <c:forEach var="refData" items="${data.messageDestinations}" varStatus="status">
+      <c:choose>
+        <c:when test="${backgroundClass == 'MediumBackground'}" >
+          <c:set var="backgroundClass" value='LightBackground'/>
+        </c:when>
+        <c:otherwise>
+          <c:set var="backgroundClass" value='MediumBackground'/>
+        </c:otherwise>
+      </c:choose>
       <input type="hidden" name="messageDestination.${status.index}.refName" value="${refData.refName}" />
       <tr>
-        <td>
-        <div align="right">${refData.refName}</div>
+        <td class="${backgroundClass}">
+          <div align="right">${refData.refName}</div>
         </td>
-        <td><select name="messageDestination.${status.index}.refLink">
-          <c:forEach var="jmsDestination" items="${deployedJmsDestinations}">
-            <option value="${jmsDestination.patternName}" 
-              <c:if test="${fn:startsWith(jmsDestination.displayName, refData.refLink)}"> selected="selected"</c:if>
-            >${jmsDestination.displayName}</option>
-          </c:forEach>
-        </select></td>
+        <td class="${backgroundClass}">
+          <select name="messageDestination.${status.index}.refLink">
+            <c:forEach var="jmsDestination" items="${deployedJmsDestinations}">
+              <option value="${jmsDestination.patternName}" 
+                <c:if test="${fn:startsWith(jmsDestination.displayName, refData.refLink)}"> selected="selected"</c:if>
+              >${jmsDestination.displayName}</option>
+            </c:forEach>
+          </select>
+        </td>
       </tr>
     </c:forEach>
-  </c:if>
+  </table>
+</c:if>
 
-  <!-- SUBMIT BUTTON -->
+<!-- SUBMIT BUTTON -->
+<table border="0">
   <tr>
     <th>
     <div align="right"></div>

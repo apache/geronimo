@@ -30,6 +30,12 @@
 <input type="hidden" name="mode" value="environment-after" />
 
 <table border="0">
+  <!-- SUBMIT BUTTON -->
+  <tr>
+    <td></td>
+    <td><input type="submit" value="Next" /></td>
+  </tr>
+
   <!-- ENTRY FIELD: Context Root -->
   <tr>
     <th><div align="right">Web Context Root:</div></th>

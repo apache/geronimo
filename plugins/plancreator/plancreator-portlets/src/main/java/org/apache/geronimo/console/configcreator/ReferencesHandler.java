@@ -67,6 +67,7 @@ public class ReferencesHandler extends AbstractHandler {
                 && processRefs(data.getJdbcPoolRefs(), dependenciesSet)
                 && processRefs(data.getJmsConnectionFactoryRefs(), dependenciesSet)
                 && processRefs(data.getJmsDestinationRefs(), dependenciesSet)) {
+            data.getDependencies().clear();
             data.getDependencies().addAll(dependenciesSet);
             if (data.getSecurity() != null) {
                 return SECURITY_MODE + "-before";

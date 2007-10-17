@@ -239,6 +239,9 @@ public abstract class AbstractHandler extends MultiPageAbstractHandler {
                 String prefix1 = "security.roleMappings" + "." + index + ".";
                 GerRoleType role = roles[index];
 
+                for (int i = role.sizeOfPrincipalArray() - 1; i >= 0; i--) {
+                    role.removePrincipal(i);
+                }
                 int lastIndex = Integer.parseInt(request.getParameter(prefix1 + "principal.lastIndex"));
                 for (int i = 0; i < lastIndex; i++) {
                     String prefix2 = prefix1 + "principal" + "." + i + ".";
@@ -250,6 +253,9 @@ public abstract class AbstractHandler extends MultiPageAbstractHandler {
                     principal.setClass1(request.getParameter(prefix2 + "class"));
                 }
 
+                for (int i = role.sizeOfLoginDomainPrincipalArray() - 1; i >= 0; i--) {
+                    role.removeLoginDomainPrincipal(i);
+                }
                 lastIndex = Integer.parseInt(request.getParameter(prefix1 + "loginDomainPrincipal.lastIndex"));
                 for (int i = 0; i < lastIndex; i++) {
                     String prefix2 = prefix1 + "loginDomainPrincipal" + "." + i + ".";
@@ -262,6 +268,9 @@ public abstract class AbstractHandler extends MultiPageAbstractHandler {
                     loginDomainPrincipal.setDomainName(request.getParameter(prefix2 + "domainName"));
                 }
 
+                for (int i = role.sizeOfRealmPrincipalArray() - 1; i >= 0; i--) {
+                    role.removeRealmPrincipal(i);
+                }
                 lastIndex = Integer.parseInt(request.getParameter(prefix1 + "realmPrincipal.lastIndex"));
                 for (int i = 0; i < lastIndex; i++) {
                     String prefix2 = prefix1 + "realmPrincipal" + "." + i + ".";
@@ -275,6 +284,9 @@ public abstract class AbstractHandler extends MultiPageAbstractHandler {
                     realmPrincipal.setRealmName(request.getParameter(prefix2 + "realmName"));
                 }
 
+                for (int i = role.sizeOfDistinguishedNameArray() - 1; i >= 0; i--) {
+                    role.removeDistinguishedName(i);
+                }
                 lastIndex = Integer.parseInt(request.getParameter(prefix1 + "distinguishedName.lastIndex"));
                 for (int i = 0; i < lastIndex; i++) {
                     String prefix2 = prefix1 + "distinguishedName" + "." + i + ".";
@@ -287,6 +299,7 @@ public abstract class AbstractHandler extends MultiPageAbstractHandler {
 
                 String prefix2 = prefix1 + "runAsSubject" + ".";
                 if (map.containsKey(prefix2 + "realm")) {
+                    role.unsetRunAsSubject();
                     GerSubjectInfoType runAsSubject = role.addNewRunAsSubject();
                     runAsSubject.setRealm(request.getParameter(prefix2 + "realm"));
                     runAsSubject.setId(request.getParameter(prefix2 + "id"));
@@ -294,6 +307,7 @@ public abstract class AbstractHandler extends MultiPageAbstractHandler {
             }
             String prefix = "security" + "." + "defaultSubject" + ".";
             if (map.containsKey(prefix + "realm")) {
+                security.unsetDefaultSubject();
                 GerSubjectInfoType runAsSubject = security.addNewDefaultSubject();
                 runAsSubject.setRealm(request.getParameter(prefix + "realm"));
                 runAsSubject.setId(request.getParameter(prefix + "id"));

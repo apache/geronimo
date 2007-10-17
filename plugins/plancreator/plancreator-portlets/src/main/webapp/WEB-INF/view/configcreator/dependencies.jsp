@@ -21,9 +21,10 @@
 <%@ taglib uri="http://java.sun.com/portlet" prefix="portlet"%>
 <portlet:defineObjects />
 
-<p><b>WAR - Dependencies</b> -- Select the dependencies your WAR has on other Archives</p>
+<p><b>WAR - Dependencies</b> -- Select the dependencies your Web Application has on other Modules</p>
 
-<p>Description goes here ...</p>
+<p>All the modules available in the server repository are shown below. Select the ones on which your 
+web-application is dependent. Default selections should be sufficient in most scenarios.</p>
 
 <!--   FORM TO COLLECT DATA FOR THIS PAGE   -->
 <form name="<portlet:namespace/>DependenciesForm" action="<portlet:actionURL/>" method="POST">

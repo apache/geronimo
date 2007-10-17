@@ -231,7 +231,9 @@ function <portlet:namespace/>removeElement(roleId, type, trId)
 
 <p><b>WAR - Security</b> -- Specify Security Realm and Role Mappings</p>
 
-<p>Description goes here ...</p>
+<p>Map security roles declared in web.xml deployment descriptor to specific users or groups in the security 
+realms configured in Geronimo. You can also specify a default user or group to be used when the end user has 
+not yet logged in.</p>
 
 <!--   FORM TO COLLECT DATA FOR THIS PAGE   -->
 <form name="<portlet:namespace/>SecurityForm" action="<portlet:actionURL/>" method="POST">
@@ -253,15 +255,16 @@ function <portlet:namespace/>removeElement(roleId, type, trId)
   </tr>
   <tr>
     <td></td>
-    <td>Enter description about Security Realm Name here</td>
+    <td>Select the Geronimo security realm that will authenticate user logins.</td>
   </tr>
+</table>
 
-  <!-- Security Role Mappings -->
-  <tr>
-    <th colspan="2" align="left">
-    <div>Security Role Mappings</div>
-    </th>
-  </tr>
+<!-- Security Role Mappings -->
+<p><b>Security Role Mappings:</b><br><br>
+Security roles declared in web.xml are shown below to the left. Map them to specific principals present 
+in Geronimo's security realms by adding Principals, Login Domain Principals, Realm Principals and/or 
+Distinguished Names.</p>
+<table border="0">
   <c:set var="backgroundClass" value='MediumBackground'/>
   <c:forEach var="role" items="${data.security.roleMappings.roleArray}" varStatus="status1">
     <c:choose>
