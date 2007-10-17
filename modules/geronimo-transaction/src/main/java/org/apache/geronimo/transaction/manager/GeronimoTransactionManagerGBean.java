@@ -43,6 +43,7 @@ public class GeronimoTransactionManagerGBean extends GeronimoTransactionManager 
                 xidFactory,
                 transactionLog
         );
+        stats.setStartTime();
     }
 
 
