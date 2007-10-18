@@ -30,6 +30,7 @@ import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.repository.ListableRepository;
 import org.apache.geronimo.management.EJBModule;
+import org.apache.geronimo.management.J2EEResource;
 import org.apache.geronimo.management.geronimo.JCAAdminObject;
 import org.apache.geronimo.management.geronimo.JCAManagedConnectionFactory;
 import org.apache.geronimo.management.geronimo.ResourceAdapterModule;
@@ -191,6 +192,31 @@ public class JSR77_Util {
             }
         }
         return list;
+    }
+
+    protected static List getJavaMailSessions(PortletRequest request) {
+        List mailSessionList = new ArrayList();
+        J2EEResource[] j2eeResources = PortletManager.getManagementHelper(request).getResources(
+                PortletManager.getCurrentServer(request));
+        for (int i = 0; i < j2eeResources.length; i++) {
+            try {
+                ObjectName objectName = ObjectName.getInstance(j2eeResources[i].getObjectName());
+                if (NameFactory.JAVA_MAIL_RESOURCE.equals(objectName.getKeyProperty(NameFactory.J2EE_TYPE))) {
+                    String mailSesssionName = objectName.getKeyProperty(NameFactory.J2EE_NAME);
+                    String configurationName = objectName.getKeyProperty(NameFactory.SERVICE_MODULE) + "/";
+                    ReferredData data = new ReferredData(mailSesssionName + " (" + configurationName + ")",
+                            configurationName + "/" + mailSesssionName);
+                    mailSessionList.add(data);
+                }
+            } catch (MalformedObjectNameException e) {
+                // log.error(e.getMessage(), e);
+                e.printStackTrace();
+            } catch (NullPointerException e) {
+                // log.error(e.getMessage(), e);
+                e.printStackTrace();
+            }
+        }
+        return mailSessionList;
     }
 
     protected static List getCommonLibs(PortletRequest request) {

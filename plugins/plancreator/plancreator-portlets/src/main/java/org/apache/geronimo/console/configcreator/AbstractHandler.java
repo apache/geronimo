@@ -99,6 +99,8 @@ public abstract class AbstractHandler extends MultiPageAbstractHandler {
 
     protected final static String JDBC_POOL_REF_PREFIX = "jdbcPoolRef";
 
+    protected final static String JAVAMAIL_SESSION_REF_PREFIX = "javaMailSessionRef";
+
     protected final static String REF_NAME = "refName";
 
     protected final static String REF_LINK = "refLink";
@@ -116,6 +118,8 @@ public abstract class AbstractHandler extends MultiPageAbstractHandler {
     protected final static String DEPLOYED_JMS_CONNECTION_FACTORIES_PARAMETER = "deployedJmsConnectionFactories";
 
     protected final static String DEPLOYED_JMS_DESTINATIONS_PARAMETER = "deployedJmsDestinations";
+
+    protected final static String DEPLOYED_JAVAMAIL_SESSIONS_PARAMETER = "deployedJavaMailSessions";
 
     protected final static String DEPLOYED_SECURITY_REALMS_PARAMETER = "deployedSecurityRealms";
 
@@ -180,6 +184,8 @@ public abstract class AbstractHandler extends MultiPageAbstractHandler {
 
         private List messageDestinations = new ArrayList();
 
+        private List javaMailSessionRefs = new ArrayList();
+
         private List dependencies = new ArrayList();
 
         private boolean referenceNotResolved;
@@ -210,6 +216,7 @@ public abstract class AbstractHandler extends MultiPageAbstractHandler {
             readParameters(JMS_DESTINATION_REF_PREFIX, jmsDestinationRefs, request);
             readParameters(MESSAGE_DESTINATION_PREFIX, messageDestinations, request);
             readParameters(JDBC_POOL_REF_PREFIX, jdbcPoolRefs, request);
+            readParameters(JAVAMAIL_SESSION_REF_PREFIX, javaMailSessionRefs, request);
         }
 
         private void readParameters(String prefix1, List list, PortletRequest request) {
@@ -423,6 +430,10 @@ public abstract class AbstractHandler extends MultiPageAbstractHandler {
 
         public List getMessageDestinations() {
             return messageDestinations;
+        }
+
+        public List getJavaMailSessionRefs() {
+            return javaMailSessionRefs;
         }
 
         public boolean isReferenceNotResolved() {

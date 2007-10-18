@@ -55,6 +55,7 @@ public class ReferencesHandler extends AbstractHandler {
         request.setAttribute(DEPLOYED_JDBC_CONNECTION_POOLS_PARAMETER, JSR77_Util.getJDBCConnectionPools(request));
         request.setAttribute(DEPLOYED_JMS_CONNECTION_FACTORIES_PARAMETER, JSR77_Util.getJMSConnectionFactories(request));
         request.setAttribute(DEPLOYED_JMS_DESTINATIONS_PARAMETER, JSR77_Util.getJMSDestinations(request));
+        request.setAttribute(DEPLOYED_JAVAMAIL_SESSIONS_PARAMETER, JSR77_Util.getJavaMailSessions(request));
     }
 
     public String actionAfterView(ActionRequest request, ActionResponse response, MultiPageModel model)
@@ -65,6 +66,7 @@ public class ReferencesHandler extends AbstractHandler {
         if (processRefs(data.getEjbRefs(), dependenciesSet)
                 && processRefs(data.getEjbLocalRefs(), dependenciesSet)
                 && processRefs(data.getJdbcPoolRefs(), dependenciesSet)
+                && processRefs(data.getJavaMailSessionRefs(), dependenciesSet)
                 && processRefs(data.getJmsConnectionFactoryRefs(), dependenciesSet)
                 && processRefs(data.getJmsDestinationRefs(), dependenciesSet)) {
             data.getDependencies().clear();

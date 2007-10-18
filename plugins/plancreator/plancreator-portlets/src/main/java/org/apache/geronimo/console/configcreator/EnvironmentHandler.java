@@ -55,7 +55,8 @@ public class EnvironmentHandler extends AbstractHandler {
             throws PortletException, IOException {
         WARConfigData data = getSessionData(request);
         data.readEnvironmentData(request);
-        if (data.getEjbRefs().size() > 0 || data.getEjbLocalRefs().size() > 0 || data.getJdbcPoolRefs().size() > 0
+        if (data.getEjbRefs().size() > 0 || data.getEjbLocalRefs().size() > 0 
+                || data.getJdbcPoolRefs().size() > 0 || data.getJavaMailSessionRefs().size() > 0 
                 || data.getJmsConnectionFactoryRefs().size() > 0 || data.getJmsDestinationRefs().size() > 0) {
             return REFERENCES_MODE + "-before";
         }

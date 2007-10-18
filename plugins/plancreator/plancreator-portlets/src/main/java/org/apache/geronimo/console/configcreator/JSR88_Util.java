@@ -194,6 +194,8 @@ public class JSR88_Util {
                     || "javax.jms.QueueConnectionFactory".equalsIgnoreCase(refType)
                     || "javax.jms.TopicConnectionFactory".equalsIgnoreCase(refType)) {
                 data.getJmsConnectionFactoryRefs().add(new ReferenceData(refName));
+            } else if ("javax.mail.Session".equalsIgnoreCase(refType)) {
+                data.getJavaMailSessionRefs().add(new ReferenceData(refName));
             }
         }
         /*ddBeans = ddBean.getChildBean("resource-ref");
@@ -267,7 +269,7 @@ public class JSR88_Util {
     }
 
     public static String getDependencyString(String patternString) {
-        String[] elements = patternString.split("/");
+        String[] elements = patternString.split("/", 6);
         return elements[0] + "/" + elements[1] + "/" + elements[2] + "/" + elements[3];
     }
 
@@ -362,7 +364,8 @@ public class JSR88_Util {
             }
         }
 
-        int numResourceRefs = data.getJdbcPoolRefs().size() + data.getJmsConnectionFactoryRefs().size();
+        int numResourceRefs = data.getJdbcPoolRefs().size() + data.getJmsConnectionFactoryRefs().size()
+                + data.getJavaMailSessionRefs().size();
         if (numResourceRefs > 0) {
             ResourceRef[] resourceRefs = new ResourceRef[numResourceRefs];
             for (int i = 0; i < numResourceRefs; i++) {
@@ -379,6 +382,12 @@ public class JSR88_Util {
             for (int m = 0; m < data.getJmsConnectionFactoryRefs().size(); m++, i++) {
                 ResourceRef resourceRef = resourceRefs[i];
                 ReferenceData referenceData = (ReferenceData) data.getJmsConnectionFactoryRefs().get(m);
+                resourceRef.setRefName(referenceData.getRefName());
+                resourceRef.setPattern(createPattern(referenceData.getRefLink()));
+            }
+            for (int n = 0; n < data.getJavaMailSessionRefs().size(); n++, i++) {
+                ResourceRef resourceRef = resourceRefs[i];
+                ReferenceData referenceData = (ReferenceData) data.getJavaMailSessionRefs().get(n);
                 resourceRef.setRefName(referenceData.getRefName());
                 resourceRef.setPattern(createPattern(referenceData.getRefLink()));
             }
@@ -429,7 +438,7 @@ public class JSR88_Util {
 
     private static Pattern createPattern(String patternString) {
         Pattern pattern = new Pattern();
-        String[] elements = patternString.split("/");
+        String[] elements = patternString.split("/", 6);
         pattern.setGroupId(elements[0]);
         pattern.setArtifactId(elements[1]);
         pattern.setVersion(elements[2]);

@@ -31,6 +31,7 @@ import org.apache.geronimo.management.EJB;
 import org.apache.geronimo.management.EJBModule;
 import org.apache.geronimo.management.J2EEDeployedObject;
 import org.apache.geronimo.management.J2EEModule;
+import org.apache.geronimo.management.J2EEResource;
 import org.apache.geronimo.management.JDBCDataSource;
 import org.apache.geronimo.management.JDBCDriver;
 import org.apache.geronimo.management.JDBCResource;
@@ -73,6 +74,7 @@ public interface ManagementHelper {
     JDBCResource[] getJDBCResources(J2EEServer server);
     JMSResource[] getJMSResources(J2EEServer server);
     JVM[] getJavaVMs(J2EEServer server);
+    J2EEResource[] getResources(J2EEServer server);
 
     // JVM properties
     SystemLog getSystemLog(JVM jvm);

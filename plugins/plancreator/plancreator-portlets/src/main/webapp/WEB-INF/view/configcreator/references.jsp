@@ -22,11 +22,11 @@
 <%@ taglib uri="http://java.sun.com/portlet" prefix="portlet"%>
 <portlet:defineObjects />
 
-<p><b>WAR - References</b> -- Resolve EJB, EJB Local, JDBC Connection Pool, JMS Connection Factory and 
+<p><b>WAR - References</b> -- Resolve EJB, EJB Local, JDBC Connection Pool, JavaMail Session, JMS Connection Factory and 
 JMS Destination references</p>
 
 <p>Map the references declared in your Web application to specific items available in the server environment. 
-References declared in your web-app (ex. EJB, EJB Local, JDBC Connection Pool, JMS Connection Factory and 
+References declared in your web-app (ex. EJB, EJB Local, JDBC Connection Pool, JavaMail Session, JMS Connection Factory and 
 JMS Destination references) are shown below to the left and the resources (available in the server environment) 
 to which they can be linked are shown to the right.</p>
 
@@ -233,6 +233,41 @@ to which they can be linked are shown to the right.</p>
               <option value="${jmsDestination.patternName}" 
                 <c:if test="${fn:startsWith(jmsDestination.displayName, refData.refLink)}"> selected="selected"</c:if>
               >${jmsDestination.displayName}</option>
+            </c:forEach>
+          </select>
+        </td>
+      </tr>
+    </c:forEach>
+  </table>
+</c:if>
+
+<!-- ENTRY FIELD: JavaMail Session References -->
+<c:if test="${!empty(data.javaMailSessionRefs)}">
+  <p><b>JavaMail Session References:</b></p>
+  <table border="0" width="100%">
+    <tr>
+      <th class="DarkBackground" align="center">Mail Session Ref</th>
+      <th class="DarkBackground" align="center">Mail Sessions Available</th>
+    </tr>
+    <c:set var="backgroundClass" value='MediumBackground'/>
+    <c:forEach var="refData" items="${data.javaMailSessionRefs}" varStatus="status">
+      <c:choose>
+        <c:when test="${backgroundClass == 'MediumBackground'}" >
+          <c:set var="backgroundClass" value='LightBackground'/>
+        </c:when>
+        <c:otherwise>
+          <c:set var="backgroundClass" value='MediumBackground'/>
+        </c:otherwise>
+      </c:choose>
+      <input type="hidden" name="javaMailSessionRef.${status.index}.refName" value="${refData.refName}" />
+      <tr>
+        <td class="${backgroundClass}">
+          <div align="right">${refData.refName}</div>
+        </td>
+        <td class="${backgroundClass}">
+          <select name="javaMailSessionRef.${status.index}.refLink">
+            <c:forEach var="javaMailSession" items="${deployedJavaMailSessions}">
+              <option value="${javaMailSession.patternName}">${javaMailSession.displayName}</option>
             </c:forEach>
           </select>
         </td>
