@@ -67,13 +67,13 @@ public class TomcatManagerImpl implements WebManager {
     private final static Log log = LogFactory.getLog(TomcatManagerImpl.class);
     private final Kernel kernel;
     
-    private static final ConnectorType HTTP_BIO = new ConnectorType("Tomcat BIO HTTP Connector");
-    private static final ConnectorType HTTPS_BIO = new ConnectorType("Tomcat BIO HTTPS Connector");
-    private static final ConnectorType HTTP_NIO = new ConnectorType("Tomcat NIO HTTP Connector");
-    private static final ConnectorType HTTPS_NIO = new ConnectorType("Tomcat NIO HTTPS Connector");
-    private static final ConnectorType HTTP_APR = new ConnectorType("Tomcat APR HTTP Connector");
-    private static final ConnectorType HTTPS_APR = new ConnectorType("Tomcat APR HTTPS Connector");
-    private static final ConnectorType AJP = new ConnectorType("Tomcat AJP Connector");
+    private static final ConnectorType HTTP_BIO = new ConnectorType(Messages.getString("TomcatManagerImpl.0")); //$NON-NLS-1$
+    private static final ConnectorType HTTPS_BIO = new ConnectorType(Messages.getString("TomcatManagerImpl.1")); //$NON-NLS-1$
+    private static final ConnectorType HTTP_NIO = new ConnectorType(Messages.getString("TomcatManagerImpl.2")); //$NON-NLS-1$
+    private static final ConnectorType HTTPS_NIO = new ConnectorType(Messages.getString("TomcatManagerImpl.3")); //$NON-NLS-1$
+    private static final ConnectorType HTTP_APR = new ConnectorType(Messages.getString("TomcatManagerImpl.4")); //$NON-NLS-1$
+    private static final ConnectorType HTTPS_APR = new ConnectorType(Messages.getString("TomcatManagerImpl.5")); //$NON-NLS-1$
+    private static final ConnectorType AJP = new ConnectorType(Messages.getString("TomcatManagerImpl.6")); //$NON-NLS-1$
     private static List<ConnectorType> CONNECTOR_TYPES = Arrays.asList(
             HTTP_BIO,
             HTTPS_BIO,
@@ -130,18 +130,18 @@ public class TomcatManagerImpl implements WebManager {
         addHttpConnectorAttributes(connectorAttributes);
         addAprConnectorAttributes(connectorAttributes);
         //APR SSL specific values, different from BIO and NIO SSL because it uses openssl
-        connectorAttributes.add(new ConnectorAttribute<String>("sslProtocol", "all", "Protocol which may be used for communicating with clients.", String.class));
-        connectorAttributes.add(new ConnectorAttribute<String>("sslCipherSuite", "ALL", "Ciphers which may be used for communicating with clients.", String.class));
-        connectorAttributes.add(new ConnectorAttribute<String>("sslCertificateFile", "", "Name of the file that contains the server certificate. The format is PEM-encoded.", String.class, true));
-        connectorAttributes.add(new ConnectorAttribute<String>("sslCertificateKeyFile", null, "Name of the file that contains the server private key.", String.class));
-        connectorAttributes.add(new ConnectorAttribute<String>("sslPassword", null, "Pass phrase for the encrypted private key.", String.class));
-        connectorAttributes.add(new ConnectorAttribute<String>("sslVerifyClient", "none", "Ask client for certificate.", String.class));
-        connectorAttributes.add(new ConnectorAttribute<Integer>("sslVerifyDepth", 10, "Maximum verification depth for client certificates.", Integer.class));
-        connectorAttributes.add(new ConnectorAttribute<String>("sslCACertificateFile", null, "File of concatenated PEM-encoded CA Certificates for Client Auth.", String.class));
-        connectorAttributes.add(new ConnectorAttribute<String>("sslCACertificatePath", null, "Directory of PEM-encoded CA Certificates for Client Auth.", String.class));
-        connectorAttributes.add(new ConnectorAttribute<String>("sslCertificateChainFile", null, "File of PEM-encoded Server CA Certificates.", String.class));
-        connectorAttributes.add(new ConnectorAttribute<String>("sslCARevocationFile", null, "File of concatenated PEM-encoded CA CRLs for Client Auth.", String.class));
-        connectorAttributes.add(new ConnectorAttribute<String>("sslCARevocationPath", null, "Directory of PEM-encoded CA CRLs for Client Auth.", String.class));
+        connectorAttributes.add(new ConnectorAttribute<String>("sslProtocol", "all", Messages.getString("TomcatManagerImpl.11"), String.class)); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+        connectorAttributes.add(new ConnectorAttribute<String>("sslCipherSuite", "ALL", Messages.getString("TomcatManagerImpl.14"), String.class)); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+        connectorAttributes.add(new ConnectorAttribute<String>("sslCertificateFile", "", Messages.getString("TomcatManagerImpl.17"), String.class, true)); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+        connectorAttributes.add(new ConnectorAttribute<String>("sslCertificateKeyFile", null, Messages.getString("TomcatManagerImpl.19"), String.class)); //$NON-NLS-1$ //$NON-NLS-2$
+        connectorAttributes.add(new ConnectorAttribute<String>("sslPassword", null, Messages.getString("TomcatManagerImpl.21"), String.class)); //$NON-NLS-1$ //$NON-NLS-2$
+        connectorAttributes.add(new ConnectorAttribute<String>("sslVerifyClient", "none", Messages.getString("TomcatManagerImpl.24"), String.class)); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+        connectorAttributes.add(new ConnectorAttribute<Integer>("sslVerifyDepth", 10, Messages.getString("TomcatManagerImpl.26"), Integer.class)); //$NON-NLS-1$ //$NON-NLS-2$
+        connectorAttributes.add(new ConnectorAttribute<String>("sslCACertificateFile", null, Messages.getString("TomcatManagerImpl.28"), String.class)); //$NON-NLS-1$ //$NON-NLS-2$
+        connectorAttributes.add(new ConnectorAttribute<String>("sslCACertificatePath", null, Messages.getString("TomcatManagerImpl.30"), String.class)); //$NON-NLS-1$ //$NON-NLS-2$
+        connectorAttributes.add(new ConnectorAttribute<String>("sslCertificateChainFile", null, Messages.getString("TomcatManagerImpl.32"), String.class)); //$NON-NLS-1$ //$NON-NLS-2$
+        connectorAttributes.add(new ConnectorAttribute<String>("sslCARevocationFile", null, Messages.getString("TomcatManagerImpl.34"), String.class)); //$NON-NLS-1$ //$NON-NLS-2$
+        connectorAttributes.add(new ConnectorAttribute<String>("sslCARevocationPath", null, Messages.getString("TomcatManagerImpl.36"), String.class)); //$NON-NLS-1$ //$NON-NLS-2$
         setAttribute(connectorAttributes, "port", 8443); // SSL port
         CONNECTOR_ATTRIBUTES.put(HTTPS_APR, connectorAttributes);
         
@@ -149,17 +149,17 @@ public class TomcatManagerImpl implements WebManager {
         connectorAttributes = new ArrayList<ConnectorAttribute>();
         addCommonConnectorAttributes(connectorAttributes);
         //AJP Attributes, see http://tomcat.apache.org/tomcat-6.0-doc/config/ajp.html
-        connectorAttributes.add(new ConnectorAttribute<String>("host", "0.0.0.0", "The host name or IP to bind to. The normal values are 0.0.0.0 (all interfaces) or localhost (local connections only)", String.class, true));
-        connectorAttributes.add(new ConnectorAttribute<Integer>("port", 8009, "The network port to bind to.", Integer.class, true));
-        connectorAttributes.add(new ConnectorAttribute<Integer>("backlog", 10, "The maximum queue length for incoming connection requests when all possible request processing threads are in use.", Integer.class));
-        connectorAttributes.add(new ConnectorAttribute<Integer>("bufferSize", -1, "Buffer size", Integer.class));
-        connectorAttributes.add(new ConnectorAttribute<Integer>("connectionTimeout", org.apache.coyote.ajp.Constants.DEFAULT_CONNECTION_TIMEOUT, "Connection timeout in milliseconds", Integer.class));
-        connectorAttributes.add(new ConnectorAttribute<Integer>("keepAliveTimeout", org.apache.coyote.ajp.Constants.DEFAULT_CONNECTION_TIMEOUT, "Keep alive timeout in milliseconds", Integer.class));
-        connectorAttributes.add(new ConnectorAttribute<Integer>("maxThreads", 40, "The maximum number of threads this connector should use to handle incoming requests", Integer.class));
-        connectorAttributes.add(new ConnectorAttribute<Integer>("minSpareThreads", 10, "Minimum spare threads", Integer.class));
-        connectorAttributes.add(new ConnectorAttribute<Integer>("maxSpareThreads", 100, "Maximum spare threads", Integer.class));
-        connectorAttributes.add(new ConnectorAttribute<Boolean>("tcpNoDelay", true, "If set to true, the TCP_NO_DELAY option will be set on the server socket, which improves performance under most circumstances.", Boolean.class));
-        connectorAttributes.add(new ConnectorAttribute<Boolean>("tomcatAuthentication", true, "If set to true, the authetication will be done in Geronimo. Otherwise, the authenticated principal will be propagated from the native webaserver and used for authorization in Geronimo.", Boolean.class));
+        connectorAttributes.add(new ConnectorAttribute<String>("host", "0.0.0.0", Messages.getString("TomcatManagerImpl.40"), String.class, true)); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+        connectorAttributes.add(new ConnectorAttribute<Integer>("port", 8009, Messages.getString("TomcatManagerImpl.42"), Integer.class, true)); //$NON-NLS-1$ //$NON-NLS-2$
+        connectorAttributes.add(new ConnectorAttribute<Integer>("backlog", 10, Messages.getString("TomcatManagerImpl.44"), Integer.class)); //$NON-NLS-1$ //$NON-NLS-2$
+        connectorAttributes.add(new ConnectorAttribute<Integer>("bufferSize", -1, Messages.getString("TomcatManagerImpl.46"), Integer.class)); //$NON-NLS-1$ //$NON-NLS-2$
+        connectorAttributes.add(new ConnectorAttribute<Integer>("connectionTimeout", org.apache.coyote.ajp.Constants.DEFAULT_CONNECTION_TIMEOUT, Messages.getString("TomcatManagerImpl.48"), Integer.class)); //$NON-NLS-1$ //$NON-NLS-2$
+        connectorAttributes.add(new ConnectorAttribute<Integer>("keepAliveTimeout", org.apache.coyote.ajp.Constants.DEFAULT_CONNECTION_TIMEOUT, Messages.getString("TomcatManagerImpl.50"), Integer.class)); //$NON-NLS-1$ //$NON-NLS-2$
+        connectorAttributes.add(new ConnectorAttribute<Integer>("maxThreads", 40, Messages.getString("TomcatManagerImpl.52"), Integer.class)); //$NON-NLS-1$ //$NON-NLS-2$
+        connectorAttributes.add(new ConnectorAttribute<Integer>("minSpareThreads", 10, Messages.getString("TomcatManagerImpl.54"), Integer.class)); //$NON-NLS-1$ //$NON-NLS-2$
+        connectorAttributes.add(new ConnectorAttribute<Integer>("maxSpareThreads", 100, Messages.getString("TomcatManagerImpl.56"), Integer.class)); //$NON-NLS-1$ //$NON-NLS-2$
+        connectorAttributes.add(new ConnectorAttribute<Boolean>("tcpNoDelay", true, Messages.getString("TomcatManagerImpl.58"), Boolean.class)); //$NON-NLS-1$ //$NON-NLS-2$
+        connectorAttributes.add(new ConnectorAttribute<Boolean>("tomcatAuthentication", true, Messages.getString("TomcatManagerImpl.60"), Boolean.class)); //$NON-NLS-1$ //$NON-NLS-2$
         CONNECTOR_ATTRIBUTES.put(AJP, connectorAttributes);
     }
     
@@ -400,105 +400,105 @@ public class TomcatManagerImpl implements WebManager {
 
     // see http://tomcat.apache.org/tomcat-6.0-doc/config/http.html    
     private static void addCommonConnectorAttributes(List<ConnectorAttribute> connectorAttributes) {
-        connectorAttributes.add(new ConnectorAttribute<Boolean>("allowTrace", false, "A boolean value which can be used to enable or disable the TRACE HTTP method.", Boolean.class));
-        connectorAttributes.add(new ConnectorAttribute<Boolean>("emptySessionPath", false, "If set to true, all paths for session cookies will be set to /. This can be useful for portlet specification implementations, but will greatly affect performance if many applications are accessed on a given server by the client.", Boolean.class));
-        connectorAttributes.add(new ConnectorAttribute<Boolean>("enableLookups", true, "Set to true if you want calls to request.getRemoteHost() to perform DNS lookups in order to return the actual host name of the remote client. Set to false to skip the DNS lookup and return the IP address in String form instead (thereby improving performance).", Boolean.class));
-        connectorAttributes.add(new ConnectorAttribute<Integer>("maxPostSize", 2097152, "The maximum size in bytes of the POST which will be handled by the container FORM URL parameter parsing. The limit can be disabled by setting this attribute to a value less than or equal to 0.", Integer.class));
-        connectorAttributes.add(new ConnectorAttribute<Integer>("maxSavePostSize", 4096, "The maximum size in bytes of the POST which will be saved/buffered by the container during FORM or CLIENT-CERT authentication. For both types of authentication, the POST will be saved/buffered before the user is authenticated. For CLIENT-CERT authentication, the POST is buffered for the duration of the SSL handshake and the buffer emptied when the request is processed. For FORM authentication the POST is saved whilst the user is re-directed to the login form and is retained until the user successfully authenticates or the session associated with the authentication request expires. The limit can be disabled by setting this attribute to -1. Setting the attribute to zero will disable the saving of POST data during authentication.", Integer.class));
-        connectorAttributes.add(new ConnectorAttribute<String>("proxyName", null, "If this Connector is being used in a proxy configuration, configure this attribute to specify the server name to be returned for calls to request.getServerName().", String.class));
-        connectorAttributes.add(new ConnectorAttribute<Integer>("proxyPort", 0, "If this Connector is being used in a proxy configuration, configure this attribute to specify the server port to be returned for calls to request.getServerPort().", Integer.class));
-        connectorAttributes.add(new ConnectorAttribute<Integer>("redirectPort", 8443, "If this Connector is supporting non-SSL requests, and a request is received for which a matching <security-constraint> requires SSL transport, Catalina will automatically redirect the request to the port number specified here.", Integer.class));
-        connectorAttributes.add(new ConnectorAttribute<String>("uriEncoding", "ISO-8859-1", "This specifies the character encoding used to decode the URI bytes, after %xx decoding the URL.", String.class));
-        connectorAttributes.add(new ConnectorAttribute<Boolean>("useBodyEncodingForURI", false, "This specifies if the encoding specified in contentType should be used for URI query parameters, instead of using the URIEncoding. This setting is present for compatibility with Tomcat 4.1.x, where the encoding specified in the contentType, or explicitely set using Request.setCharacterEncoding method was also used for the parameters from the URL.", Boolean.class));
-        connectorAttributes.add(new ConnectorAttribute<Boolean>("useIPVHosts", false, "Set this attribute to true to cause Tomcat to use the IP address that the request was recieved on to determine the Host to send the request to.", Boolean.class));
-        connectorAttributes.add(new ConnectorAttribute<Boolean>("xpoweredBy", false, "Set this attribute to true to cause Tomcat to advertise support for the Servlet specification using the header recommended in the specification.", Boolean.class));
+        connectorAttributes.add(new ConnectorAttribute<Boolean>("allowTrace", false, Messages.getString("TomcatManagerImpl.80"), Boolean.class)); //$NON-NLS-1$ //$NON-NLS-2$
+        connectorAttributes.add(new ConnectorAttribute<Boolean>("emptySessionPath", false, Messages.getString("TomcatManagerImpl.82"), Boolean.class)); //$NON-NLS-1$ //$NON-NLS-2$
+        connectorAttributes.add(new ConnectorAttribute<Boolean>("enableLookups", true, Messages.getString("TomcatManagerImpl.84"), Boolean.class)); //$NON-NLS-1$ //$NON-NLS-2$
+        connectorAttributes.add(new ConnectorAttribute<Integer>("maxPostSize", 2097152, Messages.getString("TomcatManagerImpl.86"), Integer.class)); //$NON-NLS-1$ //$NON-NLS-2$
+        connectorAttributes.add(new ConnectorAttribute<Integer>("maxSavePostSize", 4096, Messages.getString("TomcatManagerImpl.88"), Integer.class)); //$NON-NLS-1$ //$NON-NLS-2$
+        connectorAttributes.add(new ConnectorAttribute<String>("proxyName", null, Messages.getString("TomcatManagerImpl.90"), String.class)); //$NON-NLS-1$ //$NON-NLS-2$
+        connectorAttributes.add(new ConnectorAttribute<Integer>("proxyPort", 0, Messages.getString("TomcatManagerImpl.92"), Integer.class)); //$NON-NLS-1$ //$NON-NLS-2$
+        connectorAttributes.add(new ConnectorAttribute<Integer>("redirectPort", 8443, Messages.getString("TomcatManagerImpl.94"), Integer.class)); //$NON-NLS-1$ //$NON-NLS-2$
+        connectorAttributes.add(new ConnectorAttribute<String>("uriEncoding", "ISO-8859-1", Messages.getString("TomcatManagerImpl.97"), String.class)); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+        connectorAttributes.add(new ConnectorAttribute<Boolean>("useBodyEncodingForURI", false, Messages.getString("TomcatManagerImpl.99"), Boolean.class)); //$NON-NLS-1$ //$NON-NLS-2$
+        connectorAttributes.add(new ConnectorAttribute<Boolean>("useIPVHosts", false, Messages.getString("TomcatManagerImpl.101"), Boolean.class)); //$NON-NLS-1$ //$NON-NLS-2$
+        connectorAttributes.add(new ConnectorAttribute<Boolean>("xpoweredBy", false, Messages.getString("TomcatManagerImpl.103"), Boolean.class)); //$NON-NLS-1$ //$NON-NLS-2$
     }
     
     // see http://tomcat.apache.org/tomcat-6.0-doc/config/http.html
     private static void addHttpConnectorAttributes(List<ConnectorAttribute> connectorAttributes) {
-        connectorAttributes.add(new ConnectorAttribute<Integer>("acceptCount", 10, "The maximum queue length for incoming connection requests when all possible request processing threads are in use. Any requests received when the queue is full will be refused.", Integer.class));
-        connectorAttributes.add(new ConnectorAttribute<String>("address", "0.0.0.0", "The host name or IP to bind to. The normal values are 0.0.0.0 (all interfaces) or localhost (local connections only).", String.class, true));
-        connectorAttributes.add(new ConnectorAttribute<Integer>("bufferSize", 2048, "The size (in bytes) of the buffer to be provided for input streams created by this connector.", Integer.class));
-        connectorAttributes.add(new ConnectorAttribute<String>("compressableMimeType", "text/html,text/xml,text/plain", "The value is a comma separated list of MIME types for which HTTP compression may be used.", String.class));
-        connectorAttributes.add(new ConnectorAttribute<String>("compression", "off", "The Connector may use HTTP/1.1 GZIP compression in an attempt to save server bandwidth. The acceptable values for the parameter is <i>off</i> (disable compression), <i>on</i> (allow compression, which causes text data to be compressed), <i>force</i> (forces compression in all cases), or a numerical integer value (which is equivalent to <i>on</i>, but specifies the minimum amount of data before the output is compressed). If the content-length is not known and compression is set to <i>on</i> or more aggressive, the output will also be compressed.", String.class));
-        connectorAttributes.add(new ConnectorAttribute<Integer>("connectionLinger", -1, "The number of milliseconds during which the sockets used by this Connector will linger when they are closed. The default value is -1 (socket linger is disabled).", Integer.class));
-        connectorAttributes.add(new ConnectorAttribute<Integer>("connectionTimeout", 60000, "The number of milliseconds this Connector will wait, after accepting a connection, for the request URI line to be presented.", Integer.class));
-        connectorAttributes.add(new ConnectorAttribute<String>("executor", null, "A reference to the name in an Executor element. If this attribute is enabled, and the named executor exists, the connector will use the executor, and all the other thread attributes will be ignored.", String.class));
-        connectorAttributes.add(new ConnectorAttribute<Integer>("keepAliveTimeout", 60000, "The number of milliseconds this Connector will wait for another HTTP request before closing the connection. ", Integer.class));
-        connectorAttributes.add(new ConnectorAttribute<Boolean>("disableUploadTimeout", true, "This flag allows the servlet container to use a different, longer connection timeout while a servlet is being executed, which in the end allows either the servlet a longer amount of time to complete its execution, or a longer timeout during data upload.", Boolean.class));
-        connectorAttributes.add(new ConnectorAttribute<Integer>("maxHttpHeaderSize", 4096, "The maximum size of the request and response HTTP header, specified in bytes.", Integer.class));
-        connectorAttributes.add(new ConnectorAttribute<Integer>("maxKeepAliveRequests", 100, "The maximum number of HTTP requests which can be pipelined until the connection is closed by the server. Setting this attribute to 1 will disable HTTP/1.0 keep-alive, as well as HTTP/1.1 keep-alive and pipelining. Setting this to -1 will allow an unlimited amount of pipelined or keep-alive HTTP requests.", Integer.class));
-        connectorAttributes.add(new ConnectorAttribute<Integer>("maxThreads", 40, "The maximum number of request processing threads to be created by this Connector, which therefore determines the maximum number of simultaneous requests that can be handled. If not specified, this attribute is set to 40. If an executor is associated with this connector, this attribute is ignored as the connector will execute tasks using the executor rather than an internal thread pool.", Integer.class));
-        connectorAttributes.add(new ConnectorAttribute<Integer>("minSpareThreads", 10, "Minimum spare threads", Integer.class));
-        connectorAttributes.add(new ConnectorAttribute<Integer>("maxSpareThreads", 100, "Maximum spare threads", Integer.class));
-        connectorAttributes.add(new ConnectorAttribute<String>("noCompressionUserAgents", "", "The value is a comma separated list of regular expressions matching user-agents of HTTP clients for which compression should not be used, because these clients, although they do advertise support for the feature, have a broken implementation.", String.class));
-        connectorAttributes.add(new ConnectorAttribute<Integer>("port", 8080, "The TCP port number on which this Connector  will create a server socket and await incoming connections. Your operating system will allow only one server application to listen to a particular port number on a particular IP address.", Integer.class, true));
-        connectorAttributes.add(new ConnectorAttribute<String>("restrictedUserAgents", "", "The value is a comma separated list of regular expressions matching user-agents of HTTP clients for which HTTP/1.1 or HTTP/1.0 keep alive should not be used, even if the clients advertise support for these features. ", String.class));
-        connectorAttributes.add(new ConnectorAttribute<String>("server", "", "The Server header for the http response.", String.class));
-        connectorAttributes.add(new ConnectorAttribute<Integer>("socketBuffer", 9000, "The size (in bytes) of the buffer to be provided for socket output buffering. -1 can be specified to disable the use of a buffer.", Integer.class));
-        connectorAttributes.add(new ConnectorAttribute<Boolean>("tcpNoDelay", true, "If set to true, the TCP_NO_DELAY option will be set on the server socket, which improves performance under most circumstances.", Boolean.class));
-        connectorAttributes.add(new ConnectorAttribute<Integer>("threadPriority", Thread.NORM_PRIORITY, "The priority of the request processing threads within the JVM.", Integer.class));
+        connectorAttributes.add(new ConnectorAttribute<Integer>("acceptCount", 10, Messages.getString("TomcatManagerImpl.105"), Integer.class)); //$NON-NLS-1$ //$NON-NLS-2$
+        connectorAttributes.add(new ConnectorAttribute<String>("address", "0.0.0.0", Messages.getString("TomcatManagerImpl.108"), String.class, true)); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+        connectorAttributes.add(new ConnectorAttribute<Integer>("bufferSize", 2048, Messages.getString("TomcatManagerImpl.110"), Integer.class)); //$NON-NLS-1$ //$NON-NLS-2$
+        connectorAttributes.add(new ConnectorAttribute<String>("compressableMimeType", "text/html,text/xml,text/plain", Messages.getString("TomcatManagerImpl.113"), String.class)); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+        connectorAttributes.add(new ConnectorAttribute<String>("compression", "off", Messages.getString("TomcatManagerImpl.116"), String.class)); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+        connectorAttributes.add(new ConnectorAttribute<Integer>("connectionLinger", -1, Messages.getString("TomcatManagerImpl.118"), Integer.class)); //$NON-NLS-1$ //$NON-NLS-2$
+        connectorAttributes.add(new ConnectorAttribute<Integer>("connectionTimeout", 60000, Messages.getString("TomcatManagerImpl.120"), Integer.class)); //$NON-NLS-1$ //$NON-NLS-2$
+        connectorAttributes.add(new ConnectorAttribute<String>("executor", null, Messages.getString("TomcatManagerImpl.122"), String.class)); //$NON-NLS-1$ //$NON-NLS-2$
+        connectorAttributes.add(new ConnectorAttribute<Integer>("keepAliveTimeout", 60000, Messages.getString("TomcatManagerImpl.124"), Integer.class)); //$NON-NLS-1$ //$NON-NLS-2$
+        connectorAttributes.add(new ConnectorAttribute<Boolean>("disableUploadTimeout", true, Messages.getString("TomcatManagerImpl.126"), Boolean.class)); //$NON-NLS-1$ //$NON-NLS-2$
+        connectorAttributes.add(new ConnectorAttribute<Integer>("maxHttpHeaderSize", 4096, Messages.getString("TomcatManagerImpl.128"), Integer.class)); //$NON-NLS-1$ //$NON-NLS-2$
+        connectorAttributes.add(new ConnectorAttribute<Integer>("maxKeepAliveRequests", 100, Messages.getString("TomcatManagerImpl.130"), Integer.class)); //$NON-NLS-1$ //$NON-NLS-2$
+        connectorAttributes.add(new ConnectorAttribute<Integer>("maxThreads", 40, Messages.getString("TomcatManagerImpl.132"), Integer.class)); //$NON-NLS-1$ //$NON-NLS-2$
+        connectorAttributes.add(new ConnectorAttribute<Integer>("minSpareThreads", 10, Messages.getString("TomcatManagerImpl.134"), Integer.class)); //$NON-NLS-1$ //$NON-NLS-2$
+        connectorAttributes.add(new ConnectorAttribute<Integer>("maxSpareThreads", 100, Messages.getString("TomcatManagerImpl.136"), Integer.class)); //$NON-NLS-1$ //$NON-NLS-2$
+        connectorAttributes.add(new ConnectorAttribute<String>("noCompressionUserAgents", "", Messages.getString("TomcatManagerImpl.139"), String.class)); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+        connectorAttributes.add(new ConnectorAttribute<Integer>("port", 8080, Messages.getString("TomcatManagerImpl.141"), Integer.class, true)); //$NON-NLS-1$ //$NON-NLS-2$
+        connectorAttributes.add(new ConnectorAttribute<String>("restrictedUserAgents", "", Messages.getString("TomcatManagerImpl.144"), String.class)); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+        connectorAttributes.add(new ConnectorAttribute<String>("server", "", Messages.getString("TomcatManagerImpl.147"), String.class)); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+        connectorAttributes.add(new ConnectorAttribute<Integer>("socketBuffer", 9000, Messages.getString("TomcatManagerImpl.149"), Integer.class)); //$NON-NLS-1$ //$NON-NLS-2$
+        connectorAttributes.add(new ConnectorAttribute<Boolean>("tcpNoDelay", true, Messages.getString("TomcatManagerImpl.151"), Boolean.class)); //$NON-NLS-1$ //$NON-NLS-2$
+        connectorAttributes.add(new ConnectorAttribute<Integer>("threadPriority", Thread.NORM_PRIORITY, Messages.getString("TomcatManagerImpl.153"), Integer.class)); //$NON-NLS-1$ //$NON-NLS-2$
     }
     
     // see http://tomcat.apache.org/tomcat-6.0-doc/config/http.html
     private static void addSslConnectorAttributes(List<ConnectorAttribute> connectorAttributes) {
-        connectorAttributes.add(new ConnectorAttribute<String>("algorithm", KeyManagerFactory.getDefaultAlgorithm(), "The certificate encoding algorithm to be used.", String.class));
-        connectorAttributes.add(new ConnectorAttribute<Boolean>("clientAuth", false, "Set to true if you want the SSL stack to require a valid certificate chain from the client before accepting a connection. Set to want if you want the SSL stack to request a client Certificate, but not fail if one isn't presented. A false  value (which is the default) will not require a certificate chain unless the client requests a resource protected by a security constraint that uses CLIENT-CERT authentication.", Boolean.class));
-        connectorAttributes.add(new ConnectorAttribute<String>("keystoreFile", "", "The file that holds the keystore (relative to the Geronimo install dir)", String.class, true));
-        connectorAttributes.add(new ConnectorAttribute<String>("keystorePass", null, "Set the password used to access the keystore file. This is also the password used to access the server private key within the keystore (so the two passwords must be set to be the same on the keystore).", String.class));
-        connectorAttributes.add(new ConnectorAttribute<String>("keystoreType", "JKS", "Set the keystore type. There is normally no reason not to use the default (JKS).", String.class));
-        connectorAttributes.add(new ConnectorAttribute<String>("sslProtocol", "TLS", "Set the HTTPS protocol. This should normally be set to TLS, though some (IBM) JVMs don't work properly with popular browsers unless it is changed to SSL.", String.class));
-        connectorAttributes.add(new ConnectorAttribute<String>("ciphers", "", "A comma seperated list of the encryption ciphers that may be used. If not specified, then any available cipher may be used.", String.class));
-        connectorAttributes.add(new ConnectorAttribute<String>("keyAlias", null, "The alias used to for the server certificate in the keystore. If not specified the first key read in the keystore will be used.", String.class));
-        connectorAttributes.add(new ConnectorAttribute<String>("truststoreFile", null, "The TrustStore file to use to validate client certificates.", String.class));
-        connectorAttributes.add(new ConnectorAttribute<String>("truststorePass", null, "The password to access the TrustStore.", String.class));
-        connectorAttributes.add(new ConnectorAttribute<String>("truststoreType", null, "Set the truststore type. There is normally no reason not to use the default (JKS).", String.class));
+        connectorAttributes.add(new ConnectorAttribute<String>("algorithm", KeyManagerFactory.getDefaultAlgorithm(), Messages.getString("TomcatManagerImpl.155"), String.class)); //$NON-NLS-1$ //$NON-NLS-2$
+        connectorAttributes.add(new ConnectorAttribute<Boolean>("clientAuth", false, Messages.getString("TomcatManagerImpl.157"), Boolean.class)); //$NON-NLS-1$ //$NON-NLS-2$
+        connectorAttributes.add(new ConnectorAttribute<String>("keystoreFile", "", Messages.getString("TomcatManagerImpl.160"), String.class, true)); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+        connectorAttributes.add(new ConnectorAttribute<String>("keystorePass", null, Messages.getString("TomcatManagerImpl.162"), String.class)); //$NON-NLS-1$ //$NON-NLS-2$
+        connectorAttributes.add(new ConnectorAttribute<String>("keystoreType", "JKS", Messages.getString("TomcatManagerImpl.165"), String.class)); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+        connectorAttributes.add(new ConnectorAttribute<String>("sslProtocol", "TLS", Messages.getString("TomcatManagerImpl.168"), String.class)); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+        connectorAttributes.add(new ConnectorAttribute<String>("ciphers", "", Messages.getString("TomcatManagerImpl.171"), String.class)); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+        connectorAttributes.add(new ConnectorAttribute<String>("keyAlias", null, Messages.getString("TomcatManagerImpl.173"), String.class)); //$NON-NLS-1$ //$NON-NLS-2$
+        connectorAttributes.add(new ConnectorAttribute<String>("truststoreFile", null, Messages.getString("TomcatManagerImpl.175"), String.class)); //$NON-NLS-1$ //$NON-NLS-2$
+        connectorAttributes.add(new ConnectorAttribute<String>("truststorePass", null, Messages.getString("TomcatManagerImpl.177"), String.class)); //$NON-NLS-1$ //$NON-NLS-2$
+        connectorAttributes.add(new ConnectorAttribute<String>("truststoreType", null, Messages.getString("TomcatManagerImpl.179"), String.class)); //$NON-NLS-1$ //$NON-NLS-2$
     }
     
     // see http://tomcat.apache.org/tomcat-6.0-doc/config/http.html
     private static void addNioConnectorAttributes(List<ConnectorAttribute> connectorAttributes) {
-        connectorAttributes.add(new ConnectorAttribute<Boolean>("useSendfile", true, "Use this attribute to enable or disable sendfile capability.", Boolean.class));
-        connectorAttributes.add(new ConnectorAttribute<Boolean>("useExecutor", true, "Set to true to use the NIO thread pool executor. The default value is true. If set to false, it uses a thread pool based on a stack for its execution. Generally, using the executor yields a little bit slower performance, but yields a better fairness for processing connections in a high load environment as the traffic gets queued through a FIFO queue. If set to true(default) then the max pool size is the maxThreads attribute and the core pool size is the minSpareThreads. This value is ignored if the executor attribute is present and points to a valid shared thread pool.", Boolean.class));
-        connectorAttributes.add(new ConnectorAttribute<Integer>("acceptorThreadCount", 1, "The number of threads to be used to accept connections. Increase this value on a multi CPU machine, although you would never really need more than 2. Also, with a lot of non keep alive connections, you might want to increase this value as well. ", Integer.class));
-        connectorAttributes.add(new ConnectorAttribute<Integer>("pollerThreadCount", 1, "The number of threads to be used to run for the polling events.", Integer.class));
-        connectorAttributes.add(new ConnectorAttribute<Integer>("pollerThreadPriority", Thread.NORM_PRIORITY, "The priority of the poller threads.", Integer.class));
-        connectorAttributes.add(new ConnectorAttribute<Integer>("acceptorThreadPriority", Thread.NORM_PRIORITY, "The priority of the acceptor threads. The threads used to accept new connections.", Integer.class));
-        connectorAttributes.add(new ConnectorAttribute<Integer>("selectorTimeout", 1000, "The time in milliseconds to timeout on a select() for the poller. This value is important, since connection clean up is done on the same thread, so dont set this value to an extremely high one.", Integer.class));
-        connectorAttributes.add(new ConnectorAttribute<Boolean>("useComet", true, "Whether to allow comet servlets or not.", Boolean.class));
-        connectorAttributes.add(new ConnectorAttribute<Integer>("processCache", 200, "The protocol handler caches Http11NioProcessor objects to speed up performance. This setting dictates how many of these objects get cached. -1 means unlimited, default is 200. Set this value somewhere close to your maxThreads value.", Integer.class));
-        connectorAttributes.add(new ConnectorAttribute<Boolean>("socket_directBuffer", false, "Whether to use direct ByteBuffers or java mapped ByteBuffers. Default is false. When you are using direct buffers, make sure you allocate the appropriate amount of memory for the direct memory space. On Sun's JDK that would be something like -XX:MaxDirectMemorySize=256m", Boolean.class));
-        connectorAttributes.add(new ConnectorAttribute<Integer>("socket_rxBufSize", 25188, "The socket receive buffer (SO_RCVBUF) size in bytes.", Integer.class));
-        connectorAttributes.add(new ConnectorAttribute<Integer>("socket_txBufSize", 43800, "The socket send buffer (SO_SNDBUF) size in bytes.", Integer.class));
-        connectorAttributes.add(new ConnectorAttribute<Integer>("socket_appReadBufSize", 8192, "Each connection that is opened up in Tomcat get associated with a read and a write ByteBuffer This attribute controls the size of these buffers. By default this read buffer is sized at 8192 bytes. For lower concurrency, you can increase this to buffer more data. For an extreme amount of keep alive connections, decrease this number or increase your heap size.", Integer.class));
-        connectorAttributes.add(new ConnectorAttribute<Integer>("socket_appWriteBufSize", 8192, "Each connection that is opened up in Tomcat get associated with a read and a write ByteBuffer This attribute controls the size of these buffers. By default this write buffer is sized at 8192 bytes. For low concurrency you can increase this to buffer more response data. For an extreme amount of keep alive connections, decrease this number or increase your heap size.", Integer.class));
-        connectorAttributes.add(new ConnectorAttribute<Integer>("socket_bufferPool", 500, "The Nio connector uses a class called NioChannel that holds elements linked to a socket. To reduce garbage collection, the Nio connector caches these channel objects. This value specifies the size of this cache. The default value is 500, and represents that the cache will hold 500 NioChannel objects. Other values are -1. unlimited cache, and 0, no cache.", Integer.class));
-        connectorAttributes.add(new ConnectorAttribute<Integer>("socket_bufferPoolSize", 104857600, "The NioChannel pool can also be size based, not used object based. The size is calculated as follows: <br>NioChannel buffer size = read buffer size + write buffer size <br>SecureNioChannel buffer size = application read buffer size + application write buffer size + network read buffer size + network write buffer size", Integer.class));
-        connectorAttributes.add(new ConnectorAttribute<Integer>("socket_processorCache", 500, "Tomcat will cache SocketProcessor objects to reduce garbage collection. The integer value specifies how many objects to keep in the cache at most. The default is 500. Other values are -1. unlimited cache, and 0, no cache.", Integer.class));
-        connectorAttributes.add(new ConnectorAttribute<Integer>("socket_keyCache", 500, "Tomcat will cache KeyAttachment objects to reduce garbage collection. The integer value specifies how many objects to keep in the cache at most. The default is 500. Other values are -1. unlimited cache, and 0, no cache.", Integer.class));
-        connectorAttributes.add(new ConnectorAttribute<Integer>("socket_eventCache", 500, "Tomcat will cache PollerEvent objects to reduce garbage collection. The integer value specifies how many objects to keep in the cache at most. The default is 500. Other values are -1. unlimited cache, and 0, no cache.", Integer.class));
-        connectorAttributes.add(new ConnectorAttribute<Boolean>("socket_tcpNoDelay", false, "Same as the standard setting tcpNoDelay.", Boolean.class));
-        connectorAttributes.add(new ConnectorAttribute<Boolean>("socket_soKeepAlive", false, "Boolean value for the socket's keep alive setting (SO_KEEPALIVE).", Boolean.class));
-        connectorAttributes.add(new ConnectorAttribute<Boolean>("socket_ooBInline", true, "Boolean value for the socket OOBINLINE setting.", Boolean.class));
-        connectorAttributes.add(new ConnectorAttribute<Boolean>("socket_soReuseAddress", true, "Boolean value for the sockets reuse address option (SO_REUSEADDR). ", Boolean.class));
-        connectorAttributes.add(new ConnectorAttribute<Boolean>("socket_soLingerOn", true, "Boolean value for the sockets so linger option (SO_LINGER). This option is paired with the soLingerTime value.", Boolean.class));
-        connectorAttributes.add(new ConnectorAttribute<Integer>("socket_soLingerTime", 25, "Value in seconds for the sockets so linger option (SO_LINGER). This option is paired with the soLinger value.", Integer.class));
-        connectorAttributes.add(new ConnectorAttribute<Integer>("socket_soTimeout", 5000, "Value in milliseconds for the sockets read timeout (SO_TIMEOUT). ", Integer.class));
-        connectorAttributes.add(new ConnectorAttribute<Integer>("socket_soTrafficClass", (0x04 | 0x08 | 0x010), "Value between 0 and 255 for the traffic class on the socket, 0x04 | 0x08 | 0x010", Integer.class));
-        connectorAttributes.add(new ConnectorAttribute<Integer>("socket_performanceConnectionTime", 1, "he first value for the performance settings.", Integer.class));
-        connectorAttributes.add(new ConnectorAttribute<Integer>("socket_performanceLatency", 0, "The second value for the performance settings.", Integer.class));
-        connectorAttributes.add(new ConnectorAttribute<Integer>("socket_performanceBandwidth", 1, "The third value for the performance settings.", Integer.class));
-        connectorAttributes.add(new ConnectorAttribute<Integer>("selectorPool_maxSelectors", 200, "The max selectors to be used in the pool, to reduce selector contention. Use this option when the command line org.apache.tomcat.util.net.NioSelectorShared value is set to false.", Integer.class));
-        connectorAttributes.add(new ConnectorAttribute<Integer>("selectorPool_maxSpareSelectors", -1, "The max spare selectors to be used in the pool, to reduce selector contention. When a selector is returned to the pool, the system can decide to keep it or let it be GC:ed. Use this option when the command line org.apache.tomcat.util.net.NioSelectorShared value is set to false.", Integer.class));
-        connectorAttributes.add(new ConnectorAttribute<Boolean>("command_line_options", true, "The following command line options are available for the NIO connector: <i>-Dorg.apache.tomcat.util.net.NioSelectorShared=true|false</i>. Set this value to false if you wish to use a selector for each thread. the property. If you do set it to false, you can control the size of the pool of selectors by using the selectorPool.maxSelectors attribute", Boolean.class));
-        connectorAttributes.add(new ConnectorAttribute<Integer>("oomParachute", 1048576, "The NIO connector implements an OutOfMemoryError strategy called parachute. It holds a chunk of data as a byte array. In case of an OOM, this chunk of data is released and the error is reported. This will give the VM enough room to clean up. The oomParachute represent the size in bytes of the parachute(the byte array). The default value is 1024*1024(1MB). Please note, this only works for OOM errors regarding the Java Heap space, and there is absolutely no guarantee that you will be able to recover at all. If you have an OOM outside of the Java Heap, then this parachute trick will not help.", Integer.class));
+        connectorAttributes.add(new ConnectorAttribute<Boolean>("useSendfile", true, Messages.getString("TomcatManagerImpl.181"), Boolean.class)); //$NON-NLS-1$ //$NON-NLS-2$
+        connectorAttributes.add(new ConnectorAttribute<Boolean>("useExecutor", true, Messages.getString("TomcatManagerImpl.183"), Boolean.class)); //$NON-NLS-1$ //$NON-NLS-2$
+        connectorAttributes.add(new ConnectorAttribute<Integer>("acceptorThreadCount", 1, Messages.getString("TomcatManagerImpl.185"), Integer.class)); //$NON-NLS-1$ //$NON-NLS-2$
+        connectorAttributes.add(new ConnectorAttribute<Integer>("pollerThreadCount", 1, Messages.getString("TomcatManagerImpl.187"), Integer.class)); //$NON-NLS-1$ //$NON-NLS-2$
+        connectorAttributes.add(new ConnectorAttribute<Integer>("pollerThreadPriority", Thread.NORM_PRIORITY, Messages.getString("TomcatManagerImpl.189"), Integer.class)); //$NON-NLS-1$ //$NON-NLS-2$
+        connectorAttributes.add(new ConnectorAttribute<Integer>("acceptorThreadPriority", Thread.NORM_PRIORITY, Messages.getString("TomcatManagerImpl.191"), Integer.class)); //$NON-NLS-1$ //$NON-NLS-2$
+        connectorAttributes.add(new ConnectorAttribute<Integer>("selectorTimeout", 1000, Messages.getString("TomcatManagerImpl.193"), Integer.class)); //$NON-NLS-1$ //$NON-NLS-2$
+        connectorAttributes.add(new ConnectorAttribute<Boolean>("useComet", true, Messages.getString("TomcatManagerImpl.195"), Boolean.class)); //$NON-NLS-1$ //$NON-NLS-2$
+        connectorAttributes.add(new ConnectorAttribute<Integer>("processCache", 200, Messages.getString("TomcatManagerImpl.197"), Integer.class)); //$NON-NLS-1$ //$NON-NLS-2$
+        connectorAttributes.add(new ConnectorAttribute<Boolean>("socket_directBuffer", false, Messages.getString("TomcatManagerImpl.199"), Boolean.class)); //$NON-NLS-1$ //$NON-NLS-2$
+        connectorAttributes.add(new ConnectorAttribute<Integer>("socket_rxBufSize", 25188, Messages.getString("TomcatManagerImpl.201"), Integer.class)); //$NON-NLS-1$ //$NON-NLS-2$
+        connectorAttributes.add(new ConnectorAttribute<Integer>("socket_txBufSize", 43800, Messages.getString("TomcatManagerImpl.203"), Integer.class)); //$NON-NLS-1$ //$NON-NLS-2$
+        connectorAttributes.add(new ConnectorAttribute<Integer>("socket_appReadBufSize", 8192, Messages.getString("TomcatManagerImpl.205"), Integer.class)); //$NON-NLS-1$ //$NON-NLS-2$
+        connectorAttributes.add(new ConnectorAttribute<Integer>("socket_appWriteBufSize", 8192, Messages.getString("TomcatManagerImpl.207"), Integer.class)); //$NON-NLS-1$ //$NON-NLS-2$
+        connectorAttributes.add(new ConnectorAttribute<Integer>("socket_bufferPool", 500, Messages.getString("TomcatManagerImpl.209"), Integer.class)); //$NON-NLS-1$ //$NON-NLS-2$
+        connectorAttributes.add(new ConnectorAttribute<Integer>("socket_bufferPoolSize", 104857600, Messages.getString("TomcatManagerImpl.211"), Integer.class)); //$NON-NLS-1$ //$NON-NLS-2$
+        connectorAttributes.add(new ConnectorAttribute<Integer>("socket_processorCache", 500, Messages.getString("TomcatManagerImpl.213"), Integer.class)); //$NON-NLS-1$ //$NON-NLS-2$
+        connectorAttributes.add(new ConnectorAttribute<Integer>("socket_keyCache", 500, Messages.getString("TomcatManagerImpl.215"), Integer.class)); //$NON-NLS-1$ //$NON-NLS-2$
+        connectorAttributes.add(new ConnectorAttribute<Integer>("socket_eventCache", 500, Messages.getString("TomcatManagerImpl.217"), Integer.class)); //$NON-NLS-1$ //$NON-NLS-2$
+        connectorAttributes.add(new ConnectorAttribute<Boolean>("socket_tcpNoDelay", false, Messages.getString("TomcatManagerImpl.219"), Boolean.class)); //$NON-NLS-1$ //$NON-NLS-2$
+        connectorAttributes.add(new ConnectorAttribute<Boolean>("socket_soKeepAlive", false, Messages.getString("TomcatManagerImpl.221"), Boolean.class)); //$NON-NLS-1$ //$NON-NLS-2$
+        connectorAttributes.add(new ConnectorAttribute<Boolean>("socket_ooBInline", true, Messages.getString("TomcatManagerImpl.223"), Boolean.class)); //$NON-NLS-1$ //$NON-NLS-2$
+        connectorAttributes.add(new ConnectorAttribute<Boolean>("socket_soReuseAddress", true, Messages.getString("TomcatManagerImpl.225"), Boolean.class)); //$NON-NLS-1$ //$NON-NLS-2$
+        connectorAttributes.add(new ConnectorAttribute<Boolean>("socket_soLingerOn", true, Messages.getString("TomcatManagerImpl.227"), Boolean.class)); //$NON-NLS-1$ //$NON-NLS-2$
+        connectorAttributes.add(new ConnectorAttribute<Integer>("socket_soLingerTime", 25, Messages.getString("TomcatManagerImpl.229"), Integer.class)); //$NON-NLS-1$ //$NON-NLS-2$
+        connectorAttributes.add(new ConnectorAttribute<Integer>("socket_soTimeout", 5000, Messages.getString("TomcatManagerImpl.231"), Integer.class)); //$NON-NLS-1$ //$NON-NLS-2$
+        connectorAttributes.add(new ConnectorAttribute<Integer>("socket_soTrafficClass", (0x04 | 0x08 | 0x010), Messages.getString("TomcatManagerImpl.233"), Integer.class)); //$NON-NLS-1$ //$NON-NLS-2$
+        connectorAttributes.add(new ConnectorAttribute<Integer>("socket_performanceConnectionTime", 1, Messages.getString("TomcatManagerImpl.235"), Integer.class)); //$NON-NLS-1$ //$NON-NLS-2$
+        connectorAttributes.add(new ConnectorAttribute<Integer>("socket_performanceLatency", 0, Messages.getString("TomcatManagerImpl.237"), Integer.class)); //$NON-NLS-1$ //$NON-NLS-2$
+        connectorAttributes.add(new ConnectorAttribute<Integer>("socket_performanceBandwidth", 1, Messages.getString("TomcatManagerImpl.239"), Integer.class)); //$NON-NLS-1$ //$NON-NLS-2$
+        connectorAttributes.add(new ConnectorAttribute<Integer>("selectorPool_maxSelectors", 200, Messages.getString("TomcatManagerImpl.241"), Integer.class)); //$NON-NLS-1$ //$NON-NLS-2$
+        connectorAttributes.add(new ConnectorAttribute<Integer>("selectorPool_maxSpareSelectors", -1, Messages.getString("TomcatManagerImpl.243"), Integer.class)); //$NON-NLS-1$ //$NON-NLS-2$
+        connectorAttributes.add(new ConnectorAttribute<Boolean>("command_line_options", true, Messages.getString("TomcatManagerImpl.245"), Boolean.class)); //$NON-NLS-1$ //$NON-NLS-2$
+        connectorAttributes.add(new ConnectorAttribute<Integer>("oomParachute", 1048576, Messages.getString("TomcatManagerImpl.247"), Integer.class)); //$NON-NLS-1$ //$NON-NLS-2$
     }
 
     // http://tomcat.apache.org/tomcat-6.0-doc/apr.html
     private static void addAprConnectorAttributes(List<ConnectorAttribute> connectorAttributes) {
-        connectorAttributes.add(new ConnectorAttribute<Integer>("pollTime", 2000, "Duration of a poll call. Lowering this value will slightly decrease latency of connections being kept alive in some cases, but will use more CPU as more poll calls are being made.", Integer.class, true));
-        connectorAttributes.add(new ConnectorAttribute<Integer>("pollerSize", 8192, "Amount of sockets that the poller responsible for polling kept alive connections can hold at a given time. Extra connections will be closed right away.", Integer.class, true));
-        connectorAttributes.add(new ConnectorAttribute<Boolean>("useSendfile", true, "Use kernel level sendfile for certain static files.", Boolean.class, true));
-        connectorAttributes.add(new ConnectorAttribute<Integer>("sendfileSize", 1024, "Amount of sockets that the poller responsible for sending static files asynchronously can hold at a given time. Extra connections will be closed right away without any data being sent (resulting in a zero length file on the client side). Note that in most cases, sendfile is a call that will return right away (being taken care of synchonously by the kernel), and the sendfile poller will not be used, so the amount of static files which can be sent concurrently is much larger than the specified amount.", Integer.class, true));
+        connectorAttributes.add(new ConnectorAttribute<Integer>("pollTime", 2000, Messages.getString("TomcatManagerImpl.249"), Integer.class, true)); //$NON-NLS-1$ //$NON-NLS-2$
+        connectorAttributes.add(new ConnectorAttribute<Integer>("pollerSize", 8192, Messages.getString("TomcatManagerImpl.251"), Integer.class, true)); //$NON-NLS-1$ //$NON-NLS-2$
+        connectorAttributes.add(new ConnectorAttribute<Boolean>("useSendfile", true, Messages.getString("TomcatManagerImpl.253"), Boolean.class, true)); //$NON-NLS-1$ //$NON-NLS-2$
+        connectorAttributes.add(new ConnectorAttribute<Integer>("sendfileSize", 1024, Messages.getString("TomcatManagerImpl.255"), Integer.class, true)); //$NON-NLS-1$ //$NON-NLS-2$
     }
        
     private static <T> void setAttribute (List<ConnectorAttribute> connectorAttributes, String attributeName, T value) {

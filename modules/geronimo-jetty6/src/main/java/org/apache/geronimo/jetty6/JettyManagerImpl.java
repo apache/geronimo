@@ -53,6 +53,7 @@ import org.apache.geronimo.management.geronimo.NetworkConnector;
 import org.apache.geronimo.management.geronimo.WebAccessLog;
 import org.apache.geronimo.management.geronimo.WebContainer;
 import org.apache.geronimo.management.geronimo.WebManager;
+import org.apache.geronimo.management.geronimo.WebManager.ConnectorAttribute;
 
 /**
  * Jetty implementation of WebManager.  Knows how to manipulate
@@ -63,12 +64,12 @@ import org.apache.geronimo.management.geronimo.WebManager;
 public class JettyManagerImpl implements WebManager {
     private final static Log log = LogFactory.getLog(JettyManagerImpl.class);
 
-    private static final ConnectorType HTTP_NIO = new ConnectorType("Jetty NIO HTTP Connector");
-    private static final ConnectorType HTTPS_NIO = new ConnectorType("Jetty NIO HTTPS Connector");
-    private static final ConnectorType HTTP_BLOCKING_NIO = new ConnectorType("Jetty Blocking HTTP Connector using NIO");
-    private static final ConnectorType HTTP_BIO = new ConnectorType("Jetty BIO HTTP Connector");
-    private static final ConnectorType HTTPS_BIO = new ConnectorType("Jetty BIO HTTPS Connector");
-    private static final ConnectorType AJP_NIO = new ConnectorType("Jetty NIO AJP Connector");
+    private static final ConnectorType HTTP_NIO = new ConnectorType(Messages.getString("JettyManagerImpl.0")); //$NON-NLS-1$
+    private static final ConnectorType HTTPS_NIO = new ConnectorType(Messages.getString("JettyManagerImpl.1")); //$NON-NLS-1$
+    private static final ConnectorType HTTP_BLOCKING_NIO = new ConnectorType(Messages.getString("JettyManagerImpl.2")); //$NON-NLS-1$
+    private static final ConnectorType HTTP_BIO = new ConnectorType(Messages.getString("JettyManagerImpl.3")); //$NON-NLS-1$
+    private static final ConnectorType HTTPS_BIO = new ConnectorType(Messages.getString("JettyManagerImpl.4")); //$NON-NLS-1$
+    private static final ConnectorType AJP_NIO = new ConnectorType(Messages.getString("JettyManagerImpl.5")); //$NON-NLS-1$
     private static List<ConnectorType> CONNECTOR_TYPES = Arrays.asList(
             HTTP_NIO,
             HTTPS_NIO,
@@ -82,89 +83,31 @@ public class JettyManagerImpl implements WebManager {
 
     static {
         List<ConnectorAttribute> connectorAttributes = new ArrayList<ConnectorAttribute>();
-        connectorAttributes.add(new ConnectorAttribute<String>("host", "0.0.0.0", "The host name or IP to bind to. The normal values are 0.0.0.0 (all interfaces) or localhost (local connections only)", String.class, true));
-        connectorAttributes.add(new ConnectorAttribute<Integer>("port", 8080, "The network port to bind to.", Integer.class, true));
-        connectorAttributes.add(new ConnectorAttribute<Integer>("maxThreads", 10, "The maximum number of threads this connector should use to handle incoming requests", Integer.class));
-        connectorAttributes.add(new ConnectorAttribute<Integer>("bufferSizeBytes", 8096, "Buffer size", Integer.class));
-        connectorAttributes.add(new ConnectorAttribute<Integer>("acceptQueueSize", 10, "acceptQueueSize", Integer.class));
-        connectorAttributes.add(new ConnectorAttribute<Integer>("lingerMillis", 30000, "lingerMillis", Integer.class));
-        //connectorAttributes.add(new ConnectorAttribute<Boolean>("tcpNoDelay", false, "tcpNoDelay", Boolean.class));
-        connectorAttributes.add(new ConnectorAttribute<Integer>("redirectPort", 8443, "redirectPort", Integer.class));
-        //connectorAttributes.add(new ConnectorAttribute<Integer>("maxIdleTimeMs", 30000, "maxIdleTimeMs", Integer.class));
+        addCommonConnectorAttributes(connectorAttributes);
         CONNECTOR_ATTRIBUTES.put(HTTP_NIO, connectorAttributes);
 
         connectorAttributes = new ArrayList<ConnectorAttribute>();
-        connectorAttributes.add(new ConnectorAttribute<String>("host", "0.0.0.0", "The host name or IP to bind to. The normal values are 0.0.0.0 (all interfaces) or localhost (local connections only)", String.class, true));
-        connectorAttributes.add(new ConnectorAttribute<Integer>("port", 8443, "The network port to bind to.", Integer.class, true));
-        connectorAttributes.add(new ConnectorAttribute<Integer>("maxThreads", 10, "The maximum number of threads this connector should use to handle incoming requests", Integer.class));
-        connectorAttributes.add(new ConnectorAttribute<Integer>("bufferSizeBytes", 8096, "Buffer size", Integer.class));
-        connectorAttributes.add(new ConnectorAttribute<Integer>("acceptQueueSize", 10, "acceptQueueSize", Integer.class));
-        connectorAttributes.add(new ConnectorAttribute<Integer>("lingerMillis", 30000, "lingerMillis", Integer.class));
-        //connectorAttributes.add(new ConnectorAttribute<Boolean>("tcpNoDelay", false, "tcpNoDelay", Boolean.class));
-        connectorAttributes.add(new ConnectorAttribute<Integer>("redirectPort", 8443, "redirectPort", Integer.class));
-        //connectorAttributes.add(new ConnectorAttribute<Integer>("maxIdleTimeMs", 30000, "maxIdleTimeMs", Integer.class));
-        //connectorAttributes.add(new ConnectorAttribute<Boolean>("clientAuthRequested", false, "clientAuthRequested", Boolean.class));
-        connectorAttributes.add(new ConnectorAttribute<Boolean>("clientAuthRequired", false, "If set, then clients connecting through this connector must supply a valid client certificate.", Boolean.class));
-        connectorAttributes.add(new ConnectorAttribute<String>("keyStore", "", "The keystore to use for accessing the server's private key", String.class, true));
-        connectorAttributes.add(new ConnectorAttribute<String>("trustStore", "", "The keystore containing the trusted certificate entries, including Certification Authority (CA) certificates", String.class));
-        //connectorAttributes.add(new ConnectorAttribute<String>("keyAlias", "", "keyAlias", String.class, true));
-        connectorAttributes.add(new ConnectorAttribute<String>("secureProtocol", "", "This should normally be set to TLS, though some (IBM) JVMs don't work properly with popular browsers unless it is changed to SSL.", String.class));
-        connectorAttributes.add(new ConnectorAttribute<String>("algorithm", "Default", "This should normally be set to match the JVM vendor.", String.class));
+        addCommonConnectorAttributes(connectorAttributes);
+        addSslConnectorAttributes(connectorAttributes);
+        setAttribute(connectorAttributes, "port", 8443); // SSL port
         CONNECTOR_ATTRIBUTES.put(HTTPS_NIO, connectorAttributes);
 
         connectorAttributes = new ArrayList<ConnectorAttribute>();
-        connectorAttributes.add(new ConnectorAttribute<String>("host", "0.0.0.0", "The host name or IP to bind to. The normal values are 0.0.0.0 (all interfaces) or localhost (local connections only)", String.class, true));
-        connectorAttributes.add(new ConnectorAttribute<Integer>("port", 8080, "The network port to bind to.", Integer.class, true));
-        connectorAttributes.add(new ConnectorAttribute<Integer>("maxThreads", 10, "The maximum number of threads this connector should use to handle incoming requests", Integer.class));
-        connectorAttributes.add(new ConnectorAttribute<Integer>("bufferSizeBytes", 8096, "Buffer size", Integer.class));
-        connectorAttributes.add(new ConnectorAttribute<Integer>("acceptQueueSize", 10, "acceptQueueSize", Integer.class));
-        connectorAttributes.add(new ConnectorAttribute<Integer>("lingerMillis", 30000, "lingerMillis", Integer.class));
-        //connectorAttributes.add(new ConnectorAttribute<Boolean>("tcpNoDelay", false, "tcpNoDelay", Boolean.class));
-        connectorAttributes.add(new ConnectorAttribute<Integer>("redirectPort", 8443, "redirectPort", Integer.class));
-        //connectorAttributes.add(new ConnectorAttribute<Integer>("maxIdleTimeMs", 30000, "maxIdleTimeMs", Integer.class));
+        addCommonConnectorAttributes(connectorAttributes);
         CONNECTOR_ATTRIBUTES.put(HTTP_BIO, connectorAttributes);
 
         connectorAttributes = new ArrayList<ConnectorAttribute>();
-        connectorAttributes.add(new ConnectorAttribute<String>("host", "0.0.0.0", "The host name or IP to bind to. The normal values are 0.0.0.0 (all interfaces) or localhost (local connections only)", String.class, true));
-        connectorAttributes.add(new ConnectorAttribute<Integer>("port", 8443, "The network port to bind to.", Integer.class, true));
-        connectorAttributes.add(new ConnectorAttribute<Integer>("maxThreads", 10, "The maximum number of threads this connector should use to handle incoming requests", Integer.class));
-        connectorAttributes.add(new ConnectorAttribute<Integer>("bufferSizeBytes", 8096, "Buffer size", Integer.class));
-        connectorAttributes.add(new ConnectorAttribute<Integer>("acceptQueueSize", 10, "acceptQueueSize", Integer.class));
-        connectorAttributes.add(new ConnectorAttribute<Integer>("lingerMillis", 30000, "lingerMillis", Integer.class));
-        //connectorAttributes.add(new ConnectorAttribute<Boolean>("tcpNoDelay", false, "tcpNoDelay", Boolean.class));
-        connectorAttributes.add(new ConnectorAttribute<Integer>("redirectPort", 8443, "redirectPort", Integer.class));
-        //connectorAttributes.add(new ConnectorAttribute<Integer>("maxIdleTimeMs", 30000, "maxIdleTimeMs", Integer.class));
-        //connectorAttributes.add(new ConnectorAttribute<Boolean>("clientAuthRequested", false, "clientAuthRequested", Boolean.class));
-        connectorAttributes.add(new ConnectorAttribute<Boolean>("clientAuthRequired", false, "If set, then clients connecting through this connector must supply a valid client certificate.", Boolean.class));
-        connectorAttributes.add(new ConnectorAttribute<String>("keyStore", "", "The keystore to use for accessing the server's private key", String.class, true));
-        connectorAttributes.add(new ConnectorAttribute<String>("trustStore", "", "The keystore containing the trusted certificate entries, including Certification Authority (CA) certificates", String.class));
-        //connectorAttributes.add(new ConnectorAttribute<String>("keyAlias", "", "keyAlias", String.class, true));
-        connectorAttributes.add(new ConnectorAttribute<String>("secureProtocol", "", "This should normally be set to TLS, though some (IBM) JVMs don't work properly with popular browsers unless it is changed to SSL.", String.class));
-        connectorAttributes.add(new ConnectorAttribute<String>("algorithm", "Default", "This should normally be set to match the JVM vendor.", String.class));
+        addCommonConnectorAttributes(connectorAttributes);
+        addSslConnectorAttributes(connectorAttributes);
+        setAttribute(connectorAttributes, "port", 8443); // SSL port
         CONNECTOR_ATTRIBUTES.put(HTTPS_BIO, connectorAttributes);
 
         connectorAttributes = new ArrayList<ConnectorAttribute>();
-        connectorAttributes.add(new ConnectorAttribute<String>("host", "0.0.0.0", "The host name or IP to bind to. The normal values are 0.0.0.0 (all interfaces) or localhost (local connections only)", String.class, true));
-        connectorAttributes.add(new ConnectorAttribute<Integer>("port", 8080, "The network port to bind to.", Integer.class, true));
-        connectorAttributes.add(new ConnectorAttribute<Integer>("maxThreads", 10, "The maximum number of threads this connector should use to handle incoming requests", Integer.class));
-        connectorAttributes.add(new ConnectorAttribute<Integer>("bufferSizeBytes", 8096, "Buffer size", Integer.class));
-        connectorAttributes.add(new ConnectorAttribute<Integer>("acceptQueueSize", 10, "acceptQueueSize", Integer.class));
-        connectorAttributes.add(new ConnectorAttribute<Integer>("lingerMillis", 30000, "lingerMillis", Integer.class));
-        //connectorAttributes.add(new ConnectorAttribute<Boolean>("tcpNoDelay", false, "tcpNoDelay", Boolean.class));
-        connectorAttributes.add(new ConnectorAttribute<Integer>("redirectPort", 8443, "redirectPort", Integer.class));
-        //connectorAttributes.add(new ConnectorAttribute<Integer>("maxIdleTimeMs", 30000, "maxIdleTimeMs", Integer.class));
+        addCommonConnectorAttributes(connectorAttributes);
         CONNECTOR_ATTRIBUTES.put(HTTP_BLOCKING_NIO, connectorAttributes);
 
         connectorAttributes = new ArrayList<ConnectorAttribute>();
-        connectorAttributes.add(new ConnectorAttribute<String>("host", "0.0.0.0", "The host name or IP to bind to. The normal values are 0.0.0.0 (all interfaces) or localhost (local connections only)", String.class, true));
-        connectorAttributes.add(new ConnectorAttribute<Integer>("port", 8009, "The network port to bind to.", Integer.class, true));
-        connectorAttributes.add(new ConnectorAttribute<Integer>("maxThreads", 10, "The maximum number of threads this connector should use to handle incoming requests", Integer.class));
-        connectorAttributes.add(new ConnectorAttribute<Integer>("bufferSizeBytes", 8096, "Buffer size", Integer.class));
-        connectorAttributes.add(new ConnectorAttribute<Integer>("acceptQueueSize", 10, "acceptQueueSize", Integer.class));
-        connectorAttributes.add(new ConnectorAttribute<Integer>("lingerMillis", 30000, "lingerMillis", Integer.class));
-        //connectorAttributes.add(new ConnectorAttribute<Boolean>("tcpNoDelay", false, "tcpNoDelay", Boolean.class));
-        connectorAttributes.add(new ConnectorAttribute<Integer>("redirectPort", 8443, "redirectPort", Integer.class));
-        //connectorAttributes.add(new ConnectorAttribute<Integer>("maxIdleTimeMs", 30000, "maxIdleTimeMs", Integer.class));
+        addCommonConnectorAttributes(connectorAttributes);
         CONNECTOR_ATTRIBUTES.put(AJP_NIO, connectorAttributes);
 
     }
@@ -433,6 +376,37 @@ public class JettyManagerImpl implements WebManager {
             return (JettyWebConnector[]) results.toArray(new JettyWebConnector[results.size()]);
         } catch (Exception e) {
             throw (IllegalArgumentException) new IllegalArgumentException("Unable to look up connectors for Jetty container '" + containerName + "'").initCause(e);
+        }
+    }
+    
+    private static void addCommonConnectorAttributes(List<ConnectorAttribute> connectorAttributes) {
+        connectorAttributes.add(new ConnectorAttribute<String>("host", "0.0.0.0", Messages.getString("JettyManagerImpl.30"), String.class, true)); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+        connectorAttributes.add(new ConnectorAttribute<Integer>("port", 8080, Messages.getString("JettyManagerImpl.32"), Integer.class, true)); //$NON-NLS-1$ //$NON-NLS-2$
+        connectorAttributes.add(new ConnectorAttribute<Integer>("maxThreads", 10, Messages.getString("JettyManagerImpl.34"), Integer.class)); //$NON-NLS-1$ //$NON-NLS-2$
+        connectorAttributes.add(new ConnectorAttribute<Integer>("bufferSizeBytes", 8096, Messages.getString("JettyManagerImpl.36"), Integer.class)); //$NON-NLS-1$ //$NON-NLS-2$
+        connectorAttributes.add(new ConnectorAttribute<Integer>("acceptQueueSize", 10, Messages.getString("JettyManagerImpl.38"), Integer.class)); //$NON-NLS-1$ //$NON-NLS-2$
+        connectorAttributes.add(new ConnectorAttribute<Integer>("lingerMillis", 30000, Messages.getString("JettyManagerImpl.40"), Integer.class)); //$NON-NLS-1$ //$NON-NLS-2$
+        //connectorAttributes.add(new ConnectorAttribute<Boolean>("tcpNoDelay", false, "If true then setTcpNoDelay(true) is called on accepted sockets.", Boolean.class));
+        connectorAttributes.add(new ConnectorAttribute<Integer>("redirectPort", 8443, Messages.getString("JettyManagerImpl.42"), Integer.class)); //$NON-NLS-1$ //$NON-NLS-2$
+        //connectorAttributes.add(new ConnectorAttribute<Integer>("maxIdleTimeMs", 30000, " The time in milliseconds that a connection can be idle before being closed.", Integer.class));
+    }
+    
+    private static void addSslConnectorAttributes(List<ConnectorAttribute> connectorAttributes) {
+        //connectorAttributes.add(new ConnectorAttribute<Boolean>("clientAuthRequested", false, "clientAuthRequested", Boolean.class));
+        connectorAttributes.add(new ConnectorAttribute<Boolean>("clientAuthRequired", false, Messages.getString("JettyManagerImpl.44"), Boolean.class)); //$NON-NLS-1$ //$NON-NLS-2$
+        connectorAttributes.add(new ConnectorAttribute<String>("keyStore", "", Messages.getString("JettyManagerImpl.47"), String.class, true)); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+        connectorAttributes.add(new ConnectorAttribute<String>("trustStore", "", Messages.getString("JettyManagerImpl.50"), String.class)); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+        //connectorAttributes.add(new ConnectorAttribute<String>("keyAlias", "", "keyAlias", String.class, true));
+        connectorAttributes.add(new ConnectorAttribute<String>("secureProtocol", "", Messages.getString("JettyManagerImpl.53"), String.class)); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+        connectorAttributes.add(new ConnectorAttribute<String>("algorithm", "Default", Messages.getString("JettyManagerImpl.56"), String.class)); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+    }
+
+    private static <T> void setAttribute (List<ConnectorAttribute> connectorAttributes, String attributeName, T value) {
+        for (ConnectorAttribute connectorAttribute : connectorAttributes) {
+            if (connectorAttribute.getAttributeName().equals(attributeName)) {
+                connectorAttribute.setValue(value);
+                return;
+            }
         }
     }
 
