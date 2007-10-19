@@ -20,6 +20,8 @@ package org.apache.geronimo.console.webmanager;
 import java.io.IOException;
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 
@@ -266,6 +268,7 @@ public class ConnectorPortlet extends BasePortlet {
                 WebManager webManager = PortletManager.getWebManager(renderRequest, new AbstractName(URI.create(managerURI)));
                 ConnectorType type = new ConnectorType(connectorType);
                 List<ConnectorAttribute> connectorAttributes = webManager.getConnectorAttributes(type);
+                sortConnectorAttributes(connectorAttributes);
                 renderRequest.setAttribute(PARM_CONNECTOR_ATTRIBUTES, connectorAttributes);
                 renderRequest.setAttribute(PARM_CONNECTOR_TYPE, connectorType);
                 renderRequest.setAttribute(PARM_MODE, "add");
@@ -283,6 +286,7 @@ public class ConnectorPortlet extends BasePortlet {
                     WebManager webManager = PortletManager.getWebManager(renderRequest, new AbstractName(URI.create(managerURI)));
                     ConnectorType connectorType = webManager.getConnectorType(connectorName);
                     List<ConnectorAttribute> connectorAttributes = webManager.getConnectorAttributes(connectorType);
+                    sortConnectorAttributes(connectorAttributes);
                     
                     // populate the connector attributes from the connector
                     for (ConnectorAttribute attribute : connectorAttributes) {
@@ -306,6 +310,24 @@ public class ConnectorPortlet extends BasePortlet {
             }
         }
 
+    }
+
+    // sorts connector attributes alphabetically, required attributes listed first
+    private void sortConnectorAttributes(List<ConnectorAttribute> connectorAttributes) {
+        Collections.sort(connectorAttributes, new Comparator<ConnectorAttribute>() {
+            public int compare(ConnectorAttribute o1, ConnectorAttribute o2) {
+                if (o1.isRequired()) {
+                    if (o2.isRequired()) {
+                        return o1.getAttributeName().compareTo(o2.getAttributeName());
+                    }
+                    return -1;
+                }
+                if (o2.isRequired()) {
+                    return 1;
+                }
+                return o1.getAttributeName().compareTo(o2.getAttributeName());
+            }
+        });
     }
 
     private void doList(RenderRequest renderRequest, RenderResponse renderResponse) throws PortletException, IOException {
