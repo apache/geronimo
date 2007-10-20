@@ -218,8 +218,9 @@ public abstract class JettyConnector implements GBeanLifecycle, JettyWebConnecto
         // removed 'minThreads' from persistent and manageable String[]
         // removed 'tcpNoDelay' from persistent String[]
         // added 'protocol' to persistent and manageable String[]
-        infoFactory.addInterface(JettyWebConnector.class, new String[]{"host", "port", "minThreads", "maxThreads", "bufferSizeBytes", "acceptQueueSize", "lingerMillis", "protocol", "redirectPort", "connectUrl", "maxIdleTimeMs"},
-                new String[]{"host", "port", "redirectPort", "maxThreads", "minThreads", "protocol"});
+        infoFactory.addInterface(JettyWebConnector.class, 
+                new String[]{"host", "port", "minThreads", "maxThreads", "bufferSizeBytes", "acceptQueueSize", "lingerMillis", "protocol", "redirectPort", "connectUrl", "maxIdleTimeMs"},
+                new String[]{"host", "port", "minThreads", "maxThreads", "bufferSizeBytes", "acceptQueueSize", "lingerMillis", "protocol", "redirectPort"});
         infoFactory.setConstructor(new String[]{"JettyContainer", "ThreadPool"});
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
