@@ -80,9 +80,12 @@ public class AddRepositoryHandler extends BaseImportExportHandler {
 
 
     private boolean addRepository(String repo, ActionRequest request, ActionResponse response) throws IOException {
+        repo = repo.trim();
+        repo = repo.replaceAll(" ", "%20");
         if(!repo.endsWith("/")) {
             repo = repo+"/";
         }
+
         PluginRepositoryList[] lists = PortletManager.getCurrentServer(request).getPluginRepositoryLists();
 
         // Check for duplicates
