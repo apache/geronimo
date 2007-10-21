@@ -128,7 +128,7 @@ public class LoginPropertiesFileTest extends AbstractTest {
 
         try {
             context.login();
-            fail("Should not allow this login with null username");
+            fail("Should not allow this login with bad username");
         } catch (LoginException e) {
         }
     }
@@ -148,7 +148,7 @@ public class LoginPropertiesFileTest extends AbstractTest {
 
         try {
             context.login();
-            fail("Should not allow this login with null password");
+            fail("Should not allow this login with bad password");
         } catch (LoginException e) {
         }
     }
