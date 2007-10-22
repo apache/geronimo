@@ -1357,6 +1357,12 @@
                 <groupId>org.apache.axis2</groupId>
                 <artifactId>axis2-kernel</artifactId>
                 <version>${axis2Version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.apache.woden</groupId>
+                        <artifactId>woden</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
 
             <dependency>
