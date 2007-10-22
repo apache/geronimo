@@ -221,16 +221,22 @@ public class SQLLoginModule implements LoginModule {
                     ResultSet result = statement.executeQuery();
 
                     try {
+                        boolean found = false;
                         while (result.next()) {
                             String userName = result.getString(1);
                             String userPassword = result.getString(2);
 
                             if (cbUsername.equals(userName)) {
+                                found = true;
                                 if (!checkPassword(userPassword, cbPassword)) {
                                     throw new FailedLoginException();
                                 }
                                 break;
                             }
+                        }
+                        if(!found) {
+                            // User does not exist
+                            throw new FailedLoginException();
                         }
                     } finally {
                         result.close();
