@@ -272,7 +272,7 @@ limitations under the License.
         <attribute name="defaultPort">5432</attribute>
         <attribute name="specific">false</attribute>
         <attribute name="RARName">org.tranql/tranql-connector-ra//rar</attribute>
-        <attribute name="dependencyFilterStrings">postgresql/postgresql-7.3//jar,postgresql/postgresql-7.4//jar,postgresql/postgresql-8.0//jar,postgresql/postgresql-8.1//jar</attribute>
+        <attribute name="dependencyFilterStrings">postgresql/postgresql//jar,postgresql/postgresql-7.3//jar,postgresql/postgresql-7.4//jar,postgresql/postgresql-8.0//jar,postgresql/postgresql-8.1//jar,postgresql/postgresql-8.2//jar</attribute>
     </gbean>
     <gbean name="Database26" class="org.apache.geronimo.console.databasemanager.wizard.DatabaseDriverGBean">
         <attribute name="name">Progress</attribute>
