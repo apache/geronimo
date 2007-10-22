@@ -299,17 +299,20 @@ public class JettyContainerImpl implements JettyContainer, SoapHandler, GBeanLif
         GBeanInfoBuilder infoBuilder = GBeanInfoBuilder.createStatic("Jetty Web Container", JettyContainerImpl.class);
         infoBuilder.addAttribute("statsOn", Boolean.TYPE, true);
         infoBuilder.addAttribute("collectStatisticsStarted", Long.TYPE, false);
-        infoBuilder.addOperation("resetStats");
-
         infoBuilder.addAttribute("objectName", String.class, false);
-        infoBuilder.addReference("WebManager", WebManager.class);
-
         infoBuilder.addAttribute("jettyHome", String.class, true);
+
+        infoBuilder.addReference("WebManager", WebManager.class);
         infoBuilder.addReference("ServerInfo", ServerInfo.class, "GBean");
+
+        // this is needed because the getters/setters are not added automatically
+        infoBuilder.addOperation("setStatsOn", new Class[] { boolean.class }, "void");
+        infoBuilder.addOperation("resetStats");
 
         infoBuilder.addInterface(SoapHandler.class);
         infoBuilder.addInterface(JettyContainer.class);
         infoBuilder.addInterface(LazyStatisticsProvider.class);
+
         infoBuilder.setConstructor(new String[]{"objectName", "WebManager", "jettyHome", "ServerInfo"});
 
         GBEAN_INFO = infoBuilder.getBeanInfo();
