@@ -271,6 +271,8 @@ public class SQLLoginModule implements LoginModule {
             } finally {
                 conn.close();
             }
+        } catch (LoginException e) {
+            throw e;
         } catch (SQLException sqle) {
             throw (LoginException) new LoginException("SQL error").initCause(sqle);
         } catch (Exception e) {
