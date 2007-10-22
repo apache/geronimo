@@ -161,12 +161,32 @@ public class LoginSQLTest extends AbstractTest {
         }
     }
 
+    public void testBadUserLogin() throws Exception {
+        LoginContext context = new LoginContext("sql-realm", new UsernamePasswordCallback("bad", "starcraft"));
+    
+        try {
+            context.login();
+            fail("Should not allow this login with bad username");
+        } catch (LoginException e) {
+        }
+    }
+
     public void testNullPasswordLogin() throws Exception {
         LoginContext context = new LoginContext("sql-realm", new UsernamePasswordCallback("alan", null));
 
         try {
             context.login();
             fail("Should not allow this login with null password");
+        } catch (LoginException e) {
+        }
+    }
+
+    public void testBadPasswordLogin() throws Exception {
+        LoginContext context = new LoginContext("sql-realm", new UsernamePasswordCallback("alan", "bad"));
+
+        try {
+            context.login();
+            fail("Should not allow this login with bad password");
         } catch (LoginException e) {
         }
     }
