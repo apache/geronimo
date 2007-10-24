@@ -42,6 +42,14 @@
             <type>car</type>
         </dependency>
         
+        <!-- Needed for offline deployer -->
+        <dependency>
+            <groupId>org.apache.geronimo.configs</groupId>
+            <artifactId>rmi-naming</artifactId>
+            <version>${version}</version>
+            <type>car</type>
+            <scope>runtime</scope>
+        </dependency>
     </dependencies>
     
 </project>
