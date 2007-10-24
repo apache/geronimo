@@ -321,6 +321,7 @@ public class AdminObjectRefBuilder extends AbstractNamingBuilder {
             if (resourceType.equals("javax.ejb.SessionContext")) return true;
             if (resourceType.equals("javax.ejb.MessageDrivenContext")) return true;
             if (resourceType.equals("javax.ejb.EntityContext")) return true;
+            if (resourceType.equals("javax.ejb.TimerService")) return true;
 
             //If it already exists in xml as a message-destination-ref or resource-env-ref, we are done.
             MessageDestinationRefType[] messageDestinationRefs = annotatedApp.getMessageDestinationRefArray();
