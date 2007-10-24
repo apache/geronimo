@@ -31,6 +31,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -1217,97 +1218,131 @@ public class PluginInstallerGBean implements PluginInstaller {
     }
 
     /**
-     * Checks for an artifact in a specific repository, where the artifact may
-     * have wildcards in the ID.
+     * Checks for an artifact in a specific repository, where the artifact version
+     * might not be resolved yet.
+     * 
+     * @return null if the artifact is not found in the specified repository. otherwise
+     * returns the artifact fully resolved
      */
     private static Artifact findArtifact(Artifact query, URL repo, String username, String password, ResultsFileWriteMonitor monitor) throws IOException, FailedLoginException, ParserConfigurationException, SAXException {
-        if (query.isResolved() && testArtifact(query, repo, username, password, monitor)) {
-            return query;
+        Artifact verifiedArtifact = null;
+
+        // trim the repo URL and append a trailing slash if necessary
+        String tmp = repo.toString().trim();
+        if (!tmp.endsWith("/")) {
+            tmp += "/";
         }
+        repo = new URL(tmp);
         monitor.getResults().setCurrentMessage("Searching for " + query + " at " + repo);
-        String base = query.getGroupId().replace('.', '/') + "/" + query.getArtifactId();
-        String path = base + "/maven-metadata.xml";
-        URL metaURL = new URL(repo.toString().trim().endsWith("/") ? repo : new URL(repo.toString().trim() + "/"), path);
-        InputStream in = connect(metaURL, username, password, monitor);
-        if (in == null) {
-            log.error("No meta-data file was found at " + metaURL.toString());
-            path = base + "/maven-metadata-local.xml";
-            metaURL = new URL(repo.toString().endsWith("/") ? repo : new URL(repo.toString() + "/"), path);
-            in = connect(metaURL, username, password, monitor);
-        }
-        if (in == null) {
-            log.error("No meta-data file was found at " + metaURL.toString());
-            return null;
-        }
+        log.info("searching for artifact " + query + " at " + repo);
 
-        // Don't use the validating parser that we normally do
-        DocumentBuilder builder = XmlUtil.newDocumentBuilderFactory().newDocumentBuilder();
-        Document doc = builder.parse(in);
-        Element root = doc.getDocumentElement();
-        NodeList list = root.getElementsByTagName("versions");
-        if (list.getLength() == 0) {
-            log.error("No artifact versions found in " + metaURL.toString());
-            return null;
-        }
-        list = ((Element) list.item(0)).getElementsByTagName("version");
-        Version[] available = new Version[list.getLength()];
-        for (int i = 0; i < available.length; i++) {
-            available[i] = new Version(getText(list.item(i)));
-        }
-        List availableList = Arrays.asList(available);
-        if (availableList.contains(query.getVersion())) {
-            available = new Version[]{query.getVersion()};
-        } else {
-            Arrays.sort(available);
-        }
-        for (int i = available.length - 1; i >= 0; i--) {
-            Version version = available[i];
-            URL metadataURL = new URL(repo.toString().trim().endsWith("/") ? repo : new URL(repo.toString().trim() + "/"),
-                    base + "/" + version + "/maven-metadata.xml");
-            InputStream metadataStream = connect(metadataURL, username, password, monitor);
-
-            if (metadataStream == null) {
-                metadataURL = new URL(repo.toString().trim().endsWith("/") ? repo : new URL(repo.toString().trim() + "/"),
-                        base + "/" + version + "/maven-metadata-local.xml");
-                metadataStream = connect(metadataURL, username, password, monitor);
+        // If the artifact version is resolved then look for the artifact in the repo
+        if (query.isResolved()) {
+            Version version = query.getVersion();
+            if (testArtifact(query, repo, username, password, monitor)) {
+                log.info("found artifact " + query + " at " + repo);
+                verifiedArtifact = query;
             }
-            // check for a snapshot qualifier
-            if (metadataStream != null) {
-                DocumentBuilder metadatabuilder = XmlUtil.newDocumentBuilderFactory().newDocumentBuilder();
-                Document metadatadoc = metadatabuilder.parse(metadataStream);
-                NodeList snapshots = metadatadoc.getDocumentElement().getElementsByTagName("snapshot");
-                if (snapshots.getLength() >= 1) {
-                    Element snapshot = (Element) snapshots.item(0);
-                    String[] timestamp = getChildrenText(snapshot, "timestamp");
-                    String[] buildNumber = getChildrenText(snapshot, "buildNumber");
-                    if (timestamp.length >= 1 && buildNumber.length >= 1) {
-                        try {
-                            SnapshotVersion snapshotVersion = new SnapshotVersion(version);
-                            snapshotVersion.setBuildNumber(Integer.parseInt(buildNumber[0]));
-                            snapshotVersion.setTimestamp(timestamp[0]);
-                            version = snapshotVersion;
-                        } catch (NumberFormatException nfe) {
-                            log.warn("Could not create snapshot version for " + query);
+            // Snapshot artifacts can have a special filename in an online maven repo.
+            // The version number is replaced with a timestmap and build number.
+            // The maven-metadata file contains this extra information.
+            else if (version.toString().indexOf("SNAPSHOT") >= 0 && !(version instanceof SnapshotVersion)) {
+                // base path for the artifact version in a maven repo
+                URL basePath = new URL(repo, query.getGroupId().replace('.', '/') + "/" + query.getArtifactId() + "/" + version);
+                
+                // get the maven-metadata file
+                Document metadata = getMavenMetadata(basePath, username, password, monitor);
+                
+                // determine the snapshot qualifier from the maven-metadata file
+                if (metadata != null) { 
+                    NodeList snapshots = metadata.getDocumentElement().getElementsByTagName("snapshot");
+                    if (snapshots.getLength() >= 1) {
+                        Element snapshot = (Element) snapshots.item(0);
+                        String[] timestamp = getChildrenText(snapshot, "timestamp");
+                        String[] buildNumber = getChildrenText(snapshot, "buildNumber");
+                        if (timestamp.length >= 1 && buildNumber.length >= 1) {
+                            try {
+                                // recurse back into this method using a SnapshotVersion
+                                SnapshotVersion snapshotVersion = new SnapshotVersion(version);
+                                snapshotVersion.setBuildNumber(Integer.parseInt(buildNumber[0]));
+                                snapshotVersion.setTimestamp(timestamp[0]);
+                                Artifact newQuery = new Artifact(query.getGroupId(), query.getArtifactId(), snapshotVersion, query.getType());
+                                verifiedArtifact = findArtifact(newQuery, repo, username, password, monitor);
+                            } catch (NumberFormatException nfe) {
+                                log.error("Could not create snapshot version for " + query, nfe);
+                            }
+                        } else {
+                            log.error("Could not create snapshot version for " + query);
                         }
                     }
                 }
-                metadataStream.close();
             }
-
-            // look for the artifact in the maven repo
-            Artifact verifiedArtifact = new Artifact(query.getGroupId(), query.getArtifactId(), version,
-                    query.getType());
-            if (!testArtifact(verifiedArtifact, repo, username, password, monitor)) {
-                log.debug("Maven repository " + repo + " listed artifact " + query + " version " + version + " but I couldn't find it at " + getURL(verifiedArtifact, repo));
-                continue;
-            }
-            log.debug("Found artifact at " + getURL(verifiedArtifact, repo));
-            return verifiedArtifact;
         }
-        log.error("Could not find an acceptable version of artifact=" + query + " from Maven repository=" + repo);
-        return null;
+        
+        // Version is not resolved.  Look in maven-metadata.xml and maven-metadata-local.xml for
+        // the available version numbers.  If found then recurse into the enclosing method with
+        // a resolved version number
+        else {
+            
+            // base path for the artifact version in a maven repo
+            URL basePath = new URL(repo, query.getGroupId().replace('.', '/') + "/" + query.getArtifactId());
+            
+            // get the maven-metadata file
+            Document metadata = getMavenMetadata(basePath, username, password, monitor);
+            
+            // determine the available versions from the maven-metadata file
+            if (metadata != null) { 
+                Element root = metadata.getDocumentElement();
+                NodeList list = root.getElementsByTagName("versions");
+                list = ((Element) list.item(0)).getElementsByTagName("version");
+                Version[] available = new Version[list.getLength()];
+                for (int i = 0; i < available.length; i++) {
+                    available[i] = new Version(getText(list.item(i)));
+                }
+                // desc sort
+                Arrays.sort(available, new Comparator<Version>() {
+                    public int compare(Version o1, Version o2) {
+                        return o2.toString().compareTo(o1.toString());
+                    };
+                });
+                
+                for (Version version : available) {
+                    if (verifiedArtifact == null) {
+                        Artifact newQuery = new Artifact(query.getGroupId(), query.getArtifactId(), version, query.getType());
+                        verifiedArtifact = findArtifact(newQuery, repo, username, password, monitor);
+                    }
+                }
+            }
+        }
+        
+        return verifiedArtifact;
     }
-
+    
+    private static Document getMavenMetadata (URL base, String username, String password, ResultsFileWriteMonitor monitor) throws IOException, FailedLoginException, ParserConfigurationException, SAXException{
+        Document doc = null;
+        InputStream in = null;
+        
+        try {
+            URL metaURL = new URL(base.toString() + "/maven-metadata.xml");
+            in = connect(metaURL, username, password, monitor);
+            if (in == null) { // check for local maven metadata
+                metaURL = new URL(base.toString() + "/maven-metadata-local.xml");
+                in = connect(metaURL, username, password, monitor);
+            }
+            if (in != null) {
+                DocumentBuilder builder = XmlUtil.newDocumentBuilderFactory().newDocumentBuilder();
+                doc = builder.parse(in);
+            }
+        } finally {
+            if (in == null) {
+                log.info("No maven metadata available at " + base);
+            } else {
+                in.close();
+            }
+        }
+        return doc;
+    }
+    
     private static boolean testArtifact(Artifact artifact, URL repo, String username, String password, ResultsFileWriteMonitor monitor) throws IOException, FailedLoginException {
         URL test = getURL(artifact, repo);
         InputStream testStream = connect(test, username, password, monitor, "HEAD");
