@@ -18,7 +18,10 @@ package org.apache.geronimo.system.sharedlib;
 
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
+import org.apache.geronimo.gbean.SingleElementCollection;
+
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Set;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
@@ -34,7 +37,11 @@ import org.apache.geronimo.kernel.config.MultiParentClassLoader;
  * @version $Rev$ $Date$
  */
 public class SharedLib {
-    public SharedLib(ClassLoader classLoader, String[] classesDirs, String[] libDirs, ServerInfo serverInfo) throws MalformedURLException {
+    public SharedLib(ClassLoader classLoader, String[] classesDirs, String[] libDirs, Collection<ServerInfo> serverInfos) throws MalformedURLException {
+        this(classLoader, classesDirs, libDirs, new SingleElementCollection<ServerInfo>(serverInfos).getElement());
+    }
+
+    private SharedLib(ClassLoader classLoader, String[] classesDirs, String[] libDirs, ServerInfo serverInfo) throws MalformedURLException {
         MultiParentClassLoader multiParentClassLoader = (MultiParentClassLoader) classLoader;
         Set currentUrls = new HashSet(Arrays.asList(multiParentClassLoader.getURLs()));
 
