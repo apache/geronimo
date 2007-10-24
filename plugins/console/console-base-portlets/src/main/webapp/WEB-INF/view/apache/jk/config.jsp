@@ -24,7 +24,7 @@
     <input type="hidden" name="mode" value="basic-after"/>
     <input type="hidden" name="addAjpPort" value="${model.addAjpPort}"/>
     <c:forEach var="webApp" items="${model.webApps}" varStatus="status">
-        <input type="hidden" name="webapp.${status.index}.configId" value="${webApp.configId}"/>
+        <input type="hidden" name="webapp.${status.index}.configId" value="${webApp.parentConfigId}"/>
         <input type="hidden" name="webapp.${status.index}.enabled" value="${webApp.enabled}"/>
         <input type="hidden" name="webapp.${status.index}.dynamicPattern" value="${webApp.dynamicPattern}"/>
         <input type="hidden" name="webapp.${status.index}.serveStaticContent" value="${webApp.serveStaticContent}"/>
