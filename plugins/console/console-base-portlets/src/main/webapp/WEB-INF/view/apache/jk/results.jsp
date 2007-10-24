@@ -39,7 +39,7 @@
             Nothing further needs to be done here.</p>
     </c:when>
     <c:otherwise>
-        <p>An AJP lisstner was added on port ${ajpPort}.  Nothing further needs to be done here.</p>
+        <p>An AJP listener was added on port ${ajpPort}.  Nothing further needs to be done here.</p>
     </c:otherwise>
 </c:choose>
 
@@ -101,7 +101,7 @@ worker.geronimo_ajp13.type=ajp13
 
 <c:choose>
   <c:when test="${fn:startsWith(model.os, 'SuSE')}">
-       <p>For SuSE, this should be saved to a file in the Apache conf.d dir, e.g.
+       <p>For SuSE, this should be saved to a file in the Apache conf.d directory, e.g.
          write this content to <tt>/etc/apache2/conf.d/geronimo-jk.conf</tt></p>
   </c:when>
   <c:otherwise>
@@ -116,7 +116,7 @@ worker.geronimo_ajp13.type=ajp13
     JkLogFile ${model.logFilePath}
     JkLogLevel error
 <c:forEach var="web" items="${model.webApps}"><c:if test="${web.enabled}">
-    JkMount ${web.contextRoot} ajp13<c:if test="${web.serveStaticContent}">
+    JkMount ${web.contextRoot}/* geronimo_ajp13<c:if test="${web.serveStaticContent}">
     Alias ${web.contextRoot} "${web.webAppDir}"
     &lt;Directory "${web.webAppDir}"&gt;
         Options Indexes FollowSymLinks
