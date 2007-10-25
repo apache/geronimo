@@ -101,7 +101,7 @@
                             <prerequisite>
                                 <id>
                                     <groupId>org.apache.geronimo.configs</groupId>
-                                    <artifactId>tomcat</artifactId>
+                                    <artifactId>tomcat6</artifactId>
                                 </id>
                                 <resource-type>Web Container</resource-type>
                                 <description>
