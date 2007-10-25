@@ -33,7 +33,7 @@
     <name>Geronimo Configs :: OpenJPA with dependencies</name>
     <packaging>car</packaging>
     <description>
-        This module provides openjpa together with all its dependencies.
+        This module provides OpenJPA together with all its dependencies.
     </description>
     
     <dependencies>
