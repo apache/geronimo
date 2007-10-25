@@ -223,30 +223,43 @@ function init() {
       </c:choose>
     <tr>
         <!-- module id -->
-        <td class="${backgroundClass}">&nbsp;${moduleDetails.configId}&nbsp;
-
+        <c:choose>
+            <c:when test="${moduleDetails.componentName != null}">
+                <td class="${backgroundClass}">&nbsp;${moduleDetails.componentName}&nbsp;</td>
+            </c:when>
+            <c:otherwise>
+               <td class="${backgroundClass}">&nbsp;${moduleDetails.configId}&nbsp;</td>
+            </c:otherwise>   
+        </c:choose>
+        
         <!-- context path -->
         <c:if test="${showWebInfo}">
-            <td class="${backgroundClass}">&nbsp;<c:if test="${moduleDetails.state.running}"><a href="${moduleDetails.contextPath}">${moduleDetails.contextPath}</a></c:if></td>
+            <td class="${backgroundClass}">
+            <c:if test="${moduleDetails.state.running}">
+            	<c:forEach var="contextPath" items="${moduleDetails.contextPaths}">
+            		&nbsp;<a href="${contextPath}">${contextPath}</a>&nbsp;<br/>
+            	</c:forEach>
+            </c:if>
+            </td>
         </c:if>
 
         <!-- state -->
-        <td width="100" class="${backgroundClass}">&nbsp;${moduleDetails.state}</td>
+        <td width="100" class="${backgroundClass}">&nbsp;${moduleDetails.state}&nbsp;</td>
 
         <!-- Start/Stop actions -->
         <td width="75" class="${backgroundClass}">
             <c:if test="${moduleDetails.state.running || moduleDetails.state.failed}">
                 <span <c:if test="${moduleDetails.expertConfig}"> name=expert </c:if>> 
-                    &nbsp;<a href="<portlet:actionURL><portlet:param name='configId' value='${moduleDetails.configId}'/><portlet:param name='action' value='stop'/></portlet:actionURL>" onClick="return promptIfUnsafeToStop('${moduleDetails.configId}','${moduleDetails.expertConfig}','${moduleDetails.type.name}');">Stop</a>
+                    &nbsp;<a href="<portlet:actionURL><portlet:param name='configId' value='${moduleDetails.configId}'/><portlet:param name='action' value='stop'/></portlet:actionURL>" onClick="return promptIfUnsafeToStop('${moduleDetails.configId}','${moduleDetails.expertConfig}','${moduleDetails.type.name}');">Stop</a>&nbsp;
                 </span>
             </c:if>
             <c:if test="${moduleDetails.expertConfig && (moduleDetails.state.running || moduleDetails.state.failed)}">
                 <span name=nonexpert> 
-                    &nbsp;<a>Stop</a>
+                    &nbsp;<a>Stop</a>&nbsp;
                 </span>
             </c:if>
             <c:if test="${moduleDetails.state.stopped && (moduleDetails.type.name ne 'CAR')}">
-                &nbsp;<a href="<portlet:actionURL><portlet:param name='configId' value='${moduleDetails.configId}'/><portlet:param name='action' value='start'/></portlet:actionURL>">Start</a>
+                &nbsp;<a href="<portlet:actionURL><portlet:param name='configId' value='${moduleDetails.configId}'/><portlet:param name='action' value='start'/></portlet:actionURL>">Start</a>&nbsp;
             </c:if>
         </td>
 
@@ -254,12 +267,12 @@ function init() {
         <td width="75" class="${backgroundClass}">
             <c:if test="${moduleDetails.state.running}">
                 <span <c:if test="${moduleDetails.expertConfig}"> name=expert </c:if>> 
-                    &nbsp;<a href="<portlet:actionURL><portlet:param name='configId' value='${moduleDetails.configId}'/><portlet:param name='action' value='restart'/></portlet:actionURL>" onClick="return promptIfUnsafeToRestart('${moduleDetails.configId}','${moduleDetails.expertConfig}','${moduleDetails.type.name}');">Restart</a>
+                    &nbsp;<a href="<portlet:actionURL><portlet:param name='configId' value='${moduleDetails.configId}'/><portlet:param name='action' value='restart'/></portlet:actionURL>" onClick="return promptIfUnsafeToRestart('${moduleDetails.configId}','${moduleDetails.expertConfig}','${moduleDetails.type.name}');">Restart</a>&nbsp;
                 </span>
             </c:if>
             <c:if test="${moduleDetails.expertConfig && moduleDetails.state.running}">
                 <span name=nonexpert> 
-                    &nbsp;<a>Restart</a>
+                    &nbsp;<a>Restart</a>&nbsp;
                 </span>
             </c:if>
         </td>
@@ -267,11 +280,11 @@ function init() {
         <!-- Uninstall action -->
         <td width="75" class="${backgroundClass}">
             <span <c:if test="${moduleDetails.expertConfig}"> name=expert </c:if>> 
-                &nbsp;<a href="<portlet:actionURL><portlet:param name='configId' value='${moduleDetails.configId}'/><portlet:param name='action' value='uninstall'/></portlet:actionURL>" onClick="return uninstallPrompt('${moduleDetails.configId}','${moduleDetails.expertConfig}','${moduleDetails.type.name}');">Uninstall</a>
+                &nbsp;<a href="<portlet:actionURL><portlet:param name='configId' value='${moduleDetails.configId}'/><portlet:param name='action' value='uninstall'/></portlet:actionURL>" onClick="return uninstallPrompt('${moduleDetails.configId}','${moduleDetails.expertConfig}','${moduleDetails.type.name}');">Uninstall</a>&nbsp;
             </span>
             <c:if test="${moduleDetails.expertConfig}">
                 <span name=nonexpert> 
-                    &nbsp;<a>Uninstall</a>
+                    &nbsp;<a>Uninstall</a>&nbsp;
                 </span>
             </c:if>
         </td>

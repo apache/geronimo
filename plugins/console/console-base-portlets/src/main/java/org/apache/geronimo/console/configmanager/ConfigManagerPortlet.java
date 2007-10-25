@@ -247,9 +247,9 @@ public class ConfigManagerPortlet extends BasePortlet {
      * Check if a configuration should be listed here. This method depends on the "config-type" portlet parameter
      * which is set in portle.xml.
      */
-    private boolean shouldListConfig(ConfigurationInfo info) {
+    private boolean shouldListConfig(ConfigurationModuleType info) {
         String configType = getInitParameter(CONFIG_INIT_PARAM);
-        return configType == null || info.getType().getName().equalsIgnoreCase(configType);
+        return configType == null || info.getName().equalsIgnoreCase(configType);
     }
 
     /*
@@ -275,62 +275,83 @@ public class ConfigManagerPortlet extends BasePortlet {
         List infos = configManager.listConfigurations();
         for (Iterator j = infos.iterator(); j.hasNext();) {
             ConfigurationInfo info = (ConfigurationInfo) j.next();
-            if (shouldListConfig(info)) {
-                ModuleDetails details = new ModuleDetails(info.getConfigID(), info.getType(), info.getState());
-
-                if (info.getType().getValue()== ConfigurationModuleType.WAR.getValue()){
-                    WebModule webModule = (WebModule) PortletManager.getModule(renderRequest, info.getConfigID());
-                    if (webModule != null) {
-                        details.setContextPath(webModule.getContextPath());
+            
+            String moduleType = getInitParameter(CONFIG_INIT_PARAM);
+            if (ConfigurationModuleType.WAR.getName().equalsIgnoreCase(moduleType)) { 
+                
+                if (info.getType().getValue() == ConfigurationModuleType.WAR.getValue()) {
+                    ModuleDetails details = new ModuleDetails(info.getConfigID(), info.getType(), info.getState());            
+                    try {
+                        AbstractName configObjName = Configuration.getConfigurationAbstractName(info.getConfigID());
+                        boolean loaded = loadModule(configManager, configObjName);
+                        
+                        WebModule webModule = (WebModule) PortletManager.getModule(renderRequest, info.getConfigID());
+                        if (webModule != null) {
+                            details.getContextPaths().add(webModule.getContextPath());
+                        }
+                        
+                        addDependencies(details, configObjName);                    
+                        if (loaded) {
+                            unloadModule(configManager, configObjName);
+                        }
+                    } catch(InvalidConfigException ice) {
+                        // Should not occur
+                        ice.printStackTrace();
+                    }
+                    moduleDetails.add(details);
+                } else if (info.getType().getValue() == ConfigurationModuleType.EAR.getValue()) {
+                    try {
+                        AbstractName configObjName = Configuration.getConfigurationAbstractName(info.getConfigID());
+                        boolean loaded = loadModule(configManager, configObjName);
+                        
+                        Configuration config = configManager.getConfiguration(info.getConfigID());                                    
+                        Iterator childs = config.getChildren().iterator();
+                        while(childs.hasNext()) {                                       
+                            Configuration child = (Configuration)childs.next();
+                            if (child.getModuleType().getValue() == ConfigurationModuleType.WAR.getValue()){
+                                ModuleDetails childDetails = new ModuleDetails(info.getConfigID(), child.getModuleType(), info.getState());
+                                childDetails.setComponentName(child.getId().toString());
+                                WebModule webModule = getWebModule(config, child);
+                                if (webModule != null) {
+                                    childDetails.getContextPaths().add(webModule.getContextPath());
+                                }
+                                addDependencies(childDetails, configObjName);   
+                                moduleDetails.add(childDetails);
+                            }
+                        }                              
+                        
+                        if (loaded) {
+                            unloadModule(configManager, configObjName);
+                        }
+                    } catch(InvalidConfigException ice) {
+                        // Should not occur
+                        ice.printStackTrace();
                     }
                 }
+                                                      
+            } else if (shouldListConfig(info.getType())) {
+                ModuleDetails details = new ModuleDetails(info.getConfigID(), info.getType(), info.getState());            
                 try {
                     AbstractName configObjName = Configuration.getConfigurationAbstractName(info.getConfigID());
-                    boolean flag = false;
-                    // Check if the configuration is loaded.  If not, load it to get information.
-                    if(!kernel.isLoaded(configObjName)) {
-                        try {
-                            configManager.loadConfiguration(configObjName.getArtifact());
-                            flag = true;
-                        } catch (NoSuchConfigException e) {
-                            // Should not occur
-                            e.printStackTrace();
-                        } catch (LifecycleException e) {
-			    // config could not load because one or more of its dependencies
-			    // has been removed. cannot load the configuration in this case,
-			    // so don't rely on that technique to discover its parents or children
-			    if (e.getCause() instanceof MissingDependencyException) {
-				// do nothing
-			    } else {
-				e.printStackTrace();
-			    }
-			}
-                    }
-
-                    java.util.Set parents = depMgr.getParents(configObjName);
-                    for(Iterator itr = parents.iterator(); itr.hasNext(); ) {
-                        AbstractName parent = (AbstractName)itr.next();
-                        details.getParents().add(parent.getArtifact());
-                    }
-                    java.util.Set children = depMgr.getChildren(configObjName);
-                    for(Iterator itr = children.iterator(); itr.hasNext(); ) {
-                        AbstractName child = (AbstractName)itr.next();
-                        //if(configManager.isConfiguration(child.getArtifact()))
-                        if(child.getNameProperty("configurationName") != null) {
-                            details.getChildren().add(child.getArtifact());
+                    boolean loaded = loadModule(configManager, configObjName);
+                    
+                    if (info.getType().getValue() == ConfigurationModuleType.EAR.getValue()) {                       
+                        Configuration config = configManager.getConfiguration(info.getConfigID());                                    
+                        Iterator childs = config.getChildren().iterator();
+                        while(childs.hasNext()) {                                       
+                            Configuration child = (Configuration)childs.next();
+                            if (child.getModuleType().getValue()== ConfigurationModuleType.WAR.getValue()){
+                                WebModule webModule = getWebModule(config, child);
+                                if (webModule != null) {
+                                    details.getContextPaths().add(webModule.getContextPath());
+                                }
+                            }
                         }
                     }
-                    Collections.sort(details.getParents());
-                    Collections.sort(details.getChildren());
-
-                    // Unload the configuration if it has been loaded earlier for the sake of getting information
-                    if(flag) {
-                        try {
-                            configManager.unloadConfiguration(configObjName.getArtifact());
-                        } catch (NoSuchConfigException e) {
-                            // Should not occur
-                            e.printStackTrace();
-                        }
+                    
+                    addDependencies(details, configObjName);                    
+                    if (loaded) {
+                        unloadModule(configManager, configObjName);
                     }
                 } catch(InvalidConfigException ice) {
                     // Should not occur
@@ -341,7 +362,7 @@ public class ConfigManagerPortlet extends BasePortlet {
         }
         Collections.sort(moduleDetails);
         renderRequest.setAttribute("configurations", moduleDetails);
-        renderRequest.setAttribute("showWebInfo", Boolean.valueOf(getInitParameter(CONFIG_INIT_PARAM).equalsIgnoreCase(ConfigurationModuleType.WAR.getName())));
+        renderRequest.setAttribute("showWebInfo", Boolean.valueOf(showWebInfo()));
         if (moduleDetails.size() == 0) {
             renderRequest.setAttribute("messageInstalled", "No modules found of this type<br /><br />");
         } else {
@@ -356,6 +377,78 @@ public class ConfigManagerPortlet extends BasePortlet {
         }
     }
 
+    private WebModule getWebModule(Configuration config, Configuration child) {
+        try {
+            Map query1 = new HashMap();
+            String name = config.getId().getArtifactId();
+            query1.put("J2EEApplication", config.getId().toString());
+            query1.put("j2eeType", "WebModule");
+            query1.put("name", child.getId().getArtifactId().substring(name.length()+1));
+            AbstractName childName = new AbstractName(config.getAbstractName().getArtifact(), query1);
+            return (WebModule)kernel.getGBean(childName);
+        } catch(Exception h){
+            // No gbean found, will not happen 
+            // Except if module not started, ignored
+        }
+        return null;
+    }
+    
+    private boolean loadModule(ConfigurationManager configManager, AbstractName configObjName) {
+        if(!kernel.isLoaded(configObjName)) {
+            try {
+                configManager.loadConfiguration(configObjName.getArtifact());
+                return true;
+            } catch (NoSuchConfigException e) {
+                // Should not occur
+                e.printStackTrace();
+            } catch (LifecycleException e) {
+                // config could not load because one or more of its dependencies
+                // has been removed. cannot load the configuration in this case,
+                // so don't rely on that technique to discover its parents or children
+                if (e.getCause() instanceof MissingDependencyException) {
+                    // do nothing
+                } else {
+                    e.printStackTrace();
+                }
+            }
+        }
+        return false;
+    }
+    
+    private void addDependencies(ModuleDetails details, AbstractName configObjName) {
+        DependencyManager depMgr = kernel.getDependencyManager();
+        java.util.Set parents = depMgr.getParents(configObjName);
+        for(Iterator itr = parents.iterator(); itr.hasNext(); ) {
+            AbstractName parent = (AbstractName)itr.next();
+            details.getParents().add(parent.getArtifact());
+        }
+        java.util.Set children = depMgr.getChildren(configObjName);
+        for(Iterator itr = children.iterator(); itr.hasNext(); ) {
+            AbstractName child = (AbstractName)itr.next();
+            //if(configManager.isConfiguration(child.getArtifact()))
+            if(child.getNameProperty("configurationName") != null) {
+                details.getChildren().add(child.getArtifact());
+            }
+        }
+        Collections.sort(details.getParents());
+        Collections.sort(details.getChildren());
+    }
+    
+    private void unloadModule(ConfigurationManager configManager, AbstractName configObjName) {
+        try {
+            configManager.unloadConfiguration(configObjName.getArtifact());
+        } catch (NoSuchConfigException e) {
+            // Should not occur
+            e.printStackTrace();
+        }        
+    }
+    
+    private boolean showWebInfo() {
+        String moduleType = getInitParameter(CONFIG_INIT_PARAM);
+        return ConfigurationModuleType.WAR.getName().equalsIgnoreCase(moduleType) ||
+               ConfigurationModuleType.EAR.getName().equalsIgnoreCase(moduleType);
+    }
+    
     protected void doHelp(RenderRequest renderRequest, RenderResponse renderResponse) throws PortletException, IOException {
         helpView.include(renderRequest, renderResponse);
     }
@@ -383,10 +476,11 @@ public class ConfigManagerPortlet extends BasePortlet {
         private final Artifact configId;
         private final ConfigurationModuleType type;
         private final State state;
-        private String contextPath;     // only relevant for webapps
         private List parents = new ArrayList();
         private List children = new ArrayList();
         private boolean expertConfig = false;   // used to mark this config as one that should only be managed (stop/uninstall) by expert users.
+        private List contextPaths = new ArrayList();
+        private String componentName;
 
         public ModuleDetails(Artifact configId, ConfigurationModuleType type, State state) {
             this.configId = configId;
@@ -419,14 +513,6 @@ public class ConfigManagerPortlet extends BasePortlet {
             return state;
         }
 
-        public String getContextPath() {
-            return contextPath;
-        }
-
-        public void setContextPath(String contextPath) {
-            this.contextPath = contextPath;
-        }
-
         public ConfigurationModuleType getType() {
             return type;
         }
@@ -441,6 +527,18 @@ public class ConfigManagerPortlet extends BasePortlet {
 
         public List getChildren() {
             return children;
+        }
+        
+        public List getContextPaths() {
+            return contextPaths;
+        }     
+        
+        public String getComponentName(){
+            return componentName;
+        }
+        
+        public void setComponentName(String name){
+            componentName = name;
         }
     }
 }
