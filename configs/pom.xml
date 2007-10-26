@@ -150,8 +150,6 @@
         <module>j2ee-server</module>
         <module>j2ee-system</module>
         <module>javamail</module>
-        <module>jsp-examples-jetty</module>
-        <module>jsp-examples-tomcat</module>
         <module>jsr88-cli</module>
         <module>jsr88-deploymentfactory</module>
         <module>jsr88-jar-configurer</module>
@@ -170,8 +168,6 @@
         <module>remote-deploy-jetty</module>
         <module>remote-deploy-tomcat</module>
         <module>rmi-naming</module>
-        <module>servlet-examples-jetty</module>
-        <module>servlet-examples-tomcat</module>
         <module>sharedlib</module>
         <module>shutdown</module>
         <module>spring</module>

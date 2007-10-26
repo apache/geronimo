@@ -37,7 +37,6 @@
     <modules>
         <module>geronimo-welcome</module>
         <module>geronimo-dojo</module>
-        <module>geronimo-examples</module>
         <module>geronimo-mejb</module>
         <module>geronimo-remote-deploy</module>
         <module>geronimo-uddi-db</module>
