@@ -41,7 +41,6 @@
         <module>geronimo-remote-deploy</module>
         <module>geronimo-uddi-db</module>
         <module>geronimo-uddi-server</module>
-        <!--<module>geronimo-ldap-demo</module>-->
         <module>geronimo-ca-helper</module>
     </modules>
     
