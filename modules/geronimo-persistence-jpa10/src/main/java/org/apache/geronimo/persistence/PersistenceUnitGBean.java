@@ -338,7 +338,7 @@ public class PersistenceUnitGBean implements GBeanLifecycle {
         infoBuilder.addAttribute("properties", Properties.class, true, true);
         infoBuilder.addAttribute("configurationBaseUrl", URL.class, true);
 
-        infoBuilder.addReference("TransactionManager", TransactionManagerImpl.class, NameFactory.TRANSACTION_MANAGER);
+        infoBuilder.addReference("TransactionManager", TransactionManagerImpl.class, NameFactory.JTA_RESOURCE);
         infoBuilder.addReference("JtaDataSourceWrapper", ConnectionFactorySource.class, NameFactory.JCA_MANAGED_CONNECTION_FACTORY);
         infoBuilder.addReference("NonJtaDataSourceWrapper", ConnectionFactorySource.class, NameFactory.JCA_MANAGED_CONNECTION_FACTORY);
         infoBuilder.addReference("EntityManagerRegistry", ExtendedEntityManagerRegistry.class, NameFactory.GERONIMO_SERVICE);

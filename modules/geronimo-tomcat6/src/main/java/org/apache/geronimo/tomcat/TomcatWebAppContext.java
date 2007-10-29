@@ -583,7 +583,7 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
         infoBuilder.addAttribute("componentContext", Map.class, true);
         infoBuilder.addAttribute("unshareableResources", Set.class, true);
         infoBuilder.addAttribute("applicationManagedSecurityResources", Set.class, true);
-        infoBuilder.addReference("TransactionManager", TransactionManager.class, NameFactory.TRANSACTION_MANAGER);
+        infoBuilder.addReference("TransactionManager", TransactionManager.class, NameFactory.JTA_RESOURCE);
         infoBuilder.addReference("TrackedConnectionAssociator", TrackedConnectionAssociator.class, NameFactory.JCA_CONNECTION_TRACKER);
 
         infoBuilder.addReference("Container", TomcatContainer.class, NameFactory.GERONIMO_SERVICE);
