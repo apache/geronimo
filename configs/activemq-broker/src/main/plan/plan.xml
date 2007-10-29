@@ -34,7 +34,7 @@
         <attribute name="useShutdownHook">false</attribute>
         <attribute name="dataDirectory">var/activemq</attribute>
         <reference name="dataSource">
-            <name>SystemDatasource</name>
+            <name>NoTxDatasource</name>
         </reference>
         <reference name="manager">
             <name>ActiveMQManager</name>
