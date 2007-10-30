@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Licensed to the Apache Software Foundation (ASF) under one or more
+  contributor license agreements.  See the NOTICE file distributed with
+  this work for additional information regarding copyright ownership.
+  The ASF licenses this file to You under the Apache License, Version 2.0
+  (the "License"); you may not use this file except in compliance with
+  the License.  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+<web-app xmlns="http://geronimo.apache.org/xml/ns/j2ee/web/jetty-1.1">
+    <environment>
+        <moduleId>
+            <groupId>foo</groupId>
+            <artifactId>bar</artifactId>
+            <version>1</version>
+            <type>car</type>
+        </moduleId>
+    </environment>
+    <resource-ref>
+        <ref-name>jdbc/DB1</ref-name>
+        <resource-link>DefaultDatabase</resource-link>
+    </resource-ref>
+    <security-realm-name>public-properties-realm</security-realm-name>
+    <security default-role="UNASSIGNED" doas-current-caller="true">
+        <default-principal>
+            <principal class="org.apache.geronimo.security.realm.providers.GeronimoUserPrincipal" name="guest"/>
+        </default-principal>
+
+        <role-mappings>
+            <role role-name="UNASSIGNED">
+                <principal class="org.apache.geronimo.security.realm.providers.GeronimoUserPrincipal" name="guest" designated-run-as="true"/>
+            </role>
+
+            <role role-name="LOW">
+                <principal class="org.apache.geronimo.security.realm.providers.GeronimoGroupPrincipal" name="acct" designated-run-as="true"/>
+                <distinguished-name name="CN=Duke, OU=Java Software, O=Sun Microsystems\, Inc., L=Palo Alto, ST=CA, C=US"/>
+            </role>
+
+            <role role-name="MEDIUM">
+                <principal class="org.apache.geronimo.security.realm.providers.GeronimoGroupPrincipal" name="it"/>
+                <principal class="org.apache.geronimo.security.realm.providers.GeronimoUserPrincipal" name="george" designated-run-as="true"/>
+            </role>
+
+            <role role-name="HIGH">
+                <principal class="org.apache.geronimo.security.realm.providers.GeronimoGroupPrincipal" name="mgmt" designated-run-as="true"/>
+                <principal class="org.apache.geronimo.security.realm.providers.GeronimoUserPrincipal" name="dain"/>
+                <principal class="org.apache.geronimo.security.realm.providers.GeronimoUserPrincipal" name="david"/>
+            </role>
+        </role-mappings>
+    </security>
+</web-app>
