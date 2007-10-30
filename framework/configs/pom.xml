@@ -15,29 +15,22 @@
     See the License for the specific language governing permissions and
     limitations under the License.
 -->
-
 <!-- $Rev$ $Date$ -->
-
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-
     <modelVersion>4.0.0</modelVersion>
-
     <parent>
         <groupId>org.apache.geronimo</groupId>
         <artifactId>geronimo</artifactId>
         <version>2.1-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
-
     <groupId>org.apache.geronimo.configs</groupId>
     <artifactId>configs</artifactId>
     <name>Geronimo Configs</name>
     <packaging>pom</packaging>
-
     <properties>
         <!-- This property is required by the car:package mojo -->
         <geronimoVersion>${version}</geronimoVersion>
-
         <gbeanDeployerBootstrap>org.apache.geronimo.configs/geronimo-gbean-deployer-bootstrap/${version}/car</gbeanDeployerBootstrap>
         <gbeanDeployer>org.apache.geronimo.configs/geronimo-gbean-deployer/${version}/car</gbeanDeployer>
         <j2eeDeployer>org.apache.geronimo.configs/j2ee-deployer/${version}/car</j2eeDeployer>
@@ -52,7 +45,6 @@
         <jetty6Deployer>org.apache.geronimo.configs/jetty6-deployer/${version}/car</jetty6Deployer>
         <jasperDeployer>org.apache.geronimo.configs/jasper-deployer/${version}/car</jasperDeployer>
         <jpaDeployer>org.apache.geronimo.configs/persistence-jpa10-deployer/${version}/car</jpaDeployer>
-
         <!-- Common plan properties -->
         <PlanServerHostname>0.0.0.0</PlanServerHostname>
         <PlanRemoteDeployHostname>127.0.0.1</PlanRemoteDeployHostname>
@@ -74,7 +66,6 @@
         <PlanORBSunSSLPort>2001</PlanORBSunSSLPort>
         <PlanJMXPort>9999</PlanJMXPort>
     </properties>
-
     <build>
         <!--
 
@@ -93,22 +84,20 @@
             <plugin>
                 <groupId>org.apache.geronimo.plugins</groupId>
                 <artifactId>car-maven-plugin</artifactId>
-
                 <!-- Install as extention to allow 'car' packaging to be used. -->
                 <extensions>true</extensions>
-
                 <configuration>
                     <archive>
                         <!-- Do not include META-INF/maven to avoid long file problems on windows -->
                         <addMavenDescriptor>false</addMavenDescriptor>
                     </archive>
                     <osiApproved>true</osiApproved>
-<!--
-                    <useMavenDependencies>
-                        <value>true</value>
-                        <includeVersion>true</includeVersion>
-                    </useMavenDependencies>
--->
+                    <!--
+                                        <useMavenDependencies>
+                                            <value>true</value>
+                                            <includeVersion>true</includeVersion>
+                                        </useMavenDependencies>
+                    -->
                     <commonInstance>
                         <plugin-artifact>
                             <geronimo-version>${geronimoVersion}</geronimo-version>
@@ -124,91 +113,21 @@
             </plugin>
         </plugins>
     </build>
-
     <modules>
-        <module>geronimo-gbean-deployer-bootstrap</module>
-        <module>activemq-ra</module>
-        <module>activemq-broker</module>
-        <module>axis</module>
-        <module>axis-deployer</module>
-        <module>client</module>
-        <module>client-corba-yoko</module>
-        <module>client-deployer</module>
-        <module>client-security</module>
+      <module>geronimo-gbean-deployer</module>
+      <module>geronimo-gbean-deployer-bootstrap</module>
+      <module>xmlbeans</module>
         <module>client-system</module>
-        <module>client-transaction</module>
-        <module>connector-deployer</module>
-        <module>clustering</module>
-        <module>xmlbeans</module>
-        <module>geronimo-gbean-deployer</module>
-        <module>hot-deployer</module>
-        <module>jee-specs</module>
-        <module>j2ee-corba-yoko</module>
-        <module>j2ee-deployer</module>
         <module>j2ee-security</module>
-        <module>server-security-config</module>
-        <module>j2ee-server</module>
         <module>j2ee-system</module>
-        <module>javamail</module>
+        <module>jee-specs</module>
         <module>jsr88-cli</module>
         <module>jsr88-deploymentfactory</module>
-        <module>jsr88-jar-configurer</module>
-        <module>jsr88-rar-configurer</module>
-        <module>jsr88-war-configurer</module>
-        <module>jsr88-ear-configurer</module>
-        <module>mejb</module>
         <module>offline-deployer</module>
         <module>online-deployer</module>
-        <module>openejb</module>
-        <module>openejb-corba-deployer</module>
-        <module>openejb-deployer</module>
-        <module>remote-deploy-jetty</module>
-        <module>remote-deploy-tomcat</module>
         <module>rmi-naming</module>
-        <module>sharedlib</module>
+        <module>server-security-config</module>
         <module>shutdown</module>
-        <module>spring</module>
-        <module>system-database</module>
-        <module>tomcat6</module>
-        <module>tomcat6-deployer</module>
-        <module>uddi-tomcat</module>
-        <module>unavailable-client-deployer</module>
-        <module>unavailable-ejb-deployer</module>
-        <module>unavailable-webservices-deployer</module>
-        <module>upgrade</module>
         <module>upgrade-cli</module>
-        <module>wadi-clustering</module>
-        <module>welcome-jetty</module>
-        <module>welcome-tomcat</module>
-        <module>dojo-tomcat</module>
-        <module>ca-helper-jetty</module>
-        <module>ca-helper-tomcat</module>
-        <!-- jee5 configs -->
-        <module>transformer-agent</module>
-        <module>persistence-jpa10-deployer</module>
-        <module>openjpa</module>
-        <module>axis2</module>
-        <module>axis2-ejb</module>
-        <module>axis2-deployer</module>
-        <module>axis2-ejb-deployer</module>
-        <module>cxf</module>
-        <module>cxf-ejb</module>
-        <module>cxf-deployer</module>
-        <module>cxf-ejb-deployer</module>
-        <module>jaxws-deployer</module>
-        <module>jaxws-ejb-deployer</module>
-        <module>dojo-jetty6</module>
-        <module>jetty6</module>
-        <module>jetty6-clustering-builder-wadi</module>
-        <module>jetty6-clustering-wadi</module>
-        <module>jetty6-deployer</module>
-        <module>myfaces</module>
-        <module>myfaces-deployer</module>
-        <module>transaction</module>
-        <module>uddi-jetty6</module>
-        <module>webservices-common</module>
-        <module>jasper</module>
-        <module>jasper-deployer</module>
     </modules>
-
 </project>
