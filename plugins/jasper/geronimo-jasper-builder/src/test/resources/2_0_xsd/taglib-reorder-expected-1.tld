@@ -1,0 +1,143 @@
+<?xml version="1.0"?>
+<!--
+  Licensed to the Apache Software Foundation (ASF) under one or more
+  contributor license agreements.  See the NOTICE file distributed with
+  this work for additional information regarding copyright ownership.
+  The ASF licenses this file to You under the Apache License, Version 2.0
+  (the "License"); you may not use this file except in compliance with
+  the License.  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+<taglib xmlns="http://java.sun.com/xml/ns/javaee"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://java.sun.com/xml/ns/javaee/web-jsptaglibrary_2_1.xsd"
+    version="2.1">
+    <description>
+      Enhanced standard JSP actions and custom MyFaces actions.
+    </description>
+    <tlib-version>1.0.10</tlib-version>
+    <short-name>sn</short-name>
+    <uri>http://myfaces.apache.org/sandbox15</uri>
+    <tag>
+        <description>
+        Container for field configurations
+        </description>
+        <name>dynaFormConfigs</name>
+        <tag-class>org.apache.myfaces.custom.dynaForm.component.dynaForm.DynaConfigsTag</tag-class>
+        <body-content>JSP</body-content>
+    </tag>
+    <tag>
+        <description>
+        Field configurations
+        </description>
+        <name>dynaFormConfig</name>
+        <tag-class>org.apache.myfaces.custom.dynaForm.component.dynaForm.DynaConfigTag</tag-class>
+        <body-content>JSP</body-content>
+        <attribute>
+            <description>
+      the name of the property this configuration is for
+            </description>
+            <name>for</name>
+            <required>true</required>
+        </attribute>
+        <attribute>
+            <description>
+      the displaySize to be used to render the component
+            </description>
+            <name>typeOnly</name>
+            <required>false</required>
+            <rtexprvalue>false</rtexprvalue>
+            <type>boolean</type>
+        </attribute>
+        <attribute>
+            <description>
+      configure this field as displayOnly
+            </description>
+            <name>typeAndRtexprvalueInCorrectOrder</name>
+            <required>false</required>
+            <rtexprvalue>false</rtexprvalue>
+            <type>boolean</type>
+        </attribute>
+        <attribute>
+            <description>
+      configure this field as readOnly - noneditable input field
+            </description>
+            <name>typeAndRtexprvalueOutOfOrder</name>
+            <required>false</required>
+            <rtexprvalue>true</rtexprvalue>
+            <type>boolean</type>
+        </attribute>
+        <attribute>
+            <description>
+      configure this field as disabled - like readOnly but grayed too
+            </description>
+            <name>disabled</name>
+            <required>false</required>
+            <rtexprvalue>false</rtexprvalue>
+        </attribute>
+    </tag>
+
+    <tag>
+        <description>
+        Handle all the dynamic form creation for JSF
+        </description>
+        <name>dynaForm</name>
+        <tag-class>org.apache.myfaces.custom.dynaForm.component.dynaForm.DynaFormTag</tag-class>
+        <body-content>JSP</body-content>
+        <attribute>
+            <description>
+      The var used to get access to the form controller
+            </description>
+            <name>rtexprvalueOnly</name>
+            <required>true</required>
+            <rtexprvalue>false</rtexprvalue>
+        </attribute>
+        <attribute>
+            <description>
+          The value binding prefix which will be used to create the real value binding.
+          If this is missing and the layout component has a "var" attribute its value will be used.
+            </description>
+            <name>valueBindingPrefix</name>
+            <required>false</required>
+            <rtexprvalue>false</rtexprvalue>
+        </attribute>
+        <attribute>
+            <description>
+        The root model
+            </description>
+            <name>uri</name>
+            <required>true</required>
+            <rtexprvalue>false</rtexprvalue>
+        </attribute>
+        <attribute>
+            <description>
+        Render the whole form in display (non editable) only mode
+            </description>
+            <name>displayOnly</name>
+            <required>false</required>
+            <rtexprvalue>false</rtexprvalue>
+        </attribute>
+        <attribute>
+            <description>
+        The bundle to use to convert the lables to readable strings
+            </description>
+            <name>rtexprvalueOnly</name>
+            <required>false</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <description>
+        true|false - Set to true if only the fields listed within the configuration are to be rendered
+            </description>
+            <name>neither</name>
+            <required>false</required>
+        </attribute>
+    </tag>
+</taglib>

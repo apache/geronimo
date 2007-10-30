@@ -1,0 +1,48 @@
+<?xml version="1.0" ?>
+<!--
+  Licensed to the Apache Software Foundation (ASF) under one or more
+  contributor license agreements.  See the NOTICE file distributed with
+  this work for additional information regarding copyright ownership.
+  The ASF licenses this file to You under the Apache License, Version 2.0
+  (the "License"); you may not use this file except in compliance with
+  the License.  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+<taglib xmlns="http://java.sun.com/xml/ns/javaee"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://java.sun.com/xml/ns/javaee/web-jsptaglibrary_2_1.xsd"
+    version="2.1">
+    <description>
+      This tag library defines no tags.  Instead, its purpose is encapsulated
+      in the TagLibraryValidator implementation that simply outputs the XML
+      version of a JSP page to standard output, whenever this tag library is
+      referenced in a "taglib" directive in a JSP page.
+    </description>
+    <tlib-version>1.0</tlib-version>
+    <short-name>debug</short-name>
+    <uri>http://jakarta.apache.org/tomcat/debug-taglib</uri>
+    <validator>
+        <validator-class>validators.DebugValidator</validator-class>
+    </validator>
+    <tag>
+        <description>
+        Perform a server side action; Log the message.
+        </description>
+        <name>log</name>
+        <tag-class>examples.LogTag</tag-class>
+        <tei-class>examples.LogTei</tei-class>
+        <body-content>tagdependent</body-content>
+        <attribute>
+            <name>toBrowser</name>
+            <required>false</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+    </tag>
+</taglib>
