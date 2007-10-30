@@ -191,6 +191,7 @@ public class InstallModulesMojo
                 serverInfo);
         ThreadPool threadPool = null;
         LocalAttributeManager attributeStore = new LocalAttributeManager(configFile, configSubstitutionsFileName, configSubstitutionsPrefix, false, serverInfo);
+        attributeStore.load();
         ConfigurationManager configurationManager = new KernelConfigurationManager(kernel,
                 Collections.singleton(targetStore),
                 attributeStore,
