@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+    Licensed to the Apache Software Foundation (ASF) under one or more
+    contributor license agreements.  See the NOTICE file distributed with
+    this work for additional information regarding copyright ownership.
+    The ASF licenses this file to You under the Apache License, Version 2.0
+    (the "License"); you may not use this file except in compliance with
+    the License.  You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+-->
+
+<!-- $Rev$ $Date$ -->
+
+<xsd:schema
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+    xmlns:j2ee="http://java.sun.com/xml/ns/j2ee"
+    xmlns:geronimo="http://geronimo.apache.org/xml/ns/subject-info-1.0"
+    targetNamespace="http://geronimo.apache.org/xml/ns/subject-info-1.0"
+    xmlns:app="http://geronimo.apache.org/xml/ns/j2ee/application-2.0"
+    elementFormDefault="qualified"
+    attributeFormDefault="unqualified"
+    version="2.0">
+    
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" schemaLocation="http://www.w3.org/2001/xml.xsd"/>
+    <xsd:import namespace="http://geronimo.apache.org/xml/ns/j2ee/application-2.0" schemaLocation="geronimo-application-2.0.xsd"/>
+
+    <xsd:element name="security" type="geronimo:securityType"  substitutionGroup="app:security"/>
+    <xsd:element name="default-subject" type="geronimo:default-subjectType"/>
+
+    <xsd:complexType name="securityType">
+        <xsd:annotation>
+            <xsd:documentation>
+                Security entries
+
+                If this element is present, all web and EJB modules MUST make the
+                appropriate access checks as outlined in the JACC spec.
+            </xsd:documentation>
+        </xsd:annotation>
+        <xsd:complexContent>
+            <xsd:extension base="app:abstract-securityType">
+
+        <xsd:sequence>
+            <xsd:element name="description" type="geronimo:descriptionType" minOccurs="0" maxOccurs="unbounded"/>
+            <xsd:element name="default-subject" type="geronimo:default-subjectType"/>
+            <xsd:element name="role-mappings" type="geronimo:role-subject-mappingsType" minOccurs="0"/>
+        </xsd:sequence>
+        <xsd:attribute name="doas-current-caller" type="xsd:boolean" default="false">
+            <xsd:annotation>
+                <xsd:documentation>
+                    Set this attribute to "true" if the work is to be performed
+                    as the calling Subject.
+                </xsd:documentation>
+            </xsd:annotation>
+        </xsd:attribute>
+        <xsd:attribute name="use-context-handler" type="xsd:boolean" default="false">
+            <xsd:annotation>
+                <xsd:documentation>
+                    Set this attribute to "true" if the installed JACC policy
+                    contexts will use PolicyContextHandlers.
+                </xsd:documentation>
+            </xsd:annotation>
+        </xsd:attribute>
+        <xsd:attribute name="default-role" type="xsd:string">
+            <xsd:annotation>
+                <xsd:documentation>
+                    Used by the the Deployer to assign method permissions for
+                    all of the unspecified methods, either by assigning them
+                    to security roles, or by marking them as unchecked.  If
+                    the value of default-role is empty, then the unspecified
+                    methods are marked unchecked
+                </xsd:documentation>
+            </xsd:annotation>
+        </xsd:attribute>
+            </xsd:extension>
+        </xsd:complexContent>
+    </xsd:complexType>
+
+    <xsd:complexType name="descriptionType">
+        <xsd:simpleContent>
+            <xsd:extension base="xsd:string">
+                <xsd:attribute ref="xml:lang"/>
+            </xsd:extension>
+        </xsd:simpleContent>
+    </xsd:complexType>
+
+
+    <xsd:complexType name="default-subjectType">
+        <xsd:sequence>
+            <xsd:element name="description" type="geronimo:descriptionType" minOccurs="0" maxOccurs="unbounded"/>
+            <xsd:element name="realm" type="xsd:string"/>
+            <xsd:element name="id" type="xsd:string"/>
+        </xsd:sequence>
+    </xsd:complexType>
+
+
+    <xsd:complexType name="role-subject-mappingsType">
+        <xsd:sequence>
+            <xsd:element name="role" type="geronimo:roleType" minOccurs="0" maxOccurs="unbounded"/>
+        </xsd:sequence>
+    </xsd:complexType>
+
+    <xsd:complexType name="roleType">
+        <xsd:sequence>
+            <xsd:element name="description" type="geronimo:descriptionType" minOccurs="0" maxOccurs="unbounded"/>
+            <xsd:element name="realm" type="xsd:string"/>
+            <xsd:element name="id" type="xsd:string"/>
+        </xsd:sequence>
+        <xsd:attribute name="role-name" type="xsd:string" use="required"/>
+    </xsd:complexType>
+
+</xsd:schema>
