@@ -2180,7 +2180,6 @@
     </distributionManagement>
 
     <profiles>
-      <profiles>
         <profile>
             <id>default</id>
 
@@ -2281,7 +2280,6 @@
                 <module>maven-plugins</module>
                 <module>framework/configs</module>
             </modules>
-            </modules>
         </profile>
 
         <profile>
@@ -2295,7 +2293,7 @@
             </activation>
 
             <modules>
-                <module>components</module>
+              <module>components</module>
               <module>plugins</module>
               <module>applications</module>
               <module>assemblies</module>
