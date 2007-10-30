@@ -30,7 +30,7 @@
     </parent>
 
     <artifactId>geronimo-tomcat6-builder</artifactId>
-    <name>Geronimo :: Tomcat :: Builder</name>
+    <name>Geronimo Modules :: Tomcat :: Builder</name>
 
     <dependencies>
 

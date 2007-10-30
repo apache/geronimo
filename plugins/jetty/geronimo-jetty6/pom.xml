@@ -30,7 +30,7 @@
     </parent>
 
     <artifactId>geronimo-jetty6</artifactId>
-    <name>Geronimo :: Jetty 6</name>
+    <name>Geronimo Modules :: Jetty 6</name>
     
     <dependencies>
         <dependency>

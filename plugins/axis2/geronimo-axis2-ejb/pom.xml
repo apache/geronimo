@@ -16,7 +16,7 @@
     limitations under the License.
 -->
 
-<!-- $Rev: 482336 $ $Date: 2006-12-04 15:12:19 -0500 (Mon, 04 Dec 2006) $ -->
+<!-- $Rev: 589641 $ $Date: 2007-10-29 10:43:01 -0400 (Mon, 29 Oct 2007) $ -->
 
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     
@@ -30,7 +30,7 @@
     </parent>
     
     <artifactId>geronimo-axis2-ejb</artifactId>
-    <name>Geronimo :: AXIS2 EJB</name>
+    <name>Geronimo Modules :: AXIS2 EJB</name>
     
     <dependencies>
 

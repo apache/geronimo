@@ -30,7 +30,7 @@
     </parent>
 
     <artifactId>geronimo-test-ddbean</artifactId>
-    <name>Geronimo :: Test :: DDBeans</name>
+    <name>Geronimo Modules :: Test :: DDBeans</name>
     
     <dependencies>
     

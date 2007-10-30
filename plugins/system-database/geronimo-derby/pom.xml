@@ -30,7 +30,7 @@
     </parent>
 
     <artifactId>geronimo-derby</artifactId>
-    <name>Geronimo :: Derby</name>
+    <name>Geronimo Modules :: Derby</name>
     
     <description>Wrapper for using Apache Derby as a bundled database.</description>
     

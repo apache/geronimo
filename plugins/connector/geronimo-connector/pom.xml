@@ -30,7 +30,7 @@
     </parent>
 
     <artifactId>geronimo-connector</artifactId>
-    <name>Geronimo :: Connector</name>
+    <name>Geronimo Modules :: Connector</name>
 
     <dependencies>
         

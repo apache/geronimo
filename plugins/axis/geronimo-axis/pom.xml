@@ -31,7 +31,7 @@
 
     <artifactId>geronimo-axis</artifactId>
     <packaging>jar</packaging>
-    <name>Geronimo :: Axis</name>
+    <name>Geronimo Modules :: Axis</name>
     
     <dependencies>
         

@@ -30,7 +30,7 @@
     </parent>
 
     <artifactId>geronimo-web-2.5-builder</artifactId>
-    <name>Geronimo :: Web 2.5 :: Builder</name>
+    <name>Geronimo Modules :: Web 2.5 :: Builder</name>
 
     <dependencies>
 

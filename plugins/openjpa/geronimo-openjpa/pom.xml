@@ -30,7 +30,7 @@
     </parent>
     
     <artifactId>geronimo-openjpa</artifactId>
-    <name>Geronimo :: OpenJPA</name>
+    <name>Geronimo Modules :: OpenJPA</name>
     
     <dependencies>
         <dependency>

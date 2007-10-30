@@ -30,7 +30,7 @@
     </parent>
 
     <artifactId>geronimo-mail</artifactId>
-    <name>Geronimo :: Mail</name>
+    <name>Geronimo Modules :: Mail</name>
 
     <dependencies>
 

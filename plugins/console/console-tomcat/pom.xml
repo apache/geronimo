@@ -84,6 +84,38 @@
             <artifactId>dwr</artifactId>
         </dependency>
 
+         <!-- to force build order -->
+        <dependency>
+            <groupId>org.apache.geronimo.configs</groupId>
+            <artifactId>tomcat6-deployer</artifactId>
+            <version>${version}</version>
+            <type>car</type>
+            <scope>provided</scope>
+       </dependency>
+
+        <dependency>
+            <groupId>org.apache.geronimo.configs</groupId>
+            <artifactId>jasper-deployer</artifactId>
+            <version>${version}</version>
+            <type>car</type>
+            <scope>provided</scope>
+       </dependency>
+
+        <dependency>
+            <groupId>org.apache.geronimo.configs</groupId>
+            <artifactId>activemq-ra</artifactId>
+            <version>${version}</version>
+            <type>car</type>
+            <scope>provided</scope>
+       </dependency>
+
+        <dependency>
+            <groupId>org.apache.geronimo.modules</groupId>
+            <artifactId>geronimo-jaxws</artifactId>
+            <version>${version}</version>
+            <scope>provided</scope>
+       </dependency>
+
     </dependencies>
 
     <build>

@@ -30,7 +30,7 @@
     </parent>
 
     <artifactId>geronimo-persistence-jpa10-builder</artifactId>
-    <name>Geronimo :: Persistence JPA1.0 :: Builder</name>
+    <name>Geronimo Modules :: Persistence JPA1.0 :: Builder</name>
 
     <dependencies>
 

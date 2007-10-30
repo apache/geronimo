@@ -15,29 +15,22 @@
     See the License for the specific language governing permissions and
     limitations under the License.
 -->
-
 <!-- $Rev$ $Date$ -->
-
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-
     <modelVersion>4.0.0</modelVersion>
-
     <parent>
         <groupId>org.apache.geronimo</groupId>
         <artifactId>geronimo</artifactId>
         <version>2.1-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
-
     <groupId>org.apache.geronimo.plugins</groupId>
     <artifactId>plugins</artifactId>
     <name>Geronimo Plugins</name>
     <packaging>pom</packaging>
-
     <properties>
         <!-- This property is required by the car:package mojo -->
         <geronimoVersion>${version}</geronimoVersion>
-
         <gbeanDeployerBootstrap>org.apache.geronimo.configs/geronimo-gbean-deployer-bootstrap/${version}/car</gbeanDeployerBootstrap>
         <gbeanDeployer>org.apache.geronimo.configs/geronimo-gbean-deployer/${version}/car</gbeanDeployer>
         <j2eeDeployer>org.apache.geronimo.configs/j2ee-deployer/${version}/car</j2eeDeployer>
@@ -53,7 +46,6 @@
         <jasperDeployer>org.apache.geronimo.configs/jasper-deployer/${version}/car</jasperDeployer>
         <jpaDeployer>org.apache.geronimo.configs/persistence-jpa10-deployer/${version}/car</jpaDeployer>
     </properties>
-
     <build>
         <!--
 
@@ -72,22 +64,20 @@
             <plugin>
                 <groupId>org.apache.geronimo.plugins</groupId>
                 <artifactId>car-maven-plugin</artifactId>
-
                 <!-- Install as extention to allow 'car' packaging to be used. -->
                 <extensions>true</extensions>
-
                 <configuration>
                     <archive>
                         <!-- Do not include META-INF/maven to avoid long file problems on windows -->
                         <addMavenDescriptor>false</addMavenDescriptor>
                     </archive>
                     <osiApproved>true</osiApproved>
-<!--
-                    <useMavenDependencies>
-                        <value>true</value>
-                        <includeVersion>true</includeVersion>
-                    </useMavenDependencies>
--->
+                    <!--
+                                        <useMavenDependencies>
+                                            <value>true</value>
+                                            <includeVersion>true</includeVersion>
+                                        </useMavenDependencies>
+                    -->
                     <commonInstance>
                         <plugin-artifact>
                             <geronimo-version>${geronimoVersion}</geronimo-version>
@@ -103,14 +93,31 @@
             </plugin>
         </plugins>
     </build>
-
     <modules>
         <module>activemq</module>
+        <module>axis</module>
+        <module>axis2</module>
+        <module>client</module>
+        <module>clustering</module>
+        <module>connector</module>
         <module>console</module>
+        <module>corba</module>
+        <module>cxf</module>
+        <module>dojo</module>
         <module>debugviews</module>
+        <module>hotdeploy</module>
+        <module>j2ee</module>
+        <module>jasper</module>
+        <module>javamail</module>
+        <module>jaxws</module>
+        <module>jetty</module>
+        <module>myfaces</module>
+        <module>openejb</module>
+        <module>openjpa</module>
         <module>plancreator</module>
         <module>pluto</module>
         <module>system-database</module>
+        <module>tomcat</module>
+        <module>webservices</module>
     </modules>
-
 </project>

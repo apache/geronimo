@@ -30,7 +30,7 @@
     </parent>
 
     <artifactId>geronimo-cxf</artifactId>
-    <name>Geronimo :: CXF</name>
+    <name>Geronimo Modules :: CXF</name>
 
     <dependencies>
         <dependency>

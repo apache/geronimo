@@ -30,7 +30,7 @@
     </parent>
 
     <artifactId>geronimo-timer</artifactId>
-    <name>Geronimo :: Timer</name>
+    <name>Geronimo Modules :: Timer</name>
     
     <properties>
         <!--

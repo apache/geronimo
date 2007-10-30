@@ -30,7 +30,7 @@
     </parent>
     
     <artifactId>geronimo-jasper-builder</artifactId>
-    <name>Geronimo :: Jasper Builder</name>
+    <name>Geronimo Modules :: Jasper Builder</name>
     
     <dependencies>
         <dependency>

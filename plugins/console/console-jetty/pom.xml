@@ -84,6 +84,15 @@
             <artifactId>dwr</artifactId>
         </dependency>
 
+        <!-- to force build order -->
+        <dependency>
+            <groupId>org.apache.geronimo.configs</groupId>
+            <artifactId>jetty6-deployer</artifactId>
+            <version>${version}</version>
+            <type>car</type>
+            <scope>provided</scope>
+       </dependency>
+
         <!-- for jspc. why is this needed? -->
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>

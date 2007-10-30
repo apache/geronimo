@@ -30,7 +30,7 @@
     </parent>
 
     <artifactId>geronimo-activemq-ra</artifactId>
-    <name>Geronimo :: ActiveMQ Resource Adapter</name>
+    <name>Geronimo Modules :: ActiveMQ Resource Adapter</name>
     <packaging>rar</packaging>
     
     <description>

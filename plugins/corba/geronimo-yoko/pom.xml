@@ -28,7 +28,7 @@
         <relativePath>../pom.xml</relativePath>
     </parent>
 
-    <name>Geronimo :: CORBA :: Yoko</name>
+    <name>Geronimo Modules :: CORBA :: Yoko</name>
     <artifactId>geronimo-yoko</artifactId>
 
     <dependencies>

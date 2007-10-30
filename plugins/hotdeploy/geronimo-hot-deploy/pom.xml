@@ -30,7 +30,7 @@
     </parent>
 
     <artifactId>geronimo-hot-deploy</artifactId>
-    <name>Geronimo :: Deploy :: Hot Deployer</name>
+    <name>Geronimo Modules :: Deploy :: Hot Deployer</name>
     
     <description>Provides hot deployment for Geronimo.</description>
     

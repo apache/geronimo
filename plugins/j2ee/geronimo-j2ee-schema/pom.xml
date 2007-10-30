@@ -30,7 +30,7 @@
     </parent>
     
     <artifactId>geronimo-j2ee-schema</artifactId>
-    <name>Geronimo :: J2EE Schema</name>
+    <name>Geronimo Modules :: J2EE Schema</name>
     
     <dependencies>
         

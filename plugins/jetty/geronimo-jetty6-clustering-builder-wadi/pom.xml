@@ -30,7 +30,7 @@
     </parent>
 
     <artifactId>geronimo-jetty6-clustering-builder-wadi</artifactId>
-    <name>Geronimo :: Jetty 6 :: Clustering Builder for WADI</name>
+    <name>Geronimo Modules :: Jetty 6 :: Clustering Builder for WADI</name>
     
     <dependencies>
 

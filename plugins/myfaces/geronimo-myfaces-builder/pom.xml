@@ -30,7 +30,7 @@
     </parent>
     
     <artifactId>geronimo-myfaces-builder</artifactId>
-    <name>Geronimo :: MyFaces Builder</name>
+    <name>Geronimo Modules :: MyFaces Builder</name>
     
     <dependencies>
         <dependency>

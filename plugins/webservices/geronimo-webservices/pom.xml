@@ -30,7 +30,7 @@
     </parent>
 
     <artifactId>geronimo-webservices</artifactId>
-    <name>Geronimo :: Web Services</name>
+    <name>Geronimo Modules :: Web Services</name>
     
     <dependencies>
         

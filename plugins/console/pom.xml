@@ -38,6 +38,7 @@
     </description>
 
     <modules>
+        <module>geronimo-converter</module>
         <module>console-core</module>
         <module>console-base-portlets</module>
         <module>console-portal-driver</module>

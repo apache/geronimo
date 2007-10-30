@@ -30,7 +30,7 @@
     </parent>
 
     <artifactId>geronimo-client</artifactId>
-    <name>Geronimo :: Client</name>
+    <name>Geronimo Modules :: Client</name>
     
     <dependencies>
 

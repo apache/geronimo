@@ -30,7 +30,7 @@
     </parent>
 
     <artifactId>geronimo-activemq-management</artifactId>
-    <name>Geronimo :: ActiveMQ Management Interfaces</name>
+    <name>Geronimo Modules :: ActiveMQ Management Interfaces</name>
     
     <dependencies>
         <dependency>

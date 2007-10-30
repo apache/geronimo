@@ -30,7 +30,7 @@
     </parent>
 
     <artifactId>geronimo-activemq</artifactId>
-    <name>Geronimo :: ActiveMQ</name>
+    <name>Geronimo Modules :: ActiveMQ</name>
     
     <dependencies>
         <dependency>

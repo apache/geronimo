@@ -27,7 +27,7 @@
         <relativePath>../pom.xml</relativePath>
     </parent>
 
-    <name>Geronimo :: CORBA :: Builder</name>
+    <name>Geronimo Modules :: CORBA :: Builder</name>
     <artifactId>geronimo-corba-builder</artifactId>
 
     <dependencies>

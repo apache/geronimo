@@ -41,7 +41,7 @@
     <dependencies>
 
         <dependency>
-            <groupId>org.apache.geronimo.applications</groupId>
+            <groupId>org.apache.geronimo.modules</groupId>
             <artifactId>geronimo-dojo</artifactId>
             <version>${version}</version>
             <type>war</type>
@@ -84,7 +84,7 @@
                         <deploymentConfig>${jetty6Deployer}</deploymentConfig>
                     </deploymentConfigs>
                     <module>
-                        <groupId>org.apache.geronimo.applications</groupId>
+                        <groupId>org.apache.geronimo.modules</groupId>
                         <artifactId>geronimo-dojo</artifactId>
                         <version>${version}</version>
                         <type>war</type>

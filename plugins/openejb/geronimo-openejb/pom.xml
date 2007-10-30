@@ -28,7 +28,7 @@
     </parent>
 
     <artifactId>geronimo-openejb</artifactId>
-    <name>Geronimo :: OpenEJB</name>
+    <name>Geronimo Modules :: OpenEJB</name>
 
     <dependencies>
         <dependency>

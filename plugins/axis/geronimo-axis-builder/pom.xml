@@ -30,7 +30,7 @@
     </parent>
 
     <artifactId>geronimo-axis-builder</artifactId>
-    <name>Geronimo :: Axis :: Builder</name>
+    <name>Geronimo Modules :: Axis :: Builder</name>
 
     <dependencies>
 
