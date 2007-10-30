@@ -1,0 +1,195 @@
+/**
+ *  Licensed to the Apache Software Foundation (ASF) under one or more
+ *  contributor license agreements.  See the NOTICE file distributed with
+ *  this work for additional information regarding copyright ownership.
+ *  The ASF licenses this file to You under the Apache License, Version 2.0
+ *  (the "License"); you may not use this file except in compliance with
+ *  the License.  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
+
+package org.apache.geronimo.security.realm.providers;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URI;
+import java.security.cert.X509Certificate;
+import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Set;
+import java.util.Collection;
+import javax.security.auth.Subject;
+import javax.security.auth.callback.Callback;
+import javax.security.auth.callback.CallbackHandler;
+import javax.security.auth.callback.UnsupportedCallbackException;
+import javax.security.auth.login.LoginException;
+import javax.security.auth.login.FailedLoginException;
+import javax.security.auth.spi.LoginModule;
+import javax.security.auth.x500.X500Principal;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.apache.geronimo.common.GeronimoSecurityException;
+import org.apache.geronimo.security.jaas.JaasLoginModuleUse;
+import org.apache.geronimo.system.serverinfo.ServerInfo;
+
+
+/**
+ * An example LoginModule that reads a list of credentials and group from a file on disk.
+ * Authentication is provided by the SSL layer supplying the client certificate.
+ * All we check is that it is present.  The
+ * file should be formatted using standard Java properties syntax.  Expects
+ * to be run by a GenericSecurityRealm (doesn't work on its own).
+ *
+ * The usersURI property file should have lines of the form token=certificatename
+ * where certificate name is X509Certificate.getSubjectX500Principal().getName()
+ *
+ * The groupsURI property file should have lines of the form group=token1,token2,...
+ * where the tokens were associated to the certificate names in the usersURI properties file.
+ *
+ * This login module checks security credentials so the lifecycle methods must return true to indicate success
+ * or throw LoginException to indicate failure.
+ *
+ * @version $Rev$ $Date$
+ */
+public class CertificatePropertiesFileLoginModule implements LoginModule {
+    private static Log log = LogFactory.getLog(CertificatePropertiesFileLoginModule.class);
+    public final static String USERS_URI = "usersURI";
+    public final static String GROUPS_URI = "groupsURI";
+
+    private final Map users = new HashMap();
+    final Map groups = new HashMap();
+
+    private Subject subject;
+    private CallbackHandler handler;
+    private X500Principal principal;
+
+    public void initialize(Subject subject, CallbackHandler callbackHandler, Map sharedState, Map options) {
+        this.subject = subject;
+        this.handler = callbackHandler;
+        try {
+            ServerInfo serverInfo = (ServerInfo) options.get(JaasLoginModuleUse.SERVERINFO_LM_OPTION);
+            URI usersURI = new URI((String)options.get(USERS_URI));
+            URI groupsURI = new URI((String)options.get(GROUPS_URI));
+            loadProperties(serverInfo, usersURI, groupsURI);
+        } catch (Exception e) {
+            log.error(e);
+            throw new IllegalArgumentException("Unable to configure properties file login module: "+e.getMessage(), e);
+        }
+    }
+
+    public void loadProperties(ServerInfo serverInfo, URI usersURI, URI groupURI) throws GeronimoSecurityException {
+        try {
+            URI userFile = serverInfo.resolve(usersURI);
+            URI groupFile = serverInfo.resolve(groupURI);
+            InputStream stream = userFile.toURL().openStream();
+            Properties tmpUsers = new Properties();
+            tmpUsers.load(stream);
+            stream.close();
+
+            for (Iterator iterator = tmpUsers.entrySet().iterator(); iterator.hasNext();) {
+                Map.Entry entry = (Map.Entry) iterator.next();
+                users.put(entry.getValue(), entry.getKey());
+            }
+
+            Properties temp = new Properties();
+            stream = groupFile.toURL().openStream();
+            temp.load(stream);
+            stream.close();
+
+            Enumeration e = temp.keys();
+            while (e.hasMoreElements()) {
+                String groupName = (String) e.nextElement();
+                String[] userList = ((String) temp.get(groupName)).split(",");
+
+                Set userset = (Set) groups.get(groupName);
+                if (userset == null) {
+                    userset = new HashSet();
+                    groups.put(groupName, userset);
+                }
+
+                for (int i = 0; i < userList.length; i++) {
+                    String userName = userList[i];
+                    userset.add(userName);
+                }
+            }
+
+        } catch (Exception e) {
+            log.error("Properties File Login Module - data load failed", e);
+            throw new GeronimoSecurityException(e);
+        }
+    }
+
+
+    public boolean login() throws LoginException {
+        Callback[] callbacks = new Callback[1];
+
+        callbacks[0] = new CertificateCallback();
+        try {
+            handler.handle(callbacks);
+        } catch (IOException ioe) {
+            throw (LoginException) new LoginException().initCause(ioe);
+        } catch (UnsupportedCallbackException uce) {
+            throw (LoginException) new LoginException().initCause(uce);
+        }
+        assert callbacks.length == 1;
+        X509Certificate certificate = ((CertificateCallback)callbacks[0]).getCertificate();
+        if (certificate == null) {
+            throw new FailedLoginException();
+        }
+        principal = certificate.getSubjectX500Principal();
+
+        if(!users.containsKey(principal.getName())) {
+            throw new FailedLoginException();
+        }
+        return true;
+    }
+
+    public boolean commit() throws LoginException {
+        Set principals = subject.getPrincipals();
+
+        principals.add(principal);
+        String userName = (String) users.get(principal.getName());
+        principals.add(new GeronimoUserPrincipal(userName));
+
+        Iterator e = groups.keySet().iterator();
+        while (e.hasNext()) {
+            String groupName = (String) e.next();
+            Set users = (Set) groups.get(groupName);
+            Iterator iter = users.iterator();
+            while (iter.hasNext()) {
+                String user = (String) iter.next();
+                if (userName.equals(user)) {
+                    principals.add(new GeronimoGroupPrincipal(groupName));
+                    break;
+                }
+            }
+        }
+
+        return true;
+    }
+
+    public boolean abort() throws LoginException {
+        principal = null;
+
+        return true;
+    }
+
+    public boolean logout() throws LoginException {
+        principal = null;
+        //todo: should remove principals added by commit
+        return true;
+    }
+
+}
