@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+    Licensed to the Apache Software Foundation (ASF) under one or more
+    contributor license agreements.  See the NOTICE file distributed with
+    this work for additional information regarding copyright ownership.
+    The ASF licenses this file to You under the Apache License, Version 2.0
+    (the "License"); you may not use this file except in compliance with
+    the License.  You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+-->
+
+<connector xmlns="http://geronimo.apache.org/xml/ns/j2ee/connector-1.2">
+
+    <resourceadapter>
+        <resourceadapter-instance>
+            <resourceadapter-name>testRA</resourceadapter-name>
+            <config-property-setting name="RAStringProperty">NewStringValue</config-property-setting>
+            <workmanager-name>DefaultWorkManager</workmanager-name>
+        </resourceadapter-instance>
+    </resourceadapter>
+
+    <adminobject>
+        <adminobject-interface>org.apache.geronimo.connector.mock.MockAdminObject</adminobject-interface>
+        <adminobject-class>org.apache.geronimo.connector.mock.MockAdminObjectImpl</adminobject-class>
+        <adminobject-instance>
+            <message-destination-name>tweedledee</message-destination-name>
+            <config-property-setting name="Tweedle">Dee-value</config-property-setting>
+        </adminobject-instance>
+        <adminobject-instance>
+            <message-destination-name>tweedledum</message-destination-name>
+            <config-property-setting name="Tweedle">Dum-value</config-property-setting>
+        </adminobject-instance>
+    </adminobject>
+    <adminobject>
+        <adminobject-interface>org.apache.geronimo.connector.mock.MockAdminObject</adminobject-interface>
+        <adminobject-class>org.apache.geronimo.connector.mock.MockAdminObjectImpl</adminobject-class>
+        <adminobject-instance>
+            <message-destination-name>tweedledee</message-destination-name>
+            <config-property-setting name="Tweedle">Dee-value</config-property-setting>
+        </adminobject-instance>
+        <adminobject-instance>
+            <message-destination-name>tweedledum</message-destination-name>
+            <config-property-setting name="Tweedle">Dum-value</config-property-setting>
+        </adminobject-instance>
+    </adminobject>
+
+
+</connector>
