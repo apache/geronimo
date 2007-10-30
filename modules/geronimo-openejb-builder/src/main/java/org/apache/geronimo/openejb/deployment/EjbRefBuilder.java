@@ -209,10 +209,10 @@ public class EjbRefBuilder extends AbstractNamingBuilder {
             }
             // create the ejb-ref
             EjbRef ref = new EjbRef();
-            jndiConsumer.getEjbRef().add(ref);
-
             // ejb-ref-name
             ref.setEjbRefName(refName);
+            
+            jndiConsumer.getEjbRef().add(ref);
 
             // ejb-ref-type
             String refType = getStringValue(xmlbeansRef.getEjbRefType());
@@ -283,10 +283,10 @@ public class EjbRefBuilder extends AbstractNamingBuilder {
 
             // create the ejb-ref
             EjbLocalRef ref = new EjbLocalRef();
-            jndiConsumer.getEjbLocalRef().add(ref);
-
             // ejb-ref-name
             ref.setEjbRefName(refName);
+            
+            jndiConsumer.getEjbLocalRef().add(ref);
 
             // ejb-ref-type
             String refType = getStringValue(xmlbeansRef.getEjbRefType());
