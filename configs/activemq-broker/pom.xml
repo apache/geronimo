@@ -30,7 +30,7 @@
     </parent>
 
     <artifactId>activemq-broker</artifactId>
-    <name>Geronimo Module :: ActiveMQ Broker</name>
+    <name>Geronimo Configs :: ActiveMQ Broker</name>
     <packaging>car</packaging>
 
     <description>Apache ActiveMQ integration into geronimo.  This module starts an activemq broker embedded in geronimo.</description>
