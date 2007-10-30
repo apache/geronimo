@@ -2180,11 +2180,35 @@
     </distributionManagement>
 
     <profiles>
+      <profiles>
         <profile>
             <id>default</id>
 
             <activation>
                 <activeByDefault>true</activeByDefault>
+            </activation>
+
+            <modules>
+                <module>repository</module>
+                <module>buildsupport</module>
+                <module>testsupport</module>
+                <module>maven-plugins</module>
+                <module>framework</module>
+                <module>components</module>
+                <module>plugins</module>
+                <module>applications</module>
+                <module>assemblies</module>
+            </modules>
+        </profile>
+
+        <profile>
+            <id>stage-former</id>
+
+            <activation>
+                <property>
+                    <name>stage</name>
+                    <value>former</value>
+                </property>
             </activation>
 
             <modules>
@@ -2253,8 +2277,10 @@
                 <module>repository</module>
                 <module>buildsupport</module>
                 <module>testsupport</module>
-                <module>modules</module>
+                <module>framework/modules</module>
                 <module>maven-plugins</module>
+                <module>framework/configs</module>
+            </modules>
             </modules>
         </profile>
 
@@ -2269,10 +2295,10 @@
             </activation>
 
             <modules>
-                <module>applications</module>
-                <module>configs</module>
-                <module>plugins</module>
-                <module>assemblies</module>
+                <module>components</module>
+              <module>plugins</module>
+              <module>applications</module>
+              <module>assemblies</module>
             </modules>
         </profile>
 
@@ -2290,11 +2316,11 @@
                 <module>repository</module>
                 <module>buildsupport</module>
                 <module>testsupport</module>
-                <module>modules</module>
+                <module>framework</module>
                 <module>maven-plugins</module>
-                <module>applications</module>
-                <module>configs</module>
+                <module>components</module>
                 <module>plugins</module>
+                <module>applications</module>
             </modules>
         </profile>
 
@@ -2311,7 +2337,7 @@
             <modules>
                 <module>buildsupport</module>
                 <module>testsupport</module>
-                <module>modules</module>
+                <module>framework/modules</module>
                 <module>maven-plugins</module>
                 <module>applications</module>
             </modules>
