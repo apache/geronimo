@@ -173,7 +173,8 @@ public class EjbModuleBuilder implements ModuleBuilder {
 
         setDefaultProperty("openejb.deploymentId.format", "{moduleId}/{ejbName}");
         setDefaultProperty("openejb.jndiname.strategy.class", "org.apache.openejb.assembler.classic.JndiBuilder$TemplatedStrategy");
-        setDefaultProperty("openejb.jndiname.format", "{deploymentId}/{interfaceClass}");
+        setDefaultProperty("openejb.jndiname.format", "{ejbName}{interfaceType.annotationName}");
+        setDefaultProperty("openejb.jndiname.failoncollision", "false");
 
         System.setProperty("openejb.naming", "xbean");
 
