@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Licensed to the Apache Software Foundation (ASF) under one or more
+    contributor license agreements.  See the NOTICE file distributed with
+    this work for additional information regarding copyright ownership.
+    The ASF licenses this file to You under the Apache License, Version 2.0
+    (the "License"); you may not use this file except in compliance with
+    the License.  You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+-->
+
+<module xmlns="http://geronimo.apache.org/xml/ns/deployment-${geronimoSchemaVersion}">
+
+    <gbean name="WebServiceBuilder" class="org.apache.geronimo.axis.builder.AxisBuilder">
+        <xml-attribute name="defaultEnvironment">
+            <environment xmlns="http://geronimo.apache.org/xml/ns/deployment-1.2">
+                <dependencies>
+                    <dependency>
+                        <groupId>org.apache.geronimo.configs</groupId>
+                        <artifactId>axis</artifactId>
+                        <type>car</type>
+                    </dependency>
+                </dependencies>
+            </environment>
+        </xml-attribute>
+    </gbean>
+
+    <gbean name="AxisModuleBuilderExtension" class="org.apache.geronimo.axis.builder.AxisModuleBuilderExtension">
+        <!-- This attribute and the environment must be updated appropriately in the config.xml file -->
+        <attribute name="listener">?name=WebContainer</attribute>
+
+        <reference name="WebServiceBuilder">
+            <name>WebServiceBuilder</name>
+        </reference>
+    </gbean>
+
+    <gbean name="AxisServiceRefBuilder" class="org.apache.geronimo.axis.builder.AxisServiceRefBuilder">
+        <attribute name="eeNamespaces">http://java.sun.com/xml/ns/j2ee,http://java.sun.com/xml/ns/javaee</attribute>
+        <xml-attribute name="defaultEnvironment">
+            <environment xmlns="http://geronimo.apache.org/xml/ns/deployment-${geronimoSchemaVersion}">
+                <dependencies>
+                    <dependency>
+                        <groupId>org.apache.geronimo.configs</groupId>
+                        <artifactId>axis</artifactId>
+                        <type>car</type>
+                    </dependency>
+                </dependencies>
+            </environment>
+        </xml-attribute>
+        <reference name="AxisBuilder">
+            <name>WebServiceBuilder</name>
+        </reference>
+    </gbean>
+
+    <gbean name="AxisClientServiceRefBuilder" class="org.apache.geronimo.axis.builder.AxisServiceRefBuilder">
+        <attribute name="eeNamespaces">http://java.sun.com/xml/ns/j2ee,http://java.sun.com/xml/ns/javaee</attribute>
+        <xml-attribute name="defaultEnvironment">
+            <environment xmlns="http://geronimo.apache.org/xml/ns/deployment-${geronimoSchemaVersion}">
+                <dependencies>
+                    <dependency>
+                        <groupId>org.apache.geronimo.configs</groupId>
+                        <artifactId>axis</artifactId>
+                        <type>car</type>
+                        <!--<import>classes</import>-->
+                    </dependency>
+                </dependencies>
+            </environment>
+        </xml-attribute>
+        <reference name="AxisBuilder">
+            <name>WebServiceBuilder</name>
+        </reference>
+    </gbean>
+
+</module>
