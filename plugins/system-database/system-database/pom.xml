@@ -1,0 +1,161 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!--
+    Licensed to the Apache Software Foundation (ASF) under one or more
+    contributor license agreements.  See the NOTICE file distributed with
+    this work for additional information regarding copyright ownership.
+    The ASF licenses this file to You under the Apache License, Version 2.0
+    (the "License"); you may not use this file except in compliance with
+    the License.  You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+-->
+
+<!-- $Rev$ $Date$ -->
+
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+    <modelVersion>4.0.0</modelVersion>
+    
+    <parent>
+        <groupId>org.apache.geronimo.configs</groupId>
+        <artifactId>configs</artifactId>
+        <version>2.1-SNAPSHOT</version>
+        <relativePath>../pom.xml</relativePath>
+    </parent>
+    
+    <artifactId>system-database</artifactId>
+    <name>Geronimo Configs :: System Database</name>
+    <packaging>car</packaging>
+
+    <description>
+        System database plugin for geronimo.  This provides system databse together with its dependencies as one dependency.
+    </description>
+    
+    <dependencies>
+                
+        <dependency>
+            <groupId>org.apache.geronimo.configs</groupId>
+            <artifactId>connector-deployer</artifactId>
+            <version>${version}</version>
+            <type>car</type>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.geronimo.configs</groupId>
+            <artifactId>transaction</artifactId>
+            <version>${version}</version>
+            <type>car</type>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.geronimo.modules</groupId>
+            <artifactId>geronimo-derby</artifactId>
+            <version>${version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.geronimo.modules</groupId>
+            <artifactId>geronimo-timer</artifactId>
+            <version>${version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.derby</groupId>
+            <artifactId>derby</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.derby</groupId>
+            <artifactId>derbynet</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.derby</groupId>
+            <artifactId>derbyclient</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.tranql</groupId>
+            <artifactId>tranql-connector-derby-embed-xa</artifactId>
+            <type>rar</type>
+        </dependency>
+        
+        <dependency>
+            <groupId>org.apache.geronimo.configs</groupId>
+            <artifactId>connector-deployer</artifactId>
+            <version>${version}</version>
+            <type>car</type>
+            <scope>provided</scope>
+        </dependency>
+    </dependencies>
+    
+    <build>
+        <resources>
+            <resource>
+                <directory>${pom.basedir}/src/main/resources</directory>
+                <filtering>true</filtering>
+            </resource>
+        </resources>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.geronimo.plugins</groupId>
+                <artifactId>car-maven-plugin</artifactId>
+                <configuration>
+                    <deploymentConfigs>
+                        <deploymentConfig>${gbeanDeployer}</deploymentConfig>
+                        <deploymentConfig>${j2eeDeployer}</deploymentConfig>
+                        <deploymentConfig>${connectorDeployer}</deploymentConfig>
+                    </deploymentConfigs>
+                    <module>
+                        <groupId>org.tranql</groupId>
+                        <artifactId>tranql-connector-derby-embed-xa</artifactId>
+                        <type>rar</type>
+                    </module>
+                    <useMavenDependencies>
+                        <value>true</value>
+                        <includeVersion>true</includeVersion>
+                    </useMavenDependencies>
+                    <category>Geronimo Core</category>
+                     <instance>
+                        <plugin-artifact>
+                           <config-xml-content>
+                               <gbean name="DerbyNetwork">
+                                   <attribute name="host">#{ServerHostname}</attribute>
+                                   <attribute name="port">#{DerbyPort + PortOffset}</attribute>
+                               </gbean>
+                           </config-xml-content>
+                           <prerequisite>
+                               <id>
+                                   <groupId>org.apache.geronimo.configs</groupId>
+                                   <artifactId>transaction</artifactId>
+                               </id>
+                               <resource-type>Transaction</resource-type>
+                               <description>
+                                  Transaction configuration for Geronimo.
+                               </description>
+                            </prerequisite>
+                           <prerequisite>
+                             <id>
+                                 <groupId>org.apache.geronimo.configs</groupId>
+                                 <artifactId>connector-deployer</artifactId>
+                             </id>
+                               <resource-type>Deployment</resource-type>
+                               <description>
+                                  Connector deployer configuration for Geronimo.
+                               </description>
+                           </prerequisite>
+                        </plugin-artifact>
+                     </instance>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+    
+</project>
