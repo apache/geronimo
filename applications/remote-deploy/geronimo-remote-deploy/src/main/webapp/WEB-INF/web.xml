@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+   Licensed to the Apache Software Foundation (ASF) under one or more
+   contributor license agreements.  See the NOTICE file distributed with
+   this work for additional information regarding copyright ownership.
+   The ASF licenses this file to You under the Apache License, Version 2.0
+   (the "License"); you may not use this file except in compliance with
+   the License.  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.
+-->
+
+<web-app version="2.4"
+         xmlns="http://java.sun.com/xml/ns/j2ee"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd">
+
+    <display-name>Geronimo Remote Deployer</display-name>
+
+    <description>
+        Receives file upload requests from the deployer when running on a different machine
+        than the Geronimo server.
+    </description>
+
+    <servlet>
+        <display-name>File Upload</display-name>
+        <servlet-name>file-upload</servlet-name>
+        <servlet-class>org.apache.geronimo.deployment.remote.FileUploadServlet</servlet-class>
+    </servlet>
+
+    <servlet>
+        <display-name>404 Error</display-name>
+        <servlet-name>404-error</servlet-name>
+        <servlet-class>org.apache.geronimo.deployment.remote.BarfServlet</servlet-class>
+    </servlet>
+
+    <servlet-mapping>
+        <servlet-name>file-upload</servlet-name>
+        <url-pattern>/upload</url-pattern>
+    </servlet-mapping>
+
+    <security-constraint>
+        <web-resource-collection>
+            <web-resource-name>Upload Servlet</web-resource-name>
+            <url-pattern>/upload</url-pattern>
+            <http-method>POST</http-method>
+        </web-resource-collection>
+        <auth-constraint>
+            <role-name>admin</role-name>
+        </auth-constraint>
+    </security-constraint>
+
+    <login-config>
+        <auth-method>BASIC</auth-method>
+        <realm-name>Geronimo File Upload</realm-name>
+    </login-config>
+
+    <security-role>
+        <role-name>admin</role-name>
+    </security-role>
+</web-app>
