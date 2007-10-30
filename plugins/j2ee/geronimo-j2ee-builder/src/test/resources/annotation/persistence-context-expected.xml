@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+   Licensed to the Apache Software Foundation (ASF) under one or more
+   contributor license agreements.  See the NOTICE file distributed with
+   this work for additional information regarding copyright ownership.
+   The ASF licenses this file to You under the Apache License, Version 2.0
+   (the "License"); you may not use this file except in compliance with
+   the License.  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.
+-->
+
+<web-app xmlns="http://java.sun.com/xml/ns/javaee"
+   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+   xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
+   version="2.5" >
+
+    <display-name>Empty web application</display-name>
+    <description>Empty web application</description>
+    <persistence-context-ref>
+        <persistence-context-ref-name>PersistenceContext1</persistence-context-ref-name>
+        <persistence-context-type>Transaction</persistence-context-type>
+        <persistence-property>
+            <name>property1</name>
+            <value>value1</value>
+        </persistence-property>
+        <persistence-property>
+            <name>property2</name>
+            <value>value2</value>
+        </persistence-property>
+    </persistence-context-ref>
+    <persistence-context-ref>
+        <persistence-context-ref-name>PersistenceContext2</persistence-context-ref-name>
+        <persistence-unit-name>unitName2</persistence-unit-name>
+        <persistence-context-type>Extended</persistence-context-type>
+        <persistence-property>
+            <name>property3</name>
+            <value>value3</value>
+        </persistence-property>
+        <persistence-property>
+            <name>property4</name>
+            <value>value4</value>
+        </persistence-property>
+    </persistence-context-ref>
+    <persistence-context-ref>
+        <persistence-context-ref-name>PersistenceContext4</persistence-context-ref-name>
+        <persistence-unit-name>unitName5</persistence-unit-name>
+        <persistence-context-type>Transaction</persistence-context-type>
+        <persistence-property>
+            <name>property9</name>
+            <value>value9</value>
+        </persistence-property>
+        <persistence-property>
+            <name>property10</name>
+            <value>value10</value>
+        </persistence-property>
+        <injection-target>
+            <injection-target-class>org.apache.geronimo.j2ee.deployment.annotation.PersistenceContextAnnotationTest</injection-target-class>
+            <injection-target-name>annotatedMethod1</injection-target-name>
+        </injection-target>
+    </persistence-context-ref>
+    <persistence-context-ref>
+        <persistence-context-ref-name>org.apache.geronimo.j2ee.deployment.annotation.PersistenceContextAnnotationTest/annotatedMethod2</persistence-context-ref-name>
+        <persistence-context-type>Transaction</persistence-context-type>
+        <injection-target>
+            <injection-target-class>org.apache.geronimo.j2ee.deployment.annotation.PersistenceContextAnnotationTest</injection-target-class>
+            <injection-target-name>annotatedMethod2</injection-target-name>
+        </injection-target>
+    </persistence-context-ref>
+    <persistence-context-ref>
+        <persistence-context-ref-name>PersistenceContext3</persistence-context-ref-name>
+        <persistence-context-type>Transaction</persistence-context-type>
+        <persistence-property>
+            <name>property5</name>
+            <value>value5</value>
+        </persistence-property>
+        <persistence-property>
+            <name>property6</name>
+            <value>value6</value>
+        </persistence-property>
+        <injection-target>
+            <injection-target-class>org.apache.geronimo.j2ee.deployment.annotation.PersistenceContextAnnotationTest</injection-target-class>
+            <injection-target-name>annotatedField1</injection-target-name>
+        </injection-target>
+        <injection-target>
+            <injection-target-class>org.apache.geronimo.j2ee.deployment.annotation.PersistenceContextAnnotationTest</injection-target-class>
+            <injection-target-name>annotatedField2</injection-target-name>
+        </injection-target>
+    </persistence-context-ref>
+
+</web-app>
