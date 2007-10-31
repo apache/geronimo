@@ -20,11 +20,15 @@ package org.apache.geronimo.security.realm.providers;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
+import java.security.Principal;
 import java.security.cert.X509Certificate;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
@@ -67,17 +71,25 @@ public class CertificatePropertiesFileLoginModule implements LoginModule {
     private static Log log = LogFactory.getLog(CertificatePropertiesFileLoginModule.class);
     public final static String USERS_URI = "usersURI";
     public final static String GROUPS_URI = "groupsURI";
-
+    public final static List<String> supportedOptions = Arrays.asList(USERS_URI, GROUPS_URI);
+            
     private final Map users = new HashMap();
     final Map groups = new HashMap();
 
     private Subject subject;
     private CallbackHandler handler;
     private X500Principal principal;
+    private boolean loginSucceeded;
+    private final Set<Principal> allPrincipals = new HashSet<Principal>();
 
     public void initialize(Subject subject, CallbackHandler callbackHandler, Map sharedState, Map options) {
         this.subject = subject;
         this.handler = callbackHandler;
+        for(Object option: options.keySet()) {
+            if(!supportedOptions.contains(option)) {
+                log.warn("Ignoring option: "+option+". Not supported.");
+            }
+        }
         try {
             ServerInfo serverInfo = (ServerInfo) options.get(JaasLoginModuleUse.SERVERINFO_LM_OPTION);
             URI usersURI = new URI((String)options.get(USERS_URI));
@@ -132,7 +144,13 @@ public class CertificatePropertiesFileLoginModule implements LoginModule {
     }
 
 
+    /**
+     * This LoginModule is not to be ignored.  So, this method should never return false.
+     * @return true if authentication succeeds, or throw a LoginException such as FailedLoginException
+     *         if authentication fails
+     */
     public boolean login() throws LoginException {
+        loginSucceeded = false;
         Callback[] callbacks = new Callback[1];
 
         callbacks[0] = new CertificateCallback();
@@ -151,44 +169,65 @@ public class CertificatePropertiesFileLoginModule implements LoginModule {
         principal = certificate.getSubjectX500Principal();
 
         if(!users.containsKey(principal.getName())) {
+            // Clear out the private state
+            principal = null;
             throw new FailedLoginException();
         }
+
+        loginSucceeded = true;
         return true;
     }
 
+    /*
+     * @exception LoginException if login succeeded but commit failed.
+     *
+     * @return true if login succeeded and commit succeeded, or false if login failed but commit succeeded.
+     */
     public boolean commit() throws LoginException {
-        Set principals = subject.getPrincipals();
+        if(loginSucceeded) {
+            allPrincipals.add(principal);
+            String userName = (String) users.get(principal.getName());
+            allPrincipals.add(new GeronimoUserPrincipal(userName));
 
-        principals.add(principal);
-        String userName = (String) users.get(principal.getName());
-        principals.add(new GeronimoUserPrincipal(userName));
-
-        Iterator e = groups.keySet().iterator();
-        while (e.hasNext()) {
-            String groupName = (String) e.next();
-            Set users = (Set) groups.get(groupName);
-            Iterator iter = users.iterator();
-            while (iter.hasNext()) {
-                String user = (String) iter.next();
-                if (userName.equals(user)) {
-                    principals.add(new GeronimoGroupPrincipal(groupName));
-                    break;
+            Iterator e = groups.keySet().iterator();
+            while (e.hasNext()) {
+                String groupName = (String) e.next();
+                Set users = (Set) groups.get(groupName);
+                Iterator iter = users.iterator();
+                while (iter.hasNext()) {
+                    String user = (String) iter.next();
+                    if (userName.equals(user)) {
+                        allPrincipals.add(new GeronimoGroupPrincipal(groupName));
+                        break;
+                    }
                 }
             }
+            subject.getPrincipals().addAll(allPrincipals);
         }
-
-        return true;
+        // Clear out the private state
+        principal = null;
+        
+        return loginSucceeded;
     }
 
     public boolean abort() throws LoginException {
-        principal = null;
-
-        return true;
+        if(loginSucceeded) {
+            // Clear out the private state
+            principal = null;
+            allPrincipals.retainAll(Collections.EMPTY_SET);
+        }
+        return loginSucceeded;
     }
 
     public boolean logout() throws LoginException {
+        // Clear out the private state
+        loginSucceeded = false;
         principal = null;
-        //todo: should remove principals added by commit
+        if(!subject.isReadOnly()) {
+            // Remove principals added by this LoginModule
+            subject.getPrincipals().removeAll(allPrincipals);
+        }
+        allPrincipals.retainAll(Collections.EMPTY_SET);
         return true;
     }
 
