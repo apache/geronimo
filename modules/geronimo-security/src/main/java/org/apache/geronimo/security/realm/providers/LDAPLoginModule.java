@@ -183,6 +183,12 @@ public class LDAPLoginModule implements LoginModule {
                 groups.retainAll(Collections.EMPTY_SET);
                 throw new FailedLoginException();
             }
+        } catch (LoginException e) {
+            // Clear out the private state
+            cbUsername = null;
+            cbPassword = null;
+            groups.retainAll(Collections.EMPTY_SET);
+            throw e;
         } catch (Exception e) {
             // Clear out the private state
             cbUsername = null;
