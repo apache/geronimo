@@ -20,28 +20,7 @@
 
 <module xmlns="http://geronimo.apache.org/xml/ns/deployment-${geronimoSchemaVersion}">
 
-    <gbean name="CredentialStore" class="org.apache.geronimo.security.credentialstore.SimpleCredentialStoreImpl">
-        <xml-attribute name="credentialStore">
-            <credential-store xmlns="http://geronimo.apache.org/xml/ns/credentialstore-1.0">
-                <!-- uncomment this and the default subject in the jettty console plan gives you admin console permissions -->
-<!--
-                <realm name="geronimo-admin">
-                    <subject>
-                        <id>default</id>
-                        <credential>
-                            <type>org.apache.geronimo.security.credentialstore.NameCallbackHandler</type>
-                            <value>system</value>
-                        </credential>
-                        <credential>
-                            <type>org.apache.geronimo.security.credentialstore.PasswordCallbackHandler</type>
-                            <value>manager</value>
-                        </credential>
-                    </subject>
-                </realm>
--->
-            </credential-store>
-        </xml-attribute>
-    </gbean>
+    <gbean name="CredentialStore" class="org.apache.geronimo.security.credentialstore.SimpleCredentialStoreImpl"/>
 
 
     <!-- Default security realm using properties files -->

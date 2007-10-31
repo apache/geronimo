@@ -54,7 +54,6 @@
                 <configuration>
                     <deploymentConfigs>
                         <deploymentConfig>${gbeanDeployer}</deploymentConfig>
-                        <deploymentConfig>${j2eeDeployer}</deploymentConfig>
                     </deploymentConfigs>
                     <category>Security</category>
                     <useMavenDependencies>
