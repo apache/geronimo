@@ -2283,6 +2283,25 @@
         </profile>
 
         <profile>
+            <id>stage-bootstrap-former</id>
+
+            <activation>
+                <property>
+                    <name>stage</name>
+                    <value>bootstrap-former</value>
+                </property>
+            </activation>
+
+            <modules>
+                <module>repository</module>
+                <module>buildsupport</module>
+                <module>testsupport</module>
+                <module>modules</module>
+                <module>maven-plugins</module>
+            </modules>
+        </profile>
+
+        <profile>
             <id>stage-assemble</id>
 
             <activation>
