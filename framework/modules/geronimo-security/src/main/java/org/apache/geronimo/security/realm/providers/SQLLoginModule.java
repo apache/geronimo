@@ -356,7 +356,7 @@ public class SQLLoginModule implements LoginModule {
         cbPassword = null;
         groups.retainAll(Collections.EMPTY_SET);
         if(!subject.isReadOnly()) {
-            // Remove principles added by this LoginModule
+            // Remove principals added by this LoginModule
             subject.getPrincipals().removeAll(allPrincipals);
         }
         allPrincipals.retainAll(Collections.EMPTY_SET);
