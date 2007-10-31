@@ -30,7 +30,7 @@
     </parent>
 
     <artifactId>geronimo-deploy-jsr88-bootstrapper</artifactId>
-    <name>Geronimo :: Deploy :: JSR-88 Bootstrapper</name>
+    <name>Geronimo Modules :: Deploy :: JSR-88 Bootstrapper</name>
     
     <dependencies>
 

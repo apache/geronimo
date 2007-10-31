@@ -30,6 +30,6 @@
     </parent>
     
     <artifactId>geronimo-interceptor</artifactId>
-    <name>Geronimo :: Interceptor</name>
+    <name>Geronimo Modules :: Interceptor</name>
 
 </project>

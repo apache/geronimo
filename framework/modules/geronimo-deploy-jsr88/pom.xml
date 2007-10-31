@@ -30,7 +30,7 @@
     </parent>
 
     <artifactId>geronimo-deploy-jsr88</artifactId>
-    <name>Geronimo :: Deploy :: JSR-88</name>
+    <name>Geronimo Modules :: Deploy :: JSR-88</name>
     
     <dependencies>
         

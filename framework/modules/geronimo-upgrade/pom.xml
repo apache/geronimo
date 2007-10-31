@@ -30,7 +30,7 @@
     </parent>
 
     <artifactId>geronimo-upgrade</artifactId>
-    <name>Geronimo :: Upgrade</name>
+    <name>Geronimo Modules :: Upgrade</name>
     
     <dependencies>
 

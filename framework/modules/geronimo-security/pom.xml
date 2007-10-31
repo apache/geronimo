@@ -30,7 +30,7 @@
     </parent>
 
     <artifactId>geronimo-security</artifactId>
-    <name>Geronimo :: Security</name>
+    <name>Geronimo Modules :: Security</name>
     
     <dependencies>
         

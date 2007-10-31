@@ -30,7 +30,7 @@
     </parent>
 
     <artifactId>geronimo-naming</artifactId>
-    <name>Geronimo :: Naming</name>
+    <name>Geronimo Modules :: Naming</name>
     
     <dependencies>
         <dependency>

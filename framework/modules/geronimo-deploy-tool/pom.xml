@@ -30,7 +30,7 @@
     </parent>
 
     <artifactId>geronimo-deploy-tool</artifactId>
-    <name>Geronimo :: Deploy :: CLI Tool</name>
+    <name>Geronimo Modules :: Deploy :: CLI Tool</name>
     
     <dependencies>
         

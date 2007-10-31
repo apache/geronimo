@@ -30,7 +30,7 @@
     </parent>
 
     <artifactId>geronimo-jdbc</artifactId>
-    <name>Geronimo :: JDBC</name>
+    <name>Geronimo Modules :: JDBC</name>
     
     <description>Database driver that delegates to a DataSource from jndi.</description>
     

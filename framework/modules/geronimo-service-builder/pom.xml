@@ -29,7 +29,7 @@
     </parent>
 
     <artifactId>geronimo-service-builder</artifactId>
-    <name>Geronimo :: Service :: Builder</name>
+    <name>Geronimo Modules :: Service :: Builder</name>
     
     <dependencies>
 

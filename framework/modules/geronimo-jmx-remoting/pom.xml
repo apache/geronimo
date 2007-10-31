@@ -30,7 +30,7 @@
     </parent>
 
     <artifactId>geronimo-jmx-remoting</artifactId>
-    <name>Geronimo :: JMX Remoting</name>
+    <name>Geronimo Modules :: JMX Remoting</name>
     
     <description>
         Provides remote access to a Geronimo server using JSR 160 JMX Remoting.

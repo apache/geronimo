@@ -30,6 +30,6 @@
     </parent>
 
     <artifactId>geronimo-transformer</artifactId>
-    <name>Geronimo :: Transformer</name>
+    <name>Geronimo Modules :: Transformer</name>
 </project>
 
