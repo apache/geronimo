@@ -56,6 +56,7 @@
         <dependency>
             <groupId>org.apache.geronimo.testsupport</groupId>
             <artifactId>testsupport-selenium</artifactId>
+            <scope>provided</scope>
         </dependency>
     </dependencies>
 
