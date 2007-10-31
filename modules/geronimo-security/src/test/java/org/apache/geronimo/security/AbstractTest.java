@@ -18,6 +18,7 @@
 package org.apache.geronimo.security;
 
 import java.io.IOException;
+import java.security.cert.X509Certificate;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -38,6 +39,7 @@ import org.apache.geronimo.kernel.KernelFactory;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.security.jaas.ConfigurationEntryFactory;
 import org.apache.geronimo.security.jaas.GeronimoLoginConfiguration;
+import org.apache.geronimo.security.realm.providers.CertificateCallback;
 import org.apache.geronimo.system.serverinfo.BasicServerInfo;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
 import org.apache.geronimo.testsupport.TestSupport;
@@ -112,6 +114,22 @@ public abstract class AbstractTest extends TestSupport {
                     ((PasswordCallback) callbacks[i]).setPassword(password.toCharArray());
                 } else if (callbacks[i] instanceof NameCallback) {
                     ((NameCallback) callbacks[i]).setName(username);
+                }
+            }
+        }
+    }
+
+    public static class CertCallback implements CallbackHandler {
+        private final X509Certificate cert;
+
+        public CertCallback(X509Certificate cert) {
+            this.cert = cert;
+        }
+
+        public void handle(Callback[] callbacks) throws IOException, UnsupportedCallbackException {
+            for (int i = 0; i < callbacks.length; i++) {
+                if (callbacks[i] instanceof CertificateCallback) {
+                    ((CertificateCallback) callbacks[i]).setCertificate(cert);
                 }
             }
         }
