@@ -2278,7 +2278,6 @@
                 <module>testsupport</module>
                 <module>framework/modules</module>
                 <module>maven-plugins</module>
-                <module>framework/configs</module>
             </modules>
         </profile>
 
@@ -2312,6 +2311,7 @@
             </activation>
 
             <modules>
+              <module>framework/configs</module>
               <module>components</module>
               <module>plugins</module>
               <module>applications</module>
