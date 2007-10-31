@@ -23,9 +23,12 @@ import java.net.URI;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.Principal;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
@@ -66,6 +69,7 @@ public class PropertiesFileLoginModule implements LoginModule {
     public final static String GROUPS_URI = "groupsURI";
     public final static String DIGEST = "digest";
     public final static String ENCODING = "encoding";
+    public final static List<String> supportedOptions = Arrays.asList(USERS_URI, GROUPS_URI, DIGEST, ENCODING);
 
     private static Log log = LogFactory.getLog(PropertiesFileLoginModule.class);
     final Properties users = new Properties();
@@ -73,14 +77,21 @@ public class PropertiesFileLoginModule implements LoginModule {
     private String digest;
     private String encoding;
 
+    private boolean loginSucceeded;
     private Subject subject;
     private CallbackHandler handler;
     private String username;
     private String password;
+    private final Set<Principal> allPrincipals = new HashSet<Principal>();
 
     public void initialize(Subject subject, CallbackHandler callbackHandler, Map sharedState, Map options) {
         this.subject = subject;
         this.handler = callbackHandler;
+        for(Object option: options.keySet()) {
+            if(!supportedOptions.contains(option)) {
+                log.warn("Ignoring option: "+option+". Not supported.");
+            }
+        }
         try {
             ServerInfo serverInfo = (ServerInfo) options.get(JaasLoginModuleUse.SERVERINFO_LM_OPTION);
             final String users = (String) options.get(USERS_URI);
@@ -152,7 +163,13 @@ public class PropertiesFileLoginModule implements LoginModule {
     }
 
 
+    /**
+     * This LoginModule is not to be ignored.  So, this method should never return false.
+     * @return true if authentication succeeds, or throw a LoginException such as FailedLoginException
+     *         if authentication fails
+     */
     public boolean login() throws LoginException {
+        loginSucceeded = false;
         Callback[] callbacks = new Callback[2];
 
         callbacks[0] = new NameCallback("User name");
@@ -167,6 +184,9 @@ public class PropertiesFileLoginModule implements LoginModule {
         assert callbacks.length == 2;
         username = ((NameCallback) callbacks[0]).getName();
         if (username == null || username.equals("")) {
+            // Clear out the private state
+            username = null;
+            password = null;
             throw new FailedLoginException();
         }
         String realPassword = users.getProperty(username);
@@ -177,41 +197,65 @@ public class PropertiesFileLoginModule implements LoginModule {
         char[] entered = ((PasswordCallback) callbacks[1]).getPassword();
         password = entered == null ? null : new String(entered);
         if (!checkPassword(realPassword, password)) {
+            // Clear out the private state
+            username = null;
+            password = null;
             throw new FailedLoginException();
         }
+
+        loginSucceeded = true;
         return true;
     }
 
+    /*
+     * @exception LoginException if login succeeded but commit failed.
+     *
+     * @return true if login succeeded and commit succeeded, or false if login failed but commit succeeded.
+     */
     public boolean commit() throws LoginException {
-        Set<Principal> principals = subject.getPrincipals();
-
-        principals.add(new GeronimoUserPrincipal(username));
-
-        for (Map.Entry<String, Set<String>> entry : groups.entrySet()) {
-            String groupName = entry.getKey();
-            Set<String> users = entry.getValue();
-            for (String user : users) {
-                if (username.equals(user)) {
-                    principals.add(new GeronimoGroupPrincipal(groupName));
-                    break;
+        if(loginSucceeded) {
+            if(username != null) {
+                allPrincipals.add(new GeronimoUserPrincipal(username));
+            }
+            for (Map.Entry<String, Set<String>> entry : groups.entrySet()) {
+                String groupName = entry.getKey();
+                Set<String> users = entry.getValue();
+                for (String user : users) {
+                    if (username.equals(user)) {
+                        allPrincipals.add(new GeronimoGroupPrincipal(groupName));
+                        break;
+                    }
                 }
             }
+            subject.getPrincipals().addAll(allPrincipals);
         }
+        // Clear out the private state
+        username = null;
+        password = null;
 
-        return true;
+        return loginSucceeded;
     }
 
     public boolean abort() throws LoginException {
-        username = null;
-        password = null;
-
-        return true;
+        if(loginSucceeded) {
+            // Clear out the private state
+            username = null;
+            password = null;
+            allPrincipals.retainAll(Collections.EMPTY_SET);
+        }
+        return loginSucceeded;
     }
 
     public boolean logout() throws LoginException {
+        // Clear out the private state
+        loginSucceeded = false;
         username = null;
         password = null;
-        //todo: should remove principals added by commit
+        if(!subject.isReadOnly()) {
+            // Remove principals added by this LoginModule
+            subject.getPrincipals().removeAll(allPrincipals);
+        }
+        allPrincipals.retainAll(Collections.EMPTY_SET);
         return true;
     }
 
