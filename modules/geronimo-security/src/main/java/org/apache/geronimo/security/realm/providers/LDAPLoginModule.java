@@ -177,10 +177,6 @@ public class LDAPLoginModule implements LoginModule {
         try {
             boolean result = authenticate(cbUsername, cbPassword);
             if (!result) {
-                // Clear out the private state
-                cbUsername = null;
-                cbPassword = null;
-                groups.retainAll(Collections.EMPTY_SET);
                 throw new FailedLoginException();
             }
         } catch (LoginException e) {
