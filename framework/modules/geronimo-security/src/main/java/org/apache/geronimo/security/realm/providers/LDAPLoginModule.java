@@ -21,8 +21,11 @@ import java.io.IOException;
 import java.security.Principal;
 import java.text.MessageFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Hashtable;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -82,6 +85,10 @@ public class LDAPLoginModule implements LoginModule {
     private static final String ROLE_SEARCH_MATCHING = "roleSearchMatching";
     private static final String ROLE_SEARCH_SUBTREE = "roleSearchSubtree";
     private static final String USER_ROLE_NAME = "userRoleName";
+    public final static List<String> supportedOptions = Arrays.asList(INITIAL_CONTEXT_FACTORY, CONNECTION_URL,
+            CONNECTION_USERNAME, CONNECTION_PASSWORD, CONNECTION_PROTOCOL, AUTHENTICATION, USER_BASE,
+            USER_SEARCH_MATCHING, USER_SEARCH_SUBTREE, ROLE_BASE, ROLE_NAME, ROLE_SEARCH_MATCHING, ROLE_SEARCH_SUBTREE,
+            USER_ROLE_NAME);
 
     private String initialContextFactory;
     private String connectionURL;
@@ -105,11 +112,18 @@ public class LDAPLoginModule implements LoginModule {
     private boolean userSearchSubtreeBool = false;
     private boolean roleSearchSubtreeBool = false;
 
-    Set<Principal> groups = new HashSet<Principal>();
+    private boolean loginSucceeded;
+    private final Set<String> groups = new HashSet<String>();
+    private final Set<Principal> allPrincipals = new HashSet<Principal>();
 
     public void initialize(Subject subject, CallbackHandler callbackHandler, Map sharedState, Map options) {
         this.subject = subject;
         this.handler = callbackHandler;
+        for(Object option: options.keySet()) {
+            if(!supportedOptions.contains(option)) {
+                log.warn("Ignoring option: "+option+". Not supported.");
+            }
+        }
         initialContextFactory = (String) options.get(INITIAL_CONTEXT_FACTORY);
         connectionURL = (String) options.get(CONNECTION_URL);
         connectionUsername = (String) options.get(CONNECTION_USERNAME);
@@ -130,7 +144,13 @@ public class LDAPLoginModule implements LoginModule {
         roleSearchSubtreeBool = Boolean.valueOf(roleSearchSubtree);
     }
 
+    /**
+     * This LoginModule is not to be ignored.  So, this method should never return false.
+     * @return true if authentication succeeds, or throw a LoginException such as FailedLoginException
+     *         if authentication fails
+     */
     public boolean login() throws LoginException {
+        loginSucceeded = false;
         Callback[] callbacks = new Callback[2];
 
         callbacks[0] = new NameCallback("User name");
@@ -147,38 +167,80 @@ public class LDAPLoginModule implements LoginModule {
 
         if (cbUsername == null || "".equals(cbUsername)
                 || cbPassword == null || "".equals(cbPassword)) {
+            // Clear out the private state
+            cbUsername = null;
+            cbPassword = null;
+            groups.retainAll(Collections.EMPTY_SET);
             throw new FailedLoginException();
         }
 
         try {
             boolean result = authenticate(cbUsername, cbPassword);
             if (!result) {
+                // Clear out the private state
+                cbUsername = null;
+                cbPassword = null;
+                groups.retainAll(Collections.EMPTY_SET);
                 throw new FailedLoginException();
-            } else {
-                return true;
             }
         } catch (Exception e) {
+            // Clear out the private state
+            cbUsername = null;
+            cbPassword = null;
+            groups.retainAll(Collections.EMPTY_SET);
             throw (LoginException) new LoginException("LDAP Error").initCause(e);
         }
+
+        loginSucceeded = true;
+        return true;
     }
 
+    /*
+     * @exception LoginException if login succeeded but commit failed.
+     *
+     * @return true if login succeeded and commit succeeded, or false if login failed but commit succeeded.
+     */
     public boolean commit() throws LoginException {
-        Set<Principal> principals = subject.getPrincipals();
-        principals.add(new GeronimoUserPrincipal(cbUsername));
-        principals.addAll(groups);
-        return true;
+        if(loginSucceeded) {
+            if(cbUsername != null) {
+                allPrincipals.add(new GeronimoUserPrincipal(cbUsername));
+            }
+            for(String group: groups) {
+                allPrincipals.add(new GeronimoGroupPrincipal(group));
+            }
+            subject.getPrincipals().addAll(allPrincipals);
+        }
+
+        // Clear out the private state
+        cbUsername = null;
+        cbPassword = null;
+        groups.retainAll(Collections.EMPTY_SET);
+
+        return loginSucceeded;
     }
 
     public boolean abort() throws LoginException {
-        cbUsername = null;
-        cbPassword = null;
-        return true;
+        if(loginSucceeded) {
+            // Clear out the private state
+            cbUsername = null;
+            cbPassword = null;
+            groups.retainAll(Collections.EMPTY_SET);
+            allPrincipals.retainAll(Collections.EMPTY_SET);
+        }
+        return loginSucceeded;
     }
 
     public boolean logout() throws LoginException {
+        // Clear out the private state
+        loginSucceeded = false;
         cbUsername = null;
         cbPassword = null;
-        //todo: should remove principals added by commit
+        groups.retainAll(Collections.EMPTY_SET);
+        if(!subject.isReadOnly()) {
+            // Remove principals added by this LoginModule
+            subject.getPrincipals().removeAll(allPrincipals);
+        }
+        allPrincipals.retainAll(Collections.EMPTY_SET);
         return true;
     }
 
@@ -247,7 +309,7 @@ public class LDAPLoginModule implements LoginModule {
             //if authenticated add more roles
             roles = getRoles(context, dn, username, roles);
             for (String role : roles) {
-                groups.add(new GeronimoGroupPrincipal(role));
+                groups.add(role);
             }
         } catch (CommunicationException e) {
             close(context);
