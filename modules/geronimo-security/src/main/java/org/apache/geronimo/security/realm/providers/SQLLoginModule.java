@@ -26,7 +26,10 @@ import java.sql.Driver;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
@@ -92,6 +95,9 @@ public class SQLLoginModule implements LoginModule {
     public final static String DATABASE_POOL_APP_NAME = "dataSourceApplication";
     public final static String DIGEST = "digest";
     public final static String ENCODING = "encoding";
+    public final static List<String> supportedOptions = Arrays.asList(USER_SELECT, GROUP_SELECT, CONNECTION_URL,
+            USER, PASSWORD, DRIVER, DATABASE_POOL_NAME, DATABASE_POOL_APP_NAME, DIGEST, ENCODING);
+
     private String connectionURL;
     private Properties properties;
     private Driver driver;
@@ -101,15 +107,22 @@ public class SQLLoginModule implements LoginModule {
     private String digest;
     private String encoding;
 
+    private boolean loginSucceeded;
     private Subject subject;
     private CallbackHandler handler;
     private String cbUsername;
     private String cbPassword;
-    private final Set<Principal> groups = new HashSet<Principal>();
+    private final Set<String> groups = new HashSet<String>();
+    private final Set<Principal> allPrincipals = new HashSet<Principal>();
 
     public void initialize(Subject subject, CallbackHandler callbackHandler, Map sharedState, Map options) {
         this.subject = subject;
         this.handler = callbackHandler;
+        for(Object option: options.keySet()) {
+            if(!supportedOptions.contains(option)) {
+                log.warn("Ignoring option: "+option+". Not supported.");
+            }
+        }
         userSelect = (String) options.get(USER_SELECT);
         groupSelect = (String) options.get(GROUP_SELECT);
 
@@ -182,7 +195,13 @@ public class SQLLoginModule implements LoginModule {
         }
     }
 
+    /**
+     * This LoginModule is not to be ignored.  So, this method should never return false.
+     * @return true if authentication succeeds, or throw a LoginException such as FailedLoginException
+     *         if authentication fails
+     */
     public boolean login() throws LoginException {
+        loginSucceeded = false;
         Callback[] callbacks = new Callback[2];
 
         callbacks[0] = new NameCallback("User name");
@@ -259,7 +278,7 @@ public class SQLLoginModule implements LoginModule {
                             String groupName = result.getString(2);
 
                             if (cbUsername.equals(userName)) {
-                                groups.add(new GeronimoGroupPrincipal(groupName));
+                                groups.add(groupName);
                             }
                         }
                     } finally {
@@ -272,35 +291,75 @@ public class SQLLoginModule implements LoginModule {
                 conn.close();
             }
         } catch (LoginException e) {
+            // Clear out the private state
+            cbUsername = null;
+            cbPassword = null;
+            groups.retainAll(Collections.EMPTY_SET);
             throw e;
         } catch (SQLException sqle) {
+            // Clear out the private state
+            cbUsername = null;
+            cbPassword = null;
+            groups.retainAll(Collections.EMPTY_SET);
             throw (LoginException) new LoginException("SQL error").initCause(sqle);
         } catch (Exception e) {
+            // Clear out the private state
+            cbUsername = null;
+            cbPassword = null;
+            groups.retainAll(Collections.EMPTY_SET);
             throw (LoginException) new LoginException("Could not access datasource").initCause(e);
         }
 
+        loginSucceeded = true;
         return true;
     }
 
+    /*
+     * @exception LoginException if login succeeded but commit failed.
+     *
+     * @return true if login succeeded and commit succeeded, or false if login failed but commit succeeded.
+     */
     public boolean commit() throws LoginException {
-        Set<Principal> principals = subject.getPrincipals();
-        principals.add(new GeronimoUserPrincipal(cbUsername));
-        principals.addAll(groups);
+        if(loginSucceeded) {
+            if(cbUsername != null) {
+                allPrincipals.add(new GeronimoUserPrincipal(cbUsername));
+            }
+            for(String group: groups) {
+                allPrincipals.add(new GeronimoGroupPrincipal(group));
+            }
+            subject.getPrincipals().addAll(allPrincipals);
+        }
 
-        return true;
+        // Clear out the private state
+        cbUsername = null;
+        cbPassword = null;
+        groups.retainAll(Collections.EMPTY_SET);
+
+        return loginSucceeded;
     }
 
     public boolean abort() throws LoginException {
-        cbUsername = null;
-        cbPassword = null;
-
-        return true;
+        if(loginSucceeded) {
+            // Clear out the private state
+            cbUsername = null;
+            cbPassword = null;
+            groups.retainAll(Collections.EMPTY_SET);
+            allPrincipals.retainAll(Collections.EMPTY_SET);
+        }
+        return loginSucceeded;
     }
 
     public boolean logout() throws LoginException {
+        // Clear out the private state
+        loginSucceeded = false;
         cbUsername = null;
         cbPassword = null;
-        //todo: should remove principals put in by commit
+        groups.retainAll(Collections.EMPTY_SET);
+        if(!subject.isReadOnly()) {
+            // Remove principles added by this LoginModule
+            subject.getPrincipals().removeAll(allPrincipals);
+        }
+        allPrincipals.retainAll(Collections.EMPTY_SET);
         return true;
     }
 
