@@ -177,6 +177,8 @@
                     <instance>
                         <plugin-artifact>
                             <config-xml-content load="false"/>
+                            <artifact-alias server="client" key="org.apache.geronimo.configs/j2ee-system//car">org.apache.geronimo.configs/client-system/${version}/car</artifact-alias>
+                            <artifact-alias server="client" key="org.apache.geronimo.configs/j2ee-system/${version}/car">org.apache.geronimo.configs/client-system/${version}/car</artifact-alias>
                         </plugin-artifact>
                     </instance>
 

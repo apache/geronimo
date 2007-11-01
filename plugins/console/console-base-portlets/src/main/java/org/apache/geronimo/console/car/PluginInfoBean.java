@@ -44,7 +44,7 @@ public class PluginInfoBean {
     protected List<ArtifactType> obsoletes;
     protected List<String> sourceRepository;
     protected List<CopyFileType> copyFile;
-    protected ConfigXmlContentType configXmlContent;
+    protected List<ConfigXmlContentType> configXmlContent;
     protected List<PropertyType> artifactAlias;
     protected List<PropertyType> configSubstitution;
     protected String name;
@@ -89,11 +89,11 @@ public class PluginInfoBean {
         this.configSubstitution = configSubstitution;
     }
 
-    public ConfigXmlContentType getConfigXmlContent() {
+    public List<ConfigXmlContentType> getConfigXmlContent() {
         return configXmlContent;
     }
 
-    public void setConfigXmlContent(ConfigXmlContentType configXmlContent) {
+    public void setConfigXmlContent(List<ConfigXmlContentType> configXmlContent) {
         this.configXmlContent = configXmlContent;
     }
 

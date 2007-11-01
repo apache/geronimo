@@ -125,6 +125,28 @@
                                     </attribute>
                                 </gbean>
                             </config-xml-content>
+                            <config-xml-content server="offline">
+                                <gbean name="PersistenceUnitBuilder">
+                                    <attribute name="defaultPersistenceProviderClassName">org.apache.openjpa.persistence.PersistenceProviderImpl</attribute>
+                                    <attribute name="defaultPersistenceUnitProperties">
+                                        openjpa.Log=commons
+                                        openjpa.jdbc.SynchronizeMappings=buildSchema(ForeignKeys=true)
+                                        openjpa.jdbc.UpdateManager=operation-order
+                                        openjpa.Sequence=table(Table=OPENJPASEQ, Increment=100)
+                                    </attribute>
+                                    <attribute name="defaultEnvironment">
+                                        <environment xmlns="http://geronimo.apache.org/xml/ns/deployment-1.2">
+                                            <dependencies>
+                                                <dependency>
+                                                    <groupId>org.apache.geronimo.configs</groupId>
+                                                    <artifactId>openjpa</artifactId>
+                                                    <type>car</type>
+                                                </dependency>
+                                            </dependencies>
+                                        </environment>
+                                    </attribute>
+                                </gbean>
+                            </config-xml-content>
                         </plugin-artifact>
                     </instance>
                 </configuration>

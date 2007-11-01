@@ -345,7 +345,7 @@
                     </xs:documentation>
                 </xs:annotation>
             </xs:element>
-            <xs:element name="config-xml-content" type="list:config-xml-contentType" minOccurs="0"/>
+            <xs:element name="config-xml-content" type="list:config-xml-contentType" minOccurs="0" maxOccurs="unbounded"/>
             <xs:element name="artifact-alias" type="list:propertyType" minOccurs="0" maxOccurs="unbounded"/>
             <xs:element name="config-substitution" type="list:propertyType" minOccurs="0" maxOccurs="unbounded"/>
         </xs:sequence>
@@ -367,8 +367,15 @@
         <xs:attribute name="load" type="xs:boolean" default="true">
             <xs:annotation>
                 <xs:documentation>
-                    wether the module should be marked load true or false. If marked false it can still
+                    Whether the module should be marked load true or false. If marked false it can still
                     be started if other started modules depend on it.
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="server" type="xs:string" default="default">
+            <xs:annotation>
+                <xs:documentation>
+                    The "server", i.e. the named set of configuration files, this should be added to.
                 </xs:documentation>
             </xs:annotation>
         </xs:attribute>
@@ -387,6 +394,13 @@
                     <xs:annotation>
                         <xs:documentation>
                             key for key-value pair.
+                        </xs:documentation>
+                    </xs:annotation>
+                </xs:attribute>
+                <xs:attribute name="server" type="xs:string" default="default">
+                    <xs:annotation>
+                        <xs:documentation>
+                            The "server", i.e. the named set of configuration files, this should be added to.
                         </xs:documentation>
                     </xs:annotation>
                 </xs:attribute>

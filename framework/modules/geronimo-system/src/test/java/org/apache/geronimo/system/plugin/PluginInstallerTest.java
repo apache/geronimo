@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.Collections;
 import java.util.List;
+import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
 
 import junit.framework.TestCase;
@@ -81,7 +82,7 @@ public class PluginInstallerTest extends TestCase {
             public void execute(String consumerName, Runnable runnable) {
                 new Thread(runnable).start();
             }
-        }, null, null);
+        }, new ArrayList<ServerInstance>());
     }
 
     public void testParsing() throws Exception {

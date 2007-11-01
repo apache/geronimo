@@ -152,11 +152,12 @@ public class PluginMetadataGeneratorMojo
             if (instance.getConfigSubstitution().isEmpty()) {
                 instance.getConfigSubstitution().addAll(commonInstance.getConfigSubstitution());
             }
-            if ((instance.getConfigXmlContent() == null || instance.getConfigXmlContent().getGbean().isEmpty())
-                    && (commonInstance.getConfigXmlContent() != null && !commonInstance.getConfigXmlContent().getGbean().isEmpty())) {
-                instance.setConfigXmlContent(new ConfigXmlContentType());
-                instance.getConfigXmlContent().getGbean().addAll(commonInstance.getConfigXmlContent().getGbean());
-            }
+            //it doesn't make sense to copy a "generic" config.xml content into a specific module.
+//            if ((instance.getConfigXmlContent() == null || instance.getConfigXmlContent().getGbean().isEmpty())
+//                    && (commonInstance.getConfigXmlContent() != null && !commonInstance.getConfigXmlContent().getGbean().isEmpty())) {
+//                instance.setConfigXmlContent(new ConfigXmlContentType());
+//                instance.getConfigXmlContent().getGbean().addAll(commonInstance.getConfigXmlContent().getGbean());
+//            }
             if (instance.getCopyFile().isEmpty()) {
                 instance.getCopyFile().addAll(commonInstance.getCopyFile());
             }

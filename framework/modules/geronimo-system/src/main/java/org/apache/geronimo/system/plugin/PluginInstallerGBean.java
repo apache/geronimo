@@ -62,6 +62,9 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
+import org.apache.geronimo.gbean.ReferenceCollection;
+import org.apache.geronimo.gbean.ReferenceCollectionEvent;
+import org.apache.geronimo.gbean.ReferenceCollectionListener;
 import org.apache.geronimo.kernel.InvalidGBeanException;
 import org.apache.geronimo.kernel.config.ConfigurationData;
 import org.apache.geronimo.kernel.config.ConfigurationInfo;
@@ -80,8 +83,8 @@ import org.apache.geronimo.kernel.repository.Version;
 import org.apache.geronimo.kernel.repository.WritableListableRepository;
 import org.apache.geronimo.kernel.util.XmlUtil;
 import org.apache.geronimo.system.configuration.ConfigurationStoreUtil;
-import org.apache.geronimo.system.configuration.PluginAttributeStore;
 import org.apache.geronimo.system.plugin.model.ArtifactType;
+import org.apache.geronimo.system.plugin.model.ConfigXmlContentType;
 import org.apache.geronimo.system.plugin.model.CopyFileType;
 import org.apache.geronimo.system.plugin.model.DependencyType;
 import org.apache.geronimo.system.plugin.model.HashType;
@@ -91,7 +94,6 @@ import org.apache.geronimo.system.plugin.model.PluginListType;
 import org.apache.geronimo.system.plugin.model.PluginType;
 import org.apache.geronimo.system.plugin.model.PrerequisiteType;
 import org.apache.geronimo.system.plugin.model.PropertyType;
-import org.apache.geronimo.system.resolver.AliasedArtifactResolver;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
 import org.apache.geronimo.system.threads.ThreadPool;
 import org.apache.geronimo.util.encoders.Base64;
@@ -116,21 +118,35 @@ public class PluginInstallerGBean implements PluginInstaller {
     private final ConfigurationManager configManager;
     private final WritableListableRepository writeableRepo;
     private final ConfigurationStore configStore;
-    private final AliasedArtifactResolver artifactResolver;
     private final ServerInfo serverInfo;
     private final Map<Object, DownloadResults> asyncKeys;
     private final ThreadPool threadPool;
-    private final PluginAttributeStore attributeStore;
+    private final Map<String, ServerInstance> servers = new HashMap<String, ServerInstance>();
 
-    public PluginInstallerGBean(ConfigurationManager configManager, WritableListableRepository repository, ConfigurationStore configStore, ServerInfo serverInfo, ThreadPool threadPool, PluginAttributeStore store, AliasedArtifactResolver artifactResolver) {
+    public PluginInstallerGBean(ConfigurationManager configManager, WritableListableRepository repository, ConfigurationStore configStore, ServerInfo serverInfo, ThreadPool threadPool, Collection<ServerInstance> servers) {
         this.configManager = configManager;
         this.writeableRepo = repository;
         this.configStore = configStore;
         this.serverInfo = serverInfo;
         this.threadPool = threadPool;
         asyncKeys = Collections.synchronizedMap(new HashMap<Object, DownloadResults>());
-        attributeStore = store;
-        this.artifactResolver = artifactResolver;
+        for (ServerInstance instance: servers) {
+            this.servers.put(instance.getServerName(), instance);
+        }
+        if (servers instanceof ReferenceCollection) {
+            ((ReferenceCollection)servers).addReferenceCollectionListener(new ReferenceCollectionListener() {
+
+                public void memberAdded(ReferenceCollectionEvent event) {
+                    ServerInstance instance = (ServerInstance) event.getMember();
+                    PluginInstallerGBean.this.servers.put(instance.getServerName(), instance);
+                }
+
+                public void memberRemoved(ReferenceCollectionEvent event) {
+                    ServerInstance instance = (ServerInstance) event.getMember();
+                    PluginInstallerGBean.this.servers.remove(instance.getServerName());
+                }
+            });
+        }
     }
 
     /**
@@ -689,8 +705,12 @@ public class PluginInstallerGBean implements PluginInstaller {
         ArrayList<Dependency> missingPrereqs = new ArrayList<Dependency>();
         for (PrerequisiteType prereq : prereqs) {
             Artifact artifact = toArtifact(prereq.getId());
-            if (artifactResolver.queryArtifacts(artifact).length == 0) {
-                missingPrereqs.add(new Dependency(artifact,ImportType.ALL));
+            try {
+                if (getServerInstance("default").getArtifactResolver().queryArtifacts(artifact).length == 0) {
+                    missingPrereqs.add(new Dependency(artifact,ImportType.ALL));
+                }
+            } catch (NoServerInstanceException e) {
+                throw new RuntimeException("Invalid setup, no default server instance registered");
             }
         }
         return missingPrereqs.toArray(new Dependency[missingPrereqs.size()]);
@@ -715,7 +735,7 @@ public class PluginInstallerGBean implements PluginInstaller {
      *                                    are not accepted
      * @throws MissingDependencyException When a dependency cannot be located in any of the listed repositories
      */
-    private void downloadArtifact(Artifact configID, Map<Artifact, PluginType> metadata, List<String> repos, String username, String password, ResultsFileWriteMonitor monitor, Set<Artifact> soFar, Stack<Artifact> parentStack, boolean dependency) throws IOException, FailedLoginException, MissingDependencyException {
+    private void downloadArtifact(Artifact configID, Map<Artifact, PluginType> metadata, List<String> repos, String username, String password, ResultsFileWriteMonitor monitor, Set<Artifact> soFar, Stack<Artifact> parentStack, boolean dependency) throws IOException, FailedLoginException, MissingDependencyException, NoServerInstanceException {
         if (soFar.contains(configID)) {
             return; // Avoid endless work due to circular dependencies
         } else {
@@ -1716,28 +1736,56 @@ public class PluginInstallerGBean implements PluginInstaller {
      * If a plugin includes config.xml content, copy it into the attribute
      * store.
      */
-    private void installConfigXMLData(Artifact configID, PluginArtifactType pluginData) throws InvalidGBeanException, IOException {
-        if (configManager.isConfiguration(configID) && attributeStore != null) {
-            if (pluginData != null && pluginData.getConfigXmlContent() != null) {
-                attributeStore.setModuleGBeans(configID, pluginData.getConfigXmlContent().getGbean(), pluginData.getConfigXmlContent().isLoad());
+    private void installConfigXMLData(Artifact configID, PluginArtifactType pluginData) throws InvalidGBeanException, IOException, NoServerInstanceException {
+        if (configManager.isConfiguration(configID)) {
+            if (pluginData != null && !pluginData.getConfigXmlContent().isEmpty()) {
+                for (ConfigXmlContentType configXmlContent: pluginData.getConfigXmlContent()) {
+                    String serverName = configXmlContent.getServer();
+                    ServerInstance serverInstance = getServerInstance(serverName);
+                    serverInstance.getAttributeStore().setModuleGBeans(configID, configXmlContent.getGbean(), configXmlContent.isLoad());
+                }
             } else {
-                attributeStore.setModuleGBeans(configID, null, true);
+                getServerInstance("default").getAttributeStore().setModuleGBeans(configID, null, true);
             }
         }
-        if (!pluginData.getConfigSubstitution().isEmpty() && attributeStore != null) {
-            attributeStore.addConfigSubstitutions(toProperties(pluginData.getConfigSubstitution()));
+        if (!pluginData.getConfigSubstitution().isEmpty()) {
+            Map<String, Properties> propertiesMap = toPropertiesMap(pluginData.getConfigSubstitution());
+            for (Map.Entry<String, Properties> entry: propertiesMap.entrySet()) {
+                String serverName = entry.getKey();
+                ServerInstance serverInstance = getServerInstance(serverName);
+                serverInstance.getAttributeStore().addConfigSubstitutions(entry.getValue());
+            }
         }
-        if (!pluginData.getArtifactAlias().isEmpty() && artifactResolver != null) {
-            artifactResolver.addAliases(toProperties(pluginData.getArtifactAlias()));
+        if (!pluginData.getArtifactAlias().isEmpty()) {
+            Map<String, Properties> propertiesMap = toPropertiesMap(pluginData.getArtifactAlias());
+            for (Map.Entry<String, Properties> entry: propertiesMap.entrySet()) {
+                String serverName = entry.getKey();
+                ServerInstance serverInstance = getServerInstance(serverName);
+                serverInstance.getArtifactResolver().addAliases(entry.getValue());
+            }
         }
     }
 
-    private Properties toProperties(List<PropertyType> propertyTypes) {
-        Properties properties = new Properties();
+    private ServerInstance getServerInstance(String serverName) throws NoServerInstanceException {
+        ServerInstance serverInstance = servers.get(serverName);
+        if (serverInstance == null) {
+            throw new NoServerInstanceException("No server instance configuration set up for name " + serverName);
+        }
+        return serverInstance;
+    }
+
+    private Map<String, Properties> toPropertiesMap(List<PropertyType> propertyTypes) {
+        Map<String, Properties> propertiesMap = new HashMap<String, Properties>();
         for (PropertyType propertyType : propertyTypes) {
+            String serverName = propertyType.getServer();
+            Properties properties = propertiesMap.get(serverName);
+            if (properties == null) {
+                properties = new Properties();
+                propertiesMap.put(serverName, properties);
+            }
             properties.setProperty(propertyType.getKey(), propertyType.getValue());
         }
-        return properties;
+        return propertiesMap;
     }
 
     /**
@@ -1881,12 +1929,11 @@ public class PluginInstallerGBean implements PluginInstaller {
         infoFactory.addReference("ConfigStore", ConfigurationStore.class, "ConfigurationStore");
         infoFactory.addReference("ServerInfo", ServerInfo.class, "GBean");
         infoFactory.addReference("ThreadPool", ThreadPool.class, "GBean");
-        infoFactory.addReference("PluginAttributeStore", PluginAttributeStore.class, "AttributeStore");
-        infoFactory.addReference("ArtifactResolver", AliasedArtifactResolver.class, "ArtifactResolver");
+        infoFactory.addReference("ServerInstances", ServerInstance.class, "ServerInstance");
         infoFactory.addInterface(PluginInstaller.class);
 
         infoFactory.setConstructor(new String[]{"ConfigManager", "Repository", "ConfigStore",
-                "ServerInfo", "ThreadPool", "PluginAttributeStore", "ArtifactResolver"});
+                "ServerInfo", "ThreadPool", "ServerInstances"});
 
         GBEAN_INFO = infoFactory.getBeanInfo();
     }

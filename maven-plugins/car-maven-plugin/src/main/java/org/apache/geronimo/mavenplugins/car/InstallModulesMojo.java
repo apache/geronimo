@@ -33,6 +33,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.jar.JarFile;
 import java.util.zip.ZipEntry;
@@ -44,6 +45,7 @@ import org.apache.geronimo.kernel.config.ConfigurationManager;
 import org.apache.geronimo.kernel.config.InvalidConfigException;
 import org.apache.geronimo.kernel.config.KernelConfigurationManager;
 import org.apache.geronimo.kernel.config.NoSuchConfigException;
+import org.apache.geronimo.kernel.config.PersistentConfigurationList;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.ArtifactManager;
 import org.apache.geronimo.kernel.repository.DefaultArtifactManager;
@@ -52,17 +54,15 @@ import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.kernel.repository.FileWriteMonitor;
 import org.apache.geronimo.kernel.repository.Repository;
 import org.apache.geronimo.kernel.repository.WritableListableRepository;
-import org.apache.geronimo.system.configuration.LocalAttributeManager;
 import org.apache.geronimo.system.configuration.RepositoryConfigurationStore;
-import org.apache.geronimo.system.plugin.DownloadResults;
-import org.apache.geronimo.system.plugin.PluginInstallerGBean;
 import org.apache.geronimo.system.plugin.model.ArtifactType;
 import org.apache.geronimo.system.plugin.model.PluginArtifactType;
 import org.apache.geronimo.system.plugin.model.PluginListType;
 import org.apache.geronimo.system.plugin.model.PluginType;
+import org.apache.geronimo.system.plugin.PluginInstallerGBean;
+import org.apache.geronimo.system.plugin.DownloadResults;
 import org.apache.geronimo.system.repository.Maven2Repository;
 import org.apache.geronimo.system.resolver.AliasedArtifactResolver;
-import org.apache.geronimo.system.resolver.ExplicitDefaultArtifactResolver;
 import org.apache.geronimo.system.serverinfo.BasicServerInfo;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
 import org.apache.geronimo.system.threads.ThreadPool;
@@ -105,11 +105,11 @@ public class InstallModulesMojo
     private String targetConfigPath = null;
     private File targetConfigDirectory = null;
 
-    //TODO configure these in geronimo-plugin.xml
-    private String configFile = "var/config/config.xml";
-    private String configSubstitutionsFileName = "var/config/config-substitutions.properties";
-    private String configSubstitutionsPrefix = "org.apache.geronimo.configSubstitution";
-    private String artifactAliasesFileName = "var/config/artifact_aliases.properties";
+    /**
+     * ServerInstance specific in plugin configuration, to specify where config.xml and properties updates go.
+     * @parameter
+     */
+    private List<ServerInstance> servers;
 
     /**
      * Configuration to be installed specified as groupId/artifactId/version/type
@@ -184,31 +184,35 @@ public class InstallModulesMojo
 
         Kernel kernel = new BasicKernel("assembly");
         ServerInfo serverInfo = new BasicServerInfo(targetServerDirectory.getAbsolutePath(), false);
-        geronimoArtifactResolver = new ExplicitDefaultArtifactResolver(
-                artifactAliasesFileName,
-                artifactManager,
-                Collections.singleton(targetRepo),
-                serverInfo);
         ThreadPool threadPool = null;
-        LocalAttributeManager attributeStore = new LocalAttributeManager(configFile, configSubstitutionsFileName, configSubstitutionsPrefix, false, serverInfo);
-        attributeStore.load();
-        ConfigurationManager configurationManager = new KernelConfigurationManager(kernel,
-                Collections.singleton(targetStore),
-                attributeStore,
-                attributeStore,
-                artifactManager,
-                geronimoArtifactResolver,
-                Collections.singleton(targetRepo),
-                null,
-                getClass().getClassLoader());
-//
+        ConfigurationManager configurationManager = null;
+        Map<String, org.apache.geronimo.system.plugin.ServerInstance> servers = new HashMap<String, org.apache.geronimo.system.plugin.ServerInstance>();
+        for (ServerInstance serverInstance: this.servers) {
+            org.apache.geronimo.system.plugin.ServerInstance instance = serverInstance.getServerInstance(artifactManager, targetRepo, serverInfo, servers);
+            servers.put(instance.getServerName(), instance);
+            if ("default".equals(instance.getServerName())) {
+                configurationManager = new KernelConfigurationManager(kernel,
+                        Collections.singleton(targetStore),
+                        instance.getAttributeStore(),
+                        (PersistentConfigurationList)instance.getAttributeStore(),
+                        artifactManager,
+                        instance.getArtifactResolver(),
+                        Collections.singleton(targetRepo),
+                        null,
+                        getClass().getClassLoader());
+
+            }
+        }
+
+        if (configurationManager == null) {
+            throw new IllegalArgumentException("No default server instance set up");
+        }
         PluginInstallerGBean installer = new PluginInstallerGBean(configurationManager,
                 targetRepo,
                 targetStore,
                 serverInfo,
                 threadPool,
-                attributeStore,
-                geronimoArtifactResolver);
+                servers.values());
         DownloadResults downloadPoller = new DownloadResults();
 
         PluginListType pluginList = new PluginListType();
@@ -230,7 +234,9 @@ public class InstallModulesMojo
 
         installer.install(pluginList, null, null, downloadPoller);
         //ensure config.xml is saved.
-        attributeStore.save();
+        for (org.apache.geronimo.system.plugin.ServerInstance serverInstance: servers.values()) {
+            serverInstance.getAttributeStore().save();
+        }
         log.info("Installed plugins: ");
         for (Artifact artifact: downloadPoller.getInstalledConfigIDs()) {
             log.info("   " + artifact);

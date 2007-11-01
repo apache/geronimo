@@ -78,7 +78,7 @@
                     <category>Deployment</category>
                     <instance>
                         <plugin-artifact>
-                            <config-xml-content load="false"/>
+                            <config-xml-content server="jsr88"/>
                         </plugin-artifact>
                     </instance>
                 </configuration>

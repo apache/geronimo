@@ -136,6 +136,17 @@
                                     <attribute name="port">${OpenEJBPort + PortOffset}</attribute>
                                 </gbean>
                             </config-xml-content>
+                            <config-xml-content server="offline">
+                                <gbean name="EjbRefBuilder">
+                                    <attribute name="eeNamespaces">http://java.sun.com/xml/ns/j2ee,http://java.sun.com/xml/ns/javaee</attribute>
+                                </gbean>
+
+                                <gbean name="ClientEjbRefBuilder">
+                                    <attribute name="eeNamespaces">http://java.sun.com/xml/ns/j2ee,http://java.sun.com/xml/ns/javaee</attribute>
+                                    <attribute name="host">${ServerHostname}</attribute>
+                                    <attribute name="port">${OpenEJBPort + PortOffset}</attribute>
+                                </gbean>
+                            </config-xml-content>
                             <config-substitution key="OpenEJBPort">4201</config-substitution>
                         </plugin-artifact>
                     </instance>

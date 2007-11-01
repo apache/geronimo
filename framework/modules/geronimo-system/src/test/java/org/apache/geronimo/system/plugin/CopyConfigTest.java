@@ -162,7 +162,7 @@ public class CopyConfigTest extends TestCase {
     public void testCopyConfig() throws Exception {
         InputStream in = new ByteArrayInputStream(CONFIG.getBytes());
         PluginType pluginType = PluginXmlUtil.loadPluginMetadata(in);
-        List<GbeanType> gbeans = pluginType.getPluginArtifact().get(0).getConfigXmlContent().getGbean();
+        List<GbeanType> gbeans = pluginType.getPluginArtifact().get(0).getConfigXmlContent().get(0).getGbean();
         assertEquals(2, gbeans.size());
         GBeanOverride override = new GBeanOverride(gbeans.get(0), new JexlExpressionParser());
         String attributeValue = override.getAttribute("defaultEnvironment");
@@ -185,7 +185,8 @@ public class CopyConfigTest extends TestCase {
     public void testReadNoNS() throws Exception {
         Reader in = new StringReader(INSTANCE);
         PluginArtifactType instance = PluginXmlUtil.loadPluginArtifactMetadata(in);
-        assertEquals("DirectoryService", instance.getConfigXmlContent().getGbean().get(0).getName());
+        assertEquals("DirectoryService", instance.getConfigXmlContent().get(0).getGbean().get(0).getName());
+        assertEquals("default", instance.getConfigXmlContent().get(0).getServer());
     }
 
     private static final String INSTANCE2 = "                        <plugin-artifact>\n" +
@@ -253,7 +254,7 @@ public class CopyConfigTest extends TestCase {
     public void testXmlAttribute() throws Exception {
         Reader in = new StringReader(INSTANCE2);
         PluginArtifactType instance = PluginXmlUtil.loadPluginArtifactMetadata(in);
-        List<GbeanType> gbeans = instance.getConfigXmlContent().getGbean();
+        List<GbeanType> gbeans = instance.getConfigXmlContent().get(0).getGbean();
         assertEquals(3, gbeans.size());
         List contents = gbeans.get(0).getAttributeOrReference();
         assertEquals(2, contents.size());

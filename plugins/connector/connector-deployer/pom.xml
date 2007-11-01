@@ -129,6 +129,7 @@
                                     </attribute>
                                 </gbean>
                             </config-xml-content>
+                            <config-xml-content server="offline"/>
                         </plugin-artifact>
                     </instance>
                 </configuration>

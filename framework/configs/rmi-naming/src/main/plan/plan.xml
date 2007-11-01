@@ -74,13 +74,90 @@
         <reference name="ThreadPool">
             <name>DefaultThreadPool</name>
         </reference>
+        <references name="ServerInstances">
+            <pattern>
+                <name>DefaultServer</name>
+            </pattern>
+            <pattern>
+                <name>Offline</name>
+            </pattern>
+            <pattern>
+                <name>Client</name>
+            </pattern>
+            <pattern>
+                <name>Jsr88</name>
+            </pattern>
+        </references>
+    </gbean>
+
+    <gbean name="DefaultServer" class="org.apache.geronimo.system.plugin.ServerInstance">
+        <attribute name="serverName">default</attribute>
         <reference name="PluginAttributeStore">
             <name>AttributeManager</name>
         </reference>
         <reference name="ArtifactResolver">
-          <name>ArtifactResolver</name>
+            <name>ArtifactResolver</name>
         </reference>
     </gbean>
+
+    <gbean name="Offline" class="org.apache.geronimo.system.plugin.ServerInstance">
+        <attribute name="serverName">offline</attribute>
+        <reference name="PluginAttributeStore">
+            <name>OfflineAttributeManager</name>
+        </reference>
+        <reference name="ArtifactResolver">
+            <name>ArtifactResolver</name>
+        </reference>
+    </gbean>
+    <gbean name="OfflineAttributeManager" class="org.apache.geronimo.system.configuration.LocalAttributeManager">
+        <reference name="ServerInfo">
+            <name>ServerInfo</name>
+        </reference>
+        <attribute name="readOnly">true</attribute>
+        <attribute name="configFile">var/config/offline-deployer-config.xml</attribute>
+        <attribute name="substitutionsFile">var/config/config-substitutions.properties</attribute>
+        <attribute name="substitutionPrefix">org.apache.geronimo.config.substitution.</attribute>
+    </gbean>
+
+    <gbean name="Client" class="org.apache.geronimo.system.plugin.ServerInstance">
+        <attribute name="serverName">client</attribute>
+        <reference name="PluginAttributeStore">
+            <name>AttributeManager</name>
+        </reference>
+        <reference name="ArtifactResolver">
+            <name>ClientArtifactResolver</name>
+        </reference>
+    </gbean>
+    <gbean name="ClientArtifactResolver" class="org.apache.geronimo.system.resolver.ExplicitDefaultArtifactResolver">
+        <reference name="ArtifactManager">
+            <name>ArtifactManager</name>
+        </reference>
+        <reference name="Repositories"></reference>
+        <attribute name="versionMapLocation">var/config/client_artifact_aliases.properties</attribute>
+        <reference name="ServerInfo">
+            <name>ServerInfo</name>
+        </reference>
+    </gbean>
+
+    <gbean name="Jsr88" class="org.apache.geronimo.system.plugin.ServerInstance">
+        <attribute name="serverName">jsr88</attribute>
+        <reference name="PluginAttributeStore">
+            <name>Jsr88AttributeManager</name>
+        </reference>
+        <reference name="ArtifactResolver">
+            <name>ArtifactResolver</name>
+        </reference>
+    </gbean>
+    <gbean name="Jsr88AttributeManager" class="org.apache.geronimo.system.configuration.LocalAttributeManager">
+        <reference name="ServerInfo">
+            <name>ServerInfo</name>
+        </reference>
+        <attribute name="readOnly">true</attribute>
+        <attribute name="configFile">var/config/jsr88-configurer-config.xml</attribute>
+        <attribute name="substitutionsFile">var/config/config-substitutions.properties</attribute>
+        <attribute name="substitutionPrefix">org.apache.geronimo.config.substitution.</attribute>
+    </gbean>
+
 
     <gbean name="DownloadedPluginRepos" class="org.apache.geronimo.system.plugin.PluginRepositoryDownloader">
         <attribute name="repositoryList">http://geronimo.apache.org/plugins/plugin-repository-list-2.1.txt</attribute>

@@ -93,8 +93,8 @@ public class ExplicitDefaultArtifactResolver extends DefaultArtifactResolver imp
         File location = serverInfo == null? new File(versionMapLocation): serverInfo.resolveServer(versionMapLocation);
         if (!location.exists()) {
             File parent = location.getParentFile();
-            if (!parent.mkdirs()) {
-                throw new IOException("Could not create directory for artifact aliases at " + location);
+            if (!parent.exists() && !parent.mkdirs()) {
+                throw new IOException("Could not create directory for artifact aliases at " + parent);
             }
         }
         FileOutputStream in = new FileOutputStream(location);

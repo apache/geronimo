@@ -233,6 +233,14 @@
                                     <attribute name="eeNamespaces">http://java.sun.com/xml/ns/j2ee,http://java.sun.com/xml/ns/javaee</attribute>
                                 </gbean>
                             </config-xml-content>
+                            <config-xml-content server="offline">
+                                <gbean name="WebBuilder">
+                                    <attribute name="defaultNamespace">http://geronimo.apache.org/xml/ns/j2ee/web/jetty-2.0</attribute>
+                                </gbean>
+                                <gbean name="EnvironmentEntryBuilder">
+                                    <attribute name="eeNamespaces">http://java.sun.com/xml/ns/j2ee,http://java.sun.com/xml/ns/javaee</attribute>
+                                </gbean>
+                            </config-xml-content>
                         </plugin-artifact>
                     </instance>
                 </configuration>
