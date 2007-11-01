@@ -416,6 +416,18 @@ All rights reserved.
 
 
 =========================================================================
+==  AspectJ Notice                                                     ==
+=========================================================================
+
+This product includes software developed by
+  the Eclipse Foundation (http://www.eclipse.org/).
+
+AspectJ source code can be obtained from the AspectJ web site
+  http://www.eclipse.org/aspectj/
+
+
+
+=========================================================================
 ==  Backport Util Concurrent Notice                                    ==
 =========================================================================
 

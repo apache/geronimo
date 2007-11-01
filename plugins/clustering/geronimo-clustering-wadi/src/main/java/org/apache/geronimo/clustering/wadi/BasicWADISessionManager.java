@@ -34,6 +34,7 @@ import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
+import org.codehaus.wadi.aop.replication.AOPStackContext;
 import org.codehaus.wadi.core.assembler.StackContext;
 import org.codehaus.wadi.core.manager.Manager;
 import org.codehaus.wadi.core.manager.SessionMonitor;
@@ -77,13 +78,25 @@ public class BasicWADISessionManager implements GBeanLifecycle, SessionManager, 
         Dispatcher underlyingDisp = cluster.getCluster().getDispatcher();
         
         ServiceSpaceName serviceSpaceName = new ServiceSpaceName(configInfo.getServiceSpaceURI());
-        StackContext stackContext = new StackContext(cl,
+        StackContext stackContext;
+        if (configInfo.isDeltaReplication()) {
+            stackContext = new AOPStackContext(cl,
                 serviceSpaceName,
                 underlyingDisp,
                 configInfo.getSessionTimeoutSeconds(),
                 configInfo.getNumPartitions(),
                 configInfo.getSweepInterval(),
                 backingStrategyFactory);
+        } else {
+            stackContext = new StackContext(cl,
+                serviceSpaceName,
+                underlyingDisp,
+                configInfo.getSessionTimeoutSeconds(),
+                configInfo.getNumPartitions(),
+                configInfo.getSweepInterval(),
+                backingStrategyFactory);
+        }
+        stackContext.setDisableReplication(configInfo.isDisableReplication());
         stackContext.build();
 
         serviceSpace = stackContext.getServiceSpace();

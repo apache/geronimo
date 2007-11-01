@@ -23,6 +23,7 @@ import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.codehaus.wadi.replication.strategy.BackingStrategy;
 import org.codehaus.wadi.replication.strategy.BackingStrategyFactory;
 import org.codehaus.wadi.replication.strategy.RoundRobinBackingStrategyFactory;
+import org.codehaus.wadi.servicespace.ServiceSpace;
 
 /**
  * 
@@ -32,6 +33,7 @@ public class RoundRobinBackingStrategyFactoryGBean implements BackingStrategyFac
     private final int nbReplica;
     
     private BackingStrategyFactory strategyFactory;
+    private ServiceSpace serviceSpace;
     
     public RoundRobinBackingStrategyFactoryGBean(int nbReplica) {
         this.nbReplica = nbReplica;
@@ -39,6 +41,10 @@ public class RoundRobinBackingStrategyFactoryGBean implements BackingStrategyFac
 
     public BackingStrategy factory() {
         return strategyFactory.factory();
+    }
+    
+    public void setServiceSpace(ServiceSpace serviceSpace) {
+        strategyFactory.setServiceSpace(serviceSpace);
     }
 
     public void doFail() {

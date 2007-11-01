@@ -24,5 +24,4 @@ import org.apache.geronimo.clustering.Cluster;
  */
 public interface WADICluster extends Cluster {
     org.codehaus.wadi.group.Cluster getCluster();
-    
 }

@@ -28,9 +28,13 @@ public class WADISessionManagerConfigInfo implements Serializable {
     private final int sweepInterval;
     private final int numPartitions;
     private final int sessionTimeoutSeconds;
+    private final boolean disableReplication;
+    private final boolean deltaReplication;
     
     public WADISessionManagerConfigInfo(URI serviceSpaceURI, int sweepInterval, int numPartitions,
-            int sessionTimeoutSeconds) {
+            int sessionTimeoutSeconds,
+            boolean disableReplication,
+            boolean deltaReplication) {
         if (null == serviceSpaceURI) {
             throw new IllegalArgumentException("serviceSpaceURI is required");
         } else if (1 > sweepInterval) {
@@ -44,6 +48,8 @@ public class WADISessionManagerConfigInfo implements Serializable {
         this.sweepInterval = sweepInterval;
         this.numPartitions = numPartitions;
         this.sessionTimeoutSeconds = sessionTimeoutSeconds;
+        this.disableReplication = disableReplication;
+        this.deltaReplication = deltaReplication;
     }
 
     public int getNumPartitions() {
@@ -60,6 +66,14 @@ public class WADISessionManagerConfigInfo implements Serializable {
 
     public int getSweepInterval() {
         return sweepInterval;
+    }
+
+    public boolean isDisableReplication() {
+        return disableReplication;
+    }
+
+    public boolean isDeltaReplication() {
+        return deltaReplication;
     }
     
 }

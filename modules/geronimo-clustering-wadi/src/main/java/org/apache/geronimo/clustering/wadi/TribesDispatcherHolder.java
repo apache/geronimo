@@ -27,6 +27,8 @@ import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
+import org.codehaus.wadi.core.reflect.base.DeclaredMemberFilter;
+import org.codehaus.wadi.core.reflect.jdk.JDKClassIndexerRegistry;
 import org.codehaus.wadi.group.Dispatcher;
 import org.codehaus.wadi.group.DispatcherRegistry;
 import org.codehaus.wadi.group.MessageExchangeException;
@@ -72,7 +74,7 @@ public class TribesDispatcherHolder implements GBeanLifecycle, DispatcherHolder 
             Collections.EMPTY_SET);
         dispatcher.start();
         
-        adminServiceSpace = new AdminServiceSpace(dispatcher);
+        adminServiceSpace = new AdminServiceSpace(dispatcher, new JDKClassIndexerRegistry(new DeclaredMemberFilter()));
         
         registerCustomAdminServices();
         
