@@ -33,7 +33,7 @@ import org.apache.geronimo.testsupport.TestSupport;
 import org.testng.annotations.Test;
 
 public class TestMEJBSecurity extends TestSupport {
-
+       
     @Test
     public void testLogin() throws Exception {   
         Hashtable env = getEnvironment();
@@ -75,7 +75,7 @@ public class TestMEJBSecurity extends TestSupport {
         testFailure("", "");
     }
             
-    private void testFailure(String username, String password) throws Exception {
+    protected void testFailure(String username, String password) throws Exception {
         Hashtable env = getEnvironment();
         if (username != null) {
             env.put(Context.SECURITY_PRINCIPAL, username);
@@ -96,7 +96,7 @@ public class TestMEJBSecurity extends TestSupport {
         }
     }
         
-    private Hashtable getEnvironment() {
+    protected Hashtable getEnvironment() {
         Hashtable p = new Hashtable();
         
         p.put("java.naming.factory.initial", 
@@ -105,12 +105,15 @@ public class TestMEJBSecurity extends TestSupport {
               "127.0.0.1:4201");  
         
         // XXXX: this should not be necessary
-        p.put("openejb.authentication.realmName", "geronimo-admin");
+        String realmName = getRealmName();
+        if (realmName != null) {
+            p.put("openejb.authentication.realmName", realmName);
+        }
         
         return p;
     }
     
-    private Management getMEJB(Hashtable env) throws Exception { 
+    protected Management getMEJB(Hashtable env) throws Exception { 
         String jndiName = "ejb/mgmt/MEJBRemoteHome"; // should be "ejb/mgmt/MEJB"
         InitialContext ctx = new InitialContext(env);
         Object objref = ctx.lookup(jndiName);
@@ -118,6 +121,10 @@ public class TestMEJBSecurity extends TestSupport {
             PortableRemoteObject.narrow(objref,ManagementHome.class);
         Management mejb = home.create();
         return mejb;
+    }
+    
+    protected String getRealmName() {
+        return "geronimo-admin";
     }
     
 }
