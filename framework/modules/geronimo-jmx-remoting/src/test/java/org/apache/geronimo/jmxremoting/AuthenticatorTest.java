@@ -42,20 +42,63 @@ import junit.framework.TestCase;
 public class AuthenticatorTest extends TestCase {
     private static final String CONFIG_NAME = "testConfig";
     private Configuration oldConfiguration;
-    private String[] credentials;
     private Authenticator authenticator;
 
-    public void testAuthenticateWithValidPassword() {
+    public void testLogin() {
         try {
+            String[] credentials = new String[]{"system", "manager"};
             Subject s = authenticator.authenticate(credentials);
             Set principals = s.getPrincipals();
-            assertTrue(principals.contains(new MockPrincipal("username")));
+            assertTrue(principals.contains(new MockPrincipal("system")));
         } catch (SecurityException e) {
             e.printStackTrace();
             fail();
         }
     }
-
+    
+    public void testBadPasswordLogin() throws Exception {   
+        testFailure("system", "managerr");
+    }
+    
+    public void testBadUser() throws Exception {  
+        testFailure("doesnotexist", "managerr");
+    }
+    
+    public void testNullPasswordLogin() throws Exception {        
+        testFailure("system", null);
+    }
+    
+    public void testNullUserLogin() throws Exception {        
+        testFailure(null, "manager");
+    }
+    
+    public void testNullCredentialsLogin() throws Exception {        
+        testFailure(null, null);
+    }
+    
+    public void testEmptyCredentialsLogin() throws Exception {        
+        testFailure("", "");
+    }
+    
+    private void testFailure(String usernane, String password) throws Exception {
+        try {
+            String[] credentials = new String[]{usernane, password};
+            Subject s = authenticator.authenticate(credentials);
+            fail("Did not throw expected exception");
+        } catch (SecurityException e) {
+            // expected
+        }
+    }
+    
+    public void testNoCredentialsLogin() {
+        try {
+            Subject s = authenticator.authenticate(null);
+            fail("Did not throw expected exception");
+        } catch (Exception e) {
+            // expected
+        }
+    }
+    
     protected void setUp() throws Exception {
         super.setUp();
         try {
@@ -66,7 +109,6 @@ public class AuthenticatorTest extends TestCase {
         Configuration loginConfig = new MockConfiguration();
         Configuration.setConfiguration(loginConfig);
 
-        credentials = new String[]{"username", "password"};
         authenticator = new Authenticator(CONFIG_NAME, getClass().getClassLoader());
     }
 
@@ -81,7 +123,7 @@ public class AuthenticatorTest extends TestCase {
                 fail();
             }
             Map<String, Object> map = new HashMap<String, Object>();
-            map.put("username", "password");
+            map.put("system", "manager");
             AppConfigurationEntry entry = new AppConfigurationEntry(MockModule.class.getName(), AppConfigurationEntry.LoginModuleControlFlag.REQUIRED, map);
             return new AppConfigurationEntry[] {entry};
         }
