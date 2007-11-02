@@ -2212,28 +2212,6 @@
             </modules>
         </profile>
 
-        <profile>
-            <id>stage-former</id>
-
-            <activation>
-                <property>
-                    <name>stage</name>
-                    <value>former</value>
-                </property>
-            </activation>
-
-            <modules>
-                <module>repository</module>
-                <module>buildsupport</module>
-                <module>testsupport</module>
-                <module>modules</module>
-                <module>maven-plugins</module>
-                <module>applications</module>
-                <module>configs</module>
-                <module>plugins</module>
-                <module>assemblies</module>
-            </modules>
-        </profile>
 
         <!--
         NOTE: This profile is used to enable plugin prefixes for easy command-line usage, as in:
@@ -2289,25 +2267,6 @@
                 <module>buildsupport</module>
                 <module>testsupport</module>
                 <module>framework/modules</module>
-                <module>maven-plugins</module>
-            </modules>
-        </profile>
-
-        <profile>
-            <id>stage-bootstrap-former</id>
-
-            <activation>
-                <property>
-                    <name>stage</name>
-                    <value>bootstrap-former</value>
-                </property>
-            </activation>
-
-            <modules>
-                <module>repository</module>
-                <module>buildsupport</module>
-                <module>testsupport</module>
-                <module>modules</module>
                 <module>maven-plugins</module>
             </modules>
         </profile>
