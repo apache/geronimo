@@ -205,7 +205,7 @@ public class LocalAttributeManager implements PluginAttributeStore, PersistentCo
         return gbean.applyOverrides(data, configName, gbeanName, classLoader);
     }
 
-    public void setModuleGBeans(Artifact moduleName, List<GbeanType> gbeans, boolean load) throws InvalidGBeanException {
+    public void setModuleGBeans(Artifact moduleName, List<GbeanType> gbeans, boolean load, String condition) throws InvalidGBeanException {
         if (readOnly) {
             return;
         }
@@ -217,6 +217,7 @@ public class LocalAttributeManager implements PluginAttributeStore, PersistentCo
             }
         }
         configuration.setLoad(load);
+        configuration.setCondition(condition);
         log.info("Added gbeans for module: " + moduleName + " load: " + load);
         attributeChanged();
     }

@@ -90,8 +90,8 @@
                     </dependencies>
                     <instance>
                         <plugin-artifact>
-                            <config-xml-content server="default"/>
-                            <config-xml-content server="offline"/>
+                            <config-xml-content server="default" condition="props['org.apache.geronimo.jaxws.provider'] == 'axis2'"/>
+                            <config-xml-content server="offline" condition="props['org.apache.geronimo.jaxws.provider'] == 'axis2'"/>
                         </plugin-artifact>
                     </instance>
                 </configuration>

@@ -36,7 +36,7 @@ public interface PluginAttributeStore extends ManageableAttributeStore {
      * Adds a group of settings to the attribute store.  This is used by e.g.
      * the plugin installer to add the settings needed for a new plugin.
      */
-    public void setModuleGBeans(Artifact moduleName, List<GbeanType> gbeans, boolean load) throws InvalidGBeanException;
+    public void setModuleGBeans(Artifact moduleName, List<GbeanType> gbeans, boolean load, String condition) throws InvalidGBeanException;
 
     void addConfigSubstitutions(Properties properties);
 }

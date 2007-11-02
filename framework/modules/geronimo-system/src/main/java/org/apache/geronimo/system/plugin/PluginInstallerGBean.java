@@ -1742,10 +1742,10 @@ public class PluginInstallerGBean implements PluginInstaller {
                 for (ConfigXmlContentType configXmlContent: pluginData.getConfigXmlContent()) {
                     String serverName = configXmlContent.getServer();
                     ServerInstance serverInstance = getServerInstance(serverName);
-                    serverInstance.getAttributeStore().setModuleGBeans(configID, configXmlContent.getGbean(), configXmlContent.isLoad());
+                    serverInstance.getAttributeStore().setModuleGBeans(configID, configXmlContent.getGbean(), configXmlContent.isLoad(), configXmlContent.getCondition());
                 }
             } else {
-                getServerInstance("default").getAttributeStore().setModuleGBeans(configID, null, true);
+                getServerInstance("default").getAttributeStore().setModuleGBeans(configID, null, true, null);
             }
         }
         if (!pluginData.getConfigSubstitution().isEmpty()) {

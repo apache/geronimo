@@ -105,22 +105,8 @@
                     </dependencies>
                     <instance>
                         <plugin-artifact>
-                            <config-xml-content>
-                                <gbean name="Axis2ModuleBuilderExtension">
-                                    <attribute name="listener">?name=#{webcontainer}</attribute>
-                                    <attribute name="defaultEnvironment">
-                                      <environment xmlns="http://geronimo.apache.org/xml/ns/deployment-1.2">
-                                        <dependencies>
-                                            <dependency>
-                                                <groupId>org.apache.geronimo.configs</groupId>
-                                                <artifactId>#{webcontainerName}</artifactId>
-                                                <type>car</type>
-                                            </dependency>
-                                        </dependencies>
-                                      </environment>
-                                     </attribute>
-                                </gbean>
-                            </config-xml-content>
+                            <config-xml-content server="default" condition="props['org.apache.geronimo.jaxws.provider'] == 'axis2'"/>
+                            <config-xml-content server="offline" condition="props['org.apache.geronimo.jaxws.provider'] == 'axis2'"/>
                         </plugin-artifact>
                     </instance>
                 </configuration>
