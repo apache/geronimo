@@ -18,8 +18,13 @@
 package org.apache.geronimo.security.realm.providers;
 
 import java.io.IOException;
+import java.security.Principal;
 import java.security.cert.Certificate;
 import java.security.cert.X509Certificate;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import javax.security.auth.Subject;
@@ -36,17 +41,10 @@ import org.apache.commons.logging.LogFactory;
 
 
 /**
- * An example LoginModule that reads a list of credentials and group from a file on disk.
+ * An example LoginModule that authenticates based on a client certificate.
  * Authentication is provided by the SSL layer supplying the client certificate.
- * All we check is that it is present.  The
- * file should be formatted using standard Java properties syntax.  Expects
+ * All we check is that it is present. Expects
  * to be run by a GenericSecurityRealm (doesn't work on its own).
- *
- * The usersURI property file should have lines of the form token=certificatename
- * where certificate name is X509Certificate.getSubjectX500Principal().getName()
- *
- * The groupsURI property file should have lines of the form group=token1,token2,...
- * where the tokens were associated to the certificate names in the usersURI properties file.
  *
  * This login module checks security credentials so the lifecycle methods must return true to indicate success
  * or throw LoginException to indicate failure.
@@ -54,17 +52,32 @@ import org.apache.commons.logging.LogFactory;
  * @version $Rev$ $Date$
  */
 public class CertificateChainLoginModule implements LoginModule {
+    private static Log log = LogFactory.getLog(CertificateChainLoginModule.class);
 
+    public final static List<String> supportedOptions = Arrays.asList();
     private Subject subject;
     private CallbackHandler handler;
     private X500Principal principal;
+    private boolean loginSucceeded;
+    private final Set<Principal> allPrincipals = new HashSet<Principal>();
 
     public void initialize(Subject subject, CallbackHandler callbackHandler, Map sharedState, Map options) {
         this.subject = subject;
         this.handler = callbackHandler;
+        for(Object option: options.keySet()) {
+            if(!supportedOptions.contains(option)) {
+                log.warn("Ignoring option: "+option+". Not supported.");
+            }
+        }
     }
 
+    /**
+     * This LoginModule is not to be ignored.  So, this method should never return false.
+     * @return true if authentication succeeds, or throw a LoginException such as FailedLoginException
+     *         if authentication fails
+     */
     public boolean login() throws LoginException {
+        loginSucceeded = false;
         Callback[] callbacks = new Callback[1];
 
         callbacks[0] = new CertificateChainCallback();
@@ -86,27 +99,45 @@ public class CertificateChainLoginModule implements LoginModule {
         //TODO actually validate chain
         principal = ((X509Certificate)certificateChain[0]).getSubjectX500Principal();
 
+        loginSucceeded = true;
         return true;
     }
 
+    /*
+     * @exception LoginException if login succeeded but commit failed.
+     *
+     * @return true if login succeeded and commit succeeded, or false if login failed but commit succeeded.
+     */
     public boolean commit() throws LoginException {
-        Set principals = subject.getPrincipals();
-
-        principals.add(principal);
-        principals.add(new GeronimoUserPrincipal(principal.getName()));
-
-        return true;
+        if(loginSucceeded) {
+            allPrincipals.add(principal);
+            allPrincipals.add(new GeronimoUserPrincipal(principal.getName()));
+            subject.getPrincipals().addAll(allPrincipals);
+        }
+        // Clear out the private state
+        principal = null;
+        
+        return loginSucceeded;
     }
 
     public boolean abort() throws LoginException {
-        principal = null;
-
-        return true;
+        if(loginSucceeded) {
+            // Clear out the private state
+            principal = null;
+            allPrincipals.retainAll(Collections.EMPTY_SET);
+        }
+        return loginSucceeded;
     }
 
     public boolean logout() throws LoginException {
+        // Clear out the private state
+        loginSucceeded = false;
         principal = null;
-
+        if(!subject.isReadOnly()) {
+            // Remove principals added by this LoginModule
+            subject.getPrincipals().removeAll(allPrincipals);
+        }
+        allPrincipals.retainAll(Collections.EMPTY_SET);
         return true;
     }
 
