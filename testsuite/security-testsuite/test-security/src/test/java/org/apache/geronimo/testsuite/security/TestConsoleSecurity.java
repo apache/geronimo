@@ -23,36 +23,37 @@ package org.apache.geronimo.testsuite.security;
 import org.apache.geronimo.testsupport.SeleniumTestSupport;
 import org.testng.annotations.Test;
 
-public class TestSecurity extends SeleniumTestSupport {
+public class TestConsoleSecurity extends SeleniumTestSupport {
     
     @Test
     public void testLogin() throws Exception {
-        selenium.open("/demo/protect/hello.html");
-        selenium.type("j_username", "george");
-        selenium.type("j_password", "bone");
+        selenium.open("/console");
+        assertFalse(selenium.isTextPresent("Deploy New"));
+        selenium.type("j_username", "system");
+        selenium.type("j_password", "manager");
         selenium.click("submit");
         selenium.waitForPageToLoad("30000");
-        assertEquals("hello world.", selenium.getText("xpath=/html"));
+        assertTrue(selenium.isTextPresent("Deploy New"));
     }
 
     @Test
     public void testBadPasswordLogin() throws Exception {   
-        testFailure("george", "bonee");
+        testFailure("system", "managerr");
     }
     
     @Test
     public void testBadUser() throws Exception {  
-        testFailure("doesnotexist", "bonee");
+        testFailure("doesnotexist", "managerr");
     }
     
     @Test
     public void testNullPasswordLogin() throws Exception {        
-        testFailure("george", null);
+        testFailure("system", null);
     }
     
     @Test
     public void testNullUserLogin() throws Exception {        
-        testFailure(null, "bone");
+        testFailure(null, "manager");
     }
     
     @Test
@@ -66,7 +67,7 @@ public class TestSecurity extends SeleniumTestSupport {
     }
     
     private void testFailure(String username, String password) throws Exception {
-        selenium.open("/demo/protect/hello.html");
+        selenium.open("/console");
         if (username != null) {
             selenium.type("j_username", username);
         }
@@ -76,7 +77,7 @@ public class TestSecurity extends SeleniumTestSupport {
         selenium.click("submit");
         selenium.waitForPageToLoad("30000");
         
-        assertTrue(selenium.isTextPresent("Authentication ERROR"));
+        assertTrue(selenium.isTextPresent("Invalid Username and"));
     }
     
 }
