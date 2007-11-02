@@ -38,7 +38,6 @@
         </reference>
     </gbean>
 
-
     <!-- default WAR container using Jetty -->
     <gbean name="JettyWebContainer" class="org.apache.geronimo.jetty6.JettyContainerImpl">
         <attribute name="jettyHome">var/jetty</attribute>
@@ -72,10 +71,6 @@
             <name>DefaultThreadPool</name>
         </reference>
         <attribute name="maxThreads">50</attribute>
-        <!--<attribute name="minThreads">25</attribute>-->
-        <!--<attribute name="lowThreads">25</attribute>-->
-        <!--<attribute name="maxIdleTimeMs">30000</attribute>-->
-        <!--<attribute name="lowThreadsMaxIdleTimeMs">800</attribute>-->
     </gbean>
 
     <gbean name="JettyAJP13Connector" class="org.apache.geronimo.jetty6.connector.AJP13Connector">
@@ -88,7 +83,6 @@
             <name>DefaultThreadPool</name>
         </reference>
         <attribute name="maxThreads">50</attribute>
-        <!--<attribute name="minThreads">10</attribute>-->
     </gbean>
 
     <!-- DONT USE THIS ONE -->

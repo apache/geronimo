@@ -14,96 +14,94 @@
     See the License for the specific language governing permissions and
     limitations under the License.-->
 <module xmlns="http://geronimo.apache.org/xml/ns/deployment-1.2">
-  <!--Deployer used to process modules and plans-->
-  <environment>
-    <moduleId>
-      <groupId>org.apache.geronimo.configs</groupId>
-      <artifactId>geronimo-gbean-deployer-bootstrap</artifactId>
-      <version>2.1-SNAPSHOT</version>
-      <type>car</type>
-    </moduleId>
-    <dependencies>
-      <dependency>
-        <groupId>org.apache.geronimo.modules</groupId>
-        <artifactId>geronimo-deployment</artifactId>
-        <version>2.1-SNAPSHOT</version>
-        <type>jar</type>
-        <import>classes</import>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.geronimo.modules</groupId>
-        <artifactId>geronimo-common</artifactId>
-        <version>2.1-SNAPSHOT</version>
-        <type>jar</type>
-        <import>classes</import>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.geronimo.specs</groupId>
-        <artifactId>geronimo-stax-api_1.0_spec</artifactId>
-        <version>1.0</version>
-        <type>jar</type>
-        <import>classes</import>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.geronimo.modules</groupId>
-        <artifactId>geronimo-service-builder</artifactId>
-        <version>2.1-SNAPSHOT</version>
-        <type>jar</type>
-        <import>classes</import>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.xmlbeans</groupId>
-        <artifactId>xmlbeans</artifactId>
-        <version>2.3.0</version>
-        <type>jar</type>
-        <import>classes</import>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.geronimo.modules</groupId>
-        <artifactId>geronimo-deploy-config</artifactId>
-        <version>2.1-SNAPSHOT</version>
-        <type>jar</type>
-        <import>classes</import>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.geronimo.specs</groupId>
-        <artifactId>geronimo-javaee-deployment_1.1MR3_spec</artifactId>
-        <version>1.0</version>
-        <type>jar</type>
-        <import>classes</import>
-      </dependency>
-    </dependencies>
-    <hidden-classes/>
-    <non-overridable-classes/>
-  </environment>
-  <gbean name="Deployer" class="org.apache.geronimo.deployment.Deployer">
-    <reference name="Store">
-      <!--<pattern><gbean-name>*:j2eeType=ConfigurationStore,*</gbean-name></pattern>-->
-    </reference>
-    <reference name="Builders"></reference>
-    <reference name="Watchers"></reference>
-  </gbean>
-  <!--Builder for handling plans defining Geronimo modules-->
-  <gbean name="ServiceBuilder" class="org.apache.geronimo.deployment.service.ServiceConfigBuilder">
-    <!--<attribute name="defaultParentId">geronimo/j2ee-server/2.1-SNAPSHOT/car</attribute>-->
-    <reference name="Repository">
-      <!--<pattern><gbean-name>geronimo.maven:name=Repository</gbean-name></pattern>-->
-      <!--<pattern><gbean-name>geronimo.server:name=Repository,*</gbean-name></pattern>-->
-    </reference>
-    <reference name="ServiceBuilders">
-      <name>GBeanBuilder</name>
-    </reference>
-  </gbean>
-  <!--NamespaceDriveBuilder for handling gbeans-->
-  <gbean name="GBeanBuilder" class="org.apache.geronimo.deployment.service.GBeanBuilder">
-    <reference name="XmlAttributeBuilders">
-      <!--<module>*</module>-->
-      <!--<name>*</name>-->
-    </reference>
-    <reference name="XmlReferenceBuilders">
-      <!--<module>*</module>-->
-      <!--<name>*</name>-->
-    </reference>
-  </gbean>
-  <!--<gbean name="EnvironmentBuilder" class="org.apache.geronimo.deployment.service.EnvironmentBuilder"/>-->
+    <!--Deployer used to process modules and plans-->
+<!--
+    <environment>
+        <moduleId>
+            <groupId>org.apache.geronimo.configs</groupId>
+            <artifactId>geronimo-gbean-deployer-bootstrap</artifactId>
+            <version>2.1-SNAPSHOT</version>
+            <type>car</type>
+        </moduleId>
+        <dependencies>
+            <dependency>
+                <groupId>org.apache.geronimo.modules</groupId>
+                <artifactId>geronimo-deployment</artifactId>
+                <version>2.1-SNAPSHOT</version>
+                <type>jar</type>
+                <import>classes</import>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.geronimo.modules</groupId>
+                <artifactId>geronimo-common</artifactId>
+                <version>2.1-SNAPSHOT</version>
+                <type>jar</type>
+                <import>classes</import>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.geronimo.specs</groupId>
+                <artifactId>geronimo-stax-api_1.0_spec</artifactId>
+                <version>1.0</version>
+                <type>jar</type>
+                <import>classes</import>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.geronimo.modules</groupId>
+                <artifactId>geronimo-service-builder</artifactId>
+                <version>2.1-SNAPSHOT</version>
+                <type>jar</type>
+                <import>classes</import>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.xmlbeans</groupId>
+                <artifactId>xmlbeans</artifactId>
+                <version>2.3.0</version>
+                <type>jar</type>
+                <import>classes</import>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.geronimo.modules</groupId>
+                <artifactId>geronimo-deploy-config</artifactId>
+                <version>2.1-SNAPSHOT</version>
+                <type>jar</type>
+                <import>classes</import>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.geronimo.specs</groupId>
+                <artifactId>geronimo-javaee-deployment_1.1MR3_spec</artifactId>
+                <version>1.0</version>
+                <type>jar</type>
+                <import>classes</import>
+            </dependency>
+        </dependencies>
+        <hidden-classes/>
+        <non-overridable-classes/>
+    </environment>
+-->
+    <gbean name="Deployer" class="org.apache.geronimo.deployment.Deployer">
+        <reference name="Store">
+        </reference>
+        <reference name="Builders"></reference>
+        <reference name="Watchers"></reference>
+    </gbean>
+
+    <!--Builder for handling plans defining Geronimo modules-->
+    <gbean name="ServiceBuilder" class="org.apache.geronimo.deployment.service.ServiceConfigBuilder">
+        <reference name="Repository">
+        </reference>
+        <reference name="ServiceBuilders">
+            <name>GBeanBuilder</name>
+        </reference>
+    </gbean>
+
+    <!--NamespaceDriveBuilder for handling gbeans-->
+    <gbean name="GBeanBuilder" class="org.apache.geronimo.deployment.service.GBeanBuilder">
+        <reference name="XmlAttributeBuilders">
+        </reference>
+        <reference name="XmlReferenceBuilders">
+        </reference>
+    </gbean>
+
+    <!-- environment builder is installed in code because it is needed to deploy this module. -->
+    <!--<gbean name="EnvironmentBuilder" class="org.apache.geronimo.deployment.service.EnvironmentBuilder"/>-->
 </module>

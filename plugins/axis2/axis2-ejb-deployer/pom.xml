@@ -34,7 +34,7 @@
     <packaging>car</packaging>
 
     <description>Geronimo JAX-WS EJB deployer for Apache Axis2</description>
-    
+
     <dependencies>
 
         <dependency>
@@ -46,7 +46,7 @@
 
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
-             <artifactId>jaxws-ejb-deployer</artifactId>
+            <artifactId>jaxws-ejb-deployer</artifactId>
             <version>${version}</version>
             <type>car</type>
         </dependency>
@@ -63,10 +63,10 @@
             <type>car</type>
             <version>${version}</version>
             <scope>runtime</scope>
-       </dependency>
+        </dependency>
 
     </dependencies>
-    
+
     <build>
         <plugins>
             <plugin>
@@ -78,35 +78,43 @@
                     </useMavenDependencies>
                     <category>Web Services</category>
                     <dependencies>
-                      <dependency>
-                        <groupId>org.apache.geronimo.configs</groupId>
-                        <artifactId>jaxws-ejb-deployer</artifactId>
-                        <type>car</type>
-                      </dependency>
-                      <dependency>
-                        <groupId>org.apache.geronimo.configs</groupId>
-                        <artifactId>axis2-deployer</artifactId>
-                        <type>car</type>
-                        <import>classes</import>
-                      </dependency>
-                      <dependency>
-                        <groupId>org.apache.geronimo.configs</groupId>
-                        <artifactId>axis2-ejb</artifactId>
-                        <type>car</type>
-                        <import>classes</import>
-                      </dependency>
-                      <dependency>
-                        <groupId>org.apache.geronimo.modules</groupId>
-                        <artifactId>geronimo-axis2-ejb-builder</artifactId>
-                        <version>2.1-SNAPSHOT</version>
-                        <type>jar</type>
-                        <import>classes</import>
-                      </dependency>
+                        <dependency>
+                            <groupId>org.apache.geronimo.configs</groupId>
+                            <artifactId>jaxws-ejb-deployer</artifactId>
+                            <type>car</type>
+                        </dependency>
+                        <dependency>
+                            <groupId>org.apache.geronimo.configs</groupId>
+                            <artifactId>axis2-deployer</artifactId>
+                            <type>car</type>
+                            <import>classes</import>
+                        </dependency>
+                        <dependency>
+                            <groupId>org.apache.geronimo.configs</groupId>
+                            <artifactId>axis2-ejb</artifactId>
+                            <type>car</type>
+                            <import>classes</import>
+                        </dependency>
+                        <dependency>
+                            <groupId>org.apache.geronimo.modules</groupId>
+                            <artifactId>geronimo-axis2-ejb-builder</artifactId>
+                            <version>2.1-SNAPSHOT</version>
+                            <type>jar</type>
+                            <import>classes</import>
+                        </dependency>
                     </dependencies>
                     <instance>
                         <plugin-artifact>
-                            <config-xml-content server="default" condition="props['org.apache.geronimo.jaxws.provider'] == 'axis2'"/>
-                            <config-xml-content server="offline" condition="props['org.apache.geronimo.jaxws.provider'] == 'axis2'"/>
+                            <config-xml-content server="default" condition="props['org.apache.geronimo.jaxws.provider'] == 'axis2'">
+                                <gbean name="Axis2ModuleBuilderExtension">
+                                    <attribute name="listener">?name=#{webcontainer}</attribute>
+                                </gbean>
+                            </config-xml-content>
+                            <config-xml-content server="offline" condition="props['org.apache.geronimo.jaxws.provider'] == 'axis2'">
+                                <gbean name="Axis2ModuleBuilderExtension">
+                                    <attribute name="listener">?name=#{webcontainer}</attribute>
+                                </gbean>
+                            </config-xml-content>
                         </plugin-artifact>
                     </instance>
                 </configuration>

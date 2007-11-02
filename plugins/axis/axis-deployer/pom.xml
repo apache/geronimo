@@ -116,9 +116,6 @@
                     <instance>
                         <plugin-artifact>
                             <config-xml-content>
-                                <gbean name="AxisServiceRefBuilder">
-                                    <attribute name="eeNamespaces">http://java.sun.com/xml/ns/j2ee,http://java.sun.com/xml/ns/javaee</attribute>
-                                </gbean>
                                 <gbean name="AxisModuleBuilderExtension">
                                     <attribute name="listener">?name=#{webcontainer}</attribute>
                                     <attribute name="defaultEnvironment">
@@ -135,9 +132,6 @@
                                 </gbean>
                             </config-xml-content>
                             <config-xml-content server="offline">
-                                <gbean name="AxisServiceRefBuilder">
-                                    <attribute name="eeNamespaces">http://java.sun.com/xml/ns/j2ee,http://java.sun.com/xml/ns/javaee</attribute>
-                                </gbean>
                                 <gbean name="AxisModuleBuilderExtension">
                                     <attribute name="listener">?name=#{webcontainer}</attribute>
                                     <attribute name="defaultEnvironment">
