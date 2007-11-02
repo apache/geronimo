@@ -24,6 +24,7 @@ import java.net.URL;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.sql.ResultSet;
 
 import javax.sql.DataSource;
 
@@ -46,33 +47,51 @@ public class DatabaseInitializationGBean {
             Statement s = c.createStatement();
             try {
                 try {
-                    s.execute(testSQL);
-                    //script does not need to be run
+                    boolean pass = false;
+                    // SQL statement in testSQL can be used to determine if the sql script in path attribute should be executed.
+                    // This attribute can be left blank or skipped altogether.
+                    if(testSQL != null && !testSQL.trim().equals("")) {
+                        ResultSet rs = s.executeQuery(testSQL);
+                        // passes sql test when there are one or more elements
+                        while(rs.next()) {
+                            pass = true;
+                            break;
+                        }
+                    } else {
+                        // allow the script to excute if user does not want to run a test SQL
+                        pass = true;
+                    }
+
+                    if(pass) {
+                        //script needs to be run
+                        URL sourceURL = classLoader.getResource(path);
+                        InputStream ins = sourceURL.openStream();
+                        BufferedReader r = new BufferedReader(new InputStreamReader(ins));
+                        try {
+                            String line;
+                            StringBuffer buf = new StringBuffer();
+                            while ((line = r.readLine()) != null) {
+                                line = line.trim();
+                                if (!line.startsWith("--") && line.length() > 0) {
+                                    buf.append(line).append(" ");
+                                    if (line.endsWith(";")) {
+                                        int size = buf.length();
+                                        buf.delete(size - 2, size - 1);
+                                        String sql = buf.toString();
+                                        s.execute(sql);
+                                        buf = new StringBuffer();
+                                    }
+                                }
+                            }
+                        } finally {
+                            r.close();
+                        }
+                    } else {
+                        //script does not need to be run
+                    }
                     return;
                 } catch (SQLException e) {
-                    //script needs to be run
-                }
-                URL sourceURL = classLoader.getResource(path);
-                InputStream ins = sourceURL.openStream();
-                BufferedReader r = new BufferedReader(new InputStreamReader(ins));
-                try {
-                    String line;
-                    StringBuffer buf = new StringBuffer();
-                    while ((line = r.readLine()) != null) {
-                        line = line.trim();
-                        if (!line.startsWith("--") && line.length() > 0) {
-                            buf.append(line).append(" ");
-                            if (line.endsWith(";")) {
-                                int size = buf.length();
-                                buf.delete(size - 2, size - 1);
-                                String sql = buf.toString();
-                                s.execute(sql);
-                                buf = new StringBuffer();
-                            }
-                        }
-                    }
-                } finally {
-                    r.close();
+
                 }
             } finally {
                 s.close();
@@ -87,7 +106,7 @@ public class DatabaseInitializationGBean {
 
     static {
         GBeanInfoBuilder infoBuilder = GBeanInfoBuilder.createStatic(DatabaseInitializationGBean.class, "GBean");
-        infoBuilder.addAttribute("testSQL", String.class, true);
+        infoBuilder.addAttribute("testSQL", String.class, false);
         infoBuilder.addAttribute("path", String.class, true);
         infoBuilder.addReference("DataSource", ConnectionFactorySource.class, NameFactory.JCA_MANAGED_CONNECTION_FACTORY);
         infoBuilder.addAttribute("classLoader", ClassLoader.class, false);
