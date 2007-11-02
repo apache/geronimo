@@ -50,7 +50,7 @@ public class Authenticator implements JMXAuthenticator, NotificationListener {
 
     public Subject authenticate(Object o) throws SecurityException {
         if (!(o instanceof String[])) {
-            throw new IllegalArgumentException("Expected String[2], got " + o == null ? null : o.getClass().getName());
+            throw new IllegalArgumentException("Expected String[2], got " + (o == null ? null : o.getClass().getName()));
         }
         String[] params = (String[]) o;
         if (params.length != 2) {
