@@ -15,12 +15,12 @@
     limitations under the License.-->
 <!--$Rev$ $Date$-->
 <module xmlns="http://geronimo.apache.org/xml/ns/deployment-1.2">
-  <!--The SharedLib Service-->
-  <gbean name="SharedLib" class="org.apache.geronimo.system.sharedlib.SharedLib">
-    <attribute name="classesDirs">var/shared/classes</attribute>
-    <attribute name="libDirs">var/shared/lib</attribute>
-    <reference name="ServerInfo">
-      <name>ServerInfo</name>
-    </reference>
-  </gbean>
+    <!--The SharedLib Service-->
+    <gbean name="SharedLib" class="org.apache.geronimo.system.sharedlib.SharedLib">
+        <attribute name="classesDirs">var/shared/classes</attribute>
+        <attribute name="libDirs">var/shared/lib</attribute>
+        <reference name="ServerInfo">
+            <name>ServerInfo</name>
+        </reference>
+    </gbean>
 </module>

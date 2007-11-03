@@ -86,11 +86,6 @@
                 <groupId>org.apache.geronimo.plugins</groupId>
                 <artifactId>car-maven-plugin</artifactId>
                 <configuration>
-<!--
-                    <deploymentConfigs>
-                        <deploymentConfig>${gbeanDeployer}</deploymentConfig>
-                    </deploymentConfigs>
--->
                     <category>Persistence</category>
                     <useMavenDependencies>
                         <value>true</value>

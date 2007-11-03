@@ -29,9 +29,9 @@
     </gbean>
 
     <gbean name="ExtendedEntityManagerRegistry" class="org.apache.geronimo.openejb.EntityManagerRegistryImpl">
-    	<dependency>
-    		<name>OpenEjbSystem</name>
-    	</dependency>
+        <dependency>
+            <name>OpenEjbSystem</name>
+        </dependency>
     </gbean>
 
     <gbean name="DefaultStatelessContainer" class="org.apache.geronimo.openejb.EjbContainer">
@@ -64,14 +64,6 @@
         </reference>
     </gbean>
 
-    <!--<gbean name="DefaultMDBContainer" class="org.apache.geronimo.openejb.EjbContainer">-->
-        <!--<attribute name="id">Default MDB Container</attribute>-->
-        <!--<attribute name="type">MESSAGE</attribute>-->
-        <!--<reference name="OpenEjbSystem">-->
-            <!--<name>OpenEjbSystem</name>-->
-        <!--</reference>-->
-    <!--</gbean>-->
-
     <gbean name="EJBNetworkService" class="org.apache.geronimo.openejb.EjbDaemonGBean">
         <attribute name="port">${PlanOpenEJBPort}</attribute>
         <attribute name="host">${PlanServerHostname}</attribute>
@@ -80,11 +72,5 @@
             <name>OpenEjbSystem</name>
         </dependency>
     </gbean>
-<!--
-    <gbean name="ejb/mgmt/MEJB" class="org.apache.geronimo.openejb.MEJBGBean">
-        <reference name="StatelessContainer">
-            <name>DefaultStatelessContainer</name>
-        </reference>
-    </gbean>
--->
+
 </module>

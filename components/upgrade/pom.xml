@@ -48,12 +48,21 @@
             <version>${version}</version>
         </dependency>
 
-        <dependency>
-            <groupId>org.apache.geronimo.modules</groupId>
-            <artifactId>geronimo-service-builder</artifactId>
-            <version>${version}</version>
-        </dependency>
-        
     </dependencies>
     
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.geronimo.plugins</groupId>
+                <artifactId>car-maven-plugin</artifactId>
+                <configuration>
+                    <category>Deployment</category>
+                    <useMavenDependencies>
+                        <value>true</value>
+                        <includeVersion>true</includeVersion>
+                    </useMavenDependencies>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 </project>
