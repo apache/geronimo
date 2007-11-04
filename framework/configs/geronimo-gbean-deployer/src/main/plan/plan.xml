@@ -40,6 +40,8 @@
         </reference>
     </gbean>
 
+    <gbean name="JavaBeanXmlAttributeBuilder" class="org.apache.geronimo.deployment.service.JavaBeanXmlAttributeBuilder"/>
+
     <!-- environment builder is installed in code because it is needed to deploy this module. -->
     <!--<gbean name="EnvironmentBuilder" class="org.apache.geronimo.deployment.service.EnvironmentBuilder"/>-->
 </module>
