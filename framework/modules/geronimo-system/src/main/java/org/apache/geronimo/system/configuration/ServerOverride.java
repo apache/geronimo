@@ -16,9 +16,7 @@
  */
 package org.apache.geronimo.system.configuration;
 
-import java.io.PrintWriter;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -26,9 +24,8 @@ import java.util.Map;
 import org.apache.geronimo.kernel.InvalidGBeanException;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.system.configuration.condition.JexlExpressionParser;
-import org.w3c.dom.Element;
-import org.w3c.dom.NodeList;
-import org.w3c.dom.Document;
+import org.apache.geronimo.system.plugin.model.AttributesType;
+import org.apache.geronimo.system.plugin.model.ModuleType;
 
 /**
  * @version $Rev$ $Date$
@@ -39,20 +36,15 @@ class ServerOverride {
     public ServerOverride() {
     }
 
-    public ServerOverride(Element element, JexlExpressionParser expressionParser) throws InvalidGBeanException {
-        NodeList configs = element.getElementsByTagName("module");
-        for (int i = 0; i < configs.getLength(); i++) {
-            Element configurationElement = (Element) configs.item(i);
-            ConfigurationOverride configuration = new ConfigurationOverride(configurationElement, expressionParser);
-            addConfiguration(configuration);
+    public ServerOverride(AttributesType attributes, JexlExpressionParser expressionParser) throws InvalidGBeanException {
+        for (ModuleType moduleType: attributes.getModule()) {
+            ConfigurationOverride module = new ConfigurationOverride(moduleType, expressionParser);
+            addConfiguration(module);
         }
-
         // The config.xml file in 1.0 use configuration instead of module
-        configs = element.getElementsByTagName("configuration");
-        for (int i = 0; i < configs.getLength(); i++) {
-            Element configurationElement = (Element) configs.item(i);
-            ConfigurationOverride configuration = new ConfigurationOverride(configurationElement, expressionParser);
-            addConfiguration(configuration);
+        for (ModuleType moduleType: attributes.getConfiguration()) {
+            ConfigurationOverride module = new ConfigurationOverride(moduleType, expressionParser);
+            addConfiguration(module);
         }
     }
 
@@ -61,7 +53,7 @@ class ServerOverride {
     }
 
     public ConfigurationOverride getConfiguration(Artifact configurationName, boolean create) {
-        ConfigurationOverride configuration = (ConfigurationOverride) configurations.get(configurationName);
+        ConfigurationOverride configuration = configurations.get(configurationName);
         if (create && configuration == null) {
             configuration = new ConfigurationOverride(configurationName, true);
             configurations.put(configurationName, configuration);
@@ -82,16 +74,25 @@ class ServerOverride {
     }
 
     public Artifact[] queryConfigurations(Artifact query) {
-        List list = new ArrayList();
-        for (Iterator it = configurations.keySet().iterator(); it.hasNext();) {
-            Artifact test = (Artifact) it.next();
-            if(query.matches(test)) {
+        List<Artifact> list = new ArrayList<Artifact>();
+        for (Artifact test : configurations.keySet()) {
+            if (query.matches(test)) {
                 list.add(test);
             }
         }
-        return (Artifact[]) list.toArray(new Artifact[list.size()]);
+        return list.toArray(new Artifact[list.size()]);
     }
 
+    public AttributesType writeXml() {
+        AttributesType attributes = new AttributesType();
+        for (ConfigurationOverride module: configurations.values()) {
+            ModuleType moduleType = module.writeXml();
+            attributes.getModule().add(moduleType);
+        }
+        return attributes;
+    }
+
+/*
     public Element writeXml(Document doc) {
         Element root = doc.createElement("attributes");
         root.setAttribute("xmlns", "http://geronimo.apache.org/xml/ns/attributes-1.2");
@@ -111,4 +112,5 @@ class ServerOverride {
         }
         return root;
     }
+*/
 }

@@ -16,45 +16,32 @@
  */
 package org.apache.geronimo.system.configuration;
 
-import junit.framework.TestCase;
-import org.apache.geronimo.gbean.AbstractNameQuery;
-import org.apache.geronimo.gbean.ReferencePatterns;
-import org.apache.geronimo.gbean.GBeanData;
-import org.apache.geronimo.kernel.repository.Artifact;
-import org.apache.geronimo.kernel.util.XmlUtil;
-import org.apache.geronimo.system.configuration.condition.JexlExpressionParser;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.NodeList;
-
-import javax.management.MalformedObjectNameException;
-import javax.management.ObjectName;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.OutputKeys;
-import javax.xml.transform.stream.StreamResult;
-import javax.xml.transform.dom.DOMSource;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.InputStream;
+import java.io.Reader;
+import java.io.StringReader;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Iterator;
+import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
-import java.util.HashMap;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import javax.management.MalformedObjectNameException;
+import javax.management.ObjectName;
+
+import junit.framework.TestCase;
+import org.apache.geronimo.gbean.AbstractNameQuery;
+import org.apache.geronimo.gbean.GBeanData;
+import org.apache.geronimo.gbean.ReferencePatterns;
+import org.apache.geronimo.kernel.repository.Artifact;
+import org.apache.geronimo.system.configuration.condition.JexlExpressionParser;
+import org.apache.geronimo.system.plugin.PluginXmlUtil;
+import org.apache.geronimo.system.plugin.model.GbeanType;
+import org.apache.geronimo.system.plugin.model.ModuleType;
 
 /**
  * @version $Rev$ $Date$
  */
 public class ServerOverrideTest extends TestCase {
-    private static final Log log = LogFactory.getLog(ServerOverrideTest.class);
     private JexlExpressionParser expressionParser;
 
     protected void setUp() throws java.lang.Exception {
@@ -101,7 +88,7 @@ public class ServerOverrideTest extends TestCase {
     }
 
     private ReferencePatterns getReferencePatterns(AbstractNameQuery[] queries) {
-        Set querySet = new LinkedHashSet(Arrays.asList(queries));
+        Set<AbstractNameQuery> querySet = new LinkedHashSet<AbstractNameQuery>(Arrays.asList(queries));
         return new ReferencePatterns(querySet);
     }
 
@@ -214,7 +201,7 @@ public class ServerOverrideTest extends TestCase {
     }
 
     private static final String REFERENCE_COMMENT_XML =
-            "<module name=\"org.apache.geronimo.config/commentTest/2.0/car\">\n" +
+            "<module name=\"org.apache.geronimo.config/commentTest/2.0/car\" xmlns='" + GBeanOverride.ATTRIBUTE_NAMESPACE + "'>\n" +
             "    <comment>This comment should get properly parsed</comment>\n" +
             "    <gbean name=\"CommentBean\">\n" +
             "        <attribute name=\"value\">someValue</attribute>\n" +
@@ -224,8 +211,8 @@ public class ServerOverrideTest extends TestCase {
     public void testCommentXml() throws Exception {
         String comment = "This comment should get properly parsed";
 
-        InputStream in = new ByteArrayInputStream(REFERENCE_COMMENT_XML.getBytes());
-        Element module = parseXml(in, "module");
+        Reader in = new StringReader(REFERENCE_COMMENT_XML);
+        ModuleType module = PluginXmlUtil.loadModule(in);
         ConfigurationOverride commentConfig = new ConfigurationOverride(module, expressionParser);
 
         assertNotNull(commentConfig);
@@ -233,7 +220,7 @@ public class ServerOverrideTest extends TestCase {
     }
 
     private static final String REFERENCE_XML =
-            "        <gbean name=\"EJBBuilder\">\n" +
+            "        <gbean name=\"EJBBuilder\" xmlns='\" + GBeanOverride.ATTRIBUTE_NAMESPACE + \"'>\n" +
                     "            <attribute name=\"listener\">?name=JettyWebContainer</attribute>\n" +
                     "            <reference name=\"ServiceBuilders\">\n" +
                     "                <pattern>\n" +
@@ -251,21 +238,21 @@ public class ServerOverrideTest extends TestCase {
                     "        </gbean>";
 
     public void testReferenceXml() throws Exception {
-        InputStream in = new ByteArrayInputStream(REFERENCE_XML.getBytes());
-        Element gbeanElement = parseXml(in, "gbean");
+        Reader in = new StringReader(REFERENCE_XML);
+        GbeanType gbeanElement = PluginXmlUtil.loadGbean(in);
         GBeanOverride gbean = new GBeanOverride(gbeanElement, expressionParser);
         assertCopyIdentical(gbean);
     }
 
     private static final String EXPRESSION_XML =
-            "        <gbean name=\"mockGBean\">\n" +
+            "        <gbean name=\"mockGBean\" xmlns='\" + GBeanOverride.ATTRIBUTE_NAMESPACE + \"'>\n" +
                     "            <attribute name=\"value\">${host}</attribute>\n" +
                     "            <attribute name=\"port\">${port}</attribute>\n" +
                     "        </gbean>";
 
     public void testExpressionXml() throws Exception {
-        InputStream in = new ByteArrayInputStream(EXPRESSION_XML.getBytes());
-        Element gbeanElement = parseXml(in, "gbean");
+        Reader in = new StringReader(EXPRESSION_XML);
+        GbeanType gbeanElement = PluginXmlUtil.loadGbean(in);
         GBeanOverride gbean = new GBeanOverride(gbeanElement, expressionParser);
         assertCopyIdentical(gbean);
         GBeanData data = new GBeanData(MockGBean.GBEAN_INFO);
@@ -304,8 +291,8 @@ public class ServerOverrideTest extends TestCase {
         Map actualGBeans = actual.getConfigurations();
         assertEquals(expectedGBeans.size(), actualGBeans.size());
 
-        for (Iterator iterator = expectedGBeans.entrySet().iterator(); iterator.hasNext();) {
-            Map.Entry entry = (Map.Entry) iterator.next();
+        for (Object o : expectedGBeans.entrySet()) {
+            Map.Entry entry = (Map.Entry) o;
             Object name = entry.getKey();
             ConfigurationOverride expectedConfiguration = (ConfigurationOverride) entry.getValue();
             ConfigurationOverride actualConfiguration = (ConfigurationOverride) actualGBeans.get(name);
@@ -324,8 +311,8 @@ public class ServerOverrideTest extends TestCase {
         Map actualGBeans = actual.getGBeans();
         assertEquals(expectedGBeans.size(), actualGBeans.size());
 
-        for (Iterator iterator = expectedGBeans.entrySet().iterator(); iterator.hasNext();) {
-            Map.Entry entry = (Map.Entry) iterator.next();
+        for (Object o : expectedGBeans.entrySet()) {
+            Map.Entry entry = (Map.Entry) o;
             Object name = entry.getKey();
             GBeanOverride expectedGBean = (GBeanOverride) entry.getValue();
             GBeanOverride actualGBean = (GBeanOverride) actualGBeans.get(name);
@@ -347,50 +334,15 @@ public class ServerOverrideTest extends TestCase {
     }
 
     private ServerOverride copy(ServerOverride server) throws Exception {
-        Document doc = createDocument();
-        return new ServerOverride(readElement(server.writeXml(doc), "attributes"), expressionParser);
+        return new ServerOverride(server.writeXml(), expressionParser);
     }
 
     private ConfigurationOverride copy(ConfigurationOverride configuration) throws Exception {
-        Document doc = createDocument();
-        Element root = doc.createElement("temp");
-        doc.appendChild(root);
-        return new ConfigurationOverride(readElement(configuration.writeXml(doc, root), "module"), expressionParser);
+        return new ConfigurationOverride(configuration.writeXml(), expressionParser);
     }
 
     private GBeanOverride copy(GBeanOverride gbean) throws Exception {
-        Document doc = createDocument();
-        Element root = doc.createElement("temp");
-        doc.appendChild(root);
-        return new GBeanOverride(readElement(gbean.writeXml(doc, root), "gbean"), expressionParser);
+        return new GBeanOverride(gbean.writeXml(), expressionParser);
     }
 
-    private Element parseXml(InputStream in, String name) throws Exception {
-        DocumentBuilderFactory documentBuilderFactory = XmlUtil.newDocumentBuilderFactory();
-        Document doc = documentBuilderFactory.newDocumentBuilder().parse(in);
-        Element elem = doc.getDocumentElement();
-        if(elem.getNodeName().equals(name)) {
-            return elem;
-        }
-        NodeList list = elem.getElementsByTagName(name);
-        return (Element) list.item(0);
-    }
-
-    private Document createDocument() throws ParserConfigurationException {
-        DocumentBuilderFactory dFactory = XmlUtil.newDocumentBuilderFactory();
-        dFactory.setValidating(false);
-        return dFactory.newDocumentBuilder().newDocument();
-    }
-
-    private Element readElement(Element e, String name) throws Exception {
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
-        TransformerFactory xfactory = XmlUtil.newTransformerFactory();
-        Transformer xform = xfactory.newTransformer();
-        xform.setOutputProperty(OutputKeys.INDENT, "yes");
-        xform.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
-        xform.transform(new DOMSource(e), new StreamResult(out));
-        log.debug(new String(out.toByteArray()));
-        ByteArrayInputStream in = new ByteArrayInputStream(out.toByteArray());
-        return parseXml(in, name);
-    }
 }

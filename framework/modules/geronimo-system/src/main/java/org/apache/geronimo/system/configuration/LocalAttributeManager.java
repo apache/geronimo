@@ -16,15 +16,16 @@
  */
 package org.apache.geronimo.system.configuration;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.Writer;
+import java.io.Reader;
+import java.io.FileReader;
+import java.io.BufferedReader;
+import java.io.FileWriter;
+import java.io.BufferedWriter;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -35,15 +36,9 @@ import java.util.Properties;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.OutputKeys;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerException;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.stream.StreamResult;
+import javax.xml.bind.JAXBException;
+import javax.xml.stream.XMLStreamException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -61,16 +56,12 @@ import org.apache.geronimo.kernel.config.InvalidConfigException;
 import org.apache.geronimo.kernel.config.ManageableAttributeStore;
 import org.apache.geronimo.kernel.config.PersistentConfigurationList;
 import org.apache.geronimo.kernel.repository.Artifact;
-import org.apache.geronimo.kernel.util.XmlUtil;
 import org.apache.geronimo.system.configuration.condition.JexlExpressionParser;
 import org.apache.geronimo.system.plugin.model.GbeanType;
+import org.apache.geronimo.system.plugin.model.AttributesType;
+import org.apache.geronimo.system.plugin.PluginXmlUtil;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.xml.sax.ErrorHandler;
-import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
-import org.xml.sax.SAXParseException;
 
 /**
  * Stores managed attributes in an XML file on the local filesystem.
@@ -315,76 +306,30 @@ public class LocalAttributeManager implements PluginAttributeStore, PersistentCo
         if (!attributeFile.exists()) {
             return;
         }
-        InputStream input = new BufferedInputStream(new FileInputStream(attributeFile));
-        InputSource source = new InputSource(input);
-        source.setSystemId(attributeFile.toString());
-        DocumentBuilderFactory dFactory = XmlUtil.newDocumentBuilderFactory();
+        Reader input = new BufferedReader(new FileReader(attributeFile));
 
         try {
-            dFactory.setValidating(true);
-            dFactory.setNamespaceAware(true);
-            dFactory.setAttribute("http://java.sun.com/xml/jaxp/properties/schemaLanguage",
-                    "http://www.w3.org/2001/XMLSchema");
+            serverOverride = read(input, expressionParser);
 
-            dFactory.setAttribute("http://java.sun.com/xml/jaxp/properties/schemaSource",
-                    LocalAttributeManager.class.getResourceAsStream("/META-INF/schema/attributes-1.2.xsd"));
-
-            DocumentBuilder builder = dFactory.newDocumentBuilder();
-            builder.setErrorHandler(new ErrorHandler() {
-                public void error(SAXParseException e) {
-                    log.error("Unable to read saved manageable attributes. " +
-                            "SAX parse error: " + e.getMessage() +
-                            " at line " + e.getLineNumber() +
-                            ", column " + e.getColumnNumber() +
-                            " in entity " + e.getSystemId());
-
-                    if (log.isTraceEnabled()) {
-                        log.trace("Exception deatils", e);
-                    }
-
-                    // TODO throw an exception here?
-                }
-
-                public void fatalError(SAXParseException e) {
-                    log.error("Unable to read saved manageable attributes. " +
-                            "Fatal SAX parse error: " + e.getMessage() +
-                            " at line " + e.getLineNumber() +
-                            ", column " + e.getColumnNumber() +
-                            " in entity " + e.getSystemId());
-
-                    if (log.isTraceEnabled()) {
-                        log.trace("Exception deatils", e);
-                    }
-
-                    // TODO throw an exception here?
-                }
-
-                public void warning(SAXParseException e) {
-                    log.error("SAX parse warning whilst reading saved manageable attributes: " +
-                            e.getMessage() +
-                            " at line " + e.getLineNumber() +
-                            ", column " + e.getColumnNumber() +
-                            " in entity " + e.getSystemId());
-
-                    if (log.isTraceEnabled()) {
-                        log.trace("Exception deatils", e);
-                    }
-                }
-            });
-
-            Document doc = builder.parse(source);
-            Element root = doc.getDocumentElement();
-            serverOverride = new ServerOverride(root, expressionParser);
         } catch (SAXException e) {
             log.error("Unable to read saved manageable attributes", e);
         } catch (ParserConfigurationException e) {
             log.error("Unable to read saved manageable attributes", e);
         } catch (InvalidGBeanException e) {
             log.error("Unable to read saved manageable attributes", e);
+        } catch (JAXBException e) {
+            log.error("Unable to read saved manageable attributes", e);
+        } catch (XMLStreamException e) {
+            log.error("Unable to read saved manageable attributes", e);
         } finally {
             // input is always non-null
             input.close();
         }
+    }
+
+    static ServerOverride read(Reader input, JexlExpressionParser expressionParser) throws ParserConfigurationException, IOException, SAXException, JAXBException, XMLStreamException, InvalidGBeanException {
+        AttributesType attributes = PluginXmlUtil.loadAttributes(input);
+        return new ServerOverride(attributes, expressionParser);
     }
 
     public synchronized void save() throws IOException {
@@ -424,48 +369,27 @@ public class LocalAttributeManager implements PluginAttributeStore, PersistentCo
     }
 
     private static void saveXmlToFile(File file, ServerOverride serverOverride) {
-        DocumentBuilderFactory dFactory = XmlUtil.newDocumentBuilderFactory();
-        dFactory.setValidating(true);
-        dFactory.setNamespaceAware(true);
-        dFactory.setAttribute("http://java.sun.com/xml/jaxp/properties/schemaLanguage",
-                "http://www.w3.org/2001/XMLSchema");
-        dFactory.setAttribute("http://java.sun.com/xml/jaxp/properties/schemaSource",
-                LocalAttributeManager.class.getResourceAsStream("/META-INF/schema/attributes-1.2.xsd"));
-
-        OutputStream output = null;
         try {
-            Document doc = dFactory.newDocumentBuilder().newDocument();
-            serverOverride.writeXml(doc);
-            TransformerFactory xfactory = XmlUtil.newTransformerFactory();
-            Transformer xform = xfactory.newTransformer();
-            xform.setOutputProperty(OutputKeys.INDENT, "yes");
-            xform.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "4");
-            output = new BufferedOutputStream(new FileOutputStream(file));
-
-            // use a FileOutputStream instead of a File on the StreamResult 
-            // constructor as problems were encountered with the file not being closed.
-            StreamResult sr = new StreamResult(output);
-            xform.transform(new DOMSource(doc), sr);
-
-            output.flush();
-        } catch (FileNotFoundException e) {
-            // file is directory or cannot be created/opened
-            log.error("Unable to write config.xml", e);
-        } catch (ParserConfigurationException e) {
-            log.error("Unable to write config.xml", e);
-        } catch (TransformerException e) {
-            log.error("Unable to write config.xml", e);
+            Writer fileOut = new FileWriter(file);
+            try {
+                Writer writer = new BufferedWriter(fileOut);
+                write(serverOverride, writer);
+            } catch (JAXBException e) {
+                log.error("Unable to write config.xml", e);
+            } catch (XMLStreamException e) {
+                log.error("Unable to write config.xml", e);
+            } finally {
+                fileOut.close();
+            }
         } catch (IOException e) {
             log.error("Unable to write config.xml", e);
-        } finally {
-            if (output != null) {
-                try {
-                    output.close();
-                } catch (IOException ignored) {
-                    // ignored
-                }
-            }
         }
+   }
+
+    static void write(ServerOverride serverOverride, Writer writer) throws XMLStreamException, JAXBException, IOException {
+        AttributesType attributes = serverOverride.writeXml();
+        PluginXmlUtil.writeAttributes(attributes, writer);
+        writer.flush();
     }
 
     //PersistentConfigurationList

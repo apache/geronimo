@@ -17,18 +17,15 @@
 package org.apache.geronimo.system.configuration;
 
 import java.beans.PropertyEditor;
-import java.io.IOException;
-import java.io.PrintWriter;
+import java.io.Reader;
 import java.io.Serializable;
 import java.io.StringReader;
-import java.io.StringWriter;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -70,6 +67,7 @@ public class GBeanOverride implements Serializable {
 
     private static final Log log = LogFactory.getLog(GBeanOverride.class);
 
+    public static final String ATTRIBUTE_NAMESPACE = "http://geronimo.apache.org/xml/ns/attributes-1.2";
     private final Object name;
     private boolean load;
     private final Map<String, String> attributes = new LinkedHashMap<String, String>();
@@ -166,7 +164,7 @@ public class GBeanOverride implements Serializable {
         }
 
         String gbeanInfoString = gbean.getGbeanInfo();
-        if ( gbeanInfoString != null && gbeanInfoString.length() > 0) {
+        if (gbeanInfoString != null && gbeanInfoString.length() > 0) {
             gbeanInfo = gbeanInfoString;
         } else {
             gbeanInfo = null;
@@ -192,7 +190,7 @@ public class GBeanOverride implements Serializable {
                     } catch (XMLStreamException e) {
                         throw new InvalidGBeanException("Could not extract attribute value from gbean override", e);
                     }
-                    if (value.length() == 0) {
+                    if (value == null || value.length() == 0) {
                         setClearAttribute(attr.getName());
                     } else {
                         String truevalue = (String) EncryptionManager.decrypt(value);
@@ -201,173 +199,38 @@ public class GBeanOverride implements Serializable {
                 }
             } else if (o instanceof ReferenceType) {
                 ReferenceType ref = (ReferenceType) o;
-                Set<AbstractNameQuery> patternSet = new HashSet<AbstractNameQuery>();
-                for (ReferenceType.Pattern pattern : ref.getPattern()) {
-                    String groupId = pattern.getGroupId();
-                    String artifactId = pattern.getArtifactId();
-                    String version = pattern.getVersion();
-                    String type = pattern.getType();
-                    String module = pattern.getModule();
-                    String name = pattern.getName();
+                if (ref.getPattern().isEmpty()) {
+                    setClearReference(ref.getName());
+                } else {
+                    Set<AbstractNameQuery> patternSet = new HashSet<AbstractNameQuery>();
+                    for (ReferenceType.Pattern pattern : ref.getPattern()) {
+                        String groupId = pattern.getGroupId();
+                        String artifactId = pattern.getArtifactId();
+                        String version = pattern.getVersion();
+                        String type = pattern.getType();
+                        String module = pattern.getModule();
+                        String name = pattern.getName();
 
-                    Artifact referenceArtifact = null;
-                    if (artifactId != null) {
-                        referenceArtifact = new Artifact(groupId, artifactId, version, type);
+                        Artifact referenceArtifact = null;
+                        if (artifactId != null) {
+                            referenceArtifact = new Artifact(groupId, artifactId, version, type);
+                        }
+                        Map<String, String> nameMap = new HashMap<String, String>();
+                        if (module != null) {
+                            nameMap.put("module", module);
+                        }
+                        if (name != null) {
+                            nameMap.put("name", name);
+                        }
+                        AbstractNameQuery abstractNameQuery = new AbstractNameQuery(referenceArtifact, nameMap, Collections.EMPTY_SET);
+                        patternSet.add(abstractNameQuery);
                     }
-                    Map<String, String> nameMap = new HashMap<String, String>();
-                    if (module != null) {
-                        nameMap.put("module", module);
-                    }
-                    if (name != null) {
-                        nameMap.put("name", name);
-                    }
-                    AbstractNameQuery abstractNameQuery = new AbstractNameQuery(referenceArtifact, nameMap, Collections.EMPTY_SET);
-                    patternSet.add(abstractNameQuery);
+                    ReferencePatterns patterns = new ReferencePatterns(patternSet);
+                    setReferencePatterns(ref.getName(), patterns);
                 }
-                ReferencePatterns patterns = new ReferencePatterns(patternSet);
-                getReferences().put(ref.getName(), patterns);
             }
         }
         this.expressionParser = expressionParser;
-    }
-
-    public GBeanOverride(Element gbean, JexlExpressionParser expressionParser) throws InvalidGBeanException {
-        String nameString = gbean.getAttribute("name");
-        if (nameString.indexOf('?') > -1) {
-            name = new AbstractName(URI.create(nameString));
-        } else {
-            name = nameString;
-        }
-
-        String gbeanInfoString = gbean.getAttribute("gbeanInfo");
-        if (gbeanInfoString.length() > 0) {
-            gbeanInfo = gbeanInfoString;
-        } else {
-            gbeanInfo = null;
-        }
-        if (gbeanInfo != null && !(name instanceof AbstractName)) {
-            throw new InvalidGBeanException("A gbean element using the gbeanInfo attribute must be specified using a full AbstractName: name=" + nameString);
-        }
-
-        String loadString = gbean.getAttribute("load");
-        load = !"false".equals(loadString);
-
-        // attributes
-        NodeList attributes = gbean.getElementsByTagName("attribute");
-        for (int a = 0; a < attributes.getLength(); a++) {
-            Element attribute = (Element) attributes.item(a);
-
-            String attributeName = attribute.getAttribute("name");
-
-            // Check to see if there is a value attribute
-            if (attribute.hasAttribute("value")) {
-                setAttribute(attributeName, (String) EncryptionManager.decrypt(attribute.getAttribute("value")));
-                continue;
-            }
-
-            // Check to see if there is a null attribute
-            if (attribute.hasAttribute("null")) {
-                String nullString = attribute.getAttribute("null");
-                if (nullString.equals("true")) {
-                    setNullAttribute(attributeName);
-                    continue;
-                }
-            }
-
-            String rawAttribute = getContentsAsText(attribute);
-            // If there are no contents, then it's to be cleared
-            if (rawAttribute.length() == 0) {
-                setClearAttribute(attributeName);
-                continue;
-            }
-            String attributeValue = (String) EncryptionManager.decrypt(rawAttribute);
-
-            setAttribute(attributeName, attributeValue);
-        }
-
-        // references
-        NodeList references = gbean.getElementsByTagName("reference");
-        for (int r = 0; r < references.getLength(); r++) {
-            Element reference = (Element) references.item(r);
-
-            String referenceName = reference.getAttribute("name");
-
-            Set<AbstractNameQuery> objectNamePatterns = new LinkedHashSet<AbstractNameQuery>();
-            NodeList patterns = reference.getElementsByTagName("pattern");
-
-            // If there is no pattern, then its an empty set, so its a
-            // cleared value
-            if (patterns.getLength() == 0) {
-                setClearReference(referenceName);
-                continue;
-            }
-
-            for (int p = 0; p < patterns.getLength(); p++) {
-                Element pattern = (Element) patterns.item(p);
-                if (pattern == null)
-                    continue;
-
-                String groupId = getChildAsText(pattern, "groupId");
-                String artifactId = getChildAsText(pattern, "artifactId");
-                String version = getChildAsText(pattern, "version");
-                String type = getChildAsText(pattern, "type");
-                String module = getChildAsText(pattern, "module");
-                String name = getChildAsText(pattern, "name");
-
-                Artifact referenceArtifact = null;
-                if (artifactId != null) {
-                    referenceArtifact = new Artifact(groupId, artifactId, version, type);
-                }
-                Map<String, String> nameMap = new HashMap<String, String>();
-                if (module != null) {
-                    nameMap.put("module", module);
-                }
-                if (name != null) {
-                    nameMap.put("name", name);
-                }
-                AbstractNameQuery abstractNameQuery = new AbstractNameQuery(referenceArtifact, nameMap, Collections.EMPTY_SET);
-                objectNamePatterns.add(abstractNameQuery);
-            }
-
-            setReferencePatterns(referenceName, new ReferencePatterns(objectNamePatterns));
-        }
-        this.expressionParser = expressionParser;
-    }
-
-    private static String getChildAsText(Element element, String name) throws InvalidGBeanException {
-        NodeList children = element.getElementsByTagName(name);
-        if (children == null || children.getLength() == 0) {
-            return null;
-        }
-        if (children.getLength() > 1) {
-            throw new InvalidGBeanException("invalid name, too many parts named: " + name);
-        }
-        return getContentsAsText(children.item(0));
-    }
-
-    private static String getContentsAsText(Node element) throws InvalidGBeanException {
-        String value = "";
-        NodeList text = element.getChildNodes();
-        for (int t = 0; t < text.getLength(); t++) {
-            Node n = text.item(t);
-            if (n.getNodeType() == Node.TEXT_NODE) {
-                value += n.getNodeValue();
-            } else {
-                StringWriter sw = new StringWriter();
-                PrintWriter pw = new PrintWriter(sw);
-                OutputFormat of = new OutputFormat(Method.XML, null, false);
-                of.setOmitXMLDeclaration(true);
-                XMLSerializer serializer = new XMLSerializer(pw, of);
-                try {
-                    serializer.prepare();
-                    serializer.serializeNode(n);
-                    value += sw.toString();
-                } catch (IOException ioe) {
-                    throw new InvalidGBeanException("Error serializing GBean element", ioe);
-                }
-            }
-        }
-        return value.trim();
     }
 
     public Object getName() {
@@ -439,7 +302,11 @@ public class GBeanOverride implements Serializable {
     }
 
     public void setAttribute(String attributeName, String attributeValue) {
-        attributes.put(attributeName, attributeValue);
+        if (attributeValue == null || attributeValue.length() == 0) {
+            clearAttributes.add(attributeName);
+        } else {
+            attributes.put(attributeName, attributeValue);
+        }
     }
 
     public Map<String, ReferencePatterns> getReferences() {
@@ -543,10 +410,125 @@ public class GBeanOverride implements Serializable {
      * GBeanOverride, adds it to the parent, and then returns the new
      * child element.
      *
-     * @param doc    document containing the module, hence also the element returned from this method.
-     * @param parent module element this override will be inserted into
      * @return newly created element for this override
      */
+    public GbeanType writeXml() {
+        GbeanType gbean = new GbeanType();
+        String gbeanName;
+        if (name instanceof String) {
+            gbeanName = (String) name;
+        } else {
+            gbeanName = name.toString();
+        }
+        gbean.setName(gbeanName);
+        if (gbeanInfo != null) {
+            gbean.setGbeanInfo(gbeanInfo);
+        }
+        if (!load) {
+            gbean.setLoad(false);
+        }
+
+        // attributes
+        for (Map.Entry<String, String> entry : attributes.entrySet()) {
+            String name = entry.getKey();
+            String value = entry.getValue();
+            if (value == null) {
+                setNullAttribute(name);
+            } else {
+                if (getNullAttribute(name)) {
+                    nullAttributes.remove(name);
+                }
+                if (name.toLowerCase().indexOf("password") > -1) {
+                    value = EncryptionManager.encrypt(value);
+                }
+/**
+ * if there was a value such as jdbc url with &amp; then when that value was oulled
+ * from the config.xml the &amp; would have been replaced/converted to '&', we need to check
+ * and change it back because an & would create a parse exception.
+ */
+                value = "<attribute xmlns='" + ATTRIBUTE_NAMESPACE + "'>" + value.replaceAll("&(?!amp;)", "&amp;") + "</attribute>";
+                Reader reader = new StringReader(value);
+                try {
+                    AttributeType attribute = PluginXmlUtil.loadAttribute(reader);
+                    attribute.setName(name);
+                    gbean.getAttributeOrReference().add(attribute);
+                } catch (Exception e) {
+                    log.error("Could not serialize attribute " + name + " in gbean " + gbeanName + ", value: " + value, e);
+                }
+            }
+        }
+
+        // cleared attributes
+        for (String name : clearAttributes) {
+            AttributeType attribute = new AttributeType();
+            attribute.setName(name);
+            gbean.getAttributeOrReference().add(attribute);
+        }
+
+        // Null attributes
+        for (String name : nullAttributes) {
+            AttributeType attribute = new AttributeType();
+            attribute.setName(name);
+            attribute.setNull(true);
+            gbean.getAttributeOrReference().add(attribute);
+        }
+
+        // references
+        for (Map.Entry<String, ReferencePatterns> entry : references.entrySet()) {
+            String name = entry.getKey();
+            ReferencePatterns patterns = entry.getValue();
+            ReferenceType reference = new ReferenceType();
+            reference.setName(name);
+
+            Set<AbstractNameQuery> patternSet;
+            if (patterns.isResolved()) {
+                patternSet = Collections.singleton(new AbstractNameQuery(patterns.getAbstractName()));
+            } else {
+                patternSet = patterns.getPatterns();
+            }
+
+            for (AbstractNameQuery pattern : patternSet) {
+                ReferenceType.Pattern patternType = new ReferenceType.Pattern();
+                Artifact artifact = pattern.getArtifact();
+
+                if (artifact != null) {
+                    if (artifact.getGroupId() != null) {
+                        patternType.setGroupId(artifact.getGroupId());
+                    }
+                    if (artifact.getArtifactId() != null) {
+                        patternType.setArtifactId(artifact.getArtifactId());
+                    }
+                    if (artifact.getVersion() != null) {
+                        patternType.setVersion(artifact.getVersion().toString());
+                    }
+                    if (artifact.getType() != null) {
+                        patternType.setType(artifact.getType());
+                    }
+                }
+
+                Map nameMap = pattern.getName();
+                if (nameMap.get("module") != null) {
+                    patternType.setModule((String) nameMap.get("module"));
+                }
+
+                if (nameMap.get("name") != null) {
+                    patternType.setName((String) nameMap.get("name"));
+                }
+                reference.getPattern().add(patternType);
+            }
+            gbean.getAttributeOrReference().add(reference);
+        }
+
+        // cleared references
+        for (String name : clearReferences) {
+            ReferenceType reference = new ReferenceType();
+            reference.setName(name);
+            gbean.getAttributeOrReference().add(reference);
+        }
+
+        return gbean;
+    }
+
     public Element writeXml(Document doc, Element parent) {
         String gbeanName;
         if (name instanceof String) {

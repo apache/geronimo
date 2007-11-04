@@ -26,7 +26,7 @@ import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 
 /**
- * @version $Rev:$ $Date:$
+ * @version $Rev$ $Date$
  */
 public class ServerInstance {
 
@@ -34,6 +34,12 @@ public class ServerInstance {
     private final PluginAttributeStore attributeStore;
     private final AliasedArtifactResolver artifactResolver;
 
+
+    public ServerInstance() {
+        serverName = null;
+        attributeStore = null;
+        artifactResolver = null;
+    }
 
     public ServerInstance(String serverName, PluginAttributeStore attributeStore, AliasedArtifactResolver artifactResolver) {
         this.serverName = serverName;
@@ -55,7 +61,7 @@ public class ServerInstance {
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic(ServerInstance.class);
+        GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic(ServerInstance.class, "ServerInstance");
         infoFactory.addAttribute("serverName", String.class, true, true);
         infoFactory.addReference("PluginAttributeStore", PluginAttributeStore.class, "AttributeStore");
         infoFactory.addReference("ArtifactResolver", AliasedArtifactResolver.class, "ArtifactResolver");

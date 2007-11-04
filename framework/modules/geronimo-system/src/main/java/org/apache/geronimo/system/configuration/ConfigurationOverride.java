@@ -26,10 +26,8 @@ import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.system.configuration.condition.ConditionParser;
 import org.apache.geronimo.system.configuration.condition.JexlConditionParser;
 import org.apache.geronimo.system.configuration.condition.JexlExpressionParser;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.NodeList;
-import org.w3c.dom.Node;
+import org.apache.geronimo.system.plugin.model.GbeanType;
+import org.apache.geronimo.system.plugin.model.ModuleType;
 
 /**
  * @version $Rev$ $Date$
@@ -69,26 +67,18 @@ class ConfigurationOverride {
         }
     }
 
-    public ConfigurationOverride(Element element, JexlExpressionParser expressionParser) throws InvalidGBeanException {
-        name = Artifact.create(element.getAttribute("name"));
+    public ConfigurationOverride(ModuleType module, JexlExpressionParser expressionParser) throws InvalidGBeanException {
+        name = Artifact.create(module.getName());
 
-        condition = element.getAttribute("condition");
-        comment = getCommentText(element);
-        
-        String loadConfigString = element.getAttribute("load");
-        load = ! "false".equals(loadConfigString);
+        condition = module.getCondition();
+        comment = module.getComment();
+        load = module.isLoad();
 
-        NodeList gbeans = element.getElementsByTagName("gbean");
-        for (int g = 0; g < gbeans.getLength(); g++) {
-            Element gbeanElement = (Element) gbeans.item(g);
-            GBeanOverride gbean = null;
-            try {
-                gbean = new GBeanOverride(gbeanElement, expressionParser);
-            } catch (NoClassDefFoundError e) {
-                throw new RuntimeException("NCDFE: geronimo-system classloader: " + getClass().getClassLoader(), e);
-            }
+        for (GbeanType gbeanType: module.getGbean()) {
+            GBeanOverride gbean = new GBeanOverride(gbeanType, expressionParser);
             addGBean(gbean);
         }
+
     }
 
     public Artifact getName() {
@@ -109,26 +99,6 @@ class ConfigurationOverride {
 
     public void setComment(String comment) {
         this.comment = comment;
-    }
-
-    private String getCommentText(Element element) {
-        String commentText = "";
-
-        NodeList children = element.getChildNodes();
-        Element child = null;
-
-        for (int nodePos = 0; nodePos < children.getLength(); nodePos++) {
-            if (children.item(nodePos) instanceof Element) {
-                child = (Element) children.item(nodePos);
-
-                if (child.getTagName().equals("comment")) {
-                    commentText = child.getTextContent();
-                    break;
-                }
-            }
-        }
-
-        return commentText;
     }
 
     private boolean parseCondition() {
@@ -177,28 +147,26 @@ class ConfigurationOverride {
         gbeans.put(gbeanName, gbean);
     }
 
-    public Element writeXml(Document doc, Element root) {
-        Element module = doc.createElement("module");
-        root.appendChild(module);
-        module.setAttribute("name", name.toString());
+    public ModuleType writeXml() {
+        ModuleType module = new ModuleType();
+        module.setName(name.toString());
 
         if (condition != null && condition.trim().length() != 0) {
-            module.setAttribute("condition", condition);
+            module.setCondition(condition);
         } else if (!load) {
-            module.setAttribute("load", "false");
+            module.setLoad(false);
         }
 
         if (comment != null && comment.trim().length() > 0) {
-            Element eleComment = doc.createElement("comment");
-            eleComment.setTextContent(comment);
-
-            module.appendChild(eleComment);
+            module.setComment(comment.trim());
         }
 
         // GBeans
         for (GBeanOverride gbeanOverride : gbeans.values()) {
-            gbeanOverride.writeXml(doc, module);
+            GbeanType gbean = gbeanOverride.writeXml();
+            module.getGbean().add(gbean);
         }
         return module;
     }
+
 }

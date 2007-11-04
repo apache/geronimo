@@ -51,21 +51,32 @@ import org.apache.geronimo.system.plugin.model.ObjectFactory;
 import org.apache.geronimo.system.plugin.model.PluginListType;
 import org.apache.geronimo.system.plugin.model.PluginArtifactType;
 import org.apache.geronimo.system.plugin.model.AttributeType;
+import org.apache.geronimo.system.plugin.model.AttributesType;
+import org.apache.geronimo.system.plugin.model.ModuleType;
+import org.apache.geronimo.system.plugin.model.GbeanType;
 
 /**
- * @version $Rev:$ $Date:$
+ * @version $Rev$ $Date$
  */
 public class PluginXmlUtil {
     public static final XMLInputFactory XMLINPUT_FACTORY = XMLInputFactory.newInstance();
     public static final JAXBContext PLUGIN_CONTEXT;
     public static final JAXBContext PLUGIN_LIST_CONTEXT;
     public static final JAXBContext PLUGIN_ARTIFACT_CONTEXT;
+    public static final JAXBContext ATTRIBUTES_CONTEXT;
+    public static final JAXBContext ATTRIBUTE_CONTEXT;
+    public static final JAXBContext MODULE_CONTEXT;
+    public static final JAXBContext GBEAN_CONTEXT;
 
     static {
         try {
             PLUGIN_CONTEXT = JAXBContext.newInstance(PluginType.class);
             PLUGIN_LIST_CONTEXT = JAXBContext.newInstance(PluginListType.class);
             PLUGIN_ARTIFACT_CONTEXT = JAXBContext.newInstance(PluginArtifactType.class);
+            ATTRIBUTES_CONTEXT = JAXBContext.newInstance(AttributesType.class);
+            MODULE_CONTEXT = JAXBContext.newInstance(ModuleType.class);
+            GBEAN_CONTEXT = JAXBContext.newInstance(GbeanType.class);
+            ATTRIBUTE_CONTEXT = JAXBContext.newInstance(AttributeType.class);
         } catch (JAXBException e) {
             throw new RuntimeException("Could not create jaxb contexts for plugin types");
         }
@@ -91,7 +102,6 @@ public class PluginXmlUtil {
         JAXBElement<AttributeType> element = new ObjectFactory().createAttribute(metadata);
         marshaller.marshal(element, out);
     }
-
     public static String extractAttributeValue(AttributeType attr) throws JAXBException, XMLStreamException {
         StringWriter sw = new StringWriter();
         PluginXmlUtil.writeAttribute(attr, sw);
@@ -99,7 +109,17 @@ public class PluginXmlUtil {
         int start = s.indexOf('>');
         start = s.indexOf('>', start + 1);
         int end = s.lastIndexOf('<');
+        if (end < start) {
+            return null;
+        }
         return s.substring(start + 1, end).trim();
+    }
+
+    public static void writeAttributes(AttributesType metadata, Writer out) throws XMLStreamException, JAXBException {
+        Marshaller marshaller = PLUGIN_LIST_CONTEXT.createMarshaller();
+        marshaller.setProperty("jaxb.formatted.output", true);
+        JAXBElement<AttributesType> element = new ObjectFactory().createAttributes(metadata);
+        marshaller.marshal(element, out);
     }
 
     /**
@@ -150,6 +170,35 @@ public class PluginXmlUtil {
         JAXBElement<PluginListType> element = unmarshaller.unmarshal(xmlStream, PluginListType.class);
         PluginListType pluginList = element.getValue();
         return pluginList;
+    }
+
+    public static AttributesType loadAttributes(Reader in) throws ParserConfigurationException, IOException, SAXException, JAXBException, XMLStreamException {
+        Unmarshaller unmarshaller = ATTRIBUTES_CONTEXT.createUnmarshaller();
+        XMLStreamReader xmlStream = XMLINPUT_FACTORY.createXMLStreamReader(in);
+        JAXBElement<AttributesType> element = unmarshaller.unmarshal(xmlStream, AttributesType.class);
+        AttributesType pluginList = element.getValue();
+        return pluginList;
+    }
+    public static ModuleType loadModule(Reader in) throws ParserConfigurationException, IOException, SAXException, JAXBException, XMLStreamException {
+        Unmarshaller unmarshaller = MODULE_CONTEXT.createUnmarshaller();
+        XMLStreamReader xmlStream = XMLINPUT_FACTORY.createXMLStreamReader(in);
+        JAXBElement<ModuleType> element = unmarshaller.unmarshal(xmlStream, ModuleType.class);
+        ModuleType pluginList = element.getValue();
+        return pluginList;
+    }
+    public static GbeanType loadGbean(Reader in) throws ParserConfigurationException, IOException, SAXException, JAXBException, XMLStreamException {
+        Unmarshaller unmarshaller = GBEAN_CONTEXT.createUnmarshaller();
+        XMLStreamReader xmlStream = XMLINPUT_FACTORY.createXMLStreamReader(in);
+        JAXBElement<GbeanType> element = unmarshaller.unmarshal(xmlStream, GbeanType.class);
+        GbeanType pluginList = element.getValue();
+        return pluginList;
+    }
+    public static AttributeType loadAttribute(Reader in) throws ParserConfigurationException, IOException, SAXException, JAXBException, XMLStreamException {
+        Unmarshaller unmarshaller = ATTRIBUTE_CONTEXT.createUnmarshaller();
+        XMLStreamReader xmlStream = XMLINPUT_FACTORY.createXMLStreamReader(in);
+        JAXBElement<AttributeType> element = unmarshaller.unmarshal(xmlStream, AttributeType.class);
+        AttributeType attributeType = element.getValue();
+        return attributeType;
     }
 
     public static class NamespaceFilter extends XMLFilterImpl {
