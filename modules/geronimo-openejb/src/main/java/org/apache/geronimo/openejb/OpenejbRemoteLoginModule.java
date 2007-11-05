@@ -20,22 +20,28 @@
 
 package org.apache.geronimo.openejb;
 
-import java.util.Map;
 import java.io.IOException;
 import java.net.URI;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 
-import javax.security.auth.spi.LoginModule;
+import javax.security.auth.Destroyable;
 import javax.security.auth.Subject;
-import javax.security.auth.login.LoginException;
-import javax.security.auth.callback.CallbackHandler;
 import javax.security.auth.callback.Callback;
+import javax.security.auth.callback.CallbackHandler;
 import javax.security.auth.callback.NameCallback;
 import javax.security.auth.callback.PasswordCallback;
 import javax.security.auth.callback.UnsupportedCallbackException;
+import javax.security.auth.login.LoginException;
+import javax.security.auth.spi.LoginModule;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.apache.geronimo.security.SubjectId;
 import org.apache.openejb.client.ClientSecurity;
 import org.apache.openejb.client.ServerMetaData;
-import org.apache.geronimo.security.SubjectId;
 
 /**
  * OpenejbRemoteLoginModule uses the openejb protocol to communicate with the server to be used for ejbs and try to
@@ -50,22 +56,34 @@ import org.apache.geronimo.security.SubjectId;
  * @version $Rev$ $Date$
  */
 public class OpenejbRemoteLoginModule implements LoginModule {
+    private static Log log = LogFactory.getLog(OpenejbRemoteLoginModule.class);
+
     private static final String SECURITY_REALM_KEY = "org.apache.geronimo.openejb.OpenejbRemoteLoginModule.RemoteSecurityRealm";
     private static final String SERVER_URI_KEY = "org.apache.geronimo.openejb.OpenejbRemoteLoginModule.ServerURI";
+    public final static List<String> supportedOptions = Collections.unmodifiableList(Arrays.asList(SECURITY_REALM_KEY, SERVER_URI_KEY));
 
     private Subject subject;
     private CallbackHandler callbackHandler;
     private String securityRealm;
     private URI serverURI;
     private SubjectId identity;
+    private boolean loginSucceeded;
+    private ServerIdentityToken sit;
+
     public void initialize(Subject subject, CallbackHandler callbackHandler, Map<String, ?> sharedState, Map<String, ?> options) {
         this.subject = subject;
         this.callbackHandler = callbackHandler;
+        for(Object option: options.keySet()) {
+            if(!supportedOptions.contains(option)) {
+                log.warn("Ignoring option: "+option+". Not supported.");
+            }
+        }
         securityRealm = (String) options.get(SECURITY_REALM_KEY);
         serverURI = URI.create((String) options.get(SERVER_URI_KEY));
     }
 
     public boolean login() throws LoginException {
+        loginSucceeded = false;
         Callback[] callbacks = new Callback[] {new NameCallback("username"), new PasswordCallback("passsword", false)};
         try {
             callbackHandler.handle(callbacks);
@@ -77,21 +95,61 @@ public class OpenejbRemoteLoginModule implements LoginModule {
         String userName = ((NameCallback)callbacks[0]).getName();
         String password = new String(((PasswordCallback)callbacks[1]).getPassword());
         identity = (SubjectId) ClientSecurity.directAuthentication(securityRealm, userName, password, new ServerMetaData(serverURI));
+        loginSucceeded = true;
         return true;
     }
 
+    /*
+     * @exception LoginException if login succeeded but commit failed.
+     *
+     * @return true if login succeeded and commit succeeded, or false if login failed but commit succeeded.
+     */
     public boolean commit() throws LoginException {
-        subject.getPrivateCredentials().add(new ServerIdentityToken(serverURI, identity));
-        return true;
+        if(loginSucceeded) {
+            if(identity != null) {
+                sit = new ServerIdentityToken(serverURI, identity);
+                subject.getPrivateCredentials().add(sit);
+            }
+        }
+        // Clear out the private state
+        identity = null;
+        return loginSucceeded;
     }
 
     public boolean  abort() throws LoginException {
-        subject.getPrivateCredentials().remove(identity);
-        return true;
+        if(loginSucceeded) {
+            // Clear out the private state
+            identity = null;
+            sit = null;
+        }
+        return loginSucceeded;
     }
 
     public boolean logout() throws LoginException {
-        //TODO what?
+        // Clear out the private state
+        loginSucceeded = false;
+        identity = null;
+        if(sit != null) {
+            if(!subject.isReadOnly()) {
+                subject.getPrivateCredentials().remove(sit);
+            } else {
+                try {
+                    if(sit instanceof Destroyable) {
+                        // Try to destroy the credential
+                        try {
+                            ((Destroyable)sit).destroy();
+                        } catch(Exception e) {
+                            throw new LoginException();
+                        }
+                    } else {
+                        throw new LoginException();
+                    }
+                } finally {
+                    sit = null;
+                }
+            }
+        }
+        sit = null;
         return true;
     }
 }
