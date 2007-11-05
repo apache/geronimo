@@ -38,9 +38,6 @@ import org.apache.openejb.client.ServerMetaData;
 import org.apache.geronimo.security.SubjectId;
 
 /**
-<<<<<<< .working
- * @version $Rev$ $Date$
-=======
  * OpenejbRemoteLoginModule uses the openejb protocol to communicate with the server to be used for ejbs and try to
  * login on that server. If login succeeds an identity token is added to the private credentials of the Subject
  * that can be used on further calls to identify the client.  Note this should only be used on secure networks or
@@ -51,7 +48,6 @@ import org.apache.geronimo.security.SubjectId;
  * or throw LoginException to indicate failure.
  *
  * @version $Rev$ $Date$
->>>>>>> .merge-right.r565912
  */
 public class OpenejbRemoteLoginModule implements LoginModule {
     private static final String SECURITY_REALM_KEY = "org.apache.geronimo.openejb.OpenejbRemoteLoginModule.RemoteSecurityRealm";
