@@ -72,7 +72,7 @@ public class CertificatePropertiesFileLoginModule implements LoginModule {
     private static Log log = LogFactory.getLog(CertificatePropertiesFileLoginModule.class);
     public final static String USERS_URI = "usersURI";
     public final static String GROUPS_URI = "groupsURI";
-    public final static List<String> supportedOptions = Arrays.asList(USERS_URI, GROUPS_URI);
+    public final static List<String> supportedOptions = Collections.unmodifiableList(Arrays.asList(USERS_URI, GROUPS_URI));
             
     private final Map users = new HashMap();
     final Map groups = new HashMap();

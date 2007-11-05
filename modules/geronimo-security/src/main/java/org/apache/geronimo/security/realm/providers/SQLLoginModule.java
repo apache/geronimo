@@ -96,8 +96,8 @@ public class SQLLoginModule implements LoginModule {
     public final static String DATABASE_POOL_APP_NAME = "dataSourceApplication";
     public final static String DIGEST = "digest";
     public final static String ENCODING = "encoding";
-    public final static List<String> supportedOptions = Arrays.asList(USER_SELECT, GROUP_SELECT, CONNECTION_URL,
-            USER, PASSWORD, DRIVER, DATABASE_POOL_NAME, DATABASE_POOL_APP_NAME, DIGEST, ENCODING);
+    public final static List<String> supportedOptions = Collections.unmodifiableList(Arrays.asList(USER_SELECT, GROUP_SELECT, CONNECTION_URL,
+            USER, PASSWORD, DRIVER, DATABASE_POOL_NAME, DATABASE_POOL_APP_NAME, DIGEST, ENCODING));
 
     private String connectionURL;
     private Properties properties;
