@@ -70,7 +70,7 @@ public class PropertiesFileLoginModule implements LoginModule {
     public final static String GROUPS_URI = "groupsURI";
     public final static String DIGEST = "digest";
     public final static String ENCODING = "encoding";
-    public final static List<String> supportedOptions = Arrays.asList(USERS_URI, GROUPS_URI, DIGEST, ENCODING);
+    public final static List<String> supportedOptions = Collections.unmodifiableList(Arrays.asList(USERS_URI, GROUPS_URI, DIGEST, ENCODING));
 
     private static Log log = LogFactory.getLog(PropertiesFileLoginModule.class);
     final Properties users = new Properties();

@@ -87,10 +87,10 @@ public class LDAPLoginModule implements LoginModule {
     private static final String ROLE_SEARCH_MATCHING = "roleSearchMatching";
     private static final String ROLE_SEARCH_SUBTREE = "roleSearchSubtree";
     private static final String USER_ROLE_NAME = "userRoleName";
-    public final static List<String> supportedOptions = Arrays.asList(INITIAL_CONTEXT_FACTORY, CONNECTION_URL,
+    public final static List<String> supportedOptions = Collections.unmodifiableList(Arrays.asList(INITIAL_CONTEXT_FACTORY, CONNECTION_URL,
             CONNECTION_USERNAME, CONNECTION_PASSWORD, CONNECTION_PROTOCOL, AUTHENTICATION, USER_BASE,
             USER_SEARCH_MATCHING, USER_SEARCH_SUBTREE, ROLE_BASE, ROLE_NAME, ROLE_SEARCH_MATCHING, ROLE_SEARCH_SUBTREE,
-            USER_ROLE_NAME);
+            USER_ROLE_NAME));
 
     private String initialContextFactory;
     private String connectionURL;

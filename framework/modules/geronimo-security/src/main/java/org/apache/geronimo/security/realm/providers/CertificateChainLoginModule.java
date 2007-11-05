@@ -56,7 +56,9 @@ import org.apache.geronimo.security.jaas.WrappingLoginModule;
 public class CertificateChainLoginModule implements LoginModule {
     private static Log log = LogFactory.getLog(CertificateChainLoginModule.class);
 
-    public final static List<String> supportedOptions = Arrays.asList();
+    // Note: If this LoginModule supports any options, the Collections.EMPTY_LIST in the following should be
+    // replaced with the list of supported options for e.g. Arrays.asList(option1, option2, ...) etc.
+    public final static List<String> supportedOptions = Collections.unmodifiableList(Collections.EMPTY_LIST);
     private Subject subject;
     private CallbackHandler handler;
     private X500Principal principal;
