@@ -33,11 +33,16 @@ import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 /**
  * @version $Rev$ $Date$
  */
 public class DatabaseInitializationGBean {
 
+
+    private static final Log log = LogFactory.getLog(DatabaseInitializationGBean.class);
 
     public DatabaseInitializationGBean(String testSQL, String path, ConnectionFactorySource cfSource, ClassLoader classLoader) throws Exception {
 
@@ -46,57 +51,62 @@ public class DatabaseInitializationGBean {
         try {
             Statement s = c.createStatement();
             try {
-                try {
-                    boolean pass = false;
-                    // SQL statement in testSQL can be used to determine if the sql script in path attribute should be executed.
-                    // This attribute can be left blank or skipped altogether.
-                    if(testSQL != null && !testSQL.trim().equals("")) {
-                        ResultSet rs = s.executeQuery(testSQL);
-                        // passes sql test when there are one or more elements
-                        while(rs.next()) {
-                            pass = true;
-                            break;
-                        }
-                    } else {
-                        // allow the script to excute if user does not want to run a test SQL
-                        pass = true;
+                boolean pass = true;
+                // SQL statement in testSQL can be used to determine if the sql script in path attribute should be executed.
+                // This attribute can be left blank or skipped altogether.
+                if ( testSQL != null && !testSQL.trim().equals("") ) {
+                    ResultSet rs = s.executeQuery(testSQL);
+                    // passes sql test when there are one or more elements
+                    while ( rs.next() ) {
+                        pass = false;
+                        break;
                     }
+                }
 
-                    if(pass) {
-                        //script needs to be run
-                        URL sourceURL = classLoader.getResource(path);
-                        InputStream ins = sourceURL.openStream();
-                        BufferedReader r = new BufferedReader(new InputStreamReader(ins));
-                        try {
-                            String line;
-                            StringBuffer buf = new StringBuffer();
-                            while ((line = r.readLine()) != null) {
-                                line = line.trim();
-                                if (!line.startsWith("--") && line.length() > 0) {
-                                    buf.append(line).append(" ");
-                                    if (line.endsWith(";")) {
-                                        int size = buf.length();
-                                        buf.delete(size - 2, size - 1);
-                                        String sql = buf.toString();
-                                        s.execute(sql);
-                                        buf = new StringBuffer();
-                                    }
+                if ( pass ) {
+                    //script needs to be run
+                    log.debug("Executing script: " + path);
+                    URL sourceURL = classLoader.getResource(path);
+                    InputStream ins = sourceURL.openStream();
+                    BufferedReader r = new BufferedReader(new InputStreamReader(ins));
+                    try {
+                        String line;
+                        StringBuffer buf = new StringBuffer();
+                        while ( (line = r.readLine()) != null ) {
+                            line = line.trim();
+                            if ( !line.startsWith("--") && line.length() > 0 ) {
+                                buf.append(line).append(" ");
+                                if ( line.endsWith(";") ) {
+                                    int size = buf.length();
+                                    buf.delete(size - 2, size - 1);
+                                    String sql = buf.toString();
+                                    s.execute(sql);
+                                    buf = new StringBuffer();
                                 }
                             }
-                        } finally {
-                            r.close();
                         }
-                    } else {
-                        //script does not need to be run
                     }
-                    return;
-                } catch (SQLException e) {
-
+                    catch ( Exception ex ) {
+                        System.out.println(ex.getMessage());
+                        log.error(ex.getMessage());
+                    }
+                    finally {
+                        r.close();
+                    }
                 }
-            } finally {
+                else {
+                    //script need not be run
+                    log.debug("Script did not run");
+                }
+            }
+            catch ( SQLException e ) {
+                log.error(e.getMessage());
+            }
+            finally {
                 s.close();
             }
-        } finally {
+        }
+        finally {
             c.close();
         }
 
