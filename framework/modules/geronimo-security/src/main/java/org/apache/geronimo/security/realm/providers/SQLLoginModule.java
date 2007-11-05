@@ -55,6 +55,7 @@ import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.KernelRegistry;
 import org.apache.geronimo.management.geronimo.JCAManagedConnectionFactory;
 import org.apache.geronimo.security.jaas.JaasLoginModuleUse;
+import org.apache.geronimo.security.jaas.WrappingLoginModule;
 import org.apache.geronimo.util.encoders.Base64;
 import org.apache.geronimo.util.encoders.HexTranslator;
 
@@ -119,7 +120,8 @@ public class SQLLoginModule implements LoginModule {
         this.subject = subject;
         this.handler = callbackHandler;
         for(Object option: options.keySet()) {
-            if(!supportedOptions.contains(option)) {
+            if(!supportedOptions.contains(option) && !JaasLoginModuleUse.supportedOptions.contains(option)
+                    && !WrappingLoginModule.supportedOptions.contains(option)) {
                 log.warn("Ignoring option: "+option+". Not supported.");
             }
         }

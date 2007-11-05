@@ -54,6 +54,8 @@ import javax.security.auth.spi.LoginModule;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.geronimo.security.jaas.JaasLoginModuleUse;
+import org.apache.geronimo.security.jaas.WrappingLoginModule;
 
 
 /**
@@ -120,7 +122,8 @@ public class LDAPLoginModule implements LoginModule {
         this.subject = subject;
         this.handler = callbackHandler;
         for(Object option: options.keySet()) {
-            if(!supportedOptions.contains(option)) {
+            if(!supportedOptions.contains(option) && !JaasLoginModuleUse.supportedOptions.contains(option)
+                    && !WrappingLoginModule.supportedOptions.contains(option)) {
                 log.warn("Ignoring option: "+option+". Not supported.");
             }
         }

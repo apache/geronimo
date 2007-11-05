@@ -16,6 +16,8 @@
  */
 package org.apache.geronimo.security.jaas;
 
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -41,6 +43,7 @@ public class JaasLoginModuleUse implements JaasLoginModuleChain {
     public final static String KERNEL_NAME_LM_OPTION = "org.apache.geronimo.security.realm.GenericSecurityRealm.KERNEL";
     public final static String SERVERINFO_LM_OPTION = "org.apache.geronimo.security.realm.GenericSecurityRealm.SERVERINFO";
     public final static String CLASSLOADER_LM_OPTION = "org.apache.geronimo.security.realm.GenericSecurityRealm.CLASSLOADER";
+    public final static List<String> supportedOptions = Collections.unmodifiableList(Arrays.asList(KERNEL_NAME_LM_OPTION, SERVERINFO_LM_OPTION, CLASSLOADER_LM_OPTION));
 
     private final LoginModuleSettings loginModule;
     private final JaasLoginModuleUse next;

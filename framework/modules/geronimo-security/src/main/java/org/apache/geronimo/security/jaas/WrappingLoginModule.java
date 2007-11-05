@@ -21,7 +21,10 @@
 package org.apache.geronimo.security.jaas;
 
 import java.security.Principal;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -40,6 +43,7 @@ public class WrappingLoginModule implements LoginModule {
     public static final String CLASS_OPTION = WrappingLoginModule.class.getName() + ".LoginModuleClass";
     public static final String DOMAIN_OPTION = WrappingLoginModule.class.getName() + ".DomainName";
     public static final String REALM_OPTION = WrappingLoginModule.class.getName() + ".RealmName";
+    public static final List<String> supportedOptions = Collections.unmodifiableList(Arrays.asList(CLASS_OPTION, DOMAIN_OPTION, REALM_OPTION));
     private String loginDomainName;
     private String realmName;
     private final Subject localSubject = new Subject();
