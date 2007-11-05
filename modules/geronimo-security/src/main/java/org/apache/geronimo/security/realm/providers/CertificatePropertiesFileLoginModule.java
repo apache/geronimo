@@ -46,6 +46,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.common.GeronimoSecurityException;
 import org.apache.geronimo.security.jaas.JaasLoginModuleUse;
+import org.apache.geronimo.security.jaas.WrappingLoginModule;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
 
 
@@ -86,7 +87,8 @@ public class CertificatePropertiesFileLoginModule implements LoginModule {
         this.subject = subject;
         this.handler = callbackHandler;
         for(Object option: options.keySet()) {
-            if(!supportedOptions.contains(option)) {
+            if(!supportedOptions.contains(option) && !JaasLoginModuleUse.supportedOptions.contains(option)
+                    && !WrappingLoginModule.supportedOptions.contains(option)) {
                 log.warn("Ignoring option: "+option+". Not supported.");
             }
         }
