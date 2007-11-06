@@ -68,7 +68,8 @@ public class LoginPropertiesFileTest extends AbstractLoginModuleTest {
         assertEquals("subject should have 2 domain principals (" + subject.getPrincipals(DomainPrincipal.class).size() + ")", 2, subject.getPrincipals(DomainPrincipal.class).size());
 
         context.logout();
-
+        assertEquals("subject should have no principals (" + subject.getPrincipals().size() + ")", 0, subject.getPrincipals().size());
+ 
         assertTrue("id of server subject should be null", ContextManager.getSubjectId(subject) == null);
     }
 

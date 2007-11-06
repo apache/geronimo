@@ -119,6 +119,7 @@ public class LoginSQLTest extends AbstractLoginModuleTest {
         assertEquals("server-side subject should have two domain principals", 2, subject.getPrincipals(DomainPrincipal.class).size());
 
         context.logout();
+        assertEquals("subject should have no principals (" + subject.getPrincipals().size() + ")", 0, subject.getPrincipals().size());
     }
 
     public void testNullUserLogin() throws Exception {

@@ -18,7 +18,6 @@
 package org.apache.geronimo.security.jaas;
 
 import java.io.ByteArrayInputStream;
-import java.io.File;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 import java.util.HashMap;
@@ -27,16 +26,13 @@ import java.util.Map;
 import javax.security.auth.Subject;
 import javax.security.auth.login.LoginContext;
 import javax.security.auth.login.LoginException;
-import javax.management.MalformedObjectNameException;
 
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.GBeanData;
-import org.apache.geronimo.security.AbstractTest;
 import org.apache.geronimo.security.ContextManager;
 import org.apache.geronimo.security.DomainPrincipal;
 import org.apache.geronimo.security.IdentificationPrincipal;
 import org.apache.geronimo.security.RealmPrincipal;
-import org.apache.geronimo.security.realm.GenericSecurityRealm;
 
 
 /**
@@ -71,50 +67,6 @@ public class LoginCertificatePropertiesFileTest extends AbstractLoginModuleTest 
                         +"PjUnrEF1laqhX4Rx+2u56VBA2SBnEaeADawaXWkD\n"
                         +"-----END CERTIFICATE-----";
 
-/*
-    public void setUp() throws Exception {
-        needServerInfo = true;
-        needLoginConfiguration = true;
-        super.setUp();
-
-        GBeanData gbean;
-
-        gbean = buildGBeanData("name", "CertificatePropertiesLoginModule", LoginModuleGBean.getGBeanInfo());
-        testCE = gbean.getAbstractName();
-        gbean.setAttribute("loginModuleClass", "org.apache.geronimo.security.realm.providers.CertificatePropertiesFileLoginModule");
-        Map<String, Object> props = new HashMap<String, Object>();
-        props.put("usersURI", new File(BASEDIR, "src/test/data/data/cert-users.properties").toURI().toString());
-        props.put("groupsURI", new File(BASEDIR, "src/test/data/data/groups.properties").toURI().toString());
-        gbean.setAttribute("options", props);
-        gbean.setAttribute("loginDomainName", "CertProperties");
-        gbean.setAttribute("wrapPrincipals", Boolean.TRUE);
-        kernel.loadGBean(gbean, LoginModuleGBean.class.getClassLoader());
-
-        gbean = buildGBeanData("name", "CertificatePropertiesLoginModuleUse", JaasLoginModuleUse.getGBeanInfo());
-        AbstractName testUseName = gbean.getAbstractName();
-        gbean.setAttribute("controlFlag", LoginModuleControlFlag.REQUIRED);
-        gbean.setReferencePattern("LoginModule", testCE);
-        kernel.loadGBean(gbean, JaasLoginModuleUse.class.getClassLoader());
-
-        gbean = buildGBeanData("name", "CertificatePropertiesSecurityRealm", GenericSecurityRealm.getGBeanInfo());
-        testRealm = gbean.getAbstractName();
-        gbean.setAttribute("realmName", "cert-properties-realm");
-        gbean.setAttribute("wrapPrincipals", Boolean.TRUE);
-        gbean.setReferencePattern("LoginModuleConfiguration", testUseName);
-        gbean.setReferencePattern("ServerInfo", serverInfo);
-        kernel.loadGBean(gbean, GenericSecurityRealm.class.getClassLoader());
-
-        kernel.startGBean(loginConfiguration);
-        kernel.startGBean(testCE);
-        kernel.startGBean(testUseName);
-        kernel.startGBean(testRealm);
-        
-        CertificateFactory certFac = CertificateFactory.getInstance("X.509");
-        cert = (X509Certificate) certFac.generateCertificate(new ByteArrayInputStream(certText.getBytes()));
-        badCert = (X509Certificate) certFac.generateCertificate(new ByteArrayInputStream(badCertText.getBytes()));
-    }
-*/
-
     protected GBeanData setupTestLoginModule() throws Exception {
         CertificateFactory certFac = CertificateFactory.getInstance("X.509");
         cert = (X509Certificate) certFac.generateCertificate(new ByteArrayInputStream(certText.getBytes()));
@@ -146,6 +98,7 @@ public class LoginCertificatePropertiesFileTest extends AbstractLoginModuleTest 
         assertEquals("subject should have 3 domain principals (" + subject.getPrincipals(DomainPrincipal.class).size() + ")", 3, subject.getPrincipals(DomainPrincipal.class).size());
 
         context.logout();
+        assertEquals("subject should have no principals (" + subject.getPrincipals().size() + ")", 0, subject.getPrincipals().size());
 
         assertTrue("id of server subject should be null", ContextManager.getSubjectId(subject) == null);
     }
