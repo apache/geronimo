@@ -69,7 +69,7 @@ public abstract class AbstractTest extends TestSupport {
         if (needServerInfo) {
             gbean = buildGBeanData("name", "ServerInfo", BasicServerInfo.GBEAN_INFO);
             serverInfo = gbean.getAbstractName();
-            gbean.setAttribute("baseDirectory", ".");
+            gbean.setAttribute("baseDirectory", BASEDIR.getAbsolutePath());
             kernel.loadGBean(gbean, ServerInfo.class.getClassLoader());
             kernel.startGBean(serverInfo);
         }
