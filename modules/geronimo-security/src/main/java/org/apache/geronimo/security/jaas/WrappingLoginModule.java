@@ -50,6 +50,7 @@ public class WrappingLoginModule implements LoginModule {
     private Subject subject;
     private LoginModule delegate;
 
+
     public WrappingLoginModule() {
     }
 
@@ -90,9 +91,9 @@ public class WrappingLoginModule implements LoginModule {
     }
 
     public boolean logout() throws LoginException {
-        boolean result = delegate.logout();
-
         subject.getPrincipals().removeAll(localSubject.getPrincipals());
+        boolean result = delegate.logout();
+                                             
         localSubject.getPrincipals().clear();
 
         return result;
