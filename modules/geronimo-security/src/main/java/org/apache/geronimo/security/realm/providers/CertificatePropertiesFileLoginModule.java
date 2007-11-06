@@ -32,7 +32,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
-import java.util.Collection;
 import javax.security.auth.Subject;
 import javax.security.auth.callback.Callback;
 import javax.security.auth.callback.CallbackHandler;
@@ -216,7 +215,7 @@ public class CertificatePropertiesFileLoginModule implements LoginModule {
         if(loginSucceeded) {
             // Clear out the private state
             principal = null;
-            allPrincipals.retainAll(Collections.EMPTY_SET);
+            allPrincipals.clear();
         }
         return loginSucceeded;
     }
@@ -229,7 +228,7 @@ public class CertificatePropertiesFileLoginModule implements LoginModule {
             // Remove principals added by this LoginModule
             subject.getPrincipals().removeAll(allPrincipals);
         }
-        allPrincipals.retainAll(Collections.EMPTY_SET);
+        allPrincipals.clear();
         return true;
     }
 

@@ -243,7 +243,7 @@ public class PropertiesFileLoginModule implements LoginModule {
             // Clear out the private state
             username = null;
             password = null;
-            allPrincipals.retainAll(Collections.EMPTY_SET);
+            allPrincipals.clear();
         }
         return loginSucceeded;
     }
@@ -257,7 +257,7 @@ public class PropertiesFileLoginModule implements LoginModule {
             // Remove principals added by this LoginModule
             subject.getPrincipals().removeAll(allPrincipals);
         }
-        allPrincipals.retainAll(Collections.EMPTY_SET);
+        allPrincipals.clear();
         return true;
     }
 

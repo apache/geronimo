@@ -129,7 +129,7 @@ public class CertificateChainLoginModule implements LoginModule {
         if(loginSucceeded) {
             // Clear out the private state
             principal = null;
-            allPrincipals.retainAll(Collections.EMPTY_SET);
+            allPrincipals.clear();
         }
         return loginSucceeded;
     }
@@ -142,7 +142,7 @@ public class CertificateChainLoginModule implements LoginModule {
             // Remove principals added by this LoginModule
             subject.getPrincipals().removeAll(allPrincipals);
         }
-        allPrincipals.retainAll(Collections.EMPTY_SET);
+        allPrincipals.clear();
         return true;
     }
 
