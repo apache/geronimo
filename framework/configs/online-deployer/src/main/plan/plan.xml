@@ -38,15 +38,6 @@
         </reference>
     </gbean>
 
-    <!--User-editable attribute service-->
-    <gbean name="AttributeManager" class="org.apache.geronimo.system.configuration.LocalAttributeManager">
-        <reference name="ServerInfo">
-            <name>ServerInfo</name>
-        </reference>
-        <attribute name="readOnly">true</attribute>
-        <attribute name="configFile">var/config/jsr88-configurer-config.xml</attribute>
-    </gbean>
-
     <!-- ArtifactManager -->
     <gbean name="ArtifactManager" class="org.apache.geronimo.kernel.repository.DefaultArtifactManager"/>
 
@@ -76,7 +67,7 @@
         <reference name="Stores"></reference>
         <reference name="Watchers"></reference>
         <reference name="AttributeStore">
-            <name>AttributeManager</name>
+            <name>ServerAttributeManager</name>
         </reference>
         <reference name="PersistentConfigurationList">
             <type>AttributeStore</type>
@@ -105,5 +96,30 @@
             <name>ServerInfo</name>
         </reference>
     </gbean>
+
+    <gbean name="DeployTool" class="org.apache.geronimo.deployment.cli.DeployTool" >
+                      <reference name="DeploymentFactory">
+                          <name>DeploymentFactory</name>
+                      </reference>
+                  </gbean>
+
+    <gbean name="DeploymentFactory" class="org.apache.geronimo.deployment.plugin.factories.DeploymentFactoryWithKernel" />
+
+    <gbean name="ModuleConfigurerRegistry" class="org.apache.geronimo.deployment.plugin.jmx.RemoteDeploymentManager">
+                  <references name="ModuleConfigurers">
+                      <pattern>
+                          <name>ClientConfigurer</name>
+                      </pattern>
+                      <pattern>
+                          <name>EARConfigurer</name>
+                      </pattern>
+                      <pattern>
+                          <name>RARConfigurer</name>
+                      </pattern>
+                      <pattern>
+                          <name>WARConfigurer</name>
+                      </pattern>
+                  </references>
+              </gbean>
 
 </module>
