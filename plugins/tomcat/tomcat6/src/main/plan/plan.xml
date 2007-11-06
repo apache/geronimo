@@ -139,7 +139,7 @@
             <name>TomcatJAASRealm</name>
         </reference>
         <reference name="TomcatValveChain">
-            <name>FirstValve</name>
+            <name>AccessLogValve</name>
         </reference>
         <reference name="MBeanServerReference">
             <name>MBeanServerReference</name>
@@ -162,13 +162,13 @@
         </reference>
         <references name="LogGBeans">
             <pattern>
-                <name>FirstValve</name>
+                <name>AccessLogValve</name>
             </pattern>
         </references>
     </gbean>
 
     <!-- Valve -->
-    <gbean name="FirstValve" class="org.apache.geronimo.tomcat.ValveGBean">
+    <gbean name="AccessLogValve" class="org.apache.geronimo.tomcat.ValveGBean">
         <attribute name="className">org.apache.catalina.valves.AccessLogValve</attribute>
         <attribute name="initParams">
             prefix=${PlanServerHostname}_access_log.
@@ -176,14 +176,14 @@
             pattern=common
         </attribute>
         <!-- Uncomment this section to add second valve for a chain.  This example consists of the Tomcat
-              AccessLogValve and SingleSignOn. Notice the dependency that chains the FirstValve with the
-              SecondValve.  The valves will be added in the order that they are chained.
-            <reference name="NextValve"><moduleType>J2EEModule</moduleType><name>SecondValve</name></reference>
+              AccessLogValve and SingleSignOn. Notice the dependency that chains the AccessLogValve with the
+              SingleSignOnValve.  The valves will be added in the order that they are chained.
+            <reference name="NextValve"><moduleType>J2EEModule</moduleType><name>SingleSignOnValve</name></reference>
         -->
     </gbean>
     <!-- Uncomment this section to add this valve  to the chain.  This example consists of the Tomcat
           SingleSignOn.
-    <gbean name="SecondValve" class="org.apache.geronimo.tomcat.ValveGBean">
+    <gbean name="SingleSignOnValve" class="org.apache.geronimo.tomcat.ValveGBean">
         <attribute name="className">org.apache.catalina.authenticator.SingleSignOn</attribute>
     </gbean>
     -->
@@ -221,7 +221,7 @@
 
              Uncomment this to add the valve chain to the Host
         <reference name="TomcatValveChain">
-            <name>FirstValve</name>
+            <name>AccessLogValve</name>
         </reference>
         -->
     </gbean>

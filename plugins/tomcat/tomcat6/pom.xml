@@ -135,7 +135,7 @@
                                 <gbean name="TomcatEngine">
                                     <reference name="TomcatValveChain" />
                                 </gbean>
-                                <gbean name="FirstValve" load="false"></gbean>
+                                <gbean name="AccessLogValve" load="false"></gbean>
                                 -->
                                 <gbean name="TomcatResources"/>
                                 <gbean name="TomcatWebConnector">
