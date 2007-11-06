@@ -173,7 +173,7 @@ public class LDAPLoginModule implements LoginModule {
             // Clear out the private state
             cbUsername = null;
             cbPassword = null;
-            groups.retainAll(Collections.EMPTY_SET);
+            groups.clear();
             throw new FailedLoginException();
         }
 
@@ -186,13 +186,13 @@ public class LDAPLoginModule implements LoginModule {
             // Clear out the private state
             cbUsername = null;
             cbPassword = null;
-            groups.retainAll(Collections.EMPTY_SET);
+            groups.clear();
             throw e;
         } catch (Exception e) {
             // Clear out the private state
             cbUsername = null;
             cbPassword = null;
-            groups.retainAll(Collections.EMPTY_SET);
+            groups.clear();
             throw (LoginException) new LoginException("LDAP Error").initCause(e);
         }
 
@@ -219,7 +219,7 @@ public class LDAPLoginModule implements LoginModule {
         // Clear out the private state
         cbUsername = null;
         cbPassword = null;
-        groups.retainAll(Collections.EMPTY_SET);
+        groups.clear();
 
         return loginSucceeded;
     }
@@ -229,8 +229,8 @@ public class LDAPLoginModule implements LoginModule {
             // Clear out the private state
             cbUsername = null;
             cbPassword = null;
-            groups.retainAll(Collections.EMPTY_SET);
-            allPrincipals.retainAll(Collections.EMPTY_SET);
+            groups.clear();
+            allPrincipals.clear();
         }
         return loginSucceeded;
     }
@@ -240,12 +240,12 @@ public class LDAPLoginModule implements LoginModule {
         loginSucceeded = false;
         cbUsername = null;
         cbPassword = null;
-        groups.retainAll(Collections.EMPTY_SET);
+        groups.clear();
         if(!subject.isReadOnly()) {
             // Remove principals added by this LoginModule
             subject.getPrincipals().removeAll(allPrincipals);
         }
-        allPrincipals.retainAll(Collections.EMPTY_SET);
+        allPrincipals.clear();
         return true;
     }
 
