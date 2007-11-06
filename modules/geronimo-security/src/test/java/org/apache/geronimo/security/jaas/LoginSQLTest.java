@@ -28,29 +28,18 @@ import javax.security.auth.Subject;
 import javax.security.auth.login.LoginContext;
 import javax.security.auth.login.LoginException;
 
-import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.GBeanData;
-import org.apache.geronimo.security.AbstractTest;
-import org.apache.geronimo.security.ContextManager;
 import org.apache.geronimo.security.DomainPrincipal;
-import org.apache.geronimo.security.IdentificationPrincipal;
 import org.apache.geronimo.security.RealmPrincipal;
-import org.apache.geronimo.security.realm.GenericSecurityRealm;
 
 
 /**
  * @version $Rev$ $Date$
  */
-public class LoginSQLTest extends AbstractTest {
-    private File basedir = new File(System.getProperty("basedir"));
-    private String hsqldbURL = "jdbc:hsqldb:" + new File(basedir, "target/database/LoginSQLTest");
-    
-    protected AbstractName sqlRealm;
-    protected AbstractName sqlModule;
+public class LoginSQLTest extends AbstractLoginModuleTest {
+    private String hsqldbURL = "jdbc:hsqldb:" + new File(BASEDIR, "target/database/LoginSQLTest");
 
-    public void setUp() throws Exception {
-        super.setUp();
-
+    protected GBeanData setupTestLoginModule() throws Exception {
         DriverManager.registerDriver(new org.hsqldb.jdbcDriver());
 
         Connection conn = DriverManager.getConnection(hsqldbURL, "sa", "");
@@ -86,7 +75,6 @@ public class LoginSQLTest extends AbstractTest {
         conn.close();
 
         GBeanData gbean = buildGBeanData("name", "SQLLoginModule", LoginModuleGBean.getGBeanInfo());
-        sqlModule = gbean.getAbstractName();
         gbean.setAttribute("loginModuleClass", "org.apache.geronimo.security.realm.providers.SQLLoginModule");
         Map<String, Object> props = new HashMap<String, Object>();
         props.put("jdbcURL", hsqldbURL);
@@ -98,30 +86,11 @@ public class LoginSQLTest extends AbstractTest {
         gbean.setAttribute("options", props);
         gbean.setAttribute("loginDomainName", "SQLDomain");
         gbean.setAttribute("wrapPrincipals", Boolean.TRUE);
-        kernel.loadGBean(gbean, LoginModuleGBean.class.getClassLoader());
-        kernel.startGBean(sqlModule);
-
-        gbean = buildGBeanData("name", "SQLLoginModuleUse", JaasLoginModuleUse.getGBeanInfo());
-        AbstractName testUseName = gbean.getAbstractName();
-        gbean.setAttribute("controlFlag", LoginModuleControlFlag.REQUIRED);
-        gbean.setReferencePattern("LoginModule", sqlModule);
-        kernel.loadGBean(gbean, JaasLoginModuleUse.class.getClassLoader());
-        kernel.startGBean(testUseName);
-
-        gbean = buildGBeanData("name", "SQLSecurityRealm", GenericSecurityRealm.getGBeanInfo());
-        sqlRealm = gbean.getAbstractName();
-        gbean.setAttribute("realmName", "sql-realm");
-        gbean.setReferencePattern("LoginModuleConfiguration", testUseName);
-        kernel.loadGBean(gbean, GenericSecurityRealm.class.getClassLoader());
-        kernel.startGBean(sqlRealm);
-
+        return gbean;
     }
 
     public void tearDown() throws Exception {
-        kernel.stopGBean(sqlRealm);
-        kernel.stopGBean(sqlModule);
-        kernel.unloadGBean(sqlRealm);
-        kernel.unloadGBean(sqlModule);
+
 
         super.tearDown();
 
@@ -132,6 +101,7 @@ public class LoginSQLTest extends AbstractTest {
 
             conn.prepareStatement("DROP TABLE Users;").executeUpdate();
             conn.prepareStatement("DROP TABLE Groups;").executeUpdate();
+            conn.close();
         } catch (SQLException e) {
             //who knows??
         }
@@ -139,7 +109,7 @@ public class LoginSQLTest extends AbstractTest {
     }
 
     public void testLogin() throws Exception {
-        LoginContext context = new LoginContext("sql-realm", new UsernamePasswordCallback("alan", "starcraft"));
+        LoginContext context = new LoginContext(SIMPLE_REALM, new UsernamePasswordCallback("alan", "starcraft"));
 
         context.login();
         Subject subject = context.getSubject();
@@ -152,7 +122,7 @@ public class LoginSQLTest extends AbstractTest {
     }
 
     public void testNullUserLogin() throws Exception {
-        LoginContext context = new LoginContext("sql-realm", new UsernamePasswordCallback(null, "starcraft"));
+        LoginContext context = new LoginContext(SIMPLE_REALM, new UsernamePasswordCallback(null, "starcraft"));
 
         try {
             context.login();
@@ -162,7 +132,7 @@ public class LoginSQLTest extends AbstractTest {
     }
 
     public void testBadUserLogin() throws Exception {
-        LoginContext context = new LoginContext("sql-realm", new UsernamePasswordCallback("bad", "starcraft"));
+        LoginContext context = new LoginContext(SIMPLE_REALM, new UsernamePasswordCallback("bad", "starcraft"));
     
         try {
             context.login();
@@ -172,7 +142,7 @@ public class LoginSQLTest extends AbstractTest {
     }
 
     public void testNullPasswordLogin() throws Exception {
-        LoginContext context = new LoginContext("sql-realm", new UsernamePasswordCallback("alan", null));
+        LoginContext context = new LoginContext(SIMPLE_REALM, new UsernamePasswordCallback("alan", null));
 
         try {
             context.login();
@@ -182,12 +152,22 @@ public class LoginSQLTest extends AbstractTest {
     }
 
     public void testBadPasswordLogin() throws Exception {
-        LoginContext context = new LoginContext("sql-realm", new UsernamePasswordCallback("alan", "bad"));
+        LoginContext context = new LoginContext(SIMPLE_REALM, new UsernamePasswordCallback("alan", "bad"));
 
         try {
             context.login();
             fail("Should not allow this login with bad password");
         } catch (LoginException e) {
         }
+    }
+
+    public void testNoPrincipalsAddedOnFailure() throws Exception {
+        LoginContext context = new LoginContext(COMPLEX_REALM, new UsernamePasswordCallback("alan", "bad"));
+
+        context.login();
+        Subject subject = context.getSubject();
+        assertTrue("expected non-null subject", subject != null);
+        assertTrue(subject.getPrincipals().size() == 0);
+        context.logout();
     }
 }

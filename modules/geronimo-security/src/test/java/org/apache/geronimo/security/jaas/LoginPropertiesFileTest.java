@@ -24,6 +24,7 @@ import java.util.Map;
 import javax.security.auth.Subject;
 import javax.security.auth.login.LoginContext;
 import javax.security.auth.login.LoginException;
+import javax.management.MalformedObjectNameException;
 
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.GBeanData;
@@ -38,66 +39,24 @@ import org.apache.geronimo.security.realm.GenericSecurityRealm;
 /**
  * @version $Rev$ $Date$
  */
-public class LoginPropertiesFileTest extends AbstractTest {
-    protected AbstractName clientCE;
-    protected AbstractName testCE;
-    protected AbstractName testRealm;
+public class LoginPropertiesFileTest extends AbstractLoginModuleTest {
 
-    public void setUp() throws Exception {
-        needServerInfo = true;
-        needLoginConfiguration = true;
-        super.setUp();
-
+    protected GBeanData setupTestLoginModule() throws MalformedObjectNameException {
         GBeanData gbean;
-
         gbean = buildGBeanData("name", "PropertiesLoginModule", LoginModuleGBean.getGBeanInfo());
-        testCE = gbean.getAbstractName();
         gbean.setAttribute("loginModuleClass", "org.apache.geronimo.security.realm.providers.PropertiesFileLoginModule");
         Map<String, Object> props = new HashMap<String, Object>();
-        props.put("usersURI", new File(BASEDIR, "src/test/data/data/users.properties").toURI().toString());
-        props.put("groupsURI", new File(BASEDIR, "src/test/data/data/groups.properties").toURI().toString());
+        props.put("usersURI", "src/test/data/data/users.properties");
+        props.put("groupsURI", "src/test/data/data/groups.properties");
         gbean.setAttribute("options", props);
         gbean.setAttribute("loginDomainName", "TestProperties");
         gbean.setAttribute("wrapPrincipals", Boolean.TRUE);
-        kernel.loadGBean(gbean, LoginModuleGBean.class.getClassLoader());
-
-        gbean = buildGBeanData("name", "PropertiesLoginModuleUse", JaasLoginModuleUse.getGBeanInfo());
-        AbstractName testUseName = gbean.getAbstractName();
-        gbean.setAttribute("controlFlag", LoginModuleControlFlag.REQUIRED);
-        gbean.setReferencePattern("LoginModule", testCE);
-        kernel.loadGBean(gbean, JaasLoginModuleUse.class.getClassLoader());
-
-        gbean = buildGBeanData("name", "PropertiesSecurityRealm", GenericSecurityRealm.getGBeanInfo());
-        testRealm = gbean.getAbstractName();
-        gbean.setAttribute("realmName", "properties-realm");
-        gbean.setAttribute("wrapPrincipals", Boolean.TRUE);
-        gbean.setReferencePattern("LoginModuleConfiguration", testUseName);
-        gbean.setReferencePattern("ServerInfo", serverInfo);
-        kernel.loadGBean(gbean, GenericSecurityRealm.class.getClassLoader());
-
-        kernel.startGBean(loginConfiguration);
-        kernel.startGBean(testCE);
-        kernel.startGBean(testUseName);
-        kernel.startGBean(testRealm);
-    }
-
-    public void tearDown() throws Exception {
-        kernel.stopGBean(testRealm);
-        kernel.stopGBean(testCE);
-        kernel.stopGBean(loginConfiguration);
-        kernel.stopGBean(serverInfo);
-
-        kernel.unloadGBean(testCE);
-        kernel.unloadGBean(testRealm);
-        kernel.unloadGBean(loginConfiguration);
-        kernel.unloadGBean(serverInfo);
-
-        super.tearDown();
+        return gbean;
     }
 
     public void testLogin() throws Exception {
 
-        LoginContext context = new LoginContext("properties-realm", new AbstractTest.UsernamePasswordCallback("alan", "starcraft"));
+        LoginContext context = new LoginContext(SIMPLE_REALM, new AbstractTest.UsernamePasswordCallback("alan", "starcraft"));
 
         context.login();
         Subject subject = context.getSubject();
@@ -114,7 +73,7 @@ public class LoginPropertiesFileTest extends AbstractTest {
     }
 
     public void testNullUserLogin() throws Exception {
-        LoginContext context = new LoginContext("properties-realm", new UsernamePasswordCallback(null, "starcraft"));
+        LoginContext context = new LoginContext(SIMPLE_REALM, new UsernamePasswordCallback(null, "starcraft"));
 
         try {
             context.login();
@@ -124,7 +83,7 @@ public class LoginPropertiesFileTest extends AbstractTest {
     }
 
     public void testBadUserLogin() throws Exception {
-        LoginContext context = new LoginContext("properties-realm", new UsernamePasswordCallback("bad", "starcraft"));
+        LoginContext context = new LoginContext(SIMPLE_REALM, new UsernamePasswordCallback("bad", "starcraft"));
 
         try {
             context.login();
@@ -134,7 +93,7 @@ public class LoginPropertiesFileTest extends AbstractTest {
     }
 
     public void testNullPasswordLogin() throws Exception {
-        LoginContext context = new LoginContext("properties-realm", new UsernamePasswordCallback("alan", null));
+        LoginContext context = new LoginContext(SIMPLE_REALM, new UsernamePasswordCallback("alan", null));
 
         try {
             context.login();
@@ -144,7 +103,7 @@ public class LoginPropertiesFileTest extends AbstractTest {
     }
 
     public void testBadPasswordLogin() throws Exception {
-        LoginContext context = new LoginContext("properties-realm", new UsernamePasswordCallback("alan", "bad"));
+        LoginContext context = new LoginContext(SIMPLE_REALM, new UsernamePasswordCallback("alan", "bad"));
 
         try {
             context.login();
@@ -152,4 +111,15 @@ public class LoginPropertiesFileTest extends AbstractTest {
         } catch (LoginException e) {
         }
     }
+
+    public void testNoPrincipalsAddedOnFailure() throws Exception {
+        LoginContext context = new LoginContext(COMPLEX_REALM, new UsernamePasswordCallback("alan", "bad"));
+
+        context.login();
+        Subject subject = context.getSubject();
+        assertTrue("expected non-null subject", subject != null);
+        assertTrue("expected zero principals", subject.getPrincipals().size() == 0);
+        context.logout();
+    }
+
 }

@@ -27,6 +27,7 @@ import java.util.Map;
 import javax.security.auth.Subject;
 import javax.security.auth.login.LoginContext;
 import javax.security.auth.login.LoginException;
+import javax.management.MalformedObjectNameException;
 
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.GBeanData;
@@ -43,7 +44,7 @@ import org.apache.geronimo.security.realm.GenericSecurityRealm;
  * 
  * @version $Rev$ $Date$
  */
-public class LoginCertificatePropertiesFileTest extends AbstractTest {
+public class LoginCertificatePropertiesFileTest extends AbstractLoginModuleTest {
     protected AbstractName clientCE;
     protected AbstractName testCE;
     protected AbstractName testRealm;
@@ -70,6 +71,7 @@ public class LoginCertificatePropertiesFileTest extends AbstractTest {
                         +"PjUnrEF1laqhX4Rx+2u56VBA2SBnEaeADawaXWkD\n"
                         +"-----END CERTIFICATE-----";
 
+/*
     public void setUp() throws Exception {
         needServerInfo = true;
         needLoginConfiguration = true;
@@ -111,24 +113,28 @@ public class LoginCertificatePropertiesFileTest extends AbstractTest {
         cert = (X509Certificate) certFac.generateCertificate(new ByteArrayInputStream(certText.getBytes()));
         badCert = (X509Certificate) certFac.generateCertificate(new ByteArrayInputStream(badCertText.getBytes()));
     }
+*/
 
-    public void tearDown() throws Exception {
-        kernel.stopGBean(testRealm);
-        kernel.stopGBean(testCE);
-        kernel.stopGBean(loginConfiguration);
-        kernel.stopGBean(serverInfo);
+    protected GBeanData setupTestLoginModule() throws Exception {
+        CertificateFactory certFac = CertificateFactory.getInstance("X.509");
+        cert = (X509Certificate) certFac.generateCertificate(new ByteArrayInputStream(certText.getBytes()));
+        badCert = (X509Certificate) certFac.generateCertificate(new ByteArrayInputStream(badCertText.getBytes()));
 
-        kernel.unloadGBean(testCE);
-        kernel.unloadGBean(testRealm);
-        kernel.unloadGBean(loginConfiguration);
-        kernel.unloadGBean(serverInfo);
-
-        super.tearDown();
+        GBeanData gbean = buildGBeanData("name", "CertificatePropertiesLoginModule", LoginModuleGBean.getGBeanInfo());
+        testCE = gbean.getAbstractName();
+        gbean.setAttribute("loginModuleClass", "org.apache.geronimo.security.realm.providers.CertificatePropertiesFileLoginModule");
+        Map<String, Object> props = new HashMap<String, Object>();
+        props.put("usersURI", "src/test/data/data/cert-users.properties");
+        props.put("groupsURI", "src/test/data/data/groups.properties");
+        gbean.setAttribute("options", props);
+        gbean.setAttribute("loginDomainName", "CertProperties");
+        gbean.setAttribute("wrapPrincipals", Boolean.TRUE);
+        return gbean;
     }
 
     public void testLogin() throws Exception {
 
-        LoginContext context = new LoginContext("cert-properties-realm", new CertCallback(cert));
+        LoginContext context = new LoginContext(SIMPLE_REALM, new CertCallback(cert));
 
         context.login();
         Subject subject = context.getSubject();
@@ -144,8 +150,8 @@ public class LoginCertificatePropertiesFileTest extends AbstractTest {
         assertTrue("id of server subject should be null", ContextManager.getSubjectId(subject) == null);
     }
 
-    public void testNullCertificateLogin() throws Exception {
-        LoginContext context = new LoginContext("cert-properties-realm", new CertCallback(null));
+    public void testNullUserLogin() throws Exception {
+        LoginContext context = new LoginContext(SIMPLE_REALM, new CertCallback(null));
 
         try {
             context.login();
@@ -154,8 +160,8 @@ public class LoginCertificatePropertiesFileTest extends AbstractTest {
         }
     }
 
-    public void testBadUserCertificate() throws Exception {
-        LoginContext context = new LoginContext("cert-properties-realm", new CertCallback(badCert));
+    public void testBadUserLogin() throws Exception {
+        LoginContext context = new LoginContext(SIMPLE_REALM, new CertCallback(badCert));
 
         try {
             context.login();
@@ -163,4 +169,23 @@ public class LoginCertificatePropertiesFileTest extends AbstractTest {
         } catch (LoginException e) {
         }
     }
+
+    public void testNullPasswordLogin() throws Exception {
+        //not relevant
+    }
+
+    public void testBadPasswordLogin() throws Exception {
+        //not relevant
+    }
+
+    public void testNoPrincipalsAddedOnFailure() throws Exception {
+        LoginContext context = new LoginContext(COMPLEX_REALM, new CertCallback(badCert));
+
+        context.login();
+        Subject subject = context.getSubject();
+        assertTrue("expected non-null subject", subject != null);
+        assertEquals("expected zero principals", 0, subject.getPrincipals().size());
+        context.logout();
+    }
+
 }
