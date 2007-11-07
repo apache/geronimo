@@ -163,7 +163,7 @@
                             <artifactId>xpp3</artifactId>
                         </element>
                         <element>
-                            <groupId>xstream</groupId>
+                            <groupId>com.thoughtworks.xstream</groupId>
                             <artifactId>xstream</artifactId>
                         </element>
                     </classpath>
