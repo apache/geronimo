@@ -49,10 +49,8 @@ import org.apache.geronimo.xbeans.geronimo.naming.GerEjbRefDocument;
 import org.apache.geronimo.xbeans.geronimo.naming.GerPatternType;
 import org.apache.geronimo.xbeans.geronimo.naming.GerEjbLocalRefDocument;
 import org.apache.geronimo.xbeans.geronimo.naming.GerEjbLocalRefType;
-import org.apache.openejb.Injection;
 import org.apache.openejb.OpenEJBException;
 import org.apache.openejb.assembler.classic.EjbJarInfo;
-import org.apache.openejb.assembler.classic.InjectionBuilder;
 import org.apache.openejb.assembler.classic.JndiEncBuilder;
 import org.apache.openejb.assembler.classic.JndiEncInfo;
 import org.apache.openejb.config.JndiEncInfoBuilder;
@@ -149,13 +147,7 @@ public class EjbRefBuilder extends AbstractNamingBuilder {
             } else {
                 jndiEncInfo = jndiEncInfoBuilder.build(consumer, "GeronimoEnc", module.getTargetPath());
             }
-//            JndiEncBuilder jndiEncBuilder = new JndiEncBuilder(jndiEncInfo, module.getName());
-            // determind the injections
-            InjectionBuilder injectionBuilder = new InjectionBuilder(getClass().getClassLoader());
-            List<Injection> injections = injectionBuilder.buildInjections(jndiEncInfo);
-
-            // build the enc
-            JndiEncBuilder jndiEncBuilder = new JndiEncBuilder(jndiEncInfo, injections, module.getName(), getClass().getClassLoader());
+            JndiEncBuilder jndiEncBuilder = new JndiEncBuilder(jndiEncInfo, null, module.getName(), getClass().getClassLoader());
 
             map = jndiEncBuilder.buildMap();
         } catch (OpenEJBException e) {
