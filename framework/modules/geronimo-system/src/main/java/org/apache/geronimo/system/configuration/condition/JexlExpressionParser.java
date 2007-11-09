@@ -149,7 +149,7 @@ public class JexlExpressionParser {
                 break;
             }
 
-            suffixLoc = input.indexOf("}", prefixLoc);
+            suffixLoc = findBlockEnd(prefixLoc + 2, input);
             if (suffixLoc < 0) {
                 throw new RuntimeException("Missing '}': " + input);
             }
@@ -176,6 +176,24 @@ public class JexlExpressionParser {
         return buff.toString();
     }
 
+    private int findBlockEnd(int pos, String input) {
+        int nested = 0;
+        while (pos < input.length()) {
+            char ch = input.charAt(pos);
+            if (ch == '{') {
+                nested++;
+            } else if (ch == '}') {
+                if (nested == 0) {
+                    return pos;
+                } else {
+                    nested--;
+                }
+            }
+            pos++;
+        }
+        return -1;
+    }
+    
     public String parse(final String input, final boolean trim) {
         String output = parse(input);
         if (trim && output != null) {

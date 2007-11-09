@@ -272,6 +272,10 @@ public class ServerOverrideTest extends TestCase {
         gbean.setAttribute("expression", "${if (java == null) 'null'; else 'non-null';}");
         gbean.applyOverrides(data, null, null, getClass().getClassLoader());
         assertEquals("non-null", data.getAttribute("expression"));
+        
+        gbean.setAttribute("expression", "${if (java == null) { 'null'; } else { if (os == null) { 'java,null'; } else { 'java,non-null'; } } }");
+        gbean.applyOverrides(data, null, null, getClass().getClassLoader());
+        assertEquals("java,non-null", data.getAttribute("expression"));
     }
 
     private void assertCopyIdentical(ServerOverride server) throws Exception {
