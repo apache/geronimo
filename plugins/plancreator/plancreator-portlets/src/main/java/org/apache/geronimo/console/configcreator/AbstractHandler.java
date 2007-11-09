@@ -36,7 +36,6 @@ import org.apache.geronimo.xbeans.geronimo.security.GerRealmPrincipalType;
 import org.apache.geronimo.xbeans.geronimo.security.GerRoleType;
 import org.apache.geronimo.xbeans.geronimo.security.GerSecurityType;
 import org.apache.geronimo.xbeans.geronimo.security.GerSubjectInfoType;
-import org.apache.xmlbeans.XmlException;
 
 /**
  * Base class for portlet helpers
@@ -122,6 +121,8 @@ public abstract class AbstractHandler extends MultiPageAbstractHandler {
     protected final static String DEPLOYED_JAVAMAIL_SESSIONS_PARAMETER = "deployedJavaMailSessions";
 
     protected final static String DEPLOYED_SECURITY_REALMS_PARAMETER = "deployedSecurityRealms";
+
+    protected final static String DEPLOYED_CREDENTIAL_STORES_PARAMETER = "deployedCredentialStores";
 
     protected final static String COMMON_LIBS_PARAMETER = "commonLibs";
 
@@ -241,6 +242,11 @@ public abstract class AbstractHandler extends MultiPageAbstractHandler {
 
         private void readSecurityParameters(PortletRequest request) {
             Map map = request.getParameterMap();
+            boolean processAdvancedSettings = false;
+            if (map.containsKey("security.advancedSettings.isPresent")
+                    && "true".equalsIgnoreCase(request.getParameter("security.advancedSettings.isPresent"))) {
+                processAdvancedSettings = true;
+            }
             GerRoleType[] roles = security.getRoleMappings().getRoleArray();
             for (int index = 0; index < roles.length; index++) {
                 String prefix1 = "security.roleMappings" + "." + index + ".";
@@ -304,40 +310,63 @@ public abstract class AbstractHandler extends MultiPageAbstractHandler {
                     distinguishedName.setName(request.getParameter(prefix2 + "name"));
                 }
 
-                String prefix2 = prefix1 + "runAsSubject" + ".";
-                if (map.containsKey(prefix2 + "realm")) {
-                    role.unsetRunAsSubject();
-                    GerSubjectInfoType runAsSubject = role.addNewRunAsSubject();
-                    runAsSubject.setRealm(request.getParameter(prefix2 + "realm"));
-                    runAsSubject.setId(request.getParameter(prefix2 + "id"));
+                if (processAdvancedSettings) {
+                    String prefix2 = prefix1 + "runAsSubject" + ".";
+                    if (map.containsKey(prefix2 + "realm")) {
+                        if (role.isSetRunAsSubject()) {
+                            role.unsetRunAsSubject();
+                        }
+                        String realm = request.getParameter(prefix2 + "realm");
+                        String id = request.getParameter(prefix2 + "id");
+                        if (!isEmpty(realm) && !isEmpty(id)) {
+                            GerSubjectInfoType runAsSubject = role.addNewRunAsSubject();
+                            runAsSubject.setRealm(realm);
+                            runAsSubject.setId(id);
+                        }
+                    }
                 }
             }
-            String prefix = "security" + "." + "defaultSubject" + ".";
-            if (map.containsKey(prefix + "realm")) {
-                security.unsetDefaultSubject();
-                GerSubjectInfoType runAsSubject = security.addNewDefaultSubject();
-                runAsSubject.setRealm(request.getParameter(prefix + "realm"));
-                runAsSubject.setId(request.getParameter(prefix + "id"));
-            }
-            String parameterName = "security" + "." + "credentialStoreRef";
-            if (map.containsKey(parameterName)) {
-                try {
-                    PatternType pattern = PatternType.Factory.parse(request.getParameter(parameterName));
+            if(processAdvancedSettings) {
+                String parameterName = "security" + "." + "credentialStoreRef";
+                if (map.containsKey(parameterName)) {
+                    String patternString = request.getParameter(parameterName);
+                    String[] elements = patternString.split("/", 6);
+                    PatternType pattern = PatternType.Factory.newInstance();
+                    pattern.setGroupId(elements[0]);
+                    pattern.setArtifactId(elements[1]);
+                    //pattern.setVersion(elements[2]);
+                    //pattern.setType(elements[3]);
+                    //pattern.setModule(elements[4]);
+                    pattern.setName(elements[5]);
                     security.setCredentialStoreRef(pattern);
-                } catch (XmlException e) {
-                    e.printStackTrace();
+                    dependencies.add(JSR88_Util.getDependencyString(patternString));
+                }
+                String prefix = "security" + "." + "defaultSubject" + ".";
+                if (map.containsKey(prefix + "realm")) {
+                    if(security.isSetDefaultSubject()) {
+                        security.unsetDefaultSubject();
+                    }
+                    String realm = request.getParameter(prefix + "realm");
+                    String id = request.getParameter(prefix + "id");
+                    if (!isEmpty(realm) && !isEmpty(id)) {
+                        GerSubjectInfoType runAsSubject = security.addNewDefaultSubject();
+                        runAsSubject.setRealm(realm);
+                        runAsSubject.setId(id);
+                    }
+                }
+                parameterName = "security" + "." + "doasCurrentCaller";
+                if ("true".equalsIgnoreCase(request.getParameter(parameterName))) {
+                    security.setDoasCurrentCaller(true);
+                }
+                parameterName = "security" + "." + "useContextHandler";
+                if ("true".equalsIgnoreCase(request.getParameter(parameterName))) {
+                    security.setUseContextHandler(true);
+                }
+                String defaultRole = request.getParameter("security" + "." + "defaultRole");
+                if (!isEmpty(defaultRole)) {
+                    security.setDefaultRole(defaultRole);
                 }
             }
-            parameterName = "security" + "." + "doasCurrentCaller";
-            if ("true".equalsIgnoreCase(request.getParameter(parameterName))) {
-                security.setDoasCurrentCaller(true);
-            }
-            parameterName = "security" + "." + "useContextHandler";
-            if ("true".equalsIgnoreCase(request.getParameter(parameterName))) {
-                security.setUseContextHandler(true);
-            }
-            parameterName = "security" + "." + "defaultRole";
-            security.setDefaultRole(request.getParameter(parameterName));
         }
 
         public String getContextRoot() {

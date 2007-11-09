@@ -186,8 +186,8 @@ public class JSR77_Util {
                 AbstractName dbName = PortletManager.getManagementHelper(request).getNameFor(db);
                 String poolName = (String) dbName.getName().get(NameFactory.J2EE_NAME);
                 String configurationName = dbName.getArtifact().toString() + "/";
-                ReferredData data = new ReferredData(poolName + " (" + configurationName + ")", configurationName
-                        + "/" + poolName);
+                ReferredData data = new ReferredData(poolName + " (" + configurationName + ")", 
+                        configurationName + "/" + poolName);
                 list.add(data);
             }
         }
@@ -217,6 +217,21 @@ public class JSR77_Util {
             }
         }
         return mailSessionList;
+    }
+
+    protected static List getDeployedCredentialStores(PortletRequest request) {
+        List credentialStoreList = new ArrayList();
+        Object[] objects = PortletManager.getGBeansImplementing(request,
+                org.apache.geronimo.security.credentialstore.CredentialStore.class);
+        for (int i = 0; i < objects.length; i++) {
+            ObjectName objectName = PortletManager.getNameFor(request, objects[i]).getObjectName();
+            String credentialStoreName = objectName.getKeyProperty(NameFactory.J2EE_NAME);
+            String configurationName = objectName.getKeyProperty(NameFactory.SERVICE_MODULE) + "/";
+            ReferredData data = new ReferredData(credentialStoreName + " (" + configurationName + ")",
+                    configurationName + "/" + credentialStoreName);
+            credentialStoreList.add(data);
+        }
+        return credentialStoreList;
     }
 
     protected static List getCommonLibs(PortletRequest request) {

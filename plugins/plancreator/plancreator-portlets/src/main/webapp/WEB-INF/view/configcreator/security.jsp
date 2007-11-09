@@ -36,6 +36,42 @@ function <portlet:namespace/>hideElement(id) {
   }
 }
 
+function <portlet:namespace/>toggleAdvancedSecuritySettings() {
+  var checkBox = document.getElementById("<portlet:namespace/>advancedSecuritySettingsCheckbox");
+  if (checkBox.checked) {
+    <portlet:namespace/>showElement("advancedSecuritySettings");
+    var advancedSettingsFlag = document.getElementById("<portlet:namespace/>advancedSecuritySettingsFlag");
+    advancedSettingsFlag.value = "true";
+  } else {
+    <portlet:namespace/>hideElement("advancedSecuritySettings");
+    var advancedSettingsFlag = document.getElementById("<portlet:namespace/>advancedSecuritySettingsFlag");
+    advancedSettingsFlag.value = "false";
+  }
+  for (i = 0; i >= 0; i++) { //infinite loop
+    var runAsSubjectId = "security.roleMappings." + i + ".runAsSubject";
+    var runAsSubjectCheckBox = document.getElementById("<portlet:namespace/>" + runAsSubjectId + ".checkBox");
+    if (runAsSubjectCheckBox == null) {
+      break;
+    }
+    if (checkBox.checked) {
+      runAsSubjectCheckBox.disabled = false;
+    } else {
+      runAsSubjectCheckBox.disabled = true;
+      runAsSubjectCheckBox.checked = false;
+      <portlet:namespace/>hideElement(runAsSubjectId + ".subElements");
+    }
+  }
+}
+
+function <portlet:namespace/>toggleRunAsSubject(runAsSubjectId) {
+  var checkBox = document.getElementById("<portlet:namespace/>" + runAsSubjectId + ".checkBox");
+  if (checkBox.checked) {
+    <portlet:namespace/>showElement(runAsSubjectId + ".subElements");
+  } else {
+    <portlet:namespace/>hideElement(runAsSubjectId + ".subElements");
+  }
+}
+
 function <portlet:namespace/>handleAddClick(roleId, type) {
   if (type == "principal") {
     <portlet:namespace/>showElement(roleId + '.principal.ui');
@@ -259,11 +295,84 @@ not yet logged in.</p>
   </tr>
 </table>
 
+<div>
+  <input type="checkbox" id="<portlet:namespace/>advancedSecuritySettingsCheckbox"
+    onClick="<portlet:namespace/>toggleAdvancedSecuritySettings();"/>
+  <b>Advanced Settings</b>
+  <div id="<portlet:namespace/>advancedSecuritySettings" style="display:none">
+    <input type="hidden" id="<portlet:namespace/>advancedSecuritySettingsFlag"
+      name="security.advancedSettings.isPresent" value="false"/>
+    <table border="0" class="MediumBackground">
+      <!-- Credential Store Ref -->
+      <tr>
+        <th><div align="left">Credential Store:</div></th>
+        <td>
+          <select name="security.credentialStoreRef">
+            <c:forEach var="credentialStore" items="${deployedCredentialStores}">
+              <option value="${credentialStore.patternName}">${credentialStore.displayName}</option>
+            </c:forEach>
+          </select>
+        </td>
+      </tr>
+      <tr>
+        <th></th>
+        <td>Select the Credential Store which has the defaultSubject and runAsSubjects defined.</td>
+      </tr>
+
+      <!-- Default Subject -->
+      <tr>
+        <td colspan="2"><div align="left"><b>Default Subject:</b></div></td>
+      </tr>
+      <tr>
+        <th><div align="right">Realm:</div></th>
+        <td><input name="security.defaultSubject.realm" type="text" size="25"/></td>
+      </tr>
+      <tr>
+        <th><div align="right">Id:</div></th>
+        <td><input name="security.defaultSubject.id" type="text" size="25"/></td>
+      </tr>
+      <tr>
+        <th></th>
+        <td>The defaultSubject is used whenever an unauthenticated user accesses an unsecured page. Typically, 
+        this is used so that an unsecured page can access a secured resource, a secured EJB for example. 
+        Realm is the realm name of the default subject and Id is the default subject's name within that realm.</td>
+      </tr>
+
+      <!-- doas-current-caller -->
+      <tr>
+        <td colspan="2" align="left">
+          <b>doas-current-caller:</b>
+          <input name="security.doasCurrentCaller" type="checkbox" value="true"/>
+        </td>
+      </tr>
+      <tr>
+        <th></th>
+        <td>Select this if the work is to be performed as the calling Subject/User instead of as Server.</td>
+      </tr>
+      <!-- use-context-handler -->
+      <tr>
+        <td colspan="2" align="left">
+          <b>use-context-handler:</b>
+          <input name="security.useContextHandler" type="checkbox" value="true"/>
+        </td>
+      </tr>
+      <tr>
+        <th></th>
+        <td>Select this if the installed JACC policy contexts should use PolicyContextHandlers.</td>
+      </tr>
+    </table>
+  </div>
+</div>
+<br>
+
 <!-- Security Role Mappings -->
-<p><b>Security Role Mappings:</b><br><br>
+<p>
+<b>Security Role Mappings:</b>
+<br><br>
 Security roles declared in web.xml are shown below to the left. Map them to specific principals present 
 in Geronimo's security realms by adding Principals, Login Domain Principals, Realm Principals and/or 
-Distinguished Names.</p>
+Distinguished Names.
+</p>
 <table border="0">
   <c:set var="backgroundClass" value='MediumBackground'/>
   <c:forEach var="role" items="${data.security.roleMappings.roleArray}" varStatus="status1">
@@ -418,12 +527,42 @@ Distinguished Names.</p>
             </tr>
           </table>
         </div>
+
+        <c:set var="runAsSubjectId" value="${roleId}.runAsSubject" />
+        <div id="<portlet:namespace/>${runAsSubjectId}.ui">
+          <input type="checkbox" id="<portlet:namespace/>${runAsSubjectId}.checkBox" disabled="disabled" 
+            onClick="<portlet:namespace/>toggleRunAsSubject('${runAsSubjectId}');"/>
+          Specify run-as-subject*
+          <div id="<portlet:namespace/>${runAsSubjectId}.subElements" style="display:none">
+            <table border="0">
+              <tr>
+                <th><div align="right">Realm:</div></th>
+                <td><input name="${runAsSubjectId}.realm" type="text" size="25"/></td>
+              </tr>
+              <tr>
+                <th><div align="right">Id:</div></th>
+                <td><input name="${runAsSubjectId}.id" type="text" size="25"/></td>
+              </tr>
+              <tr>
+                <th></th>
+                <td>The run-as-subject is required when the module is to continue as if run by the specified 
+                  subject when constrained to the specified role.</td>
+              </tr>
+            </table>
+          </div>
+        </div>
         <br>
 
       </td>
     </tr>
   </c:forEach>
+  <tr>
+  <td colspan="2" align="left">* Click Advanced Settings to enable specifying run-as-subject</td>
+  </tr>
+</table>
+<br>
 
+<table border="0">
   <!-- SUBMIT BUTTON -->
   <tr>
     <th>

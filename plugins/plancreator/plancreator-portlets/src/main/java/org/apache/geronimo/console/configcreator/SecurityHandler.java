@@ -50,6 +50,7 @@ public class SecurityHandler extends AbstractHandler {
         WARConfigData data = getSessionData(request);
         request.setAttribute(DATA_PARAMETER, data);
         request.setAttribute(DEPLOYED_SECURITY_REALMS_PARAMETER, JSR77_Util.getDeployedSecurityRealms(request));
+        request.setAttribute(DEPLOYED_CREDENTIAL_STORES_PARAMETER, JSR77_Util.getDeployedCredentialStores(request));
     }
 
     public String actionAfterView(ActionRequest request, ActionResponse response, MultiPageModel model)
