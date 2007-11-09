@@ -34,6 +34,7 @@ import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.ReferencePatterns;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.system.configuration.condition.JexlExpressionParser;
+import org.apache.geronimo.system.configuration.condition.ParserUtils;
 import org.apache.geronimo.system.plugin.PluginXmlUtil;
 import org.apache.geronimo.system.plugin.model.GbeanType;
 import org.apache.geronimo.system.plugin.model.ModuleType;
@@ -49,6 +50,7 @@ public class ServerOverrideTest extends TestCase {
         subs.put("host", "localhost");
         subs.put("port", "8080");
         subs.put("portOffset", "1");
+        ParserUtils.addDefaultVariables(subs);
         expressionParser = new JexlExpressionParser(subs);
     }
 
@@ -248,6 +250,7 @@ public class ServerOverrideTest extends TestCase {
             "        <gbean name=\"mockGBean\" xmlns='\" + GBeanOverride.ATTRIBUTE_NAMESPACE + \"'>\n" +
                     "            <attribute name=\"value\">${host}</attribute>\n" +
                     "            <attribute name=\"port\">${port}</attribute>\n" +
+                    "            <attribute name=\"expression\">${host}</attribute>\n" +
                     "        </gbean>";
 
     public void testExpressionXml() throws Exception {
@@ -265,6 +268,10 @@ public class ServerOverrideTest extends TestCase {
         gbean.setAttribute("port", "${port + portOffset}");
         gbean.applyOverrides(data, null, null, getClass().getClassLoader());
         assertEquals(8081, data.getAttribute("port"));
+        
+        gbean.setAttribute("expression", "${if (java == null) 'null'; else 'non-null';}");
+        gbean.applyOverrides(data, null, null, getClass().getClassLoader());
+        assertEquals("non-null", data.getAttribute("expression"));
     }
 
     private void assertCopyIdentical(ServerOverride server) throws Exception {

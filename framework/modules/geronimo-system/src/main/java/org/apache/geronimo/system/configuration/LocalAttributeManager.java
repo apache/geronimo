@@ -57,6 +57,7 @@ import org.apache.geronimo.kernel.config.ManageableAttributeStore;
 import org.apache.geronimo.kernel.config.PersistentConfigurationList;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.system.configuration.condition.JexlExpressionParser;
+import org.apache.geronimo.system.configuration.condition.ParserUtils;
 import org.apache.geronimo.system.plugin.model.GbeanType;
 import org.apache.geronimo.system.plugin.model.AttributesType;
 import org.apache.geronimo.system.plugin.PluginXmlUtil;
@@ -104,7 +105,7 @@ public class LocalAttributeManager implements PluginAttributeStore, PersistentCo
         configSubstitutionsFile = resolvedPropertiesFile == null? null: serverInfo.resolveServer(resolvedPropertiesFile);
         localConfigSubstitutions = loadConfigSubstitutions(configSubstitutionsFile);
         prefix = System.getProperty(SUBSTITUTION_PREFIX_PREFIX, configSubstitutionsPrefix);
-        Map<String, String> configSubstitutions = loadAllConfigSubstitutions(localConfigSubstitutions, prefix);
+        Map<String, Object> configSubstitutions = loadAllConfigSubstitutions(localConfigSubstitutions, prefix);
         expressionParser = new JexlExpressionParser(configSubstitutions);
         this.readOnly = readOnly;
         this.serverInfo = serverInfo;
@@ -215,7 +216,7 @@ public class LocalAttributeManager implements PluginAttributeStore, PersistentCo
 
     public void addConfigSubstitutions(Properties properties) {
         localConfigSubstitutions.putAll(properties);
-        Map<String, String> configSubstutions = loadAllConfigSubstitutions(localConfigSubstitutions, prefix);
+        Map<String, Object> configSubstutions = loadAllConfigSubstitutions(localConfigSubstitutions, prefix);
         storeConfigSubstitutions(configSubstitutionsFile, localConfigSubstitutions);
         expressionParser.setVariables(configSubstutions);
     }
@@ -558,8 +559,8 @@ public class LocalAttributeManager implements PluginAttributeStore, PersistentCo
         }
     }
 
-    private static Map<String, String> loadAllConfigSubstitutions(Properties configSubstitutions, String prefix) {
-        Map<String, String> vars = new HashMap<String, String>();
+    private static Map<String, Object> loadAllConfigSubstitutions(Properties configSubstitutions, String prefix) {
+        Map<String, Object> vars = new HashMap<String, Object>();
         //most significant are the command line system properties
         addGeronimoSubstitutions(vars, System.getProperties(), prefix);
         //environment variables are next
@@ -568,6 +569,7 @@ public class LocalAttributeManager implements PluginAttributeStore, PersistentCo
         if (configSubstitutions != null) {
             addGeronimoSubstitutions(vars, configSubstitutions, "");
         }
+        ParserUtils.addDefaultVariables(vars);
         return vars;
     }
 
@@ -605,7 +607,7 @@ public class LocalAttributeManager implements PluginAttributeStore, PersistentCo
         }
     }
 
-    private static void addGeronimoSubstitutions(Map<String, String> vars, Map props, String prefix) {
+    private static void addGeronimoSubstitutions(Map<String, Object> vars, Map props, String prefix) {
         if (prefix != null) {
             int start = prefix.length();
             for (Object o : props.entrySet()) {

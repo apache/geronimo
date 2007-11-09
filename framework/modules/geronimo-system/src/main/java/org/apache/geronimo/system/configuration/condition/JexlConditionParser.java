@@ -24,6 +24,7 @@ import org.apache.commons.jexl.Expression;
 import org.apache.commons.jexl.ExpressionFactory;
 import org.apache.commons.jexl.JexlContext;
 import org.apache.commons.jexl.JexlHelper;
+import org.apache.commons.jexl.context.HashMapContext;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -44,19 +45,19 @@ public class JexlConditionParser
 
     private final Map<String, Object> vars;
 
+    public JexlConditionParser(final Map vars) {
+        if (vars == null) {
+            throw new IllegalArgumentException("vars");
+        }
+        this.vars = vars;
+    }
+    
     public JexlConditionParser() {
         // Setup the default vars
         vars = new HashMap<String, Object>();
-        
-        vars.put("java", new JavaVariable());
-        vars.put("os", new OsVariable());
-        
-        // Install properties (to allow getProperty(x,y) to be used for defaults
-        Properties props = new Properties();
-        props.putAll(System.getProperties());
-        vars.put("props", props);
+        ParserUtils.addDefaultVariables(vars);
     }
-
+    
     /**
      * Evaluate a condition expression.
      *
@@ -113,5 +114,5 @@ public class JexlConditionParser
         }
 
         return result;
-    }
+    }    
 }

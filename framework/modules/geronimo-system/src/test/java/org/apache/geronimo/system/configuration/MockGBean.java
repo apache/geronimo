@@ -26,6 +26,7 @@ public class MockGBean {
 
     private String value;
     private int port;
+    private String expression;
 
     public String getValue() {
         return value;
@@ -36,6 +37,14 @@ public class MockGBean {
     }
 
 
+    public String getExpression() {
+        return expression;
+    }
+
+    public void setExpression(String value) {
+        this.expression = value;
+    }
+    
     public int getPort() {
         return port;
     }
@@ -52,6 +61,7 @@ public class MockGBean {
         GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic(MockGBean.class);
         infoFactory.addAttribute("value", String.class, true);
         infoFactory.addAttribute("port", int.class, true);
+        infoFactory.addAttribute("expression", String.class, true);
 
         GBEAN_INFO = infoFactory.getBeanInfo();
     }

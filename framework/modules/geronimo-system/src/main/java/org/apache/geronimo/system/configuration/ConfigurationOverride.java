@@ -33,17 +33,18 @@ import org.apache.geronimo.system.plugin.model.ModuleType;
  * @version $Rev$ $Date$
  */
 class ConfigurationOverride {
+    
+    /**
+     * Default condition parser.
+     */
+    private static final ConditionParser DEFAULT_COND_PARSER = new JexlConditionParser();
+    
     private final Artifact name;
     private boolean load;
     private String condition;
     private String comment;
     private final Map<Object, GBeanOverride> gbeans = new LinkedHashMap<Object, GBeanOverride>();
-
-    /**
-     * Cached condition parser; lazy init on the first call to {@link #parseCondition()}
-     * when {@link #condition} is non-null.
-     */
-    private static ConditionParser parser;
+    private ConditionParser parser = DEFAULT_COND_PARSER;
 
     public ConfigurationOverride(Artifact name, boolean load) {
         this.name = name;
@@ -79,6 +80,7 @@ class ConfigurationOverride {
             addGBean(gbean);
         }
 
+        parser = new JexlConditionParser(expressionParser.getVariables());
     }
 
     public Artifact getName() {
@@ -105,11 +107,6 @@ class ConfigurationOverride {
         if (condition == null) {
             // no condition means true
             return true;
-        }
-
-        // Create a parser if one does not already exist
-        if (parser == null) {
-            parser = new JexlConditionParser();
         }
         
         return parser.evaluate(condition);

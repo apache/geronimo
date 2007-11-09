@@ -43,17 +43,17 @@ public class OgnlConditionParser
     
     private final Map<String, Object> vars;
     
+    public OgnlConditionParser(final Map vars) {
+        if (vars == null) {
+            throw new IllegalArgumentException("vars");
+        }
+        this.vars = vars;
+    }
+    
     public OgnlConditionParser() {
         // Setup the default vars
         vars = new HashMap<String, Object>();
-        
-        vars.put("java", new JavaVariable());
-        vars.put("os", new OsVariable());
-        
-        // Install properties (to allow getProperty(x,y) to be used for defaults
-        Properties props = new Properties();
-        props.putAll(System.getProperties());
-        vars.put("props", props);
+        ParserUtils.addDefaultVariables(vars);
     }
     
     /**

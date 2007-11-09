@@ -32,7 +32,7 @@ public class JavaVariable
         return SystemUtils.JAVA_VENDOR;
     }
 
-    public String getVresion() {
+    public String getVersion() {
         return SystemUtils.JAVA_VERSION;
     }
 
