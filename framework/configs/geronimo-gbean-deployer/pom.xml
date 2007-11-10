@@ -109,10 +109,11 @@
                         <plugin-artifact>
                             <config-xml-content>
                                 <gbean name="Deployer">
-                                    <attribute name="remoteDeployAddress">http://#{RemoteDeployHostname}:#{HTTPPortPrimary + PortOffset}</attribute>
+                                    <attribute name="remoteDeployAddress">http://#{RemoteDeployHostname}:#{HTTPPort + PortOffset}</attribute>
                                 </gbean>
                             </config-xml-content>
                             <config-xml-content server="offline"/>
+                            <config-substitution key="RemoteDeployHostname">localhost</config-substitution>
                         </plugin-artifact>
                     </instance>
                 </configuration>
