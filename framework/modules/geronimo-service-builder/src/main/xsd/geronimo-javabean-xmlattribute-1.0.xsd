@@ -39,6 +39,7 @@
             <xs:element name="property" type="javabean:propertyType" minOccurs="0" maxOccurs="unbounded"/>
             <xs:element name="bean-property" type="javabean:bean-propertyType" minOccurs="0" maxOccurs="unbounded"/>
         </xs:sequence>
+        <xs:attribute name="class" type="xs:string" use="optional"/>
     </xs:complexType>
 
     <xs:complexType name="propertyType">

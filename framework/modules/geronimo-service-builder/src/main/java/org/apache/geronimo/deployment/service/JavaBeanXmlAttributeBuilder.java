@@ -48,10 +48,17 @@ public class JavaBeanXmlAttributeBuilder implements XmlAttributeBuilder {
         return getValue(javabean, type, cl);
     }
 
-    private Object getValue(JavabeanType javabean, String className, ClassLoader cl) throws DeploymentException {
+    private Object getValue(JavabeanType javabean, String type, ClassLoader cl) throws DeploymentException {
+        String className = type;
+        if (javabean.isSetClass1()) {
+            className = javabean.getClass1();
+        }
         Class clazz = null;
         try {
             clazz = cl.loadClass(className);
+            if (!type.equals(className) && !cl.loadClass(type).isAssignableFrom(clazz)) {
+                throw new DeploymentException("javabean class " + className + " is not of the expected type " + type);
+            }
         } catch (ClassNotFoundException e) {
             throw new DeploymentException("Could not load alleged javabean class " + className, e);
         }
@@ -61,6 +68,7 @@ public class JavaBeanXmlAttributeBuilder implements XmlAttributeBuilder {
         } catch (Exception e) {
             throw new DeploymentException("Could not create java bean instance", e);
         }
+        
         PropertyDescriptor[] propertyDescriptors;
         try {
             BeanInfo beanInfo = Introspector.getBeanInfo(clazz);
@@ -77,15 +85,15 @@ public class JavaBeanXmlAttributeBuilder implements XmlAttributeBuilder {
             for (int j = 0; j < propertyDescriptors.length; j++) {
                 PropertyDescriptor propertyDescriptor = propertyDescriptors[j];
                 if (propertyName.equals(propertyDescriptor.getName())) {
-                    String type = propertyDescriptor.getPropertyType().getName();
+                    String protertyType = propertyDescriptor.getPropertyType().getName();
                     PropertyEditor propertyEditor = null;
                     try {
-                        propertyEditor = PropertyEditors.findEditor(type, cl);
+                        propertyEditor = PropertyEditors.findEditor(protertyType, cl);
                     } catch (ClassNotFoundException e) {
-                        throw new DeploymentException("Could not load editor for type " + type, e);
+                        throw new DeploymentException("Could not load editor for type " + protertyType, e);
                     }
                     if (propertyEditor == null) {
-                        throw new DeploymentException("Unable to find PropertyEditor for " + type);
+                        throw new DeploymentException("Unable to find PropertyEditor for " + protertyType);
                     }
                     propertyEditor.setAsText(propertyString);
                     Object value = propertyEditor.getValue();
