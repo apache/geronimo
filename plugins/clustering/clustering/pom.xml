@@ -56,6 +56,18 @@
             <artifactId>geronimo-clustering</artifactId>
             <version>${version}</version>
         </dependency>
+
+        <dependency>
+            <groupId>org.apache.geronimo.modules</groupId>
+            <artifactId>geronimo-deploy-config</artifactId>
+            <version>${version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.geronimo.modules</groupId>
+            <artifactId>geronimo-deploy-jsr88</artifactId>
+            <version>${version}</version>
+        </dependency>
     </dependencies>
 
     <build>
@@ -75,8 +87,12 @@
                                 <gbean name="Node">
                                     <attribute name="nodeName">#{clusterNodeName}</attribute>
                                 </gbean>
+                                <gbean name="ClusterInfo">
+                                    <attribute name="name">#{clusterName}</attribute>
+                                </gbean>
                             </config-xml-content>
                             <config-substitution key="clusterNodeName">NODE</config-substitution>
+                            <config-substitution key="clusterName">CLUSTER_NAME</config-substitution>
                         </plugin-artifact>
                     </instance>
                 </configuration>

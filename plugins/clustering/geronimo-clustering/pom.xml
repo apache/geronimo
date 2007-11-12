@@ -35,7 +35,7 @@
     <dependencies>
         <dependency>
             <groupId>${pom.groupId}</groupId>
-            <artifactId>geronimo-system</artifactId>
+            <artifactId>geronimo-deploy-jsr88</artifactId>
             <version>${version}</version>
         </dependency>
 

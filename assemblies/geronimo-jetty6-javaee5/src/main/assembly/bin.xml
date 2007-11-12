@@ -156,6 +156,22 @@
         </fileSet>
         
         <fileSet>
+            <directory>src/main/resources/cluster-repository</directory>
+            <outputDirectory>cluster-repository</outputDirectory>
+            <includes>
+                <include>*</include>
+            </includes>
+        </fileSet>
+
+        <fileSet>
+            <directory>src/main/resources/master-repository</directory>
+            <outputDirectory>master-repository</outputDirectory>
+            <includes>
+                <include>*</include>
+            </includes>
+        </fileSet>
+
+        <fileSet>
             <directory>target/classes</directory>
             <outputDirectory>/</outputDirectory>
             <includes>
