@@ -20,6 +20,7 @@ package org.apache.geronimo.deployment;
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -198,33 +199,13 @@ public class Deployer {
             String targetConfigurationStore) throws DeploymentException {
         if (planFile == null && moduleFile == null) {
             throw new DeploymentException("No plan or module specified");
+        } else if (stores.isEmpty()) {
+            throw new DeploymentException("No ConfigurationStores!");
         }
+        validatePlanFile(planFile);
 
-        if (planFile != null) {
-            if (!planFile.exists()) {
-                throw new DeploymentException("Plan file does not exist: " + planFile.getAbsolutePath());
-            }
-            if (!planFile.isFile()) {
-                throw new DeploymentException("Plan file is not a regular file: " + planFile.getAbsolutePath());
-            }
-        }
+        JarFile module = getModule(inPlace, moduleFile);
 
-        JarFile module = null;
-        if (moduleFile != null) {
-            if (inPlace && !moduleFile.isDirectory()) {
-                throw new DeploymentException("In place deployment is not allowed for packed module");
-            }
-            if (!moduleFile.exists()) {
-                throw new DeploymentException("Module file does not exist: " + moduleFile.getAbsolutePath());
-            }
-            try {
-                module = DeploymentUtil.createJarFile(moduleFile);
-            } catch (IOException e) {
-                throw new DeploymentException("Cound not open module file: " + moduleFile.getAbsolutePath(), e);
-            }
-        }
-
-//        File configurationDir = null;
         ModuleIDBuilder idBuilder = new ModuleIDBuilder();
         try {
             Object plan = null;
@@ -245,125 +226,23 @@ public class Deployer {
                         (moduleFile == null ? "" : (planFile == null ? "" : ", ") + "moduleFile=" + moduleFile.getAbsolutePath()) + ")");
             }
 
-            Artifact configID = builder.getConfigurationID(plan, module, idBuilder);
-            // If the Config ID isn't fully resolved, populate it with defaults
-            if (!configID.isResolved()) {
-                configID = idBuilder.resolve(configID, "car");
-            }
-            // Make sure this configuration doesn't already exist
-            try {
-                kernel.getGBeanState(Configuration.getConfigurationAbstractName(configID));
-                throw new DeploymentException("Module " + configID + " already exists in the server.  Try to undeploy it first or use the redeploy command.");
-            } catch (GBeanNotFoundException e) {
-                // this is good
-            }
+            Artifact configID = getConfigID(module, idBuilder, plan, builder);
 
             // create the manifest
-            Manifest manifest;
-            if (mainClass != null) {
-                manifest = new Manifest();
-                Attributes mainAttributes = manifest.getMainAttributes();
-                mainAttributes.putValue(Attributes.Name.MANIFEST_VERSION.toString(), "1.0");
-                if (mainClass != null) {
-                    mainAttributes.putValue(Attributes.Name.MAIN_CLASS.toString(), mainClass);
-                }
-                if (mainGBean != null) {
-                    mainAttributes.putValue(CommandLineManifest.MAIN_GBEAN.toString(), mainGBean);
-                }
-                if (mainMethod != null) {
-                    mainAttributes.putValue(CommandLineManifest.MAIN_METHOD.toString(), mainMethod);
-                }
-                if (manifestConfigurations != null) {
-                    mainAttributes.putValue(CommandLineManifest.CONFIGURATIONS.toString(), manifestConfigurations);
-                }
-                if (classPath != null) {
-                    mainAttributes.putValue(Attributes.Name.CLASS_PATH.toString(), classPath);
-                }
-                if (endorsedDirs != null) {
-                    mainAttributes.putValue(CommandLineManifest.ENDORSED_DIRS.toString(), endorsedDirs);
-                }
-                if (extensionDirs != null) {
-                    mainAttributes.putValue(CommandLineManifest.EXTENSION_DIRS.toString(), extensionDirs);
-                }
-            } else {
-                manifest = null;
-            }
+            Manifest manifest = createManifest(mainClass,
+                mainGBean,
+                mainMethod,
+                manifestConfigurations,
+                classPath,
+                endorsedDirs,
+                extensionDirs);
 
-            if (stores.isEmpty()) {
-                throw new DeploymentException("No ConfigurationStores!");
-            }
-            ConfigurationStore store;
-            if (targetConfigurationStore != null) {
-                AbstractName targetStoreName = new AbstractName(new URI(targetConfigurationStore));
-                store = (ConfigurationStore) kernel.getGBean(targetStoreName);
-            } else {
-                store = (ConfigurationStore) stores.iterator().next();
-            }
+            ConfigurationStore store = getConfigurationStore(targetConfigurationStore);
 
             // It's our responsibility to close this context, once we're done with it...
             DeploymentContext context = builder.buildConfiguration(inPlace, configID, plan, module, stores, artifactResolver, store);
-            List configurations = new ArrayList();
-            boolean configsCleanupRequired = false;
-            configurations.add(context.getConfigurationData());
-            configurations.addAll(context.getAdditionalDeployment());
-
-            if (configurations.isEmpty()) {
-                throw new DeploymentException("Deployer did not create any configurations");
-            }
-
-            // Set TCCL to the classloader for the configuration being deployed
-            // so that any static blocks invoked during the loading of classes 
-            // during serialization of the configuration have the correct TCCL 
-            // ( a TCCL that is consistent with what is set when the same
-            // classes are loaded when the configuration is started.
-            Thread thread = Thread.currentThread();
-            ClassLoader oldCl = thread.getContextClassLoader();
-            thread.setContextClassLoader( context.getConfiguration().getConfigurationClassLoader());
-            try {
-                if (targetFile != null) {
-                    if (configurations.size() > 1) {
-                        throw new DeploymentException("Deployer created more than one configuration");
-                    }
-                    ConfigurationData configurationData = (ConfigurationData) configurations.get(0);
-                    ExecutableConfigurationUtil.createExecutableConfiguration(configurationData, manifest, targetFile);
-                }
-                if (install) {
-                    List deployedURIs = new ArrayList();
-                    for (Iterator iterator = configurations.iterator(); iterator.hasNext();) {
-                        ConfigurationData configurationData = (ConfigurationData) iterator.next();
-                        store.install(configurationData);
-                        deployedURIs.add(configurationData.getId().toString());
-                    }
-                    notifyWatchers(deployedURIs);
-                    return deployedURIs;
-                } else {
-                    configsCleanupRequired = true;
-                    return Collections.EMPTY_LIST;
-                }
-            } catch (DeploymentException e) {
-                configsCleanupRequired = true;
-                throw e;
-            } catch (IOException e) {
-                configsCleanupRequired = true;
-                throw e;
-            } catch (InvalidConfigException e) {
-                configsCleanupRequired = true;
-                // unlikely as we just built this
-                throw new DeploymentException(e);
-            } catch (Throwable e) {
-                // Could get here if serialization of the configuration failed (GERONIMO-1996)
-                configsCleanupRequired = true;
-                throw e;
-            } finally {
-                thread.setContextClassLoader(oldCl);
-                if (context != null) {
-                    context.close();
-                }
-                if (configsCleanupRequired) {
-                    // We do this after context is closed so the module jar isn't open
-                    cleanupConfigurations(configurations);
-                }
-            }
+            
+            return install(targetFile, install, manifest, store, context);
         } catch (Throwable e) {
             //TODO not clear all errors will result in total cleanup
 //            File configurationDir = configurationData.getConfigurationDir();
@@ -387,6 +266,172 @@ public class Deployer {
             throw new Error(e);
         } finally {
             DeploymentUtil.close(module);
+        }
+    }
+
+    private ConfigurationStore getConfigurationStore(String targetConfigurationStore) 
+            throws URISyntaxException, GBeanNotFoundException {
+        if (targetConfigurationStore != null) {
+            AbstractName targetStoreName = new AbstractName(new URI(targetConfigurationStore));
+            return (ConfigurationStore) kernel.getGBean(targetStoreName);
+        } else {
+            return (ConfigurationStore) stores.iterator().next();
+        }
+    }
+
+    private Artifact getConfigID(JarFile module, 
+            ModuleIDBuilder idBuilder, 
+            Object plan, 
+            ConfigurationBuilder builder) throws IOException, DeploymentException, InvalidConfigException {
+        Artifact configID = builder.getConfigurationID(plan, module, idBuilder);
+        // If the Config ID isn't fully resolved, populate it with defaults
+        if (!configID.isResolved()) {
+            configID = idBuilder.resolve(configID, "car");
+        }
+        
+        // Make sure this configuration doesn't already exist
+        try {
+            kernel.getGBeanState(Configuration.getConfigurationAbstractName(configID));
+            throw new DeploymentException("Module " + configID + " already exists in the server.  Try to undeploy it first or use the redeploy command.");
+        } catch (GBeanNotFoundException e) {
+            // this is good
+        }
+        return configID;
+    }
+
+    private List install(File targetFile,
+            boolean install,
+            Manifest manifest,
+            ConfigurationStore store,
+            DeploymentContext context) throws DeploymentException, IOException, Throwable {
+        List configurations = new ArrayList();
+        configurations.add(context.getConfigurationData());
+        configurations.addAll(context.getAdditionalDeployment());
+
+        if (configurations.isEmpty()) {
+            throw new DeploymentException("Deployer did not create any configurations");
+        }
+
+        boolean configsCleanupRequired = false;
+
+        // Set TCCL to the classloader for the configuration being deployed
+        // so that any static blocks invoked during the loading of classes 
+        // during serialization of the configuration have the correct TCCL 
+        // ( a TCCL that is consistent with what is set when the same
+        // classes are loaded when the configuration is started.
+        Thread thread = Thread.currentThread();
+        ClassLoader oldCl = thread.getContextClassLoader();
+        thread.setContextClassLoader( context.getConfiguration().getConfigurationClassLoader());
+        try {
+            if (targetFile != null) {
+                if (configurations.size() > 1) {
+                    throw new DeploymentException("Deployer created more than one configuration");
+                }
+                ConfigurationData configurationData = (ConfigurationData) configurations.get(0);
+                ExecutableConfigurationUtil.createExecutableConfiguration(configurationData, manifest, targetFile);
+            }
+            if (install) {
+                List deployedURIs = new ArrayList();
+                for (Iterator iterator = configurations.iterator(); iterator.hasNext();) {
+                    ConfigurationData configurationData = (ConfigurationData) iterator.next();
+                    store.install(configurationData);
+                    deployedURIs.add(configurationData.getId().toString());
+                }
+                notifyWatchers(deployedURIs);
+                return deployedURIs;
+            } else {
+                configsCleanupRequired = true;
+                return Collections.EMPTY_LIST;
+            }
+        } catch (DeploymentException e) {
+            configsCleanupRequired = true;
+            throw e;
+        } catch (IOException e) {
+            configsCleanupRequired = true;
+            throw e;
+        } catch (InvalidConfigException e) {
+            configsCleanupRequired = true;
+            // unlikely as we just built this
+            throw new DeploymentException(e);
+        } catch (Throwable e) {
+            // Could get here if serialization of the configuration failed (GERONIMO-1996)
+            configsCleanupRequired = true;
+            throw e;
+        } finally {
+            thread.setContextClassLoader(oldCl);
+            if (context != null) {
+                context.close();
+            }
+            if (configsCleanupRequired) {
+                // We do this after context is closed so the module jar isn't open
+                cleanupConfigurations(configurations);
+            }
+        }
+    }
+
+    private Manifest createManifest(String mainClass,
+            String mainGBean,
+            String mainMethod,
+            String manifestConfigurations,
+            String classPath,
+            String endorsedDirs,
+            String extensionDirs) {
+        if (mainClass == null) {
+            return null;
+        }
+        Manifest manifest = new Manifest();
+        Attributes mainAttributes = manifest.getMainAttributes();
+        mainAttributes.putValue(Attributes.Name.MANIFEST_VERSION.toString(), "1.0");
+        if (mainClass != null) {
+            mainAttributes.putValue(Attributes.Name.MAIN_CLASS.toString(), mainClass);
+        }
+        if (mainGBean != null) {
+            mainAttributes.putValue(CommandLineManifest.MAIN_GBEAN.toString(), mainGBean);
+        }
+        if (mainMethod != null) {
+            mainAttributes.putValue(CommandLineManifest.MAIN_METHOD.toString(), mainMethod);
+        }
+        if (manifestConfigurations != null) {
+            mainAttributes.putValue(CommandLineManifest.CONFIGURATIONS.toString(), manifestConfigurations);
+        }
+        if (classPath != null) {
+            mainAttributes.putValue(Attributes.Name.CLASS_PATH.toString(), classPath);
+        }
+        if (endorsedDirs != null) {
+            mainAttributes.putValue(CommandLineManifest.ENDORSED_DIRS.toString(), endorsedDirs);
+        }
+        if (extensionDirs != null) {
+            mainAttributes.putValue(CommandLineManifest.EXTENSION_DIRS.toString(), extensionDirs);
+        }
+        return manifest;
+    }
+
+    private JarFile getModule(boolean inPlace, File moduleFile) throws DeploymentException {
+        JarFile module = null;
+        if (moduleFile != null) {
+            if (inPlace && !moduleFile.isDirectory()) {
+                throw new DeploymentException("In place deployment is not allowed for packed module");
+            }
+            if (!moduleFile.exists()) {
+                throw new DeploymentException("Module file does not exist: " + moduleFile.getAbsolutePath());
+            }
+            try {
+                module = DeploymentUtil.createJarFile(moduleFile);
+            } catch (IOException e) {
+                throw new DeploymentException("Cound not open module file: " + moduleFile.getAbsolutePath(), e);
+            }
+        }
+        return module;
+    }
+
+    private void validatePlanFile(File planFile) throws DeploymentException {
+        if (planFile != null) {
+            if (!planFile.exists()) {
+                throw new DeploymentException("Plan file does not exist: " + planFile.getAbsolutePath());
+            }
+            if (!planFile.isFile()) {
+                throw new DeploymentException("Plan file is not a regular file: " + planFile.getAbsolutePath());
+            }
         }
     }
 
