@@ -217,7 +217,7 @@ public final class HandlerChainAnnotationHelper extends AnnotationHelper {
                     ServiceRefType[] serviceRefs = annotatedApp.getServiceRefArray();
                     boolean exists = false;
                     for ( ServiceRefType serviceRef : serviceRefs ) {
-                        if ( serviceRef.getServiceRefName().getStringValue().trim().equals(serviceRefName) ) {
+                        if ( serviceRef.getServiceRefName().getStringValue().trim().equals(serviceRefName) && !serviceRef.isSetHandlerChains()) {
                             ServiceRefHandlerChainsType serviceRefHandlerChains = serviceRef.addNewHandlerChains();
                             for (HandlerChainType handlerChain : handlerChains.getHandlerChainArray()) {
                                 ServiceRefHandlerChainType serviceRefHandlerChain = serviceRefHandlerChains.addNewHandlerChain();

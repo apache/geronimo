@@ -59,6 +59,17 @@
         </injection-target>
     </service-ref>
     <service-ref>
+        <service-ref-name>WebServiceRef100</service-ref-name>
+        <service-interface>javax.xml.ws.Service</service-interface>
+        <service-ref-type>int</service-ref-type>
+        <wsdl-file>WEB-INF/wsdl/WebServiceRef4.wsdl</wsdl-file>
+        <mapped-name>mappedName</mapped-name>
+        <injection-target>
+            <injection-target-class>org.apache.geronimo.j2ee.deployment.annotation.HandlerChainAnnotationTest</injection-target-class>
+            <injection-target-name>annotatedMethod3</injection-target-name>
+        </injection-target>
+    </service-ref>
+    <service-ref>
         <service-ref-name>WebServiceRef14</service-ref-name>
         <service-interface>boolean</service-interface>
         <service-ref-type>boolean</service-ref-type>

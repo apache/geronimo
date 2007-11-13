@@ -61,4 +61,12 @@ public class HandlerChainAnnotationTest {
     public void setAnnotatedMethod2(int ii) {
     }
 
+    @WebServiceRef(name = "WebServiceRef100",
+            value = javax.xml.ws.Service.class,
+            wsdlLocation = "WEB-INF/wsdl/WebServiceRef4.wsdl",
+            mappedName = "mappedName")
+    @HandlerChain(file = "annotation/handlers5.xml")
+    public void setAnnotatedMethod3(int ii) {
+    }
+
 }
