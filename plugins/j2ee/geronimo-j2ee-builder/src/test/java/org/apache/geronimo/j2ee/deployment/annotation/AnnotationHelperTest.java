@@ -113,7 +113,7 @@ public class AnnotationHelperTest extends XmlBeansTestSupport {
 
         List<Method> annotatedMethods = classFinder.findAnnotatedMethods(HandlerChain.class);
         assertNotNull(annotatedMethods);
-        assertEquals(2, annotatedMethods.size());
+        assertEquals(3, annotatedMethods.size());
         assertTrue(annotatedMethods.contains(HandlerChainAnnotationTest.class.getDeclaredMethod("setAnnotatedMethod1", new Class[]{String.class})));
         assertTrue(annotatedMethods.contains(HandlerChainAnnotationTest.class.getDeclaredMethod("setAnnotatedMethod2", new Class[]{int.class})));
 
@@ -233,7 +233,7 @@ public class AnnotationHelperTest extends XmlBeansTestSupport {
 
         List<Method> annotatedMethods = classFinder.findAnnotatedMethods(WebServiceRef.class);
         assertNotNull(annotatedMethods);
-        assertEquals(4, annotatedMethods.size());
+        assertEquals(5, annotatedMethods.size());
         assertTrue(annotatedMethods.contains(WebServiceRefAnnotationTest.class.getDeclaredMethod("setAnnotatedMethod1", new Class[]{boolean.class})));
         assertTrue(annotatedMethods.contains(WebServiceRefAnnotationTest.class.getDeclaredMethod("setAnnotatedMethod2", new Class[]{String.class})));
         assertTrue(annotatedMethods.contains(HandlerChainAnnotationTest.class.getDeclaredMethod("setAnnotatedMethod1", new Class[]{String.class})));

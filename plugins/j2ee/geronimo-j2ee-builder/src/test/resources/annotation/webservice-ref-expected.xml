@@ -41,6 +41,14 @@
         <service-interface>javax.xml.ws.Service</service-interface>
         <service-ref-type>java.lang.String</service-ref-type>
         <wsdl-file>WEB-INF/wsdl/WebServiceRef3.wsdl</wsdl-file>
+        <handler-chains>
+            <handler-chain>
+                <handler>
+                    <handler-name>WebService3</handler-name>
+                    <handler-class>org.apache.handler.WebServiceHandler3</handler-class>
+                </handler>
+            </handler-chain>
+        </handler-chains>
         <mapped-name>mappedName</mapped-name>
         <injection-target>
             <injection-target-class>org.apache.geronimo.j2ee.deployment.annotation.HandlerChainAnnotationTest</injection-target-class>
@@ -52,10 +60,37 @@
         <service-interface>javax.xml.ws.Service</service-interface>
         <service-ref-type>int</service-ref-type>
         <wsdl-file>WEB-INF/wsdl/WebServiceRef4.wsdl</wsdl-file>
+        <handler-chains>
+            <handler-chain>
+                <handler>
+                    <handler-name>WebService2</handler-name>
+                    <handler-class>org.apache.handler.WebServiceHandler2</handler-class>
+                </handler>
+            </handler-chain>
+        </handler-chains>
         <mapped-name>mappedName</mapped-name>
         <injection-target>
             <injection-target-class>org.apache.geronimo.j2ee.deployment.annotation.HandlerChainAnnotationTest</injection-target-class>
             <injection-target-name>annotatedMethod2</injection-target-name>
+        </injection-target>
+    </service-ref>
+    <service-ref>
+        <service-ref-name>WebServiceRef100</service-ref-name>
+        <service-interface>javax.xml.ws.Service</service-interface>
+        <service-ref-type>int</service-ref-type>
+        <wsdl-file>WEB-INF/wsdl/WebServiceRef4.wsdl</wsdl-file>
+        <handler-chains>
+            <handler-chain>
+                <handler>
+                    <handler-name>WebService2</handler-name>
+                    <handler-class>org.apache.handler.WebServiceHandler2</handler-class>
+                </handler>
+            </handler-chain>
+        </handler-chains>
+        <mapped-name>mappedName</mapped-name>
+        <injection-target>
+            <injection-target-class>org.apache.geronimo.j2ee.deployment.annotation.HandlerChainAnnotationTest</injection-target-class>
+            <injection-target-name>annotatedMethod3</injection-target-name>
         </injection-target>
     </service-ref>
     <service-ref>
@@ -85,6 +120,14 @@
         <service-interface>javax.xml.ws.Service</service-interface>
         <service-ref-type>int</service-ref-type>
         <wsdl-file>WEB-INF/wsdl/WebServiceRef1.wsdl</wsdl-file>
+        <handler-chains>
+            <handler-chain>
+                <handler>
+                    <handler-name>WebService5</handler-name>
+                    <handler-class>org.apache.handler.WebServiceHandler5</handler-class>
+                </handler>
+            </handler-chain>
+        </handler-chains>
         <mapped-name>mappedName</mapped-name>
         <injection-target>
             <injection-target-class>org.apache.geronimo.j2ee.deployment.annotation.HandlerChainAnnotationTest</injection-target-class>
@@ -96,6 +139,14 @@
         <service-interface>javax.xml.ws.Service</service-interface>
         <service-ref-type>boolean</service-ref-type>
         <wsdl-file>WEB-INF/wsdl/WebServiceRef2.wsdl</wsdl-file>
+        <handler-chains>
+            <handler-chain>
+                <handler>
+                    <handler-name>WebService4</handler-name>
+                    <handler-class>org.apache.handler.WebServiceHandler4</handler-class>
+                </handler>
+            </handler-chain>
+        </handler-chains>
         <mapped-name>mappedName</mapped-name>
         <injection-target>
             <injection-target-class>org.apache.geronimo.j2ee.deployment.annotation.HandlerChainAnnotationTest</injection-target-class>

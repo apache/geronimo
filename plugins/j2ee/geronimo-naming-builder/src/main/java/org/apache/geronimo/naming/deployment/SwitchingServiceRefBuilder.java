@@ -205,7 +205,6 @@ public class SwitchingServiceRefBuilder extends AbstractNamingBuilder {
         //At the moment the only exception thrown is if the resulting doc is not valid.  Bail now.
         try {
             WebServiceRefAnnotationHelper.processAnnotations(module.getAnnotatedApp(), module.getClassFinder());
-            HandlerChainAnnotationHelper.processAnnotations(module.getAnnotatedApp(), module.getClassFinder());
             ResourceAnnotationHelper.processAnnotations(module.getAnnotatedApp(), module.getClassFinder(), ServiceRefProcessor.INSTANCE);
         }
         catch (Exception e) {

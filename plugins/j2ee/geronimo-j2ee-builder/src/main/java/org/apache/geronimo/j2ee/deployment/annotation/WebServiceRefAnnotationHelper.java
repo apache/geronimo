@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import javax.jws.HandlerChain;
 import javax.xml.ws.WebServiceClient;
 import javax.xml.ws.WebServiceRef;
 import javax.xml.ws.WebServiceRefs;
@@ -329,6 +330,34 @@ public final class WebServiceRefAnnotationHelper extends AnnotationHelper {
             }
         }
 
+        // handler-chains
+        if (!serviceRef.isSetHandlerChains()) {
+            HandlerChain handlerChain = null;
+            Class annotatedClass = null;
+            if (method != null) {
+                handlerChain = method.getAnnotation(HandlerChain.class);
+                annotatedClass = method.getDeclaringClass();
+            } else if (field != null) {
+                handlerChain = field.getAnnotation(HandlerChain.class);
+                annotatedClass = field.getDeclaringClass();
+            }
+            
+            // if not specified on method or field, try to get it from Service class
+            if (handlerChain == null) {
+                if (Object.class.equals(webServiceRefValue)) {
+                    handlerChain = (HandlerChain) webServiceRefType.getAnnotation(HandlerChain.class);
+                    annotatedClass = webServiceRefType;
+                } else {
+                    handlerChain = (HandlerChain) webServiceRefValue.getAnnotation(HandlerChain.class);
+                    annotatedClass = webServiceRefValue;
+                }
+            }
+            
+            if (handlerChain != null) {
+                HandlerChainAnnotationHelper.insertHandlers(serviceRef, handlerChain, annotatedClass);
+            }
+        }
+        
         if (method != null || field != null) {
             configureInjectionTarget(serviceRef.addNewInjectionTarget(), method, field);
         }

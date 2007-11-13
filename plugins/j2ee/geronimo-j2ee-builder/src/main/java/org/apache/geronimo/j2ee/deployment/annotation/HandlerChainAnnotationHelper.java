@@ -208,46 +208,12 @@ public final class HandlerChainAnnotationHelper extends AnnotationHelper {
                 }
 
                 if (url != null) {
-                    // Bind the XML handler chain file to an XMLBeans document
-                    XmlObject xml = XmlBeansUtil.parse(url, null);
-                    HandlerChainsDocument hcd = (HandlerChainsDocument) XmlBeansUtil.typedCopy(xml, HandlerChainsDocument.type);
-                    HandlerChainsType handlerChains = hcd.getHandlerChains();
-
                     // Find the <service-ref> entry this handler chain belongs to and insert it
                     ServiceRefType[] serviceRefs = annotatedApp.getServiceRefArray();
                     boolean exists = false;
                     for ( ServiceRefType serviceRef : serviceRefs ) {
-                        if ( serviceRef.getServiceRefName().getStringValue().trim().equals(serviceRefName) ) {
-                            ServiceRefHandlerChainsType serviceRefHandlerChains = serviceRef.addNewHandlerChains();
-                            for (HandlerChainType handlerChain : handlerChains.getHandlerChainArray()) {
-                                ServiceRefHandlerChainType serviceRefHandlerChain = serviceRefHandlerChains.addNewHandlerChain();
-                                if (handlerChain.getPortNamePattern() != null) {
-                                    serviceRefHandlerChain.setPortNamePattern(handlerChain.getPortNamePattern());
-                                }
-                                if (handlerChain.getServiceNamePattern() != null) {
-                                    serviceRefHandlerChain.setServiceNamePattern(handlerChain.getServiceNamePattern());
-                                }
-                                if (handlerChain.getProtocolBindings() != null) {
-                                    serviceRefHandlerChain.setProtocolBindings(handlerChain.getProtocolBindings());
-                                }
-                                for ( PortComponentHandlerType handler : handlerChain.getHandlerArray()) {
-                                    ServiceRefHandlerType serviceRefHandler = serviceRefHandlerChain.addNewHandler();
-                                    serviceRefHandler.setHandlerName(handler.getHandlerName());
-                                    serviceRefHandler.setHandlerClass(handler.getHandlerClass());
-                                    if (handler.getDescriptionArray().length>0) {
-                                        serviceRefHandler.setDescriptionArray(handler.getDescriptionArray());
-                                    }
-                                    if (handler.getInitParamArray().length>0) {
-                                        serviceRefHandler.setInitParamArray(handler.getInitParamArray());
-                                    }
-                                    if (handler.getSoapHeaderArray().length>0) {
-                                        serviceRefHandler.setSoapHeaderArray(handler.getSoapHeaderArray());
-                                    }
-                                    if (handler.getSoapRoleArray().length>0) {
-                                        serviceRefHandler.setSoapRoleArray(handler.getSoapRoleArray());
-                                    }
-                                }
-                            }
+                        if ( serviceRef.getServiceRefName().getStringValue().trim().equals(serviceRefName) && !serviceRef.isSetHandlerChains()) {
+                            insertHandlers(serviceRef, url);
                             exists = true;
                             break;
                         }
@@ -285,6 +251,67 @@ public final class HandlerChainAnnotationHelper extends AnnotationHelper {
 
         log.debug("getURL(): Exit: url: " + (url != null ? url.toString() : null) );
         return url;
+    }
+    
+    public static void insertHandlers(ServiceRefType serviceRef, HandlerChain annotation, Class clazz) {
+        String handlerChainFile = annotation.file();
+        log.debug("handlerChainFile: " + handlerChainFile);
+        if (handlerChainFile == null || handlerChainFile.trim().length() == 0) {
+            return;
+        }
+        URL url = null;
+        try {
+            // Assume URL format first
+            url = new URL(handlerChainFile);
+        } catch (MalformedURLException mfe) {
+            // Not URL format -- see if it's relative to the annotated class
+            url = getURL(clazz, handlerChainFile);
+        }
+        if (url != null) {
+            try {
+                insertHandlers(serviceRef, url);
+            } catch (Exception e) {
+                log.debug("Error while processing <handler-chain>", e);
+            }
+        }
+    }
+    
+    public static void insertHandlers(ServiceRefType serviceRef, URL url) throws Exception {
+        // Bind the XML handler chain file to an XMLBeans document
+        XmlObject xml = XmlBeansUtil.parse(url, null);
+        HandlerChainsDocument hcd = (HandlerChainsDocument) XmlBeansUtil.typedCopy(xml, HandlerChainsDocument.type);
+        HandlerChainsType handlerChains = hcd.getHandlerChains();
+        
+        ServiceRefHandlerChainsType serviceRefHandlerChains = serviceRef.addNewHandlerChains();
+        for (HandlerChainType handlerChain : handlerChains.getHandlerChainArray()) {
+            ServiceRefHandlerChainType serviceRefHandlerChain = serviceRefHandlerChains.addNewHandlerChain();
+            if (handlerChain.getPortNamePattern() != null) {
+                serviceRefHandlerChain.setPortNamePattern(handlerChain.getPortNamePattern());
+            }
+            if (handlerChain.getServiceNamePattern() != null) {
+                serviceRefHandlerChain.setServiceNamePattern(handlerChain.getServiceNamePattern());
+            }
+            if (handlerChain.getProtocolBindings() != null) {
+                serviceRefHandlerChain.setProtocolBindings(handlerChain.getProtocolBindings());
+            }
+            for ( PortComponentHandlerType handler : handlerChain.getHandlerArray()) {
+                ServiceRefHandlerType serviceRefHandler = serviceRefHandlerChain.addNewHandler();
+                serviceRefHandler.setHandlerName(handler.getHandlerName());
+                serviceRefHandler.setHandlerClass(handler.getHandlerClass());
+                if (handler.getDescriptionArray().length>0) {
+                    serviceRefHandler.setDescriptionArray(handler.getDescriptionArray());
+                }
+                if (handler.getInitParamArray().length>0) {
+                    serviceRefHandler.setInitParamArray(handler.getInitParamArray());
+                }
+                if (handler.getSoapHeaderArray().length>0) {
+                    serviceRefHandler.setSoapHeaderArray(handler.getSoapHeaderArray());
+                }
+                if (handler.getSoapRoleArray().length>0) {
+                    serviceRefHandler.setSoapRoleArray(handler.getSoapRoleArray());
+                }
+            }
+        }
     }
 
 }
