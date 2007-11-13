@@ -55,7 +55,7 @@ public class IMAPStoreGBean extends ProtocolGBean {
     static public final String IMAP_POOL_SIZE = "mail.imap.connectionpoolsize";
     static public final String IMAP_POOL_TIMEOUT = "mail.imap.connectionpooltimeout";
     static public final String IMAP_SEPARATE_STORE_CONNECTION = "mail.imap.separatestoreconnection";
-    static public final String IMAP_READONLY_SELECT = "mail.imap.alloreadonlyselect";
+    static public final String IMAP_READONLY_SELECT = "mail.imap.allreadonlyselect";
     static public final String IMAP_LOGIN_DISABLE = "mail.imap.auth.login.disable";
     static public final String IMAP_PLAIN_DISABLE = "mail.imap.auth.plain.disable";
     static public final String IMAP_STARTTLS_ENABLE = "mail.imap.auth.starttls.enable";

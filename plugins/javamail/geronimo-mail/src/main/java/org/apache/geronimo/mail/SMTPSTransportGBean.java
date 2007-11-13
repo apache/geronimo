@@ -39,28 +39,28 @@ import org.apache.geronimo.gbean.GBeanInfoBuilder;
 public class SMTPSTransportGBean extends ProtocolGBean {
 
     // the SMTPS configuration property names
-    static public final String SMTPS_PORT = "mail.smtp.port";
-    static public final String SMTPS_CONNECTION_TIMEOUT = "mail.smtp.connectiontimeout";
-    static public final String SMTPS_TIMEOUT = "mail.smtp.timeout";
-    static public final String SMTPS_FROM = "mail.smtp.from";
-    static public final String SMTPS_AUTH = "mail.smtp.auth";
-    static public final String SMTPS_REALM = "mail.smtp.sasl.realm";
-    static public final String SMTPS_QUITWAIT = "mail.smtp.quitwait";
-    static public final String SMTPS_FACTORY_CLASS = "mail.smtp.socketFactory.class";
-    static public final String SMTPS_FACTORY_FALLBACK = "mail.smtp.socketFactory.fallback";
-    static public final String SMTPS_FACTORY_PORT = "mail.smtp.socketFactory.port";
-    static public final String SMTPS_LOCALHOST = "mail.smtp.localhost";
-    static public final String SMTPS_LOCALADDRESS = "mail.smtp.localaddress";
-    static public final String SMTPS_LOCALPORT = "mail.smtp.localport";
-    static public final String SMTPS_EHLO = "mail.smtp.ehlo";
-    static public final String SMTPS_SUBMITTER = "mail.smtp.submitter";
-    static public final String SMTPS_DSN_NOTIFY = "mail.smtp.dsn.notify";
-    static public final String SMTPS_DSN_RET = "mail.smtp.dsn.ret";
-    static public final String SMTPS_8BITMIME = "mail.smtp.allow8bitmime";
-    static public final String SMTPS_SEND_PARTIAL = "mail.smtp.sendpartial";
-    static public final String SMTPS_REPORT_SUCCESS = "mail.smtp.reportsuccess";
-    static public final String SMTPS_MAIL_EXTENSION = "mail.smtp.mailextension";
-    static public final String SMTPS_STARTTLS_ENABLE = "mail.smtp.starttls.enable";
+    static public final String SMTPS_PORT = "mail.smtps.port";
+    static public final String SMTPS_CONNECTION_TIMEOUT = "mail.smtps.connectiontimeout";
+    static public final String SMTPS_TIMEOUT = "mail.smtps.timeout";
+    static public final String SMTPS_FROM = "mail.smtps.from";
+    static public final String SMTPS_AUTH = "mail.smtps.auth";
+    static public final String SMTPS_REALM = "mail.smtps.sasl.realm";
+    static public final String SMTPS_QUITWAIT = "mail.smtps.quitwait";
+    static public final String SMTPS_FACTORY_CLASS = "mail.smtps.socketFactory.class";
+    static public final String SMTPS_FACTORY_FALLBACK = "mail.smtps.socketFactory.fallback";
+    static public final String SMTPS_FACTORY_PORT = "mail.smtps.socketFactory.port";
+    static public final String SMTPS_LOCALHOST = "mail.smtps.localhost";
+    static public final String SMTPS_LOCALADDRESS = "mail.smtps.localaddress";
+    static public final String SMTPS_LOCALPORT = "mail.smtps.localport";
+    static public final String SMTPS_EHLO = "mail.smtps.ehlo";
+    static public final String SMTPS_SUBMITTER = "mail.smtps.submitter";
+    static public final String SMTPS_DSN_NOTIFY = "mail.smtps.dsn.notify";
+    static public final String SMTPS_DSN_RET = "mail.smtps.dsn.ret";
+    static public final String SMTPS_8BITMIME = "mail.smtps.allow8bitmime";
+    static public final String SMTPS_SEND_PARTIAL = "mail.smtps.sendpartial";
+    static public final String SMTPS_REPORT_SUCCESS = "mail.smtps.reportsuccess";
+    static public final String SMTPS_MAIL_EXTENSION = "mail.smtps.mailextension";
+    static public final String SMTPS_STARTTLS_ENABLE = "mail.smtps.starttls.enable";
 
     static public final String GBEAN_EHLO = "ehlo";
     static public final String GBEAN_SUBMITTER = "submitter";
@@ -262,7 +262,7 @@ public class SMTPSTransportGBean extends ProtocolGBean {
      * <p/>
      * Email address to use for SMTP MAIL command. This sets the envelope
      * return address. Defaults to msg.getFrom() or InternetAddress.getLocalAddress().
-     * NOTE: mail.smtp.user was previously used for this.
+     * NOTE: mail.smtps.user was previously used for this.
      * <p/>
      * Values that are set here will override any of the corresponding value
      * that has been set in the properties.
