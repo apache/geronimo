@@ -39,7 +39,6 @@ import org.apache.geronimo.cxf.CXFEndpoint;
 import org.apache.geronimo.cxf.CXFServiceConfiguration;
 import org.apache.geronimo.cxf.GeronimoJaxWsImplementorInfo;
 import org.apache.geronimo.jaxws.JAXWSAnnotationProcessor;
-import org.apache.geronimo.jaxws.JAXWSUtils;
 import org.apache.geronimo.jaxws.JNDIResolver;
 import org.apache.openejb.DeploymentInfo;
 
@@ -50,11 +49,7 @@ public class EJBEndpoint extends CXFEndpoint {
                        Class instance) {
         super(bus, instance);
                 
-        String bindingURI = null;
-        if (this.portInfo.getProtocolBinding() != null) {
-            bindingURI = JAXWSUtils.getBindingURI(this.portInfo.getProtocolBinding());
-        }
-        implInfo = new GeronimoJaxWsImplementorInfo((Class)implementor, bindingURI);
+        implInfo = new GeronimoJaxWsImplementorInfo(instance, this.portInfo, instance.getClassLoader());
 
         serviceFactory = new JaxWsServiceFactoryBean(implInfo);       
         serviceFactory.setBus(bus);

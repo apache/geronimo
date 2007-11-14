@@ -33,7 +33,6 @@ import org.apache.geronimo.cxf.CXFEndpoint;
 import org.apache.geronimo.cxf.CXFServiceConfiguration;
 import org.apache.geronimo.cxf.GeronimoJaxWsImplementorInfo;
 import org.apache.geronimo.jaxws.JAXWSAnnotationProcessor;
-import org.apache.geronimo.jaxws.JAXWSUtils;
 import org.apache.geronimo.jaxws.JNDIResolver;
 import org.apache.geronimo.jaxws.annotations.AnnotationHolder;
 
@@ -43,14 +42,12 @@ public class POJOEndpoint extends CXFEndpoint {
     
     private AnnotationHolder holder;
 
-    public POJOEndpoint(Bus bus, URL configurationBaseUrl, Class instance) {
+    public POJOEndpoint(Bus bus, 
+                        URL configurationBaseUrl, 
+                        Class instance) {
         super(bus, instance);
         
-        String bindingURI = null;
-        if (this.portInfo.getProtocolBinding() != null) {
-            bindingURI = JAXWSUtils.getBindingURI(this.portInfo.getProtocolBinding());
-        }
-        implInfo = new GeronimoJaxWsImplementorInfo(instance, bindingURI);
+        implInfo = new GeronimoJaxWsImplementorInfo(instance, this.portInfo, instance.getClassLoader());
 
         serviceFactory = new JaxWsServiceFactoryBean(implInfo);        
         serviceFactory.setBus(bus);

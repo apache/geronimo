@@ -16,15 +16,33 @@
  */
 package org.apache.geronimo.cxf;
 
+import javax.xml.ws.WebServiceException;
+
 import org.apache.cxf.jaxws.support.JaxWsImplementorInfo;
+import org.apache.geronimo.jaxws.JAXWSUtils;
+import org.apache.geronimo.jaxws.PortInfo;
 
 public class GeronimoJaxWsImplementorInfo extends JaxWsImplementorInfo {
 
     private String bindingURI;
+    private Class seiClass;
 
-    public GeronimoJaxWsImplementorInfo(Class clazz, String bindingURI) {
+    public GeronimoJaxWsImplementorInfo(Class clazz, PortInfo portInfo, ClassLoader loader) {
         super(clazz);
-        this.bindingURI = bindingURI;
+        
+        // overwrite bindingURI
+        if (portInfo.getProtocolBinding() != null) {
+            this.bindingURI = JAXWSUtils.getBindingURI(portInfo.getProtocolBinding());
+        }
+        
+        String sei = portInfo.getServiceEndpointInterfaceName();
+        if (sei != null && sei.trim().length() > 0) {
+            try {
+                this.seiClass = loader.loadClass(sei.trim());
+            } catch (ClassNotFoundException ex) {
+                throw new WebServiceException("Failed to load SEI class: " + sei);
+            }
+        }
     }
     
     public String getBindingType() {
@@ -33,6 +51,10 @@ public class GeronimoJaxWsImplementorInfo extends JaxWsImplementorInfo {
         } else {
             return super.getBindingType();
         }
+    }
+    
+    public Class<?> getSEIClass() {
+        return (this.seiClass != null) ? this.seiClass : super.getSEIClass();        
     }
    
 }
