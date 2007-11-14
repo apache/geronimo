@@ -239,7 +239,7 @@ public class InstallModulesMojo
         }
         log.info("Installed plugins: ");
         for (Artifact artifact: downloadPoller.getInstalledConfigIDs()) {
-            log.info("   " + artifact);
+            log.info("    " + artifact);
         }
         log.info("Installed dependencies: ");
         for (Artifact artifact: downloadPoller.getDependenciesInstalled()) {
