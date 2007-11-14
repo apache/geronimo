@@ -38,15 +38,29 @@
     </webservice-description>
 
     <webservice-description>
-        <webservice-description-name>Geronimo JAX-WS POJO WS</webservice-description-name>
+        <webservice-description-name>Geronimo JAX-WS POJO WS I</webservice-description-name>
         <port-component>
-            <port-component-name>JAXWSPort</port-component-name>
+            <port-component-name>JAXWSPort1</port-component-name>
             <wsdl-service>greeter:GreeterService</wsdl-service>
             <wsdl-port>greeter:GreeterPort</wsdl-port> 
             <enable-mtom>false</enable-mtom>
             <service-endpoint-interface>org.apache.greeter_control.Greeter</service-endpoint-interface>
             <service-impl-bean>
-                <servlet-link>JAXWSServlet</servlet-link>
+                <servlet-link>JAXWSServlet1</servlet-link>
+            </service-impl-bean>
+        </port-component>
+    </webservice-description>
+    
+    <webservice-description>
+        <webservice-description-name>Geronimo JAX-WS POJO WS II</webservice-description-name>
+        <port-component>
+            <port-component-name>JAXWSPort2</port-component-name>
+            <wsdl-service>greeter:GreeterService</wsdl-service>
+            <wsdl-port>greeter:GreeterPort</wsdl-port> 
+            <enable-mtom>false</enable-mtom>
+            <service-endpoint-interface>org.apache.greeter_control.Greeter2</service-endpoint-interface>
+            <service-impl-bean>
+                <servlet-link>JAXWSServlet2</servlet-link>
             </service-impl-bean>
         </port-component>
     </webservice-description>

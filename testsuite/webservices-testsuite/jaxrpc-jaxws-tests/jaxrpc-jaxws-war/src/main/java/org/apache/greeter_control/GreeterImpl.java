@@ -43,6 +43,10 @@ public class GreeterImpl implements Greeter {
         return "Hello " + me;
     }
 
+    public String sayHi() {
+        return "Hi";
+    }
+    
     @PostConstruct
     public void init() {
         System.out.println(this + " PostConstruct");

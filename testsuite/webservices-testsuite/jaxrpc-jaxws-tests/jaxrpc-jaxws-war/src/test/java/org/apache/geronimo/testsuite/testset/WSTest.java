@@ -105,15 +105,22 @@ public class WSTest extends TestSupport {
 
     @Test
     public void testJAXRPCWSDL() throws Exception {
-        testWSDL("servlet1");
+        testWSDL("servlet1", new String [] {"greetMe"});
     }
 
     @Test
-    public void testJAXWSWSDL() throws Exception {
-        testWSDL("servlet2");
+    public void testJAXWSWSDL1() throws Exception {
+        testWSDL("servlet2", new String [] {"greetMe"});
     }
-
-    private void testWSDL(String servlet) throws Exception {
+    
+    /*
+    @Test
+    public void testJAXWSWSDL2() throws Exception {
+        testWSDL("servlet3", new String [] {"greetMe", "sayHi"});
+    }    
+    */
+    
+    private void testWSDL(String servlet, String[] operations) throws Exception {
         String warName = System.getProperty("webAppName");
         assertNotNull("Web application name not specified", warName);
         
@@ -130,22 +137,20 @@ public class WSTest extends TestSupport {
 
             System.out.println("WSDL: " + def);
 
-            assertTrue(def.getPortTypes().size() > 0);
-
-            boolean found = false;
+            assertEquals(1, def.getPortTypes().size());
 
             Iterator iter = def.getPortTypes().entrySet().iterator();
-            while (iter.hasNext()) {
-                PortType portType = 
-                    (PortType)((Map.Entry)iter.next()).getValue();
-                
-                if (found == false &&
-                    portType.getOperation("greetMe", null, null) != null) {
-                    found = true;
+                                  
+            PortType portType = 
+                (PortType)((Map.Entry)iter.next()).getValue();
+            
+            assertEquals("Number of operations", operations.length, portType.getOperations().size());
+            
+            for (String opName : operations) {
+                if (portType.getOperation(opName, null, null) == null) {
+                    fail("Operation " + opName + " not found");
                 }
             }
-
-            assertTrue("Operation not found", found);
             
         } finally {
             conn.disconnect();

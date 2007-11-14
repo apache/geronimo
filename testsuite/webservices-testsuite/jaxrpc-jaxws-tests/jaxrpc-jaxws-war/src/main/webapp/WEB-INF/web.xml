@@ -29,7 +29,14 @@ limitations under the License.
 
     <servlet>
         <display-name>Geronimo JAX-WS POJO WS</display-name>
-        <servlet-name>JAXWSServlet</servlet-name>
+        <servlet-name>JAXWSServlet1</servlet-name>
+        <servlet-class>org.apache.greeter_control.GreeterImpl</servlet-class>
+        <load-on-startup>0</load-on-startup>
+    </servlet>
+    
+    <servlet>
+        <display-name>Geronimo JAX-WS POJO WS</display-name>
+        <servlet-name>JAXWSServlet2</servlet-name>
         <servlet-class>org.apache.greeter_control.GreeterImpl</servlet-class>
         <load-on-startup>0</load-on-startup>
     </servlet>
@@ -40,8 +47,13 @@ limitations under the License.
     </servlet-mapping>
 
     <servlet-mapping>
-        <servlet-name>JAXWSServlet</servlet-name>
+        <servlet-name>JAXWSServlet1</servlet-name>
         <url-pattern>/servlet2</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>JAXWSServlet2</servlet-name>
+        <url-pattern>/servlet3</url-pattern>
     </servlet-mapping>
 
 </web-app>
