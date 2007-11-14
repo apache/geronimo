@@ -548,7 +548,7 @@
                 <artifactId>maven-antrun-plugin</artifactId>
                 <executions>
                     <execution>
-                        <id>copy-</id>
+                        <id>copy-framework</id>
                         <phase>package</phase>
                         <goals>
                             <goal>run</goal>
