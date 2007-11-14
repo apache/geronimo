@@ -29,6 +29,8 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.console.MultiPageAbstractHandler;
 import org.apache.geronimo.console.MultiPageModel;
 import org.apache.geronimo.deployment.xbeans.PatternType;
+import org.apache.geronimo.xbeans.geronimo.naming.GerPortType;
+import org.apache.geronimo.xbeans.geronimo.naming.GerServiceRefType;
 import org.apache.geronimo.xbeans.geronimo.security.GerDistinguishedNameType;
 import org.apache.geronimo.xbeans.geronimo.security.GerLoginDomainPrincipalType;
 import org.apache.geronimo.xbeans.geronimo.security.GerPrincipalType;
@@ -187,6 +189,8 @@ public abstract class AbstractHandler extends MultiPageAbstractHandler {
 
         private List javaMailSessionRefs = new ArrayList();
 
+        private List<GerServiceRefType> webServiceRefs = new ArrayList<GerServiceRefType>();
+
         private List dependencies = new ArrayList();
 
         private boolean referenceNotResolved;
@@ -218,6 +222,7 @@ public abstract class AbstractHandler extends MultiPageAbstractHandler {
             readParameters(MESSAGE_DESTINATION_PREFIX, messageDestinations, request);
             readParameters(JDBC_POOL_REF_PREFIX, jdbcPoolRefs, request);
             readParameters(JAVAMAIL_SESSION_REF_PREFIX, javaMailSessionRefs, request);
+            readWebServiceRefsData(request);
         }
 
         private void readParameters(String prefix1, List list, PortletRequest request) {
@@ -232,6 +237,50 @@ public abstract class AbstractHandler extends MultiPageAbstractHandler {
                 ReferenceData data = new ReferenceData();
                 data.load(request, prefix2);
                 list.add(data);
+            }
+        }
+
+        public void readWebServiceRefsData(PortletRequest request) {
+            Map map = request.getParameterMap();
+            for (int i = 0; i < getWebServiceRefs().size(); i++) {
+                GerServiceRefType serviceRef = getWebServiceRefs().get(i);
+                for (int j = serviceRef.getPortArray().length - 1; j >= 0; j--) {
+                    serviceRef.removePort(j);
+                }
+                String prefix1 = "serviceRef" + "." + i + "." + "port" + ".";
+                int lastIndex = Integer.parseInt(request.getParameter(prefix1 + "lastIndex"));
+                for (int j = 0; j < lastIndex; j++) {
+                    String prefix2 = prefix1 + j + ".";
+                    if (!map.containsKey(prefix2 + "portName")) {
+                        continue;
+                    }
+                    GerPortType port = serviceRef.addNewPort();
+                    String value = request.getParameter(prefix2 + "portName");
+                    if (!isEmpty(value)) {
+                        port.setPortName(value);
+                    }
+                    value = request.getParameter(prefix2 + "protocol");
+                    if (!isEmpty(value)) {
+                        port.setProtocol(value);
+                    }
+                    value = request.getParameter(prefix2 + "host");
+                    if (!isEmpty(value)) {
+                        port.setHost(value);
+                    }
+                    value = request.getParameter(prefix2 + "port");
+                    if (!isEmpty(value)) {
+                        int portValue = Integer.parseInt(value);
+                        port.setPort(portValue);
+                    }
+                    value = request.getParameter(prefix2 + "uri");
+                    if (!isEmpty(value)) {
+                        port.setUri(value);
+                    }
+                    value = request.getParameter(prefix2 + "credentialsName");
+                    if (!isEmpty(value)) {
+                        port.setCredentialsName(value);
+                    }
+                }
             }
         }
 
@@ -463,6 +512,10 @@ public abstract class AbstractHandler extends MultiPageAbstractHandler {
 
         public List getJavaMailSessionRefs() {
             return javaMailSessionRefs;
+        }
+
+        public List<GerServiceRefType> getWebServiceRefs() {
+            return webServiceRefs;
         }
 
         public boolean isReferenceNotResolved() {

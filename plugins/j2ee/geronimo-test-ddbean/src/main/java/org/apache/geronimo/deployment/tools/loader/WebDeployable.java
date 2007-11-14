@@ -43,7 +43,10 @@ public class WebDeployable extends AbstractDeployable {
         super(ModuleType.WAR, moduleURL, "WEB-INF/web.xml");
         ClassLoader parent = super.getModuleLoader();
         List path = new ArrayList();
-        path.add(parent.getResource("WEB-INF/classes/"));
+        URL url = parent.getResource("WEB-INF/classes/");
+        if (url != null) {
+            path.add(url);
+        }
         Enumeration e = entries();
         while (e.hasMoreElements()) {
             String entry = (String) e.nextElement();

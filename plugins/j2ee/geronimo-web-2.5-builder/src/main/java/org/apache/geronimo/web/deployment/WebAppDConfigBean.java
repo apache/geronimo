@@ -40,6 +40,7 @@ import org.apache.geronimo.xbeans.geronimo.naming.GerEjbRefType;
 import org.apache.geronimo.xbeans.geronimo.naming.GerMessageDestinationType;
 import org.apache.geronimo.xbeans.geronimo.naming.GerResourceEnvRefType;
 import org.apache.geronimo.xbeans.geronimo.naming.GerResourceRefType;
+import org.apache.geronimo.xbeans.geronimo.naming.GerServiceRefType;
 import org.apache.geronimo.xbeans.geronimo.web.GerWebAppType;
 import org.apache.xmlbeans.SchemaTypeLoader;
 
@@ -299,14 +300,26 @@ public class WebAppDConfigBean extends DConfigBeanSupport {
         getWebApp().setSecurityRealmName(securityRealmName);
     }
 
+    //TODO Method to be updated once DConfigBean for "security" is available
     public GerAbstractSecurityType getSecurity() {
         return getWebApp().getSecurity();
     }
 
+    //TODO Method to be updated once DConfigBean for "security" is available
     public void setSecurity(GerAbstractSecurityType security) {
         pcs.firePropertyChange("security", getSecurity(), security);
         getWebApp().setSecurity(security);
     }
 
+    //TODO Method to be updated once DConfigBean for "service-ref" is available
+    public GerServiceRefType[] getServiceRefs() {
+        return getWebApp().getServiceRefArray();
+    }
+
+    //TODO Method to be updated once DConfigBean for "service-ref" is available
+    public void setServiceRefs(GerServiceRefType[] serviceRefArray){
+        pcs.firePropertyChange("service-ref", getServiceRefs(), serviceRefArray);
+        getWebApp().setServiceRefArray(serviceRefArray);
+    }
     // ----------------------- End of JavaBean Properties ----------------------
 }

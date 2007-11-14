@@ -74,6 +74,7 @@ import org.apache.geronimo.naming.deployment.jsr88.ResourceRef;
 import org.apache.geronimo.web.deployment.WebAppDConfigBean;
 import org.apache.geronimo.web.deployment.WebAppDConfigRoot;
 import org.apache.geronimo.web25.deployment.AbstractWebModuleBuilder;
+import org.apache.geronimo.xbeans.geronimo.naming.GerServiceRefType;
 import org.apache.geronimo.xbeans.geronimo.security.GerRoleType;
 import org.apache.geronimo.xbeans.geronimo.security.GerSecurityType;
 import org.apache.geronimo.xbeans.javaee.EjbLocalRefType;
@@ -82,6 +83,7 @@ import org.apache.geronimo.xbeans.javaee.MessageDestinationType;
 import org.apache.geronimo.xbeans.javaee.ResourceEnvRefType;
 import org.apache.geronimo.xbeans.javaee.ResourceRefType;
 import org.apache.geronimo.xbeans.javaee.SecurityRoleType;
+import org.apache.geronimo.xbeans.javaee.ServiceRefType;
 import org.apache.geronimo.xbeans.javaee.WebAppType;
 import org.apache.xbean.finder.ClassFinder;
 
@@ -210,6 +212,14 @@ public class JSR88_Util {
                 data.getJmsConnectionFactoryRefs().add(new ReferenceData(refName));
             }
         }*/
+
+        ServiceRefType[] serviceRefs = annotatedApp.getServiceRefArray();
+        for(int i = 0; i < serviceRefs.length; i++) {
+            String refName = serviceRefs[i].getServiceRefName().getStringValue();
+            GerServiceRefType serviceRef = GerServiceRefType.Factory.newInstance();
+            serviceRef.setServiceRefName(refName);
+            data.getWebServiceRefs().add(serviceRef);
+        }
 
         ResourceEnvRefType[] resourceEnvRefs = annotatedApp.getResourceEnvRefArray();
         for(int i = 0; i < resourceEnvRefs.length; i++) {
@@ -423,6 +433,11 @@ public class JSR88_Util {
                 resourceEnvRef.setPattern(createPattern(referenceData.getRefLink()));
                 // resourceEnvRef.setAdminObjectLink(createPattern(referenceData.getRefLink()).getName());
             }
+        }
+
+        int numWebServiceRefs = data.getWebServiceRefs().size();
+        if (numWebServiceRefs > 0) {
+            webApp.setServiceRefs(data.getWebServiceRefs().toArray(new GerServiceRefType[numWebServiceRefs]));
         }
 
         if (data.getSecurity() != null) {
