@@ -22,6 +22,7 @@ package org.apache.greeter_control;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.annotation.Resource;
+import javax.jws.WebMethod;
 import javax.jws.WebService;
 import javax.xml.ws.WebServiceContext;
 
@@ -38,10 +39,12 @@ public class GreeterImpl2 {
         return context;
     }
 
+    @WebMethod
     public String greetMe(String me) {
         return "Hello " + me;
     }
 
+    @WebMethod
     public String sayHi() {
         return "Hi";
     }
