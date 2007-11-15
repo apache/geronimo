@@ -112,12 +112,12 @@ public class WSTest extends TestSupport {
     public void testJAXWSWSDL1() throws Exception {
         testWSDL("servlet2", new String [] {"greetMe"});
     }
-    
+        
     /*
     @Test
     public void testJAXWSWSDL2() throws Exception {
-        testWSDL("servlet3", new String [] {"greetMe", "sayHi"});
-    }    
+        testWSDL("servlet3", new String [] {"greetMe"});
+    }        
     */
     
     private void testWSDL(String servlet, String[] operations) throws Exception {

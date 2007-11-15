@@ -57,8 +57,8 @@
             <port-component-name>JAXWSPort2</port-component-name>
             <wsdl-service>greeter:GreeterService</wsdl-service>
             <wsdl-port>greeter:GreeterPort</wsdl-port> 
-            <enable-mtom>false</enable-mtom>
-            <service-endpoint-interface>org.apache.greeter_control.Greeter2</service-endpoint-interface>
+            <enable-mtom>false</enable-mtom>                        
+            <service-endpoint-interface>org.apache.greeter_control.Greeter</service-endpoint-interface>                  
             <service-impl-bean>
                 <servlet-link>JAXWSServlet2</servlet-link>
             </service-impl-bean>
