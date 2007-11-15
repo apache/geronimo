@@ -35,16 +35,20 @@ public class GeronimoJaxWsImplementorInfo extends JaxWsImplementorInfo {
             this.bindingURI = JAXWSUtils.getBindingURI(portInfo.getProtocolBinding());
         }
         
-        String sei = portInfo.getServiceEndpointInterfaceName();
-        if (sei != null && sei.trim().length() > 0) {
-            try {
-                this.seiClass = loader.loadClass(sei.trim());
-            } catch (ClassNotFoundException ex) {
-                throw new WebServiceException("Failed to load SEI class: " + sei);
+        // overwrite seiClass only if WebService.endpointInterface is not set
+        if (super.getSEIClass() == null) {
+            String sei = portInfo.getServiceEndpointInterfaceName();
+            if (sei != null && sei.trim().length() > 0) {
+                try {
+                    this.seiClass = loader.loadClass(sei.trim());
+                } catch (ClassNotFoundException ex) {
+                    throw new WebServiceException("Failed to load SEI class: " + sei);
+                }
             }
         }
     }
     
+    @Override
     public String getBindingType() {
         if (this.bindingURI != null) {
             return this.bindingURI;
@@ -53,6 +57,7 @@ public class GeronimoJaxWsImplementorInfo extends JaxWsImplementorInfo {
         }
     }
     
+    @Override
     public Class<?> getSEIClass() {
         return (this.seiClass != null) ? this.seiClass : super.getSEIClass();        
     }
