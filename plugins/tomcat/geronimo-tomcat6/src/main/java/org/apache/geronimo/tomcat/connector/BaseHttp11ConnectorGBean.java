@@ -55,7 +55,7 @@ public abstract class BaseHttp11ConnectorGBean extends ConnectorGBean implements
             throw new IllegalArgumentException("Must declare a port.");
         }
 
-        connector.setAttribute("host", host);
+        connector.setAttribute("address", host);
         connector.setPort(port);
 
     }
