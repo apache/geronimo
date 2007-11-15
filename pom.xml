@@ -47,7 +47,7 @@
     <scm>
         <connection>scm:svn:http://svn.apache.org/repos/asf/geronimo/server/trunk</connection>
         <developerConnection>scm:svn:https://svn.apache.org/repos/asf/geronimo/server/trunk</developerConnection>
-        <url>http://svn.apache.org/viewvc/geronimo/trunk</url>
+        <url>http://svn.apache.org/viewvc/geronimo/server/trunk</url>
     </scm>
 
     <properties>
