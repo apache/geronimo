@@ -55,7 +55,7 @@ public class AJP13ConnectorGBean extends ConnectorGBean implements Ajp13Protocol
             throw new IllegalArgumentException("Must declare a port.");
         }
 
-        connector.setAttribute("host", host);
+        connector.setAttribute("address", host);
         connector.setPort(port);
 
     }
