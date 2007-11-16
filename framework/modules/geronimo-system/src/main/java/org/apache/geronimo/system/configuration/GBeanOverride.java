@@ -69,6 +69,7 @@ public class GBeanOverride implements Serializable {
 
     public static final String ATTRIBUTE_NAMESPACE = "http://geronimo.apache.org/xml/ns/attributes-1.2";
     private final Object name;
+    private String comment;
     private boolean load;
     private final Map<String, String> attributes = new LinkedHashMap<String, String>();
     private final Map<String, ReferencePatterns> references = new LinkedHashMap<String, ReferencePatterns>();
@@ -103,6 +104,7 @@ public class GBeanOverride implements Serializable {
         }
         this.name = name;
         this.load = original.load;
+        this.comment = original.comment;
         this.attributes.putAll(original.attributes);
         this.references.putAll(original.references);
         this.clearAttributes.addAll(original.clearAttributes);
@@ -174,6 +176,7 @@ public class GBeanOverride implements Serializable {
         }
 
         load = gbean.isLoad();
+        comment = gbean.getComment();
 
         // attributes
         for (Object o : gbean.getAttributeOrReference()) {
@@ -426,6 +429,9 @@ public class GBeanOverride implements Serializable {
         }
         if (!load) {
             gbean.setLoad(false);
+        }
+        if (comment != null) {
+            gbean.setComment(comment);
         }
 
         // attributes
