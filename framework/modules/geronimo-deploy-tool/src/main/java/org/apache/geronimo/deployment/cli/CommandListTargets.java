@@ -17,12 +17,13 @@
 
 package org.apache.geronimo.deployment.cli;
 
-import java.io.PrintWriter;
+import java.io.IOException;
 
 import javax.enterprise.deploy.spi.Target;
 
 import org.apache.geronimo.cli.deployer.CommandArgs;
 import org.apache.geronimo.common.DeploymentException;
+import jline.ConsoleReader;
 
 /**
  * The CLI deployer logic to list targets.
@@ -31,16 +32,23 @@ import org.apache.geronimo.common.DeploymentException;
  */
 public class CommandListTargets extends AbstractCommand {
 
-    public void execute(PrintWriter out, ServerConnection connection, CommandArgs commandArgs) throws DeploymentException {
-        Target[] list = connection.getDeploymentManager().getTargets();
-        if ((list == null) || (list.length == 0)) {
-            out.println("No available targets.");
-        } else {
-            out.println("Available Targets:");
-            for (int i = 0; i < list.length; i++) {
-                Target target = list[i];
-                out.println("  "+target.getName());
+    public void execute(ConsoleReader consoleReader, ServerConnection connection, CommandArgs commandArgs) throws DeploymentException {
+        try {
+            Target[] list = connection.getDeploymentManager().getTargets();
+            if ((list == null) || (list.length == 0)) {
+                consoleReader.printString("No available targets.");
+                consoleReader.printNewline();
+            } else {
+                consoleReader.printString("Available Targets:");
+                consoleReader.printNewline();
+                for (int i = 0; i < list.length; i++) {
+                    Target target = list[i];
+                    consoleReader.printString("  "+target.getName());
+                    consoleReader.printNewline();
+                }
             }
+        } catch (IOException e) {
+            throw new DeploymentException("Could not write to console", e);
         }
     }
 }

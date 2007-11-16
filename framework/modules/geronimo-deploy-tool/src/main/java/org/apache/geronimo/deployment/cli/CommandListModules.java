@@ -18,6 +18,7 @@
 package org.apache.geronimo.deployment.cli;
 
 import java.io.PrintWriter;
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 
@@ -29,6 +30,7 @@ import javax.enterprise.deploy.spi.exceptions.TargetException;
 import org.apache.geronimo.cli.deployer.CommandArgs;
 import org.apache.geronimo.cli.deployer.ListModulesCommandArgs;
 import org.apache.geronimo.common.DeploymentException;
+import jline.ConsoleReader;
 
 /**
  * The CLI deployer logic to list modules.
@@ -37,7 +39,7 @@ import org.apache.geronimo.common.DeploymentException;
  */
 public class CommandListModules extends AbstractCommand {
 
-    public void execute(PrintWriter out, ServerConnection connection, CommandArgs commandArgs) throws DeploymentException {
+    public void execute(ConsoleReader consoleReader, ServerConnection connection, CommandArgs commandArgs) throws DeploymentException {
         if (!(commandArgs instanceof ListModulesCommandArgs)) {
             throw new DeploymentSyntaxException("CommandArgs has the type [" + commandArgs.getClass() + "]; expected [" + ListModulesCommandArgs.class + "]");
         }
@@ -80,20 +82,26 @@ public class CommandListModules extends AbstractCommand {
         // print the module count, and if there are more than one
         // targets print that count, too
         int total = running.length+notrunning.length;
-        out.print("Found "+total+" module"+(total != 1 ? "s" : ""));
-        if ((tlist != null) && (tlist.length > 1)) {
-            out.println(" deployed to " + tlist.length + " target" + (tlist.length != 1 ? "s" : ""));
-        } else {
-            out.println("");
-        }
+        try {
+            consoleReader.printString("Found "+total+" module"+(total != 1 ? "s" : ""));
+            consoleReader.printNewline();
+            if ((tlist != null) && (tlist.length > 1)) {
+                consoleReader.printString(" deployed to " + tlist.length + " target" + (tlist.length != 1 ? "s" : ""));
+            }
+            consoleReader.printNewline();
 
-        // for each target, print the modules that were deployed to it
-        for (int i = 0; (tlist != null) && (i < tlist.length); i++) {
-            Target target = tlist[i];
-            if (tlist.length > 1)
-                out.println("\n Target " + target);
-            printTargetModules(out, target, running, "  + ");
-            printTargetModules(out, target, notrunning, "    ");
+            // for each target, print the modules that were deployed to it
+            for (int i = 0; (tlist != null) && (i < tlist.length); i++) {
+                Target target = tlist[i];
+                if (tlist.length > 1) {
+                    consoleReader.printNewline();
+                    consoleReader.printString(" Target " + target);
+                }
+                printTargetModules(consoleReader, target, running, "  + ");
+                printTargetModules(consoleReader, target, notrunning, "    ");
+            }
+        } catch (IOException e) {
+            throw new DeploymentException("Could not print to console", e);
         }
     }
 
@@ -110,15 +118,17 @@ public class CommandListModules extends AbstractCommand {
      * @param prefix a <code>String</code> value that will be
      * prepended to each module
      */
-    void printTargetModules(PrintWriter out, Target target, TargetModuleID[] modules, String prefix) {
+    void printTargetModules(ConsoleReader out, Target target, TargetModuleID[] modules, String prefix) throws IOException {
         for (int i = 0; i < modules.length; i++) {
             TargetModuleID result = modules[i];
             if (result.getTarget().equals(target)) {
-                out.println(prefix+result.getModuleID());
+                out.printString(prefix+result.getModuleID());
+                out.printNewline();
                 if(result.getChildTargetModuleID() != null) {
                     for (int j = 0; j < result.getChildTargetModuleID().length; j++) {
                         TargetModuleID child = result.getChildTargetModuleID()[j];
-                        out.println("      `-> "+child.getModuleID());
+                        out.printString("      `-> "+child.getModuleID());
+                        out.printNewline();
                     }
                 }
             }

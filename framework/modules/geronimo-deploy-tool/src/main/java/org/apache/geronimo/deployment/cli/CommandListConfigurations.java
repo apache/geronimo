@@ -16,10 +16,7 @@
  */
 package org.apache.geronimo.deployment.cli;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -29,6 +26,7 @@ import java.util.Map;
 import javax.enterprise.deploy.spi.DeploymentManager;
 import javax.security.auth.login.FailedLoginException;
 
+import jline.ConsoleReader;
 import org.apache.geronimo.cli.deployer.BaseCommandArgs;
 import org.apache.geronimo.cli.deployer.CommandArgs;
 import org.apache.geronimo.common.DeploymentException;
@@ -49,7 +47,7 @@ public class CommandListConfigurations extends AbstractCommand {
 
     //todo: provide a way to handle a username and password for the remote repo?
 
-    public void execute(PrintWriter out, ServerConnection connection, CommandArgs commandArgs) throws DeploymentException {
+    public void execute(ConsoleReader consoleReader, ServerConnection connection, CommandArgs commandArgs) throws DeploymentException {
         DeploymentManager dmgr = connection.getDeploymentManager();
         if (dmgr instanceof GeronimoDeploymentManager) {
             GeronimoDeploymentManager mgr = (GeronimoDeploymentManager) dmgr;
@@ -58,105 +56,19 @@ public class CommandListConfigurations extends AbstractCommand {
                 if (commandArgs.getArgs().length == 1) {
                     repo = commandArgs.getArgs()[0];
                 } else {
-                    repo = getRepository(out, new BufferedReader(new InputStreamReader(System.in)), mgr);
+                    repo = getRepository(consoleReader, mgr);
                 }
-                PluginListType data;
-                URL repository;
-                try {
-                    repository = new URL(repo);
-                    data = mgr.listPlugins(repository, null, null);
-                } catch (IOException e) {
-                    throw new DeploymentException("Unable to list configurations", e);
-                } catch (FailedLoginException e) {
-                    throw new DeploymentException("Invalid login for Maven repository '" + repo + "'", e);
-                }
-                if (data == null) {
-                    out.println();
-                    out.println("No plugins were returned from this site.");
+                Map<String, List<PluginType>> categories = getPluginCategories(repo, mgr, consoleReader);
+                if (categories == null) {
                     return;
                 }
-                Map<String, List<PluginType>> categories = new HashMap<String, List<PluginType>>();
-                for (PluginType metadata : data.getPlugin()) {
-                    List<PluginType> list = categories.get(metadata.getCategory());
-                    if (list == null) {
-                        list = new ArrayList<PluginType>();
-                        categories.put(metadata.getCategory(), list);
-                    }
-                    list.add(metadata);
-                }
-                List<PluginType> available = new ArrayList<PluginType>();
-                for (Map.Entry<String, List<PluginType>> entry : categories.entrySet()) {
-                    String category = entry.getKey();
-                    if (category == null) {
-                        category = "<no category>";
-                    }
-                    List<PluginType> items = entry.getValue();
-                    out.println();
-                    out.print(DeployUtils.reformat(category, 4, 72));
-                    for (PluginType metadata : items) {
-                        out.println("  " + metadata.getName());
-                        for (PluginArtifactType instance : metadata.getPluginArtifact()) {
-                            String prefix;
-//                            if (!instance.isInstalled() && instance.isEligible()) {
-                            PluginType copy = PluginInstallerGBean.copy(metadata, instance);
-                                available.add(copy);
-                                prefix = Integer.toString(available.size());
-                                if (available.size() < 10) {
-                                    prefix += " ";
-                                }
-                                prefix += ": ";
-//                            }
-                            out.print(DeployUtils.reformat(
-                                    prefix + " (" + instance.getModuleId().getVersion() + ")", 8, 72));
-                            out.flush();
-                        }
-                    }
-                }
-                if (available.size() == 0) {
-                    out.println();
-                    out.println("No plugins from this site are eligible for installation.");
+
+                PluginListType list = getInstallList(categories, consoleReader, repo);
+                if (list == null) {
                     return;
                 }
-                out.println();
-                out.print("Install Service [enter number or 'q' to quit]: ");
-                out.flush();
-                BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
-                String answer = in.readLine();
-                if (answer.equalsIgnoreCase("q")) {
-                    return;
-                }
-                int selection = Integer.parseInt(answer);
-                PluginType target = available.get(selection - 1);
-                PluginArtifactType targetInstance = target.getPluginArtifact().get(0);
-                PluginListType list = new PluginListType();
-                list.getPlugin().add(target);
-                list.getDefaultRepository().add(repo);
-                long start = System.currentTimeMillis();
-                Object key = mgr.startInstall(list, null, null);
-                DownloadResults results = CommandInstallCAR.showProgress(mgr, key);
-                int time = (int) (System.currentTimeMillis() - start) / 1000;
-                out.println();
-                if (!results.isFailed()) {
-                    out.print(DeployUtils.reformat("**** Installation Complete!", 4, 72));
-                    for (int i = 0; i < results.getDependenciesPresent().length; i++) {
-                        Artifact uri = results.getDependenciesPresent()[i];
-                        out.print(DeployUtils.reformat("Used existing: " + uri, 4, 72));
-                    }
-                    for (int i = 0; i < results.getDependenciesInstalled().length; i++) {
-                        Artifact uri = results.getDependenciesInstalled()[i];
-                        out.print(DeployUtils.reformat("Installed new: " + uri, 4, 72));
-                    }
-                    out.println();
-                    out.print(DeployUtils.reformat(
-                            "Downloaded " + (results.getTotalDownloadBytes() / 1024) + " kB in " + time + "s (" + results.getTotalDownloadBytes() / (1024 * time) + " kB/s)",
-                            4, 72));
-                }
-                if (results.isFinished() && !results.isFailed()) {
-                    out.print(DeployUtils.reformat("Now starting " + PluginInstallerGBean.toArtifact(targetInstance.getModuleId()) + "...", 4, 72));
-                    out.flush();
-                    new CommandStart().execute(out, connection,
-                            new BaseCommandArgs(new String[]{PluginInstallerGBean.toArtifact(targetInstance.getModuleId()).toString()}));
-                }
+
+                installPlugins(mgr, list, consoleReader, connection);
             } catch (IOException e) {
                 throw new DeploymentException("Unable to install configuration", e);
             } catch (NumberFormatException e) {
@@ -167,23 +79,148 @@ public class CommandListConfigurations extends AbstractCommand {
         }
     }
 
-    private String getRepository(PrintWriter out, BufferedReader in, GeronimoDeploymentManager mgr) throws IOException, DeploymentException {
+    public void installPlugins(GeronimoDeploymentManager mgr, PluginListType list, ConsoleReader consoleReader, ServerConnection connection) throws IOException, DeploymentException {
+        long start = System.currentTimeMillis();
+        Object key = mgr.startInstall(list, null, null);
+        DownloadResults results = CommandInstallCAR.showProgress(mgr, key);
+        int time = (int) (System.currentTimeMillis() - start) / 1000;
+        consoleReader.printNewline();
+        if (!results.isFailed()) {
+            consoleReader.printString(DeployUtils.reformat("**** Installation Complete!", 4, 72));
+            consoleReader.printNewline();
+
+            for (int i = 0; i < results.getDependenciesPresent().length; i++) {
+                Artifact uri = results.getDependenciesPresent()[i];
+                consoleReader.printString(DeployUtils.reformat("Used existing: " + uri, 4, 72));
+                consoleReader.printNewline();
+
+            }
+            for (int i = 0; i < results.getDependenciesInstalled().length; i++) {
+                Artifact uri = results.getDependenciesInstalled()[i];
+                consoleReader.printString(DeployUtils.reformat("Installed new: " + uri, 4, 72));
+                consoleReader.printNewline();
+
+            }
+            consoleReader.printNewline();
+            consoleReader.printString(DeployUtils.reformat(
+                    "Downloaded " + (results.getTotalDownloadBytes() / 1024) + " kB in " + time + "s (" + results.getTotalDownloadBytes() / (1024 * time) + " kB/s)",
+                    4, 72));
+            consoleReader.printNewline();
+
+        }
+        if (results.isFinished() && !results.isFailed()) {
+            for (PluginType plugin : list.getPlugin()) {
+                for (PluginArtifactType targetInstance : plugin.getPluginArtifact()) {
+                    consoleReader.printString(DeployUtils.reformat("Now starting " + PluginInstallerGBean.toArtifact(targetInstance.getModuleId()) + "...", 4, 72));
+                    consoleReader.flushConsole();
+                    new CommandStart().execute(consoleReader, connection,
+                            new BaseCommandArgs(new String[]{PluginInstallerGBean.toArtifact(targetInstance.getModuleId()).toString()}));
+                }
+            }
+        }
+    }
+
+    public PluginListType getInstallList(Map<String, List<PluginType>> categories, ConsoleReader consoleReader, String repo) throws IOException {
+        List<PluginType> available = new ArrayList<PluginType>();
+        for (Map.Entry<String, List<PluginType>> entry : categories.entrySet()) {
+            String category = entry.getKey();
+            if (category == null) {
+                category = "<no category>";
+            }
+            List<PluginType> items = entry.getValue();
+            consoleReader.printNewline();
+            consoleReader.printString(DeployUtils.reformat(category, 4, 72));
+            for (PluginType metadata : items) {
+                consoleReader.printString("  " + metadata.getName());
+                for (PluginArtifactType instance : metadata.getPluginArtifact()) {
+                    String prefix;
+//                            if (!instance.isInstalled() && instance.isEligible()) {
+                    PluginType copy = PluginInstallerGBean.copy(metadata, instance);
+                    available.add(copy);
+                    prefix = Integer.toString(available.size());
+                    if (available.size() < 10) {
+                        prefix += " ";
+                    }
+                    prefix += ": ";
+//                            }
+                    consoleReader.printString(DeployUtils.reformat(
+                            prefix + " (" + instance.getModuleId().getVersion() + ")", 8, 72));
+                    consoleReader.printNewline();
+                }
+            }
+        }
+        if (available.size() == 0) {
+            consoleReader.printNewline();
+            consoleReader.printString("No plugins from this site are eligible for installation.");
+            consoleReader.printNewline();
+            return null;
+        }
+        consoleReader.printNewline();
+//                consoleReader.print("Install Service [enter number or 'q' to quit]: ");
+        consoleReader.flushConsole();
+        String answer = consoleReader.readLine("Install Services [enter a comma separated list of numbers or 'q' to quit]: ").trim();
+        if (answer.equalsIgnoreCase("q")) {
+            return null;
+        }
+        PluginListType list = new PluginListType();
+        for (String instance : answer.split(",")) {
+            int selection = Integer.parseInt(instance.trim());
+            PluginType target = available.get(selection - 1);
+            list.getPlugin().add(target);
+        }
+        list.getDefaultRepository().add(repo);
+        return list;
+    }
+
+    public Map<String, List<PluginType>> getPluginCategories(String repo, GeronimoDeploymentManager mgr, ConsoleReader consoleReader) throws DeploymentException, IOException {
+        PluginListType data;
+        URL repository;
+        try {
+            repository = new URL(repo);
+            data = mgr.listPlugins(repository, null, null);
+        } catch (IOException e) {
+            throw new DeploymentException("Unable to list configurations", e);
+        } catch (FailedLoginException e) {
+            throw new DeploymentException("Invalid login for Maven repository '" + repo + "'", e);
+        }
+        if (data == null) {
+            consoleReader.printNewline();
+            consoleReader.printString("No plugins were returned from this site.");
+            consoleReader.printNewline();
+            consoleReader.flushConsole();
+            return null;
+        }
+        Map<String, List<PluginType>> categories = new HashMap<String, List<PluginType>>();
+        for (PluginType metadata : data.getPlugin()) {
+            List<PluginType> list = categories.get(metadata.getCategory());
+            if (list == null) {
+                list = new ArrayList<PluginType>();
+                categories.put(metadata.getCategory(), list);
+            }
+            list.add(metadata);
+        }
+        return categories;
+    }
+
+    public String getRepository(ConsoleReader consoleReader, GeronimoDeploymentManager mgr) throws IOException, DeploymentException {
         URL[] all = mgr.getRepositories();
         if (all.length == 0) {
             throw new DeploymentException("No default repositories available.  Please either specify the repository " +
                     "URL on the command line, or go into the console Plugin page and update the list of available " +
                     "repositories.");
         }
-        out.println();
-        out.println("Select repository:");
+        consoleReader.printNewline();
+        consoleReader.printString("Select repository:");
+        consoleReader.printNewline();
         for (int i = 0; i < all.length; i++) {
             URL url = all[i];
-            out.println("  " + (i + 1) + ". " + url);
+            consoleReader.printString("  " + (i + 1) + ". " + url);
+            consoleReader.printNewline();
         }
-        out.println();
-        out.print("Enter Repository Number: ");
-        out.flush();
-        String entry = in.readLine().trim();
+        consoleReader.printNewline();
+//        consoleReader.print("Enter Repository Number: ");
+        consoleReader.flushConsole();
+        String entry = consoleReader.readLine("Enter Repository Number: ").trim();
         int index = Integer.parseInt(entry);
         return all[index - 1].toString();
     }

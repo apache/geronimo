@@ -21,6 +21,10 @@ import org.apache.geronimo.cli.deployer.CommandArgs;
 import org.apache.geronimo.common.DeploymentException;
 
 import java.io.PrintWriter;
+import java.io.Reader;
+import java.io.BufferedReader;
+
+import jline.ConsoleReader;
 
 /**
  * An abstraction of various CLI deployer commands.
@@ -30,5 +34,5 @@ import java.io.PrintWriter;
 public interface DeployCommand {
     boolean isLocalOnly();
 
-    void execute(PrintWriter out, ServerConnection connection, CommandArgs commandArgs) throws DeploymentException;
+    void execute(ConsoleReader consoleReader, ServerConnection connection, CommandArgs commandArgs) throws DeploymentException;
 }

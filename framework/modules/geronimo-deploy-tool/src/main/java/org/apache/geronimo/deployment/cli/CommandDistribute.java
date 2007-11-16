@@ -19,6 +19,7 @@ package org.apache.geronimo.deployment.cli;
 
 import java.io.File;
 import java.io.PrintWriter;
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.StringTokenizer;
@@ -32,6 +33,7 @@ import org.apache.geronimo.cli.deployer.CommandArgs;
 import org.apache.geronimo.cli.deployer.DistributeCommandArgs;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.plugin.jmx.JMXDeploymentManager;
+import jline.ConsoleReader;
 
 /**
  * The CLI deployer logic to distribute.
@@ -40,7 +42,7 @@ import org.apache.geronimo.deployment.plugin.jmx.JMXDeploymentManager;
  */
 public class CommandDistribute extends AbstractCommand {
 
-    protected ProgressObject runCommand(DeploymentManager mgr, PrintWriter out, boolean inPlace, Target[] tlist, File module, File plan) throws DeploymentException {
+    protected ProgressObject runCommand(DeploymentManager mgr, ConsoleReader out, boolean inPlace, Target[] tlist, File module, File plan) throws DeploymentException {
         if (inPlace) {
             if (!(mgr instanceof JMXDeploymentManager)) {
                 throw new DeploymentSyntaxException(
@@ -63,7 +65,7 @@ public class CommandDistribute extends AbstractCommand {
         return "Distributed";
     }
 
-    public void execute(PrintWriter out, ServerConnection connection, CommandArgs commandArgs) throws DeploymentException {
+    public void execute(ConsoleReader consoleReader, ServerConnection connection, CommandArgs commandArgs) throws DeploymentException {
         if (!(commandArgs instanceof DistributeCommandArgs)) {
             throw new DeploymentSyntaxException("CommandArgs has the type [" + commandArgs.getClass() + "]; expected [" + DistributeCommandArgs.class + "]");
         }
@@ -111,10 +113,14 @@ public class CommandDistribute extends AbstractCommand {
         if(plan != null) {
             plan = plan.getAbsoluteFile();
         }
-        executeOnline(connection, inPlaceHolder.inPlace, targets, out, module, plan);
+        try {
+            executeOnline(connection, inPlaceHolder.inPlace, targets, consoleReader, module, plan);
+        } catch (IOException e) {
+            throw new DeploymentException("Could not write to output", e);
+        }
     }
 
-    private void executeOnline(ServerConnection connection, boolean inPlace, List targets, PrintWriter out, File module, File plan) throws DeploymentException {
+    private void executeOnline(ServerConnection connection, boolean inPlace, List targets, ConsoleReader out, File module, File plan) throws DeploymentException, IOException {
         final DeploymentManager mgr = connection.getDeploymentManager();
         TargetModuleID[] results;
         boolean multipleTargets;
@@ -135,11 +141,11 @@ public class CommandDistribute extends AbstractCommand {
         results = po.getResultTargetModuleIDs();
         for (int i = 0; i < results.length; i++) {
             TargetModuleID result = results[i];
-            out.print(DeployUtils.reformat(getAction()+" "+result.getModuleID()+(multipleTargets ? " to "+result.getTarget().getName() : "")+(result.getWebURL() == null || !getAction().equals("Deployed") ? "" : " @ "+result.getWebURL()), 4, 72));
+            out.printString(DeployUtils.reformat(getAction()+" "+result.getModuleID()+(multipleTargets ? " to "+result.getTarget().getName() : "")+(result.getWebURL() == null || !getAction().equals("Deployed") ? "" : " @ "+result.getWebURL()), 4, 72));
             if(result.getChildTargetModuleID() != null) {
                 for (int j = 0; j < result.getChildTargetModuleID().length; j++) {
                     TargetModuleID child = result.getChildTargetModuleID()[j];
-                    out.print(DeployUtils.reformat("  `-> "+child.getModuleID()+(child.getWebURL() == null || !getAction().equals("Deployed") ? "" : " @ "+child.getWebURL()),4, 72));
+                    out.printString(DeployUtils.reformat("  `-> "+child.getModuleID()+(child.getWebURL() == null || !getAction().equals("Deployed") ? "" : " @ "+child.getWebURL()),4, 72));
                 }
             }
         }

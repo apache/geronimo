@@ -15,30 +15,28 @@
  *  limitations under the License.
  */
 
-package org.apache.geronimo.deployment.cli;
 
-import java.io.PrintWriter;
-
-import javax.enterprise.deploy.spi.DeploymentManager;
-import javax.enterprise.deploy.spi.TargetModuleID;
-import javax.enterprise.deploy.spi.status.ProgressObject;
-
-import jline.ConsoleReader;
+package org.apache.geronimo.cli.deployer;
 
 /**
- * The CLI deployer logic to stop.
- *
- * @version $Rev$ $Date$
+ * @version $Rev:$ $Date:$
  */
-public class CommandStop extends CommandStart {
+public interface ConnectionParams {
+    String getURI();
 
-    protected ProgressObject runCommand(ConsoleReader out, DeploymentManager mgr, TargetModuleID[] ids) {
-        ProgressObject po = mgr.stop(ids);
-        waitForProgress(out, po);
-        return po;
-    }
+    String getHost();
 
-    protected String getAction() {
-        return "Stopped";
-    }
+    Integer getPort();
+
+    String getDriver();
+
+    String getUser();
+
+    String getPassword();
+
+    boolean isSyserr();
+
+    boolean isVerbose();
+
+    boolean isOffline();
 }

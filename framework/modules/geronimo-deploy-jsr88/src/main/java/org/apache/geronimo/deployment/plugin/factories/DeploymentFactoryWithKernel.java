@@ -40,12 +40,18 @@ import org.apache.geronimo.kernel.Kernel;
  */
 public class DeploymentFactoryWithKernel extends BaseDeploymentFactory {
     private final Kernel kernel;
+    private final RemoteDeploymentManager remoteDeploymentManager;
     
     public DeploymentFactoryWithKernel(Kernel kernel) {
+        this(kernel, null);
+    }
+
+    public DeploymentFactoryWithKernel(Kernel kernel, RemoteDeploymentManager remoteDeploymentManager) {
         if (null == kernel) {
             throw new IllegalArgumentException("kernel is required");
         }
         this.kernel = kernel;
+        this.remoteDeploymentManager = remoteDeploymentManager;
         DeploymentFactoryManager.getInstance().registerDeploymentFactory(this);
     }
     
@@ -64,6 +70,9 @@ public class DeploymentFactoryWithKernel extends BaseDeploymentFactory {
     }
     
     protected RemoteDeploymentManager getRemoteDeploymentManager() throws DeploymentManagerCreationException {
+        if (remoteDeploymentManager != null) {
+            return remoteDeploymentManager;
+        }
         try {
             return (RemoteDeploymentManager) kernel.getGBean(RemoteDeploymentManager.class);
         } catch (Exception e) {

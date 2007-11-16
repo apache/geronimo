@@ -22,12 +22,14 @@ import javax.enterprise.deploy.spi.DeploymentManager;
 import javax.enterprise.deploy.spi.TargetModuleID;
 import javax.enterprise.deploy.spi.status.ProgressObject;
 
+import jline.ConsoleReader;
+
 /**
  * The CLI deployer logic to restart.
  */
 public class CommandRestart extends CommandStart {
 
-    protected ProgressObject runCommand(PrintWriter out, DeploymentManager mgr, TargetModuleID[] ids) {
+    protected ProgressObject runCommand(ConsoleReader out, DeploymentManager mgr, TargetModuleID[] ids) {
         ProgressObject po = mgr.stop(ids);
         waitForProgress(out, po);
         if(po.getDeploymentStatus().isCompleted()) {

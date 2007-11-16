@@ -23,6 +23,8 @@ import javax.enterprise.deploy.spi.DeploymentManager;
 import javax.enterprise.deploy.spi.TargetModuleID;
 import javax.enterprise.deploy.spi.status.ProgressObject;
 
+import jline.ConsoleReader;
+
 /**
  * the CLI deployer logic to undeploy.
  *
@@ -30,7 +32,7 @@ import javax.enterprise.deploy.spi.status.ProgressObject;
  */
 public class CommandUndeploy extends CommandStart {
 
-    protected ProgressObject runCommand(PrintWriter out, DeploymentManager mgr, TargetModuleID[] ids) {
+    protected ProgressObject runCommand(ConsoleReader out, DeploymentManager mgr, TargetModuleID[] ids) {
         ProgressObject po = mgr.undeploy(ids);
         waitForProgress(out, po);
         return po;

@@ -53,6 +53,7 @@ import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.util.Main;
+import jline.ConsoleReader;
 
 
 /**
@@ -158,10 +159,12 @@ public class DeployTool implements Main {
                         con = new ServerConnection(parser, out, in, kernel, deploymentFactory);
                     }
                     try {
-                        dc.execute(out, con, commandArgs);
+                        dc.execute(new ConsoleReader(in, out), con, commandArgs);
                     } catch (DeploymentSyntaxException e) {
                         processException(out, e);
                     } catch (DeploymentException e) {
+                        processException(out, e);
+                    } catch (IOException e) {
                         processException(out, e);
                     } finally {
                         if(!multipleCommands) {

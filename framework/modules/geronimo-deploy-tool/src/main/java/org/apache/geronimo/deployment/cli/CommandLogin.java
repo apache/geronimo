@@ -25,13 +25,12 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.io.PrintWriter;
 import java.util.Properties;
 
 import org.apache.geronimo.cli.deployer.CommandArgs;
 import org.apache.geronimo.common.DeploymentException;
-import org.apache.geronimo.util.SimpleEncryption;
 import org.apache.geronimo.util.EncryptionManager;
+import jline.ConsoleReader;
 
 /**
  * The CLI deployer logic to start.
@@ -40,7 +39,7 @@ import org.apache.geronimo.util.EncryptionManager;
  */
 public class CommandLogin extends AbstractCommand {
 
-    public void execute(PrintWriter out, ServerConnection connection, CommandArgs commandArgs) throws DeploymentException {
+    public void execute(ConsoleReader consoleReader, ServerConnection connection, CommandArgs commandArgs) throws DeploymentException {
         try {
             File authFile = new File(System.getProperty("user.home"), ".geronimo-deployer");
             if(!authFile.exists()) {
@@ -52,15 +51,16 @@ public class CommandLogin extends AbstractCommand {
                 throw new DeploymentException("Saved login file "+authFile.getAbsolutePath()+" is not readable or not writable");
             }
             Properties props = new Properties();
-            InputStream in = new BufferedInputStream(new FileInputStream(authFile));
-            props.load(in);
-            in.close();
+            InputStream authIn = new BufferedInputStream(new FileInputStream(authFile));
+            props.load(authIn);
+            authIn.close();
             props.setProperty("login."+connection.getServerURI(), EncryptionManager.encrypt(connection.getAuthentication()));
             OutputStream save = new BufferedOutputStream(new FileOutputStream(authFile));
             props.store(save, "Saved authentication information to connect to Geronimo servers");
             save.flush();
             save.close();
-            System.out.print(DeployUtils.reformat("Saved login for: "+connection.getServerURI(), 4, 72));
+            consoleReader.printString(DeployUtils.reformat("Saved login for: "+connection.getServerURI(), 4, 72));
+            consoleReader.printNewline();
         } catch (IOException e) {
             throw new DeploymentException("Unable to save authentication to login file", e);
         }

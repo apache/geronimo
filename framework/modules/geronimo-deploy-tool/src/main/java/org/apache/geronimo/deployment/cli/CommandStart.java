@@ -18,6 +18,7 @@
 package org.apache.geronimo.deployment.cli;
 
 import java.io.PrintWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -29,6 +30,7 @@ import javax.enterprise.deploy.spi.status.ProgressObject;
 
 import org.apache.geronimo.cli.deployer.CommandArgs;
 import org.apache.geronimo.common.DeploymentException;
+import jline.ConsoleReader;
 
 /**
  * The CLI deployer logic to start.
@@ -37,55 +39,60 @@ import org.apache.geronimo.common.DeploymentException;
  */
 public class CommandStart extends AbstractCommand {
 
-    public void execute(PrintWriter out, ServerConnection connection, CommandArgs commandArgs) throws DeploymentException {
-        String[] args = commandArgs.getArgs();
-        
-        DeploymentManager mgr = connection.getDeploymentManager();
-        Target[] allTargets = mgr.getTargets();
-        TargetModuleID[] allModules;
+    public void execute(ConsoleReader consoleReader, ServerConnection connection, CommandArgs commandArgs) throws DeploymentException {
+        ProgressObject po = null;
         try {
-            allModules = mgr.getAvailableModules(null, allTargets);
-        } catch(TargetException e) {
-            throw new DeploymentException("Unable to load module list from server", e);
-        }
-        List modules = new ArrayList();
-        for(int i=0; i<args.length; i++) {
-            modules.addAll(DeployUtils.identifyTargetModuleIDs(allModules, args[i], false));
-        }
-        TargetModuleID[] ids = (TargetModuleID[]) modules.toArray(new TargetModuleID[modules.size()]);
-        boolean multiple = isMultipleTargets(ids);
-        ProgressObject po = runCommand(out, mgr, ids);
-        TargetModuleID[] done = po.getResultTargetModuleIDs();
-        out.println();
-        for(int i = 0; i < done.length; i++) {
-            TargetModuleID id = done[i];
-            out.print(DeployUtils.reformat(getAction()+" "+id.getModuleID()+((multiple && id.getTarget() != null) ? " on "+ id.getTarget().getName() : "")+(id.getWebURL() == null || !getAction().equals("Started") ? "" : " @ "+id.getWebURL()),4, 72));
-            if(id.getChildTargetModuleID() != null) {
-                for (int j = 0; j < id.getChildTargetModuleID().length; j++) {
-                    TargetModuleID child = id.getChildTargetModuleID()[j];
-                    out.print(DeployUtils.reformat("  `-> "+child.getModuleID()+(child.getWebURL() == null || getAction().toLowerCase().indexOf("started") == -1 ? "" : " @ "+child.getWebURL()),4, 72));
-                }
-            } // Also print childs if existing in earlier configuration
-            else{
-                java.util.Iterator iterator = DeployUtils.identifyTargetModuleIDs(allModules, id.getModuleID(), false).iterator();
-                if(iterator.hasNext()){
-                    TargetModuleID childs = (TargetModuleID)iterator.next();
-                    if(childs.getChildTargetModuleID() != null) {
-                        for (int j = 0; j < childs.getChildTargetModuleID().length; j++) {
-                            TargetModuleID child = childs.getChildTargetModuleID()[j];
-                            out.print(DeployUtils.reformat("  `-> "+child.getModuleID()+(child.getWebURL() == null || getAction().toLowerCase().indexOf("started") == -1 ? "" : " @ "+child.getWebURL()),4, 72));
+            String[] args = commandArgs.getArgs();
+
+            DeploymentManager mgr = connection.getDeploymentManager();
+            Target[] allTargets = mgr.getTargets();
+            TargetModuleID[] allModules;
+            try {
+                allModules = mgr.getAvailableModules(null, allTargets);
+            } catch(TargetException e) {
+                throw new DeploymentException("Unable to load module list from server", e);
+            }
+            List modules = new ArrayList();
+            for(int i=0; i<args.length; i++) {
+                modules.addAll(DeployUtils.identifyTargetModuleIDs(allModules, args[i], false));
+            }
+            TargetModuleID[] ids = (TargetModuleID[]) modules.toArray(new TargetModuleID[modules.size()]);
+            boolean multiple = isMultipleTargets(ids);
+            po = runCommand(consoleReader, mgr, ids);
+            TargetModuleID[] done = po.getResultTargetModuleIDs();
+            consoleReader.printNewline();
+            for(int i = 0; i < done.length; i++) {
+                TargetModuleID id = done[i];
+                consoleReader.printString(DeployUtils.reformat(getAction()+" "+id.getModuleID()+((multiple && id.getTarget() != null) ? " on "+ id.getTarget().getName() : "")+(id.getWebURL() == null || !getAction().equals("Started") ? "" : " @ "+id.getWebURL()),4, 72));
+                if(id.getChildTargetModuleID() != null) {
+                    for (int j = 0; j < id.getChildTargetModuleID().length; j++) {
+                        TargetModuleID child = id.getChildTargetModuleID()[j];
+                        consoleReader.printString(DeployUtils.reformat("  `-> "+child.getModuleID()+(child.getWebURL() == null || getAction().toLowerCase().indexOf("started") == -1 ? "" : " @ "+child.getWebURL()),4, 72));
+                    }
+                } // Also print childs if existing in earlier configuration
+                else{
+                    java.util.Iterator iterator = DeployUtils.identifyTargetModuleIDs(allModules, id.getModuleID(), false).iterator();
+                    if(iterator.hasNext()){
+                        TargetModuleID childs = (TargetModuleID)iterator.next();
+                        if(childs.getChildTargetModuleID() != null) {
+                            for (int j = 0; j < childs.getChildTargetModuleID().length; j++) {
+                                TargetModuleID child = childs.getChildTargetModuleID()[j];
+                                consoleReader.printString(DeployUtils.reformat("  `-> "+child.getModuleID()+(child.getWebURL() == null || getAction().toLowerCase().indexOf("started") == -1 ? "" : " @ "+child.getWebURL()),4, 72));
+                            }
                         }
                     }
                 }
+                consoleReader.printNewline();
             }
-            out.println();
+        } catch (IOException e) {
+            throw new DeploymentException("could not write to console", e);
         }
         if(po.getDeploymentStatus().isFailed()) {
             throw new DeploymentException("Operation failed: "+po.getDeploymentStatus().getMessage());
         }
     }
 
-    protected ProgressObject runCommand(PrintWriter out, DeploymentManager mgr, TargetModuleID[] ids) {
+    protected ProgressObject runCommand(ConsoleReader out, DeploymentManager mgr, TargetModuleID[] ids) {
         ProgressObject po = mgr.start(ids);
         waitForProgress(out, po);
         return po;

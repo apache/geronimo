@@ -25,6 +25,7 @@ import javax.enterprise.deploy.spi.Target;
 import javax.enterprise.deploy.spi.status.ProgressObject;
 
 import org.apache.geronimo.common.DeploymentException;
+import jline.ConsoleReader;
 
 /**
  * The CLI deployer logic to deploy (distribute plus start).
@@ -37,7 +38,7 @@ public class CommandDeploy extends CommandDistribute {
         return "Deployed";
     }
 
-    protected ProgressObject runCommand(DeploymentManager mgr, PrintWriter out, boolean inPlace, Target[] tlist, File module, File plan) throws DeploymentException {
+    protected ProgressObject runCommand(DeploymentManager mgr, ConsoleReader out, boolean inPlace, Target[] tlist, File module, File plan) throws DeploymentException {
         ProgressObject po = super.runCommand(mgr, out, inPlace, tlist, module, plan);
         waitForProgress(out, po);
         if(po.getDeploymentStatus().isFailed()) {

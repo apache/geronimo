@@ -17,8 +17,8 @@
 
 package org.apache.geronimo.deployment.cli;
 
+import java.io.IOException;
 import java.io.OutputStreamWriter;
-import java.io.PrintWriter;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -30,6 +30,7 @@ import javax.enterprise.deploy.spi.status.ProgressEvent;
 import javax.enterprise.deploy.spi.status.ProgressListener;
 import javax.enterprise.deploy.spi.status.ProgressObject;
 
+import jline.ConsoleReader;
 import org.apache.geronimo.common.DeploymentException;
 
 /**
@@ -39,22 +40,27 @@ import org.apache.geronimo.common.DeploymentException;
  * @version $Rev$ $Date$
  */
 public abstract class AbstractCommand implements DeployCommand {
-    private PrintWriter out = new PrintWriter(new OutputStreamWriter(System.out));
+    private ConsoleReader out;
 
     public AbstractCommand() {
+        try {
+            out = new ConsoleReader(System.in, new OutputStreamWriter(System.out));
+        } catch (IOException e) {
+            throw new RuntimeException("could not set up console", e);
+        }
     }
 
     public boolean isLocalOnly() {
         return false;
     }
 
-    public void setOut(PrintWriter out) {
+    public void setConsole(ConsoleReader out) {
         this.out = out;
     }
 
-    protected void emit(String message) {
-        out.print(DeployUtils.reformat(message,4,72));
-        out.flush();
+    protected void emit(String message) throws IOException {
+        out.printString(DeployUtils.reformat(message, 4, 72));
+        out.flushConsole();
     }
 
     /**
@@ -62,26 +68,36 @@ public abstract class AbstractCommand implements DeployCommand {
      * indicates that it's no longer running.
      *
      * @param out a <code>PrintWriter</code> value, only used in case
-     * of an <code>InterruptedException</code> to output the stack
-     * trace.
-     * @param po a <code>ProgressObject</code> value
+     *            of an <code>InterruptedException</code> to output the stack
+     *            trace.
+     * @param po  a <code>ProgressObject</code> value
      */
-    protected void waitForProgress(PrintWriter out, ProgressObject po) {
+    protected void waitForProgress(ConsoleReader out, ProgressObject po) {
         po.addProgressListener(new ProgressListener() {
             String last = null;
+
             public void handleProgressEvent(ProgressEvent event) {
                 String msg = event.getDeploymentStatus().getMessage();
-                if(last != null && !last.equals(msg)) {
-                    emit(last);
+                if (last != null && !last.equals(msg)) {
+                    try {
+                        emit(last);
+                    } catch (IOException e1) {
+                        //ignore
+                    }
                 }
                 last = msg;
             }
         });
-        while(po.getDeploymentStatus().isRunning()) {
+        while (po.getDeploymentStatus().isRunning()) {
             try {
                 Thread.sleep(100);
             } catch (InterruptedException e) {
-                e.printStackTrace(out);
+                try {
+                    out.printString(e.getMessage());
+                    out.printNewline();
+                } catch (IOException e1) {
+                    //ignore
+                }
             }
         }
         return;
@@ -89,7 +105,7 @@ public abstract class AbstractCommand implements DeployCommand {
 
     protected static boolean isMultipleTargets(TargetModuleID[] ids) {
         Set set = new HashSet();
-        for(int i = 0; i < ids.length; i++) {
+        for (int i = 0; i < ids.length; i++) {
             TargetModuleID id = ids[i];
             set.add(id.getTarget().getName());
         }
@@ -105,21 +121,21 @@ public abstract class AbstractCommand implements DeployCommand {
             for (int j = 0; j < all.length; j++) {
                 Target server = all[j];
                 // check for exact target name match
-                if(server.getName().equals(targetNames.get(i))
-                   // check for "target-nickname" match (they match if
-                   // the full target name contains the user-provided
-                   // nickname)
-                   || server.getName().indexOf(targetNames.get(i).toString()) > -1) {
+                if (server.getName().equals(targetNames.get(i))
+                        // check for "target-nickname" match (they match if
+                        // the full target name contains the user-provided
+                        // nickname)
+                        || server.getName().indexOf(targetNames.get(i).toString()) > -1) {
                     tlist[i] = server;
-                    if(found.contains(server.getName())) {
-                        throw new DeploymentException("Target list should not contain duplicates or nicknames that match duplicates ("+targetNames.get(i)+")");
+                    if (found.contains(server.getName())) {
+                        throw new DeploymentException("Target list should not contain duplicates or nicknames that match duplicates (" + targetNames.get(i) + ")");
                     }
                     found.add(server.getName());
                     break;
                 }
             }
-            if(tlist[i] == null) {
-                throw new DeploymentException("No target named or matching '"+targetNames.get(i)+"' was found");
+            if (tlist[i] == null) {
+                throw new DeploymentException("No target named or matching '" + targetNames.get(i) + "' was found");
             }
         }
         return tlist;

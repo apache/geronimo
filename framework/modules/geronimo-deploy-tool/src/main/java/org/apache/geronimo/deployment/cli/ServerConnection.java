@@ -25,6 +25,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
 import java.io.Serializable;
+import java.io.Writer;
 import java.util.Properties;
 import java.util.jar.JarFile;
 
@@ -33,7 +34,7 @@ import javax.enterprise.deploy.spi.DeploymentManager;
 import javax.enterprise.deploy.spi.exceptions.DeploymentManagerCreationException;
 import javax.enterprise.deploy.spi.factories.DeploymentFactory;
 
-import org.apache.geronimo.cli.deployer.DeployerCLParser;
+import org.apache.geronimo.cli.deployer.ConnectionParams;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.plugin.factories.AuthenticationFailedException;
 import org.apache.geronimo.deployment.plugin.jmx.JMXDeploymentManager;
@@ -54,13 +55,13 @@ public class ServerConnection {
     private final DeploymentFactory geronimoDeploymentFactory;
 
     private DeploymentManager manager;
-    private PrintWriter out;
+    private Writer out;
     private InputStream in;
     private SavedAuthentication auth;
     private boolean logToSysErr;
     private boolean verboseMessages;
 
-    public ServerConnection(DeployerCLParser parser, PrintWriter out, InputStream in, Kernel kernel, DeploymentFactory geronimoDeploymentFactory) throws DeploymentException {
+    public ServerConnection(ConnectionParams params, PrintWriter out, InputStream in, Kernel kernel, DeploymentFactory geronimoDeploymentFactory) throws DeploymentException {
         if (null == kernel) {
             throw new IllegalArgumentException("kernel is required");
         }
@@ -70,15 +71,15 @@ public class ServerConnection {
         this.in = in;
         boolean offline = false;
 
-        String uri = parser.getURI();
-        String driver = parser.getDriver();
-        String user = parser.getUser();
-        String password = parser.getPassword();
-        String host = parser.getHost();
-        Integer port = parser.getPort();
-        verboseMessages = parser.isVerbose();
-        logToSysErr = parser.isSyserr();
-        offline = parser.isOffline();
+        String uri = params.getURI();
+        String driver = params.getDriver();
+        String user = params.getUser();
+        String password = params.getPassword();
+        String host = params.getHost();
+        Integer port = params.getPort();
+        verboseMessages = params.isVerbose();
+        logToSysErr = params.isSyserr();
+        offline = params.isOffline();
 
         if ((driver != null) && uri == null) {
             throw new DeploymentSyntaxException("A custom driver requires a custom URI");
