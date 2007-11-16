@@ -52,12 +52,14 @@ function <portlet:namespace/>addPort(serviceRefId)
   var newTRId = "<portlet:namespace/>" + elementId + ".tr";
   var newTR = document.createElement("tr");
   newTR.setAttribute("id", newTRId);
+  var newTD = document.createElement("td"); //empty first field
+  newTR.appendChild(newTD);
 
   var portNameField = document.getElementById(prefix + ".newPort.portName");
   var portName = portNameField.value;
   portNameField.value="";
-  var newTD = document.createElement("td");
-  newTD.innerHTML = name + 
+  newTD = document.createElement("td");
+  newTD.innerHTML = portName + 
     "<input type=\"hidden\" name=\"" + elementId + ".portName\" value=\"" + portName + "\" /> ";
   newTR.appendChild(newTD);
 
@@ -84,7 +86,10 @@ function <portlet:namespace/>addPort(serviceRefId)
   var uriField = document.getElementById(prefix + ".newPort.uri");
   var uri = uriField.value;
   if (uri != "") {
-    url += "/" + uri;
+    if(uri.charAt(0) != "/") {
+      url += "/";;
+    }
+    url += uri;
     innerHTML += "<input type=\"hidden\" name=\"" + elementId + ".uri\" value=\"" + uri + "\" /> ";
   }
   newTD = document.createElement("td");
@@ -93,27 +98,29 @@ function <portlet:namespace/>addPort(serviceRefId)
 
   var credentialsNameField = document.getElementById(prefix + ".newPort.credentialsName");
   var credentialsName = credentialsNameField.value;
-  newTD = document.createElement("td");
+  innerHTML = "";
   if(credentialsName != "") {
-    newTD.innerHTML = credentialsName + 
+    innerHTML = 
       "<input type=\"hidden\" name=\"" + elementId + ".credentialsName\" value=\"" + credentialsName + "\" /> ";
   }
+  newTD = document.createElement("td");
+  newTD.innerHTML = credentialsName + innerHTML;
   newTR.appendChild(newTD);
 
   newTD = document.createElement("td");
   newTD.innerHTML = "<a href=\"javascript:;\" " + 
-    "onclick=\"<portlet:namespace/>removePort(\'" + newTRId + "\')\">remove</a>";
+    "onclick=\"<portlet:namespace/>removePort(\'" + serviceRefId + "\', \'" + newTRId + "\')\">remove</a>";
   newTR.appendChild(newTD);
 
-  var tbody = document.getElementById("<portlet:namespace/>serviceRef.tableBody");
-  var placeHolder = document.getElementById(prefix + ".placeHolder");
-  tbody.insertBefore(newTR, placeHolder);
+  var tbody = document.getElementById(prefix + ".tableBody");
+  var insertBeforeTR = document.getElementById(prefix + ".insertBefore");
+  tbody.insertBefore(newTR, insertBeforeTR);
   <portlet:namespace/>hideElement(serviceRefId + ".addNewPort");
 }
 
-function <portlet:namespace/>removePort(trId)
+function <portlet:namespace/>removePort(serviceRefId, trId)
 {
-  var tbody = document.getElementById("<portlet:namespace/>serviceRef.tableBody");
+  var tbody = document.getElementById("<portlet:namespace/>" + serviceRefId + ".tableBody");
   var tr = document.getElementById(trId);
   tbody.removeChild(tr);
 }
@@ -376,18 +383,20 @@ to which they can be linked are shown to the right.</p>
 <!-- ENTRY FIELD: Web Service References -->
 <c:if test="${!empty(data.webServiceRefs)}">
   <p><b>Web Service References:</b></p>
+  <p>Service references declared in your application are shown below to the left. If the WSDL doesn't contain 
+  the port information to contact the service or if that information is ambiguous, then resolve the service-ref
+  by clicking on "Add Port".</p>
   <table border="0" width="100%">
     <thead>
     <tr>
-      <th class="DarkBackground" align="center">Service Ref</th>
+      <th class="DarkBackground" align="center">Service Ref Name</th>
       <th class="DarkBackground" align="center">Port Name</th>
       <th class="DarkBackground" align="center">URL</th>
-      <th class="DarkBackground" align="center">Credentials Name</th>
+      <th class="DarkBackground" align="center">Credentials</th>
       <th class="DarkBackground" align="center">Actions</th>
     </tr>
     </thead>
     <tfoot></tfoot>
-    <tbody id="<portlet:namespace/>serviceRef.tableBody">
     <c:set var="backgroundClass" value='MediumBackground'/>
     <c:forEach var="serviceRef" items="${data.webServiceRefs}" varStatus="status">
       <c:choose>
@@ -399,61 +408,63 @@ to which they can be linked are shown to the right.</p>
         </c:otherwise>
       </c:choose>
       <c:set var="serviceRefId" value="serviceRef.${status.index}" />
-      <input type="hidden" name="${serviceRefId}.serviceRefName" value="${serviceRef.serviceRefName}" />
-      <input type="hidden" id="${serviceRefId}.port.lastIndex" name="${serviceRefId}.port.lastIndex" value="0">
-      <tr>
-        <td class="${backgroundClass}">
-          <div align="right">${serviceRef.serviceRefName}</div>
-        </td>
-        <td class="${backgroundClass}" colspan="4"></td>
-      </tr>
-      <!-- place holder before which new ports have to be added -->
-      <div id="<portlet:namespace/>${serviceRefId}.placeHolder"></div>
-      <tr>
-        <td class="${backgroundClass}"></td>
-        <td class="${backgroundClass}" colspan="4" align="left">
-          <button onclick="<portlet:namespace/>showElement('${serviceRefId}.addNewPort');">Add Port</button>
-          <div id="<portlet:namespace/>${serviceRefId}.addNewPort" style="display:none">
-            <table border="0">
-              <tr>
-                <th><div align="right">Port Name:</div></th>
-                <td><input type="text" id="<portlet:namespace/>${serviceRefId}.newPort.portName"/></td>
-              </tr>
-              <tr>
-                <th><div align="right">Protocol:</div></th>
-                <td><input type="text" id="<portlet:namespace/>${serviceRefId}.newPort.protocol"/></td>
-              </tr>
-              <tr>
-                <th><div align="right">Host:</div></th>
-                <td><input type="text" id="<portlet:namespace/>${serviceRefId}.newPort.host"/></td>
-              </tr>
-              <tr>
-                <th><div align="right">Port:</div></th>
-                <td><input type="text" id="<portlet:namespace/>${serviceRefId}.newPort.port"/></td>
-              </tr>
-              <tr>
-                <th><div align="right">URI:</div></th>
-                <td><input type="text" id="<portlet:namespace/>${serviceRefId}.newPort.uri"/></td>
-              </tr>
-              <tr>
-                <th><div align="right">Credentials Name:</div></th>
-                <td><input type="text" id="<portlet:namespace/>${serviceRefId}.newPort.credentialsName"/></td>
-              </tr>
-              <tr>
-                <th><div align="right"></div></th>
-                <td>
-                  <input type="button" value="Add" 
-                    onclick="<portlet:namespace/>addPort('${serviceRefId}')"/>
-                  <input type="button" value="Cancel" 
-                    onclick="<portlet:namespace/>hideElement('${serviceRefId}.addNewPort');"/>
-                </td>
-              </tr>
-            </table>
-          </div>
-        </td>
-      </tr>
+      <tbody id="<portlet:namespace/>${serviceRefId}.tableBody" class="${backgroundClass}">
+        <input type="hidden" name="${serviceRefId}.serviceRefName" value="${serviceRef.serviceRefName}" />
+        <input type="hidden" id="<portlet:namespace/>${serviceRefId}.port.lastIndex" 
+          name="${serviceRefId}.port.lastIndex" value="0">
+        <tr>
+          <td>
+            <div align="right">${serviceRef.serviceRefName}</div>
+          </td>
+          <td colspan="4"></td>
+        </tr>
+        <!-- place before which new ports have to be added -->
+        <tr id="<portlet:namespace/>${serviceRefId}.insertBefore">
+          <td></td>
+          <td colspan="4" align="left">
+            <input type="button" value="Add Port" 
+              onclick="<portlet:namespace/>showElement('${serviceRefId}.addNewPort');"/>
+            <div id="<portlet:namespace/>${serviceRefId}.addNewPort" style="display:none">
+              <table border="0">
+                <tr>
+                  <th><div align="right">Port Name:</div></th>
+                  <td><input type="text" id="<portlet:namespace/>${serviceRefId}.newPort.portName"/></td>
+                </tr>
+                <tr>
+                  <th><div align="right">Protocol:</div></th>
+                  <td><input type="text" id="<portlet:namespace/>${serviceRefId}.newPort.protocol"/></td>
+                </tr>
+                <tr>
+                  <th><div align="right">Host:</div></th>
+                  <td><input type="text" id="<portlet:namespace/>${serviceRefId}.newPort.host"/></td>
+                </tr>
+                <tr>
+                  <th><div align="right">Port:</div></th>
+                  <td><input type="text" id="<portlet:namespace/>${serviceRefId}.newPort.port"/></td>
+                </tr>
+                <tr>
+                  <th><div align="right">URI:</div></th>
+                  <td><input type="text" id="<portlet:namespace/>${serviceRefId}.newPort.uri"/></td>
+                </tr>
+                <tr>
+                  <th><div align="right">Credentials Name:</div></th>
+                  <td><input type="text" id="<portlet:namespace/>${serviceRefId}.newPort.credentialsName"/></td>
+                </tr>
+                <tr>
+                  <th><div align="right"></div></th>
+                  <td>
+                    <input type="button" value="Add" 
+                      onclick="<portlet:namespace/>addPort('${serviceRefId}');"/>
+                    <input type="button" value="Cancel" 
+                      onclick="<portlet:namespace/>hideElement('${serviceRefId}.addNewPort');"/>
+                  </td>
+                </tr>
+              </table>
+            </div>
+          </td>
+        </tr>
+      </tbody>
     </c:forEach>
-    </tbody>
   </table>
 </c:if>
 
