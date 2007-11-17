@@ -27,7 +27,7 @@ import org.apache.geronimo.gshell.command.CommandSupport
  *
  * @version $Rev$ $Date$
  */
-@CommandComponent(id='stop-server')
+@CommandComponent(id='geronimo-commands:stop-server', description="Stop a Geronimo server")
 class StopServerCommand
     extends CommandSupport
 {

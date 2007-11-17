@@ -21,27 +21,82 @@
 <!-- $Rev$ $Date$ -->
 
 <layout>
-    <name>/</name>
-
     <nodes>
+
+        <!-- Builtins -->
+
         <command>
             <name>help</name>
-            <id>org.apache.geronimo.gshell.commands.buildins.HelpCommand</id>
+            <id>gshell-builtins:help</id>
         </command>
-        
+
         <alias>
             <name>?</name>
             <command>help</command>
         </alias>
+
+        <command>
+            <name>exit</name>
+            <id>gshell-builtins:exit</id>
+        </command>
+
+        <alias>
+            <name>quit</name>
+            <command>exit</command>
+        </alias>
+
+        <command>
+            <name>echo</name>
+            <id>gshell-builtins:echo</id>
+        </command>
+
+        <alias>
+            <name>print</name>
+            <command>echo</command>
+        </alias>
         
         <command>
-            <name>start-server</name>
-            <id>org.apache.geronimo.commands.StartServerCommand</id>
+            <name>clear</name>
+            <id>gshell-builtins:clear</id>
         </command>
         
+        <command>
+            <name>source</name>
+            <id>gshell-builtins:source</id>
+        </command>
+
         <alias>
-            <name>start</name>
-            <command>start-server</command>
+            <name>.</name>
+            <command>source</command>
         </alias>
+
+        <command>
+            <name>set</name>
+            <id>gshell-builtins:set</id>
+        </command>
+
+        <command>
+            <name>unset</name>
+            <id>gshell-builtins:unset</id>
+        </command>
+
+        <!-- Geronimo -->
+
+        <group>
+            <name>geronimo</name>
+
+            <nodes>
+                <command>
+                    <name>start-server</name>
+                    <id>geronimo-commands:start-server</id>
+                </command>
+                
+                <command>
+                    <name>stop-server</name>
+                    <id>geronimo-commands:stop-server</id>
+                </command>
+            </nodes>
+        </group>
+
     </nodes>
 </layout>

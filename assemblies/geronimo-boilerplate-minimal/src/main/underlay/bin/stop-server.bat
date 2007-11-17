@@ -29,7 +29,7 @@ if "%OS%"=="Windows_NT" setlocal
 set DIRNAME=%~dp0
 if "%DIRNAME%" == "" set DIRNAME=.\
 
-"%DIRNAME%\gsh.bat" -c "stop-server" %*
+"%DIRNAME%\gsh.bat" -c "geronimo/stop-server %*"
 
 :end
 

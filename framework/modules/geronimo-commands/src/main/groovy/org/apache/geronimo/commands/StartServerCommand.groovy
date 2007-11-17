@@ -37,7 +37,7 @@ import org.apache.geronimo.gshell.shell.ShellInfo
  *
  * @version $Rev$ $Date$
  */
-@CommandComponent(id='start-server')
+@CommandComponent(id='geronimo-commands:start-server', description="Start a Geronimo server")
 class StartServerCommand
     extends CommandSupport
 {
