@@ -71,7 +71,7 @@
         <!--
         HACK: Used by uddi-db to execute the sql plugin with the Derby driver.
         -->
-        <derbyVersion>10.3.1.4</derbyVersion>
+        <derbyVersion>10.2.2.0</derbyVersion>
 
         <!--
         HACK: Used by jsp and servlet example configs to point to the tomcat deployer
