@@ -173,7 +173,7 @@
                                     <version>${version}</version>
                                 </artifactItem>
                             </artifactItems>
-                            <outputDirectory>${project.build.directory}/schema</outputDirectory>
+                            <outputDirectory>${project.build.directory}/scratch/schema</outputDirectory>
                         </configuration>
                     </execution>
                 </executions>
@@ -191,9 +191,9 @@
                         </goals>
                         <configuration>
                             <tasks>
-                                <mkdir dir="${project.build.directory}/classes/schema"/>
-                                <copy todir="${project.build.directory}/classes/schema">
-                                    <fileset dir="${project.build.directory}/schema">
+                                <mkdir dir="${project.build.directory}/schema"/>
+                                <copy todir="${project.build.directory}/schema">
+                                    <fileset dir="${project.build.directory}/scratch/schema">
                                         <include name="**/*.xsd"/>
                                         <include name="**/*.dtd"/>
                                     </fileset>
