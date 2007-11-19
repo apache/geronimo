@@ -104,7 +104,7 @@ public class GBeanOverride implements Serializable {
         }
         this.name = name;
         this.load = original.load;
-        this.comment = original.comment;
+        this.comment = original.getComment();
         this.attributes.putAll(original.attributes);
         this.references.putAll(original.references);
         this.clearAttributes.addAll(original.clearAttributes);
@@ -242,6 +242,14 @@ public class GBeanOverride implements Serializable {
 
     public String getGBeanInfo() {
         return gbeanInfo;
+    }
+
+    public String getComment() {
+        return comment;
+    }
+
+    public void setComment(String comment) {
+        this.comment = comment;
     }
 
     public boolean isLoad() {

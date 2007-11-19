@@ -28,13 +28,14 @@ import junit.framework.TestCase;
 import org.apache.geronimo.system.configuration.condition.JexlExpressionParser;
 
 /**
- * @version $Rev:$ $Date:$
+ * @version $Rev$ $Date$
  */
 public class LocalAttributeManagerReadWriteTest extends TestCase {
 
     private static final String CONFIG =
             "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n" +
                     "<ns2:attributes xmlns:ns2=\"http://geronimo.apache.org/xml/ns/attributes-1.2\" xmlns=\"http://geronimo.apache.org/xml/ns/plugins-1.3\">\n" +
+                    "    <ns2:comment>This is a test comment.  Without it, a default warning comment will be created</ns2:comment>\n" +
                     "    <ns2:module name=\"org.apache.geronimo.configs/ca-helper-jetty/2.1-SNAPSHOT/car\"/>\n" +
                     "    <ns2:module name=\"org.apache.geronimo.configs/jasper/2.1-SNAPSHOT/car\"/>\n" +
                     "    <ns2:module name=\"org.apache.geronimo.configs/j2ee-server/2.1-SNAPSHOT/car\"/>\n" +
