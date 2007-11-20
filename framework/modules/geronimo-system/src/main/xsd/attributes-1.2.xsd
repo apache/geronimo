@@ -183,6 +183,19 @@
                         </xsd:documentation>
                     </xsd:annotation>
                 </xsd:attribute>
+                <xsd:attribute name="propertyEditor" use="optional" type="xsd:string">
+                    <xsd:annotation>
+                        <xsd:documentation>
+                            The propertyEditor attribute defines the property editor class
+                            to be used to get the value of this attribute based on its
+                            string representation.
+                            
+                            If no editor is specified, then the type of the attribute, as
+                            declared by GBeanAttribute, is used to find a propertyEditor
+                            through the standard JavaBean search strategy.
+                        </xsd:documentation>
+                    </xsd:annotation>
+                </xsd:attribute>
                 <!--<xsd:attribute name="value" use="optional">-->
                     <!--<xsd:annotation>-->
                         <!--<xsd:documentation>-->

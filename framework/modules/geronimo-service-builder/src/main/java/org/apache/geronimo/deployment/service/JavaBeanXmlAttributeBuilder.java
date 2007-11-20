@@ -30,6 +30,7 @@ import org.apache.geronimo.deployment.javabean.xbeans.PropertyType;
 import org.apache.geronimo.deployment.javabean.xbeans.BeanPropertyType;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
+import org.apache.geronimo.util.EncryptionManager;
 import org.apache.xmlbeans.XmlObject;
 
 /**
@@ -85,7 +86,13 @@ public class JavaBeanXmlAttributeBuilder implements XmlAttributeBuilder {
             for (int j = 0; j < propertyDescriptors.length; j++) {
                 PropertyDescriptor propertyDescriptor = propertyDescriptors[j];
                 if (propertyName.equals(propertyDescriptor.getName())) {
+                    Method writeMethod = propertyDescriptor.getWriteMethod();
+                    if (writeMethod.isAnnotationPresent(EncryptOnPersist.class)) {
+                        propertyString = (String) EncryptionManager.decrypt(propertyString);
+                    }
+
                     String protertyType = propertyDescriptor.getPropertyType().getName();
+                    
                     PropertyEditor propertyEditor = null;
                     try {
                         propertyEditor = PropertyEditors.findEditor(protertyType, cl);
@@ -97,9 +104,9 @@ public class JavaBeanXmlAttributeBuilder implements XmlAttributeBuilder {
                     }
                     propertyEditor.setAsText(propertyString);
                     Object value = propertyEditor.getValue();
-                    Method m = propertyDescriptor.getWriteMethod();
+                    
                     try {
-                        m.invoke(instance, new Object[] {value});
+                        writeMethod.invoke(instance, new Object[] {value});
                     } catch (Exception e) {
                         throw new DeploymentException("Could not set property value for property named " + propertyName, e);
                     }

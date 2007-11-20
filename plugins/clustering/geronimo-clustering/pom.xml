@@ -50,6 +50,12 @@
             <artifactId>geronimo-jmx-remoting</artifactId>
             <version>${version}</version>
         </dependency>
+
+        <dependency>
+            <groupId>${pom.groupId}</groupId>
+            <artifactId>geronimo-service-builder</artifactId>
+            <version>${version}</version>
+        </dependency>
     </dependencies>
     
 </project>

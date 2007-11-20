@@ -21,17 +21,15 @@ import java.io.Reader;
 import java.io.Serializable;
 import java.io.StringReader;
 import java.net.URI;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 
 import javax.xml.bind.JAXBException;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.stream.XMLStreamException;
 
 import org.apache.commons.logging.Log;
@@ -44,21 +42,16 @@ import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GReferenceInfo;
 import org.apache.geronimo.gbean.ReferencePatterns;
+import org.apache.geronimo.kernel.ClassLoading;
 import org.apache.geronimo.kernel.InvalidGBeanException;
 import org.apache.geronimo.kernel.config.InvalidConfigException;
 import org.apache.geronimo.kernel.repository.Artifact;
-import org.apache.geronimo.kernel.util.XmlUtil;
 import org.apache.geronimo.system.configuration.condition.JexlExpressionParser;
 import org.apache.geronimo.system.plugin.PluginXmlUtil;
 import org.apache.geronimo.system.plugin.model.AttributeType;
 import org.apache.geronimo.system.plugin.model.GbeanType;
 import org.apache.geronimo.system.plugin.model.ReferenceType;
 import org.apache.geronimo.util.EncryptionManager;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-import org.xml.sax.InputSource;
 
 /**
  * @version $Rev$ $Date$
@@ -72,10 +65,11 @@ public class GBeanOverride implements Serializable {
     private String comment;
     private boolean load;
     private final Map<String, String> attributes = new LinkedHashMap<String, String>();
+    private final Map<String, String> propertyEditors = new HashMap<String, String>();
     private final Map<String, ReferencePatterns> references = new LinkedHashMap<String, ReferencePatterns>();
-    private final ArrayList<String> clearAttributes = new ArrayList<String>();
-    private final ArrayList<String> nullAttributes = new ArrayList<String>();
-    private final ArrayList<String> clearReferences = new ArrayList<String>();
+    private final Set<String> clearAttributes = new LinkedHashSet<String>();
+    private final Set<String> nullAttributes = new LinkedHashSet<String>();
+    private final Set<String> clearReferences = new LinkedHashSet<String>();
     private final String gbeanInfo;
     private final JexlExpressionParser expressionParser;
 
@@ -106,6 +100,7 @@ public class GBeanOverride implements Serializable {
         this.load = original.load;
         this.comment = original.getComment();
         this.attributes.putAll(original.attributes);
+        this.propertyEditors.putAll(original.propertyEditors);
         this.references.putAll(original.references);
         this.clearAttributes.addAll(original.clearAttributes);
         this.nullAttributes.addAll(original.nullAttributes);
@@ -182,6 +177,12 @@ public class GBeanOverride implements Serializable {
         for (Object o : gbean.getAttributeOrReference()) {
             if (o instanceof AttributeType) {
                 AttributeType attr = (AttributeType) o;
+
+                String propertyEditor = attr.getPropertyEditor();
+                if (null != propertyEditor) {
+                    propertyEditors.put(attr.getName(), propertyEditor);
+                }
+                
                 if (attr.isNull()) {
                     getNullAttributes().add(attr.getName());
                 } else {
@@ -268,47 +269,44 @@ public class GBeanOverride implements Serializable {
         return attributes.get(attributeName);
     }
 
-    public ArrayList<String> getClearAttributes() {
+    public Set<String> getClearAttributes() {
         return clearAttributes;
     }
 
-    public ArrayList<String> getNullAttributes() {
+    public Set<String> getNullAttributes() {
         return nullAttributes;
     }
 
-    public boolean getNullAttribute(String attributeName) {
+    public boolean isNullAttribute(String attributeName) {
         return nullAttributes.contains(attributeName);
     }
 
-    public boolean getClearAttribute(String attributeName) {
+    public boolean isClearAttribute(String attributeName) {
         return clearAttributes.contains(attributeName);
     }
 
-    public ArrayList<String> getClearReferences() {
+    public Set<String> getClearReferences() {
         return clearReferences;
     }
 
-    public boolean getClearReference(String referenceName) {
+    public boolean isClearReference(String referenceName) {
         return clearReferences.contains(referenceName);
     }
 
     public void setClearAttribute(String attributeName) {
-        if (!clearAttributes.contains(attributeName))
-            clearAttributes.add(attributeName);
+        clearAttributes.add(attributeName);
     }
 
     public void setNullAttribute(String attributeName) {
-        if (!nullAttributes.contains(attributeName))
-            nullAttributes.add(attributeName);
+        nullAttributes.add(attributeName);
     }
 
     public void setClearReference(String referenceName) {
-        if (!clearReferences.contains(referenceName))
-            clearReferences.add(referenceName);
+        clearReferences.add(referenceName);
     }
 
     public void setAttribute(String attributeName, Object attributeValue, String attributeType, ClassLoader classLoader) throws InvalidAttributeException {
-        String stringValue = getAsText(attributeValue, attributeType, classLoader);
+        String stringValue = getAsText(attributeName, attributeValue, attributeType, classLoader);
         setAttribute(attributeName, stringValue);
     }
 
@@ -319,7 +317,7 @@ public class GBeanOverride implements Serializable {
             attributes.put(attributeName, attributeValue);
         }
     }
-
+    
     public Map<String, ReferencePatterns> getReferences() {
         return references;
     }
@@ -353,21 +351,16 @@ public class GBeanOverride implements Serializable {
 
         //Clear attributes
         for (String attribute : getClearAttributes()) {
-            if (getClearAttribute(attribute)) {
-                data.clearAttribute(attribute);
-            }
+            data.clearAttribute(attribute);
         }
 
         //Null attributes
         for (String attribute : getNullAttributes()) {
-            if (getNullAttribute(attribute)) {
-                data.setAttribute(attribute, null);
-            }
+            data.setAttribute(attribute, null);
         }
 
         // set references
         for (Map.Entry<String, ReferencePatterns> entry : getReferences().entrySet()) {
-
             String referenceName = entry.getKey();
             GReferenceInfo referenceInfo = gbeanInfo.getReference(referenceName);
             if (referenceInfo == null) {
@@ -381,9 +374,7 @@ public class GBeanOverride implements Serializable {
 
         //Clear references
         for (String reference : getClearReferences()) {
-            if (getClearReference(reference)) {
-                data.clearReference(reference);
-            }
+            data.clearReference(reference);
         }
 
         return true;
@@ -394,18 +385,33 @@ public class GBeanOverride implements Serializable {
             return null;
         }
         value = substituteVariables(attribute.getName(), value);
-        try {
-            PropertyEditor editor = PropertyEditors.findEditor(attribute.getType(), classLoader);
-            if (editor == null) {
-                log.debug("Unable to parse attribute of type " + attribute.getType() + "; no editor found");
+        PropertyEditor editor = loadPropertyEditor(attribute, classLoader);
+        editor.setAsText(value);
+        log.debug("Setting value for " + configurationName + "/" + gbeanName + "/" + attribute.getName() + " to value " + value);
+        return editor.getValue();
+    }
+
+    protected PropertyEditor loadPropertyEditor(GAttributeInfo attribute, ClassLoader classLoader) {
+        String propertyEditor = propertyEditors.get(attribute.getName());
+        if (null == propertyEditor) {
+            PropertyEditor editor;
+            try {
+                editor = PropertyEditors.findEditor(attribute.getType(), classLoader);
+            } catch (ClassNotFoundException e) {
+                log.error("Unable to load attribute type " + attribute.getType());
                 return null;
             }
-            editor.setAsText(value);
-            log.debug("Setting value for " + configurationName + "/" + gbeanName + "/" + attribute.getName() + " to value " + value);
-            return editor.getValue();
-        } catch (ClassNotFoundException e) {
-            log.error("Unable to load attribute type " + attribute.getType());
-            return null;
+            if (editor == null) {
+                log.debug("Unable to parse attribute of type " + attribute.getType() + "; no editor found");
+            }
+            return editor;
+        } else {
+            try {
+                Class propertyEditorClass = classLoader.loadClass(propertyEditor);
+                return (PropertyEditor) propertyEditorClass.newInstance();
+            } catch (Exception ex) {
+                throw new IllegalStateException("Cannot load property editor [" + propertyEditor + "]", ex);
+            }
         }
     }
 
@@ -449,7 +455,7 @@ public class GBeanOverride implements Serializable {
             if (value == null) {
                 setNullAttribute(name);
             } else {
-                if (getNullAttribute(name)) {
+                if (isNullAttribute(name)) {
                     nullAttributes.remove(name);
                 }
                 if (name.toLowerCase().indexOf("password") > -1) {
@@ -465,6 +471,10 @@ public class GBeanOverride implements Serializable {
                 try {
                     AttributeType attribute = PluginXmlUtil.loadAttribute(reader);
                     attribute.setName(name);
+                    String editorClass = propertyEditors.get(name);
+                    if (null != editorClass) {
+                        attribute.setPropertyEditor(editorClass);
+                    }
                     gbean.getAttributeOrReference().add(attribute);
                 } catch (Exception e) {
                     log.error("Could not serialize attribute " + name + " in gbean " + gbeanName + ", value: " + value, e);
@@ -543,188 +553,27 @@ public class GBeanOverride implements Serializable {
         return gbean;
     }
 
-    public Element writeXml(Document doc, Element parent) {
-        String gbeanName;
-        if (name instanceof String) {
-            gbeanName = (String) name;
-        } else {
-            gbeanName = name.toString();
-        }
-
-        Element gbean = doc.createElement("gbean");
-        parent.appendChild(gbean);
-        gbean.setAttribute("name", gbeanName);
-        if (gbeanInfo != null) {
-            gbean.setAttribute("gbeanInfo", gbeanInfo);
-        }
-        if (!load) {
-            gbean.setAttribute("load", "false");
-        }
-
-        // attributes
-        for (Map.Entry<String, String> entry : attributes.entrySet()) {
-            String name = entry.getKey();
-            String value = entry.getValue();
-            if (value == null) {
-                setNullAttribute(name);
-            } else {
-                if (getNullAttribute(name)) {
-                    nullAttributes.remove(name);
-                }
-                if (name.toLowerCase().indexOf("password") > -1) {
-                    value = EncryptionManager.encrypt(value);
-                }
-                Element attribute = doc.createElement("attribute");
-                attribute.setAttribute("name", name);
-                gbean.appendChild(attribute);
-                if (value.length() == 0) {
-                    attribute.setAttribute("value", "");
-                } else {
-                    try {
-                        //
-                        // NOTE: Construct a new document to handle mixed content attribute values
-                        //       then add nodes which are children of the first node.  This allows
-                        //       value to be XML or text.
-                        //
-
-                        DocumentBuilderFactory factory = XmlUtil.newDocumentBuilderFactory();
-                        DocumentBuilder builder = factory.newDocumentBuilder();
-
-                        /**
-                         * if there was a value such as jdbc url with &amp; then when that value was oulled
-                         * from the config.xml the &amp; would have been replaced/converted to '&', we need to check
-                         * and change it back because an & would create a parse exception.
-                         */
-                        value = value.replaceAll("&(?!amp;)", "&amp;");
-
-//                        String unsubstitutedValue = unsubstitutedAttributes.get(name);
-//                        if (unsubstitutedValue != null) {
-//                            log.debug("writeXML attribute " + name
-//                                    + " using raw value "
-//                                    + unsubstitutedValue
-//                                    + " instead of cooked value "
-//                                    + value + ".");
-//                            value = unsubstitutedValue;
-//                        }
-
-                        // Wrap value in an element to be sure we can handle xml or text values
-                        String xml = "<fragment>" + value + "</fragment>";
-                        InputSource input = new InputSource(new StringReader(xml));
-                        Document fragment = builder.parse(input);
-
-                        Node root = fragment.getFirstChild();
-                        NodeList children = root.getChildNodes();
-                        for (int i = 0; i < children.getLength(); i++) {
-                            Node child = children.item(i);
-
-                            // Import the child (and its children) into the new document
-                            child = doc.importNode(child, true);
-                            attribute.appendChild(child);
-                        }
-                    }
-                    catch (Exception e) {
-                        throw new RuntimeException("Failed to write attribute value fragment: " + e.getMessage(), e);
-                    }
-                }
-            }
-        }
-
-        // cleared attributes
-        for (String name : clearAttributes) {
-            Element attribute = doc.createElement("attribute");
-            gbean.appendChild(attribute);
-            attribute.setAttribute("name", name);
-        }
-
-        // Null attributes
-        for (String name : nullAttributes) {
-            Element attribute = doc.createElement("attribute");
-            gbean.appendChild(attribute);
-            attribute.setAttribute("name", name);
-            attribute.setAttribute("null", "true");
-        }
-
-        // references
-        for (Map.Entry<String, ReferencePatterns> entry : references.entrySet()) {
-            String name = entry.getKey();
-            ReferencePatterns patterns = entry.getValue();
-
-            Element reference = doc.createElement("reference");
-            reference.setAttribute("name", name);
-            gbean.appendChild(reference);
-
-            Set<AbstractNameQuery> patternSet;
-            if (patterns.isResolved()) {
-                patternSet = Collections.singleton(new AbstractNameQuery(patterns.getAbstractName()));
-            } else {
-                patternSet = patterns.getPatterns();
-            }
-
-            for (AbstractNameQuery pattern : patternSet) {
-                Element pat = doc.createElement("pattern");
-                reference.appendChild(pat);
-                Artifact artifact = pattern.getArtifact();
-
-                if (artifact != null) {
-                    if (artifact.getGroupId() != null) {
-                        Element group = doc.createElement("groupId");
-                        group.appendChild(doc.createTextNode(artifact.getGroupId()));
-                        pat.appendChild(group);
-                    }
-                    if (artifact.getArtifactId() != null) {
-                        Element art = doc.createElement("artifactId");
-                        art.appendChild(doc.createTextNode(artifact.getArtifactId()));
-                        pat.appendChild(art);
-                    }
-                    if (artifact.getVersion() != null) {
-                        Element version = doc.createElement("version");
-                        version.appendChild(doc.createTextNode(artifact.getVersion().toString()));
-                        pat.appendChild(version);
-                    }
-                    if (artifact.getType() != null) {
-                        Element type = doc.createElement("type");
-                        type.appendChild(doc.createTextNode(artifact.getType()));
-                        pat.appendChild(type);
-                    }
-                }
-
-                Map nameMap = pattern.getName();
-                if (nameMap.get("module") != null) {
-                    Element module = doc.createElement("module");
-                    module.appendChild(doc.createTextNode(nameMap.get("module").toString()));
-                    pat.appendChild(module);
-                }
-
-                if (nameMap.get("name") != null) {
-                    Element patName = doc.createElement("name");
-                    patName.appendChild(doc.createTextNode(nameMap.get("name").toString()));
-                    pat.appendChild(patName);
-                }
-            }
-        }
-
-        // cleared references
-        for (String name : clearReferences) {
-            Element reference = doc.createElement("reference");
-            reference.setAttribute("name", name);
-            gbean.appendChild(reference);
-        }
-
-        return gbean;
-    }
-
-    public static String getAsText(Object value, String type, ClassLoader classLoader) throws InvalidAttributeException {
+    protected String getAsText(String attributeName, Object value, String type, ClassLoader classLoader) throws InvalidAttributeException {
         try {
-            String attributeStringValue = null;
-            if (value != null) {
-                PropertyEditor editor = PropertyEditors.findEditor(type, classLoader);
-                if (editor == null) {
+            if (null == value || value instanceof String) {
+                return (String) value;
+            }
+            
+            Class typeClass = ClassLoading.loadClass(type, classLoader);
+            PropertyEditor editor = PropertyEditors.findEditor(value.getClass());
+            if (null == editor) {
+                editor = PropertyEditors.findEditor(typeClass);
+                if (null == editor) {
                     throw new InvalidAttributeException("Unable to format attribute of type " + type + "; no editor found");
                 }
-                editor.setValue(value);
-                attributeStringValue = editor.getAsText();
             }
-            return attributeStringValue;
+            
+            if (!type.equals(value.getClass().getName()) && !typeClass.isPrimitive()) {
+                propertyEditors.put(attributeName, editor.getClass().getName());
+            }
+
+            editor.setValue(value);
+            return editor.getAsText();
         } catch (ClassNotFoundException e) {
             //todo: use the Configuration's ClassLoader to load the attribute, if this ever becomes an issue
             throw (InvalidAttributeException) new InvalidAttributeException("Unable to store attribute type " + type).initCause(e);

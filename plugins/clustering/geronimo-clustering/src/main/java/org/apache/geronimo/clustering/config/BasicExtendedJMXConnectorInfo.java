@@ -22,6 +22,9 @@ package org.apache.geronimo.clustering.config;
 import java.io.Serializable;
 import java.net.InetSocketAddress;
 
+import org.apache.geronimo.deployment.service.DoNotPersist;
+import org.apache.geronimo.deployment.service.EncryptOnPersist;
+
 /**
  *
  * @version $Rev:$ $Date:$
@@ -39,6 +42,7 @@ public class BasicExtendedJMXConnectorInfo implements ExtendedJMXConnectorInfo, 
         return host;
     }
 
+    @DoNotPersist
     public InetSocketAddress getListenAddress() {
         return new InetSocketAddress(host, port);
     }
@@ -71,6 +75,7 @@ public class BasicExtendedJMXConnectorInfo implements ExtendedJMXConnectorInfo, 
         this.urlPath = urlPath;
     }
 
+    @EncryptOnPersist
     public String getPassword() {
         return password;
     }
