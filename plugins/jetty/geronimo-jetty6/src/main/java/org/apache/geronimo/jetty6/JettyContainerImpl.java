@@ -29,6 +29,7 @@ import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.management.LazyStatisticsProvider;
 import org.apache.geronimo.management.geronimo.NetworkConnector;
 import org.apache.geronimo.management.geronimo.WebManager;
+import org.apache.geronimo.management.geronimo.stats.JettyWebContainerStatsImpl;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
 import org.apache.geronimo.webservices.SoapHandler;
 import org.apache.geronimo.webservices.WebServiceContainer;

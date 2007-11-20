@@ -29,8 +29,8 @@ import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.jetty6.JettyContainer;
 import org.apache.geronimo.jetty6.JettyWebConnector;
-import org.apache.geronimo.jetty6.JettyWebConnectorStatsImpl;
 import org.apache.geronimo.management.LazyStatisticsProvider;
+import org.apache.geronimo.management.geronimo.stats.JettyWebConnectorStatsImpl;
 import org.apache.geronimo.system.threads.ThreadPool;
 import org.mortbay.jetty.AbstractConnector;
 

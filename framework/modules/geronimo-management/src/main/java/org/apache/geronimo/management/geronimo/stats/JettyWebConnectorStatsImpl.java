@@ -18,7 +18,7 @@
  */
 
 
-package org.apache.geronimo.jetty6;
+package org.apache.geronimo.management.geronimo.stats;
 
 import org.apache.geronimo.management.stats.CountStatisticImpl;
 import org.apache.geronimo.management.stats.RangeStatisticImpl;

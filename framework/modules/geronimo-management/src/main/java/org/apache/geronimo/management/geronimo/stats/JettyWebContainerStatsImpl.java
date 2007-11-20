@@ -14,7 +14,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.apache.geronimo.jetty6;
+package org.apache.geronimo.management.geronimo.stats;
 
 import javax.management.j2ee.statistics.CountStatistic;
 import javax.management.j2ee.statistics.RangeStatistic;
@@ -69,18 +69,18 @@ public class JettyWebContainerStatsImpl extends StatsImpl implements JettyWebCon
         addStat("ActiveRequestCount", activeRequestCount);
         addStat("RequestDuration", requestDuration);
         addStat("RequestDurationAvg", requestDurationAvg);
-        addStat("Response1xx", response1xx);
-        addStat("Response2xx", response2xx);
-        addStat("Response3xx", response3xx);
-        addStat("Response4xx", response4xx);
-        addStat("Response5xx", response5xx);
-        addStat("StatsDuration", statsOnMs);
+        addStat("Responses1xx", response1xx);
+        addStat("Responses2xx", response2xx);
+        addStat("Responses3xx", response3xx);
+        addStat("Responses4xx", response4xx);
+        addStat("Responses5xx", response5xx);
+        addStat("StatsDuration", statsOnMs); // TODO - remove this
     }
 
 /**
  * Public methods to return the interfaces for statistics.
- * These are used by the objets (such as the web console) that
- * retreive the stats for presentation purposes.
+ * These are used by the objects (such as the web console) that
+ * retrieve the stats for presentation purposes.
  */
 
     public CountStatistic getTotalRequestCount() {

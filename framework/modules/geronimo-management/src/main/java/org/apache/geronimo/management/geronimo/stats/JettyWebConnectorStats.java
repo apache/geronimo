@@ -15,7 +15,7 @@
  *  limitations under the License.
  */
 
-package org.apache.geronimo.jetty6;
+package org.apache.geronimo.management.geronimo.stats;
 
 import org.apache.geronimo.management.geronimo.stats.WebConnectorStats;
 

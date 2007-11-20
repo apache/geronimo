@@ -33,17 +33,20 @@ import org.apache.geronimo.management.LazyStatisticsProvider;
 public class StatTest extends AbstractWebModuleTest {
 
     private ObjectName webModuleName;
+    
+    public void testContainerStats() throws Exception {
+	statsTest(container);
+    }
 
-    public void testStats() throws Exception {
-        JettyWebAppContext app;
-        app = setUpAppContext(null, null, null, null, null, null, null, "war1/");
-
-        setUpStaticContentServlet(app);
-        
+    public void testConnectorStats() throws Exception {
+	statsTest(connector);
+    }
+    
+    public void statsTest(LazyStatisticsProvider component) throws Exception {       
         // start statistics collection
-        if (connector instanceof LazyStatisticsProvider) {
-        assertTrue("Stats should be off initially", !connector.isStatsOn());
-        connector.setStatsOn(true);
+        if (component instanceof LazyStatisticsProvider) {
+        assertTrue("Stats should be off initially", !component.isStatsOn());
+        component.setStatsOn(true);
         }
         int n = 4; // no of connections
         for (int k = 0; k < n; k++) {
@@ -53,31 +56,27 @@ public class StatTest extends AbstractWebModuleTest {
             assertEquals(HttpURLConnection.HTTP_OK, connection.getResponseCode());
             assertEquals("Hello World", reader.readLine());
             
-            Stats[] allStats = {connector.getStats()};
-            Stats stats;
-            for (int j = 0; j < allStats.length; j++) {
-                stats = allStats[j];
-                Statistic[] stts = stats.getStatistics();
-                Statistic aStts;
-                String[] sttsNames = stats.getStatisticNames();
-                for (int i = 0; i < sttsNames.length; i++) {
-                    // check that the names match the getter methods
-                    String sttsName = sttsNames[i];
-                    assertFalse(sttsName.equals(stts[i].getName()));
-                    try {
-                    stats.getClass().getMethod("get" + sttsName, new Class[0]);
-                    } catch (NoSuchMethodException e) {
-                	continue; // ignore this statistics JSR77.6.10.1.1
-                    }
-                    aStts = stats.getStatistic(sttsName);
-                    assertTrue("startTime was not set for " + sttsName, aStts.getStartTime() != 0);
-                    assertTrue("lastSampleTime was not set for " + sttsName, aStts.getLastSampleTime() != 0);
-                    /* System.out.println("              lastSampleTime = " + aStts.getLastSampleTime() + 
-                	    "  startTime = " + aStts.getStartTime());
-                    System.out.println(aStts);*/
+            Stats stats = component.getStats();
+            Statistic[] stts = stats.getStatistics();
+            Statistic aStts;
+            String[] sttsNames = stats.getStatisticNames();
+            for (int i = 0; i < sttsNames.length; i++) {
+                // check that the names match the getter methods
+                String sttsName = sttsNames[i];
+                assertFalse(sttsName.equals(stts[i].getName()));
+                try {
+                stats.getClass().getMethod("get" + sttsName, new Class[0]);
+                } catch (NoSuchMethodException e) {
+            	continue; // ignore this statistics for now, JSR77.6.10.1.1
                 }
+                aStts = stats.getStatistic(sttsName);
+                assertTrue("startTime was not set for " + sttsName, aStts.getStartTime() != 0);
+                assertTrue("lastSampleTime was not set for " + sttsName, aStts.getLastSampleTime() != 0);
+                /*System.out.println("              lastSampleTime = " + aStts.getLastSampleTime() + 
+            	    "  startTime = " + aStts.getStartTime());
+                System.out.println(aStts);*/
             }
-            if (k == n-2) connector.resetStats(); // test reset
+            if (k == n-2) component.resetStats(); // test reset
             connection.disconnect();
             Thread.sleep(1000);  // connection interval
         }       
@@ -85,5 +84,8 @@ public class StatTest extends AbstractWebModuleTest {
 
     protected void setUp() throws Exception {
         super.setUp();
+        JettyWebAppContext app;
+        app = setUpAppContext(null, null, null, null, null, null, null, "war1/");
+        setUpStaticContentServlet(app);
     }
 }
