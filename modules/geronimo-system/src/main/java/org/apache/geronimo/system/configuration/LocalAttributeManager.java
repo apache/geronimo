@@ -536,7 +536,7 @@ public class LocalAttributeManager implements PluginAttributeStore, PersistentCo
     public synchronized void doStart() throws Exception {
         load();
         if (!readOnly) {
-            timer = new Timer();
+            timer = new Timer(true);
         }
         log.debug("Started LocalAttributeManager with data on " + serverOverride.getConfigurations().size() + " configurations");
     }
