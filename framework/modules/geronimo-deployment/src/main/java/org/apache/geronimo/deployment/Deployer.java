@@ -180,7 +180,13 @@ public class Deployer {
                 return null;
             }
             AbstractName module = (AbstractName) names.iterator().next();
-            return remoteDeployAddress + "/" + kernel.getAttribute(module, "contextPath") + "/upload";
+            String contextPath = (String) kernel.getAttribute(module, "contextPath");
+            if (null == contextPath) {
+                throw new IllegalStateException("Cannot find contextPath attribute for [" + module + "]");
+            } else if (contextPath.startsWith("/")) {
+                contextPath = contextPath.substring(1);
+            }
+            return remoteDeployAddress + "/" + contextPath + "/upload";
         } catch (Exception e) {
             log.error("Unable to look up remote deploy upload URL", e);
             return null;
