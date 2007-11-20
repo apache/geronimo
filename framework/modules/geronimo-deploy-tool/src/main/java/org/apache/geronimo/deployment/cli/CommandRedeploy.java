@@ -44,7 +44,6 @@ public class CommandRedeploy extends AbstractCommand {
         ProgressObject po = null;
         try {
             String[] args = commandArgs.getArgs();
-            setConsole(consoleReader);
 
             DeploymentManager mgr = connection.getDeploymentManager();
             Target[] allTargets = mgr.getTargets();
@@ -93,7 +92,7 @@ public class CommandRedeploy extends AbstractCommand {
             }
             // If we don't have any moduleIDs, try to guess one.
             if(modules.size() == 0 && connection.isGeronimo()) {
-                emit("No ModuleID or TargetModuleID provided.  Attempting to guess based on the content of the "+(plan == null ? "archive" : "plan")+".");
+                emit(consoleReader, "No ModuleID or TargetModuleID provided.  Attempting to guess based on the content of the "+(plan == null ? "archive" : "plan")+".");
                 String moduleId = null;
                 try {
                     if(plan != null) {
@@ -103,7 +102,7 @@ public class CommandRedeploy extends AbstractCommand {
                             int pos = fileName.lastIndexOf('.');
                             String artifactId = pos > -1 ? module.getName().substring(0, pos) : module.getName();
                             moduleId = Artifact.DEFAULT_GROUP_ID+"/"+artifactId+"//";
-                            emit("Unable to locate Geronimo deployment plan in archive.  Calculating default ModuleID from archive name.");
+                            emit(consoleReader, "Unable to locate Geronimo deployment plan in archive.  Calculating default ModuleID from archive name.");
                         }
                     } else if(module != null) {
                         moduleId = DeployUtils.extractModuleIdFromArchive(module);
@@ -111,17 +110,17 @@ public class CommandRedeploy extends AbstractCommand {
                             int pos = module.getName().lastIndexOf('.');
                             String artifactId = pos > -1 ? module.getName().substring(0, pos) : module.getName();
                             moduleId = Artifact.DEFAULT_GROUP_ID+"/"+artifactId+"//";
-                            emit("Unable to locate Geronimo deployment plan in archive.  Calculating default ModuleID from archive name.");
+                            emit(consoleReader, "Unable to locate Geronimo deployment plan in archive.  Calculating default ModuleID from archive name.");
                         }
                     }
                 } catch (IOException e) {
                     throw new DeploymentException("Unable to read input files: "+e.getMessage(), e);
                 }
                 if(moduleId != null) {
-                    emit("Attempting to use ModuleID '"+moduleId+"'");
+                    emit(consoleReader, "Attempting to use ModuleID '"+moduleId+"'");
                     modules.addAll(DeployUtils.identifyTargetModuleIDs(allModules, moduleId, true));
                 } else {
-                    emit("Unable to calculate a ModuleID from supplied module and/or plan.");
+                    emit(consoleReader, "Unable to calculate a ModuleID from supplied module and/or plan.");
                 }
             }
             if(modules.size() == 0) { // Either not deploying to Geronimo or unable to identify modules
@@ -141,11 +140,11 @@ public class CommandRedeploy extends AbstractCommand {
             TargetModuleID[] done = po.getResultTargetModuleIDs();
             for(int i = 0; i < done.length; i++) {
                 TargetModuleID id = done[i];
-                emit("Redeployed "+id.getModuleID()+(multiple ? " on "+id.getTarget().getName() : "")+(id.getWebURL() == null ? "" : " @ "+id.getWebURL()));
+                emit(consoleReader, "Redeployed "+id.getModuleID()+(multiple ? " on "+id.getTarget().getName() : "")+(id.getWebURL() == null ? "" : " @ "+id.getWebURL()));
                 if(id.getChildTargetModuleID() != null) {
                     for (int j = 0; j < id.getChildTargetModuleID().length; j++) {
                         TargetModuleID child = id.getChildTargetModuleID()[j];
-                        emit("  `-> "+child.getModuleID()+(child.getWebURL() == null ? "" : " @ "+child.getWebURL()));
+                        emit(consoleReader, "  `-> "+child.getModuleID()+(child.getWebURL() == null ? "" : " @ "+child.getWebURL()));
                     }
                 }
             }

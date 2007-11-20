@@ -40,25 +40,15 @@ import org.apache.geronimo.common.DeploymentException;
  * @version $Rev$ $Date$
  */
 public abstract class AbstractCommand implements DeployCommand {
-    private ConsoleReader out;
 
     public AbstractCommand() {
-        try {
-            out = new ConsoleReader(System.in, new OutputStreamWriter(System.out));
-        } catch (IOException e) {
-            throw new RuntimeException("could not set up console", e);
-        }
     }
 
     public boolean isLocalOnly() {
         return false;
     }
 
-    public void setConsole(ConsoleReader out) {
-        this.out = out;
-    }
-
-    protected void emit(String message) throws IOException {
+    protected void emit(ConsoleReader out, String message) throws IOException {
         out.printString(DeployUtils.reformat(message, 4, 72));
         out.flushConsole();
     }
@@ -72,7 +62,7 @@ public abstract class AbstractCommand implements DeployCommand {
      *            trace.
      * @param po  a <code>ProgressObject</code> value
      */
-    protected void waitForProgress(ConsoleReader out, ProgressObject po) {
+    protected void waitForProgress(final ConsoleReader out, ProgressObject po) {
         po.addProgressListener(new ProgressListener() {
             String last = null;
 
@@ -80,7 +70,7 @@ public abstract class AbstractCommand implements DeployCommand {
                 String msg = event.getDeploymentStatus().getMessage();
                 if (last != null && !last.equals(msg)) {
                     try {
-                        emit(last);
+                        emit(out, last);
                     } catch (IOException e1) {
                         //ignore
                     }
