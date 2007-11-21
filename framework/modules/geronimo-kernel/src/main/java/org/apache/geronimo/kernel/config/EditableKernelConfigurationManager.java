@@ -16,19 +16,24 @@
  */
 package org.apache.geronimo.kernel.config;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.List;
 
-import org.apache.geronimo.kernel.Kernel;
-import org.apache.geronimo.kernel.GBeanNotFoundException;
-import org.apache.geronimo.kernel.GBeanAlreadyExistsException;
-import org.apache.geronimo.kernel.repository.Artifact;
-import org.apache.geronimo.kernel.repository.ArtifactResolver;
-import org.apache.geronimo.kernel.repository.ArtifactManager;
-import org.apache.geronimo.kernel.management.State;
+import org.apache.geronimo.gbean.AbstractName;
+import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
-import org.apache.geronimo.gbean.AbstractName;
+import org.apache.geronimo.kernel.GBeanAlreadyExistsException;
+import org.apache.geronimo.kernel.GBeanNotFoundException;
+import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.kernel.management.State;
+import org.apache.geronimo.kernel.repository.Artifact;
+import org.apache.geronimo.kernel.repository.ArtifactManager;
+import org.apache.geronimo.kernel.repository.ArtifactResolver;
 
 /**
  * Standard implementation of an editable ConfigurationManager.
@@ -36,7 +41,10 @@ import org.apache.geronimo.gbean.AbstractName;
  * @version $Rev:386276 $ $Date$
  */
 public class EditableKernelConfigurationManager extends KernelConfigurationManager implements EditableConfigurationManager {
+    private final AbstractNameQuery defaultStoreNameQuery;
+
     public EditableKernelConfigurationManager(Kernel kernel,
+            AbstractNameQuery defaultStoreNameQuery,
             Collection stores,
             ManageableAttributeStore attributeStore,
             PersistentConfigurationList configurationList,
@@ -45,9 +53,36 @@ public class EditableKernelConfigurationManager extends KernelConfigurationManag
             Collection repositories,
             Collection watchers,
             ClassLoader classLoader) {
-        super(kernel, stores, attributeStore, configurationList, artifactManager, artifactResolver, repositories, watchers, classLoader);
+        super(kernel,
+            stores,
+            attributeStore,
+            configurationList,
+            artifactManager,
+            artifactResolver,
+            repositories,
+            watchers,
+            classLoader);
+        this.defaultStoreNameQuery = defaultStoreNameQuery;
     }
 
+    @Override
+    protected List getStoreList() {
+        if (null == defaultStoreNameQuery) {
+            return super.getStoreList();
+        }
+        
+        List<ConfigurationStore> storeList = new ArrayList<ConfigurationStore>();
+        for (Iterator iterator = stores.iterator(); iterator.hasNext();) {
+            ConfigurationStore configurationStore = (ConfigurationStore) iterator.next();
+            if (defaultStoreNameQuery.matches(configurationStore.getAbstractName(), Collections.EMPTY_SET)) {
+                storeList.add(0, configurationStore);
+            } else {
+                storeList.add(configurationStore);
+            }
+        }
+        return storeList;
+    }
+    
     public void addGBeanToConfiguration(Artifact configurationId, GBeanData gbean, boolean start) throws InvalidConfigException {
         Configuration configuration = getConfiguration(configurationId);
 
@@ -153,10 +188,26 @@ public class EditableKernelConfigurationManager extends KernelConfigurationManag
 
     public static final GBeanInfo GBEAN_INFO;
 
+    public static final String GBEAN_ATTR_DEFAULT_STORE_NAME_QUERY = "defaultStoreNameQuery";
+
     static {
         GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic(EditableKernelConfigurationManager.class, KernelConfigurationManager.GBEAN_INFO, "ConfigurationManager");
+        
+        infoFactory.addAttribute(GBEAN_ATTR_DEFAULT_STORE_NAME_QUERY, AbstractNameQuery.class, true);
+        
         infoFactory.addInterface(EditableConfigurationManager.class);
-        infoFactory.setConstructor(new String[]{"kernel", "Stores", "AttributeStore", "PersistentConfigurationList", "ArtifactManager", "ArtifactResolver", "Repositories", "Watchers", "classLoader"});
+        
+        infoFactory.setConstructor(new String[] { "kernel",
+            GBEAN_ATTR_DEFAULT_STORE_NAME_QUERY,
+            "Stores",
+            "AttributeStore",
+            "PersistentConfigurationList",
+            "ArtifactManager",
+            "ArtifactResolver",
+            "Repositories",
+            "Watchers",
+            "classLoader" });
+
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
 

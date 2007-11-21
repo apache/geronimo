@@ -147,6 +147,11 @@ public class DeployModuleMojo
 
         DeploymentManager manager = getDeploymentManager();
         Target[] targets = manager.getTargets();
+        if (null == targets) {
+            throw new IllegalStateException("No target to distribute to");
+        }
+        targets = new Target[] {targets[0]};
+        
         ProgressObject progress = manager.distribute(targets, file, plan);
         DeploymentStatus status = waitFor(progress);
 

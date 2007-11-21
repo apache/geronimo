@@ -97,7 +97,7 @@ public abstract class JMXDeploymentManager implements DeploymentManager {
             throw new IllegalStateException("Disconnected");
         }
         List stores = configurationManager.listStores();
-        if (stores.size() == 0) {
+        if (stores.isEmpty()) {
             return null;
         }
 

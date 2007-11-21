@@ -115,11 +115,11 @@ public class CreateDestinationHandler extends AbstractJMSManager implements Port
             ConfigurationManager configurationManager = ConfigurationUtil
                     .getConfigurationManager(kernel);
             List stores = configurationManager.listStores();
-            assert stores.size() == 1 : "Piling one hack on another, this code only works with exactly one store";
-
-            ObjectName storeName = (ObjectName) stores.iterator().next();
-            File installDir = (File) kernel.invoke(storeName,
-                    "createNewConfigurationDir");
+            if (stores.isEmpty()) {
+                throw new PortletException("No configuration store");
+            }
+            ObjectName storeName = (ObjectName) stores.get(0);
+            File installDir = (File) kernel.invoke(storeName, "createNewConfigurationDir");
 //            Environment environment = new Environment();
 //            environment.setConfigId(configId);
 //            environment.addDependency(parentId, ImportType.ALL);

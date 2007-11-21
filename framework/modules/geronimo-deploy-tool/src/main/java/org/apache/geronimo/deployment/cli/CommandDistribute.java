@@ -131,7 +131,12 @@ public class CommandDistribute extends AbstractCommand {
             po = runCommand(mgr, out, inPlace, tlist, module, plan);
             waitForProgress(out, po);
         } else {
-            final Target[] tlist = mgr.getTargets();
+            Target[] tlist = mgr.getTargets();
+            if (null == tlist) {
+                throw new IllegalStateException("No target to distribute to");
+            }
+            tlist = new Target[] {tlist[0]};
+
             multipleTargets = tlist.length > 1;
             po = runCommand(mgr, out, inPlace, tlist, module, plan);
             waitForProgress(out, po);

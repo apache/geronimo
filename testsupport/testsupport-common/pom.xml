@@ -51,6 +51,11 @@
             <scope>compile</scope>
         </dependency>
 
+        <dependency>
+            <groupId>com.agical.rmock</groupId>
+            <artifactId>rmock</artifactId>
+        </dependency>
+
         <!-- xmlbeans -->
         
         <dependency>

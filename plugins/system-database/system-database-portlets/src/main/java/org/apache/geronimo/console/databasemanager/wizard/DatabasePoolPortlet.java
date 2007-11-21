@@ -1051,6 +1051,11 @@ public class DatabasePoolPortlet extends BasePortlet {
                     out.flush();
                     out.close();
                     Target[] targets = mgr.getTargets();
+                    if (null == targets) {
+                        throw new IllegalStateException("No target to distribute to");
+                    }
+                    targets = new Target[] {targets[0]};
+                    
                     ProgressObject po = mgr.distribute(targets, rarFile, tempFile);
                     waitForProgress(po);
                     if (po.getDeploymentStatus().isCompleted()) {

@@ -30,6 +30,7 @@ import javax.enterprise.deploy.model.exceptions.DDBeanCreateException;
 import javax.enterprise.deploy.shared.factories.DeploymentFactoryManager;
 import javax.enterprise.deploy.spi.DeploymentConfiguration;
 import javax.enterprise.deploy.spi.DeploymentManager;
+import javax.enterprise.deploy.spi.Target;
 import javax.enterprise.deploy.spi.exceptions.ConfigurationException;
 import javax.enterprise.deploy.spi.exceptions.InvalidModuleException;
 import javax.enterprise.deploy.spi.status.ProgressObject;
@@ -485,7 +486,14 @@ public class JSR88_Util {
                 if (mgr instanceof JMXDeploymentManager) {
                     ((JMXDeploymentManager) mgr).setLogConfiguration(false, true);
                 }
-                ProgressObject progress = mgr.distribute(mgr.getTargets(), moduleFile, planFile);
+                
+                Target[] targets = mgr.getTargets();
+                if (null == targets) {
+                    throw new IllegalStateException("No target to distribute to");
+                }
+                targets = new Target[] {targets[0]};
+                
+                ProgressObject progress = mgr.distribute(targets, moduleFile, planFile);
                 while (progress.getDeploymentStatus().isRunning()) {
                     Thread.sleep(100);
                 }

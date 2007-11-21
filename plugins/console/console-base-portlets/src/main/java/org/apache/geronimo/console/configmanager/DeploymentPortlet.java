@@ -126,6 +126,10 @@ public class DeploymentPortlet extends BasePortlet {
                     ((JMXDeploymentManager)mgr).setLogConfiguration(false, true);
                 }
                 Target[] all = mgr.getTargets();
+                if (null == all) {
+                    throw new IllegalStateException("No target to distribute to");
+                }
+
                 ProgressObject progress;
                 if(isRedeploy) {
                     TargetModuleID[] targets = identifyTargets(moduleFile, planFile, mgr.getAvailableModules(null, all));
@@ -134,7 +138,7 @@ public class DeploymentPortlet extends BasePortlet {
                     }
                     progress = mgr.redeploy(targets, moduleFile, planFile);
                 } else {
-                    progress = mgr.distribute(all, moduleFile, planFile);
+                    progress = mgr.distribute(new Target[] {all[0]}, moduleFile, planFile);
                 }
                 while(progress.getDeploymentStatus().isRunning()) {
                     Thread.sleep(100);

@@ -45,11 +45,6 @@
             <artifactId>commons-cli</artifactId>
         </dependency>
 
-        <dependency>
-            <groupId>com.agical.rmock</groupId>
-            <artifactId>rmock</artifactId>
-        </dependency>
-
     </dependencies>
 
 </project>

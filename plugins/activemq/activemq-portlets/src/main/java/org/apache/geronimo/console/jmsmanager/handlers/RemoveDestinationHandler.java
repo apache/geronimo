@@ -55,8 +55,10 @@ public class RemoveDestinationHandler extends AbstractJMSManager implements
             AbstractName configurationObjectName = Configuration.getConfigurationAbstractName(destinationConfigArtifact);
 
             List stores = configurationManager.listStores();
-            assert stores.size() == 1 :"Piling one hack on another, this code only works with exactly one store";
-            ObjectName storeName = (ObjectName) stores.iterator().next();
+            if (stores.isEmpty()) {
+                throw new PortletException("No configuration store");
+            }
+            ObjectName storeName = (ObjectName) stores.get(0);
 
             // Unsubscribe topicbrowser before uninstalling the configuration.
             DependencyManager dm = kernel.getDependencyManager();

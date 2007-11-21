@@ -91,18 +91,6 @@
                                 <gbean name="ClusterInfo">
                                     <attribute name="name">#{clusterName}</attribute>
                                 </gbean>
-                                <gbean name="MasterRepository" load="false">
-                                </gbean>
-                                <gbean name="MasterConfigurationStore" load="false">
-                                </gbean>
-                                <gbean name="ClusterConfigurationStoreClient" load="false">
-                                </gbean>
-                                <gbean name="ClusterRepository" load="false">
-                                </gbean>
-                                <gbean name="ClusterStore" load="false">
-                                </gbean>
-                                <gbean name="ClusterConfigurationStore" load="false">
-                                </gbean>
                             </config-xml-content>
                             <config-substitution key="clusterNodeName">NODE</config-substitution>
                             <config-substitution key="clusterName">CLUSTER_NAME</config-substitution>

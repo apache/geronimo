@@ -263,6 +263,11 @@ public class DirectoryHotDeployer implements HotDeployer, DeploymentWatcher, GBe
         try {
             mgr = getDeploymentManager();
             Target[] targets = mgr.getTargets();
+            if (null == targets) {
+                throw new IllegalStateException("No target to distribute to");
+            }
+            targets = new Target[] {targets[0]};
+
             ProgressObject po;
             if (DeployUtils.isJarFile(file) || file.isDirectory()) {
                 po = mgr.distribute(targets, file, null);

@@ -69,7 +69,10 @@ public class SimpleConfigurationManager implements ConfigurationManager {
         this(stores, artifactResolver, repositories, Collections.EMPTY_SET);
     }
     
-    public SimpleConfigurationManager(Collection stores, ArtifactResolver artifactResolver, Collection repositories, Collection watchers) {
+    public SimpleConfigurationManager(Collection stores,
+            ArtifactResolver artifactResolver,
+            Collection repositories,
+            Collection watchers) {
         if (stores == null) stores = Collections.EMPTY_SET;
         if (repositories == null) repositories = Collections.EMPTY_SET;
         if (watchers == null) watchers = Collections.EMPTY_SET;
@@ -1281,7 +1284,7 @@ public class SimpleConfigurationManager implements ConfigurationManager {
     public void setOnline(boolean online) {
     }
 
-    private List getStoreList() {
+    protected List getStoreList() {
         return new ArrayList(stores);
     }
 
