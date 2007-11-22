@@ -362,6 +362,8 @@
             </xs:documentation>
         </xs:annotation>
         <xs:sequence>
+            <xs:element ref="atts:comment" minOccurs="0"
+                maxOccurs="1" />
             <xs:element ref="atts:gbean" maxOccurs="unbounded"/>
         </xs:sequence>
         <xs:attribute name="load" type="xs:boolean" default="true">
@@ -506,12 +508,12 @@
                 archive), though that will not be used to construct the destination
                 location. For example:
 
-                <copy-file relative-to="server" dest-dir="security/keystores">
+                <copy-file relative-to="server" dest-dir="var/security/keystores">
                     resources/keystores/my-keystore
                 </copy-file>
 
                 This will copy the file resources/keystores/my-keystore to e.g.
-                geronimo/var/security/keystores/my-keystore
+                var/security/keystores/my-keystore
             </xs:documentation>
         </xs:annotation>
 
@@ -521,8 +523,8 @@
                     <xs:annotation>
                         <xs:documentation>
                             Indicates whether the destination is relative to the Geronimo install
-                            directory or the server instance var/ directory. The values presently
-                            supported are:
+                            directory or the server instance directory (which are the same unless
+                            the server instance is configured).  The values presently supported are:
 
                             geronimo
                             server
@@ -540,8 +542,8 @@
                     <xs:annotation>
                         <xs:documentation>
                             The directory to copy the file to, relative to either the Geronimo
-                            install dir or the server's home directory (normally var/ but may
-                            vary).
+                            install dir or the server's home directory (normally the same as the
+                            Geronimo install dir but may be configured to be elsewhere).
                         </xs:documentation>
                     </xs:annotation>
                 </xs:attribute>

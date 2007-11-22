@@ -28,7 +28,7 @@ import org.apache.geronimo.deployment.cli.ServerConnection
  *
  * @version $Rev: 580864 $ $Date: 2007-09-30 23:47:39 -0700 (Sun, 30 Sep 2007) $
  */
-@CommandComponent(id='disconnect')
+@CommandComponent(id='geronimo-commands:disconnect', description="Disconnect from a Geronimo server")
 class DisconnectCommand
     extends CommandSupport
 {

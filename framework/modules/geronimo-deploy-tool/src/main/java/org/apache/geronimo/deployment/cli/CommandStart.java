@@ -63,11 +63,11 @@ public class CommandStart extends AbstractCommand {
             consoleReader.printNewline();
             for(int i = 0; i < done.length; i++) {
                 TargetModuleID id = done[i];
-                consoleReader.printString(DeployUtils.reformat(getAction()+" "+id.getModuleID()+((multiple && id.getTarget() != null) ? " on "+ id.getTarget().getName() : "")+(id.getWebURL() == null || !getAction().equals("Started") ? "" : " @ "+id.getWebURL()),4, 72));
+                DeployUtils.println(getAction()+" "+id.getModuleID()+((multiple && id.getTarget() != null) ? " on "+ id.getTarget().getName() : "")+(id.getWebURL() == null || !getAction().equals("Started") ? "" : " @ "+id.getWebURL()),4, consoleReader);
                 if(id.getChildTargetModuleID() != null) {
                     for (int j = 0; j < id.getChildTargetModuleID().length; j++) {
                         TargetModuleID child = id.getChildTargetModuleID()[j];
-                        consoleReader.printString(DeployUtils.reformat("  `-> "+child.getModuleID()+(child.getWebURL() == null || getAction().toLowerCase().indexOf("started") == -1 ? "" : " @ "+child.getWebURL()),4, 72));
+                        DeployUtils.println("  `-> "+child.getModuleID()+(child.getWebURL() == null || getAction().toLowerCase().indexOf("started") == -1 ? "" : " @ "+child.getWebURL()),4, consoleReader);
                     }
                 } // Also print childs if existing in earlier configuration
                 else{
@@ -77,12 +77,12 @@ public class CommandStart extends AbstractCommand {
                         if(childs.getChildTargetModuleID() != null) {
                             for (int j = 0; j < childs.getChildTargetModuleID().length; j++) {
                                 TargetModuleID child = childs.getChildTargetModuleID()[j];
-                                consoleReader.printString(DeployUtils.reformat("  `-> "+child.getModuleID()+(child.getWebURL() == null || getAction().toLowerCase().indexOf("started") == -1 ? "" : " @ "+child.getWebURL()),4, 72));
+                                DeployUtils.println("  `-> "+child.getModuleID()+(child.getWebURL() == null || getAction().toLowerCase().indexOf("started") == -1 ? "" : " @ "+child.getWebURL()),4, consoleReader);
                             }
                         }
                     }
                 }
-                consoleReader.printNewline();
+//                consoleReader.printNewline();
             }
         } catch (IOException e) {
             throw new DeploymentException("could not write to console", e);

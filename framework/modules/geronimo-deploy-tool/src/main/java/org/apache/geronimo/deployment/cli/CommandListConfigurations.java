@@ -19,9 +19,12 @@ package org.apache.geronimo.deployment.cli;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Collection;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
+import java.util.TreeSet;
 
 import javax.enterprise.deploy.spi.DeploymentManager;
 import javax.security.auth.login.FailedLoginException;
@@ -58,7 +61,7 @@ public class CommandListConfigurations extends AbstractCommand {
                 } else {
                     repo = getRepository(consoleReader, mgr);
                 }
-                Map<String, List<PluginType>> categories = getPluginCategories(repo, mgr, consoleReader);
+                Map<String, Collection<PluginType>> categories = getPluginCategories(repo, mgr, consoleReader);
                 if (categories == null) {
                     return;
                 }
@@ -86,32 +89,28 @@ public class CommandListConfigurations extends AbstractCommand {
         int time = (int) (System.currentTimeMillis() - start) / 1000;
         consoleReader.printNewline();
         if (!results.isFailed()) {
-            consoleReader.printString(DeployUtils.reformat("**** Installation Complete!", 4, 72));
-            consoleReader.printNewline();
+            DeployUtils.println("**** Installation Complete!", 0, consoleReader);
 
             for (int i = 0; i < results.getDependenciesPresent().length; i++) {
                 Artifact uri = results.getDependenciesPresent()[i];
-                consoleReader.printString(DeployUtils.reformat("Used existing: " + uri, 4, 72));
-                consoleReader.printNewline();
+                DeployUtils.println("Used existing: " + uri, 0, consoleReader);
 
             }
             for (int i = 0; i < results.getDependenciesInstalled().length; i++) {
                 Artifact uri = results.getDependenciesInstalled()[i];
-                consoleReader.printString(DeployUtils.reformat("Installed new: " + uri, 4, 72));
-                consoleReader.printNewline();
+                DeployUtils.println("Installed new: " + uri, 0, consoleReader);
 
             }
             consoleReader.printNewline();
-            consoleReader.printString(DeployUtils.reformat(
+            DeployUtils.println(
                     "Downloaded " + (results.getTotalDownloadBytes() / 1024) + " kB in " + time + "s (" + results.getTotalDownloadBytes() / (1024 * time) + " kB/s)",
-                    4, 72));
-            consoleReader.printNewline();
+                    0, consoleReader);
 
         }
         if (results.isFinished() && !results.isFailed()) {
             for (PluginType plugin : list.getPlugin()) {
                 for (PluginArtifactType targetInstance : plugin.getPluginArtifact()) {
-                    consoleReader.printString(DeployUtils.reformat("Now starting " + PluginInstallerGBean.toArtifact(targetInstance.getModuleId()) + "...", 4, 72));
+                    DeployUtils.println("Now starting " + PluginInstallerGBean.toArtifact(targetInstance.getModuleId()) + "...", 0, consoleReader);
                     consoleReader.flushConsole();
                     new CommandStart().execute(consoleReader, connection,
                             new BaseCommandArgs(new String[]{PluginInstallerGBean.toArtifact(targetInstance.getModuleId()).toString()}));
@@ -120,32 +119,19 @@ public class CommandListConfigurations extends AbstractCommand {
         }
     }
 
-    public PluginListType getInstallList(Map<String, List<PluginType>> categories, ConsoleReader consoleReader, String repo) throws IOException {
+    public PluginListType getInstallList(Map<String, Collection<PluginType>> categories, ConsoleReader consoleReader, String repo) throws IOException {
         List<PluginType> available = new ArrayList<PluginType>();
-        for (Map.Entry<String, List<PluginType>> entry : categories.entrySet()) {
+        for (Map.Entry<String, Collection<PluginType>> entry : categories.entrySet()) {
             String category = entry.getKey();
-            if (category == null) {
-                category = "<no category>";
-            }
-            List<PluginType> items = entry.getValue();
+            Collection<PluginType> items = entry.getValue();
+            consoleReader.printString(category);
             consoleReader.printNewline();
-            consoleReader.printString(DeployUtils.reformat(category, 4, 72));
             for (PluginType metadata : items) {
-                consoleReader.printString("  " + metadata.getName());
                 for (PluginArtifactType instance : metadata.getPluginArtifact()) {
-                    String prefix;
-//                            if (!instance.isInstalled() && instance.isEligible()) {
                     PluginType copy = PluginInstallerGBean.copy(metadata, instance);
                     available.add(copy);
-                    prefix = Integer.toString(available.size());
-                    if (available.size() < 10) {
-                        prefix += " ";
-                    }
-                    prefix += ": ";
-//                            }
-                    consoleReader.printString(DeployUtils.reformat(
-                            prefix + " (" + instance.getModuleId().getVersion() + ")", 8, 72));
-                    consoleReader.printNewline();
+                    DeployUtils.printTo("  " + available.size() + ":  ", 10, consoleReader);
+                    DeployUtils.println(metadata.getName() + " (" + instance.getModuleId().getVersion() + ")", 0, consoleReader);
                 }
             }
         }
@@ -156,7 +142,6 @@ public class CommandListConfigurations extends AbstractCommand {
             return null;
         }
         consoleReader.printNewline();
-//                consoleReader.print("Install Service [enter number or 'q' to quit]: ");
         consoleReader.flushConsole();
         String answer = consoleReader.readLine("Install Services [enter a comma separated list of numbers or 'q' to quit]: ").trim();
         if (answer.equalsIgnoreCase("q")) {
@@ -172,7 +157,7 @@ public class CommandListConfigurations extends AbstractCommand {
         return list;
     }
 
-    public Map<String, List<PluginType>> getPluginCategories(String repo, GeronimoDeploymentManager mgr, ConsoleReader consoleReader) throws DeploymentException, IOException {
+    public Map<String, Collection<PluginType>> getPluginCategories(String repo, GeronimoDeploymentManager mgr, ConsoleReader consoleReader) throws DeploymentException, IOException {
         PluginListType data;
         URL repository;
         try {
@@ -190,12 +175,22 @@ public class CommandListConfigurations extends AbstractCommand {
             consoleReader.flushConsole();
             return null;
         }
-        Map<String, List<PluginType>> categories = new HashMap<String, List<PluginType>>();
+        Map<String, Collection<PluginType>> categories = new TreeMap<String, Collection<PluginType>>();
+        Comparator<PluginType> comp = new Comparator<PluginType>() {
+
+            public int compare(PluginType o1, PluginType o2) {
+                return o1.getName().compareTo(o2.getName());
+            }
+        };
         for (PluginType metadata : data.getPlugin()) {
-            List<PluginType> list = categories.get(metadata.getCategory());
+            String category = metadata.getCategory();
+            if (category == null) {
+                category = "<no category>";
+            }
+            Collection<PluginType> list = categories.get(category);
             if (list == null) {
-                list = new ArrayList<PluginType>();
-                categories.put(metadata.getCategory(), list);
+                list = new TreeSet<PluginType>(comp);
+                categories.put(category, list);
             }
             list.add(metadata);
         }
@@ -214,12 +209,9 @@ public class CommandListConfigurations extends AbstractCommand {
         consoleReader.printNewline();
         for (int i = 0; i < all.length; i++) {
             URL url = all[i];
-            consoleReader.printString("  " + (i + 1) + ". " + url);
-            consoleReader.printNewline();
+            DeployUtils.printTo("  " + (i + 1) + ". ", 8, consoleReader);
+            DeployUtils.println(url.toString(), 0, consoleReader);
         }
-        consoleReader.printNewline();
-//        consoleReader.print("Enter Repository Number: ");
-        consoleReader.flushConsole();
         String entry = consoleReader.readLine("Enter Repository Number: ").trim();
         int index = Integer.parseInt(entry);
         return all[index - 1].toString();

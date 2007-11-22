@@ -97,6 +97,27 @@
                 </command>
             </nodes>
         </group>
+        
+        <group>
+            <name>deploy</name>
+
+            <nodes>
+                <command>
+                    <name>connect</name>
+                    <id>geronimo-commands:connect</id>
+                </command>
+
+                <command>
+                    <name>list-plugins</name>
+                    <id>geronimo-commands:list-plugins</id>
+                </command>
+
+                <command>
+                    <name>disconnect</name>
+                    <id>geronimo-commands:disconnect</id>
+                </command>
+            </nodes>
+        </group>
 
     </nodes>
 </layout>

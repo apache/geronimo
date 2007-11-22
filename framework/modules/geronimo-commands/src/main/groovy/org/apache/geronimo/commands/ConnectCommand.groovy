@@ -19,6 +19,7 @@
 
 package org.apache.geronimo.commands
 
+import org.apache.geronimo.gshell.clp.Option
 import org.apache.geronimo.gshell.command.annotation.CommandComponent
 import org.apache.geronimo.gshell.command.CommandSupport
 import org.apache.geronimo.deployment.cli.ServerConnection
@@ -33,20 +34,21 @@ import java.util.Collections
  *
  * @version $Rev: 580864 $ $Date: 2007-09-30 23:47:39 -0700 (Sun, 30 Sep 2007) $
  */
-@CommandComponent(id='connect')
+@CommandComponent(id='geronimo-commands:connect', description="Connect to a Geronimo server")
 class ConnectCommand
     extends CommandSupport
 {
-    //
-    // TODO: Expose as options, maybe expose a single URI-ish thingy?
-    //
 
+    @Option(name='-s', aliases=['--hostname', '--server'], description='Hostname, default localhost')
     String hostname = 'localhost'
 
+    @Option(name='-p', aliases=['--port'], description='port, default 1099')
     int port = 1099
 
+    @Option(name='-u', aliases=['--username'], description='username')
     String username = 'system'
 
+    @Option(name='-w', aliases=['--password'], description='password')
     String password = 'manager'
 
     protected Object doExecute() throws Exception {

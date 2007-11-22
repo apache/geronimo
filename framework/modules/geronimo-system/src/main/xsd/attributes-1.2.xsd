@@ -78,6 +78,7 @@
             </xsd:documentation>
         </xsd:annotation>
     </xsd:element>
+    <xsd:element name="comment" type="xsd:string"/>
 
     <xsd:complexType name="attributesType">
         <xsd:sequence>
