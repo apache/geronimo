@@ -49,6 +49,7 @@ public class WrappingLoginModule implements LoginModule {
     private final Subject localSubject = new Subject();
     private Subject subject;
     private LoginModule delegate;
+    private final Set<Principal> wrapped = new HashSet<Principal>();
 
 
     public WrappingLoginModule() {
@@ -78,12 +79,11 @@ public class WrappingLoginModule implements LoginModule {
     public boolean commit() throws LoginException {
         boolean result = delegate.commit();
 
-        Set<Principal> wrapped = new HashSet<Principal>();
         for (Principal principal: localSubject.getPrincipals()) {
             wrapped.add(new DomainPrincipal(loginDomainName, principal));
             wrapped.add(new RealmPrincipal(realmName, loginDomainName, principal));
         }
-        localSubject.getPrincipals().addAll(wrapped);
+        subject.getPrincipals().addAll(wrapped);
         subject.getPrincipals().addAll(localSubject.getPrincipals());
         subject.getPrivateCredentials().addAll(localSubject.getPrivateCredentials());
         subject.getPublicCredentials().addAll(localSubject.getPublicCredentials());
@@ -91,11 +91,18 @@ public class WrappingLoginModule implements LoginModule {
     }
 
     public boolean logout() throws LoginException {
-        subject.getPrincipals().removeAll(localSubject.getPrincipals());
-        boolean result = delegate.logout();
-                                             
-        localSubject.getPrincipals().clear();
-
-        return result;
+        if(!subject.isReadOnly()) {
+            subject.getPrincipals().removeAll(wrapped);
+            subject.getPrincipals().removeAll(localSubject.getPrincipals());
+            subject.getPrivateCredentials().removeAll(localSubject.getPrivateCredentials());
+            subject.getPublicCredentials().removeAll(localSubject.getPublicCredentials());
+            wrapped.clear();
+        } else {
+            wrapped.clear();
+            localSubject.getPrincipals().clear();
+            localSubject.setReadOnly(); // This will ensure that credentails are destroyed by the delegate's logout method
+        }
+        
+        return delegate.logout();
     }
 }
