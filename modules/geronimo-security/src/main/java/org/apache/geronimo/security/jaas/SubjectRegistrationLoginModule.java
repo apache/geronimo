@@ -32,16 +32,12 @@ import org.apache.geronimo.security.SubjectId;
 import org.apache.geronimo.security.IdentificationPrincipal;
 
 /**
-<<<<<<< .working
- * @version $Rev$ $Date$
-=======
  * SubjectRegistrationLoginModule registers the Subject with geronimo and adds an identification principal.
  *
  * This login module does not check credentials so it should never be able to cause a login to succeed.
  * Therefore the lifecycle methods must return false to indicate success or throw a LoginException to indicate failure.
  *
  * @version $Rev$ $Date$
->>>>>>> .merge-right.r565912
  */
 public class SubjectRegistrationLoginModule implements LoginModule {
 
