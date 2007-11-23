@@ -104,11 +104,10 @@ public class NamedUPCredentialLoginModule implements LoginModule {
 
         if (nupCredential == null) return false;
 
-        Set pvtCreds = subject.getPrivateCredentials(NamedUsernamePasswordCredential.class);
-        if (pvtCreds.contains(nupCredential)) {
-            pvtCreds.remove(nupCredential);
+        if(!subject.isReadOnly()) {
+            subject.getPrivateCredentials().remove(nupCredential);
         }
-
+        
         try {
             nupCredential.destroy();
         } catch (DestroyFailedException e) {
