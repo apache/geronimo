@@ -179,4 +179,6 @@ public interface PluginInstaller {
     public Dependency[] checkPrerequisites(PluginType plugin);
 
     PluginListType createPluginListForRepositories(ConfigurationManager mgr, String repo) throws NoSuchStoreException;
+
+    public Artifact installLibrary(File libFile, String groupId) throws IOException;
 }

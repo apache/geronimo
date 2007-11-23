@@ -60,7 +60,7 @@ public abstract class JMXDeploymentManager implements DeploymentManager {
 
     protected Kernel kernel;
     private ConfigurationManager configurationManager;
-    private CommandContext commandContext;
+    protected CommandContext commandContext;
     private final Collection<ModuleConfigurer> moduleConfigurers;
 
     public JMXDeploymentManager(Collection<ModuleConfigurer> moduleConfigurers) {

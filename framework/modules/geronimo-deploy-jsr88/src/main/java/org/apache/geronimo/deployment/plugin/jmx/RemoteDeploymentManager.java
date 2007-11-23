@@ -52,6 +52,7 @@ import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
+import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.config.ConfigurationManager;
 import org.apache.geronimo.kernel.config.NoSuchStoreException;
 import org.apache.geronimo.kernel.repository.Artifact;
@@ -306,6 +307,31 @@ public class RemoteDeploymentManager extends JMXDeploymentManager implements Ger
             kernel.getProxyManager().destroyProxy(repo);
         }
         return list.toArray(new URL[list.size()]);
+    }
+
+    public Artifact installLibrary(File libFile, String groupId) throws IOException {
+        File[] args = new File[]{libFile};
+        if(!isSameMachine) {
+            AbstractDeployCommand progress = new AbstractDeployCommand(CommandType.DISTRIBUTE, kernel, null, null, null, null, null, false) {
+                public void run() {
+                }
+            };
+            progress.addProgressListener(new ProgressListener() {
+                public void handleProgressEvent(ProgressEvent event) {
+                    log.info(event.getDeploymentStatus().getMessage());
+                }
+            });
+            progress.setCommandContext(commandContext);
+            RemoteDeployUtil.uploadFilesToServer(args, progress);
+        }
+        Set<AbstractName> set = kernel.listGBeans(new AbstractNameQuery(PluginInstaller.class.getName()));
+        for (AbstractName name : set) {
+            PluginInstaller installer = (PluginInstaller) kernel.getProxyManager().createProxy(name, PluginInstaller.class);
+            Artifact artifact = (Artifact) installer.installLibrary(libFile, groupId);
+            kernel.getProxyManager().destroyProxy(installer);
+            return artifact;
+        }
+        return null;
     }
 
     public static final GBeanInfo GBEAN_INFO;
