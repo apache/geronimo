@@ -53,6 +53,7 @@ import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
+import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.system.jmx.KernelDelegate;
 import org.apache.geronimo.system.plugin.DownloadPoller;
@@ -285,6 +286,32 @@ public class RemoteDeploymentManager extends JMXDeploymentManager implements Ger
         return (URL[]) list.toArray(new URL[list.size()]);
     }
     
+    public Artifact installLibrary(File libFile, String groupId) throws IOException {
+        File[] args = new File[]{libFile};
+        if(!isSameMachine) {
+            AbstractDeployCommand progress = new AbstractDeployCommand(CommandType.DISTRIBUTE, kernel, null, null, null, null, null, false) {
+                public void run() {
+                }
+            };
+            progress.addProgressListener(new ProgressListener() {
+                public void handleProgressEvent(ProgressEvent event) {
+                    log.info(event.getDeploymentStatus().getMessage());
+                }
+            });
+            progress.setCommandContext(commandContext);
+            RemoteDeployUtil.uploadFilesToServer(args, progress);
+        }
+        Set set = kernel.listGBeans(new AbstractNameQuery(PluginInstaller.class.getName()));
+        for (Iterator it = set.iterator(); it.hasNext();) {
+            AbstractName name = (AbstractName) it.next();
+            PluginInstaller installer = (PluginInstaller) kernel.getProxyManager().createProxy(name, PluginInstaller.class);
+            Artifact artifact = (Artifact) installer.installLibrary(libFile, groupId);
+            kernel.getProxyManager().destroyProxy(installer);
+            return artifact;
+        }
+        return null;
+    }
+
     public static final GBeanInfo GBEAN_INFO;
     public static final String GBEAN_REF_MODULE_CONFIGURERS = "ModuleConfigurers";
     

@@ -44,6 +44,8 @@ import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.jar.JarOutputStream;
 import java.util.jar.Manifest;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.zip.ZipEntry;
 import javax.security.auth.login.FailedLoginException;
 import javax.xml.parsers.DocumentBuilder;
@@ -109,6 +111,9 @@ public class PluginInstallerGBean implements PluginInstaller {
     private Map asyncKeys;
     private ThreadPool threadPool;
     private PluginAttributeStore attributeStore;
+
+    // This regular expression for repository filename is taken from Maven1Repository.MAVEN_1_PATTERN
+    private static final Pattern MAVEN_1_PATTERN_PART = Pattern.compile("(.+)-([0-9].+)\\.([^0-9]+)");
 
     public PluginInstallerGBean(ConfigurationManager configManager, WritableListableRepository repository, ConfigurationStore configStore, ServerInfo serverInfo, ThreadPool threadPool, PluginAttributeStore store) {
         this.configManager = configManager;
@@ -2138,5 +2143,21 @@ public class PluginInstallerGBean implements PluginInstaller {
 
     public static GBeanInfo getGBeanInfo() {
         return GBEAN_INFO;
+    }
+
+    public Artifact installLibrary(File libFile, String groupId) throws IOException {
+        String artifactId = null, version = null, type = null;
+        Matcher matcher = MAVEN_1_PATTERN_PART.matcher("");
+        matcher.reset(libFile.getName());
+        if(matcher.matches()) {
+            artifactId = matcher.group(1);
+            version = matcher.group(2);
+            type = matcher.group(3);
+        } else {
+            throw new IllegalArgumentException("Filename "+libFile.getName()+" is not in the form <artifact>-<version>.<type>, for e.g. mylib-1.0.jar.");
+        }
+        Artifact artifact = new Artifact(groupId != null ? groupId : Artifact.DEFAULT_GROUP_ID, artifactId, version, type);
+        writeableRepo.copyToRepository(libFile, artifact, null);
+        return artifact;
     }
 }

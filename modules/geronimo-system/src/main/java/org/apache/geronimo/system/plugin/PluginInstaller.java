@@ -153,4 +153,10 @@ public interface PluginInstaller {
      * @param key Identifies the operation to check on
      */
     public DownloadResults checkOnInstall(Object key);
+    
+    /**
+     * @throws IOException 
+     * 
+     */
+    public Artifact installLibrary(File libFile, String groupId) throws IOException;
 }
