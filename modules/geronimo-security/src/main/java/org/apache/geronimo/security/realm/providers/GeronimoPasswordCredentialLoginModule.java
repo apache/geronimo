@@ -18,6 +18,8 @@
 package org.apache.geronimo.security.realm.providers;
 
 import java.util.Map;
+
+import javax.security.auth.DestroyFailedException;
 import javax.security.auth.Subject;
 import javax.security.auth.callback.Callback;
 import javax.security.auth.callback.CallbackHandler;
@@ -62,22 +64,45 @@ public class GeronimoPasswordCredentialLoginModule implements LoginModule {
         } catch (UnsupportedCallbackException e) {
             throw (LoginException) new LoginException("Unlikely UnsupportedCallbackException").initCause(e);
         }
-        geronimoPasswordCredential = new GeronimoPasswordCredential(((NameCallback) callbacks[0]).getName(),
-                                                                    ((PasswordCallback) callbacks[1]).getPassword());
+        String username = ((NameCallback) callbacks[0]).getName();
+        char[] password = ((PasswordCallback) callbacks[1]).getPassword();
+
+        if (username == null || password == null) return false;
+        geronimoPasswordCredential = new GeronimoPasswordCredential(username, password);
         return false;
     }
 
     public boolean commit() throws LoginException {
-        subject.getPrivateCredentials().add(geronimoPasswordCredential);
+        if(geronimoPasswordCredential != null) {
+            subject.getPrivateCredentials().add(geronimoPasswordCredential);
+        }
         return false;
     }
 
     public boolean abort() throws LoginException {
-        geronimoPasswordCredential = null;
+        if(geronimoPasswordCredential != null) {
+            try {
+                geronimoPasswordCredential.destroy();
+            } catch (DestroyFailedException e) {
+                // do nothing
+            }
+            geronimoPasswordCredential = null;
+        }
         return false;
     }
 
     public boolean logout() throws LoginException {
+        if(geronimoPasswordCredential == null) {
+            return false;
+        }
+        if(!subject.isReadOnly()) {
+            subject.getPrivateCredentials().remove(geronimoPasswordCredential);
+        }
+        try {
+            geronimoPasswordCredential.destroy();
+        } catch (DestroyFailedException e) {
+            // do nothing
+        }
         geronimoPasswordCredential = null;
         return false;
     }
