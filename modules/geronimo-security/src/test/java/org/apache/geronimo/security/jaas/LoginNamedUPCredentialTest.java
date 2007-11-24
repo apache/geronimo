@@ -54,10 +54,10 @@ public class LoginNamedUPCredentialTest extends AbstractLoginModuleTest {
         Subject subject = context.getSubject();
 
         assertTrue("expected non-null subject", subject != null);
-        assertEquals("subject should have 0 principals upon login", 0, subject.getPrincipals().size());
-        assertEquals("subject should have 1 private credential upon login", 1, subject.getPrivateCredentials().size());
-        assertEquals("subject should have 1 NamedUsernamePasswordCredential private credential upon login", 1, subject.getPrivateCredentials(NamedUsernamePasswordCredential.class).size());
-        assertEquals("subject should have 0 public credentials upon login", 0, subject.getPublicCredentials().size());
+        assertEquals("Principals", 0, subject.getPrincipals().size());
+        assertEquals("Private credentials", 1, subject.getPrivateCredentials().size());
+        assertEquals("NamedUsernamePasswordCredential private credentials", 1, subject.getPrivateCredentials(NamedUsernamePasswordCredential.class).size());
+        assertEquals("Public credentials", 0, subject.getPublicCredentials().size());
         NamedUsernamePasswordCredential namedupc = (NamedUsernamePasswordCredential) subject.getPrivateCredentials().toArray()[0];
         assertEquals("Credential name", credname, namedupc.getName());
         assertEquals("Username", username, namedupc.getUsername());
@@ -65,7 +65,7 @@ public class LoginNamedUPCredentialTest extends AbstractLoginModuleTest {
 
         context.logout();
 
-        assertEquals("subject should have no private credentials upon logout", 0, subject.getPrivateCredentials().size());
+        assertEquals("Private credentials upon logout", 0, subject.getPrivateCredentials().size());
         assertTrue("id of server subject should be null", ContextManager.getSubjectId(subject) == null);
     }
 
@@ -76,9 +76,9 @@ public class LoginNamedUPCredentialTest extends AbstractLoginModuleTest {
         Subject subject = context.getSubject();
 
         assertTrue("expected non-null subject", subject != null);
-        assertEquals("subject should have 0 principals upon login", 0, subject.getPrincipals().size());
-        assertEquals("subject should have 0 private credential upon login", 0, subject.getPrivateCredentials().size());
-        assertEquals("subject should have 0 public credentials upon login", 0, subject.getPublicCredentials().size());
+        assertEquals("Principals", 0, subject.getPrincipals().size());
+        assertEquals("Private credentials", 0, subject.getPrivateCredentials().size());
+        assertEquals("Public credentials", 0, subject.getPublicCredentials().size());
 
         context.logout();
     }
@@ -94,9 +94,9 @@ public class LoginNamedUPCredentialTest extends AbstractLoginModuleTest {
         Subject subject = context.getSubject();
 
         assertTrue("expected non-null subject", subject != null);
-        assertEquals("subject should have 0 principals upon login", 0, subject.getPrincipals().size());
-        assertEquals("subject should have 0 private credential upon login", 0, subject.getPrivateCredentials().size());
-        assertEquals("subject should have 0 public credentials upon login", 0, subject.getPublicCredentials().size());
+        assertEquals("Principals", 0, subject.getPrincipals().size());
+        assertEquals("Private credentials", 0, subject.getPrivateCredentials().size());
+        assertEquals("Public credentials", 0, subject.getPublicCredentials().size());
 
         context.logout();
     }
@@ -118,10 +118,13 @@ public class LoginNamedUPCredentialTest extends AbstractLoginModuleTest {
         assertTrue("expected non-null subject", subject != null);
 
         subject.setReadOnly();
-        
-        context.logout();
 
+        try {
+            context.logout();
+        } catch(Exception e) {
+            fail("logout failed");
+        }
         NamedUsernamePasswordCredential namedupc = (NamedUsernamePasswordCredential) subject.getPrivateCredentials().toArray()[0];
-        assertTrue("credential should have been destroyed ", namedupc.isDestroyed());
+        assertTrue("credential should have been destroyed", namedupc.isDestroyed());
     }
 }
