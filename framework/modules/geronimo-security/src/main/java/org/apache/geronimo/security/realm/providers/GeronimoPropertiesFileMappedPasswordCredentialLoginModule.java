@@ -22,13 +22,17 @@ package org.apache.geronimo.security.realm.providers;
 
 import java.io.InputStream;
 import java.net.URI;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import javax.security.auth.DestroyFailedException;
 import javax.security.auth.Subject;
 import javax.security.auth.callback.Callback;
 import javax.security.auth.callback.CallbackHandler;
@@ -42,6 +46,7 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.common.GeronimoSecurityException;
 import org.apache.geronimo.security.jaas.JaasLoginModuleUse;
 import org.apache.geronimo.security.jaas.NamedUsernamePasswordCredential;
+import org.apache.geronimo.security.jaas.WrappingLoginModule;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
 
 /**
@@ -67,10 +72,12 @@ public class GeronimoPropertiesFileMappedPasswordCredentialLoginModule implement
 
     private static final Log log = LogFactory.getLog(GeronimoPropertiesFileMappedPasswordCredentialLoginModule.class);
     public final static String CREDENTIALS_URI = "credentialsURI";
+    public final static List<String> supportedOptions = Collections.unmodifiableList(Arrays.asList(CREDENTIALS_URI));
     private final static Pattern pattern = Pattern.compile("([^:,=]*):([^:,=]*)=([^:,=]*)");
 
     private final Set<NamedUsernamePasswordCredential> passwordCredentials = new HashSet<NamedUsernamePasswordCredential>();
     private final Properties credentials = new Properties();
+    private String userName;
 
     private Subject subject;
     private CallbackHandler callbackHandler;
@@ -78,6 +85,12 @@ public class GeronimoPropertiesFileMappedPasswordCredentialLoginModule implement
     public void initialize(Subject subject, CallbackHandler callbackHandler, Map sharedState, Map options) {
         this.subject = subject;
         this.callbackHandler = callbackHandler;
+        for(Object option: options.keySet()) {
+            if(!supportedOptions.contains(option) && !JaasLoginModuleUse.supportedOptions.contains(option)
+                    && !WrappingLoginModule.supportedOptions.contains(option)) {
+                log.warn("Ignoring option: "+option+". Not supported.");
+            }
+        }
         try {
             ServerInfo serverInfo = (ServerInfo) options.get(JaasLoginModuleUse.SERVERINFO_LM_OPTION);
             final String credentials = (String) options.get(CREDENTIALS_URI);
@@ -114,11 +127,7 @@ public class GeronimoPropertiesFileMappedPasswordCredentialLoginModule implement
         } catch (UnsupportedCallbackException e) {
             throw (LoginException) new LoginException("Unlikely UnsupportedCallbackException").initCause(e);
         }
-        String userName = ((NameCallback) callbacks[0]).getName();
-        String unparsedCredentials = credentials.getProperty(userName);
-        if (unparsedCredentials != null) {
-            parseCredentials(unparsedCredentials, passwordCredentials);
-        }
+        userName = ((NameCallback) callbacks[0]).getName();
         return false;
     }
 
@@ -134,16 +143,40 @@ public class GeronimoPropertiesFileMappedPasswordCredentialLoginModule implement
     }
 
     public boolean commit() throws LoginException {
+        String unparsedCredentials = credentials.getProperty(userName);
+        if (unparsedCredentials != null) {
+            parseCredentials(unparsedCredentials, passwordCredentials);
+        }
         subject.getPrivateCredentials().addAll(passwordCredentials);
+        
+        userName = null;
         return false;
     }
 
     public boolean abort() throws LoginException {
+        userName = null;
+        for(NamedUsernamePasswordCredential credential : passwordCredentials) {
+            try{
+                credential.destroy();
+            } catch (DestroyFailedException e) {
+                // do nothing
+            }
+        }
         passwordCredentials.clear();
         return false;
     }
 
     public boolean logout() throws LoginException {
+        if(!subject.isReadOnly()) {
+            subject.getPrivateCredentials().removeAll(passwordCredentials);
+        }
+        for(NamedUsernamePasswordCredential credential : passwordCredentials) {
+            try{
+                credential.destroy();
+            } catch (DestroyFailedException e) {
+                // do nothing
+            }
+        }
         passwordCredentials.clear();
         return false;
     }
