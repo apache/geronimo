@@ -17,6 +17,9 @@
 package org.apache.geronimo.security.jaas;
 
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import javax.security.auth.DestroyFailedException;
@@ -28,6 +31,9 @@ import javax.security.auth.callback.PasswordCallback;
 import javax.security.auth.callback.UnsupportedCallbackException;
 import javax.security.auth.login.LoginException;
 import javax.security.auth.spi.LoginModule;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 
 /**
@@ -42,8 +48,10 @@ import javax.security.auth.spi.LoginModule;
  * @version $Revision$ $Date$
  */
 public class NamedUPCredentialLoginModule implements LoginModule {
+    private static Log log = LogFactory.getLog(NamedUPCredentialLoginModule.class);
 
     public static final String CREDENTIAL_NAME = "org.apache.geronimo.jaas.NamedUPCredentialLoginModule.Name";
+    public final static List<String> supportedOptions = Collections.unmodifiableList(Arrays.asList(CREDENTIAL_NAME));
 
     private String name;
     private Subject subject;
@@ -51,9 +59,14 @@ public class NamedUPCredentialLoginModule implements LoginModule {
     private NamedUsernamePasswordCredential nupCredential;
 
     public void initialize(Subject subject, CallbackHandler callbackHandler, Map sharedState, Map options) {
-
         this.subject = subject;
         this.callbackHandler = callbackHandler;
+        for(Object option: options.keySet()) {
+            if(!supportedOptions.contains(option) && !JaasLoginModuleUse.supportedOptions.contains(option)
+                    && !WrappingLoginModule.supportedOptions.contains(option)) {
+                log.warn("Ignoring option: "+option+". Not supported.");
+            }
+        }
         this.name = (String) options.get(CREDENTIAL_NAME);
     }
 

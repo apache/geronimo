@@ -17,6 +17,8 @@
 
 package org.apache.geronimo.security.realm.providers;
 
+import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 
 import javax.security.auth.DestroyFailedException;
@@ -28,6 +30,11 @@ import javax.security.auth.callback.PasswordCallback;
 import javax.security.auth.callback.UnsupportedCallbackException;
 import javax.security.auth.login.LoginException;
 import javax.security.auth.spi.LoginModule;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.apache.geronimo.security.jaas.JaasLoginModuleUse;
+import org.apache.geronimo.security.jaas.WrappingLoginModule;
 
 
 /**
@@ -41,6 +48,11 @@ import javax.security.auth.spi.LoginModule;
  * @version $Rev$ $Date$
  */
 public class GeronimoPasswordCredentialLoginModule implements LoginModule {
+    private static Log log = LogFactory.getLog(GeronimoPasswordCredentialLoginModule.class);
+
+    // Note: If this LoginModule supports any options, the Collections.EMPTY_LIST in the following should be
+    // replaced with the list of supported options for e.g. Arrays.asList(option1, option2, ...) etc.
+    public final static List<String> supportedOptions = Collections.unmodifiableList(Collections.EMPTY_LIST);
 
     private Subject subject;
     private CallbackHandler callbackHandler;
@@ -51,6 +63,12 @@ public class GeronimoPasswordCredentialLoginModule implements LoginModule {
                            Map sharedState, Map options) {
         this.subject = subject;
         this.callbackHandler = callbackHandler;
+        for(Object option: options.keySet()) {
+            if(!supportedOptions.contains(option) && !JaasLoginModuleUse.supportedOptions.contains(option)
+                    && !WrappingLoginModule.supportedOptions.contains(option)) {
+                log.warn("Ignoring option: "+option+". Not supported.");
+            }
+        }
     }
 
     public boolean login() throws LoginException {
