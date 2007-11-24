@@ -172,4 +172,21 @@ public class LoginSQLTest extends AbstractLoginModuleTest {
         assertEquals("Principals added upon failed login", 0, subject.getPrincipals().size());
         context.logout();
     }
+
+    public void testLogoutWithReadOnlySubject() throws Exception {
+        LoginContext context = new LoginContext(SIMPLE_REALM, new UsernamePasswordCallback("alan", "starcraft"));
+
+        context.login();
+        Subject subject = context.getSubject();
+
+        assertTrue("expected non-null subject", subject != null);
+
+        subject.setReadOnly();
+
+        try {
+            context.logout();
+        } catch(Exception e) {
+            fail("logout failed");
+        }
+    }
 }

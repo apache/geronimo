@@ -17,23 +17,18 @@
 
 package org.apache.geronimo.security.jaas;
 
-import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.management.MalformedObjectNameException;
 import javax.security.auth.Subject;
 import javax.security.auth.login.LoginContext;
 import javax.security.auth.login.LoginException;
-import javax.management.MalformedObjectNameException;
 
-import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.security.AbstractTest;
 import org.apache.geronimo.security.ContextManager;
-import org.apache.geronimo.security.DomainPrincipal;
 import org.apache.geronimo.security.IdentificationPrincipal;
-import org.apache.geronimo.security.RealmPrincipal;
-import org.apache.geronimo.security.realm.GenericSecurityRealm;
 
 
 /**
@@ -121,4 +116,20 @@ public class LoginPropertiesFileTest extends AbstractLoginModuleTest {
         context.logout();
     }
 
+    public void testLogoutWithReadOnlySubject() throws Exception {
+        LoginContext context = new LoginContext(SIMPLE_REALM, new UsernamePasswordCallback("alan", "starcraft"));
+
+        context.login();
+        Subject subject = context.getSubject();
+
+        assertTrue("expected non-null subject", subject != null);
+
+        subject.setReadOnly();
+
+        try {
+            context.logout();
+        } catch(Exception e) {
+            fail("logout failed");
+        }
+    }
 }

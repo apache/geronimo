@@ -20,15 +20,13 @@
 
 package org.apache.geronimo.security.jaas;
 
-import javax.management.MalformedObjectNameException;
-
 import org.apache.geronimo.security.AbstractTest;
 import org.apache.geronimo.security.realm.GenericSecurityRealm;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.AbstractName;
 
 /**
- * @version $Rev:$ $Date:$
+ * @version $Rev$ $Date$
  */
 public abstract class AbstractLoginModuleTest extends AbstractTest {
     protected static final String SIMPLE_REALM = "simple-realm";
@@ -135,4 +133,6 @@ public abstract class AbstractLoginModuleTest extends AbstractTest {
     public abstract void testBadPasswordLogin() throws Exception;
 
     public abstract void testNoPrincipalsAddedOnFailure() throws Exception;
+    
+    public abstract void testLogoutWithReadOnlySubject() throws Exception;
 }
