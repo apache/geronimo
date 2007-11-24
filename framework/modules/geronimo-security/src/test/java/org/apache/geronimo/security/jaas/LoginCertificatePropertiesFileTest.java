@@ -137,4 +137,20 @@ public class LoginCertificatePropertiesFileTest extends AbstractLoginModuleTest 
         context.logout();
     }
 
+    public void testLogoutWithReadOnlySubject() throws Exception {
+        LoginContext context = new LoginContext(SIMPLE_REALM, new CertCallback(cert));
+
+        context.login();
+        Subject subject = context.getSubject();
+
+        assertTrue("expected non-null subject", subject != null);
+
+        subject.setReadOnly();
+
+        try {
+            context.logout();
+        } catch(Exception e) {
+            fail("logout failed");
+        }
+    }
 }
