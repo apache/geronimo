@@ -17,29 +17,26 @@
 
 package org.apache.geronimo.security.jaas;
 
-import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.management.MalformedObjectNameException;
 import javax.security.auth.Subject;
 import javax.security.auth.login.LoginContext;
 import javax.security.auth.login.LoginException;
-import javax.management.MalformedObjectNameException;
 
-import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.security.AbstractTest;
 import org.apache.geronimo.security.ContextManager;
 import org.apache.geronimo.security.DomainPrincipal;
 import org.apache.geronimo.security.IdentificationPrincipal;
 import org.apache.geronimo.security.RealmPrincipal;
-import org.apache.geronimo.security.realm.GenericSecurityRealm;
 
 
 /**
  * @version $Rev$ $Date$
  */
-public class LoginPropertiesFileTest extends AbstractLoginModuleTest {
+public class WrappingLoginModuleTest extends AbstractLoginModuleTest {
 
     protected GBeanData setupTestLoginModule() throws MalformedObjectNameException {
         GBeanData gbean;
@@ -50,7 +47,7 @@ public class LoginPropertiesFileTest extends AbstractLoginModuleTest {
         props.put("groupsURI", "src/test/data/data/groups.properties");
         gbean.setAttribute("options", props);
         gbean.setAttribute("loginDomainName", "TestProperties");
-        gbean.setAttribute("wrapPrincipals", Boolean.FALSE);
+        gbean.setAttribute("wrapPrincipals", Boolean.TRUE); // wrapPrincipals should be true for this test.
         return gbean;
     }
 
@@ -63,7 +60,9 @@ public class LoginPropertiesFileTest extends AbstractLoginModuleTest {
 
         assertTrue("expected non-null subject", subject != null);
         assertEquals("Remote principals", 0, subject.getPrincipals(IdentificationPrincipal.class).size());
-        assertEquals("Principals", 2, subject.getPrincipals().size());
+        assertEquals("Principals", 6, subject.getPrincipals().size());
+        assertEquals("Realm principals", 2, subject.getPrincipals(RealmPrincipal.class).size());
+        assertEquals("Domain principals", 2, subject.getPrincipals(DomainPrincipal.class).size());
 
         context.logout();
         assertEquals("Principals upon logout", 0, subject.getPrincipals().size());
@@ -117,8 +116,7 @@ public class LoginPropertiesFileTest extends AbstractLoginModuleTest {
         context.login();
         Subject subject = context.getSubject();
         assertTrue("expected non-null subject", subject != null);
-        assertEquals("Principals added upon failed login", 0, subject.getPrincipals().size());
+        assertTrue("expected zero principals", subject.getPrincipals().size() == 0);
         context.logout();
     }
-
 }

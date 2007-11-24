@@ -30,9 +30,7 @@ import javax.security.auth.login.LoginException;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.security.ContextManager;
-import org.apache.geronimo.security.DomainPrincipal;
 import org.apache.geronimo.security.IdentificationPrincipal;
-import org.apache.geronimo.security.RealmPrincipal;
 
 
 /**
@@ -80,7 +78,7 @@ public class LoginCertificatePropertiesFileTest extends AbstractLoginModuleTest 
         props.put("groupsURI", "src/test/data/data/groups.properties");
         gbean.setAttribute("options", props);
         gbean.setAttribute("loginDomainName", "CertProperties");
-        gbean.setAttribute("wrapPrincipals", Boolean.TRUE);
+        gbean.setAttribute("wrapPrincipals", Boolean.FALSE);
         return gbean;
     }
 
@@ -92,14 +90,12 @@ public class LoginCertificatePropertiesFileTest extends AbstractLoginModuleTest 
         Subject subject = context.getSubject();
 
         assertTrue("expected non-null subject", subject != null);
-        assertTrue("subject should have no remote principal", subject.getPrincipals(IdentificationPrincipal.class).size() == 0);
-        assertEquals("subject should have 9 principals (" + subject.getPrincipals().size() + ")", 9, subject.getPrincipals().size());
-        assertEquals("subject should have 3 realm principals (" + subject.getPrincipals(RealmPrincipal.class).size() + ")", 3, subject.getPrincipals(RealmPrincipal.class).size());
-        assertEquals("subject should have 3 domain principals (" + subject.getPrincipals(DomainPrincipal.class).size() + ")", 3, subject.getPrincipals(DomainPrincipal.class).size());
+        assertEquals("Remote principals", 0, subject.getPrincipals(IdentificationPrincipal.class).size());
+        assertEquals("Principals", 3, subject.getPrincipals().size());
 
         context.logout();
-        assertEquals("subject should have no principals (" + subject.getPrincipals().size() + ")", 0, subject.getPrincipals().size());
-
+        assertEquals("Principals upon logout", 0, subject.getPrincipals().size());
+ 
         assertTrue("id of server subject should be null", ContextManager.getSubjectId(subject) == null);
     }
 
@@ -137,7 +133,7 @@ public class LoginCertificatePropertiesFileTest extends AbstractLoginModuleTest 
         context.login();
         Subject subject = context.getSubject();
         assertTrue("expected non-null subject", subject != null);
-        assertEquals("expected zero principals", 0, subject.getPrincipals().size());
+        assertEquals("Principals added upon failed login", 0, subject.getPrincipals().size());
         context.logout();
     }
 

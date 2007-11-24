@@ -29,8 +29,8 @@ import javax.security.auth.login.LoginContext;
 import javax.security.auth.login.LoginException;
 
 import org.apache.geronimo.gbean.GBeanData;
-import org.apache.geronimo.security.DomainPrincipal;
-import org.apache.geronimo.security.RealmPrincipal;
+import org.apache.geronimo.security.ContextManager;
+import org.apache.geronimo.security.IdentificationPrincipal;
 
 
 /**
@@ -85,7 +85,7 @@ public class LoginSQLTest extends AbstractLoginModuleTest {
         props.put("groupSelect", "SELECT UserName, GroupName FROM Groups where UserName = ?");
         gbean.setAttribute("options", props);
         gbean.setAttribute("loginDomainName", "SQLDomain");
-        gbean.setAttribute("wrapPrincipals", Boolean.TRUE);
+        gbean.setAttribute("wrapPrincipals", Boolean.FALSE);
         return gbean;
     }
 
@@ -114,12 +114,13 @@ public class LoginSQLTest extends AbstractLoginModuleTest {
         context.login();
         Subject subject = context.getSubject();
         assertTrue("expected non-null subject", subject != null);
-        assertEquals("server-side subject should have 6 principal", 6, subject.getPrincipals().size());
-        assertEquals("server-side subject should have two realm principals", 2, subject.getPrincipals(RealmPrincipal.class).size());
-        assertEquals("server-side subject should have two domain principals", 2, subject.getPrincipals(DomainPrincipal.class).size());
+        assertEquals("Remote principals", 0, subject.getPrincipals(IdentificationPrincipal.class).size());
+        assertEquals("Principals", 2, subject.getPrincipals().size());
 
         context.logout();
-        assertEquals("subject should have no principals (" + subject.getPrincipals().size() + ")", 0, subject.getPrincipals().size());
+        assertEquals("Principals upon logout", 0, subject.getPrincipals().size());
+ 
+        assertTrue("id of server subject should be null", ContextManager.getSubjectId(subject) == null);
     }
 
     public void testNullUserLogin() throws Exception {
@@ -168,7 +169,7 @@ public class LoginSQLTest extends AbstractLoginModuleTest {
         context.login();
         Subject subject = context.getSubject();
         assertTrue("expected non-null subject", subject != null);
-        assertTrue(subject.getPrincipals().size() == 0);
+        assertEquals("Principals added upon failed login", 0, subject.getPrincipals().size());
         context.logout();
     }
 }
