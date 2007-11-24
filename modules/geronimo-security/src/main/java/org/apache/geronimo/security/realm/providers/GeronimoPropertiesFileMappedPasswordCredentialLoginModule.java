@@ -170,6 +170,7 @@ public class GeronimoPropertiesFileMappedPasswordCredentialLoginModule implement
         if(!subject.isReadOnly()) {
             subject.getPrivateCredentials().removeAll(passwordCredentials);
         }
+        userName = null;
         for(NamedUsernamePasswordCredential credential : passwordCredentials) {
             try{
                 credential.destroy();
