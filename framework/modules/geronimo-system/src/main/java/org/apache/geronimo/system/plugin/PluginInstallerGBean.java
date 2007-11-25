@@ -27,6 +27,7 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -43,6 +44,7 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.Stack;
+import java.util.TreeSet;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.jar.JarOutputStream;
@@ -135,11 +137,11 @@ public class PluginInstallerGBean implements PluginInstaller {
         this.serverInfo = serverInfo;
         this.threadPool = threadPool;
         asyncKeys = Collections.synchronizedMap(new HashMap<Object, DownloadResults>());
-        for (ServerInstance instance: servers) {
+        for (ServerInstance instance : servers) {
             this.servers.put(instance.getServerName(), instance);
         }
         if (servers instanceof ReferenceCollection) {
-            ((ReferenceCollection)servers).addReferenceCollectionListener(new ReferenceCollectionListener() {
+            ((ReferenceCollection) servers).addReferenceCollectionListener(new ReferenceCollectionListener() {
 
                 public void memberAdded(ReferenceCollectionEvent event) {
                     ServerInstance instance = (ServerInstance) event.getMember();
@@ -677,7 +679,7 @@ public class PluginInstallerGBean implements PluginInstaller {
                 }
             }
         }
-        
+
         // 2. Check that we meet the Geronimo, JVM versions
         if (metadata.getGeronimoVersion().size() > 0 && !checkGeronimoVersions(metadata.getGeronimoVersion())) {
             log.error("Cannot install plugin " + toArtifact(metadata.getModuleId()) + " on Geronimo " + serverInfo.getVersion());
@@ -703,16 +705,16 @@ public class PluginInstallerGBean implements PluginInstaller {
         if (plugin.getPluginArtifact().size() != 1) {
             throw new IllegalArgumentException("A plugin configuration must include one plugin artifact, not " + plugin.getPluginArtifact().size());
         }
-        
+
         PluginArtifactType metadata = plugin.getPluginArtifact().get(0);
         List<PrerequisiteType> prereqs = metadata.getPrerequisite();
-        
+
         ArrayList<Dependency> missingPrereqs = new ArrayList<Dependency>();
         for (PrerequisiteType prereq : prereqs) {
             Artifact artifact = toArtifact(prereq.getId());
             try {
                 if (getServerInstance("default").getArtifactResolver().queryArtifacts(artifact).length == 0) {
-                    missingPrereqs.add(new Dependency(artifact,ImportType.ALL));
+                    missingPrereqs.add(new Dependency(artifact, ImportType.ALL));
                 }
             } catch (NoServerInstanceException e) {
                 throw new RuntimeException("Invalid setup, no default server instance registered");
@@ -915,51 +917,99 @@ public class PluginInstallerGBean implements PluginInstaller {
             monitor.getResults().setCurrentFile(data.getValue());
             monitor.getResults().setCurrentMessage(
                     "Copying " + data.getValue() + " from plugin to Geronimo installation");
-            Set<URL> set;
-            String sourceFile = data.getValue().trim();
-            try {
-                set = configStore.resolve(configID, null, sourceFile);
-            } catch (NoSuchConfigException e) {
-                log.error("Unable to identify module " + configID + " to copy files from");
-                throw new IllegalStateException("Unable to identify module " + configID + " to copy files from", e);
-            }
-            if (set.size() == 0) {
-                log.error("Installed configuration into repository but cannot locate file to copy " + sourceFile);
-                continue;
-            }
-            boolean relativeToServer = "server".equals(data.getRelativeTo());
-            File targetDir = relativeToServer ? serverInfo.resolveServer(
-                    data.getDestDir()) : serverInfo.resolve(data.getDestDir());
+            copyFile(data, configID);
+            continue;
+        }
+    }
 
-            createDirectory(targetDir);
-            if (!targetDir.isDirectory()) {
-                log.error(
-                        "Plugin install cannot write file " + data.getValue() + " to " + data.getDestDir() + " because " + targetDir.getAbsolutePath() + " is not a directory");
-                continue;
+    void copyFile(CopyFileType data, Artifact configID) throws IOException {
+        Set<URL> set;
+        String sourceFile = data.getValue().trim();
+        try {
+            set = configStore.resolve(configID, null, sourceFile);
+        } catch (NoSuchConfigException e) {
+            log.error("Unable to identify module " + configID + " to copy files from");
+            throw new IllegalStateException("Unable to identify module " + configID + " to copy files from", e);
+        }
+        if (set.size() == 0) {
+            log.error("Installed configuration into repository but cannot locate file to copy " + sourceFile);
+            return;
+        }
+        if (set.iterator().next().getPath().endsWith("/")) {
+            //directory, get all contents
+            String pattern = sourceFile;
+            if (pattern.endsWith("/")) {
+                pattern = pattern + "**";
+            } else {
+                pattern = pattern + "/**";
             }
-            if (!targetDir.canWrite()) {
-                log.error(
-                        "Plugin install cannot write file " + data.getValue() + " to " + data.getDestDir() + " because " + targetDir.getAbsolutePath() + " is not writable");
-                continue;
-            }
-            for (URL url : set) {
-                String path = url.getPath();
-                if (path.lastIndexOf('/') > -1) {
-                    path = path.substring(path.lastIndexOf('/'));
-                }
-                File target = new File(targetDir, path);
-                if (!target.exists()) {
-                    if (!target.createNewFile()) {
-                        log.error("Plugin install cannot create new file " + target.getAbsolutePath());
-                        continue;
+            try {
+                set = new TreeSet<URL>(new Comparator<URL>() {
+
+                    public int compare(URL o1, URL o2) {
+                        return o1.getPath().compareTo(o2.getPath());
                     }
+                });
+                set.addAll(configStore.resolve(configID, null, pattern));
+            } catch (NoSuchConfigException e) {
+                log.error("Unable to list directory " + pattern + " to copy files from");
+                throw new IllegalStateException("Unable to list directory " + pattern + " to copy files from", e);
+            }
+        }
+        boolean relativeToServer = "server".equals(data.getRelativeTo());
+        String destDir = data.getDestDir();
+        File targetDir = relativeToServer ? serverInfo.resolveServer(
+                destDir) : serverInfo.resolve(destDir);
+
+
+        createDirectory(targetDir);
+        URI targetURI = targetDir.toURI();
+        if (!targetDir.isDirectory()) {
+            log.error(
+                    "Plugin install cannot write file " + data.getValue() + " to " + destDir + " because " + targetDir.getAbsolutePath() + " is not a directory");
+            return;
+        }
+        if (!targetDir.canWrite()) {
+            log.error(
+                    "Plugin install cannot write file " + data.getValue() + " to " + destDir + " because " + targetDir.getAbsolutePath() + " is not writable");
+            return;
+        }
+        int start = -1;
+        for (URL url : set) {
+            String path = url.getPath();
+            if (start == -1) {
+                if (sourceFile.endsWith("/")) {
+                    start = path.length();
+                    //this entry needs nothing done
+                    continue;
+                } else {
+                    String remove = sourceFile;
+                    int pos = sourceFile.lastIndexOf('/');
+                    if (pos > -1) {
+                        remove = sourceFile.substring(0, pos);
+                    }
+                    start = path.lastIndexOf(remove);
                 }
-                if (!target.canWrite()) {
-                    log.error("Plugin install cannot write to file " + target.getAbsolutePath());
+            }
+            path = path.substring(start);
+            File target = new File(targetURI.resolve(path));
+            if (!target.exists()) {
+                if (path.endsWith("/")) {
+                    if (!target.mkdirs()) {
+                        log.error("Plugin install cannot create directory " + target.getAbsolutePath());
+                    }
                     continue;
                 }
-                copyFile(url.openStream(), new FileOutputStream(target));
+                if (!target.createNewFile()) {
+                    log.error("Plugin install cannot create new file " + target.getAbsolutePath());
+                    continue;
+                }
             }
+            if (!target.canWrite()) {
+                log.error("Plugin install cannot write to file " + target.getAbsolutePath());
+                continue;
+            }
+            copyFile(url.openStream(), new FileOutputStream(target));
         }
     }
 
@@ -1261,9 +1311,9 @@ public class PluginInstallerGBean implements PluginInstaller {
     /**
      * Checks for an artifact in a specific repository, where the artifact version
      * might not be resolved yet.
-     * 
+     *
      * @return null if the artifact is not found in the specified repository. otherwise
-     * returns the artifact fully resolved
+     *         returns the artifact fully resolved
      */
     private static Artifact findArtifact(Artifact query, URL repo, String username, String password, ResultsFileWriteMonitor monitor) throws IOException, FailedLoginException, ParserConfigurationException, SAXException {
         Artifact verifiedArtifact = null;
@@ -1290,12 +1340,12 @@ public class PluginInstallerGBean implements PluginInstaller {
             else if (version.toString().indexOf("SNAPSHOT") >= 0 && !(version instanceof SnapshotVersion)) {
                 // base path for the artifact version in a maven repo
                 URL basePath = new URL(repo, query.getGroupId().replace('.', '/') + "/" + query.getArtifactId() + "/" + version);
-                
+
                 // get the maven-metadata file
                 Document metadata = getMavenMetadata(basePath, username, password, monitor);
-                
+
                 // determine the snapshot qualifier from the maven-metadata file
-                if (metadata != null) { 
+                if (metadata != null) {
                     NodeList snapshots = metadata.getDocumentElement().getElementsByTagName("snapshot");
                     if (snapshots.getLength() >= 1) {
                         Element snapshot = (Element) snapshots.item(0);
@@ -1319,20 +1369,20 @@ public class PluginInstallerGBean implements PluginInstaller {
                 }
             }
         }
-        
+
         // Version is not resolved.  Look in maven-metadata.xml and maven-metadata-local.xml for
         // the available version numbers.  If found then recurse into the enclosing method with
         // a resolved version number
         else {
-            
+
             // base path for the artifact version in a maven repo
             URL basePath = new URL(repo, query.getGroupId().replace('.', '/') + "/" + query.getArtifactId());
-            
+
             // get the maven-metadata file
             Document metadata = getMavenMetadata(basePath, username, password, monitor);
-            
+
             // determine the available versions from the maven-metadata file
-            if (metadata != null) { 
+            if (metadata != null) {
                 Element root = metadata.getDocumentElement();
                 NodeList list = root.getElementsByTagName("versions");
                 list = ((Element) list.item(0)).getElementsByTagName("version");
@@ -1344,9 +1394,11 @@ public class PluginInstallerGBean implements PluginInstaller {
                 Arrays.sort(available, new Comparator<Version>() {
                     public int compare(Version o1, Version o2) {
                         return o2.toString().compareTo(o1.toString());
-                    };
+                    }
+
+                    ;
                 });
-                
+
                 for (Version version : available) {
                     if (verifiedArtifact == null) {
                         Artifact newQuery = new Artifact(query.getGroupId(), query.getArtifactId(), version, query.getType());
@@ -1355,14 +1407,14 @@ public class PluginInstallerGBean implements PluginInstaller {
                 }
             }
         }
-        
+
         return verifiedArtifact;
     }
-    
-    private static Document getMavenMetadata (URL base, String username, String password, ResultsFileWriteMonitor monitor) throws IOException, FailedLoginException, ParserConfigurationException, SAXException{
+
+    private static Document getMavenMetadata(URL base, String username, String password, ResultsFileWriteMonitor monitor) throws IOException, FailedLoginException, ParserConfigurationException, SAXException {
         Document doc = null;
         InputStream in = null;
-        
+
         try {
             URL metaURL = new URL(base.toString() + "/maven-metadata.xml");
             in = connect(metaURL, username, password, monitor);
@@ -1383,7 +1435,7 @@ public class PluginInstallerGBean implements PluginInstaller {
         }
         return doc;
     }
-    
+
     private static boolean testArtifact(Artifact artifact, URL repo, String username, String password, ResultsFileWriteMonitor monitor) throws IOException, FailedLoginException {
         URL test = getURL(artifact, repo);
         InputStream testStream = connect(test, username, password, monitor, "HEAD");
@@ -1760,7 +1812,7 @@ public class PluginInstallerGBean implements PluginInstaller {
     private void installConfigXMLData(Artifact configID, PluginArtifactType pluginData) throws InvalidGBeanException, IOException, NoServerInstanceException {
         if (configManager.isConfiguration(configID)) {
             if (pluginData != null && !pluginData.getConfigXmlContent().isEmpty()) {
-                for (ConfigXmlContentType configXmlContent: pluginData.getConfigXmlContent()) {
+                for (ConfigXmlContentType configXmlContent : pluginData.getConfigXmlContent()) {
                     String serverName = configXmlContent.getServer();
                     ServerInstance serverInstance = getServerInstance(serverName);
                     serverInstance.getAttributeStore().setModuleGBeans(configID, configXmlContent.getGbean(), configXmlContent.isLoad(), configXmlContent.getCondition());
@@ -1771,7 +1823,7 @@ public class PluginInstallerGBean implements PluginInstaller {
         }
         if (!pluginData.getConfigSubstitution().isEmpty()) {
             Map<String, Properties> propertiesMap = toPropertiesMap(pluginData.getConfigSubstitution());
-            for (Map.Entry<String, Properties> entry: propertiesMap.entrySet()) {
+            for (Map.Entry<String, Properties> entry : propertiesMap.entrySet()) {
                 String serverName = entry.getKey();
                 ServerInstance serverInstance = getServerInstance(serverName);
                 serverInstance.getAttributeStore().addConfigSubstitutions(entry.getValue());
@@ -1779,7 +1831,7 @@ public class PluginInstallerGBean implements PluginInstaller {
         }
         if (!pluginData.getArtifactAlias().isEmpty()) {
             Map<String, Properties> propertiesMap = toPropertiesMap(pluginData.getArtifactAlias());
-            for (Map.Entry<String, Properties> entry: propertiesMap.entrySet()) {
+            for (Map.Entry<String, Properties> entry : propertiesMap.entrySet()) {
                 String serverName = entry.getKey();
                 ServerInstance serverInstance = getServerInstance(serverName);
                 serverInstance.getArtifactResolver().addAliases(entry.getValue());

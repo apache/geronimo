@@ -84,6 +84,8 @@
                     <category>Clustering</category>
                     <instance>
                         <plugin-artifact>
+                            <copy-file relative-to="geronimo" dest-dir="">cluster-repository</copy-file>
+                            <copy-file relative-to="geronimo" dest-dir="">master-repository</copy-file>
                             <config-xml-content>
                                 <gbean name="Node">
                                     <attribute name="nodeName">#{clusterNodeName}</attribute>
