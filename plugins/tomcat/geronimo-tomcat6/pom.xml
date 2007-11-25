@@ -98,11 +98,6 @@
             <artifactId>juli-adapters</artifactId>
         </dependency>
 
-        <!--<dependency>-->
-            <!--<groupId>org.apache.myfaces.core</groupId>-->
-            <!--<artifactId>myfaces-api</artifactId>-->
-        <!--</dependency>        -->
-
     </dependencies>
 
     <build>
@@ -113,29 +108,6 @@
                 <configuration>
                     <forkMode>pertest</forkMode>
                 </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-antrun-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <phase>process-test-resources</phase>
-                        <goals>
-                            <goal>run</goal>
-                        </goals>
-                        <configuration>
-                            <tasks>
-                                <copy todir="target/var/catalina/conf" file="src/main/resources/META-INF/geronimo-tomcat6/var/catalina/conf/web.xml" />
-                                <copy todir="target/var/catalina/webapps">
-                                    <fileset dir="src/test/resources/deployables">
-                                        <include name="war1/**" />
-                                        <include name="war3/**" />
-                                    </fileset>
-                                </copy>
-                            </tasks>
-                        </configuration>
-                    </execution>
-                </executions>
             </plugin>
         </plugins>
     </build>

@@ -130,6 +130,7 @@
                     <category>Tomcat</category>
                     <instance>
                         <plugin-artifact>
+                            <copy-file relative-to="server" dest-dir="var/catalina">tomcat-base/</copy-file>
                             <config-xml-content>
                                 <!-- To disable accesslogging uncomment the following lines
                                 <gbean name="TomcatEngine">
@@ -137,7 +138,6 @@
                                 </gbean>
                                 <gbean name="AccessLogValve" load="false"></gbean>
                                 -->
-                                <gbean name="TomcatResources"/>
                                 <gbean name="TomcatWebConnector">
                                     <attribute name="host">${ServerHostname}</attribute>
                                     <attribute name="port">${HTTPPort + PortOffset}</attribute>

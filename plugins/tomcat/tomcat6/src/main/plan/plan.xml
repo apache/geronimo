@@ -26,15 +26,6 @@
         </attribute>
     </gbean>
 
-    <gbean name="TomcatResources" class="org.apache.geronimo.system.util.DirectoryInitializationGBean">
-        <!-- copies tomcat initialization files into specified location -->
-        <attribute name="prefix">META-INF/geronimo-tomcat6</attribute>
-        <attribute name="path">var/catalina</attribute>
-        <reference name="ServerInfo">
-            <name>ServerInfo</name>
-        </reference>
-    </gbean>
-
     <!-- david jencks is not convinced that this gbean should be in this plan and thinks it might
     belong in the console plan -->
     <gbean name="TomcatWebManager" class="org.apache.geronimo.tomcat.TomcatManagerImpl">
@@ -144,9 +135,6 @@
         <reference name="MBeanServerReference">
             <name>MBeanServerReference</name>
         </reference>
-        <dependency>
-            <name>TomcatResources</name>
-        </dependency>
         <!-- n.b. is you have more hosts, you want them to start before the engine gbean -->
         <!-- ensure this by including dependencies like this -->
         <!--

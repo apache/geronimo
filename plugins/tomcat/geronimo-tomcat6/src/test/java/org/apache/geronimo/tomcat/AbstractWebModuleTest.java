@@ -107,8 +107,8 @@ public abstract class AbstractWebModuleTest extends TestSupport {
         ApplicationPolicyConfigurationManager jacc = new ApplicationPolicyConfigurationManager(contextIDToPermissionsMap, null, roleDesignates, cl, credentialStore, roleMapper);
         jacc.doStart();
 
-        URL configurationBaseURL = new File(BASEDIR, "target/var/catalina/webapps/war3/WEB-INF/web.xml").toURL();
-        return setUpInsecureAppContext(new File(BASEDIR, "target/var/catalina/webapps/war3/").toURI(),
+        URL configurationBaseURL = new File(BASEDIR, "src/test/resources/deployables/war3/WEB-INF/web.xml").toURL();
+        return setUpInsecureAppContext(new File(BASEDIR, "src/test/resources/deployables/war3/").toURI(),
                 configurationBaseURL,
                 securityHolder,
                 jacc,

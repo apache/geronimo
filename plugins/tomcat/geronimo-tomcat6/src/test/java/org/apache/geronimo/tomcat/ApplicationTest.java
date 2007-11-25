@@ -30,8 +30,8 @@ public class ApplicationTest extends AbstractWebModuleTest {
     private File basedir = new File(System.getProperty("basedir"));
     
     public void testApplication() throws Exception {
-        setUpInsecureAppContext(new File(basedir, "target/var/catalina/webapps/war1/").toURI(),
-                new File(basedir, "target/var/catalina/webapps/war1/WEB-INF/web.xml").toURL(),
+        setUpInsecureAppContext(new File(basedir, "src/test/resources/deployables/war1/").toURI(),
+                new File(basedir, "src/test/resources/deployables/war1/WEB-INF/web.xml").toURL(),
                 null,
                 null,
                 null,
