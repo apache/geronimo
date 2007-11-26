@@ -197,8 +197,6 @@ public class JettyWebAppContext implements GBeanLifecycle, JettyServletRegistrat
             next = new ComponentContextHandler(next, this.componentContext);
             webAppContext.setHandler(next);
 
-            //install another component context handler for the lifecycle chain
-            next = new ComponentContextHandler(next, this.componentContext);
             lifecycleChain = (AbstractImmutableHandler) next;
         }
         MimeTypes mimeTypes = new MimeTypes();
