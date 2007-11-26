@@ -17,8 +17,6 @@
 
 package org.apache.geronimo.jetty6;
 
-import java.io.File;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -58,7 +56,6 @@ import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.ObjectNameUtil;
 import org.apache.geronimo.management.J2EEApplication;
 import org.apache.geronimo.management.J2EEServer;
-import org.apache.geronimo.management.geronimo.WebConnector;
 import org.apache.geronimo.management.geronimo.WebContainer;
 import org.apache.geronimo.management.geronimo.WebModule;
 import org.apache.geronimo.naming.enc.EnterpriseNamingContext;
@@ -66,7 +63,6 @@ import org.apache.geronimo.security.jacc.RunAsSource;
 import org.apache.geronimo.transaction.GeronimoUserTransaction;
 import org.mortbay.jetty.MimeTypes;
 import org.mortbay.jetty.handler.AbstractHandler;
-import org.mortbay.jetty.handler.AbstractHandlerContainer;
 import org.mortbay.jetty.security.Authenticator;
 import org.mortbay.jetty.servlet.ErrorPageErrorHandler;
 import org.mortbay.jetty.servlet.ServletHandler;
@@ -96,7 +92,6 @@ public class JettyWebAppContext implements GBeanLifecycle, JettyServletRegistrat
 
     private final String objectName;
     private final WebAppContext webAppContext;//delegate
-    private final AbstractHandlerContainer contextHandler;
     private final AbstractImmutableHandler lifecycleChain;
     private final Context componentContext;
     private final Holder holder;
@@ -178,7 +173,6 @@ public class JettyWebAppContext implements GBeanLifecycle, JettyServletRegistrat
         //wrap the web app context with the jndi handler
         GeronimoUserTransaction userTransaction = new GeronimoUserTransaction(transactionManager);
         this.componentContext = EnterpriseNamingContext.createEnterpriseNamingContext(componentContext, userTransaction, kernel, classLoader);
-        contextHandler = new ComponentContextHandler(webAppContext, this.componentContext);
 
         //install jasper injection support if required
         if (contextCustomizer != null) {
@@ -200,6 +194,7 @@ public class JettyWebAppContext implements GBeanLifecycle, JettyServletRegistrat
 
             next = new InstanceContextHandler(next, unshareableResources, applicationManagedSecurityResources, trackedConnectionAssociator);
             next = new UserTransactionHandler(next, userTransaction);
+            next = new ComponentContextHandler(next, this.componentContext);
             webAppContext.setHandler(next);
 
             //install another component context handler for the lifecycle chain
@@ -365,20 +360,20 @@ public class JettyWebAppContext implements GBeanLifecycle, JettyServletRegistrat
 
         public void lifecycleMethod() throws Exception {
             //order seems backwards... .maybe container is calling start itself???
-            jettyContainer.addContext(contextHandler);
-            contextHandler.start();
+            jettyContainer.addContext(webAppContext);
+            webAppContext.start();
         }
     }
 
     public class StopCommand implements LifecycleCommand {
 
         public void lifecycleMethod() throws Exception {
-            contextHandler.stop();
+            webAppContext.stop();
             //TODO is this order correct?
             for (EventListener listener : webAppContext.getEventListeners()) {
                 destroyInstance(listener);
             }
-            jettyContainer.removeContext(contextHandler);
+            jettyContainer.removeContext(webAppContext);
         }
     }
     //pass through attributes.  They should be constructor params
