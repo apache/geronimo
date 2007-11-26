@@ -596,6 +596,8 @@ public final class SelectorUtils {
             path = s[1];
         }
         char sep = File.separatorChar;
+        path = path.replace('/', sep).replace('\\', sep);
+        
         int start = 0;
         int len = path.length();
         int count = 0;
