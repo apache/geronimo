@@ -223,8 +223,8 @@ public class RepositoryConfigurationStore implements ConfigurationStore {
             if (moduleName != null) {
                 location = new File(location, moduleName);
             }
-
-            if(path == null) {
+            return IOUtil.search(location, path);
+ /*           if(path == null) {
                 return Collections.singleton(location.toURL());
             } else {
                 if (location.isDirectory()) {
@@ -235,9 +235,11 @@ public class RepositoryConfigurationStore implements ConfigurationStore {
                     return matches;
                 }
             }
-        } else {
-            Set matches = IOUtil.search(location, moduleName + "/" +path);
-            return matches;
+*/        } else {
+            if (moduleName != null) {
+                path = moduleName + "/" +path;
+            }
+            return IOUtil.search(location, path);
         }
     }
 

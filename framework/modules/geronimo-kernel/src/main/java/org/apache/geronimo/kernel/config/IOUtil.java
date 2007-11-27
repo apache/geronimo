@@ -28,7 +28,6 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Collections;
 import java.util.Enumeration;
-import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
@@ -44,10 +43,11 @@ import org.apache.commons.logging.LogFactory;
  */
 public class IOUtil {
     private final static Log log = LogFactory.getLog(IOUtil.class);
+
     public static void recursiveCopy(File srcDir, File destDir) throws IOException {
-        if (srcDir == null)  throw new NullPointerException("sourceDir is null");
-        if (destDir == null)  throw new NullPointerException("destDir is null");
-        if (!srcDir.isDirectory() || ! srcDir.canRead()) {
+        if (srcDir == null) throw new NullPointerException("sourceDir is null");
+        if (destDir == null) throw new NullPointerException("destDir is null");
+        if (!srcDir.isDirectory() || !srcDir.canRead()) {
             throw new IllegalArgumentException("Source directory must be a readable directory " + srcDir);
         }
         if (destDir.exists()) {
@@ -103,7 +103,7 @@ public class IOUtil {
         }
         out.flush();
     }
-    
+
     private static void listFiles(File directory) {
         if (!log.isDebugEnabled() || !directory.isDirectory()) {
             return;
@@ -146,7 +146,7 @@ public class IOUtil {
         if (fileDeleted) {
             if (log.isDebugEnabled()) {
                 log.debug(file.getPath() + " deleted after " + retries
-                         + " retries, with " + interruptions + " interruptions.");
+                        + " retries, with " + interruptions + " interruptions.");
             }
         } else {
             log.warn(file.getPath() + " not deleted after " + retryLimit
@@ -180,7 +180,7 @@ public class IOUtil {
         if (thing != null) {
             try {
                 thing.flush();
-            } catch(Exception ignored) {
+            } catch (Exception ignored) {
             }
         }
     }
@@ -189,7 +189,7 @@ public class IOUtil {
         if (thing != null) {
             try {
                 thing.flush();
-            } catch(Exception ignored) {
+            } catch (Exception ignored) {
             }
         }
     }
@@ -198,7 +198,7 @@ public class IOUtil {
         if (thing != null) {
             try {
                 thing.close();
-            } catch(Exception ignored) {
+            } catch (Exception ignored) {
             }
         }
     }
@@ -207,7 +207,7 @@ public class IOUtil {
         if (thing != null) {
             try {
                 thing.close();
-            } catch(Exception ignored) {
+            } catch (Exception ignored) {
             }
         }
     }
@@ -216,7 +216,7 @@ public class IOUtil {
         if (thing != null) {
             try {
                 thing.close();
-            } catch(Exception ignored) {
+            } catch (Exception ignored) {
             }
         }
     }
@@ -225,7 +225,7 @@ public class IOUtil {
         if (thing != null) {
             try {
                 thing.close();
-            } catch(Exception ignored) {
+            } catch (Exception ignored) {
             }
         }
     }
@@ -234,17 +234,20 @@ public class IOUtil {
         if (thing != null) {
             try {
                 thing.close();
-            } catch(Exception ignored) {
+            } catch (Exception ignored) {
             }
         }
     }
 
     public static Set<URL> search(File root, String pattern) throws MalformedURLException {
         if (root.isDirectory()) {
+            if (pattern == null || pattern.length() == 0) {
+                return Collections.singleton(new URL("file:" + root.toURI().normalize().getPath()));
+            }
             if (!SelectorUtils.hasWildcards(pattern)) {
                 File match = new File(root, pattern);
                 if (match.exists() && match.canRead()) {
-                    return Collections.singleton( new URL( "file:" + match.toURI().normalize().getPath() ) );
+                    return Collections.singleton(new URL("file:" + match.toURI().normalize().getPath()));
                 } else {
                     return Collections.emptySet();
                 }
@@ -265,6 +268,9 @@ public class IOUtil {
             try {
                 jarFile = new JarFile(root);
                 URL baseURL = new URL("jar:" + root.toURL().toString() + "!/");
+                if (pattern == null || pattern.length() == 0) {
+                    return Collections.singleton(baseURL);
+                }
                 if (!SelectorUtils.hasWildcards(pattern)) {
                     ZipEntry entry = jarFile.getEntry(pattern);
                     if (entry != null) {

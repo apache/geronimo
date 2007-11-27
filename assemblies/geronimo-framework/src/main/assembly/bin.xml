@@ -87,6 +87,7 @@
     </dependencySets>
 
     <fileSets>
+<!--
         <fileSet>
             <directory>target/boilerplate</directory>
             <outputDirectory>/</outputDirectory>
@@ -94,7 +95,8 @@
                 <exclude>META-INF/**</exclude>
             </excludes>
         </fileSet>
-        
+-->
+
         <fileSet>
             <directory>target/assembly</directory>
             <outputDirectory>/</outputDirectory>
@@ -111,7 +113,7 @@
         </fileSet>
         
         <fileSet>
-            <directory>target/boilerplate/bin</directory>
+            <directory>target/assembly/bin</directory>
             <outputDirectory>bin</outputDirectory>
             <includes>
                 <include>*</include>
@@ -126,7 +128,7 @@
         </fileSet>
         
         <fileSet>
-            <directory>target/boilerplate/bin</directory>
+            <directory>target/assembly/bin</directory>
             <outputDirectory>bin</outputDirectory>
             <includes>
                 <include>*.bat</include>
