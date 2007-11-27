@@ -60,10 +60,10 @@ public class ThreadPool implements GeronimoExecutor, GBeanLifecycle, J2EEManaged
     private PoolStatsImpl stats = new PoolStatsImpl();
     private Map clients = new HashMap();
 
-    public ThreadPool(int poolSize, String poolName, long keepAliveTime, ClassLoader classLoader, String objectName) {
+    public ThreadPool(int minPoolSize, int maxPoolSize, String poolName, long keepAliveTime, ClassLoader classLoader, String objectName) {
         ThreadPoolExecutor p = new ThreadPoolExecutor(
-            poolSize, // core size
-            poolSize, // max size
+            minPoolSize, // core size
+            maxPoolSize, // max size
             keepAliveTime, TimeUnit.MILLISECONDS,
             new SynchronousQueue());
 
@@ -354,7 +354,8 @@ public class ThreadPool implements GeronimoExecutor, GBeanLifecycle, J2EEManaged
     static {
         GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic(ThreadPool.class, "GBean");
 
-        infoFactory.addAttribute("poolSize", int.class, true);
+        infoFactory.addAttribute("minPoolSize", int.class, true);
+        infoFactory.addAttribute("maxPoolSize", int.class, true);
         infoFactory.addAttribute("poolName", String.class, true);
         infoFactory.addAttribute("keepAliveTime", long.class, true);
         infoFactory.addAttribute("waitWhenBlocked", boolean.class, true);
@@ -364,7 +365,7 @@ public class ThreadPool implements GeronimoExecutor, GBeanLifecycle, J2EEManaged
 
         infoFactory.addInterface(GeronimoExecutor.class);
 
-        infoFactory.setConstructor(new String[]{"poolSize", "poolName", "keepAliveTime", "classLoader", "objectName"});
+        infoFactory.setConstructor(new String[]{"minPoolSize", "maxPoolSize", "poolName", "keepAliveTime", "classLoader", "objectName"});
 
         GBEAN_INFO = infoFactory.getBeanInfo();
     }

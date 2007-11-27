@@ -28,8 +28,9 @@
     </gbean>
 
     <gbean name="ConnectorThreadPool" class="org.apache.geronimo.pool.ThreadPool">
-        <attribute name="keepAliveTime">5000</attribute>
-        <attribute name="poolSize">30</attribute>
+        <attribute name="keepAliveTime">30000</attribute>
+        <attribute name="minPoolSize">5</attribute>
+        <attribute name="maxPoolSize">30</attribute>
         <attribute name="poolName">ConnectorThreadPool</attribute>
     </gbean>
 

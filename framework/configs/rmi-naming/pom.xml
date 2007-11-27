@@ -111,8 +111,10 @@
                                     <attribute name="namingProviderUrl">rmi://${ServerHostname}:${NamingPort + PortOffset}</attribute>
                                 </gbean>
                                 <gbean name="DefaultThreadPool">
-                                    <attribute name="keepAliveTime">5000</attribute>
-                                    <attribute name="poolSize">${ThreadPoolSize}</attribute>
+                                    <attribute name="keepAliveTime">30000</attribute>
+                                    <attribute name="minPoolSize">${MinThreadPoolSize}</attribute>
+                                    <attribute name="maxPoolSize">${MaxThreadPoolSize}</attribute>
+
                                 </gbean>
                                 <gbean name="DownloadedPluginRepos">
                                     <attribute name="repositoryList">http://geronimo.apache.org/plugins/plugin-repository-list-2.1.txt</attribute>
@@ -122,7 +124,8 @@
                             <config-substitution key="ServerHostname">localhost</config-substitution>
                             <config-substitution key="PortOffset">0</config-substitution>
                             <config-substitution key="NamingPort">1099</config-substitution>
-                            <config-substitution key="ThreadPoolSize">500</config-substitution>
+                            <config-substitution key="MinThreadPoolSize">200</config-substitution>
+                            <config-substitution key="MaxThreadPoolSize">500</config-substitution>
                         </plugin-artifact>
                     </instance>
                 </configuration>
