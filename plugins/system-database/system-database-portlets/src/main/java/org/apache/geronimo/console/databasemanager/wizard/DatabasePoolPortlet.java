@@ -1144,6 +1144,8 @@ public class DatabasePoolPortlet extends BasePortlet {
                 SortedSet results = repo.list(artifact);
                 if (!results.isEmpty()) {
                     artifact = (Artifact) results.first();
+                } else {
+                    continue;
                 }
             }
             File url = repo.getLocation(artifact);
