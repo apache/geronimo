@@ -80,7 +80,7 @@ public class ConfiguredIdentityNamedUsernamePasswordLoginModule implements Login
             return false;
         }
 
-        Set pvtCreds = subject.getPrivateCredentials(UsernamePasswordCredential.class);
+        Set pvtCreds = subject.getPrivateCredentials();
         if (pvtCreds.contains(namedUsernamePasswordCredential)) {
             pvtCreds.remove(namedUsernamePasswordCredential);
         }
