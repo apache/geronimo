@@ -43,7 +43,8 @@ td
     font-family: Verdana, Tahoma, Arial, Helvetica, sans-serif;
 }
 
-a:link, a:visited
+a:link, 
+a:visited
 {
     color: #204486;
 }
@@ -94,7 +95,9 @@ a:hover
     font-weight: bold;
 }
 
-.Top a:link, .Top a:visited, .Top a:hover
+.Top a:link, 
+.Top a:visited, 
+.Top a:hover
 {
     color: #FFFFFF;
     font-size: 11px;
@@ -161,12 +164,14 @@ a:hover
     background-color: #F2F2F2;
     font-size: 11px;
 }
+
 .Menu .SelectedSubselection .TopMiddle a:link,
 .Menu .SelectedSubselection .TopMiddle a:visited
 {
     color: #000000;
     text-decoration: none;
 }
+
 .Menu .SelectedSubselection .TopMiddle a:hover
 {
     text-decoration: underline;
@@ -366,7 +371,6 @@ a:hover
     font-family: Verdana, Tahoma, Arial, Helvetica, sans-serif;
 }
 
-.reallyDarkBackground,
 .ReallyDarkBackground
 {
     color: #FFFFFF;
@@ -409,7 +413,8 @@ a:hover
     color: #5FA3D6;
 }
 
-.Content .Buttons {
+.Content .Buttons 
+{
     border-top-width: thin;
     border-right-width: thin;
     border-bottom-width: thin;
