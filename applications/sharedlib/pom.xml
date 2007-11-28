@@ -32,7 +32,7 @@
     <name>Geronimo Configs :: Shared Library</name>
     <packaging>car</packaging>
     <description>Shared Library GBean</description>
-    
+
     <dependencies>
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
@@ -54,6 +54,11 @@
                         <value>true</value>
                         <includeVersion>true</includeVersion>
                     </useMavenDependencies>
+                    <instance>
+                        <plugin-artifact>
+                            <copy-file relative-to="server" dest-dir="var">shared</copy-file>
+                        </plugin-artifact>
+                    </instance>
                 </configuration>
             </plugin>
         </plugins>

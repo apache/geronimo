@@ -60,6 +60,11 @@
                         <value>true</value>
                         <includeVersion>true</includeVersion>
                     </useMavenDependencies>
+                    <instance>
+                        <plugin-artifact>
+                            <copy-file relative-to="server" dest-dir="var">security</copy-file>
+                        </plugin-artifact>
+                    </instance>
                 </configuration>
             </plugin>
         </plugins>
