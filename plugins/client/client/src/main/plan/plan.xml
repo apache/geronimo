@@ -40,8 +40,9 @@
     </gbean>
 
     <gbean name="DefaultThreadPool" class="org.apache.geronimo.pool.ThreadPool">
-        <attribute name="keepAliveTime">5000</attribute>
-        <attribute name="poolSize">100</attribute>
+        <attribute name="keepAliveTime">30000</attribute>
+        <attribute name="minPoolSize">25</attribute>
+        <attribute name="maxPoolSize">100</attribute>
         <attribute name="poolName">DefaultThreadPool</attribute>
     </gbean>
 
