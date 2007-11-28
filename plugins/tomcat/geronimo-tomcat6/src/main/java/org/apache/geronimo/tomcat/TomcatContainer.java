@@ -23,6 +23,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.management.ObjectName;
+
 import org.apache.catalina.Container;
 import org.apache.catalina.Context;
 import org.apache.catalina.Engine;
@@ -217,8 +219,12 @@ public class TomcatContainer implements SoapHandler, GBeanLifecycle, TomcatWebCo
 
         Container[] hosts = engine.findChildren();
         Context defaultContext;
+        ObjectName objName = objectName == null ? null : ObjectName.getInstance(objectName);
         for (int i = 0; i < hosts.length; i++) {
             defaultContext = embedded.createContext("", docBase, classLoader);
+            if(objName != null) {
+                defaultContext.setName(objName.getKeyProperty(NameFactory.J2EE_NAME));
+            }
             if (defaultContext instanceof GeronimoStandardContext) {
                 GeronimoStandardContext ctx = (GeronimoStandardContext) defaultContext;
                 // Without this the Tomcat FallBack Application is left behind,
