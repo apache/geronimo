@@ -230,10 +230,10 @@ public class TomcatContainer implements SoapHandler, GBeanLifecycle, TomcatWebCo
                 // Without this the Tomcat FallBack Application is left behind,
                 // MBean - ...J2EEApplication=none,J2EEServer=none,..........
                 ctx.setJ2EEApplication(null);
-                // TODO if objectName != null extract J2EEServer from objectName/host
-                ctx.setJ2EEServer("geronimo");
+                // if objectName != null extract J2EEServer from objectName/host
+                ctx.setJ2EEServer(objName == null ? "geronimo" : objName.getKeyProperty(NameFactory.J2EE_SERVER));
                 ctx.setJavaVMs(new String[]{});
-                ctx.setServer("geronimo");
+                ctx.setServer(objName == null ? "geronimo" : objName.getKeyProperty(NameFactory.J2EE_SERVER));
             }
             hosts[i].addChild(defaultContext);
         }
