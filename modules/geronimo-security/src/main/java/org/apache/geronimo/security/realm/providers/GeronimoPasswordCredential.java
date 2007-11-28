@@ -18,6 +18,8 @@
 package org.apache.geronimo.security.realm.providers;
 
 import java.io.Serializable;
+import java.util.Arrays;
+
 import javax.security.auth.DestroyFailedException;
 import javax.security.auth.Destroyable;
 
@@ -36,7 +38,7 @@ public class GeronimoPasswordCredential implements Destroyable, Serializable {
         assert password != null;
 
         this.userName = userName;
-        this.password = password;
+        this.password = password.clone();
     }
 
     public String getUserName() {
@@ -44,11 +46,12 @@ public class GeronimoPasswordCredential implements Destroyable, Serializable {
     }
 
     public char[] getPassword() {
-        return password;
+        return password.clone();
     }
 
     public void destroy() throws DestroyFailedException {
         userName = null;
+        Arrays.fill(password, ' ');
         password = null;
         destroyed = true;
     }
