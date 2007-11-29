@@ -45,6 +45,7 @@ import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
 import java.util.Enumeration;
@@ -97,7 +98,7 @@ public class FileKeystoreInstance implements KeystoreInstance, GBeanLifecycle {
     private File keystoreFile; // Only valid after startup
     private String keystoreName;
     private char[] keystorePassword; // Used to "unlock" the keystore for other services
-    private Map keyPasswords = new HashMap();
+    private Map<String, char[]> keyPasswords = new HashMap<String, char[]>();
     private Kernel kernel;
     private AbstractName abstractName;
     private char[] openPassword; // The password last used to open the keystore for editing
@@ -575,6 +576,54 @@ public class FileKeystoreInstance implements KeystoreInstance, GBeanLifecycle {
             log.error("Unable to read certificate from keystore", e);
         }
         return null;
+    }
+    
+    /**
+     * Changes the keystore password.
+     * @param storePassword Current password for the keystore
+     * @param newPassword New password for the keystore
+     * @throws KeystoreException
+     */
+    public void changeKeystorePassword(char[] storePassword, char[] newPassword) throws KeystoreException {
+        ensureLoaded(storePassword);
+        saveKeystore(newPassword);
+        log.info("Password changed for keystore "+keystoreName);
+        openPassword = newPassword;
+        if(!isKeystoreLocked()) {
+            unlockKeystore(newPassword);
+        }
+    }
+    
+    /**
+     * Changes the password for a private key entry in the keystore.
+     * @param storePassword Password for the keystore
+     * @param keyPassword Current password for the private key
+     * @param newKeyPassword New password for the private key
+     * @throws KeystoreException
+     */
+    public void changeKeyPassword(String alias, char[] storePassword, char[] keyPassword, char[] newKeyPassword) throws KeystoreException {
+        ensureLoaded(storePassword);
+        if(!privateKeys.contains(alias)) {
+            throw new KeystoreException("No private key entry "+alias+" exists in the keystore "+keystoreName);
+        }
+        if(keyPasswords.containsKey(alias)) {
+            if(!Arrays.equals(keyPasswords.get(alias), keyPassword)) {
+                throw new KeystoreException("Incorrect password provided for private key entry "+alias);
+            }
+            keyPasswords.put(alias, newKeyPassword);
+        }
+        PrivateKey key = getPrivateKey(alias, storePassword, keyPassword);
+        Certificate[] chain = getCertificateChain(alias, storePassword);
+        try {
+            keystore.setKeyEntry(alias, key, newKeyPassword, chain);
+            saveKeystore(storePassword);
+            log.info("Password changed for private key entry "+alias+" in keystore "+keystoreName+".");
+            if(keyPasswords.containsKey(alias)) {
+                storePasswords();
+            }
+        } catch(KeyStoreException e) {
+            throw new KeystoreException("Could not change password for private key entry "+alias, e);
+        }
     }
 
     // ==================== Internals =====================

@@ -47,6 +47,7 @@ public class KeystoresPortlet extends MultiPagePortlet {
         addHelper(new GenerateCSRHandler(), config);
         addHelper(new ImportCAReplyHandler(), config);
         addHelper(new DeleteEntryHandler(), config);
+        addHelper(new ChangePasswordHandler(), config);
     }
 
     protected String getModelJSPVariableName() {

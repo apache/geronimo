@@ -14,11 +14,16 @@
    See the License for the specific language governing permissions and
    limitations under the License.
 --%>
+
+<%-- $Rev$ $Date$ --%>
+
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
 <%@ taglib uri="http://java.sun.com/portlet" prefix="portlet"%>
 <portlet:defineObjects/>
 <p>This screen lists the contents of a keystore.</p>
+
+<jsp:include page="_header.jsp" />
 
 <table width="100%">
   <tr>
@@ -89,5 +94,6 @@
 <p>
     <a href="<portlet:actionURL portletMode="view"><portlet:param name="mode" value="uploadCertificate-before" /><portlet:param name="id" value="${keystore.name}" /></portlet:actionURL>">Add Trust Certificate</a>
     <a href="<portlet:actionURL portletMode="view"><portlet:param name="mode" value="configureKey-before" /><portlet:param name="keystore" value="${keystore.name}" /></portlet:actionURL>">Create Private Key</a>
+    <a href="<portlet:actionURL portletMode="view"><portlet:param name="mode" value="changePassword-before" /><portlet:param name="keystore" value="${keystore.name}" /></portlet:actionURL>">Change keystore password</a>
     <a href="<portlet:actionURL portletMode="view"><portlet:param name="mode" value="list-before" /></portlet:actionURL>">Return to keystore list</a>
 </p>
