@@ -52,6 +52,8 @@ public class CallerIdentityPasswordCredentialLoginModule implements LoginModule 
     private String resourcePrincipalName;
     private String userName;
     private char[] password;
+    private ResourcePrincipal resourcePrincipal;
+    private PasswordCredential passwordCredential;
 
     public void initialize(Subject subject, CallbackHandler callbackHandler,
             Map sharedState, Map options) {
@@ -88,21 +90,38 @@ public class CallerIdentityPasswordCredentialLoginModule implements LoginModule 
         if (resourcePrincipalName == null || userName == null || password == null) {
             return false;
         }
-        subject.getPrincipals().add(new ResourcePrincipal(resourcePrincipalName));
-        PasswordCredential passwordCredential = new PasswordCredential(userName, password);
+        resourcePrincipal = new ResourcePrincipal(resourcePrincipalName);
+        subject.getPrincipals().add(resourcePrincipal);
+        passwordCredential = new PasswordCredential(userName, password);
         passwordCredential.setManagedConnectionFactory(managedConnectionFactory);
         subject.getPrivateCredentials().add(passwordCredential);
+        
+        // Clear private state
+        resourcePrincipalName = null;
+        userName = null;
+        password = null;
         return false;
     }
 
     public boolean abort() throws LoginException {
+        resourcePrincipalName = null;
         userName = null;
         password = null;
         return false;
     }
 
     public boolean logout() throws LoginException {
-        subject = null;
+        if(!subject.isReadOnly()) {
+            subject.getPrincipals().remove(resourcePrincipal);
+            subject.getPrivateCredentials().remove(passwordCredential);
+        }
+        
+        // TODO: Destroy the credential when subject is read-only.
+        resourcePrincipal = null;
+        passwordCredential = null;
+
+        // Clear private state
+        resourcePrincipalName = null;
         userName = null;
         password = null;
         return false;
