@@ -16,6 +16,9 @@
  */
 package org.apache.geronimo.security.jaas;
 
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import javax.security.auth.spi.LoginModule;
@@ -23,6 +26,9 @@ import javax.security.auth.Subject;
 import javax.security.auth.DestroyFailedException;
 import javax.security.auth.login.LoginException;
 import javax.security.auth.callback.CallbackHandler;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 /**
  * ConfiguredIdentityNamedUsernamePasswordLoginModule adds a geronimo-specific NamedUsernamePasswordCredential
@@ -40,19 +46,28 @@ import javax.security.auth.callback.CallbackHandler;
  * @version $Rev$ $Date$
  */
 public class ConfiguredIdentityNamedUsernamePasswordLoginModule implements LoginModule {
+    private static Log log = LogFactory.getLog(ConfiguredIdentityNamedUsernamePasswordLoginModule.class);
+
     public static final String CREDENTIAL_NAME = "org.apache.geronimo.jaas.NamedUsernamePasswordCredential.Name";
     public static final String USER_NAME = "org.apache.geronimo.jaas.NamedUsernamePasswordCredential.Username";
     public static final String PASSWORD = "org.apache.geronimo.jaas.NamedUsernamePasswordCredential.Password";
+    public final static List<String> supportedOptions = Collections.unmodifiableList(Arrays.asList(CREDENTIAL_NAME, USER_NAME, PASSWORD));
 
     private Subject subject;
     private NamedUsernamePasswordCredential namedUsernamePasswordCredential;
+    private String name, username, password;
 
     public void initialize(Subject subject, CallbackHandler callbackHandler, Map sharedState, Map options) {
         this.subject = subject;
-        String name = (String) options.get(CREDENTIAL_NAME);
-        String username = (String) options.get(USER_NAME);
-        String password = (String) options.get(PASSWORD);
-        namedUsernamePasswordCredential = new NamedUsernamePasswordCredential(username, password.toCharArray(), name);
+        for(Object option: options.keySet()) {
+            if(!supportedOptions.contains(option) && !JaasLoginModuleUse.supportedOptions.contains(option)
+                    && !WrappingLoginModule.supportedOptions.contains(option)) {
+                log.warn("Ignoring option: "+option+". Not supported.");
+            }
+        }
+        name = (String) options.get(CREDENTIAL_NAME);
+        username = (String) options.get(USER_NAME);
+        password = (String) options.get(PASSWORD);
     }
 
     public boolean login() throws LoginException {
@@ -64,10 +79,9 @@ public class ConfiguredIdentityNamedUsernamePasswordLoginModule implements Login
             throw new LoginException("Subject is ReadOnly");
         }
 
-        Set pvtCreds = subject.getPrivateCredentials();
-        if (namedUsernamePasswordCredential != null && !pvtCreds.contains(namedUsernamePasswordCredential)) {
-            pvtCreds.add(namedUsernamePasswordCredential);
-        }
+        namedUsernamePasswordCredential = new NamedUsernamePasswordCredential(username, password.toCharArray(), name);
+        subject.getPrivateCredentials().add(namedUsernamePasswordCredential);
+
         return false;
     }
 
@@ -81,7 +95,7 @@ public class ConfiguredIdentityNamedUsernamePasswordLoginModule implements Login
         }
 
         Set pvtCreds = subject.getPrivateCredentials();
-        if (pvtCreds.contains(namedUsernamePasswordCredential)) {
+        if (!subject.isReadOnly()) {
             pvtCreds.remove(namedUsernamePasswordCredential);
         }
 
