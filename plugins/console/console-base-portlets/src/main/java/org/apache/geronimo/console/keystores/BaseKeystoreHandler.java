@@ -62,6 +62,7 @@ public abstract class BaseKeystoreHandler extends MultiPageAbstractHandler {
     protected static final String GENERATE_CSR = "generateCSR";
     protected static final String IMPORT_CA_REPLY = "importCAReply";
     protected static final String DELETE_ENTRY = "deleteEntry";
+    protected static final String CHANGE_PASSWORD = "changePassword";
 
     // Name of the attribute for error message to be displayed in a page
     protected static final String ERROR_MSG = "errorMsg";
@@ -270,5 +271,16 @@ public abstract class BaseKeystoreHandler extends MultiPageAbstractHandler {
             instance.unlockKeystore(password);
         }
         
+        public void changeKeystorePassword(char[] oldPassword, char[] newPassword) throws KeystoreException {
+            instance.changeKeystorePassword(oldPassword, newPassword);
+            this.password = newPassword;
+        }
+
+        public void changeKeyPassword(String alias, char[] keyPassword, char[] newKeyPassword) throws KeystoreException {
+            instance.changeKeyPassword(alias, password, keyPassword, newKeyPassword);
+            if(keyPasswords != null && keyPasswords.containsKey(alias)) {
+                keyPasswords.put(alias, newKeyPassword);
+            }
+        }
     }
 }

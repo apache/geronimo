@@ -36,16 +36,21 @@ public class ViewKeystoreHandler extends BaseKeystoreHandler {
     }
 
     public String actionBeforeView(ActionRequest request, ActionResponse response, MultiPageModel model) throws PortletException, IOException {
-        String id = request.getParameter("id");
-        if(id != null) {
-            response.setRenderParameter("id", id);
-        } // else we hope this is after a failure and the actionAfterView took care of it below!
+        String[] params = {ERROR_MSG, INFO_MSG, "id"};
+        for(int i = 0; i < params.length; ++i) {
+            String value = request.getParameter(params[i]);
+            if(value != null) response.setRenderParameter(params[i], value);
+        }
         return getMode();
     }
 
     public void renderView(RenderRequest request, RenderResponse response, MultiPageModel model) throws PortletException, IOException {
+        String[] params = {ERROR_MSG, INFO_MSG, "id"};
+        for(int i = 0; i < params.length; ++i) {
+            String value = request.getParameter(params[i]);
+            if(value != null) request.setAttribute(params[i], value);
+        }
         String id = request.getParameter("id");
-        request.setAttribute("id", id);
         request.setAttribute("keystore", request.getPortletSession(true).getAttribute(KEYSTORE_DATA_PREFIX + id));
     }
 

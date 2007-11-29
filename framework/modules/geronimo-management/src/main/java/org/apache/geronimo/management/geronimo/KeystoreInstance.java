@@ -224,4 +224,21 @@ public interface KeystoreInstance {
      * @param alias Alias of the certificate
      */
     public Certificate getCertificate(String alias);
+    
+    /**
+     * Changes the keystore password.
+     * @param storePassword Current password for the keystore
+     * @param newPassword New password for the keystore
+     * @throws KeystoreException
+     */
+    public void changeKeystorePassword(char[] storePassword, char[] newPassword) throws KeystoreException;
+    
+    /**
+     * Changes the password for a private key entry in the keystore.
+     * @param storePassword Password for the keystore
+     * @param keyPassword Current password for the private key
+     * @param newKeyPassword New password for the private key
+     * @throws KeystoreException
+     */
+    public void changeKeyPassword(String alias, char[] storePassword, char[] keyPassword, char[] newKeyPassword) throws KeystoreException;
 }
