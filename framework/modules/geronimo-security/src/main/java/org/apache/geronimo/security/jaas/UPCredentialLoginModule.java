@@ -41,8 +41,12 @@ import javax.security.auth.spi.LoginModule;
  * This login module does not check credentials so it should never be able to cause a login to succeed.
  * Therefore the lifecycle methods must return false to indicate success or throw a LoginException to indicate failure.
  *
+ * @deprecated As of release 2.0.3
+ * @see org.apache.geronimo.security.realm.providers.GeronimoPasswordCredentialLoginModule
+ * 
  * @version $Revision$ $Date$
  */
+@Deprecated
 public class UPCredentialLoginModule implements LoginModule {
 
     private Subject subject;
