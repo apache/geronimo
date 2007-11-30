@@ -147,9 +147,9 @@ public class ConfigurationEntryTest extends TestSupport {
         gbean.setAttribute("wrapPrincipals", Boolean.TRUE);
         kernel.loadGBean(gbean, LoginModuleGBean.class.getClassLoader());
 
-        gbean = buildGBeanData("name", "UPCredLoginModule", LoginModuleGBean.getGBeanInfo());
+        gbean = buildGBeanData("name", "GeronimoPasswordCredentialLoginModule", LoginModuleGBean.getGBeanInfo());
         testUPCred = gbean.getAbstractName();
-        gbean.setAttribute("loginModuleClass", "org.apache.geronimo.security.jaas.UPCredentialLoginModule");
+        gbean.setAttribute("loginModuleClass", "org.apache.geronimo.security.realm.providers.GeronimoPasswordCredentialLoginModule");
         gbean.setAttribute("options", new HashMap<String, Object>());
         kernel.loadGBean(gbean, LoginModuleGBean.class.getClassLoader());
 
@@ -161,7 +161,7 @@ public class ConfigurationEntryTest extends TestSupport {
         gbean.setAttribute("options", props);
         kernel.loadGBean(gbean, LoginModuleGBean.class.getClassLoader());
 
-        gbean = buildGBeanData("name", "UPCredLoginModuleUse", JaasLoginModuleUse.getGBeanInfo());
+        gbean = buildGBeanData("name", "GeronimoPasswordCredentialLoginModuleUse", JaasLoginModuleUse.getGBeanInfo());
         AbstractName testUseName3 = gbean.getAbstractName();
         gbean.setAttribute("controlFlag", LoginModuleControlFlag.REQUIRED);
         gbean.setReferencePattern("LoginModule", testUPCred);
