@@ -17,6 +17,9 @@
 package org.apache.geronimo.security.realm.providers;
 
 import java.io.Serializable;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -28,6 +31,11 @@ import javax.security.auth.callback.NameCallback;
 import javax.security.auth.login.LoginException;
 import javax.security.auth.login.FailedLoginException;
 import javax.security.auth.spi.LoginModule;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.apache.geronimo.security.jaas.JaasLoginModuleUse;
+import org.apache.geronimo.security.jaas.WrappingLoginModule;
 
 /**
  * Tracks the number of recent login failures for each user, and starts
@@ -59,9 +67,13 @@ import javax.security.auth.spi.LoginModule;
  * @version $Rev$ $Date$
  */
 public class RepeatedFailureLockoutLoginModule implements LoginModule {
+    private static Log log = LogFactory.getLog(RepeatedFailureLockoutLoginModule.class);
+    
     public static final String FAILURE_COUNT_OPTION = "failureCount";
     public static final String FAILURE_PERIOD_OPTION = "failurePeriodSecs";
     public static final String LOCKOUT_DURATION_OPTION = "lockoutDurationSecs";
+    public final static List<String> supportedOptions = Collections.unmodifiableList(Arrays.asList(FAILURE_COUNT_OPTION, FAILURE_PERIOD_OPTION, LOCKOUT_DURATION_OPTION));
+    
     private static final HashMap<String, LoginHistory> userData = new HashMap<String, LoginHistory>();
     private CallbackHandler handler;
     private String username;
@@ -74,6 +86,12 @@ public class RepeatedFailureLockoutLoginModule implements LoginModule {
      */
     public void initialize(Subject subject, CallbackHandler callbackHandler,
                            Map sharedState, Map options) {
+        for(Object option: options.keySet()) {
+            if(!supportedOptions.contains(option) && !JaasLoginModuleUse.supportedOptions.contains(option)
+                    && !WrappingLoginModule.supportedOptions.contains(option)) {
+                log.warn("Ignoring option: "+option+". Not supported.");
+            }
+        }
         String fcString = (String) options.get(FAILURE_COUNT_OPTION);
         if(fcString != null) {
             fcString = fcString.trim();
@@ -159,7 +177,6 @@ public class RepeatedFailureLockoutLoginModule implements LoginModule {
      */
     public boolean logout() throws LoginException {
         username = null;
-        handler = null;
         return false;
     }
 
