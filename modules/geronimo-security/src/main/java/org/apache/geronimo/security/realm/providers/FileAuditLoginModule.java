@@ -24,7 +24,10 @@ import java.nio.channels.FileChannel;
 import java.nio.channels.FileLock;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
 import javax.security.auth.Subject;
 import javax.security.auth.callback.Callback;
@@ -33,7 +36,10 @@ import javax.security.auth.callback.NameCallback;
 import javax.security.auth.login.LoginException;
 import javax.security.auth.spi.LoginModule;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.security.jaas.JaasLoginModuleUse;
+import org.apache.geronimo.security.jaas.WrappingLoginModule;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
 
 /**
@@ -53,7 +59,11 @@ import org.apache.geronimo.system.serverinfo.ServerInfo;
  * @version $Rev$ $Date$
  */
 public class FileAuditLoginModule implements LoginModule {
+    private static Log log = LogFactory.getLog(FileAuditLoginModule.class);
+
     public static final String LOG_FILE_OPTION = "file";
+    public final static List<String> supportedOptions = Collections.unmodifiableList(Arrays.asList(LOG_FILE_OPTION));
+
     private final static DateFormat DATE_FORMAT = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss");
     private File logFile;
     private CallbackHandler handler;
@@ -61,6 +71,12 @@ public class FileAuditLoginModule implements LoginModule {
 
     public void initialize(Subject subject, CallbackHandler callbackHandler,
                            Map sharedState, Map options) {
+        for(Object option: options.keySet()) {
+            if(!supportedOptions.contains(option) && !JaasLoginModuleUse.supportedOptions.contains(option)
+                    && !WrappingLoginModule.supportedOptions.contains(option)) {
+                log.warn("Ignoring option: "+option+". Not supported.");
+            }
+        }
         String name = (String) options.get(LOG_FILE_OPTION);
         ServerInfo info = (ServerInfo) options.get(JaasLoginModuleUse.SERVERINFO_LM_OPTION);
         logFile = info.resolve(name);
@@ -104,7 +120,9 @@ public class FileAuditLoginModule implements LoginModule {
     }
 
     public boolean commit() throws LoginException {
-        writeToFile("Authentication succeeded");
+        if(username != null) {
+            writeToFile("Authentication succeeded");
+        }
         return false;
     }
 
@@ -117,8 +135,10 @@ public class FileAuditLoginModule implements LoginModule {
     }
 
     public boolean logout() throws LoginException {
-        writeToFile("Explicit logout");
-        username = null;
+        if(username != null) {
+            writeToFile("Explicit logout");
+            username = null;
+        }
         return false;
     }
 }
