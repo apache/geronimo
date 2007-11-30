@@ -81,6 +81,14 @@ public abstract class JettyConnector implements GBeanLifecycle, JettyWebConnecto
         listener.setPort(port);
     }
 
+    public int getHeaderBufferSizeBytes() {
+        return listener.getHeaderBufferSize();
+    }
+
+    public void setHeaderBufferSizeBytes(int size) {
+        listener.setHeaderBufferSize(size);
+    }
+
     public abstract int getDefaultPort();
 
     public String getDefaultScheme() {
@@ -219,8 +227,8 @@ public abstract class JettyConnector implements GBeanLifecycle, JettyWebConnecto
         // removed 'tcpNoDelay' from persistent String[]
         // added 'protocol' to persistent and manageable String[]
         infoFactory.addInterface(JettyWebConnector.class, 
-                new String[]{"host", "port", "minThreads", "maxThreads", "bufferSizeBytes", "acceptQueueSize", "lingerMillis", "protocol", "redirectPort", "connectUrl", "maxIdleTimeMs"},
-                new String[]{"host", "port", "minThreads", "maxThreads", "bufferSizeBytes", "acceptQueueSize", "lingerMillis", "protocol", "redirectPort"});
+                new String[]{"host", "port", "minThreads", "maxThreads", "bufferSizeBytes", "headerBufferSizeBytes", "acceptQueueSize", "lingerMillis", "protocol", "redirectPort", "connectUrl", "maxIdleTimeMs"},
+                new String[]{"host", "port", "minThreads", "maxThreads", "bufferSizeBytes", "headerBufferSizeBytes", "acceptQueueSize", "lingerMillis", "protocol", "redirectPort"});
         infoFactory.setConstructor(new String[]{"JettyContainer", "ThreadPool"});
         GBEAN_INFO = infoFactory.getBeanInfo();
     }

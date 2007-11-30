@@ -86,6 +86,7 @@ public class JettyManagerImpl implements WebManager {
         connectorAttributes.add(new ConnectorAttribute<Integer>("port", 8080, "The network port to bind to.", Integer.class, true));
         connectorAttributes.add(new ConnectorAttribute<Integer>("maxThreads", 10, "The maximum number of threads this connector should use to handle incoming requests", Integer.class));
         connectorAttributes.add(new ConnectorAttribute<Integer>("bufferSizeBytes", 8096, "Buffer size", Integer.class));
+        connectorAttributes.add(new ConnectorAttribute<Integer>("headerBufferSizeBytes", 8192, "Size in bytes of the header buffer", Integer.class));
         connectorAttributes.add(new ConnectorAttribute<Integer>("acceptQueueSize", 10, "acceptQueueSize", Integer.class));
         connectorAttributes.add(new ConnectorAttribute<Integer>("lingerMillis", 30000, "lingerMillis", Integer.class));
         //connectorAttributes.add(new ConnectorAttribute<Boolean>("tcpNoDelay", false, "tcpNoDelay", Boolean.class));
@@ -98,6 +99,7 @@ public class JettyManagerImpl implements WebManager {
         connectorAttributes.add(new ConnectorAttribute<Integer>("port", 8443, "The network port to bind to.", Integer.class, true));
         connectorAttributes.add(new ConnectorAttribute<Integer>("maxThreads", 10, "The maximum number of threads this connector should use to handle incoming requests", Integer.class));
         connectorAttributes.add(new ConnectorAttribute<Integer>("bufferSizeBytes", 8096, "Buffer size", Integer.class));
+        connectorAttributes.add(new ConnectorAttribute<Integer>("headerBufferSizeBytes", 8192, "Size in bytes of the header buffer", Integer.class));
         connectorAttributes.add(new ConnectorAttribute<Integer>("acceptQueueSize", 10, "acceptQueueSize", Integer.class));
         connectorAttributes.add(new ConnectorAttribute<Integer>("lingerMillis", 30000, "lingerMillis", Integer.class));
         //connectorAttributes.add(new ConnectorAttribute<Boolean>("tcpNoDelay", false, "tcpNoDelay", Boolean.class));
@@ -117,6 +119,7 @@ public class JettyManagerImpl implements WebManager {
         connectorAttributes.add(new ConnectorAttribute<Integer>("port", 8080, "The network port to bind to.", Integer.class, true));
         connectorAttributes.add(new ConnectorAttribute<Integer>("maxThreads", 10, "The maximum number of threads this connector should use to handle incoming requests", Integer.class));
         connectorAttributes.add(new ConnectorAttribute<Integer>("bufferSizeBytes", 8096, "Buffer size", Integer.class));
+        connectorAttributes.add(new ConnectorAttribute<Integer>("headerBufferSizeBytes", 8192, "Size in bytes of the header buffer", Integer.class));
         connectorAttributes.add(new ConnectorAttribute<Integer>("acceptQueueSize", 10, "acceptQueueSize", Integer.class));
         connectorAttributes.add(new ConnectorAttribute<Integer>("lingerMillis", 30000, "lingerMillis", Integer.class));
         //connectorAttributes.add(new ConnectorAttribute<Boolean>("tcpNoDelay", false, "tcpNoDelay", Boolean.class));
@@ -129,6 +132,7 @@ public class JettyManagerImpl implements WebManager {
         connectorAttributes.add(new ConnectorAttribute<Integer>("port", 8443, "The network port to bind to.", Integer.class, true));
         connectorAttributes.add(new ConnectorAttribute<Integer>("maxThreads", 10, "The maximum number of threads this connector should use to handle incoming requests", Integer.class));
         connectorAttributes.add(new ConnectorAttribute<Integer>("bufferSizeBytes", 8096, "Buffer size", Integer.class));
+        connectorAttributes.add(new ConnectorAttribute<Integer>("headerBufferSizeBytes", 8192, "Size in bytes of the header buffer", Integer.class));
         connectorAttributes.add(new ConnectorAttribute<Integer>("acceptQueueSize", 10, "acceptQueueSize", Integer.class));
         connectorAttributes.add(new ConnectorAttribute<Integer>("lingerMillis", 30000, "lingerMillis", Integer.class));
         //connectorAttributes.add(new ConnectorAttribute<Boolean>("tcpNoDelay", false, "tcpNoDelay", Boolean.class));
@@ -148,6 +152,7 @@ public class JettyManagerImpl implements WebManager {
         connectorAttributes.add(new ConnectorAttribute<Integer>("port", 8080, "The network port to bind to.", Integer.class, true));
         connectorAttributes.add(new ConnectorAttribute<Integer>("maxThreads", 10, "The maximum number of threads this connector should use to handle incoming requests", Integer.class));
         connectorAttributes.add(new ConnectorAttribute<Integer>("bufferSizeBytes", 8096, "Buffer size", Integer.class));
+        connectorAttributes.add(new ConnectorAttribute<Integer>("headerBufferSizeBytes", 8192, "Size in bytes of the header buffer", Integer.class));
         connectorAttributes.add(new ConnectorAttribute<Integer>("acceptQueueSize", 10, "acceptQueueSize", Integer.class));
         connectorAttributes.add(new ConnectorAttribute<Integer>("lingerMillis", 30000, "lingerMillis", Integer.class));
         //connectorAttributes.add(new ConnectorAttribute<Boolean>("tcpNoDelay", false, "tcpNoDelay", Boolean.class));
@@ -160,6 +165,7 @@ public class JettyManagerImpl implements WebManager {
         connectorAttributes.add(new ConnectorAttribute<Integer>("port", 8009, "The network port to bind to.", Integer.class, true));
         connectorAttributes.add(new ConnectorAttribute<Integer>("maxThreads", 10, "The maximum number of threads this connector should use to handle incoming requests", Integer.class));
         connectorAttributes.add(new ConnectorAttribute<Integer>("bufferSizeBytes", 8096, "Buffer size", Integer.class));
+        connectorAttributes.add(new ConnectorAttribute<Integer>("headerBufferSizeBytes", 8192, "Size in bytes of the header buffer", Integer.class));
         connectorAttributes.add(new ConnectorAttribute<Integer>("acceptQueueSize", 10, "acceptQueueSize", Integer.class));
         connectorAttributes.add(new ConnectorAttribute<Integer>("lingerMillis", 30000, "lingerMillis", Integer.class));
         //connectorAttributes.add(new ConnectorAttribute<Boolean>("tcpNoDelay", false, "tcpNoDelay", Boolean.class));

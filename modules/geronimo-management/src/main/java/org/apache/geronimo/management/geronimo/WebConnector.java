@@ -38,6 +38,16 @@ public interface WebConnector extends NetworkConnector {
      */
     public void setBufferSizeBytes(int bytes);
     /**
+     * Gets the size of the header buffer used to handle network data for this
+     * connector.
+     */
+    public int getHeaderBufferSizeBytes();
+    /**
+     * Sets the size of the Header buffer used to handle network data for this
+     * connector.
+     */
+    public void setHeaderBufferSizeBytes(int bytes);
+    /**
      * Gets the maximum number of threads used to service connections from
      * this connector.
      */
