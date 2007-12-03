@@ -18,6 +18,7 @@
 package org.apache.geronimo.jaxws.builder;
 
 import java.io.File;
+import java.io.OutputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.net.JarURLConnection;
 import java.net.URI;
@@ -29,6 +30,8 @@ import org.apache.geronimo.kernel.repository.Maven2Repository;
 
 public class JAXWSToolsCLI {
 
+    enum Command { WSGEN, WSIMPORT };
+    
     private static final String USAGE_MSG =
         "Usage: jaxws-tools <toolName> <tool options>\n\n" +
         "where <toolName> is:\n" +
@@ -40,10 +43,28 @@ public class JAXWSToolsCLI {
             System.err.println(USAGE_MSG);
             System.exit(1);
         }
+        
+        Command cmd = null;
+        if (args[0].equalsIgnoreCase("wsgen")) {
+            cmd = Command.WSGEN;
+        } else if (args[0].equalsIgnoreCase("wsimport")) {
+            cmd = Command.WSIMPORT;
+        } else {
+            System.err.println("Error: Unsupported toolName [" + args[0] + "].");
+            System.err.println();
+            System.err.println(USAGE_MSG);
+            System.exit(1);
+        }
 
         String geroninoHome = getGeronimoHome();
+        String[] arguments = getCmdArguments(args); 
+        boolean rs = run(cmd, geroninoHome, arguments, System.out);       
+        System.exit( (rs) ? 0 : 1 );
+    }
+    
+    static boolean run(Command cmd, String geronimoHome, String[] args, OutputStream out) throws Exception {                        
         String repository = System.getProperty("Xorg.apache.geronimo.repository.boot.path", "repository");
-        Maven2Repository mavenRepository = new Maven2Repository((new File(geroninoHome, repository)).getCanonicalFile());
+        Maven2Repository mavenRepository = new Maven2Repository((new File(geronimoHome, repository)).getCanonicalFile());
         ArrayList<ListableRepository> repositories = new ArrayList<ListableRepository>(1);
         repositories.add(mavenRepository);
 
@@ -51,30 +72,30 @@ public class JAXWSToolsCLI {
         tools.setUseSunSAAJ();
         tools.setOverrideContextClassLoader(true);
         
-        File [] jars = tools.getClasspath(repositories);
-                       
-        System.setProperty("java.class.path", JAXWSTools.toString(jars));
-        
+        File [] jars = tools.getClasspath(repositories);            
         URL[] jarUrls = JAXWSTools.toURL(jars);
-
-        boolean rs = false;
+                
+        String javaClassPath = System.getProperty("java.class.path");
+        System.setProperty("java.class.path", JAXWSTools.toString(jars));  
         
         try {
-            if (args[0].equalsIgnoreCase("wsgen")) {
-                rs = tools.invokeWsgen(jarUrls, System.out, getCmdArguments(args));
-            } else if (args[0].equalsIgnoreCase("wsimport")) {
-                rs = tools.invokeWsimport(jarUrls, System.out, getCmdArguments(args));
+            if (cmd.equals(Command.WSGEN)) {
+                return tools.invokeWsgen(jarUrls, out, args);
+            } else if (cmd.equals(Command.WSIMPORT)) {
+                return tools.invokeWsimport(jarUrls, out, args);
             } else {
-                System.err.println("Error: Unsupported toolName [" + args[0] + "].");
-                System.err.println();
-                System.err.println(USAGE_MSG);
-                System.exit(1);
+                throw new IllegalArgumentException("Invalid command: " + cmd);
             }
         } catch (InvocationTargetException e) {
-            throw e.getTargetException();
+            Throwable exception = e.getTargetException();
+            if (exception instanceof Exception) {
+                throw (Exception)exception;
+            } else {
+                throw e;
+            }
+        } finally {
+            System.setProperty("java.class.path", javaClassPath);
         }
-        
-        System.exit( (rs) ? 0 : 1 );
     }
     
     private static String[] getCmdArguments(String[] args) {
