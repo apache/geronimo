@@ -29,6 +29,8 @@ import javax.servlet.http.HttpServletResponse;
 
 public class TestServlet extends HttpServlet {
         
+    private static Integer expectedValue = new Integer(20);
+
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         String mode = request.getParameter("mode");
 
@@ -54,6 +56,23 @@ public class TestServlet extends HttpServlet {
         } catch (Exception e) {
             e.printStackTrace();
             return null;
+        }
+    }
+
+    public static void testLookup(String name) {
+        System.out.println(name);
+
+        Integer value;
+        try {
+            Context ctx = new InitialContext();
+            value = (Integer)ctx.lookup("java:comp/env/value");
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new RuntimeException(name, e);
+        }
+        
+        if (!expectedValue.equals(value)) {
+            throw new RuntimeException("Values do not match: " + expectedValue + " " + value);
         }
     }
     

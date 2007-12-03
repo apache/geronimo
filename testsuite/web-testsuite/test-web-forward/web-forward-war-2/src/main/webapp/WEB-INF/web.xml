@@ -25,6 +25,24 @@
 
    <display-name>TestServlet</display-name>
 
+   <listener>
+       <listener-class>org.apache.geronimo.test.RequestListener</listener-class>
+   </listener>
+
+   <listener>
+       <listener-class>org.apache.geronimo.test.ContextListener</listener-class>
+   </listener>
+
+   <filter>
+       <filter-name>TestFilter</filter-name>
+       <filter-class>org.apache.geronimo.test.TestFilter</filter-class>
+   </filter>
+
+   <filter-mapping>
+       <filter-name>TestFilter</filter-name>
+       <servlet-name>TestServlet</servlet-name>
+   </filter-mapping>
+
    <servlet>
        <description></description>
        <display-name>TestServlet</display-name>
