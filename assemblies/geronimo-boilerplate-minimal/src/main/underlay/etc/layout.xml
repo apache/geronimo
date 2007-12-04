@@ -80,6 +80,21 @@
             <id>gshell-builtins:unset</id>
         </command>
 
+        <command>
+            <name>alias</name>
+            <id>geronimo-commands:alias</id>
+        </command>
+
+        <command>
+            <name>unalias</name>
+            <id>geronimo-commands:unalias</id>
+        </command>
+
+        <command>
+            <name>execute-alias</name>
+            <id>geronimo-commands:execute-alias</id>
+        </command>
+
         <!-- Geronimo -->
 
         <group>
@@ -94,6 +109,30 @@
                 <command>
                     <name>stop-server</name>
                     <id>geronimo-commands:stop-server</id>
+                </command>
+            </nodes>
+        </group>
+
+        <group>
+            <name>remote</name>
+            <nodes>
+                <command>
+                    <name>rsh</name>
+                    <id>gshell-remote:rsh</id>
+                </command>
+                <command>
+                    <name>rsh-server</name>
+                    <id>gshell-remote:rsh-server</id>
+                </command>
+            </nodes>
+        </group>
+        
+        <group>
+            <name>remote-control</name>
+            <nodes>
+                <command>
+                    <name>server-control</name>
+                    <id>geronimo-commands:remote-server-control</id>
                 </command>
             </nodes>
         </group>
