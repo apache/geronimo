@@ -23,6 +23,7 @@ import java.io.PrintWriter;
 import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.servlet.ServletException;
+import javax.servlet.ServletConfig;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -47,6 +48,14 @@ public class TestServlet extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
     }         
 
+    public void init(ServletConfig config) throws ServletException {
+        super.init(config);
+        testLookup("servletInit");
+    }
+
+    public void destroy() {
+        testLookup("servletDestroy");
+    }
 
     private Integer lookup(String name, HttpServletRequest request) {
         try {

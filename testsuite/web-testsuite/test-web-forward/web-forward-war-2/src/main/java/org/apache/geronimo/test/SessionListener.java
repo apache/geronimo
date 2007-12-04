@@ -17,17 +17,18 @@
 
 package org.apache.geronimo.test;
 
-import javax.servlet.ServletRequestEvent;
-import javax.servlet.ServletRequestListener;
+import java.io.IOException;
+import javax.servlet.http.HttpSessionListener;
+import javax.servlet.http.HttpSessionEvent;
 
-public class RequestListener implements ServletRequestListener {
+public class SessionListener implements HttpSessionListener {
         
-    public void requestDestroyed(ServletRequestEvent event) {
-        TestServlet.testLookup("requestDestroyed");
+    public void sessionCreated(HttpSessionEvent se) {
+        TestServlet.testLookup("sessionCreated");
     }
 
-    public void requestInitialized(ServletRequestEvent event) {
-        TestServlet.testLookup("requestInitialized");
+    public void sessionDestroyed(HttpSessionEvent se) {
+        TestServlet.testLookup("sessionDestroyed");
     }
-    
+
 }

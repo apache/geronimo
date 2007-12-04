@@ -28,7 +28,7 @@ import javax.servlet.ServletResponse;
 public class TestFilter implements Filter {
         
     public void init(FilterConfig filterConfig) {
-        //TestServlet.testLookup("initFilter");
+        TestServlet.testLookup("filterInit");
     }
 
     public void doFilter(ServletRequest request, ServletResponse response,
@@ -38,7 +38,7 @@ public class TestFilter implements Filter {
     }
 
     public void destroy() {  
-        //TestServlet.testLookup("destroyFilter");
+        TestServlet.testLookup("filterDestroy");
     }
 
 }

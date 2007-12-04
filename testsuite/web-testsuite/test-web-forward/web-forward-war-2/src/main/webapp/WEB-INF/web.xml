@@ -33,6 +33,10 @@
        <listener-class>org.apache.geronimo.test.ContextListener</listener-class>
    </listener>
 
+   <listener>
+       <listener-class>org.apache.geronimo.test.SessionListener</listener-class>
+   </listener>
+
    <filter>
        <filter-name>TestFilter</filter-name>
        <filter-class>org.apache.geronimo.test.TestFilter</filter-class>
