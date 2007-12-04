@@ -58,20 +58,4 @@ public class ServerInstance {
     public AliasedArtifactResolver getArtifactResolver() {
         return artifactResolver;
     }
-    public static final GBeanInfo GBEAN_INFO;
-
-    static {
-        GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic(ServerInstance.class, "ServerInstance");
-        infoFactory.addAttribute("serverName", String.class, true, true);
-        infoFactory.addReference("PluginAttributeStore", PluginAttributeStore.class, "AttributeStore");
-        infoFactory.addReference("ArtifactResolver", AliasedArtifactResolver.class, "ArtifactResolver");
-
-        infoFactory.setConstructor(new String[]{"serverName", "PluginAttributeStore", "ArtifactResolver"});
-
-        GBEAN_INFO = infoFactory.getBeanInfo();
-    }
-
-    public static GBeanInfo getGBeanInfo() {
-        return GBEAN_INFO;
-    }
 }

@@ -53,7 +53,7 @@ public class SimpleConfigurationManager implements ConfigurationManager {
     private final ArtifactResolver artifactResolver;
     protected final Map configurations = new LinkedHashMap();
     protected final ConfigurationModel configurationModel = new ConfigurationModel();
-    protected final Collection repositories;
+    protected final Collection<? extends Repository> repositories;
     protected final Collection watchers;
 
     /**
@@ -65,16 +65,16 @@ public class SimpleConfigurationManager implements ConfigurationManager {
     private Configuration reloadingConfiguration;
 
 
-    public SimpleConfigurationManager(Collection stores, ArtifactResolver artifactResolver, Collection repositories) {
+    public SimpleConfigurationManager(Collection stores, ArtifactResolver artifactResolver, Collection<? extends Repository> repositories) {
         this(stores, artifactResolver, repositories, Collections.EMPTY_SET);
     }
     
     public SimpleConfigurationManager(Collection stores,
             ArtifactResolver artifactResolver,
-            Collection repositories,
+            Collection<? extends Repository> repositories,
             Collection watchers) {
         if (stores == null) stores = Collections.EMPTY_SET;
-        if (repositories == null) repositories = Collections.EMPTY_SET;
+        if (repositories == null) repositories = Collections.emptySet();
         if (watchers == null) watchers = Collections.EMPTY_SET;
 
         this.stores = stores;
@@ -153,7 +153,7 @@ public class SimpleConfigurationManager implements ConfigurationManager {
         return (ConfigurationStore[]) storeSnapshot.toArray(new ConfigurationStore[storeSnapshot.size()]);
     }
 
-    public Collection getRepositories() {
+    public Collection<? extends Repository> getRepositories() {
         return repositories;
     }
 
@@ -181,10 +181,9 @@ public class SimpleConfigurationManager implements ConfigurationManager {
         return null;
     }
 
-    public List listConfigurations(AbstractName storeName) throws NoSuchStoreException {
-        List storeSnapshot = getStoreList();
-        for (int i = 0; i < storeSnapshot.size(); i++) {
-            ConfigurationStore store = (ConfigurationStore) storeSnapshot.get(i);
+    public List<ConfigurationInfo> listConfigurations(AbstractName storeName) throws NoSuchStoreException {
+        List<ConfigurationStore> storeSnapshot = getStoreList();
+        for (ConfigurationStore store : storeSnapshot) {
             if (storeName.equals(store.getAbstractName())) {
                 return listConfigurations(store);
             }
@@ -192,9 +191,9 @@ public class SimpleConfigurationManager implements ConfigurationManager {
         throw new NoSuchStoreException("No such store: " + storeName);
     }
 
-    private List listConfigurations(ConfigurationStore store) {
-        List list = store.listConfigurations();
-        for (ListIterator iterator = list.listIterator(); iterator.hasNext();) {
+    private List<ConfigurationInfo> listConfigurations(ConfigurationStore store) {
+        List<ConfigurationInfo> list = store.listConfigurations();
+        for (ListIterator<ConfigurationInfo> iterator = list.listIterator(); iterator.hasNext();) {
             ConfigurationInfo configurationInfo = (ConfigurationInfo) iterator.next();
             if (isRunning(configurationInfo.getConfigID())) {
                 configurationInfo = new ConfigurationInfo(store.getAbstractName(),

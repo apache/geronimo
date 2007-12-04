@@ -19,29 +19,26 @@
 
 package org.apache.geronimo.mavenplugins.car;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.FileOutputStream;
 import java.io.BufferedOutputStream;
-
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.Iterator;
-import java.util.Properties;
-import java.util.Map;
 import java.util.List;
+import java.util.Map;
+import java.util.Properties;
 
-import org.codehaus.mojo.pluginsupport.MojoSupport;
-import org.codehaus.mojo.pluginsupport.util.ArtifactItem;
-import org.codehaus.mojo.pluginsupport.dependency.DependencyHelper;
-import org.codehaus.mojo.pluginsupport.dependency.DependencyTree;
-import org.codehaus.mojo.pluginsupport.dependency.DependencyTree.Node;
-
+import org.apache.maven.artifact.Artifact;
+import org.apache.maven.artifact.repository.ArtifactRepository;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.project.MavenProjectHelper;
-import org.apache.maven.artifact.Artifact;
-import org.apache.maven.artifact.repository.ArtifactRepository;
-import org.apache.maven.model.*;
+import org.codehaus.mojo.pluginsupport.MojoSupport;
+import org.codehaus.mojo.pluginsupport.dependency.DependencyHelper;
+import org.codehaus.mojo.pluginsupport.dependency.DependencyTree;
+import org.codehaus.mojo.pluginsupport.dependency.DependencyTree.Node;
+import org.codehaus.mojo.pluginsupport.util.ArtifactItem;
 
 /**
  * Support for <em>packaging</em> Mojos.

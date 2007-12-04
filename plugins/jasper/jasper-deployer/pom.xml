@@ -73,6 +73,7 @@
                       <dependency>
                         <groupId>org.apache.geronimo.configs</groupId>
                         <artifactId>jasper</artifactId>
+                          <version>2.1-SNAPSHOT</version>
                         <type>car</type>
                         <import>classes</import>
                       </dependency>
@@ -86,6 +87,7 @@
                       <dependency>
                         <groupId>org.apache.geronimo.configs</groupId>
                         <artifactId>j2ee-deployer</artifactId>
+                          <version>2.1-SNAPSHOT</version>
                         <type>car</type>
                       </dependency>
                     </dependencies>

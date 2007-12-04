@@ -51,6 +51,7 @@ import org.apache.geronimo.kernel.repository.ArtifactResolver;
 import org.apache.geronimo.kernel.repository.DefaultArtifactResolver;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.kernel.repository.Version;
+import org.apache.geronimo.kernel.repository.Repository;
 
 
 /**
@@ -469,6 +470,10 @@ public class SingleFileHotDeployerTest extends TestCase {
         }
 
         public void setOnline(boolean online) {
+        }
+
+        public Collection<? extends Repository> getRepositories() {
+            return null;
         }
     }
 }

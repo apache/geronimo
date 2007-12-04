@@ -48,7 +48,8 @@ public class CommandInstallCAR extends AbstractCommand {
                 if(!carFile.exists() || !carFile.canRead()) {
                     throw new DeploymentException("CAR file cannot be read: "+carFile.getAbsolutePath());
                 }
-                Object key = mgr.startInstall(carFile, null, null);
+                //TODO figure out if there is a plausible default repo
+                Object key = mgr.startInstall(carFile, null, false, null, null);
                 long start = System.currentTimeMillis();
                 DownloadResults results = showProgress(mgr, key);
                 int time = (int)(System.currentTimeMillis() - start) / 1000;

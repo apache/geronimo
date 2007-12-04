@@ -52,6 +52,7 @@ import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.ArtifactResolver;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.kernel.repository.Version;
+import org.apache.geronimo.kernel.repository.Repository;
 import org.apache.geronimo.schema.SchemaConversionUtils;
 import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlException;
@@ -195,6 +196,10 @@ public class MessageDestinationTest extends TestCase {
         }
 
         public void setOnline(boolean online) {
+        }
+
+        public Collection<? extends Repository> getRepositories() {
+            return null;
         }
 
         public boolean isLoaded(Artifact configurationId) {

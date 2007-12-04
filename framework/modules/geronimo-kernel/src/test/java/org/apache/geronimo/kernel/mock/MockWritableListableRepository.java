@@ -37,4 +37,12 @@ public class MockWritableListableRepository extends MockRepository implements Wr
 
     public void copyToRepository(InputStream source, int size, Artifact destination, FileWriteMonitor monitor) throws IOException {
     }
+
+    /**
+     * @deprecated remove as soon as possible && dont ever use
+     * @return
+     */
+    public String getRootPath() {
+        return null;
+    }
 }

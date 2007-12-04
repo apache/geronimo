@@ -155,6 +155,11 @@
                     <name>disconnect</name>
                     <id>geronimo-commands:disconnect</id>
                 </command>
+
+                <command>
+                    <name>assemble</name>
+                    <id>geronimo-commands:assemble-server</id>
+                </command>
             </nodes>
         </group>
 

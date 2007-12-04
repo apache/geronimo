@@ -80,9 +80,10 @@ public class AbsentSampleServlet extends HttpServlet {
         instance.getDependency().add(PluginInstallerGBean.toDependencyType(new Dependency(Artifact.create(moduleIdName), ImportType.ALL)));
         PluginListType list = new PluginListType();
         list.getPlugin().add(target);
-        list.getDefaultRepository().add(repo.toString());
+//        list.getDefaultRepository().add(repo.toString());
+        //todo this is surely wrong
         list.getDefaultRepository().add("http://www.ibiblio.org/maven2/");
-        DownloadResults results = installer.install(list, null, null);
+        DownloadResults results = installer.install(list, repo.toString(), false, null, null);
         if(results.isFailed()) {
             throw new ServletException("Unable to install sample application", results.getFailure());
         }

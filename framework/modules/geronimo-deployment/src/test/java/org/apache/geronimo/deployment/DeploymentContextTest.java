@@ -26,6 +26,7 @@ import java.util.Map;
 import java.util.HashMap;
 import java.util.List;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.jar.JarFile;
 
 import javax.sql.DataSource;
@@ -53,6 +54,7 @@ import org.apache.geronimo.kernel.repository.DefaultArtifactManager;
 import org.apache.geronimo.kernel.repository.ArtifactResolver;
 import org.apache.geronimo.kernel.repository.DefaultArtifactResolver;
 import org.apache.geronimo.kernel.repository.Version;
+import org.apache.geronimo.kernel.repository.Repository;
 import org.apache.geronimo.deployment.util.DeploymentUtil;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.common.DeploymentException;
@@ -402,6 +404,10 @@ public class DeploymentContextTest extends TestCase {
         }
 
         public void setOnline(boolean online) {
+        }
+
+        public Collection<? extends Repository> getRepositories() {
+            return null;
         }
     }
 

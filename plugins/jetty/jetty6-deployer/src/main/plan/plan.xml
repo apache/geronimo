@@ -127,6 +127,7 @@ wsdl=text/xml
                     <dependency>
                         <groupId>${pom.groupId}</groupId>
                         <artifactId>jetty6</artifactId>
+                        <version>${version}</version>
                         <type>car</type>
                     </dependency>
                 </dependencies>

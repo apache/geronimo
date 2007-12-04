@@ -18,9 +18,10 @@ package org.apache.geronimo.system.plugin;
 
 import java.io.IOException;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
 
 import junit.framework.TestCase;
@@ -38,6 +39,7 @@ import org.apache.geronimo.kernel.mock.MockConfigStore;
 import org.apache.geronimo.kernel.mock.MockWritableListableRepository;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.ArtifactResolver;
+import org.apache.geronimo.kernel.repository.Repository;
 import org.apache.geronimo.kernel.repository.Version;
 import org.apache.geronimo.system.plugin.model.PluginArtifactType;
 import org.apache.geronimo.system.plugin.model.PluginListType;
@@ -242,5 +244,10 @@ public class PluginInstallerTest extends TestCase {
 
         public void setOnline(boolean online) {
         }
+
+        public Collection<? extends Repository> getRepositories() {
+            return null;
+        }
     }
+
 }

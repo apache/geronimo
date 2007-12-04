@@ -74,7 +74,7 @@ public class BasicServerInfo implements ServerInfo {
         }
 
         baseURI = base.toURI();
-        baseServer = deriveBaseServer();
+        baseServer = deriveBaseServer(useSystemProperties);
         baseServerURI = baseServer.toURI();
         if (useSystemProperties) {
             System.setProperty(HOME_DIR_SYS_PROP, base.getAbsolutePath());
@@ -161,16 +161,16 @@ public class BasicServerInfo implements ServerInfo {
         return new File(baseDir, filename);
     }
 
-    private File deriveBaseServer() {
+    private File deriveBaseServer(boolean useSystemProperties) {
         File baseServerDir;
         
         // first check if the base server directory has been provided via
         // system property override.
         String baseServerDirPath = System.getProperty(SERVER_DIR_SYS_PROP);
-        if (null == baseServerDirPath) {
+        if (!useSystemProperties || null == baseServerDirPath) {
             // then check if a server name has been provided
             String serverName = System.getProperty(SERVER_NAME_SYS_PROP);
-            if (null == serverName) {
+            if (!useSystemProperties || null == serverName) {
                 // default base server directory.
                 baseServerDir = base;
             } else {

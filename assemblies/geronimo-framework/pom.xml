@@ -193,32 +193,22 @@
                 <artifactId>car-maven-plugin</artifactId>
                 <executions>
                     <execution>
+                        <id>install</id>
                         <phase>compile</phase>
                         <goals>
                             <goal>install-modules</goal>
                         </goals>
                     </execution>
-                </executions>
-            </plugin>
-
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-assembly-plugin</artifactId>
-                <executions>
                     <execution>
-                        <id>bin</id>
+                        <id>archive</id>
                         <phase>package</phase>
                         <goals>
-                            <goal>attached</goal>
+                            <goal>archive</goal>
                         </goals>
-                        <configuration>
-                            <descriptors>
-                                <descriptor>${pom.basedir}/src/main/assembly/bin.xml</descriptor>
-                            </descriptors>
-                        </configuration>
                     </execution>
                 </executions>
             </plugin>
+
         </plugins>
         
     </build>

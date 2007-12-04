@@ -23,6 +23,7 @@ package org.apache.geronimo.security.deployment;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Collections;
+import java.util.Collection;
 import java.io.IOException;
 import java.io.File;
 import java.net.URI;
@@ -34,6 +35,7 @@ import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.Version;
 import org.apache.geronimo.kernel.repository.ArtifactResolver;
 import org.apache.geronimo.kernel.repository.Environment;
+import org.apache.geronimo.kernel.repository.Repository;
 import org.apache.geronimo.kernel.config.ConfigurationManager;
 import org.apache.geronimo.kernel.config.ConfigurationStore;
 import org.apache.geronimo.kernel.config.NoSuchStoreException;
@@ -54,7 +56,7 @@ import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlException;
 
 /**
- * @version $Rev:$ $Date:$
+ * @version $Rev$ $Date$
  */
 public class LoginConfigBuilderTest extends TestCase {
     //2.0 namespace, with server-side
@@ -145,6 +147,10 @@ public class LoginConfigBuilderTest extends TestCase {
         }
 
         public void setOnline(boolean online) {
+        }
+
+        public Collection<? extends Repository> getRepositories() {
+            return null;
         }
 
         public boolean isLoaded(Artifact configurationId) {

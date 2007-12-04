@@ -85,13 +85,15 @@ public interface PluginInstaller {
      * operation completes.  Note that this method does not throw exceptions on failure,
      * but instead sets the failure property of the DownloadResults.
      *
+     * @param pluginsToInstall The list of configurations to install
+     * @param defaultRepository
+     * @param restrictToDefaultRepository
      * @param username         Optional username, if the maven repo uses HTTP Basic authentication.
      *                         Set this to null if no authentication is required.
      * @param password         Optional password, if the maven repo uses HTTP Basic authentication.
-     *                         Set this to null if no authentication is required.
-     * @param pluginsToInstall The list of configurations to install
+ *                         Set this to null if no authentication is required.
      */
-    public DownloadResults install(PluginListType pluginsToInstall, String username, String password);
+    public DownloadResults install(PluginListType pluginsToInstall, String defaultRepository, boolean restrictToDefaultRepository, String username, String password);
 
     /**
      * Installs a configuration from a remote repository into the local Geronimo server,
@@ -103,13 +105,15 @@ public interface PluginInstaller {
      * DownloadPoller.
      *
      * @param pluginsToInstall The list of configurations to install
+     * @param defaultRepository
+     * @param restrictToDefaultRepository
      * @param username         Optional username, if the maven repo uses HTTP Basic authentication.
      *                         Set this to null if no authentication is required.
      * @param password         Optional password, if the maven repo uses HTTP Basic authentication.
-     *                         Set this to null if no authentication is required.
+ *                         Set this to null if no authentication is required.
      * @param poller           Will be notified with status updates as the download proceeds
      */
-    public void install(PluginListType pluginsToInstall, String username, String password, DownloadPoller poller);
+    public void install(PluginListType pluginsToInstall, String defaultRepository, boolean restrictToDefaultRepository, String username, String password, DownloadPoller poller);
 
     /**
      * Installs a configuration from a remote repository into the local Geronimo server,
@@ -119,14 +123,15 @@ public interface PluginInstaller {
      * property of the DownloadResults that the caller can poll for.
      *
      * @param pluginsToInstall The list of configurations to install
+     * @param defaultRepository
+     *@param restrictToDefaultRepository
      * @param username         Optional username, if the maven repo uses HTTP Basic authentication.
      *                         Set this to null if no authentication is required.
      * @param password         Optional password, if the maven repo uses HTTP Basic authentication.
-     *                         Set this to null if no authentication is required.
-     *
-     * @return A key that can be passed to checkOnInstall
+ *                         Set this to null if no authentication is required.
+ * @return A key that can be passed to checkOnInstall
      */
-    public Object startInstall(PluginListType pluginsToInstall, String username, String password);
+    public Object startInstall(PluginListType pluginsToInstall, String defaultRepository, boolean restrictToDefaultRepository, String username, String password);
 
     /**
      * Installs a configuration downloaded from a remote repository into the local Geronimo
@@ -141,14 +146,15 @@ public interface PluginInstaller {
      *                  separately.  The metadata in the CAR file includes a repository URL
      *                  for these downloads, and the username and password arguments are
      *                  used in conjunction with that.
+     * @param defaultRepository
+     *@param restrictToDefaultRepository
      * @param username  Optional username, if the maven repo uses HTTP Basic authentication.
      *                  Set this to null if no authentication is required.
      * @param password  Optional password, if the maven repo uses HTTP Basic authentication.
-     *                  Set this to null if no authentication is required.
-     *
-     * @return A key that can be passed to checkOnInstall
+ *                  Set this to null if no authentication is required.
+ * @return A key that can be passed to checkOnInstall
      */
-    public Object startInstall(File carFile, String username, String password);
+    public Object startInstall(File carFile, String defaultRepository, boolean restrictToDefaultRepository, String username, String password);
 
     /**
      * Gets the current progress of a download operation.  Note that once the
@@ -178,7 +184,9 @@ public interface PluginInstaller {
      */
     public Dependency[] checkPrerequisites(PluginType plugin);
 
-    PluginListType createPluginListForRepositories(ConfigurationManager mgr, String repo) throws NoSuchStoreException;
+    PluginListType createPluginListForRepositories(String repo) throws NoSuchStoreException;
 
     public Artifact installLibrary(File libFile, String groupId) throws IOException;
+
+    void installPluginList(String targetRepositoryPath, String relativeTargetServerPath, PluginListType pluginList, DownloadResults downloadPoller) throws Exception;
 }

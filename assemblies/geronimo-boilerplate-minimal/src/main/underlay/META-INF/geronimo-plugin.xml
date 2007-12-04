@@ -27,10 +27,52 @@
             <groupId>org.apache.geronimo.assemblies</groupId>
             <artifactId>geronimo-boilerplate-minimal</artifactId>
             <version>2.1-SNAPSHOT</version>
-            <type>car</type>
+            <type>jar</type>
         </module-id>
         <geronimo-version>2.1-SNAPSHOT</geronimo-version>
         <jvm-version>1.5</jvm-version>
+        <dependency start="false">
+            <groupId>org.apache.geronimo.specs</groupId>
+            <artifactId>geronimo-javaee-deployment_1.1MR3_spec</artifactId>
+            <version>1.0</version>
+            <type>jar</type>
+        </dependency>
+        <dependency start="false">
+            <groupId>org.apache.geronimo.modules</groupId>
+            <artifactId>geronimo-cli</artifactId>
+            <version>2.1-SNAPSHOT</version>
+            <type>jar</type>
+        </dependency>
+        <dependency start="false">
+            <groupId>org.apache.geronimo.modules</groupId>
+            <artifactId>geronimo-deploy-config</artifactId>
+            <version>2.1-SNAPSHOT</version>
+            <type>jar</type>
+        </dependency>
+        <dependency start="false">
+            <groupId>org.apache.geronimo.modules</groupId>
+            <artifactId>geronimo-deploy-jsr88</artifactId>
+            <version>2.1-SNAPSHOT</version>
+            <type>jar</type>
+        </dependency>
+        <dependency start="false">
+            <groupId>org.apache.geronimo.modules</groupId>
+            <artifactId>geronimo-deploy-tool</artifactId>
+            <version>2.1-SNAPSHOT</version>
+            <type>jar</type>
+        </dependency>
+        <dependency start="false">
+            <groupId>org.apache.geronimo.modules</groupId>
+            <artifactId>geronimo-system</artifactId>
+            <version>2.1-SNAPSHOT</version>
+            <type>jar</type>
+        </dependency>
+        <dependency start="false">
+            <groupId>org.apache.geronimo.modules</groupId>
+            <artifactId>geronimo-common</artifactId>
+            <version>2.1-SNAPSHOT</version>
+            <type>jar</type>
+        </dependency>
         <copy-file relative-to="geronimo" dest-dir=""></copy-file>
     </plugin-artifact>
 </geronimo-plugin>

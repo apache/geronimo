@@ -17,15 +17,17 @@
 package org.apache.geronimo.deployment.plugin;
 
 import java.net.URL;
-import org.apache.geronimo.system.plugin.PluginInstaller;
 
 import javax.enterprise.deploy.spi.DeploymentManager;
+
+import org.apache.geronimo.system.plugin.PluginInstaller;
+import org.apache.geronimo.system.plugin.ServerArchiver;
 
 /**
  * Enhanced features for Geronimo deployment manager
  *
  * @version $Rev$ $Date$
  */
-public interface GeronimoDeploymentManager extends DeploymentManager, PluginInstaller {
+public interface GeronimoDeploymentManager extends DeploymentManager, PluginInstaller, ServerArchiver {
     public URL[] getRepositories();
 }

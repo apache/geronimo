@@ -25,6 +25,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Collection;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.geronimo.gbean.AbstractName;
@@ -40,6 +41,7 @@ import org.apache.geronimo.kernel.config.NoSuchStoreException;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.ArtifactResolver;
 import org.apache.geronimo.kernel.repository.Version;
+import org.apache.geronimo.kernel.repository.Repository;
 import org.apache.geronimo.system.configuration.RepositoryConfigurationStore;
 import org.apache.geronimo.system.plugin.model.CopyFileType;
 import org.apache.geronimo.system.repository.Maven2Repository;
@@ -307,6 +309,10 @@ public class CopyFileTest extends TestSupport {
         }
 
         public void setOnline(boolean online) {
+        }
+
+        public Collection<? extends Repository> getRepositories() {
+            return null;
         }
     }
 }

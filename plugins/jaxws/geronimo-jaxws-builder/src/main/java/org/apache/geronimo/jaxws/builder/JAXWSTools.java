@@ -31,6 +31,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.ListableRepository;
+import org.apache.geronimo.kernel.repository.Repository;
 import org.apache.geronimo.kernel.repository.Version;
 
 public class JAXWSTools {
@@ -94,7 +95,7 @@ public class JAXWSTools {
         return buf.toString();
     }
     
-    public File[] getClasspath(Collection<ListableRepository> repositories) throws Exception {
+    public File[] getClasspath(Collection<? extends Repository> repositories) throws Exception {
         ArrayList<File> jars = new ArrayList<File>();
         jars.add(getLocation(repositories, JAXB_API_ARTIFACT));
         jars.add(getLocation(repositories, JAXB_IMPL_ARTIFACT));
@@ -116,19 +117,22 @@ public class JAXWSTools {
         return jars.toArray(new File[jars.size()]);
     }
        
-    private static File getLocation(Collection<ListableRepository> repositories, Artifact artifactQuery) throws Exception {
+    private static File getLocation(Collection<? extends Repository> repositories, Artifact artifactQuery) throws Exception {
         File file = null;
         
-        for (ListableRepository repository : repositories) {
-            SortedSet artifactSet = repository.list(artifactQuery);
-            // if we have exactly one artifact found
-            if (artifactSet.size() == 1) {
-                file = repository.getLocation((Artifact) artifactSet.first());                
-                return file.getAbsoluteFile();
-            } else if (artifactSet.size() > 1) {// if we have more than 1 artifacts found use the latest one.
-                file = repository.getLocation((Artifact) artifactSet.last());
-                return file.getAbsoluteFile();
-            } 
+        for (Repository arepository : repositories) {
+            if (arepository instanceof ListableRepository) {
+                ListableRepository repository = (ListableRepository) arepository;
+                SortedSet artifactSet = repository.list(artifactQuery);
+                // if we have exactly one artifact found
+                if (artifactSet.size() == 1) {
+                    file = repository.getLocation((Artifact) artifactSet.first());
+                    return file.getAbsoluteFile();
+                } else if (artifactSet.size() > 1) {// if we have more than 1 artifacts found use the latest one.
+                    file = repository.getLocation((Artifact) artifactSet.last());
+                    return file.getAbsoluteFile();
+                }
+            }
         }
         
         throw new Exception("Missing artifact in repositories: " + artifactQuery.toString());

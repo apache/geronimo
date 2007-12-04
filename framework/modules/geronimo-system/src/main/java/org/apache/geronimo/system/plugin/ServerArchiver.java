@@ -18,13 +18,17 @@
  */
 
 
-package org.apache.geronimo.mavenplugins.car;
+package org.apache.geronimo.system.plugin;
 
-import org.apache.geronimo.system.plugin.ServerInstanceData;
+import java.io.File;
+import java.io.IOException;
+
+import org.apache.geronimo.kernel.repository.Artifact;
+import org.codehaus.plexus.archiver.ArchiverException;
 
 /**
- * This class exists only to help maven set the values.
  * @version $Rev:$ $Date:$
  */
-public class ServerInstance extends ServerInstanceData {
+public interface ServerArchiver {
+    File archive(String sourcePath, String destPath, Artifact artifact) throws ArchiverException, IOException;
 }

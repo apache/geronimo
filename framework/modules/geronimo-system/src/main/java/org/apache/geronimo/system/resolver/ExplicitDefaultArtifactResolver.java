@@ -38,14 +38,14 @@ import org.apache.geronimo.system.serverinfo.ServerInfo;
 /**
  * @version $Rev$ $Date$
  */
-public class ExplicitDefaultArtifactResolver extends DefaultArtifactResolver implements AliasedArtifactResolver {
+public class ExplicitDefaultArtifactResolver extends DefaultArtifactResolver implements LocalAliasedArtifactResolver {
     private static final String COMMENT = "#You can use this file to indicate that you want to substitute one module for another.\n" +
             "#format is oldartifactid=newartifactId e.g.\n" +
             "#org.apache.geronimo.configs/transaction//car=org.apache.geronimo.configs/transaction-jta11/1.2-SNAPSHOT/car\n" +
             "#versions can be ommitted on the left side but not the right.\n" +
             "#This can also specify explicit versions in the same format.";
 
-    private final String versionMapLocation;
+    private final String artifactAliasesFile;
     private final ServerInfo serverInfo;
 
     public ExplicitDefaultArtifactResolver(String versionMapLocation,
@@ -53,8 +53,13 @@ public class ExplicitDefaultArtifactResolver extends DefaultArtifactResolver imp
             Collection<? extends ListableRepository> repositories,
             ServerInfo serverInfo ) throws IOException {
         super(artifactManager, repositories, buildExplicitResolution(versionMapLocation, serverInfo));
-        this.versionMapLocation = versionMapLocation;
+        this.artifactAliasesFile = versionMapLocation;
         this.serverInfo = serverInfo;
+    }
+
+
+    public String getArtifactAliasesFile() {
+        return artifactAliasesFile;
     }
 
     private static Map<Artifact, Artifact> buildExplicitResolution(String versionMapLocation, ServerInfo serverInfo) throws IOException {
@@ -123,7 +128,7 @@ public class ExplicitDefaultArtifactResolver extends DefaultArtifactResolver imp
     public synchronized void addAliases(Properties properties) throws IOException {
         Map<Artifact, Artifact> explicitResolutions = propertiesToArtifactMap(properties);
         getExplicitResolution().putAll(explicitResolutions);
-        saveExplicitResolution(getExplicitResolution(), versionMapLocation, serverInfo);
+        saveExplicitResolution(getExplicitResolution(), artifactAliasesFile, serverInfo);
     }
 
     public static final GBeanInfo GBEAN_INFO;

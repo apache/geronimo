@@ -203,7 +203,7 @@ public class GeronimoAsMavenServlet extends HttpServlet {
         if(!repo.endsWith("/")) repo += "/";
         ConfigurationManager mgr = ConfigurationUtil.getConfigurationManager(kernel);
         PluginInstaller installer = getInstaller(kernel);
-        PluginListType pluginList = installer.createPluginListForRepositories(mgr, repo);
+        PluginListType pluginList = installer.createPluginListForRepositories(repo);
         PluginXmlUtil.writePluginList(pluginList, out);
     }
 

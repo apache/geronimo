@@ -1575,13 +1575,13 @@
                 <artifactId>gshell-cli</artifactId>
                 <version>1.0-alpha-1-SNAPSHOT</version>
             </dependency>
-           
+
             <dependency>
                 <groupId>org.apache.geronimo.gshell</groupId>
                 <artifactId>gshell-whisper</artifactId>
                 <version>1.0-alpha-1-SNAPSHOT</version>
             </dependency>
- 
+
             <dependency>
                 <groupId>org.apache.geronimo.gshell.commands</groupId>
                 <artifactId>gshell-builtins</artifactId>
@@ -1593,31 +1593,31 @@
                 <artifactId>gshell-remote-client</artifactId>
                 <version>1.0-alpha-1-SNAPSHOT</version>
             </dependency>
-            
+
             <dependency>
                 <groupId>org.apache.geronimo.gshell.remote</groupId>
                 <artifactId>gshell-remote-common</artifactId>
                 <version>1.0-alpha-1-SNAPSHOT</version>
             </dependency>
-            
+
             <dependency>
                 <groupId>org.apache.geronimo.gshell.remote</groupId>
                 <artifactId>gshell-remote-server</artifactId>
                 <version>1.0-alpha-1-SNAPSHOT</version>
             </dependency>
-   
+
             <dependency>
                 <groupId>org.apache.mina</groupId>
                 <artifactId>mina-core</artifactId>
                 <version>1.1.2</version>
             </dependency>
-            
+
             <dependency>
                 <groupId>org.apache.mina</groupId>
                 <artifactId>mina-filter-ssl</artifactId>
                 <version>1.1.2</version>
             </dependency>
- 
+
             <dependency>
                 <groupId>org.codehaus.groovy</groupId>
                 <artifactId>groovy-all</artifactId>
@@ -1754,6 +1754,28 @@
                 <version>${plutoVersion}</version>
             </dependency>
 
+            <!-- archive support -->
+            <!-- archiver version matches maven 2.0.7.  Upgrading maven may require upgrading this version -->
+            <dependency>
+                 <groupId>org.codehaus.plexus</groupId>
+                 <artifactId>plexus-archiver</artifactId>
+                 <version>1.0-alpha-7</version>
+             </dependency>
+             <dependency>
+                 <groupId>org.codehaus.plexus</groupId>
+                 <artifactId>plexus-utils</artifactId>
+                 <version>1.4.1</version>
+             </dependency>
+             <dependency>
+               <groupId>org.codehaus.plexus</groupId>
+               <artifactId>plexus-container-default</artifactId>
+               <version>1.0-alpha-9</version>
+             </dependency>
+             <dependency>
+               <groupId>org.codehaus.plexus</groupId>
+               <artifactId>plexus-component-api</artifactId>
+               <version>1.0-alpha-15</version>
+             </dependency>
         </dependencies>
     </dependencyManagement>
 

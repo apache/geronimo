@@ -18,13 +18,11 @@
  */
 
 
-package org.apache.geronimo.mavenplugins.car;
-
-import org.apache.geronimo.system.plugin.ServerInstanceData;
+package org.apache.geronimo.system.resolver;
 
 /**
- * This class exists only to help maven set the values.
  * @version $Rev:$ $Date:$
  */
-public class ServerInstance extends ServerInstanceData {
+public interface LocalAliasedArtifactResolver extends AliasedArtifactResolver {
+    String getArtifactAliasesFile();
 }

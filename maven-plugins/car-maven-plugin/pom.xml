@@ -133,7 +133,13 @@
             <artifactId>maven-artifact</artifactId>
             <version>2.0.4</version>
         </dependency>
-        
+
+        <!-- HACK try to use our archiver version -->
+        <!--<dependency>-->
+            <!--<groupId>org.codehaus.plexus</groupId>-->
+            <!--<artifactId>plexus-archiver</artifactId>-->
+            <!--<version>1.0-alpha-9</version>-->
+        <!--</dependency>-->
     </dependencies>
     
     <build>

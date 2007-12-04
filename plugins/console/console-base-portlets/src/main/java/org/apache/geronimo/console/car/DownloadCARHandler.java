@@ -130,10 +130,9 @@ public class DownloadCARHandler extends BaseImportExportHandler {
             PluginType copy = PluginInstallerGBean.copy(plugin, instance);
             PluginListType installList = new PluginListType();
             installList.getPlugin().add(copy);
-            installList.getDefaultRepository().add(repo);
 
             PluginInstaller configInstaller = PortletManager.getCurrentServer(request).getPluginInstaller();
-            Object downloadKey = configInstaller.startInstall(installList, user, pass);
+            Object downloadKey = configInstaller.startInstall(installList, repo, false, user, pass);
             DownloadResults results = configInstaller.checkOnInstall(downloadKey);
             request.getPortletSession(true).setAttribute(DOWNLOAD_RESULTS_SESSION_KEY, results);
             response.setRenderParameter("configId", configId);

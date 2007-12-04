@@ -37,7 +37,7 @@ import org.apache.geronimo.deployment.DeploymentConfigurationManager;
 import org.apache.geronimo.deployment.DeploymentContext;
 import org.apache.geronimo.j2ee.deployment.Module;
 import org.apache.geronimo.jaxws.PortInfo;
-import org.apache.geronimo.kernel.repository.ListableRepository;
+import org.apache.geronimo.kernel.repository.Repository;
 
 public class WsdlGenerator {
 
@@ -111,7 +111,7 @@ public class WsdlGenerator {
     
     private URL[] getWsgenClasspath(DeploymentContext context) throws Exception {               
         DeploymentConfigurationManager cm = (DeploymentConfigurationManager)context.getConfigurationManager();
-        Collection<ListableRepository> repositories = cm.getRepositories();        
+        Collection<? extends Repository> repositories = cm.getRepositories();
         File[] jars = this.jaxwsTools.getClasspath(repositories);
         return JAXWSTools.toURL(jars);
     }

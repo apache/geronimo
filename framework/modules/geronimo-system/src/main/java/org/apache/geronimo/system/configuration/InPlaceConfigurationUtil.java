@@ -30,28 +30,29 @@ import java.io.Writer;
 import org.apache.geronimo.kernel.config.ConfigurationData;
 
 /**
+ * //todo make this package access again!
  * @version $Rev$ $Date$
  */
-class InPlaceConfigurationUtil {
-	private static final String IN_PLACE_LOCATION_FILE = "inPlaceLocation.config";
-	
-    InPlaceConfigurationUtil() {
+public class InPlaceConfigurationUtil {
+    private static final String IN_PLACE_LOCATION_FILE = "inPlaceLocation.config";
+
+    public InPlaceConfigurationUtil() {
     }
 
     public boolean isInPlaceConfiguration(File source) {
         File inPlaceLocation = getInPlaceLocation(source);
         return inPlaceLocation.exists();
     }
-    
+
     public void writeInPlaceLocation(ConfigurationData configurationData, File source) throws IOException {
-    	if (null == configurationData.getInPlaceConfigurationDir()) {
-    		return;
-    	}
+        if (null == configurationData.getInPlaceConfigurationDir()) {
+            return;
+        }
 
         File inPlaceLocation = getInPlaceLocation(source);
         Writer writer = null;
         try {
-        	OutputStream os = new FileOutputStream(inPlaceLocation);
+            OutputStream os = new FileOutputStream(inPlaceLocation);
             writer = new PrintWriter(os);
             File inPlaceConfigurationDir = configurationData.getInPlaceConfigurationDir();
             String absolutePath = inPlaceConfigurationDir.getAbsolutePath();
@@ -59,36 +60,36 @@ class InPlaceConfigurationUtil {
             writer.close(); // also flushes the stream and shouldn't normally fail
             writer = null;
         } finally {
-        	if (null != writer) {
-        		try {
-        			writer.close();
-				} catch (IOException ignored) {
+            if (null != writer) {
+                try {
+                    writer.close();
+                } catch (IOException ignored) {
                     // ignored
-				}
-        	}
+                }
+            }
         }
     }
-    
+
     public File readInPlaceLocation(File source) throws IOException {
         File inPlaceLocation = getInPlaceLocation(source);
-        
+
         if (!inPlaceLocation.exists()) {
-        	return null;
+            return null;
         }
-        
+
         BufferedReader reader = null;
         try {
-        	InputStream is = new FileInputStream(inPlaceLocation);
-        	reader = new BufferedReader(new InputStreamReader(is));
-        	String path = reader.readLine();
-        	return new File(path);
+            InputStream is = new FileInputStream(inPlaceLocation);
+            reader = new BufferedReader(new InputStreamReader(is));
+            String path = reader.readLine();
+            return new File(path);
         } finally {
-        	if (null != reader) {
-        		try {
-        			reader.close();
-				} catch (IOException e) {
-				}
-        	}
+            if (null != reader) {
+                try {
+                    reader.close();
+                } catch (IOException e) {
+                }
+            }
         }
     }
 

@@ -606,32 +606,22 @@
                 <artifactId>car-maven-plugin</artifactId>
                 <executions>
                     <execution>
-                        <phase>package</phase>
+                        <id>install</id>
+                        <phase>compile</phase>
                         <goals>
                             <goal>install-modules</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>archive</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>archive</goal>
                         </goals>
                     </execution>
                 </executions>
             </plugin>
 
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-assembly-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>bin</id>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>attached</goal>
-                        </goals>
-                        <configuration>
-                            <descriptors>
-                                <descriptor>${pom.basedir}/src/main/assembly/bin.xml</descriptor>
-                            </descriptors>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
         </plugins>
     </build>
 

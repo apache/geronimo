@@ -28,21 +28,35 @@ import org.apache.geronimo.gshell.command.CommandSupport
 import org.apache.geronimo.deployment.cli.ServerConnection
 import org.apache.geronimo.cli.deployer.BaseCommandArgs
 import org.apache.geronimo.deployment.cli.CommandListConfigurations
+import org.apache.geronimo.kernel.repository.Artifact
 
 /**
  * install plugins.
  *
  * @version $Rev: 580864 $ $Date: 2007-09-30 23:47:39 -0700 (Sun, 30 Sep 2007) $
  */
-@CommandComponent(id='geronimo-commands:list-plugins', description="Install plugins into a geronimo server")
-class ListConfigurationsCommand
+@CommandComponent(id='geronimo-commands:assemble-server', description="Extract a geronimo server from the current one")
+class AssembleServerCommand
     extends ConnectCommand
 {
-    @Option(name='-r', aliases=['--repository'], description='refresh repository')
-    boolean refreshRepo = false
 
     @Option(name='-l', aliases=['--list'], description='refresh plugin list')
     boolean refreshList = false
+
+    @Option(name='-t', aliases=['--path'], description='assembly location')
+    String relativeServerPath = "var/temp/assembly"
+
+    @Option(name='-g', aliases=['--groupId'], description='server groupId')
+    String group
+
+    @Option(name='-a', aliases=['--artifact'], description='server artifact name')
+    String artifact
+
+    @Option(name='-v', aliases=['--version'], description='server version')
+    String version
+
+    @Option(name='-f', aliases=['--format'], description='zip or tar.gz')
+    String format = "tar.gz"
 
     protected Object doExecute() throws Exception {
         io.out.println("Listing configurations from Geronimo server")
@@ -55,19 +69,15 @@ class ListConfigurationsCommand
         }
         def command = new CommandListConfigurations()
         def consoleReader = new ConsoleReader(io.inputStream, io.out)
-        def repo = variables.get("PluginRepository")
-        if (refreshRepo || !repo) {
-            repo = command.getRepository(consoleReader, connection.getDeploymentManager())
-            variables.parent.set("PluginRepository", repo)
-        }
-        def plugins = variables.get("AvailablePlugins")
+        def plugins = variables.get("LocalPlugins")
         if (refreshList || !plugins) {
-            plugins = command.getPluginCategories(repo, connection.getDeploymentManager(), consoleReader)
-            variables.parent.set("AvailablePlugins", plugins)
+            plugins = command.getLocalPluginCategories(connection.getDeploymentManager(), consoleReader)
+            variables.parent.set("LocalPlugins", plugins)
         }
-        def pluginsToInstall = command.getInstallList(plugins, consoleReader, repo)
+        def pluginsToInstall = command.getInstallList(plugins, consoleReader, null)
         if (pluginsToInstall) {
-            command.installPlugins(connection.getDeploymentManager(), pluginsToInstall, repo, consoleReader, connection)
+            command.assembleServer(connection.getDeploymentManager(), pluginsToInstall, 'repository', relativeServerPath, consoleReader)
+            connection.getDeploymentManager().archive(relativeServerPath, "var/temp", new Artifact(group, artifact, version, format));
         }
         io.out.println("list ended")
     }

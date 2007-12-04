@@ -94,6 +94,12 @@
             <artifactId>wstx-asl</artifactId>
         </dependency>
 
+        <!-- archiver seems to need to be same version as maven uses ??? -->
+        <dependency>
+            <groupId>org.codehaus.plexus</groupId>
+            <artifactId>plexus-archiver</artifactId>
+        </dependency>
+
     </dependencies>
 
     <build>

@@ -20,4 +20,9 @@ package org.apache.geronimo.kernel.repository;
  * @version $Rev$ $Date$
  */
 public interface WritableListableRepository extends WriteableRepository, ListableRepository {
+    /**
+     * @deprecated.  Please please don't use this temporary hack
+     * @return
+     */
+    String getRootPath();
 }

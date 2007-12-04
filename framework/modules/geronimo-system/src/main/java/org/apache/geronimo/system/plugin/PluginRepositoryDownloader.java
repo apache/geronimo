@@ -98,8 +98,8 @@ public class PluginRepositoryDownloader implements PluginRepositoryList {
         URL url = null;
         try {
             URI uri = new URI(userRepository);
-            if (uri.getScheme() == null) {
-                if (uri.isAbsolute()) {
+            if (!uri.isAbsolute()) {
+                if (userRepository.startsWith("/")) {
                     url = new URI("file", userRepository, null).toURL();
                 } else if (userRepository.startsWith("~")) {
                     URI fullUri = new File(System.getProperty("user.home")).getAbsoluteFile().toURI().resolve(userRepository.substring(2));

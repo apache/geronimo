@@ -69,7 +69,7 @@ import org.xml.sax.SAXException;
  *
  * @version $Rev$ $Date$
  */
-public class LocalAttributeManager implements PluginAttributeStore, PersistentConfigurationList, GBeanLifecycle {
+public class LocalAttributeManager implements LocalPluginAttributeStore, PersistentConfigurationList, GBeanLifecycle {
     private static final Log log = LogFactory.getLog(LocalAttributeManager.class);
 
     private static final String CONFIG_FILE_PROPERTY = "org.apache.geronimo.config.file";
@@ -98,10 +98,11 @@ public class LocalAttributeManager implements PluginAttributeStore, PersistentCo
     private String prefix;
     private File configSubstitutionsFile;
     private Properties localConfigSubstitutions;
+    private String resolvedPropertiesFile;
 
     public LocalAttributeManager(String configFile, String configSubstitutionsFileName, String configSubstitutionsPrefix, boolean readOnly, ServerInfo serverInfo) {
         this.configFile = System.getProperty(CONFIG_FILE_PROPERTY, configFile);
-        String resolvedPropertiesFile = System.getProperty(SUBSTITUTIONS_FILE_PROPERTY, configSubstitutionsFileName);
+        resolvedPropertiesFile = System.getProperty(SUBSTITUTIONS_FILE_PROPERTY, configSubstitutionsFileName);
         configSubstitutionsFile = resolvedPropertiesFile == null? null: serverInfo.resolveServer(resolvedPropertiesFile);
         localConfigSubstitutions = loadConfigSubstitutions(configSubstitutionsFile);
         prefix = System.getProperty(SUBSTITUTION_PREFIX_PREFIX, configSubstitutionsPrefix);
@@ -115,6 +116,19 @@ public class LocalAttributeManager implements PluginAttributeStore, PersistentCo
 
     public boolean isReadOnly() {
         return readOnly;
+    }
+
+
+    public String getConfigFile() {
+        return configFile;
+    }
+
+    public String getConfigSubstitutionsFile() {
+        return resolvedPropertiesFile;
+    }
+
+    public String getConfigSubstitutionsPrefix() {
+        return prefix;
     }
 
     public synchronized Collection applyOverrides(Artifact configName, Collection untypedGbeanDatas, ClassLoader classLoader) throws InvalidConfigException {

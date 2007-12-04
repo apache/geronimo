@@ -18,9 +18,12 @@ package org.apache.geronimo.kernel.config;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Collection;
+
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.ArtifactResolver;
 import org.apache.geronimo.kernel.repository.Version;
+import org.apache.geronimo.kernel.repository.Repository;
 import org.apache.geronimo.gbean.AbstractName;
 
 /**
@@ -495,4 +498,6 @@ public interface ConfigurationManager {
      */
     boolean isOnline();
     void setOnline(boolean online);
+
+    Collection<? extends Repository> getRepositories();
 }
