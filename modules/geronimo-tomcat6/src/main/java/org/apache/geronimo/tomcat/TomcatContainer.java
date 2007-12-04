@@ -41,6 +41,7 @@ import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.management.geronimo.NetworkConnector;
 import org.apache.geronimo.management.geronimo.WebManager;
+import org.apache.geronimo.naming.java.RootContext;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
 import org.apache.geronimo.tomcat.realm.TomcatGeronimoRealm;
 import org.apache.geronimo.tomcat.realm.TomcatJAASRealm;
@@ -368,11 +369,15 @@ public class TomcatContainer implements SoapHandler, GBeanLifecycle, TomcatWebCo
             if (context instanceof GeronimoStandardContext) {
                 GeronimoStandardContext stdctx = (GeronimoStandardContext) context;
 
+                javax.naming.Context oldContext = RootContext.getComponentContext();
+                RootContext.setComponentContext(ctx.getJndiContext());
                 try {
                     stdctx.stop();
                     stdctx.destroy();
                 } catch (Exception e) {
                     throw new RuntimeException(e);
+                } finally {
+                    RootContext.setComponentContext(oldContext);
                 }
 
             }
