@@ -29,7 +29,7 @@ import javax.transaction.Status;
 import javax.transaction.SystemException;
 import javax.transaction.UserTransaction;
 
-import org.mortbay.jetty.handler.AbstractHandler;
+import org.mortbay.jetty.Handler;
 
 /**
  * @version $Rev$ $Date$
@@ -37,7 +37,7 @@ import org.mortbay.jetty.handler.AbstractHandler;
 public class UserTransactionHandler extends AbstractImmutableHandler {
     private final UserTransaction userTransaction;
 
-    public UserTransactionHandler(AbstractHandler next, UserTransaction userTransaction) {
+    public UserTransactionHandler(Handler next, UserTransaction userTransaction) {
         super(next);
         this.userTransaction = userTransaction;
     }

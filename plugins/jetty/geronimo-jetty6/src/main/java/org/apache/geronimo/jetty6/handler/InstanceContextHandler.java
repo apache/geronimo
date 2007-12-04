@@ -42,7 +42,7 @@ public class InstanceContextHandler extends AbstractImmutableHandler {
     private final Set applicationManagedSecurityResources;
     private final TrackedConnectionAssociator trackedConnectionAssociator;
 
-    public InstanceContextHandler(AbstractHandler next, Set unshareableResources, Set applicationManagedSecurityResources, TrackedConnectionAssociator trackedConnectionAssociator) {
+    public InstanceContextHandler(Handler next, Set unshareableResources, Set applicationManagedSecurityResources, TrackedConnectionAssociator trackedConnectionAssociator) {
         super(next);
         this.unshareableResources = unshareableResources;
         this.applicationManagedSecurityResources = applicationManagedSecurityResources;

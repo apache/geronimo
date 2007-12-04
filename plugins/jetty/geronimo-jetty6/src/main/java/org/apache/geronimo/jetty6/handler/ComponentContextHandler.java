@@ -26,7 +26,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.geronimo.naming.java.RootContext;
-import org.mortbay.jetty.handler.AbstractHandler;
+import org.mortbay.jetty.Handler;
 
 /**
  * @version $Rev$ $Date$
@@ -35,7 +35,7 @@ public class ComponentContextHandler extends AbstractImmutableHandler {
 
     private final Context componentContext;
 
-    public ComponentContextHandler(AbstractHandler next, Context componentContext) {
+    public ComponentContextHandler(Handler next, Context componentContext) {
         super(next);
         this.componentContext = componentContext;
     }

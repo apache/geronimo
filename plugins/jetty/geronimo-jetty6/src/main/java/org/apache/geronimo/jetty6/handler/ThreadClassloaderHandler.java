@@ -24,7 +24,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.mortbay.jetty.handler.AbstractHandler;
+import org.mortbay.jetty.Handler;
 
 /**
  * @version $Rev$ $Date$
@@ -33,7 +33,7 @@ public class ThreadClassloaderHandler extends AbstractImmutableHandler {
 
     private final ClassLoader classLoader;
 
-    public ThreadClassloaderHandler(AbstractHandler next, ClassLoader classLoader) {
+    public ThreadClassloaderHandler(Handler next, ClassLoader classLoader) {
         super(next);
         this.classLoader = classLoader;
     }

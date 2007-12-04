@@ -27,10 +27,10 @@ import org.mortbay.jetty.handler.AbstractHandlerContainer;
 /**
  * @version $Rev$ $Date$
  */
-public abstract class AbstractImmutableHandler extends AbstractHandlerContainer {
-    protected final AbstractHandler next;
+public abstract class AbstractImmutableHandler implements Handler /*extends AbstractHandlerContainer*/ {
+    protected final Handler next;
 
-    protected AbstractImmutableHandler(AbstractHandler next) {
+    protected AbstractImmutableHandler(Handler next) {
         this.next = next;
     }
 
@@ -43,8 +43,16 @@ public abstract class AbstractImmutableHandler extends AbstractHandlerContainer 
     }
 
     public void setServer(Server server) {
-        super.setServer(server);
+//        super.setServer(server);
         next.setServer(server);
+    }
+
+    public Server getServer() {
+        return next.getServer();
+    }
+
+    public void destroy() {
+        next.destroy();
     }
 
     public void lifecycleCommand(LifecycleCommand lifecycleCommand) throws Exception {
@@ -72,7 +80,39 @@ public abstract class AbstractImmutableHandler extends AbstractHandlerContainer 
      */
     protected Object expandChildren(Object list, Class byClass)
     {
-        return expandHandler(next, list, byClass);
+//        return expandHandler(next, list, byClass);
+        return null;
     }
 
+    public void start() throws Exception {
+        next.start();
+    }
+
+    public void stop() throws Exception {
+        next.stop();
+    }
+
+    public boolean isRunning() {
+        return next.isRunning();
+    }
+
+    public boolean isStarted() {
+        return next.isStarted();
+    }
+
+    public boolean isStarting() {
+        return next.isStarting();
+    }
+
+    public boolean isStopping() {
+        return next.isStopping();
+    }
+
+    public boolean isStopped() {
+        return next.isStopped();
+    }
+
+    public boolean isFailed() {
+        return false;
+    }
 }

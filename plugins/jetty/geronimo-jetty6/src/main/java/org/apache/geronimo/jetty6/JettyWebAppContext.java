@@ -51,6 +51,7 @@ import org.apache.geronimo.jetty6.handler.InstanceContextHandler;
 import org.apache.geronimo.jetty6.handler.JettySecurityHandler;
 import org.apache.geronimo.jetty6.handler.LifecycleCommand;
 import org.apache.geronimo.jetty6.handler.ThreadClassloaderHandler;
+import org.apache.geronimo.jetty6.handler.TwistyWebAppContext;
 import org.apache.geronimo.jetty6.handler.UserTransactionHandler;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.ObjectNameUtil;
@@ -61,15 +62,14 @@ import org.apache.geronimo.management.geronimo.WebModule;
 import org.apache.geronimo.naming.enc.EnterpriseNamingContext;
 import org.apache.geronimo.security.jacc.RunAsSource;
 import org.apache.geronimo.transaction.GeronimoUserTransaction;
+import org.mortbay.jetty.Handler;
 import org.mortbay.jetty.MimeTypes;
-import org.mortbay.jetty.handler.AbstractHandler;
 import org.mortbay.jetty.security.Authenticator;
 import org.mortbay.jetty.servlet.ErrorPageErrorHandler;
 import org.mortbay.jetty.servlet.ServletHandler;
 import org.mortbay.jetty.servlet.ServletHolder;
 import org.mortbay.jetty.servlet.ServletMapping;
 import org.mortbay.jetty.servlet.SessionHandler;
-import org.mortbay.jetty.webapp.WebAppContext;
 
 /**
  * Wrapper for a WebApplicationContext that sets up its J2EE environment.
@@ -91,7 +91,7 @@ public class JettyWebAppContext implements GBeanLifecycle, JettyServletRegistrat
     private String displayName;
 
     private final String objectName;
-    private final WebAppContext webAppContext;//delegate
+    private final TwistyWebAppContext webAppContext;//delegate
     private final AbstractImmutableHandler lifecycleChain;
     private final Context componentContext;
     private final Holder holder;
@@ -168,7 +168,7 @@ public class JettyWebAppContext implements GBeanLifecycle, JettyServletRegistrat
 
         ServletHandler servletHandler = new ServletHandler();
 
-        webAppContext = new WebAppContext(securityHandler, sessionHandler, servletHandler, null);
+        webAppContext = new TwistyWebAppContext(securityHandler, sessionHandler, servletHandler, null);
 
         //wrap the web app context with the jndi handler
         GeronimoUserTransaction userTransaction = new GeronimoUserTransaction(transactionManager);
@@ -189,13 +189,13 @@ public class JettyWebAppContext implements GBeanLifecycle, JettyServletRegistrat
         // localize access to next
         {
             //install the other handlers inside the web app context
-            AbstractHandler next = sessionHandler;
+            Handler next = webAppContext.newTwistyHandler();
             next = new ThreadClassloaderHandler(next, classLoader);
 
             next = new InstanceContextHandler(next, unshareableResources, applicationManagedSecurityResources, trackedConnectionAssociator);
             next = new UserTransactionHandler(next, userTransaction);
             next = new ComponentContextHandler(next, this.componentContext);
-            webAppContext.setHandler(next);
+            webAppContext.setTwistyHandler(next);
 
             lifecycleChain = (AbstractImmutableHandler) next;
         }
