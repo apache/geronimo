@@ -50,6 +50,7 @@ public class JAXWSTools {
     private final static Artifact GERONIMO_WS_METADATA_ARTIFACT = new Artifact("org.apache.geronimo.specs","geronimo-ws-metadata_2.0_spec", (Version)null, "jar");  
     private final static Artifact GERONIMO_EJB_SPEC_ARTIFACT = new Artifact("org.apache.geronimo.specs","geronimo-ejb_3.0_spec", (Version)null, "jar");
     private final static Artifact SUN_SAAJ_IMPL_ARTIFACT = new Artifact("com.sun.xml.messaging.saaj","saaj-impl", (Version)null, "jar");
+    private final static Artifact GERONIMO_STAX_API_ARTIFACT = new Artifact("org.apache.geronimo.specs","geronimo-stax-api_1.0_spec", (Version)null, "jar");
     private final static String TOOLS = "tools.jar";
 
     private Artifact saajImpl;
@@ -106,6 +107,7 @@ public class JAXWSTools {
         jars.add(getLocation(repositories, GERONIMO_ANNOTATION_ARTIFACT));
         jars.add(getLocation(repositories, GERONIMO_WS_METADATA_ARTIFACT));
         jars.add(getLocation(repositories, GERONIMO_EJB_SPEC_ARTIFACT));
+        jars.add(getLocation(repositories, GERONIMO_STAX_API_ARTIFACT));
         if (this.saajImpl != null) {
             jars.add(getLocation(repositories, this.saajImpl));
         }
