@@ -22,6 +22,7 @@ import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
+import org.apache.geronimo.jetty6.handler.LifecycleCommand;
 import org.mortbay.jetty.servlet.FilterHolder;
 
 /**
@@ -85,6 +86,36 @@ public class JettyFilterHolder implements GBeanLifecycle {
                 servletRegistration.destroyInstance(o);
                 destroyed = true;
             }
+        }
+        
+        public void doStop() {
+            LifecycleCommand lifecycleCommand = (new LifecycleCommand() {
+                public void lifecycleMethod() throws Exception {
+                    internalDoStop();
+                }
+            });
+            try {
+                this.servletRegistration.getLifecycleChain().lifecycleCommand(lifecycleCommand);
+            } catch (Exception e) {
+                //ignore????
+            }
+        }
+        
+        public void doStart() throws Exception {
+            LifecycleCommand lifecycleCommand = (new LifecycleCommand() {
+                public void lifecycleMethod() throws Exception {
+                    internalDoStart();
+                }
+            });
+            this.servletRegistration.getLifecycleChain().lifecycleCommand(lifecycleCommand);
+        }
+        
+        private void internalDoStart() throws Exception {
+            super.doStart();
+        }
+
+        private void internalDoStop() {
+            super.doStop();
         }
 
     }
