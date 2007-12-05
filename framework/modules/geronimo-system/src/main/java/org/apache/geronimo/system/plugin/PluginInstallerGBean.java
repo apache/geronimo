@@ -1217,7 +1217,7 @@ public class PluginInstallerGBean implements PluginInstaller {
                     String remove = sourceFile;
                     int pos = sourceFile.lastIndexOf('/');
                     if (pos > -1) {
-                        remove = sourceFile.substring(0, pos);
+                        remove = sourceFile.substring(pos + 1, sourceFile.length());
                     }
                     start = path.lastIndexOf(remove);
                 }
