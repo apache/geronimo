@@ -17,11 +17,14 @@
 
 package org.apache.geronimo.j2ee.deployment.annotation;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 import javax.annotation.security.DeclareRoles;
@@ -55,10 +58,31 @@ public class AnnotationHelperTest extends XmlBeansTestSupport {
         PersistenceContextAnnotationTest.class, PersistenceUnitAnnotationTest.class,
         WebServiceRefAnnotationTest.class, SecurityAnnotationTest.class};
 
-    private ClassFinder classFinder = new ClassFinder(classes);
+    private ClassFinder classFinder = new TestClassFinder(classes);
     private ClassLoader classLoader = this.getClass().getClassLoader();
     private XmlOptions options = new XmlOptions();
 
+    static class TestClassFinder extends ClassFinder {
+        public TestClassFinder(Class [] classes) {
+            super(classes);
+        }        
+        public List<Field> findAnnotatedFields(Class<? extends Annotation> arg) {
+            List<Field> fields = super.findAnnotatedFields(arg);
+            Collections.sort(fields, new FieldComparator());
+            return fields;
+        }
+    }
+    
+    static class FieldComparator implements Comparator {
+        public int compare(Object o1, Object o2) {
+            return compare((Field)o1, (Field)o2);
+        }
+        public int compare(Field o1, Field o2) {
+            String field1 = o1.getDeclaringClass().getName() + "/" + o1.getName();
+            String field2 = o2.getDeclaringClass().getName() + "/" + o2.getName();
+            return field1.compareTo(field2);
+        }        
+    }
 
     public void testEJBAnnotationHelper() throws Exception {
 
