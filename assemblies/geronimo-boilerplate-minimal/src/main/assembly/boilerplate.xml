@@ -96,6 +96,24 @@
         </dependencySet>
         
         <dependencySet>
+            <outputDirectory>lib</outputDirectory>
+            <outputFileNameMapping>jsr88-deploymentfactory.jar</outputFileNameMapping>
+            <useStrictFiltering>true</useStrictFiltering>
+            <includes>
+                <include>org.apache.geronimo.configs:jsr88-deploymentfactory</include>
+            </includes>
+        </dependencySet>
+
+        <dependencySet>
+            <outputDirectory>bin</outputDirectory>
+            <outputFileNameMapping>client.jar</outputFileNameMapping>
+            <useStrictFiltering>true</useStrictFiltering>
+            <includes>
+                <include>org.apache.geronimo.configs:client-system</include>
+            </includes>
+        </dependencySet>
+       
+        <dependencySet>
             <outputDirectory>bin</outputDirectory>
             <outputFileNameMapping>server.jar</outputFileNameMapping>
             <useStrictFiltering>true</useStrictFiltering>

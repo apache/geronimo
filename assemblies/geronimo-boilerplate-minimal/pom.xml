@@ -170,6 +170,20 @@
             <version>${version}</version>
         </dependency>
 
+        <dependency>
+            <groupId>org.apache.geronimo.configs</groupId>
+            <artifactId>jsr88-deploymentfactory</artifactId>
+            <version>${version}</version>
+            <type>car</type>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.geronimo.configs</groupId>
+            <artifactId>client-system</artifactId>
+            <version>${version}</version>
+            <type>car</type>
+        </dependency>
+
         <!--
         FIXME: Bad idea for plugins
         -->
