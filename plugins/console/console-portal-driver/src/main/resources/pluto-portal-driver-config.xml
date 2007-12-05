@@ -21,7 +21,7 @@ limitations under the License.
 <pluto-portal-driver version="1.1">
 
   <portal-name>pluto-portal-driver</portal-name>
-  <portal-version>1.2.0-SNAPSHOT</portal-version>
+<!--   <portal-version>1.2.0-G601060</portal-version>   -->
   <container-name>Pluto Portal Driver</container-name>
 
   <supports>
