@@ -284,7 +284,8 @@ class StartServerCommand
             return
         }
         
-        def name = id
+        // Use the target commands name (not the alias name)
+        def name = context.info.name
         
         def scanner = ant.fileScanner {
             fileset(dir: basedir) {
