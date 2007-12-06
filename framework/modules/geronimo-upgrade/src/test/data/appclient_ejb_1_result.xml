@@ -35,7 +35,7 @@
   </dep:environment>
   <module>
     <ejb>appclient_ejb_1_ejb.jar</ejb>
-    <openejb-jar xmlns="http://www.openejb.org/xml/ns/openejb-jar-2.3">
+    <openejb-jar xmlns="http://www.openejb.org/xml/ns/openejb-jar-2.2">
       <dep:environment xmlns:dep="http://geronimo.apache.org/xml/ns/deployment-1.2">
         <dep:moduleId>
           <dep:groupId>default</dep:groupId>
