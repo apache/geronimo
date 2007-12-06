@@ -141,6 +141,15 @@
         </dependencySet>
 
         <dependencySet>
+            <outputDirectory>bin</outputDirectory>
+            <outputFileNameMapping>deployer.jar</outputFileNameMapping>
+            <useStrictFiltering>true</useStrictFiltering>
+            <includes>
+                <include>org.apache.geronimo.configs:online-deployer</include>
+            </includes>
+        </dependencySet>
+        
+        <dependencySet>
             <outputDirectory>lib/endorsed</outputDirectory>
             <includes>
                 <include>org.apache.yoko:yoko-spec-corba</include>
