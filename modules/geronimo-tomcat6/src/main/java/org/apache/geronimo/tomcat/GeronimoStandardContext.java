@@ -191,6 +191,44 @@ public class GeronimoStandardContext extends StandardContext {
         }
     }
 
+    /* This method is called by a background thread to destroy sessions (among other things)
+     * so we need to apply appropriate context to the thread to expose JNDI, etc.
+     */
+    public void backgroundProcess() {
+        Object context[] = null;
+        
+        if (beforeAfter != null){
+            context = new Object[contextCount];
+            beforeAfter.before(context, null, null, BeforeAfter.EDGE_SERVLET);
+        }
+        
+        try {
+            super.backgroundProcess();
+        } finally {
+            if (beforeAfter != null){
+                beforeAfter.after(context, null, null, 0);
+            }
+        }
+    }
+    
+    public void kill() throws Exception {
+        Object context[] = null;
+        
+        if (beforeAfter != null){
+            context = new Object[contextCount];
+            beforeAfter.before(context, null, null, BeforeAfter.EDGE_SERVLET);
+        }
+        
+        try {
+            stop();
+            destroy();
+        } finally {
+            if (beforeAfter != null){
+                beforeAfter.after(context, null, null, 0);
+            }
+        }
+    }
+
     public synchronized void start() throws LifecycleException {
         if (pipelineInitialized) {
             try {
