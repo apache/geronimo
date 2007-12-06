@@ -27,6 +27,7 @@ import javax.servlet.ServletConfig;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
 public class TestServlet extends HttpServlet {
         
@@ -42,6 +43,10 @@ public class TestServlet extends HttpServlet {
             Integer value = lookup("java:comp/env/value", request);
         
             out.println("TestServlet2: " + value);
+
+            // create new session for testing
+            HttpSession session = request.getSession(true);
+            session.setAttribute("sessAttr1", "value21");
         }
     }
     

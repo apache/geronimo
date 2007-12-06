@@ -37,6 +37,10 @@
        <listener-class>org.apache.geronimo.test.SessionListener</listener-class>
    </listener>
 
+   <session-config>
+       <session-timeout>1</session-timeout>
+   </session-config>
+
    <filter>
        <filter-name>TestFilter</filter-name>
        <filter-class>org.apache.geronimo.test.TestFilter</filter-class>
