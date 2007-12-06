@@ -26,6 +26,8 @@ import java.io.StringWriter;
 
 import junit.framework.TestCase;
 import org.apache.geronimo.system.configuration.condition.JexlExpressionParser;
+import org.apache.geronimo.testsupport.DOMUtils;
+import org.w3c.dom.Document;
 
 /**
  * @version $Rev$ $Date$
@@ -267,6 +269,10 @@ public class LocalAttributeManagerReadWriteTest extends TestCase {
         StringWriter writer = new StringWriter();
         LocalAttributeManager.write(serverOverride, writer);
         String result = writer.toString();
-        assertEquals(CONFIG, result);
+        
+        Document expectedDoc = DOMUtils.load(CONFIG);
+        Document actualDoc = DOMUtils.load(result);
+        
+        DOMUtils.compareNodes(expectedDoc, actualDoc);
     }
 }
