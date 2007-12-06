@@ -20,7 +20,6 @@ import java.io.File;
 import java.net.URL;
 import java.net.URLStreamHandlerFactory;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import javax.management.ObjectName;
@@ -31,7 +30,6 @@ import org.apache.catalina.Engine;
 import org.apache.catalina.LifecycleListener;
 import org.apache.catalina.Realm;
 import org.apache.catalina.connector.Connector;
-import org.apache.catalina.core.StandardEngine;
 import org.apache.catalina.realm.JAASRealm;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -41,7 +39,6 @@ import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.management.geronimo.NetworkConnector;
 import org.apache.geronimo.management.geronimo.WebManager;
-import org.apache.geronimo.naming.java.RootContext;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
 import org.apache.geronimo.tomcat.realm.TomcatGeronimoRealm;
 import org.apache.geronimo.tomcat.realm.TomcatJAASRealm;
@@ -368,16 +365,11 @@ public class TomcatContainer implements SoapHandler, GBeanLifecycle, TomcatWebCo
         if (context != null) {
             if (context instanceof GeronimoStandardContext) {
                 GeronimoStandardContext stdctx = (GeronimoStandardContext) context;
-
-                javax.naming.Context oldContext = RootContext.getComponentContext();
-                RootContext.setComponentContext(ctx.getJndiContext());
+                
                 try {
-                    stdctx.stop();
-                    stdctx.destroy();
+                    stdctx.kill();
                 } catch (Exception e) {
                     throw new RuntimeException(e);
-                } finally {
-                    RootContext.setComponentContext(oldContext);
                 }
 
             }
