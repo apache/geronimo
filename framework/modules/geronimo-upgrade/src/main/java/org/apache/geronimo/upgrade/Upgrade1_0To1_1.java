@@ -88,9 +88,10 @@ public class Upgrade1_0To1_1 {
         NAMESPACE_UPDATES.put("http://geronimo.apache.org/xml/ns/j2ee/web/tomcat-1.2", "http://geronimo.apache.org/xml/ns/j2ee/web/tomcat-2.0.1");
         NAMESPACE_UPDATES.put("http://geronimo.apache.org/xml/ns/j2ee/web/tomcat-2.0", "http://geronimo.apache.org/xml/ns/j2ee/web/tomcat-2.0.1");
         NAMESPACE_UPDATES.put("http://geronimo.apache.org/xml/ns/web/tomcat/config", "http://geronimo.apache.org/xml/ns/j2ee/web/tomcat/config-1.0");
-        NAMESPACE_UPDATES.put("http://www.openejb.org/xml/ns/openejb-jar", "http://www.openejb.org/xml/ns/openejb-jar-2.2");
-        NAMESPACE_UPDATES.put("http://www.openejb.org/xml/ns/openejb-jar-2.0", "http://www.openejb.org/xml/ns/openejb-jar-2.2");
-        NAMESPACE_UPDATES.put("http://www.openejb.org/xml/ns/openejb-jar-2.1", "http://www.openejb.org/xml/ns/openejb-jar-2.2");
+        NAMESPACE_UPDATES.put("http://www.openejb.org/xml/ns/openejb-jar", "http://www.openejb.org/xml/ns/openejb-jar-2.3");
+        NAMESPACE_UPDATES.put("http://www.openejb.org/xml/ns/openejb-jar-2.0", "http://www.openejb.org/xml/ns/openejb-jar-2.3");
+        NAMESPACE_UPDATES.put("http://www.openejb.org/xml/ns/openejb-jar-2.1", "http://www.openejb.org/xml/ns/openejb-jar-2.3");
+        NAMESPACE_UPDATES.put("http://www.openejb.org/xml/ns/openejb-jar-2.2", "http://www.openejb.org/xml/ns/openejb-jar-2.3");
         NAMESPACE_UPDATES.put("http://www.openejb.org/xml/ns/pkgen", "http://www.openejb.org/xml/ns/pkgen-2.0");
         NAMESPACE_UPDATES.put("http://www.openejb.org/xml/ns/corba-css-config_1_0", "http://www.openejb.org/xml/ns/corba-css-config-2.0");
         NAMESPACE_UPDATES.put("http://www.openejb.org/xml/ns/corba-tss-config_1_0", "http://www.openejb.org/xml/ns/corba-tss-config-2.0");
