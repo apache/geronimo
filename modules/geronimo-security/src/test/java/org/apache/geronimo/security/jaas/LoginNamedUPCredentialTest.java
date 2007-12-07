@@ -26,6 +26,7 @@ import javax.security.auth.login.LoginContext;
 
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.security.ContextManager;
+import org.apache.geronimo.security.realm.providers.NamedUsernamePasswordCredentialLoginModule;
 
 /**
  * @version $Rev$ $Date$
@@ -37,12 +38,12 @@ public class LoginNamedUPCredentialTest extends AbstractLoginModuleTest {
 
     protected GBeanData setupTestLoginModule() throws MalformedObjectNameException {
         GBeanData gbean;
-        gbean = buildGBeanData("name", "NamedUPCredentialLoginModule", LoginModuleGBean.getGBeanInfo());
-        gbean.setAttribute("loginModuleClass", "org.apache.geronimo.security.jaas.NamedUPCredentialLoginModule");
+        gbean = buildGBeanData("name", "NamedUsernamePasswordCredentialLoginModule", LoginModuleGBean.getGBeanInfo());
+        gbean.setAttribute("loginModuleClass", NamedUsernamePasswordCredentialLoginModule.class.getName());
         Map<String, Object> props = new HashMap<String, Object>();
-        props.put(NamedUPCredentialLoginModule.CREDENTIAL_NAME, credname);
+        props.put(NamedUsernamePasswordCredentialLoginModule.CREDENTIAL_NAME, credname);
         gbean.setAttribute("options", props);
-        gbean.setAttribute("loginDomainName", "NamedUPCredentialLoginModule");
+        gbean.setAttribute("loginDomainName", "NamedUsernamePasswordCredentialLoginModule");
         gbean.setAttribute("wrapPrincipals", Boolean.FALSE);
         return gbean;
     }

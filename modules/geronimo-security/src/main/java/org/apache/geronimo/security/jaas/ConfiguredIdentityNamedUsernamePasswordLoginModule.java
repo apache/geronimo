@@ -37,7 +37,7 @@ import org.apache.commons.logging.LogFactory;
  *
  * Note that this places passwords to external services in configuration information.  It may be more appropriate
  * to use the GeronimoPropertiesFileMappedPasswordCredentialLoginModule or a run-as subject with a
- * NamedUPCredentialLoginModule although the latter solution may put a credential in a
+ * NamedUsernamePasswordCredentialLoginModule although the latter solution may put a credential in a
  * credential store configuration.
  *
  * This login module does not check credentials so it should never be able to cause a login to succeed.

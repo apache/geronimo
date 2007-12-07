@@ -16,6 +16,8 @@
    limitations under the License.
 -->
 
+<!-- $Rev$ $Date$ -->
+
 <gbean name="client-properties-realm"
     class="org.apache.geronimo.security.realm.GenericSecurityRealm" xmlns="http://geronimo.apache.org/xml/ns/deployment-1.2">
     <attribute name="realmName">client-properties-realm</attribute>
@@ -29,8 +31,8 @@
             </lc:login-module>
             <lc:login-module control-flag="REQUIRED" server-side="true">
                 <lc:login-domain-name>default</lc:login-domain-name>
-                <lc:login-module-class>org.apache.geronimo.security.jaas.NamedUPCredentialLoginModule</lc:login-module-class>
-                <lc:option name="org.apache.geronimo.jaas.NamedUPCredentialLoginModule.Name">default</lc:option>
+                <lc:login-module-class>org.apache.geronimo.security.realm.providers.NamedUsernamePasswordCredentialLoginModule</lc:login-module-class>
+                <lc:option name="org.apache.geronimo.jaas.NamedUsernamePasswordCredential.Name">default</lc:option>
             </lc:login-module>
         </lc:login-config>
     </xml-reference>
