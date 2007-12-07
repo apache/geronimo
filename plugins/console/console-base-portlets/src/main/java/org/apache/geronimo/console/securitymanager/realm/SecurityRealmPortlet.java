@@ -92,12 +92,12 @@ import org.apache.geronimo.management.geronimo.JCAManagedConnectionFactory;
 import org.apache.geronimo.security.jaas.JaasLoginModuleChain;
 import org.apache.geronimo.security.jaas.JaasLoginModuleUse;
 import org.apache.geronimo.security.jaas.LoginModuleSettings;
-import org.apache.geronimo.security.jaas.NamedUPCredentialLoginModule;
 import org.apache.geronimo.security.jaas.LoginModuleControlFlag;
 import org.apache.geronimo.security.jaas.LoginModuleControlFlagEditor;
 import org.apache.geronimo.security.realm.SecurityRealm;
 import org.apache.geronimo.security.realm.providers.FileAuditLoginModule;
 import org.apache.geronimo.security.realm.providers.GeronimoPasswordCredentialLoginModule;
+import org.apache.geronimo.security.realm.providers.NamedUsernamePasswordCredentialLoginModule;
 import org.apache.geronimo.security.realm.providers.RepeatedFailureLockoutLoginModule;
 import org.apache.geronimo.xbeans.geronimo.loginconfig.GerControlFlagType;
 import org.apache.geronimo.xbeans.geronimo.loginconfig.GerLoginConfigDocument;
@@ -778,11 +778,11 @@ public class SecurityRealmPortlet extends BasePortlet {
             }
             if (data.getCredentialName() != null) {
                 module = new LoginModuleDetails();
-                module.setClassName(NamedUPCredentialLoginModule.class.getName());
+                module.setClassName(NamedUsernamePasswordCredentialLoginModule.class.getName());
                 module.setControlFlag(LoginModuleControlFlag.OPTIONAL);
                 module.setLoginDomainName(data.getName() + "-NamedUPC");
                 props = module.getOptions();
-                props.put(NamedUPCredentialLoginModule.CREDENTIAL_NAME, data.getCredentialName());
+                props.put(NamedUsernamePasswordCredentialLoginModule.CREDENTIAL_NAME, data.getCredentialName());
                 list.add(module);
             }
         } else {

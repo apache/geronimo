@@ -14,7 +14,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.apache.geronimo.security.jaas;
+package org.apache.geronimo.security.realm.providers;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -34,6 +34,9 @@ import javax.security.auth.spi.LoginModule;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.geronimo.security.jaas.JaasLoginModuleUse;
+import org.apache.geronimo.security.jaas.NamedUsernamePasswordCredential;
+import org.apache.geronimo.security.jaas.WrappingLoginModule;
 
 
 /**
@@ -44,17 +47,13 @@ import org.apache.commons.logging.LogFactory;
  *
  * This login module does not check credentials so it should never be able to cause a login to succeed.
  * Therefore the lifecycle methods must return false to indicate success or throw a LoginException to indicate failure.
- * 
- * @deprecated As of release 2.0.3
- * @see org.apache.geronimo.security.realm.providers.NamedUsernamePasswordCredentialLoginModule
  *
  * @version $Revision$ $Date$
  */
-@Deprecated
-public class NamedUPCredentialLoginModule implements LoginModule {
-    private static Log log = LogFactory.getLog(NamedUPCredentialLoginModule.class);
+public class NamedUsernamePasswordCredentialLoginModule implements LoginModule {
+    private static Log log = LogFactory.getLog(NamedUsernamePasswordCredentialLoginModule.class);
 
-    public static final String CREDENTIAL_NAME = "org.apache.geronimo.jaas.NamedUPCredentialLoginModule.Name";
+    public static final String CREDENTIAL_NAME = "org.apache.geronimo.jaas.NamedUsernamePasswordCredential.Name";
     public final static List<String> supportedOptions = Collections.unmodifiableList(Arrays.asList(CREDENTIAL_NAME));
 
     private String name;

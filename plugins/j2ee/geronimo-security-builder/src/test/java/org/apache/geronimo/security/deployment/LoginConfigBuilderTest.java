@@ -69,8 +69,8 @@ public class LoginConfigBuilderTest extends TestCase {
             "                </lc:login-module>\n" +
             "                <lc:login-module control-flag=\"REQUIRED\" server-side=\"true\" wrap-principals=\"true\">\n" +
             "                    <lc:login-domain-name>default</lc:login-domain-name>\n" +
-            "                    <lc:login-module-class>org.apache.geronimo.security.jaas.NamedUPCredentialLoginModule</lc:login-module-class>\n" +
-            "                    <lc:option name=\"org.apache.geronimo.jaas.NamedUPCredentialLoginModule.Name\">default</lc:option>\n" +
+            "                    <lc:login-module-class>org.apache.geronimo.security.realm.providers.NamedUsernamePasswordCredentialLoginModule</lc:login-module-class>\n" +
+            "                    <lc:option name=\"org.apache.geronimo.jaas.NamedUsernamePasswordCredential.Name\">default</lc:option>\n" +
             "                </lc:login-module>\n" +
             "            </lc:login-config>";
     //1.2 namespace, with server-side
@@ -83,8 +83,8 @@ public class LoginConfigBuilderTest extends TestCase {
             "                </lc:login-module>\n" +
             "                <lc:login-module control-flag=\"REQUIRED\" server-side=\"true\" wrap-principals=\"true\">\n" +
             "                    <lc:login-domain-name>default</lc:login-domain-name>\n" +
-            "                    <lc:login-module-class>org.apache.geronimo.security.jaas.NamedUPCredentialLoginModule</lc:login-module-class>\n" +
-            "                    <lc:option name=\"org.apache.geronimo.jaas.NamedUPCredentialLoginModule.Name\">default</lc:option>\n" +
+            "                    <lc:login-module-class>org.apache.geronimo.security.realm.providers.NamedUsernamePasswordCredentialLoginModule</lc:login-module-class>\n" +
+            "                    <lc:option name=\"org.apache.geronimo.jaas.NamedUsernamePasswordCredential.Name\">default</lc:option>\n" +
             "                </lc:login-module>\n" +
             "            </lc:login-config>";
     //2.0 namespace, without server-side
@@ -97,8 +97,8 @@ public class LoginConfigBuilderTest extends TestCase {
             "                </lc:login-module>\n" +
             "                <lc:login-module control-flag=\"REQUIRED\" wrap-principals=\"true\">\n" +
             "                    <lc:login-domain-name>default</lc:login-domain-name>\n" +
-            "                    <lc:login-module-class>org.apache.geronimo.security.jaas.NamedUPCredentialLoginModule</lc:login-module-class>\n" +
-            "                    <lc:option name=\"org.apache.geronimo.jaas.NamedUPCredentialLoginModule.Name\">default</lc:option>\n" +
+            "                    <lc:login-module-class>org.apache.geronimo.security.realm.providers.NamedUsernamePasswordCredentialLoginModule</lc:login-module-class>\n" +
+            "                    <lc:option name=\"org.apache.geronimo.jaas.NamedUsernamePasswordCredential.Name\">default</lc:option>\n" +
             "                </lc:login-module>\n" +
             "            </lc:login-config>";
     //2.0 namespace, without server-side, with login-module-ref
@@ -108,8 +108,8 @@ public class LoginConfigBuilderTest extends TestCase {
             "                </lc:login-module-ref>\n" +
             "                <lc:login-module control-flag=\"REQUIRED\" wrap-principals=\"true\">\n" +
             "                    <lc:login-domain-name>default</lc:login-domain-name>\n" +
-            "                    <lc:login-module-class>org.apache.geronimo.security.jaas.NamedUPCredentialLoginModule</lc:login-module-class>\n" +
-            "                    <lc:option name=\"org.apache.geronimo.jaas.NamedUPCredentialLoginModule.Name\">default</lc:option>\n" +
+            "                    <lc:login-module-class>org.apache.geronimo.security.realm.providers.NamedUsernamePasswordCredentialLoginModule</lc:login-module-class>\n" +
+            "                    <lc:option name=\"org.apache.geronimo.jaas.NamedUsernamePasswordCredential.Name\">default</lc:option>\n" +
             "                </lc:login-module>\n" +
             "            </lc:login-config>";
 
