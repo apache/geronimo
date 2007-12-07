@@ -110,6 +110,11 @@
                     <name>stop-server</name>
                     <id>geronimo-commands:stop-server</id>
                 </command>
+
+                <command>
+                    <name>start-client</name>
+                    <id>geronimo-commands:start-client</id>
+                </command>
             </nodes>
         </group>
 

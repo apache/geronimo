@@ -23,7 +23,7 @@ import org.apache.geronimo.gshell.command.CommandSupport
 import org.apache.geronimo.gshell.command.CommandException
 import org.apache.geronimo.gshell.command.annotation.CommandComponent
 import org.apache.geronimo.gshell.command.annotation.Requirement
-
+import org.apache.geronimo.gshell.clp.Argument
 import org.apache.geronimo.gshell.clp.Option
 
 import org.apache.tools.ant.ExitStatusException
@@ -33,16 +33,13 @@ import org.apache.geronimo.commands.AntBuilder
 import org.apache.geronimo.gshell.shell.ShellInfo
 
 /**
- * Starts a new Geronimo server instance.
+ * Starts Geronimo application client.
  *
- * @version $Rev$ $Date$
+ * @version $Rev: 601585 $ $Date: 2007-12-05 19:14:26 -0500 (Wed, 05 Dec 2007) $
  */
-@CommandComponent(id='geronimo-commands:start-server', description="Start a Geronimo server")
-class StartServerCommand extends BaseJavaCommand {
-        
-    @Option(name='-q', aliases=['--quiet'], description='Suppress informative and warning messages')
-    boolean quiet = false
-    
+@CommandComponent(id='geronimo-commands:start-client', description="Start a Geronimo application client")
+class StartClientCommand extends BaseJavaCommand {
+           
     int verbose = 0
     
     @Option(name='-v', aliases=['--verbose'], description='Enable verbose output; specify multipule times to increase verbosity')
@@ -53,23 +50,14 @@ class StartServerCommand extends BaseJavaCommand {
         else {
             verbose--
         }
-    }            
+    }
+       
+    @Argument(metaVar="CONFIG-NAME", required=true, index=0, description="Configuration name of application client")
+    String moduleName;
     
-    @Option(name='-m', aliases=['--module'], metaVar='NAME', description='Start up a specific module by name')
-    List<String> startModules = []
-    
-    //
-    // TODO: Expose as options, maybe expose a single URI-ish thingy?
-    //
-    
-    String hostname = 'localhost'
-    
-    int port = 1099
-    
-    String username = 'system'
-    
-    String password = 'manager'
-        
+    @Argument(metaVar="ARGS", index=1, description="Application client arguments")
+    List<String> moduleArguments;
+           
     protected Object doExecute() throws Exception {
         ant = new AntBuilder(log, io)
         
@@ -100,15 +88,15 @@ class StartServerCommand extends BaseJavaCommand {
             })
         }
         
-        def launcher = new ProcessLauncher(log: log, io: io, name: 'Geronimo Server', background: background)
+        def launcher = new ProcessLauncher(log: log, io: io, name: 'Geronimo Client', background: background)
         
         //
         // TODO: Add spawn support?
         //
         
-        launcher.process = {
+  		launcher.process = {
             try {
-                ant.java(jar: "$geronimoHome/bin/server.jar", dir: geronimoHome, failonerror: true, fork: true) {
+                ant.java(jar: "$geronimoHome/bin/client.jar", dir: geronimoHome, failonerror: true, fork: true) {
                     def node = current.wrapper
                     
                     if (timeout > 0) {
@@ -139,26 +127,16 @@ class StartServerCommand extends BaseJavaCommand {
                         sysproperty(key: key, value: value)
                     }
                     
-                    if (quiet) {
-                        arg(value: '--quiet')
-                    }
-                    else {
-                        arg(value: '--long')
-                    }
-                    
                     if (verbose == 1) {
                         arg(value: '--verbose')
-                    }
-                    else if (verbose > 1) {
+                    } else if (verbose > 1) {
                         arg(value: '--veryverbose')
                     }
+                                        
+                    arg(value: moduleName)
                     
-                    if (startModules) {
-                        log.info('Overriding the set of modules to be started')
-                        
-                        arg(value: '--override')
-                        
-                        startModules.each {
+                    if (moduleArguments) {                                                
+                        moduleArguments.each {
                             arg(value: it)
                         }
                     }
@@ -175,17 +153,11 @@ class StartServerCommand extends BaseJavaCommand {
                 
                 throw e
             }
-        }
-        
-        def server = new ServerProxy(hostname, port, username, password)
-        
-        launcher.verifier = {
-            return server.fullyStarted
-        }
-        
-        launcher.launch()
+   		}
+                
+     	launcher.launch()
         
         return SUCCESS
     }
-    
+       
 }
