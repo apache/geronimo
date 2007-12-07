@@ -29,6 +29,12 @@ import java.util.Iterator;
 public class TransformerCollection implements ClassFileTransformer {
 
     private final List<ClassFileTransformer> transformers = new ArrayList<ClassFileTransformer>();
+    
+    // hack to force load of ArrayList$Itr class. This avoids a potential Classloader deadlock during startup
+    // see GERONIMO-3687
+    {
+        transformers.iterator();
+    }
 
     public byte[] transform(ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws IllegalClassFormatException {
         boolean changed = false;
