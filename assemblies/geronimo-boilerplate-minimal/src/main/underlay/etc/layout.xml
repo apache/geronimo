@@ -165,6 +165,26 @@
                     <name>assemble</name>
                     <id>geronimo-commands:assemble-server</id>
                 </command>
+
+                <command>
+                    <name>stop</name>
+                    <id>geronimo-commands:stop-module</id>
+                </command>
+
+                <command>
+                    <name>start</name>
+                    <id>geronimo-commands:start-module</id>
+                </command>
+
+                <command>
+                    <name>restart</name>
+                    <id>geronimo-commands:restart-module</id>
+                </command>
+
+                <command>
+                    <name>undeploy</name>
+                    <id>geronimo-commands:undeploy-module</id>
+                </command>
             </nodes>
         </group>
 
