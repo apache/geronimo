@@ -1444,12 +1444,14 @@ public class PluginInstallerGBean implements PluginInstaller {
     /**
      * Does the meat of connecting to a URL.  Can be used to just test the existance of
      * something at the specified URL by passing the method 'HEAD'.
+     * 
+     * @return null if cannot connect to the URL. 
      */
     private static InputStream connect(URL url, String username, String password, ResultsFileWriteMonitor monitor, String method) throws IOException, FailedLoginException {
         if (url.getProtocol().equals("file")) {
             File path = new File(url.getPath());
             if (!path.exists()) {
-                throw new IOException("No file at " + path);
+                return null;
             }
             if (path.isDirectory()) {
                 //todo this is awfully redundantly copying over and over again
