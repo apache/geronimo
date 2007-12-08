@@ -84,18 +84,18 @@ public class CommandListModules extends AbstractCommand {
         int total = running.length+notrunning.length;
         try {
             consoleReader.printString("Found "+total+" module"+(total != 1 ? "s" : ""));
-            consoleReader.printNewline();
             if ((tlist != null) && (tlist.length > 1)) {
                 consoleReader.printString(" deployed to " + tlist.length + " target" + (tlist.length != 1 ? "s" : ""));
             }
             consoleReader.printNewline();
-
+            
             // for each target, print the modules that were deployed to it
             for (int i = 0; (tlist != null) && (i < tlist.length); i++) {
                 Target target = tlist[i];
                 if (tlist.length > 1) {
                     consoleReader.printNewline();
                     consoleReader.printString(" Target " + target);
+                    consoleReader.printNewline();
                 }
                 printTargetModules(consoleReader, target, running, "  + ");
                 printTargetModules(consoleReader, target, notrunning, "    ");
