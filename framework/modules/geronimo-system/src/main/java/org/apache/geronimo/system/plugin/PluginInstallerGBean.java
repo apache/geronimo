@@ -1185,8 +1185,7 @@ public class PluginInstallerGBean implements PluginInstaller {
         }
         boolean relativeToServer = "server".equals(data.getRelativeTo());
         String destDir = data.getDestDir();
-        File targetDir = relativeToServer ? serverInfo.resolveServer(
-                destDir) : serverInfo.resolve(destDir);
+        File targetDir = relativeToServer ? serverInfo.resolveServer(destDir) : serverInfo.resolve(destDir);
 
 
         createDirectory(targetDir);
