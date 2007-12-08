@@ -34,22 +34,22 @@
             <useStrictFiltering>true</useStrictFiltering>
             <includes>
                 <include>org.apache.geronimo.modules:geronimo-commands</include>
-                <include>org.apache.geronimo.gshell:gshell-embeddable</include>
-                <include>org.apache.geronimo.gshell:gshell-cli</include>
+                <!--<include>org.apache.geronimo.gshell:gshell-embeddable</include>-->
+                <!--<include>org.apache.geronimo.gshell:gshell-cli</include>-->
 
                 <!-- rsh related commands -->
-                <include>org.apache.geronimo.gshell:gshell-whisper</include>
-                <include>org.apache.geronimo.gshell.remote:gshell-remote-client</include>
-                <include>org.apache.geronimo.gshell.remote:gshell-remote-common</include>
-                <include>org.apache.geronimo.gshell.remote:gshell-remote-server</include>
-                <include>org.apache.mina:mina-core</include>
-                <include>org.apache.mina:mina-filter-ssl</include>
+                <!--<include>org.apache.geronimo.gshell:gshell-whisper</include>-->
+                <!--<include>org.apache.geronimo.gshell.remote:gshell-remote-client</include>-->
+                <!--<include>org.apache.geronimo.gshell.remote:gshell-remote-common</include>-->
+                <!--<include>org.apache.geronimo.gshell.remote:gshell-remote-server</include>-->
+                <!--<include>org.apache.mina:mina-core</include>-->
+                <!--<include>org.apache.mina:mina-filter-ssl</include>-->
 
-                <include>org.codehaus.groovy:groovy-all</include>
-                <include>org.apache.ant:ant</include>
-                <include>org.apache.ant:ant-launcher</include>
-                <include>org.slf4j:slf4j-log4j12</include>
-                <include>org.slf4j:jcl104-over-slf4j</include>
+                <!--<include>org.codehaus.groovy:groovy-all</include>-->
+                <!--<include>org.apache.ant:ant</include>-->
+                <!--<include>org.apache.ant:ant-launcher</include>-->
+                <!--<include>org.slf4j:slf4j-log4j12</include>-->
+                <!--<include>org.slf4j:jcl104-over-slf4j</include>-->
             </includes>
         </dependencySet>
 
@@ -89,6 +89,7 @@
                 <include>org.apache.geronimo.modules:geronimo-cli</include>
                 <include>org.apache.geronimo.modules:geronimo-kernel</include>
                 <include>org.apache.geronimo.modules:geronimo-deploy-jsr88-bootstrapper</include>
+                <include>org.apache.geronimo.configs:jsr88-deploymentfactory</include>
                 <include>org.apache.geronimo.modules:geronimo-transformer</include>
                 <!--<include>org.apache.geronimo.specs:geronimo-stax-api_1.0_spec</include>-->
                 <!--<include>org.apache.geronimo.specs:geronimo-activation_1.1_spec</include>-->
@@ -112,7 +113,7 @@
                 <include>org.apache.geronimo.configs:client-system</include>
             </includes>
         </dependencySet>
-       
+
         <dependencySet>
             <outputDirectory>bin</outputDirectory>
             <outputFileNameMapping>server.jar</outputFileNameMapping>

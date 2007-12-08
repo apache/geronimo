@@ -32,8 +32,10 @@ import org.apache.geronimo.system.plugin.model.DependencyType;
 import org.apache.geronimo.system.plugin.model.LicenseType;
 import org.apache.geronimo.system.plugin.model.PluginArtifactType;
 import org.apache.geronimo.system.plugin.model.PluginType;
-import org.apache.geronimo.system.plugin.model.ConfigXmlContentType;
 import org.apache.maven.model.License;
+import org.apache.maven.model.Plugin;
+import org.apache.maven.model.PluginExecution;
+import org.apache.maven.model.Resource;
 import org.codehaus.plexus.configuration.PlexusConfiguration;
 import org.codehaus.plexus.util.xml.Xpp3Dom;
 
@@ -50,7 +52,7 @@ public class PluginMetadataGeneratorMojo
     /**
      * Directory for generated plugin metadata file.
      *
-     * @parameter expression="${project.build.directory}/resources/META-INF"
+     * @parameter expression="${project.build.directory}/resources/"
      * @required
      */
     protected File targetDir = null;
@@ -58,7 +60,7 @@ public class PluginMetadataGeneratorMojo
     /**
      * Name of generated plugin metadata file.
      *
-     * @parameter default-value="geronimo-plugin.xml"
+     * @parameter default-value="META-INF/geronimo-plugin.xml"
      * @required
      */
     protected String pluginMetadataFileName = null;
@@ -66,10 +68,10 @@ public class PluginMetadataGeneratorMojo
     /**
      * Full path of generated plugin metadata file.
      *
-     * @parameter expression="${project.build.directory}/resources/META-INF/geronimo-plugin.xml"
+     * @ parameter expression="${project.build.directory}/resources/META-INF/geronimo-plugin.xml"
      * @required
      */
-    protected File targetFile = null;
+//    protected File targetFile = null;
 
     /**
      * Whether licenses (copied from maven licence elements) are OSI approved.
@@ -134,7 +136,16 @@ public class PluginMetadataGeneratorMojo
         }
 
         PluginArtifactType instance;
-        Xpp3Dom dom = (Xpp3Dom) ((org.apache.maven.model.Plugin)project.getModel().getBuild().getPluginsAsMap().get( "org.apache.geronimo.plugins:car-maven-plugin")).getConfiguration();
+        Plugin plugin = (Plugin) project.getModel().getBuild().getPluginsAsMap().get("org.apache.geronimo.plugins:car-maven-plugin");
+        Xpp3Dom dom;
+        if (plugin.getExecutions().isEmpty()) {
+            dom = (Xpp3Dom) plugin.getConfiguration();
+        } else {
+            if (plugin.getExecutions().size() > 1) {
+                throw new IllegalStateException("Cannot determine correct configuration for PluginMetadataGeneratorMojo: " + plugin.getExecutionsAsMap().keySet());
+            }
+            dom = (Xpp3Dom) ((PluginExecution)plugin.getExecutions().get(0)).getConfiguration();
+        }
         Xpp3Dom instanceDom = dom.getChild("instance");
 
         if (instanceDom == null || instanceDom.getChild("plugin-artifact") == null) {
@@ -186,17 +197,27 @@ public class PluginMetadataGeneratorMojo
         artifactType.setGroupId(project.getGroupId());
         artifactType.setArtifactId(project.getArtifactId());
         artifactType.setVersion(project.getVersion());
-        artifactType.setType(project.getArtifact().getType());
+        ArtifactType existingArtifact = instance.getModuleId();
+        if (existingArtifact != null && existingArtifact.getType() != null) {
+            artifactType.setType(existingArtifact.getType());
+        } else {
+            artifactType.setType(project.getArtifact().getType());
+        }
         instance.setModuleId(artifactType);
         addDependencies(instance);
         targetDir.mkdirs();
+        File targetFile = new File(targetDir.toURI().resolve(pluginMetadataFileName));
+        targetFile.getParentFile().mkdirs();
         FileOutputStream out = new FileOutputStream(targetFile);
         try {
             PluginXmlUtil.writePluginMetadata(metadata, out);
         } finally {
             out.close();
         }
-        getProject().getResources().add(targetFile);
+        Resource resource = new Resource();
+        resource.setDirectory(targetDir.getPath());
+        resource.addInclude(pluginMetadataFileName);
+        getProject().getResources().add(resource);
     }
 
     private void addDependencies(PluginArtifactType instance) {

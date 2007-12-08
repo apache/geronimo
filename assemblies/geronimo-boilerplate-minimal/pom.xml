@@ -24,61 +24,71 @@
 
     <modelVersion>4.0.0</modelVersion>
 
+<!--
     <parent>
         <groupId>org.apache.geronimo.assemblies</groupId>
         <artifactId>assemblies</artifactId>
         <version>2.1-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
+-->
+    <parent>
+        <groupId>org.apache.geronimo.configs</groupId>
+        <artifactId>configs</artifactId>
+        <version>2.1-SNAPSHOT</version>
+<!--<relativePath>../pom.xml</relativePath>-->
+    </parent>
 
+    <groupId>org.apache.geronimo.assemblies</groupId>
     <artifactId>geronimo-boilerplate-minimal</artifactId>
     <name>Geronimo Assemblies :: Boilerplate Minimal</name>
     <packaging>resource-bundle</packaging>
+    <!--<packaging>jar</packaging>-->
 
     <description>
         Provides boilerplate files for all Geronimo minimal server (Little-G) assemblies.
     </description>
 
     <dependencies>
-        
+
         <!-- lib/gshell Dependencies -->
-        
+
         <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
             <artifactId>geronimo-commands</artifactId>
             <version>${version}</version>
         </dependency>
-        
+
         <dependency>
             <groupId>org.apache.geronimo.gshell</groupId>
             <artifactId>gshell-bootstrap</artifactId>
         </dependency>
-        
+
         <dependency>
             <groupId>org.apache.geronimo.gshell</groupId>
             <artifactId>gshell-cli</artifactId>
         </dependency>
-        
+
         <dependency>
             <groupId>org.apache.geronimo.gshell</groupId>
             <artifactId>gshell-embeddable</artifactId>
         </dependency>
-        
+
         <dependency>
             <groupId>org.apache.geronimo.gshell</groupId>
             <artifactId>gshell-whisper</artifactId>
         </dependency>
-        
+
         <dependency>
             <groupId>org.apache.geronimo.gshell.remote</groupId>
             <artifactId>gshell-remote-client</artifactId>
         </dependency>
-        
+
         <dependency>
             <groupId>org.apache.geronimo.gshell.remote</groupId>
             <artifactId>gshell-remote-common</artifactId>
         </dependency>
-        
+
         <dependency>
             <groupId>org.apache.geronimo.gshell.remote</groupId>
             <artifactId>gshell-remote-server</artifactId>
@@ -88,82 +98,98 @@
             <groupId>org.apache.mina</groupId>
             <artifactId>mina-core</artifactId>
         </dependency>
-        
+
         <dependency>
             <groupId>org.apache.mina</groupId>
             <artifactId>mina-filter-ssl</artifactId>
         </dependency>
-        
+
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-log4j12</artifactId>
         </dependency>
-        
+
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>jcl104-over-slf4j</artifactId>
         </dependency>
-        
+
+        <dependency>
+            <groupId>org.codehaus.groovy</groupId>
+            <artifactId>groovy-all</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.ant</groupId>
+            <artifactId>ant</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.ant</groupId>
+            <artifactId>ant-launcher</artifactId>
+        </dependency>
+
+
         <!-- lib Dependencies -->
-        
+
         <dependency>
             <groupId>asm</groupId>
             <artifactId>asm</artifactId>
         </dependency>
-        
+
         <dependency>
             <groupId>asm</groupId>
             <artifactId>asm-commons</artifactId>
         </dependency>
-        
+
         <dependency>
             <groupId>cglib</groupId>
             <artifactId>cglib-nodep</artifactId>
         </dependency>
-        
+
         <dependency>
             <groupId>commons-cli</groupId>
             <artifactId>commons-cli</artifactId>
         </dependency>
-        
+
         <dependency>
             <groupId>commons-logging</groupId>
             <artifactId>commons-logging</artifactId>
         </dependency>
-        
+
         <dependency>
             <groupId>log4j</groupId>
             <artifactId>log4j</artifactId>
         </dependency>
-        
+
         <dependency>
             <groupId>xpp3</groupId>
             <artifactId>xpp3</artifactId>
         </dependency>
-        
+
         <dependency>
             <groupId>com.thoughtworks.xstream</groupId>
             <artifactId>xstream</artifactId>
         </dependency>
-        
+
         <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
             <artifactId>geronimo-cli</artifactId>
             <version>${version}</version>
         </dependency>
-        
+
         <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
             <artifactId>geronimo-kernel</artifactId>
             <version>${version}</version>
         </dependency>
-        
+
         <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
             <artifactId>geronimo-deploy-jsr88-bootstrapper</artifactId>
             <version>${version}</version>
         </dependency>
-        
+
         <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
             <artifactId>geronimo-transformer</artifactId>
@@ -194,54 +220,54 @@
         <!--
         FIXME: Bad idea for plugins
         -->
-<!--
-        <dependency>
-            <groupId>javax.xml.bind</groupId>
-            <artifactId>jaxb-api</artifactId>
-        </dependency>
-        
-        <dependency>
-            <groupId>com.sun.xml.bind</groupId>
-            <artifactId>jaxb-impl</artifactId>
-        </dependency>
-        
-        <dependency>
-            <groupId>org.apache.geronimo.specs</groupId>
-            <artifactId>geronimo-stax-api_1.0_spec</artifactId>
-        </dependency>
-        
-        <dependency>
-            <groupId>woodstox</groupId>
-            <artifactId>wstx-asl</artifactId>
-        </dependency>
-        
-        <dependency>
-            <groupId>org.apache.geronimo.specs</groupId>
-            <artifactId>geronimo-activation_1.1_spec</artifactId>
-        </dependency>
--->
+        <!--
+                <dependency>
+                    <groupId>javax.xml.bind</groupId>
+                    <artifactId>jaxb-api</artifactId>
+                </dependency>
+
+                <dependency>
+                    <groupId>com.sun.xml.bind</groupId>
+                    <artifactId>jaxb-impl</artifactId>
+                </dependency>
+
+                <dependency>
+                    <groupId>org.apache.geronimo.specs</groupId>
+                    <artifactId>geronimo-stax-api_1.0_spec</artifactId>
+                </dependency>
+
+                <dependency>
+                    <groupId>woodstox</groupId>
+                    <artifactId>wstx-asl</artifactId>
+                </dependency>
+
+                <dependency>
+                    <groupId>org.apache.geronimo.specs</groupId>
+                    <artifactId>geronimo-activation_1.1_spec</artifactId>
+                </dependency>
+        -->
 
         <!-- lib/endorsed Dependencies -->
-        
+
         <dependency>
             <groupId>org.apache.yoko</groupId>
             <artifactId>yoko-spec-corba</artifactId>
         </dependency>
-        
+
         <dependency>
             <groupId>org.apache.yoko</groupId>
             <artifactId>yoko-rmi-spec</artifactId>
         </dependency>
-        
+
         <!-- bin Dependencies (executable jars) -->
-        
+
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
             <artifactId>j2ee-system</artifactId>
             <version>${version}</version>
             <type>car</type>
         </dependency>
-        
+
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
             <artifactId>shutdown</artifactId>
@@ -257,7 +283,7 @@
         </dependency>
 
     </dependencies>
-    
+
     <build>
         <plugins>
             <plugin>
@@ -272,7 +298,7 @@
                         </goals>
                         <configuration>
                             <outputDirectory>${project.build.directory}/schema</outputDirectory>
-                            
+
                             <artifactItems>
                                 <artifactItem>
                                     <groupId>org.apache.geronimo.modules</groupId>
@@ -334,7 +360,7 @@
                     </execution>
                 </executions>
             </plugin>
-            
+
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-antrun-plugin</artifactId>
@@ -358,7 +384,7 @@
                             </tasks>
                         </configuration>
                     </execution>
-                    
+
                     <execution>
                         <id>install-underlay</id>
                         <phase>process-classes</phase>
@@ -378,7 +404,37 @@
                     </execution>
                 </executions>
             </plugin>
-            
+
+            <plugin>
+                <groupId>org.apache.geronimo.plugins</groupId>
+                <artifactId>car-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>generate-plugin-metadata</id>
+                        <phase>generate-resources</phase>
+                        <!--<phase>process-resources</phase>-->
+                        <goals>
+                            <goal>prepare-metadata</goal>
+                        </goals>
+                        <configuration>
+                            <useMavenDependencies>
+                                <value>true</value>
+                                <includeVersion>true</includeVersion>
+                            </useMavenDependencies>
+                            <category>Geronimo Core</category>
+                            <instance>
+                                <plugin-artifact>
+                                    <module-id>
+                                        <type>jar</type>
+                                    </module-id>
+                                    <copy-file relative-to="geronimo" dest-dir=""></copy-file>
+                                </plugin-artifact>
+                            </instance>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-assembly-plugin</artifactId>
@@ -387,6 +443,7 @@
                     <execution>
                         <id>boilerplate</id>
                         <phase>compile</phase>
+                        <!--<phase>package</phase>-->
                         <goals>
                             <goal>directory-inline</goal>
                         </goals>
