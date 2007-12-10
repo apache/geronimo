@@ -34,6 +34,6 @@ public class InstallLibraryCommandMetaData extends BaseCommandMetaData  {
     }
 
     public CommandArgs parse(String[] newArgs) throws CLParserException {
-        return new InstallLibraryCommandArgs(newArgs);
+        return new InstallLibraryCommandArgsImpl(newArgs);
     }
 }

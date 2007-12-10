@@ -39,6 +39,9 @@ public class CommandInstallLibrary extends AbstractCommand {
             throw new DeploymentSyntaxException("CommandArgs has the type [" + commandArgs.getClass() + "]; expected [" + InstallLibraryCommandArgs.class + "]");
         }
         InstallLibraryCommandArgs installLibraryCommandArgs = (InstallLibraryCommandArgs)commandArgs;
+        if (installLibraryCommandArgs.getArgs().length == 0) {
+            throw new DeploymentException("Must specify a LibraryFile");
+        }
         File libFile = new File(installLibraryCommandArgs.getArgs()[0]);
         if(!libFile.exists() || !libFile.isFile() || !libFile.canRead()) {
             throw new DeploymentException("File does not exist or not a normal file or not readable. "+libFile);

@@ -195,6 +195,26 @@
                     <name>list-modules</name>
                     <id>geronimo-commands:list-modules</id>
                 </command>
+
+                <command>
+                    <name>install-library</name>
+                    <id>geronimo-commands:install-library</id>
+                </command>
+
+                <command>
+                    <name>redeploy</name>
+                    <id>geronimo-commands:redeploy-module</id>
+                </command>
+
+                <command>
+                    <name>distribute</name>
+                    <id>geronimo-commands:distribute-module</id>
+                </command>
+
+                <command>
+                    <name>deploy</name>
+                    <id>geronimo-commands:deploy-module</id>
+                </command>
             </nodes>
         </group>
 

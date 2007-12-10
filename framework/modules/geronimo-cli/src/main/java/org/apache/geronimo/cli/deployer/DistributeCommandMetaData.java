@@ -43,7 +43,7 @@ public class DistributeCommandMetaData extends BaseCommandMetaData  {
     }
 
     public CommandArgs parse(String[] args) throws CLParserException {
-        return new DistributeCommandArgs(args);
+        return new DistributeCommandArgsImpl(args);
     }
     
 }

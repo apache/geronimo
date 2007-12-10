@@ -26,21 +26,21 @@ import junit.framework.TestCase;
 public class DistributeCommandArgsTest extends TestCase {
 
     public void testInPlace() throws Exception {
-        DistributeCommandArgs args = new DistributeCommandArgs(new String[] {"--inPlace", "plan.xml"});
+        DistributeCommandArgs args = new DistributeCommandArgsImpl(new String[] {"--inPlace", "plan.xml"});
         assertTrue(args.isInPlace());
 
-        args = new DistributeCommandArgs(new String[] {"-i", "plan.xml"});
+        args = new DistributeCommandArgsImpl(new String[] {"-i", "plan.xml"});
         assertTrue(args.isInPlace());
     }
 
     public void testTargets() throws Exception {
-        DistributeCommandArgs args = new DistributeCommandArgs(new String[] {"--targets", "t1;t2", "plan.xml"});
+        DistributeCommandArgs args = new DistributeCommandArgsImpl(new String[] {"--targets", "t1;t2", "plan.xml"});
         String[] targets = args.getTargets();
         assertEquals(2, targets.length);
         assertEquals("t1", targets[0]);
         assertEquals("t2", targets[1]);
         
-        args = new DistributeCommandArgs(new String[] {"-t", "t1;t2", "plan.xml"});
+        args = new DistributeCommandArgsImpl(new String[] {"-t", "t1;t2", "plan.xml"});
         targets = args.getTargets();
         assertEquals(2, targets.length);
         assertEquals("t1", targets[0]);
@@ -49,7 +49,7 @@ public class DistributeCommandArgsTest extends TestCase {
 
     public void testNoPlanOrModuleFails() throws Exception {
         try {
-            new DistributeCommandArgs(new String[] {"--targets", "t1;t2"});
+            new DistributeCommandArgsImpl(new String[] {"--targets", "t1;t2"});
             fail();
         } catch (CLParserException e) {
         }
@@ -57,7 +57,7 @@ public class DistributeCommandArgsTest extends TestCase {
 
     public void testTooManyArgsFails() throws Exception {
         try {
-            new DistributeCommandArgs(new String[] {"plan.xml", "module.jar", "extra"});
+            new DistributeCommandArgsImpl(new String[] {"plan.xml", "module.jar", "extra"});
             fail();
         } catch (CLParserException e) {
         }

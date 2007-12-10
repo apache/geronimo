@@ -14,13 +14,29 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.apache.geronimo.cli.deployer;
+package org.apache.geronimo.commands;
+
+import org.apache.geronimo.cli.deployer.InstallLibraryCommandArgs;
 
 /**
- * @version $Rev$ $Date$
+ * @version $Rev: 597690 $ $Date: 2007-11-23 10:43:02 -0500 (Fri, 23 Nov 2007) $
  */
-public interface InstallLibraryCommandArgs extends CommandArgs {
+public class InstallLibraryCommandArgsImpl implements InstallLibraryCommandArgs {
+   
+    private String libraryFile;
+    private String groupId;
     
-    String getGroupId();
-        
+    public InstallLibraryCommandArgsImpl(String libraryFile, String groupId) {
+        this.libraryFile = libraryFile;
+        this.groupId = groupId;
+    }
+
+    public String getGroupId() {
+        return this.groupId;
+    }
+    
+    public String[] getArgs() {
+        return new String[] {this.libraryFile};
+    }
+    
 }

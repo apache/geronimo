@@ -14,15 +14,38 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.apache.geronimo.cli.deployer;
+package org.apache.geronimo.commands;
+
+import org.apache.geronimo.cli.deployer.DistributeCommandArgs;
 
 /**
  * @version $Rev: 476049 $ $Date: 2006-11-17 15:35:17 +1100 (Fri, 17 Nov 2006) $
  */
-public interface DistributeCommandArgs extends CommandArgs {
+public class DistributeCommandArgsImpl implements DistributeCommandArgs {
     
-    String[] getTargets();
+    private String[] args;
+    private String targets;
+    private boolean inPlace;
     
-    boolean isInPlace(); 
+    public DistributeCommandArgsImpl(String[] args, String targets, boolean inPlace) {
+        this.args = args;
+        this.targets = targets;
+        this.inPlace = inPlace;
+    }
+   
+    public String[] getTargets() {
+        if (null == this.targets) {
+            return new String[0];
+        }
+        return this.targets.split(";");
+    }
+    
+    public boolean isInPlace() {
+        return this.inPlace;
+    }
+    
+    public String[] getArgs() {
+        return this.args;
+    }
     
 }
