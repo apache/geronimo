@@ -45,6 +45,10 @@ public class CommandRedeploy extends AbstractCommand {
         try {
             String[] args = commandArgs.getArgs();
 
+            if (args.length == 0) {
+                throw new DeploymentSyntaxException("Must specify a module or plan (or both) and optionally module IDs to replace");
+            }
+            
             DeploymentManager mgr = connection.getDeploymentManager();
             Target[] allTargets = mgr.getTargets();
             TargetModuleID[] allModules;
@@ -59,7 +63,7 @@ public class CommandRedeploy extends AbstractCommand {
             File plan = null;
             File test = new File(args[0]); // Guess whether the first argument is a module or a plan
             if(!test.exists()) {
-                throw new DeploymentSyntaxException("Must specify a module or plan (or both) and optionally module IDs to replace");
+                throw new DeploymentSyntaxException("Module or plan file does not exist: " + test.getAbsolutePath());
             }
             if(!test.canRead()) {
                 throw new DeploymentException("Cannot read file "+test.getAbsolutePath());

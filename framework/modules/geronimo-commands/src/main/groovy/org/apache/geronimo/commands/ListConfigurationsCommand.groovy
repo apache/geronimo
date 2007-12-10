@@ -65,9 +65,11 @@ class ListConfigurationsCommand
             plugins = command.getPluginCategories(repo, connection.getDeploymentManager(), consoleReader)
             variables.parent.set("AvailablePlugins", plugins)
         }
-        def pluginsToInstall = command.getInstallList(plugins, consoleReader, repo)
-        if (pluginsToInstall) {
-            command.installPlugins(connection.getDeploymentManager(), pluginsToInstall, repo, consoleReader, connection)
+        if (plugins) {
+        	def pluginsToInstall = command.getInstallList(plugins, consoleReader, repo)
+        	if (pluginsToInstall) {
+            	command.installPlugins(connection.getDeploymentManager(), pluginsToInstall, repo, consoleReader, connection)
+        	}
         }
         io.out.println("list ended")
     }
