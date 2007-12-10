@@ -43,7 +43,7 @@ function <portlet:namespace/>validateForm(){
         <b>Change password for private key ${alias}</b><br/>
     </c:when>
     <c:otherwise>
-        <b>Change password for keystore ${keystore}</b></br>
+        <b>Change password for keystore ${keystore}</b><br/>
     </c:otherwise>
 </c:choose>
 
