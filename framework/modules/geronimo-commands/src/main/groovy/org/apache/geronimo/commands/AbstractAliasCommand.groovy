@@ -59,8 +59,8 @@ abstract class AbstractAliasCommand extends CommandSupport {
     }
     
     def serializeToXML = { aliases ->
-	    def outputBuilder = new StreamingMarkupBuilder()
-	    outputBuilder.bind { mkp.yield aliases }
+            def outputBuilder = new StreamingMarkupBuilder()
+            outputBuilder.bind { mkp.yield aliases }
     }
     
     def createNewAliasFile = { aliasFile, aliasFileName, xml ->

@@ -45,26 +45,26 @@ class AliasCommand extends AbstractAliasCommand {
 
         def xml
         aliasFile.withInputStream {
-		    def aliases = new XmlSlurper().parse(it)
-		
-		    if (!aliasName) {
-		        io.out.println(buildAvailableAliases(aliases))
-		        return
-		    }
-		    
-		    if (!aliases.alias.find { it.@id.text().equals(aliasName) }.isEmpty()) {
-		        throw new IllegalArgumentException("${aliasName} is already defined")
-		    } else if (!command) {
-		        throw new IllegalArgumentException("command is required")
-		    }
-		    
-		    aliases.appendNode {
-		        alias(id: aliasName) {
-		            cli(command)
-		        }
-		    }
-		    
-		    xml = serializeToXML(aliases)
+                    def aliases = new XmlSlurper().parse(it)
+                
+                    if (!aliasName) {
+                        io.out.println(buildAvailableAliases(aliases))
+                        return
+                    }
+                    
+                    if (!aliases.alias.find { it.@id.text().equals(aliasName) }.isEmpty()) {
+                        throw new IllegalArgumentException("${aliasName} is already defined")
+                    } else if (!command) {
+                        throw new IllegalArgumentException("command is required")
+                    }
+                    
+                    aliases.appendNode {
+                        alias(id: aliasName) {
+                            cli(command)
+                        }
+                    }
+                    
+                    xml = serializeToXML(aliases)
         }
         
         if (!xml) {

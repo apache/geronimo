@@ -19,7 +19,6 @@
 
 package org.apache.geronimo.commands
 
-
 import jline.ConsoleReader
 
 import org.apache.geronimo.gshell.clp.Option
@@ -66,10 +65,10 @@ class ListConfigurationsCommand
             variables.parent.set("AvailablePlugins", plugins)
         }
         if (plugins) {
-        	def pluginsToInstall = command.getInstallList(plugins, consoleReader, repo)
-        	if (pluginsToInstall) {
-            	command.installPlugins(connection.getDeploymentManager(), pluginsToInstall, repo, consoleReader, connection)
-        	}
+            def pluginsToInstall = command.getInstallList(plugins, consoleReader, repo)
+            if (pluginsToInstall) {
+                command.installPlugins(connection.getDeploymentManager(), pluginsToInstall, repo, consoleReader, connection)
+            }
         }
         io.out.println("list ended")
     }

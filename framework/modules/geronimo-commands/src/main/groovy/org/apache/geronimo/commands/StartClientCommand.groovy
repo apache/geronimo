@@ -94,7 +94,7 @@ class StartClientCommand extends BaseJavaCommand {
         // TODO: Add spawn support?
         //
         
-  		launcher.process = {
+        launcher.process = {
             try {
                 ant.java(jar: "$geronimoHome/bin/client.jar", dir: geronimoHome, failonerror: true, fork: true) {
                     def node = current.wrapper
@@ -153,9 +153,9 @@ class StartClientCommand extends BaseJavaCommand {
                 
                 throw e
             }
-   		}
+        }
                 
-     	launcher.launch()
+        launcher.launch()
         
         return SUCCESS
     }

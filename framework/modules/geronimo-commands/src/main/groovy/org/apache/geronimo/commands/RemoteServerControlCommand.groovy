@@ -59,16 +59,16 @@ class RemoteServerControlCommand extends CommandSupport {
         result
     }
 
-	protected executeRshCommand(is) {
+    protected executeRshCommand(is) {
         def configuration = new XmlSlurper().parse(is)
 
         def retrieveByNameAttribute = { baseNode, name ->
-	        def node = baseNode.find { it.@name.text().equals(name) }
-	        if (node.isEmpty()) {
-	            def availableNames = baseNode.list().sort{ it.@name.text() }.'@name'*.text()
-	            throw new IllegalArgumentException("${name} does not exist. Available: ${availableNames}")
-	        }
-	        node
+                def node = baseNode.find { it.@name.text().equals(name) }
+                if (node.isEmpty()) {
+                    def availableNames = baseNode.list().sort{ it.@name.text() }.'@name'*.text()
+                    throw new IllegalArgumentException("${name} does not exist. Available: ${availableNames}")
+                }
+                node
         }
 
         def server = retrieveByNameAttribute(configuration.servers.server, serverName)
@@ -79,14 +79,14 @@ class RemoteServerControlCommand extends CommandSupport {
             throw new IllegalStateException("gshell.remote-login-cmd is not defined by host ${host.@name.text()}")
         }
         
-	    def command = server.controls."${control}".text()
-	    if ('' == command) {
+        def command = server.controls."${control}".text()
+        if ('' == command) {
             def controls = server.controls.'*'.list().sort{ it.name() }*.name()
-	        throw new IllegalStateException("server.controls.${control} is not defined by server "
-	            + "${server.@name.text()}.\nAvailable controls: ${controls}")
-	    }
+                throw new IllegalStateException("server.controls.${control} is not defined by server "
+                    + "${server.@name.text()}.\nAvailable controls: ${controls}")
+        }
         
         executor.execute("${rshCmd} ${command}")
-	}
+    }
 
 }

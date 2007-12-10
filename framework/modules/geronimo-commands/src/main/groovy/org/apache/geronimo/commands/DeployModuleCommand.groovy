@@ -56,7 +56,7 @@ class DeployModuleCommand extends ConnectCommand {
         def consoleReader = new ConsoleReader(io.inputStream, io.out)
         
         def commandArgs = []
-		commandArgs.add(module)        
+                commandArgs.add(module)        
         if (modulePlan) {
             commandArgs.add(modulePlan)
         }

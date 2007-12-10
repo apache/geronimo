@@ -38,24 +38,24 @@ import org.apache.geronimo.gshell.command.IO
 class UnaliasCommand extends AbstractAliasCommand {
 
     protected Object doExecute() throws Exception {
-	    def aliasFile = checkAliasFile()
+        def aliasFile = checkAliasFile()
 
-	    if (!aliasName) {
-	        throw new IllegalArgumentException("an alias must be specified")
-	    }
+        if (!aliasName) {
+                throw new IllegalArgumentException("an alias must be specified")
+        }
 
         def xml
         aliasFile.withInputStream {
-		    def aliases = new XmlSlurper().parse(it)
-		    
-		    def alias = aliases.alias.find { it.@id.text().equals(aliasName) }
-		    if ('' == alias.text()) {
-		        return
-		    }
-		    
-		    alias.replaceNode {}
-		    
-		    xml = serializeToXML(aliases)
+                    def aliases = new XmlSlurper().parse(it)
+                    
+                    def alias = aliases.alias.find { it.@id.text().equals(aliasName) }
+                    if ('' == alias.text()) {
+                        return
+                    }
+                    
+                    alias.replaceNode {}
+                    
+                    xml = serializeToXML(aliases)
         }
         
         if (!xml) {
