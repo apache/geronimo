@@ -185,6 +185,16 @@
                     <name>undeploy</name>
                     <id>geronimo-commands:undeploy-module</id>
                 </command>
+
+                <command>
+                    <name>list-targets</name>
+                    <id>geronimo-commands:list-targets</id>
+                </command>
+
+                <command>
+                    <name>list-modules</name>
+                    <id>geronimo-commands:list-modules</id>
+                </command>
             </nodes>
         </group>
 

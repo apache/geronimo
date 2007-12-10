@@ -35,7 +35,7 @@ public class ListModulesCommandMetaData extends BaseCommandMetaData  {
     }
 
     public CommandArgs parse(String[] args) throws CLParserException {
-        return new ListModulesCommandArgs(args);
+        return new ListModulesCommandArgsImpl(args);
     }
 
 }

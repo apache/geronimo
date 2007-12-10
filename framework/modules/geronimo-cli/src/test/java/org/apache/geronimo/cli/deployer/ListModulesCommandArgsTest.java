@@ -26,7 +26,7 @@ import junit.framework.TestCase;
 public class ListModulesCommandArgsTest extends TestCase {
 
     public void testArgs() throws Exception {
-        ListModulesCommandArgs args = new ListModulesCommandArgs(new String[] {"--all", "arg1", "arg2"});
+        ListModulesCommandArgs args = new ListModulesCommandArgsImpl(new String[] {"--all", "arg1", "arg2"});
         String[] theArgs = args.getArgs();
         assertEquals(2 , theArgs.length);
         assertEquals("arg1" , theArgs[0]);
@@ -34,44 +34,44 @@ public class ListModulesCommandArgsTest extends TestCase {
     }
 
     public void testAll() throws Exception {
-        ListModulesCommandArgs args = new ListModulesCommandArgs(new String[] {"--all"});
+        ListModulesCommandArgs args = new ListModulesCommandArgsImpl(new String[] {"--all"});
         assertTrue(args.isAll());
 
-        args = new ListModulesCommandArgs(new String[] {"-a"});
+        args = new ListModulesCommandArgsImpl(new String[] {"-a"});
         assertTrue(args.isAll());
     }
 
     public void testStarted() throws Exception {
-        ListModulesCommandArgs args = new ListModulesCommandArgs(new String[] {"--started"});
+        ListModulesCommandArgs args = new ListModulesCommandArgsImpl(new String[] {"--started"});
         assertTrue(args.isStarted());
         
-        args = new ListModulesCommandArgs(new String[] {"-s"});
+        args = new ListModulesCommandArgsImpl(new String[] {"-s"});
         assertTrue(args.isStarted());
     }
     
     public void testStopped() throws Exception {
-        ListModulesCommandArgs args = new ListModulesCommandArgs(new String[] {"--stopped"});
+        ListModulesCommandArgs args = new ListModulesCommandArgsImpl(new String[] {"--stopped"});
         assertTrue(args.isStopped());
         
-        args = new ListModulesCommandArgs(new String[] {"-t"});
+        args = new ListModulesCommandArgsImpl(new String[] {"-t"});
         assertTrue(args.isStopped());
     }
     
     public void testStatePermutationsFail() throws Exception {
         try {
-            new ListModulesCommandArgs(new String[] {"-a", "-s"});
+            new ListModulesCommandArgsImpl(new String[] {"-a", "-s"});
             fail();
         } catch (CLParserException e) {
         }
         
         try {
-            new ListModulesCommandArgs(new String[] {"-a", "-t"});
+            new ListModulesCommandArgsImpl(new String[] {"-a", "-t"});
             fail();
         } catch (CLParserException e) {
         }
         
         try {
-            new ListModulesCommandArgs(new String[] {"-s", "-t"});
+            new ListModulesCommandArgsImpl(new String[] {"-s", "-t"});
             fail();
         } catch (CLParserException e) {
         }

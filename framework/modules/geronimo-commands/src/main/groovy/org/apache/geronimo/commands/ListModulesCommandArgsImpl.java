@@ -14,17 +14,41 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.apache.geronimo.cli.deployer;
+package org.apache.geronimo.commands;
+
+import org.apache.geronimo.cli.deployer.ListModulesCommandArgs;
 
 /**
  * @version $Rev: 476049 $ $Date: 2006-11-17 15:35:17 +1100 (Fri, 17 Nov 2006) $
  */
-public interface ListModulesCommandArgs extends CommandArgs {
+public class ListModulesCommandArgsImpl implements ListModulesCommandArgs {
+
+    private String[] args;
+    private boolean all;
+    private boolean started;
+    private boolean stopped;
+
+    public ListModulesCommandArgsImpl(String[] args, boolean all, boolean started, boolean stopped) {
+        this.args = args;
+        this.all = all;
+        this.started = started;
+        this.stopped = stopped;
+    }
+
+    public boolean isAll() {
+        return this.all;
+    }
+
+    public boolean isStarted() {
+        return this.started;
+    }
     
-    boolean isAll();
+    public boolean isStopped() {
+        return this.stopped;
+    }
     
-    boolean isStarted();
-    
-    boolean isStopped();
+    public String[] getArgs() {
+        return this.args;
+    }
 
 }
