@@ -63,7 +63,7 @@ class ConnectCommand
 
         variables.parent.set("ServerConnection", connection)
 
-        io.out.println("connection established")
+        io.out.println("Connection established")
         return connection
     }
 }

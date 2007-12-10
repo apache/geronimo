@@ -37,9 +37,11 @@ class DisconnectCommand
         io.out.println("Disconnecting from Geronimo server")
 
         def connection = variables.get("ServerConnection")
-        if (connection) connection.close
+        if (connection) {
+            connection.close()
+        }
         variables.parent.unset("ServerConnection")
         
-        io.out.println("connection ended")
+        io.out.println("Connection ended")
     }
 }
