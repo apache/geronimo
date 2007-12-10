@@ -215,6 +215,11 @@
                     <name>deploy</name>
                     <id>geronimo-commands:deploy-module</id>
                 </command>
+
+                <command>
+                    <name>install-plugin</name>
+                    <id>geronimo-commands:install-plugin</id>
+                </command>
             </nodes>
         </group>
 

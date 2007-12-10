@@ -90,6 +90,15 @@ public class CommandListConfigurations extends AbstractCommand {
                     "URL on the command line, or go into the console Plugin page and update the list of available " +
                     "repositories.");
         }
+        // no need to ask for input if only one repo exists
+        if (all.length == 1) {
+            String repo = all[0].toString();
+            consoleReader.printNewline();
+            consoleReader.printString("Selected repository: " + repo);
+            consoleReader.printNewline();
+            return repo;
+        }
+        
         consoleReader.printNewline();
         consoleReader.printString("Select repository:");
         consoleReader.printNewline();
@@ -99,11 +108,23 @@ public class CommandListConfigurations extends AbstractCommand {
             DeployUtils.println(url.toString(), 0, consoleReader);
         }
         String entry = consoleReader.readLine("Enter Repository Number: ").trim();
-        int index = Integer.parseInt(entry);
-        return all[index - 1].toString();
+        if (entry.length() == 0) {
+            return null;
+        }
+        try {
+            int index = Integer.parseInt(entry);
+            return all[index - 1].toString();
+        } catch (NumberFormatException e) {
+            throw new DeploymentException("Invalid selection");
+        } catch (ArrayIndexOutOfBoundsException e) {
+            throw new DeploymentException("Invalid selection");
+        }
     }
 
     public Map<String, Collection<PluginType>> getPluginCategories(String repo, GeronimoDeploymentManager mgr, ConsoleReader consoleReader) throws DeploymentException, IOException {
+        if (repo == null) {
+            return null;
+        }
         PluginListType data;
         URL repository;
         try {
@@ -200,9 +221,9 @@ public class CommandListConfigurations extends AbstractCommand {
     public void installPlugins(GeronimoDeploymentManager mgr, PluginListType list, String defaultRepository, ConsoleReader consoleReader, ServerConnection connection) throws IOException, DeploymentException {
         long start = System.currentTimeMillis();
         Object key = mgr.startInstall(list, defaultRepository, false, null, null);
-        DownloadResults results = CommandInstallCAR.showProgress(mgr, key);
+        DownloadResults results = CommandInstallCAR.showProgress(consoleReader, mgr, key);
         int time = (int) (System.currentTimeMillis() - start) / 1000;
-        printResults(consoleReader, results, time);
+        CommandInstallCAR.printResults(consoleReader, results, time);
         if (results.isFinished() && !results.isFailed()) {
             for (PluginType plugin : list.getPlugin()) {
                 for (PluginArtifactType targetInstance : plugin.getPluginArtifact()) {
@@ -214,38 +235,13 @@ public class CommandListConfigurations extends AbstractCommand {
             }
         }
     }
-
-    private void printResults(ConsoleReader consoleReader, DownloadResults results, int time) throws IOException, DeploymentException {
-        consoleReader.printNewline();
-        if (!results.isFailed()) {
-            DeployUtils.println("**** Installation Complete!", 0, consoleReader);
-
-            for (int i = 0; i < results.getDependenciesPresent().length; i++) {
-                Artifact uri = results.getDependenciesPresent()[i];
-                DeployUtils.println("Used existing: " + uri, 0, consoleReader);
-
-            }
-            for (int i = 0; i < results.getDependenciesInstalled().length; i++) {
-                Artifact uri = results.getDependenciesInstalled()[i];
-                DeployUtils.println("Installed new: " + uri, 0, consoleReader);
-
-            }
-            consoleReader.printNewline();
-            DeployUtils.println(
-                    "Downloaded " + (results.getTotalDownloadBytes() / 1024) + " kB in " + time + "s (" + results.getTotalDownloadBytes() / (1024 * time) + " kB/s)",
-                    0, consoleReader);
-
-        }
-    }
-
+    
     public void assembleServer(GeronimoDeploymentManager mgr, PluginListType list, String repositoryPath, String relativeServerPath, ConsoleReader consoleReader) throws Exception {
         DownloadResults results = new DownloadResults();
         long start = System.currentTimeMillis();
         mgr.installPluginList(repositoryPath, relativeServerPath, list, results);
         int time = (int) (System.currentTimeMillis() - start) / 1000;
-
-        printResults(consoleReader, results, time);
+        CommandInstallCAR.printResults(consoleReader, results, time);
     }
-
 
 }

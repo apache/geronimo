@@ -21,6 +21,7 @@ package org.apache.geronimo.commands
 
 import jline.ConsoleReader
 
+import org.apache.geronimo.gshell.clp.Argument
 import org.apache.geronimo.gshell.clp.Option
 import org.apache.geronimo.gshell.command.annotation.CommandComponent
 import org.apache.geronimo.gshell.command.CommandSupport
@@ -42,28 +43,38 @@ class ListConfigurationsCommand
 
     @Option(name='-l', aliases=['--list'], description='refresh plugin list')
     boolean refreshList = false
+    
+    @Argument(metaVar="MAVEN-REPO-URL", description="Repository URL")
+    String mavenRepoURL
 
     protected Object doExecute() throws Exception {
-        io.out.println("Listing configurations from Geronimo server")
-
         def connection = variables.get("ServerConnection")
         if (!connection) {
-            //def connectCommand = new ConnectCommand()
-            //connectCommand.init(context)
             connection = super.doExecute()
         }
         def command = new CommandListConfigurations()
         def consoleReader = new ConsoleReader(io.inputStream, io.out)
-        def repo = variables.get("PluginRepository")
-        if (refreshRepo || !repo) {
-            repo = command.getRepository(consoleReader, connection.getDeploymentManager())
-            variables.parent.set("PluginRepository", repo)
+        def repo = null
+        def plugins = null
+        
+        if (mavenRepoURL) {
+        	plugins = command.getPluginCategories(mavenRepoURL, connection.getDeploymentManager(), consoleReader)
+        } else {
+            io.out.println("Listing configurations from Geronimo server")
+            
+        	repo = variables.get("PluginRepository")
+        	if (refreshRepo || !repo) {
+            	repo = command.getRepository(consoleReader, connection.getDeploymentManager())
+            	variables.parent.set("PluginRepository", repo)
+        	}
+              
+       	 	plugins = variables.get("AvailablePlugins")
+        	if (refreshList || !plugins) {
+            	plugins = command.getPluginCategories(repo, connection.getDeploymentManager(), consoleReader)
+            	variables.parent.set("AvailablePlugins", plugins)
+        	}
         }
-        def plugins = variables.get("AvailablePlugins")
-        if (refreshList || !plugins) {
-            plugins = command.getPluginCategories(repo, connection.getDeploymentManager(), consoleReader)
-            variables.parent.set("AvailablePlugins", plugins)
-        }
+        
         if (plugins) {
             def pluginsToInstall = command.getInstallList(plugins, consoleReader, repo)
             if (pluginsToInstall) {

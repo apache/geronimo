@@ -43,6 +43,9 @@ public class CommandInstallCAR extends AbstractCommand {
         if(dmgr instanceof GeronimoDeploymentManager) {
             try {
                 GeronimoDeploymentManager mgr = (GeronimoDeploymentManager) dmgr;
+                if (commandArgs.getArgs().length == 0) {
+                    throw new DeploymentException("Must specify Plugin CAR file");
+                }
                 File carFile = new File(commandArgs.getArgs()[0]);
                 carFile = carFile.getAbsoluteFile();
                 if(!carFile.exists() || !carFile.canRead()) {
@@ -51,24 +54,9 @@ public class CommandInstallCAR extends AbstractCommand {
                 //TODO figure out if there is a plausible default repo
                 Object key = mgr.startInstall(carFile, null, false, null, null);
                 long start = System.currentTimeMillis();
-                DownloadResults results = showProgress(mgr, key);
+                DownloadResults results = showProgress(consoleReader, mgr, key);
                 int time = (int)(System.currentTimeMillis() - start) / 1000;
-                consoleReader.printNewline();
-                if(!results.isFailed()) {
-                    consoleReader.printString(DeployUtils.reformat("**** Installation Complete!", 4, 72));
-                    for (int i = 0; i < results.getDependenciesPresent().length; i++) {
-                        Artifact uri = results.getDependenciesPresent()[i];
-                        consoleReader.printString(DeployUtils.reformat("Used existing: "+uri, 4, 72));
-                    }
-                    for (int i = 0; i < results.getDependenciesInstalled().length; i++) {
-                        Artifact uri = results.getDependenciesInstalled()[i];
-                        consoleReader.printString(DeployUtils.reformat("Installed new: "+uri, 4, 72));
-                    }
-                    if(results.getTotalDownloadBytes() > 0 && time > 0) {
-                        System.out.println();
-                        consoleReader.printString(DeployUtils.reformat("Downloaded "+(results.getTotalDownloadBytes()/1024)+" kB in "+time+"s ("+results.getTotalDownloadBytes()/(1024*time)+" kB/s)", 4, 72));
-                    }
-                }
+                printResults(consoleReader, results, time);            
                 if(results.isFinished() && !results.isFailed() && results.getInstalledConfigIDs().length == 1) {
                     Artifact target = results.getInstalledConfigIDs()[0];
                     consoleReader.printString(DeployUtils.reformat("Now starting "+target+"...", 4, 72));
@@ -83,8 +71,8 @@ public class CommandInstallCAR extends AbstractCommand {
         }
     }
 
-    static DownloadResults showProgress(GeronimoDeploymentManager mgr, Object key) {
-        System.out.println("Checking for status every 1000ms:");
+    static DownloadResults showProgress(ConsoleReader consoleReader, GeronimoDeploymentManager mgr, Object key) throws IOException {
+        DeployUtils.println("Checking for status every 1000ms:", 0, consoleReader);
         String last = null, status;
         while(true) {
             DownloadResults results = mgr.checkOnInstall(key);
@@ -96,12 +84,13 @@ public class CommandInstallCAR extends AbstractCommand {
                 }
                 if(last == null || !last.equals(status)) {
                     last = status;
-                    System.out.println(status);
+                    DeployUtils.println(status, 0, consoleReader);
+                    consoleReader.flushConsole();
                 }
             }
             if(results.isFinished()) {
                 if(results.isFailed()) {
-                    System.err.println("Installation FAILED: "+results.getFailure().getMessage());
+                    DeployUtils.println("Installation FAILED: "+results.getFailure().getMessage(), 0, consoleReader);
                 }
                 return results;
             }
@@ -109,6 +98,30 @@ public class CommandInstallCAR extends AbstractCommand {
                 Thread.sleep(1000);
             } catch (InterruptedException e) {
                 return results;
+            }
+        }
+    }
+    
+    static void printResults(ConsoleReader consoleReader, DownloadResults results, int time) throws IOException, DeploymentException {
+        consoleReader.printNewline();
+        if (!results.isFailed()) {
+            DeployUtils.println("**** Installation Complete!", 0, consoleReader);
+
+            for (int i = 0; i < results.getDependenciesPresent().length; i++) {
+                Artifact uri = results.getDependenciesPresent()[i];
+                DeployUtils.println("Used existing: " + uri, 0, consoleReader);
+
+            }
+            for (int i = 0; i < results.getDependenciesInstalled().length; i++) {
+                Artifact uri = results.getDependenciesInstalled()[i];
+                DeployUtils.println("Installed new: " + uri, 0, consoleReader);
+
+            }
+            consoleReader.printNewline();
+            if (results.getTotalDownloadBytes() > 0 && time > 0) {
+                DeployUtils.println(
+                    "Downloaded " + (results.getTotalDownloadBytes() / 1024) + " kB in " + time + "s (" + results.getTotalDownloadBytes() / (1024 * time) + " kB/s)",
+                    0, consoleReader);
             }
         }
     }
