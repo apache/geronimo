@@ -114,7 +114,7 @@
                                         openjpa.jdbc.UpdateManager=operation-order
                                         openjpa.Sequence=table(Table=OPENJPASEQ, Increment=100)
                                     </attribute>
-                                    <attribute name="defaultEnvironment">
+                                    <attribute name="defaultEnvironment" propertyEditor="org.apache.geronimo.deployment.service.EnvironmentBuilder">
                                         <environment xmlns="http://geronimo.apache.org/xml/ns/deployment-1.2">
                                             <dependencies>
                                                 <dependency>
@@ -136,7 +136,7 @@
                                         openjpa.jdbc.UpdateManager=operation-order
                                         openjpa.Sequence=table(Table=OPENJPASEQ, Increment=100)
                                     </attribute>
-                                    <attribute name="defaultEnvironment">
+                                    <attribute name="defaultEnvironment" propertyEditor="org.apache.geronimo.deployment.service.EnvironmentBuilder">
                                         <environment xmlns="http://geronimo.apache.org/xml/ns/deployment-1.2">
                                             <dependencies>
                                                 <dependency>

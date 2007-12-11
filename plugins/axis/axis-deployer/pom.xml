@@ -121,7 +121,7 @@
                             <config-xml-content>
                                 <gbean name="AxisModuleBuilderExtension">
                                     <attribute name="listener">?name=#{webcontainer}</attribute>
-                                    <attribute name="defaultEnvironment">
+                                    <attribute name="defaultEnvironment" propertyEditor="org.apache.geronimo.deployment.service.EnvironmentBuilder">
                                         <environment xmlns="http://geronimo.apache.org/xml/ns/deployment-1.2">
                                             <dependencies>
                                                 <dependency>
@@ -137,7 +137,7 @@
                             <config-xml-content server="offline">
                                 <gbean name="AxisModuleBuilderExtension">
                                     <attribute name="listener">?name=#{webcontainer}</attribute>
-                                    <attribute name="defaultEnvironment">
+                                    <attribute name="defaultEnvironment" propertyEditor="org.apache.geronimo.deployment.service.EnvironmentBuilder">
                                         <environment xmlns="http://geronimo.apache.org/xml/ns/deployment-1.2">
                                             <dependencies>
                                                 <dependency>
