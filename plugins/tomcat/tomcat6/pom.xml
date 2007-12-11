@@ -36,6 +36,12 @@
     <description>Geronimo Tomcat web server integration.</description>
 
     <dependencies>
+        <dependency>
+            <groupId>org.apache.geronimo.configs</groupId>
+            <artifactId>clustering</artifactId>
+            <version>${version}</version>
+            <type>car</type>
+        </dependency>
 
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>

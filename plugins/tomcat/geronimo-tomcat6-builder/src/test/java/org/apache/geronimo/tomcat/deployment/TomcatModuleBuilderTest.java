@@ -333,7 +333,17 @@ public class TomcatModuleBuilderTest extends TestSupport {
 
         defaultEnvironment.addDependency(baseId, ImportType.ALL);
         defaultEnvironment.setConfigId(webModuleArtifact);
-        builder = new TomcatModuleBuilder(defaultEnvironment, new AbstractNameQuery(containerName), Collections.singleton(webServiceBuilder), Collections.singleton(new GeronimoSecurityBuilderImpl(new AbstractNameQuery(URI.create("?name=CredentialStore")))), Collections.singleton(new GBeanBuilder(null, null)), new NamingBuilderCollection(null, null), null, new MockResourceEnvironmentSetter(), null);
+        builder = new TomcatModuleBuilder(defaultEnvironment,
+            new AbstractNameQuery(containerName),
+            Collections.singleton(webServiceBuilder),
+            Collections.singleton(new GeronimoSecurityBuilderImpl(new AbstractNameQuery(URI
+                    .create("?name=CredentialStore")))),
+            Collections.singleton(new GBeanBuilder(null, null)),
+            new NamingBuilderCollection(null, null),
+            Collections.EMPTY_LIST,
+            null,
+            new MockResourceEnvironmentSetter(),
+            null);
     }
 
     protected void tearDown() throws Exception {

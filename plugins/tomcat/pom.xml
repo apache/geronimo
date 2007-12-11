@@ -35,5 +35,9 @@
         <module>geronimo-tomcat6-builder</module>
         <module>tomcat6</module>
         <module>tomcat6-deployer</module>
+        <module>geronimo-tomcat6-clustering-wadi</module>
+        <module>geronimo-tomcat6-clustering-builder-wadi</module>
+        <module>tomcat6-clustering-wadi</module>
+        <module>tomcat6-clustering-builder-wadi</module>
     </modules>
 </project>

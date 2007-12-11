@@ -82,6 +82,7 @@ public abstract class AbstractWebModuleTest extends TestSupport {
                 container,
                 runAsSource,
                 tomcatRealm,
+                null,
                 valveChain,
                 null,
                 null,

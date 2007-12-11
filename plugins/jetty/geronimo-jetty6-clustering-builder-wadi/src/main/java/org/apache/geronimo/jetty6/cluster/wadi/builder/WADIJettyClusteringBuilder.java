@@ -60,6 +60,12 @@ public class WADIJettyClusteringBuilder implements NamespaceDrivenBuilder {
     private static final QName CLUSTERING_WADI_QNAME = GerClusteringWadiDocument.type.getDocumentElementName();
     private static final QNameSet CLUSTERING_WADI_QNAME_SET = QNameSet.singleton(CLUSTERING_WADI_QNAME);
 
+    static  {
+        SchemaConversionUtils.registerNamespaceConversions(
+            Collections.singletonMap(CLUSTERING_WADI_QNAME.getLocalPart(),
+            new NamespaceElementConverter(CLUSTERING_WADI_QNAME.getNamespaceURI())));
+    }
+    
     private final int defaultSweepInterval;
     private final int defaultNumPartitions;
     private final AbstractNameQuery defaultBackingStrategyFactoryName;
@@ -71,15 +77,22 @@ public class WADIJettyClusteringBuilder implements NamespaceDrivenBuilder {
             AbstractNameQuery defaultBackingStrategyFactoryName,
             AbstractNameQuery defaultClusterName,
             Environment defaultEnvironment) {
+        if (defaultSweepInterval < 1) {
+            throw new IllegalArgumentException("defaultSweepInterval is lower than 1");
+        } else if (defaultNumPartitions < 1) {
+            throw new IllegalArgumentException("defaultNumPartitions is lower than 1");
+        } else if (null == defaultBackingStrategyFactoryName) {
+            throw new IllegalArgumentException("defaultBackingStrategyFactoryName is required");
+        } else if (null == defaultClusterName) {
+            throw new IllegalArgumentException("defaultClusterName is required");
+        } else if (null == defaultEnvironment) {
+            throw new IllegalArgumentException("defaultEnvironment is required");
+        }
         this.defaultSweepInterval = defaultSweepInterval;
         this.defaultNumPartitions = defaultNumPartitions;
         this.defaultBackingStrategyFactoryName = defaultBackingStrategyFactoryName;
         this.defaultClusterName = defaultClusterName;
         this.defaultEnvironment = defaultEnvironment;
-        
-        SchemaConversionUtils.registerNamespaceConversions(
-            Collections.singletonMap(CLUSTERING_WADI_QNAME.getLocalPart(),
-            new NamespaceElementConverter(CLUSTERING_WADI_QNAME.getNamespaceURI())));
     }
 
     public void buildEnvironment(XmlObject container, Environment environment) throws DeploymentException {

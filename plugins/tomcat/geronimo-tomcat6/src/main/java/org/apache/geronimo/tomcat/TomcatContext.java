@@ -22,65 +22,65 @@ import java.util.Set;
 
 import javax.transaction.UserTransaction;
 
+import org.apache.InstanceManager;
 import org.apache.catalina.Context;
 import org.apache.catalina.Manager;
 import org.apache.catalina.Realm;
-import org.apache.InstanceManager;
+import org.apache.catalina.Valve;
 import org.apache.catalina.ha.CatalinaCluster;
 import org.apache.geronimo.connector.outbound.connectiontracking.TrackedConnectionAssociator;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.tomcat.util.SecurityHolder;
-import org.apache.geronimo.security.credentialstore.CredentialStore;
 
 /**
  * @version $Rev$ $Date$
  */
 public interface TomcatContext {
+    String getContextPath();
 
-    public String getContextPath();
+    void setContext(Context ctx);
 
-    public void setContext(Context ctx);
+    Context getContext();
 
-    public Context getContext();
+    String getDocBase();
 
-    public String getDocBase();
+    SecurityHolder getSecurityHolder();
 
-    public SecurityHolder getSecurityHolder();
+    String getVirtualServer();
 
-    public String getVirtualServer();
+    ClassLoader getClassLoader();
 
-    public ClassLoader getClassLoader();
+    UserTransaction getUserTransaction();
 
-    public UserTransaction getUserTransaction();
+    javax.naming.Context getJndiContext();
 
-    public javax.naming.Context getJndiContext();
+    Kernel getKernel();
 
-    public Kernel getKernel();
+    Set getApplicationManagedSecurityResources();
 
-    public Set getApplicationManagedSecurityResources();
+    TrackedConnectionAssociator getTrackedConnectionAssociator();
 
-    public TrackedConnectionAssociator getTrackedConnectionAssociator();
+    Set getUnshareableResources();
 
-    public Set getUnshareableResources();
+    Realm getRealm();
 
-    public Realm getRealm();
+    Valve getClusteredValve();
 
-    public List getValveChain();
+    List getValveChain();
     
-    public List getLifecycleListenerChain();
+    List getLifecycleListenerChain();
 
-    public CatalinaCluster getCluster();
+    CatalinaCluster getCluster();
 
-    public Manager getManager();
+    Manager getManager();
 
-    public boolean isCrossContext();
+    boolean isCrossContext();
 
-    public String getWorkDir();
+    String getWorkDir();
 
-    public boolean isDisableCookies();
+    boolean isDisableCookies();
 
-    public Map getWebServices();
+    Map getWebServices();
 
-    public InstanceManager getInstanceManager();
-
+    InstanceManager getInstanceManager();
 }

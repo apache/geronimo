@@ -96,19 +96,6 @@
                                 <gbean name="JettyClusteringBuilder">
                                     <attribute name="defaultSweepInterval">${DefaultWadiSweepInterval}</attribute>
                                     <attribute name="defaultNumPartitions">${DefaultWadiNumPartitions}</attribute>
-                                    <!--<attribute name="defaultBackingStrategyFactoryName">?name=DefaultBackingStrategyFactory</attribute>-->
-                                    <!--<attribute name="defaultClusterName">?name=DefaultCluster</attribute>-->
-                                    <!--<xml-attribute name="defaultEnvironment" propertyEditor="org.apache.geronimo.deployment.service.EnvironmentBuilder">-->
-                                        <!--<environment xmlns="http://geronimo.apache.org/xml/ns/deployment-1.1">-->
-                                            <!--<dependencies>-->
-                                                <!--<dependency>-->
-                                                    <!--<groupId>${pom.groupId}</groupId>-->
-                                                    <!--<artifactId>jetty6-clustering-wadi</artifactId>-->
-                                                    <!--<type>car</type>-->
-                                                <!--</dependency>-->
-                                            <!--</dependencies>-->
-                                        <!--</environment>-->
-                                    <!--</xml-attribute>-->
                                 </gbean>
                              </config-xml-content>
                             <config-substitution key="DefaultWadiSweepInterval">36000</config-substitution>

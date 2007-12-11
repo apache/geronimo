@@ -127,6 +127,15 @@
                 </xs:annotation>
             </xs:element>
 
+            <xs:element ref="app:clustering" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>
+                        Reference to abstract clustering element defined in
+                        imported "geronimo-application-2.0.xsd"
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+
             <!--<xs:element name="context-priority-classloader" type="xs:boolean" minOccurs="0"/>-->
 
             <xs:element ref="naming:web-container" minOccurs="0">

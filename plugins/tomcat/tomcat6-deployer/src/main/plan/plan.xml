@@ -47,6 +47,9 @@
         <reference name="NamingBuilders">
             <name>NamingBuilders</name>
         </reference>
+        <reference name="ClusteringBuilders">
+            <name>TomcatClusteringBuilder</name>
+        </reference>
         <references name="ModuleBuilderExtensions">
             <pattern>
                 <name>PersistenceUnitBuilder</name>

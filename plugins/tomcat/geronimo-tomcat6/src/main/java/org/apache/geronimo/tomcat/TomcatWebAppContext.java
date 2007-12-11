@@ -17,7 +17,6 @@
 
 package org.apache.geronimo.tomcat;
 
-import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
 import java.util.ArrayList;
@@ -59,13 +58,11 @@ import org.apache.geronimo.kernel.ObjectNameUtil;
 import org.apache.geronimo.management.J2EEApplication;
 import org.apache.geronimo.management.J2EEServer;
 import org.apache.geronimo.management.StatisticsProvider;
-import org.apache.geronimo.management.geronimo.WebConnector;
 import org.apache.geronimo.management.geronimo.WebContainer;
 import org.apache.geronimo.management.geronimo.WebModule;
 import org.apache.geronimo.naming.enc.EnterpriseNamingContext;
 import org.apache.geronimo.security.jacc.RunAsSource;
 import org.apache.geronimo.tomcat.cluster.CatalinaClusterGBean;
-import org.apache.geronimo.tomcat.connector.TomcatWebConnector;
 import org.apache.geronimo.tomcat.stats.ModuleStats;
 import org.apache.geronimo.tomcat.util.SecurityHolder;
 import org.apache.geronimo.transaction.GeronimoUserTransaction;
@@ -83,72 +80,45 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
     private static Log log = LogFactory.getLog(TomcatWebAppContext.class);
 
     protected final TomcatContainer container;
-
     private final ClassLoader classLoader;
-
     protected Context context = null;
-
     private String path = null;
-
     private String docBase = null;
-
     private String virtualServer = null;
-
     private final Realm realm;
-
     private final List valveChain;
-    
     private final List listenerChain;
-
     private final CatalinaCluster catalinaCluster;
-
     private final Manager manager;
-
     private final boolean crossContext;
-    
     private final String workDir;
-
     private final boolean disableCookies;
-
     private final UserTransaction userTransaction;
-
     private final javax.naming.Context componentContext;
-
     private final Kernel kernel;
-
     private final Set unshareableResources;
-
     private final Set applicationManagedSecurityResources;
-
     private final TrackedConnectionAssociator trackedConnectionAssociator;
-
     private final SecurityHolder securityHolder;
-
     private final RunAsSource runAsSource;
-
     private final J2EEServer server;
-
     private final Map webServices;
-
     private final String objectName;
-
     private final String originalSpecDD;
-
     private final URL configurationBaseURL;
-
     private final Holder holder;
-
     private final RuntimeCustomizer contextCustomizer;
 
     // JSR 77
-    
     private final String j2EEServer;
-    
     private final String j2EEApplication;
     
 //  statistics
     private ModuleStats statsProvider;
     private boolean reset = true;
+
+    private final Valve clusteredValve;
+    
     public TomcatWebAppContext(
             ClassLoader classLoader,
             String objectName,
@@ -164,10 +134,11 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
             TomcatContainer container,
             RunAsSource runAsSource,
             ObjectRetriever tomcatRealm,
+            ObjectRetriever clusteredValveRetriever,
             ValveGBean tomcatValveChain,
             LifecycleListenerGBean lifecycleListenerChain,
             CatalinaClusterGBean cluster,
-            ManagerGBean manager,
+            ObjectRetriever managerRetriever,
             boolean crossContext,
             String workDir,
             boolean disableCookies,
@@ -178,7 +149,6 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
             J2EEApplication application,
             Kernel kernel)
             throws Exception {
-
         assert classLoader != null;
         assert configurationBaseUrl != null;
         assert transactionManager != null;
@@ -186,6 +156,11 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
         assert componentContext != null;
         assert container != null;
 
+        if (null != clusteredValveRetriever) {
+            clusteredValve = (Valve) clusteredValveRetriever.getInternalObject();
+        } else {
+            clusteredValve = null;
+        }
 
         this.objectName = objectName;
         URI root;
@@ -265,8 +240,8 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
         }
 
         //Add the manager
-        if (manager != null) {
-            this.manager = (Manager) manager.getInternalObject();
+        if (managerRetriever != null) {
+            this.manager = (Manager) managerRetriever.getInternalObject();
         } else {
             this.manager = null;
         }
@@ -424,6 +399,10 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
         return realm;
     }
 
+    public Valve getClusteredValve() {
+        return clusteredValve;
+    }
+    
     public List getValveChain() {
         return valveChain;
     }
@@ -567,6 +546,8 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
     }
 
     public static final GBeanInfo GBEAN_INFO;
+    public static final String GBEAN_REF_CLUSTERED_VALVE_RETRIEVER = "ClusteredValveRetriever";
+    public static final String GBEAN_REF_MANAGER_RETRIEVER = "ManagerRetriever";
 
     static {
         GBeanInfoBuilder infoBuilder = GBeanInfoBuilder.createStatic("Tomcat WebApplication Context", TomcatWebAppContext.class, NameFactory.WEB_MODULE);
@@ -589,10 +570,11 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
         infoBuilder.addReference("Container", TomcatContainer.class, NameFactory.GERONIMO_SERVICE);
         infoBuilder.addReference("RunAsSource", RunAsSource.class, NameFactory.JACC_MANAGER);
         infoBuilder.addReference("TomcatRealm", ObjectRetriever.class);
+        infoBuilder.addReference(GBEAN_REF_CLUSTERED_VALVE_RETRIEVER, ObjectRetriever.class);
         infoBuilder.addReference("TomcatValveChain", ValveGBean.class);
         infoBuilder.addReference("LifecycleListenerChain", LifecycleListenerGBean.class, LifecycleListenerGBean.J2EE_TYPE);
         infoBuilder.addReference("Cluster", CatalinaClusterGBean.class, CatalinaClusterGBean.J2EE_TYPE);
-        infoBuilder.addReference("Manager", ManagerGBean.class);
+        infoBuilder.addReference(GBEAN_REF_MANAGER_RETRIEVER, ObjectRetriever.class);
         infoBuilder.addAttribute("crossContext", boolean.class, true);
         infoBuilder.addAttribute("workDir", String.class, true);
         infoBuilder.addAttribute("disableCookies", boolean.class, true);
@@ -620,10 +602,11 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
                 "Container",
                 "RunAsSource",
                 "TomcatRealm",
+                GBEAN_REF_CLUSTERED_VALVE_RETRIEVER,
                 "TomcatValveChain",
                 "LifecycleListenerChain",
                 "Cluster",
-                "Manager",
+                GBEAN_REF_MANAGER_RETRIEVER,
                 "crossContext",
                 "workDir",
                 "disableCookies",

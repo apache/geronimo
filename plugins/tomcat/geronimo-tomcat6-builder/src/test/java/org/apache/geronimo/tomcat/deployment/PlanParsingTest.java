@@ -54,7 +54,16 @@ public class PlanParsingTest extends TestCase {
     private TomcatModuleBuilder builder;
 
     protected void setUp() throws Exception {
-        builder = new TomcatModuleBuilder(defaultEnvironment, tomcatContainerObjectName, Collections.singleton(webServiceBuilder), Collections.singleton(new GeronimoSecurityBuilderImpl(null)), Collections.singleton(new GBeanBuilder(null, null)), new NamingBuilderCollection(null, null), null, new MockResourceEnvironmentSetter(), null);
+        builder = new TomcatModuleBuilder(defaultEnvironment,
+            tomcatContainerObjectName,
+            Collections.singleton(webServiceBuilder),
+            Collections.singleton(new GeronimoSecurityBuilderImpl(null)),
+            Collections.singleton(new GBeanBuilder(null, null)),
+            new NamingBuilderCollection(null, null),
+            Collections.EMPTY_LIST,
+            null,
+            new MockResourceEnvironmentSetter(),
+            null);
     }
 
     public void testResourceRef() throws Exception {

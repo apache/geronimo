@@ -138,6 +138,11 @@ public class GeronimoStandardContext extends StandardContext {
         //Set a UserTransactionBeforeAfter
         interceptor = new UserTransactionBeforeAfter(interceptor, index++, ctx.getUserTransaction());
 
+        Valve clusteredValve = ctx.getClusteredValve();
+        if (null != clusteredValve) {
+            addValve(clusteredValve);
+        }
+        
         //Set the BeforeAfters as a valve
         GeronimoBeforeAfterValve geronimoBAValve = new GeronimoBeforeAfterValve(interceptor, index);
         addValve(geronimoBAValve);

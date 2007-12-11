@@ -17,6 +17,9 @@
 
 package org.apache.geronimo.tomcat.deployment;
 
+import static java.lang.Boolean.FALSE;
+import static java.lang.Boolean.TRUE;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
@@ -36,6 +39,7 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.ModuleIDBuilder;
 import org.apache.geronimo.deployment.NamespaceDrivenBuilder;
+import org.apache.geronimo.deployment.NamespaceDrivenBuilderCollection;
 import org.apache.geronimo.deployment.service.EnvironmentBuilder;
 import org.apache.geronimo.deployment.util.DeploymentUtil;
 import org.apache.geronimo.deployment.xbeans.EnvironmentType;
@@ -63,15 +67,16 @@ import org.apache.geronimo.naming.deployment.ENCConfigBuilder;
 import org.apache.geronimo.naming.deployment.GBeanResourceEnvironmentBuilder;
 import org.apache.geronimo.naming.deployment.ResourceEnvironmentSetter;
 import org.apache.geronimo.security.jacc.ComponentPermissions;
-import org.apache.geronimo.tomcat.cluster.CatalinaClusterGBean;
 import org.apache.geronimo.tomcat.LifecycleListenerGBean;
 import org.apache.geronimo.tomcat.ManagerGBean;
 import org.apache.geronimo.tomcat.RealmGBean;
 import org.apache.geronimo.tomcat.TomcatWebAppContext;
 import org.apache.geronimo.tomcat.ValveGBean;
+import org.apache.geronimo.tomcat.cluster.CatalinaClusterGBean;
 import org.apache.geronimo.tomcat.util.SecurityHolder;
 import org.apache.geronimo.web.deployment.GenericToSpecificPlanConverter;
 import org.apache.geronimo.web25.deployment.AbstractWebModuleBuilder;
+import org.apache.geronimo.xbeans.geronimo.j2ee.GerClusteringDocument;
 import org.apache.geronimo.xbeans.geronimo.web.tomcat.TomcatWebAppDocument;
 import org.apache.geronimo.xbeans.geronimo.web.tomcat.TomcatWebAppType;
 import org.apache.geronimo.xbeans.geronimo.web.tomcat.config.GerTomcatDocument;
@@ -101,11 +106,12 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder {
 
     private static final Log log = LogFactory.getLog(TomcatModuleBuilder.class);
 
-    private final Environment defaultEnvironment;
-    private final AbstractNameQuery tomcatContainerName;
-
     private static final String TOMCAT_NAMESPACE = TomcatWebAppDocument.type.getDocumentElementName().getNamespaceURI();
     private static final String IS_JAVAEE = "IS_JAVAEE";
+
+    private final Environment defaultEnvironment;
+    private final AbstractNameQuery tomcatContainerName;
+    protected final NamespaceDrivenBuilderCollection clusteringBuilders;
 
     public TomcatModuleBuilder(Environment defaultEnvironment,
             AbstractNameQuery tomcatContainerName,
@@ -113,12 +119,13 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder {
             Collection securityBuilders,
             Collection serviceBuilders,
             NamingBuilder namingBuilders,
+            Collection<NamespaceDrivenBuilder> clusteringBuilders,
             Collection<ModuleBuilderExtension> moduleBuilderExtensions,
             ResourceEnvironmentSetter resourceEnvironmentSetter,
             Kernel kernel) {
         super(kernel, securityBuilders, serviceBuilders, namingBuilders, resourceEnvironmentSetter, webServiceBuilder, moduleBuilderExtensions);
         this.defaultEnvironment = defaultEnvironment;
-
+        this.clusteringBuilders = new NamespaceDrivenBuilderCollection(clusteringBuilders, GerClusteringDocument.type.getDocumentElementName());
         this.tomcatContainerName = tomcatContainerName;
     }
 
@@ -175,10 +182,14 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder {
         TomcatWebAppType tomcatWebApp = getTomcatWebApp(plan, moduleFile, standAlone, targetPath, webApp);
         contextRoot = getContextRoot(tomcatWebApp, contextRoot, webApp, standAlone, moduleFile, targetPath);
 
-
         EnvironmentType environmentType = tomcatWebApp.getEnvironment();
         Environment environment = EnvironmentBuilder.buildEnvironment(environmentType, defaultEnvironment);
 
+        Boolean distributable = webApp.getDistributableArray().length == 1 ? TRUE : FALSE;
+        if (TRUE == distributable) {
+            clusteringBuilders.buildEnvironment(tomcatWebApp, environment);
+        }
+        
         // Note: logic elsewhere depends on the default artifact ID being the file name less extension (ConfigIDExtractor)
         String warName = "";
         File temp = new File(moduleFile.getName());
@@ -364,6 +375,14 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder {
                 AbstractName managerName = earContext.getNaming().createChildName(moduleName, manager, ManagerGBean.J2EE_TYPE);
                 webModuleData.setReferencePattern("Manager", managerName);
             }
+            
+            Boolean distributable = webApp.getDistributableArray().length == 1 ? TRUE : FALSE;
+            if (TRUE == distributable) {
+                clusteringBuilders.build(tomcatWebApp, earContext, moduleContext);
+                if (null == webModuleData.getReferencePatterns(TomcatWebAppContext.GBEAN_REF_CLUSTERED_VALVE_RETRIEVER)) {
+                    log.warn("No clustering builders configured: app will not be clustered");
+                }
+            }
 
             //Handle the role permissions and webservices on the servlets.
             ServletType[] servletTypes = webApp.getServletArray();
@@ -533,6 +552,7 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder {
 
 
     public static final GBeanInfo GBEAN_INFO;
+    public static final String GBEAN_REF_CLUSTERING_BUILDERS = "ClusteringBuilders";
 
     static {
         GBeanInfoBuilder infoBuilder = GBeanInfoBuilder.createStatic(TomcatModuleBuilder.class, NameFactory.MODULE_BUILDER);
@@ -542,6 +562,7 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder {
         infoBuilder.addReference("SecurityBuilders", NamespaceDrivenBuilder.class, NameFactory.MODULE_BUILDER);
         infoBuilder.addReference("ServiceBuilders", NamespaceDrivenBuilder.class, NameFactory.MODULE_BUILDER);
         infoBuilder.addReference("NamingBuilders", NamingBuilder.class, NameFactory.MODULE_BUILDER);
+        infoBuilder.addReference(GBEAN_REF_CLUSTERING_BUILDERS, NamespaceDrivenBuilder.class, NameFactory.MODULE_BUILDER);
         infoBuilder.addReference("ModuleBuilderExtensions", ModuleBuilderExtension.class, NameFactory.MODULE_BUILDER);
         infoBuilder.addReference("ResourceEnvironmentSetter", ResourceEnvironmentSetter.class, NameFactory.MODULE_BUILDER);
         infoBuilder.addAttribute("kernel", Kernel.class, false);
@@ -554,6 +575,7 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder {
                 "SecurityBuilders",
                 "ServiceBuilders",
                 "NamingBuilders",
+                GBEAN_REF_CLUSTERING_BUILDERS,
                 "ModuleBuilderExtensions",
                 "ResourceEnvironmentSetter",
                 "kernel"});
