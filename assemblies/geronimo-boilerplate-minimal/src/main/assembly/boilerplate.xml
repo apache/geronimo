@@ -93,6 +93,7 @@
                 <include>org.apache.geronimo.modules:geronimo-transformer</include>
                 <!--<include>org.apache.geronimo.specs:geronimo-stax-api_1.0_spec</include>-->
                 <!--<include>org.apache.geronimo.specs:geronimo-activation_1.1_spec</include>-->
+                <include>org.codehaus.plexus:plexus-archiver</include>
             </includes>
         </dependencySet>
         
