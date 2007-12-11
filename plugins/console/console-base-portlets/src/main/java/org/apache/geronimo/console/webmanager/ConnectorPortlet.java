@@ -54,7 +54,7 @@ import org.apache.geronimo.management.geronimo.WebManager.ConnectorAttribute;
 import org.apache.geronimo.management.geronimo.WebManager.ConnectorType;
 
 /**
- * A portlet that lets you list, add, remove, start, stop, and edit web
+ * A portlet that lets you list, add, remove, start, stop, restart and edit web
  * connectors (currently, either Tomcat or Jetty).
  *
  * @version $Rev$ $Date$
@@ -225,6 +225,22 @@ public class ConnectorPortlet extends BasePortlet {
                 }
             }
             else {
+                log.error("Incorrect connector reference"); //Replace this with correct error processing
+            }
+            actionResponse.setRenderParameter(PARM_CONNECTOR_URI, connectorURI);
+            actionResponse.setRenderParameter(PARM_MODE, "list");
+        } else if(mode.equals("restart")) {
+            String connectorURI = actionRequest.getParameter(PARM_CONNECTOR_URI);
+            // work with the current connector to restart it.
+            NetworkConnector connector = PortletManager.getNetworkConnector(actionRequest, new AbstractName(URI.create(connectorURI)));
+            if(connector != null) {
+                try {
+                    ((GeronimoManagedBean)connector).stop();
+                    ((GeronimoManagedBean)connector).start();
+                } catch (Exception e) {
+                    log.error("Unable to restart connector", e); //todo: get into rendered page somehow?
+                }
+            } else {
                 log.error("Incorrect connector reference"); //Replace this with correct error processing
             }
             actionResponse.setRenderParameter(PARM_CONNECTOR_URI, connectorURI);
