@@ -44,6 +44,7 @@ import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
+import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.config.Configuration;
@@ -63,10 +64,9 @@ import org.apache.geronimo.system.main.CommandLineManifest;
  *
  * @version $Rev$ $Date$
  */
-public class Deployer {
+public class Deployer implements GBeanLifecycle {
     private static final Log log = LogFactory.getLog(Deployer.class);
-    private final int REAPER_INTERVAL = 60 * 1000;
-    private final Properties pendingDeletionIndex = new Properties();
+    private final int REAPER_INTERVAL = 60 * 1000;    
     private DeployerReaper reaper;
     private final String remoteDeployAddress;
     private final Collection builders;
@@ -94,9 +94,7 @@ public class Deployer {
 
         // Create and start the reaper...
         this.reaper = new DeployerReaper(REAPER_INTERVAL);
-        Thread t = new Thread(reaper, "Geronimo Config Store Reaper");
-        t.setDaemon(true);
-        t.start();
+
     }
 
     public List deploy(boolean inPlace, File moduleFile, File planFile) throws DeploymentException {
@@ -131,7 +129,7 @@ public class Deployer {
         } finally {
             if (tmpDir != null) {
                 if (!DeploymentUtil.recursiveDelete(tmpDir)) {
-                    pendingDeletionIndex.setProperty(tmpDir.getName(), "delete");
+                    reaper.delete(tmpDir.getName(), "delete");
                 }
             }
         }
@@ -460,10 +458,21 @@ public class Deployer {
             ConfigurationData configurationData = (ConfigurationData) iterator.next();
             File configurationDir = configurationData.getConfigurationDir();
             if (!DeploymentUtil.recursiveDelete(configurationDir)) {
-                pendingDeletionIndex.setProperty(configurationDir.getName(), "delete");
-                log.debug("Queued deployment directory to be reaped " + configurationDir);
+                reaper.delete(configurationDir.getName(), "delete");
             }
         }
+    }
+    
+    public void doStart() throws Exception {
+    }
+    
+    public void doFail() {
+        if (reaper != null) {
+            reaper.close();
+        }
+    }
+
+    public void doStop() throws Exception {
     }
 
     /**
@@ -473,12 +482,28 @@ public class Deployer {
      */
     class DeployerReaper implements Runnable {
         private final int reaperInterval;
+        private final Properties pendingDeletionIndex = new Properties();
         private volatile boolean done = false;
+        private Thread thread;
 
         public DeployerReaper(int reaperInterval) {
             this.reaperInterval = reaperInterval;
         }
 
+        public void delete(String dir, String type) {
+            pendingDeletionIndex.setProperty(dir, type);
+            log.debug("Queued deployment directory to be reaped " + dir);
+            startThread();
+        }
+        
+        private synchronized void startThread() {
+            if (this.thread == null) {
+                this.thread = new Thread(this, "Geronimo Config Store Reaper");
+                this.thread.setDaemon(true);
+                this.thread.start();
+            }
+        }
+        
         public void close() {
             this.done = true;
         }
@@ -543,4 +568,5 @@ public class Deployer {
     public static GBeanInfo getGBeanInfo() {
         return GBEAN_INFO;
     }
+
 }
