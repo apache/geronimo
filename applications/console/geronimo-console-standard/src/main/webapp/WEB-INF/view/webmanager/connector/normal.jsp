@@ -14,6 +14,9 @@
    See the License for the specific language governing permissions and
    limitations under the License.
 --%>
+
+<%-- $Rev$ $Date$ --%>
+
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
 <%@ taglib uri="http://java.sun.com/portlet" prefix="portlet"%>
@@ -63,6 +66,14 @@
                </portlet:actionURL>"
                  <c:if test="${info.port eq serverPort}"> onClick="return confirm('Console application will not be available if ${info.uniqueName} is stopped.  Stop ${info.uniqueName}?');"</c:if>>
                  stop</a>
+               <a href="<portlet:actionURL portletMode="view">
+                 <portlet:param name="mode" value="restart" />
+                 <portlet:param name="connectorURI" value="${info.connectorURI}" />
+                 <portlet:param name="managerURI" value="${container.managerURI}" />
+                 <portlet:param name="containerURI" value="${container.containerURI}" />
+               </portlet:actionURL>"
+                 <c:if test="${info.port eq serverPort}"> onClick="return confirm('It is recommeded that you restart ${info.uniqueName} while accessing the Console application on a different port if possible. Console application may not be available temporarily on port ${serverPort}, typically 3 to 5 minutes, if ${info.uniqueName} is restarted. Restart ${info.uniqueName}?');"</c:if>>
+                 restart</a>
                </c:when>
                <c:otherwise>
                <a href="<portlet:actionURL portletMode="view">
