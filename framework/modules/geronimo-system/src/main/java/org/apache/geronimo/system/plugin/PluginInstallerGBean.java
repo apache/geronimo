@@ -2238,6 +2238,7 @@ public class PluginInstallerGBean implements PluginInstaller {
             file = fileDescription;
             results.setCurrentFile(fileDescription);
             results.setCurrentFilePercent(totalBytes > 0 ? 0 : -1);
+            results.setCurrentMessage("Downloading " + file);
         }
 
         public void writeProgress(int bytes) {
