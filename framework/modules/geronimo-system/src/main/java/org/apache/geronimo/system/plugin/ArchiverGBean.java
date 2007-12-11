@@ -39,7 +39,7 @@ import org.codehaus.plexus.archiver.zip.ZipArchiver;
 //import org.codehaus.plexus.archiver.util.DefaultFileSet;
 
 /**
- * @version $Rev:$ $Date:$
+ * @version $Rev$ $Date$
  */
 public class ArchiverGBean implements ServerArchiver {
 
@@ -76,17 +76,18 @@ public class ArchiverGBean implements ServerArchiver {
         all.setDirectory(source);
         archiver.addFileSet(all);
 */
-        //workaround code
+        
+        // add in all files and mark them with default file permissions
         Map<String, File> all = IOUtil.listAllFileNames(source);
         for (Map.Entry<String, File> entry : all.entrySet()) {
             String destFileName = serverName + "/" + entry.getKey();
             File sourceFile = entry.getValue();
-            if (!destFileName.endsWith(".bat") && sourceFile.isFile()) {
-                archiver.addFile(sourceFile, destFileName, UnixStat.DEFAULT_DIR_PERM);
+            if (sourceFile.isFile()) {
+                archiver.addFile(sourceFile, destFileName, UnixStat.DEFAULT_FILE_PERM);
             }
         }
 
-        //end workaround code
+        // add execute permissions to all non-batch files in the bin/ directory
         File bin = new File(source, "bin");
         if (bin.exists()) {
             Map<String, File> includes = IOUtil.listAllFileNames(bin);
@@ -98,6 +99,7 @@ public class ArchiverGBean implements ServerArchiver {
                 }
             }
         }
+        
         archiver.createArchive();
         return dest;
     }
