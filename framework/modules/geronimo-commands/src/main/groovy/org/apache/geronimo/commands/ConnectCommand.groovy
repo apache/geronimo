@@ -35,9 +35,7 @@ import java.util.Collections
  * @version $Rev: 580864 $ $Date: 2007-09-30 23:47:39 -0700 (Sun, 30 Sep 2007) $
  */
 @CommandComponent(id='geronimo-commands:connect', description="Connect to a Geronimo server")
-class ConnectCommand
-    extends CommandSupport
-{
+class ConnectCommand extends CommandSupport {
 
     @Option(name='-s', aliases=['--hostname', '--server'], description='Hostname, default localhost')
     String hostname = 'localhost'
@@ -57,8 +55,7 @@ class ConnectCommand
         def kernel = new BasicKernel("gshell deployer")
         def deploymentManager = new RemoteDeploymentManager(Collections.emptySet());
         def deploymentFactory = new DeploymentFactoryWithKernel(kernel, deploymentManager)
-        def uri = null//"service:jmx:rmi://" + hostname + "/jndi/rmi://" + hostname + ":" + port + "/JMXConnector"
-        def connectionParams = new ConnectionParamsImpl(uri: uri, user: username, password: password, offline: false)
+        def connectionParams = new ConnectionParamsImpl(host: hostname, port: port, user: username, password: password, offline: false)
         def connection = new ServerConnection(connectionParams, io.out, io.inputStream, kernel, deploymentFactory)
 
         variables.parent.set("ServerConnection", connection)
