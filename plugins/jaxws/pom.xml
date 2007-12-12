@@ -38,11 +38,12 @@
     </description>
 
     <modules>
-<module>geronimo-jaxws</module>
-<module>geronimo-jaxws-builder</module>
-<module>geronimo-jaxws-ejb-builder</module>
-<module>jaxws-deployer</module>
-<module>jaxws-ejb-deployer</module>
+        <module>geronimo-jaxws</module>
+        <module>geronimo-jaxws-builder</module>
+        <module>geronimo-jaxws-ejb-builder</module>
+        <module>jaxws-deployer</module>
+        <module>jaxws-ejb-deployer</module>
+        <module>jaxws-tools</module>
     </modules>
 
 </project>

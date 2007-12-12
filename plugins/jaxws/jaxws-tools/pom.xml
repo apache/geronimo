@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!--
+    Licensed to the Apache Software Foundation (ASF) under one or more
+    contributor license agreements.  See the NOTICE file distributed with
+    this work for additional information regarding copyright ownership.
+    The ASF licenses this file to You under the Apache License, Version 2.0
+    (the "License"); you may not use this file except in compliance with
+    the License.  You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+-->
+
+<!-- $Rev: 580112 $ $Date: 2007-09-27 13:35:15 -0400 (Thu, 27 Sep 2007) $ -->
+
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>org.apache.geronimo.configs</groupId>
+        <artifactId>configs</artifactId>
+        <version>2.1-SNAPSHOT</version>
+        <relativePath>../pom.xml</relativePath>
+    </parent>
+
+    <artifactId>jaxws-tools</artifactId>
+    <name>Geronimo Configs :: JAXWS CLI Tools</name>
+    <packaging>resource-bundle</packaging>
+
+    <description>JAX-WS command line tools</description>
+    
+    <dependencies>
+
+        <dependency>
+            <groupId>org.apache.geronimo.configs</groupId>
+            <artifactId>jaxws-deployer</artifactId>
+            <version>${version}</version>
+            <type>car</type>
+        </dependency>
+        
+        <dependency>
+            <groupId>org.apache.geronimo.modules</groupId>
+            <artifactId>geronimo-jaxws-builder</artifactId>
+            <version>${version}</version>
+        </dependency>
+        
+    </dependencies>
+    
+    <build>
+        <plugins>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>install-underlay</id>
+                        <phase>process-classes</phase>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                        <configuration>
+                            <tasks>
+                                <mkdir dir="${project.build.directory}/classes"/>
+                                <copy todir="${project.build.directory}/classes">
+                                    <fileset dir="${project.build.directory}/${project.build.finalName}.dir/${project.build.finalName}">
+                                        <include name="**"/>
+                                    </fileset>
+                                </copy>
+                            </tasks>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.geronimo.plugins</groupId>
+                <artifactId>car-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>generate-plugin-metadata</id>
+                        <phase>generate-resources</phase>
+                        <goals>
+                            <goal>prepare-metadata</goal>
+                        </goals>
+                        <configuration>
+                            <useMavenDependencies>
+                                <value>true</value>
+                                <includeVersion>true</includeVersion>
+                            </useMavenDependencies>
+                            <category>Web Services</category>
+                            <instance>
+                                <plugin-artifact>
+                                    <module-id>
+                                        <type>jar</type>
+                                    </module-id>
+                                    <copy-file relative-to="geronimo" dest-dir=""></copy-file>
+                                </plugin-artifact>
+                            </instance>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-assembly-plugin</artifactId>
+                <version>2.2-beta-1</version>
+                <executions>
+                    <execution>
+                        <id>bin</id>
+                        <phase>compile</phase>
+                        <goals>
+                            <goal>directory-inline</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>${project.build.directory}</outputDirectory> 
+                            <appendAssemblyId>false</appendAssemblyId>
+                            <descriptors>
+                                <descriptor>${pom.basedir}/src/main/assembly/bin.xml</descriptor>
+                            </descriptors>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+        </plugins>
+    </build>
+
+</project>
