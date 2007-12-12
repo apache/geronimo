@@ -36,7 +36,7 @@ import org.apache.tomcat.util.modeler.Registry;
  * @version $Revision$ $Date$
  */
 public class ConnectorStats {
-    private static final Log log = LogFactory.getLog(ModuleStats.class);
+    private static final Log log = LogFactory.getLog(ConnectorStats.class);
     protected MBeanServer mBeanServer = null;
 
     protected Registry registry;
@@ -107,7 +107,8 @@ public class ConnectorStats {
             int errorCount = ((Integer) (mBeanServer.getAttribute(grpName, "errorCount"))).intValue();
             long bytesReceived = ((Long) (mBeanServer.getAttribute(grpName, "bytesReceived"))).longValue();
             long bytesSent = ((Long) (mBeanServer.getAttribute(grpName, "bytesSent"))).longValue();
-            stats.setRequestTime(requestCount, -1, maxTime, processingTime);
+            // Tomcat does not keep min Time, using 0 as Undefined value
+            stats.setRequestTime(requestCount, 0, maxTime, processingTime);
             stats.setErrorCount(errorCount);            
             stats.setBytesSentCount(bytesSent);
             stats.setBytesReceivedCount(bytesReceived);
