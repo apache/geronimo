@@ -37,6 +37,7 @@ import java.util.Comparator;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -639,6 +640,8 @@ public class PluginInstallerGBean implements PluginInstaller {
             // Step 1: validate everything
             for (PluginType metadata : pluginsToInstall.getPlugin()) {
                 validatePlugin(metadata);
+                verifyPrerequisites(metadata);
+                
                 PluginArtifactType instance = metadata.getPluginArtifact().get(0);
 
                 if (instance.getModuleId() != null) {
@@ -919,6 +922,11 @@ public class PluginInstallerGBean implements PluginInstaller {
      * @return array of missing depedencies
      */
     public Dependency[] checkPrerequisites(PluginType plugin) {
+        List<Dependency> missingPrereqs = getMissingPrerequisites(plugin);
+        return missingPrereqs.toArray(new Dependency[missingPrereqs.size()]);
+    }
+
+    private List<Dependency> getMissingPrerequisites(PluginType plugin) {
         if (plugin.getPluginArtifact().size() != 1) {
             throw new IllegalArgumentException("A plugin configuration must include one plugin artifact, not " + plugin.getPluginArtifact().size());
         }
@@ -937,9 +945,28 @@ public class PluginInstallerGBean implements PluginInstaller {
                 throw new RuntimeException("Invalid setup, no default server instance registered");
             }
         }
-        return missingPrereqs.toArray(new Dependency[missingPrereqs.size()]);
+        return missingPrereqs;        
     }
-
+    
+    private void verifyPrerequisites(PluginType plugin) throws MissingDependencyException {
+        List<Dependency> missingPrereqs = getMissingPrerequisites(plugin);       
+        if (!missingPrereqs.isEmpty()) {
+            PluginArtifactType metadata = plugin.getPluginArtifact().get(0);
+            Artifact moduleId = toArtifact(metadata.getModuleId());
+            StringBuffer buf = new StringBuffer();
+            buf.append(moduleId.toString()).append(" requires ");
+            Iterator<Dependency> iter = missingPrereqs.iterator();
+            while(iter.hasNext()) {           
+                buf.append(iter.next().getArtifact().toString());
+                if (iter.hasNext()) {
+                    buf.append(", ");
+                }                    
+            }
+            buf.append(" to be installed");      
+            throw new MissingDependencyException(buf.toString(), (Artifact)null, (Artifact)null);              
+        }
+    }
+    
     public Artifact installLibrary(File libFile, String groupId) throws IOException {
         Matcher matcher = MAVEN_1_PATTERN_PART.matcher("");
         matcher.reset(libFile.getName());
