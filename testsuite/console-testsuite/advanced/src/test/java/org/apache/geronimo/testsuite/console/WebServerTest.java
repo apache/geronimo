@@ -52,7 +52,7 @@ public class WebServerTest extends ConsoleTestSupport {
 
             String connectorSelector = "//tr[2]/td[2]/table//tr[td[1] = \"" + name + "\"]";
             
-            selenium.click(connectorSelector + "/td[5]/a[2]");        
+            selenium.click(connectorSelector + "/td[5]/a[3]");        
             selenium.waitForPageToLoad("30000");
 
             selenium.type("port", "8008");
@@ -60,7 +60,7 @@ public class WebServerTest extends ConsoleTestSupport {
             selenium.waitForPageToLoad("30000");
             assertTrue(selenium.isTextPresent("8008"));
             
-            selenium.click(connectorSelector + "/td[5]/a[2]"); 
+            selenium.click(connectorSelector + "/td[5]/a[3]"); 
 
             selenium.waitForPageToLoad("30000");
             selenium.type("port", "8009");
