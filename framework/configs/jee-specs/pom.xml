@@ -217,7 +217,7 @@
                         <dependency>
                             <groupId>org.apache.geronimo.specs</groupId>
                             <artifactId>geronimo-activation_1.1_spec</artifactId>
-                            <version>1.0</version>
+                            <version>1.0.1</version>
                             <type>jar</type>
                         </dependency>
                         <dependency>
@@ -265,7 +265,7 @@
                         <dependency>
                             <groupId>org.apache.geronimo.javamail</groupId>
                             <artifactId>geronimo-javamail_1.4_mail</artifactId>
-                            <version>1.3-SNAPSHOT</version>
+                            <version>1.3</version>
                             <type>jar</type>
                         </dependency>
                         <dependency>
