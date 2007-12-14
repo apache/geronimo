@@ -82,6 +82,7 @@ import org.apache.geronimo.openejb.xbeans.ejbjar.OpenejbGeronimoEjbJarType;
 import org.apache.geronimo.security.jacc.ComponentPermissions;
 import org.apache.geronimo.xbeans.geronimo.j2ee.GerSecurityDocument;
 import org.apache.geronimo.xbeans.javaee.EjbJarType;
+import org.apache.geronimo.persistence.PersistenceUnitGBean;
 import org.apache.openejb.OpenEJBException;
 import org.apache.openejb.assembler.classic.AppInfo;
 import org.apache.openejb.assembler.classic.CmpJarBuilder;
@@ -93,6 +94,9 @@ import org.apache.openejb.assembler.classic.FacilitiesInfo;
 import org.apache.openejb.assembler.classic.MdbContainerInfo;
 import org.apache.openejb.assembler.classic.MessageDrivenBeanInfo;
 import org.apache.openejb.assembler.classic.OpenEjbConfiguration;
+import org.apache.openejb.assembler.classic.LinkResolver;
+import org.apache.openejb.assembler.classic.StatefulBeanInfo;
+import org.apache.openejb.assembler.classic.PersistenceContextReferenceInfo;
 import org.apache.openejb.config.AppModule;
 import org.apache.openejb.config.ConfigurationFactory;
 import org.apache.openejb.config.DeploymentLoader;
@@ -732,6 +736,27 @@ public class EjbModuleBuilder implements ModuleBuilder {
         // add enc
         ejbDeploymentBuilder.buildEnc();
 
+        Set<GBeanData> gBeanDatas = earContext.getConfiguration().findGBeanDatas(Collections.singleton(new AbstractNameQuery(PersistenceUnitGBean.class.getName())));
+        LinkResolver<String> linkResolver = new LinkResolver<String>();
+        for (GBeanData gBeanData : gBeanDatas) {
+            String name = (String) gBeanData.getAttribute("persistenceUnitName");
+            String rootUrl = (String) gBeanData.getAttribute("persistenceUnitRoot");
+            String id = name + " " + rootUrl.hashCode();
+            linkResolver.add(rootUrl, name, id);
+        }
+
+        EjbJarInfo ejbJarInfo = ejbModule.getEjbJarInfo();
+        for (EnterpriseBeanInfo beanInfo : ejbJarInfo.enterpriseBeans) {
+            if (beanInfo instanceof StatefulBeanInfo) {
+                StatefulBeanInfo statefulBeanInfo = (StatefulBeanInfo) beanInfo;
+                for (PersistenceContextReferenceInfo refInfo : statefulBeanInfo.jndiEnc.persistenceContextRefs) {
+                    if (refInfo.extended) {
+                        String id = linkResolver.resolveLink(refInfo.persistenceUnitName, ejbJarInfo.moduleId);
+                        refInfo.unitId = id;
+                    }
+                }
+            }
+        }
         // Add JSR77 EJBModule GBean
         GBeanData ejbModuleGBeanData = new GBeanData(ejbModule.getModuleName(), EjbModuleImplGBean.GBEAN_INFO);
         try {

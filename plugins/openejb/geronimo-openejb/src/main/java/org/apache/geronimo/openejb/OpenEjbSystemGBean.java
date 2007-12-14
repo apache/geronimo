@@ -29,6 +29,7 @@ import java.util.concurrent.ConcurrentMap;
 import javax.ejb.spi.HandleDelegate;
 import javax.management.ObjectName;
 import javax.naming.NamingException;
+import javax.naming.Context;
 import javax.persistence.EntityManagerFactory;
 import javax.resource.spi.ResourceAdapter;
 import javax.transaction.TransactionManager;
@@ -180,6 +181,54 @@ public class OpenEjbSystemGBean implements OpenEjbSystem {
 
         return proxy;
     }
+
+    private void processPersistenceUnitGBeans(Collection<PersistenceUnitGBean> persistenceUnitGBeans) {
+        if (persistenceUnitGBeans == null) {
+            return;
+        }
+
+        if (persistenceUnitGBeans instanceof ReferenceCollection) {
+            ReferenceCollection referenceCollection = (ReferenceCollection) persistenceUnitGBeans;
+            referenceCollection.addReferenceCollectionListener(new ReferenceCollectionListener() {
+                public void memberAdded(ReferenceCollectionEvent event) {
+                    addPersistenceUnitGBean((PersistenceUnitGBean) event.getMember());
+                }
+
+                public void memberRemoved(ReferenceCollectionEvent event) {
+                    removePersistenceUnitGBean((PersistenceUnitGBean) event.getMember());
+                }
+
+            });
+        }
+        for (PersistenceUnitGBean persistenceUnitGBean : persistenceUnitGBeans) {
+            addPersistenceUnitGBean(persistenceUnitGBean);
+        }
+    }
+
+    private void addPersistenceUnitGBean(PersistenceUnitGBean persistenceUnitGBean) {
+        String unit = persistenceUnitGBean.getPersistenceUnitName();
+        String rootUrl = persistenceUnitGBean.getPersistenceUnitRoot();
+        String id = unit + " " + rootUrl.hashCode();
+        Context context = SystemInstance.get().getComponent(ContainerSystem.class).getJNDIContext();
+        try {
+            context.bind("java:openejb/PersistenceUnit/" + id, persistenceUnitGBean.getEntityManagerFactory());
+        } catch (Exception e) {
+            throw new IllegalStateException(e);
+        }
+    }
+
+    private void removePersistenceUnitGBean(PersistenceUnitGBean persistenceUnitGBean) {
+        String unit = persistenceUnitGBean.getPersistenceUnitName();
+        String rootUrl = persistenceUnitGBean.getPersistenceUnitRoot();
+        String id = unit + " " + rootUrl.hashCode();
+        Context context = SystemInstance.get().getComponent(ContainerSystem.class).getJNDIContext();
+        try {
+            context.unbind("java:openejb/PersistenceUnit/" + id);
+        } catch (Exception e) {
+            throw new IllegalStateException(e);
+        }
+    }
+
 
     private void processResourceAdapterWrappers(Collection<ResourceAdapterWrapper> resourceAdapterWrappers) {
         if (resourceAdapterWrappers == null) {
@@ -355,7 +404,7 @@ public class OpenEjbSystemGBean implements OpenEjbSystem {
             }
         }
         try {
-            assembler.createEjbJar(ejbJarInfo, emfLinkResolver, classLoader);
+            assembler.createEjbJar(ejbJarInfo, classLoader);
         } finally {
             Thread.currentThread().setContextClassLoader(oldClassLoader);
         }
