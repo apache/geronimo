@@ -85,7 +85,6 @@ public class OpenEjbSystemGBean implements OpenEjbSystem {
     private final Assembler assembler;
     private final Set<String> registeredResouceAdapters = new TreeSet<String>();
     private final ConcurrentMap<String,ResourceAdapterWrapper> processedResourceAdapterWrappers =  new ConcurrentHashMap<String,ResourceAdapterWrapper>() ;
-    private final Collection<PersistenceUnitGBean> persistenceUnitGBeans;
     private final Kernel kernel;
     private final ClassLoader classLoader;
     // These are provided by the corba subsystem when it first initializes.  
@@ -98,11 +97,7 @@ public class OpenEjbSystemGBean implements OpenEjbSystem {
     public OpenEjbSystemGBean(TransactionManager transactionManager, Collection<ResourceAdapterWrapper> resourceAdapters, Collection<PersistenceUnitGBean> persistenceUnitGBeans, Kernel kernel, ClassLoader classLoader) throws Exception {
         this.kernel = kernel;
         this.classLoader = classLoader;
-        if (persistenceUnitGBeans == null) {
-            this.persistenceUnitGBeans = Collections.emptySet();
-        } else {
-            this.persistenceUnitGBeans = persistenceUnitGBeans;
-        }
+
         System.setProperty("duct tape","");
         System.setProperty("admin.disabled", "true");
         System.setProperty("openejb.logger.external", "true");
@@ -154,6 +149,7 @@ public class OpenEjbSystemGBean implements OpenEjbSystem {
 
         // process all resource adapters
         processResourceAdapterWrappers(resourceAdapters);
+        processPersistenceUnitGBeans(persistenceUnitGBeans);
     }
 
     private void setDefaultProperty(String key, String value) {
@@ -394,15 +390,6 @@ public class OpenEjbSystemGBean implements OpenEjbSystem {
 
         ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
         Thread.currentThread().setContextClassLoader(classLoader);
-        LinkResolver<EntityManagerFactory> emfLinkResolver = new UniqueDefaultLinkResolver<EntityManagerFactory>();
-        for (PersistenceUnitGBean persistenceUnitGBean: persistenceUnitGBeans) {
-            EntityManagerFactory factory = persistenceUnitGBean.getEntityManagerFactory();
-            String persistenceUnitRoot = persistenceUnitGBean.getPersistenceUnitRoot();
-            String persistenceUnitName = persistenceUnitGBean.getPersistenceUnitName();
-            if (!"cmp".equals(persistenceUnitName)) {
-                emfLinkResolver.add(persistenceUnitRoot, persistenceUnitName, factory);
-            }
-        }
         try {
             assembler.createEjbJar(ejbJarInfo, classLoader);
         } finally {
