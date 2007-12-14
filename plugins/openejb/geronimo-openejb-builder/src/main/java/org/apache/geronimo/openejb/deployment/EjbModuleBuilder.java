@@ -97,6 +97,7 @@ import org.apache.openejb.assembler.classic.OpenEjbConfiguration;
 import org.apache.openejb.assembler.classic.LinkResolver;
 import org.apache.openejb.assembler.classic.StatefulBeanInfo;
 import org.apache.openejb.assembler.classic.PersistenceContextReferenceInfo;
+import org.apache.openejb.assembler.classic.UniqueDefaultLinkResolver;
 import org.apache.openejb.config.AppModule;
 import org.apache.openejb.config.ConfigurationFactory;
 import org.apache.openejb.config.DeploymentLoader;
@@ -737,7 +738,7 @@ public class EjbModuleBuilder implements ModuleBuilder {
         ejbDeploymentBuilder.buildEnc();
 
         Set<GBeanData> gBeanDatas = earContext.getConfiguration().findGBeanDatas(Collections.singleton(new AbstractNameQuery(PersistenceUnitGBean.class.getName())));
-        LinkResolver<String> linkResolver = new LinkResolver<String>();
+        LinkResolver<String> linkResolver = new UniqueDefaultLinkResolver<String>();
         for (GBeanData gBeanData : gBeanDatas) {
             String name = (String) gBeanData.getAttribute("persistenceUnitName");
             String rootUrl = (String) gBeanData.getAttribute("persistenceUnitRoot");
