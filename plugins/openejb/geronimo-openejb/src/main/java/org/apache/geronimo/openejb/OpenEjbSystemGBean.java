@@ -18,7 +18,6 @@ package org.apache.geronimo.openejb;
 
 import java.io.IOException;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
@@ -30,7 +29,6 @@ import javax.ejb.spi.HandleDelegate;
 import javax.management.ObjectName;
 import javax.naming.NamingException;
 import javax.naming.Context;
-import javax.persistence.EntityManagerFactory;
 import javax.resource.spi.ResourceAdapter;
 import javax.transaction.TransactionManager;
 
@@ -57,12 +55,10 @@ import org.apache.openejb.assembler.classic.Assembler;
 import org.apache.openejb.assembler.classic.ClientInfo;
 import org.apache.openejb.assembler.classic.ContainerInfo;
 import org.apache.openejb.assembler.classic.EjbJarInfo;
-import org.apache.openejb.assembler.classic.LinkResolver;
 import org.apache.openejb.assembler.classic.MdbContainerInfo;
 import org.apache.openejb.assembler.classic.ProxyFactoryInfo;
 import org.apache.openejb.assembler.classic.SecurityServiceInfo;
 import org.apache.openejb.assembler.classic.TransactionServiceInfo;
-import org.apache.openejb.assembler.classic.UniqueDefaultLinkResolver;
 import org.apache.openejb.assembler.dynamic.PassthroughFactory;
 import org.apache.openejb.config.AppModule;
 import org.apache.openejb.config.ClientModule;
