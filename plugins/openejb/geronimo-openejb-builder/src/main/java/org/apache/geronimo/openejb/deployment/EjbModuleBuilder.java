@@ -741,6 +741,7 @@ public class EjbModuleBuilder implements ModuleBuilder {
         for (GBeanData gBeanData : gBeanDatas) {
             String name = (String) gBeanData.getAttribute("persistenceUnitName");
             String rootUrl = (String) gBeanData.getAttribute("persistenceUnitRoot");
+            if (name.equals("cmp")) continue;
             String id = name + " " + rootUrl.hashCode();
             linkResolver.add(rootUrl, name, id);
         }
