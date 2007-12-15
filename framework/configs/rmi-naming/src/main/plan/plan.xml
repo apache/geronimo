@@ -89,6 +89,11 @@
                 <name>Jsr88</name>
             </pattern>
         </references>
+        <references name="PersistentConfigurationLists">
+            <pattern>
+                <name>AttributeManager</name>
+            </pattern>
+        </references>
     </gbean>
 
     <gbean name="DefaultServer" class="org.apache.geronimo.system.plugin.ReferenceServerInstanceData">

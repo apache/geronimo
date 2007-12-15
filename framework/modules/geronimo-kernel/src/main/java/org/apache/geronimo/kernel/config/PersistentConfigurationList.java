@@ -37,7 +37,7 @@ public interface PersistentConfigurationList {
 
     void save() throws IOException;
 
-    List restore() throws IOException;
+    List<Artifact> restore() throws IOException;
 
     /**
      * Adds a configuration to the list, but does not mark it as started.

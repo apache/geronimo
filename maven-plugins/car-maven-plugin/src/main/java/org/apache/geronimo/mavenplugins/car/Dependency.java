@@ -31,10 +31,13 @@ public class Dependency extends ModuleId {
     /**
      * @parameter
      */
-    private boolean start;
+    private Boolean start;
 
 
-    public boolean isStart() {
+    public Boolean isStart() {
+        if (start == null) {
+            return Boolean.TRUE;
+        }
         return start;
     }
 
@@ -50,7 +53,7 @@ public class Dependency extends ModuleId {
 
     public org.apache.geronimo.kernel.repository.Dependency toDependency() {
         org.apache.geronimo.kernel.repository.Artifact artifact = new org.apache.geronimo.kernel.repository.Artifact(groupId, artifactId, version, type);
-        ImportType importType = getImport() == null? ImportType.ALL: (ImportType) ImportType.getByName(getImport());
+        ImportType importType = getImport() == null? ImportType.ALL: ImportType.getByName(getImport());
         return new org.apache.geronimo.kernel.repository.Dependency(artifact, importType);
     }
 

@@ -56,10 +56,9 @@ public class AddRepositoryHandler extends BaseImportExportHandler {
 
     public void renderView(RenderRequest request, RenderResponse response, MultiPageModel model) throws PortletException, IOException {
         PluginRepositoryList[] lists = PortletManager.getCurrentServer(request).getPluginRepositoryLists();
-        List list = new ArrayList();
-        for (int i = 0; i < lists.length; i++) {
-            PluginRepositoryList repo = lists[i];
-            list.addAll(Arrays.asList(repo.getRepositories()));
+        List<URL> list = new ArrayList<URL>();
+        for (PluginRepositoryList repo : lists) {
+            list.addAll(repo.getRepositories());
         }
         String error = request.getParameter("repoError");
         if(error != null && !error.equals("")) {
@@ -91,12 +90,9 @@ public class AddRepositoryHandler extends BaseImportExportHandler {
         // Check for duplicates
         for (int i = 0; i < lists.length; i++) {
             PluginRepositoryList test = lists[i];
-            URL[] all = test.getRepositories();
-            for (int j = 0; j < all.length; j++) {
-                String existing = all[j].toString();
-                if(!existing.endsWith("/")) {
-                    existing = existing + "/";
-                }
+            List<URL> all = test.getRepositories();
+            for (URL url: all) {
+                String existing = url.toString();
                 if(repo.equals(existing)) {
                     response.setRenderParameter("repoError", "Already have an entry for repository "+repo);
                     return false;

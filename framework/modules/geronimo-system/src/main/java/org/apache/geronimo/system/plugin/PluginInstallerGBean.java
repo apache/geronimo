@@ -18,19 +18,12 @@ package org.apache.geronimo.system.plugin;
 
 import java.io.BufferedOutputStream;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
-import java.net.URLConnection;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
@@ -38,7 +31,6 @@ import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -53,15 +45,10 @@ import java.util.jar.Manifest;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.zip.ZipEntry;
-import java.util.zip.ZipOutputStream;
 
 import javax.security.auth.login.FailedLoginException;
-import javax.xml.bind.JAXBException;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
-import javax.xml.stream.XMLStreamException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -94,7 +81,6 @@ import org.apache.geronimo.kernel.repository.WritableListableRepository;
 import org.apache.geronimo.kernel.util.XmlUtil;
 import org.apache.geronimo.system.configuration.ConfigurationStoreUtil;
 import org.apache.geronimo.system.configuration.RepositoryConfigurationStore;
-import org.apache.geronimo.system.configuration.InPlaceConfigurationUtil;
 import org.apache.geronimo.system.plugin.model.ArtifactType;
 import org.apache.geronimo.system.plugin.model.ConfigXmlContentType;
 import org.apache.geronimo.system.plugin.model.CopyFileType;
@@ -110,12 +96,7 @@ import org.apache.geronimo.system.repository.Maven2Repository;
 import org.apache.geronimo.system.serverinfo.BasicServerInfo;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
 import org.apache.geronimo.system.threads.ThreadPool;
-import org.apache.geronimo.util.encoders.Base64;
 import org.codehaus.plexus.util.FileUtils;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
@@ -131,14 +112,16 @@ public class PluginInstallerGBean implements PluginInstaller {
 
     private static int counter;
     private final ConfigurationManager configManager;
+    private final GeronimoSourceRepository localSourceRepository;
     private final WritableListableRepository writeableRepo;
     private final ConfigurationStore configStore;
     private final ServerInfo serverInfo;
     private final Map<Object, DownloadResults> asyncKeys;
     private final ThreadPool threadPool;
     private final Collection<? extends ServerInstanceData> serverInstanceDatas;
-    private final ClassLoader classloader;
+    private final ClassLoader classLoader;
     private final Map<String, ServerInstance> servers = new HashMap<String, ServerInstance>();
+    private final Collection<PersistentConfigurationList> persistentConfigurationLists;
 
     // This regular expression for repository filename is taken from Maven1Repository.MAVEN_1_PATTERN
     private static final Pattern MAVEN_1_PATTERN_PART = Pattern.compile("(.+)-([0-9].+)\\.([^0-9]+)");
@@ -146,15 +129,16 @@ public class PluginInstallerGBean implements PluginInstaller {
     /**
      * GBean constructor.  Supply an existing ConfigurationManager.  Use for adding to the current server.
      *
-     * @param configManager
-     * @param repository
-     * @param configStore
-     * @param serverInstanceDatas
-     * @param serverInfo
-     * @param threadPool
-     * @param artifactManager
-     * @param classloader
-     * @throws IOException
+     * @param configManager Configuration Manager for this server
+     * @param repository repository to install into
+     * @param configStore configuration store to install into
+     * @param serverInstanceDatas set of server "layouts" to install config info into
+     * @param serverInfo location of server
+     * @param threadPool thread pool for async operations
+     * @param artifactManager artifact manager to resolve existing artifacts
+     * @param persistentConfigurationLists used to start new plugins in a running server
+     * @param classLoader classLoader @throws IOException exception if server instance cannot be loaded
+     * @throws java.io.IOException from bad ServerInstance
      */
     public PluginInstallerGBean(ConfigurationManager configManager,
                                 WritableListableRepository repository,
@@ -163,14 +147,16 @@ public class PluginInstallerGBean implements PluginInstaller {
                                 final ServerInfo serverInfo,
                                 ThreadPool threadPool,
                                 final ArtifactManager artifactManager,
-                                final ClassLoader classloader) throws IOException {
+                                Collection<PersistentConfigurationList> persistentConfigurationLists,
+                                final ClassLoader classLoader) throws IOException {
         this.writeableRepo = repository;
         this.configStore = configStore;
         this.serverInfo = serverInfo;
         this.threadPool = threadPool;
         asyncKeys = Collections.synchronizedMap(new HashMap<Object, DownloadResults>());
         this.serverInstanceDatas = serverInstanceDatas;
-        this.classloader = classloader;
+        this.persistentConfigurationLists = persistentConfigurationLists == null? Collections.<PersistentConfigurationList>emptyList(): persistentConfigurationLists;
+        this.classLoader = classLoader;
         for (ServerInstanceData instance : serverInstanceDatas) {
             addServerInstance(instance, artifactManager, writeableRepo, serverInfo, servers, true);
         }
@@ -178,6 +164,7 @@ public class PluginInstallerGBean implements PluginInstaller {
             throw new IllegalArgumentException("No default server instance set up");
         }
         this.configManager = configManager;
+        localSourceRepository = new GeronimoSourceRepository(configManager.getRepositories());
         if (serverInstanceDatas instanceof ReferenceCollection) {
             ((ReferenceCollection) serverInstanceDatas).addReferenceCollectionListener(new ReferenceCollectionListener() {
 
@@ -201,18 +188,18 @@ public class PluginInstallerGBean implements PluginInstaller {
     /**
      * Constructor for use in assembling a new server.
      *
-     * @param serverInstanceDatas
-     * @param kernel
-     * @param classloader
-     * @param targetRepositoryPath
-     * @param targetServerPath
-     * @throws IOException
+     * @param serverInstanceDatas set of server layouts
+     * @param kernel kernel for current server
+     * @param classLoader classLoader
+     * @param targetRepositoryPath location of repo to install into (not in current server)
+     * @param targetServerPath location of server to install into (not current server
+     * @throws IOException if layouts can't be loaded
      */
     public PluginInstallerGBean(String targetRepositoryPath,
                                 String targetServerPath,
                                 Collection<? extends ServerInstanceData> serverInstanceDatas,
                                 final Kernel kernel,
-                                final ClassLoader classloader) throws Exception {
+                                final ClassLoader classLoader) throws Exception {
         final ArtifactManager artifactManager = new DefaultArtifactManager();
 
         FileUtils.forceMkdir(new File(targetServerPath));
@@ -224,11 +211,13 @@ public class PluginInstallerGBean implements PluginInstaller {
         threadPool = null;
         asyncKeys = Collections.synchronizedMap(new HashMap<Object, DownloadResults>());
         this.serverInstanceDatas = serverInstanceDatas;
-        this.classloader = classloader;
+        this.persistentConfigurationLists = Collections.emptyList();
+        this.classLoader = classLoader;
         for (ServerInstanceData instance : serverInstanceDatas) {
             addServerInstance(instance, artifactManager, writeableRepo, serverInfo, servers, false);
         }
-        this.configManager = buildConfigurationManager(artifactManager, writeableRepo, kernel, configStore, classloader, servers);
+        this.configManager = buildConfigurationManager(artifactManager, writeableRepo, kernel, configStore, classLoader, servers);
+        localSourceRepository = new GeronimoSourceRepository(configManager.getRepositories());
         if (serverInstanceDatas instanceof ReferenceCollection) {
             ((ReferenceCollection) serverInstanceDatas).addReferenceCollectionListener(new ReferenceCollectionListener() {
 
@@ -269,7 +258,7 @@ public class PluginInstallerGBean implements PluginInstaller {
                                                                   Map<String, org.apache.geronimo.system.plugin.ServerInstance> servers) throws IOException {
         for (ServerInstance instance : servers.values()) {
             if ("default".equals(instance.getServerName())) {
-                return new KernelConfigurationManager(kernel,
+                KernelConfigurationManager configurationManager = new KernelConfigurationManager(kernel,
                         Collections.singleton(targetStore),
                         instance.getAttributeStore(),
                         (PersistentConfigurationList) instance.getAttributeStore(),
@@ -278,6 +267,8 @@ public class PluginInstallerGBean implements PluginInstaller {
                         Collections.singleton(targetRepo),
                         null,
                         classloader);
+                configurationManager.setOnline(false);
+                return configurationManager;
             }
         }
         throw new IllegalStateException("No default server instance found: " + servers.keySet());
@@ -286,13 +277,15 @@ public class PluginInstallerGBean implements PluginInstaller {
     /* now for tests only */
     PluginInstallerGBean(ConfigurationManager configManager, WritableListableRepository repository, ConfigurationStore configStore, ServerInfo serverInfo, ThreadPool threadPool, Collection<ServerInstance> servers) {
         this.configManager = configManager;
+        localSourceRepository = new GeronimoSourceRepository(configManager.getRepositories());
         this.writeableRepo = repository;
         this.configStore = configStore;
         this.serverInfo = serverInfo;
         this.threadPool = threadPool;
         asyncKeys = Collections.synchronizedMap(new HashMap<Object, DownloadResults>());
         serverInstanceDatas = null;
-        classloader = null;
+        this.persistentConfigurationLists = Collections.emptyList();
+        classLoader = null;
         for (ServerInstance instance : servers) {
             this.servers.put(instance.getServerName(), instance);
         }
@@ -318,27 +311,24 @@ public class PluginInstallerGBean implements PluginInstaller {
      *
      * @param targetRepositoryPath     location of repository in new server (normally "repository")
      * @param relativeTargetServerPath Location of server to assemble relative to current server
-     * @param pluginList
-     * @param downloadPoller
-     * @throws Exception
+     * @param pluginList list of plugins to install
+     * @param downloadPoller monitor for results
+     * @throws Exception if something goes wrong
      */
     public void installPluginList(String targetRepositoryPath, String relativeTargetServerPath, PluginListType pluginList, DownloadResults downloadPoller) throws Exception {
         String targetServerPath = serverInfo.resolveServer(relativeTargetServerPath).getAbsolutePath();
         Kernel kernel = new BasicKernel("assembly");
 
         try {
-
+//            kernel.boot();
             PluginInstallerGBean installer = new PluginInstallerGBean(
                     targetRepositoryPath,
                     targetServerPath,
                     serverInstanceDatas,
                     kernel,
-                    classloader);
+                    classLoader);
 
-            //TODO Conceptual error warning!
-            //TODO we should treat the current server as a unified repo, not just pick one repo.
-            String defaultRepository =  writeableRepo.getRootPath();
-            installer.install(pluginList, defaultRepository, true, null, null, downloadPoller);
+            installer.install(pluginList, localSourceRepository, true, null, null, downloadPoller);
         } finally {
             kernel.shutdown();
         }
@@ -355,7 +345,7 @@ public class PluginInstallerGBean implements PluginInstaller {
     public Map getInstalledPlugins() {
         SortedSet<Artifact> artifacts = writeableRepo.list();
 
-        Map plugins = new HashMap();
+        Map<String, Artifact> plugins = new HashMap<String, Artifact>();
         for (Artifact configId : artifacts) {
             File dir = writeableRepo.getLocation(configId);
             if (dir.isDirectory()) {
@@ -404,72 +394,7 @@ public class PluginInstallerGBean implements PluginInstaller {
      *                 The configId must be fully resolved (isResolved() == true)
      */
     public PluginType getPluginMetadata(Artifact moduleId) {
-        File dir = writeableRepo.getLocation(moduleId);
-//        ConfigurationData configData;
-        return extractPluginMetadata(moduleId, dir);
-    }
-
-    private PluginType extractPluginMetadata(Artifact moduleId, File dir) {
-        String source = dir.getAbsolutePath();
-        try {
-            if (dir.isDirectory()) {
-                File meta = new File(dir, "META-INF");
-                if (!meta.isDirectory() || !meta.canRead()) {
-                    return null;
-                }
-                File xml = new File(meta, "geronimo-plugin.xml");
-//                configData = configStore.loadConfiguration(moduleId);
-                if (!xml.isFile() || !xml.canRead() || xml.length() == 0) {
-                    if (moduleId != null) {
-                        return createDefaultMetadata(moduleId);
-                    } else {
-                        return null;
-                    }
-                }
-                InputStream in = new FileInputStream(xml);
-                try {
-                    return PluginXmlUtil.loadPluginMetadata(in);
-                } finally {
-                    in.close();
-                }
-            } else {
-                if (!dir.isFile() || !dir.canRead()) {
-                    log.error("Cannot read configuration " + dir.getAbsolutePath());
-                    throw new IllegalStateException("Cannot read configuration " + dir.getAbsolutePath());
-                }
-//                configData = configStore.loadConfiguration(moduleId);
-                JarFile jar = new JarFile(dir);
-                try {
-                    ZipEntry entry = jar.getEntry("META-INF/geronimo-plugin.xml");
-                    if (entry == null) {
-                        if (moduleId != null) {
-                            return createDefaultMetadata(moduleId);
-                        } else {
-                            return null;
-                        }
-                    }
-                    source = dir.getAbsolutePath() + "#META-INF/geronimo-plugin.xml";
-                    InputStream in = jar.getInputStream(entry);
-                    try {
-                        return PluginXmlUtil.loadPluginMetadata(in);
-                    } finally {
-                        in.close();
-                    }
-                } finally {
-                    jar.close();
-                }
-            }
-//            PluginType result;
-//            overrideDependencies(configData, result);
-//            return result;
-        } catch (InvalidConfigException e) {
-            e.printStackTrace();
-            log.warn("Unable to generate metadata for " + moduleId, e);
-        } catch (Exception e) {
-            e.printStackTrace();
-            log.warn("Invalid XML at " + source, e);
-        }
-        return null;
+        return localSourceRepository.extractPluginMetadata(moduleId);
     }
 
     /**
@@ -577,21 +502,10 @@ public class PluginInstallerGBean implements PluginInstaller {
      *                        Set this to null if no authentication is required.
      */
     public PluginListType listPlugins(URL mavenRepository, String username, String password) throws IOException, FailedLoginException {
-        String repository = mavenRepository.toString().trim();
-        if (!repository.endsWith("/")) {
-            repository = repository + "/";
-        }
-        //todo: Try downloading a .gz first
-        String url = repository + "geronimo-plugins.xml";
         try {
-            //todo: use a progress monitor
-            InputStream in = openStream(null, Collections.singletonList(url), username, password, null, null).getStream();
-            return PluginXmlUtil.loadPluginList(in);
-        } catch (MissingDependencyException e) {
-            log.error("Cannot find plugin index at site " + url);
-            return null;
-        } catch (Exception e) {
-            log.error("Unable to load repository configuration data", e);
+            SourceRepository repo = SourceRepositoryFactory.getSourceRepository(mavenRepository.toString());
+            return repo.getPluginList();
+        } catch (IllegalStateException e) {
             return null;
         }
     }
@@ -603,8 +517,8 @@ public class PluginInstallerGBean implements PluginInstaller {
      * but instead sets the failure property of the DownloadResults.
      *
      * @param pluginsToInstall            The list of configurations to install
-     * @param defaultRepository
-     * @param restrictToDefaultRepository
+     * @param defaultRepository           Default repo to look for plugins in
+     * @param restrictToDefaultRepository Whether to follow hints to other plugin repos.
      * @param username                    Optional username, if the maven repo uses HTTP Basic authentication.
      *                                    Set this to null if no authentication is required.
      * @param password                    Optional password, if the maven repo uses HTTP Basic authentication.
@@ -626,8 +540,8 @@ public class PluginInstallerGBean implements PluginInstaller {
      * DownloadPoller.
      *
      * @param pluginsToInstall            The list of configurations to install
-     * @param defaultRepository
-     * @param restrictToDefaultRepository
+     * @param defaultRepository           Default repo to look for plugins in
+     * @param restrictToDefaultRepository Whether to follow hints to other plugin repos.
      * @param username                    Optional username, if the maven repo uses HTTP Basic authentication.
      *                                    Set this to null if no authentication is required.
      * @param password                    Optional password, if the maven repo uses HTTP Basic authentication.
@@ -635,6 +549,11 @@ public class PluginInstallerGBean implements PluginInstaller {
      * @param poller                      Will be notified with status updates as the download proceeds
      */
     public void install(PluginListType pluginsToInstall, String defaultRepository, boolean restrictToDefaultRepository, String username, String password, DownloadPoller poller) {
+        SourceRepository defaultSourceRepository = SourceRepositoryFactory.getSourceRepository(defaultRepository);
+        install(pluginsToInstall, defaultSourceRepository, restrictToDefaultRepository, username, password, poller);
+    }
+
+    public void install(PluginListType pluginsToInstall, SourceRepository defaultRepository, boolean restrictToDefaultRepository, String username, String password, DownloadPoller poller) {
         try {
             Map<Artifact, PluginType> metaMap = new HashMap<Artifact, PluginType>();
             // Step 1: validate everything
@@ -671,16 +590,16 @@ public class PluginInstallerGBean implements PluginInstaller {
                 Set<Artifact> working = new HashSet<Artifact>();
                 Stack<Artifact> parentStack = new Stack<Artifact>();
                 if (instance.getModuleId() != null) {
-                    List<String> repos = getRepos(pluginsToInstall, defaultRepository, restrictToDefaultRepository, instance);
+                    List<SourceRepository> repos = getRepos(pluginsToInstall, defaultRepository, restrictToDefaultRepository, instance);
                     downloadArtifact(toArtifact(instance.getModuleId()), metaMap, repos,
-                            username, password, new ResultsFileWriteMonitor(poller), working, parentStack, false, servers);
+                            username, password, new ResultsFileWriteMonitor(poller), working, parentStack, false, servers, true);
                 } else {
                     List<DependencyType> deps = instance.getDependency();
                     for (DependencyType dep : deps) {
                         Artifact entry = toArtifact(dep);
-                        List<String> repos = getRepos(pluginsToInstall, defaultRepository, restrictToDefaultRepository, instance);
+                        List<SourceRepository> repos = getRepos(pluginsToInstall, defaultRepository, restrictToDefaultRepository, instance);
                         downloadArtifact(entry, metaMap, repos,
-                                username, password, new ResultsFileWriteMonitor(poller), working, parentStack, false, servers);
+                                username, password, new ResultsFileWriteMonitor(poller), working, parentStack, false, servers, dep.isStart());
                     }
                 }
                 // 4. Uninstall obsolete configurations
@@ -691,15 +610,16 @@ public class PluginInstallerGBean implements PluginInstaller {
             }
 
             // Step 3: Start anything that's marked accordingly
-            for (PluginType metadata : pluginsToInstall.getPlugin()) {
-                PluginArtifactType instance = metadata.getPluginArtifact().get(0);
-                for (DependencyType dep : instance.getDependency()) {
-                    if (dep.isStart()) {
-                        Artifact artifact = toArtifact(dep);
-                        if (configManager.isConfiguration(artifact)) {
-                            poller.setCurrentFilePercent(-1);
+            if (configManager.isOnline()) {
+                poller.setCurrentFilePercent(-1);
+                for (PersistentConfigurationList persistentConfigurationList: persistentConfigurationLists) {
+                    List<Artifact> artifacts = persistentConfigurationList.restore();
+                    for (Artifact artifact: artifacts) {
+                        if (!configManager.isRunning(artifact)) {
                             poller.setCurrentMessage("Starting " + artifact);
-                            configManager.loadConfiguration(artifact);
+                            if (!configManager.isLoaded(artifact)) {
+                                configManager.loadConfiguration(artifact);
+                            }
                             configManager.startConfiguration(artifact);
                         }
                     }
@@ -717,18 +637,22 @@ public class PluginInstallerGBean implements PluginInstaller {
         }
     }
 
-    private List<String> getRepos(PluginListType pluginsToInstall, String defaultRepository, boolean restrictToDefaultRepository, PluginArtifactType instance) {
-        List<String> repos = pluginsToInstall.getDefaultRepository();
-        if (!instance.getSourceRepository().isEmpty()) {
-            repos = instance.getSourceRepository();
-        }
+    private List<SourceRepository> getRepos(PluginListType pluginsToInstall, SourceRepository defaultRepository, boolean restrictToDefaultRepository, PluginArtifactType instance) {
+        List<SourceRepository> repos = new ArrayList<SourceRepository>();
         if (defaultRepository != null) {
-            List<String> allrepos = new ArrayList<String>();
-            allrepos.add(defaultRepository);
-            if (!restrictToDefaultRepository) {
-                allrepos.addAll(repos);
+            repos.add(defaultRepository);
+        }
+        if (!restrictToDefaultRepository) {
+            List<String> repoLocations;
+            if (!instance.getSourceRepository().isEmpty()) {
+                repoLocations = instance.getSourceRepository();
+            } else {
+                repoLocations = pluginsToInstall.getDefaultRepository();
             }
-            repos = allrepos;
+            for (String repoLocation: repoLocations) {
+                SourceRepository repo = SourceRepositoryFactory.getSourceRepository(repoLocation);
+                repos.add(repo);
+            }
         }
         return repos;
     }
@@ -741,8 +665,8 @@ public class PluginInstallerGBean implements PluginInstaller {
      * property of the DownloadResults that the caller can poll for.
      *
      * @param pluginsToInstall            The list of configurations to install
-     * @param defaultRepository
-     * @param restrictToDefaultRepository
+     * @param defaultRepository           Default repo to look for plugins in
+     * @param restrictToDefaultRepository Whether to follow hints to other plugin repos.
      * @param username                    Optional username, if the maven repo uses HTTP Basic authentication.
      *                                    Set this to null if no authentication is required.
      * @param password                    Optional password, if the maven repo uses HTTP Basic authentication.
@@ -779,8 +703,8 @@ public class PluginInstallerGBean implements PluginInstaller {
      *                                    separately.  The metadata in the CAR file includes a repository URL
      *                                    for these downloads, and the username and password arguments are
      *                                    used in conjunction with that.
-     * @param defaultRepository
-     * @param restrictToDefaultRepository
+     * @param defaultRepository           Default repo to look for plugins in
+     * @param restrictToDefaultRepository Whether to follow hints to other plugin repos.
      * @param username                    Optional username, if the maven repo uses HTTP Basic authentication.
      *                                    Set this to null if no authentication is required.
      * @param password                    Optional password, if the maven repo uses HTTP Basic authentication.
@@ -825,8 +749,8 @@ public class PluginInstallerGBean implements PluginInstaller {
      * Installs from a pre-downloaded CAR file
      *
      * @param carFile                     care file to install
-     * @param defaultRepository
-     * @param restrictToDefaultRepository
+     * @param defaultRepository           Default repo to look for plugins in
+     * @param restrictToDefaultRepository Whether to follow hints to other plugin repos.
      * @param username                    repo username
      * @param password                    repo password
      * @param poller                      monitor for reporting progress
@@ -834,7 +758,7 @@ public class PluginInstallerGBean implements PluginInstaller {
     public void install(File carFile, String defaultRepository, boolean restrictToDefaultRepository, String username, String password, DownloadPoller poller) {
         try {
             // 1. Extract the configuration metadata
-            PluginType data = extractPluginMetadata(null, carFile);
+            PluginType data = GeronimoSourceRepository.extractPluginMetadata(carFile);
             if (data == null) {
                 log.error("Invalid Configuration Archive " + carFile.getAbsolutePath() + " no plugin metadata found");
                 throw new IllegalArgumentException(
@@ -849,7 +773,7 @@ public class PluginInstallerGBean implements PluginInstaller {
                 Artifact pluginArtifact = toArtifact(instance.getModuleId());
                 ResultsFileWriteMonitor monitor = new ResultsFileWriteMonitor(poller);
                 writeableRepo.copyToRepository(carFile, pluginArtifact, monitor);
-                installConfigXMLData(pluginArtifact, instance, servers);
+                installConfigXMLData(pluginArtifact, instance, servers, true);
                 if (instance.getCopyFile() != null) {
                     extractPluginFiles(pluginArtifact, data, monitor);
                 }
@@ -963,7 +887,7 @@ public class PluginInstallerGBean implements PluginInstaller {
                 }                    
             }
             buf.append(" to be installed");      
-            throw new MissingDependencyException(buf.toString(), (Artifact)null, (Artifact)null);              
+            throw new MissingDependencyException(buf.toString(), null, (Artifact)null);
         }
     }
     
@@ -995,8 +919,9 @@ public class PluginInstallerGBean implements PluginInstaller {
      * @param monitor     The ongoing results of the download operations, with some monitoring logic
      * @param soFar       The set of dependencies already downloaded.
      * @param parentStack chain of modules that led to this dependency
-     * @param dependency  Is this a dependency or the original artifact? @throws IOException                When there's a problem reading or writing data
-     * @param servers
+     * @param dependency  Is this a dependency or the original artifact?
+     * @param servers     server layouts to install config info into
+     * @param loadOverride If false prevents setting load="true" in server instances (recursively through dependencies)
      * @throws FailedLoginException       When a repository requires authentication and either no username
      *                                    and password are supplied or the username and password supplied
      *                                    are not accepted
@@ -1004,7 +929,7 @@ public class PluginInstallerGBean implements PluginInstaller {
      * @throws NoServerInstanceException  when no server descriptor is found for a specified configuration bit
      * @throws java.io.IOException        when a IO problem occurs
      */
-    private void downloadArtifact(Artifact configID, Map<Artifact, PluginType> metadata, List<String> repos, String username, String password, ResultsFileWriteMonitor monitor, Set<Artifact> soFar, Stack<Artifact> parentStack, boolean dependency, Map<String, ServerInstance> servers) throws IOException, FailedLoginException, MissingDependencyException, NoServerInstanceException {
+    private void downloadArtifact(Artifact configID, Map<Artifact, PluginType> metadata, List<SourceRepository> repos, String username, String password, ResultsFileWriteMonitor monitor, Set<Artifact> soFar, Stack<Artifact> parentStack, boolean dependency, Map<String, ServerInstance> servers, boolean loadOverride) throws IOException, FailedLoginException, MissingDependencyException, NoServerInstanceException {
         if (soFar.contains(configID)) {
             return; // Avoid endless work due to circular dependencies
         } else {
@@ -1018,24 +943,27 @@ public class PluginInstallerGBean implements PluginInstaller {
             // not present, needs to be downloaded
             monitor.getResults().setCurrentMessage("Downloading " + configID);
             monitor.getResults().setCurrentFilePercent(-1);
-            OpenResult result = openStream(configID, repos, username, password, monitor, parentStack);
+            OpenResult result = null;
+            for (SourceRepository repository: repos) {
+                result = repository.open(configID, monitor);
+                if (result != null) {
+                    break;
+                }
+            }
+            if (result == null) {
+                throw new IllegalArgumentException("Could not find " + configID + " in any repo");
+            }
             // Check if the result is already in server's repository
-            if (configManager.getArtifactResolver().queryArtifacts(result.getConfigID()).length > 0) {
-                String msg = "Not downloading " + configID + ". Query for " + configID + " resulted in " + result.getConfigID()
+            if (configManager.getArtifactResolver().queryArtifacts(result.getArtifact()).length > 0) {
+                String msg = "Not downloading " + configID + ". Query for " + configID + " resulted in " + result.getArtifact()
                         + " which is already available in server's repository.";
                 monitor.getResults().setCurrentMessage(msg);
                 log.info(msg);
-                if (result.getStream() != null) {
-                    try {
-                        result.getStream().close();
-                    } catch (IOException ignored) {
-                        //ignore
-                    }
-                }
+                result.close();
                 return;
             }
             try {
-                File tempFile = downloadFile(result, monitor);
+                File tempFile = result.getFile();
                 if (tempFile == null) {
                     log.error("Null filehandle was returned for " + configID);
                     throw new IllegalArgumentException("Null filehandle was returned for " + configID);
@@ -1054,7 +982,7 @@ public class PluginInstallerGBean implements PluginInstaller {
                 }
                 // See if the download file has plugin metadata and use it in preference to what is in the catalog.
                 try {
-                    PluginType realPluginData = extractPluginMetadata(null, tempFile);
+                    PluginType realPluginData = GeronimoSourceRepository.extractPluginMetadata(tempFile);
                     if (realPluginData != null) {
                         pluginData = realPluginData;
                     }
@@ -1067,23 +995,18 @@ public class PluginInstallerGBean implements PluginInstaller {
                     validatePlugin(pluginData);
                     instance = pluginData.getPluginArtifact().get(0);
                 }
-                monitor.getResults().setCurrentMessage("Copying " + result.getConfigID() + " to the repository");
-                writeableRepo.copyToRepository(tempFile, result.getConfigID(),
-                        monitor); //todo: download SNAPSHOTS if previously available?
-                if (!tempFile.delete()) {
-                    log.warn("Unable to delete temporary download file " + tempFile.getAbsolutePath());
-                    tempFile.deleteOnExit();
-                }
+                monitor.getResults().setCurrentMessage("Copying " + result.getArtifact() + " to the repository");
+                result.install(writeableRepo, monitor);
                 if (pluginData != null) {
-                    installConfigXMLData(result.getConfigID(), instance, servers);
+                    installConfigXMLData(result.getArtifact(), instance, servers, loadOverride);
                 } else {
                     log.debug("No config XML data to install.");
                 }
                 if (dependency) {
                     monitor.getResults().addDependencyInstalled(configID);
-                    configID = result.getConfigID();
+                    configID = result.getArtifact();
                 } else {
-                    configID = result.getConfigID();
+                    configID = result.getArtifact();
                     monitor.getResults().addInstalledConfigID(configID);
                 }
                 pluginWasInstalled = true;
@@ -1097,7 +1020,8 @@ public class PluginInstallerGBean implements PluginInstaller {
                         "Invalid GBean configuration: " + e.getMessage(), e);
 
             } finally {
-                result.getStream().close();
+                //todo probably not needede
+                result.close();
             }
         } else {
             if (dependency) {
@@ -1138,7 +1062,7 @@ public class PluginInstallerGBean implements PluginInstaller {
                 for (Dependency dep : dependencies) {
                     Artifact artifact = dep.getArtifact();
                     log.debug("Attempting to download dependency=" + artifact + " for configuration=" + configID);
-                    downloadArtifact(artifact, metadata, repos, username, password, monitor, soFar, parentStack, true, servers);
+                    downloadArtifact(artifact, metadata, repos, username, password, monitor, soFar, parentStack, true, servers, loadOverride);
                 }
             } else {
                 //rely on plugin metadata if present.
@@ -1146,7 +1070,7 @@ public class PluginInstallerGBean implements PluginInstaller {
                 for (DependencyType dep: deps) {
                     Artifact artifact = toArtifact(dep);
                     log.debug("Attempting to download dependency=" + artifact + " for configuration=" + configID);
-                    downloadArtifact(artifact, metadata, repos, username, password, monitor, soFar, parentStack, true, servers);
+                    downloadArtifact(artifact, metadata, repos, username, password, monitor, soFar, parentStack, true, servers, loadOverride & dep.isStart());
                 }
             }
             parentStack.pop();
@@ -1294,59 +1218,10 @@ public class PluginInstallerGBean implements PluginInstaller {
     }
 
     /**
-     * Downloads to a temporary file so we can validate the download before
-     * installing into the repository.
-     *
-     * @param result  source of download
-     * @param monitor monitor to report results of download
-     * @return downloaded file
-     * @throws IOException if input cannot be read or file cannot be written
-     */
-    private File downloadFile(OpenResult result, ResultsFileWriteMonitor monitor) throws IOException {
-        InputStream in = result.getStream();
-        if (in == null) {
-            log.error("Invalid InputStream for downloadFile");
-            throw new IllegalStateException();
-        }
-        FileOutputStream out = null;
-        byte[] buf;
-        try {
-            monitor.writeStarted(result.getConfigID().toString(), result.fileSize);
-            File file = File.createTempFile("geronimo-plugin-download-", ".tmp");
-            out = new FileOutputStream(file);
-            buf = new byte[65536];
-            int count, total = 0;
-            while ((count = in.read(buf)) > -1) {
-                out.write(buf, 0, count);
-                monitor.writeProgress(total += count);
-            }
-            monitor.writeComplete(total);
-            log.info(((DownloadResults) monitor.getResults()).getCurrentMessage());
-            in.close();
-            in = null;
-            out.close();
-            out = null;
-            return file;
-        } finally {
-            if (in != null) {
-                try {
-                    in.close();
-                } catch (IOException ignored) {
-                    //ignore
-                }
-            }
-            if (out != null) {
-                try {
-                    out.close();
-                } catch (IOException ignored) {
-                    //ignore
-                }
-            }
-        }
-    }
-
-    /**
      * Used to get dependencies for a JAR
+     * @param repo repository containing jar
+     * @param artifact artifact to find dependencies of
+     * @return dependencies of artifact in repository
      */
     private static Dependency[] getDependencies(Repository repo, Artifact artifact) {
         Set<Artifact> set = repo.getDependencies(artifact);
@@ -1375,391 +1250,9 @@ public class PluginInstallerGBean implements PluginInstaller {
     }
 
     /**
-     * Constructs a URL to a particular artifact in a particular repository
-     */
-    private static URL getURL(Artifact configId, URL repository) throws MalformedURLException {
-        URL context;
-        if (repository.toString().trim().endsWith("/")) {
-            context = repository;
-        } else {
-            context = new URL(repository.toString().trim() + "/");
-        }
-
-        String qualifiedVersion = configId.getVersion().toString();
-        if (configId.getVersion() instanceof SnapshotVersion) {
-            SnapshotVersion ssVersion = (SnapshotVersion) configId.getVersion();
-            String timestamp = ssVersion.getTimestamp();
-            int buildNumber = ssVersion.getBuildNumber();
-            if (timestamp != null && buildNumber != 0) {
-                qualifiedVersion = qualifiedVersion.replaceAll("SNAPSHOT", timestamp + "-" + buildNumber);
-            }
-        }
-        return new URL(context, configId.getGroupId().replace('.', '/') + "/"
-                + configId.getArtifactId() + "/" + configId.getVersion()
-                + "/" + configId.getArtifactId() + "-"
-                + qualifiedVersion + "." + configId.getType());
-    }
-
-    /**
-     * Attemps to open a stream to an artifact in one of the listed repositories.
-     * The username and password provided are only used if one of the repositories
-     * returns an HTTP authentication failure on the first try.
-     *
-     * @param artifact    The artifact we're looking for, or null to just connect to the base repo URL
-     * @param repos       The base URLs to the repositories to search for the artifact
-     * @param username    A username if one of the repositories might require authentication
-     * @param password    A password if one of the repositories might require authentication
-     * @param monitor     Callback for progress on the connection operation
-     * @param parentStack
-     * @throws IOException                Occurs when the IO with the repository failed
-     * @throws FailedLoginException       Occurs when a repository requires authentication and either
-     *                                    no username and password were provided or they weren't
-     *                                    accepted
-     * @throws MissingDependencyException Occurs when none of the repositories has the artifact
-     *                                    in question
-     */
-    private static OpenResult openStream(Artifact artifact, List<String> repos, String username, String password, ResultsFileWriteMonitor monitor, Stack<Artifact> parentStack) throws IOException, FailedLoginException, MissingDependencyException {
-        if (artifact != null) {
-            if (!artifact.isResolved() || artifact.getVersion().toString().indexOf("SNAPSHOT") >= 0) {
-                artifact = findArtifact(artifact, repos, username, password, monitor, parentStack);
-            }
-        }
-        if (monitor != null) {
-            monitor.getResults().setCurrentFilePercent(-1);
-            monitor.getResults().setCurrentMessage("Downloading " + artifact + "...");
-            monitor.setTotalBytes(-1); // In case the server doesn't say
-        }
-        InputStream in;
-        LinkedList<String> list = new LinkedList<String>();
-        list.addAll(repos);
-        while (true) {
-            if (list.isEmpty()) {
-                log.error("Unable to download dependency artifact=" + artifact);
-                throw new MissingDependencyException("Unable to download dependency from repos " + repos, artifact, parentStack);
-            }
-            if (monitor != null) {
-                monitor.setTotalBytes(-1); // Just to be sure
-            }
-            String repo = list.removeFirst();
-            URL repository = PluginRepositoryDownloader.resolveRepository(repo);
-            if (repository == null) {
-                log.info("Failed to resolve repository: " + repo);
-                continue;
-            }
-            URL url = artifact == null ? repository : getURL(artifact, repository);
-            if (artifact != null)
-                log.info("Attempting to download " + artifact + " from " + url);
-            else
-                log.info("Attempting to download " + url);
-            in = connect(url, username, password, monitor);
-            if (in != null) {
-                return new OpenResult(artifact, in, monitor == null ? -1 : monitor.getTotalBytes());
-            } else {
-                log.info("Failed to download artifact=" + artifact + " from url=" + url);
-            }
-        }
-    }
-
-    /**
-     * Does the meat of connecting to a URL
-     */
-    private static InputStream connect(URL url, String username, String password, ResultsFileWriteMonitor monitor) throws IOException, FailedLoginException {
-        return connect(url, username, password, monitor, null);
-    }
-
-    /**
-     * Does the meat of connecting to a URL.  Can be used to just test the existance of
-     * something at the specified URL by passing the method 'HEAD'.
-     * 
-     * @return null if cannot connect to the URL. 
-     */
-    private static InputStream connect(URL url, String username, String password, ResultsFileWriteMonitor monitor, String method) throws IOException, FailedLoginException {
-        if (url.getProtocol().equals("file")) {
-            File path = new File(url.getPath());
-            if (!path.exists()) {
-                return null;
-            }
-            if (path.isDirectory()) {
-                //todo this is awfully redundantly copying over and over again
-                //Code copied from RepositoryConfigurationStore
-                File file = File.createTempFile("geronimo-plugin-download-", ".tmp");
-                FileOutputStream output = new FileOutputStream(file);
-                ZipOutputStream out = new ZipOutputStream(output);
-                byte[] buf = new byte[10240];
-                writeToZip(path, out, "", buf);
-                InPlaceConfigurationUtil inPlaceConfUtil = new InPlaceConfigurationUtil();
-                if (inPlaceConfUtil.isInPlaceConfiguration(path)) {
-                    path = inPlaceConfUtil.readInPlaceLocation(path);
-                    writeToZip(path, out, "", buf);
-                }
-                out.closeEntry();
-                out.finish();
-                out.flush();
-                return new FileInputStream(file);
-            } else {
-                return new FileInputStream(path);
-            }
-        }
-        URLConnection con = url.openConnection();
-        if (con instanceof HttpURLConnection) {
-            HttpURLConnection http = (HttpURLConnection) url.openConnection();
-            if (method != null) {
-                http.setRequestMethod(method);
-            }
-            http.connect();
-            if (http.getResponseCode() == 401) { // need to authenticate
-                if (username == null || username.equals("")) {
-                    log.error("Server returned 401 " + http.getResponseMessage());
-                    throw new FailedLoginException("Server returned 401 " + http.getResponseMessage());
-                }
-                http = (HttpURLConnection) url.openConnection();
-                http.setRequestProperty("Authorization",
-                        "Basic " + new String(Base64.encode((username + ":" + password).getBytes())));
-                if (method != null) {
-                    http.setRequestMethod(method);
-                }
-                http.connect();
-                if (http.getResponseCode() == 401) {
-                    log.error("Server returned 401 " + http.getResponseMessage());
-                    throw new FailedLoginException("Server returned 401 " + http.getResponseMessage());
-                } else if (http.getResponseCode() == 404) {
-                    return null; // Not found at this repository
-                }
-                if (monitor != null && http.getContentLength() > 0) {
-                    monitor.setTotalBytes(http.getContentLength());
-                }
-                return http.getInputStream();
-            } else if (http.getResponseCode() == 404) {
-                return null; // Not found at this repository
-            } else {
-                if (monitor != null && http.getContentLength() > 0) {
-                    monitor.setTotalBytes(http.getContentLength());
-                }
-                return http.getInputStream();
-            }
-        } else {
-            if (username != null && !username.equals("")) {
-                con.setRequestProperty("Authorization",
-                        "Basic " + new String(Base64.encode((username + ":" + password).getBytes())));
-                try {
-                    con.connect();
-                    if (monitor != null && con.getContentLength() > 0) {
-                        monitor.setTotalBytes(con.getContentLength());
-                    }
-                    return con.getInputStream();
-                } catch (FileNotFoundException e) {
-                    return null;
-                }
-            } else {
-                try {
-                    con.connect();
-                    if (monitor != null && con.getContentLength() > 0) {
-                        monitor.setTotalBytes(con.getContentLength());
-                    }
-                    return con.getInputStream();
-                } catch (FileNotFoundException e) {
-                    return null;
-                }
-            }
-        }
-    }
-
-    //Copied from RepositoryConfigurationStore
-    private static void writeToZip(File dir, ZipOutputStream out, String prefix, byte[] buf) throws IOException {
-        File[] all = dir.listFiles();
-        for (int i = 0; i < all.length; i++) {
-            File file = all[i];
-            if (file.isDirectory()) {
-                writeToZip(file, out, prefix + file.getName() + "/", buf);
-            } else {
-                ZipEntry entry = new ZipEntry(prefix + file.getName());
-                out.putNextEntry(entry);
-                writeToZipStream(file, out, buf);
-            }
-        }
-    }
-
-    //Copied from RepositoryConfigurationStore
-    private static void writeToZipStream(File file, OutputStream out, byte[] buf) throws IOException {
-        FileInputStream in = new FileInputStream(file);
-        int count;
-        try {
-            while ((count = in.read(buf, 0, buf.length)) > -1) {
-                out.write(buf, 0, count);
-            }
-        } finally {
-            in.close();
-        }
-    }
-    /**
      * Searches for an artifact in the listed repositories, where the artifact
      * may have wildcards in the ID.
      */
-    private static Artifact findArtifact(Artifact query, List<String> repos, String username, String password, ResultsFileWriteMonitor monitor, Stack<Artifact> parentStack) throws MissingDependencyException {
-        if (query.getGroupId() == null || query.getArtifactId() == null) {
-            log.error("No support yet for dependencies missing more than a version: " + query);
-            throw new MissingDependencyException(
-                    "No support yet for dependencies missing more than a version: ", query, parentStack);
-        }
-        if (query.getType() == null) {
-            query = new Artifact(query.getGroupId(), query.getArtifactId(), query.getVersion(), "jar");
-        }
-        for (String repo : repos) {
-            try {
-                URL repoUrl = PluginRepositoryDownloader.resolveRepository(repo);
-                if (repoUrl != null) {
-                    Artifact result = findArtifact(query, repoUrl, username, password, monitor);
-                    if (result != null) {
-                        return result;
-                    }
-                } else {
-                    log.warn("could not resolve repo: " + repo);
-                }
-            } catch (Exception e) {
-                log.warn("Unable to read from " + repo, e);
-            }
-        }
-        log.error("No repository has a valid artifact for " + query);
-        throw new MissingDependencyException("Missing artifact in repositories: " + repos, query, parentStack);
-    }
-
-    /**
-     * Checks for an artifact in a specific repository, where the artifact version
-     * might not be resolved yet.
-     *
-     * @return null if the artifact is not found in the specified repository. otherwise
-     *         returns the artifact fully resolved
-     */
-    private static Artifact findArtifact(Artifact query, URL repo, String username, String password, ResultsFileWriteMonitor monitor) throws IOException, FailedLoginException, ParserConfigurationException, SAXException {
-        Artifact verifiedArtifact = null;
-
-        // trim the repo URL and append a trailing slash if necessary
-        String tmp = repo.toString().trim();
-        if (!tmp.endsWith("/")) {
-            tmp += "/";
-        }
-        repo = new URL(tmp);
-        monitor.getResults().setCurrentMessage("Searching for " + query + " at " + repo);
-        log.info("searching for artifact " + query + " at " + repo);
-
-        // If the artifact version is resolved then look for the artifact in the repo
-        if (query.isResolved()) {
-            Version version = query.getVersion();
-            if (testArtifact(query, repo, username, password, monitor)) {
-                log.info("found artifact " + query + " at " + repo);
-                verifiedArtifact = query;
-            }
-            // Snapshot artifacts can have a special filename in an online maven repo.
-            // The version number is replaced with a timestmap and build number.
-            // The maven-metadata file contains this extra information.
-            else if (version.toString().indexOf("SNAPSHOT") >= 0 && !(version instanceof SnapshotVersion)) {
-                // base path for the artifact version in a maven repo
-                URL basePath = new URL(repo, query.getGroupId().replace('.', '/') + "/" + query.getArtifactId() + "/" + version);
-
-                // get the maven-metadata file
-                Document metadata = getMavenMetadata(basePath, username, password, monitor);
-
-                // determine the snapshot qualifier from the maven-metadata file
-                if (metadata != null) {
-                    NodeList snapshots = metadata.getDocumentElement().getElementsByTagName("snapshot");
-                    if (snapshots.getLength() >= 1) {
-                        Element snapshot = (Element) snapshots.item(0);
-                        String[] timestamp = getChildrenText(snapshot, "timestamp");
-                        String[] buildNumber = getChildrenText(snapshot, "buildNumber");
-                        if (timestamp.length >= 1 && buildNumber.length >= 1) {
-                            try {
-                                // recurse back into this method using a SnapshotVersion
-                                SnapshotVersion snapshotVersion = new SnapshotVersion(version);
-                                snapshotVersion.setBuildNumber(Integer.parseInt(buildNumber[0]));
-                                snapshotVersion.setTimestamp(timestamp[0]);
-                                Artifact newQuery = new Artifact(query.getGroupId(), query.getArtifactId(), snapshotVersion, query.getType());
-                                verifiedArtifact = findArtifact(newQuery, repo, username, password, monitor);
-                            } catch (NumberFormatException nfe) {
-                                log.error("Could not create snapshot version for " + query, nfe);
-                            }
-                        } else {
-                            log.error("Could not create snapshot version for " + query);
-                        }
-                    }
-                }
-            }
-        }
-
-        // Version is not resolved.  Look in maven-metadata.xml and maven-metadata-local.xml for
-        // the available version numbers.  If found then recurse into the enclosing method with
-        // a resolved version number
-        else {
-
-            // base path for the artifact version in a maven repo
-            URL basePath = new URL(repo, query.getGroupId().replace('.', '/') + "/" + query.getArtifactId());
-
-            // get the maven-metadata file
-            Document metadata = getMavenMetadata(basePath, username, password, monitor);
-
-            // determine the available versions from the maven-metadata file
-            if (metadata != null) {
-                Element root = metadata.getDocumentElement();
-                NodeList list = root.getElementsByTagName("versions");
-                list = ((Element) list.item(0)).getElementsByTagName("version");
-                Version[] available = new Version[list.getLength()];
-                for (int i = 0; i < available.length; i++) {
-                    available[i] = new Version(getText(list.item(i)));
-                }
-                // desc sort
-                Arrays.sort(available, new Comparator<Version>() {
-                    public int compare(Version o1, Version o2) {
-                        return o2.toString().compareTo(o1.toString());
-                    }
-
-                    ;
-                });
-
-                for (Version version : available) {
-                    if (verifiedArtifact == null) {
-                        Artifact newQuery = new Artifact(query.getGroupId(), query.getArtifactId(), version, query.getType());
-                        verifiedArtifact = findArtifact(newQuery, repo, username, password, monitor);
-                    }
-                }
-            }
-        }
-
-        return verifiedArtifact;
-    }
-
-    private static Document getMavenMetadata(URL base, String username, String password, ResultsFileWriteMonitor monitor) throws IOException, FailedLoginException, ParserConfigurationException, SAXException {
-        Document doc = null;
-        InputStream in = null;
-
-        try {
-            URL metaURL = new URL(base.toString() + "/maven-metadata.xml");
-            in = connect(metaURL, username, password, monitor);
-            if (in == null) { // check for local maven metadata
-                metaURL = new URL(base.toString() + "/maven-metadata-local.xml");
-                in = connect(metaURL, username, password, monitor);
-            }
-            if (in != null) {
-                DocumentBuilder builder = XmlUtil.newDocumentBuilderFactory().newDocumentBuilder();
-                doc = builder.parse(in);
-            }
-        } finally {
-            if (in == null) {
-                log.info("No maven metadata available at " + base);
-            } else {
-                in.close();
-            }
-        }
-        return doc;
-    }
-
-    private static boolean testArtifact(Artifact artifact, URL repo, String username, String password, ResultsFileWriteMonitor monitor) throws IOException, FailedLoginException {
-        URL test = getURL(artifact, repo);
-        InputStream testStream = connect(test, username, password, monitor, "HEAD");
-        if (testStream != null) {
-            testStream.close();
-        }
-        return testStream != null;
-
-    }
 
     /**
      * Puts the name and ID of a plugin into the argument map of plugins,
@@ -1768,7 +1261,7 @@ public class PluginInstallerGBean implements PluginInstaller {
      * @param xml     The geronimo-plugin.xml for this plugin
      * @param plugins The result map to populate
      */
-    private void readNameAndID(File xml, Map plugins) {
+    private void readNameAndID(File xml, Map<String, Artifact> plugins) {
         try {
             SAXParserFactory factory = XmlUtil.newSAXParserFactory();
             SAXParser parser = factory.newSAXParser();
@@ -1804,21 +1297,7 @@ public class PluginInstallerGBean implements PluginInstaller {
     }
 
     /**
-     * Replaces all the dependency elements in the argument configuration data
-     * with the dependencies from the actual data for that module.
-     */
-/*
-    private void overrideDependencies(ConfigurationData data, PluginType metadata) {
-        //todo: this ends up doing a little more work than necessary
-        PluginType temp = createDefaultMetadata(data);
-        PluginArtifactType instance = temp.getPluginArtifact().get(0);
-        List<DependencyType> dependencyTypes = metadata.getPluginArtifact().get(0).getDependency();
-        dependencyTypes.clear();
-        dependencyTypes.addAll(instance.getDependency());
-    }
-*/
-
-    /**
+     * TODO figure out where this  can be called -- perhaps when installing a plugin?
      * Generates a default plugin metadata based on the data for this module
      * in the server.
      */
@@ -1863,6 +1342,7 @@ public class PluginInstallerGBean implements PluginInstaller {
      * Check whether the specified JVM versions match the current runtime
      * environment.
      *
+     * @param jvmVersions allowed jvm versions
      * @return true if the specified versions match the current
      *         execution environment as defined by plugins-1.2.xsd
      */
@@ -1887,8 +1367,10 @@ public class PluginInstallerGBean implements PluginInstaller {
      * Check whether the specified Geronimo versions match the current runtime
      * environment.
      *
+     * @param gerVersions geronimo versions allowed by the plugin
      * @return true if the specified versions match the current
      *         execution environment as defined by plugins-1.2.xsd
+     * @throws IllegalStateException if match does not work.
      */
     private boolean checkGeronimoVersions(List<String> gerVersions) throws IllegalStateException {
         if ((gerVersions == null) || (gerVersions.size() == 0)) {
@@ -1909,8 +1391,10 @@ public class PluginInstallerGBean implements PluginInstaller {
      * Check whether the specified Geronimo version matches the current runtime
      * environment.
      *
+     * @param gerVersion geronimo version to check against this server
      * @return true if the specified version matches the current
      *         execution environment as defined by plugins-1.2.xsd
+     * @throws IllegalStateException if input is malformed
      */
     private boolean checkGeronimoVersion(String gerVersion) throws IllegalStateException {
         String version = serverInfo.getVersion();
@@ -1918,60 +1402,9 @@ public class PluginInstallerGBean implements PluginInstaller {
         if ((gerVersion == null) || gerVersion.equals("")) {
             log.error("geronimo-version cannot be empty.");
             throw new IllegalStateException("geronimo-version cannot be empty.");
-        } else if (gerVersion.equals(version)) {
-            return true;
         } else {
-            return false;
+            return gerVersion.equals(version);
         }
-    }
-
-    /**
-     * Gets all the text contents of the specified DOM node.
-     */
-    private static String getText(Node target) {
-        NodeList nodes = target.getChildNodes();
-        StringBuffer buf = null;
-        for (int j = 0; j < nodes.getLength(); j++) {
-            Node node = nodes.item(j);
-            if (node.getNodeType() == Node.TEXT_NODE) {
-                if (buf == null) {
-                    buf = new StringBuffer();
-                }
-                buf.append(node.getNodeValue());
-            }
-        }
-        return buf == null ? null : buf.toString();
-    }
-
-    /**
-     * Gets the text out of all the child nodes of a certain type.  The result
-     * array has one element for each child of the specified DOM element that
-     * has the specified name.
-     *
-     * @param root     The parent DOM element
-     * @param property The name of the child elements that hold the text
-     */
-    private static String[] getChildrenText(Element root, String property) {
-        NodeList children = root.getChildNodes();
-        List results = new ArrayList();
-        for (int i = 0; i < children.getLength(); i++) {
-            Node check = children.item(i);
-            if (check.getNodeType() == Node.ELEMENT_NODE && check.getNodeName().equals(property)) {
-                NodeList nodes = check.getChildNodes();
-                StringBuffer buf = null;
-                for (int j = 0; j < nodes.getLength(); j++) {
-                    Node node = nodes.item(j);
-                    if (node.getNodeType() == Node.TEXT_NODE) {
-                        if (buf == null) {
-                            buf = new StringBuffer();
-                        }
-                        buf.append(node.getNodeValue());
-                    }
-                }
-                results.add(buf == null ? null : buf.toString());
-            }
-        }
-        return (String[]) results.toArray(new String[results.size()]);
     }
 
     /**
@@ -2045,6 +1478,8 @@ public class PluginInstallerGBean implements PluginInstaller {
     }
 
     private static class PluginKey extends PluginType {
+        private static final long serialVersionUID = -3864898789387102435L;
+
         public boolean equals(Object o) {
             if (this == o) return true;
             if (o == null || getClass() != o.getClass()) return false;
@@ -2080,45 +1515,7 @@ public class PluginInstallerGBean implements PluginInstaller {
     }
 
     public PluginListType createPluginListForRepositories(String repo) throws NoSuchStoreException {
-        Map<PluginType, PluginType> pluginMap = new HashMap<PluginType, PluginType>();
-        Collection<? extends Repository> repos = configManager.getRepositories();
-        for (Repository listableRepository : repos) {
-            if (listableRepository instanceof WritableListableRepository) {
-                SortedSet<Artifact> artifacts = ((WritableListableRepository) listableRepository).list();
-                for (Artifact artifact : artifacts) {
-                    File location = listableRepository.getLocation(artifact);
-                    PluginType data = extractPluginMetadata(null, location);
-                    if (data != null) {
-                        PluginType key = toKey(data);
-                        PluginType existing = pluginMap.get(key);
-                        if (existing == null) {
-                            pluginMap.put(key, data);
-                        } else {
-                            existing.getPluginArtifact().addAll(data.getPluginArtifact());
-                        }
-                    }
-                }
-            }
-        }
-/*
-        List<AbstractName> stores = configManager.listStores();
-        for (AbstractName name : stores) {
-            List<ConfigurationInfo> configs = configManager.listConfigurations(name);
-            for (ConfigurationInfo info : configs) {
-                PluginType data = getPluginMetadata(info.getConfigID());
-
-                PluginType key = PluginInstallerGBean.toKey(data);
-                PluginType existing = pluginMap.get(key);
-                if (existing == null) {
-                    pluginMap.put(key, data);
-                } else {
-                    existing.getPluginArtifact().addAll(data.getPluginArtifact());
-                }
-            }
-        }
-*/
-        PluginListType pluginList = new PluginListType();
-        pluginList.getPlugin().addAll(pluginMap.values());
+        PluginListType pluginList = localSourceRepository.getPluginList();
         if (repo != null) {
             pluginList.getDefaultRepository().add(repo);
         }
@@ -2129,18 +1526,28 @@ public class PluginInstallerGBean implements PluginInstaller {
     /**
      * If a plugin includes config.xml content, copy it into the attribute
      * store.
+     * @param configID artifact we are installing
+     * @param pluginData metadata for plugin
+     * @param servers server metadata that might be modified
+     * @param loadOverride overrides the load setting from plugin metadata in a config.xml module.
+     * @throws java.io.IOException if IO problem occurs
+     * @throws org.apache.geronimo.kernel.InvalidGBeanException if an invalid gbean configuration is encountered
+     * @throws NoServerInstanceException if the plugin expects a server metadata that is not present
      */
-    private void installConfigXMLData(Artifact configID, PluginArtifactType pluginData, Map<String, ServerInstance> servers) throws InvalidGBeanException, IOException, NoServerInstanceException {
+    private void installConfigXMLData(Artifact configID, PluginArtifactType pluginData, Map<String, ServerInstance> servers, boolean loadOverride) throws InvalidGBeanException, IOException, NoServerInstanceException {
         if (configManager.isConfiguration(configID)) {
             if (pluginData != null && !pluginData.getConfigXmlContent().isEmpty()) {
                 for (ConfigXmlContentType configXmlContent : pluginData.getConfigXmlContent()) {
                     String serverName = configXmlContent.getServer();
                     ServerInstance serverInstance = getServerInstance(serverName, servers);
-                    serverInstance.getAttributeStore().setModuleGBeans(configID, configXmlContent.getGbean(), configXmlContent.isLoad(), configXmlContent.getCondition());
+                    serverInstance.getAttributeStore().setModuleGBeans(configID, configXmlContent.getGbean(), loadOverride && configXmlContent.isLoad(), configXmlContent.getCondition());
                 }
             } else {
-                getServerInstance("default", servers).getAttributeStore().setModuleGBeans(configID, null, true, null);
+                getServerInstance("default", servers).getAttributeStore().setModuleGBeans(configID, null, loadOverride, null);
             }
+        }
+        if (pluginData == null) {
+            return;
         }
         if (!pluginData.getConfigSubstitution().isEmpty()) {
             Map<String, Properties> propertiesMap = toPropertiesMap(pluginData.getConfigSubstitution());
@@ -2185,14 +1592,16 @@ public class PluginInstallerGBean implements PluginInstaller {
     /**
      * Gets a token unique to this run of the server, used to track asynchronous
      * downloads.
+     * @return unique (for this server) key
      */
     private static Object getNextKey() {
         int value;
         synchronized (PluginInstallerGBean.class) {
             value = ++counter;
         }
-        return new Integer(value);
+        return value;
     }
+
 
     /**
      * Helper clas to extract a name and module ID from a plugin metadata file.
@@ -2288,33 +1697,6 @@ public class PluginInstallerGBean implements PluginInstaller {
         }
     }
 
-    /**
-     * Interesting data resulting from opening a connection to a remote file.
-     */
-    private static class OpenResult {
-        private final InputStream stream;
-        private final Artifact configID;
-        private final int fileSize;
-
-        public OpenResult(Artifact configID, InputStream stream, int fileSize) {
-            this.configID = configID;
-            this.stream = stream;
-            this.fileSize = fileSize;
-        }
-
-        public Artifact getConfigID() {
-            return configID;
-        }
-
-        public InputStream getStream() {
-            return stream;
-        }
-
-        public int getFileSize() {
-            return fileSize;
-        }
-    }
-
     public static final GBeanInfo GBEAN_INFO;
 
     static {
@@ -2327,9 +1709,10 @@ public class PluginInstallerGBean implements PluginInstaller {
         infoFactory.addReference("ThreadPool", ThreadPool.class, "GBean");
         infoFactory.addReference("ServerInstances", ServerInstanceData.class, "ServerInstanceData");
         infoFactory.addReference("ArtifactManager", ArtifactManager.class, "GBean");
-        infoFactory.addAttribute("classloader", ClassLoader.class, false);
+        infoFactory.addReference("PersistentConfigurationLists", PersistentConfigurationList.class, "AttributeStore");
+        infoFactory.addAttribute("classLoader", ClassLoader.class, false);
         infoFactory.setConstructor(new String[]{"ConfigManager", "Repository", "ConfigStore",
-                "ServerInstances", "ServerInfo", "ThreadPool", "ArtifactManager", "classloader"});
+                "ServerInstances", "ServerInfo", "ThreadPool", "ArtifactManager", "PersistentConfigurationLists", "classLoader"});
 
         GBEAN_INFO = infoFactory.getBeanInfo();
     }

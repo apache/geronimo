@@ -51,7 +51,7 @@ public abstract class AbstractRepository implements WriteableRepository {
     protected static final Log log = LogFactory.getLog(AbstractRepository.class);
     private final static ArtifactTypeHandler DEFAULT_TYPE_HANDLER = new CopyArtifactTypeHandler();
     protected final File rootFile;
-    private final Map typeHandlers = new HashMap();
+    private final Map<String, ArtifactTypeHandler> typeHandlers = new HashMap<String, ArtifactTypeHandler>();
 
     public AbstractRepository(File rootFile) {
         if (rootFile == null) throw new NullPointerException("root is null");
@@ -73,11 +73,11 @@ public abstract class AbstractRepository implements WriteableRepository {
     }
 
     private static final String NAMESPACE = "http://geronimo.apache.org/xml/ns/deployment-1.2";
-    public LinkedHashSet getDependencies(Artifact artifact) {
+    public LinkedHashSet<Artifact> getDependencies(Artifact artifact) {
         if(!artifact.isResolved()) {
             throw new IllegalArgumentException("Artifact "+artifact+" is not fully resolved");
         }
-        LinkedHashSet dependencies = new LinkedHashSet();
+        LinkedHashSet<Artifact> dependencies = new LinkedHashSet<Artifact>();
         URL url;
         try {
             File location = getLocation(artifact);
@@ -203,7 +203,7 @@ public abstract class AbstractRepository implements WriteableRepository {
             throw new IllegalArgumentException("Destination " + location.getAbsolutePath() + " already exists!");
         }
 
-        ArtifactTypeHandler typeHandler = (ArtifactTypeHandler) typeHandlers.get(destination.getType());
+        ArtifactTypeHandler typeHandler = typeHandlers.get(destination.getType());
         if (typeHandler == null) typeHandler = DEFAULT_TYPE_HANDLER;
         typeHandler.install(source, size, destination, monitor, location);
         

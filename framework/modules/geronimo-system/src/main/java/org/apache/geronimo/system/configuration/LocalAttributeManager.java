@@ -416,7 +416,7 @@ public class LocalAttributeManager implements LocalPluginAttributeStore, Persist
         this.kernelFullyStarted = kernelFullyStarted;
     }
 
-    public synchronized List restore() throws IOException {
+    public synchronized List<Artifact> restore() throws IOException {
         List<Artifact> configs = new ArrayList<Artifact>();
         for (Map.Entry<Artifact, ConfigurationOverride> entry : serverOverride.getConfigurations().entrySet()) {
             ConfigurationOverride configuration = entry.getValue();

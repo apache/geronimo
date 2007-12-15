@@ -18,24 +18,23 @@
  */
 
 
-package org.apache.geronimo.kernel.mock;
+package org.apache.geronimo.system.plugin;
 
-import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 
-import org.apache.geronimo.kernel.repository.WritableListableRepository;
+import javax.security.auth.login.FailedLoginException;
+
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.FileWriteMonitor;
+import org.apache.geronimo.system.plugin.model.PluginListType;
 
 /**
- * @version $Rev$ $Date$
+ * @version $Rev:$ $Date:$
  */
-public class MockWritableListableRepository extends MockRepository implements WritableListableRepository {
-    public void copyToRepository(File source, Artifact destination, FileWriteMonitor monitor) throws IOException {
-    }
+public interface SourceRepository {
 
-    public void copyToRepository(InputStream source, int size, Artifact destination, FileWriteMonitor monitor) throws IOException {
-    }
+    PluginListType getPluginList();
+
+    OpenResult open(Artifact artifact, FileWriteMonitor monitor) throws IOException, FailedLoginException;
 
 }

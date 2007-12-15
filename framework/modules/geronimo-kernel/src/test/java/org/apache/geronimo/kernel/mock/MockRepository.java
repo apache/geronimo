@@ -60,8 +60,8 @@ public class MockRepository implements ListableRepository {
         return new File(".");
     }
 
-    public LinkedHashSet getDependencies(Artifact artifact) {
-        return new LinkedHashSet();
+    public LinkedHashSet<Artifact> getDependencies(Artifact artifact) {
+        return new LinkedHashSet<Artifact>();
     }
 
     public SortedSet<Artifact> list() {

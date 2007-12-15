@@ -21,10 +21,10 @@ import java.io.File;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.LinkedHashMap;
 import java.util.Set;
 
 import org.apache.geronimo.gbean.GBeanData;
@@ -67,18 +67,18 @@ public class ConfigurationData implements Serializable {
     /**
      * Child configurations of this configuration
      */
-    private final Map childConfigurations = new LinkedHashMap();
+    private final Map<Artifact, ConfigurationData> childConfigurations = new LinkedHashMap<Artifact, ConfigurationData>();
 
     /**
      * Configurations owned by this configuration.  This is only used for cascade-uninstall.
      */
-    private final Set ownedConfigurations = new LinkedHashSet();
+    private final Set<Artifact> ownedConfigurations = new LinkedHashSet<Artifact>();
 
     /**
      * The base file of the configuation
      */
     private transient File configurationDir;
-    
+
     /**
      * The base file of an in-place configuration
      */
@@ -123,7 +123,7 @@ public class ConfigurationData implements Serializable {
         this(null, null, null, null, environment, null, null, naming);
     }
 
-    public ConfigurationData(ConfigurationModuleType moduleType, LinkedHashSet classPath, List gbeans, Map childConfigurations, Environment environment, File configurationDir, File inPlaceConfigurationDir, Naming naming) {
+    public ConfigurationData(ConfigurationModuleType moduleType, LinkedHashSet classPath, List gbeans, Map<Artifact, ConfigurationData> childConfigurations, Environment environment, File configurationDir, File inPlaceConfigurationDir, Naming naming) {
         if (naming == null) throw new NullPointerException("naming is null");
         this.naming = naming;
         if (moduleType != null) {
@@ -152,6 +152,7 @@ public class ConfigurationData implements Serializable {
 
     /**
      * Gets the time at which this configuration was created (or deployed).
+     *
      * @return the time at which this configuration was created (or deployed)
      */
     public long getCreated() {
@@ -191,7 +192,7 @@ public class ConfigurationData implements Serializable {
      * configurations (as in, a WAR within an EAR, not dependencies between
      * totally separate configurations).
      */
-    public Map getChildConfigurations() {
+    public Map<Artifact, ConfigurationData> getChildConfigurations() {
         return Collections.unmodifiableMap(childConfigurations);
     }
 
@@ -203,10 +204,10 @@ public class ConfigurationData implements Serializable {
     /**
      * Gets the configurations owned by this configuration.  This is only used
      * for cascade-uninstall.
-     * 
+     *
      * @return the configurations owned by this configuration
      */
-    public Set getOwnedConfigurations() {
+    public Set<Artifact> getOwnedConfigurations() {
         return Collections.unmodifiableSet(ownedConfigurations);
     }
 
@@ -220,9 +221,9 @@ public class ConfigurationData implements Serializable {
         return environment;
     }
 
-	public File getInPlaceConfigurationDir() {
-		return inPlaceConfigurationDir;
-	}
+    public File getInPlaceConfigurationDir() {
+        return inPlaceConfigurationDir;
+    }
 
     public File getConfigurationDir() {
         return configurationDir;

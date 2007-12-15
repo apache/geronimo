@@ -450,18 +450,13 @@
 
         <xs:complexContent>
             <xs:extension base="list:artifactType">
-                <xs:attribute name="start" use="optional" type="xs:boolean" default="false">
+                <xs:attribute name="start" use="optional" type="xs:boolean" default="true">
                     <xs:annotation>
                         <xs:documentation>
-                            Normally when a plugin dependency is installed it will not
-                            be started. The user may be prompted to start the plugin
-                            with whatever tool kicked off the install to begin with.
-
-                            This attribute may be set to "true" to force the plugin to
-                            be started after it is installed. NOTE: this currently only
-                            affects the dependencies of the plugins actually passed to
-                            the PluginInstaller (not nested dependencies). This
-                            means it's primarily useful for plugin lists.
+                            Influences whether a dependency is marked to start.  A plugin is marked to start
+                            in a particular server "instance" primarily based on the load and condition settings in
+                            the config-xml sections.  However the start attribute overrides this for plugins installed
+                            as dependencies.
                         </xs:documentation>
                     </xs:annotation>
                 </xs:attribute>

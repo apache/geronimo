@@ -17,6 +17,7 @@
 package org.apache.geronimo.system.plugin;
 
 import java.net.URL;
+import java.util.List;
 
 /**
  * Interface for a service that lists available plugin repositories.
@@ -24,7 +25,7 @@ import java.net.URL;
  * @version $Rev$ $Date$
  */
 public interface PluginRepositoryList {
-    public URL[] getRepositories();
+    public List<URL> getRepositories();
     public void refresh();
     public void addUserRepository(URL repo);
 }

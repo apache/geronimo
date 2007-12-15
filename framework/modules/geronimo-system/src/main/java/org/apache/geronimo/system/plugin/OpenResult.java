@@ -18,24 +18,24 @@
  */
 
 
-package org.apache.geronimo.kernel.mock;
+package org.apache.geronimo.system.plugin;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 
-import org.apache.geronimo.kernel.repository.WritableListableRepository;
 import org.apache.geronimo.kernel.repository.Artifact;
+import org.apache.geronimo.kernel.repository.WriteableRepository;
 import org.apache.geronimo.kernel.repository.FileWriteMonitor;
 
 /**
- * @version $Rev$ $Date$
+ * @version $Rev:$ $Date:$
  */
-public class MockWritableListableRepository extends MockRepository implements WritableListableRepository {
-    public void copyToRepository(File source, Artifact destination, FileWriteMonitor monitor) throws IOException {
-    }
+public interface OpenResult {
+    Artifact getArtifact();
 
-    public void copyToRepository(InputStream source, int size, Artifact destination, FileWriteMonitor monitor) throws IOException {
-    }
+    File getFile() throws IOException;
 
+    void install(WriteableRepository repo, FileWriteMonitor monitor) throws IOException;
+
+    void close();
 }

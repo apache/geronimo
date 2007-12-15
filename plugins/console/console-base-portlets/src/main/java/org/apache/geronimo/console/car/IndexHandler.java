@@ -17,19 +17,20 @@
 package org.apache.geronimo.console.car;
 
 import java.io.IOException;
-import java.util.List;
+import java.net.URL;
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.List;
+
 import javax.portlet.ActionRequest;
 import javax.portlet.ActionResponse;
 import javax.portlet.PortletException;
 import javax.portlet.RenderRequest;
 import javax.portlet.RenderResponse;
+
 import org.apache.geronimo.console.MultiPageModel;
 import org.apache.geronimo.console.util.ConfigurationData;
 import org.apache.geronimo.console.util.PortletManager;
 import org.apache.geronimo.system.plugin.PluginRepositoryList;
-import org.apache.geronimo.system.plugin.model.PluginListType;
 
 /**
  * Handler for the import export main screen.
@@ -53,10 +54,10 @@ public class IndexHandler extends BaseImportExportHandler {
         // clear out the catalog if it was previously loaded 
         request.getPortletSession(true).removeAttribute(CONFIG_LIST_SESSION_KEY);
         
-        List list = new ArrayList();
+        List<URL> list = new ArrayList<URL>();
         for (int i = 0; i < lists.length; i++) {
             PluginRepositoryList repo = lists[i];
-            list.addAll(Arrays.asList(repo.getRepositories()));
+            list.addAll(repo.getRepositories());
         }
         ConfigurationData[] configs = PortletManager.getConfigurations(request, null, false);
         request.setAttribute("configurations", configs);

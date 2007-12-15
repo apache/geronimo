@@ -58,5 +58,5 @@ public interface Repository {
      *         dependencies declared in META-INF/geronimo-dependency.xml for the
      *         specified artifact.
      */
-    LinkedHashSet getDependencies(Artifact artifact);
+    LinkedHashSet<Artifact> getDependencies(Artifact artifact);
 }

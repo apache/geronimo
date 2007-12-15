@@ -39,8 +39,8 @@ public class SwitchableLocalAttributeManager extends LocalAttributeManager imple
     }
 
     @Override
-    public synchronized List restore() throws IOException {
-        return Collections.EMPTY_LIST;
+    public synchronized List<Artifact> restore() throws IOException {
+        return Collections.emptyList();
     }
 
     public synchronized void setOnline(boolean online) {

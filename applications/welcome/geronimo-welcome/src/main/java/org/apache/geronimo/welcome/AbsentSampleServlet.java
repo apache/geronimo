@@ -18,6 +18,7 @@ package org.apache.geronimo.welcome;
 
 import java.io.IOException;
 import java.net.URL;
+import java.util.List;
 import java.util.Set;
 
 import javax.servlet.RequestDispatcher;
@@ -129,14 +130,14 @@ public class AbsentSampleServlet extends HttpServlet {
         PluginRepositoryList repos = ((PluginRepositoryList) kernel.getProxyManager().createProxy((AbstractName) installers.iterator().next(),
                 PluginRepositoryList.class));
 
-        URL[] urls = repos.getRepositories();
-        if(urls.length == 0) {
+        List<URL> urls = repos.getRepositories();
+        if(urls.isEmpty()) {
             repos.refresh();
             urls = repos.getRepositories();
-            if(urls.length == 0) {
+            if(urls.isEmpty()) {
                 throw new ServletException("Unable to install sample applicatoin; unable to download repository list");
             }
         }
-        return urls[0];
+        return urls.get(0);
     }
 }

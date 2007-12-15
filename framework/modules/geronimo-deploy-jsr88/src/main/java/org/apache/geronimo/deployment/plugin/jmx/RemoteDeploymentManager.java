@@ -56,6 +56,7 @@ import org.apache.geronimo.kernel.config.NoSuchStoreException;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.Dependency;
 import org.apache.geronimo.kernel.repository.MissingDependencyException;
+import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.system.jmx.KernelDelegate;
 import org.apache.geronimo.system.plugin.DownloadPoller;
 import org.apache.geronimo.system.plugin.DownloadResults;
@@ -309,7 +310,7 @@ public class RemoteDeploymentManager extends JMXDeploymentManager implements Ger
         for (AbstractName name : set) {
             PluginRepositoryList repo = (PluginRepositoryList) kernel.getProxyManager().createProxy(name,
                     PluginRepositoryList.class);
-            list.addAll(Arrays.asList(repo.getRepositories()));
+            list.addAll(repo.getRepositories());
             kernel.getProxyManager().destroyProxy(repo);
         }
         return list.toArray(new URL[list.size()]);

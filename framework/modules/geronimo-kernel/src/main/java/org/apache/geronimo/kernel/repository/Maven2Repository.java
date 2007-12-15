@@ -187,11 +187,4 @@ public class Maven2Repository extends AbstractRepository implements WritableList
         return artifacts;
     }
 
-    /**
-     * @deprecated
-     * @return
-     */
-    public String getRootPath() {
-        return rootFile.getPath();
-    }
 }

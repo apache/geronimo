@@ -28,7 +28,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.SortedSet;
 import java.util.Set;
-import java.util.Collections;
 import java.util.jar.JarFile;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
@@ -48,7 +47,6 @@ import org.apache.geronimo.kernel.config.InvalidConfigException;
 import org.apache.geronimo.kernel.config.NoSuchConfigException;
 import org.apache.geronimo.kernel.config.IOUtil;
 import org.apache.geronimo.kernel.repository.Artifact;
-import org.apache.geronimo.kernel.repository.FileWriteMonitor;
 import org.apache.geronimo.kernel.repository.WritableListableRepository;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -63,16 +61,18 @@ public class RepositoryConfigurationStore implements ConfigurationStore {
     private final static Log log = LogFactory.getLog(RepositoryConfigurationStore.class);
     private final Kernel kernel;
     private final ObjectName objectName;
+    private final AbstractName abstractName;
     protected final WritableListableRepository repository;
     private final InPlaceConfigurationUtil inPlaceConfUtil;
 
     public RepositoryConfigurationStore(WritableListableRepository repository) {
-        this(null, null, repository);
+        this(null, null, null, repository);
     }
 
-    public RepositoryConfigurationStore(Kernel kernel, String objectName, WritableListableRepository repository) {
+    public RepositoryConfigurationStore(Kernel kernel, String objectName, AbstractName abstractName, WritableListableRepository repository) {
         this.kernel = kernel;
         this.objectName = objectName == null ? null : ObjectNameUtil.getObjectName(objectName);
+        this.abstractName = abstractName;
         this.repository = repository;
 
         inPlaceConfUtil = new InPlaceConfigurationUtil();
@@ -83,7 +83,7 @@ public class RepositoryConfigurationStore implements ConfigurationStore {
     }
 
     public AbstractName getAbstractName() {
-        return kernel == null? null:kernel.getAbstractNameFor(this);
+        return abstractName;
     }
 
     public ConfigurationData loadConfiguration(Artifact configId) throws NoSuchConfigException, IOException, InvalidConfigException {
@@ -215,6 +215,7 @@ public class RepositoryConfigurationStore implements ConfigurationStore {
             try {
                 inPlaceLocation = inPlaceConfUtil.readInPlaceLocation(location);
             } catch (IOException e) {
+                //ignore
             }
             if (null != inPlaceLocation) {
                 location = inPlaceLocation;
@@ -268,8 +269,7 @@ public class RepositoryConfigurationStore implements ConfigurationStore {
 
     private void writeToZip(File dir, ZipOutputStream out, String prefix, byte[] buf) throws IOException {
         File[] all = dir.listFiles();
-        for (int i = 0; i < all.length; i++) {
-            File file = all[i];
+        for (File file : all) {
             if (file.isDirectory()) {
                 writeToZip(file, out, prefix + file.getName() + "/", buf);
             } else {
@@ -289,16 +289,6 @@ public class RepositoryConfigurationStore implements ConfigurationStore {
             }
         } finally {
             in.close();
-        }
-    }
-
-    public void install(InputStream in, int size, Artifact configId, FileWriteMonitor fileWriteMonitor) throws IOException {
-        try {
-            repository.copyToRepository(in, size, configId, fileWriteMonitor);
-        } catch (IOException e) {
-            throw e;
-        } finally {
-            IOUtil.close(in);
         }
     }
 
@@ -399,37 +389,35 @@ public class RepositoryConfigurationStore implements ConfigurationStore {
                         ioException = e;
                     }
                 }
-                if (ioException != null) {
-                    throw ioException;
-                }
+            }
+            if (ioException != null) {
+                throw ioException;
             }
         }
     }
 
     public List<ConfigurationInfo> listConfigurations() {
-        SortedSet artifacts = repository.list();
+        SortedSet<Artifact> artifacts = repository.list();
 
-        List configs;
+        List<ConfigurationInfo> configs= new ArrayList<ConfigurationInfo>();
         synchronized (this) {
-            configs = new ArrayList();
-            for (Iterator i = artifacts.iterator(); i.hasNext();) {
-                Artifact configId = (Artifact) i.next();
+            for (Artifact configId : artifacts) {
                 File dir = repository.getLocation(configId);
                 File meta = new File(dir, "META-INF");
-                if(!meta.isDirectory() || !meta.canRead()) {
+                if (!meta.isDirectory() || !meta.canRead()) {
                     continue;
                 }
                 File ser = new File(meta, "config.ser");
-                if(!ser.isFile() || !ser.canRead() || ser.length() == 0) {
+                if (!ser.isFile() || !ser.canRead() || ser.length() == 0) {
                     continue;
                 }
                 try {
                     ConfigurationInfo configurationInfo = loadConfigurationInfo(configId);
                     configs.add(configurationInfo);
                 } catch (NoSuchConfigException e) {
-                    log.error("Unexpected error: found META-INF/config.ser for "+configId+" but couldn't load ConfigurationInfo", e);
+                    log.error("Unexpected error: found META-INF/config.ser for " + configId + " but couldn't load ConfigurationInfo", e);
                 } catch (IOException e) {
-                    log.error("Unable to load ConfigurationInfo for "+configId, e);
+                    log.error("Unable to load ConfigurationInfo for " + configId, e);
                 }
             }
         }
@@ -551,8 +539,9 @@ public class RepositoryConfigurationStore implements ConfigurationStore {
         GBeanInfoBuilder builder = GBeanInfoBuilder.createStatic(RepositoryConfigurationStore.class, "ConfigurationStore");
         builder.addAttribute("kernel", Kernel.class, false);
         builder.addAttribute("objectName", String.class, false);
+        builder.addAttribute("abstractName", AbstractName.class, false);
         builder.addReference("Repository", WritableListableRepository.class, "Repository");
-        builder.setConstructor(new String[]{"kernel", "objectName", "Repository"});
+        builder.setConstructor(new String[]{"kernel", "objectName", "abstractName", "Repository"});
         GBEAN_INFO = builder.getBeanInfo();
     }
 }

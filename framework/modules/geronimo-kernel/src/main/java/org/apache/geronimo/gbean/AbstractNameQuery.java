@@ -241,17 +241,22 @@ public class AbstractNameQuery implements Serializable {
 
 
     public boolean matches(AbstractName info, Set targetInterfaceTypes) {
-        if (!info.getName().entrySet().containsAll(name.entrySet())) {
+        try {
+            if (!info.getName().entrySet().containsAll(name.entrySet())) {
+                return false;
+            }
+            if (!targetInterfaceTypes.containsAll(interfaceTypes)) {
+                return false;
+            }
+            if (artifact == null) {
+                return true;
+            }
+            Artifact otherArtifact = info.getArtifact();
+            return artifact.matches(otherArtifact);
+        } catch (NullPointerException e) {
+            e.printStackTrace();
             return false;
         }
-        if (!targetInterfaceTypes.containsAll(interfaceTypes)) {
-            return false;
-        }
-        if (artifact == null) {
-            return true;
-        }
-        Artifact otherArtifact = info.getArtifact();
-        return artifact.matches(otherArtifact);
     }
 
     /**

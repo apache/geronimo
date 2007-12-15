@@ -83,6 +83,7 @@ public class MasterConfigurationStoreTest extends RMockTestCase {
     private MasterConfigurationStore newMasterConfigurationStore() {
         return new MasterConfigurationStore(kernel,
             "objectName",
+                null,
             repository,
             new Environment(),
             clusterInfo,
@@ -90,6 +91,7 @@ public class MasterConfigurationStoreTest extends RMockTestCase {
             @Override
             protected ConfigurationStore newConfigurationStore(Kernel kernel,
                 String objectName,
+                AbstractName abstractName,
                 WritableListableRepository repository) {
                 return delegate;
             }

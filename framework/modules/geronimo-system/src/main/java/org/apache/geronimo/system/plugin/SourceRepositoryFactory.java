@@ -18,24 +18,30 @@
  */
 
 
-package org.apache.geronimo.kernel.mock;
+package org.apache.geronimo.system.plugin;
 
 import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-
-import org.apache.geronimo.kernel.repository.WritableListableRepository;
-import org.apache.geronimo.kernel.repository.Artifact;
-import org.apache.geronimo.kernel.repository.FileWriteMonitor;
+import java.net.URI;
+import java.net.URISyntaxException;
 
 /**
- * @version $Rev$ $Date$
+ * @version $Rev:$ $Date:$
  */
-public class MockWritableListableRepository extends MockRepository implements WritableListableRepository {
-    public void copyToRepository(File source, Artifact destination, FileWriteMonitor monitor) throws IOException {
+public class SourceRepositoryFactory {
+    private SourceRepositoryFactory() {
     }
 
-    public void copyToRepository(InputStream source, int size, Artifact destination, FileWriteMonitor monitor) throws IOException {
+    public static SourceRepository getSourceRepository(String repo) {
+        URI repoURI = PluginRepositoryDownloader.resolveRepository(repo);
+        if (repoURI == null) {
+            throw new IllegalStateException("Can't locate repo " + repo);
+        }
+        String scheme = repoURI.getScheme();
+        if (scheme.startsWith("http")) {
+            return new RemoteSourceRepository(repoURI);
+        } else if ("file".equals(scheme)) {
+            return new LocalSourceRepository(new File(repoURI));
+        }
+        throw new IllegalStateException("Cannot identify desired repo type for " + repo);
     }
-
 }

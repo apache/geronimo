@@ -21,20 +21,20 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
     <modelVersion>4.0.0</modelVersion>
-    
+
     <parent>
         <groupId>org.apache.geronimo.configs</groupId>
         <artifactId>configs</artifactId>
         <version>2.1-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
-    
+
     <artifactId>client-deployer</artifactId>
     <name>Geronimo Configs :: Application Client Deployments</name>
     <packaging>car</packaging>
-    
+
     <dependencies>
-        
+
         <!-- parent -->
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
@@ -68,60 +68,60 @@
             <artifactId>geronimo-connector-builder</artifactId>
             <version>${version}</version>
         </dependency>
-        
+
     </dependencies>
-    
+
     <build>
         <plugins>
             <plugin>
                 <groupId>org.apache.geronimo.plugins</groupId>
                 <artifactId>car-maven-plugin</artifactId>
                 <configuration>
-<!--
-                    <deploymentConfigs>
-                        <deploymentConfig>${gbeanDeployer}</deploymentConfig>
-                        <deploymentConfig>${j2eeDeployer}</deploymentConfig>
-                    </deploymentConfigs>
--->
+                    <!--
+                                        <deploymentConfigs>
+                                            <deploymentConfig>${gbeanDeployer}</deploymentConfig>
+                                            <deploymentConfig>${j2eeDeployer}</deploymentConfig>
+                                        </deploymentConfigs>
+                    -->
                     <category>Geronimo Core</category>
                     <useMavenDependencies>
                         <value>false</value>
                     </useMavenDependencies>
                     <dependencies>
-                      <dependency>
-                        <groupId>org.apache.geronimo.modules</groupId>
-                        <artifactId>geronimo-connector-builder</artifactId>
-                        <version>2.1-SNAPSHOT</version>
-                        <type>jar</type>
-                        <import>classes</import>
-                      </dependency>
-                      <dependency>
-                        <groupId>org.apache.geronimo.configs</groupId>
-                        <artifactId>client</artifactId>
-                          <version>2.1-SNAPSHOT</version>
-                        <type>car</type>
-                        <import>classes</import>
-                      </dependency>
-                      <dependency>
-                        <groupId>org.apache.geronimo.modules</groupId>
-                        <artifactId>geronimo-client-builder</artifactId>
-                        <version>2.1-SNAPSHOT</version>
-                        <type>jar</type>
-                        <import>classes</import>
-                      </dependency>
-                      <dependency>
-                        <groupId>org.apache.geronimo.configs</groupId>
-                        <artifactId>client-transaction</artifactId>
-                          <version>2.1-SNAPSHOT</version>
-                        <type>car</type>
-                        <import>classes</import>
-                      </dependency>
-                      <dependency>
-                        <groupId>org.apache.geronimo.configs</groupId>
-                        <artifactId>j2ee-deployer</artifactId>
-                          <version>2.1-SNAPSHOT</version>
-                        <type>car</type>
-                      </dependency>
+                        <dependency>
+                            <groupId>org.apache.geronimo.configs</groupId>
+                            <artifactId>j2ee-deployer</artifactId>
+                            <version>2.1-SNAPSHOT</version>
+                            <type>car</type>
+                        </dependency>
+                        <dependency>
+                            <groupId>org.apache.geronimo.modules</groupId>
+                            <artifactId>geronimo-connector-builder</artifactId>
+                            <version>2.1-SNAPSHOT</version>
+                            <type>jar</type>
+                            <import>classes</import>
+                        </dependency>
+                        <dependency>
+                            <groupId>org.apache.geronimo.configs</groupId>
+                            <artifactId>client</artifactId>
+                            <version>2.1-SNAPSHOT</version>
+                            <type>car</type>
+                            <import>classes</import>
+                        </dependency>
+                        <dependency>
+                            <groupId>org.apache.geronimo.modules</groupId>
+                            <artifactId>geronimo-client-builder</artifactId>
+                            <version>2.1-SNAPSHOT</version>
+                            <type>jar</type>
+                            <import>classes</import>
+                        </dependency>
+                        <dependency>
+                            <groupId>org.apache.geronimo.configs</groupId>
+                            <artifactId>client-transaction</artifactId>
+                            <version>2.1-SNAPSHOT</version>
+                            <type>car</type>
+                            <import>classes</import>
+                        </dependency>
                     </dependencies>
                     <instance>
                         <plugin-artifact>

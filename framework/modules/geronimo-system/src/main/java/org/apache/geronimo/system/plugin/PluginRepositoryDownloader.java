@@ -75,47 +75,55 @@ public class PluginRepositoryDownloader implements PluginRepositoryList {
     /**
      * Gets the union of centrally-listed repositories and user-added repositories.
      */
-    public URL[] getRepositories() {
+    public List<URL> getRepositories() {
         List<URL> list = new ArrayList<URL>();
         for (String url : downloadRepositories) {
+            url = url.trim();
+            if (!url.endsWith("/")) {
+                url = url + "/";
+            }
             try {
-                list.add(new URL(url.trim()));
+                list.add(new URL(url));
             } catch (MalformedURLException e) {
                 log.error("Unable to format plugin repository URL " + url, e);
             }
         }
         for (String userRepository : userRepositories) {
             userRepository = userRepository.trim();
-            URL url = resolveRepository(userRepository);
+            URL url = null;
+            try {
+                url = resolveRepository(userRepository).toURL();
+            } catch (MalformedURLException e) {
+                log.error("Unable to format plugin repository URL " + userRepository, e);
+            }
             if (url != null) {
                 list.add(url);
             }
         }
-        return list.toArray(new URL[list.size()]);
+        return list;
     }
 
-    static URL resolveRepository(String userRepository) {
-        URL url = null;
+    static URI resolveRepository(String userRepository) {
+        if (!userRepository.endsWith("/")) {
+           userRepository = userRepository + "/";
+        }
         try {
             URI uri = new URI(userRepository);
             if (!uri.isAbsolute()) {
                 if (userRepository.startsWith("/")) {
-                    url = new URI("file", userRepository, null).toURL();
+                    return new URI("file", userRepository, null);
                 } else if (userRepository.startsWith("~")) {
-                    URI fullUri = new File(System.getProperty("user.home")).getAbsoluteFile().toURI().resolve(userRepository.substring(2));
-                    url = fullUri.toURL();
+                    return new File(System.getProperty("user.home")).getAbsoluteFile().toURI().resolve(userRepository.substring(2));
                 } else {
                     log.error("Can't interpret path: " + userRepository);
                 }
             } else {
-                url = uri.toURL();
+                return uri;
             }
-        } catch (MalformedURLException e) {
-            log.error("Unable to format plugin repository URL " + userRepository, e);
         } catch (URISyntaxException e) {
             log.error("Unable to format plugin repository URL " + userRepository, e);
         }
-        return url;
+        return null;
     }
 
     /**

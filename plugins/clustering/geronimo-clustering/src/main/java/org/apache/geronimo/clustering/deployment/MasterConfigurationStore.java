@@ -67,6 +67,7 @@ public class MasterConfigurationStore implements ConfigurationStore {
     
     public MasterConfigurationStore(Kernel kernel,
             String objectName,
+            AbstractName abstractName,
             WritableListableRepository repository,
             Environment defaultEnvironment,
             ClusterInfo clusterInfo,
@@ -90,7 +91,7 @@ public class MasterConfigurationStore implements ConfigurationStore {
 
         builder = newMasterConfigurationBuilder();
         clusterInfoName = kernel.getAbstractNameFor(clusterInfo);
-        delegate = newConfigurationStore(kernel, objectName, repository);
+        delegate = newConfigurationStore(kernel, objectName, abstractName, repository);
     }
 
     public boolean containsConfiguration(Artifact configId) {
@@ -177,8 +178,9 @@ public class MasterConfigurationStore implements ConfigurationStore {
 
     protected ConfigurationStore newConfigurationStore(Kernel kernel,
         String objectName,
+        AbstractName abstractName,
         WritableListableRepository repository) {
-        return new RepositoryConfigurationStore(kernel, objectName, repository);
+        return new RepositoryConfigurationStore(kernel, objectName, abstractName, repository);
     }
 
     protected MasterConfigurationNameBuilder newMasterConfigurationBuilder() {
@@ -291,6 +293,7 @@ public class MasterConfigurationStore implements ConfigurationStore {
         
         builder.addAttribute(GBEAN_ATTR_KERNEL, Kernel.class, false);
         builder.addAttribute(GBEAN_ATTR_OBJECT_NAME, String.class, false);
+        builder.addAttribute("abstractName", AbstractName.class, false);
         builder.addAttribute(GBEAN_ATTR_DEFAULT_ENV, Environment.class, true, true);
         
         builder.addReference(GBEAN_REF_REPOSITORY, WritableListableRepository.class, "Repository");
@@ -301,6 +304,7 @@ public class MasterConfigurationStore implements ConfigurationStore {
         
         builder.setConstructor(new String[]{GBEAN_ATTR_KERNEL,
             GBEAN_ATTR_OBJECT_NAME,
+                "abstractName",
             GBEAN_REF_REPOSITORY,
             GBEAN_ATTR_DEFAULT_ENV,
             GBEAN_REF_CLUSTER_INFO,

@@ -224,16 +224,6 @@ public class CommandListConfigurations extends AbstractCommand {
         DownloadResults results = CommandInstallCAR.showProgress(consoleReader, mgr, key);
         int time = (int) (System.currentTimeMillis() - start) / 1000;
         CommandInstallCAR.printResults(consoleReader, results, time);
-        if (results.isFinished() && !results.isFailed()) {
-            for (PluginType plugin : list.getPlugin()) {
-                for (PluginArtifactType targetInstance : plugin.getPluginArtifact()) {
-                    DeployUtils.println("Now starting " + PluginInstallerGBean.toArtifact(targetInstance.getModuleId()) + "...", 0, consoleReader);
-                    consoleReader.flushConsole();
-                    new CommandStart().execute(consoleReader, connection,
-                            new BaseCommandArgs(new String[]{PluginInstallerGBean.toArtifact(targetInstance.getModuleId()).toString()}));
-                }
-            }
-        }
     }
     
     public void assembleServer(GeronimoDeploymentManager mgr, PluginListType list, String repositoryPath, String relativeServerPath, ConsoleReader consoleReader) throws Exception {
