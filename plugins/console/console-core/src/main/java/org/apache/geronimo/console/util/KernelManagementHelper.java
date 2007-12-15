@@ -25,6 +25,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
 import javax.security.auth.Subject;
 import javax.security.auth.callback.Callback;
 import javax.security.auth.callback.CallbackHandler;
@@ -50,6 +51,7 @@ import org.apache.geronimo.kernel.config.EditableConfigurationManager;
 import org.apache.geronimo.kernel.config.InvalidConfigException;
 import org.apache.geronimo.kernel.config.NoSuchStoreException;
 import org.apache.geronimo.kernel.management.State;
+import org.apache.geronimo.kernel.proxy.GeronimoManagedBean;
 import org.apache.geronimo.kernel.proxy.ProxyManager;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.management.AppClientModule;
@@ -102,51 +104,48 @@ public class KernelManagementHelper implements ManagementHelper {
     }
 
     public J2EEServer[] getServers(J2EEDomain domain) {
-        return domain.getServerInstances();
+        return proxify(domain.getServerInstances(), J2EEServer.class);
     }
 
     public J2EEDeployedObject[] getDeployedObjects(J2EEServer server) {
-        return server.getDeployedObjectInstances();
+        return proxify(server.getDeployedObjectInstances(), J2EEDeployedObject.class);
     }
 
     public J2EEApplication[] getApplications(J2EEServer server) {
-        return server.getApplications();
+        return proxify(server.getApplications(), J2EEApplication.class);
     }
 
     public AppClientModule[] getAppClients(J2EEServer server) {
-        return server.getAppClients();
+        return proxify(server.getAppClients(), AppClientModule.class);
     }
 
     public WebModule[] getWebModules(J2EEServer server) {
-        return server.getWebModules();
+        return proxify(server.getWebModules(), WebModule.class);
     }
 
     public EJBModule[] getEJBModules(J2EEServer server) {
-        return server.getEJBModules();
+        return proxify(server.getEJBModules(), EJBModule.class);
     }
 
     public ResourceAdapterModule[] getRAModules(J2EEServer server) {
-        return server.getResourceAdapterModules();
+        return proxify(server.getResourceAdapterModules(), ResourceAdapterModule.class);
     }
 
     public JCAManagedConnectionFactory[] getOutboundFactories(J2EEServer server, String connectionFactoryInterface) {
-        List list = new ArrayList();
+        List<JCAManagedConnectionFactory> list = new ArrayList<JCAManagedConnectionFactory>();
         ResourceAdapterModule[] modules = server.getResourceAdapterModules();
-        for (int i = 0; i < modules.length; i++) {
-            ResourceAdapterModule module = modules[i];
+        for (ResourceAdapterModule module : modules) {
             ResourceAdapter[] adapters = module.getResourceAdapterInstances();
-            for (int j = 0; j < adapters.length; j++) {
-                ResourceAdapter adapter = adapters[j];
+            for (ResourceAdapter adapter : adapters) {
                 JCAResource[] resources = adapter.getJCAResourceImplementations();
-                for (int k = 0; k < resources.length; k++) {
-                    JCAResource resource = resources[k];
+                for (JCAResource resource : resources) {
                     JCAManagedConnectionFactory[] outboundFactories = resource.getOutboundFactories();
                     list.addAll(Arrays.asList(outboundFactories));
                 }
             }
 
         }
-        return (JCAManagedConnectionFactory[]) list.toArray(new JCAManagedConnectionFactory[list.size()]);
+        return proxify(list.toArray(new JCAManagedConnectionFactory[list.size()]), JCAManagedConnectionFactory.class);
     }
 
     public ResourceAdapterModule[] getOutboundRAModules(J2EEServer server, String connectionFactoryInterface) {
@@ -154,19 +153,16 @@ public class KernelManagementHelper implements ManagementHelper {
     }
 
     public ResourceAdapterModule[] getOutboundRAModules(J2EEServer server, String[] connectionFactoryInterfaces) {
-        List list = new ArrayList();
+        List<ResourceAdapterModule> list = new ArrayList<ResourceAdapterModule>();
 
         ResourceAdapterModule[] modules = server.getResourceAdapterModules();
 
         outer:
-        for (int i = 0; i < modules.length; i++) {
-            ResourceAdapterModule module = modules[i];
+        for (ResourceAdapterModule module : modules) {
             ResourceAdapter[] adapters = module.getResourceAdapterInstances();
-            for (int j = 0; j < adapters.length; j++) {
-                ResourceAdapter adapter = adapters[j];
+            for (ResourceAdapter adapter : adapters) {
                 JCAResource[] resources = adapter.getJCAResourceImplementations();
-                for (int k = 0; k < resources.length; k++) {
-                    JCAResource resource = resources[k];
+                for (JCAResource resource : resources) {
                     JCAManagedConnectionFactory[] outboundFactories = resource.getOutboundFactories(connectionFactoryInterfaces);
                     if (outboundFactories.length > 0) {
                         list.add(module);
@@ -176,23 +172,20 @@ public class KernelManagementHelper implements ManagementHelper {
             }
 
         }
-        return (ResourceAdapterModule[]) list.toArray(new ResourceAdapterModule[list.size()]);
+        return proxify(list.toArray(new ResourceAdapterModule[list.size()]), ResourceAdapterModule.class);
     }
 
     public ResourceAdapterModule[] getAdminObjectModules(J2EEServer server, String[] adminObjectInterfaces) {
-        List list = new ArrayList();
+        List<ResourceAdapterModule> list = new ArrayList<ResourceAdapterModule>();
 
         ResourceAdapterModule[] modules = server.getResourceAdapterModules();
 
         outer:
-        for (int i = 0; i < modules.length; i++) {
-            ResourceAdapterModule module = modules[i];
+        for (ResourceAdapterModule module : modules) {
             ResourceAdapter[] adapters = module.getResourceAdapterInstances();
-            for (int j = 0; j < adapters.length; j++) {
-                ResourceAdapter adapter = adapters[j];
+            for (ResourceAdapter adapter : adapters) {
                 JCAResource[] resources = adapter.getJCAResourceImplementations();
-                for (int k = 0; k < resources.length; k++) {
-                    JCAResource resource = resources[k];
+                for (JCAResource resource : resources) {
                     JCAAdminObject[] adminObjects = resource.getAdminObjectInstances(adminObjectInterfaces);
                     if (adminObjects.length > 0) {
                         list.add(module);
@@ -202,7 +195,7 @@ public class KernelManagementHelper implements ManagementHelper {
             }
 
         }
-        return (ResourceAdapterModule[]) list.toArray(new ResourceAdapterModule[list.size()]);
+        return proxify(list.toArray(new ResourceAdapterModule[list.size()]), ResourceAdapterModule.class);
     }
 
     public JCAManagedConnectionFactory[] getOutboundFactories(ResourceAdapterModule module) {
@@ -214,56 +207,50 @@ public class KernelManagementHelper implements ManagementHelper {
     }
 
     public JCAManagedConnectionFactory[] getOutboundFactories(ResourceAdapterModule module, String[] connectionFactoryInterfaces) {
-        List list = new ArrayList();
+        List<JCAManagedConnectionFactory> list = new ArrayList<JCAManagedConnectionFactory>();
 
         ResourceAdapter[] resourceAdapters = module.getResourceAdapterInstances();
-        for (int i = 0; i < resourceAdapters.length; i++) {
-            ResourceAdapter resourceAdapter = resourceAdapters[i];
+        for (ResourceAdapter resourceAdapter : resourceAdapters) {
             JCAResource[] jcaResources = resourceAdapter.getJCAResourceImplementations();
-            for (int j = 0; j < jcaResources.length; j++) {
-                JCAResource jcaResource = jcaResources[j];
+            for (JCAResource jcaResource : jcaResources) {
                 JCAManagedConnectionFactory[] outboundFactories = jcaResource.getOutboundFactories(connectionFactoryInterfaces);
                 list.addAll(Arrays.asList(outboundFactories));
             }
         }
 
-        return (JCAManagedConnectionFactory[]) list.toArray(new JCAManagedConnectionFactory[list.size()]);
+        return proxify(list.toArray(new JCAManagedConnectionFactory[list.size()]), JCAManagedConnectionFactory.class);
     }
 
     public JCAAdminObject[] getAdminObjects(ResourceAdapterModule module, String[] adminObjectInterfaces) {
-        List list = new ArrayList();
+        List<JCAAdminObject> list = new ArrayList<JCAAdminObject>();
         ResourceAdapter[] resourceAdapters = module.getResourceAdapterInstances();
-        for (int i = 0; i < resourceAdapters.length; i++) {
-            ResourceAdapter resourceAdapter = resourceAdapters[i];
+        for (ResourceAdapter resourceAdapter : resourceAdapters) {
             JCAResource[] jcaResources = resourceAdapter.getJCAResourceImplementations();
-            for (int j = 0; j < jcaResources.length; j++) {
-                JCAResource jcaResource = jcaResources[j];
-                JCAAdminObject[] adminObjects  = jcaResource.getAdminObjectInstances(adminObjectInterfaces);
+            for (JCAResource jcaResource : jcaResources) {
+                JCAAdminObject[] adminObjects = jcaResource.getAdminObjectInstances(adminObjectInterfaces);
                 list.addAll(Arrays.asList(adminObjects));
             }
         }
 
-        return (JCAAdminObject[]) list.toArray(new JCAAdminObject[list.size()]);
+        return proxify(list.toArray(new JCAAdminObject[list.size()]), JCAAdminObject.class);
     }
 
     public J2EEResource[] getResources(J2EEServer server) {
-        return server.getResourceInstances();
+        return proxify(server.getResourceInstances(), J2EEResource.class);
     }
 
     public JCAResource[] getJCAResources(J2EEServer server) {
-        List list = new ArrayList();
+        List<JCAResource> list = new ArrayList<JCAResource>();
         ResourceAdapterModule[] modules = server.getResourceAdapterModules();
-        for (int i = 0; i < modules.length; i++) {
-            ResourceAdapterModule module = modules[i];
+        for (ResourceAdapterModule module : modules) {
             ResourceAdapter[] adapters = module.getResourceAdapterInstances();
-            for (int j = 0; j < adapters.length; j++) {
-                ResourceAdapter adapter = adapters[j];
+            for (ResourceAdapter adapter : adapters) {
                 JCAResource[] resources = adapter.getJCAResourceImplementations();
                 list.addAll(Arrays.asList(resources));
             }
 
         }
-        return (JCAResource[]) list.toArray(new JCAResource[list.size()]);
+        return proxify(list.toArray(new JCAResource[list.size()]), JCAResource.class);
     }
 
     public JDBCResource[] getJDBCResources(J2EEServer server) {
@@ -275,49 +262,47 @@ public class KernelManagementHelper implements ManagementHelper {
     }
 
     public JVM[] getJavaVMs(J2EEServer server) {
-        return server.getJavaVMInstances();
+        return proxify(server.getJavaVMInstances(), JVM.class);
     }
 
     public SystemLog getSystemLog(JVM jvm) {
-        return jvm.getSystemLog();
+        return proxify(jvm.getSystemLog(), SystemLog.class);
     }
 
     // application properties
     public J2EEModule[] getModules(J2EEApplication application) {
-        return application.getModulesInstances();
+        return proxify(application.getModulesInstances(), J2EEModule.class);
     }
 
     public AppClientModule[] getAppClients(J2EEApplication application) {
-        return application.getClientModules();
+        return proxify(application.getClientModules(), AppClientModule.class);
     }
 
     public WebModule[] getWebModules(J2EEApplication application) {
-        return application.getWebModules();
+        return proxify(application.getWebModules(), WebModule.class);
     }
 
     public EJBModule[] getEJBModules(J2EEApplication application) {
-        return application.getEJBModules();
+        return proxify(application.getEJBModules(), EJBModule.class);
     }
 
     public ResourceAdapterModule[] getRAModules(J2EEApplication application) {
-        return application.getRAModules();
+        return proxify(application.getRAModules(), ResourceAdapterModule.class);
     }
 
 
     public JCAResource[] getJCAResources(J2EEApplication application) {
-        List list = new ArrayList();
+        List<JCAResource> list = new ArrayList<JCAResource>();
         ResourceAdapterModule[] modules = application.getRAModules();
-        for (int i = 0; i < modules.length; i++) {
-            ResourceAdapterModule module = modules[i];
+        for (ResourceAdapterModule module : modules) {
             ResourceAdapter[] adapters = module.getResourceAdapterInstances();
-            for (int j = 0; j < adapters.length; j++) {
-                ResourceAdapter adapter = adapters[j];
+            for (ResourceAdapter adapter : adapters) {
                 JCAResource[] resources = adapter.getJCAResourceImplementations();
                 list.addAll(Arrays.asList(resources));
             }
 
         }
-        return (JCAResource[]) list.toArray(new JCAResource[list.size()]);
+        return proxify(list.toArray(new JCAResource[list.size()]), JCAResource.class);
     }
 
     public JDBCResource[] getJDBCResources(J2EEApplication application) {
@@ -338,12 +323,12 @@ public class KernelManagementHelper implements ManagementHelper {
     }
 
     public ResourceAdapter[] getResourceAdapters(ResourceAdapterModule module) {
-        return module.getResourceAdapterInstances();
+        return proxify(module.getResourceAdapterInstances(), ResourceAdapter.class);
     }
 
     // resource adapter properties
     public JCAResource[] getRAResources(ResourceAdapter adapter) {
-        return adapter.getJCAResourceImplementations();
+        return proxify(adapter.getJCAResourceImplementations(), JCAResource.class);
     }
 
     // resource properties
@@ -356,15 +341,15 @@ public class KernelManagementHelper implements ManagementHelper {
     }
 
     public JCAConnectionFactory[] getConnectionFactories(JCAResource resource) {
-        return resource.getConnectionFactoryInstances();
+        return proxify(resource.getConnectionFactoryInstances(), JCAConnectionFactory.class);
     }
 
     public JCAAdminObject[] getAdminObjects(JCAResource resource) {
-        return resource.getAdminObjectInstances();
+        return proxify(resource.getAdminObjectInstances(), JCAAdminObject.class);
     }
 
     public JCAManagedConnectionFactory getManagedConnectionFactory(JCAConnectionFactory factory) {
-        return factory.getManagedConnectionFactoryInstance();
+        return proxify(factory.getManagedConnectionFactoryInstance(), JCAManagedConnectionFactory.class);
     }
 
     public Object getObject(AbstractName objectName) {
@@ -445,21 +430,18 @@ public class KernelManagementHelper implements ManagementHelper {
 
     public ConfigurationData[] getConfigurations(ConfigurationModuleType type, boolean includeChildModules) {
         ConfigurationManager mgr = ConfigurationUtil.getConfigurationManager(kernel);
-        List stores = mgr.listStores();
-        List results = new ArrayList();
-        for (Iterator i = stores.iterator(); i.hasNext();) {
-            AbstractName storeName = (AbstractName) i.next();
+        List<AbstractName> stores = mgr.listStores();
+        List<ConfigurationData> results = new ArrayList<ConfigurationData>();
+        for (AbstractName storeName : stores) {
             try {
-                List infos = mgr.listConfigurations(storeName);
-                for (Iterator j = infos.iterator(); j.hasNext();) {
-                    ConfigurationInfo info = (ConfigurationInfo) j.next();
+                List<ConfigurationInfo> infos = mgr.listConfigurations(storeName);
+                for (ConfigurationInfo info : infos) {
                     AbstractName configuration = Configuration.getConfigurationAbstractName(info.getConfigID());
                     if (type == null || type.getValue() == info.getType().getValue()) {
                         J2EEDeployedObject module = getModuleForConfiguration(info.getConfigID());
                         results.add(new ConfigurationData(info.getConfigID(), configuration, null, info.getState(), info.getType(), module == null ? null : kernel.getAbstractNameFor(module)));
                     }
-                    if (includeChildModules && info.getType().getValue() == ConfigurationModuleType.EAR.getValue() && info.getState().toInt() == State.RUNNING_INDEX)
-                    {
+                    if (includeChildModules && info.getType().getValue() == ConfigurationModuleType.EAR.getValue() && info.getState().toInt() == State.RUNNING_INDEX) {
                         J2EEApplication app = (J2EEApplication) getModuleForConfiguration(info.getConfigID());
                         if (app == null) {
                             throw new IllegalStateException("Unable to load children for J2EE Application '" + info.getConfigID() + "' (no J2EEApplication found)");
@@ -477,8 +459,7 @@ public class KernelManagementHelper implements ManagementHelper {
                             modules = app.getWebModules();
                         } //todo: handle dynamically registered module types, etc.
                         if (modules == null) continue;
-                        for (int k = 0; k < modules.length; k++) {
-                            Object module = modules[k];
+                        for (Object module : modules) {
                             ConfigurationModuleType moduleType = type;
                             if (moduleType == null) {
                                 if (module instanceof WebModule) {
@@ -508,7 +489,7 @@ public class KernelManagementHelper implements ManagementHelper {
             }
         }
         Collections.sort(results);
-        return (ConfigurationData[]) results.toArray(new ConfigurationData[results.size()]);
+        return results.toArray(new ConfigurationData[results.size()]);
     }
 
     /**
@@ -596,4 +577,20 @@ public class KernelManagementHelper implements ManagementHelper {
         Kernel kernel = new org.apache.geronimo.system.jmx.KernelDelegate(mbServerConnection);
         return new KernelManagementHelper(kernel);
     }
+
+    private<T>  T[] proxify(T[] array, Class<T> clazz) {
+        for (int i = 0; i < array.length; i++) {
+            array[i] = proxify(array[i], clazz);
+        }
+        return array;
+    }
+
+    private<T> T proxify(T t, Class<T> clazz) {
+        if (!(t instanceof GeronimoManagedBean)) {
+            AbstractName name = kernel.getAbstractNameFor(t);
+            t = (T) kernel.getProxyManager().createProxy(name, clazz);
+        }
+        return t;
+    }
+
 }
