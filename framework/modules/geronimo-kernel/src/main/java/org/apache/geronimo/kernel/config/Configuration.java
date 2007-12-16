@@ -554,7 +554,7 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
      * Gets the configurations owned by this configuration.  This is only used for cascade-uninstall.
      * @return the configurations owned by this configuration
      */
-    public Set<Configuration> getOwnedConfigurations() {
+    public Set<Artifact> getOwnedConfigurations() {
         return configurationData.getOwnedConfigurations();
     }
 

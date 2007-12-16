@@ -516,7 +516,7 @@ public class DeploymentContext {
             throw new DeploymentException(message.toString());
         }
 
-        ArrayList<GBeanData> gbeans = new ArrayList<GBeanData>(configuration.getGBeans().values());
+        List<GBeanData> gbeans = new ArrayList<GBeanData>(configuration.getGBeans().values());
         Collections.sort(gbeans, new GBeanData.PriorityComparator());
         ConfigurationData configurationData = new ConfigurationData(configuration.getModuleType(),
                 new LinkedHashSet<String>(configuration.getClassPath()),

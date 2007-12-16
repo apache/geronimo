@@ -57,7 +57,7 @@ public class ConfigurationData implements Serializable {
     /**
      * List of URIs in this configuration's classpath.  These are for the classes directly included in the configuration
      */
-    private final LinkedHashSet classPath = new LinkedHashSet();
+    private final LinkedHashSet<String> classPath = new LinkedHashSet<String>();
 
     /**
      * The gbeans contained in this configuration
@@ -67,7 +67,7 @@ public class ConfigurationData implements Serializable {
     /**
      * Child configurations of this configuration
      */
-    private final Map<Artifact, ConfigurationData> childConfigurations = new LinkedHashMap<Artifact, ConfigurationData>();
+    private final Map<String, ConfigurationData> childConfigurations = new LinkedHashMap<String, ConfigurationData>();
 
     /**
      * Configurations owned by this configuration.  This is only used for cascade-uninstall.
@@ -123,7 +123,7 @@ public class ConfigurationData implements Serializable {
         this(null, null, null, null, environment, null, null, naming);
     }
 
-    public ConfigurationData(ConfigurationModuleType moduleType, LinkedHashSet classPath, List gbeans, Map<Artifact, ConfigurationData> childConfigurations, Environment environment, File configurationDir, File inPlaceConfigurationDir, Naming naming) {
+    public ConfigurationData(ConfigurationModuleType moduleType, LinkedHashSet<String> classPath, List<GBeanData> gbeans, Map<String, ConfigurationData> childConfigurations, Environment environment, File configurationDir, File inPlaceConfigurationDir, Naming naming) {
         if (naming == null) throw new NullPointerException("naming is null");
         this.naming = naming;
         if (moduleType != null) {
@@ -188,17 +188,17 @@ public class ConfigurationData implements Serializable {
     }
 
     /**
-     * Gets a map of Artifact (config ID) to ConfigurationData for nested
+     * Gets a map of module name to ConfigurationData for nested
      * configurations (as in, a WAR within an EAR, not dependencies between
      * totally separate configurations).
      */
-    public Map<Artifact, ConfigurationData> getChildConfigurations() {
+    public Map<String, ConfigurationData> getChildConfigurations() {
         return Collections.unmodifiableMap(childConfigurations);
     }
 
-    public void addChildConfiguration(ConfigurationData configurationData) {
+    public void addChildConfiguration(String moduleName, ConfigurationData configurationData) {
         if (configurationData == null) throw new NullPointerException("configurationData is null");
-        childConfigurations.put(configurationData.getId(), configurationData);
+        childConfigurations.put(moduleName, configurationData);
     }
 
     /**

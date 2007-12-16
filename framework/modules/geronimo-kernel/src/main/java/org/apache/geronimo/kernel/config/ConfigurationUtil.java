@@ -215,20 +215,19 @@ public final class ConfigurationUtil {
     public static void writeConfigInfo(PrintWriter writer, ConfigurationData configurationData) {
         writeConfigInfo("", writer, configurationData);
     }
+    
     private static void writeConfigInfo(String prefix, PrintWriter writer, ConfigurationData configurationData) {
         writer.println(prefix+"id=" + configurationData.getId());
         writer.println(prefix+"type=" + configurationData.getModuleType());
         writer.println(prefix+"created=" + configurationData.getCreated());
-        Set ownedConfigurations = configurationData.getOwnedConfigurations();
+        Set<Artifact> ownedConfigurations = configurationData.getOwnedConfigurations();
         int i = 0;
-        for (Iterator iterator = ownedConfigurations.iterator(); iterator.hasNext();) {
-            Artifact ownedConfiguration = (Artifact) iterator.next();
-            writer.println(prefix+"owned." + i++ + "=" + ownedConfiguration);
+        for (Artifact ownedConfiguration : ownedConfigurations) {
+            writer.println(prefix + "owned." + i++ + "=" + ownedConfiguration);
         }
         i = 0;
-        for (Iterator it = configurationData.getChildConfigurations().values().iterator(); it.hasNext(); i++) {
-            ConfigurationData data = (ConfigurationData) it.next();
-            writeConfigInfo("child."+i+".", writer, data);
+        for (ConfigurationData data : configurationData.getChildConfigurations().values()) {
+            writeConfigInfo("child." + i++ + ".", writer, data);
         }
         writer.flush();
     }
@@ -238,6 +237,7 @@ public final class ConfigurationUtil {
         properties.load(in);
         return readConfigurationInfo("", properties, storeName, inPlaceLocation);
     }
+
     private static ConfigurationInfo readConfigurationInfo(String prefix, Properties properties, AbstractName storeName, File inPlaceLocation) throws IOException {
         String id = properties.getProperty(prefix+"id");
         Artifact configId = Artifact.create(id);

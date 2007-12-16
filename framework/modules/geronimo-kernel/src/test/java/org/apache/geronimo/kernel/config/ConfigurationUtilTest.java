@@ -68,7 +68,7 @@ public class ConfigurationUtilTest extends TestCase {
         List gbeans;
         gbeans = data.getGBeans(getClass().getClassLoader());
         assertEquals(configurationData.getId(), data.getId());
-        ConfigurationData data3 = (ConfigurationData) data.getChildConfigurations().get(artifact3);
+        ConfigurationData data3 = (ConfigurationData) data.getChildConfigurations().get("testmodule");
         gbeans = data3.getGBeans(getClass().getClassLoader());
         assertEquals(new QName("namespaceURI", "localPart"), ((GBeanData)gbeans.get(0)).getAttribute("someObject"));
     }
@@ -101,7 +101,7 @@ public class ConfigurationUtilTest extends TestCase {
 
 
         ConfigurationData childConfigurationData = new ConfigurationData(artifact3, naming, marshaler.newGBeanState(Collections.EMPTY_SET));
-        configurationData.addChildConfiguration(childConfigurationData);
+        configurationData.addChildConfiguration("testmodule", childConfigurationData);
         GBeanData childConfigurationGBean = childConfigurationData.addGBean("ChildConfigurationGBean", MockGBean.getGBeanInfo());
         childConfigurationGBean.setAttribute("name", "foo");
         childConfigurationGBean.setAttribute("someObject", new QName("namespaceURI", "localPart"));

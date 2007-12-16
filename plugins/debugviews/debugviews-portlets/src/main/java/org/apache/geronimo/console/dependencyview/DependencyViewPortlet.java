@@ -18,20 +18,12 @@ package org.apache.geronimo.console.dependencyview;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.SortedSet;
-
-import org.apache.geronimo.console.BasePortlet;
-import org.apache.geronimo.console.util.PortletManager;
-import org.apache.geronimo.console.util.StringTree;
-import org.apache.geronimo.gbean.AbstractName;
-import org.apache.geronimo.kernel.repository.Artifact;
-
-import java.util.List;
 
 import javax.portlet.ActionRequest;
 import javax.portlet.ActionResponse;
@@ -42,14 +34,17 @@ import javax.portlet.RenderRequest;
 import javax.portlet.RenderResponse;
 import javax.portlet.WindowState;
 
-import org.apache.geronimo.kernel.DependencyManager;
+import org.apache.geronimo.console.BasePortlet;
+import org.apache.geronimo.console.util.PortletManager;
+import org.apache.geronimo.console.util.StringTree;
+import org.apache.geronimo.gbean.AbstractName;
+import org.apache.geronimo.gbean.AbstractNameQuery;
+import org.apache.geronimo.kernel.config.Configuration;
 import org.apache.geronimo.kernel.config.ConfigurationInfo;
 import org.apache.geronimo.kernel.config.ConfigurationManager;
 import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 import org.apache.geronimo.kernel.config.ConfigurationUtil;
-import org.apache.geronimo.kernel.config.Configuration;
-import org.apache.geronimo.kernel.repository.ListableRepository;
-import org.apache.geronimo.kernel.util.ClassLoaderRegistry;
+import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.ListableRepository;
 
 public class DependencyViewPortlet extends BasePortlet {
@@ -215,8 +210,7 @@ public class DependencyViewPortlet extends BasePortlet {
 
                 addDependencies(curr, conf);
 
-                if (info.getType().getValue() == ConfigurationModuleType.EAR
-                        .getValue()) {
+                if (info.getType().getValue() == ConfigurationModuleType.EAR.getValue()) {
                     StringTree nodeEJB = new StringTree("EJBModule");
                     curr.addChild(nodeEJB);
 
@@ -229,17 +223,12 @@ public class DependencyViewPortlet extends BasePortlet {
                     StringTree nodeCLI = new StringTree("AppClientModule");
                     curr.addChild(nodeCLI);
 
-                    Map query = new HashMap();
+                    Map<String, String> query = new HashMap<String, String>();
                     query.put("j2eeType", "EJBModule");
                     query.put("J2EEApplication", info.getConfigID().toString());
-                    Set setEnt = kernel
-                            .listGBeans(new org.apache.geronimo.gbean.AbstractNameQuery(
-                                    null, query));
-                    Iterator iterator = setEnt.iterator();
-                    while (iterator.hasNext()) {
-                        AbstractName gb = (AbstractName) iterator.next();
-                        StringTree subCurr = new StringTree(info.getConfigID()
-                                .getGroupId()
+                    Set<AbstractName> setEnt = kernel.listGBeans(new AbstractNameQuery(null, query));
+                    for (AbstractName gb : setEnt) {
+                        StringTree subCurr = new StringTree(info.getConfigID().getGroupId()
                                 + "/"
                                 + info.getConfigID().getArtifactId()
                                 + "_"
@@ -253,20 +242,13 @@ public class DependencyViewPortlet extends BasePortlet {
                                 .getConfiguration(gb.getArtifact()));
                     }
 
-                    Map query1 = new HashMap();
+                    Map<String, String> query1 = new HashMap<String, String>();
                     query1.put("j2eeType", "ResourceAdapterModule");
-                    query1
-                            .put("J2EEApplication", info.getConfigID()
-                                    .toString());
-                    Set setEnt1 = kernel
-                            .listGBeans(new org.apache.geronimo.gbean.AbstractNameQuery(
-                                    null, query1));
+                    query1.put("J2EEApplication", info.getConfigID().toString());
+                    Set<AbstractName> setEnt1 = kernel.listGBeans(new AbstractNameQuery(null, query1));
 
-                    Iterator iterator1 = setEnt1.iterator();
-                    while (iterator1.hasNext()) {
-                        AbstractName gb = (AbstractName) iterator1.next();
-                        StringTree subCurr = new StringTree(info.getConfigID()
-                                .getGroupId()
+                    for (AbstractName gb : setEnt1) {
+                        StringTree subCurr = new StringTree(info.getConfigID().getGroupId()
                                 + "/"
                                 + info.getConfigID().getArtifactId()
                                 + "_"
@@ -276,26 +258,19 @@ public class DependencyViewPortlet extends BasePortlet {
                                 + "/"
                                 + info.getConfigID().getType());
                         nodeRAR.addChild(subCurr);
-                        addDependencies(subCurr, configManager
-                                .getConfiguration(gb.getArtifact()));
+                        addDependencies(subCurr, configManager.getConfiguration(gb.getArtifact()));
                     }
 
-                    for (int i = 0; i < conf.getChildren().size(); i++) {
-                        Configuration config = ((Configuration) conf
-                                .getChildren().get(i));
-                        StringTree subCurr = new StringTree(config
-                                .getAbstractName().toString());
+                    for (Configuration config: conf.getChildren()) {
+                        StringTree subCurr = new StringTree(config.getAbstractName().toString());
                         nodeWeb.addChild(subCurr);
                         addDependencies(subCurr, config);
                     }
 
-                    for (Iterator iter = conf.getOwnedConfigurations()
-                            .iterator(); iter.hasNext();) {
-                        Artifact name = (Artifact) iter.next();
+                    for (Artifact name : conf.getOwnedConfigurations()) {
                         StringTree subCurr = new StringTree(name.toString());
                         nodeCLI.addChild(subCurr);
-                        addDependencies(subCurr, configManager
-                                .getConfiguration(name));
+                        addDependencies(subCurr, configManager.getConfiguration(name));
                     }
 
                 }
