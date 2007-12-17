@@ -538,7 +538,7 @@ public class DeploymentContext {
         additionalDeployment.add(configurationData);
     }
 
-    public List getAdditionalDeployment() {
+    public List<ConfigurationData> getAdditionalDeployment() {
         return additionalDeployment;
     }
 

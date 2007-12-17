@@ -28,10 +28,10 @@ import java.io.Reader;
 import java.io.Writer;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Enumeration;
-import java.util.LinkedList;
 import java.util.jar.JarFile;
 import java.util.jar.JarOutputStream;
 import java.util.jar.Manifest;
@@ -82,7 +82,7 @@ public final class DeploymentUtil {
 
     public static void copyFile(File source, File destination) throws IOException {
         File destinationDir = destination.getParentFile();
-        if (false == destinationDir.exists() && false == destinationDir.mkdirs()) {
+        if (!destinationDir.exists() && !destinationDir.mkdirs()) {
             throw new java.io.IOException("Cannot create directory : " + destinationDir);
         }
         
@@ -300,7 +300,7 @@ public final class DeploymentUtil {
     }
     
     
-    public static boolean recursiveDelete(File root, Collection unableToDeleteCollection) {
+    public static boolean recursiveDelete(File root, Collection<String> unableToDeleteCollection) {
         if (root == null) {
             return true;
         }
@@ -318,37 +318,36 @@ public final class DeploymentUtil {
                         }
                     }
                     // help out the GC of file handles by nulling the references
-                    file = null;
                     files[i] = null;
                 }
             }
         }
-        boolean rootDeleteStatus = false;
+        boolean rootDeleteStatus;
         if (!(rootDeleteStatus = root.delete()) && unableToDeleteCollection != null) 
-        	unableToDeleteCollection.add(root);
+        	unableToDeleteCollection.add(root.getAbsolutePath());
         
         return rootDeleteStatus;
     }
     
     public static boolean recursiveDelete(File root) {
-        return recursiveDelete(root,null);
+        return recursiveDelete(root, null);
     }
 
-    public static Collection listRecursiveFiles(File file) {
-        LinkedList list = new LinkedList();
+    public static Collection<File> listRecursiveFiles(File file) {
+        Collection<File> list = new ArrayList<File>();
         listRecursiveFiles(file, list);
         return Collections.unmodifiableCollection(list);
     }
 
-    public static void listRecursiveFiles(File file, Collection collection) {
+    public static void listRecursiveFiles(File file, Collection<File> collection) {
         File[] files = file.listFiles();
         if ( null == files ) {
             return;
         }
-        for (int i = 0; i < files.length; i++) {
-            collection.add(files[i]);
-            if (files[i].isDirectory()) {
-                listRecursiveFiles(files[i], collection);
+        for (File file1 : files) {
+            collection.add(file1);
+            if (file1.isDirectory()) {
+                listRecursiveFiles(file1, collection);
             }
         }
     }

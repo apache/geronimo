@@ -999,10 +999,7 @@ public class EARConfigBuilder implements ConfigurationBuilder, CorbaGBeanNameSou
 
     private boolean isLibraryEntry(ApplicationType application, ZipEntry entry) {
         String libDir = getLibraryDirectory(application);
-        if (libDir != null && entry.getName().startsWith(libDir)) {
-            return true;
-        }
-        return false;
+        return libDir != null && entry.getName().startsWith(libDir);
     }
 
     private void mapVendorPlans(GerApplicationType gerApplication, Map<String, Object> altVendorDDs, JarFile earFile) throws DeploymentException {
