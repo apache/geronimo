@@ -106,7 +106,7 @@
 
                     <instance>
                         <plugin-artifact>
-                            <artifact-alias key="org.apache.geronimo.configs/j2ee-server//car">org.apache.geronimo.configs/j2ee-server/2.1-SNAPSHOT/car</artifact-alias>
+                            <artifact-alias key="org.apache.geronimo.configs/j2ee-server//car">org.apache.geronimo.configs/j2ee-server/${geronimoVersion}/car</artifact-alias>
                         </plugin-artifact>
                     </instance>
                 </configuration>

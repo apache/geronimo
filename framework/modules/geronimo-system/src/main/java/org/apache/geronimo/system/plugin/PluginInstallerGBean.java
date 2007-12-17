@@ -164,7 +164,7 @@ public class PluginInstallerGBean implements PluginInstaller {
             throw new IllegalArgumentException("No default server instance set up");
         }
         this.configManager = configManager;
-        localSourceRepository = new GeronimoSourceRepository(configManager.getRepositories());
+        localSourceRepository = new GeronimoSourceRepository(configManager.getRepositories(), configManager.getArtifactResolver());
         if (serverInstanceDatas instanceof ReferenceCollection) {
             ((ReferenceCollection) serverInstanceDatas).addReferenceCollectionListener(new ReferenceCollectionListener() {
 
@@ -217,7 +217,7 @@ public class PluginInstallerGBean implements PluginInstaller {
             addServerInstance(instance, artifactManager, writeableRepo, serverInfo, servers, false);
         }
         this.configManager = buildConfigurationManager(artifactManager, writeableRepo, kernel, configStore, classLoader, servers);
-        localSourceRepository = new GeronimoSourceRepository(configManager.getRepositories());
+        localSourceRepository = new GeronimoSourceRepository(configManager.getRepositories(), configManager.getArtifactResolver());
         if (serverInstanceDatas instanceof ReferenceCollection) {
             ((ReferenceCollection) serverInstanceDatas).addReferenceCollectionListener(new ReferenceCollectionListener() {
 
@@ -277,7 +277,7 @@ public class PluginInstallerGBean implements PluginInstaller {
     /* now for tests only */
     PluginInstallerGBean(ConfigurationManager configManager, WritableListableRepository repository, ConfigurationStore configStore, ServerInfo serverInfo, ThreadPool threadPool, Collection<ServerInstance> servers) {
         this.configManager = configManager;
-        localSourceRepository = new GeronimoSourceRepository(configManager.getRepositories());
+        localSourceRepository = new GeronimoSourceRepository(configManager.getRepositories(), configManager.getArtifactResolver());
         this.writeableRepo = repository;
         this.configStore = configStore;
         this.serverInfo = serverInfo;

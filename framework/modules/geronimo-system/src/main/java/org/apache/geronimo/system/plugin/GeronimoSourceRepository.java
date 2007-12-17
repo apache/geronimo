@@ -44,19 +44,23 @@ import org.apache.geronimo.kernel.repository.ListableRepository;
 import org.apache.geronimo.kernel.repository.Repository;
 import org.apache.geronimo.kernel.repository.WritableListableRepository;
 import org.apache.geronimo.kernel.repository.WriteableRepository;
+import org.apache.geronimo.kernel.repository.ArtifactResolver;
+import org.apache.geronimo.kernel.repository.MissingDependencyException;
 import org.apache.geronimo.system.configuration.RepositoryConfigurationStore;
 import org.apache.geronimo.system.plugin.model.PluginListType;
 import org.apache.geronimo.system.plugin.model.PluginType;
 
 /**
- * @version $Rev:$ $Date:$
+ * @version $Rev$ $Date$
  */
 public class GeronimoSourceRepository implements SourceRepository {
 
     private final Collection<? extends Repository> repos;
+    private final ArtifactResolver artifactResolver;
 
-    public GeronimoSourceRepository(Collection<? extends Repository> repos) {
+    public GeronimoSourceRepository(Collection<? extends Repository> repos, ArtifactResolver artifactResolver) {
         this.repos = repos;
+        this.artifactResolver = artifactResolver;
     }
 
     public PluginListType getPluginList() {
@@ -85,6 +89,11 @@ public class GeronimoSourceRepository implements SourceRepository {
     }
 
     public OpenResult open(Artifact artifact, FileWriteMonitor monitor) throws IOException, FailedLoginException {
+        try {
+            artifact = artifactResolver.resolveInClassLoader(artifact);
+        } catch (MissingDependencyException e) {
+            return null;
+        }
         for (Repository repo: repos) {
             if (repo.contains(artifact)) {
                 File location = repo.getLocation(artifact);

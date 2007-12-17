@@ -81,27 +81,23 @@
                         <dependency>
                             <groupId>org.apache.geronimo.configs</groupId>
                             <artifactId>jaxws-ejb-deployer</artifactId>
-                            <version>2.1-SNAPSHOT</version>
                             <type>car</type>
                         </dependency>
                         <dependency>
                             <groupId>org.apache.geronimo.configs</groupId>
                             <artifactId>axis2-deployer</artifactId>
-                            <version>2.1-SNAPSHOT</version>
                             <type>car</type>
                             <import>classes</import>
                         </dependency>
                         <dependency>
                             <groupId>org.apache.geronimo.configs</groupId>
                             <artifactId>axis2-ejb</artifactId>
-                            <version>2.1-SNAPSHOT</version>
                             <type>car</type>
                             <import>classes</import>
                         </dependency>
                         <dependency>
                             <groupId>org.apache.geronimo.modules</groupId>
                             <artifactId>geronimo-axis2-ejb-builder</artifactId>
-                            <version>2.1-SNAPSHOT</version>
                             <type>jar</type>
                             <import>classes</import>
                         </dependency>
