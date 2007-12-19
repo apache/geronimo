@@ -548,25 +548,25 @@ function addOption(selectbox, value, text )
       <td>&nbsp;</td>
         <td align="right">
       <select name="operation" onChange="checkOtherMath(); updateFormula();">
-        <option value="" <%if (operation.equals("null")){  %>selected="selected"<%} %>>none</option>
+        <option value="" <%if (operation.equals("null") || operation.equals("") || operation == null){  %>selected="selected"<%} %>>none</option>
         <option value="+" <%if (operation.equals("+")){  %>selected="selected"<%} %>>+</option>
         <option value="-" <%if (operation.equals("-")){  %>selected="selected"<%} %>>-</option>
         <option value="*" <%if (operation.equals("*")){  %>selected="selected"<%} %>>*</option>
         <option value="/" <%if (operation.equals("/")){  %>selected="selected"<%} %>>/</option>
-        <option value="other" <%if (!operation.equals("null") && !operation.equals("+") && !operation.equals("-") && !operation.equals("*") && !operation.equals("/")){  %>selected="selected"<%} %>>Other</option>
+        <option value="other" <%if (!operation.equals("null") && !operation.equals("+") && !operation.equals("-") && !operation.equals("*") && !operation.equals("/") && !operation.equals("") && operation != null){  %>selected="selected"<%} %>>Other</option>
       </select>
       </td>
-      <td><input type="text" <%if (!operation.equals("null") && !operation.equals("+") && !operation.equals("-") && !operation.equals("*") && !operation.equals("/")){  %><%} else {%>style="display: none;"<%}%> width="6" size="8" name="othermath" onKeyUp='noAlphaMath(this); updateFormula();' onKeyPress='noAlphaMath(this); updateFormula();' value="<%=operation %>"/></td>
+      <td><input type="text" <%if (!operation.equals("null") && !operation.equals("+") && !operation.equals("-") && !operation.equals("*") && !operation.equals("/") && !operation.equals("") && operation != null){  %><%} else {%>style="display: none;"<%}%> width="6" size="8" name="othermath" onKeyUp='noAlphaMath(this); updateFormula();' onKeyPress='noAlphaMath(this); updateFormula();' value="<%=operation %>"/></td>
     </tr>
     <tr>
       <td>Data series 2:</td>
       <td>&nbsp;</td>
       <td align="right">
-      <select name="data2operation" <%if (operation.equals("null")){  %>disabled="disabled"<%} %> onchange="updateFormula();">
+      <select name="data2operation" <%if (operation.equals("null") || operation.equals("") || operation == null){  %>disabled="disabled"<%} %> onchange="updateFormula();">
         <option value="A" <%if (data2operation.equals("A")){  %>selected="selected"<%} %>>As-is</option>
         <option value="D" <%if (data2operation.equals("D")){  %>selected="selected"<%} %>>Change (Delta) in</option>
       </select>
-      <select name="dataname2" <%if (operation.equals("null")){  %>disabled="disabled"<%} %> onchange=" checkNoData2(); updateFormula();">
+      <select name="dataname2" <%if (operation.equals("null") || operation.equals("") || operation == null){  %>disabled="disabled"<%} %> onchange=" checkNoData2(); updateFormula();">
         <option value="">-Select Operation First-</option>
       </select>
       <script type='text/javascript'>
