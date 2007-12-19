@@ -38,6 +38,7 @@
       <module>ca-helper</module>
         <module>geronimo-uddi-db</module>
         <module>mejb</module>
+        <module>monitoring</module>
         <module>remote-deploy</module>
         <module>sharedlib</module>
         <module>uddi-server</module>

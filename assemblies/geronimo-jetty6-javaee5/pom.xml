@@ -509,6 +509,21 @@
             <type>jar</type>
         </dependency>
 
+        <!-- Monitoring plugins -->
+        <dependency>
+            <groupId>org.apache.geronimo.plugins</groupId>
+            <artifactId>agent</artifactId>
+            <version>${version}</version>
+            <type>car</type>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.geronimo.plugins</groupId>
+            <artifactId>mconsole-jetty</artifactId>
+            <version>${version}</version>
+            <type>car</type>
+        </dependency>
+
     </dependencies>
 
     <build>
