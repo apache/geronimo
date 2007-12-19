@@ -35,14 +35,11 @@ import javax.management.j2ee.statistics.CountStatistic;
  * Jetty Web Connector class for JSR-77 stats.
  */
 public class JettyWebConnectorStatsImpl extends WebConnectorStatsImpl implements JettyWebConnectorStats {
-    private CountStatisticImpl connectionsCount;
     private CountStatisticImpl requestCount;
     private TimeStatisticImpl connectionsDuration;
     private RangeStatisticImpl connectionsRequest;
     
     public JettyWebConnectorStatsImpl() {
-        connectionsCount = new CountStatisticImpl("Connections Count", StatisticImpl.UNIT_COUNT,
-                "Total number of connections made to server", 0);
         requestCount = new CountStatisticImpl("Request Count", StatisticImpl.UNIT_COUNT,
                 "Total number of requests made to server", 0);
         connectionsDuration = new TimeStatisticImpl("Connections Duration", StatisticImpl.UNIT_TIME_MILLISECOND,
@@ -50,17 +47,9 @@ public class JettyWebConnectorStatsImpl extends WebConnectorStatsImpl implements
         connectionsRequest = new RangeStatisticImpl("Connections Request", StatisticImpl.UNIT_COUNT,
                 "Range for connections requested during the observed period", 0);       // all 0's
         
-        addStat("ConnectionsCount", connectionsCount);
         addStat("RequestCount", requestCount);
         addStat("ConnectionsDuration", connectionsDuration);
         addStat("ConnectionsRequest", connectionsRequest);
-    }
-   
-    /**
-     * Gets the number of connections since statistics gathering started.
-     */
-    public CountStatistic getConnectionsCount() {
-        return connectionsCount;
     }
     
     /**
@@ -86,13 +75,6 @@ public class JettyWebConnectorStatsImpl extends WebConnectorStatsImpl implements
     }
     
     /**
-     * Gets the number of connections since statistics gathering started.
-     */
-    public CountStatisticImpl getConnectionsCountImpl() {
-        return connectionsCount;
-    }
-    
-    /**
      * Gets the number of request count since statistics gathering started.
      */
     public CountStatisticImpl getRequestCountImpl() {
@@ -100,8 +82,8 @@ public class JettyWebConnectorStatsImpl extends WebConnectorStatsImpl implements
     }
 
     /**
-     * Gets the avg, min, max, and total connection duration time since 
-     * statistics gathering started.
+     * Gets the count, min, max, and total connection duration time since 
+     * statistics gathering started. The avg is total/count
      */
     public TimeStatisticImpl getConnectionsDurationImpl() {
         return connectionsDuration;

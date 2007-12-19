@@ -32,27 +32,18 @@ import javax.management.j2ee.statistics.CountStatistic;
 public interface WebContainerStats extends Stats {
 
     /**
-     * Gets the number of requests that have been processed since statistics
-     * gathering started.
-     */
-    CountStatistic getTotalRequestCount();
-
-    /**
      * Gets the number of requests being processed concurrently (as well
      * as the min and max since statistics gathering started).
      */
     RangeStatistic getActiveRequestCount();
 
     /**
+     * Gets the the number of requests that have been processed since 
+     * statistics gathering started.
      * Gets the length of time taken to process a request (includes
      * figures across all requests since statistics gathering started)
      */
     TimeStatistic getRequestDuration();
-
-    /**
-     * Gets the average time to process a request
-     */
-    CountStatistic getRequestDurationAvg();
 
     /**
      * Gets the count of 1xx responses

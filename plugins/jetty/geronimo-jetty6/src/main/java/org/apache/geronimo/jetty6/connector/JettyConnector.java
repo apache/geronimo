@@ -244,12 +244,10 @@ public abstract class JettyConnector implements GBeanLifecycle, JettyWebConnecto
             stats.getOpenConnectionCountImpl().setCurrent(listener.getConnectionsOpen());
             stats.getOpenConnectionCountImpl().setHighWaterMark(listener.getConnectionsOpenMax());
             stats.getOpenConnectionCountImpl().setLowWaterMark(listener.getConnectionsOpenMin());
-            // connections count
-            stats.getConnectionsCountImpl().setCount(listener.getConnections());
             // request count
             stats.getRequestCountImpl().setCount(listener.getRequests());
-            // connections durations
-            stats.getConnectionsDurationImpl().setCount(listener.getConnectionsDurationAve());
+            // connections count and durations
+            stats.getConnectionsDurationImpl().setCount(listener.getConnections());
             stats.getConnectionsDurationImpl().setMaxTime(listener.getConnectionsDurationMax());
             stats.getConnectionsDurationImpl().setMinTime(listener.getConnectionsDurationMin());
             stats.getConnectionsDurationImpl().setTotalTime(listener.getConnectionsDurationTotal());

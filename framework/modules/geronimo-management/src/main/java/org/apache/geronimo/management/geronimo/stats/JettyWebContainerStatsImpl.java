@@ -32,10 +32,8 @@ import org.apache.geronimo.management.stats.TimeStatisticImpl;
  * @version $Revision: 1.0$
  */
 public class JettyWebContainerStatsImpl extends StatsImpl implements JettyWebContainerStats {
-    private CountStatisticImpl totalRequestCount;
     private RangeStatisticImpl activeRequestCount;
     private TimeStatisticImpl requestDuration;
-    private CountStatisticImpl requestDurationAvg;
     private CountStatisticImpl response1xx;
     private CountStatisticImpl response2xx;
     private CountStatisticImpl response3xx;
@@ -44,14 +42,10 @@ public class JettyWebContainerStatsImpl extends StatsImpl implements JettyWebCon
     private CountStatisticImpl statsOnMs;               // time elapsed since the stats collection
 
     public JettyWebContainerStatsImpl() {
-        totalRequestCount = new CountStatisticImpl("Request Count", StatisticImpl.UNIT_COUNT,
-                "The number of requests that were handled since statistics gathering started");
         activeRequestCount = new RangeStatisticImpl("Active Request Count", StatisticImpl.UNIT_COUNT,
                 "The number of requests being processed concurrently");
         requestDuration = new TimeStatisticImpl("Request Duration", StatisticImpl.UNIT_TIME_MILLISECOND,
                 "The length of time that it's taken to handle individual requests");
-        requestDurationAvg = new CountStatisticImpl("Request Duration Average", StatisticImpl.UNIT_TIME_MILLISECOND,
-                "The average length of time that it's taken to handle individual requests");
         response1xx = new CountStatisticImpl("Response 1xx", StatisticImpl.UNIT_COUNT,
                 "The number of 1xx responses");
         response2xx = new CountStatisticImpl("Response 2xx", StatisticImpl.UNIT_COUNT,
@@ -65,10 +59,8 @@ public class JettyWebContainerStatsImpl extends StatsImpl implements JettyWebCon
         statsOnMs = new CountStatisticImpl("Stats Duration", StatisticImpl.UNIT_TIME_MILLISECOND,
                 "The length of time that statistics have been collected.");
 
-        addStat("TotalRequestCount", totalRequestCount);
         addStat("ActiveRequestCount", activeRequestCount);
         addStat("RequestDuration", requestDuration);
-        addStat("RequestDurationAvg", requestDurationAvg);
         addStat("Responses1xx", response1xx);
         addStat("Responses2xx", response2xx);
         addStat("Responses3xx", response3xx);
@@ -83,20 +75,12 @@ public class JettyWebContainerStatsImpl extends StatsImpl implements JettyWebCon
  * retrieve the stats for presentation purposes.
  */
 
-    public CountStatistic getTotalRequestCount() {
-        return totalRequestCount;
-    }
-
     public RangeStatistic getActiveRequestCount() {
         return activeRequestCount;
     }
 
     public TimeStatistic getRequestDuration() {
         return requestDuration;
-    }
-
-    public CountStatistic getRequestDurationAvg() {
-        return requestDurationAvg;
     }
 
     /**
@@ -151,20 +135,12 @@ public class JettyWebContainerStatsImpl extends StatsImpl implements JettyWebCon
  * These are used by the JettyContainerImpl to set the values.
  */
 
-    public CountStatisticImpl getTotalRequestCountImpl() {
-        return totalRequestCount;
-    }
-
     public RangeStatisticImpl getActiveRequestCountImpl() {
         return activeRequestCount;
     }
 
     public TimeStatisticImpl getRequestDurationImpl() {
         return requestDuration;
-    }
-
-    public CountStatisticImpl getRequestDurationAvgImpl() {
-        return requestDurationAvg;
     }
 
     /**

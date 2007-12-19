@@ -167,19 +167,15 @@ public class JettyContainerImpl implements JettyContainer, SoapHandler, GBeanLif
     public Stats getStats() {
         if (isStatsOn()) {
             stats.setLastSampleTime();
-            /* set active request count */
-            stats.getTotalRequestCountImpl().setCount((long)statsHandler.getRequests());
-    
+
             /* set active request range values */
             stats.getActiveRequestCountImpl().setCurrent((long)statsHandler.getRequestsActive());
             stats.getActiveRequestCountImpl().setLowWaterMark((long)statsHandler.getRequestsActiveMin());
             stats.getActiveRequestCountImpl().setHighWaterMark((long)statsHandler.getRequestsActiveMax());
     
-            /* set request duration average time */
-            stats.getRequestDurationAvgImpl().setCount((long)statsHandler.getRequestsDurationAve());     // Normally this would be calculated
-    
-            /* set request duration time values */
-//            stats.getRequestDurationImpl().setCount((long)statsHandler.getRequestsDurationCount());    Not yet supported by Jetty
+            /* set request duration time values, avg = Totaltime/Count */
+            /* set active request count */
+            stats.getRequestDurationImpl().setCount((long)statsHandler.getRequests());
             stats.getRequestDurationImpl().setMaxTime((long)statsHandler.getRequestsDurationMax());
             stats.getRequestDurationImpl().setMinTime((long)statsHandler.getRequestsDurationMin());
             stats.getRequestDurationImpl().setTotalTime((long)statsHandler.getRequestsDurationTotal());

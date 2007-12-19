@@ -133,14 +133,20 @@ public class WebManagerPortlet extends BasePortlet {
                         if (populateStats) {
                             // get the detailed stats
                             WebContainerStats webStats = (WebContainerStats) ((StatisticsProvider)container).getStats();
-                            renderRequest.setAttribute("totalRequestCount", new Long(webStats.getTotalRequestCount().getCount()));
+                            //renderRequest.setAttribute("totalRequestCount", new Long(webStats.getTotalRequestCount().getCount()));
                             renderRequest.setAttribute("activeRequestCountCurrent", new Long(webStats.getActiveRequestCount().getCurrent()));
                             renderRequest.setAttribute("activeRequestCountLow", new Long(webStats.getActiveRequestCount().getLowWaterMark()));
                             renderRequest.setAttribute("activeRequestCountHigh", new Long(webStats.getActiveRequestCount().getHighWaterMark()));
-                            renderRequest.setAttribute("requestDurationAvg", new Long(webStats.getRequestDurationAvg().getCount()));
+                            
+                            Long count = new Long(webStats.getRequestDuration().getCount());
+                            Long totalTime = new Long(webStats.getRequestDuration().getTotalTime());
+                            renderRequest.setAttribute("totalRequestCount", count);
                             renderRequest.setAttribute("requestDurationMinTime", new Long(webStats.getRequestDuration().getMinTime()));
                             renderRequest.setAttribute("requestDurationMaxTime", new Long(webStats.getRequestDuration().getMaxTime()));
-                            renderRequest.setAttribute("requestDurationTotalTime", new Long(webStats.getRequestDuration().getTotalTime()));
+                            renderRequest.setAttribute("requestDurationTotalTime", totalTime);
+                            // renderRequest.setAttribute("requestDurationAvg", new Long(webStats.getRequestDurationAvg().getCount()));
+                            Long avg = count == 0 ? 0: new Long(totalTime/count);
+                            renderRequest.setAttribute("requestDurationAvg", avg);
                             renderRequest.setAttribute("response1xx", new Long(webStats.getResponses1xx().getCount()));
                             renderRequest.setAttribute("response2xx", new Long(webStats.getResponses2xx().getCount()));
                             renderRequest.setAttribute("response3xx", new Long(webStats.getResponses3xx().getCount()));

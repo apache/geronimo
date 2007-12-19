@@ -24,10 +24,6 @@ import javax.management.j2ee.statistics.TimeStatistic;
 import javax.management.j2ee.statistics.CountStatistic;
 
 public interface JettyWebConnectorStats extends WebConnectorStats {
-    /**
-     * Gets the number of connections since statistics gathering started.
-     */
-    CountStatistic getConnectionsCount();
     
     /**
      * Gets the number of request count since statistics gathering started.
@@ -35,7 +31,7 @@ public interface JettyWebConnectorStats extends WebConnectorStats {
     CountStatistic getRequestCount();
 
     /**
-     * Gets the avg, min, max, and total connection duration time since 
+     * Gets the count, min, max, and total connection duration time since 
      * statistics gathering started.
      */
     TimeStatistic getConnectionsDuration();
