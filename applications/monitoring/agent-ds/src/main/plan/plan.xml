@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<connector xmlns="http://geronimo.apache.org/xml/ns/j2ee/connector-${geronimoSchemaVersion}">
+    <environment>
+        <moduleId>
+            <groupId>${pom.groupId}</groupId>
+            <artifactId>${pom.artifactId}</artifactId>
+            <version>${version}</version>
+            <type>car</type>
+        </moduleId>
+        <dependencies>
+            <dependency>
+                <groupId>org.apache.geronimo.configs</groupId>
+                <artifactId>system-database</artifactId>
+                <type>car</type>
+            </dependency>
+            <!-- SQL files -->
+	        <dependency>
+	            <groupId>org.apache.geronimo.plugins.monitoring</groupId>
+	            <artifactId>agent-sql</artifactId>
+	            <version>${monitoringConsoleVersion}</version>
+	            <type>jar</type>
+	        </dependency>
+        </dependencies>
+    </environment>
+    
+    <resourceadapter>
+        <outbound-resourceadapter>
+            <!-- Pool for Active Statistics -->
+            <connection-definition>
+                <connectionfactory-interface>javax.sql.DataSource</connectionfactory-interface>
+                <connectiondefinition-instance>
+                    <name>jdbc/ActiveDS</name>
+                    <config-property-setting name="CreateDatabase">true</config-property-setting>
+                    <config-property-setting name="Password">monitor</config-property-setting>
+                    <config-property-setting name="UserName">monitor</config-property-setting>
+                    <config-property-setting name="DatabaseName">ActiveMRCDB</config-property-setting>
+                    <connectionmanager>
+                        <local-transaction/>
+                        <single-pool>
+                            <max-size>10</max-size>
+                            <min-size>0</min-size>
+                            <match-one/>
+                        </single-pool>
+                    </connectionmanager>
+                </connectiondefinition-instance>
+            </connection-definition>
+            <!-- Pool for Archived Statistics -->
+            <connection-definition>
+                <connectionfactory-interface>javax.sql.DataSource</connectionfactory-interface>
+                <connectiondefinition-instance>
+                    <name>jdbc/ArchiveDS</name>
+                    <config-property-setting name="CreateDatabase">true</config-property-setting>
+                    <config-property-setting name="Password">monitor</config-property-setting>
+                    <config-property-setting name="UserName">monitor</config-property-setting>
+                    <config-property-setting name="DatabaseName">ArchiveMRCDB</config-property-setting>
+                    <connectionmanager>
+                        <local-transaction/>
+                        <single-pool>
+                            <max-size>10</max-size>
+                            <min-size>0</min-size>
+                            <match-one/>
+                        </single-pool>
+                    </connectionmanager>
+                </connectiondefinition-instance>
+            </connection-definition>
+        </outbound-resourceadapter>
+    </resourceadapter>
+    
+    <!-- These two GBeans will create the tables for the database automatically -->
+    <gbean name="ActiveDSGBean" class="org.apache.geronimo.connector.DatabaseInitializationGBean">
+        <attribute name="testSQL">SELECT t.tablename FROM SYS.SYSTABLES t WHERE t.tablename='Statistics'</attribute>
+        <attribute name="path">META-INF/database/derby/createTables.sql</attribute>
+        <reference name="DataSource">
+            <name>jdbc/ActiveDS</name>
+        </reference>
+    </gbean>
+    <gbean name="ArchiveDSGBean" class="org.apache.geronimo.connector.DatabaseInitializationGBean">
+	    <attribute name="testSQL">SELECT t.tablename FROM SYS.SYSTABLES t WHERE t.tablename='Statistics'</attribute>
+	    <attribute name="path">META-INF/database/derby/createTables.sql</attribute>
+	    <reference name="DataSource">
+	        <name>jdbc/ArchiveDS</name>
+	    </reference>
+    </gbean>
+</connector>

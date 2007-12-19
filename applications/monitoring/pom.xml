@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Licensed to the Apache Software Foundation (ASF) under one
+    or more contributor license agreements.  See the NOTICE file
+    distributed with this work for additional information
+    regarding copyright ownership.  The ASF licenses this file
+    to you under the Apache License, Version 2.0 (the
+    "License"); you may not use this file except in compliance
+    with the License.  You may obtain a copy of the License at
+    
+     http://www.apache.org/licenses/LICENSE-2.0
+    
+    Unless required by applicable law or agreed to in writing,
+    software distributed under the License is distributed on an
+    "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+    KIND, either express or implied.  See the License for the
+    specific language governing permissions and limitations
+    under the License.
+-->
+
+<!-- $Rev$ $Date$ -->
+
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>org.apache.geronimo.plugins</groupId>
+        <artifactId>plugins</artifactId>
+        <version>2.1-SNAPSHOT</version>
+    </parent>
+
+    <groupId>org.apache.geronimo.plugins.monitoring</groupId>
+    <artifactId>monitoring</artifactId>
+    <name>Monitoring and Remote Control</name>
+    <packaging>pom</packaging>
+    <!-- <version>1.0-SNAPSHOT</version> -->
+
+    <description> Geronimo Monitoring and Management </description>
+
+    <properties>
+        <!--
+        NOTE: Project version, to be used instead of ${pom.version} since that
+              value magically changes when using SNAPSHOT versions.
+
+              This value *must* be kept in sync with the value of the <version>
+              element, and it will need to be changed manually before a release,
+              as the maven-release-plugin will not update this value.
+        -->
+        <!-- used in the plans
+        <version>1.0-SNAPSHOT</version> -->
+        <monitoringConsoleVersion>2.1-SNAPSHOT</monitoringConsoleVersion>
+        <consoleVersion>2.1-SNAPSHOT</consoleVersion>
+    </properties>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>javax.annotation</groupId>
+                <artifactId>jsr250-api</artifactId>
+                <version>1.0</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.geronimo.modules</groupId>
+                <artifactId>geronimo-kernel</artifactId>
+                <version>${geronimoVersion}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.geronimo.modules</groupId>
+                <artifactId>geronimo-management</artifactId>
+                <version>${geronimoVersion}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.geronimo.configs</groupId>
+                <artifactId>system-database</artifactId>
+                <version>${geronimoVersion}</version>
+                <type>car</type>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.geronimo.configs</groupId>
+                <artifactId>connector-deployer</artifactId>
+                <version>${geronimoVersion}</version>
+                <type>car</type>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
+
+    <build>
+        <resources>
+            <resource>
+                <directory>${pom.basedir}/src/main/resources</directory>
+                <filtering>true</filtering>
+            </resource>
+        </resources>
+        <pluginManagement>
+            <plugins>
+                <!-- inheriting configration for war plugin, i,e, precompile JSPs -->
+                <!-- inherits car configuration from parent -->
+                <plugin>
+                    <groupId>org.apache.geronimo.plugins</groupId>
+                    <artifactId>car-maven-plugin</artifactId>
+                    <configuration>
+                        <useMavenDependencies>
+                            <value>true</value>
+                            <includeVersion>true</includeVersion>
+                        </useMavenDependencies>
+                    </configuration>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+    </build>
+    
+    <modules>
+        <module>agent</module>
+        <module>agent-ds</module>
+        <module>agent-ear</module>
+        <module>agent-ejb</module>
+        <module>agent-sql</module>
+        <module>mconsole-ds</module>
+        <module>mconsole-ear</module>
+        <module>mconsole-jetty</module>
+        <module>mconsole-tomcat</module>
+        <module>mconsole-war</module>
+    </modules>
+</project>
