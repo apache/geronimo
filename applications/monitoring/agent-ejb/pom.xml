@@ -27,11 +27,11 @@
         <version>2.1-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
-    
+
     <artifactId>agent-ejb</artifactId>
     <name>Geronimo Monitoring :: Monitoring Agent :: EJB</name>
     <description>Geronimo Monitoring Agent EJB Module</description>
-    
+
     <dependencies>
         <!-- TODO get rid of this -->
         <dependency>
@@ -39,30 +39,36 @@
             <artifactId>geronimo-kernel</artifactId>
             <scope>provided</scope>
         </dependency>
+        <!--TODO GERONIMO-3719 hack fix -->
+        <dependency>
+            <groupId>org.apache.xmlbeans</groupId>
+            <artifactId>xmlbeans</artifactId>
+            <scope>provided</scope>
+        </dependency>
 
         <dependency>
-                <groupId>org.apache.geronimo.specs</groupId>
-                <artifactId>geronimo-annotation_1.0_spec</artifactId>
-                <scope>provided</scope>
-            </dependency>
+            <groupId>org.apache.geronimo.specs</groupId>
+            <artifactId>geronimo-annotation_1.0_spec</artifactId>
+            <scope>provided</scope>
+        </dependency>
 
-           <dependency>
-                <groupId>org.apache.geronimo.specs</groupId>
-                <artifactId>geronimo-j2ee-management_1.1_spec</artifactId>
-                <scope>provided</scope>
-            </dependency>
-
-            <dependency>
-                <groupId>org.apache.geronimo.specs</groupId>
-                <artifactId>geronimo-ejb_3.0_spec</artifactId>
-                <scope>provided</scope>
-            </dependency>
-<!-- 
         <dependency>
-            <groupId>commons-logging</groupId>
-            <artifactId>commons-logging</artifactId>
-            <version>1.0.4</version>
-        </dependency> -->
+            <groupId>org.apache.geronimo.specs</groupId>
+            <artifactId>geronimo-j2ee-management_1.1_spec</artifactId>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.geronimo.specs</groupId>
+            <artifactId>geronimo-ejb_3.0_spec</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <!--
+       <dependency>
+           <groupId>commons-logging</groupId>
+           <artifactId>commons-logging</artifactId>
+           <version>1.0.4</version>
+       </dependency> -->
     </dependencies>
 </project>
 

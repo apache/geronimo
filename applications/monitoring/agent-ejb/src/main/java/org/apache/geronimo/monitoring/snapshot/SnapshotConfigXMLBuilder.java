@@ -17,9 +17,7 @@
 package org.apache.geronimo.monitoring.snapshot;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.io.InputStream;
 import java.util.ArrayList;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -28,14 +26,15 @@ import javax.xml.parsers.ParserConfigurationException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
+import org.apache.xmlbeans.XmlCursor;
+import org.apache.xmlbeans.XmlObject;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-import com.sun.org.apache.xml.internal.serialize.OutputFormat;
-import com.sun.org.apache.xml.internal.serialize.XMLSerializer;
+//import com.sun.org.apache.xml.internal.serialize.OutputFormat;
+//import com.sun.org.apache.xml.internal.serialize.XMLSerializer;
 
 /**
  * In charge of dealing with the XML processing of the snapshot's data.
@@ -258,12 +257,16 @@ public class SnapshotConfigXMLBuilder {
      */
     public static void saveDocument(Document document, String path) {
         try {
+            //TODO GERONIMO-3719.  Hack to use xmlbeans to write out xml instead of sun specific classes.
+            XmlObject xmlObject = XmlObject.Factory.parse(document.getDocumentElement());
+            xmlObject.save(new File(path));
+
             // formatting the doc
-            OutputFormat format = new OutputFormat(document);
-            format.setIndenting(true);
+//            OutputFormat format = new OutputFormat(document);
+//            format.setIndenting(true);
             // generate a file output
-            XMLSerializer serializer = new XMLSerializer(new FileOutputStream(new File(path)), format);
-            serializer.serialize(document);
+//            XMLSerializer serializer = new XMLSerializer(new FileOutputStream(new File(path)), format);
+//            serializer.serialize(document);
         } catch(Exception e) {
             log.error(e.getMessage(), e);
         }
