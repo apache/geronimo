@@ -14,52 +14,52 @@
    See the License for the specific language governing permissions and
    limitations under the License.
 --%>
-<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
 <%@ taglib uri="http://java.sun.com/portlet" prefix="portlet"%>
-<%@ page import="org.apache.geronimo.monitoring.console.StatsGraph" %>
-<%@ page import="org.apache.geronimo.monitoring.console.GraphsBuilder" %>
-<%@ page import="java.util.Set" %>
-<%@ page import="java.util.Iterator" %>
-<%@ page import="java.util.HashMap" %>
-<%@ page import="java.util.TreeMap" %>
-<%@ page import="java.util.ArrayList" %>
-<%@ page import="java.lang.String" %>
-<%@ page import="java.sql.Connection" %>
-<%@ page import="java.sql.DatabaseMetaData" %>
-<%@ page import="java.sql.PreparedStatement" %>
-<%@ page import="java.sql.ResultSet" %>
-<%@ page import="java.sql.SQLException" %>
-<%@ page import="org.apache.geronimo.monitoring.console.util.*" %>
-<%@ page import="org.apache.geronimo.monitoring.console.MRCConnector" %>
-<portlet:defineObjects/>
+<%@ page import="org.apache.geronimo.monitoring.console.StatsGraph"%>
+<%@ page import="org.apache.geronimo.monitoring.console.GraphsBuilder"%>
+<%@ page import="java.util.Set"%>
+<%@ page import="java.util.Iterator"%>
+<%@ page import="java.util.HashMap"%>
+<%@ page import="java.util.TreeMap"%>
+<%@ page import="java.util.ArrayList"%>
+<%@ page import="java.lang.String"%>
+<%@ page import="java.sql.Connection"%>
+<%@ page import="java.sql.DatabaseMetaData"%>
+<%@ page import="java.sql.PreparedStatement"%>
+<%@ page import="java.sql.ResultSet"%>
+<%@ page import="java.sql.SQLException"%>
+<%@ page import="org.apache.geronimo.monitoring.console.util.*"%>
+<%@ page import="org.apache.geronimo.monitoring.console.MRCConnector"%>
+<portlet:defineObjects />
 
 <%
+            String message = (String) request.getAttribute("message");
+            String mbean = (String) request.getAttribute("mbean");
+            String dataname1 = (String) request.getAttribute("dataname");
+            String server_id = (String) request.getAttribute("server_id");
 
-String message = (String) request.getAttribute("message");
-String mbean = (String) request.getAttribute("mbean");
-String dataname1 = (String) request.getAttribute("dataname");
-String server_id = (String) request.getAttribute("server_id");
+            DBManager DBase = new DBManager();
+            Connection con = DBase.getConnection();
 
-DBManager DBase = new DBManager();
-Connection con = DBase.getConnection();
+            PreparedStatement pStmt = con
+                    .prepareStatement("SELECT * FROM servers WHERE enabled=1");
+            ResultSet rs = pStmt.executeQuery();
+            MRCConnector mrc = null;
+            ArrayList<String> serverIds = new ArrayList<String>();
+            ArrayList<String> serverNames = new ArrayList<String>();
+            Long snapshotDuration = 5L;
 
-PreparedStatement pStmt = con.prepareStatement("SELECT * FROM servers WHERE enabled=1");
-ResultSet rs = pStmt.executeQuery();
-MRCConnector MRCConnection = null;
-ArrayList<String> serverIds = new ArrayList<String>();
-ArrayList<String> serverNames = new ArrayList<String>();
-
-if (message == null)
-    message = new String("");
-if (mbean == null)
-    mbean = new String("");
-if (dataname1 == null)
-    dataname1 = new String("");
-if (server_id == null)
-    server_id = new String("");
-
+            if (message == null)
+                message = new String("");
+            if (mbean == null)
+                mbean = new String("");
+            if (dataname1 == null)
+                dataname1 = new String("");
+            if (server_id == null)
+                server_id = new String("");
 %>
-<script type = "text/javascript">
+<script type="text/javascript">
 var serverBeans = new Array();
 var serverPrettyBeans = new Array();
 var serverBeanStatAttributes = new Array();
@@ -73,13 +73,14 @@ while (rs.next())
 {
     TreeMap <String,String> trackedBeansMap = null;
     try {
-        MRCConnection = new MRCConnector(       rs.getString("ip"), 
+        mrc = new MRCConnector(       rs.getString("ip"), 
                                                 rs.getString("username"), 
                                                 rs.getString("password"),
                                                 rs.getInt("port"));
-        trackedBeansMap = MRCConnection.getTrackedBeansMap();
+        trackedBeansMap = mrc.getTrackedBeansMap();
         serverIds.add(rs.getString("server_id"));
         serverNames.add(rs.getString("name") +" - "+rs.getString("ip"));
+        snapshotDuration = mrc.getSnapshotDuration();
         %>
         serverBeans[<%=rs.getString("server_id")%>] = new Array();
         serverPrettyBeans[<%=rs.getString("server_id")%>] = new Array();
@@ -89,7 +90,7 @@ while (rs.next())
         for (Iterator <String> it = trackedBeansMap.keySet().iterator(); it.hasNext();)
             {
                 String prettyBean = it.next().toString();
-                Set<String> statAttributes = MRCConnection.getStatAttributesOnMBean(trackedBeansMap.get(prettyBean));
+                Set<String> statAttributes = mrc.getStatAttributesOnMBean(trackedBeansMap.get(prettyBean));
                 %>
                 serverBeans[<%=rs.getString("server_id")%>][<%=i%>]="<%=trackedBeansMap.get(prettyBean)%>";
                 serverPrettyBeans[<%=rs.getString("server_id")%>][<%=i%>]="<%=prettyBean%>";
@@ -121,9 +122,9 @@ while (rs.next())
 </script>
 <!-- <head> -->
 
-    <style type='text/css'>
-    </style>
-    <script type = "text/javascript">
+<style type='text/css'>
+</style>
+<script type="text/javascript">
 <!--
 
 function hide(x) {
@@ -132,7 +133,7 @@ document.getElementById(x).style.display='none';
 function show(x) {
 document.getElementById(x).style.display='';
 }
-function validate() 
+function validate(duration) 
 {
    if (! (document.addGraph.name.value  
       && document.addGraph.dataname1.value
@@ -142,6 +143,11 @@ function validate()
    {
       alert("Server, Name, Data Series, MBean and Timeframe are all required fields");
       return false;
+   }
+   // ensure that the timeframe is at least 2*(snapshotduration)
+   if(duration * 2 > document.addGraph.timeframe.value) {
+       alert("Snapshot Duration needs to be at least " + 2 * duration);
+       return false;
    }
    if (document.addGraph.operation.value == 'other')
    {
@@ -405,34 +411,31 @@ function addOption(selectbox, value, text )
 //-->
 </script>
 <!-- </head> -->
-            <%
- if (!message.equals(""))
- {
- %>
-<div align="left" style="width: 500px">
-<%=message %><br>
+<%
+if (!message.equals("")) {
+%>
+<div align="left" style="width: 500px"><%=message%><br>
 </div>
-<%} %>
+<%
+}
+%>
 <table>
-    <tr>
-        <!-- Body -->
-        <td width="90%" align="left" valign="top">
-            <p>
-            <font face="Verdana" size="+1">
-            Add a Graph
-            </font>
-            </p>         
-            <p>
-  <form onsubmit="return validate();" name="addGraph" method="POST" action="<portlet:actionURL portletMode="edit"><portlet:param name="action" value="saveAddGraph"/></portlet:actionURL>">
-  <table cellpadding="1" cellspacing="1">
-   <tr>
-      <td>Server:</td>
-      <td>&nbsp;</td>
-      <td align="right">
-    <select name="server_id" onChange="updateMbeanList(); updateFormula();">
-      <option value="">-Select Server-</option>
-    </select>    
-    <script type='text/javascript'>
+	<tr>
+		<!-- Body -->
+		<td width="90%" align="left" valign="top">
+		<p><font face="Verdana" size="+1"> Add a Graph </font></p>
+		<p>
+		<form onsubmit="return validate(<%=snapshotDuration/1000/60%>);"
+			name="addGraph" method="POST"
+			action="<portlet:actionURL portletMode="edit"><portlet:param name="action" value="saveAddGraph"/></portlet:actionURL>">
+		<table cellpadding="1" cellspacing="1">
+			<tr>
+				<td>Server:</td>
+				<td>&nbsp;</td>
+				<td align="right"><select name="server_id"
+					onChange="updateMbeanList(); updateFormula();">
+					<option value="">-Select Server-</option>
+				</select> <script type='text/javascript'>
     <% 
     for (int i = 1; i < serverIds.size()+1; i++)
     {
@@ -440,148 +443,159 @@ function addOption(selectbox, value, text )
         document.addGraph.server_id.options[<%=i%>]=new Option("<%=serverNames.get(i-1)%>", "<%=serverIds.get(i-1)%>", <%if (server_id.equals(serverIds.get(i-1))){%>true<%}else{%>false<%}%>);
     <%
     }%>
-    </script>
-    </td>
-      <td></td>
-    </tr>
-    <tr>
-      <td>Name:</td>
-      <td>&nbsp;</td>
-      <td align="right"><input type="text" name="name" value=""></td>
-      <td></td>
-    </tr>
-    <tr>
-      <td>Description:</td>
-      <td>&nbsp;</td>
-      <td align="right"><textarea rows="5" cols="50" name="description"></textarea></td>
-      <td></td>
-    </tr>
-    <tr>
-      <td>X Axis label:</td>
-      <td>&nbsp;</td>
-      <td align="right"><input type="text" name="xlabel" value=""/></td>
-      <td></td>
-    </tr>
-    <tr>
-      <td>Y Axis label:</td>
-      <td>&nbsp;</td>
-      <td align="right"><input type="text" name="ylabel" value=""/></td>
-      <td></td>
-    </tr>
-    <tr>
-        <td>Timeframe:</td>
-        <td>&nbsp;</td>
-        <td align="right"><input type="text" width="5" size="4" name="timeframe" onKeyUp='noAlpha(this)' onKeyPress='noAlpha(this)' value="60"/></td>
-        <td> minutes</td>
-      </tr>
-    <tr>
-      <td>Mbean:</td>
-      <td>&nbsp;</td>
-      <td align="right">
-    <select name="mbean" onChange="updateDatanameList(); updateFormula();">
-      <option value="">-Select Server First-</option>
-    </select>
-    </td>
-      <td></td>
-    </tr>
-    <tr>
-      <td>Data series:</td>
-      <td>&nbsp;</td>
-      <td align="right">
-      <select name="data1operation" onchange="updateFormula();">
-        <option value="A" selected="selected">As-is</option>
-        <option value="D">Change (Delta) in</option>
-      </select>
-      <select name="dataname1" onchange="updateFormula();">
-        <option value="">-Select MBean First-</option>
-      </select>
-      </td>
-      <td></td>
-    </tr>
-    <tr>
-      <td>Math operation:</td>
-      <td>&nbsp;</td>
-        <td align="right">
-      <select name="operation" onChange="checkOtherMath(); updateFormula();">
-        <option value="" selected="selected">none</option>
-        <option value="+">+</option>
-        <option value="-">-</option>
-        <option value="*">*</option>
-        <option value="/">/</option>
-        <option value="other">Other</option>
-      </select>
-      </td>
-      <td><input type="text" style="display: none;" width="6" size="8" name="othermath" onKeyUp='noAlphaMath(this); updateFormula();' onKeyPress='noAlphaMath(this); updateFormula();' value=""/></td>
-    </tr>
-    <tr>
-      <td>Data series 2:</td>
-      <td>&nbsp;</td>
-      <td align="right">
-      <select name="data2operation" disabled="disabled" onchange="updateFormula();">
-        <option value="A" selected="selected">As-is</option>
-        <option value="D">Change (Delta) in</option>
-      </select>
-      <select name="dataname2" disabled="disabled" onchange="updateFormula(); checkNoData2();">
-        <option value="">-Select Operation First-</option>
-      </select>
-      <script type='text/javascript'>
+    </script></td>
+				<td></td>
+			</tr>
+			<tr>
+				<td>Name:</td>
+				<td>&nbsp;</td>
+				<td align="right"><input type="text" name="name" value=""></td>
+				<td></td>
+			</tr>
+			<tr>
+				<td>Description:</td>
+				<td>&nbsp;</td>
+				<td align="right"><textarea rows="5" cols="50"
+					name="description"></textarea></td>
+				<td></td>
+			</tr>
+			<tr>
+				<td>X Axis label:</td>
+				<td>&nbsp;</td>
+				<td align="right"><input type="text" name="xlabel" value="" /></td>
+				<td></td>
+			</tr>
+			<tr>
+				<td>Y Axis label:</td>
+				<td>&nbsp;</td>
+				<td align="right"><input type="text" name="ylabel" value="" /></td>
+				<td></td>
+			</tr>
+			<tr>
+				<td>Timeframe:</td>
+				<td>&nbsp;</td>
+				<td align="right"><input type="text" width="5" size="4"
+					name="timeframe" onKeyUp='noAlpha(this)' onKeyPress='noAlpha(this)'
+					value="60" /></td>
+				<td>minutes</td>
+			</tr>
+			<tr>
+				<td>Mbean:</td>
+				<td>&nbsp;</td>
+				<td align="right"><select name="mbean"
+					onChange="updateDatanameList(); updateFormula();">
+					<option value="">-Select Server First-</option>
+				</select></td>
+				<td></td>
+			</tr>
+			<tr>
+				<td>Data series:</td>
+				<td>&nbsp;</td>
+				<td align="right"><select name="data1operation"
+					onchange="updateFormula();">
+					<option value="A" selected="selected">As-is</option>
+					<option value="D">Change (Delta) in</option>
+				</select> <select name="dataname1" onchange="updateFormula();">
+					<option value="">-Select MBean First-</option>
+				</select></td>
+				<td></td>
+			</tr>
+			<tr>
+				<td>Math operation:</td>
+				<td>&nbsp;</td>
+				<td align="right"><select name="operation"
+					onChange="checkOtherMath(); updateFormula();">
+					<option value="" selected="selected">none</option>
+					<option value="+">+</option>
+					<option value="-">-</option>
+					<option value="*">*</option>
+					<option value="/">/</option>
+					<option value="other">Other</option>
+				</select></td>
+				<td><input type="text" style="display: none;" width="6"
+					size="8" name="othermath"
+					onKeyUp='noAlphaMath(this); updateFormula();'
+					onKeyPress='noAlphaMath(this); updateFormula();' value="" /></td>
+			</tr>
+			<tr>
+				<td>Data series 2:</td>
+				<td>&nbsp;</td>
+				<td align="right"><select name="data2operation"
+					disabled="disabled" onchange="updateFormula();">
+					<option value="A" selected="selected">As-is</option>
+					<option value="D">Change (Delta) in</option>
+				</select> <select name="dataname2" disabled="disabled"
+					onchange="updateFormula(); checkNoData2();">
+					<option value="">-Select Operation First-</option>
+				</select> <script type='text/javascript'>
         updateMbeanList();
-      </script>
-      </td>
-      <td></td>
-    </tr>
-    <tr>
-        <td></td>
-        <td>&nbsp;</td>
-        <td align="right">
-            <input type="checkbox" name="showArchive">Show Archived</input>
-        </td>
-        <td></td>
-    </tr>
-    <tr><td>Graphing: </td><td colspan="2"><strong><span id="formulaData1operation"></span> <span id="formulaDataname1"></span> <span id="formulaOperation"></span> <span id="formulaData2operation"></span> <span id="formulaDataname2"></span></strong></td></tr>
-    <tr><td colspan="3"><font size="-2">&nbsp;</font></td></tr>
-    <tr>
-      <td colspan="1" align="left"><button type="button" value="Cancel" onclick="javascript:history.go(-1)">Cancel</button></td>
-      <td>&nbsp;</td>
-      <td colspan="1" align="right"><input type="submit" value="Add" /></td>
-      <td></td>
-    </tr>
-  </table>
-  </form>
-            </p>
-      <script type='text/javascript'>
+      </script></td>
+				<td></td>
+			</tr>
+			<tr>
+				<td></td>
+				<td>&nbsp;</td>
+				<td align="right"><input type="checkbox" name="showArchive">Show
+				Archived</input></td>
+				<td></td>
+			</tr>
+			<tr>
+				<td>Graphing:</td>
+				<td colspan="2"><strong><span
+					id="formulaData1operation"></span> <span id="formulaDataname1"></span>
+				<span id="formulaOperation"></span> <span id="formulaData2operation"></span>
+				<span id="formulaDataname2"></span></strong></td>
+			</tr>
+			<tr>
+				<td colspan="3"><font size="-2">&nbsp;</font></td>
+			</tr>
+			<tr>
+				<td colspan="1" align="left">
+				<button type="button" value="Cancel"
+					onclick="javascript:history.go(-1)">Cancel</button>
+				</td>
+				<td>&nbsp;</td>
+				<td colspan="1" align="right"><input type="submit" value="Add" /></td>
+				<td></td>
+			</tr>
+		</table>
+		</form>
+		</p>
+		<script type='text/javascript'>
         updateFormula();
         checkNoData2();
-      </script>
-        </td>
-     
-         <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
+      </script></td>
 
-        <!-- Geronimo Links -->
-        <td valign="top">
+		<td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
 
-            <table width="100%" style="border-bottom: 1px solid #2581c7;" cellspacing="1" cellpadding="1">
-                <tr>
-                    <td class="DarkBackground" align="left" nowrap>
-                        <font face="Verdana" size="+1">Navigation</font>
-                    </td>
-                </tr>
-                <tr>
-                    <td bgcolor="#FFFFFF" nowrap>
-                        &nbsp;<br />
-                        <ul>
-                        <li><a href="<portlet:actionURL portletMode="view"><portlet:param name="action" value="showHome" /></portlet:actionURL>">Home</a></li>
-                        <li><a href="<portlet:actionURL portletMode="view"><portlet:param name="action" value="showAllViews" /></portlet:actionURL>">Views</a></li>
-                        <li><a href="<portlet:actionURL portletMode="view"><portlet:param name="action" value="showAllServers" /></portlet:actionURL>">Servers</a></li>
-                        <li><a href="<portlet:actionURL portletMode="view"><portlet:param name="action" value="showAllGraphs" /></portlet:actionURL>">Graphs</a></li>
-                        </ul>
-                        &nbsp;<br />
-                    </td>   
-                </tr>
-            </table>
-            
-        </td>        
-    </tr>
+		<!-- Geronimo Links -->
+		<td valign="top">
+
+		<table width="100%" style="border-bottom: 1px solid #2581c7;"
+			cellspacing="1" cellpadding="1">
+			<tr>
+				<td class="DarkBackground" align="left" nowrap><font
+					face="Verdana" size="+1">Navigation</font></td>
+			</tr>
+			<tr>
+				<td bgcolor="#FFFFFF" nowrap>&nbsp;<br />
+				<ul>
+					<li><a
+						href="<portlet:actionURL portletMode="view"><portlet:param name="action" value="showHome" /></portlet:actionURL>">Home</a></li>
+					<li><a
+						href="<portlet:actionURL portletMode="view"><portlet:param name="action" value="showAllViews" /></portlet:actionURL>">Views</a></li>
+					<li><a
+						href="<portlet:actionURL portletMode="view"><portlet:param name="action" value="showAllServers" /></portlet:actionURL>">Servers</a></li>
+					<li><a
+						href="<portlet:actionURL portletMode="view"><portlet:param name="action" value="showAllGraphs" /></portlet:actionURL>">Graphs</a></li>
+				</ul>
+				&nbsp;<br />
+				</td>
+			</tr>
+		</table>
+
+		</td>
+	</tr>
 </table>
 
 

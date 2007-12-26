@@ -134,6 +134,10 @@ public class GraphsBuilder {
 
                 int skipCount = (int) ((timeFrame / (mrc.getSnapshotDuration() / 60000)))
                         / (snapCount - 2);
+                // ensure that we are at least looking at each snapshot (i.e. skipCount <- 1)
+                if(skipCount == 0) {
+                    skipCount = 1;
+                }
                 snapCount = snapCount + 2;
                 TreeMap<Long, Long> snapshotList1 = mrc
                         .getSpecificStatistics(mBeanName, dataName1, snapCount,

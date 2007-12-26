@@ -73,13 +73,13 @@ if (rs.next())
     boolean archive = rs.getInt("archive") == 1 ? true : false;
     rs.close();
 
-pStmt = con.prepareStatement("SELECT * FROM servers WHERE enabled=1");
-rs = pStmt.executeQuery();
+    pStmt = con.prepareStatement("SELECT * FROM servers WHERE enabled=1");
+    rs = pStmt.executeQuery();
 
-MRCConnector MRCConnection = null;
+    MRCConnector MRCConnection = null;
 
-ArrayList<String> serverIds = new ArrayList<String>();
-ArrayList<String> serverNames = new ArrayList<String>();
+    ArrayList<String> serverIds = new ArrayList<String>();
+    ArrayList<String> serverNames = new ArrayList<String>();
 %>
 <script type = "text/javascript">
 var serverBeans = new Array();
@@ -95,13 +95,14 @@ while (rs.next())
 {
     TreeMap <String,String> trackedBeansMap = null;
     try {
-        MRCConnection = new MRCConnector(           rs.getString("ip"), 
+        mrc = new MRCConnector(           rs.getString("ip"), 
                                                     rs.getString("username"), 
                                                     rs.getString("password"),
                                                     rs.getInt("port"));
-        trackedBeansMap = MRCConnection.getTrackedBeansMap();
+        trackedBeansMap = mrc.getTrackedBeansMap();;
         serverIds.add(rs.getString("server_id"));
         serverNames.add(rs.getString("name") +" - "+rs.getString("ip"));
+        snapshotDuration = mrc.getSnapshotDuration();
         %>
         serverBeans[<%=rs.getString("server_id")%>] = new Array();
         serverPrettyBeans[<%=rs.getString("server_id")%>] = new Array();
@@ -111,8 +112,8 @@ while (rs.next())
         for (Iterator <String> it = trackedBeansMap.keySet().iterator(); it.hasNext();)
             {
                 String prettyBean = it.next().toString();
-                Set<String> statAttributes = MRCConnection.getStatAttributesOnMBean(trackedBeansMap.get(prettyBean));
-                %>
+                 Set<String> statAttributes = mrc.getStatAttributesOnMBean(trackedBeansMap.get(prettyBean));
+            %>
                 serverBeans[<%=rs.getString("server_id")%>][<%=i%>]="<%=trackedBeansMap.get(prettyBean)%>";
                 serverPrettyBeans[<%=rs.getString("server_id")%>][<%=i%>]="<%=prettyBean%>";
                 serverBeanStatAttributes[<%=rs.getString("server_id")%>][<%=i%>] = new Array();
@@ -155,7 +156,7 @@ document.getElementById(x).style.display='none';
 function show(x) {
 document.getElementById(x).style.display='';
 }
-function validate() 
+function validate(duration) 
 {
    if (! (document.editGraph.name.value  
       && document.editGraph.dataname1.value
@@ -165,6 +166,11 @@ function validate()
    {
       alert("Server, Name, Data Series, MBean and Timeframe are all required fields");
       return false;
+   }
+   // ensure that the timeframe is at least 2*(snapshotduration)
+   if(duration * 2 > document.editGraph.timeframe.value) {
+        alert("Snapshot Duration needs to be at least " + 2 * duration);
+        return false;
    }
    if (document.editGraph.operation.value == 'other')
    {
@@ -212,7 +218,7 @@ function validate()
         }
         
     }
-       return;
+    return;
 }
 function noAlpha(obj){
     reg = /[^0-9]/g;
@@ -450,8 +456,8 @@ function addOption(selectbox, value, text )
             </font>
             </p>         
             <p>
-  <form onsubmit="return validate();" name="editGraph" method="POST" action="<portlet:actionURL portletMode="edit"><portlet:param name="action" value="saveEditGraph"/></portlet:actionURL>">
-  <table cellpadding="1" cellspacing="1">
+   <form onsubmit="return validate(<%=snapshotDuration/1000/60%>);" name="editGraph" method="POST" action="<portlet:actionURL portletMode="edit"><portlet:param name="action" value="saveEditGraph"/></portlet:actionURL>">
+   <table cellpadding="1" cellspacing="1">
       <tr>
       <td>Added:</td>
       <td>&nbsp;</td>
@@ -691,7 +697,7 @@ con.close();
                     </td>   
                 </tr>
             </table>
-			<br>
+            <br>
             <br>
             <table width="100%" style="border-bottom: 1px solid #2581c7;" cellspacing="1" cellpadding="1">
                 <tr>
