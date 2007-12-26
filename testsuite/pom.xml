@@ -286,6 +286,7 @@
                                     <configuration>
                                         <logOutput>true</logOutput>
                                         <background>true</background>
+                                        <verifyTimeout>300</verifyTimeout>
                                         <optionSets>
                                             <optionSet>
                                                 <id>default</id>
