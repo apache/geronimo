@@ -89,6 +89,10 @@ public final class MBeanGBeanBridge implements MBeanRegistration, DynamicMBean, 
         return objectName;
     }
 
+    public NotificationBroadcasterSupport getNotificationBroadcasterSupport() {
+        return notificationBroadcaster;
+    }
+    
     public ObjectName preRegister(MBeanServer mBeanServer, ObjectName objectName) throws Exception {
         return objectName;
     }

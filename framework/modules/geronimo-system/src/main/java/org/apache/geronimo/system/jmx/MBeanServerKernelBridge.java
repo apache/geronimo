@@ -27,6 +27,7 @@ import javax.management.JMException;
 import javax.management.JMRuntimeException;
 import javax.management.MBeanInfo;
 import javax.management.MBeanServer;
+import javax.management.NotificationBroadcasterSupport;
 import javax.management.ObjectName;
 
 import org.apache.commons.logging.Log;
@@ -93,6 +94,11 @@ public class MBeanServerKernelBridge implements GBeanLifecycle {
         }
     }
 
+    public NotificationBroadcasterSupport getNotificationBroadcasterSupport(AbstractName abstractName) {
+        MBeanGBeanBridge bridge = (MBeanGBeanBridge)registry.get(abstractName);
+        return (bridge == null) ? null : bridge.getNotificationBroadcasterSupport();
+    }
+    
     private void register(AbstractName abstractName) {
         try {
             MBeanGBeanBridge mbeanGBeanBridge;
