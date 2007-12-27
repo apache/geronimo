@@ -76,7 +76,8 @@ if (rs.next())
     pStmt = con.prepareStatement("SELECT * FROM servers WHERE enabled=1");
     rs = pStmt.executeQuery();
 
-    MRCConnector MRCConnection = null;
+    MRCConnector mrc = null;
+    Long snapshotDuration = null;
 
     ArrayList<String> serverIds = new ArrayList<String>();
     ArrayList<String> serverNames = new ArrayList<String>();
