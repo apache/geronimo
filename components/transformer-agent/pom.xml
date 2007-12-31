@@ -34,6 +34,17 @@
     <packaging>car</packaging>
 
     <description>Geronimo class transformer registry agent.</description>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.apache.geronimo.configs</groupId>
+            <artifactId>geronimo-gbean-deployer</artifactId>
+            <version>${version}</version>
+            <type>car</type>
+            <scope>compile</scope>
+        </dependency>
+        
+    </dependencies>
     
     <build>
         <plugins>

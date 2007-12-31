@@ -2280,6 +2280,7 @@
                 <module>plugins</module>
                 <module>applications</module>
                 <module>assemblies</module>
+                <module>testsuite</module>
             </modules>
         </profile>
 

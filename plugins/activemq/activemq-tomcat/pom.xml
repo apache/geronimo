@@ -69,6 +69,20 @@
             <version>${version}</version>
             <type>car</type>
         </dependency>
+        <dependency>
+            <groupId>org.apache.geronimo.configs</groupId>
+            <artifactId>tomcat6-deployer</artifactId>
+            <version>${version}</version>
+            <type>car</type>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.geronimo.configs</groupId>
+            <artifactId>jasper-deployer</artifactId>
+            <version>${version}</version>
+            <type>car</type>
+            <scope>compile</scope>
+        </dependency>
 
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>

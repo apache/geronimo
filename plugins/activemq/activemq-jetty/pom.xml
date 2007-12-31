@@ -78,6 +78,20 @@
         </dependency>
 
         <dependency>
+            <groupId>org.apache.geronimo.configs</groupId>
+            <artifactId>jetty6-deployer</artifactId>
+            <version>${version}</version>
+            <type>car</type>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.geronimo.configs</groupId>
+            <artifactId>jasper-deployer</artifactId>
+            <version>${version}</version>
+            <type>car</type>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
             <artifactId>geronimo-kernel</artifactId>
             <version>${version}</version>

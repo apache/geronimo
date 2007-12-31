@@ -38,6 +38,13 @@
     <dependencies>
         
         <dependency>
+            <groupId>org.apache.geronimo.configs</groupId>
+            <artifactId>geronimo-gbean-deployer</artifactId>
+            <version>${version}</version>
+            <type>car</type>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
             <artifactId>geronimo-common</artifactId>
             <version>${version}</version>
