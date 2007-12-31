@@ -2283,6 +2283,22 @@
                 <module>testsuite</module>
             </modules>
         </profile>
+        
+        <profile>
+            <id>no-it</id>
+
+            <modules>
+                <module>repository</module>
+                <module>buildsupport</module>
+                <module>testsupport</module>
+                <module>maven-plugins</module>
+                <module>framework</module>
+                <module>components</module>
+                <module>plugins</module>
+                <module>applications</module>
+                <module>assemblies</module>
+            </modules>
+        </profile>
 
 
         <!--
