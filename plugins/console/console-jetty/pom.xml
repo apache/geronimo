@@ -97,7 +97,7 @@
             <artifactId>jasper-deployer</artifactId>
             <version>${version}</version>
             <type>car</type>
-            <scope>compile</scope>
+            <scope>provided</scope>
         </dependency>
 
         <!-- make sure these get into the plugin dependencies -->

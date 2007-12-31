@@ -40,6 +40,16 @@
             <artifactId>geronimo-j2ee</artifactId>
             <version>${version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.apache.geronimo.modules</groupId>
+            <artifactId>geronimo-naming</artifactId>
+            <version>${version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.geronimo.modules</groupId>
+            <artifactId>geronimo-management</artifactId>
+            <version>${version}</version>
+        </dependency>
 
         <!-- for simplicity use the mail uber jar rather than its spec and provider components -->
         <dependency>

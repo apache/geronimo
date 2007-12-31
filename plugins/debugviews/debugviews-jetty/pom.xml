@@ -40,14 +40,14 @@
             <artifactId>jetty6-deployer</artifactId>
             <version>${version}</version>
             <type>car</type>
-            <scope>compile</scope>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
             <artifactId>jasper-deployer</artifactId>
             <version>${version}</version>
             <type>car</type>
-            <scope>compile</scope>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.apache.geronimo.plugins</groupId>

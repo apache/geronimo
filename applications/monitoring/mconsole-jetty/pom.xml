@@ -37,7 +37,28 @@
     <packaging>car</packaging>
 
     <dependencies>
-       <dependency>
+        <dependency>
+            <groupId>org.apache.geronimo.configs</groupId>
+            <artifactId>jetty6-deployer</artifactId>
+            <version>${version}</version>
+            <type>car</type>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.geronimo.configs</groupId>
+            <artifactId>jasper-deployer</artifactId>
+            <version>${version}</version>
+            <type>car</type>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.geronimo.configs</groupId>
+            <artifactId>connector-deployer</artifactId>
+            <version>${version}</version>
+            <type>car</type>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
             <groupId>org.apache.geronimo.plugins</groupId>
             <artifactId>mconsole-ds</artifactId>
             <version>${monitoringConsoleVersion}</version>

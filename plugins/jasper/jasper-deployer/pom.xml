@@ -49,7 +49,6 @@
             <artifactId>jasper</artifactId>
             <version>${version}</version>
             <type>car</type>
-            <scope>runtime</scope>
         </dependency>
 
         <dependency>
