@@ -427,8 +427,10 @@ public class SimpleConfigurationManager implements ConfigurationManager {
         // if this parent hasn't already been processed, iterate into the parent
         Artifact configurationId = configurationData.getId();
         if (!configurationsToLoad.containsKey(configurationId)) {
+            monitor.resolving(configurationId);
             LinkedHashSet resolvedParentIds = resolveParentIds(configurationData);
-
+            monitor.succeeded(configurationId);
+            
             for (Iterator iterator = resolvedParentIds.iterator(); iterator.hasNext();) {
                 Artifact parentId = (Artifact) iterator.next();
                 // if this parent id hasn't already been loaded and is actually a configuration

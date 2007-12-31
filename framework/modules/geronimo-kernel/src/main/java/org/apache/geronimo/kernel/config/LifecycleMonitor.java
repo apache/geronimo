@@ -55,6 +55,12 @@ public interface LifecycleMonitor {
     void addConfiguration(Artifact configurationId);
 
     /**
+     * The configuration manager has started resolving the dependencies of the specified configuration.
+     * @param configurationId the configuration identifier
+     */
+    void resolving(Artifact configurationId);
+
+    /**
      * The configuration manager has started reading the specified configuration.
      * @param configurationId the configuration identifier
      */

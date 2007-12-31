@@ -38,6 +38,10 @@ public class DebugLoggingLifecycleMonitor implements LifecycleMonitor {
         log.debug("added module: " + configurationId);
     }
 
+    public void resolving(Artifact configurationId) {
+        log.debug("resolving dependencies for module: " + configurationId);
+    }
+
     public void reading(Artifact configurationId) {
         log.debug("reading module: " + configurationId);
     }

@@ -27,6 +27,9 @@ public class NullLifecycleMonitor implements LifecycleMonitor {
     public void addConfiguration(Artifact configurationId) {
     }
 
+    public void resolving(Artifact configurationId) {
+    }
+
     public void reading(Artifact configurationId) {
     }
 
