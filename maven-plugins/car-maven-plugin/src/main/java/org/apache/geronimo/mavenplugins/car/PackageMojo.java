@@ -21,16 +21,13 @@ package org.apache.geronimo.mavenplugins.car;
 
 import java.io.File;
 import java.net.URI;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
-
-import org.codehaus.mojo.pluginsupport.util.ArtifactItem;
-import org.codehaus.mojo.pluginsupport.dependency.DependencyTree;
 
 import org.apache.geronimo.deployment.PluginBootstrap2;
 import org.apache.geronimo.gbean.AbstractName;
@@ -46,6 +43,8 @@ import org.apache.geronimo.kernel.config.ConfigurationData;
 import org.apache.geronimo.kernel.config.ConfigurationManager;
 import org.apache.geronimo.kernel.config.ConfigurationUtil;
 import org.apache.geronimo.kernel.config.KernelConfigurationManager;
+import org.apache.geronimo.kernel.config.LifecycleException;
+import org.apache.geronimo.kernel.config.RecordingLifecycleMonitor;
 import org.apache.geronimo.kernel.log.GeronimoLogging;
 import org.apache.geronimo.kernel.management.State;
 import org.apache.geronimo.kernel.repository.DefaultArtifactManager;
@@ -55,8 +54,11 @@ import org.apache.geronimo.system.resolver.ExplicitDefaultArtifactResolver;
 import org.apache.maven.archiver.MavenArchiveConfiguration;
 import org.apache.maven.archiver.MavenArchiver;
 import org.apache.maven.artifact.Artifact;
+import org.apache.maven.artifact.factory.ArtifactFactory;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.project.MavenProject;
+import org.codehaus.mojo.pluginsupport.dependency.DependencyTree;
+import org.codehaus.mojo.pluginsupport.util.ArtifactItem;
 import org.codehaus.plexus.archiver.jar.JarArchiver;
 import org.codehaus.plexus.util.FileUtils;
 
@@ -71,6 +73,14 @@ import org.codehaus.plexus.util.FileUtils;
 public class PackageMojo
     extends AbstractCarMojo
 {
+
+    /**
+     * @component
+     * @required
+     * @readonly
+     */
+    private ArtifactFactory artifactFactory;
+
     /**
      * The maven archive configuration to use.
      *
@@ -292,7 +302,26 @@ public class PackageMojo
             moduleFile = artifact.getFile();
             log.debug("Using module file: " + moduleFile);
         }
-        dependencies.setRootNode(dependencyHelper.getDependencies(project).getRootNode());
+
+        MavenProject depsProject = new MavenProject(project);
+        List<org.apache.maven.model.Dependency> projectDeps = new ArrayList<org.apache.maven.model.Dependency>();
+        for (org.apache.maven.model.Dependency dep: (List<org.apache.maven.model.Dependency>)project.getDependencies()) {
+            org.apache.maven.model.Dependency newDep = new org.apache.maven.model.Dependency();
+            newDep.setArtifactId(dep.getArtifactId());
+            newDep.setGroupId(dep.getGroupId());
+            newDep.setClassifier(dep.getClassifier());
+            newDep.setExclusions(dep.getExclusions());
+            newDep.setOptional(dep.isOptional());
+            newDep.setSystemPath(dep.getSystemPath());
+            newDep.setType(dep.getType());
+            newDep.setVersion(dep.getVersion());
+ // don't copy scope
+
+            projectDeps.add(newDep);
+        }
+        depsProject.setDependencies(projectDeps);
+        depsProject.setDependencyArtifacts(depsProject.createArtifacts(artifactFactory, null, null));
+        dependencies.setRootNode(dependencyHelper.getDependencies(depsProject).getRootNode());
 
         generateExplicitVersionProperties(explicitResolutionProperties, dependencies);
 
@@ -486,8 +515,18 @@ public class PackageMojo
                 org.apache.geronimo.kernel.repository.Artifact configName =
                         org.apache.geronimo.kernel.repository.Artifact.create(artifactName);
                 if (!configurationManager.isLoaded(configName)) {
-                    configurationManager.loadConfiguration(configName);
-                    configurationManager.startConfiguration(configName);
+                    RecordingLifecycleMonitor monitor = new RecordingLifecycleMonitor();
+                    try {
+                        configurationManager.loadConfiguration(configName, monitor);
+                    } catch (LifecycleException e) {
+                        log.error("Could not load deployer configuration: " + configName + "\n" + monitor.toString(), e);
+                    }
+                    monitor = new RecordingLifecycleMonitor();
+                    try {
+                        configurationManager.startConfiguration(configName, monitor);
+                    } catch (LifecycleException e) {
+                        log.error("Could not start deployer configuration: " + configName + "\n" + monitor.toString(), e);
+                    }
                 }
             }
         } finally {
