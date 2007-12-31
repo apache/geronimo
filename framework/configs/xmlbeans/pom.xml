@@ -34,7 +34,7 @@
     <packaging>car</packaging>
 
     <description>Geronimo module that supplies the xmlbeans framework in a single classloader.</description>
-    
+
     <dependencies>
 
         <dependency>
@@ -43,8 +43,8 @@
         </dependency>
 
         <dependency>
-	        <groupId>org.apache.geronimo.configs</groupId>
-	        <artifactId>jee-specs</artifactId>
+            <groupId>org.apache.geronimo.configs</groupId>
+            <artifactId>j2ee-system</artifactId>
             <version>${version}</version>
             <type>car</type>
         </dependency>
@@ -71,10 +71,23 @@
                     </deploymentConfigs>
                     <deployerName>org.apache.geronimo.configs/geronimo-gbean-deployer-bootstrap/${geronimoVersion}/car?j2eeType=Deployer,name=Deployer</deployerName>
                     <useMavenDependencies>
-                        <value>true</value>
-                        <includeVersion>true</includeVersion>
+                        <value>false</value>
                     </useMavenDependencies>
                     <category>Geronimo Core</category>
+                    <dependencies>
+                        <dependency>
+                            <groupId>org.apache.geronimo.configs</groupId>
+                            <artifactId>j2ee-system</artifactId>
+                            <type>car</type>
+                            <import>classes</import>
+                        </dependency>
+                        <dependency>
+                            <groupId>org.apache.xmlbeans</groupId>
+                            <artifactId>xmlbeans</artifactId>
+                            <type>jar</type>
+                            <import>classes</import>
+                        </dependency>
+                    </dependencies>
                 </configuration>
             </plugin>
         </plugins>
