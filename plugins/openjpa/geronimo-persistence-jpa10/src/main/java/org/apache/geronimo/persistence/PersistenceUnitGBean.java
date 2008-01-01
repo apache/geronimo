@@ -35,14 +35,14 @@ import javax.persistence.spi.ClassTransformer;
 import javax.persistence.spi.PersistenceProvider;
 import javax.persistence.spi.PersistenceUnitInfo;
 import javax.persistence.spi.PersistenceUnitTransactionType;
-import javax.sql.DataSource;
 import javax.resource.ResourceException;
+import javax.sql.DataSource;
 
-import org.apache.geronimo.connector.outbound.ConnectionFactorySource;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.gbean.SingleElementCollection;
+import org.apache.geronimo.naming.ResourceSource;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.classloader.TemporaryClassLoader;
 import org.apache.geronimo.transaction.manager.TransactionManagerImpl;
@@ -70,8 +70,8 @@ public class PersistenceUnitGBean implements GBeanLifecycle {
     public PersistenceUnitGBean(String persistenceUnitName,
             String persistenceProviderClassName,
             String persistenceUnitTransactionTypeString,
-            ConnectionFactorySource jtaDataSourceWrapper,
-            ConnectionFactorySource nonJtaDataSourceWrapper,
+            ResourceSource<ResourceException> jtaDataSourceWrapper,
+            ResourceSource<ResourceException> nonJtaDataSourceWrapper,
             List<String> mappingFileNamesUntyped,
             List<String> jarFileUrlsUntyped,
             String persistenceUnitRoot,
@@ -339,8 +339,8 @@ public class PersistenceUnitGBean implements GBeanLifecycle {
         infoBuilder.addAttribute("configurationBaseUrl", URL.class, true);
 
         infoBuilder.addReference("TransactionManager", TransactionManagerImpl.class, NameFactory.JTA_RESOURCE);
-        infoBuilder.addReference("JtaDataSourceWrapper", ConnectionFactorySource.class, NameFactory.JCA_MANAGED_CONNECTION_FACTORY);
-        infoBuilder.addReference("NonJtaDataSourceWrapper", ConnectionFactorySource.class, NameFactory.JCA_MANAGED_CONNECTION_FACTORY);
+        infoBuilder.addReference("JtaDataSourceWrapper", ResourceSource.class, NameFactory.JCA_MANAGED_CONNECTION_FACTORY);
+        infoBuilder.addReference("NonJtaDataSourceWrapper", ResourceSource.class, NameFactory.JCA_MANAGED_CONNECTION_FACTORY);
         infoBuilder.addReference("EntityManagerRegistry", ExtendedEntityManagerRegistry.class, NameFactory.GERONIMO_SERVICE);
 
         infoBuilder.setConstructor(new String[] {

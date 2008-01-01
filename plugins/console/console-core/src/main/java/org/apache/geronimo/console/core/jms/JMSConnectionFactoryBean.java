@@ -18,27 +18,26 @@
 package org.apache.geronimo.console.core.jms;
 
 import javax.jms.ConnectionFactory;
+import javax.resource.ResourceException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.geronimo.connector.outbound.ManagedConnectionFactoryWrapper;
-import org.apache.geronimo.connector.outbound.ConnectionFactorySource;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
+import org.apache.geronimo.naming.ResourceSource;
 
 public class JMSConnectionFactoryBean implements GBeanLifecycle {
 
     private static Log log = LogFactory.getLog(JMSConnectionFactoryBean.class);
 
-    private final ConnectionFactorySource managedConnectionFactoryWrapper;
+    private final ResourceSource<ResourceException> managedConnectionFactoryWrapper;
 
     private String connectionFactoryName = "jms/DefaultActiveMQConnectionFactory";
 
     private ConnectionFactory connectionFactory;
 
-    public JMSConnectionFactoryBean(
-            ConnectionFactorySource managedConnectionFactoryWrapper) {
+    public JMSConnectionFactoryBean(ResourceSource managedConnectionFactoryWrapper) {
         this.managedConnectionFactoryWrapper = managedConnectionFactoryWrapper;
 
     }
@@ -70,15 +69,12 @@ public class JMSConnectionFactoryBean implements GBeanLifecycle {
     static {
 
         GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic("JMS Connection Factory Bean", JMSConnectionFactoryBean.class);
-        infoFactory.addAttribute("connectionFactory", ConnectionFactory.class,
-                false);
+        infoFactory.addAttribute("connectionFactory", ConnectionFactory.class, false);
 
-        infoFactory.addReference("ManagedConnectionFactoryWrapper",
-                ConnectionFactorySource.class);
+        infoFactory.addReference("ManagedConnectionFactoryWrapper", ResourceSource.class);
         infoFactory.addOperation("getConnectionFactory");
 
-        infoFactory
-                .setConstructor(new String[] { "ManagedConnectionFactoryWrapper" });
+        infoFactory.setConstructor(new String[] { "ManagedConnectionFactoryWrapper" });
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
 

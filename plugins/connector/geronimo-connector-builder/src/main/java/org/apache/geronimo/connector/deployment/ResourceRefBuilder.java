@@ -30,12 +30,13 @@ import java.util.Map;
 import java.util.Set;
 
 import javax.annotation.Resource;
-import javax.naming.Reference;
+import javax.resource.ResourceException;
 import javax.xml.namespace.QName;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.common.DeploymentException;
+import org.apache.geronimo.connector.naming.ResourceReferenceFactory;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.gbean.GBeanInfo;
@@ -54,7 +55,6 @@ import org.apache.geronimo.naming.deployment.AbstractNamingBuilder;
 import org.apache.geronimo.naming.deployment.ResourceEnvironmentBuilder;
 import org.apache.geronimo.naming.deployment.ResourceEnvironmentSetter;
 import org.apache.geronimo.naming.reference.ORBReference;
-import org.apache.geronimo.naming.reference.ResourceReference;
 import org.apache.geronimo.naming.reference.URLReference;
 import org.apache.geronimo.xbeans.geronimo.naming.GerPatternType;
 import org.apache.geronimo.xbeans.geronimo.naming.GerResourceRefDocument;
@@ -172,7 +172,7 @@ public class ResourceRefBuilder extends AbstractNamingBuilder implements Resourc
 
                     module.getEarContext().findGBean(containerId);
 
-                    Reference ref = new ResourceReference(module.getConfigId(), containerId, iface);
+                    Object ref = new ResourceReferenceFactory<ResourceException>(module.getConfigId(), containerId, iface);
                     getJndiContextMap(componentContext).put(ENV + name, ref);
                 } catch (GBeanNotFoundException e) {
 

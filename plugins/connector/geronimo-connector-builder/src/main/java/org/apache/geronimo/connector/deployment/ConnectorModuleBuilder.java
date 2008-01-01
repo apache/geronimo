@@ -38,13 +38,11 @@ import java.util.TreeMap;
 import java.util.jar.JarFile;
 import java.util.zip.ZipEntry;
 
-import javax.naming.Reference;
 import javax.xml.namespace.QName;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.common.DeploymentException;
-import org.apache.geronimo.common.UnresolvedReferenceException;
 import org.apache.geronimo.common.propertyeditor.PropertyEditors;
 import org.apache.geronimo.connector.ActivationSpecWrapperGBean;
 import org.apache.geronimo.connector.AdminObjectWrapper;
@@ -99,7 +97,6 @@ import org.apache.geronimo.management.geronimo.JCAAdminObject;
 import org.apache.geronimo.management.geronimo.JCAResourceAdapter;
 import org.apache.geronimo.management.geronimo.ResourceAdapterModule;
 import org.apache.geronimo.naming.deployment.ENCConfigBuilder;
-import org.apache.geronimo.naming.reference.ResourceReference;
 import org.apache.geronimo.schema.SchemaConversionUtils;
 import org.apache.geronimo.xbeans.geronimo.GerAdminobjectInstanceType;
 import org.apache.geronimo.xbeans.geronimo.GerAdminobjectType;

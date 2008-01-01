@@ -16,22 +16,23 @@
  */
 package org.apache.geronimo.mail;
 
-import javax.mail.Authenticator;
-import javax.mail.Session;
-import javax.naming.Context;
-import javax.naming.InitialContext;
-import javax.naming.NamingException;
-import javax.naming.Name;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.Properties;
 
+import javax.mail.Authenticator;
+import javax.mail.Session;
+import javax.naming.Context;
+import javax.naming.InitialContext;
+import javax.naming.Name;
+import javax.naming.NamingException;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
+import org.apache.geronimo.naming.ResourceSource;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.management.JavaMailResource;
 
@@ -49,7 +50,7 @@ import org.apache.geronimo.management.JavaMailResource;
  * @see POP3StoreGBean
  * @see IMAPStoreGBean
  */
-public class MailGBean implements GBeanLifecycle, JavaMailResource {
+public class MailGBean implements GBeanLifecycle, JavaMailResource, ResourceSource {
 
     private final Log log = LogFactory.getLog(MailGBean.class);
 

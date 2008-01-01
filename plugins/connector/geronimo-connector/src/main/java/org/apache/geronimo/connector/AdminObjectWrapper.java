@@ -24,6 +24,7 @@ import java.util.Map;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.DynamicGBean;
 import org.apache.geronimo.gbean.DynamicGBeanDelegate;
+import org.apache.geronimo.naming.ResourceSource;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.management.geronimo.JCAAdminObject;
 
@@ -33,7 +34,7 @@ import org.apache.geronimo.management.geronimo.JCAAdminObject;
  *
  * @version $Rev$ $Date$
  */
-public class AdminObjectWrapper implements DynamicGBean, JCAAdminObject, AdminObjectSource {
+public class AdminObjectWrapper implements DynamicGBean, JCAAdminObject, ResourceSource<RuntimeException> {
 
     private final String adminObjectInterface;
     private final String adminObjectClass;

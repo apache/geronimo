@@ -18,15 +18,15 @@
 package org.apache.geronimo.timer.jdbc;
 
 import java.sql.SQLException;
-import javax.sql.DataSource;
-import javax.transaction.TransactionManager;
-import javax.resource.ResourceException;
-
 import java.util.concurrent.Executor;
 
-import org.apache.geronimo.connector.outbound.ConnectionFactorySource;
+import javax.resource.ResourceException;
+import javax.sql.DataSource;
+import javax.transaction.TransactionManager;
+
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
+import org.apache.geronimo.naming.ResourceSource;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.timer.NontransactionalExecutorTaskFactory;
@@ -38,7 +38,7 @@ import org.apache.geronimo.timer.ThreadPooledTimer;
  */
 public class JDBCStoreThreadPooledNonTransactionalTimer extends ThreadPooledTimer {
 
-    public JDBCStoreThreadPooledNonTransactionalTimer(ConnectionFactorySource managedConnectionFactoryWrapper,
+    public JDBCStoreThreadPooledNonTransactionalTimer(ResourceSource<ResourceException> managedConnectionFactoryWrapper,
                                                       TransactionManager transactionManager,
                                                       Executor threadPool,
                                                       Kernel kernel) throws SQLException, ResourceException {
@@ -53,7 +53,7 @@ public class JDBCStoreThreadPooledNonTransactionalTimer extends ThreadPooledTime
         GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic(JDBCStoreThreadPooledNonTransactionalTimer.class);
         infoFactory.addInterface(PersistentTimer.class);
 
-        infoFactory.addReference("ManagedConnectionFactoryWrapper", ConnectionFactorySource.class, NameFactory.JCA_MANAGED_CONNECTION_FACTORY);
+        infoFactory.addReference("ManagedConnectionFactoryWrapper", ResourceSource.class, NameFactory.JCA_MANAGED_CONNECTION_FACTORY);
         infoFactory.addReference("ThreadPool", Executor.class, NameFactory.GERONIMO_SERVICE);
         infoFactory.addReference("TransactionManager", TransactionManager.class, NameFactory.JTA_RESOURCE);
 

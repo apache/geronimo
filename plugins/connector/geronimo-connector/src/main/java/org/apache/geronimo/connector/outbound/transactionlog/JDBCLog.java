@@ -26,11 +26,12 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
+import javax.resource.ResourceException;
 import javax.sql.DataSource;
 import javax.transaction.xa.Xid;
 
-import org.apache.geronimo.connector.outbound.ConnectionFactorySource;
 import org.apache.geronimo.gbean.GBeanLifecycle;
+import org.apache.geronimo.naming.ResourceSource;
 import org.apache.geronimo.transaction.manager.LogException;
 import org.apache.geronimo.transaction.manager.Recovery;
 import org.apache.geronimo.transaction.manager.TransactionBranchInfo;
@@ -52,9 +53,9 @@ public class JDBCLog implements TransactionLog, GBeanLifecycle {
 
     private DataSource dataSource;
     private final String systemId;
-    private final ConnectionFactorySource managedConnectionFactoryWrapper;
+    private final ResourceSource<ResourceException> managedConnectionFactoryWrapper;
 
-    public JDBCLog(String systemId, ConnectionFactorySource managedConnectionFactoryWrapper) {
+    public JDBCLog(String systemId, ResourceSource<ResourceException> managedConnectionFactoryWrapper) {
         this.systemId = systemId;
         this.managedConnectionFactoryWrapper = managedConnectionFactoryWrapper;
     }

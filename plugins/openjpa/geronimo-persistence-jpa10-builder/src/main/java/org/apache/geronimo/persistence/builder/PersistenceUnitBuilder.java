@@ -49,6 +49,7 @@ import org.apache.geronimo.kernel.GBeanAlreadyExistsException;
 import org.apache.geronimo.kernel.Naming;
 import org.apache.geronimo.kernel.config.ConfigurationStore;
 import org.apache.geronimo.kernel.repository.Environment;
+import org.apache.geronimo.naming.ResourceSource;
 import org.apache.geronimo.persistence.PersistenceUnitGBean;
 import org.apache.geronimo.xbeans.persistence.PersistenceDocument;
 import org.apache.xbean.finder.ResourceFinder;
@@ -69,6 +70,7 @@ public class PersistenceUnitBuilder implements ModuleBuilderExtension {
     private final AbstractNameQuery defaultNonJtaDataSourceName;
     private final AbstractNameQuery extendedEntityManagerRegistryName;
     private static final String ANON_PU_NAME = "AnonymousPersistenceUnit";
+    private static final String RESOURCE_SOURCE_CLASS_NAME = ResourceSource.class.getName();
 
     public PersistenceUnitBuilder(Environment defaultEnvironment,
                                   String defaultPersistenceProviderClassName,
@@ -316,7 +318,7 @@ public class PersistenceUnitBuilder implements ModuleBuilderExtension {
         if (dataSourceString.indexOf('=') == -1) {
             dataSourceString = "?name=" + dataSourceString;
         }
-        AbstractNameQuery dataSourceNameQuery = new AbstractNameQuery(new URI(dataSourceString + "#org.apache.geronimo.connector.outbound.ConnectionFactorySource"));
+        AbstractNameQuery dataSourceNameQuery = new AbstractNameQuery(new URI(dataSourceString + "#" + RESOURCE_SOURCE_CLASS_NAME));
         return dataSourceNameQuery;
     }
 

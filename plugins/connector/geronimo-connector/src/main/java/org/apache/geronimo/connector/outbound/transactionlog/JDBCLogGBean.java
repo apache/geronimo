@@ -17,9 +17,9 @@
 
 package org.apache.geronimo.connector.outbound.transactionlog;
 
-import org.apache.geronimo.connector.outbound.ConnectionFactorySource;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
+import org.apache.geronimo.naming.ResourceSource;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.transaction.manager.TransactionLog;
 
@@ -38,7 +38,7 @@ public class JDBCLogGBean {
 
         infoFactory.addInterface(TransactionLog.class);
 
-        infoFactory.addReference("ConnectionFactorySource", ConnectionFactorySource.class, NameFactory.JCA_MANAGED_CONNECTION_FACTORY);
+        infoFactory.addReference("ConnectionFactorySource", ResourceSource.class, NameFactory.JCA_MANAGED_CONNECTION_FACTORY);
 
         infoFactory.setConstructor(new String[]{"systemId", "ConnectionFactorySource"});
 

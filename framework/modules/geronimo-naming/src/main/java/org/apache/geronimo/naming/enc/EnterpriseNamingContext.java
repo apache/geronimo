@@ -17,10 +17,10 @@
 
 package org.apache.geronimo.naming.enc;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.Collections;
 
 import javax.naming.Context;
 import javax.naming.NamingException;
@@ -28,6 +28,7 @@ import javax.transaction.UserTransaction;
 
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.naming.reference.ClassLoaderAwareReference;
+import org.apache.geronimo.naming.reference.EntryFactory;
 import org.apache.geronimo.naming.reference.KernelAwareReference;
 import org.apache.xbean.naming.context.ImmutableContext;
 
@@ -36,20 +37,23 @@ import org.apache.xbean.naming.context.ImmutableContext;
  */
 public final class EnterpriseNamingContext {
 
-    public static Context createEnterpriseNamingContext(Map componentContext, UserTransaction userTransaction, Kernel kernel, ClassLoader classLoader) throws NamingException {
-        Map map = new HashMap();
+    public static Context createEnterpriseNamingContext(Map<String, Object> componentContext, UserTransaction userTransaction, Kernel kernel, ClassLoader classLoader) throws NamingException {
+        Map<String, Object> map = new HashMap<String, Object>();
         if (componentContext != null) {
             map.putAll(componentContext);
         }
 
         boolean containsEnv = false;
-        for (Iterator iterator = map.entrySet().iterator(); iterator.hasNext();) {
-            Map.Entry entry = (Map.Entry) iterator.next();
-            String name = (String) entry.getKey();
+        for (Map.Entry<String, Object> entry: map.entrySet()) {
+            String name = entry.getKey();
             Object value = entry.getValue();
 
             if (name.startsWith("env/")) {
                 containsEnv = true;
+            }
+            if (value instanceof EntryFactory) {
+                value = ((EntryFactory)value).buildEntry(kernel, classLoader);
+                entry.setValue(value);
             }
             if (value instanceof KernelAwareReference) {
                 ((KernelAwareReference) value).setKernel(kernel);

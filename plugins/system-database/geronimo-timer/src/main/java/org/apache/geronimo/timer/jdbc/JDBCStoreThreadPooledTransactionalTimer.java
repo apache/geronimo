@@ -18,15 +18,15 @@
 package org.apache.geronimo.timer.jdbc;
 
 import java.sql.SQLException;
-import javax.sql.DataSource;
-import javax.transaction.TransactionManager;
-import javax.resource.ResourceException;
-
 import java.util.concurrent.Executor;
 
-import org.apache.geronimo.connector.outbound.ConnectionFactorySource;
+import javax.resource.ResourceException;
+import javax.sql.DataSource;
+import javax.transaction.TransactionManager;
+
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
+import org.apache.geronimo.naming.ResourceSource;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.timer.PersistentTimer;
@@ -43,7 +43,7 @@ public class JDBCStoreThreadPooledTransactionalTimer extends ThreadPooledTimer {
 
     public JDBCStoreThreadPooledTransactionalTimer(int repeatCount,
             TransactionManager transactionManager,
-            ConnectionFactorySource managedConnectionFactoryWrapper,
+            ResourceSource<ResourceException> managedConnectionFactoryWrapper,
             Executor threadPool,
             Kernel kernel) throws SQLException, ResourceException {
         super(new TransactionalExecutorTaskFactory(transactionManager, repeatCount),
@@ -59,7 +59,7 @@ public class JDBCStoreThreadPooledTransactionalTimer extends ThreadPooledTimer {
 
         infoFactory.addAttribute("repeatCount", int.class, true);
         infoFactory.addReference("TransactionManager", TransactionManager.class, NameFactory.JTA_RESOURCE);
-        infoFactory.addReference("ManagedConnectionFactoryWrapper", ConnectionFactorySource.class, NameFactory.JCA_MANAGED_CONNECTION_FACTORY);
+        infoFactory.addReference("ManagedConnectionFactoryWrapper", ResourceSource.class, NameFactory.JCA_MANAGED_CONNECTION_FACTORY);
         infoFactory.addReference("ThreadPool", Executor.class, NameFactory.GERONIMO_SERVICE);
         infoFactory.addAttribute("kernel", Kernel.class, false);
 

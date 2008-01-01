@@ -33,13 +33,14 @@ import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.DynamicGBean;
 import org.apache.geronimo.gbean.DynamicGBeanDelegate;
 import org.apache.geronimo.gbean.GBeanLifecycle;
+import org.apache.geronimo.naming.ResourceSource;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.management.geronimo.JCAManagedConnectionFactory;
 
 /**
  * @version $Rev$ $Date$
  */
-public class ManagedConnectionFactoryWrapper implements GBeanLifecycle, DynamicGBean, JCAManagedConnectionFactory, ConnectionFactorySource {
+public class ManagedConnectionFactoryWrapper implements GBeanLifecycle, DynamicGBean, JCAManagedConnectionFactory, ResourceSource<ResourceException> {
 
     private static final Log log = LogFactory.getLog(ManagedConnectionFactoryWrapper.class);
 

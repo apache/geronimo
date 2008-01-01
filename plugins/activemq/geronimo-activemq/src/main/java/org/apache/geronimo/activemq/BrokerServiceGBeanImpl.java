@@ -19,21 +19,21 @@ package org.apache.geronimo.activemq;
 
 import java.net.URI;
 
-import javax.sql.DataSource;
 import javax.jms.JMSException;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import javax.resource.ResourceException;
+import javax.sql.DataSource;
 
 import org.apache.activemq.broker.BrokerFactory;
 import org.apache.activemq.broker.BrokerService;
 import org.apache.activemq.broker.jmx.ManagementContext;
 import org.apache.activemq.store.DefaultPersistenceAdapterFactory;
 import org.apache.activemq.transport.TransportDisposedIOException;
-import org.apache.geronimo.connector.outbound.ConnectionFactorySource;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
+import org.apache.geronimo.naming.ResourceSource;
 import org.apache.geronimo.management.geronimo.JMSManager;
 import org.apache.geronimo.management.geronimo.NetworkConnector;
 import org.apache.geronimo.system.jmx.MBeanServerReference;
@@ -53,7 +53,7 @@ public class BrokerServiceGBeanImpl implements GBeanLifecycle, BrokerServiceGBea
     private BrokerService brokerService;
     private ServerInfo serverInfo;
     private String dataDirectory;
-    private ConnectionFactorySource dataSource;
+    private ResourceSource<ResourceException> dataSource;
     private ClassLoader classLoader;
     private String objectName;
     private JMSManager manager;
@@ -154,7 +154,7 @@ public class BrokerServiceGBeanImpl implements GBeanLifecycle, BrokerServiceGBea
         infoBuilder.addAttribute("brokerUri", String.class, true);
         infoBuilder.addAttribute("useShutdownHook", Boolean.TYPE, true);
         infoBuilder.addAttribute("dataDirectory", String.class, true);
-        infoBuilder.addReference("dataSource", ConnectionFactorySource.class);
+        infoBuilder.addReference("dataSource", ResourceSource.class);
         infoBuilder.addAttribute("objectName", String.class, false);
         infoBuilder.addReference("manager", JMSManager.class);
         infoBuilder.addInterface(BrokerServiceGBean.class);
@@ -201,11 +201,11 @@ public class BrokerServiceGBeanImpl implements GBeanLifecycle, BrokerServiceGBea
         this.dataDirectory = dataDir;
     }
 
-    public ConnectionFactorySource getDataSource() {
+    public ResourceSource<ResourceException> getDataSource() {
         return dataSource;
     }
 
-    public void setDataSource(ConnectionFactorySource dataSource) {
+    public void setDataSource(ResourceSource<ResourceException> dataSource) {
         this.dataSource = dataSource;
     }
 

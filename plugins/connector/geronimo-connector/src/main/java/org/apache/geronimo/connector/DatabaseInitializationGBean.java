@@ -22,19 +22,19 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.sql.Connection;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.sql.ResultSet;
 
+import javax.resource.ResourceException;
 import javax.sql.DataSource;
-
-import org.apache.geronimo.connector.outbound.ConnectionFactorySource;
-import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.gbean.GBeanInfoBuilder;
-import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.geronimo.gbean.GBeanInfo;
+import org.apache.geronimo.gbean.GBeanInfoBuilder;
+import org.apache.geronimo.naming.ResourceSource;
+import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 
 /**
  * @version $Rev$ $Date$
@@ -44,7 +44,7 @@ public class DatabaseInitializationGBean {
 
     private static final Log log = LogFactory.getLog(DatabaseInitializationGBean.class);
 
-    public DatabaseInitializationGBean(String testSQL, String path, ConnectionFactorySource cfSource, ClassLoader classLoader) throws Exception {
+    public DatabaseInitializationGBean(String testSQL, String path, ResourceSource<ResourceException> cfSource, ClassLoader classLoader) throws Exception {
 
         DataSource ds = (DataSource) cfSource.$getResource();
         Connection c = ds.getConnection();
@@ -118,7 +118,7 @@ public class DatabaseInitializationGBean {
         GBeanInfoBuilder infoBuilder = GBeanInfoBuilder.createStatic(DatabaseInitializationGBean.class, "GBean");
         infoBuilder.addAttribute("testSQL", String.class, false);
         infoBuilder.addAttribute("path", String.class, true);
-        infoBuilder.addReference("DataSource", ConnectionFactorySource.class, NameFactory.JCA_MANAGED_CONNECTION_FACTORY);
+        infoBuilder.addReference("DataSource", ResourceSource.class, NameFactory.JCA_MANAGED_CONNECTION_FACTORY);
         infoBuilder.addAttribute("classLoader", ClassLoader.class, false);
 
         infoBuilder.setConstructor(new String[]{"testSQL", "path", "DataSource", "classLoader"});

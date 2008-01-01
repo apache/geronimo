@@ -16,21 +16,22 @@
  */
 package org.apache.geronimo.webservices.jaxr;
 
-import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.gbean.GBeanInfoBuilder;
-import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
-import org.apache.commons.logging.LogFactory;
-import org.apache.commons.logging.Log;
-
 import javax.xml.registry.ConnectionFactory;
 import javax.xml.registry.JAXRException;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.apache.geronimo.gbean.GBeanInfo;
+import org.apache.geronimo.gbean.GBeanInfoBuilder;
+import org.apache.geronimo.naming.ResourceSource;
+import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 
 /**
  * Simple GBean to provide access to a JAXR ConnectionFactory
  *
  * @version $Rev$ $Date$
  */
-public class JAXRGBean {
+public class JAXRGBean implements ResourceSource {
 
     private final Log log = LogFactory.getLog(JAXRGBean.class);
     private final ClassLoader cl;

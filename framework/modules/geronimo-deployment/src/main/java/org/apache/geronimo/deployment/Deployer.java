@@ -307,7 +307,7 @@ public class Deployer implements GBeanLifecycle {
             Manifest manifest,
             ConfigurationStore store,
             DeploymentContext context) throws DeploymentException, IOException, Throwable {
-        List configurations = new ArrayList();
+        List<ConfigurationData> configurations = new ArrayList<ConfigurationData>();
         configurations.add(context.getConfigurationData());
         configurations.addAll(context.getAdditionalDeployment());
 
