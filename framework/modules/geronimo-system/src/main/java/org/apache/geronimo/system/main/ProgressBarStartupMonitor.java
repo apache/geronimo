@@ -175,7 +175,13 @@ public class ProgressBarStartupMonitor implements StartupMonitor {
         }
         buf.append(time).append("s ");
         if (currentOperation.length() > operationLimit) {
-            buf.append(currentOperation.substring(0, operationLimit - 3)).append("...");
+            if (operationLimit > 3) {
+                buf.append(currentOperation.substring(0, operationLimit - 3)).append("...");
+            } else {
+                for (int i = 0; i < operationLimit; i++) {
+                    buf.append('.');
+                }
+            }
             // int space = currentOperation.indexOf(' ', 5);
             // buf.append(currentOperation.substring(0, space + 1));
             // "Foo BarBarBar" limit 9 = "Foo ...ar" = 13 - 9 + 3 + 1 + 3
