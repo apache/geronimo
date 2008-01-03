@@ -142,9 +142,11 @@ public class GraphsBuilder {
                 TreeMap<Long, Long> snapshotList1 = mrc
                         .getSpecificStatistics(mBeanName, dataName1, snapCount,
                                 skipCount, showArchive);
-                TreeMap<Long, Long> snapshotList2 = mrc
-                        .getSpecificStatistics(mBeanName, dataName2, snapCount,
-                                skipCount, showArchive);
+                TreeMap<Long, Long> snapshotList2 = new TreeMap<Long, Long>();
+                // get the statistics for dataName2 if this graph has one
+                if(dataName2 != null && !dataName2.equals("null")) {
+                    mrc.getSpecificStatistics(mBeanName, dataName2, snapCount, skipCount, showArchive);
+                }
                 // Check if snapshotList is empty
                 if (snapshotList1.size() == 0) {
                     snapshotList1.put(System.currentTimeMillis(), new Long(0));
