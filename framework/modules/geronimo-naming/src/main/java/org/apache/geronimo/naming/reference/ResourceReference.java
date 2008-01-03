@@ -18,31 +18,35 @@
  */
 
 
-package org.apache.geronimo.connector.naming;
+package org.apache.geronimo.naming.reference;
 
 import javax.naming.NamingException;
 
-import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.naming.ResourceSource;
-import org.apache.geronimo.kernel.Kernel;
-import org.apache.geronimo.kernel.repository.Artifact;
-import org.apache.geronimo.naming.reference.AbstractEntryFactory;
+import org.apache.xbean.naming.reference.SimpleReference;
 
 /**
- * @version $Rev:$ $Date:$
+ * @version $Rev$ $Date$
  */
-public class ResourceReferenceFactory<E extends Throwable> extends AbstractEntryFactory<ResourceReference<E>, ResourceSource> {
-    private static final long serialVersionUID = -8208147204560412794L;
+public class ResourceReference<E extends Throwable> extends SimpleReference {
+    private final ResourceSource<E> source;
     private final String type;
 
-
-    public ResourceReferenceFactory(Artifact[] configId, AbstractNameQuery abstractNameQuery, Class targetClass) {
-        super(configId, abstractNameQuery, ResourceSource.class);
-        type = targetClass.getName();
+    public ResourceReference(ResourceSource<E> source, String type) {
+        this.source = source;
+        this.type = type;
     }
 
-    public ResourceReference buildEntry(Kernel kernel, ClassLoader classLoader) throws NamingException {
-        ResourceSource<E> source = getGBean(kernel);
-        return new ResourceReference<E>(source, type);
+    public Object getContent() throws NamingException {
+        try {
+            return source.$getResource();
+        } catch (Throwable e) {
+            throw (NamingException)new NamingException("Could not create resource").initCause(e);
+        }
+    }
+
+    @Override
+    public String getClassName() {
+        return type;
     }
 }
