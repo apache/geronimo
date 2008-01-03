@@ -50,13 +50,17 @@ public class ENCConfigBuilder {
     }
 
     public static AbstractNameQuery buildAbstractNameQuery(GerPatternType pattern, String type, String moduleType, Set interfaceTypes) {
+        return buildAbstractNameQueryFromPattern(pattern, "car", type, moduleType, interfaceTypes);
+    }
+    
+    public static AbstractNameQuery buildAbstractNameQueryFromPattern(GerPatternType pattern, String artifactType, String type, String moduleType, Set interfaceTypes)  {
         String groupId = pattern.isSetGroupId() ? pattern.getGroupId().trim() : null;
         String artifactid = pattern.isSetArtifactId() ? pattern.getArtifactId().trim() : null;
         String version = pattern.isSetVersion() ? pattern.getVersion().trim() : null;
         String module = pattern.isSetModule() ? pattern.getModule().trim() : null;
         String name = pattern.getName().trim();
 
-        Artifact artifact = artifactid != null ? new Artifact(groupId, artifactid, version, "car") : null;
+        Artifact artifact = artifactid != null ? new Artifact(groupId, artifactid, version, artifactType) : null;
         Map nameMap = new HashMap();
         nameMap.put("name", name);
         if (type != null) {
@@ -65,7 +69,7 @@ public class ENCConfigBuilder {
         if (module != null && moduleType != null) {
             nameMap.put(moduleType, module);
         }
-        if(interfaceTypes != null) {
+        if (interfaceTypes != null) {
             Set trimmed = new HashSet();
             for (Iterator it = interfaceTypes.iterator(); it.hasNext();) {
                 String intf = (String) it.next();
@@ -82,7 +86,7 @@ public class ENCConfigBuilder {
         if (type != null) {
             nameMap.put("j2eeType", type);
         }
-        if (module != null) {
+        if (module != null && moduleType != null) {        
             nameMap.put(moduleType, module);
         }
         return new AbstractNameQuery(configId, nameMap);

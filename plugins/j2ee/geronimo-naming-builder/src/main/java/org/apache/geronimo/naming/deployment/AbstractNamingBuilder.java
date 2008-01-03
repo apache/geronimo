@@ -227,42 +227,11 @@ public abstract class AbstractNamingBuilder implements NamingBuilder {
     }
 
     public static AbstractNameQuery buildAbstractNameQuery(GerPatternType pattern, String type, String moduleType, Set interfaceTypes) {
-        String groupId = pattern.isSetGroupId() ? pattern.getGroupId().trim() : null;
-        String artifactid = pattern.isSetArtifactId() ? pattern.getArtifactId().trim() : null;
-        String version = pattern.isSetVersion() ? pattern.getVersion().trim() : null;
-        String module = pattern.isSetModule() ? pattern.getModule().trim() : null;
-        String name = pattern.getName().trim();
-
-        Artifact artifact = artifactid != null ? new Artifact(groupId, artifactid, version, null) : null;
-        Map nameMap = new HashMap();
-        nameMap.put("name", name);
-        if (type != null) {
-            nameMap.put("j2eeType", type);
-        }
-        if (module != null && moduleType != null) {
-            nameMap.put(moduleType, module);
-        }
-        if (interfaceTypes != null) {
-            Set trimmed = new HashSet();
-            for (Iterator it = interfaceTypes.iterator(); it.hasNext();) {
-                String intf = (String) it.next();
-                trimmed.add(intf == null ? null : intf.trim());
-            }
-            interfaceTypes = trimmed;
-        }
-        return new AbstractNameQuery(artifact, nameMap, interfaceTypes);
+        return ENCConfigBuilder.buildAbstractNameQueryFromPattern(pattern, null, type, moduleType, interfaceTypes);
     }
 
     public static AbstractNameQuery buildAbstractNameQuery(Artifact configId, String module, String name, String type, String moduleType) {
-        Map nameMap = new HashMap();
-        nameMap.put("name", name);
-        if (type != null) {
-            nameMap.put("j2eeType", type);
-        }
-        if (module != null) {
-            nameMap.put(moduleType, module);
-        }
-        return new AbstractNameQuery(configId, nameMap);
+        return ENCConfigBuilder.buildAbstractNameQuery(configId, module, name, type, moduleType);
     }
 
     public static Class assureInterface(String interfaceName, String superInterfaceName, String interfaceType, ClassLoader cl) throws DeploymentException {
