@@ -39,8 +39,6 @@ import org.apache.geronimo.kernel.KernelFactory;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.system.serverinfo.BasicServerInfo;
-import org.apache.geronimo.system.plugin.PluginInstaller;
-import org.apache.geronimo.system.plugin.PluginRepositoryList;
 import org.apache.geronimo.management.J2EEResource;
 import org.apache.geronimo.management.EJBModule;
 import org.apache.geronimo.management.AppClientModule;
@@ -119,8 +117,6 @@ public abstract class Abstract77Test extends TestCase {
         SERVER_DATA.setReferencePatterns("ResourceAdapterModules", new ReferencePatterns(new AbstractNameQuery(ResourceAdapterModule.class.getName())));
         SERVER_DATA.setReferencePatterns("WebModules", new ReferencePatterns(new AbstractNameQuery(WebModule.class.getName())));
         // Can't test, there are none of these available
-        //SERVER_DATA.setReferencePatterns("PluginInstaller", new ReferencePatterns(new AbstractNameQuery(PluginInstaller.class.getName())));
-        SERVER_DATA.setReferencePatterns("PluginRepoLists", new ReferencePatterns(new AbstractNameQuery(PluginRepositoryList.class.getName())));
         kernel.loadGBean(SERVER_DATA, classLoader);
 
         // JVM

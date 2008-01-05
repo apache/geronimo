@@ -49,14 +49,13 @@ public class IndexHandler extends BaseImportExportHandler {
     }
 
     public void renderView(RenderRequest request, RenderResponse response, MultiPageModel model) throws PortletException, IOException {
-        PluginRepositoryList[] lists = PortletManager.getCurrentServer(request).getPluginRepositoryLists();
-        
+        List<PluginRepositoryList> lists = ManagementHelper.getManagementHelper(request).getPluginRepositoryLists();
+
         // clear out the catalog if it was previously loaded 
         request.getPortletSession(true).removeAttribute(CONFIG_LIST_SESSION_KEY);
         
         List<URL> list = new ArrayList<URL>();
-        for (int i = 0; i < lists.length; i++) {
-            PluginRepositoryList repo = lists[i];
+        for (PluginRepositoryList repo: lists) {
             list.addAll(repo.getRepositories());
         }
         ConfigurationData[] configs = PortletManager.getConfigurations(request, null, false);

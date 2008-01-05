@@ -29,6 +29,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.AbstractNameQuery;
+import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.KernelRegistry;
 import org.apache.geronimo.kernel.config.ConfigurationManager;
@@ -54,7 +55,7 @@ import org.apache.geronimo.system.plugin.model.PluginType;
 public class AbsentSampleServlet extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         String install = request.getParameter("install");
-        if(install != null && !install.equals("")) {
+        if (install != null && !install.equals("")) {
             doInstall(request, response);
         } else {
             doMessage(request, response);
@@ -85,18 +86,18 @@ public class AbsentSampleServlet extends HttpServlet {
         //todo this is surely wrong
         list.getDefaultRepository().add("http://www.ibiblio.org/maven2/");
         DownloadResults results = installer.install(list, repo.toString(), false, null, null);
-        if(results.isFailed()) {
+        if (results.isFailed()) {
             throw new ServletException("Unable to install sample application", results.getFailure());
         }
         ConfigurationManager mgr = ConfigurationUtil.getConfigurationManager(kernel);
         for (int i = 0; i < results.getInstalledConfigIDs().length; i++) {
             Artifact artifact = results.getInstalledConfigIDs()[i];
-            if(mgr.isConfiguration(artifact)) {
+            if (mgr.isConfiguration(artifact)) {
                 try {
-                    if(!mgr.isLoaded(artifact)) {
+                    if (!mgr.isLoaded(artifact)) {
                         mgr.loadConfiguration(artifact);
                     }
-                    if(!mgr.isRunning(artifact)) {
+                    if (!mgr.isRunning(artifact)) {
                         mgr.startConfiguration(artifact);
                     }
                 } catch (NoSuchConfigException e) {
@@ -106,7 +107,7 @@ public class AbsentSampleServlet extends HttpServlet {
                 }
             }
         }
-        response.sendRedirect(request.getContextPath()+request.getServletPath()+"/");
+        response.sendRedirect(request.getContextPath() + request.getServletPath() + "/");
     }
 
     private String getServerType() {
@@ -115,26 +116,29 @@ public class AbsentSampleServlet extends HttpServlet {
 
     private PluginInstaller getPluginInstaller(Kernel kernel) throws ServletException {
         Set installers = kernel.listGBeans(new AbstractNameQuery(PluginInstaller.class.getName()));
-        if(installers.size() == 0) {
+        if (installers.size() == 0) {
             throw new ServletException("Unable to install sample application; no plugin installer found");
         }
-       return (PluginInstaller)kernel.getProxyManager().createProxy((AbstractName) installers.iterator().next(),
-                                                                    PluginInstaller.class);
+        try {
+            return (PluginInstaller) kernel.getGBean((AbstractName) installers.iterator().next());
+        } catch (GBeanNotFoundException e) {
+            throw new ServletException("Unable to install sample application, plugin installer cannot be retrieved from kernel");
+        }
     }
 
     private URL getFirstPluginRepository(Kernel kernel) throws ServletException {
         Set installers = kernel.listGBeans(new AbstractNameQuery(PluginRepositoryList.class.getName()));
-        if(installers.size() == 0) {
+        if (installers.size() == 0) {
             throw new ServletException("Unable to install sample application; no plugin repository list found");
         }
         PluginRepositoryList repos = ((PluginRepositoryList) kernel.getProxyManager().createProxy((AbstractName) installers.iterator().next(),
                 PluginRepositoryList.class));
 
         List<URL> urls = repos.getRepositories();
-        if(urls.isEmpty()) {
+        if (urls.isEmpty()) {
             repos.refresh();
             urls = repos.getRepositories();
-            if(urls.isEmpty()) {
+            if (urls.isEmpty()) {
                 throw new ServletException("Unable to install sample applicatoin; unable to download repository list");
             }
         }

@@ -25,8 +25,6 @@ import org.apache.geronimo.kernel.repository.WritableListableRepository;
 import org.apache.geronimo.kernel.config.ConfigurationManager;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
 import org.apache.geronimo.system.threads.ThreadPool;
-import org.apache.geronimo.system.plugin.PluginInstaller;
-import org.apache.geronimo.system.plugin.PluginRepositoryList;
 
 /**
  * Geronimo-specific extensions to the standard J2EE server management
@@ -103,16 +101,6 @@ public interface J2EEServer extends org.apache.geronimo.management.J2EEServer {
      * Gets the KeystoreManager associated with this J2EEServer.
      */
     public KeystoreManager getKeystoreManager();
-
-    /**
-     * Gets the lists of plugin repositories available in this server.
-     */
-    public PluginRepositoryList[] getPluginRepositoryLists();
-
-    /**
-     * Gets the PluginInstaller associated with this J2EEServer.
-     */
-    public PluginInstaller getPluginInstaller();
 
     /**
      * Gets the ConfigurationManager associated with this J2EEServer.

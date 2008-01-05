@@ -60,7 +60,6 @@ import org.apache.geronimo.system.configuration.condition.JexlExpressionParser;
 import org.apache.geronimo.system.configuration.condition.ParserUtils;
 import org.apache.geronimo.system.plugin.model.GbeanType;
 import org.apache.geronimo.system.plugin.model.AttributesType;
-import org.apache.geronimo.system.plugin.PluginXmlUtil;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
 import org.xml.sax.SAXException;
 
@@ -131,7 +130,7 @@ public class LocalAttributeManager implements LocalPluginAttributeStore, Persist
         return prefix;
     }
 
-    public synchronized Collection applyOverrides(Artifact configName, Collection untypedGbeanDatas, ClassLoader classLoader) throws InvalidConfigException {
+    public synchronized Collection applyOverrides(Artifact configName, Collection<GBeanData> untypedGbeanDatas, ClassLoader classLoader) throws InvalidConfigException {
         // clone the datas since we will be modifying this collection
         Collection<GBeanData> gbeanDatas = new ArrayList<GBeanData>(untypedGbeanDatas);
 
@@ -343,7 +342,7 @@ public class LocalAttributeManager implements LocalPluginAttributeStore, Persist
     }
 
     static ServerOverride read(Reader input, JexlExpressionParser expressionParser) throws ParserConfigurationException, IOException, SAXException, JAXBException, XMLStreamException, InvalidGBeanException {
-        AttributesType attributes = PluginXmlUtil.loadAttributes(input);
+        AttributesType attributes = AttributesXmlUtil.loadAttributes(input);
         return new ServerOverride(attributes, expressionParser);
     }
 
@@ -403,7 +402,7 @@ public class LocalAttributeManager implements LocalPluginAttributeStore, Persist
 
     static void write(ServerOverride serverOverride, Writer writer) throws XMLStreamException, JAXBException, IOException {
         AttributesType attributes = serverOverride.writeXml();
-        PluginXmlUtil.writeAttributes(attributes, writer);
+        AttributesXmlUtil.writeAttributes(attributes, writer);
         writer.flush();
     }
 

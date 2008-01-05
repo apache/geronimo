@@ -66,13 +66,13 @@ public class DOMUtils {
             
             // compare element names
             if (!expectedElement.getLocalName().equals(actualElement.getLocalName())) {
-                throw new Exception("Element names do match: " + expectedElement.getLocalName() + " " + actualElement.getLocalName());
+                throw new Exception("Element names do not match: " + expectedElement.getLocalName() + " " + actualElement.getLocalName());
             }   
             // compare element ns
             String expectedNS = expectedElement.getNamespaceURI();
             String actualNS = actualElement.getNamespaceURI();
-            if ((expectedNS != actualNS) || (expectedNS != null && !expectedNS.equals(actualNS))) {               
-                throw new Exception("Element namespaces names do match: " + expectedNS + " " + actualNS);
+            if ((expectedNS == null && actualNS != null) || (expectedNS != null && !expectedNS.equals(actualNS))) {               
+                throw new Exception("Element namespaces names do not match: " + expectedNS + " " + actualNS);
             }
             
             String elementName = "{" + expectedElement.getNamespaceURI() + "}" + actualElement.getLocalName();
@@ -80,11 +80,14 @@ public class DOMUtils {
             // compare attributes
             NamedNodeMap expectedAttrs = expectedElement.getAttributes();
             NamedNodeMap actualAttrs = actualElement.getAttributes();
-            if (expectedAttrs.getLength() != actualAttrs.getLength()) {
-                throw new Exception(elementName + ": Number of attributes do not match up: " + expectedAttrs.getLength() + " " + actualAttrs.getLength());
+            if (countNonNamespaceAttribures(expectedAttrs) != countNonNamespaceAttribures(actualAttrs)) {
+                throw new Exception(elementName + ": Number of attributes do not match up: " + countNonNamespaceAttribures(expectedAttrs) + " " + countNonNamespaceAttribures(actualAttrs));
             }
             for (int i = 0; i < expectedAttrs.getLength(); i++) {
                 Attr expectedAttr = (Attr)expectedAttrs.item(i);
+                if (expectedAttr.getName().startsWith("xmlns")) {
+                    continue;
+                }
                 Attr actualAttr = null;
                 if (expectedAttr.getNamespaceURI() == null) {
                     actualAttr = (Attr)actualAttrs.getNamedItem(expectedAttr.getName());
@@ -118,6 +121,17 @@ public class DOMUtils {
                 throw new Exception("Text does not match: " + expectedData + " " + actualData);
             }
         }
-    }       
+    }
+
+    private static int countNonNamespaceAttribures(NamedNodeMap attrs) {
+        int n = 0;
+        for (int i = 0; i< attrs.getLength(); i++ ) {
+            Attr attr = (Attr) attrs.item(i);
+            if (!attr.getName().startsWith("xmlns")) {
+                n++;
+            }
+        }
+        return n;
+    }
 
 }

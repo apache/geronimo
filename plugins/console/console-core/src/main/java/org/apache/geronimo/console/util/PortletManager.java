@@ -85,7 +85,7 @@ public class PortletManager {
         return new KernelManagementHelper(kernel);
     }
 
-    private static Kernel getKernel() {
+    public static Kernel getKernel() {
         //todo: consider making this configurable; we could easily connect to a remote kernel if we wanted to
         Kernel kernel = null;
         try {

@@ -43,7 +43,7 @@ public class MavenAttributeStore
     public MavenAttributeStore() {
     }
 
-    public Collection applyOverrides(Artifact configurationName, Collection datas, ClassLoader classLoader) {
+    public Collection applyOverrides(Artifact configurationName, Collection<GBeanData> datas, ClassLoader classLoader) {
         return datas;
     }
 

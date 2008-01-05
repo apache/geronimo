@@ -90,7 +90,7 @@ public class ListHandler extends BaseImportExportHandler {
         PluginListType data = (PluginListType) request.getPortletSession(true).getAttribute(CONFIG_LIST_SESSION_KEY);
         if (data==null) {
             try {
-                data = PortletManager.getCurrentServer(request).getPluginInstaller().listPlugins(new URL(repository), username, password);
+                data = ManagementHelper.getManagementHelper(request).getPluginInstaller().listPlugins(new URL(repository), username, password);
             } catch (FailedLoginException e) {
                 throw new PortletException("Invalid login for Maven repository '"+repository+"'", e);
             }
@@ -101,7 +101,7 @@ public class ListHandler extends BaseImportExportHandler {
         }
         
         List<PluginInfoBean> plugins = new ArrayList<PluginInfoBean>();
-        PluginInstaller pluginInstaller = PortletManager.getCurrentServer(request).getPluginInstaller();
+        PluginInstaller pluginInstaller = ManagementHelper.getManagementHelper(request).getPluginInstaller();
         
         for (PluginType metadata: data.getPlugin()) {
             

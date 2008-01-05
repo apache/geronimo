@@ -55,7 +55,7 @@ public class AddRepositoryHandler extends BaseImportExportHandler {
     }
 
     public void renderView(RenderRequest request, RenderResponse response, MultiPageModel model) throws PortletException, IOException {
-        PluginRepositoryList[] lists = PortletManager.getCurrentServer(request).getPluginRepositoryLists();
+        List<PluginRepositoryList> lists = ManagementHelper.getManagementHelper(request).getPluginRepositoryLists();
         List<URL> list = new ArrayList<URL>();
         for (PluginRepositoryList repo : lists) {
             list.addAll(repo.getRepositories());
@@ -85,11 +85,10 @@ public class AddRepositoryHandler extends BaseImportExportHandler {
             repo = repo+"/";
         }
         
-        PluginRepositoryList[] lists = PortletManager.getCurrentServer(request).getPluginRepositoryLists();
+        List<PluginRepositoryList> lists = ManagementHelper.getManagementHelper(request).getPluginRepositoryLists();
 
         // Check for duplicates
-        for (int i = 0; i < lists.length; i++) {
-            PluginRepositoryList test = lists[i];
+        for (PluginRepositoryList test: lists) {
             List<URL> all = test.getRepositories();
             for (URL url: all) {
                 String existing = url.toString();
@@ -101,7 +100,7 @@ public class AddRepositoryHandler extends BaseImportExportHandler {
         }
 
         // Verify the repository and add it if valid
-        if(lists.length > 0) {
+        if(lists.size() > 0) {
             URL url;
             try {
                 url = new URL(repo);
@@ -142,7 +141,7 @@ public class AddRepositoryHandler extends BaseImportExportHandler {
                     return false;
                 }
             }
-            lists[0].addUserRepository(url);
+            lists.get(0).addUserRepository(url);
             request.setAttribute("repository", repo);
             return true;
         }

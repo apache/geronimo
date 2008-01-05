@@ -52,7 +52,6 @@
             <version>${version}</version>
         </dependency>
         
-        <!-- needed by the plan -->
         <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
             <artifactId>geronimo-deployment</artifactId>
@@ -65,20 +64,13 @@
             <version>${version}</version>
         </dependency>
         
-        <!-- required for environment dconfigbean support -->
         <dependency>
-            <groupId>org.apache.geronimo.specs</groupId>
-            <artifactId>geronimo-javaee-deployment_1.1MR3_spec</artifactId>
-        </dependency>
-
-        <!-- jsr88 dconfigbean support base classes -->
-        <dependency>
-            <groupId>org.apache.geronimo.modules</groupId>
-            <artifactId>geronimo-deploy-config</artifactId>
+            <groupId>org.apache.geronimo.configs</groupId>
+            <artifactId>plugin</artifactId>
             <version>${version}</version>
+            <type>car</type>
         </dependency>
 
-        <!-- build order hint -->
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
             <artifactId>geronimo-gbean-deployer-bootstrap</artifactId>
@@ -102,9 +94,47 @@
 
                     <category>Geronimo Core</category>
                     <useMavenDependencies>
-                        <value>true</value>
-                        <includeVersion>true</includeVersion>
+                        <value>false</value>
                     </useMavenDependencies>
+                    <dependencies>
+                        <dependency>
+                            <groupId>org.apache.geronimo.configs</groupId>
+                            <artifactId>xmlbeans</artifactId>
+                            <version>${version}</version>
+                            <type>car</type>
+                        </dependency>
+
+                        <dependency>
+                            <groupId>org.apache.geronimo.modules</groupId>
+                            <artifactId>geronimo-common</artifactId>
+                            <version>${version}</version>
+                            <type>jar</type>
+                        </dependency>
+
+                        <!-- needed by the plan -->
+                        <dependency>
+                            <groupId>org.apache.geronimo.modules</groupId>
+                            <artifactId>geronimo-deployment</artifactId>
+                            <version>${version}</version>
+                            <type>jar</type>
+                        </dependency>
+
+                        <dependency>
+                            <groupId>org.apache.geronimo.modules</groupId>
+                            <artifactId>geronimo-service-builder</artifactId>
+                            <version>${version}</version>
+                            <type>jar</type>
+                        </dependency>
+
+                        <dependency>
+                            <groupId>org.apache.geronimo.configs</groupId>
+                            <artifactId>plugin</artifactId>
+                            <version>${version}</version>
+                            <type>car</type>
+                            <import>classes</import>
+                        </dependency>
+
+                    </dependencies>
                     <instance>
                         <plugin-artifact>
                             <config-xml-content>

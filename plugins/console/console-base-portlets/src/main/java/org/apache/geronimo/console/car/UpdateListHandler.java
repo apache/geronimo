@@ -41,9 +41,9 @@ public class UpdateListHandler extends BaseImportExportHandler {
     }
 
     public String actionBeforeView(ActionRequest request, ActionResponse response, MultiPageModel model) throws PortletException, IOException {
-        PluginRepositoryList[] lists = PortletManager.getCurrentServer(request).getPluginRepositoryLists();
-        for (int i = 0; i < lists.length; i++) {
-            lists[i].refresh();
+        List<PluginRepositoryList> lists = ManagementHelper.getManagementHelper(request).getPluginRepositoryLists();
+        for (PluginRepositoryList repo: lists) {
+            repo.refresh();
         }
         return INDEX_MODE+BEFORE_ACTION;
     }

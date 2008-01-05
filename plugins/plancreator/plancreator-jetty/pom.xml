@@ -78,9 +78,10 @@
         </dependency>
 
         <dependency>
-            <groupId>org.apache.geronimo.modules</groupId>
-            <artifactId>geronimo-deploy-jsr88</artifactId>
+            <groupId>org.apache.geronimo.configs</groupId>
+            <artifactId>plugin</artifactId>
             <version>${version}</version>
+            <type>car</type>
         </dependency>
 
         <dependency>

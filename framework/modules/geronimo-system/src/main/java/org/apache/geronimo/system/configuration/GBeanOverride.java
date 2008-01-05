@@ -47,7 +47,6 @@ import org.apache.geronimo.kernel.InvalidGBeanException;
 import org.apache.geronimo.kernel.config.InvalidConfigException;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.system.configuration.condition.JexlExpressionParser;
-import org.apache.geronimo.system.plugin.PluginXmlUtil;
 import org.apache.geronimo.system.plugin.model.AttributeType;
 import org.apache.geronimo.system.plugin.model.GbeanType;
 import org.apache.geronimo.system.plugin.model.ReferenceType;
@@ -188,7 +187,7 @@ public class GBeanOverride implements Serializable {
                 } else {
                     String value;
                     try {
-                        value = PluginXmlUtil.extractAttributeValue(attr);
+                        value = AttributesXmlUtil.extractAttributeValue(attr);
                     } catch (JAXBException e) {
                         throw new InvalidGBeanException("Could not extract attribute value from gbean override", e);
                     } catch (XMLStreamException e) {
@@ -469,7 +468,7 @@ public class GBeanOverride implements Serializable {
                 value = "<attribute xmlns='" + ATTRIBUTE_NAMESPACE + "'>" + value.replaceAll("&(?!amp;)", "&amp;") + "</attribute>";
                 Reader reader = new StringReader(value);
                 try {
-                    AttributeType attribute = PluginXmlUtil.loadAttribute(reader);
+                    AttributeType attribute = AttributesXmlUtil.loadAttribute(reader);
                     attribute.setName(name);
                     String editorClass = propertyEditors.get(name);
                     if (null != editorClass) {

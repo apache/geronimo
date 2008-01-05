@@ -73,7 +73,7 @@ public class ViewPluginDownloadHandler  extends BaseImportExportHandler {
         try {
             PluginListType list = (PluginListType) request.getPortletSession(true).getAttribute(CONFIG_LIST_SESSION_KEY);
             if(list == null) {
-                list = PortletManager.getCurrentServer(request).getPluginInstaller().listPlugins(new URL(repo), user, pass);
+                list = ManagementHelper.getManagementHelper(request).getPluginInstaller().listPlugins(new URL(repo), user, pass);
                 request.getPortletSession(true).setAttribute(CONFIG_LIST_SESSION_KEY, list);
             }
             for (PluginType metadata: list.getPlugin()) {
@@ -95,7 +95,7 @@ public class ViewPluginDownloadHandler  extends BaseImportExportHandler {
         // see if the plugin is installable.  if not then provide the details
         String validationOk = "All requirements for this plugin have been met.";
         StringBuffer validationNotOk = new StringBuffer();
-        PluginInstaller pluginInstaller = PortletManager.getCurrentServer(request).getPluginInstaller();
+        PluginInstaller pluginInstaller = ManagementHelper.getManagementHelper(request).getPluginInstaller();
         PluginType holder = PluginInstallerGBean.copy(plugin.getPlugin(), plugin.getPluginArtifact());
         try {
             pluginInstaller.validatePlugin(holder);

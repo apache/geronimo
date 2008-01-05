@@ -17,10 +17,12 @@
 
 package org.apache.geronimo.console.ajax;
 
+import java.util.Set;
+
+import org.apache.geronimo.gbean.AbstractName;
+import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.KernelRegistry;
-import org.apache.geronimo.management.geronimo.J2EEDomain;
-import org.apache.geronimo.management.geronimo.J2EEServer;
 import org.apache.geronimo.system.plugin.DownloadResults;
 import org.apache.geronimo.system.plugin.PluginInstaller;
 import org.directwebremoting.ScriptSession;
@@ -71,9 +73,11 @@ public class ProgressMonitor {
     private synchronized PluginInstaller getPluginInstaller() throws Exception {
         if (pluginInstaller == null) {
             Kernel kernel = KernelRegistry.getSingleKernel();
-            J2EEDomain domain = (J2EEDomain) kernel.getGBean(J2EEDomain.class);
-            J2EEServer server = domain.getServerInstances()[0];
-            this.pluginInstaller = server.getPluginInstaller();
+            Set<AbstractName> pluginInstallers = kernel.listGBeans(new AbstractNameQuery(PluginInstaller.class.getName()));
+            if (pluginInstallers.size() == 0) {
+                throw new IllegalStateException("No plugin installer registered");
+            }
+            pluginInstaller = (PluginInstaller) kernel.getGBean(pluginInstallers.iterator().next());
         }
         return pluginInstaller;
     }

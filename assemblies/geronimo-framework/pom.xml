@@ -59,20 +59,28 @@
             <type>car</type>
         </dependency>
         
+<!--
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
             <artifactId>upgrade-cli</artifactId>
             <version>${version}</version>
             <type>car</type>
         </dependency>
-        
+-->
+
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
             <artifactId>rmi-naming</artifactId>
             <version>${version}</version>
             <type>car</type>
         </dependency>
-        
+        <dependency>
+            <groupId>org.apache.geronimo.configs</groupId>
+            <artifactId>plugin</artifactId>
+            <version>${version}</version>
+            <type>car</type>
+        </dependency>
+
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
             <artifactId>j2ee-security</artifactId>
@@ -94,33 +102,41 @@
             <type>car</type>
         </dependency>
         
+<!--
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
             <artifactId>online-deployer</artifactId>
             <version>${version}</version>
             <type>car</type>
         </dependency>
-        
+-->
+
+<!--
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
             <artifactId>offline-deployer</artifactId>
             <version>${version}</version>
             <type>car</type>
         </dependency>
-        
+-->
+
+<!--
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
             <artifactId>jsr88-cli</artifactId>
             <version>${version}</version>
             <type>car</type>
         </dependency>
- 
+-->
+
+<!--
          <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
             <artifactId>jsr88-deploymentfactory</artifactId>
             <version>${version}</version>
             <type>car</type>
         </dependency>
+-->
     </dependencies>
     
     <build>

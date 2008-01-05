@@ -73,7 +73,7 @@ public class DownloadCARHandler extends BaseImportExportHandler {
         try {
             PluginListType list = (PluginListType) request.getPortletSession(true).getAttribute(CONFIG_LIST_SESSION_KEY);
             if (list == null) {
-                list = PortletManager.getCurrentServer(request).getPluginInstaller().listPlugins(new URL(repo), user, pass);
+                list = ManagementHelper.getManagementHelper(request).getPluginInstaller().listPlugins(new URL(repo), user, pass);
                 request.getPortletSession(true).setAttribute(CONFIG_LIST_SESSION_KEY, list);
             }
             for (PluginType metadata : list.getPlugin()) {
@@ -109,7 +109,7 @@ public class DownloadCARHandler extends BaseImportExportHandler {
             try {
                 PluginListType list = (PluginListType) request.getPortletSession(true).getAttribute(CONFIG_LIST_SESSION_KEY);
                 if(list == null) {
-                    list = PortletManager.getCurrentServer(request).getPluginInstaller().listPlugins(new URL(repo), user, pass);
+                    list = ManagementHelper.getManagementHelper(request).getPluginInstaller().listPlugins(new URL(repo), user, pass);
                     request.getPortletSession(true).setAttribute(CONFIG_LIST_SESSION_KEY, list);
                 }
                 for (PluginType metadata: list.getPlugin()) {
@@ -131,7 +131,7 @@ public class DownloadCARHandler extends BaseImportExportHandler {
             PluginListType installList = new PluginListType();
             installList.getPlugin().add(copy);
 
-            PluginInstaller configInstaller = PortletManager.getCurrentServer(request).getPluginInstaller();
+            PluginInstaller configInstaller = ManagementHelper.getManagementHelper(request).getPluginInstaller();
             Object downloadKey = configInstaller.startInstall(installList, repo, false, user, pass);
             DownloadResults results = configInstaller.checkOnInstall(downloadKey);
             request.getPortletSession(true).setAttribute(DOWNLOAD_RESULTS_SESSION_KEY, results);

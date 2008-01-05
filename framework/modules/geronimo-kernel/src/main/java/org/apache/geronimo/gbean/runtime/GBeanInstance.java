@@ -349,6 +349,8 @@ public final class GBeanInstance implements StateManageable {
                 }
             }
             throw new InvalidConfigurationException(buf.toString());
+        } catch (NoClassDefFoundError e) {
+            throw new InvalidConfigurationException(e);
         }
 
         // rebuild the gbean info based on the current attributes, operations, and references because

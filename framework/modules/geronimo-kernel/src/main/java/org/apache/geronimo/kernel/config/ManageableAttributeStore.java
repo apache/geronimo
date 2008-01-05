@@ -49,7 +49,7 @@ public interface ManageableAttributeStore {
      * @return                  The modified GBeanData's
      * @throws InvalidConfigException If something bad happens
      */
-    public Collection applyOverrides(Artifact configurationName, Collection datas, ClassLoader classLoader) throws InvalidConfigException;
+    public Collection applyOverrides(Artifact configurationName, Collection<GBeanData> datas, ClassLoader classLoader) throws InvalidConfigException;
 
     /**
      * Sets the stored value for a particular attribute.  The attribute is

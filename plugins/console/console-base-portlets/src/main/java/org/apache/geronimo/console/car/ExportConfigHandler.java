@@ -65,7 +65,7 @@ public class ExportConfigHandler extends BaseImportExportHandler {
 
     public void renderView(RenderRequest request, RenderResponse response, MultiPageModel model) throws PortletException, IOException {
         String configId = request.getParameter("configId");
-        PluginType data = PortletManager.getCurrentServer(request).getPluginInstaller().getPluginMetadata(
+        PluginType data = ManagementHelper.getManagementHelper(request).getPluginInstaller().getPluginMetadata(
                 Artifact.create(configId));
         PluginArtifactType instance = data.getPluginArtifact().get(0);
         request.setAttribute("configId", PluginInstallerGBean.toArtifact(instance.getModuleId()).toString());
@@ -112,7 +112,7 @@ public class ExportConfigHandler extends BaseImportExportHandler {
 
     public String actionAfterView(ActionRequest request, ActionResponse response, MultiPageModel model) throws PortletException, IOException {
         String configId = request.getParameter("configId");
-        PluginType metadata = PortletManager.getCurrentServer(request).getPluginInstaller().getPluginMetadata(Artifact.create(configId));
+        PluginType metadata = ManagementHelper.getManagementHelper(request).getPluginInstaller().getPluginMetadata(Artifact.create(configId));
         PluginArtifactType instance = metadata.getPluginArtifact().get(0);
 
         String name = request.getParameter("name");
@@ -179,7 +179,7 @@ public class ExportConfigHandler extends BaseImportExportHandler {
         }
 
         // Save updated metadata
-        PortletManager.getCurrentServer(request).getPluginInstaller().updatePluginMetadata(metadata);
+        ManagementHelper.getManagementHelper(request).getPluginInstaller().updatePluginMetadata(metadata);
 
         response.setRenderParameter("configId", configId);
         response.setRenderParameter("name", name);

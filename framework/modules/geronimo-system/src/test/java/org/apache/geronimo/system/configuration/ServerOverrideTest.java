@@ -35,7 +35,6 @@ import org.apache.geronimo.gbean.ReferencePatterns;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.system.configuration.condition.JexlExpressionParser;
 import org.apache.geronimo.system.configuration.condition.ParserUtils;
-import org.apache.geronimo.system.plugin.PluginXmlUtil;
 import org.apache.geronimo.system.plugin.model.GbeanType;
 import org.apache.geronimo.system.plugin.model.ModuleType;
 
@@ -214,7 +213,7 @@ public class ServerOverrideTest extends TestCase {
         String comment = "This comment should get properly parsed";
 
         Reader in = new StringReader(REFERENCE_COMMENT_XML);
-        ModuleType module = PluginXmlUtil.loadModule(in);
+        ModuleType module = AttributesXmlUtil.loadModule(in);
         ConfigurationOverride commentConfig = new ConfigurationOverride(module, expressionParser);
 
         assertNotNull(commentConfig);
@@ -241,7 +240,7 @@ public class ServerOverrideTest extends TestCase {
 
     public void testReferenceXml() throws Exception {
         Reader in = new StringReader(REFERENCE_XML);
-        GbeanType gbeanElement = PluginXmlUtil.loadGbean(in);
+        GbeanType gbeanElement = AttributesXmlUtil.loadGbean(in);
         GBeanOverride gbean = new GBeanOverride(gbeanElement, expressionParser);
         assertCopyIdentical(gbean);
     }
@@ -255,7 +254,7 @@ public class ServerOverrideTest extends TestCase {
 
     public void testExpressionXml() throws Exception {
         Reader in = new StringReader(EXPRESSION_XML);
-        GbeanType gbeanElement = PluginXmlUtil.loadGbean(in);
+        GbeanType gbeanElement = AttributesXmlUtil.loadGbean(in);
         GBeanOverride gbean = new GBeanOverride(gbeanElement, expressionParser);
         assertCopyIdentical(gbean);
         GBeanData data = new GBeanData(MockGBean.GBEAN_INFO);

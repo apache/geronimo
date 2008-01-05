@@ -1,0 +1,699 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Licensed to the Apache Software Foundation (ASF) under one or more
+    contributor license agreements.  See the NOTICE file distributed with
+    this work for additional information regarding copyright ownership.
+    The ASF licenses this file to You under the Apache License, Version 2.0
+    (the "License"); you may not use this file except in compliance with
+    the License.  You may obtain a copy of the License at
+    
+        http://www.apache.org/licenses/LICENSE-2.0
+    
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+-->
+
+<xs:schema targetNamespace="http://geronimo.apache.org/xml/ns/plugins-1.3"  
+           xmlns:list="http://geronimo.apache.org/xml/ns/plugins-1.3"
+           xmlns:atts="http://geronimo.apache.org/xml/ns/attributes-1.2"
+           xmlns:jaxb="http://java.sun.com/xml/ns/jaxb"
+           xmlns:xjc="http://java.sun.com/xml/ns/jaxb/xjc"
+           xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           elementFormDefault="qualified"
+           attributeFormDefault="unqualified"
+           jaxb:extensionBindingPrefixes="xjc"
+           jaxb:version="2.0">
+
+    <xs:import namespace="http://geronimo.apache.org/xml/ns/attributes-1.2"
+               schemaLocation="attributes-1.2.xsd"/>
+
+    <xs:annotation>
+        <xs:appinfo>
+            <jaxb:globalBindings>
+                <xjc:serializable uid="12343"/>
+            </jaxb:globalBindings>
+        </xs:appinfo>
+    </xs:annotation>
+    <xs:annotation>
+        <xs:documentation>
+            Schema for a list of Geronimo plugins available at some external site
+            (namely, a Maven 2 repository).
+        </xs:documentation>
+    </xs:annotation>
+
+    <!--   Top-level elements   -->
+
+    <xs:element name="geronimo-plugin-list" type="list:plugin-listType">
+        <xs:annotation>
+            <xs:documentation>
+                The geronimo-plugin-list root element is used for the config file present
+                in the root directory of a Maven repository supporting Geronimo plugin
+                downloads. This will be scanned by Geronimo clients to determine what
+                plugins are available on that server.
+            </xs:documentation>
+        </xs:annotation>
+    </xs:element>
+    <xs:element name="geronimo-plugin" type="list:pluginType">
+        <xs:annotation>
+            <xs:documentation>
+                The geronimo-plugin root element is used as the config file submitted
+                with an individual Geronimo plugin to the plugin repository. It will be
+                merged into the plugin list for the repository when the submitted plugin
+                is accepted.
+
+                It is also used for the metadata packed into a plugin when a plugin archive
+                is downloaded from an online repository for local installation, in which
+                case it should be packed into the archive at META-INF/geronimo-plugin.xml
+            </xs:documentation>
+        </xs:annotation>
+    </xs:element>
+
+    <!--   Data types used in this schema   -->
+
+    <!-- Format for a list of available plugins provided by a remote repository -->
+    <xs:complexType name="plugin-listType">
+        <xs:sequence>
+            <xs:element name="plugin" type="list:pluginType" minOccurs="0" maxOccurs="unbounded">
+                <xs:annotation>
+                    <xs:documentation>
+                        The list of plugins available in the current plugin repository.
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="default-repository" type="xs:string" minOccurs="0" maxOccurs="unbounded">
+                <xs:annotation>
+                    <xs:documentation>
+                        Each default-repository is a URL to check for any dependencies that
+                        need to be downloaded. Different values can be used, for example, to
+                        host Geronimo plugins at one site and common third-party JARs at
+                        another site, or to maintain a plugin list at a site that is not
+                        actually a repository.
+
+                        The URL where this fill is downloaded from must list itself as the
+                        first default-repository if it wants to be checked for file
+                        downloads in addition to hosting the plugin list. For every
+                        dnwload, each of the repositories listed here will be checked in
+                        the order listed until the artifact is found. However, if a
+                        plugin in the list includes its own source-repository list, those
+                        repositories will be used instead of these list-level repositories
+                        when downloading that plugin or its dependencies.
+
+                        Note that while the primary repository may be protected by HTTP
+                        Basic authentication, the backup repositories must either use the
+                        same username and password as the primary or use no authentication.
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="pluginType">
+        <xs:sequence>
+            <xs:element name="name" type="xs:string">
+                <xs:annotation>
+                    <xs:documentation>
+                        A human-readable name for this plugin. This will be used to identify
+                        the plugin to a user when giving them a list of plugins to select from.
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="category" type="xs:string">
+                <xs:annotation>
+                    <xs:documentation>
+                        A category name for this plugin. The user interface typically groups
+                        plugins by their category name, so this should match the value for other
+                        plugins in the same category.
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="description" type="xs:string">
+                <xs:annotation>
+                    <xs:documentation>
+                        A description of this plugin. This will be displayed when the user
+                        looks for more information about this plugin. It typically includes
+                        a description of what it does, what if any third-party software it's
+                        based on, why it would be interesting to use it, etc.
+
+                        Currently this should be plain text, where whitespace is not significant
+                        except an entirely blank line indicates a paragraph break (like this
+                        documentation, for example). This may change to a more structured format
+                        in the future, if we can agree on what that ought to be.
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="url" type="xs:string" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>
+                        The URL for a site that contains more detailed information about this
+                        plugin. The plugin repository has access to the basic information
+                        provided in this file, but a plugin may have a home page with more
+                        detailed information, documentation, source code, etc.
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="author" type="xs:string" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>
+                        Names the author of the plugin. This may be a person, a company, an
+                        open source project, or whatever. Basically, this gives some idea who
+                        submitted the plugin, perhaps where to go for support, etc.
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="license" type="list:licenseType" minOccurs="0" maxOccurs="unbounded">
+                <xs:annotation>
+                    <xs:documentation>
+                        The name of the license that applies to this plugin, usually composed of a
+                        license class (if any) followed by the name and version of a license:
+                        BSD -- Apache Software License (ASL) 2.0
+                        GPL -- Lesser General Public License (LGPL) 2
+
+                        If there is more than one license listed then that means the user may choose
+                        among any of the available licenses.
+
+                        Contains a mandatory true/false attribute indicating whether this license
+                        is OSI-approved (e.g. whether the plugin is open source).
+
+                        Note that the license declared here applies only to the current component.
+                        Any dependencies may be licensed separately.
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="plugin-artifact" type="list:pluginArtifactType" minOccurs="1" maxOccurs="unbounded">
+                <xs:annotation>
+                    <xs:documentation>
+                        A version and container senstive instance of this plugin.
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="pluginArtifactType">
+        <xs:sequence>
+            <xs:element name="module-id" type="list:artifactType">
+                <xs:annotation>
+                    <xs:documentation>
+                        The Geronimo moduleId for this plugins, which uniquely identifies
+                        it, and also is used to construct a path to download it if necessary.
+                        If no module-id is provided, that means this is a plugin group, which is
+                        just a list of other plugins to install. The prerequisites must still be
+                        met, but then the dependencies listed for this plugin will be treated as
+                        the list of actual plugins to install.
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="hash" type="list:hashType" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>
+                        A hash value (typically MD5 or SHA-1) that applies to the plugin download
+                        file. This can be used to confirm that a plugin download was complete, and
+                        to ensure that the file downloaded is the same as the file originally
+                        posted to the repository.
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="geronimo-version" type="xs:string" minOccurs="0" maxOccurs="unbounded">
+                <xs:annotation>
+                    <xs:documentation>
+                        Indicates a version of the Geronimo base server that this plugin can run in.
+                        If no geronimo-version is listed, that means the plugin can run in any version
+                        of Geronimo so long as the prerequisites, parents, and dependencies are present.
+                        If one or more geronimo-version elements are listed, then the current version of
+                        Geronimo must match one of them in order for this plugin to be installable.
+
+                        This is applied as an exact match: 1.2 does not match 1.2.1 or 1.2-SNAPSHOT
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="jvm-version" type="xs:string" minOccurs="0" maxOccurs="unbounded">
+                <xs:annotation>
+                    <xs:documentation>
+                        Indicates a version of the JVM that this plugin can run in. If no jvm-version
+                        is listed, that means the plugin can run in any version of the JVM supported
+                        by Geronimo so long as the prerequisites, parents, and dependencies are present.
+                        If one or more jvm-version elements are listed, then the JVM that Geronimo is
+                        currently running on must match one of them in order for this plugin to be
+                        installable. (It does not stop you from restarting Geronimo on a different JVM
+                        version once the components is already installed.)
+
+                        This is not normally used, but must be for plugins that use CORBA or
+                        serialized QNames, etc.
+
+                        This is applied as a prefix match: 1.4 matches 1.4.2 or 1.4.2_10
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="prerequisite" type="list:prerequisiteType" minOccurs="0" maxOccurs="unbounded">
+                <xs:annotation>
+                    <xs:documentation>
+                        A dependency of this plugin that must be previously installed if this
+                        plugin is to be considered to be installable. This is generally the
+                        same as the dependency element (for example, it may refer to a plugin
+                        by moduleId or a JAR by repository ID) except that the dependency will not
+                        be downloaded on demand and must have been previously installed.
+
+                        This is currently used for a web application to specify the web container it
+                        runs in (so we don't show Tomcat downloads for a Jetty installation, etc.). It
+                        may be used for similar things in the future if more distribution choices are
+                        added to Geronimo.
+
+                        It is also used by the public Geronimo plugin repository in cases where the
+                        dependencies cannot be redistributed (e.g. a dependency on a commercial JDBC
+                        driver JAR which must be manually acquired and installed).
+
+                        It is also used when a user must set something up (like a database pool or
+                        security realm) to point to a custom resource in their environment before the
+                        plugin can be installed.
+
+                        This is applied as an exact match, except that the version number may be
+                        omitted, in which case any matching version of the dependency will work.
+
+                        It has an optional resource-type attribute indicating to the user what type
+                        of prerequisite this is (for cases where they're expected to set something up
+                        as opposed to just downloading a JAR). e.g. it could be set to "JDBC Pool".
+                        Likewise there is an option description to provide more detailed guidance for
+                        how to resolve the prerequisite.
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="dependency" type="list:dependencyType" minOccurs="0" maxOccurs="unbounded">
+                <xs:annotation>
+                    <xs:documentation>
+                        The moduleId of another plugin or Geronimo module, or the repository ID of
+                        a 3rd party JAR that this plugin depends on. That means that the dependency
+                        must be downloaded and installed if this plugin is selected.
+
+                        This is applied as an exact match, except that the version number may be
+                        omitted, in which case any matching version of the dependency will work.
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="obsoletes" type="list:artifactType" minOccurs="0" maxOccurs="unbounded">
+                <xs:annotation>
+                    <xs:documentation>
+                        The moduleId of another plugin or Geronimo module that this plugin replaces.
+                        That can be used, for example, to replace a less functional module
+                        with a more functional one, or to upgrade a component to a newer version.
+
+                        This is applied as an exact match, except that the version number may be
+                        omitted, in which case any matching version of the module or plugin will be
+                        replaced. Be aware that omitting the version number may cause a
+                        plugin to be downgraded, so you may choose to explicitly list all
+                        lesser versions. That may not be desirable either, though. If the
+                        server has foo-1.0.2 installed and you install foo-1.0.1, would you
+                        rather have it downgrade or end up with both installed?
+
+                        NOTE: currently the "obsoletes" entries are only processed on the
+                        plugin(s) passed directly to the PluginInstaller (not on dependencies that
+                        are brought down as a result). That means that a plugin group must list
+                        obsoletes for all its components, etc.
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="source-repository" type="xs:string" minOccurs="0" maxOccurs="unbounded">
+                <xs:annotation>
+                    <xs:documentation>
+                        The base URL for the repository that this plugin should be downloaded from.
+                        The repositories listed here will be consulted in the order listed every
+                        time something needs to be downloaded, and the search will stop at the
+                        first repository that holds any matching plugin or JAR.
+
+                        In a normal plugin list, the repositories are specified at the list level,
+                        and do not need to be repeated at the plugin level. However, any values
+                        specified at the plugin level replace the values specified at the list
+                        level. This can be used to maintain a single list of plugins from multiple
+                        sources.
+
+                        This value is required if this is not a plugin list but metadata for a
+                        single plugin included in a plugin file downloaded from a repository.
+                        Otherwise, the installer would not know where to download any dependencies
+                        from.
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="copy-file" type="list:copy-fileType" minOccurs="0" maxOccurs="unbounded">
+                <xs:annotation>
+                    <xs:documentation>
+                        Lets a plugin include files that should be copied into the Geronimo
+                        installation tree, beyond copying the plugin into the repository. For
+                        example, this could be used to copy files into geronimo/bin, geronimo/lib,
+                        geronimo/var/security/keystores, or other Geronimo dirs.
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="config-xml-content" type="list:config-xml-contentType" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element name="artifact-alias" type="list:propertyType" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element name="config-substitution" type="list:propertyType" minOccurs="0" maxOccurs="unbounded"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="config-xml-contentType">
+        <xs:annotation>
+            <xs:documentation>
+                Lets a plugin declare data that should be inserted into config.xml
+                when the plugin is installed. This is normally used to add ports
+                and other settings that the user is likely to want to change. The
+                gbean entries declared here will be written into config.xml for the
+                new module when the plugin is installed.
+            </xs:documentation>
+        </xs:annotation>
+        <xs:sequence>
+            <xs:element ref="atts:comment" minOccurs="0"
+                maxOccurs="1" />
+            <xs:element ref="atts:gbean" maxOccurs="unbounded"/>
+        </xs:sequence>
+        <xs:attribute name="load" type="xs:boolean" default="true">
+            <xs:annotation>
+                <xs:documentation>
+                    Whether the module should be marked load true or false. If marked false it can still
+                    be started if other started modules depend on it.
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="condition" type="xs:string">
+            <xs:annotation>
+                <xs:documentation>
+                    Optional condition that if present is evaluated to determine whether to load the module.
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="server" type="xs:string" default="default">
+            <xs:annotation>
+                <xs:documentation>
+                    The "server", i.e. the named set of configuration files, this should be added to.
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+    </xs:complexType>
+
+    <xs:complexType name="propertyType">
+        <xs:annotation>
+            <xs:documentation>
+                holds key-value pair. key is in 'key' attribute, value is in content
+            </xs:documentation>
+        </xs:annotation>
+
+        <xs:simpleContent>
+            <xs:extension base="xs:string">
+                <xs:attribute name="key" use="required" type="xs:string">
+                    <xs:annotation>
+                        <xs:documentation>
+                            key for key-value pair.
+                        </xs:documentation>
+                    </xs:annotation>
+                </xs:attribute>
+                <xs:attribute name="server" type="xs:string" default="default">
+                    <xs:annotation>
+                        <xs:documentation>
+                            The "server", i.e. the named set of configuration files, this should be added to.
+                        </xs:documentation>
+                    </xs:annotation>
+                </xs:attribute>
+            </xs:extension>
+        </xs:simpleContent>
+    </xs:complexType>
+
+    <xs:complexType name="licenseType">
+        <xs:annotation>
+            <xs:documentation>
+                See pluginType/license above
+            </xs:documentation>
+        </xs:annotation>
+
+        <xs:simpleContent>
+            <xs:extension base="xs:string">
+                <xs:attribute name="osi-approved" use="required" type="xs:boolean">
+                    <xs:annotation>
+                        <xs:documentation>
+                            Indicates whether this license is OSI-approved, which is to say, whether
+                            the plugin is open source. Typically this is true for all licenses
+                            you'd expect to be open source, and false for proprietary plugins.
+
+                            If there's some doubt, visit http://www.opensource.org/licenses/index.php
+                        </xs:documentation>
+                    </xs:annotation>
+                </xs:attribute>
+            </xs:extension>
+        </xs:simpleContent>
+    </xs:complexType>
+
+    <xs:complexType name="dependencyType">
+        <xs:annotation>
+            <xs:documentation>
+                See pluginType/dependency above
+            </xs:documentation>
+        </xs:annotation>
+
+        <xs:complexContent>
+            <xs:extension base="list:artifactType">
+                <xs:attribute name="start" use="optional" type="xs:boolean" default="true">
+                    <xs:annotation>
+                        <xs:documentation>
+                            Influences whether a dependency is marked to start.  A plugin is marked to start
+                            in a particular server "instance" primarily based on the load and condition settings in
+                            the config-xml sections.  However the start attribute overrides this for plugins installed
+                            as dependencies.
+                        </xs:documentation>
+                    </xs:annotation>
+                </xs:attribute>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+
+    <xs:complexType name="hashType">
+        <xs:annotation>
+            <xs:documentation>
+                See pluginType/hash above
+            </xs:documentation>
+        </xs:annotation>
+
+        <xs:simpleContent>
+            <xs:extension base="xs:string">
+                <xs:attribute name="type" use="required">
+                    <xs:annotation>
+                        <xs:documentation>
+                            Indicates the type of hash. The values presently supported are:
+
+                            MD5
+                            SHA-1
+
+                        </xs:documentation>
+                    </xs:annotation>
+                    <xs:simpleType>
+                        <xs:restriction base="xs:NMTOKEN">
+                            <xs:enumeration value="MD5"/>
+                            <xs:enumeration value="SHA-1"/>
+                        </xs:restriction>
+                    </xs:simpleType>
+                </xs:attribute>
+            </xs:extension>
+        </xs:simpleContent>
+    </xs:complexType>
+
+    <xs:complexType name="copy-fileType">
+        <xs:annotation>
+            <xs:documentation>
+                The name of a file in the plugin archive that should be copied into
+                the server installation tree somewhere when the plugin is installed.
+                There may be a path component (relative to the root of the plugin
+                archive), though that will not be used to construct the destination
+                location. For example:
+
+                <copy-file relative-to="server" dest-dir="var/security/keystores">
+                    resources/keystores/my-keystore
+                </copy-file>
+
+                This will copy the file resources/keystores/my-keystore to e.g.
+                var/security/keystores/my-keystore
+            </xs:documentation>
+        </xs:annotation>
+
+        <xs:simpleContent>
+            <xs:extension base="xs:string">
+                <xs:attribute name="relative-to" use="required">
+                    <xs:annotation>
+                        <xs:documentation>
+                            Indicates whether the destination is relative to the Geronimo install
+                            directory or the server instance directory (which are the same unless
+                            the server instance is configured).  The values presently supported are:
+
+                            geronimo
+                            server
+
+                        </xs:documentation>
+                    </xs:annotation>
+                    <xs:simpleType>
+                        <xs:restriction base="xs:NMTOKEN">
+                            <xs:enumeration value="geronimo"/>
+                            <xs:enumeration value="server"/>
+                        </xs:restriction>
+                    </xs:simpleType>
+                </xs:attribute>
+                <xs:attribute name="dest-dir" use="required" type="xs:string">
+                    <xs:annotation>
+                        <xs:documentation>
+                            The directory to copy the file to, relative to either the Geronimo
+                            install dir or the server's home directory (normally the same as the
+                            Geronimo install dir but may be configured to be elsewhere).
+                        </xs:documentation>
+                    </xs:annotation>
+                </xs:attribute>
+            </xs:extension>
+        </xs:simpleContent>
+    </xs:complexType>
+
+    <xs:complexType name="prerequisiteType">
+        <xs:sequence>
+            <xs:element name="id" type="list:artifactType">
+                <xs:annotation>
+                    <xs:documentation>
+                        The Module ID of the prerequisite. This is used to check whether
+                        it's available on the server that you're downloading the plugin
+                        into. It may omit some portions of the Module ID to be more
+                        accomodating (e.g. "*/MyDBPool/*/*" to identify a database pool
+                        instead of "console/MyDBPool/1.0/car").
+
+                        Note that the values here may take the non-standard syntax of
+                        * instead of the empty string for a missing value, which will
+                        hopefully make the wildcard format more user-friendly.
+                        (On the theory that "Please install */MyDBPool/*/*" should make
+                        more sense than "Please install /MyDBPool//" for an average user)
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="resource-type" type="xs:string" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>
+                        Describes the type of resource that the prerequisite is. Examples
+                        include:
+
+                        JDBC Driver
+                        JDBC Pool
+                        JMS Resource Group
+                        JavaMail
+
+                        This is mainly used for prerequisites where the user needs to set
+                        something up and you want to indicate what. So for example, you
+                        could say "console/myapp-pool/*/jar" is a prerequisite with resource
+                        type "JDBC Pool" and then the user should understand that they can
+                        install your plugin if they create a JDBC pool called "myapp-pool"
+                        in the console, or manually deploy a pool with moduleId
+                        "console/myapp-pool/(something)/jar"
+
+                        Another option in that case would be to use a dependency on a JDBC
+                        pool plugins you provide, but then it would have to use the
+                        system database (and run a DDL script on the first connect) in order
+                        to be installable in an arbitrary Geronimo server. That would be a
+                        better approach for demonstration applications, whereas the
+                        prerequisite on a user-installed pool would be a better approach for
+                        production applications.
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="description" type="xs:string" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>
+                        A description for the user about why this is a prerequisite and what
+                        they should do to set it up. Here are a couple examples:
+
+                        This plugin of SomeApp is configured for the Jetty version of
+                        Geronimo. It cannot be installed on the Tomcat version of Geronimo.
+                        There's a separate plugin for the Tomcat version of Geronimo.
+
+                        SomeApp requires a database connection pool. Supported databases
+                        are PostgreSQL and MySQL. Please configure a database connection
+                        pool with the name "SomeAppPool" and then run the associated create
+                        script from http://someapp.com/db-scripts/ before installing this
+                        plugin.
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="artifactType">
+        <xs:annotation>
+            <xs:documentation>
+                <![CDATA[
+                Refers to either another module running in the server, or
+                an entry in the server's Repository.  In either case this effectively uses a
+                URI.
+
+                When this is pointing to a repository entry, the URI must have a form
+                acceptable to the repository, which is currently a URI consisting of
+                Maven-style identifiers separated by slashes (groupId/artifactId/version/type,
+                for example, the URI "postgresql/postgresql-8.0-jdbc/313/jar" for a file like
+                "repository/postgresql/postgresql-8.0-jdbc-313.jar").
+
+                When this is pointing to a module, the URI should match the
+                module's moduleId.  This also looks
+                like a Maven-style URI discussed above.
+
+                The artifactType element can take either a straight URI (as in the examples
+                above), or maven-style identifier fragments (groupId, type, artifactId, and
+                version), which it will compose into a URI by adding up the fragments with
+                slashes in between.
+
+                There is a correspondence between the xml format and a URI.  For example, the URI
+
+                postgresql/postgresql-8.0-jdbc/313/jar
+
+                corresponds to the xml:
+
+                <groupId>postgresql</groupId>
+                <artifactId>postgresql-8.0-jdbc</artifactId>
+                <version>313</version>
+                <type>jar</type>
+	            ]]>
+            </xs:documentation>
+        </xs:annotation>
+        <xs:sequence>
+            <!-- TODO not sure if groupId can in fact be optional -->
+            <xs:element name="groupId" type="xs:string" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>
+                        The name for group containing this module. By default,
+                        it is considered 'default' for declaration and wild card
+                        '*' for dependencies.
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="artifactId" type="xs:string">
+                <xs:annotation>
+                    <xs:documentation>
+                        The name for module in a specified group. All the
+                        artifactId's should be unique within a group. If no
+                        articfactId is provided it will be defaulted to file
+                        name of the module file.
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="version" type="xs:string" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>
+                        The version number for the module formatted by dot
+                        separated numbers. If no version is provided it will be
+                        defaulted to numeric timestamp generated by
+                        System.currentTimeMillis() at deploy time. In case of
+                        dependencies latest available version will be used.
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="type" type="xs:string" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>
+                        This element defines the type of the module. The type
+                        could be 'CAR', 'JAR', EAR', 'WAR', etc. If no type is
+                        provided it will be defaulted appropriately by the
+                        deployer depending upon type of deployed module.
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+        </xs:sequence>
+    </xs:complexType>
+
+</xs:schema>

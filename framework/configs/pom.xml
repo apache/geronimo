@@ -126,6 +126,7 @@
         <module>offline-deployer</module>
         <module>online-deployer</module>
         <module>rmi-naming</module>
+        <module>plugin</module>
         <module>server-security-config</module>
         <module>shutdown</module>
         <module>upgrade-cli</module>

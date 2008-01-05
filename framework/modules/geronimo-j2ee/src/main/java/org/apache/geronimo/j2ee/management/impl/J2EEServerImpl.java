@@ -45,8 +45,6 @@ import org.apache.geronimo.management.geronimo.WebManager;
 import org.apache.geronimo.management.geronimo.WebModule;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
 import org.apache.geronimo.system.threads.ThreadPool;
-import org.apache.geronimo.system.plugin.PluginInstaller;
-import org.apache.geronimo.system.plugin.PluginRepositoryList;
 
 /**
  * @version $Rev$ $Date$
@@ -67,11 +65,9 @@ public class J2EEServerImpl implements J2EEServer {
     private final Collection jmsManagers;
     private final Collection threadPools;
     private final Collection repositories;
-    private final Collection pluginRepoLists;
     private final Collection writableRepos;
     private final Collection securityRealms;
     private final Collection keystoreManagers;
-    private final Collection pluginInstallers;
     private final ConfigurationManager configurationManager;
 
     public J2EEServerImpl(String objectName,
@@ -91,9 +87,7 @@ public class J2EEServerImpl implements J2EEServer {
                           Collection writableRepos,
                           Collection securityRealms,
                           Collection keystoreManagers,
-                          Collection configurationInstallers,
-                          ConfigurationManager configurationManager,
-                          Collection pluginRepoLists) {
+                          ConfigurationManager configurationManager) {
 
         this.objectName = objectName;
         ObjectName myObjectName = ObjectNameUtil.getObjectName(this.objectName);
@@ -118,9 +112,7 @@ public class J2EEServerImpl implements J2EEServer {
         this.writableRepos = writableRepos;
         this.securityRealms = securityRealms;
         this.keystoreManagers = keystoreManagers;
-        this.pluginInstallers = configurationInstallers;
         this.configurationManager = configurationManager;
-        this.pluginRepoLists = pluginRepoLists;
     }
 
     public String getObjectName() {
@@ -266,11 +258,6 @@ public class J2EEServerImpl implements J2EEServer {
         return (SecurityRealm[]) securityRealms.toArray(new SecurityRealm[securityRealms.size()]);
     }
 
-    public PluginRepositoryList[] getPluginRepositoryLists() {
-        if (pluginRepoLists == null) return new PluginRepositoryList[0];
-        return (PluginRepositoryList[]) pluginRepoLists.toArray(new PluginRepositoryList[pluginRepoLists.size()]);
-    }
-
     public ServerInfo getServerInfo() {
         return serverInfo;
     }
@@ -278,13 +265,6 @@ public class J2EEServerImpl implements J2EEServer {
     public KeystoreManager getKeystoreManager() {
         if (keystoreManagers == null) return null;
         return (KeystoreManager) keystoreManagers.iterator().next();
-    }
-
-    public PluginInstaller getPluginInstaller() {
-        if (pluginInstallers.isEmpty()) {
-            return null;
-        }
-        return (PluginInstaller) pluginInstallers.iterator().next();
     }
 
     public ConfigurationManager getConfigurationManager() {
@@ -320,8 +300,6 @@ public class J2EEServerImpl implements J2EEServer {
         infoFactory.addReference("WritableRepos", WritableListableRepository.class);
         infoFactory.addReference("SecurityRealms", SecurityRealm.class);
         infoFactory.addReference("KeystoreManagers", KeystoreManager.class);
-        infoFactory.addReference("PluginInstaller", PluginInstaller.class);
-        infoFactory.addReference("PluginRepoLists", PluginRepositoryList.class);
         infoFactory.addReference("ConfigurationManager", ConfigurationManager.class);
 
         infoFactory.setConstructor(new String[]{
@@ -342,9 +320,7 @@ public class J2EEServerImpl implements J2EEServer {
                 "WritableRepos",
                 "SecurityRealms",
                 "KeystoreManagers",
-                "PluginInstaller",
                 "ConfigurationManager",
-                "PluginRepoLists",
         });
 
         GBEAN_INFO = infoFactory.getBeanInfo();
