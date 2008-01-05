@@ -16,8 +16,10 @@
 --%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/portlet" prefix="portlet" %>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
+<fmt:setBundle basename="consolebase"/>
 <portlet:defineObjects/>
-<p><b>Apache mod_jk</b> -- AJP Port</p>
+<p><fmt:message key="apache.jk.ajpPort.title"/></p>
 
 <!-- FORM TO COLLECT DATA FOR THIS PAGE -->
 <form name="<portlet:namespace/>ApacheForm" action="<portlet:actionURL/>">
@@ -36,22 +38,21 @@
     <table border="0">
         <!-- ENTRY FIELD: AJP Port -->
         <tr>
-            <th><div align="right">Network Port for AJP:</div></th>
+            <th><div align="right"><fmt:message key="apache.jk.ajpPort.networkPort"/>:</div></th>
             <td><input name="addAjpPort" type="text" size="5" maxlength="5"
                        value="${model.addAjpPort}"/></td>
         </tr>
         <tr>
             <td></td>
-            <td><tt>mod_jk</tt> talks to the Geronimo web container using a protocol called
-              AJP.  Currently, you do not have an AJP protocol listener configured for the
-              web container.  Select a network port here, and an AJP protocol listener will
-              be added for you.</td>
+            <td>
+            <fmt:message key="apache.jk.ajpPort.networkPortExplanation"/>
+            </td>
         </tr>
 
         <!-- SUBMIT BUTTON -->
         <tr>
             <td></td>
-            <td><input type="submit" value="Next"/></td>
+            <td><input type="submit" value="<fmt:message key="consolebase.common.next"/>"/></td>
         </tr>
     </table>
 </form>
@@ -60,4 +61,4 @@
 
 <p><a href="<portlet:actionURL portletMode="view">
               <portlet:param name="mode" value="index-before" />
-            </portlet:actionURL>">Cancel</a></p>
+            </portlet:actionURL>"><fmt:message key="consolebase.common.cancel"/></a></p>

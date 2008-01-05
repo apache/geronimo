@@ -14,5 +14,7 @@
    See the License for the specific language governing permissions and
    limitations under the License.
 --%>
-This page provides information about the uptime of the server and the resources
-being used by the JVM.
+<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
+<fmt:setBundle basename="consolebase"/>
+<fmt:message key="infomanager.svrInfoHelp.body" />
+

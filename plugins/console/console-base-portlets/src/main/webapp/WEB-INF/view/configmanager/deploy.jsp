@@ -16,6 +16,8 @@
 --%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/portlet" prefix="portlet"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
+<fmt:setBundle basename="consolebase"/>
 <portlet:defineObjects/>
 
 <script>
@@ -53,26 +55,23 @@ function <portlet:namespace/>toggleDisplay(id) {
 <!-- Migrated Plan -->
 <c:if test="${!(empty migratedPlan)}">
 <hr/><br/>
-The deployment plan you provided appears to be for a previous version of 
-the application server.
-A migrated version of your plan is provided below for your convenience.  Not all
-deployment plans can be fully migrated so some manual editing may be required
-before the migrated plan can be deployed.
+<fmt:message key="configmanager.deploy.migratedPlanSummary" />
+
 <p/>
 <div id="<portlet:namespace/>migratedPlan" style="display:inline">
-Migrated plan:
+<fmt:message key="configmanager.deploy.migratedPlan" />:
 <form method="POST" action="/console/forwards/plan-export">
     <textarea name="migratedPlan" rows=10 cols=80><c:out escapeXml="true" value="${migratedPlan}"/></textarea>
     <br/>
-    <button onclick="<portlet:namespace/>toggleDisplay('originalPlan');<portlet:namespace/>toggleDisplay('migratedPlan');return false;">Show original plan</button>
-    <input type="submit" value="Save this plan locally"/>
+    <button onclick="<portlet:namespace/>toggleDisplay('originalPlan');<portlet:namespace/>toggleDisplay('migratedPlan');return false;"><fmt:message key="configmanager.deploy.showOriginalPlan" /></button>
+    <input type="submit" value='<fmt:message key="configmanager.deploy.saveLocally" />' />
 </form>
 </div>
 <div id="<portlet:namespace/>originalPlan" style="display:none">
-Original plan:
+<fmt:message key="configmanager.deploy.originalPlan" />:
 <form>
     <textarea rows=10 cols=80><c:out escapeXml="true" value="${originalPlan}"/></textarea><br/>
-    <button onclick="<portlet:namespace/>toggleDisplay('migratedPlan');<portlet:namespace/>toggleDisplay('originalPlan');return false;">Show Migrated plan</button>
+    <button onclick="<portlet:namespace/>toggleDisplay('migratedPlan');<portlet:namespace/>toggleDisplay('originalPlan');return false;"><fmt:message key="configmanager.deploy.showMigratedPlan" /></button>
 </form>
 </div>
 <br/><hr/><br/>
@@ -80,18 +79,18 @@ Original plan:
 
 <form enctype="multipart/form-data" method="POST" action="<portlet:actionURL><portlet:param name="action" value="deploy"/></portlet:actionURL>">
 <table>
-  <tr><th align="right">Archive: </th><td><input type="file" name="module" /></td></tr>
-  <tr><th align="right">Plan: </th><td><input type="file" name="plan" /></td></tr>
+  <tr><th align="right"><fmt:message key="configmanager.common.archive" />: </th><td><input type="file" name="module" /></td></tr>
+  <tr><th align="right"><fmt:message key="configmanager.common.plan" />: </th><td><input type="file" name="plan" /></td></tr>
   <tr>
     <td></td>
     <td>
-        <input name="startApp" type="checkbox" value="yes" checked>Start app after install <br />
-        <input name="redeploy" type="checkbox" value="yes">Redeploy application <br />
+        <input name="startApp" type="checkbox" value="yes" checked><fmt:message key="configmanager.common.startAppAfterInstall" /> <br />
+        <input name="redeploy" type="checkbox" value="yes"><fmt:message key="configmanager.deploy.redeployApplication" /> <br />
     </td>
   </tr>
   <tr>
     <td></td>
-    <td><input type="submit" value="Install" /></td>
+    <td><input type="submit" value='<fmt:message key="consolebase.common.install"/>' /></td>
   </tr>
 </table>
 </form>

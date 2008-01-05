@@ -16,12 +16,12 @@
 --%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/portlet" prefix="portlet"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
+<fmt:setBundle basename="consolebase"/>
 <portlet:defineObjects/>
+<b><fmt:message key="ca.confirmCertReq.confirmCertRequest"/>Confirm Certificate Request</b>
 
-<b>Confirm Certificate Request</b>
-
-<p> This screen shows the details of the Certficate Signing Request (CSR) and allows you to approve the request.
-Once the request is approved, it will be considered for issue of a certificate.</p>
+<p><fmt:message key="ca.confirmCertReq.summary"/></p>
 
 <jsp:include page="_header.jsp" />
 
@@ -30,26 +30,26 @@ Once the request is approved, it will be considered for issue of a certificate.<
     <input type="hidden" name="requestId" value="${requestId}"/>
     <table border="0">
         <tr>
-            <th class="DarkBackground" colspan="2" align="left">Certificate Requestor Details</th>
+            <th class="DarkBackground" colspan="2" align="left"><fmt:message key="ca.common.certRequestorDetails"/></th>
         </tr>
         <tr>
-            <th class="LightBackground" align="right">Subject:</th>
+            <th class="LightBackground" align="right"><fmt:message key="ca.common.subject"/>:</th>
             <td class="LightBackground">
                 ${subject}
             </td>
         </tr>
         <tr>
-            <th class="MediumBackground" align="right">Public Key:</th>
+            <th class="MediumBackground" align="right"><fmt:message key="ca.common.publicKey"/>:</th>
             <td class="MediumBackground">
                 <pre>${publickey}</pre>
             </td>
         </tr>
         <tr><td>&nbsp;</td></tr>
     </table>
-    <input type="submit" name="approve" value="Approve CSR"/>
-    <input type="submit" name="reject" value="Reject CSR">
+    <input type="submit" name="approve" value='<fmt:message key="ca.common.publicKey"/>'/>
+    <input type="submit" name="reject" value='<fmt:message key="ca.common.publicKey"/>'>
 </form>
 
 <p><a href="<portlet:actionURL portletMode="view">
               <portlet:param name="mode" value="index-before"/>
-            </portlet:actionURL>">Cancel</a></p>
+            </portlet:actionURL>"><fmt:message key="consolebase.common.cancel"/></a></p>

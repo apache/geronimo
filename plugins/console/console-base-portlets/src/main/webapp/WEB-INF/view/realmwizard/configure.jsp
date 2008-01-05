@@ -20,6 +20,8 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
 <%@ taglib uri="http://java.sun.com/portlet" prefix="portlet"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
+<fmt:setBundle basename="consolebase"/>
 <portlet:defineObjects/>
 
 <script language="JavaScript">
@@ -37,7 +39,7 @@ function <portlet:namespace/>validateForm(){
 }
 </script>
 
-<p><b>Create Security Realm</b> -- Step 2: Configure Login Module</p>
+<p><fmt:message key="realmwizard.configure.title" /></p>
 
 <c:if test="${!(empty LoginModuleError)}"><p><font color="red"><b>Error: ${LoginModuleError}</b></font></p></c:if>
 
@@ -123,7 +125,7 @@ function <portlet:namespace/>validateForm(){
     <!-- SUBMIT BUTTON -->
       <tr>
         <td></td>
-        <td><input type="submit" value="Next" onClick="return <portlet:namespace/>validateForm()"/></td>
+        <td><input type="submit" value='<fmt:message key="consolebase.common.next"/>' onClick="return <portlet:namespace/>validateForm()"/></td>
       </tr>
     </table>
 </form>
@@ -132,4 +134,4 @@ function <portlet:namespace/>validateForm(){
 
 <p><a href="<portlet:actionURL portletMode="view">
               <portlet:param name="mode" value="list" />
-            </portlet:actionURL>">Cancel</a></p>
+            </portlet:actionURL>"><fmt:message key="consolebase.common.cancel"/></a></p>

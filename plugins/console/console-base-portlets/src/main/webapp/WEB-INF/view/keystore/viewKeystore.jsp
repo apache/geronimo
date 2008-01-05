@@ -20,17 +20,19 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
 <%@ taglib uri="http://java.sun.com/portlet" prefix="portlet"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
+<fmt:setBundle basename="consolebase"/>
 <portlet:defineObjects/>
-<p>This screen lists the contents of a keystore.</p>
+<p><fmt:message key="keystore.viewKeystore.title"/></p>
 
 <jsp:include page="_header.jsp" />
 
 <table width="100%">
   <tr>
     <td class="DarkBackground">&nbsp;</td>
-    <td class="DarkBackground">Alias</td>
-    <td class="DarkBackground" align="center">Type</td>
-    <td class="DarkBackground" align="center">Certificate Fingerprint</td>
+    <td class="DarkBackground"><fmt:message key="keystore.common.alias"/></td>
+    <td class="DarkBackground" align="center"><fmt:message key="consolebase.common.type"/></td>
+    <td class="DarkBackground" align="center"><fmt:message key="keystore.viewKeystore.certificateFingerprint"/></td>
   </tr>
 <c:set var="backgroundClass" value='MediumBackground'/>
 <c:forEach var="alias" items="${keystore.certificates}">
@@ -47,7 +49,7 @@
                  <portlet:param name="mode" value="certificateDetails-before" />
                  <portlet:param name="id" value="${keystore.name}" />
                  <portlet:param name="alias" value="${alias}" /></portlet:actionURL>">
-        view
+        <fmt:message key="consolebase.common.view"/>
         </a>    
     </td>
     <td class="${backgroundClass}"><a href="<portlet:actionURL portletMode="view">
@@ -57,7 +59,7 @@
         ${alias}
         </a>    
     </td>
-    <td class="${backgroundClass}">Trusted Certificate</td>
+    <td class="${backgroundClass}"><fmt:message key="keystore.common.trustedCertificate"/></td>
     <td class="${backgroundClass}">${keystore.fingerprints[alias]}</td>
   </tr>
 </c:forEach>
@@ -75,7 +77,7 @@
                  <portlet:param name="mode" value="certificateDetails-before" />
                  <portlet:param name="id" value="${keystore.name}" />
                  <portlet:param name="alias" value="${alias}" /></portlet:actionURL>">
-        view
+        <fmt:message key="consolebase.common.view"/> 
         </a>    
     </td>
     <td class="${backgroundClass}"><a href="<portlet:actionURL portletMode="view">
@@ -85,15 +87,15 @@
         ${alias}
         </a>    
     </td>
-    <td class="${backgroundClass}">Private Key</td>
+    <td class="${backgroundClass}"><fmt:message key="keystore.viewKeystore.privateKey"/></td>
     <td class="${backgroundClass}">${keystore.fingerprints[alias]}</td>
   </tr>
 </c:forEach>
 </table>
 
 <p>
-    <a href="<portlet:actionURL portletMode="view"><portlet:param name="mode" value="uploadCertificate-before" /><portlet:param name="id" value="${keystore.name}" /></portlet:actionURL>">Add Trust Certificate</a>
-    <a href="<portlet:actionURL portletMode="view"><portlet:param name="mode" value="configureKey-before" /><portlet:param name="keystore" value="${keystore.name}" /></portlet:actionURL>">Create Private Key</a>
-    <a href="<portlet:actionURL portletMode="view"><portlet:param name="mode" value="changePassword-before" /><portlet:param name="keystore" value="${keystore.name}" /></portlet:actionURL>">Change keystore password</a>
-    <a href="<portlet:actionURL portletMode="view"><portlet:param name="mode" value="list-before" /></portlet:actionURL>">Return to keystore list</a>
+    <a href="<portlet:actionURL portletMode="view"><portlet:param name="mode" value="uploadCertificate-before" /><portlet:param name="id" value="${keystore.name}" /></portlet:actionURL>"><fmt:message key="keystore.viewKeystore.addtrustCertificate"/></a>
+    <a href="<portlet:actionURL portletMode="view"><portlet:param name="mode" value="configureKey-before" /><portlet:param name="keystore" value="${keystore.name}" /></portlet:actionURL>"><fmt:message key="keystore.viewKeystore.createprivateKey"/></a>
+    <a href="<portlet:actionURL portletMode="view"><portlet:param name="mode" value="changePassword-before" /><portlet:param name="keystore" value="${keystore.name}" /></portlet:actionURL>"><fmt:message key="keystore.viewKeystore.changePassword"/></a>
+    <a href="<portlet:actionURL portletMode="view"><portlet:param name="mode" value="list-before" /></portlet:actionURL>"><fmt:message key="keystore.viewKeystore.returnToKeystoreList"/></a>
 </p>

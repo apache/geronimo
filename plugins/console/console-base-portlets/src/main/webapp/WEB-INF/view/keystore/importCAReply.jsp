@@ -16,9 +16,11 @@
 --%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/portlet" prefix="portlet"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
+<fmt:setBundle basename="consolebase"/>
 <portlet:defineObjects/>
-keystore: ${id}<br/>
-alias: ${alias}<br/>
+<fmt:message key="keystore.common.keystore"/>: ${id}<br/>
+<fmt:message key="keystore.common.alias"/>: ${alias}<br/>
 
 <form method="post"
 action="<portlet:actionURL>
@@ -26,19 +28,19 @@ action="<portlet:actionURL>
 <portlet:param name="id" value="${id}" />
 <portlet:param name="alias" value="${alias}" /></portlet:actionURL>">
 <table>
-<th>PKCS7 Certificate Reply</th>
+<th><fmt:message key="keystore.importCAReply.PKCS7CertificateReply"/></th>
 <tr>
 <td>
 <textarea rows="20" cols="80" name="pkcs7cert">
-...paste pkcs7 encoded certificate reply here...
+<fmt:message key="keystore.importCAReply.pasteHere"/>
 </textarea>
 </td>
 </tr>
 </table>
 <table>
 <tr>
-<td><input type="submit" name="submit" value="Save"/></td>
-<td><input type="submit" name="submit" value="Cancel"/></td>
+<td><input type="submit" name="submit"value='<fmt:message key="consolebase.common.save"/>'/></td>
+<td><input type="submit" name="submit" value='<fmt:message key="consolebase.common.cancel"/>'/></td>
 </tr>
 </table>
 </form>

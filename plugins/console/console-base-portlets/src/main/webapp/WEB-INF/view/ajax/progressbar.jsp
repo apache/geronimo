@@ -15,6 +15,8 @@
    limitations under the License.
 --%>
 <%@ taglib uri="http://java.sun.com/portlet" prefix="portlet"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
+<fmt:setBundle basename="consolebase"/>
 <portlet:defineObjects/>
 <script type='text/javascript' src='/console/dwr/interface/ProgressMonitor.js'></script>
 <script type='text/javascript' src='/console/dwr/engine.js'></script>
@@ -55,7 +57,7 @@ function setFinished() {
 
 function <portlet:namespace/>startProgress()
 {
-    document.getElementById('<portlet:namespace/>progressMeterMainMessage').innerHTML = 'Processing...';
+    document.getElementById('<portlet:namespace/>progressMeterMainMessage').innerHTML = '<fmt:message key="ajax.progressbar.processing"/>';
     document.getElementById('<portlet:namespace/>progressMeter').style.display = 'block';
     metadata = {};
     metadata.errorHandler=<portlet:namespace/>onError;

@@ -16,23 +16,23 @@
 --%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/portlet" prefix="portlet"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
+<fmt:setBundle basename="consolebase"/>
 <portlet:defineObjects/>
 
-<p>This page lists all the available security realms.  Server-wide security realms can be edited, while security
-realms deployed as part of a single application cannot (change the deployment plan in the application instead).</p>
+<p><fmt:message key="realmwizard.list.title" /></p>
 
 <c:choose>
-  <c:when test="${empty(realms)}"><p><i>There are no security realms defined</i></p></c:when>
+  <c:when test="${empty(realms)}"><p><i><fmt:message key="realmwizard.list.noSecurityRealms" /></i></p></c:when>
   <c:otherwise>
-<p>For each realm listed, you can click the <b>usage</b> link to see examples of how
-  to use the realm from your application.</p>
+<p><fmt:message key="realmwizard.list.seeExamples" /></p>
 
 <table width="100%">
   <tr>
-    <td class="DarkBackground">Name</td>
-    <td class="DarkBackground" align="center">Deployed As</td>
-    <td class="DarkBackground" align="center">State</td>
-    <td class="DarkBackground" align="center">Actions</td>
+    <td class="DarkBackground"><fmt:message key="consolebase.common.name"/></td>
+    <td class="DarkBackground" align="center"><fmt:message key="consolebase.common.deployedAs"/></td>
+    <td class="DarkBackground" align="center"><fmt:message key="consolebase.common.state"/></td>
+    <td class="DarkBackground" align="center"><fmt:message key="consolebase.common.actions"/></td>
   </tr>
 <c:forEach var="realm" items="${realms}">
   <tr>
@@ -40,7 +40,7 @@ realms deployed as part of a single application cannot (change the deployment pl
     <td>
       <c:choose>
         <c:when test="${empty realm.parentName}">
-          Server-wide
+          <fmt:message key="realmwizard.common.serverWide" />
         </c:when>
         <c:otherwise>
           ${realm.parentName}  <%-- todo: make this a link to an application portlet --%>
@@ -57,7 +57,7 @@ realms deployed as part of a single application cannot (change the deployment pl
                  <portlet:param name="name" value="${info.objectName}" />
                  <portlet:param name="managerObjectName" value="${container.managerObjectName}" />
                  <portlet:param name="containerObjectName" value="${container.containerObjectName}" />
-               </portlet:actionURL>">stop</a>
+               </portlet:actionURL>"><fmt:message key="consolebase.common.stop"/></a>
                </c:when>
                <c:otherwise>
                <a href="<portlet:actionURL portletMode="view">
@@ -65,24 +65,24 @@ realms deployed as part of a single application cannot (change the deployment pl
                  <portlet:param name="name" value="${info.objectName}" />
                  <portlet:param name="managerObjectName" value="${container.managerObjectName}" />
                  <portlet:param name="containerObjectName" value="${container.containerObjectName}" />
-               </portlet:actionURL>">start</a>
+               </portlet:actionURL>"><fmt:message key="consolebase.common.start"/></a>
                </c:otherwise>
              </c:choose>--%>
       <a href="<portlet:actionURL portletMode="view">
         <portlet:param name="mode" value="editExisting" />
         <portlet:param name="abstractName" value="${realm.abstractName}" />
-      </portlet:actionURL>">edit</a>
+      </portlet:actionURL>"><fmt:message key="consolebase.common.edit"/></a>
       <a href="<portlet:actionURL portletMode="view">
         <portlet:param name="mode" value="usage" />
         <portlet:param name="name" value="${realm.name}" />
         <portlet:param name="abstractName" value="${realm.abstractName}" />
-      </portlet:actionURL>">usage</a>
+      </portlet:actionURL>"><fmt:message key="consolebase.common.usage"/></a>
            <%--<a href="<portlet:actionURL portletMode="view">
                  <portlet:param name="mode" value="delete" />
                  <portlet:param name="name" value="${info.objectName}" />
                  <portlet:param name="managerObjectName" value="${container.managerObjectName}" />
                  <portlet:param name="containerObjectName" value="${container.containerObjectName}" />
-               </portlet:actionURL>">delete</a>--%>
+               </portlet:actionURL>"><fmt:message key="consolebase.common.delete"/></a>--%>
     </c:if>
     </td>
   </tr>
@@ -93,4 +93,4 @@ realms deployed as part of a single application cannot (change the deployment pl
 
 <p><a href="<portlet:actionURL portletMode="view">
               <portlet:param name="mode" value="type" />
-            </portlet:actionURL>">Add new security realm</a></p>
+            </portlet:actionURL>"><fmt:message key="realmwizard.common.addSecurityRealm" /></a></p>

@@ -18,14 +18,20 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
 <%@ taglib uri="http://java.sun.com/portlet" prefix="portlet"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
+<fmt:setBundle basename="consolebase"/>
 <portlet:defineObjects/>
 
-<p><b>Export Plugin</b> -- Save to Disk</p>
+<p><fmt:message key="car.confirmExport.title" /></p>
 
-<p>Use the button below to save the plugin "${name}" to disk.</p>
+<p>
+<fmt:message key="car.confirmExport.useBtnBelow" >
+<fmt:param  value="${name}"/>
+</fmt:message>
+</p>
 
 <%-- todo: calculate the /console prefix somehow --%>
 <form action="/console/forwards/car-export" method="GET">
     <input type="hidden" name="configId" value="${configId}" />
-    <input type="submit" value="Export Plugin" />
+    <input type="submit" value='<fmt:message key="car.common.exportPlugin" />' />
 </form>

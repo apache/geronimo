@@ -16,16 +16,18 @@
 --%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/portlet" prefix="portlet"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
+<fmt:setBundle basename="consolebase"/>
 <portlet:defineObjects/>
 <table width="50%" cellspacing="5">
     ${message}
 	<tr>
-        <td><a href="<portlet:actionURL portletMode="view"><portlet:param name="action" value="new"/></portlet:actionURL>">Create New Group</a></td>
+        <td><a href="<portlet:actionURL portletMode="view"><portlet:param name="action" value="new"/></portlet:actionURL>"><fmt:message key="securityrealmmanager.se.groups.maximized.createNewGroup" /></a></td>
         <td></td>
 	</tr>
     <tr class="DarkBackground">
-        <th>Group Name</th>
-        <th>Actions</th>
+        <th><fmt:message key="consolebase.common.groupName"/></th>
+        <th><fmt:message key="consolebase.common.actions"/></th>
     </tr>
     <c:set var="backgroundClass" value='MediumBackground'/>
     <c:forEach var="group" items="${groupsInfo}">
@@ -40,9 +42,9 @@
         <tr>
             <td class="${backgroundClass}"> ${group.key} </td>
             <td class="${backgroundClass}">
-            <a href="<portlet:actionURL portletMode="view"><portlet:param name="action" value="edit"/><portlet:param name="group" value="${group.key}"/></portlet:actionURL>">Edit</a>
+            <a href="<portlet:actionURL portletMode="view"><portlet:param name="action" value="edit"/><portlet:param name="group" value="${group.key}"/></portlet:actionURL>"><fmt:message key="consolebase.common.edit"/></a>
             &nbsp;
-            <a href="<portlet:actionURL><portlet:param name="group" value="${group.key}"/><portlet:param name="action" value="delete"/></portlet:actionURL>" onclick="return confirm('Confirm Delete group ${group.key}?');">Delete</a>
+            <a href="<portlet:actionURL><portlet:param name="group" value="${group.key}"/><portlet:param name="action" value="delete"/></portlet:actionURL>" onclick="return confirm('Confirm Delete group ${group.key}?');"><fmt:message key="consolebase.common.delete"/></a>
             </td>
         </tr>
         </form>

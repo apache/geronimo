@@ -16,56 +16,55 @@
 --%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/portlet" prefix="portlet"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
+<fmt:setBundle basename="consolebase"/>
 <portlet:defineObjects/>
-
-<p><b>Certification Authority Details</b></p>
-
-<p>This screen shows the details of CA's certificate and keypair.  <i>Highest Serial Number</i> shows
-the highest of serial number of any certificate issued by this CA.  <i>Certificate Text</i> shows the CA's
-certificate in base64 encoded form.  This text can be used by the certificate requestors to designate
-this CA as a trusted CA in their software.</p>
-
+<p><b><fmt:message key="ca.caDetails.title"/></b></p>
+<p>
+<fmt:message key="ca.caDetails.summary"/>
+</p>
 <jsp:include page="_header.jsp" />
 
 <c:if test="${empty(caLocked) || !caLocked}">
   <table border="0">
     <tr>
-        <th colspan="2" align="left" class="DarkBackground">Certificate Details</th>
+        <th colspan="2" align="left" class="DarkBackground"><fmt:message key="ca.common.certificateDetails"/>
+       </th>
     </tr>
     <tr>
-        <th class="LightBackground" align="right">Version:</th>
+        <th class="LightBackground" align="right"><fmt:message key="consolebase.common.version"/>:</th>
         <td class="LightBackground">${cert.version}</td>
     </tr>
     <tr>
-        <th class="MediumBackground" align="right">Subject:</th>
+        <th class="MediumBackground" align="right"><fmt:message key="ca.common.subject"/>:</th>
         <td class="MediumBackground">${cert.subjectDN.name}</td>
     </tr>
     <tr>
-        <th class="LightBackground" align="right">Issuer:</th>
+        <th class="LightBackground" align="right"><fmt:message key="ca.common.issuer"/>:</th>
         <td class="LightBackground">${cert.issuerDN.name}</td>
     </tr>
     <tr>
-        <th class="MediumBackground" align="right">Serial Number:</th>
+        <th class="MediumBackground" align="right"><fmt:message key="ca.common.serialNumber"/>:</th>
         <td class="MediumBackground">${cert.serialNumber}</td>
     </tr>
     <tr>
-        <th class="LightBackground" align="right">Valid From:</th>
+        <th class="LightBackground" align="right"><fmt:message key="ca.common.validFrom"/>:</th>
         <td class="LightBackground">${cert.notBefore}</td>
     </tr>
     <tr>
-        <th class="MediumBackground" align="right">Valid To:</th>
+        <th class="MediumBackground" align="right"><fmt:message key="ca.common.validTo"/>:</th>
         <td class="MediumBackground">${cert.notAfter}</td>
     </tr>
     <tr>
-        <th class="LightBackground" align="right">Signature Alg:</th>
+        <th class="LightBackground" align="right"><fmt:message key="ca.common.signatureAlg"/>:</th>
         <td class="LightBackground">${cert.sigAlgName}</td>
     </tr>
     <tr>
-        <th class="MediumBackground" align="right">Public Key Alg:</th>
+        <th class="MediumBackground" align="right"><fmt:message key="ca.common.publicKeyAlg"/>:</th>
         <td class="MediumBackground">${cert.publicKey.algorithm}</td>
     </tr>
     <tr>
-        <th class="LightBackground" align="right">Key Size:</th>
+        <th class="LightBackground" align="right"><fmt:message key="ca.common.keySize"/>:</th>
         <td class="LightBackground">${keySize}</td>
     </tr>
   <c:set var="backgroundClass" value='LightBackground'/> <!-- This should be set from the row above. -->
@@ -79,7 +78,7 @@ this CA as a trusted CA in their software.</p>
         </c:otherwise>
     </c:choose>
     <tr>
-        <th class="${backgroundClass}" align="right">critical ext: </th>
+        <th class="${backgroundClass}" align="right"><fmt:message key="ca.common.criticalExt"/>: </th>
         <td class="${backgroundClass}">${extoid}</td>
     </tr>
   </c:forEach>
@@ -93,7 +92,7 @@ this CA as a trusted CA in their software.</p>
         </c:otherwise>
     </c:choose>
     <tr>
-        <th class="${backgroundClass}" align="right">non-critical ext: </th>
+        <th class="${backgroundClass}" align="right"><fmt:message key="ca.common.nonCriticalExt"/>: </th>
         <td class="${backgroundClass}">${extoid}</td>
     </tr>
   </c:forEach>
@@ -106,7 +105,7 @@ this CA as a trusted CA in their software.</p>
         </c:otherwise>
     </c:choose>
     <tr>
-        <th class="${backgroundClass}" align="right">Finger prints:</th>
+        <th class="${backgroundClass}" align="right"><fmt:message key="ca.common.fingerPrints"/>:</th>
         <td class="${backgroundClass}">
   <c:forEach items="${fingerPrints}" var="fp">
             ${fp.key} = &nbsp; ${fp.value} <br/>
@@ -115,12 +114,12 @@ this CA as a trusted CA in their software.</p>
     </tr>
     <tr><td>&nbsp;</td></tr>
     <tr>
-        <th align="right">Highest Serial Number:</th>
+        <th align="right"><fmt:message key="ca.common.highestSerialNumber"/>:</th>
         <td>${highestSerial}</td>
     </tr>
     <tr><td>&nbsp;</td></tr>
     <tr>
-        <th colspan="2" align="left">Base64 encoded Certificate Text</th>
+        <th colspan="2" align="left"><fmt:message key="ca.common.base64EncodedCertText"/></th>
     </tr>
     <tr>
         <td colspan="2"><form><textarea rows="15" cols="80" READONLY>${certText}</textarea></form></td>
@@ -129,4 +128,4 @@ this CA as a trusted CA in their software.</p>
 </c:if>
 <p><a href="<portlet:actionURL portletMode="view">
               <portlet:param name="mode" value="index-before" />
-            </portlet:actionURL>">Back to CA home</a></p>
+            </portlet:actionURL>"><fmt:message key="ca.common.backToCAHome"/></a></p>

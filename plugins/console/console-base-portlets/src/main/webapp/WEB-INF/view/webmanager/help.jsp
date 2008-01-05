@@ -14,19 +14,23 @@
    See the License for the specific language governing permissions and
    limitations under the License.
 --%>
-<p> Geronimo Console will collect statistics on the number of requests received by Geronimo Console and on the number of connections made to the Geronimo server. Click on the enable link to monitor the performance of the Geronimo server.</p>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
+<fmt:setBundle basename="consolebase"/>
+<p><fmt:message key="webmanager.help.title"/></p>
 <table width="100%"  border="0" cellspacing="0" cellpadding="0">
   <tr>
-    <td class="MediumBackground" style="padding: 10px 10px 10px 5px; font-size: 10px; color: #546BC7; text-decoration: underline; font-weight: bold;" width="150" align="right" valign="top">refresh</td>
-    <td class="LightBackground" style="padding: 10px 5px 10px 10px" valign="top">Update the display with the latest statistics.</td>
+    <td class="MediumBackground" style="padding: 10px 10px 10px 5px; font-size: 10px; color: #546BC7; text-decoration: underline; font-weight: bold;" width="150" align="right" valign="top">
+    <fmt:message key="consolebase.common.refresh"/></td>
+    <td class="LightBackground" style="padding: 10px 5px 10px 10px" valign="top"><fmt:message key="webmanager.help.refreshExplanation"/></td>
   </tr>
   <tr>
-    <td class="MediumBackground" style="padding: 10px 10px 10px 5px; font-size: 10px; color: #546BC7; text-decoration: underline; font-weight: bold;" width="150" align="right" valign="top">disable</td>
-    <td class="LightBackground" style="padding: 10px 5px 10px 10px" valign="top">Turn off statistics gathering and return the user to the main page.</td>
+    <td class="MediumBackground" style="padding: 10px 10px 10px 5px; font-size: 10px; color: #546BC7; text-decoration: underline; font-weight: bold;" width="150" align="right" valign="top"><fmt:message key="webmanager.help.disable"/></td>
+    <td class="LightBackground" style="padding: 10px 5px 10px 10px" valign="top"><fmt:message key="webmanager.help.disableExplanation"/></td>
   </tr>
   <tr>
-    <td class="MediumBackground" style="padding: 10px 10px 10px 5px; font-size: 10px; color: #546BC7; text-decoration: underline; font-weight: bold;" width="150" align="right" valign="top">reset</td>
-    <td class="LightBackground" style="padding: 10px 5px 10px 10px" valign="top">Reset all counts, totals, averages, etc., to 0 and start gathering statistics again.</td>
+    <td class="MediumBackground" style="padding: 10px 10px 10px 5px; font-size: 10px; color: #546BC7; text-decoration: underline; font-weight: bold;" width="150" align="right" valign="top">
+     <fmt:message key="consolebase.common.reset"/></td>
+    <td class="LightBackground" style="padding: 10px 5px 10px 10px" valign="top"><fmt:message key="webmanager.help.resetExplanation"/></td>
   </tr>
 </table>
 <p>&nbsp;</p>

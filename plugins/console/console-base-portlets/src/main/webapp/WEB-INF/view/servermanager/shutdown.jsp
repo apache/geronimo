@@ -14,6 +14,8 @@
    See the License for the specific language governing permissions and
    limitations under the License.
 --%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
+<fmt:setBundle basename="consolebase"/>
 <BR />
-<p><font face="Verdana" size="+1" COLOR=DARKRED><center><b>Server shutdown has been issued.</b></center></font></p>
+<p><font face="Verdana" size="+1" COLOR=DARKRED><center><b><fmt:message key="servermanager.shutdown.shutdownIssued"/></b></center></font></p>
 <BR />

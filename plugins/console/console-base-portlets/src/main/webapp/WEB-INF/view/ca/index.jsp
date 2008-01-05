@@ -17,55 +17,69 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
 <%@ taglib uri="http://java.sun.com/portlet" prefix="portlet"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
+<fmt:setBundle basename="consolebase"/>
 <portlet:defineObjects/>
-
-<p>This portlet allows you to setup a Certification Authority (CA) and issue certificates in reply to
-Certificate Signing Requests (CSRs).  <i>Setup Certification Authority</i> function allows to initialize
-the CA by providing CA Identity details, algorithm parameters for CA's key pair and self-signed certificate
-and a password to protect the CA's private key.  This password is to be used to unlock the CA to access CA
-functions.
-Once the CA is initialized, CSRs can be processed using <i>Issue New Certificate</i> function.  Previously
-issued certificates can be viewed using <i>View Issued Certificate</i> function.
+<p>
+<fmt:message key="ca.index.title"/>
 </p>
+
 
 <jsp:include page="_header.jsp" />
 
 <c:choose>
   <c:when test="${caNotSetup}">
     <!-- CA needs initialization -->
-    <p>CA is not running or the CA may not have been initialized.  Please initialize the CA using the link provided below.
+    <p>
+    <fmt:message key="ca.index.CANotInitialized"/>
+    
     <table border="0">
       <tr>
-        <td><a href="<portlet:actionURL portletMode="view"><portlet:param name="mode" value="setupCA-before" /></portlet:actionURL>">Setup Certification Authority</a> </td>
+        <td><a href="<portlet:actionURL portletMode="view"><portlet:param name="mode" value="setupCA-before" /></portlet:actionURL>">
+        <fmt:message key="ca.common.setupCertAuthority"/>
+        </a> </td>
       </tr>
     </table>
   </c:when>
   <c:otherwise>
     <!-- CA is ready for use -->
-    <p>CA has been initialized.
+    <p><fmt:message key="ca.index.CAInitialized"/>
     <c:choose>
       <c:when test="${caLocked}">
-        But, the CA is locked.  Please unlock the CA to access CA functions.
+        <fmt:message key="ca.index.CALocked"/>
         <table border="0">
         <tr>
-          <td><a href="<portlet:actionURL portletMode="view"><portlet:param name="mode" value="unlockCA-before" /></portlet:actionURL>">Unlock CA</a> </td>
+          <td><a href="<portlet:actionURL portletMode="view"><portlet:param name="mode" value="unlockCA-before" /></portlet:actionURL>">
+          <fmt:message key="ca.common.unlockCA"/>
+          </a> </td>
         </tr>
         </table>
       </c:when>
       <c:otherwise>
-        CA functions can be accessed using the links provided below.
+      <fmt:message key="ca.index.CAFunctionsAccessed"/>        
         <table border="0">
         <tr>
-          <td>&nbsp;<a href="<portlet:actionURL portletMode="view"><portlet:param name="mode" value="index-after" /><portlet:param name="lock" value="lock" /></portlet:actionURL>">Lock CA</a> &nbsp;</td>
-          <td>&nbsp;<a href="<portlet:actionURL portletMode="view"><portlet:param name="mode" value="caDetails-before" /></portlet:actionURL>">View CA Details</a> &nbsp;</td>
-          <td>&nbsp;<a href="<portlet:actionURL portletMode="view"><portlet:param name="mode" value="index-after" /><portlet:param name="publish" value="publish" /></portlet:actionURL>">Publish CA Certificate</a> &nbsp;</td>
+          <td>&nbsp;<a href="<portlet:actionURL portletMode="view"><portlet:param name="mode" value="index-after" /><portlet:param name="lock" value="lock" /></portlet:actionURL>">
+           <fmt:message key="ca.common.lockCA"/>
+           </a> &nbsp;</td>
+          <td>&nbsp;<a href="<portlet:actionURL portletMode="view"><portlet:param name="mode" value="caDetails-before" /></portlet:actionURL>">
+          <fmt:message key="ca.common.viewCADetails"/>
+          </a> &nbsp;</td>
+          <td>&nbsp;<a href="<portlet:actionURL portletMode="view"><portlet:param name="mode" value="index-after" /><portlet:param name="publish" value="publish" /></portlet:actionURL>">
+          <fmt:message key="ca.index.publishCACert"/>
+          </a> &nbsp;</td>
           <td>&nbsp;</td>
         </tr>
         <tr>
-          <td>&nbsp;<a href="<portlet:actionURL portletMode="view"><portlet:param name="mode" value="listRequestsVerify-before" /></portlet:actionURL>">Requests to be verified</a>&nbsp;</td>
-          <td>&nbsp;<a href="<portlet:actionURL portletMode="view"><portlet:param name="mode" value="listRequestsIssue-before" /></portlet:actionURL>">Requests to be fulfilled</a>&nbsp;</td>
-          <td>&nbsp;<a href="<portlet:actionURL portletMode="view"><portlet:param name="mode" value="processCSR-before" /></portlet:actionURL>">Issue New Certificate</a> &nbsp;</td>
-          <td>&nbsp;<a href="<portlet:actionURL portletMode="view"><portlet:param name="mode" value="viewCert-before" /></portlet:actionURL>">View Issued Certificate</a> &nbsp;</td>
+          <td>&nbsp;<a href="<portlet:actionURL portletMode="view"><portlet:param name="mode" value="listRequestsVerify-before" /></portlet:actionURL>">
+          <fmt:message key="ca.index.requestsToBeVerified"/></a>&nbsp;</td>
+          <td>&nbsp;<a href="<portlet:actionURL portletMode="view"><portlet:param name="mode" value="listRequestsIssue-before" /></portlet:actionURL>">
+          <fmt:message key="ca.index.requestsToBeFulfilled"/></a>&nbsp;</td>
+          <td>&nbsp;<a href="<portlet:actionURL portletMode="view"><portlet:param name="mode" value="processCSR-before" /></portlet:actionURL>">
+          <fmt:message key="ca.common.issueNewCert"/></a> &nbsp;</td>
+          <td>&nbsp;<a href="<portlet:actionURL portletMode="view"><portlet:param name="mode" value="viewCert-before" /></portlet:actionURL>">
+          <fmt:message key="ca.common.viewIssuedCert"/>
+          </a> &nbsp;</td>
         </tr>
         </table>
       </c:otherwise>

@@ -20,18 +20,14 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
 <%@ taglib uri="http://java.sun.com/portlet" prefix="portlet"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
+<fmt:setBundle basename="consolebase"/>
 <portlet:defineObjects/>
+<fmt:message key="realmwizard.edit.summary" />
 
-<p>This page edits a new or existing security realm.</p>
-
-<p>A security realm may have one or more login modules.  Many simple realms have
-only one login module.  Additional login modules may be used to access more
-underlying security information stores, or to add functionality such as auditing
-to a realm without affecting the authentication process for the realm.</p>
 
 <c:if test="${empty realm.abstractName}">
-<p>If you don't need to use as many login modules as there are entries below,
-just leave the extra ones blank.</p>
+<p><fmt:message key="realmwizard.edit.ifLeaveBlank" /></p>
 </c:if>
 
 <!--   FORM TO COLLECT DATA FOR THIS PAGE   -->
@@ -53,7 +49,7 @@ just leave the extra ones blank.</p>
     <table border="0">
     <!-- ENTRY FIELD: NAME -->
       <tr>
-        <th style="min-width: 140px"><div align="right">Realm Name:</div></th>
+        <th style="min-width: 140px"><div align="right"><fmt:message key="realmwizard.common.realmName" />:</div></th>
         <td>
       <c:choose> <%-- Can't change the realm name after deployment because it's wired into all the abstractNames --%>
         <c:when test="${empty realm.abstractName}">
@@ -68,14 +64,13 @@ just leave the extra ones blank.</p>
       </tr>
       <tr>
         <td></td>
-        <td>A name that is different than the name for any other security realms in the server (no spaces in the name please).
-          Other components will use this name to refer to the security realm.</td>
+        <td><fmt:message key="realmwizard.edit.realmNameExp" /></td>
       </tr>
     <!-- ENTRY FIELD: LoginModule JAR -->
     <c:choose>
       <c:when test="${mode eq 'custom'}">
       <tr>
-        <th><div align="right">Login Module JAR:</div></th>
+        <th><div align="right"><fmt:message key="realmwizard.edit.loginModuleJAR" />:</div></th>
         <td>
           <select name="jar">
                   <option />
@@ -89,7 +84,7 @@ just leave the extra ones blank.</p>
       </tr>
       <tr>
         <td></td>
-        <td>The jar containing Login Module and Principal classes.</td>
+        <td><fmt:message key="realmwizard.edit.loginModuleJARExp" /></td>
       </tr>
       </c:when>
       <c:otherwise>
@@ -99,10 +94,10 @@ just leave the extra ones blank.</p>
     <!-- HEADER -->
     <c:forEach var="module" items="${realm.modules}" varStatus="status" >
       <tr>
-        <th colspan="2">Login Module ${status.index+1}</th>
+        <th colspan="2"><fmt:message key="realmwizard.common.loginModule" />${status.index+1}</th>
       </tr>
       <tr>
-        <th><div align="right">Login Domain Name:</div></th>
+        <th><div align="right"><fmt:message key="realmwizard.common.loginDomainName" />:</div></th>
         <td>
       <c:choose> <%-- Can't change the login domain name after deployment because it's how we know which GBean is which --%>
         <c:when test="${empty realm.abstractName}">
@@ -119,20 +114,18 @@ just leave the extra ones blank.</p>
       </tr>
       <tr>
         <td></td>
-        <td>The login domain for this login module, which must be unique among all modules in the security realm.
-          This can be used to distinguish principals from two otherwise identical login modules (for example,
-          from two LDAP login modules pointing to two different LDAP servers)</td>
+        <td><fmt:message key="realmwizard.edit.loginDomainExp" /></td>
       </tr>
       <tr>
-        <th><div align="right">Login Module Class:</div></th>
+        <th><div align="right"><fmt:message key="realmwizard.common.loginModuleClass" />:</div></th>
         <td><input name="module-class-${status.index}" type="text" size="60" value="${module.className}" /></td>
       </tr>
       <tr>
         <td></td>
-        <td>The fully-qualified class name for the login module.</td>
+        <td><fmt:message key="realmwizard.edit.loginModuleClassExp" /></td>
       </tr>
       <tr>
-        <th><div align="right">Control Flag:</div></th>
+        <th><div align="right"><fmt:message key="realmwizard.common.controlFlag" />:</div></th>
         <td>
           <select name="module-control-${status.index}">
             <option value="OPTIONAL"<c:if test="${module.controlFlag eq 'OPTIONAL'}"> selected</c:if>>Optional</option>
@@ -144,12 +137,11 @@ just leave the extra ones blank.</p>
       </tr>
       <tr>
         <td></td>
-        <td>The control flag for the login module, which controls what happens to the overall login processing if this
-          login module succeeds or fails.  For more information see
+        <td><fmt:message key="realmwizard.edit.controlFlagExp" />
           <a href="http://java.sun.com/j2se/1.4.2/docs/api/javax/security/auth/login/Configuration.html">javax.security.auth.login.Configuration</a>.</td>
       </tr>
       <tr>
-        <th><div align="right">Support Advanced Mapping:</div></th>
+        <th><div align="right"><fmt:message key="realmwizard.common.supportAdvancedMapping" />:</div></th>
         <td>
           <select name="module-wrap-${status.index}">
             <option value="true"<c:if test="${module.wrapPrincipals}"> selected</c:if>>Yes</option>
@@ -159,20 +151,15 @@ just leave the extra ones blank.</p>
       </tr>
       <tr>
         <td></td>
-        <td>Normally Geronimo can't distinguish between two different principals that have the same name
-          and same principal class but were produced by two different login modules.  If this option is
-          enabled, Geronimo will "wrap" principals to track which login module and realm each
-          principal came from.  This lets you use the "realm-principal" and "login-domain-principal"
-          elements in your security mapping in Geronimo deployment plans.</td>
+        <td><fmt:message key="realmwizard.edit.supportAdvancedMappingExp" /></td>
       </tr>
       <tr>
-        <th><div align="right">Configuration Options:</div></th>
+        <th><div align="right"><fmt:message key="realmwizard.common.configurationOptions" />:</div></th>
         <td><textarea name="module-options-${status.index}" rows="5" cols="60">${module.optionString}</textarea></td>
       </tr>
       <tr>
         <td></td>
-        <td>Any configuration options necessary for the login module, in the standard Java properties format (one
-          per line, <tt>name=value</tt>)</td>
+        <td><fmt:message key="realmwizard.edit.configurationOptionsExp" /></td>
       </tr>
     </c:forEach>
 
@@ -180,9 +167,9 @@ just leave the extra ones blank.</p>
       <tr>
         <td></td>
         <td>
-          <input type="button" value="<c:choose><c:when test="${empty realm.abstractName}">Deploy</c:when><c:otherwise>Save</c:otherwise></c:choose>"
+          <input type="button" value="<c:choose><c:when test="${empty realm.abstractName}"><fmt:message key='realmwizard.common.deploy' /></c:when><c:otherwise><fmt:message key='consolebase.common.save'/></c:otherwise></c:choose>"
                  onclick="document.<portlet:namespace/>RealmForm.mode.value='save';document.<portlet:namespace/>RealmForm.submit();return false;" />
-          <input type="button" value="Show Plan" onclick="document.<portlet:namespace/>RealmForm.mode.value='plan';document.<portlet:namespace/>RealmForm.submit();return false;" />
+          <input type="button" value='<fmt:message key="realmwizard.common.showPlan" />' onclick="document.<portlet:namespace/>RealmForm.mode.value='plan';document.<portlet:namespace/>RealmForm.submit();return false;" />
         </td>
       </tr>
     </table>
@@ -193,4 +180,4 @@ just leave the extra ones blank.</p>
 
 <p><a href="<portlet:actionURL portletMode="view">
               <portlet:param name="mode" value="list" />
-            </portlet:actionURL>">Cancel</a></p>
+            </portlet:actionURL>"><fmt:message key="consolebase.common.cancel"/></a></p>

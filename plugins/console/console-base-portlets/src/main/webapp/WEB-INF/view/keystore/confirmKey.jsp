@@ -17,9 +17,11 @@
 <%@ page import="org.apache.geronimo.console.util.PortletManager"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/portlet" prefix="portlet"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
+<fmt:setBundle basename="consolebase"/>
 <portlet:defineObjects/>
 
-<p>Please confirm that this is the correct information for the key I'm about to generate:</p>
+<p><fmt:message key="keystore.confirmKey.title"/></p>
 
 <form name="<portlet:namespace/>KeystoreForm" action="<portlet:actionURL/>">
     <input type="hidden" name="mode" value="confirmKey-after" />
@@ -38,19 +40,19 @@
 
     <table border="0">
         <tr>
-            <th align="right">Alias:</th>
+            <th align="right"><fmt:message key="keystore.common.alias"/>:</th>
             <td>${alias}</td>
         </tr>
         <tr>
-            <th align="right">Key Type:</th>
+            <th align="right"><fmt:message key="keystore.common.keyType"/>:</th>
             <td>${algorithm} -- ${keySize} bits</td>
         </tr>
         <tr>
-            <th align="right">Validity:</th>
+            <th align="right"><fmt:message key="keystore.common.validity"/>:</th>
             <td>${validFrom} to ${validTo}</td>
         </tr>
         <tr>
-            <th align="right" valign="top">Identity:</th>
+            <th align="right" valign="top"><fmt:message key="keystore.common.identity"/>:</th>
             <td>
                 ${certCN}<br />
                 ${certOU}, ${certO}<br />
@@ -59,11 +61,11 @@
         </tr>
     </table>
 
-    <input type="submit" value="Generate Key" />
+    <input type="submit" value='<fmt:message key="keystore.confirmKey.generateKey"/>' />
 </form>
 
 
 <p><a href="<portlet:actionURL portletMode="view">
               <portlet:param name="mode" value="viewKeystore-before" />
               <portlet:param name="id" value="${id}" />
-            </portlet:actionURL>">Cancel</a></p>
+            </portlet:actionURL>"><fmt:message key="consolebase.common.cancel"/></a></p>

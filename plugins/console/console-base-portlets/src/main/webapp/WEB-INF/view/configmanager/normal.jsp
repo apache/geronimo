@@ -16,6 +16,8 @@
 --%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/portlet" prefix="portlet"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
+<fmt:setBundle basename="consolebase"/>
 <portlet:defineObjects/>
 
 <script>
@@ -204,12 +206,12 @@ function init() {
 <br />
 <table width="100%">
     <tr class="DarkBackground">
-        <th align="left">&nbsp;Component Name</th>
+        <th align="left">&nbsp;<fmt:message key="configmanager.normal.componentName" /></th>
         <c:if test="${showWebInfo}"><th>URL</th></c:if>
-        <th>&nbsp;State</th>
-        <th align="center" colspan="3">Commands</th>
-        <th align="left">Parent Components</th>
-        <th align="left">Child Components</th>
+        <th>&nbsp;<fmt:message key="consolebase.common.state"/></th>
+        <th align="center" colspan="3"> <fmt:message key="consolebase.common.commands"/></th>
+        <th align="left"><fmt:message key="configmanager.normal.parentComponents" /></th>
+        <th align="left"><fmt:message key="configmanager.normal.childComponents" /></th>
     </tr>
   <c:set var="backgroundClass" value='MediumBackground'/>
   <c:forEach var="moduleDetails" items="${configurations}">
@@ -250,16 +252,16 @@ function init() {
         <td width="75" class="${backgroundClass}">
             <c:if test="${moduleDetails.state.running || moduleDetails.state.failed}">
                 <span <c:if test="${moduleDetails.expertConfig}"> name=expert </c:if>> 
-                    &nbsp;<a href="<portlet:actionURL><portlet:param name='configId' value='${moduleDetails.configId}'/><portlet:param name='action' value='stop'/></portlet:actionURL>" onClick="return promptIfUnsafeToStop('${moduleDetails.configId}','${moduleDetails.expertConfig}','${moduleDetails.type.name}');">Stop</a>&nbsp;
+                    &nbsp;<a href="<portlet:actionURL><portlet:param name='configId' value='${moduleDetails.configId}'/><portlet:param name='action' value='stop'/></portlet:actionURL>" onClick="return promptIfUnsafeToStop('${moduleDetails.configId}','${moduleDetails.expertConfig}','${moduleDetails.type.name}');"><fmt:message key="consolebase.common.stop"/></a>&nbsp;
                 </span>
             </c:if>
             <c:if test="${moduleDetails.expertConfig && (moduleDetails.state.running || moduleDetails.state.failed)}">
                 <span name=nonexpert> 
-                    &nbsp;<a>Stop</a>&nbsp;
+                    &nbsp;<a><fmt:message key="consolebase.common.stop"/></a>&nbsp;
                 </span>
             </c:if>
             <c:if test="${moduleDetails.state.stopped && (moduleDetails.type.name ne 'CAR')}">
-                &nbsp;<a href="<portlet:actionURL><portlet:param name='configId' value='${moduleDetails.configId}'/><portlet:param name='action' value='start'/></portlet:actionURL>">Start</a>&nbsp;
+                &nbsp;<a href="<portlet:actionURL><portlet:param name='configId' value='${moduleDetails.configId}'/><portlet:param name='action' value='start'/></portlet:actionURL>"><fmt:message key="consolebase.common.start"/></a>&nbsp;
             </c:if>
         </td>
 
@@ -267,12 +269,12 @@ function init() {
         <td width="75" class="${backgroundClass}">
             <c:if test="${moduleDetails.state.running}">
                 <span <c:if test="${moduleDetails.expertConfig}"> name=expert </c:if>> 
-                    &nbsp;<a href="<portlet:actionURL><portlet:param name='configId' value='${moduleDetails.configId}'/><portlet:param name='action' value='restart'/></portlet:actionURL>" onClick="return promptIfUnsafeToRestart('${moduleDetails.configId}','${moduleDetails.expertConfig}','${moduleDetails.type.name}');">Restart</a>&nbsp;
+                    &nbsp;<a href="<portlet:actionURL><portlet:param name='configId' value='${moduleDetails.configId}'/><portlet:param name='action' value='restart'/></portlet:actionURL>" onClick="return promptIfUnsafeToRestart('${moduleDetails.configId}','${moduleDetails.expertConfig}','${moduleDetails.type.name}');"><fmt:message key="consolebase.common.restart"/></a>&nbsp;
                 </span>
             </c:if>
             <c:if test="${moduleDetails.expertConfig && moduleDetails.state.running}">
                 <span name=nonexpert> 
-                    &nbsp;<a>Restart</a>&nbsp;
+                    &nbsp;<a><fmt:message key="consolebase.common.restart"/></a>&nbsp;
                 </span>
             </c:if>
         </td>
@@ -280,11 +282,11 @@ function init() {
         <!-- Uninstall action -->
         <td width="75" class="${backgroundClass}">
             <span <c:if test="${moduleDetails.expertConfig}"> name=expert </c:if>> 
-                &nbsp;<a href="<portlet:actionURL><portlet:param name='configId' value='${moduleDetails.configId}'/><portlet:param name='action' value='uninstall'/></portlet:actionURL>" onClick="return uninstallPrompt('${moduleDetails.configId}','${moduleDetails.expertConfig}','${moduleDetails.type.name}');">Uninstall</a>&nbsp;
+                &nbsp;<a href="<portlet:actionURL><portlet:param name='configId' value='${moduleDetails.configId}'/><portlet:param name='action' value='uninstall'/></portlet:actionURL>" onClick="return uninstallPrompt('${moduleDetails.configId}','${moduleDetails.expertConfig}','${moduleDetails.type.name}');"><fmt:message key="consolebase.common.uninstall"/></a>&nbsp;
             </span>
             <c:if test="${moduleDetails.expertConfig}">
                 <span name=nonexpert> 
-                    &nbsp;<a>Uninstall</a>&nbsp;
+                    &nbsp;<a><fmt:message key="consolebase.common.uninstall"/></a>&nbsp;
                 </span>
             </c:if>
         </td>

@@ -16,8 +16,10 @@
 --%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/portlet" prefix="portlet" %>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
+<fmt:setBundle basename="consolebase"/>
 <portlet:defineObjects/>
-<p><b>Apache mod_jk</b> -- Basic Configuration</p>
+<p><fmt:message key="apache.jk.config.title"/></p>
 
 <!-- FORM TO COLLECT DATA FOR THIS PAGE -->
 <form name="<portlet:namespace/>ApacheForm" action="<portlet:actionURL/>">
@@ -34,7 +36,7 @@
     <table border="0">
         <!-- ENTRY FIELD: OS -->
         <tr>
-            <th><div align="right">Operating System:</div></th>
+            <th><div align="right"><fmt:message key="apache.jk.config.operatingSystem"/>:</div></th>
             <td>
                 <select name="os">
                     <option></option>
@@ -50,44 +52,36 @@
         </tr>
         <tr>
             <td></td>
-            <td>The process for installing <tt>mod_jk</tt> depends on the operating system. For some,
-                we can provide specific guidance. For others, you'll have to install <tt>mod_jk</tt>
-                on your own.
+            <td><fmt:message key="apache.jk.config.operatingSystemExplanation"/>            
             </td>
         </tr>
 
         <!-- ENTRY FIELD: workers.properties path -->
         <tr>
-            <th><div align="right">Path to <tt>workers.properties</tt>:</div></th>
+            <th><div align="right"><fmt:message key="apache.jk.config.pathToProperties"/>:</div></th>
             <td><input name="workersPath" type="text" size="30" maxlength="255"
                        value="${model.workersPath}"/></td>
         </tr>
         <tr>
             <td></td>
-            <td><tt>mod_jk</tt> requires a file called <tt>workers.properties</tt> to specify which
-              app servers can be contacted on which network ports, etc.  This tool will generate the
-              contents for the <tt>workers.properties</tt> file, but it also needs to point to this
-              file in the Apache configuration data, so we need to know where you plan to put this
-              file.</td>
+            <td><fmt:message key="apache.jk.config.pathToPropertiesExplanation"/></td>
         </tr>
 
         <!-- ENTRY FIELD: log file path -->
         <tr>
-            <th><div align="right"><tt>mod_jk</tt> log file location:</div></th>
+            <th><div align="right"><fmt:message key="apache.jk.config.logFileLocation"/>:</div></th>
             <td><input name="logFilePath" type="text" size="30" maxlength="255"
                        value="${model.logFilePath}"/></td>
         </tr>
         <tr>
             <td></td>
-            <td><tt>mod_jk</tt> writes to a log file in a location you choose.  The log file
-              location needs to be set in the Apache configuration.  Please select the location
-              where the <tt>mod_jk</tt> log file should be written.</td>
+            <td><fmt:message key="apache.jk.config.logFileLoctionExplanation"/></td>
         </tr>
 
         <!-- SUBMIT BUTTON -->
         <tr>
             <td></td>
-            <td><input type="submit" value="Next"/></td>
+            <td><input type="submit" value='<fmt:message key="consolebase.common.next"/>'/></td>
         </tr>
     </table>
 </form>
@@ -96,4 +90,4 @@
 
 <p><a href="<portlet:actionURL portletMode="view">
               <portlet:param name="mode" value="index-before" />
-            </portlet:actionURL>">Cancel</a></p>
+            </portlet:actionURL>"><fmt:message key="consolebase.common.cancel"/></a></p>

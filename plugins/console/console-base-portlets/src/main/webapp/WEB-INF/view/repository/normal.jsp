@@ -19,6 +19,8 @@
 
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/portlet" prefix="portlet"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
+<fmt:setBundle basename="consolebase"/>
 <portlet:defineObjects/>
 
 <c:set var="reslist" value="${requestScope['org.apache.geronimo.console.repo.list']}"/>
@@ -95,31 +97,31 @@ function <portlet:namespace/>parse(localFile) {
   <form onsubmit="return <portlet:namespace/>validate();" enctype="multipart/form-data" name="<portlet:namespace/>fileSelect" method="POST" action="<portlet:actionURL><portlet:param name="action" value="deploy"/></portlet:actionURL>">
   <table>
     <tr>
-      <th colspan="2">Add Archive to Repository</th>
+      <th colspan="2"><fmt:message key="repository.normal.addArchiveToRepository"/></th>
     </tr>
     <tr>
-      <td>File</td>
+      <td><fmt:message key="consolebase.common.file"/></td>
       <td><input name="local" onchange="<portlet:namespace/>parse(value);" type="file">&nbsp;&nbsp;&nbsp;</td>
     </tr>
     <tr>
-      <td>Group:</td>
+      <td><fmt:message key="consolebase.common.group"/>:</td>
       <td><input type="text" name="group" value="${group}"/></td>
     </tr>
     <tr>
-      <td>Artifact:</td>
+      <td><fmt:message key="repository.normal.artifact"/>:</td>
       <td><input type="text" name="artifact" value="${artifact}"/></td>
     </tr>
     <tr>
-      <td>Version:</td>
+      <td><fmt:message key="consolebase.common.version"/>:</td>
       <td><input type="text" name="version" value="${version}"/></td>
     </tr>
     <tr>
-      <td>Type:</td>
+      <td><fmt:message key="consolebase.common.type"/>:</td>
       <td><input type="text" name="fileType" value="${fileType}"/></td>
     </tr>
     <tr><td colspan="2"><font size="-2">&nbsp;</font></td></tr>
     <tr>
-      <td colspan="2" align="center"><input type="submit" value="Install" /></td>
+      <td colspan="2" align="center"><input type="submit" value='<fmt:message key="consolebase.common.install"/>' /></td>
     </tr>
   </table>
   </form>
@@ -127,8 +129,8 @@ function <portlet:namespace/>parse(localFile) {
 </tr>
 </table>
 
-<b>Current Repository Entries</b>
-<p>Click on an entry to view usage.</p>
+<b><fmt:message key="repository.normal.currentRepositoryEntries"/></b>
+<p><fmt:message key="repository.normal.toViewUsage"/></p>
 <ul>
 <c:forEach items="${reslist}" var="res">
 <li><a href="<portlet:actionURL portletMode="view"><portlet:param name="action" value="usage"/><portlet:param name="res" value="${res}"/></portlet:actionURL>"><c:out value="${res}"/></a></li>

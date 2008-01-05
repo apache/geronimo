@@ -19,6 +19,8 @@
 
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/portlet" prefix="portlet"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
+<fmt:setBundle basename="consolebase"/>
 <portlet:defineObjects/>
 
 <script language="JavaScript">
@@ -29,12 +31,9 @@ function <portlet:namespace/>validateForm(){
 }
 </script>
 
-<p><b>Create Security Realm</b> -- Step 4: Test Login</p>
+<p><fmt:message key="realmwizard.testLogin.title" /></p>
 
-<p>From here you can enter a username and password for the main login module in the realm, and
-see if the login is successful and which Principals are generated for the user.  This is
-menat to be an indication of whether the settings for the main login module are correct.  It
-does not invoke advanced features such as auditing or lockout.</p>
+<p><fmt:message key="realmwizard.testLogin.summary" /></p>
 
 <!--   FORM TO COLLECT DATA FOR THIS PAGE   -->
 <form name="<portlet:namespace/>RealmForm" action="<portlet:actionURL/>">
@@ -80,25 +79,25 @@ does not invoke advanced features such as auditing or lockout.</p>
     <table border="0">
     <!-- ENTRY FIELD: Username -->
       <tr>
-        <th style="min-width: 140px"><div align="right">Username:</div></th>
+        <th style="min-width: 140px"><div align="right"><fmt:message key="consolebase.common.userName"/>:</div></th>
         <td><input name="username" type="text" size="20" /></td>
       </tr>
       <tr>
         <td></td>
-        <td>The username to use to log in to the realm.</td>
+        <td><fmt:message key="realmwizard.testLogin.usernameExp" /></td>
       </tr>
     <!-- ENTRY FIELD: Password -->
       <tr>
-        <th><div align="right">Password:</div></th>
+        <th><div align="right"><fmt:message key="consolebase.common.password"/>:</div></th>
         <td><input name="password" type="password" size="20" /></td>
       </tr>
       <tr>
         <td></td>
-        <td>The password to use to log in to the realm.</td>
+        <td><fmt:message key="realmwizard.testLogin.passwordExp" /></td>
       </tr>
       <tr>
         <td></td>
-        <td><input type="submit" value="Next" onClick="return <portlet:namespace/>validateForm()"/></td>
+        <td><input type="submit" value='<fmt:message key="consolebase.common.next"/>' onClick="return <portlet:namespace/>validateForm()"/></td>
       </tr>
     </table>
 </form>
@@ -106,4 +105,4 @@ does not invoke advanced features such as auditing or lockout.</p>
 
 <p><a href="<portlet:actionURL portletMode="view">
               <portlet:param name="mode" value="list" />
-            </portlet:actionURL>">Cancel</a></p>
+            </portlet:actionURL>"><fmt:message key="consolebase.common.cancel"/></a></p>

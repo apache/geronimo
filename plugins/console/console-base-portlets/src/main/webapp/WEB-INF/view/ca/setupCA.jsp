@@ -16,6 +16,8 @@
 --%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/portlet" prefix="portlet"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
+<fmt:setBundle basename="consolebase"/>
 <portlet:defineObjects/>
 
 <script language="JavaScript">
@@ -51,13 +53,13 @@ function <portlet:namespace/>validateForm(){
     return true;
 }
 </script>
+<fmt:message key="ca.setupCA.title"/>
 
-<b>Setup Certification Authority</b> - Step 1: Enter CA details
+<p>
+<fmt:message key="ca.setupCA.summary"/>
+</p>
 
-<p>On this screen you can enter the Certification Authority (CA) details, algorithm parameters
-for CA's keypair, algorithm for CA's self signed certificate and a password to protect
-the CA's private key. The next screen will let you review this information before
-generating the CA's keypair and self-signed certificate.</p>
+
 
 <jsp:include page="_header.jsp"/>
 
@@ -65,57 +67,57 @@ generating the CA's keypair and self-signed certificate.</p>
     <input type="hidden" name="mode" value="setupCA-after"/>
     <table border="0">
         <tr>
-            <th colspan="2" align="left">Certification Authority's Identity</th>
+            <th colspan="2" align="left"><fmt:message key="ca.common.certAuthorityIdentity"/></th>
         </tr>
         <tr>
-            <th align="right">Common Name (CN):</th>
+            <th align="right"><fmt:message key="ca.common.commonName"/> (CN):</th>
             <td>
                 <input type="text" name="caCN" size="20" maxlength="200" value="${caCN}"/>
             </td>
         </tr>
         <tr>
-            <th align="right">Division/Business Unit (OU):</th>
+            <th align="right"><fmt:message key="ca.common.Division_BusinessUnit"/> (OU):</th>
             <td>
                 <input type="text" name="caOU" size="20" maxlength="200" value="${caOU}"/>
             </td>
         </tr>
         <tr>
-            <th align="right">Company/Organization (O):</th>
+            <th align="right"><fmt:message key="ca.common.company_Organization"/> (O):</th>
             <td>
                 <input type="text" name="caO" size="20" maxlength="200" value="${caO}"/>
             </td>
         </tr>
         <tr>
-            <th align="right">City/Locality (L):</th>
+            <th align="right"><fmt:message key="ca.common.city_Locality"/> (L):</th>
             <td>
                 <input type="text" name="caL" size="20" maxlength="200" value="${caL}"/>
             </td>
         </tr>
         <tr>
-            <th align="right">State/Province (ST):</th>
+            <th align="right"><fmt:message key="ca.common.state_Province"/> (ST):</th>
             <td>
                 <input type="text" name="caST" size="20" maxlength="200" value="${caST}"/>
             </td>
         </tr>
         <tr>
-            <th align="right">Country Code (2 char) (C):</th>
+            <th align="right"><fmt:message key="ca.common.countryCode"/> (2 char) (C):</th>
             <td>
                 <input type="text" name="caC" size="3" maxlength="2" value="${caC}"/>
             </td>
         </tr>
         <tr><td>&nbsp;</td></tr>
         <tr>
-            <th colspan="2" align="left">Key Details</th>
+            <th colspan="2" align="left"><fmt:message key="ca.common.keyDetails"/></th>
         </tr>
         <tr>
-            <th align="right">Alias:</th>
+            <th align="right"><fmt:message key="consolebase.common.alias"/>:</th>
             <td>
                 <input type="text" name="alias" size="20" maxlength="100" value="${alias}"/>
             </td>
         </tr>
 
         <tr>
-            <th align="right">Key Algorithm:</th>
+            <th align="right"><fmt:message key="ca.common.keyAlgorithm"/>:</th>
             <td>
                 <select name="keyAlgorithm">
                     <option <c:if test="${keyAlgorithm eq 'RSA' || keyAlgorithm eq '' || empty(keyAlgorithm)}">selected</c:if> >RSA</option>
@@ -123,7 +125,7 @@ generating the CA's keypair and self-signed certificate.</p>
             </td>
         </tr>
         <tr>
-            <th align="right">Key Size:</th>
+            <th align="right"><fmt:message key="ca.common.keySize"/>:</th>
             <td>
                 <select name="keySize">
                     <option <c:if test="${keySize eq '512'}">selected</c:if> >512</option>
@@ -133,41 +135,41 @@ generating the CA's keypair and self-signed certificate.</p>
             </td>
         </tr>
         <tr>
-            <th align="right">Password:</th>
+            <th align="right"><fmt:message key="consolebase.common.password"/>:</th>
             <td>
                 <input type="password" name="password" size="20" maxlength="200"/>
             </td>
         </tr>
         <tr>
-            <th align="right">Confirm Password:</th>
+            <th align="right"><fmt:message key="consolebase.common.confirmPassword"/>:</th>
             <td>
                 <input type="password" name="confirm" size="20" maxlength="200"/>
             </td>
         </tr>
         <tr><td>&nbsp</td></tr>
         <tr>
-            <th colspan="2" align="left">Certificate Details</th>
+            <th colspan="2" align="left"><fmt:message key="ca.common.certificateDetails"/></th>
         </tr>
         <tr>
-            <th align="right">Certificate Serial Number:</th>
+            <th align="right"><fmt:message key="ca.common.certSerialNumber"/>:</th>
             <td>
                 <input type="text" name="sNo" size="20" maxlength="200" value="${sNo}"/>
             </td>
         </tr>
         <tr>
-            <th align="right">Valid From Date(mm/dd/yyyy):</th>
+            <th align="right"><fmt:message key="ca.common.validFromDate"/>(mm/dd/yyyy):</th>
             <td>
                 <input type="text" name="validFrom" size="20" maxlength="200" value="${validFrom}"/>
             </td>
         </tr>
         <tr>
-            <th align="right">Valid To Date(mm/dd/yyyy):</th>
+            <th align="right"><fmt:message key="ca.common.validToDate"/>(mm/dd/yyyy):</th>
             <td>
                 <input type="text" name="validTo" size="20" maxlength="200" value="${validTo}"/>
             </td>
         </tr>
         <tr>
-            <th align="right">Signature Algorithm:</th>
+            <th align="right"><fmt:message key="ca.common.signatureAlgorithm"/>:</th>
             <td>
                 <select name="algorithm">
                     <option <c:if test="${algorithm eq 'MD2withRSA'}">selected</c:if> >MD2withRSA</option>
@@ -177,10 +179,10 @@ generating the CA's keypair and self-signed certificate.</p>
             </td>
         </tr>
     </table>
-    <input type="submit" value="Review CA Details" onClick="return <portlet:namespace/>validateForm();"/>
-    <input type="reset" name="reset" value="Reset">
+    <input type="submit" value='<fmt:message key="ca.common.reviewCADetails"/>' onClick="return <portlet:namespace/>validateForm();"/>
+    <input type="reset" name="reset" value='<fmt:message key="consolebase.common.reset"/>'>
 </form>
 
 <p><a href="<portlet:actionURL portletMode="view">
               <portlet:param name="mode" value="index-before"/>
-            </portlet:actionURL>">Cancel</a></p>
+            </portlet:actionURL>"><fmt:message key="consolebase.common.cancel"/></a></p>

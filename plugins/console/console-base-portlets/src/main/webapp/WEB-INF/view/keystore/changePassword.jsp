@@ -20,6 +20,8 @@
 <%@ page import="org.apache.geronimo.console.util.PortletManager"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/portlet" prefix="portlet"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
+<fmt:setBundle basename="consolebase"/>
 <portlet:defineObjects/>
 
 <jsp:include page="_header.jsp" />
@@ -40,10 +42,10 @@ function <portlet:namespace/>validateForm(){
 
 <c:choose>
     <c:when test="${!empty(alias)}">
-        <b>Change password for private key ${alias}</b><br/>
+        <b><fmt:message key="keystore.viewKeystore.changePwdForPriKey"/> ${alias}</b><br/>
     </c:when>
     <c:otherwise>
-        <b>Change password for keystore ${keystore}</b><br/>
+        <b><fmt:message key="keystore.viewKeystore.changePwdForKeystore"/> ${keystore}</b><br/>
     </c:otherwise>
 </c:choose>
 
@@ -53,25 +55,25 @@ function <portlet:namespace/>validateForm(){
     <input type="hidden" name="mode" value="${mode}" />
     <table border="0">
         <tr>
-            <th align="right">Old password:</th>
+            <th align="right"><fmt:message key="keystore.viewKeystore.oldPassword"/>:</th>
             <td>
                 <input type="password" name="password" size="20" maxlength="200" />
             </td>
         </tr>
         <tr>
-            <th align="right">New password:</th>
+            <th align="right"><fmt:message key="keystore.viewKeystore.newPassword"/>:</th>
             <td>
                 <input type="password" name="newPassword" size="20" maxlength="200" />
             </td>
         </tr>
         <tr>
-            <th align="right">Confirm new password:</th>
+            <th align="right"><fmt:message key="keystore.viewKeystore.confirmPassword"/>:</th>
             <td>
                 <input type="password" name="confirm-newPassword" size="20" maxlength="200" />
             </td>
         </tr>
     </table>
-    <input type="submit" value="Change Password" onClick="return <portlet:namespace/>validateForm();"/>
+    <input type="submit" value="<fmt:message key="keystore.viewKeystore.changePassword"/>" onClick="return <portlet:namespace/>validateForm();"/>
 </form>
 
 <c:choose>

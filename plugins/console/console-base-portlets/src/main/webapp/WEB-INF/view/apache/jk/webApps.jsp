@@ -16,20 +16,12 @@
 --%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/portlet" prefix="portlet" %>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
+<fmt:setBundle basename="consolebase"/>
 <portlet:defineObjects/>
-<p><b>Apache mod_jk</b> -- Web App Selection</p>
+<p><fmt:message key="apache.jk.webApps.title"/></p>
+<fmt:message key="apache.jk.webApps.select"/>
 
-<p>For each web application <i>currently running</i> in Geronimo, select:</p>
-<dl>
-  <dt><b>Through Apache</b></dt>
-  <dd>Whether the web application should be exposed through Apache</dd>
-  <dt><b>Static Content</b></dt>
-  <dd>Whether Apache should serve static content for the web application (instead of all
-    content being handled by Geronimo)</dd>
-  <dt><b>Dynamic Paths</b></dt>
-  <dd>If Apache is serving static content, which URL paths should be passed to Geronimo
-      (e.g. <tt>/servlet/*</tt> or <tt>*.jsp</tt>)</dd>
-</dl>
 
 <!-- FORM TO COLLECT DATA FOR THIS PAGE -->
 <form name="<portlet:namespace/>ApacheForm" action="<portlet:actionURL/>" method="POST">
@@ -47,10 +39,10 @@
 </c:forEach>
     <table border="0">
         <tr>
-            <th>Web Application</th>
-            <th>Through Apache</th>
-            <th>Static Content</th>
-            <th>Dynamic Paths</th>
+            <th><fmt:message key="apache.jk.webApps.webApplication"/></th>
+            <th><fmt:message key="apache.jk.webApps.throughApache"/></th>
+            <th><fmt:message key="apache.jk.webApps.staticContent"/></th>
+            <th><fmt:message key="apache.jk.webApps.dynamicPaths"/></th>
         </tr>
       <c:forEach var="web" items="${model.webApps}" varStatus="status">
       <c:if test="${web.running}">
@@ -67,7 +59,7 @@
         <!-- SUBMIT BUTTON -->
         <tr>
             <td></td>
-            <td colspan="3"><input type="submit" value="Finish"/></td>
+            <td colspan="3"><input type="submit" value='<fmt:message key="consolebase.common.finish"/>'/></td>
         </tr>
     </table>
 </form>
@@ -76,4 +68,4 @@
 
 <p><a href="<portlet:actionURL portletMode="view">
               <portlet:param name="mode" value="index-before" />
-            </portlet:actionURL>">Cancel</a></p>
+            </portlet:actionURL>"><fmt:message key="consolebase.common.cancel"/></a></p>

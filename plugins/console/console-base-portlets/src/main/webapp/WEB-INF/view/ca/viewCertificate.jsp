@@ -16,6 +16,8 @@
 --%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/portlet" prefix="portlet"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
+<fmt:setBundle basename="consolebase"/>
 <portlet:defineObjects/>
 
 <script language="JavaScript">
@@ -31,69 +33,71 @@ function <portlet:namespace/>validateForm(){
 }
 </script>
 
-<b>View Certificate</b>
+<b><fmt:message key="ca.common.title"/></b>
 
 <jsp:include page="_header.jsp" />
 
 <c:choose>
   <c:when test="${empty(sNo)}">
     <!-- No serial number was received to show a certificate -->
-    <p>Enter the serial number of the certificate to be viewed and click on <i>View Certificate</i> button.</p>
+    <p>
+    <fmt:message key="ca.viewCertificate.enterSerialNumber"/>
+    </p>
     <form name="<portlet:namespace/>sNoForm" action="<portlet:actionURL/>">
       <input type="hidden" name="mode" value="viewCert-before" />
       <table border="0">
         <tr>
-            <th align="right">Certificate Serial Number.:</th>
+            <th align="right"><fmt:message key="ca.common.certSerialNo"/>:</th>
             <td>
                 <input type="text" name="sNo" size="20" maxlength="200" />
             </td>
         </tr>
       </table>
-      <input type="submit" value="View Certificate" onClick="return <portlet:namespace/>validateForm();"/>
-      <input type="reset" name="reset" value="Reset">
+      <input type="submit"value='<fmt:message key="ca.common.title"/>' onClick="return <portlet:namespace/>validateForm();"/>
+      <input type="reset" name="reset" value='<fmt:message key="consolebase.common.reset"/>'>
     </form>
   </c:when>
   <c:otherwise>
-    <p> This screen shows the details of a certificate issued by the CA.  The base64 encoded certificate text
-    should be sent to the requestor as a reply to their Certificate Signing Request (CSR).</p>
+    <p> 
+     <fmt:message key="ca.viewCertificate.screenShows"/></p>
     <table border="0">
         <tr>
-            <th class="DarkBackground" colspan="2" align="left">Certificate Details</th>
+            <th class="DarkBackground" colspan="2" align="left"><fmt:message key="ca.common.certificateDetails"/></th>
         </tr>
         <tr>
-            <th class="LightBackground" align="right">Version:</th>
+            <th class="LightBackground" align="right"><fmt:message key="consolebase.common.version"/>:</th>
             <td class="LightBackground">${cert.version}</td>
         </tr>
         <tr>
-            <th class="MediumBackground" align="right">Subject:</th>
+            <th class="MediumBackground" align="right"><fmt:message key="ca.common.subject"/>:</th>
             <td class="MediumBackground">${cert.subjectDN.name}</td>
         </tr>
         <tr>
-            <th class="LightBackground" align="right">Issuer:</th>
+            <th class="LightBackground" align="right"><fmt:message key="ca.common.issuer"/>:</th>
             <td class="LightBackground">${cert.issuerDN.name}</td>
         </tr>
         <tr>
-            <th class="MediumBackground" align="right">Serial Number:</th>
+            <th class="MediumBackground" align="right"><fmt:message key="ca.common.serialNumber"/>:</th>
             <td class="MediumBackground">${cert.serialNumber}</td>
         </tr>
         <tr>
-            <th class="LightBackground" align="right">Valid From:</th>
+            <th class="LightBackground" align="right"><fmt:message key="ca.common.validFrom"/>:</th>
             <td class="LightBackground">${cert.notBefore}</td>
         </tr>
         <tr>
-            <th class="MediumBackground" align="right">Valid To:</th>
+            <th class="MediumBackground" align="right"><fmt:message key="ca.common.validTo"/>:</th>
             <td class="MediumBackground">${cert.notAfter}</td>
         </tr>
         <tr>
-            <th class="LightBackground" align="right">Signature Alg:</th>
+            <th class="LightBackground" align="right"><fmt:message key="ca.common.signatureAlg"/>:</th>
             <td class="LightBackground">${cert.sigAlgName}</td>
         </tr>
         <tr>
-            <th class="MediumBackground" align="right">Public Key Alg:</th>
+            <th class="MediumBackground" align="right"><fmt:message key="ca.common.publicKeyAlg"/>:</th>
             <td class="MediumBackground">${cert.publicKey.algorithm}</td>
         </tr>
         <tr>
-            <th class="LightBackground" align="right">Key Size:</th>
+            <th class="LightBackground" align="right"><fmt:message key="ca.common.keySize"/>:</th>
             <td class="LightBackground">${keySize}</td>
         </tr>
   <c:set var="backgroundClass" value='LightBackground'/> <!-- This should be set from the row above. -->
@@ -107,7 +111,7 @@ function <portlet:namespace/>validateForm(){
             </c:otherwise>
         </c:choose>
         <tr>
-            <th class="${backgroundClass}" align="right">critical ext: </th>
+            <th class="${backgroundClass}" align="right"><fmt:message key="ca.common.criticalExt"/>: </th>
             <td class="${backgroundClass}">${extoid}</td>
         </tr>
   </c:forEach>
@@ -121,7 +125,7 @@ function <portlet:namespace/>validateForm(){
             </c:otherwise>
         </c:choose>
         <tr>
-            <th class="${backgroundClass}" align="right">non-critical ext: </th>
+            <th class="${backgroundClass}" align="right"><fmt:message key="ca.common.nonCriticalExt"/>: </th>
             <td class="${backgroundClass}">${extoid}</td>
         </tr>
   </c:forEach>
@@ -143,7 +147,7 @@ function <portlet:namespace/>validateForm(){
         </tr>
         <tr><td>&nbsp;</td></tr>
         <tr>
-            <th colspan="2" align="left">Base64 encoded Certificate Text</th>
+            <th colspan="2" align="left"><fmt:message key="ca.common.base64EncodedCertText"/></th>
         </tr>
         <tr>
             <td colspan="2">
@@ -162,6 +166,6 @@ function <portlet:namespace/>validateForm(){
   <c:otherwise>
     <p><a href="<portlet:actionURL portletMode="view">
               <portlet:param name="mode" value="index-before" />
-            </portlet:actionURL>">Back to CA home</a></p>
+            </portlet:actionURL>"><fmt:message key="ca.common.backToCAHome"/></a></p>
   </c:otherwise>
 </c:choose>

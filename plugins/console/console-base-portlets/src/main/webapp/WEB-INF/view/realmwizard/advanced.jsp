@@ -19,6 +19,8 @@
 
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/portlet" prefix="portlet"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
+<fmt:setBundle basename="consolebase"/>
 <portlet:defineObjects/>
 
 <script language="JavaScript">
@@ -46,7 +48,7 @@ function <portlet:namespace/>validateForm(){
 }
 </script>
 
-<p><b>Create Security Realm</b> -- Step 3: Advanced Configuration</p>
+<p><fmt:message key="realmwizard.advanced.title" /></p>
 
 <c:if test="${!(empty AdvancedError)}"><p><font color="red"><b>Error: ${AdvancedError}</b></font></p></c:if>
 
@@ -89,68 +91,61 @@ function <portlet:namespace/>validateForm(){
     <table border="0">
     <!-- ENTRY FIELD: Audit Log -->
       <tr>
-        <th valign="top" style="min-width: 140px"><div align="right">Enable Auditing:</div></th>
+        <th valign="top" style="min-width: 140px"><div align="right"><fmt:message key="realmwizard.common.enableAuditing" />:</div></th>
         <td valign="top">
           <input type="checkbox" id="<portlet:namespace/>auditCheckbox" name="enableAuditing"<c:if test="${!(empty realm.auditPath)}"> checked="checked"</c:if>
           onclick="document.getElementById('<portlet:namespace/>auditDiv').style.display=this.checked ? 'block' : 'none';document.getElementById('<portlet:namespace/>auditPath').value='';"/>
           <div id="<portlet:namespace/>auditDiv" style="display: <c:choose><c:when test="${empty realm.auditPath}">none</c:when><c:otherwise>block</c:otherwise></c:choose>;">
-          Log File: <input type="text" id="<portlet:namespace/>auditPath" name="auditPath" size="30" value="${realm.auditPath}" />
+          <fmt:message key="realmwizard.common.logFile" />: <input type="text" id="<portlet:namespace/>auditPath" name="auditPath" size="30" value="${realm.auditPath}" />
           </div>
         </td>
       </tr>
       <tr>
         <td></td>
-        <td>If enabled, every login attempt will be recorded to the specified file.  The path should
-          be relative to the Geronimo home directory (a typical value would be
-          <tt>var/log/login-attempts.log</tt>).</td>
+        <td><fmt:message key="realmwizard.advanced.AuditEnabledExp" /></td>
       </tr>
     <!-- ENTRY FIELDS: Lockout -->
       <tr>
-        <th valign="top"><div align="right">Enable Lockout:</div></th>
+        <th valign="top"><div align="right"><fmt:message key="realmwizard.common.enableLockout" />:</div></th>
         <td valign="top">
           <input type="checkbox" id="<portlet:namespace/>lockoutCheckbox" name="enableLockout"<c:if test="${realm.lockoutEnabled}"> checked="checked"</c:if>
                  onclick="document.getElementById('<portlet:namespace/>lockoutDiv').style.display=this.checked ? 'block' : 'none';document.getElementById('<portlet:namespace/>lockoutCount').value='';document.getElementById('<portlet:namespace/>lockoutWindow').value='';document.getElementById('<portlet:namespace/>lockoutDuration').value='';"/>
           <div id="<portlet:namespace/>lockoutDiv" style="display: <c:choose><c:when test="${realm.lockoutEnabled}">block</c:when><c:otherwise>none</c:otherwise></c:choose>;">
-          Lock a user after <input type="text" id="<portlet:namespace/>lockoutCount" name="lockoutCount" size="2" maxlength="3" value="${realm.lockoutCount}" />
-          failures within <input type="text" id="<portlet:namespace/>lockoutWindow" name="lockoutWindow" size="4" maxlength="5" value="${realm.lockoutWindow}" /> seconds<br />
-          and keep the account locked for <input type="text" id="<portlet:namespace/>lockoutDuration" name="lockoutDuration" size="5" maxlength="5" value="${realm.lockoutDuration}" /> seconds.
+          <fmt:message key="realmwizard.advanced.lockUserAfter" /> <input type="text" id="<portlet:namespace/>lockoutCount" name="lockoutCount" size="2" maxlength="3" value="${realm.lockoutCount}" />
+          <fmt:message key="realmwizard.advanced.failuresWithin" /> <input type="text" id="<portlet:namespace/>lockoutWindow" name="lockoutWindow" size="4" maxlength="5" value="${realm.lockoutWindow}" /> <fmt:message key="realmwizard.advanced.failuresWithinSeconds" /><br />
+          <fmt:message key="realmwizard.advanced.keepAccountLockedFor" /> <input type="text" id="<portlet:namespace/>lockoutDuration" name="lockoutDuration" size="5" maxlength="5" value="${realm.lockoutDuration}" /> <fmt:message key="realmwizard.advanced.keepAccountLockedForSeconds" />.
           </div>
         </td>
       </tr>
       <tr>
         <td></td>
-        <td>If enabled, a certain number of failed logins in a particular time frame will cause a
-          user's account to be locked for a certain period of time.  This is a defense against
-          brute force account cracking attacks.</td>
+        <td><fmt:message key="realmwizard.advanced.lockoutEnabledExp" /></td>
       </tr>
     <!-- ENTRY FIELD: Store Password -->
       <tr>
-        <th valign="top"><div align="right">Store Password:</div></th>
+        <th valign="top"><div align="right"><fmt:message key="realmwizard.common.storePassword" />:</div></th>
         <td valign="top">
           <input type="checkbox" name="storePassword"<c:if test="${realm.storePassword}"> checked="checked"</c:if>/>
         </td>
       </tr>
       <tr>
         <td></td>
-        <td>If enabled, the realm will store each user's password in a private credential in the
-          Subject.  This will allow access to the password later after the login process has
-          completed.  This is not normally required.</td>
+        <td><fmt:message key="realmwizard.advanced.storePasswordEnabledExp" /></td>
       </tr>
     <!-- ENTRY FIELD: Named UPC -->
       <tr>
-        <th valign="top"><div align="right">Named Credential:</div></th>
+        <th valign="top"><div align="right"><fmt:message key="realmwizard.advanced.namedCredential" />:</div></th>
         <td valign="top">
           <input type="checkbox" id="<portlet:namespace/>namedUPCCheckbox" name="namedUPC"<c:if test="${!(empty realm.credentialName)}"> checked="checked"</c:if>
           onclick="document.getElementById('<portlet:namespace/>namedUPCDiv').style.display=this.checked ? 'block' : 'none';document.getElementById('<portlet:namespace/>credentialName').value='';"/>
           <div id="<portlet:namespace/>namedUPCDiv" style="display: <c:choose><c:when test="${empty realm.credentialName}">none</c:when><c:otherwise>block</c:otherwise></c:choose>;">
-          Credential Name: <input type="text" id="<portlet:namespace/>credentialName" name="credentialName" size="30" value="${realm.credentialName}" />
+          <fmt:message key="realmwizard.advanced.credentialName" />: <input type="text" id="<portlet:namespace/>credentialName" name="credentialName" size="30" value="${realm.credentialName}" />
           </div>
         </td>
       </tr>
       <tr>
         <td></td>
-        <td>If enabled, the realm will store each username and password in a private credential in the
-          Subject under a specified credential name.</td>
+        <td><fmt:message key="realmwizard.advanced.credentialNameExp" /></td>
       </tr>
     <!-- SUBMIT BUTTON -->
       <tr>
@@ -158,13 +153,13 @@ function <portlet:namespace/>validateForm(){
         <td>
       <c:choose>
         <c:when test="${realm.testable}">
-          <input type="submit" value="Test a Login" />
-          <input type="button" value="Skip Test and Deploy" onclick="document.<portlet:namespace/>RealmForm.test.value='false';document.<portlet:namespace/>RealmForm.submit();return false;" />
-          <input type="button" value="Skip Test and Show Plan" onclick="document.<portlet:namespace/>RealmForm.mode.value='plan';document.<portlet:namespace/>RealmForm.submit();return false;" />
+          <input type="submit" value='<fmt:message key="realmwizard.common.testLogin" />' />
+          <input type="button" value='<fmt:message key="realmwizard.common.skipTestAndDeploy" />'  onclick="document.<portlet:namespace/>RealmForm.test.value='false';document.<portlet:namespace/>RealmForm.submit();return false;" />
+          <input type="button" value='<fmt:message key="realmwizard.common.skipTestAndShowPlan" />'  onclick="document.<portlet:namespace/>RealmForm.mode.value='plan';document.<portlet:namespace/>RealmForm.submit();return false;" />
         </c:when>
         <c:otherwise>
-          <input type="button" value="Deploy Realm" onclick="document.<portlet:namespace/>RealmForm.test.value='false';document.<portlet:namespace/>RealmForm.submit();return false;" />
-          <input type="button" value="Show Plan" onclick="document.<portlet:namespace/>RealmForm.mode.value='plan';document.<portlet:namespace/>RealmForm.submit();return false;" />
+          <input type="button" value='<fmt:message key="realmwizard.common.deployRealm" />' onclick="document.<portlet:namespace/>RealmForm.test.value='false';document.<portlet:namespace/>RealmForm.submit();return false;" />
+          <input type="button" value='<fmt:message key="realmwizard.common.showPlan" />' onclick="document.<portlet:namespace/>RealmForm.mode.value='plan';document.<portlet:namespace/>RealmForm.submit();return false;" />
         </c:otherwise>
       </c:choose>
         </td>
@@ -175,4 +170,4 @@ function <portlet:namespace/>validateForm(){
 
 <p><a href="<portlet:actionURL portletMode="view">
               <portlet:param name="mode" value="list" />
-            </portlet:actionURL>">Cancel</a></p>
+            </portlet:actionURL>"><fmt:message key="consolebase.common.cancel"/></a></p>

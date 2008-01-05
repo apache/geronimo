@@ -16,8 +16,11 @@ implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 --%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
+<fmt:setBundle basename="portaldriver"/>
+
 <head>
-    <title>Geronimo Console</title>
+    <title><fmt:message key="console.head.title"/></title>
     <link rel="stylesheet" href="<%=request.getContextPath()%>/main.css" type="text/css"/>
     <link rel="stylesheet" href="<%=request.getContextPath()%>/pluto.css" type="text/css"/>
     <link rel="SHORTCUT ICON" href="<%=request.getContextPath()%>/favicon.ico" type="image/x-icon"/>

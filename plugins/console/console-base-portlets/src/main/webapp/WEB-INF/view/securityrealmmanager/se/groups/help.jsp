@@ -14,25 +14,24 @@
    See the License for the specific language governing permissions and
    limitations under the License.
 --%>
-<p>This portlet lists all the Console Realm groups and allows the user to add, modify and delete them. To add a new group click on the &quot;Create New Group&quot; link and fill in the fields on that page. To modify 
-  an existing group, click on the group link and change the field(s) on the page. To delete a group, click on the &quot;Delete&quot; link to the right of the group to be deleted. <br>
-  <br>
-  Clicking on the &quot;Create New Group&quot; link allows the user to add a new   group. The fields are defined as follows:</p>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
+<fmt:setBundle basename="consolebase"/>
+<p><fmt:message key="securityrealmmanager.se.groups.help.title" /></p>
 <table width="100%"  border="0" cellspacing="0" cellpadding="0">
   <tr>
-    <td width="150" align="right" valign="top" class="MediumBackground" style="padding: 10px 10px 10px 5px; color: #1E1E52;">Group Name</td>
-    <td class="LightBackground" style="padding: 10px 5px 10px 10px" valign="top">The name of the group.</td>
+    <td width="150" align="right" valign="top" class="MediumBackground" style="padding: 10px 10px 10px 5px; color: #1E1E52;"><fmt:message key="consolebase.common.groupName"/></td>
+    <td class="LightBackground" style="padding: 10px 5px 10px 10px" valign="top"><fmt:message key="securityrealmmanager.common.groupNameExp" /></td>
   </tr>
   <tr>
-    <td width="150" align="right" valign="top" class="MediumBackground" style="padding: 10px 10px 10px 5px; color: #1E1E52;">Users</td>
-    <td class="LightBackground" style="padding: 10px 5px 10px 10px" valign="top">The box on the left lists all the current user accounts. Selecting a user and then clicking the &quot;Add&gt;&gt;&quot; button will put the user in the group. Selecting a user in the list to the right and clicking on the &quot;&lt;&lt;Remove&quot; button will delete the user from the group.</td>
+    <td width="150" align="right" valign="top" class="MediumBackground" style="padding: 10px 10px 10px 5px; color: #1E1E52;"><fmt:message key="consolebase.common.users"/></td>
+    <td class="LightBackground" style="padding: 10px 5px 10px 10px" valign="top"><fmt:message key="securityrealmmanager.se.groups.help.usersExp" /></td>
   </tr>
   <tr>
     <td width="150" align="right" valign="top" class="MediumBackground" style="padding: 10px 10px 10px 5px;"><img src="/console/images/add.gif" alt="Add"/></td>
-    <td class="LightBackground" style="padding: 10px 5px 10px 10px" valign="top">Add a new group. If users have been placed in the new group, then clicking &quot;Add&quot; will create the new group with the selected users in it.</td>
+    <td class="LightBackground" style="padding: 10px 5px 10px 10px" valign="top"><fmt:message key="securityrealmmanager.se.groups.help.addNewGroupBtnExp" /></td>
   </tr>
   <tr>
     <td width="150" align="right" valign="top" class="MediumBackground" style="padding: 10px 10px 10px 5px;"><img src="/console/images/cancel.gif" alt="Cancel"/></td>
-    <td class="LightBackground" style="padding: 10px 5px 10px 10px" valign="top">Cancel the current operation.</td>
+    <td class="LightBackground" style="padding: 10px 5px 10px 10px" valign="top"><fmt:message key="securityrealmmanager.se.groups.help.cancelUserBtnExp" /></td>
   </tr>
 </table>

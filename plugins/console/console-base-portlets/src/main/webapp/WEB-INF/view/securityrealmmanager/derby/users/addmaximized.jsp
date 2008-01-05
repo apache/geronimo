@@ -16,6 +16,8 @@
 --%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/portlet" prefix="portlet"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
+<fmt:setBundle basename="consolebase"/>
 <script language="JavaScript">
 var formName = "adduser";
 var requiredFields = new Array("UserName","Password");
@@ -39,43 +41,43 @@ function <portlet:namespace/>passwordMatch(){
     <tr>
       <td colspan="2" align="left" class="formHeader">
        <c:choose>
-	   <c:when test="${add}"> 
-       		<b>ADD USER</b>
-      		<c:set var="UserName" value=""/>
-      		<c:set var="Password" value=""/>
-      		<c:set var="Password2" value=""/>
-      		<c:set var="FirstName" value=""/>
-      		<c:set var="MiddleInit" value=""/>
-      		<c:set var="LastName" value=""/>
-      		<c:set var="Department" value=""/>
-      		<c:set var="Email" value=""/>
-      		<c:set var="Submit" value="Add"/>
+       <c:when test="${add}"> 
+               <b><fmt:message key="securityrealmmanager.derby.users.addmaximized.addUser" /></b>
+              <c:set var="UserName" value=""/>
+              <c:set var="Password" value=""/>
+              <c:set var="Password2" value=""/>
+              <c:set var="FirstName" value=""/>
+              <c:set var="MiddleInit" value=""/>
+              <c:set var="LastName" value=""/>
+              <c:set var="Department" value=""/>
+              <c:set var="Email" value=""/>
+              <c:set var="Submit" value="Add"/>
        </c:when>
        <c:otherwise>
-			<b>UPDATE USER</b>
-      		<c:set var="UserName" value="${user['UserName']}"/>
-      		<c:set var="Password" value="xxxxxxxx"/>
-      		<c:set var="Password2" value="yyyyyyyy"/>      		
-      		<c:set var="FirstName" value="${user['FirstName']}"/>
-      		<c:set var="MiddleInit" value="${user['MiddleInit']}"/>
-      		<c:set var="LastName" value="${user['LastName']}"/>
-      		<c:set var="Department" value="${user['Department']}"/>
-      		<c:set var="Email" value="${user['Email']}"/>
-      		<c:set var="Submit" value="Update"/>
+            <b><fmt:message key="securityrealmmanager.derby.users.addmaximized.updateUser" /></b>
+              <c:set var="UserName" value="${user['UserName']}"/>
+              <c:set var="Password" value="xxxxxxxx"/>
+              <c:set var="Password2" value="yyyyyyyy"/>              
+              <c:set var="FirstName" value="${user['FirstName']}"/>
+              <c:set var="MiddleInit" value="${user['MiddleInit']}"/>
+              <c:set var="LastName" value="${user['LastName']}"/>
+              <c:set var="Department" value="${user['Department']}"/>
+              <c:set var="Email" value="${user['Email']}"/>
+              <c:set var="Submit" value="Update"/>
        </c:otherwise>
        </c:choose>
         </td>
     </tr>
     <tr>
-        <td width="200" class="formLabel">User Name</td>
+        <td width="200" class="formLabel"><fmt:message key="consolebase.common.userName"/></td>
         <td class="formElement">
        <c:choose>
-	   <c:when test="${add}"> 
-	    <input type="hidden" name="action" value="add">
-	    <input type="text" name="UserName" value="" maxlength="30">
+       <c:when test="${add}"> 
+        <input type="hidden" name="action" value="add">
+        <input type="text" name="UserName" value="" maxlength="30">
        </c:when>
        <c:otherwise>
-	    <input type="hidden" name="action" value="update">
+        <input type="hidden" name="action" value="update">
         <input type="hidden" name="UserName" value="${UserName}">
         ${UserName}
        </c:otherwise>
@@ -83,34 +85,34 @@ function <portlet:namespace/>passwordMatch(){
         </td>
     </tr>   
     <tr>
-        <td width="200" class="formLabel">Password</td>
+        <td width="200" class="formLabel"> <fmt:message key="consolebase.common.password"/></td>
         <td class="formElement"><input type="password" name="Password" value="${Password}" maxlength="30"></td>
     </tr>   
     <tr>
-        <td width="200">Confirm Password</td>
+        <td width="200"><fmt:message key="consolebase.common.confirmPassword"/>Confirm Password</td>
         <td><input type="password" name="ConfirmPassword" value="${Password2}" maxlength="30"></td>
     </tr>
     <tr>
-        <td width="200" class="formLabel">Given Name</td>
+        <td width="200" class="formLabel"><fmt:message key="consolebase.common.givenName"/></td>
         <td class="formElement"><input type="text" name="FirstName" value="${FirstName}" maxlength="30"></td>
     </tr>
 
     <input type="hidden" name="MiddleInit" value="" >
     <tr>
-        <td width="200" class="formLabel">Family Name</td>
+        <td width="200" class="formLabel"><fmt:message key="consolebase.common.familyName"/></td>
         <td class="formElement"><input type="text" name="LastName" value="${LastName}" maxlength="30"></td>
     </tr>
     <tr>
-        <td width="200" class="formLabel">Department</td>
+        <td width="200" class="formLabel"><fmt:message key="consolebase.common.department"/></td>
         <td class="formElement"><input type="text" name="Department" value="${Department}" maxlength="30"></td>
     </tr>
     <tr>
-        <td width="200" class="formLabel">Email</td>
+        <td width="200" class="formLabel"><fmt:message key="consolebase.common.email"/></td>
         <td class="formElement"><input type="text" name="Email" value="${Email}" maxlength="30"></td>
     </tr>
 
     <tr>   
-         <td>&nbsp;</td><td  align="left"><input type="submit" value="${Submit}" class="formElement" onclick="return <portlet:namespace/>validateForm()"> <input type="submit" name="cancel" value="Cancel" ></td>
+         <td>&nbsp;</td><td  align="left"><input type="submit" value="${Submit}" class="formElement" onclick="return <portlet:namespace/>validateForm()"> <input type="submit" name="cancel" value='<fmt:message key="consolebase.common.cancel"/>' ></td>
     </tr>
     </table>
 </form>

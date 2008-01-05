@@ -20,6 +20,8 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
 <%@ taglib uri="http://java.sun.com/portlet" prefix="portlet"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
+<fmt:setBundle basename="consolebase"/>
 
       <script language="JavaScript">
         var <portlet:namespace/>requiredFieldsCommon = new Array('option-userSelect', 'option-groupSelect');
@@ -34,54 +36,55 @@
         }
       </script>
       <tr>
-        <th style="min-width: 140px"><div align="right">User SELECT SQL:</div></th>
+        <th style="min-width: 140px"><div align="right"><fmt:message key="realmwizard.common.userSelectSQL" />:</div></th>
         <td><input name="option-userSelect" type="text"
                    size="60" value="${realm.options['userSelect']}"></td>
       </tr>
       <tr>
         <td></td>
-        <td>A SQL statement to load user/password information.  It should return 2 columns, the first
-          holding a username and the second holding a password.  The statement may use the PreparedStatement
-          syntax of ? for a parameter, in which case the username will be set for every parameter.  A
-          typical setting would be <tt>SELECT username, password FROM app_users WHERE username=?</tt></td>
+         <td><fmt:message key="realmwizard._sql.userSelectSQLExp" /></td>
       </tr>
 
       <tr>
-        <th><div align="right">Group SELECT SQL:</div></th>
+        <th><div align="right"><fmt:message key="realmwizard.common.groupSelectSQL" />:</div></th>
         <td><input name="option-groupSelect" type="text"
                    size="60" value="${realm.options['groupSelect']}"></td>
       </tr>
       <tr>
         <td></td>
-        <td>A SQL statement to load group information for a user.  It should return 2 columns, the first
-          holding a username and the second holding a group name.  The statement may use the PreparedStatement
-          syntax of ? for a parameter, in which case the username will be set for every parameter.  A
-          typical setting would be <tt>SELECT username, group_name FROM user_groups WHERE username=?</tt> or for
-          a more normalized schema, <tt>SELECT u.username, g.name FROM app_users u, groups g, user_groups ug
-          WHERE ug.user_id=users.id AND ug.group_id=g.id AND u.username=?</tt></td>
+        <td><fmt:message key="realmwizard._sql.groupSelectSQLExp" /></td>
       </tr>
 
       <tr>
-        <th><div align="right">Digest Algorithm:</div></th>
+        <th><div align="right"><fmt:message key="realmwizard.common.digestAlgorithm" />:</div></th>
         <td><input name="option-digest" type="text"
                    size="10" value="${realm.options['digest']}"></td>
       </tr>
       <tr>
         <td></td>
-        <td>Message Digest algorithm (e.g. MD5, SHA1, etc.) used on the passwords.  Leave this field empty if no digest
-          algorithm is used.</td>
+        <td><fmt:message key="realmwizard._sql.digestAlgorithmExp" /></td>
+      </tr>
+
+      <tr>
+        <th><div align="right"><fmt:message key="realmwizard.common.digestEncoding" />:</div></th>
+        <td><input name="option-encoding" type="text"
+                   size="10" value="${realm.options['encoding']}"></td>
+      </tr>
+      <tr>
+        <td></td>
+        <td><fmt:message key="realmwizard._sql.digestEncodingExp" />
+        </td>
       </tr>
 
       <tr>
         <td></td>
-        <td><i>A SQL security realm must either have a database pool or JDBC connectivity settings to
-          connect to the database.  Please select EITHER the database pool, OR the rest of the JDBC
-          settings.</i></td>
+        <td><i><fmt:message key="realmwizard._sql.eitherPoolOrJDBC" />
+        </i></td>
       </tr>
 
 
       <tr>
-        <th><div align="right">Database Pool</div></th>
+        <th><div align="right"><fmt:message key="realmwizard.common.databasePool" /></div></th>
         <td>
           <select name="option-databasePoolAbstractName" onChange="<portlet:namespace/>changeRequiredFields(this)">
             <option />
@@ -96,23 +99,21 @@
       </tr>
       <tr>
         <td></td>
-        <td>A database pool that the login module will use to connect to the database.  If this is specified, none of
-          the rest of the settings after this are necessary.</td>
+        <td><fmt:message key="realmwizard._sql.databasePoolExp" /></td>
       </tr>
 
       <tr>
-        <th><div align="right">JDBC Driver Class</div></th>
+        <th><div align="right"><fmt:message key="realmwizard.common.JDBCDriverClass" /></div></th>
         <td><input name="option-jdbcDriver" type="text"
                    size="60" value="${realm.options['jdbcDriver']}"></td>
       </tr>
       <tr>
         <td></td>
-        <td>The fully-qualified JDBC driver class name.  This driver must be located in the JAR specified in the next
-          field.</td>
+        <td><fmt:message key="realmwizard._sql.JDBCDriverClassExp" /></td>
       </tr>
 
       <tr>
-        <th><div align="right">Driver JAR:</div></th>
+        <th><div align="right"><fmt:message key="realmwizard.common.driverJAR" />:</div></th>
         <td>
           <select name="jar">
             <option />
@@ -124,42 +125,41 @@
       </tr>
       <tr>
         <td></td>
-        <td>The JAR holding the selected JDBC driver.  Should be installed under GERONIMO/repository/ to appear in this list.</td>
+        <td><fmt:message key="realmwizard._sql.driverJARExp" /></td>
       </tr>
 
       <tr>
-        <th><div align="right">JDBC URL</div></th>
+        <th><div align="right"><fmt:message key="realmwizard.common.JDBCUrl" /></div></th>
         <td><input name="option-jdbcURL" type="text"
                    size="60" value="${realm.options['jdbcURL']}"></td>
       </tr>
       <tr>
         <td></td>
-        <td>The JDBC URL that specifies the details of the database to connect to.  This has a different form for
-          each JDBC driver.</td>
+        <td><fmt:message key="realmwizard._sql.JDBCUrlExp" /></td>
       </tr>
 
       <tr>
-        <th><div align="right">JDBC Username</div></th>
+        <th><div align="right"><fmt:message key="realmwizard.common.JDBCUsername" /></div></th>
         <td><input name="option-jdbcUser" type="text"
                    size="20" value="${realm.options['jdbcUser']}"></td>
       </tr>
       <tr>
         <td></td>
-        <td>The username used to connect to the database</td>
+        <td><fmt:message key="realmwizard._sql.JDBCUsernameExp" /></td>
       </tr>
 
       <tr>
-        <th><div align="right">JDBC Password</div></th>
+        <th><div align="right"><fmt:message key="realmwizard.common.JDBCPassword" /></div></th>
         <td><input name="option-jdbcPassword" type="password"
                    size="20" value="${realm.options['jdbcPassword']}"></td>
       </tr>
       <tr>
-        <th><div align="right">Confirm Password</div></th>
+        <th><div align="right"><fmt:message key="consolebase.common.confirmPassword"/></div></th>
         <td><input name="confirm-option-jdbcPassword" type="password"
                    size="20" value="${realm.options['jdbcPassword']}"></td>
       </tr>
       <tr>
         <td></td>
-        <td>The password used to connect to the database</td>
+        <td><fmt:message key="realmwizard._sql.JDBCPasswordExp" /></td>
       </tr>
 

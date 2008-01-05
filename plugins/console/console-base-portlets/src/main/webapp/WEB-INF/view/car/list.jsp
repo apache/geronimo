@@ -16,14 +16,16 @@
 --%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
-<%@ taglib uri="http://java.sun.com/portlet" prefix="portlet" %>
+<%@ taglib uri="http://java.sun.com/portlet" prefix="portlet"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
+<fmt:setBundle basename="consolebase"/>
 <portlet:defineObjects/>
 
-<h3>Plugins listed at <a href='${repository}'>${repository}</a></h3>
+<h3><fmt:message key="car.list.pluginRepo" /> <a href='${repository}'>${repository}</a></h3>
 
 <c:choose>
 <c:when test="${fn:length(plugins) < 1}">
-  No plugins are ilsted at this repository.
+  <fmt:message key="car.list.noPlugins" />
 </c:when>
 <c:otherwise>
 <form action="<portlet:actionURL/>">

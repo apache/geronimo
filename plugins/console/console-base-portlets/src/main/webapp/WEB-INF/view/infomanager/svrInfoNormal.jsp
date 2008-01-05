@@ -16,7 +16,8 @@
 --%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/portlet" prefix="portlet"%>
-
+<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
+<fmt:setBundle basename="consolebase"/>
 <portlet:defineObjects/>
 
 <script type='text/javascript' src='/console/dwr/interface/Jsr77Stats.js'></script>
@@ -25,19 +26,19 @@
 
 <table width="100%">
   <tr>
-    <td class="DarkBackground" width="100%" colspan="2" align="center">Geronimo</td>
+    <td class="DarkBackground" width="100%" colspan="2" align="center"><fmt:message key="infomanager.svrInfoNormal.server"/></td>
   </tr>
   <tr>
-    <td class="LightBackground" width="20%" nowrap>Geronimo Version</td>
+    <td class="LightBackground" width="20%" nowrap><fmt:message key="infomanager.svrInfoNormal.build"/></td>
     <td class="LightBackground" width="80%">${svrProps['Geronimo Version']}</td>
   </tr>
   <tr>
-    <td class="MediumBackground" width="20%" nowrap>Geronimo Start Time</td>
+    <td class="MediumBackground" width="20%" nowrap><fmt:message key="infomanager.svrInfoNormal.bootTime"/></td>
     <td class="MediumBackground" width="80%">${svrProps['Kernel Boot Time']}</td>
   </tr>
   <tr>
-    <td class="LightBackground">Geronimo Up Time</td>
-    <td class="LightBackground"><div id="<portlet:namespace/>UpTime">Not Yet Available</div></td>
+    <td class="LightBackground" width="20%" nowrap><fmt:message key="infomanager.svrInfoNormal.upTime"/></td>
+    <td class="LightBackground"><div id="<portlet:namespace/>UpTime"><fmt:message key="infomanager.svrInfoNormal.notAvailable"/></div></td>
   </tr>
 </table>
 <br>
@@ -49,24 +50,24 @@
 
   base directory is commented originally
   <tr>
-    <td class="LightBackground" width="20%" nowrap>Base Directory</td>
+    <td class="LightBackground" width="20%" nowrap><fmt:message key="infomanager.svrInfoNormal.architecture"/></td>
     <td class="LightBackground" width="80%">${svrProps['Base Directory']}</td>
   </tr>
 
   <tr>
-    <td class="LightBackground">Platform Architecture</td>
+    <td class="MediumBackground" width="20%" nowrap><fmt:message key="consolebase.common.name"/></td>
     <td class="LightBackground">${svrProps['Platform Architecture']}</td>
   </tr>
   <tr>
-    <td class="MediumBackground" width="20%" nowrap>Version</td>
+    <td class="LightBackground" width="20%" nowrap><fmt:message key="infomanager.svrInfoNormal.version"/></td>
     <td class="MediumBackground"  width="80%">${svrProps['Version']}</td>
   </tr>
   <tr>
-    <td class="LightBackground">Apache Geronimo Build Version</td>
+    <td class="MediumBackground" width="20%" nowrap><fmt:message key="infomanager.svrInfoNormal.patchLevel"/></td>
     <td class="LightBackground">${svrProps['Apache Geronimo Build Version']}</td>
   </tr>
   <tr>
-    <td class="MediumBackground">J2EE Specs Version</td>
+    <td class="LightBackground" width="20%" nowrap><fmt:message key="infomanager.svrInfoNormal.locale"/></td>
     <td class="MediumBackground">${svrProps['J2EE Specifications Version']}</td>
   </tr>
   <tr>
@@ -90,34 +91,34 @@
 <br>
 <table width="100%">
   <tr>
-    <td class="DarkBackground" width="100%" colspan="2" align="center">JVM</td>
+    <td class="DarkBackground" width="100%" colspan="2" align="center"><fmt:message key="infomanager.svrInfoNormal.jvm"/></td>
   </tr>
   <tr>
-    <td class="LightBackground" width="20%" nowrap>Java Version</td>
+    <td class="LightBackground" width="20%" nowrap><fmt:message key="infomanager.svrInfoNormal.javaVersion"/></td>
     <td class="LightBackground" width="80%">${jvmProps['Java Version']}</td>
   </tr>
   <tr>
-    <td class="MediumBackground">Java Vendor</td>
+    <td class="MediumBackground"><fmt:message key="infomanager.svrInfoNormal.javaVendor"/></td>
     <td class="MediumBackground">${jvmProps['Java Vendor']}</td>
   </tr>
   <tr>
-    <td class="LightBackground">Node</td>
+    <td class="LightBackground"><fmt:message key="infomanager.svrInfoNormal.node"/></td>
     <td class="LightBackground">${jvmProps['Node']}</td>
   </tr>
   <tr>
-    <td class="MediumBackground">Current Memory Used</td>
-    <td class="MediumBackground"><div id="<portlet:namespace/>CurrentMemory">Not Yet Available</div></td>
+    <td class="MediumBackground"><fmt:message key="infomanager.svrInfoNormal.currentMemoryUsed"/></td>
+    <td class="MediumBackground"><div id="<portlet:namespace/>CurrentMemory"><fmt:message key="infomanager.svrInfoNormal.notAvailable"/></div></td>
   </tr>
   <tr>
-    <td class="LightBackground">Most Memory Used</td>
-    <td class="LightBackground"><div id="<portlet:namespace/>MostMemory">Not Yet Available</div></td>
+    <td class="LightBackground"><fmt:message key="infomanager.svrInfoNormal.mostMemoryUsed"/></td>
+    <td class="LightBackground"><div id="<portlet:namespace/>MostMemory"><fmt:message key="infomanager.svrInfoNormal.notAvailable"/></div></td>
   </tr>
   <tr>
-    <td class="MediumBackground">Total Memory Allocated</td>
-    <td class="MediumBackground"><div id="<portlet:namespace/>AvailableMemory">Not Yet Available</div></td>
+    <td class="MediumBackground"><fmt:message key="infomanager.svrInfoNormal.totalMemoryAllocated"/></td>
+    <td class="MediumBackground"><div id="<portlet:namespace/>AvailableMemory"><fmt:message key="infomanager.svrInfoNormal.notAvailable"/></div></td>
   </tr>
   <tr>
-    <td class="LightBackground">Available Processors</td>
+    <td class="LightBackground"><fmt:message key="infomanager.svrInfoNormal.availableProcessors"/></td>
     <td class="LightBackground">${jvmProps['Available Processors']}</td>
   </tr>
   <tr>

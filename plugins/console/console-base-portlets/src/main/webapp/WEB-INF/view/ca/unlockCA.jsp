@@ -16,6 +16,8 @@
 --%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/portlet" prefix="portlet"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
+<fmt:setBundle basename="consolebase"/>
 <portlet:defineObjects/>
 
 <script language="JavaScript">
@@ -28,23 +30,24 @@ function <portlet:namespace/>validateForm(){
     return true;
 }
 </script>
-<b>Unlock Certification Authority</b>
+<b><fmt:message key="ca.common.unlockCertAuthority"/></b>
 
-<p> This screen lets you unlock the CA by providing the password used to protect
-the CA's private key.  Once unlocked, the CA functions will be available.</p>
+<p><fmt:message key="ca.unlockCA.summary"/>
+</p>
+
 
 <jsp:include page="_header.jsp" />
 
 <form name="<portlet:namespace/>UnlockCAForm" action="<portlet:actionURL/>">
     <input type="hidden" name="mode" value="unlockCA-after" />
-    <b>Enter the CA's private key password:</b>
+    <b><fmt:message key="ca.unlockCA.enterCAPrivateKeyPassword"/>:</b>
     <input type="password" name="password" size="20" maxlength="200" />
     <br />
 
-    <input type="submit" value="Unlock Certification Authority" onClick="return <portlet:namespace/>validateForm();"/>
-    <input type="reset" name="reset" value="Reset">
+    <input type="submit" value='<fmt:message key="ca.common.unlockCertAuthority"/>' onClick="return <portlet:namespace/>validateForm();"/>
+    <input type="reset" name="reset" value='<fmt:message key="consolebase.common.reset"/>'>
 </form>
 
 <p><a href="<portlet:actionURL portletMode="view">
               <portlet:param name="mode" value="index-before" />
-            </portlet:actionURL>">Cancel</a></p>
+            </portlet:actionURL>"><fmt:message key="consolebase.common.cancel"/></a></p>

@@ -1,5 +1,7 @@
 <%@ page language="java" 
          contentType="text/html; charset=UTF-8" %>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
+<fmt:setBundle basename="portaldriver"/> 
 <%--
    Licensed to the Apache Software Foundation (ASF) under one or more
    contributor license agreements.  See the NOTICE file distributed with
@@ -21,7 +23,7 @@
 
 <html>
 <head>
-<title>Geronimo Console Login</title>
+<title><fmt:message key="console.common.ConsoleLogIn"/></title>
 <link href="<%=request.getContextPath()%>/main.css" rel="stylesheet" type="text/css">
 <link rel="SHORTCUT ICON" href="<%=request.getContextPath()%>/favicon.ico" type="image/x-icon"/>
 </head>
@@ -58,10 +60,10 @@
       <TD>
       <table width="550" cellpadding="0" cellspacing="0" border="0">
         <tr>
-          <td class="ReallyDarkBackground"><strong>&nbsp;Log In to the Geronimo Console</td>
+          <td class="ReallyDarkBackground"><strong>&nbsp;<fmt:message key="console.common.loginToConsole"/></td>
         </tr>
         <tr>
-          <td class="MediumBackground" align="center"><font color="red"><b><i>Invalid Username and/or Password!</i></b></font></td>
+          <td class="MediumBackground" align="center"><font color="red"><b><i><fmt:message key="console.login_error.invalid"/></i></b></font></td>
         </tr>
         <tr>
           <td>
@@ -76,14 +78,14 @@
               </tr>
               <tr>
                 <td class="MediumBackground" ROWSPAN=3 ALIGN="center" ><img border="0" align="center" src="<%=request.getContextPath()%>/images/login_lock_64x55.gif"></td> 
-                <td align="right" class="MediumBackground"><strong>Username</strong></td>
+                <td align="right" class="MediumBackground"><strong><fmt:message key="console.common.username"/></strong></td>
                 <td class="MediumBackground"><strong>:</strong></td>
                 <td width="1" class="MediumBackground">&nbsp;</td>
                 <td class="MediumBackground"><input name="j_username" type="text" class="InputField" value="" size="20px" maxlength="25"/></td>
                 <td width="17" class="MediumBackground">&nbsp;</td>
               </tr>
               <tr>
-                <td align="right" class="MediumBackground"><strong>Password</strong></td>
+                <td align="right" class="MediumBackground"><strong><fmt:message key="console.common.password"/></strong></td>
                 <td class="MediumBackground"><strong>:</strong></td>
                 <td width="1" class="MediumBackground">&nbsp;</td>
                 <td class="MediumBackground"><input name="j_password" type="password" class="InputField" value="" size="20px" maxlength="25"/></td>
@@ -98,7 +100,7 @@
               </tr>
               <tr>
                 <td class="MediumBackground">&nbsp;</td>
-                <td colspan="4" align="center" class="MediumBackground"><input name="submit" type="submit" value="Login"/></td>
+                <td colspan="4" align="center" class="MediumBackground"><input name="submit" type="submit" value="<fmt:message key="console.common.login"/>"/></td>
                 <td class="MediumBackground">&nbsp;</td>
               </tr>
               <tr>

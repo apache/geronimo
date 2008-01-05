@@ -16,36 +16,38 @@
 --%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/portlet" prefix="portlet"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
+<fmt:setBundle basename="consolebase"/>
 <portlet:defineObjects/>
 
-<p>Thread pools statistics for ${poolName}:</p>
+<p><fmt:message key="threads.monitor.title"><fmt:param value="${poolName}"/></fmt:message>:</p>
 
 <table>
   <tr>
-    <th align="right">Pool Max:</th>
+    <th align="right"><fmt:message key="threads.monitor.poolMax" />:</th>
     <td>${stats.threadsInUse.upperBound}</td>
   </tr>
   <tr>
-    <th align="right">Lowest Recorded:</th>
+    <th align="right"><fmt:message key="threads.monitor.lowestRecorded" />:</th>
     <td>${stats.threadsInUse.lowWaterMark}</td>
   </tr>
   <tr>
-    <th align="right">Highest Recorded:</th>
+    <th align="right"><fmt:message key="threads.monitor.highestRecorded" />:</th>
     <td>${stats.threadsInUse.highWaterMark}</td>
   </tr>
   <tr>
-    <th align="right">Threads in Use:</th>
+    <th align="right"><fmt:message key="threads.monitor.threadsInUse" />:</th>
     <td>${stats.threadsInUse.current}</td>
   </tr>
 </table>
 
 <c:if test="${! empty consumers}">
-<p>Current consumers of threads in this pool:</p>
+<p><fmt:message key="threads.monitor.currentConsumersOfThreads" />:</p>
 
 <table>
   <tr>
-    <th>Description</th>
-    <th># of Threads</th>
+    <th><fmt:message key="threads.monitor.description" /></th>
+    <th><fmt:message key="threads.monitor.ofThreads" /></th>
   </tr>
 <c:forEach var="client" items="${consumers}">
   <tr>

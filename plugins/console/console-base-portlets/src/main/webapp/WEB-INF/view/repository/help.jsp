@@ -14,20 +14,22 @@
    See the License for the specific language governing permissions and
    limitations under the License.
 --%>
-<p>This page displays the artifacts installed in the server's repository. The layout of the repository is the same as that used by Apache Maven making it possible to easily copy files over. The Geronimo Console provides a method for adding artifacts:</p><br>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
+<fmt:setBundle basename="consolebase"/>
+<p><fmt:message key="repository.help.title"/></p><br>
 
 <table width="100%"  border="0" cellspacing="0" cellpadding="0">
   <tr>
     <td width="150" align="right" valign="top" class="MediumBackground" style="padding: 10px 10px 5px 10px"><img src="/console/images/browse.gif" alt="Browse"/></td>
-    <td class="LightBackground" style="padding: 10px 5px 10px 10px">Use the Browse button to select the artifact to be added.</td>
+    <td class="LightBackground" style="padding: 10px 5px 10px 10px"><fmt:message key="repository.help.browseExplanation"/></td>
   </tr>
   <tr>
     <td width="150" align="right" valign="top" class="MediumBackground" style="padding: 10px 10px 5px 10px"><img src="/console/images/install.gif" alt="Install"/></td>
-    <td class="LightBackground" style="padding: 10px 5px 10px 10px">Click on the Install button to install the artifact.</td>
+    <td class="LightBackground" style="padding: 10px 5px 10px 10px"><fmt:message key="repository.help.installExplanation"/></td>
   </tr>
 </table>
 
-<p>To use an artifact in an application, add a dependency element into it's deployment plan. For example, to use Castor XML add the following XML to the plan:
+<p><fmt:message key="repository.help.addDependencyElement"/>
 <pre>
     &lt;dependency&gt;
         &lt;uri&gt;org/codehaus/castor/castor/1.0.5/castor-1.0.5.jar&lt;/uri&gt;

@@ -17,10 +17,19 @@
 
 <%-- $Rev$ $Date$ --%>
 
-<b>Usage for ${res}</b>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
+<fmt:setBundle basename="consolebase"/>
 
-<p>To use <b>${res}</b> in an application or a module, add a dependency element under dependencies in environment element in
-it's deployment plan as shown below:
+<b><fmt:message key="repository.usage.title" >
+<fmt:param  value="${res}"/>
+</fmt:message>
+</b>
+  
+<p>
+<fmt:message key="repository.usage.content" >
+<fmt:param  value="${res}"/>
+</fmt:message>
+</b>
 <pre>
     &lt;environment&gt;
         ...
@@ -36,4 +45,4 @@ it's deployment plan as shown below:
     &lt;/environment&gt;
 </pre>
 
-<p><a onClick="history.go(-1); return false;" href="">Back</a>
+<p><a onClick="history.go(-1); return false;" href=""><fmt:message key="consolebase.common.back"/></a>

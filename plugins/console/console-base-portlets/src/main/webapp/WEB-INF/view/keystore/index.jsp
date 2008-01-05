@@ -20,27 +20,24 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
 <%@ taglib uri="http://java.sun.com/portlet" prefix="portlet"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
+<fmt:setBundle basename="consolebase"/>
 <portlet:defineObjects/>
-<p>This tool walks you through the process of configuring keystores to use with
-  SSL connectors (for the web container, etc.).</p>
+<p><fmt:message key="keystore.index.title"/></p>
 
 <jsp:include page="_header.jsp" />
 
 <c:choose>
-  <c:when test="${empty(keystores)}"><p><i>There are no keystores defined</i></p></c:when>
+  <c:when test="${empty(keystores)}"><p><i><fmt:message key="keystore.index.noKeystores"/></i></p></c:when>
   <c:otherwise>
-<p>Keystores start out as locked against editing and also not available for usage by
-other components in the server.  The <b>Editable</b> flag indicates whether the keystore
-has been unlocked for editing (by entering the keystore password), which lasts for the
-current login session.  The <b>Available</b> flag indicates whether that password has
-been saved in order to make the keystore available to other components in the server.</p>
+<p><fmt:message key="keystore.index.explanation"/></p>
 
 <table width="100%">
   <tr>
-    <td class="DarkBackground">Keystore File</td>
-    <td class="DarkBackground" align="center">Contents</td>
-    <td class="DarkBackground" align="center">Editable</td>
-    <td class="DarkBackground" align="center">Available</td>
+    <td class="DarkBackground"><fmt:message key="keystore.index.keystoreFile"/></td>
+    <td class="DarkBackground" align="center"><fmt:message key="keystore.index.contents"/></td>
+    <td class="DarkBackground" align="center"><fmt:message key="keystore.index.editable"/></td>
+    <td class="DarkBackground" align="center"><fmt:message key="keystore.index.available"/></td>
   </tr>
 <c:set var="backgroundClass" value='MediumBackground'/>
 <c:forEach var="keystore" items="${keystores}">
@@ -66,7 +63,7 @@ been saved in order to make the keystore available to other components in the se
     <td class="${backgroundClass}">
         <c:choose>
           <c:when test="${keystore.lockedEdit}">
-              <i>Keystore locked</i>
+              <i><fmt:message key="keystore.index.keystoreLocked"/></i>
           </c:when>
           <c:otherwise>
             ${fn:length(keystore.keys)} Key<c:if test="${fn:length(keystore.keys) != 1}">s</c:if>
@@ -81,13 +78,13 @@ been saved in order to make the keystore available to other components in the se
           <a href="<portlet:actionURL portletMode="view">
             <portlet:param name="mode" value="unlockEdit-before" />
             <portlet:param name="keystore" value="${keystore.name}" />
-            </portlet:actionURL>"><img src="/console/images/ico_lock_16x16.gif" alt="Locked" /></a>
+            </portlet:actionURL>"><img src="/console/images/ico_lock_16x16.gif" alt='<fmt:message key="keystore.index.locked"/>' /></a>
         </c:when>
         <c:otherwise>
           <a href="<portlet:actionURL portletMode="view">
             <portlet:param name="mode" value="lockEdit-before" />
             <portlet:param name="keystore" value="${keystore.name}" />
-            </portlet:actionURL>"><img src="/console/images/ico_unlock3_16x16.gif" alt="Unlocked" /></a>
+            </portlet:actionURL>"><img src="/console/images/ico_unlock3_16x16.gif" alt='<fmt:message key="keystore.index.unlocked"/>' /></a>
         </c:otherwise>
       </c:choose>
     </td>
@@ -97,13 +94,13 @@ been saved in order to make the keystore available to other components in the se
           <a href="<portlet:actionURL portletMode="view">
             <portlet:param name="mode" value="unlockKeystore-before" />
             <portlet:param name="keystore" value="${keystore.name}" />
-            </portlet:actionURL>"><img src="/console/images/ico_lock_16x16.gif" alt="Locked" /></a>
+            </portlet:actionURL>"><img src="/console/images/ico_lock_16x16.gif" alt='<fmt:message key="keystore.index.locked"/>' /></a>
         </c:when>
         <c:otherwise>
           <a href="<portlet:actionURL portletMode="view">
             <portlet:param name="mode" value="lockKeystore-before" />
             <portlet:param name="keystore" value="${keystore.name}" />
-            </portlet:actionURL> "onClick="return confirm('This keystore is currently in use.  Locking it may prevent the server from starting.  Continue?');" ><img src="/console/images/ico_unlock3_16x16.gif" alt="Unlocked" /></a>
+            </portlet:actionURL> " onClick="return confirm('<fmt:message key="keystore.index.continueLocking"/>');" ><img src="/console/images/ico_unlock3_16x16.gif" alt='<fmt:message key="keystore.index.unlocked"/>' /></a>
             ${keys[keystore.name]}
         </c:otherwise>
       </c:choose>
@@ -115,5 +112,5 @@ been saved in order to make the keystore available to other components in the se
 </c:choose>
 
 <p>
-    <a href="<portlet:actionURL portletMode="view"><portlet:param name="mode" value="createKeystore-before" /></portlet:actionURL>">New Keystore</a>
+    <a href="<portlet:actionURL portletMode="view"><portlet:param name="mode" value="createKeystore-before" /></portlet:actionURL>"><fmt:message key="keystore.index.newKeystore"/></a>
 </p>

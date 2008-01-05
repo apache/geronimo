@@ -16,6 +16,8 @@
 --%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/portlet" prefix="portlet"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
+<fmt:setBundle basename="consolebase"/>
 <portlet:defineObjects/>
 
 
@@ -24,35 +26,28 @@
 
         <!-- Body -->
         <td width="90%" align="left" valign="top">
-            <p><font face="Verdana" size="+1"><center><b>Welcome to the Apache Geronimo&#8482;<BR>Administration Console!</b></center></font></p>
+            <p><font face="Verdana" size="+1"><center><b><fmt:message key="welcome.welcomeMaximized.title"/></b></center></font></p>
 
-            <p>The administration console provides a convenient, user friendly way to administer many aspects of the
-                Geronimo Server.  It is currently a work in progress, and will continue to evolve over time.  The
-                navigation panel on the left-hand side of the screen provides easy access to the individual tasks
-                available in the console.</p>
+            <p><fmt:message key="welcome.welcomeNormal.about1"/></p>
 
-            <p>This space is the main content area where the real work happens.  Each view contains one or more
-                portlets (self contained view fragments) that typically include a link for help in the header.  Look
-                at the top of this portlet for an example and try it out.</p>
+            <p><fmt:message key="welcome.welcomeNormal.about2"/></p>
 
-            <p>The references on the right are provided so that you can learn more about Apache Geronimo, its
-                capabilities, and what might be coming in future releases.</p>
+            <p><fmt:message key="welcome.welcomeNormal.about2"/></p>
 
-            <p>Mailing lists are available to get involved in the development of Apache Geronimo or to ask questions
-                of the community:</p>
+            <p><fmt:message key="welcome.welcomeNormal.about2"/></p>
 
            <ul>
                <li><b><a href="mailto:user-subscribe@geronimo.apache.org">user@geronimo.apache.org</a></b>
                    (<a href="http://geronimo.apache.org/redirects/userMailingList.html">archives</a>)
-                   for general questions related to configuring and using Geronimo</li>
+                   <fmt:message key="welcome.welcomeNormal.forUsers"/></li>
                <li><b><a href="mailto:dev-subscribe@geronimo.apache.org">dev@geronimo.apache.org</a></b>
                    (<a href="http://geronimo.apache.org/redirects/developerMailingList.html">archives</a>)
-                   for developers working on Geronimo</li>
+                   <fmt:message key="welcome.welcomeNormal.forDevelopers"/></li>
            </ul>
 
-            <p>So share your experiences with us and let us know how we can make Geronimo even better.</p>
+            <p><fmt:message key="welcome.welcomeNormal.about5"/></p>
 
-            <p style="text-align: center"><b>Thanks for using Geronimo!</b></p>
+            <p style="text-align: center"><b><fmt:message key="welcome.welcomeNormal.thanks"/></b></p>
 
 
         </td>
@@ -65,15 +60,15 @@
             <table width="100%" border="1" cellspacing="0" cellpadding="3" bordercolor="#000000">
                 <tr>
                     <td class="DarkBackground" align="left" nowrap>
-                        <font face="Verdana" size="+1">Common Console Actions</font>
+                        <font face="Verdana" size="+1"><fmt:message key="welcome.welcomeNormal.commonActions"/></font>
                     </td>
                 </tr>
                 <tr>
                     <td bgcolor="#FFFFFF" nowrap>
                         &nbsp;<br />
-                        <img src='/console/images/ico_list_16x16.gif' alt=""/><a href="/console/portal/Applications/Deploy New">Deploy New Applications</a><br />
-                        <img src='/console/images/ico_servcomp_16x16.gif' alt=""/><a href="/console/portal/Server/Web Server">Web Server Ports</a><br />
-                        <img src='/console/images/ico_look_16x16.gif' alt=""/><a href="/console/portal/Server/Information">Server Information</a><br />
+                        <img src='/console/images/ico_list_16x16.gif' alt=""/><a href="/console/portal/Applications/Deploy New"><fmt:message key="welcome.welcomeNormal.deployNew"/></a><br />
+                        <img src='/console/images/ico_servcomp_16x16.gif' alt=""/><a href="/console/portal/Server/Web Server"><fmt:message key="welcome.welcomeNormal.webServerPorts"/></a><br />
+                        <img src='/console/images/ico_look_16x16.gif' alt=""/><a href="/console/portal/Server/Information"><fmt:message key="welcome.welcomeNormal.serverInfo"/></a><br />
                         &nbsp;<br />
                     </td>
                 </tr>
@@ -85,17 +80,17 @@
             <table width="100%" border="1" cellspacing="0" cellpadding="3" bordercolor="#000000">
                 <tr>
                     <td class="DarkBackground" align="left" nowrap>
-                        <font face="Verdana" size="+1">Geronimo Online</font>
+                        <font face="Verdana" size="+1"><fmt:message key="welcome.welcomeNormal.online"/></font>
                     </td>
                 </tr>
                 <tr>
                     <td bgcolor="#FFFFFF" nowrap>
                         &nbsp;<br />
-                        <a href="http://geronimo.apache.org/">The Geronimo Home Page</a><br />
-                        <a href="http://geronimo.apache.org/redirects/issues.html">Problem Tracking Database</a><br />
-                        <a href="http://geronimo.apache.org/redirects/userMailingList.html">Users Mailing List Archive</a><br />
-                        <a href="http://geronimo.apache.org/redirects/developerMailingList.html">Developers Mailing List Archive</a><br />
-                        <a href="irc://irc.freenode.net/#geronimo">Geronimo IRC chat</a><br />
+                        <a href="http://geronimo.apache.org/"><fmt:message key="welcome.welcomeNormal.homePage"/></a><br />
+                        <a href="http://geronimo.apache.org/redirects/issues.html"><fmt:message key="welcome.welcomeNormal.problemTracker"/></a><br />
+                        <a href="http://geronimo.apache.org/redirects/userMailingList.html"><fmt:message key="welcome.welcomeNormal.userMaillist"/></a><br />
+                        <a href="http://geronimo.apache.org/redirects/developerMailingList.html"><fmt:message key="welcome.welcomeNormal.devMaillist"/></a><br />
+                        <a href="irc://irc.freenode.net/#geronimo"><fmt:message key="welcome.welcomeNormal.irc"/></a><br />
                         &nbsp;<br />
                     </td>
                 </tr>
@@ -107,16 +102,16 @@
             <table width="100%" border="1" cellspacing="0" cellpadding="3" bordercolor="#000000">
                 <tr>
                     <td class="DarkBackground" align="left" nowrap>
-                        <font face="Verdana" size="+1">Geronimo Documentation&nbsp;&nbsp;&nbsp;</font>
+                        <font face="Verdana" size="+1"><fmt:message key="welcome.welcomeNormal.doc"/>&nbsp;&nbsp;&nbsp;</font>
                     </td>
                 </tr>
                 <tr>
                     <td bgcolor="#FFFFFF" nowrap>
                         &nbsp;<br />
-                        <a href="http://geronimo.apache.org/faq.html">FAQ</a><br />
-                        <a href="http://geronimo.apache.org/redirects/wiki.html">Wiki</a><br />
-                        <a href="http://geronimo.apache.org/documentation.html">Geronimo Documentation</a><br />
-                        <a href="http://geronimo.apache.org/redirects/additionalDocumentation.html">Additional Documentation</a><br />
+                        <a href="http://geronimo.apache.org/faq.html"><fmt:message key="welcome.welcomeNormal.faq"/></a><br />
+                        <a href="http://geronimo.apache.org/redirects/wiki.html"><fmt:message key="welcome.welcomeNormal.wiki"/></a><br />
+                        <a href="http://geronimo.apache.org/documentation.html"><fmt:message key="welcome.welcomeNormal.doc"/></a><br />
+                        <a href="http://geronimo.apache.org/redirects/additionalDocumentation.html"><fmt:message key="welcome.welcomeNormal.addiDoc"/></a><br />
                         &nbsp;<br />
                     </td>
                 </tr>

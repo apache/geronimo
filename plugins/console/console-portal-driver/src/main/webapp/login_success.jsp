@@ -1,5 +1,7 @@
 <%@ page language="java" 
          contentType="text/html; charset=UTF-8" %>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
+<fmt:setBundle basename="portaldriver"/> 
 <%--
    Licensed to the Apache Software Foundation (ASF) under one or more
    contributor license agreements.  See the NOTICE file distributed with
@@ -20,8 +22,8 @@
 <%-- $Rev$ $Date$ --%>
 
 <HTML>
-<HEAD><TITLE>Login Successful</TITLE></HEAD>
+<HEAD><TITLE><fmt:message key="console.login_success.loginSuccessful"/></TITLE></HEAD>
 <BODY>
-Login Successfull. <a href="<%=request.getContextPath()%>/portal/test"> Click here to return to the portal tests.</A>
+<fmt:message key="console.login_success.loginSuccessful"/>. <a href="<%=request.getContextPath()%>/portal/test"><fmt:message key="returnToPortalTests"/></A>
 </BODY>
 </HTML>

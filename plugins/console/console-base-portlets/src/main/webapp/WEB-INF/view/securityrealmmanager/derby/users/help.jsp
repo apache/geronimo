@@ -14,40 +14,42 @@
    See the License for the specific language governing permissions and
    limitations under the License.
 --%>
-<p>This page lists all the application realm users and allows you to add, modify and delete them. To add a new user click on the &quot;Create New User&quot; link and fill in the fields on that page. To modify a user's account, click on the username link for the user and change the field(s) on the page. To delete a user, click on the &quot;Delete&quot;  link to the right of the user to be deleted. <br>
-  <br>
-  Clicking on the &quot;Create New User&quot; link allows adding users by filling in the fields and clicking on the &quot;Add&quot; button. The fields are defined as follows:</p>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
+<fmt:setBundle basename="consolebase"/>
+<p>
+<fmt:message key="securityrealmmanager.derby.users.help.title" />
+</p>
 <table width="100%"  border="0" cellspacing="0" cellpadding="0">
   <tr>
-    <td class="MediumBackground" style="padding: 10px 10px 10px 5px; color: #1E1E52;" width="150" align="right" valign="top">User Name</td>
-    <td class="LightBackground" style="padding: 10px 5px 10px 10px" valign="top">The username for the user.</td>
+    <td class="MediumBackground" style="padding: 10px 10px 10px 5px; color: #1E1E52;" width="150" align="right" valign="top"><fmt:message key="consolebase.common.userName"/></td>
+    <td class="LightBackground" style="padding: 10px 5px 10px 10px" valign="top"><fmt:message key="securityrealmmanager.derby.users.help.usernameExp"/></td>
   </tr>
   <tr>
-    <td class="MediumBackground" style="padding: 10px 10px 10px 5px; color: #1E1E52;" width="150" align="right" valign="top">Password</td>
-    <td class="LightBackground" style="padding: 10px 5px 10px 10px" valign="top">Password for the new user.</td>
+    <td class="MediumBackground" style="padding: 10px 10px 10px 5px; color: #1E1E52;" width="150" align="right" valign="top"><fmt:message key="consolebase.common.password"/></td>
+    <td class="LightBackground" style="padding: 10px 5px 10px 10px" valign="top"><fmt:message key="securityrealmmanager.derby.users.help.passwordExp"/></td>
   </tr>
   <tr>
-    <td class="MediumBackground" style="padding: 10px 10px 10px 5px; color: #1E1E52;" width="150" align="right" valign="top">Given Name</td>
-    <td class="LightBackground" style="padding: 10px 5px 10px 10px" valign="top">The user's first name.</td>
+    <td class="MediumBackground" style="padding: 10px 10px 10px 5px; color: #1E1E52;" width="150" align="right" valign="top"><fmt:message key="consolebase.common.givenName"/></td>
+    <td class="LightBackground" style="padding: 10px 5px 10px 10px" valign="top"><fmt:message key="securityrealmmanager.derby.users.help.givenNameExp"/></td>
   </tr>
   <tr>
-    <td class="MediumBackground" style="padding: 10px 10px 10px 5px; color: #1E1E52;" width="150" align="right" valign="top">Family Name</td>
-    <td class="LightBackground" style="padding: 10px 5px 10px 10px" valign="top">The user's last name.</td>
+    <td class="MediumBackground" style="padding: 10px 10px 10px 5px; color: #1E1E52;" width="150" align="right" valign="top"><fmt:message key="consolebase.common.familyName"/></td>
+    <td class="LightBackground" style="padding: 10px 5px 10px 10px" valign="top"><fmt:message key="securityrealmmanager.derby.users.help.familyNameExp"/></td>
   </tr>
   <tr>
-    <td class="MediumBackground" style="padding: 10px 10px 10px 5px; color: #1E1E52;" width="150" align="right" valign="top">Department</td>
-    <td class="LightBackground" style="padding: 10px 5px 10px 10px" valign="top">The user's department.</td>
+    <td class="MediumBackground" style="padding: 10px 10px 10px 5px; color: #1E1E52;" width="150" align="right" valign="top"> <fmt:message key="consolebase.common.department"/></td>
+    <td class="LightBackground" style="padding: 10px 5px 10px 10px" valign="top"><fmt:message key="securityrealmmanager.derby.users.help.departmentExp"/></td>
   </tr>
   <tr>
-    <td class="MediumBackground" style="padding: 10px 10px 10px 5px; color: #1E1E52;" width="150" align="right" valign="top">Email</td>
-    <td class="LightBackground" style="padding: 10px 5px 10px 10px" valign="top">The user's email address.</td>
+    <td class="MediumBackground" style="padding: 10px 10px 10px 5px; color: #1E1E52;" width="150" align="right" valign="top"><fmt:message key="consolebase.common.email"/></td>
+    <td class="LightBackground" style="padding: 10px 5px 10px 10px" valign="top"><fmt:message key="securityrealmmanager.derby.users.help.emailExp"/></td>
   </tr>
   <tr>
     <td width="150" align="right" valign="top" class="MediumBackground" style="padding: 10px 10px 10px 5px;"><img src="/console/images/add.gif" alt="Add"/></td>
-    <td class="LightBackground" style="padding: 10px 5px 10px 10px" valign="top">Add a new user.</td>
+    <td class="LightBackground" style="padding: 10px 5px 10px 10px" valign="top"><fmt:message key="securityrealmmanager.derby.users.help.addUserBtnExp"/></td>
   </tr>
   <tr>
     <td width="150" align="right" valign="top" class="MediumBackground" style="padding: 10px 10px 10px 5px;"><img src="/console/images/cancel.gif" alt="Cancel"/></td>
-    <td class="LightBackground" style="padding: 10px 5px 10px 10px" valign="top">Cancel the current operation.</td>
+    <td class="LightBackground" style="padding: 10px 5px 10px 10px" valign="top"><fmt:message key="securityrealmmanager.derby.users.help.cancelUserBtnExp"/></td>
   </tr>
 </table>

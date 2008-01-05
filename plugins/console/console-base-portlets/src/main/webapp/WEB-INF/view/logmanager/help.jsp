@@ -14,40 +14,29 @@
    See the License for the specific language governing permissions and
    limitations under the License.
 --%>
-<p>This portlet allows the user to select a configuration file for logging 
-  and/or change the log level and Refresh period. The default &quot;Config file&quot; is a standard log4j file and defines the location where the Geronimo Server
-  will log Geronimo output. The configuration file also defines the log 
-  level, the maximum log file size, and other attributes associated with 
-  logging. <br>
-  <br>
-  Gereonimo Console will display output from the Geronimo log file in the Server Log
-  Viewer portlet in the next window pane.</p>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
+<fmt:setBundle basename="consolebase"/>
+<fmt:message key="logmanager.help.introduction"/> 
+
 <table width="100%"  border="0" cellspacing="0" cellpadding="0">
   <tr>
-    <td width="150" align="right" class="MediumBackground" style="padding: 10px 10px 10px 5px; color: #1E1E52;">Config File</td>
-    <td class="LightBackground" style="padding: 10px 5px 10px 10px;">Another configuration file can be used by entering a 
-different path and file name in the Config file 
-text box.</td>
+    <td width="150" align="right" class="MediumBackground" style="padding: 10px 10px 10px 5px; color: #1E1E52;"><fmt:message key="logmanager.common.configFile"/></td>
+    <td class="LightBackground" style="padding: 10px 5px 10px 10px;"><fmt:message key="logmanager.help.configFileExplanation"/></td>
   </tr>
   <tr>
-    <td width="150" align="right" class="MediumBackground" style="padding: 10px 10px 10px 5px; color: #1E1E52;">Refresh Period</td>
-    <td class="LightBackground" style="padding: 10px 5px 10px 10px;">By default Geronimo checks every 60 seconds to see if the
-configuration file has changed. The user may modify 
-the refresh period.</td>
+    <td width="150" align="right" class="MediumBackground" style="padding: 10px 10px 10px 5px; color: #1E1E52;"><fmt:message key="logmanager.common.refreshPeriod"/></td>
+    <td class="LightBackground" style="padding: 10px 5px 10px 10px;"><fmt:message key="logmanager.help.refreshPeriodExplanation"/></td>
   </tr>
   <tr>
-    <td width="150" align="right" class="MediumBackground" style="padding: 10px 10px 10px 5px; color: #1E1E52;">Log Level</td>
-    <td class="LightBackground" style="padding: 10px 5px 10px 10px;">The user may select a level for logging from the 
-drop-down menu. </td>
+    <td width="150" align="right" class="MediumBackground" style="padding: 10px 10px 10px 5px; color: #1E1E52;"><fmt:message key="logmanager.common.logLevel"/></td>
+    <td class="LightBackground" style="padding: 10px 5px 10px 10px;"><fmt:message key="logmanager.help.logLevelExplanation"/> </td>
   </tr>
   <tr>
     <td width="150" align="right" class="MediumBackground" style="padding: 10px 10px 5px 10px; font-weight: bold;"><img src="/console/images/update.gif" width="65" height="20" alt="Update"></td>
-    <td class="LightBackground" style="padding: 10px 5px 10px 10px;">Apply the changes with the Update button.</td>
+    <td class="LightBackground" style="padding: 10px 5px 10px 10px;"><fmt:message key="logmanager.help.updateExplanation"/></td>
   </tr>
   <tr>
     <td width="150" align="right" class="MediumBackground" style="padding: 10px 10px 5px 10px; font-weight: bold;"><img src="/console/images/reset.gif" width="56" height="20" alt="Reset"></td>
-    <td class="LightBackground" style="padding: 10px 5px 10px 10px;">Use the Reset button to reset the &quot;Config File&quot;, &quot;Refresh Period&quot; and 
-&quot;Log Level&quot; to their settings at the last &quot;Update.&quot;
-It does not reset to the Geronimo Server defaults.</td>
+    <td class="LightBackground" style="padding: 10px 5px 10px 10px;"><fmt:message key="logmanager.help.resetExplanation"/></td>
   </tr>
 </table>

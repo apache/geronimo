@@ -17,6 +17,8 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
 <%@ taglib uri="http://java.sun.com/portlet" prefix="portlet"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
+<fmt:setBundle basename="consolebase"/>
 <script language="JavaScript">
 var <portlet:namespace/>formName = "<portlet:namespace/>addgroup";
 var <portlet:namespace/>requiredFields = new Array("GroupName","Description");
@@ -57,31 +59,31 @@ function <portlet:namespace/>selectAll(formName, objName){
     <tr>
       <td colspan="2" align="left" class="formHeader">
        <c:choose>
-	   <c:when test="${add}"> 
-       		<b>ADD GROUP</b>
-      		<c:set var="GroupName" value=""/>
-      		<c:set var="Description" value=""/>
-      		<c:set var="Submit" value="Add"/>
+       <c:when test="${add}"> 
+               <b><fmt:message key="securityrealmmanager.derby.groups.addmaximized.addGroup" /></b>
+              <c:set var="GroupName" value=""/>
+              <c:set var="Description" value=""/>
+              <c:set var="Submit" value="Add"/>
        </c:when>
        <c:otherwise>
-			<b>UPDATE GROUP</b>
-      		<c:set var="GroupName" value="${group['GroupName']}"/>
-      		<c:set var="Description" value="${group['Description']}"/>
-      		<c:set var="Submit" value="Update"/>
+            <b><fmt:message key="securityrealmmanager.derby.groups.addmaximized.updateGroup" /></b>
+              <c:set var="GroupName" value="${group['GroupName']}"/>
+              <c:set var="Description" value="${group['Description']}"/>
+              <c:set var="Submit" value="Update"/>
        </c:otherwise>
        </c:choose>
         </td>
     </tr>
     <tr>
-        <td width="200" class="formLabel">Group Name</td>
+        <td width="200" class="formLabel"><fmt:message key="consolebase.common.groupName"/></td>
         <td class="formElement">
        <c:choose>
-	   <c:when test="${add}"> 
-	    <input type="hidden" name="action" value="add">
-	    <input type="text" name="GroupName" value="">
+       <c:when test="${add}"> 
+        <input type="hidden" name="action" value="add">
+        <input type="text" name="GroupName" value="">
        </c:when>
        <c:otherwise>
-	    <input type="hidden" name="action" value="update">
+        <input type="hidden" name="action" value="update">
         <input type="hidden" name="GroupName" value="${GroupName}">
         ${GroupName}
        </c:otherwise>
@@ -90,11 +92,11 @@ function <portlet:namespace/>selectAll(formName, objName){
     </tr>   
 
     <tr>
-        <td width="200" class="formLabel">Description</td>
+        <td width="200" class="formLabel"><fmt:message key="consolebase.common.description"/></td>
         <td class="formElement"><input type="text" name="Description" value="${Description}"></td>
     </tr>   
     <tr>
-        <td class="formLabel">Users</td>
+        <td class="formLabel"><fmt:message key="consolebase.common.users"/></td>
         <td colspan="2" class="formElement">
         <c:choose>
         <c:when test="${(otherUsers != null && fn:length(otherUsers) > 0) || (users != null && fn:length(users) > 0)}">
@@ -102,9 +104,9 @@ function <portlet:namespace/>selectAll(formName, objName){
             <tr>
                 <td>
                     <select name="usersToRemove" size="4" multiple>
-            	    <c:forEach var="user" items="${otherUsers}">
-                	    <option value="${user}">${user}</option>
-                	</c:forEach>    
+                    <c:forEach var="user" items="${otherUsers}">
+                        <option value="${user}">${user}</option>
+                    </c:forEach>    
                     </select> 
                 </td>
                 <td align="center" valign="middle">
@@ -129,7 +131,7 @@ function <portlet:namespace/>selectAll(formName, objName){
             </table>
         </c:when>
         <c:otherwise>
-        No available users.
+       <fmt:message key="securityrealmmanager.derby.groups.addmaximized.noUsers" />
         </c:otherwise>
         </c:choose>       
         </td>
@@ -139,7 +141,7 @@ function <portlet:namespace/>selectAll(formName, objName){
           <td align="left" class="formElement">
           <input type="submit" value="${Submit}" 
                 onclick="return <portlet:namespace/>validateForm() && <portlet:namespace/>selectAll('<portlet:namespace/>addgroup', 'Members');">
-          <input type="submit" name="cancel"  value="Cancel">
+          <input type="submit" name="cancel" value='<fmt:message key="consolebase.common.cancel"/>'  >
           </td>
     </tr>
     </table>

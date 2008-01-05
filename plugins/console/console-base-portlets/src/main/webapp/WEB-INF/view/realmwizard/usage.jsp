@@ -17,21 +17,20 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
 <%@ taglib uri="http://java.sun.com/portlet" prefix="portlet"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
+<fmt:setBundle basename="consolebase"/>
 <portlet:defineObjects/>
 
-<p>This page talks about how to use the security realm ${realm.name} from a J2EE application.
-  The example here is a web application, but other application modules would work similarly.</p>
+<p><fmt:message key="realmwizard.usage.title" >
+<fmt:param  value="${realm.name}"/>
+</fmt:message></p>
 
 
 <p><b>WEB-INF/web.xml</b></p>
 
 <p>The <tt>web.xml</tt> should have</p>
-<ul>
-  <li>One or more <tt>security-constraint</tt> blocks designating the protected pages or URLs</li>
-  <li>A <tt>login-config</tt> section configuring the login style for the application</li>
-  <li>One or more <tt>security-role</tt> blocks listing the security roles used by the
-    application</li>
-</ul>
+<fmt:message key="realmwizard.usage.webXmlShouldHave" />
+
 
 <pre>
 &lt;web-app xmlns="http://java.sun.com/xml/ns/j2ee"
@@ -69,15 +68,7 @@
 
 <p><b>WEB-INF/geronimo-web.xml</b></p>
 
-<p>To configure the security realm and the members of each role, the web application
-needs to have a <tt>geronimo-web.xml</tt> deployment plan.  That may be packaged in the WAR
-in the <tt>WEB-INF</tt> directory, or it may be provided separately on the command line to
-the deploy tool.</p>
-
-<p>The <tt>geronimo-web.xml</tt> plan should have a <tt>security-realm-name</tt>
-element indicating which realm will be used to authenticate logins to the web application.
-It also needs to have a <tt>security</tt> element listing the users or groups who
-should be members of each <tt>security-role</tt> listed in <tt>web.xml</tt>.</p>
+<fmt:message key="realmwizard.usage.geronimoWebXmlPreface" />
 
 <pre>
 &lt;?xml version="1.0" encoding="UTF-8"?&gt;
@@ -111,43 +102,16 @@ class="org.apache.geronimo.security.realm.providers.<b>GeronimoUserPrincipal</b>
     &lt;/security&gt;
 &lt;/web-app&gt;
 </pre>
+<fmt:message key="realmwizard.usage.geronimoWebXmlLater" >
+<fmt:param  value="${realm.name}"/>
+</fmt:message>
 
-<p>This example indicated that ${realm.name} will be used to handle all logins to
-the web application.  Then it maps the <tt>admin</tt> role to a combination of
-one user (<tt>root</tt>) and one group (<tt>administrators</tt>), using a combination
-of the principal classes and principal names.  (Note that if ${realm.name} uses a
-custom login module, the principal classes may be different, but the ones listed
-above are used for users and groups by all the standard Geronimo login modules.)</p>
+<p><b><fmt:message key="realmwizard.usage.applicationCode" /></b></p>
+<fmt:message key="realmwizard.usage.applicationCodeExp" />
 
-<p>It's also possible to configure separate login modules to use separate login
-domain names, and then use the login domain names in the role mapping (so a user
-"root" from login domain "Foo" is different from a user "root" from login domain
-"Bar"), but this is only important if you have multiple login modules assigning
-principals to the users.</p>
-
-<p>Finally, if the <tt>security</tt> section is declared in an EAR
-<tt>application.xml</tt> deployment descriptor, there's no need to repeat it
-in any of the modules inside the EAR -- they'll all share the same role mapping
-information.</p>
-
-<p><b>Application Code</b></p>
-
-<p>No special application code is required to work with security roles.</p>
-
-<p>If an application calls <tt>HttpServletRequest.getUserPrincipal()</tt>,
-Geronimo will return a principal where the principal class implements
-<tt>GeronimoCallerPrincipal</tt> -- normally a username (since <tt>GeronimoUserPrincipal</tt>
-implements <tt>GeronimoCallerPrincipal</tt>).  If you're using a custom login
-module and getting the wrong results for <tt>getUserPrincipal</tt>, try
-making your user principal class implement <tt>GeronimoCallerPrincipal</tt>.</p>
-
-<p>If an application calls <tt>HttpServletRequest.isUserInRole(role)</tt>,
-Geronimo will return true or false depending on whether any of the principals
-assigned to that user by the realm's login modules were listed in the role
-mapping above.</p>
 
 <hr />
 
 <p><a href="<portlet:actionURL portletMode="view">
               <portlet:param name="mode" value="list" />
-            </portlet:actionURL>">Return to list</a></p>
+            </portlet:actionURL>"><fmt:message key="consolebase.common.returnToList"/></a></p>

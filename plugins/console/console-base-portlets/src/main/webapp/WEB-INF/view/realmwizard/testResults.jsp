@@ -20,9 +20,11 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
 <%@ taglib uri="http://java.sun.com/portlet" prefix="portlet"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
+<fmt:setBundle basename="consolebase"/>
 <portlet:defineObjects/>
 
-<p><b>Create Security Realm</b> -- Step 5: Login Results</p>
+<p><fmt:message key="realmwizard.testResults.title" /></p>
 
 <!--   FORM TO COLLECT DATA FOR THIS PAGE   -->
 <form name="<portlet:namespace/>RealmForm" action="<portlet:actionURL/>">
@@ -68,13 +70,13 @@
     <table border="0">
     <!-- STATUS FIELD: Results -->
       <tr>
-        <th style="min-width: 140px"><div align="right">Test Results:</div></th>
+        <th style="min-width: 140px"><div align="right"><fmt:message key="realmwizard.testResults.testResults" />:</div></th>
         <td colspan="2">${LoginResults}</td>
       </tr>
     <!-- STATUS FIELD: Principals -->
     <c:if test="${!(empty principals)}">
       <tr>
-        <th rowspan="${fn:length(principals)}" valign="top"><div align="right">Principals:</div></th>
+        <th rowspan="${fn:length(principals)}" valign="top"><div align="right"><fmt:message key="realmwizard.common.principals" />:</div></th>
       <c:forEach var="principal" items="${principals}" varStatus="status">
       <c:if test="${!status.first}">
       <tr>
@@ -88,10 +90,10 @@
       <tr>
         <td></td>
         <td colspan="2">
-          <input type="submit" value="Test Again" />
-          <input type="button" value="Edit Realm" onclick="document.<portlet:namespace/>RealmForm.mode.value='configure';document.<portlet:namespace/>RealmForm.submit();return false;" />
-          <input type="button" value="Show Plan" onclick="document.<portlet:namespace/>RealmForm.mode.value='plan';document.<portlet:namespace/>RealmForm.submit();return false;" />
-          <input type="button" value="<c:choose><c:when test="${empty realm.abstractName}">Deploy Realm</c:when><c:otherwise>Save</c:otherwise></c:choose>"
+          <input type="submit" value='<fmt:message key="realmwizard.common.testAgain" />' />
+          <input type="button" value='<fmt:message key="realmwizard.common.editRealm" />' onclick="document.<portlet:namespace/>RealmForm.mode.value='configure';document.<portlet:namespace/>RealmForm.submit();return false;" />
+          <input type="button" value='<fmt:message key="realmwizard.common.showPlan" />' onclick="document.<portlet:namespace/>RealmForm.mode.value='plan';document.<portlet:namespace/>RealmForm.submit();return false;" />
+          <input type="button" value="<c:choose><c:when test="${empty realm.abstractName}"><fmt:message key='realmwizard.common.deployRealm' /></c:when><c:otherwise><fmt:message key='consolebase.common.save'/></c:otherwise></c:choose>"
                  onclick="document.<portlet:namespace/>RealmForm.mode.value='save';document.<portlet:namespace/>RealmForm.submit();return false;" />
         </td>
       </tr>
@@ -101,4 +103,4 @@
 
 <p><a href="<portlet:actionURL portletMode="view">
               <portlet:param name="mode" value="list" />
-            </portlet:actionURL>">Cancel</a></p>
+            </portlet:actionURL>"><fmt:message key="consolebase.common.cancel"/></a></p>

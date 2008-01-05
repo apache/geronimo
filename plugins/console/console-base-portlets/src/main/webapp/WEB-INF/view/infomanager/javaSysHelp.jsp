@@ -14,4 +14,6 @@
    See the License for the specific language governing permissions and
    limitations under the License.
 --%>
-This page displays the values of the system properties available to the server process.
+<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
+<fmt:setBundle basename="consolebase"/>
+<fmt:message key="infomanager.javaSysHelp.body" />

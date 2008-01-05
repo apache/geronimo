@@ -17,6 +17,8 @@
 
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/portlet" prefix="portlet"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
+<fmt:setBundle basename="consolebase"/>
 
 <script>
 function trim(str){
@@ -52,20 +54,20 @@ function <portlet:namespace/>validateForm(){
 <table width="680">
 <tr>
 <!--
-		renderRequest.setAttribute("configuration", LogHelper.getConfiguration());
-		renderRequest.setAttribute("logLevel", LogHelper.getLogLevel());
-		renderRequest.setAttribute("refreshPeriod", LogHelper.getRefreshPeriod());
+        renderRequest.setAttribute("configuration", LogHelper.getConfiguration());
+        renderRequest.setAttribute("logLevel", LogHelper.getLogLevel());
+        renderRequest.setAttribute("refreshPeriod", LogHelper.getRefreshPeriod());
 
 -->
-    <td nowrap>Config File</td>
+    <td nowrap><fmt:message key="logmanager.common.configFile"/></td>
     <td><input type="text" name="configFile" value="${configFile}" size="45"/></td>
 </tr>
 <tr>
-    <td nowrap>Refresh Period</td>
+    <td nowrap><fmt:message key="logmanager.common.refreshPeriod"/></td>
     <td><input type="text" name="refreshPeriod" value="${refreshPeriod}" size="45"/></td>
 </tr>
 <tr>
-    <td nowrap>Log Level</td>
+    <td nowrap><fmt:message key="logmanager.common.logLevel"/></td>
     <td>
     <select name="logLevel">
         <option<c:if test="${logLevel eq 'ALL'}"> selected</c:if>>ALL</option>
@@ -80,7 +82,7 @@ function <portlet:namespace/>validateForm(){
     </td>
 </tr>
 <tr>   
-    <td colspan="2" align="center" class="formElement"><input type="submit" value="Update"/> <input type="reset" value="Reset"/></td>
+    <td colspan="2" align="center" class="formElement"><input type="submit" value='<fmt:message key="consolebase.common.update"/>' /> <input type="reset" value='<fmt:message key="consolebase.common.reset"/>' /></td>
 </tr>
 </table>
 </form>

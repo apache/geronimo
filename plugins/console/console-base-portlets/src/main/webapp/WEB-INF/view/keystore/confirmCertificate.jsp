@@ -17,9 +17,11 @@
 <%@ page import="org.apache.geronimo.console.util.PortletManager"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/portlet" prefix="portlet"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
+<fmt:setBundle basename="consolebase"/>
 <portlet:defineObjects/>
 
-<p>Please confirm that this is the correct certificate to import:</p>
+<p><fmt:message key="keystore.confirmCertificate.title"/></p>
 
 <form name="<portlet:namespace/>KeystoreForm" action="<portlet:actionURL/>">
     <input type="hidden" name="id" value="${id}" />
@@ -29,35 +31,35 @@
 
     <table border="0">
         <tr>
-            <th class="DarkBackground" colspan="2" align="left">Certificate Details</th>
+            <th class="DarkBackground" colspan="2" align="left"><fmt:message key="keystore.confirmCertificate.certificateDetails"/></th>
         </tr>
         <tr>
-            <th class="LightBackground" align="right">Fingerprint:</th>
+            <th class="LightBackground" align="right"><fmt:message key="keystore.confirmCertificate.fingerprint"/>:</th>
             <td class="LightBackground">${fingerprint}</td>
         </tr>
         <tr>
-            <th class="MediumBackground" align="right">Subject:</th>
+            <th class="MediumBackground" align="right"><fmt:message key="keystore.common.subject"/>:</th>
             <td class="MediumBackground">${subject}</td>
         </tr>
         <tr>
-            <th class="LightBackground" align="right">Issuer:</th>
+            <th class="LightBackground" align="right"><fmt:message key="keystore.common.issuer"/>:</th>
             <td class="LightBackground">${issuer}</td>
         </tr>
         <tr>
-            <th class="MediumBackground" align="right">Validity:</th>
+            <th class="MediumBackground" align="right"><fmt:message key="keystore.common.validity"/>:</th>
             <td class="MediumBackground">${validStart} to ${validEnd}</td>
         </tr>
         <tr>
-            <th class="LightBackground" align="right">Serial Number:</th>
+            <th class="LightBackground" align="right"><fmt:message key="keystore.common.serialNumber"/>:</th>
             <td class="LightBackground">${serial}</td>
         </tr>
     </table>
 
-    <input type="submit" value="Import Certificate" />
+    <input type="submit" value='<fmt:message key="keystore.confirmCertificate.importCertificate"/>' />
 </form>
 
 
 <p><a href="<portlet:actionURL portletMode="view">
               <portlet:param name="mode" value="viewKeystore-before" />
               <portlet:param name="id" value="${id}" />
-            </portlet:actionURL>">Cancel</a></p>
+            </portlet:actionURL>"><fmt:message key="consolebase.common.cancel"/></a></p>

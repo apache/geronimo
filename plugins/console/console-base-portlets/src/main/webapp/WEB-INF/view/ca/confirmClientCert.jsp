@@ -16,13 +16,14 @@
 --%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/portlet" prefix="portlet"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
+<fmt:setBundle basename="consolebase"/>
 <portlet:defineObjects/>
+<fmt:message key="ca.confirmClientCert.title"/>
+<p>
+<fmt:message key="ca.confirmClientCert.summary"/>
+</p>
 
-<b>Issue New Certificate</b> - Step 3: Confirm and Issue Certificate
-
-<p> This screen shows the CSR details and the certificate details entered in the previous screen.  Upon clicking
-the <i>Issue Certificate</i> button, a certificate will be issued and stored.  The next screen will show the
-details of the certificate issued.</p>
 
 <jsp:include page="_header.jsp" />
 
@@ -32,16 +33,16 @@ details of the certificate issued.</p>
     <input type="hidden" name="requestId" value="${requestId}"/>
     <table border="0">
         <tr>
-            <th class="DarkBackground" colspan="2" align="left">Certificate Requestor Details</th>
+            <th class="DarkBackground" colspan="2" align="left"><fmt:message key="ca.common.certRequestorDetails"/></th>
         </tr>
         <tr>
-            <th class="LightBackground" align="right">Subject:</th>
+            <th class="LightBackground" align="right"><fmt:message key="ca.common.subject"/>:</th>
             <td class="LightBackground">
                 <input type="hidden" name="subject" value="${subject}" /> ${subject}
             </td>
         </tr>
         <tr>
-            <th class="MediumBackground" align="right">Public Key:</th>
+            <th class="MediumBackground" align="right"><fmt:message key="ca.common.publicKey"/>:</th>
             <td class="MediumBackground">
                 <input type="hidden" name="publickey" value="${publickey}" /><pre> ${publickey} </pre>
             </td>
@@ -50,28 +51,28 @@ details of the certificate issued.</p>
     </table>
     <table border="0">
         <tr>
-            <th class="DarkBackground" colspan="2" align="left">Details of the Certificate to be issued</th>
+            <th class="DarkBackground" colspan="2" align="left"><fmt:message key="ca.common.detailsOfCert"/></th>
         </tr>
         <tr>
-            <th class="LightBackground" align="right">Certificate Serial Number:</th>
+            <th class="LightBackground" align="right"><fmt:message key="ca.common.certSerialNumber"/>:</th>
             <td class="LightBackground">
                 <input type="hidden" name="sNo" value="${sNo}" /> ${sNo}
             </td>
         </tr>
         <tr>
-            <th class="MediumBackground" align="right">Valid From Date (mm/dd/yyyy):</th>
+            <th class="MediumBackground" align="right"><fmt:message key="ca.common.validFromDate"/> (mm/dd/yyyy):</th>
             <td class="MediumBackground">
                 <input type="hidden" name="validFrom" value="${validFrom}" /> ${validFrom}
             </td>
         </tr>
         <tr>
-            <th class="LightBackground" align="right">Valid To Date (mm/dd/yyyy):</th>
+            <th class="LightBackground" align="right"><fmt:message key="ca.common.validToDate"/> (mm/dd/yyyy):</th>
             <td class="LightBackground">
                 <input type="hidden" name="validTo" value="${validTo}" /> ${validTo}
             </td>
         </tr>
         <tr>
-            <th class="MediumBackground" align="right">Signature Algorithm:</th>
+            <th class="MediumBackground" align="right"><fmt:message key="ca.common.signatureAlgorithm"/>:</th>
             <td class="MediumBackground">
                 <input type="hidden" name="algorithm" value="${algorithm}" /> ${algorithm}
             </td>
@@ -82,4 +83,4 @@ details of the certificate issued.</p>
 
 <p><a href="<portlet:actionURL portletMode="view">
               <portlet:param name="mode" value="index-before"/>
-            </portlet:actionURL>">Cancel</a></p>
+            </portlet:actionURL>"><fmt:message key="consolebase.common.cancel"/></a></p>

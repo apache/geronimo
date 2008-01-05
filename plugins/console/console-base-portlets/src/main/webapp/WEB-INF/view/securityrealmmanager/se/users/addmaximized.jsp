@@ -19,6 +19,8 @@
 
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/portlet" prefix="portlet"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
+<fmt:setBundle basename="consolebase"/>
 <script language="JavaScript">
 var <portlet:namespace/>formName = "adduser";
 var <portlet:namespace/>requiredFields = new Array("userId","password");
@@ -42,13 +44,13 @@ function <portlet:namespace/>passwordMatch(){
         <td colspan="2" align="left">
         <c:choose>
         <c:when test="${add}"> 
-       		<b>ADD USER</b>
+       		<b><fmt:message key="securityrealmmanager.se.users.addmaximized.addUser" /></b>
       		<c:set var="UserName" value=""/>
       		<c:set var="Action" value="add"/>      		
       		<c:set var="Submit" value="Add"/>
        </c:when>
        <c:otherwise>
-			<b>UPDATE USER</b>
+			<b><fmt:message key="securityrealmmanager.se.users.addmaximized.updateUser" /></b>
       		<c:set var="UserName" value="${userID}"/>
       		<c:set var="Action" value="update"/>      		
       		<c:set var="Submit" value="Update"/>
@@ -57,7 +59,7 @@ function <portlet:namespace/>passwordMatch(){
         </td>
     </tr>
     <tr>
-        <td width="200">UserID</td>
+        <td width="200"><fmt:message key="consolebase.common.userID"/></td>
         <td>
         <input type="hidden" name="action" value="${Action}">
         <c:choose>
@@ -75,7 +77,7 @@ function <portlet:namespace/>passwordMatch(){
     <c:choose>
       <c:when test="${add}">
         <tr>
-          <td width="200">Group</td>
+          <td width="200"><fmt:message key="consolebase.common.group"/></td>
           <td>
             <select name="group">
               <c:forEach var="groups" items="${groupsInfo}">
@@ -89,15 +91,15 @@ function <portlet:namespace/>passwordMatch(){
       </c:otherwise>
     </c:choose>
     <tr>
-        <td width="200">Password</td>
+        <td width="200"><fmt:message key="consolebase.common.password"/></td>
         <td><input type="password" name="password" value=""></td>
     </tr>   
     <tr>
-        <td width="200">Confirm Password</td>
+        <td width="200"><fmt:message key="consolebase.common.confirmPassword"/></td>
         <td><input type="password" name="confirmpassword" value=""></td>
     </tr>
     <tr>   
-       <td>&nbsp;</td> <td  align="left" class="formElement"><input type="submit" value="${Submit}" onclick="return <portlet:namespace/>validateForm()"> <input type="submit" name="cancel"  value="Cancel"></td>
+       <td>&nbsp;</td> <td  align="left" class="formElement"><input type="submit" value="${Submit}" onclick="return <portlet:namespace/>validateForm()"> <input type="submit" name="cancel"  value="<fmt:message key="consolebase.common.cancel"/>"></td>
      </tr>
     </table>
 </form>

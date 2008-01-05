@@ -17,6 +17,8 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
 <%@ taglib uri="http://java.sun.com/portlet" prefix="portlet"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
+<fmt:setBundle basename="consolebase"/>
 <portlet:defineObjects/>
 
 <c:set var="artifact" value="${plugin.pluginArtifact.moduleId}"/>
@@ -25,28 +27,28 @@
 
 <table border="0">
   <tr>
-    <th align="right" valign="top">Module ID:</th>
+    <th align="right" valign="top"><fmt:message key="car.viewForDownload.moduleId" />:</th>
     <td>${artifact.groupId}/${artifact.artifactId}/${artifact.version}/${artifact.type}</td>
   </tr>
   <tr>
-    <th align="right" valign="top">Group:</th>
+    <th align="right" valign="top"><fmt:message key="car.viewForDownload.group" />:</th>
     <td>${plugin.category}</td>
   </tr>
   <tr>
-    <th align="right" valign="top">Description:</th>
+    <th align="right" valign="top"><fmt:message key="car.viewForDownload.description" />:</th>
     <td>${plugin.description}</td>
   </tr>
   <tr>
-    <th align="right" valign="top">Author:</th>
+    <th align="right" valign="top"><fmt:message key="car.viewForDownload.author" />:</th>
     <td>${plugin.author}</td>
   </tr>
   <tr>
-    <th align="right" valign="top">Web Site:</th>
+    <th align="right" valign="top"><fmt:message key="car.viewForDownload.website" />:</th>
     <td><a href="${plugin.url}">${plugin.url}</a></td>
   </tr>
   <c:forEach var="license" items="${plugin.license}">
       <tr>
-        <th align="right" valign="top">License:</th>
+        <th align="right" valign="top"><fmt:message key="car.viewForDownload.license" />:</th>
         <td>${license.value}
           <c:choose>
               <c:when test="${license.osiApproved}">(Open Source)</c:when>
@@ -56,7 +58,7 @@
       </tr>
   </c:forEach>
     <tr>
-    <th align="right" valign="top">Geronimo-Versions:</th>
+    <th align="right" valign="top"><fmt:message key="car.viewForDownload.geronimoVersions" />:</th>
     <td>
       <c:choose>
         <c:when test="${empty plugin.geronimoVersion}">
@@ -72,7 +74,7 @@
   </tr>
   <tr>
   <tr>
-    <th align="right" valign="top">JVM Versions:</th>
+    <th align="right" valign="top"><fmt:message key="car.viewForDownload.jvmVersions" />:</th>
     <td>
       <c:choose>
           <c:when test="${empty plugin.jvmVersion}">
@@ -87,7 +89,7 @@
     </td>
   </tr>
   <tr>
-    <th align="right" valign="top">Dependencies:</th>
+    <th align="right" valign="top"><fmt:message key="car.viewForDownload.dependencies" />:</th>
     <td>
       <c:forEach var="dependency" items="${plugin.dependency}">
         ${dependency.groupId}/${dependency.artifactId}/${dependency.version}/${dependency.type}<br />
@@ -95,7 +97,7 @@
     </td>
   </tr>
   <tr>
-    <th align="right" valign="top">Prerequisites:</th>
+    <th align="right" valign="top"><fmt:message key="car.viewForDownload.prerequisites" />:</th>
     <td>
       <c:choose>
         <c:when test="${empty plugin.prerequisite}">
@@ -111,7 +113,7 @@
     </td>
   </tr>
   <tr>
-    <th align="right" valign="top">Obsoletes:</th>
+    <th align="right" valign="top"><fmt:message key="car.viewForDownload.obsoletes" />:</th>
     <td>
       <c:choose>
         <c:when test="${empty plugin.obsoletes}">
@@ -126,7 +128,7 @@
     </td>
   </tr>
   <tr>
-    <th align="right" valign="top">Installable:</th>
+    <th align="right" valign="top"><fmt:message key="car.viewForDownload.installable" />:</th>
     <td>
     ${plugin.installable ? "<img alt='check' src='/console/images/checkmark._16_green.png' /> " : "<strong><font color='red'>X</font></strong> "}
     ${validation}
@@ -140,7 +142,7 @@
 <table><tr>
 <c:if test="${plugin.installable}">
 <td valign="top">
-    <input type="submit" value="Install" />
+    <input type="submit" value="<fmt:message key="consolebase.common.install" />" />
     <input type="hidden" name="configId" value="${configId}" />
     <input type="hidden" name="mode" value="viewForDownload-after" />
     <input type="hidden" name="repository" value="${repository}" />
@@ -149,6 +151,6 @@
 <td>
 </c:if>
 <td valign="top">
-<input type="submit" value="Return" onclick="history.go(-1); return false;" />
+<input type="submit" value="<fmt:message key="consolebase.common.install" />" onclick="history.go(-1); return false;" />
 </td></tr></table>
 </form>

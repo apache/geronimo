@@ -20,6 +20,8 @@
 <%@ page import="org.apache.geronimo.console.util.PortletManager"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/portlet" prefix="portlet"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
+<fmt:setBundle basename="consolebase"/>
 <portlet:defineObjects/>
 
 <script language="JavaScript">
@@ -41,28 +43,28 @@ function <portlet:namespace/>validateForm(){
     <input type="hidden" name="mode" value="createKeystore-after" />
     <table border="0">
         <tr>
-            <th align="right">Keystore file name:</th>
+            <th align="right"><fmt:message key="keystore.createKeystore.keystoreFileName"/>:</th>
             <td>
                 <input type="text" name="filename" size="20" maxlength="100" />
             </td>
         </tr>
         <tr>
-            <th align="right">Password for new keystore:</th>
+            <th align="right"><fmt:message key="keystore.createKeystore.passwordForKeystore"/>:</th>
             <td>
                 <input type="password" name="password" size="20" maxlength="200" />
             </td>
         </tr>
         <tr>
-            <th align="right">Confirm password:</th>
+            <th align="right"><fmt:message key="consolebase.common.confirmPassword"/>:</th>
             <td>
                 <input type="password" name="confirm-password" size="20" maxlength="200" />
             </td>
         </tr>
     </table>
-    <input type="submit" value="Create Keystore" onClick="return <portlet:namespace/>validateForm();"/>
+    <input type="submit" value='<fmt:message key="keystore.createKeystore.createKeystore"/>' onClick="return <portlet:namespace/>validateForm();"/>
 </form>
 
 
 <p><a href="<portlet:actionURL portletMode="view">
               <portlet:param name="mode" value="list-before" />
-            </portlet:actionURL>">Cancel</a></p>
+            </portlet:actionURL>"><fmt:message key="consolebase.common.cancel"/></a></p>

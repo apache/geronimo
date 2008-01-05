@@ -16,6 +16,8 @@
 --%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/portlet" prefix="portlet"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
+<fmt:setBundle basename="consolebase"/>
 <portlet:defineObjects/>
 
 <script language="JavaScript">
@@ -28,13 +30,12 @@ function <portlet:namespace/>validateForm(){
     return true;
 }
 </script>
+<fmt:message key="ca.processCSR.title"/>
 
-<b>Issue New Certificate</b> - Step 1: Process Certificate Signing Request (CSR)
+<p>
+<fmt:message key="ca.processCSR.summary"/>
+</p>
 
-<p>This screen lets you process Certificate Signing Request (CSR) text and view the details
-of the requestor.  Paste the content of CSR text file you received from the requestor and click on
-<i>Process CSR</i> button.  The next screen will show the details of the requestor and allow you
-to input information required to issue a certificate.</p>
 
 <jsp:include page="_header.jsp" />
 
@@ -42,20 +43,20 @@ to input information required to issue a certificate.</p>
     <input type="hidden" name="mode" value="processCSR-after" />
     <table border="0">
         <tr>
-            <th colspan="2" align="left">CSR Text</th>
+            <th colspan="2" align="left"><fmt:message key="ca.common.CSRText"/></th>
         </tr>
         <tr>
             <td colspan="2">
                 <textarea rows="20" cols="80" name="pkcs10certreq">
-                ...paste pkcs10 encoded certificate request here...
+                <fmt:message key="ca.processCSR.pastePkcs10here"/>                
                 </textarea>
             </td>
         </tr>
     </table>
-    <input type="submit" value="Process CSR" onClick="return <portlet:namespace/>validateForm();"/>
-    <input type="reset" name="reset" value="Reset">
+    <input type="submit" value='<fmt:message key="ca.common.processCSR"/>' onClick="return <portlet:namespace/>validateForm();"/>
+    <input type="reset" name="reset" value='<fmt:message key="consolebase.common.reset"/>'>
 </form>
 
 <p><a href="<portlet:actionURL portletMode="view">
               <portlet:param name="mode" value="index-before"/>
-            </portlet:actionURL>">Cancel</a></p>
+            </portlet:actionURL>"><fmt:message key="consolebase.common.cancel"/></a></p>

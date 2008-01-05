@@ -19,9 +19,11 @@
 
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/portlet" prefix="portlet"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
+<fmt:setBundle basename="consolebase"/>
 <portlet:defineObjects/>
 
-<p><b>Create Security Realm</b> -- Show Deployment Plan</p>
+<p><fmt:message key="realmwizard.showPlan.title" /></p>
 
 <!--   FORM TO COLLECT DATA FOR THIS PAGE   -->
 <form name="<portlet:namespace/>RealmForm" action="<portlet:actionURL/>">
@@ -67,23 +69,21 @@
     <table border="0">
     <!-- STATUS FIELD: Deployment Plan -->
       <tr>
-        <th valign="top" style="min-width: 140px"><div align="right">Deployment Plan:</div></th>
+        <th valign="top" style="min-width: 140px"><div align="right"><fmt:message key="realmwizard.common.deploymentPlan" />:</div></th>
         <td><textarea rows="30" cols="60" readonly>${deploymentPlan}</textarea></td>
       </tr>
     <!-- SUBMIT BUTTON -->
       <tr>
         <td></td>
         <td>
-<input type="submit" value="<c:choose><c:when test="${empty realm.abstractName}">Deploy Realm</c:when><c:otherwise>Save</c:otherwise></c:choose>" />
-<input type="button" value="Edit Settings" onclick="document.<portlet:namespace/>RealmForm.mode.value='configure';document.<portlet:namespace/>RealmForm.submit();return false;" />
+<input type="submit" value="<c:choose><c:when test="${empty realm.abstractName}"><fmt:message key='realmwizard.common.deployRealm' /></c:when><c:otherwise><fmt:message key='consolebase.common.save'/></c:otherwise></c:choose>" />
+<input type="button" value='<fmt:message key="realmwizard.common.editSettings" />'  onclick="document.<portlet:namespace/>RealmForm.mode.value='configure';document.<portlet:namespace/>RealmForm.submit();return false;" />
         </td>
       </tr>
     <!-- STATUS FIELD: Command-line guidance -->
       <tr>
-        <th valign="top"><div align="right">Deploy Command:</div></th>
-        <td>To deploy a security realm from the command line using this plan,
-          copy and paste it to a file (say, <tt>security-realm.xml</tt>) and save
-          it.  Then run a command like:<br />
+        <th valign="top"><div align="right"><fmt:message key="realmwizard.common.deployCommand" />:</div></th>
+        <td><fmt:message key="realmwizard.showPlan.deployCommandExp" /><br />
 <pre>
 cd GERONIMO_HOME
 java -jar bin/deployer.jar deploy security-realm.xml
@@ -91,14 +91,8 @@ java -jar bin/deployer.jar deploy security-realm.xml
       </tr>
     <!-- STATUS FIELD: Embed in EAR guidance -->
       <tr>
-        <th valign="top"><div align="right">Add to EAR:</div></th>
-        <td>Instead of deploying as a top-level security realm, you
-          can deploy this realm as part of an EAR.  To add a security
-          realm to an EAR using this plan, create a
-          <tt>META-INF/geronimo-application.xml</tt> file in your EAR
-          that has the <tt>dependency</tt> elements (if any) and
-          <tt>gbean</tt> elements from the plan above.  It should look
-          something like this:
+        <th valign="top"><div align="right"><fmt:message key="realmwizard.common.addToEAR" />:</div></th>
+        <td><fmt:message key="realmwizard.showPlan.addToEARExp" />
 <pre>
 &lt;application
    xmlns="http://geronimo.apache.org/xml/ns/j2ee/application-1.1"&gt;
@@ -126,4 +120,4 @@ java -jar bin/deployer.jar deploy security-realm.xml
 
 <p><a href="<portlet:actionURL portletMode="view">
               <portlet:param name="mode" value="list" />
-            </portlet:actionURL>">Cancel</a></p>
+            </portlet:actionURL>"><fmt:message key="consolebase.common.cancel"/></a></p>

@@ -21,6 +21,8 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
 <%@ taglib uri="http://java.sun.com/portlet" prefix="portlet"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
+<fmt:setBundle basename="consolebase"/>
 <script language="JavaScript">
 var <portlet:namespace/>formName = "<portlet:namespace/>addgroup";
 var <portlet:namespace/>requiredFields = new Array("group");
@@ -63,7 +65,7 @@ function <portlet:namespace/>selectAll(formName, objName){
       <td colspan="2" align="left" class="formHeader">
        <c:choose>
 	   <c:when test="${add}"> 
-       		<b>ADD GROUP</b>
+       		<b><fmt:message key="securityrealmmanager.se.groups.addmaximized.addGroup" /></b>
       		<c:set var="GroupName" value=""/>
       		<c:set var="Submit" value="Add"/>
        </c:when>
@@ -76,7 +78,7 @@ function <portlet:namespace/>selectAll(formName, objName){
         </td>
     </tr>
     <tr>
-        <td width="200" class="formLabel">Group Name</td>
+        <td width="200" class="formLabel"><fmt:message key="consolebase.common.groupName"/></td>
         <td class="formElement">
        <c:choose>
 	   <c:when test="${add}"> 
@@ -92,7 +94,7 @@ function <portlet:namespace/>selectAll(formName, objName){
         </td>
     </tr>   
     <tr>
-        <td class="formLabel">Users</td>
+        <td class="formLabel"><fmt:message key="consolebase.common.users"/></td>
         <td class="formElement">
         <c:choose>
         <c:when test="${users != null && fn:length(users) > 0}">
@@ -146,7 +148,7 @@ function <portlet:namespace/>selectAll(formName, objName){
              
         </c:when>
         <c:otherwise>
-        No available users.
+        <fmt:message key="securityrealmmanager.se.groups.addmaximized.noUsers" />
         </c:otherwise>
         </c:choose>       
         </td>
@@ -155,7 +157,7 @@ function <portlet:namespace/>selectAll(formName, objName){
        <td>&nbsp;</td><td align="left" class="formElement">
        <input type="submit" value="${Submit}" 
             onclick="return <portlet:namespace/>validateForm() && <portlet:namespace/>selectAll('<portlet:namespace/>addgroup', 'users');">
-       <input type="submit" name="cancel"  value="Cancel">
+       <input type="submit" name="cancel"  value="<fmt:message key="consolebase.common.cancel"/>">
        </td>
       </tr>
     </table>

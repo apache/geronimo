@@ -16,12 +16,14 @@
 --%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/portlet" prefix="portlet"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
+<fmt:setBundle basename="consolebase"/>
 <portlet:defineObjects/>
-keystore: ${id}<br/>
-alias: ${alias}<br/>
+<fmt:message key="keystore.common.keystore"/>: ${id}<br/>
+<fmt:message key="keystore.common.alias"/>: ${alias}<br/>
 
 <table>
-<th>PKCS10 Certification Request</th>
+<th><fmt:message key="keystore.generateCSR.PKCS10CertificatioRequest"/>t</th>
 <tr>
 <td>
 <form action=>
@@ -35,6 +37,6 @@ ${csr}
 <portlet:param name="mode" value="generateCSR-after" />
 <portlet:param name="id" value="${id}" />
 <portlet:param name="alias" value="${alias}" /></portlet:actionURL>">
-Back</a></td>
+<fmt:message key="consolebase.common.back"/></a></td>
 </tr>
 </table>

@@ -20,6 +20,9 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
 <%@ taglib uri="http://java.sun.com/portlet" prefix="portlet"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
+<fmt:setBundle basename="consolebase"/>
+
 <script language="Javascript">
 var <portlet:namespace/>formName = "<portlet:namespace/>searchForm";
 var <portlet:namespace/>dateFields = new Array("fromDate", "toDate");
@@ -40,10 +43,11 @@ function <portlet:namespace/>validateForm(){
     }
     return true;
 }
+
 </script>
 <table>
     <tr>
-        <td><button onclick="location='<portlet:renderURL><portlet:param name="action" value="refresh"/></portlet:renderURL>'">Refresh</button>
+        <td><button onclick="location='<portlet:renderURL><portlet:param name="action" value="refresh"/></portlet:renderURL>'"><fmt:message key="consolebase.common.refresh" /></button>
             <br/>
             <br/>
         </td>
@@ -51,16 +55,16 @@ function <portlet:namespace/>validateForm(){
     <tr>
         <td>
             <form action="<portlet:actionURL/>" name="<portlet:namespace/>searchForm" method="post" onSubmit="return <portlet:namespace/>validateForm();">
-                <b>Filter Criteria:</b>
+                <b><fmt:message key="consolebase.common.filterCriteria" />:</b>
                 <input type="hidden" value="search" name="action"/>
                 <table width="680">
                     <c:choose>
                         <c:when test="${fn:length(webContainers) > 1}">
                             <tr>
-                                <td colspan="4" class="DarkBackground"><b>Container:</b></td>
+                                <td colspan="4" class="DarkBackground"><b><fmt:message key="webaccesslogmanager.view.container" />:</b></td>
                             </tr>
                             <tr>
-                                <td>Search Web Container:</td>
+                                <td><fmt:message key="webaccesslogmanager.view.searchWebContainer" />:</td>
                                 <td>
                                     <select name="selectedContainer">
                                         <c:forEach var="webContainer" items="${webContainers}">
@@ -88,7 +92,7 @@ function <portlet:namespace/>validateForm(){
                                 <td colspan="4" class="DarkBackground"><b>Log:</b></td>
                             </tr>
                             <tr>
-                                <td>Search Web Log:</td>
+                                <td><fmt:message key="webaccesslogmanager.view.searchWebLog" />:</td>
                                 <td>
                                     <select name="selectedLog">
                                         <c:forEach var="webLog" items="${webLogs}">
@@ -109,42 +113,42 @@ function <portlet:namespace/>validateForm(){
                         </c:otherwise>
                     </c:choose>
                     <tr>
-                        <td colspan="4" class="DarkBackground"><b>Date:</b></td>
+                        <td colspan="4" class="DarkBackground"><b><fmt:message key="consolebase.common.date"/>:</b></td>
                     </tr>
                     <tr>
-                        <td>From (MM/DD/YYYY):</td>
+                        <td><fmt:message key="webaccesslogmanager.common.from"/>:</td>
                         <td>
                             <input type="text" name="fromDate" value="${fromDate}">
                         </td>
-                        <td>To (MM/DD/YYYY):</td>
+                        <td><fmt:message key="webaccesslogmanager.common.to"/>:</td>
                         <td>
                             <input type="text" name="toDate" value="${toDate}">
                         </td>
                     </tr>
                     <tr>
-                        <td>Ignore Dates:</td>
+                        <td><fmt:message key="webaccesslogmanager.view.ignoreDates"/>:</td>
                         <td>
                             <input type="checkbox" name="ignoreDates" < c:if test="${ignoreDates}">checked</c:if>/>
                         </td>
                     </tr>
                     <tr>
-                        <td colspan="4" class="DarkBackground"><b>Identity:</b></td>
+                        <td colspan="4" class="DarkBackground"><b><fmt:message key="webaccesslogmanager.view.identity"/>:</b></td>
                     </tr>
                     <tr>
-                        <td>Remote Address:</td>
+                        <td><fmt:message key="webaccesslogmanager.common.remoteAddress"/>:</td>
                         <td>
                             <input type="text" name="requestHost" value="${requestHost}"/>
                         </td>
-                        <td>Authenticated User:</td>
+                        <td><fmt:message key="webaccesslogmanager.common.authenticatedUser"/>:</td>
                         <td>
                             <input type="text" name="authUser" value="${authUser}"/>
                         </td>
                     </tr>
                     <tr>
-                        <td colspan="4" class="DarkBackground"><b>Request:</b></td>
+                        <td colspan="4" class="DarkBackground"><b><fmt:message key="webaccesslogmanager.common.request"/>:</b></td>
                     </tr>
                     <tr>
-                        <td>Request Method:</td>
+                        <td><fmt:message key="webaccesslogmanager.common.requestMethod"/>:</td>
                         <td>
                             <select name="requestMethod">
                                 <option value="" < c:if test="${empty requestMethod or requestMethod eq ''}">selected</c:if>>ANY</option>
@@ -154,20 +158,20 @@ function <portlet:namespace/>validateForm(){
                                 <option <c:if test="${requestMethod == 'DELETE'}">selected</c:if>>DELETE</option>
                             </select>
                         </td>
-                        <td>Requested URI:</td>
+                        <td><fmt:message key="webaccesslogmanager.common.requestedURI"/>:</td>
                         <td>
                             <input type="text" name="requestedURI" value="${requestedURI}"/>
                         </td>
                     </tr>
                     <tr>
-                        <td colspan="4" class="DarkBackground"><b>Result Size:</b></td>
+                        <td colspan="4" class="DarkBackground"><b><fmt:message key="webaccesslogmanager.view.resultSize"/>:</b></td>
                     </tr>
                     <tr>
-                        <td>Start Result:</td>
+                        <td><fmt:message key="webaccesslogmanager.view.startResult"/>:</td>
                         <td>
                             <input type="text" name="startResult" value="${startResult}"/>
                         </td>
-                        <td>Max Results:</td>
+                        <td><fmt:message key="webaccesslogmanager.view.maxResults"/>:</td>
                         <td>
                             <input type="text" name="maxResult" value="${maxResult}"/>
                         </td>
@@ -187,7 +191,7 @@ function <portlet:namespace/>validateForm(){
                 <c:when test="${logs != null && fn:length(logs) > 0}">
                     <table>
                         <tr>
-                            <td><b>Found ${fn:length(logs)} matches in logfile (${logLength} lines searched).</b></td>
+                            <td><b><fmt:message key="webaccesslogmanager.view.foundMatches"><fmt:param value="${fn:length(logs)}"/><fmt:param value="${logLength}"/></fmt:message>.</b></td>
                         </tr>
                         <c:forEach var="line" items="${logs}">
                         <tr>
@@ -199,7 +203,7 @@ function <portlet:namespace/>validateForm(){
                     </table>
                 </c:when>
                 <c:otherwise>
-                    No log entries found.
+                    <fmt:message key="webaccesslogmanager.view.noLogEntries"/>
                 </c:otherwise>
             </c:choose>
         </td>

@@ -16,14 +16,13 @@
 --%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/portlet" prefix="portlet"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
+<fmt:setBundle basename="consolebase"/>
 <portlet:defineObjects/>
-
-<b>Setup Certification Authority</b> - Step 2: Review and Confirm CA details
-
-<p>This screen lets you review the CA details entered in the previous screen.  If you need to modify any
-information shown here, please go back to the previous screen.  Upon clicking the <i>Setup Certification Authority</i>
-button, a keypair and a self-signed certificate will be generated and stored in a keystore.  CA's certificate serial
-number is stored in a text file and the number is incremented each time a CSR is processed by the CA.</p>
+<fmt:message key="ca.confirmCA.title"/>
+<p>
+<fmt:message key="ca.confirmCA.summary"/>
+</p>
 
 <jsp:include page="_header.jsp" />
 
@@ -31,105 +30,106 @@ number is stored in a text file and the number is incremented each time a CSR is
     <input type="hidden" name="mode" value="confirmCA-after" />
     <table border="0">
         <tr>
-            <th class="DarkBackground" colspan="2" align="left">Certification Authority's Identity</th>
+            <th class="DarkBackground" colspan="2" align="left"><fmt:message key="ca.common.certAuthorityIdentity"/>
+            </th>
         </tr>
         <tr>
-            <th class="LightBackground" align="right">Common Name (CN):</th>
+            <th class="LightBackground" align="right"><fmt:message key="ca.common.commonName"/> (CN):</th>
             <td class="LightBackground">
                 <input type="hidden" name="caCN" value="${caCN}" /> ${caCN}
             </td>
         </tr>
         <tr>
-            <th class="MediumBackground" align="right">Division/Business Unit (OU):</th>
+            <th class="MediumBackground" align="right"><fmt:message key="ca.common.Division_BusinessUnit"/> (OU):</th>
             <td class="MediumBackground">
                 <input type="hidden" name="caOU" value="${caOU}" /> ${caOU}
             </td>
         </tr>
         <tr>
-            <th class="LightBackground" align="right">Company/Organization (O):</th>
+            <th class="LightBackground" align="right"><fmt:message key="ca.common.company_Organization"/> (O):</th>
             <td class="LightBackground">
                 <input type="hidden" name="caO" value="${caO}" /> ${caO}
             </td>
         </tr>
         <tr>
-            <th class="MediumBackground" align="right">City/Locality (L):</th>
+            <th class="MediumBackground" align="right"><fmt:message key="ca.common.city_Locality"/> (L):</th>
             <td class="MediumBackground">
                 <input type="hidden" name="caL" value="${caL}" /> ${caL}
             </td>
         </tr>
         <tr>
-            <th class="LightBackground" align="right">State/Province (ST):</th>
+            <th class="LightBackground" align="right"><fmt:message key="ca.common.state_Province"/> (ST):</th>
             <td class="LightBackground">
                 <input type="hidden" name="caST" value="${caST}" /> ${caST}
             </td>
         </tr>
         <tr>
-            <th class="MediumBackground" align="right">Country Code (2 char) (C):</th>
+            <th class="MediumBackground" align="right"><fmt:message key="ca.common.countryCode"/>(2 char) (C):</th>
             <td class="MediumBackground">
                 <input type="hidden" name="caC" value="${caC}" /> ${caC}
             </td>
         </tr>
         <tr><td>&nbsp;</td></tr>
         <tr>
-            <th class="DarkBackground" colspan="2" align="left">Key Details</th>
+            <th class="DarkBackground" colspan="2" align="left"><fmt:message key="ca.common.keyDetails"/></th>
         </tr>
         <tr>
-            <th class="LightBackground" align="right">Alias for CA's keypair:</th>
+            <th class="LightBackground" align="right"><fmt:message key="ca.common.aliasForCAKeypair"/>:</th>
             <td class="LightBackground">
                 <input type="hidden" name="alias" value="${alias}" /> ${alias}
             </td>
         </tr>
         <tr>
-            <th class="MediumBackground" align="right">Key Algorithm:</th>
+            <th class="MediumBackground" align="right"><fmt:message key="ca.common.keyAlgorithm"/>:</th>
             <td class="MediumBackground">
                 <input type="hidden" name="keyAlgorithm" value="${keyAlgorithm}" /> ${keyAlgorithm}
             </td>
         </tr>
         <tr>
-            <th class="LightBackground" align="right">Key Size:</th>
+            <th class="LightBackground" align="right"><fmt:message key="ca.common.keySize"/>:</th>
             <td class="LightBackground">
                 <input type="hidden" name="keySize" value="${keySize}" /> ${keySize}
             </td>
         </tr>
         <tr>
-            <th class="MediumBackground" align="right">Password:</th>
+            <th class="MediumBackground" align="right"><fmt:message key="consolebase.common.password"/>:</th>
             <td class="MediumBackground">
                 <input type="hidden" name="password" value="${password}" /> ********
             </td>
         </tr>
         <tr><td>&nbsp</td></tr>
         <tr>
-            <th class="DarkBackground" colspan="2" align="left">Certificate Details</th>
+            <th class="DarkBackground" colspan="2" align="left"><fmt:message key="ca.common.certificateDetails"/></th>
         </tr>
         <tr>
-            <th class="LightBackground" align="right">Certificate Serial Number:</th>
+            <th class="LightBackground" align="right"><fmt:message key="ca.common.certSerialNumber"/>:</th>
             <td class="LightBackground">
                 <input type="hidden" name="sNo" value="${sNo}" /> ${sNo}
             </td>
         </tr>
         <tr>
-            <th class="MediumBackground" align="right">Valid From Date(mm/dd/yyyy):</th>
+            <th class="MediumBackground" align="right"><fmt:message key="ca.common.validFromDate"/>(mm/dd/yyyy):</th>
             <td class="MediumBackground">
                 <input type="hidden" name="validFrom" value="${validFrom}" /> ${validFrom}
             </td>
         </tr>
         <tr>
-            <th class="LightBackground" align="right">Valid To Date(mm/dd/yyyy):</th>
+            <th class="LightBackground" align="right"><fmt:message key="ca.common.validToDate"/>(mm/dd/yyyy):</th>
             <td class="LightBackground">
                 <input type="hidden" name="validTo" value="${validTo}" /> ${validTo}
             </td>
         </tr>
         <tr>
-            <th class="MediumBackground" align="right">Signature Algorithm:</th>
+            <th class="MediumBackground" align="right"><fmt:message key="ca.common.signatureAlgorithm"/>:</th>
             <td class="MediumBackground">
                 <input type="hidden" name="algorithm" value="${algorithm}" /> ${algorithm}
             </td>
         </tr>
     </table>
-    <input type="submit" value="Setup Certification Authority" />
+    <input type="submit" value='<fmt:message key="ca.common.setupCertAuthority"/>' />
 </form>
 
 
 <p><a href="<portlet:actionURL portletMode="view">
               <portlet:param name="mode" value="index-before" />
-            </portlet:actionURL>">Cancel</a></p>
+            </portlet:actionURL>"><fmt:message key="consolebase.common.cancel"/></a></p>

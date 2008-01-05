@@ -17,12 +17,21 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
 <%@ taglib uri="http://java.sun.com/portlet" prefix="portlet"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
+<fmt:setBundle basename="consolebase"/>
 <portlet:defineObjects/>
 
-<p>Processing ${configId}...</p>
+<p>
+<fmt:message key="car.download.processing" >
+<fmt:param  value="${configId}"/>
+</fmt:message>
+</p>
 
-<p>This plugin has the following dependencies.  Any missing dependencies
-    will be downloaded and installed automatically if you proceed.</p>
+<p>
+<fmt:message key="car.download.foundDependencies" />
+</p>
+
+
 <ul>
 <c:forEach var="dependency" items="${dependencies}">
     <li>${dependency.groupId}/${dependency.artifactId}/${dependency.type}/${dependency.version}</li>
@@ -42,6 +51,6 @@
     <input type="hidden" name="proceed" value="true" />
 </td>
 <td valign="top">
-<input type="submit" value="Cancel" onclick="history.go(-1); return false;" />
+<input type="submit" value="<fmt:message key="consolebase.common.cancel"/>" onclick="history.go(-1); return false;" />
 </td></tr></table>
 </form>

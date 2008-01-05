@@ -19,6 +19,8 @@
 
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/portlet" prefix="portlet"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
+<fmt:setBundle basename="consolebase"/>
 <portlet:defineObjects/>
 
 <script language="JavaScript">
@@ -29,7 +31,7 @@ function <portlet:namespace/>validateForm(){
 }
 </script>
 
-<p><b>Create Security Realm</b> -- Step 1: Select Name and Type</p>
+<p><fmt:message key="realmwizard.selectType.title" /></p>
 
 <!--   FORM TO COLLECT DATA FOR THIS PAGE   -->
 <form name="<portlet:namespace/>RealmForm" action="<portlet:actionURL/>">
@@ -73,17 +75,16 @@ function <portlet:namespace/>validateForm(){
     <table border="0">
     <!-- ENTRY FIELD: NAME -->
       <tr>
-        <th style="min-width: 140px"><div align="right">Name of Security Realm:</div></th>
+        <th style="min-width: 140px"><div align="right"><fmt:message key="realmwizard.common.nameOfSecurityRealm" />:</div></th>
         <td><input name="name" type="text" size="30" value="${realm.name}" /></td>
       </tr>
       <tr>
         <td></td>
-        <td>A name that is different than the name for any other security realms in the server (no spaces in the name please).
-          Other components will use this name to refer to the security realm.</td>
+        <td><fmt:message key="realmwizard.selectType.nameOfSecurityRealmExp" /></td>
       </tr>
     <!-- ENTRY FIELD: REALM TYPE -->
       <tr>
-        <th><div align="right">Realm Type:</div></th>
+        <th><div align="right"><fmt:message key="realmwizard.common.realmType" />:</div></th>
         <td>
           <select name="realmType">
         <c:forEach var="module" items="${moduleTypes}">
@@ -94,13 +95,11 @@ function <portlet:namespace/>validateForm(){
       </tr>
       <tr>
         <td></td>
-        <td>The type of login module used as the master for this security realm.  Select "Other" for manual
-          configuration options including custom login modules and realms that use multiple login modules
-          to populate user principals.</td>
+        <td><fmt:message key="realmwizard.selectType.realmTypeExp" /></td>
       </tr>
       <tr>
         <td></td>
-        <td><input type="submit" value="Next" onclick="return <portlet:namespace/>validateForm()"/></td>
+        <td><input type="submit" value='<fmt:message key="consolebase.common.next"/>' onclick="return <portlet:namespace/>validateForm()"/></td>
       </tr>
     </table>
 </form>
@@ -108,4 +107,4 @@ function <portlet:namespace/>validateForm(){
 
 <p><a href="<portlet:actionURL portletMode="view">
               <portlet:param name="mode" value="list" />
-            </portlet:actionURL>">Cancel</a></p>
+            </portlet:actionURL>"><fmt:message key="consolebase.common.cancel"/></a></p>

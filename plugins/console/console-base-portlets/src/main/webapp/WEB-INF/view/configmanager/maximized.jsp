@@ -16,14 +16,16 @@
 --%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/portlet" prefix="portlet"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
+<fmt:setBundle basename="consolebase"/>
 <portlet:defineObjects/>
 <table width="100%">
     <c:forEach var="configInfo" items="${configurations}">
         <tr>
             <td width="500">${configInfo.state}</td>
             <td>
-<c:if test="${configInfo.state.running}"><a href="<portlet:actionURL><portlet:param name="configId" value="${configInfo.configID}"/><portlet:param name="action" value="stop"/></portlet:actionURL>">Stop</a></c:if>
-<c:if test="${configInfo.state.stopped}"><a href="<portlet:actionURL><portlet:param name="configId" value="${configInfo.configID}"/><portlet:param name="action" value="start"/></portlet:actionURL>">Start</a></c:if>
+<c:if test="${configInfo.state.running}"><a href="<portlet:actionURL><portlet:param name="configId" value="${configInfo.configID}"/><portlet:param name="action" value="stop"/></portlet:actionURL>"><fmt:message key="consolebase.common.stop"/></a></c:if>
+<c:if test="${configInfo.state.stopped}"><a href="<portlet:actionURL><portlet:param name="configId" value="${configInfo.configID}"/><portlet:param name="action" value="start"/></portlet:actionURL>"><fmt:message key="consolebase.common.start"/></a></c:if>
 </td>
             <td>${configInfo.configID}</td>
         </tr>

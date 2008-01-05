@@ -16,17 +16,21 @@
 --%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/portlet" prefix="portlet"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
+<fmt:setBundle basename="consolebase"/>
 <portlet:defineObjects/>
 
-<b>Certificate Requests awaiting fulfillment</b>
+<b><fmt:message key="ca.listRequestsIssue.certRequestsAwaiting"/>
+</b>
 
-<p> This screen shows the certificate requests waiting to be fulfilled.</p>
+<p><fmt:message key="ca.listRequestsIssue.certRequestsAwaitingExp"/>
+</p>
 
 <jsp:include page="_header.jsp" />
 
 <table border="0">
     <tr>
-        <th class="DarkBackground" align="left">Certificate Requests</th>
+        <th class="DarkBackground" align="left"><fmt:message key="ca.common.certRequests"/></th>
     </tr>
   <c:choose>
     <c:when test="${!empty(csrIds)}">
@@ -52,11 +56,11 @@
     </c:when>
     <c:otherwise>
         <tr>
-          <td>There are no requests.</td>
+          <td><fmt:message key="ca.common.noRequests"/></td>
         </tr>
     </c:otherwise>
   </c:choose>
 </table>
 <p><a href="<portlet:actionURL portletMode="view">
               <portlet:param name="mode" value="index-before" />
-            </portlet:actionURL>">Back to CA home</a></p>
+            </portlet:actionURL>"><fmt:message key="ca.common.backToCAHome"/></a></p>

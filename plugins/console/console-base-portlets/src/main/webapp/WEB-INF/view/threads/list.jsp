@@ -16,17 +16,17 @@
 --%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/portlet" prefix="portlet"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
+<fmt:setBundle basename="consolebase"/>
 <portlet:defineObjects/>
 
-<p>This page lists the thread pools defined in the Geronimo server.  <i>Note: Currently
-not all threads used by Geronimo come from one of these thread pools.  We're working
-on migrating the different components of Geronimo toward these thread pools.</i></p>
+<p><fmt:message key="threads.list.title"/></p>
 
 <table width="100%">
   <tr>
-    <th class="DarkBackground">Name</th>
-    <th class="DarkBackground" align="center">Size</th>
-    <th class="DarkBackground" align="center">Actions</th>
+    <th class="DarkBackground"><fmt:message key="consolebase.common.name"/></th>
+    <th class="DarkBackground" align="center"><fmt:message key="consolebase.common.size"/></th>
+    <th class="DarkBackground" align="center"><fmt:message key="consolebase.common.actions"/></th>
   </tr>
 <c:set var="backgroundClass" value='MediumBackground'/>
 <c:forEach var="pool" items="${pools}">
@@ -45,7 +45,7 @@ on migrating the different components of Geronimo toward these thread pools.</i>
       <a href="<portlet:actionURL portletMode="view">
         <portlet:param name="mode" value="monitor-before" />
         <portlet:param name="abstractName" value="${pool.abstractName}" />
-      </portlet:actionURL>">monitor</a>
+      </portlet:actionURL>"><fmt:message key="consolebase.common.monitor"/></a>
     </td>
   </tr>
 </c:forEach>

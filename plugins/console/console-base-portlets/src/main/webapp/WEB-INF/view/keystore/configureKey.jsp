@@ -20,6 +20,8 @@
 <%@ page import="org.apache.geronimo.console.util.PortletManager"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/portlet" prefix="portlet"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
+<fmt:setBundle basename="consolebase"/>
 <portlet:defineObjects/>
 
 <script language="JavaScript">
@@ -41,34 +43,32 @@ function <portlet:namespace/>validateForm(){
 }
 </script>
 
-<p>On this screen you can configure the settings to generate a new private key.
-The next screen will let you review this information before generating the
-private key and accompanying certificate.</p>
+<p><fmt:message key="keystore.configureKey.title"/></p>
 
 <form name="<portlet:namespace/>KeystoreForm" action="<portlet:actionURL/>">
     <input type="hidden" name="keystore" value="${keystore}" />
     <input type="hidden" name="mode" value="configureKey-after" />
     <table border="0">
         <tr>
-            <th align="right">Alias for new key:</th>
+            <th align="right"><fmt:message key="keystore.configureKey.aliasForKey"/>:</th>
             <td>
                 <input type="text" name="alias" size="20" maxlength="100" />
             </td>
         </tr>
         <tr>
-            <th align="right">Password for new key:</th>
+            <th align="right"><fmt:message key="keystore.configureKey.passwordForKey"/></th>
             <td>
                 <input type="password" name="password" size="20" maxlength="200" />
             </td>
         </tr>
         <tr>
-            <th align="right">Confirm password:</th>
+            <th align="right"><fmt:message key="consolebase.common.confirmPassword"/>:</th>
             <td>
                 <input type="password" name="confirm-password" size="20" maxlength="200" />
             </td>
         </tr>
         <tr>
-            <th align="right">Key Size:</th>
+            <th align="right"><fmt:message key="keystore.configureKey.keySize"/>:</th>
             <td>
                 <select name="keySize">
                     <option>512</option>
@@ -78,7 +78,7 @@ private key and accompanying certificate.</p>
             </td>
         </tr>
         <tr>
-            <th align="right">Algorithm:</th>
+            <th align="right"><fmt:message key="keystore.configureKey.algorithm"/>:</th>
             <td>
                 <select name="algorithm">
                     <option>MD2withRSA</option>
@@ -88,56 +88,56 @@ private key and accompanying certificate.</p>
             </td>
         </tr>
         <tr>
-            <th align="right">Valid for (# of days):</th>
+            <th align="right"><fmt:message key="keystore.configureKey.validFor"/> :</th>
             <td>
                 <input type="text" name="valid" size="5" maxlength="8" />
             </td>
         </tr>
         <tr>
-            <th colspan="2">Certificate Identity</th>
+            <th colspan="2"><fmt:message key="keystore.configureKey.certificateIdentity"/></th>
         </tr>
         <tr>
-            <th align="right">Server Hostname (CN):</th>
+            <th align="right"><fmt:message key="keystore.configureKey.serverHostname"/> (CN):</th>
             <td>
                 <input type="text" name="certCN" size="20" maxlength="200" />
             </td>
         </tr>
         <tr>
-            <th align="right">Company/Organization (O):</th>
+            <th align="right"><fmt:message key="keystore.configureKey.company_Org"/> (O):</th>
             <td>
                 <input type="text" name="certO" size="20" maxlength="200" />
             </td>
         </tr>
         <tr>
-            <th align="right">Division/Business Unit (OU):</th>
+            <th align="right"><fmt:message key="keystore.configureKey.division_BusinessUnit"/> (OU):</th>
             <td>
                 <input type="text" name="certOU" size="20" maxlength="200" />
             </td>
         </tr>
         <tr>
-            <th align="right">City/Locality (L):</th>
+            <th align="right"><fmt:message key="keystore.configureKey.city_Locality"/> (L):</th>
             <td>
                 <input type="text" name="certL" size="20" maxlength="200" />
             </td>
         </tr>
         <tr>
-            <th align="right">State/Province (ST):</th>
+            <th align="right"><fmt:message key="keystore.configureKey.state_Province"/> (ST):</th>
             <td>
                 <input type="text" name="certST" size="20" maxlength="200" />
             </td>
         </tr>
         <tr>
-            <th align="right">Country Code (2 char) (C):</th>
+            <th align="right"><fmt:message key="keystore.configureKey.country_Code"/> (2 char) (C):</th>
             <td>
                 <input type="text" name="certC" size="3" maxlength="2" />
             </td>
         </tr>
     </table>
-    <input type="submit" value="Review Key Data" onClick="return <portlet:namespace/>validateForm();"/>
+    <input type="submit" value='<fmt:message key="keystore.configureKey.reviewKeyData"/>' onClick="return <portlet:namespace/>validateForm();"/>
 </form>
 
 
 <p><a href="<portlet:actionURL portletMode="view">
               <portlet:param name="mode" value="viewKeystore-before" />
               <portlet:param name="id" value="${keystore}" />
-            </portlet:actionURL>">Cancel</a></p>
+            </portlet:actionURL>"><fmt:message key="consolebase.common.cancel"/></a></p>

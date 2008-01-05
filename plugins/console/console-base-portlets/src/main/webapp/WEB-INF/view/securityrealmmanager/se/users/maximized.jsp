@@ -16,6 +16,8 @@
 --%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/portlet" prefix="portlet"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
+<fmt:setBundle basename="consolebase"/>
 <portlet:defineObjects/>
 
 <script language="JavaScript">
@@ -46,12 +48,12 @@ function isEmptyString(value){
 <table width="50%" cellspacing="5">
     ${message}
 	<tr>
-		<td><a href="<portlet:actionURL portletMode="view"><portlet:param name="action" value="new"/></portlet:actionURL>">Create New User</a> </td>
+		<td><a href="<portlet:actionURL portletMode="view"><portlet:param name="action" value="new"/></portlet:actionURL>"><fmt:message key="securityrealmmanager.se.users.maximized.createNewUser"/></a> </td>
 		<td></td>
 	</tr>
     <tr class="DarkBackground">
-        <th>Username</th>
-        <th>Actions</th>
+        <th><fmt:message key="consolebase.common.userName"/></th>
+        <th><fmt:message key="consolebase.common.actions"/></th>
     </tr>
     <c:set var="backgroundClass" value='MediumBackground'/>
     <c:forEach var="user" items="${userInfo}">
@@ -66,9 +68,9 @@ function isEmptyString(value){
         <tr>
             <td class="${backgroundClass}"> ${user.key} </td>
             <td class="${backgroundClass}">
-            <a href = "<portlet:actionURL portletMode="view"><portlet:param name="action" value="edit"/><portlet:param name="userId" value="${user.key}"/></portlet:actionURL>">Edit</a>
+            <a href = "<portlet:actionURL portletMode="view"><portlet:param name="action" value="edit"/><portlet:param name="userId" value="${user.key}"/></portlet:actionURL>"><fmt:message key="consolebase.common.edit"/></a>
             &nbsp;
-            <a href="<portlet:actionURL><portlet:param name="userId" value="${user.key}"/><portlet:param name="action" value="delete"/></portlet:actionURL>" onclick="return confirm('Confirm Delete user ${user.key}?');">Delete</a>
+            <a href="<portlet:actionURL><portlet:param name="userId" value="${user.key}"/><portlet:param name="action" value="delete"/></portlet:actionURL>" onclick="return confirm('Confirm Delete user ${user.key}?');"><fmt:message key="consolebase.common.delete"/></a>
             </td>
         </tr>
     </c:forEach>
