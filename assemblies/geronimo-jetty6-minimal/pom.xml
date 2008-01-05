@@ -245,7 +245,7 @@
                 <executions>
                     <execution>
                         <id>unpack-boilerplate</id>
-                        <phase>package</phase>
+                        <phase>process-resources</phase>
                         <goals>
                             <goal>unpack</goal>
                         </goals>
@@ -289,7 +289,7 @@
                 <executions>
                     <execution>
                         <id>copy-framework</id>
-                        <phase>package</phase>
+                        <phase>process-resources</phase>
                         <goals>
                             <goal>run</goal>
                         </goals>
