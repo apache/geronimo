@@ -40,7 +40,7 @@ public class JettyFilterMapping extends FilterMapping {
     private final boolean includeDispatch;
     private final boolean errorDispatch;
     private final JettyFilterHolder jettyFilterHolder;
-    private final Collection<JettyServletHolder> jettyServletHolders;
+    private final Collection<ServletNameSource> jettyServletHolders;
     private final JettyFilterMapping previous;
     private final JettyServletRegistration jettyServletRegistration;
 
@@ -63,7 +63,7 @@ public class JettyFilterMapping extends FilterMapping {
             boolean includeDispatch,
             boolean errorDispatch,
             JettyFilterHolder jettyFilterHolder,
-            Collection<JettyServletHolder> jettyServletHolders,
+            Collection<ServletNameSource> jettyServletHolders,
             JettyFilterMapping previous,
             JettyServletRegistration jettyServletRegistration) {
         this.urlPatterns = urlPatterns;
@@ -132,7 +132,7 @@ public class JettyFilterMapping extends FilterMapping {
     private void resetServlets() {
         String[] servletNames = new String[jettyServletHolders.size()];
         int i = 0;
-        for (JettyServletHolder jettyServletHolder : jettyServletHolders) {
+        for (ServletNameSource jettyServletHolder : jettyServletHolders) {
             servletNames[i++] = jettyServletHolder.getServletName();
         }
         setServletNames(servletNames);
@@ -162,7 +162,7 @@ public class JettyFilterMapping extends FilterMapping {
         return jettyFilterHolder;
     }
 
-    public Collection<JettyServletHolder> getServlets() {
+    public Collection<ServletNameSource> getServlets() {
         return jettyServletHolders;
     }
 

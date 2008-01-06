@@ -47,7 +47,7 @@ import org.mortbay.jetty.servlet.ServletHolder;
  *
  * @version $Rev$ $Date$
  */
-public class JettyPOJOWebServiceHolder implements GBeanLifecycle {
+public class JettyPOJOWebServiceHolder implements ServletNameSource, GBeanLifecycle {
     private final ServletHolder servletHolder;
     private final WebServiceContainer webServiceContainer;
     private final Set servletMappings;

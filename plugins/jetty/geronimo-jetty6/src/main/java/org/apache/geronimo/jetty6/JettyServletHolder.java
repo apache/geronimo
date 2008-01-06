@@ -39,7 +39,7 @@ import org.mortbay.jetty.servlet.ServletHolder;
  * @version $Rev$ $Date$
  * @see JAASJettyRealm#isUserInRole(java.security.Principal, String)
  */
-public class JettyServletHolder implements Servlet, GBeanLifecycle {
+public class JettyServletHolder implements ServletNameSource, Servlet, GBeanLifecycle {
 
 
     private final JettyServletRegistration servletRegistration;
