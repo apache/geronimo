@@ -62,7 +62,7 @@ public class MasterConfigurationStoreTest extends RMockTestCase {
     private ClusterConfigurationStoreClient storeClient;
     private AbstractName clusterInfoName;
     private ConfigurationStore delegate;
-    private MasterConfigurationNameBuilder nameBuilder;
+    private SlaveConfigurationNameBuilder nameBuilder;
     private Artifact configId;
 
     @Override
@@ -77,7 +77,7 @@ public class MasterConfigurationStoreTest extends RMockTestCase {
         modify().returnValue(clusterInfoName);
         
         delegate = (ConfigurationStore) mock(ConfigurationStore.class);
-        nameBuilder = (MasterConfigurationNameBuilder) mock(MasterConfigurationNameBuilder.class);
+        nameBuilder = (SlaveConfigurationNameBuilder) mock(SlaveConfigurationNameBuilder.class);
     }
 
     private MasterConfigurationStore newMasterConfigurationStore() {
@@ -96,15 +96,15 @@ public class MasterConfigurationStoreTest extends RMockTestCase {
                 return delegate;
             }
             @Override
-            protected MasterConfigurationNameBuilder newMasterConfigurationBuilder() {
+            protected SlaveConfigurationNameBuilder newSlaveConfigurationNameBuilder() {
                 return nameBuilder;
             }
         };
     }
     
     public void testContainsConfigurationOK() throws Exception {
-        nameBuilder.isMasterConfigurationName(configId);
-        modify().returnValue(true);
+        nameBuilder.isSlaveConfigurationName(configId);
+        modify().returnValue(false);
 
         delegate.containsConfiguration(configId);
         modify().returnValue(true);
@@ -116,8 +116,8 @@ public class MasterConfigurationStoreTest extends RMockTestCase {
     }
     
     public void testContainsConfigurationFailsWhenNotMasterConfigId() throws Exception {
-        nameBuilder.isMasterConfigurationName(configId);
-        modify().returnValue(false);
+        nameBuilder.isSlaveConfigurationName(configId);
+        modify().returnValue(true);
 
         startVerification();
         
@@ -126,7 +126,11 @@ public class MasterConfigurationStoreTest extends RMockTestCase {
     }
 
     public void testDelegateCreateNewConfigurationDir() throws Exception {
-        delegate.createNewConfigurationDir(configId);
+        Artifact slaveId = new Artifact("groupId", "slaveId", "2.0", "car");
+        nameBuilder.buildSlaveConfigurationName(configId);
+        modify().returnValue(slaveId);
+        
+        delegate.createNewConfigurationDir(slaveId);
         File expectedFile = new File("confDir");
         modify().returnValue(expectedFile);
         
@@ -137,8 +141,8 @@ public class MasterConfigurationStoreTest extends RMockTestCase {
     }
     
     public void testExportFailsWhenNotMasterConfigId() throws Exception {
-        nameBuilder.isMasterConfigurationName(configId);
-        modify().returnValue(false);
+        nameBuilder.isSlaveConfigurationName(configId);
+        modify().returnValue(true);
 
         startVerification();
         
@@ -153,8 +157,8 @@ public class MasterConfigurationStoreTest extends RMockTestCase {
     public void testDelegateExport() throws Exception {
         OutputStream out = new ByteArrayOutputStream();
         
-        nameBuilder.isMasterConfigurationName(configId);
-        modify().returnValue(true);
+        nameBuilder.isSlaveConfigurationName(configId);
+        modify().returnValue(false);
         
         delegate.exportConfiguration(configId, out);
         
@@ -186,8 +190,8 @@ public class MasterConfigurationStoreTest extends RMockTestCase {
     }
     
     public void testIsInPlaceConfigurationWhenNotMasterConfigId() throws Exception {
-        nameBuilder.isMasterConfigurationName(configId);
-        modify().returnValue(false);
+        nameBuilder.isSlaveConfigurationName(configId);
+        modify().returnValue(true);
 
         startVerification();
         
@@ -200,8 +204,8 @@ public class MasterConfigurationStoreTest extends RMockTestCase {
     }
 
     public void testIsInPlaceConfigurationReturnsFalse() throws Exception {
-        nameBuilder.isMasterConfigurationName(configId);
-        modify().returnValue(true);
+        nameBuilder.isSlaveConfigurationName(configId);
+        modify().returnValue(false);
         
         startVerification();
         
@@ -222,11 +226,11 @@ public class MasterConfigurationStoreTest extends RMockTestCase {
         delegate.listConfigurations();
         modify().returnValue(configurationInfos);
         
-        nameBuilder.isMasterConfigurationName(configId);
-        modify().returnValue(true);
-        
-        nameBuilder.isMasterConfigurationName(configId2);
+        nameBuilder.isSlaveConfigurationName(configId);
         modify().returnValue(false);
+        
+        nameBuilder.isSlaveConfigurationName(configId2);
+        modify().returnValue(true);
         
         startVerification();
         
@@ -237,8 +241,8 @@ public class MasterConfigurationStoreTest extends RMockTestCase {
     }
 
     public void testLoadConfigurationWhenNotMasterConfigId() throws Exception {
-        nameBuilder.isMasterConfigurationName(configId);
-        modify().returnValue(false);
+        nameBuilder.isSlaveConfigurationName(configId);
+        modify().returnValue(true);
 
         startVerification();
         
@@ -251,8 +255,8 @@ public class MasterConfigurationStoreTest extends RMockTestCase {
     }
 
     public void testDelegateLoadConfiguration() throws Exception {
-        nameBuilder.isMasterConfigurationName(configId);
-        modify().returnValue(true);
+        nameBuilder.isSlaveConfigurationName(configId);
+        modify().returnValue(false);
         
         delegate.loadConfiguration(configId);
         
@@ -263,8 +267,8 @@ public class MasterConfigurationStoreTest extends RMockTestCase {
     }
 
     public void testResolveWhenNotMasterConfigId() throws Exception {
-        nameBuilder.isMasterConfigurationName(configId);
-        modify().returnValue(false);
+        nameBuilder.isSlaveConfigurationName(configId);
+        modify().returnValue(true);
         
         startVerification();
         
@@ -277,8 +281,8 @@ public class MasterConfigurationStoreTest extends RMockTestCase {
     }
     
     public void testDelegateResolve() throws Exception {
-        nameBuilder.isMasterConfigurationName(configId);
-        modify().returnValue(true);
+        nameBuilder.isSlaveConfigurationName(configId);
+        modify().returnValue(false);
         
         delegate.resolve(configId, null, null);
         
@@ -289,8 +293,8 @@ public class MasterConfigurationStoreTest extends RMockTestCase {
     }
     
     public void testUninstall() throws Exception {
-        nameBuilder.isMasterConfigurationName(configId);
-        modify().returnValue(true);
+        nameBuilder.isSlaveConfigurationName(configId);
+        modify().returnValue(false);
         
         nameBuilder.buildSlaveConfigurationName(configId);
         Artifact slaveId = new Artifact("groupId", "slaveId", "2.0", "car");
@@ -308,8 +312,8 @@ public class MasterConfigurationStoreTest extends RMockTestCase {
     }
     
     public void testUninstallWhenNotMasterConfigId() throws Exception {
-        nameBuilder.isMasterConfigurationName(configId);
-        modify().returnValue(false);
+        nameBuilder.isSlaveConfigurationName(configId);
+        modify().returnValue(true);
         
         startVerification();
         
@@ -331,13 +335,33 @@ public class MasterConfigurationStoreTest extends RMockTestCase {
             null,
             new Jsr77Naming());
         
-        final Artifact masterId = new Artifact("groupId", "masterId", "2.0", "car");
-        nameBuilder.buildMasterConfigurationName(configId);
-        modify().returnValue(masterId);
+        final Artifact slaveId = new Artifact("groupId", "slaveId", "2.0", "car");
+        nameBuilder.buildSlaveConfigurationName(configId);
+        modify().returnValue(slaveId);
         
         storeClient.install(clusterInfo, configurationData);
+        modify().args(is.AS_RECORDED, new AbstractExpression() {
+            public void describeWith(ExpressionDescriber arg) throws IOException {
+            }
+
+            public boolean passes(Object arg) {
+                ConfigurationData configurationData = (ConfigurationData) arg;
+                assertSame(slaveId, configurationData.getId());
+                return true;
+            }
+        });
         
         delegate.install(configurationData);
+        modify().args(new AbstractExpression() {
+            public void describeWith(ExpressionDescriber arg) throws IOException {
+            }
+
+            public boolean passes(Object arg) {
+                ConfigurationData configurationData = (ConfigurationData) arg;
+                assertSame(slaveId, configurationData.getId());
+                return true;
+            }
+        });
         
         NodeInfo nodeInfo = (NodeInfo) mock(NodeInfo.class);
         nodeInfo.getName();
@@ -346,7 +370,7 @@ public class MasterConfigurationStoreTest extends RMockTestCase {
         clusterInfo.getNodeInfos();
         modify().returnValue(Collections.singleton(nodeInfo));
         
-        delegate.createNewConfigurationDir(masterId);
+        delegate.createNewConfigurationDir(configId);
         final File masterDir = new File("masterDir");
         modify().returnValue(masterDir);
         
@@ -357,7 +381,7 @@ public class MasterConfigurationStoreTest extends RMockTestCase {
 
             public boolean passes(Object arg) {
                 ConfigurationData configurationData = (ConfigurationData) arg;
-                assertSame(masterId, configurationData.getId());
+                assertSame(configId, configurationData.getId());
                 assertSame(masterDir, configurationData.getConfigurationDir());
                 
                 List<GBeanData> gbeans;
@@ -369,7 +393,7 @@ public class MasterConfigurationStoreTest extends RMockTestCase {
                 assertEquals(1, gbeans.size());
                 GBeanData gbean = gbeans.get(0);
                 assertEquals(BasicClusterConfigurationController.GBEAN_INFO, gbean.getGBeanInfo());
-                assertEquals(configId, gbean.getAttribute(BasicClusterConfigurationController.GBEAN_ATTR_ARTIFACT));
+                assertEquals(slaveId, gbean.getAttribute(BasicClusterConfigurationController.GBEAN_ATTR_ARTIFACT));
                 assertEquals(nodeName, gbean.getAttribute(BasicClusterConfigurationController.GBEAN_ATTR_NODE_NAME));
                 return true;
             }

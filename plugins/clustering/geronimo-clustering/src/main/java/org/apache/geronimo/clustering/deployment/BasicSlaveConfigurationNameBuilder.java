@@ -25,29 +25,17 @@ import org.apache.geronimo.kernel.repository.Artifact;
  *
  * @version $Rev:$ $Date:$
  */
-public class BasicMasterConfigurationNameBuilder implements MasterConfigurationNameBuilder {
-    private static final String ARTIFACT_SUFFIX = "_G_MASTER";
-
-    public Artifact buildMasterConfigurationName(Artifact configId) {
-        return new Artifact(configId.getGroupId(),
-              configId.getArtifactId() + ARTIFACT_SUFFIX,
-              configId.getVersion(),
-              configId.getType());
-    }
+public class BasicSlaveConfigurationNameBuilder implements SlaveConfigurationNameBuilder {
+    private static final String ARTIFACT_SUFFIX = "_G_SLAVE";
 
     public Artifact buildSlaveConfigurationName(Artifact configId) {
-        if (!isMasterConfigurationName(configId)) {
-            throw new IllegalArgumentException("[" + configId + "] is not a master configuration name.");
-        }
-        
-        String artifactId = configId.getArtifactId();
         return new Artifact(configId.getGroupId(),
-            artifactId.substring(0, artifactId.length() - ARTIFACT_SUFFIX.length()),
+            configId.getArtifactId() + ARTIFACT_SUFFIX,
             configId.getVersion(),
             configId.getType());
     }
     
-    public boolean isMasterConfigurationName(Artifact configId) {
+    public boolean isSlaveConfigurationName(Artifact configId) {
         return configId.getArtifactId().endsWith(ARTIFACT_SUFFIX);
     }
     

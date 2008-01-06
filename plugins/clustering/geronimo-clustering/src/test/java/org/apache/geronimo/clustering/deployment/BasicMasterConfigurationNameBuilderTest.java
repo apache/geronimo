@@ -29,37 +29,27 @@ import junit.framework.TestCase;
  */
 public class BasicMasterConfigurationNameBuilderTest extends TestCase {
 
-    private BasicMasterConfigurationNameBuilder builder;
+    private BasicSlaveConfigurationNameBuilder builder;
 
     @Override
     protected void setUp() throws Exception {
-        builder = new BasicMasterConfigurationNameBuilder();
+        builder = new BasicSlaveConfigurationNameBuilder();
     }
     
-    public void testIsMasterConfigurationName() throws Exception {
+    public void testIsSlaveConfigurationName() throws Exception {
         Artifact artifact = new Artifact("groupId", "artifactId", "2.0", "car");
-        assertFalse(builder.isMasterConfigurationName(artifact));
-        Artifact masterConfiguration = builder.buildMasterConfigurationName(artifact);
-        assertTrue(builder.isMasterConfigurationName(masterConfiguration));
-    }
-    
-    public void testBuildMasterConfigurationName() throws Exception {
-        Artifact artifact = new Artifact("groupId", "artifactId", "2.0", "car");
-        Artifact masterConfiguration = builder.buildMasterConfigurationName(artifact);
-        assertEquals(artifact.getGroupId(), masterConfiguration.getGroupId());
-        assertEquals(artifact.getArtifactId() + "_G_MASTER", masterConfiguration.getArtifactId());
-        assertEquals(artifact.getVersion(), masterConfiguration.getVersion());
-        assertEquals(artifact.getType(), masterConfiguration.getType());
+        assertFalse(builder.isSlaveConfigurationName(artifact));
+        Artifact masterConfiguration = builder.buildSlaveConfigurationName(artifact);
+        assertTrue(builder.isSlaveConfigurationName(masterConfiguration));
     }
     
     public void testBuildSlaveConfigurationName() throws Exception {
         Artifact artifact = new Artifact("groupId", "artifactId", "2.0", "car");
-        Artifact masterConfiguration = builder.buildMasterConfigurationName(artifact);
-        Artifact actualArtifact = builder.buildSlaveConfigurationName(masterConfiguration);
-        assertEquals(artifact.getGroupId(), actualArtifact.getGroupId());
-        assertEquals(artifact.getArtifactId(), actualArtifact.getArtifactId());
-        assertEquals(artifact.getVersion(), actualArtifact.getVersion());
-        assertEquals(artifact.getType(), actualArtifact.getType());
+        Artifact masterConfiguration = builder.buildSlaveConfigurationName(artifact);
+        assertEquals(artifact.getGroupId(), masterConfiguration.getGroupId());
+        assertEquals(artifact.getArtifactId() + "_G_SLAVE", masterConfiguration.getArtifactId());
+        assertEquals(artifact.getVersion(), masterConfiguration.getVersion());
+        assertEquals(artifact.getType(), masterConfiguration.getType());
     }
     
 }
