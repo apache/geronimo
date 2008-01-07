@@ -72,6 +72,13 @@
             <groupId>org.apache.geronimo.specs</groupId>
             <artifactId>geronimo-javaee-deployment_1.1MR3_spec</artifactId>
         </dependency>
+        <!-- needed by geronimo-deploy-config -->
+        <dependency>
+            <groupId>org.apache.geronimo.configs</groupId>
+            <artifactId>xmlbeans</artifactId>
+            <version>${version}</version>
+            <type>car</type>
+        </dependency>
     </dependencies>
     <build>
         <plugins>
