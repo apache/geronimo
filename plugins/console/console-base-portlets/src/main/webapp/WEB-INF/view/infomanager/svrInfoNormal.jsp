@@ -29,11 +29,11 @@
     <td class="DarkBackground" width="100%" colspan="2" align="center"><fmt:message key="infomanager.svrInfoNormal.server"/></td>
   </tr>
   <tr>
-    <td class="LightBackground" width="20%" nowrap><fmt:message key="infomanager.svrInfoNormal.build"/></td>
+    <td class="LightBackground" width="20%" nowrap><fmt:message key="infomanager.svrInfoNormal.version"/></td>
     <td class="LightBackground" width="80%">${svrProps['Geronimo Version']}</td>
   </tr>
   <tr>
-    <td class="MediumBackground" width="20%" nowrap><fmt:message key="infomanager.svrInfoNormal.bootTime"/></td>
+    <td class="MediumBackground" width="20%" nowrap><fmt:message key="infomanager.svrInfoNormal.startTime"/></td>
     <td class="MediumBackground" width="80%">${svrProps['Kernel Boot Time']}</td>
   </tr>
   <tr>

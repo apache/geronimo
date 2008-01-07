@@ -20,10 +20,10 @@
 <fmt:setBundle basename="consolebase"/>
 <portlet:defineObjects/>
 
-<b><fmt:message key="ca.listRequestsIssue.certRequestsAwaiting"/>
+<b><fmt:message key="ca.listRequestsIssue.CertRequestsAwaiting"/>
 </b>
 
-<p><fmt:message key="ca.listRequestsIssue.certRequestsAwaitingExp"/>
+<p><fmt:message key="ca.listRequestsIssue.CertRequestsAwaitingExp"/>
 </p>
 
 <jsp:include page="_header.jsp" />
