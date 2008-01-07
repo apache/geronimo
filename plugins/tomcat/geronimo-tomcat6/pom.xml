@@ -33,12 +33,6 @@
     <name>Geronimo Modules :: Tomcat</name>
     
     <dependencies>
-        <dependency>
-            <groupId>org.apache.geronimo.modules</groupId>
-            <artifactId>geronimo-clustering</artifactId>
-            <version>${version}</version>
-        </dependency>
-
         <!-- g-transaction, g-system comes from this -->
         <dependency>
             <groupId>org.apache.geronimo.modules</groupId>

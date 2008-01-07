@@ -35,7 +35,7 @@ import com.agical.rmock.extension.junit.RMockTestCase;
  *
  * @version $Rev:$ $Date:$
  */
-public class AbstractClusteredValveTest extends RMockTestCase {
+public class AnAbstractClusteredValveTest extends RMockTestCase {
 
     private AbstractClusteredValve valve;
     private Request request;
