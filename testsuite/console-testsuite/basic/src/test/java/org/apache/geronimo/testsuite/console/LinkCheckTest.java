@@ -37,8 +37,9 @@ public class LinkCheckTest
         selenium.waitForPageToLoad("30000");
         assertEquals("Geronimo Console", selenium.getTitle());
         
-        assertTrue(selenium.isTextPresent("Geronimo Version"));
-        assertTrue(selenium.isTextPresent("Geronimo Start Time"));
+        assertTrue(selenium.isTextPresent("Version"));
+        assertTrue(selenium.isTextPresent("Start Time"));
+        assertTrue(selenium.isTextPresent("Up Time"));
         
         assertEquals("Server Info", 
                      selenium.getText(getPortletTitleLocation())); 
