@@ -281,23 +281,34 @@ public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
             // add the warfile's content to the configuration
             JarFile warFile = module.getModuleFile();
             Enumeration<JarEntry> entries = warFile.entries();
+            List<ZipEntry> libs = new ArrayList<ZipEntry>();
             while (entries.hasMoreElements()) {
                 ZipEntry entry = entries.nextElement();
                 URI targetPath = new URI(null, entry.getName(), null);
                 if (entry.getName().equals("WEB-INF/web.xml")) {
                     moduleContext.addFile(targetPath, module.getOriginalSpecDD());
                 } else if (entry.getName().startsWith("WEB-INF/lib") && entry.getName().endsWith(".jar")) {
-                    moduleContext.addInclude(targetPath, warFile, entry);
-                    manifestcp.add(entry.getName());
+                    // keep a collection of all libs in the war
+                    // libs must be installed after WEB-INF/classes which must be installed after this copy phase
+                    libs.add(entry);
                 } else {
                     moduleContext.addFile(targetPath, warFile, entry);
                 }
             }
 
-            //always add WEB-INF/classes to the classpath regardless of whether
-            //any classes exist
+            // always add WEB-INF/classes to the classpath regardless of whether
+            // any classes exist.  This must be searched BEFORE the WEB-INF/lib jar files,
+            // per the servlet specifications.
             moduleContext.getConfiguration().addToClassPath("WEB-INF/classes/");
             manifestcp.add("WEB-INF/classes/");
+
+            // install the libs
+            for (ZipEntry entry : libs) {
+                URI targetPath = new URI(null, entry.getName(), null);
+                moduleContext.addInclude(targetPath, warFile, entry);
+                manifestcp.add(entry.getName());
+            }
+
             // add the manifest classpath entries declared in the war to the class loader
             // we have to explicitly add these since we are unpacking the web module
             // and the url class loader will not pick up a manifest from an unpacked dir
