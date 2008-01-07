@@ -22,19 +22,13 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.Collections;
-import java.util.Set;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.geronimo.clustering.Node;
-import org.apache.geronimo.clustering.Session;
-import org.apache.geronimo.clustering.SessionAlreadyExistException;
-import org.apache.geronimo.clustering.SessionListener;
-import org.apache.geronimo.clustering.SessionManager;
-import org.apache.geronimo.jetty6.cluster.ClusteredSessionHandlerFactory;
+import org.mortbay.jetty.servlet.SessionHandler;
+
 
 /**
  * @version $Rev$ $Date$
@@ -54,9 +48,8 @@ public class ApplicationTest extends AbstractWebModuleTest {
     }
 
     public void testApplicationWithSessionHandler() throws Exception {
-        SessionManager sessionManager = new MockSessionManager();
         preHandlerFactory = new MockPreHandlerFactory();
-        sessionHandlerFactory = new ClusteredSessionHandlerFactory(sessionManager);
+        sessionHandlerFactory = new MockSessionHandlerFactory();
         JettyWebAppContext app = setUpAppContext(null, null, null, null, null, null, null, "war1/");
 
         setUpStaticContentServlet(app);
@@ -66,39 +59,6 @@ public class ApplicationTest extends AbstractWebModuleTest {
         assertEquals(HttpURLConnection.HTTP_OK, connection.getResponseCode());
         assertEquals("Hello World", reader.readLine());
         connection.disconnect();
-    }
-
-    private static class MockSessionManager implements SessionManager {
-
-        Node node = new Node() {
-
-            public javax.management.remote.JMXConnector getJMXConnector() throws IOException {
-                throw new UnsupportedOperationException();
-            }
-
-            public String getName() {
-                return "name";
-            }
-
-        };
-
-        public Session createSession(String string) throws SessionAlreadyExistException {
-            return null;
-        }
-
-        public void registerListener(SessionListener sessionListener) {
-        }
-
-        public void unregisterListener(SessionListener sessionListener) {
-        }
-
-        public Node getNode() {
-            return node;
-        }
-        
-        public Set<Node> getRemoteNodes() {
-            return Collections.EMPTY_SET;
-        }
     }
 
     public class MockPreHandlerFactory implements PreHandlerFactory {
@@ -115,5 +75,10 @@ public class ApplicationTest extends AbstractWebModuleTest {
 
     }
 
+    public class MockSessionHandlerFactory implements SessionHandlerFactory {
+        public SessionHandler createHandler(PreHandler preHandler) {
+            return new SessionHandler();
+        }
+    }
 
 }

@@ -106,7 +106,7 @@
                     <category>Clustering</category>
                     <instance>
                         <plugin-artifact>
-                            <config-xml-content>
+                            <config-xml-content load="false">
                                 <gbean name="DefaultBackingStrategyFactory">
                                     <attribute name="nbReplica">#{ReplicaCount}</attribute>
                                 </gbean>
