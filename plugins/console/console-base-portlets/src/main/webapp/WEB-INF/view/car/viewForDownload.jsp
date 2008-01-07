@@ -151,6 +151,6 @@
 <td>
 </c:if>
 <td valign="top">
-<input type="submit" value="<fmt:message key="consolebase.common.install" />" onclick="history.go(-1); return false;" />
+<input type="submit" value="<fmt:message key="consolebase.common.return" />" onclick="history.go(-1); return false;" />
 </td></tr></table>
 </form>
