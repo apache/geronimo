@@ -31,7 +31,6 @@
   <tr>
     <td class="DarkBackground"><fmt:message key="consolebase.common.name"/></td>
     <td class="DarkBackground" align="center"><fmt:message key="consolebase.common.deployedAs"/></td>
-    <td class="DarkBackground" align="center"><fmt:message key="consolebase.common.state"/></td>
     <td class="DarkBackground" align="center"><fmt:message key="consolebase.common.actions"/></td>
   </tr>
 <c:forEach var="realm" items="${realms}">
@@ -47,7 +46,6 @@
         </c:otherwise>
       </c:choose>
     </td>
-    <td>${realm.stateName}</td>
     <td>
     <c:if test="${empty realm.parentName}">
          <%--<c:choose>

@@ -57,7 +57,6 @@ import javax.portlet.RenderRequest;
 import javax.portlet.RenderResponse;
 import javax.portlet.WindowState;
 import javax.security.auth.Subject;
-import javax.security.auth.login.AppConfigurationEntry;
 import javax.security.auth.spi.LoginModule;
 import javax.xml.namespace.QName;
 
@@ -84,7 +83,6 @@ import org.apache.geronimo.kernel.config.Configuration;
 import org.apache.geronimo.kernel.config.ConfigurationManager;
 import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 import org.apache.geronimo.kernel.config.ConfigurationUtil;
-import org.apache.geronimo.kernel.management.State;
 import org.apache.geronimo.kernel.proxy.GeronimoManagedBean;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.ListableRepository;
@@ -562,7 +560,6 @@ public class SecurityRealmPortlet extends BasePortlet {
             configMgr = ConfigurationUtil.getConfigurationManager(kernel);
         }
         for (int i = 0; i < results.length; i++) {
-            final GeronimoManagedBean managedBean = (GeronimoManagedBean) realms[i];
             AbstractName abstractName = PortletManager.getNameFor(request, realms[i]);
             String parent;
             Configuration parentConfig = configMgr.getConfiguration(abstractName.getArtifact());
@@ -572,7 +569,7 @@ public class SecurityRealmPortlet extends BasePortlet {
             } else {
                 parent = abstractName.getArtifact().toString();
             }
-            results[i] = new ExistingRealm(realms[i].getRealmName(), abstractName, managedBean.getState(), parent);
+            results[i] = new ExistingRealm(realms[i].getRealmName(), abstractName, parent);
         }
         // Once done, release the ConfigurationManager
         if(configMgr != null) {
@@ -1071,14 +1068,11 @@ public class SecurityRealmPortlet extends BasePortlet {
         private final String name;
         private final String abstractName;
         private final String parentName;
-        private final int state;
 
-        public ExistingRealm(String name, AbstractName abstractName, int state, String parent) {
+        public ExistingRealm(String name, AbstractName abstractName, String parent) {
             this.name = name;
             this.abstractName = abstractName.toString();
             parentName = parent;
-            this.state = state;
-
         }
 
         public String getName() {
@@ -1093,13 +1087,6 @@ public class SecurityRealmPortlet extends BasePortlet {
             return parentName;
         }
 
-        public int getState() {
-            return state;
-        }
-
-        public String getStateName() {
-            return State.toString(state);
-        }
     }
 
     public static class DatabasePool implements Serializable, Comparable {
