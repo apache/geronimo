@@ -38,5 +38,6 @@ public class SecurityRealmPortletTest
         assertEquals("Geronimo Console", selenium.getTitle());
         assertEquals("Security Realms", 
                      selenium.getText(getPortletTitleLocation())); 
+        assertTrue(selenium.isTextPresent("geronimo-admin"));
     }
 }
