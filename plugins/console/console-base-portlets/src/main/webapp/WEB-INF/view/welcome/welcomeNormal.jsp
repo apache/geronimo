@@ -32,9 +32,9 @@
 
             <p><fmt:message key="welcome.welcomeNormal.about2"/></p>
 
-            <p><fmt:message key="welcome.welcomeNormal.about2"/></p>
+            <p><fmt:message key="welcome.welcomeNormal.about3"/></p>
 
-            <p><fmt:message key="welcome.welcomeNormal.about2"/></p>
+            <p><fmt:message key="welcome.welcomeNormal.about4"/></p>
 
            <ul>
                <li><b><a href="mailto:user-subscribe@geronimo.apache.org">user@geronimo.apache.org</a></b>
