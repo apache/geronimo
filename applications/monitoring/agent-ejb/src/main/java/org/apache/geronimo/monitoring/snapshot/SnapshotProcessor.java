@@ -74,7 +74,7 @@ public class SnapshotProcessor {
             }
             
             // store the data in a DB
-            SnapshotDBHelper.addSnapshotToDB(aggregateStats);
+            (new SnapshotDBHelper()).addSnapshotToDB(aggregateStats);
             
             for(Iterator itt = aggregateStats.keySet().iterator(); itt.hasNext(); ) {
                 String mbean = (String)itt.next();

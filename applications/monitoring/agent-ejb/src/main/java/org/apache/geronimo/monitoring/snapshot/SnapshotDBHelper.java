@@ -46,10 +46,19 @@ public class SnapshotDBHelper {
     private static DataSource activeDS = null;
     private static DataSource archiveDS = null;
     
+    public SnapshotDBHelper() {
+        
+    }
+    
+    public SnapshotDBHelper(DataSource activeDS, DataSource archiveDS) {
+        SnapshotDBHelper.activeDS = activeDS;
+        SnapshotDBHelper.archiveDS = archiveDS;
+    }
+    
     /**
      * @return A map: mbeanName --> ArrayList of statistic attributes for that mbean
      */
-    public static HashMap<String, ArrayList<String>> getAllSnapshotStatAttributes() {
+    public HashMap<String, ArrayList<String>> getAllSnapshotStatAttributes() {
         openActiveConnection();
         HashMap<String, ArrayList<String>> retval = new HashMap<String, ArrayList<String>>();
         try {
@@ -80,7 +89,7 @@ public class SnapshotDBHelper {
      * 
      * @return The number of snapshots present in the active database
      */
-    public static Long getSnapshotCount() {
+    public Long getSnapshotCount() {
         long retval = 0;
         try {
             openActiveConnection();
@@ -101,14 +110,14 @@ public class SnapshotDBHelper {
      * @param numberOfSnapshots - the number of latest snapshots to look at
      * @return A hashmap which maps an mbean --> a hashmap with an attribute name and its value . All values will be the max.
      */
-    public static HashMap<String, HashMap<String, Long>> fetchMaxSnapshotData(Integer numberOfSnapshots) {
+    public HashMap<String, HashMap<String, Long>> fetchMaxSnapshotData(Integer numberOfSnapshots) {
         return fetchMaxOrMinSnapshotData(numberOfSnapshots, true);
     }
     /**
      * @param numberOfSnapshots - the number of latest snapshots to look at
      * @return A hashmap which maps an mbean --> a hashmap with an attribute name and its value . All values will be the min.
      */    
-    public static HashMap<String, HashMap<String, Long>> fetchMinSnapshotData(Integer numberOfSnapshots) {
+    public HashMap<String, HashMap<String, Long>> fetchMinSnapshotData(Integer numberOfSnapshots) {
         return fetchMaxOrMinSnapshotData(numberOfSnapshots, false);
     }
     
@@ -118,7 +127,7 @@ public class SnapshotDBHelper {
      * @return A hashmap which maps an mbean --> a hashmap with an attribute name and its value . All values will be the min
      * or max, depending on the isMax parameter.
      */
-    private static HashMap<String, HashMap<String, Long>> fetchMaxOrMinSnapshotData(Integer numberOfSnapshots, boolean isMax) {
+    private HashMap<String, HashMap<String, Long>> fetchMaxOrMinSnapshotData(Integer numberOfSnapshots, boolean isMax) {
         openActiveConnection();
         ResultSet snapshotTimeTable = fetchSnapshotTimesFromDB();
         HashMap<String, HashMap<String, Long>> stats = new HashMap<String, HashMap<String, Long>>();
@@ -185,7 +194,7 @@ public class SnapshotDBHelper {
      * @return Returns a boolean if the snapshot statistics were successfully added
      * to the DB.
      */
-    public static boolean addSnapshotToDB(HashMap<String, HashMap<String, Long>> aggregateStats) {
+    public boolean addSnapshotToDB(HashMap<String, HashMap<String, Long>> aggregateStats) {
         boolean success = true;
         // get the current time from 1970
         String currTime = "";
@@ -252,7 +261,7 @@ public class SnapshotDBHelper {
      * are those whose snapshot_times exceed the retention period
      * @param cutOffTime - in milliseconds
      */
-    private static void archiveSnapshots(long cutOffTime) {
+    private void archiveSnapshots(long cutOffTime) {
         // for each successful update of Snapshots/Statistics table
         // increment or decrement these counters to ensure that nothing is being 
         // lost in between. If these counters are non-zero, some records have been
@@ -332,7 +341,7 @@ public class SnapshotDBHelper {
      * @param cutOffTime
      * @return An SQL table contain a column of all the times that did not make the cutOffTime.
      */
-    private static ResultSet getOverDueSnapshotTimes(long cutOffTime) {
+    private ResultSet getOverDueSnapshotTimes(long cutOffTime) {
         try {
             Statement stmt = conn.createStatement();
             String query = "SELECT DISTINCT snapshot_time FROM Statistics WHERE snapshot_time < " + cutOffTime;
@@ -347,7 +356,7 @@ public class SnapshotDBHelper {
      * @param mbean
      * @return The mbean id of the mbean from table ArchiveDB.MBean. Returns -1 if record does not exist.
      */
-    private static int getMBeanIdFromArchive(String mbean) throws Exception {
+    private int getMBeanIdFromArchive(String mbean) throws Exception {
         int retval = -1;
         Connection archiveConn = archiveDS.getConnection();
         Statement stmt = archiveConn.createStatement();
@@ -364,7 +373,7 @@ public class SnapshotDBHelper {
      * @param mbean
      * @return The mbean id of the mbean from table ActiveDB.MBean. Returns -1 if record does not exist.
      */
-    private static int getMBeanId(String mbean) throws Exception {
+    private int getMBeanId(String mbean) throws Exception {
         int retval = -1;
         Connection conn = activeDS.getConnection();
         Statement stmt = conn.createStatement();
@@ -383,7 +392,7 @@ public class SnapshotDBHelper {
      * @param mbeanId
      * @return Returns an SQL insert statement for one statistic given the correct information.
      */
-    public static String prepareInsertSnapshotStatement(String snapshot_time, String statsValueList, int mbeanId) {
+    public String prepareInsertSnapshotStatement(String snapshot_time, String statsValueList, int mbeanId) {
         String retval = "INSERT INTO Statistics (snapshot_time, statsValueList, mbeanId) VALUES (";
         retval += snapshot_time;
         retval += ",";
@@ -398,7 +407,7 @@ public class SnapshotDBHelper {
      * @param s
      * @return A String with ' at the beginning and end
      */
-    private static String surroundWithQuotes(String s) {
+    private String surroundWithQuotes(String s) {
         return "'" + s.trim() + "'";
     }
     
@@ -412,7 +421,7 @@ public class SnapshotDBHelper {
      * @param everyNthSnapshot
      * @return ArrayList
      */ 
-    public static ArrayList<HashMap<String, HashMap<String, Object>>> fetchData(Integer numberOfSnapshot, 
+    public ArrayList<HashMap<String, HashMap<String, Object>>> fetchData(Integer numberOfSnapshot, 
                                                                                 Integer everyNthSnapshot) {
         ArrayList<HashMap<String, HashMap<String, Object>>> stats = new ArrayList<HashMap<String, HashMap<String, Object>>>();
         openActiveConnection();
@@ -453,7 +462,7 @@ public class SnapshotDBHelper {
      * and Object is the value. Additionally, if String is "times" then it maps to a HashMap
      * containing snapshot_time and snapshot_date information.
      */
-    private static HashMap<String, HashMap<String, Object>> packageSnapshotData(Long snapshotTime) {
+    private HashMap<String, HashMap<String, Object>> packageSnapshotData(Long snapshotTime) {
         HashMap<String, HashMap<String, Object>> snapshotPkg = new HashMap<String, HashMap<String, Object>>();
         openActiveConnection();
         ResultSet snapshotData = fetchSnapshotDataFromDB(snapshotTime);
@@ -497,7 +506,7 @@ public class SnapshotDBHelper {
      * @param snapshotTime
      * @return Returns a ResultSet with all statistic information that matches the snapshot_time.
      */
-    private static ResultSet fetchSnapshotDataFromDB(Long snapshotTime) {
+    private ResultSet fetchSnapshotDataFromDB(Long snapshotTime) {
         String query = "SELECT S.statsValueList AS statsValueList, M.statsNameList AS statsNameList, S.snapshot_time AS snapshot_time, M.mbeanName AS mbeanName FROM Statistics S, MBeans M WHERE S.snapshot_time=" + snapshotTime;
         query += " AND S.mbeanId=M.id";
         ResultSet retval = null;
@@ -516,7 +525,7 @@ public class SnapshotDBHelper {
     /**
      * @return Returns a ResultSet with one column (snapshot_time) sorted in descending order
      */
-    private static ResultSet fetchSnapshotTimesFromDB() {
+    private ResultSet fetchSnapshotTimesFromDB() {
         String query = "SELECT DISTINCT snapshot_time FROM Statistics ORDER BY snapshot_time DESC";
         ResultSet retval = null;
         try {
@@ -534,7 +543,7 @@ public class SnapshotDBHelper {
     /**
      * Opens the global connection to activeDB
      */
-    private static void openActiveConnection() {
+    private void openActiveConnection() {
         try {
             conn = activeDS.getConnection();
         } catch(Exception e) {
@@ -545,7 +554,7 @@ public class SnapshotDBHelper {
     /**
      * Opens the global connection to archiveDB
      */
-    private static void openArchiveConnection() {
+    private void openArchiveConnection() {
         try {
             conn = archiveDS.getConnection();
         } catch(Exception e) {
@@ -556,7 +565,7 @@ public class SnapshotDBHelper {
     /**
      * Closes the global connection to a DB
      */
-    private static void closeConnection() {
+    private void closeConnection() {
         if(conn != null) {
             try {
                 conn.close();
@@ -573,7 +582,7 @@ public class SnapshotDBHelper {
      * @param everyNthSnapshot
      * @return HashMap which maps from a snapshot_time --> value of the mbean.statsName at that time
      */
-    public static TreeMap<Long, Long> getSpecificStatistics(    String mbeanName, 
+    public TreeMap<Long, Long> getSpecificStatistics(    String mbeanName, 
                                                                 String statsName, 
                                                                 int numberOfSnapshots, 
                                                                 int everyNthSnapshot, 
@@ -686,7 +695,7 @@ public class SnapshotDBHelper {
      * @param activeDS
      * @param archiveDS
      */
-    public static void setDataSources(DataSource active, DataSource archive) {
+    public void setDataSources(DataSource active, DataSource archive) {
         activeDS = active;
         archiveDS = archive;
     }

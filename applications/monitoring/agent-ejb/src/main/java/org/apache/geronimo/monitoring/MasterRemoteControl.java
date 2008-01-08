@@ -82,7 +82,7 @@ public class MasterRemoteControl {
     
     // credentials for snapshot processor
     private static String username = null;
-    private static String password = null;;
+    private static String password = null;
     private static int port = -1;
 
     // inject Data Sources
@@ -91,32 +91,17 @@ public class MasterRemoteControl {
     
     // inject a TimerService
     @Resource private TimerService timer;
+    
+    private SnapshotDBHelper snapshotDBHelper;
 
     public MasterRemoteControl() {
-        
     }
 
     @PostConstruct
     private void init() {
-        // retrieve the mbean server
-        ArrayList mbServerList = MBeanServerFactory.findMBeanServer(null);
-        if(mbServerList.size() >= 1) {
-            mbServer = (MBeanServer) mbServerList.get(0);
-            for(int i = 0; i < mbServerList.size(); i++) {
-                String domain = ((MBeanServer)mbServerList.get(i)).getDefaultDomain();
-                if(domain.equals(GERONIMO_DEFAULT_DOMAIN)) {
-                    mbServer = (MBeanServer)mbServerList.get(i);
-                    break;
-                }
-            }
-        }
-        // ensure that the mbServer has something in it
-        if(mbServer == null) {
-            mbServer = MBeanServerFactory.createMBeanServer(GERONIMO_DEFAULT_DOMAIN);
-        }
-        
         // set up SnaphotDBHelper with the necessary data sources
-        SnapshotDBHelper.setDataSources(activeDS, archiveDS);
+        // Note: do not put this in the constructor...datasources are not injected by then
+        snapshotDBHelper = new SnapshotDBHelper(activeDS, archiveDS);
     }
 
     /**
@@ -296,7 +281,7 @@ public class MasterRemoteControl {
     @RolesAllowed("mejbuser")
     public ArrayList<HashMap<String, HashMap<String, Object>>> fetchSnapshotData(Integer numberOfSnapshot, Integer everyNthSnapshot) {
         ArrayList<HashMap<String, HashMap<String, Object>>> retval = 
-            (ArrayList<HashMap<String, HashMap<String, Object>>>)org.apache.geronimo.monitoring.snapshot.SnapshotDBHelper.fetchData(numberOfSnapshot, everyNthSnapshot);
+            (ArrayList<HashMap<String, HashMap<String, Object>>>)snapshotDBHelper.fetchData(numberOfSnapshot, everyNthSnapshot);
         return retval;
     }
     
@@ -310,7 +295,7 @@ public class MasterRemoteControl {
     @RolesAllowed("mejbuser")
     public HashMap<String, HashMap<String, Long>> fetchMaxSnapshotData(Integer numberOfSnapshot) {
         HashMap<String, HashMap<String, Long>> retval = 
-            (HashMap<String, HashMap<String, Long>>)org.apache.geronimo.monitoring.snapshot.SnapshotDBHelper.fetchMaxSnapshotData(numberOfSnapshot);
+            (HashMap<String, HashMap<String, Long>>)snapshotDBHelper.fetchMaxSnapshotData(numberOfSnapshot);
         return retval;
     }
 
@@ -324,7 +309,7 @@ public class MasterRemoteControl {
     @RolesAllowed("mejbuser")
     public HashMap<String, HashMap<String, Long>> fetchMinSnapshotData(Integer numberOfSnapshot) {
         HashMap<String, HashMap<String, Long>> retval = 
-            (HashMap<String, HashMap<String, Long>>)org.apache.geronimo.monitoring.snapshot.SnapshotDBHelper.fetchMinSnapshotData(numberOfSnapshot);
+            (HashMap<String, HashMap<String, Long>>)snapshotDBHelper.fetchMinSnapshotData(numberOfSnapshot);
         return retval;
     }
     
@@ -373,7 +358,7 @@ public class MasterRemoteControl {
     
     @RolesAllowed("mejbuser")
     public Long getSnapshotCount() {
-        return org.apache.geronimo.monitoring.snapshot.SnapshotDBHelper.getSnapshotCount();
+        return snapshotDBHelper.getSnapshotCount();
     }
     
     /**
@@ -517,7 +502,7 @@ public class MasterRemoteControl {
                                                         int numberOfSnapshots, 
                                                         int everyNthSnapshot,
                                                         boolean showArchived) {
-        return SnapshotDBHelper.getSpecificStatistics(mbeanName, statsName, numberOfSnapshots, everyNthSnapshot, showArchived);
+        return snapshotDBHelper.getSpecificStatistics(mbeanName, statsName, numberOfSnapshots, everyNthSnapshot, showArchived);
     }
     
     /**
