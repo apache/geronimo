@@ -281,7 +281,9 @@ a:hover
     line-height: 18px;
 }
 
-.Content .Title a:link, .Content .Title a:hover, .Content .Title a:visited
+.Content .Title a:link, 
+.Content .Title a:hover, 
+.Content .Title a:visited
 {
     font-size: 12px;
     font-family: Verdana, Tahoma, Arial, Helvetica, sans-serif;
