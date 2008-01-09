@@ -18,9 +18,9 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
 <fmt:setBundle basename="consolebase"/>
 <portlet:defineObjects/>
-<script type='text/javascript' src='/console/dwr/interface/ProgressMonitor.js'></script>
-<script type='text/javascript' src='/console/dwr/engine.js'></script>
-<script type='text/javascript' src='/console/dwr/util.js'></script>
+<script type='text/javascript' src='/plugin/dwr/interface/ProgressMonitor.js'></script>
+<script type='text/javascript' src='/plugin/dwr/engine.js'></script>
+<script type='text/javascript' src='/plugin/dwr/util.js'></script>
 
 <script type="text/javascript">
 dwr.engine.setErrorHandler(<portlet:namespace/>onError);

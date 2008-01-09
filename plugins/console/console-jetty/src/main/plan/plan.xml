@@ -190,7 +190,5 @@
         </role-mappings>
     </security>
 
-    <!-- TODO: what is this? -->
-    <gbean name="DeploymentFactory" class="org.apache.geronimo.deployment.plugin.factories.DeploymentFactoryWithKernel" />
 
 </application>

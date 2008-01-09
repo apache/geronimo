@@ -323,25 +323,6 @@ limitations under the License.
     </portlet>
 
     <portlet>
-        <description>Portlet for deploying applications</description>
-        <portlet-name>Deployment</portlet-name>
-        <display-name>Application Deployment Portlet</display-name>
-        <portlet-class>org.apache.geronimo.console.configmanager.DeploymentPortlet</portlet-class>
-        <expiration-cache>-1</expiration-cache>
-        <supports>
-            <mime-type>text/html</mime-type>
-            <portlet-mode>VIEW</portlet-mode>
-            <portlet-mode>HELP</portlet-mode>
-        </supports>
-        <supported-locale>en</supported-locale>
-        <portlet-info>
-            <title>Install New Applications</title>
-            <short-title>Install Application</short-title>
-            <keywords>Deployment</keywords>
-        </portlet-info>
-    </portlet>
-
-    <portlet>
         <description>Portlet for displaying WAR modules</description>
         <portlet-name>WARModules</portlet-name>
         <display-name>WAR Modules Portlet</display-name>
@@ -444,23 +425,6 @@ limitations under the License.
         </portlet-info>
     </portlet>
 
-    <portlet>
-        <description>Portlet for CAR Import/Export</description>
-        <portlet-name>ImportExport</portlet-name>
-        <display-name>CAR Import/Export Portlet</display-name>
-        <portlet-class>org.apache.geronimo.console.car.ImportExportPortlet</portlet-class>
-        <expiration-cache>-1</expiration-cache>
-        <supports>
-            <mime-type>text/html</mime-type>
-            <portlet-mode>VIEW</portlet-mode>
-        </supports>
-        <supported-locale>en</supported-locale>
-        <portlet-info>
-            <title>Create and Install Plugins</title>
-            <short-title>Create/Install Plugins</short-title>
-            <keywords>Import Export Create Install Plugins Modules</keywords>
-        </portlet-info>
-    </portlet>
 
      <portlet>
         <description>Portlet for Managing EARs</description>

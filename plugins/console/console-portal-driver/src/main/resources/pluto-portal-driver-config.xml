@@ -80,9 +80,11 @@ limitations under the License.
     </page>
 
 <!-- APPLICATIONS -->
+<!--
     <page name="Applications/Deploy New" uri="/WEB-INF/themes/default-theme.jsp">
       <portlet context="/console-base" name="Deployment"/>
     </page>
+-->
 
     <page name="Applications/Web App WARs" uri="/WEB-INF/themes/default-theme.jsp">
       <portlet context="/console-base" name="WARModules"/>
@@ -108,9 +110,11 @@ limitations under the License.
       <portlet context="/console-base" name="ClientModules"/>
     </page>
 
+<!--
     <page name="Applications/Plugins" uri="/WEB-INF/themes/default-theme.jsp">
       <portlet context="/console-base" name="ImportExport"/>
     </page>
+-->
 
 <!-- SECURITY -->
     <page name="Security/Users and Groups" uri="/WEB-INF/themes/default-theme.jsp">

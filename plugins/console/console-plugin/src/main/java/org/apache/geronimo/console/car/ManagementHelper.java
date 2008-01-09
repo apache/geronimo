@@ -36,7 +36,7 @@ import org.apache.geronimo.system.plugin.PluginRepositoryList;
 import org.apache.geronimo.console.util.PortletManager;
 
 /**
- * @version $Rev:$ $Date:$
+ * @version $Rev$ $Date$
  */
 public class ManagementHelper {
 

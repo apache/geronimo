@@ -73,8 +73,8 @@ public class ForwardDispatchFilter implements Filter {
      * # javax.servlet.forward.path_info
      * # javax.servlet.forward.query_string
      */
-    protected class ForwardRequest extends HttpServletRequestWrapper {
-        HttpServletRequest request;
+    protected static class ForwardRequest extends HttpServletRequestWrapper {
+        private final HttpServletRequest request;
         public ForwardRequest(HttpServletRequest req) {
             super(req);
             request = req;

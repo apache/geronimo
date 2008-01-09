@@ -44,26 +44,27 @@
         </dependency>
 
         <dependency>
+            <groupId>org.apache.geronimo.configs</groupId>
+            <artifactId>j2ee-security</artifactId>
+            <version>${version}</version>
+            <type>car</type>
+        </dependency>
+        
+        <dependency>
             <groupId>org.apache.geronimo.plugins</groupId>
             <artifactId>pluto-support</artifactId>
             <version>${version}</version>
             <type>car</type>
         </dependency>
 
+        <!-- TODO temporary? for realm wizard-->
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
-            <artifactId>j2ee-deployer</artifactId>
+            <artifactId>geronimo-gbean-deployer</artifactId>
             <version>${version}</version>
             <type>car</type>
         </dependency>
-        <!-- TODO temporary? -->
-        <dependency>
-            <groupId>org.apache.geronimo.configs</groupId>
-            <artifactId>plugin</artifactId>
-            <version>${version}</version>
-            <type>car</type>
-        </dependency>
- 
+
         <dependency>
             <groupId>commons-fileupload</groupId>
             <artifactId>commons-fileupload</artifactId>
@@ -86,6 +87,13 @@
         </dependency>
 
          <!-- to force build order -->
+        <dependency>
+            <groupId>org.apache.geronimo.configs</groupId>
+            <artifactId>j2ee-deployer</artifactId>
+            <version>${version}</version>
+            <type>car</type>
+            <scope>provided</scope>
+        </dependency>
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
             <artifactId>tomcat6-deployer</artifactId>

@@ -29,37 +29,37 @@
         <relativePath>../pom.xml</relativePath>
     </parent>
 
-    <artifactId>console-jetty</artifactId>
-    <name>Geronimo Plugins :: Administration Console - Jetty</name>
+    <artifactId>console-plugin-tomcat</artifactId>
+    <name>Geronimo Plugins :: Administration Console Plugin and Deployment Portlets - Tomcat</name>
     <packaging>car</packaging>
 
     <dependencies>
-        
+
         <dependency>
             <groupId>org.apache.geronimo.plugins</groupId>
-            <artifactId>console-ear</artifactId>
+            <artifactId>console-plugin</artifactId>
             <version>${version}</version>
-            <type>ear</type>
+            <type>war</type>
             <scope>provided</scope>
         </dependency>
 
         <dependency>
-            <groupId>org.apache.geronimo.configs</groupId>
-            <artifactId>j2ee-security</artifactId>
+            <groupId>org.apache.geronimo.plugins</groupId>
+            <artifactId>console-tomcat</artifactId>
             <version>${version}</version>
             <type>car</type>
         </dependency>
 
         <dependency>
-            <groupId>org.apache.geronimo.plugins</groupId>
-            <artifactId>pluto-support</artifactId>
+            <groupId>org.apache.geronimo.configs</groupId>
+            <artifactId>j2ee-deployer</artifactId>
             <version>${version}</version>
             <type>car</type>
         </dependency>
-        <!-- TODO temporary? for realm wizard-->
+
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
-            <artifactId>geronimo-gbean-deployer</artifactId>
+            <artifactId>plugin</artifactId>
             <version>${version}</version>
             <type>car</type>
         </dependency>
@@ -74,28 +74,10 @@
             <artifactId>commons-io</artifactId>
         </dependency>
 
-        <dependency>
-            <groupId>org.apache.geronimo.plugins</groupId>
-            <artifactId>console-core</artifactId>
-            <version>${version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.directwebremoting</groupId>
-            <artifactId>dwr</artifactId>
-        </dependency>
-
         <!-- to force build order -->
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
-            <artifactId>j2ee-deployer</artifactId>
-            <version>${version}</version>
-            <type>car</type>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.geronimo.configs</groupId>
-            <artifactId>jetty6-deployer</artifactId>
+            <artifactId>tomcat6-deployer</artifactId>
             <version>${version}</version>
             <type>car</type>
             <scope>provided</scope>
@@ -106,20 +88,6 @@
             <version>${version}</version>
             <type>car</type>
             <scope>provided</scope>
-        </dependency>
-
-        <!-- make sure these get into the plugin dependencies -->
-        <dependency>
-            <groupId>org.apache.geronimo.configs</groupId>
-            <artifactId>jasper</artifactId>
-            <version>${version}</version>
-            <type>car</type>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.geronimo.configs</groupId>
-            <artifactId>jetty6</artifactId>
-            <version>${version}</version>
-            <type>car</type>
         </dependency>
 
     </dependencies>
@@ -140,14 +108,14 @@
                     <deploymentConfigs>
                         <deploymentConfig>${gbeanDeployer}</deploymentConfig>
                         <deploymentConfig>${j2eeDeployer}</deploymentConfig>
-                        <deploymentConfig>${jetty6Deployer}</deploymentConfig>
+                        <deploymentConfig>${tomcatDeployer}</deploymentConfig>
                         <deploymentConfig>${jasperDeployer}</deploymentConfig>
                     </deploymentConfigs>
                     <module>
                         <groupId>org.apache.geronimo.plugins</groupId>
-                        <artifactId>console-ear</artifactId>
+                        <artifactId>console-plugin</artifactId>
                         <version>${version}</version>
-                        <type>ear</type>
+                        <type>war</type>
                     </module>
                     <category>Administration</category>
                     <osiApproved>true</osiApproved>
@@ -155,22 +123,6 @@
                         <value>true</value>
                         <includeVersion>true</includeVersion>
                     </useMavenDependencies>
-<!--
-                    <instance>
-                        <plugin-artifact>
-                            <prerequisite>
-                                <id>
-                                    <groupId>org.apache.geronimo.configs</groupId>
-                                    <artifactId>jetty6</artifactId>
-                                </id>
-                                <resource-type>Web Container</resource-type>
-                                <description>
-                                    This version of the plugin works with the Geronimo/Jetty distribution.
-                                </description>
-                            </prerequisite>
-                        </plugin-artifact>
-                    </instance>
--->
                 </configuration>
             </plugin>
         </plugins>

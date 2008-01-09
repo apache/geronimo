@@ -27,9 +27,7 @@ limitations under the License.
         <param-name>classes</param-name>
         <param-value>
             org.apache.geronimo.console.jsr77.Jsr77Lookup,
-            org.apache.geronimo.console.jsr77.DynamicServerInfo,
-            org.apache.geronimo.console.ajax.ProgressMonitor,
-            org.apache.geronimo.console.ajax.ProgressInfo
+            org.apache.geronimo.console.jsr77.DynamicServerInfo
         </param-value>
       </init-param>
       <init-param>
@@ -38,18 +36,6 @@ limitations under the License.
       </init-param>
     </servlet>
 
-    <servlet>
-        <servlet-name>car-export</servlet-name>
-        <servlet-class>org.apache.geronimo.console.car.CARExportServlet</servlet-class>
-    </servlet>
-    <servlet>
-        <servlet-name>maven-repo</servlet-name>
-        <servlet-class>org.apache.geronimo.console.car.GeronimoAsMavenServlet</servlet-class>
-    </servlet>
-    <servlet>
-        <servlet-name>plan-export</servlet-name>
-        <servlet-class>org.apache.geronimo.console.configmanager.PlanExportServlet</servlet-class>
-    </servlet>
     <servlet>
         <servlet-name>Welcome</servlet-name>
         <servlet-class>org.apache.pluto.core.PortletServlet</servlet-class>
@@ -195,15 +181,6 @@ limitations under the License.
         <load-on-startup>1</load-on-startup>
     </servlet>
     <servlet>
-        <servlet-name>Deployment</servlet-name>
-        <servlet-class>org.apache.pluto.core.PortletServlet</servlet-class>
-        <init-param>
-            <param-name>portlet-name</param-name>
-            <param-value>Deployment</param-value>
-        </init-param>
-        <load-on-startup>1</load-on-startup>
-    </servlet>
-    <servlet>
         <servlet-name>WARModules</servlet-name>
         <servlet-class>org.apache.pluto.core.PortletServlet</servlet-class>
         <init-param>
@@ -249,15 +226,6 @@ limitations under the License.
         <load-on-startup>1</load-on-startup>
     </servlet>
     <servlet>
-        <servlet-name>ImportExport</servlet-name>
-        <servlet-class>org.apache.pluto.core.PortletServlet</servlet-class>
-        <init-param>
-            <param-name>portlet-name</param-name>
-            <param-value>ImportExport</param-value>
-        </init-param>
-        <load-on-startup>1</load-on-startup>
-    </servlet>
-    <servlet>
         <servlet-name>EARModules</servlet-name>
         <servlet-class>org.apache.pluto.core.PortletServlet</servlet-class>
         <init-param>
@@ -297,18 +265,6 @@ limitations under the License.
     <servlet-mapping>
         <servlet-name>dwr-invoker</servlet-name>
         <url-pattern>/dwr/*</url-pattern>
-    </servlet-mapping>
-    <servlet-mapping>
-        <servlet-name>car-export</servlet-name>
-        <url-pattern>/car-export</url-pattern>
-    </servlet-mapping>
-    <servlet-mapping>
-        <servlet-name>maven-repo</servlet-name>
-        <url-pattern>/maven-repo/*</url-pattern>
-    </servlet-mapping>
-    <servlet-mapping>
-        <servlet-name>plan-export</servlet-name>
-        <url-pattern>/plan-export</url-pattern>
     </servlet-mapping>
     <servlet-mapping>
         <servlet-name>Welcome</servlet-name>
@@ -375,10 +331,6 @@ limitations under the License.
         <url-pattern>/PlutoInvoker/Applications</url-pattern>
     </servlet-mapping>
     <servlet-mapping>
-        <servlet-name>Deployment</servlet-name>
-        <url-pattern>/PlutoInvoker/Deployment</url-pattern>
-    </servlet-mapping>
-    <servlet-mapping>
         <servlet-name>WARModules</servlet-name>
         <url-pattern>/PlutoInvoker/WARModules</url-pattern>
     </servlet-mapping>
@@ -397,10 +349,6 @@ limitations under the License.
     <servlet-mapping>
         <servlet-name>SecurityRealms</servlet-name>
         <url-pattern>/PlutoInvoker/SecurityRealms</url-pattern>
-    </servlet-mapping>
-    <servlet-mapping>
-        <servlet-name>ImportExport</servlet-name>
-        <url-pattern>/PlutoInvoker/ImportExport</url-pattern>
     </servlet-mapping>
     <servlet-mapping>
         <servlet-name>EARModules</servlet-name>
