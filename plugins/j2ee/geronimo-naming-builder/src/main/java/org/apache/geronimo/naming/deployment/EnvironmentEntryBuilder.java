@@ -21,6 +21,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.List;
 import java.util.Map;
+import java.util.HashMap;
 
 import javax.annotation.Resource;
 
@@ -29,6 +30,7 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
+import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.j2ee.deployment.Module;
 import org.apache.geronimo.j2ee.deployment.annotation.AnnotatedApp;
 import org.apache.geronimo.j2ee.deployment.annotation.ResourceAnnotationHelper;
@@ -40,20 +42,38 @@ import org.apache.geronimo.xbeans.javaee.EnvEntryTypeValuesType;
 import org.apache.geronimo.xbeans.javaee.InjectionTargetType;
 import org.apache.geronimo.xbeans.javaee.JndiNameType;
 import org.apache.geronimo.xbeans.javaee.XsdStringType;
+import org.apache.geronimo.deployment.xmlbeans.XmlBeansUtil;
 import org.apache.xmlbeans.QNameSet;
 import org.apache.xmlbeans.XmlObject;
 
 /**
  * @version $Rev$ $Date$
  */
-public class EnvironmentEntryBuilder extends AbstractNamingBuilder {
+public class EnvironmentEntryBuilder extends AbstractNamingBuilder implements GBeanLifecycle {
 
     private static final Log log = LogFactory.getLog(EnvironmentEntryBuilder.class);
+    private static final Map<String, String> NAMESPACE_UPDATES = new HashMap<String, String>();
+    static {
+        NAMESPACE_UPDATES.put("http://geronimo.apache.org/xml/ns/naming", "http://geronimo.apache.org/xml/ns/naming-1.2");
+        NAMESPACE_UPDATES.put("http://geronimo.apache.org/xml/ns/naming-1.1", "http://geronimo.apache.org/xml/ns/naming-1.2");
+    }
 
     private final QNameSet envEntryQNameSet;
 
     public EnvironmentEntryBuilder(String[] eeNamespaces) {
         envEntryQNameSet = buildQNameSet(eeNamespaces, "env-entry");
+    }
+
+    public void doStart() throws Exception {
+        XmlBeansUtil.registerNamespaceUpdates(NAMESPACE_UPDATES);
+    }
+
+    public void doStop() {
+        XmlBeansUtil.unregisterNamespaceUpdates(NAMESPACE_UPDATES);
+    }
+
+    public void doFail() {
+        doStop();
     }
 
     public void buildNaming(XmlObject specDD, XmlObject plan, Module module, Map componentContext) throws DeploymentException {

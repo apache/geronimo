@@ -18,7 +18,7 @@
 
 <!-- $Rev: 602280 $ $Date: 2007-12-08 11:17:52 +1100 (Sat, 08 Dec 2007) $ -->
 
-<web-app xmlns="http://geronimo.apache.org/xml/ns/j2ee/web/tomcat-1.2"
+<web-app xmlns="http://geronimo.apache.org/xml/ns/j2ee/web/tomcat-2.0.1"
     xmlns:clust-wadi="http://geronimo.apache.org/xml/ns/tomcat-clustering-wadi-1.2"
     xmlns:gernaming="http://geronimo.apache.org/xml/ns/naming-1.2">
 

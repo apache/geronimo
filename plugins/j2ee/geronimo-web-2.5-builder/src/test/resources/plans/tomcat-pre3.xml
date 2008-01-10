@@ -16,8 +16,8 @@
    limitations under the License.
 -->
 
-<web-app xmlns="http://geronimo.apache.org/xml/ns/web">
-    <dep:environment xmlns:dep="http://geronimo.apache.org/xml/ns/deployment-1.1">
+<web-app xmlns="http://geronimo.apache.org/xml/ns/j2ee/web-2.0.1">
+    <dep:environment xmlns:dep="http://geronimo.apache.org/xml/ns/deployment-1.2">
         <dep:moduleId>
             <dep:groupId>test</dep:groupId>
             <dep:type>car</dep:type>

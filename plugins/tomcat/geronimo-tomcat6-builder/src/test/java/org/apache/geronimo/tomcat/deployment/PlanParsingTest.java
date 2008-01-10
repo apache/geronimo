@@ -64,6 +64,11 @@ public class PlanParsingTest extends TestCase {
             null,
             new MockResourceEnvironmentSetter(),
             null);
+        builder.doStart();
+    }
+
+    protected void tearDown() throws Exception {
+        builder.doStop();
     }
 
     public void testResourceRef() throws Exception {

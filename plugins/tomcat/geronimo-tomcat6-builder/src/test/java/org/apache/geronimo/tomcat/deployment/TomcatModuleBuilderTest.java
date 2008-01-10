@@ -344,9 +344,11 @@ public class TomcatModuleBuilderTest extends TestSupport {
             null,
             new MockResourceEnvironmentSetter(),
             null);
+        builder.doStart();
     }
 
     protected void tearDown() throws Exception {
+        builder.doStop();
         kernel.shutdown();
         super.tearDown();
     }

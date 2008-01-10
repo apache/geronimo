@@ -59,6 +59,7 @@ import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.SingleElementCollection;
+import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.j2ee.deployment.AppClientModule;
 import org.apache.geronimo.j2ee.deployment.ConnectorModule;
 import org.apache.geronimo.j2ee.deployment.CorbaGBeanNameSource;
@@ -103,10 +104,16 @@ import org.apache.xmlbeans.XmlObject;
 /**
  * @version $Rev:385232 $ $Date$
  */
-public class AppClientModuleBuilder implements ModuleBuilder, CorbaGBeanNameSource {
+public class AppClientModuleBuilder implements ModuleBuilder, CorbaGBeanNameSource, GBeanLifecycle {
     private static final Log log = LogFactory.getLog(AppClientModuleBuilder.class);
     private static final String LINE_SEP = System.getProperty("line.separator");
     private static final String GERAPPCLIENT_NAMESPACE = GerApplicationClientDocument.type.getDocumentElementName().getNamespaceURI();
+    private static final Map<String, String> NAMESPACE_UPDATES = new HashMap<String, String>();
+    static {
+        NAMESPACE_UPDATES.put("http://geronimo.apache.org/xml/ns/j2ee/application-client", "http://geronimo.apache.org/xml/ns/j2ee/application-client-2.0");
+        NAMESPACE_UPDATES.put("http://geronimo.apache.org/xml/ns/j2ee/application-client-1.1", "http://geronimo.apache.org/xml/ns/j2ee/application-client-2.0");
+        NAMESPACE_UPDATES.put("http://geronimo.apache.org/xml/ns/j2ee/application-client-1.2", "http://geronimo.apache.org/xml/ns/j2ee/application-client-2.0");
+    }
 
     private final Environment defaultClientEnvironment;
     private final Environment defaultServerEnvironment;
@@ -200,6 +207,17 @@ public class AppClientModuleBuilder implements ModuleBuilder, CorbaGBeanNameSour
         this.clientArtifactResolver = clientArtifactResolver;
     }
 
+    public void doStart() throws Exception {
+        XmlBeansUtil.registerNamespaceUpdates(NAMESPACE_UPDATES);
+    }
+
+    public void doStop() {
+        XmlBeansUtil.unregisterNamespaceUpdates(NAMESPACE_UPDATES);
+    }
+
+    public void doFail() {
+        doStop();
+    }
 
     public AbstractNameQuery getCorbaGBeanName() {
         return corbaGBeanObjectName;

@@ -291,9 +291,11 @@ public class JettyModuleBuilderTest extends TestSupport {
                 moduleBuilderExtensions,
                 new MockResourceEnvironmentSetter(),
                 kernel);
+        builder.doStart();
     }
 
     protected void tearDown() throws Exception {
+        builder.doStop();
         kernel.shutdown();
         super.tearDown();
     }

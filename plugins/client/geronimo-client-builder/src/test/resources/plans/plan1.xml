@@ -20,7 +20,7 @@
     <!-- clientConfigId="test-client"
     configId="client"
     parentId="org/apache/geronimo/DefaultDatabase">-->
-    <dep:client-environment xmlns:dep="http://geronimo.apache.org/xml/ns/deployment-1.1">
+    <dep:client-environment xmlns:dep="http://geronimo.apache.org/xml/ns/deployment-1.2">
         <dep:moduleId>
             <dep:groupId>test</dep:groupId>
             <dep:artifactId>testclient</dep:artifactId>
@@ -28,7 +28,7 @@
             <dep:type>car</dep:type>
         </dep:moduleId>
     </dep:client-environment>
-    <dep:server-environment xmlns:dep="http://geronimo.apache.org/xml/ns/deployment-1.1">
+    <dep:server-environment xmlns:dep="http://geronimo.apache.org/xml/ns/deployment-1.2">
         <dep:moduleId>
             <dep:groupId>test</dep:groupId>
             <dep:artifactId>testserver</dep:artifactId>

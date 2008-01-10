@@ -25,6 +25,8 @@ import java.net.URI;
 import java.net.URL;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Map;
+import java.util.HashMap;
 import java.util.jar.JarFile;
 
 import javax.xml.namespace.QName;
@@ -44,6 +46,7 @@ import org.apache.geronimo.deployment.xmlbeans.XmlBeansUtil;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
+import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.Naming;
 import org.apache.geronimo.kernel.config.ConfigurationAlreadyExistsException;
@@ -63,12 +66,19 @@ import org.apache.xmlbeans.XmlObject;
 /**
  * @version $Rev$ $Date$
  */
-public class ServiceConfigBuilder implements ConfigurationBuilder {
+public class ServiceConfigBuilder implements ConfigurationBuilder, GBeanLifecycle {
     private final Environment defaultEnvironment;
     private final Collection repositories;
 
     private static final QName MODULE_QNAME = ModuleDocument.type.getDocumentElementName();
     public static final String SERVICE_MODULE = "ServiceModule";
+    private static final Map<String, String> NAMESPACE_UPDATES = new HashMap<String, String>();
+    static {
+        NAMESPACE_UPDATES.put("http://geronimo.apache.org/xml/ns/deployment", "http://geronimo.apache.org/xml/ns/deployment-1.2");
+        NAMESPACE_UPDATES.put("http://geronimo.apache.org/xml/ns/deployment-1.1", "http://geronimo.apache.org/xml/ns/deployment-1.2");
+        NAMESPACE_UPDATES.put("http://geronimo.apache.org/xml/ns/deployment/javabean", "http://geronimo.apache.org/xml/ns/deployment/javabean-1.0");
+    }
+
     private final Naming naming;
     private final ConfigurationManager configurationManager;
     private final NamespaceDrivenBuilderCollection serviceBuilders;
@@ -83,6 +93,18 @@ public class ServiceConfigBuilder implements ConfigurationBuilder {
 
     public ServiceConfigBuilder(Environment defaultEnvironment, Collection repositories, Collection serviceBuilders, Naming naming) {
         this(defaultEnvironment, repositories, serviceBuilders, naming, null);
+    }
+
+    public void doStart() throws Exception {
+        XmlBeansUtil.registerNamespaceUpdates(NAMESPACE_UPDATES);
+    }
+
+    public void doStop() {
+        XmlBeansUtil.unregisterNamespaceUpdates(NAMESPACE_UPDATES);
+    }
+
+    public void doFail() {
+        doStop();
     }
 
     private ServiceConfigBuilder(Environment defaultEnvironment, Collection repositories, Collection serviceBuilders, Naming naming, ConfigurationManager configurationManager) {

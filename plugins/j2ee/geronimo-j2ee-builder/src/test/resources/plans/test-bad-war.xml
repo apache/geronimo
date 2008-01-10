@@ -20,9 +20,9 @@
 
 <!-- $Rev$ $Date$ -->
 
-<application xmlns="http://geronimo.apache.org/xml/ns/j2ee/application-1.1">
+<application xmlns="http://geronimo.apache.org/xml/ns/j2ee/application-2.0">
 
-    <environment xmlns="http://geronimo.apache.org/xml/ns/deployment-1.1">
+    <environment xmlns="http://geronimo.apache.org/xml/ns/deployment-1.2">
         <moduleId>
             <groupId>geronimo</groupId>
             <artifactId>test-ear</artifactId>
@@ -37,6 +37,6 @@
     </module>
 
     <!-- a random gbean just to verify that the deployer doesn't die because of it -->
-    <gbean xmlns="http://geronimo.apache.org/xml/ns/deployment-1.1" name="foo" class="org.apache.geronimo.j2ee.management.impl.J2EEDomainImpl"/>
+    <gbean xmlns="http://geronimo.apache.org/xml/ns/deployment-1.2" name="foo" class="org.apache.geronimo.j2ee.management.impl.J2EEDomainImpl"/>
 
 </application>

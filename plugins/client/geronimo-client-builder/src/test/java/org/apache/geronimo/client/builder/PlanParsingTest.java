@@ -40,7 +40,14 @@ public class PlanParsingTest extends TestSupport {
     private AppClientModuleBuilder builder;
 
     protected void setUp() throws Exception {
+        super.setUp();
         builder = new AppClientModuleBuilder(new Environment(), null, null, null, null, null, Collections.<Repository>emptyList(), null, null, null, Collections.<ModuleBuilderExtension>emptyList(), clientArtifactResolver);
+        builder.doStart();
+    }
+
+    protected void tearDown() throws Exception {
+        super.tearDown();
+        builder.doStop();
     }
 
     public void testResourceRef() throws Exception {

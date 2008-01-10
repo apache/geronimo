@@ -58,6 +58,7 @@ import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.ReferencePatterns;
+import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.j2ee.deployment.EARContext;
 import org.apache.geronimo.j2ee.deployment.Module;
 import org.apache.geronimo.j2ee.deployment.ModuleBuilder;
@@ -135,10 +136,19 @@ import org.apache.xmlbeans.XmlObject;
  *
  * @version $Revision: 479481 $ $Date: 2006-11-26 16:52:20 -0800 (Sun, 26 Nov 2006) $
  */
-public class EjbModuleBuilder implements ModuleBuilder {
+public class EjbModuleBuilder implements ModuleBuilder, GBeanLifecycle {
     private static final Log log = LogFactory.getLog(EjbModuleBuilder.class);
 
     private static final String OPENEJBJAR_NAMESPACE = XmlUtil.OPENEJBJAR_QNAME.getNamespaceURI();
+    private static final Map<String, String> NAMESPACE_UPDATES = new HashMap<String, String>();
+    static {
+        NAMESPACE_UPDATES.put("http://www.openejb.org/xml/ns/openejb-jar", "http://openejb.apache.org/xml/ns/openejb-jar-2.3");
+        NAMESPACE_UPDATES.put("http://www.openejb.org/xml/ns/openejb-jar-2.1", "http://openejb.apache.org/xml/ns/openejb-jar-2.3");
+        NAMESPACE_UPDATES.put("http://www.openejb.org/xml/ns/openejb-jar-2.2", "http://openejb.apache.org/xml/ns/openejb-jar-2.3");
+        NAMESPACE_UPDATES.put("http://www.openejb.org/xml/ns/openejb-jar-2.3", "http://openejb.apache.org/xml/ns/openejb-jar-2.3");
+        NAMESPACE_UPDATES.put("http://www.openejb.org/xml/ns/pkgen", "http://openejb.apache.org/xml/ns/pkgen-2.1");
+        NAMESPACE_UPDATES.put("http://www.openejb.org/xml/ns/pkgen-2.0", "http://openejb.apache.org/xml/ns/pkgen-2.1");
+    }
 
     private final Environment defaultEnvironment;
     private final String defaultCmpJTADataSource;
@@ -183,6 +193,18 @@ public class EjbModuleBuilder implements ModuleBuilder {
 
         System.setProperty("openejb.naming", "xbean");
 
+    }
+
+    public void doStart() throws Exception {
+        XmlBeansUtil.registerNamespaceUpdates(NAMESPACE_UPDATES);
+    }
+
+    public void doStop() {
+        XmlBeansUtil.unregisterNamespaceUpdates(NAMESPACE_UPDATES);
+    }
+
+    public void doFail() {
+        doStop();
     }
 
     private void setDefaultProperty(String key, String value) {

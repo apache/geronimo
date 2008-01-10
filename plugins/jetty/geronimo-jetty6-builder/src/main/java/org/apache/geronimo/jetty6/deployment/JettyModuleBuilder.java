@@ -55,6 +55,7 @@ import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
+import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.j2ee.deployment.EARContext;
 import org.apache.geronimo.j2ee.deployment.Module;
 import org.apache.geronimo.j2ee.deployment.ModuleBuilder;
@@ -119,8 +120,23 @@ import org.mortbay.jetty.security.FormAuthenticator;
 /**
  * @version $Rev:385659 $ $Date$
  */
-public class JettyModuleBuilder extends AbstractWebModuleBuilder {
+public class JettyModuleBuilder extends AbstractWebModuleBuilder implements GBeanLifecycle {
     private final static Log log = LogFactory.getLog(JettyModuleBuilder.class);
+    private static final Map<String, String> NAMESPACE_UPDATES = new HashMap<String, String>();
+    static {
+        NAMESPACE_UPDATES.put("http://geronimo.apache.org/xml/ns/web", "http://geronimo.apache.org/xml/ns/j2ee/web-2.0.1");
+        NAMESPACE_UPDATES.put("http://geronimo.apache.org/xml/ns/j2ee/web-1.1", "http://geronimo.apache.org/xml/ns/j2ee/web-2.0.1");
+        NAMESPACE_UPDATES.put("http://geronimo.apache.org/xml/ns/j2ee/web-1.2", "http://geronimo.apache.org/xml/ns/j2ee/web-2.0.1");
+        NAMESPACE_UPDATES.put("http://geronimo.apache.org/xml/ns/j2ee/web-2.0", "http://geronimo.apache.org/xml/ns/j2ee/web-2.0.1");
+        NAMESPACE_UPDATES.put("http://geronimo.apache.org/xml/ns/web/jetty", "http://geronimo.apache.org/xml/ns/j2ee/web/jetty-2.0.1");
+        NAMESPACE_UPDATES.put("http://geronimo.apache.org/xml/ns/j2ee/web/jetty-1.1", "http://geronimo.apache.org/xml/ns/j2ee/web/jetty-2.0.2");
+        NAMESPACE_UPDATES.put("http://geronimo.apache.org/xml/ns/j2ee/web/jetty-1.2", "http://geronimo.apache.org/xml/ns/j2ee/web/jetty-2.0.2");
+        NAMESPACE_UPDATES.put("http://geronimo.apache.org/xml/ns/j2ee/web/jetty-2.0", "http://geronimo.apache.org/xml/ns/j2ee/web/jetty-2.0.2");
+        NAMESPACE_UPDATES.put("http://geronimo.apache.org/xml/ns/j2ee/web/jetty-2.0.1", "http://geronimo.apache.org/xml/ns/j2ee/web/jetty-2.0.2");
+        NAMESPACE_UPDATES.put("http://geronimo.apache.org/xml/ns/web/jetty/config", "http://geronimo.apache.org/xml/ns/j2ee/web/jetty/config-1.0.1");
+        NAMESPACE_UPDATES.put("http://geronimo.apache.org/xml/ns/web/jetty/config-1.0", "http://geronimo.apache.org/xml/ns/j2ee/web/jetty/config-1.0.1");
+    }
+
     private final Environment defaultEnvironment;
     private final AbstractNameQuery jettyContainerObjectName;
     private final JettyJspServletHolder jspServlet;
@@ -171,6 +187,18 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
         this.defaultWelcomeFiles = defaultWelcomeFiles == null ? new ArrayList<String>() : defaultWelcomeFiles;
         this.defaultLocaleEncodingMappings = defaultLocaleEncodingMappings == null ? new HashMap<String, String>() : defaultLocaleEncodingMappings;
         this.defaultMimeTypeMappings = defaultMimeTypeMappings == null ? new HashMap<String, String>() : defaultMimeTypeMappings;
+    }
+
+    public void doStart() throws Exception {
+        XmlBeansUtil.registerNamespaceUpdates(NAMESPACE_UPDATES);
+    }
+
+    public void doStop() {
+        XmlBeansUtil.unregisterNamespaceUpdates(NAMESPACE_UPDATES);
+    }
+
+    public void doFail() {
+        doStop();
     }
 
     private static GBeanData getGBeanData(Kernel kernel, Object template) throws GBeanNotFoundException {

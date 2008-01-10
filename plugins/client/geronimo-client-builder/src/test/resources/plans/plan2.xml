@@ -20,7 +20,7 @@
    <!-- clientConfigId="test-client"
     configId="client"
     parentId="org/apache/geronimo/DefaultDatabase">-->
-    <dep:client-environment xmlns:dep="http://geronimo.apache.org/xml/ns/deployment-1.1">
+    <dep:client-environment xmlns:dep="http://geronimo.apache.org/xml/ns/deployment-1.2">
         <dep:moduleId>
             <dep:groupId>test</dep:groupId>
             <dep:artifactId>testclient</dep:artifactId>
@@ -28,7 +28,7 @@
             <dep:type>car</dep:type>
         </dep:moduleId>
     </dep:client-environment>
-    <dep:server-environment xmlns:dep="http://geronimo.apache.org/xml/ns/deployment-1.1">
+    <dep:server-environment xmlns:dep="http://geronimo.apache.org/xml/ns/deployment-1.2">
         <dep:moduleId>
             <dep:groupId>test</dep:groupId>
             <dep:artifactId>testserver</dep:artifactId>
@@ -41,13 +41,13 @@
         <nam:resource-link>DefaultDatabase</nam:resource-link>
     </nam:resource-ref>
     <resource>
-        <external-rar xmlns:dep="http://geronimo.apache.org/xml/ns/deployment-1.1">
+        <external-rar xmlns:dep="http://geronimo.apache.org/xml/ns/deployment-1.2">
             <dep:groupId>org.tranql</dep:groupId>
             <dep:artifactId>tranql-connector-ra</dep:artifactId>
             <dep:type>rar</dep:type>
         </external-rar>
-        <connector xmlns="http://geronimo.apache.org/xml/ns/j2ee/connector-1.1">
-            <dep:environment xmlns:dep="http://geronimo.apache.org/xml/ns/deployment-1.1">
+        <connector xmlns="http://geronimo.apache.org/xml/ns/j2ee/connector-1.2">
+            <dep:environment xmlns:dep="http://geronimo.apache.org/xml/ns/deployment-1.2">
                 <dep:moduleId>
                     <dep:groupId>test</dep:groupId>
                     <dep:artifactId>testclient</dep:artifactId>

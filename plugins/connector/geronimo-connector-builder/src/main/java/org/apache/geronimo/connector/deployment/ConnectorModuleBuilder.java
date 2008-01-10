@@ -79,6 +79,7 @@ import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.InvalidConfigurationException;
+import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.j2ee.deployment.ActivationSpecInfoLocator;
 import org.apache.geronimo.j2ee.deployment.ConnectorModule;
 import org.apache.geronimo.j2ee.deployment.EARContext;
@@ -125,11 +126,17 @@ import org.apache.xmlbeans.XmlObject;
 /**
  * @version $Rev:385659 $ $Date$
  */
-public class ConnectorModuleBuilder implements ModuleBuilder, ActivationSpecInfoLocator {
+public class ConnectorModuleBuilder implements ModuleBuilder, ActivationSpecInfoLocator, GBeanLifecycle {
     private final static Log log = LogFactory.getLog(ConnectorModuleBuilder.class);
 
+    private static final QName RESOURCE_ADAPTER_VERSION = new QName(SchemaConversionUtils.J2EE_NAMESPACE, "resourceadapter-version");
     private static QName CONNECTOR_QNAME = GerConnectorDocument.type.getDocumentElementName();
     static final String GERCONNECTOR_NAMESPACE = CONNECTOR_QNAME.getNamespaceURI();
+    private static final Map<String, String> NAMESPACE_UPDATES = new HashMap<String, String>();
+    static {
+        NAMESPACE_UPDATES.put("http://geronimo.apache.org/xml/ns/j2ee/connector", "http://geronimo.apache.org/xml/ns/j2ee/connector-1.2");
+        NAMESPACE_UPDATES.put("http://geronimo.apache.org/xml/ns/j2ee/connector-1.1", "http://geronimo.apache.org/xml/ns/j2ee/connector-1.2");
+    }
 
     private final int defaultMaxSize;
     private final int defaultMinSize;
@@ -139,7 +146,6 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ActivationSpecInfo
     private final boolean defaultXAThreadCaching;
     private final Environment defaultEnvironment;
     private final NamespaceDrivenBuilderCollection serviceBuilders;
-    private static final QName RESOURCE_ADAPTER_VERSION = new QName(SchemaConversionUtils.J2EE_NAMESPACE, "resourceadapter-version");
 
     public ConnectorModuleBuilder(Environment defaultEnvironment,
             int defaultMaxSize,
@@ -158,6 +164,18 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ActivationSpecInfo
         this.defaultXATransactionCaching = defaultXATransactionCaching;
         this.defaultXAThreadCaching = defaultXAThreadCaching;
         this.serviceBuilders = new NamespaceDrivenBuilderCollection(serviceBuilders, GBeanBuilder.SERVICE_QNAME);
+    }
+
+    public void doStart() throws Exception {
+        XmlBeansUtil.registerNamespaceUpdates(NAMESPACE_UPDATES);
+    }
+
+    public void doStop() {
+        XmlBeansUtil.unregisterNamespaceUpdates(NAMESPACE_UPDATES);
+    }
+
+    public void doFail() {
+        doStop();
     }
 
     public Module createModule(File plan, JarFile moduleFile, Naming naming, ModuleIDBuilder idBuilder) throws DeploymentException {

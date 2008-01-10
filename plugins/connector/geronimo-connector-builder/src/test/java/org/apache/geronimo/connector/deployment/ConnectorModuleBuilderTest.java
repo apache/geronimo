@@ -138,6 +138,7 @@ public class ConnectorModuleBuilderTest extends TestSupport {
                     null,
                     kernel.getNaming(),
                     null);
+            configBuilder.doStart();
             ConfigurationData configData = null;
             DeploymentContext context = null;
             ArtifactManager artifactManager = new DefaultArtifactManager();
@@ -161,8 +162,10 @@ public class ConnectorModuleBuilderTest extends TestSupport {
                     DeploymentUtil.recursiveDelete(configData.getConfigurationDir());
                 }
             }
+            configBuilder.doStop();
         } finally {
             DeploymentUtil.close(rarFile);
+
         }
     }
 

@@ -127,6 +127,8 @@ public class LoginConfigBuilderTest extends TestCase {
     }
 
     private void doTest(String text) throws XmlException, DeploymentException {
+        GeronimoSecurityBuilderImpl secBuilder = new GeronimoSecurityBuilderImpl(null);
+        secBuilder.doStart();
         LoginConfigBuilder builder = new LoginConfigBuilder(new Jsr77Naming(), null);
         XmlObject xmlObject = XmlBeansUtil.parse(text);
         XmlCursor cursor = xmlObject.newCursor();
@@ -135,6 +137,7 @@ public class LoginConfigBuilderTest extends TestCase {
         DeploymentContext context = new DeploymentContext(new File("."), null, new Environment(Artifact.create("test/foo/1.0/car")), null, ConfigurationModuleType.SERVICE, new Jsr77Naming(), new MockConfigurationManager(), Collections.emptySet());
         AbstractName parentName = new AbstractName(URI.create("test/foo/1.0/car?name=parent,j2eeType=foo"));
         builder.getReferences(xmlObject, context, parentName, getClass().getClassLoader());
+        secBuilder.doStop();
     }
 
     private static class MockConfigurationManager implements ConfigurationManager {

@@ -28,12 +28,14 @@ import java.net.URL;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.corba.TSSLinkGBean;
 import org.apache.geronimo.deployment.ModuleIDBuilder;
+import org.apache.geronimo.deployment.xmlbeans.XmlBeansUtil;
 import org.apache.geronimo.deployment.service.EnvironmentBuilder;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
+import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.j2ee.deployment.EARContext;
 import org.apache.geronimo.j2ee.deployment.Module;
 import org.apache.geronimo.j2ee.deployment.ModuleBuilderExtension;
@@ -59,8 +61,17 @@ import org.apache.geronimo.openejb.xbeans.ejbjar.OpenejbTssLinkType;
 /**
  * @version $Rev$ $Date$
  */
-public class CorbaModuleBuilderExtension implements ModuleBuilderExtension {
-    // our default environment 
+public class CorbaModuleBuilderExtension implements ModuleBuilderExtension, GBeanLifecycle {
+
+    private static final Map<String, String> NAMESPACE_UPDATES = new HashMap<String, String>();
+    static {
+        NAMESPACE_UPDATES.put("http://www.openejb.org/xml/ns/corba-css-config_1_0", "http://openejb.apache.org/xml/ns/corba-css-config-2.1");
+        NAMESPACE_UPDATES.put("http://www.openejb.org/xml/ns/corba-css-config-2.0", "http://openejb.apache.org/xml/ns/corba-css-config-2.1");
+        NAMESPACE_UPDATES.put("http://www.openejb.org/xml/ns/corba-tss-config_1_0", "http://openejb.apache.org/xml/ns/corba-tss-config-2.1");
+        NAMESPACE_UPDATES.put("http://www.openejb.org/xml/ns/corba-tss-config-2.0", "http://openejb.apache.org/xml/ns/corba-tss-config-2.1");
+        NAMESPACE_UPDATES.put("http://www.openejb.org/xml/ns/corba-tss-config-2.1", "http://openejb.apache.org/xml/ns/corba-tss-config-2.1");
+    }
+    // our default environment
     protected Environment defaultEnvironment;
 
     public CorbaModuleBuilderExtension() throws Exception {
@@ -69,6 +80,18 @@ public class CorbaModuleBuilderExtension implements ModuleBuilderExtension {
 
     public CorbaModuleBuilderExtension(Environment defaultEnvironment) {
         this.defaultEnvironment = defaultEnvironment;
+    }
+
+    public void doStart() throws Exception {
+        XmlBeansUtil.registerNamespaceUpdates(NAMESPACE_UPDATES);
+    }
+
+    public void doStop() {
+        XmlBeansUtil.unregisterNamespaceUpdates(NAMESPACE_UPDATES);
+    }
+
+    public void doFail() {
+        doStop();
     }
 
     /**

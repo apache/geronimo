@@ -71,7 +71,8 @@ public class PlanParsingTest extends XmlBeansTestSupport {
     private JettyModuleBuilder builder;
     private AtomicBoolean isDefault = new AtomicBoolean(false);
 
-    public PlanParsingTest() throws Exception {
+    protected void setUp() throws Exception {
+        super.setUp();
         builder = new JettyModuleBuilder(defaultEnvironment,
                 new Integer(1800),
                 null,
@@ -90,6 +91,12 @@ public class PlanParsingTest extends XmlBeansTestSupport {
                 null,
                 new MockResourceEnvironmentSetter(),
                 null);
+        builder.doStart();
+    }
+
+    protected void tearDown() throws Exception {
+        super.tearDown();
+        builder.doStop();
     }
 
     public void testContents() throws Exception {

@@ -66,6 +66,7 @@ import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.ReferencePatterns;
 import org.apache.geronimo.gbean.SingleElementCollection;
+import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.j2ee.ApplicationInfo;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.j2ee.management.impl.J2EEApplicationImpl;
@@ -102,12 +103,18 @@ import org.apache.xmlbeans.XmlObject;
 /**
  * @version $Rev$ $Date$
  */
-public class EARConfigBuilder implements ConfigurationBuilder, CorbaGBeanNameSource {
+public class EARConfigBuilder implements ConfigurationBuilder, CorbaGBeanNameSource, GBeanLifecycle {
 
     private static final Log log = LogFactory.getLog(EARConfigBuilder.class);
     private static final String LINE_SEP = System.getProperty("line.separator");
 
     private final static QName APPLICATION_QNAME = GerApplicationDocument.type.getDocumentElementName();
+    private static final Map<String, String> NAMESPACE_UPDATES = new HashMap<String, String>();
+    static {
+        NAMESPACE_UPDATES.put("http://geronimo.apache.org/xml/ns/j2ee/application", "http://geronimo.apache.org/xml/ns/j2ee/application-2.0");
+        NAMESPACE_UPDATES.put("http://geronimo.apache.org/xml/ns/j2ee/application-1.1", "http://geronimo.apache.org/xml/ns/j2ee/application-2.0");
+        NAMESPACE_UPDATES.put("http://geronimo.apache.org/xml/ns/j2ee/application-1.2", "http://geronimo.apache.org/xml/ns/j2ee/application-2.0");
+    }
 
     private final ConfigurationManager configurationManager;
     private final Collection<? extends Repository> repositories;
@@ -249,6 +256,17 @@ public class EARConfigBuilder implements ConfigurationBuilder, CorbaGBeanNameSou
         this.artifactResolvers = artifactResolvers;
     }
 
+    public void doStart() throws Exception {
+        XmlBeansUtil.registerNamespaceUpdates(NAMESPACE_UPDATES);
+    }
+
+    public void doStop() {
+        XmlBeansUtil.unregisterNamespaceUpdates(NAMESPACE_UPDATES);
+    }
+
+    public void doFail() {
+        doStop();
+    }
 
     public AbstractNameQuery getCorbaGBeanName() {
         return corbaGBeanObjectName;
