@@ -52,7 +52,15 @@
 
         <dependency>
             <groupId>org.dojotoolkit</groupId>
+            <artifactId>dojolegacy</artifactId>
+            <version>${dojoLegacyVersion}</version>
+            <type>tgz</type>
+        </dependency>
+
+        <dependency>
+            <groupId>org.dojotoolkit</groupId>
             <artifactId>dojo</artifactId>
+            <version>${dojoVersion}</version>
             <type>tgz</type>
         </dependency>
 

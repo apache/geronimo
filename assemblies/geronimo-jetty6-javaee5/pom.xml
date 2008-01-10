@@ -516,6 +516,13 @@
             <type>jar</type>
         </dependency>
 
+        <dependency>
+            <groupId>org.apache.geronimo.configs</groupId>
+            <artifactId>dojo-jetty6</artifactId>
+            <version>${version}</version>
+            <type>car</type>
+        </dependency>
+
         <!-- Monitoring plugins -->
         <dependency>
             <groupId>org.apache.geronimo.plugins</groupId>

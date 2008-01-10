@@ -81,7 +81,7 @@
 	
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
-            <artifactId>dojo-jetty6</artifactId>
+            <artifactId>dojo-legacy-jetty6</artifactId>
             <version>${geronimoVersion}</version>
             <type>car</type>
         </dependency>

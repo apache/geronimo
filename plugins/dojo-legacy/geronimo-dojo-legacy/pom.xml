@@ -16,7 +16,7 @@
     limitations under the License.
 -->
 
-<!-- $Rev$ $Date$ -->
+<!-- $Rev: 590482 $ $Date: 2007-10-30 16:51:54 -0500 (Tue, 30 Oct 2007) $ -->
 
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
@@ -29,8 +29,8 @@
         <relativePath>../pom.xml</relativePath>
     </parent>
 
-    <artifactId>geronimo-dojo</artifactId>
-    <name>Geronimo Applications :: Dojo</name>
+    <artifactId>geronimo-dojo-legacy</artifactId>
+    <name>Geronimo Applications :: Dojo Legacy</name>
     <packaging>war</packaging>
 
     <description>
@@ -48,8 +48,8 @@
         </dependency>
         <dependency>
             <groupId>org.dojotoolkit</groupId>
-            <artifactId>dojo</artifactId>
-            <version>${dojoVersion}</version>
+            <artifactId>dojolegacy</artifactId>
+            <version>${dojoLegacyVersion}</version>
             <type>tgz</type>
         </dependency>
     </dependencies>
@@ -70,8 +70,8 @@
                             <artifactItems>
                                 <artifactItem>
                                     <groupId>org.dojotoolkit</groupId>
-                                    <artifactId>dojo</artifactId>
-                                    <version>${dojoVersion}</version>
+                                    <artifactId>dojolegacy</artifactId>
+                                    <version>${dojoLegacyVersion}</version>
                                     <type>tgz</type>
                                     <outputDirectory>${project.build.directory}</outputDirectory>
                                 </artifactItem>
@@ -88,7 +88,7 @@
                 <configuration>
                     <webResources>
                         <resource>
-                            <directory>${project.build.directory}/dojo-release-${dojoVersion}/</directory>
+                            <directory>${project.build.directory}/dojo-${dojoLegacyVersion}-ajax/</directory>
                             <includes>
                                 <include>src/**</include>
                                 <include>*.js</include>
