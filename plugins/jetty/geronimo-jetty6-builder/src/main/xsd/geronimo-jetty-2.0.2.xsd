@@ -18,8 +18,8 @@
 
 <!-- $Rev$ $Date$ -->
 
-<xs:schema xmlns:web="http://geronimo.apache.org/xml/ns/j2ee/web/jetty-2.0.1"
-    targetNamespace="http://geronimo.apache.org/xml/ns/j2ee/web/jetty-2.0.1"
+<xs:schema xmlns:web="http://geronimo.apache.org/xml/ns/j2ee/web/jetty-2.0.2"
+    targetNamespace="http://geronimo.apache.org/xml/ns/j2ee/web/jetty-2.0.2"
     xmlns:naming="http://geronimo.apache.org/xml/ns/naming-1.2"
     xmlns:sys="http://geronimo.apache.org/xml/ns/deployment-1.2"
     xmlns:app="http://geronimo.apache.org/xml/ns/j2ee/application-2.0"
@@ -180,7 +180,16 @@
                     </xs:documentation>
                 </xs:annotation>
             </xs:element>
-
+            <xs:element name="compact-path" type="xs:boolean" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>
+                        See Jetty-386.  Setting this to true makes paths like http://localhost:8080/test//favicon.ico
+                        act the same as http://localhost:8080/test/favicon.ico.  Setting this to true is likely to result
+                        in a security vulnerability such as exposing static content in WEB-INF and behind security constraints.
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+     
             <xs:group ref="naming:jndiEnvironmentRefsGroup">
                 <xs:annotation>
                     <xs:documentation>

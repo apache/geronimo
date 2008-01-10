@@ -117,6 +117,8 @@ public class JettyWebAppContext implements GBeanLifecycle, JettyServletRegistrat
             Authenticator authenticator,
             String realmName,
             Map<String, String> tagLibMap,
+            boolean compactPath,
+
             int sessionTimeoutSeconds,
             SessionHandlerFactory handlerFactory,
             PreHandlerFactory preHandlerFactory,
@@ -169,6 +171,8 @@ public class JettyWebAppContext implements GBeanLifecycle, JettyServletRegistrat
         ServletHandler servletHandler = new ServletHandler();
 
         webAppContext = new TwistyWebAppContext(securityHandler, sessionHandler, servletHandler, null);
+        //See Jetty-386.  Setting this to true can expose secured content.
+        webAppContext.setCompactPath(compactPath);
 
         //wrap the web app context with the jndi handler
         GeronimoUserTransaction userTransaction = new GeronimoUserTransaction(transactionManager);
@@ -559,6 +563,7 @@ public class JettyWebAppContext implements GBeanLifecycle, JettyServletRegistrat
         infoBuilder.addAttribute("applicationManagedSecurityResources", Set.class, true);
 
         infoBuilder.addAttribute("contextPath", String.class, true);
+        infoBuilder.addAttribute("compactPath", boolean.class, true);
 
         infoBuilder.addAttribute("workDir", String.class, true);
         infoBuilder.addReference("Host", Host.class, "Host");
@@ -606,6 +611,7 @@ public class JettyWebAppContext implements GBeanLifecycle, JettyServletRegistrat
                 "authenticator",
                 "realmName",
                 "tagLibMap",
+                "compactPath",
                 GBEAN_ATTR_SESSION_TIMEOUT,
                 GBEAN_REF_SESSION_HANDLER_FACTORY,
                 GBEAN_REF_PRE_HANDLER_FACTORY,

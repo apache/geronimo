@@ -480,6 +480,11 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
                 configureSecurityRealm(earContext, webApp, jettyWebApp, webModuleData, securityRoles, rolePermissions);
             }
 
+            //See Jetty-386, GERONIMO-3738
+            if (jettyWebApp.getCompactPath()) {
+                webModuleData.setAttribute("compactPath", Boolean.TRUE);
+            }
+
             //TODO this may definitely not be the best place for this!
             for (ModuleBuilderExtension mbe : moduleBuilderExtensions) {
                 mbe.addGBeans(earContext, module, cl, repository);

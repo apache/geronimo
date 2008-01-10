@@ -106,6 +106,7 @@ public class AbstractWebModuleTest extends TestSupport {
                 authenticator,
                 realmName,
                 null,
+                false,
                 0,
                 sessionHandlerFactory,
                 preHandlerFactory,

@@ -16,8 +16,8 @@
     limitations under the License.
 -->
 
-<xs:schema xmlns:jetty="http://geronimo.apache.org/xml/ns/web/jetty/config-1.0"
-    targetNamespace="http://geronimo.apache.org/xml/ns/web/jetty/config-1.0"
+<xs:schema xmlns:jetty="http://geronimo.apache.org/xml/ns/web/jetty/config-1.0.1"
+    targetNamespace="http://geronimo.apache.org/xml/ns/web/jetty/config-1.0.1"
     xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified"
     attributeFormDefault="unqualified" version="1.0">
 
@@ -31,7 +31,7 @@
             specified as
             xmlns="http://geronimo.apache.org/xml/ns/j2ee/jetty-config-1.0". The
             default location for this document is
-            http://geronimo.apache.org/schemas-1.2/geronimo-jetty-config-1.0.xsd
+            http://geronimo.apache.org/schemas-1.2/geronimo-jetty-config-1.0.1.xsd
         </xs:documentation>
     </xs:annotation>
     <xs:element name="jetty" type="jetty:jetty-configType">
@@ -72,6 +72,15 @@
                         name of the clustering implementation
                         (org.codehaus.wadi.jetty5.JettyManager) used by this web
                         application.
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="compact-path" type="xs:boolean" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>
+                        See Jetty-386.  Setting this to true makes paths like http://localhost:8080/test//favicon.ico
+                        act the same as http://localhost:8080/test/favicon.ico.  Setting this to true is likely to result
+                        in a security vulnerability such as exposing static content in WEB-INF and behind security constraints.
                     </xs:documentation>
                 </xs:annotation>
             </xs:element>

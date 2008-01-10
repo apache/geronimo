@@ -32,7 +32,7 @@
             elements. This schema will never be used directly but its elements
             are used in geronimo-application-client-2.0.xsd,
             geronimo-connector-1.2.xsd, geronimo-web-2.0.1.xsd,
-            geronimo-tomcat-2.0.1.xsd, and geronimo-jetty-2.0.1.xsd. All the schemas
+            geronimo-tomcat-2.0.1.xsd, and geronimo-jetty-2.0.2.xsd. All the schemas
             or plans using elements of this schema must specify the top level
             element with one of the namespace specified as
             "http://geronimo.apache.org/xml/ns/j2ee/security-1.2". The default
