@@ -37,11 +37,17 @@
         <attribute name="pageTitle">Applications/Deploy New</attribute>
         <attribute name="portletContext">/plugin</attribute>
         <attribute name="portletList">[Deployment]</attribute>
+        <reference name="PortalContainerServices">
+            <name>PlutoPortalServices</name>
+        </reference>
     </gbean>
     <gbean name="PluginManagement" class="org.apache.geronimo.pluto.AdminConsoleExtensionGBean">
         <attribute name="pageTitle">Applications/Plugins</attribute>
         <attribute name="portletContext">/plugin</attribute>
         <attribute name="portletList">[ImportExport]</attribute>
+        <reference name="PortalContainerServices">
+            <name>PlutoPortalServices</name>
+        </reference>
     </gbean>
     
     <!-- Deployment factory for use inside server -->

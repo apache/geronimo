@@ -35,5 +35,8 @@ limitations under the License.
         <attribute name="pageTitle">Applications/Plan Creator</attribute>
         <attribute name="portletContext">/plan-creator</attribute>
         <attribute name="portletList">[PlanCreator]</attribute>
+        <reference name="PortalContainerServices">
+            <name>PlutoPortalServices</name>
+        </reference>
     </gbean>
 </web-app>

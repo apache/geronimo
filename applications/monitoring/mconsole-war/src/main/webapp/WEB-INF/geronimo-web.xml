@@ -52,6 +52,9 @@
         <attribute name="pageTitle">Server/Monitoring</attribute>
         <attribute name="portletContext">/monitoring</attribute>
         <attribute name="portletList">[monitoring]</attribute>
+        <reference name="PortalContainerServices">
+            <name>PlutoPortalServices</name>
+        </reference>
     </gbean>
   
 </web-app>

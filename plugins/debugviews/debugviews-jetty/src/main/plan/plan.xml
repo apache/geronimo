@@ -34,30 +34,45 @@ limitations under the License.
         <attribute name="pageTitle">Debug Views/JMX Viewer</attribute>
         <attribute name="portletContext">/debug-views</attribute>
         <attribute name="portletList">[JMXViewer]</attribute>
+        <reference name="PortalContainerServices">
+            <name>PlutoPortalServices</name>
+        </reference>
     </gbean>
 
     <gbean name="LDAPViewer" class="org.apache.geronimo.pluto.AdminConsoleExtensionGBean">
         <attribute name="pageTitle">Debug Views/LDAP Viewer</attribute>
         <attribute name="portletContext">/debug-views</attribute>
         <attribute name="portletList">[LDAPViewer]</attribute>
+        <reference name="PortalContainerServices">
+            <name>PlutoPortalServices</name>
+        </reference>
     </gbean>
 
     <gbean name="ClassLoaderViewer" class="org.apache.geronimo.pluto.AdminConsoleExtensionGBean">
         <attribute name="pageTitle">Debug Views/ClassLoader Viewer</attribute>
         <attribute name="portletContext">/debug-views</attribute>
         <attribute name="portletList">[ClassLoaderViewer]</attribute>
+        <reference name="PortalContainerServices">
+            <name>PlutoPortalServices</name>
+        </reference>
     </gbean>
 
     <gbean name="JNDIViewer" class="org.apache.geronimo.pluto.AdminConsoleExtensionGBean">
         <attribute name="pageTitle">Debug Views/JNDI Viewer</attribute>
         <attribute name="portletContext">/debug-views</attribute>
         <attribute name="portletList">[JNDIViewer]</attribute>
+        <reference name="PortalContainerServices">
+            <name>PlutoPortalServices</name>
+        </reference>
     </gbean>
 
     <gbean name="DependencyViewer" class="org.apache.geronimo.pluto.AdminConsoleExtensionGBean">
         <attribute name="pageTitle">Debug Views/Dependency Viewer</attribute>
         <attribute name="portletContext">/debug-views</attribute>
         <attribute name="portletList">[DependencyViewer]</attribute>
+        <reference name="PortalContainerServices">
+            <name>PlutoPortalServices</name>
+        </reference>
     </gbean>
 
 </web-app>

@@ -34,24 +34,36 @@ limitations under the License.
         <attribute name="pageTitle">Services/Database Pools</attribute>
         <attribute name="portletContext">/system-database</attribute>
         <attribute name="portletList">[DBWizard]</attribute>
+        <reference name="PortalContainerServices">
+            <name>PlutoPortalServices</name>
+        </reference>
     </gbean>
 
     <gbean name="InternalDB" class="org.apache.geronimo.pluto.AdminConsoleExtensionGBean">
         <attribute name="pageTitle">Embedded DB/DB Info</attribute>
         <attribute name="portletContext">/system-database</attribute>
         <attribute name="portletList">[InternalDB]</attribute>
+        <reference name="PortalContainerServices">
+            <name>PlutoPortalServices</name>
+        </reference>
     </gbean>
 
     <gbean name="DBViewer" class="org.apache.geronimo.pluto.AdminConsoleExtensionGBean">
         <attribute name="pageTitle">Embedded DB/DB Manager</attribute>
         <attribute name="portletContext">/system-database</attribute>
         <attribute name="portletList">[DBViewer,RunSQL]</attribute>
+        <reference name="PortalContainerServices">
+            <name>PlutoPortalServices</name>
+        </reference>
     </gbean>
 
     <gbean name="DerbyLogViewer" class="org.apache.geronimo.pluto.AdminConsoleExtensionGBean">
         <attribute name="pageTitle">Server/Server Logs</attribute>
         <attribute name="portletContext">/system-database</attribute>
         <attribute name="portletList">[DerbyLogViewer]</attribute>
+        <reference name="PortalContainerServices">
+            <name>PlutoPortalServices</name>
+        </reference>
     </gbean>
 
     <!-- database driver definitions -->
