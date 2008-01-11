@@ -24,20 +24,54 @@
 
     <parent>
         <groupId>org.apache.geronimo.plugins</groupId>
-        <artifactId>debugviews</artifactId>
+        <artifactId>activemq</artifactId>
         <version>2.1-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
-    <artifactId>debugviews-jetty</artifactId>
-    <name>Geronimo Plugins :: Debug Views - Jetty</name>
+    <artifactId>activemq-console-tomcat</artifactId>
+    <name>Geronimo Plugins :: ActiveMQ - Console - Tomcat</name>
     <packaging>car</packaging>
 
     <dependencies>
         
         <dependency>
+            <groupId>org.apache.geronimo.plugins</groupId>
+            <artifactId>activemq-portlets</artifactId>
+            <version>${version}</version>
+            <type>war</type>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.geronimo.plugins</groupId>
+            <artifactId>console-tomcat</artifactId>
+            <version>${version}</version>
+            <type>car</type>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.geronimo.plugins</groupId>
+            <artifactId>console-core</artifactId>
+            <version>${version}</version>
+        </dependency>
+
+        <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
-            <artifactId>jetty6-deployer</artifactId>
+            <artifactId>activemq-ra</artifactId>
+            <version>${version}</version>
+            <type>car</type>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.geronimo.configs</groupId>
+            <artifactId>geronimo-gbean-deployer</artifactId>
+            <version>${version}</version>
+            <type>car</type>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.geronimo.configs</groupId>
+            <artifactId>tomcat6-deployer</artifactId>
             <version>${version}</version>
             <type>car</type>
             <scope>provided</scope>
@@ -49,44 +83,12 @@
             <type>car</type>
             <scope>provided</scope>
         </dependency>
-        <dependency>
-            <groupId>org.apache.geronimo.plugins</groupId>
-            <artifactId>debugviews-portlets</artifactId>
-            <version>${version}</version>
-            <type>war</type>
-            <scope>provided</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.geronimo.plugins</groupId>
-            <artifactId>console-core</artifactId>
-            <version>${version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.geronimo.plugins</groupId>
-            <artifactId>console-jetty</artifactId>
-            <version>${version}</version>
-            <type>car</type>
-        </dependency>
 
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
-            <artifactId>geronimo-gbean-deployer</artifactId>
+            <artifactId>connector-deployer</artifactId>
             <version>${version}</version>
             <type>car</type>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.geronimo.configs</groupId>
-            <artifactId>dojo-legacy-jetty6</artifactId>
-            <version>${version}</version>
-            <type>car</type>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.xbean</groupId>
-            <artifactId>xbean-naming</artifactId>
         </dependency>
 
         <dependency>
@@ -102,25 +104,22 @@
         </dependency>
 
         <dependency>
-            <groupId>org.apache.geronimo.specs</groupId>
-            <artifactId>geronimo-servlet_2.5_spec</artifactId>
+            <groupId>org.apache.geronimo.configs</groupId>
+            <artifactId>plugin</artifactId>
+            <version>${version}</version>
+            <type>car</type>
         </dependency>
 
         <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
-            <artifactId>geronimo-j2ee</artifactId>
+            <artifactId>geronimo-activemq-ra</artifactId>
             <version>${version}</version>
+            <type>rar</type>
         </dependency>
 
-        <dependency>
-            <groupId>org.directwebremoting</groupId>
-            <artifactId>dwr</artifactId>
-        </dependency>
-
-        <!-- for jspc. why is this needed? -->
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
-            <artifactId>jasper</artifactId>
+            <artifactId>jsr88-rar-configurer</artifactId>
             <version>${version}</version>
             <type>car</type>
         </dependency>
@@ -143,16 +142,16 @@
                     <deploymentConfigs>
                         <deploymentConfig>${gbeanDeployer}</deploymentConfig>
                         <deploymentConfig>${j2eeDeployer}</deploymentConfig>
-                        <deploymentConfig>${jetty6Deployer}</deploymentConfig>
+                        <deploymentConfig>${tomcatDeployer}</deploymentConfig>
                         <deploymentConfig>${jasperDeployer}</deploymentConfig>
                     </deploymentConfigs>
                     <module>
                         <groupId>org.apache.geronimo.plugins</groupId>
-                        <artifactId>debugviews-portlets</artifactId>
+                        <artifactId>activemq-portlets</artifactId>
                         <version>${version}</version>
                         <type>war</type>
                     </module>
-                    <category>Debug</category>
+                    <category>JMS</category>
                     <osiApproved>true</osiApproved>
                     <useMavenDependencies>
                         <value>true</value>
@@ -163,11 +162,11 @@
                             <prerequisite>
                                 <id>
                                     <groupId>org.apache.geronimo.configs</groupId>
-                                    <artifactId>jetty6</artifactId>
+                                    <artifactId>tomcat6</artifactId>
                                 </id>
                                 <resource-type>Web Container</resource-type>
                                 <description>
-                                    This version of the plugin works with the Geronimo/Jetty distribution.
+                                    This version of the plugin works with the Geronimo/Tomcat distribution.
                                 </description>
                             </prerequisite>
                         </plugin-artifact>

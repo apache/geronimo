@@ -39,8 +39,8 @@
 
     <modules>
         <module>plancreator-portlets</module>
-        <module>plancreator-tomcat</module>
-        <module>plancreator-jetty</module>
+        <module>plancreator-console-jetty</module>
+        <module>plancreator-console-tomcat</module>
     </modules>
 
 </project>

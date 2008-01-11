@@ -39,8 +39,8 @@
 
     <modules>
         <module>debugviews-portlets</module>
-        <module>debugviews-tomcat</module>
-        <module>debugviews-jetty</module>
+        <module>debugviews-console-tomcat</module>
+        <module>debugviews-console-jetty</module>
     </modules>
 
 </project>

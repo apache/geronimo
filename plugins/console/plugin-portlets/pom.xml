@@ -29,7 +29,7 @@
         <relativePath>../pom.xml</relativePath>
     </parent>
 
-    <artifactId>console-plugin</artifactId>
+    <artifactId>plugin-portlets</artifactId>
     <name>Geronimo Plugins :: Administration Console Plugin and Deployment Portlets</name>
     <packaging>war</packaging>
 

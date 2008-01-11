@@ -24,13 +24,13 @@
 
     <parent>
         <groupId>org.apache.geronimo.plugins</groupId>
-        <artifactId>plancreator</artifactId>
+        <artifactId>debugviews</artifactId>
         <version>2.1-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
-    <artifactId>plancreator-jetty</artifactId>
-    <name>Geronimo Plugins :: Deployment Plan Creator - Jetty</name>
+    <artifactId>debugviews-console-jetty</artifactId>
+    <name>Geronimo Plugins :: Debug Views - Jetty</name>
     <packaging>car</packaging>
 
     <dependencies>
@@ -51,10 +51,16 @@
         </dependency>
         <dependency>
             <groupId>org.apache.geronimo.plugins</groupId>
-            <artifactId>plancreator-portlets</artifactId>
+            <artifactId>debugviews-portlets</artifactId>
             <version>${version}</version>
             <type>war</type>
             <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.geronimo.plugins</groupId>
+            <artifactId>console-core</artifactId>
+            <version>${version}</version>
         </dependency>
 
         <dependency>
@@ -65,45 +71,50 @@
         </dependency>
 
         <dependency>
+            <groupId>org.apache.geronimo.configs</groupId>
+            <artifactId>geronimo-gbean-deployer</artifactId>
+            <version>${version}</version>
+            <type>car</type>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.geronimo.configs</groupId>
+            <artifactId>dojo-legacy-jetty6</artifactId>
+            <version>${version}</version>
+            <type>car</type>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.xbean</groupId>
+            <artifactId>xbean-naming</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.geronimo.modules</groupId>
+            <artifactId>geronimo-kernel</artifactId>
+            <version>${version}</version>
+        </dependency>
+
+        <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
             <artifactId>geronimo-management</artifactId>
             <version>${version}</version>
         </dependency>
 
         <dependency>
-            <groupId>org.apache.geronimo.configs</groupId>
-            <artifactId>connector-deployer</artifactId>
-            <version>${version}</version>
-            <type>car</type>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.geronimo.configs</groupId>
-            <artifactId>plugin</artifactId>
-            <version>${version}</version>
-            <type>car</type>
+            <groupId>org.apache.geronimo.specs</groupId>
+            <artifactId>geronimo-servlet_2.5_spec</artifactId>
         </dependency>
 
         <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
-            <artifactId>geronimo-test-ddbean</artifactId>
+            <artifactId>geronimo-j2ee</artifactId>
             <version>${version}</version>
         </dependency>
 
         <dependency>
-            <groupId>commons-fileupload</groupId>
-            <artifactId>commons-fileupload</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>commons-io</groupId>
-            <artifactId>commons-io</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.geronimo.plugins</groupId>
-            <artifactId>console-core</artifactId>
-            <version>${version}</version>
+            <groupId>org.directwebremoting</groupId>
+            <artifactId>dwr</artifactId>
         </dependency>
 
         <!-- for jspc. why is this needed? -->
@@ -137,11 +148,11 @@
                     </deploymentConfigs>
                     <module>
                         <groupId>org.apache.geronimo.plugins</groupId>
-                        <artifactId>plancreator-portlets</artifactId>
+                        <artifactId>debugviews-portlets</artifactId>
                         <version>${version}</version>
                         <type>war</type>
                     </module>
-                    <category>Development tools</category>
+                    <category>Debug</category>
                     <osiApproved>true</osiApproved>
                     <useMavenDependencies>
                         <value>true</value>

@@ -35,7 +35,7 @@
         <module>geronimo-timer</module>
         <module>system-database</module>
         <module>system-database-portlets</module>
-        <module>system-database-tomcat</module>
-        <module>system-database-jetty</module>
+        <module>system-database-console-jetty</module>
+        <module>system-database-console-tomcat</module>
     </modules>
 </project>

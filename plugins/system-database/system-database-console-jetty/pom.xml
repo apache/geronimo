@@ -29,7 +29,7 @@
         <relativePath>../pom.xml</relativePath>
     </parent>
 
-    <artifactId>system-database-jetty</artifactId>
+    <artifactId>system-database-console-jetty</artifactId>
     <name>Geronimo Plugins :: System Database - Jetty</name>
     <packaging>car</packaging>
 

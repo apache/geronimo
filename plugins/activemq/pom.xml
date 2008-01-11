@@ -37,7 +37,7 @@
         <module>geronimo-activemq</module>
         <module>geronimo-activemq-management</module>
         <module>activemq-portlets</module>
-        <module>activemq-tomcat</module>
-        <module>activemq-jetty</module>
+        <module>activemq-console-jetty</module>
+        <module>activemq-console-tomcat</module>
     </modules>
 </project>

@@ -45,9 +45,9 @@
         <module>console-ear</module>
         <module>console-tomcat</module>
         <module>console-jetty</module>
-        <module>console-plugin</module>
-        <module>console-plugin-jetty</module>
-        <module>console-plugin-tomcat</module>
+        <module>plugin-portlets</module>
+        <module>plugin-console-jetty</module>
+        <module>plugin-console-tomcat</module>
     </modules>
 
 </project>

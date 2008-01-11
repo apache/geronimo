@@ -24,51 +24,17 @@
 
     <parent>
         <groupId>org.apache.geronimo.plugins</groupId>
-        <artifactId>activemq</artifactId>
+        <artifactId>debugviews</artifactId>
         <version>2.1-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
-    <artifactId>activemq-tomcat</artifactId>
-    <name>Geronimo Plugins :: ActiveMQ - Tomcat</name>
+    <artifactId>debugviews-console-tomcat</artifactId>
+    <name>Geronimo Plugins :: Debug Views - Tomcat</name>
     <packaging>car</packaging>
 
     <dependencies>
-        
-        <dependency>
-            <groupId>org.apache.geronimo.plugins</groupId>
-            <artifactId>activemq-portlets</artifactId>
-            <version>${version}</version>
-            <type>war</type>
-            <scope>provided</scope>
-        </dependency>
 
-        <dependency>
-            <groupId>org.apache.geronimo.plugins</groupId>
-            <artifactId>console-tomcat</artifactId>
-            <version>${version}</version>
-            <type>car</type>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.geronimo.plugins</groupId>
-            <artifactId>console-core</artifactId>
-            <version>${version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.geronimo.configs</groupId>
-            <artifactId>activemq-ra</artifactId>
-            <version>${version}</version>
-            <type>car</type>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.geronimo.configs</groupId>
-            <artifactId>geronimo-gbean-deployer</artifactId>
-            <version>${version}</version>
-            <type>car</type>
-        </dependency>
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
             <artifactId>tomcat6-deployer</artifactId>
@@ -83,12 +49,44 @@
             <type>car</type>
             <scope>provided</scope>
         </dependency>
+        <dependency>
+            <groupId>org.apache.geronimo.plugins</groupId>
+            <artifactId>debugviews-portlets</artifactId>
+            <version>${version}</version>
+            <type>war</type>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.geronimo.plugins</groupId>
+            <artifactId>console-core</artifactId>
+            <version>${version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.geronimo.plugins</groupId>
+            <artifactId>console-tomcat</artifactId>
+            <version>${version}</version>
+            <type>car</type>
+        </dependency>
 
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
-            <artifactId>connector-deployer</artifactId>
+            <artifactId>geronimo-gbean-deployer</artifactId>
             <version>${version}</version>
             <type>car</type>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.geronimo.configs</groupId>
+            <artifactId>dojo-legacy-tomcat</artifactId>
+            <version>${version}</version>
+            <type>car</type>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.xbean</groupId>
+            <artifactId>xbean-naming</artifactId>
         </dependency>
 
         <dependency>
@@ -104,24 +102,19 @@
         </dependency>
 
         <dependency>
-            <groupId>org.apache.geronimo.configs</groupId>
-            <artifactId>plugin</artifactId>
-            <version>${version}</version>
-            <type>car</type>
+            <groupId>org.apache.geronimo.specs</groupId>
+            <artifactId>geronimo-servlet_2.5_spec</artifactId>
         </dependency>
 
         <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
-            <artifactId>geronimo-activemq-ra</artifactId>
+            <artifactId>geronimo-j2ee</artifactId>
             <version>${version}</version>
-            <type>rar</type>
         </dependency>
 
         <dependency>
-            <groupId>org.apache.geronimo.configs</groupId>
-            <artifactId>jsr88-rar-configurer</artifactId>
-            <version>${version}</version>
-            <type>car</type>
+            <groupId>org.directwebremoting</groupId>
+            <artifactId>dwr</artifactId>
         </dependency>
 
     </dependencies>
@@ -147,11 +140,11 @@
                     </deploymentConfigs>
                     <module>
                         <groupId>org.apache.geronimo.plugins</groupId>
-                        <artifactId>activemq-portlets</artifactId>
+                        <artifactId>debugviews-portlets</artifactId>
                         <version>${version}</version>
                         <type>war</type>
                     </module>
-                    <category>JMS</category>
+                    <category>Debug</category>
                     <osiApproved>true</osiApproved>
                     <useMavenDependencies>
                         <value>true</value>

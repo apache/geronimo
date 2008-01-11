@@ -24,20 +24,20 @@
 
     <parent>
         <groupId>org.apache.geronimo.plugins</groupId>
-        <artifactId>system-database</artifactId>
+        <artifactId>plancreator</artifactId>
         <version>2.1-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
-    <artifactId>system-database-tomcat</artifactId>
-    <name>Geronimo Plugins :: System Database - Tomcat</name>
+    <artifactId>plancreator-console-jetty</artifactId>
+    <name>Geronimo Plugins :: Deployment Plan Creator - Jetty</name>
     <packaging>car</packaging>
 
     <dependencies>
         
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
-            <artifactId>tomcat6-deployer</artifactId>
+            <artifactId>jetty6-deployer</artifactId>
             <version>${version}</version>
             <type>car</type>
             <scope>provided</scope>
@@ -51,7 +51,7 @@
         </dependency>
         <dependency>
             <groupId>org.apache.geronimo.plugins</groupId>
-            <artifactId>system-database-portlets</artifactId>
+            <artifactId>plancreator-portlets</artifactId>
             <version>${version}</version>
             <type>war</type>
             <scope>provided</scope>
@@ -59,54 +59,22 @@
 
         <dependency>
             <groupId>org.apache.geronimo.plugins</groupId>
-            <artifactId>console-tomcat</artifactId>
+            <artifactId>console-jetty</artifactId>
             <version>${version}</version>
             <type>car</type>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.geronimo.plugins</groupId>
-            <artifactId>console-core</artifactId>
-            <version>${version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.geronimo.configs</groupId>
-            <artifactId>system-database</artifactId>
-            <version>${version}</version>
-            <type>car</type>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.geronimo.configs</groupId>
-            <artifactId>jsr88-rar-configurer</artifactId>
-            <version>${version}</version>
-            <type>car</type>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.geronimo.configs</groupId>
-            <artifactId>geronimo-gbean-deployer</artifactId>
-            <version>${version}</version>
-            <type>car</type>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.geronimo.modules</groupId>
-            <artifactId>geronimo-kernel</artifactId>
-            <version>${version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.geronimo.modules</groupId>
-            <artifactId>geronimo-converter</artifactId>
-            <version>${version}</version>
         </dependency>
 
         <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
             <artifactId>geronimo-management</artifactId>
             <version>${version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.geronimo.configs</groupId>
+            <artifactId>connector-deployer</artifactId>
+            <version>${version}</version>
+            <type>car</type>
         </dependency>
 
         <dependency>
@@ -118,91 +86,8 @@
 
         <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
-            <artifactId>geronimo-derby</artifactId>
-            <version>${version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.geronimo.modules</groupId>
             <artifactId>geronimo-test-ddbean</artifactId>
             <version>${version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.tranql</groupId>
-            <artifactId>tranql-connector-derby-embed-local</artifactId>
-            <type>rar</type>
-        </dependency>
-
-        <dependency>
-            <groupId>org.tranql</groupId>
-            <artifactId>tranql-connector-derby-embed-xa</artifactId>
-            <type>rar</type>
-        </dependency>
-
-        <dependency>
-            <groupId>org.tranql</groupId>
-            <artifactId>tranql-connector-ra</artifactId>
-            <type>rar</type>
-        </dependency>
-
-        <dependency>
-            <groupId>org.tranql</groupId>
-            <artifactId>tranql-connector-derby-client-local</artifactId>
-            <type>rar</type>
-        </dependency>
-
-        <dependency>
-            <groupId>org.tranql</groupId>
-            <artifactId>tranql-connector-derby-client-xa</artifactId>
-            <type>rar</type>
-        </dependency>
-
-        <dependency>
-            <groupId>org.tranql</groupId>
-            <artifactId>tranql-connector-db2-xa</artifactId>
-            <type>rar</type>
-        </dependency>
-
-        <dependency>
-            <groupId>org.tranql</groupId>
-            <artifactId>tranql-connector-mysql-local</artifactId>
-            <type>rar</type>
-        </dependency>
-
-        <dependency>
-            <groupId>org.tranql</groupId>
-            <artifactId>tranql-connector-mysql-xa</artifactId>
-            <type>rar</type>
-        </dependency>
-
-        <dependency>
-            <groupId>org.tranql</groupId>
-            <artifactId>tranql-connector-oracle-local</artifactId>
-            <type>rar</type>
-        </dependency>
-
-        <dependency>
-            <groupId>org.tranql</groupId>
-            <artifactId>tranql-connector-oracle-xa</artifactId>
-            <type>rar</type>
-        </dependency>
-
-        <dependency>
-            <groupId>org.tranql</groupId>
-            <artifactId>tranql-connector-postgresql-local</artifactId>
-            <type>rar</type>
-        </dependency>
-
-        <dependency>
-            <groupId>org.tranql</groupId>
-            <artifactId>tranql-connector-postgresql-xa</artifactId>
-            <type>rar</type>
-        </dependency>
-
-        <dependency>
-            <groupId>commons-io</groupId>
-            <artifactId>commons-io</artifactId>
         </dependency>
 
         <dependency>
@@ -211,8 +96,22 @@
         </dependency>
 
         <dependency>
-            <groupId>org.directwebremoting</groupId>
-            <artifactId>dwr</artifactId>
+            <groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.geronimo.plugins</groupId>
+            <artifactId>console-core</artifactId>
+            <version>${version}</version>
+        </dependency>
+
+        <!-- for jspc. why is this needed? -->
+        <dependency>
+            <groupId>org.apache.geronimo.configs</groupId>
+            <artifactId>jasper</artifactId>
+            <version>${version}</version>
+            <type>car</type>
         </dependency>
 
     </dependencies>
@@ -233,16 +132,16 @@
                     <deploymentConfigs>
                         <deploymentConfig>${gbeanDeployer}</deploymentConfig>
                         <deploymentConfig>${j2eeDeployer}</deploymentConfig>
-                        <deploymentConfig>${tomcatDeployer}</deploymentConfig>
+                        <deploymentConfig>${jetty6Deployer}</deploymentConfig>
                         <deploymentConfig>${jasperDeployer}</deploymentConfig>
                     </deploymentConfigs>
                     <module>
                         <groupId>org.apache.geronimo.plugins</groupId>
-                        <artifactId>system-database-portlets</artifactId>
+                        <artifactId>plancreator-portlets</artifactId>
                         <version>${version}</version>
                         <type>war</type>
                     </module>
-                    <category>Databases</category>
+                    <category>Development tools</category>
                     <osiApproved>true</osiApproved>
                     <useMavenDependencies>
                         <value>true</value>
@@ -253,11 +152,11 @@
                             <prerequisite>
                                 <id>
                                     <groupId>org.apache.geronimo.configs</groupId>
-                                    <artifactId>tomcat6</artifactId>
+                                    <artifactId>jetty6</artifactId>
                                 </id>
                                 <resource-type>Web Container</resource-type>
                                 <description>
-                                    This version of the plugin works with the Geronimo/Tomcat distribution.
+                                    This version of the plugin works with the Geronimo/Jetty distribution.
                                 </description>
                             </prerequisite>
                         </plugin-artifact>
