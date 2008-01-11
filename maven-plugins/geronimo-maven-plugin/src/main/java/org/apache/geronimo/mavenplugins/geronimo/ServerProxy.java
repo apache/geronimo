@@ -29,7 +29,6 @@ import javax.management.remote.JMXServiceURL;
 import javax.management.remote.JMXConnector;
 import javax.management.remote.JMXConnectorFactory;
 import javax.management.MBeanServerConnection;
-import javax.management.ObjectName;
 
 //
 // FIXME: It should be possible to query state with-out any Geronimo classes,
@@ -40,7 +39,7 @@ import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.config.PersistentConfigurationList;
-
+import org.apache.geronimo.system.serverinfo.ServerInfo;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -108,7 +107,7 @@ public class ServerProxy
         return mbeanConnection;
     }
 
-        public boolean isFullyStarted() {
+    public boolean isFullyStarted() {
         boolean fullyStarted = true;
 
         try {
@@ -156,15 +155,15 @@ public class ServerProxy
         String home = null;
 
         try {
-            ObjectName systemInfoQuery = new ObjectName("*:name=ServerInfo,j2eeType=GBean,*");
-
-            getConnection();
-
-            Set set = mbeanConnection.queryNames(systemInfoQuery, null);
-
-            if (set.size() > 0) {
-                ObjectName found = (ObjectName)set.iterator().next();
-                home = (String)mbeanConnection.getAttribute(found, "currentBaseDirectory");
+            AbstractNameQuery query = new AbstractNameQuery(ServerInfo.class.getName());
+            Set result = listGBeans(query);
+            Iterator iter = result.iterator();
+            while (iter.hasNext()) {
+                AbstractName name = (AbstractName)iter.next();
+                home  = (String)getAttribute(name, "currentBaseDirectory");
+                if (home != null) {
+                    break;
+                }
             }
         }
         catch (IOException e) {
