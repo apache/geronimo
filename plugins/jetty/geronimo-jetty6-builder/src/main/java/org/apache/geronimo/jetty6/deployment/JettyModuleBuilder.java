@@ -133,8 +133,8 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder implements GBea
         NAMESPACE_UPDATES.put("http://geronimo.apache.org/xml/ns/j2ee/web/jetty-1.2", "http://geronimo.apache.org/xml/ns/j2ee/web/jetty-2.0.2");
         NAMESPACE_UPDATES.put("http://geronimo.apache.org/xml/ns/j2ee/web/jetty-2.0", "http://geronimo.apache.org/xml/ns/j2ee/web/jetty-2.0.2");
         NAMESPACE_UPDATES.put("http://geronimo.apache.org/xml/ns/j2ee/web/jetty-2.0.1", "http://geronimo.apache.org/xml/ns/j2ee/web/jetty-2.0.2");
-        NAMESPACE_UPDATES.put("http://geronimo.apache.org/xml/ns/web/jetty/config", "http://geronimo.apache.org/xml/ns/j2ee/web/jetty/config-1.0.1");
-        NAMESPACE_UPDATES.put("http://geronimo.apache.org/xml/ns/web/jetty/config-1.0", "http://geronimo.apache.org/xml/ns/j2ee/web/jetty/config-1.0.1");
+        NAMESPACE_UPDATES.put("http://geronimo.apache.org/xml/ns/web/jetty/config", "http://geronimo.apache.org/xml/ns/web/jetty/config-1.0.1");
+        NAMESPACE_UPDATES.put("http://geronimo.apache.org/xml/ns/web/jetty/config-1.0", "http://geronimo.apache.org/xml/ns/web/jetty/config-1.0.1");
     }
 
     private final Environment defaultEnvironment;
