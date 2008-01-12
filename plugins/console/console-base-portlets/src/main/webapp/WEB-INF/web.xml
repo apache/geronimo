@@ -136,15 +136,6 @@ limitations under the License.
         <load-on-startup>1</load-on-startup>
     </servlet>
     <servlet>
-        <servlet-name>RealmWizard</servlet-name>
-        <servlet-class>org.apache.pluto.core.PortletServlet</servlet-class>
-        <init-param>
-            <param-name>portlet-name</param-name>
-            <param-value>RealmWizard</param-value>
-        </init-param>
-        <load-on-startup>1</load-on-startup>
-    </servlet>
-    <servlet>
         <servlet-name>ApacheJK</servlet-name>
         <servlet-class>org.apache.pluto.core.PortletServlet</servlet-class>
         <init-param>
@@ -309,10 +300,6 @@ limitations under the License.
     <servlet-mapping>
         <servlet-name>RepositoryViewer</servlet-name>
         <url-pattern>/PlutoInvoker/RepositoryViewer</url-pattern>
-    </servlet-mapping>
-    <servlet-mapping>
-        <servlet-name>RealmWizard</servlet-name>
-        <url-pattern>/PlutoInvoker/RealmWizard</url-pattern>
     </servlet-mapping>
     <servlet-mapping>
         <servlet-name>ApacheJK</servlet-name>

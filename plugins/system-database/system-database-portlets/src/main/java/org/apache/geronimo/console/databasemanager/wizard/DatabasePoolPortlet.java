@@ -85,6 +85,7 @@ import org.apache.geronimo.connector.deployment.jsr88.ResourceAdapter;
 import org.apache.geronimo.connector.deployment.jsr88.SinglePool;
 import org.apache.geronimo.connector.outbound.PoolingAttributes;
 import org.apache.geronimo.console.BasePortlet;
+import org.apache.geronimo.console.databasemanager.ManagementHelper;
 import org.apache.geronimo.console.ajax.ProgressInfo;
 import org.apache.geronimo.console.util.PortletManager;
 import org.apache.geronimo.converter.DatabaseConversionStatus;
@@ -534,7 +535,7 @@ public class DatabasePoolPortlet extends BasePortlet {
     }
 
     private ResourceAdapterParams loadConfigPropertiesByPath(PortletRequest request, String rarPath) {
-        DeploymentManager mgr = PortletManager.getDeploymentManager(request);
+        DeploymentManager mgr = ManagementHelper.getManagementHelper(request).getDeploymentManager();
         try {
             URL url = getRAR(request, rarPath).toURL();
             ConnectorDeployable deployable = new ConnectorDeployable(url);
@@ -913,7 +914,7 @@ public class DatabasePoolPortlet extends BasePortlet {
             boolean isSystemDatabasePool = (data.getAbstractName().indexOf("org.apache.geronimo.configs") == 0);
 
             if (!isSystemDatabasePool) {
-                DeploymentManager mgr = PortletManager.getDeploymentManager(request);
+                DeploymentManager mgr = ManagementHelper.getManagementHelper(request).getDeploymentManager();
                 try {
                     // retrieve all running modules
                     TargetModuleID[] runningIds = mgr.getRunningModules(ModuleType.RAR, mgr.getTargets());
@@ -950,7 +951,7 @@ public class DatabasePoolPortlet extends BasePortlet {
         ImportStatus status = getImportStatus(request);
         if (data.abstractName == null || data.abstractName.equals("")) { // we're creating a new pool
             data.name = data.name.replaceAll("\\s", "");
-            DeploymentManager mgr = PortletManager.getDeploymentManager(request);
+            DeploymentManager mgr = ManagementHelper.getManagementHelper(request).getDeploymentManager();
             try {
                 File rarFile = getRAR(request, data.getRarPath());
                 ConnectorDeployable deployable = new ConnectorDeployable(rarFile.toURL());

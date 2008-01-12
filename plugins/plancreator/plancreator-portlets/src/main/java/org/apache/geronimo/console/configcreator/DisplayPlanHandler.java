@@ -22,6 +22,7 @@ import java.net.URL;
 import javax.enterprise.deploy.model.exceptions.DDBeanCreateException;
 import javax.enterprise.deploy.spi.exceptions.ConfigurationException;
 import javax.enterprise.deploy.spi.exceptions.InvalidModuleException;
+import javax.enterprise.deploy.spi.exceptions.DeploymentManagerCreationException;
 import javax.portlet.ActionRequest;
 import javax.portlet.ActionResponse;
 import javax.portlet.PortletException;
@@ -60,6 +61,8 @@ public class DisplayPlanHandler extends AbstractHandler {
         } catch (InvalidModuleException e) {
             log.error(e.getMessage(), e);
         } catch (ConfigurationException e) {
+            log.error(e.getMessage(), e);
+        } catch (DeploymentManagerCreationException e) {
             log.error(e.getMessage(), e);
         }
         request.setAttribute(DATA_PARAMETER, data);

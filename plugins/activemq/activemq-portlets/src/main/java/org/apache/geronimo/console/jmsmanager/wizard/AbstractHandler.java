@@ -49,6 +49,7 @@ import org.apache.geronimo.connector.deployment.jsr88.ResourceAdapterInstance;
 import org.apache.geronimo.connector.deployment.jsr88.SinglePool;
 import org.apache.geronimo.console.MultiPageAbstractHandler;
 import org.apache.geronimo.console.MultiPageModel;
+import org.apache.geronimo.console.jmsmanager.ManagementHelper;
 import org.apache.geronimo.console.util.PortletManager;
 import org.apache.geronimo.deployment.service.jsr88.EnvironmentData;
 import org.apache.geronimo.deployment.tools.loader.ConnectorDeployable;
@@ -464,7 +465,7 @@ public abstract class AbstractHandler extends MultiPageAbstractHandler {
         JMSProviderData provider = JMSProviderData.getProviderData(data.rarURI, request);
         if(data.objectName == null || data.objectName.equals("")) { // we're creating a new pool
             //data.instanceName = data.instanceName.replaceAll("\\s", "");
-            DeploymentManager mgr = PortletManager.getDeploymentManager(request);
+            DeploymentManager mgr = ManagementHelper.getManagementHelper(request).getDeploymentManager();
             try {
                 File rarFile = PortletManager.getRepositoryEntry(request, data.getRarURI());
                 ConnectorDeployable deployable = new ConnectorDeployable(rarFile.toURL());
@@ -647,6 +648,17 @@ public abstract class AbstractHandler extends MultiPageAbstractHandler {
         }
         return null;
     }
+
+    protected static void waitForProgress(ProgressObject po) {
+        while(po.getDeploymentStatus().isRunning()) {
+            try {
+                Thread.sleep(100);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+    
 }
 
 

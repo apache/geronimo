@@ -18,25 +18,18 @@ package org.apache.geronimo.console.util;
 
 import java.io.File;
 import java.util.Map;
-import java.util.regex.Pattern;
 
-import javax.enterprise.deploy.spi.DeploymentManager;
-import javax.enterprise.deploy.spi.exceptions.DeploymentManagerCreationException;
-import javax.enterprise.deploy.spi.factories.DeploymentFactory;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
 import javax.portlet.PortletRequest;
 import javax.portlet.PortletSession;
-import javax.portlet.RenderResponse;
 import javax.security.auth.Subject;
 import javax.security.auth.login.LoginException;
 import javax.security.auth.spi.LoginModule;
-import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.geronimo.deployment.plugin.factories.DeploymentFactoryWithKernel;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.kernel.Kernel;
@@ -61,7 +54,6 @@ import org.apache.geronimo.management.geronimo.NetworkConnector;
 import org.apache.geronimo.management.geronimo.ResourceAdapter;
 import org.apache.geronimo.management.geronimo.ResourceAdapterModule;
 import org.apache.geronimo.management.geronimo.WebAccessLog;
-import org.apache.geronimo.management.geronimo.WebConnector;
 import org.apache.geronimo.management.geronimo.WebContainer;
 import org.apache.geronimo.management.geronimo.WebManager;
 import org.apache.geronimo.system.logging.SystemLog;
@@ -98,17 +90,6 @@ public class PortletManager {
             kernel = KernelRegistry.getSingleKernel();
         }
         return kernel;
-    }
-
-    public static DeploymentManager getDeploymentManager(PortletRequest request) {
-        Kernel kernel = getKernel();
-        DeploymentFactory factory = new DeploymentFactoryWithKernel(kernel);
-        try {
-            return factory.getDeploymentManager("deployer:geronimo:inVM", null, null);
-        } catch (DeploymentManagerCreationException e) {
-            log.error(e.getMessage(), e);
-            return null;
-        }
     }
 
     public static ConfigurationManager getConfigurationManager() {

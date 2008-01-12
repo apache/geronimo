@@ -50,6 +50,15 @@
         </reference>
     </gbean>
 
+    <gbean name="RealmWizard" class="org.apache.geronimo.pluto.AdminConsoleExtensionGBean">
+        <attribute name="pageTitle">Security/Security Realms</attribute>
+        <attribute name="portletContext">/plugin</attribute>
+        <attribute name="portletList">[RealmWizard]</attribute>
+        <reference name="PortalContainerServices">
+            <name>PlutoPortalServices</name>
+        </reference>
+    </gbean>
+
     <!-- Deployment factory for use inside server -->
     <gbean name="DeploymentFactory" class="org.apache.geronimo.deployment.plugin.factories.DeploymentFactoryWithKernel" />
 </web-app>

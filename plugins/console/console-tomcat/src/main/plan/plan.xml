@@ -215,14 +215,6 @@
                     <name>PlutoPortalServices</name>
                 </reference>
             </gbean>
-            <gbean name="RealmWizard" class="org.apache.geronimo.pluto.AdminConsoleExtensionGBean">
-                <attribute name="pageTitle">Security/Security Realms</attribute>
-                <attribute name="portletContext">/console-base</attribute>
-                <attribute name="portletList">[RealmWizard]</attribute>
-                <reference name="PortalContainerServices">
-                    <name>PlutoPortalServices</name>
-                </reference>
-            </gbean>
             <gbean name="Keystores" class="org.apache.geronimo.pluto.AdminConsoleExtensionGBean">
                 <attribute name="pageTitle">Security/Keystores</attribute>
                 <attribute name="portletContext">/console-base</attribute>

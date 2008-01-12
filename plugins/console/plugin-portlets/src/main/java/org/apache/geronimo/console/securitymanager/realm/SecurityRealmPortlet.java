@@ -63,6 +63,7 @@ import javax.xml.namespace.QName;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.console.BasePortlet;
+import org.apache.geronimo.console.car.ManagementHelper;
 import org.apache.geronimo.console.util.PortletManager;
 import org.apache.geronimo.deployment.xbeans.AbstractServiceType;
 import org.apache.geronimo.deployment.xbeans.ArtifactType;
@@ -83,7 +84,6 @@ import org.apache.geronimo.kernel.config.Configuration;
 import org.apache.geronimo.kernel.config.ConfigurationManager;
 import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 import org.apache.geronimo.kernel.config.ConfigurationUtil;
-import org.apache.geronimo.kernel.proxy.GeronimoManagedBean;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.ListableRepository;
 import org.apache.geronimo.management.geronimo.JCAManagedConnectionFactory;
@@ -493,7 +493,7 @@ public class SecurityRealmPortlet extends BasePortlet {
             try {
                 XmlObject plan = actionGeneratePlan(request, data);
                 data.name = data.name.replaceAll("\\s", "");
-                DeploymentManager mgr = PortletManager.getDeploymentManager(request);
+                DeploymentManager mgr = ManagementHelper.getManagementHelper(request).getDeploymentManager();
                 File tempFile = File.createTempFile("console-deployment", ".xml");
                 tempFile.deleteOnExit();
                 log.debug("Writing security realm deployment plan to " + tempFile.getAbsolutePath());

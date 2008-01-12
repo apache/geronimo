@@ -16,20 +16,18 @@
  */
 package org.apache.geronimo.console;
 
-import org.apache.commons.fileupload.portlet.PortletFileUpload;
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Properties;
 
-import javax.portlet.PortletRequestDispatcher;
-import javax.portlet.PortletConfig;
-import javax.portlet.PortletException;
 import javax.portlet.ActionRequest;
 import javax.portlet.ActionResponse;
+import javax.portlet.PortletConfig;
+import javax.portlet.PortletException;
+import javax.portlet.PortletRequestDispatcher;
 import javax.portlet.RenderRequest;
 import javax.portlet.RenderResponse;
-import javax.enterprise.deploy.spi.status.ProgressObject;
-import java.io.IOException;
-import java.util.Map;
-import java.util.HashMap;
-import java.util.Properties;
 
 /**
  * Base class for handlers for the multi page portlet.  Each one is expected
@@ -92,16 +90,6 @@ public abstract class MultiPageAbstractHandler {
 
     public Properties getUploadFields() {
         return uploadFields;
-    }
-
-    protected static void waitForProgress(ProgressObject po) {
-        while(po.getDeploymentStatus().isRunning()) {
-            try {
-                Thread.sleep(100);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        }
     }
 
 }

@@ -61,14 +61,29 @@ limitations under the License.
         <servlet-name>car-export</servlet-name>
         <servlet-class>org.apache.geronimo.console.car.CARExportServlet</servlet-class>
     </servlet>
+    <servlet-mapping>
+        <servlet-name>car-export</servlet-name>
+        <url-pattern>/car-export</url-pattern>
+    </servlet-mapping>
+
     <servlet>
         <servlet-name>maven-repo</servlet-name>
         <servlet-class>org.apache.geronimo.console.car.GeronimoAsMavenServlet</servlet-class>
     </servlet>
+    <servlet-mapping>
+        <servlet-name>maven-repo</servlet-name>
+        <url-pattern>/maven-repo/*</url-pattern>
+    </servlet-mapping>
+
     <servlet>
         <servlet-name>plan-export</servlet-name>
         <servlet-class>org.apache.geronimo.console.configmanager.PlanExportServlet</servlet-class>
     </servlet>
+    <servlet-mapping>
+        <servlet-name>plan-export</servlet-name>
+        <url-pattern>/plan-export</url-pattern>
+    </servlet-mapping>
+ 
     <servlet>
         <servlet-name>Deployment</servlet-name>
         <servlet-class>org.apache.pluto.core.PortletServlet</servlet-class>
@@ -78,6 +93,11 @@ limitations under the License.
         </init-param>
         <load-on-startup>1</load-on-startup>
     </servlet>
+    <servlet-mapping>
+        <servlet-name>Deployment</servlet-name>
+        <url-pattern>/PlutoInvoker/Deployment</url-pattern>
+    </servlet-mapping>
+
     <servlet>
         <servlet-name>ImportExport</servlet-name>
         <servlet-class>org.apache.pluto.core.PortletServlet</servlet-class>
@@ -87,26 +107,23 @@ limitations under the License.
         </init-param>
         <load-on-startup>1</load-on-startup>
     </servlet>
-
-    <servlet-mapping>
-        <servlet-name>car-export</servlet-name>
-        <url-pattern>/car-export</url-pattern>
-    </servlet-mapping>
-    <servlet-mapping>
-        <servlet-name>maven-repo</servlet-name>
-        <url-pattern>/maven-repo/*</url-pattern>
-    </servlet-mapping>
-    <servlet-mapping>
-        <servlet-name>plan-export</servlet-name>
-        <url-pattern>/plan-export</url-pattern>
-    </servlet-mapping>
-    <servlet-mapping>
-        <servlet-name>Deployment</servlet-name>
-        <url-pattern>/PlutoInvoker/Deployment</url-pattern>
-    </servlet-mapping>
     <servlet-mapping>
         <servlet-name>ImportExport</servlet-name>
         <url-pattern>/PlutoInvoker/ImportExport</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+        <servlet-name>RealmWizard</servlet-name>
+        <servlet-class>org.apache.pluto.core.PortletServlet</servlet-class>
+        <init-param>
+            <param-name>portlet-name</param-name>
+            <param-value>RealmWizard</param-value>
+        </init-param>
+        <load-on-startup>1</load-on-startup>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>RealmWizard</servlet-name>
+        <url-pattern>/PlutoInvoker/RealmWizard</url-pattern>
     </servlet-mapping>
 
     <security-constraint>

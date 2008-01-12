@@ -32,7 +32,9 @@ import javax.enterprise.deploy.spi.DeploymentConfiguration;
 import javax.enterprise.deploy.spi.DeploymentManager;
 import javax.enterprise.deploy.spi.Target;
 import javax.enterprise.deploy.spi.exceptions.ConfigurationException;
+import javax.enterprise.deploy.spi.exceptions.DeploymentManagerCreationException;
 import javax.enterprise.deploy.spi.exceptions.InvalidModuleException;
+import javax.enterprise.deploy.spi.factories.DeploymentFactory;
 import javax.enterprise.deploy.spi.status.ProgressObject;
 import javax.management.ObjectName;
 import javax.portlet.PortletException;
@@ -47,6 +49,7 @@ import org.apache.geronimo.console.configcreator.JSR77_Util.ReferredData;
 import org.apache.geronimo.console.util.PortletManager;
 import org.apache.geronimo.deployment.ConfigurationBuilder;
 import org.apache.geronimo.deployment.ModuleIDBuilder;
+import org.apache.geronimo.deployment.plugin.factories.DeploymentFactoryWithKernel;
 import org.apache.geronimo.deployment.plugin.jmx.JMXDeploymentManager;
 import org.apache.geronimo.deployment.service.jsr88.EnvironmentData;
 import org.apache.geronimo.deployment.tools.loader.WebDeployable;
@@ -62,6 +65,7 @@ import org.apache.geronimo.j2ee.deployment.annotation.ResourceAnnotationHelper;
 import org.apache.geronimo.j2ee.deployment.annotation.SecurityAnnotationHelper;
 import org.apache.geronimo.j2ee.deployment.annotation.WebServiceRefAnnotationHelper;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
+import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.config.ConfigurationManager;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.naming.deployment.EnvironmentEntryBuilder.EnvEntryRefProcessor;
@@ -285,12 +289,14 @@ public class JSR88_Util {
     }
 
     public static String createDeploymentPlan(PortletRequest request, WARConfigData data, URL WarUrl)
-            throws IOException, DDBeanCreateException, InvalidModuleException, ConfigurationException {
+            throws IOException, DDBeanCreateException, InvalidModuleException, ConfigurationException, DeploymentManagerCreationException {
         WebDeployable webDeployable = new WebDeployable(WarUrl);
         DDBeanRoot ddBeanRoot = webDeployable.getDDBeanRoot();
         DDBean ddBean = ddBeanRoot.getChildBean("web-app")[0];
 
-        DeploymentManager deploymentManager = PortletManager.getDeploymentManager(request);
+        Kernel kernel = PortletManager.getKernel();
+        DeploymentFactory factory = new DeploymentFactoryWithKernel(kernel);
+        DeploymentManager deploymentManager = factory.getDeploymentManager("deployer:geronimo:inVM", null, null);
         DeploymentConfiguration deploymentConfiguration = deploymentManager.createConfiguration(webDeployable);
         WebAppDConfigRoot configRoot = (WebAppDConfigRoot) deploymentConfiguration.getDConfigBeanRoot(ddBeanRoot);
         WebAppDConfigBean webApp = (WebAppDConfigBean) configRoot.getDConfigBean(ddBean);

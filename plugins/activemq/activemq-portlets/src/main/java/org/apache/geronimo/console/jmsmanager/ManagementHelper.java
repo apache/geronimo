@@ -18,11 +18,7 @@
  */
 
 
-package org.apache.geronimo.console.car;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
+package org.apache.geronimo.console.jmsmanager;
 
 import javax.enterprise.deploy.spi.DeploymentManager;
 import javax.enterprise.deploy.spi.exceptions.DeploymentManagerCreationException;
@@ -32,22 +28,14 @@ import javax.portlet.PortletSession;
 
 import org.apache.geronimo.console.util.PortletManager;
 import org.apache.geronimo.deployment.plugin.factories.DeploymentFactoryWithKernel;
-import org.apache.geronimo.gbean.AbstractName;
-import org.apache.geronimo.gbean.AbstractNameQuery;
-import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.kernel.Kernel;
-import org.apache.geronimo.system.plugin.PluginInstaller;
-import org.apache.geronimo.system.plugin.PluginRepositoryList;
 
 /**
- * @version $Rev$ $Date$
+ * @version $Rev:$ $Date:$
  */
 public class ManagementHelper {
-
-    private final static String PLUGIN_HELPER_KEY = "org.apache.geronimo.console.PluginManagementHelper";
+    private final static String PLUGIN_HELPER_KEY = "org.apache.geronimo.console.activemq.ManagementHelper";
     private final Kernel kernel;
-    private PluginInstaller pluginInstaller;
-    private List<PluginRepositoryList> pluginRepositoryLists;
 
     public static ManagementHelper getManagementHelper(PortletRequest request) {
         ManagementHelper helper = (ManagementHelper) request.getPortletSession(true).getAttribute(PLUGIN_HELPER_KEY, PortletSession.APPLICATION_SCOPE);
@@ -63,37 +51,6 @@ public class ManagementHelper {
         this.kernel = kernel;
     }
 
-    public PluginInstaller getPluginInstaller() {
-        if (pluginInstaller == null) {
-            Set<AbstractName> pluginInstallers = kernel.listGBeans(new AbstractNameQuery(PluginInstaller.class.getName()));
-            if (pluginInstallers.size() == 0) {
-                throw new IllegalStateException("No plugin installer registered");
-            }
-            try {
-                pluginInstaller = (PluginInstaller) kernel.getGBean(pluginInstallers.iterator().next());
-            } catch (GBeanNotFoundException e) {
-                throw new IllegalStateException("Plugin installer cannot be retrieved from kernel");
-            }
-        }
-        return pluginInstaller;
-    }
-
-    public List<PluginRepositoryList> getPluginRepositoryLists() {
-        if (this.pluginRepositoryLists == null) {
-            Set<AbstractName> names = kernel.listGBeans(new AbstractNameQuery(PluginRepositoryList.class.getName()));
-            List<PluginRepositoryList> pluginRepositoryLists = new ArrayList<PluginRepositoryList>(names.size());
-            for (AbstractName name : names) {
-                try {
-                    pluginRepositoryLists.add((PluginRepositoryList) kernel.getGBean(name));
-                } catch (GBeanNotFoundException e) {
-                    //ignore?
-                }
-            }
-            this.pluginRepositoryLists = pluginRepositoryLists;
-        }
-        return this.pluginRepositoryLists;
-    }
-
     public DeploymentManager getDeploymentManager() {
         DeploymentFactory factory = new DeploymentFactoryWithKernel(kernel);
         try {
@@ -103,5 +60,5 @@ public class ManagementHelper {
             return null;
         }
     }
-
 }
+

@@ -158,7 +158,7 @@
                </reference>
            </gbean>
            <gbean name="WARModules" class="org.apache.geronimo.pluto.AdminConsoleExtensionGBean">
-               <attribute name="pageTitle">Applications/Web Apps</attribute>
+               <attribute name="pageTitle">Applications/Web App WARs</attribute>
                <attribute name="portletContext">/console-base</attribute>
                <attribute name="portletList">[WARModules]</attribute>
                <reference name="PortalContainerServices">
@@ -209,14 +209,6 @@
                <attribute name="pageTitle">Security/Users and Groups</attribute>
                <attribute name="portletContext">/console-base</attribute>
                <attribute name="portletList">[SEUsers, SEGroups]</attribute>
-               <reference name="PortalContainerServices">
-                   <name>PlutoPortalServices</name>
-               </reference>
-           </gbean>
-           <gbean name="RealmWizard" class="org.apache.geronimo.pluto.AdminConsoleExtensionGBean">
-               <attribute name="pageTitle">Security/Security Realms</attribute>
-               <attribute name="portletContext">/console-base</attribute>
-               <attribute name="portletList">[RealmWizard]</attribute>
                <reference name="PortalContainerServices">
                    <name>PlutoPortalServices</name>
                </reference>
