@@ -20,7 +20,7 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/portlet" prefix="portlet"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
-<fmt:setBundle basename="consolebase"/>
+<fmt:setBundle basename="pluginportlets"/>
 <portlet:defineObjects/>
 
 <p><fmt:message key="realmwizard.showPlan.title" /></p>

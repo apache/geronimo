@@ -15,7 +15,7 @@
    limitations under the License.
 --%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
-<fmt:setBundle basename="consolebase"/>
+<fmt:setBundle basename="pluginportlets"/>
 <p><fmt:message key="configmanager.help.title"/></p>
 <table width="100%"  border="0" cellspacing="0" cellpadding="0">
   <tr>

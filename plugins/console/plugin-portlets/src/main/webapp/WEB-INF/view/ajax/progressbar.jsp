@@ -16,7 +16,7 @@
 --%>
 <%@ taglib uri="http://java.sun.com/portlet" prefix="portlet"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
-<fmt:setBundle basename="consolebase"/>
+<fmt:setBundle basename="pluginportlets"/>
 <portlet:defineObjects/>
 <script type='text/javascript' src='/plugin/dwr/interface/ProgressMonitor.js'></script>
 <script type='text/javascript' src='/plugin/dwr/engine.js'></script>

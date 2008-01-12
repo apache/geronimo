@@ -21,7 +21,7 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
 <%@ taglib uri="http://java.sun.com/portlet" prefix="portlet"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
-<fmt:setBundle basename="consolebase"/>
+<fmt:setBundle basename="pluginportlets"/>
 
       <script language="JavaScript">
         var <portlet:namespace/>requiredFieldsCommon = new Array('option-userSelect', 'option-groupSelect');
