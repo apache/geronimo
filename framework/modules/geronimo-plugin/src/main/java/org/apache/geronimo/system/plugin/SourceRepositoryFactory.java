@@ -32,6 +32,9 @@ public class SourceRepositoryFactory {
     }
 
     public static SourceRepository getSourceRepository(String repo) {
+        if (repo == null) {
+            throw new IllegalArgumentException("No repo supplied");
+        }
         URI repoURI = PluginRepositoryDownloader.resolveRepository(repo);
         if (repoURI == null) {
             throw new IllegalStateException("Can't locate repo " + repo);

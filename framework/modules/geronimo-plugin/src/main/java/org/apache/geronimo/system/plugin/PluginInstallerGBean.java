@@ -540,7 +540,7 @@ public class PluginInstallerGBean implements PluginInstaller {
      * DownloadPoller.
      *
      * @param pluginsToInstall            The list of configurations to install
-     * @param defaultRepository           Default repo to look for plugins in
+     * @param defaultRepository           Default repo to look for plugins in (not required)
      * @param restrictToDefaultRepository Whether to follow hints to other plugin repos.
      * @param username                    Optional username, if the maven repo uses HTTP Basic authentication.
      *                                    Set this to null if no authentication is required.
@@ -549,7 +549,10 @@ public class PluginInstallerGBean implements PluginInstaller {
      * @param poller                      Will be notified with status updates as the download proceeds
      */
     public void install(PluginListType pluginsToInstall, String defaultRepository, boolean restrictToDefaultRepository, String username, String password, DownloadPoller poller) {
-        SourceRepository defaultSourceRepository = SourceRepositoryFactory.getSourceRepository(defaultRepository);
+        if (restrictToDefaultRepository && defaultRepository == null) {
+            throw new IllegalArgumentException("You must supply a default repository if you want to restrict to it");
+        }
+        SourceRepository defaultSourceRepository = defaultRepository == null ? null: SourceRepositoryFactory.getSourceRepository(defaultRepository);
         install(pluginsToInstall, defaultSourceRepository, restrictToDefaultRepository, username, password, poller);
     }
 
