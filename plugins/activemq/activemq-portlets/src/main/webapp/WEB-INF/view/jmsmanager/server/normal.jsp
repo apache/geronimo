@@ -16,18 +16,20 @@
 --%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/portlet" prefix="portlet"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
+<fmt:setBundle basename="activemq"/>
 <portlet:defineObjects/>
 
-<p>The JMS brokers available in the server are:</p>
+<p><fmt:message key="jmsmanager.server.normal.title" />:</p>
 
 <!-- Show existing connectors -->
-<c:if test="${empty(brokers)}">There are no JMS brokers defined</c:if>
+<c:if test="${empty(brokers)}"><fmt:message key="jmsmanager.server.normal.noJMSBrokers"/></c:if>
 <c:if test="${!empty(brokers)}">
 <table width="50%">
   <tr><td style="padding: 0 20px"></td></tr>
           <tr>
-            <th class="DarkBackground">Name</th>
-            <th class="DarkBackground" align="center">State</th>
+            <th class="DarkBackground"><fmt:message key="jmsmanager.common.name"/></th>
+            <th class="DarkBackground" align="center"><fmt:message key="jmsmanager.common.state"/></th>
 <!--
             <th class="DarkBackground" align="center">Actions</th>
 -->
@@ -79,5 +81,5 @@
 <br />
 <a href="<portlet:actionURL portletMode="view">
            <portlet:param name="mode" value="new" />
-         </portlet:actionURL>">Add new JMS Broker</a>
+         </portlet:actionURL>"><fmt:message key="jmsmanager.server.normal.addJMSBroker"/></a>
 -->

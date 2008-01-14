@@ -17,17 +17,17 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
 <%@ taglib uri="http://java.sun.com/portlet" prefix="portlet"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
+<fmt:setBundle basename="systemdatabase"/>
 <portlet:defineObjects/>
 
-<p>This page talks about how to use the database pool ${pool.name} from a J2EE application.
-  The example here is a web application, but other application modules would work in
-  the same way.</p>
+<p><fmt:message key="dbwizard.usage.title">
+<fmt:param  value="${pool.name}"/>
+</fmt:message></p>
 
 <p><b>WEB-INF/web.xml</b></p>
 
-<p>The <tt>web.xml</tt> should have a <tt>resource-ref</tt> section declaring the database pool,
-like this.  Note the <tt>res-ref-name</tt>, which is what we'll need to map the reference
-to a pool, and also what the application will need in order to access the pool.</p>
+<p><fmt:message key="dbwizard.usage.resource_refSection"/></p>
 
 <pre>
 &lt;web-app xmlns="http://java.sun.com/xml/ns/j2ee"
@@ -49,18 +49,10 @@ to a pool, and also what the application will need in order to access the pool.<
 
 <p><b>WEB-INF/geronimo-web.xml</b></p>
 
-<p>To point the resource reference to a specific database pool in Gernimo, the web application
-needs to have a <tt>geronimo-web.xml</tt> deployment plan.  That may be packaged in the WAR
-in the <tt>WEB-INF</tt> directory, or it may be provided separately on the command line to
-the deploy tool.  The <tt>geronimo-web.xml</tt> plan should have a <tt>dependency</tt>
-element pointing to the database pool module, and a <tt>resource-ref</tt> block corresponding
-to the <tt>web.xml</tt> <tt>resource-ref</tt> above, which maps the resource reference to a
-specific database pool.  In that block, the <tt>ref-name</tt> must match the
-<tt>res-ref-name</tt> from the <tt>web.xml</tt> (above) and the <tt>resource-link</tt> must
-point to the database pool by name.</p>
+<fmt:message key="dbwizard.usage.geronimo_webExp">
+<fmt:param   value="${pool.name}" />
+</fmt:message>
 
-<p><i>If you have only one pool named ${pool.name} deployed in Geronimo, you can point to it
-like this.</i></p>
 
 <pre>
 &lt;?xml version="1.0" encoding="UTF-8"?&gt;
@@ -88,13 +80,17 @@ like this.</i></p>
     &lt;/resource-ref&gt;
 &lt;/web-app&gt;
 </pre>
+<fmt:message key="dbwizard.usage.searchOnlyOne">
+<fmt:param   value="${pool.name}" />
+</fmt:message>
+</p>
 
-<p>That will search for a pool named ${pool.name} in the current application and any
-modules listed as dependencies (and their dependencies, etc.).</p>
+<p><i>
+<fmt:message key="dbwizard.usage.moreThanOnePool">
+<fmt:param   value="${pool.name}" />
+</fmt:message>
+</i></p>
 
-<p><i>If you have more than one pool named ${pool.name} (for example, two dependencies
-that <b>each</b> include a component named ${pool.name}), then you can specify the
-pool to use more explicitly like this:</i></p>
 
 <pre>
 &lt;?xml version="1.0" encoding="UTF-8"?&gt;
@@ -127,11 +123,9 @@ pool to use more explicitly like this:</i></p>
 &lt;/web-app&gt;
 </pre>
 
-<p><b>Application Code</b></p>
+<p><b><fmt:message key="dbwizard.usage.applicationCode" /></b></p>
 
-<p>To get a reference to the database pool, your application can use code like this.  Note that
-the JNDI lookup string is <tt>java:comp/env/</tt> plus the <tt>res-ref-name</tt> used in
-<tt>web.xml</tt> (above).</p>
+<p><fmt:message key="dbwizard.usage.usingInCode" /></p>
 
 <pre>
 protected void doGet(HttpServletRequest request, HttpServletResponse response) {

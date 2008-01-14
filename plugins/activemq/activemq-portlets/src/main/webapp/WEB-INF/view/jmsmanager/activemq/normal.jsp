@@ -16,13 +16,15 @@
 --%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/portlet" prefix="portlet"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
+<fmt:setBundle basename="activemq"/>
 <portlet:defineObjects/>
 <table width="100%">
     <tr class="DarkBackground">
         <th class="LightBackground">&nbsp;</th>
-        <th align="left">Name</th>
-        <th align="left">State</th>
-        <th align="left">Test Result</th>
+        <th align="left"><fmt:message key="jmsmanager.common.name"/></th>
+        <th align="left"><fmt:message key="jmsmanager.common.state"/></th>
+        <th align="left"><fmt:message key="jmsmanager.activemq.common.testResult" /></th>
     </tr>
     <c:set var="backgroundClass" value='MediumBackground'/>
     <c:forEach var="info" items="${cFactories}"><tr>
@@ -37,7 +39,7 @@
         <td class="${backgroundClass}"><a href='<portlet:renderURL>
             <portlet:param name="name" value="${info.objectName}"/>
             <portlet:param name="mode" value="detail"/>
-            </portlet:renderURL>'>detail</a>
+            </portlet:renderURL>'><fmt:message key="jmsmanager.common.detail"/></a>
         </td>
         <td class="${backgroundClass}">${info.name}</td>
         <td class="${backgroundClass}"><c:choose>
@@ -65,4 +67,4 @@
 <br>
 <a href="<portlet:actionURL portletMode="view">
     <portlet:param name="mode" value="addACF" />
-    </portlet:actionURL>">Add New JMS Connection Factory</a>
+    </portlet:actionURL>"><fmt:message key="jmsmanager.activemq.common.addNewJMSConnFactory" /></a>

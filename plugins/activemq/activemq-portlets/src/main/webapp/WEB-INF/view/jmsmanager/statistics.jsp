@@ -16,6 +16,8 @@
 --%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/portlet" prefix="portlet"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
+<fmt:setBundle basename="activemq"/>
 <portlet:defineObjects/>
 
 <br>
@@ -23,46 +25,49 @@
 <br><br>
  <table width="100%">
         <tr>
-           <th colspan="2"> Statisctic for <c:out value="${statistics.destinationName}"/></th>
+           <th colspan="2"> <fmt:message key="jmsmanager.common.statiscticFor" >
+           <fmt:param value="${statistics.destinationName}"/>
+           </fmt:message>
+           </th>
         </tr>
         <tr>
-            <td width="250">Description</td>
+            <td width="250"><fmt:message key="jmsmanager.common.description"/></td>
             <td width="200"><c:out value="${statistics.description}"/></td>
         </tr>
         <tr>
-            <td width="250">Current Depth</td>
+            <td width="250"><fmt:message key="jmsmanager.common.currentDepth" /></td>
             <td width="200"><c:out value="${statistics.currentDepth}"/></td>
         </tr>
         <tr>
-            <td width="250">Open Output Count</td>
+            <td width="250"><fmt:message key="jmsmanager.common.openOutputCount" /></td>
             <td width="200"><c:out value="${statistics.openOutputCount}"/></td>
         </tr>
         <tr>
-            <td width="250">Open Input Count</td>
+            <td width="250"><fmt:message key="jmsmanager.common.openInputCount" /></td>
             <td width="200"><c:out value="${statistics.openInputCount}"/></td>
         </tr>
         <tr>
-            <td width="250">Inhibit Get</td>
+            <td width="250"><fmt:message key="jmsmanager.common.inhibitGet" /></td>
             <td width="200"><c:out value="${statistics.inhibitGet}"/></td>
         </tr>
         <tr>
-            <td width="250">Inhibit Put</td>
+            <td width="250"><fmt:message key="jmsmanager.common.inhibitPut" /></td>
             <td width="200"><c:out value="${statistics.inhibitPut}"/></td>
         </tr>
         <tr>
-            <td width="250">Sharable</td>
+            <td width="250"><fmt:message key="jmsmanager.common.sharable" /></td>
             <td width="200"><c:out value="${statistics.sharable}"/></td>
         </tr>
         <tr>
-            <td width="250">Maximum Depth</td>
+            <td width="250"><fmt:message key="jmsmanager.common.maximumDepth" /></td>
             <td width="200"><c:out value="${statistics.maximumDepth}"/></td>
         </tr>
         <tr>
-            <td width="250">Trigger Control</td>
+            <td width="250"><fmt:message key="jmsmanager.common.triggerControl" /></td>
             <td width="200"><c:out value="${statistics.triggerControl}"/></td>
         </tr>
         <tr>
-            <td width="250">Maximum Message Length</td>
+            <td width="250"><fmt:message key="jmsmanager.common.maximumMessageLength" /></td>
             <td width="200"><c:out value="${statistics.maximumMessageLength}"/></td>
         </tr>
 </table>

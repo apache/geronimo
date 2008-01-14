@@ -16,9 +16,11 @@
 --%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/portlet" prefix="portlet"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
+<fmt:setBundle basename="systemdatabase"/>
 <portlet:defineObjects/>
 
-<p><b>Create Database Pool</b> -- Show Deployment Plan</p>
+<p><fmt:message key="dbwizard.showPlan.title"/></p>
 
 <!--   FORM TO COLLECT DATA FOR THIS PAGE   -->
 <form name="<portlet:namespace/>DatabaseForm" action="<portlet:actionURL/>" method="POST">
@@ -49,23 +51,21 @@
     <table border="0">
     <!-- STATUS FIELD: Deployment Plan -->
       <tr>
-        <th valign="top" style="min-width: 140px"><div align="right">Deployment Plan:</div></th>
+        <th valign="top" style="min-width: 140px"><div align="right"><fmt:message key="dbwizard.showPlan.deploymentPlan"/>:</div></th>
         <td><textarea rows="30" cols="60" readonly>${deploymentPlan}</textarea></td>
       </tr>
     <!-- SUBMIT BUTTON -->
       <tr>
         <td></td>
         <td>
-<input type="submit" value="Deploy Pool" />
-<input type="button" value="Edit Settings" onclick="document.<portlet:namespace/>DatabaseForm.mode.value='edit';document.<portlet:namespace/>DatabaseForm.submit();return false;" />
+<input type="submit" value='<fmt:message key="dbwizard.showPlan.deployPool"/>' />
+<input type="button" value='<fmt:message key="dbwizard.common.editSettings"/>' onclick="document.<portlet:namespace/>DatabaseForm.mode.value='edit';document.<portlet:namespace/>DatabaseForm.submit();return false;" />
         </td>
       </tr>
     <!-- STATUS FIELD: Command-line guidance -->
       <tr>
-        <th valign="top"><div align="right">Deploy Command:</div></th>
-        <td>To deploy a database pool from the command line using this plan,
-          copy and paste it to a file (say, <tt>plan-file.xml</tt>) and save
-          it.  Then run a command like:<br />
+        <th valign="top"><div align="right"><fmt:message key="dbwizard.showPlan.deployCommand"/>:</div></th>
+        <td><fmt:message key="dbwizard.showPlan.deployPoolFromCommandLine"/>
 <pre>
 cd GERONIMO_HOME
 java -jar bin/deployer.jar deploy plan-file.xml \
@@ -74,19 +74,11 @@ java -jar bin/deployer.jar deploy plan-file.xml \
       </tr>
     <!-- STATUS FIELD: Embed in EAR guidance -->
       <tr>
-        <th valign="top"><div align="right">Add to EAR:</div></th>
-        <td>Instead of deploying as a top-level database pool, you
-          can deploy this pool as part of an EAR.  To add a database
-          pool to an EAR using this plan:
-<ol>
-  <li>Copy and paste the plan to a file</li>
-  <li>Save the plan file to the top level of your EAR</li>
-  <li>Copy the RAR file from <tt>GERONIMO_HOME/${rarRelativePath}</tt>
-    to the top level of your EAR</li>
-  <li>Create a <tt>META-INF/geronimo-application.xml</tt> file in your EAR
-    that has a <tt>module</tt> entry like this (substituting the correct
-    RAR file name and plan file name):</li>
-</ol>
+        <th valign="top"><div align="right"><fmt:message key="dbwizard.showPlan.addToEAR"/>:</div></th>
+        <td>
+        <fmt:message key="dbwizard.showPlan.deployAsPartEAR">
+        <fmt:param value="${rarRelativePath}" />
+        </fmt:message>
 <pre>
 &lt;application
    xmlns="http://geronimo.apache.org/xml/ns/j2ee/application-1.1"&gt;
@@ -108,4 +100,4 @@ java -jar bin/deployer.jar deploy plan-file.xml \
 
 <p><a href="<portlet:actionURL portletMode="view">
               <portlet:param name="mode" value="list" />
-            </portlet:actionURL>">Cancel</a></p>
+            </portlet:actionURL>"><fmt:message key="dbwizard.common.cancel"/></a></p>

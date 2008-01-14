@@ -14,5 +14,7 @@
    See the License for the specific language governing permissions and
    limitations under the License.
 --%>
-<p>Shows the available JMS brokers</p>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
+<fmt:setBundle basename="activemq"/>
+<p><fmt:message key="jmsmanager.server.help.title" /></p>
 <p>&nbsp;</p>

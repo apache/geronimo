@@ -20,6 +20,9 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
 <%@ taglib uri="http://java.sun.com/portlet" prefix="portlet"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
+<fmt:setBundle basename="systemdatabase"/>
+
 <portlet:defineObjects/>
 
 <script language="JavaScript">
@@ -36,7 +39,7 @@ function <portlet:namespace/>validateForm(){
 }
 </script>
 
-<p><b>Create Database Pool</b> -- Step 2: Select Driver, JAR, Parameters</p>
+<p><fmt:message key="dbwizard.basicParams.title"/></p>
 
 <!--   FORM TO COLLECT DATA FOR THIS PAGE   -->
 <form name="<portlet:namespace/>DatabaseForm" action="<portlet:actionURL/>" method="POST">
@@ -58,19 +61,19 @@ function <portlet:namespace/>validateForm(){
     <table border="0">
     <!-- ENTRY FIELD: Driver Class -->
       <tr>
-        <th style="min-width: 140px"><div align="right">JDBC Driver Class:</div></th>
+        <th style="min-width: 140px"><div align="right"><fmt:message key="dbwizard.common.JDBCDriverClass"/>:</div></th>
         <td><input name="driverClass" type="text" size="30" value="${pool.driverClass}"></td>
       </tr>
       <tr>
         <td></td>
         <td>
-          <c:if test="${!(empty driverError)}"><font color="red"><b>Unable to load driver from selected JARs!</b></font></c:if>
-          See the documentation for your JDBC driver.
+          <c:if test="${!(empty driverError)}"><font color="red"><b><fmt:message key="dbwizard.basicParams.unableToLoadDriver"/></b></font></c:if>
+          <fmt:message key="dbwizard.basicParams.seeDocumentation"/>
         </td>
       </tr>
     <!-- ENTRY FIELD: Driver JAR -->
       <tr>
-        <th><div align="right">Driver JAR:</div></th>
+        <th><div align="right"><fmt:message key="dbwizard.common.driverJAR"/>:</div></th>
         <td>
           <select multiple="true" name="jars" size="10">
               <c:forEach var="availableJar" items="${availableJars}">
@@ -83,39 +86,39 @@ function <portlet:namespace/>validateForm(){
       </tr>
       <tr>
         <td></td>
-        <td>The JAR(s) required to make a connection to the database.  Use CTRL-click or SHIFT-click to select multiple jars.<br> 
-           The JAR(s) should already be installed under GERONIMO/repository/ (or
-          <input type="button" value="Download a Driver" onclick="document.<portlet:namespace/>DatabaseForm.mode.value='download';document.<portlet:namespace/>DatabaseForm.submit();return false;" />)
+        <td>
+        <fmt:message key="dbwizard.common.driverJARExplanation"/>        
+          <input type="button" value='<fmt:message key="dbwizard.common.downloadDriver"/>' onclick="document.<portlet:namespace/>DatabaseForm.mode.value='download';document.<portlet:namespace/>DatabaseForm.submit();return false;" />)
         </td>
       </tr>
     <!-- ENTRY FIELD: Username -->
       <tr>
-        <th><div align="right">DB User Name:</div></th>
+        <th><div align="right"><fmt:message key="dbwizard.common.DBUserName"/>:</div></th>
         <td><input name="user" type="text" size="20" value="${pool.user}"></td>
       </tr>
       <tr>
         <td></td>
-        <td>The username used to connect to the database</td>
+        <td><fmt:message key="dbwizard.common.DBUserNameExp"/></td>
       </tr>
     <!-- ENTRY FIELD: Password -->
       <tr>
-        <th><div align="right">DB Password:</div></th>
+        <th><div align="right"><fmt:message key="dbwizard.common.DBPassword"/>:</div></th>
         <td><input name="password" type="password" size="20" value="${pool.password}"></td>
       </tr>
       <tr>
-        <th><div align="right">Confirm Password:</div></th>
+        <th><div align="right"><fmt:message key="dbwizard.common.confirmPassword"/>:</div></th>
         <td><input name="confirm-password" type="password" size="20" value="${pool.password}"></td>
       </tr>
       <tr>
         <td></td>
-        <td>The password used to connect to the database</td>
+        <td><fmt:message key="dbwizard.common.DBPasswordExp"/></td>
       </tr>
     <!-- ENTRY FIELD: URL Properties -->
       <tr>
-        <th colspan="2">Driver Connection Properties</th>
+        <th colspan="2"><fmt:message key="dbwizard.basicParams.driverConnectionProperties"/></th>
       </tr>
       <tr>
-        <th><div align="right">Typical JDBC URL:</div></th>
+        <th><div align="right"><fmt:message key="dbwizard.basicParams.typicalJDBCURL"/>:</div></th>
         <td><c:out value="${pool.urlPrototype}" /></td>
       </tr>
   <c:forEach var="prop" items="${pool.urlProperties}">
@@ -125,13 +128,17 @@ function <portlet:namespace/>validateForm(){
       </tr>
       <tr>
         <td></td>
-        <td>A property used to connect to ${pool.dbtype}.  May be optional (see JDBC driver documentation).</td>
+        <td>
+        <fmt:message key="dbwizard.basicParams.propertyExp">
+        <fmt:param value="${pool.dbtype}"/>
+        </fmt:message>
+       </td>
       </tr>
   </c:forEach>
     <!-- SUBMIT BUTTON -->
       <tr>
         <td></td>
-        <td><input type="submit" value="Next"  onClick="return <portlet:namespace/>validateForm();"/></td>
+        <td><input type="submit" value='<fmt:message key="dbwizard.common.next"/>'  onClick="return <portlet:namespace/>validateForm();"/></td>
       </tr>
     </table>
 </form>
@@ -140,4 +147,4 @@ function <portlet:namespace/>validateForm(){
 
 <p><a href="<portlet:actionURL portletMode="view">
               <portlet:param name="mode" value="list" />
-            </portlet:actionURL>">Cancel</a></p>
+            </portlet:actionURL>"><fmt:message key="dbwizard.common.cancel"/></a></p>

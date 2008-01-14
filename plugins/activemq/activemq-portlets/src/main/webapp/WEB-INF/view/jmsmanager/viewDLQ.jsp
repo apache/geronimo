@@ -21,21 +21,23 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/portlet" prefix="portlet"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
+<fmt:setBundle basename="activemq"/>
 
 <br>
 
-<strong>Dead Letter Queue Name: </strong><%=request.getAttribute("dlqname")%>
+<strong><fmt:message key="jmsmanager.viewDLQ.deadLetterQueueName" />: </strong><%=request.getAttribute("dlqname")%>
 <br>
 <table cellpadding="1" width="100%">     
     <tr>
-        <td class="DarkBackground" align="center"><b>Priority</b></td>
-        <td class="DarkBackground" align="center"><b>MessageID</b></td>
-        <td class="DarkBackground" align="center"><b>Destination</b></td>
-        <td class="DarkBackground" align="center"><b>Timestamp</b></td>
-        <td class="DarkBackground" align="center"><b>Expiration</b></td>            
-        <td class="DarkBackground" align="center"><b>Type</b></td>
-        <td class="DarkBackground" align="center"><b>ReplyTo</b></td>
-        <td class="DarkBackground" align="center"><b>CorrelationID</b></td>
+        <td class="DarkBackground" align="center"><b><fmt:message key="jmsmanager.common.priority" /></b></td>
+        <td class="DarkBackground" align="center"><b><fmt:message key="jmsmanager.common.messageID" /></b></td>
+        <td class="DarkBackground" align="center"><b><fmt:message key="jmsmanager.common.destination" /></b></td>
+        <td class="DarkBackground" align="center"><b><fmt:message key="jmsmanager.common.timestamp" /></b></td>
+        <td class="DarkBackground" align="center"><b><fmt:message key="jmsmanager.common.expiration" /></b></td>            
+        <td class="DarkBackground" align="center"><b><fmt:message key="jmsmanager.common.type"/></b></td>
+        <td class="DarkBackground" align="center"><b><fmt:message key="jmsmanager.common.replyTo" /></b></td>
+        <td class="DarkBackground" align="center"><b><fmt:message key="jmsmanager.common.correlationID" /></b></td>
     </tr>
     <c:choose>
         <c:when test="${fn:length(messages) > 0}"> 
@@ -63,11 +65,11 @@
            </c:when>
         <c:otherwise>
         <tr>    
-            <td colspan="8" align="center">No messages in dead letter queue.</td>
+            <td colspan="8" align="center"><fmt:message key="jmsmanager.viewDLQ.noMessages" /></td>
         </tr>
            </c:otherwise>
     </c:choose>
         <tr>    
-            <td colspan="8" align="center"><a href="<portlet:renderURL/>">Back</a> <a href="">Refresh</a></td>
+            <td colspan="8" align="center"><a href="<portlet:renderURL/>"><fmt:message key="jmsmanager.common.back"/></a> <a href=""><fmt:message key="jmsmanager.common.refresh"/></a></td>
         </tr>
 </table>

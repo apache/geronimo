@@ -14,21 +14,19 @@
   See the License for the specific language governing permissions and
   limitations under the License.
 --%>
-
+<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
+<fmt:setBundle basename="jmxmanager"/>
 <%@ page language="java" contentType="text/html; charset=ISO-8859-1" pageEncoding="ISO-8859-1"%>
 
 <!-- JMX Manager portlet help page -->
 
-<p><center><b>JMX Viewer Portlet Help</b></center></p>
+<p><center><b><fmt:message key="keystore.jmxmanager.title"/></b></center></p>
 
-<p><b>JMX Tree</b></p>
+<p><b><fmt:message key="jmxmanager.help.JMXTree"/></b></p>
 
 <ul>
-    <li>You can use this tree to view the different types of MBeans</li>
-    <li>Each MBean will be represented as a tree node that shows its object name representation</li>
-    <li>'All MBeans' will give you a list of MBeans grouped by its domain</li>
-    <li>'J2EE MBeans' will give you a list of MBeans grouped by JSR 77 MBean types:</li>
-    <ul>
+<fmt:message key="jmxmanager.help.JMXTreeExp1"/>
+        <ul>
         <li>AppClientModule
         <li>EJBModule
         <li>EntityBean
@@ -56,7 +54,7 @@
         <li>URLResource
         <li>WebModule
     </ul>
-    <li>'Geronimo MBeans' will give you a list of MBeans grouped by Geronimo specific MBean types:</li>
+    <li><fmt:message key="jmxmanager.help.geronimoMBeansExp"/>:</li>
     <ul>
         <li>AppClient
         <li>ArtifactManager
@@ -114,31 +112,23 @@
         <li>XmlAttributeBuilder
         <li>XmlReferenceBuilder
     </ul>
-    <li>'Search MBeans' will give you a list of MBeans matching a pattern from the 'Search' tab</li>
+    <li><fmt:message key="jmxmanager.help.searchMBeansExp"/></li>
 </ul>
 
-<p><b>Attributes Tab</b></p>
+<p><b><fmt:message key="jmxmanager.help.attributesTab"/></b></p>
+
+<fmt:message key="jmxmanager.help.attributesTabExp"/>
+
+
+<p><b><fmt:message key="jmxmanager.help.operationsTab"/></b></p>
+
+<fmt:message key="jmxmanager.help.operationsTabExp"/>
+
+
+<p><b><fmt:message key="jmxmanager.help.infoTab"/></b></p>
 
 <ul>
-    <li>Lists the MBean attributes</li>
-    <li>Column headers can be clicked to sort by column</li>
-    <li>Each table row can be mark by clicking it for easier viewing</li>
-    <li>It's possible to set an attribute's value by clicking the Setter button. Results will be displayed.</li>
-    <li><b>Note:</b> Be careful when setting an MBean's attribute value because it might affect how the server runs.</li>
-</ul>
-
-<p><b>Operations Tab</b></p>
-
-<ul>
-    <li>Lists the MBean operations</li>
-    <li>You can execute an MBean operation by providing the different parameter values and clicking the operation button. Results will be displayed.</li>
-    <li><b>Note:</b> Be careful when invoking an MBean's operation because it might affect how the server runs.</li>
-</ul>
-
-<p><b>Info Tab</b></p>
-
-<ul>
-    <li>Lists the MBean basic information:</li>
+    <li><fmt:message key="jmxmanager.help.infoTabExp"/>:</li>
     <ul>
         <li>Abstract Name
         <li>Object Name
@@ -148,28 +138,12 @@
     </ul>
 </ul>
 
-<p><b>Stats Tab</b></p>
+<p><b><fmt:message key="jmxmanager.help.statsTab"/></b></p>
 
-<ul>
-    <li>Lists the statistics provided by a managed object. Statistics can be any of the following types:</li>
-    <ul>
-        <li>Count Statistic - specifies standard count measurements
-        <li>Time Statistic - specifies standard timing measurements for a given operation
-        <li>Boundary Statistic - specifies standard measurements of the upper and lower limits of the value of an attribute
-        <li>Range Statistic - specifies standard measurements of the lowest and highest values an attribute has held as well as its current value
-        <li>Bounded Range Statistic - provides standard measurements of a range that has fixed limits
-    </ul>
-</ul>
+<fmt:message key="jmxmanager.help.statsTabExp"/>
 
-<p><b>Search Tab</b></p>
 
-<ul>
-    <li>You can use this tab to query MBeans matching a particular pattern</li>
-    <li>Matching MBeans will be added under the 'Search MBeans' tree node. You might need to scroll down the JMX tree to view results.</li>
-    <li>Examples of Object Name Patterns:</li>
-    <ul>
-        <li>"*:*" - will return all the MBeans
-        <li>"geronimo:*" - will return all MBeans with "geronimo" domain
-        <li>"*:j2eeType=GBean,*" - will return all GBeans
-    </ul>
-</ul>
+<p><b><fmt:message key="jmxmanager.help.searchTab"/></b></p>
+
+<fmt:message key="jmxmanager.help.searchTabExp"/>
+

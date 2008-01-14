@@ -16,6 +16,8 @@
 --%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="portlet" uri="http://java.sun.com/portlet" %>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
+<fmt:setBundle basename="activemq"/>
 <portlet:defineObjects/>
 <script language="javascript">
 <!--
@@ -40,59 +42,59 @@
 <input type="hidden" name="mode" value="addACF">
 <table width="100%%"  border="0">
   <tr>
-    <td width="16%"> <div align="right">Name: </div></td>
+    <td width="16%"> <div align="right"><fmt:message key="jmsmanager.common.name"/>: </div></td>
     <td width="84%"><input name="acfName" type="text" size="50"></td>
   </tr>
   <tr>
     <td><div align="right"></div></td>
-    <td> <p>Name of this ActiveMQ Connection Factory.</td>
+    <td> <p><fmt:message key="jmsmanager.activemq.addACF.nameExp" /></td>
   </tr>
   <tr>
-    <td> <div align="right">Server URL: </div></td>
+    <td> <div align="right"><fmt:message key="jmsmanager.activemq.common.serverURL" />: </div></td>
     <td><input name="serverURL" type="text" size="50"></td>
   </tr>
   <tr>
     <td><div align="right"></div></td>
-    <td> URL of the server to connect to.</td>
+    <td><fmt:message key="jmsmanager.activemq.common.serverURLExp" /> </td>
   </tr>
   <tr>
-    <td> <div align="right">User Name: </div></td>
+    <td> <div align="right"><fmt:message key="jmsmanager.common.userName" />: </div></td>
     <td><input name="userName" type="text" size="50"></td>
   </tr>
   <tr>
     <td><div align="right"></div></td>
-    <td> User name to use.</td>
+    <td><fmt:message key="jmsmanager.activemq.common.userNameExp" /> </td>
   </tr>
   <tr>
-    <td> <div align="right">Password: </div></td>
+    <td> <div align="right"><fmt:message key="jmsmanager.common.password"/>: </div></td>
     <td><input name="pword" type="password"></td>
   </tr>
   <tr>
     <td><div align="right"></div></td>
-    <td> Password corresponding to user name used. </td>
+    <td> <fmt:message key="jmsmanager.activemq.common.passwordExp" /> </td>
   </tr>
   <tr>
-    <td> <div align="right">Pool Max Capacity: </div></td>
+    <td> <div align="right"><fmt:message key="jmsmanager.activemq.common.poolMaxCapacity" />: </div></td>
     <td><input name="poolMaxSize" type="text" size="20" value="0"></td>
   </tr>
   <tr>
     <td><div align="right"></div></td>
-    <td> Maximum connection pool size. </td>
+    <td><fmt:message key="jmsmanager.activemq.common.poolMaxCapacityExp" /> </td>
   </tr>
   <tr>
-    <td> <div align="right">Blocking Timeout (milliseconds): </div></td>
+    <td> <div align="right"><fmt:message key="jmsmanager.activemq.common.blockingTimeout" />: </div></td>
     <td><input name="blocking" type="text" size="20" value="0"></td>
   </tr>
   <tr>
     <td><div align="right"></div></td>
-    <td> Blocking timeout in milliseconds. </td>
+    <td> <fmt:message key="jmsmanager.activemq.common.blockingTimeoutExp" /> </td>
   </tr>
   <tr>
     <td><div align="right"></div></td>
-    <td><input name="submit" type="submit" value="Create"></td>
+    <td><input name="submit" type="submit" value='<fmt:message key="jmsmanager.common.create"/>'></td>
   </tr>
 </table>
 </form>
 <a href='<portlet:actionURL portletMode="view">
     <portlet:param name="mode" value="list" />
-    </portlet:actionURL>'>List Connection Factories</a>
+    </portlet:actionURL>'><fmt:message key="jmsmanager.activemq.common.listConnFactories" /></a>

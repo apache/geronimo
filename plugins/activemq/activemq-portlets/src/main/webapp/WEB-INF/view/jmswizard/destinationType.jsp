@@ -17,9 +17,11 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
 <%@ taglib uri="http://java.sun.com/portlet" prefix="portlet"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
+<fmt:setBundle basename="activemq"/>
 <portlet:defineObjects/>
 
-<p><b>JMS Resource Group</b> -- Select Destination Type</p>
+<p><fmt:message key="jmswizard.destinationType.title" /></p>
 
 <!--   FORM TO COLLECT DATA FOR THIS PAGE   -->
 <form name="<portlet:namespace/>JMSForm" action="<portlet:actionURL/>" method="POST">
@@ -58,7 +60,7 @@
     <table border="0">
     <!-- ENTRY FIELD: Destination Type -->
       <tr>
-        <th><div align="right">JMS Destination Type:</div></th>
+        <th><div align="right"><fmt:message key="jmswizard.destinationType.JMSDestinationType" />:</div></th>
         <td>
           <select name="destinationType">
         <c:forEach var="dest" items="${provider.adminObjectDefinitions}" varStatus="status">
@@ -69,21 +71,22 @@
       </tr>
       <tr>
         <td></td>
-        <td>This resource adapter declares several possible destination interfaces.
-            Select the desired interface type for this destination.
+        <td><fmt:message key="jmswizard.destinationType.selectDesiredInterfacetype" />
         </td>
       </tr>
     <!-- SUBMIT BUTTON -->
       <tr>
         <td></td>
-        <td><input type="submit" value="Next" /></td>
+        <td><input type="submit" value='<fmt:message key="jmswizard.common.next"/>'/></td>
       </tr>
     </table>
 </form>
 <!--   END OF FORM TO COLLECT DATA FOR THIS PAGE   -->
 
 
-<p><b>Current Status for JMS Resource Group <c:out value="${data.instanceName}" /></b></p>
+<p><b><fmt:message key="jmswizard.common.currentStatusForJMSResourceGroup" >
+<fmt:param value="${data.instanceName}"  />
+</fmt:message></b></p>
 <ul>
   <li><c:out value="${data.connectionFactoryCount}" /> Connection Factor<c:choose><c:when test="${data.connectionFactoryCount == 1}">y</c:when><c:otherwise>ies</c:otherwise></c:choose>
       <c:if test="${data.connectionFactoryCount > 0}">
@@ -92,7 +95,7 @@
                   <li>
                       <c:choose>
                           <c:when test="${empty(factory.instanceName)}">
-                              <i>In Process</i>
+                              <i><fmt:message key="jmswizard.common.inProcess"/></i>
                           </c:when>
                           <c:otherwise>
                               <c:out value="${factory.instanceName}" />
@@ -110,7 +113,7 @@
                   <li>
                       <c:choose>
                           <c:when test="${empty(dest.name)}">
-                              <i>In Process</i>
+                              <i><fmt:message key="jmswizard.common.inProcess"/></i>
                           </c:when>
                           <c:otherwise>
                               <c:out value="${dest.name}" />

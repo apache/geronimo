@@ -16,22 +16,23 @@
 --%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/portlet" prefix="portlet"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
+<fmt:setBundle basename="systemdatabase"/>
 <portlet:defineObjects/>
 
-<p>This page lists all the available database pools.</p>
+<p><fmt:message key="dbwizard.list.summary"/></p>
 
 <c:choose>
-  <c:when test="${empty(pools)}"><p><i>There are no database pools defined</i></p></c:when>
+  <c:when test="${empty(pools)}"><p><i><fmt:message key="dbwizard.list.noDatabasePools"/></i></p></c:when>
   <c:otherwise>
-<p>For each pool listed, you can click the <b>usage</b> link to see examples of how
-  to use the pool from your application.</p>
+<p><fmt:message key="dbwizard.list.hasDatabasePools"/></p>
 
 <table width="100%">
   <tr>
-    <th class="DarkBackground" align="left">Name</th>
-    <th class="DarkBackground" align="center">Deployed As</th>
-    <th class="DarkBackground" align="center">State</th>
-    <th class="DarkBackground" align="center">Actions</th>
+    <th class="DarkBackground" align="left"><fmt:message key="dbwizard.common.name"/></th>
+    <th class="DarkBackground" align="center"><fmt:message key="dbwizard.list.deployedAs"/></th>
+    <th class="DarkBackground" align="center"><fmt:message key="dbwizard.common.state"/></th>
+    <th class="DarkBackground" align="center"><fmt:message key="dbwizard.common.actions"/></th>
   </tr>
 <c:set var="backgroundClass" value='MediumBackground'/>
 <c:forEach var="pool" items="${pools}">
@@ -48,7 +49,7 @@
     <td class="${backgroundClass}">
       <c:choose>
         <c:when test="${empty pool.parentName}">
-          Server-wide
+          <fmt:message key="dbwizard.list.serverWide" />
         </c:when>
         <c:otherwise>
           ${pool.parentName}  <%-- todo: make this a link to an application portlet --%>
@@ -79,18 +80,18 @@
         <portlet:param name="mode" value="editExisting" />
         <portlet:param name="adapterAbstractName" value="${pool.adapterAbstractName}" />
         <portlet:param name="abstractName" value="${pool.factoryAbstractName}" />
-      </portlet:actionURL>">edit</a>
+      </portlet:actionURL>"><fmt:message key="dbwizard.common.edit"/></a>
       <a href="<portlet:actionURL portletMode="view">
         <portlet:param name="mode" value="usage" />
         <portlet:param name="name" value="${pool.name}" />
         <portlet:param name="abstractName" value="${pool.factoryAbstractName}" />
-      </portlet:actionURL>">usage</a>
+      </portlet:actionURL>"><fmt:message key="dbwizard.list.usage"/></a>
        <a href="<portlet:actionURL portletMode="view">
          <portlet:param name="mode" value="delete" />
          <portlet:param name="name" value="${info.objectName}" />
          <portlet:param name="adapterAbstractName" value="${pool.adapterAbstractName}" />
          <portlet:param name="abstractName" value="${pool.factoryAbstractName}" />
-       </portlet:actionURL>">delete</a>
+       </portlet:actionURL>"><fmt:message key="dbwizard.common.delete"/></a>
     </td>
   </tr>
 </c:forEach>
@@ -98,19 +99,19 @@
   </c:otherwise>
 </c:choose>
 
-<p>Create a new database pool:</p>
+<p><fmt:message key="dbwizard.list.createPool"/>:</p>
 <ul>
   <li><a href="<portlet:actionURL portletMode="view">
               <portlet:param name="mode" value="rdbms" />
-            </portlet:actionURL>">Using the Geronimo database pool wizard</a></li>
+            </portlet:actionURL>"><fmt:message key="dbwizard.common.usingPoolWizard"/></a></li>
   <li><a href="<portlet:actionURL portletMode="view">
               <portlet:param name="mode" value="startImport" />
               <portlet:param name="importSource" value="JBoss 4" />
               <portlet:param name="from" value="<tt>*-ds.xml</tt> file from the <tt>jboss4/server/name/deploy</tt> directory" />
-            </portlet:actionURL>">Import from JBoss 4</a></li>
+            </portlet:actionURL>"><fmt:message key="dbwizard.common.importFromJBoss"/></a></li>
   <li><a href="<portlet:actionURL portletMode="view">
               <portlet:param name="mode" value="startImport" />
               <portlet:param name="importSource" value="WebLogic 8.1" />
               <portlet:param name="from" value="<tt>config.xml</tt> file from the WebLogic domain directory" />
-            </portlet:actionURL>">Import from WebLogic 8.1</a></li>
+            </portlet:actionURL>"><fmt:message key="dbwizard.common.importFromWebLogic"/></a></li>
 </ul>

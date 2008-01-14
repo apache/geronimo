@@ -17,6 +17,8 @@
 
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/portlet" prefix="portlet" %>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
+<fmt:setBundle basename="debugviews"/>
 <portlet:defineObjects/>
     <script type="text/javascript" src="/dojo/dojo.js"></script>
 
@@ -521,8 +523,8 @@ callOnLoad(init);
                 <br>
                 <table width="100%">
                     <tr>
-                        <td class="DarkBackground" align="center" width="40%">Name</td>
-                        <td class="DarkBackground" align="center" width="60%">Value</td>
+                        <td class="DarkBackground" align="center" width="40%"><fmt:message key="ldapmanager.viewLDAPServer.name"/></td>
+                        <td class="DarkBackground" align="center" width="60%"><fmt:message key="ldapmanager.viewLDAPServer.value"/></td>
                     </tr>
                     <tbody id="attributesTableBody">
                     </tbody>
@@ -530,23 +532,23 @@ callOnLoad(init);
             </div> <!-- Attributes tab -->
 
             <!-- Search tab -->
-            <div id="searchTab" dojoType="ContentPane" title = "" label="Search" style="overflow: auto">
+            <div id="searchTab" dojoType="ContentPane" title = "" label='<fmt:message key="ldapmanager.viewLDAPServer.search" />' style="overflow: auto">
                 <br>
                 <form NAME="LDAPSearchForm">
                     <table>
                         <tr>
-                            <td nowrap align="right">Search DN:</td>
+                            <td nowrap align="right"><fmt:message key="ldapmanager.viewLDAPServer.searchDN" />:</td>
                             <td><input type="text" name="searchDN" value="" size="45"/></td>
                         </tr>
                         <tr>
-                            <td nowrap align="right">Filter:</td>
+                            <td nowrap align="right"><fmt:message key="ldapmanager.viewLDAPServer.filter" />:</td>
                             <td><input type="text" name="filter" value="(objectclass=*)" size="45"/></td>
                         </tr>
                         <tr>
-                            <td nowrap align="right">&nbsp;Search scope:</td>
+                            <td nowrap align="right">&nbsp;<fmt:message key="ldapmanager.viewLDAPServer.searchScope" />:</td>
                             <td>
-                                <INPUT type="radio" name="searchScope" value="onelevel" checked> One level
-                                <INPUT type="radio" name="searchScope" value="subtree"> Sub-tree level
+                                <INPUT type="radio" name="searchScope" value="onelevel" checked> <fmt:message key="ldapmanager.viewLDAPServer.oneLevel" />
+                                <INPUT type="radio" name="searchScope" value="subtree"> <fmt:message key="ldapmanager.viewLDAPServer.subTreeLevel" />
                             </td>
                         </tr>
                         <tr>
@@ -554,8 +556,8 @@ callOnLoad(init);
                         </tr>
                         <tr>
                             <td align="left" colspan="2">
-                                &nbsp;<input type="button" value="Search" name="ldapSearch" onClick="searchBtnClicked()"/>
-                                &nbsp;<input type="button" value="Clear Result" name="clearResult" onClick="clearResultBtnClicked()"/>
+                                &nbsp;<input type="button" value='<fmt:message key="ldapmanager.viewLDAPServer.search" />' name="ldapSearch" onClick="searchBtnClicked()"/>
+                                &nbsp;<input type="button" value='<fmt:message key="ldapmanager.viewLDAPServer.clearResult" />' name="clearResult" onClick="clearResultBtnClicked()"/>
                                 &nbsp;&nbsp;<span id='searchResultCount'></span>
                             </td>
                         </tr>
@@ -564,7 +566,7 @@ callOnLoad(init);
                 <hr>
                 <table width="100%">
                   <tr>
-                    <td class="DarkBackground" align="center">DN</td>
+                    <td class="DarkBackground" align="center"><fmt:message key="ldapmanager.viewLDAPServer.DN" /></td>
                   </tr>
                   <tbody id="searchResultTableBody">
                   </tbody>
@@ -577,7 +579,7 @@ callOnLoad(init);
                 <form NAME="LDAPConnectForm">
                     <table>
                         <tr>
-                            <td nowrap align="right">Host:</td>
+                            <td nowrap align="right"><fmt:message key="ldapmanager.viewLDAPServer.host"/>:</td>
                             <td>
                                 <input type="text" name="host" value="localhost" size="40"
                                     dojoType="ValidationTextbox"
@@ -591,7 +593,7 @@ callOnLoad(init);
                             </td>
                         </tr>
                         <tr>
-                            <td nowrap align="right">Port:</td>
+                            <td nowrap align="right"><fmt:message key="ldapmanager.viewLDAPServer.port"/>:</td>
                             <td>
                                 <input type="text" name="port" value="1389" size="40"
                                     dojoType="IntegerTextbox"
@@ -606,14 +608,14 @@ callOnLoad(init);
                             </td>
                         </tr>
                         <tr>
-                            <td nowrap align="right">Version:</td>
+                            <td nowrap align="right"><fmt:message key="ldapmanager.viewLDAPServer.version"/>:</td>
                             <td>
                                 <INPUT type="radio" name="ldapVersion" value="3" checked> 3
                                 <INPUT type="radio" name="ldapVersion" value="2"> 2
                             </td>
                         </tr>
                         <tr>
-                            <td nowrap align="right">Base DN:</td>
+                            <td nowrap align="right"><fmt:message key="ldapmanager.viewLDAPServer.baseDN" />:</td>
                             <td>
                                 <input type="text" name="baseDN" value="ou=system" size="40"
                                     dojoType="ValidationTextbox"
@@ -623,15 +625,15 @@ callOnLoad(init);
                             </td>
                         </tr>
                         <tr>
-                            <td nowrap align="right">SSL:</td>
+                            <td nowrap align="right"><fmt:message key="ldapmanager.viewLDAPServer.SSL"/>:</td>
                             <td><input type="checkbox" name="ssl" value="" size="40"></td>
                         </tr>
                         <tr>
-                            <td nowrap align="right">&nbsp;Anonymous Bind:</td>
+                            <td nowrap align="right">&nbsp;<fmt:message key="ldapmanager.viewLDAPServer.anonymousBind" />:</td>
                             <td><input type="checkbox" name="anonBind" value="" size="40" onclick="javascript:anonBindChkboxClicked()"></td>
                         </tr>
                         <tr>
-                            <td nowrap align="right">User DN:</td>
+                            <td nowrap align="right"><fmt:message key="ldapmanager.viewLDAPServer.userDN" />:</td>
                             <td>
                                 <input type="text" name="userDN" value="uid=admin, ou=system" size="40"
                                     dojoType="ValidationTextbox"
@@ -641,13 +643,13 @@ callOnLoad(init);
                             </td>
                         </tr>
                         <tr>
-                            <td nowrap align="right">Password:</td>
+                            <td nowrap align="right"><fmt:message key="ldapmanager.viewLDAPServer.password"/>:</td>
                             <td><input type="password" name="password" value="" size="40"></td>
                         </tr>
                         <tr>
                             <td align="right" colspan="2">
-                                &nbsp;<input type="button" value="Restore Default" name="defaultLDAP" onClick="restoreDefaultBtnClicked()"/>
-                                &nbsp;<input type="button" value="Connect" name="connectLDAP" onClick="connectBtnClicked()"/>
+                                &nbsp;<input type="button" value='<fmt:message key="ldapmanager.viewLDAPServer.restoreDefault" />' name="defaultLDAP" onClick="restoreDefaultBtnClicked()"/>
+                                &nbsp;<input type="button" value='<fmt:message key="ldapmanager.viewLDAPServer.connect" />' name="connectLDAP" onClick="connectBtnClicked()"/>
                             </td>
                         </tr>
                     </table>

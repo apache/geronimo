@@ -17,41 +17,36 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
 <%@ taglib uri="http://java.sun.com/portlet" prefix="portlet"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
+<fmt:setBundle basename="activemq"/>
 <portlet:defineObjects/>
 
-<p><b>JMS Resource Group</b> -- Current Progress</p>
+<p><fmt:message key="jmswizard.status.title" /></p>
 
 <c:choose>
     <c:when test="${data.connectionFactoryCount == 0 && data.destinationCount == 0}">
-        <p>So far, you've entered the basic configuration information required for
-          a JMS resource group.  Now you can create connection factories and
-          destinations.  When you're finished adding connection factories and
-          destinations, you can review the Geronimo deployment plan for this JMS
-          resource group, or go ahead and deploy it.</p>
+        <p><fmt:message key="jmswizard.status.noFactoriesDestinations" /></p>
     </c:when>
     <c:otherwise>
-        <p>These are the connection factories and destinations you've added to the
-          JMS resource group so far.  When you're finished adding connection factories and
-          destinations, you can review the Geronimo deployment plan for this resource
-          group, or go ahead and deploy it.</p>
+        <p><fmt:message key="jmswizard.status.factoriesDestinationsAdded" /></p>
 
         <table border="0" width="100%">
-            <tr><th colspan="3">Resource Group <c:out value="${data.instanceName}"/></th></tr>
+            <tr><th colspan="3"><fmt:message key="jmswizard.status.resourceGroup" /> <c:out value="${data.instanceName}"/></th></tr>
             <tr>
-                <td class="DarkBackground">Type</td>
-                <td class="DarkBackground">Name</td>
-                <td class="DarkBackground">Interface</td>
+                <td class="DarkBackground"><fmt:message key="jmswizard.common.type"/></td>
+                <td class="DarkBackground"><fmt:message key="jmswizard.common.name"/></td>
+                <td class="DarkBackground"><fmt:message key="jmswizard.common.interface"/></td>
             </tr>
             <c:forEach var="factory" items="${data.connectionFactories}">
                 <tr>
-                    <td>Connection Factory</td>
+                    <td><fmt:message key="jmswizard.common.connFactory" /></td>
                     <td><c:out value="${factory.instanceName}" /></td>
                     <td><c:out value="${provider.connectionDefinitions[factory.factoryType].connectionFactoryInterface}" /></td>
                 </tr>
             </c:forEach>
             <c:forEach var="dest" items="${data.adminObjects}">
                 <tr>
-                    <td>Destination</td>
+                    <td><fmt:message key="jmswizard.common.destination" /></td>
                     <td><c:out value="${dest.name}" /></td>
                     <td><c:out value="${provider.adminObjectDefinitions[dest.destinationType].adminObjectInterface}" /></td>
                 </tr>
@@ -101,11 +96,11 @@
         <td></td>
         <td>
             <input type="hidden" name="nextAction" value="factoryType" />
-            <input type="submit" value="Add Connection Factory" />
-            <input type="button" value="Add Destination" onclick="document.<portlet:namespace/>JMSForm.nextAction.value='destinationType';document.<portlet:namespace/>JMSForm.submit();return false;" />
+            <input type="submit" value='<fmt:message key="jmswizard.status.addConnFactory" />' />
+            <input type="button" value='<fmt:message key="jmswizard.status.addDestination" />' onclick="document.<portlet:namespace/>JMSForm.nextAction.value='destinationType';document.<portlet:namespace/>JMSForm.submit();return false;" />
 <c:if test="${data.connectionFactoryCount > 0 || data.destinationCount > 0}">
-            <input type="button" value="Show Plan" onclick="document.<portlet:namespace/>JMSForm.nextAction.value='plan';document.<portlet:namespace/>JMSForm.submit();return false;" />
-            <input type="button" value="Deploy Now" onclick="document.<portlet:namespace/>JMSForm.nextAction.value='deploy';document.<portlet:namespace/>JMSForm.submit();return false;" />
+            <input type="button" value='<fmt:message key="jmswizard.status.showPlan" />'  onclick="document.<portlet:namespace/>JMSForm.nextAction.value='plan';document.<portlet:namespace/>JMSForm.submit();return false;" />
+            <input type="button" value='<fmt:message key="jmswizard.status.deployNow" />' onclick="document.<portlet:namespace/>JMSForm.nextAction.value='deploy';document.<portlet:namespace/>JMSForm.submit();return false;" />
 </c:if>
         </td>
       </tr>
@@ -116,4 +111,4 @@
 
 <p><a href="<portlet:actionURL portletMode="view">
               <portlet:param name="mode" value="list-before" />
-            </portlet:actionURL>">Cancel</a></p>
+            </portlet:actionURL>"><fmt:message key="jmswizard.common.cancel"/></a></p>

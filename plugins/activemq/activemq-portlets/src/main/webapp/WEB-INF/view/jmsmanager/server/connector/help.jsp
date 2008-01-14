@@ -14,5 +14,9 @@
    See the License for the specific language governing permissions and
    limitations under the License.
 --%>
-<p>Shows all the network connectors configured for the currently available JMS brokers.
-Lets you start, stop, add, remove, and edit JMS network connectors.</p>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
+<fmt:setBundle basename="activemq"/>
+<p>
+<fmt:message key="jmsmanager.server.connector.help.title" />
+</p>
+

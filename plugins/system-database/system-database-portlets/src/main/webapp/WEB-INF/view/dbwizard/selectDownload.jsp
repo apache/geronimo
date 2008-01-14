@@ -16,17 +16,14 @@
 --%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/portlet" prefix="portlet"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
+<fmt:setBundle basename="systemdatabase"/>
 <portlet:defineObjects/>
 
-<p><b>Create Database Pool</b> -- Step 2: Select Driver, JAR, Parameters</p>
+<p><fmt:message key="dbwizard.selectDownload.title"/></p>
 
-<p>This page lets you automatically download a driver for a database where the
-driver JARs are available online without login or registration.</p>
+<fmt:message key="dbwizard.selectDownload.summary"/>
 
-<p><i>If this page took a very long time to load and there are no drivers listed in the box below,
-it probably means your Geronimo installation can't connect to apache.org to retrieve the driver
-download configuration file.  Sorry for the inconvenience, you'll have to try again later or
-install the driver by hand (copy it to a directory under geronimo/repository/)</i></p>
 
 <!--   FORM TO COLLECT DATA FOR THIS PAGE   -->
 <form name="<portlet:namespace/>DatabaseForm" action="<portlet:actionURL/>" method="POST" onSubmit="startProgress()">
@@ -57,7 +54,7 @@ install the driver by hand (copy it to a directory under geronimo/repository/)</
     <table border="0">
     <!-- ENTRY FIELD: DRIVER TYPE -->
       <tr>
-        <th style="min-width: 140px"><div align="right">Select Driver:</div></th>
+        <th style="min-width: 140px"><div align="right"><fmt:message key="dbwizard.selectDownload.selectDriver"/>:</div></th>
         <td>
           <select name="driverName">
         <c:forEach var="driver" items="${drivers}">
@@ -68,13 +65,13 @@ install the driver by hand (copy it to a directory under geronimo/repository/)</
       </tr>
       <tr>
         <td></td>
-        <td>A driver that Geronimo can download automatically for you.</td>
+        <td><fmt:message key="dbwizard.selectDownload.selectDriverExp"/></td>
       </tr>
       <tr>
         <td></td>
         <td>
-          <input type="submit" value="Next" />
-          <input type="button" value="Cancel" onclick="document.<portlet:namespace/>DatabaseForm.mode.value='params';document.<portlet:namespace/>DatabaseForm.submit();return false;" />
+          <input type="submit" value='<fmt:message key="dbwizard.common.next"/>' />
+          <input type="button" value='<fmt:message key="dbwizard.common.cancel"/>' onclick="document.<portlet:namespace/>DatabaseForm.mode.value='params';document.<portlet:namespace/>DatabaseForm.submit();return false;" />
         </td>
       </tr>
     </table>
@@ -85,17 +82,17 @@ install the driver by hand (copy it to a directory under geronimo/repository/)</
 <%--
 <p><a href="<portlet:actionURL portletMode="view">
               <portlet:param name="mode" value="params" />
-            </portlet:actionURL>">Select predefined database</a></p>
+            </portlet:actionURL>"><fmt:message key="dbwizard.selectDownload.selectPredefinedDatabase"/></a></p>
 <p><a href="<portlet:actionURL portletMode="view">
               <portlet:param name="mode" value="edit" />
-            </portlet:actionURL>">Select "other" database</a></p>
+            </portlet:actionURL>"><fmt:message key="dbwizard.selectDownload.selectOtherDatabase"/></a></p>
 --%>
 
 <p><a href="<portlet:actionURL portletMode="view">
               <portlet:param name="mode" value="list" />
-            </portlet:actionURL>">Return to List</a></p>
+            </portlet:actionURL>"><fmt:message key="dbwizard.common.returnToList"/></a></p>
 
-<p><br /><br /><br />Here are some other JDBC drivers you might want to download on your own (just save them somewhere under geronimo/repository/):</p>
+<p><br /><br /><br /><fmt:message key="dbwizard.selectDownload.otherJDBCDrivers"/>:</p>
 <ul>
   <li><a href="http://www.daffodildb.com/download/index.jsp">DaffodilDB</a></li>
   <li><a href="http://www.frontbase.com/cgi-bin/WebObjects/FrontBase">FrontBase</a></li>

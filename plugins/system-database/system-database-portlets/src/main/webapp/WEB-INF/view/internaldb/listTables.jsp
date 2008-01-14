@@ -17,6 +17,8 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="sql" uri="http://java.sun.com/jsp/jstl/sql" %>
 <%@ taglib prefix="portlet" uri="http://java.sun.com/portlet" %>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
+<fmt:setBundle basename="systemdatabase"/>
 <portlet:defineObjects/>
 
 <%-- TODO: Check if datasource is created --%>
@@ -52,16 +54,16 @@
   </sql:query>
 </sql:transaction>
 
-<center><b>DB: <c:out value="${db}" /></b></center>
+<center><b><fmt:message key="internaldb.common.DB"/>: <c:out value="${db}" /></b></center>
 <table width="100%">
   <tr>
-    <td class="DarkBackground" colspan="3" align="center">Tables</td>
+    <td class="DarkBackground" colspan="3" align="center"><fmt:message key="internaldb.common.tables"/></td>
   </tr>
   <%-- Check if there are tables to display  --%>
   <c:choose>
     <c:when test="${tables.rowCount == 0}">
       <tr>
-        <td class="LightBackground" colspan="2" align="center">*** No tables ***</td>
+        <td class="LightBackground" colspan="2" align="center">*** <fmt:message key="internaldb.listTables.noTables"/> ***</td>
       </tr>
     </c:when>
     <c:otherwise>
@@ -86,7 +88,7 @@
                          <portlet:param name="db" value="${db}" />
                          <portlet:param name="tbl" value="${row[0]}.${row[1]}" />
                          <portlet:param name="viewTables" value="${viewTables}" />
-                       </portlet:actionURL>">View Contents</a>
+                       </portlet:actionURL>"><fmt:message key="internaldb.common.viewContents"/></a>
             </td>
       </tr>
       </c:forEach>
@@ -97,5 +99,5 @@
 <br>
 <a href="<portlet:actionURL portletMode="view">
            <portlet:param name="action" value="listDatabases" />
-         </portlet:actionURL>">View Databases
+         </portlet:actionURL>"><fmt:message key="internaldb.common.viewDatabases"/>
 </a>

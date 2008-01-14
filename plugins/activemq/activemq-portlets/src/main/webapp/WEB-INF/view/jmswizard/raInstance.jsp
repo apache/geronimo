@@ -17,14 +17,13 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
 <%@ taglib uri="http://java.sun.com/portlet" prefix="portlet"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
+<fmt:setBundle basename="activemq"/>
 <portlet:defineObjects/>
 
-<p><b>JMS Resource Group</b> -- Configure Server Connection</p>
+<p><fmt:message key="jmswizard.raInstance.title" /></p>
 
-<p>The settings on this screen are different for each JMS provider, but they
-  generally configure connectivity to the JMS server.  Connection factories
-  or destinations you create in the next step typically use these settings to
-  communicate with the server.</p>
+<p><fmt:message key="jmswizard.raInstance.titleExp" /></p>
 
 <!--   FORM TO COLLECT DATA FOR THIS PAGE   -->
 <form name="<portlet:namespace/>JMSForm" action="<portlet:actionURL/>" method="POST">
@@ -60,18 +59,16 @@
     <table border="0">
     <!-- ENTRY FIELD: RA Instance Name -->
       <tr>
-        <th><div align="right">Resource Group Name:</div></th>
+        <th><div align="right"><fmt:message key="jmswizard.raInstance.resourceGroupName" />:</div></th>
         <td><input name="instanceName" type="text" size="20" value="${data.instanceName}" /></td>
       </tr>
       <tr>
         <td></td>
-        <td>A unique name for the resource adapter; used to generate the configuration name
-          for this resource group as well as to connect Message-Driven Beans to the JMS server
-          using the settings on this page.</td>
+        <td><fmt:message key="jmswizard.raInstance.resourceGroupNameExp" /></td>
       </tr>
     <!-- ENTRY FIELD: Config Properties -->
       <tr>
-        <th colspan="2">Basic Configuration Settings</th>
+        <th colspan="2"><fmt:message key="jmswizard.raInstance.basicConfigSettings" /></th>
       </tr>
   <c:forEach var="prop" items="${provider.instanceConfigProperties}" varStatus="status">
       <c:set var="index" value="instance-config-${status.index}" />
@@ -89,7 +86,7 @@
         <th><div align="right"></div></th>
         <td>
             <input type="hidden" name="nextAction" value="review" />
-            <input type="submit" value="Next" />
+            <input type="submit" value='<fmt:message key="jmswizard.common.next"/>' />
         </td>
       </tr>
     </table>
@@ -99,4 +96,4 @@
 
 <p><a href="<portlet:actionURL portletMode="view">
               <portlet:param name="mode" value="list-before" />
-            </portlet:actionURL>">Cancel</a></p>
+            </portlet:actionURL>"><fmt:message key="jmswizard.common.cancel"/></a></p>

@@ -17,9 +17,11 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
 <%@ taglib uri="http://java.sun.com/portlet" prefix="portlet"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
+<fmt:setBundle basename="activemq"/>
 <portlet:defineObjects/>
 
-<p><b>JMS Resource Group</b> -- Configure Destination</p>
+<p><fmt:message key="jmswizard.destination.title" /></p>
 
 <!--   FORM TO COLLECT DATA FOR THIS PAGE   -->
 <form name="<portlet:namespace/>JMSForm" action="<portlet:actionURL/>" method="POST">
@@ -61,19 +63,18 @@
     <table border="0">
     <!-- ENTRY FIELD: Admin Object Name -->
       <tr>
-        <th><div align="right">Message Destination Name:</div></th>
+        <th><div align="right"><fmt:message key="jmswizard.destination.messageDestinationName" />:</div></th>
         <td><input name="destination.${data.currentDestinationID}.name" type="text" size="20" value="${data.currentDestination.name}" /></td>
       </tr>
       <tr>
         <td></td>
-        <td>A unique name for the connection factory; used to refer to this connection
-            factory when mapping resource references from application components.</td>
+        <td><fmt:message key="jmswizard.common.connectionFactoryExp" /></td>
       </tr>
 
     <!-- ENTRY FIELD: Config Properties -->
 <c:if test="${!empty(provider.adminObjectDefinitions[data.destinationType].configProperties)}">
       <tr>
-        <th colspan="2">Destination Configuration Settings</th>
+        <th colspan="2"><fmt:message key="jmswizard.destination.destinationConfSettings" /></th>
       </tr>
   <c:forEach var="prop" items="${provider.adminObjectDefinitions[data.destinationType].configProperties}" varStatus="status">
       <c:set var="index" value="instance-config-${status.index}" />
@@ -92,7 +93,7 @@
         <td></td>
         <td>
             <input type="hidden" name="nextAction" value="review" />
-            <input type="submit" value="Next" />
+            <input type="submit" value='<fmt:message key="jmswizard.common.next"/>' />
         </td>
       </tr>
     </table>
@@ -100,7 +101,9 @@
 <!--   END OF FORM TO COLLECT DATA FOR THIS PAGE   -->
 
 
-<p><b>Current Status for JMS Resource Group <c:out value="${data.instanceName}" /></b></p>
+<p><b><fmt:message key="jmswizard.common.currentStatusForJMSResourceGroup" >
+<fmt:param value="${data.instanceName}"  />
+</fmt:message></b></p>
 <ul>
   <li><c:out value="${data.connectionFactoryCount}" /> Connection Factor<c:choose><c:when test="${data.connectionFactoryCount == 1}">y</c:when><c:otherwise>ies</c:otherwise></c:choose>
       <c:if test="${data.connectionFactoryCount > 0}">
@@ -109,7 +112,7 @@
                   <li>
                       <c:choose>
                           <c:when test="${empty(factory.instanceName)}">
-                              <i>In Process</i>
+                              <i><fmt:message key="jmswizard.common.inProcess"/></i>
                           </c:when>
                           <c:otherwise>
                               <c:out value="${factory.instanceName}" />
@@ -127,7 +130,7 @@
                   <li>
                       <c:choose>
                           <c:when test="${empty(dest.name)}">
-                              <i>In Process</i>
+                              <i><fmt:message key="jmswizard.common.inProcess"/></i>
                           </c:when>
                           <c:otherwise>
                               <c:out value="${dest.name}" />
@@ -143,4 +146,4 @@
 
 <p><a href="<portlet:actionURL portletMode="view">
               <portlet:param name="mode" value="list-before" />
-            </portlet:actionURL>">Cancel</a></p>
+            </portlet:actionURL>"><fmt:message key="jmswizard.common.cancel"/></a></p>

@@ -14,27 +14,28 @@
    See the License for the specific language governing permissions and
    limitations under the License.
 --%>
-       <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
-       <%@ taglib uri="http://java.sun.com/portlet" prefix="portlet"%>
-       <portlet:defineObjects/>
-        <script language="JavaScript">
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+<%@ taglib uri="http://java.sun.com/portlet" prefix="portlet"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
+<fmt:setBundle basename="activemq"/>
+<portlet:defineObjects/>
+
+<script language="JavaScript">
         var <portlet:namespace/>formName = "<portlet:namespace/>createDestinationForm";
         var <portlet:namespace/>requiredFields = new Array("destinationMessageDestinationName","destinationPhysicalName");
         function <portlet:namespace/>validateForm(){
             return (textElementsNotEmpty(<portlet:namespace/>formName,<portlet:namespace/>requiredFields));
         }
-        </script>
-
-       <script>
-
+</script>
+<script>
        function <portlet:namespace/>backToDestinationList(){
 
-              document.<portlet:namespace/>createDestinationForm.action = "<portlet:renderURL portletMode="view"><portlet:param name="processAction" value="viewDestinations"/></portlet:renderURL>";
-              document.<portlet:namespace/>createDestinationForm.submit();
+           document.<portlet:namespace/>createDestinationForm.action = "<portlet:renderURL portletMode="view"><portlet:param name="processAction" value="viewDestinations"/></portlet:renderURL>";
+           document.<portlet:namespace/>createDestinationForm.submit();
 
            return true;
        }
-       </script>
+</script>
 
        <br>
 
@@ -44,13 +45,13 @@
 
        <tr>
          <th colspan="2" align=LEFT>
-            Add Queue/Topic
+            <fmt:message key="jmsmanager.common.addQueue_Topic" />
          </th>
 
        </tr>
          <tr>
              <td  align=LEFT>
-                  Message Destination Name
+                  <fmt:message key="jmsmanager.common.messageDestinationName" />
              </td>
              <td  align=LEFT>
                    <input type="text" name="destinationMessageDestinationName" value=""/>
@@ -58,7 +59,7 @@
          </tr>
          <tr>
              <td  align=LEFT>
-                   Destination Physical Name
+                   <fmt:message key="jmsmanager.common.destinationPhysicalName" />
              </td>
              <td  align=LEFT>
                    <input type="text" name="destinationPhysicalName" value=""/>
@@ -66,7 +67,7 @@
          </tr>
          <tr>
              <td  align=LEFT>
-                   Type
+                   <fmt:message key="jmsmanager.common.type"/>
              </td>
              <td  align=LEFT>
                <select name="destinationType">
@@ -77,7 +78,7 @@
          </tr>
          <tr>
              <td  align=LEFT>
-                   Application Name
+                   <fmt:message key="jmsmanager.common.applicationName" />
              </td>
              <td  align=LEFT>
                    <input type="text" name="destinationApplicationName" value="null"/>
@@ -86,7 +87,7 @@
          </tr>
          <tr>
              <td  align=LEFT>
-                    Module Name
+                    <fmt:message key="jmsmanager.common.moduleName" />
              </td>
              <td  align=LEFT>
                    <input type="text" name="destinationModuleName" value="defaultJMS"/>
@@ -95,10 +96,10 @@
          </tr>
          <tr>
                 <td colspan="2" align="center" class="formElement">
-                <input type="submit" value="Submit" 
+                <input type="submit" value='<fmt:message key="jmsmanager.common.submit"/>' 
                     onclick="return <portlet:namespace/>validateForm()">
-                 <input type="reset" value="Clear"> 
-                <input type="submit" value="Back"  onClick="<portlet:namespace/>backToDestinationList();">
+                 <input type="reset" value='<fmt:message key="jmsmanager.common.clear"/>'> 
+                <input type="submit" value='<fmt:message key="jmsmanager.common.back"/>'  onClick="<portlet:namespace/>backToDestinationList();">
                 </td>
          </tr>
         </table>

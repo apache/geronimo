@@ -16,9 +16,11 @@
 --%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/portlet" prefix="portlet"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
+<fmt:setBundle basename="systemdatabase"/>
 <portlet:defineObjects/>
 
-<p><b>Create Database Pool</b> -- Step 3: Final Pool Configuration</p>
+<p><fmt:message key="dbwizard.confirmURL.title"/></p>
 
 <script language="JavaScript">
 function <portlet:namespace/>validate() {
@@ -91,65 +93,65 @@ function <portlet:namespace/>validate() {
     <table border="0">
     <!-- ENTRY FIELD: URL -->
       <tr>
-        <th style="min-width: 140px"><div align="right">JDBC Connect URL:</div></th>
+        <th style="min-width: 140px"><div align="right"><fmt:message key="dbwizard.common.JDBCConnectURL"/>:</div></th>
         <td><input name="url" type="text" size="50" value="${pool.url}"></td>
       </tr>
       <tr>
         <td></td>
-        <td>Make sure the generated URL fits the syntax for your JDBC driver.</td>
+        <td><fmt:message key="dbwizard.common.URLFits"/></td>
       </tr>
     <!-- STATUS FIELD: Driver Load -->
       <tr>
-        <th><div align="right">Driver Status:</div></th>
-        <td><i>Loaded Successfully</i></td>
+        <th><div align="right"><fmt:message key="dbwizard.confirmURL.driverStatus"/>:</div></th>
+        <td><i><fmt:message key="dbwizard.confirmURL.loadedSuccessfully"/></i></td>
       </tr>
     <!-- HEADER -->
       <tr>
-        <th colspan="2">Connection Pool Parameters</th>
+        <th colspan="2"><fmt:message key="dbwizard.common.connectionPoolParameters"/></th>
       </tr>
     <!-- ENTRY FIELD: Min Size -->
       <tr>
-        <th><div align="right">Pool Min Size:</div></th>
+        <th><div align="right"><fmt:message key="dbwizard.common.poolMinSize"/>:</div></th>
         <td><input name="minSize" type="text" size="5" value="${pool.minSize}"></td>
       </tr>
       <tr>
         <td></td>
-        <td>The minimum number of connections in the pool.  Leave blank for default.</td>
+        <td><fmt:message key="dbwizard.confirmURL.minimumNoOfCon"/></td>
       </tr>
     <!-- ENTRY FIELD: Max Size -->
       <tr>
-        <th><div align="right">Pool Max Size:</div></th>
+        <th><div align="right">fmt:message key="dbwizard.common.poolMaxSize"/>:</div></th>
         <td><input name="maxSize" type="text" size="5" value="${pool.maxSize}"></td>
       </tr>
       <tr>
         <td></td>
-        <td>The maximum number of connections in the pool.  Leave blank for default.</td>
+        <td><fmt:message key="dbwizard.confirmURL.maxNoOfCon"/></td>
       </tr>
     <!-- ENTRY FIELD: Blocking Timeout -->
       <tr>
-        <th><div align="right">Blocking Timeout:</div></th>
+        <th><div align="right"><fmt:message key="dbwizard.common.blockingTimeout"/>:</div></th>
         <td><input name="blockingTimeout" type="text" size="7" value="${pool.blockingTimeout}"> (in milliseconds)</td>
       </tr>
       <tr>
         <td></td>
-        <td>The length of time a caller will wait for a connection.  Leave blank for default.</td>
+        <td><fmt:message key="dbwizard.confirmURL.blockingTimeoutExp"/></td>
       </tr>
     <!-- ENTRY FIELD: Idle timeout -->
       <tr>
-        <th><div align="right">Idle Timeout:</div></th>
-        <td><input name="idleTimeout" type="text" size="5" value="${pool.idleTimeout}"> (in minutes)</td>
+        <th><div align="right"><fmt:message key="dbwizard.common.idleTimeout"/>:</div></th>
+        <td><input name="idleTimeout" type="text" size="5" value="${pool.idleTimeout}"> (<fmt:message key="dbwizard.common.inMinutes"/>)</td>
       </tr>
       <tr>
         <td></td>
-        <td>How long a connection can be idle before being closed.  Leave blank for default.</td>
+        <td><fmt:message key="dbwizard.confirmURL.idleTimeoutExp"/></td>
       </tr>
     <!-- SUBMIT BUTTON -->
       <tr>
         <td></td>
         <td>
-          <input type="button" value="Test Connection" onclick="if (<portlet:namespace/>validate()){document.<portlet:namespace/>DatabaseForm.test.value='true';document.<portlet:namespace/>DatabaseForm.submit();}" />
-          <input type="button" value="Skip Test and Deploy" onclick="if (<portlet:namespace/>validate()){document.<portlet:namespace/>DatabaseForm.test.value='false';document.<portlet:namespace/>DatabaseForm.submit();return false;}" />
-          <input type="button" value="Skip Test and Show Plan" onclick="if (<portlet:namespace/>validate()){document.<portlet:namespace/>DatabaseForm.mode.value='plan';document.<portlet:namespace/>DatabaseForm.submit();return false;}" />
+          <input type="button" value='<fmt:message key="dbwizard.common.testConnection"/>' onclick="if (<portlet:namespace/>validate()){document.<portlet:namespace/>DatabaseForm.test.value='true';document.<portlet:namespace/>DatabaseForm.submit();}" />
+          <input type="button"  value='<fmt:message key="dbwizard.common.skipTestAndDeploy"/>' onclick="if (<portlet:namespace/>validate()){document.<portlet:namespace/>DatabaseForm.test.value='false';document.<portlet:namespace/>DatabaseForm.submit();return false;}" />
+          <input type="button" value='<fmt:message key="dbwizard.common.skipTestAndShowPlan"/>' onclick="if (<portlet:namespace/>validate()){document.<portlet:namespace/>DatabaseForm.mode.value='plan';document.<portlet:namespace/>DatabaseForm.submit();return false;}" />
         </td>
       </tr>
     </table>
@@ -158,4 +160,4 @@ function <portlet:namespace/>validate() {
 
 <p><a href="<portlet:actionURL portletMode="view">
               <portlet:param name="mode" value="list" />
-            </portlet:actionURL>">Cancel</a></p>
+            </portlet:actionURL>"><fmt:message key="dbwizard.common.cancel"/></a></p>

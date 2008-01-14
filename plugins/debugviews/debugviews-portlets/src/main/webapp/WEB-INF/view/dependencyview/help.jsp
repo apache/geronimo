@@ -14,7 +14,9 @@
    See the License for the specific language governing permissions and
    limitations under the License.
 --%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
+<fmt:setBundle basename="debugviews"/>
 
-<p><font face="Verdana" size="+1"><center><b>This is the help for the Geronimo Administration Dependency VIEW page.</b></center></font></p>
+<p><font face="Verdana" size="+1"><center><b><fmt:message key="dependencyview.help.title"/></b></center></font></p>
 
-<P>This view can be used to all the modules and its dependencies.</P>
+<P><fmt:message key="dependencyview.help.summary"/></P>

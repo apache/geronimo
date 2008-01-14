@@ -17,10 +17,12 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
 <%@ taglib uri="http://java.sun.com/portlet" prefix="portlet"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
+<fmt:setBundle basename="systemdatabase"/>
 
 <table>
     <tr>
-        <td><button onclick="location='<portlet:renderURL><portlet:param name="action" value="refresh"/></portlet:renderURL>'">Refresh</button>
+        <td><button onclick="location='<portlet:renderURL><portlet:param name="action" value="refresh"/></portlet:renderURL>'"><fmt:message key="derbylogmanager.view.refresh"/></button>
             <br/>
             <br/>
         </td>
@@ -28,15 +30,15 @@
     <tr>
         <td class="Smaller" valign="middle">
             <form action="<portlet:renderURL/>" name="<portlet:namespace/>searchForm" >
-                <b>Filter Criteria:</b>
+                <b><fmt:message key="derbylogmanager.view.filterResults"/>:</b>
                 <input type="hidden" value="search" name="action"/>
                 <br/>
-                Lines <input type="text" name="startPos" value="${startPos}" size="3"/>
-                to <input type="text" name="endPos" value="${endPos}" size="3"/>
-                Max Results <input type="text" name="maxRows" value="${maxRows}" size="3"/>
-                Containing text <input type="text" name="searchString" value="${searchString}"/>
+                <fmt:message key="derbylogmanager.view.Lines"/> <input type="text" name="startPos" value="${startPos}" size="3"/>
+                <fmt:message key="derbylogmanager.view.to"/> <input type="text" name="endPos" value="${endPos}" size="3"/>
+                <fmt:message key="derbylogmanager.view.maxResults"/> <input type="text" name="maxRows" value="${maxRows}" size="3"/>
+                <fmt:message key="derbylogmanager.view.containingText"/> <input type="text" name="searchString" value="${searchString}"/>
                 <br/>
-                <input type="submit" value="Filter Log"/>
+                <input type="submit" value="<fmt:message key="derbylogmanager.view.filterLog"/>"/>
             </form>
         </td>
     </tr>
@@ -47,10 +49,14 @@
                     <table>
                         <tr>
                             <td class="Smaller">
-                                <b>${lineCount} total message(s) in log file. ${fn:length(searchResults)} matched your criteria
-                                   <c:if test="${!empty capped}">
-                                       (number of results capped)
-                                   </c:if>.
+                                <b>
+                                    <fmt:message key="derbylogmanager.view.matchCriterial" >
+                                        <fmt:param   value="${lineCount}" />
+                                        <fmt:param   value="${fn:length(searchResults)}" />
+                                    </fmt:message>
+                                    <c:if test="${!empty capped}">
+                                       <fmt:message key="derbylogmanager.view.numberOfResultsCapped"/>
+                                    </c:if>.
                                 </b>
                             </td>
                         </tr>
@@ -65,7 +71,7 @@
                     </table>
                 </c:when>
                 <c:otherwise>
-                    No entries found with the specified criteria.
+                    <fmt:message key="derbylogmanager.view.noEntries"/>
                 </c:otherwise>
             </c:choose>
         </td>

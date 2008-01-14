@@ -16,13 +16,8 @@
 --%>
 
 <!-- LDAP Viewer portlet help page -->
+<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
+<fmt:setBundle basename="debugviews"/>
 
-<p>The LDAP viewer portlet can be used to do the following:
-<ul>
-    <li>Connect to any LDAP server and explore its contents (default is the Embedded LDAP server - Apache DS)
-    <li>View the attributes of an entry
-    <li>Do an LDAP search on a particular entry
-    <li>Refresh any entry to get the latest data from the directory server
-    <li>View the LDAP connection environment data
-</ul>
-<p>Note: Right-click to any tree node to view the context menu for performing different actions.
+<fmt:message key="ldapmanager.help.canDoTheFollowing"/>
+<p><fmt:message key="ldapmanager.help.note"/>

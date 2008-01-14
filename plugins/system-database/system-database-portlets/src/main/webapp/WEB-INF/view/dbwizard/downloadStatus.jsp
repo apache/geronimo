@@ -16,11 +16,13 @@
 --%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/portlet" prefix="portlet"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
+<fmt:setBundle basename="systemdatabase"/>
 <portlet:defineObjects/>
 
-<p><b>Create Database Pool</b> -- Driver Download</p>
+<p><fmt:message key="dbwizard.downloadStatus.title"/></p>
 
-<p>This page monitors the driver download progress.</p>
+<p><fmt:message key="dbwizard.downloadStatus.summary"/></p>
 
 <!--   Form that will be submitted when the download is complete   -->
 <form name="<portlet:namespace/>ContinueForm" action="<portlet:actionURL/>" method="POST">
@@ -58,4 +60,4 @@
 
 <p><a href="<portlet:actionURL portletMode="view">
               <portlet:param name="mode" value="list" />
-            </portlet:actionURL>">Return to List</a></p>
+            </portlet:actionURL>"><fmt:message key="dbwizard.common.returnToList"/></a></p>

@@ -17,9 +17,11 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
 <%@ taglib uri="http://java.sun.com/portlet" prefix="portlet"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%> 
+<fmt:setBundle basename="activemq"/> 
 <portlet:defineObjects/>
 
-<p><b>JMS Resource Group</b> -- Select JMS Provider RAR</p>
+<p><fmt:message key="jmswizard.provider.title" /></p>
 
 <!--   FORM TO COLLECT DATA FOR THIS PAGE   -->
 <form name="<portlet:namespace/>JMSForm" action="<portlet:actionURL/>">
@@ -27,7 +29,7 @@
     <table border="0">
     <!-- ENTRY FIELD: JMS Connection RAR -->
       <tr>
-        <th><div align="right">JMS Provider RAR:</div></th>
+        <th><div align="right"><fmt:message key="jmswizard.provider.JMSProviderRAR" />:</div></th>
         <td>
           <select name="rar">
             <option></option>
@@ -39,15 +41,13 @@
       </tr>
       <tr>
         <td></td>
-        <td>The Resource Adapter RAR that can be used to connect to the JMS provider
-            in question.  This RAR should be installed under GERONIMO/repository/ in
-            order for it to appear in this list.
+        <td><fmt:message key="jmswizard.provider.JMSProviderRARExp" />
         </td>
       </tr>
     <!-- SUBMIT BUTTON -->
       <tr>
         <td></td>
-        <td><input type="submit" value="Next" /></td>
+        <td><input type="submit" value='<fmt:message key="jmswizard.common.next"/>' /></td>
       </tr>
     </table>
 </form>
@@ -56,4 +56,4 @@
 
 <p><a href="<portlet:actionURL portletMode="view">
               <portlet:param name="mode" value="list-before" />
-            </portlet:actionURL>">Cancel</a></p>
+            </portlet:actionURL>"><fmt:message key="jmswizard.common.cancel"/></a></p>

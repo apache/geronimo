@@ -14,4 +14,7 @@
    See the License for the specific language governing permissions and
    limitations under the License.
 --%>
-This portlet views the log file for Geronimo's internal database, Derby.
+<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
+<fmt:setBundle basename="systemdatabase"/>
+<fmt:message key="derbylogmanager.help.title" /> 
+

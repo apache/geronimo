@@ -17,19 +17,21 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <%@ taglib prefix="portlet" uri="http://java.sun.com/portlet" %>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
+<fmt:setBundle basename="systemdatabase"/>
 <portlet:defineObjects/>
 
-<center><b>Database List</b></center>
+<center><b><fmt:message key="internaldb.listDatabases.title"/></b></center>
 <table width="100%">
   <tr>
-    <td class="DarkBackground" colspan="1" align="center">Databases</td>
-    <td class="DarkBackground" colspan="2" align="center">View Tables</td>
+    <td class="DarkBackground" colspan="1" align="center"><fmt:message key="internaldb.common.databases"/></td>
+    <td class="DarkBackground" colspan="2" align="center"><fmt:message key="internaldb.common.viewTables"/></td>
   </tr>
   <%-- Check if there are databases to display  --%>
   <c:choose>
     <c:when test="${fn:length(databases) == 0}">
       <tr>
-        <td class="LightBackground" colspan="3" align="center">*** No databases ***</td>
+        <td class="LightBackground" colspan="3" align="center">*** <fmt:message key="internaldb.listDatabases.nodatabases"/> ***</td>
       </tr>
     </c:when>
     <c:otherwise>
@@ -50,14 +52,14 @@
                      <portlet:param name="action" value="listTables" />
                      <portlet:param name="db" value="${db}" />
                      <portlet:param name="viewTables" value="application" />
-                   </portlet:actionURL>">Application</a>
+                   </portlet:actionURL>"><fmt:message key="internaldb.common.application"/></a>
         </td>
         <td class="<c:out value='${tdClass}' />" align="center">
           <a href="<portlet:actionURL portletMode="view">
                      <portlet:param name="action" value="listTables" />
                      <portlet:param name="db" value="${db}" />
                      <portlet:param name="viewTables" value="system" />
-                   </portlet:actionURL>">System</a>
+                   </portlet:actionURL>"><fmt:message key="internaldb.common.system"/></a>
         </td>
       </tr>
       </c:forEach>

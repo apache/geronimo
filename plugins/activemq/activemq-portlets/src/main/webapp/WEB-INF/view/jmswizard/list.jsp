@@ -16,12 +16,14 @@
 --%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/portlet" prefix="portlet"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
+<fmt:setBundle basename="activemq"/>
 <portlet:defineObjects/>
 
-<p>This page lists all the available JMS Resource Groups.</p>
+<p><fmt:message key="jmswizard.list.title" /></p>
 
 <c:choose>
-  <c:when test="${empty(resources)}"><p><i>There are no JMS Resource Groups defined</i></p></c:when>
+  <c:when test="${empty(resources)}"><p><i><fmt:message key="jmswizard.list.noJMSResourceGroups" /></i></p></c:when>
   <c:otherwise>
 <!--
 <p>For each resource listed, you can click the <b>usage</b> link to see examples of how
@@ -33,11 +35,11 @@
             <td colspan="5" style="padding-top: 10px"><b><c:out value="${resource.name}"/> (<c:out value="${resource.configurationName}"/>)</b></td>
         </tr>
         <tr>
-          <th class="DarkBackground">Type</th>
-          <th class="DarkBackground">Name</th>
-          <th class="DarkBackground" align="center">Deployed As</th>
-          <th class="DarkBackground" align="center">State</th>
-          <th class="DarkBackground" align="center">Actions</th>
+          <th class="DarkBackground"><fmt:message key="jmswizard.common.type"/></th>
+          <th class="DarkBackground"><fmt:message key="jmswizard.common.name"/></th>
+          <th class="DarkBackground" align="center"><fmt:message key="jmswizard.common.deployedAs"/></th>
+          <th class="DarkBackground" align="center"><fmt:message key="jmswizard.common.state"/></th>
+          <th class="DarkBackground" align="center"><fmt:message key="jmswizard.common.actions"/></th>
         </tr>
         <c:set var="backgroundClass" value='MediumBackground'/>
         <c:forEach var="factory" items="${resource.connectionFactories}">
@@ -50,15 +52,15 @@
                 </c:otherwise>
             </c:choose>
             <tr>
-              <td class="${backgroundClass}">Connection Factory</td>
+              <td class="${backgroundClass}"><fmt:message key="jmswizard.common.connFactory" /> </td>
               <td class="${backgroundClass}">${factory.name}</td>
               <td class="${backgroundClass}">
                 <c:choose>
                   <c:when test="${empty resource.parentName}">
-                    Server-wide
+                    <fmt:message key="jmswizard.list.serverWide" /> 
                   </c:when>
                   <c:otherwise>
-                    Application-scoped
+                   <fmt:message key="jmswizard.list.applicationScoped" /> 
                   </c:otherwise>
                 </c:choose>
               </td>
@@ -96,10 +98,10 @@
               <td class="${backgroundClass}">
                 <c:choose>
                   <c:when test="${empty resource.parentName}">
-                    Server-wide
+                    <fmt:message key="jmswizard.list.serverWide" /> 
                   </c:when>
                   <c:otherwise>
-                    Application-scoped
+                    <fmt:message key="jmswizard.list.applicationScoped" /> 
                   </c:otherwise>
                 </c:choose>
               </td>
@@ -139,7 +141,7 @@
 </c:forEach>
   <li><a href="<portlet:actionURL portletMode="view">
               <portlet:param name="mode" value="list-after" />
-            </portlet:actionURL>">For another JMS provider...</a></li>
+            </portlet:actionURL>"><fmt:message key="jmswizard.list.forAnotherJMSProvider" /> </a></li>
 <%--
   <li><a href="<portlet:actionURL portletMode="view">
               <portlet:param name="mode" value="startImport" />

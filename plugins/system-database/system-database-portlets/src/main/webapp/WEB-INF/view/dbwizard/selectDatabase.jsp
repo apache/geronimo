@@ -19,6 +19,9 @@
 
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/portlet" prefix="portlet"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
+<fmt:setBundle basename="systemdatabase"/>
+
 <portlet:defineObjects/>
 
 <script language="JavaScript">
@@ -31,7 +34,7 @@ function <portlet:namespace/>validateForm(){
 }
 </script>
 
-<p><b>Create Database Pool</b> -- Step 1: Select Name and Database</p>
+<p><fmt:message key="dbwizard.selectDatabase.title"/></p>
 
 <!--   FORM TO COLLECT DATA FOR THIS PAGE   -->
 <form name="<portlet:namespace/>DatabaseForm" action="<portlet:actionURL/>" method="POST">
@@ -60,16 +63,16 @@ function <portlet:namespace/>validateForm(){
     <table border="0">
     <!-- ENTRY FIELD: NAME -->
       <tr>
-        <th style="min-width: 140px"><div align="right">Name of Database Pool:</div></th>
+        <th style="min-width: 140px"><div align="right"><fmt:message key="dbwizard.selectDatabase.nameOfPool"/>:</div></th>
         <td><input name="name" type="text" size="30" value="${pool.name}"></td>
       </tr>
       <tr>
         <td></td>
-        <td>A name that is different than the name for any other database pools in the server (no spaces in the name please).</td>
+        <td><fmt:message key="dbwizard.selectDatabase.nameOfPoolExplanation"/></td>
       </tr>
     <!-- ENTRY FIELD: DB TYPE -->
       <tr>
-        <th><div align="right">Database Type:</div></th>
+        <th><div align="right"><fmt:message key="dbwizard.selectDatabase.databaseType"/>:</div></th>
         <td>
           <select name="dbtype">
         <c:forEach var="db" items="${databases}">
@@ -80,11 +83,11 @@ function <portlet:namespace/>validateForm(){
       </tr>
       <tr>
         <td></td>
-        <td>The type of database the pool will connect to.</td>
+        <td><fmt:message key="dbwizard.selectDatabase.databaseTypeExp"/></td>
       </tr>
       <tr>
         <td></td>
-        <td><input type="submit" value="Next" onClick="return <portlet:namespace/>validateForm();"/></td>
+        <td><input type="submit" value='<fmt:message key="dbwizard.common.next"/>' onClick="return <portlet:namespace/>validateForm();"/></td>
       </tr>
     </table>
 </form>
@@ -101,4 +104,4 @@ function <portlet:namespace/>validateForm(){
 
 <p><a href="<portlet:actionURL portletMode="view">
               <portlet:param name="mode" value="list" />
-            </portlet:actionURL>">Cancel</a></p>
+            </portlet:actionURL>"><fmt:message key="dbwizard.common.cancel"/></a></p>

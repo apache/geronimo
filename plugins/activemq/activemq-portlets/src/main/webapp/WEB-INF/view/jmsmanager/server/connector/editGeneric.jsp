@@ -16,6 +16,8 @@
 --%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="portlet" uri="http://java.sun.com/portlet" %>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
+<fmt:setBundle basename="activemq"/>
 <portlet:defineObjects/>
 
 <script language="JavaScript">
@@ -59,12 +61,12 @@ function <portlet:namespace/>validateForm(){
 <!-- Name Field -->
 <c:if test="${mode eq 'add'}">
   <tr>
-    <td><div align="right">Unique Name: </div></td>
+    <td><div align="right"><fmt:message key="jmsmanager.server.connector.editGeneric.uniqueName" />: </div></td>
     <td><input name="name" type="text" size="30"></td>
   </tr>
   <tr>
     <td><div align="right"></div></td>
-    <td>A name that is different than the name for any other JMS connectors in the server</td>
+    <td><fmt:message key="jmsmanager.server.connector.editGeneric.namingJMSConnectors" /></td>
   </tr>
   <script language="JavaScript">
     <portlet:namespace/>requiredFields = new Array("name").concat(<portlet:namespace/>requiredFields);
@@ -72,36 +74,36 @@ function <portlet:namespace/>validateForm(){
 </c:if>
 <!-- Host Field -->
   <tr>
-    <td><div align="right">Host: </div></td>
+    <td><div align="right"><fmt:message key="jmsmanager.common.host"/>: </div></td>
     <td>
       <input name="host" type="text" size="30" value="${host}">
     </td>
   </tr>
   <tr>
     <td><div align="right"></div></td>
-    <td>The host name or IP to bind to.  The normal values are <tt>0.0.0.0</tt> (all interfaces) or <tt>localhost</tt> (local connections only)</td>
+    <td><fmt:message key="jmsmanager.common.hostExp" /></td>
   </tr>
 <!-- Port Field -->
   <tr>
-    <td><div align="right">Port: </div></td>
+    <td><div align="right"><fmt:message key="jmsmanager.common.port" />: </div></td>
     <td>
       <input name="port" type="text" size="5" value="${port}">
     </td>
   </tr>
   <tr>
     <td><div align="right"></div></td>
-    <td>The network port to bind to.</td>
+    <td> <fmt:message key="jmsmanager.common.portExp" /></td>
   </tr>
 <!-- Form buttons -->
   <tr>
     <td><div align="right"></div></td>
     <td>
-      <input name="submit" type="submit" value="Save" onClick="return <portlet:namespace/>validateForm();">
-      <input name="reset" type="reset" value="Reset">
+      <input name="submit" type="submit" value='<fmt:message key="jmsmanager.common.save"/>' onClick="return <portlet:namespace/>validateForm();">
+      <input name="reset" type="reset" value='<fmt:message key="jmsmanager.common.reset"/>' >
     </td>
   </tr>
 </table>
 </form>
 <a href='<portlet:actionURL portletMode="view">
            <portlet:param name="mode" value="list" />
-         </portlet:actionURL>'>List JMS connectors</a>
+         </portlet:actionURL>'><fmt:message key="jmsmanager.common.listJMSConnectors" /></a>

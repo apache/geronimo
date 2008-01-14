@@ -18,6 +18,8 @@
 <%@ taglib prefix="sql" uri="http://java.sun.com/jsp/jstl/sql" %>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <%@ taglib prefix="portlet" uri="http://java.sun.com/portlet" %>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
+<fmt:setBundle basename="systemdatabase"/>
 <portlet:defineObjects/>
 
 <script language="JavaScript">
@@ -36,23 +38,23 @@ function <portlet:namespace/>validateForm2(){
 
 <table width="100%"  border="0">
   <tr>
-    <td><div align="right">Create DB:</div></td>
+    <td><div align="right"><fmt:message key="internaldb.common.createDB"/>:</div></td>
     <td><input name="createDB" type="text" size="30">&nbsp;
-      <input type="submit" name="action" value="Create" onClick="return <portlet:namespace/>validateForm();"></td>
+      <input type="submit" name="action" value='<fmt:message key="internaldb.common.create"/>' onClick="return <portlet:namespace/>validateForm();"></td>
     </tr>
   <tr>
-    <td><div align="right">Delete DB:</div></td>
+    <td><div align="right"><fmt:message key="internaldb.common.deleteDB"/>:</div></td>
     <td>
       <select name="deleteDB">
       <c:forEach var="db" items="${databases}" varStatus="status">
         <option value="${db}">${db}</option>
       </c:forEach>
       </select>&nbsp;
-      <input type="submit" name="action" value="Delete" onClick="javascript:return confirm('Are you sure you want to delete this database?')">
+      <input type="submit" name="action" value='<fmt:message key="internaldb.common.delete"/>' onClick="javascript:return confirm('<fmt:message key="internaldb.runSQLNormal.reallyDeleteDatabase"/>')">
     </td>
   </tr>
   <tr>
-    <td><div align="right">Use DB:</div></td>
+    <td><div align="right"><fmt:message key="internaldb.common.useDB"/>:</div></td>
     <td>
       <select name="useDB">
       <c:forEach var="db" items="${databases}" varStatus="status">
@@ -63,7 +65,7 @@ function <portlet:namespace/>validateForm2(){
   </tr>
   <tr>
     <td></td>
-    <td><div align="left">SQL Command/s:</td>
+    <td><div align="left"><fmt:message key="internaldb.common.SQLCommands"/>:</td>
   </tr>
   <tr>
     <td></td>
@@ -73,7 +75,7 @@ function <portlet:namespace/>validateForm2(){
 
 <%-- Display action result --%>
 <c:if test="${!empty actionResult}">
-  Result:
+  <fmt:message key="internaldb.common.result"/>:
   <hr>
   <c:out value="${actionResult}" />
   <hr>
@@ -82,19 +84,19 @@ function <portlet:namespace/>validateForm2(){
 <table width="100%"  border="0">
   <tr>
     <td></td>
-    <td>Note:</td>
+    <td><fmt:message key="internaldb.common.note"/>:</td>
   </tr>
   <tr>
     <td></td>
-    <td>1) Use ';' to separate multiple statements</td>
+    <td><fmt:message key="internaldb.runSQLNormal.note1"/></td>
   </tr>
   <tr>
     <td></td>
-    <td>2) Query results will be displayed for single 'Select' statement</td>
+    <td><fmt:message key="internaldb.runSQLNormal.note2"/></td>
   </tr>
   <tr>
     <td></td>
-    <td>3) Use single quotes to encapsulate literal strings</td>
+    <td><fmt:message key="internaldb.runSQLNormal.note3"/></td>
   </tr>
 </table>
 <br>
@@ -120,7 +122,7 @@ function <portlet:namespace/>validateForm2(){
   </sql:query>
 </sql:transaction>
 
-<center><b>Query Result</b></center>
+<center><b><fmt:message key="internaldb.common.queryResult"/></b></center>
 <table width="100%">
   <tr>
   <%-- Get the column names for the header of the table --%>
@@ -133,7 +135,7 @@ function <portlet:namespace/>validateForm2(){
   <c:choose>
     <c:when test="${table.rowCount == 0}">
       <tr>
-        <td class="LightBackground" colspan="<c:out value='${fn:length(table.columnNames)}' />" align="center">*** Empty ***</td>
+        <td class="LightBackground" colspan="<c:out value='${fn:length(table.columnNames)}' />" align="center">*** <fmt:message key="internaldb.common.empty"/> ***</td>
       </tr>
     </c:when>
     <c:otherwise>

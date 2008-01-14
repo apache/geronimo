@@ -14,28 +14,30 @@
    See the License for the specific language governing permissions and
    limitations under the License.
 --%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
+<fmt:setBundle basename="activemq"/>
 
-<p>This portlet displays the JMS connectors that are configured with the Geronimo server.</p>
+<p><fmt:message key="jmsmanager.activemq.help.title" /></p>
 
 <table width="100%"  border="0" cellspacing="0" cellpadding="0">
   <tr>
-    <td width="150" align="right" valign="top" class="MediumBackground" style="padding: 10px 10px 5px 10px"><span style="font-size: 10px; color: #546BC7; text-decoration: underline; font-weight: bold;">detail</span></td>
-    <td class="LightBackground" style="padding: 10px 5px 10px 10px" valign="top">This link provides details on the connector. Clicking on the details link will display information about the Connection Factory in Property/Value pairs. Click on the &quot;Back to JMS Connection Factories&quot; button to return to the main JMS Connection Factories page.</td>
+    <td width="150" align="right" valign="top" class="MediumBackground" style="padding: 10px 10px 5px 10px"><span style="font-size: 10px; color: #546BC7; text-decoration: underline; font-weight: bold;"><fmt:message key="jmsmanager.common.detail"/></span></td>
+    <td class="LightBackground" style="padding: 10px 5px 10px 10px" valign="top"><fmt:message key="jmsmanager.activemq.help.detailExp" /></td>
   </tr>
   <tr>
-    <td width="150" align="right" valign="top" class="MediumBackground" style="padding: 10px 10px 5px 10px"><strong>Name</strong></td>
-    <td class="LightBackground" style="padding: 10px 5px 10px 10px" valign="top">Name of the connection factory.</td>
+    <td width="150" align="right" valign="top" class="MediumBackground" style="padding: 10px 10px 5px 10px"><strong><fmt:message key="jmsmanager.common.name"/></strong></td>
+    <td class="LightBackground" style="padding: 10px 5px 10px 10px" valign="top"><fmt:message key="jmsmanager.activemq.help.nameExp" /></td>
   </tr>
   <tr>
-    <td width="150" align="right" valign="top" class="MediumBackground" style="padding: 10px 10px 5px 10px"><strong>State</strong></td>
-    <td class="LightBackground" style="padding: 10px 5px 10px 10px" valign="top">The state of the connection, either &quot;Running&quot; or &quot;Stopped.&quot;</td>
+    <td width="150" align="right" valign="top" class="MediumBackground" style="padding: 10px 10px 5px 10px"><strong><fmt:message key="jmsmanager.common.state"/></strong></td>
+    <td class="LightBackground" style="padding: 10px 5px 10px 10px" valign="top"><fmt:message key="jmsmanager.activemq.help.stateExp" /></td>
   </tr>
   <tr>
-    <td width="150" align="right" valign="top" class="MediumBackground" style="padding: 10px 10px 5px 10px"><span style="font-size: 10px; color: #546BC7; text-decoration: underline; font-weight: bold;">test connection</span></td>
-    <td class="LightBackground" style="padding: 10px 5px 10px 10px" valign="top">This link can be used to test the connector. A result will be returned of either &quot;Connected&quot; or a failure message.</td>
+    <td width="150" align="right" valign="top" class="MediumBackground" style="padding: 10px 10px 5px 10px"><span style="font-size: 10px; color: #546BC7; text-decoration: underline; font-weight: bold;"><fmt:message key="jmsmanager.common.testConn"/></span></td>
+    <td class="LightBackground" style="padding: 10px 5px 10px 10px" valign="top"><fmt:message key="jmsmanager.activemq.help.testConnExp" /></td>
   </tr>
   <tr>
-    <td width="150" align="right" valign="top" class="MediumBackground" style="padding: 10px 10px 5px 10px"><span style="font-size: 10px; color: #546BC7; text-decoration: underline; font-weight: bold;">Add New JMS Connection Factory</span></td>
-    <td class="LightBackground" style="padding: 10px 5px 10px 10px" valign="top">This link brings up a form for adding a new connection factory. The fields are defined on the form.</td>
+    <td width="150" align="right" valign="top" class="MediumBackground" style="padding: 10px 10px 5px 10px"><span style="font-size: 10px; color: #546BC7; text-decoration: underline; font-weight: bold;"><fmt:message key="jmsmanager.activemq.common.addNewJMSConnFactory" /></span></td>
+    <td class="LightBackground" style="padding: 10px 5px 10px 10px" valign="top"><fmt:message key="jmsmanager.activemq.help.addNewJMSConnFactoryExp" /></td>
   </tr>
 </table>

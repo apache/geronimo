@@ -16,6 +16,8 @@
 --%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/portlet" prefix="portlet"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
+<fmt:setBundle basename="activemq"/>
 <portlet:defineObjects/>
 
 <br>
@@ -34,22 +36,22 @@
 </c:if>
 <tr class="DarkBackground">
   <th>
-     Message Destination Name
+     <fmt:message key="jmsmanager.common.messageDestinationName" />
   </th>
   <th>
-     Physical Name
+     <fmt:message key="jmsmanager.common.physicalName" />
   </th>
   <th>
-     Type
+     <fmt:message key="jmsmanager.common.type"/>
   </th>
   <th>
-     Application Name
+     <fmt:message key="jmsmanager.common.applicationName" />
   </th>
   <th>
-     Module Name
+     <fmt:message key="jmsmanager.common.moduleName" />
   </th>
   <th>
-     Actions
+     <fmt:message key="jmsmanager.common.actions"/>
   </th>
 </tr>
   <c:set var="backgroundClass" value='MediumBackground'/>
@@ -84,18 +86,18 @@
         <tr>
          <td>
         <c:if test="${destination.removable}">
-         <a href="<portlet:actionURL portletMode="view"><portlet:param name="processaction" value="removeDestination"/><portlet:param name="destinationConfigURI" value="${destination.configURI}"/><portlet:param name="destinationType" value="${destination.type}"/></portlet:actionURL>">remove </a>
+         <a href="<portlet:actionURL portletMode="view"><portlet:param name="processaction" value="removeDestination"/><portlet:param name="destinationConfigURI" value="${destination.configURI}"/><portlet:param name="destinationType" value="${destination.type}"/></portlet:actionURL>"><fmt:message key="jmsmanager.common.remove"/> </a>
          </c:if>
          </td>
          <!--a href="<portlet:actionURL portletMode="view"><portlet:param name="processaction" value="statistics"/><portlet:param name="destinationName" value="${destination.name}"/><portlet:param name="destinationType" value="${destination.type}"/></portlet:actionURL>">statistics</a-->
          <td>
         <c:if test="${destination.viewable}">
-         <a href="<portlet:renderURL portletMode="view"><portlet:param name="processAction" value="viewMessages"/><portlet:param name="destinationName" value="${destination.name}"/><portlet:param name="destinationApplicationName" value="${destination.applicationName}"/><portlet:param name="destinationModuleName" value="${destination.moduleName}"/><portlet:param name="destinationType" value="${destination.type}"/></portlet:renderURL>">view messages</a>
+         <a href="<portlet:renderURL portletMode="view"><portlet:param name="processAction" value="viewMessages"/><portlet:param name="destinationName" value="${destination.name}"/><portlet:param name="destinationApplicationName" value="${destination.applicationName}"/><portlet:param name="destinationModuleName" value="${destination.moduleName}"/><portlet:param name="destinationType" value="${destination.type}"/></portlet:renderURL>"><fmt:message key="jmsmanager.common.viewMessages" /></a>
          </c:if>
          </td>
          <td>
         <c:if test="${destination.viewable}">
-         <a href="<portlet:renderURL portletMode="view"><portlet:param name="processAction" value="viewDLQ"/><portlet:param name="destinationName" value="${destination.name}"/><portlet:param name="destinationApplicationName" value="${destination.applicationName}"/><portlet:param name="destinationModuleName" value="${destination.moduleName}"/><portlet:param name="destinationType" value="${destination.type}"/></portlet:renderURL>">view DLQ</a></td>
+         <a href="<portlet:renderURL portletMode="view"><portlet:param name="processAction" value="viewDLQ"/><portlet:param name="destinationName" value="${destination.name}"/><portlet:param name="destinationApplicationName" value="${destination.applicationName}"/><portlet:param name="destinationModuleName" value="${destination.moduleName}"/><portlet:param name="destinationType" value="${destination.type}"/></portlet:renderURL>"><fmt:message key="jmsmanager.common.viewDLQ" /></a></td>
          </c:if>
         </tr>        
         </table>

@@ -16,9 +16,11 @@
 --%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/portlet" prefix="portlet"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
+<fmt:setBundle basename="activemq"/>
 <portlet:defineObjects/>
 
-<p><b>JMS Resource Group</b> -- Show Deployment Plan</p>
+<p><fmt:message key="jmswizard.plan.title" /></p>
 
 <!--   FORM TO COLLECT DATA FOR THIS PAGE   -->
 <form name="<portlet:namespace/>JMSForm" action="<portlet:actionURL/>" method="POST">
@@ -59,7 +61,7 @@
     <table border="0">
     <!-- STATUS FIELD: Deployment Plan -->
       <tr>
-        <th valign="top" style="min-width: 140px"><div align="right">Deployment Plan:</div></th>
+        <th valign="top" style="min-width: 140px"><div align="right"><fmt:message key="jmswizard.plan.deploymentPlan" />:</div></th>
         <td><textarea rows="30" cols="60" readonly>${deploymentPlan}</textarea></td>
       </tr>
     <!-- SUBMIT BUTTON -->
@@ -68,15 +70,13 @@
         <td>
             <input type="hidden" name="nextAction" value="deploy" />
             <input type="button" value="Edit Configuration" onclick="document.<portlet:namespace/>JMSForm.nextAction.value='review';document.<portlet:namespace/>JMSForm.submit();return false;" />
-            <input type="submit" value="Deploy JMS Resource" />
+            <input type="submit" value='<fmt:message key="jmswizard.plan.deployJMSResource" />' />
         </td>
       </tr>
     <!-- STATUS FIELD: Command-line guidance -->
       <tr>
-        <th valign="top"><div align="right">Deploy Command:</div></th>
-        <td>To deploy a JMS resource from the command line using this plan,
-          copy and paste it to a file (say, <tt>plan-file.xml</tt>) and save
-          it.  Then run a command like:<br />
+        <th valign="top"><div align="right"><fmt:message key="jmswizard.plan.deployCommand" />:</div></th>
+        <td> <fmt:message key="jmswizard.plan.deployCommandExp" /><br />
 <pre>
 cd GERONIMO_HOME
 java -jar bin/deployer.jar deploy plan-file.xml \
@@ -85,19 +85,10 @@ java -jar bin/deployer.jar deploy plan-file.xml \
       </tr>
     <!-- STATUS FIELD: Embed in EAR guidance -->
       <tr>
-        <th valign="top"><div align="right">Add to EAR:</div></th>
-        <td>Instead of deploying as a top-level JMS resource, you
-          can deploy this pool as part of an EAR.  To add a JMS
-          resource to an EAR using this plan:
-<ol>
-  <li>Copy and paste the plan to a file</li>
-  <li>Save the plan file to the top level of your EAR</li>
-  <li>Copy the RAR file from <tt>${rarURL}</tt>
-    to the top level of your EAR</li>
-  <li>Create a <tt>META-INF/geronimo-application.xml</tt> file in your EAR
-    that has a <tt>module</tt> entry like this (substituting the correct
-    RAR file name and plan file name):</li>
-</ol>
+        <th valign="top"><div align="right"><fmt:message key="jmswizard.plan.addToEAR" />:</div></th>
+        <td><fmt:message key="jmswizard.plan.addToEARExp">
+        <fmt:param value="${rarURL}"/>
+        </fmt:message>
 <pre>
 &lt;application
    xmlns="http://geronimo.apache.org/xml/ns/j2ee/application-1.1"&gt;
@@ -119,4 +110,4 @@ java -jar bin/deployer.jar deploy plan-file.xml \
 
 <p><a href="<portlet:actionURL portletMode="view">
               <portlet:param name="mode" value="list" />
-            </portlet:actionURL>">Cancel</a></p>
+            </portlet:actionURL>"><fmt:message key="jmswizard.common.cancel"/></a></p>

@@ -20,6 +20,9 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
 <%@ taglib uri="http://java.sun.com/portlet" prefix="portlet"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
+<fmt:setBundle basename="systemdatabase"/>
+
 <portlet:defineObjects/>
 
 <script language="JavaScript">
@@ -39,7 +42,7 @@ function <portlet:namespace/>validateForm(){
 }
 </script>
 
-<p>This page edits a new or existing database pool.</p>
+<p><fmt:message key="dbwizard.edit.summary"/></p>
 
 <script language="JavaScript">
 function <portlet:namespace/>validate() {
@@ -107,13 +110,13 @@ function <portlet:namespace/>validate() {
     <table border="0">
     <c:if test="${!(empty pool.deployError)}">
       <tr>
-          <th><div align="right"><font color="red">Error Deploying:</font></div></th>
-          <td><font color="red">${pool.deployError} - see the log for details</font></td>
+          <th><div align="right"><font color="red"><fmt:message key="dbwizard.edit.errorDeploying"/>:</font></div></th>
+          <td><font color="red">${pool.deployError} - <fmt:message key="dbwizard.edit.seeLog"/></font></td>
       </tr>
     </c:if>
     <!-- ENTRY FIELD: NAME -->
       <tr>
-        <th style="min-width: 140px"><div align="right">Pool Name:</div></th>
+        <th style="min-width: 140px"><div align="right"><fmt:message key="dbwizard.edit.poolName"/>:</div></th>
         <td>
       <c:choose> <%-- Can't change the pool name after deployment because it's wired into all the ObjectNames --%>
         <c:when test="${empty pool.abstractName}">
@@ -131,11 +134,11 @@ function <portlet:namespace/>validate() {
       </tr>
       <tr>
         <td></td>
-        <td>A name that is different than the name for any other database pools in the server (no spaces in the name please).</td>
+        <td><fmt:message key="dbwizard.edit.poolNameExp"/></td>
       </tr>
     <!-- STATUS FIELD: Display Name -->
       <tr>
-        <th><div align="right">Pool Type:</div></th>
+        <th><div align="right"><fmt:message key="dbwizard.edit.poolType"/>:</div></th>
         <td><i><c:out value="${pool.adapterDisplayName}" /></i></td>
       </tr>
       <tr>
@@ -144,13 +147,13 @@ function <portlet:namespace/>validate() {
       </tr>
     <!-- HEADER -->
       <tr>
-        <th colspan="2">Basic Connection Properties</th>
+        <th colspan="2"><fmt:message key="dbwizard.edit.basicConProperties"/></th>
       </tr>
 <c:choose>
   <c:when test="${pool.generic}"> <%-- This is a standard TranQL JDBC pool -- we know what parameters it wants --%>
     <!-- ENTRY FIELD: Driver Class -->
       <tr>
-        <th><div align="right">JDBC Driver Class:</div></th>
+        <th><div align="right"><fmt:message key="dbwizard.common.JDBCDriverClass" />:</div></th>
         <td>
       <c:choose>
         <c:when test="${empty pool.abstractName}">
@@ -169,15 +172,15 @@ function <portlet:namespace/>validate() {
       <tr>
         <td></td>
         <td>
-          <c:if test="${!(empty driverError)}"><font color="red"><b>Unable to load driver from selected JARs!</b></font></c:if>
-          See the documentation for your JDBC driver.
+          <c:if test="${!(empty driverError)}"><font color="red"><b><fmt:message key="dbwizard.edit.unableToLoadDriver"/></b></font></c:if>
+          <fmt:message key="dbwizard.edit.seeDocumentation"/> 
         </td>
       </tr>
     <!-- ENTRY FIELD: Driver JAR -->
   <c:choose> <%-- Can't set JAR after deployment because we don't know how to dig through dependencies yet --%>
     <c:when test="${empty pool.abstractName}">
       <tr>
-        <th><div align="right">Driver JAR:</div></th>
+        <th><div align="right"><fmt:message key="dbwizard.common.driverJAR"/>:</div></th>
         <td>
           <select multiple="true" name="jars" size="10">
               <c:forEach var="availableJar" items="${availableJars}">
@@ -193,9 +196,8 @@ function <portlet:namespace/>validate() {
       </tr>
       <tr>
         <td></td>
-        <td>The JAR(s) required to make a connection to the database.  Use CTRL-click or SHIFT-click to select multiple jars.<br> 
-           The JAR(s) should already be installed under GERONIMO/repository/ (or
-          <input type="button" value="Download a Driver" onclick="document.<portlet:namespace/>DatabaseForm.mode.value='download';document.<portlet:namespace/>DatabaseForm.submit();return false;" />)
+        <td><fmt:message key="dbwizard.common.driverJARExplanation"/>
+          <input type="button" value='<fmt:message key="dbwizard.common.downloadDriver"/>' onclick="document.<portlet:namespace/>DatabaseForm.mode.value='download';document.<portlet:namespace/>DatabaseForm.submit();return false;" />)
         </td>
       </tr>
     </c:when>
@@ -207,7 +209,7 @@ function <portlet:namespace/>validate() {
   </c:choose>
     <!-- ENTRY FIELD: URL -->
       <tr>
-        <th><div align="right">JDBC Connect URL:</div></th>
+        <th><div align="right"><fmt:message key="dbwizard.common.JDBCConnectURL"/>:</div></th>
         <td><input name="url" type="text" size="50" value="${pool.url}"></td>
       </tr>
       <script language="JavaScript">
@@ -215,24 +217,24 @@ function <portlet:namespace/>validate() {
       </script>
       <tr>
         <td></td>
-        <td>Make sure the generated URL fits the syntax for your JDBC driver.</td>
+        <td><fmt:message key="dbwizard.common.URLFits"/></td>
       </tr>
     <!-- ENTRY FIELD: Username -->
       <tr>
-        <th><div align="right">DB User Name:</div></th>
+        <th><div align="right"><fmt:message key="dbwizard.common.DBUserName"/>:</div></th>
         <td><input name="user" type="text" size="20" value="${pool.user}"></td>
       </tr>
       <tr>
         <td></td>
-        <td>The username used to connect to the database</td>
+        <td><fmt:message key="dbwizard.common.DBUserNameExp"/></td>
       </tr>
     <!-- ENTRY FIELD: Password -->
       <tr>
-        <th><div align="right">DB Password:</div></th>
+        <th><div align="right"><fmt:message key="dbwizard.common.DBPassword"/>:</div></th>
         <td><input name="password" type="password" size="20" value="${pool.password}"></td>
       </tr>
       <tr>
-        <th><div align="right">Confirm Password:</div></th>
+        <th><div align="right"><fmt:message key="dbwizard.common.confirmPassword"/>:</div></th>
         <td><input name="confirm-password" type="password" size="20" value="${pool.password}"></td>
       </tr>
       <script language="JavaScript">
@@ -240,7 +242,7 @@ function <portlet:namespace/>validate() {
       </script>
       <tr>
         <td></td>
-        <td>The password used to connect to the database
+        <td><fmt:message key="dbwizard.common.DBPasswordExp"/>
 
         <%-- Just to be safe, save all the non-Generic properties since we're not going to edit them here --%>
   <c:forEach var="prop" items="${pool.properties}">
@@ -254,7 +256,7 @@ function <portlet:namespace/>validate() {
   <c:choose> <%-- Can't set JAR after deployment because we don't know how to dig through dependencies yet --%>
     <c:when test="${empty pool.abstractName}">
       <tr>
-        <th><div align="right">Driver JAR:</div></th>
+        <th><div align="right"><fmt:message key="dbwizard.common.driverJAR"/>:</div></th>
         <td>
           <select multiple="true" name="jars" size="10">
               <c:forEach var="availableJar" items="${availableJars}">
@@ -270,9 +272,8 @@ function <portlet:namespace/>validate() {
       </tr>
       <tr>
         <td></td>
-        <td>The JAR(s) required to make a connection to the database.  Use CTRL-click or SHIFT-click to select multiple jars.<br> 
-           The JAR(s) should already be installed under GERONIMO/repository/ (or
-          <input type="button" value="Download a Driver" onclick="document.<portlet:namespace/>DatabaseForm.mode.value='download';document.<portlet:namespace/>DatabaseForm.submit();return false;" />)
+        <td><fmt:message key="dbwizard.common.driverJARExplanation"/>
+          <input type="button" value='<fmt:message key="dbwizard.common.downloadDriver"/>'  onclick="document.<portlet:namespace/>DatabaseForm.mode.value='download';document.<portlet:namespace/>DatabaseForm.submit();return false;" />)
         </td>
       </tr>
     </c:when>
@@ -289,7 +290,7 @@ function <portlet:namespace/>validate() {
       </tr>
     <c:if test="${fn:containsIgnoreCase(prop.key, 'password')}">
       <tr>
-        <th><div align="right">Confirm password:</div></th>
+        <th><div align="right"><fmt:message key="dbwizard.common.confirmPassword"/>:</div></th>
         <td><input name="confirm-${prop.key}" type="password" size="20" value="${prop.value}"></td>
       </tr>
       <script language="JavaScript">
@@ -316,43 +317,43 @@ function <portlet:namespace/>validate() {
 </c:choose>
     <!-- HEADER -->
       <tr>
-        <th colspan="2">Connection Pool Parameters</th>
+        <th colspan="2"><fmt:message key="dbwizard.common.connectionPoolParameters"/></th>
       </tr>
     <!-- ENTRY FIELD: Min Size -->
       <tr>
-        <th><div align="right">Pool Min Size:</div></th>
+        <th><div align="right"><fmt:message key="dbwizard.common.poolMinSize"/>:</div></th>
         <td><input name="minSize" type="text" size="5" value="${pool.minSize}"></td>
       </tr>
       <tr>
         <td></td>
-        <td>The minimum number of connections in the pool.  The default is 0.</td>
+        <td><fmt:message key="dbwizard.edit.minimumNoOfCon"/></td>
       </tr>
     <!-- ENTRY FIELD: Max Size -->
       <tr>
-        <th><div align="right">Pool Max Size:</div></th>
+        <th><div align="right"><fmt:message key="dbwizard.common.poolMaxSize"/>:</div></th>
         <td><input name="maxSize" type="text" size="5" value="${pool.maxSize}"></td>
       </tr>
       <tr>
         <td></td>
-        <td>The maximum number of connections in the pool.  The default is 10.</td>
+        <td><fmt:message key="dbwizard.common.maxNoOfCon"/></td>
       </tr>
     <!-- ENTRY FIELD: Blocking Timeout -->
       <tr>
-        <th><div align="right">Blocking Timeout:</div></th>
-        <td><input name="blockingTimeout" type="text" size="7" value="${pool.blockingTimeout}"> (in milliseconds)</td>
+        <th><div align="right"><fmt:message key="dbwizard.common.blockingTimeout"/>:</div></th>
+        <td><input name="blockingTimeout" type="text" size="7" value="${pool.blockingTimeout}"> (<fmt:message key="dbwizard.common.inMilliseconds"/>)</td>
       </tr>
       <tr>
         <td></td>
-        <td>The length of time a caller will wait for a connection.  The default is 5000.</td>
+        <td><fmt:message key="dbwizard.edit.blockingTimeoutExp"/></td>
       </tr>
     <!-- ENTRY FIELD: Idle timeout -->
       <tr>
-        <th><div align="right">Idle Timeout:</div></th>
-        <td><input name="idleTimeout" type="text" size="5" value="${pool.idleTimeout}"> (in minutes)</td>
+        <th><div align="right"><fmt:message key="dbwizard.common.idleTimeout"/>:</div></th>
+        <td><input name="idleTimeout" type="text" size="5" value="${pool.idleTimeout}"> (<fmt:message key="dbwizard.common.inMinutes"/>)</td>
       </tr>
       <tr>
         <td></td>
-        <td>How long a connection can be idle before being closed.  The default is 15.</td>
+        <td><fmt:message key="dbwizard.edit.idleTimeoutExp"/></td>
       </tr>
 
     <!-- SUBMIT BUTTON -->
@@ -363,23 +364,23 @@ function <portlet:namespace/>validate() {
   <c:when test="${pool.generic}">
     <c:choose> <%-- Can't test after deployment because we don't know what JAR to put on the ClassPath, can't show plan becasue we can't update a plan --%>
       <c:when test="${empty pool.abstractName}">
-          <input type="button" value="Test Connection" onclick="if (<portlet:namespace/>validateForm()){document.<portlet:namespace/>DatabaseForm.test.value='true';document.<portlet:namespace/>DatabaseForm.submit();}" />
-          <input type="button" value="Skip Test and Deploy" onclick="if (<portlet:namespace/>validateForm()){document.<portlet:namespace/>DatabaseForm.test.value='false';document.<portlet:namespace/>DatabaseForm.submit();return false;}" />
-          <input type="button" value="Skip Test and Show Plan" onclick="if (<portlet:namespace/>validateForm()){document.<portlet:namespace/>DatabaseForm.mode.value='plan';document.<portlet:namespace/>DatabaseForm.submit();return false;}" />
+          <input type="button" value='<fmt:message key="dbwizard.common.testConnection"/>' onclick="if (<portlet:namespace/>validateForm()){document.<portlet:namespace/>DatabaseForm.test.value='true';document.<portlet:namespace/>DatabaseForm.submit();}" />
+          <input type="button" value='<fmt:message key="dbwizard.common.skipTestAndDeploy"/>' onclick="if (<portlet:namespace/>validateForm()){document.<portlet:namespace/>DatabaseForm.test.value='false';document.<portlet:namespace/>DatabaseForm.submit();return false;}" />
+          <input type="button" value='<fmt:message key="dbwizard.common.skipTestAndShowPlan"/>' onclick="if (<portlet:namespace/>validateForm()){document.<portlet:namespace/>DatabaseForm.mode.value='plan';document.<portlet:namespace/>DatabaseForm.submit();return false;}" />
       </c:when>
       <c:otherwise>
-          <input type="button" value="Save" onclick="if (<portlet:namespace/>validateForm()){document.<portlet:namespace/>DatabaseForm.mode.value='save';document.<portlet:namespace/>DatabaseForm.submit();return false;}" />
+          <input type="button" value='<fmt:message key="dbwizard.common.save"/>' onclick="if (<portlet:namespace/>validateForm()){document.<portlet:namespace/>DatabaseForm.mode.value='save';document.<portlet:namespace/>DatabaseForm.submit();return false;}" />
       </c:otherwise>
     </c:choose>
   </c:when>
   <c:otherwise> <%-- Not a generic JDBC pool --%>
     <c:choose>
       <c:when test="${empty pool.abstractName}"> <%-- If it's new we can preview the plan or save/deploy --%>
-          <input type="button" value="Deploy" onclick="if (<portlet:namespace/>validateForm()){document.<portlet:namespace/>DatabaseForm.mode.value='save';document.<portlet:namespace/>DatabaseForm.submit();return false;}" />
-          <input type="button" value="Show Plan" onclick="if (<portlet:namespace/>validateForm()){document.<portlet:namespace/>DatabaseForm.mode.value='plan';document.<portlet:namespace/>DatabaseForm.submit();return false;}" />
+          <input type="button" value='<fmt:message key="dbwizard.common.deploy"/>' onclick="if (<portlet:namespace/>validateForm()){document.<portlet:namespace/>DatabaseForm.mode.value='save';document.<portlet:namespace/>DatabaseForm.submit();return false;}" />
+          <input type="button" value='<fmt:message key="dbwizard.common.showPlan"/>' onclick="if (<portlet:namespace/>validateForm()){document.<portlet:namespace/>DatabaseForm.mode.value='plan';document.<portlet:namespace/>DatabaseForm.submit();return false;}" />
       </c:when>
       <c:otherwise> <%-- If it's existing we can only save --%>
-          <input type="button" value="Save" onclick="if (<portlet:namespace/>validateForm()){document.<portlet:namespace/>DatabaseForm.mode.value='save';document.<portlet:namespace/>DatabaseForm.submit();return false;}" />
+          <input type="button" value='<fmt:message key="dbwizard.common.save"/>'  onclick="if (<portlet:namespace/>validateForm()){document.<portlet:namespace/>DatabaseForm.mode.value='save';document.<portlet:namespace/>DatabaseForm.submit();return false;}" />
       </c:otherwise>
     </c:choose>
   </c:otherwise>
@@ -394,4 +395,4 @@ function <portlet:namespace/>validate() {
 
 <p><a href="<portlet:actionURL portletMode="view">
               <portlet:param name="mode" value="list" />
-            </portlet:actionURL>">Cancel</a></p>
+            </portlet:actionURL>"><fmt:message  key="dbwizard.common.cancel"/></a></p>

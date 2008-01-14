@@ -14,29 +14,28 @@
    See the License for the specific language governing permissions and
    limitations under the License.
 --%>
- <p>Allows the user to run SQL commands to manipulate the data in the 
-  tables, create a new database or delete a database. The user can 
-  enter the SQL commands in the &quot;SQL Command(s)&quot; text box and click 
-  on &quot;Run SQL.&quot;<br>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
+<fmt:setBundle basename="systemdatabase"/>
+<p><fmt:message key="internaldb.runSQLHelp.summary"/><br>
   </p>
 <table width="100%"  border="0" cellspacing="0" cellpadding="0">
   <tr>
-    <td class="MediumBackground" style="padding: 10px 10px 10px 5px; color: #1E1E52;" width="150" align="right" valign="top">Create DB: / <br>      
+    <td class="MediumBackground" style="padding: 10px 10px 10px 5px; color: #1E1E52;" width="150" align="right" valign="top"><fmt:message key="internaldb.common.createDB"/>: / <br>      
       <img src="/console/images/create.gif" alt="Create"/></td>
-    <td class="LightBackground" style="padding: 10px 5px 10px 10px" valign="top">Enter the name of the new database to be created, then click on the &quot;Create&quot; button.</td>
+    <td class="LightBackground" style="padding: 10px 5px 10px 10px" valign="top"><fmt:message key="internaldb.runSQLHelp.createDBExp"/></td>
   </tr>
   <tr>
-    <td class="MediumBackground" style="padding: 10px 10px 10px 5px; color: #1E1E52;" width="150" align="right" valign="top">Delete DB: / <br>      
+    <td class="MediumBackground" style="padding: 10px 10px 10px 5px; color: #1E1E52;" width="150" align="right" valign="top"><fmt:message key="internaldb.common.deleteDB"/>: / <br>      
       <img src="/console/images/delete.gif" alt="Delete"/></td>
-    <td class="LightBackground" style="padding: 10px 5px 10px 10px" valign="top">Delete an existing database, by selecting it from the pull-down menu and then clicking on &quot;Delete.&quot;</td>
+    <td class="LightBackground" style="padding: 10px 5px 10px 10px" valign="top"><fmt:message key="internaldb.runSQLHelp.deleteDBExp"/></td>
   </tr>
   <tr>
-    <td class="MediumBackground" style="padding: 10px 10px 10px 5px; color: #1E1E52;" width="150" align="right" valign="top">Use DB:</td>
-    <td class="LightBackground" style="padding: 10px 5px 10px 10px" valign="top">Select a database to update from the pull-down menu.</td>
+    <td class="MediumBackground" style="padding: 10px 10px 10px 5px; color: #1E1E52;" width="150" align="right" valign="top"><fmt:message key="internaldb.common.useDB"/>:</td>
+    <td class="LightBackground" style="padding: 10px 5px 10px 10px" valign="top"><fmt:message key="internaldb.runSQLHelp.useDBExp"/></td>
   </tr>
   <tr>
     <td class="MediumBackground" style="padding: 10px 10px 10px 5px; color: #1E1E52;" width="150" align="right" valign="top">
       <img src="/console/images/run_sql.gif" alt="Run SQL"/></td>
-    <td class="LightBackground" style="padding: 10px 5px 10px 10px" valign="top">Enter the SQL commands, separated by semicolons, in the&quot;SQL Command/s&quot; text box. To run the SQL command(s), click on the &quot;Run SQL&quot; button.</td>
+    <td class="LightBackground" style="padding: 10px 5px 10px 10px" valign="top"><fmt:message key="internaldb.runSQLHelp.runSQLExp"/></td>
   </tr>
 </table>

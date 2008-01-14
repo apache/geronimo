@@ -16,7 +16,9 @@
 --%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/portlet" prefix="portlet"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
 <%@ page import="javax.portlet.RenderRequest,org.apache.geronimo.console.classloaderview.ClassLoaderViewPortlet"%>
+<fmt:setBundle basename="debugviews"/>
 <portlet:defineObjects />
 
 <%
@@ -320,15 +322,15 @@
 <input type="hidden" name="inverse" value="${inverse}"/>
 <TABLE cellpadding="1" cellspacing="1" border="1">
  <tr>
-  <td><b>Search Text:</b> <input type="text" name="searchText" id="searchText"
+  <td><b><fmt:message key="classloaderview.view.searchText"/>:</b> <input type="text" name="searchText" id="searchText"
    onChange="javascript:textChange()"/> <input type="button"
-   value="Find" onClick="javascript:search()" /> <input type="button"
-   id="findNext" value="Find Next" onClick="javascript:searchContinue()"
-   disabled=true /> Search only selected:<input type="checkbox"
+   value='<fmt:message key="debugviews.common.find"/>' onClick="javascript:search()" /> <input type="button"
+   id="findNext" value='<fmt:message key="debugviews.common.findNext"/>' onClick="javascript:searchContinue()"
+   disabled=true /> <fmt:message key="classloaderview.view.searchOnlySelected"/>:<input type="checkbox"
    id="inSelected" onChange="javascript:textChange()" /></td>
  </tr>
 </table>
-<input type="submit" value="Invert Tree" />
+<input type="submit" value='<fmt:message key="classloaderview.view.invertTree"/>' />
 <br />
 
 <div dojoType="TreeBasicControllerV3" widgetId="controller"></div>

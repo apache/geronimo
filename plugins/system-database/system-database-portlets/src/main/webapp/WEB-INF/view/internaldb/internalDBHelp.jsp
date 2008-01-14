@@ -14,4 +14,6 @@
    See the License for the specific language governing permissions and
    limitations under the License.
 --%>
-This page provides information about the internal database, such as, the product name, the version of the database, the supported functions and the supported SQL commands, among other things. Scroll to the botton to see all the information.
+<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
+<fmt:setBundle basename="systemdatabase"/>
+<fmt:message key="internaldb.internalDBHelp.content"/>

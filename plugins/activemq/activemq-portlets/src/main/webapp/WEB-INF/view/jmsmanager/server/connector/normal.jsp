@@ -16,23 +16,25 @@
 --%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/portlet" prefix="portlet"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
+<fmt:setBundle basename="activemq"/>
 <portlet:defineObjects/>
 
-<p>Currently available JMS network connectors:</p>
+<p><fmt:message key="jmsmanager.server.connector.normal.title" />:</p>
 
 <!-- Show existing connectors -->
-<c:if test="${empty(connectors)}">There are no JMS network connectors defined</c:if>
+<c:if test="${empty(connectors)}"><fmt:message key="jmsmanager.server.connector.normal.noJMSNetworkConnectors" /></c:if>
 <c:if test="${!empty(connectors)}">
 <table width="100%">
   <tr>
     <td style="padding: 0 20px">
           <tr>
-            <th class="DarkBackground">Name</th>
-            <th class="DarkBackground" align="center">Broker</th>
-            <th class="DarkBackground" align="center">Protocol</th>
-            <th class="DarkBackground" align="center">Port</th>
-            <th class="DarkBackground" align="center">State</th>
-            <th class="DarkBackground" align="center">Actions</th>
+            <th class="DarkBackground"><fmt:message key="jmsmanager.common.name"/></th>
+            <th class="DarkBackground" align="center"><fmt:message key="jmsmanager.common.broker" /></th>
+            <th class="DarkBackground" align="center"><fmt:message key="jmsmanager.common.protocol" /></th>
+            <th class="DarkBackground" align="center"><fmt:message key="jmsmanager.common.port" /></th>
+            <th class="DarkBackground" align="center"><fmt:message key="jmsmanager.common.state"/></th>
+            <th class="DarkBackground" align="center"><fmt:message key="jmsmanager.common.actions"/></th>
           </tr>
 <c:set var="backgroundClass" value='MediumBackground'/>
 <c:forEach var="info" items="${connectors}">
@@ -57,26 +59,26 @@
                  <portlet:param name="mode" value="stop" />
                  <portlet:param name="brokerURI" value="${info.brokerURI}" />
                  <portlet:param name="connectorURI" value="${info.connectorURI}" />
-               </portlet:actionURL>">stop</a>
+               </portlet:actionURL>"><fmt:message key="jmsmanager.common.stop"/></a>
                </c:when>
                <c:otherwise>
                <a href="<portlet:actionURL portletMode="view">
                  <portlet:param name="mode" value="start" />
                  <portlet:param name="brokerURI" value="${info.brokerURI}" />
                  <portlet:param name="connectorURI" value="${info.connectorURI}" />
-               </portlet:actionURL>">start</a>
+               </portlet:actionURL>"><fmt:message key="jmsmanager.common.start"/></a>
                </c:otherwise>
              </c:choose>
                <a href="<portlet:actionURL portletMode="view">
                  <portlet:param name="mode" value="edit" />
                  <portlet:param name="brokerURI" value="${info.brokerURI}" />
                  <portlet:param name="connectorURI" value="${info.connectorURI}" />
-               </portlet:actionURL>">edit</a>
+               </portlet:actionURL>"><fmt:message key="jmsmanager.common.edit"/></a>
                <a href="<portlet:actionURL portletMode="view">
                  <portlet:param name="mode" value="delete" />
                  <portlet:param name="brokerURI" value="${info.brokerURI}" />
                  <portlet:param name="connectorURI" value="${info.connectorURI}" />
-               </portlet:actionURL>" onClick="return confirm('Are you sure you want to delete ${info.connectorName}?');">delete</a>
+               </portlet:actionURL>" onClick="return confirm('<fmt:message key="jmsmanager.server.connector.normal.confirmDelete"><fmt:param value="${info.connectorName}"/></fmt:message>');"><fmt:message key="jmsmanager.common.delete"/></a>
              </td>
           </tr>
 </c:forEach>
@@ -85,13 +87,15 @@
 
 <!-- Links to add new connectors -->
 <c:forEach var="info" items="${brokers}">
-<p>Add connector to ${info.brokerName}:</p>
+<p><fmt:message key="jmsmanager.server.connector.normal.addConnectorTo"><fmt:param value="${info.brokerName}"/></fmt:message>:</p>
 <ul>
 <c:forEach var="protocol" items="${protocols}">
 <li><a href="<portlet:actionURL portletMode="view">
            <portlet:param name="mode" value="new" />
            <portlet:param name="brokerURI" value="${info.brokerURI}" />
            <portlet:param name="protocol" value="${protocol}" />
-         </portlet:actionURL>">Add new <b>${protocol}</b> listener</a></li>
+         </portlet:actionURL>"><fmt:message key="jmsmanager.server.connector.normal.addNewParaListener" >
+         <fmt:param  value="${protocol}"/>
+         </fmt:message></a></li>
 </c:forEach>
 </c:forEach>

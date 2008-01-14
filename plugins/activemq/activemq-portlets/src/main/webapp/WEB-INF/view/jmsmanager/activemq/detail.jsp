@@ -16,15 +16,17 @@
 --%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/portlet" prefix="portlet"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
+<fmt:setBundle basename="activemq"/>
 <portlet:defineObjects/>
 <form name="datasource_form" action="<portlet:actionURL portletMode="view"/>">
 <br>
-<strong>Connection Name:</strong>&nbsp;${attributeMap.name}
+<strong><fmt:message key="jmsmanager.activemq.common.connName" />:</strong>&nbsp;${attributeMap.name}
 <br><br>
 <table width="100%">
         <tr>
-            <th>Property</th>
-            <th>Value</th>
+            <th><fmt:message key="jmsmanager.common.property"/></th>
+            <th><fmt:message key="jmsmanager.common.value"/></th>
         </tr>
     <c:forEach var="entry" items="${attributeMap}">
         <tr>
@@ -45,5 +47,5 @@
                     </td>
                 </tr>    
 </table>
-<input type="hidden" name="name" value="back">
+<input type="hidden" name="name" value='<fmt:message key="jmsmanager.common.back"/>'>
 </form>

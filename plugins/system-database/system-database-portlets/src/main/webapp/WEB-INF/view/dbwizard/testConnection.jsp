@@ -16,9 +16,11 @@
 --%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/portlet" prefix="portlet"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
+<fmt:setBundle basename="systemdatabase"/>
 <portlet:defineObjects/>
 
-<p><b>Create Database Pool</b> -- Step 4: Test Connection</p>
+<p><b><fmt:message key="dbwizard.testConnection.title"/></p>
 
 <!--   FORM TO COLLECT DATA FOR THIS PAGE   -->
 <form name="<portlet:namespace/>DatabaseForm" action="<portlet:actionURL/>" method="POST">
@@ -49,13 +51,13 @@
     <table border="0">
     <!-- STATUS FIELD: Conection Result -->
       <tr>
-        <th style="min-width: 140px"><div align="right">Test Result:</div></th>
+        <th style="min-width: 140px"><div align="right"><fmt:message key="dbwizard.testConnection.testResult"/>:</div></th>
         <td>
           <c:choose>
             <c:when test="${empty connectResult}">
-              <font color="red"><i>Connection Error (see below)</i></font>
+              <font color="red"><i><fmt:message key="dbwizard.testConnection.connectionError"/></i></font>
             </c:when><c:otherwise>
-              Connected to ${connectResult}
+              <fmt:message key="dbwizard.testConnection.connectedTo"/> ${connectResult}
             </c:otherwise>
           </c:choose>
         </td>
@@ -63,7 +65,7 @@
     <!-- STATUS FIELD: Connection Errors -->
     <c:if test="${!(empty connectError)}">
       <tr>
-        <th><div align="right">Test Error:</div></th>
+        <th><div align="right"><fmt:message key="dbwizard.testConnection.testError"/>:</div></th>
         <td><textarea rows="30" cols="60" readonly>${connectError}</textarea></td>
       </tr>
     </c:if>
@@ -73,12 +75,12 @@
         <td>
           <c:choose>
             <c:when test="${empty connectResult}">
-<input type="submit" value="Deploy Anyway" />
-<input type="button" value="Edit Settings" onclick="document.<portlet:namespace/>DatabaseForm.mode.value='edit';document.<portlet:namespace/>DatabaseForm.submit();return false;" />
-<input type="button" value="Test Again" onclick="document.<portlet:namespace/>DatabaseForm.mode.value='process-url';document.<portlet:namespace/>DatabaseForm.submit();return false;" />
+<input type="submit" value='<fmt:message key="dbwizard.testConnection.deployAnyway"/>' />
+<input type="button" value='<fmt:message key="dbwizard.common.editSettings"/>' onclick="document.<portlet:namespace/>DatabaseForm.mode.value='edit';document.<portlet:namespace/>DatabaseForm.submit();return false;" />
+<input type="button" value='<fmt:message key="dbwizard.testConnection.testAgain"/>' onclick="document.<portlet:namespace/>DatabaseForm.mode.value='process-url';document.<portlet:namespace/>DatabaseForm.submit();return false;" />
             </c:when><c:otherwise>
-<input type="submit" value="Deploy" />
-<input type="button" value="Show Plan" onclick="document.<portlet:namespace/>DatabaseForm.mode.value='plan';document.<portlet:namespace/>DatabaseForm.submit();return false;" />
+<input type="submit" value='<fmt:message key="dbwizard.common.deploy"/>' />
+<input type="button" value='<fmt:message key="dbwizard.common.showPlan"/>' onclick="document.<portlet:namespace/>DatabaseForm.mode.value='plan';document.<portlet:namespace/>DatabaseForm.submit();return false;" />
             </c:otherwise>
           </c:choose>
         </td>
@@ -89,4 +91,4 @@
 
 <p><a href="<portlet:actionURL portletMode="view">
               <portlet:param name="mode" value="list" />
-            </portlet:actionURL>">Cancel</a></p>
+            </portlet:actionURL>"><fmt:message key="dbwizard.common.cancel"/></a></p>
