@@ -160,7 +160,7 @@
                 </reference>
             </gbean>
             <gbean name="WARModules" class="org.apache.geronimo.pluto.AdminConsoleExtensionGBean">
-                <attribute name="pageTitle">Applications/Web Apps</attribute>
+                <attribute name="pageTitle">Applications/Web App WARs</attribute>
                 <attribute name="portletContext">/console-base</attribute>
                 <attribute name="portletList">[WARModules]</attribute>
                 <reference name="PortalContainerServices">
