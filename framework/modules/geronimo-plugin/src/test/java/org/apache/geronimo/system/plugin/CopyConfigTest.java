@@ -20,22 +20,23 @@
 
 package org.apache.geronimo.system.plugin;
 
-import java.io.InputStream;
 import java.io.ByteArrayInputStream;
+import java.io.InputStream;
 import java.io.Reader;
 import java.io.StringReader;
-import java.io.StringWriter;
-import java.io.Serializable;
 import java.util.List;
 
 import junit.framework.TestCase;
-import org.apache.geronimo.system.plugin.model.PluginType;
+
+import org.apache.geronimo.system.configuration.AttributesXmlUtil;
+import org.apache.geronimo.system.configuration.GBeanOverride;
+import org.apache.geronimo.system.configuration.condition.JexlExpressionParser;
+import org.apache.geronimo.system.plugin.model.AttributeType;
 import org.apache.geronimo.system.plugin.model.GbeanType;
 import org.apache.geronimo.system.plugin.model.PluginArtifactType;
-import org.apache.geronimo.system.plugin.model.AttributeType;
-import org.apache.geronimo.system.configuration.GBeanOverride;
-import org.apache.geronimo.system.configuration.AttributesXmlUtil;
-import org.apache.geronimo.system.configuration.condition.JexlExpressionParser;
+import org.apache.geronimo.system.plugin.model.PluginType;
+import org.apache.geronimo.testsupport.DOMUtils;
+import org.w3c.dom.Document;
 
 /**
  * @version $Rev$ $Date$
@@ -167,8 +168,11 @@ public class CopyConfigTest extends TestCase {
         assertEquals(2, gbeans.size());
         GBeanOverride override = new GBeanOverride(gbeans.get(0), new JexlExpressionParser());
         String attributeValue = override.getAttribute("defaultEnvironment");
-        assertEquals(ATTRIBUTE_VALUE, attributeValue);
-
+        
+        Document expectedDoc = DOMUtils.load(ATTRIBUTE_VALUE);
+        Document actualDoc = DOMUtils.load(attributeValue);
+        
+        DOMUtils.compareNodes(expectedDoc, actualDoc);
     }
 
     private static final String INSTANCE = "                        <plugin-artifact>\n" +
@@ -261,6 +265,10 @@ public class CopyConfigTest extends TestCase {
         assertEquals(2, contents.size());
         AttributeType attr = (AttributeType) contents.get(1);
         String value = AttributesXmlUtil.extractAttributeValue(attr);
-        assertEquals(VALUE, value);
+        
+        Document expectedDoc = DOMUtils.load(VALUE);
+        Document actualDoc = DOMUtils.load(value);
+        
+        DOMUtils.compareNodes(expectedDoc, actualDoc);
     }
 }
