@@ -29,7 +29,7 @@
         <relativePath>../pom.xml</relativePath>
     </parent>
 
-    <artifactId>system-database-portlets</artifactId>
+    <artifactId>sysdb-portlets</artifactId>
     <name>Geronimo Plugins :: System Database Portlets</name>
     <packaging>war</packaging>
 

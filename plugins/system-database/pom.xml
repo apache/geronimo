@@ -34,8 +34,8 @@
         <module>geronimo-derby</module>
         <module>geronimo-timer</module>
         <module>system-database</module>
-        <module>system-database-portlets</module>
-        <module>system-database-console-jetty</module>
-        <module>system-database-console-tomcat</module>
+        <module>sysdb-portlets</module>
+        <module>sysdb-console-jetty</module>
+        <module>sysdb-console-tomcat</module>
     </modules>
 </project>

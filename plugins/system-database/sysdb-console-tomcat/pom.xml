@@ -29,15 +29,15 @@
         <relativePath>../pom.xml</relativePath>
     </parent>
 
-    <artifactId>system-database-console-jetty</artifactId>
-    <name>Geronimo Plugins :: System Database - Jetty</name>
+    <artifactId>sysdb-console-tomcat</artifactId>
+    <name>Geronimo Plugins :: System Database - Tomcat</name>
     <packaging>car</packaging>
 
     <dependencies>
         
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
-            <artifactId>jetty6-deployer</artifactId>
+            <artifactId>tomcat6-deployer</artifactId>
             <version>${version}</version>
             <type>car</type>
             <scope>provided</scope>
@@ -51,7 +51,7 @@
         </dependency>
         <dependency>
             <groupId>org.apache.geronimo.plugins</groupId>
-            <artifactId>system-database-portlets</artifactId>
+            <artifactId>sysdb-portlets</artifactId>
             <version>${version}</version>
             <type>war</type>
             <scope>provided</scope>
@@ -59,7 +59,7 @@
 
         <dependency>
             <groupId>org.apache.geronimo.plugins</groupId>
-            <artifactId>console-jetty</artifactId>
+            <artifactId>console-tomcat</artifactId>
             <version>${version}</version>
             <type>car</type>
         </dependency>
@@ -201,15 +201,10 @@
         </dependency>
 
         <dependency>
-            <groupId>org.directwebremoting</groupId>
-            <artifactId>dwr</artifactId>
-        </dependency>
-
-        <dependency>
             <groupId>commons-io</groupId>
             <artifactId>commons-io</artifactId>
         </dependency>
-        
+
         <dependency>
             <groupId>commons-fileupload</groupId>
             <artifactId>commons-fileupload</artifactId>
@@ -218,14 +213,6 @@
         <dependency>
             <groupId>org.directwebremoting</groupId>
             <artifactId>dwr</artifactId>
-        </dependency>
-
-        <!-- for jspc. why is this needed? -->
-        <dependency>
-            <groupId>org.apache.geronimo.configs</groupId>
-            <artifactId>jasper</artifactId>
-            <version>${version}</version>
-            <type>car</type>
         </dependency>
 
     </dependencies>
@@ -246,12 +233,12 @@
                     <deploymentConfigs>
                         <deploymentConfig>${gbeanDeployer}</deploymentConfig>
                         <deploymentConfig>${j2eeDeployer}</deploymentConfig>
-                        <deploymentConfig>${jetty6Deployer}</deploymentConfig>
+                        <deploymentConfig>${tomcatDeployer}</deploymentConfig>
                         <deploymentConfig>${jasperDeployer}</deploymentConfig>
                     </deploymentConfigs>
                     <module>
                         <groupId>org.apache.geronimo.plugins</groupId>
-                        <artifactId>system-database-portlets</artifactId>
+                        <artifactId>sysdb-portlets</artifactId>
                         <version>${version}</version>
                         <type>war</type>
                     </module>
@@ -266,11 +253,11 @@
                             <prerequisite>
                                 <id>
                                     <groupId>org.apache.geronimo.configs</groupId>
-                                    <artifactId>jetty6</artifactId>
+                                    <artifactId>tomcat6</artifactId>
                                 </id>
                                 <resource-type>Web Container</resource-type>
                                 <description>
-                                    This version of the plugin works with the Geronimo/Jetty distribution.
+                                    This version of the plugin works with the Geronimo/Tomcat distribution.
                                 </description>
                             </prerequisite>
                         </plugin-artifact>

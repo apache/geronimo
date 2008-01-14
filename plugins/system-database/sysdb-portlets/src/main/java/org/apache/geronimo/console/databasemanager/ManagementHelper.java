@@ -31,7 +31,7 @@ import org.apache.geronimo.deployment.plugin.factories.DeploymentFactoryWithKern
 import org.apache.geronimo.kernel.Kernel;
 
 /**
- * @version $Rev:$ $Date:$
+ * @version $Rev$ $Date$
  */
 public class ManagementHelper {
     private final static String PLUGIN_HELPER_KEY = "org.apache.geronimo.console.systemdb.ManagementHelper";
