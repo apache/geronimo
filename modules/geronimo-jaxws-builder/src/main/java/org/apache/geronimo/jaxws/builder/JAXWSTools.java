@@ -37,20 +37,31 @@ public class JAXWSTools {
 
     private static final Log LOG = LogFactory.getLog(JAXWSTools.class);
         
-    private final static Artifact AXIS2_JAXWS_API_ARTIFACT = new Artifact("org.apache.axis2","axis2-jaxws-api", (Version)null, "jar");
-    private final static Artifact AXIS2_SAAJ_API_ARTIFACT = new Artifact("org.apache.axis2","axis2-saaj-api", (Version)null, "jar");
-    private final static Artifact AXIS2_SAAJ_IMPL_ARTIFACT = new Artifact("org.apache.axis2","axis2-saaj", (Version)null, "jar");
-    private final static Artifact JAXB_API_ARTIFACT = new Artifact("javax.xml.bind","jaxb-api", (Version)null, "jar");
-    private final static Artifact JAXB_IMPL_ARTIFACT = new Artifact("com.sun.xml.bind","jaxb-impl", (Version)null, "jar");
-    private final static Artifact JAXB_XJC_ARTIFACT = new Artifact("com.sun.xml.bind","jaxb-xjc", (Version)null, "jar");    
-    private final static Artifact JAXWS_TOOLS_ARTIFACT = new Artifact("com.sun.xml.ws","jaxws-tools", (Version)null, "jar");
-    private final static Artifact JAXWS_RT_ARTIFACT = new Artifact("com.sun.xml.ws","jaxws-rt", (Version)null, "jar");
-    private final static Artifact GERONIMO_ACTIVATION_SPEC_ARTIFACT = new Artifact("org.apache.geronimo.specs","geronimo-activation_1.1_spec", (Version)null, "jar");    
-    private final static Artifact GERONIMO_ANNOTATION_ARTIFACT = new Artifact("org.apache.geronimo.specs","geronimo-annotation_1.0_spec", (Version)null, "jar");     
-    private final static Artifact GERONIMO_WS_METADATA_ARTIFACT = new Artifact("org.apache.geronimo.specs","geronimo-ws-metadata_2.0_spec", (Version)null, "jar");  
-    private final static Artifact GERONIMO_EJB_SPEC_ARTIFACT = new Artifact("org.apache.geronimo.specs","geronimo-ejb_3.0_spec", (Version)null, "jar");
+    private final static String [][] LIBS =
+    { 
+        { "org.apache.axis2", "axis2-jaxws-api" },
+        { "org.apache.axis2", "axis2-saaj-api" },
+        { "javax.xml.bind",   "jaxb-api" },
+        { "com.sun.xml.bind", "jaxb-impl" },
+        { "com.sun.xml.bind", "jaxb-xjc" },
+        { "com.sun.xml.ws",   "jaxws-tools" },
+        { "com.sun.xml.ws",   "jaxws-rt" },
+        { "org.apache.geronimo.javamail", "geronimo-javamail_1.4_mail"},
+        { "org.apache.geronimo.specs",    "geronimo-activation_1.1_spec"},
+        { "org.apache.geronimo.specs",    "geronimo-annotation_1.0_spec"},
+        { "org.apache.geronimo.specs",    "geronimo-ws-metadata_2.0_spec"},
+        { "org.apache.geronimo.specs",    "geronimo-ejb_3.0_spec"},
+        { "org.apache.geronimo.specs",    "geronimo-interceptor_3.0_spec"},
+        { "org.apache.geronimo.specs",    "geronimo-stax-api_1.0_spec"},
+        { "org.apache.geronimo.specs",    "geronimo-jpa_3.0_spec"},
+        { "org.apache.geronimo.specs",    "geronimo-j2ee-connector_1.5_spec"},
+        { "org.apache.geronimo.specs",    "geronimo-jms_1.1_spec"},
+        { "org.apache.geronimo.specs",    "geronimo-jta_1.1_spec"},
+        { "org.apache.geronimo.specs",    "geronimo-j2ee-management_1.1_spec"},
+    };
+    
     private final static Artifact SUN_SAAJ_IMPL_ARTIFACT = new Artifact("com.sun.xml.messaging.saaj","saaj-impl", (Version)null, "jar");
-    private final static Artifact GERONIMO_STAX_API_ARTIFACT = new Artifact("org.apache.geronimo.specs","geronimo-stax-api_1.0_spec", (Version)null, "jar");
+    private final static Artifact AXIS2_SAAJ_IMPL_ARTIFACT = new Artifact("org.apache.axis2","axis2-saaj", (Version)null, "jar");
     private final static String TOOLS = "tools.jar";
 
     private Artifact saajImpl;
@@ -96,18 +107,10 @@ public class JAXWSTools {
     
     public File[] getClasspath(Collection<ListableRepository> repositories) throws Exception {
         ArrayList<File> jars = new ArrayList<File>();
-        jars.add(getLocation(repositories, JAXB_API_ARTIFACT));
-        jars.add(getLocation(repositories, JAXB_IMPL_ARTIFACT));
-        jars.add(getLocation(repositories, JAXB_XJC_ARTIFACT));
-        jars.add(getLocation(repositories, JAXWS_TOOLS_ARTIFACT));
-        jars.add(getLocation(repositories, JAXWS_RT_ARTIFACT));
-        jars.add(getLocation(repositories, AXIS2_JAXWS_API_ARTIFACT));
-        jars.add(getLocation(repositories, AXIS2_SAAJ_API_ARTIFACT));
-        jars.add(getLocation(repositories, GERONIMO_ACTIVATION_SPEC_ARTIFACT));
-        jars.add(getLocation(repositories, GERONIMO_ANNOTATION_ARTIFACT));
-        jars.add(getLocation(repositories, GERONIMO_WS_METADATA_ARTIFACT));
-        jars.add(getLocation(repositories, GERONIMO_EJB_SPEC_ARTIFACT));
-        jars.add(getLocation(repositories, GERONIMO_STAX_API_ARTIFACT));
+        for (String[] lib : LIBS) {
+            Artifact artifact = new Artifact(lib[0], lib[1], (Version)null, "jar");
+            jars.add(getLocation(repositories, artifact));
+        }
         if (this.saajImpl != null) {
             jars.add(getLocation(repositories, this.saajImpl));
         }
