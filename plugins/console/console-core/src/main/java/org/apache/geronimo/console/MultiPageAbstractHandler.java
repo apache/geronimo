@@ -29,6 +29,8 @@ import javax.portlet.PortletRequestDispatcher;
 import javax.portlet.RenderRequest;
 import javax.portlet.RenderResponse;
 
+import org.apache.commons.fileupload.FileItem;
+
 /**
  * Base class for handlers for the multi page portlet.  Each one is expected
  * to handle a single page -- the action request before the page is rendered,
@@ -42,7 +44,7 @@ public abstract class MultiPageAbstractHandler {
     protected PortletRequestDispatcher view;
     private final String mode;
     private final String viewName;
-    private Map uploadFiles = new HashMap();
+    private Map<String, FileItem> uploadFiles = new HashMap<String, FileItem>();
     private Properties uploadFields = new Properties();
 
     protected MultiPageAbstractHandler(String mode, String viewName) {
@@ -84,7 +86,7 @@ public abstract class MultiPageAbstractHandler {
      */
     public abstract String actionAfterView(ActionRequest request, ActionResponse response, MultiPageModel model) throws PortletException, IOException;
 
-    public Map getUploadFiles() {
+    public Map<String, FileItem> getUploadFiles() {
         return uploadFiles;
     }
 

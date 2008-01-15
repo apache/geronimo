@@ -157,22 +157,6 @@
                         <value>true</value>
                         <includeVersion>true</includeVersion>
                     </useMavenDependencies>
-<!--
-                    <instance>
-                        <plugin-artifact>
-                            <prerequisite>
-                                <id>
-                                    <groupId>org.apache.geronimo.configs</groupId>
-                                    <artifactId>jetty6</artifactId>
-                                </id>
-                                <resource-type>Web Container</resource-type>
-                                <description>
-                                    This version of the plugin works with the Geronimo/Jetty distribution.
-                                </description>
-                            </prerequisite>
-                        </plugin-artifact>
-                    </instance>
--->
                 </configuration>
             </plugin>
         </plugins>

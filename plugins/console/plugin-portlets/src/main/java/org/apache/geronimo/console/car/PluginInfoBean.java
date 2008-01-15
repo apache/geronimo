@@ -56,6 +56,7 @@ public class PluginInfoBean {
     protected PluginType plugin;
     protected PluginArtifactType pluginArtifact;
     protected boolean installable = true;
+    protected String validationMessage;
 
     public List<PropertyType> getArtifactAlias() {
         return artifactAlias;
@@ -243,5 +244,13 @@ public class PluginInfoBean {
 
     public void setInstallable(boolean installable) {
         this.installable = installable;
+    }
+
+    public String getValidationMessage() {
+        return validationMessage;
+    }
+
+    public void setValidationMessage(String validationMessage) {
+        this.validationMessage = validationMessage;
     }
 }

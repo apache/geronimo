@@ -47,11 +47,10 @@ import java.io.IOException;
 public abstract class MultiPagePortlet extends BasePortlet {
     private final static Log log = LogFactory.getLog(MultiPagePortlet.class);
     protected static final String MODE_KEY = "mode";
-    protected Map helpers = new HashMap();
+    protected final Map<String, MultiPageAbstractHandler> helpers = new HashMap<String, MultiPageAbstractHandler>();
 
     public void destroy() {
-        for (Iterator it = helpers.values().iterator(); it.hasNext();) {
-            MultiPageAbstractHandler handler = (MultiPageAbstractHandler) it.next();
+        for (MultiPageAbstractHandler handler : helpers.values()) {
             handler.destroy();
         }
         helpers.clear();
@@ -61,18 +60,17 @@ public abstract class MultiPagePortlet extends BasePortlet {
     public void processAction(ActionRequest actionRequest,
                               ActionResponse actionResponse) throws PortletException, IOException {
         String mode = null;
-        Map files = null;
-        Map fields = null;
+        Map<String, FileItem> files = null;
+        Map<String, String> fields = null;
         if(actionRequest.getContentType() != null && actionRequest.getContentType().startsWith("multipart/form-data")) {
-            files = new HashMap();
-            fields = new HashMap();
+            files = new HashMap<String, FileItem>();
+            fields = new HashMap<String, String>();
             PortletFileUpload request = new PortletFileUpload(new DiskFileItemFactory());
             try {
-                List items = request.parseRequest(actionRequest);
-                for (int i = 0; i < items.size(); i++) {
-                    FileItem item = (FileItem) items.get(i);
-                    if(item.isFormField()) {
-                        if(item.getFieldName().equals(MODE_KEY)) {
+                List<FileItem> items = request.parseRequest(actionRequest);
+                for (FileItem item : items) {
+                    if (item.isFormField()) {
+                        if (item.getFieldName().equals(MODE_KEY)) {
                             mode = item.getString();
                         }
                         fields.put(item.getFieldName(), item.getString());
@@ -97,7 +95,7 @@ public abstract class MultiPagePortlet extends BasePortlet {
             } else {
                 String type = mode.substring(pos+1);
                 mode = mode.substring(0, pos);
-                MultiPageAbstractHandler handler = (MultiPageAbstractHandler) helpers.get(mode);
+                MultiPageAbstractHandler handler = helpers.get(mode);
                 if(handler == null) {
                     log.error("No handler for action mode '"+mode+"'");
                     break;
@@ -137,7 +135,7 @@ public abstract class MultiPagePortlet extends BasePortlet {
         if(mode == null || mode.equals("")) {
             mode = getDefaultMode();
         }
-        MultiPageAbstractHandler handler = (MultiPageAbstractHandler) helpers.get(mode);
+        MultiPageAbstractHandler handler = helpers.get(mode);
         try {
             if(handler == null) {
                 log.error("No handler for render mode '"+mode+"'");

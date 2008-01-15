@@ -41,9 +41,7 @@ onclick="document.getElementById('mode').value='viewForDownload-after'">
 -->
 <table border="0" cellpadding="3">
 <tr>
-<!--
   <th class="DarkBackground">&nbsp;</th>
--->
   <c:forEach var="column" items="Name,Version,Category,Installable">
   <th class="DarkBackground"><a href='<portlet:actionURL>
   	                                   <portlet:param name="repository" value="${repository}"/>
@@ -72,6 +70,9 @@ onclick="document.getElementById('mode').value='viewForDownload-after'">
     value='<c:out escapeXml="true" value="${artifact.groupId}/${artifact.artifactId}/${artifact.version}/${artifact.type}"/>' />
   </td>
 -->
+    <td class="${style}">
+        <input type="checkbox" name="plugin" value="${artifact.groupId}/${artifact.artifactId}/${artifact.version}/${artifact.type}" ${plugin.installable ? "": "disabled='true'"}/>
+    </td>
   <td class="${style}">
     <a href='<portlet:actionURL>
       <portlet:param name="repository" value="${repository}"/>
@@ -89,6 +90,7 @@ onclick="document.getElementById('mode').value='viewForDownload-after'">
 </tr>
 </c:forEach>
 </table>
+    <input type="submit" value="Install"/>
 </form>
 </c:otherwise>
 </c:choose>

@@ -23,14 +23,14 @@
 
 <p>
 <fmt:message key="car.downloadStatus.processing" >
-<fmt:param  value="${configId}"/>
+<fmt:param  value="${configIds}"/>
 </fmt:message>
 </p>
 
 
 <form name="<portlet:namespace/>ContinueForm" action="<portlet:actionURL/>">
     <input type="hidden" name="mode" value="downloadStatus-after" />
-    <input type="hidden" name="configId" value="${configId}" />
+    <%--<input type="hidden" name="configId" value="${configId}" />--%>
     <input type="hidden" name="repository" value="${repository}" />
     <input type="hidden" name="repo-user" value="${repouser}" />
     <input type="hidden" name="repo-pass" value="${repopass}" />

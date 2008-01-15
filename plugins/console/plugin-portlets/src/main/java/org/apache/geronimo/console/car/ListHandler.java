@@ -86,11 +86,13 @@ public class ListHandler extends BaseImportExportHandler {
 
     private boolean loadFromRepository(RenderRequest request, String repository, String username, String password) throws IOException, PortletException {
         
+        PluginInstaller pluginInstaller = ManagementHelper.getManagementHelper(request).getPluginInstaller();
+
         // try to reuse the catalog data if it was already downloaded
         PluginListType data = (PluginListType) request.getPortletSession(true).getAttribute(CONFIG_LIST_SESSION_KEY);
         if (data==null) {
             try {
-                data = ManagementHelper.getManagementHelper(request).getPluginInstaller().listPlugins(new URL(repository), username, password);
+                data = pluginInstaller.listPlugins(new URL(repository), username, password);
             } catch (FailedLoginException e) {
                 throw new PortletException("Invalid login for Maven repository '"+repository+"'", e);
             }
@@ -101,8 +103,7 @@ public class ListHandler extends BaseImportExportHandler {
         }
         
         List<PluginInfoBean> plugins = new ArrayList<PluginInfoBean>();
-        PluginInstaller pluginInstaller = ManagementHelper.getManagementHelper(request).getPluginInstaller();
-        
+
         for (PluginType metadata: data.getPlugin()) {
             
             // ignore plugins which have no artifacts defined

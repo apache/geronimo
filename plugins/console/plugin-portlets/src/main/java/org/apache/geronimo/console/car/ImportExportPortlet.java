@@ -33,7 +33,6 @@ public class ImportExportPortlet extends MultiPagePortlet {
         super.init(config);
         addHelper(new IndexHandler(), config);
         addHelper(new ListHandler(), config);
-        addHelper(new DownloadCARHandler(), config);
         addHelper(new ResultsHandler(), config);
         addHelper(new ExportConfigHandler(), config);
         addHelper(new ExportHandler(), config);

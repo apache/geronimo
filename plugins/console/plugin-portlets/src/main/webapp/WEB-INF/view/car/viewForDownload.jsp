@@ -20,12 +20,15 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
 <fmt:setBundle basename="pluginportlets"/>
 <portlet:defineObjects/>
-
-<c:set var="artifact" value="${plugin.pluginArtifact.moduleId}"/>
-
-<h1>${plugin.name}</h1>
-
+<form name="<portlet:namespace/>PluginForm" action="<portlet:actionURL/>">
 <table border="0">
+<c:forEach var="plugin" items="${plugins}">
+<c:set var="artifact" value="${plugin.pluginArtifact.moduleId}"/>
+<input type="hidden" name="configId" value="${artifact.groupId}/${artifact.artifactId}/${artifact.version}/${artifact.type}" />
+
+<tr>
+    <td><h1>${plugin.name}</h1></td>
+</tr>
   <tr>
     <th align="right" valign="top"><fmt:message key="car.viewForDownload.moduleId" />:</th>
     <td>${artifact.groupId}/${artifact.artifactId}/${artifact.version}/${artifact.type}</td>
@@ -134,16 +137,14 @@
     ${validation}
     </td>
   </tr>
+  </c:forEach>
 
-</table>
-<P>
 
-<form name="<portlet:namespace/>PluginForm" action="<portlet:actionURL/>">
-<table><tr>
-<c:if test="${plugin.installable}">
+<tr>
+<c:if test="${allInstallable}">
 <td valign="top">
     <input type="submit" value="<fmt:message key="consolebase.common.install" />" />
-    <input type="hidden" name="configId" value="${configId}" />
+    <%--<input type="hidden" name="configIds" value="${configIds}" />--%>
     <input type="hidden" name="mode" value="viewForDownload-after" />
     <input type="hidden" name="repository" value="${repository}" />
     <input type="hidden" name="repo-user" value="${repouser}" />
@@ -152,5 +153,7 @@
 </c:if>
 <td valign="top">
 <input type="submit" value="<fmt:message key="consolebase.common.return" />" onclick="history.go(-1); return false;" />
-</td></tr></table>
+</td>
+</tr>
+</table>
 </form>
