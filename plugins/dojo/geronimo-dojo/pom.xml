@@ -90,11 +90,11 @@
                         <resource>
                             <directory>${project.build.directory}/dojo-release-${dojoVersion}/</directory>
                             <includes>
-                                <include>src/**</include>
-                                <include>*.js</include>
-                                <include>*.html</include>
-                                <include>*.swf</include>
-                                <include>LICENSE</include>
+                                <include>**</include>
+                                <include>dojo/**</include>
+                                <include>dojox/**</include>
+                                <include>util/**</include>
+                                <include>dijit/**</include>
                             </includes>
                         </resource>
                         

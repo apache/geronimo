@@ -134,23 +134,18 @@ public class GraphsBuilder {
 
                 int skipCount = (int) ((timeFrame / (mrc.getSnapshotDuration() / 60000)))
                         / (snapCount - 2);
-                // ensure that we are at least looking at each snapshot (i.e. skipCount <- 1)
-                if(skipCount == 0) {
-                    skipCount = 1;
-                }
                 snapCount = snapCount + 2;
                 TreeMap<Long, Long> snapshotList1 = mrc
                         .getSpecificStatistics(mBeanName, dataName1, snapCount,
                                 skipCount, showArchive);
-                TreeMap<Long, Long> snapshotList2 = new TreeMap<Long, Long>();
-                // get the statistics for dataName2 if this graph has one
-                if(dataName2 != null && !dataName2.equals("null")) {
-                    mrc.getSpecificStatistics(mBeanName, dataName2, snapCount, skipCount, showArchive);
+                TreeMap<Long, Long> snapshotList2 = new TreeMap<Long,Long>();
+                if ((dataName2 != null) && !dataName2.equals("time") && !dataName2.equals("null") && !dataName2.equals(""))
+                {
+                	snapshotList2 = mrc.getSpecificStatistics(mBeanName, dataName2, snapCount, skipCount, showArchive);
                 }
                 // Check if snapshotList is empty
                 if (snapshotList1.size() == 0) {
                     snapshotList1.put(System.currentTimeMillis(), new Long(0));
-                    snapshotList2.put(System.currentTimeMillis(), new Long(0));
                     /*
                      * If there are not enough snapshots available to fill the
                      * requested number, insert some with values of 0 and the
@@ -165,6 +160,13 @@ public class GraphsBuilder {
                         // that to the tempMap
                         snapshotList1.put(
                                 (timeFix - (mrc.getSnapshotDuration() * skipCount)), new Long(0));
+                    }
+                }
+                if (snapshotList2.size() == 0){
+                	snapshotList2.put(System.currentTimeMillis(), new Long(0));
+                	while (snapshotList2.size() < snapCount) {
+                        // Temporary, always is first element (oldest)
+                        Long timeFix = snapshotList2.firstKey();
                         snapshotList2.put(
                                 (timeFix - (mrc.getSnapshotDuration() * skipCount)), new Long(0));
                     }
@@ -208,7 +210,7 @@ public class GraphsBuilder {
                             color, warninglevel1, warninglevel1));
                 } else if (dataName2 == null || dataName2.equals("null")
                         || dataName2.equals("")) {
-                    graph = (new StatsGraph(graph_id, ip + " - " + xlabel
+                     graph = (new StatsGraph(graph_id, ip + " - " + xlabel
                             + " - " + prettyTimeFrame, description, "Time - "
                             + prettyTimeFrame, ylabel,
                             data1operation.charAt(0), DataList.get(graphName1),
@@ -216,6 +218,7 @@ public class GraphsBuilder {
                                     .getSnapshotDuration() / 1000), timeFrame,
                             color, warninglevel1, warninglevel1));
                 } else {
+                	System.out.println("Using Null call.");
                     graph = (new StatsGraph());
                 }
             }
@@ -240,3 +243,4 @@ public class GraphsBuilder {
         return graph;
     }
 }
+

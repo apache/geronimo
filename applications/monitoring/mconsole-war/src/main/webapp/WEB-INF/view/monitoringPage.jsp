@@ -76,20 +76,7 @@ if (rs.next())
     
 %>
 <!-- <head> -->
-    <style type='text/css'>
-    <% 
-    try
-    {
-    for (StatsGraph graph : graphs) 
-            out.println(graph.getDiv());
-    }
-    catch (Exception e)
-    {
-        
-    }
-    %>
-    </style>
-    <script type='text/javascript' src='/dojo/dojo.js'>
+    <script type='text/javascript' src='/dojo/1.0/dojo/dojo.js' djConfig='isDebug: false, parseOnLoad: true'>
     </script>
         <script type = "text/javascript">
 <!--
@@ -102,17 +89,18 @@ document.getElementById(x).style.display='';
 //-->
 </script>
     <script type='text/javascript'>
-    var dojoConfig =
-    {
-        isDebug:true
-    };
-    dojo.require("dojo.collections.Store");
-    dojo.require("dojo.charting.Chart");
-    dojo.require('dojo.json');
+dojo.require("dojox.charting.Chart2D");
+dojo.require("dojox.charting.themes.PlotKit.blue");
+dojo.require("dojox.fx.easing");
+
+makeObjects = function(){
     <% for (StatsGraph graph : graphs)
        out.println(graph.getJS());
 
     %>
+};
+
+dojo.addOnLoad(makeObjects);
     </script>
 <!-- </head> -->
 
@@ -266,7 +254,3 @@ if (!errors.equals(""))
     </tr>
 </table>
     <%}%>
-
-
-
-
