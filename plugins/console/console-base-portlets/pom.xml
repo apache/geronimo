@@ -54,35 +54,19 @@
 
         <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
-            <artifactId>geronimo-upgrade</artifactId>
+            <artifactId>geronimo-management</artifactId>
             <version>${version}</version>
             <scope>provided</scope>
         </dependency>
-
         <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
-            <artifactId>geronimo-converter</artifactId>
+            <artifactId>geronimo-j2ee</artifactId>
             <version>${version}</version>
             <scope>provided</scope>
         </dependency>
-
         <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
-            <artifactId>geronimo-connector-builder</artifactId>
-            <version>${version}</version>
-            <scope>provided</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.geronimo.modules</groupId>
-            <artifactId>geronimo-security-builder</artifactId>
-            <version>${version}</version>
-            <scope>provided</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.geronimo.modules</groupId>
-            <artifactId>geronimo-deploy-jsr88</artifactId>
+            <artifactId>geronimo-security</artifactId>
             <version>${version}</version>
             <scope>provided</scope>
         </dependency>

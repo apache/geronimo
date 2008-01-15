@@ -19,7 +19,6 @@ package org.apache.geronimo.console.configmanager;
 
 import java.io.IOException;
 import java.io.Serializable;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -28,11 +27,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import javax.enterprise.deploy.shared.ModuleType;
-import javax.enterprise.deploy.spi.DeploymentManager;
-import javax.enterprise.deploy.spi.Target;
-import javax.enterprise.deploy.spi.TargetModuleID;
-import javax.enterprise.deploy.spi.exceptions.TargetException;
 import javax.portlet.ActionRequest;
 import javax.portlet.ActionResponse;
 import javax.portlet.PortletConfig;
@@ -42,10 +36,8 @@ import javax.portlet.RenderRequest;
 import javax.portlet.RenderResponse;
 import javax.portlet.WindowState;
 
-import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.console.BasePortlet;
 import org.apache.geronimo.console.util.PortletManager;
-import org.apache.geronimo.deployment.plugin.TargetModuleIDImpl;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.kernel.DependencyManager;
@@ -58,12 +50,12 @@ import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 import org.apache.geronimo.kernel.config.ConfigurationUtil;
 import org.apache.geronimo.kernel.config.InvalidConfigException;
 import org.apache.geronimo.kernel.config.LifecycleException;
+import org.apache.geronimo.kernel.config.LifecycleResults;
 import org.apache.geronimo.kernel.config.NoSuchConfigException;
 import org.apache.geronimo.kernel.management.State;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.MissingDependencyException;
 import org.apache.geronimo.management.geronimo.WebModule;
-import org.apache.geronimo.kernel.config.LifecycleResults;
 
 public class ConfigManagerPortlet extends BasePortlet {
 
@@ -77,8 +69,6 @@ public class ConfigManagerPortlet extends BasePortlet {
 
     private static final String CONFIG_INIT_PARAM = "config-type";
 
-    private String messageStatus = "";
-
     private Kernel kernel;
 
     private PortletRequestDispatcher normalView;
@@ -87,108 +77,54 @@ public class ConfigManagerPortlet extends BasePortlet {
 
     private PortletRequestDispatcher helpView;
 
-    private void printChilds(AbstractName config, int tab) {
-        messageStatus += "<br/>";
-        for (int i=0;i<tab;i++)
-            messageStatus += "&nbsp;&nbsp;";
-        messageStatus +=config.toString();
+    private static List loadChildren(Kernel kernel, String configName) {
+        List<String> kids = new ArrayList<String>();
 
-        DependencyManager depMgr = kernel.getDependencyManager();
-
-        java.util.Set children = depMgr.getChildren(config);
-        for (Iterator itr = children.iterator(); itr.hasNext(); ) {
-            AbstractName child = (AbstractName)itr.next();
-            //if(configManager.isConfiguration(child.getArtifact()))
-            if (child.getNameProperty("configurationName") != null) {
-                printChilds(child,tab+1);
-            }
-        }
-    }
-
-    public static List loadChildren(Kernel kernel, String configName) {
-        List kids = new ArrayList();
-
-        Map filter = new HashMap();
+        Map<String, String> filter = new HashMap<String, String>();
         filter.put("J2EEApplication", configName);
-
         filter.put("j2eeType", "WebModule");
-        Set test = kernel.listGBeans(new AbstractNameQuery(null, filter));
-        for (Iterator it = test.iterator(); it.hasNext();) {
-            AbstractName child = (AbstractName) it.next();
+
+        Set<AbstractName> test = kernel.listGBeans(new AbstractNameQuery(null, filter));
+        for (AbstractName child : test) {
             String childName = child.getNameProperty("name");
             kids.add(childName);
         }
 
         filter.put("j2eeType", "EJBModule");
         test = kernel.listGBeans(new AbstractNameQuery(null, filter));
-        for (Iterator it = test.iterator(); it.hasNext();) {
-            AbstractName child = (AbstractName) it.next();
+        for (AbstractName child : test) {
             String childName = child.getNameProperty("name");
             kids.add(childName);
         }
 
         filter.put("j2eeType", "AppClientModule");
         test = kernel.listGBeans(new AbstractNameQuery(null, filter));
-        for (Iterator it = test.iterator(); it.hasNext();) {
-            AbstractName child = (AbstractName) it.next();
+        for (AbstractName child : test) {
             String childName = child.getNameProperty("name");
             kids.add(childName);
         }
 
         filter.put("j2eeType", "ResourceAdapterModule");
         test = kernel.listGBeans(new AbstractNameQuery(null, filter));
-        for (Iterator it = test.iterator(); it.hasNext();) {
-            AbstractName child = (AbstractName) it.next();
+        for (AbstractName child : test) {
             String childName = child.getNameProperty("name");
             kids.add(childName);
         }
         return kids;
     }
 
-    public static boolean isWebApp(Kernel kernel, String configName) {
-        Map filter = new HashMap();
-        filter.put("j2eeType", "WebModule");
-        filter.put("name", configName);
-        Set set = kernel.listGBeans(new AbstractNameQuery(null, filter));
-        return set.size() > 0;
-    }
-
-    public void printResults(Set lcresult, String action) {
-
-        java.util.Iterator iterator= lcresult.iterator();
-        while (iterator.hasNext()) {
-            Artifact config = (Artifact)iterator.next();
+    public void printResults(Set<Artifact> lcresult, StringBuffer buf) {
+        for (Artifact config : lcresult) {
 
             //TODO might be a hack
-            List kidsChild = loadChildren(kernel, config.toString());
+            List<String> kidsChild = loadChildren(kernel, config.toString());
 
-            // Build a response obect containg the started configuration and a list of it's contained modules
-            TargetModuleIDImpl idChild = new TargetModuleIDImpl(null, config.toString(),
-                                                                (String[]) kidsChild.toArray(new String[kidsChild.size()]));
-            if (isWebApp(kernel, config.toString())) {
-                idChild.setType(ModuleType.WAR);
+            //TODO figure out the web url and show it when appropriate.
+            buf.append("    ").append(config).append("<br />");
+            for (String kid: kidsChild) {
+                buf.append("      `-> ").append(kid).append("<br />");
             }
-            if (idChild.getChildTargetModuleID() != null) {
-                for (int k = 0; k < idChild.getChildTargetModuleID().length; k++) {
-                    TargetModuleIDImpl child = (TargetModuleIDImpl) idChild.getChildTargetModuleID()[k];
-                    if (isWebApp(kernel, child.getModuleID())) {
-                        child.setType(ModuleType.WAR);
-                    }
-                }
-            }
-            messageStatus += "    ";
-            messageStatus += idChild.getModuleID()+(idChild.getWebURL() == null || !action.equals(START_ACTION) ? "" : " @ "+idChild.getWebURL());
-            messageStatus += "<br />";
-            if (idChild.getChildTargetModuleID() != null) {
-                for (int j = 0; j < idChild.getChildTargetModuleID().length; j++) {
-                    TargetModuleID child = idChild.getChildTargetModuleID()[j];
-                    messageStatus += "      `-> "+child.getModuleID()+(child.getWebURL() == null || !action.equals(START_ACTION) ? "" : " @ "+child.getWebURL());
-                    messageStatus += "<br />";
-                }
-            }
-            messageStatus += "<br />";
-
-
+            buf.append("<br />");
         }
     }
 
@@ -206,8 +142,7 @@ public class ConfigManagerPortlet extends BasePortlet {
                 }
                 if(!configurationManager.isRunning(configId)) {
                     org.apache.geronimo.kernel.config.LifecycleResults lcresult = configurationManager.startConfiguration(configId);
-                    messageStatus = "Started application<br /><br />";
-                    this.printResults(lcresult.getStarted(), action);
+                    message(actionResponse, lcresult, "Started application<br /><br />");
                 }
             } else if (STOP_ACTION.equals(action)) {
                 if(configurationManager.isRunning(configId)) {
@@ -215,32 +150,38 @@ public class ConfigManagerPortlet extends BasePortlet {
                 }
                 if(configurationManager.isLoaded(configId)) {
                     LifecycleResults lcresult = configurationManager.unloadConfiguration(configId);
-                    messageStatus = "Stopped application<br /><br />";
-                    this.printResults(lcresult.getUnloaded(), action);
+                    message(actionResponse, lcresult, "Stopped application<br /><br />");
                 }
             } else if (UNINSTALL_ACTION.equals(action)) {
                 configurationManager.uninstallConfiguration(configId);
-                messageStatus = "Uninstalled application<br /><br />"+configId+"<br /><br />";                
+                message(actionResponse, null, "Uninstalled application<br /><br />"+configId+"<br /><br />");
             } else if (RESTART_ACTION.equals(action)) {
                 LifecycleResults lcresult = configurationManager.restartConfiguration(configId);
-                messageStatus = "Restarted application<br /><br />";
-                this.printResults(lcresult.getStarted(), START_ACTION);
+                message(actionResponse, lcresult, "Restarted application<br /><br />");
             } else {
-                messageStatus = "Invalid value for changeState: " + action + "<br /><br />";
+                message(actionResponse, null, "Invalid value for changeState: " + action + "<br /><br />");
                 throw new PortletException("Invalid value for changeState: " + action);
             }
         } catch (NoSuchConfigException e) {
             // ignore this for now
-            messageStatus = "Configuration not found<br /><br />";
+            message(actionResponse, null, "Configuration not found<br /><br />");
             throw new PortletException("Configuration not found", e);
         } catch (LifecycleException e) {
             // todo we have a much more detailed report now
-            messageStatus = "Lifecycle operation failed<br /><br />";
+            message(actionResponse, null, "Lifecycle operation failed<br /><br />");
             throw new PortletException("Exception", e);
         } catch (Exception e) {
-            messageStatus = "Encountered an unhandled exception<br /><br />";
+            message(actionResponse, null, "Encountered an unhandled exception<br /><br />");
             throw new PortletException("Exception", e);
         }
+    }
+
+    private void message(ActionResponse actionResponse, LifecycleResults lcresult, String str) {
+        StringBuffer buf = new StringBuffer(str);
+        if (lcresult != null) {
+            this.printResults(lcresult.getStarted(), buf);
+        }
+        actionResponse.setRenderParameter("messageStatus", buf.toString());
     }
 
     /**
@@ -252,14 +193,6 @@ public class ConfigManagerPortlet extends BasePortlet {
         return configType == null || info.getName().equalsIgnoreCase(configType);
     }
 
-    /*
-     * private URI getConfigID(ActionRequest actionRequest) throws
-     * PortletException { URI configID; try { configID = new
-     * URI(actionRequest.getParameter("configId")); } catch (URISyntaxException
-     * e) { throw new PortletException("Invalid configId parameter: " +
-     * actionRequest.getParameter("configId")); } return configID; }
-     */
-
     private String getConfigID(ActionRequest actionRequest) {
         return actionRequest.getParameter("configId");
     }
@@ -269,32 +202,30 @@ public class ConfigManagerPortlet extends BasePortlet {
             return;
         }
 
-        List moduleDetails = new ArrayList();
+        List<ModuleDetails> moduleDetails = new ArrayList<ModuleDetails>();
         ConfigurationManager configManager = ConfigurationUtil.getConfigurationManager(kernel);
-        DependencyManager depMgr = kernel.getDependencyManager();
-        List infos = configManager.listConfigurations();
-        for (Iterator j = infos.iterator(); j.hasNext();) {
-            ConfigurationInfo info = (ConfigurationInfo) j.next();
-            
+        List<ConfigurationInfo> infos = configManager.listConfigurations();
+        for (ConfigurationInfo info : infos) {
+
             String moduleType = getInitParameter(CONFIG_INIT_PARAM);
-            if (ConfigurationModuleType.WAR.getName().equalsIgnoreCase(moduleType)) { 
-                
+            if (ConfigurationModuleType.WAR.getName().equalsIgnoreCase(moduleType)) {
+
                 if (info.getType().getValue() == ConfigurationModuleType.WAR.getValue()) {
-                    ModuleDetails details = new ModuleDetails(info.getConfigID(), info.getType(), info.getState());            
+                    ModuleDetails details = new ModuleDetails(info.getConfigID(), info.getType(), info.getState());
                     try {
                         AbstractName configObjName = Configuration.getConfigurationAbstractName(info.getConfigID());
                         boolean loaded = loadModule(configManager, configObjName);
-                        
+
                         WebModule webModule = (WebModule) PortletManager.getModule(renderRequest, info.getConfigID());
                         if (webModule != null) {
                             details.getContextPaths().add(webModule.getContextPath());
                         }
-                        
-                        addDependencies(details, configObjName);                    
+
+                        addDependencies(details, configObjName);
                         if (loaded) {
                             unloadModule(configManager, configObjName);
                         }
-                    } catch(InvalidConfigException ice) {
+                    } catch (InvalidConfigException ice) {
                         // Should not occur
                         ice.printStackTrace();
                     }
@@ -303,44 +234,42 @@ public class ConfigManagerPortlet extends BasePortlet {
                     try {
                         AbstractName configObjName = Configuration.getConfigurationAbstractName(info.getConfigID());
                         boolean loaded = loadModule(configManager, configObjName);
-                        
-                        Configuration config = configManager.getConfiguration(info.getConfigID());                                    
-                        Iterator childs = config.getChildren().iterator();
-                        while(childs.hasNext()) {                                       
-                            Configuration child = (Configuration)childs.next();
-                            if (child.getModuleType().getValue() == ConfigurationModuleType.WAR.getValue()){
+
+                        Configuration config = configManager.getConfiguration(info.getConfigID());
+                        for (Configuration child : config.getChildren()) {
+                            if (child.getModuleType().getValue() == ConfigurationModuleType.WAR.getValue()) {
                                 ModuleDetails childDetails = new ModuleDetails(info.getConfigID(), child.getModuleType(), info.getState());
                                 childDetails.setComponentName(child.getId().toString());
                                 WebModule webModule = getWebModule(config, child);
                                 if (webModule != null) {
                                     childDetails.getContextPaths().add(webModule.getContextPath());
                                 }
-                                addDependencies(childDetails, configObjName);   
+                                addDependencies(childDetails, configObjName);
                                 moduleDetails.add(childDetails);
                             }
-                        }                              
-                        
+                        }
+
                         if (loaded) {
                             unloadModule(configManager, configObjName);
                         }
-                    } catch(InvalidConfigException ice) {
+                    } catch (InvalidConfigException ice) {
                         // Should not occur
                         ice.printStackTrace();
                     }
                 }
-                                                      
+
             } else if (shouldListConfig(info.getType())) {
-                ModuleDetails details = new ModuleDetails(info.getConfigID(), info.getType(), info.getState());            
+                ModuleDetails details = new ModuleDetails(info.getConfigID(), info.getType(), info.getState());
                 try {
                     AbstractName configObjName = Configuration.getConfigurationAbstractName(info.getConfigID());
                     boolean loaded = loadModule(configManager, configObjName);
-                    
-                    if (info.getType().getValue() == ConfigurationModuleType.EAR.getValue()) {                       
-                        Configuration config = configManager.getConfiguration(info.getConfigID());                                    
+
+                    if (info.getType().getValue() == ConfigurationModuleType.EAR.getValue()) {
+                        Configuration config = configManager.getConfiguration(info.getConfigID());
                         Iterator childs = config.getChildren().iterator();
-                        while(childs.hasNext()) {                                       
-                            Configuration child = (Configuration)childs.next();
-                            if (child.getModuleType().getValue()== ConfigurationModuleType.WAR.getValue()){
+                        while (childs.hasNext()) {
+                            Configuration child = (Configuration) childs.next();
+                            if (child.getModuleType().getValue() == ConfigurationModuleType.WAR.getValue()) {
                                 WebModule webModule = getWebModule(config, child);
                                 if (webModule != null) {
                                     details.getContextPaths().add(webModule.getContextPath());
@@ -348,12 +277,12 @@ public class ConfigManagerPortlet extends BasePortlet {
                             }
                         }
                     }
-                    
-                    addDependencies(details, configObjName);                    
+
+                    addDependencies(details, configObjName);
                     if (loaded) {
                         unloadModule(configManager, configObjName);
                     }
-                } catch(InvalidConfigException ice) {
+                } catch (InvalidConfigException ice) {
                     // Should not occur
                     ice.printStackTrace();
                 }
@@ -368,8 +297,7 @@ public class ConfigManagerPortlet extends BasePortlet {
         } else {
             renderRequest.setAttribute("messageInstalled", "");
         }
-        renderRequest.setAttribute("messageStatus", messageStatus);
-        messageStatus = "";
+        renderRequest.setAttribute("messageStatus", renderRequest.getParameter("messageStatus"));
         if (WindowState.NORMAL.equals(renderRequest.getWindowState())) {
             normalView.include(renderRequest, renderResponse);
         } else {
@@ -379,7 +307,7 @@ public class ConfigManagerPortlet extends BasePortlet {
 
     private WebModule getWebModule(Configuration config, Configuration child) {
         try {
-            Map query1 = new HashMap();
+            Map<String, String> query1 = new HashMap<String, String>();
             String name = config.getId().getArtifactId();
             query1.put("J2EEApplication", config.getId().toString());
             query1.put("j2eeType", "WebModule");
@@ -417,16 +345,14 @@ public class ConfigManagerPortlet extends BasePortlet {
     
     private void addDependencies(ModuleDetails details, AbstractName configObjName) {
         DependencyManager depMgr = kernel.getDependencyManager();
-        java.util.Set parents = depMgr.getParents(configObjName);
-        for(Iterator itr = parents.iterator(); itr.hasNext(); ) {
-            AbstractName parent = (AbstractName)itr.next();
+        Set<AbstractName> parents = depMgr.getParents(configObjName);
+        for (AbstractName parent : parents) {
             details.getParents().add(parent.getArtifact());
         }
-        java.util.Set children = depMgr.getChildren(configObjName);
-        for(Iterator itr = children.iterator(); itr.hasNext(); ) {
-            AbstractName child = (AbstractName)itr.next();
+        Set<AbstractName> children = depMgr.getChildren(configObjName);
+        for (AbstractName child : children) {
             //if(configManager.isConfiguration(child.getArtifact()))
-            if(child.getNameProperty("configurationName") != null) {
+            if (child.getNameProperty("configurationName") != null) {
                 details.getChildren().add(child.getArtifact());
             }
         }
@@ -473,13 +399,14 @@ public class ConfigManagerPortlet extends BasePortlet {
      * Includes context path information for web modules.
      */
     public static class ModuleDetails implements Comparable, Serializable {
+        private static final long serialVersionUID = -7022687152297202079L;
         private final Artifact configId;
         private final ConfigurationModuleType type;
         private final State state;
-        private List parents = new ArrayList();
-        private List children = new ArrayList();
+        private List<Artifact> parents = new ArrayList<Artifact>();
+        private List<Artifact> children = new ArrayList<Artifact>();
         private boolean expertConfig = false;   // used to mark this config as one that should only be managed (stop/uninstall) by expert users.
-        private List contextPaths = new ArrayList();
+        private List<String> contextPaths = new ArrayList<String>();
         private String componentName;
 
         public ModuleDetails(Artifact configId, ConfigurationModuleType type, State state) {
@@ -489,12 +416,6 @@ public class ConfigManagerPortlet extends BasePortlet {
             if (configId.toString().indexOf("org.apache.geronimo.configs/") == 0) {
                 this.expertConfig = true;
             }
-        }
-
-        public ModuleDetails(Artifact configId, ConfigurationModuleType type, State state, List parents, List children) {
-            this(configId, type, state);
-            this.parents = parents;
-            this.children = children;
         }
 
         public int compareTo(Object o) {
@@ -521,15 +442,15 @@ public class ConfigManagerPortlet extends BasePortlet {
             return expertConfig;
         }
 
-        public List getParents() {
+        public List<Artifact> getParents() {
             return parents;
         }
 
-        public List getChildren() {
+        public List<Artifact> getChildren() {
             return children;
         }
         
-        public List getContextPaths() {
+        public List<String> getContextPaths() {
             return contextPaths;
         }     
         

@@ -49,18 +49,10 @@
             <version>${version}</version>
             <type>car</type>
         </dependency>
-        
+
         <dependency>
             <groupId>org.apache.geronimo.plugins</groupId>
             <artifactId>pluto-support</artifactId>
-            <version>${version}</version>
-            <type>car</type>
-        </dependency>
-
-        <!-- TODO temporary? for realm wizard-->
-        <dependency>
-            <groupId>org.apache.geronimo.configs</groupId>
-            <artifactId>geronimo-gbean-deployer</artifactId>
             <version>${version}</version>
             <type>car</type>
         </dependency>
@@ -75,7 +67,7 @@
             <artifactId>commons-io</artifactId>
         </dependency>
 
-	<dependency>
+        <dependency>
             <groupId>org.apache.geronimo.plugins</groupId>
             <artifactId>console-core</artifactId>
             <version>${version}</version>
@@ -86,7 +78,7 @@
             <artifactId>dwr</artifactId>
         </dependency>
 
-         <!-- to force build order -->
+        <!-- to force build order -->
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
             <artifactId>j2ee-deployer</artifactId>
@@ -109,28 +101,19 @@
             <scope>provided</scope>
         </dependency>
 
+        <!-- make sure these get into the plugin dependencies -->
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
-            <artifactId>jasper-deployer</artifactId>
+            <artifactId>jasper</artifactId>
             <version>${version}</version>
             <type>car</type>
-            <scope>provided</scope>
-       </dependency>
-
+        </dependency>
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
-            <artifactId>activemq-ra</artifactId>
+            <artifactId>tomcat6</artifactId>
             <version>${version}</version>
             <type>car</type>
-            <scope>provided</scope>
-       </dependency>
-
-        <dependency>
-            <groupId>org.apache.geronimo.modules</groupId>
-            <artifactId>geronimo-jaxws</artifactId>
-            <version>${version}</version>
-            <scope>provided</scope>
-       </dependency>
+        </dependency>
 
     </dependencies>
 

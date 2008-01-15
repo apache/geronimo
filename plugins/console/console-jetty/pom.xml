@@ -56,15 +56,6 @@
             <version>${version}</version>
             <type>car</type>
         </dependency>
-        <!-- TODO temporary? for realm wizard-->
-<!--
-        <dependency>
-            <groupId>org.apache.geronimo.configs</groupId>
-            <artifactId>geronimo-gbean-deployer</artifactId>
-            <version>${version}</version>
-            <type>car</type>
-        </dependency>
--->
 
         <dependency>
             <groupId>commons-fileupload</groupId>
