@@ -108,23 +108,6 @@
                         <includeVersion>true</includeVersion>
                     </useMavenDependencies>
                     <category>Administration</category>
-                    <instance>
-                        <plugin-artifact>
-                            <prerequisite>
-                                <id>
-                                    <groupId>org.apache.geronimo.configs</groupId>
-                                    <artifactId>tomcat</artifactId>
-                                </id>
-                                <resource-type>Web Container</resource-type>
-                                <description>
-                                    This version of the Welcome application works with the Geronimo/Tomcat distribution. 
-                                    It is not intended to run in the Geronimo/Jetty distribution. 
-                                    There is a separate version of the Welcome application that works with Jetty. 
-                                    Please install the version appropriate to your Geronimo distribution.
-                                </description> 
-                            </prerequisite>
-                        </plugin-artifact>
-                    </instance>
                 </configuration>
             </plugin>
         </plugins>

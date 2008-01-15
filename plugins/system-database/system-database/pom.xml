@@ -131,26 +131,6 @@
                                    <attribute name="port">#{DerbyPort + PortOffset}</attribute>
                                </gbean>
                            </config-xml-content>
-                           <prerequisite>
-                               <id>
-                                   <groupId>org.apache.geronimo.configs</groupId>
-                                   <artifactId>transaction</artifactId>
-                               </id>
-                               <resource-type>Transaction</resource-type>
-                               <description>
-                                  Transaction configuration for Geronimo.
-                               </description>
-                            </prerequisite>
-                           <prerequisite>
-                             <id>
-                                 <groupId>org.apache.geronimo.configs</groupId>
-                                 <artifactId>connector-deployer</artifactId>
-                             </id>
-                               <resource-type>Deployment</resource-type>
-                               <description>
-                                  Connector deployer configuration for Geronimo.
-                               </description>
-                           </prerequisite>
                         </plugin-artifact>
                      </instance>
                 </configuration>

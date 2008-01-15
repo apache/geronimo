@@ -100,26 +100,6 @@
                         <value>true</value>
                         <includeVersion>true</includeVersion>
                     </useMavenDependencies>
-                    <instance>
-                        <plugin-artifact>
-                            <prerequisite>
-                                <id>
-                                    <groupId>org.apache.geronimo.configs</groupId>
-                                    <artifactId>jetty6</artifactId>
-                                </id>
-                                <resource-type>Web Container</resource-type>
-                                <description>The Jetty web container</description>
-                            </prerequisite>
-                            <prerequisite>
-                                <id>
-                                    <groupId>org.apache.geronimo.configs</groupId>
-                                    <artifactId>jasper</artifactId>
-                                </id>
-                                <resource-type>Web Container</resource-type>
-                                <description>The Jasper subsystem</description>
-                            </prerequisite>
-                        </plugin-artifact>
-                    </instance>
                 </configuration>
             </plugin>
         </plugins>
