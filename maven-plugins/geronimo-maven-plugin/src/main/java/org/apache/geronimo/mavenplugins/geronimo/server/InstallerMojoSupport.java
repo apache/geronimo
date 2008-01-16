@@ -299,7 +299,8 @@ public abstract class InstallerMojoSupport
             Chmod chmod = (Chmod)createTask("chmod");
             chmod.setPerm("ugo+rx");
             chmod.setDir(geronimoHome);
-            chmod.setIncludes("bin/*.sh");
+            chmod.setIncludes("bin/*");
+            chmod.setExcludes("bin/*.bat");
             chmod.execute();
 
             installMarker.createNewFile();
