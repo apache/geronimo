@@ -68,14 +68,14 @@
     
     <!-- These two GBeans will create the tables for the database automatically -->
     <gbean name="ActiveDSGBean" class="org.apache.geronimo.connector.DatabaseInitializationGBean">
-        <attribute name="testSQL">SELECT t.tablename FROM SYS.SYSTABLES t WHERE t.tablename='Statistics'</attribute>
+        <attribute name="testSQL">SELECT t.tablename FROM SYS.SYSTABLES t WHERE lower(t.tablename)='statistics'</attribute>
         <attribute name="path">META-INF/database/derby/createTables.sql</attribute>
         <reference name="DataSource">
             <name>jdbc/ActiveDS</name>
         </reference>
     </gbean>
     <gbean name="ArchiveDSGBean" class="org.apache.geronimo.connector.DatabaseInitializationGBean">
-	    <attribute name="testSQL">SELECT t.tablename FROM SYS.SYSTABLES t WHERE t.tablename='Statistics'</attribute>
+	    <attribute name="testSQL">SELECT t.tablename FROM SYS.SYSTABLES t WHERE lower(t.tablename)='statistics'</attribute>
 	    <attribute name="path">META-INF/database/derby/createTables.sql</attribute>
 	    <reference name="DataSource">
 	        <name>jdbc/ArchiveDS</name>
