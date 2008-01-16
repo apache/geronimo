@@ -49,6 +49,13 @@
 
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
+            <artifactId>farming</artifactId>
+            <version>${version}</version>
+            <type>car</type>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.geronimo.configs</groupId>
             <artifactId>transformer-agent</artifactId>
             <version>${version}</version>
             <type>car</type>

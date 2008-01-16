@@ -16,7 +16,7 @@
     limitations under the License.
 -->
 
-<!-- $Rev$ $Date$ -->
+<!-- $Rev: 609072 $ $Date: 2008-01-05 11:47:14 +1100 (Sat, 05 Jan 2008) $ -->
 
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
@@ -29,12 +29,12 @@
         <relativePath>../pom.xml</relativePath>
     </parent>
 
-    <artifactId>clustering</artifactId>
-    <name>Geronimo Configs :: Clustering</name>
+    <artifactId>farming</artifactId>
+    <name>Geronimo Configs :: Farming</name>
     <packaging>car</packaging>
 
     <description>
-        Basic clustering support in use with WADI
+        Basic farming support
     </description>
     <dependencies>
         <dependency>
@@ -66,7 +66,7 @@
 
         <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
-            <artifactId>geronimo-clustering</artifactId>
+            <artifactId>geronimo-farm</artifactId>
             <version>${version}</version>
         </dependency>
 
@@ -85,12 +85,18 @@
                     <category>Clustering</category>
                     <instance>
                         <plugin-artifact>
-                            <config-xml-content>
-                                <gbean name="Node">
-                                    <attribute name="nodeName">#{clusterNodeName}</attribute>
+                            <copy-file relative-to="geronimo" dest-dir="">cluster-repository</copy-file>
+                            <copy-file relative-to="geronimo" dest-dir="">master-repository</copy-file>
+                            <config-xml-content load="false">
+                                <gbean name="NodeInfo">
+                                    <attribute name="name">#{clusterNodeName}</attribute>
+                                </gbean>
+                                <gbean name="ClusterInfo">
+                                    <attribute name="name">#{clusterName}</attribute>
                                 </gbean>
                             </config-xml-content>
                             <config-substitution key="clusterNodeName">NODE</config-substitution>
+                            <config-substitution key="clusterName">CLUSTER_NAME</config-substitution>
                         </plugin-artifact>
                     </instance>
                 </configuration>

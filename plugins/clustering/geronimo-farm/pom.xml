@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="ISO-8859-1"?>
 <!--
     Licensed to the Apache Software Foundation (ASF) under one or more
     contributor license agreements.  See the NOTICE file distributed with
@@ -15,27 +15,48 @@
     See the License for the specific language governing permissions and
     limitations under the License.
 -->
-<!-- $Rev$ $Date$ -->
+
+<!-- $Rev: 589641 $ $Date: 2007-10-29 10:43:01 -0400 (Mon, 29 Oct 2007) $ -->
+
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    
     <modelVersion>4.0.0</modelVersion>
+
     <parent>
-        <groupId>org.apache.geronimo.plugins</groupId>
-        <artifactId>plugins</artifactId>
+        <groupId>org.apache.geronimo.modules</groupId>
+        <artifactId>modules</artifactId>
         <version>2.1-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
-    <artifactId>clustering</artifactId>
-    <name>Geronimo Plugins :: clustering</name>
-    <packaging>pom</packaging>
-    <description>
-        clustering plugin
-    </description>
-    <modules>
-        <module>geronimo-clustering</module>
-        <module>geronimo-clustering-wadi</module>
-        <module>geronimo-farm</module>
-        <module>clustering</module>
-        <module>wadi-clustering</module>
-        <module>farming</module>
-    </modules>
+
+    <artifactId>geronimo-farm</artifactId>
+    <name>Geronimo Modules :: Farm</name>
+    
+    <dependencies>
+        <dependency>
+            <groupId>${pom.groupId}</groupId>
+            <artifactId>geronimo-deploy-jsr88</artifactId>
+            <version>${version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>${pom.groupId}</groupId>
+            <artifactId>geronimo-j2ee</artifactId>
+            <version>${version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>${pom.groupId}</groupId>
+            <artifactId>geronimo-jmx-remoting</artifactId>
+            <version>${version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>${pom.groupId}</groupId>
+            <artifactId>geronimo-service-builder</artifactId>
+            <version>${version}</version>
+        </dependency>
+    </dependencies>
+    
 </project>
+
