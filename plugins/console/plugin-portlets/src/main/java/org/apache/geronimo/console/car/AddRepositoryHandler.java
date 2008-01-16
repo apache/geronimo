@@ -32,6 +32,7 @@ import java.io.InputStream;
 import java.net.ConnectException;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
+import java.net.UnknownHostException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
@@ -117,6 +118,9 @@ public class AddRepositoryHandler extends BaseImportExportHandler {
                     con.connect();
                 } catch (ConnectException e) {
                     response.setRenderParameter("repoError", "Unable to connect to "+url+" ("+e.getMessage()+")");
+                    return false;
+                } catch (UnknownHostException e) {
+                    response.setRenderParameter("repoError", "Unknown host: " + url.getHost());
                     return false;
                 }
                 int result = con.getResponseCode();
