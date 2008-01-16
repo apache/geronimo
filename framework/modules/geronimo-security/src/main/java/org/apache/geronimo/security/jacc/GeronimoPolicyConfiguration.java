@@ -28,11 +28,10 @@ import javax.security.jacc.PolicyContextException;
  * @version $Rev$ $Date$
  */
 
-public interface GeronimoPolicyConfiguration extends PolicyConfiguration {
+public interface GeronimoPolicyConfiguration extends PolicyConfiguration, PrincipalRoleConfiguration {
 
     boolean implies(ProtectionDomain domain, Permission permission);
 
     void open(boolean remove);
 
-    void setPrincipalRoleMapping(Map principalRoleMap) throws PolicyContextException;
 }

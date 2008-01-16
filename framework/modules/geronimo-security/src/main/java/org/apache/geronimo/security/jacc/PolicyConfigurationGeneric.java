@@ -24,9 +24,8 @@ import java.security.Principal;
 import java.security.ProtectionDomain;
 import java.util.Enumeration;
 import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Map;
+import java.util.Set;
 
 import javax.security.jacc.PolicyContextException;
 
@@ -41,12 +40,12 @@ public class PolicyConfigurationGeneric implements GeronimoPolicyConfiguration {
 
     private final String contextID;
     private int state;
-    private final HashMap rolePermissionsMap = new HashMap();
-    private final HashMap principalRoleMapping = new HashMap();
+    private final HashMap<String, Permissions> rolePermissionsMap = new HashMap<String, Permissions>();
+    private final HashMap<Principal, Set<String>> principalRoleMapping = new HashMap<Principal, Set<String>>();
     private Permissions unchecked = null;
     private Permissions excluded = null;
 
-    private final HashMap principalPermissionsMap = new HashMap();
+    private final HashMap<Principal, Permissions> principalPermissionsMap = new HashMap<Principal, Permissions>();
 
     PolicyConfigurationGeneric(String contextID) {
         this.contextID = contextID;
@@ -66,9 +65,7 @@ public class PolicyConfigurationGeneric implements GeronimoPolicyConfiguration {
         Principal[] principals = domain.getPrincipals();
         if (principals.length == 0) return false;
 
-        for (int i = 0; i < principals.length; i++) {
-            Principal principal = principals[i];
-
+        for (Principal principal : principals) {
             Permissions permissions = (Permissions) principalPermissionsMap.get(principal);
 
             if (permissions != null && permissions.implies(permission)) return true;
@@ -94,7 +91,7 @@ public class PolicyConfigurationGeneric implements GeronimoPolicyConfiguration {
     public void addToRole(String roleName, Permission permission) throws PolicyContextException {
         if (state != OPEN) throw new UnsupportedOperationException("Not in an open state");
 
-        Permissions permissions = (Permissions) rolePermissionsMap.get(roleName);
+        Permissions permissions = rolePermissionsMap.get(roleName);
         if (permissions == null) {
             permissions = new Permissions();
             rolePermissionsMap.put(roleName, permissions);
@@ -165,21 +162,20 @@ public class PolicyConfigurationGeneric implements GeronimoPolicyConfiguration {
     public void commit() throws PolicyContextException {
         if (state != OPEN) throw new UnsupportedOperationException("Not in an open state");
 
-        for (Iterator principalEntries = principalRoleMapping.entrySet().iterator(); principalEntries.hasNext(); ) {
-            Map.Entry principalEntry = (Map.Entry) principalEntries.next();
-            Principal principal = (Principal) principalEntry.getKey();
-            Permissions principalPermissions = (Permissions) principalPermissionsMap.get(principal);
+        for (Map.Entry<Principal, Set<String>> principalEntry : principalRoleMapping.entrySet()) {
+            Principal principal = principalEntry.getKey();
+            Permissions principalPermissions = principalPermissionsMap.get(principal);
 
             if (principalPermissions == null) {
                 principalPermissions = new Permissions();
                 principalPermissionsMap.put(principal, principalPermissions);
             }
 
-            HashSet roleSet = (HashSet) principalEntry.getValue();
-            for (Iterator roles = roleSet.iterator(); roles.hasNext(); ) {
-                Permissions permissions = (Permissions) rolePermissionsMap.get(roles.next());
+            Set<String> roleSet = principalEntry.getValue();
+            for (String role : roleSet) {
+                Permissions permissions = rolePermissionsMap.get(role);
                 if (permissions == null) continue;
-                for (Enumeration rolePermissions = permissions.elements(); rolePermissions.hasMoreElements(); ) {
+                for (Enumeration rolePermissions = permissions.elements(); rolePermissions.hasMoreElements();) {
                     principalPermissions.add((Permission) rolePermissions.nextElement());
                 }
             }

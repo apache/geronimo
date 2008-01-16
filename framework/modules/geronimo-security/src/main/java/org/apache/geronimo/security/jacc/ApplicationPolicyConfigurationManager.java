@@ -152,7 +152,7 @@ public class ApplicationPolicyConfigurationManager implements GBeanLifecycle, Ru
         }
 
         if (principalRoleMapper != null) {
-            principalRoleMapper.uninstall();
+            principalRoleMapper.uninstall(contextIdToPolicyConfigurationMap.keySet());
         }
 
         for (PolicyConfiguration policyConfiguration : contextIdToPolicyConfigurationMap.values()) {

@@ -22,7 +22,7 @@ import java.util.Set;
 /**
  */
 public interface PrincipalRoleMapper {
-    void install(Set contextIds) throws PolicyContextException;
+    void install(Set<String> contextIds) throws PolicyContextException;
 
-    void uninstall() throws PolicyContextException;
+    void uninstall(Set<String> contextIds) throws PolicyContextException;
 }

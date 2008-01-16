@@ -16,56 +16,48 @@
  */
 package org.apache.geronimo.security.jacc;
 
-import java.security.Permission;
-import java.security.PermissionCollection;
-import java.security.Policy;
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
-import javax.security.auth.Subject;
-import javax.security.jacc.PolicyConfiguration;
-import javax.security.jacc.PolicyConfigurationFactory;
+
 import javax.security.jacc.PolicyContextException;
 
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
-import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
-import org.apache.geronimo.security.ContextManager;
-import org.apache.geronimo.security.IdentificationPrincipal;
-import org.apache.geronimo.security.SubjectId;
 
 /**
  * @version $Rev$ $Date$
  */
 public class ApplicationPrincipalRoleConfigurationManager implements PrincipalRoleMapper {
 
+    private static PrincipalRoleConfigurationFactory roleMapperFactory;
     private final Map principalRoleMap;
 
     public ApplicationPrincipalRoleConfigurationManager(Map principalRoleMap) throws PolicyContextException, ClassNotFoundException {
         this.principalRoleMap = principalRoleMap;
     }
 
+    public static void setPrincipalRoleConfigurationFactory(PrincipalRoleConfigurationFactory roleMapperFactory) {
+        if (ApplicationPrincipalRoleConfigurationManager.roleMapperFactory != null) {
+            throw new IllegalStateException("ApplicationPrincipalRoleConfigurationManager.roleMapperFactory already set");
+        }
+        ApplicationPrincipalRoleConfigurationManager.roleMapperFactory = roleMapperFactory;
+    }
 
-    public void install(Set contextIds) throws PolicyContextException {
-        GeronimoPolicyConfigurationFactory roleMapperFactory = GeronimoPolicyConfigurationFactory.getSingleton();
+    public void install(Set<String> contextIds) throws PolicyContextException {
         if (roleMapperFactory == null) {
-            throw new IllegalStateException("Inconsistent security setup.  GeronimoPolicyConfigurationFactory is not being used");
+            throw new IllegalStateException("Inconsistent security setup.  PrincipalRoleConfigurationFactory is not set");
         }
 
-        for (Iterator iterator = contextIds.iterator(); iterator.hasNext();) {
-            String contextID = (String) iterator.next();
-
-            GeronimoPolicyConfiguration geronimoPolicyConfiguration = roleMapperFactory.getGeronimoPolicyConfiguration(contextID);
-            geronimoPolicyConfiguration.setPrincipalRoleMapping(principalRoleMap);
+        for (String contextID : contextIds) {
+            PrincipalRoleConfiguration principalRoleConfiguration = roleMapperFactory.getPrincipalRoleConfiguration(contextID);
+            principalRoleConfiguration.setPrincipalRoleMapping(principalRoleMap);
         }
 
     }
 
 
-    public void uninstall() throws PolicyContextException {
+    public void uninstall(Set<String> contextIds) throws PolicyContextException {
     }
 
 

@@ -31,11 +31,11 @@ import org.apache.geronimo.security.GeronimoSecurityPermission;
 /**
  * @version $Rev$ $Date$
  */
-public class GeronimoPolicyConfigurationFactory extends PolicyConfigurationFactory {
+public class GeronimoPolicyConfigurationFactory extends PolicyConfigurationFactory implements PrincipalRoleConfigurationFactory {
 
-    private final Log log = LogFactory.getLog(GeronimoPolicyConfigurationFactory.class);
+    private static final Log log = LogFactory.getLog(GeronimoPolicyConfigurationFactory.class);
     private static GeronimoPolicyConfigurationFactory singleton;
-    private Map configurations = new HashMap();
+    private Map<String, GeronimoPolicyConfiguration> configurations = new HashMap<String, GeronimoPolicyConfiguration>();
 
     public GeronimoPolicyConfigurationFactory() {
         synchronized (GeronimoPolicyConfigurationFactory.class) {
@@ -44,6 +44,7 @@ public class GeronimoPolicyConfigurationFactory extends PolicyConfigurationFacto
                 throw new IllegalStateException("Singleton already assigned");
             }
             singleton = this;
+            ApplicationPrincipalRoleConfigurationManager.setPrincipalRoleConfigurationFactory(this);
         }
     }
 
@@ -57,7 +58,7 @@ public class GeronimoPolicyConfigurationFactory extends PolicyConfigurationFacto
     }
 
     public GeronimoPolicyConfiguration getGeronimoPolicyConfiguration(String contextID) throws PolicyContextException {
-        GeronimoPolicyConfiguration configuration = (GeronimoPolicyConfiguration) configurations.get(contextID);
+        GeronimoPolicyConfiguration configuration = configurations.get(contextID);
 
         if (configuration == null) {
             throw new PolicyContextException("No policy configuration registered for contextID: " + contextID);
@@ -68,7 +69,7 @@ public class GeronimoPolicyConfigurationFactory extends PolicyConfigurationFacto
     }
 
     public PolicyConfiguration getPolicyConfiguration(String contextID, boolean remove) throws PolicyContextException {
-        GeronimoPolicyConfiguration configuration = (GeronimoPolicyConfiguration) configurations.get(contextID);
+        GeronimoPolicyConfiguration configuration = configurations.get(contextID);
 
         if (configuration == null) {
             configuration = new PolicyConfigurationGeneric(contextID);
@@ -90,5 +91,9 @@ public class GeronimoPolicyConfigurationFactory extends PolicyConfigurationFacto
 
     static GeronimoPolicyConfigurationFactory getSingleton() {
         return singleton;
+    }
+
+    public PrincipalRoleConfiguration getPrincipalRoleConfiguration(String contextID) throws PolicyContextException {
+        return getGeronimoPolicyConfiguration(contextID);
     }
 }
