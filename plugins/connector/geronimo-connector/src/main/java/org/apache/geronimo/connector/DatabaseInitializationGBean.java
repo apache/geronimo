@@ -87,7 +87,6 @@ public class DatabaseInitializationGBean {
                         }
                     }
                     catch ( Exception ex ) {
-                        System.out.println(ex.getMessage());
                         log.error(ex.getMessage());
                     }
                     finally {
