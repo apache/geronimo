@@ -90,8 +90,8 @@ public class AbsentSampleServlet extends HttpServlet {
             throw new ServletException("Unable to install sample application", results.getFailure());
         }
         ConfigurationManager mgr = ConfigurationUtil.getConfigurationManager(kernel);
-        for (int i = 0; i < results.getInstalledConfigIDs().length; i++) {
-            Artifact artifact = results.getInstalledConfigIDs()[i];
+        for (int i = 0; i < results.getInstalledConfigIDs().size(); i++) {
+            Artifact artifact = results.getInstalledConfigIDs().get(i);
             if (mgr.isConfiguration(artifact)) {
                 try {
                     if (!mgr.isLoaded(artifact)) {
