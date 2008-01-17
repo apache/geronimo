@@ -503,7 +503,7 @@ public class PluginInstallerGBean implements PluginInstaller {
      */
     public PluginListType listPlugins(URL mavenRepository, String username, String password) throws IOException, FailedLoginException {
         try {
-            SourceRepository repo = SourceRepositoryFactory.getSourceRepository(mavenRepository.toString());
+            SourceRepository repo = SourceRepositoryFactory.getSourceRepository(mavenRepository.toString(), username, password);
             return repo.getPluginList();
         } catch (IllegalStateException e) {
             return null;
@@ -560,19 +560,25 @@ public class PluginInstallerGBean implements PluginInstaller {
         try {
             Map<Artifact, PluginType> metaMap = new HashMap<Artifact, PluginType>();
             // Step 1: validate everything
+            List<PluginType> toInstall = new ArrayList<PluginType>();
             for (PluginType metadata : pluginsToInstall.getPlugin()) {
-                validatePlugin(metadata);
-                verifyPrerequisites(metadata);
-                
-                PluginArtifactType instance = metadata.getPluginArtifact().get(0);
+                try {
+                    validatePlugin(metadata);
+                    verifyPrerequisites(metadata);
 
-                if (instance.getModuleId() != null) {
-                    metaMap.put(toArtifact(instance.getModuleId()), metadata);
+                    PluginArtifactType instance = metadata.getPluginArtifact().get(0);
+
+                    if (instance.getModuleId() != null) {
+                        metaMap.put(toArtifact(instance.getModuleId()), metadata);
+                    }
+                    toInstall.add(metadata);
+                } catch (MissingDependencyException e) {
+                    //ignore
                 }
             }
 
             // Step 2: everything is valid, do the installation
-            for (PluginType metadata : pluginsToInstall.getPlugin()) {
+            for (PluginType metadata : toInstall) {
                 // 2. Unload obsoleted configurations
                 PluginArtifactType instance = metadata.getPluginArtifact().get(0);
                 List<Artifact> obsoletes = new ArrayList<Artifact>();
@@ -804,13 +810,13 @@ public class PluginInstallerGBean implements PluginInstaller {
      */
     public void validatePlugin(PluginType plugin) throws MissingDependencyException {
         if (plugin.getPluginArtifact().size() != 1) {
-            throw new IllegalArgumentException("A plugin configuration must include one plugin artifact, not " + plugin.getPluginArtifact().size());
+            throw new MissingDependencyException("A plugin configuration must include one plugin artifact, not " + plugin.getPluginArtifact().size(), null, (Stack<Artifact>) null);
         }
         PluginArtifactType metadata = plugin.getPluginArtifact().get(0);
-        // 1. Check that it's not already running
+        // 1. Check that it's not already installed
         if (metadata.getModuleId() != null) { // that is, it's a real configuration not a plugin list
             Artifact artifact = toArtifact(metadata.getModuleId());
-            if (configManager.isRunning(artifact)) {
+            if (configManager.isInstalled(artifact)) {
                 boolean upgrade = false;
                 for (ArtifactType obsolete : metadata.getObsoletes()) {
                     Artifact test = toArtifact(obsolete);
@@ -820,9 +826,9 @@ public class PluginInstallerGBean implements PluginInstaller {
                     }
                 }
                 if (!upgrade) {
-                    log.info("Configuration " + artifact + " is already running.");
-                    throw new IllegalArgumentException(
-                            "Configuration " + artifact + " is already running.");
+                    log.info("Configuration " + artifact + " is already installed.");
+                    throw new MissingDependencyException(
+                            "Configuration " + artifact + " is already installed.", toArtifact(metadata.getModuleId()), (Stack<Artifact>) null);
                 }
             }
         }

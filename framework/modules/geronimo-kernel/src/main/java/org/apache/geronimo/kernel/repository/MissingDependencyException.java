@@ -18,6 +18,7 @@
 package org.apache.geronimo.kernel.repository;
 
 import java.util.Stack;
+import java.io.Serializable;
 
 import org.apache.geronimo.gbean.AbstractNameQuery;
 
@@ -25,6 +26,7 @@ import org.apache.geronimo.gbean.AbstractNameQuery;
  * @version $Rev$ $Date$
  */
 public class MissingDependencyException extends Exception {
+    private static final long serialVersionUID = -2557777157677213124L;
     private Artifact query;
     private Stack<Artifact> stack;
 

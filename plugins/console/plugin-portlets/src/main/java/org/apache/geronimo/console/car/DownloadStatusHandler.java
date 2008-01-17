@@ -18,16 +18,16 @@ package org.apache.geronimo.console.car;
 
 import java.io.IOException;
 import java.io.Serializable;
-import java.util.List;
 import java.util.ArrayList;
+import java.util.List;
+
 import javax.portlet.ActionRequest;
 import javax.portlet.ActionResponse;
 import javax.portlet.PortletException;
 import javax.portlet.PortletSession;
 import javax.portlet.RenderRequest;
 import javax.portlet.RenderResponse;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+
 import org.apache.geronimo.console.MultiPageModel;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.system.plugin.DownloadResults;
@@ -38,7 +38,6 @@ import org.apache.geronimo.system.plugin.DownloadResults;
  * @version $Rev$ $Date$
  */
 public class DownloadStatusHandler extends BaseImportExportHandler {
-    private final static Log log = LogFactory.getLog(DownloadStatusHandler.class);
 
     public DownloadStatusHandler() {
         super(DOWNLOAD_STATUS_MODE, "/WEB-INF/view/car/downloadStatus.jsp");
@@ -72,13 +71,11 @@ public class DownloadStatusHandler extends BaseImportExportHandler {
         if(results.isFailed()) {
             throw new PortletException("Unable to install configuration", results.getFailure());
         }
-        List dependencies = new ArrayList();
-        for (int i = 0; i < results.getDependenciesInstalled().length; i++) {
-            Artifact uri = results.getDependenciesInstalled()[i];
+        List<InstallResults> dependencies = new ArrayList<InstallResults>();
+        for (Artifact uri: results.getDependenciesInstalled()) {
             dependencies.add(new InstallResults(uri.toString(), "installed"));
         }
-        for (int i = 0; i < results.getDependenciesPresent().length; i++) {
-            Artifact uri = results.getDependenciesPresent()[i];
+        for (Artifact uri: results.getDependenciesPresent()) {
             dependencies.add(new InstallResults(uri.toString(), "already present"));
         }
         request.getPortletSession(true).setAttribute("car.install.results", dependencies);
@@ -91,6 +88,7 @@ public class DownloadStatusHandler extends BaseImportExportHandler {
     }
 
     public static class InstallResults implements Serializable {
+        private static final long serialVersionUID = -3745382506085182610L;
         private String name;
         private String action;
 

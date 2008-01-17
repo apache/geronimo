@@ -22,7 +22,6 @@ package org.apache.geronimo.system.plugin;
 
 import java.io.File;
 import java.net.URI;
-import java.net.URISyntaxException;
 
 /**
  * @version $Rev$ $Date$
@@ -32,6 +31,10 @@ public class SourceRepositoryFactory {
     }
 
     public static SourceRepository getSourceRepository(String repo) {
+        return getSourceRepository(repo, null, null);        
+    }
+    
+    public static SourceRepository getSourceRepository(String repo, String user, String pass) {
         if (repo == null) {
             throw new IllegalArgumentException("No repo supplied");
         }
@@ -41,7 +44,7 @@ public class SourceRepositoryFactory {
         }
         String scheme = repoURI.getScheme();
         if (scheme.startsWith("http")) {
-            return new RemoteSourceRepository(repoURI);
+            return new RemoteSourceRepository(repoURI, user, pass);
         } else if ("file".equals(scheme)) {
             return new LocalSourceRepository(new File(repoURI));
         }

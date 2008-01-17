@@ -60,25 +60,30 @@ public class RemoteSourceRepository implements SourceRepository {
     private String username = null;
     private String password = null;
 
-    public RemoteSourceRepository(URI base) {
+    public RemoteSourceRepository(URI base, String username, String password) {
         if (!base.getPath().endsWith("/")) {
             throw new IllegalArgumentException("base uri must end with '/', not " + base);
         }
         this.base = base;
+        this.username = username;
+        this.password = password;
     }
 
     public PluginListType getPluginList() {
         try {
             URL uri = base.resolve("geronimo-plugins.xml").toURL();
-            InputStream in = uri.openStream();
-            try {
-                return PluginXmlUtil.loadPluginList(in);
-            } finally {
-                in.close();
+            InputStream in = openStream(null, uri);
+            if (in != null) {
+                try {
+                    return PluginXmlUtil.loadPluginList(in);
+                } finally {
+                    in.close();                
+                }
             }
         } catch (Exception e) {
-            return null;
+            // TODO: log it?
         }
+        return null;
     }
 
     public OpenResult open(Artifact artifact, FileWriteMonitor monitor) throws IOException, FailedLoginException {

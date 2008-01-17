@@ -57,8 +57,8 @@ public class CommandInstallCAR extends AbstractCommand {
                 DownloadResults results = showProgress(consoleReader, mgr, key);
                 int time = (int)(System.currentTimeMillis() - start) / 1000;
                 printResults(consoleReader, results, time);            
-                if(results.isFinished() && !results.isFailed() && results.getInstalledConfigIDs().length == 1) {
-                    Artifact target = results.getInstalledConfigIDs()[0];
+                if(results.isFinished() && !results.isFailed() && results.getInstalledConfigIDs().size() == 1) {
+                    Artifact target = results.getInstalledConfigIDs().get(0);
                     consoleReader.printString(DeployUtils.reformat("Now starting "+target+"...", 4, 72));
                     consoleReader.flushConsole();
                     new CommandStart().execute(consoleReader, connection, new BaseCommandArgs(new String[]{target.toString()}));
@@ -107,13 +107,11 @@ public class CommandInstallCAR extends AbstractCommand {
         if (!results.isFailed()) {
             DeployUtils.println("**** Installation Complete!", 0, consoleReader);
 
-            for (int i = 0; i < results.getDependenciesPresent().length; i++) {
-                Artifact uri = results.getDependenciesPresent()[i];
+            for (Artifact uri: results.getDependenciesPresent()) {
                 DeployUtils.println("Used existing: " + uri, 0, consoleReader);
 
             }
-            for (int i = 0; i < results.getDependenciesInstalled().length; i++) {
-                Artifact uri = results.getDependenciesInstalled()[i];
+            for (Artifact uri: results.getDependenciesInstalled()) {
                 DeployUtils.println("Installed new: " + uri, 0, consoleReader);
 
             }

@@ -17,6 +17,7 @@
 package org.apache.geronimo.system.plugin;
 
 import org.apache.geronimo.kernel.repository.Artifact;
+import org.apache.geronimo.kernel.repository.MissingDependencyException;
 
 /**
  * An interface for callers who want to monitor the progress of an installation.
@@ -49,6 +50,12 @@ public interface DownloadPoller {
      * was installed.
      */
     void addRestartedConfigID(Artifact target);
+
+    /**
+     * Provides details on why a plugin was not installed.
+     * @param e MissingDependencyException containing info on 
+     */
+    void addSkippedConfigID(MissingDependencyException e);
 
     /**
      * Notes that the current install operation found a dependency, and that
