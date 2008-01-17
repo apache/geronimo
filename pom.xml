@@ -2076,6 +2076,12 @@
                         </optionSets>
                     </configuration>
                 </plugin>
+                
+                <plugin>
+                    <groupId>org.codehaus.mojo</groupId>
+                    <artifactId>shitty-maven-plugin</artifactId>
+                    <version>1.0-alpha-1</version>
+                </plugin>
             </plugins>
         </pluginManagement>
 
