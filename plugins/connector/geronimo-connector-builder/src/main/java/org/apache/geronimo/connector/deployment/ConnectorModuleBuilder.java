@@ -29,12 +29,12 @@ import java.util.Date;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
+import java.util.Collections;
 import java.util.jar.JarFile;
 import java.util.zip.ZipEntry;
 
@@ -431,9 +431,10 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ActivationSpecInfo
         // Create the resource adapter gbean
         if (resourceadapter.isSetResourceadapterClass()) {
             GBeanInfoBuilder resourceAdapterInfoBuilder = new GBeanInfoBuilder(ResourceAdapterWrapperGBean.class, ResourceAdapterWrapperGBean.GBEAN_INFO);
-            GBeanData resourceAdapterGBeanData = setUpDynamicGBean(resourceAdapterInfoBuilder, resourceadapter.getConfigPropertyArray(), cl);
+            String resourceAdapterClassName = resourceadapter.getResourceadapterClass().getStringValue().trim();
+            GBeanData resourceAdapterGBeanData = setUpDynamicGBeanWithProperties(resourceAdapterClassName, resourceAdapterInfoBuilder, resourceadapter.getConfigPropertyArray(), cl, Collections.<String>emptySet());
 
-            resourceAdapterGBeanData.setAttribute("resourceAdapterClass", resourceadapter.getResourceadapterClass().getStringValue().trim());
+            resourceAdapterGBeanData.setAttribute("resourceAdapterClass", resourceAdapterClassName);
 
             // Add map from messageListenerInterface to activationSpec class
             Map<String, String> messageListenerToActivationSpecMap = new TreeMap<String, String>();
@@ -478,7 +479,7 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ActivationSpecInfo
         }
 
         GBeanData jcaResourceData = new GBeanData(jcaResourcejsr77Name, JCAResourceImplGBean.GBEAN_INFO);
-        Map thisModule = new LinkedHashMap(2);
+        Map<String, String> thisModule = new LinkedHashMap<String, String>(2);
         thisModule.put(NameFactory.J2EE_APPLICATION, resourceAdapterModuleName.getNameProperty(NameFactory.J2EE_APPLICATION));
         thisModule.put(NameFactory.RESOURCE_ADAPTER_MODULE, resourceAdapterModuleName.getNameProperty(NameFactory.J2EE_NAME));
         jcaResourceData.setReferencePattern("ConnectionFactories", new AbstractNameQuery(resourceAdapterModuleName.getArtifact(), thisModule, JCAConnectionFactory.class.getName()));
@@ -511,9 +512,7 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ActivationSpecInfo
         ResourceadapterType resourceadapter = connector.getResourceadapter();
 
         GerResourceadapterType[] geronimoResourceAdapters = geronimoConnector.getResourceadapterArray();
-        for (int k = 0; k < geronimoResourceAdapters.length; k++) {
-            GerResourceadapterType geronimoResourceAdapter = geronimoResourceAdapters[k];
-
+        for (GerResourceadapterType geronimoResourceAdapter : geronimoResourceAdapters) {
             // Resource Adapter
             AbstractName resourceAdapterAbstractName = null;
             if (resourceadapter.isSetResourceadapterClass()) {
@@ -547,8 +546,7 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ActivationSpecInfo
                     throw new DeploymentException("Geronimo plan configures an outbound resource adapter but ra.xml does not describe any");
                 }
                 String transactionSupport = resourceadapter.getOutboundResourceadapter().getTransactionSupport().getStringValue().trim();
-                for (int i = 0; i < geronimoResourceAdapter.getOutboundResourceadapter().getConnectionDefinitionArray().length; i++)
-                {
+                for (int i = 0; i < geronimoResourceAdapter.getOutboundResourceadapter().getConnectionDefinitionArray().length; i++) {
                     GerConnectionDefinitionType geronimoConnectionDefinition = geronimoResourceAdapter.getOutboundResourceadapter().getConnectionDefinitionArray(i);
                     assert geronimoConnectionDefinition != null : "Null GeronimoConnectionDefinition";
 
@@ -559,8 +557,7 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ActivationSpecInfo
                         throw new DeploymentException("No connection definition for ConnectionFactory class: " + connectionFactoryInterfaceName);
                     }
 
-                    for (int j = 0; j < geronimoConnectionDefinition.getConnectiondefinitionInstanceArray().length; j++)
-                    {
+                    for (int j = 0; j < geronimoConnectionDefinition.getConnectiondefinitionInstanceArray().length; j++) {
                         GerConnectiondefinitionInstanceType connectionfactoryInstance = geronimoConnectionDefinition.getConnectiondefinitionInstanceArray()[j];
 
                         addOutboundGBeans(earContext, jcaResourceName, resourceAdapterAbstractName, connectionFactoryGBeanData, connectionfactoryInstance, transactionSupport, cl);
@@ -581,9 +578,8 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ActivationSpecInfo
                 throw new DeploymentException("No admin object declared for interface: " + adminObjectInterface);
             }
 
-            for (int j = 0; j < gerAdminObject.getAdminobjectInstanceArray().length; j++) {
+            for (GerAdminobjectInstanceType gerAdminObjectInstance: gerAdminObject.getAdminobjectInstanceArray()) {
                 GBeanData adminObjectInstanceGBeanData = new GBeanData(adminObjectGBeanData);
-                GerAdminobjectInstanceType gerAdminObjectInstance = gerAdminObject.getAdminobjectInstanceArray()[j];
                 setDynamicGBeanDataAttributes(adminObjectInstanceGBeanData, gerAdminObjectInstance.getConfigPropertySettingArray(), cl);
                 // add it
                 AbstractName adminObjectAbstractName = earContext.getNaming().createChildName(jcaResourceName, gerAdminObjectInstance.getMessageDestinationName().trim(), NameFactory.JCA_ADMIN_OBJECT);
@@ -598,49 +594,18 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ActivationSpecInfo
     }
 
     private Map getActivationSpecInfoMap(MessagelistenerType[] messagelistenerArray, ClassLoader cl) throws DeploymentException {
-        Map activationSpecInfos = new HashMap();
-        for (int i = 0; i < messagelistenerArray.length; i++) {
-            MessagelistenerType messagelistenerType = messagelistenerArray[i];
+        Map<String, GBeanData> activationSpecInfos = new HashMap<String, GBeanData>();
+        for (MessagelistenerType messagelistenerType : messagelistenerArray) {
             String messageListenerInterface = messagelistenerType.getMessagelistenerType().getStringValue().trim();
             ActivationspecType activationspec = messagelistenerType.getActivationspec();
             String activationSpecClassName = activationspec.getActivationspecClass().getStringValue().trim();
             GBeanInfoBuilder infoBuilder = new GBeanInfoBuilder(ActivationSpecWrapperGBean.class, ActivationSpecWrapperGBean.GBEAN_INFO);
+            Set<String> ignore = Collections.singleton("resourceAdapter");
+            setUpDynamicGBean(activationSpecClassName, infoBuilder, ignore, cl, true);
 
-            //add all javabean properties that have both getter and setter.  Ignore the "required" flag from the dd.
-            Map getters = new HashMap();
-            Set setters = new HashSet();
-            Method[] methods;
-            try {
-                Class activationSpecClass = cl.loadClass(activationSpecClassName);
-                methods = activationSpecClass.getMethods();
-            } catch (ClassNotFoundException e) {
-                throw new DeploymentException("Can not load activation spec class", e);
-            }
-            for (int j = 0; j < methods.length; j++) {
-                Method method = methods[j];
-                String methodName = method.getName();
-                if ((methodName.startsWith("get") || methodName.startsWith("is")) && method.getParameterTypes().length == 0) {
-                    String attributeName = (methodName.startsWith("get")) ? methodName.substring(3) : methodName.substring(2);
-                    getters.put(Introspector.decapitalize(attributeName), method.getReturnType().getName());
-                } else if (methodName.startsWith("set") && method.getParameterTypes().length == 1) {
-                    setters.add(Introspector.decapitalize(methodName.substring(3)));
-                }
-            }
-            getters.keySet().retainAll(setters);
-            getters.remove("resourceAdapter");
-
-            for (Iterator iterator = getters.entrySet().iterator(); iterator.hasNext();) {
-                Map.Entry entry = (Map.Entry) iterator.next();
-                infoBuilder.addAttribute(new DynamicGAttributeInfo((String) entry.getKey(), (String) entry.getValue(), true, true, true, true));
-            }
 
             GBeanInfo gbeanInfo = infoBuilder.getBeanInfo();
-            try {
-                //make sure the class is available, but we don't use it.
-                cl.loadClass(activationSpecClassName);
-            } catch (ClassNotFoundException e) {
-                throw new DeploymentException("Could not load ActivationSpec class", e);
-            }
+
             GBeanData activationSpecInfo = new GBeanData(gbeanInfo);
             activationSpecInfo.setAttribute("activationSpecClass", activationSpecClassName);
             activationSpecInfos.put(messageListenerInterface, activationSpecInfo);
@@ -648,17 +613,55 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ActivationSpecInfo
         return activationSpecInfos;
     }
 
-    private Map getManagedConnectionFactoryInfoMap(ConnectionDefinitionType[] connectionDefinitionArray, ClassLoader cl) throws DeploymentException {
-        Map managedConnectionFactoryInfos = new HashMap();
-        for (int i = 0; i < connectionDefinitionArray.length; i++) {
-            ConnectionDefinitionType connectionDefinition = connectionDefinitionArray[i];
+    private void setUpDynamicGBean(String activationSpecClassName, GBeanInfoBuilder infoBuilder, Set<String> ignore, ClassLoader cl, boolean decapitalize) throws DeploymentException {
+        //add all javabean properties that have both getter and setter.  Ignore the "required" flag from the dd.
+        Map<String, String> getters = new HashMap<String, String>();
+        Set<String> setters = new HashSet<String>();
+        Method[] methods;
+        try {
+            Class activationSpecClass = cl.loadClass(activationSpecClassName);
+            methods = activationSpecClass.getMethods();
+        } catch (ClassNotFoundException e) {
+            throw new DeploymentException("Can not load activation spec class", e);
+        }
+        for (Method method : methods) {
+            String methodName = method.getName();
+            if ((methodName.startsWith("get") || methodName.startsWith("is")) && method.getParameterTypes().length == 0) {
+                String attributeName = (methodName.startsWith("get")) ? methodName.substring(3) : methodName.substring(2);
+                getters.put(setCase(attributeName, decapitalize), method.getReturnType().getName());
+            } else if (methodName.startsWith("set") && method.getParameterTypes().length == 1) {
+                setters.add(setCase(methodName.substring(3), decapitalize));
+            }
+        }
+        getters.keySet().retainAll(setters);
+        getters.keySet().removeAll(ignore);
 
+        for (Map.Entry<String, String> entry : getters.entrySet()) {
+            infoBuilder.addAttribute(new DynamicGAttributeInfo(entry.getKey(), entry.getValue(), true, true, true, true));
+        }
+    }
+
+    private String setCase(String attributeName, boolean decapitalize) {
+        if (decapitalize) {
+            return Introspector.decapitalize(attributeName);
+        } else {
+            return attributeName;
+        }
+    }
+
+    private Map getManagedConnectionFactoryInfoMap(ConnectionDefinitionType[] connectionDefinitionArray, ClassLoader cl) throws DeploymentException {
+        Map<String, GBeanData> managedConnectionFactoryInfos = new HashMap<String, GBeanData>();
+        for (ConnectionDefinitionType connectionDefinition : connectionDefinitionArray) {
             GBeanInfoBuilder managedConnectionFactoryInfoBuilder = new GBeanInfoBuilder(ManagedConnectionFactoryWrapper.class, ManagedConnectionFactoryWrapperGBean.GBEAN_INFO);
-            GBeanData managedConnectionFactoryGBeanData = setUpDynamicGBean(managedConnectionFactoryInfoBuilder, connectionDefinition.getConfigPropertyArray(), cl);
+            String managedConnectionfactoryClassName = connectionDefinition.getManagedconnectionfactoryClass().getStringValue().trim();
+            Set<String> ignore = new HashSet<String>();
+            ignore.add("ResourceAdapter");
+            ignore.add("LogWriter");
+            GBeanData managedConnectionFactoryGBeanData = setUpDynamicGBeanWithProperties(managedConnectionfactoryClassName, managedConnectionFactoryInfoBuilder, connectionDefinition.getConfigPropertyArray(), cl, ignore);
 
             // set the standard properties
             String connectionfactoryInterface = connectionDefinition.getConnectionfactoryInterface().getStringValue().trim();
-            managedConnectionFactoryGBeanData.setAttribute("managedConnectionFactoryClass", connectionDefinition.getManagedconnectionfactoryClass().getStringValue().trim());
+            managedConnectionFactoryGBeanData.setAttribute("managedConnectionFactoryClass", managedConnectionfactoryClassName);
             managedConnectionFactoryGBeanData.setAttribute("connectionFactoryInterface", connectionfactoryInterface);
             managedConnectionFactoryGBeanData.setAttribute("connectionFactoryImplClass", connectionDefinition.getConnectionfactoryImplClass().getStringValue().trim());
             managedConnectionFactoryGBeanData.setAttribute("connectionInterface", connectionDefinition.getConnectionInterface().getStringValue().trim());
@@ -669,35 +672,32 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ActivationSpecInfo
     }
 
     private Map getAdminObjectInfoMap(AdminobjectType[] adminobjectArray, ClassLoader cl) throws DeploymentException {
-        Map adminObjectInfos = new HashMap();
-        for (int i = 0; i < adminobjectArray.length; i++) {
-            AdminobjectType adminObject = adminobjectArray[i];
-
+        Map<String, GBeanData> adminObjectInfos = new HashMap<String, GBeanData>();
+        for (AdminobjectType adminObject : adminobjectArray) {
             GBeanInfoBuilder adminObjectInfoBuilder = new GBeanInfoBuilder(AdminObjectWrapper.class, AdminObjectWrapperGBean.GBEAN_INFO);
-            GBeanData adminObjectGBeanData = setUpDynamicGBean(adminObjectInfoBuilder, adminObject.getConfigPropertyArray(), cl);
+            String adminObjectClassName = adminObject.getAdminobjectClass().getStringValue().trim();
+            GBeanData adminObjectGBeanData = setUpDynamicGBeanWithProperties(adminObjectClassName, adminObjectInfoBuilder, adminObject.getConfigPropertyArray(), cl, Collections.<String>emptySet());
 
             // set the standard properties
             String adminObjectInterface = adminObject.getAdminobjectInterface().getStringValue().trim();
             adminObjectGBeanData.setAttribute("adminObjectInterface", adminObjectInterface);
-            adminObjectGBeanData.setAttribute("adminObjectClass", adminObject.getAdminobjectClass().getStringValue().trim());
+            adminObjectGBeanData.setAttribute("adminObjectClass", adminObjectClassName);
             adminObjectInfos.put(adminObjectInterface, adminObjectGBeanData);
         }
         return adminObjectInfos;
     }
 
 
-    private GBeanData setUpDynamicGBean(GBeanInfoBuilder infoBuilder, ConfigPropertyType[] configProperties, ClassLoader cl) throws DeploymentException {
-        for (int i = 0; i < configProperties.length; i++) {
-            infoBuilder.addAttribute(new DynamicGAttributeInfo(configProperties[i].getConfigPropertyName().getStringValue().trim(), configProperties[i].getConfigPropertyType().getStringValue().trim(), true, true, true, true));
-        }
+    private GBeanData setUpDynamicGBeanWithProperties(String className, GBeanInfoBuilder infoBuilder, ConfigPropertyType[] configProperties, ClassLoader cl, Set<String> ignore) throws DeploymentException {
+        setUpDynamicGBean(className, infoBuilder, ignore, cl, false);
 
         GBeanInfo gbeanInfo = infoBuilder.getBeanInfo();
         GBeanData gbeanData = new GBeanData(gbeanInfo);
-        for (int i = 0; i < configProperties.length; i++) {
-            if (configProperties[i].isSetConfigPropertyValue()) {
-                gbeanData.setAttribute(configProperties[i].getConfigPropertyName().getStringValue(),
-                        getValue(configProperties[i].getConfigPropertyType().getStringValue(),
-                                configProperties[i].getConfigPropertyValue().getStringValue(),
+        for (ConfigPropertyType configProperty : configProperties) {
+            if (configProperty.isSetConfigPropertyValue()) {
+                gbeanData.setAttribute(configProperty.getConfigPropertyName().getStringValue(),
+                        getValue(configProperty.getConfigPropertyType().getStringValue(),
+                                configProperty.getConfigPropertyValue().getStringValue(),
                                 cl));
             }
         }
@@ -838,7 +838,7 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ActivationSpecInfo
             connectionManagerGBean.setAttribute("transactionSupport", transactionSupport);
             connectionManagerGBean.setAttribute("pooling", pooling);
             connectionManagerGBean.setReferencePattern("ConnectionTracker", earContext.getConnectionTrackerName());
-            connectionManagerGBean.setAttribute("containerManagedSecurity", Boolean.valueOf(connectionManager.isSetContainerManagedSecurity()));
+            connectionManagerGBean.setAttribute("containerManagedSecurity", connectionManager.isSetContainerManagedSecurity());
             connectionManagerGBean.setReferencePattern("TransactionManager", earContext.getTransactionManagerName());
         } catch (Exception e) {
             throw new DeploymentException("Problem setting up ConnectionManager named " + connectionfactoryInstance.getName().trim(), e);
@@ -921,7 +921,7 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ActivationSpecInfo
             throw new DeploymentException("No resource adapter instance gbean found matching " + resourceAdapterInstanceQuery + " from configuration " + configuration.getId(), e);
         }
         String moduleName = (String) instanceName.getName().get(NameFactory.RESOURCE_ADAPTER_MODULE);
-        Map moduleNameMap = new HashMap(instanceName.getName());
+        Map<String, String> moduleNameMap = new HashMap<String, String>(instanceName.getName());
         moduleNameMap.remove(NameFactory.JCA_RESOURCE);
         moduleNameMap.remove(NameFactory.RESOURCE_ADAPTER);
         moduleNameMap.remove(NameFactory.RESOURCE_ADAPTER_MODULE);

@@ -422,7 +422,7 @@ public class ConnectorModuleBuilderTest extends TestSupport {
                 assertNotNull(managedConnectionFactoryInfo);
                 GBeanInfo managedConnectionFactoryGBeanInfo = managedConnectionFactoryInfo.getGBeanInfo();
                 List attributes3 = managedConnectionFactoryGBeanInfo.getPersistentAttributes();
-                assertEquals(10, attributes3.size());
+                assertEquals(11, attributes3.size());
             }
 
             // FirstTestOutboundConnectionFactory
