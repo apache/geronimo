@@ -18,7 +18,7 @@
  */
 
 
-package org.apache.geronimo.security.jacc;
+package org.apache.geronimo.security.jacc.mappingprovider;
 
 import javax.security.jacc.PolicyContextException;
 
@@ -27,7 +27,7 @@ import javax.security.jacc.PolicyContextException;
  * ApplicationPrincipalRoleConfigurationManager.setPrincipalRoleConfigurationFactory
  * method.
  *
- * @version $Rev:$ $Date:$
+ * @version $Rev$ $Date$
  */
 public interface PrincipalRoleConfigurationFactory {
 

@@ -15,13 +15,12 @@
  *  limitations under the License.
  */
 
-package org.apache.geronimo.security.jacc;
+package org.apache.geronimo.security.jacc.mappingprovider;
 
 import java.security.Permission;
 import java.security.ProtectionDomain;
-import java.util.Map;
+
 import javax.security.jacc.PolicyConfiguration;
-import javax.security.jacc.PolicyContextException;
 
 
 /**

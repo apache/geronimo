@@ -15,7 +15,7 @@
  *  limitations under the License.
  */
 
-package org.apache.geronimo.security.jacc;
+package org.apache.geronimo.security.jacc.mappingprovider;
 
 import java.security.Permission;
 import java.security.PermissionCollection;

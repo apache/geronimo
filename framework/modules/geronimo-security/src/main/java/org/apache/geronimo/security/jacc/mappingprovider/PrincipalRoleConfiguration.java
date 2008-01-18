@@ -18,14 +18,14 @@
  */
 
 
-package org.apache.geronimo.security.jacc;
+package org.apache.geronimo.security.jacc.mappingprovider;
 
 import java.util.Map;
 
 import javax.security.jacc.PolicyContextException;
 
 /**
- * @version $Rev:$ $Date:$
+ * @version $Rev$ $Date$
  */
 public interface PrincipalRoleConfiguration {
     void setPrincipalRoleMapping(Map principalRoleMap) throws PolicyContextException;

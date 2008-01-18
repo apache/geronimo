@@ -14,7 +14,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.apache.geronimo.security.jacc;
+package org.apache.geronimo.security.jacc.mappingprovider;
 
 import java.util.Map;
 import java.util.Set;
@@ -24,33 +24,34 @@ import javax.security.jacc.PolicyContextException;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
+import org.apache.geronimo.security.jacc.PrincipalRoleMapper;
 
 /**
  * @version $Rev$ $Date$
  */
 public class ApplicationPrincipalRoleConfigurationManager implements PrincipalRoleMapper {
 
-    private static PrincipalRoleConfigurationFactory roleMapperFactory;
+    private static PrincipalRoleConfigurationFactory principalRoleConfigurationFactory;
     private final Map principalRoleMap;
 
     public ApplicationPrincipalRoleConfigurationManager(Map principalRoleMap) throws PolicyContextException, ClassNotFoundException {
         this.principalRoleMap = principalRoleMap;
     }
 
-    public static void setPrincipalRoleConfigurationFactory(PrincipalRoleConfigurationFactory roleMapperFactory) {
-        if (ApplicationPrincipalRoleConfigurationManager.roleMapperFactory != null) {
-            throw new IllegalStateException("ApplicationPrincipalRoleConfigurationManager.roleMapperFactory already set");
+    public static void setPrincipalRoleConfigurationFactory(PrincipalRoleConfigurationFactory principalRoleConfigurationFactory) {
+        if (ApplicationPrincipalRoleConfigurationManager.principalRoleConfigurationFactory != null) {
+            throw new IllegalStateException("ApplicationPrincipalRoleConfigurationManager.principalRoleConfigurationFactory already set");
         }
-        ApplicationPrincipalRoleConfigurationManager.roleMapperFactory = roleMapperFactory;
+        ApplicationPrincipalRoleConfigurationManager.principalRoleConfigurationFactory = principalRoleConfigurationFactory;
     }
 
     public void install(Set<String> contextIds) throws PolicyContextException {
-        if (roleMapperFactory == null) {
+        if (principalRoleConfigurationFactory == null) {
             throw new IllegalStateException("Inconsistent security setup.  PrincipalRoleConfigurationFactory is not set");
         }
 
         for (String contextID : contextIds) {
-            PrincipalRoleConfiguration principalRoleConfiguration = roleMapperFactory.getPrincipalRoleConfiguration(contextID);
+            PrincipalRoleConfiguration principalRoleConfiguration = principalRoleConfigurationFactory.getPrincipalRoleConfiguration(contextID);
             principalRoleConfiguration.setPrincipalRoleMapping(principalRoleMap);
         }
 

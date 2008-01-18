@@ -38,7 +38,9 @@ import org.apache.geronimo.security.jaas.JaasLoginModuleUse;
 import org.apache.geronimo.security.jaas.LoginModuleControlFlag;
 import org.apache.geronimo.security.jaas.LoginModuleGBean;
 import org.apache.geronimo.security.jacc.ApplicationPolicyConfigurationManager;
-import org.apache.geronimo.security.jacc.ApplicationPrincipalRoleConfigurationManager;
+import org.apache.geronimo.security.jacc.mappingprovider.ApplicationPrincipalRoleConfigurationManager;
+import org.apache.geronimo.security.jacc.mappingprovider.GeronimoPolicyConfigurationFactory;
+import org.apache.geronimo.security.jacc.mappingprovider.GeronimoPolicy;
 import org.apache.geronimo.security.jacc.ComponentPermissions;
 import org.apache.geronimo.security.jacc.PrincipalRoleMapper;
 import org.apache.geronimo.security.jacc.RunAsSource;
@@ -154,7 +156,7 @@ public class AbstractWebModuleTest extends TestSupport {
 
         ServerInfo serverInfo = new BasicServerInfo(".");
 
-        new SecurityServiceImpl(cl, serverInfo, "org.apache.geronimo.security.jacc.GeronimoPolicyConfigurationFactory", "org.apache.geronimo.security.jacc.GeronimoPolicy", null, null, null, null);
+        new SecurityServiceImpl(cl, serverInfo, GeronimoPolicyConfigurationFactory.class.getName(), GeronimoPolicy.class.getName(), null, null, null, null);
 
         Map<String, Object> options = new HashMap<String, Object>();
         options.put("usersURI", new File(BASEDIR, "src/test/resources/data/users.properties").toURI().toString());

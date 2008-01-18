@@ -76,6 +76,8 @@ import org.apache.geronimo.security.credentialstore.DirectConfigurationCredentia
 import org.apache.geronimo.security.deployment.GeronimoSecurityBuilderImpl;
 import org.apache.geronimo.security.jacc.ApplicationPolicyConfigurationManager;
 import org.apache.geronimo.security.jacc.ComponentPermissions;
+import org.apache.geronimo.security.jacc.mappingprovider.GeronimoPolicyConfigurationFactory;
+import org.apache.geronimo.security.jacc.mappingprovider.GeronimoPolicy;
 import org.apache.geronimo.security.realm.providers.GeronimoUserPrincipal;
 import org.apache.geronimo.system.serverinfo.BasicServerInfo;
 import org.apache.geronimo.testsupport.TestSupport;
@@ -259,8 +261,8 @@ public class TomcatModuleBuilderTest extends TestSupport {
         bootstrap.addGBean(serverData);
 
         GBeanData securityService = bootstrap.addGBean("SecurityService", SecurityServiceImpl.GBEAN_INFO);
-        securityService.setAttribute("policyConfigurationFactory", "org.apache.geronimo.security.jacc.GeronimoPolicyConfigurationFactory");
-        securityService.setAttribute("policyProvider", "org.apache.geronimo.security.jacc.GeronimoPolicy");
+        securityService.setAttribute("policyConfigurationFactory", GeronimoPolicyConfigurationFactory.class.getName());
+        securityService.setAttribute("policyProvider", GeronimoPolicy.class.getName());
         securityService.setReferencePattern("ServerInfo", serverInfo.getAbstractName());
 
         // Default Realm

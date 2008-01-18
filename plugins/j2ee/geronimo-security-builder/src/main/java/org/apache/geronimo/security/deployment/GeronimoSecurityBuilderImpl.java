@@ -50,7 +50,7 @@ import org.apache.geronimo.security.deploy.Role;
 import org.apache.geronimo.security.deploy.Security;
 import org.apache.geronimo.security.deploy.SubjectInfo;
 import org.apache.geronimo.security.jacc.ApplicationPolicyConfigurationManager;
-import org.apache.geronimo.security.jacc.ApplicationPrincipalRoleConfigurationManager;
+import org.apache.geronimo.security.jacc.mappingprovider.ApplicationPrincipalRoleConfigurationManager;
 import org.apache.geronimo.security.util.ConfigurationUtil;
 import org.apache.geronimo.security.credentialstore.CredentialStore;
 import org.apache.geronimo.xbeans.geronimo.security.GerLoginDomainPrincipalType;
