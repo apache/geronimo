@@ -25,8 +25,8 @@
         <reference name="ServerInfo">
             <name>ServerInfo</name>
         </reference>
-        <attribute name="policyConfigurationFactory">org.apache.geronimo.security.jacc.GeronimoPolicyConfigurationFactory</attribute>
-        <attribute name="policyProvider">org.apache.geronimo.security.jacc.GeronimoPolicy</attribute>
+        <attribute name="policyConfigurationFactory">org.apache.geronimo.security.jacc.mappingprovider.GeronimoPolicyConfigurationFactory</attribute>
+        <attribute name="policyProvider">org.apache.geronimo.security.jacc.mappingprovider.GeronimoPolicy</attribute>
         <attribute name="keyStore">var/security/clientcert.jks</attribute>
         <attribute name="keyStorePassword">changeit</attribute>
         <attribute name="trustStore">var/security/clientcert.jks</attribute>
