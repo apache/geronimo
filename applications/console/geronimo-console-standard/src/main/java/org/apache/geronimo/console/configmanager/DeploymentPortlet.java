@@ -43,6 +43,8 @@ import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.fileupload.FileUploadException;
 import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.apache.commons.fileupload.portlet.PortletFileUpload;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.console.BasePortlet;
 import org.apache.geronimo.deployment.plugin.jmx.JMXDeploymentManager;
 import org.apache.geronimo.deployment.plugin.ConfigIDExtractor;
@@ -52,7 +54,12 @@ import org.apache.geronimo.kernel.util.XmlUtil;
 import org.apache.geronimo.upgrade.Upgrade1_0To1_1;
 import org.w3c.dom.Document;
 
+/**
+ * $Rev$ $Date$
+ */
 public class DeploymentPortlet extends BasePortlet {
+    private final static Log log = LogFactory.getLog(DeploymentPortlet.class);
+    
     private static final String DEPLOY_VIEW          = "/WEB-INF/view/configmanager/deploy.jsp";
     private static final String HELP_VIEW            = "/WEB-INF/view/configmanager/deployHelp.jsp";
     private static final String MIGRATED_PLAN_PARM   = "migratedPlan";
@@ -191,6 +198,18 @@ public class DeploymentPortlet extends BasePortlet {
             } finally {
                 mgr.release();
                 if (fis!=null) fis.close();
+                if(moduleFile != null && moduleFile.exists()) {
+                    if(!moduleFile.delete()) {
+                        log.debug("Unable to delete temporary file "+moduleFile);
+                        moduleFile.deleteOnExit();
+                    }
+                }
+                if(planFile != null && planFile.exists()) {
+                    if(!planFile.delete()) {
+                        log.debug("Unable to delete temporary file "+planFile);
+                        planFile.deleteOnExit();
+                    }
+                }
             }
         } catch (Exception e) {
             throw new PortletException(e);
