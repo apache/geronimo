@@ -129,7 +129,7 @@ public class Deployer implements GBeanLifecycle {
         } finally {
             if (tmpDir != null) {
                 if (!DeploymentUtil.recursiveDelete(tmpDir)) {
-                    reaper.delete(tmpDir.getName(), "delete");
+                    reaper.delete(tmpDir.getAbsolutePath(), "delete");
                 }
             }
         }
@@ -458,7 +458,7 @@ public class Deployer implements GBeanLifecycle {
             ConfigurationData configurationData = (ConfigurationData) iterator.next();
             File configurationDir = configurationData.getConfigurationDir();
             if (!DeploymentUtil.recursiveDelete(configurationDir)) {
-                reaper.delete(configurationDir.getName(), "delete");
+                reaper.delete(configurationDir.getAbsolutePath(), "delete");
             }
         }
     }
@@ -534,8 +534,8 @@ public class Deployer implements GBeanLifecycle {
                 String dirName = (String) list.nextElement();
                 File deleteDir = new File(dirName);
 
-                if (!DeploymentUtil.recursiveDelete(deleteDir)) {
-                    pendingDeletionIndex.remove(deleteDir);
+                if (DeploymentUtil.recursiveDelete(deleteDir)) {
+                    pendingDeletionIndex.remove(dirName);
                     log.debug("Reaped deployment directory " + deleteDir);
                 }
             }
