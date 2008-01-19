@@ -17,7 +17,6 @@
 package org.apache.geronimo.console.car;
 
 import java.io.IOException;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -26,7 +25,6 @@ import javax.portlet.ActionResponse;
 import javax.portlet.PortletException;
 import javax.portlet.RenderRequest;
 import javax.portlet.RenderResponse;
-import javax.security.auth.login.FailedLoginException;
 
 import org.apache.geronimo.console.MultiPageModel;
 import org.apache.geronimo.kernel.repository.Dependency;
@@ -73,32 +71,15 @@ public class ViewPluginDownloadHandler extends BaseImportExportHandler {
         String repo = request.getParameter("repository");
         String user = request.getParameter("repo-user");
         String pass = request.getParameter("repo-pass");
-        List<PluginInfoBean> plugins = new ArrayList<PluginInfoBean>();
 
-        try {
-            PluginListType list = (PluginListType) request.getPortletSession(true).getAttribute(CONFIG_LIST_SESSION_KEY);
-            if (list == null) {
-                list = pluginInstaller.listPlugins(new URL(repo), user, pass);
-                request.getPortletSession(true).setAttribute(CONFIG_LIST_SESSION_KEY, list);
-            }
-            for (String configId : configIds) {
-                PluginInfoBean plugin = new PluginInfoBean();
-                for (PluginType metadata : list.getPlugin()) {
-                    for (PluginArtifactType testInstance : metadata.getPluginArtifact()) {
-                        if (PluginInstallerGBean.toArtifact(testInstance.getModuleId()).toString().equals(configId)) {
-                            plugin.setPlugin(metadata);
-                            plugin.setPluginArtifact(testInstance);
-                            plugins.add(plugin);
-                            break;
-                        }
-                    }
-                }
-                if (plugin.getPluginArtifact() == null) {
-                    throw new PortletException("No configuration found for '" + configId + "'");
-                }
-            }
-        } catch (FailedLoginException e) {
-            throw new PortletException("Invalid login for Maven repository '" + repo + "'", e);
+        PluginListType list = getRepoPluginList(request, pluginInstaller, repo, user, pass);
+        PluginListType installList = getPluginsFromIds(configIds, list);
+        List<PluginInfoBean> plugins = new ArrayList<PluginInfoBean>();
+        for (PluginType pluginType: installList.getPlugin()) {
+            PluginInfoBean infoBean = new PluginInfoBean();
+            infoBean.setPlugin(pluginType);
+            infoBean.setPluginArtifact(pluginType.getPluginArtifact().get(0));
+            plugins.add(infoBean);
         }
 
         boolean allInstallable = true;
@@ -135,43 +116,21 @@ public class ViewPluginDownloadHandler extends BaseImportExportHandler {
         request.setAttribute("repouser", user);
         request.setAttribute("repopass", pass);
         request.setAttribute("allInstallable", allInstallable);
+        request.setAttribute("mode", "viewForDownload-after");
     }
 
     public String actionAfterView(ActionRequest request, ActionResponse response, MultiPageModel model) throws PortletException, IOException {
-        PluginInstaller configInstaller = ManagementHelper.getManagementHelper(request).getPluginInstaller();
-        PluginListType installList = new PluginListType();
+        PluginInstaller pluginInstaller = ManagementHelper.getManagementHelper(request).getPluginInstaller();
         String repo = request.getParameter("repository");
         String user = request.getParameter("repo-user");
         String pass = request.getParameter("repo-pass");
         String[] configIds = request.getParameterValues("configId");
 
-        try {
-            PluginListType list = (PluginListType) request.getPortletSession(true).getAttribute(CONFIG_LIST_SESSION_KEY);
-            if (list == null) {
-                list = configInstaller.listPlugins(new URL(repo), user, pass);
-                request.getPortletSession(true).setAttribute(CONFIG_LIST_SESSION_KEY, list);
-            }
-            for (String configId : configIds) {
-                PluginType plugin = null;
-                for (PluginType metadata : list.getPlugin()) {
-                    for (PluginArtifactType testInstance : metadata.getPluginArtifact()) {
-                        if (PluginInstallerGBean.toArtifact(testInstance.getModuleId()).toString().equals(configId)) {
-                            plugin = PluginInstallerGBean.copy(metadata, testInstance);
-                            installList.getPlugin().add(plugin);
-                            break;
-                        }
-                    }
-                }
-                if (plugin == null) {
-                    throw new PortletException("No configuration found for '" + configId + "'");
-                }
-            }
-        } catch (FailedLoginException e) {
-            throw new PortletException("Invalid login for Maven repository '" + repo + "'", e);
-        }
+        PluginListType list = getRepoPluginList(request, pluginInstaller, repo, user, pass);
+        PluginListType installList = getPluginsFromIds(configIds, list);
 
-        Object downloadKey = configInstaller.startInstall(installList, repo, false, user, pass);
-        DownloadResults results = configInstaller.checkOnInstall(downloadKey);
+        Object downloadKey = pluginInstaller.startInstall(installList, repo, false, user, pass);
+        DownloadResults results = pluginInstaller.checkOnInstall(downloadKey);
         request.getPortletSession(true).setAttribute(DOWNLOAD_RESULTS_SESSION_KEY, results);
         response.setRenderParameter("configIds", configIds);
         response.setRenderParameter("repository", repo);
@@ -181,4 +140,5 @@ public class ViewPluginDownloadHandler extends BaseImportExportHandler {
         if (!isEmpty(pass)) response.setRenderParameter("repo-pass", pass);
         return DOWNLOAD_STATUS_MODE + BEFORE_ACTION;
     }
+
 }

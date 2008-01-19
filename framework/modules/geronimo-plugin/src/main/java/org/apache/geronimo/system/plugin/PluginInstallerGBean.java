@@ -129,15 +129,15 @@ public class PluginInstallerGBean implements PluginInstaller {
     /**
      * GBean constructor.  Supply an existing ConfigurationManager.  Use for adding to the current server.
      *
-     * @param configManager Configuration Manager for this server
-     * @param repository repository to install into
-     * @param configStore configuration store to install into
-     * @param serverInstanceDatas set of server "layouts" to install config info into
-     * @param serverInfo location of server
-     * @param threadPool thread pool for async operations
-     * @param artifactManager artifact manager to resolve existing artifacts
+     * @param configManager                Configuration Manager for this server
+     * @param repository                   repository to install into
+     * @param configStore                  configuration store to install into
+     * @param serverInstanceDatas          set of server "layouts" to install config info into
+     * @param serverInfo                   location of server
+     * @param threadPool                   thread pool for async operations
+     * @param artifactManager              artifact manager to resolve existing artifacts
      * @param persistentConfigurationLists used to start new plugins in a running server
-     * @param classLoader classLoader @throws IOException exception if server instance cannot be loaded
+     * @param classLoader                  classLoader @throws IOException exception if server instance cannot be loaded
      * @throws java.io.IOException from bad ServerInstance
      */
     public PluginInstallerGBean(ConfigurationManager configManager,
@@ -155,44 +155,24 @@ public class PluginInstallerGBean implements PluginInstaller {
         this.threadPool = threadPool;
         asyncKeys = Collections.synchronizedMap(new HashMap<Object, DownloadResults>());
         this.serverInstanceDatas = serverInstanceDatas;
-        this.persistentConfigurationLists = persistentConfigurationLists == null? Collections.<PersistentConfigurationList>emptyList(): persistentConfigurationLists;
+        this.persistentConfigurationLists = persistentConfigurationLists == null ? Collections.<PersistentConfigurationList>emptyList() : persistentConfigurationLists;
         this.classLoader = classLoader;
-        for (ServerInstanceData instance : serverInstanceDatas) {
-            addServerInstance(instance, artifactManager, writeableRepo, serverInfo, servers, true);
-        }
         if (configManager == null) {
             throw new IllegalArgumentException("No default server instance set up");
         }
         this.configManager = configManager;
         localSourceRepository = new GeronimoSourceRepository(configManager.getRepositories(), configManager.getArtifactResolver());
-        if (serverInstanceDatas instanceof ReferenceCollection) {
-            ((ReferenceCollection) serverInstanceDatas).addReferenceCollectionListener(new ReferenceCollectionListener() {
-
-                public void memberAdded(ReferenceCollectionEvent event) {
-                    ServerInstanceData instance = (ServerInstanceData) event.getMember();
-                    try {
-                        addServerInstance(instance, artifactManager, writeableRepo, serverInfo, servers, true);
-                    } catch (IOException e) {
-                        //nothing to do?? log???
-                    }
-                }
-
-                public void memberRemoved(ReferenceCollectionEvent event) {
-                    ServerInstanceData instance = (ServerInstanceData) event.getMember();
-                    PluginInstallerGBean.this.servers.remove(instance.getName());
-                }
-            });
-        }
+        setUpServerInstances(serverInstanceDatas, serverInfo, artifactManager, servers, writeableRepo, true);
     }
 
     /**
      * Constructor for use in assembling a new server.
      *
-     * @param serverInstanceDatas set of server layouts
-     * @param kernel kernel for current server
-     * @param classLoader classLoader
+     * @param serverInstanceDatas  set of server layouts
+     * @param kernel               kernel for current server
+     * @param classLoader          classLoader
      * @param targetRepositoryPath location of repo to install into (not in current server)
-     * @param targetServerPath location of server to install into (not current server
+     * @param targetServerPath     location of server to install into (not current server
      * @throws IOException if layouts can't be loaded
      */
     public PluginInstallerGBean(String targetRepositoryPath,
@@ -213,18 +193,40 @@ public class PluginInstallerGBean implements PluginInstaller {
         this.serverInstanceDatas = serverInstanceDatas;
         this.persistentConfigurationLists = Collections.emptyList();
         this.classLoader = classLoader;
-        for (ServerInstanceData instance : serverInstanceDatas) {
-            addServerInstance(instance, artifactManager, writeableRepo, serverInfo, servers, false);
-        }
+        setUpServerInstances(serverInstanceDatas, serverInfo, artifactManager, servers, writeableRepo, false);
         this.configManager = buildConfigurationManager(artifactManager, writeableRepo, kernel, configStore, classLoader, servers);
         localSourceRepository = new GeronimoSourceRepository(configManager.getRepositories(), configManager.getArtifactResolver());
+    }
+
+    private static void setUpServerInstances(Collection<? extends ServerInstanceData> serverInstanceDatas,
+                                             final ServerInfo serverInfo, final ArtifactManager artifactManager,
+                                             final Map<String, ServerInstance> servers,
+                                             final WritableListableRepository writeableRepo,
+                                             final boolean live) throws IOException {
+        List<ServerInstanceData> datas = new ArrayList<ServerInstanceData>(serverInstanceDatas);
+        boolean shrank = true;
+        while (shrank) {
+            shrank = false;
+            for (Iterator<ServerInstanceData> it = datas.iterator(); it.hasNext();) {
+                ServerInstanceData instance = it.next();
+                String dependsOn = instance.getAttributeManagerFrom();
+                if (dependsOn == null || servers.containsKey(dependsOn)) {
+                    addServerInstance(instance, artifactManager, writeableRepo, serverInfo, servers, live);
+                    it.remove();
+                    shrank = true;
+                }
+            }
+        }
+        if (!datas.isEmpty()) {
+            throw new IllegalStateException("Cannot resolve ServerInstanceDatas: " + datas);
+        }
         if (serverInstanceDatas instanceof ReferenceCollection) {
             ((ReferenceCollection) serverInstanceDatas).addReferenceCollectionListener(new ReferenceCollectionListener() {
 
                 public void memberAdded(ReferenceCollectionEvent event) {
                     ServerInstanceData instance = (ServerInstanceData) event.getMember();
                     try {
-                        addServerInstance(instance, artifactManager, writeableRepo, serverInfo, servers, false);
+                        addServerInstance(instance, artifactManager, writeableRepo, serverInfo, servers, live);
                     } catch (IOException e) {
                         //nothing to do?? log???
                     }
@@ -232,7 +234,7 @@ public class PluginInstallerGBean implements PluginInstaller {
 
                 public void memberRemoved(ReferenceCollectionEvent event) {
                     ServerInstanceData instance = (ServerInstanceData) event.getMember();
-                    PluginInstallerGBean.this.servers.remove(instance.getName());
+                    servers.remove(instance.getName());
                 }
             });
         }
@@ -311,11 +313,11 @@ public class PluginInstallerGBean implements PluginInstaller {
      *
      * @param targetRepositoryPath     location of repository in new server (normally "repository")
      * @param relativeTargetServerPath Location of server to assemble relative to current server
-     * @param pluginList list of plugins to install
-     * @param downloadPoller monitor for results
+     * @param pluginList               list of plugins to install
      * @throws Exception if something goes wrong
      */
-    public void installPluginList(String targetRepositoryPath, String relativeTargetServerPath, PluginListType pluginList, DownloadResults downloadPoller) throws Exception {
+    public DownloadResults installPluginList(String targetRepositoryPath, String relativeTargetServerPath, PluginListType pluginList) throws Exception {
+        DownloadResults downloadPoller = new DownloadResults();
         String targetServerPath = serverInfo.resolveServer(relativeTargetServerPath).getAbsolutePath();
         Kernel kernel = new BasicKernel("assembly");
 
@@ -332,6 +334,7 @@ public class PluginInstallerGBean implements PluginInstaller {
         } finally {
             kernel.shutdown();
         }
+        return downloadPoller;
     }
 
 
@@ -552,7 +555,7 @@ public class PluginInstallerGBean implements PluginInstaller {
         if (restrictToDefaultRepository && defaultRepository == null) {
             throw new IllegalArgumentException("You must supply a default repository if you want to restrict to it");
         }
-        SourceRepository defaultSourceRepository = defaultRepository == null ? null: SourceRepositoryFactory.getSourceRepository(defaultRepository);
+        SourceRepository defaultSourceRepository = defaultRepository == null ? null : SourceRepositoryFactory.getSourceRepository(defaultRepository);
         install(pluginsToInstall, defaultSourceRepository, restrictToDefaultRepository, username, password, poller);
     }
 
@@ -621,9 +624,9 @@ public class PluginInstallerGBean implements PluginInstaller {
             // Step 3: Start anything that's marked accordingly
             if (configManager.isOnline()) {
                 poller.setCurrentFilePercent(-1);
-                for (PersistentConfigurationList persistentConfigurationList: persistentConfigurationLists) {
+                for (PersistentConfigurationList persistentConfigurationList : persistentConfigurationLists) {
                     List<Artifact> artifacts = persistentConfigurationList.restore();
-                    for (Artifact artifact: artifacts) {
+                    for (Artifact artifact : artifacts) {
                         if (!configManager.isRunning(artifact)) {
                             poller.setCurrentMessage("Starting " + artifact);
                             if (!configManager.isLoaded(artifact)) {
@@ -658,7 +661,7 @@ public class PluginInstallerGBean implements PluginInstaller {
             } else {
                 repoLocations = pluginsToInstall.getDefaultRepository();
             }
-            for (String repoLocation: repoLocations) {
+            for (String repoLocation : repoLocations) {
                 SourceRepository repo = SourceRepositoryFactory.getSourceRepository(repoLocation);
                 repos.add(repo);
             }
@@ -878,28 +881,28 @@ public class PluginInstallerGBean implements PluginInstaller {
                 throw new RuntimeException("Invalid setup, no default server instance registered");
             }
         }
-        return missingPrereqs;        
+        return missingPrereqs;
     }
-    
+
     private void verifyPrerequisites(PluginType plugin) throws MissingDependencyException {
-        List<Dependency> missingPrereqs = getMissingPrerequisites(plugin);       
+        List<Dependency> missingPrereqs = getMissingPrerequisites(plugin);
         if (!missingPrereqs.isEmpty()) {
             PluginArtifactType metadata = plugin.getPluginArtifact().get(0);
             Artifact moduleId = toArtifact(metadata.getModuleId());
             StringBuffer buf = new StringBuffer();
             buf.append(moduleId.toString()).append(" requires ");
             Iterator<Dependency> iter = missingPrereqs.iterator();
-            while(iter.hasNext()) {           
+            while (iter.hasNext()) {
                 buf.append(iter.next().getArtifact().toString());
                 if (iter.hasNext()) {
                     buf.append(", ");
-                }                    
+                }
             }
-            buf.append(" to be installed");      
-            throw new MissingDependencyException(buf.toString(), null, (Artifact)null);
+            buf.append(" to be installed");
+            throw new MissingDependencyException(buf.toString(), null, (Artifact) null);
         }
     }
-    
+
     public Artifact installLibrary(File libFile, String groupId) throws IOException {
         Matcher matcher = MAVEN_1_PATTERN_PART.matcher("");
         matcher.reset(libFile.getName());
@@ -920,16 +923,16 @@ public class PluginInstallerGBean implements PluginInstaller {
      * be just a JAR.  For each artifact processed, all its dependencies will be
      * processed as well.
      *
-     * @param configID    Identifies the artifact to install
-     * @param metadata    name to plugin map
-     * @param repos       The URLs to contact the repositories (in order of preference)
-     * @param username    The username used for repositories secured with HTTP Basic authentication
-     * @param password    The password used for repositories secured with HTTP Basic authentication
-     * @param monitor     The ongoing results of the download operations, with some monitoring logic
-     * @param soFar       The set of dependencies already downloaded.
-     * @param parentStack chain of modules that led to this dependency
-     * @param dependency  Is this a dependency or the original artifact?
-     * @param servers     server layouts to install config info into
+     * @param configID     Identifies the artifact to install
+     * @param metadata     name to plugin map
+     * @param repos        The URLs to contact the repositories (in order of preference)
+     * @param username     The username used for repositories secured with HTTP Basic authentication
+     * @param password     The password used for repositories secured with HTTP Basic authentication
+     * @param monitor      The ongoing results of the download operations, with some monitoring logic
+     * @param soFar        The set of dependencies already downloaded.
+     * @param parentStack  chain of modules that led to this dependency
+     * @param dependency   Is this a dependency or the original artifact?
+     * @param servers      server layouts to install config info into
      * @param loadOverride If false prevents setting load="true" in server instances (recursively through dependencies)
      * @throws FailedLoginException       When a repository requires authentication and either no username
      *                                    and password are supplied or the username and password supplied
@@ -953,7 +956,7 @@ public class PluginInstallerGBean implements PluginInstaller {
             monitor.getResults().setCurrentMessage("Downloading " + configID);
             monitor.getResults().setCurrentFilePercent(-1);
             OpenResult result = null;
-            for (SourceRepository repository: repos) {
+            for (SourceRepository repository : repos) {
                 result = repository.open(configID, monitor);
                 if (result != null) {
                     break;
@@ -1076,7 +1079,7 @@ public class PluginInstallerGBean implements PluginInstaller {
             } else {
                 //rely on plugin metadata if present.
                 List<DependencyType> deps = instance.getDependency();
-                for (DependencyType dep: deps) {
+                for (DependencyType dep : deps) {
                     Artifact artifact = toArtifact(dep);
                     log.debug("Attempting to download dependency=" + artifact + " for configuration=" + configID);
                     downloadArtifact(artifact, metadata, repos, username, password, monitor, soFar, parentStack, true, servers, loadOverride & dep.isStart());
@@ -1228,7 +1231,8 @@ public class PluginInstallerGBean implements PluginInstaller {
 
     /**
      * Used to get dependencies for a JAR
-     * @param repo repository containing jar
+     *
+     * @param repo     repository containing jar
      * @param artifact artifact to find dependencies of
      * @return dependencies of artifact in repository
      */
@@ -1535,12 +1539,14 @@ public class PluginInstallerGBean implements PluginInstaller {
     /**
      * If a plugin includes config.xml content, copy it into the attribute
      * store.
-     * @param configID artifact we are installing
-     * @param pluginData metadata for plugin
-     * @param servers server metadata that might be modified
+     *
+     * @param configID     artifact we are installing
+     * @param pluginData   metadata for plugin
+     * @param servers      server metadata that might be modified
      * @param loadOverride overrides the load setting from plugin metadata in a config.xml module.
-     * @throws java.io.IOException if IO problem occurs
-     * @throws org.apache.geronimo.kernel.InvalidGBeanException if an invalid gbean configuration is encountered
+     * @throws java.io.IOException       if IO problem occurs
+     * @throws org.apache.geronimo.kernel.InvalidGBeanException
+     *                                   if an invalid gbean configuration is encountered
      * @throws NoServerInstanceException if the plugin expects a server metadata that is not present
      */
     private void installConfigXMLData(Artifact configID, PluginArtifactType pluginData, Map<String, ServerInstance> servers, boolean loadOverride) throws InvalidGBeanException, IOException, NoServerInstanceException {
@@ -1601,6 +1607,7 @@ public class PluginInstallerGBean implements PluginInstaller {
     /**
      * Gets a token unique to this run of the server, used to track asynchronous
      * downloads.
+     *
      * @return unique (for this server) key
      */
     private static Object getNextKey() {

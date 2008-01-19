@@ -78,6 +78,19 @@ public class ReferenceServerInstanceData extends ServerInstanceData {
             return super.getServerInstance(artifactManager, targetRepo, serverInfo, serverInstances, live);
         }
     }
+
+    @Override
+     public String toString() {
+         StringBuffer buf = new StringBuffer();
+         buf.append("ReferenceServerInstanceData:\n");
+         buf.append("  Name: ").append(getName()).append("\n");
+         buf.append("  ConfigFile: ").append(getConfigFile()).append("\n");
+         buf.append("  ConfigSubstitutionsFile: ").append(getConfigSubstitutionsFile()).append("\n");
+         buf.append("  ConfigSubstitutionsPrefix: ").append(getConfigSubstitutionsPrefix()).append("\n");
+         buf.append("  ArtifactAliasesFile: ").append(getArtifactAliasesFile()).append("\n");
+         return buf.toString();
+     }
+
     public static final GBeanInfo GBEAN_INFO;
 
     static {

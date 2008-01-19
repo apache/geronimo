@@ -32,7 +32,7 @@ import org.apache.geronimo.system.plugin.model.PluginType;
 /**
  * Knows how to import and export configurations
  *
- * @version $Rev$ $Date$
+ * @version $Rev: 601152 $ $Date: 2007-12-04 15:49:03 -0800 (Tue, 04 Dec 2007) $
  */
 public interface PluginInstaller {
     /**
@@ -188,5 +188,5 @@ public interface PluginInstaller {
 
     public Artifact installLibrary(File libFile, String groupId) throws IOException;
 
-    void installPluginList(String targetRepositoryPath, String relativeTargetServerPath, PluginListType pluginList, DownloadResults downloadPoller) throws Exception;
+    DownloadResults installPluginList(String targetRepositoryPath, String relativeTargetServerPath, PluginListType pluginList) throws Exception;
 }

@@ -47,8 +47,6 @@
 <h2><fmt:message key="car.common.createGeronimoPlugin" /></h2>
 <p><fmt:message key="car.index.createGeronimoPluginExp" /></p>
 
-
-
 <form name="<portlet:namespace/>ExportForm" action="<portlet:actionURL/>" method="POST">
     <input type="hidden" name="mode" value="configure-before" />
     <select name="configId">
@@ -58,5 +56,12 @@
       </c:forEach>
     </select>
     <input type="submit" value='<fmt:message key="car.common.exportPlugin" />' />
+</form>
+
+<h2>Assemble a server from plugins in this one</h2>
+
+<form name="<portlet:namespace/>AssemblyForm" action="<portlet:actionURL/>" method="POST">
+    <input type="hidden" name="mode" value="listServer-before" />
+    <input type="submit" value='Assemble a server' />
 </form>
 

@@ -38,6 +38,7 @@ import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.system.plugin.PluginInstaller;
 import org.apache.geronimo.system.plugin.PluginRepositoryList;
+import org.apache.geronimo.system.plugin.ServerArchiver;
 
 /**
  * @version $Rev$ $Date$
@@ -47,6 +48,7 @@ public class ManagementHelper {
     private final static String PLUGIN_HELPER_KEY = "org.apache.geronimo.console.PluginManagementHelper";
     private final Kernel kernel;
     private PluginInstaller pluginInstaller;
+    private ServerArchiver archiver;
     private List<PluginRepositoryList> pluginRepositoryLists;
 
     public static ManagementHelper getManagementHelper(PortletRequest request) {
@@ -76,6 +78,21 @@ public class ManagementHelper {
             }
         }
         return pluginInstaller;
+    }
+
+    public ServerArchiver getArchiver() {
+        if (archiver == null) {
+            Set<AbstractName> archivers = kernel.listGBeans(new AbstractNameQuery(ServerArchiver.class.getName()));
+            if (archivers.size() == 0) {
+                throw new IllegalStateException("No plugin installer registered");
+            }
+            try {
+                archiver = (ServerArchiver) kernel.getGBean(archivers.iterator().next());
+            } catch (GBeanNotFoundException e) {
+                throw new IllegalStateException("Plugin installer cannot be retrieved from kernel");
+            }
+        }
+        return archiver;
     }
 
     public List<PluginRepositoryList> getPluginRepositoryLists() {

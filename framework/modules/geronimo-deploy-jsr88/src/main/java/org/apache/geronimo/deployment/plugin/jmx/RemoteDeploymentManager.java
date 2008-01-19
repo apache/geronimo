@@ -23,7 +23,6 @@ import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Enumeration;
 import java.util.List;
@@ -56,7 +55,6 @@ import org.apache.geronimo.kernel.config.NoSuchStoreException;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.Dependency;
 import org.apache.geronimo.kernel.repository.MissingDependencyException;
-import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.system.jmx.KernelDelegate;
 import org.apache.geronimo.system.plugin.DownloadPoller;
 import org.apache.geronimo.system.plugin.DownloadResults;
@@ -341,10 +339,10 @@ public class RemoteDeploymentManager extends JMXDeploymentManager implements Ger
         return null;
     }
 
-    public void installPluginList(String targetRepositoryPath, String relativeTargetServerPath, PluginListType pluginList, DownloadResults downloadPoller) throws Exception {
+    public DownloadResults installPluginList(String targetRepositoryPath, String relativeTargetServerPath, PluginListType pluginList) throws Exception {
         PluginInstaller installer = getPluginInstaller();
         try {
-            installer.installPluginList(targetRepositoryPath, relativeTargetServerPath, pluginList, downloadPoller);
+            return installer.installPluginList(targetRepositoryPath, relativeTargetServerPath, pluginList);
         } finally {
             kernel.getProxyManager().destroyProxy(installer);
         }

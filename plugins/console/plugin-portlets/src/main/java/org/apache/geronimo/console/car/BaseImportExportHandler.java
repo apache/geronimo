@@ -16,7 +16,21 @@
  */
 package org.apache.geronimo.console.car;
 
+import java.io.IOException;
+import java.net.URL;
+
+import javax.portlet.PortletRequest;
+import javax.portlet.PortletException;
+import javax.portlet.RenderRequest;
+import javax.security.auth.login.FailedLoginException;
+
 import org.apache.geronimo.console.MultiPageAbstractHandler;
+import org.apache.geronimo.system.plugin.model.PluginListType;
+import org.apache.geronimo.system.plugin.model.PluginType;
+import org.apache.geronimo.system.plugin.model.PluginArtifactType;
+import org.apache.geronimo.system.plugin.PluginInstaller;
+import org.apache.geronimo.system.plugin.PluginInstallerGBean;
+import org.apache.geronimo.kernel.config.NoSuchStoreException;
 
 /**
  * The base class for all handlers for this portlet
@@ -25,6 +39,7 @@ import org.apache.geronimo.console.MultiPageAbstractHandler;
  */
 public abstract class BaseImportExportHandler extends MultiPageAbstractHandler {
     protected static final String CONFIG_LIST_SESSION_KEY = "console.plugins.ConfigurationList";
+    protected static final String SERVER_CONFIG_LIST_SESSION_KEY = "console.plugins.ServerConfigurationList";
     public static final String DOWNLOAD_RESULTS_SESSION_KEY = "console.plugins.DownloadResults";
     protected static final String INDEX_MODE = "index";
     protected static final String ADD_REPO_MODE = "addRepository";
@@ -37,7 +52,55 @@ public abstract class BaseImportExportHandler extends MultiPageAbstractHandler {
     protected static final String CONFIRM_EXPORT_MODE = "confirm";
     protected static final String UPDATE_REPOS_MODE = "updateList";
 
+    protected static final String LIST_SERVER_MODE = "listServer";
+    protected static final String ASSEMBLY_VIEW_MODE = "assemblyView";
+
     protected BaseImportExportHandler(String mode, String viewName) {
         super(mode, viewName);
+    }
+
+    protected PluginListType getRepoPluginList(PortletRequest request, PluginInstaller pluginInstaller, String repo, String user, String pass) throws IOException, PortletException {
+        PluginListType list = (PluginListType) request.getPortletSession(true).getAttribute(CONFIG_LIST_SESSION_KEY);
+        if (list == null) {
+            try {
+                list = pluginInstaller.listPlugins(new URL(repo), user, pass);
+            } catch (FailedLoginException e) {
+                throw new PortletException("Invalid login for repository '" + repo + "'", e);
+            }
+            request.getPortletSession(true).setAttribute(CONFIG_LIST_SESSION_KEY, list);
+        }
+        return list;
+    }
+
+    protected PluginListType getServerPluginList(PortletRequest request, PluginInstaller pluginInstaller) throws PortletException {
+        PluginListType data = (PluginListType) request.getPortletSession(true).getAttribute(SERVER_CONFIG_LIST_SESSION_KEY);
+        if (data==null) {
+            try {
+                data = pluginInstaller.createPluginListForRepositories(null);
+            } catch (NoSuchStoreException e) {
+                throw new PortletException("Server in unknown state", e);
+            }
+        }
+        return data;
+    }
+
+    protected PluginListType getPluginsFromIds(String[] configIds, PluginListType list) throws PortletException {
+        PluginListType installList = new PluginListType();
+        for (String configId : configIds) {
+            PluginType plugin = null;
+            for (PluginType metadata : list.getPlugin()) {
+                for (PluginArtifactType testInstance : metadata.getPluginArtifact()) {
+                    if (PluginInstallerGBean.toArtifact(testInstance.getModuleId()).toString().equals(configId)) {
+                        plugin = PluginInstallerGBean.copy(metadata, testInstance);
+                        installList.getPlugin().add(plugin);
+                        break;
+                    }
+                }
+            }
+            if (plugin == null) {
+                throw new PortletException("No configuration found for '" + configId + "'");
+            }
+        }
+        return installList;
     }
 }

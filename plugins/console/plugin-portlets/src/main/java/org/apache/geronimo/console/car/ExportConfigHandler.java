@@ -36,6 +36,7 @@ import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.Dependency;
 import org.apache.geronimo.kernel.repository.ImportType;
 import org.apache.geronimo.system.plugin.PluginInstallerGBean;
+import org.apache.geronimo.system.plugin.PluginInstaller;
 import org.apache.geronimo.system.plugin.model.ArtifactType;
 import org.apache.geronimo.system.plugin.model.DependencyType;
 import org.apache.geronimo.system.plugin.model.LicenseType;
@@ -104,15 +105,15 @@ public class ExportConfigHandler extends BaseImportExportHandler {
                 request.setAttribute(prefix + "desc", prereq.getDescription());
             }
             if (reqs.size() > 3) {
-                log.warn(
-                        "Unable to edit plugin metadata containing more than three prerequisites!  Additional prereqs will not be editable.");
+                log.warn("Unable to edit plugin metadata containing more than three prerequisites!  Additional prereqs will not be editable.");
             }
         }
     }
 
     public String actionAfterView(ActionRequest request, ActionResponse response, MultiPageModel model) throws PortletException, IOException {
         String configId = request.getParameter("configId");
-        PluginType metadata = ManagementHelper.getManagementHelper(request).getPluginInstaller().getPluginMetadata(Artifact.create(configId));
+        PluginInstaller pluginInstaller = ManagementHelper.getManagementHelper(request).getPluginInstaller();
+        PluginType metadata = pluginInstaller.getPluginMetadata(Artifact.create(configId));
         PluginArtifactType instance = metadata.getPluginArtifact().get(0);
 
         String name = request.getParameter("name");
@@ -179,7 +180,7 @@ public class ExportConfigHandler extends BaseImportExportHandler {
         }
 
         // Save updated metadata
-        ManagementHelper.getManagementHelper(request).getPluginInstaller().updatePluginMetadata(metadata);
+        pluginInstaller.updatePluginMetadata(metadata);
 
         response.setRenderParameter("configId", configId);
         response.setRenderParameter("name", name);

@@ -30,11 +30,9 @@ import javax.enterprise.deploy.spi.DeploymentManager;
 import javax.security.auth.login.FailedLoginException;
 
 import jline.ConsoleReader;
-import org.apache.geronimo.cli.deployer.BaseCommandArgs;
 import org.apache.geronimo.cli.deployer.CommandArgs;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.plugin.GeronimoDeploymentManager;
-import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.config.NoSuchStoreException;
 import org.apache.geronimo.system.plugin.DownloadResults;
 import org.apache.geronimo.system.plugin.PluginInstallerGBean;
@@ -227,9 +225,8 @@ public class CommandListConfigurations extends AbstractCommand {
     }
     
     public void assembleServer(GeronimoDeploymentManager mgr, PluginListType list, String repositoryPath, String relativeServerPath, ConsoleReader consoleReader) throws Exception {
-        DownloadResults results = new DownloadResults();
         long start = System.currentTimeMillis();
-        mgr.installPluginList(repositoryPath, relativeServerPath, list, results);
+        DownloadResults results = mgr.installPluginList(repositoryPath, relativeServerPath, list);
         int time = (int) (System.currentTimeMillis() - start) / 1000;
         CommandInstallCAR.printResults(consoleReader, results, time);
     }
