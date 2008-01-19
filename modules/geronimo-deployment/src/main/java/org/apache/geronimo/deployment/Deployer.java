@@ -130,7 +130,8 @@ public class Deployer {
         } finally {
             if (tmpDir != null) {
                 if (!DeploymentUtil.recursiveDelete(tmpDir)) {
-                    pendingDeletionIndex.setProperty(tmpDir.getName(), "delete");
+                    log.debug("Queued deployment directory to be reaped "+tmpDir);
+                    pendingDeletionIndex.setProperty(tmpDir.getAbsolutePath(), "delete");
                 }
             }
         }
@@ -415,7 +416,7 @@ public class Deployer {
             ConfigurationData configurationData = (ConfigurationData) iterator.next();
             File configurationDir = configurationData.getConfigurationDir();
             if (!DeploymentUtil.recursiveDelete(configurationDir)) {
-                pendingDeletionIndex.setProperty(configurationDir.getName(), "delete");
+                pendingDeletionIndex.setProperty(configurationDir.getAbsolutePath(), "delete");
                 log.debug("Queued deployment directory to be reaped " + configurationDir);
             }
         }
@@ -464,8 +465,8 @@ public class Deployer {
                 String dirName = (String) list.nextElement();
                 File deleteDir = new File(dirName);
 
-                if (!DeploymentUtil.recursiveDelete(deleteDir)) {
-                    pendingDeletionIndex.remove(deleteDir);
+                if (DeploymentUtil.recursiveDelete(deleteDir)) {
+                    pendingDeletionIndex.remove(dirName);
                     log.debug("Reaped deployment directory " + deleteDir);
                 }
             }
